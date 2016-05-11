@@ -106,10 +106,10 @@ In some cases, it may be the only alternative.
 
 2. Configure QAN agent to collect data from Performance Schema:
 
-   1. Click the gear button at the top.
-   2. Under **Query Analytics**, select **Performance Schema**
+   a. Click the gear button at the top.
+   b. Under **Query Analytics**, select **Performance Schema**
       in the **Collect from** drop-down list.
-   3. Click **Apply** to save changes.
+   c. Click **Apply** to save changes.
 
 For more information about configuring QAN agent, see :ref:`configure`.
 
