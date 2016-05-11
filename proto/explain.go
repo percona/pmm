@@ -41,7 +41,8 @@ type ExplainRow struct {
 	KeyLen       NullString // https://jira.percona.com/browse/PCT-863
 	Ref          NullString
 	Rows         NullInt64
-	Extra        NullString // split by semicolon
+	Filtered     NullFloat64 // as of 5.7.3
+	Extra        NullString  // split by semicolon
 }
 
 type Table struct {
