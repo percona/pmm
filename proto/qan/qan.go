@@ -74,3 +74,10 @@ type QueryReport struct {
 	Metrics    map[string]metrics.Stats // keyed on metric name, e.g. Query_time
 	Example    query.Example
 }
+
+type Summary struct {
+	InstanceId string                   // UUID of MySQL instance
+	Begin      time.Time                // time range [Begin, End)
+	End        time.Time                // time range [Being, End)
+	Metrics    map[string]metrics.Stats // keyed on metric name, e.g. Query_time
+}
