@@ -42,12 +42,13 @@ type Report struct {
 }
 
 type Profile struct {
-	InstanceId string      // UUID of MySQL instance
-	Begin      time.Time   // time range [Begin, End)
-	End        time.Time   // time range [Being, End)
-	TotalTime  uint        // total seconds in time range minus gaps (missing periods)
-	RankBy     RankBy      // criteria for ranking queries compared to global
-	Query      []QueryRank // 0=global, 1..N=queries
+	InstanceId   string      // UUID of MySQL instance
+	Begin        time.Time   // time range [Begin, End)
+	End          time.Time   // time range [Being, End)
+	TotalTime    uint        // total seconds in time range minus gaps (missing periods)
+	TotalQueries uint        // total unique class queries in time range
+	RankBy       RankBy      // criteria for ranking queries compared to global
+	Query        []QueryRank // 0=global, 1..N=queries
 }
 
 type RankBy struct {
