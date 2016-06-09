@@ -117,9 +117,9 @@ Metrics Monitor
 ===============
 
 The *Metrics Monitor* tool provides a historical view of metrics
-that are critical to the MySQL server.
+that are critical to a database server.
 Time-based graphs are separated into dashboards by themes:
-some are related to MySQL, others provide general system metrics.
+some are related to MySQL or MongoDB, others provide general system metrics.
 
 To access the dashboards, provide default user credentials:
 
@@ -132,3 +132,4 @@ For example, the following image shows the **MySQL Overview** dashboard:
 
 .. image:: images/metrics-monitor.png 
    :width: 640
+
