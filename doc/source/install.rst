@@ -14,7 +14,6 @@ as a self-contained boxed solution, separated into two distinct modules:
 
 .. _`Docker Docs`: https://docs.docker.com/
 
-
 * *PMM Client* is distributed as a tarball
   that you extract and run an install script.
 
@@ -32,7 +31,7 @@ Installing PMM Server
 *PMM Server* is the central part of Percona Monitoring and Management.
 It combines the backend API and storage for collected data
 with a frontend for viewing time-based graphs
-and performing thorough analysis of your MySQL hosts
+and performing thorough analysis of your MySQL and MongoDB hosts
 through a web interface.
 
 The machine where you will be hosting *PMM Server*
@@ -50,13 +49,12 @@ it is recommended that you use the following default ports:
 ===== ============================================
 Port  Used by
 ===== ============================================
-80    PMM landing page
+80    PMM landing page (configurable)
 9001  QAN API
-9002  QAN web app
-9090  Prometheus
-9003  Prometheus config API (``prom-config-api``)
-3000  Grafana (with Percona Dashboards)
 ===== ============================================
+
+.. note:: If you change the default port 80,
+   you will have to specify it every time after the IP address.
 
 *PMM Server* is distributed as a Docker image
 that is hosted publically at https://hub.docker.com/r/percona/pmm-server/.
@@ -87,6 +85,8 @@ keep the following in mind:
   which is not the latest recommended stable version.
   Always read the description
   to know which version is the current stable version.
+
+.. _data-container:
 
 Step 2. Create a PMM Data Container
 -----------------------------------
@@ -138,7 +138,7 @@ To run *PMM Server*, use the following command:
 .. prompt:: bash
 
    docker run -d \
-      -p 80:80 -p 3000:3000 -p 9001-9003:9001-9003 -p 9090:9090 \
+      -p 80:80 -p 9001:9001 \
       -e ADDRESS=<SERVER_ADDR> \
       --volumes-from pmm-data \
       --name pmm-server \
@@ -191,8 +191,8 @@ you should be able to access the following:
 Component                            URL
 ==================================== ================================
 PMM landing page                     http://192.168.100.1
-Query Analytics (QAN web app)        http://192.168.100.1:9002
-Metrics Monitor (Grafana)            | http://192.168.100.1:3000
+Query Analytics (QAN web app)        http://192.168.100.1/qan/
+Metrics Monitor (Grafana)            | http://192.168.100.1/graph/
                                      | user name: ``admin``
                                      | password: ``admin``
 ==================================== ================================
@@ -201,14 +201,14 @@ Installing PMM Client
 =====================
 
 *PMM Client* is a package of agents and exporters
-installed on a MySQL host that you want to monitor.
+installed on a MySQL or MongoDB host that you want to monitor.
 The components collect various data
-about general system and MySQL performance,
+about general system and database performance,
 and send this data to corresponding *PMM Server* components.
 
-Before installing the *PMM Client* package on a MySQL host,
+Before installing the *PMM Client* package on a database host,
 make sure that your *PMM Server* host is accessible.
-You will need to have root access on the MySQL host
+You will need to have root access on the database host
 where you will be installing *PMM Client*
 (either logged in as a user with root privileges
 or be able to run commands with ``sudo``).
@@ -245,42 +245,68 @@ Query Analytics (QAN) requires:
 
       sudo ./install 192.168.100.1
 
+   .. note:: If you changed the default port 80
+      when `creating the PMM Server container <server-container>`_,
+      specify it after the IP address. For example:
+
+      .. prompt:: bash
+
+         sudo .install 192.168.100.1:8080
+
 Starting Data Collection
 ------------------------
 
 After you install *PMM Client*,
 enable data collection using the ``pmm-admin`` tool:
 
-1. To enable general system metrics monitoring,
-   run ``pmm-admin add os`` followed by the IP address
-   of the *PMM Client* host. For example:
+To enable general system metrics monitoring,
+run ``pmm-admin add os`` followed by the IP address
+of the *PMM Client* host. For example:
+
+.. prompt:: bash
+
+   sudo pmm-admin add os 192.168.100.2
+
+MySQL Data
+**********
+
+To enable MySQL metrics monitoring and query analytics,
+run ``pmm-admin add mysql``.
+
+.. note:: Query analytics must be able to detect
+   the local MySQL instance and MySQL superuser credentials.
+   Make sure that the necessary options are specified
+   in :file:`~/.my.cnf`. For example:
+
+   .. code-block:: none
+
+      user=root
+      password=pass
+      socket=/var/run/mysqld/mysqld.sock
+
+   Alternatively, you can specify MySQL superuser credentials
+   as command-line options for the ``pmm-admin`` tool:
 
    .. prompt:: bash
 
-      sudo pmm-admin add os 192.168.100.2
+      pmm-admin -user root -password pass add mysql
 
-2. To enable MySQL metrics monitoring and query analytics,
-   run ``pmm-admin add mysql``.
+For a complete list of command-line options, run ``pmm-admin -help``.
 
-   .. note:: Query analytics must be able to detect
-      the local MySQL instance and MySQL superuser credentials.
-      Make sure that the necessary options are specified
-      in :file:`~/.my.cnf`. For example:
+MongoDB Data
+************
 
-      .. code-block:: none
+To enable MongoDB metrics monitoring, run ``pmm-admin add mongodb``.
 
-         user=root
-         password=pass
-         socket=/var/run/mysqld/mysqld.sock
+You can use options to specify the MongoDB replica set, cluster name,
+and node type. For example:
 
-      Alternatively, you can specify MySQL superuser credentials
-      as command-line options for the ``pmm-admin`` tool:
+.. prompt:: bash
 
-      .. prompt:: bash
+   pmm-admin -mongodb-replset repl1 -mongodb-cluster cluster1 -mongodb-nodetype mongod add mongodb
 
-         pmm-admin -user root -password pass add mysql
-
-   For a complete list of command-line options, run ``pmm-admin -help``.
+Verifying
+*********
 
 To see what is being monitored, run ``pmm-admin list``.
 If everything is enabled, output should be similar to the following:
@@ -288,17 +314,33 @@ If everything is enabled, output should be similar to the following:
 .. code-block:: bash
 
    $ pmm-admin list
-      TYPE METRICS QUERIES                             UUID NAME
-   ------- ------- ------- -------------------------------- ----
-     mysql     yes     yes 4722422d1ea24dc17202bb8bd01921e7 ubuntu-amd64
-        os     yes         e8af9ade74b943036ac195acd71b1553 ubuntu-amd64
+         TYPE NAME                                            OPTIONS
+   ---------- ----------------------------------------------- -------
+        mysql ubuntu-amd64
+           os ubuntu-amd64
+
+Removing PMM Server
+===================
+
+1. Stop and remove the ``pmm-server`` container:
+
+   .. prompt:: bash
+
+      docker stop pmm-server && docker rm pmm-server
+
+2. If you also want to remove all collected data,
+   remove the ``pmm-data`` container:
+
+   .. prompt:: bash
+
+      docker rm pmm-data
 
 Upgrading PMM Server
 ====================
 
 When a newer version of *PMM Server* image becomes available:
 
-1. Stop and remove the current ``pmm-server`` container:
+1. Stop and remove the ``pmm-server`` container:
 
    .. prompt:: bash
 
@@ -307,10 +349,13 @@ When a newer version of *PMM Server* image becomes available:
 2. Create and run from the image with the new version tag,
    as described in :ref:`server-container`.
 
-Upgrading PMM Client
-====================
+.. warning:: Do not remove the ``pmm-data`` container when upgrading,
+   if you want to keep all collected data.
 
-When a newer version of *PMM Client* becomes available:
+.. _remove-client:
+
+Removing PMM Client
+===================
 
 1. Stop the *PMM Client* services:
 
@@ -318,13 +363,22 @@ When a newer version of *PMM Client* becomes available:
 
       sudo /etc/init.d/percona-qan-agent stop && /etc/init.d/percona-prom-pm stop
 
-2. Clear out the *PMM Client* installation directory:
+2. Clear out the *PMM Client* installation directory, binaries, and services:
 
    .. prompt:: bash
 
-      rm -rf /usr/local/percona/pmm-client /usr/local/percona/qan-agent
+      rm -rf /usr/local/percona /usr/local/bin/pmm-admin /etc/init.d/percona-prom-pm /etc/init.d/percona-qan-agent
 
-3. Download and install the *PMM Client* package
+.. _upgrade-client:
+
+Upgrading PMM Client
+====================
+
+When a newer version of *PMM Client* becomes available:
+
+1. :ref:`Remove PMM Client <remove-client>`.
+
+2. Download and install the *PMM Client* package
    as described :ref:`here <client-install>`.
 
 .. rubric:: References

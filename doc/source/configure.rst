@@ -5,7 +5,8 @@ Configuring the Percona Monitoring and Management Platform
 ==========================================================
 
 PMM is designed in such a way as to provide
-full insight into MySQL performance without additional configuration.
+full insight into MySQL and MongoDB server performance
+without additional configuration.
 However, the underlying components
 (those developed by Percona and third-party components)
 are open-source and provide certain ways
@@ -161,6 +162,24 @@ when was the last data sent, and other internal information.
 
 The **Log** section contains a list of log messages
 that the agent sent to QAN API.
+
+Configuring Metrics Monitor
+===========================
+
+There are standard Grafana settings
+that you can access using the **Manage Dashboards** gear icon
+in the header toolbar.
+
+Prometheus web interface can be accessed by adding ``/prometheus/``
+to the PMM server address.
+
+Consul web interface can be accessed by adding ``/consul/``
+to the PMM server address.
+
+.. note:: It is not recommended to configure any settings
+   in the Consul web interface, because it can crash PMM.
+   Access to the Consul web interface is provided only for visibility,
+   and possibly some low-level configuration suggestions from experts.
 
 .. rubric:: References
 
