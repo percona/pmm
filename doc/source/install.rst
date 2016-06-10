@@ -97,7 +97,7 @@ To create a container for persistent PMM data, run the following command:
 
    docker create \
       -v /opt/prometheus/data \
-      -v /opt/prometheus/targets \
+      -v /opt/consul-data \
       -v /var/lib/mysql \
       --name pmm-data \
       percona/pmm-server:<VERSION_TAG> /bin/true
@@ -251,7 +251,7 @@ Query Analytics (QAN) requires:
 
       .. prompt:: bash
 
-         sudo .install 192.168.100.1:8080
+         sudo ./install 192.168.100.1:8080
 
 Starting Data Collection
 ------------------------
