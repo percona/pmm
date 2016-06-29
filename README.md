@@ -4,11 +4,11 @@ See the [PMM docs](https://www.percona.com/doc/percona-monitoring-and-management
 
 ## Related Repos
 
-* [pmm-client](https://github.com/percona/pmm-client)
- * [pmm-admin](https://github.com/percona/pmm-admin)
- * [qan-agent](https://github.com/percona/qan-agent)
 * [pmm-server](https://github.com/percona/pmm-server)
- * [grafana-dashboards](https://github.com/percona/grafana-dashboards)
- * [qan-app](https://github.com/percona/qan-app)
  * [qan-api](https://github.com/percona/qan-api)
- * [prom-confg-api](https://github.com/percona/prom-config-api)
+ * [qan-app](https://github.com/percona/qan-app)
+ * [MySQL dashboards](https://github.com/percona/grafana-dashboards)
+ * [MongoDB dashboards](https://github.com/Percona-Lab/grafana_mongodb_dashboards)
+* [pmm-client](https://github.com/percona/pmm-client)
+ * [qan-agent](https://github.com/percona/qan-agent)
+ * [go-mysql](https://github.com/percona/go-mysql)
