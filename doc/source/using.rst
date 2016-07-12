@@ -17,6 +17,8 @@ The landing page has links to corresponding PMM tools:
 These tools provide comprehensive insight
 into the performance of a MySQL host.
 
+.. _using-qan:
+
 Query Analytics
 ===============
 
@@ -88,11 +90,16 @@ you can select to parse query data from the Performance Schema.
 
 Performance Schema is not as data-rich as the slow query log,
 but it has all the critical data and is generally faster to parse.
-In some cases, it may be the only alternative.
+It is recommended to use the slow query log when running Percona Server
+and the QAN agent is properly configured to avoid overhead.
+Otherwise, it is likely that using Performance Schema will
+provide better results.
+
+For more information about configuring QAN agent, see :ref:`configure`.
 
 **To use Performance Schema:**
 
-1. Enable it on the server by starting MySQL
+1. Enable it on the server by starting ``mysqld``
    with the ``performance_schema`` variable set to ``ON``.
    For example, use the following lines in :file:`my.cnf`:
 
@@ -106,12 +113,12 @@ In some cases, it may be the only alternative.
 
 2. Configure QAN agent to collect data from Performance Schema:
 
-   a. Click the gear button at the top.
+   a. In the Query Analytics web UI, click the gear button at the top.
    b. Under **Query Analytics**, select **Performance Schema**
       in the **Collect from** drop-down list.
    c. Click **Apply** to save changes.
 
-For more information about configuring QAN agent, see :ref:`configure`.
+.. _using-mm:
 
 Metrics Monitor
 ===============

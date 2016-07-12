@@ -14,6 +14,9 @@ for maximum security and reliability.
 It provides thorough time-based analysis for MySQL and MongoDB servers
 to ensure that your data works as efficiently as possible.
 
+Basics
+======
+
 .. toctree::
    :maxdepth: 1
 
@@ -21,6 +24,14 @@ to ensure that your data works as efficiently as possible.
    Installation <install>
    Usage <using>
    Configuration <configure>
+
+Advanced
+========
+
+.. toctree::
+   :maxdepth: 1
+
+   Configuring MySQL for best results <conf-mysql>
 
 Reference
 =========
