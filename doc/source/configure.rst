@@ -16,6 +16,14 @@ to suit your needs,
 but most users should not be concerned with anything
 beyond the basic configuration that PMM exposes via the web interface.
 
+For more information about configuring MySQL for the best results with PMM,
+see :ref:`Configuring MySQL for best results <conf-mysql>`.
+
+This document describes settings exposed in the web interface.
+
+.. contents::
+   :depth: 1
+
 Configuring Query Analytics
 ===========================
 
