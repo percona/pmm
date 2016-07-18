@@ -20,6 +20,7 @@ package config
 type Agent struct {
 	UUID        string
 	ApiHostname string
+	ApiPath     string
 	Keepalive   uint              `json:",omitempty"`
 	PidFile     string            `json:",omitempty"`
 	Links       map[string]string `json:",omitempty"`
