@@ -57,13 +57,21 @@ type RankBy struct {
 	Limit  uint   // default: 10
 }
 
+// start_ts, query_count, Query_time_sum
+type QueryLog struct {
+	Start_ts       time.Time
+	Query_count    uint
+	Query_time_sum float32
+}
+
 type QueryRank struct {
-	Rank       uint          // compared to global, same as Profile.Ranks index
-	Percentage float64       // of global value
-	Id         string        // hex checksum
-	Abstract   string        // e.g. SELECT tbl
-	QPS        float64       // ResponseTime.Cnt / Profile.TotalTime
-	Load       float64       // Query_time_sum / (Profile.End - Profile.Begin)
+	Rank       uint    // compared to global, same as Profile.Ranks index
+	Percentage float64 // of global value
+	Id         string  // hex checksum
+	Abstract   string  // e.g. SELECT tbl
+	QPS        float64 // ResponseTime.Cnt / Profile.TotalTime
+	Load       float64 // Query_time_sum / (Profile.End - Profile.Begin)
+	Log        []QueryLog
 	Stats      metrics.Stats // this query's Profile.Metric stats
 }
 
