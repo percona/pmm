@@ -12,8 +12,8 @@ to enhance monitoring information gathered by PMM.
 
 We recommend using PMM with default settings in most cases,
 but certain MySQL configuration is possible
-via the Query Analytics web app interface 
-(for more information, see :ref:`Configuring PMM <configure>`).
+via the Query Analytics web app interface (see :ref:`using-qan`)
+and the ``pmm-admin`` tool (see :ref:`pmm-admin`).
 
 Many more variables and options can be configured
 directly on the MySQL server for special cases to improve monitoring.
