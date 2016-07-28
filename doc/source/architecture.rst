@@ -8,12 +8,12 @@ The PMM platform is based on a simple client-server model
 that enables efficient scalability.
 It includes the following modules:
 
-* **PMM Client** is installed on every database host that you want to monitor.
+* :ref:`pmm-client` is installed on every database host that you want to monitor.
   It collects server metrics, general system metrics,
   and query analytics data for a complete performance overview.
   Collected data is sent to *PMM Server*.
 
-* **PMM Server** is the central part of PMM
+* :ref:`pmm-server` is the central part of PMM
   that aggregates collected data and presents it in the form of tables,
   dashboards, and graphs in a web interface.
 
@@ -23,8 +23,9 @@ what are the exact tools that make up each module and how they interact.
 However, if you want to leverage the full potential of PMM,
 internal structure is important.
 
-Internals
----------
+.. contents::
+   :local:
+   :depth: 2
 
 PMM is a collection of tools designed to seamlessly work together.
 Some are developed by Percona and some are third-party open-source tools.
@@ -37,36 +38,43 @@ The following diagram illustrates how PMM is currently structured:
 
 .. image:: images/pmm-diagram.png
 
+.. _pmm-client:
+
+PMM Client
+----------
+
 *PMM Client* is distributed as a tarball
 that you can install on any database host that you want to monitor.
 It consists of the following:
 
-* ``pmm-admin`` is a command-line tool
-  for adding and removing database instances that you want to monitor.
+* ``pmm-admin`` is a command-line tool for managing *PMM Client*
+  , for example, adding and removing database instances
+  that you want to monitor.
 
 * ``percona-qan-agent`` is a service
   that manages the Query Analytics (QAN) agent
   as it collects query performance data.
+  It also connects with QAN API in :ref:`pmm-server`
+  and sends over collected data.
   The service is registered and started
-  when you install the PMM client package.
+  when you install the *PMM Client* package.
 
-* ``percona-prom-pm`` is a service
-  that manages Prometheus exporter processes.
-  The service is registered and started
-  when you install the PMM Client package.
-  PMM runs the following exporters:
+* ``node_exporter`` is a Prometheus exporter
+  that collects general system metrics.
+  For more information, see https://github.com/prometheus/node_exporter.
 
-  * ``node_exporter`` is a Prometheus exporter
-    that collects general system metrics.
-    For more information, see https://github.com/prometheus/node_exporter.
+* ``mysqld_exporter`` is a Prometheus exporter
+  that collects MySQL server metrics.
+  For more information, see https://github.com/prometheus/mysqld_exporter.
 
-  * ``mysqld_exporter`` is a Prometheus exporter
-    that collects MySQL server metrics.
-    For more information, see https://github.com/prometheus/mysqld_exporter.
+* ``mongodb_exporter`` is a Prometheus exporter
+  that collects MongoDB server metrics.
+  For more information, see https://github.com/Percona-Lab/prometheus_mongodb_exporter.
 
-  * ``mongodb_exporter`` is a Prometheus exporter
-    that collects MongoDB server metrics.
-    For more information, see https://github.com/Percona-Lab/prometheus_mongodb_exporter.
+.. _pmm-server:
+
+PMM Server
+----------
 
 *PMM Server* is distributed as a Docker image
 that you can use to run a container on the machine
@@ -79,7 +87,7 @@ It consists of the following tools:
   it includes the following:
 
   * **QAN API** is the backend for storing and accessing query data
-    collected by ``percona-qan-agent`` running on a *PMM Client*.
+    collected by ``percona-qan-agent`` running on a :ref:`pmm-client`.
 
   * **QAN Web App** is a web application
     for visualizing collected Query Analytics data.
@@ -89,16 +97,20 @@ It consists of the following tools:
   It includes the following:
 
   * **Prometheus** is a third-party time-series database
-    that aggregates metrics collected by exporters
-    running on a *PMM Client*.
+    that connets to exporters running on a :ref:`pmm-client`
+    and aggregates colleted metrics.
     For more information, see `Prometheus Docs`_.
 
     .. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
 
     * **Consul** provides an API
-      that a *PMM Client* can use to remotely list, add,
+      that a :ref:`pmm-client` can use to remotely list, add,
       and remove hosts for Prometheus.
+      It also stores monitoring metadata.
       For more information, see `Consul Docs`_.
+
+      .. warning:: Although the Consul web UI is accessible,
+         do not make any changes to the configuration.
 
       .. _`Consul Docs`: https://www.consul.io/docs/
 
@@ -113,7 +125,7 @@ It consists of the following tools:
       for *Grafana* developed by Percona.
 
 Both tools (QAN and MM) are accessed
-from the PMM Server web interface (landing page).
+from the *PMM Server* web interface (landing page).
 For more information, see :ref:`using`.
 
 .. _scenarios:

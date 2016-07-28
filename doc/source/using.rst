@@ -53,7 +53,6 @@ you can switch between those hosts using the drop-down list at the top.
 
 To configure the QAN agent running on a MySQL host with *PMM Client*,
 click the gear icon at the top.
-For more information, see :ref:`configure`.
 
 Query Details
 -------------
@@ -87,21 +86,30 @@ The default source of query data for PMM is the slow query log.
 It is available in MySQL 5.1 and later versions.
 Starting from MySQL 5.6 (including Percona Server 5.6 and later),
 you can select to parse query data from the Performance Schema.
+Starting from MySQL 5.6.6, Performance Schema is enabled by default.
 
 Performance Schema is not as data-rich as the slow query log,
 but it has all the critical data and is generally faster to parse.
-It is recommended to use the slow query log when running Percona Server
-and the QAN agent is properly configured to avoid overhead.
-Otherwise, it is likely that using Performance Schema will
-provide better results.
-
-For more information about configuring QAN agent, see :ref:`configure`.
+If you are running Percona Server,
+a :ref:`properly configured slow query log <slow-log-settings>`
+will provide the most amount of information with the lowest overhead.
+Otherwise, using :ref:`Performance Schema <perf-schema-settings>`
+will likely provide better results.
 
 **To use Performance Schema:**
 
-1. Enable it on the server by starting ``mysqld``
-   with the ``performance_schema`` variable set to ``ON``.
-   For example, use the following lines in :file:`my.cnf`:
+1. Make sure that the ``performance_schema`` variable is set to ``ON``:
+
+   .. code-block:: none
+
+      mysql> SHOW VARIABLES LIKE 'performance_schema';
+      +--------------------+-------+
+      | Variable_name      | Value |
+      +--------------------+-------+
+      | performance_schema | ON    |
+      +--------------------+-------+
+
+   If not, add the the following lines to :file:`my.cnf` and restart MySQL:
 
    .. code-block:: none
 
@@ -109,14 +117,25 @@ For more information about configuring QAN agent, see :ref:`configure`.
       performance_schema=ON
 
    .. note:: Performance Schema instrumentation is enabled by default
-      on MySQL 5.6.6 and later versions.
+      in MySQL 5.6.6 and later versions.
+      It is not available at all in MySQL versions prior to 5.6.
 
 2. Configure QAN agent to collect data from Performance Schema:
+
+   If the instance is already running:
 
    a. In the Query Analytics web UI, click the gear button at the top.
    b. Under **Query Analytics**, select **Performance Schema**
       in the **Collect from** drop-down list.
    c. Click **Apply** to save changes.
+
+   If you are adding a new monitoring instance with the ``pmm-admin`` tool,
+   use the ``--query-source perfschema`` option.
+   For example:
+
+   .. prompt:: bash
+
+      sudo pmm-admin add queries --user root --password root --create-user --query-source perfschema
 
 .. _using-mm:
 
