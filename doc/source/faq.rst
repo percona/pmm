@@ -127,14 +127,7 @@ it is recommended to disable per table metrics when adding the instance:
 
 .. prompt:: bash
 
-   sudo pmm-admin add mysql --disable-per-table-stats
-
-If ``SELECT`` queries from ``information_schema`` tables slow down performance,
-you can disable all metrics from it when adding the instance:
-
-.. prompt:: bash
-
-   sudo pmm-admin add mysql --disable-infoschema
+   sudo pmm-admin add mysql --disable-tablestats
 
 For more information, run ``sudo pmm-admin add mysql --help``.
 
