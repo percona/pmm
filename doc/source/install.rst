@@ -46,7 +46,7 @@ must be able to run Docker containers and have network access.
 .. note:: We encourage to use a specific version tag
    instead of the ``latest`` tag
    when using the ``pmm-server`` image,
-   The current stable version is ``1.0.2``.
+   The current stable version is ``1.0.3``.
 
 .. _data-container:
 
@@ -62,7 +62,7 @@ To create a container for persistent PMM data, run the following command:
       -v /opt/consul-data \
       -v /var/lib/mysql \
       --name pmm-data \
-      percona/pmm-server:1.0.2 /bin/true
+      percona/pmm-server:1.0.3 /bin/true
 
 .. note:: This container does not run,
    it simply exists to make sure you retain all PMM data
@@ -81,7 +81,7 @@ The previous command does the following:
   that you can use to reference the container within a Docker network.
   In this case: ``pmm-data``.
 
-* ``percona/pmm-server:1.0.2`` is the name and version tag of the image
+* ``percona/pmm-server:1.0.3`` is the name and version tag of the image
   to derive the container from.
 
 * ``/bin/true`` is the command that the container runs.
@@ -100,7 +100,7 @@ To run *PMM Server*, use the following command:
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
-      percona/pmm-server:1.0.2
+      percona/pmm-server:1.0.3
 
 The previous command does the following:
 
@@ -126,7 +126,7 @@ The previous command does the following:
   will start the container on startup
   and restart it if the container exits.
 
-* ``percona/pmm-server:1.0.2`` is the name and version tag of the image
+* ``percona/pmm-server:1.0.3`` is the name and version tag of the image
   to derive the container from.
 
 Step 3. Verify Installation
@@ -261,7 +261,7 @@ output should be similar to the following:
    :emphasize-lines: 1
 
    $ sudo pmm-admin list
-   pmm-admin 1.0.2
+   pmm-admin 1.0.3
 
    PMM Server      | 192.168.100.6
    Client Name     | ubuntu-amd64
@@ -342,6 +342,10 @@ Upgrading PMM Client
 When a newer version of *PMM Client* becomes available:
 
 1. :ref:`Remove PMM Client <remove-client>`.
+
+   .. note:: This step is not necessary for minor releases.
+      For example, to upgrade from 1.0.2 to 1.0.3,
+      you can install the new version on top of the old one.
 
 2. Download and install the *PMM Client* package
    as described :ref:`here <client-install>`.
