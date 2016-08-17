@@ -59,20 +59,22 @@ type RankBy struct {
 
 // start_ts, query_count, Query_time_sum
 type QueryLog struct {
+	Point          uint
 	Start_ts       time.Time
-	Query_count    uint
+	Query_count    float32
 	Query_time_sum float32
 }
 
 type QueryRank struct {
-	Rank       uint    // compared to global, same as Profile.Ranks index
-	Percentage float64 // of global value
-	Id         string  // hex checksum
-	Abstract   string  // e.g. SELECT tbl
-	QPS        float64 // ResponseTime.Cnt / Profile.TotalTime
-	Load       float64 // Query_time_sum / (Profile.End - Profile.Begin)
-	Log        []QueryLog
-	Stats      metrics.Stats // this query's Profile.Metric stats
+	Rank        uint    // compared to global, same as Profile.Ranks index
+	Percentage  float64 // of global value
+	Id          string  // hex checksum
+	Abstract    string  // e.g. SELECT tbl
+	Fingerprint string  // e.g. SELECT tbl
+	QPS         float64 // ResponseTime.Cnt / Profile.TotalTime
+	Load        float64 // Query_time_sum / (Profile.End - Profile.Begin)
+	Log         []QueryLog
+	Stats       metrics.Stats // this query's Profile.Metric stats
 }
 
 type QueryReport struct {
@@ -81,7 +83,8 @@ type QueryReport struct {
 	End        time.Time                // time range [Being, End)
 	Query      query.Query              // id, abstract, fingerprint, etc.
 	Metrics    map[string]metrics.Stats // keyed on metric name, e.g. Query_time
-	Example    query.Example
+	Example    query.Example            // query example
+	Sparks     []interface{}            `json:",omitempty"`
 }
 
 type Summary struct {
@@ -89,4 +92,5 @@ type Summary struct {
 	Begin      time.Time                // time range [Begin, End)
 	End        time.Time                // time range [Being, End)
 	Metrics    map[string]metrics.Stats // keyed on metric name, e.g. Query_time
+	Sparks     []interface{}            `json:",omitempty"`
 }
