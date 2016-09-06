@@ -135,7 +135,9 @@ will likely provide better results.
 
    .. prompt:: bash
 
-      sudo pmm-admin add queries --user root --password root --create-user --query-source perfschema
+      sudo pmm-admin add mysql --user root --password root --create-user --query-source perfschema
+
+For more information, run ``pmm-admin add mysql --help``.
 
 .. _using-mm:
 

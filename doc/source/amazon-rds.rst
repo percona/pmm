@@ -38,7 +38,8 @@ on Amazon RDS:
 .. code-block:: bash
 
    # pmm-admin add mysql --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user rdsuser --password pass --create-user rds-mysql57
-   OK, now monitoring MySQL using DSN rdsuser:***@tcp(rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com:3306)
-   # pmm-admin add queries --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user rdsuser --password pass --create-user rds-mysql57
-   OK, now monitoring MySQL queries from perfschema using DSN rdsuser:***@tcp(rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com:3306)
 
+.. note:: General system metrics cannot be monitored remotely,
+   because ``node_exporter`` requires access to the local file system.
+   This means that the ``linux:metrics`` service cannot be used
+   to monitor Amazon RDS or any remote database instance.

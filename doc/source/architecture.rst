@@ -8,7 +8,8 @@ The PMM platform is based on a simple client-server model
 that enables efficient scalability.
 It includes the following modules:
 
-* :ref:`pmm-client` is installed on every database host that you want to monitor.
+* :ref:`pmm-client` is installed on every database host
+  that you want to monitor.
   It collects server metrics, general system metrics,
   and query analytics data for a complete performance overview.
   Collected data is sent to *PMM Server*.
@@ -97,7 +98,7 @@ It consists of the following tools:
   It includes the following:
 
   * **Prometheus** is a third-party time-series database
-    that connets to exporters running on a :ref:`pmm-client`
+    that connects to exporters running on a :ref:`pmm-client`
     and aggregates colleted metrics.
     For more information, see `Prometheus Docs`_.
 
@@ -150,7 +151,7 @@ Typical Scenario
 
 It is more typical to have several MySQL and MongoDB server instances
 distributed over different hosts.
-In this case, you would run *PMM Server* on a dedicated monitoring host,
+In this case, you can run *PMM Server* on a dedicated monitoring host,
 and install *PMM Client* on every database host that you want to monitor.
 Data from hosts will be aggregated on the PMM Server.
 

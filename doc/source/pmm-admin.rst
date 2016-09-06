@@ -7,7 +7,7 @@ Managing PMM Client
 Use the ``pmm-admin`` tool to manage *PMM Client*.
 
 .. note:: The ``pmm-admin`` tool requires root access
-   (either logged in as a user with root privileges
+   (you should either be logged in as a user with root privileges
    or be able to run commands with ``sudo``).
 
 Use the ``--help`` option to view the built-in help.
@@ -24,21 +24,44 @@ by running the following:
 
 .. _pmm-admin-add:
 
-Adding instances
-================
+Adding monitoring services
+==========================
 
-Use the ``pmm-admin add`` command to add monitoring instances.
+Use the ``pmm-admin add`` command to add monitoring services.
 
-.. _pmm-admin-add-os:
+For complete MySQL instance monitoring:
 
-System metrics
---------------
+.. prompt:: bash
+
+   sudo pmm-admin add mysql
+
+The previous command adds the following services:
+
+* ``linux:metrics``
+* ``mysql:metrics``
+* ``mysql:queries``
+
+For complete MongoDB instance monitoring:
+
+.. prompt:: bash
+
+   sudo pmm-admin add mongodb
+
+The previous command adds the following services:
+
+* ``linux:metrics``
+* ``mongodb:metrics``
+
+.. _pmm-admin-add-linux-metrics:
+
+linux:metrics
+-------------
 
 **To enable general system metrics monitoring:**
 
 .. prompt:: bash
 
-   sudo pmm-admin add os
+   sudo pmm-admin add linux:metrics
 
 This creates the ``pmm-os-exporter-42000`` service
 that collects local system metrics for this particular OS instance.
@@ -46,18 +69,18 @@ that collects local system metrics for this particular OS instance.
 .. note:: It should be able to detect the local PMM Client name,
    but you can also specify it explicitely as an argument.
 
-For more information, run ``sudo pmm-admin add os --help``
+For more information, run ``sudo pmm-admin add linux:metrics --help``
 
-.. _pmm-admin-add-queries:
+.. _pmm-admin-add-mysql-queries:
 
-Query analytics
----------------
+mysql:queries
+-------------
 
 **To enable MySQL query analytics:**
 
 .. prompt:: bash
 
-   sudo pmm-admin add queries
+   sudo pmm-admin add mysql:queries
 
 This creates the ``pmm-queries-exporter-42001`` service
 that is able to collect QAN data for multiple remote MySQL server instances.
@@ -67,7 +90,7 @@ the local MySQL instance and MySQL superuser credentials.
 You can use options to provide this information for ``pmm-admin``
 if it is not able to auto-detect.
 You can also specify the ``--create-user`` option to create a dedicated
-``pmm-queries`` user on the MySQL host that you want to monitor.
+``pmm`` user on the MySQL host that you want to monitor.
 This user will be given all the necessary privileges for monitoring,
 and is recommended over using the MySQL superuser.
 
@@ -77,7 +100,7 @@ use a command similar to the following:
 
 .. prompt:: bash
 
-   sudo pmm-admin add queries --user root --password root --host 192.168.200.2 --create-user
+   sudo pmm-admin add mysql:queries --user root --password root --host 192.168.200.2 --create-user
 
 QAN can use either the slow query log or Performance Schema as the source.
 By default, it chooses the slow query log for a local MySQL instance
@@ -87,34 +110,28 @@ For more information about the differences, see :ref:`perf-schema`.
 You can explicitely set the query source when adding a QAN instance
 using the ``--query-source`` option.
 
-For more information, run ``sudo pmm-admin add queries --help``
+For more information, run ``sudo pmm-admin add mysql:queries --help``
 
-.. _pmm-admin-add-mysql:
+.. _pmm-admin-add-mysql-metrics:
 
-MySQL metrics
+mysql:metrics
 -------------
 
 **To enable MySQL metrics monitoring:**
 
 .. prompt:: bash
 
-   sudo pmm-admin add mysql
+   sudo pmm-admin add mysql:metrics
 
-This creates the following services
-
-* ``pmm-mysql-exporter-42002``
-* ``pmm-mysql-exporter-42003``
-* ``pmm-mysql-exporter-42004``
-
-.. note:: Multiple services are required to efficiently collect metrics
-   with different resolution (1 second, 5 seconds, and 60 seconds).
+This creates the ``pmm-mysql-exporter-42002`` service
+that collects MySQL instance metrics.
 
 The ``pmm-admin`` tool will attempt to automatically detect
 the local MySQL instance and MySQL superuser credentials.
 You can use options to provide this information for ``pmm-admin``
 if it is not able to auto-detect.
 You can also specify the ``--create-user`` option to create a dedicated
-``pmm-mysql`` user on the MySQL host that you want to monitor.
+``pmm`` user on the MySQL host that you want to monitor.
 This user will be given all the necessary privileges for monitoring,
 and is recommended over using the MySQL superuser.
 
@@ -125,11 +142,11 @@ use a command similar to the following:
 
 .. prompt:: bash
 
-   sudo pmm-admin add mysql --user root --password root --host 192.168.200.3 --create-user
+   sudo pmm-admin add mysql:metrics --user root --password root --host 192.168.200.3 --create-user
 
-For more information, run ``sudo pmm-admin add mysql --help``.
+For more information, run ``sudo pmm-admin add mysql:metrics --help``.
 
-.. _pmm-admin-add-mongodb:
+.. _pmm-admin-add-mongodb-metrics:
 
 MongoDB metrics
 ---------------
@@ -138,9 +155,9 @@ MongoDB metrics
 
 .. prompt:: bash
 
-   sudo pmm-admin add mongodb
+   sudo pmm-admin add mongodb:metrics
 
-This creates the ``pmm-mongodb-exporter-42005`` service
+This creates the ``pmm-mongodb-exporter-42003`` service
 that collects local MongoDB metrics for this particular MongoDB instance.
 
 .. note:: It should be able to detect the local PMM Client name,
@@ -153,14 +170,14 @@ and node type. For example:
 
    sudo pmm-admin add mongodb --replset repl1 --cluster cluster1 --nodetype mongod 
 
-For more information, run ``sudo pmm-admin add mongodb --help``
+For more information, run ``sudo pmm-admin add mongodb:metrics --help``
 
 .. _pmm-admin-rm:
 
-Removing instances
-==================
+Removing monitoring services
+============================
 
-Use the ``pmm-admin rm`` command to remove monitoring instances.
+Use the ``pmm-admin rm`` command to remove monitoring services.
 Specify the instance's type and name.
 You can see the names of instances by running ``sudo pmm-admin list``.
 
@@ -171,7 +188,7 @@ from monitoring, run the following:
 
    sudo pmm-admin rm mysql ubuntu-amd64
 
-For more information, run ``sudo pmm-admin rm [command] --help``.
+For more information, run ``sudo pmm-admin rm --help``.
 
 .. _pmm-admin-list:
 
@@ -200,18 +217,18 @@ output should be similar to the following:
    :emphasize-lines: 1
 
    $ sudo pmm-admin list
-   pmm-admin 1.0.2
+   pmm-admin 1.0.4
 
-   PMM Server      | 192.168.100.6
+   PMM Server      | 192.168.100.1
    Client Name     | ubuntu-amd64
-   Client Address  | 192.168.100.6
+   Client Address  | 192.168.200.1
    Service manager | linux-systemd
 
    --------------- ------------- ------------ -------- ---------------- --------
    METRIC SERVICE  NAME          CLIENT PORT  RUNNING  DATA SOURCE      OPTIONS 
    --------------- ------------- ------------ -------- ---------------- --------
-   os              ubuntu-amd64  42000        YES      -                        
-   mongodb         ubuntu-amd64  42005        YES      localhost:27017 
+   linux:metrics   ubuntu-amd64  42000        YES      -                        
+   mongodb:metrics ubuntu-amd64  42003        YES      localhost:27017 
 
 .. _pmm-admin-config:
 
@@ -223,9 +240,13 @@ how ``pmm-admin`` communicates with *PMM Server*.
 
 The following options are available:
 
---client-addr string   Client host address
---client-name string   Client host name (node identifier in Consul)
---server-addr string   PMM Server host address
+--client-address string   Client host address (detected automatically)
+--client-name string      Client host name (set to the current host name)
+--server string           PMM Server host address
+--server-insecure-ssl     Enable insecure SSL (self-signed certificate)
+--server-password string  HTTP password configured on PMM Server
+--server-ssl              Enable SSL to communicate with PMM Server
+--server-user string      HTTP user configured on PMM Server (default "pmm")
 
 For more information, run ``sudo pmm-admin config --help``
 
@@ -246,7 +267,7 @@ which uses ``systemd`` to manage services.
    :emphasize-lines: 1
 
    $ sudo pmm-admin info
-   pmm-admin 1.0.2
+   pmm-admin 1.0.4
 
    PMM Server      | 192.168.100.6
    Client Name     | ubuntu-amd64
@@ -347,17 +368,17 @@ Services that you add using |pmm-admin-add|_
 can be started and stopped manually
 using ``pmm-admin start`` and ``pmm-admin stop``.
 
-For example, to start the ``mongodb`` service on host ``ubuntu-amd64``:
+For example, to start the ``mongodb:metrics`` service on host ``ubuntu-amd64``:
 
 .. prompt:: bash
 
-   sudo pmm-admin start mongodb ubuntu-amd64
+   sudo pmm-admin start mongodb:metrics ubuntu-amd64
 
-To stop the ``mysql`` service on host ``centos-amd64``:
+To stop the ``linux:metrics`` service on host ``centos-amd64``:
 
 .. prompt:: bash
 
-   sudo pmm-admin stop os centos-amd64
+   sudo pmm-admin stop linux:metrics centos-amd64
 
 To stop all services managed by this ``pmm-admin``:
 

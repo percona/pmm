@@ -20,11 +20,6 @@ as a self-contained boxed solution, separated into two distinct modules:
 For more information about the functions
 and internal structure of each module, see :ref:`architecture`.
 
-.. note:: PMM is currently in beta.
-
-   Test it out on non-production machines
-   before using it in your production environment.
-
 Installing PMM Server
 =====================
 
@@ -45,8 +40,8 @@ must be able to run Docker containers and have network access.
 
 .. note:: We encourage to use a specific version tag
    instead of the ``latest`` tag
-   when using the ``pmm-server`` image,
-   The current stable version is ``1.0.3``.
+   when using the ``pmm-server`` image.
+   The current stable version is ``1.0.4``.
 
 .. _data-container:
 
@@ -62,7 +57,7 @@ To create a container for persistent PMM data, run the following command:
       -v /opt/consul-data \
       -v /var/lib/mysql \
       --name pmm-data \
-      percona/pmm-server:1.0.3 /bin/true
+      percona/pmm-server:1.0.4 /bin/true
 
 .. note:: This container does not run,
    it simply exists to make sure you retain all PMM data
@@ -81,7 +76,7 @@ The previous command does the following:
   that you can use to reference the container within a Docker network.
   In this case: ``pmm-data``.
 
-* ``percona/pmm-server:1.0.3`` is the name and version tag of the image
+* ``percona/pmm-server:1.0.4`` is the name and version tag of the image
   to derive the container from.
 
 * ``/bin/true`` is the command that the container runs.
@@ -100,7 +95,7 @@ To run *PMM Server*, use the following command:
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
-      percona/pmm-server:1.0.3
+      percona/pmm-server:1.0.4
 
 The previous command does the following:
 
@@ -126,7 +121,7 @@ The previous command does the following:
   will start the container on startup
   and restart it if the container exits.
 
-* ``percona/pmm-server:1.0.3`` is the name and version tag of the image
+* ``percona/pmm-server:1.0.4`` is the name and version tag of the image
   to derive the container from.
 
 Step 3. Verify Installation
@@ -195,54 +190,52 @@ The minimum requirements for Query Analytics (QAN) are:
 
       tar -xzf pmm-client.tar.gz
 
-3. Change into the extracted directory and run the install script.
-   Specify the IP address of the *PMM Server* host
-   followed by the client's IP address as the arguments.
-
-   .. code-block:: none
-
-      sudo ./install <PMM server address[:port]> <client address>
-
-   For example, if *PMM Server* is running on ``192.168.100.1``
-   and you are installing *PMM Client* on a machine with IP ``192.168.200.1``:
+3. Change into the extracted directory and run the install script:
 
    .. prompt:: bash
 
-      sudo ./install 192.168.100.1 192.168.200.1
+      sudo ./install
 
-   .. note:: If you changed the default port 80
-      when `creating the PMM Server container <server-container>`_,
-      specify it after the server's IP address. For example:
+Connecting to PMM Server
+------------------------
 
-      .. prompt:: bash
+To connect the client to PMM Server,
+specify the IP address using the ``pmm-admin config --server`` command.
+For example, if *PMM Server* is running on ``192.168.100.1``,
+and you installed *PMM Client* on a machine with IP ``192.168.200.1``:
 
-         sudo ./install 192.168.100.1:8080 192.168.200.1
+   .. code-block:: bash
+      :emphasize-lines: 1
+
+      $ sudo pmm-admin config --server 192.168.100.1
+      OK, PMM server is alive.
+
+      PMM Server      | 192.168.100.1
+      Client Name     | ubuntu-amd64
+      Client Address  | 192.168.200.1
+
+.. note:: If you changed the default port 80
+   when `creating the PMM Server container <server-container>`_,
+   specify it after the server's IP address. For example:
+
+   .. prompt:: bash
+
+      sudo pmm-admin config --server 192.168.100.1:8080
+
+For more information, run ``pmm-admin config --help``
 
 Starting Data Collection
 ------------------------
 
-After you install *PMM Client*,
-enable data collection using the ``pmm-admin`` tool.
+To enable data collection, use the ``pmm-admin add`` command.
 
-To enable general system metrics monitoring:
-
-.. prompt:: bash
-
-   sudo pmm-admin add os
-
-To enable MySQL query analytics:
-
-.. prompt:: bash
-
-   sudo pmm-admin add queries
-
-To enable MySQL metrics monitoring:
+For general system metrics, MySQL metrics, and query analytics:
 
 .. prompt:: bash
 
    sudo pmm-admin add mysql
 
-To enable MongoDB metrics monitoring:
+For general system metrics and MongoDB metrics:
 
 .. prompt:: bash
 
@@ -261,21 +254,21 @@ output should be similar to the following:
    :emphasize-lines: 1
 
    $ sudo pmm-admin list
-   pmm-admin 1.0.3
+   pmm-admin 1.0.4
 
-   PMM Server      | 192.168.100.6
+   PMM Server      | 192.168.100.1
    Client Name     | ubuntu-amd64
-   Client Address  | 192.168.100.6
+   Client Address  | 192.168.200.1
    Service manager | linux-systemd
 
-   --------------- ------------- ------------ -------- ---------------- --------
-   METRIC SERVICE  NAME          CLIENT PORT  RUNNING  DATA SOURCE      OPTIONS 
-   --------------- ------------- ------------ -------- ---------------- --------
-   os              ubuntu-amd64  42000        YES      -                        
-   mongodb         ubuntu-amd64  42005        YES      localhost:27017 
+   ---------------- ------------- ------------ -------- --------------- --------
+   METRIC SERVICE   NAME          CLIENT PORT  RUNNING  DATA SOURCE     OPTIONS 
+   ---------------- ------------- ------------ -------- --------------- --------
+   linux:metrics    ubuntu-amd64  42000        YES      -
+   mongodb:metrics  ubuntu-amd64  42003        YES      localhost:27017 
 
-The ``pmm-admin`` tool has built-in help that can be viewed
-using the ``--help`` option.
+For more information about adding instances, run ``pmm-admin add --help``.
+
 For more information about managing *PMM Client* with the ``pmm-admin`` tool,
 see :ref:`pmm-admin`.
 
@@ -342,10 +335,6 @@ Upgrading PMM Client
 When a newer version of *PMM Client* becomes available:
 
 1. :ref:`Remove PMM Client <remove-client>`.
-
-   .. note:: This step is not necessary for minor releases.
-      For example, to upgrade from 1.0.2 to 1.0.3,
-      you can install the new version on top of the old one.
 
 2. Download and install the *PMM Client* package
    as described :ref:`here <client-install>`.
