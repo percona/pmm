@@ -24,6 +24,11 @@ type Agent struct {
 	Keepalive   uint              `json:",omitempty"`
 	PidFile     string            `json:",omitempty"`
 	Links       map[string]string `json:",omitempty"`
+	//
+	ServerUser        string `json:"server_user"`
+	ServerPassword    string `json:"server_password"`
+	ServerSSL         bool   `json:"server_ssl"`
+	ServerInsecureSSL bool   `json:"server_insecure_ssl"`
 }
 
 type Data struct {
