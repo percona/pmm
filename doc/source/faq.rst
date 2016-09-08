@@ -88,9 +88,9 @@ To see which service manager is used on your system, run ``sudo pmm-admin info``
 Where is DSN stored?
 ====================
 
-Every service created by ``pmm-admin`` when you add a monitoring instance,
+Every service created by ``pmm-admin`` when you add a monitoring instance
 gets a DSN from the credentials provided, auto-detected, or created
-(when adding with the ``--create-user`` option).
+(when adding the instance with the ``--create-user`` option).
 
 For MySQL and MongoDB metrics instances
 (``mysql:metrics`` and ``mongodb:metrics`` services),
@@ -98,7 +98,8 @@ the DSN is stored with the corresponding service files.
 For more information, see :ref:`service-location`.
 
 For QAN instances (``mysql:queries`` service),
-the DSN is stored in QAN API on *PMM Server*.
+the DSN is stored in local configuration files
+under :file:`/usr/local/percona/qan-agent`.
 
 Also, a sanitized copy of DSN (without the passowrd)
 is stored in Consul API for information purposes
@@ -162,6 +163,8 @@ and the states of the corresponding services
 using the ``pmm-admin list`` command.
 For more information, see :ref:`pmm-admin-list`.
 
+.. _privileges:
+
 What privileges are required to monitor a MySQL instance?
 =========================================================
 
@@ -182,7 +185,7 @@ a command similar to the following is recommended:
 
    sudo pmm-admin add mysql --user root --password root --create-user
 
-The superuser credential are required only to set up the ``pmm`` user
+The superuser credentials are required only to set up the ``pmm`` user
 with necessary privileges for collecting data.
 If you want to create this user yourself, the following privileges are required::
  

@@ -66,7 +66,7 @@ It consists of the following:
 
 * ``mysqld_exporter`` is a Prometheus exporter
   that collects MySQL server metrics.
-  For more information, see https://github.com/prometheus/mysqld_exporter.
+  For more information, see https://github.com/percona/mysqld_exporter.
 
 * ``mongodb_exporter`` is a Prometheus exporter
   that collects MongoDB server metrics.
