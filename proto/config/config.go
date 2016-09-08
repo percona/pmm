@@ -25,10 +25,10 @@ type Agent struct {
 	PidFile     string            `json:",omitempty"`
 	Links       map[string]string `json:",omitempty"`
 	//
-	ServerUser        string `json:"server_user"`
-	ServerPassword    string `json:"server_password"`
-	ServerSSL         bool   `json:"server_ssl"`
-	ServerInsecureSSL bool   `json:"server_insecure_ssl"`
+	ServerUser        string `json:",omitempty"`
+	ServerPassword    string `json:",omitempty"`
+	ServerSSL         bool   `json:",omitempty"`
+	ServerInsecureSSL bool   `json:",omitempty"`
 }
 
 type Data struct {
