@@ -85,6 +85,8 @@ type QueryReport struct {
 	Metrics    map[string]metrics.Stats // keyed on metric name, e.g. Query_time
 	Example    query.Example            // query example
 	Sparks     []interface{}            `json:",omitempty"`
+	Metrics2   interface{}              `json:",omitempty"`
+	Sparks2    interface{}              `json:",omitempty"`
 }
 
 type Summary struct {
@@ -93,4 +95,6 @@ type Summary struct {
 	End        time.Time                // time range [Being, End)
 	Metrics    map[string]metrics.Stats // keyed on metric name, e.g. Query_time
 	Sparks     []interface{}            `json:",omitempty"`
+	Metrics2   interface{}              `json:",omitempty"`
+	Sparks2    interface{}              `json:",omitempty"`
 }
