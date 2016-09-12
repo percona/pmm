@@ -28,14 +28,13 @@ Changes
 
 * Prometheus 1.0.2
 
-* Added SSL and HTTP password support
-  for Prometheus, Consul API, and QAN app
+* Added SSL and HTTP password protection support
 
 * Removed the extra ``alias`` label for Prometheus
 
 * Added ``MongoDB RocksDB``, ``PXC/Galera Cluster Overview`` dashboards
 
-* Intriduced some visual amendments to the dashboards
+* Introduced some visual amendments to the dashboards
 
 * Added ability to save predefined dashboards in place
 
@@ -59,8 +58,7 @@ Changes
   * ``pmm-admin add mongodb`` and ``pmm-admin rm mongodb``:
     add and remove ``linux:metrics`` and ``mongodb:metrics`` services
 
-* Added SSL and HTTP password support for *PMM Server*,
-  which can protect ``pmm-admin`` communication
+* Added options to support SSL and HTTP password protection for *PMM Server*
 
 * Added check whether the required binaries of exporters are installed.
 
