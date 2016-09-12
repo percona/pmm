@@ -143,6 +143,8 @@ Metrics Monitor (Grafana)            | http://192.168.100.1/graph/
                                      | password: ``admin``
 ==================================== ================================
 
+.. _client-install:
+
 Installing PMM Client
 =====================
 
@@ -172,9 +174,86 @@ The minimum requirements for Query Analytics (QAN) are:
    that have the same host name,
    because host names are used by *PMM Server* to identify collected data.
 
-.. _client-install:
+RPM Packages
+------------
 
-**To install PMM Client:**
+1. Download the latest package
+   from https://www.percona.com/redir/downloads/TESTING/pmm/.
+   For example, you can use ``wget`` as follows:
+
+   .. prompt:: bash
+
+      wget https://www.percona.com/redir/downloads/TESTING/pmm/pmm-client.rpm
+
+#. Install the package:
+
+   .. prompt:: bash
+
+      sudo rpm -ivh pmm-client.rpm
+
+YUM Repository
+--------------
+
+1. If your system does not already have Percona's ``yum`` repository configured,
+run the following command:
+
+   .. prompt:: bash
+
+      sudo yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
+
+#. Install the package:
+
+   .. prompt:: bash
+
+      sudo yum install pmm-client
+
+DEB Packages
+------------
+
+1. Download the latest package
+   from https://www.percona.com/redir/downloads/TESTING/pmm/.
+   For example, you can use ``wget`` as follows:
+
+   .. prompt:: bash
+
+      wget https://www.percona.com/redir/downloads/TESTING/pmm/pmm-client.deb
+
+#. Install the package:
+
+   .. prompt:: bash
+
+      sudo dpkg -i pmm-client.deb
+
+APT Repository
+--------------
+
+1. If your system does not already have Percona's ``apt`` repository configured,
+fetch the repository package:
+
+   .. prompt:: bash
+
+      wget https://repo.percona.com/apt/percona-release_0.1-3.$(lsb_release -sc)_all.deb
+
+#. Install the repository package:
+
+   .. prompt:: bash
+
+      sudo dpkg -i percona-release_0.1-3.$(lsb_release -sc)_all.deb
+
+#. Update the local ``apt`` cache:
+
+   .. prompt:: bash
+
+      sudo apt-get update
+
+#. Install the ``pmm-client`` package:
+
+   .. prompt:: bash
+
+      sudo apt-get install pmm-client
+
+Tarball Packages
+----------------
 
 1. Download the latest package
    from https://www.percona.com/redir/downloads/TESTING/pmm/.
