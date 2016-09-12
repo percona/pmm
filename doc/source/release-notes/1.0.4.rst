@@ -39,6 +39,7 @@ Changes
 * Added ability to save predefined dashboards in place
 
 * Query Analytics App:
+
   * Added sparkline charts to metrics
   * Added search by query fingerprint
   * Various smaller fixes and improvements
@@ -46,12 +47,14 @@ Changes
 **PMM Client changes:**
 
 * Renamed services managed by ``pmm-admin``:
+
   * ``os`` > ``linux:metrics``
   * ``mysql`` > ``mysql:metrics``
   * ``queries`` > ``mysql:queries``
   * ``mongodb`` > ``mongodb:metrics``
 
 * Added group commands:
+
   * ``pmm-admin add mysql`` and ``pmm-admin rm mysql``:
     add and remove ``linux:metrics``, ``mysql:metrics``,
     and ``mysql:queries`` services
@@ -63,6 +66,7 @@ Changes
 * Added check whether the required binaries of exporters are installed.
 
 * Changed behaviour of ``--create-user`` flag for adding MySQL instance:
+
   * Now ``pmm-admin`` employs a single `pmm` MySQL user,
     verifies if it exists and stores the generated password in the configuration
   * Added checks whether MySQL is read-only or a replication slave
