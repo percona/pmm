@@ -73,31 +73,33 @@ The name of the service has the following syntax: ``pmm-<type>-exporter-<port>``
 
 The location of the services depends on the service manager:
 
-+-----------------+---------------------+-----------------------------+
-| Service manager | Operating system    | Service location            |
-+=================+=====================+=============================+
-| ``systemd``     | CentOS 7 and RHEL 7 | :file:`/etc/systemd/system/`|
-+-----------------+---------------------+-----------------------------+
-| ``upstart``     | Debian and Ubuntu   | :file:`/etc/init/`          |
-+-----------------+---------------------+-----------------------------+
-| ``systemv``     | CentOS 6 and RHEL 6 | :file:`/etc/init.d/`        |
-+-----------------+---------------------+-----------------------------+
++-----------------+-----------------------------+
+| Service manager | Service location            |
++=================+=============================+
+| ``systemd``     | :file:`/etc/systemd/system/`|
++-----------------+-----------------------------+
+| ``upstart``     | :file:`/etc/init/`          |
++-----------------+-----------------------------+
+| ``systemv``     | :file:`/etc/init.d/`        |
++-----------------+-----------------------------+
 
 To see which service manager is used on your system, run ``sudo pmm-admin info``.
 
 Where is DSN stored?
 ====================
 
-Every service created by ``pmm-admin`` when you add a monitoring instance,
+Every service created by ``pmm-admin`` when you add a monitoring instance
 gets a DSN from the credentials provided, auto-detected, or created
-(when adding with the ``--create-user`` option).
+(when adding the instance with the ``--create-user`` option).
 
-For MySQL and MongoDB metrics instances (``mysql`` and ``mongodb`` types),
+For MySQL and MongoDB metrics instances
+(``mysql:metrics`` and ``mongodb:metrics`` services),
 the DSN is stored with the corresponding service files.
 For more information, see :ref:`service-location`.
 
-For QAN instances (``queries`` type),
-the DSN is stored in QAN API on *PMM Server*.
+For QAN instances (``mysql:queries`` service),
+the DSN is stored in local configuration files
+under :file:`/usr/local/percona/qan-agent`.
 
 Also, a sanitized copy of DSN (without the passowrd)
 is stored in Consul API for information purposes
@@ -129,6 +131,9 @@ it is recommended to disable per table metrics when adding the instance:
 
    sudo pmm-admin add mysql --disable-tablestats
 
+.. note:: Table statistics are disabled automatically
+   if there are over 10 000 tables.
+
 For more information, run ``sudo pmm-admin add mysql --help``.
 
 Can I stop all services at once?
@@ -158,103 +163,64 @@ and the states of the corresponding services
 using the ``pmm-admin list`` command.
 For more information, see :ref:`pmm-admin-list`.
 
+.. _privileges:
+
 What privileges are required to monitor a MySQL instance?
 =========================================================
 
-When adding a :ref:`Query Analytics instance <pmm-admin-add-queries>`
-or a :ref:`MySQL metrics instance <pmm-admin-add-mysql>`,
+When adding MySQL instance to monitoring,
 you can specify the MySQL server superuser account credentials,
 which has all privileges.
 However, monitoring with the superuser account is not secure.
 If you also specify the ``--create-user`` option,
 it will create a user with only the necessary privileges for collecting data.
 
-You can also set up the user manually with necessary privileges
+You can also set up the ``pmm`` user manually with necessary privileges
 and pass its credentials when adding the instance.
 
-User for QAN monitoring
------------------------
-
-To add a local QAN instance,
-a command similar to the following is recommended:
-
-.. prompt:: bash
-
-   sudo pmm-admin add queries --user root --password root --create-user
-
-The superuser credentials are required only to set up the ``pmm-queries`` user
-with necessary privileges for collecting data.
-If you want to create this user yourself, the following privileges are required::
-
- GRANT SELECT, PROCESS, SUPER ON *.* TO 'pmm-queries'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 5;
- GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm-queries'@' localhost';
-
-.. note:: If the query source for QAN is Performance Schema,
-   the ``SUPER`` privilege is not required.
-   By default, the slow query log is the preferred default.
-   You can set the source with the ``--query-source perfschema`` option.
-   In this case, if you also add the ``--create-user`` option,
-   the ``SUPER`` privilege will not be granted to the ``pmm-queries`` user.
-
-If the ``pmm-queries`` user already exists,
-simply pass its credentials when you add the instance:
-
-.. prompt:: bash
-
-   sudo pmm-admin add queries --user pmm-queries --password pass
-
-For more information, run ``sudo pmm-admin add queries --help``.
-
-User for MySQL metrics monitoring
----------------------------------
-
-To add a local MySQL metrics instance,
+To enable complete MySQL instance monitoring,
 a command similar to the following is recommended:
 
 .. prompt:: bash
 
    sudo pmm-admin add mysql --user root --password root --create-user
 
-The superuser credential are required only to set up the ``pmm-mysql`` user
+The superuser credentials are required only to set up the ``pmm`` user
 with necessary privileges for collecting data.
 If you want to create this user yourself, the following privileges are required::
+ 
+ GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT ON *.* TO 'pmm'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 5;
+ GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@' localhost';
 
- GRANT PROCESS, REPLICATION CLIENT ON *.* TO 'pmm-mysql'@'localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 5;
- GRANT SELECT ON performance_schema.* TO 'pmm-mysql'@'localhost';
-
-If the ``pmm-mysql`` user already exists,
-simply padd its credential when you add the instance:
+If the ``pmm`` user already exists,
+simply pass its credential when you add the instance:
 
 .. prompt:: bash
 
-   sudo pmm-admin add mysql --user pmm-mysql --password pass
+   sudo pmm-admin add mysql --user pmm --password pass
 
 For more information, run ``sudo pmm-admin add mysql --help``.
 
 Can I monitor multiple MySQL instances?
 =======================================
 
-Yes, you can add multiple QAN and MySQL metrics monitoring instances
-on a single *PMM Client* (that is, ``queries`` and ``mysql`` types).
+Yes, you can add multiple MySQL instances to be monitored from one *PMM Client*.
 In this case,
 you will need to provide a distinct port and socket for each instance
 using the ``--port`` and ``--socket`` variables,
 and specify a unique name for each instance
-(by default, it uses the host name).
+(by default, it uses the name of the PMM Client host).
 
-For example, if you are adding QAN and MySQL metrics monitoring instances
+For example, if you are adding complete MySQL monitoring
 for two local MySQL servers,
 the commands could look similar to the following:
 
 .. code-block:: bash
 
-   $ sudo pmm-admin add queries --user root --password root --create-user --port 3001 instance-01
-   $ sudo pmm-admin add queries --user root --password root --create-user --port 3002 instance-02
    $ sudo pmm-admin add mysql --user root --password root --create-user --port 3001 instance-01
    $ sudo pmm-admin add mysql --user root --password root --create-user --port 3002 instance-02
 
-For more information, run ``sudo pmm-admin add queries --help``
-or ``sudo pmm-admin add mysql --help``.
+For more information, run ``sudo pmm-admin add mysql --help``.
 
 Can I rename instances?
 =======================
@@ -262,14 +228,14 @@ Can I rename instances?
 You can remove any monitoring instance as described in :ref:`pmm-admin-rm`
 and then add it back with a different name.
 
-When you remove a general OS, MySQL, or MongoDB metrics monitoring instance,
+When you remove a ``linux:metrics``, ``mysql:metrics``,
+or ``mongodb:metrics`` monitoring service,
 previously collected data remains available in Grafana.
 However, the metrics are tied to the instance name.
 So if you add the same instance back with a different name,
 it will be considered a new instance with a new set of metrics.
-(this is true for ``os``, ``mysql``, and ``mongodb`` types).
 
-When you remove a QAN instance (``queries`` type),
+When you remove a QAN instance (``mysql:queries`` service),
 previously collected data will no longer be available after you add it back,
 regardless of the name you use.
 
@@ -281,15 +247,15 @@ Can I use non-default ports for instances?
 When you add an instance with the ``pmm-admin`` tool,
 it creates a corresponding service that listens on a predefined client port:
 
-+--------------------+-------------+---------------------+
-| General OS metrics | ``os``      | 42000               |
-+--------------------+-------------+---------------------+
-| Query analytics    | ``queries`` | 42001               |
-+--------------------+-------------+---------------------+
-| MySQL metrics      | ``mysql``   | 42002, 42003, 42004 |
-+--------------------+-------------+---------------------+
-| MongoDB metrics    | ``mongodb`` | 42005               |
-+--------------------+-------------+---------------------+
++--------------------+---------------------+-------+
+| General OS metrics | ``linux:metrics``   | 42000 |
++--------------------+---------------------+-------+
+| Query analytics    | ``mysql:queries``   | 42001 |
++--------------------+---------------------+-------+
+| MySQL metrics      | ``mysql:metrics``   | 42002 |
++--------------------+---------------------+-------+
+| MongoDB metrics    | ``mongodb:metrics`` | 42003 |
++--------------------+---------------------+-------+
 
 If a default port for the service is not available,
 ``pmm-admin`` automatically chooses a different one.
@@ -302,11 +268,11 @@ when :ref:`adding instances <pmm-admin-add>`.
 What resolution is used for metrics?
 ====================================
 
-MySQL metrics instance uses three services,
-which collect metrics with different resolutions
+The ``mysql:metrics`` service collects metrics with different resolutions
 (1 second, 5 seconds, and 60 seconds)
 
-MongoDB and OS instances are set up to collect metrics with 1 second resolution.
+The ``linux:metrics`` and ``mongodb:metrics`` services
+are set up to collect metrics with 1 second resolution.
 
 In case of bad network connectivity between *PMM Server* and *PMM Client*
 or between *PMM Client* and the database server it is monitoring,

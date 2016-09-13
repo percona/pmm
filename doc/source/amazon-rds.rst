@@ -28,17 +28,21 @@ When adding a monitoring instance for RDS,
 specify a unique name to distinguish it from the local MySQL instance.
 If you do not specify a name, it will use the client's host name.
 
-It is also recommended to use the ``--create-user`` option,
-which will create a dedicated user for the corresponding service.
-This is more secure than using a highly privileged account for monitoring.
+Create the ``pmm`` user with the following privileges
+on the MySQL instance that you want to monitor::
+ 
+ GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 5;
+ GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 
 The following example shows how to enable QAN and MySQL metrics monitoring
 on Amazon RDS:
 
 .. code-block:: bash
 
-   # pmm-admin add mysql --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user rdsuser --password pass --create-user rds-mysql57
-   OK, now monitoring MySQL using DSN rdsuser:***@tcp(rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com:3306)
-   # pmm-admin add queries --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user rdsuser --password pass --create-user rds-mysql57
-   OK, now monitoring MySQL queries from perfschema using DSN rdsuser:***@tcp(rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com:3306)
+   # pmm-admin add mysql --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
+
+.. note:: General system metrics cannot be monitored remotely,
+   because ``node_exporter`` requires access to the local file system.
+   This means that the ``linux:metrics`` service cannot be used
+   to monitor Amazon RDS instances or any remote MySQL instance.
 
