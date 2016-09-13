@@ -178,18 +178,18 @@ RPM Packages
 ------------
 
 1. Download the latest package
-   from https://www.percona.com/redir/downloads/TESTING/pmm/.
+   from https://www.percona.com/downloads/pmm-client/LATEST/.
    For example, you can use ``wget`` as follows:
 
    .. prompt:: bash
 
-      wget https://www.percona.com/redir/downloads/TESTING/pmm/pmm-client.rpm
+      wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client-1.0.4-1.x86_64.rpm
 
 #. Install the package:
 
    .. prompt:: bash
 
-      sudo rpm -ivh pmm-client.rpm
+      sudo rpm -ivh pmm-client-1.0.4-1.x86_64.rpm
 
 YUM Repository
 --------------
@@ -211,18 +211,18 @@ DEB Packages
 ------------
 
 1. Download the latest package
-   from https://www.percona.com/redir/downloads/TESTING/pmm/.
+   from https://www.percona.com/downloads/pmm-client/LATEST/.
    For example, you can use ``wget`` as follows:
 
    .. prompt:: bash
 
-      wget https://www.percona.com/redir/downloads/TESTING/pmm/pmm-client.deb
+      wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client_1.0.4-1_amd64.deb
 
 #. Install the package:
 
    .. prompt:: bash
 
-      sudo dpkg -i pmm-client.deb
+      sudo dpkg -i pmm-client_1.0.4-1_amd64.deb
 
 APT Repository
 --------------
@@ -256,18 +256,18 @@ Tarball Packages
 ----------------
 
 1. Download the latest package
-   from https://www.percona.com/redir/downloads/TESTING/pmm/.
+   from https://www.percona.com/downloads/pmm-client/LATEST/.
    For example, you can use ``wget`` as follows:
 
    .. prompt:: bash
 
-      wget https://www.percona.com/redir/downloads/TESTING/pmm/pmm-client.tar.gz
+      wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client-1.0.4-x86_64.tar.gz
 
 2. Extract the downloaded tarball:
 
    .. prompt:: bash
 
-      tar -xzf pmm-client.tar.gz
+      tar -xzf pmm-client-1.0.4-x86_64.tar.gz
 
 3. Change into the extracted directory and run the install script:
 

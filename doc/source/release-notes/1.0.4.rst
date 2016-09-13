@@ -6,7 +6,9 @@ Percona Monitoring and Management 1.0.4
 
 :Date: September 13, 2016
 :PMM Server: https://hub.docker.com/r/percona/pmm-server/
-:PMM Client: https://www.percona.com/downloads/TESTING/pmm/pmm-client.tar.gz
+:PMM Client: https://www.percona.com/downloads/pmm-client/
+
+This is the first General Availability (GA) release.
 
 Upgrading
 =========
