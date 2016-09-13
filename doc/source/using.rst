@@ -133,7 +133,7 @@ will likely provide better results.
    use the ``--query-source perfschema`` option.
    For example:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       sudo pmm-admin add mysql --user root --password root --create-user --query-source perfschema
 

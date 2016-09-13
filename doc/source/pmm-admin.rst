@@ -14,7 +14,7 @@ Use the ``--help`` option to view the built-in help.
 For example, you can view all available commands and options
 by running the following:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin --help
 
@@ -31,7 +31,7 @@ Use the ``pmm-admin add`` command to add monitoring services.
 
 For complete MySQL instance monitoring:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin add mysql
 
@@ -43,7 +43,7 @@ The previous command adds the following services:
 
 For complete MongoDB instance monitoring:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin add mongodb
 
@@ -59,7 +59,7 @@ linux:metrics
 
 **To enable general system metrics monitoring:**
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin add linux:metrics
 
@@ -78,7 +78,7 @@ mysql:queries
 
 **To enable MySQL query analytics:**
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin add mysql:queries
 
@@ -98,7 +98,7 @@ For example, to set up remote monitoring of QAN data
 on a MySQL server located at 192.168.200.2,
 use a command similar to the following:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin add mysql:queries --user root --password root --host 192.168.200.2 --create-user
 
@@ -119,7 +119,7 @@ mysql:metrics
 
 **To enable MySQL metrics monitoring:**
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin add mysql:metrics
 
@@ -140,7 +140,7 @@ to set up remote monitoring of MySQL metrics
 on a server located at 192.168.200.3,
 use a command similar to the following:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin add mysql:metrics --user root --password root --host 192.168.200.3 --create-user
 
@@ -153,7 +153,7 @@ MongoDB metrics
 
 **To enable MongoDB metrics monitoring:**
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin add mongodb:metrics
 
@@ -166,7 +166,7 @@ that collects local MongoDB metrics for this particular MongoDB instance.
 You can use options to specify the MongoDB replica set, cluster name,
 and node type. For example:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin add mongodb --replset repl1 --cluster cluster1 --nodetype mongod 
 
@@ -184,7 +184,7 @@ You can see the names of instances by running ``sudo pmm-admin list``.
 For example, to remove a MySQL instance designated by ``ubuntu-amd4``
 from monitoring, run the following:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin rm mysql ubuntu-amd64
 
@@ -197,7 +197,7 @@ Listing monitored instances
 
 To see what is being monitored, run the following:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin list
 
@@ -370,19 +370,19 @@ using ``pmm-admin start`` and ``pmm-admin stop``.
 
 For example, to start the ``mongodb:metrics`` service on host ``ubuntu-amd64``:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin start mongodb:metrics ubuntu-amd64
 
 To stop the ``linux:metrics`` service on host ``centos-amd64``:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin stop linux:metrics centos-amd64
 
 To stop all services managed by this ``pmm-admin``:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin stop --all
 

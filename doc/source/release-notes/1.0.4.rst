@@ -94,7 +94,7 @@ Changes
   the install script now just copies binaries.
   You need to use ``pmm-admin config`` to add *PMM Server* address.
 
-* Now ``pmm-admin`` does not ``linux:metrics`` instance
+* Now ``pmm-admin`` does not modify ``linux:metrics`` instance
   when adding ``mongodb:metrics``
 
 * Table stats are now disabled automatically

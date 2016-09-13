@@ -50,7 +50,7 @@ Step 1. Create a PMM Data Container
 
 To create a container for persistent PMM data, run the following command:
 
-.. prompt:: bash
+.. code-block:: bash
 
    docker create \
       -v /opt/prometheus/data \
@@ -88,7 +88,7 @@ Step 2. Create and Run the PMM Server Container
 
 To run *PMM Server*, use the following command:
 
-.. prompt:: bash
+.. code-block:: bash
 
    docker run -d \
       -p 80:80 \
@@ -181,13 +181,13 @@ RPM Packages
    from https://www.percona.com/downloads/pmm-client/LATEST/.
    For example, you can use ``wget`` as follows:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client-1.0.4-1.x86_64.rpm
 
 #. Install the package:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       sudo rpm -ivh pmm-client-1.0.4-1.x86_64.rpm
 
@@ -197,13 +197,13 @@ YUM Repository
 1. If your system does not already have Percona's ``yum`` repository configured,
 run the following command:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       sudo yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
 
 #. Install the package:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       sudo yum install pmm-client
 
@@ -214,13 +214,13 @@ DEB Packages
    from https://www.percona.com/downloads/pmm-client/LATEST/.
    For example, you can use ``wget`` as follows:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client_1.0.4-1_amd64.deb
 
 #. Install the package:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       sudo dpkg -i pmm-client_1.0.4-1_amd64.deb
 
@@ -230,25 +230,25 @@ APT Repository
 1. If your system does not already have Percona's ``apt`` repository configured,
 fetch the repository package:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       wget https://repo.percona.com/apt/percona-release_0.1-3.$(lsb_release -sc)_all.deb
 
 #. Install the repository package:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       sudo dpkg -i percona-release_0.1-3.$(lsb_release -sc)_all.deb
 
 #. Update the local ``apt`` cache:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       sudo apt-get update
 
 #. Install the ``pmm-client`` package:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       sudo apt-get install pmm-client
 
@@ -259,19 +259,19 @@ Tarball Packages
    from https://www.percona.com/downloads/pmm-client/LATEST/.
    For example, you can use ``wget`` as follows:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client-1.0.4-x86_64.tar.gz
 
 2. Extract the downloaded tarball:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       tar -xzf pmm-client-1.0.4-x86_64.tar.gz
 
 3. Change into the extracted directory and run the install script:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       sudo ./install
 
@@ -297,7 +297,7 @@ and you installed *PMM Client* on a machine with IP ``192.168.200.1``:
    when `creating the PMM Server container <server-container>`_,
    specify it after the server's IP address. For example:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       sudo pmm-admin config --server 192.168.100.1:8080
 
@@ -310,19 +310,19 @@ To enable data collection, use the ``pmm-admin add`` command.
 
 For general system metrics, MySQL metrics, and query analytics:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin add mysql
 
 For general system metrics and MongoDB metrics:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin add mongodb
 
 To see what is being monitored:
 
-.. prompt:: bash
+.. code-block:: bash
 
    sudo pmm-admin list
 
@@ -358,14 +358,14 @@ Removing PMM Server
 
 1. Stop and remove the ``pmm-server`` container:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       docker stop pmm-server && docker rm pmm-server
 
 2. If you also want to discard all collected data,
    remove the ``pmm-data`` container:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       docker rm pmm-data
 
@@ -382,7 +382,7 @@ When a newer version of *PMM Server* image becomes available:
 
 1. Stop and remove the ``pmm-server`` container:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       docker stop pmm-server && docker rm pmm-server
 
@@ -402,7 +402,7 @@ Removing PMM Client
 2. Change into the directory with the extracted *PMM Client* tarball
    and run:
 
-   .. prompt:: bash
+   .. code-block:: bash
 
       sudo ./uninstall
 
