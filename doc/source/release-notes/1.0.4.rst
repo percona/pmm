@@ -13,11 +13,23 @@ This is the first General Availability (GA) release.
 Upgrading
 =========
 
+.. note:: This release introduces major changes and requires you to
+   completely remove any previous versions of all PMM components.
+   This means you will lose all previously collected data
+   and start from scratch.
+
 1. :ref:`Remove all PMM Clients <remove-client>`
 
 #. :ref:`Remove PMM Server <remove-server>`
+   (including the ``pmm-data`` container).
 
-#. :ref:`Create and run the PMM Server container <server-container>`            
+   .. code-block:: bash
+
+      docker stop pmm-server && docker rm pmm-server && docker rm pmm-data
+
+#. :ref:`Create the PMM data container <data-container>`
+
+#. :ref:`Create and run the PMM Server container <server-container>`      
 
 #. :ref:`Install PMM Clients <client-install>` on all your monitored hosts 
 

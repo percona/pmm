@@ -356,22 +356,20 @@ see :ref:`pmm-admin`.
 Removing PMM Server
 ===================
 
-1. Stop and remove the ``pmm-server`` container:
+1. :ref:`Remove all PMM clients <remove-client>` 
+
+#. Stop and remove the ``pmm-server`` container:
 
    .. code-block:: bash
 
       docker stop pmm-server && docker rm pmm-server
 
-2. If you also want to discard all collected data,
+#. If you also want to discard all collected data,
    remove the ``pmm-data`` container:
 
    .. code-block:: bash
 
       docker rm pmm-data
-
-.. note:: Before removing the data container,
-   you should remove all instances on all *PMM Clients*
-   using :ref:`pmm-admin rm <pmm-admin-rm>`.
 
 .. _upgrade-server:
 
@@ -405,6 +403,32 @@ Removing PMM Client
    .. code-block:: bash
 
       sudo ./uninstall
+
+.. note::
+
+   * If you installed using RPM packages:
+
+     .. code-block:: bash
+
+        rpm -e pmm-client
+
+   * If you installed using YUM:
+
+     .. code-block:: bash
+
+        yum remove pmm-client
+
+   * If you installed using DEB packages:
+
+     .. code-block:: bash
+
+        dpkg -r pmm-client
+
+   * If you installed using APT:
+
+     .. code-block:: bash
+
+        apt-get remove pmm-client
 
 .. _upgrade-client:
 
