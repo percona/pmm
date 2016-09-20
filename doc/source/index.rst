@@ -33,6 +33,7 @@ Advanced
    pmm-admin
    amazon-rds
    Configuring MySQL for best results <conf-mysql>
+   security
 
 Reference
 =========

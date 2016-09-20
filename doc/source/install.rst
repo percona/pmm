@@ -275,6 +275,8 @@ Tarball Packages
 
       sudo ./install
 
+.. _connect-to-pmm-server:
+
 Connecting to PMM Server
 ------------------------
 
