@@ -104,6 +104,11 @@ using SSL certificates.
       Email Address []:jsmith@example.com
 
    .. note:: The :file:`dhparam.pem` file is not required.
+      It can take a lot of time to generate, so you can skip it.
+
+   .. note:: The :file:`server.key` and :file:`server.crt` files
+      must be named exactly as shown.
+      Files with other names will be ignored.
 
 #. Mount the directory with the certificate files into :file:`/etc/nginx/ssl`
    when :ref:`running the PMM Server container <server-container>`:
