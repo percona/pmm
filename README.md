@@ -11,5 +11,7 @@ See the [PMM docs](https://www.percona.com/doc/percona-monitoring-and-management
  * [MongoDB dashboards](https://github.com/Percona-Lab/grafana_mongodb_dashboards)
 * [pmm-client](https://github.com/percona/pmm-client)
  * [qan-agent](https://github.com/percona/qan-agent)
- * [mysqld_exporter](https://github.com/percona/mysqld_exporter) - based on the official `github.com/prometheus/mysqld_exporter`
+ * [mysqld_exporter](https://github.com/percona/mysqld_exporter) - based on `github.com/prometheus/mysqld_exporter`
  * [mongodb_exporter](https://github.com/Percona-Lab/prometheus_mongodb_exporter) - based on `github.com/dcu/mongodb_exporter`
+ * [proxysql_exporter](https://github.com/percona/proxysql_exporter)
+
