@@ -50,17 +50,11 @@ type Log struct {
 }
 
 type QAN struct {
-	UUID                    string  // of MySQL instance
-	CollectFrom             string  // "slowlog" or "perfschema"
-	Interval                uint    // seconds, 0 = DEFAULT_INTERVAL
-	LongQueryTime           float64 // microseconds, 0 or >= 0.000001
-	MaxSlowLogSize          int64   // bytes, 0 = DEFAULT_MAX_SLOW_LOG_SIZE
-	RemoveOldSlowLogs       bool    // after rotating for MaxSlowLogSize
-	ExampleQueries          bool    // send real example of each query
-	SlowLogVerbosity        string  // "minimal", "standard", "full"
-	RateLimit               uint    // Percona Server query sampling
-	LogSlowAdminStatements  bool    // Percona Server feature
-	LogSlowSlaveStatemtents bool    // Percona Server feature
+	UUID           string // of MySQL instance
+	CollectFrom    string // "slowlog" or "perfschema"
+	Interval       uint   // seconds, 0 = DEFAULT_INTERVAL
+	MaxSlowLogSize int64  `json:"-"` // bytes, 0 = DEFAULT_MAX_SLOW_LOG_SIZE. Don't write it to the config
+	ExampleQueries bool   // send real example of each query
 	// internal
 	Start         []string // queries to configure MySQL (enable slow log, etc.)
 	Stop          []string // queries to un-configure MySQL (disable slow log, etc.)
