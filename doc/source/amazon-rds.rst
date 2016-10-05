@@ -20,7 +20,7 @@ We strongly suggest that you run *PMM Server* on AWS.
    For more information, see :ref:`metrics-resolution`.
 
 Query analytics requires :ref:`perf-schema` as the query source.
-Enable the ``performance_schema`` option under **Parameter Groups** on RDS 
+Enable the ``performance_schema`` option under **Parameter Groups** on RDS
 (you will probably need to create a new **Parameter Group**
 and set it to the database instance).
 
@@ -30,7 +30,7 @@ If you do not specify a name, it will use the client's host name.
 
 Create the ``pmm`` user with the following privileges
 on the MySQL instance that you want to monitor::
- 
+
  GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 5;
  GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 

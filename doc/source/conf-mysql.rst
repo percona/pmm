@@ -6,32 +6,85 @@ Configuring MySQL for Percona Monitoring and Management
 
 PMM supports all commonly used variants of MySQL,
 including Percona Server, MariaDB, and Amazon RDS.
-Although it will work with default settings,
-you can additionally configure MySQL
-to enhance monitoring information gathered by PMM.
+To prevent data loss and performance issues,
+PMM does not automatically change MySQL configuration.
+However, there are certain recommended settings
+that will maximize monitoring efficiency.
+These recommendations depend on the variant and version of MySQL you are using,
+and mostly apply to very high loads.
 
-We recommend using PMM with default settings in most cases,
-but certain MySQL configuration is possible
-via the Query Analytics web app interface (see :ref:`using-qan`)
-and the ``pmm-admin`` tool (see :ref:`pmm-admin`).
+PMM can collect query data either from the *slow query log*
+or from *Performance Schema*.
+Using the slow query log to capture all queries provides maximum details,
+but can impact performance on heavily loaded systems
+unless it is used with the query sampling feature
+available only in Percona Server.
+Performance Schema is generally better
+for recent versions of other MySQL variants.
+For older MySQL variants, which have neither sampling, nor Performance Schema,
+configure logging only slow queries.
 
-Many more variables and options can be configured
-directly on the MySQL server for special cases to improve monitoring.
-This document provides some advanced recommendations
-for configuring MySQL to get the most out of PMM.
+You can add configuration examples provided in this guide
+to :file:`my.cnf` and restart the server
+or change variables dynamically using the following syntax:
 
-.. contents::
-   :local:
-   :depth: 1
+.. code-block:: sql
+
+   SET GLOBAL <var_name>=<var_value>
+
+The following sample configurations can be used
+depending on the variant and version of MySQL:
+
+* If you are running *Percona Server* (or *Percona XtraDB Cluster*),
+  configure the slow query log to capture all queries and enable sampling.
+  This will provide the most amount of information with the lowest overhead.
+
+  ::
+
+   log_output=file
+   slow_query_log=ON
+   long_query_time=0
+   log_slow_rate_limit=100
+   log_slow_rate_type=query
+   log_slow_verbosity=full
+   log_slow_admin_statements=ON
+   log_slow_slave_statements=ON
+   slow_query_log_always_write_time=1
+   slow_query_log_use_global_control=all
+   innodb_monitor_enable=all
+   userstat=1
+
+* If you are running *MySQL 5.6+* or *MariaDB 10.0+*,
+  configure :ref:`perf-schema`.
+
+  ::
+
+   innodb_monitor_enable=all
+   performance_schema=ON
+
+* If you are running *MySQL 5.5* or *MariaDB 5.5*,
+  configure logging only slow queries to avoid high performance overhead.
+
+  .. note:: This may affect the quality of monitoring data
+     gathered by Query Analytics.
+
+  ::
+
+   log_output=file
+   slow_query_log=ON
+   long_query_time=0.01
+   log_slow_admin_statements=ON
+   log_slow_slave_statements=ON
 
 .. _slow-log-settings:
 
-Settings for the Slow Query Log
-===============================
+Configuring the Slow Query Log in Percona Server
+================================================
 
 If you are running Percona Server, a properly configured slow query log
 will provide the most amount of information with the lowest overhead.
-In all other cases, use :ref:`Performance Schema <perf-schema-settings>`.
+In other cases, use :ref:`Performance Schema <perf-schema-settings>`
+if it is supported.
 
 By definition, the slow query log is supposed to capture only *slow queries*.
 That is, queries with execution time above a certain threshold,
@@ -44,7 +97,7 @@ set the ``long_query_time`` to ``0`` so that all queries are captured.
 
 However, capturing all queries can consume I/O bandwidth
 and cause the slow query log file to quickly grow very large.
-To limit the amount of queries logged by QAN,
+To limit the amount of queries captured by the slow query log,
 use the *query sampling* feature available in Percona Server.
 
 The |log_slow_rate_limit|_ variable defines the fraction of queries
@@ -69,7 +122,7 @@ to specify which queries should ignore sampling.
 That is, queries with longer execution time
 will always be captured by the slow query log.
 
-By default, the slow query log settings apply only to new sessions.
+By default, slow query log settings apply only to new sessions.
 If you want to configure the slow query log during runtime
 and apply these settings to existing connections,
 set the |slow_query_log_use_global_control|_ variable to ``all``.
@@ -94,16 +147,16 @@ set the |slow_query_log_use_global_control|_ variable to ``all``.
 
 .. _perf-schema-settings:
 
-Settings for Performance Schema
-===============================
+Configuring Performance Schema
+==============================
 
 Performance Schema is not as data-rich as the slow query log,
 but it has all the critical data and is generally faster to parse.
 If you are not running Percona Server
-with a :ref:`thoroughly tuned slow query log <slow-log-settings>`,
+(which supports :ref:`sampling for the slow query log <slow-log-settings>`),
 then Performance Schema is the better alternative.
 
-As of MySQL 5.6 (including Percona Server 5.6 and later versions),
+As of MySQL 5.6 (including MariaDB 10.0+ and Percona Server 5.6+),
 Performance Schema is enabled by default
 with no additional configuration required.
 
@@ -137,8 +190,8 @@ make sure that the ``statements_digest`` consumer is enabled:
 For more information about using Performance Schema in PMM,
 see :ref:`perf-schema`.
 
-Special Dashboards
-==================
+Settings for Dashboards
+=======================
 
 Not all dashboards in :ref:`using-mm` are available by default
 for all MySQL variants and configurations.
@@ -154,7 +207,7 @@ MySQL InnoDB Metrics
 
 InnoDB metrics provide detailed insight about InnoDB operation.
 Although you can select to capture only specific counters,
-they introduce minimal overhead even when enabled all the time.
+their overhead is low even when all them are enabled all the time.
 To enable all InnoDB metrics,
 set the global |innodb_monitor_enable|_ variable to ``all``::
 
@@ -182,7 +235,8 @@ MySQL Performance Schema
 With MySQL version 5.6 or later,
 Performance Schema instrumentation is enabled by default.
 If certain instruments are not enabled,
-you will not see the corresponding graphs in the Performance Schema dashboard.
+you will not see the corresponding graphs
+in the *Performance Schema* dashboard.
 To enable full instrumentation,
 set the |performance_schema_instrument|_ option to ``'%=on'`` at startup::
 
@@ -211,10 +265,10 @@ To enable collection of query response time:
 
 1. Install the ``QUERY_RESPONSE_TIME`` plugins::
 
-      mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
-      mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
-      mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_READ SONAME 'query_response_time.so';
-      mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_WRITE SONAME 'query_response_time.so';
+    mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
+    mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
+    mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_READ SONAME 'query_response_time.so';
+    mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_WRITE SONAME 'query_response_time.so';
 
    For more information, see `this guide
    <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#installing-the-plugins>`_
@@ -226,40 +280,3 @@ To enable collection of query response time:
 .. |query_response_time_stats| replace:: ``query_response_time_stats``
 .. _query_response_time_stats: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#query_response_time_stats
 
-Sample Configuration
-====================
-
-Considering all the recommendations,
-you can try using some or all of the following MySQL configuration settings,
-if you are running Percona Server::
-
-   # Consider all queries regardless of execution time
-   long_query_time=0
-   
-   # Capture every 100th query
-   log_slow_rate_limit=100
-   
-   # Sample by queries, rather than session
-   log_slow_rate_type=query
-   
-   # Store maximum information about each captured query
-   log_slow_verbosity=full
-   
-   # Always capture queries with execution time over 1 second, ignoring sampling
-   slow_query_log_always_write_time=1
-   
-   # Global slow query log settings apply to existing connections
-   slow_query_log_use_global_control=all
-   
-   # Enable all InnoDB metrics (low overhead)
-   innodb_monitor_enable=all
-   
-   # Enable user statistics (can lead to high overhead in some cases)
-   userstat=1
-
-   # Enable collection of query response time (very high overhead!)
-   query_response_time_stats=ON
-
-.. rubric:: References
-
-.. target-notes::

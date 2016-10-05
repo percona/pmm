@@ -50,7 +50,7 @@ For example:
            -e SERVER_USER=jsmith \
            -e SERVER_PASSWORD=pass1234 \
            --restart always \
-           percona/pmm-server:1.0.4         
+           percona/pmm-server:1.0.4
 
 *PMM Client* uses the same credentials to communicate with *PMM Server*.
 If you set the user name and password as described,
@@ -100,7 +100,7 @@ using SSL certificates.
       Locality Name (eg, city) [Default City]:Raleigh
       Organization Name (eg, company) [Default Company Ltd]:Percona
       Organizational Unit Name (eg, section) []:PMM
-      Common Name (eg, your name or your server's hostname) []:centos7.vm  
+      Common Name (eg, your name or your server's hostname) []:centos7.vm
       Email Address []:jsmith@example.com
 
    .. note:: The :file:`dhparam.pem` file is not required.
@@ -114,20 +114,20 @@ using SSL certificates.
    when :ref:`running the PMM Server container <server-container>`:
 
    .. only:: html
-   
+
       .. prompt:: bash
-   
+
          docker run -d -p 443:443 \
            --volumes-from pmm-data \
            --name pmm-server \
            -v /etc/pmm-certs:/etc/nginx/ssl \
            --restart always \
            percona/pmm-server:1.0.4
-   
+
    .. only:: latex
-   
+
        .. code-block:: bash
-   
+
           $ docker run -d -p 443:443 \
               --volumes-from pmm-data \
               --name pmm-server \
@@ -136,7 +136,7 @@ using SSL certificates.
               percona/pmm-server:1.0.4
 
    .. note:: Note that the container should expose port 443
-      instead of 80 to enable SSL encryption.         
+      instead of 80 to enable SSL encryption.
 
 #. Enable SSL when :ref:`connect-to-pmm-server`.
    If you purchased the certificate from a certificate authority (CA):
@@ -200,7 +200,7 @@ The following example shows how you might
            -e SERVER_PASSWORD=pass1234 \
            -v /etc/pmm-certs:/etc/nginx/ssl \
            --restart always \
-           percona/pmm-server:1.0.4         
+           percona/pmm-server:1.0.4
 
 The following example shows how you might
 :ref:`connect to PMM Server <connect-to-pmm-server>`:

@@ -69,7 +69,8 @@ Where are the services created by PMM Client?
 
 When you add a monitoring instance using the ``pmm-admin`` tool,
 it creates a corresponding service.
-The name of the service has the following syntax: ``pmm-<type>-exporter-<port>``
+The name of the service has the following syntax:
+``pmm-<type>-exporter-<port>``
 
 The location of the services depends on the service manager:
 
@@ -83,7 +84,8 @@ The location of the services depends on the service manager:
 | ``systemv``     | :file:`/etc/init.d/`        |
 +-----------------+-----------------------------+
 
-To see which service manager is used on your system, run ``sudo pmm-admin info``.
+To see which service manager is used on your system,
+run ``sudo pmm-admin info``.
 
 Where is DSN stored?
 ====================
@@ -187,10 +189,13 @@ a command similar to the following is recommended:
 
 The superuser credentials are required only to set up the ``pmm`` user
 with necessary privileges for collecting data.
-If you want to create this user yourself, the following privileges are required::
- 
- GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT ON *.* TO 'pmm'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 5;
- GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@' localhost';
+If you want to create this user yourself,
+the following privileges are required:
+
+.. code-block:: sql
+
+   GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT ON *.* TO 'pmm'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 5;
+   GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@' localhost';
 
 If the ``pmm`` user already exists,
 simply pass its credential when you add the instance:
@@ -204,7 +209,8 @@ For more information, run ``sudo pmm-admin add mysql --help``.
 Can I monitor multiple MySQL instances?
 =======================================
 
-Yes, you can add multiple MySQL instances to be monitored from one *PMM Client*.
+Yes, you can add multiple MySQL instances
+to be monitored from one *PMM Client*.
 In this case,
 you will need to provide a distinct port and socket for each instance
 using the ``--port`` and ``--socket`` variables,
