@@ -142,7 +142,7 @@ Simple Scenario
 ***************
 
 If you have just one MySQL or MongoDB server,
-you can install and run both modules 
+you can install and run both modules
 (*PMM Client* and *PMM Server*)
 on this one database host.
 

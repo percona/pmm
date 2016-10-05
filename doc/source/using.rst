@@ -6,7 +6,8 @@ Using the Percona Monitoring and Management Platform
 
 You can access the PMM web interface using the IP address of the host
 where the *PMM Server* container is running.
-For example, http://192.168.100.1.
+For example, if *PMM Server* is running on a host with IP 192.168.100.1,
+access the following address with your web browser: ``http://192.168.100.1``.
 
 The landing page has links to corresponding PMM tools:
 
@@ -100,7 +101,7 @@ will likely provide better results.
 
 1. Make sure that the ``performance_schema`` variable is set to ``ON``:
 
-   .. code-block:: none
+   .. code-block:: sql
 
       mysql> SHOW VARIABLES LIKE 'performance_schema';
       +--------------------+-------+
@@ -111,7 +112,7 @@ will likely provide better results.
 
    If not, add the the following lines to :file:`my.cnf` and restart MySQL:
 
-   .. code-block:: none
+   .. code-block:: sql
 
       [mysql]
       performance_schema=ON
@@ -158,6 +159,6 @@ On the Home screen, select a dashboard
 from the list of available Percona Dashboards.
 For example, the following image shows the **MySQL Overview** dashboard:
 
-.. image:: images/metrics-monitor.png 
+.. image:: images/metrics-monitor.png
    :width: 640
 

@@ -194,8 +194,9 @@ RPM Packages
 YUM Repository
 --------------
 
-1. If your system does not already have Percona's ``yum`` repository configured,
-run the following command:
+1. If your system does not already have
+   Percona's ``yum`` repository configured,
+   run the following command:
 
    .. code-block:: bash
 
@@ -227,8 +228,9 @@ DEB Packages
 APT Repository
 --------------
 
-1. If your system does not already have Percona's ``apt`` repository configured,
-fetch the repository package:
+1. If your system does not already have
+   Percona's ``apt`` repository configured,
+   fetch the repository package:
 
    .. code-block:: bash
 
@@ -286,7 +288,6 @@ For example, if *PMM Server* is running on ``192.168.100.1``,
 and you installed *PMM Client* on a machine with IP ``192.168.200.1``:
 
    .. code-block:: bash
-      :emphasize-lines: 1
 
       $ sudo pmm-admin config --server 192.168.100.1
       OK, PMM server is alive.
@@ -332,7 +333,6 @@ For example, if you enable general OS and MongoDB metrics monitoring,
 output should be similar to the following:
 
 .. code-block:: bash
-   :emphasize-lines: 1
 
    $ sudo pmm-admin list
    pmm-admin 1.0.4
@@ -343,10 +343,10 @@ output should be similar to the following:
    Service manager | linux-systemd
 
    ---------------- ------------- ------------ -------- --------------- --------
-   METRIC SERVICE   NAME          CLIENT PORT  RUNNING  DATA SOURCE     OPTIONS 
+   METRIC SERVICE   NAME          CLIENT PORT  RUNNING  DATA SOURCE     OPTIONS
    ---------------- ------------- ------------ -------- --------------- --------
    linux:metrics    ubuntu-amd64  42000        YES      -
-   mongodb:metrics  ubuntu-amd64  42003        YES      localhost:27017 
+   mongodb:metrics  ubuntu-amd64  42003        YES      localhost:27017
 
 For more information about adding instances, run ``pmm-admin add --help``.
 
@@ -358,7 +358,7 @@ see :ref:`pmm-admin`.
 Removing PMM Server
 ===================
 
-1. :ref:`Remove all PMM clients <remove-client>` 
+1. :ref:`Remove all PMM clients <remove-client>`
 
 #. Stop and remove the ``pmm-server`` container:
 

@@ -168,7 +168,7 @@ and node type. For example:
 
 .. code-block:: bash
 
-   sudo pmm-admin add mongodb --replset repl1 --cluster cluster1 --nodetype mongod 
+   sudo pmm-admin add mongodb --replset repl1 --cluster cluster1 --nodetype mongod
 
 For more information, run ``sudo pmm-admin add mongodb:metrics --help``
 
@@ -214,7 +214,6 @@ For example, if you enable general OS and MongoDB metrics monitoring,
 output should be similar to the following:
 
 .. code-block:: bash
-   :emphasize-lines: 1
 
    $ sudo pmm-admin list
    pmm-admin 1.0.4
@@ -225,10 +224,10 @@ output should be similar to the following:
    Service manager | linux-systemd
 
    --------------- ------------- ------------ -------- ---------------- --------
-   METRIC SERVICE  NAME          CLIENT PORT  RUNNING  DATA SOURCE      OPTIONS 
+   METRIC SERVICE  NAME          CLIENT PORT  RUNNING  DATA SOURCE      OPTIONS
    --------------- ------------- ------------ -------- ---------------- --------
-   linux:metrics   ubuntu-amd64  42000        YES      -                        
-   mongodb:metrics ubuntu-amd64  42003        YES      localhost:27017 
+   linux:metrics   ubuntu-amd64  42000        YES      -
+   mongodb:metrics ubuntu-amd64  42003        YES      localhost:27017
 
 .. _pmm-admin-config:
 
@@ -264,7 +263,6 @@ are on the same host named ``ubuntu-amd64``,
 which uses ``systemd`` to manage services.
 
 .. code-block:: bash
-   :emphasize-lines: 1
 
    $ sudo pmm-admin info
    pmm-admin 1.0.4
@@ -316,34 +314,33 @@ which replaces emojis with words in the status.
 The following example shows output without emojis:
 
 .. code-block:: bash
-   :emphasize-lines: 1
 
    $ sudo pmm-admin check-network --no-emoji
    PMM Network Status
-   
+
    Server | 192.168.100.6
    Client | 192.168.100.6
-   
+
    * Client > Server
    --------------- -------------
-   SERVICE         CONNECTIVITY 
+   SERVICE         CONNECTIVITY
    --------------- -------------
-   Consul API      OK           
-   QAN API         OK           
-   Prometheus API  OK           
-   
+   Consul API      OK
+   QAN API         OK
+   Prometheus API  OK
+
    Connection duration | 166.689µs
    Request duration    | 364.527µs
    Full round trip     | 531.216µs
-   
+
    * Server > Client
    -------- ------------- ---------------------- -------------
-   METRIC   NAME          PROMETHEUS ENDPOINT    REMOTE STATE 
+   METRIC   NAME          PROMETHEUS ENDPOINT    REMOTE STATE
    -------- ------------- ---------------------- -------------
-   os       ubuntu-amd64  192.168.100.6:42000    OK           
-   mysql    ubuntu-amd64  192.168.100.6:42002    OK           
-   mysql    ubuntu-amd64  192.168.100.6:42003    OK           
-   mysql    ubuntu-amd64  192.168.100.6:42004    OK           
+   os       ubuntu-amd64  192.168.100.6:42000    OK
+   mysql    ubuntu-amd64  192.168.100.6:42002    OK
+   mysql    ubuntu-amd64  192.168.100.6:42003    OK
+   mysql    ubuntu-amd64  192.168.100.6:42004    OK
    mongodb  ubuntu-amd64  192.168.100.6:42005    PROBLEM
 
 For more information, run ``sudo pmm-admin check-network --help``.

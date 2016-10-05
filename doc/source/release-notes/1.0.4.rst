@@ -29,9 +29,9 @@ Upgrading
 
 #. :ref:`Create the PMM data container <data-container>`
 
-#. :ref:`Create and run the PMM Server container <server-container>`      
+#. :ref:`Create and run the PMM Server container <server-container>`
 
-#. :ref:`Install PMM Clients <client-install>` on all your monitored hosts 
+#. :ref:`Install PMM Clients <client-install>` on all your monitored hosts
 
 Changes
 =======
@@ -81,8 +81,8 @@ Changes
 
 * Changed behaviour of ``--create-user`` flag for adding MySQL instance:
 
-  * Now ``pmm-admin`` employs a single `pmm` MySQL user,
-    verifies if it exists and stores the generated password in the configuration
+  * Now ``pmm-admin`` employs a single `pmm` MySQL user, verifies if it exists,
+    and stores the generated password in the configuration
   * Added checks whether MySQL is read-only or a replication slave
   * Stored credentials are automatically picked up by ``pmm-admin`` when valid
 
@@ -91,7 +91,8 @@ Changes
   This enables ``pmm-admin`` to create a single ``mysql:metrics`` service
   instead of three per MySQL instance.
 
-* Added check for MongoDB connectivity when adding ``mongodb:metrics`` instance.
+* Added check for MongoDB connectivity
+  when adding ``mongodb:metrics`` instance.
 
 * Removed the requirement to specify the name when removing a service
   (the client's name is used by default)
