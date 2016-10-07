@@ -63,6 +63,7 @@ type QueryLog struct {
 	Start_ts       time.Time
 	Query_count    float32
 	Query_time_sum float32
+	Query_time_avg float32
 }
 
 type QueryRank struct {
