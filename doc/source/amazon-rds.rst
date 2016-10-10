@@ -31,7 +31,7 @@ If you do not specify a name, it will use the client's host name.
 Create the ``pmm`` user with the following privileges
 on the MySQL instance that you want to monitor::
 
- GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 5;
+ GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
  GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 
 The following example shows how to enable QAN and MySQL metrics monitoring

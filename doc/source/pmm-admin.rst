@@ -148,7 +148,7 @@ For more information, run ``sudo pmm-admin add mysql:metrics --help``.
 
 .. _pmm-admin-add-mongodb-metrics:
 
-MongoDB metrics
+mongodb:metrics
 ---------------
 
 **To enable MongoDB metrics monitoring:**

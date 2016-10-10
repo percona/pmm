@@ -44,21 +44,25 @@ The following diagram illustrates how PMM is currently structured:
 PMM Client
 ----------
 
-*PMM Client* is distributed as a tarball
-that you can install on any database host that you want to monitor.
-It consists of the following:
+*PMM Client* packages are available for most popular Linux distributions:
 
-* ``pmm-admin`` is a command-line tool for managing *PMM Client*
-  , for example, adding and removing database instances
+* DEB for Debian and Ubuntu
+* RPM for Red Hat Enterprise Linux and CentOS
+
+There are also generic tarball binaries that can be used on any Linux system.
+
+*PMM Client* packages consist of the following:
+
+* ``pmm-admin`` is a command-line tool for managing *PMM Client*,
+  for example, adding and removing database instances
   that you want to monitor.
+  For more information, see :ref:`pmm-admin`.
 
 * ``percona-qan-agent`` is a service
   that manages the Query Analytics (QAN) agent
   as it collects query performance data.
   It also connects with QAN API in :ref:`pmm-server`
   and sends over collected data.
-  The service is registered and started
-  when you install the *PMM Client* package.
 
 * ``node_exporter`` is a Prometheus exporter
   that collects general system metrics.
@@ -125,8 +129,13 @@ It consists of the following tools:
     * **Percona Dashboards** is a set of dashboards
       for *Grafana* developed by Percona.
 
-Both tools (QAN and MM) are accessed
-from the *PMM Server* web interface (landing page).
+* **Orchestrator** is a MySQL replication topology management
+  and visualization tool.
+  For more information, see: `Orchestrator`_.
+
+  .. _`Orchestrator`: https://github.com/outbrain/orchestrator
+
+All tools can be accessed from the *PMM Server* web interface (landing page).
 For more information, see :ref:`using`.
 
 .. _scenarios:

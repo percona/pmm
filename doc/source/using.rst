@@ -162,3 +162,23 @@ For example, the following image shows the **MySQL Overview** dashboard:
 .. image:: images/metrics-monitor.png
    :width: 640
 
+Orchestrator
+============
+
+Orchestrator is a MySQL replication topology management and visualization tool.
+You can access it using the ``/orchestrator`` URL after *PMM Server* address.
+
+To use it, create a MySQL user for Orchestrator on all managed instances::
+
+ GRANT SUPER, PROCESS, REPLICATION SLAVE, RELOAD ON *.* TO 'orc_client_user'@'%' IDENTIFIED BY 'orc_client_password’;
+ 
+.. note:: The credentials in the previous example are default.
+   If you use different user name or password,
+   you have to pass them when :ref:`server_container`
+   using the following options::
+
+    -e ORCHESTRATOR_USER=name -e ORCHESTRATOR_PASSWORD=pass
+
+Then you can use the **Discover** page in the Orchestrator web interface
+to add the instances to the topology.
+

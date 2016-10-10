@@ -194,7 +194,7 @@ the following privileges are required:
 
 .. code-block:: sql
 
-   GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT ON *.* TO 'pmm'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 5;
+   GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 5;
    GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@' localhost';
 
 If the ``pmm`` user already exists,
@@ -234,16 +234,13 @@ Can I rename instances?
 You can remove any monitoring instance as described in :ref:`pmm-admin-rm`
 and then add it back with a different name.
 
-When you remove a ``linux:metrics``, ``mysql:metrics``,
-or ``mongodb:metrics`` monitoring service,
+When you remove a monitoring service,
 previously collected data remains available in Grafana.
 However, the metrics are tied to the instance name.
 So if you add the same instance back with a different name,
 it will be considered a new instance with a new set of metrics.
-
-When you remove a QAN instance (``mysql:queries`` service),
-previously collected data will no longer be available after you add it back,
-regardless of the name you use.
+So if you are re-adding an instance and want to keep its previous data,
+add it with the same name.
 
 .. _service-port:
 
@@ -253,15 +250,17 @@ Can I use non-default ports for instances?
 When you add an instance with the ``pmm-admin`` tool,
 it creates a corresponding service that listens on a predefined client port:
 
-+--------------------+---------------------+-------+
-| General OS metrics | ``linux:metrics``   | 42000 |
-+--------------------+---------------------+-------+
-| Query analytics    | ``mysql:queries``   | 42001 |
-+--------------------+---------------------+-------+
-| MySQL metrics      | ``mysql:metrics``   | 42002 |
-+--------------------+---------------------+-------+
-| MongoDB metrics    | ``mongodb:metrics`` | 42003 |
-+--------------------+---------------------+-------+
++--------------------+----------------------+-------+
+| General OS metrics | ``linux:metrics``    | 42000 |
++--------------------+----------------------+-------+
+| Query analytics    | ``mysql:queries``    | 42001 |
++--------------------+----------------------+-------+
+| MySQL metrics      | ``mysql:metrics``    | 42002 |
++--------------------+----------------------+-------+
+| MongoDB metrics    | ``mongodb:metrics``  | 42003 |
++--------------------+----------------------+-------+
+| ProxySQL metrics   | ``proxysql:metrics`` | 42004 |
++--------------------+----------------------+-------+
 
 If a default port for the service is not available,
 ``pmm-admin`` automatically chooses a different one.
