@@ -174,11 +174,11 @@ To use it, create a MySQL user for Orchestrator on all managed instances::
  
 .. note:: The credentials in the previous example are default.
    If you use different user name or password,
-   you have to pass them when :ref:`server_container`
+   you have to pass them when
+   :ref:`running the PMM Server container <server-container>`
    using the following options::
 
     -e ORCHESTRATOR_USER=name -e ORCHESTRATOR_PASSWORD=pass
 
 Then you can use the **Discover** page in the Orchestrator web interface
 to add the instances to the topology.
-

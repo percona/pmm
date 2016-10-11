@@ -31,7 +31,7 @@ If you do not specify a name, it will use the client's host name.
 Create the ``pmm`` user with the following privileges
 on the MySQL instance that you want to monitor::
 
- GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
+ GRANT SELECT, PROCESS, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
  GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 
 The following example shows how to enable QAN and MySQL metrics monitoring
@@ -39,7 +39,7 @@ on Amazon RDS:
 
 .. code-block:: bash
 
-   # pmm-admin add mysql --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
+   sudo pmm-admin add mysql --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
 
 .. note:: General system metrics cannot be monitored remotely,
    because ``node_exporter`` requires access to the local file system.

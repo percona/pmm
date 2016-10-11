@@ -46,8 +46,10 @@ PMM Client
 
 *PMM Client* packages are available for most popular Linux distributions:
 
-* DEB for Debian and Ubuntu
-* RPM for Red Hat Enterprise Linux and CentOS
+* DEB for Debian-based distributions
+  (including Ubuntu and others)
+* RPM for Red Hat Enterprise Linux derivatives
+  (including CentOS, Oracle Linux, Amazon Linux, and others)
 
 There are also generic tarball binaries that can be used on any Linux system.
 
@@ -75,6 +77,10 @@ There are also generic tarball binaries that can be used on any Linux system.
 * ``mongodb_exporter`` is a Prometheus exporter
   that collects MongoDB server metrics.
   For more information, see https://github.com/Percona-Lab/prometheus_mongodb_exporter.
+
+* ``proxysql_exporter`` is a Prometheus exporter
+  that collects ProxySQL performance metrics.
+  For more information, see https://github.com/percona/proxysql_exporter.
 
 .. _pmm-server:
 
@@ -131,9 +137,10 @@ It consists of the following tools:
 
 * **Orchestrator** is a MySQL replication topology management
   and visualization tool.
-  For more information, see: `Orchestrator`_.
+  For more information, see: `Orchestrator Manual`_.
 
-  .. _`Orchestrator`: https://github.com/outbrain/orchestrator
+  .. _`Orchestrator Manual`:
+     https://github.com/outbrain/orchestrator/wiki/Orchestrator-Manual
 
 All tools can be accessed from the *PMM Server* web interface (landing page).
 For more information, see :ref:`using`.

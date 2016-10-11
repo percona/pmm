@@ -14,7 +14,9 @@ as a self-contained boxed solution, separated into two distinct modules:
 
 .. _`Docker Docs`: https://docs.docker.com/
 
-* *PMM Client* is distributed as a tarball
+* *PMM Client* is distributed as packages for most popular Linux distributions
+  (DEB and RPM) and corresponding package managers,
+  as well as generic tarball package
   that you extract and run an install script.
 
 For more information about the functions
@@ -41,7 +43,7 @@ must be able to run Docker containers and have network access.
 .. note:: We encourage to use a specific version tag
    instead of the ``latest`` tag
    when using the ``pmm-server`` image.
-   The current stable version is ``1.0.4``.
+   The current stable version is ``1.0.5``.
 
 .. _data-container:
 
@@ -56,9 +58,9 @@ To create a container for persistent PMM data, run the following command:
       -v /opt/prometheus/data \
       -v /opt/consul-data \
       -v /var/lib/mysql \
-      -v /var/lib/grafana\
+      -v /var/lib/grafana \
       --name pmm-data \
-      percona/pmm-server:1.0.4 /bin/true
+      percona/pmm-server:1.0.5 /bin/true
 
 .. note:: This container does not run,
    it simply exists to make sure you retain all PMM data
@@ -77,7 +79,7 @@ The previous command does the following:
   that you can use to reference the container within a Docker network.
   In this case: ``pmm-data``.
 
-* ``percona/pmm-server:1.0.4`` is the name and version tag of the image
+* ``percona/pmm-server:1.0.5`` is the name and version tag of the image
   to derive the container from.
 
 * ``/bin/true`` is the command that the container runs.
@@ -96,7 +98,7 @@ To run *PMM Server*, use the following command:
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
-      percona/pmm-server:1.0.4
+      percona/pmm-server:1.0.5
 
 The previous command does the following:
 
@@ -122,7 +124,7 @@ The previous command does the following:
   will start the container on startup
   and restart it if the container exits.
 
-* ``percona/pmm-server:1.0.4`` is the name and version tag of the image
+* ``percona/pmm-server:1.0.5`` is the name and version tag of the image
   to derive the container from.
 
 Step 3. Verify Installation
@@ -204,13 +206,13 @@ RPM Packages
 
    .. code-block:: bash
 
-      wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client-1.0.4-1.x86_64.rpm
+      wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client-1.0.5-1.x86_64.rpm
 
 #. Install the package:
 
    .. code-block:: bash
 
-      sudo rpm -ivh pmm-client-1.0.4-1.x86_64.rpm
+      sudo rpm -ivh pmm-client-1.0.5-1.x86_64.rpm
 
 YUM Repository
 --------------
@@ -221,7 +223,7 @@ YUM Repository
 
    .. code-block:: bash
 
-      sudo yum install http://www.percona.com/downloads/percona-release/redhat/0.1-3/percona-release-0.1-3.noarch.rpm
+      sudo yum install http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
 
 #. Install the package:
 
@@ -238,13 +240,13 @@ DEB Packages
 
    .. code-block:: bash
 
-      wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client_1.0.4-1_amd64.deb
+      wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client_1.0.5-1_amd64.deb
 
 #. Install the package:
 
    .. code-block:: bash
 
-      sudo dpkg -i pmm-client_1.0.4-1_amd64.deb
+      sudo dpkg -i pmm-client_1.0.5-1_amd64.deb
 
 APT Repository
 --------------
@@ -255,13 +257,13 @@ APT Repository
 
    .. code-block:: bash
 
-      wget https://repo.percona.com/apt/percona-release_0.1-3.$(lsb_release -sc)_all.deb
+      wget https://repo.percona.com/apt/percona-release_0.1-4.$(lsb_release -sc)_all.deb
 
 #. Install the repository package:
 
    .. code-block:: bash
 
-      sudo dpkg -i percona-release_0.1-3.$(lsb_release -sc)_all.deb
+      sudo dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
 
 #. Update the local ``apt`` cache:
 
@@ -284,13 +286,13 @@ Tarball Packages
 
    .. code-block:: bash
 
-      wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client-1.0.4-x86_64.tar.gz
+      wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client-1.0.5-x86_64.tar.gz
 
 2. Extract the downloaded tarball:
 
    .. code-block:: bash
 
-      tar -xzf pmm-client-1.0.4-x86_64.tar.gz
+      tar -xzf pmm-client-1.0.5-x86_64.tar.gz
 
 3. Change into the extracted directory and run the install script:
 
@@ -356,7 +358,7 @@ output should be similar to the following:
 .. code-block:: bash
 
    $ sudo pmm-admin list
-   pmm-admin 1.0.4
+   pmm-admin 1.0.5
 
    PMM Server      | 192.168.100.1
    Client Name     | ubuntu-amd64

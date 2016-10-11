@@ -14,21 +14,51 @@ Upgrading
 .. note:: All custom Grafana dashboards and settings in Metrics Monitor
    will be reset when you upgrade PMM Server.
    Back it up and restore after the upgrade.
-   Starting from version 1.0.5 it is possible to preserve this data.
-   To enable this, remove the :ref:`data container <data_container>`
-   and create it with ``-v /var/lib/grafana``.
+   Starting from version 1.0.5, it is possible to preserve this data,
+   but you will have to recreate the :ref:`data container <data-container>`
+   with ``-v /var/lib/grafana``.
+   If you choose to recreate the data container,
+   all previously collected data will be lost.
 
-1. Stop and remove the ``pmm-server`` container:
+1. Stop and remove the ``pmm-server`` container::
 
-   .. code-block:: bash
+    docker stop pmm-server && docker rm pmm-server
 
-      docker stop pmm-server && docker rm pmm-server
+#. If you also want to recrete the ``pmm-data`` container
+   with support for custom Grafana dashboards and settings::
 
-#. Create and run from the image with the new version tag,
-   as described in :ref:`server-container`.
+    docker rm pmm-data
 
-#. Download and install the new *PMM Client* package
-   as described :ref:`here <client-install>`.
+#. If you removed ``pmm-data`` container, create it with the new version tag::
+
+    docker create \
+      -v /opt/prometheus/data \
+      -v /opt/consul-data \
+      -v /var/lib/mysql \
+      -v /var/lib/grafana \
+      --name pmm-data \
+      percona/pmm-server:1.0.5 /bin/true
+
+#. Create the ``pmm-server`` container with the new version tag::
+
+    docker run -d \
+      -p 80:80 \
+      --volumes-from pmm-data \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server:1.0.5
+
+#. :ref:`Install new PMM Client version <client-install>`.
+   If you previously installed using Percona repositories,
+   you can upgade the package as follows:
+
+   * For Debian-based distributions::
+
+      sudo apt-get install --only-upgrade pmm-client
+
+   * For Red Hat Enterprise Linux derivatives::
+
+      sudo yum update pmm-client
 
 Changes
 =======

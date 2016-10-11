@@ -134,7 +134,7 @@ it is recommended to disable per table metrics when adding the instance:
    sudo pmm-admin add mysql --disable-tablestats
 
 .. note:: Table statistics are disabled automatically
-   if there are over 10 000 tables.
+   if there are over 1 000 tables.
 
 For more information, run ``sudo pmm-admin add mysql --help``.
 
@@ -194,7 +194,7 @@ the following privileges are required:
 
 .. code-block:: sql
 
-   GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 5;
+   GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
    GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@' localhost';
 
 If the ``pmm`` user already exists,
