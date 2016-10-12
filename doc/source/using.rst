@@ -165,6 +165,10 @@ For example, the following image shows the **MySQL Overview** dashboard:
 Orchestrator
 ============
 
+.. note:: Orchestrator was included into PMM for experimental purposes.
+   It is a standalone tool, not integrated with PMM
+   other than that you can access it from the landing page.
+
 Orchestrator is a MySQL replication topology management and visualization tool.
 You can access it using the ``/orchestrator`` URL after *PMM Server* address.
 

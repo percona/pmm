@@ -73,6 +73,10 @@ Changes
   and visualization tool.
   Available at ``/orchestrator`` URL.
 
+  .. note:: Orchestrator was included into PMM for experimental purposes.
+     It is a standalone tool, not integrated with PMM
+     other than that you can access it from the landing page.
+
 * Added ProxySQL metrics and dashboard
 
 * Changed metric storage encoding to achieve less disk space usage by 50-70%.
