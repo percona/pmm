@@ -197,25 +197,12 @@ The minimum requirements for Query Analytics (QAN) are:
      using the ``setenforce 0`` command.
      However, this will not affect the configuration after a reboot.
 
-RPM Packages
-------------
+Installing on Red Hat or CentOS
+-------------------------------
 
-1. Download the latest package
-   from https://www.percona.com/downloads/pmm-client/LATEST/.
-   For example, you can use ``wget`` as follows:
-
-   .. code-block:: bash
-
-      wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client-1.0.5-1.x86_64.rpm
-
-#. Install the package:
-
-   .. code-block:: bash
-
-      sudo rpm -ivh pmm-client-1.0.5-1.x86_64.rpm
-
-YUM Repository
---------------
+If you are running an RPM-based Linux distribution,
+use the :command:`yum` package manager
+to install PMM Client from the official Percona software repository:
 
 1. If your system does not already have
    Percona's ``yum`` repository configured,
@@ -223,33 +210,20 @@ YUM Repository
 
    .. code-block:: bash
 
-      sudo yum install http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
+      $ sudo yum install http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
 
-#. Install the package:
-
-   .. code-block:: bash
-
-      sudo yum install pmm-client
-
-DEB Packages
-------------
-
-1. Download the latest package
-   from https://www.percona.com/downloads/pmm-client/LATEST/.
-   For example, you can use ``wget`` as follows:
+#. Install the ``pmm-client`` package:
 
    .. code-block:: bash
 
-      wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client_1.0.5-1_amd64.deb
+      $ sudo yum install pmm-client
 
-#. Install the package:
+Installing on Debian or Ubuntu
+------------------------------
 
-   .. code-block:: bash
-
-      sudo dpkg -i pmm-client_1.0.5-1_amd64.deb
-
-APT Repository
---------------
+If you are running a DEB-based Linux distribution,
+use the :command:`apt` package manager
+to install PMM Client from the official Percona software repository:
 
 1. If your system does not already have
    Percona's ``apt`` repository configured,
@@ -277,28 +251,31 @@ APT Repository
 
       sudo apt-get install pmm-client
 
-Tarball Packages
-----------------
+Installing from Tarball
+-----------------------
 
-1. Download the latest package
-   from https://www.percona.com/downloads/pmm-client/LATEST/.
+Percona provides a generic tarball with necessary files and binaries
+for manual installation on almost any Linux distribution.
+
+1. Download the latest tarball
+   from https://www.percona.com/downloads/pmm-client/LATEST/binary/tarball/
    For example, you can use ``wget`` as follows:
 
    .. code-block:: bash
 
-      wget https://www.percona.com/downloads/pmm-client/LATEST/pmm-client-1.0.5-x86_64.tar.gz
+      $ wget https://www.percona.com/downloads/pmm-client/LATEST/binary/tarball/pmm-client-1.0.5.tar.gz
 
 2. Extract the downloaded tarball:
 
    .. code-block:: bash
 
-      tar -xzf pmm-client-1.0.5-x86_64.tar.gz
+      $ tar -xzf pmm-client-1.0.5.tar.gz
 
 3. Change into the extracted directory and run the install script:
 
    .. code-block:: bash
 
-      sudo ./install
+      $ sudo ./install
 
 .. _connect-to-pmm-server:
 

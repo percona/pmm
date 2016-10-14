@@ -24,7 +24,7 @@ Upgrading
 
     docker stop pmm-server && docker rm pmm-server
 
-#. If you also want to recrete the ``pmm-data`` container
+#. If you also want to recreate the ``pmm-data`` container
    with support for custom Grafana dashboards and settings::
 
     docker rm pmm-data
