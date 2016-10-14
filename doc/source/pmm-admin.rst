@@ -148,7 +148,7 @@ For more information, run ``sudo pmm-admin add mysql:metrics --help``.
 
 .. _pmm-admin-add-mongodb-metrics:
 
-MongoDB metrics
+mongodb:metrics
 ---------------
 
 **To enable MongoDB metrics monitoring:**
@@ -171,6 +171,25 @@ and node type. For example:
    sudo pmm-admin add mongodb --replset repl1 --cluster cluster1 --nodetype mongod
 
 For more information, run ``sudo pmm-admin add mongodb:metrics --help``
+
+.. _pmm-admin-add-proxysql-metrics:
+
+proxysql:metrics
+----------------
+
+**To enable ProxySQL performance metrics monitoring:**
+
+.. code-block:: bash
+
+   sudo pmm-admin add proxysql:metrics
+
+This creates the ``pmm-proxysql-exporter-42004`` service
+that collects local ProxySQL performance metrics.
+
+.. note:: It should be able to detect the local PMM Client name,
+   but you can also specify it explicitely as an argument.
+
+For more information, run ``sudo pmm-admin add proxysql:metrics --help``
 
 .. _pmm-admin-rm:
 
@@ -216,7 +235,7 @@ output should be similar to the following:
 .. code-block:: bash
 
    $ sudo pmm-admin list
-   pmm-admin 1.0.4
+   pmm-admin 1.0.5
 
    PMM Server      | 192.168.100.1
    Client Name     | ubuntu-amd64
@@ -265,11 +284,11 @@ which uses ``systemd`` to manage services.
 .. code-block:: bash
 
    $ sudo pmm-admin info
-   pmm-admin 1.0.4
+   pmm-admin 1.0.5
 
    PMM Server      | 192.168.100.6
    Client Name     | ubuntu-amd64
-   Client Address  | 192.168.100.6
+   Client Address  | 192.168.200.1
    Service manager | linux-systemd
 
 This can be configured using |pmm-admin-config|_.
@@ -318,8 +337,8 @@ The following example shows output without emojis:
    $ sudo pmm-admin check-network --no-emoji
    PMM Network Status
 
-   Server | 192.168.100.6
-   Client | 192.168.100.6
+   Server | 192.168.100.1
+   Client | 192.168.200.1
 
    * Client > Server
    --------------- -------------
@@ -334,14 +353,12 @@ The following example shows output without emojis:
    Full round trip     | 531.216µs
 
    * Server > Client
-   -------- ------------- ---------------------- -------------
-   METRIC   NAME          PROMETHEUS ENDPOINT    REMOTE STATE
-   -------- ------------- ---------------------- -------------
-   os       ubuntu-amd64  192.168.100.6:42000    OK
-   mysql    ubuntu-amd64  192.168.100.6:42002    OK
-   mysql    ubuntu-amd64  192.168.100.6:42003    OK
-   mysql    ubuntu-amd64  192.168.100.6:42004    OK
-   mongodb  ubuntu-amd64  192.168.100.6:42005    PROBLEM
+   ---------------- ------------- ---------------------- -------------
+   METRIC SERVICE   NAME          PROMETHEUS ENDPOINT    REMOTE STATE
+   ---------------- ------------- ---------------------- -------------
+   linux:metrics    ubuntu-amd64  192.168.200.1:42000    OK
+   mysql:metrics    ubuntu-amd64  192.168.200.1:42002    OK
+   mongodb:metrics  ubuntu-amd64  192.168.200.1:42003    PROBLEM
 
 For more information, run ``sudo pmm-admin check-network --help``.
 
