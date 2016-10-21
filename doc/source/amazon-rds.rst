@@ -34,6 +34,9 @@ on the RDS instance that you want to monitor::
  GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
  GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 
+If you have RDS with MySQL version prior 5.7, `REPLICATION CLIENT` privilege is not available there
+and has to be excluded from the above statement.
+
 The following example shows how to enable QAN and MySQL metrics monitoring
 on Amazon RDS:
 
