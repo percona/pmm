@@ -14,6 +14,18 @@ for maximum security and reliability.
 It provides thorough time-based analysis for MySQL and MongoDB servers
 to ensure that your data works as efficiently as possible.
 
+`Community Forum <https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management>`_
+
+  Use the forum to ask questions about using PMM.
+
+`JIRA Project <https://jira.percona.com/projects/PMM>`_
+
+  Use the PMM project in JIRA to report bugs.
+
+`GitHub Repo <https://github.com/percona/pmm>`_
+
+  Use the GitHub repo to explore source code of various PMM components.
+
 Basics
 ======
 

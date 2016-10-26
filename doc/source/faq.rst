@@ -8,6 +8,15 @@ Frequently Asked Questions
    :local:
    :depth: 1
 
+How can I contact the developers?
+=================================
+
+The best place to discuss PMM with developers and other community members
+is the `Community Forum <https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management>`_.
+
+If you would like to report a bug,
+use the `JIRA Project <https://jira.percona.com/projects/PMM>`_.
+
 What are the minimum system requirements for PMM?
 =================================================
 
