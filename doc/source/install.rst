@@ -218,6 +218,14 @@ to install PMM Client from the official Percona software repository:
 
       $ sudo yum install pmm-client
 
+.. note:: The ``pmm-admin`` tool is installed under :file:`/usr/sbin`,
+   which is not in the ``PATH`` environment variable for CentOS 5.
+   To add it manually, run the following command:
+
+   .. code-block:: bash
+
+      $ export PATH=$PATH:/usr/sbin
+
 Installing on Debian or Ubuntu
 ------------------------------
 
