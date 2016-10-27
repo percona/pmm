@@ -54,7 +54,7 @@ To create a container for persistent PMM data, run the following command:
 
 .. code-block:: bash
 
-   docker create \
+   $ docker create \
       -v /opt/prometheus/data \
       -v /opt/consul-data \
       -v /var/lib/mysql \
@@ -93,7 +93,7 @@ To run *PMM Server*, use the following command:
 
 .. code-block:: bash
 
-   docker run -d \
+   $ docker run -d \
       -p 80:80 \
       --volumes-from pmm-data \
       --name pmm-server \
@@ -239,25 +239,25 @@ to install PMM Client from the official Percona software repository:
 
    .. code-block:: bash
 
-      wget https://repo.percona.com/apt/percona-release_0.1-4.$(lsb_release -sc)_all.deb
+      $ wget https://repo.percona.com/apt/percona-release_0.1-4.$(lsb_release -sc)_all.deb
 
 #. Install the repository package:
 
    .. code-block:: bash
 
-      sudo dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
+      $ sudo dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
 
 #. Update the local ``apt`` cache:
 
    .. code-block:: bash
 
-      sudo apt-get update
+      $ sudo apt-get update
 
 #. Install the ``pmm-client`` package:
 
    .. code-block:: bash
 
-      sudo apt-get install pmm-client
+      $ sudo apt-get install pmm-client
 
 Installing from Tarball
 -----------------------
@@ -310,7 +310,7 @@ and you installed *PMM Client* on a machine with IP ``192.168.200.1``:
 
    .. code-block:: bash
 
-      sudo pmm-admin config --server 192.168.100.1:8080
+      $ sudo pmm-admin config --server 192.168.100.1:8080
 
 For more information, run ``pmm-admin config --help``
 
@@ -323,19 +323,25 @@ For general system metrics, MySQL metrics, and query analytics:
 
 .. code-block:: bash
 
-   sudo pmm-admin add mysql
+   $ sudo pmm-admin add mysql
 
 For general system metrics and MongoDB metrics:
 
 .. code-block:: bash
 
-   sudo pmm-admin add mongodb
+   $ sudo pmm-admin add mongodb
+
+For ProxySQL performance metrics:
+
+.. code-block:: bash
+
+   $ sudo pmm-admin add proxysql:metrics
 
 To see what is being monitored:
 
 .. code-block:: bash
 
-   sudo pmm-admin list
+   $ sudo pmm-admin list
 
 For example, if you enable general OS and MongoDB metrics monitoring,
 output should be similar to the following:
@@ -372,14 +378,14 @@ Removing PMM Server
 
    .. code-block:: bash
 
-      docker stop pmm-server && docker rm pmm-server
+      $ docker stop pmm-server && docker rm pmm-server
 
 #. If you also want to discard all collected data,
    remove the ``pmm-data`` container:
 
    .. code-block:: bash
 
-      docker rm pmm-data
+      $ docker rm pmm-data
 
 .. _upgrade-server:
 
@@ -392,7 +398,7 @@ When a newer version of *PMM Server* image becomes available:
 
    .. code-block:: bash
 
-      docker stop pmm-server && docker rm pmm-server
+      $ docker stop pmm-server && docker rm pmm-server
 
 2. Create and run from the image with the new version tag,
    as described in :ref:`server-container`.
@@ -412,7 +418,7 @@ Removing PMM Client
 
    .. code-block:: bash
 
-      sudo ./uninstall
+      $ sudo ./uninstall
 
 .. note::
 
@@ -420,25 +426,25 @@ Removing PMM Client
 
      .. code-block:: bash
 
-        rpm -e pmm-client
+        $ rpm -e pmm-client
 
    * If you installed using YUM:
 
      .. code-block:: bash
 
-        yum remove pmm-client
+        $ yum remove pmm-client
 
    * If you installed using DEB packages:
 
      .. code-block:: bash
 
-        dpkg -r pmm-client
+        $ dpkg -r pmm-client
 
    * If you installed using APT:
 
      .. code-block:: bash
 
-        apt-get remove pmm-client
+        $ apt-get remove pmm-client
 
 .. _upgrade-client:
 
@@ -453,6 +459,4 @@ When a newer version of *PMM Client* becomes available:
    as described :ref:`here <client-install>`.
 
 .. rubric:: References
-
-.. target-notes::
 
