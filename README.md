@@ -7,8 +7,7 @@ See the [PMM docs](https://www.percona.com/doc/percona-monitoring-and-management
 * [pmm-server](https://github.com/percona/pmm-server)
  * [qan-api](https://github.com/percona/qan-api)
  * [qan-app](https://github.com/percona/qan-app)
- * [MySQL dashboards](https://github.com/percona/grafana-dashboards)
- * [MongoDB dashboards](https://github.com/Percona-Lab/grafana_mongodb_dashboards)
+ * [grafana-dashboards](https://github.com/percona/grafana-dashboards)
 * [pmm-client](https://github.com/percona/pmm-client)
  * [qan-agent](https://github.com/percona/qan-agent)
  * [mysqld_exporter](https://github.com/percona/mysqld_exporter) - based on `github.com/prometheus/mysqld_exporter`
