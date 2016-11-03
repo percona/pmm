@@ -51,3 +51,57 @@ on Amazon RDS:
    This means that the ``linux:metrics`` service cannot be used
    to monitor Amazon RDS instances or any remote MySQL instance.
 
+Monitoring Amazon RDS OS Metrics
+================================
+
+You can use CloudWatch as the data source in Grafana
+to monitor OS metrics for Amazon RDS instances.
+PMM provides the *Amazon RDS OS Metrics* dashboard for this.
+
+.. image:: images/amazon-rds-os-metrics.png
+
+To set up OS metrics monitoring for Amazon RDS in PMM via CloudWatch:
+
+1. Create an IAM user on the AWS panel for accessing CloudWatch data,
+   and attach the managed policy ``CloudWatchReadOnlyAccess`` to it.
+
+#. Create a credentials file on the host running PMM Server
+   with the following contents::
+
+    [default]
+    aws_access_key_id = <your_access_key_id>
+    aws_secret_access_key = <your_secret_access_key>
+
+#. Start the ``pmm-server`` container with an additional ``-v`` flag
+   that specifies the location of the file with the IAM user credentials
+   and mounts it to :file:`/usr/share/grafana/.aws/credentials`
+   in the container. For example:
+
+   .. code-block:: bash
+
+      $ docker run -d \
+        -p 80:80 \
+        --volumes-from pmm-data \
+        -v /path/to/file/with/creds:/usr/share/grafana/.aws/credentials \
+        --name pmm-server \
+        --restart always \
+        percona/pmm-server:1.0.6
+
+The *Amazon RDS OS Metrics* dashboard uses 60 second resolution
+and shows the average value for each data point.
+An exception is the *CPU Credit Usage* graph,
+which has a 5 minute average and interval length.
+All data is fetched in real time and not stored anywhere.
+
+This dashboard can be used with any Amazon RDS database engine,
+including MySQL, Aurora, etc.
+
+.. note:: Amazon provides one million CloudWatch API requests
+   per month at no additional cost.
+   Past this, it costs $0.01 per 1,000 requests.
+   The pre-defined dashboard performs 15 requests on each refresh
+   and an extra two on initial loading.
+
+   For more information, see
+   `Amazon CloudWatch Pricing <https://aws.amazon.com/cloudwatch/pricing/>`_.
+
