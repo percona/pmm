@@ -56,6 +56,8 @@ Changes
 
   * Added *File Descriptors* graph to **System Overview** dashboard.
 
+  * Added *Mountpoint Usage* graph to **Disk Space** dashboard.
+
 * Query Analytics improvements:
 
   * QAN data is now purged correctly.

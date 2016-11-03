@@ -162,6 +162,8 @@ For example, the following image shows the **MySQL Overview** dashboard:
 .. image:: images/metrics-monitor.png
    :width: 640
 
+.. _orchestrator:
+
 Orchestrator
 ============
 
