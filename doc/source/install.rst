@@ -43,7 +43,7 @@ must be able to run Docker containers and have network access.
 .. note:: We encourage to use a specific version tag
    instead of the ``latest`` tag
    when using the ``pmm-server`` image.
-   The current stable version is ``1.0.5``.
+   The current stable version is ``1.0.6``.
 
 .. _data-container:
 
@@ -60,7 +60,7 @@ To create a container for persistent PMM data, run the following command:
       -v /var/lib/mysql \
       -v /var/lib/grafana \
       --name pmm-data \
-      percona/pmm-server:1.0.5 /bin/true
+      percona/pmm-server:1.0.6 /bin/true
 
 .. note:: This container does not run,
    it simply exists to make sure you retain all PMM data
@@ -79,7 +79,7 @@ The previous command does the following:
   that you can use to reference the container within a Docker network.
   In this case: ``pmm-data``.
 
-* ``percona/pmm-server:1.0.5`` is the name and version tag of the image
+* ``percona/pmm-server:1.0.6`` is the name and version tag of the image
   to derive the container from.
 
 * ``/bin/true`` is the command that the container runs.
@@ -98,7 +98,7 @@ To run *PMM Server*, use the following command:
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
-      percona/pmm-server:1.0.5
+      percona/pmm-server:1.0.6
 
 The previous command does the following:
 
@@ -124,7 +124,7 @@ The previous command does the following:
   will start the container on startup
   and restart it if the container exits.
 
-* ``percona/pmm-server:1.0.5`` is the name and version tag of the image
+* ``percona/pmm-server:1.0.6`` is the name and version tag of the image
   to derive the container from.
 
 Step 3. Verify Installation
@@ -136,16 +136,16 @@ using the IP address of the host where the container is running.
 For example, if it is running on 192.168.100.1 with default port 80,
 you should be able to access the following:
 
-==================================== ==================================
+==================================== ======================================
 Component                            URL
-==================================== ==================================
-PMM landing page                     http://192.168.100.1
-Query Analytics (QAN web app)        http://192.168.100.1/qan/
-Metrics Monitor (Grafana)            | http://192.168.100.1/graph/
+==================================== ======================================
+PMM landing page                     ``http://192.168.100.1``
+Query Analytics (QAN web app)        ``http://192.168.100.1/qan/``
+Metrics Monitor (Grafana)            | ``http://192.168.100.1/graph/``
                                      | user name: ``admin``
                                      | password: ``admin``
-Orchestrator                         http://192.168.100.1/orchestrator
-==================================== ==================================
+Orchestrator                         ``http://192.168.100.1/orchestrator``
+==================================== ======================================
 
 .. _client-install:
 
@@ -217,16 +217,6 @@ to install PMM Client from the official Percona software repository:
    .. code-block:: bash
 
       $ sudo yum install pmm-client
-
-.. note:: The ``pmm-admin`` tool is installed under :file:`/usr/sbin`,
-   which is not in the ``PATH`` environment variable for CentOS 5.
-   You can either run it with the full path (:file:`/usr/sbin/pmm-admin`)
-   or create a symbolic link to it from :file:`/usr/bin`,
-   which is in the ``PATH`` variable by default.
-
-   .. code-block:: bash
-
-      $ sudo ln -s /usr/sbin/pmm-admin /usr/bin/pmm-admin
 
 Installing on Debian or Ubuntu
 ------------------------------

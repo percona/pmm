@@ -162,6 +162,8 @@ For example, the following image shows the **MySQL Overview** dashboard:
 .. image:: images/metrics-monitor.png
    :width: 640
 
+.. _orchestrator:
+
 Orchestrator
 ============
 
@@ -175,7 +177,7 @@ You can access it using the ``/orchestrator`` URL after *PMM Server* address.
 To use it, create a MySQL user for Orchestrator on all managed instances::
 
  GRANT SUPER, PROCESS, REPLICATION SLAVE, RELOAD ON *.* TO 'orc_client_user'@'%' IDENTIFIED BY 'orc_client_password’;
- 
+
 .. note:: The credentials in the previous example are default.
    If you use different user name or password,
    you have to pass them when

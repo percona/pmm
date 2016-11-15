@@ -306,3 +306,9 @@ For example, to set the minimum resolution to 3 seconds::
    when *PMM Server* and *PMM Client* are on different networks,
    or when :ref:`amazon-rds`.
 
+Why do I get ``Failed ReadTopologyInstance`` error when adding MySQL host to Orchestrator?
+==========================================================================================
+
+You need to create Orchestrator's topology user on MySQL
+according to :ref:`this section <orchestrator>`.
+
