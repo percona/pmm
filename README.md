@@ -1,8 +1,10 @@
 # Percona Monitoring and Management
 
+![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
+
 See the [PMM docs](https://www.percona.com/doc/percona-monitoring-and-management/index.html) for more information.
 
-## Related repos
+## Main repositories
 
 * [pmm-server](https://github.com/percona/pmm-server)
  * [qan-api](https://github.com/percona/qan-api)
