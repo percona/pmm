@@ -82,7 +82,7 @@ mysql:queries
 
    sudo pmm-admin add mysql:queries
 
-This creates the ``pmm-queries-exporter-42001`` service
+This creates the ``pmm-mysql-queries-0`` service
 that is able to collect QAN data for multiple remote MySQL server instances.
 
 The ``pmm-admin`` tool will attempt to automatically detect

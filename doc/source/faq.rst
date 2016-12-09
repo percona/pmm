@@ -262,8 +262,6 @@ it creates a corresponding service that listens on a predefined client port:
 +--------------------+----------------------+-------+
 | General OS metrics | ``linux:metrics``    | 42000 |
 +--------------------+----------------------+-------+
-| Query analytics    | ``mysql:queries``    | 42001 |
-+--------------------+----------------------+-------+
 | MySQL metrics      | ``mysql:metrics``    | 42002 |
 +--------------------+----------------------+-------+
 | MongoDB metrics    | ``mongodb:metrics``  | 42003 |
