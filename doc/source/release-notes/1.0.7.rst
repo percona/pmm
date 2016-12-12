@@ -41,7 +41,7 @@ Upgrading
    the services running on PMM clients.
 
    There are changes related to authentication and general security
-   that will only be available after you restart the services.
+   that will only be available after you re-add the services.
    For more information, see the changes mentioned below.
 
 Changes
