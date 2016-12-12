@@ -63,7 +63,7 @@ linux:metrics
 
    sudo pmm-admin add linux:metrics
 
-This creates the ``pmm-os-exporter-42000`` service
+This creates the ``pmm-linux-metrics-42000`` service
 that collects local system metrics for this particular OS instance.
 
 .. note:: It should be able to detect the local PMM Client name,
@@ -82,7 +82,7 @@ mysql:queries
 
    sudo pmm-admin add mysql:queries
 
-This creates the ``pmm-queries-exporter-42001`` service
+This creates the ``pmm-mysql-queries-0`` service
 that is able to collect QAN data for multiple remote MySQL server instances.
 
 The ``pmm-admin`` tool will attempt to automatically detect
@@ -123,7 +123,7 @@ mysql:metrics
 
    sudo pmm-admin add mysql:metrics
 
-This creates the ``pmm-mysql-exporter-42002`` service
+This creates the ``pmm-mysql-metrics-42002`` service
 that collects MySQL instance metrics.
 
 The ``pmm-admin`` tool will attempt to automatically detect
@@ -157,7 +157,7 @@ mongodb:metrics
 
    sudo pmm-admin add mongodb:metrics
 
-This creates the ``pmm-mongodb-exporter-42003`` service
+This creates the ``pmm-mongodb-metrics-42003`` service
 that collects local MongoDB metrics for this particular MongoDB instance.
 
 .. note:: It should be able to detect the local PMM Client name,
@@ -183,7 +183,7 @@ proxysql:metrics
 
    sudo pmm-admin add proxysql:metrics
 
-This creates the ``pmm-proxysql-exporter-42004`` service
+This creates the ``pmm-proxysql-metrics-42004`` service
 that collects local ProxySQL performance metrics.
 
 .. note:: It should be able to detect the local PMM Client name,
