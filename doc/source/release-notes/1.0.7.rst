@@ -22,7 +22,7 @@ Upgrading
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
-      percona/pmm-server:1.0.6
+      percona/pmm-server:1.0.7
 
 #. :ref:`Install new PMM Client version <client-install>`
    on all hosts that you are monitoring.
@@ -36,6 +36,13 @@ Upgrading
    * For Red Hat Enterprise Linux derivatives::
 
       sudo yum update pmm-client
+
+#. (Optional) :ref:`Remove <pmm-admin-rm>` and :ref:`add <pmm-admin-add>`
+   the services running on PMM clients.
+
+   There are changes related to authentication and general security
+   that will only be available after you restart the services.
+   For more information, see the changes mentioned below.
 
 Changes
 =======

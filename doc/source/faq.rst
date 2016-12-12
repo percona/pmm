@@ -79,7 +79,9 @@ Where are the services created by PMM Client?
 When you add a monitoring instance using the ``pmm-admin`` tool,
 it creates a corresponding service.
 The name of the service has the following syntax:
-``pmm-<type>-exporter-<port>``
+``pmm-<type>-<port>``
+
+For example: ``pmm-mysql-metrics-42002``.
 
 The location of the services depends on the service manager:
 
@@ -121,10 +123,10 @@ Where are PMM Client log files located?
 
 Every service created by ``pmm-admin`` when you add a monitoring instance
 has a separate log file located in :file:`/var/log/`.
-The file names have the following syntax: ``pmm-<type>-exporter-<port>.log``
+The file names have the following syntax: ``pmm-<type>-<port>.log``.
 
 For example, the log file for the QAN monitoring service is
-:file:`/var/log/pmm-queries-exporter-42001.log`.
+:file:`/var/log/pmm-mysql-queries-0.log`.
 
 You can view all available monitoring instance types and corresponding ports
 using the ``pmm-admin list`` command.
