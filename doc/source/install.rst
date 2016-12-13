@@ -43,7 +43,7 @@ must be able to run Docker containers and have network access.
 .. note:: We encourage to use a specific version tag
    instead of the ``latest`` tag
    when using the ``pmm-server`` image.
-   The current stable version is ``1.0.6``.
+   The current stable version is ``1.0.7``.
 
 .. _data-container:
 
@@ -60,7 +60,7 @@ To create a container for persistent PMM data, run the following command:
       -v /var/lib/mysql \
       -v /var/lib/grafana \
       --name pmm-data \
-      percona/pmm-server:1.0.6 /bin/true
+      percona/pmm-server:1.0.7 /bin/true
 
 .. note:: This container does not run,
    it simply exists to make sure you retain all PMM data
@@ -79,7 +79,7 @@ The previous command does the following:
   that you can use to reference the container within a Docker network.
   In this case: ``pmm-data``.
 
-* ``percona/pmm-server:1.0.6`` is the name and version tag of the image
+* ``percona/pmm-server:1.0.7`` is the name and version tag of the image
   to derive the container from.
 
 * ``/bin/true`` is the command that the container runs.
@@ -98,7 +98,7 @@ To run *PMM Server*, use the following command:
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
-      percona/pmm-server:1.0.6
+      percona/pmm-server:1.0.7
 
 The previous command does the following:
 
@@ -124,7 +124,7 @@ The previous command does the following:
   will start the container on startup
   and restart it if the container exits.
 
-* ``percona/pmm-server:1.0.6`` is the name and version tag of the image
+* ``percona/pmm-server:1.0.7`` is the name and version tag of the image
   to derive the container from.
 
 Step 3. Verify Installation
@@ -263,13 +263,13 @@ for manual installation on almost any Linux distribution.
 
    .. code-block:: bash
 
-      $ wget https://www.percona.com/downloads/pmm-client/LATEST/binary/tarball/pmm-client-1.0.5.tar.gz
+      $ wget https://www.percona.com/downloads/pmm-client/LATEST/binary/tarball/pmm-client-1.0.7.tar.gz
 
 2. Extract the downloaded tarball:
 
    .. code-block:: bash
 
-      $ tar -xzf pmm-client-1.0.5.tar.gz
+      $ tar -xzf pmm-client-1.0.7.tar.gz
 
 3. Change into the extracted directory and run the install script:
 
@@ -341,7 +341,7 @@ output should be similar to the following:
 .. code-block:: bash
 
    $ sudo pmm-admin list
-   pmm-admin 1.0.5
+   pmm-admin 1.0.7
 
    PMM Server      | 192.168.100.1
    Client Name     | ubuntu-amd64
