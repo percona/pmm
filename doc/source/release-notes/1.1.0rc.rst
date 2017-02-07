@@ -1,0 +1,47 @@
+.. _1.1.0rc:
+
+============================================
+Percona Monitoring and Management 1.1.0 Beta
+============================================
+
+:Date: February 7, 2017
+:PMM Server: https://hub.docker.com/r/perconalab/pmm-server/
+:PMM Client: https://www.percona.com/downloads/TESTING/pmm/
+
+.. note::
+
+   This beta release is highly experimental
+   with features that are not ready for production.
+   Do not upgrade to it from previous versions.
+   Use it only in a test environment.
+
+For install instructions, see :ref:`install`.
+
+Changes
+=======
+
+Introduced Amazon Machine Image (AMI) and VirtualBox images for PMM Server.
+
+.. note:: These experimental images will be available later this week.
+
+**New in PMM Server:**
+
+* Grafana 4.1.1
+
+* Prometheus 1.5.0
+
+* Consul 0.7.3
+
+* Updated the MongoDB ReplSet dashboard
+  to show the storage engine used by the instance
+
+* :pmmbug:`551`: Fixed QAN changing query format
+  when a time-based filter was applied to the digest
+
+**New in PMM Client:**
+
+* :pmmbug:`530`: Fixed ``pmm-admin`` to support special characters
+  in passwords
+
+* Added displaying of original error message
+  in ``pmm-admin config`` output

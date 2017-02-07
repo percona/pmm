@@ -31,8 +31,9 @@ with a frontend for viewing time-based graphs
 and performing thorough analysis of your MySQL and MongoDB hosts
 through a web interface.
 
-*PMM Server* is distributed as a Docker image
-that is hosted publically at https://hub.docker.com/r/percona/pmm-server/.
+*PMM Server* is distributed as a Docker image.
+The 1.1.0 Beta release is hosted publically at
+https://hub.docker.com/r/perconalab/pmm-server/.
 The machine where you will be hosting *PMM Server*
 must be able to run Docker containers and have network access.
 
@@ -43,7 +44,7 @@ must be able to run Docker containers and have network access.
 .. note:: We encourage to use a specific version tag
    instead of the ``latest`` tag
    when using the ``pmm-server`` image.
-   The current stable version is ``1.0.7``.
+   The current beta version is ``1.1.0beta``.
 
 .. _data-container:
 
@@ -60,7 +61,7 @@ To create a container for persistent PMM data, run the following command:
       -v /var/lib/mysql \
       -v /var/lib/grafana \
       --name pmm-data \
-      percona/pmm-server:1.0.7 /bin/true
+      perconalab/pmm-server:1.1.0beta /bin/true
 
 .. note:: This container does not run,
    it simply exists to make sure you retain all PMM data
@@ -79,8 +80,8 @@ The previous command does the following:
   that you can use to reference the container within a Docker network.
   In this case: ``pmm-data``.
 
-* ``percona/pmm-server:1.0.7`` is the name and version tag of the image
-  to derive the container from.
+* ``perconalab/pmm-server:1.1.0beta`` is the name and version tag
+  of the image to derive the container from.
 
 * ``/bin/true`` is the command that the container runs.
 
@@ -98,7 +99,7 @@ To run *PMM Server*, use the following command:
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
-      percona/pmm-server:1.0.7
+      perconalab/pmm-server:1.1.0beta
 
 The previous command does the following:
 
@@ -124,8 +125,8 @@ The previous command does the following:
   will start the container on startup
   and restart it if the container exits.
 
-* ``percona/pmm-server:1.0.7`` is the name and version tag of the image
-  to derive the container from.
+* ``perconalab/pmm-server:1.1.0beta`` is the name and version tag
+  of the image to derive the container from.
 
 Step 3. Verify Installation
 ---------------------------
@@ -212,11 +213,51 @@ to install PMM Client from the official Percona software repository:
 
       $ sudo yum install http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
 
+#. PMM 1.1.0 is in beta, so client packages are in the testing repository.
+   To enable it, set ``enabled=1`` for the following entries
+   in the Percona repository configuration file
+   (:file:`/etc/yum.repos.d/percona-release.repo`)::
+
+    [percona-testing-$basearch]
+    [percona-testing-noarch]
+
+   For more information, see :ref:`yum-testing-repo`.
+
 #. Install the ``pmm-client`` package:
 
    .. code-block:: bash
 
       $ sudo yum install pmm-client
+
+.. _yum-testing-repo:
+
+Testing and Experimental Repositories
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Percona offers pre-release builds from the testing repo,
+and early-stage development builds from the experimental repo.
+You can enable either one in the Percona repository configuration file
+:file:`/etc/yum.repos.d/percona-release.repo`.
+There are three sections in this file,
+for configuring corresponding repositories:
+
+* stable release
+* testing
+* experimental
+
+The latter two repositories are disabled by default.
+
+If you want to install the latest testing builds,
+set ``enabled=1`` for the following entries: ::
+
+  [percona-testing-$basearch]
+  [percona-testing-noarch]
+
+If you want to install the latest experimental builds,
+set ``enabled=1`` for the following entries: ::
+
+  [percona-experimental-$basearch]
+  [percona-experimental-noarch]
 
 Installing on Debian or Ubuntu
 ------------------------------
@@ -239,6 +280,11 @@ to install PMM Client from the official Percona software repository:
 
       $ sudo dpkg -i percona-release_0.1-4.$(lsb_release -sc)_all.deb
 
+#. PMM 1.1.0 is in beta, so client packages are in the testing repository.
+   To enable it, add ``testing``
+   at the end of the Percona repository definition.
+   For more information, see :ref:`apt-testing-repo`.
+
 #. Update the local ``apt`` cache:
 
    .. code-block:: bash
@@ -251,6 +297,31 @@ to install PMM Client from the official Percona software repository:
 
       $ sudo apt-get install pmm-client
 
+.. _apt-testing-repo:
+
+Testing and Experimental Repositories
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Percona offers pre-release builds from the testing repo,
+and early-stage development builds from the experimental repo.
+To enable them, add either ``testing`` or ``experimental`` at the end
+of the Percona repository definition in your repository file
+(by default, :file:`/etc/apt/sources.list.d/percona-release.list`).
+
+For example, if you are running Debian 8 ("jessie")
+and want to install the latest testing builds,
+the definitions should look like this::
+
+  deb http://repo.percona.com/apt jessie main testing
+  deb-src http://repo.percona.com/apt jessie main testing
+
+If you are running Ubuntu 14.04 LTS (Trusty Tahr)
+and want to install the latest experimental builds,
+the definitions should look like this::
+
+  deb http://repo.percona.com/apt trusty main experimental
+  deb-src http://repo.percona.com/apt trusty main experimental
+
 Installing from Tarball
 -----------------------
 
@@ -258,18 +329,13 @@ Percona provides a generic tarball with necessary files and binaries
 for manual installation on almost any Linux distribution.
 
 1. Download the latest tarball
-   from https://www.percona.com/downloads/pmm-client/LATEST/binary/tarball/
-   For example, you can use ``wget`` as follows:
-
-   .. code-block:: bash
-
-      $ wget https://www.percona.com/downloads/pmm-client/LATEST/binary/tarball/pmm-client-1.0.7.tar.gz
+   from https://www.percona.com/downloads/TESTING/pmm/
 
 2. Extract the downloaded tarball:
 
    .. code-block:: bash
 
-      $ tar -xzf pmm-client-1.0.7.tar.gz
+      $ tar -xzf pmm-client-1.1.0beta.tar.gz
 
 3. Change into the extracted directory and run the install script:
 
