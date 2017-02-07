@@ -21,7 +21,8 @@ enable_logging() {
     exec 2>&1
 
     echo "CMD: $0 $@"
-    echo "Log: ${LOG}"
+    echo "PID: $$"
+    echo "LOG: ${LOG}"
 }
 
 check_pid() {
