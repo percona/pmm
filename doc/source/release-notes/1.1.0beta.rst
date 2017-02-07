@@ -1,4 +1,4 @@
-.. _1.1.0rc:
+.. _1.1.0beta:
 
 ============================================
 Percona Monitoring and Management 1.1.0 Beta
@@ -32,7 +32,7 @@ Introduced Amazon Machine Image (AMI) and VirtualBox images for PMM Server.
 
 * Consul 0.7.3
 
-* Updated the MongoDB ReplSet dashboard
+* Updated the **MongoDB ReplSet** dashboard
   to show the storage engine used by the instance
 
 * :pmmbug:`551`: Fixed QAN changing query format
@@ -45,3 +45,4 @@ Introduced Amazon Machine Image (AMI) and VirtualBox images for PMM Server.
 
 * Added displaying of original error message
   in ``pmm-admin config`` output
+
