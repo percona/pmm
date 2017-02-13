@@ -1,9 +1,9 @@
 #!/bin/bash
 
-set -o xtrace
 set -o errexit
+set -o xtrace
 
-UPDATE_DIR=/srv/update
+[ -z "${UPDATE_DIR}" ] && UPDATE_DIR=/srv/update
 
 check_root() {
     if [ "x$(id -u)" != "x0" ]; then
@@ -58,22 +58,26 @@ failover_update() {
 	EOF
 
     pushd $UPDATE_DIR
+        rm -rf usr pmm-update-*.rpm || :
         yumdownloader --config=${UPDATE_DIR}/yum.conf --destdir=$UPDATE_DIR pmm-update
-        rpm2cpio $(/bin/ls -t pmm-update-* | head -1) | cpio -id
-        exec ${UPDATE_DIR}/usr/bin/pmm-update-stage2 $UPDATE_DIR
+        rpm2cpio $(/bin/ls -t pmm-update-*.rpm | head -1) | cpio -id
     popd
 }
 
-run_update() {
+main() {
+    local RPM_ROOT=$1
+
+    yum -y --enablerepo=pmm clean all || :
     yum -y --enablerepo=pmm install pmm-update && EC=$? || EC=$?
-    if [ "x$EC" == "x0" ]; then
-        exec /usr/bin/pmm-update-stage2
-    else
+    if [ "x$EC" != "x0" ]; then
         failover_update
+        RPM_ROOT=$UPDATE_DIR
     fi
+
+    exec $RPM_ROOT/usr/bin/pmm-update-stage2 $RPM_ROOT
 }
 
 check_root
 enable_logging
 check_pid
-run_update
+main $@
