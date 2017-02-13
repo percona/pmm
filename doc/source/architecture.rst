@@ -76,7 +76,7 @@ There are also generic tarball binaries that can be used on any Linux system.
 
 * ``mongodb_exporter`` is a Prometheus exporter
   that collects MongoDB server metrics.
-  For more information, see https://github.com/Percona-Lab/prometheus_mongodb_exporter.
+  For more information, see https://github.com/percona/mongodb_exporter.
 
 * ``proxysql_exporter`` is a Prometheus exporter
   that collects ProxySQL performance metrics.
