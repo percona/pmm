@@ -20,9 +20,14 @@
         - percona-orchestrator-2.0.1
         - percona-node_exporter-0.13.0
         - percona-toolkit-2.2.20
-        - percona-dashboards-1.1.0
+        - percona-dashboards-1.1.1
         - percona-qan-api-1.1.0
         - percona-qan-app-1.1.1
         - pmm-server-1.1.1
         - pmm-manage-1.1.0
         - pmm-update
+
+    - name: PMM                        | Import dashboards
+      command: /usr/share/percona-dashboards/import-dashboards.py /srv/grafana
+      register: import_result
+      changed_when: "'up-to-date' not in import_result.stdout"
