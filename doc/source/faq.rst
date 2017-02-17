@@ -12,20 +12,41 @@ How can I contact the developers?
 =================================
 
 The best place to discuss PMM with developers and other community members
-is the `Community Forum <https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management>`_.
+is the `community forum <https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management>`_.
 
 If you would like to report a bug,
-use the `JIRA Project <https://jira.percona.com/projects/PMM>`_.
+use the `PMM project in JIRA <https://jira.percona.com/projects/PMM>`_.
+
+.. _sys-req:
 
 What are the minimum system requirements for PMM?
 =================================================
 
-:PMM Server: Any system which can run Docker version 1.10 or later,
- and kernel 3.x-4.x
+* **PMM Server**
 
-:PMM Client: Any modern 64-bit Linux distribution.
- We recommend the latest versions of
- Debian, Ubuntu, CentOS, and RedHat Enterprise Linux.
+  Any system which can run Docker version 1.12.6 or later.
+
+  It needs roughly 1 GB of storage for each monitored database node
+  with data retention set to one week.
+
+  Minimum memory is 2 GB for one monitored database node,
+  but it is not linear when you increase more nodes.
+  For example, data from 20 nodes should be easily handled with 16 GB.
+
+* **PMM Client**
+
+  Any modern 64-bit Linux distribution.
+  It is tested on the latest versions of
+  Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux.
+
+  Minimum 100 MB of storage is required
+  for installing the *PMM Client* package.
+  With good constant connection to *PMM Server*,
+  additional storage is not required.
+  However, the client needs to store any collected data
+  that it is not able to send over immediately,
+  so additional storage may be required if connection is unstable
+  or throughput is too low.
 
 How to control memory consumption for Prometheus?
 =================================================
