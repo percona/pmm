@@ -31,7 +31,7 @@ Upgrading
 
 #. :ref:`Create and run the PMM Server container <server-container>`
 
-#. :ref:`Install PMM Clients <client-install>` on all your monitored hosts
+#. :ref:`Install PMM Clients <install-client>` on all your monitored hosts
 
 Changes
 =======

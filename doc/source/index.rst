@@ -36,9 +36,9 @@ Basics
 .. toctree::
    :maxdepth: 1
 
-   Architecture <architecture>
-   Installation <install>
-   Usage <using>
+   Architecture Overview <architecture>
+   Deployment Guide <deploy/index>
+   Usage Information <using>
 
 Advanced
 ========

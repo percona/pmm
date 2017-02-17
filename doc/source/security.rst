@@ -54,7 +54,7 @@ For example:
 
 *PMM Client* uses the same credentials to communicate with *PMM Server*.
 If you set the user name and password as described,
-specify them when :ref:`connect-to-pmm-server`:
+specify them when :ref:`connect-client`:
 
 .. only:: html
 
@@ -138,7 +138,7 @@ using SSL certificates.
    .. note:: Note that the container should expose port 443
       instead of 80 to enable SSL encryption.
 
-#. Enable SSL when :ref:`connect-to-pmm-server`.
+#. Enable SSL when :ref:`connect-client`.
    If you purchased the certificate from a certificate authority (CA):
 
    .. only:: html
@@ -203,7 +203,7 @@ The following example shows how you might
            percona/pmm-server:1.0.5
 
 The following example shows how you might
-:ref:`connect to PMM Server <connect-to-pmm-server>`:
+:ref:`connect to PMM Server <connect-client>`:
 
 .. only:: html
 

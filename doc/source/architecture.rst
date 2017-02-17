@@ -53,6 +53,8 @@ PMM Client
 
 There are also generic tarball binaries that can be used on any Linux system.
 
+For more information, see :ref:`install-client`.
+
 *PMM Client* packages consist of the following:
 
 * ``pmm-admin`` is a command-line tool for managing *PMM Client*,
@@ -87,10 +89,17 @@ There are also generic tarball binaries that can be used on any Linux system.
 PMM Server
 ----------
 
-*PMM Server* is distributed as a Docker image
-that you can use to run a container on the machine
-that will be your central monitoring host.
-It consists of the following tools:
+*PMM Server* runs on the machine that will be your central monitoring host.
+It is distributed as an appliance via the following:
+
+* Docker image that you can use to run a container
+* Open Virtual Appliance (OVA)
+  that you can run in VirtualBox or another hypervisor
+* Amazon Machine Image (AMI) that you can run via Amazon Web Services (AWS)
+
+For more information, see :ref:`run-server`.
+
+*PMM Server* consists of the following tools:
 
 * **Query Analytics** (QAN) enables you to analyze
   MySQL query performance over periods of time.
