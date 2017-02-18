@@ -34,6 +34,7 @@ Advanced
    amazon-rds
    Configuring MySQL for best results <conf-mysql>
    security
+   mm-dashboards
 
 Reference
 =========
