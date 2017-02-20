@@ -5,7 +5,7 @@ Using the Percona Monitoring and Management Platform
 ====================================================
 
 You can access the PMM web interface using the IP address of the host
-where the *PMM Server* container is running.
+where *PMM Server* is running.
 For example, if *PMM Server* is running on a host with IP 192.168.100.1,
 access the following address with your web browser: ``http://192.168.100.1``.
 
@@ -179,9 +179,9 @@ To use it, create a MySQL user for Orchestrator on all managed instances::
  GRANT SUPER, PROCESS, REPLICATION SLAVE, RELOAD ON *.* TO 'orc_client_user'@'%' IDENTIFIED BY 'orc_client_password’;
 
 .. note:: The credentials in the previous example are default.
-   If you use different user name or password,
+   If you use a different user name or password,
    you have to pass them when
-   :ref:`running the PMM Server container <server-container>`
+   :ref:`running PMM Server <run-server>`
    using the following options::
 
     -e ORCHESTRATOR_USER=name -e ORCHESTRATOR_PASSWORD=pass

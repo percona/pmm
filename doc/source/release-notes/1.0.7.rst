@@ -24,7 +24,7 @@ Upgrading
       --restart always \
       percona/pmm-server:1.0.7
 
-#. :ref:`Install new PMM Client version <client-install>`
+#. :ref:`Install new PMM Client version <install-client>`
    on all hosts that you are monitoring.
    If you previously installed using Percona repositories,
    you can upgade the package as follows:
