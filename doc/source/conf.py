@@ -241,7 +241,7 @@ htmlhelp_basename = 'PMM-Doc'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'PerconaMonitoringAndManagement.tex', u'Percona Monitoring and Management Documentation',
-   u'Percona LLC and/or its affiliates 2009-2016', 'manual'),
+   u'Percona LLC and/or its affiliates 2009-2017', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -274,5 +274,5 @@ latex_logo = 'percona-logo.jpg'
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'perconamonitoringandmanagement', u'Percona Monitoring and Management Documentation',
-     [u'Percona LLC and/or its affiliates 2009-2016'], 1)
+     [u'Percona LLC and/or its affiliates 2009-2017'], 1)
 ]
