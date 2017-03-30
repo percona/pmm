@@ -66,7 +66,7 @@ PMM Client
 * :pmmbug:`504`: Added ability to change the name of a client
   with running services::
 
-  $ sudo pmm-admin config --client-name new_name --force
+   $ sudo pmm-admin config --client-name new_name --force
 
-  .. warning:: You may lose some Metrics Monitor data previously collected.
+  .. warning:: Some Metrics Monitor data may be lost.
 
