@@ -68,3 +68,5 @@ PMM Client
 
   $ sudo pmm-admin config --client-name new_name --force
 
+  .. warning:: You may lose some Metrics Monitor data previously collected.
+
