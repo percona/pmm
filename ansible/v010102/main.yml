@@ -1,4 +1,4 @@
-# v1.1.2alpha
+# v1.1.2
 ---
 - hosts: all
   become: yes
@@ -31,3 +31,24 @@
       command: bash -c "/usr/share/percona-dashboards/import-dashboards.py $(dirname $(ls /srv/grafana/grafana.db /var/lib/grafana/grafana.db 2>/dev/null))"
       register: import_result
       changed_when: "'up-to-date' not in import_result.stdout"
+
+    - name: PMM                        | Stat supervisor
+      stat: path=/usr/bin/supervisorctl
+      register: supervisorctl
+
+    - name: PMM                        | Restart services (supervisord)
+      when: supervisorctl.stat.exists
+      command: /usr/bin/supervisorctl restart all
+
+    - name: PMM                        | Restart services (systemd)
+      when: not supervisorctl.stat.exists
+      service: name={{ item }} state=restarted
+      with_items:
+        - nginx
+        - orchestrator
+        - prometheus
+        - node_exporter
+        - percona-qan-api
+        - grafana-server
+        - pmm-manage
+        - consul
