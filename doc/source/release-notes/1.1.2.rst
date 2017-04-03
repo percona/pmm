@@ -4,7 +4,7 @@
 Percona Monitoring and Management 1.1.2
 =======================================
 
-:Date: March 31, 2017
+:Date: April 3, 2017
 :PMM Server: https://hub.docker.com/r/percona/pmm-server/
 :PMM Client: https://www.percona.com/downloads/pmm-client/
 
