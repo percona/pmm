@@ -19,7 +19,7 @@
         - percona-dashboards-1.1.3
         - pmm-server-1.1.3
         - percona-orchestrator-2.1.0
-        - percona-prometheus-1.6.0
+        - percona-prometheus-1.6.1
         - percona-node_exporter-0.13.0
         - percona-qan-api-1.1.3
         - percona-grafana-4.2.0
