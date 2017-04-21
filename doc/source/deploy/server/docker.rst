@@ -21,6 +21,9 @@ For more information about using Docker, see the `Docker Docs`_.
    use a specific version tag instead of the ``latest`` tag.
    The current stable version is ``1.1.3``.
 
+.. note:: By default, Docker will pull the image from DockerHub
+   if it is not available locally.
+
 .. _data-container:
 
 Step 1. Create a PMM Data Container
