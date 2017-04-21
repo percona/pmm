@@ -15,33 +15,33 @@ for the corresponding image:
    * - Region
      - AMI ID
    * - US East (N. Virginia)
-     - `ami-78880e6e <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-78880e6e>`_
+     - `ami-4f7bf059 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-4f7bf059>`_
    * - US East (Ohio)
-     - `ami-6ccaee09 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-2#Images:visibility=public-images;imageId=ami-6ccaee09>`_
+     - `ami-a79cb8c2 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-2#Images:visibility=public-images;imageId=ami-a79cb8c2>`_
    * - US West (N. California)
-     - `ami-ba451fda <https://console.aws.amazon.com/ec2/v2/home?region=us-west-1#Images:visibility=public-images;imageId=ami-ba451fda>`_
+     - `ami-8785a0e7 <https://console.aws.amazon.com/ec2/v2/home?region=us-west-1#Images:visibility=public-images;imageId=ami-8785a0e7>`_
    * - US West (Oregon)
-     - `ami-af3daacf <https://console.aws.amazon.com/ec2/v2/home?region=us-west-2#Images:visibility=public-images;imageId=ami-af3daacf>`_
+     - `ami-1737a577 <https://console.aws.amazon.com/ec2/v2/home?region=us-west-2#Images:visibility=public-images;imageId=ami-1737a577>`_
    * - Canada (Central)
-     - `ami-9400bdf0 <https://console.aws.amazon.com/ec2/v2/home?region=ca-central-1#Images:visibility=public-images;imageId=ami-9400bdf0>`_
+     - `ami-aed66aca <https://console.aws.amazon.com/ec2/v2/home?region=ca-central-1#Images:visibility=public-images;imageId=ami-aed66aca>`_
    * - EU (Ireland)
-     - `ami-a36950c5 <https://console.aws.amazon.com/ec2/v2/home?region=eu-west-1#Images:visibility=public-images;imageId=ami-a36950c5>`_
+     - `ami-23c1c545 <https://console.aws.amazon.com/ec2/v2/home?region=eu-west-1#Images:visibility=public-images;imageId=ami-23c1c545>`_
    * - EU (Frankfurt)
-     - `ami-ee2dfd81 <https://console.aws.amazon.com/ec2/v2/home?region=eu-central-1#Images:visibility=public-images;imageId=ami-ee2dfd81>`_
+     - `ami-6469bb0b <https://console.aws.amazon.com/ec2/v2/home?region=eu-central-1#Images:visibility=public-images;imageId=ami-6469bb0b>`_
    * - EU (London)
-     - `ami-681e0a0c <https://console.aws.amazon.com/ec2/v2/home?region=eu-west-2#Images:visibility=public-images;imageId=ami-681e0a0c>`_
+     - `ami-0edace6a <https://console.aws.amazon.com/ec2/v2/home?region=eu-west-2#Images:visibility=public-images;imageId=ami-0edace6a>`_
    * - Asia Pacific (Singapore)
-     - `ami-2f87384c <https://console.aws.amazon.com/ec2/v2/home?region=ap-southeast-1#Images:visibility=public-images;imageId=ami-2f87384c>`_
+     - `ami-435de420 <https://console.aws.amazon.com/ec2/v2/home?region=ap-southeast-1#Images:visibility=public-images;imageId=ami-435de420>`_
    * - Asia Pacific (Sydney)
-     - `ami-f6aca395 <https://console.aws.amazon.com/ec2/v2/home?region=ap-southeast-2#Images:visibility=public-images;imageId=ami-f6aca395>`_
+     - `ami-fc2d249f <https://console.aws.amazon.com/ec2/v2/home?region=ap-southeast-2#Images:visibility=public-images;imageId=ami-fc2d249f>`_
    * - Asia Pacific (Seoul)
-     - `ami-8e9745e0 <https://console.aws.amazon.com/ec2/v2/home?region=ap-northeast-2#Images:visibility=public-images;imageId=ami-8e9745e0>`_
+     - `ami-2b15c745 <https://console.aws.amazon.com/ec2/v2/home?region=ap-northeast-2#Images:visibility=public-images;imageId=ami-2b15c745>`_
    * - Asia Pacific (Tokyo)
-     - `ami-36dff851 <https://console.aws.amazon.com/ec2/v2/home?region=ap-northeast-1#Images:visibility=public-images;imageId=ami-36dff851>`_
+     - `ami-9e3e11f9 <https://console.aws.amazon.com/ec2/v2/home?region=ap-northeast-1#Images:visibility=public-images;imageId=ami-9e3e11f9>`_
    * - Asia Pacific (Mumbai)
-     - `ami-1541327a <https://console.aws.amazon.com/ec2/v2/home?region=ap-south-1#Images:visibility=public-images;imageId=ami-1541327a>`_
+     - `ami-81c2b1ee <https://console.aws.amazon.com/ec2/v2/home?region=ap-south-1#Images:visibility=public-images;imageId=ami-81c2b1ee>`_
    * - South America (São Paulo)
-     - `ami-f8a3c094 <https://console.aws.amazon.com/ec2/v2/home?region=sa-east-1#Images:visibility=public-images;imageId=ami-f8a3c094>`_
+     - `ami-22ceac4e <https://console.aws.amazon.com/ec2/v2/home?region=sa-east-1#Images:visibility=public-images;imageId=ami-22ceac4e>`_
 
 Running from Command Line
 =========================
