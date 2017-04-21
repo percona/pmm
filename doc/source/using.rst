@@ -195,6 +195,8 @@ Orchestrator
 
 Orchestrator is a MySQL replication topology management and visualization tool.
 You can access it using the ``/orchestrator`` URL after *PMM Server* address.
+Alternatively, you can click the **MySQL Replication Topology Manager** button
+on the main *PMM Server* landing page.
 
 To use it, create a MySQL user for Orchestrator on all managed instances::
 
