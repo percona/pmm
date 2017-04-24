@@ -27,6 +27,29 @@
         - pmm-manage-1.1.3
         - percona-consul-0.8.1
 
+    - name: PMM                        | Check .dockerenv file
+      stat: path=/.dockerenv
+      register: dockerenv
+
+    - name: NGINX                      | Disable daemon
+      when: dockerenv.stat.exists
+      lineinfile:
+        dest: /etc/nginx/nginx.conf
+        line: 'daemon off;'
+
+    - name: NGINX                      | Disable password-page
+      when: dockerenv.stat.exists
+      replace:
+        dest: /etc/nginx/conf.d/pmm.conf
+        regexp: '/usr/share/pmm-server/password-page'
+        replace: '/usr/share/pmm-server/landing-page'
+
+    - name: NGINX                      | Fix nginx config
+      replace:
+        dest: /etc/nginx/nginx.conf
+        regexp: '^(\s*)listen'
+        replace: '\1#listen'
+
     - name: PMM                        | Import dashboards
       command: bash -c "/usr/share/percona-dashboards/import-dashboards.py $(dirname $(ls /srv/grafana/grafana.db /var/lib/grafana/grafana.db 2>/dev/null))"
       register: import_result
