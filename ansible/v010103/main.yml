@@ -9,6 +9,13 @@
       command: /usr/bin/yum --enablerepo=pmm clean all
       changed_when: False
 
+    - name: PMM-793 temp workaround    | Backup configs
+      copy: src={{ item.src }} dest={{ item.dest }}
+      with_items:
+        - { src: '/etc/prometheus.yml',            dest: '/tmp/prometheus.yml-backup' }
+        - { src: '/etc/orchestrator.conf.json',    dest: '/tmp/orchestrator.conf.json-backup' }
+        - { src: '/etc/cron.daily/purge-qan-data', dest: '/tmp/purge-qan-data-backup' }
+
     - name: PMM                        | Install RPMs
       when: ansible_os_family == 'RedHat'
       yum: name={{ item }} state=present enablerepo=pmm
@@ -26,6 +33,13 @@
         - percona-qan-app-1.1.3
         - pmm-manage-1.1.3
         - percona-consul-0.8.1
+
+    - name: PMM-793 temp workaround    | Restore configs
+      copy: remote_src=True src={{ item.src }} dest={{ item.dest }}
+      with_items:
+        - { src: '/tmp/prometheus.yml-backup',         dest: '/etc/prometheus.yml' }
+        - { src: '/tmp/orchestrator.conf.json-backup', dest: '/etc/orchestrator.conf.json' }
+        - { src: '/tmp/purge-qan-data-backup',         dest: '/etc/cron.daily/purge-qan-data' }
 
     - name: PMM                        | Stat supervisor
       stat: path=/usr/bin/supervisorctl
