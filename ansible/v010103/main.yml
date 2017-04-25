@@ -27,18 +27,18 @@
         - pmm-manage-1.1.3
         - percona-consul-0.8.1
 
-    - name: PMM                        | Check .dockerenv file
-      stat: path=/.dockerenv
-      register: dockerenv
+    - name: PMM                        | Stat supervisor
+      stat: path=/usr/bin/supervisorctl
+      register: supervisorctl
 
     - name: NGINX                      | Disable daemon
-      when: dockerenv.stat.exists
+      when: supervisorctl.stat.exists
       lineinfile:
         dest: /etc/nginx/nginx.conf
         line: 'daemon off;'
 
     - name: NGINX                      | Disable password-page
-      when: dockerenv.stat.exists
+      when: supervisorctl.stat.exists
       replace:
         dest: /etc/nginx/conf.d/pmm.conf
         regexp: '/usr/share/pmm-server/password-page'
@@ -54,10 +54,6 @@
       command: bash -c "/usr/share/percona-dashboards/import-dashboards.py $(dirname $(ls /srv/grafana/grafana.db /var/lib/grafana/grafana.db 2>/dev/null))"
       register: import_result
       changed_when: "'up-to-date' not in import_result.stdout"
-
-    - name: PMM                        | Stat supervisor
-      stat: path=/usr/bin/supervisorctl
-      register: supervisorctl
 
     - name: PMM                        | Restart services (supervisord)
       when: supervisorctl.stat.exists
