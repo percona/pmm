@@ -35,11 +35,14 @@
         - percona-consul-0.8.1
 
     - name: PMM-793 temp workaround    | Restore configs
-      copy: remote_src=True src={{ item.src }} dest={{ item.dest }}
+      copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
         - { src: '/tmp/prometheus.yml-backup',         dest: '/etc/prometheus.yml' }
         - { src: '/tmp/orchestrator.conf.json-backup', dest: '/etc/orchestrator.conf.json' }
         - { src: '/tmp/purge-qan-data-backup',         dest: '/etc/cron.daily/purge-qan-data' }
+
+    - name: PMM-793 temp workaround    | Remove tmp files with credetials
+      command: /usr/bin/shred --remove /tmp/prometheus.yml-backup /tmp/orchestrator.conf.json-backup /tmp/purge-qan-data-backup
 
     - name: PMM                        | Stat supervisor
       stat: path=/usr/bin/supervisorctl
