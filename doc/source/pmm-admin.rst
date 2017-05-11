@@ -6,21 +6,107 @@ Managing PMM Client
 
 Use the ``pmm-admin`` tool to manage *PMM Client*.
 
+**USAGE**
+
+.. code-block:: none
+
+   pmm-admin [OPTIONS] [COMMAND]
+
 .. note:: The ``pmm-admin`` tool requires root access
    (you should either be logged in as a user with root privileges
    or be able to run commands with ``sudo``).
 
-Use the ``--help`` option to view the built-in help.
-For example, you can view all available commands and options
-by running the following:
+To view all available commands and options,
+run ``pmm-admin`` without any commands or options:
 
 .. code-block:: bash
 
-   sudo pmm-admin --help
+   $ sudo pmm-admin
 
-.. contents::
-   :local:
-   :depth: 1
+.. _pmm-admin-options:
+
+**OPTIONS**
+
+The following options can be used with any command:
+
+``-c``, ``--config-file``
+  Specify location of PMM configuration file
+  (default :file:`/usr/local/percona/pmm-client/pmm.yml`).
+
+``-h``, ``--help``
+  Print help for any command and exit.
+
+``-v``, ``--version``
+  Print version of *PMM Client*.
+
+``--verbose``
+  Print verbose output.
+
+.. _pmm-admin-commands:
+
+**COMMANDS**
+
+|pmm-admin-add|_
+  Add a monitoring service.
+
+|pmm-admin-check-network|_
+  Check network connection between *PMM Client* and *PMM Server*.
+
+|pmm-admin-config|_
+  Configure how *PMM Client* communicates with *PMM Server*.
+
+|pmm-admin-help|_
+  Print help for any command and exit.
+
+|pmm-admin-info|_
+  Print information about *PMM Client*.
+
+|pmm-admin-list|_
+  List all monitoring services added for this *PMM Client*.
+
+|pmm-admin-ping|_
+  Check if *PMM Server* is alive.
+
+|pmm-admin-purge|_
+  Purge metrics data on *PMM Server*.
+
+|pmm-admin-remove|_, |pmm-admin-rm|_
+  Remove monitoring services.
+
+|pmm-admin-repair|_
+  Remove orphaned services.
+
+|pmm-admin-restart|_
+  Restart monitoring services.
+
+|pmm-admin-show-passwords|_
+  Print passwords used by *PMM Client* (stored in the configuration file).
+
+|pmm-admin-start|_
+  Start monitoring service.
+
+|pmm-admin-stop|_
+  Stop monitoring service.
+
+|pmm-admin-uninstall|_
+  Clean up *PMM Client* before uninstall.
+
+.. |pmm-admin-add| replace:: ``pmm-admin add``
+.. |pmm-admin-check-network| replace:: ``pmm-admin check-network``
+.. |pmm-admin-config| replace:: ``pmm-admin config``
+.. |pmm-admin-help| replace:: ``pmm-admin help``
+.. |pmm-admin-info| replace:: ``pmm-admin info``
+.. |pmm-admin-list| replace:: ``pmm-admin list``
+.. |pmm-admin-ping| replace:: ``pmm-admin ping``
+.. |pmm-admin-purge| replace:: ``pmm-admin purge``
+.. |pmm-admin-remove| replace:: ``pmm-admin remove``
+.. |pmm-admin-rm| replace:: ``pmm-admin rm``
+.. |pmm-admin-repair| replace:: ``pmm-admin repair``
+.. |pmm-admin-restart| replace:: ``pmm-admin restart``
+.. |pmm-admin-show-passwords| replace:: ``pmm-admin show-passwords``
+.. |pmm-admin-start| replace:: ``pmm-admin start``
+.. |pmm-admin-stop| replace:: ``pmm-admin stop``
+.. |pmm-admin-uninstall| replace:: ``pmm-admin uninstall``
 
 .. _pmm-admin-add:
 
@@ -29,68 +115,147 @@ Adding monitoring services
 
 Use the ``pmm-admin add`` command to add monitoring services.
 
-For complete MySQL instance monitoring:
+**USAGE**
 
-.. code-block:: bash
+.. code-block:: none
 
-   sudo pmm-admin add mysql
+   pmm-admin add [OPTIONS] [SERVICE]
 
-The previous command adds the following services:
+.. _pmm-admin-add-options:
 
-* ``linux:metrics``
-* ``mysql:metrics``
-* ``mysql:queries``
+**OPTIONS**
 
-For complete MongoDB instance monitoring:
+The following option can be used with the ``pmm-admin add`` command:
 
-.. code-block:: bash
+``--service-port``
+  Specify the :ref:`service port <service-port>`.
 
-   sudo pmm-admin add mongodb
+You can also use
+:ref:`global options that apply to any other command <pmm-admin-options>`.
 
-The previous command adds the following services:
+**SERVICES**
 
-* ``linux:metrics``
-* ``mongodb:metrics``
+Specify a :ref:`monitoring service alias <pmm-admin-service-aliases>`,
+along with any relevant additional arguments.
+
+For more information, run ``sudo pmm-admin add --help``.
 
 .. _pmm-admin-add-linux-metrics:
 
-linux:metrics
--------------
+Adding general system metrics service
+-------------------------------------
 
-**To enable general system metrics monitoring:**
+Use the ``linux:metrics`` alias to enable general system metrics monitoring.
 
-.. code-block:: bash
+**USAGE**
 
-   sudo pmm-admin add linux:metrics
+.. code-block:: none
+
+   pmm-admin add linux:metrics [NAME] [OPTIONS]
 
 This creates the ``pmm-linux-metrics-42000`` service
 that collects local system metrics for this particular OS instance.
 
-.. note:: It should be able to detect the local PMM Client name,
-   but you can also specify it explicitely as an argument.
+.. note:: It should be able to detect the local *PMM Client* name,
+   but you can also specify it explicitly as an argument.
 
-For more information, run ``sudo pmm-admin add linux:metrics --help``
+**OPTIONS**
+
+The following option can be used with the ``linux:metrics`` alias:
+
+``--force``
+  Force to add another general system metrics service with a different name
+  for testing purposes.
+
+You can also use
+:ref:`global options that apply to any other command
+<pmm-admin-options>`,
+as well as
+:ref:`options that apply to adding services in general
+<pmm-admin-add-options>`.
+
+For more information, run ``sudo pmm-admin add linux:metrics --help``.
 
 .. _pmm-admin-add-mysql-queries:
 
-mysql:queries
--------------
+Adding MySQL query analytics service
+------------------------------------
 
-**To enable MySQL query analytics:**
+Use the ``mysql:queries`` alias to enable MySQL query analytics.
 
-.. code-block:: bash
+**USAGE**
 
-   sudo pmm-admin add mysql:queries
+.. code-block:: none
+
+   pmm-admin add mysql:queries [NAME] [OPTIONS]
 
 This creates the ``pmm-mysql-queries-0`` service
 that is able to collect QAN data for multiple remote MySQL server instances.
 
-The ``pmm-admin`` tool will attempt to automatically detect
+.. note:: It should be able to detect the local *PMM Client* name,
+   but you can also specify it explicitly as an argument.
+
+**OPTIONS**
+
+The following options can be used with the ``mysql:queries`` alias:
+
+``--create-user``
+  Create a dedicated MySQL user for *PMM Client* (named ``pmm``).
+
+``--create-user-maxconn``
+  Specify maximum connections for the dedicated MySQL user (default is 10).
+
+``--create-user-password``
+  Specify password for the dedicated MySQL user.
+
+``--defaults-file``
+  Specify path to :file:`my.cnf`.
+
+``--disable-queryexamples``
+  Disable collection of query examples.
+
+``--force``
+  Force to create or update the dedicated MySQL user.
+
+``--host``
+  Specify the MySQL host name.
+
+``--password``
+  Specify the password for MySQL user with admin privileges.
+
+``--port``
+  Specify the MySQL instance port.
+
+``--query-source``
+  Specify the source of data:
+
+  * ``auto``: Select automatically (default).
+  * ``slowlog``: Use the slow query log.
+  * ``perfschema``: Use Performance Schema.
+
+``--socket``
+  Specify the MySQL instance socket file.
+
+``--user``
+  Specify the name of MySQL user with admin privileges.
+
+You can also use
+:ref:`global options that apply to any other command
+<pmm-admin-options>`,
+as well as
+:ref:`options that apply to adding services in general
+<pmm-admin-add-options>`.
+
+**DETAILED DESCRIPTION**
+
+When adding the MySQL query analytics service,
+the ``pmm-admin`` tool will attempt to automatically detect
 the local MySQL instance and MySQL superuser credentials.
-You can use options to provide this information for ``pmm-admin``
-if it is not able to auto-detect.
+You can use options to provide this information,
+if it cannot be detected automatically.
+
 You can also specify the ``--create-user`` option to create a dedicated
-``pmm`` user on the MySQL host that you want to monitor.
+``pmm`` user on the MySQL instance that you want to monitor.
 This user will be given all the necessary privileges for monitoring,
 and is recommended over using the MySQL superuser.
 
@@ -110,26 +275,93 @@ For more information about the differences, see :ref:`perf-schema`.
 You can explicitely set the query source when adding a QAN instance
 using the ``--query-source`` option.
 
-For more information, run ``sudo pmm-admin add mysql:queries --help``
+For more information, run ``sudo pmm-admin add mysql:queries --help``.
 
 .. _pmm-admin-add-mysql-metrics:
 
-mysql:metrics
--------------
+Adding MySQL metrics service
+----------------------------
 
-**To enable MySQL metrics monitoring:**
+Use the ``mysql:metrics`` alias to enable MySQL metrics monitoring.
 
-.. code-block:: bash
+**USAGE**
 
-   sudo pmm-admin add mysql:metrics
+.. code-block:: none
+
+   pmm-admin add mysql:metrics [NAME] [OPTIONS]
 
 This creates the ``pmm-mysql-metrics-42002`` service
 that collects MySQL instance metrics.
 
-The ``pmm-admin`` tool will attempt to automatically detect
+.. note:: It should be able to detect the local *PMM Client* name,
+   but you can also specify it explicitly as an argument.
+
+**OPTIONS**
+
+The following options can be used with the ``mysql:metrics`` alias:
+
+``--create-user``
+  Create a dedicated MySQL user for *PMM Client* (named ``pmm``).
+
+``--create-user-maxconn``
+  Specify maximum connections for the dedicated MySQL user (default is 10).
+
+``--create-user-password``
+  Specify password for the dedicated MySQL user.
+
+``--defaults-file``
+  Specify path to :file:`my.cnf`.
+
+``--disable-binlogstats``
+  Disable collection of binary log statistics.
+
+``--disable-processlist``
+  Disable collection of process state metrics.
+
+``--disable-tablestats``
+  Disable collection of table statistics.
+
+``--disable-tablestats-limit``
+  Specify maximum number of tables
+  for which collection of table statistics is enabled
+  (by default, the limit is 1 000 tables).
+
+``--disable-userstats``
+  Disable collection of user statistics.
+
+``--force``
+  Force to create or update the dedicated MySQL user.
+
+``--host``
+  Specify the MySQL host name.
+
+``--password``
+  Specify the password for MySQL user with admin privileges.
+
+``--port``
+  Specify the MySQL instance port.
+
+``--socket``
+  Specify the MySQL instance socket file.
+
+``--user``
+  Specify the name of MySQL user with admin privileges.
+
+You can also use
+:ref:`global options that apply to any other command
+<pmm-admin-options>`,
+as well as
+:ref:`options that apply to adding services in general
+<pmm-admin-add-options>`.
+
+**DETAILED DESCRIPTION**
+
+When adding the MySQL metrics monitoring service,
+the ``pmm-admin`` tool will attempt to automatically detect
 the local MySQL instance and MySQL superuser credentials.
-You can use options to provide this information for ``pmm-admin``
-if it is not able to auto-detect.
+You can use options to provide this information,
+if it cannot be detected automatically.
+
 You can also specify the ``--create-user`` option to create a dedicated
 ``pmm`` user on the MySQL host that you want to monitor.
 This user will be given all the necessary privileges for monitoring,
@@ -148,77 +380,325 @@ For more information, run ``sudo pmm-admin add mysql:metrics --help``.
 
 .. _pmm-admin-add-mongodb-metrics:
 
-mongodb:metrics
----------------
+Adding MongoDB metrics service
+------------------------------
 
-**To enable MongoDB metrics monitoring:**
+Use the ``mongodb:metrics`` alias to enable MongoDB metrics monitoring.
 
-.. code-block:: bash
+**USAGE**
 
-   sudo pmm-admin add mongodb:metrics
+.. code-block:: none
+
+   pmm-admin add mongodb:metrics [NAME] [OPTIONS]
 
 This creates the ``pmm-mongodb-metrics-42003`` service
 that collects local MongoDB metrics for this particular MongoDB instance.
 
-.. note:: It should be able to detect the local PMM Client name,
-   but you can also specify it explicitely as an argument.
+.. note:: It should be able to detect the local *PMM Client* name,
+   but you can also specify it explicitly as an argument.
 
-You can use options to specify the MongoDB replica set, cluster name,
-and node type. For example:
+**OPTIONS**
 
-.. code-block:: bash
+The following options can be used with the ``mongodb:metrics`` alias:
 
-   sudo pmm-admin add mongodb --replset repl1 --cluster cluster1 --nodetype mongod
+``--cluster``
+  Specify the MongoDB cluster name.
 
-For more information, run ``sudo pmm-admin add mongodb:metrics --help``
+``--uri``
+  Specify the MongoDB instance URI with the following format::
+
+   [mongodb://][user:pass@]host[:port][/database][?options]
+
+  By default, it is ``localhost:27017``.
+
+You can also use
+:ref:`global options that apply to any other command
+<pmm-admin-options>`,
+as well as
+:ref:`options that apply to adding services in general
+<pmm-admin-add-options>`.
+
+For more information, run ``sudo pmm-admin add mongodb:metrics --help``.
 
 .. _pmm-admin-add-proxysql-metrics:
 
-proxysql:metrics
-----------------
+Adding ProxySQL metrics service
+-------------------------------
 
-**To enable ProxySQL performance metrics monitoring:**
+Use the ``proxysql:metrics`` alias
+to enable ProxySQL performance metrics monitoring.
 
-.. code-block:: bash
+**USAGE**
 
-   sudo pmm-admin add proxysql:metrics
+.. code-block:: none
+
+   pmm-admin add proxysql:metrics [NAME] [OPTIONS]
 
 This creates the ``pmm-proxysql-metrics-42004`` service
 that collects local ProxySQL performance metrics.
 
-.. note:: It should be able to detect the local PMM Client name,
-   but you can also specify it explicitely as an argument.
+.. note:: It should be able to detect the local *PMM Client* name,
+   but you can also specify it explicitly as an argument.
 
-For more information, run ``sudo pmm-admin add proxysql:metrics --help``
+**OPTIONS**
 
-.. _pmm-admin-rm:
+The following option can be used with the ``proxysql:metrics`` alias:
 
-Removing monitoring services
+``--dsn``
+  Specify the ProxySQL connection DSN.
+  By default, it is ``stats:stats@tcp(localhost:6032)/``.
+
+You can also use
+:ref:`global options that apply to any other command
+<pmm-admin-options>`,
+as well as
+:ref:`options that apply to adding services in general
+<pmm-admin-add-options>`.
+
+For more information, run ``sudo pmm-admin add proxysql:metrics --help``.
+
+.. _pmm-admin-check-network:
+
+Checking network connectivity
+=============================
+
+Use the ``pmm-admin check-network`` command to run tests
+that verify connectivity between *PMM Client* and *PMM Server*.
+
+**USAGE**
+
+.. code-block:: none
+
+   pmm-admin check-network [OPTIONS]
+
+**OPTIONS**
+
+The ``pmm-admin check-network`` command does not have its own options,
+but you can use :ref:`global options that apply to any other command
+<pmm-admin-options>`
+
+**DETAILED DESCRIPTION**
+
+Connection tests are performed both ways,
+with results separated accordingly:
+
+* ``Client --> Server``
+
+  Pings Consul API, Query Analytics API, and Prometheus API
+  to make sure they are alive and reachable.
+
+  Performs a connection performance test to see the latency
+  from *PMM Client* to *PMM Server*.
+
+* ``Client <-- Server``
+
+  Checks the status of Prometheus endpoints
+  and makes sure it can scrape metrics from corresponding exporters.
+
+  Successful pings of *PMM Server* from *PMM Client*
+  do not mean that Prometheus is able to scrape from exporters.
+  If the output shows some endpoints in problem state,
+  make sure that the corresponding service is running
+  (see |pmm-admin-list|_).
+  If the services that correspond to problematic endpoints are running,
+  make sure that firewall settings on the *PMM Client* host
+  allow incoming connections for corresponding ports.
+
+**OUTPUT EXAMPLE**
+
+.. code-block:: none
+   :emphasize-lines: 1
+
+   $ sudo pmm-admin check-network
+   PMM Network Status
+
+   Server Address | 192.168.100.1
+   Client Address | 192.168.200.1
+
+   * System Time
+   NTP Server (0.pool.ntp.org)         | 2017-05-03 12:05:38 -0400 EDT
+   PMM Server                          | 2017-05-03 16:05:38 +0000 GMT
+   PMM Client                          | 2017-05-03 12:05:38 -0400 EDT
+   PMM Server Time Drift               | OK
+   PMM Client Time Drift               | OK
+   PMM Client to PMM Server Time Drift | OK
+
+   * Connection: Client --> Server
+   -------------------- -------------
+   SERVER SERVICE       STATUS
+   -------------------- -------------
+   Consul API           OK
+   Prometheus API       OK
+   Query Analytics API  OK
+
+   Connection duration | 166.689µs
+   Request duration    | 364.527µs
+   Full round trip     | 531.216µs
+
+   * Connection: Client <-- Server
+   ---------------- ----------- -------------------- -------- ---------- ---------
+   SERVICE TYPE     NAME        REMOTE ENDPOINT      STATUS   HTTPS/TLS  PASSWORD
+   ---------------- ----------- -------------------- -------- ---------- ---------
+   linux:metrics    mongo-main  192.168.200.1:42000  OK       YES        -
+   mongodb:metrics  mongo-main  192.168.200.1:42003  PROBLEM  YES        -
+
+For more information, run ``sudo pmm-admin check-network --help``.
+
+.. _pmm-admin-config:
+
+Configuring PMM Client
+======================
+
+Use the ``pmm-admin config`` command to configure
+how *PMM Client* communicates with *PMM Server*.
+
+**USAGE**
+
+.. code-block:: none
+
+   pmm-admin config [OPTIONS]
+
+**OPTIONS**
+
+The following options can be used with the ``pmm-admin config`` command:
+
+``--bind-address``
+  Specify the bind address,
+  which is also the local (private) address
+  mapped from client address via NAT or port forwarding
+  By default, it is set to the client address.
+
+``--client-address``
+  Specify the client address,
+  which is also the remote (public) address for this system.
+  By default, it is automatically detected via request to server.
+
+``--client-name``
+  Specify the client name.
+  By default, it is set to the host name.
+
+``--force``
+  Force to set the client name on initial setup
+  after uninstall with unreachable server.
+
+``--server``
+  Specify the address of the *PMM Server* host.
+  If necessary, you can also specify the port after colon, for example::
+
+   pmm-admin config --server 192.168.100.6:8080
+
+  By default, port 80 is used with SSL disabled,
+  and port 443 when SSL is enabled.
+
+``--server-insecure-ssl``
+  Enable insecure SSL (self-signed certificate).
+
+``--server-password``
+  Specify the HTTP password configured on *PMM Server*.
+
+``--server-ssl``
+  Enable SSL encryption for connection to *PMM Server*.
+
+``--server-user``
+  Specify the HTTP user configured on *PMM Server* (default is ``pmm``).
+
+You can also use
+:ref:`global options that apply to any other command <pmm-admin-options>`.
+
+For more information, run ``sudo pmm-admin config --help``.
+
+.. _pmm-admin-help:
+
+Getting help for any command
 ============================
 
-Use the ``pmm-admin rm`` command to remove monitoring services.
-Specify the instance's type and name.
-You can see the names of instances by running ``sudo pmm-admin list``.
+Use the ``pmm-admin help`` command to print help for any command.
 
-For example, to remove a MySQL instance designated by ``ubuntu-amd4``
-from monitoring, run the following:
+**USAGE**
 
-.. code-block:: bash
+.. code-block:: none
 
-   sudo pmm-admin rm mysql ubuntu-amd64
+   pmm-admin help [COMMAND]
 
-For more information, run ``sudo pmm-admin rm --help``.
+This will print help information and exit.
+Actual command is not run and options are ignored.
+
+.. note:: You can also use the global ``-h`` or ``--help`` option
+   after any command to get the same help information.
+
+**COMMANDS**
+
+You can print help information for any :ref:`command <pmm-admin-commands>`
+or :ref:`service alias <pmm-admin-service-aliases>`.
+
+.. _pmm-admin-info:
+
+Getting information about PMM Client
+====================================
+
+Use the ``pmm-admin info`` command
+to print basic information about *PMM Client*.
+
+**USAGE**
+
+.. code-block:: none
+
+   pmm-admin info [OPTIONS]
+
+**OPTIONS**
+
+The ``pmm-admin info`` command does not have its own options,
+but you can use :ref:`global options that apply to any other command
+<pmm-admin-options>`
+
+**OUTPUT**
+
+The output provides the following info:
+
+* Version of ``pmm-admin``
+* *PMM Server* host address, and local host name and address
+  (this can be configured using |pmm-admin-config|_)
+* System manager that ``pmm-admin`` uses to manage PMM services
+* Go version and runtime information
+
+For example:
+
+.. code-block:: none
+   :emphasize-lines: 1
+
+   $ sudo pmm-admin info
+   pmm-admin 1.1.3
+
+   PMM Server      | 192.168.100.1
+   Client Name     | ubuntu-amd64
+   Client Address  | 192.168.200.1
+   Service manager | linux-systemd
+
+   Go Version      | 1.8
+   Runtime Info    | linux/amd64
+
+For more information, run ``sudo pmm-admin info --help``.
 
 .. _pmm-admin-list:
 
-Listing monitored instances
+Listing monitoring services
 ===========================
 
-To see what is being monitored, run the following:
+Use the ``pmm-admin list`` command to list all enabled services with details.
 
-.. code-block:: bash
+**USAGE**
 
-   sudo pmm-admin list
+.. code-block:: none
+
+   pmm-admin list [OPTIONS]
+
+**OPTIONS**
+
+The ``pmm-admin list`` command does not have its own options,
+but you can use :ref:`global options that apply to any other command
+<pmm-admin-options>`
+
+**OUTPUT**
 
 The output provides the following info:
 
@@ -232,7 +712,8 @@ The output provides the following info:
 For example, if you enable general OS and MongoDB metrics monitoring,
 output should be similar to the following:
 
-.. code-block:: bash
+.. code-block:: none
+   :emphasize-lines: 1
 
    $ sudo pmm-admin list
    pmm-admin 1.1.3
@@ -242,168 +723,425 @@ output should be similar to the following:
    Client Address  | 192.168.200.1
    Service manager | linux-systemd
 
-   --------------- ------------- ------------ -------- ---------------- --------
-   METRIC SERVICE  NAME          CLIENT PORT  RUNNING  DATA SOURCE      OPTIONS
-   --------------- ------------- ------------ -------- ---------------- --------
-   linux:metrics   ubuntu-amd64  42000        YES      -
-   mongodb:metrics ubuntu-amd64  42003        YES      localhost:27017
-
-.. _pmm-admin-config:
-
-Configuring PMM Client
-======================
-
-Use the ``pmm-admin config`` command to configure
-how ``pmm-admin`` communicates with *PMM Server*.
-
-The following options are available:
-
---client-address string   Client host address (detected automatically)
---client-name string      Client host name (set to the current host name)
---server string           PMM Server host address
---server-insecure-ssl     Enable insecure SSL (self-signed certificate)
---server-password string  HTTP password configured on PMM Server
---server-ssl              Enable SSL to communicate with PMM Server
---server-user string      HTTP user configured on PMM Server (default "pmm")
-
-For more information, run ``sudo pmm-admin config --help``
-
-.. _pmm-admin-info:
-
-Getting information about PMM Client
-====================================
-
-Use the ``pmm-admin info`` command to display basic info about ``pmm-admin``.
-The output is also displayed before the table with services
-when you run |pmm-admin-list|_.
-
-The following example shows the output if both *PMM Server* and *PMM Client*
-are on the same host named ``ubuntu-amd64``,
-which uses ``systemd`` to manage services.
-
-.. code-block:: bash
-
-   $ sudo pmm-admin info
-   pmm-admin 1.1.3
-
-   PMM Server      | 192.168.100.6
-   Client Name     | ubuntu-amd64
-   Client Address  | 192.168.200.1
-   Service manager | linux-systemd
-
-This can be configured using |pmm-admin-config|_.
-
-For more information, run ``sudo pmm-admin info --help``.
-
-.. _pmm-admin-check-network:
-
-Checking network connectivity
-=============================
-
-Use the ``pmm-admin check-network`` command to run tests
-that verify connectivity between *PMM Client* and *PMM Server*.
-The tests are performed both ways,
-with results separated accordingly:
-
-* Client > Server
-
-  Pings Consul API, Query Analytics API, and Prometheus API
-  to make sure they are alive and reachable.
-
-  Performs a connection performance test to see the latency
-  from *PMM Client* to *PMM Server*.
-
-* Server > Client
-
-  Checks the status of Prometheus endpoints
-  and makes sure it can scrape metrics from corresponding exporters.
-
-  Successful pings of *PMM Server* from *PMM Client*
-  do not mean that Prometheus is able to scrape from exporters.
-  If the output shows some endpoints in problem state,
-  make sure that the corresponding service is running
-  (see |pmm-admin-list|_).
-  If the services that correspond to problematic endpoints are running,
-  make sure that the firewall settings on *PMM Client*
-  allow incoming connections for corresponding ports.
-
-The ``pmm-admin check-network`` command has one option (``--no-emoji``),
-which replaces emojis with words in the status.
-
-The following example shows output without emojis:
-
-.. code-block:: bash
-
-   $ sudo pmm-admin check-network --no-emoji
-   PMM Network Status
-
-   Server | 192.168.100.1
-   Client | 192.168.200.1
-
-   * Client > Server
-   --------------- -------------
-   SERVICE         CONNECTIVITY
-   --------------- -------------
-   Consul API      OK
-   QAN API         OK
-   Prometheus API  OK
-
-   Connection duration | 166.689µs
-   Request duration    | 364.527µs
-   Full round trip     | 531.216µs
-
-   * Server > Client
-   ---------------- ------------- ---------------------- -------------
-   METRIC SERVICE   NAME          PROMETHEUS ENDPOINT    REMOTE STATE
-   ---------------- ------------- ---------------------- -------------
-   linux:metrics    ubuntu-amd64  192.168.200.1:42000    OK
-   mysql:metrics    ubuntu-amd64  192.168.200.1:42002    OK
-   mongodb:metrics  ubuntu-amd64  192.168.200.1:42003    PROBLEM
-
-For more information, run ``sudo pmm-admin check-network --help``.
+   ---------------- ----------- ----------- -------- ---------------- --------
+   SERVICE TYPE     NAME        LOCAL PORT  RUNNING  DATA SOURCE      OPTIONS
+   ---------------- ----------- ----------- -------- ---------------- --------
+   linux:metrics    mongo-main  42000       YES      -
+   mongodb:metrics  mongo-main  42003       YES      localhost:27017
 
 .. _pmm-admin-ping:
 
 Pinging PMM Server
 ==================
 
-Use the ``pmm-admin ping`` command to ping *PMM Server*.
+Use the ``pmm-admin ping`` command to verify connectivity with *PMM Server*.
+
+**USAGE**
+
+.. code-block:: none
+
+   pmm-admin ping [OPTIONS]
+
 If the ping is successful, it returns ``OK``.
+
+**OPTIONS**
+
+The ``pmm-admin ping`` command does not have its own options,
+but you can use :ref:`global options that apply to any other command
+<pmm-admin-options>`.
 
 For more information, run ``sudo pmm-admin ping --help``.
 
+.. _pmm-admin-purge:
+
+Purging metrics data
+====================
+
+Use the ``pmm-admin purge`` command to purge metrics data
+associated with a service on *PMM Server*.
+
+**USAGE**
+
+.. code-block:: none
+
+   pmm-admin purge [SERVICE [NAME]] [OPTIONS]
+
+.. note:: It should be able to detect the local *PMM Client* name,
+   but you can also specify it explicitly as an argument.
+
+**SERVICES**
+
+Specify a :ref:`monitoring service alias <pmm-admin-service-aliases>`.
+To see which services are enabled, run |pmm-admin-list|_.
+
+**OPTIONS**
+
+The ``pmm-admin purge`` command does not have its own options,
+but you can use :ref:`global options that apply to any other command
+<pmm-admin-options>`
+
+For more infomation, run ``sudo pmm-admin purge --help``.
+
+.. _pmm-admin-remove:
+.. _pmm-admin-rm:
+
+Removing monitoring services
+============================
+
+Use the ``pmm-admin rm`` command to remove monitoring services.
+
+**USAGE**
+
+.. code-block:: none
+
+   pmm-admin rm [OPTIONS] [SERVICE]
+
+When you remove a service,
+collected data remains in Metrics Monitor on *PMM Server*.
+To remove collected data, use the |pmm-admin-purge|_ command.
+
+**OPTIONS**
+
+The following option can be used with the ``pmm-admin rm`` command:
+
+``--all``
+  Remove all monitoring services.
+
+You can also use
+:ref:`global options that apply to any other command
+<pmm-admin-options>`.
+
+**SERVICES**
+
+Specify a :ref:`monitoring service alias <pmm-admin-service-aliases>`.
+To see which services are enabled, run |pmm-admin-list|_.
+
+**EXAMPLES**
+
+1. To remove all services enabled for this *PMM Client*:
+
+   .. code-block:: bash
+
+      sudo pmm-admin rm --all
+
+#. To remove all services related to MySQL:
+
+   .. code-block:: bash
+
+      sudo pmm-admin rm mysql
+
+#. To remove only MongoDB metrics service:
+
+   .. code-block:: bash
+
+      sudo pmm-admin rm mongodb:metrics
+
+For more information, run ``sudo pmm-admin rm --help``.
+
+.. _pmm-admin-repair:
+
+Removing orphaned services
+==========================
+
+Use the ``pmm-admin repair`` command
+to remove information about orphaned services from *PMM Server*.
+This can happen if you removed services locally
+while *PMM Server* was not available (disconnected or shut down),
+for example, using the |pmm-admin-uninstall|_ command.
+
+**USAGE**
+
+.. code-block:: none
+
+   pmm-admin repair [OPTIONS]
+
+**OPTIONS**
+
+The ``pmm-admin repair`` command does not have its own options,
+but you can use :ref:`global options that apply to any other command
+<pmm-admin-options>`.
+
+.. _pmm-admin-restart:
+
+Restarting monitoring services
+==============================
+
+Use the ``pmm-admin restart`` command to restart services
+managed by this *PMM Client*.
+This is the same as running |pmm-admin-stop|_ and |pmm-admin-start|_.
+
+**USAGE**
+
+.. code-block:: none
+
+   pmm-admin restart [SERVICE [NAME]] [OPTIONS]
+
+.. note:: It should be able to detect the local *PMM Client* name,
+   but you can also specify it explicitly as an argument.
+
+**OPTIONS**
+
+The following option can be used with the ``pmm-admin restart`` command:
+
+``--all``
+  Restart all monitoring services.
+
+You can also use
+:ref:`global options that apply to any other command
+<pmm-admin-options>`.
+
+**SERVICES**
+
+Specify a :ref:`monitoring service alias <pmm-admin-service-aliases>`
+that you want to restart.
+To see which services are available, run |pmm-admin-list|_.
+
+**EXAMPLES**
+
+1. To restart all available services for this *PMM Client*:
+
+   .. code-block:: bash
+
+      sudo pmm-admin restart --all
+
+#. To restart all services related to MySQL:
+
+   .. code-block:: bash
+
+      sudo pmm-admin restart mysql
+
+#. To restart only MongoDB metrics service:
+
+   .. code-block:: bash
+
+      sudo pmm-admin restart mongodb:metrics
+
+For more information, run ``sudo pmm-admin restart --help``.
+
+.. _pmm-admin-show-passwords:
+
+Getting passwords used by PMM Client
+====================================
+
+Use the ``pmm-admin show-passwords`` command to print credentials
+stored in the configuration file
+(by default: :file:`/usr/local/percona/pmm-client/pmm.yml`).
+
+**USAGE**
+
+.. code-block:: none
+
+   pmm-admin show-passwords [OPTIONS]
+
+**OPTIONS**
+
+The ``pmm-admin show-passwords`` command does not have its own options,
+but you can use :ref:`global options that apply to any other command
+<pmm-admin-options>`
+
+**OUTPUT**
+
+This command prints HTTP authentication credentials
+and the password for the ``pmm`` user that is created on the MySQL instance
+if you specify the ``--create-user`` option
+when :ref:`adding a service <pmm-admin-add>`.
+
+.. code-block:: bash
+   :emphasize-lines: 1
+
+   $ sudo pmm-admin show-passwords
+   HTTP basic authentication
+   User     | aname
+   Password | secr3tPASS
+
+   MySQL new user creation
+   Password | g,3i-QR50tQJi9M1yl9-
+
+For more information, run ``sudo pmm-admin show-passwords --help``.
+
 .. _pmm-admin-start:
+
+Starting monitoring services
+============================
+
+Use the ``pmm-admin start`` command to start services
+managed by this *PMM Client*.
+
+**USAGE**
+
+.. code-block:: none
+
+   pmm-admin start [SERVICE [NAME]] [OPTIONS]
+
+.. note:: It should be able to detect the local *PMM Client* name,
+   but you can also specify it explicitly as an argument.
+
+**OPTIONS**
+
+The following option can be used with the ``pmm-admin start`` command:
+
+``--all``
+  Start all monitoring services.
+
+You can also use
+:ref:`global options that apply to any other command
+<pmm-admin-options>`.
+
+**SERVICES**
+
+Specify a :ref:`monitoring service alias <pmm-admin-service-aliases>`
+that you want to start.
+To see which services are available, run |pmm-admin-list|_.
+
+**EXAMPLES**
+
+1. To start all available services for this *PMM Client*:
+
+   .. code-block:: bash
+
+      sudo pmm-admin start --all
+
+#. To start all services related to MySQL:
+
+   .. code-block:: bash
+
+      sudo pmm-admin start mysql
+
+#. To start only MongoDB metrics service:
+
+   .. code-block:: bash
+
+      sudo pmm-admin start mongodb:metrics
+
+For more information, run ``sudo pmm-admin start --help``.
+
 .. _pmm-admin-stop:
 
-Starting and stopping metric services
-=====================================
+Stopping monitoring services
+============================
 
-Services that you add using |pmm-admin-add|_
-can be started and stopped manually
-using ``pmm-admin start`` and ``pmm-admin stop``.
+Use the ``pmm-admin stop`` command to stop services
+managed by this *PMM Client*.
 
-For example, to start the ``mongodb:metrics`` service on host ``ubuntu-amd64``:
+**USAGE**
 
-.. code-block:: bash
+.. code-block:: none
 
-   sudo pmm-admin start mongodb:metrics ubuntu-amd64
+   pmm-admin stop [SERVICE [NAME]] [OPTIONS]
 
-To stop the ``linux:metrics`` service on host ``centos-amd64``:
+.. note:: It should be able to detect the local *PMM Client* name,
+   but you can also specify it explicitly as an argument.
 
-.. code-block:: bash
+**OPTIONS**
 
-   sudo pmm-admin stop linux:metrics centos-amd64
+The following option can be used with the ``pmm-admin stop`` command:
 
-To stop all services managed by this ``pmm-admin``:
+``--all``
+  Stop all monitoring services.
 
-.. code-block:: bash
+You can also use
+:ref:`global options that apply to any other command
+<pmm-admin-options>`.
 
-   sudo pmm-admin stop --all
+**SERVICES**
 
-For more information,
-run ``sudo pmm-admin start --help`` or ``sudo pmm-admin stop --help``.
+Specify a :ref:`monitoring service alias <pmm-admin-service-aliases>`
+that you want to stop.
+To see which services are available, run |pmm-admin-list|_.
 
-.. |pmm-admin-config| replace:: ``pmm-admin config``
-.. |pmm-admin-list| replace:: ``pmm-admin list``
-.. |pmm-admin-add| replace:: ``pmm-admin add``
+**EXAMPLES**
+
+1. To stop all available services for this *PMM Client*:
+
+   .. code-block:: bash
+
+      sudo pmm-admin stop --all
+
+#. To stop all services related to MySQL:
+
+   .. code-block:: bash
+
+      sudo pmm-admin stop mysql
+
+#. To stop only MongoDB metrics service:
+
+   .. code-block:: bash
+
+      sudo pmm-admin stop mongodb:metrics
+
+For more information, run ``sudo pmm-admin stop --help``.
+
+.. _pmm-admin-uninstall:
+
+Cleaning up PMM Client before uninstall
+=======================================
+
+Use the ``pmm-admin uninstall`` command to remove all services
+even if *PMM Server* is not available.
+To uninstall PMM correctly, you first need to remove all services,
+then uninstall *PMM Client*,
+and then stop and remove *PMM Server*.
+However, if *PMM Server* is not available (disconnected or shut down),
+|pmm-admin-rm|_ will not work.
+In this case, you can use ``pmm-admin uninstall``
+to force the removal of monitoring services enabled for *PMM Client*.
+
+.. note:: Information about services will remain in *PMM Server*,
+   and it will not let you add those services again.
+   To remove information about orphaned services from *PMM Server*,
+   once it is back up and available to *PMM Client*,
+   use the |pmm-admin-repair|_ command.
+
+**USAGE**
+
+.. code-block:: none
+
+   pmm-admin uninstall [OPTIONS]
+
+**OPTIONS**
+
+The ``pmm-admin uninstall`` command does not have its own options,
+but you can use :ref:`global options that apply to any other command
+<pmm-admin-options>`.
+
+For more information, run ``sudo pmm-admin uninstall --help``.
+
+.. _pmm-admin-service-aliases:
+
+Monitoring Service Aliases
+==========================
+
+The following aliases are used to designate PMM services
+that you want to :ref:`add <pmm-admin-add>`, :ref:`remove <pmm-admin-rm>`,
+:ref:`restart <pmm-admin-restart>`,
+:ref:`start <pmm-admin-start>`, or :ref:`stop <pmm-admin-stop>`:
+
+``linux:metrics``
+  General system metrics monitoring service.
+
+``mysql:metrics``
+  MySQL metrics monitoring service.
+
+``mysql:queries``
+  MySQL query analytics service.
+
+``mongodb:metrics``
+  MongoDB metrics monitoring service.
+
+``proxysql:metrics``
+  ProxySQL metrics monitoring service.
+
+``mysql``
+  Complete MySQL instance monitoring:
+
+  * ``linux:metrics``
+  * ``mysql:metrics``
+  * ``mysql:queries``
+
+``mongodb``
+  Complete MongoDB instance monitoring:
+
+  * ``linux:metrics``
+  * ``mongodb:metrics``
+
 

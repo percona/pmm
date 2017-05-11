@@ -43,16 +43,17 @@ For example:
 
 .. only:: latex
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-       $ docker run -d -p 80:80 \
-           --volumes-from pmm-data \
-           --name pmm-server \
-           -e SERVER_USER=jsmith \
-           -e SERVER_PASSWORD=pass1234 \
-           --restart always \
-           --init \
-           percona/pmm-server:1.1.3
+      $ docker run -d -p 80:80 \
+          --volumes-from pmm-data \
+          --name pmm-server \
+          -e SERVER_USER=jsmith \
+          -e SERVER_PASSWORD=pass1234 \
+          --restart always \
+          --init \
+          percona/pmm-server:1.1.3
+
 
 *PMM Client* uses the same credentials to communicate with *PMM Server*.
 If you set the user name and password as described,
@@ -81,7 +82,7 @@ using SSL certificates.
    For example, you can generate necessary self-signed certificate files
    into the :file:`/etc/pmm-certs` directory using the following commands:
 
-   .. code-block:: bash
+   .. code-block:: none
 
       # openssl dhparam -out /etc/pmm-cert/dhparam.pem 4096
       # openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/pmm-certs/server.key -out /etc/pmm-certs/server.crt
@@ -129,15 +130,16 @@ using SSL certificates.
 
    .. only:: latex
 
-       .. code-block:: bash
+      .. code-block:: bash
 
-          $ docker run -d -p 443:443 \
-              --volumes-from pmm-data \
-              --name pmm-server \
-              -v /etc/pmm-certs:/etc/nginx/ssl \
-              --restart always \
-              --init \
-              percona/pmm-server:1.1.3
+         $ docker run -d -p 443:443 \
+             --volumes-from pmm-data \
+             --name pmm-server \
+             -v /etc/pmm-certs:/etc/nginx/ssl \
+             --restart always \
+             --init \
+             percona/pmm-server:1.1.3
+
 
    .. note:: Note that the container should expose port 443
       instead of 80 to enable SSL encryption.
@@ -196,17 +198,18 @@ The following example shows how you might
 
 .. only:: latex
 
-    .. code-block:: bash
+   .. code-block:: bash
 
-       $ docker run -d -p 443:443 \
-           --volumes-from pmm-data \
-           --name pmm-server \
-           -e SERVER_USER=jsmith \
-           -e SERVER_PASSWORD=pass1234 \
-           -v /etc/pmm-certs:/etc/nginx/ssl \
-           --restart always \
-           --init \
-           percona/pmm-server:1.1.3
+      $ docker run -d -p 443:443 \
+          --volumes-from pmm-data \
+          --name pmm-server \
+          -e SERVER_USER=jsmith \
+          -e SERVER_PASSWORD=pass1234 \
+          -v /etc/pmm-certs:/etc/nginx/ssl \
+          --restart always \
+          --init \
+          percona/pmm-server:1.1.3
+
 
 The following example shows how you might
 :ref:`connect to PMM Server <connect-client>`:
@@ -228,7 +231,7 @@ run either ``pmm-admin ping``, ``pmm-admin config``,
 ``pmm-admin info``, or ``pmm-admin list``
 and look at the server address field. For example:
 
-.. code-block:: bash
+.. code-block:: none
 
    [root@centos7 pmm-client]# pmm-admin ping
    OK, PMM server is alive.
