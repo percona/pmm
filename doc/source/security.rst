@@ -38,6 +38,7 @@ For example:
         -e SERVER_USER=jsmith \
         -e SERVER_PASSWORD=pass1234 \
         --restart always \
+        --init \
         percona/pmm-server:1.1.3
 
 .. only:: latex
@@ -50,7 +51,9 @@ For example:
           -e SERVER_USER=jsmith \
           -e SERVER_PASSWORD=pass1234 \
           --restart always \
+          --init \
           percona/pmm-server:1.1.3
+
 
 *PMM Client* uses the same credentials to communicate with *PMM Server*.
 If you set the user name and password as described,
@@ -122,6 +125,7 @@ using SSL certificates.
            --name pmm-server \
            -v /etc/pmm-certs:/etc/nginx/ssl \
            --restart always \
+           --init \
            percona/pmm-server:1.1.3
 
    .. only:: latex
@@ -133,7 +137,9 @@ using SSL certificates.
              --name pmm-server \
              -v /etc/pmm-certs:/etc/nginx/ssl \
              --restart always \
+             --init \
              percona/pmm-server:1.1.3
+
 
    .. note:: Note that the container should expose port 443
       instead of 80 to enable SSL encryption.
@@ -187,6 +193,7 @@ The following example shows how you might
         -e SERVER_PASSWORD=pass1234 \
         -v /etc/pmm-certs:/etc/nginx/ssl \
         --restart always \
+        --init \
         percona/pmm-server:1.1.3
 
 .. only:: latex
@@ -200,7 +207,9 @@ The following example shows how you might
           -e SERVER_PASSWORD=pass1234 \
           -v /etc/pmm-certs:/etc/nginx/ssl \
           --restart always \
+          --init \
           percona/pmm-server:1.1.3
+
 
 The following example shows how you might
 :ref:`connect to PMM Server <connect-client>`:

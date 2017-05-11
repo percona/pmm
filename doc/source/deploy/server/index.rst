@@ -23,7 +23,7 @@ There are several options available to run *PMM Server*:
 Verifying PMM Server
 ====================
 
-When you run *PMM Server*,
+After you run *PMM Server*,
 you should be able to access the PMM web interface
 using the IP address of the host where the container is running.
 For example, if it is running on 192.168.100.1 with default port 80,
