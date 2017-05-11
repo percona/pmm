@@ -24,7 +24,7 @@ What are the minimum system requirements for PMM?
 
 * **PMM Server**
 
-  Any system which can run Docker version 1.12.6 or later.
+  Any system which can run Docker version 1.13 or later.
 
   It needs roughly 1 GB of storage for each monitored database node
   with data retention set to one week.
