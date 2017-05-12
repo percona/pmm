@@ -56,7 +56,7 @@ To get the IP address for accessing PMM,
 the script waits for 1 minute until the appliance boots up
 and returns the lines with the IP address from the log file.
 
-.. code-block:: none
+.. code-block:: text
 
    # Import image
    VBoxManage import PMM-Server-2017-01-24.ova
