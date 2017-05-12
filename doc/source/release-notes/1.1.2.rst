@@ -37,7 +37,7 @@ PMM Server
 
 * :pmmbug:`633`: Set the following default values in :file:`my.cnf`:
 
-  .. code-block:: none
+  .. code-block:: text
 
      [mysqld]
 

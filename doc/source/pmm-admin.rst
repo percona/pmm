@@ -8,7 +8,7 @@ Use the ``pmm-admin`` tool to manage *PMM Client*.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin [OPTIONS] [COMMAND]
 
@@ -117,7 +117,7 @@ Use the ``pmm-admin add`` command to add monitoring services.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin add [OPTIONS] [SERVICE]
 
@@ -149,7 +149,7 @@ Use the ``linux:metrics`` alias to enable general system metrics monitoring.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin add linux:metrics [NAME] [OPTIONS]
 
@@ -185,7 +185,7 @@ Use the ``mysql:queries`` alias to enable MySQL query analytics.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin add mysql:queries [NAME] [OPTIONS]
 
@@ -286,7 +286,7 @@ Use the ``mysql:metrics`` alias to enable MySQL metrics monitoring.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin add mysql:metrics [NAME] [OPTIONS]
 
@@ -387,7 +387,7 @@ Use the ``mongodb:metrics`` alias to enable MongoDB metrics monitoring.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin add mongodb:metrics [NAME] [OPTIONS]
 
@@ -430,7 +430,7 @@ to enable ProxySQL performance metrics monitoring.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin add proxysql:metrics [NAME] [OPTIONS]
 
@@ -467,7 +467,7 @@ that verify connectivity between *PMM Client* and *PMM Server*.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin check-network [OPTIONS]
 
@@ -506,7 +506,7 @@ with results separated accordingly:
 
 **OUTPUT EXAMPLE**
 
-.. code-block:: none
+.. code-block:: text
    :emphasize-lines: 1
 
    $ sudo pmm-admin check-network
@@ -554,7 +554,7 @@ how *PMM Client* communicates with *PMM Server*.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin config [OPTIONS]
 
@@ -616,7 +616,7 @@ Use the ``pmm-admin help`` command to print help for any command.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin help [COMMAND]
 
@@ -641,7 +641,7 @@ to print basic information about *PMM Client*.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin info [OPTIONS]
 
@@ -663,7 +663,7 @@ The output provides the following info:
 
 For example:
 
-.. code-block:: none
+.. code-block:: text
    :emphasize-lines: 1
 
    $ sudo pmm-admin info
@@ -688,7 +688,7 @@ Use the ``pmm-admin list`` command to list all enabled services with details.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin list [OPTIONS]
 
@@ -712,7 +712,7 @@ The output provides the following info:
 For example, if you enable general OS and MongoDB metrics monitoring,
 output should be similar to the following:
 
-.. code-block:: none
+.. code-block:: text
    :emphasize-lines: 1
 
    $ sudo pmm-admin list
@@ -738,7 +738,7 @@ Use the ``pmm-admin ping`` command to verify connectivity with *PMM Server*.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin ping [OPTIONS]
 
@@ -759,10 +759,12 @@ Purging metrics data
 
 Use the ``pmm-admin purge`` command to purge metrics data
 associated with a service on *PMM Server*.
+This is usually required after you :ref:`remove a service <pmm-admin-rm>`
+and do not want its metrics data to show up on graphs.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin purge [SERVICE [NAME]] [OPTIONS]
 
@@ -792,7 +794,7 @@ Use the ``pmm-admin rm`` command to remove monitoring services.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin rm [OPTIONS] [SERVICE]
 
@@ -818,19 +820,19 @@ To see which services are enabled, run |pmm-admin-list|_.
 
 **EXAMPLES**
 
-1. To remove all services enabled for this *PMM Client*:
+* To remove all services enabled for this *PMM Client*:
 
    .. code-block:: bash
 
       sudo pmm-admin rm --all
 
-#. To remove all services related to MySQL:
+* To remove all services related to MySQL:
 
    .. code-block:: bash
 
       sudo pmm-admin rm mysql
 
-#. To remove only MongoDB metrics service:
+* To remove only MongoDB metrics service:
 
    .. code-block:: bash
 
@@ -851,7 +853,7 @@ for example, using the |pmm-admin-uninstall|_ command.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin repair [OPTIONS]
 
@@ -860,6 +862,8 @@ for example, using the |pmm-admin-uninstall|_ command.
 The ``pmm-admin repair`` command does not have its own options,
 but you can use :ref:`global options that apply to any other command
 <pmm-admin-options>`.
+
+For more information, run ``sudo pmm-admin repair --help``.
 
 .. _pmm-admin-restart:
 
@@ -872,7 +876,7 @@ This is the same as running |pmm-admin-stop|_ and |pmm-admin-start|_.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin restart [SERVICE [NAME]] [OPTIONS]
 
@@ -898,19 +902,19 @@ To see which services are available, run |pmm-admin-list|_.
 
 **EXAMPLES**
 
-1. To restart all available services for this *PMM Client*:
+* To restart all available services for this *PMM Client*:
 
    .. code-block:: bash
 
       sudo pmm-admin restart --all
 
-#. To restart all services related to MySQL:
+* To restart all services related to MySQL:
 
    .. code-block:: bash
 
       sudo pmm-admin restart mysql
 
-#. To restart only MongoDB metrics service:
+* To restart only MongoDB metrics service:
 
    .. code-block:: bash
 
@@ -929,7 +933,7 @@ stored in the configuration file
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin show-passwords [OPTIONS]
 
@@ -969,7 +973,7 @@ managed by this *PMM Client*.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin start [SERVICE [NAME]] [OPTIONS]
 
@@ -995,19 +999,19 @@ To see which services are available, run |pmm-admin-list|_.
 
 **EXAMPLES**
 
-1. To start all available services for this *PMM Client*:
+* To start all available services for this *PMM Client*:
 
    .. code-block:: bash
 
       sudo pmm-admin start --all
 
-#. To start all services related to MySQL:
+* To start all services related to MySQL:
 
    .. code-block:: bash
 
       sudo pmm-admin start mysql
 
-#. To start only MongoDB metrics service:
+* To start only MongoDB metrics service:
 
    .. code-block:: bash
 
@@ -1025,7 +1029,7 @@ managed by this *PMM Client*.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin stop [SERVICE [NAME]] [OPTIONS]
 
@@ -1051,19 +1055,19 @@ To see which services are available, run |pmm-admin-list|_.
 
 **EXAMPLES**
 
-1. To stop all available services for this *PMM Client*:
+* To stop all available services for this *PMM Client*:
 
    .. code-block:: bash
 
       sudo pmm-admin stop --all
 
-#. To stop all services related to MySQL:
+* To stop all services related to MySQL:
 
    .. code-block:: bash
 
       sudo pmm-admin stop mysql
 
-#. To stop only MongoDB metrics service:
+* To stop only MongoDB metrics service:
 
    .. code-block:: bash
 
@@ -1094,7 +1098,7 @@ to force the removal of monitoring services enabled for *PMM Client*.
 
 **USAGE**
 
-.. code-block:: none
+.. code-block:: text
 
    pmm-admin uninstall [OPTIONS]
 

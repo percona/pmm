@@ -82,7 +82,7 @@ using SSL certificates.
    For example, you can generate necessary self-signed certificate files
    into the :file:`/etc/pmm-certs` directory using the following commands:
 
-   .. code-block:: none
+   .. code-block:: text
 
       # openssl dhparam -out /etc/pmm-cert/dhparam.pem 4096
       # openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/pmm-certs/server.key -out /etc/pmm-certs/server.crt
@@ -231,7 +231,7 @@ run either ``pmm-admin ping``, ``pmm-admin config``,
 ``pmm-admin info``, or ``pmm-admin list``
 and look at the server address field. For example:
 
-.. code-block:: none
+.. code-block:: text
 
    [root@centos7 pmm-client]# pmm-admin ping
    OK, PMM server is alive.
