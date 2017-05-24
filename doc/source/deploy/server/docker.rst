@@ -7,7 +7,7 @@ Running PMM Server Using Docker
 Docker images of *PMM Server* are hosted publicly
 at https://hub.docker.com/r/percona/pmm-server/.
 If you want to run *PMM Server* from a Docker image,
-the host must be able to run Docker 1.13 or later,
+the host must be able to run Docker 1.12.6 or later,
 and have network access.
 
 For more information about using Docker, see the `Docker Docs`_.
@@ -78,7 +78,6 @@ To run *PMM Server*, use the following command:
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
-      --init \
       percona/pmm-server:1.1.3
 
 The previous command does the following:
@@ -104,9 +103,6 @@ The previous command does the following:
   Setting it to ``always`` ensures that the Docker daemon
   will start the container on startup
   and restart it if the container exits.
-
-* The ``--init`` option runs an init process with PID 1 inside the container,
-  which forwards signals and reaps processes.
 
 * ``percona/pmm-server:1.1.3`` is the name and version tag of the image
   to derive the container from.
