@@ -4,7 +4,7 @@
 Percona Monitoring and Management 1.1.4
 =======================================
 
-:Date: May 30, 2017
+:Date: May 29, 2017
 :PMM Server: https://hub.docker.com/r/percona/pmm-server/
 :PMM Client: https://www.percona.com/downloads/pmm-client/
 
@@ -57,6 +57,10 @@ New in PMM Server
 
 * Removed the *InnoDB Deadlocks* and *Index Collection Pushdown* graphs
   from the *MariaDB* dashboard.
+
+* Added tooltips with descriptions for graphs
+  in the *MySQL Query Response Time* dashboard.
+  Similar tooltips will be gradually added to all graphs.
 
 New in PMM Client
 =================
