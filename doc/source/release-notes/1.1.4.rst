@@ -55,10 +55,10 @@ New in PMM Server
 * :pmmbug:`850`: Updated the *MongoDB RocksDB* and *MongoDB WiredTiger*
   dashboards.
 
-* Removed the *InnoDB Deadlocks* and *Index Collection Pushdown* graphs
+* :pmmbug:`890`: , :pmmbug:`891`: Removed the *InnoDB Deadlocks* and *Index Collection Pushdown* graphs
   from the *MariaDB* dashboard.
 
-* Added tooltips with descriptions for graphs
+* :pmmbug:`928`: Added tooltips with descriptions for graphs
   in the *MySQL Query Response Time* dashboard.
   Similar tooltips will be gradually added to all graphs.
 
@@ -68,5 +68,5 @@ New in PMM Client
 * :pmmbug:`801`: Improved *PMM Client* upgrade process to preserve credentials
   that are used by services.
 
-* Added options for ``pmm-admin`` to enable MongoDB cluster connections.
+* :pmmbug:`554`:Added options for ``pmm-admin`` to enable MongoDB cluster connections.
 
