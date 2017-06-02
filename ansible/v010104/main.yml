@@ -86,7 +86,6 @@
         - qan-api
         - grafana
         - consul
-        - pmm-manage
 
     - name: Security                   | Stat sshd_config
       stat: path=/etc/ssh/sshd_config
@@ -122,5 +121,7 @@
         - percona-qan-api
         - grafana-server
         - consul
-        - pmm-manage
         - sshd
+
+    - name: PMM                        | Restart pmm-manage daemon (delayed)
+      shell: cd /tmp; nohup sh -c 'sleep 60; test -e /usr/bin/supervisorctl && /usr/bin/supervisorctl restart pmm-manage || /bin/systemctl restart pmm-manage' </dev/null >/dev/null 2>&1 &
