@@ -1,4 +1,4 @@
-# v1.1.3
+# v1.1.4-2
 ---
 - hosts: all
   become: yes
@@ -88,6 +88,30 @@
         - consul
         - pmm-manage
 
+    - name: Security                   | Stat sshd_config
+      stat: path=/etc/ssh/sshd_config
+      register: sshd_config
+
+    - name: Security                   | Disable root SSH access
+      when: sshd_config.stat.exists
+      lineinfile:
+        dest: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+        state: present
+
+    - name: Security                   | Remove percona key
+      lineinfile:
+        dest: /root/.ssh/authorized_keys
+        regexp: '([Pp]acker|[Mm]ykola|[Pp]ercona)'
+        state: absent
+
+    - name: Security                   | Remove centos user
+      user:
+        name: centos
+        state: absent
+        remove: yes
+
     - name: PMM                        | Restart services (systemd)
       when: not supervisorctl.stat.exists
       service: name={{ item }} state=restarted
@@ -99,3 +123,4 @@
         - grafana-server
         - consul
         - pmm-manage
+        - sshd
