@@ -1,0 +1,16 @@
+.. _1.1.4-2:
+
+=========================================
+Percona Monitoring and Management 1.1.4-2
+=========================================
+
+:Date: June 2, 2017
+:PMM Server: https://hub.docker.com/r/percona/pmm-server/
+:PMM Client: https://www.percona.com/downloads/pmm-client/
+
+For install instructions, see :ref:`deploy-pmm`.
+
+This minor release contains one security hot fix:
+
+* Removed inactive build keys from SSH configuration.
+
