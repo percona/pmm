@@ -40,8 +40,8 @@ after the URL of *PMM Server*.
 
 You can check out the new QAN web UI at https://pmmdemo.percona.com/qan2
 
-New in PMM Server
-=================
+Changes in PMM Server
+=====================
 
 * :pmmbug:`724`: Added the *Index Condition Pushdown (ICP)* graph
   to the *MySQL InnoDB Metrics* dashboard.
@@ -55,7 +55,7 @@ New in PMM Server
 * :pmmbug:`850`: Updated the *MongoDB RocksDB* and *MongoDB WiredTiger*
   dashboards.
 
-* :pmmbug:`890`:, :pmmbug:`891`: Removed the *InnoDB Deadlocks*
+* :pmmbug:`890`: and :pmmbug:`891`: Removed the *InnoDB Deadlocks*
   and *Index Collection Pushdown* graphs
   from the *MariaDB* dashboard.
   Both graphs are available in the *MySQL InnoDB Metrics* dashboard.
@@ -64,11 +64,15 @@ New in PMM Server
   in the *MySQL Query Response Time* dashboard.
   Similar tooltips will be gradually added to all graphs.
 
-New in PMM Client
-=================
+Changes in PMM Client
+=====================
+
+* :pmmbug:`554`: Added options for ``pmm-admin``
+  to enable MongoDB cluster connections.
+
+* :pmmbug:`666` and :pmmbug:`746`: Fixed ``proxysql_exporter``.
 
 * :pmmbug:`801`: Improved *PMM Client* upgrade process to preserve credentials
   that are used by services.
 
-* :pmmbug:`554`: Added options for ``pmm-admin`` to enable MongoDB cluster connections.
 
