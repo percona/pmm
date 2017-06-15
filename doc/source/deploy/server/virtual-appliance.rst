@@ -19,12 +19,13 @@ OVF is supported by most popular virtualization platforms, including:
 
 The virtual appliance is ideal for running *PMM Server*
 on an enterprise virtualization platform of your choice.
-This page provides examples for running the appliance in VirtualBox,
-VMware is appropriate in the Enterprise and can be natively imported,
-while VirtualBox is a good choice to experiment with PMM at a smaller scale on a local machine.
+This page provides examples for running the appliance in VirtualBox.
+Similar procedure should work for other platforms,
+but additional steps may be required.
 
-.. note:: Similar procedure should work for other platforms (i.e. Red Hat, Microsoft, XenServer, etc),
-   but additional steps may be required.
+VMware is appropriate for enterprise deployments and can be natively imported,
+while VirtualBox is a good choice to experiment with PMM
+at a smaller scale on a local machine.
 
 Running in VMware Workstation Player
 ===================================
