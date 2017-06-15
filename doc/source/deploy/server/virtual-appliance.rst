@@ -33,7 +33,7 @@ Running in VMware Workstation Player
 The following procedure describes how to run the *PMM Server* appliance
 using the graphical user interface of VMware Workstation Player.
 
- 1. Download the OVA.
+1. Download the OVA.
 
    The latest version is available at
    https://www.percona.com/redir/downloads/TESTING/pmm/.
