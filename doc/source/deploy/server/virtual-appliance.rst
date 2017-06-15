@@ -19,7 +19,8 @@ OVF is supported by most popular virtualization platforms, including:
 
 The virtual appliance is ideal for running *PMM Server*
 on an enterprise virtualization platform of your choice.
-This page provides examples for running the appliance in VirtualBox.
+This page provides examples for running the appliance in VirtualBox
+and VMware Workstation Player.
 Similar procedure should work for other platforms,
 but additional steps may be required.
 
@@ -28,15 +29,15 @@ while VirtualBox is a good choice to experiment with PMM
 at a smaller scale on a local machine.
 
 Running in VMware Workstation Player
-===================================
+====================================
 
 The following procedure describes how to run the *PMM Server* appliance
-using the graphical user interface of VMware Workstation Player.
+using VMware Workstation Player:
 
 1. Download the OVA.
 
    The latest version is available at
-   https://www.percona.com/redir/downloads/TESTING/pmm/.
+   https://www.percona.com/redir/downloads/TESTING/pmm/
 
 #. Import the appliance.
 
@@ -44,8 +45,8 @@ using the graphical user interface of VMware Workstation Player.
 
    #. Specify the path to the OVA and click **Continue**.
 
-   #. Note: you may receive an error indicating import failed,
-      simply click **Retry** and import should succeed. 
+      .. note:: You may get an error indicating that import failed.
+         Simply click **Retry** and import should succeed.
 
 #. Configure network settings to make the appliance accessible
    from other hosts in your network.
@@ -57,10 +58,8 @@ using the graphical user interface of VMware Workstation Player.
 
 #. Start the *PMM Server* appliance.
 
-   If it was assigned a DCHP IP address on the network,
+   If it was assigned an IP address on the network by DHCP,
    the URL for accessing PMM will be printed in the console window.
-
-
 
 Running in VirtualBox Using the GUI
 ===================================
@@ -71,7 +70,7 @@ using the graphical user interface of VirtualBox:
 1. Download the OVA.
 
    The latest version is available at
-   https://www.percona.com/redir/downloads/TESTING/pmm/.
+   https://www.percona.com/redir/downloads/TESTING/pmm/
 
 #. Import the appliance.
 
@@ -85,8 +84,8 @@ using the graphical user interface of VirtualBox:
 #. Configure network settings to make the appliance accessible
    from other hosts in your network.
 
-   All database hosts must be in the same network as *PMM Server*,
-   so do not set the network adapter to NAT.
+   .. note:: All database hosts must be in the same network as *PMM Server*,
+      so do not set the network adapter to NAT.
 
    If you are running the appliance on a host
    with properly configured network settings,
@@ -95,7 +94,7 @@ using the graphical user interface of VirtualBox:
 
 #. Start the *PMM Server* appliance.
 
-   If it was assigned an IP address on the network,
+   If it was assigned an IP address on the network by DHCP,
    the URL for accessing PMM will be printed in the console window.
 
 Running in VirtualBox Using the Command Line
@@ -148,7 +147,7 @@ provide your public key:
 
 1. Open the URL for accessing PMM in a web browser.
 
-   This is provided either in the console window or in the appliance log.
+   The URL is provided either in the console window or in the appliance log.
 
 #. Submit your **public key** in the PMM web interface.
 
