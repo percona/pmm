@@ -44,7 +44,7 @@ using the graphical user interface of VMware Workstation Player.
 
    #. Specify the path to the OVA and click **Continue**.
 
-   #. Note: you may receive an error indcating import failed,
+   #. Note: you may receive an error indicating import failed,
       simply click **Retry** and import should succeed. 
 
 #. Configure network settings to make the appliance accessible
