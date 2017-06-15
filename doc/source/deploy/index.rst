@@ -14,7 +14,7 @@ The following procedure describes how to properly deploy PMM:
 
    * :ref:`Run PMM Server using Docker <run-server-docker>`
 
-   * :ref:`Run PMM Server using VirtualBox <run-server-vbox>`
+   * :ref:`Run PMM Server as a virtual appliance <run-server-ova>`
 
    * :ref:`Run PMM Server using Amazon Machine Image (AMI) <run-server-ami>`
 
