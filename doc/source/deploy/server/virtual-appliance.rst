@@ -28,6 +28,8 @@ VMware is appropriate for enterprise deployments and can be natively imported,
 while VirtualBox is a good choice to experiment with PMM
 at a smaller scale on a local machine.
 
+.. note:: The virtual machine used for the appliance runs CentOS 7.
+
 Running in VMware Workstation Player
 ====================================
 
