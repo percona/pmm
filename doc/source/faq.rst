@@ -29,8 +29,10 @@ What are the minimum system requirements for PMM?
   It needs roughly 1 GB of storage for each monitored database node
   with data retention set to one week.
 
+  .. note:: By default, :ref:`retention <data-retention>` is set to 30 days.
+
   Minimum memory is 2 GB for one monitored database node,
-  but it is not linear when you increase more nodes.
+  but it is not linear when you add more nodes.
   For example, data from 20 nodes should be easily handled with 16 GB.
 
 * **PMM Client**
@@ -68,8 +70,10 @@ For example, to set the limit to 4 GB of memory::
 
 .. note:: The limit affects only memory reserved for data chunks.
    Actual RAM usage by Prometheus is higher.
-   It is recommended to have at least three times more memory
-   than the expected memory taken up by data chunks.
+   It is recommended to set this limit to roughly 2/3 of the total memory
+   that you are planning to allow for Prometheus.
+   So in the previous example, if you set the limit to 4 GB,
+   then Prometheus will use up to 6 GB of memory.
 
 .. _data-retention:
 
