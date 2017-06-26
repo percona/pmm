@@ -38,7 +38,7 @@ For example:
         -e SERVER_USER=jsmith \
         -e SERVER_PASSWORD=pass1234 \
         --restart always \
-        percona/pmm-server:1.1.3
+        percona/pmm-server:1.1.5
 
 .. only:: latex
 
@@ -50,7 +50,7 @@ For example:
           -e SERVER_USER=jsmith \
           -e SERVER_PASSWORD=pass1234 \
           --restart always \
-          percona/pmm-server:1.1.3
+          percona/pmm-server:1.1.5
 
 
 *PMM Client* uses the same credentials to communicate with *PMM Server*.
@@ -82,7 +82,7 @@ using SSL certificates.
 
    .. code-block:: text
 
-      # openssl dhparam -out /etc/pmm-cert/dhparam.pem 4096
+      # openssl dhparam -out /etc/pmm-certs/dhparam.pem 4096
       # openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/pmm-certs/server.key -out /etc/pmm-certs/server.crt
       Generating a 2048 bit RSA private key
       ....................................+++
@@ -123,7 +123,7 @@ using SSL certificates.
            --name pmm-server \
            -v /etc/pmm-certs:/etc/nginx/ssl \
            --restart always \
-           percona/pmm-server:1.1.3
+           percona/pmm-server:1.1.5
 
    .. only:: latex
 
@@ -134,7 +134,7 @@ using SSL certificates.
              --name pmm-server \
              -v /etc/pmm-certs:/etc/nginx/ssl \
              --restart always \
-             percona/pmm-server:1.1.3
+             percona/pmm-server:1.1.5
 
 
    .. note:: Note that the container should expose port 443
@@ -189,7 +189,7 @@ The following example shows how you might
         -e SERVER_PASSWORD=pass1234 \
         -v /etc/pmm-certs:/etc/nginx/ssl \
         --restart always \
-        percona/pmm-server:1.1.3
+        percona/pmm-server:1.1.5
 
 .. only:: latex
 
@@ -202,7 +202,7 @@ The following example shows how you might
           -e SERVER_PASSWORD=pass1234 \
           -v /etc/pmm-certs:/etc/nginx/ssl \
           --restart always \
-          percona/pmm-server:1.1.3
+          percona/pmm-server:1.1.5
 
 
 The following example shows how you might

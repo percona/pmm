@@ -19,7 +19,7 @@ For example, if you are :ref:`running a Docker container <run-server-docker>`:
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
-      percona/pmm-server:1.1.4
+      percona/pmm-server:1.1.5
 
 .. warning:: Do not remove the ``pmm-data`` container when upgrading,
    if you want to keep all collected data.
