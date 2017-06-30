@@ -18,49 +18,15 @@ such as, CentOS, Oracle Linux, Amazon Linux AMI, and so on.
 
 To install *PMM Client*:
 
-1. If your system does not already have
-   Percona's ``yum`` repository configured,
-   run the following command:
-
-   .. code-block:: bash
-
-      sudo yum install http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm
+1. Configure Percona repositories as described in
+   `Percona Software Repositories Documentation
+   <https://www.percona.com/doc/percona-repo-config/index.html>`_.
 
 #. Install the ``pmm-client`` package:
 
    .. code-block:: bash
 
       sudo yum install pmm-client
-
-.. _yum-testing-repo:
-
-Testing and Experimental Repositories
-=====================================
-
-Percona offers pre-release builds from the testing repo,
-and early-stage development builds from the experimental repo.
-You can enable either one in the Percona repository configuration file
-:file:`/etc/yum.repos.d/percona-release.repo`.
-There are three sections in this file,
-for configuring corresponding repositories:
-
-* stable release
-* testing
-* experimental
-
-The latter two repositories are disabled by default.
-
-If you want to install the latest testing builds,
-set ``enabled=1`` for the following entries: ::
-
-  [percona-testing-$basearch]
-  [percona-testing-noarch]
-
-If you want to install the latest experimental builds,
-set ``enabled=1`` for the following entries: ::
-
-  [percona-experimental-$basearch]
-  [percona-experimental-noarch]
 
 Next Steps
 ==========

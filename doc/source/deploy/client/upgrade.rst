@@ -15,7 +15,7 @@ you can update from the Percona software repositories:
 
    $ yum update pmm-client
 
-If installed *PMM Client* :ref:`manually <install-client-manual>`:
+If you installed *PMM Client* :ref:`manually <install-client-manual>`:
 
 1. :ref:`Remove PMM Client <remove-client>`.
 
