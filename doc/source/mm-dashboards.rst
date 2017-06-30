@@ -5,13 +5,125 @@ Metrics Monitor Dashboards
 ==========================
 
 This section contains a reference of dashboards
-provided in Metrics Monitor.
+available in Metrics Monitor.
 
-MongoDB Dashboards
-==================
+.. contents::
+   :local:
+
+MySQL Overview
+==============
+
+This dashboard provides basic information about MySQL hosts.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 20 50
+
+   * - Name
+     - Importance
+     - Description
+
+   * - MySQL Uptime
+     - INFO
+     - The amount of time since the MySQL server process was started.
+
+   * - Current QPS
+     - IMPORTANT
+     - The number of queries executed by the server during the last second,
+       *including those executed within stored programs*.
+
+       This variable does not include the following commands:
+
+       * ``COM_PING``
+       * ``COM_STATISTICS``
+
+   * - InnoDB Buffer Pool Size
+     - IMPORTANT
+     - Absolute value of the InnoDB buffer pool
+       used for caching data and indexes in memory.
+       This should be big enough to store the working set
+       and never exceed the available memory on the database host.
+
+   * - Buffer Pool Size of Total RAM
+     - IMPORTANT
+     - Ratio between InnoDB buffer pool size and total memory.
+       In most cases, the InnoDB buffer pool should be between 60% and 90%
+       of available memory on a dedicated database host,
+       but it depends on many factors.
+
+   * - MySQL Connections
+     - IMPORTANT
+     - **Max Connections** is the maximum permitted number
+       of simultaneous client connections.
+       This is the value of the ``max_connections`` variable.
+
+       **Max Used Connections** is the maximum number of connections
+       that have been in use simultaneously since the server was started.
+
+       **Connections** is the number of connection attempts
+       (successful or not) to the MySQL server.
+
+   * - MySQL Active Threads
+     - INFO
+     - **Threads Connected** is the number of open connections.
+
+       **Threads Running** is the number of threads not sleeping.
+
+   * - MySQL Questions
+     - INFO
+     - The number of queries sent to the server by clients,
+       *excluding those executed within stored programs*.
+
+       This variable does not count the following commands:
+
+       * ``COM_PING``
+       * ``COM_STATISTICS``
+       * ``COM_STMT_PREPARE``
+       * ``COM_STMT_CLOSE``
+       * ``COM_STMT_RESET``
+
+MySQL Query Response Time
+=========================
+
+This dashboard provides information about query response time distribution.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 20 50
+
+   * - Name
+     - Importance
+     - Description
+
+   * - Average Query Response Time
+     - INFO
+     - Average query response time is calculated
+       as the total execution time of queries
+       divided by the number of queries.
+
+   * - Query Response Time Distribution
+     - INFO
+     - Shows how many fast, neutral, and slow queries are executed per second.
+
+   * - Average Query Response Time
+       (Read/Write Split)
+     - INFO
+     - Compare read and write query response time.
+
+   * - Read Query Response Time Distribution
+     - INFO
+     - Shows how many fast, neutral, and slow read queries
+       are executed per second.
+
+   * - Write Query Response Time Distribution
+     - INFO
+     - Shows how many fast, neutral, and slow write queries
+       are executed per second.
 
 MongoDB Overview
-----------------
+================
+
+This dashboard provides basic information about MongoDB instances.
 
 .. list-table::
    :header-rows: 1
@@ -77,7 +189,7 @@ MongoDB Overview
        Consider increasing memory or sharding out.
 
 MongoDB ReplSet
----------------
+===============
 
 This dashboard provides information about replica sets and their members.
 
