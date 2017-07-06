@@ -127,6 +127,9 @@ Use the ``pmm-admin add`` command to add monitoring services.
 
 The following option can be used with the ``pmm-admin add`` command:
 
+``--dev-enable``
+  Enable experimental features.
+
 ``--service-port``
   Specify the :ref:`service port <service-port>`.
 
@@ -377,6 +380,49 @@ use a command similar to the following:
    sudo pmm-admin add mysql:metrics --user root --password root --host 192.168.200.3 --create-user
 
 For more information, run ``sudo pmm-admin add mysql:metrics --help``.
+
+.. _pmm-admin-add-mongodb-queries:
+
+Adding MongoDB query analytics service
+--------------------------------------
+
+Use the ``mongodb:queries`` alias to enable MongoDB query analytics.
+
+.. note:: Query analytics for MongoDB is experimental.
+   To add it in a non-production environment,
+   use the ``--dev-enable`` option for ``pmm-admin add``.
+
+**USAGE**
+
+.. code-block:: text
+
+   pmm-admin add mysql:queries [NAME] [OPTIONS]
+
+This creates the ``pmm-mongodb-queries-0`` service
+that is able to collect QAN data for multiple remote MongoDB server instances.
+
+.. note:: It should be able to detect the local *PMM Client* name,
+   but you can also specify it explicitly as an argument.
+
+**OPTIONS**
+
+The following options can be used with the ``mongodb:queries`` alias:
+
+``--uri``
+  Specify the MongoDB instance URI with the following format::
+
+   [mongodb://][user:pass@]host[:port][/database][?options]
+
+  By default, it is ``localhost:27017``.
+
+You can also use
+:ref:`global options that apply to any other command
+<pmm-admin-options>`,
+as well as
+:ref:`options that apply to adding services in general
+<pmm-admin-add-options>`.
+
+For more information, run ``sudo pmm-admin add mongodb:queries --help``.
 
 .. _pmm-admin-add-mongodb-metrics:
 
@@ -1120,32 +1166,42 @@ that you want to :ref:`add <pmm-admin-add>`, :ref:`remove <pmm-admin-rm>`,
 :ref:`restart <pmm-admin-restart>`,
 :ref:`start <pmm-admin-start>`, or :ref:`stop <pmm-admin-stop>`:
 
-``linux:metrics``
-  General system metrics monitoring service.
+.. list-table::
+   :widths: 25 75
+   :header-rows: 1
 
-``mysql:metrics``
-  MySQL metrics monitoring service.
+   * - Alias
+     - Services
 
-``mysql:queries``
-  MySQL query analytics service.
+   * - ``linux:metrics``
+     - General system metrics monitoring service
 
-``mongodb:metrics``
-  MongoDB metrics monitoring service.
+   * - ``mysql:metrics``
+     - MySQL metrics monitoring service
 
-``proxysql:metrics``
-  ProxySQL metrics monitoring service.
+   * - ``mysql:queries``
+     - MySQL query analytics service
 
-``mysql``
-  Complete MySQL instance monitoring:
+   * - ``mongodb:metrics``
+     - MongoDB metrics monitoring service
 
-  * ``linux:metrics``
-  * ``mysql:metrics``
-  * ``mysql:queries``
+   * - ``mongodb:queries``
+     - MongoDB query analytics service
 
-``mongodb``
-  Complete MongoDB instance monitoring:
+   * - ``proxysql:metrics``
+     - ProxySQL metrics monitoring service
 
-  * ``linux:metrics``
-  * ``mongodb:metrics``
+   * - ``mysql``
+     - Complete MySQL instance monitoring:
+
+       * ``linux:metrics``
+       * ``mysql:metrics``
+       * ``mysql:queries``
+
+   * - ``mongodb``
+     - Complete MongoDB instance monitoring:
+
+       * ``linux:metrics``
+       * ``mongodb:metrics``
 
 
