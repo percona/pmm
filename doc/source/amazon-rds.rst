@@ -85,7 +85,7 @@ To set up OS metrics monitoring for Amazon RDS in PMM via CloudWatch:
         -v /path/to/file/with/creds:/usr/share/grafana/.aws/credentials \
         --name pmm-server \
         --restart always \
-        percona/pmm-server:1.0.6
+        percona/pmm-server:1.2.0
 
 The *Amazon RDS OS Metrics* dashboard uses 60 second resolution
 and shows the average value for each data point.

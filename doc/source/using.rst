@@ -125,9 +125,8 @@ will likely provide better results.
 
    If the instance is already running:
 
-   a. In the Query Analytics web UI, click the gear button at the top.
-   b. Under **Query Analytics**, select **Performance Schema**
-      in the **Collect from** drop-down list.
+   a. Open the **Settings** section in the Query Analytics web UI.
+   b. Select **Performance Schema** in the **Collect from** drop-down list.
    c. Click **Apply** to save changes.
 
    If you are adding a new monitoring instance with the ``pmm-admin`` tool,

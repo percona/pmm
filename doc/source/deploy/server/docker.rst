@@ -20,10 +20,14 @@ For more information about using Docker, see the `Docker Docs`_.
 
 .. note:: When using the ``pmm-server`` image,
    use a specific version tag instead of the ``latest`` tag.
-   The current stable version is ``1.1.5``.
+   The current stable version is ``1.2.0``.
 
 .. note:: By default, Docker will pull the image from DockerHub
    if it is not available locally.
+
+.. note:: Make sure that the firewall and routing rules of the host
+   will not constrain the Docker container.
+   For more information, see :ref:`troubleshoot-connection`.
 
 .. _data-container:
 
@@ -40,7 +44,7 @@ To create a container for persistent PMM data, run the following command:
       -v /var/lib/mysql \
       -v /var/lib/grafana \
       --name pmm-data \
-      percona/pmm-server:1.1.5 /bin/true
+      percona/pmm-server:1.2.0 /bin/true
 
 .. note:: This container does not run,
    it simply exists to make sure you retain all PMM data
@@ -59,7 +63,7 @@ The previous command does the following:
   that you can use to reference the container within a Docker network.
   In this case: ``pmm-data``.
 
-* ``percona/pmm-server:1.1.5`` is the name and version tag of the image
+* ``percona/pmm-server:1.2.0`` is the name and version tag of the image
   to derive the container from.
 
 * ``/bin/true`` is the command that the container runs.
@@ -78,7 +82,7 @@ To run *PMM Server*, use the following command:
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
-      percona/pmm-server:1.1.5
+      percona/pmm-server:1.2.0
 
 The previous command does the following:
 
@@ -104,7 +108,7 @@ The previous command does the following:
   will start the container on startup
   and restart it if the container exits.
 
-* ``percona/pmm-server:1.1.5`` is the name and version tag of the image
+* ``percona/pmm-server:1.2.0`` is the name and version tag of the image
   to derive the container from.
 
 Next Steps

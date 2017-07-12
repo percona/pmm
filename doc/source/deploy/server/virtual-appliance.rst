@@ -20,15 +20,19 @@ OVF is supported by most popular virtualization platforms, including:
 The virtual appliance is ideal for running *PMM Server*
 on an enterprise virtualization platform of your choice.
 This page provides examples for running the appliance in VirtualBox
-and VMware Workstation Player.
-Similar procedure should work for other platforms,
+and VMware Workstation Player,
+which is a good choice to experiment with PMM
+at a smaller scale on a local machine.
+Similar procedure should work for other platforms
+(including enterprise deployments on VMware ESXi, for example),
 but additional steps may be required.
 
-VMware is appropriate for enterprise deployments and can be natively imported,
-while VirtualBox is a good choice to experiment with PMM
-at a smaller scale on a local machine.
-
 .. note:: The virtual machine used for the appliance runs CentOS 7.
+
+.. warning:: The appliance must run in a network with DHCP,
+   which will automatically assign an IP address for it.
+   Currently it is not possible to run it in a network without DHCP
+   and manually assign a static IP for the appliance.
 
 Running in VMware Workstation Player
 ====================================
