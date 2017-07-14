@@ -70,7 +70,7 @@ For more information, see :ref:`install-client`.
 
 * ``node_exporter`` is a Prometheus exporter
   that collects general system metrics.
-  For more information, see https://github.com/prometheus/node_exporter.
+  For more information, see https://github.com/percona/node_exporter.
 
 * ``mysqld_exporter`` is a Prometheus exporter
   that collects MySQL server metrics.

@@ -29,7 +29,11 @@ What are the minimum system requirements for PMM?
   It needs roughly 1 GB of storage for each monitored database node
   with data retention set to one week.
 
-  .. note:: By default, :ref:`retention <data-retention>` is set to 30 days.
+  .. note:: By default, :ref:`retention <data-retention>`
+     is set to 30 days for Metrics Monitor
+     and to 8 days for Query Analytics.
+     Also consider :ref:`disabling table statistics <performance-issues>`,
+     which can greatly decrease Prometheus database size.
 
   Minimum memory is 2 GB for one monitored database node,
   but it is not linear when you add more nodes.
@@ -50,10 +54,12 @@ What are the minimum system requirements for PMM?
   so additional storage may be required if connection is unstable
   or throughput is too low.
 
-How to control memory consumption for Prometheus?
-=================================================
+.. _metrics_memory:
 
-By default, Prometheus in PMM Server uses up to 256 MB of memory
+How to control memory consumption for PMM?
+==========================================
+
+By default, Prometheus in *PMM Server* uses up to 256 MB of memory
 for storing the most recently used data chunks.
 Depending on the amount of data coming into Prometheus,
 you may require a higher limit to avoid throttling data ingestion,
@@ -77,22 +83,25 @@ For example, to set the limit to 4 GB of memory::
 
 .. _data-retention:
 
-How to control data retention for Prometheus?
-=============================================
+How to control data retention for PMM?
+======================================
 
-By default, Prometheus in PMM Server stores time-series data for 30 days.
+By default, Prometheus stores time-series data for 30 days,
+and QAN stores query data for 8 days.
+
 Depending on available disk space and your requirements,
 you may need to adjust data retention time.
 
-You can control data retention time for Prometheus
-by passing the ``METRICS_RETENTION`` environment variable
+You can control data retention by passing
+the ``METRICS_RETENTION`` and ``QUERIES_RETENTION`` environment variables
 when :ref:`creating and running the PMM Server container <server-container>`.
-To set the environment variable, use the ``-e`` option.
+To set environment variables, use the ``-e`` option.
 The value is passed as a combination of hours, minutes, and seconds.
-For example, the default value of 30 days is ``720h0m0s``.
+For example, the default value of 30 days
+for ``METRICS_RETENTION`` is ``720h0m0s``.
 You probably do not need to be more precise than the number hours,
 so you can discard the minutes and seconds.
-For example, to decrease the retention period to 8 days::
+For example, to decrease the retention period for Prometheus to 8 days::
 
  -e METRICS_RETENTION=192h
 
@@ -150,12 +159,18 @@ Every service created by ``pmm-admin`` when you add a monitoring instance
 has a separate log file located in :file:`/var/log/`.
 The file names have the following syntax: ``pmm-<type>-<port>.log``.
 
-For example, the log file for the QAN monitoring service is
+For example, the log file for the MySQL QAN monitoring service is
 :file:`/var/log/pmm-mysql-queries-0.log`.
 
 You can view all available monitoring instance types and corresponding ports
 using the ``pmm-admin list`` command.
 For more information, see :ref:`pmm-admin-list`.
+
+How often are nginx logs in PMM Server rotated?
+===============================================
+
+*PMM Server* runs ``logrotate`` to rotate nginx logs on a daily basis
+and keep up to 10 latest log files.
 
 .. _performance-issues:
 
@@ -301,6 +316,26 @@ If a default port for the service is not available,
 
 If you want to assign a different port, use the ``--service-port`` option
 when :ref:`adding instances <pmm-admin-add>`.
+
+.. _troubleshoot-connection:
+
+How to troubleshoot communication issues between PMM Client and PMM Server?
+===========================================================================
+
+When :ref:`using Docker <run-server-docker>`,
+the container is constrained by the host-level routing and firewall rules.
+For example, your hosting provider might have default ``iptables`` rules
+on their hosts that block communication between *PMM Server* and *PMM Client*, resulting in ``DOWN`` targets in Prometheus.
+If this happens, check firewall and routing settings on the Docker host.
+
+Troubleshooting Tips
+--------------------
+
+If you encounter communication issues, try the following:
+
+* Check ``netstat`` on *PMM Client* to see what state the connections are in
+* Run ``curl www.google.com`` to see if you get a reply
+* Try pinging the route inside the container
 
 .. _metrics-resolution:
 

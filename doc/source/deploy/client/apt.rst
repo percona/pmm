@@ -13,6 +13,7 @@ of the following distributions:
 
 * Debian 7 (wheezy)
 * Debian 8 (jessie)
+* Debian 9 (stretch)
 * Ubuntu 12.04 LTS (Precise Pangolin)
 * Ubuntu 14.04 LTS (Trusty Tahr)
 * Ubuntu 16.04 LTS (Xenial Xerus)
