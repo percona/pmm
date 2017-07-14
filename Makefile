@@ -5,6 +5,7 @@ PACKAGES := $(shell go list ./... | grep -v vendor)
 # installs tools to $GOPATH/bin which is expected to be in $PATH
 init:
 	go install -v ./vendor/github.com/prometheus/prometheus/cmd/promtool
+	go install -v ./vendor/github.com/golang/protobuf/protoc-gen-go
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 

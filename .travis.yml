@@ -1,0 +1,46 @@
+dist: trusty
+sudo: required
+language: go
+
+go:
+  - 1.8.x
+  - tip
+
+before_install:
+  # no package for Trusty yet
+  # - sudo add-apt-repository -y ppa:maarten-fonville/protobuf
+  # - sudo apt-get -qq update
+  # - sudo apt-get install -y protobuf
+
+  # install protoc the hard way
+  # - git clone --depth 1 --branch v3.3.2 https://github.com/google/protobuf /tmp/protobuf
+  # - cd /tmp/protobuf
+  # - ./autogen.sh
+  # - ./configure
+  # - make -j2
+  # - sudo make install
+  # - sudo ldconfig
+
+  # install compiled release
+  - wget https://github.com/google/protobuf/releases/download/v3.2.0/protoc-3.2.0-linux-x86_64.zip
+  - unzip -q protoc-3.2.0-linux-x86_64.zip
+  - sudo install -d /usr/local/include/google/protobuf/compiler
+  - sudo install -m 755 bin/protoc /usr/local/bin/
+  - sudo install -m 644 include/google/protobuf/*.proto /usr/local/include/google/protobuf/
+  - sudo install -m 644 include/google/protobuf/compiler/*.proto /usr/local/include/google/protobuf/compiler/
+
+  - protoc --version
+
+script:
+  # check that generated files are not changed
+  - make init protos
+  - git diff --exit-code
+
+  - make
+
+notifications:
+  slack:
+    on_success: change
+    on_failure: always
+    rooms:
+      secure: QDKp28RJiVnst5gGKSKhVWvyIacYFLvl4eypPQoagrUm7VlQlGdmExH841OtURbqwNNsQoai2kP1XfxxSTPtTzmp6rMsBH4D4+cAfpqE2xgP/zQ1ctbA7B4hSAGu0FkAzyhiQb6HaGIeELaTiS5uTgwHn64BNgNtf8rC3mCIUanKlpAwPOejDOvldjkL3TzNkjnv9kujLQhiSSlldMownb0gNeSiH2HfYAZ9XT5wQj6rBEGI2Mk5xBzkEduLpHMe6r8Ocko3j3q3czrNrlrqgPiTzYIh+A1h6cSGu4xe6C3WmANVbHi/ieeM3YM+pT1ff5Mx0g75Kyi18zBCSWL4tBOeu+ciHPAPKFGx7sv5ivLNzoKJm/Fc3AsdkkAvSHErsrRCWdwemRveSdbNOkwDybNSso3ERRZ8YuWIP5rdKb8HIprVuMrvlrpjXi5p901Nabt7Pw4mgDBVJIIvZn8PJ4N/0T+RGO2bV38JlWIutLFHFcHcQ2QPZOiGPffxbtfmU7x7+J4QCHhA4ucYkwzxEb7UZcGpSxz3+zVoP25c480Z56KInkxIEi0LBEqw2s7MqsKpgho4KJIpCbciDhPN7MTm4aVeYjtJ0GgIbgKXuaLWMUMcYQ0yTHUHweGMHLSF/k7cdP8WSb4z1LtJqxKzye9IcejdacVPhdLzHaprW7w=
