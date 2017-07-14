@@ -1,0 +1,104 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "pmm.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v0/alerts": {
+      "get": {
+        "operationId": "List",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiAlertsListResponse"
+            }
+          }
+        },
+        "tags": [
+          "Alerts"
+        ]
+      }
+    },
+    "/v0/version": {
+      "get": {
+        "operationId": "Version",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiBaseVersionResponse"
+            }
+          }
+        },
+        "tags": [
+          "Base"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiAlertRule": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "disabled": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    },
+    "apiAlertsListRequest": {
+      "type": "object"
+    },
+    "apiAlertsListResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/apiError"
+        },
+        "alert_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiAlertRule"
+          }
+        }
+      }
+    },
+    "apiBaseVersionRequest": {
+      "type": "object"
+    },
+    "apiBaseVersionResponse": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "apiError": {
+      "type": "string",
+      "enum": [
+        "NO_ERROR"
+      ],
+      "default": "NO_ERROR",
+      "description": "Error is the error status of a request."
+    }
+  }
+}
