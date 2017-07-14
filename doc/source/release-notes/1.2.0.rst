@@ -4,7 +4,7 @@
 Percona Monitoring and Management 1.2.0
 =======================================
 
-:Date: July 13, 2017
+:Date: July 14, 2017
 
 For install and upgrade instructions, see :ref:`deploy-pmm`.
 
@@ -16,13 +16,13 @@ The following changes were introduced in *PMM Server* 1.2.0:
 Updated Components
 ------------------
 
-* Consul 0.8.5
+* `Consul 0.8.5 <https://github.com/hashicorp/consul/blob/master/CHANGELOG.md#085-june-27-2017>`_
 
-* Grafana 4.3.2
+* `Grafana 4.3.2 <https://github.com/grafana/grafana/blob/master/CHANGELOG.md#432-2017-05-31>`_
 
-* Orchestrator 2.1.5
+* `Orchestrator 2.1.5 <https://github.com/github/orchestrator/releases/tag/v2.1.5>`_
 
-* Prometheus 1.7.1
+* `Prometheus 1.7.1 <https://github.com/prometheus/prometheus/releases/tag/v1.7.1>`_
 
 New Features
 ------------
@@ -33,9 +33,7 @@ New Features
 
   - **Saturation Metrics**
 
-* NOT DONE? :pmmbug:`761`: New graphs for PXC flow control and receive queue.
-
-* :pmmbug:`1090`: Added ESXi support for *PMM Server* OVA package.
+* :pmmbug:`1090`: Added ESXi support for *PMM Server* virtual appliance.
 
 UI Fixes
 --------
@@ -56,7 +54,7 @@ UI Fixes
 * :pmmbug:`888`: Disabled the **Apply** button in QAN settings
   when nothing is changed.
 
-* :pmmbug:`889` Fixed the switch between UTC and local time zone
+* :pmmbug:`889`: Fixed the switch between UTC and local time zone
   in the QAN time range selector.
 
 * :pmmbug:`909`: Added message ``No query example``
@@ -108,29 +106,25 @@ UI Fixes
 Bug Fixes
 ---------
 
-* NOT A BUG? :pmmbug:`329` Fixed ``EXPLAIN`` to work with uppercase
-  database and table names.
-
-* INTERNAL? :pmmbug:`348` Added daily log rotation for nginx. (improvement?)
-
-* :pmmbug:`547` Added warning page to Query Analytics app,
-  when there are no PMM Clients running the QAN service. (improvement?)
+* :pmmbug:`547`: Added warning page to Query Analytics app
+  when there are no PMM Clients running the QAN service.
 
 * :pmmbug:`799`: Fixed Orchestrator to show correct version.
 
 * :pmmbug:`1031`: Fixed initialization of **Query Profile** section in QAN
   that broke after upgrading Angular.
 
-* :pmmbug:`1087`: Fixed QAN package building. (details?)
+* :pmmbug:`1087`: Fixed QAN package building.
 
 Other Improvements
 ------------------
+
+* :pmmbug:`348`: Added daily log rotation for nginx.
 
 * :pmmbug:`968`: Added Prometheus build information.
 
 * :pmmbug:`969`: Updated the Prometheus memory usage settings
   to leverage new flag.
-
   For more information about setting memory consumption by PMM,
   see `FAQ <https://www.percona.com/doc/percona-monitoring-and-management/faq.html#how-to-control-memory-consumption-for-prometheus>`_.
 
@@ -152,9 +146,6 @@ Bug Fixes
 
 * :pmmbug:`623`: Fixed ``mongodb_exporter`` to display correct version.
 
-* :pmmbug:`783`: Directed ``mongodb_exporter`` log messages to ``stderr``
-  and excluded many generic messages from the default ``INFO`` logging level. (improvement?)
-
 * :pmmbug:`927`: Fixed bug with empty metrics for MognoDB query analytics.
 
 * :pmmbug:`1126`: Fixed ``promu build`` for ``node_exporter``.
@@ -164,7 +155,28 @@ Bug Fixes
 Other Improvements
 ------------------
 
+* :pmmbug:`783`: Directed ``mongodb_exporter`` log messages to ``stderr``
+  and excluded many generic messages from the default ``INFO`` logging level.
+
 * :pmmbug:`756`: Merged upstream ``node_exporter`` `version 0.14.0 <https://github.com/prometheus/node_exporter/blob/master/CHANGELOG.md#v0140--2017-03-21>`_.
 
+  Several collectors were deprecated in this release:
+
+  * ``gmond`` - Out of scope.
+  * ``megacli`` - Requires forking, to be moved to textfile collection.
+  * ``ntp`` - Out of scope.
+
+  It also introduced the following breaking change:
+
+  * Collector errors are now a separate metric:
+    ``node_scrape_collector_success``,
+    not a label on ``node_exporter_scrape_duration_seconds``
+
 * :pmmbug:`1011`: Merged upstream ``mysqld_exporter`` `version 0.10.0 <https://github.com/prometheus/mysqld_exporter/blob/master/CHANGELOG.md#v0100--2017-04-25>`_.
+
+  This release introduced the following breaking change:
+
+  * ``mysql_slave_...`` metrics now include
+    an additional ``connection_name`` label
+    to support MariaDB multi-source replication.
 

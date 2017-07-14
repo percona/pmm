@@ -8,17 +8,24 @@ After you :ref:`connect the client to PMM Server <connect-client>`,
 enable data collection from the database instance
 by :ref:`adding a monitoring service <pmm-admin-add>`.
 
-To enable general system metrics, MySQL metrics, and query analytics, run:
+To enable general system metrics, MySQL metrics,
+and MySQL query analytics, run:
 
 .. code-block:: bash
 
    sudo pmm-admin add mysql
 
-To enable general system metrics and MongoDB metrics, run:
+To enable general system metrics, MongoDB metrics,
+and MongoDB query analytics, run:
 
 .. code-block:: bash
 
-   sudo pmm-admin add mongodb
+   sudo pmm-admin --dev-enable add mongodb
+
+.. note:: MongoDB query analytics is experimental
+   and requires the ``--dev-enable`` option when adding.
+   Without this option, only general system metrics and MongoDB metrics
+   will be added.
 
 To enable ProxySQL performance metrics, run:
 
