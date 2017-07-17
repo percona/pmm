@@ -396,7 +396,7 @@ Use the ``mongodb:queries`` alias to enable MongoDB query analytics.
 
 .. code-block:: text
 
-   pmm-admin add mysql:queries [NAME] [OPTIONS]
+   pmm-admin add mongodb:queries [NAME] [OPTIONS]
 
 This creates the ``pmm-mongodb-queries-0`` service
 that is able to collect QAN data for multiple remote MongoDB server instances.
@@ -1203,5 +1203,5 @@ that you want to :ref:`add <pmm-admin-add>`, :ref:`remove <pmm-admin-rm>`,
 
        * ``linux:metrics``
        * ``mongodb:metrics``
-
+       * ``mongodb:queries``
 
