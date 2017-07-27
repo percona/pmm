@@ -76,8 +76,12 @@ func runGRPCServer(ctx context.Context) {
 		logrus.Fatal(err)
 	}
 	go func() {
-		if err = gRPCServer.Serve(l); err != grpc.ErrServerStopped {
-			logrus.Panic(err)
+		for {
+			err = gRPCServer.Serve(l)
+			if err == grpc.ErrServerStopped {
+				break
+			}
+			logrus.Error(err)
 		}
 		logrus.Info("gRPC server stopped.")
 	}()
