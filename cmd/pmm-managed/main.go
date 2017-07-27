@@ -17,8 +17,10 @@
 package main
 
 import (
+	"bytes"
 	_ "expvar"
 	"flag"
+	"html/template"
 	"log"
 	"net"
 	"net/http"
@@ -26,11 +28,14 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
 
+	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -52,9 +57,6 @@ var (
 	restAddrF  = flag.String("listen-rest-addr", "127.0.0.1:7772", "REST server listen address")
 	debugAddrF = flag.String("listen-debug-addr", "127.0.0.1:7773", "Debug server listen address")
 
-	// certFileF = flag.String("cert-file", "cert.pem", "TLS certificate file for gRPC server")
-	// keyFileF  = flag.String("key-file", "key.pem", "TLS key file for gRPC server")
-
 	prometheusConfigF = flag.String("prometheus-config", "", "Prometheus configuration file path")
 	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/", "Prometheus base URL")
 )
@@ -68,7 +70,10 @@ func runGRPCServer(ctx context.Context) {
 	if err != nil {
 		l.Panic(err)
 	}
-	gRPCServer := grpc.NewServer()
+	gRPCServer := grpc.NewServer(
+		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
+		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
+	)
 	server := &handlers.Server{
 		Prometheus: &service.Prometheus{
 			ConfigPath: *prometheusConfigF,
@@ -77,6 +82,9 @@ func runGRPCServer(ctx context.Context) {
 	}
 	api.RegisterBaseServer(gRPCServer, server)
 	api.RegisterAlertsServer(gRPCServer, server)
+
+	grpc_prometheus.Register(gRPCServer)
+	grpc_prometheus.EnableHandlingTimeHistogram()
 
 	listener, err := net.Listen("tcp", *gRPCAddrF)
 	if err != nil {
@@ -149,12 +157,33 @@ func runRESTServer(ctx context.Context) {
 // runGRPCServer runs debug server until context is canceled, then gracefully stops it.
 func runDebugServer(ctx context.Context) {
 	l := logrus.WithField("component", "debug")
-	msg := `Starting debug server ...
-            pprof    http://%s/debug/pprof
-            expvar   http://%s/debug/vars
-            requests http://%s/debug/requests
-            events   http://%s/debug/events`
-	l.Infof(msg, *debugAddrF, *debugAddrF, *debugAddrF, *debugAddrF)
+
+	http.Handle("/debug/metrics", promhttp.Handler())
+
+	handlers := []string{"metrics", "vars", "requests", "events", "pprof"}
+	for i, h := range handlers {
+		handlers[i] = "http://" + *debugAddrF + "/debug/" + h
+	}
+
+	var buf bytes.Buffer
+	err := template.Must(template.New("debug").Parse(`
+	<html>
+	<body>
+	<ul>
+	{{ range . }}
+		<li><a href="{{ . }}">{{ . }}</a></li>
+	{{ end }}
+	</ul>
+	</body>
+	</html>
+	`)).Execute(&buf, handlers)
+	if err != nil {
+		l.Panic(err)
+	}
+	http.HandleFunc("/debug", func(rw http.ResponseWriter, req *http.Request) {
+		rw.Write(buf.Bytes())
+	})
+	l.Infof("Starting server on http://%s/debug\nRegistered handlers:\n\t%s", *debugAddrF, strings.Join(handlers, "\n\t"))
 
 	server := &http.Server{
 		Addr:     *debugAddrF,
