@@ -11,11 +11,26 @@ enum Error {
     NO_ERROR = 0;
 }
 
+enum PingType {
+    PING = 0;
+    PONG = 1;
+}
+
 message BaseVersionRequest {
 }
 
 message BaseVersionResponse {
     string version = 1;
+}
+
+message BasePingRequest {
+    PingType type  = 1;
+    fixed64 cookie = 2;
+}
+
+message BasePingResponse {
+    PingType type  = 1;
+    fixed64 cookie = 2;
 }
 
 service Base {
@@ -24,6 +39,8 @@ service Base {
             get: "/v0/version"
         };
     }
+
+    rpc Ping(stream BasePingRequest) returns (stream BasePingResponse);
 }
 
 message AlertRule {

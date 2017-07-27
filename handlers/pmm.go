@@ -17,6 +17,11 @@
 package handlers
 
 import (
+	"io"
+	"math/rand"
+	"time"
+
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 
 	"github.com/Percona-Lab/pmm-managed/api"
@@ -29,6 +34,55 @@ type Server struct {
 
 func (s *Server) Version(context.Context, *api.BaseVersionRequest) (*api.BaseVersionResponse, error) {
 	return &api.BaseVersionResponse{"pmm-managed v0.0.0-alpha"}, nil
+}
+
+func (s *Server) Ping(stream api.Base_PingServer) (err error) {
+	logrus.Printf("Ping started")
+	defer func() {
+		logrus.Printf("Ping stopped with error %s", err)
+	}()
+
+	// start pinger
+	go func() {
+		for {
+			resp := &api.BasePingResponse{
+				Type:   api.PingType_PING,
+				Cookie: uint64(time.Now().UnixNano()),
+			}
+			if pingErr := stream.Send(resp); pingErr != nil {
+				logrus.Error(pingErr)
+				return
+			}
+			time.Sleep(time.Duration(rand.Intn(int(time.Second))))
+		}
+	}()
+
+	// ponger
+	for {
+		var req *api.BasePingRequest
+		req, err = stream.Recv()
+		if err != nil {
+			if err == io.EOF {
+				err = nil
+			}
+			return
+		}
+
+		switch req.Type {
+		case api.PingType_PING:
+			logrus.Printf("Received ping: %d", req.Cookie)
+			pong := &api.BasePingResponse{
+				Type:   api.PingType_PONG,
+				Cookie: req.Cookie,
+			}
+			if err = stream.Send(pong); err != nil {
+				return
+			}
+		case api.PingType_PONG:
+			d := time.Since(time.Unix(0, int64(req.Cookie)))
+			logrus.Printf("Received pong: %d (latency %v)", req.Cookie, d)
+		}
+	}
 }
 
 func (s *Server) List(context.Context, *api.AlertsListRequest) (*api.AlertsListResponse, error) {

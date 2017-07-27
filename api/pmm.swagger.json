@@ -81,6 +81,30 @@
         }
       }
     },
+    "apiBasePingRequest": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/apiPingType"
+        },
+        "cookie": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "apiBasePingResponse": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "$ref": "#/definitions/apiPingType"
+        },
+        "cookie": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
     "apiBaseVersionRequest": {
       "type": "object"
     },
@@ -99,6 +123,14 @@
       ],
       "default": "NO_ERROR",
       "description": "Error is the error status of a request."
+    },
+    "apiPingType": {
+      "type": "string",
+      "enum": [
+        "PING",
+        "PONG"
+      ],
+      "default": "PING"
     }
   }
 }
