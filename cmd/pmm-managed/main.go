@@ -46,7 +46,8 @@ const (
 )
 
 var (
-	// TODO combine gRPC and REST ports?
+	// TODO we can combine gRPC and REST ports, but only with TLS
+	// see https://github.com/grpc/grpc-go/issues/555
 	gRPCAddrF  = flag.String("listen-grpc-addr", "127.0.0.1:7771", "gRPC server listen address")
 	restAddrF  = flag.String("listen-rest-addr", "127.0.0.1:7772", "REST server listen address")
 	debugAddrF = flag.String("listen-debug-addr", "127.0.0.1:7773", "Debug server listen address")
