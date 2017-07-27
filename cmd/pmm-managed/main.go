@@ -28,6 +28,7 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/sirupsen/logrus"
@@ -38,6 +39,10 @@ import (
 	"github.com/Percona-Lab/pmm-managed/api"
 	"github.com/Percona-Lab/pmm-managed/handlers"
 	"github.com/Percona-Lab/pmm-managed/service"
+)
+
+const (
+	shutdownTimeout = 3 * time.Second
 )
 
 var (
@@ -53,13 +58,14 @@ var (
 	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/", "Prometheus base URL")
 )
 
-// TODO graceful shutdown
+// runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 func runGRPCServer(ctx context.Context) {
-	logrus.Infof("Starting gRPC server on http://%s/ ...", *gRPCAddrF)
+	l := logrus.WithField("component", "gRPC")
+	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
 
 	prometheusURL, err := url.Parse(*prometheusURLF)
 	if err != nil {
-		logrus.Panic(err)
+		l.Panic(err)
 	}
 	gRPCServer := grpc.NewServer()
 	server := &handlers.Server{
@@ -71,27 +77,35 @@ func runGRPCServer(ctx context.Context) {
 	api.RegisterBaseServer(gRPCServer, server)
 	api.RegisterAlertsServer(gRPCServer, server)
 
-	l, err := net.Listen("tcp", *gRPCAddrF)
+	listener, err := net.Listen("tcp", *gRPCAddrF)
 	if err != nil {
-		logrus.Fatal(err)
+		l.Panic(err)
 	}
 	go func() {
 		for {
-			err = gRPCServer.Serve(l)
+			err = gRPCServer.Serve(listener)
 			if err == grpc.ErrServerStopped {
 				break
 			}
-			logrus.Error(err)
+			l.Errorf("Failed to serve: %s", err)
 		}
-		logrus.Info("gRPC server stopped.")
+		l.Info("Server stopped.")
 	}()
 
 	<-ctx.Done()
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	go func() {
+		<-ctx.Done()
+		gRPCServer.Stop()
+	}()
 	gRPCServer.GracefulStop()
+	cancel()
 }
 
+// runGRPCServer runs REST proxy server until context is canceled, then gracefully stops it.
 func runRESTServer(ctx context.Context) {
-	logrus.Infof("Starting REST server on http://%s/ ...", *restAddrF)
+	l := logrus.WithField("component", "REST")
+	l.Infof("Starting server on http://%s/ ...", *restAddrF)
 
 	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
@@ -101,87 +115,98 @@ func runRESTServer(ctx context.Context) {
 		api.RegisterBaseHandlerFromEndpoint,
 		api.RegisterAlertsHandlerFromEndpoint,
 	} {
-		err := r(ctx, mux, *gRPCAddrF, opts)
-		if err != nil {
-			logrus.Fatal(err)
+		if err := r(ctx, mux, *gRPCAddrF, opts); err != nil {
+			l.Panic(err)
 		}
 	}
+
 	server := &http.Server{
-		Addr:    *restAddrF,
-		Handler: mux,
-		// TLSConfig: &tls.Config{
-		// 	Certificates: []tls.Certificate{*cert},
-		// 	// TODO set RootCAs ?
-		// 	// NextProtos: []string{"h2"},
-		// 	// TODO set ServerName ?
-		// 	InsecureSkipVerify: true,
-		// },
-		// TODO add timeouts
+		Addr:     *restAddrF,
 		ErrorLog: log.New(os.Stderr, "runRESTServer: ", 0),
+		Handler:  mux,
+
+		// TODO we probably will need it for TLS+HTTP/2, see https://github.com/philips/grpc-gateway-example/issues/11
+		// TLSConfig: &tls.Config{
+		// 	NextProtos: []string{"h2"},
+		// },
 	}
 	go func() {
-		err := server.ListenAndServe()
-		if err != http.ErrServerClosed {
-			logrus.Panic(err)
+		if err := server.ListenAndServe(); err != http.ErrServerClosed {
+			l.Panic(err)
 		}
-		logrus.Info("REST server stopped.")
+		l.Info("Server stopped.")
 	}()
+
 	<-ctx.Done()
-	server.Shutdown(context.TODO())
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	if err := server.Shutdown(ctx); err != nil {
+		l.Errorf("Failed to shutdown gracefully: %s", err)
+	}
+	cancel()
 }
 
-// TODO graceful shutdown
+// runGRPCServer runs debug server until context is canceled, then gracefully stops it.
 func runDebugServer(ctx context.Context) {
+	l := logrus.WithField("component", "debug")
 	msg := `Starting debug server ...
             pprof    http://%s/debug/pprof
             expvar   http://%s/debug/vars
             requests http://%s/debug/requests
             events   http://%s/debug/events`
-	logrus.Infof(msg, *debugAddrF, *debugAddrF, *debugAddrF, *debugAddrF)
+	l.Infof(msg, *debugAddrF, *debugAddrF, *debugAddrF, *debugAddrF)
 
-	logger := log.New(os.Stderr, "runDebugServer: ", 0)
 	server := &http.Server{
-		Addr: *debugAddrF,
-		// TODO add timeouts
-		ErrorLog: logger,
+		Addr:     *debugAddrF,
+		ErrorLog: log.New(os.Stderr, "runDebugServer: ", 0),
 	}
 	go func() {
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
-			logger.Panic(err)
+			l.Panic(err)
 		}
-		logrus.Info("Debug server stopped.")
+		l.Info("Server stopped.")
 	}()
 
 	<-ctx.Done()
-	server.Shutdown(context.TODO())
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
+	if err := server.Shutdown(ctx); err != nil {
+		l.Errorf("Failed to shutdown gracefully: %s", err)
+	}
+	cancel()
 }
+
+type v2Logger struct {
+	*logrus.Entry
+}
+
+func (v *v2Logger) V(l int) bool {
+	return true
+}
+
+// check interface
+var _ grpclog.LoggerV2 = (*v2Logger)(nil)
 
 func main() {
 	log.SetFlags(0)
 	log.SetPrefix("stdlog: ")
 	logrus.SetLevel(logrus.DebugLevel)
-	grpclog.SetLogger(logrus.WithField("component", "grpclog"))
+	grpclog.SetLoggerV2(&v2Logger{logrus.WithField("component", "grpclog")})
 	flag.Parse()
 
-	// cert, err := tls.LoadX509KeyPair(*certFileF, *keyFileF)
-	// if err != nil {
-	// 	logrus.Fatal(err)
-	// }
-
+	l := logrus.WithField("component", "main")
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
-	defer logrus.Info("Done.")
+	defer l.Info("Done.")
 
 	// handle termination signals: first one gracefully, force exit on the second one
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
 	go func() {
 		s := <-signals
-		logrus.Warnf("Got %v (%d) signal, shutting down...", s, s)
+		l.Warnf("Got %v (%d) signal, shutting down...", s, s)
 		cancel()
 
 		s = <-signals
-		logrus.Fatalf("Got %v (%d) signal, exiting!", s, s)
+		l.Panicf("Got %v (%d) signal, exiting!", s, s)
 	}()
 
 	// start servers, wait for them to exit

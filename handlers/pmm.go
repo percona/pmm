@@ -45,6 +45,12 @@ func (s *Server) Ping(stream api.Base_PingServer) (err error) {
 	// start pinger
 	go func() {
 		for {
+			select {
+			case <-stream.Context().Done():
+				return
+			default:
+			}
+
 			resp := &api.BasePingResponse{
 				Type:   api.PingType_PING,
 				Cookie: uint64(time.Now().UnixNano()),
@@ -59,6 +65,13 @@ func (s *Server) Ping(stream api.Base_PingServer) (err error) {
 
 	// ponger
 	for {
+		select {
+		case <-stream.Context().Done():
+			err = stream.Context().Err()
+			return
+		default:
+		}
+
 		var req *api.BasePingRequest
 		req, err = stream.Recv()
 		if err != nil {
