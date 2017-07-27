@@ -1,33 +1,18 @@
 /*
  *
- * Copyright 2014, Google Inc.
- * All rights reserved.
+ * Copyright 2014 gRPC authors.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     * Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above
- * copyright notice, this list of conditions and the following disclaimer
- * in the documentation and/or other materials provided with the
- * distribution.
- *     * Neither the name of Google Inc. nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  */
 
@@ -40,7 +25,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"math"
 	"net"
 	"os"
@@ -61,7 +45,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/grpclog"
+	_ "google.golang.org/grpc/grpclog/glogger"
 	"google.golang.org/grpc/health"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/internal"
@@ -761,7 +745,7 @@ func testServerGoAway(t *testing.T, e env) {
 	// Loop until the server side GoAway signal is propagated to the client.
 	for {
 		ctx, _ := context.WithTimeout(context.Background(), 10*time.Millisecond)
-		if _, err := tc.EmptyCall(ctx, &testpb.Empty{}, grpc.FailFast(false)); err == nil {
+		if _, err := tc.EmptyCall(ctx, &testpb.Empty{}); err == nil || grpc.Code(err) == codes.DeadlineExceeded {
 			continue
 		}
 		break
@@ -4135,7 +4119,7 @@ func TestFlowControlLogicalRace(t *testing.T) {
 		recvCount   = 2
 		maxFailures = 3
 
-		requestTimeout = time.Second
+		requestTimeout = time.Second * 5
 	)
 
 	requestCount := 10000
@@ -4252,6 +4236,7 @@ func interestingGoroutines() (gs []string) {
 		if stack == "" ||
 			strings.Contains(stack, "testing.Main(") ||
 			strings.Contains(stack, "testing.tRunner(") ||
+			strings.Contains(stack, "testing.(*M).") ||
 			strings.Contains(stack, "runtime.goexit") ||
 			strings.Contains(stack, "created by runtime.gc") ||
 			strings.Contains(stack, "created by runtime/trace.Start") ||
@@ -4261,6 +4246,7 @@ func interestingGoroutines() (gs []string) {
 			strings.Contains(stack, "signal.signal_recv") ||
 			strings.Contains(stack, "sigterm.handler") ||
 			strings.Contains(stack, "runtime_mcall") ||
+			strings.Contains(stack, "(*loggingT).flushDaemon") ||
 			strings.Contains(stack, "goroutine in C code") {
 			continue
 		}
@@ -4365,10 +4351,6 @@ func logOutputHasContents(v []byte, wakeup chan<- bool) bool {
 	}
 	fw.wakeup = wakeup
 	return false
-}
-
-func init() {
-	grpclog.SetLogger(log.New(testLogOutput, "", log.LstdFlags))
 }
 
 var verboseLogs = flag.Bool("verbose_logs", false, "show all grpclog output, without filtering")

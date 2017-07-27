@@ -26,19 +26,3 @@ required = [
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
 ]
-
-[[constraint]]
-  name = "github.com/pkg/errors"
-  version = "0.8.0"
-
-[[constraint]]
-  name = "github.com/sirupsen/logrus"
-  version = "1.0.1"
-
-[[constraint]]
-  name = "google.golang.org/grpc"
-  version = "1.4.2"
-
-[[constraint]]
-  name = "github.com/grpc-ecosystem/grpc-gateway"
-  version = "1.2.2"

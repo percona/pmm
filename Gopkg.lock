@@ -23,7 +23,7 @@
   branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["jsonpb","proto","protoc-gen-go/descriptor","protoc-gen-go/generator","protoc-gen-go/plugin","ptypes/any","ptypes/struct"]
-  revision = "0a4f71a498b7c4812f64969510bcb4eca251e33a"
+  revision = "748d386b5c1ea99658fd69fe9f03991ce86a90c1"
 
 [[projects]]
   branch = "master"
@@ -107,25 +107,25 @@
   branch = "master"
   name = "github.com/syndtr/goleveldb"
   packages = ["leveldb","leveldb/cache","leveldb/comparer","leveldb/errors","leveldb/filter","leveldb/iterator","leveldb/journal","leveldb/memdb","leveldb/opt","leveldb/storage","leveldb/table","leveldb/util"]
-  revision = "8c81ea47d4c41a385645e133e15510fc6a2a74b4"
+  revision = "b89cc31ef7977104127d34c1bd31ebd1a9db2199"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
-  revision = "f01ecb60fe3835d80d9a0b7b2bf24b228c89260e"
+  revision = "f5079bd7f6f74e23c4d65efa0f4ce14cbd6a3c0f"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix","windows","windows/registry","windows/svc/eventlog"]
-  revision = "abf9c25f54453410d0c6668e519582a9e1115027"
+  revision = "02a66801d979d706a4b445e24e03916eeaa2a404"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
   packages = ["internal/gen","internal/triegen","internal/ucd","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
-  revision = "cfdf022e86b4ecfb646e1efbd7db175dd623a8fa"
+  revision = "836efe42bb4aa16aaa17b9c155d8813d336ed720"
 
 [[projects]]
   branch = "master"
@@ -136,18 +136,18 @@
 [[projects]]
   name = "google.golang.org/grpc"
   packages = [".","codes","credentials","grpclb/grpc_lb_v1","grpclog","internal","keepalive","metadata","naming","peer","stats","status","tap","transport"]
-  revision = "b15215fb911b24a5d61d57feec4233d610530464"
-  version = "v1.4.2"
+  revision = "172ccacff3cfbddedcf1ba5ea06cda943bc976c1"
+  version = "v1.5.0"
 
 [[projects]]
   branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "3b4ad1db5b2a649883ff3782f5f9f6fb52be71af"
+  revision = "25c4ec802a7d637f88d584ab26798e94ad14c13b"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ef3de8bff9deaeaa7b9635f8f876177b792b77ef72a19c8f65e32d19902fb6fd"
+  inputs-digest = "be37ea3fae0fe55b45e3dfc0e379a4beb141f3aaf72ebb027c8bf5bfe12be473"
   solver-name = "gps-cdcl"
   solver-version = 1
