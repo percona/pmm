@@ -13,6 +13,10 @@ install:
 	go install -v $(PACKAGES)
 	go test -v -i $(PACKAGES)
 
+install-race:
+	go install -v -race $(PACKAGES)
+	go test -v -race -i $(PACKAGES)
+
 test: install
 	go test -v $(PACKAGES)
 
