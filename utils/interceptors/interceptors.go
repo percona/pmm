@@ -25,7 +25,7 @@ import (
 
 // Unary adds context logger and Prometheus metrics to unary server RPC.
 func Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	ctx = logger.Set(ctx)
+	ctx, _ = logger.Set(ctx)
 	return grpc_prometheus.UnaryServerInterceptor(ctx, req, info, handler)
 }
 

@@ -21,11 +21,11 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 
 	"github.com/Percona-Lab/pmm-managed/api"
 	"github.com/Percona-Lab/pmm-managed/service"
+	"github.com/Percona-Lab/pmm-managed/utils/logger"
 )
 
 type Server struct {
@@ -37,16 +37,17 @@ func (s *Server) Version(context.Context, *api.BaseVersionRequest) (*api.BaseVer
 }
 
 func (s *Server) Ping(stream api.Base_PingServer) (err error) {
-	logrus.Printf("Ping started")
+	ctx, l := logger.Set(stream.Context())
+	l.Printf("Ping started")
 	defer func() {
-		logrus.Printf("Ping stopped with error %s", err)
+		l.Printf("Ping stopped with error %s", err)
 	}()
 
 	// start pinger
 	go func() {
 		for {
 			select {
-			case <-stream.Context().Done():
+			case <-ctx.Done():
 				return
 			default:
 			}
@@ -56,7 +57,7 @@ func (s *Server) Ping(stream api.Base_PingServer) (err error) {
 				Cookie: uint64(time.Now().UnixNano()),
 			}
 			if pingErr := stream.Send(resp); pingErr != nil {
-				logrus.Error(pingErr)
+				l.Error(pingErr)
 				return
 			}
 			time.Sleep(time.Duration(rand.Intn(int(time.Second))))
@@ -66,8 +67,8 @@ func (s *Server) Ping(stream api.Base_PingServer) (err error) {
 	// ponger
 	for {
 		select {
-		case <-stream.Context().Done():
-			err = stream.Context().Err()
+		case <-ctx.Done():
+			err = ctx.Err()
 			return
 		default:
 		}
@@ -83,7 +84,7 @@ func (s *Server) Ping(stream api.Base_PingServer) (err error) {
 
 		switch req.Type {
 		case api.PingType_PING:
-			logrus.Printf("Received ping: %d", req.Cookie)
+			l.Printf("Received ping: %d", req.Cookie)
 			pong := &api.BasePingResponse{
 				Type:   api.PingType_PONG,
 				Cookie: req.Cookie,
@@ -93,7 +94,7 @@ func (s *Server) Ping(stream api.Base_PingServer) (err error) {
 			}
 		case api.PingType_PONG:
 			d := time.Since(time.Unix(0, int64(req.Cookie)))
-			logrus.Printf("Received pong: %d (latency %v)", req.Cookie, d)
+			l.Printf("Received pong: %d (latency %v)", req.Cookie, d)
 		}
 	}
 }

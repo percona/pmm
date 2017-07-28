@@ -32,7 +32,7 @@ func TestPrometheus(t *testing.T) {
 		AlertRulesPath: "testdata/alerts/",
 		PromtoolPath:   "promtool",
 	}
-	ctx := logger.Set(context.Background())
+	ctx, _ := logger.Set(context.Background())
 
 	alerts, err := p.ListAlertRules(ctx)
 	if err != nil {

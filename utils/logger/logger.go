@@ -34,10 +34,11 @@ func Get(ctx context.Context) *logrus.Entry {
 
 // Set returns derived context with set logrus entry with generated request ID,
 // or the same context if entry already present.
-func Set(ctx context.Context) context.Context {
+func Set(ctx context.Context) (context.Context, *logrus.Entry) {
 	if ctx.Value(key{}) != nil {
-		return ctx
+		return ctx, Get(ctx)
 	}
-	id := fmt.Sprintf("%016x", time.Now().UnixNano())
-	return context.WithValue(ctx, key{}, logrus.WithField("request", id))
+
+	l := logrus.WithField("request", fmt.Sprintf("%016x", time.Now().UnixNano()))
+	return context.WithValue(ctx, key{}, l), l
 }

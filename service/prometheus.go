@@ -29,7 +29,8 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/prometheus/config"
-	"github.com/sirupsen/logrus"
+
+	"github.com/Percona-Lab/pmm-managed/utils/logger"
 )
 
 type AlertRule struct {
@@ -89,7 +90,7 @@ func (p *Prometheus) reload() error {
 }
 
 // loadAlertRules returns all Prometheus alert rules.
-func (p *Prometheus) loadAlertRules() ([]AlertRule, error) {
+func (p *Prometheus) loadAlertRules(ctx context.Context) ([]AlertRule, error) {
 	files, err := filepath.Glob(filepath.Join(p.AlertRulesPath, "*"))
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -109,7 +110,7 @@ func (p *Prometheus) loadAlertRules() ([]AlertRule, error) {
 			name = strings.TrimSuffix(name, ext)
 		}
 		if ext != ".rule" {
-			logrus.Warnf("unexpected file %q, skipped", f)
+			logger.Get(ctx).Warnf("unexpected file %q, skipped", f)
 			continue
 		}
 		if _, ok := names[name]; ok {
@@ -133,7 +134,7 @@ func (p *Prometheus) loadAlertRules() ([]AlertRule, error) {
 	return rules, nil
 }
 
-func (p *Prometheus) Check() error {
+func (p *Prometheus) Check(ctx context.Context) error {
 	if _, err := p.loadConfig(); err != nil {
 		return err
 	}
@@ -149,7 +150,7 @@ func (p *Prometheus) Check() error {
 	}
 	defer resp.Body.Close()
 	b, err := ioutil.ReadAll(resp.Body)
-	logrus.Infof("Prometheus version: %s", b)
+	logger.Get(ctx).Infof("Prometheus version: %s", b)
 	if err != nil {
 		return err
 	}
@@ -164,14 +165,14 @@ func (p *Prometheus) ListAlertRules(ctx context.Context) ([]AlertRule, error) {
 	p.lock.RLock()
 	defer p.lock.RUnlock()
 
-	return p.loadAlertRules()
+	return p.loadAlertRules(ctx)
 }
 
 func (p *Prometheus) GetAlert(ctx context.Context, name string) (*AlertRule, error) {
 	p.lock.RLock()
 	defer p.lock.RUnlock()
 
-	rules, err := p.loadAlertRules()
+	rules, err := p.loadAlertRules(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -220,7 +221,7 @@ func (p *Prometheus) DeleteAlert(ctx context.Context, name string) error {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
-	rules, err := p.loadAlertRules()
+	rules, err := p.loadAlertRules(ctx)
 	if err != nil {
 		return err
 	}
