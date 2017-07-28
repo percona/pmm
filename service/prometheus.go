@@ -17,6 +17,7 @@
 package service
 
 import (
+	"context"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -159,14 +160,14 @@ func (p *Prometheus) Check() error {
 }
 
 // ListAlertRules returns all alert rules.
-func (p *Prometheus) ListAlertRules() ([]AlertRule, error) {
+func (p *Prometheus) ListAlertRules(ctx context.Context) ([]AlertRule, error) {
 	p.lock.RLock()
 	defer p.lock.RUnlock()
 
 	return p.loadAlertRules()
 }
 
-func (p *Prometheus) GetAlert(name string) (*AlertRule, error) {
+func (p *Prometheus) GetAlert(ctx context.Context, name string) (*AlertRule, error) {
 	p.lock.RLock()
 	defer p.lock.RUnlock()
 
@@ -182,7 +183,7 @@ func (p *Prometheus) GetAlert(name string) (*AlertRule, error) {
 	return nil, errors.WithStack(os.ErrNotExist)
 }
 
-func (p *Prometheus) PutAlert(rule *AlertRule) error {
+func (p *Prometheus) PutAlert(ctx context.Context, rule *AlertRule) error {
 	// write to temporary location, check syntax with promtool
 	f, err := ioutil.TempFile("", "pmm-managed-rule-")
 	if err != nil {
@@ -215,7 +216,7 @@ func (p *Prometheus) PutAlert(rule *AlertRule) error {
 	return p.reload()
 }
 
-func (p *Prometheus) DeleteAlert(name string) error {
+func (p *Prometheus) DeleteAlert(ctx context.Context, name string) error {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 

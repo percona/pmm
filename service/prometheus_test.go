@@ -17,10 +17,13 @@
 package service
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/Percona-Lab/pmm-managed/utils/logger"
 )
 
 func TestPrometheus(t *testing.T) {
@@ -29,8 +32,9 @@ func TestPrometheus(t *testing.T) {
 		AlertRulesPath: "testdata/alerts/",
 		PromtoolPath:   "promtool",
 	}
+	ctx := logger.Set(context.Background())
 
-	alerts, err := p.ListAlertRules()
+	alerts, err := p.ListAlertRules(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -47,9 +51,9 @@ func TestPrometheus(t *testing.T) {
 		Name: "TestPrometheus",
 		Text: "ALERT TestPrometheus IF up == 0",
 	}
-	require.NoError(t, p.PutAlert(rule))
+	require.NoError(t, p.PutAlert(ctx, rule))
 
 	defer func() {
-		require.NoError(t, p.DeleteAlert("TestPrometheus"))
+		require.NoError(t, p.DeleteAlert(ctx, "TestPrometheus"))
 	}()
 }

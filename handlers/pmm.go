@@ -98,8 +98,8 @@ func (s *Server) Ping(stream api.Base_PingServer) (err error) {
 	}
 }
 
-func (s *Server) List(context.Context, *api.AlertsListRequest) (*api.AlertsListResponse, error) {
-	rules, err := s.Prometheus.ListAlertRules()
+func (s *Server) List(ctx context.Context, req *api.AlertsListRequest) (*api.AlertsListResponse, error) {
+	rules, err := s.Prometheus.ListAlertRules(ctx)
 	if err != nil {
 		return nil, err
 	}

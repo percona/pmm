@@ -44,6 +44,8 @@ import (
 	"github.com/Percona-Lab/pmm-managed/api"
 	"github.com/Percona-Lab/pmm-managed/handlers"
 	"github.com/Percona-Lab/pmm-managed/service"
+	"github.com/Percona-Lab/pmm-managed/utils/interceptors"
+	"github.com/Percona-Lab/pmm-managed/utils/logger"
 )
 
 const (
@@ -71,8 +73,8 @@ func runGRPCServer(ctx context.Context) {
 		l.Panic(err)
 	}
 	gRPCServer := grpc.NewServer(
-		grpc.StreamInterceptor(grpc_prometheus.StreamServerInterceptor),
-		grpc.UnaryInterceptor(grpc_prometheus.UnaryServerInterceptor),
+		grpc.UnaryInterceptor(interceptors.Unary),
+		grpc.StreamInterceptor(interceptors.Stream),
 	)
 	server := &handlers.Server{
 		Prometheus: &service.Prometheus{
@@ -204,22 +206,11 @@ func runDebugServer(ctx context.Context) {
 	cancel()
 }
 
-type v2Logger struct {
-	*logrus.Entry
-}
-
-func (v *v2Logger) V(l int) bool {
-	return true
-}
-
-// check interface
-var _ grpclog.LoggerV2 = (*v2Logger)(nil)
-
 func main() {
 	log.SetFlags(0)
 	log.SetPrefix("stdlog: ")
 	logrus.SetLevel(logrus.DebugLevel)
-	grpclog.SetLoggerV2(&v2Logger{logrus.WithField("component", "grpclog")})
+	grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 	flag.Parse()
 
 	l := logrus.WithField("component", "main")
