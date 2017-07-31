@@ -67,10 +67,6 @@ func (p *Prometheus) loadConfig() (*config.Config, error) {
 // reload causes Prometheus to reload configuration, including alert rules files.
 // Does nothing if Prometheus URL is not set.
 func (p *Prometheus) reload() error {
-	if p.URL == nil {
-		return nil
-	}
-
 	u := *p.URL
 	u.Path = filepath.Join(u.Path, "-", "reload")
 	resp, err := http.Post(u.String(), "", nil)

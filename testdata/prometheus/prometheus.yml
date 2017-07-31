@@ -1,7 +1,7 @@
 ---
 global:
-  scrape_interval:     10s
-  evaluation_interval: 10s
+  scrape_interval:     5s
+  evaluation_interval: 5s
 
 rule_files:
   - "alerts/*.rule"
@@ -10,3 +10,7 @@ scrape_configs:
   - job_name: 'prometheus'
     static_configs:
       - targets: ['127.0.0.1:9090']
+
+  - job_name: 'alertmanager'
+    static_configs:
+      - targets: ['alertmanager:9093']

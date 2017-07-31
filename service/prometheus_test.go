@@ -18,6 +18,7 @@ package service
 
 import (
 	"context"
+	"net/url"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -28,7 +29,11 @@ import (
 
 func TestPrometheus(t *testing.T) {
 	p := &Prometheus{
-		ConfigPath:     "../testdata/prometheus/prometheus.yml",
+		ConfigPath: "../testdata/prometheus/prometheus.yml",
+		URL: &url.URL{
+			Scheme: "http",
+			Host:   "127.0.0.1:9090",
+		},
 		AlertRulesPath: "../testdata/prometheus/alerts/",
 		PromtoolPath:   "promtool",
 	}
