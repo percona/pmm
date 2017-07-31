@@ -6,6 +6,12 @@ go:
   - 1.8.x
   - tip
 
+env:
+  - PROMETHEUS_IMAGE=prom/prometheus:v1.7.1
+    ALERTMANAGER_IMAGE=prom/alertmanager:v0.8.0
+  - PROMETHEUS_IMAGE=prom/prometheus:master
+    ALERTMANAGER_IMAGE=prom/alertmanager:master
+
 before_install:
   # no package for Trusty yet
   # - sudo add-apt-repository -y ppa:maarten-fonville/protobuf
@@ -32,6 +38,8 @@ before_install:
   - protoc --version
 
 script:
+  - docker-compose up -d
+
   # check that generated files are not changed
   - make init protos
   - git diff --exit-code

@@ -28,8 +28,8 @@ import (
 
 func TestPrometheus(t *testing.T) {
 	p := &Prometheus{
-		ConfigPath:     "testdata/prometheus.yml",
-		AlertRulesPath: "testdata/alerts/",
+		ConfigPath:     "../testdata/prometheus/prometheus.yml",
+		AlertRulesPath: "../testdata/prometheus/alerts/",
 		PromtoolPath:   "promtool",
 	}
 	ctx, _ := logger.Set(context.Background())
@@ -42,8 +42,8 @@ func TestPrometheus(t *testing.T) {
 	alerts[0].Text = "" // FIXME
 	alerts[1].Text = "" // FIXME
 	expected := []AlertRule{
-		{"InstanceDown", "testdata/alerts/InstanceDown.rule", "", false},
-		{"Something", "testdata/alerts/Something.rule.disabled", "", true},
+		{"InstanceDown", "../testdata/prometheus/alerts/InstanceDown.rule", "", false},
+		{"Something", "../testdata/prometheus/alerts/Something.rule.disabled", "", true},
 	}
 	assert.Equal(t, expected, alerts)
 

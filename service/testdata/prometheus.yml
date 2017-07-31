@@ -1,2 +1,0 @@
-rule_files:
-  - "alerts/*.rule"

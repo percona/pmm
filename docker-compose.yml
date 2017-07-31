@@ -1,0 +1,13 @@
+---
+version: '3'
+services:
+  prometheus:
+    image: ${PROMETHEUS_IMAGE:-prom/prometheus:v1.7.1}
+    ports:
+      - 127.0.0.1:9090:9090
+    volumes:
+      - ./testdata/prometheus:/etc/prometheus
+  alertmanager:
+    image: ${ALERTMANAGER_IMAGE:-prom/alertmanager:v0.8.0}
+    ports:
+      - 127.0.0.1:9093:9093

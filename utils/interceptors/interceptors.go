@@ -17,10 +17,11 @@
 package interceptors
 
 import (
-	"github.com/Percona-Lab/pmm-managed/utils/logger"
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
+
+	"github.com/Percona-Lab/pmm-managed/utils/logger"
 )
 
 // Unary adds context logger and Prometheus metrics to unary server RPC.
