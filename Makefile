@@ -8,6 +8,7 @@ init:
 	go install -v ./vendor/github.com/golang/protobuf/protoc-gen-go
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
+	go install -v ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 
 	go get -u github.com/AlekSi/gocoverutil
 	go get -u gopkg.in/alecthomas/gometalinter.v1
@@ -44,4 +45,6 @@ protos:  # make protos, not protoss
 		api/*.proto --grpc-gateway_out=logtostderr=true,request_context=true:api
 	protoc -I api/ -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
 		api/*.proto --swagger_out=logtostderr=true:api/swagger
+	swagger mixin api/swagger/*.json > api/swagger/swagger.json
+	swagger validate api/swagger/swagger.json
 	go install -v github.com/Percona-Lab/pmm-managed/api

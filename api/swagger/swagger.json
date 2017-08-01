@@ -1,0 +1,181 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "alerts.proto",
+    "version": "version not set"
+  },
+  "paths": {
+    "/v0/alerts": {
+      "get": {
+        "tags": [
+          "Alerts"
+        ],
+        "summary": "List returns all alert rules.",
+        "operationId": "List",
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiAlertsListResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/alerts/{name}": {
+      "get": {
+        "tags": [
+          "Alerts"
+        ],
+        "summary": "Get returns an alert rule by name.",
+        "operationId": "Get",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "name",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiAlertsGetResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/version": {
+      "get": {
+        "tags": [
+          "Demo"
+        ],
+        "operationId": "Version",
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiDemoVersionResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "apiAlertRule": {
+      "type": "object",
+      "properties": {
+        "disabled": {
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "apiAlertsGetRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "apiAlertsGetResponse": {
+      "type": "object",
+      "properties": {
+        "alert_rule": {
+          "$ref": "#/definitions/apiAlertRule"
+        },
+        "error": {
+          "$ref": "#/definitions/apiError"
+        }
+      }
+    },
+    "apiAlertsListRequest": {
+      "type": "object"
+    },
+    "apiAlertsListResponse": {
+      "type": "object",
+      "properties": {
+        "alert_rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiAlertRule"
+          }
+        },
+        "error": {
+          "$ref": "#/definitions/apiError"
+        }
+      }
+    },
+    "apiDemoPingRequest": {
+      "type": "object",
+      "properties": {
+        "cookie": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "type": {
+          "$ref": "#/definitions/apiDemoPingType"
+        }
+      }
+    },
+    "apiDemoPingResponse": {
+      "type": "object",
+      "properties": {
+        "cookie": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "type": {
+          "$ref": "#/definitions/apiDemoPingType"
+        }
+      }
+    },
+    "apiDemoPingType": {
+      "type": "string",
+      "default": "PING",
+      "enum": [
+        "PING",
+        "PONG"
+      ]
+    },
+    "apiDemoVersionRequest": {
+      "type": "object"
+    },
+    "apiDemoVersionResponse": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        }
+      }
+    },
+    "apiError": {
+      "description": "Error is the error status of a request.",
+      "type": "string",
+      "default": "NO_ERROR",
+      "enum": [
+        "NO_ERROR"
+      ]
+    }
+  }
+}
