@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+
+// Error is the error status of a request.
+enum Error {
+    NO_ERROR = 0;
+}

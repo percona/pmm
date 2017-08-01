@@ -42,7 +42,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	c := api.NewBaseClient(conn)
+	c := api.NewDemoClient(conn)
 	stream, err := c.Ping(context.Background())
 	if err != nil {
 		logrus.Fatal(err)
@@ -51,8 +51,8 @@ func main() {
 	// start pinger
 	go func() {
 		for {
-			req := &api.BasePingRequest{
-				Type:   api.PingType_PING,
+			req := &api.DemoPingRequest{
+				Type:   api.DemoPingType_PING,
 				Cookie: uint64(time.Now().UnixNano()),
 			}
 			if pingErr := stream.Send(req); pingErr != nil {
@@ -65,7 +65,7 @@ func main() {
 
 	// ponger
 	for {
-		var resp *api.BasePingResponse
+		var resp *api.DemoPingResponse
 		resp, err = stream.Recv()
 		if err != nil {
 			if err == io.EOF {
@@ -75,16 +75,16 @@ func main() {
 		}
 
 		switch resp.Type {
-		case api.PingType_PING:
+		case api.DemoPingType_PING:
 			logrus.Printf("Received ping: %d", resp.Cookie)
-			req := &api.BasePingRequest{
-				Type:   api.PingType_PONG,
+			req := &api.DemoPingRequest{
+				Type:   api.DemoPingType_PONG,
 				Cookie: resp.Cookie,
 			}
 			if err = stream.Send(req); err != nil {
 				return
 			}
-		case api.PingType_PONG:
+		case api.DemoPingType_PONG:
 			d := time.Since(time.Unix(0, int64(resp.Cookie)))
 			logrus.Printf("Received pong: %d (latency %v)", resp.Cookie, d)
 		}

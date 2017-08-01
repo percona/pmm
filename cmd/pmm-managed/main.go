@@ -76,14 +76,13 @@ func runGRPCServer(ctx context.Context) {
 		grpc.UnaryInterceptor(interceptors.Unary),
 		grpc.StreamInterceptor(interceptors.Stream),
 	)
-	server := &handlers.Server{
+	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
+	api.RegisterAlertsServer(gRPCServer, &handlers.AlertsServer{
 		Prometheus: &service.Prometheus{
 			ConfigPath: *prometheusConfigF,
 			URL:        prometheusURL,
 		},
-	}
-	api.RegisterBaseServer(gRPCServer, server)
-	api.RegisterAlertsServer(gRPCServer, server)
+	})
 
 	grpc_prometheus.Register(gRPCServer)
 	grpc_prometheus.EnableHandlingTimeHistogram()
@@ -123,7 +122,7 @@ func runRESTServer(ctx context.Context) {
 
 	type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
-		api.RegisterBaseHandlerFromEndpoint,
+		api.RegisterDemoHandlerFromEndpoint,
 		api.RegisterAlertsHandlerFromEndpoint,
 	} {
 		if err := r(ctx, mux, *gRPCAddrF, opts); err != nil {
@@ -162,14 +161,17 @@ func runDebugServer(ctx context.Context) {
 
 	http.Handle("/debug/metrics", promhttp.Handler())
 
-	http.HandleFunc("/swagger.json", func(rw http.ResponseWriter, req *http.Request) {
+	// TODO embed this directory?
+	fileServer := http.StripPrefix("/swagger/", http.FileServer(http.Dir("api/swagger")))
+	http.HandleFunc("/swagger/", func(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Set("Access-Control-Allow-Origin", "*")
-		http.ServeFile(rw, req, "api/pmm.swagger.json") // TODO embed this file?
+		l.Print(req.URL)
+		fileServer.ServeHTTP(rw, req)
 	})
 
 	handlers := []string{
 		"/debug/metrics", "/debug/vars", "/debug/requests", "/debug/events", "/debug/pprof",
-		"/swagger.json",
+		"/swagger",
 	}
 	for i, h := range handlers {
 		handlers[i] = "http://" + *debugAddrF + h

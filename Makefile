@@ -21,11 +21,11 @@ test: install
 	go test -v $(PACKAGES)
 
 protos:  # make protos, not protoss
-	rm -f api/*.pb.* api/*.json
+	rm -f api/*.pb.* api/swagger/*.json
 	protoc -I api/ -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
 		api/*.proto --go_out=plugins=grpc:api
 	protoc -I api/ -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
 		api/*.proto --grpc-gateway_out=logtostderr=true,request_context=true:api
 	protoc -I api/ -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-		api/*.proto --swagger_out=logtostderr=true:api
+		api/*.proto --swagger_out=logtostderr=true:api/swagger
 	go install -v github.com/Percona-Lab/pmm-managed/api

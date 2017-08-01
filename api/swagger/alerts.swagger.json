@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "pmm.proto",
+    "title": "alerts.proto",
     "version": "version not set"
   },
   "schemes": [
@@ -28,22 +28,6 @@
         },
         "tags": [
           "Alerts"
-        ]
-      }
-    },
-    "/v0/version": {
-      "get": {
-        "operationId": "Version",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/apiBaseVersionResponse"
-            }
-          }
-        },
-        "tags": [
-          "Base"
         ]
       }
     }
@@ -81,41 +65,6 @@
         }
       }
     },
-    "apiBasePingRequest": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "$ref": "#/definitions/apiPingType"
-        },
-        "cookie": {
-          "type": "string",
-          "format": "uint64"
-        }
-      }
-    },
-    "apiBasePingResponse": {
-      "type": "object",
-      "properties": {
-        "type": {
-          "$ref": "#/definitions/apiPingType"
-        },
-        "cookie": {
-          "type": "string",
-          "format": "uint64"
-        }
-      }
-    },
-    "apiBaseVersionRequest": {
-      "type": "object"
-    },
-    "apiBaseVersionResponse": {
-      "type": "object",
-      "properties": {
-        "version": {
-          "type": "string"
-        }
-      }
-    },
     "apiError": {
       "type": "string",
       "enum": [
@@ -123,14 +72,6 @@
       ],
       "default": "NO_ERROR",
       "description": "Error is the error status of a request."
-    },
-    "apiPingType": {
-      "type": "string",
-      "enum": [
-        "PING",
-        "PONG"
-      ],
-      "default": "PING"
     }
   }
 }

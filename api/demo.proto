@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+
+enum DemoPingType {
+    PING = 0;
+    PONG = 1;
+}
+
+message DemoVersionRequest {
+}
+
+message DemoVersionResponse {
+    string version = 1;
+}
+
+message DemoPingRequest {
+    DemoPingType type  = 1;
+    fixed64 cookie = 2;
+}
+
+message DemoPingResponse {
+    DemoPingType type  = 1;
+    fixed64 cookie = 2;
+}
+
+service Demo {
+    rpc Version(DemoVersionRequest) returns (DemoVersionResponse) {
+        option (google.api.http) = {
+            get: "/v0/version"
+        };
+    }
+
+    rpc Ping(stream DemoPingRequest) returns (stream DemoPingResponse);
+}
