@@ -12,7 +12,6 @@ It includes the following modules:
   that you want to monitor.
   It collects server metrics, general system metrics,
   and query analytics data for a complete performance overview.
-  Collected data is sent to *PMM Server*.
 
 * :ref:`pmm-server` is the central part of PMM
   that aggregates collected data and presents it in the form of tables,
@@ -62,11 +61,15 @@ For more information, see :ref:`install-client`.
   that you want to monitor.
   For more information, see :ref:`pmm-admin`.
 
-* ``percona-qan-agent`` is a service
+* ``pmm-mysql-queries-0`` is a service
   that manages the Query Analytics (QAN) agent
-  as it collects query performance data.
-  It also connects with QAN API in :ref:`pmm-server`
-  and sends over collected data.
+  as it collects query performance data from MySQL
+  and sends it to QAN API on :ref:`pmm-server`.
+
+* ``pmm-mongodb-queries-0`` is a service
+  that manages the QAN agent
+  as it collects query performance data from MongoDB
+  and sends it to QAN API on :ref:`pmm-server`.
 
 * ``node_exporter`` is a Prometheus exporter
   that collects general system metrics.
@@ -107,7 +110,7 @@ For more information, see :ref:`run-server`.
   it includes the following:
 
   * **QAN API** is the backend for storing and accessing query data
-    collected by ``percona-qan-agent`` running on a :ref:`pmm-client`.
+    collected by the QAN agent running on a :ref:`pmm-client`.
 
   * **QAN Web App** is a web application
     for visualizing collected Query Analytics data.
@@ -118,7 +121,7 @@ For more information, see :ref:`run-server`.
 
   * **Prometheus** is a third-party time-series database
     that connects to exporters running on a :ref:`pmm-client`
-    and aggregates colleted metrics.
+    and aggregates metrics collected by the exporters.
     For more information, see `Prometheus Docs`_.
 
     .. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
