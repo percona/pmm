@@ -27,6 +27,14 @@ type AlertsServer struct {
 	Prometheus *service.Prometheus
 }
 
+func convertAlertRule(s *service.AlertRule) *api.AlertRule {
+	return &api.AlertRule{
+		Name:     s.Name,
+		Text:     s.Text,
+		Disabled: s.Disabled,
+	}
+}
+
 func (s *AlertsServer) List(ctx context.Context, req *api.AlertsListRequest) (*api.AlertsListResponse, error) {
 	rules, err := s.Prometheus.ListAlertRules(ctx)
 	if err != nil {
@@ -37,13 +45,19 @@ func (s *AlertsServer) List(ctx context.Context, req *api.AlertsListRequest) (*a
 		AlertRules: make([]*api.AlertRule, len(rules)),
 	}
 	for i, r := range rules {
-		res.AlertRules[i] = &api.AlertRule{
-			Name:     r.Name,
-			Text:     r.Text,
-			Disabled: r.Disabled,
-		}
+		res.AlertRules[i] = convertAlertRule(&r)
 	}
 	return res, nil
+}
+
+func (s *AlertsServer) Get(ctx context.Context, req *api.AlertsGetRequest) (*api.AlertsGetResponse, error) {
+	rule, err := s.Prometheus.GetAlert(ctx, req.Name)
+	if err != nil {
+		return nil, err
+	}
+	return &api.AlertsGetResponse{
+		AlertRule: convertAlertRule(rule),
+	}, nil
 }
 
 // check interface

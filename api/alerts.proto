@@ -22,10 +22,27 @@ message AlertsListResponse {
     repeated AlertRule alert_rules = 2;
 }
 
+message AlertsGetRequest {
+    string name = 1;
+}
+
+message AlertsGetResponse {
+    Error error = 1;
+    AlertRule alert_rule = 2;
+}
+
 service Alerts {
+    // List returns all alert rules.
     rpc List(AlertsListRequest) returns (AlertsListResponse) {
         option (google.api.http) = {
             get: "/v0/alerts"
+        };
+    }
+
+    // Get returns an alert rule by name.
+    rpc Get(AlertsGetRequest) returns (AlertsGetResponse) {
+        option (google.api.http) = {
+            get: "/v0/alerts/{name}"
         };
     }
 }

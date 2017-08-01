@@ -17,6 +17,7 @@
   "paths": {
     "/v0/alerts": {
       "get": {
+        "summary": "List returns all alert rules.",
         "operationId": "List",
         "responses": {
           "200": {
@@ -26,6 +27,31 @@
             }
           }
         },
+        "tags": [
+          "Alerts"
+        ]
+      }
+    },
+    "/v0/alerts/{name}": {
+      "get": {
+        "summary": "Get returns an alert rule by name.",
+        "operationId": "Get",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiAlertsGetResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "tags": [
           "Alerts"
         ]
@@ -45,6 +71,25 @@
         "disabled": {
           "type": "boolean",
           "format": "boolean"
+        }
+      }
+    },
+    "apiAlertsGetRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "apiAlertsGetResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/apiError"
+        },
+        "alert_rule": {
+          "$ref": "#/definitions/apiAlertRule"
         }
       }
     },
