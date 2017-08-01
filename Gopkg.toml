@@ -23,6 +23,9 @@
 # tools
 required = [
   "github.com/prometheus/prometheus/cmd/promtool",
+
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
+
+  "github.com/go-swagger/go-swagger/cmd/swagger"
 ]
