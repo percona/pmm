@@ -43,7 +43,7 @@ import (
 
 	"github.com/Percona-Lab/pmm-managed/api"
 	"github.com/Percona-Lab/pmm-managed/handlers"
-	"github.com/Percona-Lab/pmm-managed/service"
+	"github.com/Percona-Lab/pmm-managed/services"
 	"github.com/Percona-Lab/pmm-managed/utils/interceptors"
 	"github.com/Percona-Lab/pmm-managed/utils/logger"
 )
@@ -78,7 +78,7 @@ func runGRPCServer(ctx context.Context) {
 	)
 	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
 	api.RegisterAlertsServer(gRPCServer, &handlers.AlertsServer{
-		Prometheus: &service.Prometheus{
+		Prometheus: &services.Prometheus{
 			ConfigPath: *prometheusConfigF,
 			URL:        prometheusURL,
 		},

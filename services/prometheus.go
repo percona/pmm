@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-package service
+package services
 
 import (
 	"context"
@@ -40,9 +40,9 @@ type AlertRule struct {
 	Disabled bool
 }
 
-// Prometheus service is responsible for interaction with Prometheus process on the same host.
+// Prometheus service is responsible for interactions with Prometheus.
 // It assumes the following about its configuration:
-//   * TODO
+//   * API is accessible
 type Prometheus struct {
 	ConfigPath     string
 	URL            *url.URL
