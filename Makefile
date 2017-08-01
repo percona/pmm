@@ -10,6 +10,8 @@ init:
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 
 	go get -u github.com/AlekSi/gocoverutil
+	go get -u gopkg.in/alecthomas/gometalinter.v1
+	gometalinter.v1 --install
 
 install:
 	go install -v $(PACKAGES)
@@ -24,6 +26,9 @@ test: install
 
 cover: install
 	gocoverutil test -v $(PACKAGES)
+
+check: install
+	-gometalinter.v1 --tests --skip=api --deadline=180s ./...
 
 protos:  # make protos, not protoss
 	rm -f api/*.pb.* api/swagger/*.json
