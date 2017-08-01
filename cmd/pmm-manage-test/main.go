@@ -19,7 +19,6 @@ package main
 import (
 	"context"
 	"flag"
-	"io"
 	"math/rand"
 	"time"
 
@@ -68,9 +67,7 @@ func main() {
 		var resp *api.DemoPingResponse
 		resp, err = stream.Recv()
 		if err != nil {
-			if err == io.EOF {
-				err = nil
-			}
+			logrus.Error(err)
 			return
 		}
 
@@ -82,6 +79,7 @@ func main() {
 				Cookie: resp.Cookie,
 			}
 			if err = stream.Send(req); err != nil {
+				logrus.Error(err)
 				return
 			}
 		case api.DemoPingType_PONG:

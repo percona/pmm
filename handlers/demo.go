@@ -29,7 +29,9 @@ import (
 type DemoServer struct{}
 
 func (s *DemoServer) Version(context.Context, *api.DemoVersionRequest) (*api.DemoVersionResponse, error) {
-	return &api.DemoVersionResponse{"pmm-managed v0.0.0-alpha"}, nil
+	return &api.DemoVersionResponse{
+		Version: "pmm-managed v0.0.0-alpha",
+	}, nil
 }
 
 func (s *DemoServer) Ping(stream api.Demo_PingServer) (err error) {
