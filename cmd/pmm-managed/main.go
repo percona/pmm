@@ -162,9 +162,17 @@ func runDebugServer(ctx context.Context) {
 
 	http.Handle("/debug/metrics", promhttp.Handler())
 
-	handlers := []string{"metrics", "vars", "requests", "events", "pprof"}
+	http.HandleFunc("/swagger.json", func(rw http.ResponseWriter, req *http.Request) {
+		rw.Header().Set("Access-Control-Allow-Origin", "*")
+		http.ServeFile(rw, req, "api/pmm.swagger.json") // TODO embed this file?
+	})
+
+	handlers := []string{
+		"/debug/metrics", "/debug/vars", "/debug/requests", "/debug/events", "/debug/pprof",
+		"/swagger.json",
+	}
 	for i, h := range handlers {
-		handlers[i] = "http://" + *debugAddrF + "/debug/" + h
+		handlers[i] = "http://" + *debugAddrF + h
 	}
 
 	var buf bytes.Buffer
