@@ -40,9 +40,7 @@ func TestPrometheus(t *testing.T) {
 	ctx, _ := logger.Set(context.Background())
 
 	alerts, err := p.ListAlertRules(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
 	require.Len(t, alerts, 2)
 	alerts[0].Text = "" // FIXME
 	alerts[1].Text = "" // FIXME
@@ -56,9 +54,8 @@ func TestPrometheus(t *testing.T) {
 		Name: "TestPrometheus",
 		Text: "ALERT TestPrometheus IF up == 0",
 	}
-	require.NoError(t, p.PutAlert(ctx, rule))
-
 	defer func() {
 		require.NoError(t, p.DeleteAlert(ctx, "TestPrometheus"))
 	}()
+	require.NoError(t, p.PutAlert(ctx, rule))
 }
