@@ -44,7 +44,10 @@ script:
   - make init protos
   - git diff --exit-code
 
-  - make
+  - make cover
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -X fix
 
 notifications:
   slack:

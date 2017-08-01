@@ -9,6 +9,8 @@ init:
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 
+	go get -u github.com/AlekSi/gocoverutil
+
 install:
 	go install -v $(PACKAGES)
 	go test -v -i $(PACKAGES)
@@ -19,6 +21,9 @@ install-race:
 
 test: install
 	go test -v $(PACKAGES)
+
+cover: install
+	gocoverutil test -v $(PACKAGES)
 
 protos:  # make protos, not protoss
 	rm -f api/*.pb.* api/swagger/*.json
