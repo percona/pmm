@@ -35,10 +35,10 @@ func (s *DemoServer) Version(context.Context, *api.DemoVersionRequest) (*api.Dem
 }
 
 func (s *DemoServer) Ping(stream api.Demo_PingServer) (err error) {
-	ctx, l := logger.Set(stream.Context())
-	l.Printf("Ping started")
+	ctx, l := logger.Set(stream.Context(), logger.MakeRequestID())
+	l.Debugf("Ping started")
 	defer func() {
-		l.Printf("Ping stopped with error %s", err)
+		l.Debugf("Ping stopped with error %s", err)
 	}()
 
 	// start pinger
@@ -82,7 +82,7 @@ func (s *DemoServer) Ping(stream api.Demo_PingServer) (err error) {
 
 		switch req.Type {
 		case api.DemoPingType_PING:
-			l.Printf("Received ping: %d", req.Cookie)
+			l.Debugf("Received ping: %d", req.Cookie)
 			pong := &api.DemoPingResponse{
 				Type:   api.DemoPingType_PONG,
 				Cookie: req.Cookie,
@@ -92,7 +92,7 @@ func (s *DemoServer) Ping(stream api.Demo_PingServer) (err error) {
 			}
 		case api.DemoPingType_PONG:
 			d := time.Since(time.Unix(0, int64(req.Cookie)))
-			l.Printf("Received pong: %d (latency %v)", req.Cookie, d)
+			l.Debugf("Received pong: %d (latency %v)", req.Cookie, d)
 		}
 	}
 }

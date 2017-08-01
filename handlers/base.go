@@ -14,5 +14,5 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-// Package services implements business logic of pmm-managed.
-package services
+// Package handlers implements gRPC API of pmm-managed.
+package handlers

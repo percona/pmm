@@ -32,15 +32,15 @@ import (
 var testdata = filepath.FromSlash("../testdata/prometheus/")
 
 func TestPrometheus(t *testing.T) {
-	ctx, _ := logger.Set(context.Background())
+	ctx, _ := logger.Set(context.Background(), "TestPrometheus")
 	p := &Prometheus{
 		ConfigPath: filepath.Join(testdata, "prometheus.yml"),
 		URL: &url.URL{
 			Scheme: "http",
 			Host:   "127.0.0.1:9090",
 		},
-		AlertRulesPath: filepath.Join(testdata, "alerts"),
 		PromtoolPath:   "promtool",
+		AlertRulesPath: filepath.Join(testdata, "alerts"),
 	}
 	require.NoError(t, p.Check(ctx))
 

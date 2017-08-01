@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+// Package logger contains logging utilities.
 package logger
 
 import (
@@ -32,13 +33,18 @@ func Get(ctx context.Context) *logrus.Entry {
 	return ctx.Value(key{}).(*logrus.Entry)
 }
 
-// Set returns derived context with set logrus entry with generated request ID,
-// or the same context if entry already present.
-func Set(ctx context.Context) (context.Context, *logrus.Entry) {
+// Set returns derived context with set logrus entry with given request ID.
+func Set(ctx context.Context, requestID string) (context.Context, *logrus.Entry) {
 	if ctx.Value(key{}) != nil {
-		return ctx, Get(ctx)
+		Get(ctx).Panicf("request ID already present")
+		return nil, nil
 	}
 
-	l := logrus.WithField("request", fmt.Sprintf("%016x", time.Now().UnixNano()))
+	l := logrus.WithField("request", requestID)
 	return context.WithValue(ctx, key{}, l), l
+}
+
+// MakeRequestID returns a new request ID.
+func MakeRequestID() string {
+	return fmt.Sprintf("%016x", time.Now().UnixNano())
 }

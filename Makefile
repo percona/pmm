@@ -24,11 +24,17 @@ install-race:
 test: install
 	go test -v $(PACKAGES)
 
+test-race: install-race
+	go test -v -race $(PACKAGES)
+
 cover: install
 	gocoverutil test -v $(PACKAGES)
 
 check: install
 	-gometalinter.v1 --tests --skip=api --deadline=180s ./...
+
+run:
+	pmm-managed -prometheus-config=testdata/prometheus/prometheus.yml
 
 protos:  # make protos, not protoss
 	rm -f api/*.pb.* api/swagger/*.json

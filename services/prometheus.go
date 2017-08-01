@@ -41,31 +41,34 @@ type AlertRule struct {
 }
 
 // Prometheus service is responsible for interactions with Prometheus.
-// It assumes the following about its configuration:
-//   * API is accessible
+// It assumes the following:
+//   * Prometheus API is accessible;
+//   * Prometheus configuration and rule files are accessible;
+//   * promtool is available.
 type Prometheus struct {
 	ConfigPath     string
 	URL            *url.URL
-	AlertRulesPath string
 	PromtoolPath   string
+	AlertRulesPath string
 	lock           sync.RWMutex
 }
 
 // loadConfig returns current Prometheus configuration.
 func (p *Prometheus) loadConfig() (*config.Config, error) {
 	c, err := config.LoadFile(p.ConfigPath)
-	err = errors.Wrap(err, "can't load Prometheus configuration file")
+	if err != nil {
+		return nil, errors.Wrap(err, "can't load Prometheus configuration file")
+	}
 
 	if len(c.RuleFiles) == 0 {
 		return nil, errors.New("no RuleFiles patterns")
 	}
 	// TODO check p.AlertRulesPath is in c.RuleFiles patterns
 
-	return c, err
+	return c, nil
 }
 
 // reload causes Prometheus to reload configuration, including alert rules files.
-// Does nothing if Prometheus URL is not set.
 func (p *Prometheus) reload() error {
 	u := *p.URL
 	u.Path = filepath.Join(u.Path, "-", "reload")
@@ -130,7 +133,10 @@ func (p *Prometheus) loadAlertRules(ctx context.Context) ([]AlertRule, error) {
 	return rules, nil
 }
 
+// Check returns error if configuration is not right or Prometheus is not available.
 func (p *Prometheus) Check(ctx context.Context) error {
+	l := logger.Get(ctx)
+
 	if _, err := p.loadConfig(); err != nil {
 		return err
 	}
@@ -146,13 +152,20 @@ func (p *Prometheus) Check(ctx context.Context) error {
 	}
 	defer resp.Body.Close()
 	b, err := ioutil.ReadAll(resp.Body)
-	logger.Get(ctx).Infof("Prometheus version: %s", b)
+	l.Infof("Prometheus: %s", b)
 	if err != nil {
 		return err
 	}
 	if resp.StatusCode != 200 {
 		return errors.Errorf("expected 200, got %d", resp.StatusCode)
 	}
+
+	b, err = exec.Command(p.PromtoolPath, "version").CombinedOutput()
+	if err != nil {
+		return errors.Wrap(err, string(b))
+	}
+	l.Infof("%s", b)
+
 	return nil
 }
 
@@ -164,6 +177,7 @@ func (p *Prometheus) ListAlertRules(ctx context.Context) ([]AlertRule, error) {
 	return p.loadAlertRules(ctx)
 }
 
+// GetAlert return alert rule by name, or error if no such rule is present.
 func (p *Prometheus) GetAlert(ctx context.Context, name string) (*AlertRule, error) {
 	p.lock.RLock()
 	defer p.lock.RUnlock()
@@ -180,6 +194,7 @@ func (p *Prometheus) GetAlert(ctx context.Context, name string) (*AlertRule, err
 	return nil, errors.WithStack(os.ErrNotExist)
 }
 
+// PutAlert creates or replaces existing alert rule.
 func (p *Prometheus) PutAlert(ctx context.Context, rule *AlertRule) error {
 	// write to temporary location, check syntax with promtool
 	f, err := ioutil.TempFile("", "pmm-managed-rule-")
@@ -213,6 +228,7 @@ func (p *Prometheus) PutAlert(ctx context.Context, rule *AlertRule) error {
 	return p.reload()
 }
 
+// DeleteAlert removes existing alert rule by name.
 func (p *Prometheus) DeleteAlert(ctx context.Context, name string) error {
 	p.lock.Lock()
 	defer p.lock.Unlock()

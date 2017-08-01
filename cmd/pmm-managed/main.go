@@ -61,6 +61,7 @@ var (
 
 	prometheusConfigF = flag.String("prometheus-config", "", "Prometheus configuration file path")
 	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/", "Prometheus base URL")
+	promtoolF         = flag.String("promtool", "promtool", "promtool path")
 )
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -72,16 +73,22 @@ func runGRPCServer(ctx context.Context) {
 	if err != nil {
 		l.Panic(err)
 	}
+	prometheus := &services.Prometheus{
+		ConfigPath:   *prometheusConfigF,
+		URL:          prometheusURL,
+		PromtoolPath: *promtoolF,
+	}
+	if err = prometheus.Check(ctx); err != nil {
+		l.Panic(err)
+	}
+
 	gRPCServer := grpc.NewServer(
 		grpc.UnaryInterceptor(interceptors.Unary),
 		grpc.StreamInterceptor(interceptors.Stream),
 	)
 	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
 	api.RegisterAlertsServer(gRPCServer, &handlers.AlertsServer{
-		Prometheus: &services.Prometheus{
-			ConfigPath: *prometheusConfigF,
-			URL:        prometheusURL,
-		},
+		Prometheus: prometheus,
 	})
 
 	grpc_prometheus.Register(gRPCServer)
@@ -165,7 +172,6 @@ func runDebugServer(ctx context.Context) {
 	fileServer := http.StripPrefix("/swagger/", http.FileServer(http.Dir("api/swagger")))
 	http.HandleFunc("/swagger/", func(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Set("Access-Control-Allow-Origin", "*")
-		l.Print(req.URL)
 		fileServer.ServeHTTP(rw, req)
 	})
 
@@ -224,8 +230,8 @@ func main() {
 	flag.Parse()
 
 	l := logrus.WithField("component", "main")
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
+	ctx, cancel := context.WithCancel(context.Background())
+	ctx, _ = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
 	// handle termination signals: first one gracefully, force exit on the second one
