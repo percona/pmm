@@ -19,6 +19,8 @@ package service
 import (
 	"context"
 	"net/url"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -27,17 +29,20 @@ import (
 	"github.com/Percona-Lab/pmm-managed/utils/logger"
 )
 
+var testdata = filepath.FromSlash("../testdata/prometheus/")
+
 func TestPrometheus(t *testing.T) {
+	ctx, _ := logger.Set(context.Background())
 	p := &Prometheus{
-		ConfigPath: "../testdata/prometheus/prometheus.yml",
+		ConfigPath: filepath.Join(testdata, "prometheus.yml"),
 		URL: &url.URL{
 			Scheme: "http",
 			Host:   "127.0.0.1:9090",
 		},
-		AlertRulesPath: "../testdata/prometheus/alerts/",
+		AlertRulesPath: filepath.Join(testdata, "alerts"),
 		PromtoolPath:   "promtool",
 	}
-	ctx, _ := logger.Set(context.Background())
+	require.NoError(t, p.Check(ctx))
 
 	alerts, err := p.ListAlertRules(ctx)
 	require.NoError(t, err)
@@ -45,17 +50,23 @@ func TestPrometheus(t *testing.T) {
 	alerts[0].Text = "" // FIXME
 	alerts[1].Text = "" // FIXME
 	expected := []AlertRule{
-		{"InstanceDown", "../testdata/prometheus/alerts/InstanceDown.rule", "", false},
-		{"Something", "../testdata/prometheus/alerts/Something.rule.disabled", "", true},
+		{"InstanceDown", filepath.Join(testdata, "alerts", "InstanceDown.rule"), "", false},
+		{"Something", filepath.Join(testdata, "alerts", "Something.rule.disabled"), "", true},
 	}
 	assert.Equal(t, expected, alerts)
+
+	defer func() {
+		require.NoError(t, p.DeleteAlert(ctx, "TestPrometheus"))
+		require.EqualError(t, p.DeleteAlert(ctx, "TestPrometheus"), os.ErrNotExist.Error())
+	}()
 
 	rule := &AlertRule{
 		Name: "TestPrometheus",
 		Text: "ALERT TestPrometheus IF up == 0",
 	}
-	defer func() {
-		require.NoError(t, p.DeleteAlert(ctx, "TestPrometheus"))
-	}()
 	require.NoError(t, p.PutAlert(ctx, rule))
+	actual, err := p.GetAlert(ctx, "TestPrometheus")
+	require.NoError(t, err)
+	rule.FilePath = "../testdata/prometheus/alerts/TestPrometheus.rule"
+	assert.Equal(t, rule, actual)
 }
