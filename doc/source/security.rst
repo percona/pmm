@@ -28,46 +28,23 @@ You can change it by passing the ``SERVER_USER`` variable.
 
 For example:
 
-.. only:: html
+.. code-block:: bash
 
-   .. prompt:: bash
-
-      docker run -d -p 80:80 \
-        --volumes-from pmm-data \
-        --name pmm-server \
-        -e SERVER_USER=jsmith \
-        -e SERVER_PASSWORD=pass1234 \
-        --restart always \
-        percona/pmm-server:1.1.5
-
-.. only:: latex
-
-   .. code-block:: bash
-
-      $ docker run -d -p 80:80 \
-          --volumes-from pmm-data \
-          --name pmm-server \
-          -e SERVER_USER=jsmith \
-          -e SERVER_PASSWORD=pass1234 \
-          --restart always \
-          percona/pmm-server:1.1.5
-
+   [root@pmm-server ~]# docker run -d -p 80:80 \
+     --volumes-from pmm-data \
+     --name pmm-server \
+     -e SERVER_USER=jsmith \
+     -e SERVER_PASSWORD=pass1234 \
+     --restart always \
+     percona/pmm-server:latest
 
 *PMM Client* uses the same credentials to communicate with *PMM Server*.
 If you set the user name and password as described,
 specify them when :ref:`connect-client`:
 
-.. only:: html
+.. code-block:: bash
 
-   .. prompt:: bash
-
-      pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234
-
-.. only:: latex
-
-   .. code-block:: bash
-
-      $ pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234
+   [root@pmm-client ~]# pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234
 
 Enabling SSL Encryption
 =======================
@@ -114,28 +91,14 @@ using SSL certificates.
 #. Mount the directory with the certificate files into :file:`/etc/nginx/ssl`
    when :ref:`running the PMM Server container <server-container>`:
 
-   .. only:: html
+   .. code-block:: bash
 
-      .. prompt:: bash
-
-         docker run -d -p 443:443 \
-           --volumes-from pmm-data \
-           --name pmm-server \
-           -v /etc/pmm-certs:/etc/nginx/ssl \
-           --restart always \
-           percona/pmm-server:1.1.5
-
-   .. only:: latex
-
-      .. code-block:: bash
-
-         $ docker run -d -p 443:443 \
-             --volumes-from pmm-data \
-             --name pmm-server \
-             -v /etc/pmm-certs:/etc/nginx/ssl \
-             --restart always \
-             percona/pmm-server:1.1.5
-
+      [root@pmm-server ~]# docker run -d -p 443:443 \
+        --volumes-from pmm-data \
+        --name pmm-server \
+        -v /etc/pmm-certs:/etc/nginx/ssl \
+        --restart always \
+        percona/pmm-server:latest
 
    .. note:: Note that the container should expose port 443
       instead of 80 to enable SSL encryption.
@@ -143,31 +106,15 @@ using SSL certificates.
 #. Enable SSL when :ref:`connect-client`.
    If you purchased the certificate from a certificate authority (CA):
 
-   .. only:: html
+   .. code-block:: bash
 
-      .. prompt:: bash
-
-         pmm-admin config --server 192.168.100.1 --server-ssl
-
-   .. only:: latex
-
-      .. code-block:: bash
-
-         $ pmm-admin config --server 192.168.100.1 --server-ssl
+      [root@pmm-client ~]# pmm-admin config --server 192.168.100.1 --server-ssl
 
    If you generated a self-signed certificate:
 
-   .. only:: html
+   .. code-block:: bash
 
-      .. prompt:: bash
-
-         pmm-admin config --server 192.168.100.1 --server-insecure-ssl
-
-   .. only:: latex
-
-      .. code-block:: bash
-
-         $ pmm-admin config --server 192.168.100.1 --server-insecure-ssl
+      [root@pmm-client ~]# pmm-admin config --server 192.168.100.1 --server-insecure-ssl
 
 Combining Security Features
 ===========================
@@ -178,47 +125,23 @@ by combining the corresponding options.
 The following example shows how you might
 :ref:`run the PMM Server container <server-container>`:
 
-.. only:: html
+.. code-block:: bash
 
-   .. prompt:: bash
-
-      docker run -d -p 443:443 \
-        --volumes-from pmm-data \
-        --name pmm-server \
-        -e SERVER_USER=jsmith \
-        -e SERVER_PASSWORD=pass1234 \
-        -v /etc/pmm-certs:/etc/nginx/ssl \
-        --restart always \
-        percona/pmm-server:1.1.5
-
-.. only:: latex
-
-   .. code-block:: bash
-
-      $ docker run -d -p 443:443 \
-          --volumes-from pmm-data \
-          --name pmm-server \
-          -e SERVER_USER=jsmith \
-          -e SERVER_PASSWORD=pass1234 \
-          -v /etc/pmm-certs:/etc/nginx/ssl \
-          --restart always \
-          percona/pmm-server:1.1.5
-
+   [root@pmm-server ~]# docker run -d -p 443:443 \
+     --volumes-from pmm-data \
+     --name pmm-server \
+     -e SERVER_USER=jsmith \
+     -e SERVER_PASSWORD=pass1234 \
+     -v /etc/pmm-certs:/etc/nginx/ssl \
+     --restart always \
+     percona/pmm-server:latest
 
 The following example shows how you might
 :ref:`connect to PMM Server <connect-client>`:
 
-.. only:: html
+.. code-block:: bash
 
-   .. prompt:: bash
-
-      pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234 --server-insecure-ssl
-
-.. only:: latex
-
-   .. code-block:: bash
-
-      $ pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234 --server-insecure-ssl
+   [root@pmm-client ~]# pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234 --server-insecure-ssl
 
 To see which security features are enabled,
 run either ``pmm-admin ping``, ``pmm-admin config``,

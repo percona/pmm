@@ -41,7 +41,7 @@ available at https://hub.docker.com/r/percona/pmm-server/tags/:
         --volumes-from pmm-data \
         --name pmm-server \
         --restart always \
-        percona/pmm-server:1.2.0
+        percona/pmm-server:latest
 
 #. Confirm that the new version is running using ``docker ps`` again
 
