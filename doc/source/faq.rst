@@ -335,7 +335,7 @@ If you encounter communication issues, try the following:
 
 * Check ``netstat`` on *PMM Client* to see what state the connections are in
 * Run ``curl www.google.com`` to see if you get a reply
-* Try pinging the route inside the container
+* Try pinging the route from inside the container
 
 .. _metrics-resolution:
 

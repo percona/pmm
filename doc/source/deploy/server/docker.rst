@@ -18,20 +18,27 @@ For more information about using Docker, see the `Docker Docs`_.
    The ones provided via ``apt`` and ``yum``
    may be outdated and cause errors.
 
-.. note:: When using the ``pmm-server`` image,
-   use a specific version tag instead of the ``latest`` tag.
-   The current stable version is ``1.2.0``.
-
-.. note:: By default, Docker will pull the image from DockerHub
-   if it is not available locally.
-
 .. note:: Make sure that the firewall and routing rules of the host
    will not constrain the Docker container.
    For more information, see :ref:`troubleshoot-connection`.
 
+Step 1. Pull the PMM Server Image
+=================================
+
+To pull the latest version from Docker Hub:
+
+.. code-block:: bash
+
+   $ docker pull percona/pmm-server:latest
+
+This is not required if you are running *PMM Server* for the first time.
+However, it ensures that if there is an older version of the image
+tagged with ``latest`` available locally,
+it will be replaced by the actual latest version.
+
 .. _data-container:
 
-Step 1. Create a PMM Data Container
+Step 2. Create a PMM Data Container
 ===================================
 
 To create a container for persistent PMM data, run the following command:
@@ -44,7 +51,7 @@ To create a container for persistent PMM data, run the following command:
       -v /var/lib/mysql \
       -v /var/lib/grafana \
       --name pmm-data \
-      percona/pmm-server:1.2.0 /bin/true
+      percona/pmm-server:latest /bin/true
 
 .. note:: This container does not run,
    it simply exists to make sure you retain all PMM data
@@ -63,14 +70,14 @@ The previous command does the following:
   that you can use to reference the container within a Docker network.
   In this case: ``pmm-data``.
 
-* ``percona/pmm-server:1.2.0`` is the name and version tag of the image
+* ``percona/pmm-server:latest`` is the name and version tag of the image
   to derive the container from.
 
 * ``/bin/true`` is the command that the container runs.
 
 .. _server-container:
 
-Step 2. Create and Run the PMM Server Container
+Step 3. Create and Run the PMM Server Container
 -----------------------------------------------
 
 To run *PMM Server*, use the following command:
@@ -82,7 +89,7 @@ To run *PMM Server*, use the following command:
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
-      percona/pmm-server:1.2.0
+      percona/pmm-server:latest
 
 The previous command does the following:
 
@@ -108,7 +115,7 @@ The previous command does the following:
   will start the container on startup
   and restart it if the container exits.
 
-* ``percona/pmm-server:1.2.0`` is the name and version tag of the image
+* ``percona/pmm-server:latest`` is the name and version tag of the image
   to derive the container from.
 
 Next Steps

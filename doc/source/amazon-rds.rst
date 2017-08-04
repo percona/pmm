@@ -19,10 +19,21 @@ We strongly suggest that you run *PMM Server* on AWS.
    when :ref:`creating and running the PMM Server container <server-container>`.
    For more information, see :ref:`metrics-resolution`.
 
-Query analytics requires :ref:`perf-schema` as the query source.
+Query analytics requires :ref:`perf-schema` as the query source,
+because the slow query log is stored on AWS side,
+and QAN agent is not able to read it.
 Enable the ``performance_schema`` option under **Parameter Groups** on RDS
 (you will probably need to create a new **Parameter Group**
 and set it to the database instance).
+
+It also requires the ``statements_digest`` and ``events_statements_history``
+to be enabled on the RDS instance.
+For more information, see :ref:`perf-schema-settings`.
+
+.. note:: Because of the previous requirements,
+   it is not possible to collect query analytics for RDS
+   running MySQL version prior to 5.6.
+   For MySQL version 5.5 on RDS, see :ref:`cloudwatch`.
 
 When adding a monitoring instance for RDS,
 specify a unique name to distinguish it from the local MySQL instance.
@@ -50,6 +61,8 @@ on Amazon RDS:
    because ``node_exporter`` requires access to the local file system.
    This means that the ``linux:metrics`` service cannot be used
    to monitor Amazon RDS instances or any remote MySQL instance.
+
+.. _cloudwatch:
 
 Monitoring Amazon RDS OS Metrics
 ================================
@@ -85,7 +98,7 @@ To set up OS metrics monitoring for Amazon RDS in PMM via CloudWatch:
         -v /path/to/file/with/creds:/usr/share/grafana/.aws/credentials \
         --name pmm-server \
         --restart always \
-        percona/pmm-server:1.2.0
+        percona/pmm-server:latest
 
 The *Amazon RDS OS Metrics* dashboard uses 60 second resolution
 and shows the average value for each data point.

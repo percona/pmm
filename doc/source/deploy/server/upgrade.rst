@@ -16,7 +16,7 @@ For example:
 
 .. code-block:: bash
 
-   [root@pmm-server ~]# docker ps
+   $ docker ps
    CONTAINER ID   IMAGE                      COMMAND                CREATED       STATUS             PORTS                               NAMES
    480696cd4187   percona/pmm-server:1.1.5   "/opt/entrypoint.sh"   4 weeks ago   Up About an hour   192.168.100.1:80->80/tcp, 443/tcp   pmm-server
 
@@ -27,7 +27,7 @@ available at https://hub.docker.com/r/percona/pmm-server/tags/:
 
    .. code-block:: bash
 
-      [root@pmm-server ~]# docker stop pmm-server && docker rm pmm-server
+      $ docker stop pmm-server && docker rm pmm-server
 
    .. warning:: Do not remove the ``pmm-data`` container when upgrading,
       if you want to keep all collected data.
@@ -36,18 +36,18 @@ available at https://hub.docker.com/r/percona/pmm-server/tags/:
 
    .. code-block:: bash
 
-      [root@pmm-server ~]# docker run -d \
+      $ docker run -d \
         -p 80:80 \
         --volumes-from pmm-data \
         --name pmm-server \
         --restart always \
-        percona/pmm-server:1.2.0
+        percona/pmm-server:latest
 
 #. Confirm that the new version is running using ``docker ps`` again
 
 .. code-block:: bash
 
-   [root@pmm-server ~]# docker ps
+   $ docker ps
    CONTAINER ID   IMAGE                      COMMAND                CREATED         STATUS         PORTS                               NAMES
    480696cd4187   percona/pmm-server:1.2.0   "/opt/entrypoint.sh"   4 minutes ago   Up 4 minutes   192.168.100.1:80->80/tcp, 443/tcp   pmm-server
 
