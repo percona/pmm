@@ -92,7 +92,7 @@ To set up OS metrics monitoring for Amazon RDS in PMM via CloudWatch:
 
    .. code-block:: bash
 
-      [root@pmm-server ~]# docker run -d \
+      $ docker run -d \
         -p 80:80 \
         --volumes-from pmm-data \
         -v /path/to/file/with/creds:/usr/share/grafana/.aws/credentials \

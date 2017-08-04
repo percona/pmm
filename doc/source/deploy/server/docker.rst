@@ -29,7 +29,7 @@ To pull the latest version from Docker Hub:
 
 .. code-block:: bash
 
-   [root@pmm-server ~]# docker pull percona/pmm-server:latest
+   $ docker pull percona/pmm-server:latest
 
 This is not required if you are running *PMM Server* for the first time.
 However, it ensures that if there is an older version of the image
@@ -45,7 +45,7 @@ To create a container for persistent PMM data, run the following command:
 
 .. code-block:: bash
 
-   [root@pmm-server ~]# docker create \
+   $ docker create \
       -v /opt/prometheus/data \
       -v /opt/consul-data \
       -v /var/lib/mysql \
@@ -84,7 +84,7 @@ To run *PMM Server*, use the following command:
 
 .. code-block:: bash
 
-   [root@pmm-server ~]# docker run -d \
+   $ docker run -d \
       -p 80:80 \
       --volumes-from pmm-data \
       --name pmm-server \

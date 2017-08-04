@@ -30,7 +30,7 @@ For example:
 
 .. code-block:: bash
 
-   [root@pmm-server ~]# docker run -d -p 80:80 \
+   $ docker run -d -p 80:80 \
      --volumes-from pmm-data \
      --name pmm-server \
      -e SERVER_USER=jsmith \
@@ -44,7 +44,7 @@ specify them when :ref:`connect-client`:
 
 .. code-block:: bash
 
-   [root@pmm-client ~]# pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234
+   $ sudo pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234
 
 Enabling SSL Encryption
 =======================
@@ -93,7 +93,7 @@ using SSL certificates.
 
    .. code-block:: bash
 
-      [root@pmm-server ~]# docker run -d -p 443:443 \
+      $ docker run -d -p 443:443 \
         --volumes-from pmm-data \
         --name pmm-server \
         -v /etc/pmm-certs:/etc/nginx/ssl \
@@ -108,13 +108,13 @@ using SSL certificates.
 
    .. code-block:: bash
 
-      [root@pmm-client ~]# pmm-admin config --server 192.168.100.1 --server-ssl
+      $ sudo pmm-admin config --server 192.168.100.1 --server-ssl
 
    If you generated a self-signed certificate:
 
    .. code-block:: bash
 
-      [root@pmm-client ~]# pmm-admin config --server 192.168.100.1 --server-insecure-ssl
+      $ sudo pmm-admin config --server 192.168.100.1 --server-insecure-ssl
 
 Combining Security Features
 ===========================
@@ -127,7 +127,7 @@ The following example shows how you might
 
 .. code-block:: bash
 
-   [root@pmm-server ~]# docker run -d -p 443:443 \
+   $ docker run -d -p 443:443 \
      --volumes-from pmm-data \
      --name pmm-server \
      -e SERVER_USER=jsmith \
@@ -141,7 +141,7 @@ The following example shows how you might
 
 .. code-block:: bash
 
-   [root@pmm-client ~]# pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234 --server-insecure-ssl
+   $ sudo pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234 --server-insecure-ssl
 
 To see which security features are enabled,
 run either ``pmm-admin ping``, ``pmm-admin config``,
@@ -150,7 +150,7 @@ and look at the server address field. For example:
 
 .. code-block:: text
 
-   [root@centos7 pmm-client]# pmm-admin ping
+   $ sudo pmm-admin ping
    OK, PMM server is alive.
 
    PMM Server      | 192.168.100.1 (insecure SSL, password-protected)
