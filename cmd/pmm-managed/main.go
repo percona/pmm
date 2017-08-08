@@ -119,7 +119,7 @@ func runGRPCServer(ctx context.Context) {
 	cancel()
 }
 
-// runGRPCServer runs REST proxy server until context is canceled, then gracefully stops it.
+// runRESTServer runs REST proxy server until context is canceled, then gracefully stops it.
 func runRESTServer(ctx context.Context) {
 	l := logrus.WithField("component", "REST")
 	l.Infof("Starting server on http://%s/ ...", *restAddrF)
@@ -162,7 +162,7 @@ func runRESTServer(ctx context.Context) {
 	cancel()
 }
 
-// runGRPCServer runs debug server until context is canceled, then gracefully stops it.
+// runDebugServer runs debug server until context is canceled, then gracefully stops it.
 func runDebugServer(ctx context.Context) {
 	l := logrus.WithField("component", "debug")
 
