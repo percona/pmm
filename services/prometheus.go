@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -28,6 +29,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/prometheus/config"
+	"gopkg.in/yaml.v2"
 
 	"github.com/percona/pmm-managed/utils/logger"
 )
@@ -38,31 +40,58 @@ import (
 //   * Prometheus configuration and rule files are accessible;
 //   * promtool is available.
 type Prometheus struct {
-	ConfigPath     string
-	URL            *url.URL
-	PromtoolPath   string
-	AlertRulesPath string
+	configPath     string
+	baseURL        *url.URL
+	promtoolPath   string
+	alertRulesPath string
 	lock           sync.RWMutex
 }
 
-// loadConfig returns current Prometheus configuration.
+func NewPrometheus(config string, baseURL string, promtool string) (*Prometheus, error) {
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return &Prometheus{
+		configPath:   config,
+		baseURL:      u,
+		promtoolPath: promtool,
+	}, nil
+}
+
+// loadConfig loads current Prometheus configuration from file.
 func (p *Prometheus) loadConfig() (*config.Config, error) {
-	c, err := config.LoadFile(p.ConfigPath)
+	cfg, err := config.LoadFile(p.configPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "can't load Prometheus configuration file")
 	}
 
-	if len(c.RuleFiles) == 0 {
-		return nil, errors.New("no RuleFiles patterns")
-	}
-	// TODO check p.AlertRulesPath is in c.RuleFiles patterns
+	// TODO
+	// if len(c.RuleFiles) == 0 {
+	// 	return nil, errors.New("no RuleFiles patterns")
+	// }
+	// TODO check p.alertRulesPath is in c.RuleFiles patterns
 
-	return c, nil
+	return cfg, nil
+}
+
+// saveConfig saves given Prometheus configuration to file.
+func (p *Prometheus) saveConfig(cfg *config.Config) error {
+	b, err := yaml.Marshal(cfg)
+	if err != nil {
+		return errors.Wrap(err, "can't marshal Prometheus configuration file")
+	}
+	fi, err := os.Stat(p.configPath)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	b = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), b...)
+	return ioutil.WriteFile(p.configPath, b, fi.Mode())
 }
 
 // reload causes Prometheus to reload configuration, including alert rules files.
 func (p *Prometheus) reload() error {
-	u := *p.URL
+	u := *p.baseURL
 	u.Path = filepath.Join(u.Path, "-", "reload")
 	resp, err := http.Post(u.String(), "", nil)
 	if err != nil {
@@ -82,7 +111,7 @@ func (p *Prometheus) reload() error {
 
 // loadAlertRules returns all Prometheus alert rules.
 func (p *Prometheus) loadAlertRules(ctx context.Context) ([]AlertRule, error) {
-	files, err := filepath.Glob(filepath.Join(p.AlertRulesPath, "*"))
+	files, err := filepath.Glob(filepath.Join(p.alertRulesPath, "*"))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -133,10 +162,10 @@ func (p *Prometheus) Check(ctx context.Context) error {
 		return err
 	}
 
-	if p.URL == nil {
+	if p.baseURL == nil {
 		return errors.New("URL is not set")
 	}
-	u := *p.URL
+	u := *p.baseURL
 	u.Path = filepath.Join(u.Path, "version")
 	resp, err := http.Get(u.String())
 	if err != nil {
@@ -152,7 +181,7 @@ func (p *Prometheus) Check(ctx context.Context) error {
 		return errors.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 
-	b, err = exec.Command(p.PromtoolPath, "version").CombinedOutput()
+	b, err = exec.Command(p.promtoolPath, "version").CombinedOutput()
 	if err != nil {
 		return errors.Wrap(err, string(b))
 	}

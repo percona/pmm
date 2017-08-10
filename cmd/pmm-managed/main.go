@@ -25,7 +25,6 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof"
-	"net/url"
 	"os"
 	"os/signal"
 	"strings"
@@ -55,6 +54,7 @@ const (
 var (
 	// TODO we can combine gRPC and REST ports, but only with TLS
 	// see https://github.com/grpc/grpc-go/issues/555
+	// alternatively, we can try to use cmux: https://open.dgraph.io/post/cmux/
 	gRPCAddrF  = flag.String("listen-grpc-addr", "127.0.0.1:7771", "gRPC server listen address")
 	restAddrF  = flag.String("listen-rest-addr", "127.0.0.1:7772", "REST server listen address")
 	debugAddrF = flag.String("listen-debug-addr", "127.0.0.1:7773", "Debug server listen address")
@@ -69,14 +69,9 @@ func runGRPCServer(ctx context.Context) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
 
-	prometheusURL, err := url.Parse(*prometheusURLF)
+	prometheus, err := services.NewPrometheus(*prometheusConfigF, *prometheusURLF, *promtoolF)
 	if err != nil {
 		l.Panic(err)
-	}
-	prometheus := &services.Prometheus{
-		ConfigPath:   *prometheusConfigF,
-		URL:          prometheusURL,
-		PromtoolPath: *promtoolF,
 	}
 	if err = prometheus.Check(ctx); err != nil {
 		l.Panic(err)
@@ -89,6 +84,9 @@ func runGRPCServer(ctx context.Context) {
 	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{})
 	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
 	api.RegisterAlertsServer(gRPCServer, &handlers.AlertsServer{
+		Prometheus: prometheus,
+	})
+	api.RegisterScrapeJobsServer(gRPCServer, &handlers.ScrapeJobsServer{
 		Prometheus: prometheus,
 	})
 
@@ -133,6 +131,7 @@ func runRESTServer(ctx context.Context) {
 		api.RegisterBaseHandlerFromEndpoint,
 		api.RegisterDemoHandlerFromEndpoint,
 		api.RegisterAlertsHandlerFromEndpoint,
+		api.RegisterScrapeJobsHandlerFromEndpoint,
 	} {
 		if err := r(ctx, mux, *gRPCAddrF, opts); err != nil {
 			l.Panic(err)

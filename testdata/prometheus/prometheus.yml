@@ -1,16 +1,23 @@
+# Managed by pmm-managed. DO NOT EDIT.
 ---
 global:
-  scrape_interval:     1s
-  evaluation_interval: 1s
-
-rule_files:
-  - "alerts/*.rule"
-
+  scrape_interval: 30s
+  scrape_timeout: 15s
+  evaluation_interval: 1m
 scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['127.0.0.1:9090']
-
-  - job_name: 'alertmanager'
-    static_configs:
-      - targets: ['alertmanager:9093']
+- job_name: prometheus
+  scrape_interval: 1m
+  scrape_timeout: 30s
+  metrics_path: /metrics
+  scheme: http
+  static_configs:
+  - targets:
+    - 127.0.0.1:9090
+- job_name: alertmanager
+  scrape_interval: 10s
+  scrape_timeout: 5s
+  metrics_path: /metrics
+  scheme: http
+  static_configs:
+  - targets:
+    - 127.0.0.1:9093
