@@ -15,17 +15,37 @@
     "application/json"
   ],
   "paths": {
-    "/v0/version": {
+    "/v0/ping": {
       "get": {
-        "operationId": "Version",
+        "operationId": "Ping",
         "responses": {
           "200": {
             "description": "",
             "schema": {
-              "$ref": "#/definitions/apiDemoVersionResponse"
+              "$ref": "#/definitions/apiDemoPingResponse"
             }
           }
         },
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "PING",
+              "PONG"
+            ],
+            "default": "PING"
+          },
+          {
+            "name": "cookie",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
         "tags": [
           "Demo"
         ]
@@ -64,17 +84,6 @@
         "PONG"
       ],
       "default": "PING"
-    },
-    "apiDemoVersionRequest": {
-      "type": "object"
-    },
-    "apiDemoVersionResponse": {
-      "type": "object",
-      "properties": {
-        "version": {
-          "type": "string"
-        }
-      }
     }
   }
 }

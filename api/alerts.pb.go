@@ -8,6 +8,7 @@ It is generated from these files:
 	alerts.proto
 	base.proto
 	demo.proto
+	jobs.proto
 
 It has these top-level messages:
 	AlertRule
@@ -15,8 +16,8 @@ It has these top-level messages:
 	AlertsListResponse
 	AlertsGetRequest
 	AlertsGetResponse
-	DemoVersionRequest
-	DemoVersionResponse
+	BaseVersionRequest
+	BaseVersionResponse
 	DemoPingRequest
 	DemoPingResponse
 */

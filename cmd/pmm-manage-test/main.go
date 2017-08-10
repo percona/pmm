@@ -42,7 +42,7 @@ func main() {
 	defer conn.Close()
 
 	c := api.NewDemoClient(conn)
-	stream, err := c.Ping(context.Background())
+	stream, err := c.PingStream(context.Background())
 	if err != nil {
 		logrus.Fatal(err)
 	}

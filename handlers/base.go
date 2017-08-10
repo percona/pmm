@@ -16,3 +16,20 @@
 
 // Package handlers implements gRPC API of pmm-managed.
 package handlers
+
+import (
+	"golang.org/x/net/context"
+
+	"github.com/Percona-Lab/pmm-managed/api"
+)
+
+type BaseServer struct{}
+
+func (s *BaseServer) Version(context.Context, *api.BaseVersionRequest) (*api.BaseVersionResponse, error) {
+	return &api.BaseVersionResponse{
+		Version: "pmm-managed v0.0.0-alpha",
+	}, nil
+}
+
+// check interface
+var _ api.BaseServer = (*BaseServer)(nil)

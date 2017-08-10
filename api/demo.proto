@@ -9,13 +9,6 @@ enum DemoPingType {
     PONG = 1;
 }
 
-message DemoVersionRequest {
-}
-
-message DemoVersionResponse {
-    string version = 1;
-}
-
 message DemoPingRequest {
     DemoPingType type  = 1;
     fixed64 cookie = 2;
@@ -27,11 +20,10 @@ message DemoPingResponse {
 }
 
 service Demo {
-    rpc Version(DemoVersionRequest) returns (DemoVersionResponse) {
+    rpc Ping(DemoPingRequest) returns (DemoPingResponse) {
         option (google.api.http) = {
-            get: "/v0/version"
+            get: "/v0/ping"
         };
     }
-
-    rpc Ping(stream DemoPingRequest) returns (stream DemoPingResponse);
+    rpc PingStream(stream DemoPingRequest) returns (stream DemoPingResponse);
 }

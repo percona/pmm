@@ -39,30 +39,6 @@ func (x DemoPingType) String() string {
 }
 func (DemoPingType) EnumDescriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
 
-type DemoVersionRequest struct {
-}
-
-func (m *DemoVersionRequest) Reset()                    { *m = DemoVersionRequest{} }
-func (m *DemoVersionRequest) String() string            { return proto.CompactTextString(m) }
-func (*DemoVersionRequest) ProtoMessage()               {}
-func (*DemoVersionRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
-
-type DemoVersionResponse struct {
-	Version string `protobuf:"bytes,1,opt,name=version" json:"version,omitempty"`
-}
-
-func (m *DemoVersionResponse) Reset()                    { *m = DemoVersionResponse{} }
-func (m *DemoVersionResponse) String() string            { return proto.CompactTextString(m) }
-func (*DemoVersionResponse) ProtoMessage()               {}
-func (*DemoVersionResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
-
-func (m *DemoVersionResponse) GetVersion() string {
-	if m != nil {
-		return m.Version
-	}
-	return ""
-}
-
 type DemoPingRequest struct {
 	Type   DemoPingType `protobuf:"varint,1,opt,name=type,enum=api.DemoPingType" json:"type,omitempty"`
 	Cookie uint64       `protobuf:"fixed64,2,opt,name=cookie" json:"cookie,omitempty"`
@@ -71,7 +47,7 @@ type DemoPingRequest struct {
 func (m *DemoPingRequest) Reset()                    { *m = DemoPingRequest{} }
 func (m *DemoPingRequest) String() string            { return proto.CompactTextString(m) }
 func (*DemoPingRequest) ProtoMessage()               {}
-func (*DemoPingRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
+func (*DemoPingRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
 
 func (m *DemoPingRequest) GetType() DemoPingType {
 	if m != nil {
@@ -95,7 +71,7 @@ type DemoPingResponse struct {
 func (m *DemoPingResponse) Reset()                    { *m = DemoPingResponse{} }
 func (m *DemoPingResponse) String() string            { return proto.CompactTextString(m) }
 func (*DemoPingResponse) ProtoMessage()               {}
-func (*DemoPingResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3} }
+func (*DemoPingResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
 
 func (m *DemoPingResponse) GetType() DemoPingType {
 	if m != nil {
@@ -112,8 +88,6 @@ func (m *DemoPingResponse) GetCookie() uint64 {
 }
 
 func init() {
-	proto.RegisterType((*DemoVersionRequest)(nil), "api.DemoVersionRequest")
-	proto.RegisterType((*DemoVersionResponse)(nil), "api.DemoVersionResponse")
 	proto.RegisterType((*DemoPingRequest)(nil), "api.DemoPingRequest")
 	proto.RegisterType((*DemoPingResponse)(nil), "api.DemoPingResponse")
 	proto.RegisterEnum("api.DemoPingType", DemoPingType_name, DemoPingType_value)
@@ -130,8 +104,8 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for Demo service
 
 type DemoClient interface {
-	Version(ctx context.Context, in *DemoVersionRequest, opts ...grpc.CallOption) (*DemoVersionResponse, error)
-	Ping(ctx context.Context, opts ...grpc.CallOption) (Demo_PingClient, error)
+	Ping(ctx context.Context, in *DemoPingRequest, opts ...grpc.CallOption) (*DemoPingResponse, error)
+	PingStream(ctx context.Context, opts ...grpc.CallOption) (Demo_PingStreamClient, error)
 }
 
 type demoClient struct {
@@ -142,39 +116,39 @@ func NewDemoClient(cc *grpc.ClientConn) DemoClient {
 	return &demoClient{cc}
 }
 
-func (c *demoClient) Version(ctx context.Context, in *DemoVersionRequest, opts ...grpc.CallOption) (*DemoVersionResponse, error) {
-	out := new(DemoVersionResponse)
-	err := grpc.Invoke(ctx, "/api.Demo/Version", in, out, c.cc, opts...)
+func (c *demoClient) Ping(ctx context.Context, in *DemoPingRequest, opts ...grpc.CallOption) (*DemoPingResponse, error) {
+	out := new(DemoPingResponse)
+	err := grpc.Invoke(ctx, "/api.Demo/Ping", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *demoClient) Ping(ctx context.Context, opts ...grpc.CallOption) (Demo_PingClient, error) {
-	stream, err := grpc.NewClientStream(ctx, &_Demo_serviceDesc.Streams[0], c.cc, "/api.Demo/Ping", opts...)
+func (c *demoClient) PingStream(ctx context.Context, opts ...grpc.CallOption) (Demo_PingStreamClient, error) {
+	stream, err := grpc.NewClientStream(ctx, &_Demo_serviceDesc.Streams[0], c.cc, "/api.Demo/PingStream", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &demoPingClient{stream}
+	x := &demoPingStreamClient{stream}
 	return x, nil
 }
 
-type Demo_PingClient interface {
+type Demo_PingStreamClient interface {
 	Send(*DemoPingRequest) error
 	Recv() (*DemoPingResponse, error)
 	grpc.ClientStream
 }
 
-type demoPingClient struct {
+type demoPingStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *demoPingClient) Send(m *DemoPingRequest) error {
+func (x *demoPingStreamClient) Send(m *DemoPingRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *demoPingClient) Recv() (*DemoPingResponse, error) {
+func (x *demoPingStreamClient) Recv() (*DemoPingResponse, error) {
 	m := new(DemoPingResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -185,51 +159,51 @@ func (x *demoPingClient) Recv() (*DemoPingResponse, error) {
 // Server API for Demo service
 
 type DemoServer interface {
-	Version(context.Context, *DemoVersionRequest) (*DemoVersionResponse, error)
-	Ping(Demo_PingServer) error
+	Ping(context.Context, *DemoPingRequest) (*DemoPingResponse, error)
+	PingStream(Demo_PingStreamServer) error
 }
 
 func RegisterDemoServer(s *grpc.Server, srv DemoServer) {
 	s.RegisterService(&_Demo_serviceDesc, srv)
 }
 
-func _Demo_Version_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DemoVersionRequest)
+func _Demo_Ping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DemoPingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(DemoServer).Version(ctx, in)
+		return srv.(DemoServer).Ping(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/api.Demo/Version",
+		FullMethod: "/api.Demo/Ping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DemoServer).Version(ctx, req.(*DemoVersionRequest))
+		return srv.(DemoServer).Ping(ctx, req.(*DemoPingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Demo_Ping_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(DemoServer).Ping(&demoPingServer{stream})
+func _Demo_PingStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(DemoServer).PingStream(&demoPingStreamServer{stream})
 }
 
-type Demo_PingServer interface {
+type Demo_PingStreamServer interface {
 	Send(*DemoPingResponse) error
 	Recv() (*DemoPingRequest, error)
 	grpc.ServerStream
 }
 
-type demoPingServer struct {
+type demoPingStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *demoPingServer) Send(m *DemoPingResponse) error {
+func (x *demoPingStreamServer) Send(m *DemoPingResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *demoPingServer) Recv() (*DemoPingRequest, error) {
+func (x *demoPingStreamServer) Recv() (*DemoPingRequest, error) {
 	m := new(DemoPingRequest)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
@@ -242,14 +216,14 @@ var _Demo_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*DemoServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Version",
-			Handler:    _Demo_Version_Handler,
+			MethodName: "Ping",
+			Handler:    _Demo_Ping_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "Ping",
-			Handler:       _Demo_Ping_Handler,
+			StreamName:    "PingStream",
+			Handler:       _Demo_PingStream_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
@@ -260,23 +234,20 @@ var _Demo_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("demo.proto", fileDescriptor2) }
 
 var fileDescriptor2 = []byte{
-	// 278 bytes of a gzipped FileDescriptorProto
+	// 238 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4a, 0x49, 0xcd, 0xcd,
 	0xd7, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4e, 0x2c, 0xc8, 0x94, 0x92, 0x49, 0xcf, 0xcf,
 	0x4f, 0xcf, 0x49, 0xd5, 0x4f, 0x2c, 0xc8, 0xd4, 0x4f, 0xcc, 0xcb, 0xcb, 0x2f, 0x49, 0x2c, 0xc9,
-	0xcc, 0xcf, 0x2b, 0x86, 0x28, 0x51, 0x12, 0xe1, 0x12, 0x72, 0x49, 0xcd, 0xcd, 0x0f, 0x4b, 0x2d,
-	0x2a, 0xce, 0xcc, 0xcf, 0x0b, 0x4a, 0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x51, 0xd2, 0xe7, 0x12, 0x46,
-	0x11, 0x2d, 0x2e, 0xc8, 0xcf, 0x2b, 0x4e, 0x15, 0x92, 0xe0, 0x62, 0x2f, 0x83, 0x08, 0x49, 0x30,
-	0x2a, 0x30, 0x6a, 0x70, 0x06, 0xc1, 0xb8, 0x4a, 0x01, 0x5c, 0xfc, 0x20, 0x0d, 0x01, 0x99, 0x79,
-	0xe9, 0x50, 0x33, 0x84, 0x54, 0xb9, 0x58, 0x4a, 0x2a, 0x0b, 0x52, 0xc1, 0x2a, 0xf9, 0x8c, 0x04,
-	0xf5, 0x12, 0x0b, 0x32, 0xf5, 0x60, 0x6a, 0x42, 0x2a, 0x0b, 0x52, 0x83, 0xc0, 0xd2, 0x42, 0x62,
-	0x5c, 0x6c, 0xc9, 0xf9, 0xf9, 0xd9, 0x99, 0xa9, 0x12, 0x4c, 0x0a, 0x8c, 0x1a, 0x6c, 0x41, 0x50,
-	0x9e, 0x52, 0x20, 0x97, 0x00, 0xc2, 0x44, 0xa8, 0xfd, 0x94, 0x19, 0xa9, 0xa5, 0xc4, 0xc5, 0x83,
-	0xac, 0x5a, 0x88, 0x83, 0x8b, 0x25, 0xc0, 0xd3, 0xcf, 0x5d, 0x80, 0x01, 0xcc, 0xf2, 0xf7, 0x73,
-	0x17, 0x60, 0x34, 0x9a, 0xc4, 0xc8, 0xc5, 0x02, 0x52, 0x24, 0x14, 0xc8, 0xc5, 0x0e, 0xf5, 0xbe,
-	0x90, 0x38, 0xdc, 0x22, 0xd4, 0x60, 0x92, 0x92, 0xc0, 0x94, 0x80, 0xb8, 0x54, 0x49, 0xb8, 0xe9,
-	0xf2, 0x93, 0xc9, 0x4c, 0xbc, 0x42, 0xdc, 0xfa, 0x65, 0x06, 0xfa, 0xd0, 0x40, 0x12, 0x32, 0xe7,
-	0x62, 0x01, 0xd9, 0x2d, 0x24, 0x82, 0xe2, 0x70, 0x98, 0x61, 0xa2, 0x68, 0xa2, 0x10, 0x93, 0x34,
-	0x18, 0x0d, 0x18, 0x93, 0xd8, 0xc0, 0x71, 0x65, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0x96, 0xc6,
-	0x7a, 0x51, 0xdc, 0x01, 0x00, 0x00,
+	0xcc, 0xcf, 0x2b, 0x86, 0x28, 0x51, 0x0a, 0xe0, 0xe2, 0x77, 0x49, 0xcd, 0xcd, 0x0f, 0xc8, 0xcc,
+	0x4b, 0x0f, 0x4a, 0x2d, 0x2c, 0x4d, 0x2d, 0x2e, 0x11, 0x52, 0xe5, 0x62, 0x29, 0xa9, 0x2c, 0x48,
+	0x95, 0x60, 0x54, 0x60, 0xd4, 0xe0, 0x33, 0x12, 0xd4, 0x4b, 0x2c, 0xc8, 0xd4, 0x83, 0xa9, 0x09,
+	0xa9, 0x2c, 0x48, 0x0d, 0x02, 0x4b, 0x0b, 0x89, 0x71, 0xb1, 0x25, 0xe7, 0xe7, 0x67, 0x67, 0xa6,
+	0x4a, 0x30, 0x29, 0x30, 0x6a, 0xb0, 0x05, 0x41, 0x79, 0x4a, 0x81, 0x5c, 0x02, 0x08, 0x13, 0x8b,
+	0x0b, 0xf2, 0xf3, 0x8a, 0x53, 0x29, 0x34, 0x52, 0x4b, 0x89, 0x8b, 0x07, 0x59, 0xb5, 0x10, 0x07,
+	0x17, 0x4b, 0x80, 0xa7, 0x9f, 0xbb, 0x00, 0x03, 0x98, 0xe5, 0xef, 0xe7, 0x2e, 0xc0, 0x68, 0xd4,
+	0xc3, 0xc8, 0xc5, 0x02, 0x52, 0x24, 0xe4, 0xca, 0xc5, 0x02, 0x52, 0x28, 0x24, 0x82, 0x62, 0x0b,
+	0xd4, 0x73, 0x52, 0xa2, 0x68, 0xa2, 0x10, 0x07, 0x2a, 0x09, 0x34, 0x5d, 0x7e, 0x32, 0x99, 0x89,
+	0x4b, 0x88, 0x43, 0xbf, 0xcc, 0x40, 0xbf, 0x00, 0xa4, 0xdd, 0x96, 0x8b, 0x0b, 0xa4, 0x22, 0xb8,
+	0xa4, 0x28, 0x35, 0x31, 0x97, 0x24, 0xc3, 0x34, 0x18, 0x0d, 0x18, 0x93, 0xd8, 0xc0, 0xc1, 0x6b,
+	0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0xed, 0x2b, 0x3b, 0xdc, 0x8f, 0x01, 0x00, 0x00,
 }

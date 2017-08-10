@@ -57,17 +57,51 @@
         }
       }
     },
-    "/v0/version": {
+    "/v0/ping": {
       "get": {
         "tags": [
           "Demo"
+        ],
+        "operationId": "Ping",
+        "parameters": [
+          {
+            "enum": [
+              "PING",
+              "PONG"
+            ],
+            "type": "string",
+            "default": "PING",
+            "name": "type",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uint64",
+            "name": "cookie",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiDemoPingResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/version": {
+      "get": {
+        "tags": [
+          "Base"
         ],
         "operationId": "Version",
         "responses": {
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/apiDemoVersionResponse"
+              "$ref": "#/definitions/apiBaseVersionResponse"
             }
           }
         }
@@ -126,6 +160,17 @@
         }
       }
     },
+    "apiBaseVersionRequest": {
+      "type": "object"
+    },
+    "apiBaseVersionResponse": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        }
+      }
+    },
     "apiDemoPingRequest": {
       "type": "object",
       "properties": {
@@ -157,17 +202,6 @@
         "PING",
         "PONG"
       ]
-    },
-    "apiDemoVersionRequest": {
-      "type": "object"
-    },
-    "apiDemoVersionResponse": {
-      "type": "object",
-      "properties": {
-        "version": {
-          "type": "string"
-        }
-      }
     },
     "apiError": {
       "description": "Error is the error status of a request.",

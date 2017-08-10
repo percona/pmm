@@ -21,20 +21,22 @@ import (
 	"math/rand"
 	"time"
 
+	"golang.org/x/net/context"
+
 	"github.com/Percona-Lab/pmm-managed/api"
 	"github.com/Percona-Lab/pmm-managed/utils/logger"
-	"golang.org/x/net/context"
 )
 
 type DemoServer struct{}
 
-func (s *DemoServer) Version(context.Context, *api.DemoVersionRequest) (*api.DemoVersionResponse, error) {
-	return &api.DemoVersionResponse{
-		Version: "pmm-managed v0.0.0-alpha",
+func (s *DemoServer) Ping(ctx context.Context, req *api.DemoPingRequest) (*api.DemoPingResponse, error) {
+	return &api.DemoPingResponse{
+		Type:   api.DemoPingType_PONG,
+		Cookie: req.Cookie,
 	}, nil
 }
 
-func (s *DemoServer) Ping(stream api.Demo_PingServer) (err error) {
+func (s *DemoServer) PingStream(stream api.Demo_PingStreamServer) (err error) {
 	ctx, l := logger.Set(stream.Context(), logger.MakeRequestID())
 	l.Debugf("Ping started")
 	defer func() {

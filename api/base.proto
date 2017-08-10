@@ -8,3 +8,18 @@ import "google/api/annotations.proto";
 enum Error {
     NO_ERROR = 0;
 }
+
+message BaseVersionRequest {
+}
+
+message BaseVersionResponse {
+    string version = 1;
+}
+
+service Base {
+    rpc Version(BaseVersionRequest) returns (BaseVersionResponse) {
+        option (google.api.http) = {
+            get: "/v0/version"
+        };
+    }
+}

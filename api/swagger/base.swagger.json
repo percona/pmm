@@ -14,6 +14,35 @@
   "produces": [
     "application/json"
   ],
-  "paths": {},
-  "definitions": {}
+  "paths": {
+    "/v0/version": {
+      "get": {
+        "operationId": "Version",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiBaseVersionResponse"
+            }
+          }
+        },
+        "tags": [
+          "Base"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiBaseVersionRequest": {
+      "type": "object"
+    },
+    "apiBaseVersionResponse": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string"
+        }
+      }
+    }
+  }
 }
