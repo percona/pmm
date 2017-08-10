@@ -8,7 +8,6 @@ It is generated from these files:
 	alerts.proto
 	base.proto
 	demo.proto
-	jobs.proto
 
 It has these top-level messages:
 	AlertRule
