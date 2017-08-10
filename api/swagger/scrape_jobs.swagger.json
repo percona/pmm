@@ -127,25 +127,31 @@
       "type": "object",
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "title": "Scrape job name"
         },
         "interval": {
-          "type": "string"
+          "type": "string",
+          "title": "Scrape interval"
         },
         "timeout": {
-          "type": "string"
+          "type": "string",
+          "title": "Scrape timeout"
         },
         "path": {
-          "type": "string"
+          "type": "string",
+          "title": "Metrics path: \"/metrics\""
         },
         "scheme": {
-          "type": "string"
+          "type": "string",
+          "title": "Scheme for scrapping: \"http\" or \"https\""
         },
         "statis_targets": {
           "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "title": "Hosts and ports: \"127.0.0.1:9090\""
         }
       }
     },

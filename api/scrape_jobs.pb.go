@@ -19,11 +19,17 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 type ScrapeJob struct {
-	Name          string   `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
-	Interval      string   `protobuf:"bytes,2,opt,name=interval" json:"interval,omitempty"`
-	Timeout       string   `protobuf:"bytes,3,opt,name=timeout" json:"timeout,omitempty"`
-	Path          string   `protobuf:"bytes,4,opt,name=path" json:"path,omitempty"`
-	Scheme        string   `protobuf:"bytes,5,opt,name=scheme" json:"scheme,omitempty"`
+	// Scrape job name
+	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	// Scrape interval
+	Interval string `protobuf:"bytes,2,opt,name=interval" json:"interval,omitempty"`
+	// Scrape timeout
+	Timeout string `protobuf:"bytes,3,opt,name=timeout" json:"timeout,omitempty"`
+	// Metrics path: "/metrics"
+	Path string `protobuf:"bytes,4,opt,name=path" json:"path,omitempty"`
+	// Scheme for scrapping: "http" or "https"
+	Scheme string `protobuf:"bytes,5,opt,name=scheme" json:"scheme,omitempty"`
+	// Hosts and ports: "127.0.0.1:9090"
 	StatisTargets []string `protobuf:"bytes,6,rep,name=statis_targets,json=statisTargets" json:"statis_targets,omitempty"`
 }
 

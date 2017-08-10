@@ -12,11 +12,22 @@ import "google/api/annotations.proto";
 import "base.proto";
 
 message ScrapeJob {
+    // Scrape job name
     string name = 1;
+
+    // Scrape interval
     string interval = 2;
+
+    // Scrape timeout
     string timeout = 3;
+
+    // Metrics path: "/metrics"
     string path = 4;
+
+    // Scheme for scrapping: "http" or "https"
     string scheme = 5;
+
+    // Hosts and ports: "127.0.0.1:9090"
     repeated string statis_targets = 6;
 }
 
