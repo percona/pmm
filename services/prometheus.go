@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -32,13 +31,6 @@ import (
 
 	"github.com/Percona-Lab/pmm-managed/utils/logger"
 )
-
-type AlertRule struct {
-	Name     string
-	FilePath string
-	Text     string
-	Disabled bool
-}
 
 // Prometheus service is responsible for interactions with Prometheus.
 // It assumes the following:
@@ -167,80 +159,4 @@ func (p *Prometheus) Check(ctx context.Context) error {
 	l.Infof("%s", b)
 
 	return nil
-}
-
-// ListAlertRules returns all alert rules.
-func (p *Prometheus) ListAlertRules(ctx context.Context) ([]AlertRule, error) {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
-
-	return p.loadAlertRules(ctx)
-}
-
-// GetAlert return alert rule by name, or error if no such rule is present.
-func (p *Prometheus) GetAlert(ctx context.Context, name string) (*AlertRule, error) {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
-
-	rules, err := p.loadAlertRules(ctx)
-	if err != nil {
-		return nil, err
-	}
-	for _, rule := range rules {
-		if rule.Name == name {
-			return &rule, nil
-		}
-	}
-	return nil, errors.WithStack(os.ErrNotExist)
-}
-
-// PutAlert creates or replaces existing alert rule.
-func (p *Prometheus) PutAlert(ctx context.Context, rule *AlertRule) error {
-	// write to temporary location, check syntax with promtool
-	f, err := ioutil.TempFile("", "pmm-managed-rule-")
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	defer func() {
-		f.Close()
-		os.Remove(f.Name())
-	}()
-	if _, err = f.Write([]byte(rule.Text)); err != nil {
-		return errors.WithStack(err)
-	}
-	b, err := exec.Command(p.PromtoolPath, "check-rules", f.Name()).CombinedOutput()
-	if err != nil {
-		return errors.Wrap(err, string(b))
-	}
-
-	p.lock.Lock()
-	defer p.lock.Unlock()
-
-	// write to permanent location, reload configuration
-	path := filepath.Join(p.AlertRulesPath, rule.Name)
-	path += ".rule"
-	if rule.Disabled {
-		path += ".disabled"
-	}
-	if err := ioutil.WriteFile(path, []byte(rule.Text), 0666); err != nil {
-		return errors.WithStack(err)
-	}
-	return p.reload()
-}
-
-// DeleteAlert removes existing alert rule by name.
-func (p *Prometheus) DeleteAlert(ctx context.Context, name string) error {
-	p.lock.Lock()
-	defer p.lock.Unlock()
-
-	rules, err := p.loadAlertRules(ctx)
-	if err != nil {
-		return err
-	}
-	for _, rule := range rules {
-		if rule.Name == name {
-			return os.Remove(rule.FilePath)
-		}
-	}
-	return errors.WithStack(os.ErrNotExist)
 }
