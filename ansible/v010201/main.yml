@@ -1,4 +1,4 @@
-# v1.2.0
+# v1.2.1
 ---
 - hosts: all
   become: yes
@@ -26,14 +26,14 @@
         - pmm-update
         - percona-toolkit-3.0.3
         - percona-dashboards-1.2.0
-        - pmm-server-1.2.0
+        - pmm-server-1.2.1
         - percona-orchestrator-2.1.5
         - percona-prometheus-1.7.1
         - percona-node_exporter-0.13.0
         - percona-qan-api-1.2.0
         - percona-grafana-4.3.2
-        - percona-qan-app-1.2.0
-        - percona-qan-app2-1.2.0
+        - percona-qan-app-1.2.1
+        - percona-qan-app2-1.2.1
         - pmm-manage-1.2.0
         - percona-consul-0.8.5
 
