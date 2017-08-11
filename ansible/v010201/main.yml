@@ -112,6 +112,13 @@
         state: absent
         remove: yes
 
+    - name: Hotfix                     | PMM-1232 Fix prometheus memory
+      when: supervisorctl.stat.exists
+      replace:
+        dest: /etc/supervisord.d/pmm.ini
+        regexp: '-storage.local.target-heap-size=268435456$'
+        replace: '-storage.local.target-heap-size=766957568'
+
     - name: PMM                        | Restart services (systemd)
       when: not supervisorctl.stat.exists
       service: name={{ item }} state=restarted
