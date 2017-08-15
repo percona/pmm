@@ -59,7 +59,7 @@ What are the minimum system requirements for PMM?
 How to control memory consumption for PMM?
 ==========================================
 
-By default, Prometheus in *PMM Server* uses up to 256 MB of memory
+By default, Prometheus in *PMM Server* uses up to 768 MB of memory
 for storing the most recently used data chunks.
 Depending on the amount of data coming into Prometheus,
 you may require a higher limit to avoid throttling data ingestion,
