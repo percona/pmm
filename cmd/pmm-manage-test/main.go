@@ -25,7 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 
-	"github.com/Percona-Lab/pmm-managed/api"
+	"github.com/percona/pmm-managed/api"
 )
 
 var (

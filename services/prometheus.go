@@ -29,7 +29,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/prometheus/config"
 
-	"github.com/Percona-Lab/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
 // Prometheus service is responsible for interactions with Prometheus.

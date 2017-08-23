@@ -23,8 +23,8 @@ import (
 
 	"golang.org/x/net/context"
 
-	"github.com/Percona-Lab/pmm-managed/api"
-	"github.com/Percona-Lab/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/api"
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
 type DemoServer struct{}

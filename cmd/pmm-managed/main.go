@@ -41,11 +41,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 
-	"github.com/Percona-Lab/pmm-managed/api"
-	"github.com/Percona-Lab/pmm-managed/handlers"
-	"github.com/Percona-Lab/pmm-managed/services"
-	"github.com/Percona-Lab/pmm-managed/utils/interceptors"
-	"github.com/Percona-Lab/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/api"
+	"github.com/percona/pmm-managed/handlers"
+	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm-managed/utils/interceptors"
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
 const (

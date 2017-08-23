@@ -26,7 +26,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/Percona-Lab/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
 var testdata = filepath.FromSlash("../testdata/prometheus/")

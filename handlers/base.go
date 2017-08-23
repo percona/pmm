@@ -20,7 +20,7 @@ package handlers
 import (
 	"golang.org/x/net/context"
 
-	"github.com/Percona-Lab/pmm-managed/api"
+	"github.com/percona/pmm-managed/api"
 )
 
 type BaseServer struct{}

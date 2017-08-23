@@ -50,4 +50,4 @@ protos:  # make protos, not protoss
 	swagger mixin api/swagger/*.swagger.json > api/swagger/swagger.json
 	swagger validate api/swagger/swagger.json
 
-	go install -v github.com/Percona-Lab/pmm-managed/api
+	go install -v github.com/percona/pmm-managed/api
