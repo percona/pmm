@@ -9,6 +9,3 @@ tunnels:
   pmm-managed-debug:
     proto: http
     addr: 7773
-  swagger:
-    proto: http
-    addr: 8080
