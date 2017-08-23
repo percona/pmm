@@ -128,15 +128,15 @@
       "properties": {
         "name": {
           "type": "string",
-          "title": "Scrape job name"
+          "title": "Scrape job name: \"example-job\" (required)"
         },
         "interval": {
           "type": "string",
-          "title": "Scrape interval"
+          "title": "Scrape interval: \"10s\""
         },
         "timeout": {
           "type": "string",
-          "title": "Scrape timeout"
+          "title": "Scrape timeout: \"5s\""
         },
         "path": {
           "type": "string",
@@ -151,7 +151,7 @@
           "items": {
             "type": "string"
           },
-          "title": "Hosts and ports: \"127.0.0.1:9090\""
+          "title": "Hosts and ports: \"127.0.0.1:9090\" (required)"
         }
       }
     },

@@ -314,11 +314,11 @@
       "properties": {
         "interval": {
           "type": "string",
-          "title": "Scrape interval"
+          "title": "Scrape interval: \"10s\""
         },
         "name": {
           "type": "string",
-          "title": "Scrape job name"
+          "title": "Scrape job name: \"example-job\" (required)"
         },
         "path": {
           "type": "string",
@@ -330,14 +330,14 @@
         },
         "statis_targets": {
           "type": "array",
-          "title": "Hosts and ports: \"127.0.0.1:9090\"",
+          "title": "Hosts and ports: \"127.0.0.1:9090\" (required)",
           "items": {
             "type": "string"
           }
         },
         "timeout": {
           "type": "string",
-          "title": "Scrape timeout"
+          "title": "Scrape timeout: \"5s\""
         }
       }
     },
