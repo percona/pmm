@@ -82,9 +82,9 @@ func runGRPCServer(ctx context.Context) {
 		grpc.StreamInterceptor(interceptors.Stream),
 	)
 	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{})
-	api.RegisterAlertsServer(gRPCServer, &handlers.AlertsServer{
-		Prometheus: prometheus,
-	})
+	// TODO api.RegisterAlertsServer(gRPCServer, &handlers.AlertsServer{
+	// 	Prometheus: prometheus,
+	// })
 	api.RegisterScrapeJobsServer(gRPCServer, &handlers.ScrapeJobsServer{
 		Prometheus: prometheus,
 	})
@@ -128,7 +128,7 @@ func runRESTServer(ctx context.Context) {
 	type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
 		api.RegisterBaseHandlerFromEndpoint,
-		api.RegisterAlertsHandlerFromEndpoint,
+		// TODO api.RegisterAlertsHandlerFromEndpoint,
 		api.RegisterScrapeJobsHandlerFromEndpoint,
 	} {
 		if err := r(ctx, mux, *gRPCAddrF, opts); err != nil {
