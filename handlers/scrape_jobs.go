@@ -19,8 +19,8 @@ package handlers
 import (
 	"golang.org/x/net/context"
 
-	"github.com/Percona-Lab/pmm-managed/api"
-	"github.com/Percona-Lab/pmm-managed/services"
+	"github.com/percona/pmm-managed/api"
+	"github.com/percona/pmm-managed/services"
 )
 
 type ScrapeJobsServer struct {
