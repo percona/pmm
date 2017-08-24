@@ -243,23 +243,6 @@ type Config struct {
 	original string
 }
 
-// Secret special type for storing secrets.
-type Secret string
-
-// UnmarshalYAML implements the yaml.Unmarshaler interface for Secrets.
-func (s *Secret) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	type plain Secret
-	return unmarshal((*plain)(s))
-}
-
-// MarshalYAML implements the yaml.Marshaler interface for Secrets.
-func (s Secret) MarshalYAML() (interface{}, error) {
-	if s != "" {
-		return "<secret>", nil
-	}
-	return nil, nil
-}
-
 // resolveFilepaths joins all relative paths in a configuration
 // with a given base directory.
 func resolveFilepaths(baseDir string, cfg *Config) {
@@ -517,7 +500,7 @@ type HTTPClientConfig struct {
 	// The HTTP basic authentication credentials for the targets.
 	BasicAuth *BasicAuth `yaml:"basic_auth,omitempty"`
 	// The bearer token for the targets.
-	BearerToken Secret `yaml:"bearer_token,omitempty"`
+	BearerToken string `yaml:"bearer_token,omitempty"`
 	// The bearer token file for the targets.
 	BearerTokenFile string `yaml:"bearer_token_file,omitempty"`
 	// HTTP proxy server to use to connect to the targets.
@@ -697,7 +680,7 @@ func CheckTargetAddress(address model.LabelValue) error {
 // BasicAuth contains basic HTTP authentication credentials.
 type BasicAuth struct {
 	Username string `yaml:"username"`
-	Password Secret `yaml:"password"`
+	Password string `yaml:"password"`
 
 	// Catches all undefined fields and must be empty after parsing.
 	XXX map[string]interface{} `yaml:",inline"`
@@ -706,7 +689,7 @@ type BasicAuth struct {
 // ClientCert contains client cert credentials.
 type ClientCert struct {
 	Cert string `yaml:"cert"`
-	Key  Secret `yaml:"key"`
+	Key  string `yaml:"key"`
 
 	// Catches all undefined fields and must be empty after parsing.
 	XXX map[string]interface{} `yaml:",inline"`
@@ -862,12 +845,12 @@ func (c *FileSDConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 // ConsulSDConfig is the configuration for Consul service discovery.
 type ConsulSDConfig struct {
 	Server       string `yaml:"server"`
-	Token        Secret `yaml:"token,omitempty"`
+	Token        string `yaml:"token,omitempty"`
 	Datacenter   string `yaml:"datacenter,omitempty"`
 	TagSeparator string `yaml:"tag_separator,omitempty"`
 	Scheme       string `yaml:"scheme,omitempty"`
 	Username     string `yaml:"username,omitempty"`
-	Password     Secret `yaml:"password,omitempty"`
+	Password     string `yaml:"password,omitempty"`
 	// The list of services for which targets are discovered.
 	// Defaults to all services if empty.
 	Services []string `yaml:"services"`
@@ -970,7 +953,7 @@ type MarathonSDConfig struct {
 	Timeout         model.Duration `yaml:"timeout,omitempty"`
 	RefreshInterval model.Duration `yaml:"refresh_interval,omitempty"`
 	TLSConfig       TLSConfig      `yaml:"tls_config,omitempty"`
-	BearerToken     Secret         `yaml:"bearer_token,omitempty"`
+	BearerToken     string         `yaml:"bearer_token,omitempty"`
 	BearerTokenFile string         `yaml:"bearer_token_file,omitempty"`
 
 	// Catches all undefined fields and must be empty after parsing.
@@ -1027,7 +1010,7 @@ type KubernetesSDConfig struct {
 	APIServer          URL                          `yaml:"api_server"`
 	Role               KubernetesRole               `yaml:"role"`
 	BasicAuth          *BasicAuth                   `yaml:"basic_auth,omitempty"`
-	BearerToken        Secret                       `yaml:"bearer_token,omitempty"`
+	BearerToken        string                       `yaml:"bearer_token,omitempty"`
 	BearerTokenFile    string                       `yaml:"bearer_token_file,omitempty"`
 	TLSConfig          TLSConfig                    `yaml:"tls_config,omitempty"`
 	NamespaceDiscovery KubernetesNamespaceDiscovery `yaml:"namespaces"`
@@ -1132,7 +1115,7 @@ func (c *GCESDConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 type EC2SDConfig struct {
 	Region          string         `yaml:"region"`
 	AccessKey       string         `yaml:"access_key,omitempty"`
-	SecretKey       Secret         `yaml:"secret_key,omitempty"`
+	SecretKey       string         `yaml:"secret_key,omitempty"`
 	Profile         string         `yaml:"profile,omitempty"`
 	RefreshInterval model.Duration `yaml:"refresh_interval,omitempty"`
 	Port            int            `yaml:"port"`
@@ -1163,7 +1146,7 @@ type OpenstackSDConfig struct {
 	IdentityEndpoint string         `yaml:"identity_endpoint"`
 	Username         string         `yaml:"username"`
 	UserID           string         `yaml:"userid"`
-	Password         Secret         `yaml:"password"`
+	Password         string         `yaml:"password"`
 	ProjectName      string         `yaml:"project_name"`
 	ProjectID        string         `yaml:"project_id"`
 	DomainName       string         `yaml:"domain_name"`
@@ -1193,7 +1176,7 @@ type AzureSDConfig struct {
 	SubscriptionID  string         `yaml:"subscription_id"`
 	TenantID        string         `yaml:"tenant_id,omitempty"`
 	ClientID        string         `yaml:"client_id,omitempty"`
-	ClientSecret    Secret         `yaml:"client_secret,omitempty"`
+	ClientSecret    string         `yaml:"client_secret,omitempty"`
 	RefreshInterval model.Duration `yaml:"refresh_interval,omitempty"`
 
 	// Catches all undefined fields and must be empty after parsing.

@@ -64,6 +64,9 @@ func TestPrometheusConfig(t *testing.T) {
 		B: difflib.SplitLines(a),
 	})
 	assert.Equal(t, b, a, "%s", diff)
+
+	// specifically check that we can read secrets
+	assert.Equal(t, "pmm", c.ScrapeConfigs[2].HTTPClientConfig.BasicAuth.Password)
 }
 
 func TestPrometheusRules(t *testing.T) {
@@ -112,10 +115,11 @@ func TestPrometheusScrapeJobs(t *testing.T) {
 
 	jobs, err := p.ListScrapeJobs(ctx)
 	require.NoError(t, err)
-	require.Len(t, jobs, 2)
+	require.Len(t, jobs, 3)
 	expected := []ScrapeJob{
 		{"prometheus", "1m", "30s", "/metrics", "http", []string{"127.0.0.1:9090"}},
 		{"alertmanager", "10s", "5s", "/metrics", "http", []string{"127.0.0.1:9093"}},
+		{"linux", "30s", "15s", "/metrics", "http", []string{"localhost:9100"}},
 	}
 	assert.Equal(t, expected, jobs)
 
