@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-package services
+package prometheus
 
 import (
 	"context"
@@ -34,12 +34,12 @@ import (
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
-// Prometheus service is responsible for interactions with Prometheus.
+// Service is responsible for interactions with Prometheus.
 // It assumes the following:
 //   * Prometheus API is accessible;
 //   * Prometheus configuration and rule files are accessible;
 //   * promtool is available.
-type Prometheus struct {
+type Service struct {
 	configPath     string
 	baseURL        *url.URL
 	promtoolPath   string
@@ -47,12 +47,12 @@ type Prometheus struct {
 	lock           sync.RWMutex
 }
 
-func NewPrometheus(config string, baseURL string, promtool string) (*Prometheus, error) {
+func NewService(config string, baseURL string, promtool string) (*Service, error) {
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	return &Prometheus{
+	return &Service{
 		configPath:   config,
 		baseURL:      u,
 		promtoolPath: promtool,
@@ -60,8 +60,8 @@ func NewPrometheus(config string, baseURL string, promtool string) (*Prometheus,
 }
 
 // loadConfig loads current Prometheus configuration from file.
-func (p *Prometheus) loadConfig() (*config.Config, error) {
-	cfg, err := config.LoadFile(p.configPath)
+func (svc *Service) loadConfig() (*config.Config, error) {
+	cfg, err := config.LoadFile(svc.configPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "can't load Prometheus configuration file")
 	}
@@ -76,22 +76,22 @@ func (p *Prometheus) loadConfig() (*config.Config, error) {
 }
 
 // saveConfig saves given Prometheus configuration to file.
-func (p *Prometheus) saveConfig(cfg *config.Config) error {
+func (svc *Service) saveConfig(cfg *config.Config) error {
 	b, err := yaml.Marshal(cfg)
 	if err != nil {
 		return errors.Wrap(err, "can't marshal Prometheus configuration file")
 	}
-	fi, err := os.Stat(p.configPath)
+	fi, err := os.Stat(svc.configPath)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 	b = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), b...)
-	return ioutil.WriteFile(p.configPath, b, fi.Mode())
+	return ioutil.WriteFile(svc.configPath, b, fi.Mode())
 }
 
 // reload causes Prometheus to reload configuration, including alert rules files.
-func (p *Prometheus) reload() error {
-	u := *p.baseURL
+func (svc *Service) reload() error {
+	u := *svc.baseURL
 	u.Path = filepath.Join(u.Path, "-", "reload")
 	resp, err := http.Post(u.String(), "", nil)
 	if err != nil {
@@ -110,8 +110,8 @@ func (p *Prometheus) reload() error {
 }
 
 // loadAlertRules returns all Prometheus alert rules.
-func (p *Prometheus) loadAlertRules(ctx context.Context) ([]AlertRule, error) {
-	files, err := filepath.Glob(filepath.Join(p.alertRulesPath, "*"))
+func (svc *Service) loadAlertRules(ctx context.Context) ([]AlertRule, error) {
+	files, err := filepath.Glob(filepath.Join(svc.alertRulesPath, "*"))
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -155,17 +155,17 @@ func (p *Prometheus) loadAlertRules(ctx context.Context) ([]AlertRule, error) {
 }
 
 // Check returns error if configuration is not right or Prometheus is not available.
-func (p *Prometheus) Check(ctx context.Context) error {
+func (svc *Service) Check(ctx context.Context) error {
 	l := logger.Get(ctx)
 
-	if _, err := p.loadConfig(); err != nil {
+	if _, err := svc.loadConfig(); err != nil {
 		return err
 	}
 
-	if p.baseURL == nil {
+	if svc.baseURL == nil {
 		return errors.New("URL is not set")
 	}
-	u := *p.baseURL
+	u := *svc.baseURL
 	u.Path = filepath.Join(u.Path, "version")
 	resp, err := http.Get(u.String())
 	if err != nil {
@@ -181,7 +181,7 @@ func (p *Prometheus) Check(ctx context.Context) error {
 		return errors.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 
-	b, err = exec.Command(p.promtoolPath, "version").CombinedOutput()
+	b, err = exec.Command(svc.promtoolPath, "version").CombinedOutput()
 	if err != nil {
 		return errors.Wrap(err, string(b))
 	}

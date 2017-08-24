@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-package services
+package prometheus
 
 import (
 	"context"
@@ -30,15 +30,15 @@ import (
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
-const testdata = "../testdata/prometheus/"
+const testdata = "../../testdata/prometheus/"
 
-func getPrometheus(t *testing.T, ctx context.Context) *Prometheus {
+func getPrometheus(t *testing.T, ctx context.Context) *Service {
 	// TODO t.Helper()
 
-	p, err := NewPrometheus(filepath.Join(testdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool")
+	svc, err := NewService(filepath.Join(testdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool")
 	require.NoError(t, err)
-	require.NoError(t, p.Check(ctx))
-	return p
+	require.NoError(t, svc.Check(ctx))
+	return svc
 }
 
 func TestPrometheusConfig(t *testing.T) {

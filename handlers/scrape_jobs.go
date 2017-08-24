@@ -20,11 +20,11 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/percona/pmm-managed/api"
-	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm-managed/services/prometheus"
 )
 
 type ScrapeJobsServer struct {
-	Prometheus *services.Prometheus
+	Prometheus *prometheus.Service
 }
 
 // List returns all scrape jobs.
@@ -57,7 +57,7 @@ func (s *ScrapeJobsServer) Get(ctx context.Context, req *api.ScrapeJobsGetReques
 
 // Put creates or updates a scrape job by name.
 func (s *ScrapeJobsServer) Put(ctx context.Context, req *api.ScrapeJobsPutRequest) (*api.ScrapeJobsPutResponse, error) {
-	j := services.ScrapeJob(*req.ScrapeJob)
+	j := prometheus.ScrapeJob(*req.ScrapeJob)
 	if err := s.Prometheus.PutScrapeJob(ctx, &j); err != nil {
 		return nil, err
 	}

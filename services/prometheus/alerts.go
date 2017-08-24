@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-package services
+package prometheus
 
 import (
 	"context"
@@ -34,19 +34,19 @@ type AlertRule struct {
 }
 
 // ListAlertRules returns all alert rules.
-func (p *Prometheus) ListAlertRules(ctx context.Context) ([]AlertRule, error) {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
+func (svc *Service) ListAlertRules(ctx context.Context) ([]AlertRule, error) {
+	svc.lock.RLock()
+	defer svc.lock.RUnlock()
 
-	return p.loadAlertRules(ctx)
+	return svc.loadAlertRules(ctx)
 }
 
 // GetAlert return alert rule by name, or error if no such rule is present.
-func (p *Prometheus) GetAlert(ctx context.Context, name string) (*AlertRule, error) {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
+func (svc *Service) GetAlert(ctx context.Context, name string) (*AlertRule, error) {
+	svc.lock.RLock()
+	defer svc.lock.RUnlock()
 
-	rules, err := p.loadAlertRules(ctx)
+	rules, err := svc.loadAlertRules(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +59,7 @@ func (p *Prometheus) GetAlert(ctx context.Context, name string) (*AlertRule, err
 }
 
 // PutAlert creates or replaces existing alert rule.
-func (p *Prometheus) PutAlert(ctx context.Context, rule *AlertRule) error {
+func (svc *Service) PutAlert(ctx context.Context, rule *AlertRule) error {
 	// write to temporary location, check syntax with promtool
 	f, err := ioutil.TempFile("", "pmm-managed-rule-")
 	if err != nil {
@@ -72,16 +72,16 @@ func (p *Prometheus) PutAlert(ctx context.Context, rule *AlertRule) error {
 	if _, err = f.Write([]byte(rule.Text)); err != nil {
 		return errors.WithStack(err)
 	}
-	b, err := exec.Command(p.promtoolPath, "check-rules", f.Name()).CombinedOutput()
+	b, err := exec.Command(svc.promtoolPath, "check-rules", f.Name()).CombinedOutput()
 	if err != nil {
 		return errors.Wrap(err, string(b))
 	}
 
-	p.lock.Lock()
-	defer p.lock.Unlock()
+	svc.lock.Lock()
+	defer svc.lock.Unlock()
 
 	// write to permanent location, reload configuration
-	path := filepath.Join(p.alertRulesPath, rule.Name)
+	path := filepath.Join(svc.alertRulesPath, rule.Name)
 	path += ".rule"
 	if rule.Disabled {
 		path += ".disabled"
@@ -89,15 +89,15 @@ func (p *Prometheus) PutAlert(ctx context.Context, rule *AlertRule) error {
 	if err := ioutil.WriteFile(path, []byte(rule.Text), 0666); err != nil {
 		return errors.WithStack(err)
 	}
-	return p.reload()
+	return svc.reload()
 }
 
 // DeleteAlert removes existing alert rule by name, or error if no such rule is present.
-func (p *Prometheus) DeleteAlert(ctx context.Context, name string) error {
-	p.lock.Lock()
-	defer p.lock.Unlock()
+func (svc *Service) DeleteAlert(ctx context.Context, name string) error {
+	svc.lock.Lock()
+	defer svc.lock.Unlock()
 
-	rules, err := p.loadAlertRules(ctx)
+	rules, err := svc.loadAlertRules(ctx)
 	if err != nil {
 		return err
 	}

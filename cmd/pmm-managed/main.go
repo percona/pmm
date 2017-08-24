@@ -42,7 +42,7 @@ import (
 
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/handlers"
-	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/utils/interceptors"
 	"github.com/percona/pmm-managed/utils/logger"
 )
@@ -69,7 +69,7 @@ func runGRPCServer(ctx context.Context) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
 
-	prometheus, err := services.NewPrometheus(*prometheusConfigF, *prometheusURLF, *promtoolF)
+	prometheus, err := prometheus.NewService(*prometheusConfigF, *prometheusURLF, *promtoolF)
 	if err != nil {
 		l.Panic(err)
 	}

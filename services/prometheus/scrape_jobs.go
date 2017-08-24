@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-package services
+package prometheus
 
 import (
 	"context"
@@ -52,11 +52,11 @@ func convertScrapeConfig(cfg *config.ScrapeConfig) *ScrapeJob {
 }
 
 // ListScrapeJobs returns all scrape jobs.
-func (p *Prometheus) ListScrapeJobs(ctx context.Context) ([]ScrapeJob, error) {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
+func (svc *Service) ListScrapeJobs(ctx context.Context) ([]ScrapeJob, error) {
+	svc.lock.RLock()
+	defer svc.lock.RUnlock()
 
-	cfg, err := p.loadConfig()
+	cfg, err := svc.loadConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -69,11 +69,11 @@ func (p *Prometheus) ListScrapeJobs(ctx context.Context) ([]ScrapeJob, error) {
 }
 
 // GetScrapeJob return scrape job by name, or error if no such scrape job is present.
-func (p *Prometheus) GetScrapeJob(ctx context.Context, name string) (*ScrapeJob, error) {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
+func (svc *Service) GetScrapeJob(ctx context.Context, name string) (*ScrapeJob, error) {
+	svc.lock.RLock()
+	defer svc.lock.RUnlock()
 
-	cfg, err := p.loadConfig()
+	cfg, err := svc.loadConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -87,11 +87,11 @@ func (p *Prometheus) GetScrapeJob(ctx context.Context, name string) (*ScrapeJob,
 }
 
 // PutScrapeJob creates or replaces existing scrape job.
-func (p *Prometheus) PutScrapeJob(ctx context.Context, job *ScrapeJob) error {
-	p.lock.Lock()
-	defer p.lock.Unlock()
+func (svc *Service) PutScrapeJob(ctx context.Context, job *ScrapeJob) error {
+	svc.lock.Lock()
+	defer svc.lock.Unlock()
 
-	cfg, err := p.loadConfig()
+	cfg, err := svc.loadConfig()
 	if err != nil {
 		return err
 	}
@@ -139,18 +139,18 @@ func (p *Prometheus) PutScrapeJob(ctx context.Context, job *ScrapeJob) error {
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfig)
 	}
 
-	if err = p.saveConfig(cfg); err != nil {
+	if err = svc.saveConfig(cfg); err != nil {
 		return err
 	}
-	return p.reload()
+	return svc.reload()
 }
 
 // DeleteScrapeJob removes existing scrape job by name, or error if no such scrape job is present.
-func (p *Prometheus) DeleteScrapeJob(ctx context.Context, name string) error {
-	p.lock.Lock()
-	defer p.lock.Unlock()
+func (svc *Service) DeleteScrapeJob(ctx context.Context, name string) error {
+	svc.lock.Lock()
+	defer svc.lock.Unlock()
 
-	cfg, err := p.loadConfig()
+	cfg, err := svc.loadConfig()
 	if err != nil {
 		return err
 	}
@@ -167,8 +167,8 @@ func (p *Prometheus) DeleteScrapeJob(ctx context.Context, name string) error {
 		return errors.WithStack(os.ErrNotExist)
 	}
 
-	if err = p.saveConfig(cfg); err != nil {
+	if err = svc.saveConfig(cfg); err != nil {
 		return err
 	}
-	return p.reload()
+	return svc.reload()
 }
