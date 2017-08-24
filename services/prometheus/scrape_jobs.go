@@ -22,7 +22,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
-	"github.com/prometheus/prometheus/config"
 )
 
 type ScrapeJob struct {
@@ -34,7 +33,7 @@ type ScrapeJob struct {
 	StatisTargets []string
 }
 
-func convertScrapeConfig(cfg *config.ScrapeConfig) *ScrapeJob {
+func convertScrapeConfig(cfg *ScrapeConfig) *ScrapeJob {
 	targets := make([]string, len(cfg.ServiceDiscoveryConfig.StaticConfigs))
 	for i, sc := range cfg.ServiceDiscoveryConfig.StaticConfigs {
 		for _, t := range sc.Targets {
@@ -110,19 +109,19 @@ func (svc *Service) PutScrapeJob(ctx context.Context, job *ScrapeJob) error {
 		}
 	}
 
-	tg := make([]*config.TargetGroup, len(job.StatisTargets))
+	tg := make([]*TargetGroup, len(job.StatisTargets))
 	for i, t := range job.StatisTargets {
-		tg[i] = &config.TargetGroup{
+		tg[i] = &TargetGroup{
 			Targets: []model.LabelSet{{model.AddressLabel: model.LabelValue(t)}},
 		}
 	}
-	scrapeConfig := &config.ScrapeConfig{
+	scrapeConfig := &ScrapeConfig{
 		JobName:        job.Name,
 		ScrapeInterval: interval,
 		ScrapeTimeout:  timeout,
 		MetricsPath:    job.Path,
 		Scheme:         job.Scheme,
-		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+		ServiceDiscoveryConfig: ServiceDiscoveryConfig{
 			StaticConfigs: tg,
 		},
 	}

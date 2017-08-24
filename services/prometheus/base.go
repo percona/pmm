@@ -28,7 +28,6 @@ import (
 	"sync"
 
 	"github.com/pkg/errors"
-	"github.com/prometheus/prometheus/config"
 	"gopkg.in/yaml.v2"
 
 	"github.com/percona/pmm-managed/utils/logger"
@@ -60,8 +59,8 @@ func NewService(config string, baseURL string, promtool string) (*Service, error
 }
 
 // loadConfig loads current Prometheus configuration from file.
-func (svc *Service) loadConfig() (*config.Config, error) {
-	cfg, err := config.LoadFile(svc.configPath)
+func (svc *Service) loadConfig() (*Config, error) {
+	cfg, err := LoadFile(svc.configPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "can't load Prometheus configuration file")
 	}
@@ -76,7 +75,7 @@ func (svc *Service) loadConfig() (*config.Config, error) {
 }
 
 // saveConfig saves given Prometheus configuration to file.
-func (svc *Service) saveConfig(cfg *config.Config) error {
+func (svc *Service) saveConfig(cfg *Config) error {
 	b, err := yaml.Marshal(cfg)
 	if err != nil {
 		return errors.Wrap(err, "can't marshal Prometheus configuration file")
