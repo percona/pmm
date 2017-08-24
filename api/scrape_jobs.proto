@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package api;
+
+// TODO use google/protobuf/duration.proto when those issues are resolved?
+// https://github.com/grpc-ecosystem/grpc-gateway/issues/160
+// https://github.com/grpc-ecosystem/grpc-gateway/issues/400
+// import "google/protobuf/duration.proto";
+
+import "google/api/annotations.proto";
+
+import "base.proto";
+
+message ScrapeJob {
+    // Scrape job name: "example-job" (required)
+    string name = 1;
+
+    // Scrape interval: "10s"
+    string interval = 2;
+
+    // Scrape timeout: "5s"
+    string timeout = 3;
+
+    // Metrics path: "/metrics"
+    string path = 4;
+
+    // Scheme for scrapping: "http" or "https"
+    string scheme = 5;
+
+    // Hosts and ports: "127.0.0.1:9090" (required)
+    repeated string statis_targets = 6;
+}
+
+message ScrapeJobsListRequest {
+}
+
+message ScrapeJobsListResponse {
+    Error error = 1;
+    repeated ScrapeJob scrape_jobs = 2;
+}
+
+message ScrapeJobsGetRequest {
+    string name = 1;
+}
+
+message ScrapeJobsGetResponse {
+    Error error = 1;
+    ScrapeJob scrape_job = 2;
+}
+
+message ScrapeJobsPutRequest {
+    ScrapeJob scrape_job = 1;
+}
+
+message ScrapeJobsPutResponse {
+    Error error = 1;
+}
+
+message ScrapeJobsDeleteRequest {
+    string name = 1;
+}
+
+message ScrapeJobsDeleteResponse {
+    Error error = 1;
+}
+
+service ScrapeJobs {
+    // List returns all scrape jobs.
+    rpc List(ScrapeJobsListRequest) returns (ScrapeJobsListResponse) {
+        option (google.api.http) = {
+            get: "/v0/scrape-jobs"
+        };
+    }
+
+    // Get returns a scrape job by name.
+    rpc Get(ScrapeJobsGetRequest) returns (ScrapeJobsGetResponse) {
+        option (google.api.http) = {
+            get: "/v0/scrape-jobs/{name}"
+        };
+    }
+
+    // Put creates or updates a scrape job by name.
+    rpc Put(ScrapeJobsPutRequest) returns (ScrapeJobsPutResponse) {
+        option (google.api.http) = {
+            put: "/v0/scrape-jobs/{scrape_job.name}",
+            body: "*"
+        };
+    }
+
+    // Delete removes a scrape job by name.
+    rpc Delete(ScrapeJobsDeleteRequest) returns (ScrapeJobsDeleteResponse) {
+        option (google.api.http) = {
+            delete: "/v0/scrape-jobs/{name}"
+        };
+    }
+}

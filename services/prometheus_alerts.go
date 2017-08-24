@@ -72,7 +72,7 @@ func (p *Prometheus) PutAlert(ctx context.Context, rule *AlertRule) error {
 	if _, err = f.Write([]byte(rule.Text)); err != nil {
 		return errors.WithStack(err)
 	}
-	b, err := exec.Command(p.PromtoolPath, "check-rules", f.Name()).CombinedOutput()
+	b, err := exec.Command(p.promtoolPath, "check-rules", f.Name()).CombinedOutput()
 	if err != nil {
 		return errors.Wrap(err, string(b))
 	}
@@ -81,7 +81,7 @@ func (p *Prometheus) PutAlert(ctx context.Context, rule *AlertRule) error {
 	defer p.lock.Unlock()
 
 	// write to permanent location, reload configuration
-	path := filepath.Join(p.AlertRulesPath, rule.Name)
+	path := filepath.Join(p.alertRulesPath, rule.Name)
 	path += ".rule"
 	if rule.Disabled {
 		path += ".disabled"
@@ -92,7 +92,7 @@ func (p *Prometheus) PutAlert(ctx context.Context, rule *AlertRule) error {
 	return p.reload()
 }
 
-// DeleteAlert removes existing alert rule by name.
+// DeleteAlert removes existing alert rule by name, or error if no such rule is present.
 func (p *Prometheus) DeleteAlert(ctx context.Context, name string) error {
 	p.lock.Lock()
 	defer p.lock.Unlock()

@@ -18,31 +18,59 @@ package services
 
 import (
 	"context"
-	"net/url"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/pmezard/go-difflib/difflib"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
-var testdata = filepath.FromSlash("../testdata/prometheus/")
+const testdata = "../testdata/prometheus/"
 
-func TestPrometheus(t *testing.T) {
-	ctx, _ := logger.Set(context.Background(), "TestPrometheus")
-	p := &Prometheus{
-		ConfigPath: filepath.Join(testdata, "prometheus.yml"),
-		URL: &url.URL{
-			Scheme: "http",
-			Host:   "127.0.0.1:9090",
-		},
-		PromtoolPath:   "promtool",
-		AlertRulesPath: filepath.Join(testdata, "alerts"),
-	}
+func getPrometheus(t *testing.T, ctx context.Context) *Prometheus {
+	// TODO t.Helper()
+
+	p, err := NewPrometheus(filepath.Join(testdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool")
+	require.NoError(t, err)
 	require.NoError(t, p.Check(ctx))
+	return p
+}
+
+func TestPrometheusConfig(t *testing.T) {
+	ctx, _ := logger.Set(context.Background(), "TestPrometheusConfig")
+	p := getPrometheus(t, ctx)
+
+	// always restore original after test
+	before, err := ioutil.ReadFile(p.configPath)
+	require.NoError(t, err)
+	defer func() {
+		assert.NoError(t, ioutil.WriteFile(p.configPath, before, 0666))
+	}()
+
+	// check that we can write it exactly as it was
+	c, err := p.loadConfig()
+	assert.NoError(t, err)
+	assert.NoError(t, p.saveConfig(c))
+	after, err := ioutil.ReadFile(p.configPath)
+	require.NoError(t, err)
+	b, a := string(before), string(after)
+	diff, _ := difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
+		A: difflib.SplitLines(b),
+		B: difflib.SplitLines(a),
+	})
+	assert.Equal(t, b, a, "%s", diff)
+}
+
+func TestPrometheusRules(t *testing.T) {
+	t.Skip("TODO")
+
+	ctx, _ := logger.Set(context.Background(), "TestPrometheusRules")
+	p := getPrometheus(t, ctx)
 
 	alerts, err := p.ListAlertRules(ctx)
 	require.NoError(t, err)
@@ -69,4 +97,41 @@ func TestPrometheus(t *testing.T) {
 	require.NoError(t, err)
 	rule.FilePath = "../testdata/prometheus/alerts/TestPrometheus.rule"
 	assert.Equal(t, rule, actual)
+}
+
+func TestPrometheusScrapeJobs(t *testing.T) {
+	ctx, _ := logger.Set(context.Background(), "TestPrometheusScrapeJobs")
+	p := getPrometheus(t, ctx)
+
+	// always restore original after test
+	before, err := ioutil.ReadFile(p.configPath)
+	require.NoError(t, err)
+	defer func() {
+		assert.NoError(t, ioutil.WriteFile(p.configPath, before, 0666))
+	}()
+
+	jobs, err := p.ListScrapeJobs(ctx)
+	require.NoError(t, err)
+	require.Len(t, jobs, 2)
+	expected := []ScrapeJob{
+		{"prometheus", "1m", "30s", "/metrics", "http", []string{"127.0.0.1:9090"}},
+		{"alertmanager", "10s", "5s", "/metrics", "http", []string{"127.0.0.1:9093"}},
+	}
+	assert.Equal(t, expected, jobs)
+
+	defer func() {
+		require.NoError(t, p.DeleteScrapeJob(ctx, "test_job"))
+		require.EqualError(t, p.DeleteScrapeJob(ctx, "test_job"), os.ErrNotExist.Error())
+	}()
+
+	// other fields are filled by defaults
+	job := &ScrapeJob{
+		Name:          "test_job",
+		StatisTargets: []string{"127.0.0.1:12345", "127.0.0.2:12345"},
+	}
+	require.NoError(t, p.PutScrapeJob(ctx, job))
+	actual, err := p.GetScrapeJob(ctx, "test_job")
+	require.NoError(t, err)
+	job = &ScrapeJob{"test_job", "30s", "15s", "/metrics", "http", []string{"127.0.0.1:12345", "127.0.0.2:12345"}}
+	assert.Equal(t, job, actual)
 }

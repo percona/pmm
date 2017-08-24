@@ -40,14 +40,16 @@ run:
 protos:  # make protos, not protoss
 	rm -f api/*.pb.* api/swagger/*.json
 
-	protoc -I api/ -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+	protoc -Iapi -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
 		api/*.proto --go_out=plugins=grpc:api
-	protoc -I api/ -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+	protoc -Iapi -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
 		api/*.proto --grpc-gateway_out=logtostderr=true,request_context=true:api
-	protoc -I api/ -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
+	protoc -Iapi -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
 		api/*.proto --swagger_out=logtostderr=true:api/swagger
 
-	swagger mixin api/swagger/*.swagger.json > api/swagger/swagger.json
+	# -c flag is a workaround for:
+	#   "definitions entry 'apiError' already exists in primary or higher priority mixin, skipping"
+	swagger mixin -c=1 api/swagger/*.swagger.json > api/swagger/swagger.json
 	swagger validate api/swagger/swagger.json
 
 	go install -v github.com/percona/pmm-managed/api
