@@ -7,7 +7,6 @@ Package api is a generated protocol buffer package.
 It is generated from these files:
 	alerts.proto
 	base.proto
-	demo.proto
 	scrape_jobs.proto
 
 It has these top-level messages:
@@ -18,8 +17,6 @@ It has these top-level messages:
 	AlertsGetResponse
 	BaseVersionRequest
 	BaseVersionResponse
-	DemoPingRequest
-	DemoPingResponse
 	ScrapeJob
 	ScrapeJobsListRequest
 	ScrapeJobsListResponse

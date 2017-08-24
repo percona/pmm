@@ -57,47 +57,13 @@
         }
       }
     },
-    "/v0/ping": {
-      "get": {
-        "tags": [
-          "Demo"
-        ],
-        "operationId": "Ping",
-        "parameters": [
-          {
-            "enum": [
-              "PING",
-              "PONG"
-            ],
-            "type": "string",
-            "default": "PING",
-            "name": "type",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "format": "uint64",
-            "name": "cookie",
-            "in": "query"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "$ref": "#/definitions/apiDemoPingResponse"
-            }
-          }
-        }
-      }
-    },
     "/v0/scrape-jobs": {
       "get": {
         "tags": [
           "ScrapeJobs"
         ],
         "summary": "List returns all scrape jobs.",
-        "operationId": "ListMixin2",
+        "operationId": "ListMixin1",
         "responses": {
           "200": {
             "description": "(empty)",
@@ -114,7 +80,7 @@
           "ScrapeJobs"
         ],
         "summary": "Get returns a scrape job by name.",
-        "operationId": "GetMixin2",
+        "operationId": "GetMixin1",
         "parameters": [
           {
             "type": "string",
@@ -268,38 +234,6 @@
           "type": "string"
         }
       }
-    },
-    "apiDemoPingRequest": {
-      "type": "object",
-      "properties": {
-        "cookie": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "type": {
-          "$ref": "#/definitions/apiDemoPingType"
-        }
-      }
-    },
-    "apiDemoPingResponse": {
-      "type": "object",
-      "properties": {
-        "cookie": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "type": {
-          "$ref": "#/definitions/apiDemoPingType"
-        }
-      }
-    },
-    "apiDemoPingType": {
-      "type": "string",
-      "default": "PING",
-      "enum": [
-        "PING",
-        "PONG"
-      ]
     },
     "apiError": {
       "description": "Error is the error status of a request.",
