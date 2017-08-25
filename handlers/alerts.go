@@ -20,18 +20,18 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/percona/pmm-managed/api"
-	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm-managed/services/prometheus"
 )
 
 type AlertsServer struct {
-	Prometheus *services.Prometheus
+	Prometheus *prometheus.Service
 }
 
-func convertAlertRule(s *services.AlertRule) *api.AlertRule {
+func convertAlertRule(r *prometheus.AlertRule) *api.AlertRule {
 	return &api.AlertRule{
-		Name:     s.Name,
-		Text:     s.Text,
-		Disabled: s.Disabled,
+		Name:     r.Name,
+		Text:     r.Text,
+		Disabled: r.Disabled,
 	}
 }
 

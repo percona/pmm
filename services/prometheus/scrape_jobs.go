@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-package services
+package prometheus
 
 import (
 	"context"
@@ -22,7 +22,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
-	"github.com/prometheus/prometheus/config"
 )
 
 type ScrapeJob struct {
@@ -34,7 +33,7 @@ type ScrapeJob struct {
 	StatisTargets []string
 }
 
-func convertScrapeConfig(cfg *config.ScrapeConfig) *ScrapeJob {
+func convertScrapeConfig(cfg *ScrapeConfig) *ScrapeJob {
 	targets := make([]string, len(cfg.ServiceDiscoveryConfig.StaticConfigs))
 	for i, sc := range cfg.ServiceDiscoveryConfig.StaticConfigs {
 		for _, t := range sc.Targets {
@@ -52,11 +51,11 @@ func convertScrapeConfig(cfg *config.ScrapeConfig) *ScrapeJob {
 }
 
 // ListScrapeJobs returns all scrape jobs.
-func (p *Prometheus) ListScrapeJobs(ctx context.Context) ([]ScrapeJob, error) {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
+func (svc *Service) ListScrapeJobs(ctx context.Context) ([]ScrapeJob, error) {
+	svc.lock.RLock()
+	defer svc.lock.RUnlock()
 
-	cfg, err := p.loadConfig()
+	cfg, err := svc.loadConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -69,11 +68,11 @@ func (p *Prometheus) ListScrapeJobs(ctx context.Context) ([]ScrapeJob, error) {
 }
 
 // GetScrapeJob return scrape job by name, or error if no such scrape job is present.
-func (p *Prometheus) GetScrapeJob(ctx context.Context, name string) (*ScrapeJob, error) {
-	p.lock.RLock()
-	defer p.lock.RUnlock()
+func (svc *Service) GetScrapeJob(ctx context.Context, name string) (*ScrapeJob, error) {
+	svc.lock.RLock()
+	defer svc.lock.RUnlock()
 
-	cfg, err := p.loadConfig()
+	cfg, err := svc.loadConfig()
 	if err != nil {
 		return nil, err
 	}
@@ -87,11 +86,11 @@ func (p *Prometheus) GetScrapeJob(ctx context.Context, name string) (*ScrapeJob,
 }
 
 // PutScrapeJob creates or replaces existing scrape job.
-func (p *Prometheus) PutScrapeJob(ctx context.Context, job *ScrapeJob) error {
-	p.lock.Lock()
-	defer p.lock.Unlock()
+func (svc *Service) PutScrapeJob(ctx context.Context, job *ScrapeJob) error {
+	svc.lock.Lock()
+	defer svc.lock.Unlock()
 
-	cfg, err := p.loadConfig()
+	cfg, err := svc.loadConfig()
 	if err != nil {
 		return err
 	}
@@ -110,19 +109,19 @@ func (p *Prometheus) PutScrapeJob(ctx context.Context, job *ScrapeJob) error {
 		}
 	}
 
-	tg := make([]*config.TargetGroup, len(job.StatisTargets))
+	tg := make([]*TargetGroup, len(job.StatisTargets))
 	for i, t := range job.StatisTargets {
-		tg[i] = &config.TargetGroup{
+		tg[i] = &TargetGroup{
 			Targets: []model.LabelSet{{model.AddressLabel: model.LabelValue(t)}},
 		}
 	}
-	scrapeConfig := &config.ScrapeConfig{
+	scrapeConfig := &ScrapeConfig{
 		JobName:        job.Name,
 		ScrapeInterval: interval,
 		ScrapeTimeout:  timeout,
 		MetricsPath:    job.Path,
 		Scheme:         job.Scheme,
-		ServiceDiscoveryConfig: config.ServiceDiscoveryConfig{
+		ServiceDiscoveryConfig: ServiceDiscoveryConfig{
 			StaticConfigs: tg,
 		},
 	}
@@ -139,18 +138,18 @@ func (p *Prometheus) PutScrapeJob(ctx context.Context, job *ScrapeJob) error {
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfig)
 	}
 
-	if err = p.saveConfig(cfg); err != nil {
+	if err = svc.saveConfig(cfg); err != nil {
 		return err
 	}
-	return p.reload()
+	return svc.reload()
 }
 
 // DeleteScrapeJob removes existing scrape job by name, or error if no such scrape job is present.
-func (p *Prometheus) DeleteScrapeJob(ctx context.Context, name string) error {
-	p.lock.Lock()
-	defer p.lock.Unlock()
+func (svc *Service) DeleteScrapeJob(ctx context.Context, name string) error {
+	svc.lock.Lock()
+	defer svc.lock.Unlock()
 
-	cfg, err := p.loadConfig()
+	cfg, err := svc.loadConfig()
 	if err != nil {
 		return err
 	}
@@ -167,8 +166,8 @@ func (p *Prometheus) DeleteScrapeJob(ctx context.Context, name string) error {
 		return errors.WithStack(os.ErrNotExist)
 	}
 
-	if err = p.saveConfig(cfg); err != nil {
+	if err = svc.saveConfig(cfg); err != nil {
 		return err
 	}
-	return p.reload()
+	return svc.reload()
 }
