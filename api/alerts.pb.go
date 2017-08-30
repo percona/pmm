@@ -22,8 +22,8 @@ It has these top-level messages:
 	ScrapeJobsListResponse
 	ScrapeJobsGetRequest
 	ScrapeJobsGetResponse
-	ScrapeJobsPutRequest
-	ScrapeJobsPutResponse
+	ScrapeJobsCreateRequest
+	ScrapeJobsCreateResponse
 	ScrapeJobsDeleteRequest
 	ScrapeJobsDeleteResponse
 */

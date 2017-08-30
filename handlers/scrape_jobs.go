@@ -55,13 +55,13 @@ func (s *ScrapeJobsServer) Get(ctx context.Context, req *api.ScrapeJobsGetReques
 	}, nil
 }
 
-// Put creates or updates a scrape job by name.
-func (s *ScrapeJobsServer) Put(ctx context.Context, req *api.ScrapeJobsPutRequest) (*api.ScrapeJobsPutResponse, error) {
+// Create creates a new scrape job.
+func (s *ScrapeJobsServer) Create(ctx context.Context, req *api.ScrapeJobsCreateRequest) (*api.ScrapeJobsCreateResponse, error) {
 	j := prometheus.ScrapeJob(*req.ScrapeJob)
-	if err := s.Prometheus.PutScrapeJob(ctx, &j); err != nil {
+	if err := s.Prometheus.CreateScrapeJob(ctx, &j); err != nil {
 		return nil, err
 	}
-	return &api.ScrapeJobsPutResponse{}, nil
+	return &api.ScrapeJobsCreateResponse{}, nil
 }
 
 // Delete removes a scrape job by name.

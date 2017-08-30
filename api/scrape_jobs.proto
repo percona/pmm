@@ -48,11 +48,11 @@ message ScrapeJobsGetResponse {
     ScrapeJob scrape_job = 2;
 }
 
-message ScrapeJobsPutRequest {
+message ScrapeJobsCreateRequest {
     ScrapeJob scrape_job = 1;
 }
 
-message ScrapeJobsPutResponse {
+message ScrapeJobsCreateResponse {
     Error error = 1;
 }
 
@@ -79,10 +79,10 @@ service ScrapeJobs {
         };
     }
 
-    // Put creates or updates a scrape job by name.
-    rpc Put(ScrapeJobsPutRequest) returns (ScrapeJobsPutResponse) {
+    // Create creates a new scrape job.
+    rpc Create(ScrapeJobsCreateRequest) returns (ScrapeJobsCreateResponse) {
         option (google.api.http) = {
-            put: "/v0/scrape-jobs/{scrape_job.name}",
+            post: "/v0/scrape-jobs",
             body: "*"
         };
     }

@@ -63,33 +63,15 @@ func request_ScrapeJobs_Get_0(ctx context.Context, marshaler runtime.Marshaler, 
 
 }
 
-func request_ScrapeJobs_Put_0(ctx context.Context, marshaler runtime.Marshaler, client ScrapeJobsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ScrapeJobsPutRequest
+func request_ScrapeJobs_Create_0(ctx context.Context, marshaler runtime.Marshaler, client ScrapeJobsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ScrapeJobsCreateRequest
 	var metadata runtime.ServerMetadata
 
 	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil {
 		return nil, metadata, grpc.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["scrape_job.name"]
-	if !ok {
-		return nil, metadata, grpc.Errorf(codes.InvalidArgument, "missing parameter %s", "scrape_job.name")
-	}
-
-	err = runtime.PopulateFieldFromPath(&protoReq, "scrape_job.name", val)
-
-	if err != nil {
-		return nil, metadata, err
-	}
-
-	msg, err := client.Put(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.Create(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
@@ -207,7 +189,7 @@ func RegisterScrapeJobsHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 
 	})
 
-	mux.Handle("PUT", pattern_ScrapeJobs_Put_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ScrapeJobs_Create_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		if cn, ok := w.(http.CloseNotifier); ok {
@@ -224,14 +206,14 @@ func RegisterScrapeJobsHandler(ctx context.Context, mux *runtime.ServeMux, conn 
 		if err != nil {
 			runtime.HTTPError(ctx, outboundMarshaler, w, req, err)
 		}
-		resp, md, err := request_ScrapeJobs_Put_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ScrapeJobs_Create_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ScrapeJobs_Put_0(ctx, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ScrapeJobs_Create_0(ctx, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -271,7 +253,7 @@ var (
 
 	pattern_ScrapeJobs_Get_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v0", "scrape-jobs", "name"}, ""))
 
-	pattern_ScrapeJobs_Put_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v0", "scrape-jobs", "scrape_job.name"}, ""))
+	pattern_ScrapeJobs_Create_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1}, []string{"v0", "scrape-jobs"}, ""))
 
 	pattern_ScrapeJobs_Delete_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 1, 0, 4, 1, 5, 2}, []string{"v0", "scrape-jobs", "name"}, ""))
 )
@@ -281,7 +263,7 @@ var (
 
 	forward_ScrapeJobs_Get_0 = runtime.ForwardResponseMessage
 
-	forward_ScrapeJobs_Put_0 = runtime.ForwardResponseMessage
+	forward_ScrapeJobs_Create_0 = runtime.ForwardResponseMessage
 
 	forward_ScrapeJobs_Delete_0 = runtime.ForwardResponseMessage
 )

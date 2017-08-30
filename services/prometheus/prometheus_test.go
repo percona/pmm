@@ -133,7 +133,8 @@ func TestPrometheusScrapeJobs(t *testing.T) {
 		Name:          "test_job",
 		StatisTargets: []string{"127.0.0.1:12345", "127.0.0.2:12345"},
 	}
-	require.NoError(t, p.PutScrapeJob(ctx, job))
+	require.NoError(t, p.CreateScrapeJob(ctx, job))
+	require.EqualError(t, p.CreateScrapeJob(ctx, job), os.ErrExist.Error())
 	actual, err := p.GetScrapeJob(ctx, "test_job")
 	require.NoError(t, err)
 	job = &ScrapeJob{"test_job", "30s", "15s", "/metrics", "http", []string{"127.0.0.1:12345", "127.0.0.2:12345"}}

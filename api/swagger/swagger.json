@@ -72,6 +72,31 @@
             }
           }
         }
+      },
+      "post": {
+        "tags": [
+          "ScrapeJobs"
+        ],
+        "summary": "Create creates a new scrape job.",
+        "operationId": "Create",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiScrapeJobsCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiScrapeJobsCreateResponse"
+            }
+          }
+        }
       }
     },
     "/v0/scrape-jobs/{name}": {
@@ -117,39 +142,6 @@
             "description": "(empty)",
             "schema": {
               "$ref": "#/definitions/apiScrapeJobsDeleteResponse"
-            }
-          }
-        }
-      }
-    },
-    "/v0/scrape-jobs/{scrape_job.name}": {
-      "put": {
-        "tags": [
-          "ScrapeJobs"
-        ],
-        "summary": "Put creates or updates a scrape job by name.",
-        "operationId": "Put",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "scrape_job.name",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/apiScrapeJobsPutRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "$ref": "#/definitions/apiScrapeJobsPutResponse"
             }
           }
         }
@@ -275,6 +267,22 @@
         }
       }
     },
+    "apiScrapeJobsCreateRequest": {
+      "type": "object",
+      "properties": {
+        "scrape_job": {
+          "$ref": "#/definitions/apiScrapeJob"
+        }
+      }
+    },
+    "apiScrapeJobsCreateResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "$ref": "#/definitions/apiError"
+        }
+      }
+    },
     "apiScrapeJobsDeleteRequest": {
       "type": "object",
       "properties": {
@@ -324,22 +332,6 @@
           "items": {
             "$ref": "#/definitions/apiScrapeJob"
           }
-        }
-      }
-    },
-    "apiScrapeJobsPutRequest": {
-      "type": "object",
-      "properties": {
-        "scrape_job": {
-          "$ref": "#/definitions/apiScrapeJob"
-        }
-      }
-    },
-    "apiScrapeJobsPutResponse": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "$ref": "#/definitions/apiError"
         }
       }
     }
