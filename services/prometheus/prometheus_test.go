@@ -55,7 +55,7 @@ func TestPrometheusConfig(t *testing.T) {
 	// check that we can write it exactly as it was
 	c, err := p.loadConfig()
 	assert.NoError(t, err)
-	assert.NoError(t, p.saveConfig(c))
+	assert.NoError(t, p.saveConfig(ctx, c))
 	after, err := ioutil.ReadFile(p.configPath)
 	require.NoError(t, err)
 	b, a := string(before), string(after)

@@ -138,7 +138,7 @@ func (svc *Service) PutScrapeJob(ctx context.Context, job *ScrapeJob) error {
 		cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scrapeConfig)
 	}
 
-	if err = svc.saveConfig(cfg); err != nil {
+	if err = svc.saveConfig(ctx, cfg); err != nil {
 		return err
 	}
 	return svc.reload()
@@ -166,7 +166,7 @@ func (svc *Service) DeleteScrapeJob(ctx context.Context, name string) error {
 		return errors.WithStack(os.ErrNotExist)
 	}
 
-	if err = svc.saveConfig(cfg); err != nil {
+	if err = svc.saveConfig(ctx, cfg); err != nil {
 		return err
 	}
 	return svc.reload()

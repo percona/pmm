@@ -75,17 +75,34 @@ func (svc *Service) loadConfig() (*Config, error) {
 }
 
 // saveConfig saves given Prometheus configuration to file.
-func (svc *Service) saveConfig(cfg *Config) error {
-	b, err := yaml.Marshal(cfg)
+func (svc *Service) saveConfig(ctx context.Context, cfg *Config) error {
+	c, err := yaml.Marshal(cfg)
 	if err != nil {
 		return errors.Wrap(err, "can't marshal Prometheus configuration file")
 	}
+	c = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), c...)
+
+	// write to temporary file, check it
+	f, err := ioutil.TempFile("", "pmm-managed-config-")
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer func() {
+		f.Close()
+		os.Remove(f.Name())
+	}()
+	b, err := exec.Command(svc.promtoolPath, "check-config", f.Name()).CombinedOutput()
+	if err != nil {
+		return errors.Wrap(err, string(b))
+	}
+	logger.Get(ctx).Infof("%s", b)
+
+	// write to permanent location
 	fi, err := os.Stat(svc.configPath)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	b = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), b...)
-	return ioutil.WriteFile(svc.configPath, b, fi.Mode())
+	return ioutil.WriteFile(svc.configPath, c, fi.Mode())
 }
 
 // reload causes Prometheus to reload configuration, including alert rules files.
