@@ -9,8 +9,6 @@ package api;
 
 import "google/api/annotations.proto";
 
-import "base.proto";
-
 message ScrapeJob {
     // Scrape job name: "example-job" (required)
     string name = 1;
@@ -35,8 +33,7 @@ message ScrapeJobsListRequest {
 }
 
 message ScrapeJobsListResponse {
-    Error error = 1;
-    repeated ScrapeJob scrape_jobs = 2;
+    repeated ScrapeJob scrape_jobs = 1;
 }
 
 message ScrapeJobsGetRequest {
@@ -44,8 +41,7 @@ message ScrapeJobsGetRequest {
 }
 
 message ScrapeJobsGetResponse {
-    Error error = 1;
-    ScrapeJob scrape_job = 2;
+    ScrapeJob scrape_job = 1;
 }
 
 message ScrapeJobsCreateRequest {
@@ -53,7 +49,6 @@ message ScrapeJobsCreateRequest {
 }
 
 message ScrapeJobsCreateResponse {
-    Error error = 1;
 }
 
 message ScrapeJobsDeleteRequest {
@@ -61,7 +56,6 @@ message ScrapeJobsDeleteRequest {
 }
 
 message ScrapeJobsDeleteResponse {
-    Error error = 1;
 }
 
 service ScrapeJobs {

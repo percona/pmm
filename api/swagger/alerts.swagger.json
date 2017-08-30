@@ -85,9 +85,6 @@
     "apiAlertsGetResponse": {
       "type": "object",
       "properties": {
-        "error": {
-          "$ref": "#/definitions/apiError"
-        },
         "alert_rule": {
           "$ref": "#/definitions/apiAlertRule"
         }
@@ -99,9 +96,6 @@
     "apiAlertsListResponse": {
       "type": "object",
       "properties": {
-        "error": {
-          "$ref": "#/definitions/apiError"
-        },
         "alert_rules": {
           "type": "array",
           "items": {
@@ -109,14 +103,6 @@
           }
         }
       }
-    },
-    "apiError": {
-      "type": "string",
-      "enum": [
-        "NO_ERROR"
-      ],
-      "default": "NO_ERROR",
-      "description": "Error is the error status of a request."
     }
   }
 }

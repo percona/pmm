@@ -193,9 +193,6 @@
       "properties": {
         "alert_rule": {
           "$ref": "#/definitions/apiAlertRule"
-        },
-        "error": {
-          "$ref": "#/definitions/apiError"
         }
       }
     },
@@ -210,9 +207,6 @@
           "items": {
             "$ref": "#/definitions/apiAlertRule"
           }
-        },
-        "error": {
-          "$ref": "#/definitions/apiError"
         }
       }
     },
@@ -226,14 +220,6 @@
           "type": "string"
         }
       }
-    },
-    "apiError": {
-      "description": "Error is the error status of a request.",
-      "type": "string",
-      "default": "NO_ERROR",
-      "enum": [
-        "NO_ERROR"
-      ]
     },
     "apiScrapeJob": {
       "type": "object",
@@ -276,12 +262,7 @@
       }
     },
     "apiScrapeJobsCreateResponse": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "$ref": "#/definitions/apiError"
-        }
-      }
+      "type": "object"
     },
     "apiScrapeJobsDeleteRequest": {
       "type": "object",
@@ -292,12 +273,7 @@
       }
     },
     "apiScrapeJobsDeleteResponse": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "$ref": "#/definitions/apiError"
-        }
-      }
+      "type": "object"
     },
     "apiScrapeJobsGetRequest": {
       "type": "object",
@@ -310,9 +286,6 @@
     "apiScrapeJobsGetResponse": {
       "type": "object",
       "properties": {
-        "error": {
-          "$ref": "#/definitions/apiError"
-        },
         "scrape_job": {
           "$ref": "#/definitions/apiScrapeJob"
         }
@@ -324,9 +297,6 @@
     "apiScrapeJobsListResponse": {
       "type": "object",
       "properties": {
-        "error": {
-          "$ref": "#/definitions/apiError"
-        },
         "scrape_jobs": {
           "type": "array",
           "items": {

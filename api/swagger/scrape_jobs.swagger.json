@@ -107,14 +107,6 @@
     }
   },
   "definitions": {
-    "apiError": {
-      "type": "string",
-      "enum": [
-        "NO_ERROR"
-      ],
-      "default": "NO_ERROR",
-      "description": "Error is the error status of a request."
-    },
     "apiScrapeJob": {
       "type": "object",
       "properties": {
@@ -156,12 +148,7 @@
       }
     },
     "apiScrapeJobsCreateResponse": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "$ref": "#/definitions/apiError"
-        }
-      }
+      "type": "object"
     },
     "apiScrapeJobsDeleteRequest": {
       "type": "object",
@@ -172,12 +159,7 @@
       }
     },
     "apiScrapeJobsDeleteResponse": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "$ref": "#/definitions/apiError"
-        }
-      }
+      "type": "object"
     },
     "apiScrapeJobsGetRequest": {
       "type": "object",
@@ -190,9 +172,6 @@
     "apiScrapeJobsGetResponse": {
       "type": "object",
       "properties": {
-        "error": {
-          "$ref": "#/definitions/apiError"
-        },
         "scrape_job": {
           "$ref": "#/definitions/apiScrapeJob"
         }
@@ -204,9 +183,6 @@
     "apiScrapeJobsListResponse": {
       "type": "object",
       "properties": {
-        "error": {
-          "$ref": "#/definitions/apiError"
-        },
         "scrape_jobs": {
           "type": "array",
           "items": {
