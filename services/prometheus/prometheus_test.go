@@ -26,19 +26,32 @@ import (
 	"github.com/pmezard/go-difflib/difflib"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
 const testdata = "../../testdata/prometheus/"
 
-func getPrometheus(t *testing.T, ctx context.Context) *Service {
-	// TODO t.Helper()
+func getPrometheus(t testing.TB, ctx context.Context) *Service {
+	t.Helper()
 
 	svc, err := NewService(filepath.Join(testdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool")
 	require.NoError(t, err)
 	require.NoError(t, svc.Check(ctx))
 	return svc
+}
+
+func assertGRPCError(t testing.TB, expected *status.Status, actual error) {
+	t.Helper()
+
+	s, ok := status.FromError(actual)
+	if !assert.True(t, ok) {
+		return
+	}
+	assert.Equal(t, expected.Code(), s.Code())
+	assert.Equal(t, expected.Message(), s.Message())
 }
 
 func TestPrometheusConfig(t *testing.T) {
@@ -123,9 +136,14 @@ func TestPrometheusScrapeJobs(t *testing.T) {
 	}
 	assert.Equal(t, expected, jobs)
 
+	actual, err := p.GetScrapeJob(ctx, "no_such_job")
+	assert.Nil(t, actual)
+	assertGRPCError(t, status.New(codes.NotFound, `scrape job "no_such_job" not found`), err)
+
 	defer func() {
 		require.NoError(t, p.DeleteScrapeJob(ctx, "test_job"))
-		require.EqualError(t, p.DeleteScrapeJob(ctx, "test_job"), os.ErrNotExist.Error())
+		err = p.DeleteScrapeJob(ctx, "test_job")
+		assertGRPCError(t, status.New(codes.NotFound, `scrape job "test_job" not found`), err)
 	}()
 
 	// other fields are filled by defaults
@@ -134,8 +152,9 @@ func TestPrometheusScrapeJobs(t *testing.T) {
 		StatisTargets: []string{"127.0.0.1:12345", "127.0.0.2:12345"},
 	}
 	require.NoError(t, p.CreateScrapeJob(ctx, job))
-	require.EqualError(t, p.CreateScrapeJob(ctx, job), os.ErrExist.Error())
-	actual, err := p.GetScrapeJob(ctx, "test_job")
+	err = p.CreateScrapeJob(ctx, job)
+	assertGRPCError(t, status.New(codes.AlreadyExists, `scrape job "test_job" already exist`), err)
+	actual, err = p.GetScrapeJob(ctx, "test_job")
 	require.NoError(t, err)
 	job = &ScrapeJob{"test_job", "30s", "15s", "/metrics", "http", []string{"127.0.0.1:12345", "127.0.0.2:12345"}}
 	assert.Equal(t, job, actual)

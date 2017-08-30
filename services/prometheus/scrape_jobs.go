@@ -18,10 +18,10 @@ package prometheus
 
 import (
 	"context"
-	"os"
 
-	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type ScrapeJob struct {
@@ -82,7 +82,7 @@ func (svc *Service) GetScrapeJob(ctx context.Context, name string) (*ScrapeJob, 
 			return convertScrapeConfig(sc), nil
 		}
 	}
-	return nil, errors.WithStack(os.ErrNotExist)
+	return nil, status.Newf(codes.NotFound, "scrape job %q not found", name).Err()
 }
 
 // CreateScrapeJob creates a new scrape job.
@@ -124,7 +124,7 @@ func (svc *Service) CreateScrapeJob(ctx context.Context, job *ScrapeJob) error {
 		}
 	}
 	if found {
-		return errors.WithStack(os.ErrExist)
+		return status.Newf(codes.AlreadyExists, "scrape job %q already exist", job.Name).Err()
 	}
 
 	cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, &ScrapeConfig{
@@ -162,7 +162,7 @@ func (svc *Service) DeleteScrapeJob(ctx context.Context, name string) error {
 		}
 	}
 	if !found {
-		return errors.WithStack(os.ErrNotExist)
+		return status.Newf(codes.NotFound, "scrape job %q not found", name).Err()
 	}
 
 	if err = svc.saveConfig(ctx, cfg); err != nil {
