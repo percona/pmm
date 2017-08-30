@@ -70,11 +70,11 @@ func runGRPCServer(ctx context.Context) {
 	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
 
 	prometheus, err := prometheus.NewService(*prometheusConfigF, *prometheusURLF, *promtoolF)
-	if err != nil {
-		l.Panic(err)
+	if err == nil {
+		err = prometheus.Check(ctx)
 	}
-	if err = prometheus.Check(ctx); err != nil {
-		l.Panic(err)
+	if err != nil {
+		l.Panicf("Prometheus problem: %s", err)
 	}
 
 	gRPCServer := grpc.NewServer(
