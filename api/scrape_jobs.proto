@@ -67,6 +67,7 @@ service ScrapeJobs {
     }
 
     // Get returns a scrape job by name.
+    // Errors: NotFound(5) if no such scrape job is present.
     rpc Get(ScrapeJobsGetRequest) returns (ScrapeJobsGetResponse) {
         option (google.api.http) = {
             get: "/v0/scrape-jobs/{name}"
@@ -74,6 +75,8 @@ service ScrapeJobs {
     }
 
     // Create creates a new scrape job.
+    // Errors: InvalidArgument(3) if some argument is not valid,
+    // AlreadyExists(6) if scrape job with that name is already present.
     rpc Create(ScrapeJobsCreateRequest) returns (ScrapeJobsCreateResponse) {
         option (google.api.http) = {
             post: "/v0/scrape-jobs",
@@ -81,7 +84,8 @@ service ScrapeJobs {
         };
     }
 
-    // Delete removes a scrape job by name.
+    // Delete removes existing scrape job by name.
+    // Errors: NotFound(5) if no such scrape job is present.
     rpc Delete(ScrapeJobsDeleteRequest) returns (ScrapeJobsDeleteResponse) {
         option (google.api.http) = {
             delete: "/v0/scrape-jobs/{name}"

@@ -67,7 +67,8 @@ func (svc *Service) ListScrapeJobs(ctx context.Context) ([]ScrapeJob, error) {
 	return res, nil
 }
 
-// GetScrapeJob return scrape job by name, or error if no such scrape job is present.
+// GetScrapeJob returns a scrape job by name.
+// Errors: NotFound(5) if no such scrape job is present.
 func (svc *Service) GetScrapeJob(ctx context.Context, name string) (*ScrapeJob, error) {
 	svc.lock.RLock()
 	defer svc.lock.RUnlock()
@@ -86,6 +87,8 @@ func (svc *Service) GetScrapeJob(ctx context.Context, name string) (*ScrapeJob, 
 }
 
 // CreateScrapeJob creates a new scrape job.
+// Errors: InvalidArgument(3) if some argument is not valid,
+// AlreadyExists(6) if scrape job with that name is already present.
 func (svc *Service) CreateScrapeJob(ctx context.Context, job *ScrapeJob) error {
 	svc.lock.Lock()
 	defer svc.lock.Unlock()
@@ -99,13 +102,13 @@ func (svc *Service) CreateScrapeJob(ctx context.Context, job *ScrapeJob) error {
 	if job.Interval != "" {
 		interval, err = model.ParseDuration(job.Interval)
 		if err != nil {
-			return err
+			return status.Newf(codes.InvalidArgument, "interval: %s", err).Err()
 		}
 	}
 	if job.Timeout != "" {
 		timeout, err = model.ParseDuration(job.Timeout)
 		if err != nil {
-			return err
+			return status.Newf(codes.InvalidArgument, "timeout: %s", err).Err()
 		}
 	}
 
@@ -143,7 +146,8 @@ func (svc *Service) CreateScrapeJob(ctx context.Context, job *ScrapeJob) error {
 	return svc.reload()
 }
 
-// DeleteScrapeJob removes existing scrape job by name, or error if no such scrape job is present.
+// DeleteScrapeJob removes existing scrape job by name.
+// Errors: NotFound(5) if no such scrape job is present.
 func (svc *Service) DeleteScrapeJob(ctx context.Context, name string) error {
 	svc.lock.Lock()
 	defer svc.lock.Unlock()

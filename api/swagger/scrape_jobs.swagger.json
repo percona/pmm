@@ -32,7 +32,7 @@
         ]
       },
       "post": {
-        "summary": "Create creates a new scrape job.",
+        "summary": "Create creates a new scrape job.\nErrors: InvalidArgument(3) if some argument is not valid,\nAlreadyExists(6) if scrape job with that name is already present.",
         "operationId": "Create",
         "responses": {
           "200": {
@@ -59,7 +59,7 @@
     },
     "/v0/scrape-jobs/{name}": {
       "get": {
-        "summary": "Get returns a scrape job by name.",
+        "summary": "Get returns a scrape job by name.\nErrors: NotFound(5) if no such scrape job is present.",
         "operationId": "Get",
         "responses": {
           "200": {
@@ -82,7 +82,7 @@
         ]
       },
       "delete": {
-        "summary": "Delete removes a scrape job by name.",
+        "summary": "Delete removes existing scrape job by name.\nErrors: NotFound(5) if no such scrape job is present.",
         "operationId": "Delete",
         "responses": {
           "200": {

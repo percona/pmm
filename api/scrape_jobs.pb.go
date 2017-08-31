@@ -210,10 +210,14 @@ type ScrapeJobsClient interface {
 	// List returns all scrape jobs.
 	List(ctx context.Context, in *ScrapeJobsListRequest, opts ...grpc.CallOption) (*ScrapeJobsListResponse, error)
 	// Get returns a scrape job by name.
+	// Errors: NotFound(5) if no such scrape job is present.
 	Get(ctx context.Context, in *ScrapeJobsGetRequest, opts ...grpc.CallOption) (*ScrapeJobsGetResponse, error)
 	// Create creates a new scrape job.
+	// Errors: InvalidArgument(3) if some argument is not valid,
+	// AlreadyExists(6) if scrape job with that name is already present.
 	Create(ctx context.Context, in *ScrapeJobsCreateRequest, opts ...grpc.CallOption) (*ScrapeJobsCreateResponse, error)
-	// Delete removes a scrape job by name.
+	// Delete removes existing scrape job by name.
+	// Errors: NotFound(5) if no such scrape job is present.
 	Delete(ctx context.Context, in *ScrapeJobsDeleteRequest, opts ...grpc.CallOption) (*ScrapeJobsDeleteResponse, error)
 }
 
@@ -267,10 +271,14 @@ type ScrapeJobsServer interface {
 	// List returns all scrape jobs.
 	List(context.Context, *ScrapeJobsListRequest) (*ScrapeJobsListResponse, error)
 	// Get returns a scrape job by name.
+	// Errors: NotFound(5) if no such scrape job is present.
 	Get(context.Context, *ScrapeJobsGetRequest) (*ScrapeJobsGetResponse, error)
 	// Create creates a new scrape job.
+	// Errors: InvalidArgument(3) if some argument is not valid,
+	// AlreadyExists(6) if scrape job with that name is already present.
 	Create(context.Context, *ScrapeJobsCreateRequest) (*ScrapeJobsCreateResponse, error)
-	// Delete removes a scrape job by name.
+	// Delete removes existing scrape job by name.
+	// Errors: NotFound(5) if no such scrape job is present.
 	Delete(context.Context, *ScrapeJobsDeleteRequest) (*ScrapeJobsDeleteResponse, error)
 }
 

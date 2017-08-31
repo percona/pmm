@@ -44,6 +44,7 @@ func (s *ScrapeJobsServer) List(ctx context.Context, req *api.ScrapeJobsListRequ
 }
 
 // Get returns a scrape job by name.
+// Errors: NotFound(5) if no such scrape job is present.
 func (s *ScrapeJobsServer) Get(ctx context.Context, req *api.ScrapeJobsGetRequest) (*api.ScrapeJobsGetResponse, error) {
 	job, err := s.Prometheus.GetScrapeJob(ctx, req.Name)
 	if err != nil {
@@ -56,6 +57,8 @@ func (s *ScrapeJobsServer) Get(ctx context.Context, req *api.ScrapeJobsGetReques
 }
 
 // Create creates a new scrape job.
+// Errors: InvalidArgument(3) if some argument is not valid,
+// AlreadyExists(6) if scrape job with that name is already present.
 func (s *ScrapeJobsServer) Create(ctx context.Context, req *api.ScrapeJobsCreateRequest) (*api.ScrapeJobsCreateResponse, error) {
 	j := prometheus.ScrapeJob(*req.ScrapeJob)
 	if err := s.Prometheus.CreateScrapeJob(ctx, &j); err != nil {
@@ -64,7 +67,8 @@ func (s *ScrapeJobsServer) Create(ctx context.Context, req *api.ScrapeJobsCreate
 	return &api.ScrapeJobsCreateResponse{}, nil
 }
 
-// Delete removes a scrape job by name.
+// Delete removes existing scrape job by name.
+// Errors: NotFound(5) if no such scrape job is present.
 func (s *ScrapeJobsServer) Delete(ctx context.Context, req *api.ScrapeJobsDeleteRequest) (*api.ScrapeJobsDeleteResponse, error) {
 	if err := s.Prometheus.DeleteScrapeJob(ctx, req.Name); err != nil {
 		return nil, err
