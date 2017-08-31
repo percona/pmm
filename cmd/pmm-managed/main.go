@@ -59,10 +59,21 @@ var (
 	restAddrF  = flag.String("listen-rest-addr", "127.0.0.1:7772", "REST server listen address")
 	debugAddrF = flag.String("listen-debug-addr", "127.0.0.1:7773", "Debug server listen address")
 
+	swaggerF = flag.String("swagger", "off", "Server to serve Swagger: rest, debug or off")
+
 	prometheusConfigF = flag.String("prometheus-config", "", "Prometheus configuration file path")
 	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/", "Prometheus base URL")
 	promtoolF         = flag.String("promtool", "promtool", "promtool path")
 )
+
+func addSwaggerHandler(mux *http.ServeMux, pattern string) {
+	// TODO embed swagger resources?
+	fileServer := http.StripPrefix(pattern, http.FileServer(http.Dir("api/swagger")))
+	mux.HandleFunc(pattern, func(rw http.ResponseWriter, req *http.Request) {
+		rw.Header().Set("Access-Control-Allow-Origin", "*")
+		fileServer.ServeHTTP(rw, req)
+	})
+}
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 func runGRPCServer(ctx context.Context) {
@@ -122,7 +133,7 @@ func runRESTServer(ctx context.Context) {
 	l := logrus.WithField("component", "REST")
 	l.Infof("Starting server on http://%s/ ...", *restAddrF)
 
-	mux := runtime.NewServeMux()
+	proxyMux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
 	type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
@@ -131,10 +142,17 @@ func runRESTServer(ctx context.Context) {
 		// TODO api.RegisterAlertsHandlerFromEndpoint,
 		api.RegisterScrapeJobsHandlerFromEndpoint,
 	} {
-		if err := r(ctx, mux, *gRPCAddrF, opts); err != nil {
+		if err := r(ctx, proxyMux, *gRPCAddrF, opts); err != nil {
 			l.Panic(err)
 		}
 	}
+
+	mux := http.NewServeMux()
+	if *swaggerF == "rest" {
+		l.Printf("Swagger enabled.")
+		addSwaggerHandler(mux, "/swagger/")
+	}
+	mux.Handle("/", proxyMux)
 
 	server := &http.Server{
 		Addr:     *restAddrF,
@@ -167,17 +185,13 @@ func runDebugServer(ctx context.Context) {
 
 	http.Handle("/debug/metrics", promhttp.Handler())
 
-	// TODO embed this directory?
-	fileServer := http.StripPrefix("/swagger/", http.FileServer(http.Dir("api/swagger")))
-	http.HandleFunc("/swagger/", func(rw http.ResponseWriter, req *http.Request) {
-		rw.Header().Set("Access-Control-Allow-Origin", "*")
-		fileServer.ServeHTTP(rw, req)
-	})
-
-	handlers := []string{
-		"/debug/metrics", "/debug/vars", "/debug/requests", "/debug/events", "/debug/pprof",
-		"/swagger",
+	handlers := []string{"/debug/metrics", "/debug/vars", "/debug/requests", "/debug/events", "/debug/pprof"}
+	if *swaggerF == "debug" {
+		handlers = append(handlers, "/swagger")
+		l.Printf("Swagger enabled.")
+		addSwaggerHandler(http.DefaultServeMux, "/swagger/")
 	}
+
 	for i, h := range handlers {
 		handlers[i] = "http://" + *debugAddrF + h
 	}
@@ -227,6 +241,11 @@ func main() {
 	logrus.SetLevel(logrus.DebugLevel)
 	grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 	flag.Parse()
+
+	if *swaggerF != "rest" && *swaggerF != "debug" && *swaggerF != "off" {
+		flag.Usage()
+		log.Fatalf("Unexpected value %q for -swagger flag.", *swaggerF)
+	}
 
 	l := logrus.WithField("component", "main")
 	ctx, cancel := context.WithCancel(context.Background())
