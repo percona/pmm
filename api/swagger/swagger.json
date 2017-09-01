@@ -57,13 +57,47 @@
         }
       }
     },
+    "/v0/error": {
+      "get": {
+        "tags": [
+          "Demo"
+        ],
+        "operationId": "Error",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int64",
+            "name": "code",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "key",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "value",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiDemoErrorResponse"
+            }
+          }
+        }
+      }
+    },
     "/v0/scrape-jobs": {
       "get": {
         "tags": [
           "ScrapeJobs"
         ],
         "summary": "List returns all scrape jobs.",
-        "operationId": "ListMixin1",
+        "operationId": "ListMixin2",
         "responses": {
           "200": {
             "description": "(empty)",
@@ -105,7 +139,7 @@
           "ScrapeJobs"
         ],
         "summary": "Get returns a scrape job by name.\nErrors: NotFound(5) if no such scrape job is present.",
-        "operationId": "GetMixin1",
+        "operationId": "GetMixin2",
         "parameters": [
           {
             "type": "string",
@@ -220,6 +254,24 @@
           "type": "string"
         }
       }
+    },
+    "apiDemoErrorRequest": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "key": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "apiDemoErrorResponse": {
+      "type": "object"
     },
     "apiScrapeJob": {
       "type": "object",

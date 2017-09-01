@@ -83,7 +83,7 @@ func (svc *Service) GetScrapeJob(ctx context.Context, name string) (*ScrapeJob, 
 			return convertScrapeConfig(sc), nil
 		}
 	}
-	return nil, status.Newf(codes.NotFound, "scrape job %q not found", name).Err()
+	return nil, status.Errorf(codes.NotFound, "scrape job %q not found", name)
 }
 
 // CreateScrapeJob creates a new scrape job.
@@ -102,13 +102,13 @@ func (svc *Service) CreateScrapeJob(ctx context.Context, job *ScrapeJob) error {
 	if job.Interval != "" {
 		interval, err = model.ParseDuration(job.Interval)
 		if err != nil {
-			return status.Newf(codes.InvalidArgument, "interval: %s", err).Err()
+			return status.Errorf(codes.InvalidArgument, "interval: %s", err)
 		}
 	}
 	if job.Timeout != "" {
 		timeout, err = model.ParseDuration(job.Timeout)
 		if err != nil {
-			return status.Newf(codes.InvalidArgument, "timeout: %s", err).Err()
+			return status.Errorf(codes.InvalidArgument, "timeout: %s", err)
 		}
 	}
 
@@ -127,7 +127,7 @@ func (svc *Service) CreateScrapeJob(ctx context.Context, job *ScrapeJob) error {
 		}
 	}
 	if found {
-		return status.Newf(codes.AlreadyExists, "scrape job %q already exist", job.Name).Err()
+		return status.Errorf(codes.AlreadyExists, "scrape job %q already exist", job.Name)
 	}
 
 	cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, &ScrapeConfig{
@@ -166,7 +166,7 @@ func (svc *Service) DeleteScrapeJob(ctx context.Context, name string) error {
 		}
 	}
 	if !found {
-		return status.Newf(codes.NotFound, "scrape job %q not found", name).Err()
+		return status.Errorf(codes.NotFound, "scrape job %q not found", name)
 	}
 
 	if err = svc.saveConfig(ctx, cfg); err != nil {

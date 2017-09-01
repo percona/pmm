@@ -36,7 +36,7 @@ type ScrapeJob struct {
 func (m *ScrapeJob) Reset()                    { *m = ScrapeJob{} }
 func (m *ScrapeJob) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeJob) ProtoMessage()               {}
-func (*ScrapeJob) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
+func (*ScrapeJob) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
 
 func (m *ScrapeJob) GetName() string {
 	if m != nil {
@@ -86,7 +86,7 @@ type ScrapeJobsListRequest struct {
 func (m *ScrapeJobsListRequest) Reset()                    { *m = ScrapeJobsListRequest{} }
 func (m *ScrapeJobsListRequest) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeJobsListRequest) ProtoMessage()               {}
-func (*ScrapeJobsListRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
+func (*ScrapeJobsListRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
 
 type ScrapeJobsListResponse struct {
 	ScrapeJobs []*ScrapeJob `protobuf:"bytes,1,rep,name=scrape_jobs,json=scrapeJobs" json:"scrape_jobs,omitempty"`
@@ -95,7 +95,7 @@ type ScrapeJobsListResponse struct {
 func (m *ScrapeJobsListResponse) Reset()                    { *m = ScrapeJobsListResponse{} }
 func (m *ScrapeJobsListResponse) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeJobsListResponse) ProtoMessage()               {}
-func (*ScrapeJobsListResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
+func (*ScrapeJobsListResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{2} }
 
 func (m *ScrapeJobsListResponse) GetScrapeJobs() []*ScrapeJob {
 	if m != nil {
@@ -111,7 +111,7 @@ type ScrapeJobsGetRequest struct {
 func (m *ScrapeJobsGetRequest) Reset()                    { *m = ScrapeJobsGetRequest{} }
 func (m *ScrapeJobsGetRequest) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeJobsGetRequest) ProtoMessage()               {}
-func (*ScrapeJobsGetRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3} }
+func (*ScrapeJobsGetRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{3} }
 
 func (m *ScrapeJobsGetRequest) GetName() string {
 	if m != nil {
@@ -127,7 +127,7 @@ type ScrapeJobsGetResponse struct {
 func (m *ScrapeJobsGetResponse) Reset()                    { *m = ScrapeJobsGetResponse{} }
 func (m *ScrapeJobsGetResponse) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeJobsGetResponse) ProtoMessage()               {}
-func (*ScrapeJobsGetResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{4} }
+func (*ScrapeJobsGetResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{4} }
 
 func (m *ScrapeJobsGetResponse) GetScrapeJob() *ScrapeJob {
 	if m != nil {
@@ -143,7 +143,7 @@ type ScrapeJobsCreateRequest struct {
 func (m *ScrapeJobsCreateRequest) Reset()                    { *m = ScrapeJobsCreateRequest{} }
 func (m *ScrapeJobsCreateRequest) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeJobsCreateRequest) ProtoMessage()               {}
-func (*ScrapeJobsCreateRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{5} }
+func (*ScrapeJobsCreateRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{5} }
 
 func (m *ScrapeJobsCreateRequest) GetScrapeJob() *ScrapeJob {
 	if m != nil {
@@ -158,7 +158,7 @@ type ScrapeJobsCreateResponse struct {
 func (m *ScrapeJobsCreateResponse) Reset()                    { *m = ScrapeJobsCreateResponse{} }
 func (m *ScrapeJobsCreateResponse) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeJobsCreateResponse) ProtoMessage()               {}
-func (*ScrapeJobsCreateResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{6} }
+func (*ScrapeJobsCreateResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{6} }
 
 type ScrapeJobsDeleteRequest struct {
 	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
@@ -167,7 +167,7 @@ type ScrapeJobsDeleteRequest struct {
 func (m *ScrapeJobsDeleteRequest) Reset()                    { *m = ScrapeJobsDeleteRequest{} }
 func (m *ScrapeJobsDeleteRequest) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeJobsDeleteRequest) ProtoMessage()               {}
-func (*ScrapeJobsDeleteRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{7} }
+func (*ScrapeJobsDeleteRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{7} }
 
 func (m *ScrapeJobsDeleteRequest) GetName() string {
 	if m != nil {
@@ -182,7 +182,7 @@ type ScrapeJobsDeleteResponse struct {
 func (m *ScrapeJobsDeleteResponse) Reset()                    { *m = ScrapeJobsDeleteResponse{} }
 func (m *ScrapeJobsDeleteResponse) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeJobsDeleteResponse) ProtoMessage()               {}
-func (*ScrapeJobsDeleteResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{8} }
+func (*ScrapeJobsDeleteResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{8} }
 
 func init() {
 	proto.RegisterType((*ScrapeJob)(nil), "api.ScrapeJob")
@@ -383,9 +383,9 @@ var _ScrapeJobs_serviceDesc = grpc.ServiceDesc{
 	Metadata: "scrape_jobs.proto",
 }
 
-func init() { proto.RegisterFile("scrape_jobs.proto", fileDescriptor2) }
+func init() { proto.RegisterFile("scrape_jobs.proto", fileDescriptor3) }
 
-var fileDescriptor2 = []byte{
+var fileDescriptor3 = []byte{
 	// 440 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x93, 0xcd, 0x6e, 0xd3, 0x40,
 	0x10, 0xc7, 0xe5, 0x3a, 0x18, 0x32, 0x15, 0x45, 0x1d, 0x95, 0x64, 0x59, 0x0a, 0x8a, 0x56, 0x42,
