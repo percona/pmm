@@ -35,7 +35,7 @@ import (
 const testdata = "../../testdata/prometheus/"
 
 func getPrometheus(t testing.TB, ctx context.Context) *Service {
-	t.Helper()
+	// t.Helper() TODO enable when we switch to 1.9+
 
 	svc, err := NewService(filepath.Join(testdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool")
 	require.NoError(t, err)
@@ -44,7 +44,7 @@ func getPrometheus(t testing.TB, ctx context.Context) *Service {
 }
 
 func assertGRPCError(t testing.TB, expected *status.Status, actual error) {
-	t.Helper()
+	// t.Helper() TODO enable when we switch to 1.9+
 
 	s, ok := status.FromError(actual)
 	if !assert.True(t, ok) {
