@@ -16,9 +16,9 @@ Upgrading
 
 **If you are upgrading from version 1.0.2:**
 
-1. :ref:`Upgrade PMM Server <upgrade-server>`
+1. :ref:`Upgrade PMM Server <deploy-pmm.updating>`
 
-#. :ref:`Upgrade PMM Client <upgrade-client>` on all monitored hosts
+#. :ref:`Upgrade PMM Client <deploy-pmm.updating>` on all monitored hosts
 
    .. note:: There is no need to stop monitoring instances and remove PMM Client.
       You can simply run the ``install`` script from the new client tarball,
@@ -27,16 +27,16 @@ Upgrading
 
 **If you are upgrading from an earlier version:**
 
-1. :ref:`Remove PMM Server <remove-server>`
+1. :ref:`Remove PMM Server <deploy-pmm.removing>`
 
-#. :ref:`Remove all PMM Clients <remove-client>`
+#. :ref:`Remove all PMM Clients <deploy-pmm.removing>`
 
 #. If you removed the ``pmm-data`` container,
    create it as described in :ref:`data-container`
 
 #. :ref:`Create and run the PMM Server container <server-container>`
 
-#. :ref:`Install PMM Client <install-client>` on all your monitored hosts
+#. :ref:`Install PMM Client <deploy-pmm.client.installing>` on all your monitored hosts
 
 Changes
 =======

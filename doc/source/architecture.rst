@@ -99,7 +99,7 @@ It is distributed as an appliance via the following:
   that you can run in VirtualBox or another hypervisor
 * Amazon Machine Image (AMI) that you can run via Amazon Web Services (AWS)
 
-For more information, see :ref:`run-server`.
+For more information, see :ref:`deploy-pmm.server.installing`.
 
 *PMM Server* consists of the following tools:
 
@@ -156,7 +156,7 @@ For more information, see :ref:`run-server`.
 All tools can be accessed from the *PMM Server* web interface (landing page).
 For more information, see :ref:`using`.
 
-.. DEPRECATED: moving deployment related information to the dedicated section
+.. DEPRECATED: moving deployment related information to the dedicated deployment section.
    .. _scenarios:
 
 .. rubric:: References

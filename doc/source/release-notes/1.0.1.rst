@@ -32,7 +32,7 @@ Upgrading
 
 4. Create and run the :ref:`PMM Server container <server-container>`.
 
-5. :ref:`Upgrade PMM Client <upgrade-client>` on all your monitored hosts.
+5. :ref:`Upgrade PMM Client <deploy-pmm.updating>` on all your monitored hosts.
 
 New Features
 ============
@@ -66,4 +66,3 @@ New Features
 
 * ``pmm-admin`` tool now  includes the ability to add MongoDB instance
   and specify the port after the address of the PMM Server.
-

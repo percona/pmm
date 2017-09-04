@@ -152,7 +152,7 @@ some are related to MySQL or MongoDB, others provide general system metrics.
 When you open *Metrics Monitor* for the first time,
 it loads the **Cross Server Graphs** dashboard.
 The credentials used to sign in to Grafana depend on the options
-that you specified when :ref:`starting PMM Server <run-server>`:
+that you specified when :ref:`starting PMM Server <deploy-pmm.server.installing>`:
 
 * If you did not specify either ``SERVER_USER`` or ``SERVER_PASSWORD``,
   you will be signed in anonymously.
@@ -204,7 +204,7 @@ To use it, create a MySQL user for Orchestrator on all managed instances::
 .. note:: The credentials in the previous example are default.
    If you use a different user name or password,
    you have to pass them when
-   :ref:`running PMM Server <run-server>`
+   :ref:`running PMM Server <deploy-pmm.server.installing>`
    using the following options::
 
     -e ORCHESTRATOR_USER=name -e ORCHESTRATOR_PASSWORD=pass
