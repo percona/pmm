@@ -21,7 +21,7 @@ Basics
    :maxdepth: 1
 
    Architecture Overview <architecture>
-   Deployment Guide <deploy/index>
+   Deployment Instructions <deploy/index>
    Usage Information <using>
 
 Advanced
