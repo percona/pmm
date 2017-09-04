@@ -118,12 +118,7 @@ The previous command does the following:
 * ``percona/pmm-server:latest`` is the name and version tag of the image
   to derive the container from.
 
-Next Steps
-==========
+.. toctree::
+   :hidden:
 
-:ref:`Verify that PMM Server is running <verify-server>`
-by connecting to the PMM web interface using the IP address
-of the host running the container,
-then :ref:`install PMM Client <install-client>`
-on all database hosts that you want to monitor.
-
+   upgrade

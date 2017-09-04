@@ -45,7 +45,8 @@ output should be similar to the following:
 .. code-block:: text
 
    $ sudo pmm-admin list
-   pmm-admin 1.1.3
+
+   ...
 
    PMM Server      | 192.168.100.1
    Client Name     | ubuntu-amd64
