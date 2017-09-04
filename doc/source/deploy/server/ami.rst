@@ -103,7 +103,7 @@ Running from Command Line
 Next Steps
 ==========
 
-:ref:`Verify that PMM Server is running <verify-server>`
+:ref:`Verify that PMM Server is running <deploy-pmm.server.verifying>`
 by connecting to the PMM web interface using the IP address
 from the console output,
 then :ref:`install PMM Client <install-client>`

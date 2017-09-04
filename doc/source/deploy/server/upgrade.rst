@@ -47,7 +47,6 @@ available at https://hub.docker.com/r/percona/pmm-server/tags/:
 .. seealso:: References
 
    For information about updating the |product-abbrev| server and the
-   |product-abbrev| client, see the :ref:`deploy.updating` section.
+   |product-abbrev| client, see the :ref:`deploy-pmm.updating` section.
 
-
-
+.. include:: ../../replace.txt

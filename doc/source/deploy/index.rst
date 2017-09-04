@@ -15,6 +15,8 @@ the |product-abbrev| client package on each database host that you want
 to monitor. In this scenario, the |product-abbrev| server is set up on
 a dedicated monitoring host.
 
+.. _deploy-pmm.server.installing:
+
 Installing the Server
 ================================================================================
 
@@ -27,6 +29,8 @@ following options:
    server/docker
    server/virtual-appliance
    server/ami
+
+.. _deploy-pmm.server.verifying:
 
 Verifying |product-abbrev| Server
 --------------------------------------------------------------------------------
@@ -52,6 +56,8 @@ site will not show any data.
    Orchestrator                         ``http://192.168.100.1/orchestrator``
    ==================================== ======================================
 
+.. _deploy-pmm.client.installing:
+
 Installing Clients
 ================================================================================
 
@@ -62,7 +68,7 @@ software repositories of popular Linux distributions:
 * :ref:`RPM packages for Red Hat or CentOS <install-client-yum>`
 
 It is recommended that you install your |product-abbrev| client by using the
-software repository of your system. If this option does not work for you,
+software repository for your system. If this option does not work for you,
 |company-name| provides downloadable |product-abbrev| client packages
 from the `Download Percona Monitoring and Management
 <https://www.percona.com/downloads/pmm-client>`_ page.
@@ -73,7 +79,7 @@ In addition to DEB and RPM packages, this site also offers:
 * Source code tarball to build your |product-abbrev| client from source.
 
    
-.. _client_server.connect:
+.. _deploy-pmm.client_server.connecting:
 
 Connecting |product-abbrev| Clients to the |product-abbrev| Server
 ================================================================================
@@ -104,7 +110,7 @@ and you have installed |product-abbrev| client on a machine with IP
       $ sudo pmm-admin config --server 192.168.100.1:8080
 
 
-.. _deploy.data-collecting:
+.. _deploy-pmm.data-collecting:
 
 Collecting Data from |product-abbrev| Clients on |product-abbrev| Server
 ========================================================================
@@ -167,7 +173,7 @@ the output should be similar to the following:
 For more information about the available commands of :program:`pmm-admin add`,
 run :program:`pmm-admin add --help` in your terminal.
 
-.. _deploy.updating:
+.. _deploy-pmm.updating:
 
 Updating
 ================================================================================
@@ -203,10 +209,13 @@ from the Percona software repositories:
 
    $ yum update pmm-client
 
-If you have installed your |product-abbrev| client manually, you need to remove
-it and then download and install a newer version:
+If you have installed your |product-abbrev| client manually, you need
+to :ref:`remove it <deploy-pmm.removing>` and then :ref:`download and
+install a newer version <deploy-pmm.client.installing>`.
 
-Removing
+.. _deploy-pmm.removing:
+
+Removing the |product-abbrev| Client and |product-abbrev| Server
 ================================================================================
 
 Each |product-abbrev| client and the |product-abbrev| server are removed
