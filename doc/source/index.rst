@@ -21,7 +21,7 @@ Basics
    :maxdepth: 1
 
    Architecture Overview <architecture>
-   Deployment Guide <deploy/index>
+   Deployment Instructions <deploy/index>
    Usage Information <using>
 
 Advanced
@@ -32,7 +32,8 @@ Advanced
 
    pmm-admin
    amazon-rds
-   Configuring MySQL for best results <conf-mysql>
+   Configuring MySQL for Best Results <conf-mysql>
+   Enabling MongoDB Profiling <conf-mongodb>
    security
    mm-dashboards
 
