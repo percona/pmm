@@ -22,6 +22,8 @@ import (
 	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/percona/pmm-managed/services/prometheus/internal"
 )
 
 type ScrapeJob struct {
@@ -33,7 +35,7 @@ type ScrapeJob struct {
 	StatisTargets []string
 }
 
-func convertScrapeConfig(cfg *ScrapeConfig) *ScrapeJob {
+func convertScrapeConfig(cfg *internal.ScrapeConfig) *ScrapeJob {
 	targets := make([]string, len(cfg.ServiceDiscoveryConfig.StaticConfigs))
 	for i, sc := range cfg.ServiceDiscoveryConfig.StaticConfigs {
 		for _, t := range sc.Targets {
@@ -112,9 +114,9 @@ func (svc *Service) CreateScrapeJob(ctx context.Context, job *ScrapeJob) error {
 		}
 	}
 
-	tg := make([]*TargetGroup, len(job.StatisTargets))
+	tg := make([]*internal.TargetGroup, len(job.StatisTargets))
 	for i, t := range job.StatisTargets {
-		tg[i] = &TargetGroup{
+		tg[i] = &internal.TargetGroup{
 			Targets: []model.LabelSet{{model.AddressLabel: model.LabelValue(t)}},
 		}
 	}
@@ -130,13 +132,13 @@ func (svc *Service) CreateScrapeJob(ctx context.Context, job *ScrapeJob) error {
 		return status.Errorf(codes.AlreadyExists, "scrape job %q already exist", job.Name)
 	}
 
-	cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, &ScrapeConfig{
+	cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, &internal.ScrapeConfig{
 		JobName:        job.Name,
 		ScrapeInterval: interval,
 		ScrapeTimeout:  timeout,
 		MetricsPath:    job.Path,
 		Scheme:         job.Scheme,
-		ServiceDiscoveryConfig: ServiceDiscoveryConfig{
+		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
 			StaticConfigs: tg,
 		},
 	})

@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-// This file was copied from Prometheus 1.7.1: https://github.com/prometheus/prometheus/blob/v1.7.1/config/config.go
+// This file was copied from Prometheus 1.7.1:
+// * vendor/github.com/prometheus/prometheus/config/config.go
 // It then was modified to remove "Secret" type and replace it with "string".
 // Original license below:
 
@@ -31,7 +32,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package prometheus
+package internal
 
 import (
 	"encoding/json"

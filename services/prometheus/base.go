@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+// Package prometheus contains business logic of working with Prometheus.
 package prometheus
 
 import (
@@ -30,6 +31,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
+	"github.com/percona/pmm-managed/services/prometheus/internal"
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
@@ -59,8 +61,8 @@ func NewService(config string, baseURL string, promtool string) (*Service, error
 }
 
 // loadConfig loads current Prometheus configuration from file.
-func (svc *Service) loadConfig() (*Config, error) {
-	cfg, err := LoadFile(svc.configPath)
+func (svc *Service) loadConfig() (*internal.Config, error) {
+	cfg, err := internal.LoadFile(svc.configPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "can't load Prometheus configuration file")
 	}
@@ -75,7 +77,7 @@ func (svc *Service) loadConfig() (*Config, error) {
 }
 
 // saveConfig saves given Prometheus configuration to file.
-func (svc *Service) saveConfig(ctx context.Context, cfg *Config) error {
+func (svc *Service) saveConfig(ctx context.Context, cfg *internal.Config) error {
 	c, err := yaml.Marshal(cfg)
 	if err != nil {
 		return errors.Wrap(err, "can't marshal Prometheus configuration file")
