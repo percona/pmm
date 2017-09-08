@@ -228,13 +228,13 @@ remove each |product-abbrev| client and the |product-abbrev| server.
 The exact procedure of removing the |product-abbrev| client, depends
 on the method of installation:
 
-- Removing a package installed using YUM:
+- Removing an installed package using YUM:
 
   .. code-block:: bash
 
      $ sudo yum remove pmm-client
   
-- Removing a package installed using APT:
+- Removing an installed package using APT:
 
   .. code-block:: bash
 
