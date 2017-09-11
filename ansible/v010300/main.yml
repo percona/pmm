@@ -77,17 +77,6 @@
       register: import_result
       changed_when: "'up-to-date' not in import_result.stdout"
 
-    - name: PMM                        | Restart services (supervisord)
-      when: supervisorctl.stat.exists
-      command: /usr/bin/supervisorctl restart {{ item }}
-      with_items:
-        - orchestrator
-        - prometheus
-        - node_exporter
-        - qan-api
-        - grafana
-        - consul
-
     - name: Security                   | Stat sshd_config
       stat: path=/etc/ssh/sshd_config
       register: sshd_config
@@ -118,6 +107,17 @@
         dest: /etc/supervisord.d/pmm.ini
         regexp: '-storage.local.target-heap-size=268435456$'
         replace: '-storage.local.target-heap-size=766957568'
+
+    - name: PMM                        | Restart services (supervisord)
+      when: supervisorctl.stat.exists
+      command: /usr/bin/supervisorctl restart {{ item }}
+      with_items:
+        - orchestrator
+        - prometheus
+        - node_exporter
+        - qan-api
+        - grafana
+        - consul
 
     - name: PMM                        | Restart services (systemd)
       when: not supervisorctl.stat.exists
