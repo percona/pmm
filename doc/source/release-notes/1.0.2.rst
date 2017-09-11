@@ -17,16 +17,16 @@ Upgrading
    do not remove the ``pmm-data`` container.
    However, previous QAN data will be lost anyway.
 
-1. :ref:`Remove PMM Server <remove-server>`
+1. :ref:`Remove PMM Server <deploy-pmm.removing>`
 
-#. :ref:`Remove all PMM Clients <remove-client>`
+#. :ref:`Remove all PMM Clients <deploy-pmm.removing>`
 
 #. If you removed the ``pmm-data`` container,
    create it as described in :ref:`data-container`
 
 #. :ref:`Create and run the PMM Server container <server-container>`
 
-#. :ref:`Install PMM Client <install-client>` on all your monitored hosts
+#. :ref:`Install PMM Client <deploy-pmm.client.installing>` on all your monitored hosts
 
 Changes
 =======

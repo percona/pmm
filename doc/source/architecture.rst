@@ -4,11 +4,10 @@
 Percona Monitoring and Management Architecture
 ==============================================
 
-The PMM platform is based on a simple client-server model
-that enables efficient scalability.
-It includes the following modules:
+The PMM platform is based on a client-server model that enables scalability.  It
+includes the following modules:
 
-* :ref:`pmm-client` is installed on every database host
+* :ref:`pmm-client` installed on every database host
   that you want to monitor.
   It collects server metrics, general system metrics,
   and query analytics data for a complete performance overview.
@@ -100,7 +99,7 @@ It is distributed as an appliance via the following:
   that you can run in VirtualBox or another hypervisor
 * Amazon Machine Image (AMI) that you can run via Amazon Web Services (AWS)
 
-For more information, see :ref:`run-server`.
+For more information, see :ref:`deploy-pmm.server.installing`.
 
 *PMM Server* consists of the following tools:
 
@@ -157,31 +156,8 @@ For more information, see :ref:`run-server`.
 All tools can be accessed from the *PMM Server* web interface (landing page).
 For more information, see :ref:`using`.
 
-.. _scenarios:
-
-Deployment Scenarios
---------------------
-
-PMM is designed to be scalable for various environments.
-Depending on the size and complexity of your infrastructure,
-you can deploy it in several ways.
-
-Simple Scenario
-***************
-
-If you have just one MySQL or MongoDB server,
-you can install and run both modules
-(*PMM Client* and *PMM Server*)
-on this one database host.
-
-Typical Scenario
-****************
-
-It is more typical to have several MySQL and MongoDB server instances
-distributed over different hosts.
-In this case, you can run *PMM Server* on a dedicated monitoring host,
-and install *PMM Client* on every database host that you want to monitor.
-Data from hosts will be aggregated on the PMM Server.
+.. DEPRECATED: moving deployment related information to the dedicated deployment section.
+   .. _scenarios:
 
 .. rubric:: References
 

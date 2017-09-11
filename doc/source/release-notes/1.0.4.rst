@@ -18,9 +18,9 @@ Upgrading
    This means you will lose all previously collected data
    and start from scratch.
 
-1. :ref:`Remove all PMM Clients <remove-client>`
+1. :ref:`Remove all PMM Clients <deploy-pmm.removing>`
 
-#. :ref:`Remove PMM Server <remove-server>`
+#. :ref:`Remove PMM Server <deploy-pmm.removing>`
    (including the ``pmm-data`` container).
 
    .. code-block:: bash
@@ -31,7 +31,7 @@ Upgrading
 
 #. :ref:`Create and run the PMM Server container <server-container>`
 
-#. :ref:`Install PMM Clients <install-client>` on all your monitored hosts
+#. :ref:`Install PMM Clients <deploy-pmm.client.installing>` on all your monitored hosts
 
 Changes
 =======
