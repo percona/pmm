@@ -21,3 +21,8 @@ services:
       - 127.0.0.1:9093:9093
     volumes:
       - ./testdata/alertmanager:/etc/alertmanager
+
+  consul:
+    image: ${CONSUL_IMAGE:-consul:0.8.5}
+    ports:
+      - 127.0.0.1:8500:8500
