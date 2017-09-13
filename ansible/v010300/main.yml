@@ -35,6 +35,7 @@
         - percona-qan-app-1.3.0
         - percona-qan-app2-1.3.0
         - pmm-manage-1.3.0
+        - pmm-managed-1.3.0
         - percona-consul-0.8.5
 
     - name: PMM                        | Restore unmanaged configs
@@ -108,6 +109,18 @@
         regexp: '-storage.local.target-heap-size=268435456$'
         replace: '-storage.local.target-heap-size=766957568'
 
+    - name: PMM                        | Reload config (supervisord)
+      when: supervisorctl.stat.exists
+      command: sh -c 'sed -i "s/ENV_METRICS_RETENTION/${METRICS_RETENTION:-720h}/" /etc/supervisord.d/pmm.ini'
+
+    - name: PMM                        | Reload config (supervisord)
+      when: supervisorctl.stat.exists
+      command: sh -c 'sed -i "s/ENV_METRICS_MEMORY_MULTIPLIED/$(( ${METRICS_MEMORY:-748982} * 1024 ))/" /etc/supervisord.d/pmm.ini'
+
+    - name: PMM                        | Reload config (supervisord)
+      when: supervisorctl.stat.exists
+      command: /usr/bin/supervisorctl update
+
     - name: PMM                        | Restart services (supervisord)
       when: supervisorctl.stat.exists
       command: /usr/bin/supervisorctl restart {{ item }}
@@ -118,6 +131,7 @@
         - qan-api
         - grafana
         - consul
+        - pmm-managed
 
     - name: PMM                        | Restart services (systemd)
       when: not supervisorctl.stat.exists
@@ -129,6 +143,7 @@
         - percona-qan-api
         - grafana-server
         - consul
+        - pmm-managed
         - sshd
 
     - name: PMM                        | Restart pmm-manage daemon (delayed)
