@@ -146,10 +146,34 @@
   version = "v1.2.2"
 
 [[projects]]
+  name = "github.com/hashicorp/consul"
+  packages = ["api"]
+  revision = "112c0603d3d6fb23ab5f15e8fdb1a761da8eaf9a"
+  version = "v0.9.3"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/hashicorp/go-cleanhttp"
+  packages = ["."]
+  revision = "3573b8b52aa7b37b9358d966a898feb387f62437"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/hashicorp/go-rootcerts"
+  packages = ["."]
+  revision = "6bb64b370b90e7ef1fa532be9e591a81c3493e00"
+
+[[projects]]
   branch = "master"
   name = "github.com/hashicorp/hcl"
   packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
   revision = "392dba7d905ed5d04a5794ba89f558b27e2ba1ca"
+
+[[projects]]
+  name = "github.com/hashicorp/serf"
+  packages = ["coordinate"]
+  revision = "d6574a5bb1226678d7010325fb6c985db20ee458"
+  version = "v0.8.1"
 
 [[projects]]
   name = "github.com/jessevdk/go-flags"
@@ -186,6 +210,12 @@
   packages = ["pbutil"]
   revision = "3247c84500bff8d9fb6d579d800f20b3e091582c"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/mitchellh/go-homedir"
+  packages = ["."]
+  revision = "b8bc1bf767474819792c23f32d8286a45736f1c6"
 
 [[projects]]
   branch = "master"
@@ -364,6 +394,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b301268d82e3b13c369a87fe550b615edde12b3863b1d0cd32cc1546416db2d9"
+  inputs-digest = "a3ef4e7c2a191cc459b70cae675d2d5d617c69d0e9c58f144552d55f60e5a30b"
   solver-name = "gps-cdcl"
   solver-version = 1
