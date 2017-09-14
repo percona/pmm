@@ -109,6 +109,10 @@
         regexp: '-storage.local.target-heap-size=268435456$'
         replace: '-storage.local.target-heap-size=766957568'
 
+    - name: PMM                        | Prometheus METRICS_RESOLUTION
+      when: supervisorctl.stat.exists
+      command: sh -c 'sed -i "s/1s/${METRICS_RESOLUTION:-1s}/" /etc/prometheus.yml'
+
     - name: PMM                        | Prometheus METRICS_RETENTION
       when: supervisorctl.stat.exists
       command: sh -c 'sed -i "s/ENV_METRICS_RETENTION/${METRICS_RETENTION:-720h}/" /etc/supervisord.d/pmm.ini'
@@ -128,6 +132,10 @@
     - name: PMM                        | Orchestrator ORCHESTRATOR_PASSWORD
       when: supervisorctl.stat.exists
       command: sh -c 'sed -i "s/orc_client_password/${ORCHESTRATOR_PASSWORD:-orc_client_password}/" /etc/orchestrator.conf.json'
+
+    - name: PMM                        | Cron QUERIES_RETENTION
+      when: supervisorctl.stat.exists
+      command: sh -c 'sed -i "s/^INTERVAL=.*/INTERVAL=${QUERIES_RETENTION:-8}/" /etc/cron.daily/purge-qan-data'
 
     - name: PMM                        | Reload config (supervisord)
       when: supervisorctl.stat.exists
