@@ -1,7 +1,24 @@
+// pmm-managed
+// Copyright (C) 2017 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+// Package consul provides facilities for working with Consul.
 package consul
 
 import (
-	"path/filepath"
+	"path"
 
 	"github.com/hashicorp/consul/api"
 	"github.com/pkg/errors"
@@ -31,7 +48,7 @@ func NewClient(addr string) (*Client, error) {
 
 // GetKV returns value for a given key from Consul.
 func (c *Client) GetKV(key string) ([]byte, error) {
-	pair, _, err := c.c.KV().Get(filepath.Join(Prefix, key), nil)
+	pair, _, err := c.c.KV().Get(path.Join(Prefix, key), nil)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -40,7 +57,7 @@ func (c *Client) GetKV(key string) ([]byte, error) {
 
 // PutKV puts given key/value pair into Consul.
 func (c *Client) PutKV(key string, value []byte) error {
-	pair := &api.KVPair{Key: filepath.Join(Prefix, key), Value: value}
+	pair := &api.KVPair{Key: path.Join(Prefix, key), Value: value}
 	_, err := c.c.KV().Put(pair, nil)
 	return errors.WithStack(err)
 }
