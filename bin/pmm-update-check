@@ -81,7 +81,7 @@ main() {
     diff $PLAYBOOK $UPDATE_DIR/main.yml
 
     yum -y --enablerepo=pmm clean all || :
-    yum -y --enablerepo=pmm install pmm-update && EC=$? || EC=$?
+    yum -y --disablerepo='*' --enablerepo=pmm install pmm-update && EC=$? || EC=$?
     if [ "x$EC" != "x0" ]; then
         failover_update
         RPM_ROOT=$UPDATE_DIR
