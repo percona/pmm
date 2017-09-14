@@ -109,13 +109,25 @@
         regexp: '-storage.local.target-heap-size=268435456$'
         replace: '-storage.local.target-heap-size=766957568'
 
-    - name: PMM                        | Reload config (supervisord)
+    - name: PMM                        | Prometheus METRICS_RETENTION
       when: supervisorctl.stat.exists
       command: sh -c 'sed -i "s/ENV_METRICS_RETENTION/${METRICS_RETENTION:-720h}/" /etc/supervisord.d/pmm.ini'
 
-    - name: PMM                        | Reload config (supervisord)
+    - name: PMM                        | Prometheus METRICS_MEMORY
       when: supervisorctl.stat.exists
       command: sh -c 'sed -i "s/ENV_METRICS_MEMORY_MULTIPLIED/$(( ${METRICS_MEMORY:-748982} * 1024 ))/" /etc/supervisord.d/pmm.ini'
+
+    - name: PMM                        | Orchestrator enabled
+      when: supervisorctl.stat.exists
+      command: sh -c 'sed -i "s/autostart = false/autostart = ${ORCHESTRATOR_ENABLED:-false}/" /etc/supervisord.d/pmm.ini'
+
+    - name: PMM                        | Orchestrator ORCHESTRATOR_USER
+      when: supervisorctl.stat.exists
+      command: sh -c 'sed -i "s/orc_client_user/${ORCHESTRATOR_USER:-orc_client_user}/" /etc/orchestrator.conf.json'
+
+    - name: PMM                        | Orchestrator ORCHESTRATOR_PASSWORD
+      when: supervisorctl.stat.exists
+      command: sh -c 'sed -i "s/orc_client_password/${ORCHESTRATOR_PASSWORD:-orc_client_password}/" /etc/orchestrator.conf.json'
 
     - name: PMM                        | Reload config (supervisord)
       when: supervisorctl.stat.exists
