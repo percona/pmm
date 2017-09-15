@@ -33,10 +33,15 @@
         - percona-qan-api-1.3.0
         - percona-grafana-4.4.3
         - percona-qan-app-1.3.0
-        - percona-qan-app2-1.3.0
         - pmm-manage-1.3.0
         - pmm-managed-1.3.0
         - percona-consul-0.8.5
+
+    - name: PMM                        | Remove RPMs
+      when: ansible_os_family == 'RedHat'
+      yum: name={{ item }} state=absent
+      with_items:
+        - percona-qan-app2
 
     - name: PMM                        | Restore unmanaged configs
       copy: src={{ item.src }} dest={{ item.dest }}
