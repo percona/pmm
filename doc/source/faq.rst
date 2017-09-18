@@ -370,5 +370,5 @@ Why do I get ``Failed ReadTopologyInstance`` error when adding MySQL host to Orc
 ==========================================================================================
 
 You need to create Orchestrator's topology user on MySQL
-according to :ref:`this section <orchestrator>`.
+according to :ref:`this section <pmm/using.orchestrator>`.
 

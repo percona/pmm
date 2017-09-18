@@ -7,3 +7,4 @@
 .. |product-abbrev| replace:: *PMM*
 .. |company-name| replace:: Percona
 
+.. |qan-intro| replace:: *QAN* (Query Analytics)

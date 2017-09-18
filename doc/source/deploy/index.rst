@@ -102,7 +102,7 @@ and you have installed |product-abbrev| client on a machine with IP
    Client Address  | 192.168.200.1
 
 .. note:: If you change the default port 80
-   when `running PMM Server <run-pmm-server>`_,
+   when :ref:`running PMM Server <deploy-pmm.server.installing>`,
    specify it after the server's IP address. For example:
 
    .. code-block:: bash
@@ -132,11 +132,6 @@ and MongoDB query analytics, run:
 .. code-block:: bash
 
    $ sudo pmm-admin --dev-enable add mongodb
-
-.. note:: MongoDB query analytics is experimental
-   and requires the ``--dev-enable`` option when adding.
-   Without this option, only general system metrics and MongoDB metrics
-   are added.
 
 To enable ProxySQL performance metrics, run:
 

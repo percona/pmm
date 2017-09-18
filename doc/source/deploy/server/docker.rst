@@ -118,7 +118,46 @@ The previous command does the following:
 * ``percona/pmm-server:latest`` is the name and version tag of the image
   to derive the container from.
 
+.. _pmm/docker.additional_parameters:
+
+Additional parameters
+--------------------------------------------------------------------------------
+
+When running the *PMM Server*, you may pass additional parameters to
+the docker's *run* subcommand.
+
+.. rubric:: To enable Orchestrator
+
+By default, Orchestrator_ is disabled. To enable it, set the
+:option:`ORCHESTRATOR_ENABLED` to **true**.
+
+.. code-block:: bash
+
+   $ docker run ... -e ORCHESTRATOR_ENABLED=true
+
+.. rubric:: To disable telemetry
+
+With telemetry enabled, your :term:`PMM Server` sends some statistics to `v.percona.com`_
+every 24 hours. This statistics includes the following details:
+
+- PMM Server unique ID
+- PMM version, 
+- The name and version of the operating system
+- MySQL version
+- Perl version
+
+If you do not want your PMM Server to send this information, disable telemetry
+when running your docker container:
+
+.. code-block:: bash
+
+   $ docker run ... -e DISABLE_TELEMETRY=true
+
+
+  
 .. toctree::
    :hidden:
 
    upgrade
+
+.. include:: ../../url.txt
