@@ -22,7 +22,7 @@ and you installed *PMM Client* on a machine with IP ``192.168.200.1``:
    Client Address  | 192.168.200.1
 
 .. note:: If you changed the default port 80
-   when `running PMM Server <run-pmm-server>`_,
+   when :ref:`running PMM Server <deploy-pmm.server.installing>`,
    specify it after the server's IP address. For example:
 
    .. code-block:: bash

@@ -23,46 +23,148 @@ into the performance of a MySQL host.
 Query Analytics
 ===============
 
-The *Query Analytics* tool enables database administrators
-and application developers to analyze MySQL queries over periods of time
-and find performance problems.
-Query Analytics helps you optimize database performance
-by making sure that queries are executed as expected
-and within the shortest time possible.
-In case of problems, you can see which queries may be the cause
-and get detailed metrics for them.
+The *Query Analytics* tool enables database administrators and application
+developers to analyze database queries over periods of time and find performance
+problems.  Query Analytics helps you optimize database performance by making
+sure that queries are executed as expected and within the shortest time
+possible.  In case of problems, you can see which queries may be the cause and
+get detailed metrics for them. 
 
-The following image shows the *Query Analytics* app.
+.. figure:: images/query-analytics.png
+   :width: 50%
+	    
+   QAN helps analyze database queries over periods of time and find performance
+   problems.
 
-.. image:: images/query-analytics.png
-   :width: 640
+QAN displays its metrics in both visual and numeric form: the performance
+related characteristics appear as plotted graphics with summaries.
 
-The summary table contains top 10 queries ranked by **%GTT**
-(percent of grand total time),
-which is the percentage of time
-that the MySQL server spent executing a specific query,
-compared to the total time it spent executing all queries
-during the selected period of time.
+.. figure:: images/pmm.home-page.1.png
+   :width: 50%
 
-You can select the period of time at the top,
-by selecting a predefined interval
-(last hour, 3 hours, 6 hours, 12 hours, last day, or 5 days),
-or select a specific inteval using the calendar icon.
+   :term:`QAN` is available from the home page of :term:`PMM`. Click the *Query
+   Analytics* button to access :term:`QAN`.
 
-If you have multiple MySQL hosts with *PMM Client* installed,
-you can switch between those hosts using the drop-down list at the top.
+.. rubric:: Open :term:`QAN` from the :term:`PMM` home page
+   
+To start working with :term:`QAN`, click the *Query Analytics* button on the PMM
+home page. Then, select a database at the top of the page from the list of
+database instances where the :term:`PMM client` is installed.
 
-To configure the QAN agent running on a MySQL host with *PMM Client*,
-click the gear icon at the top.
+The list of queries opens below in a summary table. Be default, QAN shows the
+top ten queries ranked by :term:`%GTT` (Grand total time) as a result of
+monitoring your database server for the last hour. Each query displays three
+essential metrics: *Load*, *Count*, and *Latency*.
 
-Query Details
--------------
+To view more queries, click the *Load next 10 queries* button below the query
+summary table.
 
-You can get details for a query if you click it in the summary table.
-The details contain all metrics specific to that particular query,
-such as, bytes sent, lock time, rows sent, and so on.
-You can see when the query was first and last seen,
-get an example of the query, as well as its fingerprint.
+.. figure:: images/pmm.qan.query-summary-table.default.1.png
+   :width: 50%
+
+   The query summary table shows the monitored queries from the selected
+   database.
+
+.. rubric:: Filtering Queries
+
+If you need to limit the list of available queries to only those that you are
+interested in, use the *Query Filter* field located at the top of the
+:term:`QAN` page next to the database selection button.
+
+.. figure:: images/pmm.home-page.2.png
+   :width: 50%
+
+   The Database selection button and the query search field appear at the top of
+   the :term:`QAN` page.
+
+In the *Query Filter* field, you can enter a query ID or its fingerprint.  The
+ID is a unique signature of a query and looks like a long hexadecimal
+number. Note that each query in the summary table displays its ID in the *ID*
+column.
+
+The fingerprint is a simplified form of a query: all specific values are
+replaced with placeholders. You may enter only a fragment of the fingerprint to
+view all queries that contain that fragment in their fingerprints.
+
+When you apply your filter, the query summary table will change to display only
+the queries which match your criterion. Note that the TOTAL row which runs above
+the list of queries in the summary table does not change its values. These are
+always calculated based on all queries run within the selected time or date
+range.
+
+.. figure:: images/pmm.qan.query-summary-table.1.png
+   :width: 50%
+
+   A list of queries
+
+.. rubric:: Selecting Time or Date Range
+
+The query metrics that appear in *QAN* are computed based on a time period or a
+range of dates. The default value is *the last hour*. To set another range use
+the *range selection tool* located at the top of your *QAN* page.
+
+.. figure:: images/pmm.qan.range-selection.1.png
+   :width: 25%
+
+   QAN displays query metrics for the time period or date range that you specify.
+
+The tool consists of two parts. The *Quick ranges* offers frequently used time
+ranges: from 1 hour to 5 days. The date picker is a button depicted as a
+calender. Use it to set a range of dates. Select the starting date and time and
+then the ending date and time when prompted accordingly.
+
+.. rubric:: Totals of the Query Summary
+
+The first line of the summary table contains the totals of the *load*, *count*, and
+*latency* for all queries that were run on the selected database server during
+the time of date range that you've specified.
+
+.. rubric:: images/pmm.qan.query-summary-table.totals.1.png
+
+The *load* is the amount of time that the database server spent during the
+selected time or date range running all queries.
+
+The *count* is the average number of requests to the server during the specified
+time or date range.
+
+The *latency* is the average amount of time that it took the database server to
+retrieve and return the data.
+
+.. rubric:: Queries in the Query Summary Table
+
+Each row in the query summary table contains information about a single
+query. Each column is query attribute. The *Abstract* attribute is an essential
+part of the fingerprint which informs the type of query, such as INSERT, or
+UPDATE, and the queried tables, or collections. The *ID* attribute is a unique
+hexadecimal number associated with the given query.
+
+The *Load*, *Count*, and *Latency* attributes refer to the essential metrics of
+each query. Their values are plotted graphics and summary values in the numeric
+form. The summary values have two parts. The average value of the metric and its
+percentage with respect to the corresponding total value at the top of the query
+summary table.
+
+.. rubric:: Viewing a Specific Value of a Metric
+
+If you hover the cursor over one of the metrics in a query, you can see a
+concrete value at the point where your cursor is located. Move the cursor along
+the plotted line to watch how the value is changing.
+
+.. figure:: images/pmm.qan.query-summary-table.1.png
+   :width: 50%
+
+   Hover the cursor to see a value at the point.
+
+.. rubric:: Zooming into a Query
+
+Click one of the queries to zoom it in. QAN displays detailed information about
+the :term:`query metrics summary table` below the :term:`query summary
+table`. The detailed information includes the query type specific metrics. It
+also contains details about the database and tables which are used in the query.
+
+.. figure:: images/pmm.qan.query-metrics.1.png
+
+   Select a query from the query summary table to open its metrics.
 
 The details section enables you to run ``EXPLAIN`` on the selected query
 directly from the PMM web interface (simply specify the database).
@@ -77,6 +179,86 @@ directly from the PMM web interface.
 
 .. image:: images/qan-create-table.png
    :width: 640
+
+Configuring Query Analytics
+--------------------------------------------------------------------------------
+
+The :guilabel:`Configure Query Analytics` button located next to the list of
+database instances opens a page with settings, status, and log for the selected
+database instance.
+
+.. rubric:: Settings Tab
+
+The :guilabel:`Settings` tab displays the essential configuration settings of
+the database server selected from the :guilabel:`Databases` list. From this tab
+you can see which :term:`DSN` is being used as well as the :term:`database
+server version <Version>`. This tab contains several settings which influence
+how the monitored data are collected. Note that these settings cannot be changed
+directly in *QAN*. You need to set the appropriate options by using the tools
+from the database server itself. You can, however, select where the database
+server mentrics are collected from, such as *slow log*, or *performance
+schema*. For this, change the value of the *Collect from* field accordingly.
+
+.. figure:: images/pmm.qan.settings.1.png
+   :width: 25%
+	   
+   The Settings tab to view the essential settings of the selected database
+   server.
+
+.. rubric:: Status Tab
+
+The :guilabel:`Status` tab contains detailed information about the current
+status of the monitored database server. QAN collects this information from the
+database server directly. For example, in case of a MySQL server, the
+:program:`SHOW STATUS` command is used.
+
+.. note:: **Viewing Database and Server Summary Information**
+
+   The :guilabel:`View database and server summary info` button that appears
+   next to the :guilabel:`Configure Query Analytics` button shows detailed
+   infromation about the selected database as well as the platform where it is
+   deployed. When clicked, this button reveals two sections. The
+   :guilabel:`System Summary` section contains details about the platform while
+   the :guilabel:`Database Summary` offers detailed statistics about the
+   database server.
+
+   .. figure:: images/pmm.qan.view-database-and-server-summary-info.1.png
+      :width: 25%
+
+      The System summary and Database summary (showing only fragments of both
+      sections)
+
+.. rubric:: Log Tab
+
+The :guilabel:`Log` tab contains the latest version of the monitored log, such
+as *slow log*. At the top of this tab, you may notice when exactly the snapshot
+was taken.
+
+QAN for MongoDB
+--------------------------------------------------------------------------------
+
+MongoDB is conceptually different from relational database management systems,
+such as MySQL or MariaDB. Relational database management systems store data in
+tables that represent single entities. In order to represent complex objects you
+may need to link records from multiple tables. MongoDB, on the other hand, uses
+the concept of a document where all essential information pertaining to a
+complex object is stored together.
+
+QAN supports monitoring MongoDB queries. Although MongoDB is not a relational
+database management system, you analyze its databases and collections in the
+same interface using the same tools. By using the familiar and intuitive
+interface of :term:`QAN` you can analyze the efficiency of your application
+reading and writing data in the collections of your MongoDB databases.
+
+.. note:: **Suppored MongoDB versions**
+
+   PMM supports `MongoDB`_ version 3.2 or higher. 
+
+.. figure:: images/pmm.qan.query-metrics.2.png
+   :width: 50%
+
+   Analyze MongoDB queries using the same tools as relational database
+   management systems.
 
 .. _perf-schema:
 
@@ -181,8 +363,21 @@ from the list of available Percona Dashboards.
 For example, the following image shows the **MySQL Overview** dashboard:
 
 .. image:: images/metrics-monitor.png
-   :width: 640
+   :width: 50%
 
+Each graph has a graph descriptions to display more information about the
+monitored data without cluttering the interface.
+
+These are on-demand descriptions in the tooltip format that you can find by
+hovering the mouse pointer over the *More information* icon at the top left
+corner of a graph. When you move the mouse pointer away from the *More
+information* button the description disappears.
+
+.. figure:: images/pmm.metrics-monitor.description.1.png
+
+   Graph descriptions provide more information about a graph without claiming
+   any space in the interface.
+	   
 .. _orchestrator:
 
 Orchestrator
@@ -211,3 +406,6 @@ To use it, create a MySQL user for Orchestrator on all managed instances::
 
 Then you can use the **Discover** page in the Orchestrator web interface
 to add the instances to the topology.
+
+.. include:: replace.txt
+.. include:: url.txt

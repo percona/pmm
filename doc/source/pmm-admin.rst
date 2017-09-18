@@ -713,7 +713,6 @@ For example:
    :emphasize-lines: 1
 
    $ sudo pmm-admin info
-   pmm-admin 1.1.3
 
    PMM Server      | 192.168.100.1
    Client Name     | ubuntu-amd64
@@ -762,7 +761,6 @@ output should be similar to the following:
    :emphasize-lines: 1
 
    $ sudo pmm-admin list
-   pmm-admin 1.1.3
 
    PMM Server      | 192.168.100.1
    Client Name     | ubuntu-amd64
