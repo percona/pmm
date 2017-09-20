@@ -23,9 +23,13 @@ Installing the Server
 To install and set up the |product-abbrev| server, use one of the
 following options:
 
+-  :ref:`run-server-docker`
+-  :ref:`run-server-ova`
+-  :ref:`run-server-ami`
+
 .. toctree::
-   :maxdepth: 1
-	   
+   :hidden:
+
    server/docker
    server/virtual-appliance
    server/ami
