@@ -261,8 +261,7 @@ func runTelemetryService(ctx context.Context, consulClient *consul.Client) {
 	}
 	var err error
 	if svc.UUID, err = getTelemetryUUID(consulClient); err != nil {
-		l.Warnf("cannot get/set telemetry UUID in consul: %s", err)
-		return
+		l.Panicf("cannot get/set telemetry UUID in consul: %s", err)
 	}
 
 	// Using this env var for compatibility with the Toolkit
