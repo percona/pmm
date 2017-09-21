@@ -135,7 +135,7 @@ and MongoDB query analytics, run:
 
 .. code-block:: bash
 
-   $ sudo pmm-admin --dev-enable add mongodb
+   $ sudo pmm-admin add mongodb
 
 To enable ProxySQL performance metrics, run:
 
