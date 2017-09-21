@@ -329,24 +329,31 @@ func main() {
 		l.Panic(err)
 	}
 
-	// start servers, wait for them to exit
 	var wg sync.WaitGroup
-	wg.Add(4)
-	go func() {
-		defer wg.Done()
-		runGRPCServer(ctx)
-	}()
-	go func() {
-		defer wg.Done()
-		runRESTServer(ctx)
-	}()
-	go func() {
-		defer wg.Done()
-		runDebugServer(ctx)
-	}()
+
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	runGRPCServer(ctx)
+	// }()
+
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	runRESTServer(ctx)
+	// }()
+
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	runDebugServer(ctx)
+	// }()
+
+	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		runTelemetryService(ctx, consulClient)
 	}()
+
 	wg.Wait()
 }
