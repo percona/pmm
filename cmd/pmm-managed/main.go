@@ -71,7 +71,7 @@ var (
 	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/", "Prometheus base URL")
 	promtoolF         = flag.String("promtool", "promtool", "promtool path")
 
-	consulAddress = flag.String("consul-address", "localhost:8500", "consul endpoint address")
+	consulAddrF = flag.String("consul-addr", "127.0.0.1:8500", "Consul HTTP API address")
 )
 
 func addSwaggerHandler(mux *http.ServeMux, pattern string) {
@@ -324,7 +324,7 @@ func main() {
 		l.Panicf("Got %v (%d) signal, exiting!", s, s)
 	}()
 
-	consulClient, err := consul.NewClient(*consulAddress)
+	consulClient, err := consul.NewClient(*consulAddrF)
 	if err != nil {
 		l.Panic(err)
 	}
