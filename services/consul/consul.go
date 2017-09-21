@@ -25,8 +25,8 @@ import (
 )
 
 const (
-	// Prefix for all keys in KV operations.
-	Prefix = "/percona/"
+	// prefix for all keys in KV operations.
+	prefix = "percona/"
 )
 
 // Client represents a client for Consul API.
@@ -46,18 +46,21 @@ func NewClient(addr string) (*Client, error) {
 	return &Client{c}, nil
 }
 
-// GetKV returns value for a given key from Consul.
+// GetKV returns value for a given key from Consul, or nil, if key does not exist.
 func (c *Client) GetKV(key string) ([]byte, error) {
-	pair, _, err := c.c.KV().Get(path.Join(Prefix, key), nil)
+	pair, _, err := c.c.KV().Get(path.Join(prefix, key), nil)
 	if err != nil {
 		return nil, errors.WithStack(err)
+	}
+	if pair == nil {
+		return nil, nil
 	}
 	return pair.Value, nil
 }
 
 // PutKV puts given key/value pair into Consul.
 func (c *Client) PutKV(key string, value []byte) error {
-	pair := &api.KVPair{Key: path.Join(Prefix, key), Value: value}
+	pair := &api.KVPair{Key: path.Join(prefix, key), Value: value}
 	_, err := c.c.KV().Put(pair, nil)
 	return errors.WithStack(err)
 }

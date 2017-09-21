@@ -27,6 +27,7 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -42,13 +43,18 @@ import (
 
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/handlers"
+	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/prometheus"
+	"github.com/percona/pmm-managed/services/telemetry"
 	"github.com/percona/pmm-managed/utils/interceptors"
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
 const (
 	shutdownTimeout = 3 * time.Second
+
+	// FIXME set it during build for PMM 1.4
+	pmmVersion = "1.3.0"
 )
 
 var (
@@ -64,6 +70,8 @@ var (
 	prometheusConfigF = flag.String("prometheus-config", "", "Prometheus configuration file path")
 	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/", "Prometheus base URL")
 	promtoolF         = flag.String("promtool", "promtool", "promtool path")
+
+	consulAddress = flag.String("consul-address", "localhost:8500", "consul endpoint address")
 )
 
 func addSwaggerHandler(mux *http.ServeMux, pattern string) {
@@ -92,7 +100,7 @@ func runGRPCServer(ctx context.Context) {
 		grpc.UnaryInterceptor(interceptors.Unary),
 		grpc.StreamInterceptor(interceptors.Stream),
 	)
-	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{})
+	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{PMMVersion: pmmVersion})
 	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
 	// TODO api.RegisterAlertsServer(gRPCServer, &handlers.AlertsServer{
 	// 	Prometheus: prometheus,
@@ -237,6 +245,56 @@ func runDebugServer(ctx context.Context) {
 	cancel()
 }
 
+func runTelemetryService(ctx context.Context, consulClient *consul.Client) {
+	l := logrus.WithField("component", "telemetry")
+
+	disabledStr := strings.TrimSpace(strings.ToLower(os.Getenv("DISABLE_TELEMETRY")))
+	if disabled, err := strconv.ParseBool(disabledStr); err == nil && disabled {
+		l.Infof("Telemetry is disabled by DISABLE_TELEMETRY environment variable.")
+		return
+	}
+
+	svc := &telemetry.Service{
+		URL:        "https://v.percona.com/",
+		PMMVersion: pmmVersion,
+		Interval:   24 * time.Hour,
+	}
+	var err error
+	if svc.UUID, err = getTelemetryUUID(consulClient); err != nil {
+		l.Warnf("cannot get/set telemetry UUID in consul: %s", err)
+		return
+	}
+
+	// Using this env var for compatibility with the Toolkit
+	if telemetryEnvURL := os.Getenv("PERCONA_VERSION_CHECK_URL"); telemetryEnvURL != "" {
+		l.Infof("PERCONA_VERSION_CHECK_URL env var is set")
+		l.Infof("Using %s as the telemetry endpoint", telemetryEnvURL)
+		svc.URL = telemetryEnvURL
+	}
+
+	l.Infof("Telemetry is enabled. UUID: %s", svc.UUID)
+	svc.Run(ctx)
+}
+
+func getTelemetryUUID(consulClient *consul.Client) (string, error) {
+	b, err := consulClient.GetKV("telemetry/uuid")
+	if err != nil {
+		return "", err
+	}
+	if len(b) > 0 {
+		return string(b), nil
+	}
+
+	uuid, err := telemetry.GenerateUUID()
+	if err != nil {
+		return "", err
+	}
+	if err = consulClient.PutKV("telemetry/uuid", []byte(uuid)); err != nil {
+		return "", err
+	}
+	return uuid, nil
+}
+
 func main() {
 	log.SetFlags(0)
 	log.SetPrefix("stdlog: ")
@@ -266,9 +324,14 @@ func main() {
 		l.Panicf("Got %v (%d) signal, exiting!", s, s)
 	}()
 
+	consulClient, err := consul.NewClient(*consulAddress)
+	if err != nil {
+		l.Panic(err)
+	}
+
 	// start servers, wait for them to exit
 	var wg sync.WaitGroup
-	wg.Add(3)
+	wg.Add(4)
 	go func() {
 		defer wg.Done()
 		runGRPCServer(ctx)
@@ -280,6 +343,10 @@ func main() {
 	go func() {
 		defer wg.Done()
 		runDebugServer(ctx)
+	}()
+	go func() {
+		defer wg.Done()
+		runTelemetryService(ctx, consulClient)
 	}()
 	wg.Wait()
 }

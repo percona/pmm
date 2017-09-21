@@ -23,11 +23,13 @@ import (
 	"github.com/percona/pmm-managed/api"
 )
 
-type BaseServer struct{}
+type BaseServer struct {
+	PMMVersion string
+}
 
 func (s *BaseServer) Version(context.Context, *api.BaseVersionRequest) (*api.BaseVersionResponse, error) {
 	return &api.BaseVersionResponse{
-		Version: "pmm-managed v0.0.0-alpha",
+		Version: s.PMMVersion,
 	}, nil
 }
 
