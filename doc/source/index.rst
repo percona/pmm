@@ -32,8 +32,8 @@ Advanced
 
    pmm-admin
    amazon-rds
-   Configuring MySQL for best results <conf-mysql>
-   Configuring profiling in MongoDB <conf-mongodb>
+   Configuring MySQL for Best Results <conf-mysql>
+   Enabling MongoDB Profiling <conf-mongodb>
    security
    mm-dashboards
 

@@ -130,6 +130,10 @@
 
       To add a monitoring service, use the :program:`pmm-admin add` command.
 
+      .. seealso::
+
+	 - :ref:`Passing parameters to a monitoring service <pmm.pmm-admin.monitoring-service.pass-parameter>`
+
    Metrics
 
       A series of data which are visualized in PMM.
