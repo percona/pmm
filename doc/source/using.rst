@@ -113,9 +113,11 @@ ranges: from 1 hour to 5 days. Use the date picker to set a range of dates.
 
 The first line of the summary table contains the totals of the *load*, *count*, and
 *latency* for all queries that were run on the selected database server during
-the time of date range that you've specified.
+the time period that you've specified.
 
-.. rubric:: images/pmm.qan.query-summary-table.totals.1.png
+.. figure:: images/pmm.qan.query-summary-table.totals.1.png
+
+   The totals appear at the top of the query summary table.
 
 The *load* is the amount of time that the database server spent during the
 selected time or date range running all queries.
@@ -231,31 +233,6 @@ The :guilabel:`Log` tab contains the latest version of the monitored log, such
 as *slow log*. At the top of this tab, you may notice when exactly the snapshot
 was taken.
 
-QAN for MongoDB
---------------------------------------------------------------------------------
-
-MongoDB is conceptually different from relational database management systems,
-such as MySQL or MariaDB. Relational database management systems store data in
-tables that represent single entities. In order to represent complex objects you
-may need to link records from multiple tables. MongoDB, on the other hand, uses
-the concept of a document where all essential information pertaining to a
-complex object is stored together.
-
-QAN supports monitoring MongoDB queries. Although MongoDB is not a relational
-database management system, you analyze its databases and collections in the
-same interface using the same tools. By using the familiar and intuitive
-interface of :term:`QAN` you can analyze the efficiency of your application
-reading and writing data in the collections of your MongoDB databases.
-
-.. note:: **Suppored MongoDB versions**
-
-   PMM supports `MongoDB`_ version 3.2 or higher. 
-
-.. figure:: images/pmm.qan.query-metrics.2.png
-   :width: 50%
-
-   Analyze MongoDB queries using the same tools as relational database
-   management systems.
 
 .. _perf-schema:
 
@@ -276,7 +253,7 @@ will provide the most amount of information with the lowest overhead.
 Otherwise, using :ref:`Performance Schema <perf-schema-settings>`
 will likely provide better results.
 
-**To use Performance Schema:**
+.. rubric:: To use Performance Schema:
 
 1. Make sure that the ``performance_schema`` variable is set to ``ON``:
 
@@ -317,6 +294,36 @@ will likely provide better results.
       sudo pmm-admin add mysql --user root --password root --create-user --query-source perfschema
 
 For more information, run ``pmm-admin add mysql --help``.
+
+QAN for MongoDB
+--------------------------------------------------------------------------------
+
+MongoDB is conceptually different from relational database management systems,
+such as MySQL or MariaDB. Relational database management systems store data in
+tables that represent single entities. In order to represent complex objects you
+may need to link records from multiple tables. MongoDB, on the other hand, uses
+the concept of a document where all essential information pertaining to a
+complex object is stored together.
+
+.. figure:: images/pmm.qan.query-summary-table.mongodb.1.png
+
+   A list of queries from a MongoDB host
+
+QAN supports monitoring MongoDB queries. Although MongoDB is not a relational
+database management system, you analyze its databases and collections in the
+same interface using the same tools. By using the familiar and intuitive
+interface of :term:`QAN` you can analyze the efficiency of your application
+reading and writing data in the collections of your MongoDB databases.
+
+.. note:: **Suppored MongoDB versions**
+
+   PMM supports `MongoDB`_ version 3.2 or higher. 
+
+.. figure:: images/pmm.qan.query-metrics.mongodb.1.png
+   :width: 50%
+
+   Analyze MongoDB queries using the same tools as relational database
+   management systems.
 
 .. _using-mm:
 
@@ -407,7 +414,7 @@ Orchestrator
    other than that you can access it from the landing page.
 
 Orchestrator is a MySQL replication topology management and visualization tool.
-You can access it using the ``/orchestrator`` URL after *PMM Server* address.
+If it is enabled, you can access it using the ``/orchestrator`` URL after *PMM Server* address.
 Alternatively, you can click the **MySQL Replication Topology Manager** button
 on the main *PMM Server* landing page.
 
