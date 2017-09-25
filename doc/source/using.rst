@@ -102,7 +102,7 @@ range of dates. The default value is *the last hour*. To set another range use
 the *range selection tool* located at the top of your *QAN* page.
 
 .. figure:: images/pmm.qan.range-selection.1.png
-   :width: 25%
+   :width: 50%
 
    QAN displays query metrics for the time period or date range that you specify.
 
@@ -116,7 +116,8 @@ The first line of the summary table contains the totals of the *load*, *count*, 
 the time period that you've specified.
 
 .. figure:: images/pmm.qan.query-summary-table.totals.1.png
-
+   :width: 50%
+	   
    The totals appear at the top of the query summary table.
 
 The *load* is the amount of time that the database server spent during the
@@ -165,7 +166,7 @@ also contains details about the database and tables which are used in the query.
 
    Select a query from the query summary table to open its metrics.
 
-The details section enables you to run ``EXPLAIN`` on the selected query
+The ``details`` section enables you to run ``EXPLAIN`` on the selected query
 directly from the PMM web interface (simply specify the database).
 
 .. image:: images/qan-realtime-explain.png
@@ -177,7 +178,7 @@ and ``SHOW TABLE STATUS`` for each table used by the query
 directly from the PMM web interface.
 
 .. image:: images/qan-create-table.png
-   :width: 640
+   :width: 50%
 
 Configuring Query Analytics
 --------------------------------------------------------------------------------
@@ -199,7 +200,7 @@ server mentrics are collected from, such as *slow log*, or *performance
 schema*. For this, change the value of the *Collect from* field accordingly.
 
 .. figure:: images/pmm.qan.settings.1.png
-   :width: 25%
+   :width: 50%
 	   
    The Settings tab to view the essential settings of the selected database
    server.
@@ -222,7 +223,7 @@ database server directly. For example, in case of a MySQL server, the
    database server.
 
    .. figure:: images/pmm.qan.view-database-and-server-summary-info.1.png
-      :width: 25%
+      :width: 50%
 
       The System summary and Database summary (showing only fragments of both
       sections)
@@ -306,6 +307,7 @@ the concept of a document where all essential information pertaining to a
 complex object is stored together.
 
 .. figure:: images/pmm.qan.query-summary-table.mongodb.1.png
+   :width: 50%
 
    A list of queries from a MongoDB host
 
@@ -378,6 +380,7 @@ corner of a graph. When you move the mouse pointer away from the *More
 information* button the description disappears.
 
 .. figure:: images/pmm.metrics-monitor.description.1.png
+   :width: 50%
 
    Graph descriptions provide more information about a graph without claiming
    any space in the interface.
