@@ -157,7 +157,7 @@ the plotted line to watch how the value is changing.
 .. rubric:: Zooming into a Query
 
 Click one of the queries to zoom it in. QAN displays detailed information about
-the :term:`query metrics summary table` below the :term:`query summary
+the query in the :term:`query metrics summary table` below the :term:`query summary
 table`. The detailed information includes the query type specific metrics. It
 also contains details about the database and tables which are used in the query.
 
@@ -166,11 +166,38 @@ also contains details about the database and tables which are used in the query.
 
    Select a query from the query summary table to open its metrics.
 
-The ``details`` section enables you to run ``EXPLAIN`` on the selected query
+.. rubric:: Query Section
+   
+In addition to the metrics in the :term:`query metrics summary table`,
+:program:`QAN` displays more information about the query itself. The ``Query``
+section contains the :term:`fingerprint <Query Fingerprint>` and an example of
+the query.
+
+.. figure:: images/pmm.qan.query.1.png
+   :width: 50%
+
+   The Query section shows the SQL statement for the selected query.
+	    
+
+.. rubric:: Explain Section
+
+The ``Explain`` section enables you to run :command:`EXPLAIN` on the selected query
 directly from the PMM web interface (simply specify the database).
 
 .. image:: images/qan-realtime-explain.png
    :width: 640
+
+The output appears in two forms: classic and JSON. The classic form presents the
+attributes of the :command:`EXPLAIN` command as columns of a table. The JSON
+format presents the output of the :command:`EXPLAIN` as a JSON document.
+
+.. figure:: images/pmm.qan.explain.1.png
+   :width: 50%
+
+   The two output formats of the EXPLAIN command.
+	    
+
+.. rubric:: Table Info Section
 
 At the bottom, you can run Table Info for the selected query.
 This enables you to get ``SHOW CREATE TABLE``, ``SHOW INDEX``,
@@ -412,11 +439,7 @@ information for this dashboard comes from the *information schema* tables.
 Orchestrator
 ============
 
-.. note:: Orchestrator was included into PMM for experimental purposes.
-   It is a standalone tool, not integrated with PMM
-   other than that you can access it from the landing page.
-
-Orchestrator is a MySQL replication topology management and visualization tool.
+:program:`Orchestrator` is a MySQL replication topology management and visualization tool.
 If it is enabled, you can access it using the ``/orchestrator`` URL after *PMM Server* address.
 Alternatively, you can click the **MySQL Replication Topology Manager** button
 on the main *PMM Server* landing page.
@@ -435,6 +458,18 @@ To use it, create a MySQL user for Orchestrator on all managed instances::
 
 Then you can use the **Discover** page in the Orchestrator web interface
 to add the instances to the topology.
+
+.. note:: **Orchestrator not enabled by default starting with PMM 1.3.0**
+
+   :program:`Orchestrator` was included into PMM for experimental purposes.  It
+   is a standalone tool, not integrated with PMM other than that you can access
+   it from the landing page.
+
+   In version 1.3.0 and later, :program:`Orchestrator` is not enabled
+   by default. To enable it, see
+   :ref:`pmm/docker.additional_parameters` in the
+   :ref:`run-server-docker` section.
+
 
 .. include:: replace.txt
 .. include:: url.txt
