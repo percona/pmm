@@ -28,7 +28,7 @@ New Features
 * :pmmbug:`1290`: Basic support for the metrics of the MyRocks storage engine in MySQL via the mysqld-exporter.
 * :pmmbug:`1312`: Metrics Monitor now features a MyRocks dashboard.
 * :pmmbug:`1330`: Basic telemetry data are collected from PMM Servers.
-* :pmmbug:`1417`: A new dashboard in Metrics Monitor designed to enable exploring any data in Prometheus
+* :pmmbug:`1417`: A new dashboard titled *Advanced Data Exploration Dashboard* in Metrics Monitor enables exploring any data in Prometheus
 * :pmmbug:`1437`: :program:`pmm-admin` allows passing parameters to exporters.
 * :pmmbug:`685`:  The EXPLAIN command is now supported for MongoDB queries in :program:`QAN`.
 
