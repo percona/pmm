@@ -19,8 +19,8 @@ design and in its capabilities. In this release, :program:`QAN` starts
 supporting all types of MongoDB queries.
 
 :program:`Orchestrator` is not enabled by default because leaving it in a
-non-configured state was confusing to users. It is still possible to enable it
-along with the :command:`docker run` command.
+non-configured state was confusing to users. :ref:`It is still possible to
+enable it <pmm/docker.additional_parameters>`.
 
 New Features
 --------------------------------------------------------------------------------
@@ -38,11 +38,12 @@ Improvements
 * :pmmbug:`1262`: The system checks for updates much faster
 * :pmmbug:`1015`: :program:`QAN` should shows all collections from a mongod instance. Make sure that profiling is enabled in MongoDB.
 * :pmmbug:`1057`: :program:`QAN` supports all MongoDB query types.
-* :pmmbug:`1270`: In :program:`Metrics Monitor`, the dashboard filter dispalys only MariaDB hosts.
-* :pmmbug:`1287`: In :program:`pmm-admin` *mongodb:queries* is not experimental any more and the :option:`dev-enable` option is no longer needed.
+* :pmmbug:`1270`: In :program:`Metrics Monitor`, the MariaDB dashboard host filter now displays only the hosts running MariaDB.
+* :pmmbug:`1287`: The *mongodb:queries* monitoring service is not considered to be experimental any more.
+  The :option:`dev-enable` option is no longer needed when you run the :program:`pmm-admin add` command to add it.
 * :pmmbug:`1446`: In :program:`Metrics Monitor`, the *MySQL Active Threads* graph displays data more accurately.
-* :pmmbug:`1455`: In :program:`Metrics Monitor`, features descriptions of graphs
-* :pmmbug:`1476`: QAN2 is used by default in *pmmdemo.percona.com*
+* :pmmbug:`1455`: In :program:`Metrics Monitor`, features improved descriptions of the ``InnoDB Tansactions`` graph.
+* :pmmbug:`1476`: In :program:`QAN`, the new interface is now useed by default.
 * :pmmbug:`1479`: It is now possible to go to :program:`QAN` directly from :program:`Metrics Monitor`.
 * :pmmbug:`515`: :program:`Orchestrator` is disabled by default. It is possible to enable it when running your docker container.
 
@@ -50,9 +51,12 @@ Bug fixes
 --------------------------------------------------------------------------------
 
 * :pmmbug:`1298`: In :program:`QAN`, the query abstract could be empty for MySQL hosts for low ranking queries. This bug is fixed to contain *Low Ranking Queries* as the value of the query astract.
-* :pmmbug:`1314`: The selected time range in :program:`QAN` could be applied incorrectly. This bug is now fixed.
-* :pmmbug:`1398`: Prometheus memory was not updated after PMM upgrade. This bug is now fixed.
+* :pmmbug:`1314`: The selected time range in :program:`QAN` could be applied incorrectly.
+  This problem is not observed in the new design of :program:`QAN`.
+* :pmmbug:`1398`: The :program:`Prometheus` server was not restarted after PMM was upgraded. This bug is now fixed.
 * :pmmbug:`1427`: The *CPU Usage/Load* graph in the *MySQL Overview* dashboard was displayed with slightly incorrect dimensions. This bug is now solved.
 * :pmmbug:`1439`: If the EXPLAIN command was not supported for the selected query, there could appear a JavaScript error.
-* :pmmbug:`1472`: It could happen that monitoring of queries for for MongoDB with replication could not be enabled.
+* :pmmbug:`1472`: In some cases, the monitoring of queries for MongoDB with replication could not be enabled.
 * :pmmbug:`943`: InnoDB AHI Usage Graph had incorrect naming and hit ratio computation.
+
+  Other bug fixes in this release: :pmmbug:`1479`
