@@ -189,7 +189,7 @@ directly from the PMM web interface (simply specify the database).
 
 The output appears in two forms: classic and JSON. The classic form presents the
 attributes of the :command:`EXPLAIN` command as columns of a table. The JSON
-format presents the output of the :command:`EXPLAIN` as a JSON document.
+format presents the output of :command:`EXPLAIN` as a JSON document.
 
 .. figure:: images/pmm.qan.explain.1.png
    :width: 50%

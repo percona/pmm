@@ -50,7 +50,7 @@ Improvements
 Bug fixes
 --------------------------------------------------------------------------------
 
-* :pmmbug:`1298`: In :program:`QAN`, the query abstract could be empty for MySQL hosts for low ranking queries. This bug is fixed to contain *Low Ranking Queries* as the value of the query astract.
+* :pmmbug:`1298`: In :program:`QAN`, the query abstract could be empty for MySQL hosts for low ranking queries. This bug is fixed to contain *Low Ranking Queries* as the value of the query abstract.
 * :pmmbug:`1314`: The selected time range in :program:`QAN` could be applied incorrectly.
   This problem is not observed in the new design of :program:`QAN`.
 * :pmmbug:`1398`: The :program:`Prometheus` server was not restarted after PMM was upgraded. This bug is now fixed.
