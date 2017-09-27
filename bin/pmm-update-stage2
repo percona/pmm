@@ -19,7 +19,7 @@ main() {
     local RPM_ROOT=$1
 
     local PLAYBOOK=$(get_latest_version $RPM_ROOT)/main.yml
-    ansible-playbook -vvv -i 'localhost,' -c local $PLAYBOOK
+    ansible-playbook -vvv -i 'localhost,' -c local $EXTRA_ARGS $PLAYBOOK
     cp $PLAYBOOK $UPDATE_DIR/main.yml
 
     sleep 1
