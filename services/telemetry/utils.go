@@ -154,3 +154,23 @@ func getEntries(filename string, keys []string) (map[string]string, error) {
 	}
 	return values, nil
 }
+
+var procVersionRegexps = map[*regexp.Regexp]string{
+	regexp.MustCompile(`ubuntu\d+~(?P<version>\d+\.\d+)`): "Ubuntu ${version}",
+	regexp.MustCompile(`\.fc(?P<version>\d+)\.`):          "Fedora ${version}",
+	regexp.MustCompile(`dev\.centos\.org`):                "CentOS",
+	regexp.MustCompile(`builduser@leming`):                "Arch",
+	regexp.MustCompile(`\.amzn\d+\.`):                     "Amazon",
+	regexp.MustCompile(`Microsoft`):                       "Microsoft",
+}
+
+// getLinuxDistribution detects Linux distribution and version from /proc/version information.
+func getLinuxDistribution(procVersion string) string {
+	for re, t := range procVersionRegexps {
+		match := re.FindStringSubmatchIndex(procVersion)
+		if match != nil {
+			return string(re.ExpandString(nil, t, procVersion, match))
+		}
+	}
+	return ""
+}
