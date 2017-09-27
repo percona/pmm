@@ -21,8 +21,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"regexp"
+	"strings"
 	"time"
+
+	guuid "github.com/google/uuid"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -34,6 +40,7 @@ type Service struct {
 	UUID       string
 	URL        string
 	PMMVersion string
+	OS         string
 	Interval   time.Duration
 }
 
@@ -62,13 +69,14 @@ func (s *Service) runOnce(ctx context.Context) bool {
 }
 
 func (s *Service) collectData() map[string]string {
-	data := map[string]string{
+	if s.OS == "" {
+		b, _ := ioutil.ReadFile("/proc/version")
+		s.OS = getLinuxDistribution(string(b))
+	}
+	return map[string]string{
 		"PMM": s.PMMVersion,
+		"OS":  s.OS,
 	}
-	if osType, err := getOSNameAndVersion(); err == nil {
-		data["OS"] = osType
-	}
-	return data
 }
 
 func (s *Service) makePayload(data map[string]string) []byte {
@@ -105,4 +113,36 @@ func (s *Service) sendRequest(ctx context.Context, data []byte) error {
 		return fmt.Errorf("status code %d", resp.StatusCode)
 	}
 	return nil
+}
+
+// GenerateUUID generates new UUID version 4 (random).
+func GenerateUUID() (string, error) {
+	uuid, err := guuid.NewRandom()
+	if err != nil {
+		return "", errors.Wrap(err, "can't generate UUID")
+	}
+
+	// Old telemetry IDs have only 32 chars in the table but UUIDs + "-" = 36
+	cleanUUID := strings.Replace(uuid.String(), "-", "", -1)
+	return cleanUUID, nil
+}
+
+var procVersionRegexps = map[*regexp.Regexp]string{
+	regexp.MustCompile(`ubuntu\d+~(?P<version>\d+\.\d+)`): "Ubuntu ${version}",
+	regexp.MustCompile(`\.fc(?P<version>\d+)\.`):          "Fedora ${version}",
+	regexp.MustCompile(`dev\.centos\.org`):                "CentOS",
+	regexp.MustCompile(`builduser@leming`):                "Arch",
+	regexp.MustCompile(`\.amzn\d+\.`):                     "Amazon",
+	regexp.MustCompile(`Microsoft`):                       "Microsoft",
+}
+
+// getLinuxDistribution detects Linux distribution and version from /proc/version information.
+func getLinuxDistribution(procVersion string) string {
+	for re, t := range procVersionRegexps {
+		match := re.FindStringSubmatchIndex(procVersion)
+		if match != nil {
+			return string(re.ExpandString(nil, t, procVersion, match))
+		}
+	}
+	return "unknown"
 }

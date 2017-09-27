@@ -169,105 +169,6 @@ func TestMakePayload(t *testing.T) {
 	assert.Contains(t, string(b), "ABCDEFG12345;PMM;1.2.3\n")
 }
 
-// freedesktop.org and systemd
-func TestGetOSNameAndVersion1(t *testing.T) {
-	stat = func(filename string) (os.FileInfo, error) {
-		var fs file
-		return &fs, nil
-	}
-	readFile = func(filename string) ([]byte, error) {
-		return []byte("NAME=CarlOs\nVERSION=1.0"), nil
-	}
-
-	osInfo, err := getOSNameAndVersion()
-	require.NoError(t, err)
-	assert.Equal(t, osInfo, "CarlOs 1.0")
-
-	// Restore original funcs
-	stat = os.Stat
-	readFile = ioutil.ReadFile
-}
-
-// linuxbase.org
-func TestGetOSNameAndVersion2(t *testing.T) {
-	stat = func(filename string) (os.FileInfo, error) {
-		return nil, fmt.Errorf("fake error")
-	}
-	readFile = func(filename string) ([]byte, error) {
-		return []byte(""), nil
-	}
-
-	output = func(args ...string) ([]byte, error) {
-		if len(args) == 2 {
-			if args[1] == "-si" {
-				return []byte("CarlOs"), nil
-			}
-			if args[1] == "-sr" {
-				return []byte("version 2.0"), nil
-			}
-		}
-		return nil, fmt.Errorf("invalid parameters")
-	}
-
-	osInfo, err := getOSNameAndVersion()
-	require.NoError(t, err)
-	assert.Equal(t, osInfo, "CarlOs version 2.0")
-
-	// Restore original funcs
-	stat = os.Stat
-	readFile = ioutil.ReadFile
-}
-
-// For some versions of Debian/Ubuntu without lsb_release command
-func TestGetOSNameAndVersion3(t *testing.T) {
-	stat = func(filename string) (os.FileInfo, error) {
-		if filename == "/etc/lsb-release" {
-			return &file{}, nil
-		}
-		return nil, fmt.Errorf("fake error")
-	}
-	readFile = func(filename string) ([]byte, error) {
-		return []byte("DISTRIB_ID=\"CarlOs\"\nDISTRIB_RELEASE=\"version 3.0\""), nil
-	}
-
-	output = func(args ...string) ([]byte, error) {
-		return nil, fmt.Errorf("invalid parameters")
-	}
-
-	osInfo, err := getOSNameAndVersion()
-	require.NoError(t, err)
-	assert.Equal(t, osInfo, "CarlOs version 3.0")
-
-	// Restore original funcs
-	stat = os.Stat
-	readFile = ioutil.ReadFile
-}
-
-// Older Debian/Ubuntu/etc.
-func TestGetOSNameAndVersion4(t *testing.T) {
-	stat = func(filename string) (os.FileInfo, error) {
-		if filename == "/etc/debian_version" {
-			return &file{}, nil
-		}
-		return nil, fmt.Errorf("fake error")
-	}
-	readFile = func(filename string) ([]byte, error) {
-		return []byte("version 4.0"), nil
-	}
-
-	output = func(args ...string) ([]byte, error) {
-		return nil, fmt.Errorf("invalid parameters")
-	}
-
-	osInfo, err := getOSNameAndVersion()
-	require.NoError(t, err)
-	assert.Equal(t, osInfo, "Debian version 4.0")
-
-	// Restore original funcs
-	stat = os.Stat
-	readFile = ioutil.ReadFile
-}
-
 func TestGetLinuxDistribution(t *testing.T) {
 	for expected, procVersion := range map[string][]string{
 		// cat /proc/version
@@ -299,6 +200,10 @@ func TestGetLinuxDistribution(t *testing.T) {
 
 		"Microsoft": {
 			`Linux version 4.4.0-43-Microsoft (Microsoft@Microsoft.com) (gcc version 5.4.0 (GCC) ) #1-Microsoft Wed Dec 31 14:42:53 PST 2014`,
+		},
+
+		"unknown": {
+			``,
 		},
 	} {
 		for _, v := range procVersion {
