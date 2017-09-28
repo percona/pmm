@@ -1,4 +1,4 @@
-# v1.3.0
+# v1.3.1
 ---
 - hosts: all
   become: yes
@@ -25,16 +25,16 @@
         - nginx
         - pmm-update
         - percona-toolkit-3.0.4
-        - percona-dashboards-1.3.0
-        - pmm-server-1.3.0
+        - percona-dashboards-1.3.1
+        - pmm-server-1.3.1
         - percona-orchestrator-2.1.5
         - percona-prometheus-1.7.1
         - percona-node_exporter-0.13.0
-        - percona-qan-api-1.3.0
+        - percona-qan-api-1.3.1
         - percona-grafana-4.4.3
-        - percona-qan-app-1.3.0
-        - pmm-manage-1.3.0
-        - pmm-managed-1.3.0
+        - percona-qan-app-1.3.1
+        - pmm-manage-1.3.1
+        - pmm-managed-1.3.1
         - percona-consul-0.8.5
 
     - name: PMM                        | Remove RPMs
