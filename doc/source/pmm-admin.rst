@@ -151,7 +151,7 @@ Passing parameters to a monitoring service
 
 :program:`pmm-admin add` sends all options which follow :option:`--` (two
 consecutive dashes delimited by whitespace) to the monitoring service as
-parameters. 
+parameters.
 
 .. code-block:: bash
    :caption: Passing :option:`--collect.perf_schema.eventsstatements` to the
@@ -171,10 +171,10 @@ monitoring service parameters along with the :program:`pmm-admin add` command
 when adding the :option:`mongodb:queries` monitoring service.
 
 .. code-block:: bash
-   :caption: Passing an SSL/TLS parameter to :program:`mongod` to enables 
+   :caption: Passing an SSL/TLS parameter to :program:`mongod` to enables
              a TLS connection.
 
-   $ sudo pmm-adming add mongodb:queries -- mongodb.tls
+   $ sudo pmm-adming add mongodb:queries -- -mongodb.tls
 
 .. list-table:: Supported SSL/TLS Parameters
    :widths: 25 75
