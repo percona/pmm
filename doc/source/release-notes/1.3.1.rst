@@ -1,0 +1,27 @@
+.. _1.3.1:
+
+================================================================================
+Percona Monitoring and Management |release|
+================================================================================
+
+:Date: September 28, 2017
+
+Percona announces the release of Percona Monitoring and Management
+|release|. This release only contains bug fixes related to usability.
+
+For install and upgrade instructions, see :ref:`deploy-pmm`.
+
+Bug fixes
+--------------------------------------------------------------------------------
+
+* :pmmbug:`1271`: In QAN, when the user selected a database host with no
+  queries, the query monitor could still show metrics.
+* :pmmbug:`1512`: When clicking the :guilabel:`QAN` in :program:`Grafana`,
+  :program:`QAN` would open the home page. Now, :program:`QAN` opens selecting the
+  database host and time range active in :program:`Grafana`.
+
+Other bug fixes in this release:
+:pmmbug:`1452`,
+:pmmbug:`1515`,
+:pmmbug:`1523`.
+
