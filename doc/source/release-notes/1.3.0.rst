@@ -60,3 +60,5 @@ Bug fixes
 * :pmmbug:`943`: InnoDB AHI Usage Graph had incorrect naming and hit ratio computation.
 
   Other bug fixes in this release: :pmmbug:`1479`
+
+.. |release| replace:: 1.3.0
