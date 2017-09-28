@@ -14,8 +14,6 @@ For install and upgrade instructions, see :ref:`deploy-pmm`.
 Bug fixes
 --------------------------------------------------------------------------------
 
-* :pmmbug:`1507`: In some cases when telemetry was enabled, the operating system
-  could be detected incorrectly.
 * :pmmbug:`1271`: In QAN, when the user selected a database host with no
   queries, the query monitor could still show metrics.
 * :pmmbug:`1512`: When clicking the :guilabel:`QAN` in :program:`Grafana`,
