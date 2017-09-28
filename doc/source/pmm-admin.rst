@@ -160,6 +160,13 @@ parameters.
 
    $ sudo pmm-admin add mysql:metrics -- --collect.perf_schema.eventsstatements
 
+.. code-block:: bash
+   :caption: Passing :option:`--collect.perf_schema.eventswaits=false` to the
+             :option:`mysql:metrics` monitoring service
+   :name: pmm.pmm-admin.monitoring-service.pass-parameter.example2
+
+   $ sudo pmm-admin add mysql:metrics -- --collect.perf_schema.eventswaits=false
+
 
 .. _pmm.pmm-admin.mongodb.pass-ssl-parameter:
 
