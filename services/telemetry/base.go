@@ -23,34 +23,88 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
-	guuid "github.com/google/uuid"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
 )
 
 const (
-	timeout = 5 * time.Second
+	interval   = 24 * time.Hour
+	timeout    = 5 * time.Second
+	defaultURL = "https://v.percona.com/"
+
+	// environment variables that affect telemetry service
+	envDisable = "DISABLE_TELEMETRY"
+	envURL     = "PERCONA_VERSION_CHECK_URL" // the same name as for the Toolkit
+	envOS      = "TELEMETRY_OS"              // set by AMI and OVA, empty for Docker image
 )
 
 // Service is responsible for interactions with Percona Call Home service.
 type Service struct {
-	UUID       string
-	URL        string
-	PMMVersion string
-	OS         string
-	Interval   time.Duration
+	uuid       string
+	pmmVersion string
+
+	l   *logrus.Entry
+	os  string
+	url string
 }
 
-// Run runs telemetry service, sending data every Config.Interval until context is canceled.
+// NewService creates a new service with given UUID and PMM version.
+func NewService(uuid string, pmmVersion string) *Service {
+	return &Service{
+		uuid:       uuid,
+		pmmVersion: pmmVersion,
+	}
+}
+
+func (s *Service) init() bool {
+	s.l = logrus.WithField("component", "telemetry")
+
+	disabledStr := strings.TrimSpace(strings.ToLower(os.Getenv(envDisable)))
+	if disabled, err := strconv.ParseBool(disabledStr); err == nil && disabled {
+		s.l.Infof("Disabled by %s environment variable.", envDisable)
+		return false
+	}
+
+	if os := os.Getenv(envOS); os != "" {
+		s.os = os
+	} else {
+		b, err := ioutil.ReadFile("/proc/version")
+		if err != nil {
+			s.l.Debugf("Failed to read /proc/version: %s", err)
+		}
+		s.os = getLinuxDistribution(string(b))
+	}
+	s.l.Debugf("Using %q as OS.", s.os)
+
+	if u := os.Getenv(envURL); u != "" {
+		s.url = u
+	} else {
+		s.url = defaultURL
+	}
+	s.l.Debugf("Using %q as the endpoint.", s.url)
+
+	s.l.Infof("Enabled. UUID: %s", s.uuid)
+	return true
+}
+
+// Run runs telemetry service, sending data every interval until context is canceled.
 func (s *Service) Run(ctx context.Context) {
-	ticker := time.NewTicker(s.Interval)
+	if !s.init() {
+		return
+	}
+
+	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
 	for {
-		s.runOnce(ctx)
+		s.sendOnce(ctx)
 
 		select {
 		case <-ticker.C:
@@ -61,37 +115,25 @@ func (s *Service) Run(ctx context.Context) {
 	}
 }
 
-func (s *Service) runOnce(ctx context.Context) bool {
-	data := s.collectData()
-	payload := s.makePayload(data)
+func (s *Service) sendOnce(ctx context.Context) error {
+	payload := s.makePayload()
 	err := s.sendRequest(ctx, payload)
-	return err == nil
+	if err != nil {
+		s.l.Debugf("Failed to send info: %s", err)
+	}
+	return err
 }
 
-func (s *Service) collectData() map[string]string {
-	if s.OS == "" {
-		b, _ := ioutil.ReadFile("/proc/version")
-		s.OS = getLinuxDistribution(string(b))
-	}
-	return map[string]string{
-		"PMM": s.PMMVersion,
-		"OS":  s.OS,
-	}
-}
-
-func (s *Service) makePayload(data map[string]string) []byte {
+func (s *Service) makePayload() []byte {
 	var w bytes.Buffer
-
-	for key, value := range data {
-		w.WriteString(fmt.Sprintf("%s;%s;%s\n", s.UUID, key, value))
-	}
-
+	fmt.Fprintf(&w, "%s;%s;%s\n", s.uuid, "OS", s.os)
+	fmt.Fprintf(&w, "%s;%s;%s\n", s.uuid, "PMM", s.pmmVersion)
 	return w.Bytes()
 }
 
 func (s *Service) sendRequest(ctx context.Context, data []byte) error {
 	body := bytes.NewReader(data)
-	req, err := http.NewRequest("POST", s.URL, body)
+	req, err := http.NewRequest("POST", s.url, body)
 	if err != nil {
 		return err
 	}
@@ -117,7 +159,7 @@ func (s *Service) sendRequest(ctx context.Context, data []byte) error {
 
 // GenerateUUID generates new UUID version 4 (random).
 func GenerateUUID() (string, error) {
-	uuid, err := guuid.NewRandom()
+	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return "", errors.Wrap(err, "can't generate UUID")
 	}
@@ -127,21 +169,34 @@ func GenerateUUID() (string, error) {
 	return cleanUUID, nil
 }
 
-var procVersionRegexps = map[*regexp.Regexp]string{
-	regexp.MustCompile(`ubuntu\d+~(?P<version>\d+\.\d+)`): "Ubuntu ${version}",
-	regexp.MustCompile(`\.fc(?P<version>\d+)\.`):          "Fedora ${version}",
-	regexp.MustCompile(`dev\.centos\.org`):                "CentOS",
-	regexp.MustCompile(`builduser@leming`):                "Arch",
-	regexp.MustCompile(`\.amzn\d+\.`):                     "Amazon",
-	regexp.MustCompile(`Microsoft`):                       "Microsoft",
+// Currently we only detect OS (Linux distribution) version from the kernel version (/proc/version).
+// For both AMI and OVA this value is fixed by the environment variable and not autodetected.
+// If/when we decide to support installation with "normal" Linux package managers (apt, yum, etc.),
+// we could use the code that was there. See PM-1333 and PMM-1507 in both git logs and Jira for details.
+
+type pair struct {
+	re *regexp.Regexp
+	t  string
+}
+
+var procVersionRegexps = []pair{
+	{regexp.MustCompile(`ubuntu\d+~(?P<version>\d+\.\d+)`), "Ubuntu ${version}"},
+	{regexp.MustCompile(`ubuntu`), "Ubuntu"},
+	{regexp.MustCompile(`Debian`), "Debian"},
+	{regexp.MustCompile(`\.fc(?P<version>\d+)\.`), "Fedora ${version}"},
+	{regexp.MustCompile(`\.centos\.`), "CentOS"},
+	{regexp.MustCompile(`\-ARCH`), "Arch"},
+	{regexp.MustCompile(`\-moby`), "Moby"},
+	{regexp.MustCompile(`\.amzn\d+\.`), "Amazon"},
+	{regexp.MustCompile(`Microsoft`), "Microsoft"},
 }
 
 // getLinuxDistribution detects Linux distribution and version from /proc/version information.
 func getLinuxDistribution(procVersion string) string {
-	for re, t := range procVersionRegexps {
-		match := re.FindStringSubmatchIndex(procVersion)
+	for _, p := range procVersionRegexps {
+		match := p.re.FindStringSubmatchIndex(procVersion)
 		if match != nil {
-			return string(re.ExpandString(nil, t, procVersion, match))
+			return string(p.re.ExpandString(nil, p.t, procVersion, match))
 		}
 	}
 	return "unknown"

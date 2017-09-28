@@ -18,168 +18,65 @@ package telemetry
 
 import (
 	"context"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
 	"os"
+	"strconv"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-type file struct {
-	path    string
-	content []byte
-}
+func TestIntegration(t *testing.T) {
+	if ok, _ := strconv.ParseBool(os.Getenv("INTEGRATION_TESTS")); !ok {
+		t.Skipf("Environment variable INTEGRATION_TESTS is not set. Skipping integration test.")
+	}
 
-func newFile() os.FileInfo {
-	return &file{}
-}
-
-func (f *file) Name() string {
-	return f.path
-}
-func (f *file) Size() int64 {
-	return int64(len(f.content))
-}
-func (f *file) IsDir() bool {
-	return false
-}
-func (f *file) Sys() interface{} {
-	return ""
-}
-func (f *file) ModTime() time.Time {
-	return time.Now()
-}
-func (f *file) Mode() os.FileMode {
-	return os.ModePerm
-}
-
-func TestService(t *testing.T) {
-	var count int
-	var lastHeader string
-
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body, err := ioutil.ReadAll(r.Body)
-		defer r.Body.Close()
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Fprintln(w, fmt.Sprintf("cannot decode body: %s", err.Error()))
-			return
-		}
-		if len(body) == 0 {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		if xHeader, ok := r.Header["X-Percona-Toolkit-Tool"]; ok {
-			if len(xHeader) > 0 {
-				lastHeader = xHeader[0]
-			}
-		}
-		count++
-	}))
-	defer ts.Close()
+	if os.Getenv(envURL) == "" {
+		t.Skipf("Environment variable %s is not set. Skipping integration test.", envURL)
+	}
 
 	uuid, err := GenerateUUID()
 	require.NoError(t, err)
-	service := &Service{
-		UUID:       uuid,
-		URL:        ts.URL,
-		PMMVersion: "1.3.0",
-		Interval:   1 * time.Second,
-	}
-
-	ctx, cancel := context.WithCancel(context.Background())
-	done := make(chan struct{})
-	go func() {
-		service.Run(ctx)
-		close(done)
-	}()
-
-	time.Sleep(100 * time.Millisecond)
-	assert.Equal(t, count, 1)
-	cancel()
-	<-done
-	assert.Equal(t, lastHeader, "pmm")
-
-	// Test a service restart
-	ctx, cancel = context.WithCancel(context.Background())
-	done = make(chan struct{})
-	go func() {
-		service.Run(ctx)
-		close(done)
-	}()
-
-	time.Sleep(1100 * time.Millisecond)
-	assert.Equal(t, count, 3)
-	cancel()
-	<-done
-}
-
-func TestServiceIntegration(t *testing.T) {
-	integrationTests := os.Getenv("INTEGRATION_TESTS")
-	if integrationTests == "" {
-		t.Skipf("Env var INTEGRATION_TESTS is not set. Skipping integration test")
-	}
-
-	// Using this env var for compatibility with the Toolkit
-	telemetryEnvURL := os.Getenv("PERCONA_VERSION_CHECK_URL")
-	if telemetryEnvURL == "" {
-		t.Skipf("Env var PERCONA_VERSION_CHECK_URL is not set. Skipping integration test")
-	}
-	uuid, err := GenerateUUID()
-	require.NoError(t, err)
-	service := &Service{
-		UUID:       uuid,
-		URL:        telemetryEnvURL,
-		PMMVersion: "1.3.0",
-	}
-	assert.Contains(t, service.runOnce(context.Background()), "telemetry data sent")
-}
-
-func TestCollectData(t *testing.T) {
-	service := &Service{
-		PMMVersion: "1.3.0",
-	}
-
-	m := service.collectData()
-	assert.NotEmpty(t, m)
-
-	assert.Contains(t, m, "OS")
-	assert.Contains(t, m, "PMM")
+	s := NewService(uuid, "1.3.1")
+	assert.True(t, s.init())
+	assert.NoError(t, s.sendOnce(context.Background()))
 }
 
 func TestMakePayload(t *testing.T) {
-	service := &Service{
-		UUID: "ABCDEFG12345",
-	}
-
-	m := map[string]string{
-		"OS":  "Kubuntu",
-		"PMM": "1.2.3",
-	}
-
-	b := service.makePayload(m)
-	// Don't remove \n at the end of the strings. They are needed by the API
-	// so I want to ensure makePayload adds them
-	assert.Contains(t, string(b), "ABCDEFG12345;OS;Kubuntu\n")
-	assert.Contains(t, string(b), "ABCDEFG12345;PMM;1.2.3\n")
+	s := NewService("ECAB81E4C47D456CA9EC20AEBF91AB44", "1.3.1")
+	expected := "ECAB81E4C47D456CA9EC20AEBF91AB44;OS;\nECAB81E4C47D456CA9EC20AEBF91AB44;PMM;1.3.1\n"
+	assert.Equal(t, expected, string(s.makePayload())) // \n are important
 }
 
 func TestGetLinuxDistribution(t *testing.T) {
 	for expected, procVersion := range map[string][]string{
 		// cat /proc/version
 		"Ubuntu 16.04": {
+			`Linux version 4.4.0-47-generic (buildd@lcy01-03) (gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.2) ) #68-Ubuntu SMP Wed Oct 26 19:39:52 UTC 2016`,
 			`Linux version 4.4.0-57-generic (buildd@lgw01-54) (gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.4) ) #78-Ubuntu SMP Fri Dec 9 23:50:32 UTC 2016`,
 			`Linux version 4.4.0-96-generic (buildd@lgw01-10) (gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.4) ) #119-Ubuntu SMP Tue Sep 12 14:59:54 UTC 2017`,
 			`Linux version 4.10.0-27-generic (buildd@lgw01-60) (gcc version 5.4.0 20160609 (Ubuntu 5.4.0-6ubuntu1~16.04.4) ) #30~16.04.2-Ubuntu SMP Thu Jun 29 16:07:46 UTC 2017`,
 		},
 
+		"Ubuntu 14.04": {
+			`Linux version 3.13.0-129-generic (buildd@lgw01-05) (gcc version 4.8.4 (Ubuntu 4.8.4-2ubuntu1~14.04.3) ) #178-Ubuntu SMP Fri Aug 11 12:48:20 UTC 2017`,
+		},
+
+		"Ubuntu": {
+			/* 18.10 beta */ `Linux version 4.13.0-11-lowlatency (buildd@lgw01-23) (gcc version 7.2.0 (Ubuntu 7.2.0-3ubuntu1)) #12-Ubuntu SMP PREEMPT Tue Sep 12 17:37:56 UTC 2017`,
+			/* 14.04.5    */ `Linux version 3.13.0-77-generic (buildd@lcy01-30) (gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1) ) #121-Ubuntu SMP Wed Jan 20 10:50:42 UTC 2016`,
+		},
+
+		"Debian": {
+			`Linux version 4.4.35-1-pve (root@elsa) (gcc version 4.9.2 (Debian 4.9.2-10) ) #1 SMP Fri Dec 9 11:09:55 CET 2016`,
+		},
+
 		"Fedora 26": {
 			`Linux version 4.12.13-300.fc26.x86_64 (mockbuild@bkernel01.phx2.fedoraproject.org) (gcc version 7.1.1 20170622 (Red Hat 7.1.1-3) (GCC) ) #1 SMP Thu Sep 14 16:00:38 UTC 2017`,
+		},
+
+		"Fedora 25": {
+			`Linux version 4.11.12-200.fc25.x86_64 (mockbuild@bkernel01.phx2.fedoraproject.org) (gcc version 6.3.1 20161221 (Red Hat 6.3.1-1) (GCC) ) #1 SMP Fri Jul 21 16:41:43 UTC 2017`,
 		},
 
 		"CentOS": {
@@ -194,6 +91,11 @@ func TestGetLinuxDistribution(t *testing.T) {
 			`Linux version 4.9.43-1-ARCH (builduser@leming) (gcc version 7.1.1 20170630 (GCC) ) #1 SMP Fri Aug 18 01:10:29 UTC 2017`,
 		},
 
+		// Docker for macOS
+		"Moby": {
+			`Linux version 4.9.41-moby (root@11fbdc1f630f) (gcc version 6.2.1 20160822 (Alpine 6.2.1) ) #1 SMP Wed Sep 6 00:05:16 UTC 2017`,
+		},
+
 		"Amazon": {
 			`Linux version 4.9.38-16.35.amzn1.x86_64 (mockbuild@gobi-build-60006) (gcc version 4.8.3 20140911 (Red Hat 4.8.3-9) (GCC) ) #1 SMP Sat Aug 5 01:39:35 UTC 2017`,
 		},
@@ -204,6 +106,7 @@ func TestGetLinuxDistribution(t *testing.T) {
 
 		"unknown": {
 			``,
+			`lalala`,
 		},
 	} {
 		for _, v := range procVersion {

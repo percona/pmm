@@ -27,7 +27,6 @@ import (
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -54,7 +53,7 @@ const (
 	shutdownTimeout = 3 * time.Second
 
 	// FIXME set it during build for PMM 1.4
-	pmmVersion = "1.3.0"
+	pmmVersion = "1.3.1"
 )
 
 var (
@@ -248,30 +247,12 @@ func runDebugServer(ctx context.Context) {
 func runTelemetryService(ctx context.Context, consulClient *consul.Client) {
 	l := logrus.WithField("component", "telemetry")
 
-	disabledStr := strings.TrimSpace(strings.ToLower(os.Getenv("DISABLE_TELEMETRY")))
-	if disabled, err := strconv.ParseBool(disabledStr); err == nil && disabled {
-		l.Infof("Telemetry is disabled by DISABLE_TELEMETRY environment variable.")
-		return
+	uuid, err := getTelemetryUUID(consulClient)
+	if err != nil {
+		l.Panicf("cannot get/set telemetry UUID in Consul: %s", err)
 	}
 
-	svc := &telemetry.Service{
-		URL:        "https://v.percona.com/",
-		PMMVersion: pmmVersion,
-		Interval:   24 * time.Hour,
-	}
-	var err error
-	if svc.UUID, err = getTelemetryUUID(consulClient); err != nil {
-		l.Panicf("cannot get/set telemetry UUID in consul: %s", err)
-	}
-
-	// Using this env var for compatibility with the Toolkit
-	if telemetryEnvURL := os.Getenv("PERCONA_VERSION_CHECK_URL"); telemetryEnvURL != "" {
-		l.Infof("PERCONA_VERSION_CHECK_URL env var is set")
-		l.Infof("Using %s as the telemetry endpoint", telemetryEnvURL)
-		svc.URL = telemetryEnvURL
-	}
-
-	l.Infof("Telemetry is enabled. UUID: %s", svc.UUID)
+	svc := telemetry.NewService(uuid, pmmVersion)
 	svc.Run(ctx)
 }
 
@@ -297,7 +278,7 @@ func getTelemetryUUID(consulClient *consul.Client) (string, error) {
 func main() {
 	log.SetFlags(0)
 	log.SetPrefix("stdlog: ")
-	logrus.SetLevel(logrus.DebugLevel)
+	// logrus.SetLevel(logrus.DebugLevel)
 	grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 	flag.Parse()
 
