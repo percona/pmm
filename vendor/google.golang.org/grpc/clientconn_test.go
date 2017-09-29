@@ -19,17 +19,69 @@
 package grpc
 
 import (
+	"math"
 	"net"
 	"testing"
 	"time"
 
 	"golang.org/x/net/context"
 
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
+	"google.golang.org/grpc/naming"
+	"google.golang.org/grpc/testdata"
 )
 
-const tlsDir = "testdata/"
+func assertState(wantState connectivity.State, cc *ClientConn) (connectivity.State, bool) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	var state connectivity.State
+	for state = cc.GetState(); state != wantState && cc.WaitForStateChange(ctx, state); state = cc.GetState() {
+	}
+	return state, state == wantState
+}
+
+func TestConnectivityStates(t *testing.T) {
+	servers, resolver := startServers(t, 2, math.MaxUint32)
+	defer func() {
+		for i := 0; i < 2; i++ {
+			servers[i].stop()
+		}
+	}()
+
+	cc, err := Dial("foo.bar.com", WithBalancer(RoundRobin(resolver)), WithInsecure())
+	if err != nil {
+		t.Fatalf("Dial(\"foo.bar.com\", WithBalancer(_)) = _, %v, want _ <nil>", err)
+	}
+	defer cc.Close()
+	wantState := connectivity.Ready
+	if state, ok := assertState(wantState, cc); !ok {
+		t.Fatalf("asserState(%s) = %s, false, want %s, true", wantState, state, wantState)
+	}
+	// Send an update to delete the server connection (tearDown addrConn).
+	update := []*naming.Update{
+		{
+			Op:   naming.Delete,
+			Addr: "localhost:" + servers[0].port,
+		},
+	}
+	resolver.w.inject(update)
+	wantState = connectivity.TransientFailure
+	if state, ok := assertState(wantState, cc); !ok {
+		t.Fatalf("asserState(%s) = %s, false, want %s, true", wantState, state, wantState)
+	}
+	update[0] = &naming.Update{
+		Op:   naming.Add,
+		Addr: "localhost:" + servers[1].port,
+	}
+	resolver.w.inject(update)
+	wantState = connectivity.Ready
+	if state, ok := assertState(wantState, cc); !ok {
+		t.Fatalf("asserState(%s) = %s, false, want %s, true", wantState, state, wantState)
+	}
+
+}
 
 func TestDialTimeout(t *testing.T) {
 	conn, err := Dial("Non-Existent.Server:80", WithTimeout(time.Millisecond), WithBlock(), WithInsecure())
@@ -42,7 +94,7 @@ func TestDialTimeout(t *testing.T) {
 }
 
 func TestTLSDialTimeout(t *testing.T) {
-	creds, err := credentials.NewClientTLSFromFile(tlsDir+"ca.pem", "x.test.youtube.com")
+	creds, err := credentials.NewClientTLSFromFile(testdata.Path("ca.pem"), "x.test.youtube.com")
 	if err != nil {
 		t.Fatalf("Failed to create credentials %v", err)
 	}
@@ -69,7 +121,7 @@ func TestDefaultAuthority(t *testing.T) {
 
 func TestTLSServerNameOverwrite(t *testing.T) {
 	overwriteServerName := "over.write.server.name"
-	creds, err := credentials.NewClientTLSFromFile(tlsDir+"ca.pem", overwriteServerName)
+	creds, err := credentials.NewClientTLSFromFile(testdata.Path("ca.pem"), overwriteServerName)
 	if err != nil {
 		t.Fatalf("Failed to create credentials %v", err)
 	}
@@ -97,7 +149,7 @@ func TestWithAuthority(t *testing.T) {
 
 func TestWithAuthorityAndTLS(t *testing.T) {
 	overwriteServerName := "over.write.server.name"
-	creds, err := credentials.NewClientTLSFromFile(tlsDir+"ca.pem", overwriteServerName)
+	creds, err := credentials.NewClientTLSFromFile(testdata.Path("ca.pem"), overwriteServerName)
 	if err != nil {
 		t.Fatalf("Failed to create credentials %v", err)
 	}
@@ -168,7 +220,7 @@ func (c securePerRPCCredentials) RequireTransportSecurity() bool {
 }
 
 func TestCredentialsMisuse(t *testing.T) {
-	tlsCreds, err := credentials.NewClientTLSFromFile(tlsDir+"ca.pem", "x.test.youtube.com")
+	tlsCreds, err := credentials.NewClientTLSFromFile(testdata.Path("ca.pem"), "x.test.youtube.com")
 	if err != nil {
 		t.Fatalf("Failed to create authenticator %v", err)
 	}
@@ -241,7 +293,8 @@ func nonTemporaryErrorDialer(addr string, timeout time.Duration) (net.Conn, erro
 }
 
 func TestDialWithBlockErrorOnNonTemporaryErrorDialer(t *testing.T) {
-	ctx, _ := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
 	if _, err := DialContext(ctx, "", WithInsecure(), WithDialer(nonTemporaryErrorDialer), WithBlock(), FailOnNonTempDialError(true)); err != nonTemporaryError {
 		t.Fatalf("Dial(%q) = %v, want %v", "", err, nonTemporaryError)
 	}
@@ -321,5 +374,21 @@ func TestClientUpdatesParamsAfterGoAway(t *testing.T) {
 	v := cc.mkp.Time
 	if v < 100*time.Millisecond {
 		t.Fatalf("cc.dopts.copts.Keepalive.Time = %v , want 100ms", v)
+	}
+}
+
+func TestClientLBWatcherWithClosedBalancer(t *testing.T) {
+	b := newBlockingBalancer()
+	cc := &ClientConn{dopts: dialOptions{balancer: b}}
+
+	doneChan := make(chan struct{})
+	go cc.lbWatcher(doneChan)
+	// Balancer closes before any successful connections.
+	b.Close()
+
+	select {
+	case <-doneChan:
+	case <-time.After(100 * time.Millisecond):
+		t.Fatal("lbWatcher with closed balancer didn't close doneChan after 100ms")
 	}
 }
