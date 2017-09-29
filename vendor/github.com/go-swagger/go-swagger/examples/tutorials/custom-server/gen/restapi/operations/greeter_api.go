@@ -14,7 +14,7 @@ import (
 	loads "github.com/go-openapi/loads"
 	runtime "github.com/go-openapi/runtime"
 	middleware "github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/runtime/security"
+	security "github.com/go-openapi/runtime/security"
 	spec "github.com/go-openapi/spec"
 	strfmt "github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -150,6 +150,13 @@ func (o *GreeterAPI) ServeErrorFor(operationID string) func(http.ResponseWriter,
 
 // AuthenticatorsFor gets the authenticators for the specified security schemes
 func (o *GreeterAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) map[string]runtime.Authenticator {
+
+	return nil
+
+}
+
+// Authorizer returns the registered authorizer
+func (o *GreeterAPI) Authorizer() runtime.Authorizer {
 
 	return nil
 

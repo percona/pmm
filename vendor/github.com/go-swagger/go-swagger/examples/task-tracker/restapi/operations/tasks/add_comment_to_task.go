@@ -9,7 +9,7 @@ import (
 	"net/http"
 
 	middleware "github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
+	swag "github.com/go-openapi/swag"
 )
 
 // AddCommentToTaskHandlerFunc turns a function with the right signature into a add comment to task handler
@@ -80,6 +80,7 @@ func (o *AddCommentToTask) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 // These values can have github flavored markdown.
 //
 // swagger:model AddCommentToTaskBody
+
 type AddCommentToTaskBody struct {
 
 	// content
@@ -90,6 +91,10 @@ type AddCommentToTaskBody struct {
 	// Required: true
 	UserID *int64 `json:"userId"`
 }
+
+/* polymorph AddCommentToTaskBody content false */
+
+/* polymorph AddCommentToTaskBody userId false */
 
 // MarshalBinary interface implementation
 func (o *AddCommentToTaskBody) MarshalBinary() ([]byte, error) {

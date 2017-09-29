@@ -59,17 +59,16 @@ const (
 
 var (
 	rxSwaggerAnnotation  = regexp.MustCompile(`swagger:([\p{L}\p{N}\p{Pd}\p{Pc}]+)`)
-	rxMeta               = regexp.MustCompile(`swagger:meta`)
 	rxFileUpload         = regexp.MustCompile(`swagger:file`)
 	rxStrFmt             = regexp.MustCompile(`swagger:strfmt\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}]+)$`)
 	rxAlias              = regexp.MustCompile(`swagger:alias`)
 	rxName               = regexp.MustCompile(`swagger:name\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}\.]+)$`)
 	rxAllOf              = regexp.MustCompile(`swagger:allOf\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}\.]+)?$`)
 	rxModelOverride      = regexp.MustCompile(`swagger:model\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}]+)?$`)
-	rxDiscriminated      = regexp.MustCompile(`swagger:discriminated\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}\p{Zs}]+)$`)
 	rxResponseOverride   = regexp.MustCompile(`swagger:response\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}]+)?$`)
 	rxParametersOverride = regexp.MustCompile(`swagger:parameters\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}\p{Zs}]+)$`)
 	rxEnum               = regexp.MustCompile(`swagger:enum\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}]+)$`)
+	rxIgnoreOverride     = regexp.MustCompile(`swagger:ignore\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}]+)?$`)
 	rxDefault            = regexp.MustCompile(`swagger:default\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}]+)$`)
 	rxRoute              = regexp.MustCompile(
 		"swagger:route\\p{Zs}*" +
@@ -121,8 +120,6 @@ var (
 
 // Many thanks go to https://github.com/yvasiyarov/swagger
 // this is loosely based on that implementation but for swagger 2.0
-
-type setter func(interface{}, []string) error
 
 func joinDropLast(lines []string) string {
 	l := len(lines)
@@ -532,9 +529,8 @@ func newYamlParser(rx *regexp.Regexp, setter func(json.RawMessage) error) valueP
 }
 
 type yamlParser struct {
-	set    func(json.RawMessage) error
-	rx     *regexp.Regexp
-	target interface{}
+	set func(json.RawMessage) error
+	rx  *regexp.Regexp
 }
 
 func (y *yamlParser) Parse(lines []string) error {
@@ -574,7 +570,6 @@ type yamlSpecScanner struct {
 	setDescription func([]string)
 	workedOutTitle bool
 	title          []string
-	description    []string
 	skipHeader     bool
 }
 
@@ -812,7 +807,7 @@ type sectionedParser struct {
 	taggers        []tagParser
 	currentTagger  *tagParser
 	title          []string
-	description    []string
+	ignored        bool
 }
 
 func (st *sectionedParser) collectTitleDescription() {
@@ -846,6 +841,10 @@ COMMENTS:
 	for _, c := range doc.List {
 		for _, line := range strings.Split(c.Text, "\n") {
 			if rxSwaggerAnnotation.MatchString(line) {
+				if rxIgnoreOverride.MatchString(line) {
+					st.ignored = true
+					break COMMENTS // an explicit ignore terminates this parser
+				}
 				if st.annotation == nil || !st.annotation.Matches(line) {
 					break COMMENTS // a new swagger: annotation terminates this parser
 				}

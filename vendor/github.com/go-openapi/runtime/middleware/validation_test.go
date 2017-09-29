@@ -26,11 +26,33 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func newTestValidation(ctx *Context, next http.Handler) http.Handler {
+
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		matched, rCtx, _ := ctx.RouteInfo(r)
+		if rCtx != nil {
+			r = rCtx
+		}
+		if matched == nil {
+			ctx.NotFound(rw, r)
+			return
+		}
+		_, r, result := ctx.BindAndValidate(r, matched)
+
+		if result != nil {
+			ctx.Respond(rw, r, matched.Produces, matched, result)
+			return
+		}
+
+		next.ServeHTTP(rw, r)
+	})
+}
+
 func TestContentTypeValidation(t *testing.T) {
 	spec, api := petstore.NewAPI(t)
 	context := NewContext(spec, api, nil)
 	context.router = DefaultRouter(spec, context.api)
-	mw := newValidation(context, http.HandlerFunc(terminator))
+	mw := newTestValidation(context, http.HandlerFunc(terminator))
 
 	recorder := httptest.NewRecorder()
 	request, _ := http.NewRequest("GET", "/api/pets", nil)
@@ -41,6 +63,7 @@ func TestContentTypeValidation(t *testing.T) {
 	recorder = httptest.NewRecorder()
 	request, _ = http.NewRequest("POST", "/api/pets", nil)
 	request.Header.Add("content-type", "application(")
+	request.Header.Add("Accept", "application/json")
 	request.ContentLength = 1
 
 	mw.ServeHTTP(recorder, request)
@@ -81,7 +104,7 @@ func TestResponseFormatValidation(t *testing.T) {
 	spec, api := petstore.NewAPI(t)
 	context := NewContext(spec, api, nil)
 	context.router = DefaultRouter(spec, context.api)
-	mw := newValidation(context, http.HandlerFunc(terminator))
+	mw := newTestValidation(context, http.HandlerFunc(terminator))
 
 	recorder := httptest.NewRecorder()
 	request, _ := http.NewRequest("POST", "/api/pets", bytes.NewBuffer([]byte(`name: Dog`)))

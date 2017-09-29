@@ -41,7 +41,7 @@
   branch = "master"
   name = "github.com/go-openapi/analysis"
   packages = ["."]
-  revision = "0473cb67199f68b8b7d90e641afd9e79ad36b851"
+  revision = "8ed83f2ea9f00f945516462951a288eaa68bf0d6"
 
 [[projects]]
   branch = "master"
@@ -77,19 +77,19 @@
   branch = "master"
   name = "github.com/go-openapi/runtime"
   packages = [".","middleware","middleware/denco","middleware/header","middleware/untyped","security"]
-  revision = "cb24d3b36e09423101cdc38cf46f61289e4cbede"
+  revision = "bf2ff8f7150788b1c7256abb0805ba0410cbbabb"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "51363c5ae11ba8152bd9f35d17da715fbd1a1136"
+  revision = "48c2a7185575f9103a5a3863eff950bb776899d2"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/strfmt"
   packages = ["."]
-  revision = "93a31ef21ac23f317792fff78f9539219dd74619"
+  revision = "610b6cacdcde6852f4de68998bd20ce1dac85b22"
 
 [[projects]]
   branch = "master"
@@ -101,13 +101,13 @@
   branch = "master"
   name = "github.com/go-openapi/validate"
   packages = ["."]
-  revision = "8a82927c942c94794a5cd8b8b50ce2f48a955c0c"
+  revision = "dc8a684882cf70c9a529887104340f44e0e138e5"
 
 [[projects]]
   name = "github.com/go-swagger/go-swagger"
   packages = ["cmd/swagger","cmd/swagger/commands","cmd/swagger/commands/generate","cmd/swagger/commands/initcmd","generator","scan"]
-  revision = "8135eb6728e43b73489e80f94426e6d387809502"
-  version = "0.11.0"
+  revision = "68ea41dcf206410c74d397d3bbff42aedff35e4d"
+  version = "0.12.0"
 
 [[projects]]
   branch = "master"

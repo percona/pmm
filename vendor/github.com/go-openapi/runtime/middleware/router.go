@@ -16,7 +16,6 @@ package middleware
 
 import (
 	"net/http"
-	"net/url"
 	fpath "path"
 	"regexp"
 	"strings"
@@ -93,6 +92,7 @@ type RoutableAPI interface {
 	ConsumersFor([]string) map[string]runtime.Consumer
 	ProducersFor([]string) map[string]runtime.Producer
 	AuthenticatorsFor(map[string]spec.SecurityScheme) map[string]runtime.Authenticator
+	Authorizer() runtime.Authorizer
 	Formats() strfmt.Registry
 	DefaultProduces() string
 	DefaultConsumes() string
@@ -113,7 +113,6 @@ type defaultRouteBuilder struct {
 
 type defaultRouter struct {
 	spec    *loads.Document
-	api     RoutableAPI
 	routers map[string]*denco.Router
 }
 
@@ -154,6 +153,7 @@ type routeEntry struct {
 	Formats        strfmt.Registry
 	Binder         *untypedRequestBinder
 	Authenticators map[string]runtime.Authenticator
+	Authorizer     runtime.Authorizer
 	Scopes         map[string][]string
 }
 
@@ -182,7 +182,7 @@ func (d *defaultRouter) Lookup(method, path string) (*MatchedRoute, bool) {
 				debugLog("found a route for %s %s with %d parameters", method, path, len(entry.Parameters))
 				var params RouteParams
 				for _, p := range rp {
-					v, err := url.QueryUnescape(p.Value)
+					v, err := pathUnescape(p.Value)
 					if err != nil {
 						debugLog("failed to escape %q: %v", p.Value, err)
 						v = p.Value
@@ -249,6 +249,7 @@ func (d *defaultRouteBuilder) AddRoute(method, path string, operation *spec.Oper
 			Formats:        d.api.Formats(),
 			Binder:         newUntypedRequestBinder(parameters, d.spec.Spec(), d.api.Formats()),
 			Authenticators: d.api.AuthenticatorsFor(definitions),
+			Authorizer:     d.api.Authorizer(),
 			Scopes:         scopes,
 		})
 		d.records[mn] = append(d.records[mn], record)
@@ -259,7 +260,7 @@ func (d *defaultRouteBuilder) Build() *defaultRouter {
 	routers := make(map[string]*denco.Router)
 	for method, records := range d.records {
 		router := denco.New()
-		router.Build(records)
+		_ = router.Build(records)
 		routers[method] = router
 	}
 	return &defaultRouter{

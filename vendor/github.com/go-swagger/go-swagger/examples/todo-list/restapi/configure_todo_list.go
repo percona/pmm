@@ -31,7 +31,7 @@ func configureAPI(api *operations.TodoListAPI) http.Handler {
 	// Expected interface func(string, ...interface{})
 	//
 	// Example:
-	// s.api.Logger = log.Printf
+	// api.Logger = log.Printf
 
 	api.JSONConsumer = runtime.JSONConsumer()
 
@@ -41,6 +41,12 @@ func configureAPI(api *operations.TodoListAPI) http.Handler {
 	api.KeyAuth = func(token string) (interface{}, error) {
 		return nil, errors.NotImplemented("api key auth (key) x-todolist-token from header param [x-todolist-token] has not yet been implemented")
 	}
+
+	// Set your custom authorizer if needed. Default one is security.Authorized()
+	// Expected interface runtime.Authorizer
+	//
+	// Example:
+	// api.APIAuthorizer = security.Authorized()
 
 	api.TodosAddOneHandler = todos.AddOneHandlerFunc(func(params todos.AddOneParams, principal interface{}) middleware.Responder {
 		return middleware.NotImplemented("operation todos.AddOne has not yet been implemented")

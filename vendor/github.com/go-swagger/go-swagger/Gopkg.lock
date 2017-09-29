@@ -11,13 +11,13 @@
   branch = "master"
   name = "github.com/PuerkitoBio/urlesc"
   packages = ["."]
-  revision = "bbf7a2afc14f93e1e0a5c06df524fbd75e5031e5"
+  revision = "de5bf2ad457846296e2031421a34e2568e304e35"
 
 [[projects]]
   name = "github.com/asaskevich/govalidator"
   packages = ["."]
-  revision = "4918b99a7cb949bb295f3c7bbaf24b577d806e35"
-  version = "v6"
+  revision = "73945b6115bfbbcc57d89b7316e28109364124e1"
+  version = "v7"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -28,8 +28,8 @@
 [[projects]]
   name = "github.com/docker/go-units"
   packages = ["."]
-  revision = "f2d77a61e3c169b43402a0a1e84f06daf29b8190"
-  version = "v0.3.1"
+  revision = "0dadbb0345b35ec7ef35e228dabb8de89a65bf52"
+  version = "v0.3.2"
 
 [[projects]]
   name = "github.com/fsnotify/fsnotify"
@@ -41,7 +41,7 @@
   branch = "master"
   name = "github.com/go-openapi/analysis"
   packages = ["."]
-  revision = "0473cb67199f68b8b7d90e641afd9e79ad36b851"
+  revision = "8ed83f2ea9f00f945516462951a288eaa68bf0d6"
 
 [[projects]]
   branch = "master"
@@ -77,19 +77,19 @@
   branch = "master"
   name = "github.com/go-openapi/runtime"
   packages = [".","client","flagext","middleware","middleware/denco","middleware/header","middleware/untyped","security"]
-  revision = "af767f4dce066d1bc26dd784dcbe9c8ee6b417ca"
+  revision = "bf2ff8f7150788b1c7256abb0805ba0410cbbabb"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "9cf697d99bf904e29363382a2e8c23dde5c8d377"
+  revision = "3faa0055dbbf2110abc1f3b4e3adbb22721e96e7"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/strfmt"
   packages = ["."]
-  revision = "93a31ef21ac23f317792fff78f9539219dd74619"
+  revision = "610b6cacdcde6852f4de68998bd20ce1dac85b22"
 
 [[projects]]
   branch = "master"
@@ -119,7 +119,7 @@
   branch = "master"
   name = "github.com/hashicorp/hcl"
   packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
-  revision = "392dba7d905ed5d04a5794ba89f558b27e2ba1ca"
+  revision = "8f6b1344a92ff8877cf24a5de9177bf7d0a2a187"
 
 [[projects]]
   name = "github.com/jessevdk/go-flags"
@@ -149,7 +149,7 @@
   branch = "master"
   name = "github.com/mailru/easyjson"
   packages = ["buffer","jlexer","jwriter"]
-  revision = "2f5df55504ebc322e4d52d34df6a1f5b503bf26d"
+  revision = "2a92e673c9a6302dd05c3a691ae1f24aef46457d"
 
 [[projects]]
   branch = "master"
@@ -179,7 +179,7 @@
   branch = "master"
   name = "github.com/spf13/afero"
   packages = [".","mem"]
-  revision = "9be650865eab0c12963d8753212f4f9c66cdcf12"
+  revision = "ee1bd8ee15a1306d1f9201acc41ef39cd9f99a1b"
 
 [[projects]]
   name = "github.com/spf13/cast"
@@ -191,7 +191,7 @@
   branch = "master"
   name = "github.com/spf13/jwalterweatherman"
   packages = ["."]
-  revision = "0efa5202c04663c757d84f90f5219c1250baf94f"
+  revision = "12bd96e66386c1960ab0f74ced1362f66f552f7b"
 
 [[projects]]
   name = "github.com/spf13/pflag"
@@ -200,10 +200,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/spf13/viper"
   packages = ["."]
   revision = "25b30aa063fc18e48662b86996252eabdcf2f0c7"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/stretchr/testify"
@@ -227,25 +227,25 @@
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","context/ctxhttp","idna"]
-  revision = "ab5485076ff3407ad2d02db054635913f017b0ed"
+  revision = "66aacef3dd8a676686c7ae3716979581e8b03c47"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "c4489faa6e5ab84c0ef40d6ee878f7a030281f0f"
+  revision = "a5054c7c1385fd50d9394475365355a87a7873ec"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
   packages = ["internal/gen","internal/triegen","internal/ucd","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable","width"]
-  revision = "836efe42bb4aa16aaa17b9c155d8813d336ed720"
+  revision = "bd91bbf73e9a4a801adbfb97133c992678533126"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil","go/buildutil","go/loader","imports"]
-  revision = "3da34b1b520a543128e8441cd2ffffc383111d03"
+  revision = "3b1faeda9afbcba128c2d794b38ffe7982141139"
 
 [[projects]]
   branch = "v2"
@@ -257,7 +257,7 @@
   branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "25c4ec802a7d637f88d584ab26798e94ad14c13b"
+  revision = "eb3733d160e74a9c7e442f435eb3bea458e1d19f"
 
 [solve-meta]
   analyzer-name = "dep"
