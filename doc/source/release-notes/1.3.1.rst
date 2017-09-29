@@ -4,7 +4,7 @@
 Percona Monitoring and Management |release|
 ================================================================================
 
-:Date: September 28, 2017
+:Date: September 29, 2017
 
 Percona announces the release of Percona Monitoring and Management
 |release|. This release only contains bug fixes related to usability.
