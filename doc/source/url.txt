@@ -1,0 +1,6 @@
+
+.. _mongodb: www.mongodb.com
+.. _orchestrator: https://www.percona.com/blog/2016/03/08/orchestrator-mysql-replication-topology-manager/
+.. _myrocks: http://myrocks.io
+.. _v.percona.com: http://v.percona.com
+

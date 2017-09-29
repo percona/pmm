@@ -5,6 +5,90 @@
 .. glossary::
    :sorted:
 
+   Orchestrator
+
+      The topology manager for MySQL. By default it is disabled for the
+      :term:`PMM Server`. To enable it, set the :option:`ORCHESTRATOR_ENABLED`.
+
+      .. seealso::
+
+	 - :ref:`Enabling orchestrator when running a docker container <pmm/docker.additional_parameters>`.
+
+   ORCHESTRATOR_ENABLED (Option)
+
+      See :term:`Orchestrator`
+
+   Data Source Name
+
+      A database server attribute found on the :term:`QAN` page. It informs how
+      :term:`PMM` connects to the selected database.
+
+   Version
+
+      A database server attribute found on the :term:`QAN` page. it informs the
+      full version of the monitored database server, as well as the product
+      name, revision and release number.
+	    
+   DSN
+
+      See :term:`Data Source Name`
+
+   Grand Total Time
+
+      Grand Total Time.(percent of grand total time) is the percentage
+      of time that the database server spent running a specific query,
+      compared to the total time it spent running all queries during
+      the selected period of time.
+
+   %GTT
+
+      See :term:`Grand Total Time`
+
+   Query Summary Table
+
+      A tool within :term:`QAN` which lists the queries which were run
+      on the selected database server during the :term:`selected time
+      or date range`.
+
+   Query Metrics Table
+
+      A tool within :term:`QAN` which lists metrics applicable to the query
+      selected in the :term:`query summary table`.
+
+   Selected Time or Date Range
+
+      A predefined time period (see :term:`Quick ranges`), such as 1 hour, or a
+      range of dates that :term:`QAN` uses to collects metrics.
+
+   Quick ranges
+
+      Predefined time periods which are used by :term:`QAN` to collect metrics
+      for queries. The following quick ranges are available:
+
+      - last hour
+      - last three hours
+      - last five hours
+      - last twelve hours
+      - last twenty four hours
+      - last five days
+
+   Query Load
+
+      The percentage of time that the MySQL server spent executing a specific query.
+
+   Query Abstract
+
+      Query pattern with placeholders. This term appears in :term:`QAN <Query
+      Analytics (QAN)>` as an attribute of queries.
+
+   Query ID
+
+      A :term:`query fingerprint` which groups similar queries.
+
+   Query Fingerprint
+
+      See :term:`Query Abstract`
+
    PMM Version
 
       The version of PMM appears at the bottom of the :term:`PMM server home page <PMM Home Page>`.
@@ -46,6 +130,10 @@
 
       To add a monitoring service, use the :program:`pmm-admin add` command.
 
+      .. seealso::
+
+	 - :ref:`Passing parameters to a monitoring service <pmm.pmm-admin.monitoring-service.pass-parameter>`
+
    Metrics
 
       A series of data which are visualized in PMM.
@@ -83,4 +171,13 @@
       Component of :term:`PMM Server` that enables you to analyze
       MySQL query performance over periods of time.
 
+   QAN
+
+      See :term:`Query Analytics (QAN)`
+
+   Query Metrics Summary Table
+
+      An element of :term:`Query Analytics (QAN)` which displays the available
+      metrics for the selected query.
+   
 .. include:: replace.txt
