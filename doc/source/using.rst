@@ -195,7 +195,18 @@ format presents the output of :command:`EXPLAIN` as a JSON document.
    :width: 50%
 
    The two output formats of the EXPLAIN command.
+
+Note that the :command:`:EXPLAIN` command only works with the following statements:
+
+- SELECT
+- DELETE
+- INSERT
+- REPLACE
+- UPDATE
 	    
+If you are viewing the details of a query of another type, the
+``Explain`` section will not contain any data.
+
 
 .. rubric:: Table Info Section
 
