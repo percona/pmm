@@ -42,7 +42,7 @@ const (
 	// environment variables that affect telemetry service
 	envDisable = "DISABLE_TELEMETRY"
 	envURL     = "PERCONA_VERSION_CHECK_URL" // the same name as for the Toolkit
-	envOS      = "TELEMETRY_OS"              // set by AMI and OVA, empty for Docker image
+	envOS      = "TELEMETRY_OS"              // set by AMI and OVF, empty for Docker image
 )
 
 // Service is responsible for interactions with Percona Call Home service.
@@ -169,8 +169,9 @@ func GenerateUUID() (string, error) {
 	return cleanUUID, nil
 }
 
-// Currently we only detect OS (Linux distribution) version from the kernel version (/proc/version).
-// For both AMI and OVA this value is fixed by the environment variable and not autodetected.
+// Currently, we only detect OS (Linux distribution) version from the kernel version (/proc/version).
+// For both AMI and OVF images this value is fixed by the environment variable and not autodetected –
+// we know OS for them because we make those images ourselves.
 // If/when we decide to support installation with "normal" Linux package managers (apt, yum, etc.),
 // we could use the code that was there. See PM-1333 and PMM-1507 in both git logs and Jira for details.
 
