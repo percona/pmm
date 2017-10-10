@@ -52,8 +52,8 @@ import (
 const (
 	shutdownTimeout = 3 * time.Second
 
-	// FIXME set it during build for PMM 1.4
-	pmmVersion = "1.3.2"
+	// FIXME set it during build for PMM 1.5
+	pmmVersion = "1.4.0"
 )
 
 var (
