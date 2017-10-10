@@ -311,29 +311,34 @@ func main() {
 
 	var wg sync.WaitGroup
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		runGRPCServer(ctx)
-	}()
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	runGRPCServer(ctx)
+	// }()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		runRESTServer(ctx)
-	}()
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	runRESTServer(ctx)
+	// }()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		runDebugServer(ctx)
-	}()
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	runDebugServer(ctx)
+	// }()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		runTelemetryService(ctx, consulClient)
 	}()
+
+	// Do nothing and wait for context to be canceled.
+	// Do not exit even if telemetry is disabled and we have nothing to do.
+	// TODO remove when we enable other servers
+	<-ctx.Done()
 
 	wg.Wait()
 }
