@@ -18,6 +18,7 @@
 package query
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -34,6 +35,13 @@ type Query struct {
 type Table struct {
 	Db    string
 	Table string
+}
+
+func (t Table) String() string {
+	if t.Db == "" {
+		return t.Table
+	}
+	return fmt.Sprintf("%s.%s", t.Db, t.Table)
 }
 
 type Example struct {
