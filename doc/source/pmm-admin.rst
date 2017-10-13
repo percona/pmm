@@ -174,7 +174,7 @@ when adding the :option:`mongodb:queries` monitoring service.
    :caption: Passing an SSL/TLS parameter to :program:`mongod` to enables 
              a TLS connection.
 
-   $ sudo pmm-adming add mongodb:queries -- mongodb.tls
+   $ sudo pmm-admin add mongodb:queries -- mongodb.tls
 
 .. list-table:: Supported SSL/TLS Parameters
    :widths: 25 75
