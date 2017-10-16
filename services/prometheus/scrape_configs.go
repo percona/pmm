@@ -21,11 +21,8 @@ import (
 	"encoding/json"
 
 	"github.com/pkg/errors"
-	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/percona/pmm-managed/services/prometheus/internal"
 )
 
 const (
@@ -91,106 +88,6 @@ func (svc *Service) putToConsul(scs []ScrapeConfig) error {
 		return errors.WithStack(err)
 	}
 	return svc.consul.PutKV(consulKey, b)
-}
-
-func convertInternalScrapeConfig(cfg *internal.ScrapeConfig) *ScrapeConfig {
-	var basicAuth *BasicAuth
-	if cfg.HTTPClientConfig.BasicAuth != nil {
-		basicAuth = &BasicAuth{
-			Username: cfg.HTTPClientConfig.BasicAuth.Username,
-			Password: cfg.HTTPClientConfig.BasicAuth.Password,
-		}
-	}
-
-	staticConfigs := make([]StaticConfig, len(cfg.ServiceDiscoveryConfig.StaticConfigs))
-	for scI, sc := range cfg.ServiceDiscoveryConfig.StaticConfigs {
-		for _, t := range sc.Targets {
-			staticConfigs[scI].Targets = append(staticConfigs[scI].Targets, string(t[model.AddressLabel]))
-		}
-		for n, v := range sc.Labels {
-			staticConfigs[scI].Labels = append(staticConfigs[scI].Labels, LabelPair{
-				Name:  string(n),
-				Value: string(v),
-			})
-		}
-	}
-
-	return &ScrapeConfig{
-		JobName:        cfg.JobName,
-		ScrapeInterval: cfg.ScrapeInterval.String(),
-		ScrapeTimeout:  cfg.ScrapeTimeout.String(),
-		MetricsPath:    cfg.MetricsPath,
-		Scheme:         cfg.Scheme,
-		BasicAuth:      basicAuth,
-		TLSConfig: TLSConfig{
-			InsecureSkipVerify: cfg.HTTPClientConfig.TLSConfig.InsecureSkipVerify,
-		},
-		StaticConfigs: staticConfigs,
-	}
-}
-
-func convertScrapeConfig(cfg *ScrapeConfig) (*internal.ScrapeConfig, error) {
-	var err error
-	var interval, timeout model.Duration
-	if cfg.ScrapeInterval != "" {
-		interval, err = model.ParseDuration(cfg.ScrapeInterval)
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "interval: %s", err)
-		}
-	}
-	if cfg.ScrapeTimeout != "" {
-		timeout, err = model.ParseDuration(cfg.ScrapeTimeout)
-		if err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "timeout: %s", err)
-		}
-	}
-
-	var basicAuth *internal.BasicAuth
-	if cfg.BasicAuth != nil {
-		basicAuth = &internal.BasicAuth{
-			Username: cfg.BasicAuth.Username,
-			Password: cfg.BasicAuth.Password,
-		}
-	}
-
-	tg := make([]*internal.TargetGroup, len(cfg.StaticConfigs))
-	for i, sc := range cfg.StaticConfigs {
-		tg[i] = new(internal.TargetGroup)
-
-		for _, t := range sc.Targets {
-			ls := model.LabelSet{model.AddressLabel: model.LabelValue(t)}
-			if err = ls.Validate(); err != nil {
-				return nil, status.Errorf(codes.InvalidArgument, "static_configs.targets: %s", err)
-			}
-			tg[i].Targets = append(tg[i].Targets, ls)
-		}
-
-		ls := make(model.LabelSet)
-		for _, lp := range sc.Labels {
-			ls[model.LabelName(lp.Name)] = model.LabelValue(lp.Value)
-		}
-		if err = ls.Validate(); err != nil {
-			return nil, status.Errorf(codes.InvalidArgument, "static_configs.labels: %s", err)
-		}
-		tg[i].Labels = ls
-	}
-
-	return &internal.ScrapeConfig{
-		JobName:        cfg.JobName,
-		ScrapeInterval: interval,
-		ScrapeTimeout:  timeout,
-		MetricsPath:    cfg.MetricsPath,
-		Scheme:         cfg.Scheme,
-		HTTPClientConfig: internal.HTTPClientConfig{
-			BasicAuth: basicAuth,
-			TLSConfig: internal.TLSConfig{
-				InsecureSkipVerify: cfg.TLSConfig.InsecureSkipVerify,
-			},
-		},
-		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-			StaticConfigs: tg,
-		},
-	}, nil
 }
 
 // ListScrapeConfigs returns all scrape configs.

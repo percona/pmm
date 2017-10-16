@@ -19,28 +19,75 @@ package prometheus
 import (
 	"fmt"
 
+	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm-managed/services/prometheus/internal"
 )
 
-// ensureNotBuiltIn returns error if given job name is built-in scrape job
-// (i.e. present in prometheus.yml file, but not in Consul).
-func ensureNotBuiltIn(consulData []ScrapeConfig, fileData []*internal.ScrapeConfig, jobName string) error {
-	for _, sc := range consulData {
-		if sc.JobName == jobName {
-			return nil
+func convertScrapeConfig(cfg *ScrapeConfig) (*internal.ScrapeConfig, error) {
+	var err error
+	var interval, timeout model.Duration
+	if cfg.ScrapeInterval != "" {
+		interval, err = model.ParseDuration(cfg.ScrapeInterval)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "interval: %s", err)
+		}
+	}
+	if cfg.ScrapeTimeout != "" {
+		timeout, err = model.ParseDuration(cfg.ScrapeTimeout)
+		if err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "timeout: %s", err)
 		}
 	}
 
-	for _, sc := range fileData {
-		if sc.JobName == jobName {
-			return status.Errorf(codes.FailedPrecondition, "scrape config with job name %q is built-in", jobName)
+	var basicAuth *internal.BasicAuth
+	if cfg.BasicAuth != nil {
+		basicAuth = &internal.BasicAuth{
+			Username: cfg.BasicAuth.Username,
+			Password: cfg.BasicAuth.Password,
 		}
 	}
 
-	return nil
+	tg := make([]*internal.TargetGroup, len(cfg.StaticConfigs))
+	for i, sc := range cfg.StaticConfigs {
+		tg[i] = new(internal.TargetGroup)
+
+		for _, t := range sc.Targets {
+			ls := model.LabelSet{model.AddressLabel: model.LabelValue(t)}
+			if err = ls.Validate(); err != nil {
+				return nil, status.Errorf(codes.InvalidArgument, "static_configs.targets: %s", err)
+			}
+			tg[i].Targets = append(tg[i].Targets, ls)
+		}
+
+		ls := make(model.LabelSet)
+		for _, lp := range sc.Labels {
+			ls[model.LabelName(lp.Name)] = model.LabelValue(lp.Value)
+		}
+		if err = ls.Validate(); err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, "static_configs.labels: %s", err)
+		}
+		tg[i].Labels = ls
+	}
+
+	return &internal.ScrapeConfig{
+		JobName:        cfg.JobName,
+		ScrapeInterval: interval,
+		ScrapeTimeout:  timeout,
+		MetricsPath:    cfg.MetricsPath,
+		Scheme:         cfg.Scheme,
+		HTTPClientConfig: internal.HTTPClientConfig{
+			BasicAuth: basicAuth,
+			TLSConfig: internal.TLSConfig{
+				InsecureSkipVerify: cfg.TLSConfig.InsecureSkipVerify,
+			},
+		},
+		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
+			StaticConfigs: tg,
+		},
+	}, nil
 }
 
 // configUpdater implements Prometheus configuration updating logic:
@@ -63,8 +110,10 @@ func (cu *configUpdater) addScrapeConfig(scrapeConfig *ScrapeConfig) error {
 		}
 	}
 
-	if err = ensureNotBuiltIn(cu.consulData, cu.fileData, cfg.JobName); err != nil {
-		return err
+	for _, sc := range cu.fileData {
+		if sc.JobName == cfg.JobName {
+			return status.Errorf(codes.FailedPrecondition, "scrape config with job name %q is built-in", cfg.JobName)
+		}
 	}
 
 	cu.consulData = append(cu.consulData, *scrapeConfig)

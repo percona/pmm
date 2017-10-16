@@ -37,19 +37,6 @@ import (
 
 const testdata = "../../testdata/prometheus/"
 
-func getPrometheus(t testing.TB, ctx context.Context) *Service {
-	// t.Helper() TODO enable when we switch to 1.9+
-
-	consulClient, err := consul.NewClient("127.0.0.1:8500")
-	require.NoError(t, err)
-	require.NoError(t, consulClient.DeleteKV(consulKey))
-
-	svc, err := NewService(filepath.Join(testdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool", consulClient)
-	require.NoError(t, err)
-	require.NoError(t, svc.Check(ctx))
-	return svc
-}
-
 func assertGRPCError(t testing.TB, expected *status.Status, actual error) {
 	// t.Helper() TODO enable when we switch to 1.9+
 
@@ -61,163 +48,178 @@ func assertGRPCError(t testing.TB, expected *status.Status, actual error) {
 	assert.Equal(t, expected.Message(), s.Message())
 }
 
-func TestPrometheusConfig(t *testing.T) {
-	ctx, _ := logger.Set(context.Background(), "TestPrometheusConfig")
-	p := getPrometheus(t, ctx)
+func TestPrometheus(t *testing.T) {
+	ctx, _ := logger.Set(context.Background(), "TestPrometheus")
 
-	// always restore original after test
+	consulClient, err := consul.NewClient("127.0.0.1:8500")
+	require.NoError(t, err)
+	require.NoError(t, consulClient.DeleteKV(consulKey))
+
+	p, err := NewService(filepath.Join(testdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool", consulClient)
+	require.NoError(t, err)
+	require.NoError(t, p.Check(ctx))
+
+	// always restore original configuration file after test
 	before, err := ioutil.ReadFile(p.configPath)
 	require.NoError(t, err)
 	defer func() {
 		assert.NoError(t, ioutil.WriteFile(p.configPath, before, 0666))
 	}()
 
-	// check that we can write it exactly as it was
-	c, err := p.loadConfig()
-	assert.NoError(t, err)
-	assert.NoError(t, p.saveConfigAndReload(ctx, c))
-	after, err := ioutil.ReadFile(p.configPath)
-	require.NoError(t, err)
-	b, a := string(before), string(after)
-	diff, _ := difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
-		A: difflib.SplitLines(b),
-		B: difflib.SplitLines(a),
+	t.Run("TestPrometheusConfig", func(t *testing.T) {
+		// check that we can write it exactly as it was
+		c, err := p.loadConfig()
+		assert.NoError(t, err)
+		assert.NoError(t, p.saveConfigAndReload(ctx, c))
+		after, err := ioutil.ReadFile(p.configPath)
+		require.NoError(t, err)
+		b, a := string(before), string(after)
+		diff, _ := difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
+			A: difflib.SplitLines(b),
+			B: difflib.SplitLines(a),
+		})
+		assert.Equal(t, b, a, "%s", diff)
+
+		// specifically check that we can read secrets
+		assert.Equal(t, "pmm", c.ScrapeConfigs[2].HTTPClientConfig.BasicAuth.Password)
+
+		// check that invalid configuration is reverted
+		c.ScrapeConfigs[0].ScrapeInterval = model.Duration(time.Second)
+		err = p.saveConfigAndReload(ctx, c)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), `scrape timeout greater than scrape interval`)
+		after, err = ioutil.ReadFile(p.configPath)
+		require.NoError(t, err)
+		assert.Equal(t, before, after)
 	})
-	assert.Equal(t, b, a, "%s", diff)
 
-	// specifically check that we can read secrets
-	assert.Equal(t, "pmm", c.ScrapeConfigs[2].HTTPClientConfig.BasicAuth.Password)
+	t.Run("TestPrometheusRules", func(t *testing.T) {
+		t.Skip("TODO")
 
-	// check that invalid configuration is reverted
-	c.ScrapeConfigs[0].ScrapeInterval = model.Duration(time.Second)
-	err = p.saveConfigAndReload(ctx, c)
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), `scrape timeout greater than scrape interval`)
-	after, err = ioutil.ReadFile(p.configPath)
-	require.NoError(t, err)
-	assert.Equal(t, before, after)
-}
+		alerts, err := p.ListAlertRules(ctx)
+		require.NoError(t, err)
+		require.Len(t, alerts, 2)
+		alerts[0].Text = "" // FIXME
+		alerts[1].Text = "" // FIXME
+		expected := []AlertRule{
+			{"InstanceDown", filepath.Join(testdata, "alerts", "InstanceDown.rule"), "", false},
+			{"Something", filepath.Join(testdata, "alerts", "Something.rule.disabled"), "", true},
+		}
+		assert.Equal(t, expected, alerts)
 
-func TestPrometheusRules(t *testing.T) {
-	t.Skip("TODO")
+		defer func() {
+			require.NoError(t, p.DeleteAlert(ctx, "TestPrometheus"))
+			require.EqualError(t, p.DeleteAlert(ctx, "TestPrometheus"), os.ErrNotExist.Error())
+		}()
 
-	ctx, _ := logger.Set(context.Background(), "TestPrometheusRules")
-	p := getPrometheus(t, ctx)
+		rule := &AlertRule{
+			Name: "TestPrometheus",
+			Text: "ALERT TestPrometheus IF up == 0",
+		}
+		require.NoError(t, p.PutAlert(ctx, rule))
+		actual, err := p.GetAlert(ctx, "TestPrometheus")
+		require.NoError(t, err)
+		rule.FilePath = "../testdata/prometheus/alerts/TestPrometheus.rule"
+		assert.Equal(t, rule, actual)
+	})
 
-	alerts, err := p.ListAlertRules(ctx)
-	require.NoError(t, err)
-	require.Len(t, alerts, 2)
-	alerts[0].Text = "" // FIXME
-	alerts[1].Text = "" // FIXME
-	expected := []AlertRule{
-		{"InstanceDown", filepath.Join(testdata, "alerts", "InstanceDown.rule"), "", false},
-		{"Something", filepath.Join(testdata, "alerts", "Something.rule.disabled"), "", true},
-	}
-	assert.Equal(t, expected, alerts)
+	t.Run("TestPrometheusScrapeConfigs", func(t *testing.T) {
+		cfgs, err := p.ListScrapeConfigs(ctx)
+		require.NoError(t, err)
+		require.Empty(t, cfgs)
 
-	defer func() {
-		require.NoError(t, p.DeleteAlert(ctx, "TestPrometheus"))
-		require.EqualError(t, p.DeleteAlert(ctx, "TestPrometheus"), os.ErrNotExist.Error())
-	}()
+		actual, err := p.GetScrapeConfig(ctx, "no_such_config")
+		assert.Nil(t, actual)
+		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
 
-	rule := &AlertRule{
-		Name: "TestPrometheus",
-		Text: "ALERT TestPrometheus IF up == 0",
-	}
-	require.NoError(t, p.PutAlert(ctx, rule))
-	actual, err := p.GetAlert(ctx, "TestPrometheus")
-	require.NoError(t, err)
-	rule.FilePath = "../testdata/prometheus/alerts/TestPrometheus.rule"
-	assert.Equal(t, rule, actual)
-}
+		defer func() {
+			err = p.DeleteScrapeConfig(ctx, "test_config")
+			require.NoError(t, err)
 
-func TestPrometheusScrapeConfigs(t *testing.T) {
-	ctx, _ := logger.Set(context.Background(), "TestPrometheusScrapeConfigs")
-	p := getPrometheus(t, ctx)
+			err = p.DeleteScrapeConfig(ctx, "test_config")
+			assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
+		}()
 
-	// always restore original after test
-	before, err := ioutil.ReadFile(p.configPath)
-	require.NoError(t, err)
-	defer func() {
-		assert.NoError(t, ioutil.WriteFile(p.configPath, before, 0666))
-	}()
-
-	cfgs, err := p.ListScrapeConfigs(ctx)
-	require.NoError(t, err)
-	require.Empty(t, cfgs)
-
-	actual, err := p.GetScrapeConfig(ctx, "no_such_config")
-	assert.Nil(t, actual)
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
-
-	defer func() {
-		err = p.DeleteScrapeConfig(ctx, "test_config")
+		// other fields are filled by defaults
+		scs := []StaticConfig{
+			{[]string{"127.0.0.1:12345", "127.0.0.2:12345"}, nil},
+		}
+		cfg := &ScrapeConfig{
+			JobName:       "test_config",
+			StaticConfigs: scs,
+		}
+		err = p.CreateScrapeConfig(ctx, cfg)
 		require.NoError(t, err)
 
-		err = p.DeleteScrapeConfig(ctx, "test_config")
-		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
-	}()
+		err = p.CreateScrapeConfig(ctx, cfg)
+		assertGRPCError(t, status.New(codes.AlreadyExists, `scrape config with job name "test_config" already exist`), err)
 
-	// other fields are filled by defaults
-	scs := []StaticConfig{
-		{[]string{"127.0.0.1:12345", "127.0.0.2:12345"}, nil},
-	}
-	cfg := &ScrapeConfig{
-		JobName:       "test_config",
-		StaticConfigs: scs,
-	}
-	err = p.CreateScrapeConfig(ctx, cfg)
-	require.NoError(t, err)
+		err = p.CreateScrapeConfig(ctx, &ScrapeConfig{JobName: "prometheus"})
+		assertGRPCError(t, status.New(codes.FailedPrecondition, `scrape config with job name "prometheus" is built-in`), err)
 
-	err = p.CreateScrapeConfig(ctx, cfg)
-	assertGRPCError(t, status.New(codes.AlreadyExists, `scrape config with job name "test_config" already exist`), err)
+		actual, err = p.GetScrapeConfig(ctx, "test_config")
+		require.NoError(t, err)
+		assert.Equal(t, cfg, actual)
+	})
 
-	actual, err = p.GetScrapeConfig(ctx, "test_config")
-	require.NoError(t, err)
-	assert.Equal(t, cfg, actual)
-}
+	t.Run("TestPrometheusStaticTargets", func(t *testing.T) {
+		cfg := &ScrapeConfig{
+			JobName:        "test_config",
+			ScrapeInterval: "2s",
+			ScrapeTimeout:  "1s",
+			MetricsPath:    "/external",
+			Scheme:         "http",
+			StaticConfigs: []StaticConfig{
+				{[]string{"127.0.0.1:12345"}, nil},
+			},
+		}
+		err = p.CreateScrapeConfig(ctx, cfg)
+		require.NoError(t, err)
 
-func TestPrometheusStaticTargets(t *testing.T) {
-	ctx, _ := logger.Set(context.Background(), "TestPrometheusStaticTargets")
-	p := getPrometheus(t, ctx)
+		// add the same targets twice: no error, no duplicate
+		for i := 0; i < 2; i++ {
+			err = p.AddStaticTargets(ctx, "test_config", []string{"127.0.0.2:12345", "127.0.0.2:12345"})
+			require.NoError(t, err)
+		}
 
-	// always restore original after test
-	before, err := ioutil.ReadFile(p.configPath)
-	require.NoError(t, err)
-	defer func() {
-		assert.NoError(t, ioutil.WriteFile(p.configPath, before, 0666))
-	}()
+		actual, err := p.GetScrapeConfig(ctx, "test_config")
+		require.NoError(t, err)
+		cfg.StaticConfigs = []StaticConfig{
+			{[]string{"127.0.0.1:12345", "127.0.0.2:12345"}, nil},
+		}
+		assert.Equal(t, cfg, actual)
 
-	cfg := &ScrapeConfig{
-		JobName:        "test_config",
-		ScrapeInterval: "2s",
-		ScrapeTimeout:  "1s",
-		MetricsPath:    "/external",
-		Scheme:         "http",
-		StaticConfigs: []StaticConfig{
-			{[]string{"127.0.0.1:12345"}, nil},
-		},
-	}
-	err = p.CreateScrapeConfig(ctx, cfg)
-	require.NoError(t, err)
+		err = p.AddStaticTargets(ctx, "no_such_config", []string{"127.0.0.2:12345", "127.0.0.2:12345"})
+		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
 
-	err = p.AddStaticTargets(ctx, "test_config", []string{"127.0.0.2:12345"})
-	require.NoError(t, err)
+		err = p.AddStaticTargets(ctx, "prometheus", []string{"127.0.0.2:12345", "127.0.0.2:12345"})
+		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
 
-	actual, err := p.GetScrapeConfig(ctx, "test_config")
-	require.NoError(t, err)
-	cfg.StaticConfigs = []StaticConfig{
-		{[]string{"127.0.0.1:12345", "127.0.0.2:12345"}, nil},
-	}
-	assert.Equal(t, cfg, actual)
+		// remove the same target twice: no error
+		for i := 0; i < 2; i++ {
+			err = p.RemoveStaticTargets(ctx, "test_config", []string{"127.0.0.1:12345"})
+			require.NoError(t, err)
+		}
 
-	err = p.RemoveStaticTargets(ctx, "test_config", []string{"127.0.0.1:12345"})
-	require.NoError(t, err)
+		actual, err = p.GetScrapeConfig(ctx, "test_config")
+		require.NoError(t, err)
+		cfg.StaticConfigs = []StaticConfig{
+			{[]string{"127.0.0.2:12345"}, nil},
+		}
+		assert.Equal(t, cfg, actual)
 
-	actual, err = p.GetScrapeConfig(ctx, "test_config")
-	require.NoError(t, err)
-	cfg.StaticConfigs = []StaticConfig{
-		{[]string{"127.0.0.2:12345"}, nil},
-	}
-	assert.Equal(t, cfg, actual)
+		err = p.RemoveStaticTargets(ctx, "test_config", []string{"127.0.0.2:12345"})
+		require.NoError(t, err)
+
+		actual, err = p.GetScrapeConfig(ctx, "test_config")
+		require.NoError(t, err)
+		cfg.StaticConfigs = nil
+		assert.Equal(t, cfg, actual)
+
+		err = p.RemoveStaticTargets(ctx, "no_such_config", []string{"127.0.0.2:12345", "127.0.0.2:12345"})
+		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
+
+		err = p.RemoveStaticTargets(ctx, "prometheus", []string{"127.0.0.2:12345", "127.0.0.2:12345"})
+		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
+	})
 }
