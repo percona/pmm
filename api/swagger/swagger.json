@@ -91,27 +91,27 @@
         }
       }
     },
-    "/v0/scrape-jobs": {
+    "/v0/scrape-configs": {
       "get": {
         "tags": [
-          "ScrapeJobs"
+          "ScrapeConfigs"
         ],
-        "summary": "List returns all scrape jobs.",
+        "summary": "List returns all scrape configs.",
         "operationId": "ListMixin2",
         "responses": {
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/apiScrapeJobsListResponse"
+              "$ref": "#/definitions/apiScrapeConfigsListResponse"
             }
           }
         }
       },
       "post": {
         "tags": [
-          "ScrapeJobs"
+          "ScrapeConfigs"
         ],
-        "summary": "Create creates a new scrape job.\nErrors: InvalidArgument(3) if some argument is not valid,\nAlreadyExists(6) if scrape job with that name is already present.",
+        "summary": "Create creates a new scrape config.\nErrors: InvalidArgument(3) if some argument is not valid,\nAlreadyExists(6) if scrape config with that job name is already present.",
         "operationId": "Create",
         "parameters": [
           {
@@ -119,7 +119,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiScrapeJobsCreateRequest"
+              "$ref": "#/definitions/apiScrapeConfigsCreateRequest"
             }
           }
         ],
@@ -127,23 +127,23 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/apiScrapeJobsCreateResponse"
+              "$ref": "#/definitions/apiScrapeConfigsCreateResponse"
             }
           }
         }
       }
     },
-    "/v0/scrape-jobs/{name}": {
+    "/v0/scrape-configs/{job_name}": {
       "get": {
         "tags": [
-          "ScrapeJobs"
+          "ScrapeConfigs"
         ],
-        "summary": "Get returns a scrape job by name.\nErrors: NotFound(5) if no such scrape job is present.",
+        "summary": "Get returns a scrape config by job name.\nErrors: NotFound(5) if no such scrape config is present.",
         "operationId": "GetMixin2",
         "parameters": [
           {
             "type": "string",
-            "name": "name",
+            "name": "job_name",
             "in": "path",
             "required": true
           }
@@ -152,21 +152,21 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/apiScrapeJobsGetResponse"
+              "$ref": "#/definitions/apiScrapeConfigsGetResponse"
             }
           }
         }
       },
       "delete": {
         "tags": [
-          "ScrapeJobs"
+          "ScrapeConfigs"
         ],
-        "summary": "Delete removes existing scrape job by name.\nErrors: NotFound(5) if no such scrape job is present.",
+        "summary": "Delete removes existing scrape config by job name.\nErrors: NotFound(5) if no such scrape config is present.",
         "operationId": "Delete",
         "parameters": [
           {
             "type": "string",
-            "name": "name",
+            "name": "job_name",
             "in": "path",
             "required": true
           }
@@ -175,13 +175,75 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/apiScrapeJobsDeleteResponse"
+              "$ref": "#/definitions/apiScrapeConfigsDeleteResponse"
             }
           }
         }
       }
     },
-    "/v0/version": {
+    "/v0/scrape-configs/{job_name}/static-targets": {
+      "post": {
+        "tags": [
+          "ScrapeConfigs"
+        ],
+        "operationId": "AddStaticTargets",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "job_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsAddStaticTargetsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsAddStaticTargetsResponse"
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "ScrapeConfigs"
+        ],
+        "operationId": "RemoveStaticTargets",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "job_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsRemoveStaticTargetsRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsRemoveStaticTargetsResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v1/version": {
       "get": {
         "tags": [
           "Base"
@@ -214,14 +276,6 @@
         }
       }
     },
-    "apiAlertsGetRequest": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        }
-      }
-    },
     "apiAlertsGetResponse": {
       "type": "object",
       "properties": {
@@ -229,9 +283,6 @@
           "$ref": "#/definitions/apiAlertRule"
         }
       }
-    },
-    "apiAlertsListRequest": {
-      "type": "object"
     },
     "apiAlertsListResponse": {
       "type": "object",
@@ -244,9 +295,6 @@
         }
       }
     },
-    "apiBaseVersionRequest": {
-      "type": "object"
-    },
     "apiBaseVersionResponse": {
       "type": "object",
       "properties": {
@@ -255,17 +303,13 @@
         }
       }
     },
-    "apiDemoErrorRequest": {
+    "apiBasicAuth": {
       "type": "object",
       "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "key": {
+        "password": {
           "type": "string"
         },
-        "value": {
+        "username": {
           "type": "string"
         }
       }
@@ -273,87 +317,153 @@
     "apiDemoErrorResponse": {
       "type": "object"
     },
-    "apiScrapeJob": {
+    "apiLabelPair": {
       "type": "object",
       "properties": {
-        "interval": {
-          "type": "string",
-          "title": "Scrape interval: \"10s\""
-        },
         "name": {
           "type": "string",
-          "title": "Scrape job name: \"example-job\" (required)"
+          "title": "Label name"
         },
-        "path": {
+        "value": {
           "type": "string",
-          "title": "Metrics path: \"/metrics\""
+          "title": "Label value"
+        }
+      }
+    },
+    "apiScrapeConfig": {
+      "type": "object",
+      "properties": {
+        "basic_auth": {
+          "title": "Sets the `Authorization` header on every scrape request with the configured username and password",
+          "$ref": "#/definitions/apiBasicAuth"
+        },
+        "job_name": {
+          "type": "string",
+          "title": "The job name assigned to scraped metrics by default: \"example-job\" (required)"
+        },
+        "metrics_path": {
+          "type": "string",
+          "title": "The HTTP resource path on which to fetch metrics from targets: \"/metrics\""
         },
         "scheme": {
           "type": "string",
-          "title": "Scheme for scrapping: \"http\" or \"https\""
+          "title": "Configures the protocol scheme used for requests: \"http\" or \"https\""
         },
-        "statis_targets": {
+        "scrape_interval": {
+          "type": "string",
+          "title": "How frequently to scrape targets from this job: \"10s\""
+        },
+        "scrape_timeout": {
+          "type": "string",
+          "title": "Per-scrape timeout when scraping this job: \"5s\""
+        },
+        "static_configs": {
           "type": "array",
-          "title": "Hosts and ports: \"127.0.0.1:9090\" (required)",
+          "title": "List of labeled statically configured targets for this job",
+          "items": {
+            "$ref": "#/definitions/apiStaticConfig"
+          }
+        },
+        "tls_config": {
+          "title": "Configures the scrape request's TLS settings",
+          "$ref": "#/definitions/apiTLSConfig"
+        }
+      }
+    },
+    "apiScrapeConfigsAddStaticTargetsRequest": {
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string"
+        },
+        "targets": {
+          "type": "array",
+          "title": "Hostnames or IPs followed by an optional port number: \"1.2.3.4:9090\"",
           "items": {
             "type": "string"
           }
-        },
-        "timeout": {
-          "type": "string",
-          "title": "Scrape timeout: \"5s\""
         }
       }
     },
-    "apiScrapeJobsCreateRequest": {
-      "type": "object",
-      "properties": {
-        "scrape_job": {
-          "$ref": "#/definitions/apiScrapeJob"
-        }
-      }
-    },
-    "apiScrapeJobsCreateResponse": {
+    "apiScrapeConfigsAddStaticTargetsResponse": {
       "type": "object"
     },
-    "apiScrapeJobsDeleteRequest": {
+    "apiScrapeConfigsCreateRequest": {
       "type": "object",
       "properties": {
-        "name": {
-          "type": "string"
+        "scrape_config": {
+          "$ref": "#/definitions/apiScrapeConfig"
         }
       }
     },
-    "apiScrapeJobsDeleteResponse": {
+    "apiScrapeConfigsCreateResponse": {
       "type": "object"
     },
-    "apiScrapeJobsGetRequest": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        }
-      }
-    },
-    "apiScrapeJobsGetResponse": {
-      "type": "object",
-      "properties": {
-        "scrape_job": {
-          "$ref": "#/definitions/apiScrapeJob"
-        }
-      }
-    },
-    "apiScrapeJobsListRequest": {
+    "apiScrapeConfigsDeleteResponse": {
       "type": "object"
     },
-    "apiScrapeJobsListResponse": {
+    "apiScrapeConfigsGetResponse": {
       "type": "object",
       "properties": {
-        "scrape_jobs": {
+        "scrape_config": {
+          "$ref": "#/definitions/apiScrapeConfig"
+        }
+      }
+    },
+    "apiScrapeConfigsListResponse": {
+      "type": "object",
+      "properties": {
+        "scrape_configs": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/apiScrapeJob"
+            "$ref": "#/definitions/apiScrapeConfig"
           }
+        }
+      }
+    },
+    "apiScrapeConfigsRemoveStaticTargetsRequest": {
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string"
+        },
+        "targets": {
+          "type": "array",
+          "title": "Hostnames or IPs followed by an optional port number: \"1.2.3.4:9090\"",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "apiScrapeConfigsRemoveStaticTargetsResponse": {
+      "type": "object"
+    },
+    "apiStaticConfig": {
+      "type": "object",
+      "properties": {
+        "labels": {
+          "type": "array",
+          "title": "Labels assigned to all metrics scraped from the targets",
+          "items": {
+            "$ref": "#/definitions/apiLabelPair"
+          }
+        },
+        "targets": {
+          "type": "array",
+          "title": "Hostnames or IPs followed by an optional port number: \"1.2.3.4:9090\"",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "apiTLSConfig": {
+      "type": "object",
+      "properties": {
+        "insecure_skip_verify": {
+          "type": "boolean",
+          "format": "boolean"
         }
       }
     }

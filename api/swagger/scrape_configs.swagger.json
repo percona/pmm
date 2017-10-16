@@ -1,0 +1,334 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "scrape_configs.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v0/scrape-configs": {
+      "get": {
+        "summary": "List returns all scrape configs.",
+        "operationId": "List",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsListResponse"
+            }
+          }
+        },
+        "tags": [
+          "ScrapeConfigs"
+        ]
+      },
+      "post": {
+        "summary": "Create creates a new scrape config.\nErrors: InvalidArgument(3) if some argument is not valid,\nAlreadyExists(6) if scrape config with that job name is already present.",
+        "operationId": "Create",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsCreateResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsCreateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ScrapeConfigs"
+        ]
+      }
+    },
+    "/v0/scrape-configs/{job_name}": {
+      "get": {
+        "summary": "Get returns a scrape config by job name.\nErrors: NotFound(5) if no such scrape config is present.",
+        "operationId": "Get",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsGetResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ScrapeConfigs"
+        ]
+      },
+      "delete": {
+        "summary": "Delete removes existing scrape config by job name.\nErrors: NotFound(5) if no such scrape config is present.",
+        "operationId": "Delete",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsDeleteResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "ScrapeConfigs"
+        ]
+      }
+    },
+    "/v0/scrape-configs/{job_name}/static-targets": {
+      "delete": {
+        "operationId": "RemoveStaticTargets",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsRemoveStaticTargetsResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsRemoveStaticTargetsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ScrapeConfigs"
+        ]
+      },
+      "post": {
+        "operationId": "AddStaticTargets",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsAddStaticTargetsResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "job_name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsAddStaticTargetsRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ScrapeConfigs"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiBasicAuth": {
+      "type": "object",
+      "properties": {
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "apiLabelPair": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "title": "Label name"
+        },
+        "value": {
+          "type": "string",
+          "title": "Label value"
+        }
+      }
+    },
+    "apiScrapeConfig": {
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string",
+          "title": "The job name assigned to scraped metrics by default: \"example-job\" (required)"
+        },
+        "scrape_interval": {
+          "type": "string",
+          "title": "How frequently to scrape targets from this job: \"10s\""
+        },
+        "scrape_timeout": {
+          "type": "string",
+          "title": "Per-scrape timeout when scraping this job: \"5s\""
+        },
+        "metrics_path": {
+          "type": "string",
+          "title": "The HTTP resource path on which to fetch metrics from targets: \"/metrics\""
+        },
+        "scheme": {
+          "type": "string",
+          "title": "Configures the protocol scheme used for requests: \"http\" or \"https\""
+        },
+        "basic_auth": {
+          "$ref": "#/definitions/apiBasicAuth",
+          "title": "Sets the `Authorization` header on every scrape request with the configured username and password"
+        },
+        "tls_config": {
+          "$ref": "#/definitions/apiTLSConfig",
+          "title": "Configures the scrape request's TLS settings"
+        },
+        "static_configs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiStaticConfig"
+          },
+          "title": "List of labeled statically configured targets for this job"
+        }
+      }
+    },
+    "apiScrapeConfigsAddStaticTargetsRequest": {
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Hostnames or IPs followed by an optional port number: \"1.2.3.4:9090\""
+        }
+      }
+    },
+    "apiScrapeConfigsAddStaticTargetsResponse": {
+      "type": "object"
+    },
+    "apiScrapeConfigsCreateRequest": {
+      "type": "object",
+      "properties": {
+        "scrape_config": {
+          "$ref": "#/definitions/apiScrapeConfig"
+        }
+      }
+    },
+    "apiScrapeConfigsCreateResponse": {
+      "type": "object"
+    },
+    "apiScrapeConfigsDeleteResponse": {
+      "type": "object"
+    },
+    "apiScrapeConfigsGetResponse": {
+      "type": "object",
+      "properties": {
+        "scrape_config": {
+          "$ref": "#/definitions/apiScrapeConfig"
+        }
+      }
+    },
+    "apiScrapeConfigsListResponse": {
+      "type": "object",
+      "properties": {
+        "scrape_configs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiScrapeConfig"
+          }
+        }
+      }
+    },
+    "apiScrapeConfigsRemoveStaticTargetsRequest": {
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string"
+        },
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Hostnames or IPs followed by an optional port number: \"1.2.3.4:9090\""
+        }
+      }
+    },
+    "apiScrapeConfigsRemoveStaticTargetsResponse": {
+      "type": "object"
+    },
+    "apiStaticConfig": {
+      "type": "object",
+      "properties": {
+        "targets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Hostnames or IPs followed by an optional port number: \"1.2.3.4:9090\""
+        },
+        "labels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiLabelPair"
+          },
+          "title": "Labels assigned to all metrics scraped from the targets"
+        }
+      }
+    },
+    "apiTLSConfig": {
+      "type": "object",
+      "properties": {
+        "insecure_skip_verify": {
+          "type": "boolean",
+          "format": "boolean"
+        }
+      }
+    }
+  }
+}

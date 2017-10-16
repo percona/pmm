@@ -24,7 +24,7 @@ import (
 type Client struct {
 	BaseClient
 	// TODO AlertsClient
-	ScrapeJobsClient
+	ScrapeConfigsClient
 }
 
 // NewClient creates new Client for a given connection.
@@ -32,6 +32,6 @@ func NewClient(cc *grpc.ClientConn) *Client {
 	return &Client{
 		BaseClient: NewBaseClient(cc),
 		// TODO AlertsClient
-		ScrapeJobsClient: NewScrapeJobsClient(cc),
+		ScrapeConfigsClient: NewScrapeConfigsClient(cc),
 	}
 }

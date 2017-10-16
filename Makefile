@@ -34,20 +34,24 @@ cover: install
 check: install
 	-gometalinter.v1 --tests --skip=api --deadline=180s ./...
 
-run:
+run: install
+	pmm-managed -prometheus-config=testdata/prometheus/prometheus.yml
+
+run-race: install-race
 	pmm-managed -prometheus-config=testdata/prometheus/prometheus.yml
 
 protos:  # make protos, not protoss
-	rm -f api/*.pb.* api/swagger/*.json
+	rm -fr api/*.pb.* api/swagger/*.json api/swagger/client api/swagger/models
 
 	protoc -Iapi -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
 		api/*.proto --go_out=plugins=grpc:api
 	protoc -Iapi -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-		api/*.proto --grpc-gateway_out=logtostderr=true,request_context=true:api
+		api/*.proto --grpc-gateway_out=logtostderr=true,request_context=true,allow_delete_body=true:api
 	protoc -Iapi -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-		api/*.proto --swagger_out=logtostderr=true:api/swagger
+		api/*.proto --swagger_out=logtostderr=true,allow_delete_body=true:api/swagger
 
 	swagger mixin api/swagger/*.swagger.json > api/swagger/swagger.json
 	swagger validate api/swagger/swagger.json
+	swagger generate client -f api/swagger/swagger.json -t api/swagger -A pmm-managed
 
-	go install -v github.com/percona/pmm-managed/api
+	go install -v github.com/percona/pmm-managed/api github.com/percona/pmm-managed/api/swagger/client
