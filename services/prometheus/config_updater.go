@@ -197,7 +197,11 @@ func (cu *configUpdater) removeStaticTargets(jobName string, targets []string) e
 	}
 
 	scrapeConfig := cu.consulData[consulDataI]
-	scrapeConfig.StaticConfigs = []StaticConfig{staticConfig}
+	if len(staticConfig.Targets) > 0 {
+		scrapeConfig.StaticConfigs = []StaticConfig{staticConfig}
+	} else {
+		scrapeConfig.StaticConfigs = nil
+	}
 	cfg, err := convertScrapeConfig(&scrapeConfig)
 	if err != nil {
 		return err
