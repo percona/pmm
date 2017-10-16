@@ -19,7 +19,6 @@ package prometheus
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
@@ -281,73 +280,24 @@ func (svc *Service) AddStaticTargets(ctx context.Context, jobName string, target
 	svc.lock.Lock()
 	defer svc.lock.Unlock()
 
-	// check Consul
-	scs, err := svc.getFromConsul()
+	consulData, err := svc.getFromConsul()
 	if err != nil {
 		return err
 	}
-	scsI := -1
-	for i, sc := range scs {
-		if sc.JobName == jobName {
-			scsI = i
-			break
-		}
-	}
-	if scsI < 0 {
-		return status.Errorf(codes.NotFound, "scrape config with job name %q not found", jobName)
-	}
-
-	// check file
 	config, err := svc.loadConfig()
 	if err != nil {
 		return err
 	}
-	if err = ensureNotBuiltIn(config.ScrapeConfigs, scs, jobName); err != nil {
+
+	updater := &configUpdater{consulData, config.ScrapeConfigs}
+	if err = updater.addStaticTargets(jobName, targets); err != nil {
 		return err
 	}
 
-	// update configuration
-	var sc StaticConfig
-	switch len(scs[scsI].StaticConfigs) {
-	case 0:
-		sc = StaticConfig{}
-	case 1:
-		sc = scs[scsI].StaticConfigs[0]
-	default:
-		msg := fmt.Sprintf(
-			"scrape config with job name %q has %d static configs, that is not supported yet",
-			jobName, len(scs[scsI].StaticConfigs),
-		)
-		return status.Error(codes.Unimplemented, msg)
-	}
-	for _, add := range targets {
-		var found bool
-		for _, t := range sc.Targets {
-			if t == add {
-				found = true
-				break
-			}
-		}
-		if found {
-			continue
-		}
-
-		sc.Targets = append(sc.Targets, add)
-	}
-
-	// update Consul
-	scs[scsI].StaticConfigs = []StaticConfig{sc}
-	if err = svc.putToConsul(scs); err != nil {
+	if err = svc.putToConsul(updater.consulData); err != nil {
 		return err
 	}
-
-	// update file
-	cfgI, cfg := findScrapeConfigByJobName(config.ScrapeConfigs, jobName)
-	if cfg == nil {
-		return status.Errorf(codes.FailedPrecondition, "scrape config with job name %q not found in configuration file", jobName)
-	}
-	scrapeConfig, err := convertScrapeConfig(&scs[scsI])
-	config.ScrapeConfigs[cfgI] = scrapeConfig
+	config.ScrapeConfigs = updater.fileData
 	return svc.saveConfigAndReload(ctx, config)
 }
 
@@ -357,66 +307,23 @@ func (svc *Service) RemoveStaticTargets(ctx context.Context, jobName string, tar
 	svc.lock.Lock()
 	defer svc.lock.Unlock()
 
-	// check Consul
-	scs, err := svc.getFromConsul()
+	consulData, err := svc.getFromConsul()
 	if err != nil {
 		return err
 	}
-	scsI := -1
-	for i, sc := range scs {
-		if sc.JobName == jobName {
-			scsI = i
-			break
-		}
-	}
-	if scsI < 0 {
-		return status.Errorf(codes.NotFound, "scrape config with job name %q not found", jobName)
-	}
-
-	// check file
 	config, err := svc.loadConfig()
 	if err != nil {
 		return err
 	}
-	if err = ensureNotBuiltIn(config.ScrapeConfigs, scs, jobName); err != nil {
+
+	updater := &configUpdater{consulData, config.ScrapeConfigs}
+	if err = updater.removeStaticTargets(jobName, targets); err != nil {
 		return err
 	}
 
-	// update configuration
-	var sc StaticConfig
-	switch len(scs[scsI].StaticConfigs) {
-	case 0:
-		sc = StaticConfig{}
-	case 1:
-		sc = scs[scsI].StaticConfigs[0]
-	default:
-		msg := fmt.Sprintf(
-			"scrape config with job name %q has %d static configs, that is not supported yet",
-			jobName, len(scs[scsI].StaticConfigs),
-		)
-		return status.Error(codes.Unimplemented, msg)
-	}
-	for _, remove := range targets {
-		for i, t := range sc.Targets {
-			if t == remove {
-				sc.Targets = append(sc.Targets[:i], sc.Targets[i+1:]...)
-				break
-			}
-		}
-	}
-
-	// update Consul
-	scs[scsI].StaticConfigs = []StaticConfig{sc}
-	if err = svc.putToConsul(scs); err != nil {
+	if err = svc.putToConsul(updater.consulData); err != nil {
 		return err
 	}
-
-	// update file
-	cfgI, cfg := findScrapeConfigByJobName(config.ScrapeConfigs, jobName)
-	if cfg == nil {
-		return status.Errorf(codes.FailedPrecondition, "scrape config with job name %q not found in configuration file", jobName)
-	}
-	scrapeConfig, err := convertScrapeConfig(&scs[scsI])
-	config.ScrapeConfigs[cfgI] = scrapeConfig
+	config.ScrapeConfigs = updater.fileData
 	return svc.saveConfigAndReload(ctx, config)
 }

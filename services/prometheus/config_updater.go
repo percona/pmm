@@ -17,34 +17,29 @@
 package prometheus
 
 import (
+	"fmt"
+
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm-managed/services/prometheus/internal"
 )
 
-// returns index and config if found, (0, nil) otherwise
-func findScrapeConfigByJobName(fileData []*internal.ScrapeConfig, jobName string) (int, *ScrapeConfig) {
-	for i, sc := range fileData {
-		if sc.JobName == jobName {
-			return i, convertInternalScrapeConfig(sc)
-		}
-	}
-	return 0, nil
-}
-
 // ensureNotBuiltIn returns error if given job name is built-in scrape job
 // (i.e. present in prometheus.yml file, but not in Consul).
-func ensureNotBuiltIn(fileData []*internal.ScrapeConfig, consulData []ScrapeConfig, jobName string) error {
+func ensureNotBuiltIn(consulData []ScrapeConfig, fileData []*internal.ScrapeConfig, jobName string) error {
 	for _, sc := range consulData {
 		if sc.JobName == jobName {
 			return nil
 		}
 	}
 
-	if _, sc := findScrapeConfigByJobName(fileData, jobName); sc != nil {
-		return status.Errorf(codes.FailedPrecondition, "scrape config with job name %q is built-in", jobName)
+	for _, sc := range fileData {
+		if sc.JobName == jobName {
+			return status.Errorf(codes.FailedPrecondition, "scrape config with job name %q is built-in", jobName)
+		}
 	}
+
 	return nil
 }
 
@@ -68,7 +63,7 @@ func (cu *configUpdater) addScrapeConfig(scrapeConfig *ScrapeConfig) error {
 		}
 	}
 
-	if err = ensureNotBuiltIn(cu.fileData, cu.consulData, cfg.JobName); err != nil {
+	if err = ensureNotBuiltIn(cu.consulData, cu.fileData, cfg.JobName); err != nil {
 		return err
 	}
 
@@ -89,12 +84,137 @@ func (cu *configUpdater) removeScrapeConfig(jobName string) error {
 		return status.Errorf(codes.NotFound, "scrape config with job name %q not found", jobName)
 	}
 
-	fileDataI, cfg := findScrapeConfigByJobName(cu.fileData, jobName)
-	if cfg == nil {
+	fileDataI := -1
+	for i, sc := range cu.fileData {
+		if sc.JobName == jobName {
+			fileDataI = i
+			break
+		}
+	}
+	if fileDataI < 0 {
 		return status.Errorf(codes.FailedPrecondition, "scrape config with job name %q not found in configuration file", jobName)
 	}
 
 	cu.consulData = append(cu.consulData[:consulDataI], cu.consulData[consulDataI+1:]...)
 	cu.fileData = append(cu.fileData[:fileDataI], cu.fileData[fileDataI+1:]...)
+	return nil
+}
+
+func (cu *configUpdater) addStaticTargets(jobName string, targets []string) error {
+	consulDataI := -1
+	for i, sc := range cu.consulData {
+		if sc.JobName == jobName {
+			consulDataI = i
+			break
+		}
+	}
+	if consulDataI < 0 {
+		return status.Errorf(codes.NotFound, "scrape config with job name %q not found", jobName)
+	}
+
+	var staticConfig StaticConfig
+	switch len(cu.consulData[consulDataI].StaticConfigs) {
+	case 0:
+		// nothing
+	case 1:
+		staticConfig = cu.consulData[consulDataI].StaticConfigs[0]
+	default:
+		msg := fmt.Sprintf(
+			"scrape config with job name %q has %d static configs, that is not supported yet",
+			jobName, len(cu.consulData[consulDataI].StaticConfigs),
+		)
+		return status.Error(codes.Unimplemented, msg)
+	}
+	for _, add := range targets {
+		var found bool
+		for _, t := range staticConfig.Targets {
+			if t == add {
+				found = true
+				break
+			}
+		}
+		if found {
+			continue
+		}
+		staticConfig.Targets = append(staticConfig.Targets, add)
+	}
+
+	scrapeConfig := cu.consulData[consulDataI]
+	scrapeConfig.StaticConfigs = []StaticConfig{staticConfig}
+	cfg, err := convertScrapeConfig(&scrapeConfig)
+	if err != nil {
+		return err
+	}
+
+	fileDataI := -1
+	for i, sc := range cu.fileData {
+		if sc.JobName == jobName {
+			fileDataI = i
+			break
+		}
+	}
+	if fileDataI < 0 {
+		return status.Errorf(codes.FailedPrecondition, "scrape config with job name %q not found in configuration file", jobName)
+	}
+
+	cu.consulData[consulDataI] = scrapeConfig
+	cu.fileData[fileDataI] = cfg
+	return nil
+}
+
+func (cu *configUpdater) removeStaticTargets(jobName string, targets []string) error {
+	consulDataI := -1
+	for i, sc := range cu.consulData {
+		if sc.JobName == jobName {
+			consulDataI = i
+			break
+		}
+	}
+	if consulDataI < 0 {
+		return status.Errorf(codes.NotFound, "scrape config with job name %q not found", jobName)
+	}
+
+	var staticConfig StaticConfig
+	switch len(cu.consulData[consulDataI].StaticConfigs) {
+	case 0:
+		// nothing
+	case 1:
+		staticConfig = cu.consulData[consulDataI].StaticConfigs[0]
+	default:
+		msg := fmt.Sprintf(
+			"scrape config with job name %q has %d static configs, that is not supported yet",
+			jobName, len(cu.consulData[consulDataI].StaticConfigs),
+		)
+		return status.Error(codes.Unimplemented, msg)
+	}
+	for _, remove := range targets {
+		for i, t := range staticConfig.Targets {
+			if t == remove {
+				staticConfig.Targets = append(staticConfig.Targets[:i], staticConfig.Targets[i+1:]...)
+				break
+			}
+		}
+	}
+
+	scrapeConfig := cu.consulData[consulDataI]
+	scrapeConfig.StaticConfigs = []StaticConfig{staticConfig}
+	cfg, err := convertScrapeConfig(&scrapeConfig)
+	if err != nil {
+		return err
+	}
+
+	fileDataI := -1
+	for i, sc := range cu.fileData {
+		if sc.JobName == jobName {
+			fileDataI = i
+			break
+		}
+	}
+	if fileDataI < 0 {
+		return status.Errorf(codes.FailedPrecondition, "scrape config with job name %q not found in configuration file", jobName)
+	}
+
+	cu.consulData[consulDataI] = scrapeConfig
+	cu.fileData[fileDataI] = cfg
 	return nil
 }
