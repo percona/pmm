@@ -76,7 +76,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/runtime"
-  packages = [".","middleware","middleware/denco","middleware/header","middleware/untyped","security"]
+  packages = [".","client","middleware","middleware/denco","middleware/header","middleware/untyped","security"]
   revision = "bf2ff8f7150788b1c7256abb0805ba0410cbbabb"
 
 [[projects]]
@@ -146,10 +146,10 @@
   version = "v1.1"
 
 [[projects]]
+  branch = "master"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = ["protoc-gen-grpc-gateway","protoc-gen-grpc-gateway/descriptor","protoc-gen-grpc-gateway/generator","protoc-gen-grpc-gateway/gengateway","protoc-gen-grpc-gateway/httprule","protoc-gen-swagger","protoc-gen-swagger/genswagger","runtime","runtime/internal","utilities"]
-  revision = "589b126116b5fc961939b3e156c29e4d9d58222f"
-  version = "v1.2.2"
+  revision = "c323909dd41de182a54b4d1610f26034da5e097e"
 
 [[projects]]
   name = "github.com/hashicorp/consul"
@@ -352,7 +352,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
+  packages = ["context","context/ctxhttp","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
   revision = "f5079bd7f6f74e23c4d65efa0f4ce14cbd6a3c0f"
 
 [[projects]]
@@ -400,6 +400,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e661cd1b0a57d840eb0992b826dbdfc332ad508c881532f92f9b10238b7107e6"
+  inputs-digest = "62267e4d168fe80c3c687e08f4bccb2e9b8034643e49d66cb7d59393e8cbbd7b"
   solver-name = "gps-cdcl"
   solver-version = 1
