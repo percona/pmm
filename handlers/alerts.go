@@ -27,7 +27,7 @@ type AlertsServer struct {
 	Prometheus *prometheus.Service
 }
 
-func convertAlertRule(r *prometheus.AlertRule) *api.AlertRule {
+func convertServiceAlertRule(r *prometheus.AlertRule) *api.AlertRule {
 	return &api.AlertRule{
 		Name:     r.Name,
 		Text:     r.Text,
@@ -45,7 +45,7 @@ func (s *AlertsServer) List(ctx context.Context, req *api.AlertsListRequest) (*a
 		AlertRules: make([]*api.AlertRule, len(rules)),
 	}
 	for i, r := range rules {
-		res.AlertRules[i] = convertAlertRule(&r)
+		res.AlertRules[i] = convertServiceAlertRule(&r)
 	}
 	return res, nil
 }
@@ -56,7 +56,7 @@ func (s *AlertsServer) Get(ctx context.Context, req *api.AlertsGetRequest) (*api
 		return nil, err
 	}
 	return &api.AlertsGetResponse{
-		AlertRule: convertAlertRule(rule),
+		AlertRule: convertServiceAlertRule(rule),
 	}, nil
 }
 

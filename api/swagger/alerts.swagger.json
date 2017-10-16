@@ -74,14 +74,6 @@
         }
       }
     },
-    "apiAlertsGetRequest": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        }
-      }
-    },
     "apiAlertsGetResponse": {
       "type": "object",
       "properties": {
@@ -89,9 +81,6 @@
           "$ref": "#/definitions/apiAlertRule"
         }
       }
-    },
-    "apiAlertsListRequest": {
-      "type": "object"
     },
     "apiAlertsListResponse": {
       "type": "object",

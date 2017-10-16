@@ -14,7 +14,7 @@ message BaseVersionResponse {
 service Base {
     rpc Version(BaseVersionRequest) returns (BaseVersionResponse) {
         option (google.api.http) = {
-            get: "/v0/version"
+            get: "/v1/version"
         };
     }
 }

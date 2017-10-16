@@ -8,7 +8,7 @@ It is generated from these files:
 	alerts.proto
 	base.proto
 	demo.proto
-	scrape_jobs.proto
+	scrape_configs.proto
 
 It has these top-level messages:
 	AlertRule
@@ -20,15 +20,23 @@ It has these top-level messages:
 	BaseVersionResponse
 	DemoErrorRequest
 	DemoErrorResponse
-	ScrapeJob
-	ScrapeJobsListRequest
-	ScrapeJobsListResponse
-	ScrapeJobsGetRequest
-	ScrapeJobsGetResponse
-	ScrapeJobsCreateRequest
-	ScrapeJobsCreateResponse
-	ScrapeJobsDeleteRequest
-	ScrapeJobsDeleteResponse
+	LabelPair
+	StaticConfig
+	BasicAuth
+	TLSConfig
+	ScrapeConfig
+	ScrapeConfigsListRequest
+	ScrapeConfigsListResponse
+	ScrapeConfigsGetRequest
+	ScrapeConfigsGetResponse
+	ScrapeConfigsCreateRequest
+	ScrapeConfigsCreateResponse
+	ScrapeConfigsDeleteRequest
+	ScrapeConfigsDeleteResponse
+	ScrapeConfigsAddStaticTargetsRequest
+	ScrapeConfigsAddStaticTargetsResponse
+	ScrapeConfigsRemoveStaticTargetsRequest
+	ScrapeConfigsRemoveStaticTargetsResponse
 */
 package api
 

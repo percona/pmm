@@ -15,7 +15,7 @@
     "application/json"
   ],
   "paths": {
-    "/v0/version": {
+    "/v1/version": {
       "get": {
         "operationId": "Version",
         "responses": {
@@ -33,9 +33,6 @@
     }
   },
   "definitions": {
-    "apiBaseVersionRequest": {
-      "type": "object"
-    },
     "apiBaseVersionResponse": {
       "type": "object",
       "properties": {

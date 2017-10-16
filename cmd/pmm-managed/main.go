@@ -83,11 +83,11 @@ func addSwaggerHandler(mux *http.ServeMux, pattern string) {
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
-func runGRPCServer(ctx context.Context) {
+func runGRPCServer(ctx context.Context, consulClient *consul.Client) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
 
-	prometheus, err := prometheus.NewService(*prometheusConfigF, *prometheusURLF, *promtoolF)
+	prometheus, err := prometheus.NewService(*prometheusConfigF, *prometheusURLF, *promtoolF, consulClient)
 	if err == nil {
 		err = prometheus.Check(ctx)
 	}
@@ -104,7 +104,7 @@ func runGRPCServer(ctx context.Context) {
 	// TODO api.RegisterAlertsServer(gRPCServer, &handlers.AlertsServer{
 	// 	Prometheus: prometheus,
 	// })
-	api.RegisterScrapeJobsServer(gRPCServer, &handlers.ScrapeJobsServer{
+	api.RegisterScrapeConfigsServer(gRPCServer, &handlers.ScrapeConfigsServer{
 		Prometheus: prometheus,
 	})
 
@@ -149,7 +149,7 @@ func runRESTServer(ctx context.Context) {
 		api.RegisterBaseHandlerFromEndpoint,
 		api.RegisterDemoHandlerFromEndpoint,
 		// TODO api.RegisterAlertsHandlerFromEndpoint,
-		api.RegisterScrapeJobsHandlerFromEndpoint,
+		api.RegisterScrapeConfigsHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, *gRPCAddrF, opts); err != nil {
 			l.Panic(err)
@@ -314,7 +314,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runGRPCServer(ctx)
+		runGRPCServer(ctx, consulClient)
 	}()
 
 	wg.Add(1)

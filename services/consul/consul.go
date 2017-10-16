@@ -64,3 +64,9 @@ func (c *Client) PutKV(key string, value []byte) error {
 	_, err := c.c.KV().Put(pair, nil)
 	return errors.WithStack(err)
 }
+
+// DeleteKV deletes given key from Consul.
+func (c *Client) DeleteKV(key string) error {
+	_, err := c.c.KV().Delete(path.Join(prefix, key), nil)
+	return errors.WithStack(err)
+}

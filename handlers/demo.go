@@ -17,6 +17,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"golang.org/x/net/context"
 	spb "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
@@ -28,6 +30,10 @@ import (
 type DemoServer struct{}
 
 func (s *DemoServer) Error(ctx context.Context, req *api.DemoErrorRequest) (*api.DemoErrorResponse, error) {
+	if req.Code >= 100 {
+		panic(fmt.Sprintf("panic with code %d", req.Code))
+	}
+
 	code := codes.Code(req.Code)
 	switch code {
 	case codes.OK:

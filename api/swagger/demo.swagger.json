@@ -54,21 +54,6 @@
     }
   },
   "definitions": {
-    "apiDemoErrorRequest": {
-      "type": "object",
-      "properties": {
-        "code": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "key": {
-          "type": "string"
-        },
-        "value": {
-          "type": "string"
-        }
-      }
-    },
     "apiDemoErrorResponse": {
       "type": "object"
     }
