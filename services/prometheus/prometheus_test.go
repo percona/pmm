@@ -22,13 +22,16 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/pmezard/go-difflib/difflib"
+	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
@@ -37,7 +40,11 @@ const testdata = "../../testdata/prometheus/"
 func getPrometheus(t testing.TB, ctx context.Context) *Service {
 	// t.Helper() TODO enable when we switch to 1.9+
 
-	svc, err := NewService(filepath.Join(testdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool")
+	consulClient, err := consul.NewClient("127.0.0.1:8500")
+	require.NoError(t, err)
+	require.NoError(t, consulClient.DeleteKV(consulKey))
+
+	svc, err := NewService(filepath.Join(testdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool", consulClient)
 	require.NoError(t, err)
 	require.NoError(t, svc.Check(ctx))
 	return svc
@@ -68,7 +75,7 @@ func TestPrometheusConfig(t *testing.T) {
 	// check that we can write it exactly as it was
 	c, err := p.loadConfig()
 	assert.NoError(t, err)
-	assert.NoError(t, p.saveConfig(ctx, c))
+	assert.NoError(t, p.saveConfigAndReload(ctx, c))
 	after, err := ioutil.ReadFile(p.configPath)
 	require.NoError(t, err)
 	b, a := string(before), string(after)
@@ -80,6 +87,15 @@ func TestPrometheusConfig(t *testing.T) {
 
 	// specifically check that we can read secrets
 	assert.Equal(t, "pmm", c.ScrapeConfigs[2].HTTPClientConfig.BasicAuth.Password)
+
+	// check that invalid configuration is reverted
+	c.ScrapeConfigs[0].ScrapeInterval = model.Duration(time.Second)
+	err = p.saveConfigAndReload(ctx, c)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), `scrape timeout greater than scrape interval`)
+	after, err = ioutil.ReadFile(p.configPath)
+	require.NoError(t, err)
+	assert.Equal(t, before, after)
 }
 
 func TestPrometheusRules(t *testing.T) {
@@ -115,8 +131,8 @@ func TestPrometheusRules(t *testing.T) {
 	assert.Equal(t, rule, actual)
 }
 
-func TestPrometheusScrapeJobs(t *testing.T) {
-	ctx, _ := logger.Set(context.Background(), "TestPrometheusScrapeJobs")
+func TestPrometheusScrapeConfigs(t *testing.T) {
+	ctx, _ := logger.Set(context.Background(), "TestPrometheusScrapeConfigs")
 	p := getPrometheus(t, ctx)
 
 	// always restore original after test
@@ -126,36 +142,82 @@ func TestPrometheusScrapeJobs(t *testing.T) {
 		assert.NoError(t, ioutil.WriteFile(p.configPath, before, 0666))
 	}()
 
-	jobs, err := p.ListScrapeJobs(ctx)
+	cfgs, err := p.ListScrapeConfigs(ctx)
 	require.NoError(t, err)
-	require.Len(t, jobs, 3)
-	expected := []ScrapeJob{
-		{"prometheus", "1m", "30s", "/metrics", "http", []string{"127.0.0.1:9090"}},
-		{"alertmanager", "10s", "5s", "/metrics", "http", []string{"127.0.0.1:9093"}},
-		{"linux", "30s", "15s", "/metrics", "http", []string{"localhost:9100"}},
-	}
-	assert.Equal(t, expected, jobs)
+	require.Empty(t, cfgs)
 
-	actual, err := p.GetScrapeJob(ctx, "no_such_job")
+	actual, err := p.GetScrapeConfig(ctx, "no_such_config")
 	assert.Nil(t, actual)
-	assertGRPCError(t, status.New(codes.NotFound, `scrape job "no_such_job" not found`), err)
+	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
 
 	defer func() {
-		require.NoError(t, p.DeleteScrapeJob(ctx, "test_job"))
-		err = p.DeleteScrapeJob(ctx, "test_job")
-		assertGRPCError(t, status.New(codes.NotFound, `scrape job "test_job" not found`), err)
+		err = p.DeleteScrapeConfig(ctx, "test_config")
+		require.NoError(t, err)
+
+		err = p.DeleteScrapeConfig(ctx, "test_config")
+		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
 	}()
 
 	// other fields are filled by defaults
-	job := &ScrapeJob{
-		Name:          "test_job",
-		StatisTargets: []string{"127.0.0.1:12345", "127.0.0.2:12345"},
+	scs := []StaticConfig{
+		{[]string{"127.0.0.1:12345", "127.0.0.2:12345"}, nil},
 	}
-	require.NoError(t, p.CreateScrapeJob(ctx, job))
-	err = p.CreateScrapeJob(ctx, job)
-	assertGRPCError(t, status.New(codes.AlreadyExists, `scrape job "test_job" already exist`), err)
-	actual, err = p.GetScrapeJob(ctx, "test_job")
+	cfg := &ScrapeConfig{
+		JobName:       "test_config",
+		StaticConfigs: scs,
+	}
+	err = p.CreateScrapeConfig(ctx, cfg)
 	require.NoError(t, err)
-	job = &ScrapeJob{"test_job", "30s", "15s", "/metrics", "http", []string{"127.0.0.1:12345", "127.0.0.2:12345"}}
-	assert.Equal(t, job, actual)
+
+	err = p.CreateScrapeConfig(ctx, cfg)
+	assertGRPCError(t, status.New(codes.AlreadyExists, `scrape config with job name "test_config" already exist`), err)
+
+	actual, err = p.GetScrapeConfig(ctx, "test_config")
+	require.NoError(t, err)
+	assert.Equal(t, cfg, actual)
+}
+
+func TestPrometheusStaticTargets(t *testing.T) {
+	ctx, _ := logger.Set(context.Background(), "TestPrometheusStaticTargets")
+	p := getPrometheus(t, ctx)
+
+	// always restore original after test
+	before, err := ioutil.ReadFile(p.configPath)
+	require.NoError(t, err)
+	defer func() {
+		assert.NoError(t, ioutil.WriteFile(p.configPath, before, 0666))
+	}()
+
+	cfg := &ScrapeConfig{
+		JobName:        "test_config",
+		ScrapeInterval: "2s",
+		ScrapeTimeout:  "1s",
+		MetricsPath:    "/external",
+		Scheme:         "http",
+		StaticConfigs: []StaticConfig{
+			{[]string{"127.0.0.1:12345"}, nil},
+		},
+	}
+	err = p.CreateScrapeConfig(ctx, cfg)
+	require.NoError(t, err)
+
+	err = p.AddStaticTargets(ctx, "test_config", []string{"127.0.0.2:12345"})
+	require.NoError(t, err)
+
+	actual, err := p.GetScrapeConfig(ctx, "test_config")
+	require.NoError(t, err)
+	cfg.StaticConfigs = []StaticConfig{
+		{[]string{"127.0.0.1:12345", "127.0.0.2:12345"}, nil},
+	}
+	assert.Equal(t, cfg, actual)
+
+	err = p.RemoveStaticTargets(ctx, "test_config", []string{"127.0.0.1:12345"})
+	require.NoError(t, err)
+
+	actual, err = p.GetScrapeConfig(ctx, "test_config")
+	require.NoError(t, err)
+	cfg.StaticConfigs = []StaticConfig{
+		{[]string{"127.0.0.2:12345"}, nil},
+	}
+	assert.Equal(t, cfg, actual)
 }

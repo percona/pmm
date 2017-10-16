@@ -31,6 +31,7 @@ import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 
+	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/prometheus/internal"
 	"github.com/percona/pmm-managed/utils/logger"
 )
@@ -45,10 +46,11 @@ type Service struct {
 	baseURL        *url.URL
 	promtoolPath   string
 	alertRulesPath string
+	consul         *consul.Client
 	lock           sync.RWMutex
 }
 
-func NewService(config string, baseURL string, promtool string) (*Service, error) {
+func NewService(config string, baseURL string, promtool string, consul *consul.Client) (*Service, error) {
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -57,6 +59,7 @@ func NewService(config string, baseURL string, promtool string) (*Service, error
 		configPath:   config,
 		baseURL:      u,
 		promtoolPath: promtool,
+		consul:       consul,
 	}, nil
 }
 
@@ -76,17 +79,45 @@ func (svc *Service) loadConfig() (*internal.Config, error) {
 	return cfg, nil
 }
 
-// saveConfig saves given Prometheus configuration to file.
-func (svc *Service) saveConfig(ctx context.Context, cfg *internal.Config) error {
-	c, err := yaml.Marshal(cfg)
+// saveConfigAndReload saves given Prometheus configuration to file and reloads Prometheus.
+// If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
+func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Config) error {
+	// read existing content
+	old, err := ioutil.ReadFile(svc.configPath)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	fi, err := os.Stat(svc.configPath)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	// restore old content and reload in case of error
+	var restore bool
+	defer func() {
+		if restore {
+			if err = ioutil.WriteFile(svc.configPath, old, fi.Mode()); err != nil {
+				logger.Get(ctx).Error(err)
+			}
+			if err = svc.reload(); err != nil {
+				logger.Get(ctx).Error(err)
+			}
+		}
+	}()
+
+	// marshal new content
+	new, err := yaml.Marshal(cfg)
 	if err != nil {
 		return errors.Wrap(err, "can't marshal Prometheus configuration file")
 	}
-	c = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), c...)
+	new = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), new...)
 
-	// write to temporary file, check it
+	// write new content to temporary file, check it
 	f, err := ioutil.TempFile("", "pmm-managed-config-")
 	if err != nil {
+		return errors.WithStack(err)
+	}
+	if _, err = f.Write(new); err != nil {
 		return errors.WithStack(err)
 	}
 	defer func() {
@@ -99,12 +130,16 @@ func (svc *Service) saveConfig(ctx context.Context, cfg *internal.Config) error 
 	}
 	logger.Get(ctx).Infof("%s", b)
 
-	// write to permanent location
-	fi, err := os.Stat(svc.configPath)
-	if err != nil {
+	// write to permanent location and reload
+	restore = true
+	if err = ioutil.WriteFile(svc.configPath, new, fi.Mode()); err != nil {
 		return errors.WithStack(err)
 	}
-	return ioutil.WriteFile(svc.configPath, c, fi.Mode())
+	if err = svc.reload(); err != nil {
+		return err
+	}
+	restore = false
+	return nil
 }
 
 // reload causes Prometheus to reload configuration, including alert rules files.
@@ -172,11 +207,14 @@ func (svc *Service) loadAlertRules(ctx context.Context) ([]AlertRule, error) {
 	return rules, nil
 }
 
-// Check returns error if configuration is not right or Prometheus is not available.
+// Check updates Prometehus configuration using information from Consul KV.
+// (During PMM update prometheus.yml is overwritten, but Consul data directory is kept.)
+// It returns error if configuration is not right or Prometheus is not available.
 func (svc *Service) Check(ctx context.Context) error {
 	l := logger.Get(ctx)
 
-	if _, err := svc.loadConfig(); err != nil {
+	config, err := svc.loadConfig()
+	if err != nil {
 		return err
 	}
 
@@ -205,5 +243,34 @@ func (svc *Service) Check(ctx context.Context) error {
 	}
 	l.Infof("%s", b)
 
+	scs, err := svc.getFromConsul()
+	if err != nil {
+		return err
+	}
+	var changed bool
+	for _, sc := range scs {
+		var found bool
+		for _, configSC := range config.ScrapeConfigs {
+			if configSC.JobName == sc.JobName {
+				found = true
+				break
+			}
+		}
+
+		if !found {
+			scrapeConfig, err := convertScrapeConfig(&sc)
+			if err != nil {
+				return err
+			}
+			config.ScrapeConfigs = append(config.ScrapeConfigs, scrapeConfig)
+			changed = true
+		}
+	}
+
+	if changed {
+		l.Info("Prometheus configuration updated.")
+		return svc.saveConfigAndReload(ctx, config)
+	}
+	l.Info("Prometheus configuration not changed.")
 	return nil
 }
