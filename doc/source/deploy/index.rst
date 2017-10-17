@@ -47,7 +47,7 @@ In the given example, you would need to direct your browser to
 *http://192.168.100.1*. Since you have not added any monitoring services yet, the
 site will not show any data.
 
-.. table:: Accessing the Components of the |product-abbrev| Server Web Interface
+.. table:: Accessing the Components of the Web Interface
 
    ==================================== ======================================
    Component                            URL
