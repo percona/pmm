@@ -38,7 +38,7 @@ func assertYAMLEqual(t *testing.T, expected interface{}, actual interface{}) {
 	assert.Equal(t, strings.Split(string(e), "\n"), strings.Split(string(a), "\n"))
 }
 
-func TestConfigUpdater(t *testing.T) {
+func getConfigUpdater() *configUpdater {
 	consulData := []ScrapeConfig{{
 		JobName: "postgresql",
 		StaticConfigs: []StaticConfig{{
@@ -60,27 +60,106 @@ func TestConfigUpdater(t *testing.T) {
 			}},
 		},
 	}}
-	configUpdater := &configUpdater{consulData, fileData}
+	return &configUpdater{consulData, fileData}
+}
 
-	t.Run("AddRemoveScrapeConfig", func(t *testing.T) {
-		add := &ScrapeConfig{
-			JobName: "AddRemoveScrapeConfig",
-			StaticConfigs: []StaticConfig{{
-				Targets: []string{"5.6.7.8:12345"},
+func TestConfigUpdaterTestConfigUpdaterAddRemoveScrapeConfig(t *testing.T) {
+	configUpdater := getConfigUpdater()
+
+	add := &ScrapeConfig{
+		JobName: "TestConfigUpdaterAddRemoveScrapeConfig",
+		StaticConfigs: []StaticConfig{{
+			Targets: []string{"5.6.7.8:12345"},
+		}},
+	}
+	err := configUpdater.addScrapeConfig(add)
+	assert.NoError(t, err)
+
+	assertYAMLEqual(t, []ScrapeConfig{{
+		JobName: "postgresql",
+		StaticConfigs: []StaticConfig{{
+			Targets: []string{"1.2.3.4:12345"},
+		}},
+	}, {
+		JobName: "TestConfigUpdaterAddRemoveScrapeConfig",
+		StaticConfigs: []StaticConfig{{
+			Targets: []string{"5.6.7.8:12345"},
+		}},
+	}}, configUpdater.consulData)
+	assertYAMLEqual(t, []*internal.ScrapeConfig{{
+		JobName: "prometheus",
+		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
+			StaticConfigs: []*internal.TargetGroup{{
+				Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
 			}},
-		}
-		err := configUpdater.addScrapeConfig(add)
+		},
+	}, {
+		JobName: "postgresql",
+		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
+			StaticConfigs: []*internal.TargetGroup{{
+				Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+			}},
+		},
+	}, {
+		JobName: "TestConfigUpdaterAddRemoveScrapeConfig",
+		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
+			StaticConfigs: []*internal.TargetGroup{{
+				Targets: []model.LabelSet{{"__address__": "5.6.7.8:12345"}},
+			}},
+		},
+	}}, configUpdater.fileData)
+
+	err = configUpdater.addScrapeConfig(add)
+	assertGRPCError(t, status.New(codes.AlreadyExists, `scrape config with job name "TestConfigUpdaterAddRemoveScrapeConfig" already exist`), err)
+
+	add.JobName = "prometheus"
+	err = configUpdater.addScrapeConfig(add)
+	assertGRPCError(t, status.New(codes.FailedPrecondition, `scrape config with job name "prometheus" is built-in`), err)
+
+	err = configUpdater.removeScrapeConfig("TestConfigUpdaterAddRemoveScrapeConfig")
+	assert.NoError(t, err)
+
+	assertYAMLEqual(t, []ScrapeConfig{{
+		JobName: "postgresql",
+		StaticConfigs: []StaticConfig{{
+			Targets: []string{"1.2.3.4:12345"},
+		}},
+	}}, configUpdater.consulData)
+	assertYAMLEqual(t, []*internal.ScrapeConfig{{
+		JobName: "prometheus",
+		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
+			StaticConfigs: []*internal.TargetGroup{{
+				Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
+			}},
+		},
+	}, {
+		JobName: "postgresql",
+		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
+			StaticConfigs: []*internal.TargetGroup{{
+				Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+			}},
+		},
+	}}, configUpdater.fileData)
+
+	err = configUpdater.removeScrapeConfig("TestConfigUpdaterAddRemoveScrapeConfig")
+	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "TestConfigUpdaterAddRemoveScrapeConfig" not found`), err)
+
+	err = configUpdater.removeScrapeConfig("prometheus")
+	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
+}
+
+func TestConfigUpdaterAddRemoveStaticTargets(t *testing.T) {
+	configUpdater := getConfigUpdater()
+
+	// add the same targets twice: no error, no duplicate
+	for i := 0; i < 2; i++ {
+		err := configUpdater.addStaticTargets("postgresql", []string{"5.6.7.8:12345", "1.2.3.4:12345"})
 		assert.NoError(t, err)
 
 		assertYAMLEqual(t, []ScrapeConfig{{
 			JobName: "postgresql",
 			StaticConfigs: []StaticConfig{{
-				Targets: []string{"1.2.3.4:12345"},
-			}},
-		}, {
-			JobName: "AddRemoveScrapeConfig",
-			StaticConfigs: []StaticConfig{{
-				Targets: []string{"5.6.7.8:12345"},
+				Targets: []string{"1.2.3.4:12345", "5.6.7.8:12345"},
 			}},
 		}}, configUpdater.consulData)
 		assertYAMLEqual(t, []*internal.ScrapeConfig{{
@@ -94,141 +173,66 @@ func TestConfigUpdater(t *testing.T) {
 			JobName: "postgresql",
 			ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
 				StaticConfigs: []*internal.TargetGroup{{
-					Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+					Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}, {"__address__": "5.6.7.8:12345"}},
+				}},
+			},
+		}}, configUpdater.fileData)
+	}
+
+	err := configUpdater.addStaticTargets("prometheus", []string{"127.0.0.1:9090"})
+	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
+
+	err = configUpdater.addStaticTargets("no_such_job", []string{"127.0.0.1:9090"})
+	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_job" not found`), err)
+
+	// remove the same target twice: no error, no duplicate
+	for i := 0; i < 2; i++ {
+		err := configUpdater.removeStaticTargets("postgresql", []string{"1.2.3.4:12345"})
+		assert.NoError(t, err)
+
+		assertYAMLEqual(t, []ScrapeConfig{{
+			JobName: "postgresql",
+			StaticConfigs: []StaticConfig{{
+				Targets: []string{"5.6.7.8:12345"},
+			}},
+		}}, configUpdater.consulData)
+		assertYAMLEqual(t, []*internal.ScrapeConfig{{
+			JobName: "prometheus",
+			ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
+				StaticConfigs: []*internal.TargetGroup{{
+					Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
 				}},
 			},
 		}, {
-			JobName: "AddRemoveScrapeConfig",
+			JobName: "postgresql",
 			ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
 				StaticConfigs: []*internal.TargetGroup{{
 					Targets: []model.LabelSet{{"__address__": "5.6.7.8:12345"}},
 				}},
 			},
 		}}, configUpdater.fileData)
+	}
 
-		err = configUpdater.addScrapeConfig(add)
-		assertGRPCError(t, status.New(codes.AlreadyExists, `scrape config with job name "AddRemoveScrapeConfig" already exist`), err)
+	err = configUpdater.removeStaticTargets("postgresql", []string{"5.6.7.8:12345"})
+	assert.NoError(t, err)
 
-		add.JobName = "prometheus"
-		err = configUpdater.addScrapeConfig(add)
-		assertGRPCError(t, status.New(codes.FailedPrecondition, `scrape config with job name "prometheus" is built-in`), err)
-
-		err = configUpdater.removeScrapeConfig("AddRemoveScrapeConfig")
-		assert.NoError(t, err)
-
-		assertYAMLEqual(t, []ScrapeConfig{{
-			JobName: "postgresql",
-			StaticConfigs: []StaticConfig{{
-				Targets: []string{"1.2.3.4:12345"},
+	assertYAMLEqual(t, []ScrapeConfig{{
+		JobName: "postgresql",
+	}}, configUpdater.consulData)
+	assertYAMLEqual(t, []*internal.ScrapeConfig{{
+		JobName: "prometheus",
+		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
+			StaticConfigs: []*internal.TargetGroup{{
+				Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
 			}},
-		}}, configUpdater.consulData)
-		assertYAMLEqual(t, []*internal.ScrapeConfig{{
-			JobName: "prometheus",
-			ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-				StaticConfigs: []*internal.TargetGroup{{
-					Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
-				}},
-			},
-		}, {
-			JobName: "postgresql",
-			ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-				StaticConfigs: []*internal.TargetGroup{{
-					Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
-				}},
-			},
-		}}, configUpdater.fileData)
+		},
+	}, {
+		JobName: "postgresql",
+	}}, configUpdater.fileData)
 
-		err = configUpdater.removeScrapeConfig("AddRemoveScrapeConfig")
-		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "AddRemoveScrapeConfig" not found`), err)
+	err = configUpdater.removeStaticTargets("prometheus", []string{"127.0.0.1:9090"})
+	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
 
-		err = configUpdater.removeScrapeConfig("prometheus")
-		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
-	})
-
-	t.Run("AddRemoveStaticTargets", func(t *testing.T) {
-		// add the same targets twice: no error, no duplicate
-		for i := 0; i < 2; i++ {
-			err := configUpdater.addStaticTargets("postgresql", []string{"5.6.7.8:12345", "1.2.3.4:12345"})
-			assert.NoError(t, err)
-
-			assertYAMLEqual(t, []ScrapeConfig{{
-				JobName: "postgresql",
-				StaticConfigs: []StaticConfig{{
-					Targets: []string{"1.2.3.4:12345", "5.6.7.8:12345"},
-				}},
-			}}, configUpdater.consulData)
-			assertYAMLEqual(t, []*internal.ScrapeConfig{{
-				JobName: "prometheus",
-				ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-					StaticConfigs: []*internal.TargetGroup{{
-						Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
-					}},
-				},
-			}, {
-				JobName: "postgresql",
-				ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-					StaticConfigs: []*internal.TargetGroup{{
-						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}, {"__address__": "5.6.7.8:12345"}},
-					}},
-				},
-			}}, configUpdater.fileData)
-		}
-
-		err := configUpdater.addStaticTargets("prometheus", []string{"127.0.0.1:9090"})
-		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
-
-		err = configUpdater.addStaticTargets("no_such_job", []string{"127.0.0.1:9090"})
-		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_job" not found`), err)
-
-		// remove the same target twice: no error, no duplicate
-		for i := 0; i < 2; i++ {
-			err := configUpdater.removeStaticTargets("postgresql", []string{"1.2.3.4:12345"})
-			assert.NoError(t, err)
-
-			assertYAMLEqual(t, []ScrapeConfig{{
-				JobName: "postgresql",
-				StaticConfigs: []StaticConfig{{
-					Targets: []string{"5.6.7.8:12345"},
-				}},
-			}}, configUpdater.consulData)
-			assertYAMLEqual(t, []*internal.ScrapeConfig{{
-				JobName: "prometheus",
-				ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-					StaticConfigs: []*internal.TargetGroup{{
-						Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
-					}},
-				},
-			}, {
-				JobName: "postgresql",
-				ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-					StaticConfigs: []*internal.TargetGroup{{
-						Targets: []model.LabelSet{{"__address__": "5.6.7.8:12345"}},
-					}},
-				},
-			}}, configUpdater.fileData)
-		}
-
-		err = configUpdater.removeStaticTargets("postgresql", []string{"5.6.7.8:12345"})
-		assert.NoError(t, err)
-
-		assertYAMLEqual(t, []ScrapeConfig{{
-			JobName: "postgresql",
-		}}, configUpdater.consulData)
-		assertYAMLEqual(t, []*internal.ScrapeConfig{{
-			JobName: "prometheus",
-			ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-				StaticConfigs: []*internal.TargetGroup{{
-					Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
-				}},
-			},
-		}, {
-			JobName: "postgresql",
-		}}, configUpdater.fileData)
-
-		err = configUpdater.removeStaticTargets("prometheus", []string{"127.0.0.1:9090"})
-		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
-
-		err = configUpdater.removeStaticTargets("no_such_job", []string{"127.0.0.1:9090"})
-		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_job" not found`), err)
-	})
+	err = configUpdater.removeStaticTargets("no_such_job", []string{"127.0.0.1:9090"})
+	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_job" not found`), err)
 }
