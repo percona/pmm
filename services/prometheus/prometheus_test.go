@@ -152,13 +152,11 @@ func TestPrometheusScrapeConfigs(t *testing.T) {
 		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
 	}()
 
-	// other fields are filled by defaults
-	scs := []StaticConfig{
-		{[]string{"127.0.0.1:12345", "127.0.0.2:12345"}, nil},
-	}
 	cfg := &ScrapeConfig{
-		JobName:       "test_config",
-		StaticConfigs: scs,
+		JobName: "test_config",
+		StaticConfigs: []StaticConfig{
+			{[]string{"127.0.0.1:12345", "127.0.0.2:12345"}, nil},
+		},
 	}
 	err = p.CreateScrapeConfig(ctx, cfg)
 	require.NoError(t, err)
@@ -169,9 +167,20 @@ func TestPrometheusScrapeConfigs(t *testing.T) {
 	err = p.CreateScrapeConfig(ctx, &ScrapeConfig{JobName: "prometheus"})
 	assertGRPCError(t, status.New(codes.FailedPrecondition, `scrape config with job name "prometheus" is built-in`), err)
 
+	// other fields are filled by global values or defaults
 	actual, err = p.GetScrapeConfig(ctx, "test_config")
 	require.NoError(t, err)
-	assert.Equal(t, cfg, actual)
+	expected := &ScrapeConfig{
+		JobName:        "test_config",
+		ScrapeInterval: "30s",
+		ScrapeTimeout:  "15s",
+		MetricsPath:    "/metrics",
+		Scheme:         "http",
+		StaticConfigs: []StaticConfig{
+			{[]string{"127.0.0.1:12345", "127.0.0.2:12345"}, nil},
+		},
+	}
+	assert.Equal(t, expected, actual)
 }
 
 func TestPrometheusStaticTargets(t *testing.T) {
@@ -261,4 +270,32 @@ func TestPrometheusBadScrapeConfig(t *testing.T) {
 
 	err = p.DeleteScrapeConfig(ctx, "test_config")
 	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
+}
+
+// https://jira.percona.com/browse/PMM-1310?focusedCommentId=196689
+func TestPrometheusReadDefaults(t *testing.T) {
+	p, ctx, before := setupPrometheus(t)
+	defer tearDownPrometheus(t, p, before)
+
+	cfg := &ScrapeConfig{
+		JobName: "test_config",
+	}
+	err := p.CreateScrapeConfig(ctx, cfg)
+	assert.NoError(t, err)
+
+	expected := &ScrapeConfig{
+		JobName:        "test_config",
+		ScrapeInterval: "30s",
+		ScrapeTimeout:  "15s",
+		MetricsPath:    "/metrics",
+		Scheme:         "http",
+	}
+
+	cfgs, err := p.ListScrapeConfigs(ctx)
+	require.NoError(t, err)
+	assert.Equal(t, []ScrapeConfig{*expected}, cfgs)
+
+	actual, err := p.GetScrapeConfig(ctx, "test_config")
+	assert.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }

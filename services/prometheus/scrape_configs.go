@@ -95,22 +95,45 @@ func (svc *Service) ListScrapeConfigs(ctx context.Context) ([]ScrapeConfig, erro
 	svc.lock.RLock()
 	defer svc.lock.RUnlock()
 
-	return svc.getFromConsul()
+	consulData, err := svc.getFromConsul()
+	if err != nil {
+		return nil, err
+	}
+	config, err := svc.loadConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	// return data from Prometheus config to fill default values
+	res := make([]ScrapeConfig, len(consulData))
+	for i, consulCfg := range consulData {
+		var found bool
+		for _, configCfg := range config.ScrapeConfigs {
+			if consulCfg.JobName == configCfg.JobName {
+				res[i] = *convertInternalScrapeConfig(configCfg)
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil, status.Errorf(codes.FailedPrecondition, "scrape config with job name %q not found in configuration file", consulCfg.JobName)
+		}
+	}
+	return res, nil
 }
 
 // GetScrapeConfig returns a scrape config by job name.
 // Errors: NotFound(5) if no such scrape config is present.
 func (svc *Service) GetScrapeConfig(ctx context.Context, jobName string) (*ScrapeConfig, error) {
-	svc.lock.RLock()
-	defer svc.lock.RUnlock()
-
-	scs, err := svc.getFromConsul()
+	// lock is held by ListScrapeConfigs
+	cfgs, err := svc.ListScrapeConfigs(ctx)
 	if err != nil {
 		return nil, err
 	}
-	for _, sc := range scs {
-		if sc.JobName == jobName {
-			return &sc, nil
+
+	for _, cfg := range cfgs {
+		if cfg.JobName == jobName {
+			return &cfg, nil
 		}
 	}
 	return nil, status.Errorf(codes.NotFound, "scrape config with job name %q not found", jobName)

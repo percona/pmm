@@ -26,6 +26,47 @@ import (
 	"github.com/percona/pmm-managed/services/prometheus/internal"
 )
 
+// keep in sync with convertScrapeConfig
+func convertInternalScrapeConfig(cfg *internal.ScrapeConfig) *ScrapeConfig {
+	var basicAuth *BasicAuth
+	if cfg.HTTPClientConfig.BasicAuth != nil {
+		basicAuth = &BasicAuth{
+			Username: cfg.HTTPClientConfig.BasicAuth.Username,
+			Password: cfg.HTTPClientConfig.BasicAuth.Password,
+		}
+	}
+
+	var staticConfigs []StaticConfig
+	if len(cfg.ServiceDiscoveryConfig.StaticConfigs) > 0 {
+		staticConfigs = make([]StaticConfig, len(cfg.ServiceDiscoveryConfig.StaticConfigs))
+		for scI, sc := range cfg.ServiceDiscoveryConfig.StaticConfigs {
+			for _, t := range sc.Targets {
+				staticConfigs[scI].Targets = append(staticConfigs[scI].Targets, string(t[model.AddressLabel]))
+			}
+			for n, v := range sc.Labels {
+				staticConfigs[scI].Labels = append(staticConfigs[scI].Labels, LabelPair{
+					Name:  string(n),
+					Value: string(v),
+				})
+			}
+		}
+	}
+
+	return &ScrapeConfig{
+		JobName:        cfg.JobName,
+		ScrapeInterval: cfg.ScrapeInterval.String(),
+		ScrapeTimeout:  cfg.ScrapeTimeout.String(),
+		MetricsPath:    cfg.MetricsPath,
+		Scheme:         cfg.Scheme,
+		BasicAuth:      basicAuth,
+		TLSConfig: TLSConfig{
+			InsecureSkipVerify: cfg.HTTPClientConfig.TLSConfig.InsecureSkipVerify,
+		},
+		StaticConfigs: staticConfigs,
+	}
+}
+
+// keep in sync with convertInternalScrapeConfig
 func convertScrapeConfig(cfg *ScrapeConfig) (*internal.ScrapeConfig, error) {
 	var err error
 	var interval, timeout model.Duration
