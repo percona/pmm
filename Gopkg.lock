@@ -286,8 +286,8 @@
 [[projects]]
   name = "github.com/prometheus/prometheus"
   packages = ["cmd/promtool","config","promql","storage","storage/local","storage/local/chunk","storage/local/codable","storage/local/index","storage/metric","util/cli","util/flock","util/promlint","util/stats","util/strutil","util/testutil"]
-  revision = "3afb3fffa3a29c3de865e1172fb740442e9d0133"
-  version = "v1.7.1"
+  revision = "22eadbe635528fa17b99a7635fed6b6018103042"
+  version = "v1.7.2"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -400,6 +400,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "62267e4d168fe80c3c687e08f4bccb2e9b8034643e49d66cb7d59393e8cbbd7b"
+  inputs-digest = "777689d6913876a319702e9dab8c3f66bb6a7e85e5e4b1fd113b70d741f3095d"
   solver-name = "gps-cdcl"
   solver-version = 1
