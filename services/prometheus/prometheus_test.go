@@ -41,7 +41,7 @@ func assertGRPCError(t testing.TB, expected *status.Status, actual error) {
 	// t.Helper() TODO enable when we switch to 1.9+
 
 	s, ok := status.FromError(actual)
-	if !assert.True(t, ok) {
+	if !assert.True(t, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
 		return
 	}
 	assert.Equal(t, expected.Code(), s.Code())
@@ -236,4 +236,29 @@ func TestPrometheusStaticTargets(t *testing.T) {
 
 	err = p.RemoveStaticTargets(ctx, "prometheus", []string{"127.0.0.2:12345", "127.0.0.2:12345"})
 	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
+}
+
+// https://jira.percona.com/browse/PMM-1310?focusedCommentId=196688
+func TestPrometheusBadScrapeConfig(t *testing.T) {
+	p, ctx, before := setupPrometheus(t)
+	defer tearDownPrometheus(t, p, before)
+
+	cfg := &ScrapeConfig{
+		JobName:        "test_config",
+		ScrapeInterval: "1s",
+		ScrapeTimeout:  "5s",
+	}
+	err := p.CreateScrapeConfig(ctx, cfg)
+	assertGRPCError(t, status.New(codes.Aborted, `scrape timeout greater than scrape interval for scrape config with job name "test_config"`), err)
+
+	cfgs, err := p.ListScrapeConfigs(ctx)
+	require.NoError(t, err)
+	assert.Empty(t, cfgs)
+
+	actual, err := p.GetScrapeConfig(ctx, "test_config")
+	assert.Nil(t, actual)
+	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
+
+	err = p.DeleteScrapeConfig(ctx, "test_config")
+	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
 }

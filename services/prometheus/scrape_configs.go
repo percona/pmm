@@ -137,11 +137,11 @@ func (svc *Service) CreateScrapeConfig(ctx context.Context, cfg *ScrapeConfig) e
 		return err
 	}
 
-	if err = svc.putToConsul(updater.consulData); err != nil {
+	config.ScrapeConfigs = updater.fileData
+	if err = svc.saveConfigAndReload(ctx, config); err != nil {
 		return err
 	}
-	config.ScrapeConfigs = updater.fileData
-	return svc.saveConfigAndReload(ctx, config)
+	return svc.putToConsul(updater.consulData)
 }
 
 // DeleteScrapeConfig removes existing scrape config by job name.
@@ -164,11 +164,11 @@ func (svc *Service) DeleteScrapeConfig(ctx context.Context, jobName string) erro
 		return err
 	}
 
-	if err = svc.putToConsul(updater.consulData); err != nil {
+	config.ScrapeConfigs = updater.fileData
+	if err = svc.saveConfigAndReload(ctx, config); err != nil {
 		return err
 	}
-	config.ScrapeConfigs = updater.fileData
-	return svc.saveConfigAndReload(ctx, config)
+	return svc.putToConsul(updater.consulData)
 }
 
 // AddStaticTargets adds static targets to existing scrape config.
@@ -191,11 +191,11 @@ func (svc *Service) AddStaticTargets(ctx context.Context, jobName string, target
 		return err
 	}
 
-	if err = svc.putToConsul(updater.consulData); err != nil {
+	config.ScrapeConfigs = updater.fileData
+	if err = svc.saveConfigAndReload(ctx, config); err != nil {
 		return err
 	}
-	config.ScrapeConfigs = updater.fileData
-	return svc.saveConfigAndReload(ctx, config)
+	return svc.putToConsul(updater.consulData)
 }
 
 // RemoveStaticTargets removes static targets from existing scrape config.
@@ -218,9 +218,9 @@ func (svc *Service) RemoveStaticTargets(ctx context.Context, jobName string, tar
 		return err
 	}
 
-	if err = svc.putToConsul(updater.consulData); err != nil {
+	config.ScrapeConfigs = updater.fileData
+	if err = svc.saveConfigAndReload(ctx, config); err != nil {
 		return err
 	}
-	config.ScrapeConfigs = updater.fileData
-	return svc.saveConfigAndReload(ctx, config)
+	return svc.putToConsul(updater.consulData)
 }
