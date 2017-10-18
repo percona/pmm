@@ -25,16 +25,21 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/yaml.v2"
 
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/prometheus/internal"
 	"github.com/percona/pmm-managed/utils/logger"
 )
+
+var checkFailedRE = regexp.MustCompile(`FAILED: (.+)\n`)
 
 // Service is responsible for interactions with Prometheus.
 // It assumes the following:
@@ -126,7 +131,12 @@ func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Confi
 	}()
 	b, err := exec.Command(svc.promtoolPath, "check-config", f.Name()).CombinedOutput()
 	if err != nil {
-		return errors.Wrap(err, string(b))
+		// return typed error if possible
+		s := string(b)
+		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 {
+			return status.Error(codes.Aborted, m[1])
+		}
+		return errors.Wrap(err, s)
 	}
 	logger.Get(ctx).Infof("%s", b)
 

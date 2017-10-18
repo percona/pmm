@@ -95,22 +95,45 @@ func (svc *Service) ListScrapeConfigs(ctx context.Context) ([]ScrapeConfig, erro
 	svc.lock.RLock()
 	defer svc.lock.RUnlock()
 
-	return svc.getFromConsul()
+	consulData, err := svc.getFromConsul()
+	if err != nil {
+		return nil, err
+	}
+	config, err := svc.loadConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	// return data from Prometheus config to fill default values
+	res := make([]ScrapeConfig, len(consulData))
+	for i, consulCfg := range consulData {
+		var found bool
+		for _, configCfg := range config.ScrapeConfigs {
+			if consulCfg.JobName == configCfg.JobName {
+				res[i] = *convertInternalScrapeConfig(configCfg)
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil, status.Errorf(codes.FailedPrecondition, "scrape config with job name %q not found in configuration file", consulCfg.JobName)
+		}
+	}
+	return res, nil
 }
 
 // GetScrapeConfig returns a scrape config by job name.
 // Errors: NotFound(5) if no such scrape config is present.
 func (svc *Service) GetScrapeConfig(ctx context.Context, jobName string) (*ScrapeConfig, error) {
-	svc.lock.RLock()
-	defer svc.lock.RUnlock()
-
-	scs, err := svc.getFromConsul()
+	// lock is held by ListScrapeConfigs
+	cfgs, err := svc.ListScrapeConfigs(ctx)
 	if err != nil {
 		return nil, err
 	}
-	for _, sc := range scs {
-		if sc.JobName == jobName {
-			return &sc, nil
+
+	for _, cfg := range cfgs {
+		if cfg.JobName == jobName {
+			return &cfg, nil
 		}
 	}
 	return nil, status.Errorf(codes.NotFound, "scrape config with job name %q not found", jobName)
@@ -137,11 +160,11 @@ func (svc *Service) CreateScrapeConfig(ctx context.Context, cfg *ScrapeConfig) e
 		return err
 	}
 
-	if err = svc.putToConsul(updater.consulData); err != nil {
+	config.ScrapeConfigs = updater.fileData
+	if err = svc.saveConfigAndReload(ctx, config); err != nil {
 		return err
 	}
-	config.ScrapeConfigs = updater.fileData
-	return svc.saveConfigAndReload(ctx, config)
+	return svc.putToConsul(updater.consulData)
 }
 
 // DeleteScrapeConfig removes existing scrape config by job name.
@@ -164,11 +187,11 @@ func (svc *Service) DeleteScrapeConfig(ctx context.Context, jobName string) erro
 		return err
 	}
 
-	if err = svc.putToConsul(updater.consulData); err != nil {
+	config.ScrapeConfigs = updater.fileData
+	if err = svc.saveConfigAndReload(ctx, config); err != nil {
 		return err
 	}
-	config.ScrapeConfigs = updater.fileData
-	return svc.saveConfigAndReload(ctx, config)
+	return svc.putToConsul(updater.consulData)
 }
 
 // AddStaticTargets adds static targets to existing scrape config.
@@ -191,11 +214,11 @@ func (svc *Service) AddStaticTargets(ctx context.Context, jobName string, target
 		return err
 	}
 
-	if err = svc.putToConsul(updater.consulData); err != nil {
+	config.ScrapeConfigs = updater.fileData
+	if err = svc.saveConfigAndReload(ctx, config); err != nil {
 		return err
 	}
-	config.ScrapeConfigs = updater.fileData
-	return svc.saveConfigAndReload(ctx, config)
+	return svc.putToConsul(updater.consulData)
 }
 
 // RemoveStaticTargets removes static targets from existing scrape config.
@@ -218,9 +241,9 @@ func (svc *Service) RemoveStaticTargets(ctx context.Context, jobName string, tar
 		return err
 	}
 
-	if err = svc.putToConsul(updater.consulData); err != nil {
+	config.ScrapeConfigs = updater.fileData
+	if err = svc.saveConfigAndReload(ctx, config); err != nil {
 		return err
 	}
-	config.ScrapeConfigs = updater.fileData
-	return svc.saveConfigAndReload(ctx, config)
+	return svc.putToConsul(updater.consulData)
 }
