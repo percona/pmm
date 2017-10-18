@@ -14,9 +14,10 @@ env:
   - PROMETHEUS_IMAGE=prom/prometheus:v1.8.0
     ALERTMANAGER_IMAGE=prom/alertmanager:v0.9.1
     CONSUL_IMAGE=consul:0.9.3
-  - PROMETHEUS_IMAGE=prom/prometheus:master
-    ALERTMANAGER_IMAGE=prom/alertmanager:master
-    CONSUL_IMAGE=consul:latest
+  # TODO
+  # - PROMETHEUS_IMAGE=prom/prometheus:master
+  #   ALERTMANAGER_IMAGE=prom/alertmanager:master
+  #   CONSUL_IMAGE=consul:latest
 
 before_install:
   # no package for Trusty yet
