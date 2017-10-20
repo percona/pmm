@@ -58,6 +58,7 @@ for the corresponding image:
      - ``sa-east-1``
      - `ami-994f36f5 <https://console.aws.amazon.com/ec2/v2/home?region=sa-east-1#Images:visibility=public-images;imageId=ami-994f36f5>`_
 
+
 Running from Command Line
 =========================
 

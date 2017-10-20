@@ -192,7 +192,7 @@ Passing parameters to a monitoring service
 
 :program:`pmm-admin add` sends all options which follow :option:`--` (two
 consecutive dashes delimited by whitespace) to the monitoring service as
-parameters. 
+parameters.
 
 .. code-block:: bash
    :caption: Passing :option:`--collect.perf_schema.eventsstatements` to the
@@ -200,6 +200,13 @@ parameters.
    :name: pmm.pmm-admin.monitoring-service.pass-parameter.example
 
    $ sudo pmm-admin add mysql:metrics -- --collect.perf_schema.eventsstatements
+
+.. code-block:: bash
+   :caption: Passing :option:`--collect.perf_schema.eventswaits=false` to the
+             :option:`mysql:metrics` monitoring service
+   :name: pmm.pmm-admin.monitoring-service.pass-parameter.example2
+
+   $ sudo pmm-admin add mysql:metrics -- --collect.perf_schema.eventswaits=false
 
 
 .. _pmm.pmm-admin.mongodb.pass-ssl-parameter:
@@ -212,10 +219,10 @@ monitoring service parameters along with the :program:`pmm-admin add` command
 when adding the :option:`mongodb:queries` monitoring service.
 
 .. code-block:: bash
-   :caption: Passing an SSL/TLS parameter to :program:`mongod` to enables 
+   :caption: Passing an SSL/TLS parameter to :program:`mongod` to enables
              a TLS connection.
 
-   $ sudo pmm-admin add mongodb:queries -- mongodb.tls
+   $ sudo pmm-adming add mongodb:queries -- --mongodb.tls
 
 .. list-table:: Supported SSL/TLS Parameters
    :widths: 25 75
@@ -223,19 +230,19 @@ when adding the :option:`mongodb:queries` monitoring service.
 
    * - Parameter
      - Description
-   * - :option:`-mongodb.tls`
+   * - :option:`--mongodb.tls`
      - Enable a TLS connection with mongo server
-   * - :option:`-mongodb.tls-ca` *string*
+   * - :option:`--mongodb.tls-ca` *string*
      - A path to a PEM file that contains the CAs that are trusted for server connections.
        *If provided*: MongoDB servers connecting to should present a certificate signed by one of this CAs.
        *If not provided*: System default CAs are used.
-   * - :option:`-mongodb.tls-cert` *string*
+   * - :option:`--mongodb.tls-cert` *string*
      - A path to PEM file that contains the certificate (and optionally also the private key in PEM format).
        This should include the whole certificate chain.
        *If provided*: The connection will be opened via TLS to the MongoDB server.
-   * - :option:`-mongodb.tls-disable-hostname-validation`
+   * - :option:`--mongodb.tls-disable-hostname-validation`
      - Do hostname validation for the server connection.
-   * - :option:`-mongodb.tls-private-key` *string*
+   * - :option:`--mongodb.tls-private-key` *string*
      - A path to a PEM file that contains the private key (if not contained in the :option:`mongodb.tls-cert` file).
 
 
