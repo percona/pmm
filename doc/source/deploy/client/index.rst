@@ -39,7 +39,7 @@ from software repositories only on the most popular Linux distributions:
 
 If you are not able to install from Percona's software repositories or
 running some other Linux distribution,
-try :ref:`install-client-manual`.
+try :ref:`deploy-pmm.client.installing`.
 
 .. toctree::
    :hidden:

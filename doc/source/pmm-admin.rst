@@ -143,6 +143,47 @@ along with any relevant additional arguments.
 
 For more information, run ``sudo pmm-admin add --help``.
 
+Adding external monitoring services
+--------------------------------------------------------------------------------
+
+The ``pmm-adming add`` command is also used to add external :term:`monitoring
+services <External Monitoring Service>`. Is important to know that this command
+set the external monitoring service but assumes that it is already set up and
+accessible.
+
+To add an external monitoring service use `external:metrics` service followed by
+the name of the Prometheus job URL and port number to reach it.
+
+.. code-block:: text
+
+   pmm-admin add external:metrics JOB-NAME URL:PORT_NUMBER
+
+The following example adds an external monitoring service which monitors a
+PostgreSQL instance at 192.168.200.1, port 9187
+
+.. code-block:: text
+
+   pmm-admin add external:metrics postgresql 192.168.200.1:9187
+
+If the command succeeds then running :ref:``pmm-admin list`` would show the
+newly added external exporter at the bottom of the command's output:
+
+.. code-block:: text
+
+   PMM Server      | 192.168.100.1
+   Client Name     | percona
+   Client Address  | 192.168.200.1
+   Service Manager | linux-systemd
+
+   -------------- -------- ----------- -------- ------------ --------
+   SERVICE TYPE   NAME     LOCAL PORT  RUNNING  DATA SOURCE  OPTIONS 
+   -------------- -------- ----------- -------- ------------ --------
+   linux:metrics  percona  42000       YES                 -                    
+
+
+   Name      Scrape interval  Scrape timeout  Metrics path  Scheme  Instances
+   postgres  1s               1s              /metrics      http    192.168.200.1:9187
+
 
 .. _pmm.pmm-admin.monitoring-service.pass-parameter:
 
@@ -801,13 +842,41 @@ Use the ``pmm-admin list`` command to list all enabled services with details.
 
 .. rubric:: OPTIONS
 
-The ``pmm-admin list`` command does not have its own options,
-but you can use :ref:`global options that apply to any other command
-<pmm-admin-options>`
+The ``pmm-admin list`` command supports :ref:`global options that apply to any other command
+<pmm-admin-options>` and also provides a machine friendly JSON output.
+
+``--json``
+   list the enabled services as a JSON document. The information provided in the
+   standard tabular form is captured as keys and values. The general information
+   about the computer where this pmm-client is installed is given as top level
+   elements:
+
+   .. hlist::
+      :columns: 2
+
+      * ``Version``
+      * ``ServerAddress``
+      * ``ServerSecurity``
+      * ``ClientName``
+      * ``ClientAddress``
+      * ``ClientBindAddress``
+      * ``Platform``
+
+   Note that you can quickly determine if there are any errors by inspecting the
+   ``Err`` top level element in the JSON output. Similarly, the ``EternalErr`` element
+   reports errors in external services.
+
+   The ``Services`` top level element contains a list of documents which represent enabled
+   monitoring services. Each attribute in a document maps to the column in the tabular
+   output.
+
+   The ``ExternalServices`` element contains a list of documents which represent
+   enabled external monitoring services. Each attribute in a document maps to
+   the column in the tabular output.
 
 .. rubric:: OUTPUT
 
-The output provides the following info:
+The output provides the following information:
 
 * Version of ``pmm-admin``
 * *PMM Server* host address, and local host name and address
@@ -834,6 +903,7 @@ output should be similar to the following:
    ---------------- ----------- ----------- -------- ---------------- --------
    linux:metrics    mongo-main  42000       YES      -
    mongodb:metrics  mongo-main  42003       YES      localhost:27017
+
 
 .. _pmm-admin-ping:
 
