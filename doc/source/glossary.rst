@@ -5,6 +5,13 @@
 .. glossary::
    :sorted:
 
+   External Monitoring Service
+
+      A monitoring service which is not provided by :term:`PMM`
+      directly. It is bound to a running Prometheus exporter. As soon
+      as such an service is added, you can set up the :term:`Metrics
+      Monitor <Metrics Monitor (MM)>` to display its graphs.
+
    Orchestrator
 
       The topology manager for MySQL. By default it is disabled for the
