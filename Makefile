@@ -29,7 +29,7 @@ test-race: install-race
 	go test -v -race $(PACKAGES)
 
 cover: install
-	gocoverutil test -v $(PACKAGES)
+	gocoverutil -ignore=github.com/percona/pmm-managed/api/... test -v $(PACKAGES)
 
 check: install
 	-gometalinter.v1 --tests --skip=api --deadline=180s ./...
