@@ -289,7 +289,6 @@ machine image, run the following command in your terminal:
 .. toctree::
    :hidden:
 
-   server/index
    client/index
    connect-client
    start-collect
