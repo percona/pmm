@@ -49,6 +49,12 @@
         - { src: '/tmp/orchestrator.conf.json-backup', dest: '/etc/orchestrator.conf.json' }
         - { src: '/tmp/purge-qan-data-backup',         dest: '/etc/cron.daily/purge-qan-data' }
 
+    - name: qan-api                    | Fix DSN
+      replace:
+        dest: /etc/percona-qan-api.conf
+        regexp: 'percona:percona'
+        replace: 'qan-api:5goldenfipar'
+
     - name: PMM                        | Remove temporary files
       command: /usr/bin/shred --remove /tmp/orchestrator.conf.json-backup /tmp/purge-qan-data-backup
 
