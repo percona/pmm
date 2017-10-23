@@ -77,11 +77,6 @@ New features
   <https://www.percona.com/downloads/pmm/>`_ as :program:`tar`
   packages.
 
-Improvements
---------------------------------------------------------------------------------
-
-- :pmmbug:`1553`: :program:`Consul` upgraded to the 0.8 release.
-
 Bug fixes
 --------------------------------------------------------------------------------
 
