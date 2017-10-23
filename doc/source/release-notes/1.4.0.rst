@@ -58,7 +58,7 @@ number of new tools that will facilitate data analysis in PMM:
   .. image:: ../images/pmm.metrics-monitor.graph.metrics.query-inspector.1.png
      :width: 50%
 
-The complete list of new features in :program:`Graphana` 4.5.0 is available from
+The complete list of new features in :program:`Grafana` 4.5.0 is available from
 `What's New in Grafana v4.5
 <http://docs.grafana.org/guides/whats-new-in-v4-5/>`_.
 
