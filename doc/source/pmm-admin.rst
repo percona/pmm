@@ -146,7 +146,7 @@ For more information, run ``sudo pmm-admin add --help``.
 Adding external monitoring services
 --------------------------------------------------------------------------------
 
-The ``pmm-adming add`` command is also used to add external :term:`monitoring
+The ``pmm-admin add`` command is also used to add external :term:`monitoring
 services <External Monitoring Service>`. Is important to know that this command
 set the external monitoring service but assumes that it is already set up and
 accessible.
@@ -222,7 +222,7 @@ when adding the :option:`mongodb:queries` monitoring service.
    :caption: Passing an SSL/TLS parameter to :program:`mongod` to enables
              a TLS connection.
 
-   $ sudo pmm-adming add mongodb:queries -- --mongodb.tls
+   $ sudo pmm-admin add mongodb:queries -- --mongodb.tls
 
 .. list-table:: Supported SSL/TLS Parameters
    :widths: 25 75
