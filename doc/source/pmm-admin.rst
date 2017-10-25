@@ -165,7 +165,7 @@ PostgreSQL instance at 192.168.200.1, port 9187
 
    pmm-admin add external:metrics postgresql 192.168.200.1:9187
 
-If the command succeeds then running :ref:``pmm-admin list`` would show the
+If the command succeeds then running ``pmm-admin list`` would show the
 newly added external exporter at the bottom of the command's output:
 
 .. code-block:: text
