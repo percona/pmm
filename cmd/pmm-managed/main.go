@@ -53,7 +53,7 @@ const (
 	shutdownTimeout = 3 * time.Second
 
 	// FIXME set it during build for PMM 1.5
-	pmmVersion = "1.4.1"
+	pmmVersion = "1.5.0"
 )
 
 var (
