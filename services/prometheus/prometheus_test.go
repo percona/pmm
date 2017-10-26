@@ -252,12 +252,19 @@ func TestPrometheusBadScrapeConfig(t *testing.T) {
 	p, ctx, before := setupPrometheus(t)
 	defer tearDownPrometheus(t, p, before)
 
+	// https://jira.percona.com/browse/PMM-1636
 	cfg := &ScrapeConfig{
+		JobName: "10.10.11.50:9187",
+	}
+	err := p.CreateScrapeConfig(ctx, cfg)
+	assertGRPCError(t, status.New(codes.InvalidArgument, `job_name: invalid format`), err)
+
+	cfg = &ScrapeConfig{
 		JobName:        "test_config",
 		ScrapeInterval: "1s",
 		ScrapeTimeout:  "5s",
 	}
-	err := p.CreateScrapeConfig(ctx, cfg)
+	err = p.CreateScrapeConfig(ctx, cfg)
 	assertGRPCError(t, status.New(codes.Aborted, `scrape timeout greater than scrape interval for scrape config with job name "test_config"`), err)
 
 	cfgs, err := p.ListScrapeConfigs(ctx)

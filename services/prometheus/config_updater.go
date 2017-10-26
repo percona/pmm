@@ -18,6 +18,7 @@ package prometheus
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
@@ -25,6 +26,11 @@ import (
 
 	"github.com/percona/pmm-managed/services/prometheus/internal"
 )
+
+// RegExp for valid scrape job name. Prometheus itself doesn't seem to impose any limits on it,
+// see https://prometheus.io/docs/operating/configuration/#<job_name> and config.go in code.
+// But we limit it to be URL-safe for REST APIs.
+var scrapeConfigJobNameRE = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_-]*$`)
 
 // keep in sync with convertScrapeConfig
 func convertInternalScrapeConfig(cfg *internal.ScrapeConfig) *ScrapeConfig {
@@ -68,6 +74,10 @@ func convertInternalScrapeConfig(cfg *internal.ScrapeConfig) *ScrapeConfig {
 
 // keep in sync with convertInternalScrapeConfig
 func convertScrapeConfig(cfg *ScrapeConfig) (*internal.ScrapeConfig, error) {
+	if !scrapeConfigJobNameRE.MatchString(cfg.JobName) {
+		return nil, status.Error(codes.InvalidArgument, "job_name: invalid format")
+	}
+
 	var err error
 	var interval, timeout model.Duration
 	if cfg.ScrapeInterval != "" {
