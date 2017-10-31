@@ -257,7 +257,7 @@ func TestPrometheusBadScrapeConfig(t *testing.T) {
 		JobName: "10.10.11.50:9187",
 	}
 	err := p.CreateScrapeConfig(ctx, cfg)
-	assertGRPCError(t, status.New(codes.InvalidArgument, `job_name: invalid format`), err)
+	assertGRPCError(t, status.New(codes.InvalidArgument, `job_name: invalid format. Job name must be 2 to 60 characters long, characters long, contain only letters, numbers, and symbols '-', '_', and start with a letter.`), err)
 
 	cfg = &ScrapeConfig{
 		JobName:        "test_config",

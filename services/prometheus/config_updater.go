@@ -30,7 +30,11 @@ import (
 // RegExp for valid scrape job name. Prometheus itself doesn't seem to impose any limits on it,
 // see https://prometheus.io/docs/operating/configuration/#<job_name> and config.go in code.
 // But we limit it to be URL-safe for REST APIs.
-var scrapeConfigJobNameRE = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_-]*$`)
+var (
+	scrapeConfigJobNameRE        = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_-]*$`)
+	scrapeConfigJobNameMinLength = 2
+	scrapeConfigJobNameMaxLength = 60
+)
 
 // keep in sync with convertScrapeConfig
 func convertInternalScrapeConfig(cfg *internal.ScrapeConfig) *ScrapeConfig {
@@ -74,8 +78,9 @@ func convertInternalScrapeConfig(cfg *internal.ScrapeConfig) *ScrapeConfig {
 
 // keep in sync with convertInternalScrapeConfig
 func convertScrapeConfig(cfg *ScrapeConfig) (*internal.ScrapeConfig, error) {
-	if !scrapeConfigJobNameRE.MatchString(cfg.JobName) {
-		return nil, status.Error(codes.InvalidArgument, "job_name: invalid format")
+	if len(cfg.JobName) < scrapeConfigJobNameMinLength || len(cfg.JobName) > scrapeConfigJobNameMaxLength || !scrapeConfigJobNameRE.MatchString(cfg.JobName) {
+		msg := "job_name: invalid format. Job name must be 2 to 60 characters long, characters long, contain only letters, numbers, and symbols '-', '_', and start with a letter."
+		return nil, status.Error(codes.InvalidArgument, msg)
 	}
 
 	var err error
