@@ -37,7 +37,7 @@ Upgrading
 
       sudo yum update pmm-client
 
-#. (Optional) :ref:`Remove <pmm-admin-rm>` and :ref:`add <pmm-admin-add>`
+#. (Optional) :ref:`Remove <pmm-admin.rm>` and :ref:`add <pmm-admin.add>`
    the services running on PMM clients.
 
    There are changes related to authentication and general security

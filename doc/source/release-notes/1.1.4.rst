@@ -15,7 +15,7 @@ Query Analytics for MongoDB
 ===========================
 
 To enable MongoDB query analytics, use the ``mongodb:queries`` alias
-when :ref:`adding the service <pmm-admin-add>`.
+when :ref:`adding the service <pmm-admin.add>`.
 As an experimental feature, it also requires the ``--dev-enable`` option::
 
  sudo pmm-admin add --dev-enable mongodb:queries
