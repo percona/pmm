@@ -130,6 +130,8 @@ For more information, run
 |pmm-admin.add|
 |opt.help|.
 
+.. _pmm/pmm-admin/external-monitoring-service.adding:
+
 Adding external monitoring services
 --------------------------------------------------------------------------------
 

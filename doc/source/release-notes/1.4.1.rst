@@ -6,11 +6,11 @@ Percona Monitoring and Management |release|
 
 :Date: November 2, 2017
 
-Percona announces the release of |pmm.name|
-|release|
-on Thursday, November 2nd, 2017.
-Normally we stick to Semantic Versioning and thus a X.Y.Z release is bug fixes
-only, however we felt it important to introduce two new improvements.
+Percona announces the release of |pmm.name| |release| on Thursday, November
+2nd, 2017.  This release contains fixes to bugs found after |pmm.name|
+|prev-release| was released. It also introduces two important improvements. The
+`btrfs`_ file system has been replaced with *XFS* in AMI and OVF images and the
+|graph.prometheus| dashboard has been enhanced to offer more information|.
 
 For install and upgrade instructions, see :ref:`deploy-pmm`.
 
@@ -24,8 +24,8 @@ Improvements
   been updated to show more information about the running |prometheus|
   jobs and help estimate their efficiency.
   
-.. image:: ../images/pmm.metrics-monitor.advanced-data-exploration.1.png
-   :scale: 50%
+  .. image:: ../images/pmm.metrics-monitor.prometheus.1.png
+     :scale: 50%
 
 Bug fixes
 --------------------------------------------------------------------------------
@@ -33,7 +33,6 @@ Bug fixes
 * :pmmbug:`1620`: In some cases, |pmm| could not be :ref:`upgraded <deploy-pmm.updating>` to
   version |prev-release| by using the :guilabel:`Update` button on the landing
   page.
-  
 * :pmmbug:`1633`: |qan| would show error List of Tables is Empty for instances
   having been upgraded from earlier releases of |pmm|, due to incorrect values
   being stored in the database.  This has been addressed to identify the
@@ -41,6 +40,10 @@ Bug fixes
 * :pmmbug:`1634`: The |graph.advanced-data-exploration| dashboard did
   not always display data points from |opt.external-metrics| monitoring
   services due to a too restrictive Grafana Template filter.
+
+  .. image:: ../images/pmm.metrics-monitor.advanced-data-exploration.1.png
+     :scale: 50%
+
 * :pmmbug:`1636`: Special characters prevented the removal of
   |opt.external-metrics| services using the |pmm-admin.remove| command.
 
