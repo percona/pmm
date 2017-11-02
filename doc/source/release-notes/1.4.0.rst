@@ -71,7 +71,7 @@ New features
 - :pmmbug:`1521`: Grafana upgraded to version 4.5.2.
 - :pmmbug:`1091`: The :command:`pmm-admin list` produces a JSON document as
   output if the :option:`--json` option is supplied.
-- :pmmbug:`507`: External exporters are supported with :program:`pmm-admin`.
+- :pmmbug:`507`: :ref:`External exporters are supported <pmm/pmm-admin/external-monitoring-service.adding>` with |pmm-admin|.
 - :pmmbug:`1622`: :program:`docker` images of PMM Server are
   `available for downloading
   <https://www.percona.com/downloads/pmm/>`_ as :program:`tar`
@@ -89,3 +89,5 @@ Bug fixes
   on large installations.
 
 .. |release| replace:: 1.4.0
+
+.. include:: ../.resources/name.txt 
