@@ -6,9 +6,11 @@ Percona Monitoring and Management |release|
 
 :Date: November 2, 2017
 
-Percona announces the release of Percona Monitoring and Management
-|release|. This release contains fixes of bugs detected since the release of
-|prev-release|.
+Percona announces the release of |pmm.name|
+|release|
+on Thursday, November 2nd, 2017.
+Normally we stick to Semantic Versioning and thus a X.Y.Z release is bug fixes
+only, however we felt it important to introduce two new improvements.
 
 For install and upgrade instructions, see :ref:`deploy-pmm`.
 
@@ -21,24 +23,26 @@ Improvements
 * :pmmbug:`1594`: In |metrics-monitor|, the |graph.prometheus| dashboard has
   been updated to show more information about the running |prometheus|
   jobs and help estimate their efficiency.
+  
+.. image:: ../images/pmm.metrics-monitor.advanced-data-exploration.1.png
+   :scale: 50%
 
 Bug fixes
 --------------------------------------------------------------------------------
 
-* :pmmbug:`1634`: In |metrics-monitor|, the configured
-  |opt.external-metrics| monitoring services showed no data on the
-  |graph.advanced-data-exploration| dashboard while custom |grafana| dashboards
-  were producing the expected information.
-* :pmmbug:`1636`: It was not possible to remove an |opt.external-metrics|
-  monitoring service by using the |pmm-admin.remove| command if its name
-  contained punctuation characters or whitespace.
-* :pmmbug:`1620`: |pmm| could not be :ref:`upgraded <deploy-pmm.updating>` to
-  version |prev-release| by using the :guilabel:`Update` button on the landing page.
-
-Other bug fixes in this release:
-:pmmbug:`1567`,
-:pmmbug:`1633`.
-	
+* :pmmbug:`1620`: In some cases, |pmm| could not be :ref:`upgraded <deploy-pmm.updating>` to
+  version |prev-release| by using the :guilabel:`Update` button on the landing
+  page.
+  
+* :pmmbug:`1633`: |qan| would show error List of Tables is Empty for instances
+  having been upgraded from earlier releases of |pmm|, due to incorrect values
+  being stored in the database.  This has been addressed to identify the
+  incorrect values and replace with accurate schema and table information.
+* :pmmbug:`1634`: The |graph.advanced-data-exploration| dashboard did
+  not always display data points from |opt.external-metrics| monitoring
+  services due to a too restrictive Grafana Template filter.
+* :pmmbug:`1636`: Special characters prevented the removal of
+  |opt.external-metrics| services using the |pmm-admin.remove| command.
 
 .. |release|      replace:: 1.4.1
 .. |prev-release| replace:: 1.4.0

@@ -137,7 +137,7 @@ By default, Orchestrator_ is disabled. To enable it, set the
 
 .. rubric:: To disable telemetry
 
-With telemetry enabled, your |pmm-server| sends some statistics to `v.percona.com`_
+With :term:`telemetry` enabled, your |pmm-server| sends some statistics to `v.percona.com`_
 every 24 hours. This statistics includes the following details:
 
 - |pmm-server| unique ID

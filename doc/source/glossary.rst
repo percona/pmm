@@ -5,6 +5,21 @@
 .. glossary::
    :sorted:
 
+   Telemetry
+
+      |percona| may collect some statistics about the machine where |pmm| is running.
+
+      This statistics includes the following information:
+
+      - |pmm-server| unique ID
+      - |pmm| version
+      - The name and version of the operating system, AMI or virtual appliance
+      - |mysql| version
+      - |perl| version
+
+      You may disable telemetry :ref:`by passing an additional parameter
+      <pmm/docker.additional_parameters>` to |docker|.
+
    External Monitoring Service
 
       A monitoring service which is not provided by :term:`PMM`
@@ -102,15 +117,15 @@
 
       .. figure:: ./images/update-button.png
 
-	 To update your |product-abbrev| server, click the *Update* button
+	 To update your |pmm-server|, click the *Update* button
 	 located next to the version number.
 
    PMM Docker Image
 
-      A docker image which enables installing the |product-abbrev| server by
+      A docker image which enables installing the |pmm-server| by
       using :program:`docker`.
 
-      For more information about how to install |product-abbrev| server using
+      For more information about how to install |pmm-server| using
       this option, see :ref:`run-server-docker`.
 
    PMM Home Page
@@ -168,7 +183,7 @@
       a frontend for viewing time-based graphs and performing thorough analysis
       of your MySQL and MongoDB hosts through a web interface.
 
-      Run |product-abbrev| server on a host that you will use to access this data.
+      Run |pmm-server| on a host that you will use to access this data.
 
 
       For more information, see :ref:`architecture`.
@@ -187,4 +202,4 @@
       An element of :term:`Query Analytics (QAN)` which displays the available
       metrics for the selected query.
    
-.. include:: replace.txt
+.. include:: .resources/name.txt
