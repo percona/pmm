@@ -116,6 +116,7 @@ The following option can be used with the |pmm-admin.add| command:
   Enable experimental features.
 
 |opt.service-port|
+
   Specify the :ref:`service port <service-port>`.
 
 You can also use
@@ -478,6 +479,7 @@ For more information, run
 
 Adding |mongodb| query analytics service
 --------------------------------------------------------------------------------
+
 
 Use the |opt.mongodb-queries| alias to enable MongoDB query analytics.
 
