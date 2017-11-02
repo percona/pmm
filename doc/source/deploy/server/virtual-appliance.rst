@@ -1,15 +1,14 @@
 .. _run-server-ova:
 
-=========================================
+================================================================================
 Running PMM Server as a Virtual Appliance
-=========================================
+================================================================================
 
-Percona provides a *virtual appliance*
-for running *PMM Server* in a virtual machine.
-It is distributed as an *Open Virtual Appliance* (OVA) package,
-which is a :command:`tar` archive with necessary files
-that follow the *Open Virtualization Format* (OVF).
-OVF is supported by most popular virtualization platforms, including:
+Percona provides a *virtual appliance* for running |pmm-server| in a virtual
+machine.  It is distributed as an *Open Virtual Appliance* (OVA) package, which
+is a :command:`tar` archive with necessary files that follow the *Open
+Virtualization Format* (OVF).  OVF is supported by most popular virtualization
+platforms, including:
 
 * `VMware <http://www.vmware.com/>`_
 * `Red Hat Virtualization <https://www.redhat.com/en/technologies/virtualization>`_
@@ -17,9 +16,9 @@ OVF is supported by most popular virtualization platforms, including:
 * `XenServer <https://www.xenserver.org/>`_
 * `Microsoft System Center Virtual Machine Manager <https://www.microsoft.com/en-us/cloud-platform/system-center>`_
 
-The virtual appliance is ideal for running *PMM Server*
+The virtual appliance is ideal for running |pmm-server|
 on an enterprise virtualization platform of your choice.
-This page provides examples for running the appliance in VirtualBox
+This page provides examples for running the appliance in |virtualbox|
 and VMware Workstation Player,
 which is a good choice to experiment with PMM
 at a smaller scale on a local machine.
@@ -35,15 +34,14 @@ but additional steps may be required.
    and manually assign a static IP for the appliance.
 
 Running in VMware Workstation Player
-====================================
+================================================================================
 
 The following procedure describes how to run the *PMM Server* appliance
 using VMware Workstation Player:
 
 1. Download the OVA.
 
-   The latest version is available at
-   https://www.percona.com/redir/downloads/TESTING/pmm/
+   The latest version is available at the `Download Percona Monitoring and Management`_ site.
 
 #. Import the appliance.
 
@@ -62,21 +60,20 @@ using VMware Workstation Player:
    select **Bridged** in the **Network connection** section
    of the appliance settings.
 
-#. Start the *PMM Server* appliance.
+#. Start the |pmm-server| appliance.
 
    If it was assigned an IP address on the network by DHCP,
    the URL for accessing PMM will be printed in the console window.
 
 Running in VirtualBox Using the GUI
-===================================
+================================================================================
 
-The following procedure describes how to run the *PMM Server* appliance
+The following procedure describes how to run the |pmm-server| appliance
 using the graphical user interface of VirtualBox:
 
 1. Download the OVA.
 
-   The latest version is available at
-   https://www.percona.com/redir/downloads/TESTING/pmm/
+   The latest version is available at the `Download Percona Monitoring and Management`_ site.
 
 #. Import the appliance.
 
@@ -142,7 +139,7 @@ and returns the lines with the IP address from the log file.
    grep cloud-init /tmp/pmm-server-console.log
 
 To use this script, change the name of the image to the latest version
-downloaded from https://www.percona.com/redir/downloads/TESTING/pmm/
+downloaded from the `Download Percona Monitoring and Management` site
 and run it in the same directory.
 
 Accessing the Virtual Machine
@@ -173,3 +170,5 @@ assigned to the virtual appliance,
 then :ref:`install PMM Client <install-client>`
 on all database hosts that you want to monitor.
 
+.. include:: ../../.resources/name.txt
+.. include:: ../../.resources/url.txt

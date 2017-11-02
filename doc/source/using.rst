@@ -482,7 +482,5 @@ to add the instances to the topology.
    :ref:`run-server-docker` section.
 
 
-.. include:: replace.txt
-.. include:: url.txt
-
-.. |graph.mysql.myrocks| replace:: *MySQL MyRocks Metrics*
+.. include:: .resources/name.txt
+.. include:: .resources/url.txt
