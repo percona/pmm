@@ -10,7 +10,7 @@ Percona announces the release of |pmm.name| |release| on Thursday, November
 2nd, 2017.  This release contains fixes to bugs found after |pmm.name|
 |prev-release| was released. It also introduces two important improvements. The
 `btrfs`_ file system has been replaced with *XFS* in AMI and OVF images and the
-|graph.prometheus| dashboard has been enhanced to offer more information|.
+|graph.prometheus| dashboard has been enhanced to offer more information.
 
 For install and upgrade instructions, see :ref:`deploy-pmm`.
 

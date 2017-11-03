@@ -135,13 +135,13 @@ For more information, run
 Adding external monitoring services
 --------------------------------------------------------------------------------
 
-The |pmm-admin| command is also used to add external :term:`monitoring
-services <External Monitoring Service>`. Is important to know that
-this command only adds an external monitoring service but assumes that
-the underlying |prometheus| exporter already set up and accessible.
+The |pmm-admin.add| command is also used to add external :term:`monitoring
+services <External Monitoring Service>`. This command adds an external
+monitoring service assuming that the underlying |prometheus| exporter is
+already set up and accessible.
 
-To add an external monitoring service use |opt.external-metrics| service followed by
-the name of a |prometheus| job, URL and port number to reach it.
+To add an external monitoring service use the |opt.external-metrics| service
+followed by the name of a |prometheus| job, URL and port number to reach it.
 
 .. code-block:: text
 
@@ -154,7 +154,7 @@ The following example adds an external monitoring service which monitors a
 
    pmm-admin add external:metrics postgresql 192.168.200.1:9187
 
-If the command succeeds then running :ref:`pmm-admin.list` would show the
+If the command succeeds then running :ref:`pmm-admin.list` shows the
 newly added external exporter at the bottom of the command's output:
 
 .. code-block:: text
@@ -276,7 +276,7 @@ For more information, run
 
 .. _pmm-admin.add-mysql-queries:
 
-Adding MySQL query analytics service
+Adding |mysql| query analytics service
 --------------------------------------------------------------------------------
 
 Use the |opt.mysql-queries| alias to enable MySQL query analytics.
@@ -345,7 +345,7 @@ as well as
 .. rubric:: DETAILED DESCRIPTION
 
 When adding the |mysql| query analytics service, the |pmm-admin| tool
-will attempt to automatically detect the local MySQL instance and
+will attempt to automatically detect the local |mysql| instance and
 |mysql| superuser credentials.  You can use options to provide this
 information, if it cannot be detected automatically.
 
