@@ -16,17 +16,17 @@ import (
 	"github.com/percona/pmm-managed/api/swagger/models"
 )
 
-// GetMixin2Reader is a Reader for the GetMixin2 structure.
-type GetMixin2Reader struct {
+// GetMixin3Reader is a Reader for the GetMixin3 structure.
+type GetMixin3Reader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetMixin2Reader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetMixin3Reader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
 	case 200:
-		result := NewGetMixin2OK()
+		result := NewGetMixin3OK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -37,24 +37,24 @@ func (o *GetMixin2Reader) ReadResponse(response runtime.ClientResponse, consumer
 	}
 }
 
-// NewGetMixin2OK creates a GetMixin2OK with default headers values
-func NewGetMixin2OK() *GetMixin2OK {
-	return &GetMixin2OK{}
+// NewGetMixin3OK creates a GetMixin3OK with default headers values
+func NewGetMixin3OK() *GetMixin3OK {
+	return &GetMixin3OK{}
 }
 
-/*GetMixin2OK handles this case with default header values.
+/*GetMixin3OK handles this case with default header values.
 
 (empty)
 */
-type GetMixin2OK struct {
+type GetMixin3OK struct {
 	Payload *models.APIScrapeConfigsGetResponse
 }
 
-func (o *GetMixin2OK) Error() string {
-	return fmt.Sprintf("[GET /v0/scrape-configs/{job_name}][%d] getMixin2OK  %+v", 200, o.Payload)
+func (o *GetMixin3OK) Error() string {
+	return fmt.Sprintf("[GET /v0/scrape-configs/{job_name}][%d] getMixin3OK  %+v", 200, o.Payload)
 }
 
-func (o *GetMixin2OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *GetMixin3OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.APIScrapeConfigsGetResponse)
 

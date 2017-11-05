@@ -16,17 +16,17 @@ import (
 	"github.com/percona/pmm-managed/api/swagger/models"
 )
 
-// ListMixin2Reader is a Reader for the ListMixin2 structure.
-type ListMixin2Reader struct {
+// ListMixin3Reader is a Reader for the ListMixin3 structure.
+type ListMixin3Reader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *ListMixin2Reader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *ListMixin3Reader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
 	case 200:
-		result := NewListMixin2OK()
+		result := NewListMixin3OK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -37,24 +37,24 @@ func (o *ListMixin2Reader) ReadResponse(response runtime.ClientResponse, consume
 	}
 }
 
-// NewListMixin2OK creates a ListMixin2OK with default headers values
-func NewListMixin2OK() *ListMixin2OK {
-	return &ListMixin2OK{}
+// NewListMixin3OK creates a ListMixin3OK with default headers values
+func NewListMixin3OK() *ListMixin3OK {
+	return &ListMixin3OK{}
 }
 
-/*ListMixin2OK handles this case with default header values.
+/*ListMixin3OK handles this case with default header values.
 
 (empty)
 */
-type ListMixin2OK struct {
+type ListMixin3OK struct {
 	Payload *models.APIScrapeConfigsListResponse
 }
 
-func (o *ListMixin2OK) Error() string {
-	return fmt.Sprintf("[GET /v0/scrape-configs][%d] listMixin2OK  %+v", 200, o.Payload)
+func (o *ListMixin3OK) Error() string {
+	return fmt.Sprintf("[GET /v0/scrape-configs][%d] listMixin3OK  %+v", 200, o.Payload)
 }
 
-func (o *ListMixin2OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *ListMixin3OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(models.APIScrapeConfigsListResponse)
 

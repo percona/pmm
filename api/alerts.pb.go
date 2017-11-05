@@ -8,6 +8,7 @@ It is generated from these files:
 	alerts.proto
 	base.proto
 	demo.proto
+	rds.proto
 	scrape_configs.proto
 
 It has these top-level messages:
@@ -20,6 +21,9 @@ It has these top-level messages:
 	BaseVersionResponse
 	DemoErrorRequest
 	DemoErrorResponse
+	RDSInstace
+	RDSVersionRequest
+	RDSVersionResponse
 	LabelPair
 	StaticConfig
 	BasicAuth

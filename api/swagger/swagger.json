@@ -91,13 +91,41 @@
         }
       }
     },
+    "/v0/rds/discover": {
+      "get": {
+        "tags": [
+          "RDS"
+        ],
+        "operationId": "Discover",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "aws_secret_access_key",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "aws_access_key_id",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiRDSVersionResponse"
+            }
+          }
+        }
+      }
+    },
     "/v0/scrape-configs": {
       "get": {
         "tags": [
           "ScrapeConfigs"
         ],
         "summary": "List returns all scrape configs.",
-        "operationId": "ListMixin2",
+        "operationId": "ListMixin3",
         "responses": {
           "200": {
             "description": "(empty)",
@@ -139,7 +167,7 @@
           "ScrapeConfigs"
         ],
         "summary": "Get returns a scrape config by job name.\nErrors: NotFound(5) if no such scrape config is present.",
-        "operationId": "GetMixin2",
+        "operationId": "GetMixin3",
         "parameters": [
           {
             "type": "string",
@@ -327,6 +355,48 @@
         "value": {
           "type": "string",
           "title": "Label value"
+        }
+      }
+    },
+    "apiRDSInstace": {
+      "type": "object",
+      "properties": {
+        "endpoint_address": {
+          "type": "string"
+        },
+        "endpoint_port": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "engine": {
+          "type": "string"
+        },
+        "engine_version": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "master_username": {
+          "type": "string"
+        },
+        "monitoring_interval": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "region_id": {
+          "type": "string"
+        }
+      }
+    },
+    "apiRDSVersionResponse": {
+      "type": "object",
+      "properties": {
+        "instances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiRDSInstace"
+          }
         }
       }
     },

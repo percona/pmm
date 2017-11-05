@@ -1,0 +1,93 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "rds.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v0/rds/discover": {
+      "get": {
+        "operationId": "Discover",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiRDSVersionResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "aws_secret_access_key",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "aws_access_key_id",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "RDS"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiRDSInstace": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "region_id": {
+          "type": "string"
+        },
+        "endpoint_address": {
+          "type": "string"
+        },
+        "endpoint_port": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "master_username": {
+          "type": "string"
+        },
+        "engine": {
+          "type": "string"
+        },
+        "engine_version": {
+          "type": "string"
+        },
+        "monitoring_interval": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "apiRDSVersionResponse": {
+      "type": "object",
+      "properties": {
+        "instances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiRDSInstace"
+          }
+        }
+      }
+    }
+  }
+}
