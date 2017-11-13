@@ -7,6 +7,10 @@ go:
   - 1.9.x
   - master
 
+matrix:
+  allow_failures:
+    - go: master
+
 env:
   - PROMETHEUS_IMAGE=prom/prometheus:v1.8.2
     ALERTMANAGER_IMAGE=prom/alertmanager:v0.9.1
