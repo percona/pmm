@@ -12,10 +12,10 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// APIRDSInstace api r d s instace
-// swagger:model apiRDSInstace
+// APIRDSInstance api r d s instance
+// swagger:model apiRDSInstance
 
-type APIRDSInstace struct {
+type APIRDSInstance struct {
 
 	// endpoint address
 	EndpointAddress string `json:"endpoint_address,omitempty"`
@@ -42,24 +42,24 @@ type APIRDSInstace struct {
 	RegionID string `json:"region_id,omitempty"`
 }
 
-/* polymorph apiRDSInstace endpoint_address false */
+/* polymorph apiRDSInstance endpoint_address false */
 
-/* polymorph apiRDSInstace endpoint_port false */
+/* polymorph apiRDSInstance endpoint_port false */
 
-/* polymorph apiRDSInstace engine false */
+/* polymorph apiRDSInstance engine false */
 
-/* polymorph apiRDSInstace engine_version false */
+/* polymorph apiRDSInstance engine_version false */
 
-/* polymorph apiRDSInstace id false */
+/* polymorph apiRDSInstance id false */
 
-/* polymorph apiRDSInstace master_username false */
+/* polymorph apiRDSInstance master_username false */
 
-/* polymorph apiRDSInstace monitoring_interval false */
+/* polymorph apiRDSInstance monitoring_interval false */
 
-/* polymorph apiRDSInstace region_id false */
+/* polymorph apiRDSInstance region_id false */
 
-// Validate validates this api r d s instace
-func (m *APIRDSInstace) Validate(formats strfmt.Registry) error {
+// Validate validates this api r d s instance
+func (m *APIRDSInstance) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if len(res) > 0 {
@@ -69,7 +69,7 @@ func (m *APIRDSInstace) Validate(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (m *APIRDSInstace) MarshalBinary() ([]byte, error) {
+func (m *APIRDSInstance) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -77,8 +77,8 @@ func (m *APIRDSInstace) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *APIRDSInstace) UnmarshalBinary(b []byte) error {
-	var res APIRDSInstace
+func (m *APIRDSInstance) UnmarshalBinary(b []byte) error {
+	var res APIRDSInstance
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

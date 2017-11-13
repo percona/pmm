@@ -22,19 +22,19 @@
           "200": {
             "description": "",
             "schema": {
-              "$ref": "#/definitions/apiRDSVersionResponse"
+              "$ref": "#/definitions/apiRDSDiscoverResponse"
             }
           }
         },
         "parameters": [
           {
-            "name": "aws_secret_access_key",
+            "name": "aws_access_key_id",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
-            "name": "aws_access_key_id",
+            "name": "aws_secret_access_key",
             "in": "query",
             "required": false,
             "type": "string"
@@ -47,7 +47,18 @@
     }
   },
   "definitions": {
-    "apiRDSInstace": {
+    "apiRDSDiscoverResponse": {
+      "type": "object",
+      "properties": {
+        "instances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiRDSInstance"
+          }
+        }
+      }
+    },
+    "apiRDSInstance": {
       "type": "object",
       "properties": {
         "id": {
@@ -75,17 +86,6 @@
         "monitoring_interval": {
           "type": "integer",
           "format": "int64"
-        }
-      }
-    },
-    "apiRDSVersionResponse": {
-      "type": "object",
-      "properties": {
-        "instances": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/apiRDSInstace"
-          }
         }
       }
     }

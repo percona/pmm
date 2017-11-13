@@ -39,8 +39,7 @@ func TestRDS(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
 
 		accessKey, secretKey := os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY")
-		svc, err := NewService()
-		require.NoError(t, err)
+		svc := NewService()
 		res, err := svc.Get(ctx, accessKey, secretKey)
 		require.NoError(t, err)
 		for _, db := range res {
@@ -52,8 +51,7 @@ func TestRDS(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
 
 		accessKey, secretKey := "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-		svc, err := NewService()
-		require.NoError(t, err)
+		svc := NewService()
 		res, err := svc.Get(ctx, accessKey, secretKey)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `The security token included in the request is invalid.`), err)
 		assert.Empty(t, res)

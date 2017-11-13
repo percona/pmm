@@ -27,15 +27,15 @@ type RDSServer struct {
 	RDS *rds.Service
 }
 
-func (s *RDSServer) Discover(ctx context.Context, req *api.RDSVersionRequest) (*api.RDSVersionResponse, error) {
+func (s *RDSServer) Discover(ctx context.Context, req *api.RDSDiscoverRequest) (*api.RDSDiscoverResponse, error) {
 	res, err := s.RDS.Get(ctx, req.AwsAccessKeyId, req.AwsSecretAccessKey)
 	if err != nil {
 		return nil, err
 	}
 
-	var resp api.RDSVersionResponse
+	var resp api.RDSDiscoverResponse
 	for _, db := range res {
-		resp.Instances = append(resp.Instances, &api.RDSInstace{
+		resp.Instances = append(resp.Instances, &api.RDSInstance{
 			Id:                 db.ID,
 			RegionId:           db.Region,
 			EndpointAddress:    db.EndpointAddress,

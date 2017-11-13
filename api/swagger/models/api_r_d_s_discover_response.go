@@ -14,19 +14,19 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// APIRDSVersionResponse api r d s version response
-// swagger:model apiRDSVersionResponse
+// APIRDSDiscoverResponse api r d s discover response
+// swagger:model apiRDSDiscoverResponse
 
-type APIRDSVersionResponse struct {
+type APIRDSDiscoverResponse struct {
 
 	// instances
-	Instances []*APIRDSInstace `json:"instances"`
+	Instances []*APIRDSInstance `json:"instances"`
 }
 
-/* polymorph apiRDSVersionResponse instances false */
+/* polymorph apiRDSDiscoverResponse instances false */
 
-// Validate validates this api r d s version response
-func (m *APIRDSVersionResponse) Validate(formats strfmt.Registry) error {
+// Validate validates this api r d s discover response
+func (m *APIRDSDiscoverResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateInstances(formats); err != nil {
@@ -40,7 +40,7 @@ func (m *APIRDSVersionResponse) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *APIRDSVersionResponse) validateInstances(formats strfmt.Registry) error {
+func (m *APIRDSDiscoverResponse) validateInstances(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Instances) { // not required
 		return nil
@@ -68,7 +68,7 @@ func (m *APIRDSVersionResponse) validateInstances(formats strfmt.Registry) error
 }
 
 // MarshalBinary interface implementation
-func (m *APIRDSVersionResponse) MarshalBinary() ([]byte, error) {
+func (m *APIRDSDiscoverResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -76,8 +76,8 @@ func (m *APIRDSVersionResponse) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *APIRDSVersionResponse) UnmarshalBinary(b []byte) error {
-	var res APIRDSVersionResponse
+func (m *APIRDSDiscoverResponse) UnmarshalBinary(b []byte) error {
+	var res APIRDSDiscoverResponse
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

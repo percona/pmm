@@ -23,9 +23,6 @@ import (
 	"sort"
 	"time"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -35,18 +32,22 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
+// Service is responsible for interactions with AWS RDS.
 type Service struct {
 	httpClient *http.Client
 }
 
-func NewService() (*Service, error) {
+// NewService creates a new service.
+func NewService() *Service {
 	return &Service{
 		httpClient: new(http.Client),
-	}, nil
+	}
 }
 
 type Instance struct {

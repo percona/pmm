@@ -4,7 +4,7 @@ package api;
 
 import "google/api/annotations.proto";
 
-message RDSInstace {
+message RDSInstance {
     string id = 1;
     string region_id = 2;
     string endpoint_address = 3;
@@ -15,17 +15,17 @@ message RDSInstace {
     uint32 monitoring_interval = 8;
 }
 
-message RDSVersionRequest {
-    string aws_secret_access_key = 1;
-    string aws_access_key_id = 2;
+message RDSDiscoverRequest {
+    string aws_access_key_id = 1;
+    string aws_secret_access_key = 2;
 }
 
-message RDSVersionResponse {
-    repeated RDSInstace instances = 1;
+message RDSDiscoverResponse {
+    repeated RDSInstance instances = 1;
 }
 
 service RDS {
-    rpc Discover(RDSVersionRequest) returns (RDSVersionResponse) {
+    rpc Discover(RDSDiscoverRequest) returns (RDSDiscoverResponse) {
         option (google.api.http) = {
             get: "/v0/rds/discover"
         };

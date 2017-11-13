@@ -100,12 +100,12 @@
         "parameters": [
           {
             "type": "string",
-            "name": "aws_secret_access_key",
+            "name": "aws_access_key_id",
             "in": "query"
           },
           {
             "type": "string",
-            "name": "aws_access_key_id",
+            "name": "aws_secret_access_key",
             "in": "query"
           }
         ],
@@ -113,7 +113,7 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/apiRDSVersionResponse"
+              "$ref": "#/definitions/apiRDSDiscoverResponse"
             }
           }
         }
@@ -358,7 +358,18 @@
         }
       }
     },
-    "apiRDSInstace": {
+    "apiRDSDiscoverResponse": {
+      "type": "object",
+      "properties": {
+        "instances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiRDSInstance"
+          }
+        }
+      }
+    },
+    "apiRDSInstance": {
       "type": "object",
       "properties": {
         "endpoint_address": {
@@ -386,17 +397,6 @@
         },
         "region_id": {
           "type": "string"
-        }
-      }
-    },
-    "apiRDSVersionResponse": {
-      "type": "object",
-      "properties": {
-        "instances": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/apiRDSInstace"
-          }
         }
       }
     },

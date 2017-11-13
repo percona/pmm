@@ -21,9 +21,9 @@ It has these top-level messages:
 	BaseVersionResponse
 	DemoErrorRequest
 	DemoErrorResponse
-	RDSInstace
-	RDSVersionRequest
-	RDSVersionResponse
+	RDSInstance
+	RDSDiscoverRequest
+	RDSDiscoverResponse
 	LabelPair
 	StaticConfig
 	BasicAuth

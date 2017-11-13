@@ -33,7 +33,7 @@ var (
 )
 
 func request_RDS_Discover_0(ctx context.Context, marshaler runtime.Marshaler, client RDSClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq RDSVersionRequest
+	var protoReq RDSDiscoverRequest
 	var metadata runtime.ServerMetadata
 
 	if err := runtime.PopulateQueryParameters(&protoReq, req.URL.Query(), filter_RDS_Discover_0); err != nil {
