@@ -415,6 +415,12 @@
   revision = "3f83fa5005286a7fe593b055f0d7771a7dce4655"
 
 [[projects]]
+  name = "gopkg.in/reform.v1"
+  packages = ["parse","reform"]
+  revision = "aa2ae077c28edaf600cb1b9067e15aca0b0179bd"
+  version = "v1.2.1"
+
+[[projects]]
   branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -423,6 +429,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d91f1d61b80f429438983ceb99c9d575fa65afce46925759de6f389a0fc7e30b"
+  inputs-digest = "afe78382608adc0519013aa66f306bc537554a2f4bfd8f86520dc63f97895a24"
   solver-name = "gps-cdcl"
   solver-version = 1

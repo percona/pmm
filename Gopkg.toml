@@ -1,5 +1,7 @@
 # tools
 required = [
+  "gopkg.in/reform.v1/reform",
+
   "github.com/prometheus/prometheus/cmd/promtool",
 
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
