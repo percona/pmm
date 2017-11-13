@@ -20,6 +20,12 @@
   version = "v6"
 
 [[projects]]
+  name = "github.com/aws/aws-sdk-go"
+  packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/shareddefaults","private/protocol","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/sts"]
+  revision = "e6c5e190452424b404ecdb81d6e3991d46b18e9d"
+  version = "v1.12.26"
+
+[[projects]]
   branch = "master"
   name = "github.com/beorn7/perks"
   packages = ["quantile"]
@@ -36,6 +42,12 @@
   packages = ["."]
   revision = "629574ca2a5df945712d3079857300b5e4da0236"
   version = "v1.4.2"
+
+[[projects]]
+  name = "github.com/go-ini/ini"
+  packages = ["."]
+  revision = "f280b3ba517bf5fc98922624f21fb0e7a92adaec"
+  version = "v1.30.3"
 
 [[projects]]
   branch = "master"
@@ -188,6 +200,11 @@
   version = "v1.3.0"
 
 [[projects]]
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  revision = "0b12d6b5"
+
+[[projects]]
   branch = "master"
   name = "github.com/kr/pretty"
   packages = ["."]
@@ -286,8 +303,8 @@
 [[projects]]
   name = "github.com/prometheus/prometheus"
   packages = ["cmd/promtool","config","promql","storage","storage/local","storage/local/chunk","storage/local/codable","storage/local/index","storage/metric","util/cli","util/flock","util/promlint","util/stats","util/strutil","util/testutil"]
-  revision = "22eadbe635528fa17b99a7635fed6b6018103042"
-  version = "v1.7.2"
+  revision = "5211b96d4d1291c3dd1a569f711d3b301b635ecb"
+  version = "v1.8.2"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -400,6 +417,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "777689d6913876a319702e9dab8c3f66bb6a7e85e5e4b1fd113b70d741f3095d"
+  inputs-digest = "da2c15fec330afb4621f44634e73ec14e20d5850eb677d42041b2eadaf096b48"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -17,7 +17,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	_ "net/http/pprof" // Comment this line to disable pprof endpoint.
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -153,6 +152,7 @@ func Main() int {
 	})
 
 	webHandler := web.New(&cfg.web)
+	go webHandler.Run()
 
 	reloadables = append(reloadables, targetManager, ruleManager, webHandler, notifier)
 
@@ -222,12 +222,14 @@ func Main() int {
 	// to be canceled and ensures a quick shutdown of the rule manager.
 	defer cancelCtx()
 
-	go webHandler.Run()
-
 	// Wait for reload or termination signals.
 	close(hupReady) // Unblock SIGHUP handler.
 
-	term := make(chan os.Signal)
+	// Set web server to ready.
+	webHandler.Ready()
+	log.Info("Server is Ready to receive requests.")
+
+	term := make(chan os.Signal, 1)
 	signal.Notify(term, os.Interrupt, syscall.SIGTERM)
 	select {
 	case <-term:
