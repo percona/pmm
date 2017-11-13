@@ -44,6 +44,7 @@ import (
 	"github.com/percona/pmm-managed/handlers"
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/prometheus"
+	"github.com/percona/pmm-managed/services/rds"
 	"github.com/percona/pmm-managed/services/telemetry"
 	"github.com/percona/pmm-managed/utils/interceptors"
 	"github.com/percona/pmm-managed/utils/logger"
@@ -107,6 +108,9 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client) {
 	api.RegisterScrapeConfigsServer(gRPCServer, &handlers.ScrapeConfigsServer{
 		Prometheus: prometheus,
 	})
+	api.RegisterRDSServer(gRPCServer, &handlers.RDSServer{
+		RDS: rds.NewService(nil), // FIXME
+	})
 
 	grpc_prometheus.Register(gRPCServer)
 	grpc_prometheus.EnableHandlingTimeHistogram()
@@ -150,6 +154,7 @@ func runRESTServer(ctx context.Context) {
 		api.RegisterDemoHandlerFromEndpoint,
 		// TODO api.RegisterAlertsHandlerFromEndpoint,
 		api.RegisterScrapeConfigsHandlerFromEndpoint,
+		api.RegisterRDSHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, *gRPCAddrF, opts); err != nil {
 			l.Panic(err)
