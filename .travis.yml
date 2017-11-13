@@ -48,7 +48,7 @@ script:
   - docker-compose up -d
 
   # check that generated files are not changed
-  - make init protos
+  - make init gen
   - git diff --exit-code
 
   - make cover

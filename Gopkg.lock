@@ -130,7 +130,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/golang/protobuf"
-  packages = ["jsonpb","proto","protoc-gen-go/descriptor","protoc-gen-go/generator","protoc-gen-go/plugin","ptypes","ptypes/any","ptypes/duration","ptypes/struct","ptypes/timestamp"]
+  packages = ["jsonpb","proto","protoc-gen-go","protoc-gen-go/descriptor","protoc-gen-go/generator","protoc-gen-go/grpc","protoc-gen-go/plugin","ptypes","ptypes/any","ptypes/duration","ptypes/struct","ptypes/timestamp"]
   revision = "130e6b02ab059e7b717a096f397c5b60111cae74"
 
 [[projects]]
@@ -416,7 +416,7 @@
 
 [[projects]]
   name = "gopkg.in/reform.v1"
-  packages = ["parse","reform"]
+  packages = [".","parse","reform"]
   revision = "aa2ae077c28edaf600cb1b9067e15aca0b0179bd"
   version = "v1.2.1"
 
@@ -429,6 +429,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "afe78382608adc0519013aa66f306bc537554a2f4bfd8f86520dc63f97895a24"
+  inputs-digest = "9466be9c15b991aa9f46319acd507f107e88c42001efb4d27f10418a18a0d330"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -4,13 +4,17 @@ PACKAGES := $(shell go list ./... | grep -v vendor)
 
 # installs tools to $GOPATH/bin which is expected to be in $PATH
 init:
+	go install -v ./vendor/gopkg.in/reform.v1/reform
+
 	go install -v ./vendor/github.com/prometheus/prometheus/cmd/promtool
+
 	go install -v ./vendor/github.com/golang/protobuf/protoc-gen-go
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 	go install -v ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 
 	go get -u github.com/AlekSi/gocoverutil
+
 	go get -u gopkg.in/alecthomas/gometalinter.v1
 	gometalinter.v1 --install
 
@@ -40,7 +44,10 @@ run: install
 run-race: install-race
 	pmm-managed -prometheus-config=testdata/prometheus/prometheus.yml
 
-protos:  # make protos, not protoss
+gen:
+	rm -f models/*_reform.go
+	reform models/
+
 	rm -fr api/*.pb.* api/swagger/*.json api/swagger/client api/swagger/models
 
 	protoc -Iapi -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
