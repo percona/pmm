@@ -17,6 +17,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/url"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"strings"
@@ -48,9 +49,8 @@ var expectedConf = &Config{
 	},
 
 	RuleFiles: []string{
-		"testdata/first.rules",
-		"/absolute/second.rules",
-		"testdata/my/*.rules",
+		filepath.FromSlash("testdata/first.rules"),
+		filepath.FromSlash("testdata/my/*.rules"),
 	},
 
 	RemoteWriteConfigs: []*RemoteWriteConfig{
@@ -66,10 +66,12 @@ var expectedConf = &Config{
 					Action:       RelabelDrop,
 				},
 			},
+			QueueConfig: DefaultQueueConfig,
 		},
 		{
 			URL:           mustParseURL("http://remote2/push"),
 			RemoteTimeout: model.Duration(30 * time.Second),
+			QueueConfig:   DefaultQueueConfig,
 		},
 	},
 
@@ -85,7 +87,7 @@ var expectedConf = &Config{
 			Scheme:      DefaultScrapeConfig.Scheme,
 
 			HTTPClientConfig: HTTPClientConfig{
-				BearerTokenFile: "testdata/valid_token_file",
+				BearerTokenFile: filepath.FromSlash("testdata/valid_token_file"),
 			},
 
 			ServiceDiscoveryConfig: ServiceDiscoveryConfig{
@@ -252,9 +254,9 @@ var expectedConf = &Config{
 						TagSeparator: DefaultConsulSDConfig.TagSeparator,
 						Scheme:       "https",
 						TLSConfig: TLSConfig{
-							CertFile:           "testdata/valid_cert_file",
-							KeyFile:            "testdata/valid_key_file",
-							CAFile:             "testdata/valid_ca_file",
+							CertFile:           filepath.FromSlash("testdata/valid_cert_file"),
+							KeyFile:            filepath.FromSlash("testdata/valid_key_file"),
+							CAFile:             filepath.FromSlash("testdata/valid_ca_file"),
 							InsecureSkipVerify: false,
 						},
 					},
@@ -283,8 +285,8 @@ var expectedConf = &Config{
 
 			HTTPClientConfig: HTTPClientConfig{
 				TLSConfig: TLSConfig{
-					CertFile: "testdata/valid_cert_file",
-					KeyFile:  "testdata/valid_key_file",
+					CertFile: filepath.FromSlash("testdata/valid_cert_file"),
+					KeyFile:  filepath.FromSlash("testdata/valid_key_file"),
 				},
 
 				BearerToken: "mysecret",
@@ -354,8 +356,8 @@ var expectedConf = &Config{
 						Timeout:         model.Duration(30 * time.Second),
 						RefreshInterval: model.Duration(30 * time.Second),
 						TLSConfig: TLSConfig{
-							CertFile: "testdata/valid_cert_file",
-							KeyFile:  "testdata/valid_key_file",
+							CertFile: filepath.FromSlash("testdata/valid_cert_file"),
+							KeyFile:  filepath.FromSlash("testdata/valid_key_file"),
 						},
 					},
 				},
@@ -538,15 +540,50 @@ func TestLoadConfig(t *testing.T) {
 	if !reflect.DeepEqual(c, expectedConf) {
 		t.Fatalf("%s: unexpected config result: \n\n%s\n expected\n\n%s", "testdata/conf.good.yml", bgot, bexp)
 	}
+}
 
-	// String method must not reveal authentication credentials.
-	s := c.String()
-	secretRe := regexp.MustCompile("<secret>")
-	matches := secretRe.FindAllStringIndex(s, -1)
-	if len(matches) != 6 || strings.Contains(s, "mysecret") {
-		t.Fatalf("config's String method reveals authentication credentials.")
+// YAML marshalling must not reveal authentication credentials.
+func TestElideSecrets(t *testing.T) {
+	c, err := LoadFile("testdata/conf.good.yml")
+	if err != nil {
+		t.Fatalf("Error parsing %s: %s", "testdata/conf.good.yml", err)
 	}
 
+	secretRe := regexp.MustCompile(`\\u003csecret\\u003e|<secret>`)
+
+	config, err := yaml.Marshal(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	yamlConfig := string(config)
+
+	matches := secretRe.FindAllStringIndex(yamlConfig, -1)
+	if len(matches) != 6 || strings.Contains(yamlConfig, "mysecret") {
+		t.Fatalf("yaml marshal reveals authentication credentials.")
+	}
+}
+
+func TestLoadConfigRuleFilesAbsolutePath(t *testing.T) {
+	// Parse a valid file that sets a rule files with an absolute path
+	c, err := LoadFile(ruleFilesConfigFile)
+	if err != nil {
+		t.Errorf("Error parsing %s: %s", ruleFilesConfigFile, err)
+	}
+
+	bgot, err := yaml.Marshal(c)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+
+	bexp, err := yaml.Marshal(ruleFilesExpectedConf)
+	if err != nil {
+		t.Fatalf("%s", err)
+	}
+	ruleFilesExpectedConf.original = c.original
+
+	if !reflect.DeepEqual(c, ruleFilesExpectedConf) {
+		t.Fatalf("%s: unexpected config result: \n\n%s\n expected\n\n%s", ruleFilesConfigFile, bgot, bexp)
+	}
 }
 
 var expectedErrors = []struct {
@@ -643,6 +680,12 @@ var expectedErrors = []struct {
 	}, {
 		filename: "unknown_global_attr.bad.yml",
 		errMsg:   "unknown fields in global config: nonexistent_field",
+	}, {
+		filename: "remote_read_url_missing.bad.yml",
+		errMsg:   `url for remote_read is empty`,
+	}, {
+		filename: "remote_write_url_missing.bad.yml",
+		errMsg:   `url for remote_write is empty`,
 	},
 }
 

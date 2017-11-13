@@ -14,6 +14,7 @@
 package v1
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -25,12 +26,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/snappy"
 	"github.com/prometheus/common/model"
 	"github.com/prometheus/common/route"
 	"golang.org/x/net/context"
 
+	"github.com/prometheus/prometheus/config"
 	"github.com/prometheus/prometheus/promql"
 	"github.com/prometheus/prometheus/retrieval"
+	"github.com/prometheus/prometheus/storage/metric"
+	"github.com/prometheus/prometheus/storage/remote"
 )
 
 type targetRetrieverFunc func() []*retrieval.Target
@@ -43,6 +49,15 @@ type alertmanagerRetrieverFunc func() []*url.URL
 
 func (f alertmanagerRetrieverFunc) Alertmanagers() []*url.URL {
 	return f()
+}
+
+var samplePrometheusCfg = config.Config{
+	GlobalConfig:       config.GlobalConfig{},
+	AlertingConfig:     config.AlertingConfig{},
+	RuleFiles:          []string{},
+	ScrapeConfigs:      []*config.ScrapeConfig{},
+	RemoteWriteConfigs: []*config.RemoteWriteConfig{},
+	RemoteReadConfigs:  []*config.RemoteReadConfig{},
 }
 
 func TestEndpoints(t *testing.T) {
@@ -91,6 +106,10 @@ func TestEndpoints(t *testing.T) {
 		targetRetriever:       tr,
 		alertmanagerRetriever: ar,
 		now: func() model.Time { return now },
+		config: func() config.Config {
+			return samplePrometheusCfg
+		},
+		ready: func(f http.HandlerFunc) http.HandlerFunc { return f },
 	}
 
 	start := model.Time(0)
@@ -445,7 +464,8 @@ func TestEndpoints(t *testing.T) {
 					"foo":      "bar",
 				},
 			},
-		}, {
+		},
+		{
 			endpoint: api.dropSeries,
 			query: url.Values{
 				"match[]": []string{`{__name__=~".+"}`},
@@ -453,7 +473,8 @@ func TestEndpoints(t *testing.T) {
 			response: struct {
 				NumDeleted int `json:"numDeleted"`
 			}{2},
-		}, {
+		},
+		{
 			endpoint: api.targets,
 			response: &TargetDiscovery{
 				ActiveTargets: []*Target{
@@ -465,7 +486,8 @@ func TestEndpoints(t *testing.T) {
 					},
 				},
 			},
-		}, {
+		},
+		{
 			endpoint: api.alertmanagers,
 			response: &AlertmanagerDiscovery{
 				ActiveAlertmanagers: []*AlertmanagerTarget{
@@ -473,6 +495,12 @@ func TestEndpoints(t *testing.T) {
 						URL: "http://alertmanager.example.com:8080/api/v1/alerts",
 					},
 				},
+			},
+		},
+		{
+			endpoint: api.serveConfig,
+			response: &prometheusConfig{
+				YAML: samplePrometheusCfg.String(),
 			},
 		},
 	}
@@ -506,6 +534,94 @@ func TestEndpoints(t *testing.T) {
 		}
 		// Ensure that removed metrics are unindexed before the next request.
 		suite.Storage().WaitForIndexing()
+	}
+}
+
+func TestReadEndpoint(t *testing.T) {
+	suite, err := promql.NewTest(t, `
+		load 1m
+			test_metric1{foo="bar",baz="qux"} 1
+	`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer suite.Close()
+
+	if err := suite.Run(); err != nil {
+		t.Fatal(err)
+	}
+
+	api := &API{
+		Storage:     suite.Storage(),
+		QueryEngine: suite.QueryEngine(),
+		config: func() config.Config {
+			return config.Config{
+				GlobalConfig: config.GlobalConfig{
+					ExternalLabels: model.LabelSet{
+						"baz": "a",
+						"b":   "c",
+						"d":   "e",
+					},
+				},
+			}
+		},
+	}
+
+	// Encode the request.
+	matcher1, err := metric.NewLabelMatcher(metric.Equal, "__name__", "test_metric1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	matcher2, err := metric.NewLabelMatcher(metric.Equal, "d", "e")
+	if err != nil {
+		t.Fatal(err)
+	}
+	query, err := remote.ToQuery(0, 1, metric.LabelMatchers{matcher1, matcher2})
+	if err != nil {
+		t.Fatal(err)
+	}
+	req := &remote.ReadRequest{Queries: []*remote.Query{query}}
+	data, err := proto.Marshal(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	compressed := snappy.Encode(nil, data)
+	request, err := http.NewRequest("POST", "", bytes.NewBuffer(compressed))
+	if err != nil {
+		t.Fatal(err)
+	}
+	recorder := httptest.NewRecorder()
+	api.remoteRead(recorder, request)
+
+	// Decode the response.
+	compressed, err = ioutil.ReadAll(recorder.Result().Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+	uncompressed, err := snappy.Decode(nil, compressed)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var resp remote.ReadResponse
+	err = proto.Unmarshal(uncompressed, &resp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(resp.Results) != 1 {
+		t.Fatalf("Expected 1 result, got %d", len(resp.Results))
+	}
+
+	result := remote.FromQueryResult(resp.Results[0])
+	expected := &model.Matrix{
+		&model.SampleStream{
+			Metric: model.Metric{"__name__": "test_metric1", "b": "c", "d": "e", "baz": "qux", "foo": "bar"},
+			Values: []model.SamplePair{model.SamplePair{Value: 1, Timestamp: 0}},
+		},
+	}
+	if !reflect.DeepEqual(&result, expected) {
+		t.Fatalf("Expected response \n%v\n but got \n%v\n", result, expected)
 	}
 }
 
@@ -701,7 +817,7 @@ func TestParseDuration(t *testing.T) {
 
 func TestOptionsMethod(t *testing.T) {
 	r := route.New()
-	api := &API{}
+	api := &API{ready: func(f http.HandlerFunc) http.HandlerFunc { return f }}
 	api.Register(r)
 
 	s := httptest.NewServer(r)

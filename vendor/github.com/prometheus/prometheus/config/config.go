@@ -23,6 +23,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws/ec2metadata"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/prometheus/common/model"
 	"gopkg.in/yaml.v2"
 )
@@ -171,6 +173,25 @@ var (
 	// DefaultRemoteWriteConfig is the default remote write configuration.
 	DefaultRemoteWriteConfig = RemoteWriteConfig{
 		RemoteTimeout: model.Duration(30 * time.Second),
+		QueueConfig:   DefaultQueueConfig,
+	}
+
+	// DefaultQueueConfig is the default remote queue configuration.
+	DefaultQueueConfig = QueueConfig{
+		// With a maximum of 1000 shards, assuming an average of 100ms remote write
+		// time and 100 samples per batch, we will be able to push 1M samples/s.
+		MaxShards:         1000,
+		MaxSamplesPerSend: 100,
+
+		// By default, buffer 1000 batches, which at 100ms per batch is 1:40mins. At
+		// 1000 shards, this will buffer 100M samples total.
+		Capacity:          100 * 1000,
+		BatchSendDeadline: 5 * time.Second,
+
+		// Max number of times to retry a batch on recoverable errors.
+		MaxRetries: 10,
+		MinBackoff: 30 * time.Millisecond,
+		MaxBackoff: 100 * time.Millisecond,
 	}
 
 	// DefaultRemoteReadConfig is the default remote read configuration.
@@ -442,10 +463,7 @@ func (c *TLSConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	if err := unmarshal((*plain)(c)); err != nil {
 		return err
 	}
-	if err := checkOverflow(c.XXX, "TLS config"); err != nil {
-		return err
-	}
-	return nil
+	return checkOverflow(c.XXX, "TLS config")
 }
 
 // ServiceDiscoveryConfig configures lists of different service discovery mechanisms.
@@ -487,10 +505,7 @@ func (c *ServiceDiscoveryConfig) UnmarshalYAML(unmarshal func(interface{}) error
 	if err := unmarshal((*plain)(c)); err != nil {
 		return err
 	}
-	if err := checkOverflow(c.XXX, "service discovery config"); err != nil {
-		return err
-	}
-	return nil
+	return checkOverflow(c.XXX, "service discovery config")
 }
 
 // HTTPClientConfig configures an HTTP client.
@@ -607,10 +622,7 @@ func (c *AlertingConfig) UnmarshalYAML(unmarshal func(interface{}) error) error 
 	if err := unmarshal((*plain)(c)); err != nil {
 		return err
 	}
-	if err := checkOverflow(c.XXX, "alerting config"); err != nil {
-		return err
-	}
-	return nil
+	return checkOverflow(c.XXX, "alerting config")
 }
 
 // AlertmanagerConfig configures how Alertmanagers can be discovered and communicated with.
@@ -984,10 +996,11 @@ type KubernetesRole string
 
 // The valid options for KubernetesRole.
 const (
-	KubernetesRoleNode     = "node"
-	KubernetesRolePod      = "pod"
-	KubernetesRoleService  = "service"
-	KubernetesRoleEndpoint = "endpoints"
+	KubernetesRoleNode     KubernetesRole = "node"
+	KubernetesRolePod      KubernetesRole = "pod"
+	KubernetesRoleService  KubernetesRole = "service"
+	KubernetesRoleEndpoint KubernetesRole = "endpoints"
+	KubernetesRoleIngress  KubernetesRole = "ingress"
 )
 
 // UnmarshalYAML implements the yaml.Unmarshaler interface.
@@ -996,7 +1009,7 @@ func (c *KubernetesRole) UnmarshalYAML(unmarshal func(interface{}) error) error 
 		return err
 	}
 	switch *c {
-	case KubernetesRoleNode, KubernetesRolePod, KubernetesRoleService, KubernetesRoleEndpoint:
+	case KubernetesRoleNode, KubernetesRolePod, KubernetesRoleService, KubernetesRoleEndpoint, KubernetesRoleIngress:
 		return nil
 	default:
 		return fmt.Errorf("Unknown Kubernetes SD role %q", *c)
@@ -1061,10 +1074,7 @@ func (c *KubernetesNamespaceDiscovery) UnmarshalYAML(unmarshal func(interface{})
 	if err != nil {
 		return err
 	}
-	if err := checkOverflow(c.XXX, "namespaces"); err != nil {
-		return err
-	}
-	return nil
+	return checkOverflow(c.XXX, "namespaces")
 }
 
 // GCESDConfig is the configuration for GCE based service discovery.
@@ -1115,6 +1125,7 @@ type EC2SDConfig struct {
 	AccessKey       string         `yaml:"access_key,omitempty"`
 	SecretKey       Secret         `yaml:"secret_key,omitempty"`
 	Profile         string         `yaml:"profile,omitempty"`
+	RoleARN         string         `yaml:"role_arn,omitempty"`
 	RefreshInterval model.Duration `yaml:"refresh_interval,omitempty"`
 	Port            int            `yaml:"port"`
 
@@ -1134,7 +1145,16 @@ func (c *EC2SDConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return err
 	}
 	if c.Region == "" {
-		return fmt.Errorf("EC2 SD configuration requires a region")
+		sess, err := session.NewSession()
+		if err != nil {
+			return err
+		}
+		metadata := ec2metadata.New(sess)
+		region, err := metadata.Region()
+		if err != nil {
+			return fmt.Errorf("EC2 SD configuration requires a region")
+		}
+		c.Region = region
 	}
 	return nil
 }
@@ -1149,12 +1169,39 @@ type OpenstackSDConfig struct {
 	ProjectID        string         `yaml:"project_id"`
 	DomainName       string         `yaml:"domain_name"`
 	DomainID         string         `yaml:"domain_id"`
+	Role             OpenStackRole  `yaml:"role"`
 	Region           string         `yaml:"region"`
 	RefreshInterval  model.Duration `yaml:"refresh_interval,omitempty"`
 	Port             int            `yaml:"port"`
 
 	// Catches all undefined fields and must be empty after parsing.
 	XXX map[string]interface{} `yaml:",inline"`
+}
+
+// OpenStackRole is role of the target in OpenStack.
+type OpenStackRole string
+
+// The valid options for OpenStackRole.
+const (
+	// OpenStack document reference
+	// https://docs.openstack.org/nova/pike/admin/arch.html#hypervisors
+	OpenStackRoleHypervisor OpenStackRole = "hypervisor"
+	// OpenStack document reference
+	// https://docs.openstack.org/horizon/pike/user/launch-instances.html
+	OpenStackRoleInstance OpenStackRole = "instance"
+)
+
+// UnmarshalYAML implements the yaml.Unmarshaler interface.
+func (c *OpenStackRole) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	if err := unmarshal((*string)(c)); err != nil {
+		return err
+	}
+	switch *c {
+	case OpenStackRoleHypervisor, OpenStackRoleInstance:
+		return nil
+	default:
+		return fmt.Errorf("Unknown OpenStack SD role %q", *c)
+	}
 }
 
 // UnmarshalYAML implements the yaml.Unmarshaler interface.
@@ -1164,6 +1211,9 @@ func (c *OpenstackSDConfig) UnmarshalYAML(unmarshal func(interface{}) error) err
 	err := unmarshal((*plain)(c))
 	if err != nil {
 		return err
+	}
+	if c.Role == "" {
+		return fmt.Errorf("role missing (one of: instance, hypervisor)")
 	}
 	return checkOverflow(c.XXX, "openstack_sd_config")
 }
@@ -1267,7 +1317,7 @@ func (a *RelabelAction) UnmarshalYAML(unmarshal func(interface{}) error) error {
 type RelabelConfig struct {
 	// A list of labels from which values are taken and concatenated
 	// with the configured separator in order.
-	SourceLabels model.LabelNames `yaml:"source_labels,flow"`
+	SourceLabels model.LabelNames `yaml:"source_labels,flow,omitempty"`
 	// Separator is the string between concatenated values from the source labels.
 	Separator string `yaml:"separator,omitempty"`
 	// Regex against which the concatenation is matched.
@@ -1374,13 +1424,14 @@ func (re Regexp) MarshalYAML() (interface{}, error) {
 
 // RemoteWriteConfig is the configuration for writing to remote storage.
 type RemoteWriteConfig struct {
-	URL                 *URL             `yaml:"url,omitempty"`
+	URL                 *URL             `yaml:"url"`
 	RemoteTimeout       model.Duration   `yaml:"remote_timeout,omitempty"`
 	WriteRelabelConfigs []*RelabelConfig `yaml:"write_relabel_configs,omitempty"`
 
 	// We cannot do proper Go type embedding below as the parser will then parse
 	// values arbitrarily into the overflow maps of further-down types.
 	HTTPClientConfig HTTPClientConfig `yaml:",inline"`
+	QueueConfig      QueueConfig      `yaml:"queue_config,omitempty"`
 
 	// Catches all undefined fields and must be empty after parsing.
 	XXX map[string]interface{} `yaml:",inline"`
@@ -1393,15 +1444,46 @@ func (c *RemoteWriteConfig) UnmarshalYAML(unmarshal func(interface{}) error) err
 	if err := unmarshal((*plain)(c)); err != nil {
 		return err
 	}
-	if err := checkOverflow(c.XXX, "remote_write"); err != nil {
+	if c.URL == nil {
+		return fmt.Errorf("url for remote_write is empty")
+	}
+
+	// The UnmarshalYAML method of HTTPClientConfig is not being called because it's not a pointer.
+	// We cannot make it a pointer as the parser panics for inlined pointer structs.
+	// Thus we just do its validation here.
+	if err := c.HTTPClientConfig.validate(); err != nil {
 		return err
 	}
-	return nil
+
+	return checkOverflow(c.XXX, "remote_write")
+}
+
+// QueueConfig is the configuration for the queue used to write to remote
+// storage.
+type QueueConfig struct {
+	// Number of samples to buffer per shard before we start dropping them.
+	Capacity int `yaml:"capacity,omitempty"`
+
+	// Max number of shards, i.e. amount of concurrency.
+	MaxShards int `yaml:"max_shards,omitempty"`
+
+	// Maximum number of samples per send.
+	MaxSamplesPerSend int `yaml:"max_samples_per_send,omitempty"`
+
+	// Maximum time sample will wait in buffer.
+	BatchSendDeadline time.Duration `yaml:"batch_send_deadline,omitempty"`
+
+	// Max number of times to retry a batch on recoverable errors.
+	MaxRetries int `yaml:"max_retries,omitempty"`
+
+	// On recoverable errors, backoff exponentially.
+	MinBackoff time.Duration `yaml:"min_backoff,omitempty"`
+	MaxBackoff time.Duration `yaml:"max_backoff,omitempty"`
 }
 
 // RemoteReadConfig is the configuration for reading from remote storage.
 type RemoteReadConfig struct {
-	URL           *URL           `yaml:"url,omitempty"`
+	URL           *URL           `yaml:"url"`
 	RemoteTimeout model.Duration `yaml:"remote_timeout,omitempty"`
 
 	// We cannot do proper Go type embedding below as the parser will then parse
@@ -1419,8 +1501,16 @@ func (c *RemoteReadConfig) UnmarshalYAML(unmarshal func(interface{}) error) erro
 	if err := unmarshal((*plain)(c)); err != nil {
 		return err
 	}
-	if err := checkOverflow(c.XXX, "remote_read"); err != nil {
+	if c.URL == nil {
+		return fmt.Errorf("url for remote_read is empty")
+	}
+
+	// The UnmarshalYAML method of HTTPClientConfig is not being called because it's not a pointer.
+	// We cannot make it a pointer as the parser panics for inlined pointer structs.
+	// Thus we just do its validation here.
+	if err := c.HTTPClientConfig.validate(); err != nil {
 		return err
 	}
-	return nil
+
+	return checkOverflow(c.XXX, "remote_read")
 }

@@ -9,9 +9,9 @@ required = [
 ]
 
 [[constraint]]
-  # we do not support 1.8 yet
+  # we do not support 2.0 yet
   name = "github.com/prometheus/prometheus"
-  version = "=1.7.2"
+  version = "1.8.2"
 
 [[constraint]]
   # we need allow_delete_body

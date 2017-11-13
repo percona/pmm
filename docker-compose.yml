@@ -2,7 +2,7 @@
 version: '3'
 services:
   prometheus:
-    image: ${PROMETHEUS_IMAGE:-prom/prometheus:v1.7.2}
+    image: ${PROMETHEUS_IMAGE:-prom/prometheus:v1.8.2}
     command: [ "-config.file=/etc/prometheus/prometheus.yml",
                "-log.level=debug",
                "-storage.local.path=/prometheus",
@@ -13,7 +13,7 @@ services:
       - ./testdata/prometheus:/etc/prometheus
 
   alertmanager:
-    image: ${ALERTMANAGER_IMAGE:-prom/alertmanager:v0.8.0}
+    image: ${ALERTMANAGER_IMAGE:-prom/alertmanager:v0.9.1}
     command: [ "-config.file=/etc/alertmanager/alertmanager.yml",
                "-log.level=debug",
                "-storage.path=/alertmanager" ]
@@ -23,6 +23,6 @@ services:
       - ./testdata/alertmanager:/etc/alertmanager
 
   consul:
-    image: ${CONSUL_IMAGE:-consul:0.8.5}
+    image: ${CONSUL_IMAGE:-consul:0.9.3}
     ports:
       - 127.0.0.1:8500:8500

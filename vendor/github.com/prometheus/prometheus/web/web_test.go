@@ -14,8 +14,11 @@
 package web
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"testing"
+	"time"
 )
 
 func TestGlobalURL(t *testing.T) {
@@ -64,6 +67,117 @@ func TestGlobalURL(t *testing.T) {
 
 		if outURL.String() != test.outURL {
 			t.Fatalf("%d. got %s, want %s", i, outURL.String(), test.outURL)
+		}
+	}
+}
+
+func TestReadyAndHealthy(t *testing.T) {
+	opts := &Options{
+		ListenAddress:  ":9090",
+		ReadTimeout:    30 * time.Second,
+		MaxConnections: 512,
+		Context:        nil,
+		Storage:        nil,
+		QueryEngine:    nil,
+		TargetManager:  nil,
+		RuleManager:    nil,
+		Notifier:       nil,
+		RoutePrefix:    "/",
+		MetricsPath:    "/metrics/",
+	}
+
+	opts.Flags = map[string]string{}
+
+	webHandler := New(opts)
+	go webHandler.Run()
+
+	// Give some time for the web goroutine to run since we need the server
+	// to be up before starting tests.
+	time.Sleep(5 * time.Second)
+
+	resp, err := http.Get("http://localhost:9090/-/healthy")
+	if err != nil {
+		t.Fatalf("Unexpected HTTP error %s", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Path /-/healthy with server unready test, Expected status 200 got: %s", resp.Status)
+	}
+
+	resp, err = http.Get("http://localhost:9090/-/ready")
+	if err != nil {
+		t.Fatalf("Unexpected HTTP error %s", err)
+	}
+	if resp.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("Path /-/ready with server unready test, Expected status 503 got: %s", resp.Status)
+	}
+
+	resp, err = http.Get("http://localhost:9090/version")
+	if err != nil {
+		t.Fatalf("Unexpected HTTP error %s", err)
+	}
+	if resp.StatusCode != http.StatusServiceUnavailable {
+		t.Fatalf("Path /version with server unready test, Expected status 503 got: %s", resp.Status)
+	}
+
+	// Set to ready.
+	webHandler.Ready()
+
+	resp, err = http.Get("http://localhost:9090/-/healthy")
+	if err != nil {
+		t.Fatalf("Unexpected HTTP error %s", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Path /-/healthy with server ready test, Expected status 200 got: %s", resp.Status)
+	}
+
+	resp, err = http.Get("http://localhost:9090/-/ready")
+	if err != nil {
+		t.Fatalf("Unexpected HTTP error %s", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Path /-/ready with server ready test, Expected status 200 got: %s", resp.Status)
+	}
+
+	resp, err = http.Get("http://localhost:9090/version")
+	if err != nil {
+		t.Fatalf("Unexpected HTTP error %s", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("Path /version with server ready test, Expected status 200 got: %s", resp.Status)
+	}
+
+}
+
+func TestDebugHandler(t *testing.T) {
+	for _, tc := range []struct {
+		prefix, url string
+		code        int
+	}{
+		{"/", "/debug/pprof/cmdline", 200},
+		{"/foo", "/foo/debug/pprof/cmdline", 200},
+
+		{"/", "/debug/pprof/goroutine", 200},
+		{"/foo", "/foo/debug/pprof/goroutine", 200},
+
+		{"/", "/debug/pprof/foo", 404},
+		{"/foo", "/bar/debug/pprof/goroutine", 404},
+	} {
+		opts := &Options{
+			RoutePrefix: tc.prefix,
+			MetricsPath: "/metrics",
+		}
+		handler := New(opts)
+		handler.Ready()
+
+		w := httptest.NewRecorder()
+		req, err := http.NewRequest("GET", tc.url, nil)
+		if err != nil {
+			t.Fatalf("Unexpected error %s", err)
+		}
+
+		handler.router.ServeHTTP(w, req)
+		if w.Code != tc.code {
+			t.Fatalf("Unexpected status code %d: %s", w.Code, w.Body.String())
 		}
 	}
 }
