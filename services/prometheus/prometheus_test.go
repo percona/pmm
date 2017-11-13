@@ -38,7 +38,7 @@ import (
 const testdata = "../../testdata/prometheus/"
 
 func assertGRPCError(t testing.TB, expected *status.Status, actual error) {
-	// t.Helper() TODO enable when we switch to 1.9+
+	t.Helper()
 
 	s, ok := status.FromError(actual)
 	if !assert.True(t, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
