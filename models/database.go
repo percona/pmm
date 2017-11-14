@@ -34,15 +34,23 @@ var databaseSchema = []string{
 	`CREATE TABLE nodes (
 		id integer PRIMARY KEY AUTOINCREMENT,
 		type varchar NOT NULL,
+		name varchar NOT NULL,
 
-		region varchar,
-		hostname varchar
+		region varchar NOT NULL, -- NOT NULL for unique index below
+
+		UNIQUE (type, name, region)
 	)`,
 
 	`CREATE TABLE services (
 		id integer PRIMARY KEY AUTOINCREMENT,
 		type varchar NOT NULL,
 		node_id integer NOT NULL,
+
+		address varchar,
+		port integer,
+		engine varchar,
+		engine_version varchar,
+
 		FOREIGN KEY (node_id) REFERENCES nodes (id)
 	)`,
 }

@@ -34,4 +34,9 @@ type RDSService struct {
 	ID     int64       `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
 	NodeID int64       `reform:"node_id"`
+
+	Address       *string `reform:"address"`
+	Port          *uint16 `reform:"port"`
+	Engine        *string `reform:"engine"`
+	EngineVersion *string `reform:"engine_version"`
 }

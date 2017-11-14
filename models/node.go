@@ -26,13 +26,14 @@ const (
 type Node struct {
 	ID   int64    `reform:"id,pk"`
 	Type NodeType `reform:"type"`
+	Name string   `reform:"name"`
 }
 
 //reform:nodes
 type RDSNode struct {
 	ID   int64    `reform:"id,pk"`
 	Type NodeType `reform:"type"`
+	Name string   `reform:"name"` // DBInstanceIdentifier
 
-	Region   *string `reform:"region"`
-	Hostname *string `reform:"hostname"` // DBInstanceIdentifier
+	Region string `reform:"region"`
 }

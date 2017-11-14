@@ -27,7 +27,7 @@ func (v *nodeTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *nodeTableType) Columns() []string {
-	return []string{"id", "type"}
+	return []string{"id", "type", "name"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,15 +47,16 @@ func (v *nodeTableType) PKColumnIndex() uint {
 
 // NodeTable represents nodes view or table in SQL database.
 var NodeTable = &nodeTableType{
-	s: parse.StructInfo{Type: "Node", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int64", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Node", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int64", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "Name", PKType: "", Column: "name"}}, PKFieldIndex: 0},
 	z: new(Node).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s Node) String() string {
-	res := make([]string, 2)
+	res := make([]string, 3)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
+	res[2] = "Name: " + reform.Inspect(s.Name, true)
 	return strings.Join(res, ", ")
 }
 
@@ -65,6 +66,7 @@ func (s *Node) Values() []interface{} {
 	return []interface{}{
 		s.ID,
 		s.Type,
+		s.Name,
 	}
 }
 
@@ -74,6 +76,7 @@ func (s *Node) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
 		&s.Type,
+		&s.Name,
 	}
 }
 
@@ -139,7 +142,7 @@ func (v *rDSNodeTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *rDSNodeTableType) Columns() []string {
-	return []string{"id", "type", "region", "hostname"}
+	return []string{"id", "type", "name", "region"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -159,7 +162,7 @@ func (v *rDSNodeTableType) PKColumnIndex() uint {
 
 // RDSNodeTable represents nodes view or table in SQL database.
 var RDSNodeTable = &rDSNodeTableType{
-	s: parse.StructInfo{Type: "RDSNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int64", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "Region", PKType: "", Column: "region"}, {Name: "Hostname", PKType: "", Column: "hostname"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RDSNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int64", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "Name", PKType: "", Column: "name"}, {Name: "Region", PKType: "", Column: "region"}}, PKFieldIndex: 0},
 	z: new(RDSNode).Values(),
 }
 
@@ -168,8 +171,8 @@ func (s RDSNode) String() string {
 	res := make([]string, 4)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
-	res[2] = "Region: " + reform.Inspect(s.Region, true)
-	res[3] = "Hostname: " + reform.Inspect(s.Hostname, true)
+	res[2] = "Name: " + reform.Inspect(s.Name, true)
+	res[3] = "Region: " + reform.Inspect(s.Region, true)
 	return strings.Join(res, ", ")
 }
 
@@ -179,8 +182,8 @@ func (s *RDSNode) Values() []interface{} {
 	return []interface{}{
 		s.ID,
 		s.Type,
+		s.Name,
 		s.Region,
-		s.Hostname,
 	}
 }
 
@@ -190,8 +193,8 @@ func (s *RDSNode) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
 		&s.Type,
+		&s.Name,
 		&s.Region,
-		&s.Hostname,
 	}
 }
 

@@ -142,7 +142,7 @@ func (v *rDSServiceTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *rDSServiceTableType) Columns() []string {
-	return []string{"id", "type", "node_id"}
+	return []string{"id", "type", "node_id", "address", "port", "engine", "engine_version"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -162,16 +162,20 @@ func (v *rDSServiceTableType) PKColumnIndex() uint {
 
 // RDSServiceTable represents services view or table in SQL database.
 var RDSServiceTable = &rDSServiceTableType{
-	s: parse.StructInfo{Type: "RDSService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int64", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "NodeID", PKType: "", Column: "node_id"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RDSService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int64", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "NodeID", PKType: "", Column: "node_id"}, {Name: "Address", PKType: "", Column: "address"}, {Name: "Port", PKType: "", Column: "port"}, {Name: "Engine", PKType: "", Column: "engine"}, {Name: "EngineVersion", PKType: "", Column: "engine_version"}}, PKFieldIndex: 0},
 	z: new(RDSService).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s RDSService) String() string {
-	res := make([]string, 3)
+	res := make([]string, 7)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "NodeID: " + reform.Inspect(s.NodeID, true)
+	res[3] = "Address: " + reform.Inspect(s.Address, true)
+	res[4] = "Port: " + reform.Inspect(s.Port, true)
+	res[5] = "Engine: " + reform.Inspect(s.Engine, true)
+	res[6] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
 	return strings.Join(res, ", ")
 }
 
@@ -182,6 +186,10 @@ func (s *RDSService) Values() []interface{} {
 		s.ID,
 		s.Type,
 		s.NodeID,
+		s.Address,
+		s.Port,
+		s.Engine,
+		s.EngineVersion,
 	}
 }
 
@@ -192,6 +200,10 @@ func (s *RDSService) Pointers() []interface{} {
 		&s.ID,
 		&s.Type,
 		&s.NodeID,
+		&s.Address,
+		&s.Port,
+		&s.Engine,
+		&s.EngineVersion,
 	}
 }
 

@@ -20,13 +20,16 @@ package rds
 import (
 	"context"
 	"testing"
-	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/sqlite3"
 
+	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/logger"
 	"github.com/percona/pmm-managed/utils/tests"
 )
@@ -34,66 +37,97 @@ import (
 func TestDiscover(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
-
 		accessKey, secretKey := tests.GetAWSKeys(t)
 		svc := NewService(nil)
+
 		actual, err := svc.Discover(ctx, accessKey, secretKey)
 		require.NoError(t, err)
 		expected := []Instance{{
-			InstanceID: InstanceID{
-				Region:               "eu-west-1",
-				DBInstanceIdentifier: "mysql57",
+			Node: models.RDSNode{
+				Type:   "rds",
+				Name:   "mysql57",
+				Region: "eu-west-1",
 			},
-			EndpointAddress:    "mysql57.ckpwzom1xccn.eu-west-1.rds.amazonaws.com",
-			EndpointPort:       3306,
-			MasterUsername:     "mysql57",
-			Engine:             "mysql",
-			EngineVersion:      "5.7.19",
-			MonitoringInterval: 30 * time.Second,
+			Service: models.RDSService{
+				Type:          "rds",
+				Address:       pointer.ToString("mysql57.ckpwzom1xccn.eu-west-1.rds.amazonaws.com"),
+				Port:          pointer.ToUint16(3306),
+				Engine:        pointer.ToString("mysql"),
+				EngineVersion: pointer.ToString("5.7.19"),
+			},
 		}, {
-			InstanceID: InstanceID{
-				Region:               "us-east-1",
-				DBInstanceIdentifier: "aurora1",
+			Node: models.RDSNode{
+				Type:   "rds",
+				Name:   "aurora1",
+				Region: "us-east-1",
 			},
-			EndpointAddress:    "aurora1.cdy17lilqrl7.us-east-1.rds.amazonaws.com",
-			EndpointPort:       3306,
-			MasterUsername:     "aurora1",
-			Engine:             "aurora",
-			EngineVersion:      "5.6.10a",
-			MonitoringInterval: 60 * time.Second,
+			Service: models.RDSService{
+				Type:          "rds",
+				Address:       pointer.ToString("aurora1.cdy17lilqrl7.us-east-1.rds.amazonaws.com"),
+				Port:          pointer.ToUint16(3306),
+				Engine:        pointer.ToString("aurora"),
+				EngineVersion: pointer.ToString("5.6.10a"),
+			},
 		}, {
-			InstanceID: InstanceID{
-				Region:               "us-east-1",
-				DBInstanceIdentifier: "aurora1-us-east-1c",
+			Node: models.RDSNode{
+				Type:   "rds",
+				Name:   "aurora1-us-east-1c",
+				Region: "us-east-1",
 			},
-			EndpointAddress:    "aurora1-us-east-1c.cdy17lilqrl7.us-east-1.rds.amazonaws.com",
-			EndpointPort:       3306,
-			MasterUsername:     "aurora1",
-			Engine:             "aurora",
-			EngineVersion:      "5.6.10a",
-			MonitoringInterval: 60 * time.Second,
+			Service: models.RDSService{
+				Type:          "rds",
+				Address:       pointer.ToString("aurora1-us-east-1c.cdy17lilqrl7.us-east-1.rds.amazonaws.com"),
+				Port:          pointer.ToUint16(3306),
+				Engine:        pointer.ToString("aurora"),
+				EngineVersion: pointer.ToString("5.6.10a"),
+			},
 		}, {
-			InstanceID: InstanceID{
-				Region:               "us-east-1",
-				DBInstanceIdentifier: "mysql56",
+			Node: models.RDSNode{
+				Type:   "rds",
+				Name:   "mysql56",
+				Region: "us-east-1",
 			},
-			EndpointAddress:    "mysql56.cdy17lilqrl7.us-east-1.rds.amazonaws.com",
-			EndpointPort:       3306,
-			MasterUsername:     "mysql56",
-			Engine:             "mysql",
-			EngineVersion:      "5.6.35",
-			MonitoringInterval: 15 * time.Second,
+			Service: models.RDSService{
+				Type:          "rds",
+				Address:       pointer.ToString("mysql56.cdy17lilqrl7.us-east-1.rds.amazonaws.com"),
+				Port:          pointer.ToUint16(3306),
+				Engine:        pointer.ToString("mysql"),
+				EngineVersion: pointer.ToString("5.6.35"),
+			},
 		}}
 		assert.Equal(t, expected, actual)
 	})
 
 	t.Run("WrongKeys", func(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
-
 		accessKey, secretKey := "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
 		svc := NewService(nil)
+
 		res, err := svc.Discover(ctx, accessKey, secretKey)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `The security token included in the request is invalid.`), err)
 		assert.Empty(t, res)
+	})
+}
+
+func TestAddRemove(t *testing.T) {
+	t.Run("OK", func(t *testing.T) {
+		ctx, _ := logger.Set(context.Background(), t.Name())
+		accessKey, secretKey := tests.GetAWSKeys(t)
+		db, err := models.OpenDB("", t.Logf)
+		require.NoError(t, err)
+		defer db.Close()
+		svc := NewService(reform.NewDB(db, sqlite3.Dialect, reform.NewPrintfLogger(t.Logf)))
+
+		err = svc.Add(ctx, accessKey, secretKey, []InstanceID{{"eu-west-1", "mysql57"}})
+		assert.NoError(t, err)
+
+		err = svc.Add(ctx, accessKey, secretKey, []InstanceID{{"eu-west-1", "mysql57"}})
+		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `RDS instance "mysql57" already exists in region "eu-west-1".`), err)
+
+		err = svc.Remove(ctx, []InstanceID{{"eu-west-1", "mysql57"}})
+		assert.NoError(t, err)
+
+		err = svc.Remove(ctx, []InstanceID{{"eu-west-1", "mysql57"}})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `RDS instance "mysql57" not found in region "eu-west-1".`), err)
 	})
 }

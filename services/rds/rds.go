@@ -21,14 +21,15 @@ import (
 	"context"
 	"net/http"
 	"sort"
-	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/rds"
+	"github.com/mattn/go-sqlite3"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -59,18 +60,13 @@ func NewService(db *reform.DB) *Service {
 // Each DB instance has a DB instance identifier. This customer-supplied name uniquely identifies the DB instance when interacting
 // with the Amazon RDS API and AWS CLI commands. The DB instance identifier must be unique for that customer in an AWS Region.
 type InstanceID struct {
-	Region               string
-	DBInstanceIdentifier string
+	Region string
+	Name   string // DBInstanceIdentifier
 }
 
 type Instance struct {
-	InstanceID
-	EndpointAddress    string
-	EndpointPort       uint16
-	MasterUsername     string
-	Engine             string
-	EngineVersion      string
-	MonitoringInterval time.Duration
+	Node    models.RDSNode
+	Service models.RDSService
 }
 
 func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) ([]Instance, error) {
@@ -107,12 +103,12 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 
 			out, err := rds.New(s).DescribeDBInstancesWithContext(ctx, new(rds.DescribeDBInstancesInput))
 			if err != nil {
-				if err2, ok := err.(awserr.Error); ok {
-					switch err2.Code() {
+				if err, ok := err.(awserr.Error); ok {
+					switch err.Code() {
 					case "InvalidClientTokenId", "EmptyStaticCreds":
-						return status.Error(codes.InvalidArgument, err2.Message())
+						return status.Error(codes.InvalidArgument, err.Message())
 					default:
-						return err2
+						return err
 					}
 				} else {
 					return errors.WithStack(err)
@@ -120,16 +116,20 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 			}
 			for _, db := range out.DBInstances {
 				instances <- Instance{
-					InstanceID: InstanceID{
-						Region:               regionId,
-						DBInstanceIdentifier: *db.DBInstanceIdentifier,
+					Node: models.RDSNode{
+						Type: models.RDSNodeType,
+
+						Name:   *db.DBInstanceIdentifier,
+						Region: regionId,
 					},
-					EndpointAddress:    *db.Endpoint.Address,
-					EndpointPort:       uint16(*db.Endpoint.Port),
-					MasterUsername:     *db.MasterUsername,
-					Engine:             *db.Engine,
-					EngineVersion:      *db.EngineVersion,
-					MonitoringInterval: time.Duration(*db.MonitoringInterval) * time.Second,
+					Service: models.RDSService{
+						Type: models.RDSServiceType,
+
+						Address:       db.Endpoint.Address,
+						Port:          pointer.ToUint16(uint16(*db.Endpoint.Port)),
+						Engine:        db.Engine,
+						EngineVersion: db.EngineVersion,
+					},
 				}
 			}
 			return nil
@@ -146,10 +146,10 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 		res = append(res, i)
 	}
 	sort.Slice(res, func(i, j int) bool {
-		if res[i].Region != res[j].Region {
-			return res[i].Region < res[j].Region
+		if res[i].Node.Region != res[j].Node.Region {
+			return res[i].Node.Region < res[j].Node.Region
 		}
-		return res[i].DBInstanceIdentifier < res[j].DBInstanceIdentifier
+		return res[i].Node.Name < res[j].Node.Name
 	})
 	return res, g.Wait()
 }
@@ -163,7 +163,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []
 	var add []Instance
 	for _, instance := range instances {
 		for _, id := range ids {
-			if instance.InstanceID == id {
+			if instance.Node.Name == id.Name && instance.Node.Region == id.Region {
 				add = append(add, instance)
 			}
 		}
@@ -172,40 +172,73 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []
 		return nil
 	}
 
-	tx, err := svc.db.Begin()
-	if err != nil {
-		return errors.WithStack(err)
+	return svc.db.InTransaction(func(tx *reform.TX) error {
+		for _, instance := range add {
+			node := &models.RDSNode{
+				Type: models.RDSNodeType,
+				Name: instance.Node.Name,
+
+				Region: instance.Node.Region,
+			}
+			if e := tx.Insert(node); e != nil {
+				if e, ok := e.(sqlite3.Error); ok && e.ExtendedCode == sqlite3.ErrConstraintUnique {
+					return status.Errorf(codes.AlreadyExists, "RDS instance %q already exists in region %q.",
+						node.Name, node.Region)
+				}
+				return errors.WithStack(e)
+			}
+
+			service := &models.RDSService{
+				Type:   models.RDSServiceType,
+				NodeID: node.ID,
+
+				Address:       instance.Service.Address,
+				Port:          instance.Service.Port,
+				Engine:        instance.Service.Engine,
+				EngineVersion: instance.Service.EngineVersion,
+			}
+			if e := tx.Insert(service); e != nil {
+				return errors.WithStack(e)
+			}
+
+			// TODO insert agents
+
+			// TODO start agents
+		}
+
+		return nil
+	})
+}
+
+func (svc *Service) Remove(ctx context.Context, ids []InstanceID) error {
+	if len(ids) == 0 {
+		return nil
 	}
-	var committed bool
-	defer func() {
-		if !committed {
-			tx.Rollback()
-		}
-	}()
 
-	for _, instance := range add {
-		node := &models.RDSNode{
-			Type: models.RDSNodeType,
+	return svc.db.InTransaction(func(tx *reform.TX) error {
+		for _, instance := range ids {
+			var node models.RDSNode
+			if e := tx.SelectOneTo(&node, "WHERE name = ? AND region = ?", instance.Name, instance.Region); e != nil {
+				if e == reform.ErrNoRows {
+					return status.Errorf(codes.NotFound, "RDS instance %q not found in region %q.",
+						instance.Name, instance.Region)
+				}
+				return errors.WithStack(e)
+			}
 
-			Region:   &instance.Region,
-			Hostname: &instance.DBInstanceIdentifier,
-		}
-		if err = tx.Save(node); err != nil {
-			return err
+			// TODO stop agents
+
+			// TODO delete agents
+
+			if _, e := tx.DeleteFrom(models.RDSServiceTable, "WHERE node_id = ?", node.ID); e != nil {
+				return errors.WithStack(e)
+			}
+
+			if e := tx.Delete(&node); e != nil {
+				return errors.WithStack(e)
+			}
 		}
 
-		service := &models.RDSService{
-			Type:   models.RDSServiceType,
-			NodeID: node.ID,
-		}
-		if err = tx.Save(service); err != nil {
-			return err
-		}
-	}
-
-	if err = tx.Commit(); err != nil {
-		return err
-	}
-	committed = true
-	return nil
+		return nil
+	})
 }
