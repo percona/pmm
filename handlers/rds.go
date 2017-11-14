@@ -28,7 +28,7 @@ type RDSServer struct {
 }
 
 func (s *RDSServer) Discover(ctx context.Context, req *api.RDSDiscoverRequest) (*api.RDSDiscoverResponse, error) {
-	res, err := s.RDS.Get(ctx, req.AwsAccessKeyId, req.AwsSecretAccessKey)
+	res, err := s.RDS.Discover(ctx, req.AwsAccessKeyId, req.AwsSecretAccessKey)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (s *RDSServer) Discover(ctx context.Context, req *api.RDSDiscoverRequest) (
 	var resp api.RDSDiscoverResponse
 	for _, db := range res {
 		resp.Instances = append(resp.Instances, &api.RDSInstance{
-			Id:                 db.ID,
+			Id:                 db.DBInstanceIdentifier,
 			RegionId:           db.Region,
 			EndpointAddress:    db.EndpointAddress,
 			EndpointPort:       uint32(db.EndpointPort),

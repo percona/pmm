@@ -19,10 +19,9 @@ package rds
 
 import (
 	"context"
-	"os"
 	"testing"
+	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -32,27 +31,68 @@ import (
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
-func TestRDS(t *testing.T) {
-	logrus.SetLevel(logrus.DebugLevel)
-
+func TestDiscover(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
 
-		accessKey, secretKey := os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY")
-		svc := NewService()
-		res, err := svc.Get(ctx, accessKey, secretKey)
+		accessKey, secretKey := tests.GetAWSKeys(t)
+		svc := NewService(nil)
+		actual, err := svc.Discover(ctx, accessKey, secretKey)
 		require.NoError(t, err)
-		for _, db := range res {
-			t.Logf("%+v", db)
-		}
+		expected := []Instance{{
+			InstanceID: InstanceID{
+				Region:               "eu-west-1",
+				DBInstanceIdentifier: "mysql57",
+			},
+			EndpointAddress:    "mysql57.ckpwzom1xccn.eu-west-1.rds.amazonaws.com",
+			EndpointPort:       3306,
+			MasterUsername:     "mysql57",
+			Engine:             "mysql",
+			EngineVersion:      "5.7.19",
+			MonitoringInterval: 30 * time.Second,
+		}, {
+			InstanceID: InstanceID{
+				Region:               "us-east-1",
+				DBInstanceIdentifier: "aurora1",
+			},
+			EndpointAddress:    "aurora1.cdy17lilqrl7.us-east-1.rds.amazonaws.com",
+			EndpointPort:       3306,
+			MasterUsername:     "aurora1",
+			Engine:             "aurora",
+			EngineVersion:      "5.6.10a",
+			MonitoringInterval: 60 * time.Second,
+		}, {
+			InstanceID: InstanceID{
+				Region:               "us-east-1",
+				DBInstanceIdentifier: "aurora1-us-east-1c",
+			},
+			EndpointAddress:    "aurora1-us-east-1c.cdy17lilqrl7.us-east-1.rds.amazonaws.com",
+			EndpointPort:       3306,
+			MasterUsername:     "aurora1",
+			Engine:             "aurora",
+			EngineVersion:      "5.6.10a",
+			MonitoringInterval: 60 * time.Second,
+		}, {
+			InstanceID: InstanceID{
+				Region:               "us-east-1",
+				DBInstanceIdentifier: "mysql56",
+			},
+			EndpointAddress:    "mysql56.cdy17lilqrl7.us-east-1.rds.amazonaws.com",
+			EndpointPort:       3306,
+			MasterUsername:     "mysql56",
+			Engine:             "mysql",
+			EngineVersion:      "5.6.35",
+			MonitoringInterval: 15 * time.Second,
+		}}
+		assert.Equal(t, expected, actual)
 	})
 
 	t.Run("WrongKeys", func(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
 
 		accessKey, secretKey := "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-		svc := NewService()
-		res, err := svc.Get(ctx, accessKey, secretKey)
+		svc := NewService(nil)
+		res, err := svc.Discover(ctx, accessKey, secretKey)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `The security token included in the request is invalid.`), err)
 		assert.Empty(t, res)
 	})

@@ -34,25 +34,37 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gopkg.in/reform.v1"
 
+	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
 // Service is responsible for interactions with AWS RDS.
 type Service struct {
+	db         *reform.DB
 	httpClient *http.Client
 }
 
 // NewService creates a new service.
-func NewService() *Service {
+func NewService(db *reform.DB) *Service {
 	return &Service{
+		db:         db,
 		httpClient: new(http.Client),
 	}
 }
 
+// InstanceID uniquely identifies RDS instance.
+// http://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.html
+// Each DB instance has a DB instance identifier. This customer-supplied name uniquely identifies the DB instance when interacting
+// with the Amazon RDS API and AWS CLI commands. The DB instance identifier must be unique for that customer in an AWS Region.
+type InstanceID struct {
+	Region               string
+	DBInstanceIdentifier string
+}
+
 type Instance struct {
-	ID                 string
-	Region             string
+	InstanceID
 	EndpointAddress    string
 	EndpointPort       uint16
 	MasterUsername     string
@@ -61,7 +73,7 @@ type Instance struct {
 	MonitoringInterval time.Duration
 }
 
-func (svc *Service) Get(ctx context.Context, accessKey, secretKey string) ([]Instance, error) {
+func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) ([]Instance, error) {
 	l := logger.Get(ctx).WithField("component", "rds")
 
 	g, ctx := errgroup.WithContext(ctx)
@@ -97,8 +109,10 @@ func (svc *Service) Get(ctx context.Context, accessKey, secretKey string) ([]Ins
 			if err != nil {
 				if err2, ok := err.(awserr.Error); ok {
 					switch err2.Code() {
-					case "InvalidClientTokenId":
+					case "InvalidClientTokenId", "EmptyStaticCreds":
 						return status.Error(codes.InvalidArgument, err2.Message())
+					default:
+						return err2
 					}
 				} else {
 					return errors.WithStack(err)
@@ -106,8 +120,10 @@ func (svc *Service) Get(ctx context.Context, accessKey, secretKey string) ([]Ins
 			}
 			for _, db := range out.DBInstances {
 				instances <- Instance{
-					ID:                 *db.DBInstanceIdentifier,
-					Region:             regionId,
+					InstanceID: InstanceID{
+						Region:               regionId,
+						DBInstanceIdentifier: *db.DBInstanceIdentifier,
+					},
 					EndpointAddress:    *db.Endpoint.Address,
 					EndpointPort:       uint16(*db.Endpoint.Port),
 					MasterUsername:     *db.MasterUsername,
@@ -133,7 +149,63 @@ func (svc *Service) Get(ctx context.Context, accessKey, secretKey string) ([]Ins
 		if res[i].Region != res[j].Region {
 			return res[i].Region < res[j].Region
 		}
-		return res[i].ID < res[j].ID
+		return res[i].DBInstanceIdentifier < res[j].DBInstanceIdentifier
 	})
 	return res, g.Wait()
+}
+
+func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []InstanceID) error {
+	instances, err := svc.Discover(ctx, accessKey, secretKey)
+	if err != nil {
+		return err
+	}
+
+	var add []Instance
+	for _, instance := range instances {
+		for _, id := range ids {
+			if instance.InstanceID == id {
+				add = append(add, instance)
+			}
+		}
+	}
+	if len(add) == 0 {
+		return nil
+	}
+
+	tx, err := svc.db.Begin()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	var committed bool
+	defer func() {
+		if !committed {
+			tx.Rollback()
+		}
+	}()
+
+	for _, instance := range add {
+		node := &models.RDSNode{
+			Type: models.RDSNodeType,
+
+			Region:   &instance.Region,
+			Hostname: &instance.DBInstanceIdentifier,
+		}
+		if err = tx.Save(node); err != nil {
+			return err
+		}
+
+		service := &models.RDSService{
+			Type:   models.RDSServiceType,
+			NodeID: node.ID,
+		}
+		if err = tx.Save(service); err != nil {
+			return err
+		}
+	}
+
+	if err = tx.Commit(); err != nil {
+		return err
+	}
+	committed = true
+	return nil
 }
