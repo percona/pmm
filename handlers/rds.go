@@ -52,15 +52,61 @@ func (s *RDSServer) Discover(ctx context.Context, req *api.RDSDiscoverRequest) (
 }
 
 func (s *RDSServer) List(ctx context.Context, req *api.RDSListRequest) (*api.RDSListResponse, error) {
-	return nil, nil
+	res, err := s.RDS.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp api.RDSListResponse
+	for _, db := range res {
+		resp.Instances = append(resp.Instances, &api.RDSInstance{
+			Node: &api.RDSNode{
+				Name:   db.Node.Name,
+				Region: db.Node.Region,
+			},
+			Service: &api.RDSService{
+				Address:       *db.Service.Address,
+				Port:          uint32(*db.Service.Port),
+				Engine:        *db.Service.Engine,
+				EngineVersion: *db.Service.EngineVersion,
+			},
+		})
+	}
+	return &resp, nil
 }
 
 func (s *RDSServer) Add(ctx context.Context, req *api.RDSAddRequest) (*api.RDSAddResponse, error) {
-	return nil, nil
+	ids := make([]rds.InstanceID, len(req.Ids))
+	for i, id := range req.Ids {
+		ids[i] = rds.InstanceID{
+			Region: id.Region,
+			Name:   id.Name,
+		}
+	}
+	err := s.RDS.Add(ctx, req.AwsAccessKeyId, req.AwsSecretAccessKey, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp api.RDSAddResponse
+	return &resp, nil
 }
 
 func (s *RDSServer) Remove(ctx context.Context, req *api.RDSRemoveRequest) (*api.RDSRemoveResponse, error) {
-	return nil, nil
+	ids := make([]rds.InstanceID, len(req.Ids))
+	for i, id := range req.Ids {
+		ids[i] = rds.InstanceID{
+			Region: id.Region,
+			Name:   id.Name,
+		}
+	}
+	err := s.RDS.Remove(ctx, ids)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp api.RDSRemoveResponse
+	return &resp, nil
 }
 
 // check interface
