@@ -51,5 +51,17 @@ func (s *RDSServer) Discover(ctx context.Context, req *api.RDSDiscoverRequest) (
 	return &resp, nil
 }
 
+func (s *RDSServer) List(ctx context.Context, req *api.RDSListRequest) (*api.RDSListResponse, error) {
+	return nil, nil
+}
+
+func (s *RDSServer) Add(ctx context.Context, req *api.RDSAddRequest) (*api.RDSAddResponse, error) {
+	return nil, nil
+}
+
+func (s *RDSServer) Remove(ctx context.Context, req *api.RDSRemoveRequest) (*api.RDSRemoveResponse, error) {
+	return nil, nil
+}
+
 // check interface
 var _ api.RDSServer = (*RDSServer)(nil)

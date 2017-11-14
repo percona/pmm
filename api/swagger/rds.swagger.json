@@ -15,6 +15,70 @@
     "application/json"
   ],
   "paths": {
+    "/v0/rds": {
+      "get": {
+        "operationId": "List",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiRDSListResponse"
+            }
+          }
+        },
+        "tags": [
+          "RDS"
+        ]
+      },
+      "delete": {
+        "operationId": "Remove",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiRDSRemoveResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiRDSRemoveRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RDS"
+        ]
+      },
+      "post": {
+        "operationId": "Add",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiRDSAddResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiRDSAddRequest"
+            }
+          }
+        ],
+        "tags": [
+          "RDS"
+        ]
+      }
+    },
     "/v0/rds/discover": {
       "get": {
         "operationId": "Discover",
@@ -47,6 +111,26 @@
     }
   },
   "definitions": {
+    "apiRDSAddRequest": {
+      "type": "object",
+      "properties": {
+        "aws_access_key_id": {
+          "type": "string"
+        },
+        "aws_secret_access_key": {
+          "type": "string"
+        },
+        "ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiRDSInstanceID"
+          }
+        }
+      }
+    },
+    "apiRDSAddResponse": {
+      "type": "object"
+    },
     "apiRDSDiscoverResponse": {
       "type": "object",
       "properties": {
@@ -69,16 +153,52 @@
         }
       }
     },
-    "apiRDSNode": {
+    "apiRDSInstanceID": {
       "type": "object",
       "properties": {
-        "name": {
+        "region": {
           "type": "string"
         },
-        "region": {
+        "name": {
           "type": "string"
         }
       }
+    },
+    "apiRDSListResponse": {
+      "type": "object",
+      "properties": {
+        "instances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiRDSInstance"
+          }
+        }
+      }
+    },
+    "apiRDSNode": {
+      "type": "object",
+      "properties": {
+        "region": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "apiRDSRemoveRequest": {
+      "type": "object",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiRDSInstanceID"
+          }
+        }
+      }
+    },
+    "apiRDSRemoveResponse": {
+      "type": "object"
     },
     "apiRDSService": {
       "type": "object",

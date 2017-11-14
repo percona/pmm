@@ -23,9 +23,16 @@ It has these top-level messages:
 	DemoErrorResponse
 	RDSNode
 	RDSService
+	RDSInstanceID
 	RDSInstance
 	RDSDiscoverRequest
 	RDSDiscoverResponse
+	RDSListRequest
+	RDSListResponse
+	RDSAddRequest
+	RDSAddResponse
+	RDSRemoveRequest
+	RDSRemoveResponse
 	LabelPair
 	StaticConfig
 	BasicAuth
