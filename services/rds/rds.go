@@ -154,6 +154,42 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 	return res, g.Wait()
 }
 
+func (svc *Service) List(ctx context.Context) ([]Instance, error) {
+	var res []Instance
+	err := svc.db.InTransaction(func(tx *reform.TX) error {
+		structs, e := tx.SelectAllFrom(models.RDSNodeTable, "WHERE type = ? ORDER BY id", models.RDSNodeType)
+		if e != nil {
+			return e
+		}
+		nodes := make([]models.RDSNode, len(structs))
+		for i, str := range structs {
+			nodes[i] = *str.(*models.RDSNode)
+		}
+
+		structs, e = tx.SelectAllFrom(models.RDSServiceTable, "WHERE type = ? ORDER BY id", models.RDSServiceType)
+		if e != nil {
+			return e
+		}
+		services := make([]models.RDSService, len(structs))
+		for i, str := range structs {
+			services[i] = *str.(*models.RDSService)
+		}
+
+		for _, node := range nodes {
+			for _, service := range services {
+				if node.ID == service.NodeID {
+					res = append(res, Instance{
+						Node:    node,
+						Service: service,
+					})
+				}
+			}
+		}
+		return nil
+	})
+	return res, err
+}
+
 func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []InstanceID) error {
 	instances, err := svc.Discover(ctx, accessKey, secretKey)
 	if err != nil {
@@ -218,7 +254,7 @@ func (svc *Service) Remove(ctx context.Context, ids []InstanceID) error {
 	return svc.db.InTransaction(func(tx *reform.TX) error {
 		for _, instance := range ids {
 			var node models.RDSNode
-			if e := tx.SelectOneTo(&node, "WHERE name = ? AND region = ?", instance.Name, instance.Region); e != nil {
+			if e := tx.SelectOneTo(&node, "WHERE type = ? AND name = ? AND region = ?", models.RDSNodeType, instance.Name, instance.Region); e != nil {
 				if e == reform.ErrNoRows {
 					return status.Errorf(codes.NotFound, "RDS instance %q not found in region %q.",
 						instance.Name, instance.Region)

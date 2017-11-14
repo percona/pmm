@@ -109,7 +109,7 @@ func TestDiscover(t *testing.T) {
 	})
 }
 
-func TestAddRemove(t *testing.T) {
+func TestAddListRemove(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
 		accessKey, secretKey := tests.GetAWSKeys(t)
@@ -118,16 +118,45 @@ func TestAddRemove(t *testing.T) {
 		defer db.Close()
 		svc := NewService(reform.NewDB(db, sqlite3.Dialect, reform.NewPrintfLogger(t.Logf)))
 
+		actual, err := svc.List(ctx)
+		require.NoError(t, err)
+		assert.Empty(t, actual)
+
 		err = svc.Add(ctx, accessKey, secretKey, []InstanceID{{"eu-west-1", "mysql57"}})
 		assert.NoError(t, err)
 
 		err = svc.Add(ctx, accessKey, secretKey, []InstanceID{{"eu-west-1", "mysql57"}})
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `RDS instance "mysql57" already exists in region "eu-west-1".`), err)
 
+		actual, err = svc.List(ctx)
+		require.NoError(t, err)
+		expected := []Instance{{
+			Node: models.RDSNode{
+				ID:     1,
+				Type:   "rds",
+				Name:   "mysql57",
+				Region: "eu-west-1",
+			},
+			Service: models.RDSService{
+				ID:            1,
+				Type:          "rds",
+				NodeID:        1,
+				Address:       pointer.ToString("mysql57.ckpwzom1xccn.eu-west-1.rds.amazonaws.com"),
+				Port:          pointer.ToUint16(3306),
+				Engine:        pointer.ToString("mysql"),
+				EngineVersion: pointer.ToString("5.7.19"),
+			},
+		}}
+		assert.Equal(t, expected, actual)
+
 		err = svc.Remove(ctx, []InstanceID{{"eu-west-1", "mysql57"}})
 		assert.NoError(t, err)
 
 		err = svc.Remove(ctx, []InstanceID{{"eu-west-1", "mysql57"}})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `RDS instance "mysql57" not found in region "eu-west-1".`), err)
+
+		actual, err = svc.List(ctx)
+		require.NoError(t, err)
+		assert.Empty(t, actual)
 	})
 }
