@@ -21,6 +21,8 @@ It has these top-level messages:
 	BaseVersionResponse
 	DemoErrorRequest
 	DemoErrorResponse
+	RDSNode
+	RDSService
 	RDSInstance
 	RDSDiscoverRequest
 	RDSDiscoverResponse

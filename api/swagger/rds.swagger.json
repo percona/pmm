@@ -61,31 +61,40 @@
     "apiRDSInstance": {
       "type": "object",
       "properties": {
-        "id": {
+        "node": {
+          "$ref": "#/definitions/apiRDSNode"
+        },
+        "service": {
+          "$ref": "#/definitions/apiRDSService"
+        }
+      }
+    },
+    "apiRDSNode": {
+      "type": "object",
+      "properties": {
+        "name": {
           "type": "string"
         },
-        "region_id": {
+        "region": {
+          "type": "string"
+        }
+      }
+    },
+    "apiRDSService": {
+      "type": "object",
+      "properties": {
+        "address": {
           "type": "string"
         },
-        "endpoint_address": {
-          "type": "string"
-        },
-        "endpoint_port": {
+        "port": {
           "type": "integer",
           "format": "int64"
-        },
-        "master_username": {
-          "type": "string"
         },
         "engine": {
           "type": "string"
         },
         "engine_version": {
           "type": "string"
-        },
-        "monitoring_interval": {
-          "type": "integer",
-          "format": "int64"
         }
       }
     }

@@ -4,15 +4,23 @@ package api;
 
 import "google/api/annotations.proto";
 
-message RDSInstance {
-    string id = 1;
-    string region_id = 2;
-    string endpoint_address = 3;
-    uint32 endpoint_port = 4;
-    string master_username = 5;
+message RDSNode {
+    reserved 1, 2; // id and type
+    string name = 3;
+    string region = 4;
+}
+
+message RDSService {
+    reserved 1, 2, 3; // id, type, and node_id
+    string address = 4;
+    uint32 port = 5;
     string engine = 6;
     string engine_version = 7;
-    uint32 monitoring_interval = 8;
+}
+
+message RDSInstance {
+    RDSNode node = 1;
+    RDSService service = 2;
 }
 
 message RDSDiscoverRequest {

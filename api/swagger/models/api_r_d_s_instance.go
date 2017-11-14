@@ -17,54 +17,72 @@ import (
 
 type APIRDSInstance struct {
 
-	// endpoint address
-	EndpointAddress string `json:"endpoint_address,omitempty"`
+	// node
+	Node *APIRDSNode `json:"node,omitempty"`
 
-	// endpoint port
-	EndpointPort int64 `json:"endpoint_port,omitempty"`
-
-	// engine
-	Engine string `json:"engine,omitempty"`
-
-	// engine version
-	EngineVersion string `json:"engine_version,omitempty"`
-
-	// id
-	ID string `json:"id,omitempty"`
-
-	// master username
-	MasterUsername string `json:"master_username,omitempty"`
-
-	// monitoring interval
-	MonitoringInterval int64 `json:"monitoring_interval,omitempty"`
-
-	// region id
-	RegionID string `json:"region_id,omitempty"`
+	// service
+	Service *APIRDSService `json:"service,omitempty"`
 }
 
-/* polymorph apiRDSInstance endpoint_address false */
+/* polymorph apiRDSInstance node false */
 
-/* polymorph apiRDSInstance endpoint_port false */
-
-/* polymorph apiRDSInstance engine false */
-
-/* polymorph apiRDSInstance engine_version false */
-
-/* polymorph apiRDSInstance id false */
-
-/* polymorph apiRDSInstance master_username false */
-
-/* polymorph apiRDSInstance monitoring_interval false */
-
-/* polymorph apiRDSInstance region_id false */
+/* polymorph apiRDSInstance service false */
 
 // Validate validates this api r d s instance
 func (m *APIRDSInstance) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateNode(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
+
+	if err := m.validateService(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *APIRDSInstance) validateNode(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Node) { // not required
+		return nil
+	}
+
+	if m.Node != nil {
+
+		if err := m.Node.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("node")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *APIRDSInstance) validateService(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Service) { // not required
+		return nil
+	}
+
+	if m.Service != nil {
+
+		if err := m.Service.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("service")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

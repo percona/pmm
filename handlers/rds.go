@@ -36,14 +36,16 @@ func (s *RDSServer) Discover(ctx context.Context, req *api.RDSDiscoverRequest) (
 	var resp api.RDSDiscoverResponse
 	for _, db := range res {
 		resp.Instances = append(resp.Instances, &api.RDSInstance{
-			Id:                 db.DBInstanceIdentifier,
-			RegionId:           db.Region,
-			EndpointAddress:    db.EndpointAddress,
-			EndpointPort:       uint32(db.EndpointPort),
-			MasterUsername:     db.MasterUsername,
-			Engine:             db.Engine,
-			EngineVersion:      db.EngineVersion,
-			MonitoringInterval: uint32(db.MonitoringInterval.Seconds()),
+			Node: &api.RDSNode{
+				Name:   db.Node.Name,
+				Region: db.Node.Region,
+			},
+			Service: &api.RDSService{
+				Address:       *db.Service.Address,
+				Port:          uint32(*db.Service.Port),
+				Engine:        *db.Service.Engine,
+				EngineVersion: *db.Service.EngineVersion,
+			},
 		})
 	}
 	return &resp, nil
