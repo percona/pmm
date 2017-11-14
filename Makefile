@@ -1,7 +1,5 @@
 all: test
 
-PACKAGES := $(shell go list ./... | grep -v vendor)
-
 # installs tools to $GOPATH/bin which is expected to be in $PATH
 init:
 	go install -v ./vendor/gopkg.in/reform.v1/reform
@@ -19,21 +17,21 @@ init:
 	gometalinter.v1 --install
 
 install:
-	go install -v $(PACKAGES)
-	go test -v -i $(PACKAGES)
+	go install -v ./...
+	go test -v -i ./...
 
 install-race:
-	go install -v -race $(PACKAGES)
-	go test -v -race -i $(PACKAGES)
+	go install -v -race ./...
+	go test -v -race -i ./...
 
 test: install
-	go test -v $(PACKAGES)
+	go test -v ./...
 
 test-race: install-race
-	go test -v -race $(PACKAGES)
+	go test -v -race ./...
 
 cover: install
-	gocoverutil -ignore=github.com/percona/pmm-managed/api/... test -v $(PACKAGES)
+	gocoverutil -ignore=github.com/percona/pmm-managed/api/... test -v ./...
 
 check: install
 	-gometalinter.v1 --tests --skip=api --deadline=180s ./...
