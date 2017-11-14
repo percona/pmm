@@ -122,6 +122,12 @@
   revision = "dc8a684882cf70c9a529887104340f44e0e138e5"
 
 [[projects]]
+  name = "github.com/go-sql-driver/mysql"
+  packages = ["."]
+  revision = "a0583e0143b1624142adab07e0e97fe106d99561"
+  version = "v1.3"
+
+[[projects]]
   name = "github.com/go-swagger/go-swagger"
   packages = ["cmd/swagger","cmd/swagger/commands","cmd/swagger/commands/generate","cmd/swagger/commands/initcmd","generator","scan"]
   revision = "68ea41dcf206410c74d397d3bbff42aedff35e4d"
@@ -233,12 +239,6 @@
   name = "github.com/mailru/easyjson"
   packages = ["buffer","jlexer","jwriter"]
   revision = "2f5df55504ebc322e4d52d34df6a1f5b503bf26d"
-
-[[projects]]
-  name = "github.com/mattn/go-sqlite3"
-  packages = ["."]
-  revision = "5160b48509cf5c877bc22c11c373f8c7738cdb38"
-  version = "v1.3.0"
 
 [[projects]]
   name = "github.com/matttproud/golang_protobuf_extensions"
@@ -428,7 +428,7 @@
 
 [[projects]]
   name = "gopkg.in/reform.v1"
-  packages = [".","dialects/sqlite3","parse","reform"]
+  packages = [".","dialects/mysql","parse","reform"]
   revision = "aa2ae077c28edaf600cb1b9067e15aca0b0179bd"
   version = "v1.2.1"
 
@@ -441,6 +441,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8a4a6d1a0c95bfe78a9db9b257c883823f0ecbf203b6aa57a5f93ba174746542"
+  inputs-digest = "7c85cecbd779ab89a47aac770c1c2fef12fd1b4a5e6e6614f2206663b7783196"
   solver-name = "gps-cdcl"
   solver-version = 1
