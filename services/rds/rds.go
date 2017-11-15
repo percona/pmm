@@ -78,25 +78,27 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 	for _, r := range endpoints.AwsPartition().Services()[endpoints.RdsServiceID].Regions() {
 		regionId := r.ID()
 		g.Go(func() error {
-			config := aws.Config{
-				CredentialsChainVerboseErrors: aws.Bool(true),
-				Credentials: credentials.NewCredentials(&credentials.StaticProvider{
+			// use given credentials, or default credential chain
+			var creds *credentials.Credentials
+			if accessKey != "" || secretKey != "" {
+				creds = credentials.NewCredentials(&credentials.StaticProvider{
 					Value: credentials.Value{
 						AccessKeyID:     accessKey,
 						SecretAccessKey: secretKey,
 					},
-				}),
-				Region:     aws.String(regionId),
-				HTTPClient: svc.httpClient,
-				Logger:     aws.LoggerFunc(l.Debug),
+				})
+			}
+			config := &aws.Config{
+				CredentialsChainVerboseErrors: aws.Bool(true),
+				Credentials:                   creds,
+				Region:                        aws.String(regionId),
+				HTTPClient:                    svc.httpClient,
+				Logger:                        aws.LoggerFunc(l.Debug),
 			}
 			if l.Level >= logrus.DebugLevel {
 				config.LogLevel = aws.LogLevel(aws.LogDebug)
 			}
-			s, err := session.NewSessionWithOptions(session.Options{
-				Config:            config,
-				SharedConfigState: session.SharedConfigDisable,
-			})
+			s, err := session.NewSession(config)
 			if err != nil {
 				return errors.WithStack(err)
 			}
