@@ -1,46 +1,51 @@
 all: test
 
-PACKAGES := $(shell go list ./... | grep -v vendor)
-
 # installs tools to $GOPATH/bin which is expected to be in $PATH
 init:
+	go install -v ./vendor/gopkg.in/reform.v1/reform
+
 	go install -v ./vendor/github.com/prometheus/prometheus/cmd/promtool
+
 	go install -v ./vendor/github.com/golang/protobuf/protoc-gen-go
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 	go install -v ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 
 	go get -u github.com/AlekSi/gocoverutil
+
 	go get -u gopkg.in/alecthomas/gometalinter.v1
 	gometalinter.v1 --install
 
 install:
-	go install -v $(PACKAGES)
-	go test -v -i $(PACKAGES)
+	go install -v ./...
+	go test -v -i ./...
 
 install-race:
-	go install -v -race $(PACKAGES)
-	go test -v -race -i $(PACKAGES)
+	go install -v -race ./...
+	go test -v -race -i ./...
 
 test: install
-	go test -v $(PACKAGES)
+	go test -v ./...
 
 test-race: install-race
-	go test -v -race $(PACKAGES)
+	go test -v -race ./...
 
 cover: install
-	gocoverutil -ignore=github.com/percona/pmm-managed/api/... test -v $(PACKAGES)
+	gocoverutil -ignore=github.com/percona/pmm-managed/api/... test -v ./...
 
 check: install
 	-gometalinter.v1 --tests --skip=api --deadline=180s ./...
 
 run: install
-	pmm-managed -prometheus-config=testdata/prometheus/prometheus.yml
+	pmm-managed -prometheus-config=testdata/prometheus/prometheus.yml -db-name=pmm-managed-dev -swagger=rest -debug
 
 run-race: install-race
-	pmm-managed -prometheus-config=testdata/prometheus/prometheus.yml
+	pmm-managed -prometheus-config=testdata/prometheus/prometheus.yml -db-name=pmm-managed-dev -swagger=rest -debug
 
-protos:  # make protos, not protoss
+gen:
+	rm -f models/*_reform.go
+	reform models/
+
 	rm -fr api/*.pb.* api/swagger/*.json api/swagger/client api/swagger/models
 
 	protoc -Iapi -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \

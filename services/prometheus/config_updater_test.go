@@ -28,6 +28,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/percona/pmm-managed/services/prometheus/internal"
+	"github.com/percona/pmm-managed/utils/tests"
 )
 
 func assertYAMLEqual(t *testing.T, expected interface{}, actual interface{}) {
@@ -110,11 +111,11 @@ func TestConfigUpdaterTestConfigUpdaterAddRemoveScrapeConfig(t *testing.T) {
 	}}, configUpdater.fileData)
 
 	err = configUpdater.addScrapeConfig(add)
-	assertGRPCError(t, status.New(codes.AlreadyExists, `scrape config with job name "TestConfigUpdaterAddRemoveScrapeConfig" already exist`), err)
+	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `scrape config with job name "TestConfigUpdaterAddRemoveScrapeConfig" already exist`), err)
 
 	add.JobName = "prometheus"
 	err = configUpdater.addScrapeConfig(add)
-	assertGRPCError(t, status.New(codes.FailedPrecondition, `scrape config with job name "prometheus" is built-in`), err)
+	tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `scrape config with job name "prometheus" is built-in`), err)
 
 	err = configUpdater.removeScrapeConfig("TestConfigUpdaterAddRemoveScrapeConfig")
 	assert.NoError(t, err)
@@ -142,10 +143,10 @@ func TestConfigUpdaterTestConfigUpdaterAddRemoveScrapeConfig(t *testing.T) {
 	}}, configUpdater.fileData)
 
 	err = configUpdater.removeScrapeConfig("TestConfigUpdaterAddRemoveScrapeConfig")
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "TestConfigUpdaterAddRemoveScrapeConfig" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "TestConfigUpdaterAddRemoveScrapeConfig" not found`), err)
 
 	err = configUpdater.removeScrapeConfig("prometheus")
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
 }
 
 func TestConfigUpdaterAddRemoveStaticTargets(t *testing.T) {
@@ -180,10 +181,10 @@ func TestConfigUpdaterAddRemoveStaticTargets(t *testing.T) {
 	}
 
 	err := configUpdater.addStaticTargets("prometheus", []string{"127.0.0.1:9090"})
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
 
 	err = configUpdater.addStaticTargets("no_such_job", []string{"127.0.0.1:9090"})
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_job" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_job" not found`), err)
 
 	// remove the same target twice: no error, no duplicate
 	for i := 0; i < 2; i++ {
@@ -231,8 +232,8 @@ func TestConfigUpdaterAddRemoveStaticTargets(t *testing.T) {
 	}}, configUpdater.fileData)
 
 	err = configUpdater.removeStaticTargets("prometheus", []string{"127.0.0.1:9090"})
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
 
 	err = configUpdater.removeStaticTargets("no_such_job", []string{"127.0.0.1:9090"})
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_job" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_job" not found`), err)
 }

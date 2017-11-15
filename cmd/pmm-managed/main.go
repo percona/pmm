@@ -39,11 +39,15 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/handlers"
+	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/prometheus"
+	"github.com/percona/pmm-managed/services/rds"
 	"github.com/percona/pmm-managed/services/telemetry"
 	"github.com/percona/pmm-managed/utils/interceptors"
 	"github.com/percona/pmm-managed/utils/logger"
@@ -71,6 +75,11 @@ var (
 	promtoolF         = flag.String("promtool", "promtool", "promtool path")
 
 	consulAddrF = flag.String("consul-addr", "127.0.0.1:8500", "Consul HTTP API address")
+	dbNameF     = flag.String("db-name", "", "Database name")
+	dbUsernameF = flag.String("db-username", "pmm-managed", "Database username")
+	dbPasswordF = flag.String("db-password", "pmm-managed", "Database password")
+
+	debugF = flag.Bool("debug", false, "Enable debug logging")
 )
 
 func addSwaggerHandler(mux *http.ServeMux, pattern string) {
@@ -83,7 +92,7 @@ func addSwaggerHandler(mux *http.ServeMux, pattern string) {
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
-func runGRPCServer(ctx context.Context, consulClient *consul.Client) {
+func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.DB) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
 
@@ -106,6 +115,9 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client) {
 	// })
 	api.RegisterScrapeConfigsServer(gRPCServer, &handlers.ScrapeConfigsServer{
 		Prometheus: prometheus,
+	})
+	api.RegisterRDSServer(gRPCServer, &handlers.RDSServer{
+		RDS: rds.NewService(db),
 	})
 
 	grpc_prometheus.Register(gRPCServer)
@@ -150,6 +162,7 @@ func runRESTServer(ctx context.Context) {
 		api.RegisterDemoHandlerFromEndpoint,
 		// TODO api.RegisterAlertsHandlerFromEndpoint,
 		api.RegisterScrapeConfigsHandlerFromEndpoint,
+		api.RegisterRDSHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, *gRPCAddrF, opts); err != nil {
 			l.Panic(err)
@@ -278,9 +291,17 @@ func getTelemetryUUID(consulClient *consul.Client) (string, error) {
 func main() {
 	log.SetFlags(0)
 	log.SetPrefix("stdlog: ")
-	// logrus.SetLevel(logrus.DebugLevel)
-	grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 	flag.Parse()
+
+	if *dbNameF == "" {
+		log.Fatal("-db-name flag must be given explicitly.")
+	}
+
+	if *debugF {
+		logrus.SetLevel(logrus.DebugLevel)
+	}
+
+	grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 
 	if *swaggerF != "rest" && *swaggerF != "debug" && *swaggerF != "off" {
 		flag.Usage()
@@ -309,12 +330,19 @@ func main() {
 		l.Panic(err)
 	}
 
+	sqlDB, err := models.OpenDB(*dbNameF, *dbUsernameF, *dbPasswordF, l.Debugf)
+	if err != nil {
+		l.Panic(err)
+	}
+	defer sqlDB.Close()
+	db := reform.NewDB(sqlDB, mysql.Dialect, nil)
+
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runGRPCServer(ctx, consulClient)
+		runGRPCServer(ctx, consulClient, db)
 	}()
 
 	wg.Add(1)

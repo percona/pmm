@@ -109,58 +109,58 @@ func (a *Client) Delete(params *DeleteParams) (*DeleteOK, error) {
 }
 
 /*
-GetMixin2 gets returns a scrape config by job name errors not found 5 if no such scrape config is present
+GetMixin3 gets returns a scrape config by job name errors not found 5 if no such scrape config is present
 */
-func (a *Client) GetMixin2(params *GetMixin2Params) (*GetMixin2OK, error) {
+func (a *Client) GetMixin3(params *GetMixin3Params) (*GetMixin3OK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetMixin2Params()
+		params = NewGetMixin3Params()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetMixin2",
+		ID:                 "GetMixin3",
 		Method:             "GET",
 		PathPattern:        "/v0/scrape-configs/{job_name}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetMixin2Reader{formats: a.formats},
+		Reader:             &GetMixin3Reader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetMixin2OK), nil
+	return result.(*GetMixin3OK), nil
 
 }
 
 /*
-ListMixin2 lists returns all scrape configs
+ListMixin3 lists returns all scrape configs
 */
-func (a *Client) ListMixin2(params *ListMixin2Params) (*ListMixin2OK, error) {
+func (a *Client) ListMixin3(params *ListMixin3Params) (*ListMixin3OK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListMixin2Params()
+		params = NewListMixin3Params()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ListMixin2",
+		ID:                 "ListMixin3",
 		Method:             "GET",
 		PathPattern:        "/v0/scrape-configs",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListMixin2Reader{formats: a.formats},
+		Reader:             &ListMixin3Reader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ListMixin2OK), nil
+	return result.(*ListMixin3OK), nil
 
 }
 

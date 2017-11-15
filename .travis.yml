@@ -11,13 +11,21 @@ matrix:
     - go: master
 
 env:
-  - PROMETHEUS_IMAGE=prom/prometheus:v1.8.2
-    ALERTMANAGER_IMAGE=prom/alertmanager:v0.9.1
-    CONSUL_IMAGE=consul:0.9.3
-  # TODO
-  # - PROMETHEUS_IMAGE=prom/prometheus:master
-  #   ALERTMANAGER_IMAGE=prom/alertmanager:master
-  #   CONSUL_IMAGE=consul:latest
+  global:
+    # AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
+    # They are not exposed for external pull requests: https://docs.travis-ci.com/user/pull-requests#Pull-Requests-and-Security-Restrictions
+    - secure: WPLGcwEg9yZ6UwnR87zLLtZzxlJPg+UaqnNWpFeFpIi3qm00jFtHumf4mOVt+VvyoSFQ4fVSeja16QVcov1s2M+tTdC27nxKpKmeuq5qBIyTUhcTjCSFGRmgqclw6JDpE3DuLqv0o4aqXNboziEXPDdnf4KlrVsLsVvdE8Vx67W5qpaks1asiah7EDRFZQgibVPgRVHrroUijx3YpA23HSyhJH/6Yhyf05MdT5y3l9NhbHgBzdTSoq4tKJKsAxiuyDg3mHl496+Ab72qyVq5Ph9zWFfk4lm9MlmBiRQmiZgESaXKI0JkZo9riBn4MM5YvaJN05DRWPSuQmrQx3H0DAe0VPWl6k5V85dvC0QbnHAXbffFQH/8J7VvxsHENjwwQJ24USFCtjF7QMVgSzSVQtK+dVpiChAOs/tSRtGDYCffKt/tfIjJEvgSHfV9LgIId03EezBCTfZoL/TvsiV2uZ/tN3tONPkbekVobFTSi/vJsI57QG3x1IiKyq1JuxQxAE2Y75Y8h9mNNDRIjFcAIOYr2vZZfVvuC7Ba9cSwvjzSI89xDnC7OPP1x9+dWWvmF1/4ZXpAmnjcnhP0l4GhEbsE/PvdGsiqDtK5rrzpGK9WiD3EO5oJN3yOL9LZ99evzxd+coFnTr1PggEbVEbnwYgiDDExUxb0DYiw8sMdFKM=
+    - secure: EabYo1jrgHLJvsiopDkvShz7ou7z6TBn4Wj7uEpWYmg20wCOXrBLq8Gzed09cRcJaOb7CHFeLTU5qffwH6yJR/NH9l1XqDzWXZZU++C/Kkgwma9EJI7ytqJ5ANh7CSXGGbGB5urRlyh09FJj+4QOBrG1cBW5McD6OPtLSLRVuD7qvJIwgAtLhkgNBBEM3A/Q3RHGNPwdEHxwt5nJBt/Kpc31xUtLYUsZ5dS55KS0WKFf2gUOO5FZVZFPL2dVSb00nn6dafAG2zFHq+HTp08MeyFa3/++Isvu1OKxbAqKPDGI3JqkyZXDb8ZMECzzomdHUJwxwHLJSzOBMm5NEFbav9K2g0Ko9IQamYJBinGoqXMRTL/RCCO80uEJRaT0Gn14RBelM89oR2uyvbZSDm763Myz957UjjxcZCYDs8dZNnmZTk35gbm1Dlt45DPRCroMOIiN3LU8dE96J5uxHrJu7fwABn7xQPrJbsrmSKQPtvc9/mLhwRJGXlQrG26BJJfXtkN8FY9JgRpY3WjKSlvEiKjFTGSLgB9XtUywGvXjtQWRB7/oas0TCfsaf1baZzYAV0TkOGN9Ya7+9LdgqzvdKFN+M2FmHFq/cPQy/I++jMFdAz+Z8EVu55K+0Eq+bldWDKkHV1R5mimSImb0aBeWVzmzfLHEl0FyduKc3pOnUjI=
+    - MYSQL_IMAGE=percona/percona-server:5.7
+
+  matrix:
+    - PROMETHEUS_IMAGE=prom/prometheus:v1.8.2
+      ALERTMANAGER_IMAGE=prom/alertmanager:v0.9.1
+      CONSUL_IMAGE=consul:0.9.3
+    # TODO
+    # - PROMETHEUS_IMAGE=prom/prometheus:master
+    #   ALERTMANAGER_IMAGE=prom/alertmanager:master
+    #   CONSUL_IMAGE=consul:latest
 
 before_install:
   # no package for Trusty yet
@@ -45,10 +53,11 @@ before_install:
   - protoc --version
 
 script:
+  - sudo service mysql stop
   - docker-compose up -d
 
   # check that generated files are not changed
-  - make init protos
+  - make init gen
   - git diff --exit-code
 
   - make cover

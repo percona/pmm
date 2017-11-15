@@ -33,20 +33,10 @@ import (
 
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/utils/tests"
 )
 
 const testdata = "../../testdata/prometheus/"
-
-func assertGRPCError(t testing.TB, expected *status.Status, actual error) {
-	t.Helper()
-
-	s, ok := status.FromError(actual)
-	if !assert.True(t, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
-		return
-	}
-	assert.Equal(t, expected.Code(), s.Code())
-	assert.Equal(t, expected.Message(), s.Message())
-}
 
 func setupPrometheus(t *testing.T) (p *Service, ctx context.Context, before []byte) {
 	ctx, _ = logger.Set(context.Background(), t.Name())
@@ -142,14 +132,14 @@ func TestPrometheusScrapeConfigs(t *testing.T) {
 
 	actual, err := p.GetScrapeConfig(ctx, "no_such_config")
 	assert.Nil(t, actual)
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
 
 	defer func() {
 		err = p.DeleteScrapeConfig(ctx, "test_config")
 		require.NoError(t, err)
 
 		err = p.DeleteScrapeConfig(ctx, "test_config")
-		assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
 	}()
 
 	cfg := &ScrapeConfig{
@@ -162,10 +152,10 @@ func TestPrometheusScrapeConfigs(t *testing.T) {
 	require.NoError(t, err)
 
 	err = p.CreateScrapeConfig(ctx, cfg)
-	assertGRPCError(t, status.New(codes.AlreadyExists, `scrape config with job name "test_config" already exist`), err)
+	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `scrape config with job name "test_config" already exist`), err)
 
 	err = p.CreateScrapeConfig(ctx, &ScrapeConfig{JobName: "prometheus"})
-	assertGRPCError(t, status.New(codes.FailedPrecondition, `scrape config with job name "prometheus" is built-in`), err)
+	tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `scrape config with job name "prometheus" is built-in`), err)
 
 	// other fields are filled by global values or defaults
 	actual, err = p.GetScrapeConfig(ctx, "test_config")
@@ -214,10 +204,10 @@ func TestPrometheusStaticTargets(t *testing.T) {
 	assert.Equal(t, cfg, actual)
 
 	err = p.AddStaticTargets(ctx, "no_such_config", []string{"127.0.0.2:12345", "127.0.0.2:12345"})
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
 
 	err = p.AddStaticTargets(ctx, "prometheus", []string{"127.0.0.2:12345", "127.0.0.2:12345"})
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
 
 	// remove the same target twice: no error
 	for i := 0; i < 2; i++ {
@@ -241,10 +231,10 @@ func TestPrometheusStaticTargets(t *testing.T) {
 	assert.Equal(t, cfg, actual)
 
 	err = p.RemoveStaticTargets(ctx, "no_such_config", []string{"127.0.0.2:12345", "127.0.0.2:12345"})
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
 
 	err = p.RemoveStaticTargets(ctx, "prometheus", []string{"127.0.0.2:12345", "127.0.0.2:12345"})
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
 }
 
 // https://jira.percona.com/browse/PMM-1310?focusedCommentId=196688
@@ -257,7 +247,7 @@ func TestPrometheusBadScrapeConfig(t *testing.T) {
 		JobName: "10.10.11.50:9187",
 	}
 	err := p.CreateScrapeConfig(ctx, cfg)
-	assertGRPCError(t, status.New(codes.InvalidArgument, `job_name: invalid format. Job name must be 2 to 60 characters long, characters long, contain only letters, numbers, and symbols '-', '_', and start with a letter.`), err)
+	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `job_name: invalid format. Job name must be 2 to 60 characters long, characters long, contain only letters, numbers, and symbols '-', '_', and start with a letter.`), err)
 
 	cfg = &ScrapeConfig{
 		JobName:        "test_config",
@@ -265,7 +255,7 @@ func TestPrometheusBadScrapeConfig(t *testing.T) {
 		ScrapeTimeout:  "5s",
 	}
 	err = p.CreateScrapeConfig(ctx, cfg)
-	assertGRPCError(t, status.New(codes.Aborted, `scrape timeout greater than scrape interval for scrape config with job name "test_config"`), err)
+	tests.AssertGRPCError(t, status.New(codes.Aborted, `scrape timeout greater than scrape interval for scrape config with job name "test_config"`), err)
 
 	cfgs, err := p.ListScrapeConfigs(ctx)
 	require.NoError(t, err)
@@ -273,10 +263,10 @@ func TestPrometheusBadScrapeConfig(t *testing.T) {
 
 	actual, err := p.GetScrapeConfig(ctx, "test_config")
 	assert.Nil(t, actual)
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
 
 	err = p.DeleteScrapeConfig(ctx, "test_config")
-	assertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "test_config" not found`), err)
 }
 
 // https://jira.percona.com/browse/PMM-1310?focusedCommentId=196689
