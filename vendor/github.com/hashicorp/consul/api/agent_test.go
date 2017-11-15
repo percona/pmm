@@ -2,6 +2,8 @@ package api
 
 import (
 	"io/ioutil"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"time"
@@ -22,7 +24,7 @@ func TestAPI_AgentSelf(t *testing.T) {
 		t.Fatalf("err: %v", err)
 	}
 
-	name := info["Config"]["NodeName"]
+	name := info["Config"]["NodeName"].(string)
 	if name == "" {
 		t.Fatalf("bad: %v", info)
 	}
@@ -40,12 +42,15 @@ func TestAPI_AgentMetrics(t *testing.T) {
 		t.Fatalf("err: %v", err)
 	}
 
-	if len(metrics.Gauges) < 0 {
-		t.Fatalf("bad: %v", metrics)
+	var found bool
+	for _, g := range metrics.Gauges {
+		if g.Name == "consul.runtime.alloc_bytes" {
+			found = true
+			break
+		}
 	}
-
-	if metrics.Gauges[0].Name != "consul.runtime.alloc_bytes" {
-		t.Fatalf("bad: %v", metrics.Gauges[0])
+	if !found {
+		t.Fatalf("missing runtime metrics")
 	}
 }
 
@@ -53,11 +58,14 @@ func TestAPI_AgentReload(t *testing.T) {
 	t.Parallel()
 
 	// Create our initial empty config file, to be overwritten later
-	configFile := testutil.TempFile(t, "reload")
-	if _, err := configFile.Write([]byte("{}")); err != nil {
-		t.Fatalf("err: %s", err)
+	cfgDir := testutil.TempDir(t, "consul-config")
+	defer os.RemoveAll(cfgDir)
+
+	cfgFilePath := filepath.Join(cfgDir, "reload.json")
+	configFile, err := os.Create(cfgFilePath)
+	if err != nil {
+		t.Fatalf("Unable to create file %v, got error:%v", cfgFilePath, err)
 	}
-	configFile.Close()
 
 	c, s := makeClientWithConfig(t, nil, func(conf *testutil.TestServerConfig) {
 		conf.Args = []string{"-config-file", configFile.Name()}
@@ -68,7 +76,7 @@ func TestAPI_AgentReload(t *testing.T) {
 
 	// Update the config file with a service definition
 	config := `{"service":{"name":"redis", "port":1234}}`
-	err := ioutil.WriteFile(configFile.Name(), []byte(config), 0644)
+	err = ioutil.WriteFile(configFile.Name(), []byte(config), 0644)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -630,7 +638,9 @@ func TestAPI_AgentJoin(t *testing.T) {
 	}
 
 	// Join ourself
-	addr := info["Config"]["AdvertiseAddr"].(string)
+	addr := info["DebugConfig"]["SerfAdvertiseAddrLAN"].(string)
+	// strip off 'tcp://'
+	addr = addr[len("tcp://"):]
 	err = agent.Join(addr, false)
 	if err != nil {
 		t.Fatalf("err: %v", err)

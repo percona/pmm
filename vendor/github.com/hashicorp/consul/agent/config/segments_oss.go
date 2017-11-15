@@ -1,19 +1,17 @@
 // +build !ent
 
-package agent
+package config
 
 import (
 	"github.com/hashicorp/consul/agent/structs"
 )
 
-func ValidateSegments(conf *Config) error {
-	if conf.Segment != "" {
+func (b *Builder) validateSegments(rt RuntimeConfig) error {
+	if rt.SegmentName != "" {
 		return structs.ErrSegmentsNotSupported
 	}
-
-	if len(conf.Segments) > 0 {
+	if len(rt.Segments) > 0 {
 		return structs.ErrSegmentsNotSupported
 	}
-
 	return nil
 }

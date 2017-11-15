@@ -235,7 +235,7 @@ func TestACL_NonAuthority_NotFound(t *testing.T) {
 
 	// Try to join
 	joinLAN(t, s2, s1)
-	retry.Run(t, func(r *retry.R) { r.Check(wantPeers(s1, 2)) })
+	retry.Run(t, func(r *retry.R) { r.Check(wantRaft([]*Server{s1, s2})) })
 
 	client := rpcClient(t, s1)
 	defer client.Close()
@@ -278,7 +278,7 @@ func TestACL_NonAuthority_Found(t *testing.T) {
 
 	// Try to join
 	joinLAN(t, s2, s1)
-	retry.Run(t, func(r *retry.R) { r.Check(wantPeers(s1, 2)) })
+	retry.Run(t, func(r *retry.R) { r.Check(wantRaft([]*Server{s1, s2})) })
 
 	testrpc.WaitForLeader(t, s1.RPC, "dc1")
 
@@ -346,7 +346,7 @@ func TestACL_NonAuthority_Management(t *testing.T) {
 
 	// Try to join
 	joinLAN(t, s2, s1)
-	retry.Run(t, func(r *retry.R) { r.Check(wantPeers(s1, 2)) })
+	retry.Run(t, func(r *retry.R) { r.Check(wantRaft([]*Server{s1, s2})) })
 
 	testrpc.WaitForLeader(t, s1.RPC, "dc1")
 
@@ -395,7 +395,7 @@ func TestACL_DownPolicy_Deny(t *testing.T) {
 
 	// Try to join
 	joinLAN(t, s2, s1)
-	retry.Run(t, func(r *retry.R) { r.Check(wantPeers(s1, 2)) })
+	retry.Run(t, func(r *retry.R) { r.Check(wantRaft([]*Server{s1, s2})) })
 
 	testrpc.WaitForLeader(t, s1.RPC, "dc1")
 
@@ -461,7 +461,7 @@ func TestACL_DownPolicy_Allow(t *testing.T) {
 
 	// Try to join
 	joinLAN(t, s2, s1)
-	retry.Run(t, func(r *retry.R) { r.Check(wantPeers(s1, 2)) })
+	retry.Run(t, func(r *retry.R) { r.Check(wantRaft([]*Server{s1, s2})) })
 
 	testrpc.WaitForLeader(t, s1.RPC, "dc1")
 
@@ -529,7 +529,7 @@ func TestACL_DownPolicy_ExtendCache(t *testing.T) {
 
 	// Try to join
 	joinLAN(t, s2, s1)
-	retry.Run(t, func(r *retry.R) { r.Check(wantPeers(s1, 2)) })
+	retry.Run(t, func(r *retry.R) { r.Check(wantRaft([]*Server{s1, s2})) })
 
 	testrpc.WaitForLeader(t, s1.RPC, "dc1")
 
@@ -793,11 +793,11 @@ func TestACL_filterHealthChecks(t *testing.T) {
 service "foo" {
   policy = "read"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err := acl.New(acl.DenyAll(), policy)
+	perms, err := acl.New(acl.DenyAll(), policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -827,11 +827,11 @@ service "foo" {
 node "node1" {
   policy = "read"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err = acl.New(perms, policy)
+	perms, err = acl.New(perms, policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -918,11 +918,11 @@ func TestACL_filterServiceNodes(t *testing.T) {
 service "foo" {
   policy = "read"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err := acl.New(acl.DenyAll(), policy)
+	perms, err := acl.New(acl.DenyAll(), policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -952,11 +952,11 @@ service "foo" {
 node "node1" {
   policy = "read"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err = acl.New(perms, policy)
+	perms, err = acl.New(perms, policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -1024,11 +1024,11 @@ func TestACL_filterNodeServices(t *testing.T) {
 service "foo" {
   policy = "read"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err := acl.New(acl.DenyAll(), policy)
+	perms, err := acl.New(acl.DenyAll(), policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -1058,11 +1058,11 @@ service "foo" {
 node "node1" {
   policy = "read"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err = acl.New(perms, policy)
+	perms, err = acl.New(perms, policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -1130,11 +1130,11 @@ func TestACL_filterCheckServiceNodes(t *testing.T) {
 service "foo" {
   policy = "read"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err := acl.New(acl.DenyAll(), policy)
+	perms, err := acl.New(acl.DenyAll(), policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -1167,11 +1167,11 @@ service "foo" {
 node "node1" {
   policy = "read"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err = acl.New(perms, policy)
+	perms, err = acl.New(perms, policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -1321,11 +1321,11 @@ func TestACL_filterNodeDump(t *testing.T) {
 service "foo" {
   policy = "read"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err := acl.New(acl.DenyAll(), policy)
+	perms, err := acl.New(acl.DenyAll(), policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -1361,11 +1361,11 @@ service "foo" {
 node "node1" {
   policy = "read"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err = acl.New(perms, policy)
+	perms, err = acl.New(perms, policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -1563,11 +1563,11 @@ func TestACL_vetRegisterWithACL(t *testing.T) {
 node "node" {
   policy = "write"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err := acl.New(acl.DenyAll(), policy)
+	perms, err := acl.New(acl.DenyAll(), policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -1608,11 +1608,11 @@ node "node" {
 service "service" {
   policy = "write"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err = acl.New(perms, policy)
+	perms, err = acl.New(perms, policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -1638,11 +1638,11 @@ service "service" {
 service "other" {
   policy = "write"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err = acl.New(perms, policy)
+	perms, err = acl.New(perms, policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -1712,11 +1712,11 @@ service "other" {
 service "other" {
   policy = "deny"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err = acl.New(perms, policy)
+	perms, err = acl.New(perms, policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -1742,11 +1742,11 @@ service "other" {
 node "node" {
   policy = "deny"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err = acl.New(perms, policy)
+	perms, err = acl.New(perms, policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -1792,11 +1792,11 @@ node "node" {
 service "service" {
   policy = "write"
 }
-`)
+`, nil)
 	if err != nil {
 		t.Fatalf("err %v", err)
 	}
-	perms, err := acl.New(acl.DenyAll(), policy)
+	perms, err := acl.New(acl.DenyAll(), policy, nil)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}

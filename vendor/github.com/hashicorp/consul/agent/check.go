@@ -49,12 +49,13 @@ type CheckNotifier interface {
 // determine the health of a given check. It is compatible with
 // nagios plugins and expects the output in the same format.
 type CheckMonitor struct {
-	Notify   CheckNotifier
-	CheckID  types.CheckID
-	Script   string
-	Interval time.Duration
-	Timeout  time.Duration
-	Logger   *log.Logger
+	Notify     CheckNotifier
+	CheckID    types.CheckID
+	Script     string
+	ScriptArgs []string
+	Interval   time.Duration
+	Timeout    time.Duration
+	Logger     *log.Logger
 
 	stop     bool
 	stopCh   chan struct{}
@@ -101,9 +102,18 @@ func (c *CheckMonitor) run() {
 // check is invoked periodically to perform the script check
 func (c *CheckMonitor) check() {
 	// Create the command
-	cmd, err := ExecScript(c.Script)
+	var cmd *exec.Cmd
+	var err error
+	var cmdDisplay string
+	if len(c.ScriptArgs) > 0 {
+		cmdDisplay = fmt.Sprintf("%v", c.ScriptArgs)
+		cmd, err = ExecSubprocess(c.ScriptArgs)
+	} else {
+		cmdDisplay = c.Script
+		cmd, err = ExecScript(c.Script)
+	}
 	if err != nil {
-		c.Logger.Printf("[ERR] agent: failed to setup invoke '%s': %s", c.Script, err)
+		c.Logger.Printf("[ERR] agent: failed to setup invoke '%s': %s", cmdDisplay, err)
 		c.Notify.UpdateCheck(c.CheckID, api.HealthCritical, err.Error())
 		return
 	}
@@ -112,40 +122,62 @@ func (c *CheckMonitor) check() {
 	output, _ := circbuf.NewBuffer(CheckBufSize)
 	cmd.Stdout = output
 	cmd.Stderr = output
+	SetSysProcAttr(cmd)
+
+	truncateAndLogOutput := func() string {
+		outputStr := string(output.Bytes())
+		if output.TotalWritten() > output.Size() {
+			outputStr = fmt.Sprintf("Captured %d of %d bytes\n...\n%s",
+				output.Size(), output.TotalWritten(), outputStr)
+		}
+		c.Logger.Printf("[DEBUG] agent: Check '%s' script '%s' output: %s",
+			c.CheckID, cmdDisplay, outputStr)
+		return outputStr
+	}
 
 	// Start the check
 	if err := cmd.Start(); err != nil {
-		c.Logger.Printf("[ERR] agent: failed to invoke '%s': %s", c.Script, err)
+		c.Logger.Printf("[ERR] agent: failed to invoke '%s': %s", cmdDisplay, err)
 		c.Notify.UpdateCheck(c.CheckID, api.HealthCritical, err.Error())
 		return
 	}
 
 	// Wait for the check to complete
-	errCh := make(chan error, 2)
+	waitCh := make(chan error, 1)
 	go func() {
-		errCh <- cmd.Wait()
+		waitCh <- cmd.Wait()
 	}()
-	go func() {
-		if c.Timeout > 0 {
-			time.Sleep(c.Timeout)
-		} else {
-			time.Sleep(30 * time.Second)
-		}
-		errCh <- fmt.Errorf("Timed out running check '%s'", c.Script)
-	}()
-	err = <-errCh
 
-	// Get the output, add a message about truncation
-	outputStr := string(output.Bytes())
-	if output.TotalWritten() > output.Size() {
-		outputStr = fmt.Sprintf("Captured %d of %d bytes\n...\n%s",
-			output.Size(), output.TotalWritten(), outputStr)
+	timeout := 30 * time.Second
+	if c.Timeout > 0 {
+		timeout = c.Timeout
+	}
+	select {
+	case <-time.After(timeout):
+		if err := KillCommandSubtree(cmd); err != nil {
+			c.Logger.Printf("[WARN] Failed to kill check '%s' after timeout: %v", cmdDisplay, err)
+		}
+
+		msg := fmt.Sprintf("Timed out (%s) running check", timeout.String())
+		c.Logger.Printf("[WARN] %s '%s'", msg, cmdDisplay)
+
+		outputStr := truncateAndLogOutput()
+		if len(outputStr) > 0 {
+			msg += "\n\n" + outputStr
+		}
+		c.Notify.UpdateCheck(c.CheckID, api.HealthCritical, msg)
+
+		// Now wait for the process to exit so we never start another
+		// instance concurrently.
+		<-waitCh
+		return
+
+	case err = <-waitCh:
+		// The process returned before the timeout, proceed normally
 	}
 
-	c.Logger.Printf("[DEBUG] agent: Check '%s' script '%s' output: %s",
-		c.CheckID, c.Script, outputStr)
-
 	// Check if the check passed
+	outputStr := truncateAndLogOutput()
 	if err == nil {
 		c.Logger.Printf("[DEBUG] agent: Check '%v' is passing", c.CheckID)
 		c.Notify.UpdateCheck(c.CheckID, api.HealthPassing, outputStr)
@@ -524,6 +556,7 @@ type CheckDocker struct {
 	Notify            CheckNotifier
 	CheckID           types.CheckID
 	Script            string
+	ScriptArgs        []string
 	DockerContainerID string
 	Shell             string
 	Interval          time.Duration
@@ -599,7 +632,13 @@ func (c *CheckDocker) check() {
 }
 
 func (c *CheckDocker) doCheck() (string, *circbuf.Buffer, error) {
-	cmd := []string{c.Shell, "-c", c.Script}
+	var cmd []string
+	if len(c.ScriptArgs) > 0 {
+		cmd = c.ScriptArgs
+	} else {
+		cmd = []string{c.Shell, "-c", c.Script}
+	}
+
 	execID, err := c.client.CreateExec(c.DockerContainerID, cmd)
 	if err != nil {
 		return api.HealthCritical, nil, err

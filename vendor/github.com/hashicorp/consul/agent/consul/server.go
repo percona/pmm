@@ -25,6 +25,7 @@ import (
 	"github.com/hashicorp/consul/agent/structs"
 	"github.com/hashicorp/consul/agent/token"
 	"github.com/hashicorp/consul/lib"
+	"github.com/hashicorp/consul/sentinel"
 	"github.com/hashicorp/consul/tlsutil"
 	"github.com/hashicorp/consul/types"
 	"github.com/hashicorp/raft"
@@ -75,6 +76,9 @@ const (
 // Server is Consul server which manages the service discovery,
 // health checking, DC forwarding, Raft, and multiple Serf pools.
 type Server struct {
+	// sentinel is the Sentinel code engine (can be nil).
+	sentinel sentinel.Evaluator
+
 	// aclAuthCache is the authoritative ACL cache.
 	aclAuthCache *acl.Cache
 
@@ -144,8 +148,15 @@ type Server struct {
 	// updated
 	reconcileCh chan serf.Member
 
-	// used to track when the server is ready to serve consistent reads, updated atomically
+	// readyForConsistentReads is used to track when the leader server is
+	// ready to serve consistent reads, after it has applied its initial
+	// barrier. This is updated atomically.
 	readyForConsistentReads int32
+
+	// leaveCh is used to signal that the server is leaving the cluster
+	// and trying to shed its RPC traffic onto other Consul servers. This
+	// is only ever closed.
+	leaveCh chan struct{}
 
 	// router is used to map out Consul servers in the WAN and in Consul
 	// Enterprise user-defined areas.
@@ -298,6 +309,7 @@ func NewServerLogger(config *Config, logger *log.Logger, tokens *token.Store) (*
 		eventChLAN:            make(chan serf.Event, 256),
 		eventChWAN:            make(chan serf.Event, 256),
 		logger:                logger,
+		leaveCh:               make(chan struct{}),
 		reconcileCh:           make(chan serf.Member, 32),
 		router:                router.NewRouter(logger, config.Datacenter),
 		rpcServer:             rpc.NewServer(),
@@ -317,7 +329,8 @@ func NewServerLogger(config *Config, logger *log.Logger, tokens *token.Store) (*
 	s.statsFetcher = NewStatsFetcher(logger, s.connPool, s.config.Datacenter)
 
 	// Initialize the authoritative ACL cache.
-	s.aclAuthCache, err = acl.NewCache(aclCacheSize, s.aclLocalFault)
+	s.sentinel = sentinel.New(logger)
+	s.aclAuthCache, err = acl.NewCache(aclCacheSize, s.aclLocalFault, s.sentinel)
 	if err != nil {
 		s.Shutdown()
 		return nil, fmt.Errorf("Failed to create authoritative ACL cache: %v", err)
@@ -329,7 +342,7 @@ func NewServerLogger(config *Config, logger *log.Logger, tokens *token.Store) (*
 	if s.IsACLReplicationEnabled() {
 		local = s.aclLocalFault
 	}
-	if s.aclCache, err = newACLCache(config, logger, s.RPC, local); err != nil {
+	if s.aclCache, err = newACLCache(config, logger, s.RPC, local, s.sentinel); err != nil {
 		s.Shutdown()
 		return nil, fmt.Errorf("Failed to create non-authoritative ACL cache: %v", err)
 	}
@@ -583,8 +596,6 @@ func (s *Server) setupRaft() error {
 			return err
 		}
 		if !hasState {
-			// TODO (slackpad) - This will need to be updated when
-			// we add support for node IDs.
 			configuration := raft.Configuration{
 				Servers: []raft.Server{
 					raft.Server{
@@ -780,6 +791,14 @@ func (s *Server) Leave() error {
 		}
 	}
 
+	// Start refusing RPCs now that we've left the LAN pool. It's important
+	// to do this *after* we've left the LAN pool so that clients will know
+	// to shift onto another server if they perform a retry. We also wake up
+	// all queries in the RPC retry state.
+	s.logger.Printf("[INFO] consul: Waiting %s to drain RPC traffic", s.config.LeaveDrainTime)
+	close(s.leaveCh)
+	time.Sleep(s.config.LeaveDrainTime)
+
 	// If we were not leader, wait to be safely removed from the cluster. We
 	// must wait to allow the raft replication to take place, otherwise an
 	// immediate shutdown could cause a loss of quorum.
@@ -830,15 +849,22 @@ func (s *Server) Leave() error {
 	return nil
 }
 
-// numPeers is used to check on the number of known peers, including the local
-// node.
+// numPeers is used to check on the number of known peers, including potentially
+// the local node. We count only voters, since others can't actually become
+// leader, so aren't considered peers.
 func (s *Server) numPeers() (int, error) {
 	future := s.raft.GetConfiguration()
 	if err := future.Error(); err != nil {
 		return 0, err
 	}
-	configuration := future.Configuration()
-	return len(configuration.Servers), nil
+
+	var numPeers int
+	for _, server := range future.Configuration().Servers {
+		if server.Suffrage == raft.Voter {
+			numPeers++
+		}
+	}
+	return numPeers, nil
 }
 
 // JoinLAN is used to have Consul join the inner-DC pool

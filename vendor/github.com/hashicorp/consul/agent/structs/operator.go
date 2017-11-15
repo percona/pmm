@@ -1,6 +1,7 @@
 package structs
 
 import (
+	"net"
 	"time"
 
 	"github.com/hashicorp/raft"
@@ -60,6 +61,9 @@ type RaftServer struct {
 	// Leader is true if this server is the current cluster leader.
 	Leader bool
 
+	// Protocol version is the raft protocol version used by the server
+	ProtocolVersion string
+
 	// Voter is true if this server has a vote in the cluster. This might
 	// be false if the server is staging and still coming online, or if
 	// it's a non-voting server, which will be added in a future release of
@@ -67,7 +71,7 @@ type RaftServer struct {
 	Voter bool
 }
 
-// RaftConfigrationResponse is returned when querying for the current Raft
+// RaftConfigurationResponse is returned when querying for the current Raft
 // configuration.
 type RaftConfigurationResponse struct {
 	// Servers has the list of servers in the Raft configuration.
@@ -222,4 +226,21 @@ type OperatorHealthReply struct {
 
 	// Servers holds the health of each server.
 	Servers []ServerHealth
+}
+
+// (Enterprise-only) NetworkSegment is the configuration for a network segment, which is an
+// isolated serf group on the LAN.
+type NetworkSegment struct {
+	// Name is the name of the segment.
+	Name string
+
+	// Bind is the bind address for this segment.
+	Bind *net.TCPAddr
+
+	// Advertise is the advertise address of this segment.
+	Advertise *net.TCPAddr
+
+	// RPCListener is whether to bind a separate RPC listener on the bind address
+	// for this segment.
+	RPCListener bool
 }

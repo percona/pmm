@@ -3,15 +3,16 @@ package consul
 import (
 	"fmt"
 	"os"
-	"reflect"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/consul/acl"
 	"github.com/hashicorp/consul/agent/structs"
 	"github.com/hashicorp/consul/testrpc"
 	"github.com/hashicorp/net-rpc-msgpackrpc"
 	"github.com/hashicorp/raft"
+	"github.com/pascaldekloe/goe/verify"
 )
 
 func TestOperator_RaftGetConfiguration(t *testing.T) {
@@ -43,18 +44,17 @@ func TestOperator_RaftGetConfiguration(t *testing.T) {
 	expected := structs.RaftConfigurationResponse{
 		Servers: []*structs.RaftServer{
 			&structs.RaftServer{
-				ID:      me.ID,
-				Node:    s1.config.NodeName,
-				Address: me.Address,
-				Leader:  true,
-				Voter:   true,
+				ID:              me.ID,
+				Node:            s1.config.NodeName,
+				Address:         me.Address,
+				Leader:          true,
+				Voter:           true,
+				ProtocolVersion: "3",
 			},
 		},
 		Index: future.Index(),
 	}
-	if !reflect.DeepEqual(reply, expected) {
-		t.Fatalf("bad: %v", reply)
-	}
+	verify.Values(t, "", reply, expected)
 }
 
 func TestOperator_RaftGetConfiguration_ACLDeny(t *testing.T) {
@@ -120,18 +120,17 @@ func TestOperator_RaftGetConfiguration_ACLDeny(t *testing.T) {
 	expected := structs.RaftConfigurationResponse{
 		Servers: []*structs.RaftServer{
 			&structs.RaftServer{
-				ID:      me.ID,
-				Node:    s1.config.NodeName,
-				Address: me.Address,
-				Leader:  true,
-				Voter:   true,
+				ID:              me.ID,
+				Node:            s1.config.NodeName,
+				Address:         me.Address,
+				Leader:          true,
+				Voter:           true,
+				ProtocolVersion: "3",
 			},
 		},
 		Index: future.Index(),
 	}
-	if !reflect.DeepEqual(reply, expected) {
-		t.Fatalf("bad: %v", reply)
-	}
+	verify.Values(t, "", reply, expected)
 }
 
 func TestOperator_RaftRemovePeerByAddress(t *testing.T) {
@@ -157,7 +156,8 @@ func TestOperator_RaftRemovePeerByAddress(t *testing.T) {
 
 	// Add it manually to Raft.
 	{
-		future := s1.raft.AddPeer(arg.Address)
+		id := raft.ServerID("fake-node-id")
+		future := s1.raft.AddVoter(id, arg.Address, 0, time.Second)
 		if err := future.Error(); err != nil {
 			t.Fatalf("err: %v", err)
 		}

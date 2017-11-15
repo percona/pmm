@@ -7,6 +7,7 @@ import (
 
 	"github.com/armon/go-metrics"
 	"github.com/hashicorp/consul/acl"
+	"github.com/hashicorp/consul/agent/config"
 	"github.com/hashicorp/consul/agent/structs"
 	"github.com/hashicorp/consul/types"
 	"github.com/hashicorp/golang-lru"
@@ -67,7 +68,7 @@ type aclManager struct {
 }
 
 // newACLManager returns an ACL manager based on the given config.
-func newACLManager(config *Config) (*aclManager, error) {
+func newACLManager(config *config.RuntimeConfig) (*aclManager, error) {
 	// Set up the cache from ID to ACL (we don't cache policies like the
 	// servers; only one level).
 	acls, err := lru.New2Q(aclCacheSize)
@@ -90,7 +91,7 @@ func newACLManager(config *Config) (*aclManager, error) {
 			},
 		},
 	}
-	master, err := acl.New(acl.DenyAll(), policy)
+	master, err := acl.New(acl.DenyAll(), policy, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -143,9 +144,11 @@ func (m *aclManager) lookupACL(a *Agent, id string) (acl.ACL, error) {
 	}
 	if cached != nil && time.Now().Before(cached.Expires) {
 		metrics.IncrCounter([]string{"consul", "acl", "cache_hit"}, 1)
+		metrics.IncrCounter([]string{"acl", "cache_hit"}, 1)
 		return cached.ACL, nil
 	}
 	metrics.IncrCounter([]string{"consul", "acl", "cache_miss"}, 1)
+	metrics.IncrCounter([]string{"acl", "cache_miss"}, 1)
 
 	// At this point we might have a stale cached ACL, or none at all, so
 	// try to contact the servers.
@@ -193,7 +196,7 @@ func (m *aclManager) lookupACL(a *Agent, id string) (acl.ACL, error) {
 			}
 		}
 
-		acl, err := acl.New(parent, reply.Policy)
+		acl, err := acl.New(parent, reply.Policy, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -218,7 +221,7 @@ func (m *aclManager) lookupACL(a *Agent, id string) (acl.ACL, error) {
 // and some is informative (e.g. catalog and health).
 func (a *Agent) resolveToken(id string) (acl.ACL, error) {
 	// Disable ACLs if version 8 enforcement isn't enabled.
-	if !(*a.config.ACLEnforceVersion8) {
+	if !a.config.ACLEnforceVersion8 {
 		return nil, nil
 	}
 
@@ -251,14 +254,14 @@ func (a *Agent) vetServiceRegister(token string, service *structs.NodeService) e
 	}
 
 	// Vet the service itself.
-	if !rule.ServiceWrite(service.Service) {
+	if !rule.ServiceWrite(service.Service, nil) {
 		return acl.ErrPermissionDenied
 	}
 
 	// Vet any service that might be getting overwritten.
 	services := a.state.Services()
 	if existing, ok := services[service.ID]; ok {
-		if !rule.ServiceWrite(existing.Service) {
+		if !rule.ServiceWrite(existing.Service, nil) {
 			return acl.ErrPermissionDenied
 		}
 	}
@@ -281,7 +284,7 @@ func (a *Agent) vetServiceUpdate(token string, serviceID string) error {
 	// Vet any changes based on the existing services's info.
 	services := a.state.Services()
 	if existing, ok := services[serviceID]; ok {
-		if !rule.ServiceWrite(existing.Service) {
+		if !rule.ServiceWrite(existing.Service, nil) {
 			return acl.ErrPermissionDenied
 		}
 	} else {
@@ -305,11 +308,11 @@ func (a *Agent) vetCheckRegister(token string, check *structs.HealthCheck) error
 
 	// Vet the check itself.
 	if len(check.ServiceName) > 0 {
-		if !rule.ServiceWrite(check.ServiceName) {
+		if !rule.ServiceWrite(check.ServiceName, nil) {
 			return acl.ErrPermissionDenied
 		}
 	} else {
-		if !rule.NodeWrite(a.config.NodeName) {
+		if !rule.NodeWrite(a.config.NodeName, nil) {
 			return acl.ErrPermissionDenied
 		}
 	}
@@ -318,11 +321,11 @@ func (a *Agent) vetCheckRegister(token string, check *structs.HealthCheck) error
 	checks := a.state.Checks()
 	if existing, ok := checks[check.CheckID]; ok {
 		if len(existing.ServiceName) > 0 {
-			if !rule.ServiceWrite(existing.ServiceName) {
+			if !rule.ServiceWrite(existing.ServiceName, nil) {
 				return acl.ErrPermissionDenied
 			}
 		} else {
-			if !rule.NodeWrite(a.config.NodeName) {
+			if !rule.NodeWrite(a.config.NodeName, nil) {
 				return acl.ErrPermissionDenied
 			}
 		}
@@ -346,11 +349,11 @@ func (a *Agent) vetCheckUpdate(token string, checkID types.CheckID) error {
 	checks := a.state.Checks()
 	if existing, ok := checks[checkID]; ok {
 		if len(existing.ServiceName) > 0 {
-			if !rule.ServiceWrite(existing.ServiceName) {
+			if !rule.ServiceWrite(existing.ServiceName, nil) {
 				return acl.ErrPermissionDenied
 			}
 		} else {
-			if !rule.NodeWrite(a.config.NodeName) {
+			if !rule.NodeWrite(a.config.NodeName, nil) {
 				return acl.ErrPermissionDenied
 			}
 		}

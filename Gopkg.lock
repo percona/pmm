@@ -178,8 +178,8 @@
 [[projects]]
   name = "github.com/hashicorp/consul"
   packages = ["api"]
-  revision = "112c0603d3d6fb23ab5f15e8fdb1a761da8eaf9a"
-  version = "v0.9.3"
+  revision = "51ea240df8476e02215d53fbfad5838bf0d44d21"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -197,7 +197,7 @@
   branch = "master"
   name = "github.com/hashicorp/hcl"
   packages = [".","hcl/ast","hcl/parser","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
-  revision = "392dba7d905ed5d04a5794ba89f558b27e2ba1ca"
+  revision = "23c074d0eceb2b8a5bfdbb271ab780cde70f05a8"
 
 [[projects]]
   name = "github.com/hashicorp/serf"
@@ -256,7 +256,7 @@
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "d0303fe809921458f417bcf828397a65db30a7e4"
+  revision = "06020f85339e21b2478f756a78e295255ffa4d6a"
 
 [[projects]]
   name = "github.com/opentracing/opentracing-go"

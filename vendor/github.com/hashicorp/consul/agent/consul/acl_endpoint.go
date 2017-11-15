@@ -107,7 +107,7 @@ func aclApplyInternal(srv *Server, args *structs.ACLRequest, reply *string) erro
 		}
 
 		// Validate the rules compile
-		_, err := acl.Parse(args.ACL.Rules)
+		_, err := acl.Parse(args.ACL.Rules, srv.sentinel)
 		if err != nil {
 			return fmt.Errorf("ACL rule compilation failed: %v", err)
 		}
@@ -146,6 +146,7 @@ func (a *ACL) Apply(args *structs.ACLRequest, reply *string) error {
 		return err
 	}
 	defer metrics.MeasureSince([]string{"consul", "acl", "apply"}, time.Now())
+	defer metrics.MeasureSince([]string{"acl", "apply"}, time.Now())
 
 	// Verify we are allowed to serve this request
 	if a.srv.config.ACLDatacenter != a.srv.config.Datacenter {

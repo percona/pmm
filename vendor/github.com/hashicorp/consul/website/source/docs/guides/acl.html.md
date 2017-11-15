@@ -671,6 +671,49 @@ the example above, the rules allow read-only access to any key name with the emp
 read-write access to any key name that starts with "foo", and deny all access to any key name that
 starts with "bar".
 
+#### List Policy for Keys
+
+Consul 1.0 introduces a new `list` policy for keys that is only enforced when opted in via the boolean config param "acl_enable_key_list_policy".
+`list` controls access to recursively list entries and keys, and enables more fine grained policies. With "acl_enable_key_list_policy",
+recursive reads via [the KV API](/api/kv.html#recurse) with an invalid token result in a 403. Example:
+
+```text
+key "" {
+ policy = "deny"
+}
+
+key "bar" {
+ policy = "list"
+}
+
+key "baz" {
+ policy = "read"
+}
+```
+
+In the example above, the rules allow reading the key "baz", and only allow recursive reads on the prefix "bar".
+
+A token with `write` access on a prefix also has `list` access. A token with `list` access on a prefix also has `read` access on all its suffixes.
+
+#### Sentinel Integration
+
+Consul Enterprise supports additional optional fields for key write policies for
+[Sentinel](https://docs.hashicorp.com/sentinel/app/consul/) integration. An example key rule with a
+Sentinel code policy looks like this:
+
+```text
+key "foo" {
+  policy = "write"
+  sentinel {
+      code = " import \"strings\"
+               main = rule { strings.has_suffix(value, \"bar\") } "
+      enforcementlevel = "hard-mandatory"
+  }
+}
+```
+
+For more detailed documentation, see the [Consul Sentinel Guide](/docs/guides/sentinel.html).
+
 #### Keyring Rules
 
 The `keyring` policy controls access to keyring operations in the
@@ -928,6 +971,7 @@ to use for registration events:
 In addition to ACLs, in Consul 0.9.0 and later, the agent must be configured with
 [`enable_script_checks`](/docs/agent/options.html#_enable_script_checks) set to `true` in order to enable
 script checks.
+
 
 #### Session Rules
 

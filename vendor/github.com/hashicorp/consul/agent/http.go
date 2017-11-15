@@ -3,6 +3,7 @@ package agent
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/pprof"
 	"net/url"
@@ -17,6 +18,16 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+// MethodNotAllowedError should be returned by a handler when the HTTP method is not allowed.
+type MethodNotAllowedError struct {
+	Method string
+	Allow  []string
+}
+
+func (e MethodNotAllowedError) Error() string {
+	return fmt.Sprintf("method %s not allowed", e.Method)
+}
+
 // HTTPServer provides an HTTP api for an agent.
 type HTTPServer struct {
 	*http.Server
@@ -25,14 +36,17 @@ type HTTPServer struct {
 
 	// proto is filled by the agent to "http" or "https".
 	proto string
+	addr  net.Addr
 }
 
-func NewHTTPServer(addr string, a *Agent) *HTTPServer {
+func NewHTTPServer(addr net.Addr, a *Agent) *HTTPServer {
 	s := &HTTPServer{
-		Server:    &http.Server{Addr: addr},
+		Server:    &http.Server{Addr: addr.String()},
 		agent:     a,
-		blacklist: NewBlacklist(a.config.HTTPConfig.BlockEndpoints),
+		blacklist: NewBlacklist(a.config.HTTPBlockEndpoints),
+		addr:      addr,
 	}
+
 	s.Server.Handler = s.handler(a.config.EnableDebug)
 	return s
 }
@@ -200,8 +214,8 @@ var (
 // wrap is used to wrap functions to make them more convenient
 func (s *HTTPServer) wrap(handler func(resp http.ResponseWriter, req *http.Request) (interface{}, error)) http.HandlerFunc {
 	return func(resp http.ResponseWriter, req *http.Request) {
-		setHeaders(resp, s.agent.config.HTTPConfig.ResponseHeaders)
-		setTranslateAddr(resp, s.agent.config.TranslateWanAddrs)
+		setHeaders(resp, s.agent.config.HTTPResponseHeaders)
+		setTranslateAddr(resp, s.agent.config.TranslateWANAddrs)
 
 		// Obfuscate any tokens from appearing in the logs
 		formVals, err := url.ParseQuery(req.URL.RawQuery)
@@ -230,6 +244,11 @@ func (s *HTTPServer) wrap(handler func(resp http.ResponseWriter, req *http.Reque
 			return
 		}
 
+		isMethodNotAllowed := func(err error) bool {
+			_, ok := err.(MethodNotAllowedError)
+			return ok
+		}
+
 		handleErr := func(err error) {
 			s.agent.logger.Printf("[ERR] http: Request %s %v, error: %v from=%s", req.Method, logURL, err, req.RemoteAddr)
 			switch {
@@ -238,6 +257,13 @@ func (s *HTTPServer) wrap(handler func(resp http.ResponseWriter, req *http.Reque
 				fmt.Fprint(resp, err.Error())
 			case structs.IsErrRPCRateExceeded(err):
 				resp.WriteHeader(http.StatusTooManyRequests)
+			case isMethodNotAllowed(err):
+				// RFC2616 states that for 405 Method Not Allowed the response
+				// MUST include an Allow header containing the list of valid
+				// methods for the requested resource.
+				// https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html
+				resp.Header()["Allow"] = err.(MethodNotAllowedError).Allow
+				resp.WriteHeader(http.StatusMethodNotAllowed) // 405
 				fmt.Fprint(resp, err.Error())
 			default:
 				resp.WriteHeader(http.StatusInternalServerError)

@@ -23,7 +23,7 @@ services:
       - ./testdata/alertmanager:/etc/alertmanager
 
   consul:
-    image: ${CONSUL_IMAGE:-consul:0.9.3}
+    image: ${CONSUL_IMAGE:-consul:1.0.0}
     ports:
       - 127.0.0.1:8500:8500
 

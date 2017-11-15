@@ -15,25 +15,8 @@ func TestOperator_Raft_RemovePeer_Implements(t *testing.T) {
 
 func TestOperator_Raft_RemovePeer(t *testing.T) {
 	t.Parallel()
-	a := agent.NewTestAgent(t.Name(), nil)
+	a := agent.NewTestAgent(t.Name(), ``)
 	defer a.Shutdown()
-
-	// Test the legacy mode with 'consul operator raft -remove-peer'
-	{
-		ui, c := testOperatorRaftCommand(t)
-		args := []string{"-http-addr=" + a.HTTPAddr(), "-remove-peer", "-address=nope"}
-
-		code := c.Run(args)
-		if code != 1 {
-			t.Fatalf("bad: %d. %#v", code, ui.ErrorWriter.String())
-		}
-
-		// If we get this error, it proves we sent the address all they through.
-		output := strings.TrimSpace(ui.ErrorWriter.String())
-		if !strings.Contains(output, "address \"nope\" was not found in the Raft configuration") {
-			t.Fatalf("bad: %s", output)
-		}
-	}
 
 	// Test the remove-peer subcommand directly
 	{

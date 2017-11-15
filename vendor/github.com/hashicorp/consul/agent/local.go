@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/consul/acl"
+	"github.com/hashicorp/consul/agent/config"
 	"github.com/hashicorp/consul/agent/structs"
 	"github.com/hashicorp/consul/agent/token"
 	"github.com/hashicorp/consul/api"
@@ -87,13 +88,17 @@ type localState struct {
 	// triggerCh is used to inform of a change to local state
 	// that requires anti-entropy with the server
 	triggerCh chan struct{}
+
+	// discardCheckOutput stores whether the output of health checks
+	// is stored in the raft log.
+	discardCheckOutput atomic.Value // bool
 }
 
 // NewLocalState creates a  is used to initialize the local state
-func NewLocalState(c *Config, lg *log.Logger, tokens *token.Store) *localState {
+func NewLocalState(c *config.RuntimeConfig, lg *log.Logger, tokens *token.Store) *localState {
 	lc := localStateConfig{
 		AEInterval:          c.AEInterval,
-		AdvertiseAddr:       c.AdvertiseAddr,
+		AdvertiseAddr:       c.AdvertiseAddrLAN.String(),
 		CheckUpdateInterval: c.CheckUpdateInterval,
 		Datacenter:          c.Datacenter,
 		NodeID:              c.NodeID,
@@ -105,7 +110,7 @@ func NewLocalState(c *Config, lg *log.Logger, tokens *token.Store) *localState {
 		lc.TaggedAddresses[k] = v
 	}
 
-	return &localState{
+	l := &localState{
 		config:            lc,
 		logger:            lg,
 		services:          make(map[string]*structs.NodeService),
@@ -120,6 +125,8 @@ func NewLocalState(c *Config, lg *log.Logger, tokens *token.Store) *localState {
 		consulCh:          make(chan struct{}, 1),
 		triggerCh:         make(chan struct{}, 1),
 	}
+	l.discardCheckOutput.Store(c.DiscardCheckOutput)
+	return l
 }
 
 // changeMade is used to trigger an anti-entropy run
@@ -158,6 +165,10 @@ func (l *localState) Resume() {
 // isPaused is used to check if we are paused
 func (l *localState) isPaused() bool {
 	return atomic.LoadInt32(&l.paused) > 0
+}
+
+func (l *localState) SetDiscardCheckOutput(b bool) {
+	l.discardCheckOutput.Store(b)
 }
 
 // ServiceToken returns the configured ACL token for the given
@@ -248,11 +259,15 @@ func (l *localState) checkToken(checkID types.CheckID) string {
 // This entry is persistent and the agent will make a best effort to
 // ensure it is registered
 func (l *localState) AddCheck(check *structs.HealthCheck, token string) error {
+	l.Lock()
+	defer l.Unlock()
+
 	// Set the node name
 	check.Node = l.config.NodeName
 
-	l.Lock()
-	defer l.Unlock()
+	if l.discardCheckOutput.Load().(bool) {
+		check.Output = ""
+	}
 
 	// if there is a serviceID associated with the check, make sure it exists before adding it
 	// NOTE - This logic may be moved to be handled within the Agent's Addcheck method after a refactor
@@ -290,6 +305,10 @@ func (l *localState) UpdateCheck(checkID types.CheckID, status, output string) {
 	check, ok := l.checks[checkID]
 	if !ok {
 		return
+	}
+
+	if l.discardCheckOutput.Load().(bool) {
+		output = ""
 	}
 
 	// Update the critical time tracking (this doesn't cause a server updates
@@ -340,12 +359,14 @@ func (l *localState) UpdateCheck(checkID types.CheckID, status, output string) {
 // Checks returns the locally registered checks that the
 // agent is aware of and are being kept in sync with the server
 func (l *localState) Checks() map[types.CheckID]*structs.HealthCheck {
-	checks := make(map[types.CheckID]*structs.HealthCheck)
 	l.RLock()
 	defer l.RUnlock()
 
-	for checkID, check := range l.checks {
-		checks[checkID] = check
+	checks := make(map[types.CheckID]*structs.HealthCheck)
+	for id, c := range l.checks {
+		c2 := new(structs.HealthCheck)
+		*c2 = *c
+		checks[id] = c2
 	}
 	return checks
 }

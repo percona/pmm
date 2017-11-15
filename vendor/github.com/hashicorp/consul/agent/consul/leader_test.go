@@ -250,6 +250,79 @@ func TestLeader_ReapMember(t *testing.T) {
 	}
 }
 
+func TestLeader_ReapServer(t *testing.T) {
+	t.Parallel()
+	dir1, s1 := testServerWithConfig(t, func(c *Config) {
+		c.ACLDatacenter = "dc1"
+		c.ACLMasterToken = "root"
+		c.ACLDefaultPolicy = "allow"
+		c.ACLEnforceVersion8 = true
+		c.Bootstrap = true
+	})
+	defer os.RemoveAll(dir1)
+	defer s1.Shutdown()
+
+	dir2, s2 := testServerWithConfig(t, func(c *Config) {
+		c.ACLDatacenter = "dc1"
+		c.ACLMasterToken = "root"
+		c.ACLDefaultPolicy = "allow"
+		c.ACLEnforceVersion8 = true
+		c.Bootstrap = false
+	})
+	defer os.RemoveAll(dir2)
+	defer s2.Shutdown()
+
+	dir3, s3 := testServerWithConfig(t, func(c *Config) {
+		c.ACLDatacenter = "dc1"
+		c.ACLMasterToken = "root"
+		c.ACLDefaultPolicy = "allow"
+		c.ACLEnforceVersion8 = true
+		c.Bootstrap = false
+	})
+	defer os.RemoveAll(dir3)
+	defer s3.Shutdown()
+
+	// Try to join
+	joinLAN(t, s1, s2)
+	joinLAN(t, s1, s3)
+
+	testrpc.WaitForLeader(t, s1.RPC, "dc1")
+	state := s1.fsm.State()
+
+	// s3 should be registered
+	retry.Run(t, func(r *retry.R) {
+		_, node, err := state.GetNode(s3.config.NodeName)
+		if err != nil {
+			r.Fatalf("err: %v", err)
+		}
+		if node == nil {
+			r.Fatal("client not registered")
+		}
+	})
+
+	// call reconcileReaped with a map that does not contain s3
+	knownMembers := make(map[string]struct{})
+	knownMembers[s1.config.NodeName] = struct{}{}
+	knownMembers[s2.config.NodeName] = struct{}{}
+
+	err := s1.reconcileReaped(knownMembers)
+
+	if err != nil {
+		t.Fatalf("Unexpected error :%v", err)
+	}
+	// s3 should be deregistered
+	retry.Run(t, func(r *retry.R) {
+		_, node, err := state.GetNode(s3.config.NodeName)
+		if err != nil {
+			r.Fatalf("err: %v", err)
+		}
+		if node != nil {
+			r.Fatalf("server with id %v should not be registered", s3.config.NodeID)
+		}
+	})
+
+}
+
 func TestLeader_Reconcile_ReapMember(t *testing.T) {
 	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
@@ -703,6 +776,7 @@ func TestLeader_RollRaftServer(t *testing.T) {
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.Bootstrap = true
 		c.Datacenter = "dc1"
+		c.RaftConfig.ProtocolVersion = 2
 	})
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -715,7 +789,11 @@ func TestLeader_RollRaftServer(t *testing.T) {
 	defer os.RemoveAll(dir2)
 	defer s2.Shutdown()
 
-	dir3, s3 := testServerDCBootstrap(t, "dc1", false)
+	dir3, s3 := testServerWithConfig(t, func(c *Config) {
+		c.Bootstrap = false
+		c.Datacenter = "dc1"
+		c.RaftConfig.ProtocolVersion = 2
+	})
 	defer os.RemoveAll(dir3)
 	defer s3.Shutdown()
 
@@ -803,10 +881,9 @@ func TestLeader_ChangeServerID(t *testing.T) {
 
 	servers := []*Server{s1, s2, s3}
 
-	// Try to join
+	// Try to join and wait for all servers to get promoted
 	joinLAN(t, s2, s1)
 	joinLAN(t, s3, s1)
-
 	for _, s := range servers {
 		retry.Run(t, func(r *retry.R) { r.Check(wantPeers(s, 3)) })
 	}
@@ -841,10 +918,21 @@ func TestLeader_ChangeServerID(t *testing.T) {
 	joinLAN(t, s4, s1)
 	servers[2] = s4
 
+	// While integrating #3327 it uncovered that this test was flaky. The
+	// connection pool would use the same TCP connection to the old server
+	// which would give EOF errors to the autopilot health check RPC call.
+	// To make this more reliable we changed the connection pool to throw
+	// away the connection if it sees an EOF error, since there's no way
+	// that connection is going to work again. This made this test reliable
+	// since it will make a new connection to s4.
+
 	// Make sure the dead server is removed and we're back to 3 total peers
-	for _, s := range servers {
-		retry.Run(t, func(r *retry.R) { r.Check(wantPeers(s, 3)) })
-	}
+	retry.Run(t, func(r *retry.R) {
+		r.Check(wantRaft(servers))
+		for _, s := range servers {
+			r.Check(wantPeers(s, 3))
+		}
+	})
 }
 
 func TestLeader_ACL_Initialization(t *testing.T) {

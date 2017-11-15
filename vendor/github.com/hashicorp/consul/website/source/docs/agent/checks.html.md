@@ -22,11 +22,16 @@ There are five different kinds of checks:
   generates some output. A script is paired with an invocation interval (e.g.
   every 30 seconds). This is similar to the Nagios plugin system. The output of
   a script check is limited to 4KB. Output larger than this will be truncated.
+
   By default, Script checks will be configured with a timeout equal to 30 seconds.
   It is possible to configure a custom Script check timeout value by specifying the
-  `timeout` field in the check definition. In Consul 0.9.0 and later, the agent
-  must be configured with [`enable_script_checks`](/docs/agent/options.html#_enable_script_checks)
-  set to `true` in order to enable script checks.
+  `timeout` field in the check definition. When the timeout is reached on Windows,
+  Consul will wait for any child processes spawned by the script to finish. For any
+  other system, Consul will attempt to force-kill the script and any child processes
+  it has spawned once the timeout has passed.
+
+  In Consul 0.9.0 and later, the agent must be configured with [`enable_script_checks`]
+  (/docs/agent/options.html#_enable_script_checks) set to `true` in order to enable script checks.
 
 * HTTP + Interval - These checks make an HTTP `GET` request every Interval (e.g.
   every 30 seconds) to the specified URL. The status of the service depends on
@@ -97,7 +102,7 @@ A script check:
   "check": {
     "id": "mem-util",
     "name": "Memory utilization",
-    "script": "/usr/local/bin/check_mem.py",
+    "args": ["/usr/local/bin/check_mem.py", "-limit", "256MB"],
     "interval": "10s",
     "timeout": "1s"
   }
@@ -157,16 +162,23 @@ A Docker check:
     "name": "Memory utilization",
     "docker_container_id": "f972c95ebf0e",
     "shell": "/bin/bash",
-    "script": "/usr/local/bin/check_mem.py",
+    "args": ["/usr/local/bin/check_mem.py"],
     "interval": "10s"
   }
 }
 ```
 
-Each type of definition must include a `name` and may optionally
-provide an `id` and `notes` field. The `id` is set to the `name` if not
-provided. It is required that all checks have a unique ID per node: if names
-might conflict, unique IDs should be provided.
+Each type of definition must include a `name` and may optionally provide an
+`id` and `notes` field. The `id` must be unique per _agent_ otherwise only the
+last defined check with that `id` will be registered. If the `id` is not set
+and the check is embedded within a service definition a unique check id is
+generated. Otherwise, `id` will be set to `name`. If names might conflict,
+unique IDs should be provided.
+
+-> **Note:** Consul 0.9.3 and before require the optional check ID for a check
+   that is embedded in a service definition to be configured via the `CheckID`
+   field. Consul 1.0 accepts both `id` and `CheckID` but the latter is
+   deprecated and will be removed in Consul 1.1.
 
 The `notes` field is opaque to Consul but can be used to provide a human-readable
 description of the current state of the check. With a script check, the field is
@@ -218,6 +230,11 @@ In Consul 0.9.0 and later, the agent must be configured with
 [`enable_script_checks`](/docs/agent/options.html#_enable_script_checks) set to `true`
 in order to enable script checks.
 
+Prior to Consul 1.0, checks used a single `script` field to define the command to run, and
+would always run in a shell. In Consul 1.0, the `args` array was added so that checks can be
+run without a shell. The `script` field is deprecated, and you should include the shell in
+the `args` to run under a shell, eg. `"args": ["sh", "-c", "..."]`.
+
 ## Initial Health Check Status
 
 By default, when checks are registered against a Consul agent, the state is set
@@ -231,7 +248,7 @@ health check definition, like so:
 {
   "check": {
     "id": "mem",
-    "script": "/bin/check_mem",
+    "args": ["/bin/check_mem", "-limit", "256MB"],
     "interval": "10s",
     "status": "passing"
   }
@@ -274,7 +291,7 @@ key in your configuration file.
     {
       "id": "chk1",
       "name": "mem",
-      "script": "/bin/check_mem",
+      "args": ["/bin/check_mem", "-limit", "256MB"],
       "interval": "5s"
     },
     {

@@ -33,25 +33,39 @@ func (s *Server) monitorLeadership() {
 	// cleanup and to ensure we never run multiple leader loops.
 	raftNotifyCh := s.raftNotifyCh
 
-	var wg sync.WaitGroup
-	var stopCh chan struct{}
+	var weAreLeaderCh chan struct{}
+	var leaderLoop sync.WaitGroup
 	for {
 		select {
 		case isLeader := <-raftNotifyCh:
-			if isLeader {
-				stopCh = make(chan struct{})
-				wg.Add(1)
-				go func() {
-					s.leaderLoop(stopCh)
-					wg.Done()
-				}()
+			switch {
+			case isLeader:
+				if weAreLeaderCh != nil {
+					s.logger.Printf("[ERR] consul: attempted to start the leader loop while running")
+					continue
+				}
+
+				weAreLeaderCh = make(chan struct{})
+				leaderLoop.Add(1)
+				go func(ch chan struct{}) {
+					defer leaderLoop.Done()
+					s.leaderLoop(ch)
+				}(weAreLeaderCh)
 				s.logger.Printf("[INFO] consul: cluster leadership acquired")
-			} else if stopCh != nil {
-				close(stopCh)
-				stopCh = nil
-				wg.Wait()
+
+			default:
+				if weAreLeaderCh == nil {
+					s.logger.Printf("[ERR] consul: attempted to stop the leader loop while not running")
+					continue
+				}
+
+				s.logger.Printf("[DEBUG] consul: shutting down leader loop")
+				close(weAreLeaderCh)
+				leaderLoop.Wait()
+				weAreLeaderCh = nil
 				s.logger.Printf("[INFO] consul: cluster leadership lost")
 			}
+
 		case <-s.shutdownCh:
 			return
 		}
@@ -97,9 +111,10 @@ RECONCILE:
 	barrier := s.raft.Barrier(barrierWriteTimeout)
 	if err := barrier.Error(); err != nil {
 		s.logger.Printf("[ERR] consul: failed to wait for barrier: %v", err)
-		return
+		goto WAIT
 	}
 	metrics.MeasureSince([]string{"consul", "leader", "barrier"}, start)
+	metrics.MeasureSince([]string{"leader", "barrier"}, start)
 
 	// Check if we need to handle initial leadership actions
 	if !establishedLeader {
@@ -126,6 +141,15 @@ RECONCILE:
 	reconcileCh = s.reconcileCh
 
 WAIT:
+	// Poll the stop channel to give it priority so we don't waste time
+	// trying to perform the other operations if we have been asked to shut
+	// down.
+	select {
+	case <-stopCh:
+		return
+	default:
+	}
+
 	// Periodically reconcile as long as we are the leader,
 	// or when Serf events arrive
 	for {
@@ -329,9 +353,8 @@ func (s *Server) getOrCreateAutopilotConfig() (*structs.AutopilotConfig, bool) {
 }
 
 // reconcileReaped is used to reconcile nodes that have failed and been reaped
-// from Serf but remain in the catalog. This is done by looking for SerfCheckID
-// in a critical state that does not correspond to a known Serf member. We generate
-// a "reap" event to cause the node to be cleaned up.
+// from Serf but remain in the catalog. This is done by looking for unknown nodes with serfHealth checks registered.
+// We generate a "reap" event to cause the node to be cleaned up.
 func (s *Server) reconcileReaped(known map[string]struct{}) error {
 	state := s.fsm.State()
 	_, checks, err := state.ChecksInState(nil, api.HealthAny)
@@ -349,6 +372,35 @@ func (s *Server) reconcileReaped(known map[string]struct{}) error {
 			continue
 		}
 
+		// Get the node services, look for ConsulServiceID
+		_, services, err := state.NodeServices(nil, check.Node)
+		if err != nil {
+			return err
+		}
+		serverPort := 0
+		serverAddr := ""
+		serverID := ""
+
+	CHECKS:
+		for _, service := range services.Services {
+			if service.ID == structs.ConsulServiceID {
+				_, node, err := state.GetNode(check.Node)
+				if err != nil {
+					s.logger.Printf("[ERR] consul: Unable to look up node with name %q: %v", check.Node, err)
+					continue CHECKS
+				}
+
+				serverAddr = node.Address
+				serverPort = service.Port
+				lookupAddr := net.JoinHostPort(serverAddr, strconv.Itoa(serverPort))
+				svr := s.serverLookup.Server(raft.ServerAddress(lookupAddr))
+				if svr != nil {
+					serverID = svr.ID
+				}
+				break
+			}
+		}
+
 		// Create a fake member
 		member := serf.Member{
 			Name: check.Node,
@@ -358,23 +410,12 @@ func (s *Server) reconcileReaped(known map[string]struct{}) error {
 			},
 		}
 
-		// Get the node services, look for ConsulServiceID
-		_, services, err := state.NodeServices(nil, check.Node)
-		if err != nil {
-			return err
-		}
-		serverPort := 0
-		for _, service := range services.Services {
-			if service.ID == structs.ConsulServiceID {
-				serverPort = service.Port
-				break
-			}
-		}
-
 		// Create the appropriate tags if this was a server node
 		if serverPort > 0 {
 			member.Tags["role"] = "consul"
 			member.Tags["port"] = strconv.FormatUint(uint64(serverPort), 10)
+			member.Tags["id"] = serverID
+			member.Addr = net.ParseIP(serverAddr)
 		}
 
 		// Attempt to reap this member
@@ -394,6 +435,7 @@ func (s *Server) reconcileMember(member serf.Member) error {
 		return nil
 	}
 	defer metrics.MeasureSince([]string{"consul", "leader", "reconcileMember"}, time.Now())
+	defer metrics.MeasureSince([]string{"leader", "reconcileMember"}, time.Now())
 	var err error
 	switch member.Status {
 	case serf.StatusAlive:
@@ -757,6 +799,7 @@ func (s *Server) removeConsulServer(m serf.Member, port int) error {
 // to avoid blocking.
 func (s *Server) reapTombstones(index uint64) {
 	defer metrics.MeasureSince([]string{"consul", "leader", "reapTombstones"}, time.Now())
+	defer metrics.MeasureSince([]string{"leader", "reapTombstones"}, time.Now())
 	req := structs.TombstoneRequest{
 		Datacenter: s.config.Datacenter,
 		Op:         structs.TombstoneReap,

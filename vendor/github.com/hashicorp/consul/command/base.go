@@ -33,8 +33,9 @@ type BaseCommand struct {
 	UI    cli.Ui
 	Flags FlagSetFlags
 
+	HideNormalFlagsHelp bool
+
 	flagSet *flag.FlagSet
-	hidden  *flag.FlagSet
 
 	// These are the options which correspond to the HTTP API options
 	httpAddr      configutil.StringValue
@@ -60,6 +61,11 @@ func (c *BaseCommand) HTTPClient() (*api.Client, error) {
 	}
 
 	config := api.DefaultConfig()
+	c.MergeHTTPConfig(config)
+	return api.NewClient(config)
+}
+
+func (c *BaseCommand) MergeHTTPConfig(config *api.Config) {
 	c.httpAddr.Merge(&config.Address)
 	c.token.Merge(&config.Token)
 	c.caFile.Merge(&config.TLSConfig.CAFile)
@@ -68,7 +74,6 @@ func (c *BaseCommand) HTTPClient() (*api.Client, error) {
 	c.keyFile.Merge(&config.TLSConfig.KeyFile)
 	c.tlsServerName.Merge(&config.TLSConfig.Address)
 	c.datacenter.Merge(&config.Datacenter)
-	return api.NewClient(config)
 }
 
 func (c *BaseCommand) HTTPAddr() string {
@@ -90,11 +95,8 @@ func (c *BaseCommand) HTTPStale() bool {
 }
 
 // httpFlagsClient is the list of flags that apply to HTTP connections.
-func (c *BaseCommand) httpFlagsClient(f *flag.FlagSet) *flag.FlagSet {
-	if f == nil {
-		f = flag.NewFlagSet("", flag.ContinueOnError)
-	}
-
+func (c *BaseCommand) httpFlagsClient() *flag.FlagSet {
+	f := flag.NewFlagSet("", flag.ContinueOnError)
 	f.Var(&c.caFile, "ca-file",
 		"Path to a CA file to use for TLS when communicating with Consul. This "+
 			"can also be specified via the CONSUL_CACERT environment variable.")
@@ -120,16 +122,12 @@ func (c *BaseCommand) httpFlagsClient(f *flag.FlagSet) *flag.FlagSet {
 	f.Var(&c.tlsServerName, "tls-server-name",
 		"The server name to use as the SNI host when connecting via TLS. This "+
 			"can also be specified via the CONSUL_TLS_SERVER_NAME environment variable.")
-
 	return f
 }
 
 // httpFlagsServer is the list of flags that apply to HTTP connections.
-func (c *BaseCommand) httpFlagsServer(f *flag.FlagSet) *flag.FlagSet {
-	if f == nil {
-		f = flag.NewFlagSet("", flag.ContinueOnError)
-	}
-
+func (c *BaseCommand) httpFlagsServer() *flag.FlagSet {
+	f := flag.NewFlagSet("", flag.ContinueOnError)
 	f.Var(&c.datacenter, "datacenter",
 		"Name of the datacenter to query. If unspecified, this will default to "+
 			"the datacenter of the queried agent.")
@@ -138,22 +136,25 @@ func (c *BaseCommand) httpFlagsServer(f *flag.FlagSet) *flag.FlagSet {
 			"allows for lower latency and higher throughput, but can result in "+
 			"stale data. This option has no effect on non-read operations. The "+
 			"default value is false.")
-
 	return f
 }
 
 // NewFlagSet creates a new flag set for the given command. It automatically
 // generates help output and adds the appropriate API flags.
 func (c *BaseCommand) NewFlagSet(command cli.Command) *flag.FlagSet {
-	f := flag.NewFlagSet("", flag.ContinueOnError)
-	f.Usage = func() { c.UI.Error(command.Help()) }
+	c.flagSet = flag.NewFlagSet("", flag.ContinueOnError)
+	c.flagSet.Usage = func() { c.UI.Error(command.Help()) }
 
 	if c.hasClientHTTP() {
-		c.httpFlagsClient(f)
+		c.httpFlagsClient().VisitAll(func(f *flag.Flag) {
+			c.flagSet.Var(f.Value, f.Name, f.DefValue)
+		})
 	}
 
 	if c.hasServerHTTP() {
-		c.httpFlagsServer(f)
+		c.httpFlagsServer().VisitAll(func(f *flag.Flag) {
+			c.flagSet.Var(f.Value, f.Name, f.DefValue)
+		})
 	}
 
 	errR, errW := io.Pipe()
@@ -163,19 +164,9 @@ func (c *BaseCommand) NewFlagSet(command cli.Command) *flag.FlagSet {
 			c.UI.Error(errScanner.Text())
 		}
 	}()
-	f.SetOutput(errW)
+	c.flagSet.SetOutput(errW)
 
-	c.flagSet = f
-	c.hidden = flag.NewFlagSet("", flag.ContinueOnError)
-
-	return f
-}
-
-// HideFlags is used to set hidden flags that will not be shown in help text
-func (c *BaseCommand) HideFlags(flags ...string) {
-	for _, f := range flags {
-		c.hidden.String(f, "", "")
-	}
+	return c.flagSet
 }
 
 // Parse is used to parse the underlying flag set.
@@ -208,43 +199,39 @@ func (c *BaseCommand) hasServerHTTP() bool {
 // line flags. We explicitly pull out our "common" options into another section
 // by doing string comparisons :(.
 func (c *BaseCommand) helpFlagsFor(f *flag.FlagSet) string {
-	httpFlagsClient := c.httpFlagsClient(nil)
-	httpFlagsServer := c.httpFlagsServer(nil)
+	httpFlagsClient := c.httpFlagsClient()
+	httpFlagsServer := c.httpFlagsServer()
 
 	var out bytes.Buffer
 
-	firstHTTP := true
+	if c.hasClientHTTP() || c.hasServerHTTP() {
+		printTitle(&out, "HTTP API Options")
+	}
 	if c.hasClientHTTP() {
-		if firstHTTP {
-			printTitle(&out, "HTTP API Options")
-			firstHTTP = false
-		}
 		httpFlagsClient.VisitAll(func(f *flag.Flag) {
 			printFlag(&out, f)
 		})
 	}
 	if c.hasServerHTTP() {
-		if firstHTTP {
-			printTitle(&out, "HTTP API Options")
-			firstHTTP = false
-		}
 		httpFlagsServer.VisitAll(func(f *flag.Flag) {
 			printFlag(&out, f)
 		})
 	}
 
-	firstCommand := true
-	f.VisitAll(func(f *flag.Flag) {
-		// Skip HTTP flags as they will be grouped separately
-		if flagContains(httpFlagsClient, f) || flagContains(httpFlagsServer, f) || flagContains(c.hidden, f) {
-			return
-		}
-		if firstCommand {
-			printTitle(&out, "Command Options")
-			firstCommand = false
-		}
-		printFlag(&out, f)
-	})
+	if !c.HideNormalFlagsHelp {
+		firstCommand := true
+		f.VisitAll(func(f *flag.Flag) {
+			// Skip HTTP flags as they will be grouped separately
+			if flagContains(httpFlagsClient, f) || flagContains(httpFlagsServer, f) {
+				return
+			}
+			if firstCommand {
+				printTitle(&out, "Command Options")
+				firstCommand = false
+			}
+			printFlag(&out, f)
+		})
+	}
 
 	return strings.TrimRight(out.String(), "\n")
 }
