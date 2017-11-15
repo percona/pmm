@@ -37,10 +37,10 @@ check: install
 	-gometalinter.v1 --tests --skip=api --deadline=180s ./...
 
 run: install
-	pmm-managed -prometheus-config=testdata/prometheus/prometheus.yml -swagger=rest -debug
+	pmm-managed -prometheus-config=testdata/prometheus/prometheus.yml -db-name=pmm-managed-dev -swagger=rest -debug
 
 run-race: install-race
-	pmm-managed -prometheus-config=testdata/prometheus/prometheus.yml -swagger=rest -debug
+	pmm-managed -prometheus-config=testdata/prometheus/prometheus.yml -db-name=pmm-managed-dev -swagger=rest -debug
 
 gen:
 	rm -f models/*_reform.go

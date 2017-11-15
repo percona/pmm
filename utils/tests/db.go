@@ -14,21 +14,32 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-package models
+package tests
 
-//reform:agents
-type Agent struct {
-	ID           int32  `reform:"id,pk"`
-	Type         string `reform:"type"`
-	RunsOnNodeID int32  `reform:"runs_on_node_id"`
-}
+import (
+	"database/sql"
+	"testing"
 
-//reform:agents
-type MySQLdExporter struct {
-	ID           int32  `reform:"id,pk"`
-	Type         string `reform:"type"`
-	RunsOnNodeID int32  `reform:"runs_on_node_id"`
+	"github.com/stretchr/testify/require"
 
-	Login    string `reform:"login"`
-	Password string `reform:"password"`
+	"github.com/percona/pmm-managed/models"
+)
+
+func OpenTestDB(t testing.TB) *sql.DB {
+	t.Helper()
+
+	db, err := models.OpenDB("", "pmm-managed", "pmm-managed", t.Logf)
+	require.NoError(t, err)
+
+	const testDatabase = "pmm-managed-dev"
+	_, err = db.Exec("DROP DATABASE `" + testDatabase + "`")
+	require.NoError(t, err)
+	_, err = db.Exec("CREATE DATABASE `" + testDatabase + "`")
+	require.NoError(t, err)
+
+	db.Close()
+
+	db, err = models.OpenDB(testDatabase, "pmm-managed", "pmm-managed", t.Logf)
+	require.NoError(t, err)
+	return db
 }

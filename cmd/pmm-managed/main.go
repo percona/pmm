@@ -40,7 +40,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 	"gopkg.in/reform.v1"
-	"gopkg.in/reform.v1/dialects/sqlite3"
+	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/handlers"
@@ -75,7 +75,9 @@ var (
 	promtoolF         = flag.String("promtool", "promtool", "promtool path")
 
 	consulAddrF = flag.String("consul-addr", "127.0.0.1:8500", "Consul HTTP API address")
-	databaseF   = flag.String("database", "", "Database file path")
+	dbNameF     = flag.String("db-name", "", "Database name")
+	dbUsernameF = flag.String("db-username", "pmm-managed", "Database username")
+	dbPasswordF = flag.String("db-password", "pmm-managed", "Database password")
 
 	debugF = flag.Bool("debug", false, "Enable debug logging")
 )
@@ -291,6 +293,10 @@ func main() {
 	log.SetPrefix("stdlog: ")
 	flag.Parse()
 
+	if *dbNameF == "" {
+		log.Fatal("-db-name flag must be given explicitly.")
+	}
+
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
@@ -324,12 +330,12 @@ func main() {
 		l.Panic(err)
 	}
 
-	sqlDB, err := models.OpenDB(*databaseF, l.Debugf)
+	sqlDB, err := models.OpenDB(*dbNameF, *dbUsernameF, *dbPasswordF, l.Debugf)
 	if err != nil {
 		l.Panic(err)
 	}
 	defer sqlDB.Close()
-	db := reform.NewDB(sqlDB, sqlite3.Dialect, nil)
+	db := reform.NewDB(sqlDB, mysql.Dialect, nil)
 
 	var wg sync.WaitGroup
 

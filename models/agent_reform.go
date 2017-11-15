@@ -47,7 +47,7 @@ func (v *agentTableType) PKColumnIndex() uint {
 
 // AgentTable represents agents view or table in SQL database.
 var AgentTable = &agentTableType{
-	s: parse.StructInfo{Type: "Agent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int64", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "RunsOnNodeID", PKType: "", Column: "runs_on_node_id"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Agent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int32", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "RunsOnNodeID", PKType: "", Column: "runs_on_node_id"}}, PKFieldIndex: 0},
 	z: new(Agent).Values(),
 }
 
@@ -110,9 +110,9 @@ func (s *Agent) HasPK() bool {
 // SetPK sets record primary key.
 func (s *Agent) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int64(i64)
+		s.ID = int32(i64)
 	} else {
-		s.ID = pk.(int64)
+		s.ID = pk.(int32)
 	}
 }
 
@@ -162,7 +162,7 @@ func (v *mySQLdExporterTableType) PKColumnIndex() uint {
 
 // MySQLdExporterTable represents agents view or table in SQL database.
 var MySQLdExporterTable = &mySQLdExporterTableType{
-	s: parse.StructInfo{Type: "MySQLdExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int64", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "RunsOnNodeID", PKType: "", Column: "runs_on_node_id"}, {Name: "Login", PKType: "", Column: "login"}, {Name: "Password", PKType: "", Column: "password"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "MySQLdExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int32", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "RunsOnNodeID", PKType: "", Column: "runs_on_node_id"}, {Name: "Login", PKType: "", Column: "login"}, {Name: "Password", PKType: "", Column: "password"}}, PKFieldIndex: 0},
 	z: new(MySQLdExporter).Values(),
 }
 
@@ -231,9 +231,9 @@ func (s *MySQLdExporter) HasPK() bool {
 // SetPK sets record primary key.
 func (s *MySQLdExporter) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int64(i64)
+		s.ID = int32(i64)
 	} else {
-		s.ID = pk.(int64)
+		s.ID = pk.(int32)
 	}
 }
 

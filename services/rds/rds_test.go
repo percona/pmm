@@ -19,6 +19,7 @@ package rds
 
 import (
 	"context"
+	"reflect"
 	"testing"
 
 	"github.com/AlekSi/pointer"
@@ -27,7 +28,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
-	"gopkg.in/reform.v1/dialects/sqlite3"
+	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/logger"
@@ -95,7 +96,18 @@ func TestDiscover(t *testing.T) {
 				EngineVersion: pointer.ToString("5.6.35"),
 			},
 		}}
-		assert.Equal(t, expected, actual)
+
+		// TODO out list is not fixed yet, so check that we receive all expected instances (and maybe something else)
+		// assert.Equal(t, expected, actual)
+		for _, a := range actual {
+			for i, e := range expected {
+				if reflect.DeepEqual(a, e) {
+					expected = append(expected[:i], expected[i+1:]...)
+					break
+				}
+			}
+		}
+		assert.Empty(t, expected)
 	})
 
 	t.Run("WrongKeys", func(t *testing.T) {
@@ -113,10 +125,9 @@ func TestAddListRemove(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
 		accessKey, secretKey := tests.GetAWSKeys(t)
-		db, err := models.OpenDB("", t.Logf)
-		require.NoError(t, err)
+		db := tests.OpenTestDB(t)
 		defer db.Close()
-		svc := NewService(reform.NewDB(db, sqlite3.Dialect, reform.NewPrintfLogger(t.Logf)))
+		svc := NewService(reform.NewDB(db, mysql.Dialect, reform.NewPrintfLogger(t.Logf)))
 
 		actual, err := svc.List(ctx)
 		require.NoError(t, err)

@@ -47,7 +47,7 @@ func (v *serviceTableType) PKColumnIndex() uint {
 
 // ServiceTable represents services view or table in SQL database.
 var ServiceTable = &serviceTableType{
-	s: parse.StructInfo{Type: "Service", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int64", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "NodeID", PKType: "", Column: "node_id"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Service", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int32", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "NodeID", PKType: "", Column: "node_id"}}, PKFieldIndex: 0},
 	z: new(Service).Values(),
 }
 
@@ -110,9 +110,9 @@ func (s *Service) HasPK() bool {
 // SetPK sets record primary key.
 func (s *Service) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int64(i64)
+		s.ID = int32(i64)
 	} else {
-		s.ID = pk.(int64)
+		s.ID = pk.(int32)
 	}
 }
 
@@ -162,7 +162,7 @@ func (v *rDSServiceTableType) PKColumnIndex() uint {
 
 // RDSServiceTable represents services view or table in SQL database.
 var RDSServiceTable = &rDSServiceTableType{
-	s: parse.StructInfo{Type: "RDSService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int64", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "NodeID", PKType: "", Column: "node_id"}, {Name: "Address", PKType: "", Column: "address"}, {Name: "Port", PKType: "", Column: "port"}, {Name: "Engine", PKType: "", Column: "engine"}, {Name: "EngineVersion", PKType: "", Column: "engine_version"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RDSService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int32", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "NodeID", PKType: "", Column: "node_id"}, {Name: "Address", PKType: "", Column: "address"}, {Name: "Port", PKType: "", Column: "port"}, {Name: "Engine", PKType: "", Column: "engine"}, {Name: "EngineVersion", PKType: "", Column: "engine_version"}}, PKFieldIndex: 0},
 	z: new(RDSService).Values(),
 }
 
@@ -237,9 +237,9 @@ func (s *RDSService) HasPK() bool {
 // SetPK sets record primary key.
 func (s *RDSService) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int64(i64)
+		s.ID = int32(i64)
 	} else {
-		s.ID = pk.(int64)
+		s.ID = pk.(int32)
 	}
 }
 

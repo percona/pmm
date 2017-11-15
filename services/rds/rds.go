@@ -29,7 +29,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/mattn/go-sqlite3"
+	"github.com/go-sql-driver/mysql"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -217,7 +217,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []
 				Region: instance.Node.Region,
 			}
 			if e := tx.Insert(node); e != nil {
-				if e, ok := e.(sqlite3.Error); ok && e.ExtendedCode == sqlite3.ErrConstraintUnique {
+				if e, ok := e.(*mysql.MySQLError); ok && e.Number == 0x426 {
 					return status.Errorf(codes.AlreadyExists, "RDS instance %q already exists in region %q.",
 						node.Name, node.Region)
 				}

@@ -18,59 +18,69 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
 	"strings"
+	"time"
 
-	_ "github.com/mattn/go-sqlite3" // register SQL driver
+	"github.com/go-sql-driver/mysql" // register SQL driver
 	"gopkg.in/reform.v1"
 )
 
 var databaseSchema = []string{
 	`CREATE TABLE schema_migrations (
-		id integer PRIMARY KEY AUTOINCREMENT
+		id INT NOT NULL AUTO_INCREMENT,
+		PRIMARY KEY (id)
 	)`,
-	`INSERT INTO schema_migrations DEFAULT VALUES`,
+	`INSERT INTO schema_migrations () VALUES ()`,
 
 	`CREATE TABLE nodes (
-		id integer PRIMARY KEY AUTOINCREMENT,
-		type varchar NOT NULL,
-		name varchar NOT NULL,
+		id INT NOT NULL AUTO_INCREMENT,
+		type VARCHAR(255) NOT NULL,
+		name VARCHAR(255) NOT NULL,
 
-		region varchar NOT NULL, -- NOT NULL for unique index below
+		region VARCHAR(255) NOT NULL, -- NOT NULL for unique index below
 
+		PRIMARY KEY (id),
 		UNIQUE (type, name, region)
 	)`,
 
 	`CREATE TABLE services (
-		id integer PRIMARY KEY AUTOINCREMENT,
-		type varchar NOT NULL,
-		node_id integer NOT NULL,
+		id INT NOT NULL AUTO_INCREMENT,
+		type VARCHAR(255) NOT NULL,
+		node_id INT NOT NULL,
 
-		address varchar,
-		port integer,
-		engine varchar,
-		engine_version varchar,
+		address VARCHAR(255),
+		port SMALLINT UNSIGNED,
+		engine VARCHAR(255),
+		engine_version VARCHAR(255),
 
+		PRIMARY KEY (id),
 		FOREIGN KEY (node_id) REFERENCES nodes (id)
 	)`,
 }
 
-func OpenDB(file string, logf reform.Printf) (*sql.DB, error) {
-	// https://sqlite.org/uri.html
-	// https://godoc.org/github.com/mattn/go-sqlite3#SQLiteDriver.Open
-	dsn := fmt.Sprintf("file:%s?_foreign_keys=1", file)
-	db, err := sql.Open("sqlite3", dsn)
+func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error) {
+	dsn := (&mysql.Config{
+		User:            username,
+		Passwd:          password,
+		Net:             "tcp",
+		Addr:            "127.0.0.1:3306",
+		DBName:          name,
+		Collation:       "utf8_general_ci",
+		Loc:             time.UTC,
+		ClientFoundRows: true,
+		ParseTime:       true,
+	}).FormatDSN()
+	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	// Use single connection so "PRAGMA foreign_keys" is always enforced, and to prevent data corruption
-	// if SQLite3 is not build in thread-safe mode.
-	db.SetMaxIdleConns(1)
-	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(10)
 	db.SetConnMaxLifetime(0)
-	if _, err = db.Exec("PRAGMA foreign_keys = ON"); err != nil {
-		return nil, err
+
+	if name == "" {
+		return db, nil
 	}
 
 	var count int
