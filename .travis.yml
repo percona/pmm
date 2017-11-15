@@ -53,6 +53,7 @@ before_install:
   - protoc --version
 
 script:
+  - sudo service mysql stop
   - docker-compose up -d
 
   # check that generated files are not changed
