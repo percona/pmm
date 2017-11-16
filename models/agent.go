@@ -16,19 +16,69 @@
 
 package models
 
+import (
+	"database/sql"
+	"database/sql/driver"
+	"net"
+	"strconv"
+
+	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
+)
+
+type AgentType string
+
+const (
+	MySQLdExporterAgentType AgentType = "mysqld_exporter"
+)
+
+func (u AgentType) Value() (driver.Value, error) {
+	return string(u), nil
+}
+
+func (u *AgentType) Scan(src interface{}) error {
+	switch src := src.(type) {
+	case string:
+		*u = AgentType(src)
+	case []byte:
+		*u = AgentType(src)
+	default:
+		return errors.Errorf("unexpected type %T (%#v)", src, src)
+	}
+	return nil
+}
+
+// check interfaces
+// TODO we should not need those methods with version 1.4 of the MySQL driver, and with SQLite3 driver
+var (
+	_ driver.Valuer = AgentType("")
+	_ sql.Scanner   = (*AgentType)(nil)
+)
+
 //reform:agents
 type Agent struct {
-	ID           int32  `reform:"id,pk"`
-	Type         string `reform:"type"`
-	RunsOnNodeID int32  `reform:"runs_on_node_id"`
+	ID           int32     `reform:"id,pk"`
+	Type         AgentType `reform:"type"`
+	RunsOnNodeID int32     `reform:"runs_on_node_id"`
 }
 
 //reform:agents
 type MySQLdExporter struct {
-	ID           int32  `reform:"id,pk"`
-	Type         string `reform:"type"`
-	RunsOnNodeID int32  `reform:"runs_on_node_id"`
+	ID           int32     `reform:"id,pk"`
+	Type         AgentType `reform:"type"`
+	RunsOnNodeID int32     `reform:"runs_on_node_id"`
 
-	Login    string `reform:"login"`
-	Password string `reform:"password"`
+	ServiceUsername *string `reform:"service_username"`
+	ServicePassword *string `reform:"service_password"`
+}
+
+func (m *MySQLdExporter) DSN(service *RDSService) string {
+	cfg := mysql.Config{
+		User:   *m.ServiceUsername,
+		Passwd: *m.ServicePassword,
+		Net:    "tcp",
+		Addr:   net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port))),
+		// TODO other parameters?
+	}
+	return cfg.FormatDSN()
 }

@@ -26,7 +26,8 @@ import (
 type NodeType string
 
 const (
-	RDSNodeType NodeType = "rds"
+	PMMServerNodeType NodeType = "pmm-server"
+	RDSNodeType       NodeType = "rds"
 )
 
 func (u NodeType) Value() (driver.Value, error) {

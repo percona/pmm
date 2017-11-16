@@ -39,7 +39,10 @@ func TestDiscover(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
 		accessKey, secretKey := tests.GetAWSKeys(t)
-		svc := NewService(nil)
+		db := tests.OpenTestDB(t)
+		defer db.Close()
+		svc, err := NewService(reform.NewDB(db, mysql.Dialect, reform.NewPrintfLogger(t.Logf)))
+		require.NoError(t, err)
 
 		actual, err := svc.Discover(ctx, accessKey, secretKey)
 		require.NoError(t, err)
@@ -113,7 +116,10 @@ func TestDiscover(t *testing.T) {
 	t.Run("WrongKeys", func(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
 		accessKey, secretKey := "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-		svc := NewService(nil)
+		db := tests.OpenTestDB(t)
+		defer db.Close()
+		svc, err := NewService(reform.NewDB(db, mysql.Dialect, reform.NewPrintfLogger(t.Logf)))
+		require.NoError(t, err)
 
 		res, err := svc.Discover(ctx, accessKey, secretKey)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `The security token included in the request is invalid.`), err)
@@ -127,23 +133,24 @@ func TestAddListRemove(t *testing.T) {
 		accessKey, secretKey := tests.GetAWSKeys(t)
 		db := tests.OpenTestDB(t)
 		defer db.Close()
-		svc := NewService(reform.NewDB(db, mysql.Dialect, reform.NewPrintfLogger(t.Logf)))
+		svc, err := NewService(reform.NewDB(db, mysql.Dialect, reform.NewPrintfLogger(t.Logf)))
+		require.NoError(t, err)
 
 		actual, err := svc.List(ctx)
 		require.NoError(t, err)
 		assert.Empty(t, actual)
 
-		err = svc.Add(ctx, accessKey, secretKey, []InstanceID{{"eu-west-1", "mysql57"}})
+		err = svc.Add(ctx, accessKey, secretKey, nil, &InstanceID{"eu-west-1", "mysql57"}, "username", "password")
 		assert.NoError(t, err)
 
-		err = svc.Add(ctx, accessKey, secretKey, []InstanceID{{"eu-west-1", "mysql57"}})
+		err = svc.Add(ctx, accessKey, secretKey, nil, &InstanceID{"eu-west-1", "mysql57"}, "username", "password")
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `RDS instance "mysql57" already exists in region "eu-west-1".`), err)
 
 		actual, err = svc.List(ctx)
 		require.NoError(t, err)
 		expected := []Instance{{
 			Node: models.RDSNode{
-				ID:     1,
+				ID:     2,
 				Type:   "rds",
 				Name:   "mysql57",
 				Region: "eu-west-1",
@@ -151,7 +158,9 @@ func TestAddListRemove(t *testing.T) {
 			Service: models.RDSService{
 				ID:            1,
 				Type:          "rds",
-				NodeID:        1,
+				NodeID:        2,
+				AWSAccessKey:  &accessKey,
+				AWSSecretKey:  &secretKey,
 				Address:       pointer.ToString("mysql57.ckpwzom1xccn.eu-west-1.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("mysql"),
@@ -160,10 +169,10 @@ func TestAddListRemove(t *testing.T) {
 		}}
 		assert.Equal(t, expected, actual)
 
-		err = svc.Remove(ctx, []InstanceID{{"eu-west-1", "mysql57"}})
+		err = svc.Remove(ctx, nil, &InstanceID{"eu-west-1", "mysql57"})
 		assert.NoError(t, err)
 
-		err = svc.Remove(ctx, []InstanceID{{"eu-west-1", "mysql57"}})
+		err = svc.Remove(ctx, nil, &InstanceID{"eu-west-1", "mysql57"})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `RDS instance "mysql57" not found in region "eu-west-1".`), err)
 
 		actual, err = svc.List(ctx)

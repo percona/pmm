@@ -19,8 +19,12 @@ package rds
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"os"
+	"os/exec"
 	"sort"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/aws/aws-sdk-go/aws"
@@ -41,18 +45,42 @@ import (
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
+const awsCallTimeout = 5 * time.Second
+
+// FIXME remove
+const runAgent = false
+
 // Service is responsible for interactions with AWS RDS.
 type Service struct {
-	db         *reform.DB
-	httpClient *http.Client
+	db                 *reform.DB
+	httpClient         *http.Client
+	pmmServerNode      *models.Node
+	mySQLdExporterPath string
 }
 
 // NewService creates a new service.
-func NewService(db *reform.DB) *Service {
-	return &Service{
-		db:         db,
-		httpClient: new(http.Client),
+func NewService(db *reform.DB) (*Service, error) {
+	var node models.Node
+	err := db.FindOneTo(&node, "type", models.PMMServerNodeType)
+	if err != nil {
+		return nil, err
 	}
+
+	svc := &Service{
+		db:            db,
+		httpClient:    new(http.Client),
+		pmmServerNode: &node,
+	}
+
+	if runAgent {
+		path, err := exec.LookPath("mysqld_exporter")
+		if err != nil {
+			return nil, err
+		}
+		svc.mySQLdExporterPath = path
+	}
+
+	return svc, nil
 }
 
 // InstanceID uniquely identifies RDS instance.
@@ -72,7 +100,10 @@ type Instance struct {
 func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) ([]Instance, error) {
 	l := logger.Get(ctx).WithField("component", "rds")
 
-	g, ctx := errgroup.WithContext(ctx)
+	// do not break our API if some AWS region is slow or down
+	ctx, cancel := context.WithTimeout(ctx, awsCallTimeout)
+	defer cancel()
+	var g errgroup.Group
 	instances := make(chan Instance)
 
 	for _, r := range endpoints.AwsPartition().Services()[endpoints.RdsServiceID].Regions() {
@@ -105,17 +136,24 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 
 			out, err := rds.New(s).DescribeDBInstancesWithContext(ctx, new(rds.DescribeDBInstancesInput))
 			if err != nil {
+				l.Error(err)
+
 				if err, ok := err.(awserr.Error); ok {
+					if err.OrigErr() != nil && err.OrigErr() == ctx.Err() {
+						// ignore timeout, let other goroutines return partial data
+						return nil
+					}
 					switch err.Code() {
 					case "InvalidClientTokenId", "EmptyStaticCreds":
 						return status.Error(codes.InvalidArgument, err.Message())
 					default:
 						return err
 					}
-				} else {
-					return errors.WithStack(err)
 				}
+				return errors.WithStack(err)
 			}
+
+			l.Debugf("Got %d instances from %s.", len(out.DBInstances), regionId)
 			for _, db := range out.DBInstances {
 				instances <- Instance{
 					Node: models.RDSNode{
@@ -192,7 +230,10 @@ func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 	return res, err
 }
 
-func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []InstanceID) error {
+func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []InstanceID, id *InstanceID, username, password string) error {
+	// TODO remove ids parameter
+	ids = append(ids, *id)
+
 	instances, err := svc.Discover(ctx, accessKey, secretKey)
 	if err != nil {
 		return err
@@ -235,23 +276,58 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []
 				Engine:        instance.Service.Engine,
 				EngineVersion: instance.Service.EngineVersion,
 			}
+			if accessKey != "" || secretKey != "" {
+				service.AWSAccessKey = &accessKey
+				service.AWSSecretKey = &secretKey
+			}
 			if e := tx.Insert(service); e != nil {
 				return errors.WithStack(e)
 			}
 
-			// TODO insert agents
+			agent := &models.MySQLdExporter{
+				Type:            models.MySQLdExporterAgentType,
+				RunsOnNodeID:    svc.pmmServerNode.ID,
+				ServiceUsername: &username,
+				ServicePassword: &password,
+			}
+			if e := tx.Insert(agent); e != nil {
+				return errors.WithStack(e)
+			}
+			if e := tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); e != nil {
+				return errors.WithStack(e)
+			}
 
-			// TODO start agents
+			// TODO start agents properly, with supervisor
+
+			// TODO use proper flags
+			if runAgent {
+				dsn := agent.DSN(service)
+				flags := []string{
+					"-collect.global_status",
+				}
+				cmd := exec.Command(svc.mySQLdExporterPath, flags...)
+				cmd.Env = []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)}
+				cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+				if e := cmd.Start(); e != nil {
+					return errors.WithStack(e)
+				}
+			}
+
+			// TODO insert other agents
+
+			// if e := tx.Insert(&models.AgentNode{AgentID: agent.ID, NodeID: node.ID}); e != nil {
+			// 	return errors.WithStack(e)
+			// }
 		}
 
 		return nil
 	})
 }
 
-func (svc *Service) Remove(ctx context.Context, ids []InstanceID) error {
-	if len(ids) == 0 {
-		return nil
-	}
+func (svc *Service) Remove(ctx context.Context, ids []InstanceID, id *InstanceID) error {
+	// TODO remove ids parameter
+	ids = append(ids, *id)
 
 	return svc.db.InTransaction(func(tx *reform.TX) error {
 		for _, instance := range ids {
@@ -264,14 +340,61 @@ func (svc *Service) Remove(ctx context.Context, ids []InstanceID) error {
 				return errors.WithStack(e)
 			}
 
-			// TODO stop agents
-
-			// TODO delete agents
-
-			if _, e := tx.DeleteFrom(models.RDSServiceTable, "WHERE node_id = ?", node.ID); e != nil {
+			var service models.RDSService
+			if e := tx.SelectOneTo(&service, "WHERE node_id = ?", node.ID); e != nil {
 				return errors.WithStack(e)
 			}
 
+			// TODO stop agents
+
+			var agents []models.Agent
+
+			// remove associations of the service and agents
+			structs, e := tx.FindAllFrom(models.AgentServiceView, "service_id", service.ID)
+			if e != nil {
+				return errors.WithStack(e)
+			}
+			for _, str := range structs {
+				agentService := str.(*models.AgentService)
+				agent := models.Agent{ID: agentService.AgentID}
+				agents = append(agents, agent)
+				deleted, e := tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ? AND agent_id = ?", service.ID, agent.ID)
+				if e == nil && deleted != 1 {
+					e = errors.Errorf("expected to delete 1 record, deleted %d", deleted)
+				}
+				if e != nil {
+					return errors.WithStack(e)
+				}
+			}
+
+			// remove associations of the node and agents
+			structs, e = tx.FindAllFrom(models.AgentNodeView, "node_id", node.ID)
+			if e != nil {
+				return errors.WithStack(e)
+			}
+			for _, str := range structs {
+				agentNode := str.(*models.AgentNode)
+				agent := models.Agent{ID: agentNode.AgentID}
+				agents = append(agents, agent)
+				deleted, e := tx.DeleteFrom(models.AgentNodeView, "WHERE node_id = ? AND agent_id = ?", node.ID, agent.ID)
+				if e == nil && deleted != 1 {
+					e = errors.Errorf("expected to delete 1 record, deleted %d", deleted)
+				}
+				if e != nil {
+					return errors.WithStack(e)
+				}
+			}
+
+			// remove agents
+			for _, agent := range agents {
+				if e := tx.Delete(&agent); e != nil {
+					return errors.WithStack(e)
+				}
+			}
+
+			if e := tx.Delete(&service); e != nil {
+				return errors.WithStack(e)
+			}
 			if e := tx.Delete(&node); e != nil {
 				return errors.WithStack(e)
 			}

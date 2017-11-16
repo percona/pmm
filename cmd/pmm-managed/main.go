@@ -104,6 +104,11 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 		l.Panicf("Prometheus problem: %s", err)
 	}
 
+	rds, err := rds.NewService(db)
+	if err != nil {
+		l.Panicf("RDS service problem: %s", err)
+	}
+
 	gRPCServer := grpc.NewServer(
 		grpc.UnaryInterceptor(interceptors.Unary),
 		grpc.StreamInterceptor(interceptors.Stream),
@@ -117,7 +122,7 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 		Prometheus: prometheus,
 	})
 	api.RegisterRDSServer(gRPCServer, &handlers.RDSServer{
-		RDS: rds.NewService(db),
+		RDS: rds,
 	})
 
 	grpc_prometheus.Register(gRPCServer)

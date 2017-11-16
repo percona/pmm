@@ -21,6 +21,7 @@ import (
 
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/services/rds"
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
 type RDSServer struct {
@@ -30,6 +31,7 @@ type RDSServer struct {
 func (s *RDSServer) Discover(ctx context.Context, req *api.RDSDiscoverRequest) (*api.RDSDiscoverResponse, error) {
 	res, err := s.RDS.Discover(ctx, req.AwsAccessKeyId, req.AwsSecretAccessKey)
 	if err != nil {
+		logger.Get(ctx).Errorf("%+v", err)
 		return nil, err
 	}
 
@@ -54,6 +56,7 @@ func (s *RDSServer) Discover(ctx context.Context, req *api.RDSDiscoverRequest) (
 func (s *RDSServer) List(ctx context.Context, req *api.RDSListRequest) (*api.RDSListResponse, error) {
 	res, err := s.RDS.List(ctx)
 	if err != nil {
+		logger.Get(ctx).Errorf("%+v", err)
 		return nil, err
 	}
 
@@ -76,6 +79,7 @@ func (s *RDSServer) List(ctx context.Context, req *api.RDSListRequest) (*api.RDS
 }
 
 func (s *RDSServer) Add(ctx context.Context, req *api.RDSAddRequest) (*api.RDSAddResponse, error) {
+	// TODO remove ids
 	ids := make([]rds.InstanceID, len(req.Ids))
 	for i, id := range req.Ids {
 		ids[i] = rds.InstanceID{
@@ -83,8 +87,13 @@ func (s *RDSServer) Add(ctx context.Context, req *api.RDSAddRequest) (*api.RDSAd
 			Name:   id.Name,
 		}
 	}
-	err := s.RDS.Add(ctx, req.AwsAccessKeyId, req.AwsSecretAccessKey, ids)
-	if err != nil {
+
+	id := &rds.InstanceID{
+		Region: req.Id.Region,
+		Name:   req.Id.Name,
+	}
+	if err := s.RDS.Add(ctx, req.AwsAccessKeyId, req.AwsSecretAccessKey, ids, id, req.Username, req.Password); err != nil {
+		logger.Get(ctx).Errorf("%+v", err)
 		return nil, err
 	}
 
@@ -93,6 +102,7 @@ func (s *RDSServer) Add(ctx context.Context, req *api.RDSAddRequest) (*api.RDSAd
 }
 
 func (s *RDSServer) Remove(ctx context.Context, req *api.RDSRemoveRequest) (*api.RDSRemoveResponse, error) {
+	// TODO remove ids
 	ids := make([]rds.InstanceID, len(req.Ids))
 	for i, id := range req.Ids {
 		ids[i] = rds.InstanceID{
@@ -100,8 +110,13 @@ func (s *RDSServer) Remove(ctx context.Context, req *api.RDSRemoveRequest) (*api
 			Name:   id.Name,
 		}
 	}
-	err := s.RDS.Remove(ctx, ids)
-	if err != nil {
+
+	id := &rds.InstanceID{
+		Region: req.Id.Region,
+		Name:   req.Id.Name,
+	}
+	if err := s.RDS.Remove(ctx, ids, id); err != nil {
+		logger.Get(ctx).Errorf("%+v", err)
 		return nil, err
 	}
 

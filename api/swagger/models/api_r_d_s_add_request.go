@@ -25,19 +25,39 @@ type APIRDSAddRequest struct {
 	// aws secret access key
 	AwsSecretAccessKey string `json:"aws_secret_access_key,omitempty"`
 
-	// ids
+	// id
+	ID *APIRDSInstanceID `json:"id,omitempty"`
+
+	// TODO remove
 	Ids []*APIRDSInstanceID `json:"ids"`
+
+	// password
+	Password string `json:"password,omitempty"`
+
+	// username
+	Username string `json:"username,omitempty"`
 }
 
 /* polymorph apiRDSAddRequest aws_access_key_id false */
 
 /* polymorph apiRDSAddRequest aws_secret_access_key false */
 
+/* polymorph apiRDSAddRequest id false */
+
 /* polymorph apiRDSAddRequest ids false */
+
+/* polymorph apiRDSAddRequest password false */
+
+/* polymorph apiRDSAddRequest username false */
 
 // Validate validates this api r d s add request
 func (m *APIRDSAddRequest) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateID(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
 
 	if err := m.validateIds(formats); err != nil {
 		// prop
@@ -47,6 +67,25 @@ func (m *APIRDSAddRequest) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *APIRDSAddRequest) validateID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ID) { // not required
+		return nil
+	}
+
+	if m.ID != nil {
+
+		if err := m.ID.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("id")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

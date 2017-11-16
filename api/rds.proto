@@ -49,14 +49,23 @@ message RDSListResponse {
 message RDSAddRequest {
     string aws_access_key_id = 1;
     string aws_secret_access_key = 2;
-    repeated RDSInstanceID ids = 3;
+
+    // TODO remove
+    repeated RDSInstanceID ids = 3 [deprecated=true];
+
+    RDSInstanceID id = 4;
+    string username = 5;
+    string password = 6;
 }
 
 message RDSAddResponse {
 }
 
 message RDSRemoveRequest {
-    repeated RDSInstanceID ids = 1;
+    // TODO remove
+    repeated RDSInstanceID ids = 1 [deprecated=true];
+
+    RDSInstanceID id = 2;
 }
 
 message RDSRemoveResponse {

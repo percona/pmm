@@ -431,11 +431,21 @@
         "aws_secret_access_key": {
           "type": "string"
         },
+        "id": {
+          "$ref": "#/definitions/apiRDSInstanceID"
+        },
         "ids": {
           "type": "array",
+          "title": "TODO remove",
           "items": {
             "$ref": "#/definitions/apiRDSInstanceID"
           }
+        },
+        "password": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
         }
       }
     },
@@ -500,8 +510,12 @@
     "apiRDSRemoveRequest": {
       "type": "object",
       "properties": {
+        "id": {
+          "$ref": "#/definitions/apiRDSInstanceID"
+        },
         "ids": {
           "type": "array",
+          "title": "TODO remove",
           "items": {
             "$ref": "#/definitions/apiRDSInstanceID"
           }

@@ -19,15 +19,25 @@ import (
 
 type APIRDSRemoveRequest struct {
 
-	// ids
+	// id
+	ID *APIRDSInstanceID `json:"id,omitempty"`
+
+	// TODO remove
 	Ids []*APIRDSInstanceID `json:"ids"`
 }
+
+/* polymorph apiRDSRemoveRequest id false */
 
 /* polymorph apiRDSRemoveRequest ids false */
 
 // Validate validates this api r d s remove request
 func (m *APIRDSRemoveRequest) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateID(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
 
 	if err := m.validateIds(formats); err != nil {
 		// prop
@@ -37,6 +47,25 @@ func (m *APIRDSRemoveRequest) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *APIRDSRemoveRequest) validateID(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ID) { // not required
+		return nil
+	}
+
+	if m.ID != nil {
+
+		if err := m.ID.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("id")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

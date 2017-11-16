@@ -124,7 +124,17 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/apiRDSInstanceID"
-          }
+          },
+          "title": "TODO remove"
+        },
+        "id": {
+          "$ref": "#/definitions/apiRDSInstanceID"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
         }
       }
     },
@@ -193,7 +203,11 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/apiRDSInstanceID"
-          }
+          },
+          "title": "TODO remove"
+        },
+        "id": {
+          "$ref": "#/definitions/apiRDSInstanceID"
         }
       }
     },

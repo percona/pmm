@@ -142,7 +142,7 @@ func (v *mySQLdExporterTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *mySQLdExporterTableType) Columns() []string {
-	return []string{"id", "type", "runs_on_node_id", "login", "password"}
+	return []string{"id", "type", "runs_on_node_id", "service_username", "service_password"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -162,7 +162,7 @@ func (v *mySQLdExporterTableType) PKColumnIndex() uint {
 
 // MySQLdExporterTable represents agents view or table in SQL database.
 var MySQLdExporterTable = &mySQLdExporterTableType{
-	s: parse.StructInfo{Type: "MySQLdExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int32", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "RunsOnNodeID", PKType: "", Column: "runs_on_node_id"}, {Name: "Login", PKType: "", Column: "login"}, {Name: "Password", PKType: "", Column: "password"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "MySQLdExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int32", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "RunsOnNodeID", PKType: "", Column: "runs_on_node_id"}, {Name: "ServiceUsername", PKType: "", Column: "service_username"}, {Name: "ServicePassword", PKType: "", Column: "service_password"}}, PKFieldIndex: 0},
 	z: new(MySQLdExporter).Values(),
 }
 
@@ -172,8 +172,8 @@ func (s MySQLdExporter) String() string {
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
-	res[3] = "Login: " + reform.Inspect(s.Login, true)
-	res[4] = "Password: " + reform.Inspect(s.Password, true)
+	res[3] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
+	res[4] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
 	return strings.Join(res, ", ")
 }
 
@@ -184,8 +184,8 @@ func (s *MySQLdExporter) Values() []interface{} {
 		s.ID,
 		s.Type,
 		s.RunsOnNodeID,
-		s.Login,
-		s.Password,
+		s.ServiceUsername,
+		s.ServicePassword,
 	}
 }
 
@@ -196,8 +196,8 @@ func (s *MySQLdExporter) Pointers() []interface{} {
 		&s.ID,
 		&s.Type,
 		&s.RunsOnNodeID,
-		&s.Login,
-		&s.Password,
+		&s.ServiceUsername,
+		&s.ServicePassword,
 	}
 }
 
