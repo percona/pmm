@@ -66,17 +66,20 @@ func NewService(db *reform.DB) (*Service, error) {
 		return nil, err
 	}
 
-	mySQLdExporterPath, err := exec.LookPath("mysqld_exporter")
-	if err != nil {
-		return nil, err
+	svc := &Service{
+		db:            db,
+		httpClient:    new(http.Client),
+		pmmServerNode: &node,
 	}
 
-	svc := &Service{
-		db:                 db,
-		httpClient:         new(http.Client),
-		pmmServerNode:      &node,
-		mySQLdExporterPath: mySQLdExporterPath,
+	if runAgent {
+		path, err := exec.LookPath("mysqld_exporter")
+		if err != nil {
+			return nil, err
+		}
+		svc.mySQLdExporterPath = path
 	}
+
 	return svc, nil
 }
 
