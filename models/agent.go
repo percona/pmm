@@ -75,7 +75,7 @@ type MySQLdExporter struct {
 func (m *MySQLdExporter) DSN(service *RDSService) string {
 	cfg := mysql.Config{
 		User:   *m.ServiceUsername,
-		Passwd: *m.ServiceUsername,
+		Passwd: *m.ServicePassword,
 		Net:    "tcp",
 		Addr:   net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port))),
 		// TODO other parameters?

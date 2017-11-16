@@ -21,6 +21,7 @@ import (
 
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/services/rds"
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
 type RDSServer struct {
@@ -30,6 +31,7 @@ type RDSServer struct {
 func (s *RDSServer) Discover(ctx context.Context, req *api.RDSDiscoverRequest) (*api.RDSDiscoverResponse, error) {
 	res, err := s.RDS.Discover(ctx, req.AwsAccessKeyId, req.AwsSecretAccessKey)
 	if err != nil {
+		logger.Get(ctx).Errorf("%+v", err)
 		return nil, err
 	}
 
@@ -54,6 +56,7 @@ func (s *RDSServer) Discover(ctx context.Context, req *api.RDSDiscoverRequest) (
 func (s *RDSServer) List(ctx context.Context, req *api.RDSListRequest) (*api.RDSListResponse, error) {
 	res, err := s.RDS.List(ctx)
 	if err != nil {
+		logger.Get(ctx).Errorf("%+v", err)
 		return nil, err
 	}
 
@@ -89,8 +92,8 @@ func (s *RDSServer) Add(ctx context.Context, req *api.RDSAddRequest) (*api.RDSAd
 		Region: req.Id.Region,
 		Name:   req.Id.Name,
 	}
-	err := s.RDS.Add(ctx, req.AwsAccessKeyId, req.AwsSecretAccessKey, ids, id, req.Username, req.Password)
-	if err != nil {
+	if err := s.RDS.Add(ctx, req.AwsAccessKeyId, req.AwsSecretAccessKey, ids, id, req.Username, req.Password); err != nil {
+		logger.Get(ctx).Errorf("%+v", err)
 		return nil, err
 	}
 
@@ -112,8 +115,8 @@ func (s *RDSServer) Remove(ctx context.Context, req *api.RDSRemoveRequest) (*api
 		Region: req.Id.Region,
 		Name:   req.Id.Name,
 	}
-	err := s.RDS.Remove(ctx, ids, id)
-	if err != nil {
+	if err := s.RDS.Remove(ctx, ids, id); err != nil {
+		logger.Get(ctx).Errorf("%+v", err)
 		return nil, err
 	}
 

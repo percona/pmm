@@ -19,7 +19,10 @@ package rds
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"os"
+	"os/exec"
 	"sort"
 	"time"
 
@@ -46,9 +49,10 @@ const awsCallTimeout = 5 * time.Second
 
 // Service is responsible for interactions with AWS RDS.
 type Service struct {
-	db            *reform.DB
-	httpClient    *http.Client
-	pmmServerNode *models.Node
+	db                 *reform.DB
+	httpClient         *http.Client
+	pmmServerNode      *models.Node
+	mySQLdExporterPath string
 }
 
 // NewService creates a new service.
@@ -59,10 +63,16 @@ func NewService(db *reform.DB) (*Service, error) {
 		return nil, err
 	}
 
+	mySQLdExporterPath, err := exec.LookPath("mysqld_exporter")
+	if err != nil {
+		return nil, err
+	}
+
 	svc := &Service{
-		db:            db,
-		httpClient:    new(http.Client),
-		pmmServerNode: &node,
+		db:                 db,
+		httpClient:         new(http.Client),
+		pmmServerNode:      &node,
+		mySQLdExporterPath: mySQLdExporterPath,
 	}
 	return svc, nil
 }
@@ -281,13 +291,26 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []
 				return errors.WithStack(e)
 			}
 
+			// TODO start agents properly, with supervisor
+
+			// TODO use proper flags
+			dsn := agent.DSN(service)
+			flags := []string{
+				"-collect.global_status",
+			}
+			cmd := exec.Command(svc.mySQLdExporterPath, flags...)
+			cmd.Env = []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)}
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			if e := cmd.Start(); e != nil {
+				return errors.WithStack(e)
+			}
+
 			// TODO insert other agents
 
 			// if e := tx.Insert(&models.AgentNode{AgentID: agent.ID, NodeID: node.ID}); e != nil {
 			// 	return errors.WithStack(e)
 			// }
-
-			// TODO start agents
 		}
 
 		return nil
