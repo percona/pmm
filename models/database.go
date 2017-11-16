@@ -27,27 +27,31 @@ import (
 
 var databaseSchema = []string{
 	`CREATE TABLE schema_migrations (
-		id INT NOT NULL AUTO_INCREMENT,
+		id INT NOT NULL,
 		PRIMARY KEY (id)
 	)`,
-	`INSERT INTO schema_migrations () VALUES ()`,
+	`INSERT INTO schema_migrations (id) VALUES (1)`,
 
 	`CREATE TABLE nodes (
 		id INT NOT NULL AUTO_INCREMENT,
 		type VARCHAR(255) NOT NULL,
 		name VARCHAR(255) NOT NULL,
 
-		region VARCHAR(255) NOT NULL, -- NOT NULL for unique index below
+		region VARCHAR(255) NOT NULL DEFAULT '', -- NOT NULL for unique index below
 
 		PRIMARY KEY (id),
 		UNIQUE (type, name, region)
 	)`,
+
+	`INSERT INTO nodes (type, name) VALUES ('` + string(PMMServerNodeType) + `', 'PMM Server')`,
 
 	`CREATE TABLE services (
 		id INT NOT NULL AUTO_INCREMENT,
 		type VARCHAR(255) NOT NULL,
 		node_id INT NOT NULL,
 
+		aws_access_key VARCHAR(255),
+		aws_secret_key VARCHAR(255),
 		address VARCHAR(255),
 		port SMALLINT UNSIGNED,
 		engine VARCHAR(255),
@@ -55,6 +59,34 @@ var databaseSchema = []string{
 
 		PRIMARY KEY (id),
 		FOREIGN KEY (node_id) REFERENCES nodes (id)
+	)`,
+
+	`CREATE TABLE agents (
+		id INT NOT NULL AUTO_INCREMENT,
+		type VARCHAR(255) NOT NULL,
+		runs_on_node_id INT NOT NULL,
+
+		service_username VARCHAR(255),
+		service_password VARCHAR(255),
+
+		PRIMARY KEY (id),
+		FOREIGN KEY (runs_on_node_id) REFERENCES nodes (id)
+	)`,
+
+	`CREATE TABLE agent_nodes (
+		agent_id INT NOT NULL,
+		node_id INT NOT NULL,
+		FOREIGN KEY (agent_id) REFERENCES agents (id),
+		FOREIGN KEY (node_id) REFERENCES nodes (id),
+		UNIQUE (agent_id, node_id)
+	)`,
+
+	`CREATE TABLE agent_services (
+		agent_id INT NOT NULL,
+		service_id INT NOT NULL,
+		FOREIGN KEY (agent_id) REFERENCES agents (id),
+		FOREIGN KEY (service_id) REFERENCES services (id),
+		UNIQUE (agent_id, service_id)
 	)`,
 }
 

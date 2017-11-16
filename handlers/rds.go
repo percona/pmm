@@ -76,6 +76,7 @@ func (s *RDSServer) List(ctx context.Context, req *api.RDSListRequest) (*api.RDS
 }
 
 func (s *RDSServer) Add(ctx context.Context, req *api.RDSAddRequest) (*api.RDSAddResponse, error) {
+	// TODO remove ids
 	ids := make([]rds.InstanceID, len(req.Ids))
 	for i, id := range req.Ids {
 		ids[i] = rds.InstanceID{
@@ -83,7 +84,12 @@ func (s *RDSServer) Add(ctx context.Context, req *api.RDSAddRequest) (*api.RDSAd
 			Name:   id.Name,
 		}
 	}
-	err := s.RDS.Add(ctx, req.AwsAccessKeyId, req.AwsSecretAccessKey, ids)
+
+	id := &rds.InstanceID{
+		Region: req.Id.Region,
+		Name:   req.Id.Name,
+	}
+	err := s.RDS.Add(ctx, req.AwsAccessKeyId, req.AwsSecretAccessKey, ids, id, req.Username, req.Password)
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +99,7 @@ func (s *RDSServer) Add(ctx context.Context, req *api.RDSAddRequest) (*api.RDSAd
 }
 
 func (s *RDSServer) Remove(ctx context.Context, req *api.RDSRemoveRequest) (*api.RDSRemoveResponse, error) {
+	// TODO remove ids
 	ids := make([]rds.InstanceID, len(req.Ids))
 	for i, id := range req.Ids {
 		ids[i] = rds.InstanceID{
@@ -100,7 +107,12 @@ func (s *RDSServer) Remove(ctx context.Context, req *api.RDSRemoveRequest) (*api
 			Name:   id.Name,
 		}
 	}
-	err := s.RDS.Remove(ctx, ids)
+
+	id := &rds.InstanceID{
+		Region: req.Id.Region,
+		Name:   req.Id.Name,
+	}
+	err := s.RDS.Remove(ctx, ids, id)
 	if err != nil {
 		return nil, err
 	}

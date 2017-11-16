@@ -21,6 +21,7 @@ import (
 	"context"
 	"net/http"
 	"sort"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/aws/aws-sdk-go/aws"
@@ -41,18 +42,29 @@ import (
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
+const awsCallTimeout = 5 * time.Second
+
 // Service is responsible for interactions with AWS RDS.
 type Service struct {
-	db         *reform.DB
-	httpClient *http.Client
+	db            *reform.DB
+	httpClient    *http.Client
+	pmmServerNode *models.Node
 }
 
 // NewService creates a new service.
-func NewService(db *reform.DB) *Service {
-	return &Service{
-		db:         db,
-		httpClient: new(http.Client),
+func NewService(db *reform.DB) (*Service, error) {
+	var node models.Node
+	err := db.FindOneTo(&node, "type", models.PMMServerNodeType)
+	if err != nil {
+		return nil, err
 	}
+
+	svc := &Service{
+		db:            db,
+		httpClient:    new(http.Client),
+		pmmServerNode: &node,
+	}
+	return svc, nil
 }
 
 // InstanceID uniquely identifies RDS instance.
@@ -72,7 +84,10 @@ type Instance struct {
 func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) ([]Instance, error) {
 	l := logger.Get(ctx).WithField("component", "rds")
 
-	g, ctx := errgroup.WithContext(ctx)
+	// do not break our API if some AWS region is slow or down
+	ctx, cancel := context.WithTimeout(ctx, awsCallTimeout)
+	defer cancel()
+	var g errgroup.Group
 	instances := make(chan Instance)
 
 	for _, r := range endpoints.AwsPartition().Services()[endpoints.RdsServiceID].Regions() {
@@ -105,17 +120,24 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 
 			out, err := rds.New(s).DescribeDBInstancesWithContext(ctx, new(rds.DescribeDBInstancesInput))
 			if err != nil {
+				l.Error(err)
+
 				if err, ok := err.(awserr.Error); ok {
+					if err.OrigErr() == ctx.Err() {
+						// ignore timeout, let other goroutines return partial data
+						return nil
+					}
 					switch err.Code() {
 					case "InvalidClientTokenId", "EmptyStaticCreds":
 						return status.Error(codes.InvalidArgument, err.Message())
 					default:
 						return err
 					}
-				} else {
-					return errors.WithStack(err)
 				}
+				return errors.WithStack(err)
 			}
+
+			l.Debugf("Got %d instances from %s.", len(out.DBInstances), regionId)
 			for _, db := range out.DBInstances {
 				instances <- Instance{
 					Node: models.RDSNode{
@@ -192,7 +214,10 @@ func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 	return res, err
 }
 
-func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []InstanceID) error {
+func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []InstanceID, id *InstanceID, username, password string) error {
+	// TODO remove ids parameter
+	ids = append(ids, *id)
+
 	instances, err := svc.Discover(ctx, accessKey, secretKey)
 	if err != nil {
 		return err
@@ -235,11 +260,32 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []
 				Engine:        instance.Service.Engine,
 				EngineVersion: instance.Service.EngineVersion,
 			}
+			if accessKey != "" || secretKey != "" {
+				service.AWSAccessKey = &accessKey
+				service.AWSSecretKey = &secretKey
+			}
 			if e := tx.Insert(service); e != nil {
 				return errors.WithStack(e)
 			}
 
-			// TODO insert agents
+			agent := &models.MySQLdExporter{
+				Type:            models.MySQLdExporterAgentType,
+				RunsOnNodeID:    svc.pmmServerNode.ID,
+				ServiceUsername: &username,
+				ServicePassword: &password,
+			}
+			if e := tx.Insert(agent); e != nil {
+				return errors.WithStack(e)
+			}
+			if e := tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); e != nil {
+				return errors.WithStack(e)
+			}
+
+			// TODO insert other agents
+
+			// if e := tx.Insert(&models.AgentNode{AgentID: agent.ID, NodeID: node.ID}); e != nil {
+			// 	return errors.WithStack(e)
+			// }
 
 			// TODO start agents
 		}
@@ -248,10 +294,9 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []
 	})
 }
 
-func (svc *Service) Remove(ctx context.Context, ids []InstanceID) error {
-	if len(ids) == 0 {
-		return nil
-	}
+func (svc *Service) Remove(ctx context.Context, ids []InstanceID, id *InstanceID) error {
+	// TODO remove ids parameter
+	ids = append(ids, *id)
 
 	return svc.db.InTransaction(func(tx *reform.TX) error {
 		for _, instance := range ids {
@@ -264,14 +309,29 @@ func (svc *Service) Remove(ctx context.Context, ids []InstanceID) error {
 				return errors.WithStack(e)
 			}
 
-			// TODO stop agents
-
-			// TODO delete agents
-
-			if _, e := tx.DeleteFrom(models.RDSServiceTable, "WHERE node_id = ?", node.ID); e != nil {
+			var service models.RDSService
+			if e := tx.SelectOneTo(&service, "WHERE node_id = ?", node.ID); e != nil {
 				return errors.WithStack(e)
 			}
 
+			// TODO stop agents
+
+			if _, e := tx.DeleteFrom(models.AgentNodeView, "WHERE node_id = ?", node.ID); e != nil {
+				return errors.WithStack(e)
+			}
+			if _, e := tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ?", service.ID); e != nil {
+				return errors.WithStack(e)
+			}
+
+			if _, e := tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ?", service.ID); e != nil {
+				return errors.WithStack(e)
+			}
+
+			// FIXME fix deletion
+
+			if e := tx.Delete(&service); e != nil {
+				return errors.WithStack(e)
+			}
 			if e := tx.Delete(&node); e != nil {
 				return errors.WithStack(e)
 			}
