@@ -47,6 +47,9 @@ import (
 
 const awsCallTimeout = 5 * time.Second
 
+// FIXME remove
+const runAgent = false
+
 // Service is responsible for interactions with AWS RDS.
 type Service struct {
 	db                 *reform.DB
@@ -294,16 +297,18 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []
 			// TODO start agents properly, with supervisor
 
 			// TODO use proper flags
-			dsn := agent.DSN(service)
-			flags := []string{
-				"-collect.global_status",
-			}
-			cmd := exec.Command(svc.mySQLdExporterPath, flags...)
-			cmd.Env = []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)}
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			if e := cmd.Start(); e != nil {
-				return errors.WithStack(e)
+			if runAgent {
+				dsn := agent.DSN(service)
+				flags := []string{
+					"-collect.global_status",
+				}
+				cmd := exec.Command(svc.mySQLdExporterPath, flags...)
+				cmd.Env = []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)}
+				cmd.Stdout = os.Stdout
+				cmd.Stderr = os.Stderr
+				if e := cmd.Start(); e != nil {
+					return errors.WithStack(e)
+				}
 			}
 
 			// TODO insert other agents
