@@ -123,7 +123,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 				l.Error(err)
 
 				if err, ok := err.(awserr.Error); ok {
-					if err.OrigErr() == ctx.Err() {
+					if err.OrigErr() != nil && err.OrigErr() == ctx.Err() {
 						// ignore timeout, let other goroutines return partial data
 						return nil
 					}
@@ -316,18 +316,50 @@ func (svc *Service) Remove(ctx context.Context, ids []InstanceID, id *InstanceID
 
 			// TODO stop agents
 
-			if _, e := tx.DeleteFrom(models.AgentNodeView, "WHERE node_id = ?", node.ID); e != nil {
+			var agents []models.Agent
+
+			// remove associations of the service and agents
+			structs, e := tx.FindAllFrom(models.AgentServiceView, "service_id", service.ID)
+			if e != nil {
 				return errors.WithStack(e)
 			}
-			if _, e := tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ?", service.ID); e != nil {
-				return errors.WithStack(e)
+			for _, str := range structs {
+				agentService := str.(*models.AgentService)
+				agent := models.Agent{ID: agentService.AgentID}
+				agents = append(agents, agent)
+				deleted, e := tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ? AND agent_id = ?", service.ID, agent.ID)
+				if e == nil && deleted != 1 {
+					e = errors.Errorf("expected to delete 1 record, deleted %d", deleted)
+				}
+				if e != nil {
+					return errors.WithStack(e)
+				}
 			}
 
-			if _, e := tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ?", service.ID); e != nil {
+			// remove associations of the node and agents
+			structs, e = tx.FindAllFrom(models.AgentNodeView, "node_id", node.ID)
+			if e != nil {
 				return errors.WithStack(e)
 			}
+			for _, str := range structs {
+				agentNode := str.(*models.AgentNode)
+				agent := models.Agent{ID: agentNode.AgentID}
+				agents = append(agents, agent)
+				deleted, e := tx.DeleteFrom(models.AgentNodeView, "WHERE node_id = ? AND agent_id = ?", node.ID, agent.ID)
+				if e == nil && deleted != 1 {
+					e = errors.Errorf("expected to delete 1 record, deleted %d", deleted)
+				}
+				if e != nil {
+					return errors.WithStack(e)
+				}
+			}
 
-			// FIXME fix deletion
+			// remove agents
+			for _, agent := range agents {
+				if e := tx.Delete(&agent); e != nil {
+					return errors.WithStack(e)
+				}
+			}
 
 			if e := tx.Delete(&service); e != nil {
 				return errors.WithStack(e)

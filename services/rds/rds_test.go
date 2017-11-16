@@ -150,7 +150,7 @@ func TestAddListRemove(t *testing.T) {
 		require.NoError(t, err)
 		expected := []Instance{{
 			Node: models.RDSNode{
-				ID:     1,
+				ID:     2,
 				Type:   "rds",
 				Name:   "mysql57",
 				Region: "eu-west-1",
@@ -158,7 +158,9 @@ func TestAddListRemove(t *testing.T) {
 			Service: models.RDSService{
 				ID:            1,
 				Type:          "rds",
-				NodeID:        1,
+				NodeID:        2,
+				AWSAccessKey:  &accessKey,
+				AWSSecretKey:  &secretKey,
 				Address:       pointer.ToString("mysql57.ckpwzom1xccn.eu-west-1.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("mysql"),
