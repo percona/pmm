@@ -218,6 +218,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/kardianos/osext"
+  packages = ["."]
+  revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
+
+[[projects]]
+  branch = "master"
   name = "github.com/kr/pretty"
   packages = ["."]
   revision = "cfb55aafdaf3ec08f0db22699ab822c50091b1c4"
@@ -275,6 +281,12 @@
   packages = ["."]
   revision = "5ccdfb18c776b740aecaf085c4d9a2779199c279"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "PMM-1710-supervisord"
+  name = "github.com/percona/kardianos-service"
+  packages = ["."]
+  revision = "2b1950e84cd2639323ef691ed0ed8c90be81b116"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -393,7 +405,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix","windows","windows/registry","windows/svc/eventlog"]
+  packages = ["unix","windows","windows/registry","windows/svc","windows/svc/eventlog","windows/svc/mgr"]
   revision = "02a66801d979d706a4b445e24e03916eeaa2a404"
 
 [[projects]]
@@ -441,6 +453,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7c85cecbd779ab89a47aac770c1c2fef12fd1b4a5e6e6614f2206663b7783196"
+  inputs-digest = "bf3dbacdbdfef59dafc0c25df2e0ddee434c74cc94e6c34e4978736798c73067"
   solver-name = "gps-cdcl"
   solver-version = 1

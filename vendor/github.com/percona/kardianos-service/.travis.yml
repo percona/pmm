@@ -1,0 +1,23 @@
+dist: trusty
+sudo: required
+language: go
+
+services:
+  - docker
+
+go:
+  - 1.9.x
+  - master
+
+go_import_path: github.com/percona/kardianos-service
+
+before_script:
+  - docker --version
+
+script:
+  - go install -v
+  - make -C linux_test
+  #- sudo go test -v -cover
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -X fix
