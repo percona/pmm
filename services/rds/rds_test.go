@@ -140,10 +140,13 @@ func TestAddListRemove(t *testing.T) {
 		require.NoError(t, err)
 		assert.Empty(t, actual)
 
-		err = svc.Add(ctx, accessKey, secretKey, nil, &InstanceID{"eu-west-1", "mysql57"}, "username", "password")
+		err = svc.Add(ctx, accessKey, secretKey, &InstanceID{}, "username", "password")
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `RDS instance name is not given.`), err)
+
+		err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"eu-west-1", "mysql57"}, "username", "password")
 		assert.NoError(t, err)
 
-		err = svc.Add(ctx, accessKey, secretKey, nil, &InstanceID{"eu-west-1", "mysql57"}, "username", "password")
+		err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"eu-west-1", "mysql57"}, "username", "password")
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `RDS instance "mysql57" already exists in region "eu-west-1".`), err)
 
 		actual, err = svc.List(ctx)
@@ -169,10 +172,13 @@ func TestAddListRemove(t *testing.T) {
 		}}
 		assert.Equal(t, expected, actual)
 
-		err = svc.Remove(ctx, nil, &InstanceID{"eu-west-1", "mysql57"})
+		err = svc.Remove(ctx, &InstanceID{})
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `RDS instance name is not given.`), err)
+
+		err = svc.Remove(ctx, &InstanceID{"eu-west-1", "mysql57"})
 		assert.NoError(t, err)
 
-		err = svc.Remove(ctx, nil, &InstanceID{"eu-west-1", "mysql57"})
+		err = svc.Remove(ctx, &InstanceID{"eu-west-1", "mysql57"})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `RDS instance "mysql57" not found in region "eu-west-1".`), err)
 
 		actual, err = svc.List(ctx)

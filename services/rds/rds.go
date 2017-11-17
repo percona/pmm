@@ -181,7 +181,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 		close(instances)
 	}()
 
-	var res []Instance
+	res := []Instance{}
 	for i := range instances {
 		res = append(res, i)
 	}
@@ -195,7 +195,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 }
 
 func (svc *Service) List(ctx context.Context) ([]Instance, error) {
-	var res []Instance
+	res := []Instance{}
 	err := svc.db.InTransaction(func(tx *reform.TX) error {
 		structs, e := tx.SelectAllFrom(models.RDSNodeTable, "WHERE type = ? ORDER BY id", models.RDSNodeType)
 		if e != nil {
@@ -230,174 +230,179 @@ func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 	return res, err
 }
 
-func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, ids []InstanceID, id *InstanceID, username, password string) error {
-	// TODO remove ids parameter
-	ids = append(ids, *id)
+func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *InstanceID, username, password string) error {
+	if id.Name == "" {
+		return status.Error(codes.InvalidArgument, "RDS instance name is not given.")
+	}
+	if id.Region == "" {
+		return status.Error(codes.InvalidArgument, "RDS instance region is not given.")
+	}
+	if username == "" {
+		return status.Error(codes.InvalidArgument, "Username is not given.")
+	}
 
 	instances, err := svc.Discover(ctx, accessKey, secretKey)
 	if err != nil {
 		return err
 	}
 
-	var add []Instance
+	var add *Instance
 	for _, instance := range instances {
-		for _, id := range ids {
-			if instance.Node.Name == id.Name && instance.Node.Region == id.Region {
-				add = append(add, instance)
-			}
+		if instance.Node.Name == id.Name && instance.Node.Region == id.Region {
+			add = &instance
+			break
 		}
 	}
-	if len(add) == 0 {
-		return nil
+	if add == nil {
+		return status.Errorf(codes.NotFound, "RDS instance %q not found in region %q.", id.Name, id.Region)
 	}
 
 	return svc.db.InTransaction(func(tx *reform.TX) error {
-		for _, instance := range add {
-			node := &models.RDSNode{
-				Type: models.RDSNodeType,
-				Name: instance.Node.Name,
+		node := &models.RDSNode{
+			Type: models.RDSNodeType,
+			Name: add.Node.Name,
 
-				Region: instance.Node.Region,
-			}
-			if e := tx.Insert(node); e != nil {
-				if e, ok := e.(*mysql.MySQLError); ok && e.Number == 0x426 {
-					return status.Errorf(codes.AlreadyExists, "RDS instance %q already exists in region %q.",
-						node.Name, node.Region)
-				}
-				return errors.WithStack(e)
-			}
-
-			service := &models.RDSService{
-				Type:   models.RDSServiceType,
-				NodeID: node.ID,
-
-				Address:       instance.Service.Address,
-				Port:          instance.Service.Port,
-				Engine:        instance.Service.Engine,
-				EngineVersion: instance.Service.EngineVersion,
-			}
-			if accessKey != "" || secretKey != "" {
-				service.AWSAccessKey = &accessKey
-				service.AWSSecretKey = &secretKey
-			}
-			if e := tx.Insert(service); e != nil {
-				return errors.WithStack(e)
-			}
-
-			agent := &models.MySQLdExporter{
-				Type:            models.MySQLdExporterAgentType,
-				RunsOnNodeID:    svc.pmmServerNode.ID,
-				ServiceUsername: &username,
-				ServicePassword: &password,
-			}
-			if e := tx.Insert(agent); e != nil {
-				return errors.WithStack(e)
-			}
-			if e := tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); e != nil {
-				return errors.WithStack(e)
-			}
-
-			// TODO start agents properly, with supervisor
-
-			// TODO use proper flags
-			if runAgent {
-				dsn := agent.DSN(service)
-				flags := []string{
-					"-collect.global_status",
-				}
-				cmd := exec.Command(svc.mySQLdExporterPath, flags...)
-				cmd.Env = []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)}
-				cmd.Stdout = os.Stdout
-				cmd.Stderr = os.Stderr
-				if e := cmd.Start(); e != nil {
-					return errors.WithStack(e)
-				}
-			}
-
-			// TODO insert other agents
-
-			// if e := tx.Insert(&models.AgentNode{AgentID: agent.ID, NodeID: node.ID}); e != nil {
-			// 	return errors.WithStack(e)
-			// }
+			Region: add.Node.Region,
 		}
+		if e := tx.Insert(node); e != nil {
+			if e, ok := e.(*mysql.MySQLError); ok && e.Number == 0x426 {
+				return status.Errorf(codes.AlreadyExists, "RDS instance %q already exists in region %q.",
+					node.Name, node.Region)
+			}
+			return errors.WithStack(e)
+		}
+
+		service := &models.RDSService{
+			Type:   models.RDSServiceType,
+			NodeID: node.ID,
+
+			Address:       add.Service.Address,
+			Port:          add.Service.Port,
+			Engine:        add.Service.Engine,
+			EngineVersion: add.Service.EngineVersion,
+		}
+		if accessKey != "" || secretKey != "" {
+			service.AWSAccessKey = &accessKey
+			service.AWSSecretKey = &secretKey
+		}
+		if e := tx.Insert(service); e != nil {
+			return errors.WithStack(e)
+		}
+
+		agent := &models.MySQLdExporter{
+			Type:            models.MySQLdExporterAgentType,
+			RunsOnNodeID:    svc.pmmServerNode.ID,
+			ServiceUsername: &username,
+			ServicePassword: &password,
+		}
+		if e := tx.Insert(agent); e != nil {
+			return errors.WithStack(e)
+		}
+		if e := tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); e != nil {
+			return errors.WithStack(e)
+		}
+
+		// TODO start agents properly, with supervisor
+
+		// TODO use proper flags
+		if runAgent {
+			dsn := agent.DSN(service)
+			flags := []string{
+				"-collect.global_status",
+			}
+			cmd := exec.Command(svc.mySQLdExporterPath, flags...)
+			cmd.Env = []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)}
+			cmd.Stdout = os.Stdout
+			cmd.Stderr = os.Stderr
+			if e := cmd.Start(); e != nil {
+				return errors.WithStack(e)
+			}
+		}
+
+		// TODO insert other agents
+
+		// if e := tx.Insert(&models.AgentNode{AgentID: agent.ID, NodeID: node.ID}); e != nil {
+		// 	return errors.WithStack(e)
+		// }
 
 		return nil
 	})
 }
 
-func (svc *Service) Remove(ctx context.Context, ids []InstanceID, id *InstanceID) error {
-	// TODO remove ids parameter
-	ids = append(ids, *id)
+func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
+	if id.Name == "" {
+		return status.Error(codes.InvalidArgument, "RDS instance name is not given.")
+	}
+	if id.Region == "" {
+		return status.Error(codes.InvalidArgument, "RDS instance region is not given.")
+	}
 
 	return svc.db.InTransaction(func(tx *reform.TX) error {
-		for _, instance := range ids {
-			var node models.RDSNode
-			if e := tx.SelectOneTo(&node, "WHERE type = ? AND name = ? AND region = ?", models.RDSNodeType, instance.Name, instance.Region); e != nil {
-				if e == reform.ErrNoRows {
-					return status.Errorf(codes.NotFound, "RDS instance %q not found in region %q.",
-						instance.Name, instance.Region)
-				}
-				return errors.WithStack(e)
+		var node models.RDSNode
+		if e := tx.SelectOneTo(&node, "WHERE type = ? AND name = ? AND region = ?", models.RDSNodeType, id.Name, id.Region); e != nil {
+			if e == reform.ErrNoRows {
+				return status.Errorf(codes.NotFound, "RDS instance %q not found in region %q.", id.Name, id.Region)
 			}
+			return errors.WithStack(e)
+		}
 
-			var service models.RDSService
-			if e := tx.SelectOneTo(&service, "WHERE node_id = ?", node.ID); e != nil {
-				return errors.WithStack(e)
+		var service models.RDSService
+		if e := tx.SelectOneTo(&service, "WHERE node_id = ?", node.ID); e != nil {
+			return errors.WithStack(e)
+		}
+
+		// TODO stop agents
+
+		var agents []models.Agent
+
+		// remove associations of the service and agents
+		structs, e := tx.FindAllFrom(models.AgentServiceView, "service_id", service.ID)
+		if e != nil {
+			return errors.WithStack(e)
+		}
+		for _, str := range structs {
+			agentService := str.(*models.AgentService)
+			agent := models.Agent{ID: agentService.AgentID}
+			agents = append(agents, agent)
+			deleted, e := tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ? AND agent_id = ?", service.ID, agent.ID)
+			if e == nil && deleted != 1 {
+				e = errors.Errorf("expected to delete 1 record, deleted %d", deleted)
 			}
-
-			// TODO stop agents
-
-			var agents []models.Agent
-
-			// remove associations of the service and agents
-			structs, e := tx.FindAllFrom(models.AgentServiceView, "service_id", service.ID)
 			if e != nil {
 				return errors.WithStack(e)
 			}
-			for _, str := range structs {
-				agentService := str.(*models.AgentService)
-				agent := models.Agent{ID: agentService.AgentID}
-				agents = append(agents, agent)
-				deleted, e := tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ? AND agent_id = ?", service.ID, agent.ID)
-				if e == nil && deleted != 1 {
-					e = errors.Errorf("expected to delete 1 record, deleted %d", deleted)
-				}
-				if e != nil {
-					return errors.WithStack(e)
-				}
-			}
+		}
 
-			// remove associations of the node and agents
-			structs, e = tx.FindAllFrom(models.AgentNodeView, "node_id", node.ID)
+		// remove associations of the node and agents
+		structs, e = tx.FindAllFrom(models.AgentNodeView, "node_id", node.ID)
+		if e != nil {
+			return errors.WithStack(e)
+		}
+		for _, str := range structs {
+			agentNode := str.(*models.AgentNode)
+			agent := models.Agent{ID: agentNode.AgentID}
+			agents = append(agents, agent)
+			deleted, e := tx.DeleteFrom(models.AgentNodeView, "WHERE node_id = ? AND agent_id = ?", node.ID, agent.ID)
+			if e == nil && deleted != 1 {
+				e = errors.Errorf("expected to delete 1 record, deleted %d", deleted)
+			}
 			if e != nil {
 				return errors.WithStack(e)
 			}
-			for _, str := range structs {
-				agentNode := str.(*models.AgentNode)
-				agent := models.Agent{ID: agentNode.AgentID}
-				agents = append(agents, agent)
-				deleted, e := tx.DeleteFrom(models.AgentNodeView, "WHERE node_id = ? AND agent_id = ?", node.ID, agent.ID)
-				if e == nil && deleted != 1 {
-					e = errors.Errorf("expected to delete 1 record, deleted %d", deleted)
-				}
-				if e != nil {
-					return errors.WithStack(e)
-				}
-			}
+		}
 
-			// remove agents
-			for _, agent := range agents {
-				if e := tx.Delete(&agent); e != nil {
-					return errors.WithStack(e)
-				}
-			}
-
-			if e := tx.Delete(&service); e != nil {
+		// remove agents
+		for _, agent := range agents {
+			if e := tx.Delete(&agent); e != nil {
 				return errors.WithStack(e)
 			}
-			if e := tx.Delete(&node); e != nil {
-				return errors.WithStack(e)
-			}
+		}
+
+		if e := tx.Delete(&service); e != nil {
+			return errors.WithStack(e)
+		}
+		if e := tx.Delete(&node); e != nil {
+			return errors.WithStack(e)
 		}
 
 		return nil
