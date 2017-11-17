@@ -4,6 +4,15 @@
 Running PMM Server Using Amazon Machine Images
 ==============================================
 
+.. - static: https://aws.amazon.com/marketplace/pp/B077J7FYGX
+   - recommend Run PMM on AWS in the same Availability Zone (traffic cost + latency)
+   - Enable performance_schema option in Parameter Groups for RDS
+   - Create separate database user for monitoring in RDS
+   - Security group should allow these ports open: 22, 80, 443
+   - Use elastic IP to avoid ip mod with reboots
+   - PMM should be able to access 3306 on RDS
+   - PMM: create user accoding to https://confluence.percona.com/x/XjkOAQ
+
 Percona provides public Amazon Machine Images (AMI) with *PMM Server*
 in all regions where Amazon Web Services (AWS) is available.
 You can launch an instance using the web console

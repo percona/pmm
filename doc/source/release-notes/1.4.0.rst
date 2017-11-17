@@ -35,14 +35,14 @@ tabular format but also as a JSON file to enable automatic verification of your
 configuration. To view the list of monitoring services in the JSON format run
 :command:`pmm-admin list --json`.
 
-In this release, :program:`Prometheus` and :program:`Grafana` have
-been upgraded. :program:`Prometheus` version 1.7.2, shipped with this
+In this release, |prometheus| and |grafana| have
+been upgraded. |prometheus| version 1.7.2, shipped with this
 release, offers a number of bug fixes that will contribute to its
 smooth operation inside PMM. For more information, see `the Prometheus
 change log
 <https://github.com/prometheus/prometheus/blob/v1.7.2/CHANGELOG.md#172--2017-09-26>`_.
 
-Version 4.5.2 of :program:`Grafana`, included in this release of PMM, offers a
+Version 4.5.2 of |grafana|, included in this release of PMM, offers a
 number of new tools that will facilitate data analysis in PMM:
 
 - New ``query editor`` for Prometheus expressions which features syntax highlighting
@@ -58,8 +58,8 @@ number of new tools that will facilitate data analysis in PMM:
   .. image:: ../images/pmm.metrics-monitor.graph.metrics.query-inspector.1.png
      :width: 50%
 
-The complete list of new features in :program:`Grafana` 4.5.0 is available from
-`What's New in Grafana v4.5
+The complete list of new features in :program:`Grafana` 4.5.0 is
+available from `What's New in Grafana v4.5
 <http://docs.grafana.org/guides/whats-new-in-v4-5/>`_.
 
 For install and upgrade instructions, see :ref:`deploy-pmm`.

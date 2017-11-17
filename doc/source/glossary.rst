@@ -5,6 +5,11 @@
 .. glossary::
    :sorted:
 
+   DISABLE_UPDATES (Option)
+
+      The |opt.disable-updates| option removes the :guilabel:`Update` button
+      from the interface and prevents the system from being updated manually.
+   
    Telemetry
 
       |percona| may collect some statistics about the machine where |pmm| is running.

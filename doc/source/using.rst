@@ -5,8 +5,8 @@ Using the Percona Monitoring and Management Platform
 ====================================================
 
 You can access the PMM web interface using the IP address of the host
-where *PMM Server* is running.
-For example, if *PMM Server* is running on a host with IP 192.168.100.1,
+where |pmm-server| is running.
+For example, if |pmm-server| is running on a host with IP 192.168.100.1,
 access the following address with your web browser: ``http://192.168.100.1``.
 
 The landing page has links to corresponding PMM tools:
@@ -15,15 +15,15 @@ The landing page has links to corresponding PMM tools:
    :local:
    :depth: 1
 
-These tools provide comprehensive insight
-into the performance of a MySQL host.
+These tools, implemented as |grafana| dashboards, provide
+comprehensive information about the performance of monitored hosts.
 
 .. _using-qan:
 
 Query Analytics
-===============
+================================================================================
 
-The *Query Analytics* tool enables database administrators and application
+The *Query Analytics* dashboard enables database administrators and application
 developers to analyze database queries over periods of time and find performance
 problems.  Query Analytics helps you optimize database performance by making
 sure that queries are executed as expected and within the shortest time
@@ -42,21 +42,23 @@ related characteristics appear as plotted graphics with summaries.
 .. figure:: images/pmm.home-page.1.png
    :width: 50%
 
-   :term:`QAN` is available from the home page of :term:`PMM`. Click the *Query
-   Analytics* button to access :term:`QAN`.
+   Starting with version 1.5 of |pmm|, |qan| is integrated into |grafana|. It is
+   available from the Home page as a separate dashboard.
 
-.. rubric:: Open :term:`QAN` from the :term:`PMM` home page
+.. rubric:: Open |qan| from the |pmm| Home Page
    
-To start working with :term:`QAN`, click the *Query Analytics* button on the PMM
-home page. Then, select a database at the top of the page from the list of
-database instances where the :term:`PMM client` is installed.
+To start working with |qan|, open the list of dashboards on the PMM
+home page. Then, select a host in the :guilabel:`Host` field at the top of the page from the list of
+database instances where the |pmm-client| is installed.
 
-The list of queries opens below in a summary table. Be default, QAN shows the
-top ten queries ranked by :term:`%GTT` (Grand total time) as a result of
+.. SCREENSHOT: The Host field
+
+The list of queries opens below in a summary table. Be default, |qan| shows the
+top *ten* queries ranked by :term:`%GTT` (Grand total time) as a result of
 monitoring your database server for the last hour. Each query displays three
 essential metrics: *Load*, *Count*, and *Latency*.
 
-To view more queries, click the *Load next 10 queries* button below the query
+To view more queries, click the :guilabel:`Load next 10 queries` button below the query
 summary table.
 
 .. figure:: images/pmm.qan.query-summary-table.default.1.png
@@ -107,7 +109,7 @@ the *range selection tool* located at the top of your *QAN* page.
    QAN displays query metrics for the time period or date range that you specify.
 
 The tool consists of two parts. The *Quick ranges* offers frequently used time
-ranges: from 1 hour to 5 days. Use the date picker to set a range of dates.
+ranges.. The date picker sets a range of dates.
 
 .. rubric:: Totals of the Query Summary
 
@@ -177,7 +179,6 @@ the query.
    :width: 50%
 
    The Query section shows the SQL statement for the selected query.
-	    
 
 .. rubric:: Explain Section
 
@@ -210,10 +211,10 @@ If you are viewing the details of a query of another type, the
 
 .. rubric:: Table Info Section
 
-At the bottom, you can run Table Info for the selected query.
-This enables you to get ``SHOW CREATE TABLE``, ``SHOW INDEX``,
-and ``SHOW TABLE STATUS`` for each table used by the query
-directly from the PMM web interface.
+At the bottom, you can run Table Info for the selected query.  This
+enables you to get ``SHOW CREATE TABLE``, ``SHOW INDEX``, and ``SHOW
+TABLE STATUS`` for each table used by the query directly from the PMM
+web interface.
 
 .. image:: images/qan-create-table.png
    :width: 50%
@@ -221,9 +222,10 @@ directly from the PMM web interface.
 Configuring Query Analytics
 --------------------------------------------------------------------------------
 
-The :guilabel:`Configure Query Analytics` button located next to the list of
-database instances opens a page with settings, status, and log for the selected
-database instance.
+The :guilabel:`Settings` button opens a separate page with settings,
+status, and log for the selected database instance.
+
+.. SCREENSHOT: Settings button
 
 .. rubric:: Settings Tab
 
@@ -278,11 +280,11 @@ was taken.
 Performance Schema
 ------------------
 
-The default source of query data for PMM is the slow query log.
-It is available in MySQL 5.1 and later versions.
-Starting from MySQL 5.6 (including Percona Server 5.6 and later),
+The default source of query data for |pmm| is the slow query log.
+It is available in |mysql| 5.1 and later versions.
+Starting from |mysql| 5.6 (including Percona Server 5.6 and later),
 you can select to parse query data from the Performance Schema.
-Starting from MySQL 5.6.6, Performance Schema is enabled by default.
+Starting from |mysql| 5.6.6, Performance Schema is enabled by default.
 
 Performance Schema is not as data-rich as the slow query log,
 but it has all the critical data and is generally faster to parse.
@@ -316,23 +318,27 @@ will likely provide better results.
       in MySQL 5.6.6 and later versions.
       It is not available at all in MySQL versions prior to 5.6.
 
-2. Configure QAN agent to collect data from Performance Schema:
+2. Configure the |qan| agent to collect data from Performance Schema:
 
    If the instance is already running:
 
-   a. Open the **Settings** section in the Query Analytics web UI.
-   b. Select **Performance Schema** in the **Collect from** drop-down list.
-   c. Click **Apply** to save changes.
+   a. Open the |qan.name| dashboard.
+   #. Click the :guilabel:`Settings` button.
+   #. Open the **Settings** section.
+   #. Select :option:`Performance Schema` in the :guilabel:`Collect from` drop-down list.
+   #. Click **Apply** to save changes.
 
    If you are adding a new monitoring instance with the ``pmm-admin`` tool,
-   use the ``--query-source perfschema`` option.
-   For example:
+   use the |opt.query-source| *perfschema* option. For example:
 
    .. code-block:: bash
 
       sudo pmm-admin add mysql --user root --password root --create-user --query-source perfschema
 
-For more information, run ``pmm-admin add mysql --help``.
+For more information, run
+|pmm-admin.add|
+|opt.mysql|
+|opt.help|.
 
 QAN for MongoDB
 --------------------------------------------------------------------------------

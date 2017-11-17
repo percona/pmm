@@ -40,6 +40,7 @@
 .. Programs
 
 .. |docker|          replace:: :program:`Docker`
+.. |consul|          replace:: :program:`Consul`
 .. |pmm-admin|       replace:: :program:`pmm-admin`
 .. |sudo|            replace:: :program:`sudo`   
 .. |metrics-monitor| replace:: :program:`Metrics Monitor`
@@ -68,6 +69,7 @@
 .. |opt.config-file|          replace:: :option:`--config-file`
 .. |opt.create-user|          replace:: :option:`--create-user`			
 .. |opt.dev-enable|           replace:: :option:`--dev-enable`
+.. |opt.disable-updates|      replace:: :option:`DISABLE_UPDATES`
 .. |opt.external-metrics|     replace:: :option:`external:metrics`
 .. |opt.help|                 replace:: :option:`--help`
 .. |opt.linux-metrics|        replace:: :option:`linux:metrics`
@@ -93,4 +95,4 @@
 .. |graph.mysql.myrocks| replace:: *MySQL MyRocks Metrics*
 .. |graph.prometheus| replace:: *Prometheus*
 .. |graph.advanced-data-exploration| replace:: *Advanced Data Exploration*
-				
+.. |graph.cpu_usage| replace:: *CPU Usage*
