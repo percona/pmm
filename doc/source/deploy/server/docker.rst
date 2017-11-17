@@ -4,22 +4,23 @@
 Running |pmm-server| Using |docker|
 ================================================================================
 
-|docker| images of |pmm-server| are hosted publicly
-at `pmm.docker-image.download`_.
-If you want to run |pmm-server| from a |docker| image,
-the host must be able to run |docker| 1.12.6 or later,
-and have network access.
+|docker| images of |pmm-server| are at the `percona/pmm-server`_ public
+repository. If you intend to run |pmm-server| from a |docker| image, the host
+must be able to run |docker| 1.12.6 or later, and have network access.
+
 
 For more information about using |docker|, see the `Docker Docs`_.
 
-.. _`Docker Docs`: https://docs.docker.com/
+.. This note is not necessary because the docker docs provide much better
+   instructions about using package managers.  Also, this note is not
+   accurate. Using apt and yum is ok: docker provides their repositories.
 
-.. note:: Make sure that you are using the latest version of Docker.
-   The ones provided via ``apt`` and ``yum``
-   may be outdated and cause errors.
+   .. note:: Make sure that you are using the latest version of |docker|.
+      The ones provided via ``apt`` or ``yum``
+      may be outdated and cause errors.
 
 .. note:: Make sure that the firewall and routing rules of the host
-   will not constrain the Docker container.
+   do not constrain the |docker| container.
    For more information, see :ref:`troubleshoot-connection`.
 
 Step 1. Pull the PMM Server Image
@@ -78,19 +79,14 @@ The previous command does the following:
 .. _server-container:
 
 Step 3. Create and Run the |pmm-server| Container
---------------------------------------------------------------------------------
+================================================================================
 
 To run |pmm-server|, use the following command:
 
-.. code-block:: bash
-
-   $ docker run -d \
-      -p 80:80 \
-      --volumes-from pmm-data \
-      --name pmm-server \
-      --restart always \
-      percona/pmm-server:latest
-
+.. include:: ../../.resources/code/sh.txt
+   :start-after: docker.run.latest
+   :end-before: (end-code-block)
+		
 The previous command does the following:
 
 * The ``docker run`` command instructs the ``docker`` daemon
@@ -129,11 +125,11 @@ the |docker| *run* subcommand.
 .. rubric:: To enable Orchestrator
 
 By default, Orchestrator_ is disabled. To enable it, set the
- to **true**.
+ |opt.orchestrator-enabled| option to **true**.
 
-.. code-block:: bash
-
-   $ docker run ... -e ORCHESTRATOR_ENABLED=true
+.. include:: ../../.resources/code/sh.txt
+   :start-after: docker.run.orchestrator-enabled
+   :end-before: (end-code-block)
 
 .. rubric:: To disable telemetry
 
@@ -149,14 +145,29 @@ every 24 hours. This statistics includes the following details:
 If you do not want your |pmm-server| to send this information, disable telemetry
 when running your |docker| container:
 
-.. code-block:: bash
+.. include:: ../../.resources/code/sh.txt
+   :start-after: docker.run.disable-telemetry
+   :end-before: (end-code-block)
 
-   $ docker run ... -e DISABLE_TELEMETRY=true
+.. rubric:: To disable updates
+
+To update your |pmm| from web interface you only need to click the
+:guilabel:`Update` on the home page. The |opt.disable-updates| option is useful
+if updating is not desirable. Set it to **true** when running |pmm| in
+the |docker| container.
+
+.. include: ../../.resources/code/sh.txt
+   :start-after: docker.run.disable-updates
+   :end-before: (end-code-block)
 
 .. toctree::
    :hidden:
 
    upgrade
+
+.. seealso::
+
+   - :ref:`Updating PMM <deploy-pmm.updating>`
 
 .. include:: ../../.resources/url.txt
 .. include:: ../../.resources/name.txt
