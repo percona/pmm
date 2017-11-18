@@ -17,6 +17,7 @@
       with_items:
         - { src: '/etc/orchestrator.conf.json',    dest: '/tmp/orchestrator.conf.json-backup' }
         - { src: '/etc/cron.daily/purge-qan-data', dest: '/tmp/purge-qan-data-backup' }
+        - { src: '/etc/grafana/grafana.ini',       dest: '/tmp/grafana-backup' }
 
     - name: PMM                        | Remove RPMs
       when: ansible_os_family == 'RedHat'
@@ -50,6 +51,7 @@
       with_items:
         - { src: '/tmp/orchestrator.conf.json-backup', dest: '/etc/orchestrator.conf.json' }
         - { src: '/tmp/purge-qan-data-backup',         dest: '/etc/cron.daily/purge-qan-data' }
+        - { src: '/tmp/grafana-backup',                dest: '/etc/grafana/grafana.ini' }
 
     - name: PMM                        | Remove temporary files
       command: /usr/bin/shred --remove /tmp/orchestrator.conf.json-backup /tmp/purge-qan-data-backup
