@@ -94,11 +94,6 @@
         regexp: '^(\s*)listen'
         replace: '\1#listen'
 
-    - name: PMM                        | Import dashboards
-      command: bash -c "/usr/share/percona-dashboards/import-dashboards.py $(dirname $(ls /srv/grafana/grafana.db /var/lib/grafana/grafana.db 2>/dev/null))"
-      register: import_result
-      changed_when: "'up-to-date' not in import_result.stdout"
-
     - name: Security                   | Stat sshd_config
       stat: path=/etc/ssh/sshd_config
       register: sshd_config
@@ -187,6 +182,11 @@
         - consul
         - pmm-managed
         - sshd
+
+    - name: PMM                        | Import dashboards
+      command: bash -c "/usr/share/percona-dashboards/import-dashboards.py $(dirname $(ls /srv/grafana/grafana.db /var/lib/grafana/grafana.db 2>/dev/null))"
+      register: import_result
+      changed_when: "'up-to-date' not in import_result.stdout"
 
     - name: PMM                        | Restart pmm-manage daemon (delayed)
       shell: cd /tmp; nohup sh -c 'sleep 60; test -e /usr/bin/supervisorctl && /usr/bin/supervisorctl restart pmm-manage nginx || /bin/systemctl restart pmm-manage nginx' </dev/null >/dev/null 2>&1 &
