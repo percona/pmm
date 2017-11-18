@@ -18,6 +18,13 @@
         - { src: '/etc/orchestrator.conf.json',    dest: '/tmp/orchestrator.conf.json-backup' }
         - { src: '/etc/cron.daily/purge-qan-data', dest: '/tmp/purge-qan-data-backup' }
 
+    - name: PMM                        | Remove RPMs
+      when: ansible_os_family == 'RedHat'
+      yum: name={{ item }} state=absent
+      with_items:
+        - percona-qan-app2
+        - percona-node_exporter-0.13.0
+
     - name: PMM                        | Install RPMs
       when: ansible_os_family == 'RedHat'
       yum: name={{ item }} state=present enablerepo=pmm
@@ -37,13 +44,6 @@
         - pmm-managed-1.5.0
         - percona-consul-1.0.0
         - rds_exporter-1.5.0
-
-    - name: PMM                        | Remove RPMs
-      when: ansible_os_family == 'RedHat'
-      yum: name={{ item }} state=absent
-      with_items:
-        - percona-qan-app2
-        - percona-node_exporter-0.13.0
 
     - name: PMM                        | Restore unmanaged configs
       copy: src={{ item.src }} dest={{ item.dest }}
