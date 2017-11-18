@@ -36,6 +36,7 @@
         - pmm-manage-1.5.0
         - pmm-managed-1.5.0
         - percona-consul-1.0.0
+        - rds_exporter-1.5.0
 
     - name: PMM                        | Remove RPMs
       when: ansible_os_family == 'RedHat'
