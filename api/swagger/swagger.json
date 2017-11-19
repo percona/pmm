@@ -434,13 +434,6 @@
         "id": {
           "$ref": "#/definitions/apiRDSInstanceID"
         },
-        "ids": {
-          "type": "array",
-          "title": "TODO remove",
-          "items": {
-            "$ref": "#/definitions/apiRDSInstanceID"
-          }
-        },
         "password": {
           "type": "string"
         },
@@ -512,13 +505,6 @@
       "properties": {
         "id": {
           "$ref": "#/definitions/apiRDSInstanceID"
-        },
-        "ids": {
-          "type": "array",
-          "title": "TODO remove",
-          "items": {
-            "$ref": "#/definitions/apiRDSInstanceID"
-          }
         }
       }
     },

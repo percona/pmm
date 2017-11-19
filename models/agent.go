@@ -19,6 +19,7 @@ package models
 import (
 	"database/sql"
 	"database/sql/driver"
+	"fmt"
 	"net"
 	"strconv"
 
@@ -70,6 +71,7 @@ type MySQLdExporter struct {
 
 	ServiceUsername *string `reform:"service_username"`
 	ServicePassword *string `reform:"service_password"`
+	ListenPort      *uint16 `reform:"listen_port"`
 }
 
 func (m *MySQLdExporter) DSN(service *RDSService) string {
@@ -78,7 +80,12 @@ func (m *MySQLdExporter) DSN(service *RDSService) string {
 		Passwd: *m.ServicePassword,
 		Net:    "tcp",
 		Addr:   net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port))),
-		// TODO other parameters?
+		// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
+		// TODO Other parameters?
 	}
 	return cfg.FormatDSN()
+}
+
+func (m *MySQLdExporter) NameForSupervisor() string {
+	return fmt.Sprintf("pmm-%s-%d", m.Type, *m.ListenPort)
 }
