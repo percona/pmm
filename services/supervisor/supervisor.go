@@ -56,6 +56,8 @@ func (s *Supervisor) Start(ctx context.Context, config *service.Config) error {
 
 func (s *Supervisor) Stop(ctx context.Context, name string) error {
 	config := &service.Config{Name: name}
+	config.Option = adjustOption(config.Option)
+
 	svc, err := service.New(new(program), config)
 	if err != nil {
 		return err

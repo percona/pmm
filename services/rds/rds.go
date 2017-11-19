@@ -396,8 +396,6 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 			return errors.WithStack(e)
 		}
 
-		// TODO stop agents
-
 		var agents []models.Agent
 
 		// remove associations of the service and agents
@@ -433,6 +431,30 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 			}
 			if e != nil {
 				return errors.WithStack(e)
+			}
+		}
+
+		// stop agents
+		for _, agent := range agents {
+			// fill type
+			if e := tx.Reload(&agent); e != nil {
+				return errors.WithStack(e)
+			}
+
+			var name string
+			switch agent.Type {
+			case models.MySQLdExporterAgentType:
+				a := models.MySQLdExporter{ID: agent.ID}
+				if e := tx.Reload(&a); e != nil {
+					return errors.WithStack(e)
+				}
+				name = a.NameForSupervisor()
+			}
+
+			if name != "" {
+				if e := svc.supervisor.Stop(ctx, name); e != nil {
+					return e
+				}
 			}
 		}
 
