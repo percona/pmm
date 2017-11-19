@@ -47,7 +47,7 @@ var checkFailedRE = regexp.MustCompile(`FAILED: (.+)\n`)
 //   * Prometheus configuration and rule files are accessible;
 //   * promtool is available.
 type Service struct {
-	configPath     string
+	ConfigPath     string
 	baseURL        *url.URL
 	promtoolPath   string
 	alertRulesPath string
@@ -61,7 +61,7 @@ func NewService(config string, baseURL string, promtool string, consul *consul.C
 		return nil, errors.WithStack(err)
 	}
 	return &Service{
-		configPath:   config,
+		ConfigPath:   config,
 		baseURL:      u,
 		promtoolPath: promtool,
 		consul:       consul,
@@ -70,7 +70,7 @@ func NewService(config string, baseURL string, promtool string, consul *consul.C
 
 // loadConfig loads current Prometheus configuration from file.
 func (svc *Service) loadConfig() (*internal.Config, error) {
-	cfg, err := internal.LoadFile(svc.configPath)
+	cfg, err := internal.LoadFile(svc.ConfigPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "can't load Prometheus configuration file")
 	}
@@ -88,11 +88,11 @@ func (svc *Service) loadConfig() (*internal.Config, error) {
 // If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
 func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Config) error {
 	// read existing content
-	old, err := ioutil.ReadFile(svc.configPath)
+	old, err := ioutil.ReadFile(svc.ConfigPath)
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	fi, err := os.Stat(svc.configPath)
+	fi, err := os.Stat(svc.ConfigPath)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -101,7 +101,7 @@ func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Confi
 	var restore bool
 	defer func() {
 		if restore {
-			if err = ioutil.WriteFile(svc.configPath, old, fi.Mode()); err != nil {
+			if err = ioutil.WriteFile(svc.ConfigPath, old, fi.Mode()); err != nil {
 				logger.Get(ctx).Error(err)
 			}
 			if err = svc.reload(); err != nil {
@@ -142,7 +142,7 @@ func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Confi
 
 	// write to permanent location and reload
 	restore = true
-	if err = ioutil.WriteFile(svc.configPath, new, fi.Mode()); err != nil {
+	if err = ioutil.WriteFile(svc.ConfigPath, new, fi.Mode()); err != nil {
 		return errors.WithStack(err)
 	}
 	if err = svc.reload(); err != nil {

@@ -27,7 +27,7 @@ import (
 
 const (
 	// store scrape configs in Consul under that key
-	consulKey = "prometheus/scrape_configs"
+	ConsulKey = "prometheus/scrape_configs"
 )
 
 type LabelPair struct {
@@ -72,7 +72,7 @@ type consulData struct {
 }
 
 func (svc *Service) getFromConsul() ([]ScrapeConfig, error) {
-	b, err := svc.consul.GetKV(consulKey)
+	b, err := svc.consul.GetKV(ConsulKey)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (svc *Service) putToConsul(scs []ScrapeConfig) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	return svc.consul.PutKV(consulKey, b)
+	return svc.consul.PutKV(ConsulKey, b)
 }
 
 // ListScrapeConfigs returns all scrape configs.

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-package prometheus
+package tests
 
 import (
 	"context"
@@ -26,20 +26,20 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm-managed/services/consul"
+	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
-const testdata = "../../testdata/prometheus/"
+const prometheusTestdata = "../../testdata/prometheus/"
 
-// also used by RDS service tests
-func SetupTest(t *testing.T) (p *Service, ctx context.Context, before []byte) {
+func SetupPrometheusTest(t *testing.T) (p *prometheus.Service, ctx context.Context, before []byte) {
 	ctx, _ = logger.Set(context.Background(), t.Name())
 
 	consulClient, err := consul.NewClient("127.0.0.1:8500")
 	require.NoError(t, err)
-	require.NoError(t, consulClient.DeleteKV(ConsulKey))
+	require.NoError(t, consulClient.DeleteKV(prometheus.ConsulKey))
 
-	p, err = NewService(filepath.Join(testdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool", consulClient)
+	p, err = prometheus.NewService(filepath.Join(prometheusTestdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool", consulClient)
 	require.NoError(t, err)
 	require.NoError(t, p.Check(ctx))
 
@@ -49,7 +49,6 @@ func SetupTest(t *testing.T) (p *Service, ctx context.Context, before []byte) {
 	return p, ctx, before
 }
 
-// also used by RDS service tests
-func TearDownTest(t *testing.T, p *Service, before []byte) {
+func TearDownPrometheusTest(t *testing.T, p *prometheus.Service, before []byte) {
 	assert.NoError(t, ioutil.WriteFile(p.ConfigPath, before, 0666))
 }
