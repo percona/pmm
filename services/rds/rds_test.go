@@ -32,13 +32,13 @@ import (
 	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/utils/ports"
 	"github.com/percona/pmm-managed/utils/tests"
+	"github.com/percona/pmm-managed/utils/tests/promtest"
 )
 
 func setup(t *testing.T, accessKey, secretKey string) (context.Context, *Service, *sql.DB, []byte) {
-	p, ctx, before := prometheus.SetupTest(t)
+	p, ctx, before := promtest.Setup(t)
 
 	sqlDB := tests.OpenTestDB(t)
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -53,7 +53,7 @@ func setup(t *testing.T, accessKey, secretKey string) (context.Context, *Service
 }
 
 func teardown(t *testing.T, svc *Service, sqlDB *sql.DB, before []byte) {
-	prometheus.TearDownTest(t, svc.Prometheus, before)
+	promtest.TearDown(t, svc.Prometheus, before)
 	err := sqlDB.Close()
 	require.NoError(t, err)
 }

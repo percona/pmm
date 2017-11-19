@@ -17,6 +17,7 @@
 package prometheus
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -30,18 +31,44 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
+	"github.com/percona/pmm-managed/services/consul"
+	"github.com/percona/pmm-managed/utils/logger"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
+const testdata = "../../testdata/prometheus/"
+
+// TODO merge with promtest.Setup without pulling "testing" package dependency and flags into binary
+func setup(t *testing.T) (p *Service, ctx context.Context, before []byte) {
+	ctx, _ = logger.Set(context.Background(), t.Name())
+
+	consulClient, err := consul.NewClient("127.0.0.1:8500")
+	require.NoError(t, err)
+	require.NoError(t, consulClient.DeleteKV(ConsulKey))
+
+	p, err = NewService(filepath.Join(testdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool", consulClient)
+	require.NoError(t, err)
+	require.NoError(t, p.Check(ctx))
+
+	before, err = ioutil.ReadFile(p.ConfigPath)
+	require.NoError(t, err)
+
+	return p, ctx, before
+}
+
+func teardown(t *testing.T, p *Service, before []byte) {
+	assert.NoError(t, ioutil.WriteFile(p.ConfigPath, before, 0666))
+}
+
 func TestPrometheusConfig(t *testing.T) {
-	p, ctx, before := SetupTest(t)
-	defer TearDownTest(t, p, before)
+	p, ctx, before := setup(t)
+	defer teardown(t, p, before)
 
 	// check that we can write it exactly as it was
 	c, err := p.loadConfig()
 	assert.NoError(t, err)
 	assert.NoError(t, p.saveConfigAndReload(ctx, c))
-	after, err := ioutil.ReadFile(p.configPath)
+	after, err := ioutil.ReadFile(p.ConfigPath)
 	require.NoError(t, err)
 	b, a := string(before), string(after)
 	diff, _ := difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
@@ -58,7 +85,7 @@ func TestPrometheusConfig(t *testing.T) {
 	err = p.saveConfigAndReload(ctx, c)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), `scrape timeout greater than scrape interval`)
-	after, err = ioutil.ReadFile(p.configPath)
+	after, err = ioutil.ReadFile(p.ConfigPath)
 	require.NoError(t, err)
 	assert.Equal(t, before, after)
 }
@@ -66,8 +93,8 @@ func TestPrometheusConfig(t *testing.T) {
 func TestPrometheusRules(t *testing.T) {
 	t.Skip("TODO")
 
-	p, ctx, before := SetupTest(t)
-	defer TearDownTest(t, p, before)
+	p, ctx, before := setup(t)
+	defer teardown(t, p, before)
 
 	alerts, err := p.ListAlertRules(ctx)
 	require.NoError(t, err)
@@ -97,8 +124,8 @@ func TestPrometheusRules(t *testing.T) {
 }
 
 func TestPrometheusScrapeConfigs(t *testing.T) {
-	p, ctx, before := SetupTest(t)
-	defer TearDownTest(t, p, before)
+	p, ctx, before := setup(t)
+	defer teardown(t, p, before)
 
 	cfgs, err := p.ListScrapeConfigs(ctx)
 	require.NoError(t, err)
@@ -174,8 +201,8 @@ func TestPrometheusScrapeConfigs(t *testing.T) {
 }
 
 func TestPrometheusStaticTargets(t *testing.T) {
-	p, ctx, before := SetupTest(t)
-	defer TearDownTest(t, p, before)
+	p, ctx, before := setup(t)
+	defer teardown(t, p, before)
 
 	cfg := &ScrapeConfig{
 		JobName:        "test_config",
@@ -239,8 +266,8 @@ func TestPrometheusStaticTargets(t *testing.T) {
 
 // https://jira.percona.com/browse/PMM-1310?focusedCommentId=196688
 func TestPrometheusBadScrapeConfig(t *testing.T) {
-	p, ctx, before := SetupTest(t)
-	defer TearDownTest(t, p, before)
+	p, ctx, before := setup(t)
+	defer teardown(t, p, before)
 
 	// https://jira.percona.com/browse/PMM-1636
 	cfg := &ScrapeConfig{
@@ -271,8 +298,8 @@ func TestPrometheusBadScrapeConfig(t *testing.T) {
 
 // https://jira.percona.com/browse/PMM-1310?focusedCommentId=196689
 func TestPrometheusReadDefaults(t *testing.T) {
-	p, ctx, before := SetupTest(t)
-	defer TearDownTest(t, p, before)
+	p, ctx, before := setup(t)
+	defer teardown(t, p, before)
 
 	cfg := &ScrapeConfig{
 		JobName: "test_config",
