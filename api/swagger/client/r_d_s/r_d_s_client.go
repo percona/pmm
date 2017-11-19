@@ -53,7 +53,7 @@ func (a *Client) Add(params *AddParams) (*AddOK, error) {
 }
 
 /*
-Discover discover API
+Discover queries parameters aws access key id aws secret access key
 */
 func (a *Client) Discover(params *DiscoverParams) (*DiscoverOK, error) {
 	// TODO: Validate the params before sending

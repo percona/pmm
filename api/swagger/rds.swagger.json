@@ -81,6 +81,7 @@
     },
     "/v0/rds/discover": {
       "get": {
+        "summary": "Query parameters: aws_access_key_id, aws_secret_access_key.",
         "operationId": "Discover",
         "responses": {
           "200": {

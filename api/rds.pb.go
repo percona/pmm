@@ -300,6 +300,7 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for RDS service
 
 type RDSClient interface {
+	// Query parameters: aws_access_key_id, aws_secret_access_key.
 	Discover(ctx context.Context, in *RDSDiscoverRequest, opts ...grpc.CallOption) (*RDSDiscoverResponse, error)
 	List(ctx context.Context, in *RDSListRequest, opts ...grpc.CallOption) (*RDSListResponse, error)
 	Add(ctx context.Context, in *RDSAddRequest, opts ...grpc.CallOption) (*RDSAddResponse, error)
@@ -353,6 +354,7 @@ func (c *rDSClient) Remove(ctx context.Context, in *RDSRemoveRequest, opts ...gr
 // Server API for RDS service
 
 type RDSServer interface {
+	// Query parameters: aws_access_key_id, aws_secret_access_key.
 	Discover(context.Context, *RDSDiscoverRequest) (*RDSDiscoverResponse, error)
 	List(context.Context, *RDSListRequest) (*RDSListResponse, error)
 	Add(context.Context, *RDSAddRequest) (*RDSAddResponse, error)
