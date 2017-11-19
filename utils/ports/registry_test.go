@@ -34,7 +34,7 @@ func TestRegistry(t *testing.T) {
 	p, err := r.Reserve()
 	assert.NoError(t, err)
 	assert.EqualValues(t, 10002, p)
-	p, err = r.Reserve()
+	_, err = r.Reserve()
 	assert.Equal(t, errNoFreePort, err)
 
 	l2, err := net.Listen("tcp", "127.0.0.1:10002")
@@ -57,7 +57,7 @@ func TestRegistry(t *testing.T) {
 	p, err = r.Reserve()
 	assert.NoError(t, err)
 	assert.EqualValues(t, 10001, p)
-	p, err = r.Reserve()
+	_, err = r.Reserve()
 	assert.Equal(t, errNoFreePort, err)
 
 	err = r.Release(10002)
@@ -66,6 +66,6 @@ func TestRegistry(t *testing.T) {
 	p, err = r.Reserve()
 	assert.NoError(t, err)
 	assert.EqualValues(t, 10002, p)
-	p, err = r.Reserve()
+	_, err = r.Reserve()
 	assert.Equal(t, errNoFreePort, err)
 }

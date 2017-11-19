@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+// Package supervisor provides facilities for working with system process supervisors.
 package supervisor
 
 import (

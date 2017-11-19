@@ -239,7 +239,7 @@ func (svc *Service) Check(ctx context.Context) error {
 	}
 	defer resp.Body.Close()
 	b, err := ioutil.ReadAll(resp.Body)
-	l.Infof("Prometheus: %s", b)
+	l.Debugf("Prometheus: %s", b)
 	if err != nil {
 		return err
 	}
@@ -251,7 +251,7 @@ func (svc *Service) Check(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrap(err, string(b))
 	}
-	l.Infof("%s", b)
+	l.Debugf("%s", b)
 
 	scs, err := svc.getFromConsul()
 	if err != nil {

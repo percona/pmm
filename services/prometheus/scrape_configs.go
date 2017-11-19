@@ -174,9 +174,9 @@ func (svc *Service) CreateScrapeConfig(ctx context.Context, cfg *ScrapeConfig) e
 	return svc.putToConsul(updater.consulData)
 }
 
-// SetScrapeConfig creates a new or completely replaces existing scrape config with a given name.
+// SetScrapeConfigs creates new or completely replaces existing scrape configs with a given names.
 // Errors: InvalidArgument(3) if some argument is not valid.
-func (svc *Service) SetScrapeConfig(ctx context.Context, cfg *ScrapeConfig, useConsul bool) error {
+func (svc *Service) SetScrapeConfigs(ctx context.Context, useConsul bool, configs ...*ScrapeConfig) error {
 	// That method is implemented for RDS and Inventory API. It does not uses Consul.
 	// The only reason for useConsul argument existence is to draw attention to that fact, to make it harder to misuse.
 	if useConsul {
@@ -186,26 +186,28 @@ func (svc *Service) SetScrapeConfig(ctx context.Context, cfg *ScrapeConfig, useC
 	svc.lock.Lock()
 	defer svc.lock.Unlock()
 
-	scrapeConfig, err := convertScrapeConfig(cfg)
-	if err != nil {
-		return err
-	}
-
 	config, err := svc.loadConfig()
 	if err != nil {
 		return err
 	}
 
-	var found bool
-	for i, sc := range config.ScrapeConfigs {
-		if sc.JobName == cfg.JobName {
-			config.ScrapeConfigs[i] = scrapeConfig
-			found = true
-			break
+	for _, cfg := range configs {
+		scrapeConfig, err := convertScrapeConfig(cfg)
+		if err != nil {
+			return err
 		}
-	}
-	if !found {
-		config.ScrapeConfigs = append(config.ScrapeConfigs, scrapeConfig)
+
+		var found bool
+		for i, sc := range config.ScrapeConfigs {
+			if sc.JobName == cfg.JobName {
+				config.ScrapeConfigs[i] = scrapeConfig
+				found = true
+				break
+			}
+		}
+		if !found {
+			config.ScrapeConfigs = append(config.ScrapeConfigs, scrapeConfig)
+		}
 	}
 
 	return svc.saveConfigAndReload(ctx, config)
