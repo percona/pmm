@@ -306,7 +306,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 			return errors.WithStack(e)
 		}
 
-		// insert mysqld_exporter agent
+		// insert mysqld_exporter agent and association
 		port, e := svc.PortsRegistry.Reserve()
 		if e != nil {
 			return e
@@ -396,51 +396,41 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 			return errors.WithStack(e)
 		}
 
-		var agents []models.Agent
-
 		// remove associations of the service and agents
-		structs, e := tx.FindAllFrom(models.AgentServiceView, "service_id", service.ID)
+		agentsForService, e := models.AgentsForServiceID(tx.Querier, service.ID)
 		if e != nil {
-			return errors.WithStack(e)
+			return e
 		}
-		for _, str := range structs {
-			agentService := str.(*models.AgentService)
-			agent := models.Agent{ID: agentService.AgentID}
-			agents = append(agents, agent)
+		for _, agent := range agentsForService {
 			deleted, e := tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ? AND agent_id = ?", service.ID, agent.ID)
-			if e == nil && deleted != 1 {
-				e = errors.Errorf("expected to delete 1 record, deleted %d", deleted)
-			}
 			if e != nil {
 				return errors.WithStack(e)
+			}
+			if deleted != 1 {
+				return errors.Errorf("expected to delete 1 record, deleted %d", deleted)
 			}
 		}
 
 		// remove associations of the node and agents
-		structs, e = tx.FindAllFrom(models.AgentNodeView, "node_id", node.ID)
+		agentsForNode, e := models.AgentsForNodeID(tx.Querier, node.ID)
 		if e != nil {
-			return errors.WithStack(e)
+			return e
 		}
-		for _, str := range structs {
-			agentNode := str.(*models.AgentNode)
-			agent := models.Agent{ID: agentNode.AgentID}
-			agents = append(agents, agent)
+		for _, agent := range agentsForNode {
 			deleted, e := tx.DeleteFrom(models.AgentNodeView, "WHERE node_id = ? AND agent_id = ?", node.ID, agent.ID)
-			if e == nil && deleted != 1 {
-				e = errors.Errorf("expected to delete 1 record, deleted %d", deleted)
-			}
 			if e != nil {
 				return errors.WithStack(e)
+			}
+			if deleted != 1 {
+				return errors.Errorf("expected to delete 1 record, deleted %d", deleted)
 			}
 		}
 
 		// stop agents
+		agents := make([]models.Agent, 0, len(agentsForService)+len(agentsForNode))
+		agents = append(agents, agentsForService...)
+		agents = append(agents, agentsForNode...)
 		for _, agent := range agents {
-			// fill type
-			if e := tx.Reload(&agent); e != nil {
-				return errors.WithStack(e)
-			}
-
 			var name string
 			switch agent.Type {
 			case models.MySQLdExporterAgentType:
