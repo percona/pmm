@@ -157,11 +157,11 @@ const supervisordScript = `# {{.Description}}
 [program:{{.Name}}]
 command = {{.Path}}{{range .Arguments}} {{.}}{{end}}
 
-{{if .Environment}}environment {{range .Environment}}{{.|envKey}}={{.|envValue|cmd}} {{end}}{{end}}
+{{if .Environment}}environment = {{range .Environment}}{{.|envKey}}={{.|envValue|cmd}} {{end}}{{end}}
 
-{{if .UserName}}user {{.UserName}}{{end}}
+{{if .UserName}}user = {{.UserName}}{{end}}
 
-{{if .WorkingDirectory}}directory {{.WorkingDirectory}}{{end}}
+{{if .WorkingDirectory}}directory = {{.WorkingDirectory}}{{end}}
 
 autorestart = true
 
