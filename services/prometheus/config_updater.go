@@ -62,17 +62,30 @@ func convertInternalScrapeConfig(cfg *internal.ScrapeConfig) *ScrapeConfig {
 		}
 	}
 
+	var relabelConfigs []RelabelConfig
+	if len(cfg.RelabelConfigs) > 0 {
+		relabelConfigs = make([]RelabelConfig, len(cfg.RelabelConfigs))
+		for rcI, rc := range cfg.RelabelConfigs {
+			relabelConfigs[rcI] = RelabelConfig{
+				TargetLabel: rc.TargetLabel,
+				Replacement: rc.Replacement,
+			}
+		}
+	}
+
 	return &ScrapeConfig{
 		JobName:        cfg.JobName,
 		ScrapeInterval: cfg.ScrapeInterval.String(),
 		ScrapeTimeout:  cfg.ScrapeTimeout.String(),
 		MetricsPath:    cfg.MetricsPath,
+		HonorLabels:    cfg.HonorLabels,
 		Scheme:         cfg.Scheme,
 		BasicAuth:      basicAuth,
 		TLSConfig: TLSConfig{
 			InsecureSkipVerify: cfg.HTTPClientConfig.TLSConfig.InsecureSkipVerify,
 		},
-		StaticConfigs: staticConfigs,
+		StaticConfigs:  staticConfigs,
+		RelabelConfigs: relabelConfigs,
 	}
 }
 
@@ -128,11 +141,20 @@ func convertScrapeConfig(cfg *ScrapeConfig) (*internal.ScrapeConfig, error) {
 		tg[i].Labels = ls
 	}
 
+	relabelConfigs := make([]*internal.RelabelConfig, len(cfg.RelabelConfigs))
+	for i, rc := range cfg.RelabelConfigs {
+		relabelConfigs[i] = &internal.RelabelConfig{
+			TargetLabel: rc.TargetLabel,
+			Replacement: rc.Replacement,
+		}
+	}
+
 	return &internal.ScrapeConfig{
 		JobName:        cfg.JobName,
 		ScrapeInterval: interval,
 		ScrapeTimeout:  timeout,
 		MetricsPath:    cfg.MetricsPath,
+		HonorLabels:    cfg.HonorLabels,
 		Scheme:         cfg.Scheme,
 		HTTPClientConfig: internal.HTTPClientConfig{
 			BasicAuth: basicAuth,
@@ -143,6 +165,7 @@ func convertScrapeConfig(cfg *ScrapeConfig) (*internal.ScrapeConfig, error) {
 		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
 			StaticConfigs: tg,
 		},
+		RelabelConfigs: relabelConfigs,
 	}, nil
 }
 

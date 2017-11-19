@@ -17,7 +17,6 @@
 package prometheus
 
 import (
-	"context"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -31,37 +30,12 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"github.com/percona/pmm-managed/services/consul"
-	"github.com/percona/pmm-managed/utils/logger"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
-const testdata = "../../testdata/prometheus/"
-
-func setupPrometheus(t *testing.T) (p *Service, ctx context.Context, before []byte) {
-	ctx, _ = logger.Set(context.Background(), t.Name())
-
-	consulClient, err := consul.NewClient("127.0.0.1:8500")
-	require.NoError(t, err)
-	require.NoError(t, consulClient.DeleteKV(consulKey))
-
-	p, err = NewService(filepath.Join(testdata, "prometheus.yml"), "http://127.0.0.1:9090/", "promtool", consulClient)
-	require.NoError(t, err)
-	require.NoError(t, p.Check(ctx))
-
-	before, err = ioutil.ReadFile(p.configPath)
-	require.NoError(t, err)
-
-	return p, ctx, before
-}
-
-func tearDownPrometheus(t *testing.T, p *Service, before []byte) {
-	assert.NoError(t, ioutil.WriteFile(p.configPath, before, 0666))
-}
-
 func TestPrometheusConfig(t *testing.T) {
-	p, ctx, before := setupPrometheus(t)
-	defer tearDownPrometheus(t, p, before)
+	p, ctx, before := SetupTest(t)
+	defer TearDownTest(t, p, before)
 
 	// check that we can write it exactly as it was
 	c, err := p.loadConfig()
@@ -92,8 +66,8 @@ func TestPrometheusConfig(t *testing.T) {
 func TestPrometheusRules(t *testing.T) {
 	t.Skip("TODO")
 
-	p, ctx, before := setupPrometheus(t)
-	defer tearDownPrometheus(t, p, before)
+	p, ctx, before := SetupTest(t)
+	defer TearDownTest(t, p, before)
 
 	alerts, err := p.ListAlertRules(ctx)
 	require.NoError(t, err)
@@ -123,8 +97,8 @@ func TestPrometheusRules(t *testing.T) {
 }
 
 func TestPrometheusScrapeConfigs(t *testing.T) {
-	p, ctx, before := setupPrometheus(t)
-	defer tearDownPrometheus(t, p, before)
+	p, ctx, before := SetupTest(t)
+	defer TearDownTest(t, p, before)
 
 	cfgs, err := p.ListScrapeConfigs(ctx)
 	require.NoError(t, err)
@@ -171,11 +145,37 @@ func TestPrometheusScrapeConfigs(t *testing.T) {
 		},
 	}
 	assert.Equal(t, expected, actual)
+
+	cfg.HonorLabels = true
+	cfg.RelabelConfigs = []RelabelConfig{{
+		TargetLabel: "job",
+		Replacement: "test_config_relabeled",
+	}}
+	err = p.SetScrapeConfigs(ctx, false, cfg)
+	require.NoError(t, err)
+
+	actual, err = p.GetScrapeConfig(ctx, "test_config")
+	require.NoError(t, err)
+	expected = &ScrapeConfig{
+		JobName:        "test_config",
+		ScrapeInterval: "30s",
+		ScrapeTimeout:  "15s",
+		MetricsPath:    "/metrics",
+		HonorLabels:    true,
+		Scheme:         "http",
+		StaticConfigs: []StaticConfig{
+			{[]string{"127.0.0.1:12345", "127.0.0.2:12345"}, nil},
+		},
+		RelabelConfigs: []RelabelConfig{
+			{"job", "test_config_relabeled"},
+		},
+	}
+	assert.Equal(t, expected, actual)
 }
 
 func TestPrometheusStaticTargets(t *testing.T) {
-	p, ctx, before := setupPrometheus(t)
-	defer tearDownPrometheus(t, p, before)
+	p, ctx, before := SetupTest(t)
+	defer TearDownTest(t, p, before)
 
 	cfg := &ScrapeConfig{
 		JobName:        "test_config",
@@ -239,8 +239,8 @@ func TestPrometheusStaticTargets(t *testing.T) {
 
 // https://jira.percona.com/browse/PMM-1310?focusedCommentId=196688
 func TestPrometheusBadScrapeConfig(t *testing.T) {
-	p, ctx, before := setupPrometheus(t)
-	defer tearDownPrometheus(t, p, before)
+	p, ctx, before := SetupTest(t)
+	defer TearDownTest(t, p, before)
 
 	// https://jira.percona.com/browse/PMM-1636
 	cfg := &ScrapeConfig{
@@ -271,8 +271,8 @@ func TestPrometheusBadScrapeConfig(t *testing.T) {
 
 // https://jira.percona.com/browse/PMM-1310?focusedCommentId=196689
 func TestPrometheusReadDefaults(t *testing.T) {
-	p, ctx, before := setupPrometheus(t)
-	defer tearDownPrometheus(t, p, before)
+	p, ctx, before := SetupTest(t)
+	defer TearDownTest(t, p, before)
 
 	cfg := &ScrapeConfig{
 		JobName: "test_config",

@@ -25,6 +25,8 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// Initial AUTO_INCREMENT values are spaced to prevent programming errors, or at least make them more visible.
+// It does not imply that one can have at most 1000 nodes, etc.
 var databaseSchema = []string{
 	`CREATE TABLE schema_migrations (
 		id INT NOT NULL,
@@ -41,7 +43,7 @@ var databaseSchema = []string{
 
 		PRIMARY KEY (id),
 		UNIQUE (type, name, region)
-	)`,
+	) AUTO_INCREMENT = 1`,
 
 	`INSERT INTO nodes (type, name) VALUES ('` + string(PMMServerNodeType) + `', 'PMM Server')`,
 
@@ -59,7 +61,7 @@ var databaseSchema = []string{
 
 		PRIMARY KEY (id),
 		FOREIGN KEY (node_id) REFERENCES nodes (id)
-	)`,
+	) AUTO_INCREMENT = 1000`,
 
 	`CREATE TABLE agents (
 		id INT NOT NULL AUTO_INCREMENT,
@@ -72,7 +74,7 @@ var databaseSchema = []string{
 
 		PRIMARY KEY (id),
 		FOREIGN KEY (runs_on_node_id) REFERENCES nodes (id)
-	)`,
+	) AUTO_INCREMENT = 1000000`,
 
 	`CREATE TABLE agent_nodes (
 		agent_id INT NOT NULL,

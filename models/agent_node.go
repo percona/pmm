@@ -16,8 +16,39 @@
 
 package models
 
+import (
+	"github.com/pkg/errors"
+	"gopkg.in/reform.v1"
+)
+
 //reform:agent_nodes
 type AgentNode struct {
 	AgentID int32 `reform:"agent_id"`
 	NodeID  int32 `reform:"node_id"`
+}
+
+// AgentsForNodeID returns agents providing insights for a given node.
+func AgentsForNodeID(q *reform.Querier, nodeID int32) ([]Agent, error) {
+	agentNodes, err := q.SelectAllFrom(AgentNodeView, "WHERE node_id = ?", nodeID)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	agentIDs := make([]interface{}, len(agentNodes))
+	for i, str := range agentNodes {
+		agentIDs[i] = str.(*AgentNode).AgentID
+	}
+
+	if len(agentIDs) == 0 {
+		return []Agent{}, nil
+	}
+
+	structs, err := q.FindAllFrom(AgentTable, "id", agentIDs...)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	agents := make([]Agent, len(structs))
+	for i, str := range structs {
+		agents[i] = *str.(*Agent)
+	}
+	return agents, nil
 }

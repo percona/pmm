@@ -42,6 +42,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/supervisor"
 	"github.com/percona/pmm-managed/utils/logger"
 	"github.com/percona/pmm-managed/utils/ports"
@@ -51,22 +52,24 @@ const awsCallTimeout = 5 * time.Second
 
 type ServiceConfig struct {
 	MySQLdExporterPath string
+
+	DB            *reform.DB
+	Prometheus    *prometheus.Service
+	Supervisor    *supervisor.Supervisor
+	PortsRegistry *ports.Registry
 }
 
 // Service is responsible for interactions with AWS RDS.
 type Service struct {
-	ServiceConfig
-	db            *reform.DB
-	supervisor    *supervisor.Supervisor
-	portsRegistry *ports.Registry
+	*ServiceConfig
 	httpClient    *http.Client
 	pmmServerNode *models.Node
 }
 
 // NewService creates a new service.
-func NewService(config *ServiceConfig, db *reform.DB, supervisor *supervisor.Supervisor, portsRegistry *ports.Registry) (*Service, error) {
+func NewService(config *ServiceConfig) (*Service, error) {
 	var node models.Node
-	err := db.FindOneTo(&node, "type", models.PMMServerNodeType)
+	err := config.DB.FindOneTo(&node, "type", models.PMMServerNodeType)
 	if err != nil {
 		return nil, err
 	}
@@ -88,10 +91,7 @@ func NewService(config *ServiceConfig, db *reform.DB, supervisor *supervisor.Sup
 	}
 
 	svc := &Service{
-		ServiceConfig: *config,
-		db:            db,
-		supervisor:    supervisor,
-		portsRegistry: portsRegistry,
+		ServiceConfig: config,
 		httpClient:    new(http.Client),
 		pmmServerNode: &node,
 	}
@@ -112,6 +112,80 @@ type Instance struct {
 	Service models.RDSService
 }
 
+func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.Querier) error {
+	rdsMySQLHR := &prometheus.ScrapeConfig{
+		JobName:        "rds-mysql-hr",
+		ScrapeInterval: "1s",
+		ScrapeTimeout:  "1s",
+		MetricsPath:    "/metrics-hr",
+		RelabelConfigs: []prometheus.RelabelConfig{{
+			TargetLabel: "job",
+			Replacement: "mysql",
+		}},
+	}
+	rdsMySQLMR := &prometheus.ScrapeConfig{
+		JobName:        "rds-mysql-mr",
+		ScrapeInterval: "5s",
+		ScrapeTimeout:  "1s",
+		MetricsPath:    "/metrics-mr",
+		RelabelConfigs: []prometheus.RelabelConfig{{
+			TargetLabel: "job",
+			Replacement: "mysql",
+		}},
+	}
+	rdsMySQLLR := &prometheus.ScrapeConfig{
+		JobName:        "rds-mysql-lr",
+		ScrapeInterval: "60s",
+		ScrapeTimeout:  "5s",
+		MetricsPath:    "/metrics-lr",
+		RelabelConfigs: []prometheus.RelabelConfig{{
+			TargetLabel: "job",
+			Replacement: "mysql",
+		}},
+	}
+
+	nodes, err := q.FindAllFrom(models.RDSNodeTable, "type", models.RDSNodeType)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	for _, n := range nodes {
+		node := n.(*models.RDSNode)
+
+		var service models.RDSService
+		if e := q.SelectOneTo(&service, "WHERE node_id = ?", node.ID); e != nil {
+			return errors.WithStack(e)
+		}
+
+		agents, err := models.AgentsForServiceID(q, service.ID)
+		if err != nil {
+			return err
+		}
+		for _, agent := range agents {
+			switch agent.Type {
+			case models.MySQLdExporterAgentType:
+				a := models.MySQLdExporter{ID: agent.ID}
+				if e := q.Reload(&a); e != nil {
+					return errors.WithStack(e)
+				}
+				logger.Get(ctx).Infof("%s %s %d", node.Name, node.Region, *a.ListenPort)
+
+				sc := prometheus.StaticConfig{
+					Targets: []string{fmt.Sprintf("127.0.0.1:%d", *a.ListenPort)},
+					Labels: []prometheus.LabelPair{
+						{Name: "instance", Value: node.Name},
+						{Name: "aws_region", Value: node.Region},
+					},
+				}
+				rdsMySQLHR.StaticConfigs = append(rdsMySQLHR.StaticConfigs, sc)
+				rdsMySQLMR.StaticConfigs = append(rdsMySQLMR.StaticConfigs, sc)
+				rdsMySQLLR.StaticConfigs = append(rdsMySQLLR.StaticConfigs, sc)
+			}
+		}
+	}
+
+	return svc.Prometheus.SetScrapeConfigs(ctx, false, rdsMySQLHR, rdsMySQLMR, rdsMySQLLR)
+}
+
 func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) ([]Instance, error) {
 	l := logger.Get(ctx).WithField("component", "rds")
 
@@ -122,7 +196,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 	instances := make(chan Instance)
 
 	for _, r := range endpoints.AwsPartition().Services()[endpoints.RdsServiceID].Regions() {
-		regionId := r.ID()
+		region := r.ID()
 		g.Go(func() error {
 			// use given credentials, or default credential chain
 			var creds *credentials.Credentials
@@ -137,7 +211,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 			config := &aws.Config{
 				CredentialsChainVerboseErrors: aws.Bool(true),
 				Credentials:                   creds,
-				Region:                        aws.String(regionId),
+				Region:                        aws.String(region),
 				HTTPClient:                    svc.httpClient,
 				Logger:                        aws.LoggerFunc(l.Debug),
 			}
@@ -168,14 +242,14 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 				return errors.WithStack(err)
 			}
 
-			l.Debugf("Got %d instances from %s.", len(out.DBInstances), regionId)
+			l.Debugf("Got %d instances from %s.", len(out.DBInstances), region)
 			for _, db := range out.DBInstances {
 				instances <- Instance{
 					Node: models.RDSNode{
 						Type: models.RDSNodeType,
 
 						Name:   *db.DBInstanceIdentifier,
-						Region: regionId,
+						Region: region,
 					},
 					Service: models.RDSService{
 						Type: models.RDSServiceType,
@@ -211,7 +285,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 
 func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 	res := []Instance{}
-	err := svc.db.InTransaction(func(tx *reform.TX) error {
+	err := svc.DB.InTransaction(func(tx *reform.TX) error {
 		structs, e := tx.SelectAllFrom(models.RDSNodeTable, "WHERE type = ? ORDER BY id", models.RDSNodeType)
 		if e != nil {
 			return e
@@ -272,7 +346,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 		return status.Errorf(codes.NotFound, "RDS instance %q not found in region %q.", id.Name, id.Region)
 	}
 
-	return svc.db.InTransaction(func(tx *reform.TX) error {
+	return svc.DB.InTransaction(func(tx *reform.TX) error {
 		// insert node
 		node := &models.RDSNode{
 			Type: models.RDSNodeType,
@@ -306,8 +380,8 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 			return errors.WithStack(e)
 		}
 
-		// insert mysqld_exporter agent
-		port, e := svc.portsRegistry.Reserve()
+		// insert mysqld_exporter agent and association
+		port, e := svc.PortsRegistry.Reserve()
 		if e != nil {
 			return e
 		}
@@ -357,20 +431,14 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 				},
 				Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", agent.DSN(service))},
 			}
-			if e := svc.supervisor.Start(ctx, cfg); e != nil {
+			if e := svc.Supervisor.Start(ctx, cfg); e != nil {
 				return e
 			}
 		}
 
-		// TODO use proper flags
-
 		// TODO insert and start other agents
 
-		// if e := tx.Insert(&models.AgentNode{AgentID: agent.ID, NodeID: node.ID}); e != nil {
-		// 	return errors.WithStack(e)
-		// }
-
-		return nil
+		return svc.ApplyPrometheusConfiguration(ctx, tx.Querier)
 	})
 }
 
@@ -382,7 +450,7 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 		return status.Error(codes.InvalidArgument, "RDS instance region is not given.")
 	}
 
-	return svc.db.InTransaction(func(tx *reform.TX) error {
+	return svc.DB.InTransaction(func(tx *reform.TX) error {
 		var node models.RDSNode
 		if e := tx.SelectOneTo(&node, "WHERE type = ? AND name = ? AND region = ?", models.RDSNodeType, id.Name, id.Region); e != nil {
 			if e == reform.ErrNoRows {
@@ -396,51 +464,43 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 			return errors.WithStack(e)
 		}
 
-		var agents []models.Agent
-
 		// remove associations of the service and agents
-		structs, e := tx.FindAllFrom(models.AgentServiceView, "service_id", service.ID)
+		agentsForService, e := models.AgentsForServiceID(tx.Querier, service.ID)
 		if e != nil {
-			return errors.WithStack(e)
+			return e
 		}
-		for _, str := range structs {
-			agentService := str.(*models.AgentService)
-			agent := models.Agent{ID: agentService.AgentID}
-			agents = append(agents, agent)
-			deleted, e := tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ? AND agent_id = ?", service.ID, agent.ID)
-			if e == nil && deleted != 1 {
-				e = errors.Errorf("expected to delete 1 record, deleted %d", deleted)
-			}
+		for _, agent := range agentsForService {
+			var deleted uint
+			deleted, e = tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ? AND agent_id = ?", service.ID, agent.ID)
 			if e != nil {
 				return errors.WithStack(e)
+			}
+			if deleted != 1 {
+				return errors.Errorf("expected to delete 1 record, deleted %d", deleted)
 			}
 		}
 
 		// remove associations of the node and agents
-		structs, e = tx.FindAllFrom(models.AgentNodeView, "node_id", node.ID)
+		agentsForNode, e := models.AgentsForNodeID(tx.Querier, node.ID)
 		if e != nil {
-			return errors.WithStack(e)
+			return e
 		}
-		for _, str := range structs {
-			agentNode := str.(*models.AgentNode)
-			agent := models.Agent{ID: agentNode.AgentID}
-			agents = append(agents, agent)
-			deleted, e := tx.DeleteFrom(models.AgentNodeView, "WHERE node_id = ? AND agent_id = ?", node.ID, agent.ID)
-			if e == nil && deleted != 1 {
-				e = errors.Errorf("expected to delete 1 record, deleted %d", deleted)
-			}
+		for _, agent := range agentsForNode {
+			var deleted uint
+			deleted, e = tx.DeleteFrom(models.AgentNodeView, "WHERE node_id = ? AND agent_id = ?", node.ID, agent.ID)
 			if e != nil {
 				return errors.WithStack(e)
+			}
+			if deleted != 1 {
+				return errors.Errorf("expected to delete 1 record, deleted %d", deleted)
 			}
 		}
 
 		// stop agents
+		agents := make([]models.Agent, 0, len(agentsForService)+len(agentsForNode))
+		agents = append(agents, agentsForService...)
+		agents = append(agents, agentsForNode...)
 		for _, agent := range agents {
-			// fill type
-			if e := tx.Reload(&agent); e != nil {
-				return errors.WithStack(e)
-			}
-
 			var name string
 			switch agent.Type {
 			case models.MySQLdExporterAgentType:
@@ -454,7 +514,7 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 			}
 
 			if name != "" {
-				if e := svc.supervisor.Stop(ctx, name); e != nil {
+				if e := svc.Supervisor.Stop(ctx, name); e != nil {
 					return e
 				}
 			}
@@ -474,6 +534,6 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 			return errors.WithStack(e)
 		}
 
-		return nil
+		return svc.ApplyPrometheusConfiguration(ctx, tx.Querier)
 	})
 }

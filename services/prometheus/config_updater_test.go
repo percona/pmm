@@ -188,7 +188,7 @@ func TestConfigUpdaterAddRemoveStaticTargets(t *testing.T) {
 
 	// remove the same target twice: no error, no duplicate
 	for i := 0; i < 2; i++ {
-		err := configUpdater.removeStaticTargets("postgresql", []string{"1.2.3.4:12345"})
+		err = configUpdater.removeStaticTargets("postgresql", []string{"1.2.3.4:12345"})
 		assert.NoError(t, err)
 
 		assertYAMLEqual(t, []ScrapeConfig{{
