@@ -171,6 +171,32 @@ func TestPrometheusScrapeConfigs(t *testing.T) {
 		},
 	}
 	assert.Equal(t, expected, actual)
+
+	cfg.HonorLabels = true
+	cfg.RelabelConfigs = []RelabelConfig{{
+		TargetLabel: "job",
+		Replacement: "test_config_relabeled",
+	}}
+	err = p.SetScrapeConfig(ctx, cfg, false)
+	require.NoError(t, err)
+
+	actual, err = p.GetScrapeConfig(ctx, "test_config")
+	require.NoError(t, err)
+	expected = &ScrapeConfig{
+		JobName:        "test_config",
+		ScrapeInterval: "30s",
+		ScrapeTimeout:  "15s",
+		MetricsPath:    "/metrics",
+		HonorLabels:    true,
+		Scheme:         "http",
+		StaticConfigs: []StaticConfig{
+			{[]string{"127.0.0.1:12345", "127.0.0.2:12345"}, nil},
+		},
+		RelabelConfigs: []RelabelConfig{
+			{"job", "test_config_relabeled"},
+		},
+	}
+	assert.Equal(t, expected, actual)
 }
 
 func TestPrometheusStaticTargets(t *testing.T) {
