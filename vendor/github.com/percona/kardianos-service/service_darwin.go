@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"os/user"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"text/template"
 	"time"
@@ -150,6 +151,12 @@ func (s *darwinLaunchdService) Install() error {
 			}
 			return "false"
 		},
+		"envKey": func(env string) string {
+			return strings.Split(env, "=")[0]
+		},
+		"envValue": func(env string) string {
+			return strings.Join(strings.Split(env, "=")[1:], "=")
+		},
 	}
 	t := template.Must(template.New("launchdConfig").Funcs(functions).Parse(launchdConfig))
 	return t.Execute(f, to)
@@ -188,8 +195,8 @@ func (s *darwinLaunchdService) Restart() error {
 	return s.Start()
 }
 func (s *darwinLaunchdService) Status() error {
-        // Not implemented
-        return nil
+	// Not implemented
+	return nil
 }
 
 func (s *darwinLaunchdService) Run() error {
@@ -232,6 +239,17 @@ var launchdConfig = `<?xml version='1.0' encoding='UTF-8'?>
         <string>{{html .}}</string>
 {{end}}
 </array>
+
+{{if .Environment}}
+<key>EnvironmentVariables</key>
+<dict>
+{{range .Environment}}
+        <key>{{.|envKey}}</key>
+        <string>{{.|envValue}}</string>
+{{end}}
+</dict>
+{{end}}
+
 {{if .UserName}}<key>UserName</key><string>{{html .UserName}}</string>{{end}}
 {{if .ChRoot}}<key>RootDirectory</key><string>{{html .ChRoot}}</string>{{end}}
 {{if .WorkingDirectory}}<key>WorkingDirectory</key><string>{{html .WorkingDirectory}}</string>{{end}}

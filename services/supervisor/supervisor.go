@@ -38,6 +38,8 @@ func New(l *logrus.Entry) *Supervisor {
 }
 
 func (s *Supervisor) Start(ctx context.Context, config *service.Config) error {
+	config.Option = adjustOption(config.Option)
+
 	svc, err := service.New(new(program), config)
 	if err != nil {
 		return err

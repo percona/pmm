@@ -45,7 +45,7 @@ func (s *supervisord) configPath() (cp string, err error) {
 		err = errNoUserServiceSupervisord
 		return
 	}
-	cp = "/etc/supervisord.d" + s.Config.Name + ".ini"
+	cp = "/etc/supervisord.d/" + s.Config.Name + ".ini"
 	return
 }
 func (s *supervisord) template() *template.Template {
@@ -123,6 +123,9 @@ func (s *supervisord) Run() (err error) {
 }
 
 func (s *supervisord) Start() error {
+	if err := run("supervisorctl", "reread"); err != nil {
+		return err
+	}
 	return run("supervisorctl", "start", s.Name)
 }
 
@@ -131,11 +134,14 @@ func (s *supervisord) Stop() error {
 }
 
 func (s *supervisord) Restart() error {
-	err := s.Stop()
-	if err != nil {
+	// we do not use `supervisorctl restart` because we want Start() to call reread
+
+	if err := s.Stop(); err != nil {
 		return err
 	}
+
 	time.Sleep(50 * time.Millisecond)
+
 	return s.Start()
 }
 

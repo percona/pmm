@@ -97,18 +97,18 @@ type Config struct {
 	Executable string
 
 	// Array of service dependencies.
-	// Not yet implemented on Linux or OS X.
+	// Not yet implemented on Linux or macOS.
 	Dependencies []string
 
 	// The following fields are not supported on Windows.
 	WorkingDirectory string // Initial working directory.
 	ChRoot           string
 
-	// Array of environment variables for Linux: var=val
+	// Array of environment variables for Linux or macOS: var=val
 	Environment []string
 
 	// System specific options.
-	//  * OS X
+	//  * macOS
 	//    - KeepAlive     bool (true)
 	//    - RunAtLoad     bool (false)
 	//    - UserService   bool (false) - Install as a current user service.

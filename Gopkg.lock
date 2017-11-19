@@ -286,7 +286,7 @@
   branch = "PMM-1710-supervisord"
   name = "github.com/percona/kardianos-service"
   packages = ["."]
-  revision = "2b1950e84cd2639323ef691ed0ed8c90be81b116"
+  revision = "173c308e17b3dbb1a976a3a337be3477ca61e5aa"
 
 [[projects]]
   name = "github.com/pkg/errors"

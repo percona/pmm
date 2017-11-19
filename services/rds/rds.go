@@ -335,11 +335,29 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 				Description: name,
 				Executable:  svc.MySQLdExporterPath,
 				Arguments: []string{
-					"-collect.global_status", // TODO use proper flags
+					// TODO use proper flags
+					"-collect.auto_increment.columns",
+					"-collect.binlog_size",
+					"-collect.global_status",
+					"-collect.global_variables",
+					"-collect.info_schema.innodb_metrics",
+					"-collect.info_schema.processlist",
+					"-collect.info_schema.query_response_time",
+					"-collect.info_schema.tables",
+					"-collect.info_schema.tablestats",
+					"-collect.info_schema.userstats",
+					"-collect.perf_schema.eventswaits",
+					"-collect.perf_schema.file_events",
+					"-collect.perf_schema.indexiowaits",
+					"-collect.perf_schema.tableiowaits",
+					"-collect.perf_schema.tablelocks",
+					"-collect.slave_status",
+
+					fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
 				},
 				Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", agent.DSN(service))},
 			}
-			if e := svc.supervisor.Start(ctx, cfg); err != nil {
+			if e := svc.supervisor.Start(ctx, cfg); e != nil {
 				return e
 			}
 		}

@@ -81,7 +81,7 @@ var (
 	dbUsernameF = flag.String("db-username", "pmm-managed", "Database username")
 	dbPasswordF = flag.String("db-password", "pmm-managed", "Database password")
 
-	agentMySQLdExporterF = flag.String("-agent-mysqld-exporter", "/usr/local/percona/pmm-client/mysqld_exporter", "mysqld_exporter path")
+	agentMySQLdExporterF = flag.String("agent-mysqld-exporter", "/usr/local/percona/pmm-client/mysqld_exporter", "mysqld_exporter path")
 
 	debugF = flag.Bool("debug", false, "Enable debug logging")
 )
