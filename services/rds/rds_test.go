@@ -19,6 +19,7 @@ package rds
 
 import (
 	"context"
+	"database/sql"
 	"reflect"
 	"testing"
 
@@ -32,17 +33,25 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/utils/ports"
 	"github.com/percona/pmm-managed/utils/tests"
 )
+
+func setup(t *testing.T, accessKey, secretKey string) (*Service, *sql.DB) {
+	sqlDB := tests.OpenTestDB(t)
+	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
+	portsRegistry := ports.NewRegistry(30000, 30999, nil)
+	svc, err := NewService(nil, db, nil, portsRegistry)
+	require.NoError(t, err)
+	return svc, sqlDB
+}
 
 func TestDiscover(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
 		accessKey, secretKey := tests.GetAWSKeys(t)
-		db := tests.OpenTestDB(t)
-		defer db.Close()
-		svc, err := NewService(reform.NewDB(db, mysql.Dialect, reform.NewPrintfLogger(t.Logf)))
-		require.NoError(t, err)
+		svc, sqlDB := setup(t, accessKey, secretKey)
+		defer sqlDB.Close()
 
 		actual, err := svc.Discover(ctx, accessKey, secretKey)
 		require.NoError(t, err)
@@ -116,10 +125,8 @@ func TestDiscover(t *testing.T) {
 	t.Run("WrongKeys", func(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
 		accessKey, secretKey := "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-		db := tests.OpenTestDB(t)
-		defer db.Close()
-		svc, err := NewService(reform.NewDB(db, mysql.Dialect, reform.NewPrintfLogger(t.Logf)))
-		require.NoError(t, err)
+		svc, sqlDB := setup(t, accessKey, secretKey)
+		defer sqlDB.Close()
 
 		res, err := svc.Discover(ctx, accessKey, secretKey)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `The security token included in the request is invalid.`), err)
@@ -131,10 +138,8 @@ func TestAddListRemove(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		ctx, _ := logger.Set(context.Background(), t.Name())
 		accessKey, secretKey := tests.GetAWSKeys(t)
-		db := tests.OpenTestDB(t)
-		defer db.Close()
-		svc, err := NewService(reform.NewDB(db, mysql.Dialect, reform.NewPrintfLogger(t.Logf)))
-		require.NoError(t, err)
+		svc, sqlDB := setup(t, accessKey, secretKey)
+		defer sqlDB.Close()
 
 		actual, err := svc.List(ctx)
 		require.NoError(t, err)

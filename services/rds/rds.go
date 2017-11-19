@@ -21,7 +21,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"os/exec"
 	"sort"
 	"time"
@@ -34,6 +33,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/rds"
 	"github.com/go-sql-driver/mysql"
+	servicelib "github.com/percona/kardianos-service"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
@@ -42,44 +42,59 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services/supervisor"
 	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/utils/ports"
 )
 
 const awsCallTimeout = 5 * time.Second
 
-// FIXME remove
-const runAgent = false
+type ServiceConfig struct {
+	MySQLdExporterPath string
+}
 
 // Service is responsible for interactions with AWS RDS.
 type Service struct {
-	db                 *reform.DB
-	httpClient         *http.Client
-	pmmServerNode      *models.Node
-	mySQLdExporterPath string
+	ServiceConfig
+	db            *reform.DB
+	supervisor    *supervisor.Supervisor
+	portsRegistry *ports.Registry
+	httpClient    *http.Client
+	pmmServerNode *models.Node
 }
 
 // NewService creates a new service.
-func NewService(db *reform.DB) (*Service, error) {
+func NewService(config *ServiceConfig, db *reform.DB, supervisor *supervisor.Supervisor, portsRegistry *ports.Registry) (*Service, error) {
 	var node models.Node
 	err := db.FindOneTo(&node, "type", models.PMMServerNodeType)
 	if err != nil {
 		return nil, err
 	}
 
+	if config == nil {
+		config = &ServiceConfig{}
+	}
+	for _, path := range []*string{
+		&config.MySQLdExporterPath,
+	} {
+		if *path == "" {
+			continue
+		}
+		p, err := exec.LookPath(*path)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		*path = p
+	}
+
 	svc := &Service{
+		ServiceConfig: *config,
 		db:            db,
+		supervisor:    supervisor,
+		portsRegistry: portsRegistry,
 		httpClient:    new(http.Client),
 		pmmServerNode: &node,
 	}
-
-	if runAgent {
-		path, err := exec.LookPath("mysqld_exporter")
-		if err != nil {
-			return nil, err
-		}
-		svc.mySQLdExporterPath = path
-	}
-
 	return svc, nil
 }
 
@@ -258,6 +273,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 	}
 
 	return svc.db.InTransaction(func(tx *reform.TX) error {
+		// insert node
 		node := &models.RDSNode{
 			Type: models.RDSNodeType,
 			Name: add.Node.Name,
@@ -272,6 +288,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 			return errors.WithStack(e)
 		}
 
+		// insert service
 		service := &models.RDSService{
 			Type:   models.RDSServiceType,
 			NodeID: node.ID,
@@ -289,11 +306,18 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 			return errors.WithStack(e)
 		}
 
+		// insert mysqld_exporter agent
+		port, e := svc.portsRegistry.Reserve()
+		if e != nil {
+			return e
+		}
 		agent := &models.MySQLdExporter{
-			Type:            models.MySQLdExporterAgentType,
-			RunsOnNodeID:    svc.pmmServerNode.ID,
+			Type:         models.MySQLdExporterAgentType,
+			RunsOnNodeID: svc.pmmServerNode.ID,
+
 			ServiceUsername: &username,
 			ServicePassword: &password,
+			ListenPort:      &port,
 		}
 		if e := tx.Insert(agent); e != nil {
 			return errors.WithStack(e)
@@ -302,24 +326,27 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 			return errors.WithStack(e)
 		}
 
-		// TODO start agents properly, with supervisor
-
-		// TODO use proper flags
-		if runAgent {
-			dsn := agent.DSN(service)
-			flags := []string{
-				"-collect.global_status",
+		// start mysqld_exporter agent
+		if svc.MySQLdExporterPath != "" {
+			name := agent.NameForSupervisor()
+			cfg := &servicelib.Config{
+				Name:        name,
+				DisplayName: name,
+				Description: name,
+				Executable:  svc.MySQLdExporterPath,
+				Arguments: []string{
+					"-collect.global_status", // TODO use proper flags
+				},
+				Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", agent.DSN(service))},
 			}
-			cmd := exec.Command(svc.mySQLdExporterPath, flags...)
-			cmd.Env = []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)}
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-			if e := cmd.Start(); e != nil {
-				return errors.WithStack(e)
+			if e := svc.supervisor.Start(ctx, cfg); err != nil {
+				return e
 			}
 		}
 
-		// TODO insert other agents
+		// TODO use proper flags
+
+		// TODO insert and start other agents
 
 		// if e := tx.Insert(&models.AgentNode{AgentID: agent.ID, NodeID: node.ID}); e != nil {
 		// 	return errors.WithStack(e)

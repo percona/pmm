@@ -19,6 +19,7 @@ package models
 import (
 	"database/sql"
 	"database/sql/driver"
+	"fmt"
 	"net"
 	"strconv"
 
@@ -70,6 +71,7 @@ type MySQLdExporter struct {
 
 	ServiceUsername *string `reform:"service_username"`
 	ServicePassword *string `reform:"service_password"`
+	ListenPort      *uint16 `reform:"listen_port"`
 }
 
 func (m *MySQLdExporter) DSN(service *RDSService) string {
@@ -81,4 +83,8 @@ func (m *MySQLdExporter) DSN(service *RDSService) string {
 		// TODO other parameters?
 	}
 	return cfg.FormatDSN()
+}
+
+func (m *MySQLdExporter) NameForSupervisor() string {
+	return fmt.Sprintf("pmm-%s-%d", m.Type, *m.ListenPort)
 }

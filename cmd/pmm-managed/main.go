@@ -48,15 +48,16 @@ import (
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/rds"
+	"github.com/percona/pmm-managed/services/supervisor"
 	"github.com/percona/pmm-managed/services/telemetry"
 	"github.com/percona/pmm-managed/utils/interceptors"
 	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/utils/ports"
 )
 
 const (
 	shutdownTimeout = 3 * time.Second
 
-	// FIXME set it during build for PMM 1.5
 	pmmVersion = "1.5.0"
 )
 
@@ -75,9 +76,12 @@ var (
 	promtoolF         = flag.String("promtool", "promtool", "promtool path")
 
 	consulAddrF = flag.String("consul-addr", "127.0.0.1:8500", "Consul HTTP API address")
+
 	dbNameF     = flag.String("db-name", "", "Database name")
 	dbUsernameF = flag.String("db-username", "pmm-managed", "Database username")
 	dbPasswordF = flag.String("db-password", "pmm-managed", "Database password")
+
+	agentMySQLdExporterF = flag.String("-agent-mysqld-exporter", "/usr/local/percona/pmm-client/mysqld_exporter", "mysqld_exporter path")
 
 	debugF = flag.Bool("debug", false, "Enable debug logging")
 )
@@ -104,7 +108,32 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 		l.Panicf("Prometheus service problem: %+v", err)
 	}
 
-	rds, err := rds.NewService(db)
+	// collect already reserved ports
+	rows, err := db.Query("SELECT listen_port FROM agents")
+	if err != nil {
+		l.Panicf("Failed to collect reserved ports: %s", err)
+	}
+	var reserved []uint16
+	for rows.Next() {
+		var port uint16
+		if err = rows.Scan(&port); err != nil {
+			l.Panic(err)
+		}
+		reserved = append(reserved, port)
+	}
+	if err = rows.Err(); err != nil {
+		l.Panic(err)
+	}
+	if err = rows.Close(); err != nil {
+		l.Panic(err)
+	}
+
+	rdsConfig := rds.ServiceConfig{
+		MySQLdExporterPath: *agentMySQLdExporterF,
+	}
+	supervisor := supervisor.New(l)
+	portsRegistry := ports.NewRegistry(10000, 10999, reserved)
+	rds, err := rds.NewService(&rdsConfig, db, supervisor, portsRegistry)
 	if err != nil {
 		l.Panicf("RDS service problem: %+v", err)
 	}
