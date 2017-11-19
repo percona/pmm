@@ -101,12 +101,12 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 		err = prometheus.Check(ctx)
 	}
 	if err != nil {
-		l.Panicf("Prometheus problem: %s", err)
+		l.Panicf("Prometheus service problem: %+v", err)
 	}
 
 	rds, err := rds.NewService(db)
 	if err != nil {
-		l.Panicf("RDS service problem: %s", err)
+		l.Panicf("RDS service problem: %+v", err)
 	}
 
 	gRPCServer := grpc.NewServer(

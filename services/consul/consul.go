@@ -48,9 +48,10 @@ func NewClient(addr string) (*Client, error) {
 
 // GetKV returns value for a given key from Consul, or nil, if key does not exist.
 func (c *Client) GetKV(key string) ([]byte, error) {
-	pair, _, err := c.c.KV().Get(path.Join(prefix, key), nil)
+	key = path.Join(prefix, key)
+	pair, _, err := c.c.KV().Get(key, nil)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errors.Wrapf(err, "cannot get key %q", key)
 	}
 	if pair == nil {
 		return nil, nil
@@ -60,13 +61,15 @@ func (c *Client) GetKV(key string) ([]byte, error) {
 
 // PutKV puts given key/value pair into Consul.
 func (c *Client) PutKV(key string, value []byte) error {
-	pair := &api.KVPair{Key: path.Join(prefix, key), Value: value}
+	key = path.Join(prefix, key)
+	pair := &api.KVPair{Key: key, Value: value}
 	_, err := c.c.KV().Put(pair, nil)
-	return errors.WithStack(err)
+	return errors.Wrapf(err, "cannot put key %q", key)
 }
 
 // DeleteKV deletes given key from Consul.
 func (c *Client) DeleteKV(key string) error {
-	_, err := c.c.KV().Delete(path.Join(prefix, key), nil)
-	return errors.WithStack(err)
+	key = path.Join(prefix, key)
+	_, err := c.c.KV().Delete(key, nil)
+	return errors.Wrapf(err, "cannot delete key %q", key)
 }
