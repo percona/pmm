@@ -126,11 +126,12 @@ func (s *supervisord) Start() error {
 	if err := run("supervisorctl", "reread"); err != nil {
 		return err
 	}
-	return run("supervisorctl", "start", s.Name)
+	return run("supervisorctl", "add", s.Name)
 }
 
 func (s *supervisord) Stop() error {
-	return run("supervisorctl", "stop", s.Name)
+	run("supervisorctl", "stop", s.Name) // ignore error
+	return run("supervisorctl", "remove", s.Name)
 }
 
 func (s *supervisord) Restart() error {
@@ -156,7 +157,7 @@ const supervisordScript = `# {{.Description}}
 [program:{{.Name}}]
 command = {{.Path}}{{range .Arguments}} {{.}}{{end}}
 
-{{if .Environment}}environment {{range .Environment}}{{.}}{{end}}{{end}}
+{{if .Environment}}environment {{range .Environment}}{{.|envKey}}={{.|envValue|cmd}} {{end}}{{end}}
 
 {{if .UserName}}user {{.UserName}}{{end}}
 

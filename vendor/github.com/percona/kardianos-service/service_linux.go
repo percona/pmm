@@ -82,4 +82,10 @@ var tf = map[string]interface{}{
 	"cmdEscape": func(s string) string {
 		return strings.Replace(s, " ", `\x20`, -1)
 	},
+	"envKey": func(env string) string {
+		return strings.Split(env, "=")[0]
+	},
+	"envValue": func(env string) string {
+		return strings.Join(strings.Split(env, "=")[1:], "=")
+	},
 }
