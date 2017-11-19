@@ -448,7 +448,9 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 				if e := tx.Reload(&a); e != nil {
 					return errors.WithStack(e)
 				}
-				name = a.NameForSupervisor()
+				if svc.MySQLdExporterPath != "" {
+					name = a.NameForSupervisor()
+				}
 			}
 
 			if name != "" {
