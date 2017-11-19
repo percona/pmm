@@ -167,7 +167,7 @@ func TestAddListRemove(t *testing.T) {
 				Region: "eu-west-1",
 			},
 			Service: models.RDSService{
-				ID:            1,
+				ID:            1000,
 				Type:          "rds",
 				NodeID:        2,
 				AWSAccessKey:  &accessKey,
