@@ -130,10 +130,13 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 
 	rdsConfig := rds.ServiceConfig{
 		MySQLdExporterPath: *agentMySQLdExporterF,
+
+		DB:            db,
+		Prometheus:    prometheus,
+		Supervisor:    supervisor.New(l),
+		PortsRegistry: ports.NewRegistry(10000, 10999, reserved),
 	}
-	supervisor := supervisor.New(l)
-	portsRegistry := ports.NewRegistry(10000, 10999, reserved)
-	rds, err := rds.NewService(&rdsConfig, db, supervisor, portsRegistry)
+	rds, err := rds.NewService(&rdsConfig)
 	if err != nil {
 		l.Panicf("RDS service problem: %+v", err)
 	}

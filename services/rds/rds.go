@@ -42,6 +42,7 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/supervisor"
 	"github.com/percona/pmm-managed/utils/logger"
 	"github.com/percona/pmm-managed/utils/ports"
@@ -51,22 +52,24 @@ const awsCallTimeout = 5 * time.Second
 
 type ServiceConfig struct {
 	MySQLdExporterPath string
+
+	DB            *reform.DB
+	Prometheus    *prometheus.Service
+	Supervisor    *supervisor.Supervisor
+	PortsRegistry *ports.Registry
 }
 
 // Service is responsible for interactions with AWS RDS.
 type Service struct {
-	ServiceConfig
-	db            *reform.DB
-	supervisor    *supervisor.Supervisor
-	portsRegistry *ports.Registry
+	*ServiceConfig
 	httpClient    *http.Client
 	pmmServerNode *models.Node
 }
 
 // NewService creates a new service.
-func NewService(config *ServiceConfig, db *reform.DB, supervisor *supervisor.Supervisor, portsRegistry *ports.Registry) (*Service, error) {
+func NewService(config *ServiceConfig) (*Service, error) {
 	var node models.Node
-	err := db.FindOneTo(&node, "type", models.PMMServerNodeType)
+	err := config.DB.FindOneTo(&node, "type", models.PMMServerNodeType)
 	if err != nil {
 		return nil, err
 	}
@@ -88,10 +91,7 @@ func NewService(config *ServiceConfig, db *reform.DB, supervisor *supervisor.Sup
 	}
 
 	svc := &Service{
-		ServiceConfig: *config,
-		db:            db,
-		supervisor:    supervisor,
-		portsRegistry: portsRegistry,
+		ServiceConfig: config,
 		httpClient:    new(http.Client),
 		pmmServerNode: &node,
 	}
@@ -211,7 +211,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 
 func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 	res := []Instance{}
-	err := svc.db.InTransaction(func(tx *reform.TX) error {
+	err := svc.DB.InTransaction(func(tx *reform.TX) error {
 		structs, e := tx.SelectAllFrom(models.RDSNodeTable, "WHERE type = ? ORDER BY id", models.RDSNodeType)
 		if e != nil {
 			return e
@@ -272,7 +272,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 		return status.Errorf(codes.NotFound, "RDS instance %q not found in region %q.", id.Name, id.Region)
 	}
 
-	return svc.db.InTransaction(func(tx *reform.TX) error {
+	return svc.DB.InTransaction(func(tx *reform.TX) error {
 		// insert node
 		node := &models.RDSNode{
 			Type: models.RDSNodeType,
@@ -307,7 +307,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 		}
 
 		// insert mysqld_exporter agent
-		port, e := svc.portsRegistry.Reserve()
+		port, e := svc.PortsRegistry.Reserve()
 		if e != nil {
 			return e
 		}
@@ -357,7 +357,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 				},
 				Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", agent.DSN(service))},
 			}
-			if e := svc.supervisor.Start(ctx, cfg); e != nil {
+			if e := svc.Supervisor.Start(ctx, cfg); e != nil {
 				return e
 			}
 		}
@@ -382,7 +382,7 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 		return status.Error(codes.InvalidArgument, "RDS instance region is not given.")
 	}
 
-	return svc.db.InTransaction(func(tx *reform.TX) error {
+	return svc.DB.InTransaction(func(tx *reform.TX) error {
 		var node models.RDSNode
 		if e := tx.SelectOneTo(&node, "WHERE type = ? AND name = ? AND region = ?", models.RDSNodeType, id.Name, id.Region); e != nil {
 			if e == reform.ErrNoRows {
@@ -454,7 +454,7 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 			}
 
 			if name != "" {
-				if e := svc.supervisor.Stop(ctx, name); e != nil {
+				if e := svc.Supervisor.Stop(ctx, name); e != nil {
 					return e
 				}
 			}

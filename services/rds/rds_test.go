@@ -41,7 +41,10 @@ func setup(t *testing.T, accessKey, secretKey string) (*Service, *sql.DB) {
 	sqlDB := tests.OpenTestDB(t)
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 	portsRegistry := ports.NewRegistry(30000, 30999, nil)
-	svc, err := NewService(nil, db, nil, portsRegistry)
+	svc, err := NewService(&ServiceConfig{
+		DB:            db,
+		PortsRegistry: portsRegistry,
+	})
 	require.NoError(t, err)
 	return svc, sqlDB
 }
