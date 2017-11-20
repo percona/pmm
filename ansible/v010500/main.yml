@@ -205,4 +205,4 @@
       changed_when: "'up-to-date' not in import_result.stdout"
 
     - name: PMM                        | Restart pmm-manage daemon (delayed)
-      shell: cd /tmp; nohup sh -c 'sleep 10; test -e /usr/bin/supervisorctl && /usr/bin/supervisorctl restart pmm-manage nginx || /bin/systemctl restart pmm-manage nginx' </dev/null >/dev/null 2>&1 &
+      shell: cd /tmp; nohup sh -c 'sleep 10; test -e /usr/bin/supervisorctl && /usr/bin/supervisorctl restart pmm-manage nginx || (/usr/sbin/nginx -s reload; /bin/systemctl restart pmm-manage)' </dev/null >/dev/null 2>&1 &
