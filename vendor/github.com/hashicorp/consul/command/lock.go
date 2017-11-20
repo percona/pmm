@@ -3,7 +3,6 @@ package command
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path"
 	"strings"
 	"sync"
@@ -42,7 +41,8 @@ type LockCommand struct {
 
 	child     *os.Process
 	childLock sync.Mutex
-	verbose   bool
+
+	verbose bool
 }
 
 func (c *LockCommand) Help() string {
@@ -75,19 +75,14 @@ func (c *LockCommand) Run(args []string) int {
 }
 
 func (c *LockCommand) run(args []string, lu **LockUnlock) int {
+	var childDone chan struct{}
 	var limit int
 	var monitorRetry int
 	var name string
 	var passStdin bool
-	var propagateChildCode bool
-	var shell bool
 	var timeout time.Duration
 
 	f := c.BaseCommand.NewFlagSet(c)
-	f.BoolVar(&propagateChildCode, "child-exit-code", false,
-		"Exit 2 if the child process exited with an error if this is true, "+
-			"otherwise this doesn't propagate an error from the child. The "+
-			"default value is false.")
 	f.IntVar(&limit, "n", 1,
 		"Optional limit on the number of concurrent lock holders. The underlying "+
 			"implementation switches from a lock to a semaphore when the value is "+
@@ -103,12 +98,9 @@ func (c *LockCommand) run(args []string, lu **LockUnlock) int {
 			"is generated based on the provided child command.")
 	f.BoolVar(&passStdin, "pass-stdin", false,
 		"Pass stdin to the child process.")
-	f.BoolVar(&shell, "shell", true,
-		"Use a shell to run the command (can set a custom shell via the SHELL "+
-			"environment variable).")
 	f.DurationVar(&timeout, "timeout", 0,
 		"Maximum amount of time to wait to acquire the lock, specified as a "+
-			"duration like \"1s\" or \"3h\". The default value is 0.")
+			"timestamp like \"1s\" or \"3h\". The default value is 0.")
 	f.BoolVar(&c.verbose, "verbose", false,
 		"Enable verbose (debugging) output.")
 
@@ -134,6 +126,7 @@ func (c *LockCommand) run(args []string, lu **LockUnlock) int {
 	}
 	prefix := extra[0]
 	prefix = strings.TrimPrefix(prefix, "/")
+	script := strings.Join(extra[1:], " ")
 
 	if timeout < 0 {
 		c.UI.Error("Timeout must be positive")
@@ -142,7 +135,7 @@ func (c *LockCommand) run(args []string, lu **LockUnlock) int {
 
 	// Calculate a session name if none provided
 	if name == "" {
-		name = fmt.Sprintf("Consul lock for '%s' at '%s'", strings.Join(extra[1:], " "), prefix)
+		name = fmt.Sprintf("Consul lock for '%s' at '%s'", script, prefix)
 	}
 
 	// Calculate oneshot
@@ -192,8 +185,6 @@ func (c *LockCommand) run(args []string, lu **LockUnlock) int {
 	}
 
 	// Check if we were shutdown but managed to still acquire the lock
-	var childCode int
-	var childErr chan error
 	select {
 	case <-c.ShutdownCh:
 		c.UI.Error("Shutdown triggered during lock acquisition")
@@ -202,9 +193,11 @@ func (c *LockCommand) run(args []string, lu **LockUnlock) int {
 	}
 
 	// Start the child process
-	childErr = make(chan error, 1)
+	childDone = make(chan struct{})
 	go func() {
-		childErr <- c.startChild(f.Args()[1:], passStdin, shell)
+		if err := c.startChild(script, childDone, passStdin); err != nil {
+			c.UI.Error(fmt.Sprintf("%s", err))
+		}
 	}()
 
 	// Monitor for shutdown, child termination, or lock loss
@@ -217,10 +210,7 @@ func (c *LockCommand) run(args []string, lu **LockUnlock) int {
 		if c.verbose {
 			c.UI.Info("Lock lost, killing child")
 		}
-	case err := <-childErr:
-		if err != nil {
-			childCode = 2
-		}
+	case <-childDone:
 		if c.verbose {
 			c.UI.Info("Child terminated, releasing lock")
 		}
@@ -230,9 +220,8 @@ func (c *LockCommand) run(args []string, lu **LockUnlock) int {
 	// Prevent starting a new child.  The lock is never released
 	// after this point.
 	c.childLock.Lock()
-
 	// Kill any existing child
-	if err := c.killChild(childErr); err != nil {
+	if err := c.killChild(childDone); err != nil {
 		c.UI.Error(fmt.Sprintf("%s", err))
 	}
 
@@ -254,13 +243,6 @@ RELEASE:
 	} else if c.verbose {
 		c.UI.Info("Cleanup succeeded")
 	}
-
-	// If we detected an error from the child process then we propagate
-	// that.
-	if propagateChildCode {
-		return childCode
-	}
-
 	return 0
 }
 
@@ -339,19 +321,13 @@ func (c *LockCommand) setupSemaphore(client *api.Client, limit int, prefix, name
 
 // startChild is a long running routine used to start and
 // wait for the child process to exit.
-func (c *LockCommand) startChild(args []string, passStdin, shell bool) error {
+func (c *LockCommand) startChild(script string, doneCh chan struct{}, passStdin bool) error {
+	defer close(doneCh)
 	if c.verbose {
-		c.UI.Info("Starting handler")
+		c.UI.Info(fmt.Sprintf("Starting handler '%s'", script))
 	}
-
 	// Create the command
-	var cmd *exec.Cmd
-	var err error
-	if !shell {
-		cmd, err = agent.ExecSubprocess(args)
-	} else {
-		cmd, err = agent.ExecScript(strings.Join(args, " "))
-	}
+	cmd, err := agent.ExecScript(script)
 	if err != nil {
 		c.UI.Error(fmt.Sprintf("Error executing handler: %s", err))
 		return err
@@ -380,14 +356,6 @@ func (c *LockCommand) startChild(args []string, passStdin, shell bool) error {
 		return err
 	}
 
-	// Set up signal forwarding.
-	doneCh := make(chan struct{})
-	defer close(doneCh)
-	logFn := func(err error) {
-		c.UI.Error(fmt.Sprintf("Warning, could not forward signal: %s", err))
-	}
-	agent.ForwardSignals(cmd, logFn, doneCh)
-
 	// Setup the child info
 	c.child = cmd.Process
 	c.childLock.Unlock()
@@ -405,7 +373,7 @@ func (c *LockCommand) startChild(args []string, passStdin, shell bool) error {
 // termination.
 // On Windows, the child is always hard terminated with a SIGKILL, even
 // on the first attempt.
-func (c *LockCommand) killChild(childErr chan error) error {
+func (c *LockCommand) killChild(childDone chan struct{}) error {
 	// Get the child process
 	child := c.child
 
@@ -427,7 +395,7 @@ func (c *LockCommand) killChild(childErr chan error) error {
 
 	// Wait for termination, or until a timeout
 	select {
-	case <-childErr:
+	case <-childDone:
 		if c.verbose {
 			c.UI.Info("Child terminated")
 		}

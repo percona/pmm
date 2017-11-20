@@ -7,7 +7,7 @@ import (
 	"github.com/hashicorp/consul/testutil/retry"
 )
 
-func TestAPI_PreparedQuery(t *testing.T) {
+func TestPreparedQuery(t *testing.T) {
 	t.Parallel()
 	c, s := makeClient(t)
 	defer s.Stop()

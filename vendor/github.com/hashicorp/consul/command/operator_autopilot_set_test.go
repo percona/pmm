@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/consul/agent"
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 	"github.com/mitchellh/cli"
 )
 
@@ -17,7 +17,7 @@ func TestOperator_Autopilot_Set_Implements(t *testing.T) {
 
 func TestOperator_Autopilot_Set(t *testing.T) {
 	t.Parallel()
-	a := agent.NewTestAgent(t.Name(), ``)
+	a := agent.NewTestAgent(t.Name(), nil)
 	defer a.Shutdown()
 
 	ui := cli.NewMockUi()

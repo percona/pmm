@@ -163,7 +163,7 @@ query "bar" {
 		},
 	}
 
-	out, err := Parse(inp, nil)
+	out, err := Parse(inp)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -344,7 +344,7 @@ func TestACLPolicy_Parse_JSON(t *testing.T) {
 		},
 	}
 
-	out, err := Parse(inp, nil)
+	out, err := Parse(inp)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -362,7 +362,7 @@ keyring = ""
 		Keyring: "",
 	}
 
-	out, err := Parse(inp, nil)
+	out, err := Parse(inp)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -380,7 +380,7 @@ operator = ""
 		Operator: "",
 	}
 
-	out, err := Parse(inp, nil)
+	out, err := Parse(inp)
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
@@ -403,7 +403,7 @@ func TestACLPolicy_Bad_Policy(t *testing.T) {
 		`session "" { policy = "nope" }`,
 	}
 	for _, c := range cases {
-		_, err := Parse(c, nil)
+		_, err := Parse(c)
 		if err == nil || !strings.Contains(err.Error(), "Invalid") {
 			t.Fatalf("expected policy error, got: %#v", err)
 		}

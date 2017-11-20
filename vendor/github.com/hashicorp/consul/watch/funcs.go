@@ -1,7 +1,6 @@
 package watch
 
 import (
-	"context"
 	"fmt"
 
 	consulapi "github.com/hashicorp/consul/api"
@@ -42,8 +41,7 @@ func keyWatch(params map[string]interface{}) (WatcherFunc, error) {
 	}
 	fn := func(p *Plan) (uint64, interface{}, error) {
 		kv := p.client.KV()
-		opts := makeQueryOptionsWithContext(p, stale)
-		defer p.cancelFunc()
+		opts := consulapi.QueryOptions{AllowStale: stale, WaitIndex: p.lastIndex}
 		pair, meta, err := kv.Get(key, &opts)
 		if err != nil {
 			return 0, nil, err
@@ -72,8 +70,7 @@ func keyPrefixWatch(params map[string]interface{}) (WatcherFunc, error) {
 	}
 	fn := func(p *Plan) (uint64, interface{}, error) {
 		kv := p.client.KV()
-		opts := makeQueryOptionsWithContext(p, stale)
-		defer p.cancelFunc()
+		opts := consulapi.QueryOptions{AllowStale: stale, WaitIndex: p.lastIndex}
 		pairs, meta, err := kv.List(prefix, &opts)
 		if err != nil {
 			return 0, nil, err
@@ -92,8 +89,7 @@ func servicesWatch(params map[string]interface{}) (WatcherFunc, error) {
 
 	fn := func(p *Plan) (uint64, interface{}, error) {
 		catalog := p.client.Catalog()
-		opts := makeQueryOptionsWithContext(p, stale)
-		defer p.cancelFunc()
+		opts := consulapi.QueryOptions{AllowStale: stale, WaitIndex: p.lastIndex}
 		services, meta, err := catalog.Services(&opts)
 		if err != nil {
 			return 0, nil, err
@@ -112,8 +108,7 @@ func nodesWatch(params map[string]interface{}) (WatcherFunc, error) {
 
 	fn := func(p *Plan) (uint64, interface{}, error) {
 		catalog := p.client.Catalog()
-		opts := makeQueryOptionsWithContext(p, stale)
-		defer p.cancelFunc()
+		opts := consulapi.QueryOptions{AllowStale: stale, WaitIndex: p.lastIndex}
 		nodes, meta, err := catalog.Nodes(&opts)
 		if err != nil {
 			return 0, nil, err
@@ -149,8 +144,7 @@ func serviceWatch(params map[string]interface{}) (WatcherFunc, error) {
 
 	fn := func(p *Plan) (uint64, interface{}, error) {
 		health := p.client.Health()
-		opts := makeQueryOptionsWithContext(p, stale)
-		defer p.cancelFunc()
+		opts := consulapi.QueryOptions{AllowStale: stale, WaitIndex: p.lastIndex}
 		nodes, meta, err := health.Service(service, tag, passingOnly, &opts)
 		if err != nil {
 			return 0, nil, err
@@ -183,8 +177,7 @@ func checksWatch(params map[string]interface{}) (WatcherFunc, error) {
 
 	fn := func(p *Plan) (uint64, interface{}, error) {
 		health := p.client.Health()
-		opts := makeQueryOptionsWithContext(p, stale)
-		defer p.cancelFunc()
+		opts := consulapi.QueryOptions{AllowStale: stale, WaitIndex: p.lastIndex}
 		var checks []*consulapi.HealthCheck
 		var meta *consulapi.QueryMeta
 		var err error
@@ -212,8 +205,7 @@ func eventWatch(params map[string]interface{}) (WatcherFunc, error) {
 
 	fn := func(p *Plan) (uint64, interface{}, error) {
 		event := p.client.Event()
-		opts := makeQueryOptionsWithContext(p, false)
-		defer p.cancelFunc()
+		opts := consulapi.QueryOptions{WaitIndex: p.lastIndex}
 		events, meta, err := event.List(name, &opts)
 		if err != nil {
 			return 0, nil, err
@@ -229,11 +221,4 @@ func eventWatch(params map[string]interface{}) (WatcherFunc, error) {
 		return meta.LastIndex, events, err
 	}
 	return fn, nil
-}
-
-func makeQueryOptionsWithContext(p *Plan, stale bool) consulapi.QueryOptions {
-	ctx, cancel := context.WithCancel(context.Background())
-	p.cancelFunc = cancel
-	opts := consulapi.QueryOptions{AllowStale: stale, WaitIndex: p.lastIndex}
-	return *opts.WithContext(ctx)
 }

@@ -7,9 +7,8 @@ import (
 	"github.com/armon/go-metrics"
 	"github.com/hashicorp/consul/acl"
 	"github.com/hashicorp/consul/agent/consul/state"
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 	"github.com/hashicorp/consul/api"
-	"github.com/hashicorp/consul/sentinel"
 	"github.com/hashicorp/go-memdb"
 )
 
@@ -21,19 +20,18 @@ type KVS struct {
 // preApply does all the verification of a KVS update that is performed BEFORE
 // we submit as a Raft log entry. This includes enforcing the lock delay which
 // must only be done on the leader.
-func kvsPreApply(srv *Server, rule acl.ACL, op api.KVOp, dirEnt *structs.DirEntry) (bool, error) {
+func kvsPreApply(srv *Server, acl acl.ACL, op api.KVOp, dirEnt *structs.DirEntry) (bool, error) {
 	// Verify the entry.
-
 	if dirEnt.Key == "" && op != api.KVDeleteTree {
 		return false, fmt.Errorf("Must provide key")
 	}
 
 	// Apply the ACL policy if any.
-	if rule != nil {
+	if acl != nil {
 		switch op {
 		case api.KVDeleteTree:
-			if !rule.KeyWritePrefix(dirEnt.Key) {
-				return false, acl.ErrPermissionDenied
+			if !acl.KeyWritePrefix(dirEnt.Key) {
+				return false, errPermissionDenied
 			}
 
 		case api.KVGet, api.KVGetTree:
@@ -43,16 +41,13 @@ func kvsPreApply(srv *Server, rule acl.ACL, op api.KVOp, dirEnt *structs.DirEntr
 			// These could reveal information based on the outcome
 			// of the transaction, and they operate on individual
 			// keys so we check them here.
-			if !rule.KeyRead(dirEnt.Key) {
-				return false, acl.ErrPermissionDenied
+			if !acl.KeyRead(dirEnt.Key) {
+				return false, errPermissionDenied
 			}
 
 		default:
-			scope := func() map[string]interface{} {
-				return sentinel.ScopeKVUpsert(dirEnt.Key, dirEnt.Value, dirEnt.Flags)
-			}
-			if !rule.KeyWrite(dirEnt.Key, scope) {
-				return false, acl.ErrPermissionDenied
+			if !acl.KeyWrite(dirEnt.Key) {
+				return false, errPermissionDenied
 			}
 		}
 	}
@@ -82,7 +77,6 @@ func (k *KVS) Apply(args *structs.KVSRequest, reply *bool) error {
 		return err
 	}
 	defer metrics.MeasureSince([]string{"consul", "kvs", "apply"}, time.Now())
-	defer metrics.MeasureSince([]string{"kvs", "apply"}, time.Now())
 
 	// Perform the pre-apply checks.
 	acl, err := k.srv.resolveToken(args.Token)
@@ -121,10 +115,11 @@ func (k *KVS) Get(args *structs.KeyRequest, reply *structs.IndexedDirEntries) er
 		return err
 	}
 
-	aclRule, err := k.srv.resolveToken(args.Token)
+	acl, err := k.srv.resolveToken(args.Token)
 	if err != nil {
 		return err
 	}
+
 	return k.srv.blockingQuery(
 		&args.QueryOptions,
 		&reply.QueryMeta,
@@ -133,10 +128,9 @@ func (k *KVS) Get(args *structs.KeyRequest, reply *structs.IndexedDirEntries) er
 			if err != nil {
 				return err
 			}
-			if aclRule != nil && !aclRule.KeyRead(args.Key) {
-				return acl.ErrPermissionDenied
+			if acl != nil && !acl.KeyRead(args.Key) {
+				ent = nil
 			}
-
 			if ent == nil {
 				// Must provide non-zero index to prevent blocking
 				// Index 1 is impossible anyways (due to Raft internals)
@@ -160,13 +154,9 @@ func (k *KVS) List(args *structs.KeyRequest, reply *structs.IndexedDirEntries) e
 		return err
 	}
 
-	aclToken, err := k.srv.resolveToken(args.Token)
+	acl, err := k.srv.resolveToken(args.Token)
 	if err != nil {
 		return err
-	}
-
-	if aclToken != nil && k.srv.config.ACLEnableKeyListPolicy && !aclToken.KeyList(args.Key) {
-		return acl.ErrPermissionDenied
 	}
 
 	return k.srv.blockingQuery(
@@ -177,8 +167,8 @@ func (k *KVS) List(args *structs.KeyRequest, reply *structs.IndexedDirEntries) e
 			if err != nil {
 				return err
 			}
-			if aclToken != nil {
-				ent = FilterDirEnt(aclToken, ent)
+			if acl != nil {
+				ent = FilterDirEnt(acl, ent)
 			}
 
 			if len(ent) == 0 {
@@ -204,13 +194,9 @@ func (k *KVS) ListKeys(args *structs.KeyListRequest, reply *structs.IndexedKeyLi
 		return err
 	}
 
-	aclToken, err := k.srv.resolveToken(args.Token)
+	acl, err := k.srv.resolveToken(args.Token)
 	if err != nil {
 		return err
-	}
-
-	if aclToken != nil && k.srv.config.ACLEnableKeyListPolicy && !aclToken.KeyList(args.Prefix) {
-		return acl.ErrPermissionDenied
 	}
 
 	return k.srv.blockingQuery(
@@ -230,8 +216,8 @@ func (k *KVS) ListKeys(args *structs.KeyListRequest, reply *structs.IndexedKeyLi
 				reply.Index = index
 			}
 
-			if aclToken != nil {
-				keys = FilterKeys(aclToken, keys)
+			if acl != nil {
+				keys = FilterKeys(acl, keys)
 			}
 			reply.Keys = keys
 			return nil

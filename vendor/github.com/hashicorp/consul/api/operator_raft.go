@@ -17,9 +17,6 @@ type RaftServer struct {
 	// Leader is true if this server is the current cluster leader.
 	Leader bool
 
-	// Protocol version is the raft protocol version used by the server
-	ProtocolVersion string
-
 	// Voter is true if this server has a vote in the cluster. This might
 	// be false if the server is staging and still coming online, or if
 	// it's a non-voting server, which will be added in a future release of
@@ -27,7 +24,7 @@ type RaftServer struct {
 	Voter bool
 }
 
-// RaftConfiguration is returned when querying for the current Raft configuration.
+// RaftConfigration is returned when querying for the current Raft configuration.
 type RaftConfiguration struct {
 	// Servers has the list of servers in the Raft configuration.
 	Servers []*RaftServer

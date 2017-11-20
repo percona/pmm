@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 
@@ -38,7 +37,6 @@ Usage: consul watch [options] [child...]
 
 func (c *WatchCommand) Run(args []string) int {
 	var watchType, key, prefix, service, tag, passingOnly, state, name string
-	var shell bool
 
 	f := c.BaseCommand.NewFlagSet(c)
 	f.StringVar(&watchType, "type", "",
@@ -56,9 +54,6 @@ func (c *WatchCommand) Run(args []string) int {
 	f.StringVar(&passingOnly, "passingonly", "",
 		"Specifies if only hosts passing all checks are displayed. "+
 			"Optional for 'service' type, must be one of `[true|false]`. Defaults false.")
-	f.BoolVar(&shell, "shell", true,
-		"Use a shell to run the command (can set a custom shell via the SHELL "+
-			"environment variable).")
 	f.StringVar(&state, "state", "",
 		"Specifies the states to watch. Optional for 'checks' type.")
 	f.StringVar(&name, "name", "",
@@ -75,6 +70,9 @@ func (c *WatchCommand) Run(args []string) int {
 		c.UI.Error(c.Help())
 		return 1
 	}
+
+	// Grab the script to execute if any
+	script := strings.Join(f.Args(), " ")
 
 	// Compile the watch parameters
 	params := make(map[string]interface{})
@@ -142,7 +140,7 @@ func (c *WatchCommand) Run(args []string) int {
 	//	0: false
 	//	1: true
 	errExit := 0
-	if len(f.Args()) == 0 {
+	if script == "" {
 		wp.Handler = func(idx uint64, data interface{}) {
 			defer wp.Stop()
 			buf, err := json.MarshalIndent(data, "", "    ")
@@ -154,21 +152,10 @@ func (c *WatchCommand) Run(args []string) int {
 		}
 	} else {
 		wp.Handler = func(idx uint64, data interface{}) {
-			doneCh := make(chan struct{})
-			defer close(doneCh)
-			logFn := func(err error) {
-				c.UI.Error(fmt.Sprintf("Warning, could not forward signal: %s", err))
-			}
-
 			// Create the command
 			var buf bytes.Buffer
 			var err error
-			var cmd *exec.Cmd
-			if !shell {
-				cmd, err = agent.ExecSubprocess(f.Args())
-			} else {
-				cmd, err = agent.ExecScript(strings.Join(f.Args(), " "))
-			}
+			cmd, err := agent.ExecScript(script)
 			if err != nil {
 				c.UI.Error(fmt.Sprintf("Error executing handler: %s", err))
 				goto ERR
@@ -186,17 +173,8 @@ func (c *WatchCommand) Run(args []string) int {
 			cmd.Stdout = os.Stdout
 			cmd.Stderr = os.Stderr
 
-			// Run the handler.
-			if err := cmd.Start(); err != nil {
-				c.UI.Error(fmt.Sprintf("Error starting handler: %s", err))
-				goto ERR
-			}
-
-			// Set up signal forwarding.
-			agent.ForwardSignals(cmd, logFn, doneCh)
-
-			// Wait for the handler to complete.
-			if err := cmd.Wait(); err != nil {
+			// Run the handler
+			if err := cmd.Run(); err != nil {
 				c.UI.Error(fmt.Sprintf("Error executing handler: %s", err))
 				goto ERR
 			}

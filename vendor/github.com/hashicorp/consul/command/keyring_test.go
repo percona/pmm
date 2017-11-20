@@ -29,9 +29,9 @@ func TestKeyringCommandRun(t *testing.T) {
 	key2 := "kZyFABeAmc64UMTrm9XuKA=="
 
 	// Begin with a single key
-	a1 := agent.NewTestAgent(t.Name(), `
-		encrypt = "`+key1+`"
-	`)
+	cfg := agent.TestConfig()
+	cfg.EncryptKey = key1
+	a1 := agent.NewTestAgent(t.Name(), cfg)
 	defer a1.Shutdown()
 
 	// The LAN and WAN keyrings were initialized with key1

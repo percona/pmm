@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/consul/agent"
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 	"github.com/hashicorp/consul/testutil/retry"
 	"github.com/hashicorp/serf/coordinate"
 	"github.com/mitchellh/cli"
@@ -54,13 +55,10 @@ func TestRTTCommand_Run_BadArgs(t *testing.T) {
 
 func TestRTTCommand_Run_LAN(t *testing.T) {
 	t.Parallel()
-	a := agent.NewTestAgent(t.Name(), `
-		consul = {
-			coordinate = {
-				update_period = "10ms"
-			}
-		}
-	`)
+	updatePeriod := 10 * time.Millisecond
+	cfg := agent.TestConfig()
+	cfg.ConsulConfig.CoordinateUpdatePeriod = updatePeriod
+	a := agent.NewTestAgent(t.Name(), cfg)
 	defer a.Shutdown()
 
 	// Inject some known coordinates.
@@ -159,7 +157,7 @@ func TestRTTCommand_Run_LAN(t *testing.T) {
 
 func TestRTTCommand_Run_WAN(t *testing.T) {
 	t.Parallel()
-	a := agent.NewTestAgent(t.Name(), ``)
+	a := agent.NewTestAgent(t.Name(), nil)
 	defer a.Shutdown()
 
 	node := fmt.Sprintf("%s.%s", a.Config.NodeName, a.Config.Datacenter)

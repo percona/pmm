@@ -2,18 +2,17 @@ package consul
 
 import (
 	"os"
+	"strings"
 	"testing"
 	"time"
 
-	"github.com/hashicorp/consul/acl"
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 	"github.com/hashicorp/consul/lib"
 	"github.com/hashicorp/consul/testrpc"
 	"github.com/hashicorp/net-rpc-msgpackrpc"
 )
 
 func TestSession_Apply(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServer(t)
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -73,7 +72,6 @@ func TestSession_Apply(t *testing.T) {
 }
 
 func TestSession_DeleteApply(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServer(t)
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -137,7 +135,6 @@ func TestSession_DeleteApply(t *testing.T) {
 }
 
 func TestSession_Apply_ACLDeny(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.ACLDatacenter = "dc1"
 		c.ACLMasterToken = "root"
@@ -194,7 +191,7 @@ session "foo" {
 	var id2 string
 	s1.config.ACLEnforceVersion8 = true
 	err := msgpackrpc.CallWithCodec(codec, "Session.Apply", &arg, &id2)
-	if !acl.IsErrPermissionDenied(err) {
+	if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -220,7 +217,7 @@ session "foo" {
 	s1.config.ACLEnforceVersion8 = true
 	arg.Session.ID = id2
 	err = msgpackrpc.CallWithCodec(codec, "Session.Apply", &arg, &out)
-	if !acl.IsErrPermissionDenied(err) {
+	if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -232,7 +229,6 @@ session "foo" {
 }
 
 func TestSession_Get(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServer(t)
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -276,7 +272,6 @@ func TestSession_Get(t *testing.T) {
 }
 
 func TestSession_List(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServer(t)
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -328,7 +323,6 @@ func TestSession_List(t *testing.T) {
 }
 
 func TestSession_Get_List_NodeSessions_ACLFilter(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.ACLDatacenter = "dc1"
 		c.ACLMasterToken = "root"
@@ -497,7 +491,6 @@ session "foo" {
 }
 
 func TestSession_ApplyTimers(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServer(t)
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -521,7 +514,7 @@ func TestSession_ApplyTimers(t *testing.T) {
 	}
 
 	// Check the session map
-	if s1.sessionTimers.Get(out) == nil {
+	if _, ok := s1.sessionTimers[out]; !ok {
 		t.Fatalf("missing session timer")
 	}
 
@@ -533,14 +526,13 @@ func TestSession_ApplyTimers(t *testing.T) {
 	}
 
 	// Check the session map
-	if s1.sessionTimers.Get(out) != nil {
+	if _, ok := s1.sessionTimers[out]; ok {
 		t.Fatalf("session timer exists")
 	}
 }
 
 func TestSession_Renew(t *testing.T) {
-	t.Parallel()
-	ttl := time.Second
+	ttl := 250 * time.Millisecond
 	TTL := ttl.String()
 
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
@@ -572,7 +564,7 @@ func TestSession_Renew(t *testing.T) {
 	}
 
 	// Verify the timer map is setup
-	if s1.sessionTimers.Len() != 5 {
+	if len(s1.sessionTimers) != 5 {
 		t.Fatalf("missing session timers")
 	}
 
@@ -703,7 +695,6 @@ func TestSession_Renew(t *testing.T) {
 }
 
 func TestSession_Renew_ACLDeny(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.ACLDatacenter = "dc1"
 		c.ACLMasterToken = "root"
@@ -770,7 +761,7 @@ session "foo" {
 	// Now turn on version 8 enforcement and the renew should be rejected.
 	s1.config.ACLEnforceVersion8 = true
 	err := msgpackrpc.CallWithCodec(codec, "Session.Renew", &renewR, &session)
-	if !acl.IsErrPermissionDenied(err) {
+	if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 		t.Fatalf("err: %v", err)
 	}
 
@@ -782,7 +773,6 @@ session "foo" {
 }
 
 func TestSession_NodeSessions(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServer(t)
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -841,7 +831,6 @@ func TestSession_NodeSessions(t *testing.T) {
 }
 
 func TestSession_Apply_BadTTL(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServer(t)
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()

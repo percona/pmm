@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"net/http"
 
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 )
 
 // Snapshot handles requests to take and restore snapshots. This uses a special
@@ -44,6 +44,7 @@ func (s *HTTPServer) Snapshot(resp http.ResponseWriter, req *http.Request) (inte
 		return nil, nil
 
 	default:
-		return nil, MethodNotAllowedError{req.Method, []string{"GET", "PUT"}}
+		resp.WriteHeader(http.StatusMethodNotAllowed)
+		return nil, nil
 	}
 }

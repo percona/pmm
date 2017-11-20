@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/consul/api"
+	"github.com/hashicorp/serf/serf"
 	"github.com/ryanuber/columnize"
 )
 
@@ -50,14 +51,30 @@ func (c *OperatorRaftListCommand) Run(args []string) int {
 	result, err := raftListPeers(client, c.BaseCommand.HTTPStale())
 	if err != nil {
 		c.UI.Error(fmt.Sprintf("Error getting peers: %v", err))
-		return 1
 	}
-
 	c.UI.Output(result)
+
 	return 0
 }
 
 func raftListPeers(client *api.Client, stale bool) (string, error) {
+	raftProtocols := make(map[string]string)
+	members, err := client.Agent().Members(false)
+	if err != nil {
+		return "", err
+	}
+
+	for _, member := range members {
+		if serf.MemberStatus(member.Status) == serf.StatusLeft {
+			continue
+		}
+
+		if member.Tags["role"] != "consul" {
+			continue
+		}
+
+		raftProtocols[member.Name] = member.Tags["raft_vsn"]
+	}
 
 	q := &api.QueryOptions{
 		AllowStale: stale,
@@ -70,8 +87,7 @@ func raftListPeers(client *api.Client, stale bool) (string, error) {
 	// Format it as a nice table.
 	result := []string{"Node|ID|Address|State|Voter|RaftProtocol"}
 	for _, s := range reply.Servers {
-		raftProtocol := s.ProtocolVersion
-
+		raftProtocol := raftProtocols[s.Node]
 		if raftProtocol == "" {
 			raftProtocol = "<=1"
 		}

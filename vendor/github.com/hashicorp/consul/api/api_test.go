@@ -4,7 +4,6 @@ import (
 	crand "crypto/rand"
 	"crypto/tls"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -53,7 +52,6 @@ func makeClientWithConfig(
 	// Create client
 	client, err := NewClient(conf)
 	if err != nil {
-		server.Stop()
 		t.Fatalf("err: %v", err)
 	}
 
@@ -74,12 +72,8 @@ func testKey() string {
 		buf[10:16])
 }
 
-func TestAPI_DefaultConfig_env(t *testing.T) {
-	// t.Parallel() // DO NOT ENABLE !!!
-	// do not enable t.Parallel for this test since it modifies global state
-	// (environment) which has non-deterministic effects on the other tests
-	// which derive their default configuration from the environment
-
+func TestDefaultConfig_env(t *testing.T) {
+	t.Parallel()
 	addr := "1.2.3.4:5678"
 	token := "abcd1234"
 	auth := "username:password"
@@ -156,8 +150,7 @@ func TestAPI_DefaultConfig_env(t *testing.T) {
 	}
 }
 
-func TestAPI_SetupTLSConfig(t *testing.T) {
-	t.Parallel()
+func TestSetupTLSConfig(t *testing.T) {
 	// A default config should result in a clean default client config.
 	tlsConfig := &TLSConfig{}
 	cc, err := SetupTLSConfig(tlsConfig)
@@ -260,7 +253,7 @@ func TestAPI_SetupTLSConfig(t *testing.T) {
 	}
 }
 
-func TestAPI_ClientTLSOptions(t *testing.T) {
+func TestClientTLSOptions(t *testing.T) {
 	t.Parallel()
 	// Start a server that verifies incoming HTTPS connections
 	_, srvVerify := makeClientWithConfig(t, nil, func(conf *testutil.TestServerConfig) {
@@ -369,7 +362,7 @@ func TestAPI_ClientTLSOptions(t *testing.T) {
 	})
 }
 
-func TestAPI_SetQueryOptions(t *testing.T) {
+func TestSetQueryOptions(t *testing.T) {
 	t.Parallel()
 	c, s := makeClient(t)
 	defer s.Stop()
@@ -409,7 +402,7 @@ func TestAPI_SetQueryOptions(t *testing.T) {
 	}
 }
 
-func TestAPI_SetWriteOptions(t *testing.T) {
+func TestSetWriteOptions(t *testing.T) {
 	t.Parallel()
 	c, s := makeClient(t)
 	defer s.Stop()
@@ -429,7 +422,7 @@ func TestAPI_SetWriteOptions(t *testing.T) {
 	}
 }
 
-func TestAPI_RequestToHTTP(t *testing.T) {
+func TestRequestToHTTP(t *testing.T) {
 	t.Parallel()
 	c, s := makeClient(t)
 	defer s.Stop()
@@ -452,7 +445,7 @@ func TestAPI_RequestToHTTP(t *testing.T) {
 	}
 }
 
-func TestAPI_ParseQueryMeta(t *testing.T) {
+func TestParseQueryMeta(t *testing.T) {
 	t.Parallel()
 	resp := &http.Response{
 		Header: make(map[string][]string),
@@ -506,13 +499,12 @@ func TestAPI_UnixSocket(t *testing.T) {
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
-	if info["Config"]["NodeName"].(string) == "" {
+	if info["Config"]["NodeName"] == "" {
 		t.Fatalf("bad: %v", info)
 	}
 }
 
 func TestAPI_durToMsec(t *testing.T) {
-	t.Parallel()
 	if ms := durToMsec(0); ms != "0ms" {
 		t.Fatalf("bad: %s", ms)
 	}
@@ -530,21 +522,16 @@ func TestAPI_durToMsec(t *testing.T) {
 	}
 }
 
-func TestAPI_IsRetryableError(t *testing.T) {
-	t.Parallel()
-	if IsRetryableError(nil) {
-		t.Fatal("should not be a retryable error")
+func TestAPI_IsServerError(t *testing.T) {
+	if IsServerError(nil) {
+		t.Fatalf("should not be a server error")
 	}
 
-	if IsRetryableError(fmt.Errorf("not the error you are looking for")) {
-		t.Fatal("should not be a retryable error")
+	if IsServerError(fmt.Errorf("not the error you are looking for")) {
+		t.Fatalf("should not be a server error")
 	}
 
-	if !IsRetryableError(fmt.Errorf(serverError)) {
-		t.Fatal("should be a retryable error")
-	}
-
-	if !IsRetryableError(&net.OpError{Err: fmt.Errorf("network conn error")}) {
-		t.Fatal("should be a retryable error")
+	if !IsServerError(fmt.Errorf(serverError)) {
+		t.Fatalf("should be a server error")
 	}
 }

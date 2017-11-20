@@ -3,7 +3,7 @@ package command
 import (
 	"fmt"
 
-	"github.com/hashicorp/consul/agent/config"
+	"github.com/hashicorp/consul/agent"
 	"github.com/hashicorp/consul/agent/consul"
 	"github.com/mitchellh/cli"
 )
@@ -21,18 +21,14 @@ func (c *VersionCommand) Help() string {
 func (c *VersionCommand) Run(_ []string) int {
 	c.UI.Output(fmt.Sprintf("Consul %s", c.HumanVersion))
 
-	rpcProtocol, err := config.DefaultRPCProtocol()
-	if err != nil {
-		c.UI.Error(err.Error())
-		return 2
-	}
+	config := agent.DefaultConfig()
 	var supplement string
-	if rpcProtocol < consul.ProtocolVersionMax {
+	if config.Protocol < consul.ProtocolVersionMax {
 		supplement = fmt.Sprintf(" (agent will automatically use protocol >%d when speaking to compatible agents)",
-			rpcProtocol)
+			config.Protocol)
 	}
 	c.UI.Output(fmt.Sprintf("Protocol %d spoken by default, understands %d to %d%s",
-		rpcProtocol, consul.ProtocolVersionMin, consul.ProtocolVersionMax, supplement))
+		config.Protocol, consul.ProtocolVersionMin, consul.ProtocolVersionMax, supplement))
 
 	return 0
 }

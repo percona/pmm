@@ -5,9 +5,8 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
-	"github.com/hashicorp/consul/acl"
 	"github.com/hashicorp/consul/agent/consul/state"
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 	"github.com/hashicorp/go-memdb"
 	"github.com/hashicorp/go-uuid"
 )
@@ -24,7 +23,6 @@ func (s *Session) Apply(args *structs.SessionRequest, reply *string) error {
 		return err
 	}
 	defer metrics.MeasureSince([]string{"consul", "session", "apply"}, time.Now())
-	defer metrics.MeasureSince([]string{"session", "apply"}, time.Now())
 
 	// Verify the args
 	if args.Session.ID == "" && args.Op == structs.SessionDestroy {
@@ -35,11 +33,11 @@ func (s *Session) Apply(args *structs.SessionRequest, reply *string) error {
 	}
 
 	// Fetch the ACL token, if any, and apply the policy.
-	rule, err := s.srv.resolveToken(args.Token)
+	acl, err := s.srv.resolveToken(args.Token)
 	if err != nil {
 		return err
 	}
-	if rule != nil && s.srv.config.ACLEnforceVersion8 {
+	if acl != nil && s.srv.config.ACLEnforceVersion8 {
 		switch args.Op {
 		case structs.SessionDestroy:
 			state := s.srv.fsm.State()
@@ -50,13 +48,13 @@ func (s *Session) Apply(args *structs.SessionRequest, reply *string) error {
 			if existing == nil {
 				return fmt.Errorf("Unknown session %q", args.Session.ID)
 			}
-			if !rule.SessionWrite(existing.Node) {
-				return acl.ErrPermissionDenied
+			if !acl.SessionWrite(existing.Node) {
+				return errPermissionDenied
 			}
 
 		case structs.SessionCreate:
-			if !rule.SessionWrite(args.Session.Node) {
-				return acl.ErrPermissionDenied
+			if !acl.SessionWrite(args.Session.Node) {
+				return errPermissionDenied
 			}
 
 		default:
@@ -223,7 +221,6 @@ func (s *Session) Renew(args *structs.SessionSpecificRequest,
 		return err
 	}
 	defer metrics.MeasureSince([]string{"consul", "session", "renew"}, time.Now())
-	defer metrics.MeasureSince([]string{"session", "renew"}, time.Now())
 
 	// Get the session, from local state.
 	state := s.srv.fsm.State()
@@ -238,13 +235,13 @@ func (s *Session) Renew(args *structs.SessionSpecificRequest,
 	}
 
 	// Fetch the ACL token, if any, and apply the policy.
-	rule, err := s.srv.resolveToken(args.Token)
+	acl, err := s.srv.resolveToken(args.Token)
 	if err != nil {
 		return err
 	}
-	if rule != nil && s.srv.config.ACLEnforceVersion8 {
-		if !rule.SessionWrite(session.Node) {
-			return acl.ErrPermissionDenied
+	if acl != nil && s.srv.config.ACLEnforceVersion8 {
+		if !acl.SessionWrite(session.Node) {
+			return errPermissionDenied
 		}
 	}
 

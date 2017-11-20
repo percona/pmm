@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 	"github.com/hashicorp/consul/lib"
 )
 
@@ -150,12 +150,11 @@ func (s *Server) fetchLocalACLs() (structs.ACLs, error) {
 // have replicated to, so this is expected to block until something changes.
 func (s *Server) fetchRemoteACLs(lastRemoteIndex uint64) (*structs.IndexedACLs, error) {
 	defer metrics.MeasureSince([]string{"consul", "leader", "fetchRemoteACLs"}, time.Now())
-	defer metrics.MeasureSince([]string{"leader", "fetchRemoteACLs"}, time.Now())
 
 	args := structs.DCSpecificRequest{
 		Datacenter: s.config.ACLDatacenter,
 		QueryOptions: structs.QueryOptions{
-			Token:         s.tokens.ACLReplicationToken(),
+			Token:         s.config.ACLReplicationToken,
 			MinQueryIndex: lastRemoteIndex,
 			AllowStale:    true,
 		},
@@ -171,7 +170,6 @@ func (s *Server) fetchRemoteACLs(lastRemoteIndex uint64) (*structs.IndexedACLs, 
 // local ACLs in-line with the remote ACLs from the ACL datacenter.
 func (s *Server) updateLocalACLs(changes structs.ACLRequests) error {
 	defer metrics.MeasureSince([]string{"consul", "leader", "updateLocalACLs"}, time.Now())
-	defer metrics.MeasureSince([]string{"leader", "updateLocalACLs"}, time.Now())
 
 	minTimePerOp := time.Second / time.Duration(s.config.ACLReplicationApplyLimit)
 	for _, change := range changes {
@@ -219,7 +217,6 @@ func (s *Server) replicateACLs(lastRemoteIndex uint64) (uint64, error) {
 	// periods of time. This metric is a good measure of how expensive the
 	// replication process is.
 	defer metrics.MeasureSince([]string{"consul", "leader", "replicateACLs"}, time.Now())
-	defer metrics.MeasureSince([]string{"leader", "replicateACLs"}, time.Now())
 
 	local, err := s.fetchLocalACLs()
 	if err != nil {
@@ -250,7 +247,7 @@ func (s *Server) replicateACLs(lastRemoteIndex uint64) (uint64, error) {
 func (s *Server) IsACLReplicationEnabled() bool {
 	authDC := s.config.ACLDatacenter
 	return len(authDC) > 0 && (authDC != s.config.Datacenter) &&
-		s.config.EnableACLReplication
+		len(s.config.ACLReplicationToken) > 0
 }
 
 // updateACLReplicationStatus safely updates the ACL replication status.

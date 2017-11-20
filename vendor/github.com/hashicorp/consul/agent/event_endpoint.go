@@ -9,8 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/consul/acl"
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 )
 
 const (
@@ -20,8 +19,10 @@ const (
 
 // EventFire is used to fire a new event
 func (s *HTTPServer) EventFire(resp http.ResponseWriter, req *http.Request) (interface{}, error) {
+	// Mandate a PUT request
 	if req.Method != "PUT" {
-		return nil, MethodNotAllowedError{req.Method, []string{"PUT"}}
+		resp.WriteHeader(405)
+		return nil, nil
 	}
 
 	// Get the datacenter
@@ -31,7 +32,7 @@ func (s *HTTPServer) EventFire(resp http.ResponseWriter, req *http.Request) (int
 	event := &UserEvent{}
 	event.Name = strings.TrimPrefix(req.URL.Path, "/v1/event/fire/")
 	if event.Name == "" {
-		resp.WriteHeader(http.StatusBadRequest)
+		resp.WriteHeader(400)
 		fmt.Fprint(resp, "Missing name")
 		return nil, nil
 	}
@@ -62,12 +63,12 @@ func (s *HTTPServer) EventFire(resp http.ResponseWriter, req *http.Request) (int
 
 	// Try to fire the event
 	if err := s.agent.UserEvent(dc, token, event); err != nil {
-		if acl.IsErrPermissionDenied(err) {
-			resp.WriteHeader(http.StatusForbidden)
-			fmt.Fprint(resp, acl.ErrPermissionDenied.Error())
+		if strings.Contains(err.Error(), permissionDenied) {
+			resp.WriteHeader(403)
+			fmt.Fprint(resp, permissionDenied)
 			return nil, nil
 		}
-		resp.WriteHeader(http.StatusInternalServerError)
+		resp.WriteHeader(500)
 		return nil, err
 	}
 
@@ -77,10 +78,6 @@ func (s *HTTPServer) EventFire(resp http.ResponseWriter, req *http.Request) (int
 
 // EventList is used to retrieve the recent list of events
 func (s *HTTPServer) EventList(resp http.ResponseWriter, req *http.Request) (interface{}, error) {
-	if req.Method != "GET" {
-		return nil, MethodNotAllowedError{req.Method, []string{"GET"}}
-	}
-
 	// Parse the query options, since we simulate a blocking query
 	var b structs.QueryOptions
 	if parseWait(resp, req, &b) {

@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestAPI_OperatorRaftGetConfiguration(t *testing.T) {
+func TestOperator_RaftGetConfiguration(t *testing.T) {
 	t.Parallel()
 	c, s := makeClient(t)
 	defer s.Stop()
@@ -22,7 +22,7 @@ func TestAPI_OperatorRaftGetConfiguration(t *testing.T) {
 	}
 }
 
-func TestAPI_OperatorRaftRemovePeerByAddress(t *testing.T) {
+func TestOperator_RaftRemovePeerByAddress(t *testing.T) {
 	t.Parallel()
 	c, s := makeClient(t)
 	defer s.Stop()

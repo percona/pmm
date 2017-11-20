@@ -12,8 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/consul/acl"
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 	"github.com/hashicorp/consul/api"
 	"github.com/hashicorp/consul/testrpc"
 	"github.com/hashicorp/consul/testutil/retry"
@@ -22,7 +21,6 @@ import (
 )
 
 func TestPreparedQuery_Apply(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServer(t)
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -183,7 +181,6 @@ func TestPreparedQuery_Apply(t *testing.T) {
 }
 
 func TestPreparedQuery_Apply_ACLDeny(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.ACLDatacenter = "dc1"
 		c.ACLMasterToken = "root"
@@ -236,7 +233,7 @@ func TestPreparedQuery_Apply_ACLDeny(t *testing.T) {
 	// Creating without a token should fail since the default policy is to
 	// deny.
 	err := msgpackrpc.CallWithCodec(codec, "PreparedQuery.Apply", &query, &reply)
-	if !acl.IsErrPermissionDenied(err) {
+	if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 		t.Fatalf("bad: %v", err)
 	}
 
@@ -279,7 +276,7 @@ func TestPreparedQuery_Apply_ACLDeny(t *testing.T) {
 	query.Op = structs.PreparedQueryUpdate
 	query.WriteRequest.Token = ""
 	err = msgpackrpc.CallWithCodec(codec, "PreparedQuery.Apply", &query, &reply)
-	if !acl.IsErrPermissionDenied(err) {
+	if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 		t.Fatalf("bad: %v", err)
 	}
 
@@ -293,7 +290,7 @@ func TestPreparedQuery_Apply_ACLDeny(t *testing.T) {
 	query.Op = structs.PreparedQueryDelete
 	query.WriteRequest.Token = ""
 	err = msgpackrpc.CallWithCodec(codec, "PreparedQuery.Apply", &query, &reply)
-	if !acl.IsErrPermissionDenied(err) {
+	if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 		t.Fatalf("bad: %v", err)
 	}
 
@@ -459,13 +456,12 @@ func TestPreparedQuery_Apply_ACLDeny(t *testing.T) {
 	query.Query.Name = "redis"
 	query.WriteRequest.Token = token
 	err = msgpackrpc.CallWithCodec(codec, "PreparedQuery.Apply", &query, &reply)
-	if !acl.IsErrPermissionDenied(err) {
+	if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 		t.Fatalf("bad: %v", err)
 	}
 }
 
 func TestPreparedQuery_Apply_ForwardLeader(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.Bootstrap = false
 	})
@@ -533,7 +529,6 @@ func TestPreparedQuery_Apply_ForwardLeader(t *testing.T) {
 }
 
 func TestPreparedQuery_parseQuery(t *testing.T) {
-	t.Parallel()
 	query := &structs.PreparedQuery{}
 
 	err := parseQuery(query, true)
@@ -622,7 +617,6 @@ func TestPreparedQuery_parseQuery(t *testing.T) {
 }
 
 func TestPreparedQuery_ACLDeny_Catchall_Template(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.ACLDatacenter = "dc1"
 		c.ACLMasterToken = "root"
@@ -679,7 +673,7 @@ func TestPreparedQuery_ACLDeny_Catchall_Template(t *testing.T) {
 	// Creating without a token should fail since the default policy is to
 	// deny.
 	err := msgpackrpc.CallWithCodec(codec, "PreparedQuery.Apply", &query, &reply)
-	if !acl.IsErrPermissionDenied(err) {
+	if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 		t.Fatalf("bad: %v", err)
 	}
 
@@ -726,7 +720,7 @@ func TestPreparedQuery_ACLDeny_Catchall_Template(t *testing.T) {
 		}
 		var resp structs.IndexedPreparedQueries
 		err := msgpackrpc.CallWithCodec(codec, "PreparedQuery.Get", req, &resp)
-		if !acl.IsErrPermissionDenied(err) {
+		if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 			t.Fatalf("bad: %v", err)
 		}
 
@@ -785,7 +779,7 @@ func TestPreparedQuery_ACLDeny_Catchall_Template(t *testing.T) {
 		}
 		var resp structs.PreparedQueryExplainResponse
 		err := msgpackrpc.CallWithCodec(codec, "PreparedQuery.Explain", req, &resp)
-		if !acl.IsErrPermissionDenied(err) {
+		if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 			t.Fatalf("bad: %v", err)
 		}
 	}
@@ -836,7 +830,6 @@ func TestPreparedQuery_ACLDeny_Catchall_Template(t *testing.T) {
 }
 
 func TestPreparedQuery_Get(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.ACLDatacenter = "dc1"
 		c.ACLMasterToken = "root"
@@ -925,7 +918,7 @@ func TestPreparedQuery_Get(t *testing.T) {
 		}
 		var resp structs.IndexedPreparedQueries
 		err := msgpackrpc.CallWithCodec(codec, "PreparedQuery.Get", req, &resp)
-		if !acl.IsErrPermissionDenied(err) {
+		if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 			t.Fatalf("bad: %v", err)
 		}
 
@@ -1088,7 +1081,6 @@ func TestPreparedQuery_Get(t *testing.T) {
 }
 
 func TestPreparedQuery_List(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.ACLDatacenter = "dc1"
 		c.ACLMasterToken = "root"
@@ -1295,7 +1287,6 @@ func TestPreparedQuery_List(t *testing.T) {
 }
 
 func TestPreparedQuery_Explain(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.ACLDatacenter = "dc1"
 		c.ACLMasterToken = "root"
@@ -1406,7 +1397,7 @@ func TestPreparedQuery_Explain(t *testing.T) {
 		}
 		var resp structs.PreparedQueryExplainResponse
 		err := msgpackrpc.CallWithCodec(codec, "PreparedQuery.Explain", req, &resp)
-		if !acl.IsErrPermissionDenied(err) {
+		if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 			t.Fatalf("bad: %v", err)
 		}
 	}
@@ -1431,7 +1422,6 @@ func TestPreparedQuery_Explain(t *testing.T) {
 // walk through the different cases once we have it up. This is broken into
 // sections so it's still pretty easy to read.
 func TestPreparedQuery_Execute(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.ACLDatacenter = "dc1"
 		c.ACLMasterToken = "root"
@@ -2453,7 +2443,6 @@ func TestPreparedQuery_Execute(t *testing.T) {
 }
 
 func TestPreparedQuery_Execute_ForwardLeader(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServer(t)
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -2582,7 +2571,6 @@ func TestPreparedQuery_Execute_ForwardLeader(t *testing.T) {
 }
 
 func TestPreparedQuery_tagFilter(t *testing.T) {
-	t.Parallel()
 	testNodes := func() structs.CheckServiceNodes {
 		return structs.CheckServiceNodes{
 			structs.CheckServiceNode{
@@ -2674,7 +2662,6 @@ func TestPreparedQuery_tagFilter(t *testing.T) {
 }
 
 func TestPreparedQuery_Wrapper(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.ACLDatacenter = "dc1"
 		c.ACLMasterToken = "root"
@@ -2682,6 +2669,8 @@ func TestPreparedQuery_Wrapper(t *testing.T) {
 	})
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
+	codec1 := rpcClient(t, s1)
+	defer codec1.Close()
 
 	dir2, s2 := testServerWithConfig(t, func(c *Config) {
 		c.Datacenter = "dc2"
@@ -2691,12 +2680,19 @@ func TestPreparedQuery_Wrapper(t *testing.T) {
 	})
 	defer os.RemoveAll(dir2)
 	defer s2.Shutdown()
+	codec2 := rpcClient(t, s2)
+	defer codec2.Close()
 
 	testrpc.WaitForLeader(t, s1.RPC, "dc1")
 	testrpc.WaitForLeader(t, s2.RPC, "dc2")
 
 	// Try to WAN join.
 	joinWAN(t, s2, s1)
+	retry.Run(t, func(r *retry.R) {
+		if got, want := len(s1.WANMembers()), 2; got != want {
+			r.Fatalf("got %d WAN members want %d", got, want)
+		}
+	})
 
 	// Try all the operations on a real server via the wrapper.
 	wrapper := &queryServerWrapper{s1}
@@ -2752,7 +2748,6 @@ func (m *mockQueryServer) ForwardDC(method, dc string, args interface{}, reply i
 }
 
 func TestPreparedQuery_queryFailover(t *testing.T) {
-	t.Parallel()
 	query := &structs.PreparedQuery{
 		Name: "test",
 		Service: structs.ServiceQuery{

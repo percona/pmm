@@ -21,6 +21,9 @@ env:
   matrix:
     - PROMETHEUS_IMAGE=prom/prometheus:v1.8.2
       ALERTMANAGER_IMAGE=prom/alertmanager:v0.9.1
+      CONSUL_IMAGE=consul:0.8.5
+    - PROMETHEUS_IMAGE=prom/prometheus:v1.8.2
+      ALERTMANAGER_IMAGE=prom/alertmanager:v0.9.1
       CONSUL_IMAGE=consul:1.0.0
     # TODO
     # - PROMETHEUS_IMAGE=prom/prometheus:master

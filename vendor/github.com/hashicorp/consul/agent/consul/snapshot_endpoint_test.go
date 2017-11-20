@@ -5,10 +5,8 @@ import (
 	"os"
 	"strings"
 	"testing"
-	"time"
 
-	"github.com/hashicorp/consul/acl"
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 	"github.com/hashicorp/consul/api"
 	"github.com/hashicorp/consul/testrpc"
 	"github.com/hashicorp/consul/testutil/retry"
@@ -94,30 +92,27 @@ func verifySnapshot(t *testing.T, s *Server, dc, token string) {
 		}
 	}
 
-	// Read back the before value. We do this with a retry and stale mode so
-	// we can query the server we are working with, which might not be the
-	// leader.
-	retry.Run(t, func(r *retry.R) {
+	// Read back the before value.
+	{
 		getR := structs.KeyRequest{
 			Datacenter: dc,
 			Key:        "test",
 			QueryOptions: structs.QueryOptions{
-				Token:      token,
-				AllowStale: true,
+				Token: token,
 			},
 		}
 		var dirent structs.IndexedDirEntries
 		if err := msgpackrpc.CallWithCodec(codec, "KVS.Get", &getR, &dirent); err != nil {
-			r.Fatalf("err: %v", err)
+			t.Fatalf("err: %v", err)
 		}
 		if len(dirent.Entries) != 1 {
-			r.Fatalf("Bad: %v", dirent)
+			t.Fatalf("Bad: %v", dirent)
 		}
 		d := dirent.Entries[0]
 		if string(d.Value) != "goodbye" {
-			r.Fatalf("bad: %v", d)
+			t.Fatalf("bad: %v", d)
 		}
-	})
+	}
 
 	// Restore the snapshot.
 	args.Op = structs.SnapshotRestore
@@ -128,33 +123,30 @@ func verifySnapshot(t *testing.T, s *Server, dc, token string) {
 	}
 	defer restore.Close()
 
-	// Read back the before value post-snapshot. Similar rationale here; use
-	// stale to query the server we are working with.
-	retry.Run(t, func(r *retry.R) {
+	// Read back the before value post-snapshot.
+	{
 		getR := structs.KeyRequest{
 			Datacenter: dc,
 			Key:        "test",
 			QueryOptions: structs.QueryOptions{
-				Token:      token,
-				AllowStale: true,
+				Token: token,
 			},
 		}
 		var dirent structs.IndexedDirEntries
 		if err := msgpackrpc.CallWithCodec(codec, "KVS.Get", &getR, &dirent); err != nil {
-			r.Fatalf("err: %v", err)
+			t.Fatalf("err: %v", err)
 		}
 		if len(dirent.Entries) != 1 {
-			r.Fatalf("Bad: %v", dirent)
+			t.Fatalf("Bad: %v", dirent)
 		}
 		d := dirent.Entries[0]
 		if string(d.Value) != "hello" {
-			r.Fatalf("bad: %v", d)
+			t.Fatalf("bad: %v", d)
 		}
-	})
+	}
 }
 
 func TestSnapshot(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServer(t)
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -164,7 +156,6 @@ func TestSnapshot(t *testing.T) {
 }
 
 func TestSnapshot_LeaderState(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServer(t)
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -220,10 +211,10 @@ func TestSnapshot_LeaderState(t *testing.T) {
 	}
 
 	// Make sure the leader has timers setup.
-	if s1.sessionTimers.Get(before) == nil {
+	if _, ok := s1.sessionTimers[before]; !ok {
 		t.Fatalf("missing session timer")
 	}
-	if s1.sessionTimers.Get(after) == nil {
+	if _, ok := s1.sessionTimers[after]; !ok {
 		t.Fatalf("missing session timer")
 	}
 
@@ -238,16 +229,15 @@ func TestSnapshot_LeaderState(t *testing.T) {
 
 	// Make sure the before time is still there, and that the after timer
 	// got reverted. This proves we fully cycled the leader state.
-	if s1.sessionTimers.Get(before) == nil {
+	if _, ok := s1.sessionTimers[before]; !ok {
 		t.Fatalf("missing session timer")
 	}
-	if s1.sessionTimers.Get(after) != nil {
+	if _, ok := s1.sessionTimers[after]; ok {
 		t.Fatalf("unexpected session timer")
 	}
 }
 
 func TestSnapshot_ACLDeny(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.ACLDatacenter = "dc1"
 		c.ACLMasterToken = "root"
@@ -269,7 +259,7 @@ func TestSnapshot_ACLDeny(t *testing.T) {
 		var reply structs.SnapshotResponse
 		_, err := SnapshotRPC(s1.connPool, s1.config.Datacenter, s1.config.RPCAddr, false,
 			&args, bytes.NewReader([]byte("")), &reply)
-		if !acl.IsErrPermissionDenied(err) {
+		if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 			t.Fatalf("err: %v", err)
 		}
 	}()
@@ -283,7 +273,7 @@ func TestSnapshot_ACLDeny(t *testing.T) {
 		var reply structs.SnapshotResponse
 		_, err := SnapshotRPC(s1.connPool, s1.config.Datacenter, s1.config.RPCAddr, false,
 			&args, bytes.NewReader([]byte("")), &reply)
-		if !acl.IsErrPermissionDenied(err) {
+		if err == nil || !strings.Contains(err.Error(), permissionDenied) {
 			t.Fatalf("err: %v", err)
 		}
 	}()
@@ -293,15 +283,8 @@ func TestSnapshot_ACLDeny(t *testing.T) {
 }
 
 func TestSnapshot_Forward_Leader(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.Bootstrap = true
-
-		// Since we are doing multiple restores to the same leader,
-		// the default short time for a reconcile can cause the
-		// reconcile to get aborted by our snapshot restore. By
-		// setting it much longer than the test, we avoid this case.
-		c.ReconcileInterval = 60 * time.Second
 	})
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -314,25 +297,18 @@ func TestSnapshot_Forward_Leader(t *testing.T) {
 
 	// Try to join.
 	joinLAN(t, s2, s1)
+
 	testrpc.WaitForLeader(t, s1.RPC, "dc1")
 	testrpc.WaitForLeader(t, s2.RPC, "dc1")
 
-	// Run against the leader and the follower to ensure we forward. When
-	// we changed to Raft protocol version 3, since we only have two servers,
-	// the second one isn't a voter, so the snapshot API doesn't wait for
-	// that to replicate before returning success. We added some logic to
-	// verifySnapshot() to poll the server we are working with in stale mode
-	// in order to verify that the snapshot contents are there. Previously,
-	// with Raft protocol version 2, the snapshot API would wait until the
-	// follower got the information as well since it was required to meet
-	// the quorum (2/2 servers), so things were synchronized properly with
-	// no special logic.
-	verifySnapshot(t, s1, "dc1", "")
-	verifySnapshot(t, s2, "dc1", "")
+	// Run against the leader and the follower to ensure we forward.
+	for _, s := range []*Server{s1, s2} {
+		verifySnapshot(t, s, "dc1", "")
+		verifySnapshot(t, s, "dc1", "")
+	}
 }
 
 func TestSnapshot_Forward_Datacenter(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerDC(t, "dc1")
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -361,7 +337,6 @@ func TestSnapshot_Forward_Datacenter(t *testing.T) {
 }
 
 func TestSnapshot_AllowStale(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.Bootstrap = false
 	})

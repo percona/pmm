@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 	"github.com/hashicorp/consul/api"
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/raft"
@@ -17,7 +17,8 @@ import (
 // This supports the stale query mode in case the cluster doesn't have a leader.
 func (s *HTTPServer) OperatorRaftConfiguration(resp http.ResponseWriter, req *http.Request) (interface{}, error) {
 	if req.Method != "GET" {
-		return nil, MethodNotAllowedError{req.Method, []string{"GET"}}
+		resp.WriteHeader(http.StatusMethodNotAllowed)
+		return nil, nil
 	}
 
 	var args structs.DCSpecificRequest
@@ -37,7 +38,8 @@ func (s *HTTPServer) OperatorRaftConfiguration(resp http.ResponseWriter, req *ht
 // removing peers by address.
 func (s *HTTPServer) OperatorRaftPeer(resp http.ResponseWriter, req *http.Request) (interface{}, error) {
 	if req.Method != "DELETE" {
-		return nil, MethodNotAllowedError{req.Method, []string{"DELETE"}}
+		resp.WriteHeader(http.StatusMethodNotAllowed)
+		return nil, nil
 	}
 
 	var args structs.RaftRemovePeerRequest
@@ -88,7 +90,7 @@ func (s *HTTPServer) OperatorKeyringEndpoint(resp http.ResponseWriter, req *http
 	var args keyringArgs
 	if req.Method == "POST" || req.Method == "PUT" || req.Method == "DELETE" {
 		if err := decodeBody(req, &args, nil); err != nil {
-			resp.WriteHeader(http.StatusBadRequest)
+			resp.WriteHeader(400)
 			fmt.Fprintf(resp, "Request decode failed: %v", err)
 			return nil, nil
 		}
@@ -99,14 +101,14 @@ func (s *HTTPServer) OperatorKeyringEndpoint(resp http.ResponseWriter, req *http
 	if relayFactor := req.URL.Query().Get("relay-factor"); relayFactor != "" {
 		n, err := strconv.Atoi(relayFactor)
 		if err != nil {
-			resp.WriteHeader(http.StatusBadRequest)
+			resp.WriteHeader(400)
 			fmt.Fprintf(resp, "Error parsing relay factor: %v", err)
 			return nil, nil
 		}
 
 		args.RelayFactor, err = ParseRelayFactor(n)
 		if err != nil {
-			resp.WriteHeader(http.StatusBadRequest)
+			resp.WriteHeader(400)
 			fmt.Fprintf(resp, "Invalid relay factor: %v", err)
 			return nil, nil
 		}
@@ -123,7 +125,8 @@ func (s *HTTPServer) OperatorKeyringEndpoint(resp http.ResponseWriter, req *http
 	case "DELETE":
 		return s.KeyringRemove(resp, req, &args)
 	default:
-		return nil, MethodNotAllowedError{req.Method, []string{"GET", "POST", "PUT", "DELETE"}}
+		resp.WriteHeader(http.StatusMethodNotAllowed)
+		return nil, nil
 	}
 }
 
@@ -207,7 +210,6 @@ func (s *HTTPServer) OperatorAutopilotConfiguration(resp http.ResponseWriter, re
 			ServerStabilizationTime: api.NewReadableDuration(reply.ServerStabilizationTime),
 			RedundancyZoneTag:       reply.RedundancyZoneTag,
 			DisableUpgradeMigration: reply.DisableUpgradeMigration,
-			UpgradeVersionTag:       reply.UpgradeVersionTag,
 			CreateIndex:             reply.CreateIndex,
 			ModifyIndex:             reply.ModifyIndex,
 		}
@@ -221,7 +223,7 @@ func (s *HTTPServer) OperatorAutopilotConfiguration(resp http.ResponseWriter, re
 
 		var conf api.AutopilotConfiguration
 		if err := decodeBody(req, &conf, FixupConfigDurations); err != nil {
-			resp.WriteHeader(http.StatusBadRequest)
+			resp.WriteHeader(400)
 			fmt.Fprintf(resp, "Error parsing autopilot config: %v", err)
 			return nil, nil
 		}
@@ -233,7 +235,6 @@ func (s *HTTPServer) OperatorAutopilotConfiguration(resp http.ResponseWriter, re
 			ServerStabilizationTime: conf.ServerStabilizationTime.Duration(),
 			RedundancyZoneTag:       conf.RedundancyZoneTag,
 			DisableUpgradeMigration: conf.DisableUpgradeMigration,
-			UpgradeVersionTag:       conf.UpgradeVersionTag,
 		}
 
 		// Check for cas value
@@ -241,7 +242,7 @@ func (s *HTTPServer) OperatorAutopilotConfiguration(resp http.ResponseWriter, re
 		if _, ok := params["cas"]; ok {
 			casVal, err := strconv.ParseUint(params.Get("cas"), 10, 64)
 			if err != nil {
-				resp.WriteHeader(http.StatusBadRequest)
+				resp.WriteHeader(400)
 				fmt.Fprintf(resp, "Error parsing cas value: %v", err)
 				return nil, nil
 			}
@@ -261,7 +262,8 @@ func (s *HTTPServer) OperatorAutopilotConfiguration(resp http.ResponseWriter, re
 		return reply, nil
 
 	default:
-		return nil, MethodNotAllowedError{req.Method, []string{"GET", "PUT"}}
+		resp.WriteHeader(http.StatusMethodNotAllowed)
+		return nil, nil
 	}
 }
 
@@ -291,7 +293,8 @@ func FixupConfigDurations(raw interface{}) error {
 // OperatorServerHealth is used to get the health of the servers in the local DC
 func (s *HTTPServer) OperatorServerHealth(resp http.ResponseWriter, req *http.Request) (interface{}, error) {
 	if req.Method != "GET" {
-		return nil, MethodNotAllowedError{req.Method, []string{"GET"}}
+		resp.WriteHeader(http.StatusMethodNotAllowed)
+		return nil, nil
 	}
 
 	var args structs.DCSpecificRequest

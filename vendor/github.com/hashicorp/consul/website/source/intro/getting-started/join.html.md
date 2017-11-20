@@ -72,12 +72,6 @@ the replicated log until the expected number of servers has successfully joined.
 You can read more about this in the [bootstrapping
 guide](/docs/guides/bootstrapping.html).
 
-We've included the [`-enable_script_checks`](/docs/agent/options.html#_enable_script_checks)
-flag set to `true` in order to enable health checks that can execute external scripts.
-This will be used in examples later. For production use, you'd want to configure
-[ACLs](/docs/guides/acl.html) in conjunction with this to control the ability to
-register arbitrary scripts.
-
 Finally, we add the [`config-dir` flag](/docs/agent/options.html#_config_dir),
 marking where service and check definitions can be found.
 
@@ -87,7 +81,7 @@ All together, these settings yield a
 ```text
 vagrant@n1:~$ consul agent -server -bootstrap-expect=1 \
 	-data-dir=/tmp/consul -node=agent-one -bind=172.20.20.10 \
-	-enable-script-checks=true -config-dir=/etc/consul.d
+	-config-dir=/etc/consul.d
 ...
 ```
 
@@ -108,7 +102,7 @@ All together, these settings yield a
 
 ```text
 vagrant@n2:~$ consul agent -data-dir=/tmp/consul -node=agent-two \
-	-bind=172.20.20.11 -enable-script-checks=true -config-dir=/etc/consul.d
+	-bind=172.20.20.11 -config-dir=/etc/consul.d
 ...
 ```
 

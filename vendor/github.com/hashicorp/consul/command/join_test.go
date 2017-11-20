@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -25,15 +26,15 @@ func TestJoinCommand_implements(t *testing.T) {
 
 func TestJoinCommandRun(t *testing.T) {
 	t.Parallel()
-	a1 := agent.NewTestAgent(t.Name(), ``)
-	a2 := agent.NewTestAgent(t.Name(), ``)
+	a1 := agent.NewTestAgent(t.Name(), nil)
+	a2 := agent.NewTestAgent(t.Name(), nil)
 	defer a1.Shutdown()
 	defer a2.Shutdown()
 
 	ui, c := testJoinCommand(t)
 	args := []string{
 		"-http-addr=" + a1.HTTPAddr(),
-		a2.Config.SerfBindAddrLAN.String(),
+		fmt.Sprintf("127.0.0.1:%d", a2.Config.Ports.SerfLan),
 	}
 
 	code := c.Run(args)
@@ -48,8 +49,8 @@ func TestJoinCommandRun(t *testing.T) {
 
 func TestJoinCommandRun_wan(t *testing.T) {
 	t.Parallel()
-	a1 := agent.NewTestAgent(t.Name(), ``)
-	a2 := agent.NewTestAgent(t.Name(), ``)
+	a1 := agent.NewTestAgent(t.Name(), nil)
+	a2 := agent.NewTestAgent(t.Name(), nil)
 	defer a1.Shutdown()
 	defer a2.Shutdown()
 
@@ -57,7 +58,7 @@ func TestJoinCommandRun_wan(t *testing.T) {
 	args := []string{
 		"-http-addr=" + a1.HTTPAddr(),
 		"-wan",
-		a2.Config.SerfBindAddrWAN.String(),
+		fmt.Sprintf("127.0.0.1:%d", a2.Config.Ports.SerfWan),
 	}
 
 	code := c.Run(args)

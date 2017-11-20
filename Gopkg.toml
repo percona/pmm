@@ -24,3 +24,8 @@ required = [
   # this branch is not merged yet
   name = "github.com/percona/kardianos-service"
   branch = "PMM-1710-supervisord"
+
+[[constraint]]
+  # https://jira.percona.com/browse/PMM-1561
+  name = "github.com/hashicorp/consul"
+  version = "=0.8.5"

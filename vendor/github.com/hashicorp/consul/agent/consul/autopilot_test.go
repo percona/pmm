@@ -12,7 +12,6 @@ import (
 )
 
 func TestAutopilot_CleanupDeadServer(t *testing.T) {
-	t.Parallel()
 	for i := 1; i <= 3; i++ {
 		testCleanupDeadServer(t, i)
 	}
@@ -77,7 +76,6 @@ func testCleanupDeadServer(t *testing.T, raftVersion int) {
 }
 
 func TestAutopilot_CleanupDeadServerPeriodic(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.Datacenter = "dc1"
 		c.Bootstrap = true
@@ -89,7 +87,6 @@ func TestAutopilot_CleanupDeadServerPeriodic(t *testing.T) {
 		c.Datacenter = "dc1"
 		c.Bootstrap = false
 	}
-
 	dir2, s2 := testServerWithConfig(t, conf)
 	defer os.RemoveAll(dir2)
 	defer s2.Shutdown()
@@ -102,39 +99,27 @@ func TestAutopilot_CleanupDeadServerPeriodic(t *testing.T) {
 	defer os.RemoveAll(dir4)
 	defer s4.Shutdown()
 
-	dir5, s5 := testServerWithConfig(t, conf)
-	defer os.RemoveAll(dir5)
-	defer s5.Shutdown()
+	servers := []*Server{s1, s2, s3, s4}
 
-	servers := []*Server{s1, s2, s3, s4, s5}
-
-	// Join the servers to s1, and wait until they are all promoted to
-	// voters.
+	// Join the servers to s1
 	for _, s := range servers[1:] {
 		joinLAN(t, s, s1)
 	}
-	retry.Run(t, func(r *retry.R) {
-		r.Check(wantRaft(servers))
-		for _, s := range servers {
-			r.Check(wantPeers(s, 5))
-		}
-	})
+
+	for _, s := range servers {
+		retry.Run(t, func(r *retry.R) { r.Check(wantPeers(s, 4)) })
+	}
 
 	// Kill a non-leader server
 	s4.Shutdown()
 
 	// Should be removed from the peers automatically
-	servers = []*Server{s1, s2, s3, s5}
-	retry.Run(t, func(r *retry.R) {
-		r.Check(wantRaft(servers))
-		for _, s := range servers {
-			r.Check(wantPeers(s, 4))
-		}
-	})
+	for _, s := range []*Server{s1, s2, s3} {
+		retry.Run(t, func(r *retry.R) { r.Check(wantPeers(s, 3)) })
+	}
 }
 
 func TestAutopilot_CleanupStaleRaftServer(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerDCBootstrap(t, "dc1", true)
 	defer os.RemoveAll(dir1)
 	defer s1.Shutdown()
@@ -183,7 +168,6 @@ func TestAutopilot_CleanupStaleRaftServer(t *testing.T) {
 }
 
 func TestAutopilot_PromoteNonVoter(t *testing.T) {
-	t.Parallel()
 	dir1, s1 := testServerWithConfig(t, func(c *Config) {
 		c.Datacenter = "dc1"
 		c.Bootstrap = true

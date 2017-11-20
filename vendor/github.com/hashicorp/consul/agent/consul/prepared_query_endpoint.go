@@ -8,9 +8,8 @@ import (
 	"time"
 
 	"github.com/armon/go-metrics"
-	"github.com/hashicorp/consul/acl"
 	"github.com/hashicorp/consul/agent/consul/state"
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 	"github.com/hashicorp/go-memdb"
 	"github.com/hashicorp/go-uuid"
 )
@@ -33,7 +32,6 @@ func (p *PreparedQuery) Apply(args *structs.PreparedQueryRequest, reply *string)
 		return err
 	}
 	defer metrics.MeasureSince([]string{"consul", "prepared-query", "apply"}, time.Now())
-	defer metrics.MeasureSince([]string{"prepared-query", "apply"}, time.Now())
 
 	// Validate the ID. We must create new IDs before applying to the Raft
 	// log since it's not deterministic.
@@ -61,7 +59,7 @@ func (p *PreparedQuery) Apply(args *structs.PreparedQueryRequest, reply *string)
 	*reply = args.Query.ID
 
 	// Get the ACL token for the request for the checks below.
-	rule, err := p.srv.resolveToken(args.Token)
+	acl, err := p.srv.resolveToken(args.Token)
 	if err != nil {
 		return err
 	}
@@ -70,9 +68,9 @@ func (p *PreparedQuery) Apply(args *structs.PreparedQueryRequest, reply *string)
 	// need to make sure they have write access for whatever they are
 	// proposing.
 	if prefix, ok := args.Query.GetACLPrefix(); ok {
-		if rule != nil && !rule.PreparedQueryWrite(prefix) {
+		if acl != nil && !acl.PreparedQueryWrite(prefix) {
 			p.srv.logger.Printf("[WARN] consul.prepared_query: Operation on prepared query '%s' denied due to ACLs", args.Query.ID)
-			return acl.ErrPermissionDenied
+			return errPermissionDenied
 		}
 	}
 
@@ -90,9 +88,9 @@ func (p *PreparedQuery) Apply(args *structs.PreparedQueryRequest, reply *string)
 		}
 
 		if prefix, ok := query.GetACLPrefix(); ok {
-			if rule != nil && !rule.PreparedQueryWrite(prefix) {
+			if acl != nil && !acl.PreparedQueryWrite(prefix) {
 				p.srv.logger.Printf("[WARN] consul.prepared_query: Operation on prepared query '%s' denied due to ACLs", args.Query.ID)
-				return acl.ErrPermissionDenied
+				return errPermissionDenied
 			}
 		}
 	}
@@ -183,7 +181,7 @@ func parseService(svc *structs.ServiceQuery) error {
 	}
 
 	// Make sure the metadata filters are valid
-	if err := structs.ValidateMetadata(svc.NodeMeta, true); err != nil {
+	if err := structs.ValidateMetadata(svc.NodeMeta); err != nil {
 		return err
 	}
 
@@ -251,7 +249,7 @@ func (p *PreparedQuery) Get(args *structs.PreparedQuerySpecificRequest,
 			// then alert the user with a permission denied error.
 			if len(reply.Queries) == 0 {
 				p.srv.logger.Printf("[WARN] consul.prepared_query: Request to get prepared query '%s' denied due to ACLs", args.QueryID)
-				return acl.ErrPermissionDenied
+				return errPermissionDenied
 			}
 
 			return nil
@@ -288,7 +286,6 @@ func (p *PreparedQuery) Explain(args *structs.PreparedQueryExecuteRequest,
 		return err
 	}
 	defer metrics.MeasureSince([]string{"consul", "prepared-query", "explain"}, time.Now())
-	defer metrics.MeasureSince([]string{"prepared-query", "explain"}, time.Now())
 
 	// We have to do this ourselves since we are not doing a blocking RPC.
 	p.srv.setQueryMeta(&reply.QueryMeta)
@@ -300,7 +297,7 @@ func (p *PreparedQuery) Explain(args *structs.PreparedQueryExecuteRequest,
 
 	// Try to locate the query.
 	state := p.srv.fsm.State()
-	_, query, err := state.PreparedQueryResolve(args.QueryIDOrName, args.Agent)
+	_, query, err := state.PreparedQueryResolve(args.QueryIDOrName)
 	if err != nil {
 		return err
 	}
@@ -320,7 +317,7 @@ func (p *PreparedQuery) Explain(args *structs.PreparedQueryExecuteRequest,
 	// If the query was filtered out, return an error.
 	if len(queries.Queries) == 0 {
 		p.srv.logger.Printf("[WARN] consul.prepared_query: Explain on prepared query '%s' denied due to ACLs", query.ID)
-		return acl.ErrPermissionDenied
+		return errPermissionDenied
 	}
 
 	reply.Query = *(queries.Queries[0])
@@ -336,7 +333,6 @@ func (p *PreparedQuery) Execute(args *structs.PreparedQueryExecuteRequest,
 		return err
 	}
 	defer metrics.MeasureSince([]string{"consul", "prepared-query", "execute"}, time.Now())
-	defer metrics.MeasureSince([]string{"prepared-query", "execute"}, time.Now())
 
 	// We have to do this ourselves since we are not doing a blocking RPC.
 	p.srv.setQueryMeta(&reply.QueryMeta)
@@ -348,7 +344,7 @@ func (p *PreparedQuery) Execute(args *structs.PreparedQueryExecuteRequest,
 
 	// Try to locate the query.
 	state := p.srv.fsm.State()
-	_, query, err := state.PreparedQueryResolve(args.QueryIDOrName, args.Agent)
+	_, query, err := state.PreparedQueryResolve(args.QueryIDOrName)
 	if err != nil {
 		return err
 	}
@@ -447,7 +443,6 @@ func (p *PreparedQuery) ExecuteRemote(args *structs.PreparedQueryExecuteRemoteRe
 		return err
 	}
 	defer metrics.MeasureSince([]string{"consul", "prepared-query", "execute_remote"}, time.Now())
-	defer metrics.MeasureSince([]string{"prepared-query", "execute_remote"}, time.Now())
 
 	// We have to do this ourselves since we are not doing a blocking RPC.
 	p.srv.setQueryMeta(&reply.QueryMeta)

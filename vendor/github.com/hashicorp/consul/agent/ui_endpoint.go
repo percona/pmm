@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
 	"github.com/hashicorp/consul/api"
 )
 
@@ -22,10 +22,6 @@ type ServiceSummary struct {
 // UINodes is used to list the nodes in a given datacenter. We return a
 // NodeDump which provides overview information for all the nodes
 func (s *HTTPServer) UINodes(resp http.ResponseWriter, req *http.Request) (interface{}, error) {
-	if req.Method != "GET" {
-		return nil, MethodNotAllowedError{req.Method, []string{"GET"}}
-	}
-
 	// Parse arguments
 	args := structs.DCSpecificRequest{}
 	if done := s.parse(resp, req, &args.Datacenter, &args.QueryOptions); done {
@@ -63,10 +59,6 @@ RPC:
 // UINodeInfo is used to get info on a single node in a given datacenter. We return a
 // NodeInfo which provides overview information for the node
 func (s *HTTPServer) UINodeInfo(resp http.ResponseWriter, req *http.Request) (interface{}, error) {
-	if req.Method != "GET" {
-		return nil, MethodNotAllowedError{req.Method, []string{"GET"}}
-	}
-
 	// Parse arguments
 	args := structs.NodeSpecificRequest{}
 	if done := s.parse(resp, req, &args.Datacenter, &args.QueryOptions); done {
@@ -76,7 +68,7 @@ func (s *HTTPServer) UINodeInfo(resp http.ResponseWriter, req *http.Request) (in
 	// Verify we have some DC, or use the default
 	args.Node = strings.TrimPrefix(req.URL.Path, "/v1/internal/ui/node/")
 	if args.Node == "" {
-		resp.WriteHeader(http.StatusBadRequest)
+		resp.WriteHeader(400)
 		fmt.Fprint(resp, "Missing node name")
 		return nil, nil
 	}
@@ -105,18 +97,12 @@ RPC:
 		}
 		return info, nil
 	}
-
-	resp.WriteHeader(http.StatusNotFound)
 	return nil, nil
 }
 
 // UIServices is used to list the services in a given datacenter. We return a
 // ServiceSummary which provides overview information for the service
 func (s *HTTPServer) UIServices(resp http.ResponseWriter, req *http.Request) (interface{}, error) {
-	if req.Method != "GET" {
-		return nil, MethodNotAllowedError{req.Method, []string{"GET"}}
-	}
-
 	// Parse arguments
 	args := structs.DCSpecificRequest{}
 	if done := s.parse(resp, req, &args.Datacenter, &args.QueryOptions); done {

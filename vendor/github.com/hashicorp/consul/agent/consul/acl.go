@@ -1,21 +1,34 @@
 package consul
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/armon/go-metrics"
 	"github.com/hashicorp/consul/acl"
-	"github.com/hashicorp/consul/agent/structs"
-	"github.com/hashicorp/consul/api"
-	"github.com/hashicorp/consul/sentinel"
+	"github.com/hashicorp/consul/agent/consul/structs"
 	"github.com/hashicorp/golang-lru"
 )
 
 // These must be kept in sync with the constants in command/agent/acl.go.
 const (
+	// aclNotFound indicates there is no matching ACL.
+	aclNotFound = "ACL not found"
+
+	// rootDenied is returned when attempting to resolve a root ACL.
+	rootDenied = "Cannot resolve root ACL"
+
+	// permissionDenied is returned when an ACL based rejection happens.
+	permissionDenied = "Permission denied"
+
+	// aclDisabled is returned when ACL changes are not permitted since they
+	// are disabled.
+	aclDisabled = "ACL support disabled"
+
 	// anonymousToken is the token ID we re-write to if there is no token ID
 	// provided.
 	anonymousToken = "anonymous"
@@ -27,6 +40,8 @@ const (
 	// Maximum number of cached ACL entries.
 	aclCacheSize = 10 * 1024
 )
+
+var errPermissionDenied = errors.New(permissionDenied)
 
 // aclCacheEntry is used to cache non-authoritative ACLs
 // If non-authoritative, then we must respect a TTL
@@ -42,26 +57,25 @@ type aclCacheEntry struct {
 // using its replicated ACLs during an outage.
 func (s *Server) aclLocalFault(id string) (string, string, error) {
 	defer metrics.MeasureSince([]string{"consul", "acl", "fault"}, time.Now())
-	defer metrics.MeasureSince([]string{"acl", "fault"}, time.Now())
 
 	// Query the state store.
 	state := s.fsm.State()
-	_, rule, err := state.ACLGet(nil, id)
+	_, acl, err := state.ACLGet(nil, id)
 	if err != nil {
 		return "", "", err
 	}
-	if rule == nil {
-		return "", "", acl.ErrNotFound
+	if acl == nil {
+		return "", "", errors.New(aclNotFound)
 	}
 
 	// Management tokens have no policy and inherit from the 'manage' root
 	// policy.
-	if rule.Type == structs.ACLTypeManagement {
+	if acl.Type == structs.ACLTypeManagement {
 		return "manage", "", nil
 	}
 
 	// Otherwise use the default policy.
-	return s.config.ACLDefaultPolicy, rule.Rules, nil
+	return s.config.ACLDefaultPolicy, acl.Rules, nil
 }
 
 // resolveToken is the primary interface used by ACL-checkers (such as an
@@ -76,13 +90,12 @@ func (s *Server) resolveToken(id string) (acl.ACL, error) {
 		return nil, nil
 	}
 	defer metrics.MeasureSince([]string{"consul", "acl", "resolveToken"}, time.Now())
-	defer metrics.MeasureSince([]string{"acl", "resolveToken"}, time.Now())
 
 	// Handle the anonymous token
 	if len(id) == 0 {
 		id = anonymousToken
 	} else if acl.RootACL(id) != nil {
-		return nil, acl.ErrRootDenied
+		return nil, errors.New(rootDenied)
 	}
 
 	// Check if we are the ACL datacenter and the leader, use the
@@ -106,9 +119,6 @@ type aclCache struct {
 	// acls is a non-authoritative ACL cache.
 	acls *lru.TwoQueueCache
 
-	// sentinel is the code engine (can be nil).
-	sentinel sentinel.Evaluator
-
 	// aclPolicyCache is a non-authoritative policy cache.
 	policies *lru.TwoQueueCache
 
@@ -123,14 +133,13 @@ type aclCache struct {
 // newACLCache returns a new non-authoritative cache for ACLs. This is used for
 // performance, and is used inside the ACL datacenter on non-leader servers, and
 // outside the ACL datacenter everywhere.
-func newACLCache(conf *Config, logger *log.Logger, rpc rpcFn, local acl.FaultFunc, sentinel sentinel.Evaluator) (*aclCache, error) {
+func newACLCache(conf *Config, logger *log.Logger, rpc rpcFn, local acl.FaultFunc) (*aclCache, error) {
 	var err error
 	cache := &aclCache{
-		config:   conf,
-		logger:   logger,
-		rpc:      rpc,
-		local:    local,
-		sentinel: sentinel,
+		config: conf,
+		logger: logger,
+		rpc:    rpc,
+		local:  local,
 	}
 
 	// Initialize the non-authoritative ACL cache
@@ -160,11 +169,9 @@ func (c *aclCache) lookupACL(id, authDC string) (acl.ACL, error) {
 	// Check for live cache.
 	if cached != nil && time.Now().Before(cached.Expires) {
 		metrics.IncrCounter([]string{"consul", "acl", "cache_hit"}, 1)
-		metrics.IncrCounter([]string{"acl", "cache_hit"}, 1)
 		return cached.ACL, nil
 	}
 	metrics.IncrCounter([]string{"consul", "acl", "cache_miss"}, 1)
-	metrics.IncrCounter([]string{"acl", "cache_miss"}, 1)
 
 	// Attempt to refresh the policy from the ACL datacenter via an RPC.
 	args := structs.ACLPolicyRequest{
@@ -182,8 +189,8 @@ func (c *aclCache) lookupACL(id, authDC string) (acl.ACL, error) {
 
 	// Check for not-found, which will cause us to bail immediately. For any
 	// other error we report it in the logs but can continue.
-	if acl.IsErrNotFound(err) {
-		return nil, acl.ErrNotFound
+	if strings.Contains(err.Error(), aclNotFound) {
+		return nil, errors.New(aclNotFound)
 	}
 	c.logger.Printf("[ERR] consul.acl: Failed to get policy from ACL datacenter: %v", err)
 
@@ -216,7 +223,7 @@ func (c *aclCache) lookupACL(id, authDC string) (acl.ACL, error) {
 			goto ACL_DOWN
 		}
 
-		policy, err := acl.Parse(rules, c.sentinel)
+		policy, err := acl.Parse(rules)
 		if err != nil {
 			c.logger.Printf("[DEBUG] consul.acl: Failed to parse policy for replicated ACL: %v", err)
 			goto ACL_DOWN
@@ -227,7 +234,6 @@ func (c *aclCache) lookupACL(id, authDC string) (acl.ACL, error) {
 		// Note we use the local TTL here, so this'll be used for that
 		// amount of time even once the ACL datacenter becomes available.
 		metrics.IncrCounter([]string{"consul", "acl", "replication_hit"}, 1)
-		metrics.IncrCounter([]string{"acl", "replication_hit"}, 1)
 		reply.ETag = makeACLETag(parent, policy)
 		reply.TTL = c.config.ACLTTL
 		reply.Parent = parent
@@ -279,7 +285,7 @@ func (c *aclCache) useACLPolicy(id, authDC string, cached *aclCacheEntry, p *str
 		}
 
 		// Compile the ACL
-		acl, err := acl.New(parent, p.Policy, c.sentinel)
+		acl, err := acl.New(parent, p.Policy)
 		if err != nil {
 			return nil, err
 		}
@@ -312,7 +318,7 @@ type aclFilter struct {
 // newACLFilter constructs a new aclFilter.
 func newACLFilter(acl acl.ACL, logger *log.Logger, enforceVersion8 bool) *aclFilter {
 	if logger == nil {
-		logger = log.New(os.Stderr, "", log.LstdFlags)
+		logger = log.New(os.Stdout, "", log.LstdFlags)
 	}
 	return &aclFilter{
 		acl:             acl,
@@ -335,9 +341,10 @@ func (f *aclFilter) allowService(service string) bool {
 		return true
 	}
 
-	if !f.enforceVersion8 && service == structs.ConsulServiceID {
+	if !f.enforceVersion8 && service == ConsulServiceID {
 		return true
 	}
+
 	return f.acl.ServiceRead(service)
 }
 
@@ -574,7 +581,8 @@ func (f *aclFilter) filterPreparedQueries(queries *structs.PreparedQueries) {
 }
 
 // filterACL is used to filter results from our service catalog based on the
-// rules configured for the provided token.
+// rules configured for the provided token. The subject is scrubbed and
+// modified in-place, leaving only resources the token can access.
 func (s *Server) filterACL(token string, subj interface{}) error {
 	// Get the ACL from the token
 	acl, err := s.resolveToken(token)
@@ -648,71 +656,33 @@ func (s *Server) filterACL(token string, subj interface{}) error {
 // address this race better (even then it would be super rare, and would at
 // worst let a service update revert a recent node update, so it doesn't open up
 // too much abuse).
-func vetRegisterWithACL(rule acl.ACL, subj *structs.RegisterRequest,
+func vetRegisterWithACL(acl acl.ACL, subj *structs.RegisterRequest,
 	ns *structs.NodeServices) error {
 	// Fast path if ACLs are not enabled.
-	if rule == nil {
+	if acl == nil {
 		return nil
-	}
-
-	// This gets called potentially from a few spots so we save it and
-	// return the structure we made if we have it.
-	var memo map[string]interface{}
-	scope := func() map[string]interface{} {
-		if memo != nil {
-			return memo
-		}
-
-		node := &api.Node{
-			ID:              string(subj.ID),
-			Node:            subj.Node,
-			Address:         subj.Address,
-			Datacenter:      subj.Datacenter,
-			TaggedAddresses: subj.TaggedAddresses,
-			Meta:            subj.NodeMeta,
-		}
-
-		var service *api.AgentService
-		if subj.Service != nil {
-			service = &api.AgentService{
-				ID:                subj.Service.ID,
-				Service:           subj.Service.Service,
-				Tags:              subj.Service.Tags,
-				Address:           subj.Service.Address,
-				Port:              subj.Service.Port,
-				EnableTagOverride: subj.Service.EnableTagOverride,
-			}
-		}
-
-		memo = sentinel.ScopeCatalogUpsert(node, service)
-		return memo
 	}
 
 	// Vet the node info. This allows service updates to re-post the required
 	// node info for each request without having to have node "write"
 	// privileges.
 	needsNode := ns == nil || subj.ChangesNode(ns.Node)
-
-	if needsNode && !rule.NodeWrite(subj.Node, scope) {
-		return acl.ErrPermissionDenied
+	if needsNode && !acl.NodeWrite(subj.Node) {
+		return errPermissionDenied
 	}
 
 	// Vet the service change. This includes making sure they can register
 	// the given service, and that we can write to any existing service that
 	// is being modified by id (if any).
 	if subj.Service != nil {
-		if !rule.ServiceWrite(subj.Service.Service, scope) {
-			return acl.ErrPermissionDenied
+		if !acl.ServiceWrite(subj.Service.Service) {
+			return errPermissionDenied
 		}
 
 		if ns != nil {
 			other, ok := ns.Services[subj.Service.ID]
-
-			// This is effectively a delete, so we DO NOT apply the
-			// sentinel scope to the service we are overwriting, just
-			// the regular ACL policy.
-			if ok && !rule.ServiceWrite(other.Service, nil) {
-				return acl.ErrPermissionDenied
+			if ok && !acl.ServiceWrite(other.Service) {
+				return errPermissionDenied
 			}
 		}
 	}
@@ -740,8 +710,8 @@ func vetRegisterWithACL(rule acl.ACL, subj *structs.RegisterRequest,
 
 		// Node-level check.
 		if check.ServiceID == "" {
-			if !rule.NodeWrite(subj.Node, scope) {
-				return acl.ErrPermissionDenied
+			if !acl.NodeWrite(subj.Node) {
+				return errPermissionDenied
 			}
 			continue
 		}
@@ -765,11 +735,8 @@ func vetRegisterWithACL(rule acl.ACL, subj *structs.RegisterRequest,
 			return fmt.Errorf("Unknown service '%s' for check '%s'", check.ServiceID, check.CheckID)
 		}
 
-		// We are only adding a check here, so we don't add the scope,
-		// since the sentinel policy doesn't apply to adding checks at
-		// this time.
-		if !rule.ServiceWrite(other.Service, nil) {
-			return acl.ErrPermissionDenied
+		if !acl.ServiceWrite(other.Service) {
+			return errPermissionDenied
 		}
 	}
 
@@ -781,16 +748,12 @@ func vetRegisterWithACL(rule acl.ACL, subj *structs.RegisterRequest,
 // dynamic, this is a pretty complex algorithm and was worth breaking out of the
 // endpoint. The NodeService for the referenced service must be supplied, and can
 // be nil; similar for the HealthCheck for the referenced health check.
-func vetDeregisterWithACL(rule acl.ACL, subj *structs.DeregisterRequest,
+func vetDeregisterWithACL(acl acl.ACL, subj *structs.DeregisterRequest,
 	ns *structs.NodeService, nc *structs.HealthCheck) error {
-
 	// Fast path if ACLs are not enabled.
-	if rule == nil {
+	if acl == nil {
 		return nil
 	}
-
-	// We don't apply sentinel in this path, since at this time sentinel
-	// only applies to create and update operations.
 
 	// This order must match the code in applyRegister() in fsm.go since it
 	// also evaluates things in this order, and will ignore fields based on
@@ -799,25 +762,25 @@ func vetDeregisterWithACL(rule acl.ACL, subj *structs.DeregisterRequest,
 		if ns == nil {
 			return fmt.Errorf("Unknown service '%s'", subj.ServiceID)
 		}
-		if !rule.ServiceWrite(ns.Service, nil) {
-			return acl.ErrPermissionDenied
+		if !acl.ServiceWrite(ns.Service) {
+			return errPermissionDenied
 		}
 	} else if subj.CheckID != "" {
 		if nc == nil {
 			return fmt.Errorf("Unknown check '%s'", subj.CheckID)
 		}
 		if nc.ServiceID != "" {
-			if !rule.ServiceWrite(nc.ServiceName, nil) {
-				return acl.ErrPermissionDenied
+			if !acl.ServiceWrite(nc.ServiceName) {
+				return errPermissionDenied
 			}
 		} else {
-			if !rule.NodeWrite(subj.Node, nil) {
-				return acl.ErrPermissionDenied
+			if !acl.NodeWrite(subj.Node) {
+				return errPermissionDenied
 			}
 		}
 	} else {
-		if !rule.NodeWrite(subj.Node, nil) {
-			return acl.ErrPermissionDenied
+		if !acl.NodeWrite(subj.Node) {
+			return errPermissionDenied
 		}
 	}
 

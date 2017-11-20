@@ -7,7 +7,12 @@ import (
 	"strings"
 
 	"github.com/hashicorp/consul/agent/consul"
-	"github.com/hashicorp/consul/agent/structs"
+	"github.com/hashicorp/consul/agent/consul/structs"
+)
+
+const (
+	preparedQueryExecuteSuffix = "/execute"
+	preparedQueryExplainSuffix = "/explain"
 )
 
 // preparedQueryCreateResponse is used to wrap the query ID.
@@ -24,7 +29,7 @@ func (s *HTTPServer) preparedQueryCreate(resp http.ResponseWriter, req *http.Req
 	s.parseToken(req, &args.Token)
 	if req.ContentLength > 0 {
 		if err := decodeBody(req, &args.Query, nil); err != nil {
-			resp.WriteHeader(http.StatusBadRequest)
+			resp.WriteHeader(400)
 			fmt.Fprintf(resp, "Request decode failed: %v", err)
 			return nil, nil
 		}
@@ -66,7 +71,8 @@ func (s *HTTPServer) PreparedQueryGeneral(resp http.ResponseWriter, req *http.Re
 		return s.preparedQueryList(resp, req)
 
 	default:
-		return nil, MethodNotAllowedError{req.Method, []string{"GET", "POST"}}
+		resp.WriteHeader(405)
+		return nil, nil
 	}
 }
 
@@ -90,7 +96,6 @@ func (s *HTTPServer) preparedQueryExecute(id string, resp http.ResponseWriter, r
 		Agent: structs.QuerySource{
 			Node:       s.agent.config.NodeName,
 			Datacenter: s.agent.config.Datacenter,
-			Segment:    s.agent.config.SegmentName,
 		},
 	}
 	s.parseSource(req, &args.Source)
@@ -106,7 +111,7 @@ func (s *HTTPServer) preparedQueryExecute(id string, resp http.ResponseWriter, r
 		// We have to check the string since the RPC sheds
 		// the specific error type.
 		if err.Error() == consul.ErrQueryNotFound.Error() {
-			resp.WriteHeader(http.StatusNotFound)
+			resp.WriteHeader(404)
 			fmt.Fprint(resp, err.Error())
 			return nil, nil
 		}
@@ -117,7 +122,7 @@ func (s *HTTPServer) preparedQueryExecute(id string, resp http.ResponseWriter, r
 	// a query can fail over to a different DC than where the execute request
 	// was sent to. That's why we use the reply's DC and not the one from
 	// the args.
-	s.agent.TranslateAddresses(reply.Datacenter, reply.Nodes)
+	translateAddresses(s.agent.config, reply.Datacenter, reply.Nodes)
 
 	// Use empty list instead of nil.
 	if reply.Nodes == nil {
@@ -135,7 +140,6 @@ func (s *HTTPServer) preparedQueryExplain(id string, resp http.ResponseWriter, r
 		Agent: structs.QuerySource{
 			Node:       s.agent.config.NodeName,
 			Datacenter: s.agent.config.Datacenter,
-			Segment:    s.agent.config.SegmentName,
 		},
 	}
 	s.parseSource(req, &args.Source)
@@ -151,7 +155,7 @@ func (s *HTTPServer) preparedQueryExplain(id string, resp http.ResponseWriter, r
 		// We have to check the string since the RPC sheds
 		// the specific error type.
 		if err.Error() == consul.ErrQueryNotFound.Error() {
-			resp.WriteHeader(http.StatusNotFound)
+			resp.WriteHeader(404)
 			fmt.Fprint(resp, err.Error())
 			return nil, nil
 		}
@@ -174,7 +178,7 @@ func (s *HTTPServer) preparedQueryGet(id string, resp http.ResponseWriter, req *
 		// We have to check the string since the RPC sheds
 		// the specific error type.
 		if err.Error() == consul.ErrQueryNotFound.Error() {
-			resp.WriteHeader(http.StatusNotFound)
+			resp.WriteHeader(404)
 			fmt.Fprint(resp, err.Error())
 			return nil, nil
 		}
@@ -192,14 +196,10 @@ func (s *HTTPServer) preparedQueryUpdate(id string, resp http.ResponseWriter, re
 	s.parseToken(req, &args.Token)
 	if req.ContentLength > 0 {
 		if err := decodeBody(req, &args.Query, nil); err != nil {
-			resp.WriteHeader(http.StatusBadRequest)
+			resp.WriteHeader(400)
 			fmt.Fprintf(resp, "Request decode failed: %v", err)
 			return nil, nil
 		}
-	}
-
-	if args.Query == nil {
-		args.Query = &structs.PreparedQuery{}
 	}
 
 	// Take the ID from the URL, not the embedded one.
@@ -233,37 +233,35 @@ func (s *HTTPServer) preparedQueryDelete(id string, resp http.ResponseWriter, re
 // PreparedQuerySpecific handles all the prepared query requests specific to a
 // particular query.
 func (s *HTTPServer) PreparedQuerySpecific(resp http.ResponseWriter, req *http.Request) (interface{}, error) {
-	path := req.URL.Path
-	id := strings.TrimPrefix(path, "/v1/query/")
+	id := strings.TrimPrefix(req.URL.Path, "/v1/query/")
 
-	switch {
-	case strings.HasSuffix(path, "/execute"):
-		if req.Method != "GET" {
-			return nil, MethodNotAllowedError{req.Method, []string{"GET"}}
-		}
-		id = strings.TrimSuffix(id, "/execute")
-		return s.preparedQueryExecute(id, resp, req)
+	execute, explain := false, false
+	if strings.HasSuffix(id, preparedQueryExecuteSuffix) {
+		execute = true
+		id = strings.TrimSuffix(id, preparedQueryExecuteSuffix)
+	} else if strings.HasSuffix(id, preparedQueryExplainSuffix) {
+		explain = true
+		id = strings.TrimSuffix(id, preparedQueryExplainSuffix)
+	}
 
-	case strings.HasSuffix(path, "/explain"):
-		if req.Method != "GET" {
-			return nil, MethodNotAllowedError{req.Method, []string{"GET"}}
+	switch req.Method {
+	case "GET":
+		if execute {
+			return s.preparedQueryExecute(id, resp, req)
+		} else if explain {
+			return s.preparedQueryExplain(id, resp, req)
+		} else {
+			return s.preparedQueryGet(id, resp, req)
 		}
-		id = strings.TrimSuffix(id, "/explain")
-		return s.preparedQueryExplain(id, resp, req)
+
+	case "PUT":
+		return s.preparedQueryUpdate(id, resp, req)
+
+	case "DELETE":
+		return s.preparedQueryDelete(id, resp, req)
 
 	default:
-		switch req.Method {
-		case "GET":
-			return s.preparedQueryGet(id, resp, req)
-
-		case "PUT":
-			return s.preparedQueryUpdate(id, resp, req)
-
-		case "DELETE":
-			return s.preparedQueryDelete(id, resp, req)
-
-		default:
-			return nil, MethodNotAllowedError{req.Method, []string{"GET", "PUT", "DELETE"}}
-		}
+		resp.WriteHeader(405)
+		return nil, nil
 	}
 }

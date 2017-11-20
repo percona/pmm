@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"os/exec"
 	"strconv"
 
 	"github.com/armon/circbuf"
@@ -22,36 +21,16 @@ const (
 )
 
 // makeWatchHandler returns a handler for the given watch
-func makeWatchHandler(logOutput io.Writer, handler interface{}) watch.HandlerFunc {
-	var args []string
-	var script string
-
-	// Figure out whether to run in shell or raw subprocess mode
-	switch h := handler.(type) {
-	case string:
-		script = h
-	case []string:
-		args = h
-	default:
-		panic(fmt.Errorf("unknown handler type %T", handler))
-	}
-
+func makeWatchHandler(logOutput io.Writer, params interface{}) watch.HandlerFunc {
+	script := params.(string)
 	logger := log.New(logOutput, "", log.LstdFlags)
 	fn := func(idx uint64, data interface{}) {
 		// Create the command
-		var cmd *exec.Cmd
-		var err error
-
-		if len(args) > 0 {
-			cmd, err = ExecSubprocess(args)
-		} else {
-			cmd, err = ExecScript(script)
-		}
+		cmd, err := ExecScript(script)
 		if err != nil {
 			logger.Printf("[ERR] agent: Failed to setup watch: %v", err)
 			return
 		}
-
 		cmd.Env = append(os.Environ(),
 			"CONSUL_INDEX="+strconv.FormatUint(idx, 10),
 		)
@@ -65,14 +44,14 @@ func makeWatchHandler(logOutput io.Writer, handler interface{}) watch.HandlerFun
 		var inp bytes.Buffer
 		enc := json.NewEncoder(&inp)
 		if err := enc.Encode(data); err != nil {
-			logger.Printf("[ERR] agent: Failed to encode data for watch '%v': %v", handler, err)
+			logger.Printf("[ERR] agent: Failed to encode data for watch '%s': %v", script, err)
 			return
 		}
 		cmd.Stdin = &inp
 
 		// Run the handler
 		if err := cmd.Run(); err != nil {
-			logger.Printf("[ERR] agent: Failed to run watch handler '%v': %v", handler, err)
+			logger.Printf("[ERR] agent: Failed to invoke watch handler '%s': %v", script, err)
 		}
 
 		// Get the output, add a message about truncation
@@ -83,7 +62,7 @@ func makeWatchHandler(logOutput io.Writer, handler interface{}) watch.HandlerFun
 		}
 
 		// Log the output
-		logger.Printf("[DEBUG] agent: watch handler '%v' output: %s", handler, outputStr)
+		logger.Printf("[DEBUG] agent: watch handler '%s' output: %s", script, outputStr)
 	}
 	return fn
 }

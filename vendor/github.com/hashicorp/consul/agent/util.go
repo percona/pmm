@@ -7,8 +7,8 @@ import (
 	"math"
 	"os"
 	"os/exec"
-	"os/signal"
-	osuser "os/user"
+	"os/user"
+	"runtime"
 	"strconv"
 	"time"
 
@@ -45,6 +45,23 @@ func aeScale(interval time.Duration, n int) time.Duration {
 	return time.Duration(multiplier) * interval
 }
 
+// ExecScript returns a command to execute a script
+func ExecScript(script string) (*exec.Cmd, error) {
+	var shell, flag string
+	if runtime.GOOS == "windows" {
+		shell = "cmd"
+		flag = "/C"
+	} else {
+		shell = "/bin/sh"
+		flag = "-c"
+	}
+	if other := os.Getenv("SHELL"); other != "" {
+		shell = other
+	}
+	cmd := exec.Command(shell, flag, script)
+	return cmd, nil
+}
+
 // decodeMsgPack is used to decode a MsgPack encoded object
 func decodeMsgPack(buf []byte, out interface{}) error {
 	return codec.NewDecoder(bytes.NewReader(buf), msgpackHandle).Decode(out)
@@ -67,34 +84,47 @@ func checkIDHash(checkID types.CheckID) string {
 	return stringHash(string(checkID))
 }
 
-// setFilePermissions handles configuring ownership and permissions
-// settings on a given file. All permission/ownership settings are
-// optional. If no user or group is specified, the current user/group
-// will be used. Mode is optional, and has no default (the operation is
-// not performed if absent). User may be specified by name or ID, but
-// group may only be specified by ID.
-func setFilePermissions(path string, user, group, mode string) error {
+// FilePermissions is an interface which allows a struct to set
+// ownership and permissions easily on a file it describes.
+type FilePermissions interface {
+	// User returns a user ID or user name
+	User() string
+
+	// Group returns a group ID. Group names are not supported.
+	Group() string
+
+	// Mode returns a string of file mode bits e.g. "0644"
+	Mode() string
+}
+
+// setFilePermissions handles configuring ownership and permissions settings
+// on a given file. It takes a path and any struct implementing the
+// FilePermissions interface. All permission/ownership settings are optional.
+// If no user or group is specified, the current user/group will be used. Mode
+// is optional, and has no default (the operation is not performed if absent).
+// User may be specified by name or ID, but group may only be specified by ID.
+func setFilePermissions(path string, p FilePermissions) error {
 	var err error
 	uid, gid := os.Getuid(), os.Getgid()
 
-	if user != "" {
-		if uid, err = strconv.Atoi(user); err == nil {
+	if p.User() != "" {
+		if uid, err = strconv.Atoi(p.User()); err == nil {
 			goto GROUP
 		}
 
 		// Try looking up the user by name
-		if u, err := osuser.Lookup(user); err == nil {
+		if u, err := user.Lookup(p.User()); err == nil {
 			uid, _ = strconv.Atoi(u.Uid)
 			goto GROUP
 		}
 
-		return fmt.Errorf("invalid user specified: %v", user)
+		return fmt.Errorf("invalid user specified: %v", p.User())
 	}
 
 GROUP:
-	if group != "" {
-		if gid, err = strconv.Atoi(group); err != nil {
-			return fmt.Errorf("invalid group specified: %v", group)
+	if p.Group() != "" {
+		if gid, err = strconv.Atoi(p.Group()); err != nil {
+			return fmt.Errorf("invalid group specified: %v", p.Group())
 		}
 	}
 	if err := os.Chown(path, uid, gid); err != nil {
@@ -102,10 +132,10 @@ GROUP:
 			uid, gid, path, err)
 	}
 
-	if mode != "" {
-		mode, err := strconv.ParseUint(mode, 8, 32)
+	if p.Mode() != "" {
+		mode, err := strconv.ParseUint(p.Mode(), 8, 32)
 		if err != nil {
-			return fmt.Errorf("invalid mode specified: %v", mode)
+			return fmt.Errorf("invalid mode specified: %v", p.Mode())
 		}
 		if err := os.Chmod(path, os.FileMode(mode)); err != nil {
 			return fmt.Errorf("failed setting permissions to %d on %q: %s",
@@ -114,35 +144,4 @@ GROUP:
 	}
 
 	return nil
-}
-
-// ExecSubprocess returns a command to execute a subprocess directly.
-func ExecSubprocess(args []string) (*exec.Cmd, error) {
-	if len(args) == 0 {
-		return nil, fmt.Errorf("need an executable to run")
-	}
-
-	return exec.Command(args[0], args[1:]...), nil
-}
-
-// ForwardSignals will fire up a goroutine to forward signals to the given
-// subprocess until the shutdown channel is closed.
-func ForwardSignals(cmd *exec.Cmd, logFn func(error), shutdownCh <-chan struct{}) {
-	go func() {
-		signalCh := make(chan os.Signal, 10)
-		signal.Notify(signalCh, os.Interrupt, os.Kill)
-		defer signal.Stop(signalCh)
-
-		for {
-			select {
-			case sig := <-signalCh:
-				if err := cmd.Process.Signal(sig); err != nil {
-					logFn(fmt.Errorf("failed to send signal %q: %v", sig, err))
-				}
-
-			case <-shutdownCh:
-				return
-			}
-		}
-	}()
 }

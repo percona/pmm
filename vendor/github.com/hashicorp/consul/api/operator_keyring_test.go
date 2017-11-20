@@ -6,10 +6,10 @@ import (
 	"github.com/hashicorp/consul/testutil"
 )
 
-func TestAPI_OperatorKeyringInstallListPutRemove(t *testing.T) {
-	t.Parallel()
+func TestOperator_KeyringInstallListPutRemove(t *testing.T) {
 	oldKey := "d8wu8CSUrqgtjVsvcBPmhQ=="
 	newKey := "qxycTi/SsePj/TZzCBmNXw=="
+	t.Parallel()
 	c, s := makeClientWithConfig(t, nil, func(c *testutil.TestServerConfig) {
 		c.Encrypt = oldKey
 	})

@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -28,33 +29,13 @@ func TestExecCommand_implements(t *testing.T) {
 
 func TestExecCommandRun(t *testing.T) {
 	t.Parallel()
-	a := agent.NewTestAgent(t.Name(), `
-		disable_remote_exec = false
-	`)
+	cfg := agent.TestConfig()
+	cfg.DisableRemoteExec = agent.Bool(false)
+	a := agent.NewTestAgent(t.Name(), cfg)
 	defer a.Shutdown()
 
 	ui, c := testExecCommand(t)
-	args := []string{"-http-addr=" + a.HTTPAddr(), "-wait=1s", "uptime"}
-
-	code := c.Run(args)
-	if code != 0 {
-		t.Fatalf("bad: %d. Error:%#v  (std)Output:%#v", code, ui.ErrorWriter.String(), ui.OutputWriter.String())
-	}
-
-	if !strings.Contains(ui.OutputWriter.String(), "load") {
-		t.Fatalf("bad: %#v", ui.OutputWriter.String())
-	}
-}
-
-func TestExecCommandRun_NoShell(t *testing.T) {
-	t.Parallel()
-	a := agent.NewTestAgent(t.Name(), `
-		disable_remote_exec = false
-	`)
-	defer a.Shutdown()
-
-	ui, c := testExecCommand(t)
-	args := []string{"-http-addr=" + a.HTTPAddr(), "-shell=false", "-wait=1s", "uptime"}
+	args := []string{"-http-addr=" + a.HTTPAddr(), "-wait=500ms", "uptime"}
 
 	code := c.Run(args)
 	if code != 0 {
@@ -68,31 +49,26 @@ func TestExecCommandRun_NoShell(t *testing.T) {
 
 func TestExecCommandRun_CrossDC(t *testing.T) {
 	t.Parallel()
-	a1 := agent.NewTestAgent(t.Name(), `
-		disable_remote_exec = false
-	`)
+	cfg1 := agent.TestConfig()
+	cfg1.DisableRemoteExec = agent.Bool(false)
+	a1 := agent.NewTestAgent(t.Name(), cfg1)
 	defer a1.Shutdown()
 
-	a2 := agent.NewTestAgent(t.Name(), `
-		datacenter = "dc2"
-		disable_remote_exec = false
-	`)
-	defer a2.Shutdown()
+	cfg2 := agent.TestConfig()
+	cfg2.Datacenter = "dc2"
+	cfg2.DisableRemoteExec = agent.Bool(false)
+	a2 := agent.NewTestAgent(t.Name(), cfg2)
+	defer a1.Shutdown()
 
 	// Join over the WAN
-	_, err := a2.JoinWAN([]string{a1.Config.SerfBindAddrWAN.String()})
+	wanAddr := fmt.Sprintf("%s:%d", a1.Config.BindAddr, a1.Config.Ports.SerfWan)
+	n, err := a2.JoinWAN([]string{wanAddr})
 	if err != nil {
 		t.Fatalf("err: %v", err)
 	}
-
-	retry.Run(t, func(r *retry.R) {
-		if got, want := len(a1.WANMembers()), 2; got != want {
-			r.Fatalf("got %d WAN members on a1 want %d", got, want)
-		}
-		if got, want := len(a2.WANMembers()), 2; got != want {
-			r.Fatalf("got %d WAN members on a2 want %d", got, want)
-		}
-	})
+	if n != 1 {
+		t.Fatalf("bad %d", n)
+	}
 
 	ui, c := testExecCommand(t)
 	args := []string{"-http-addr=" + a1.HTTPAddr(), "-wait=500ms", "-datacenter=dc2", "uptime"}
@@ -145,9 +121,9 @@ func TestExecCommand_Validate(t *testing.T) {
 
 func TestExecCommand_Sessions(t *testing.T) {
 	t.Parallel()
-	a := agent.NewTestAgent(t.Name(), `
-		disable_remote_exec = false
-	`)
+	cfg := agent.TestConfig()
+	cfg.DisableRemoteExec = agent.Bool(false)
+	a := agent.NewTestAgent(t.Name(), cfg)
 	defer a.Shutdown()
 
 	client := a.Client()
@@ -184,9 +160,9 @@ func TestExecCommand_Sessions(t *testing.T) {
 
 func TestExecCommand_Sessions_Foreign(t *testing.T) {
 	t.Parallel()
-	a := agent.NewTestAgent(t.Name(), `
-		disable_remote_exec = false
-	`)
+	cfg := agent.TestConfig()
+	cfg.DisableRemoteExec = agent.Bool(false)
+	a := agent.NewTestAgent(t.Name(), cfg)
 	defer a.Shutdown()
 
 	client := a.Client()
@@ -234,9 +210,9 @@ func TestExecCommand_Sessions_Foreign(t *testing.T) {
 
 func TestExecCommand_UploadDestroy(t *testing.T) {
 	t.Parallel()
-	a := agent.NewTestAgent(t.Name(), `
-		disable_remote_exec = false
-	`)
+	cfg := agent.TestConfig()
+	cfg.DisableRemoteExec = agent.Bool(false)
+	a := agent.NewTestAgent(t.Name(), cfg)
 	defer a.Shutdown()
 
 	client := a.Client()
@@ -289,9 +265,9 @@ func TestExecCommand_UploadDestroy(t *testing.T) {
 
 func TestExecCommand_StreamResults(t *testing.T) {
 	t.Parallel()
-	a := agent.NewTestAgent(t.Name(), `
-		disable_remote_exec = false
-	`)
+	cfg := agent.TestConfig()
+	cfg.DisableRemoteExec = agent.Bool(false)
+	a := agent.NewTestAgent(t.Name(), cfg)
 	defer a.Shutdown()
 
 	client := a.Client()
