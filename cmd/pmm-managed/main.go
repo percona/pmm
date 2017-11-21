@@ -111,7 +111,10 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 	}
 
 	supervisor := supervisor.New(l)
-	qan := qan.NewService(*agentQANBaseF, supervisor)
+	qan, err := qan.NewService(ctx, *agentQANBaseF, supervisor)
+	if err != nil {
+		l.Panicf("QAN service problem: %+v", err)
+	}
 
 	// collect already reserved ports
 	rows, err := db.Query("SELECT listen_port FROM agents")

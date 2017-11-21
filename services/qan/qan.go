@@ -25,10 +25,13 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/percona/kardianos-service"
 	"github.com/percona/pmm/proto"
@@ -40,23 +43,26 @@ import (
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
-const (
-	// bypass nginx's HTTP Basic auth
-	qanAPI = "http://127.0.0.1:9001"
-)
-
 type Service struct {
 	baseDir    string
 	supervisor *supervisor.Supervisor
 	qanAPI     *http.Client
+	qanURL     url.URL
 }
 
-func NewService(baseDir string, supervisor *supervisor.Supervisor) *Service {
-	return &Service{
+func NewService(ctx context.Context, baseDir string, supervisor *supervisor.Supervisor) (*Service, error) {
+	u, err := getQanURL(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	svc := &Service{
 		baseDir:    baseDir,
 		supervisor: supervisor,
 		qanAPI:     new(http.Client),
+		qanURL:     *u,
 	}
+	return svc, nil
 }
 
 // EnsureAgentIsRegistered is registers qan-agent running on PMM Server node in QAN.
@@ -70,15 +76,25 @@ func (svc *Service) EnsureAgentIsRegistered(ctx context.Context) error {
 	}
 
 	path = filepath.Join(svc.baseDir, "bin", "percona-qan-agent-installer")
-	cmd := exec.Command(path, "-debug", "-hostname=pmm-server", qanAPI)
+	args := []string{"-debug", "-hostname=pmm-server"}
+	if svc.qanURL.User != nil && svc.qanURL.User.Username() != "" {
+		args = append(args, "-server-user="+svc.qanURL.User.Username())
+		pass, _ := svc.qanURL.User.Password()
+		args = append(args, "-server-pass="+pass)
+	}
+	args = append(args, svc.qanURL.String()) // full URL, with username and password (yes, again! that's how installer is written)
+	cmd := exec.Command(path, args...)
 	logger.Get(ctx).Debug(strings.Join(cmd.Args, " "))
 	b, err := cmd.CombinedOutput()
-	if err == nil {
-		logger.Get(ctx).Debugf("%s", b)
-		return nil
+	if err != nil {
+		logger.Get(ctx).Infof("%s", b)
+		return errors.Wrap(err, "failed to register qan-agent")
 	}
-	logger.Get(ctx).Infof("%s", b)
-	return errors.Wrap(err, "failed to register qan-agent")
+	logger.Get(ctx).Debugf("%s", b)
+
+	// make logging more verbose than default
+	path = filepath.Join(svc.baseDir, "config", "log.conf")
+	return ioutil.WriteFile(path, []byte(`{"Level":"debug","Offline":"false"}`), 0666)
 }
 
 // getAgentUUID returns agent UUID from the qan-agent configuration file.
@@ -102,18 +118,27 @@ func (svc *Service) getAgentUUID() (string, error) {
 
 // getOSUUID returns OS UUID from the QAN API.
 func (svc *Service) getOSUUID(ctx context.Context, agentUUID string) (string, error) {
-	url := qanAPI + "/instances/" + agentUUID
-	resp, err := svc.qanAPI.Get(url)
+	url := svc.qanURL
+	url.Path = path.Join(url.Path, "instances", agentUUID)
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	rb, _ := httputil.DumpRequestOut(req, true)
+	logger.Get(ctx).Debugf("getOSUUID request:\n%s", rb)
+
+	resp, err := svc.qanAPI.Do(req)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
 	defer resp.Body.Close()
 
+	rb, _ = httputil.DumpResponse(resp, true)
 	if resp.StatusCode != 200 {
-		b, _ := httputil.DumpResponse(resp, true)
-		logger.Get(ctx).Errorf("GET %s:\n%s", url, b)
+		logger.Get(ctx).Errorf("getOSUUID response:\n%s", rb)
 		return "", errors.Errorf("unexpected QAN response status code %d", resp.StatusCode)
 	}
+	logger.Get(ctx).Debugf("getOSUUID response:\n%s", rb)
 
 	var instance proto.Instance
 	if err = json.NewDecoder(resp.Body).Decode(&instance); err != nil {
@@ -122,29 +147,37 @@ func (svc *Service) getOSUUID(ctx context.Context, agentUUID string) (string, er
 	return instance.ParentUUID, nil
 }
 
+// addInstance adds instance to QAN API.
 func (svc *Service) addInstance(ctx context.Context, instance *proto.Instance) (string, error) {
 	b, err := json.Marshal(instance)
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
 
-	url := qanAPI + "/instances"
-	resp, err := svc.qanAPI.Post(url, "application/json", bytes.NewReader(b))
+	url := svc.qanURL
+	url.Path = path.Join(url.Path, "instances")
+	req, err := http.NewRequest("POST", url.String(), bytes.NewReader(b))
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	rb, _ := httputil.DumpRequestOut(req, true)
+	logger.Get(ctx).Debugf("addInstance request:\n%s", rb)
+
+	resp, err := svc.qanAPI.Post(url.String(), "application/json", bytes.NewReader(b))
 	if err != nil {
 		return "", errors.WithStack(err)
 	}
 	defer resp.Body.Close()
 
-	rb, _ := httputil.DumpResponse(resp, true)
+	rb, _ = httputil.DumpResponse(resp, true)
 	if resp.StatusCode != 201 {
-		logger.Get(ctx).Errorf("POST %s\n%s\n%s", url, b, rb)
+		logger.Get(ctx).Errorf("addInstance response:\n%s", rb)
 		return "", errors.Errorf("unexpected QAN response status code %d", resp.StatusCode)
 	}
-	logger.Get(ctx).Debugf("POST %s\n%s\n%s", url, b, rb)
+	logger.Get(ctx).Debugf("addInstance response:\n%s", rb)
 
-	// Response Location header looks like this: http://127.0.0.1:9001/qan-api/instances/6cea8824082d4ade682b94109664e6a9
-	// It is wrong - it should not have /qan-api/ part.
-	// Extract UUID directly from it.
+	// Response Location header looks like this: http://127.0.0.1/qan-api/instances/6cea8824082d4ade682b94109664e6a9
+	// Extract UUID directly from it instead of following it.
 	parts := strings.Split(resp.Header.Get("Location"), "/")
 	return parts[len(parts)-1], nil
 }
@@ -172,6 +205,58 @@ func (svc *Service) ensureAgentRuns(ctx context.Context, qanAgent *models.QanAge
 	return err
 }
 
+func (svc *Service) sendQANCommand(ctx context.Context, agentUUID string, command string, data []byte) error {
+	cmd := proto.Cmd{
+		User:      "pmm-managed",
+		AgentUUID: agentUUID,
+		Service:   "qan",
+		Cmd:       command,
+		Data:      data,
+	}
+	b, err := json.Marshal(cmd)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+
+	// Send the command to the API which relays it to the agent, then relays the agent's reply back to here.
+	// It takes a few seconds for agent to connect to QAN API once it is started via service manager.
+	// QAN API fails to start/stop unconnected agent for QAN, so we retry the request when getting 404 response.
+	const attempts = 10
+	url := svc.qanURL
+	url.Path = path.Join(url.Path, "agents", agentUUID, "cmd")
+	for i := 0; i < attempts; i++ {
+		req, err := http.NewRequest("PUT", url.String(), bytes.NewReader(b))
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		req.Header.Set("Content-Type", "application/json")
+		rb, _ := httputil.DumpRequestOut(req, true)
+		logger.Get(ctx).Debugf("sendQANCommand request:\n%s", rb)
+
+		resp, err := svc.qanAPI.Do(req)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		rb, _ = httputil.DumpResponse(resp, true)
+		resp.Body.Close()
+
+		if resp.StatusCode == 200 {
+			logger.Get(ctx).Debugf("sendQANCommand response:\n%s", rb)
+			return nil
+		}
+		if resp.StatusCode == 404 {
+			logger.Get(ctx).Debugf("sendQANCommand response:\n%s", rb)
+			time.Sleep(time.Second)
+			continue
+		}
+
+		logger.Get(ctx).Errorf("sendQANCommand response:\n%s", rb)
+		return errors.Errorf("%s: unexpected QAN API response status code %d", command, resp.StatusCode)
+	}
+
+	return errors.Errorf("%s: failed to send command after %d attempts", command, attempts)
+}
+
 func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsService *models.RDSService, qanAgent *models.QanAgent) error {
 	agentUUID, err := svc.getAgentUUID()
 	if err != nil {
@@ -189,13 +274,13 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 		DSN:        sanitizeDSN(qanAgent.DSN(rdsService)),
 		Version:    *rdsService.EngineVersion,
 	}
-	uuid, err := svc.addInstance(ctx, instance)
+	instanceUUID, err := svc.addInstance(ctx, instance)
 	if err != nil {
 		return err
 	}
 
 	// we need real DSN (with password) for qan-agent to work, and it seems to be the only way to pass it
-	path := filepath.Join(svc.baseDir, "instance", fmt.Sprintf("%s.json", uuid))
+	path := filepath.Join(svc.baseDir, "instance", fmt.Sprintf("%s.json", instanceUUID))
 	instance.DSN = qanAgent.DSN(rdsService)
 	b, err := json.MarshalIndent(instance, "", "    ")
 	if err != nil {
@@ -209,5 +294,15 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 		return err
 	}
 
-	return nil
+	config := map[string]interface{}{
+		"UUID":           instanceUUID,
+		"CollectFrom":    "perfschema",
+		"Interval":       60,
+		"ExampleQueries": true,
+	}
+	b, err = json.Marshal(config)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	return svc.sendQANCommand(ctx, agentUUID, "StartTool", b)
 }
