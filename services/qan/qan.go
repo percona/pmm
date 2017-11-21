@@ -125,7 +125,7 @@ func (svc *Service) getOSUUID(ctx context.Context, agentUUID string) (string, er
 		return "", errors.WithStack(err)
 	}
 	rb, _ := httputil.DumpRequestOut(req, true)
-	logger.Get(ctx).Debugf("getOSUUID request:\n%s", rb)
+	logger.Get(ctx).Debugf("getOSUUID request:\n\n%s\n", rb)
 
 	resp, err := svc.qanAPI.Do(req)
 	if err != nil {
@@ -135,10 +135,10 @@ func (svc *Service) getOSUUID(ctx context.Context, agentUUID string) (string, er
 
 	rb, _ = httputil.DumpResponse(resp, true)
 	if resp.StatusCode != 200 {
-		logger.Get(ctx).Errorf("getOSUUID response:\n%s", rb)
+		logger.Get(ctx).Errorf("getOSUUID response:\n\n%s\n", rb)
 		return "", errors.Errorf("unexpected QAN response status code %d", resp.StatusCode)
 	}
-	logger.Get(ctx).Debugf("getOSUUID response:\n%s", rb)
+	logger.Get(ctx).Debugf("getOSUUID response:\n\n%s\n", rb)
 
 	var instance proto.Instance
 	if err = json.NewDecoder(resp.Body).Decode(&instance); err != nil {
@@ -161,7 +161,7 @@ func (svc *Service) addInstance(ctx context.Context, instance *proto.Instance) (
 		return "", errors.WithStack(err)
 	}
 	rb, _ := httputil.DumpRequestOut(req, true)
-	logger.Get(ctx).Debugf("addInstance request:\n%s", rb)
+	logger.Get(ctx).Debugf("addInstance request:\n\n%s\n", rb)
 
 	resp, err := svc.qanAPI.Post(url.String(), "application/json", bytes.NewReader(b))
 	if err != nil {
@@ -171,10 +171,10 @@ func (svc *Service) addInstance(ctx context.Context, instance *proto.Instance) (
 
 	rb, _ = httputil.DumpResponse(resp, true)
 	if resp.StatusCode != 201 {
-		logger.Get(ctx).Errorf("addInstance response:\n%s", rb)
+		logger.Get(ctx).Errorf("addInstance response:\n\n%s\n", rb)
 		return "", errors.Errorf("unexpected QAN response status code %d", resp.StatusCode)
 	}
-	logger.Get(ctx).Debugf("addInstance response:\n%s", rb)
+	logger.Get(ctx).Debugf("addInstance response:\n\n%s\n", rb)
 
 	// Response Location header looks like this: http://127.0.0.1/qan-api/instances/6cea8824082d4ade682b94109664e6a9
 	// Extract UUID directly from it instead of following it.
@@ -231,7 +231,7 @@ func (svc *Service) sendQANCommand(ctx context.Context, agentUUID string, comman
 		}
 		req.Header.Set("Content-Type", "application/json")
 		rb, _ := httputil.DumpRequestOut(req, true)
-		logger.Get(ctx).Debugf("sendQANCommand request:\n%s", rb)
+		logger.Get(ctx).Debugf("sendQANCommand request:\n\n%s\n", rb)
 
 		resp, err := svc.qanAPI.Do(req)
 		if err != nil {
@@ -241,16 +241,16 @@ func (svc *Service) sendQANCommand(ctx context.Context, agentUUID string, comman
 		resp.Body.Close()
 
 		if resp.StatusCode == 200 {
-			logger.Get(ctx).Debugf("sendQANCommand response:\n%s", rb)
+			logger.Get(ctx).Debugf("sendQANCommand response:\n\n%s\n", rb)
 			return nil
 		}
 		if resp.StatusCode == 404 {
-			logger.Get(ctx).Debugf("sendQANCommand response:\n%s", rb)
+			logger.Get(ctx).Debugf("sendQANCommand response:\n\n%s\n", rb)
 			time.Sleep(time.Second)
 			continue
 		}
 
-		logger.Get(ctx).Errorf("sendQANCommand response:\n%s", rb)
+		logger.Get(ctx).Errorf("sendQANCommand response:\n\n%s\n", rb)
 		return errors.Errorf("%s: unexpected QAN API response status code %d", command, resp.StatusCode)
 	}
 
@@ -294,6 +294,7 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 		return err
 	}
 
+	command := "StartTool"
 	config := map[string]interface{}{
 		"UUID":           instanceUUID,
 		"CollectFrom":    "perfschema",
@@ -304,5 +305,6 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	return svc.sendQANCommand(ctx, agentUUID, "StartTool", b)
+	logger.Get(ctx).Debugf("%s %s %s", agentUUID, command, b)
+	return svc.sendQANCommand(ctx, agentUUID, command, b)
 }
