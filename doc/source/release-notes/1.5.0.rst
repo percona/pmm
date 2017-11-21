@@ -8,68 +8,65 @@ Percona Monitoring and Management |release|
 
 Percona announces the release of Percona Monitoring and Management |release|.
 
-.. TODO: Mention availability from market place
-   TODO: QAN in Grafana
+|qan| is now integrated into |grafana| as a separate dashboard. This new design
+has all the features that |qan| offered when it was a |pmm| module. 
 
-In this release, |grafana|, |prometheus|, and |consul| have been upgraded.
+With this release, |pmm.name| introduces a new deployment option: Amazon Market place.
 
-This release of |pmm| includes |grafana| 4.6.1.  One of the most
-prominent features that the upgraded |grafana| offers is the support
-of annotations. You can mark a point or select a region in a graph and
-give it a meaningful description. For more information, see
-`the release highlights <http://docs.grafana.org/guides/whats-new-in-v4-6/>`_.
+In this release, |grafana| and |prometheus| have been upgraded. |pmm|
+now includes |grafana| 4.6.1.  One of the most prominent features that the
+upgraded |grafana| offers is the support of annotations. You can mark a point or
+select a region in a graph and give it a meaningful description. For more
+information, see `the release highlights
+<http://docs.grafana.org/guides/whats-new-in-v4-6/>`_.
+
+.. TODO: Demo here
 
 |prometheus| version 1.8.2, shipped with this release, offers a number of bug
 fixes. For more information, see
 `the Prometheus change log <https://github.com/prometheus/prometheus/blob/master/CHANGELOG.md#182--2017-11-04>`_.
 
-|consul| has been upgraded to version 1.0.
-
 New features
 --------------------------------------------------------------------------------
 
-- :pmmbug:`434`: Agentless Amazon RDS/Aurora support
-- :pmmbug:`722`: Enhance MariaDB graphs to support PS/MySQL and eliminate MariaDB dashboard
-- :pmmbug:`1060`: Deploy RDS and Aurora instances
+- :pmmbug:`434`: |pmm| enables monitoring of Amazon RDS and Amazon Aurora metrics
+- :pmmbug:`722`: The *MariaDB* dashboard was removed from |pmm|; the *MyISAM* dashboard was renamed to *MyISAM/Aria Metrics*
 - :pmmbug:`1133`: |qan.name| is available from |grafana| as a dashboard
 - :pmmbug:`1258`: The |opt.disable-updates| option enables preventing manual
   updates when |pmm-server| is run from a |docker| container.
-- :pmmbug:`1295`: Web management interface for clients
-- :pmmbug:`1470`: Cloudwatch metrics into Promethus
+- :pmmbug:`1470`: Cloudwatch metrics have been integrated into |prometheus|
 - :pmmbug:`1500`: Add InnoDB Buffer Disk Reads
 
-Other new features:
-:pmmbug:`1469`:,
-:pmmbug:`1586`:
+Other new features: :pmmbug:`1060`
+, :pmmbug:`1469`
+, :pmmbug:`1586`
 
 Improvements
 --------------------------------------------------------------------------------
 
-- :pmmbug:`699`: AWS Aurora Dashboard improvements
-- :pmmbug:`873`: MySQL summary - embedded PT
-- :pmmbug:`879`: Initiation of Data collection
-- :pmmbug:`911`: AWS Aurora Dashboard - community contribution
-- :pmmbug:`1319`: More checks for Grafana dashboards
-- :pmmbug:`1561`: Consul 1.0
-- :pmmbug:`1577`: Prometheus 1.8.2
-- :pmmbug:`1603`: Grafana 4.6.1
-- :pmmbug:`1669`: Update Context Switches Graph
+- :pmmbug:`699`: AWS RS and Amazon Aurora metrics were combined into one dashboard
+- :pmmbug:`1577`: |prometheus| was updated to version 1.8.2
+- :pmmbug:`1603`: |grafana| was updated to version  4.6.1
+- :pmmbug:`1669`: The representation of numeric values in the *Context Switches*
+  graph in the *System Overview* dashboard was changed to improve readability.
 
-Other improvements:
-:pmmbug:`1575`:,
-:pmmbug:`1612`
+Other improvements: :pmmbug:`873`
+, :pmmbug:`879`
+, :pmmbug:`911`
+, :pmmbug:`1575`
+, :pmmbug:`1612`
 
 Bug fixes
 --------------------------------------------------------------------------------
 
-- :pmmbug:`1082`: The |graph.cpu_usage| graph  on Trends Dashboard shows incorrect spikes
-- :pmmbug:`1125`: Different servers with the same name
-- :pmmbug:`1549`: Broken default auth db for mongodb:queries
-- :pmmbug:`1660`: QAN for MongoDB not showing Data.
-- :pmmbug:`1673`: QAN doesn't load for Internet Explorer 11.0.9600
+- :pmmbug:`1082`: The |graph.cpu_usage| graph  on the *Trends* dashboard showed incorrect spikes
+- :pmmbug:`1549`: The authentication of the mongodb:queries monitoring service
+  did not work properly when the name of the database to authenticate was not provided.
+- :pmmbug:`1660`: In some cases, |qan| did not show data for |mongodb| hosts.
+
+Other bugs: :pmmbug:`1125`
+, :pmmbug:`1673`
 
 .. |release| replace:: 1.5.0
 
 .. include:: ../.resources/name.txt
-
-
