@@ -51,7 +51,7 @@ type DiscoverOK struct {
 }
 
 func (o *DiscoverOK) Error() string {
-	return fmt.Sprintf("[GET /v0/rds/discover][%d] discoverOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/rds/discover][%d] discoverOK  %+v", 200, o.Payload)
 }
 
 func (o *DiscoverOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

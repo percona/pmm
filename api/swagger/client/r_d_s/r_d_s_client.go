@@ -53,7 +53,7 @@ func (a *Client) Add(params *AddParams) (*AddOK, error) {
 }
 
 /*
-Discover queries parameters aws access key id aws secret access key
+Discover discover API
 */
 func (a *Client) Discover(params *DiscoverParams) (*DiscoverOK, error) {
 	// TODO: Validate the params before sending
@@ -63,7 +63,7 @@ func (a *Client) Discover(params *DiscoverParams) (*DiscoverOK, error) {
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "Discover",
-		Method:             "GET",
+		Method:             "POST",
 		PathPattern:        "/v0/rds/discover",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},

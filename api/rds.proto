@@ -65,10 +65,10 @@ message RDSRemoveResponse {
 }
 
 service RDS {
-    // Query parameters: aws_access_key_id, aws_secret_access_key.
     rpc Discover(RDSDiscoverRequest) returns (RDSDiscoverResponse) {
         option (google.api.http) = {
-            get: "/v0/rds/discover"
+            post: "/v0/rds/discover",
+            body: "*"
         };
     }
 

@@ -16,6 +16,8 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	"github.com/percona/pmm-managed/api/swagger/models"
 )
 
 // NewDiscoverParams creates a new DiscoverParams object
@@ -62,10 +64,8 @@ for the discover operation typically these are written to a http.Request
 */
 type DiscoverParams struct {
 
-	/*AwsAccessKeyID*/
-	AwsAccessKeyID *string
-	/*AwsSecretAccessKey*/
-	AwsSecretAccessKey *string
+	/*Body*/
+	Body *models.APIRDSDiscoverRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,26 +105,15 @@ func (o *DiscoverParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithAwsAccessKeyID adds the awsAccessKeyID to the discover params
-func (o *DiscoverParams) WithAwsAccessKeyID(awsAccessKeyID *string) *DiscoverParams {
-	o.SetAwsAccessKeyID(awsAccessKeyID)
+// WithBody adds the body to the discover params
+func (o *DiscoverParams) WithBody(body *models.APIRDSDiscoverRequest) *DiscoverParams {
+	o.SetBody(body)
 	return o
 }
 
-// SetAwsAccessKeyID adds the awsAccessKeyId to the discover params
-func (o *DiscoverParams) SetAwsAccessKeyID(awsAccessKeyID *string) {
-	o.AwsAccessKeyID = awsAccessKeyID
-}
-
-// WithAwsSecretAccessKey adds the awsSecretAccessKey to the discover params
-func (o *DiscoverParams) WithAwsSecretAccessKey(awsSecretAccessKey *string) *DiscoverParams {
-	o.SetAwsSecretAccessKey(awsSecretAccessKey)
-	return o
-}
-
-// SetAwsSecretAccessKey adds the awsSecretAccessKey to the discover params
-func (o *DiscoverParams) SetAwsSecretAccessKey(awsSecretAccessKey *string) {
-	o.AwsSecretAccessKey = awsSecretAccessKey
+// SetBody adds the body to the discover params
+func (o *DiscoverParams) SetBody(body *models.APIRDSDiscoverRequest) {
+	o.Body = body
 }
 
 // WriteToRequest writes these params to a swagger request
@@ -135,36 +124,12 @@ func (o *DiscoverParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regi
 	}
 	var res []error
 
-	if o.AwsAccessKeyID != nil {
-
-		// query param aws_access_key_id
-		var qrAwsAccessKeyID string
-		if o.AwsAccessKeyID != nil {
-			qrAwsAccessKeyID = *o.AwsAccessKeyID
-		}
-		qAwsAccessKeyID := qrAwsAccessKeyID
-		if qAwsAccessKeyID != "" {
-			if err := r.SetQueryParam("aws_access_key_id", qAwsAccessKeyID); err != nil {
-				return err
-			}
-		}
-
+	if o.Body == nil {
+		o.Body = new(models.APIRDSDiscoverRequest)
 	}
 
-	if o.AwsSecretAccessKey != nil {
-
-		// query param aws_secret_access_key
-		var qrAwsSecretAccessKey string
-		if o.AwsSecretAccessKey != nil {
-			qrAwsSecretAccessKey = *o.AwsSecretAccessKey
-		}
-		qAwsSecretAccessKey := qrAwsSecretAccessKey
-		if qAwsSecretAccessKey != "" {
-			if err := r.SetQueryParam("aws_secret_access_key", qAwsSecretAccessKey); err != nil {
-				return err
-			}
-		}
-
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

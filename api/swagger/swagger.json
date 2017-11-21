@@ -156,22 +156,19 @@
       }
     },
     "/v0/rds/discover": {
-      "get": {
+      "post": {
         "tags": [
           "RDS"
         ],
-        "summary": "Query parameters: aws_access_key_id, aws_secret_access_key.",
         "operationId": "Discover",
         "parameters": [
           {
-            "type": "string",
-            "name": "aws_access_key_id",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "name": "aws_secret_access_key",
-            "in": "query"
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiRDSDiscoverRequest"
+            }
           }
         ],
         "responses": {
@@ -445,6 +442,17 @@
     },
     "apiRDSAddResponse": {
       "type": "object"
+    },
+    "apiRDSDiscoverRequest": {
+      "type": "object",
+      "properties": {
+        "aws_access_key_id": {
+          "type": "string"
+        },
+        "aws_secret_access_key": {
+          "type": "string"
+        }
+      }
     },
     "apiRDSDiscoverResponse": {
       "type": "object",
