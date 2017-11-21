@@ -1,0 +1,10 @@
+.. -*- mode: rst -*-
+
+.. This file contains placeholders which may be used throughout the PMM documentation
+
+.. |product-intro| replace:: *PMM* (Percona Monitoring and Management)
+.. |product-name| replace:: Percona Monitoring and Management
+.. |product-abbrev| replace:: *PMM*
+.. |company-name| replace:: Percona
+
+.. |qan-intro| replace:: *QAN* (Query Analytics)
