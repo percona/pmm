@@ -249,7 +249,132 @@ var (
 	_ fmt.Stringer  = new(MySQLdExporter)
 )
 
+type qanAgentTableType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("").
+func (v *qanAgentTableType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("agents").
+func (v *qanAgentTableType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *qanAgentTableType) Columns() []string {
+	return []string{"id", "type", "runs_on_node_id", "service_username", "service_password", "listen_port"}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *qanAgentTableType) NewStruct() reform.Struct {
+	return new(QanAgent)
+}
+
+// NewRecord makes a new record for that table.
+func (v *qanAgentTableType) NewRecord() reform.Record {
+	return new(QanAgent)
+}
+
+// PKColumnIndex returns an index of primary key column for that table in SQL database.
+func (v *qanAgentTableType) PKColumnIndex() uint {
+	return uint(v.s.PKFieldIndex)
+}
+
+// QanAgentTable represents agents view or table in SQL database.
+var QanAgentTable = &qanAgentTableType{
+	s: parse.StructInfo{Type: "QanAgent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int32", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "RunsOnNodeID", PKType: "", Column: "runs_on_node_id"}, {Name: "ServiceUsername", PKType: "", Column: "service_username"}, {Name: "ServicePassword", PKType: "", Column: "service_password"}, {Name: "ListenPort", PKType: "", Column: "listen_port"}}, PKFieldIndex: 0},
+	z: new(QanAgent).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s QanAgent) String() string {
+	res := make([]string, 6)
+	res[0] = "ID: " + reform.Inspect(s.ID, true)
+	res[1] = "Type: " + reform.Inspect(s.Type, true)
+	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
+	res[3] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
+	res[4] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
+	res[5] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *QanAgent) Values() []interface{} {
+	return []interface{}{
+		s.ID,
+		s.Type,
+		s.RunsOnNodeID,
+		s.ServiceUsername,
+		s.ServicePassword,
+		s.ListenPort,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *QanAgent) Pointers() []interface{} {
+	return []interface{}{
+		&s.ID,
+		&s.Type,
+		&s.RunsOnNodeID,
+		&s.ServiceUsername,
+		&s.ServicePassword,
+		&s.ListenPort,
+	}
+}
+
+// View returns View object for that struct.
+func (s *QanAgent) View() reform.View {
+	return QanAgentTable
+}
+
+// Table returns Table object for that record.
+func (s *QanAgent) Table() reform.Table {
+	return QanAgentTable
+}
+
+// PKValue returns a value of primary key for that record.
+// Returned interface{} value is never untyped nil.
+func (s *QanAgent) PKValue() interface{} {
+	return s.ID
+}
+
+// PKPointer returns a pointer to primary key field for that record.
+// Returned interface{} value is never untyped nil.
+func (s *QanAgent) PKPointer() interface{} {
+	return &s.ID
+}
+
+// HasPK returns true if record has non-zero primary key set, false otherwise.
+func (s *QanAgent) HasPK() bool {
+	return s.ID != QanAgentTable.z[QanAgentTable.s.PKFieldIndex]
+}
+
+// SetPK sets record primary key.
+func (s *QanAgent) SetPK(pk interface{}) {
+	if i64, ok := pk.(int64); ok {
+		s.ID = int32(i64)
+	} else {
+		s.ID = pk.(int32)
+	}
+}
+
+// check interfaces
+var (
+	_ reform.View   = QanAgentTable
+	_ reform.Struct = new(QanAgent)
+	_ reform.Table  = QanAgentTable
+	_ reform.Record = new(QanAgent)
+	_ fmt.Stringer  = new(QanAgent)
+)
+
 func init() {
 	parse.AssertUpToDate(&AgentTable.s, new(Agent))
 	parse.AssertUpToDate(&MySQLdExporterTable.s, new(MySQLdExporter))
+	parse.AssertUpToDate(&QanAgentTable.s, new(QanAgent))
 }
