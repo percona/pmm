@@ -192,6 +192,8 @@ or using :ref:`Amazon Machine Image <run-server-ami>`, you can use the update
 button in the bottom right corner of the |pmm.abbrev| home page (see
 :term:`PMM Home Page`).
 
+.. TODO: Replace screenshot with Grafana looks
+
 .. figure:: ../images/update-button.png
 
    Update your server by clicking the *Update* button on the |pmm.abbrev|
