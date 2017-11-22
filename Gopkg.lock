@@ -289,6 +289,12 @@
   revision = "e83f8a60e4555d1e113d9228b5532865907eebef"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/percona/pmm"
+  packages = ["proto/config"]
+  revision = "2e1fc2e5c4bba7ce05a0af6b46ca3c56e4952f4e"
+
+[[projects]]
   name = "github.com/pkg/errors"
   packages = ["."]
   revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
@@ -453,6 +459,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ff4ecd3e1f4a64de022d5628510bbc2cae867fd8992d504f6e5bfe8180da91d8"
+  inputs-digest = "0de2cc89c64c7b1f4fdddb438089fae5f7cf092b439a1354f7ce9577d7cf83d6"
   solver-name = "gps-cdcl"
   solver-version = 1

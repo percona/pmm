@@ -131,6 +131,8 @@ func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Confi
 	}()
 	b, err := exec.Command(svc.promtoolPath, "check-config", f.Name()).CombinedOutput()
 	if err != nil {
+		logger.Get(ctx).Errorf("%s", b)
+
 		// return typed error if possible
 		s := string(b)
 		if m := checkFailedRE.FindStringSubmatch(s); len(m) == 2 {
@@ -138,7 +140,7 @@ func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Confi
 		}
 		return errors.Wrap(err, s)
 	}
-	logger.Get(ctx).Infof("%s", b)
+	logger.Get(ctx).Debugf("%s", b)
 
 	// write to permanent location and reload
 	restore = true

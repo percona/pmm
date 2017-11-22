@@ -31,6 +31,7 @@ type AgentType string
 
 const (
 	MySQLdExporterAgentType AgentType = "mysqld_exporter"
+	QanAgentAgentType       AgentType = "qan-agent"
 )
 
 func (u AgentType) Value() (driver.Value, error) {
@@ -88,4 +89,32 @@ func (m *MySQLdExporter) DSN(service *RDSService) string {
 
 func (m *MySQLdExporter) NameForSupervisor() string {
 	return fmt.Sprintf("pmm-%s-%d", m.Type, *m.ListenPort)
+}
+
+//reform:agents
+type QanAgent struct {
+	ID           int32     `reform:"id,pk"`
+	Type         AgentType `reform:"type"`
+	RunsOnNodeID int32     `reform:"runs_on_node_id"`
+
+	ServiceUsername   *string `reform:"service_username"`
+	ServicePassword   *string `reform:"service_password"`
+	ListenPort        *uint16 `reform:"listen_port"`
+	QANDBInstanceUUID *string `reform:"qan_db_instance_uuid"` // MySQL instance UUID in QAN
+}
+
+func (q *QanAgent) DSN(service *RDSService) string {
+	cfg := mysql.Config{
+		User:   *q.ServiceUsername,
+		Passwd: *q.ServicePassword,
+		Net:    "tcp",
+		Addr:   net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port))),
+		// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
+		// TODO Other parameters?
+	}
+	return cfg.FormatDSN()
+}
+
+func (q *QanAgent) NameForSupervisor() string {
+	return fmt.Sprintf("pmm-%s-%d", q.Type, *q.ListenPort)
 }

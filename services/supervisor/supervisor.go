@@ -38,10 +38,18 @@ func New(l *logrus.Entry) *Supervisor {
 	return &Supervisor{}
 }
 
-func (s *Supervisor) Start(ctx context.Context, config *service.Config) error {
+func makeService(config *service.Config) (service.Service, error) {
 	config.Option = adjustOption(config.Option)
 
 	svc, err := service.New(new(program), config)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return svc, nil
+}
+
+func (s *Supervisor) Start(ctx context.Context, config *service.Config) error {
+	svc, err := makeService(config)
 	if err != nil {
 		return err
 	}
@@ -57,9 +65,7 @@ func (s *Supervisor) Start(ctx context.Context, config *service.Config) error {
 
 func (s *Supervisor) Stop(ctx context.Context, name string) error {
 	config := &service.Config{Name: name}
-	config.Option = adjustOption(config.Option)
-
-	svc, err := service.New(new(program), config)
+	svc, err := makeService(config)
 	if err != nil {
 		return err
 	}
@@ -71,4 +77,20 @@ func (s *Supervisor) Stop(ctx context.Context, name string) error {
 
 	logger.Get(ctx).WithField("component", "supervisor").Infof("Uninstalling %s", config.Name)
 	return errors.Wrapf(svc.Uninstall(), "failed to uninstall %s", config.Name)
+}
+
+func (s *Supervisor) Status(ctx context.Context, name string) error {
+	config := &service.Config{Name: name}
+	svc, err := makeService(config)
+	if err != nil {
+		return err
+	}
+
+	err = svc.Status()
+	if err == nil {
+		logger.Get(ctx).Infof("%s is running", name)
+	} else {
+		logger.Get(ctx).Warnf("%s is not running: %s", name, err)
+	}
+	return err
 }

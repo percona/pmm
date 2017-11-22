@@ -1,0 +1,40 @@
+
+docker.run.latest
+
+.. code-block:: bash
+
+   $ docker run -d \
+      -p 80:80 \
+      --volumes-from pmm-data \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server:latest
+
+(end-code-block)
+
+
+docker.run.disable-telemetry
+
+.. code-block:: bash
+
+   $ docker run ... -e DISABLE_TELEMETRY=true
+
+(end-code-block)
+
+
+docker.run.orchestrator-enabled
+
+.. code-block:: bash
+
+   $ docker run ... -e ORCHESTRATOR_ENABLED=true
+
+(end-code-block)
+
+
+docker.run.disable-updates
+
+.. code-block:: bash
+
+   $ docker run ... -e DISABLE_UPDATES=true
+
+(end-code-block)

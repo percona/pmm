@@ -43,18 +43,23 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/prometheus"
+	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/services/supervisor"
 	"github.com/percona/pmm-managed/utils/logger"
 	"github.com/percona/pmm-managed/utils/ports"
 )
 
-const awsCallTimeout = 5 * time.Second
+const (
+	awsCallTimeout        = 7 * time.Second
+	qanAgentPort   uint16 = 9000
+)
 
 type ServiceConfig struct {
 	MySQLdExporterPath string
 
 	DB            *reform.DB
 	Prometheus    *prometheus.Service
+	QAN           *qan.Service
 	Supervisor    *supervisor.Supervisor
 	PortsRegistry *ports.Registry
 }
@@ -380,63 +385,101 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 			return errors.WithStack(e)
 		}
 
-		// insert mysqld_exporter agent and association
-		port, e := svc.PortsRegistry.Reserve()
-		if e != nil {
-			return e
-		}
-		agent := &models.MySQLdExporter{
-			Type:         models.MySQLdExporterAgentType,
-			RunsOnNodeID: svc.pmmServerNode.ID,
-
-			ServiceUsername: &username,
-			ServicePassword: &password,
-			ListenPort:      &port,
-		}
-		if e := tx.Insert(agent); e != nil {
-			return errors.WithStack(e)
-		}
-		if e := tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); e != nil {
-			return errors.WithStack(e)
-		}
-
-		// start mysqld_exporter agent
-		if svc.MySQLdExporterPath != "" {
-			name := agent.NameForSupervisor()
-			cfg := &servicelib.Config{
-				Name:        name,
-				DisplayName: name,
-				Description: name,
-				Executable:  svc.MySQLdExporterPath,
-				Arguments: []string{
-					// TODO use proper flags
-					"-collect.auto_increment.columns",
-					"-collect.binlog_size",
-					"-collect.global_status",
-					"-collect.global_variables",
-					"-collect.info_schema.innodb_metrics",
-					"-collect.info_schema.processlist",
-					"-collect.info_schema.query_response_time",
-					"-collect.info_schema.tables",
-					"-collect.info_schema.tablestats",
-					"-collect.info_schema.userstats",
-					"-collect.perf_schema.eventswaits",
-					"-collect.perf_schema.file_events",
-					"-collect.perf_schema.indexiowaits",
-					"-collect.perf_schema.tableiowaits",
-					"-collect.perf_schema.tablelocks",
-					"-collect.slave_status",
-
-					fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
-				},
-				Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", agent.DSN(service))},
-			}
-			if e := svc.Supervisor.Start(ctx, cfg); e != nil {
+		// mysqld_exporter
+		{
+			// insert mysqld_exporter agent and association
+			port, e := svc.PortsRegistry.Reserve()
+			if e != nil {
 				return e
 			}
+			agent := &models.MySQLdExporter{
+				Type:         models.MySQLdExporterAgentType,
+				RunsOnNodeID: svc.pmmServerNode.ID,
+
+				ServiceUsername: &username,
+				ServicePassword: &password,
+				ListenPort:      &port,
+			}
+			if e := tx.Insert(agent); e != nil {
+				return errors.WithStack(e)
+			}
+			if e := tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); e != nil {
+				return errors.WithStack(e)
+			}
+
+			// start mysqld_exporter agent
+			if svc.MySQLdExporterPath != "" {
+				name := agent.NameForSupervisor()
+				cfg := &servicelib.Config{
+					Name:        name,
+					DisplayName: name,
+					Description: name,
+					Executable:  svc.MySQLdExporterPath,
+					Arguments: []string{
+						// TODO use proper flags
+						"-collect.auto_increment.columns",
+						"-collect.binlog_size",
+						"-collect.global_status",
+						"-collect.global_variables",
+						"-collect.info_schema.innodb_metrics",
+						"-collect.info_schema.processlist",
+						"-collect.info_schema.query_response_time",
+						"-collect.info_schema.tables",
+						"-collect.info_schema.tablestats",
+						"-collect.info_schema.userstats",
+						"-collect.perf_schema.eventswaits",
+						"-collect.perf_schema.file_events",
+						"-collect.perf_schema.indexiowaits",
+						"-collect.perf_schema.tableiowaits",
+						"-collect.perf_schema.tablelocks",
+						"-collect.slave_status",
+
+						fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
+					},
+					Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", agent.DSN(service))},
+				}
+				if e := svc.Supervisor.Start(ctx, cfg); e != nil {
+					return e
+				}
+			}
 		}
 
-		// TODO insert and start other agents
+		// qan-agent
+		{
+			// Despite running a single qan-agent process on PMM Server, we use one database record per MySQL instance
+			// to store username/password and UUID.
+
+			// insert qan-agent agent and association
+			agent := &models.QanAgent{
+				Type:         models.QanAgentAgentType,
+				RunsOnNodeID: svc.pmmServerNode.ID,
+
+				ServiceUsername: &username,
+				ServicePassword: &password,
+				ListenPort:      pointer.ToUint16(qanAgentPort),
+			}
+			if e := tx.Insert(agent); e != nil {
+				return errors.WithStack(e)
+			}
+			if e := tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); e != nil {
+				return errors.WithStack(e)
+			}
+
+			// start or reconfigure qan-agent
+			if svc.QAN != nil {
+				if e := svc.QAN.EnsureAgentIsRegistered(ctx); e != nil {
+					return e
+				}
+				if e := svc.QAN.AddMySQL(ctx, node, service, agent); e != nil {
+					return e
+				}
+
+				// re-save agent with set QANDBInstanceUUID
+				if e := tx.Save(agent); e != nil {
+					return errors.WithStack(e)
+				}
+			}
+		}
 
 		return svc.ApplyPrometheusConfiguration(ctx, tx.Querier)
 	})
@@ -501,7 +544,6 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 		agents = append(agents, agentsForService...)
 		agents = append(agents, agentsForNode...)
 		for _, agent := range agents {
-			var name string
 			switch agent.Type {
 			case models.MySQLdExporterAgentType:
 				a := models.MySQLdExporter{ID: agent.ID}
@@ -509,13 +551,20 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 					return errors.WithStack(e)
 				}
 				if svc.MySQLdExporterPath != "" {
-					name = a.NameForSupervisor()
+					if e := svc.Supervisor.Stop(ctx, a.NameForSupervisor()); e != nil {
+						return e
+					}
 				}
-			}
 
-			if name != "" {
-				if e := svc.Supervisor.Stop(ctx, name); e != nil {
-					return e
+			case models.QanAgentAgentType:
+				a := models.QanAgent{ID: agent.ID}
+				if e := tx.Reload(&a); e != nil {
+					return errors.WithStack(e)
+				}
+				if svc.QAN != nil {
+					if e := svc.QAN.RemoveMySQL(ctx, &a); e != nil {
+						return e
+					}
 				}
 			}
 		}

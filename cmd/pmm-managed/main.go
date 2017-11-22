@@ -47,6 +47,7 @@ import (
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/prometheus"
+	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/services/rds"
 	"github.com/percona/pmm-managed/services/supervisor"
 	"github.com/percona/pmm-managed/services/telemetry"
@@ -82,6 +83,7 @@ var (
 	dbPasswordF = flag.String("db-password", "pmm-managed", "Database password")
 
 	agentMySQLdExporterF = flag.String("agent-mysqld-exporter", "/usr/local/percona/pmm-client/mysqld_exporter", "mysqld_exporter path")
+	agentQANBaseF        = flag.String("agent-qan-base", "/usr/local/percona/qan-agent", "qan-agent installation base path")
 
 	debugF = flag.Bool("debug", false, "Enable debug logging")
 )
@@ -106,6 +108,12 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 	}
 	if err != nil {
 		l.Panicf("Prometheus service problem: %+v", err)
+	}
+
+	supervisor := supervisor.New(l)
+	qan, err := qan.NewService(ctx, *agentQANBaseF, supervisor)
+	if err != nil {
+		l.Panicf("QAN service problem: %+v", err)
 	}
 
 	// collect already reserved ports
@@ -133,7 +141,8 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 
 		DB:            db,
 		Prometheus:    prometheus,
-		Supervisor:    supervisor.New(l),
+		QAN:           qan,
+		Supervisor:    supervisor,
 		PortsRegistry: ports.NewRegistry(10000, 10999, reserved),
 	}
 	rds, err := rds.NewService(&rdsConfig)
