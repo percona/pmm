@@ -148,38 +148,40 @@ func (svc *Service) getOSUUID(ctx context.Context, agentUUID string) (string, er
 }
 
 // addInstance adds instance to QAN API.
-func (svc *Service) addInstance(ctx context.Context, instance *proto.Instance) (string, error) {
+// If successful, instance UUID will be set.
+func (svc *Service) addInstance(ctx context.Context, instance *proto.Instance) error {
 	b, err := json.Marshal(instance)
 	if err != nil {
-		return "", errors.WithStack(err)
+		return errors.WithStack(err)
 	}
 
 	url := svc.qanURL
 	url.Path = path.Join(url.Path, "instances")
 	req, err := http.NewRequest("POST", url.String(), bytes.NewReader(b))
 	if err != nil {
-		return "", errors.WithStack(err)
+		return errors.WithStack(err)
 	}
 	rb, _ := httputil.DumpRequestOut(req, true)
 	logger.Get(ctx).Debugf("addInstance request:\n\n%s\n", rb)
 
 	resp, err := svc.qanAPI.Post(url.String(), "application/json", bytes.NewReader(b))
 	if err != nil {
-		return "", errors.WithStack(err)
+		return errors.WithStack(err)
 	}
 	defer resp.Body.Close()
 
 	rb, _ = httputil.DumpResponse(resp, true)
 	if resp.StatusCode != 201 {
 		logger.Get(ctx).Errorf("addInstance response:\n\n%s\n", rb)
-		return "", errors.Errorf("unexpected QAN response status code %d", resp.StatusCode)
+		return errors.Errorf("unexpected QAN response status code %d", resp.StatusCode)
 	}
 	logger.Get(ctx).Debugf("addInstance response:\n\n%s\n", rb)
 
 	// Response Location header looks like this: http://127.0.0.1/qan-api/instances/6cea8824082d4ade682b94109664e6a9
 	// Extract UUID directly from it instead of following it.
 	parts := strings.Split(resp.Header.Get("Location"), "/")
-	return parts[len(parts)-1], nil
+	instance.UUID = parts[len(parts)-1]
+	return nil
 }
 
 func (svc *Service) ensureAgentRuns(ctx context.Context, qanAgent *models.QanAgent) error {
@@ -274,13 +276,12 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 		DSN:        sanitizeDSN(qanAgent.DSN(rdsService)),
 		Version:    *rdsService.EngineVersion,
 	}
-	instanceUUID, err := svc.addInstance(ctx, instance)
-	if err != nil {
+	if err = svc.addInstance(ctx, instance); err != nil {
 		return err
 	}
 
 	// we need real DSN (with password) for qan-agent to work, and it seems to be the only way to pass it
-	path := filepath.Join(svc.baseDir, "instance", fmt.Sprintf("%s.json", instanceUUID))
+	path := filepath.Join(svc.baseDir, "instance", fmt.Sprintf("%s.json", instance.UUID))
 	instance.DSN = qanAgent.DSN(rdsService)
 	b, err := json.MarshalIndent(instance, "", "    ")
 	if err != nil {
@@ -296,7 +297,7 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 
 	command := "StartTool"
 	config := map[string]interface{}{
-		"UUID":           instanceUUID,
+		"UUID":           instance.UUID,
 		"CollectFrom":    "perfschema",
 		"Interval":       60,
 		"ExampleQueries": true,
