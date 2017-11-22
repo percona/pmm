@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql" // register SQL driver
+	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -107,13 +108,15 @@ func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error
 		ParseTime:       true,
 	}).FormatDSN()
 	db, err := sql.Open("mysql", dsn)
-	if err != nil {
-		return nil, err
+	if err == nil {
+		db.SetMaxIdleConns(10)
+		db.SetMaxOpenConns(10)
+		db.SetConnMaxLifetime(0)
+		err = db.Ping()
 	}
-
-	db.SetMaxIdleConns(10)
-	db.SetMaxOpenConns(10)
-	db.SetConnMaxLifetime(0)
+	if err != nil {
+		return nil, errors.Wrap(err, "Failed to connect to MySQL")
+	}
 
 	if name == "" {
 		return db, nil
@@ -128,7 +131,7 @@ func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error
 		q = strings.TrimSpace(q)
 		logf("\n%s\n", q)
 		if _, err = db.Exec(q); err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "Failed to execute\n%s", q)
 		}
 	}
 
