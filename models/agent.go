@@ -97,9 +97,10 @@ type QanAgent struct {
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID int32     `reform:"runs_on_node_id"`
 
-	ServiceUsername *string `reform:"service_username"`
-	ServicePassword *string `reform:"service_password"`
-	ListenPort      *uint16 `reform:"listen_port"`
+	ServiceUsername   *string `reform:"service_username"`
+	ServicePassword   *string `reform:"service_password"`
+	ListenPort        *uint16 `reform:"listen_port"`
+	QANDBInstanceUUID *string `reform:"qan_db_instance_uuid"` // MySQL instance UUID in QAN
 }
 
 func (q *QanAgent) DSN(service *RDSService) string {

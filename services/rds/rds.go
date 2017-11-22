@@ -446,6 +446,9 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 
 		// qan-agent
 		{
+			// Despite running a single qan-agent process on PMM Server, we use one database record per MySQL instance
+			// to store username/password and UUID.
+
 			// insert qan-agent agent and association
 			agent := &models.QanAgent{
 				Type:         models.QanAgentAgentType,
@@ -470,9 +473,12 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 				if e := svc.QAN.AddMySQL(ctx, node, service, agent); e != nil {
 					return e
 				}
-			}
 
-			// TODO a.startQAN(agentID, qanConfig) ?
+				// re-save agent with set QANDBInstanceUUID
+				if e := tx.Save(agent); e != nil {
+					return errors.WithStack(e)
+				}
+			}
 		}
 
 		return svc.ApplyPrometheusConfiguration(ctx, tx.Querier)

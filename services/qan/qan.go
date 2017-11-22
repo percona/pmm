@@ -33,6 +33,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona/kardianos-service"
 	"github.com/percona/pmm/proto"
 	"github.com/percona/pmm/proto/config"
@@ -41,6 +42,12 @@ import (
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/supervisor"
 	"github.com/percona/pmm-managed/utils/logger"
+)
+
+// affects only initial agent registration; after this, it should be changed manually in the config file
+const (
+	// qanAgentLoggingLevel = "debug"
+	qanAgentLoggingLevel = "info"
 )
 
 type Service struct {
@@ -65,10 +72,10 @@ func NewService(ctx context.Context, baseDir string, supervisor *supervisor.Supe
 	return svc, nil
 }
 
-// EnsureAgentIsRegistered is registers qan-agent running on PMM Server node in QAN.
+// EnsureAgentIsRegistered registers a single qan-agent instance on PMM Server node in QAN.
 // It does nothing if agent is already registered.
 func (svc *Service) EnsureAgentIsRegistered(ctx context.Context) error {
-	// do nothing is qan-agent already registered
+	// do nothing if qan-agent is already registered
 	path := filepath.Join(svc.baseDir, "config", "agent.conf")
 	if _, err := os.Stat(path); err == nil {
 		logger.Get(ctx).Debugf("qan-agent already registered (%s exists).", path)
@@ -92,9 +99,9 @@ func (svc *Service) EnsureAgentIsRegistered(ctx context.Context) error {
 	}
 	logger.Get(ctx).Debugf("%s", b)
 
-	// make logging more verbose than default
+	// set logging level to the specified one, very useful for debugging
 	path = filepath.Join(svc.baseDir, "config", "log.conf")
-	return ioutil.WriteFile(path, []byte(`{"Level":"debug","Offline":"false"}`), 0666)
+	return ioutil.WriteFile(path, []byte(fmt.Sprintf(`{"Level":%q,"Offline":"false"}`, qanAgentLoggingLevel)), 0666)
 }
 
 // getAgentUUID returns agent UUID from the qan-agent configuration file.
@@ -184,22 +191,22 @@ func (svc *Service) addInstance(ctx context.Context, instance *proto.Instance) e
 	return nil
 }
 
-func (svc *Service) ensureAgentRuns(ctx context.Context, qanAgent *models.QanAgent) error {
-	name := qanAgent.NameForSupervisor()
-	err := svc.supervisor.Status(ctx, name)
+// ensureAgentRuns checks qan-agent process status and starts it if it is not configured or down.
+func (svc *Service) ensureAgentRuns(ctx context.Context, nameForSupervisor string, port uint16) error {
+	err := svc.supervisor.Status(ctx, nameForSupervisor)
 	if err != nil {
-		err = svc.supervisor.Stop(ctx, name)
+		err = svc.supervisor.Stop(ctx, nameForSupervisor)
 		if err != nil {
 			logger.Get(ctx).Warn(err)
 		}
 
 		config := &service.Config{
-			Name:        name,
-			DisplayName: name,
-			Description: name,
+			Name:        nameForSupervisor,
+			DisplayName: nameForSupervisor,
+			Description: nameForSupervisor,
 			Executable:  filepath.Join(svc.baseDir, "bin", "percona-qan-agent"),
 			Arguments: []string{
-				fmt.Sprintf("-listen=127.0.0.1:%d", *qanAgent.ListenPort),
+				fmt.Sprintf("-listen=127.0.0.1:%d", port),
 			},
 		}
 		err = svc.supervisor.Start(ctx, config)
@@ -259,6 +266,8 @@ func (svc *Service) sendQANCommand(ctx context.Context, agentUUID string, comman
 	return errors.Errorf("%s: failed to send command after %d attempts", command, attempts)
 }
 
+// AddMySQL adds MySQL instance to QAN, configuring and enabling it.
+// It sets MySQL instance UUID to qanAgent.QANDBInstanceUUID.
 func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsService *models.RDSService, qanAgent *models.QanAgent) error {
 	agentUUID, err := svc.getAgentUUID()
 	if err != nil {
@@ -279,6 +288,7 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 	if err = svc.addInstance(ctx, instance); err != nil {
 		return err
 	}
+	qanAgent.QANDBInstanceUUID = pointer.ToString(instance.UUID)
 
 	// we need real DSN (with password) for qan-agent to work, and it seems to be the only way to pass it
 	path := filepath.Join(svc.baseDir, "instance", fmt.Sprintf("%s.json", instance.UUID))
@@ -291,7 +301,7 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 		return errors.WithStack(err)
 	}
 
-	if err = svc.ensureAgentRuns(ctx, qanAgent); err != nil {
+	if err = svc.ensureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
 		return err
 	}
 

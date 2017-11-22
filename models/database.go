@@ -71,6 +71,7 @@ var databaseSchema = []string{
 		service_username VARCHAR(255),
 		service_password VARCHAR(255),
 		listen_port SMALLINT UNSIGNED,
+		qan_db_instance_uuid VARCHAR(255),
 
 		PRIMARY KEY (id),
 		FOREIGN KEY (runs_on_node_id) REFERENCES nodes (id)

@@ -266,7 +266,7 @@ func (v *qanAgentTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *qanAgentTableType) Columns() []string {
-	return []string{"id", "type", "runs_on_node_id", "service_username", "service_password", "listen_port"}
+	return []string{"id", "type", "runs_on_node_id", "service_username", "service_password", "listen_port", "qan_db_instance_uuid"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -286,19 +286,20 @@ func (v *qanAgentTableType) PKColumnIndex() uint {
 
 // QanAgentTable represents agents view or table in SQL database.
 var QanAgentTable = &qanAgentTableType{
-	s: parse.StructInfo{Type: "QanAgent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int32", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "RunsOnNodeID", PKType: "", Column: "runs_on_node_id"}, {Name: "ServiceUsername", PKType: "", Column: "service_username"}, {Name: "ServicePassword", PKType: "", Column: "service_password"}, {Name: "ListenPort", PKType: "", Column: "listen_port"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "QanAgent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", PKType: "int32", Column: "id"}, {Name: "Type", PKType: "", Column: "type"}, {Name: "RunsOnNodeID", PKType: "", Column: "runs_on_node_id"}, {Name: "ServiceUsername", PKType: "", Column: "service_username"}, {Name: "ServicePassword", PKType: "", Column: "service_password"}, {Name: "ListenPort", PKType: "", Column: "listen_port"}, {Name: "QANDBInstanceUUID", PKType: "", Column: "qan_db_instance_uuid"}}, PKFieldIndex: 0},
 	z: new(QanAgent).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s QanAgent) String() string {
-	res := make([]string, 6)
+	res := make([]string, 7)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
 	res[3] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
 	res[4] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
 	res[5] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
+	res[6] = "QANDBInstanceUUID: " + reform.Inspect(s.QANDBInstanceUUID, true)
 	return strings.Join(res, ", ")
 }
 
@@ -312,6 +313,7 @@ func (s *QanAgent) Values() []interface{} {
 		s.ServiceUsername,
 		s.ServicePassword,
 		s.ListenPort,
+		s.QANDBInstanceUUID,
 	}
 }
 
@@ -325,6 +327,7 @@ func (s *QanAgent) Pointers() []interface{} {
 		&s.ServiceUsername,
 		&s.ServicePassword,
 		&s.ListenPort,
+		&s.QANDBInstanceUUID,
 	}
 }
 
