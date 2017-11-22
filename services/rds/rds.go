@@ -544,7 +544,6 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 		agents = append(agents, agentsForService...)
 		agents = append(agents, agentsForNode...)
 		for _, agent := range agents {
-			var name string
 			switch agent.Type {
 			case models.MySQLdExporterAgentType:
 				a := models.MySQLdExporter{ID: agent.ID}
@@ -552,7 +551,9 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 					return errors.WithStack(e)
 				}
 				if svc.MySQLdExporterPath != "" {
-					name = a.NameForSupervisor()
+					if e := svc.Supervisor.Stop(ctx, a.NameForSupervisor()); e != nil {
+						return e
+					}
 				}
 
 			case models.QanAgentAgentType:
@@ -561,16 +562,9 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 					return errors.WithStack(e)
 				}
 				if svc.QAN != nil {
-					name = a.NameForSupervisor()
-				}
-
-				// TODO remove that instance from qan-agent
-				// TODO remove that instance from qan-api
-			}
-
-			if name != "" {
-				if e := svc.Supervisor.Stop(ctx, name); e != nil {
-					return e
+					if e := svc.QAN.RemoveMySQL(ctx, &a); e != nil {
+						return e
+					}
 				}
 			}
 		}

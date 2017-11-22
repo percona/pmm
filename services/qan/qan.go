@@ -168,10 +168,11 @@ func (svc *Service) addInstance(ctx context.Context, instance *proto.Instance) e
 	if err != nil {
 		return errors.WithStack(err)
 	}
+	req.Header.Set("Content-Type", "application/json")
 	rb, _ := httputil.DumpRequestOut(req, true)
 	logger.Get(ctx).Debugf("addInstance request:\n\n%s\n", rb)
 
-	resp, err := svc.qanAPI.Post(url.String(), "application/json", bytes.NewReader(b))
+	resp, err := svc.qanAPI.Do(req)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -188,6 +189,32 @@ func (svc *Service) addInstance(ctx context.Context, instance *proto.Instance) e
 	// Extract UUID directly from it instead of following it.
 	parts := strings.Split(resp.Header.Get("Location"), "/")
 	instance.UUID = parts[len(parts)-1]
+	return nil
+}
+
+// removeInstance removes instance from QAN API.
+func (svc *Service) removeInstance(ctx context.Context, uuid string) error {
+	url := svc.qanURL
+	url.Path = path.Join(url.Path, "instances", uuid)
+	req, err := http.NewRequest("DELETE", url.String(), nil)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	rb, _ := httputil.DumpRequestOut(req, true)
+	logger.Get(ctx).Debugf("removeInstance request:\n\n%s\n", rb)
+
+	resp, err := svc.qanAPI.Do(req)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	defer resp.Body.Close()
+
+	rb, _ = httputil.DumpResponse(resp, true)
+	if resp.StatusCode != 204 {
+		logger.Get(ctx).Errorf("removeInstance response:\n\n%s\n", rb)
+		return errors.Errorf("unexpected QAN response status code %d", resp.StatusCode)
+	}
+	logger.Get(ctx).Debugf("removeInstance response:\n\n%s\n", rb)
 	return nil
 }
 
@@ -318,4 +345,27 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 	}
 	logger.Get(ctx).Debugf("%s %s %s", agentUUID, command, b)
 	return svc.sendQANCommand(ctx, agentUUID, command, b)
+}
+
+func (svc *Service) RemoveMySQL(ctx context.Context, qanAgent *models.QanAgent) error {
+	// agent should be running to remove instance from it
+	if err := svc.ensureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
+		return err
+	}
+
+	agentUUID, err := svc.getAgentUUID()
+	if err != nil {
+		return err
+	}
+
+	command := "StopTool"
+	b := []byte(*qanAgent.QANDBInstanceUUID)
+	logger.Get(ctx).Debugf("%s %s %s", agentUUID, command, b)
+	if err := svc.sendQANCommand(ctx, agentUUID, command, b); err != nil {
+		return err
+	}
+
+	return svc.removeInstance(ctx, *qanAgent.QANDBInstanceUUID)
+
+	// we do not stop qan-agent even if it has zero MySQL instances now - to be safe
 }
