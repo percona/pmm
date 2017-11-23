@@ -1,3 +1,12 @@
+docker.run.metrics-memory
+
+.. code-block:: bash
+
+   $ docker run ... -e METRICS_MEMORY=4194304
+
+
+(end-code-block)
+
 
 docker.run.latest
 

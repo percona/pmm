@@ -5,10 +5,43 @@
 .. glossary::
    :sorted:
 
+   
+   METRICS_MEMORY (Option)
+
+      By default, Prometheus in |pmm-server| uses up to 768 MB of memory for storing
+      the most recently used data chunks.  Depending on the amount of data coming into
+      Prometheus, you may require a higher limit to avoid throttling data ingestion,
+      or allow less memory consumption if it is needed for other processes.
+
+      To set this environment variable, use the ``-e`` option along with
+      :program:`docker run`.  The value must be passed in kilobytes. For
+      example, to set the limit to 4 GB of memory run the following command:
+
+      .. include: .resources/code/sh.txt
+	 :start-after: docker.run.metrics-memory
+	 :end-before: (end-code-block)
+
+      .. note::
+
+	 The limit affects only memory reserved for data chunks.  Actual RAM
+	 usage by Prometheus is higher.  It is recommended to set this limit to
+	 roughly 2/3 of the total memory that you are planning to allow for
+	 Prometheus.
+
+	 For example, if you set the limit to 4 GB, then |prometheus| will use up
+	 to 6 GB of memory.
+
    DISABLE_UPDATES (Option)
 
       The |opt.disable-updates| option removes the :guilabel:`Update` button
       from the interface and prevents the system from being updated manually.
+
+      Set it to *true* when running a docker container:
+
+      .. include: .resources/code/sh.txt
+	 :start-after: docker.run.disable-updates
+	 :end-before: (end-code-block)
+
    
    Telemetry
 
@@ -24,6 +57,11 @@
 
       You may disable telemetry :ref:`by passing an additional parameter
       <pmm/docker.additional_parameters>` to |docker|.
+
+      .. include:: .resources/code/sh.txt
+	 :start-after: docker.run.disable-telemetry
+	 :end-before: (end-code-block)
+
 
    External Monitoring Service
 
