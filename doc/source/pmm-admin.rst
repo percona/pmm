@@ -280,7 +280,7 @@ For more information, run
 Adding |mysql| query analytics service
 --------------------------------------------------------------------------------
 
-Use the |opt.mysql-queries| alias to enable MySQL query analytics.
+Use the |opt.mysql-queries| alias to enable |mysql| query analytics.
 
 .. rubric:: USAGE
 
@@ -289,7 +289,7 @@ Use the |opt.mysql-queries| alias to enable MySQL query analytics.
    pmm-admin add mysql:queries [NAME] [OPTIONS]
 
 This creates the ``pmm-mysql-queries-0`` service
-that is able to collect QAN data for multiple remote MySQL server instances.
+that is able to collect QAN data for multiple remote |mysql| server instances.
 
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
@@ -299,13 +299,13 @@ that is able to collect QAN data for multiple remote MySQL server instances.
 The following options can be used with the ``mysql:queries`` alias:
 
 ``--create-user``
-  Create a dedicated MySQL user for |pmm-client| (named ``pmm``).
+  Create a dedicated |mysql| user for |pmm-client| (named ``pmm``).
 
 ``--create-user-maxconn``
-  Specify maximum connections for the dedicated MySQL user (default is 10).
+  Specify maximum connections for the dedicated |mysql| user (default is 10).
 
 ``--create-user-password``
-  Specify password for the dedicated MySQL user.
+  Specify password for the dedicated |mysql| user.
 
 ``--defaults-file``
   Specify path to :file:`my.cnf`.
@@ -314,16 +314,16 @@ The following options can be used with the ``mysql:queries`` alias:
   Disable collection of query examples.
 
 ``--force``
-  Force to create or update the dedicated MySQL user.
+  Force to create or update the dedicated |mysql| user.
 
 ``--host``
-  Specify the MySQL host name.
+  Specify the |mysql| host name.
 
 ``--password``
-  Specify the password for MySQL user with admin privileges.
+  Specify the password for |mysql| user with admin privileges.
 
 ``--port``
-  Specify the MySQL instance port.
+  Specify the |mysql| instance port.
 
 ``--query-source``
   Specify the source of data:
@@ -333,10 +333,10 @@ The following options can be used with the ``mysql:queries`` alias:
   * ``perfschema``: Use Performance Schema.
 
 ``--socket``
-  Specify the MySQL instance socket file.
+  Specify the |mysql| instance socket file.
 
 ``--user``
-  Specify the name of MySQL user with admin privileges.
+  Specify the name of |mysql| user with admin privileges.
 
 You can also use
 :ref:`global options that apply to any other command <pmm-admin.options>`,
@@ -351,9 +351,9 @@ will attempt to automatically detect the local |mysql| instance and
 information, if it cannot be detected automatically.
 
 You can also specify the |opt.create-user| option to create a dedicated
-``pmm`` user on the MySQL instance that you want to monitor.
+``pmm`` user on the |mysql| instance that you want to monitor.
 This user will be given all the necessary privileges for monitoring,
-and is recommended over using the MySQL superuser.
+and is recommended over using the |mysql| superuser.
 
 For example, to set up remote monitoring of QAN data on a |mysql| server
 located at 192.168.200.2, use a command similar to the following:
@@ -363,7 +363,7 @@ located at 192.168.200.2, use a command similar to the following:
    sudo pmm-admin add mysql:queries --user root --password root --host 192.168.200.2 --create-user
 
 QAN can use either the slow query log or Performance Schema as the source.
-By default, it chooses the slow query log for a local MySQL instance
+By default, it chooses the slow query log for a local |mysql| instance
 and Performance Schema otherwise.
 For more information about the differences, see :ref:`perf-schema`.
 
@@ -380,7 +380,7 @@ For more information, run
 Adding |mysql| metrics service
 --------------------------------------------------------------------------------
 
-Use the |opt.mysql-metrics| alias to enable MySQL metrics monitoring.
+Use the |opt.mysql-metrics| alias to enable |mysql| metrics monitoring.
 
 .. rubric:: USAGE
 
@@ -389,7 +389,7 @@ Use the |opt.mysql-metrics| alias to enable MySQL metrics monitoring.
    pmm-admin add mysql:metrics [NAME] [OPTIONS]
 
 This creates the ``pmm-mysql-metrics-42002`` service
-that collects MySQL instance metrics.
+that collects |mysql| instance metrics.
 
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
@@ -1007,7 +1007,7 @@ To see which services are enabled, run |pmm-admin.list|_.
 
       $ pmm-admin rm --all
 
-* To remove all services related to MySQL:
+* To remove all services related to |mysql|:
 
    .. code-block:: bash
 
@@ -1089,7 +1089,7 @@ To see which services are available, run |pmm-admin.list|_.
 
       sudo pmm-admin restart --all
 
-* To restart all services related to MySQL:
+* To restart all services related to |mysql|:
 
    .. code-block:: bash
 
@@ -1127,7 +1127,7 @@ but you can use :ref:`global options that apply to any other command
 .. rubric:: OUTPUT
 
 This command prints HTTP authentication credentials
-and the password for the ``pmm`` user that is created on the MySQL instance
+and the password for the ``pmm`` user that is created on the |mysql| instance
 if you specify the |opt.create-user| option
 when :ref:`adding a service <pmm-admin.add>`.
 
@@ -1244,13 +1244,13 @@ To see which services are available, run |pmm-admin.list|_.
 
       sudo pmm-admin stop --all
 
-* To stop all services related to MySQL:
+* To stop all services related to |mysql|:
 
    .. code-block:: bash
 
       sudo pmm-admin stop mysql
 
-* To stop only MongoDB metrics service:
+* To stop only |mongodb| metrics service:
 
    .. code-block:: bash
 
