@@ -20,7 +20,7 @@ For more information about using |docker|, see the `Docker Docs`_.
       may be outdated and cause errors.
 
 .. note:: Make sure that the firewall and routing rules of the host
-   do not constrain the |docker| container.
+n   do not constrain the |docker| container.
    For more information, see :ref:`troubleshoot-connection`.
 
 Step 1. Pull the PMM Server Image
@@ -122,7 +122,7 @@ Additional parameters
 When running the |pmm-server|, you may pass additional parameters to
 the |docker| *run* subcommand.
 
-.. rubric:: To enable Orchestrator
+.. rubric:: **To enable Orchestrator**
 
 By default, Orchestrator_ is disabled. To enable it, set the
  |opt.orchestrator-enabled| option to **true**.
@@ -131,7 +131,7 @@ By default, Orchestrator_ is disabled. To enable it, set the
    :start-after: docker.run.orchestrator-enabled
    :end-before: (end-code-block)
 
-.. rubric:: To disable telemetry
+.. rubric:: **To disable telemetry**
 
 With :term:`telemetry` enabled, your |pmm-server| sends some statistics to `v.percona.com`_
 every 24 hours. This statistics includes the following details:
@@ -149,7 +149,7 @@ when running your |docker| container:
    :start-after: docker.run.disable-telemetry
    :end-before: (end-code-block)
 
-.. rubric:: To disable updates
+.. rubric:: **To disable updates**
 
 To update your |pmm| from web interface you only need to click the
 :guilabel:`Update` on the home page. The |opt.disable-updates| option is useful
