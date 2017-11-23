@@ -39,13 +39,14 @@ get detailed metrics for them.
 QAN displays its metrics in both visual and numeric form: the performance
 related characteristics appear as plotted graphics with summaries.
 
-.. figure:: images/pmm.home-page.1.png
-   :width: 50%
+.. .. figure:: images/pmm.home-page.1.png
+..   :width: 50%
+..
+..   Starting with version 1.5 of |pmm|, |qan| is integrated into |grafana|. It is
+..   available from the Home page as a separate dashboard.
 
-   Starting with version 1.5 of |pmm|, |qan| is integrated into |grafana|. It is
-   available from the Home page as a separate dashboard.
-
-.. rubric:: Open |qan| from the |pmm| Home Page
+Open |qan| from the |pmm| Home Page
+--------------------------------------------------------------------------------
    
 To start working with |qan|, open the list of dashboards on the PMM
 home page. Then, select a host in the :guilabel:`Host` field at the top of the page from the list of
@@ -67,7 +68,8 @@ summary table.
    The query summary table shows the monitored queries from the selected
    database.
 
-.. rubric:: Filtering Queries
+Filtering Queries
+--------------------------------------------------------------------------------
 
 If you need to limit the list of available queries to only those that you are
 interested in, use the *Query Filter* field located above the query summary
@@ -97,7 +99,8 @@ range.
 
    A list of queries
 
-.. rubric:: Selecting Time or Date Range
+Selecting Time or Date Range
+--------------------------------------------------------------------------------
 
 The query metrics that appear in *QAN* are computed based on a time period or a
 range of dates. The default value is *the last hour*. To set another range use
@@ -111,7 +114,8 @@ the *range selection tool* located at the top of your *QAN* page.
 The tool consists of two parts. The *Quick ranges* offers frequently used time
 ranges.. The date picker sets a range of dates.
 
-.. rubric:: Totals of the Query Summary
+Totals of the Query Summary
+--------------------------------------------------------------------------------
 
 The first line of the summary table contains the totals of the *load*, *count*, and
 *latency* for all queries that were run on the selected database server during
@@ -120,7 +124,7 @@ the time period that you've specified.
 .. figure:: images/pmm.qan.query-summary-table.totals.1.png
    :width: 50%
 	   
-   The totals appear at the top of the query summary table.
+   *The totals appear at the top of the query summary table.*
 
 The *load* is the amount of time that the database server spent during the
 selected time or date range running all queries.
@@ -131,7 +135,8 @@ time or date range.
 The *latency* is the average amount of time that it took the database server to
 retrieve and return the data.
 
-.. rubric:: Queries in the Query Summary Table
+Queries in the Query Summary Table
+--------------------------------------------------------------------------------
 
 Each row in the query summary table contains information about a single
 query. Each column is query attribute. The *Abstract* attribute is an essential
@@ -145,7 +150,8 @@ form. The summary values have two parts. The average value of the metric and its
 percentage with respect to the corresponding total value at the top of the query
 summary table.
 
-.. rubric:: Viewing a Specific Value of a Metric
+Viewing a Specific Value of a Metric
+--------------------------------------------------------------------------------
 
 If you hover the cursor over one of the metrics in a query, you can see a
 concrete value at the point where your cursor is located. Move the cursor along
@@ -154,9 +160,10 @@ the plotted line to watch how the value is changing.
 .. figure:: images/pmm.qan.query-summary-table.1.png
    :width: 50%
 
-   Hover the cursor to see a value at the point.
+   *Hover the cursor to see a value at the point.*
 
-.. rubric:: Zooming into a Query
+Zooming into a Query
+--------------------------------------------------------------------------------
 
 Click one of the queries to zoom it in. QAN displays detailed information about
 the query in the :term:`query metrics summary table` below the :term:`query summary
@@ -166,9 +173,10 @@ also contains details about the database and tables which are used in the query.
 .. figure:: images/pmm.qan.query-metrics.1.png
    :width: 50%
 
-   Select a query from the query summary table to open its metrics.
+   *Select a query from the query summary table to open its metrics.*
 
-.. rubric:: Query Section
+Query Section
+--------------------------------------------------------------------------------
    
 In addition to the metrics in the :term:`query metrics summary table`,
 :program:`QAN` displays more information about the query itself. The ``Query``
@@ -178,9 +186,10 @@ the query.
 .. figure:: images/pmm.qan.query.1.png
    :width: 50%
 
-   The Query section shows the SQL statement for the selected query.
+   *The Query section shows the SQL statement for the selected query.*
 
-.. rubric:: Explain Section
+Explain Section
+--------------------------------------------------------------------------------
 
 The ``Explain`` section enables you to run :command:`EXPLAIN` on the selected query
 directly from the PMM web interface (simply specify the database).
@@ -195,7 +204,7 @@ format presents the output of :command:`EXPLAIN` as a JSON document.
 .. figure:: images/pmm.qan.explain.1.png
    :width: 50%
 
-   The two output formats of the EXPLAIN command.
+   *The two output formats of the EXPLAIN command.*
 
 Note that the :command:`:EXPLAIN` command only works with the following statements:
 
@@ -209,7 +218,8 @@ If you are viewing the details of a query of another type, the
 ``Explain`` section will not contain any data.
 
 
-.. rubric:: Table Info Section
+Table Info Section
+--------------------------------------------------------------------------------
 
 At the bottom, you can run Table Info for the selected query.  This
 enables you to get ``SHOW CREATE TABLE``, ``SHOW INDEX``, and ``SHOW
@@ -227,7 +237,7 @@ status, and log for the selected database instance.
 
 .. SCREENSHOT: Settings button
 
-.. rubric:: Settings Tab
+**Settings Tab**
 
 The :guilabel:`Settings` tab displays the essential configuration settings of
 the database server selected from the :guilabel:`Databases` list. From this tab
@@ -242,10 +252,10 @@ schema*. For this, change the value of the *Collect from* field accordingly.
 .. figure:: images/pmm.qan.settings.1.png
    :width: 50%
 	   
-   The Settings tab to view the essential settings of the selected database
-   server.
+   *The Settings tab to view the essential settings of the selected database
+   server.*
 
-.. rubric:: Status Tab
+**Status Tab**
 
 The :guilabel:`Status` tab contains detailed information about the current
 status of the monitored database server. QAN collects this information from the
@@ -268,7 +278,7 @@ database server directly. For example, in case of a MySQL server, the
       The System summary and Database summary (showing only fragments of both
       sections)
 
-.. rubric:: Log Tab
+**Log Tab**
 
 The :guilabel:`Log` tab contains the latest version of the monitored log, such
 as *slow log*. At the top of this tab, you may notice when exactly the snapshot
@@ -294,7 +304,8 @@ will provide the most amount of information with the lowest overhead.
 Otherwise, using :ref:`Performance Schema <perf-schema-settings>`
 will likely provide better results.
 
-.. rubric:: To use Performance Schema:
+**To use Performance Schema:**
+
 
 1. Make sure that the ``performance_schema`` variable is set to ``ON``:
 
@@ -353,7 +364,7 @@ complex object is stored together.
 .. figure:: images/pmm.qan.query-summary-table.mongodb.1.png
    :width: 50%
 
-   A list of queries from a MongoDB host
+   *A list of queries from a MongoDB host*
 
 QAN supports monitoring MongoDB queries. Although MongoDB is not a relational
 database management system, you analyze its databases and collections in the
@@ -426,8 +437,8 @@ information* button the description disappears.
 .. figure:: images/pmm.metrics-monitor.description.1.png
    :width: 50%
 
-   Graph descriptions provide more information about a graph without claiming
-   any space in the interface.
+   *Graph descriptions provide more information about a graph without claiming
+   any space in the interface.*
 
 MySQL MyRocks dashboard
 --------------------------------------------------------------------------------
@@ -445,7 +456,7 @@ information for this dashboard comes from the *information schema* tables.
 .. figure:: images/pmm.metrics-monitor.mysql-myrocks-metrics.1.png
    :width: 50%
 	    
-   The MySQL MyRocks metrics dashboard
+   *The MySQL MyRocks metrics dashboard*
 
 .. seealso::
 

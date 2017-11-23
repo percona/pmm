@@ -19,8 +19,10 @@ For more information about using |docker|, see the `Docker Docs`_.
       The ones provided via ``apt`` or ``yum``
       may be outdated and cause errors.
 
-.. note:: Make sure that the firewall and routing rules of the host
-n   do not constrain the |docker| container.
+.. note::
+   
+   Make sure that the firewall and routing rules of the host
+   do not constrain the |docker| container.
    For more information, see :ref:`troubleshoot-connection`.
 
 Step 1. Pull the PMM Server Image
@@ -156,7 +158,7 @@ To update your |pmm| from web interface you only need to click the
 if updating is not desirable. Set it to **true** when running |pmm| in
 the |docker| container.
 
-.. include: ../../.resources/code/sh.txt
+.. include:: ../../.resources/code/sh.txt
    :start-after: docker.run.disable-updates
    :end-before: (end-code-block)
 
