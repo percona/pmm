@@ -183,8 +183,8 @@ to run your instance. Create a user name, assign a password, and click
 
 .. figure:: ../../images/aws-marketplace.pmm.ec2.dialog.user-name.png
 
-   p*Create credentials for your instance.*
-nnp
+   *Create credentials for your instance.*
+
 The system authentication window then appears for you to use
 your newly created credentials. Enter the user name and password that you have
 just created. Your instance is now ready.
@@ -200,8 +200,6 @@ just created. Your instance is now ready.
 	     
    Make sure to replace the user name ``ec2-user`` used in this document with
    ``admin``.
-
-
 
 Next Steps
 ==========
@@ -219,5 +217,106 @@ on all database hosts that you want to monitor.
    - `Elastic IP Addresses <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html>`_.
    - `Amazon EC2 Security Groups for Linux Instances <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`_.
    - `Connecting to Your Linux Instance Using SSH <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html>`_ (use ``admin`` as the user name)
+
+Running PMM Server Using Amazon Machine Images
+==============================================
+
+Percona provides public Amazon Machine Images (AMI) with *PMM Server*
+in all regions where Amazon Web Services (AWS) is available.
+You can launch an instance using the web console
+for the corresponding image:
+ 
+.. list-table::
+   :header-rows: 1
+
+   * - Region
+     - String
+     - AMI ID
+   * - US East (N. Virginia)
+     - ``us-east-1``
+     - `ami-dd5f83a7 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-dd5f83a7>`_
+   * - US East (Ohio)
+     - ``us-east-2``
+     - `ami-b9d4fadc <https://console.aws.amazon.com/ec2/v2/home?region=us-east-2#Images:visibility=public-images;imageId=ami-b9d4fadc>`_
+   * - US West (N. California)
+     - ``us-west-1``
+     - `ami-5290a832 <https://console.aws.amazon.com/ec2/v2/home?region=us-west-1#Images:visibility=public-images;imageId=ami-5290a832>`_
+   * - US West (Oregon)
+     - ``us-west-2``
+     - `ami-89e834f1 <https://console.aws.amazon.com/ec2/v2/home?region=us-west-2#Images:visibility=public-images;imageId=ami-89e834f1>`_
+   * - Canada (Central)
+     - ``ca-central-1``
+     - `ami-f07ac194 <https://console.aws.amazon.com/ec2/v2/home?region=ca-central-1#Images:visibility=public-images;imageId=ami-f07ac194>`_
+   * - EU (Ireland)
+     - ``eu-west-1``
+     - `ami-ef73c596 <https://console.aws.amazon.com/ec2/v2/home?region=eu-west-1#Images:visibility=public-images;imageId=ami-ef73c596>`_
+   * - EU (Frankfurt)
+     - ``eu-central-1``
+     - `ami-5a2aa835 <https://console.aws.amazon.com/ec2/v2/home?region=eu-central-1#Images:visibility=public-images;imageId=ami-5a2aa835>`_
+   * - EU (London)
+     - ``eu-west-2``
+     - `ami-42e1fe26 <https://console.aws.amazon.com/ec2/v2/home?region=eu-west-2#Images:visibility=public-images;imageId=ami-42e1fe26>`_
+   * - Asia Pacific (Singapore)
+     - ``ap-southeast-1``
+     - `ami-42c69021 <https://console.aws.amazon.com/ec2/v2/home?region=ap-southeast-1#Images:visibility=public-images;imageId=ami-42c69021>`_
+   * - Asia Pacific (Sydney)
+     - ``ap-southeast-2``
+     - `ami-b322c8d1 <https://console.aws.amazon.com/ec2/v2/home?region=ap-southeast-2#Images:visibility=public-images;imageId=ami-b322c8d1>`_
+   * - Asia Pacific (Seoul)
+     - ``ap-northeast-2``
+     - `ami-df7ed9b1 <https://console.aws.amazon.com/ec2/v2/home?region=ap-northeast-2#Images:visibility=public-images;imageId=ami-df7ed9b1>`_
+   * - Asia Pacific (Tokyo)
+     - ``ap-northeast-1``
+     - `ami-b2912dd4 <https://console.aws.amazon.com/ec2/v2/home?region=ap-northeast-1#Images:visibility=public-images;imageId=ami-b2912dd4>`_
+   * - Asia Pacific (Mumbai)
+     - ``ap-south-1``
+     - `ami-142d637b <https://console.aws.amazon.com/ec2/v2/home?region=ap-south-1#Images:visibility=public-images;imageId=ami-142d637b>`_
+   * - South America (São Paulo)
+     - ``sa-east-1``
+     - `ami-74c98c18 <https://console.aws.amazon.com/ec2/v2/home?region=sa-east-1#Images:visibility=public-images;imageId=ami-74c98c18>`_
+
+
+Running from Command Line
+--------------------------------------------------------------------------------
+
+1. Launch the *PMM Server* instance using the ``run-instances`` command
+   for the corresponding region and image.
+   For example:
+
+   .. code-block:: bash
+
+      aws ec2 run-instances \
+        --image-id ami-1f6efb65 \
+        --security-group-ids sg-3b6e5e46 \
+        --instance-type t2.micro \
+        --subnet-id subnet-4765a930 \
+        --region us-east-1 \
+        --key-name SSH-KEYNAME
+
+   .. note:: Providing the public SSH key is optional.
+      Specify it if you want SSH access to *PMM Server*.
+
+#. Set a name for the instance using the ``create-tags`` command.
+   For example:
+
+   .. code-block:: bash
+
+      aws ec2 create-tags  \
+        --resources i-XXXX-INSTANCE-ID-XXXX \
+        --region us-east-1 \
+        --tags Key=Name,Value=OWNER_NAME-pmm
+
+#. Get the IP address for accessing *PMM Server* from console output
+   using the ``get-console-output`` command.
+   For example:
+
+   .. code-block:: bash
+
+      aws ec2 get-console-output \
+        --instance-id i-XXXX-INSTANCE-ID-XXXX \
+        --region us-east-1 \
+        --output text \
+        | grep cloud-init
+
 
 .. include:: ../../.resources/name.txt
