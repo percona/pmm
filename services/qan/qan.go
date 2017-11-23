@@ -54,54 +54,56 @@ type Service struct {
 	baseDir    string
 	supervisor *supervisor.Supervisor
 	qanAPI     *http.Client
-	qanURL     url.URL
 }
 
 func NewService(ctx context.Context, baseDir string, supervisor *supervisor.Supervisor) (*Service, error) {
-	u, err := getQanURL(ctx)
-	if err != nil {
-		return nil, err
-	}
-
 	svc := &Service{
 		baseDir:    baseDir,
 		supervisor: supervisor,
 		qanAPI:     new(http.Client),
-		qanURL:     *u,
 	}
 	return svc, nil
 }
 
-// EnsureAgentIsRegistered registers a single qan-agent instance on PMM Server node in QAN.
-// It does nothing if agent is already registered.
-func (svc *Service) EnsureAgentIsRegistered(ctx context.Context) error {
-	// do nothing if qan-agent is already registered
+// ensureAgentIsRegistered registers a single qan-agent instance on PMM Server node in QAN.
+// It does not re-register or change configuration if agent is already registered.
+// QAN API URL is always returned when no error is encountered.
+func (svc *Service) ensureAgentIsRegistered(ctx context.Context) (*url.URL, error) {
+	qanURL, err := getQanURL(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// do not change anything if qan-agent is already registered
 	path := filepath.Join(svc.baseDir, "config", "agent.conf")
 	if _, err := os.Stat(path); err == nil {
 		logger.Get(ctx).Debugf("qan-agent already registered (%s exists).", path)
-		return nil
+		return qanURL, nil
 	}
 
 	path = filepath.Join(svc.baseDir, "bin", "percona-qan-agent-installer")
 	args := []string{"-debug", "-hostname=pmm-server"}
-	if svc.qanURL.User != nil && svc.qanURL.User.Username() != "" {
-		args = append(args, "-server-user="+svc.qanURL.User.Username())
-		pass, _ := svc.qanURL.User.Password()
+	if qanURL.User != nil && qanURL.User.Username() != "" {
+		args = append(args, "-server-user="+qanURL.User.Username())
+		pass, _ := qanURL.User.Password()
 		args = append(args, "-server-pass="+pass)
 	}
-	args = append(args, svc.qanURL.String()) // full URL, with username and password (yes, again! that's how installer is written)
+	args = append(args, qanURL.String()) // full URL, with username and password (yes, again! that's how installer is written)
 	cmd := exec.Command(path, args...)
 	logger.Get(ctx).Debug(strings.Join(cmd.Args, " "))
 	b, err := cmd.CombinedOutput()
 	if err != nil {
 		logger.Get(ctx).Infof("%s", b)
-		return errors.Wrap(err, "failed to register qan-agent")
+		return nil, errors.Wrap(err, "failed to register qan-agent")
 	}
 	logger.Get(ctx).Debugf("%s", b)
 
 	// set logging level to the specified one, very useful for debugging
 	path = filepath.Join(svc.baseDir, "config", "log.conf")
-	return ioutil.WriteFile(path, []byte(fmt.Sprintf(`{"Level":%q,"Offline":"false"}`, qanAgentLoggingLevel)), 0666)
+	if err = ioutil.WriteFile(path, []byte(fmt.Sprintf(`{"Level":%q,"Offline":"false"}`, qanAgentLoggingLevel)), 0666); err != nil {
+		return nil, errors.Wrap(err, "failed to write log.conf")
+	}
+	return qanURL, nil
 }
 
 // getAgentUUID returns agent UUID from the qan-agent configuration file.
@@ -124,8 +126,8 @@ func (svc *Service) getAgentUUID() (string, error) {
 }
 
 // getOSUUID returns OS UUID from the QAN API.
-func (svc *Service) getOSUUID(ctx context.Context, agentUUID string) (string, error) {
-	url := svc.qanURL
+func (svc *Service) getOSUUID(ctx context.Context, qanURL *url.URL, agentUUID string) (string, error) {
+	url := *qanURL
 	url.Path = path.Join(url.Path, "instances", agentUUID)
 	req, err := http.NewRequest("GET", url.String(), nil)
 	if err != nil {
@@ -156,13 +158,13 @@ func (svc *Service) getOSUUID(ctx context.Context, agentUUID string) (string, er
 
 // addInstance adds instance to QAN API.
 // If successful, instance UUID will be set.
-func (svc *Service) addInstance(ctx context.Context, instance *proto.Instance) error {
+func (svc *Service) addInstance(ctx context.Context, qanURL *url.URL, instance *proto.Instance) error {
 	b, err := json.Marshal(instance)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	url := svc.qanURL
+	url := *qanURL
 	url.Path = path.Join(url.Path, "instances")
 	req, err := http.NewRequest("POST", url.String(), bytes.NewReader(b))
 	if err != nil {
@@ -193,8 +195,8 @@ func (svc *Service) addInstance(ctx context.Context, instance *proto.Instance) e
 }
 
 // removeInstance removes instance from QAN API.
-func (svc *Service) removeInstance(ctx context.Context, uuid string) error {
-	url := svc.qanURL
+func (svc *Service) removeInstance(ctx context.Context, qanURL *url.URL, uuid string) error {
+	url := *qanURL
 	url.Path = path.Join(url.Path, "instances", uuid)
 	req, err := http.NewRequest("DELETE", url.String(), nil)
 	if err != nil {
@@ -241,7 +243,7 @@ func (svc *Service) ensureAgentRuns(ctx context.Context, nameForSupervisor strin
 	return err
 }
 
-func (svc *Service) sendQANCommand(ctx context.Context, agentUUID string, command string, data []byte) error {
+func (svc *Service) sendQANCommand(ctx context.Context, qanURL *url.URL, agentUUID string, command string, data []byte) error {
 	cmd := proto.Cmd{
 		User:      "pmm-managed",
 		AgentUUID: agentUUID,
@@ -258,7 +260,7 @@ func (svc *Service) sendQANCommand(ctx context.Context, agentUUID string, comman
 	// It takes a few seconds for agent to connect to QAN API once it is started via service manager.
 	// QAN API fails to start/stop unconnected agent for QAN, so we retry the request when getting 404 response.
 	const attempts = 10
-	url := svc.qanURL
+	url := *qanURL
 	url.Path = path.Join(url.Path, "agents", agentUUID, "cmd")
 	for i := 0; i < attempts; i++ {
 		req, err := http.NewRequest("PUT", url.String(), bytes.NewReader(b))
@@ -296,11 +298,16 @@ func (svc *Service) sendQANCommand(ctx context.Context, agentUUID string, comman
 // AddMySQL adds MySQL instance to QAN, configuring and enabling it.
 // It sets MySQL instance UUID to qanAgent.QANDBInstanceUUID.
 func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsService *models.RDSService, qanAgent *models.QanAgent) error {
+	qanURL, err := svc.ensureAgentIsRegistered(ctx)
+	if err != nil {
+		return err
+	}
+
 	agentUUID, err := svc.getAgentUUID()
 	if err != nil {
 		return err
 	}
-	osUUID, err := svc.getOSUUID(ctx, agentUUID)
+	osUUID, err := svc.getOSUUID(ctx, qanURL, agentUUID)
 	if err != nil {
 		return err
 	}
@@ -312,7 +319,7 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 		DSN:        sanitizeDSN(qanAgent.DSN(rdsService)),
 		Version:    *rdsService.EngineVersion,
 	}
-	if err = svc.addInstance(ctx, instance); err != nil {
+	if err = svc.addInstance(ctx, qanURL, instance); err != nil {
 		return err
 	}
 	qanAgent.QANDBInstanceUUID = pointer.ToString(instance.UUID)
@@ -344,10 +351,15 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 		return errors.WithStack(err)
 	}
 	logger.Get(ctx).Debugf("%s %s %s", agentUUID, command, b)
-	return svc.sendQANCommand(ctx, agentUUID, command, b)
+	return svc.sendQANCommand(ctx, qanURL, agentUUID, command, b)
 }
 
 func (svc *Service) RemoveMySQL(ctx context.Context, qanAgent *models.QanAgent) error {
+	qanURL, err := svc.ensureAgentIsRegistered(ctx)
+	if err != nil {
+		return err
+	}
+
 	// agent should be running to remove instance from it
 	if err := svc.ensureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
 		return err
@@ -361,11 +373,11 @@ func (svc *Service) RemoveMySQL(ctx context.Context, qanAgent *models.QanAgent) 
 	command := "StopTool"
 	b := []byte(*qanAgent.QANDBInstanceUUID)
 	logger.Get(ctx).Debugf("%s %s %s", agentUUID, command, b)
-	if err := svc.sendQANCommand(ctx, agentUUID, command, b); err != nil {
+	if err := svc.sendQANCommand(ctx, qanURL, agentUUID, command, b); err != nil {
 		return err
 	}
 
-	return svc.removeInstance(ctx, *qanAgent.QANDBInstanceUUID)
+	return svc.removeInstance(ctx, qanURL, *qanAgent.QANDBInstanceUUID)
 
 	// we do not stop qan-agent even if it has zero MySQL instances now - to be safe
 }

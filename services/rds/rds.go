@@ -467,9 +467,6 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 
 			// start or reconfigure qan-agent
 			if svc.QAN != nil {
-				if e := svc.QAN.EnsureAgentIsRegistered(ctx); e != nil {
-					return e
-				}
 				if e := svc.QAN.AddMySQL(ctx, node, service, agent); e != nil {
 					return e
 				}
