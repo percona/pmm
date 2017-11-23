@@ -8,6 +8,22 @@ Percona Monitoring and Management |release|
 
 Percona announces the release of Percona Monitoring and Management |release|.
 
+- Enhanced support for MySQL on Amazon RDS and Amazon Aurora–
+  Dedicated Amazon Aurora dashboard offers maximum visibility into key
+  database characteristics, eliminating the need for additional
+  monitoring nodes.
+- Simpler configuration – Percona Monitoring and Management now offers
+  easier configuration of key Amazon RDS and Amazon Aurora settings
+  via a web interface.
+- One-click data collection – One button retrieves vital information
+  on server performance to assist with troubleshooting.
+- Improved interface – A simple, consistent user interface makes it
+  faster and more fluid to switch between Query Analytics and Metrics
+  Monitor.
+
+.. - inform about marketplace
+.. - inform rds & aurora
+
 |qan| is now integrated into |grafana| as a separate dashboard. This new design
 has all the features that |qan| offered when it was a |pmm| module. 
 
@@ -19,8 +35,6 @@ upgraded |grafana| offers is the support of annotations. You can mark a point or
 select a region in a graph and give it a meaningful description. For more
 information, see `the release highlights
 <http://docs.grafana.org/guides/whats-new-in-v4-6/>`_.
-
-.. TODO: Demo here
 
 |prometheus| version 1.8.2, shipped with this release, offers a number of bug
 fixes. For more information, see

@@ -13,17 +13,16 @@ Running PMM Server Using AWS Marketplace
    - PMM should be able to access 3306 on RDS (security group allows)
    - PMM: create user according to https://confluence.percona.com/x/XjkOAQ
 
-You can run an instance of |pmm| hosted at AWS Marketplace. This
+You can run an instance of |pmm.name| hosted at AWS Marketplace. This
 method replaces the outdated method where you would have to accessing
-an AMI (Amazon Machine Image) by using its ID taking into account your
-region.
+an AMI (Amazon Machine Image) by using its ID, different for each region.
 
 .. _figure/pmm/deploying/aws-marketplace/home-page.1:
 
 .. figure:: ../../images/aws-marketplace.pmm.home-page.1.png
 
-   The home page of PMM in AWS Marketplace. Click the Continue button to start
-   setting up your instance. You can also preselect your region on this screen.
+   *The home page of PMM in AWS Marketplace. Click the Continue button to start
+   setting up your instance. You can also preselect your region on this screen.*
 
 Assuming that you have an AWS (Amazon Web Services) account, locate
 *Percona Monitoring and Management Server 1.4.1* in `AWS Marketplace
@@ -39,6 +38,8 @@ to make your instance ready. For more control, use the ``Manual Launch`` option.
 
 .. figure:: ../../images/aws-marketplace.pmm.launch-on-ec2.png
 
+   *Percona Monitoring and Management is now available from AWS Marketplace*
+	    
 Setting up a |pmm| instance using the ``1-Click Launch`` option
 ================================================================================
 
@@ -53,7 +54,8 @@ from
 :ref:`the previous screen <figure/pmm/deploying/aws-marketplace/home-page.1>`
 where it is available next to the :guilabel:`Continue` button.
 
-.. rubric:: Setting up a VPC and an EC2 instance type
+Setting up a VPC and an EC2 instance type
+--------------------------------------------------------------------------------
 
 The VPC that you select or set up determines which configurations of CPU and RAM
 are enabled in the :guilabel:`EC2 Instance Type` section. Having selected the
@@ -62,13 +64,14 @@ are enabled in the :guilabel:`EC2 Instance Type` section. Having selected the
 
 .. figure:: ../../images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png
 
-   Select VPC in the VPC Settings section and then choose an EC2 instance type
-   that suits your planned configuration.
+   *Select VPC in the VPC Settings section and then choose an EC2 instance type
+   that suits your planned configuration.*
 
 Note that the cost estimation is automatically updated to correspond with your
 choice.
 
-.. rubric:: Limiting Access to the instance: security group and a key pair
+Limiting Access to the instance: security group and a key pair
+--------------------------------------------------------------------------------
 
 In the Security group, which acts like a firewall, select a preconfigured
 security group in the :guilabel:`Security group` section. In the :guilabel:`Key
@@ -76,9 +79,10 @@ Pair` select an already set up EC2 key pair to limit access to your instance
 
 .. figure:: ../../images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png
 
-   Select a security group which manages firewall settings.
+   *Select a security group which manages firewall settings.*
    
-.. rubric:: Applying settings
+Applying settings
+--------------------------------------------------------------------------------
 
 Scroll up to the top of the page to view your settings. Then, click the
 :guilabel:`Launch with 1 click` button to continue and adjust your settings in
@@ -86,8 +90,8 @@ the :program:`EC2 console`.
 
 .. figure:: ../../images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
 	    
-   Your instance settings are summarized in a special area. Click
-   :guilabel:`Launch with 1 click` to continue.
+   *Your instance settings are summarized in a special area. Click
+   the Launch with 1 click button to continue.*
 
 .. _pmm/ami/instance-setting/ec2-console.adjusting:
 
@@ -101,8 +105,8 @@ click the :guilabel:`Launch with 1 click` button.
 
 .. figure:: ../../images/aws-marketplace.launch-on-ec2.1-click-launch.4.png
 
-   Adjust your settings in the EC2 console. To run it, click the *EC2 Console*
-   link in the message at the top of the page.
+   *Adjust your settings in the EC2 console. To run it, click the EC2 Console
+   link in the message at the top of the page.*
 
 Your instance appears in the :program:`EC2 console` in a table that lists all
 instances available to you. When a new instance is only created, it has no
@@ -111,9 +115,59 @@ managed via the :program:`EC2 console`.
 
 .. figure:: ../../images/aws-marketplace.ec2-console.pmm.1.png
 
-   The newly created instance selected.
+   *The newly created instance selected.*
 
+Launching the instance
+--------------------------------------------------------------------------------
 
+After you add your new instance it will take some time to initialize it. When
+the :guilabel:`Instance State` contains :option:`running` for your instance, you
+can launch it.
+
+With your instance selected, open its IP address to the in a web browser. The IP
+address appears in the :guilabel:`IPv4 Public IP` column or as value of the
+:guilabel:`Public IP` field at the top of the :guilabel:`Properties` panel.
+
+.. figure:: ../../images/aws-marketplace.pmm.ec2.properties.png
+
+   *To run the instance, copy and paste its public IP address to the location bar
+   of your brower.*
+
+In the |pmm.name| welcome page that opens, enter the instance ID in the
+:guilabel:`Instance ID` field.
+
+.. figure:: ../../images/aws-marketplace.pmm.ec2.dialog.instance-id.1.png
+
+   *Enter the instance ID on the welcome page.*
+
+You can copy the instance ID in the :guilabel:`Properties` panel of your
+instance, select the :guilabel:`Description` tab back in the :program:`EC2
+console`. Click the :guilabel:`Copy` button next to the :guilabel:`Instance
+ID` field. This button appears as soon as you hover the cursor of your mouse
+over the ID.
+
+.. figure:: ../../images/aws-marketplace.pmm.ec2.properties.instance-id.png
+
+   *Hover the cursor over the instance ID for Copy button to appear.*
+
+Paste the instance in the :guilabel:`Instance ID` field of the |pmm.name|
+welcome page and click :guilabel:`Submit`.
+
+The next screen offers to create a user and a password that you will later use
+to run your instance. Create a user name, assign a password, and click
+:guilabel:`Submit`.
+
+.. figure:: ../../images/aws-marketplace.pmm.ec2.dialog.user-name.png
+
+   *Create credentials for your instance.*
+
+The system authentication window then appears for you to use
+your newly created credentials. Enter the user name and password that you have
+just created. Your instance is now ready.
+
+.. figure:: ../../images/pmm.home-page.1-4-1b.png
+
+   *Percona Monitoring and Management is now ready*
 
 .. Percona provides public Amazon Machine Images (AMI) with |pmm-server|
 .. in all regions where `Amazon Web Services (AWS) <https://aws.amazon.com/>`_ are available.
