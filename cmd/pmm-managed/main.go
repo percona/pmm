@@ -59,7 +59,7 @@ import (
 const (
 	shutdownTimeout = 3 * time.Second
 
-	pmmVersion = "1.5.3"
+	pmmVersion = "1.6.0"
 )
 
 var (
