@@ -21,9 +21,6 @@ Percona announces the release of Percona Monitoring and Management |release|.
   faster and more fluid to switch between Query Analytics and Metrics
   Monitor.
 
-.. - inform about marketplace
-.. - inform rds & aurora
-
 |qan| is now integrated into |grafana| as a separate dashboard. This new design
 has all the features that |qan| offered when it was a |pmm| module. 
 
@@ -43,17 +40,16 @@ fixes. For more information, see
 New features
 --------------------------------------------------------------------------------
 
-- :pmmbug:`434`: |pmm| enables monitoring of Amazon RDS and Amazon Aurora metrics
-- :pmmbug:`722`: The *MariaDB* dashboard was removed from |pmm|; the *MyISAM* dashboard was renamed to *MyISAM/Aria Metrics*
+- :pmmbug:`434`: |pmm| enables monitoring of Amazon RDS and Amazon Aurora
+  metrics by simply specifying user information without the need to run an EC2
+  instance alongside |pmm-server|.
+- :pmmbug:`722`: The *MyISAM* dashboard was renamed to *MyISAM/Aria Metrics*;
+  the *MariaDB* was removed from |pmm| and its metrics moved to the *MyISAM/Aria Metrics*
 - :pmmbug:`1133`: |qan.name| is available from |grafana| as a dashboard
-- :pmmbug:`1258`: The |opt.disable-updates| option enables preventing manual
-  updates when |pmm-server| is run from a |docker| container.
-- :pmmbug:`1470`: Cloudwatch metrics have been integrated into |prometheus|
+- :pmmbug:`1258`: The |opt.disable-updates| option disables manual updates via
+  web interface when |pmm-server| is run from a |docker| container. The system
+  can only be updated via the terminal.
 - :pmmbug:`1500`: Add InnoDB Buffer Disk Reads
-
-Other new features: :pmmbug:`1060`
-, :pmmbug:`1469`
-, :pmmbug:`1586`
 
 Improvements
 --------------------------------------------------------------------------------
@@ -64,11 +60,12 @@ Improvements
 - :pmmbug:`1669`: The representation of numeric values in the *Context Switches*
   graph in the *System Overview* dashboard was changed to improve readability.
 
-Other improvements: :pmmbug:`873`
-, :pmmbug:`879`
-, :pmmbug:`911`
-, :pmmbug:`1575`
-, :pmmbug:`1612`
+Other improvements:
+:pmmbug:`873`,
+:pmmbug:`879`,
+:pmmbug:`911`,
+:pmmbug:`1575`,
+:pmmbug:`1612`
 
 Bug fixes
 --------------------------------------------------------------------------------
@@ -76,10 +73,8 @@ Bug fixes
 - :pmmbug:`1082`: The |graph.cpu_usage| graph  on the *Trends* dashboard showed incorrect spikes
 - :pmmbug:`1549`: The authentication of the mongodb:queries monitoring service
   did not work properly when the name of the database to authenticate was not provided.
-- :pmmbug:`1660`: In some cases, |qan| did not show data for |mongodb| hosts.
 
-Other bugs: :pmmbug:`1125`
-, :pmmbug:`1673`
+Other bugs: :pmmbug:`1673`
 
 .. |release| replace:: 1.5.0
 
