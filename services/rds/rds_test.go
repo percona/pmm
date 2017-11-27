@@ -20,7 +20,6 @@ package rds
 import (
 	"context"
 	"database/sql"
-	"reflect"
 	"testing"
 
 	"github.com/AlekSi/pointer"
@@ -69,12 +68,51 @@ func TestDiscover(t *testing.T) {
 		expected := []Instance{{
 			Node: models.RDSNode{
 				Type:   "rds",
-				Name:   "mysql57",
-				Region: "eu-west-1",
+				Name:   "rds-aurora1",
+				Region: "us-east-1",
 			},
 			Service: models.RDSService{
 				Type:          "rds",
-				Address:       pointer.ToString("mysql57.ckpwzom1xccn.eu-west-1.rds.amazonaws.com"),
+				Address:       pointer.ToString("rds-aurora1.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
+				Port:          pointer.ToUint16(3306),
+				Engine:        pointer.ToString("aurora"),
+				EngineVersion: pointer.ToString("5.6.10a"),
+			},
+		}, {
+			Node: models.RDSNode{
+				Type:   "rds",
+				Name:   "rds-aurora2",
+				Region: "us-east-1",
+			},
+			Service: models.RDSService{
+				Type:          "rds",
+				Address:       pointer.ToString("rds-aurora2.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
+				Port:          pointer.ToUint16(3306),
+				Engine:        pointer.ToString("aurora"),
+				EngineVersion: pointer.ToString("5.6.10a"),
+			},
+		}, {
+			Node: models.RDSNode{
+				Type:   "rds",
+				Name:   "rds-mysql56",
+				Region: "us-east-1",
+			},
+			Service: models.RDSService{
+				Type:          "rds",
+				Address:       pointer.ToString("rds-mysql56.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
+				Port:          pointer.ToUint16(3306),
+				Engine:        pointer.ToString("mysql"),
+				EngineVersion: pointer.ToString("5.6.37"),
+			},
+		}, {
+			Node: models.RDSNode{
+				Type:   "rds",
+				Name:   "rds-mysql57",
+				Region: "us-east-1",
+			},
+			Service: models.RDSService{
+				Type:          "rds",
+				Address:       pointer.ToString("rds-mysql57.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("mysql"),
 				EngineVersion: pointer.ToString("5.7.19"),
@@ -82,12 +120,12 @@ func TestDiscover(t *testing.T) {
 		}, {
 			Node: models.RDSNode{
 				Type:   "rds",
-				Name:   "aurora1",
-				Region: "us-east-1",
+				Name:   "pmmdemo-aurora-node1",
+				Region: "us-east-2",
 			},
 			Service: models.RDSService{
 				Type:          "rds",
-				Address:       pointer.ToString("aurora1.cdy17lilqrl7.us-east-1.rds.amazonaws.com"),
+				Address:       pointer.ToString("pmmdemo-aurora-node1.c15j790utla2.us-east-2.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("aurora"),
 				EngineVersion: pointer.ToString("5.6.10a"),
@@ -95,42 +133,19 @@ func TestDiscover(t *testing.T) {
 		}, {
 			Node: models.RDSNode{
 				Type:   "rds",
-				Name:   "aurora1-us-east-1c",
-				Region: "us-east-1",
+				Name:   "pmmdemo-rds-1",
+				Region: "us-east-2",
 			},
 			Service: models.RDSService{
 				Type:          "rds",
-				Address:       pointer.ToString("aurora1-us-east-1c.cdy17lilqrl7.us-east-1.rds.amazonaws.com"),
-				Port:          pointer.ToUint16(3306),
-				Engine:        pointer.ToString("aurora"),
-				EngineVersion: pointer.ToString("5.6.10a"),
-			},
-		}, {
-			Node: models.RDSNode{
-				Type:   "rds",
-				Name:   "mysql56",
-				Region: "us-east-1",
-			},
-			Service: models.RDSService{
-				Type:          "rds",
-				Address:       pointer.ToString("mysql56.cdy17lilqrl7.us-east-1.rds.amazonaws.com"),
+				Address:       pointer.ToString("pmmdemo-rds-1.c15j790utla2.us-east-2.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("mysql"),
-				EngineVersion: pointer.ToString("5.6.35"),
+				EngineVersion: pointer.ToString("5.7.19"),
 			},
 		}}
 
-		// TODO out list is not fixed yet, so check that we receive all expected instances (and maybe something else)
-		// assert.Equal(t, expected, actual)
-		for _, a := range actual {
-			for i, e := range expected {
-				if reflect.DeepEqual(a, e) {
-					expected = append(expected[:i], expected[i+1:]...)
-					break
-				}
-			}
-		}
-		assert.Empty(t, expected)
+		assert.Equal(t, expected, actual)
 	})
 
 	t.Run("WrongKeys", func(t *testing.T) {
@@ -156,11 +171,11 @@ func TestAddListRemove(t *testing.T) {
 	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{}, "username", "password")
 	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `RDS instance name is not given.`), err)
 
-	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"eu-west-1", "mysql57"}, "username", "password")
+	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, "username", "password")
 	assert.NoError(t, err)
 
-	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"eu-west-1", "mysql57"}, "username", "password")
-	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `RDS instance "mysql57" already exists in region "eu-west-1".`), err)
+	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, "username", "password")
+	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `RDS instance "rds-mysql57" already exists in region "us-east-1".`), err)
 
 	actual, err = svc.List(ctx)
 	require.NoError(t, err)
@@ -168,8 +183,8 @@ func TestAddListRemove(t *testing.T) {
 		Node: models.RDSNode{
 			ID:     2,
 			Type:   "rds",
-			Name:   "mysql57",
-			Region: "eu-west-1",
+			Name:   "rds-mysql57",
+			Region: "us-east-1",
 		},
 		Service: models.RDSService{
 			ID:            1000,
@@ -177,7 +192,7 @@ func TestAddListRemove(t *testing.T) {
 			NodeID:        2,
 			AWSAccessKey:  &accessKey,
 			AWSSecretKey:  &secretKey,
-			Address:       pointer.ToString("mysql57.ckpwzom1xccn.eu-west-1.rds.amazonaws.com"),
+			Address:       pointer.ToString("rds-mysql57.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
 			Port:          pointer.ToUint16(3306),
 			Engine:        pointer.ToString("mysql"),
 			EngineVersion: pointer.ToString("5.7.19"),
@@ -188,11 +203,11 @@ func TestAddListRemove(t *testing.T) {
 	err = svc.Remove(ctx, &InstanceID{})
 	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `RDS instance name is not given.`), err)
 
-	err = svc.Remove(ctx, &InstanceID{"eu-west-1", "mysql57"})
+	err = svc.Remove(ctx, &InstanceID{"us-east-1", "rds-mysql57"})
 	assert.NoError(t, err)
 
-	err = svc.Remove(ctx, &InstanceID{"eu-west-1", "mysql57"})
-	tests.AssertGRPCError(t, status.New(codes.NotFound, `RDS instance "mysql57" not found in region "eu-west-1".`), err)
+	err = svc.Remove(ctx, &InstanceID{"us-east-1", "rds-mysql57"})
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `RDS instance "rds-mysql57" not found in region "us-east-1".`), err)
 
 	actual, err = svc.List(ctx)
 	require.NoError(t, err)
