@@ -20,6 +20,7 @@ package rds
 import (
 	"context"
 	"database/sql"
+	"os"
 	"testing"
 
 	"github.com/AlekSi/pointer"
@@ -171,25 +172,29 @@ func TestAddListRemove(t *testing.T) {
 	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{}, "username", "password")
 	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `RDS instance name is not given.`), err)
 
-	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, "username", "password")
+	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, "wrong-username", "wrong-password")
+	tests.AssertGRPCErrorRE(t, codes.Unauthenticated, `Access denied for user 'wrong\-username'@'.+' \(using password: YES\)`, err)
+
+	username, password := os.Getenv("AWS_RDS_USERNAME"), os.Getenv("AWS_RDS_PASSWORD")
+	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, username, password)
 	assert.NoError(t, err)
 
-	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, "username", "password")
+	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, username, password)
 	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `RDS instance "rds-mysql57" already exists in region "us-east-1".`), err)
 
 	actual, err = svc.List(ctx)
 	require.NoError(t, err)
 	expected := []Instance{{
 		Node: models.RDSNode{
-			ID:     2,
+			ID:     3,
 			Type:   "rds",
 			Name:   "rds-mysql57",
 			Region: "us-east-1",
 		},
 		Service: models.RDSService{
-			ID:            1000,
+			ID:            1001,
 			Type:          "rds",
-			NodeID:        2,
+			NodeID:        3,
 			AWSAccessKey:  &accessKey,
 			AWSSecretKey:  &secretKey,
 			Address:       pointer.ToString("rds-mysql57.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),

@@ -19,6 +19,7 @@ package rds
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"net/http"
 	"os/exec"
@@ -407,6 +408,25 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 				return errors.WithStack(e)
 			}
 
+			// check connection
+			dsn := agent.DSN(service)
+			db, e := sql.Open("mysql", dsn)
+			if e == nil {
+				e = db.PingContext(ctx)
+				db.Close()
+			}
+			if e != nil {
+				if e, ok := e.(*mysql.MySQLError); ok {
+					switch e.Number {
+					case 0x414: // 1044
+						return status.Error(codes.PermissionDenied, e.Message)
+					case 0x415: // 1045
+						return status.Error(codes.Unauthenticated, e.Message)
+					}
+				}
+				return errors.WithStack(e)
+			}
+
 			// start mysqld_exporter agent
 			if svc.MySQLdExporterPath != "" {
 				name := agent.NameForSupervisor()
@@ -436,7 +456,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 
 						fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
 					},
-					Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", agent.DSN(service))},
+					Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)},
 				}
 				if e := svc.Supervisor.Start(ctx, cfg); e != nil {
 					return e
@@ -464,6 +484,9 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 			if e := tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); e != nil {
 				return errors.WithStack(e)
 			}
+
+			// DSNs for mysqld_exporter and qan-agent are currently identical,
+			// so we do not check connection again
 
 			// start or reconfigure qan-agent
 			if svc.QAN != nil {

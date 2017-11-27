@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
@@ -33,4 +34,15 @@ func AssertGRPCError(t testing.TB, expected *status.Status, actual error) {
 	}
 	assert.Equal(t, expected.Code(), s.Code())
 	assert.Equal(t, expected.Message(), s.Message())
+}
+
+func AssertGRPCErrorRE(t testing.TB, expectedCode codes.Code, expectedMessageRE string, actual error) {
+	t.Helper()
+
+	s, ok := status.FromError(actual)
+	if !assert.True(t, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
+		return
+	}
+	assert.Equal(t, expectedCode, s.Code())
+	assert.Regexp(t, expectedMessageRE, s.Message())
 }
