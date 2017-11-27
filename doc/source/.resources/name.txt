@@ -35,7 +35,7 @@
 .. |pmm-admin.uninstall|      replace:: :command:`pmm-admin uninstall`
 .. |docker.run|               replace:: :command:`docker run`
 .. |docker.create|            replace:: :command:`docker create`
-
+.. |docker.ps|                replace:: :command:`docker ps`
 
 .. Programs
 
