@@ -1,0 +1,52 @@
+.. -*- mode: rst -*-
+
+.. For detailed information, see info.org (the file is in the org mode format)
+
+.. Organizations
+
+.. |amazon-aurora|   replace:: *Amazon Aurora*
+.. |amazon-rds|      replace:: *Amazon RDS*
+.. |amazon|          replace:: *Amazon*
+.. |docker|          replace:: *Docker*
+.. |grafana|         replace:: *Grafana*
+.. |mariadb|         replace:: *MariaDB*
+.. |metrics-monitor| replace:: *Metrics Monitor*
+.. |mm|              replace:: *Metrics Monitor*
+.. |mongodb|         replace:: *MongoDB*
+.. |percona|         replace:: *Percona*
+.. |pmm.abbrev|      replace:: *PMM*
+.. |pmm.intro|       replace:: *PMM* (Percona Monitoring and Management)
+.. |pmm.name|        replace:: *Percona Monitoring and Management*
+.. |pmm|             replace:: *PMM*
+.. |postgresql|      replace:: *PostgreSQL*
+.. |postgres|        replace:: *PostgreSQL*
+.. |prometheus|      replace:: *Prometheus*
+.. |proxysql|        replace:: *ProxySQL*
+.. |qan.abbrev|      replace:: *QAN*
+.. |qan.intro|       replace:: *QAN* (Query Analytics)
+.. |qan.name|        replace:: *Query Analytics*
+.. |qan|             replace:: *QAN*
+.. |query-analytics| replace:: *Query Analytics*
+.. |myrocks|         replace:: *MyRocks*
+.. |mysql|           replace:: *MySQL*
+.. |pmm-client|      replace:: *PMM Client*
+.. |pmm-server|      replace:: *PMM Server*
+.. |orchestrator|    replace:: *Orchestrator*
+.. |perl|            replace:: *Perl*
+.. |consul|          replace:: *Consul*
+
+
+.. Metrics Monitor Dashboards 
+
+.. |pmm-system-summary| replace:: *PMM System Summary*
+
+.. Metrics Monitor Graphs (Prefix: graph)
+
+.. |advanced-data-exploration| replace:: *Advanced Data Exploration*
+.. |cpu-usage| replace:: *CPU Usage*
+.. |mysql.myrocks| replace:: *MySQL MyRocks Metrics*
+
+.. GUI Elements
+
+.. |download-summary| replace:: :guilabel:`Download Summary`
+.. |host| replace:: :guilabel:`Host`

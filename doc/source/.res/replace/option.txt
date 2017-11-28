@@ -1,0 +1,27 @@
+
+.. Options (all using the 'opt.' prefix)
+   
+.. |opt.all|                  replace:: :option:`--all`
+.. |opt.config-file|          replace:: :option:`--config-file`
+.. |opt.create-user|          replace:: :option:`--create-user`			
+.. |opt.dev-enable|           replace:: :option:`--dev-enable`
+.. |opt.disable-updates|      replace:: :option:`DISABLE_UPDATES`
+.. |opt.external-metrics|     replace:: :option:`external:metrics`
+.. |opt.help|                 replace:: :option:`--help`
+.. |opt.linux-metrics|        replace:: :option:`linux:metrics`
+.. |opt.mongodb-metrics|      replace:: :option:`mongodb:metrics`
+.. |opt.mongodb-queries|      replace:: :option:`mongodb:queries`
+.. |opt.mongodb|              replace:: :option:`mongodb`
+.. |opt.mysql-metrics|        replace:: :option:`mysql:metrics`
+.. |opt.mysql-queries|        replace:: :option:`mysql:queries`
+.. |opt.mysql|                replace:: :option:`mysql`
+.. |opt.orchestrator-enabled| replace:: :option:`ORCHESTRATOR_ENABLED`
+.. |opt.port|                 replace:: :option:`--port`
+.. |opt.proxysql-metrics|     replace:: :option:`proxysql:metrics`
+.. |opt.query-source|         replace:: :option:`--query-source`
+.. |opt.server|               replace:: :option:`--server`
+.. |opt.service-port|         replace:: :option:`--service-port`
+.. |opt.socket|               replace:: :option:`--socket`
+.. |opt.uri|                  replace:: :option:`--uri`
+.. |opt.verbose|              replace:: :option:`--verbose`
+.. |opt.version|              replace:: :option:`--version`

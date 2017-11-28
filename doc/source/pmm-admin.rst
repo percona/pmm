@@ -1254,7 +1254,9 @@ To see which services are available, run |pmm-admin.list|_.
 
       sudo pmm-admin stop mongodb:metrics
 
-For more information, run |pmm-admin.stop|  |opt.help|.
+For more information, run
+|pmm-admin.stop|
+|opt.help|.
 
 .. _pmm-admin.uninstall:
 
@@ -1340,4 +1342,6 @@ that you want to :ref:`add <pmm-admin.add>`, :ref:`remove <pmm-admin.rm>`,
        * |opt.mongodb-metrics|
        * |opt.mongodb-queries|
 
-.. include:: .resources/name.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/program.txt

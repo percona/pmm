@@ -244,20 +244,6 @@ status of the monitored database server. QAN collects this information from the
 database server directly. For example, in case of a MySQL server, the
 :program:`SHOW STATUS` command is used.
 
-.. note:: **Viewing Database and Server Summary Information**
-
-   The :guilabel:`View database and server summary info` button that appears
-   next to the :guilabel:`Configure Query Analytics` button shows detailed
-   infromation about the selected database as well as the platform where it is
-   deployed. When clicked, this button reveals two sections. The
-   :guilabel:`System Summary` section contains details about the platform while
-   the :guilabel:`Database Summary` offers detailed statistics about the
-   database server.
-
-   .. figure:: .res/graphics/png/pmm.qan.view-database-and-server-summary-info.1.png
-
-      The System summary and Database summary (showing only fragments of both
-      sections)
 
 **Log Tab**
 
@@ -265,6 +251,23 @@ The :guilabel:`Log` tab contains the latest version of the monitored log, such
 as *slow log*. At the top of this tab, you may notice when exactly the snapshot
 was taken.
 
+Viewing Database and Server Summary Information
+--------------------------------------------------------------------------------
+
+The |pmm-system-summary| dashboard shows detailed infromation about
+the selected host (the value of the |host| field) and the
+database server deployed on this host.
+
+The :guilabel:`System Summary` section contains details about the platform while
+the :guilabel:`Database Summary` offers detailed statistics about the
+database server.
+
+.. figure:: .res/graphics/png/pmm.metrics-monitor.system-summary.png
+
+   *Accessing information about the system and database*
+   
+You can download the current values on this dashboard locally if you
+click the |download-summary| button.
 
 .. _perf-schema:
 
@@ -412,7 +415,7 @@ hovering the mouse pointer over the *More information* icon at the top left
 corner of a graph. When you move the mouse pointer away from the *More
 information* button the description disappears.
 
-.. figure:: .res//graphics/png/pmm.metrics-monitor.description.1.png
+.. figure:: .res/graphics/png/pmm.metrics-monitor.description.1.png
 
    *Graph descriptions provide more information about a graph without claiming
    any space in the interface.*
@@ -427,12 +430,12 @@ level of compression, higher than that of the InnoDB storage engine, which makes
 it especially valuable when optimizing the usage of hard drives.
 
 PMM collects statistics on the MyRocks storage engine for MySQL in the metrics
-monitor as a separate dashboard titled |graph.mysql.myrocks|. The main sourse of
+monitor as a separate dashboard titled |mysql.myrocks|. The main sourse of
 information for this dashboard comes from the *information schema* tables.
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.mysql-myrocks-metrics.1.png
 	    
-   *The MySQL MyRocks metrics dashboard*
+   The MySQL MyRocks metrics dashboard
 
 .. seealso::
 
@@ -449,9 +452,11 @@ visualization tool.  If it is enabled, you can access it using the
 can click the **MySQL Replication Topology Manager** button on the
 main *PMM Server* landing page.
 
-To use it, create a MySQL user for Orchestrator on all managed instances::
+To use it, create a MySQL user for Orchestrator on all managed instances:
 
- GRANT SUPER, PROCESS, REPLICATION SLAVE, RELOAD ON *.* TO 'orc_client_user'@'%' IDENTIFIED BY 'orc_client_password’;
+.. include:: .res/code/sql.txt
+   :start-after: grant.orc-client-user
+   :end-before: (end-code-block)
 
 .. note:: The credentials in the previous example are default.
    If you use a different user name or password,
@@ -475,6 +480,7 @@ to add the instances to the topology.
    :ref:`pmm/docker.additional_parameters` in the
    :ref:`run-server-docker` section.
 
-
-.. include:: .resources/name.txt
-.. include:: .resources/url.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/url.txt

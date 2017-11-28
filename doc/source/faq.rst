@@ -370,5 +370,7 @@ You need to create Orchestrator's topology user on |mysql|
 according to :ref:`this section <pmm/using.orchestrator>`.
 
 
-.. include:: .resources/name.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/program.txt
 

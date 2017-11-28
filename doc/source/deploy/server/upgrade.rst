@@ -51,4 +51,6 @@ available at https://hub.docker.com/r/percona/pmm-server/tags/:
 
 .. References
    
-.. include:: ../../.resources/name.txt
+.. include:: ../../.res/replace/name.txt
+.. include:: ../../.res/replace/program.txt
+.. include:: ../../.res/replace/option.txt

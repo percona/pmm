@@ -30,9 +30,9 @@ Step 1. Pull the PMM Server Image
 
 To pull the latest version from Docker Hub:
 
-.. code-block:: bash
-
-   $ docker pull percona/pmm-server:latest
+.. include:: ../../.res/code/sh.txt
+   :start-after: docker.pull.percona-pmm-server-latest
+   :end-before: (end-code-block)
 
 This is not required if you are running |pmm-server| for the first time.
 However, it ensures that if there is an older version of the image
@@ -46,16 +46,10 @@ Step 2. Create a PMM Data Container
 
 To create a container for persistent PMM data, run the following command:
 
-.. code-block:: bash
-
-   $ docker create \
-      -v /opt/prometheus/data \
-      -v /opt/consul-data \
-      -v /var/lib/mysql \
-      -v /var/lib/grafana \
-      --name pmm-data \
-      percona/pmm-server:latest /bin/true
-
+.. include:: ../../.res/code/sh.txt
+   :start-after: docker.create.percona-pmm-server-latest
+   :end-before: (end-code-block)
+	     
 .. note:: This container does not run,
    it simply exists to make sure you retain all |pmm| data
    when you upgrade to a newer |pmm-server| image.
@@ -85,7 +79,7 @@ Step 3. Create and Run the |pmm-server| Container
 
 To run |pmm-server|, use the following command:
 
-.. include:: ../../.resources/code/sh.txt
+.. include:: ../../.res/code/sh.txt
    :start-after: docker.run.latest
    :end-before: (end-code-block)
 		
@@ -129,7 +123,7 @@ the |docker| *run* subcommand.
 By default, Orchestrator_ is disabled. To enable it, set the
  |opt.orchestrator-enabled| option to **true**.
 
-.. include:: ../../.resources/code/sh.txt
+.. include:: ../../.res/code/sh.txt
    :start-after: docker.run.orchestrator-enabled
    :end-before: (end-code-block)
 
@@ -147,7 +141,7 @@ every 24 hours. This statistics includes the following details:
 If you do not want your |pmm-server| to send this information, disable telemetry
 when running your |docker| container:
 
-.. include:: ../../.resources/code/sh.txt
+.. include:: ../../.res/code/sh.txt
    :start-after: docker.run.disable-telemetry
    :end-before: (end-code-block)
 
@@ -158,7 +152,7 @@ To update your |pmm| from web interface you only need to click the
 if updating is not desirable. Set it to **true** when running |pmm| in
 the |docker| container.
 
-.. include:: ../../.resources/code/sh.txt
+.. include:: ../../.res/code/sh.txt
    :start-after: docker.run.disable-updates
    :end-before: (end-code-block)
 
@@ -171,5 +165,7 @@ the |docker| container.
 
    - :ref:`Updating PMM <deploy-pmm.updating>`
 
-.. include:: ../../.resources/url.txt
-.. include:: ../../.resources/name.txt
+.. include:: ../../.res/replace/name.txt
+.. include:: ../../.res/replace/option.txt
+.. include:: ../../.res/replace/program.txt
+.. include:: ../../.res/replace/url.txt
