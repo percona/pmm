@@ -30,20 +30,13 @@ sure that queries are executed as expected and within the shortest time
 possible.  In case of problems, you can see which queries may be the cause and
 get detailed metrics for them. 
 
-.. figure:: images/query-analytics.png
-   :width: 50%
+.. figure:: .res/graphics/png/query-analytics.png
 	    
    QAN helps analyze database queries over periods of time and find performance
    problems.
 
 QAN displays its metrics in both visual and numeric form: the performance
 related characteristics appear as plotted graphics with summaries.
-
-.. .. figure:: images/pmm.home-page.1.png
-..   :width: 50%
-..
-..   Starting with version 1.5 of |pmm|, |qan| is integrated into |grafana|. It is
-..   available from the Home page as a separate dashboard.
 
 Open |qan| from the |pmm| Home Page
 --------------------------------------------------------------------------------
@@ -62,8 +55,7 @@ essential metrics: *Load*, *Count*, and *Latency*.
 To view more queries, click the :guilabel:`Load next 10 queries` button below the query
 summary table.
 
-.. figure:: images/pmm.qan.query-summary-table.default.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.qan.query-summary-table.default.1.png
 
    The query summary table shows the monitored queries from the selected
    database.
@@ -94,10 +86,9 @@ the list of queries in the summary table does not change its values. These are
 always calculated based on all queries run within the selected time or date
 range.
 
-.. figure:: images/pmm.qan.query-summary-table.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.qan.query-summary-table.1.png
 
-   A list of queries
+   *A list of queries*
 
 Selecting Time or Date Range
 --------------------------------------------------------------------------------
@@ -106,10 +97,9 @@ The query metrics that appear in *QAN* are computed based on a time period or a
 range of dates. The default value is *the last hour*. To set another range use
 the *range selection tool* located at the top of your *QAN* page.
 
-.. figure:: images/pmm.qan.range-selection.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.qan.range-selection.1.png
 
-   QAN displays query metrics for the time period or date range that you specify.
+   *QAN displays query metrics for the time period or date range that you specify.*
 
 The tool consists of two parts. The *Quick ranges* offers frequently used time
 ranges.. The date picker sets a range of dates.
@@ -121,8 +111,7 @@ The first line of the summary table contains the totals of the *load*, *count*, 
 *latency* for all queries that were run on the selected database server during
 the time period that you've specified.
 
-.. figure:: images/pmm.qan.query-summary-table.totals.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.qan.query-summary-table.totals.1.png
 	   
    *The totals appear at the top of the query summary table.*
 
@@ -157,8 +146,7 @@ If you hover the cursor over one of the metrics in a query, you can see a
 concrete value at the point where your cursor is located. Move the cursor along
 the plotted line to watch how the value is changing.
 
-.. figure:: images/pmm.qan.query-summary-table.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.qan.query-summary-table.1.png
 
    *Hover the cursor to see a value at the point.*
 
@@ -170,8 +158,7 @@ the query in the :term:`query metrics summary table` below the :term:`query summ
 table`. The detailed information includes the query type specific metrics. It
 also contains details about the database and tables which are used in the query.
 
-.. figure:: images/pmm.qan.query-metrics.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.qan.query-metrics.1.png
 
    *Select a query from the query summary table to open its metrics.*
 
@@ -183,8 +170,7 @@ In addition to the metrics in the :term:`query metrics summary table`,
 section contains the :term:`fingerprint <Query Fingerprint>` and an example of
 the query.
 
-.. figure:: images/pmm.qan.query.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.qan.query.1.png
 
    *The Query section shows the SQL statement for the selected query.*
 
@@ -194,15 +180,13 @@ Explain Section
 The ``Explain`` section enables you to run :command:`EXPLAIN` on the selected query
 directly from the PMM web interface (simply specify the database).
 
-.. image:: images/qan-realtime-explain.png
-   :width: 640
+.. image:: .res/graphics/png/qan-realtime-explain.png
 
 The output appears in two forms: classic and JSON. The classic form presents the
 attributes of the :command:`EXPLAIN` command as columns of a table. The JSON
 format presents the output of :command:`EXPLAIN` as a JSON document.
 
-.. figure:: images/pmm.qan.explain.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.qan.explain.1.png
 
    *The two output formats of the EXPLAIN command.*
 
@@ -226,8 +210,7 @@ enables you to get ``SHOW CREATE TABLE``, ``SHOW INDEX``, and ``SHOW
 TABLE STATUS`` for each table used by the query directly from the PMM
 web interface.
 
-.. image:: images/qan-create-table.png
-   :width: 50%
+.. image:: .res/graphics/png/qan-create-table.png
 
 Configuring Query Analytics
 --------------------------------------------------------------------------------
@@ -249,8 +232,7 @@ from the database server itself. You can, however, select where the database
 server mentrics are collected from, such as *slow log*, or *performance
 schema*. For this, change the value of the *Collect from* field accordingly.
 
-.. figure:: images/pmm.qan.settings.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.qan.settings.1.png
 	   
    *The Settings tab to view the essential settings of the selected database
    server.*
@@ -262,21 +244,6 @@ status of the monitored database server. QAN collects this information from the
 database server directly. For example, in case of a MySQL server, the
 :program:`SHOW STATUS` command is used.
 
-.. note:: **Viewing Database and Server Summary Information**
-
-   The :guilabel:`View database and server summary info` button that appears
-   next to the :guilabel:`Configure Query Analytics` button shows detailed
-   infromation about the selected database as well as the platform where it is
-   deployed. When clicked, this button reveals two sections. The
-   :guilabel:`System Summary` section contains details about the platform while
-   the :guilabel:`Database Summary` offers detailed statistics about the
-   database server.
-
-   .. figure:: images/pmm.qan.view-database-and-server-summary-info.1.png
-      :width: 50%
-
-      The System summary and Database summary (showing only fragments of both
-      sections)
 
 **Log Tab**
 
@@ -284,6 +251,23 @@ The :guilabel:`Log` tab contains the latest version of the monitored log, such
 as *slow log*. At the top of this tab, you may notice when exactly the snapshot
 was taken.
 
+Viewing Database and Server Summary Information
+--------------------------------------------------------------------------------
+
+The |pmm-system-summary| dashboard shows detailed infromation about
+the selected host (the value of the |host| field) and the
+database server deployed on this host.
+
+The :guilabel:`System Summary` section contains details about the platform while
+the :guilabel:`Database Summary` offers detailed statistics about the
+database server.
+
+.. figure:: .res/graphics/png/pmm.metrics-monitor.system-summary.png
+
+   *Accessing information about the system and database*
+   
+You can download the current values on this dashboard locally if you
+click the |download-summary| button.
 
 .. _perf-schema:
 
@@ -361,8 +345,7 @@ may need to link records from multiple tables. MongoDB, on the other hand, uses
 the concept of a document where all essential information pertaining to a
 complex object is stored together.
 
-.. figure:: images/pmm.qan.query-summary-table.mongodb.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.qan.query-summary-table.mongodb.1.png
 
    *A list of queries from a MongoDB host*
 
@@ -376,8 +359,7 @@ reading and writing data in the collections of your MongoDB databases.
 
    PMM supports `MongoDB`_ version 3.2 or higher. 
 
-.. figure:: images/pmm.qan.query-metrics.mongodb.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.qan.query-metrics.mongodb.1.png
 
    Analyze MongoDB queries using the same tools as relational database
    management systems.
@@ -423,8 +405,7 @@ On the Home screen, select a dashboard
 from the list of available Percona Dashboards.
 For example, the following image shows the **MySQL Overview** dashboard:
 
-.. image:: images/metrics-monitor.png
-   :width: 50%
+.. image:: .res/graphics/png/metrics-monitor.png
 
 Each graph has a graph descriptions to display more information about the
 monitored data without cluttering the interface.
@@ -434,8 +415,7 @@ hovering the mouse pointer over the *More information* icon at the top left
 corner of a graph. When you move the mouse pointer away from the *More
 information* button the description disappears.
 
-.. figure:: images/pmm.metrics-monitor.description.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.metrics-monitor.description.1.png
 
    *Graph descriptions provide more information about a graph without claiming
    any space in the interface.*
@@ -450,13 +430,12 @@ level of compression, higher than that of the InnoDB storage engine, which makes
 it especially valuable when optimizing the usage of hard drives.
 
 PMM collects statistics on the MyRocks storage engine for MySQL in the metrics
-monitor as a separate dashboard titled |graph.mysql.myrocks|. The main sourse of
+monitor as a separate dashboard titled |mysql.myrocks|. The main sourse of
 information for this dashboard comes from the *information schema* tables.
 
-.. figure:: images/pmm.metrics-monitor.mysql-myrocks-metrics.1.png
-   :width: 50%
+.. figure:: .res/graphics/png/pmm.metrics-monitor.mysql-myrocks-metrics.1.png
 	    
-   *The MySQL MyRocks metrics dashboard*
+   The MySQL MyRocks metrics dashboard
 
 .. seealso::
 
@@ -465,16 +444,19 @@ information for this dashboard comes from the *information schema* tables.
 .. _pmm/using.orchestrator:
 
 Orchestrator
-============
+================================================================================
 
-:program:`Orchestrator` is a MySQL replication topology management and visualization tool.
-If it is enabled, you can access it using the ``/orchestrator`` URL after *PMM Server* address.
-Alternatively, you can click the **MySQL Replication Topology Manager** button
-on the main *PMM Server* landing page.
+:program:`Orchestrator` is a MySQL replication topology management and
+visualization tool.  If it is enabled, you can access it using the
+``/orchestrator`` URL after *PMM Server* address.  Alternatively, you
+can click the **MySQL Replication Topology Manager** button on the
+main *PMM Server* landing page.
 
-To use it, create a MySQL user for Orchestrator on all managed instances::
+To use it, create a MySQL user for Orchestrator on all managed instances:
 
- GRANT SUPER, PROCESS, REPLICATION SLAVE, RELOAD ON *.* TO 'orc_client_user'@'%' IDENTIFIED BY 'orc_client_password’;
+.. include:: .res/code/sql.txt
+   :start-after: grant.orc-client-user
+   :end-before: (end-code-block)
 
 .. note:: The credentials in the previous example are default.
    If you use a different user name or password,
@@ -498,6 +480,7 @@ to add the instances to the topology.
    :ref:`pmm/docker.additional_parameters` in the
    :ref:`run-server-docker` section.
 
-
-.. include:: .resources/name.txt
-.. include:: .resources/url.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/url.txt

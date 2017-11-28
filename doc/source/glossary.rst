@@ -4,7 +4,6 @@
 
 .. glossary::
    :sorted:
-
    
    METRICS_MEMORY (Option)
 
@@ -58,7 +57,7 @@
       You may disable telemetry :ref:`by passing an additional parameter
       <pmm/docker.additional_parameters>` to |docker|.
 
-      .. include:: .resources/code/sh.txt
+      .. include:: .res/code/sh.txt
 	 :start-after: docker.run.disable-telemetry
 	 :end-before: (end-code-block)
 
@@ -81,7 +80,11 @@
 
    ORCHESTRATOR_ENABLED (Option)
 
-      See :term:`Orchestrator`
+      .. include:: .res/code/sh.txt
+	 :start-after: docker.run.orchestrator-enabled
+	 :end-before: (end-code-block)
+
+      .. seealso:: :term:`Orchestrator`
 
    Data Source Name
 
@@ -245,4 +248,6 @@
       An element of :term:`Query Analytics (QAN)` which displays the available
       metrics for the selected query.
    
-.. include:: .resources/name.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/program.txt

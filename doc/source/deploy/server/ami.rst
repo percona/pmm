@@ -4,15 +4,6 @@
 Running PMM Server Using AWS Marketplace
 ==============================================
 
-.. - static: https://aws.amazon.com/marketplace/pp/B077J7FYGX
-   - recommend Run PMM on AWS in the same Availability Zone (traffic cost + latency)
-   - Enable performance_schema option in Parameter Groups for RDS
-   - Create separate database user for monitoring in RDS
-   - Security group should allow these ports open: 22, 80, 443
-   - Use elastic IP to avoid ip mod with reboots
-   - PMM should be able to access 3306 on RDS (security group allows)
-   - PMM: create user according to https://confluence.percona.com/x/XjkOAQ
-
 You can run an instance of |pmm-server| hosted at AWS Marketplace. This
 method replaces the outdated method where you would have to accessing
 an AMI (Amazon Machine Image) by using its ID, different for each region.
@@ -318,5 +309,6 @@ Running from Command Line
         --output text \
         | grep cloud-init
 
-
-.. include:: ../../.resources/name.txt
+.. include:: ../../.res/replace/name.txt
+.. include:: ../../.res/replace/program.txt
+.. include:: ../../.res/replace/option.txt

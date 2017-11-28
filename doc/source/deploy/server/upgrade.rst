@@ -4,7 +4,7 @@
 Updating PMM Server Using Docker
 ====================================================================================================
 
-To check the version of the *PMM Server* container, run ``docker ps`` on the
+To check the version of the *PMM Server* container, run |docker.ps| on the
 host.  For example:
 
 .. code-block:: bash
@@ -36,7 +36,7 @@ available at https://hub.docker.com/r/percona/pmm-server/tags/:
         --restart always \
         percona/pmm-server:latest
 
-#. Confirm that the new version is running using ``docker ps`` again
+#. Confirm that the new version is running using |docker.ps| again
 
 .. code-block:: bash
 
@@ -46,7 +46,11 @@ available at https://hub.docker.com/r/percona/pmm-server/tags/:
 
 .. seealso:: References
 
-   For information about updating the |product-abbrev| server and the
-   |product-abbrev| client, see the :ref:`deploy-pmm.updating` section.
+   For information about updating the |pmm-server| and the
+   |pmm-client|, see the :ref:`deploy-pmm.updating` section.
 
-.. include:: ../../replace.txt
+.. References
+   
+.. include:: ../../.res/replace/name.txt
+.. include:: ../../.res/replace/program.txt
+.. include:: ../../.res/replace/option.txt

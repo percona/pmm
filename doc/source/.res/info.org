@@ -1,7 +1,7 @@
 
 * Files
 
-** name.rst
+** name.txt
 
 This file contains replace directives for names of products, commands and other
 proper names.
@@ -35,6 +35,8 @@ characters: dash (-) for multi-word tokens, dot (.) for combining tokens.
 
 #+END_Suffixes
 
+** program.txt
+
 *** Commands
    :PROPERTIES:
    :info: References to commands in technical context
@@ -43,6 +45,9 @@ characters: dash (-) for multi-word tokens, dot (.) for combining tokens.
    :END:
 
 This category includes programs callable either from the graphical interface or command line.
+
+** option.txt
+
 *** Options
    :PROPERTIES:
    :info: References to options in technical context
@@ -50,6 +55,8 @@ This category includes programs callable either from the graphical interface or 
    :directive: option
    :END:
 
-This category includes both long and short options. The non alphabetic
+This category includes both long and short options.The non alphabetic
 characters which appear in front of the option name are omitted in the
-placeholder.
+placeholder. 
+
+

@@ -1,0 +1,136 @@
+docker.stop.pmm-server&docker.rm.pmm-server
+
+.. code-block:: bash
+
+   $ docker stop pmm-server && docker rm pmm-server
+
+(end-code-block)
+
+dpkg.r.pmm-client
+
+.. code-block:: bash
+
+   $ dpkg -r pmm-client
+  
+(end-code-block)
+
+
+apt-get.remove.pmm-client
+
+.. code-block:: bash
+
+   $ apt-get remove pmm-client
+
+(end-code-block)  
+
+rpm.e.pmm-client
+
+.. code-block:: bash
+
+   $ rpm -e pmm-client
+
+(end-code-block)
+
+yum.remove.pmm-client
+
+.. code-block:: bash
+
+   $ yum remove pmm-client
+
+(end-code-block)
+
+$uninstall
+
+.. code-block:: bash
+
+      $ ./uninstall
+
+(end-code-block)
+
+docker.rm.pmm-data
+
+.. code-block:: bash
+
+   $ docker rm pmm-data
+
+(end-code-block)
+
+aws.ec2.terminate-instances
+
+.. code-block:: bash
+
+   $ aws ec2 terminate-instances --instance-ids -i-XXXX-INSTANCE-ID-XXXX
+
+(end-code-block)
+
+docker.create.percona-pmm-server-latest
+
+.. code-block:: bash
+
+   $ docker create \
+      -v /opt/prometheus/data \
+      -v /opt/consul-data \
+      -v /var/lib/mysql \
+      -v /var/lib/grafana \
+      --name pmm-data \
+      percona/pmm-server:latest /bin/true
+
+(end-code-block)
+
+docker.pull.percona-pmm-server-latest
+
+.. code-block:: bash
+
+   $ docker pull percona/pmm-server:latest
+
+(end-code-block)
+
+docker.run.metrics-memory
+
+.. code-block:: bash
+
+   $ docker run ... -e METRICS_MEMORY=4194304
+
+
+(end-code-block)
+
+
+docker.run.latest
+
+.. code-block:: bash
+
+   $ docker run -d \
+      -p 80:80 \
+      --volumes-from pmm-data \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server:latest
+
+(end-code-block)
+
+
+docker.run.disable-telemetry
+
+.. code-block:: bash
+
+   $ docker run ... -e DISABLE_TELEMETRY=true
+
+(end-code-block)
+
+
+docker.run.orchestrator-enabled
+
+.. code-block:: bash
+
+   $ docker run ... -e ORCHESTRATOR_ENABLED=true
+
+(end-code-block)
+
+
+docker.run.disable-updates
+
+.. code-block:: bash
+
+   $ docker run ... -e DISABLE_UPDATES=true
+
+(end-code-block)

@@ -226,59 +226,63 @@ separately. First, remove all monitored services by using the
 |pmm-admin.remove| command (see :ref:`pmm-admin.rm`). Then you can
 remove each |pmm.abbrev| client and the |pmm.abbrev| server.
 
-.. rubric:: Removing the |pmm.abbrev| Client
+Removing the |pmm-client|
+--------------------------------------------------------------------------------
 
 The exact procedure of removing the |pmm.abbrev| client, depends
-on the method of installation:
+on the method of installation.
+
+|tip.run-all.root|
 
 - Removing an installed package using YUM:
 
-  .. code-block:: bash
-
-     $ sudo yum remove pmm-client
-  
+  .. include:: ../.res/code/sh.txt
+     :start-after: yum.remove.pmm-client
+     :end-before: (end-code-block)
+		  
 - Removing an installed package using APT:
 
-  .. code-block:: bash
-
-     $ sudo apt-get remove pmm-client
-  
+  .. include:: ../.res/code/sh.txt
+     :start-after: apt-get.remove.pmm-client
+     :end-before: (end-code-block)
+		  
 - Removing a manually installed RPM package:
 
-  .. code-block:: bash
-
-     $ rpm -e pmm-client
+  .. include:: ../.res/code/sh.txt
+     :start-after: rpm.e.pmm-client
+     :end-before: (end-code-block)
 
 - Removing a manually installed DEB package:
 
-  .. code-block:: bash
+  .. include:: ../.res/code/sh.txt
+     :start-after: dpkg.r.pmm-client
+     :end-before: (end-code-block)
 
-     $ dpkg -r pmm-client
-  
 - Removing a binary installed by using the generic |pmm-client|
   tarball (assuming you have changed into the directory where
   the tarball contents was extracted to):
   
-  .. code-block:: bash
+  .. include:: ../.res/code/sh.txt
+     :start-after: $uninstall
+     :end-before: (end-code-block)
 
-      $ sudo ./uninstall
-
-.. rubric:: Removing the |pmm-server|
+Removing the |pmm-server|
+--------------------------------------------------------------------------------
 
 If you run your |pmm-server| using a |docker|,
 stop the container as follows:
 
-.. code-block:: bash
+.. include:: ../.res/code/sh.txt
+   :start-after: docker.stop.pmm-server&docker.rm.pmm-server
+   :end-before: (end-code-block)
 
-   $ docker stop pmm-server && docker rm pmm-server
-
-To discard all collected data (if you do not plan to user
+To discard all collected data (if you do not plan to use
 |pmm-server| in the future), remove the ``pmm-data``
 container:
 
-.. code-block:: bash
-
-   $ docker rm pmm-data
+.. include:: ../.res/code/sh.txt
+   :start-after: docker.rm.pmm-data
+   :end-before: (end-code-block)
 
 If you run your |pmm-server| using a virtual appliance, just stop and
 remove it.
@@ -286,9 +290,9 @@ remove it.
 To terminate the |pmm-server| running from an |amazon| machine image, run
 the following command in your terminal:
 
-.. code-block:: bash
-
-   $ aws ec2 terminate-instances --instance-ids -i-XXXX-INSTANCE-ID-XXXX
+.. include:: ../.res/code/sh.txt
+   :start-after: aws.ec2.terminate-instances
+   :end-before: (end-code-block)
 
 .. toctree::
    :hidden:
@@ -302,4 +306,7 @@ the following command in your terminal:
    - :ref:`architecture`
    - :ref:`pmm-admin.add`.
 
-.. include:: ../.resources/name.txt
+.. include:: ../.res/replace/name.txt
+.. include:: ../.res/replace/option.txt
+.. include:: ../.res/replace/program.txt
+.. include:: ../.res/replace/fragment.txt
