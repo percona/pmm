@@ -11,17 +11,10 @@ to install *PMM Client* from the official Percona software repository.
 Percona provides :file:`.deb` packages for 64-bit versions
 of the following distributions:
 
-* Debian 7 (wheezy)
-* Debian 8 (jessie)
-* Debian 9 (stretch)
-* Ubuntu 12.04 LTS (Precise Pangolin)
-* Ubuntu 14.04 LTS (Trusty Tahr)
-* Ubuntu 16.04 LTS (Xenial Xerus)
-* Ubuntu 16.10 (Yakkety Yak)
-* Ubuntu 17.04 (Zesty Zapus)
+.. include:: ../../.res/contents/list.pmm-client.supported-apt-platform.txt
 
 .. note:: *PMM Client* should work on other DEB-based distributions,
-   but it is tested only on platforms listed above.
+   but it is tested only on the platforms listed above.
 
 To install *PMM Client*:
 
