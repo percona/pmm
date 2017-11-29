@@ -5,7 +5,9 @@
 .. Organizations
 
 .. |amazon-aurora|   replace:: *Amazon Aurora*
+.. |aurora|          replace:: *Amazon Aurora*
 .. |amazon-rds|      replace:: *Amazon RDS*
+.. |rds|             replace:: *Amazon RDS*
 .. |amazon|          replace:: *Amazon*
 .. |docker|          replace:: *Docker*
 .. |grafana|         replace:: *Grafana*
@@ -38,15 +40,23 @@
 
 .. Metrics Monitor Dashboards 
 
-.. |pmm-system-summary| replace:: *PMM System Summary*
+.. |pmm-system-summary|             replace:: *PMM System Summary*
+.. |pmm-add-instance|               replace:: *PMM Add Instance*
+.. |pmm-query-analytics|            replace:: *PMM Query Analytics*
+.. |amazon-rds-aurora-mysql-metrics| replace:: *Amazon RDS / Aurora MySQL Metrics*
 
 .. Metrics Monitor Graphs (Prefix: graph)
 
 .. |advanced-data-exploration| replace:: *Advanced Data Exploration*
 .. |cpu-usage| replace:: *CPU Usage*
 .. |mysql.myrocks| replace:: *MySQL MyRocks Metrics*
+			     
 
 .. GUI Elements
 
-.. |download-summary| replace:: :guilabel:`Download Summary`
-.. |host| replace:: :guilabel:`Host`
+.. |download-summary|        replace:: :guilabel:`Download Summary`
+.. |host|                    replace:: :guilabel:`Host`
+.. |add-rds-aurora-instance| replace:: :guilabel:`Add an AWS RDS MySQL or Aurora MySQL Instance`
+.. |discover|                replace:: :guilabel:`Discover`
+.. |enabled|                  replace:: :guilabel:`Enabled`
+.. |connect|                 replace:: :guilabel:`Connect`

@@ -1,17 +1,17 @@
 .. _amazon-rds:
 
-=========================
+================================================================================
 Using PMM with Amazon RDS
-=========================
+================================================================================
 
-It is possible to use PMM for monitoring Amazon RDS
-(just like any remote MySQL instance).
+It is possible to use |pmm| for monitoring |amazon-rds| (just like any remote
+|mysql| instance).
 
-First of all, ensure that there is minimal latency between *PMM Server*
-and the RDS instance.
-Network connectivity can become an issue for Prometheus to scrape metrics
+First of all, ensure that there is minimal latency between |pmm-server|
+and the |amazon-rds| instance.
+Network connectivity can become an issue for |prometheus| to scrape metrics
 with 1 second resolution.
-We strongly suggest that you run *PMM Server* on AWS.
+We strongly suggest that you run |pmm-server| on AWS.
 
 .. note:: If latency is higher than 1 second,
    you should change the minimum resolution
@@ -19,38 +19,42 @@ We strongly suggest that you run *PMM Server* on AWS.
    when :ref:`creating and running the PMM Server container <server-container>`.
    For more information, see :ref:`metrics-resolution`.
 
-Query analytics requires :ref:`perf-schema` as the query source,
+|qan.name| requires :ref:`perf-schema` as the query source,
 because the slow query log is stored on AWS side,
-and QAN agent is not able to read it.
+and |qan| agent is not able to read it.
 Enable the ``performance_schema`` option under **Parameter Groups** on RDS
 (you will probably need to create a new **Parameter Group**
 and set it to the database instance).
+
+.. TODO: Check if the explanation about how to enable the performance schema is needed
 
 It also requires the ``statements_digest`` and ``events_statements_history``
 to be enabled on the RDS instance.
 For more information, see :ref:`perf-schema-settings`.
 
 .. note:: Because of the previous requirements,
-   it is not possible to collect query analytics for RDS
-   running MySQL version prior to 5.6.
-   For MySQL version 5.5 on RDS, see :ref:`cloudwatch`.
+   it is not possible to collect query analytics for |amazon-rds|
+   running a |mysql| version prior to 5.6.
+   For |mysql| version 5.5 on |amazon-rds|, see :ref:`cloudwatch`.
 
-When adding a monitoring instance for RDS,
-specify a unique name to distinguish it from the local MySQL instance.
+.. TODO: Check if the referenced cloudwatch material is still relevant.
+
+When adding a monitoring instance for |amazon-rds|,
+specify a unique name to distinguish it from the local |mysql| instance.
 If you do not specify a name, it will use the client's host name.
 
 Create the ``pmm`` user with the following privileges
-on the RDS instance that you want to monitor::
+on the |amazon-rds| instance that you want to monitor::
 
  GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
  GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 
-If you have RDS with MySQL version prior to 5.7,
+If you have |amazon-rds| with a |mysql| version prior to 5.7,
 `REPLICATION CLIENT` privilege is not available there
 and has to be excluded from the above statement.
 
-The following example shows how to enable QAN and MySQL metrics monitoring
-on Amazon RDS:
+The following example shows how to enable |qan| and |mysql| metrics monitoring
+on |amazon-rds|:
 
 .. code-block:: bash
 
@@ -60,20 +64,20 @@ on Amazon RDS:
 .. note:: General system metrics cannot be monitored remotely,
    because ``node_exporter`` requires access to the local file system.
    This means that the ``linux:metrics`` service cannot be used
-   to monitor Amazon RDS instances or any remote MySQL instance.
+   to monitor |amazon-rds| instances or any remote |mysql| instance.
 
 .. _cloudwatch:
 
 Monitoring Amazon RDS OS Metrics
 ================================
 
-You can use CloudWatch as the data source in Grafana
-to monitor OS metrics for Amazon RDS instances.
-PMM provides the *Amazon RDS OS Metrics* dashboard for this.
+You can use CloudWatch as the data source in |grafana|
+to monitor OS metrics for |amazon-rds| instances.
+PMM provides the |amazon-rds-aurora-mysql-metrics| dashboard for this.
 
-.. image:: images/amazon-rds-os-metrics.png
+.. image:: .res/graphics/png/amazon-rds-os-metrics.png
 
-To set up OS metrics monitoring for Amazon RDS in PMM via CloudWatch:
+To set up OS metrics monitoring for |rds| in |pmm| via CloudWatch:
 
 1. Create an IAM user on the AWS panel for accessing CloudWatch data,
    and attach the managed policy ``CloudWatchReadOnlyAccess`` to it.
@@ -92,7 +96,7 @@ To set up OS metrics monitoring for Amazon RDS in PMM via CloudWatch:
 
    .. code-block:: bash
 
-      $ docker run -d \
+    p  $ docker run -d \
         -p 80:80 \
         --volumes-from pmm-data \
         -v /path/to/file/with/creds:/usr/share/grafana/.aws/credentials \
@@ -100,7 +104,7 @@ To set up OS metrics monitoring for Amazon RDS in PMM via CloudWatch:
         --restart always \
         percona/pmm-server:latest
 
-The *Amazon RDS OS Metrics* dashboard uses 60 second resolution
+The |amazon-rds-aurora-mysql-metrics| dashboard uses 60 second resolution
 and shows the average value for each data point.
 An exception is the *CPU Credit Usage* graph,
 which has a 5 minute average and interval length.
@@ -118,3 +122,35 @@ including MySQL, Aurora, etc.
    For more information, see
    `Amazon CloudWatch Pricing <https://aws.amazon.com/cloudwatch/pricing/>`_.
 
+Connecting to an |amazon-rds| instance using the |pmm-add-instance| dashboard
+================================================================================
+
+The |pmm-add-instance| is now a preferred method to add an |amazon-rds| instance
+to |pmm|:
+
+.. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.png
+   
+   *Enter the access key ID and the secret access key of your IAM user to view*
+   |amazon-rds| *instances*.
+
+1. Open the |pmm| web interface and select the |pmm-add-instance| dashboard.
+#. Select the |add-rds-aurora-instance| option in the dashboard.
+#. Enter the access key ID and the secret access key of your IAM user.
+#. Click the |discover| button for |pmm| to retrieve the available |amazon-rds|
+   instances.
+
+.. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.1.png
+
+   |pmm| *displays the available*
+   |amazon-rds| *instances*
+
+For each instance that you would like to monitor, select the |enabled| button
+and enter the user name and password. Click |connect|. You can now monitor your
+instances in the |amazon-rds-aurora-mysql-metrics|.
+
+.. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.rds-instances.1.png
+
+   *Enter the DB user name and password to connect to the selected* |rds| or
+   |aurora| *instance*.
+
+.. include:: .res/replace/name.txt
