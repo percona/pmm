@@ -26,8 +26,8 @@
         - percona-qan-app2
         - percona-node_exporter-0.13.0
 
-    - name: PMM                        | PMM-1826 Remove broken 1.5.0 rpm
-      command: /usr/bin/rpm --erase --noscripts pmm-server
+    - name: PMM                        | PMM-1826 Remove broken 1.5.0, 1.5.1 rpms
+      command: sh -c "/usr/bin/rpm --erase --noscripts pmm-server-1.5.0 pmm-server-1.5.1 || :"
 
     - name: PMM                        | Install RPMs
       when: ansible_os_family == 'RedHat'
