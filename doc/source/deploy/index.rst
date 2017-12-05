@@ -98,23 +98,18 @@ For example, if your |pmm-server| is running on `192.168.100.1`,
 and you have installed |pmm-client| on a machine with IP
 `192.168.200.1`, run the following in the terminal of your client:
 
-.. code-block:: bash
+|tip.run-all.root|
 
-   $ sudo pmm-admin config --server 192.168.100.1
-   OK, PMM server is alive.
+.. include:: ../.res/code/sh.org
+   :start-after: +pmm-admin.config.server.url+
+   :end-before: #+end-block
 
-   PMM Server      | 192.168.100.1
-   Client Name     | ubuntu-amd641
-   Client Address  | 192.168.200.1
+If you change the default port **80**   when :ref:`running PMM Server <deploy-pmm.server.installing>`,
+specify it after the server's IP address. For example:
 
-.. note:: If you change the default port 80
-   when :ref:`running PMM Server <deploy-pmm.server.installing>`,
-   specify it after the server's IP address. For example:
-
-   .. code-block:: bash
-
-      $ sudo pmm-admin config --server 192.168.100.1:8080
-
+.. include:: ../.res/code/sh.org
+   :start-after: +pmm-admin.config.server.url.port+
+   :end-before: #+end-block
 
 .. _deploy-pmm.data-collecting:
 
@@ -126,7 +121,7 @@ To start collecting data on each |pmm.abbrev| client connected to a
 name of the selected monitoring service.
 
 For example, to enable general system metrics, MySQL metrics,
-as well as MySQL query analytics, run |pmm-admin.add| as follows:
+as well as MySQL query analytics, run |pmm-admin.add| as follows. |tip.run-all.root|.
 
 .. code-block:: bash
 
@@ -196,10 +191,13 @@ button in the bottom right corner of the |pmm.abbrev| home page (see
 
 .. figure:: ../images/update-button.png
 
-   Update your server by clicking the *Update* button on the |pmm.abbrev|
-   landing page.
+   *Update your server by clicking the*
+   |gui.update|
+   *button on the*
+   |pmm.abbrev|
+   *landing page.*
 
-.. rubric:: Updating |pmm.abbrev| clients
+.. rubric:: **Updating |pmm.abbrev| clients**
 
 When a newer version of |pmm-client| becomes available, you can update to it
 from the Percona software repositories:
@@ -236,53 +234,52 @@ on the method of installation.
 
 - Removing an installed package using YUM:
 
-  .. include:: ../.res/code/sh.txt
-     :start-after: yum.remove.pmm-client
-     :end-before: (end-code-block)
+  .. include:: ../.res/code/sh.org
+     :start-after: +yum.remove.pmm-client+
+     :end-before: #+end-block
 		  
 - Removing an installed package using APT:
 
-  .. include:: ../.res/code/sh.txt
-     :start-after: apt-get.remove.pmm-client
-     :end-before: (end-code-block)
+  .. include:: ../.res/code/sh.org
+     :start-after: +apt-get.remove.pmm-client+
+     :end-before: #+end-block
 		  
 - Removing a manually installed RPM package:
 
-  .. include:: ../.res/code/sh.txt
-     :start-after: rpm.e.pmm-client
-     :end-before: (end-code-block)
+  .. include:: ../.res/code/sh.org
+     :start-after: +rpm.e.pmm-client+
+     :end-before: #+end-block
 
 - Removing a manually installed DEB package:
 
-  .. include:: ../.res/code/sh.txt
-     :start-after: dpkg.r.pmm-client
-     :end-before: (end-code-block)
+  .. include:: ../.res/code/sh.org
+     :start-after: +dpkg.r.pmm-client+
+     :end-before: #+end-block
 
 - Removing a binary installed by using the generic |pmm-client|
-  tarball (assuming you have changed into the directory where
-  the tarball contents was extracted to):
+  tarball. Changed into the directory where the tarball contents was
+  extracted to. Then, run the :file:`unistall` script:
   
-  .. include:: ../.res/code/sh.txt
-     :start-after: $uninstall
-     :end-before: (end-code-block)
+  .. include:: ../.res/code/sh.org
+     :start-after: +uninstall+
+     :end-before: #+end-block
 
 Removing the |pmm-server|
 --------------------------------------------------------------------------------
 
-If you run your |pmm-server| using a |docker|,
-stop the container as follows:
+If you run your |pmm-server| using |docker|, stop the container as follows:
 
-.. include:: ../.res/code/sh.txt
-   :start-after: docker.stop.pmm-server&docker.rm.pmm-server
-   :end-before: (end-code-block)
+.. include:: ../.res/code/sh.org
+   :start-after: +docker.stop.pmm-server&docker.rm.pmm-server+
+   :end-before: #+end-block
 
 To discard all collected data (if you do not plan to use
 |pmm-server| in the future), remove the ``pmm-data``
 container:
 
-.. include:: ../.res/code/sh.txt
-   :start-after: docker.rm.pmm-data
-   :end-before: (end-code-block)
+.. include:: ../.res/code/sh.org
+   :start-after: +docker.rm.pmm-data+
+   :end-before: #+end-block
 
 If you run your |pmm-server| using a virtual appliance, just stop and
 remove it.
@@ -290,9 +287,9 @@ remove it.
 To terminate the |pmm-server| running from an |amazon| machine image, run
 the following command in your terminal:
 
-.. include:: ../.res/code/sh.txt
-   :start-after: aws.ec2.terminate-instances
-   :end-before: (end-code-block)
+.. include:: ../.res/code/sh.org
+   :start-after: +aws.ec2.terminate-instances+
+   :end-before: #+end-block
 
 .. toctree::
    :hidden:

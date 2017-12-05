@@ -1,0 +1,345 @@
+
+* +
+#+begin-block: uninstall
++uninstall+
+
+.. code-block:: bash
+
+      $ ./uninstall
+
+#+end-block
+
+* apt-get
+#+begin-block: apt-get remove
++apt-get.remove.pmm-client+
+
+.. code-block:: bash
+
+   $ apt-get remove pmm-client
+
+#+end-block
+
+* aws
+#+begin-block: aws ec2 terminate-instances instance-ids
++aws.ec2.terminate-instances+
+
+.. code-block:: bash
+
+   $ aws ec2 terminate-instances --instance-ids -i-XXXX-INSTANCE-ID-XXXX
+
+#+end-block
+
+* docker
+
+** docker create
+#+begin-block: docker create v name
++docker.create.percona-pmm-server-latest+
+
+.. code-block:: bash
+
+   $ docker create \
+      -v /opt/prometheus/data \
+      -v /opt/consul-data \
+      -v /var/lib/mysql \
+      -v /var/lib/grafana \
+      --name pmm-data \
+      percona/pmm-server:latest /bin/true
+
+#+end-block
+
+** docker pull
+#+begin-block: docker pull
++docker.pull.percona-pmm-server-latest+
+
+.. code-block:: bash
+
+   $ docker pull percona/pmm-server:latest
+
+#+end-block
+
+** docker run
+
+#+begin-block: docker run d p volumes-from name e server-user e server-password v restart
++docker.run.example+
+
+.. code-block:: bash
+
+   $ docker run -d -p 443:443 \
+     --volumes-from pmm-data \
+     --name pmm-server \
+     -e SERVER_USER=jsmith \
+     -e SERVER_PASSWORD=pass1234 \
+     -v /etc/pmm-certs:/etc/nginx/ssl \
+     --restart always \
+     percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run d p volumes from name v restart
++docker.run.example/etc.pmm-certs+
+
+.. code-block:: bash
+
+   $ docker run -d -p 443:443 \
+     --volumes-from pmm-data \
+     --name pmm-server \
+     -v /etc/pmm-certs:/etc/nginx/ssl \
+     --restart always \
+     percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run d p volumes-from name restart
++docker.run.latest+
+
+.. code-block:: bash
+
+   $ docker run -d \
+      -p 80:80 \
+      --volumes-from pmm-data \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run d p volumes-from name e server-user e server-password restart
++docker.run.server-user.example+
+
+.. code-block:: bash
+
+   $ docker run -d -p 80:80 \
+     --volumes-from pmm-data \
+     --name pmm-server \
+     -e SERVER_USER=jsmith \
+     -e SERVER_PASSWORD=pass1234 \
+     --restart always \
+     percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run d p volumes-from v name restart
++docker.run.iam-user-credential+
+
+.. code-block:: bash
+
+    $ docker run -d \
+      -p 80:80 \
+      --volumes-from pmm-data \
+      -v /path/to/file/with/creds:/usr/share/grafana/.aws/credentials \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e metrics-memory
++docker.run.metrics-memory+
+
+.. code-block:: bash
+
+   $ docker run ... -e METRICS_MEMORY=4194304
+
+#+end-block
+#+begin-block: docker run e server-user
++docker.run.server-user+
+
+.. code-block:: bash
+
+   $ docker run ... -e SERVER_USER=USER_NAME
+
+#+end-block
+#+begin-block: docker run e server-password
++docker.run.server-password+
+
+.. code-block:: bash
+
+   $ docker run ... -e SERVER_PASSWORD=YOUR_PASSWORD
+
+#+end-block
+#+begin-block: docker run e metrics-resolution
++docker.run.metrics-resolution+
+
+.. code-block:: bash
+
+   $ docker run ... -e METRICS_RESOLUTION=VALUE
+
+#+end-block
+#+begin-block: docker run e disable-telemetry
++docker.run.disable-telemetry+
+
+.. code-block:: bash
+
+   $ docker run ... -e DISABLE_TELEMETRY=true
+
+#+end-block
+#+begin-block: docker run e orchestrator-enabled
++docker.run.orchestrator-enabled+
+
+.. code-block:: bash
+
+   $ docker run ... -e ORCHESTRATOR_ENABLED=true
+
+#+end-block
+#+begin-block: docker run e disable-updates
++docker.run.disable-updates+
+
+.. code-block:: bash
+
+   $ docker run ... -e DISABLE_UPDATES=true
+
+#+end-block
+
+** docker stop
+#+begin-block: docker stop && docker rm
++docker.stop.pmm-server&docker.rm.pmm-server+
+
+.. code-block:: bash
+
+   $ docker stop pmm-server && docker rm pmm-server
+
+#+end-block
+#+begin-block: docker rm
++docker.rm.pmm-data+
+
+.. code-block:: bash
+
+   $ docker rm pmm-data
+
+#+end-block
+
+* dpkg
+#+begin-block: dpkg r
++dpkg.r.pmm-client+
+
+.. code-block:: bash
+
+   $ dpkg -r pmm-client
+  
+#+end-block
+
+* openssl
+#+begin-block: openssl dhparam out && openssl req nodes days newkey keyout out
++openssl.dhparam&openssl.req+
+
+.. code-block:: text
+
+   # openssl dhparam -out /etc/pmm-certs/dhparam.pem 4096
+   # openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/pmm-certs/server.key -out /etc/pmm-certs/server.crt
+   Generating a 2048 bit RSA private key
+   ....................................+++
+   ....+++
+   writing new private key to '/etc/pmm-certs/server.key'
+   -----
+   You are about to be asked to enter information that will be incorporated
+   into your certificate request.
+   What you are about to enter is what is called a Distinguished Name or a DN.
+   There are quite a few fields but you can leave some blank
+   For some fields there will be a default value,
+   If you enter '.', the field will be left blank.
+   -----
+   Country Name (2 letter code) [XX]:US
+   State or Province Name (full name) []:North Carolina
+   Locality Name (eg, city) [Default City]:Raleigh
+   Organization Name (eg, company) [Default Company Ltd]:Percona
+   Organizational Unit Name (eg, section) []:PMM
+   Common Name (eg, your name or your server's hostname) []:centos7.vm
+   Email Address []:jsmith@example.com
+
+#+end-block
+
+* pmm-admin
+
+** pmm-admin config
+#+begin-block: pmm-admin config server url
++pmm-admin.config.server.url+
+
+.. code-block:: bash
+
+   $ pmm-admin config --server 192.168.100.1
+   OK, PMM server is alive.
+
+   PMM Server      | 192.168.100.1
+   Client Name     | ubuntu-amd641
+   Client Address  | 192.168.200.1
+
+#+end-block
+#+begin-block: pmm-admin config server url port
++pmm-admin.config.server.url.port+
+
+   .. code-block:: bash
+
+      $ pmm-admin config --server 192.168.100.1:8080
+
+#+end-block
+#+begin-block: pmm-admin config server server-user server-password server-insecure-ssl
++pmm-admin.config.example+
+
+.. code-block:: bash
+
+   $ sudo pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234 --server-insecure-ssl
+
+#+end-block
+#+begin-block: pmm-admin config server server insecure-ssl
++pmm-admin.config.server.server-insecure-ssl+
+
+.. code-block:: bash
+
+   $ sudo pmm-admin config --server 192.168.100.1 --server-insecure-ssl
+
+#+end-block
+#+begin-block: pmm-admin config server server-ssl
++pmm-admin.config.server.server-ssl+
+
+.. code-block:: bash
+
+   $ sudo pmm-admin config --server 192.168.100.1 --server-ssl
+
+#+end-block
+#+begin-block: pmm-admin config server server-user server-password
++pmm-admin.config.server.server-user.server-password+
+
+.. code-block:: bash
+
+   $ sudo pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234
+
+#+end-block
+#+begin-block: pmm-admin add host user password
++pmm-admin.add.mysql-metrics.rds+
+
+.. code-block:: bash
+
+   $ sudo pmm-admin add mysql:metrics --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
+   $ sudo pmm-admin add mysql:queries --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
+
+#+end-block
+
+** pmm-admin ping
+#+begin-block: pmm-admin ping
++pmm-admin.ping+
+
+.. code-block:: text
+
+   $ sudo pmm-admin ping
+   OK, PMM server is alive.
+
+   PMM Server      | 192.168.100.1 (insecure SSL, password-protected)
+   Client Name     | centos7.vm
+   Client Address  | 192.168.200.1
+
+#+end-block
+
+* rpm
+#+begin-block: rpm e
++rpm.e.pmm-client+
+
+.. code-block:: bash
+
+   $ rpm -e pmm-client
+
+#+end-block
+
+* yum
+#+begin-block: yum remove
++yum.remove.pmm-client+
+
+.. code-block:: bash
+
+   $ yum remove pmm-client
+
+#+end-block

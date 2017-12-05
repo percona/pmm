@@ -6,7 +6,9 @@
 .. |opt.create-user|          replace:: :option:`--create-user`			
 .. |opt.dev-enable|           replace:: :option:`--dev-enable`
 .. |opt.disable-updates|      replace:: :option:`DISABLE_UPDATES`
+.. |opt.d|                    replace:: :option:`-d`
 .. |opt.external-metrics|     replace:: :option:`external:metrics`
+.. |opt.e|                    replace:: :option:`-e`
 .. |opt.help|                 replace:: :option:`--help`
 .. |opt.linux-metrics|        replace:: :option:`linux:metrics`
 .. |opt.mongodb-metrics|      replace:: :option:`mongodb:metrics`
@@ -15,13 +17,24 @@
 .. |opt.mysql-metrics|        replace:: :option:`mysql:metrics`
 .. |opt.mysql-queries|        replace:: :option:`mysql:queries`
 .. |opt.mysql|                replace:: :option:`mysql`
+.. |opt.name|                 replace:: :option:`--name`
 .. |opt.orchestrator-enabled| replace:: :option:`ORCHESTRATOR_ENABLED`
+.. |opt.pmm-server.latest|    replace:: :option:`percona/pmm-server:latest`
 .. |opt.port|                 replace:: :option:`--port`
 .. |opt.proxysql-metrics|     replace:: :option:`proxysql:metrics`
+.. |opt.p|                    replace:: :option:`-p`
 .. |opt.query-source|         replace:: :option:`--query-source`
+.. |opt.restart|              replace:: :option:`--restart`
 .. |opt.server|               replace:: :option:`--server`
 .. |opt.service-port|         replace:: :option:`--service-port`
 .. |opt.socket|               replace:: :option:`--socket`
 .. |opt.uri|                  replace:: :option:`--uri`
 .. |opt.verbose|              replace:: :option:`--verbose`
 .. |opt.version|              replace:: :option:`--version`
+.. |opt.volumes-from|         replace:: :option:`--volumes-from`
+.. |opt.v|                    replace:: :option:`-v`
+
+.. Environment Variables
+
+.. |opt.metrics_resolution| replace:: :term:`METRICS_RESOLUTION <METRICS_RESOLUTION (Option)>`
+
