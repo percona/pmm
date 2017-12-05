@@ -255,7 +255,7 @@ Viewing Database and Server Summary Information
 --------------------------------------------------------------------------------
 
 The |pmm-system-summary| dashboard shows detailed infromation about
-the selected host (the value of the |host| field) and the
+the selected host (the value of the |gui.host| field) and the
 database server deployed on this host.
 
 The :guilabel:`System Summary` section contains details about the platform while
@@ -267,7 +267,7 @@ database server.
    *Accessing information about the system and database*
    
 You can download the current values on this dashboard locally if you
-click the |download-summary| button.
+click the |gui.download-summary| button.
 
 .. _perf-schema:
 
@@ -403,7 +403,7 @@ To access the dashboards, provide default user credentials:
 
 On the Home screen, select a dashboard
 from the list of available Percona Dashboards.
-For example, the following image shows the **MySQL Overview** dashboard:
+For example, the following image shows the |mysql-overview| dashboard:
 
 .. image:: .res/graphics/png/metrics-monitor.png
 
@@ -430,7 +430,7 @@ level of compression, higher than that of the InnoDB storage engine, which makes
 it especially valuable when optimizing the usage of hard drives.
 
 PMM collects statistics on the MyRocks storage engine for MySQL in the metrics
-monitor as a separate dashboard titled |mysql.myrocks|. The main sourse of
+monitor as a separate dashboard titled |mysql-myrocks-metrics|. The main sourse of
 information for this dashboard comes from the *information schema* tables.
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.mysql-myrocks-metrics.1.png
@@ -454,9 +454,9 @@ main *PMM Server* landing page.
 
 To use it, create a MySQL user for Orchestrator on all managed instances:
 
-.. include:: .res/code/sql.txt
-   :start-after: grant.orc-client-user
-   :end-before: (end-code-block)
+.. include:: .res/code/sql.org
+   :start-after: +grant.orc-client-user+
+   :end-before: #+end-block
 
 .. note:: The credentials in the previous example are default.
    If you use a different user name or password,

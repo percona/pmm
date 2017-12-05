@@ -4,59 +4,87 @@
 
 .. Organizations
 
-.. |amazon-aurora|   replace:: *Amazon Aurora*
-.. |aurora|          replace:: *Amazon Aurora*
-.. |amazon-rds|      replace:: *Amazon RDS*
-.. |rds|             replace:: *Amazon RDS*
-.. |amazon|          replace:: *Amazon*
-.. |docker|          replace:: *Docker*
-.. |grafana|         replace:: *Grafana*
-.. |mariadb|         replace:: *MariaDB*
-.. |metrics-monitor| replace:: *Metrics Monitor*
-.. |mm|              replace:: *Metrics Monitor*
-.. |mongodb|         replace:: *MongoDB*
-.. |percona|         replace:: *Percona*
-.. |pmm.abbrev|      replace:: *PMM*
-.. |pmm.intro|       replace:: *PMM* (Percona Monitoring and Management)
-.. |pmm.name|        replace:: *Percona Monitoring and Management*
-.. |pmm|             replace:: *PMM*
-.. |postgresql|      replace:: *PostgreSQL*
-.. |postgres|        replace:: *PostgreSQL*
-.. |prometheus|      replace:: *Prometheus*
-.. |proxysql|        replace:: *ProxySQL*
-.. |qan.abbrev|      replace:: *QAN*
-.. |qan.intro|       replace:: *QAN* (Query Analytics)
-.. |qan.name|        replace:: *Query Analytics*
-.. |qan|             replace:: *QAN*
-.. |query-analytics| replace:: *Query Analytics*
-.. |myrocks|         replace:: *MyRocks*
-.. |mysql|           replace:: *MySQL*
-.. |pmm-client|      replace:: *PMM Client*
-.. |pmm-server|      replace:: *PMM Server*
-.. |orchestrator|    replace:: *Orchestrator*
-.. |perl|            replace:: *Perl*
-.. |consul|          replace:: *Consul*
 
+.. |amazon-aurora|            replace:: *Amazon Aurora*
+.. |amazon-cloudwatch|        replace:: *Amazon Cloudwatch*
+.. |amazon-linux|             replace:: *Amazon Linux*
+.. |amazon-rds|               replace:: *Amazon RDS*
+.. |amazon|                   replace:: *Amazon*
+.. |ami.intro|                replace:: *AMI* (Amazon Machine Image)
+.. |ami.name|                 replace:: *Amazon Machine Image*
+.. |ami|                      replace:: *AMI*
+.. |aurora|                   replace:: *Amazon Aurora*
+.. |aws.intro|                replace:: *AWS* (Amazon Web Services)
+.. |aws.name|                 replace:: *Amazon Web Services*
+.. |aws|                      replace:: *AWS*
+.. |centos|                   replace:: *CentOS*
+.. |cloudwatch|               replace:: *Amazon Cloudwatch*
+.. |consul|                   replace:: *Consul*
+.. |debian|                   replace:: *Debian*
+.. |docker|                   replace:: *Docker*
+.. |grafana|                  replace:: *Grafana*
+.. |linux|                    replace:: *Linux*
+.. |mariadb|                  replace:: *MariaDB*
+.. |metrics-monitor|          replace:: *Metrics Monitor*
+.. |mm|                       replace:: *Metrics Monitor*
+.. |mongodb|                  replace:: *MongoDB*
+.. |myrocks|                  replace:: *MyRocks*
+.. |mysql|                    replace:: *MySQL*
+.. |oracle-linux|             replace:: *Oracle Linux*
+.. |orchestrator|             replace:: *Orchestrator*
+.. |percona|                  replace:: *Percona*
+.. |perl|                     replace:: *Perl*
+.. |pmm-client|               replace:: *PMM Client*
+.. |pmm-server|               replace:: *PMM Server*
+.. |pmm.abbrev|               replace:: *PMM*
+.. |pmm.intro|                replace:: *PMM* (Percona Monitoring and Management)
+.. |pmm.name|                 replace:: *Percona Monitoring and Management*
+.. |pmm|                      replace:: *PMM*
+.. |postgresql|               replace:: *PostgreSQL*
+.. |postgres|                 replace:: *PostgreSQL*
+.. |prometheus|               replace:: *Prometheus*
+.. |proxysql|                 replace:: *ProxySQL*
+.. |qan.abbrev|               replace:: *QAN*
+.. |qan.intro|                replace:: *QAN* (Query Analytics)
+.. |qan.name|                 replace:: *Query Analytics*
+.. |qan|                      replace:: *QAN*
+.. |query-analytics|          replace:: *Query Analytics*
+.. |rds|                      replace:: *Amazon RDS*
+.. |red-hat-enterprise-linux| replace:: *Red Hat Enterprise Linux*
+.. |red-hat.name|             replace:: *Red Hat Enterprise Linux*
+.. |red-hat|                  replace:: *Red Hat*
+.. |ubuntu|                   replace:: *Ubuntu*
 
 .. Metrics Monitor Dashboards 
 
-.. |pmm-system-summary|             replace:: *PMM System Summary*
-.. |pmm-add-instance|               replace:: *PMM Add Instance*
-.. |pmm-query-analytics|            replace:: *PMM Query Analytics*
 .. |amazon-rds-aurora-mysql-metrics| replace:: *Amazon RDS / Aurora MySQL Metrics*
+.. |mysql-overview|                  replace:: *MySQL Overview*
+.. |pmm-add-instance|                replace:: *PMM Add Instance*
+.. |pmm-query-analytics|             replace:: *PMM Query Analytics*
+.. |pmm-system-summary|              replace:: *PMM System Summary*
+
 
 .. Metrics Monitor Graphs (Prefix: graph)
 
 .. |advanced-data-exploration| replace:: *Advanced Data Exploration*
-.. |cpu-usage| replace:: *CPU Usage*
-.. |mysql.myrocks| replace:: *MySQL MyRocks Metrics*
-			     
+.. |cpu-usage|                 replace:: *CPU Usage*
+.. |mysql-myrocks-metrics|     replace:: *MySQL MyRocks Metrics*
+.. |cpu-credit-usage|          replace:: *CPU Credit Usage*			     
 
 .. GUI Elements
 
-.. |download-summary|        replace:: :guilabel:`Download Summary`
-.. |host|                    replace:: :guilabel:`Host`
-.. |add-rds-aurora-instance| replace:: :guilabel:`Add an AWS RDS MySQL or Aurora MySQL Instance`
-.. |discover|                replace:: :guilabel:`Discover`
-.. |enabled|                  replace:: :guilabel:`Enabled`
-.. |connect|                 replace:: :guilabel:`Connect`
+.. |gui.add-rds-aurora-instance| replace:: :guilabel:`Add an AWS RDS MySQL or Aurora MySQL Instance`
+.. |gui.connect|                 replace:: :guilabel:`Connect`
+.. |gui.discover|                replace:: :guilabel:`Discover`
+.. |gui.download-summary|        replace:: :guilabel:`Download Summary`
+.. |gui.enabled|                 replace:: :guilabel:`Enabled`
+.. |gui.host|                    replace:: :guilabel:`Host`
+.. |gui.update|                  replace:: :guilabel:`Update`
+
+.. Files and directories
+
+.. |dhparam.pem|   replace:: :file:`dhparam.pem`
+.. |etc.nginx.ssl| replace:: :file:`/etc/nginx/ssl`
+.. |etc.pmm-certs| replace:: :file:`/etc/pmm-certs`
+.. |server.crt|    replace:: :file:`server.crt`
+.. |server.key|    replace:: :file:`server.key`

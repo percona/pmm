@@ -1,7 +1,7 @@
 .. _amazon-rds:
 
 ================================================================================
-Using PMM with Amazon RDS
+Using |pmm| with |amazon-rds|
 ================================================================================
 
 It is possible to use |pmm| for monitoring |amazon-rds| (just like any remote
@@ -15,7 +15,7 @@ We strongly suggest that you run |pmm-server| on AWS.
 
 .. note:: If latency is higher than 1 second,
    you should change the minimum resolution
-   by setting the ``METRICS_RESOLUTION`` environment variable
+   by setting the |opt.metrics_resolution|  environment variable
    when :ref:`creating and running the PMM Server container <server-container>`.
    For more information, see :ref:`metrics-resolution`.
 
@@ -56,10 +56,9 @@ and has to be excluded from the above statement.
 The following example shows how to enable |qan| and |mysql| metrics monitoring
 on |amazon-rds|:
 
-.. code-block:: bash
-
-   $ sudo pmm-admin add mysql:metrics --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
-   $ sudo pmm-admin add mysql:queries --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
+.. include:: .res/code/sh.org
+   :start-after: +pmm-admin.add.mysql-metrics.rds+
+   :end-before: #+end-block
 
 .. note:: General system metrics cannot be monitored remotely,
    because ``node_exporter`` requires access to the local file system.
@@ -68,16 +67,16 @@ on |amazon-rds|:
 
 .. _cloudwatch:
 
-Monitoring Amazon RDS OS Metrics
-================================
+Monitoring |amazon-rds| OS Metrics
+================================================================================
 
-You can use CloudWatch as the data source in |grafana|
+You can use |cloudwatch| as the data source in |grafana|
 to monitor OS metrics for |amazon-rds| instances.
 PMM provides the |amazon-rds-aurora-mysql-metrics| dashboard for this.
 
 .. image:: .res/graphics/png/amazon-rds-os-metrics.png
 
-To set up OS metrics monitoring for |rds| in |pmm| via CloudWatch:
+To set up OS metrics monitoring for |rds| in |pmm| via |cloudwatch|:
 
 1. Create an IAM user on the AWS panel for accessing CloudWatch data,
    and attach the managed policy ``CloudWatchReadOnlyAccess`` to it.
@@ -94,26 +93,20 @@ To set up OS metrics monitoring for |rds| in |pmm| via CloudWatch:
    and mounts it to :file:`/usr/share/grafana/.aws/credentials`
    in the container. For example:
 
-   .. code-block:: bash
-
-    p  $ docker run -d \
-        -p 80:80 \
-        --volumes-from pmm-data \
-        -v /path/to/file/with/creds:/usr/share/grafana/.aws/credentials \
-        --name pmm-server \
-        --restart always \
-        percona/pmm-server:latest
+   .. include:: .res/code/sh.org
+      :start-after: +docker.run.iam-user-credential+
+      :end-before: #+end-block
 
 The |amazon-rds-aurora-mysql-metrics| dashboard uses 60 second resolution
 and shows the average value for each data point.
-An exception is the *CPU Credit Usage* graph,
+An exception is the |cpu-credit-usage| graph,
 which has a 5 minute average and interval length.
 All data is fetched in real time and not stored anywhere.
 
-This dashboard can be used with any Amazon RDS database engine,
-including MySQL, Aurora, etc.
+This dashboard can be used with any |amazon-rds| database engine,
+including |mysql|, |amazon-aurora|, etc.
 
-.. note:: Amazon provides one million CloudWatch API requests
+.. note:: |amazon| provides one million |amazon-cloudwatch| API requests
    per month at no additional cost.
    Past this, it costs $0.01 per 1,000 requests.
    The pre-defined dashboard performs 15 requests on each refresh
@@ -125,6 +118,8 @@ including MySQL, Aurora, etc.
 Connecting to an |amazon-rds| instance using the |pmm-add-instance| dashboard
 ================================================================================
 
+.. versionadded:: 1.5.0
+
 The |pmm-add-instance| is now a preferred method to add an |amazon-rds| instance
 to |pmm|:
 
@@ -134,9 +129,9 @@ to |pmm|:
    |amazon-rds| *instances*.
 
 1. Open the |pmm| web interface and select the |pmm-add-instance| dashboard.
-#. Select the |add-rds-aurora-instance| option in the dashboard.
+#. Select the |gui.add-rds-aurora-instance| option in the dashboard.
 #. Enter the access key ID and the secret access key of your IAM user.
-#. Click the |discover| button for |pmm| to retrieve the available |amazon-rds|
+#. Click the |gui.discover| button for |pmm| to retrieve the available |amazon-rds|
    instances.
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.1.png
@@ -144,8 +139,8 @@ to |pmm|:
    |pmm| *displays the available*
    |amazon-rds| *instances*
 
-For each instance that you would like to monitor, select the |enabled| button
-and enter the user name and password. Click |connect|. You can now monitor your
+For each instance that you would like to monitor, select the |gui.enabled| button
+and enter the user name and password. Click |gui.connect|. You can now monitor your
 instances in the |amazon-rds-aurora-mysql-metrics|.
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.rds-instances.1.png
@@ -154,3 +149,4 @@ instances in the |amazon-rds-aurora-mysql-metrics|.
    |aurora| *instance*.
 
 .. include:: .res/replace/name.txt
+.. include:: .res/replace/option.txt

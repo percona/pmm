@@ -1,47 +1,12 @@
-==========
- Glossary
-==========
+.. _pmm/glossary/terminology-reference:
+
+================================================================================
+Terminology Reference
+================================================================================
 
 .. glossary::
    :sorted:
-   
-   METRICS_MEMORY (Option)
 
-      By default, Prometheus in |pmm-server| uses up to 768 MB of memory for storing
-      the most recently used data chunks.  Depending on the amount of data coming into
-      Prometheus, you may require a higher limit to avoid throttling data ingestion,
-      or allow less memory consumption if it is needed for other processes.
-
-      To set this environment variable, use the ``-e`` option along with
-      :program:`docker run`.  The value must be passed in kilobytes. For
-      example, to set the limit to 4 GB of memory run the following command:
-
-      .. include: .resources/code/sh.txt
-	 :start-after: docker.run.metrics-memory
-	 :end-before: (end-code-block)
-
-      .. note::
-
-	 The limit affects only memory reserved for data chunks.  Actual RAM
-	 usage by Prometheus is higher.  It is recommended to set this limit to
-	 roughly 2/3 of the total memory that you are planning to allow for
-	 Prometheus.
-
-	 For example, if you set the limit to 4 GB, then |prometheus| will use up
-	 to 6 GB of memory.
-
-   DISABLE_UPDATES (Option)
-
-      The |opt.disable-updates| option removes the :guilabel:`Update` button
-      from the interface and prevents the system from being updated manually.
-
-      Set it to *true* when running a docker container:
-
-      .. include: .resources/code/sh.txt
-	 :start-after: docker.run.disable-updates
-	 :end-before: (end-code-block)
-
-   
    Telemetry
 
       |percona| may collect some statistics about the machine where |pmm| is running.
@@ -57,10 +22,9 @@
       You may disable telemetry :ref:`by passing an additional parameter
       <pmm/docker.additional_parameters>` to |docker|.
 
-      .. include:: .res/code/sh.txt
+      .. include:: .res/code/sh.org
 	 :start-after: docker.run.disable-telemetry
-	 :end-before: (end-code-block)
-
+	 :end-before: #+end-block
 
    External Monitoring Service
 
@@ -77,14 +41,6 @@
       .. seealso::
 
 	 - :ref:`Enabling orchestrator when running a docker container <pmm/docker.additional_parameters>`.
-
-   ORCHESTRATOR_ENABLED (Option)
-
-      .. include:: .res/code/sh.txt
-	 :start-after: docker.run.orchestrator-enabled
-	 :end-before: (end-code-block)
-
-      .. seealso:: :term:`Orchestrator`
 
    Data Source Name
 
@@ -142,7 +98,7 @@
 
    Query Load
 
-      The percentage of time that the MySQL server spent executing a specific query.
+      The percentage of time that the |mysql| server spent executing a specific query.
 
    Query Abstract
 
@@ -171,8 +127,10 @@
       A docker image which enables installing the |pmm-server| by
       using :program:`docker`.
 
-      For more information about how to install |pmm-server| using
-      this option, see :ref:`run-server-docker`.
+      .. seealso::
+
+	 Installing |pmm-server| using |docker|
+	    :ref:`run-server-docker`
 
    PMM Home Page
 
@@ -180,7 +138,7 @@
       PMM, view or download documentation.
 
       On the PMM home page, you can also find the version number and a button to
-      update your PMM server (see :term:`PMM Version`).
+      update your |pmm-server| (see :term:`PMM Version`).
 
    PMM
 
@@ -200,20 +158,21 @@
 
       .. seealso::
 
-	 - :ref:`Passing parameters to a monitoring service <pmm.pmm-admin.monitoring-service.pass-parameter>`
+	 Passing parameters to a monitoring service
+	    :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
 
    Metrics
 
-      A series of data which are visualized in PMM.
+      A series of data which are visualized in |pmm|.
 
    Metrics Monitor (MM)
    
       Component of :term:`PMM Server` that provides a historical view of
-      :term:`metrics <Metrics>` critical to a MySQL server instance.
+      :term:`metrics <Metrics>` critical to a |mysql| server instance.
 
    PMM Client
    
-      Collects MySQL server metrics, general system metrics,
+      Collects |mysql| server metrics, general system metrics,
       and query analytics data for a complete performance overview.
 
       The collected data is sent to :term:`PMM Server`.
@@ -225,19 +184,18 @@
       Aggregates data collected by :term:`PMM Client` and presents it in the
       form of tables, dashboards, and graphs in a web interface.
 
-      *PMM Server* combines the backend API and storage for collected data with
+      |pmm-server| combines the backend API and storage for collected data with
       a frontend for viewing time-based graphs and performing thorough analysis
-      of your MySQL and MongoDB hosts through a web interface.
+      of your |mysql| and |mongodb| hosts through a web interface.
 
       Run |pmm-server| on a host that you will use to access this data.
 
-
-      For more information, see :ref:`architecture`.
+      .. seealso:: :ref:`architecture`
 
    Query Analytics (QAN)
 
       Component of :term:`PMM Server` that enables you to analyze
-      MySQL query performance over periods of time.
+      |mysql| query performance over periods of time.
 
    QAN
 
@@ -251,3 +209,4 @@
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/option.txt
 .. include:: .res/replace/program.txt
+.. include:: .res/replace/fragment.txt

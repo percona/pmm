@@ -1,5 +1,8 @@
 
-grant.orc-client-user
+* sql grant
+
+#+begin-block: grant super process replication slave reload on
++grant.orc-client-user+
 
 .. code-block:: guess
 
@@ -7,4 +10,4 @@ grant.orc-client-user
    TO 'orc_client_user'@'%'
    IDENTIFIED BY 'orc_client_password’;
 
-(end-code-block)
+#+end-block

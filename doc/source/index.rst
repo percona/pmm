@@ -44,6 +44,6 @@ Reference
    :maxdepth: 1
 
    Release Notes <release-notes/index>
-   contact
-   faq
-   glossary
+   Contact Us <contact>
+   FAQ <faq>
+   Glossaries <list.glossary>

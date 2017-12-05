@@ -30,9 +30,9 @@ Step 1. Pull the PMM Server Image
 
 To pull the latest version from Docker Hub:
 
-.. include:: ../../.res/code/sh.txt
-   :start-after: docker.pull.percona-pmm-server-latest
-   :end-before: (end-code-block)
+.. include:: ../../.res/code/sh.org
+   :start-after: +docker.pull.percona-pmm-server-latest+
+   :end-before: #+end-block
 
 This is not required if you are running |pmm-server| for the first time.
 However, it ensures that if there is an older version of the image
@@ -44,11 +44,11 @@ it will be replaced by the actual latest version.
 Step 2. Create a PMM Data Container
 ================================================================================
 
-To create a container for persistent PMM data, run the following command:
+To create a container for persistent |pmm| data, run the following command:
 
-.. include:: ../../.res/code/sh.txt
-   :start-after: docker.create.percona-pmm-server-latest
-   :end-before: (end-code-block)
+.. include:: ../../.res/code/sh.org
+   :start-after: +docker.create.percona-pmm-server-latest+
+   :end-before: #+end-block
 	     
 .. note:: This container does not run,
    it simply exists to make sure you retain all |pmm| data
@@ -72,6 +72,12 @@ The previous command does the following:
 
 * ``/bin/true`` is the command that the container runs.
 
+.. important::
+
+   Make sure that the data volumes that you initialize with the |opt.v|
+   option match those given in the example. |pmm-server| expects that those
+   directories are bind mounted exactly as demonstrated.
+
 .. _server-container:
 
 Step 3. Create and Run the |pmm-server| Container
@@ -79,35 +85,35 @@ Step 3. Create and Run the |pmm-server| Container
 
 To run |pmm-server|, use the following command:
 
-.. include:: ../../.res/code/sh.txt
-   :start-after: docker.run.latest
-   :end-before: (end-code-block)
+.. include:: ../../.res/code/sh.org
+   :start-after: +docker.run.latest+
+   :end-before: #+end-block
 		
 The previous command does the following:
 
-* The ``docker run`` command instructs the ``docker`` daemon
-  to run a container from an image.
+* The |docker.run| command runs a new container based on the
+  |opt.pmm-server.latest| image.
 
-* The ``-d`` option starts the container in detached mode
+* The |opt.d| option starts the container in detached mode
   (that is, in the background).
 
-* The ``-p`` option maps the port for accessing the |pmm-server| web UI.
-  For example, if port 80 is not available,
+* The |opt.p| option maps the port for accessing the |pmm-server| web UI.
+  For example, if port **80** is not available,
   you can map the landing page to port 8080 using ``-p 8080:80``.
 
-* The ``--volumes-from`` option mounts volumes
+* The || option mounts volumes
   from the ``pmm-data`` container (see :ref:`data-container`).
 
-* The ``--name`` option assigns a custom name for the container
-  that you can use to reference the container within a Docker network.
+* The |opt.name| option assigns a custom name to the container
+  that you can use to reference the container within the |docker| network.
   In this case: ``pmm-server``.
 
-* The ``--restart`` option defines the container's restart policy.
+* The |opt.restart| option defines the container's restart policy.
   Setting it to ``always`` ensures that the Docker daemon
   will start the container on startup
   and restart it if the container exits.
 
-* ``percona/pmm-server:latest`` is the name and version tag of the image
+* |opt.pmm-server.latest| is the name and version tag of the image
   to derive the container from.
 
 .. _pmm/docker.additional_parameters:
@@ -115,17 +121,18 @@ The previous command does the following:
 Additional parameters
 --------------------------------------------------------------------------------
 
-When running the |pmm-server|, you may pass additional parameters to
-the |docker| *run* subcommand.
+When running the |pmm-server|, you may pass additional parameters to the
+|docker.run| subcommand. All options that appear after the |opt.e| option
+are the additional parameters that modify the way how |pmm-server| operates.
 
 .. rubric:: **To enable Orchestrator**
 
 By default, Orchestrator_ is disabled. To enable it, set the
- |opt.orchestrator-enabled| option to **true**.
+|opt.orchestrator-enabled| option to **true**.
 
-.. include:: ../../.res/code/sh.txt
-   :start-after: docker.run.orchestrator-enabled
-   :end-before: (end-code-block)
+.. include:: ../../.res/code/sh.org
+   :start-after: +docker.run.orchestrator-enabled+
+   :end-before: #+end-block
 
 .. rubric:: **To disable telemetry**
 
@@ -141,20 +148,20 @@ every 24 hours. This statistics includes the following details:
 If you do not want your |pmm-server| to send this information, disable telemetry
 when running your |docker| container:
 
-.. include:: ../../.res/code/sh.txt
-   :start-after: docker.run.disable-telemetry
-   :end-before: (end-code-block)
+.. include:: ../../.res/code/sh.org
+   :start-after: +docker.run.disable-telemetry+
+   :end-before: #+end-block
 
 .. rubric:: **To disable updates**
 
 To update your |pmm| from web interface you only need to click the
-:guilabel:`Update` on the home page. The |opt.disable-updates| option is useful
+|gui.update| on the home page. The |opt.disable-updates| option is useful
 if updating is not desirable. Set it to **true** when running |pmm| in
 the |docker| container.
 
-.. include:: ../../.res/code/sh.txt
-   :start-after: docker.run.disable-updates
-   :end-before: (end-code-block)
+.. include:: ../../.res/code/sh.org
+   :start-after: +docker.run.disable-updates+
+   :end-before: #+end-block
 
 .. toctree::
    :hidden:
