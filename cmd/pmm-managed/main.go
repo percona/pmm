@@ -342,6 +342,7 @@ func getTelemetryUUID(consulClient *consul.Client) (string, error) {
 
 func main() {
 	log.SetFlags(0)
+	log.Printf("pmm-managed %s", pmmVersion)
 	log.SetPrefix("stdlog: ")
 	flag.Parse()
 
