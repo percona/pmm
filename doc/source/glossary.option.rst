@@ -26,11 +26,52 @@ List of |pmm-server| Options
 
    ORCHESTRATOR_ENABLED (Option)
 
+      This option enables |orchestrator| (See
+      :ref:`pmm/using.orchestrator`). By default it is disabled. It is
+      also desabled if this option contains **false**.
+
       .. include:: .res/code/sh.org
 	 :start-after: +docker.run.orchestrator-enabled+
 	 :end-before: #+end-block
 
-      .. seealso:: :term:`Orchestrator`
+      .. seealso::
+
+	 Orchestrator
+	    :term:`Orchestrator`
+	 Orchestrator Credentials
+	    - :term:`ORCHESTRATOR_USER <ORCHESTRATOR_USER (Option)>`
+	    - :term:`ORCHESTRATOR_PASSWORD <ORCHESTRATOR_PASSWORD (Option)>`
+
+   ORCHESTRATOR_USER (Option)
+
+      Pass this option, when running your :term:`PMM Server` via
+      |docker| to set the orchestrator user. You only need this
+      parameter (along with :term:`ORCHESTRATOR_PASSWORD
+      <ORCHESTRATOR_PASSWORD (Option)>` if you have set up a custom
+      |orchestrator| user.
+
+      This option has no effect if the
+      :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED (Option)>` option is
+      set to **false**.
+
+      .. include:: .res/code/sh.org
+	 :start-after: +docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
+	 :end-before: #+end-block
+
+   ORCHESTRATOR_PASSWORD (Option)
+
+      Pass this option, when running your :term:`PMM Server` via |docker| to set
+      the orchestrator password.
+
+      This option has no effect if the
+      :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED (Option)>`
+      option is set to **false**.
+
+      .. include:: .res/code/sh.org
+	 :start-after: +docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
+	 :end-before: #+end-block
+
+      .. seealso:: :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED (Option)>`
 
    SERVER_USER (Option)
 

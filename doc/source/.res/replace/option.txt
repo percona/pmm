@@ -1,28 +1,54 @@
-
+.. -*- mode: org -*-
 .. Options (all using the 'opt.' prefix)
    
-.. |opt.a.upper|              replace:: :option:`-A`
 .. |opt.all|                  replace:: :option:`--all`
+.. |opt.config-file|          replace:: :option:`--config-file`
+.. |opt.create-user|          replace:: :option:`--create-user`			
+.. |opt.dev-enable|           replace:: :option:`--dev-enable`
+.. |opt.disable-updates|      replace:: :option:`DISABLE_UPDATES`
+.. |opt.external-metrics|     replace:: :option:`external:metrics`
+.. |opt.help|                 replace:: :option:`--help`
+.. |opt.linux-metrics|        replace:: :option:`linux:metrics`
+.. |opt.mongodb-metrics|      replace:: :option:`mongodb:metrics`
+.. |opt.mongodb-queries|      replace:: :option:`mongodb:queries`
+.. |opt.mongodb|              replace:: :option:`mongodb`
+.. |opt.mysql-metrics|        replace:: :option:`mysql:metrics`
+.. |opt.mysql-queries|        replace:: :option:`mysql:queries`
+.. |opt.mysql|                replace:: :option:`mysql`
+.. |opt.name|                 replace:: :option:`--name`
+.. |opt.orchestrator-enabled| replace:: :option:`ORCHESTRATOR_ENABLED`
+.. |opt.pmm-server.latest|    replace:: :option:`percona/pmm-server:latest`
+.. |opt.port|                 replace:: :option:`--port`
+.. |opt.proxysql-metrics|     replace:: :option:`proxysql:metrics`
+.. |opt.query-source|         replace:: :option:`--query-source`
+.. |opt.restart|              replace:: :option:`--restart`
+.. |opt.server|               replace:: :option:`--server`
+.. |opt.service-port|         replace:: :option:`--service-port`
+.. |opt.socket|               replace:: :option:`--socket`
+.. |opt.uri|                  replace:: :option:`--uri`
+.. |opt.verbose|              replace:: :option:`--verbose`
+.. |opt.version|              replace:: :option:`--version`
+.. |opt.volumes-from|         replace:: :option:`--volumes-from`
+.. |opt.server-user|          replace:: :option:`--SERVER_USER`
+.. |opt.server-password|      replace:: :option:`--SERVER_PASSWORD`
+
+.. One letter
+
+.. |opt.a.upper|              replace:: :option:`-A`
 .. |opt.a|                    replace:: :option:`-a`
 .. |opt.b.upper|              replace:: :option:`-B`
 .. |opt.b|                    replace:: :option:`-b`
 .. |opt.c.upper|              replace:: :option:`-C`
-.. |opt.config-file|          replace:: :option:`--config-file`
-.. |opt.create-user|          replace:: :option:`--create-user`			
 .. |opt.c|                    replace:: :option:`-c`
 .. |opt.d.upper|              replace:: :option:`-D`
-.. |opt.dev-enable|           replace:: :option:`--dev-enable`
-.. |opt.disable-updates|      replace:: :option:`DISABLE_UPDATES`
 .. |opt.d|                    replace:: :option:`-d`
 .. |opt.e.upper|              replace:: :option:`-E`
-.. |opt.external-metrics|     replace:: :option:`external:metrics`
 .. |opt.e|                    replace:: :option:`-e`
 .. |opt.f.upper|              replace:: :option:`-F`
 .. |opt.f|                    replace:: :option:`-f`
 .. |opt.g.upper|              replace:: :option:`-G`
 .. |opt.g|                    replace:: :option:`-g`
 .. |opt.h.upper|              replace:: :option:`-H`
-.. |opt.help|                 replace:: :option:`--help`
 .. |opt.h|                    replace:: :option:`-h`
 .. |opt.i.upper|              replace:: :option:`-I`
 .. |opt.i|                    replace:: :option:`-i`
@@ -31,47 +57,26 @@
 .. |opt.k.upper|              replace:: :option:`-K`
 .. |opt.k|                    replace:: :option:`-k`
 .. |opt.l.upper|              replace:: :option:`-L`
-.. |opt.linux-metrics|        replace:: :option:`linux:metrics`
 .. |opt.l|                    replace:: :option:`-l`
 .. |opt.m.upper|              replace:: :option:`-M`
-.. |opt.mongodb-metrics|      replace:: :option:`mongodb:metrics`
-.. |opt.mongodb-queries|      replace:: :option:`mongodb:queries`
-.. |opt.mongodb|              replace:: :option:`mongodb`
-.. |opt.mysql-metrics|        replace:: :option:`mysql:metrics`
-.. |opt.mysql-queries|        replace:: :option:`mysql:queries`
-.. |opt.mysql|                replace:: :option:`mysql`
 .. |opt.m|                    replace:: :option:`-m`
 .. |opt.n.upper|              replace:: :option:`-N`
-.. |opt.name|                 replace:: :option:`--name`
 .. |opt.n|                    replace:: :option:`-n`
 .. |opt.o.upper|              replace:: :option:`-O`
-.. |opt.orchestrator-enabled| replace:: :option:`ORCHESTRATOR_ENABLED`
 .. |opt.o|                    replace:: :option:`-o`
 .. |opt.p.upper|              replace:: :option:`-P`
-.. |opt.pmm-server.latest|    replace:: :option:`percona/pmm-server:latest`
-.. |opt.port|                 replace:: :option:`--port`
-.. |opt.proxysql-metrics|     replace:: :option:`proxysql:metrics`
 .. |opt.p|                    replace:: :option:`-p`
 .. |opt.q.upper|              replace:: :option:`-Q`
-.. |opt.query-source|         replace:: :option:`--query-source`
 .. |opt.q|                    replace:: :option:`-q`
 .. |opt.r.upper|              replace:: :option:`-R`
-.. |opt.restart|              replace:: :option:`--restart`
 .. |opt.r|                    replace:: :option:`-r`
 .. |opt.s.upper|              replace:: :option:`-S`
-.. |opt.server|               replace:: :option:`--server`
-.. |opt.service-port|         replace:: :option:`--service-port`
-.. |opt.socket|               replace:: :option:`--socket`
 .. |opt.s|                    replace:: :option:`-s`
 .. |opt.t.upper|              replace:: :option:`-T`
 .. |opt.t|                    replace:: :option:`-t`
 .. |opt.u.upper|              replace:: :option:`-U`
-.. |opt.uri|                  replace:: :option:`--uri`
 .. |opt.u|                    replace:: :option:`-u`
 .. |opt.v.upper|              replace:: :option:`-V`
-.. |opt.verbose|              replace:: :option:`--verbose`
-.. |opt.version|              replace:: :option:`--version`
-.. |opt.volumes-from|         replace:: :option:`--volumes-from`
 .. |opt.v|                    replace:: :option:`-v`
 .. |opt.w.upper|              replace:: :option:`-W`
 .. |opt.w|                    replace:: :option:`-w`
@@ -82,8 +87,11 @@
 .. |opt.z.upper|              replace:: :option:`-Z`
 .. |opt.z|                    replace:: :option:`-z`
 
-
 .. Environment Variables
 
 .. |opt.metrics_resolution| replace:: :term:`METRICS_RESOLUTION <METRICS_RESOLUTION (Option)>`
 
+
+.. Values
+
+.. |opt.performance-schema| replace:: :option:`Performance Schema`

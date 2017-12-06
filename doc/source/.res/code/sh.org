@@ -176,6 +176,14 @@
    $ docker run ... -e ORCHESTRATOR_ENABLED=true
 
 #+end-block
+#+begin-block: docker run e orchestrator-enabled orchestrator-user orchestrator-password
++docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
+
+.. code-block:: bash
+
+   $ docker run ... -e ORCHESTRATOR_ENABLED=true ORCHESTRATOR_USER=name -e ORCHESTRATOR_PASSWORD=pass
+
+#+end-block
 #+begin-block: docker run e disable-updates
 +docker.run.disable-updates+
 
@@ -245,6 +253,25 @@
 
 * pmm-admin
 
+** pmm-admin add
+#+begin-block: pmm-admin add host user password
++pmm-admin.add.mysql-metrics.rds+
+
+.. code-block:: bash
+
+   $ sudo pmm-admin add mysql:metrics --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
+   $ sudo pmm-admin add mysql:queries --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
+
+#+end-block
+#+begin-block: pmm-admin add mysql user password create-user query-source
++pmm-admin.add.mysql.user.password.create-user.query-source+
+
+.. code-block:: bash
+
+      pmm-admin add mysql --user root --password root --create-user --query-source perfschema
+
+#+end-block
+
 ** pmm-admin config
 #+begin-block: pmm-admin config server url
 +pmm-admin.config.server.url+
@@ -297,15 +324,6 @@
 .. code-block:: bash
 
    $ sudo pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234
-
-#+end-block
-#+begin-block: pmm-admin add host user password
-+pmm-admin.add.mysql-metrics.rds+
-
-.. code-block:: bash
-
-   $ sudo pmm-admin add mysql:metrics --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
-   $ sudo pmm-admin add mysql:queries --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
 
 #+end-block
 
