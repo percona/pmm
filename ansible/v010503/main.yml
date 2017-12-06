@@ -5,6 +5,10 @@
   gather_facts: yes
 
   tasks:
+    - name: PMM                        | Stat supervisor
+      stat: path=/usr/bin/supervisorctl
+      register: supervisorctl
+
     - name: PMM                        | Clean YUM cache
       command: /usr/bin/yum --enablerepo=pmm clean all
       changed_when: False
@@ -12,19 +16,39 @@
     - name: PMM                        | Backup configuration
       command: /usr/share/pmm-update/helpers/backup-password
 
-    - name: PMM                        | Backup unmanaged configs
-      copy: src={{ item.src }} dest={{ item.dest }}
-      with_items:
-        - { src: '/etc/orchestrator.conf.json',    dest: '/tmp/orchestrator.conf.json-backup' }
-        - { src: '/etc/cron.daily/purge-qan-data', dest: '/tmp/purge-qan-data-backup' }
-        - { src: '/etc/grafana/grafana.ini',       dest: '/tmp/grafana-backup' }
-
     - name: PMM                        | Remove RPMs
       when: ansible_os_family == 'RedHat'
       yum: name={{ item }} state=absent
       with_items:
         - percona-qan-app2
         - percona-node_exporter-0.13.0
+
+    - name: PMM                        | Stat purge-qan-data backup
+      stat: path=/srv/update/purge-qan-data-backup
+      register: purge_qan_data_backup
+
+    - name: PMM                        | Backup unmanaged configs
+      when: not purge_qan_data_backup.stat.exists
+      copy: src={{ item.src }} dest={{ item.dest }}
+      with_items:
+        - { src: '/etc/orchestrator.conf.json',    dest: '/srv/update/orchestrator.conf.json-backup' }
+        - { src: '/etc/cron.daily/purge-qan-data', dest: '/srv/update/purge-qan-data-backup' }
+        - { src: '/etc/grafana/grafana.ini',       dest: '/srv/update/grafana-backup' }
+
+    - name: PMM                        | Update pmm-server RPM
+      when: ansible_os_family == 'RedHat'
+      yum: name={{ item }} state=present enablerepo=pmm
+      with_items:
+        - pmm-server-1.5.3
+      register: pmm_server_update
+      failed_when: "pmm_server_update | failed and 'Error in PREUN scriptlet in rpm package pmm-server' not in pmm_server_update.msg"
+
+    - name: NGINX                      | Disable password-page
+      when: supervisorctl.stat.exists
+      replace:
+        dest: /etc/nginx/conf.d/pmm.conf
+        regexp: '/usr/share/pmm-server/password-page'
+        replace: '/usr/share/pmm-server/landing-page'
 
     - name: PMM                        | PMM-1826 Remove broken 1.5.0 rpms
       command: sh -c "/usr/bin/rpm --erase --noscripts pmm-server-1.5.0 || :"
@@ -55,19 +79,15 @@
     - name: PMM                        | Restore unmanaged configs
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
-        - { src: '/tmp/orchestrator.conf.json-backup', dest: '/etc/orchestrator.conf.json' }
-        - { src: '/tmp/purge-qan-data-backup',         dest: '/etc/cron.daily/purge-qan-data' }
-        - { src: '/tmp/grafana-backup',                dest: '/etc/grafana/grafana.ini' }
+        - { src: '/srv/update/orchestrator.conf.json-backup', dest: '/etc/orchestrator.conf.json' }
+        - { src: '/srv/update/purge-qan-data-backup',         dest: '/etc/cron.daily/purge-qan-data' }
+        - { src: '/srv/update/grafana-backup',                dest: '/etc/grafana/grafana.ini' }
 
     - name: PMM                        | Remove temporary files
-      command: /usr/bin/shred --remove /tmp/orchestrator.conf.json-backup /tmp/purge-qan-data-backup
+      command: /usr/bin/shred --remove /srv/update/orchestrator.conf.json-backup /srv/update/purge-qan-data-backup /srv/update/grafana-backup
 
     - name: PMM                        | Restore configuration
       command: bash -c "/usr/bin/pmm-configure -grafana-db-path $(ls /srv/grafana/grafana.db /var/lib/grafana/grafana.db 2>/dev/null)"
-
-    - name: PMM                        | Stat supervisor
-      stat: path=/usr/bin/supervisorctl
-      register: supervisorctl
 
     - name: qan-api                    | Fix QAN API DSN
       when: supervisorctl.stat.exists
