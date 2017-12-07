@@ -271,6 +271,15 @@
       pmm-admin add mysql --user root --password root --create-user --query-source perfschema
 
 #+end-block
+#+begin-block: pmm-admin add mongodb-metrics mongodb-tls
++pmm-admin.add.mongodb-metrics.mongodb.tls+
+
+.. code-block:: bash
+   :caption: *Passing an SSL/TLS parameter to* |mongod| *to enable a TLS connection.*
+
+   $ pmm-admin add mongodb:metrics -- --mongodb.tls
+
+#+end-block
 
 ** pmm-admin config
 #+begin-block: pmm-admin config server url

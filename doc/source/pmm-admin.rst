@@ -204,14 +204,14 @@ Passing SSL parameters to the mongodb monitoring service
 
 SSL/TLS related parameters are passed to an SSL enabled MongoDB server as
 monitoring service parameters along with the |pmm-admin.add| command
-when adding the |opt.mongodb-queries| monitoring service.
+when adding the |opt.mongodb-metrics| monitoring service.
 
-.. code-block:: bash
-   :caption: Passing an SSL/TLS parameter to |mongod| to enables
-             a TLS connection.
+|tip.run-this.root|
 
-   $ sudo pmm-admin add mongodb:queries -- --mongodb.tls
-
+.. include:: .res/code/sh.org
+   :start-after: +pmm-admin.add.mongodb-metrics.mongodb.tls+
+   :end-before: #+end-block
+   
 .. list-table:: Supported SSL/TLS Parameters
    :widths: 25 75
    :header-rows: 1
@@ -563,11 +563,11 @@ For more information, run
 
 .. _pmm-admin.add-proxysql-metrics:
 
-Adding ProxySQL metrics service
+Adding |proxysql| metrics service
 --------------------------------------------------------------------------------
 
 Use the |opt.proxysql-metrics| alias
-to enable ProxySQL performance metrics monitoring.
+to enable |proxysql| performance metrics monitoring.
 
 .. rubric:: **USAGE**
 
@@ -1345,3 +1345,4 @@ that you want to :ref:`add <pmm-admin.add>`, :ref:`remove <pmm-admin.rm>`,
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/option.txt
 .. include:: .res/replace/program.txt
+.. include:: .res/replace/fragment.txt
