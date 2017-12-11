@@ -27,3 +27,10 @@
 .. |pmm-admin.start|          replace:: :program:`pmm-admin start`
 .. |pmm-admin.stop|           replace:: :program:`pmm-admin stop`
 .. |pmm-admin.uninstall|      replace:: :program:`pmm-admin uninstall`
+.. |sql.delete|               replace:: :program:`DELETE`
+.. |sql.explain|              replace:: :program:`EXPLAIN`
+.. |sql.insert|               replace:: :program:`INSERT`
+.. |sql.replace|              replace:: :program:`REPLACE`
+.. |sql.select|               replace:: :program:`SELECT`
+.. |sql.show-status|          replace:: :program:`SHOW STATUS`
+.. |sql.update|               replace:: :program:`UPDATE`

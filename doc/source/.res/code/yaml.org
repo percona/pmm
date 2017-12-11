@@ -1,0 +1,13 @@
+* operationProfiling
+
+#+begin-block: operationProfiling
++operationprofiling+
+
+.. code-block:: yaml
+
+   operationProfiling:
+      slowOpThresholdMs: 200
+      mode: slowOp
+      rateLimit: 100
+
+#+end-block
