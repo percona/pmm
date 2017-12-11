@@ -1,36 +1,86 @@
-.. -*- mode: org -*-
+.. -*- mode: rst -*-
 .. Options (all using the 'opt.' prefix)
    
-.. |opt.all|                  replace:: :option:`--all`
-.. |opt.config-file|          replace:: :option:`--config-file`
-.. |opt.create-user|          replace:: :option:`--create-user`			
-.. |opt.dev-enable|           replace:: :option:`--dev-enable`
-.. |opt.disable-updates|      replace:: :option:`DISABLE_UPDATES`
-.. |opt.external-metrics|     replace:: :option:`external:metrics`
-.. |opt.help|                 replace:: :option:`--help`
-.. |opt.linux-metrics|        replace:: :option:`linux:metrics`
-.. |opt.mongodb-metrics|      replace:: :option:`mongodb:metrics`
-.. |opt.mongodb-queries|      replace:: :option:`mongodb:queries`
-.. |opt.mongodb|              replace:: :option:`mongodb`
-.. |opt.mysql-metrics|        replace:: :option:`mysql:metrics`
-.. |opt.mysql-queries|        replace:: :option:`mysql:queries`
-.. |opt.mysql|                replace:: :option:`mysql`
-.. |opt.name|                 replace:: :option:`--name`
-.. |opt.orchestrator-enabled| replace:: :option:`ORCHESTRATOR_ENABLED`
-.. |opt.pmm-server.latest|    replace:: :option:`percona/pmm-server:latest`
-.. |opt.port|                 replace:: :option:`--port`
-.. |opt.proxysql-metrics|     replace:: :option:`proxysql:metrics`
-.. |opt.query-source|         replace:: :option:`--query-source`
-.. |opt.restart|              replace:: :option:`--restart`
-.. |opt.server|               replace:: :option:`--server`
-.. |opt.service-port|         replace:: :option:`--service-port`
-.. |opt.socket|               replace:: :option:`--socket`
-.. |opt.uri|                  replace:: :option:`--uri`
-.. |opt.verbose|              replace:: :option:`--verbose`
-.. |opt.version|              replace:: :option:`--version`
-.. |opt.volumes-from|         replace:: :option:`--volumes-from`
-.. |opt.server-user|          replace:: :option:`--SERVER_USER`
-.. |opt.server-password|      replace:: :option:`--SERVER_PASSWORD`
+.. |opt.all|                   replace:: :option:`--all`
+.. |opt.bind-address|          replace:: :option:`--bind-address`
+.. |opt.client-address|        replace:: :option:`--client-address`
+.. |opt.client-name|           replace:: :option:`--client-name`
+.. |opt.cluster|               replace:: :option:`--cluster`
+.. |opt.config-file|           replace:: :option:`--config-file`
+.. |opt.create-user-maxconn|   replace:: :option:`--create-user-maxconn`
+.. |opt.create-user-password|  replace:: :option:`--create-user-password`
+.. |opt.create-user|           replace:: :option:`--create-user`			
+.. |opt.dbpath|                replace:: :option:`--dpbath`
+.. |opt.defaults-file|         replace:: :option:`--defaults-file`
+.. |opt.dev-enable|            replace:: :option:`--dev-enable`
+.. |opt.dis-binlog-stats|      replace:: :option:`--disable-binlogstats`
+.. |opt.dis-process-list|      replace:: :option:`--disable-processlist`
+.. |opt.dis-table-stats-limit| replace:: :option:`--disable-tablestats-limit`
+.. |opt.dis-table-stats|       replace:: :option:`--disable-tablestats`
+.. |opt.dis-tablestats-limit|  replace:: :option:`--disable-tablestats-limit`
+.. |opt.dis-tablestats|        replace:: :option:`--disable-tablestats`
+.. |opt.dis-user-stats|        replace:: :option:`--disable-userstats`
+.. |opt.dis-userstats|         replace:: :option:`--disable-userstats`
+.. |opt.disable-binlog-stats|  replace:: :option:`--disable-binlogstats`
+.. |opt.disable-binlogstats|   replace:: :option:`--disable-binlogstats`
+.. |opt.disable-process-list|  replace:: :option:`--disable-processlist`
+.. |opt.disable-processlist|   replace:: :option:`--disable-processlist`
+.. |opt.disable-queryexamples| replace:: :option:`--disable-queryexamples`
+.. |opt.disable-table-stats-limit| replace:: :option:`--disable-tablestats-limit`
+.. |opt.disable-table-stats|   replace:: :option:`--disable-tablestats`
+.. |opt.disable-tablestats-limit| replace:: :option:`--disable-tablestats-limit`
+.. |opt.disable-tablestats|    replace:: :option:`--disable-tablestats`
+.. |opt.disable-updates|       replace:: :option:`DISABLE_UPDATES`
+.. |opt.disable-user-stats|    replace:: :option:`--disable-userstats`
+.. |opt.disable-userstats|     replace:: :option:`--disable-userstats`
+.. |opt.dsn|                   replace:: :option:`--dsn`
+.. |opt.external-metrics|      replace:: :option:`external:metrics`
+.. |opt.force|                 replace:: :option:`--force`
+.. |opt.help|                  replace:: :option:`--help`
+.. |opt.host|                  replace:: :option:`--host`
+.. |opt.json|                  replace:: :option:`--json`
+.. |opt.linux-metrics|         replace:: :option:`linux:metrics`
+.. |opt.mongodb-metrics|       replace:: :option:`mongodb:metrics`
+.. |opt.mongodb-queries|       replace:: :option:`mongodb:queries`
+.. |opt.mongodb|               replace:: :option:`mongodb`
+.. |opt.mysql-metrics|         replace:: :option:`mysql:metrics`
+.. |opt.mysql-queries|         replace:: :option:`mysql:queries`
+.. |opt.mysql|                 replace:: :option:`mysql`
+.. |opt.name|                  replace:: :option:`--name`
+.. |opt.orchestrator-enabled|  replace:: :option:`ORCHESTRATOR_ENABLED`
+.. |opt.password|              replace:: :option:`--password`
+.. |opt.pmm-server.latest|     replace:: :option:`percona/pmm-server:latest`
+.. |opt.port|                  replace:: :option:`--port`
+.. |opt.profile|               replace:: :option:`--profile`
+.. |opt.proxysql-metrics|      replace:: :option:`proxysql:metrics`
+.. |opt.query-source|          replace:: :option:`--query-source`
+.. |opt.ratelimit|             replace:: :option:`--rateLimit`
+.. |opt.rate-limit|            replace:: :option:`--rateLimit`					 
+.. |opt.restart|               replace:: :option:`--restart`
+.. |opt.server-ins-ssl|        replace:: :option:`--server-insecure-ssl`
+.. |opt.server-insecure-ssl|   replace:: :option:`--server-insecure-ssl`
+.. |opt.server-password|       replace:: :option:`--SERVER_PASSWORD`
+.. |opt.server-ssl|            replace:: :option:`--server-ssl`
+.. |opt.server-user|           replace:: :option:`--SERVER_USER`
+.. |opt.server|                replace:: :option:`--server`
+.. |opt.service-port|          replace:: :option:`--service-port`
+.. |opt.slowms|                replace:: :option:`--slowms`
+.. |opt.socket|                replace:: :option:`--socket`
+.. |opt.uri|                   replace:: :option:`--uri`
+.. |opt.user|                  replace:: :option:`--user`
+.. |opt.verbose|               replace:: :option:`--verbose`
+.. |opt.version|               replace:: :option:`--version`
+.. |opt.volumes-from|          replace:: :option:`--volumes-from`
+					     
+.. SSL parameters
+
+.. |opt.mongodb-tls|                             replace:: :option:`--mongodb.tls`
+.. |opt.mongodb-tls-ca|                          replace:: :option:`--mongodb.tls-ca`
+.. |opt.mongodb-tls-cert|                        replace:: :option:`--mongodb.tls-cert`
+.. |opt.mongodb-tls-disable-hostname-validation| replace:: :option:`--mongodb.tls-disable-hostname-validation`
+.. |opt.mongodb-tls-dis-hostname-val|            replace:: :option:`--mongodb.tls-disable-hostname-validation`
+.. |opt.mongodb-tls-private-key|                 replace:: :option:`--mongodb.tls-private-key`
+
 
 .. One letter
 

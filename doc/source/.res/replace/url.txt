@@ -11,5 +11,5 @@
 .. _btrfs: https://btrfs.wiki.kernel.org
 .. _`AWS Marketplace`: https://aws.amazon.com/marketplace
 .. _`download percona monitoring and management`: https://www.percona.com/downloads/pmm
-.. _`Docker Docs`: https://docs.docker.co/m
+.. _`Docker Docs`: https://docs.docker.com
 

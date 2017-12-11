@@ -1,0 +1,47 @@
+# -*- mode: rst -*-
+
+* alias services
+
+#+begin-table: alias services
++alias.services+
+
+.. list-table::
+   :widths: 25 75
+   :header-rows: 1
+
+   * - Alias
+     - Services
+
+   * - |opt.linux-metrics|
+     - General system metrics monitoring service
+
+   * - |opt.mysql-metrics|
+     - |mysql| metrics monitoring service
+
+   * - |opt.mysql-queries|
+     - |mysql| query analytics service
+
+   * - |opt.mongodb-metrics|
+     - |mongodb| metrics monitoring service
+
+   * - |opt.mongodb-queries|
+     - |mongodb| query analytics service
+
+   * - |opt.proxysql-metrics|
+     - |proxysql| metrics monitoring service
+
+   * - |opt.mysql|
+     - Complete |mysql| instance monitoring:
+
+       * |opt.linux-metrics|
+       * |opt.mysql-metrics|
+       * |opt.mysql-queries|
+
+   * - |opt.mongodb|
+     - Complete |mongodb| instance monitoring:
+
+       * |opt.linux-metrics|
+       * |opt.mongodb-metrics|
+       * |opt.mongodb-queries|
+
+#+end-table

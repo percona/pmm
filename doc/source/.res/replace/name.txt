@@ -114,3 +114,4 @@
 .. |etc.pmm-certs| replace:: :file:`/etc/pmm-certs`
 .. |server.crt|    replace:: :file:`server.crt`
 .. |server.key|    replace:: :file:`server.key`
+.. |etc.mongod.conf| replace:: :file:`/etc/mongod.conf`
