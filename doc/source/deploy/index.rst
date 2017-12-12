@@ -18,8 +18,8 @@ this scenario, the |pmm.abbrev| server is set up on a dedicated monitoring host.
 Installing |pmm-server|
 ================================================================================
 
-To install and set up the |pmm-server|, use one of the
-following options:
+To install and set up the |pmm-server|, use one of the following
+options:
 
 -  :ref:`run-server-docker`
 -  :ref:`run-server-ova`
@@ -31,6 +31,11 @@ following options:
    server/docker
    server/virtual-appliance
    server/ami
+
+.. seealso::
+
+   Default ports
+      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
 
 .. _deploy-pmm.server.verifying:
 
@@ -81,7 +86,6 @@ In addition to DEB and RPM packages, this site also offers:
 
 * Generic tarballs that you can extract and run the included ``install`` script.
 * Source code tarball to build your |pmm.abbrev| client from source.
-
    
 .. _deploy-pmm.client_server.connecting:
 
@@ -197,16 +201,16 @@ button in the bottom right corner of the |pmm.abbrev| home page (see
    |pmm.abbrev|
    *landing page.*
 
-.. rubric:: **Updating |pmm.abbrev| clients**
+.. rubric:: **Updating clients**
 
 When a newer version of |pmm-client| becomes available, you can update to it
 from the Percona software repositories:
 
-* For Debian or Ubuntu::
+* For |debian| or |ubuntu|::
 
    $ sudo apt-get update && sudo apt-get install pmm-client
 
-* For RedHat or CentOS::
+* For |red-hat| or |centos|::
 
    $ yum update pmm-client
 

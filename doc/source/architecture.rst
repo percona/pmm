@@ -8,7 +8,7 @@ The |pmm| platform is based on a client-server model that enables scalability.
 It includes the following modules:
 
 * :ref:`pmm-client` installed on every database host that you want to monitor.
-  It collects server metrics, general system metrics, and query analytics data
+  It collects server metrics, general system metrics, and |qan.name| data
   for a complete performance overview.
 
 * :ref:`pmm-server` is the central part of |pmm| that aggregates collected data
@@ -30,7 +30,7 @@ developed by |percona| and some are third-party open-source tools.
 .. note:: The overall client-server model is not likely to change, but the set
    of tools that make up each component may evolve with the product.
 
-The following diagram illustrates how PMM is currently structured:
+The following diagram illustrates how |pmm| is currently structured:
 
 .. image:: images/pmm-diagram.png
 
@@ -60,12 +60,12 @@ For more information, see :ref:`install-client`.
 * ``pmm-mysql-queries-0`` is a service
   that manages the |qan| agent
   as it collects query performance data from |mysql|
-  and sends it to the QAN API on :ref:`pmm-server`.
+  and sends it to the |qan| API on :ref:`pmm-server`.
 
 * ``pmm-mongodb-queries-0`` is a service
   that manages the QAN agent
   as it collects query performance data from |mongodb|
-  and sends it to QAN API on :ref:`pmm-server`.
+  and sends it to |qan| API on :ref:`pmm-server`.
 
 * ``node_exporter`` is a |prometheus| exporter
   that collects general system metrics.
@@ -100,58 +100,50 @@ For more information, see :ref:`deploy-pmm.server.installing`.
 
 |pmm-server| includes the following tools:
 
-* |qan.intro| enables you to analyze MySQL query performance over periods of
-  time.  In addition to the client-side QAN agent, it includes the following:
+* |qan.intro| enables you to analyze |mysql| query performance over periods of
+  time. In addition to the client-side |qan| agent, it includes the following:
 
-  * **QAN API** is the backend for storing and accessing query data
-    collected by the QAN agent running on a :ref:`pmm-client`.
+  * |qan| API is the backend for storing and accessing query data collected by
+    the |qan| agent running on a :ref:`pmm-client`.
 
-  * **QAN Web App** is a web application
-    for visualizing collected |qan.name| data.
+  * |qan| Web App is a web application for visualizing collected |qan.name|
+    data.
 
 * |metrics-monitor| provides a historical view of metrics
   that are critical to a |mysql| or |mongodb| server instance.
   It includes the following:
 
-  * |prometheus| is a third-party time-series database
-    that connects to exporters running on a :ref:`pmm-client`
-    and aggregates metrics collected by the exporters.
-    For more information, see `Prometheus Docs`_.
+  * |prometheus| is a third-party time-series database that connects to
+    exporters running on a :ref:`pmm-client` and aggregates metrics collected by
+    the exporters.  For more information, see `Prometheus Docs`_.
 
-    .. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
+    * |consul| provides an API that a :ref:`pmm-client` can use to remotely
+      list, add, and remove hosts for Prometheus.  It also stores monitoring
+      metadata.  For more information, see `Consul Docs`_.
 
-    * |consul| provides an API
-      that a :ref:`pmm-client` can use to remotely list, add,
-      and remove hosts for Prometheus.
-      It also stores monitoring metadata.
-      For more information, see `Consul Docs`_.
+      .. warning:: Although the |consul| web UI is accessible, do not make any
+         changes to the configuration.
 
-      .. warning:: Although the |consul| web UI is accessible,
-         do not make any changes to the configuration.
+  * |grafana| is a third-party dashboard and graph builder for visualizing data
+    aggregated by |prometheus| in an intuitive web interface.  For more
+    information, see `Grafana Docs`_.
 
-      .. _`Consul Docs`: https://www.consul.io/docs/
-
-  * |grafana| is a third-party dashboard and graph builder
-    for visualizing data aggregated by |prometheus|
-    in an intuitive web interface.
-    For more information, see `Grafana Docs`_.
-
-    .. _`Grafana Docs`: http://docs.grafana.org/
-
-    * **Percona Dashboards** is a set of dashboards
-      for |grafana| developed by |percona|.
+    * |percona| Dashboards is a set of dashboards for |grafana| developed by
+      |percona|.
 
 * |orchestrator| is a |mysql| replication topology management
   and visualization tool.
   For more information, see: `Orchestrator Manual`_.
 
-  .. _`Orchestrator Manual`:
-     https://github.com/outbrain/orchestrator/wiki/Orchestrator-Manual
-
 All tools can be accessed from the |pmm-server| web interface (landing page).
 For more information, see :ref:`using`.
 
-.. DEPRECATED: moving deployment related information to the dedicated deployment section.
+.. seealso::
+
+   Default ports
+      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+   Enabling orchestrator
+      :term:`Orchestrator` in :ref:`pmm/glossary/terminology-reference`
 
 .. rubric:: **References**
 
@@ -159,3 +151,4 @@ For more information, see :ref:`using`.
 
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/program.txt
+.. include:: .res/replace/url.txt

@@ -50,21 +50,20 @@ To create a container for persistent |pmm| data, run the following command:
    :start-after: +docker.create.percona-pmm-server-latest+
    :end-before: #+end-block
 	     
-.. note:: This container does not run,
-   it simply exists to make sure you retain all |pmm| data
-   when you upgrade to a newer |pmm-server| image.
-   Do not remove or re-create this container,
-   unless you intend to wipe out all PMM data and start over.
+.. note:: This container does not run, it simply exists to make sure you retain
+   all |pmm| data when you upgrade to a newer |pmm-server| image.  Do not remove
+   or re-create this container, unless you intend to wipe out all PMM data and
+   start over.
 
 The previous command does the following:
 
-* The ``docker create`` command instructs the Docker daemon
+* The |docker.create| command instructs the |docker| daemon
   to create a container from an image.
 
-* The ``-v`` options initialize data volumes for the container.
+* The |opt.v| options initialize data volumes for the container.
 
-* The ``--name`` option assigns a custom name for the container
-  that you can use to reference the container within a Docker network.
+* The |opt.name| option assigns a custom name for the container
+  that you can use to reference the container within a |docker| network.
   In this case: ``pmm-data``.
 
 * ``percona/pmm-server:latest`` is the name and version tag of the image
@@ -170,7 +169,11 @@ the |docker| container.
 
 .. seealso::
 
-   - :ref:`Updating PMM <deploy-pmm.updating>`
+   Default ports
+      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+
+   Updating PMM
+     :ref:`Updating PMM <deploy-pmm.updating>`
 
 .. include:: ../../.res/replace/name.txt
 .. include:: ../../.res/replace/option.txt
