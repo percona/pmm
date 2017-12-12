@@ -5,6 +5,7 @@
 .. |pmm-admin|       replace:: :program:`pmm-admin`
 .. |sudo|            replace:: :program:`sudo`   
 .. |virtualbox|      replace:: :program:`VirtualBox`
+.. |vboxmanage|      replace:: :program:`VBoxManage`
 
 .. Commands
 

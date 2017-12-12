@@ -91,21 +91,25 @@
 .. |gui.apply|                              replace:: :guilabel:`Apply`
 .. |gui.collect-from|                       replace:: :guilabel:`Collect from`
 .. |gui.connect|                            replace:: :guilabel:`Connect`
+.. |gui.continue|                           replace:: :guilabel:`Continue`
 .. |gui.database-summary|                   replace:: :guilabel:`Database Summary`	  
 .. |gui.databases|                          replace:: :guilabel:`Databases`
 .. |gui.discover|                           replace:: :guilabel:`Discover`
 .. |gui.download-summary|                   replace:: :guilabel:`Download Summary`
 .. |gui.enabled|                            replace:: :guilabel:`Enabled`
+.. |gui.file|                               replace:: :guilabel:`File`
 .. |gui.host|                               replace:: :guilabel:`Host`
 .. |gui.log|                                replace:: :guilabel:`Log`
+.. |gui.more-information|                   replace:: :guilabel:`More Information`
+.. |gui.more-inf|                           replace:: :guilabel:`More Information`
 .. |gui.mysql-replication-topology-manager| replace:: :guilabel:`MySQL Replication Topology Manager`
+.. |gui.open|                               replace:: :guilabel:`Open`
 .. |gui.query-filter|                       replace:: :guilabel:`Query Filter`
 .. |gui.settings|                           replace:: :guilabel:`Settings`
 .. |gui.status|                             replace:: :guilabel:`Status`
 .. |gui.system-summary|                     replace:: :guilabel:`System Summary`
 .. |gui.update|                             replace:: :guilabel:`Update`
-.. |gui.more-information|                   replace:: :guilabel:`More Information`
-.. |gui.more-inf|                           replace:: :guilabel:`More Information`
+.. |gui.retry|                              replace:: :guilabel:`Retry`
 
 .. Files and directories
 

@@ -7,6 +7,41 @@ Terminology Reference
 .. glossary::
    :sorted:
 
+   Default ports
+
+      See :term:`Ports`.
+
+   Ports
+
+      The following ports must be open to enable communication between the
+      :term:`PMM Server` and :term:`PMM clients <PMM Client>`.
+
+      |pmm-server| should keep ports 80 or 443 ports open for computers where
+      |pmm-client| is installed to access the |pmm| web interface.
+
+      On each computer where |pmm-client| is installed, the following ports must
+      be open. These are default ports that you can change when adding the
+      respective monitoring service with the |pmm-admin.add| command.
+
+      42000
+         For |pmm| to collect genenal system metrics.
+      42001
+         This port is used by a service which collects query performance data
+         and makes it available to |qan|.
+      42002
+         For |pmm| to collect |mysql| server metrics.
+      42003
+         For |pmm| to collect |mongodb| server metrics.
+      42004
+	 For |pmm| to collect |proxysql| server metrics.
+
+      .. seealso::
+
+	 Setting up a firewall on |centos|
+	    https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-using-firewalld-on-centos-7
+	 Setting up a firewall on |ubuntu|
+	    https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu-16-04
+
    Telemetry
 
       |percona| may collect some statistics about the machine where |pmm| is running.
@@ -15,7 +50,7 @@ Terminology Reference
 
       - |pmm-server| unique ID
       - |pmm| version
-      - The name and version of the operating system, AMI or virtual appliance
+      - The name and version of the operating system, |ami| or virtual appliance
       - |mysql| version
       - |perl| version
 
@@ -28,14 +63,14 @@ Terminology Reference
 
    External Monitoring Service
 
-      A monitoring service which is not provided by :term:`PMM`
-      directly. It is bound to a running Prometheus exporter. As soon
-      as such an service is added, you can set up the :term:`Metrics
-      Monitor <Metrics Monitor (MM)>` to display its graphs.
+      A monitoring service which is not provided by :term:`PMM` directly. It is
+      bound to a running |prometheus| exporter. As soon as such an service is
+      added, you can set up the :term:`Metrics Monitor <Metrics Monitor (MM)>`
+      to display its graphs.
 
    Orchestrator
 
-      The topology manager for MySQL. By default it is disabled for the
+      The topology manager for |mysql|. By default it is disabled for the
       :term:`PMM Server`. To enable it, set the :option:`ORCHESTRATOR_ENABLED`.
 
       .. seealso::
