@@ -51,6 +51,53 @@
 
 #+end-block
 
+** images
+
+#+begin-block: docker images percona
++docker.images.percona+
+
+.. code-block:: bash
+
+   $ docker images percona/*
+
+   REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
+   percona/pmm-server-backup   latest              51bfaa37cb1e        2 weeks ago         1.33GB
+   percona/pmm-server          1.5.0               51bfaa37cb1e        2 weeks ago         1.33GB
+
+#+end-block
+** ps
+
+#+begin-block: docker ps
++docker.ps+1.4.0+
+
+.. code-block:: bash
+
+   $ docker ps
+   CONTAINER ID   IMAGE                      COMMAND                CREATED       STATUS             PORTS                               NAMES
+   480696cd4187   percona/pmm-server:1.4.0   "/opt/entrypoint.sh"   4 weeks ago   Up About an hour   192.168.100.1:80->80/tcp, 443/tcp   pmm-server
+
+#+end-block
+#+begin-block: docker ps +1.4.0
++docker.ps+
+
+.. code-block:: bash
+
+   $ docker ps
+   CONTAINER ID   IMAGE                      COMMAND                CREATED       STATUS             PORTS                               NAMES
+   480696cd4187   percona/pmm-server:1.4.0   "/opt/entrypoint.sh"   4 weeks ago   Up About an hour   192.168.100.1:80->80/tcp, 443/tcp   pmm-server
+
+#+end-block
+#+begin-block: docker ps +1.5.0
++docker.ps.+1.5.0+
+
+.. code-block:: bash
+
+   $ docker ps
+   CONTAINER ID   IMAGE                      COMMAND                CREATED         STATUS         PORTS                               NAMES
+   480696cd4187   percona/pmm-server:1.5.0   "/opt/entrypoint.sh"   4 minutes ago   Up 4 minutes   192.168.100.1:80->80/tcp, 443/tcp   pmm-server
+
+#+end-block
+
 ** pull
 
 #+begin-block: docker pull
@@ -61,7 +108,51 @@
    $ docker pull percona/pmm-server:latest
 
 #+end-block
+#+begin-block: docker pull percona-pmm-server-latest
++docker.pull.percona-pmm-server-latest+
 
+.. code-block:: bash
+
+   $ docker pull percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker pull percona-pmm-server +1.5.0
++docker.pull.percona-pmm-server.+1.5.0+
+.. code-block:: bash
+
+   $ docker pull percona/pmm-server:1.5.0
+
+#+end-block
+
+** rm
+
+#+begin-block: docker rm
++docker.rm.pmm-data+
+
+.. code-block:: bash
+
+   $ docker rm pmm-data
+
+#+end-block
+#+begin-block: docker rm pmm-server
++docker.rm.pmm-server+
+
+.. code-block:: bash
+
+   $ docker rm pmm-server
+
+#+end-block
+
+** rmi
+
+#+begin-block: docker rmi backup-latest
++docker.rmi.backup-latest+
+
+.. code-block:: bash
+
+   $ docker rmi percona/pmm-server-backup:latest
+
+#+end-block
 ** run
 
 #+begin-block: docker run d p volumes-from name e server-user e server-password v restart
@@ -105,6 +196,19 @@
       percona/pmm-server:latest
 
 #+end-block
+#+begin-block: docker run d p volumes-from name restart +backup
++docker.run.d.p.volumes-from.name.restart.+backup+
+
+.. code-block:: bash
+
+   $ docker run -d \
+      -p 80:80 \
+      --volumes-from pmm-data \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server-backup
+
+#+end-block
 #+begin-block: docker run d p volumes-from name e server-user e server-password restart
 +docker.run.server-user.example+
 
@@ -131,6 +235,22 @@
       --name pmm-server \
       --restart always \
       percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e disable-telemetry
++docker.run.disable-telemetry+
+
+.. code-block:: bash
+
+   $ docker run ... -e DISABLE_TELEMETRY=true
+
+#+end-block
+#+begin-block: docker run e disable-updates
++docker.run.disable-updates+
+
+.. code-block:: bash
+
+   $ docker run ... -e DISABLE_UPDATES=true
 
 #+end-block
 #+begin-block: docker run e metrics-memory
@@ -165,14 +285,6 @@
    $ docker run ... -e METRICS_RESOLUTION=VALUE
 
 #+end-block
-#+begin-block: docker run e disable-telemetry
-+docker.run.disable-telemetry+
-
-.. code-block:: bash
-
-   $ docker run ... -e DISABLE_TELEMETRY=true
-
-#+end-block
 #+begin-block: docker run e orchestrator-enabled
 +docker.run.orchestrator-enabled+
 
@@ -189,14 +301,6 @@
    $ docker run ... -e ORCHESTRATOR_ENABLED=true ORCHESTRATOR_USER=name -e ORCHESTRATOR_PASSWORD=pass
 
 #+end-block
-#+begin-block: docker run e disable-updates
-+docker.run.disable-updates+
-
-.. code-block:: bash
-
-   $ docker run ... -e DISABLE_UPDATES=true
-
-#+end-block
 
 ** stop
 
@@ -208,12 +312,23 @@
    $ docker stop pmm-server && docker rm pmm-server
 
 #+end-block
-#+begin-block: docker rm
-+docker.rm.pmm-data+
+#+begin-block: docker stop pmm-server
++docker.stop.pmm-server+
 
 .. code-block:: bash
 
-   $ docker rm pmm-data
+   $ docker stop pmm-server
+
+#+end-block
+
+** tag
+
+#+begin-block: docker tag
++docker.tag+
+
+.. code-block:: bash
+
+   $ docker tag percona/pmm-server:1.4.0 percona/pmm-server-backup
 
 #+end-block
 

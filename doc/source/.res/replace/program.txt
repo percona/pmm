@@ -10,8 +10,13 @@
 .. Commands
 
 .. |docker.create|            replace:: :program:`docker create`
+.. |docker.images|            replace:: :program:`docker images`
 .. |docker.ps|                replace:: :program:`docker ps`
+.. |docker.pull|              replace:: :program:`docker pull`
+.. |docker.rmi|               replace:: :program:`docker rmi`
+.. |docker.rm|                replace:: :program:`docker rm`
 .. |docker.run|               replace:: :program:`docker run`
+.. |docker.tag|               replace:: :program:`docker tag`
 .. |pmm-admin.add|            replace:: :program:`pmm-admin add`
 .. |pmm-admin.check-network|  replace:: :program:`pmm-admin check-network`
 .. |pmm-admin.config|         replace:: :program:`pmm-admin config`

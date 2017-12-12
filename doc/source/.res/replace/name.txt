@@ -55,6 +55,7 @@
 .. |red-hat-enterprise-linux| replace:: *Red Hat Enterprise Linux*
 .. |red-hat.name|             replace:: *Red Hat Enterprise Linux*
 .. |red-hat|                  replace:: *Red Hat*
+.. |redhat|                   replace:: *Red Hat*
 .. |rocksdb|                  replace:: *RocksDB*
 .. |ubuntu|                   replace:: *Ubuntu*
 
