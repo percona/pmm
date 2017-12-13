@@ -124,6 +124,24 @@
 
 #+end-block
 
+** rename
+
+#+begin-block: docker rename pmm-server pmm-server-backup
++docker.rename.pmm-server.pmm-server-backup+
+
+.. code-block:: bash
+
+   $ docker rename pmm-server pmm-server-backup
+
+#+end-block
+#+begin-block: docker rename pmm-server pmm-server-backup
++docker.rename.pmm-server.pmm-server-backup+
+
+.. code-block:: bash
+
+   $ docker rename pmm-server-backup pmm-server
+
+#+end-block
 ** rm
 
 #+begin-block: docker rm
@@ -142,7 +160,14 @@
    $ docker rm pmm-server
 
 #+end-block
+#+begin-block: docker rm pmm-server-backup
++docker.rm.pmm-server-backup+
 
+.. code-block:: bash
+
+   $ docker rm pmm-server-backup
+
+#+end-block
 ** rmi
 
 #+begin-block: docker rmi backup-latest
@@ -242,7 +267,7 @@
 
 .. code-block:: bash
 
-   $ docker run ... -e DISABLE_TELEMETRY=true
+   $ docker run ... -e DISABLE_TELEMETRY=true ... percona/pmm-server:latest
 
 #+end-block
 #+begin-block: docker run e disable-updates
@@ -250,7 +275,7 @@
 
 .. code-block:: bash
 
-   $ docker run ... -e DISABLE_UPDATES=true
+   $ docker run ... -e DISABLE_UPDATES=true ... percona/pmm-server:latest
 
 #+end-block
 #+begin-block: docker run e metrics-memory
@@ -258,7 +283,7 @@
 
 .. code-block:: bash
 
-   $ docker run ... -e METRICS_MEMORY=4194304
+   $ docker run ... -e METRICS_MEMORY=4194304 ... percona/pmm-server:latest
 
 #+end-block
 #+begin-block: docker run e server-user
@@ -266,7 +291,7 @@
 
 .. code-block:: bash
 
-   $ docker run ... -e SERVER_USER=USER_NAME
+   $ docker run ... -e SERVER_USER=USER_NAME ... percona/pmm-server:latest
 
 #+end-block
 #+begin-block: docker run e server-password
@@ -274,7 +299,7 @@
 
 .. code-block:: bash
 
-   $ docker run ... -e SERVER_PASSWORD=YOUR_PASSWORD
+   $ docker run ... -e SERVER_PASSWORD=YOUR_PASSWORD ... percona/pmm-server:latest
 
 #+end-block
 #+begin-block: docker run e metrics-resolution
@@ -282,7 +307,7 @@
 
 .. code-block:: bash
 
-   $ docker run ... -e METRICS_RESOLUTION=VALUE
+   $ docker run ... -e METRICS_RESOLUTION=VALUE ... percona/pmm-server:latest
 
 #+end-block
 #+begin-block: docker run e orchestrator-enabled
@@ -290,7 +315,7 @@
 
 .. code-block:: bash
 
-   $ docker run ... -e ORCHESTRATOR_ENABLED=true
+   $ docker run ... -e ORCHESTRATOR_ENABLED=true ... percona/pmm-server:latest
 
 #+end-block
 #+begin-block: docker run e orchestrator-enabled orchestrator-user orchestrator-password
@@ -298,10 +323,19 @@
 
 .. code-block:: bash
 
-   $ docker run ... -e ORCHESTRATOR_ENABLED=true ORCHESTRATOR_USER=name -e ORCHESTRATOR_PASSWORD=pass
+   $ docker run ... -e ORCHESTRATOR_ENABLED=true ORCHESTRATOR_USER=name -e ORCHESTRATOR_PASSWORD=pass ... percona/pmm-server:latest
 
 #+end-block
 
+** start
+
+#+begin-block: docker start pmm-server
++docker.start.pmm-server+
+.. code-block:: bash
+
+   $ docker start pmm-server
+
+#+end-block
 ** stop
 
 #+begin-block: docker stop && docker rm
