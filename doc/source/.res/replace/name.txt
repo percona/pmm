@@ -22,6 +22,7 @@
 .. |debian|                   replace:: *Debian*
 .. |docker|                   replace:: *Docker*
 .. |facebook|                 replace:: *Facebook*
+.. |firefox|                  replace:: *Firefox*
 .. |grafana|                  replace:: *Grafana*
 .. |innodb|                   replace:: *InnoDB*
 .. |linux|                    replace:: *Linux*
@@ -99,6 +100,7 @@
 .. |gui.host|                               replace:: :guilabel:`Host`
 .. |gui.log|                                replace:: :guilabel:`Log`
 .. |gui.mysql-replication-topology-manager| replace:: :guilabel:`MySQL Replication Topology Manager`
+.. |gui.query-abstract|                     replace:: :guilabel:`Query Abstract`
 .. |gui.query-filter|                       replace:: :guilabel:`Query Filter`
 .. |gui.settings|                           replace:: :guilabel:`Settings`
 .. |gui.status|                             replace:: :guilabel:`Status`

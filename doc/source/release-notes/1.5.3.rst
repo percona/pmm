@@ -1,0 +1,26 @@
+.. _1.5.3:
+
+================================================================================
+Percona Monitoring and Management |release|
+================================================================================
+
+:Date: December 15, 2017
+
+|percona| announces the release of |pmm.name|
+|release|. This release contains fixes to bugs found after |pmm.name|
+|prev-release| was released.
+
+Bug fixes
+--------------------------------------------------------------------------------
+
+- :pmmbug:`1816`: The |pmm-add-instance| dashboard was not displayed correctly in |firefox|.
+- :pmmbug:`1829`: When the user clicked a link in the
+  |gui.query-abstract| column, an outdated version of |qan| would open.
+- :pmmbug:`1836`: |pmm-server| installed in a |docker| container could
+  not be started if the updating procedure was interrupted.
+  
+.. |release|      replace:: 1.5.3
+.. |prev-release| replace:: 1.5.2
+
+.. include:: ../.res/replace/name.txt
+.. include:: ../.res/replace/option.txt
