@@ -16,7 +16,10 @@
 .. |docker.rmi|               replace:: :program:`docker rmi`
 .. |docker.rm|                replace:: :program:`docker rm`
 .. |docker.run|               replace:: :program:`docker run`
+.. |docker.start|             replace:: :program:`docker start`
+.. |docker.stop|              replace:: :program:`docker stop`
 .. |docker.tag|               replace:: :program:`docker tag`
+
 .. |pmm-admin.add|            replace:: :program:`pmm-admin add`
 .. |pmm-admin.check-network|  replace:: :program:`pmm-admin check-network`
 .. |pmm-admin.config|         replace:: :program:`pmm-admin config`
@@ -33,6 +36,7 @@
 .. |pmm-admin.start|          replace:: :program:`pmm-admin start`
 .. |pmm-admin.stop|           replace:: :program:`pmm-admin stop`
 .. |pmm-admin.uninstall|      replace:: :program:`pmm-admin uninstall`
+
 .. |sql.delete|               replace:: :program:`DELETE`
 .. |sql.explain|              replace:: :program:`EXPLAIN`
 .. |sql.insert|               replace:: :program:`INSERT`
