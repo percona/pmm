@@ -162,6 +162,8 @@ func (s *systemd) Status() error {
 const systemdScript = `[Unit]
 Description={{.Description}}
 ConditionFileIsExecutable={{.Path|cmdEscape}}
+After=network.target
+After=syslog.target
 
 [Service]
 StartLimitInterval=5

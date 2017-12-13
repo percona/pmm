@@ -286,12 +286,12 @@
   branch = "PMM-1710-supervisord"
   name = "github.com/percona/kardianos-service"
   packages = ["."]
-  revision = "e83f8a60e4555d1e113d9228b5532865907eebef"
+  revision = "921136fc4c9c0431b81720d1b5f294ef0d5b3929"
 
 [[projects]]
   branch = "master"
   name = "github.com/percona/pmm"
-  packages = ["proto/config"]
+  packages = ["proto","proto/config"]
   revision = "2e1fc2e5c4bba7ce05a0af6b46ca3c56e4952f4e"
 
 [[projects]]
@@ -459,6 +459,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0de2cc89c64c7b1f4fdddb438089fae5f7cf092b439a1354f7ce9577d7cf83d6"
+  inputs-digest = "514ebfdff560ee281990c2e232adc42cadab33ecc7b6b282d379a2efefd9bfb8"
   solver-name = "gps-cdcl"
   solver-version = 1

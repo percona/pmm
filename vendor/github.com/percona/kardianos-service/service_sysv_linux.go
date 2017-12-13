@@ -177,7 +177,8 @@ const sysvScript = `#!/bin/sh
 
 cmd='{{.Path}}{{range .Arguments}} {{.}}{{end}}'
 
-name=$(basename $0)
+real_path=$(readlink -f $0)
+name=$(basename $real_path)
 pid_file="/var/run/$name.pid"
 log_file="/var/log/$name.log"
 
