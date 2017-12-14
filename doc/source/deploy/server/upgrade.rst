@@ -35,8 +35,8 @@ The |docker.stop| command stops the currently running |opt.pmm-server| container
    :start-after: +docker.stop.pmm-server+
    :end-before: #+end-block
 
-The following command simply renames the current |opt.pmm-server| container so
-that it is not overridden by the update procedure:
+The following command simply renames the current |opt.pmm-server| container to
+avoid name conflicts during the update procedure:
 
 .. include:: ../../.res/code/sh.org
    :start-after: +docker.rename.pmm-server.pmm-server-backup+
@@ -76,6 +76,11 @@ use |docker.run| to create a |opt.pmm-server| container using the new image.
 .. include:: ../../.res/code/sh.org
    :start-after: +docker.run.latest+
    :end-before: #+end-block
+
+.. important::
+
+   The |opt.pmm-server| container must be stopped before attempting |docker.run|.
+
 
 The |docker.run| command refers to the pulled image as the last parameter. If
 you used a specific version number when running |docker.pull| (see

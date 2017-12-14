@@ -8,16 +8,7 @@ Running |pmm-server| Using |docker|
 repository. If you intend to run |pmm-server| from a |docker| image, the host
 must be able to run |docker| 1.12.6 or later, and have network access.
 
-
 For more information about using |docker|, see the `Docker Docs`_.
-
-.. This note is not necessary because the docker docs provide much better
-   instructions about using package managers.  Also, this note is not
-   accurate. Using apt and yum is ok: docker provides their repositories.
-
-   .. note:: Make sure that you are using the latest version of |docker|.
-      The ones provided via ``apt`` or ``yum``
-      may be outdated and cause errors.
 
 .. note::
    

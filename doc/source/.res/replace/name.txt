@@ -22,6 +22,7 @@
 .. |debian|                   replace:: *Debian*
 .. |docker|                   replace:: *Docker*
 .. |facebook|                 replace:: *Facebook*
+.. |firefox|                  replace:: *Firefox*
 .. |grafana|                  replace:: *Grafana*
 .. |innodb|                   replace:: *InnoDB*
 .. |linux|                    replace:: *Linux*
@@ -105,6 +106,7 @@
 .. |gui.more-inf|                           replace:: :guilabel:`More Information`
 .. |gui.mysql-replication-topology-manager| replace:: :guilabel:`MySQL Replication Topology Manager`
 .. |gui.open|                               replace:: :guilabel:`Open`
+.. |gui.query-abstract|                     replace:: :guilabel:`Query Abstract`
 .. |gui.query-filter|                       replace:: :guilabel:`Query Filter`
 .. |gui.settings|                           replace:: :guilabel:`Settings`
 .. |gui.status|                             replace:: :guilabel:`Status`
@@ -114,9 +116,9 @@
 
 .. Files and directories
 
-.. |dhparam.pem|   replace:: :file:`dhparam.pem`
-.. |etc.nginx.ssl| replace:: :file:`/etc/nginx/ssl`
-.. |etc.pmm-certs| replace:: :file:`/etc/pmm-certs`
-.. |server.crt|    replace:: :file:`server.crt`
-.. |server.key|    replace:: :file:`server.key`
+.. |dhparam.pem|     replace:: :file:`dhparam.pem`
+.. |etc.nginx.ssl|   replace:: :file:`/etc/nginx/ssl`
+.. |etc.pmm-certs|   replace:: :file:`/etc/pmm-certs`
+.. |server.crt|      replace:: :file:`server.crt`
+.. |server.key|      replace:: :file:`server.key`
 .. |etc.mongod.conf| replace:: :file:`/etc/mongod.conf`
