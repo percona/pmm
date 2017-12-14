@@ -13,11 +13,19 @@ Percona Monitoring and Management |release|
 Bug fixes
 --------------------------------------------------------------------------------
 
+- :pmmbug:`1828`: In |centos| 6.9, |pmm-admin.list| incorrectly
+  reported that no monitoring services were running.
+- :pmmbug:`1842`: It was not possible to restart the
+  |opt.mysql-queries| monitoring service after |pmm-client| was
+  upgraded from version 1.0.4.
+- :pmmbug:`1797`: It was not possible to update the CloudWatch data source credentials.
 - :pmmbug:`1816`: The |pmm-add-instance| dashboard was not displayed correctly in |firefox|.
 - :pmmbug:`1829`: When the user clicked a link in the
   |gui.query-abstract| column, an outdated version of |qan| would open.
 - :pmmbug:`1836`: |pmm-server| installed in a |docker| container could
   not be started if the updating procedure was interrupted.
+
+Other bug fixes: - :pmmbug:`1845`
   
 .. |release|      replace:: 1.5.3
 .. |prev-release| replace:: 1.5.2
