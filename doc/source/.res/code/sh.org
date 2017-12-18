@@ -10,6 +10,19 @@
 
 #+end-block
 
+* bash
+
+** cd
+
+#+begin-block: cd pmm-data-backup
++cd.pmm-data-backup+
+
+.. code-block:: bash
+
+   $ cd ~/pmm-data-backup
+
+#+end-block
+
 * apt-get
 
 #+begin-block: apt-get remove
@@ -33,6 +46,20 @@
 #+end-block
 
 * docker
+
+** cp
+
+#+begin-block: docker cp
++docker.cp+
+
+.. code-block:: bash
+
+   $ docker cp opt/prometheus/data pmm-data:/opt/prometheus/
+   $ docker cp opt/consul-data pmm-data:/opt/
+   $ docker cp var/lib/mysql pmm-data:/var/lib/
+   $ docker cp var/lib/grafana pmm-data:/var/lib/
+ 
+#+end-block
 
 ** create
 
@@ -134,14 +161,23 @@
    $ docker rename pmm-server pmm-server-backup
 
 #+end-block
-#+begin-block: docker rename pmm-server pmm-server-backup
-+docker.rename.pmm-server.pmm-server-backup+
+#+begin-block: docker rename pmm-server-backup pmm-server
++docker.rename.pmm-server-backup.pmm-server+
 
 .. code-block:: bash
 
-   $ docker rename pmm-server-backup pmm-server
+   $ docker rename pmm-server pmm-server-backup
 
 #+end-block
+#+begin-block: docker rename pmm-data pmm-data-backup
++docker.rename.pmm-data.pmm-data-backup+
+
+.. code-block:: bash
+
+   $ docker rename pmm-data pmm-data-backup
+
+#+end-block
+
 ** rm
 
 #+begin-block: docker rm
@@ -324,6 +360,16 @@
 .. code-block:: bash
 
    $ docker run ... -e ORCHESTRATOR_ENABLED=true ORCHESTRATOR_USER=name -e ORCHESTRATOR_PASSWORD=pass ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run rm it chown
++docker.run.rm.it.chown+
+
+.. code-block:: bash
+		   
+   $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:latest chown -R pmm:pmm /opt/prometheus/data /opt/consul-data
+   $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:latest chown -R grafana:grafana /var/lib/grafana
+   $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:latest chown -R mysql:mysql /var/lib/mysql
 
 #+end-block
 
@@ -786,8 +832,8 @@
    pmm-admin check-network [OPTIONS]
 
 #+end-block
-#+begin-block: pmm-admin check-network
-+pmm-admin.check-network+
+#+begin-block: pmm-admin check-network +output
++pmm-admin.check-network.+output+
 
 .. code-block:: text
    :emphasize-lines: 1
@@ -826,7 +872,14 @@
    mongodb:metrics  mongo-main  192.168.200.1:42003  PROBLEM  YES        -
 
 #+end-block
+#+begin-block: pmm-admin check-network
++pmm-admin.check-network+
 
+.. code-block:: bash
+
+   $ pmm-admin check-network
+
+#+end-block
 ** help
 
 #+begin-block: pmm-admin help command

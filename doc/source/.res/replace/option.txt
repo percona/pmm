@@ -147,7 +147,8 @@
 
 .. Labels and tags
 
-.. |opt.pmm-server|        replace:: :option:`pmm-server`
-.. |opt.pmm-data|          replace:: :option:`pmm-data`
 .. |opt.latest|            replace:: :option:`latest`
+.. |opt.pmm-data-backup|   replace:: :option:`pmm-data-backup`
+.. |opt.pmm-data|          replace:: :option:`pmm-data`
 .. |opt.pmm-server-backup| replace:: :option:`pmm-server-backup`
+.. |opt.pmm-server|        replace:: :option:`pmm-server`
