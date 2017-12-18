@@ -4,7 +4,7 @@
 Percona Monitoring and Management |release|
 ================================================================================
 
-:Date: December 15, 2017
+:Date: December 18, 2017
 
 |percona| announces the release of |pmm.name| |release|. This release contains fixes to bugs found after |pmm.name| |prev-release| was released as well as some important fixes and improvements not related to the previous release.
 
