@@ -663,7 +663,7 @@ with results separated accordingly:
 .. rubric:: **OUTPUT EXAMPLE**
 
 .. include:: .res/code/sh.org
-   :start-after: +pmm-admin.check-network+
+   :start-after: +pmm-admin.check-network.+output+
    :end-before: #+end-block
 
 For more information, run
