@@ -142,36 +142,20 @@ already set up and accessible.
 To add an external monitoring service use the |opt.external-metrics| service
 followed by the name of a |prometheus| job, URL and port number to reach it.
 
-.. code-block:: text
+.. include:: .res/code/sh.org
+   :start-after: +pmm-admin.add.external-metrics.job-name.url.port-number+
+   :end-before: #+end-block
 
-   pmm-admin add external:metrics JOB-NAME URL:PORT-NUMBER
+The following example adds an external monitoring service which
+monitors a |postgresql| instance at 192.168.200.1, port 9187. If the
+command succeeds then running :ref:`pmm-admin.list` shows the newly
+added external exporter at the bottom of the command's output:
 
-The following example adds an external monitoring service which monitors a
-|postgresql| instance at 192.168.200.1, port 9187
+|tip.run-this.root|
 
-.. code-block:: text
-
-   pmm-admin add external:metrics postgresql 192.168.200.1:9187
-
-If the command succeeds then running :ref:`pmm-admin.list` shows the
-newly added external exporter at the bottom of the command's output:
-
-.. code-block:: text
-
-   PMM Server      | 192.168.100.1
-   Client Name     | percona
-   Client Address  | 192.168.200.1
-   Service Manager | linux-systemd
-
-   -------------- -------- ----------- -------- ------------ --------
-   SERVICE TYPE   NAME     LOCAL PORT  RUNNING  DATA SOURCE  OPTIONS 
-   -------------- -------- ----------- -------- ------------ --------
-   linux:metrics  percona  42000       YES                 -                    
-
-
-   Name      Scrape interval  Scrape timeout  Metrics path  Scheme  Instances
-   postgres  1s               1s              /metrics      http    192.168.200.1:9187
-
+.. include:: .res/code/sh.org
+   :start-after: +pmm-admin.add.external-metrics.postresql+
+   :end-before: #+end-block
 
 .. _pmm.pmm-admin.monitoring-service.pass-parameter:
 
@@ -273,6 +257,11 @@ For more information, run
 |opt.linux-metrics|
 |opt.help|.
 
+.. seealso::
+
+   Default ports
+      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+
 .. _pmm-admin.add-mysql-queries:
 
 Adding |mysql| query analytics service
@@ -340,6 +329,11 @@ You can also use
 :ref:`global options that apply to any other command <pmm-admin.options>`,
 as well as
 :ref:`options that apply to adding services in general <pmm-admin.add-options>`.
+
+.. seealso::
+
+   Default ports
+      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
 
 .. rubric:: **DETAILED DESCRIPTION**
 
@@ -448,6 +442,11 @@ You can also use
 as well as
 :ref:`options that apply to adding services in general <pmm-admin.add-options>`.
 
+.. seealso::
+
+   Default ports
+      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+
 .. rubric:: **DETAILED DESCRIPTION**
 
 When adding the |mysql| metrics monitoring service, the |pmm-admin| tool
@@ -512,6 +511,11 @@ For more information, run
 |opt.mongodb-queries|
 |opt.help|.
 
+.. seealso::
+
+   Default ports
+      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+
 .. _pmm-admin.add.mongodb-metrics:
 
 Adding |mongodb| metrics service
@@ -557,6 +561,11 @@ For more information, run
 |opt.mongodb-metrics|
 |opt.help|.
 
+.. seealso::
+
+   Default ports
+      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+
 .. _pmm-admin.add-proxysql-metrics:
 
 Adding |proxysql| metrics service
@@ -596,6 +605,11 @@ For more information, run
 |pmm-admin.add|
 |opt.proxysql-metrics|
 |opt.help|.
+
+.. seealso::
+
+   Default ports
+      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
 
 .. _pmm-admin.check-network:
 
@@ -649,7 +663,7 @@ with results separated accordingly:
 .. rubric:: **OUTPUT EXAMPLE**
 
 .. include:: .res/code/sh.org
-   :start-after: +pmm-admin.check-network+
+   :start-after: +pmm-admin.check-network.+output+
    :end-before: #+end-block
 
 For more information, run

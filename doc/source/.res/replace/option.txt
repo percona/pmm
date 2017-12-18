@@ -141,7 +141,14 @@
 
 .. |opt.metrics_resolution| replace:: :term:`METRICS_RESOLUTION <METRICS_RESOLUTION (Option)>`
 
-
 .. Values
 
 .. |opt.performance-schema| replace:: :option:`Performance Schema`
+
+.. Labels and tags
+
+.. |opt.latest|            replace:: :option:`latest`
+.. |opt.pmm-data-backup|   replace:: :option:`pmm-data-backup`
+.. |opt.pmm-data|          replace:: :option:`pmm-data`
+.. |opt.pmm-server-backup| replace:: :option:`pmm-server-backup`
+.. |opt.pmm-server|        replace:: :option:`pmm-server`

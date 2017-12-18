@@ -10,6 +10,19 @@
 
 #+end-block
 
+* bash
+
+** cd
+
+#+begin-block: cd pmm-data-backup
++cd.pmm-data-backup+
+
+.. code-block:: bash
+
+   $ cd ~/pmm-data-backup
+
+#+end-block
+
 * apt-get
 
 #+begin-block: apt-get remove
@@ -34,6 +47,20 @@
 
 * docker
 
+** cp
+
+#+begin-block: docker cp
++docker.cp+
+
+.. code-block:: bash
+
+   $ docker cp opt/prometheus/data pmm-data:/opt/prometheus/
+   $ docker cp opt/consul-data pmm-data:/opt/
+   $ docker cp var/lib/mysql pmm-data:/var/lib/
+   $ docker cp var/lib/grafana pmm-data:/var/lib/
+ 
+#+end-block
+
 ** create
 
 #+begin-block: docker create v name
@@ -51,6 +78,53 @@
 
 #+end-block
 
+** images
+
+#+begin-block: docker images percona
++docker.images.percona+
+
+.. code-block:: bash
+
+   $ docker images percona/*
+
+   REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
+   percona/pmm-server-backup   latest              51bfaa37cb1e        2 weeks ago         1.33GB
+   percona/pmm-server          1.5.0               51bfaa37cb1e        2 weeks ago         1.33GB
+
+#+end-block
+** ps
+
+#+begin-block: docker ps
++docker.ps+1.4.0+
+
+.. code-block:: bash
+
+   $ docker ps
+   CONTAINER ID   IMAGE                      COMMAND                CREATED       STATUS             PORTS                               NAMES
+   480696cd4187   percona/pmm-server:1.4.0   "/opt/entrypoint.sh"   4 weeks ago   Up About an hour   192.168.100.1:80->80/tcp, 443/tcp   pmm-server
+
+#+end-block
+#+begin-block: docker ps +1.4.0
++docker.ps+
+
+.. code-block:: bash
+
+   $ docker ps
+   CONTAINER ID   IMAGE                      COMMAND                CREATED       STATUS             PORTS                               NAMES
+   480696cd4187   percona/pmm-server:1.4.0   "/opt/entrypoint.sh"   4 weeks ago   Up About an hour   192.168.100.1:80->80/tcp, 443/tcp   pmm-server
+
+#+end-block
+#+begin-block: docker ps +1.5.0
++docker.ps.+1.5.0+
+
+.. code-block:: bash
+
+   $ docker ps
+   CONTAINER ID   IMAGE                      COMMAND                CREATED         STATUS         PORTS                               NAMES
+   480696cd4187   percona/pmm-server:1.5.0   "/opt/entrypoint.sh"   4 minutes ago   Up 4 minutes   192.168.100.1:80->80/tcp, 443/tcp   pmm-server
+
+#+end-block
+
 ** pull
 
 #+begin-block: docker pull
@@ -61,7 +135,85 @@
    $ docker pull percona/pmm-server:latest
 
 #+end-block
+#+begin-block: docker pull percona-pmm-server-latest
++docker.pull.percona-pmm-server-latest+
 
+.. code-block:: bash
+
+   $ docker pull percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker pull percona-pmm-server +1.5.0
++docker.pull.percona-pmm-server.+1.5.0+
+.. code-block:: bash
+
+   $ docker pull percona/pmm-server:1.5.0
+
+#+end-block
+
+** rename
+
+#+begin-block: docker rename pmm-server pmm-server-backup
++docker.rename.pmm-server.pmm-server-backup+
+
+.. code-block:: bash
+
+   $ docker rename pmm-server pmm-server-backup
+
+#+end-block
+#+begin-block: docker rename pmm-server-backup pmm-server
++docker.rename.pmm-server-backup.pmm-server+
+
+.. code-block:: bash
+
+   $ docker rename pmm-server pmm-server-backup
+
+#+end-block
+#+begin-block: docker rename pmm-data pmm-data-backup
++docker.rename.pmm-data.pmm-data-backup+
+
+.. code-block:: bash
+
+   $ docker rename pmm-data pmm-data-backup
+
+#+end-block
+
+** rm
+
+#+begin-block: docker rm
++docker.rm.pmm-data+
+
+.. code-block:: bash
+
+   $ docker rm pmm-data
+
+#+end-block
+#+begin-block: docker rm pmm-server
++docker.rm.pmm-server+
+
+.. code-block:: bash
+
+   $ docker rm pmm-server
+
+#+end-block
+#+begin-block: docker rm pmm-server-backup
++docker.rm.pmm-server-backup+
+
+.. code-block:: bash
+
+   $ docker rm pmm-server-backup
+
+#+end-block
+** rmi
+
+#+begin-block: docker rmi backup-latest
++docker.rmi.backup-latest+
+
+.. code-block:: bash
+
+   $ docker rmi percona/pmm-server-backup:latest
+
+#+end-block
 ** run
 
 #+begin-block: docker run d p volumes-from name e server-user e server-password v restart
@@ -105,6 +257,19 @@
       percona/pmm-server:latest
 
 #+end-block
+#+begin-block: docker run d p volumes-from name restart +backup
++docker.run.d.p.volumes-from.name.restart.+backup+
+
+.. code-block:: bash
+
+   $ docker run -d \
+      -p 80:80 \
+      --volumes-from pmm-data \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server-backup
+
+#+end-block
 #+begin-block: docker run d p volumes-from name e server-user e server-password restart
 +docker.run.server-user.example+
 
@@ -133,60 +298,12 @@
       percona/pmm-server:latest
 
 #+end-block
-#+begin-block: docker run e metrics-memory
-+docker.run.metrics-memory+
-
-.. code-block:: bash
-
-   $ docker run ... -e METRICS_MEMORY=4194304
-
-#+end-block
-#+begin-block: docker run e server-user
-+docker.run.server-user+
-
-.. code-block:: bash
-
-   $ docker run ... -e SERVER_USER=USER_NAME
-
-#+end-block
-#+begin-block: docker run e server-password
-+docker.run.server-password+
-
-.. code-block:: bash
-
-   $ docker run ... -e SERVER_PASSWORD=YOUR_PASSWORD
-
-#+end-block
-#+begin-block: docker run e metrics-resolution
-+docker.run.metrics-resolution+
-
-.. code-block:: bash
-
-   $ docker run ... -e METRICS_RESOLUTION=VALUE
-
-#+end-block
 #+begin-block: docker run e disable-telemetry
 +docker.run.disable-telemetry+
 
 .. code-block:: bash
 
-   $ docker run ... -e DISABLE_TELEMETRY=true
-
-#+end-block
-#+begin-block: docker run e orchestrator-enabled
-+docker.run.orchestrator-enabled+
-
-.. code-block:: bash
-
-   $ docker run ... -e ORCHESTRATOR_ENABLED=true
-
-#+end-block
-#+begin-block: docker run e orchestrator-enabled orchestrator-user orchestrator-password
-+docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
-
-.. code-block:: bash
-
-   $ docker run ... -e ORCHESTRATOR_ENABLED=true ORCHESTRATOR_USER=name -e ORCHESTRATOR_PASSWORD=pass
+   $ docker run ... -e DISABLE_TELEMETRY=true ... percona/pmm-server:latest
 
 #+end-block
 #+begin-block: docker run e disable-updates
@@ -194,10 +311,77 @@
 
 .. code-block:: bash
 
-   $ docker run ... -e DISABLE_UPDATES=true
+   $ docker run ... -e DISABLE_UPDATES=true ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e metrics-memory
++docker.run.metrics-memory+
+
+.. code-block:: bash
+
+   $ docker run ... -e METRICS_MEMORY=4194304 ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e server-user
++docker.run.server-user+
+
+.. code-block:: bash
+
+   $ docker run ... -e SERVER_USER=USER_NAME ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e server-password
++docker.run.server-password+
+
+.. code-block:: bash
+
+   $ docker run ... -e SERVER_PASSWORD=YOUR_PASSWORD ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e metrics-resolution
++docker.run.metrics-resolution+
+
+.. code-block:: bash
+
+   $ docker run ... -e METRICS_RESOLUTION=VALUE ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e orchestrator-enabled
++docker.run.orchestrator-enabled+
+
+.. code-block:: bash
+
+   $ docker run ... -e ORCHESTRATOR_ENABLED=true ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e orchestrator-enabled orchestrator-user orchestrator-password
++docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
+
+.. code-block:: bash
+
+   $ docker run ... -e ORCHESTRATOR_ENABLED=true ORCHESTRATOR_USER=name -e ORCHESTRATOR_PASSWORD=pass ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run rm it chown
++docker.run.rm.it.chown+
+
+.. code-block:: bash
+		   
+   $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:latest chown -R pmm:pmm /opt/prometheus/data /opt/consul-data
+   $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:latest chown -R grafana:grafana /var/lib/grafana
+   $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:latest chown -R mysql:mysql /var/lib/mysql
 
 #+end-block
 
+** start
+
+#+begin-block: docker start pmm-server
++docker.start.pmm-server+
+.. code-block:: bash
+
+   $ docker start pmm-server
+
+#+end-block
 ** stop
 
 #+begin-block: docker stop && docker rm
@@ -208,12 +392,23 @@
    $ docker stop pmm-server && docker rm pmm-server
 
 #+end-block
-#+begin-block: docker rm
-+docker.rm.pmm-data+
+#+begin-block: docker stop pmm-server
++docker.stop.pmm-server+
 
 .. code-block:: bash
 
-   $ docker rm pmm-data
+   $ docker stop pmm-server
+
+#+end-block
+
+** tag
+
+#+begin-block: docker tag
++docker.tag+
+
+.. code-block:: bash
+
+   $ docker tag percona/pmm-server:1.4.0 percona/pmm-server-backup
 
 #+end-block
 
@@ -507,6 +702,36 @@
    pmm-admin add proxysql:metrics [NAME] [OPTIONS]
 
 #+end-block
+#+begin-block: pmm-admin add external-metrics postresql
++pmm-admin.add.external-metrics.postresql+
+
+.. code-block:: text
+
+   $ pmm-admin add external:metrics postgresql 192.168.200.1:9187
+
+   PMM Server      | 192.168.100.1
+   Client Name     | percona
+   Client Address  | 192.168.200.1
+   Service Manager | linux-systemd
+
+   -------------- -------- ----------- -------- ------------ --------
+   SERVICE TYPE   NAME     LOCAL PORT  RUNNING  DATA SOURCE  OPTIONS 
+   -------------- -------- ----------- -------- ------------ --------
+   linux:metrics  percona  42000       YES                 -                    
+
+
+   Name      Scrape interval  Scrape timeout  Metrics path  Scheme  Instances
+   postgres  1s               1s              /metrics      http    192.168.200.1:9187
+
+#+end-block
+#+begin-block: pmm-admin add external-metrics job-name url port-number
++pmm-admin.add.external-metrics.job-name.url.port-number+
+
+.. code-block:: bash
+
+   pmm-admin add external:metrics JOB-NAME URL:PORT-NUMBER
+
+#+end-block
 
 ** config
 
@@ -607,8 +832,8 @@
    pmm-admin check-network [OPTIONS]
 
 #+end-block
-#+begin-block: pmm-admin check-network
-+pmm-admin.check-network+
+#+begin-block: pmm-admin check-network +output
++pmm-admin.check-network.+output+
 
 .. code-block:: text
    :emphasize-lines: 1
@@ -647,7 +872,14 @@
    mongodb:metrics  mongo-main  192.168.200.1:42003  PROBLEM  YES        -
 
 #+end-block
+#+begin-block: pmm-admin check-network
++pmm-admin.check-network+
 
+.. code-block:: bash
+
+   $ pmm-admin check-network
+
+#+end-block
 ** help
 
 #+begin-block: pmm-admin help command
@@ -798,4 +1030,29 @@
 .. code-block:: bash
 
    $ mongod --dbpath=DATABASEDIR --profile 1 --slowms 200 --rateLimit 100
+#+end-block
+* vboxmanage
+
+#+begin-block: vboxmanage
++vboxmanage+
+
+.. code-block:: text
+
+   # Import image
+   VBoxManage import PMM-Server-2017-01-24.ova
+
+   # Modify NIC settings if needed
+   VBoxManage list bridgedifs
+   VBoxManage modifyvm 'PMM Server [2017-01-24]' --nic1 bridged --bridgeadapter1 'en0: Wi-Fi (AirPort)'
+
+   # Log console output into file
+   VBoxManage modifyvm 'PMM Server [2017-01-24]' --uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
+
+   # Start instance
+   VBoxManage startvm --type headless 'PMM Server [2017-01-24]'
+
+   # Wait for 1 minute and get IP address from the log
+   sleep 60
+   grep cloud-init /tmp/pmm-server-console.log
+
 #+end-block

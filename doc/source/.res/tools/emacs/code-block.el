@@ -40,6 +40,10 @@
 
 ;;; INTERACTIVE FUNCTIONS
 
+;; TODO: apply correct indentation
+;; TODO: enable adding id not only signatures
+;; TODO: automatically detect the level of nesting of the active file and change
+;; the path to the .res/code/sh.org file.
 (defun pmm-code-block (code-block-sig)
   "Inserts the code-block into the current document at the point of the cursor.
 This function expects that a valid code block signature is supplied.
