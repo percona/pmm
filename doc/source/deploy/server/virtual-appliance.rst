@@ -10,11 +10,12 @@ is a :command:`tar` archive with necessary files that follow the *Open
 Virtualization Format* (OVF).  OVF is supported by most popular virtualization
 platforms, including:
 
-* `VMware <http://www.vmware.com/>`_
-* `Red Hat Virtualization <https://www.redhat.com/en/technologies/virtualization>`_
-* `VirtualBox <https://www.virtualbox.org/>`_
-* `XenServer <https://www.xenserver.org/>`_
-* `Microsoft System Center Virtual Machine Manager <https://www.microsoft.com/en-us/cloud-platform/system-center>`_
+* `VMware`_
+* `VMware - ESXi 6.5`_
+* `Red Hat Virtualization`_
+* `VirtualBox`_
+* `XenServer`_
+* `Microsoft System Center Virtual Machine Manager`_
 
 The virtual appliance is ideal for running |pmm-server| on an
 enterprise virtualization platform of your choice.  This page provides
