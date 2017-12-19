@@ -10,7 +10,6 @@ is a :command:`tar` archive with necessary files that follow the *Open
 Virtualization Format* (OVF).  OVF is supported by most popular virtualization
 platforms, including:
 
-* `VMware`_
 * `VMware - ESXi 6.5`_
 * `Red Hat Virtualization`_
 * `VirtualBox`_
