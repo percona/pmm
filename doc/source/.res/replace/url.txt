@@ -15,4 +15,10 @@
 .. _`Grafana Docs`: http://docs.grafana.org/
 .. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
 .. _`Consul Docs`: https://www.consul.io/docs/
+.. _`VMware`: http://www.vmware.com/
+.. _`VMware - ESXi 6.5`: https://www.vmware.com/products/esxi-and-esx.html
+.. _`Red Hat Virtualization`: https://www.redhat.com/en/technologies/virtualization
+.. _`VirtualBox`: https://www.virtualbox.org/
+.. _`XenServer`: https://www.xenserver.org/
+.. _`Microsoft System Center Virtual Machine Manager`: https://www.microsoft.com/en-us/cloud-platform/system-center
 
