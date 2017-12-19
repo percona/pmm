@@ -13,11 +13,11 @@ Network connectivity can become an issue for |prometheus| to scrape metrics
 with 1 second resolution.
 We strongly suggest that you run |pmm-server| on AWS.
 
-.. note:: If latency is higher than 1 second,
-   you should change the minimum resolution
-   by setting the |opt.metrics_resolution|  environment variable
-   when :ref:`creating and running the PMM Server container <server-container>`.
-   For more information, see :ref:`metrics-resolution`.
+.. note:: If latency is higher than 1 second, you should change the minimum
+	  resolution by setting the |term.metrics-resolution| environment
+	  variable when :ref:`creating and running the PMM Server container
+	  <server-container>`.  For more information, see
+	  :ref:`metrics-resolution`.
 
 |qan.name| requires :ref:`perf-schema` as the query source,
 because the slow query log is stored on AWS side,

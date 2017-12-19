@@ -24,6 +24,49 @@ List of |pmm-server| Options
 .. glossary::
    :sorted:
 
+   METRICS_RETENTION (Option)
+
+      This option determines how long metrics are stored at :term:`PMM
+      Server`. The value is passed as a combination of hours, minutes, and
+      seconds, such as **720h0m0s**. The minutes (a number followed by *m*) and
+      seconds (a number followed by *s*) are optional.
+
+      To set the |opt.metrics-retention| option to 8 days, set this option to *192h*.
+
+      |tip.run-this.root|
+
+      .. include:: .res/code/sh.org
+	 :start-after: +docker.run.e.metrics-retention+
+	 :end-before: #+end-block
+
+      .. seealso::
+
+	 Data retention in PMM
+
+	    :term:`Data retention`
+
+	 Queries retention
+
+	    :term:`QUERIES_RETENTION <QUERIES_RETENTION (Option)>`
+
+   QUERIES_RETENTION (Option)
+
+      This option determines how many days queries are stored at :term:`PMM Server`. 
+
+      .. include:: .res/code/sh.org
+	 :start-after: +docker.run.e.queries-retention+
+	 :end-before: #+end-block
+
+      .. seealso::
+
+	 Metrics retention
+
+	    :term:`METRICS_RETENTION <METRICS_RETENTION (Option)>`
+
+	 Data retention in PMM
+
+	    :term:`Data retention`
+
    ORCHESTRATOR_ENABLED (Option)
 
       This option enables |orchestrator| (See

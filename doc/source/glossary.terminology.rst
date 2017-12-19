@@ -7,6 +7,29 @@ Terminology Reference
 .. glossary::
    :sorted:
 
+   Data retention
+
+      By default, |prometheus| stores time-series data for 30 days,
+      and :term:`QAN` stores query data for 8 days.
+
+      Depending on available disk space and your requirements, you may
+      need to adjust data retention time.
+
+      You can control data retention by passing the :term:`METRICS_RETENTION
+      <METRICS_RETENTION (Option)>` and :term:`QUERIES_RETENTION
+      <QUERIES_RETENTION (Option)>` environment variables when :ref:`creating
+      and running the PMM Server container <server-container>`.
+
+      .. seealso::
+
+	 Metrics retention
+
+	    :term:`METRICS_RETENTION <METRICS_RETENTION (Option)>`
+
+	 Queries retention
+
+	    :term:`QUERIES_RETENTION <QUERIES_RETENTION (Option)>`
+
    Default ports
 
       See :term:`Ports`.
