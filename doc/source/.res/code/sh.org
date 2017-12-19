@@ -346,6 +346,26 @@
    $ docker run ... -e METRICS_RESOLUTION=VALUE ... percona/pmm-server:latest
 
 #+end-block
+#+begin-block: docker run e metrics-retention
+Demonstrates how to set the option to 8 days.
+
++docker.run.e.metrics-retention+
+
+.. code-block:: bash
+
+   $ docker run ... -e METRICS_RETENTION=192h ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e queries-retention
++docker.run.e.queries-retention+
+
+
+.. code-block:: bash
+
+   $ docker run ... -e QUERIES_RETENTION=30 ... percona/pmm-server:latest
+
+#+end-block
+
 #+begin-block: docker run e orchestrator-enabled
 +docker.run.orchestrator-enabled+
 

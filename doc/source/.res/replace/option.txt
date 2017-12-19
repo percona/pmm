@@ -139,7 +139,13 @@
 
 .. Environment Variables
 
-.. |opt.metrics_resolution| replace:: :term:`METRICS_RESOLUTION <METRICS_RESOLUTION (Option)>`
+.. |opt.metrics-resolution| replace:: :option:`METRICS_RESOLUTION>`
+.. |opt.metrics-retention|  replace:: :option:`METRICS_RETENTION>`
+.. |opt.queries-retention|  replace:: :option:`QUERIES_RETENTION>`
+
+.. Terminology references
+
+.. |term.metrics-resolution| replace:: :term:`METRICS_RESOLUTION <METRICS_RESOLUTION (Option)>`
 
 .. Values
 
