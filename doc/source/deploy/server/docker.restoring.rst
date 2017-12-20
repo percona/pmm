@@ -1,6 +1,6 @@
 .. _pmm/server/docker.restoring:
 
-Restoring the Backed Up Information to the |opt.pmm-data| Container
+Restoring the Backed Up Information to the PMM Data Container
 ================================================================================
 
 If you have a backup copy of your |opt.pmm-data| container, you can restore it

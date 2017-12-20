@@ -8,13 +8,21 @@ To check the version of |pmm-server|, run |docker.ps| on the host.
 |tip.run-all.root|
 
 .. include:: ../../.res/code/sh.org
-   :start-after: +docker.ps+1.4.0+
+   :start-after: +docker.ps.+1.4.0+
    :end-before: #+end-block
 
 The version number is visible in the :guilabel:`IMAGE` column. For a
 |docker| container created from the image tagged |opt.latest|, the
 :guilabel:`IMAGE` column contains |opt.latest| and not the specific
 version number of |pmm-server|.
+
+The information about the currently installed version of |pmm-server| is
+available from the |srv.update.main.yml| file. You may extract the version number by using
+the |docker.exec| command:
+
+.. include:: ../../.res/code/sh.org
+   :start-after: +docker.exec.it.pmm-server.head+
+   :end-before: #+end-block
 
 To check if there exists a newer version of |pmm-server|,
 visit `percona/pmm-server`_.

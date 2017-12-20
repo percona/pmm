@@ -116,9 +116,10 @@
 
 .. Files and directories
 
-.. |dhparam.pem|     replace:: :file:`dhparam.pem`
-.. |etc.nginx.ssl|   replace:: :file:`/etc/nginx/ssl`
-.. |etc.pmm-certs|   replace:: :file:`/etc/pmm-certs`
-.. |server.crt|      replace:: :file:`server.crt`
-.. |server.key|      replace:: :file:`server.key`
-.. |etc.mongod.conf| replace:: :file:`/etc/mongod.conf`
+.. |dhparam.pem|         replace:: :file:`dhparam.pem`
+.. |etc.nginx.ssl|       replace:: :file:`/etc/nginx/ssl`
+.. |etc.pmm-certs|       replace:: :file:`/etc/pmm-certs`
+.. |server.crt|          replace:: :file:`server.crt`
+.. |server.key|          replace:: :file:`server.key`
+.. |etc.mongod.conf|     replace:: :file:`/etc/mongod.conf`
+.. |srv.update.main.yml| replace:: :file:`/srv/update/main.yml`

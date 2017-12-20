@@ -78,6 +78,18 @@
 
 #+end-block
 
+** exec
+
+#+begin-block: docker exec it pmm-server head
++docker.exec.it.pmm-server.head+
+
+.. code-block:: bash 
+
+   $ docker exec -it pmm-server head -1 /srv/update/main.yml
+   # v1.5.3
+
+#+end-block
+
 ** images
 
 #+begin-block: docker images percona
@@ -95,7 +107,7 @@
 ** ps
 
 #+begin-block: docker ps
-+docker.ps+1.4.0+
++docker.ps+
 
 .. code-block:: bash
 
@@ -105,7 +117,7 @@
 
 #+end-block
 #+begin-block: docker ps +1.4.0
-+docker.ps+
++docker.ps.+1.4.0+
 
 .. code-block:: bash
 

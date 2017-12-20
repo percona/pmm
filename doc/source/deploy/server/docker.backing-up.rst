@@ -1,7 +1,7 @@
 .. _pmm/server/docker/backing-up:
 
 ================================================================================
-Backing Up |opt.pmm-data| from |docker| Container
+Backing Up PMM Data from the |docker| Container
 ================================================================================
 
 When |pmm-server| is run via |docker|, its data are stored in the |opt.pmm-data|

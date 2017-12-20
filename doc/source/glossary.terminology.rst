@@ -180,6 +180,12 @@ Terminology Reference
 	 To update your |pmm-server|, click the *Update* button
 	 located next to the version number.
 
+      .. seealso::
+
+	 Checking the version of |pmm-server|
+
+	     :term:`PMM Server Version`
+
    PMM Docker Image
 
       A docker image which enables installing the |pmm-server| by
@@ -248,12 +254,27 @@ Terminology Reference
 
       Run |pmm-server| on a host that you will use to access this data.
 
-      .. seealso:: :ref:`architecture`
+      .. seealso::
+
+	 PMM Architecture
+
+	    :ref:`architecture`
 
    Query Analytics (QAN)
 
       Component of :term:`PMM Server` that enables you to analyze
       |mysql| query performance over periods of time.
+
+   PMM Server Version
+
+      If :term:`PMM Server` is installed via |docker|, you can check
+      the current |pmm-server| version by running |docker.exec|:
+
+      |tip.run-this.root|
+
+      .. include:: .res/code/sh.org
+	 :start-after: +docker.exec.it.pmm-server.head+
+	 :end-before: #+end-block
 
    QAN
 
