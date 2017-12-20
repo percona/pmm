@@ -9,6 +9,7 @@
 
 .. Commands
 
+.. |docker.cp|     replace:: :program:`docker cp`
 .. |docker.create| replace:: :program:`docker create`
 .. |docker.exec|   replace:: :program:`docker exec`
 .. |docker.images| replace:: :program:`docker images`

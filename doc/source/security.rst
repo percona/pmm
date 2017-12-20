@@ -77,11 +77,20 @@ SSL certificates.
       :start-after: +pmm-admin.config.server.server-ssl+
       :end-before: #+end-block
 
-   If you generated a self-signed certificate:
+   .. If you generated a self-signed certificate:
+
+   .. .. include:: .res/code/sh.org
+   ..   :start-after: +pmm-admin.config.server.server-insecure-ssl+
+   ..   :end-before: #+end-block
+
+   If you have a self-signed certificate, run |docker.cp| to make the
+   certificate files available to your |opt.pmm-server| container.
 
    .. include:: .res/code/sh.org
-      :start-after: +pmm-admin.config.server.server-insecure-ssl+
+      :start-after: +docker.cp.certificate-crt.pmm-server+
       :end-before: #+end-block
+
+   This example assumes that you have changed into the directory that contains the certificate files.
 		
 Combining Security Features
 ================================================================================
@@ -114,3 +123,5 @@ and look at the server address field. For example:
 	     
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/fragment.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/option.txt
