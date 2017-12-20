@@ -9,16 +9,17 @@
 
 .. Commands
 
-.. |docker.create|            replace:: :program:`docker create`
-.. |docker.images|            replace:: :program:`docker images`
-.. |docker.ps|                replace:: :program:`docker ps`
-.. |docker.pull|              replace:: :program:`docker pull`
-.. |docker.rmi|               replace:: :program:`docker rmi`
-.. |docker.rm|                replace:: :program:`docker rm`
-.. |docker.run|               replace:: :program:`docker run`
-.. |docker.start|             replace:: :program:`docker start`
-.. |docker.stop|              replace:: :program:`docker stop`
-.. |docker.tag|               replace:: :program:`docker tag`
+.. |docker.create| replace:: :program:`docker create`
+.. |docker.exec|   replace:: :program:`docker exec`
+.. |docker.images| replace:: :program:`docker images`
+.. |docker.ps|     replace:: :program:`docker ps`
+.. |docker.pull|   replace:: :program:`docker pull`
+.. |docker.rmi|    replace:: :program:`docker rmi`
+.. |docker.rm|     replace:: :program:`docker rm`
+.. |docker.run|    replace:: :program:`docker run`
+.. |docker.start|  replace:: :program:`docker start`
+.. |docker.stop|   replace:: :program:`docker stop`
+.. |docker.tag|    replace:: :program:`docker tag`
 
 .. |pmm-admin.add|            replace:: :program:`pmm-admin add`
 .. |pmm-admin.check-network|  replace:: :program:`pmm-admin check-network`
@@ -37,10 +38,10 @@
 .. |pmm-admin.stop|           replace:: :program:`pmm-admin stop`
 .. |pmm-admin.uninstall|      replace:: :program:`pmm-admin uninstall`
 
-.. |sql.delete|               replace:: :program:`DELETE`
-.. |sql.explain|              replace:: :program:`EXPLAIN`
-.. |sql.insert|               replace:: :program:`INSERT`
-.. |sql.replace|              replace:: :program:`REPLACE`
-.. |sql.select|               replace:: :program:`SELECT`
-.. |sql.show-status|          replace:: :program:`SHOW STATUS`
-.. |sql.update|               replace:: :program:`UPDATE`
+.. |sql.delete|        replace:: :program:`DELETE`
+.. |sql.explain|       replace:: :program:`EXPLAIN`
+.. |sql.insert|        replace:: :program:`INSERT`
+.. |sql.replace|       replace:: :program:`REPLACE`
+.. |sql.select|        replace:: :program:`SELECT`
+.. |sql.show-status|   replace:: :program:`SHOW STATUS`
+.. |sql.update|        replace:: :program:`UPDATE`
