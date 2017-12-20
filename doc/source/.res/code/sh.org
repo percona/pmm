@@ -60,6 +60,17 @@
    $ docker cp var/lib/grafana pmm-data:/var/lib/
  
 #+end-block
+#+begin-block: docker cp certificate-crt pmm-server
++docker.cp.certificate-crt.pmm-server+
+
+.. code-block:: bash
+
+    $ docker cp certificate.crt pmm-server:/srv/nginx/certificate.crt
+    $ docker cp certificate.key pmm-server:/srv/nginx/certificate.key
+    $ docker cp ca-certs.pem pmm-server:/srv/nginx/ca-certs.pem
+    $ docker cp dhparam.pem pmm-server:/srv/nginx/dhparam.pem
+
+#+end-block
 
 ** create
 
