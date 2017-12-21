@@ -11,52 +11,10 @@
   ],
   "swagger": "2.0",
   "info": {
-    "title": "alerts.proto",
+    "title": "base.proto",
     "version": "version not set"
   },
   "paths": {
-    "/v0/alerts": {
-      "get": {
-        "tags": [
-          "Alerts"
-        ],
-        "summary": "List returns all alert rules.",
-        "operationId": "List",
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "$ref": "#/definitions/apiAlertsListResponse"
-            }
-          }
-        }
-      }
-    },
-    "/v0/alerts/{name}": {
-      "get": {
-        "tags": [
-          "Alerts"
-        ],
-        "summary": "Get returns an alert rule by name.",
-        "operationId": "Get",
-        "parameters": [
-          {
-            "type": "string",
-            "name": "name",
-            "in": "path",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "$ref": "#/definitions/apiAlertsGetResponse"
-            }
-          }
-        }
-      }
-    },
     "/v0/error": {
       "get": {
         "tags": [
@@ -96,7 +54,7 @@
         "tags": [
           "RDS"
         ],
-        "operationId": "ListMixin2",
+        "operationId": "List",
         "responses": {
           "200": {
             "description": "(empty)",
@@ -187,7 +145,7 @@
           "ScrapeConfigs"
         ],
         "summary": "List returns all scrape configs.",
-        "operationId": "ListMixin3",
+        "operationId": "ListMixin2",
         "responses": {
           "200": {
             "description": "(empty)",
@@ -229,7 +187,7 @@
           "ScrapeConfigs"
         ],
         "summary": "Get returns a scrape config by job name.\nErrors: NotFound(5) if no such scrape config is present.",
-        "operationId": "GetMixin3",
+        "operationId": "Get",
         "parameters": [
           {
             "type": "string",
@@ -351,40 +309,6 @@
     }
   },
   "definitions": {
-    "apiAlertRule": {
-      "type": "object",
-      "properties": {
-        "disabled": {
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "name": {
-          "type": "string"
-        },
-        "text": {
-          "type": "string"
-        }
-      }
-    },
-    "apiAlertsGetResponse": {
-      "type": "object",
-      "properties": {
-        "alert_rule": {
-          "$ref": "#/definitions/apiAlertRule"
-        }
-      }
-    },
-    "apiAlertsListResponse": {
-      "type": "object",
-      "properties": {
-        "alert_rules": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/apiAlertRule"
-          }
-        }
-      }
-    },
     "apiBaseVersionResponse": {
       "type": "object",
       "properties": {

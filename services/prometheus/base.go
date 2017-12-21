@@ -26,7 +26,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"strings"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -47,12 +46,11 @@ var checkFailedRE = regexp.MustCompile(`FAILED: (.+)\n`)
 //   * Prometheus configuration and rule files are accessible;
 //   * promtool is available.
 type Service struct {
-	ConfigPath     string
-	baseURL        *url.URL
-	promtoolPath   string
-	alertRulesPath string
-	consul         *consul.Client
-	lock           sync.RWMutex
+	ConfigPath   string
+	baseURL      *url.URL
+	promtoolPath string
+	consul       *consul.Client
+	lock         sync.RWMutex
 }
 
 func NewService(config string, baseURL string, promtool string, consul *consul.Client) (*Service, error) {
@@ -74,13 +72,6 @@ func (svc *Service) loadConfig() (*internal.Config, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "can't load Prometheus configuration file")
 	}
-
-	// TODO
-	// if len(c.RuleFiles) == 0 {
-	// 	return nil, errors.New("no RuleFiles patterns")
-	// }
-	// TODO check p.alertRulesPath is in c.RuleFiles patterns
-
 	return cfg, nil
 }
 
@@ -154,7 +145,7 @@ func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Confi
 	return nil
 }
 
-// reload causes Prometheus to reload configuration, including alert rules files.
+// reload causes Prometheus to reload configuration.
 func (svc *Service) reload() error {
 	u := *svc.baseURL
 	u.Path = filepath.Join(u.Path, "-", "reload")
@@ -172,51 +163,6 @@ func (svc *Service) reload() error {
 		return errors.WithStack(err)
 	}
 	return errors.Errorf("%d: %s", resp.StatusCode, b)
-}
-
-// loadAlertRules returns all Prometheus alert rules.
-func (svc *Service) loadAlertRules(ctx context.Context) ([]AlertRule, error) {
-	files, err := filepath.Glob(filepath.Join(svc.alertRulesPath, "*"))
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	names := make(map[string]struct{})
-	rules := make([]AlertRule, 0, len(files))
-	for _, f := range files {
-		// extract rule name and disabled status from filename
-		var disabled bool
-		base := filepath.Base(f)
-		ext := filepath.Ext(base)
-		name := strings.TrimSuffix(base, ext)
-		if ext == ".disabled" {
-			disabled = true
-			ext = filepath.Ext(name)
-			name = strings.TrimSuffix(name, ext)
-		}
-		if ext != ".rule" {
-			logger.Get(ctx).Warnf("unexpected file %q, skipped", f)
-			continue
-		}
-		if _, ok := names[name]; ok {
-			return nil, errors.Errorf("duplicate alert rule name %q", name)
-		}
-		names[name] = struct{}{}
-
-		// load file and make rule
-		b, err := ioutil.ReadFile(f)
-		if err != nil {
-			return nil, errors.WithStack(err)
-		}
-		rule := AlertRule{
-			Name:     name,
-			FilePath: f,
-			Text:     string(b),
-			Disabled: disabled,
-		}
-		rules = append(rules, rule)
-	}
-	return rules, nil
 }
 
 // Check updates Prometehus configuration using information from Consul KV.

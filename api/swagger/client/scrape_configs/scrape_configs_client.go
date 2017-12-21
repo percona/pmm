@@ -109,58 +109,58 @@ func (a *Client) Delete(params *DeleteParams) (*DeleteOK, error) {
 }
 
 /*
-GetMixin3 gets returns a scrape config by job name errors not found 5 if no such scrape config is present
+Get gets returns a scrape config by job name errors not found 5 if no such scrape config is present
 */
-func (a *Client) GetMixin3(params *GetMixin3Params) (*GetMixin3OK, error) {
+func (a *Client) Get(params *GetParams) (*GetOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetMixin3Params()
+		params = NewGetParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetMixin3",
+		ID:                 "Get",
 		Method:             "GET",
 		PathPattern:        "/v0/scrape-configs/{job_name}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetMixin3Reader{formats: a.formats},
+		Reader:             &GetReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetMixin3OK), nil
+	return result.(*GetOK), nil
 
 }
 
 /*
-ListMixin3 lists returns all scrape configs
+ListMixin2 lists returns all scrape configs
 */
-func (a *Client) ListMixin3(params *ListMixin3Params) (*ListMixin3OK, error) {
+func (a *Client) ListMixin2(params *ListMixin2Params) (*ListMixin2OK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListMixin3Params()
+		params = NewListMixin2Params()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ListMixin3",
+		ID:                 "ListMixin2",
 		Method:             "GET",
 		PathPattern:        "/v0/scrape-configs",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListMixin3Reader{formats: a.formats},
+		Reader:             &ListMixin2Reader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ListMixin3OK), nil
+	return result.(*ListMixin2OK), nil
 
 }
 

@@ -19,7 +19,6 @@ package prometheus
 import (
 	"context"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"testing"
 	"time"
@@ -75,10 +74,11 @@ func TestPrometheusConfig(t *testing.T) {
 		A: difflib.SplitLines(b),
 		B: difflib.SplitLines(a),
 	})
-	assert.Equal(t, b, a, "%s", diff)
+	require.Equal(t, b, a, "%s", diff)
+	require.Len(t, c.ScrapeConfigs, 2)
 
 	// specifically check that we can read secrets
-	assert.Equal(t, "pmm", c.ScrapeConfigs[2].HTTPClientConfig.BasicAuth.Password)
+	assert.Equal(t, "pmm", c.ScrapeConfigs[1].HTTPClientConfig.BasicAuth.Password)
 
 	// check that invalid configuration is reverted
 	c.ScrapeConfigs[0].ScrapeInterval = model.Duration(time.Second)
@@ -88,39 +88,6 @@ func TestPrometheusConfig(t *testing.T) {
 	after, err = ioutil.ReadFile(p.ConfigPath)
 	require.NoError(t, err)
 	assert.Equal(t, before, after)
-}
-
-func TestPrometheusRules(t *testing.T) {
-	t.Skip("TODO")
-
-	p, ctx, before := setup(t)
-	defer teardown(t, p, before)
-
-	alerts, err := p.ListAlertRules(ctx)
-	require.NoError(t, err)
-	require.Len(t, alerts, 2)
-	alerts[0].Text = "" // FIXME
-	alerts[1].Text = "" // FIXME
-	expected := []AlertRule{
-		{"InstanceDown", filepath.Join(testdata, "alerts", "InstanceDown.rule"), "", false},
-		{"Something", filepath.Join(testdata, "alerts", "Something.rule.disabled"), "", true},
-	}
-	assert.Equal(t, expected, alerts)
-
-	defer func() {
-		require.NoError(t, p.DeleteAlert(ctx, "TestPrometheus"))
-		require.EqualError(t, p.DeleteAlert(ctx, "TestPrometheus"), os.ErrNotExist.Error())
-	}()
-
-	rule := &AlertRule{
-		Name: "TestPrometheus",
-		Text: "ALERT TestPrometheus IF up == 0",
-	}
-	require.NoError(t, p.PutAlert(ctx, rule))
-	actual, err := p.GetAlert(ctx, "TestPrometheus")
-	require.NoError(t, err)
-	rule.FilePath = "../testdata/prometheus/alerts/TestPrometheus.rule"
-	assert.Equal(t, rule, actual)
 }
 
 func TestPrometheusScrapeConfigs(t *testing.T) {

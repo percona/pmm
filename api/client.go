@@ -23,15 +23,13 @@ import (
 // Client is a client for pmm-managed APIs.
 type Client struct {
 	BaseClient
-	// TODO AlertsClient
 	ScrapeConfigsClient
 }
 
 // NewClient creates new Client for a given connection.
 func NewClient(cc *grpc.ClientConn) *Client {
 	return &Client{
-		BaseClient: NewBaseClient(cc),
-		// TODO AlertsClient
+		BaseClient:          NewBaseClient(cc),
 		ScrapeConfigsClient: NewScrapeConfigsClient(cc),
 	}
 }

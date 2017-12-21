@@ -81,30 +81,30 @@ func (a *Client) Discover(params *DiscoverParams) (*DiscoverOK, error) {
 }
 
 /*
-ListMixin2 list mixin2 API
+List list API
 */
-func (a *Client) ListMixin2(params *ListMixin2Params) (*ListMixin2OK, error) {
+func (a *Client) List(params *ListParams) (*ListOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListMixin2Params()
+		params = NewListParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ListMixin2",
+		ID:                 "List",
 		Method:             "GET",
 		PathPattern:        "/v0/rds",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ListMixin2Reader{formats: a.formats},
+		Reader:             &ListReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ListMixin2OK), nil
+	return result.(*ListOK), nil
 
 }
 

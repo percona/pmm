@@ -5,22 +5,11 @@ services:
     image: ${PROMETHEUS_IMAGE:-prom/prometheus:v1.8.2}
     command: [ "-config.file=/etc/prometheus/prometheus.yml",
                "-log.level=debug",
-               "-storage.local.path=/prometheus",
-               "-alertmanager.url=http://alertmanager:9093" ]
+               "-storage.local.path=/prometheus" ]
     ports:
       - 127.0.0.1:9090:9090
     volumes:
       - ./testdata/prometheus:/etc/prometheus
-
-  alertmanager:
-    image: ${ALERTMANAGER_IMAGE:-prom/alertmanager:v0.9.1}
-    command: [ "-config.file=/etc/alertmanager/alertmanager.yml",
-               "-log.level=debug",
-               "-storage.path=/alertmanager" ]
-    ports:
-      - 127.0.0.1:9093:9093
-    volumes:
-      - ./testdata/alertmanager:/etc/alertmanager
 
   consul:
     image: ${CONSUL_IMAGE:-consul:0.8.5}

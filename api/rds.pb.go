@@ -26,7 +26,7 @@ type RDSNode struct {
 func (m *RDSNode) Reset()                    { *m = RDSNode{} }
 func (m *RDSNode) String() string            { return proto.CompactTextString(m) }
 func (*RDSNode) ProtoMessage()               {}
-func (*RDSNode) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
+func (*RDSNode) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
 
 func (m *RDSNode) GetRegion() string {
 	if m != nil {
@@ -52,7 +52,7 @@ type RDSService struct {
 func (m *RDSService) Reset()                    { *m = RDSService{} }
 func (m *RDSService) String() string            { return proto.CompactTextString(m) }
 func (*RDSService) ProtoMessage()               {}
-func (*RDSService) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
+func (*RDSService) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
 
 func (m *RDSService) GetAddress() string {
 	if m != nil {
@@ -90,7 +90,7 @@ type RDSInstanceID struct {
 func (m *RDSInstanceID) Reset()                    { *m = RDSInstanceID{} }
 func (m *RDSInstanceID) String() string            { return proto.CompactTextString(m) }
 func (*RDSInstanceID) ProtoMessage()               {}
-func (*RDSInstanceID) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{2} }
+func (*RDSInstanceID) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
 
 func (m *RDSInstanceID) GetRegion() string {
 	if m != nil {
@@ -114,7 +114,7 @@ type RDSInstance struct {
 func (m *RDSInstance) Reset()                    { *m = RDSInstance{} }
 func (m *RDSInstance) String() string            { return proto.CompactTextString(m) }
 func (*RDSInstance) ProtoMessage()               {}
-func (*RDSInstance) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{3} }
+func (*RDSInstance) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{3} }
 
 func (m *RDSInstance) GetNode() *RDSNode {
 	if m != nil {
@@ -138,7 +138,7 @@ type RDSDiscoverRequest struct {
 func (m *RDSDiscoverRequest) Reset()                    { *m = RDSDiscoverRequest{} }
 func (m *RDSDiscoverRequest) String() string            { return proto.CompactTextString(m) }
 func (*RDSDiscoverRequest) ProtoMessage()               {}
-func (*RDSDiscoverRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{4} }
+func (*RDSDiscoverRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{4} }
 
 func (m *RDSDiscoverRequest) GetAwsAccessKeyId() string {
 	if m != nil {
@@ -161,7 +161,7 @@ type RDSDiscoverResponse struct {
 func (m *RDSDiscoverResponse) Reset()                    { *m = RDSDiscoverResponse{} }
 func (m *RDSDiscoverResponse) String() string            { return proto.CompactTextString(m) }
 func (*RDSDiscoverResponse) ProtoMessage()               {}
-func (*RDSDiscoverResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{5} }
+func (*RDSDiscoverResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{5} }
 
 func (m *RDSDiscoverResponse) GetInstances() []*RDSInstance {
 	if m != nil {
@@ -176,7 +176,7 @@ type RDSListRequest struct {
 func (m *RDSListRequest) Reset()                    { *m = RDSListRequest{} }
 func (m *RDSListRequest) String() string            { return proto.CompactTextString(m) }
 func (*RDSListRequest) ProtoMessage()               {}
-func (*RDSListRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{6} }
+func (*RDSListRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{6} }
 
 type RDSListResponse struct {
 	Instances []*RDSInstance `protobuf:"bytes,1,rep,name=instances" json:"instances,omitempty"`
@@ -185,7 +185,7 @@ type RDSListResponse struct {
 func (m *RDSListResponse) Reset()                    { *m = RDSListResponse{} }
 func (m *RDSListResponse) String() string            { return proto.CompactTextString(m) }
 func (*RDSListResponse) ProtoMessage()               {}
-func (*RDSListResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{7} }
+func (*RDSListResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{7} }
 
 func (m *RDSListResponse) GetInstances() []*RDSInstance {
 	if m != nil {
@@ -205,7 +205,7 @@ type RDSAddRequest struct {
 func (m *RDSAddRequest) Reset()                    { *m = RDSAddRequest{} }
 func (m *RDSAddRequest) String() string            { return proto.CompactTextString(m) }
 func (*RDSAddRequest) ProtoMessage()               {}
-func (*RDSAddRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{8} }
+func (*RDSAddRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{8} }
 
 func (m *RDSAddRequest) GetAwsAccessKeyId() string {
 	if m != nil {
@@ -248,7 +248,7 @@ type RDSAddResponse struct {
 func (m *RDSAddResponse) Reset()                    { *m = RDSAddResponse{} }
 func (m *RDSAddResponse) String() string            { return proto.CompactTextString(m) }
 func (*RDSAddResponse) ProtoMessage()               {}
-func (*RDSAddResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{9} }
+func (*RDSAddResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{9} }
 
 type RDSRemoveRequest struct {
 	Id *RDSInstanceID `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
@@ -257,7 +257,7 @@ type RDSRemoveRequest struct {
 func (m *RDSRemoveRequest) Reset()                    { *m = RDSRemoveRequest{} }
 func (m *RDSRemoveRequest) String() string            { return proto.CompactTextString(m) }
 func (*RDSRemoveRequest) ProtoMessage()               {}
-func (*RDSRemoveRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{10} }
+func (*RDSRemoveRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{10} }
 
 func (m *RDSRemoveRequest) GetId() *RDSInstanceID {
 	if m != nil {
@@ -272,7 +272,7 @@ type RDSRemoveResponse struct {
 func (m *RDSRemoveResponse) Reset()                    { *m = RDSRemoveResponse{} }
 func (m *RDSRemoveResponse) String() string            { return proto.CompactTextString(m) }
 func (*RDSRemoveResponse) ProtoMessage()               {}
-func (*RDSRemoveResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{11} }
+func (*RDSRemoveResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{11} }
 
 func init() {
 	proto.RegisterType((*RDSNode)(nil), "api.RDSNode")
@@ -460,9 +460,9 @@ var _RDS_serviceDesc = grpc.ServiceDesc{
 	Metadata: "rds.proto",
 }
 
-func init() { proto.RegisterFile("rds.proto", fileDescriptor3) }
+func init() { proto.RegisterFile("rds.proto", fileDescriptor2) }
 
-var fileDescriptor3 = []byte{
+var fileDescriptor2 = []byte{
 	// 594 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x54, 0xbb, 0x6e, 0x13, 0x4d,
 	0x14, 0xd6, 0x5e, 0x7e, 0x5f, 0x8e, 0x73, 0xd9, 0x1c, 0xff, 0x09, 0x2b, 0x43, 0x61, 0x8d, 0x84,

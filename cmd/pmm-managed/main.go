@@ -162,9 +162,6 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 	)
 	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{PMMVersion: pmmVersion})
 	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
-	// TODO api.RegisterAlertsServer(gRPCServer, &handlers.AlertsServer{
-	// 	Prometheus: prometheus,
-	// })
 	api.RegisterScrapeConfigsServer(gRPCServer, &handlers.ScrapeConfigsServer{
 		Prometheus: prometheus,
 	})
@@ -212,7 +209,6 @@ func runRESTServer(ctx context.Context) {
 	for _, r := range []registrar{
 		api.RegisterBaseHandlerFromEndpoint,
 		api.RegisterDemoHandlerFromEndpoint,
-		// TODO api.RegisterAlertsHandlerFromEndpoint,
 		api.RegisterScrapeConfigsHandlerFromEndpoint,
 		api.RegisterRDSHandlerFromEndpoint,
 	} {

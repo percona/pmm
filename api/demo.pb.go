@@ -27,7 +27,7 @@ type DemoErrorRequest struct {
 func (m *DemoErrorRequest) Reset()                    { *m = DemoErrorRequest{} }
 func (m *DemoErrorRequest) String() string            { return proto.CompactTextString(m) }
 func (*DemoErrorRequest) ProtoMessage()               {}
-func (*DemoErrorRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
+func (*DemoErrorRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
 
 func (m *DemoErrorRequest) GetCode() uint32 {
 	if m != nil {
@@ -56,7 +56,7 @@ type DemoErrorResponse struct {
 func (m *DemoErrorResponse) Reset()                    { *m = DemoErrorResponse{} }
 func (m *DemoErrorResponse) String() string            { return proto.CompactTextString(m) }
 func (*DemoErrorResponse) ProtoMessage()               {}
-func (*DemoErrorResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
+func (*DemoErrorResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
 
 func init() {
 	proto.RegisterType((*DemoErrorRequest)(nil), "api.DemoErrorRequest")
@@ -135,9 +135,9 @@ var _Demo_serviceDesc = grpc.ServiceDesc{
 	Metadata: "demo.proto",
 }
 
-func init() { proto.RegisterFile("demo.proto", fileDescriptor2) }
+func init() { proto.RegisterFile("demo.proto", fileDescriptor1) }
 
-var fileDescriptor2 = []byte{
+var fileDescriptor1 = []byte{
 	// 196 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4a, 0x49, 0xcd, 0xcd,
 	0xd7, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4e, 0x2c, 0xc8, 0x94, 0x92, 0x49, 0xcf, 0xcf,
