@@ -4,8 +4,8 @@
 Security Features in |pmm.name|
 ================================================================================
 
-You can protect |pmm| from unauthorized access
-using the following security features:
+You can protect |pmm| from unauthorized access using the following security
+features:
 
 - HTTP password protection adds authentication
   when accessing the |pmm-server| web interface
@@ -15,14 +15,16 @@ using the following security features:
 Enabling Password Protection
 ================================================================================
 
-You can set the password for accessing the |pmm-server| web interface
-by passing the :term:`SERVER_PASSWORD <SERVER_PASSWORD (Option)>` environment variable
-when :ref:`creating and running the PMM Server container <server-container>`.
+You can set the password for accessing the |pmm-server| web interface by passing
+the :term:`SERVER_PASSWORD <SERVER_PASSWORD (Option)>` environment variable when
+:ref:`creating and running the PMM Server container <server-container>`.
 
 To set the environment variable, use the ``-e`` option.
 
 By default, the user name is ``pmm``. You can change it by passing the
 :term:`SERVER_USER <SERVER_USER (Option)>` environment variable. For example:
+
+|tip.run-all.root|
 
 .. include:: .res/code/sh.org
    :start-after: +docker.run.server-user.example+
@@ -39,58 +41,60 @@ specify them when :ref:`connect-client`:
 Enabling SSL Encryption
 ================================================================================
 
-You can encrypt traffic between |pmm-client| and |pmm-server| using
-SSL certificates.
+You can encrypt traffic between |pmm-client| and |pmm-server| using SSL
+certificates.
 
-1. Buy or generate SSL certificate files for |pmm|.
+Valid certificates
+--------------------------------------------------------------------------------
 
-   For example, you can generate necessary self-signed certificate files
-   into the |etc.pmm-certs| directory using the following commands:
+If you have a valid SSL certificate, mount the directory with the certificate
+files to |srv.nginx.ssl| when :ref:`running the PMM Server container
+<server-container>`:
 
-   .. include:: .res/code/sh.org
-      :start-after: +openssl.dhparam&openssl.req+
-      :end-before: #+end-block
+.. include:: .res/code/sh.org
+   :start-after: +docker.run.d.p.volumes.from.name.v.restart+
+   :end-before: #+end-block
 
-   .. note:: The |dhparam.pem| file is not required.
-      It can take a lot of time to generate, so you can skip it.
+.. note:: The container should publish port *443* instead of *80* to
+	  enable SSL encryption.
 
-      The |server.key| and |server.crt| files
-      must be named exactly as shown.
-      Files with other names will be ignored.
+Alternatively, you can use |docker.cp| to copy the files to an already existing |opt.pmm-server|
+container.
 
-#. Mount the directory with the certificate files into |etc.nginx.ssl|
-   when :ref:`running the PMM Server container <server-container>`:
+.. include:: .res/code/sh.org
+   :start-after: +docker.cp.certificate-crt.pmm-server+
+   :end-before: #+end-block
 
-   |tip.run-this.root|
+This example assumes that you have changed to the directory that contains the
+certificate files.
 
-   .. include:: .res/code/sh.org
-      :start-after: +docker.run.example/etc.pmm-certs+
-      :end-before: #+end-block
-		
-   .. note:: Note that the container should expose port 443
-      instead of 80 to enable SSL encryption.
+Self-signed certificates
+--------------------------------------------------------------------------------
 
-#. Enable SSL when :ref:`connect-client`.
-   If you purchased the certificate from a certificate authority (CA):
+The |pmm-server| images at `percona/pmm-server` |docker| repository already
+include self-signed certificates. To be able to use them make sure to publish
+the container's port *443* to the host's port *443* when running the
+|docker.run| command.
 
-   .. include:: .res/code/sh.org
-      :start-after: +pmm-admin.config.server.server-ssl+
-      :end-before: #+end-block
+.. include:: .res/code/sh.org
+   :start-after: +docker.run.d.p.443.volumes-from.name.restart+
+   :end-before: #+end-block
 
-   .. If you generated a self-signed certificate:
+Enabling SSL when connecting |pmm-client| to |pmm-server|
+--------------------------------------------------------------------------------
 
-   .. .. include:: .res/code/sh.org
-   ..   :start-after: +pmm-admin.config.server.server-insecure-ssl+
-   ..   :end-before: #+end-block
+Then, you need to enable SSL when :ref:`connect-client`.
+If you purchased the certificate from a certificate authority (CA):
 
-   If you have a self-signed certificate, run |docker.cp| to make the
-   certificate files available to your |opt.pmm-server| container.
+.. include:: .res/code/sh.org
+   :start-after: +pmm-admin.config.server.server-ssl+
+   :end-before: #+end-block
 
-   .. include:: .res/code/sh.org
-      :start-after: +docker.cp.certificate-crt.pmm-server+
-      :end-before: #+end-block
+If you generated a self-signed certificate:
 
-   This example assumes that you have changed into the directory that contains the certificate files.
+.. include:: .res/code/sh.org
+   :start-after: +pmm-admin.config.server.server-insecure-ssl+
+   :end-before: #+end-block
 		
 Combining Security Features
 ================================================================================

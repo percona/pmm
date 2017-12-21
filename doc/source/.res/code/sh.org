@@ -255,7 +255,7 @@
 
 #+end-block
 #+begin-block: docker run d p volumes from name v restart
-+docker.run.example/etc.pmm-certs+
++docker.run.d.p.volumes.from.name.v.restart+
 
 .. code-block:: bash
 
@@ -274,6 +274,19 @@
 
    $ docker run -d \
       -p 80:80 \
+      --volumes-from pmm-data \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run d p 443 volumes-from name restart
++docker.run.d.p.443.volumes-from.name.restart+
+
+.. code-block:: bash
+
+   $ docker run -d \
+      -p 443:443 \
       --volumes-from pmm-data \
       --name pmm-server \
       --restart always \
@@ -388,7 +401,6 @@ Demonstrates how to set the option to 8 days.
    $ docker run ... -e QUERIES_RETENTION=30 ... percona/pmm-server:latest
 
 #+end-block
-
 #+begin-block: docker run e orchestrator-enabled
 +docker.run.orchestrator-enabled+
 
@@ -499,161 +511,6 @@ Demonstrates how to set the option to 8 days.
 
 * pmm-admin
 
-** uninstall
-
-#+begin-block: pmm-admin uninstall options
-+pmm-admin.uninstall.options+
-
-.. code-block:: text
-
-   pmm-admin uninstall [OPTIONS]
-
-#+end-block
-
-** stop
-
-#+begin-block: pmm-admin stop service name options
-+pmm-admin.stop.service.name.options+
-
-.. code-block:: text
-
-   pmm-admin stop [SERVICE [NAME]] [OPTIONS]
-
-#+end-block
-#+begin-block: pmm-admin stop all
-+pmm-admin.stop.all+
-
-.. code-block:: bash
-
-   $ pmm-admin stop --all
-
-#+end-block
-#+begin-block: pmm-admin stop mysql
-+pmm-admin.stop.mysql+
-
-.. code-block:: bash
-
-   $ pmm-admin stop mysql
-
-#+end-block
-#+begin-block: pmm-admin stop mongodb-metrics
-+pmm-admin.stop.mongodb-metrics+
-
-.. code-block:: bash
-
-   $ pmm-admin stop mongodb:metrics
-
-#+end-block 
-
-** start
-
-#+begin-block: pmm-admin start service name options
-+pmm-admin.start.service.name.options+
-
-.. code-block:: text
-
-   pmm-admin start [SERVICE [NAME]] [OPTIONS]
-
-#+end-block
-#+begin-block: pmm-admin start all
-+pmm-admin.start.all+
-
-.. code-block:: bash
-
-   $ pmm-admin start --all
-
-#+end-block
-#+begin-block: pmm-admin start mysql
-+pmm-admin.start.mysql+
-
-.. code-block:: bash
-
-   $ pmm-admin start mysql
-
-
-#+end-block
-#+begin-block: pmm-admin start mongodb-metrics
-+pmm-admin.start.mongodb-metrics+
-
-.. code-block:: bash
-
-   $ pmm-admin start mongodb:metrics
-
-
-#+end-block
-
-** show-passwords
-
-#+begin-block: pmm-admin show-passwords options
-+pmm-admin.show-passwords.options+
-
-.. code-block:: text
-
-   pmm-admin show-passwords [OPTIONS]
-
-#+end-block
-#+begin-block: pmm-admin show-passwords
-+pmm-admin.show-passwords+
-
-.. code-block:: bash
-   :emphasize-lines: 1
-
-   $ sudo pmm-admin show-passwords
-   HTTP basic authentication
-   User     | aname
-   Password | secr3tPASS
-
-   MySQL new user creation
-   Password | g,3i-QR50tQJi9M1yl9-
-
-#+end-block
-
-** restart
-
-#+begin-block: pmm-admin restart service name options
-+pmm-admin.restart.service.name.options+
-
-.. code-block:: text
-
-   pmm-admin restart [SERVICE [NAME]] [OPTIONS]
-
-#+end-block
-#+begin-block: pmm-admin restart all
-+pmm-admin.restart.all+
-
-.. code-block:: bash
-
-   # pmm-admin restart --all
-
-#+end-block
-#+begin-block: pmm-admin restart mysql
-+pmm-admin.restart.mysql+
-
-.. code-block:: bash
-
-   $ pmm-admin restart mysql
-
-#+end-block
-#+begin-block: pmm-admin restart mongodb-metrics
-+pmm-admin.restart.mongodb-metrics+
-
-.. code-block:: bash
-
-   $ pmm-admin restart mongodb:metrics
-
-
-#+end-block
-** repair
-
-#+begin-block: pmm-admin repair options
-+pmm-admin.repair.options+
-
-.. code-block:: text
-
-   $ pmm-admin repair [OPTIONS]
-
-#+end-block
-
 ** add
 
 #+begin-block: pmm-admin add host user password
@@ -661,8 +518,8 @@ Demonstrates how to set the option to 8 days.
 
 .. code-block:: bash
 
-   $ sudo pmm-admin add mysql:metrics --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
-   $ sudo pmm-admin add mysql:queries --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
+   $ pmm-admin add mysql:metrics --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
+   $ pmm-admin add mysql:queries --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
 
 #+end-block
 #+begin-block: pmm-admin add mysql user password create-user query-source
@@ -812,7 +669,7 @@ Demonstrates how to set the option to 8 days.
 
 .. code-block:: bash
 
-   $ sudo pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234 --server-insecure-ssl
+   $ pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234 --server-insecure-ssl
 
 #+end-block
 #+begin-block: pmm-admin config server server insecure-ssl
@@ -820,7 +677,7 @@ Demonstrates how to set the option to 8 days.
 
 .. code-block:: bash
 
-   $ sudo pmm-admin config --server 192.168.100.1 --server-insecure-ssl
+   $ pmm-admin config --server 192.168.100.1 --server-insecure-ssl
 
 #+end-block
 #+begin-block: pmm-admin config server server-ssl
@@ -828,7 +685,7 @@ Demonstrates how to set the option to 8 days.
 
 .. code-block:: bash
 
-   $ sudo pmm-admin config --server 192.168.100.1 --server-ssl
+   $ pmm-admin config --server 192.168.100.1 --server-ssl
 
 #+end-block
 #+begin-block: pmm-admin config server server-user server-password
@@ -836,32 +693,7 @@ Demonstrates how to set the option to 8 days.
 
 .. code-block:: bash
 
-   $ sudo pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234
-
-#+end-block
-
-** ping
-
-#+begin-block: pmm-admin ping
-+pmm-admin.ping+
-
-.. code-block:: text
-
-   $ pmm-admin ping
-   OK, PMM server is alive.
-
-   PMM Server      | 192.168.100.1 (insecure SSL, password-protected)
-   Client Name     | centos7.vm
-   Client Address  | 192.168.200.1
-
-#+end-block
-#+begin-block: pmm-admin ping options
-+pmm-admin.ping.options+
-
-.. code-block:: text
-
-   pmm-admin ping [OPTIONS]
-
+   $ pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234
 
 #+end-block
 
@@ -993,6 +825,31 @@ Demonstrates how to set the option to 8 days.
    linux:metrics    mongo-main  42000       YES      -
    mongodb:metrics  mongo-main  42003       YES      localhost:27017
 
+** ping
+
+#+begin-block: pmm-admin ping
++pmm-admin.ping+
+
+.. code-block:: text
+
+   $ pmm-admin ping
+   OK, PMM server is alive.
+
+   PMM Server      | 192.168.100.1 (insecure SSL, password-protected)
+   Client Name     | centos7.vm
+   Client Address  | 192.168.200.1
+
+#+end-block
+#+begin-block: pmm-admin ping options
++pmm-admin.ping.options+
+
+.. code-block:: text
+
+   pmm-admin ping [OPTIONS]
+
+
+#+end-block
+
 ** purge
 
 #+begin-block: pmm-admin purge service name options
@@ -1005,6 +862,52 @@ Demonstrates how to set the option to 8 days.
 
 #+end-block
 
+** repair
+
+#+begin-block: pmm-admin repair options
++pmm-admin.repair.options+
+
+.. code-block:: text
+
+   $ pmm-admin repair [OPTIONS]
+
+#+end-block
+
+** restart
+
+#+begin-block: pmm-admin restart service name options
++pmm-admin.restart.service.name.options+
+
+.. code-block:: text
+
+   pmm-admin restart [SERVICE [NAME]] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin restart all
++pmm-admin.restart.all+
+
+.. code-block:: bash
+
+   # pmm-admin restart --all
+
+#+end-block
+#+begin-block: pmm-admin restart mysql
++pmm-admin.restart.mysql+
+
+.. code-block:: bash
+
+   $ pmm-admin restart mysql
+
+#+end-block
+#+begin-block: pmm-admin restart mongodb-metrics
++pmm-admin.restart.mongodb-metrics+
+
+.. code-block:: bash
+
+   $ pmm-admin restart mongodb:metrics
+
+
+#+end-block
 ** rm
 
 #+begin-block: pmm-admin rm options service
@@ -1039,6 +942,115 @@ Demonstrates how to set the option to 8 days.
 
    $ pmm-admin rm mongodb:metrics
 
+
+#+end-block
+
+** show-passwords
+
+#+begin-block: pmm-admin show-passwords options
++pmm-admin.show-passwords.options+
+
+.. code-block:: text
+
+   pmm-admin show-passwords [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin show-passwords
++pmm-admin.show-passwords+
+
+.. code-block:: bash
+   :emphasize-lines: 1
+
+   $ pmm-admin show-passwords
+   HTTP basic authentication
+   User     | aname
+   Password | secr3tPASS
+
+   MySQL new user creation
+   Password | g,3i-QR50tQJi9M1yl9-
+
+#+end-block
+
+** start
+
+#+begin-block: pmm-admin start service name options
++pmm-admin.start.service.name.options+
+
+.. code-block:: text
+
+   pmm-admin start [SERVICE [NAME]] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin start all
++pmm-admin.start.all+
+
+.. code-block:: bash
+
+   $ pmm-admin start --all
+
+#+end-block
+#+begin-block: pmm-admin start mysql
++pmm-admin.start.mysql+
+
+.. code-block:: bash
+
+   $ pmm-admin start mysql
+
+
+#+end-block
+#+begin-block: pmm-admin start mongodb-metrics
++pmm-admin.start.mongodb-metrics+
+
+.. code-block:: bash
+
+   $ pmm-admin start mongodb:metrics
+
+
+#+end-block
+
+** stop
+
+#+begin-block: pmm-admin stop service name options
++pmm-admin.stop.service.name.options+
+
+.. code-block:: text
+
+   pmm-admin stop [SERVICE [NAME]] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin stop all
++pmm-admin.stop.all+
+
+.. code-block:: bash
+
+   $ pmm-admin stop --all
+
+#+end-block
+#+begin-block: pmm-admin stop mysql
++pmm-admin.stop.mysql+
+
+.. code-block:: bash
+
+   $ pmm-admin stop mysql
+
+#+end-block
+#+begin-block: pmm-admin stop mongodb-metrics
++pmm-admin.stop.mongodb-metrics+
+
+.. code-block:: bash
+
+   $ pmm-admin stop mongodb:metrics
+
+#+end-block 
+
+** uninstall
+
+#+begin-block: pmm-admin uninstall options
++pmm-admin.uninstall.options+
+
+.. code-block:: text
+
+   pmm-admin uninstall [OPTIONS]
 
 #+end-block
 

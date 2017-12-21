@@ -117,7 +117,7 @@
 .. Files and directories
 
 .. |dhparam.pem|         replace:: :file:`dhparam.pem`
-.. |etc.nginx.ssl|       replace:: :file:`/etc/nginx/ssl`
+.. |srv.nginx.ssl|       replace:: :file:`/srv/nginx/ssl`
 .. |etc.pmm-certs|       replace:: :file:`/etc/pmm-certs`
 .. |server.crt|          replace:: :file:`server.crt`
 .. |server.key|          replace:: :file:`server.key`
