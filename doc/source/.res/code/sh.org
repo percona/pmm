@@ -262,7 +262,7 @@
    $ docker run -d -p 443:443 \
      --volumes-from pmm-data \
      --name pmm-server \
-     -v /etc/pmm-certs:/etc/nginx/ssl \
+     -v /etc/pmm-certs:/srv/nginx/ \
      --restart always \
      percona/pmm-server:latest
 

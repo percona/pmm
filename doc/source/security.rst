@@ -47,16 +47,24 @@ certificates.
 Valid certificates
 --------------------------------------------------------------------------------
 
-If you have a valid SSL certificate, mount the directory with the certificate
-files to |srv.nginx.ssl| when :ref:`running the PMM Server container
-<server-container>`:
+To use a valid SSL certificate, mount the directory with the certificate
+files to |srv.nginx| when :ref:`running the PMM Server container
+<server-container>`.
 
 .. include:: .res/code/sh.org
    :start-after: +docker.run.d.p.volumes.from.name.v.restart+
    :end-before: #+end-block
 
-.. note:: The container should publish port *443* instead of *80* to
-	  enable SSL encryption.
+The directory (|etc.pmm-certs| in this example) that you intend to mount must
+contain the following files:
+
+- |certificate.crt|
+- |certificate.key|
+- |ca-certs.pem|
+- |dhparam.pem|
+
+.. note:: To enable SSL encryption, The container publishes port *443* instead
+          of *80*.
 
 Alternatively, you can use |docker.cp| to copy the files to an already existing |opt.pmm-server|
 container.
