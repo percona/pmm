@@ -1,165 +1,154 @@
 .. _architecture:
 
-==============================================
-Percona Monitoring and Management Architecture
-==============================================
+================================================================================
+|pmm.name| Architecture
+================================================================================
 
-The PMM platform is based on a client-server model that enables scalability.  It
-includes the following modules:
+The |pmm| platform is based on a client-server model that enables scalability.
+It includes the following modules:
 
-* :ref:`pmm-client` installed on every database host
-  that you want to monitor.
-  It collects server metrics, general system metrics,
-  and query analytics data for a complete performance overview.
+* :ref:`pmm-client` installed on every database host that you want to monitor.
+  It collects server metrics, general system metrics, and |qan.name| data
+  for a complete performance overview.
 
-* :ref:`pmm-server` is the central part of PMM
-  that aggregates collected data and presents it in the form of tables,
-  dashboards, and graphs in a web interface.
+* :ref:`pmm-server` is the central part of |pmm| that aggregates collected data
+  and presents it in the form of tables, dashboards, and graphs in a web
+  interface.
 
-The modules are packaged for easy installation and usage.
-It is assumed that the user should not need to understand
-what are the exact tools that make up each module and how they interact.
-However, if you want to leverage the full potential of PMM,
-internal structure is important.
+The modules are packaged for easy installation and usage. It is assumed that
+the user should not need to understand what are the exact tools that make up
+each module and how they interact. However, if you want to leverage the full
+potential of |pmm|, the internal structure is important.
 
 .. contents::
    :local:
    :depth: 2
 
-PMM is a collection of tools designed to seamlessly work together.
-Some are developed by Percona and some are third-party open-source tools.
+|pmm| is a collection of tools designed to seamlessly work together.  Some are
+developed by |percona| and some are third-party open-source tools.
 
-.. note:: The overall client-server model is not likely to change,
-   but the set of tools that make up each component
-   may evolve with the product.
+.. note:: The overall client-server model is not likely to change, but the set
+   of tools that make up each component may evolve with the product.
 
-The following diagram illustrates how PMM is currently structured:
+The following diagram illustrates how |pmm| is currently structured:
 
 .. image:: images/pmm-diagram.png
 
 .. _pmm-client:
 
 PMM Client
-----------
+================================================================================
 
-*PMM Client* packages are available for most popular Linux distributions:
+|pmm-client| packages are available for most popular |linux| distributions:
 
-* DEB for Debian-based distributions
-  (including Ubuntu and others)
-* RPM for Red Hat Enterprise Linux derivatives
-  (including CentOS, Oracle Linux, Amazon Linux, and others)
+* DEB for |debian|-based distributions
+  (including |ubuntu| and others)
+* RPM for |red-hat.name| derivatives
+  (including |centos|, |oracle-linux|, |amazon-linux|, and others)
 
-There are also generic tarball binaries that can be used on any Linux system.
+There are also generic tarball binaries that can be used on any |linux| system.
 
 For more information, see :ref:`install-client`.
 
-*PMM Client* packages consist of the following:
+|pmm-client| packages consist of the following:
 
-* ``pmm-admin`` is a command-line tool for managing *PMM Client*,
+* |pmm-admin| is a command-line tool for managing |pmm-client|,
   for example, adding and removing database instances
   that you want to monitor.
   For more information, see :ref:`pmm-admin`.
 
 * ``pmm-mysql-queries-0`` is a service
-  that manages the Query Analytics (QAN) agent
-  as it collects query performance data from MySQL
-  and sends it to QAN API on :ref:`pmm-server`.
+  that manages the |qan| agent
+  as it collects query performance data from |mysql|
+  and sends it to the |qan| API on :ref:`pmm-server`.
 
 * ``pmm-mongodb-queries-0`` is a service
   that manages the QAN agent
-  as it collects query performance data from MongoDB
-  and sends it to QAN API on :ref:`pmm-server`.
+  as it collects query performance data from |mongodb|
+  and sends it to |qan| API on :ref:`pmm-server`.
 
-* ``node_exporter`` is a Prometheus exporter
+* ``node_exporter`` is a |prometheus| exporter
   that collects general system metrics.
   For more information, see https://github.com/percona/node_exporter.
 
-* ``mysqld_exporter`` is a Prometheus exporter
-  that collects MySQL server metrics.
+* ``mysqld_exporter`` is a |prometheus| exporter
+  that collects |mysql| server metrics.
   For more information, see https://github.com/percona/mysqld_exporter.
 
-* ``mongodb_exporter`` is a Prometheus exporter
-  that collects MongoDB server metrics.
+* ``mongodb_exporter`` is a |prometheus| exporter
+  that collects |mongodb| server metrics.
   For more information, see https://github.com/percona/mongodb_exporter.
 
-* ``proxysql_exporter`` is a Prometheus exporter
-  that collects ProxySQL performance metrics.
+* ``proxysql_exporter`` is a |prometheus| exporter
+  that collects |proxysql| performance metrics.
   For more information, see https://github.com/percona/proxysql_exporter.
 
 .. _pmm-server:
 
-PMM Server
-----------
+|pmm-server|
+--------------------------------------------------------------------------------
 
-*PMM Server* runs on the machine that will be your central monitoring host.
+|pmm-server| runs on the machine that will be your central monitoring host.
 It is distributed as an appliance via the following:
 
-* Docker image that you can use to run a container
-* Open Virtual Appliance (OVA)
-  that you can run in VirtualBox or another hypervisor
-* Amazon Machine Image (AMI) that you can run via Amazon Web Services (AWS)
+* |docker| image that you can use to run a container
+* Open Virtual Appliance (OVA) that you can run in |virtualbox| or another
+  hypervisor
+* |ami.intro| that you can run via |aws.intro|
 
 For more information, see :ref:`deploy-pmm.server.installing`.
 
-*PMM Server* consists of the following tools:
+|pmm-server| includes the following tools:
 
-* **Query Analytics** (QAN) enables you to analyze
-  MySQL query performance over periods of time.
-  In addition to the client-side QAN agent,
-  it includes the following:
+* |qan.intro| enables you to analyze |mysql| query performance over periods of
+  time. In addition to the client-side |qan| agent, it includes the following:
 
-  * **QAN API** is the backend for storing and accessing query data
-    collected by the QAN agent running on a :ref:`pmm-client`.
+  * |qan| API is the backend for storing and accessing query data collected by
+    the |qan| agent running on a :ref:`pmm-client`.
 
-  * **QAN Web App** is a web application
-    for visualizing collected Query Analytics data.
+  * |qan| Web App is a web application for visualizing collected |qan.name|
+    data.
 
-* **Metrics Monitor** (MM) provides a historical view of metrics
-  that are critical to a MySQL or MongoDB server instance.
+* |metrics-monitor| provides a historical view of metrics
+  that are critical to a |mysql| or |mongodb| server instance.
   It includes the following:
 
-  * **Prometheus** is a third-party time-series database
-    that connects to exporters running on a :ref:`pmm-client`
-    and aggregates metrics collected by the exporters.
-    For more information, see `Prometheus Docs`_.
+  * |prometheus| is a third-party time-series database that connects to
+    exporters running on a :ref:`pmm-client` and aggregates metrics collected by
+    the exporters.  For more information, see `Prometheus Docs`_.
 
-    .. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
+    * |consul| provides an API that a :ref:`pmm-client` can use to remotely
+      list, add, and remove hosts for Prometheus.  It also stores monitoring
+      metadata.  For more information, see `Consul Docs`_.
 
-    * **Consul** provides an API
-      that a :ref:`pmm-client` can use to remotely list, add,
-      and remove hosts for Prometheus.
-      It also stores monitoring metadata.
-      For more information, see `Consul Docs`_.
+      .. warning:: Although the |consul| web UI is accessible, do not make any
+         changes to the configuration.
 
-      .. warning:: Although the Consul web UI is accessible,
-         do not make any changes to the configuration.
+  * |grafana| is a third-party dashboard and graph builder for visualizing data
+    aggregated by |prometheus| in an intuitive web interface.  For more
+    information, see `Grafana Docs`_.
 
-      .. _`Consul Docs`: https://www.consul.io/docs/
+    * |percona| Dashboards is a set of dashboards for |grafana| developed by
+      |percona|.
 
-  * **Grafana** is a third-party dashboard and graph builder
-    for visualizing data aggregated by *Prometheus*
-    in an intuitive web interface.
-    For more information, see `Grafana Docs`_.
-
-    .. _`Grafana Docs`: http://docs.grafana.org/
-
-    * **Percona Dashboards** is a set of dashboards
-      for *Grafana* developed by Percona.
-
-* **Orchestrator** is a MySQL replication topology management
+* |orchestrator| is a |mysql| replication topology management
   and visualization tool.
   For more information, see: `Orchestrator Manual`_.
 
-  .. _`Orchestrator Manual`:
-     https://github.com/outbrain/orchestrator/wiki/Orchestrator-Manual
-
-All tools can be accessed from the *PMM Server* web interface (landing page).
+All tools can be accessed from the |pmm-server| web interface (landing page).
 For more information, see :ref:`using`.
 
-.. DEPRECATED: moving deployment related information to the dedicated deployment section.
-   .. _scenarios:
+.. seealso::
 
-.. rubric:: References
+   Default ports
+      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+   Enabling orchestrator
+      :term:`Orchestrator` in :ref:`pmm/glossary/terminology-reference`
+
+.. rubric:: **References**
 
 .. target-notes::
 
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/url.txt

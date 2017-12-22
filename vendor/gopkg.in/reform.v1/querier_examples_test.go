@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -55,7 +56,7 @@ func Example() {
 
 func ExampleNewDB() {
 	// Get *sql.DB as usual. PostgreSQL example:
-	conn, err := sql.Open("postgres", "postgres://localhost:5432/reform-test?sslmode=disable")
+	conn, err := sql.Open("postgres", "postgres://localhost:5432/database?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -69,6 +70,17 @@ func ExampleNewDB() {
 	_ = reform.NewDB(conn, postgresql.Dialect, reform.NewPrintfLogger(logger.Printf))
 }
 
+func ExampleQuerier_WithTag() {
+	id := "baron"
+	person, err := DB.WithTag("GetProject:%v", id).FindByPrimaryKeyFrom(ProjectTable, id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(person)
+	// Output:
+	// Name: `Vicious Baron` (string), ID: `baron` (string), Start: 2014-06-01 00:00:00 +0000 UTC (time.Time), End: 2016-02-21 00:00:00 +0000 UTC (*time.Time)
+}
+
 func ExampleQuerier_SelectRows() {
 	tail := fmt.Sprintf("WHERE created_at < %s ORDER BY id", DB.Placeholder(1))
 	y2010 := time.Date(2010, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -80,8 +92,7 @@ func ExampleQuerier_SelectRows() {
 
 	for {
 		var person Person
-		err = DB.NextRow(&person, rows)
-		if err != nil {
+		if err = DB.NextRow(&person, rows); err != nil {
 			break
 		}
 		fmt.Println(person)
@@ -98,8 +109,7 @@ func ExampleQuerier_SelectOneTo() {
 	var person Person
 	tail := fmt.Sprintf("WHERE created_at < %s ORDER BY id", DB.Placeholder(1))
 	y2010 := time.Date(2010, 1, 1, 0, 0, 0, 0, time.UTC)
-	err := DB.SelectOneTo(&person, tail, y2010)
-	if err != nil {
+	if err := DB.SelectOneTo(&person, tail, y2010); err != nil {
 		log.Fatal(err)
 	}
 	fmt.Println(person)
@@ -141,8 +151,7 @@ func ExampleQuerier_InsertMulti() {
 		}
 		batch := persons[low:high]
 
-		err := DB.InsertMulti(batch...)
-		if err != nil {
+		if err := DB.InsertMulti(batch...); err != nil {
 			log.Fatal(err)
 		}
 		fmt.Printf("Inserted %d persons\n", len(batch))
@@ -154,4 +163,51 @@ func ExampleQuerier_InsertMulti() {
 	// Inserted 3 persons
 	// Inserted 2 persons
 	// 0 Alexey Palazhchenko
+}
+
+func ExampleQuerier_Query() {
+	columns := DB.QualifiedColumns(PersonTable)
+	columns = append(columns, DB.QualifiedColumns(PersonProjectView)...)
+	columns = append(columns, DB.QualifiedColumns(ProjectTable)...)
+	query := fmt.Sprintf(`
+		SELECT %s
+			FROM people
+			INNER JOIN person_project ON people.id = person_project.person_id
+			INNER JOIN projects ON person_project.project_id = projects.id
+			ORDER BY person_id, project_id;
+	`, strings.Join(columns, ", "))
+	rows, err := DB.Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var person Person
+		var personProject PersonProject
+		var project Project
+		pointers := person.Pointers()
+		pointers = append(pointers, personProject.Pointers()...)
+		pointers = append(pointers, project.Pointers()...)
+		if err = rows.Scan(pointers...); err != nil {
+			log.Print(err)
+		}
+		if err = person.AfterFind(); err != nil {
+			log.Fatal(err)
+		}
+		if err = project.AfterFind(); err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%s - %s\n", person.Name, project.Name)
+	}
+	if err = rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+	// Output:
+	// Noble Schumm - Vicious Baron
+	// Elfrieda Abbott - Vicious Baron
+	// Elfrieda Abbott - Thirsty Queen
+	// Elfrieda Abbott - Vicious Baron
+	// Elfrieda Abbott - Thirsty Queen
+	// Elfrieda Abbott - Kosher Traveler
 }

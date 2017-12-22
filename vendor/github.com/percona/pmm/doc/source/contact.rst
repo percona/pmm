@@ -4,7 +4,7 @@
 Contacting and Contributing
 ===========================
 
-Percona Monitoring and Management is an open source product.                    
+|pmm.name| is an open source product.                    
 We provide ways for anyone to contact developers and experts directly,          
 submit bug reports and feature requests,                                        
 and contribute to source code directly. 
@@ -12,7 +12,7 @@ and contribute to source code directly.
 Contacting Developers
 =====================
 
-Use the `community forum`_ to ask questions about using PMM.
+Use the `community forum`_ to ask questions about using |pmm|.
 Developers and experts will try to help with problems that you experience.
 
 Reporting Bugs
@@ -27,7 +27,7 @@ Contributing Source Code
 
 Use the `GitHub repository`_ to explore source code
 and suggest contributions.
-You can fork and clone any Percona repositories,
+You can fork and clone any |percona| repositories,
 but to have your source code patches accepted
 please sign the Contributor License Agreement (CLA).
 
@@ -37,4 +37,5 @@ please sign the Contributor License Agreement (CLA).
 
 .. _GitHub repository: https://github.com/percona/pmm
 
+.. include:: .res/replace/name.txt
 

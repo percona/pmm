@@ -9,6 +9,10 @@ var (
 	// ErrNoRows is returned from various methods when query produced no rows.
 	ErrNoRows = sql.ErrNoRows
 
+	// ErrTxDone is returned from Commit() and Rollback() TX methods when transaction is already
+	// committed or rolled back.
+	ErrTxDone = sql.ErrTxDone
+
 	// ErrNoPK is returned from various methods when primary key is required and not set.
 	ErrNoPK = errors.New("reform: no primary key")
 )
@@ -181,6 +185,6 @@ type Dialect interface {
 
 // check interface
 var (
-	_ DBTX = new(sql.DB)
-	_ DBTX = new(sql.Tx)
+	_ DBTX = (*sql.DB)(nil)
+	_ DBTX = (*sql.Tx)(nil)
 )

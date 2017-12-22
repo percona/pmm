@@ -1,0 +1,62 @@
+
+* Files
+
+** name.txt
+
+This file contains replace directives for names of products, commands and other
+proper names.
+
+This file helps ensure that product names are spelled correctly. It is not
+designed to help type text faster.
+
+Only lower case alphabetic characters, numbers, and predefined separators may be
+used in placeholders. Predefined separators are limited to the following
+characters: dash (-) for multi-word tokens, dot (.) for combining tokens.
+
+- Items in each section are listed alphatecally.
+
+*** Organizations
+   :PROPERTIES:
+   :info: References to products out of technical context
+   :prefix: nil
+   :directive: nil
+   :END:
+
+ Items in this category do not use any directives. The only formatting available
+ to them is highlighting in italics.
+
+ #+BEGIN_Suffixes:
+
+- intro :: Represents the format of the first reference to the referenced
+           name. If the abbreviated format is common, the expanded version is
+           given in parentheses.
+- abbrev :: The abbreviated form of the referenced name
+- name :: The expanded version of the referenced name
+
+#+END_Suffixes
+
+** program.txt
+
+*** Commands
+   :PROPERTIES:
+   :info: References to commands in technical context
+   :prefix: nil
+   :directive: command
+   :END:
+
+This category includes programs callable either from the graphical interface or command line.
+
+** option.txt
+
+*** Options
+   :PROPERTIES:
+   :info: References to options in technical context
+   :prefix: opt
+   :directive: option
+   :END:
+
+This category includes both long and short options.The non alphabetic
+characters which appear in front of the option name are omitted in the
+placeholder. 
+
+

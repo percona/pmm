@@ -1,0 +1,128 @@
+.. -*- mode: rst -*-
+
+.. For detailed information, see info.org (the file is in the org mode format)
+
+.. Organizations and Products
+
+.. |amazon-aurora|            replace:: *Amazon Aurora*
+.. |amazon-cloudwatch|        replace:: *Amazon Cloudwatch*
+.. |amazon-linux|             replace:: *Amazon Linux*
+.. |amazon-rds|               replace:: *Amazon RDS*
+.. |amazon|                   replace:: *Amazon*
+.. |ami.intro|                replace:: *AMI* (Amazon Machine Image)
+.. |ami.name|                 replace:: *Amazon Machine Image*
+.. |ami|                      replace:: *AMI*
+.. |aurora|                   replace:: *Amazon Aurora*
+.. |aws.intro|                replace:: *AWS* (Amazon Web Services)
+.. |aws.name|                 replace:: *Amazon Web Services*
+.. |aws|                      replace:: *AWS*
+.. |centos|                   replace:: *CentOS*
+.. |cloudwatch|               replace:: *Amazon Cloudwatch*
+.. |consul|                   replace:: *Consul*
+.. |debian|                   replace:: *Debian*
+.. |docker|                   replace:: *Docker*
+.. |facebook|                 replace:: *Facebook*
+.. |firefox|                  replace:: *Firefox*
+.. |grafana|                  replace:: *Grafana*
+.. |innodb|                   replace:: *InnoDB*
+.. |linux|                    replace:: *Linux*
+.. |mariadb|                  replace:: *MariaDB*
+.. |metrics-monitor|          replace:: *Metrics Monitor*
+.. |mm|                       replace:: *Metrics Monitor*
+.. |mongodb|                  replace:: *MongoDB*
+.. |myrocks|                  replace:: *MyRocks*
+.. |mysql|                    replace:: *MySQL*
+.. |oracle-linux|             replace:: *Oracle Linux*
+.. |orchestrator|             replace:: *Orchestrator*
+.. |percona|                  replace:: *Percona*
+.. |percona-server|           replace:: *Percona Server*
+.. |perl|                     replace:: *Perl*
+.. |pmm-client|               replace:: *PMM Client*
+.. |pmm-server|               replace:: *PMM Server*
+.. |pmm.abbrev|               replace:: *PMM*
+.. |pmm.intro|                replace:: *PMM* (Percona Monitoring and Management)
+.. |pmm.name|                 replace:: *Percona Monitoring and Management*
+.. |pmm|                      replace:: *PMM*
+.. |postgresql|               replace:: *PostgreSQL*
+.. |postgres|                 replace:: *PostgreSQL*
+.. |prometheus|               replace:: *Prometheus*
+.. |proxysql|                 replace:: *ProxySQL*
+.. |qan.abbrev|               replace:: *QAN*
+.. |qan.intro|                replace:: *QAN* (Query Analytics)
+.. |qan.name|                 replace:: *Query Analytics*
+.. |qan|                      replace:: *QAN*
+.. |query-analytics|          replace:: *Query Analytics*
+.. |rds|                      replace:: *Amazon RDS*
+.. |red-hat-enterprise-linux| replace:: *Red Hat Enterprise Linux*
+.. |red-hat.name|             replace:: *Red Hat Enterprise Linux*
+.. |red-hat|                  replace:: *Red Hat*
+.. |redhat|                   replace:: *Red Hat*
+.. |rocksdb|                  replace:: *RocksDB*
+.. |ubuntu|                   replace:: *Ubuntu*
+
+.. Terminology
+
+.. |inf-schema|         replace:: *Information Schema*
+.. |information-schema| replace:: *Information Schema*
+.. |json|               replace:: *JSON*
+.. |perf-schema|        replace:: *Performance Schema*
+.. |performance-schema| replace:: *Performance Schema*
+.. |slow-log|           replace:: *slow log*
+.. |slow-query-log|     replace:: *slow query log*
+
+.. Metrics Monitor Dashboards 
+
+.. |amazon-rds-aurora-mysql-metrics| replace:: *Amazon RDS / Aurora MySQL Metrics*
+.. |cross-server-graphs|             replace:: *Cross Server Graphs*
+.. |mysql-overview|                  replace:: *MySQL Overview*
+.. |pmm-add-instance|                replace:: *PMM Add Instance*
+.. |pmm-query-analytics|             replace:: *PMM Query Analytics*
+.. |pmm-system-summary|              replace:: *PMM System Summary*
+
+.. Metrics Monitor Graphs
+
+.. |advanced-data-exploration| replace:: *Advanced Data Exploration*
+.. |adv-data-expl|             replace:: *Advanced Data Exploration*
+.. |cpu-credit-usage|          replace:: *CPU Credit Usage*			     
+.. |cpu-usage|                 replace:: *CPU Usage*
+.. |mysql-myrocks-metrics|     replace:: *MySQL MyRocks Metrics*
+
+.. GUI Elements
+
+.. |gui.add-rds-aurora-instance|            replace:: :guilabel:`Add an AWS RDS MySQL or Aurora MySQL Instance`
+.. |gui.apply|                              replace:: :guilabel:`Apply`
+.. |gui.collect-from|                       replace:: :guilabel:`Collect from`
+.. |gui.connect|                            replace:: :guilabel:`Connect`
+.. |gui.continue|                           replace:: :guilabel:`Continue`
+.. |gui.database-summary|                   replace:: :guilabel:`Database Summary`	  
+.. |gui.databases|                          replace:: :guilabel:`Databases`
+.. |gui.discover|                           replace:: :guilabel:`Discover`
+.. |gui.download-summary|                   replace:: :guilabel:`Download Summary`
+.. |gui.enabled|                            replace:: :guilabel:`Enabled`
+.. |gui.file|                               replace:: :guilabel:`File`
+.. |gui.host|                               replace:: :guilabel:`Host`
+.. |gui.log|                                replace:: :guilabel:`Log`
+.. |gui.more-information|                   replace:: :guilabel:`More Information`
+.. |gui.more-inf|                           replace:: :guilabel:`More Information`
+.. |gui.mysql-replication-topology-manager| replace:: :guilabel:`MySQL Replication Topology Manager`
+.. |gui.open|                               replace:: :guilabel:`Open`
+.. |gui.query-abstract|                     replace:: :guilabel:`Query Abstract`
+.. |gui.query-filter|                       replace:: :guilabel:`Query Filter`
+.. |gui.settings|                           replace:: :guilabel:`Settings`
+.. |gui.status|                             replace:: :guilabel:`Status`
+.. |gui.system-summary|                     replace:: :guilabel:`System Summary`
+.. |gui.update|                             replace:: :guilabel:`Update`
+.. |gui.retry|                              replace:: :guilabel:`Retry`
+
+.. Files and directories
+
+.. |dhparam.pem|         replace:: :file:`dhparam.pem`
+.. |ca-certs.pem|        replace:: :file:`ca-certs.pem`
+.. |certificate.crt|     replace:: :file:`certificate.crt`
+.. |certificate.key|     replace:: :file:`certificate.key`
+.. |srv.nginx|           replace:: :file:`/srv/nginx/`
+.. |etc.pmm-certs|       replace:: :file:`/etc/pmm-certs`
+.. |server.crt|          replace:: :file:`server.crt`
+.. |server.key|          replace:: :file:`server.key`
+.. |etc.mongod.conf|     replace:: :file:`/etc/mongod.conf`
+.. |srv.update.main.yml| replace:: :file:`/srv/update/main.yml`

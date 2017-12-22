@@ -1,0 +1,1113 @@
+
+* +
+
+#+begin-block: uninstall
++uninstall+
+
+.. code-block:: bash
+
+      $ ./uninstall
+
+#+end-block
+
+* bash
+
+** cd
+
+#+begin-block: cd pmm-data-backup
++cd.pmm-data-backup+
+
+.. code-block:: bash
+
+   $ cd ~/pmm-data-backup
+
+#+end-block
+
+* apt-get
+
+#+begin-block: apt-get remove
++apt-get.remove.pmm-client+
+
+.. code-block:: bash
+
+   $ apt-get remove pmm-client
+
+#+end-block
+
+* aws
+
+#+begin-block: aws ec2 terminate-instances instance-ids
++aws.ec2.terminate-instances+
+
+.. code-block:: bash
+
+   $ aws ec2 terminate-instances --instance-ids -i-XXXX-INSTANCE-ID-XXXX
+
+#+end-block
+
+* docker
+
+** cp
+
+#+begin-block: docker cp
++docker.cp+
+
+.. code-block:: bash
+
+   $ docker cp opt/prometheus/data pmm-data:/opt/prometheus/
+   $ docker cp opt/consul-data pmm-data:/opt/
+   $ docker cp var/lib/mysql pmm-data:/var/lib/
+   $ docker cp var/lib/grafana pmm-data:/var/lib/
+ 
+#+end-block
+#+begin-block: docker cp certificate-crt pmm-server
++docker.cp.certificate-crt.pmm-server+
+
+.. code-block:: bash
+
+    $ docker cp certificate.crt pmm-server:/srv/nginx/certificate.crt
+    $ docker cp certificate.key pmm-server:/srv/nginx/certificate.key
+    $ docker cp ca-certs.pem pmm-server:/srv/nginx/ca-certs.pem
+    $ docker cp dhparam.pem pmm-server:/srv/nginx/dhparam.pem
+
+#+end-block
+
+** create
+
+#+begin-block: docker create v name
++docker.create.percona-pmm-server-latest+
+
+.. code-block:: bash
+
+   $ docker create \
+      -v /opt/prometheus/data \
+      -v /opt/consul-data \
+      -v /var/lib/mysql \
+      -v /var/lib/grafana \
+      --name pmm-data \
+      percona/pmm-server:latest /bin/true
+
+#+end-block
+
+** exec
+
+#+begin-block: docker exec it pmm-server head
++docker.exec.it.pmm-server.head+
+
+.. code-block:: bash 
+
+   $ docker exec -it pmm-server head -1 /srv/update/main.yml
+   # v1.5.3
+
+#+end-block
+
+** images
+
+#+begin-block: docker images percona
++docker.images.percona+
+
+.. code-block:: bash
+
+   $ docker images percona/*
+
+   REPOSITORY                  TAG                 IMAGE ID            CREATED             SIZE
+   percona/pmm-server-backup   latest              51bfaa37cb1e        2 weeks ago         1.33GB
+   percona/pmm-server          1.5.0               51bfaa37cb1e        2 weeks ago         1.33GB
+
+#+end-block
+** ps
+
+#+begin-block: docker ps
++docker.ps+
+
+.. code-block:: bash
+
+   $ docker ps
+   CONTAINER ID   IMAGE                      COMMAND                CREATED       STATUS             PORTS                               NAMES
+   480696cd4187   percona/pmm-server:1.4.0   "/opt/entrypoint.sh"   4 weeks ago   Up About an hour   192.168.100.1:80->80/tcp, 443/tcp   pmm-server
+
+#+end-block
+#+begin-block: docker ps +1.4.0
++docker.ps.+1.4.0+
+
+.. code-block:: bash
+
+   $ docker ps
+   CONTAINER ID   IMAGE                      COMMAND                CREATED       STATUS             PORTS                               NAMES
+   480696cd4187   percona/pmm-server:1.4.0   "/opt/entrypoint.sh"   4 weeks ago   Up About an hour   192.168.100.1:80->80/tcp, 443/tcp   pmm-server
+
+#+end-block
+#+begin-block: docker ps +1.5.0
++docker.ps.+1.5.0+
+
+.. code-block:: bash
+
+   $ docker ps
+   CONTAINER ID   IMAGE                      COMMAND                CREATED         STATUS         PORTS                               NAMES
+   480696cd4187   percona/pmm-server:1.5.0   "/opt/entrypoint.sh"   4 minutes ago   Up 4 minutes   192.168.100.1:80->80/tcp, 443/tcp   pmm-server
+
+#+end-block
+
+** pull
+
+#+begin-block: docker pull
++docker.pull.percona-pmm-server-latest+
+
+.. code-block:: bash
+
+   $ docker pull percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker pull percona-pmm-server-latest
++docker.pull.percona-pmm-server-latest+
+
+.. code-block:: bash
+
+   $ docker pull percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker pull percona-pmm-server +1.5.0
++docker.pull.percona-pmm-server.+1.5.0+
+.. code-block:: bash
+
+   $ docker pull percona/pmm-server:1.5.0
+
+#+end-block
+
+** rename
+
+#+begin-block: docker rename pmm-server pmm-server-backup
++docker.rename.pmm-server.pmm-server-backup+
+
+.. code-block:: bash
+
+   $ docker rename pmm-server pmm-server-backup
+
+#+end-block
+#+begin-block: docker rename pmm-server-backup pmm-server
++docker.rename.pmm-server-backup.pmm-server+
+
+.. code-block:: bash
+
+   $ docker rename pmm-server pmm-server-backup
+
+#+end-block
+#+begin-block: docker rename pmm-data pmm-data-backup
++docker.rename.pmm-data.pmm-data-backup+
+
+.. code-block:: bash
+
+   $ docker rename pmm-data pmm-data-backup
+
+#+end-block
+
+** rm
+
+#+begin-block: docker rm
++docker.rm.pmm-data+
+
+.. code-block:: bash
+
+   $ docker rm pmm-data
+
+#+end-block
+#+begin-block: docker rm pmm-server
++docker.rm.pmm-server+
+
+.. code-block:: bash
+
+   $ docker rm pmm-server
+
+#+end-block
+#+begin-block: docker rm pmm-server-backup
++docker.rm.pmm-server-backup+
+
+.. code-block:: bash
+
+   $ docker rm pmm-server-backup
+
+#+end-block
+** rmi
+
+#+begin-block: docker rmi backup-latest
++docker.rmi.backup-latest+
+
+.. code-block:: bash
+
+   $ docker rmi percona/pmm-server-backup:latest
+
+#+end-block
+** run
+
+#+begin-block: docker run d p volumes-from name e server-user e server-password v restart
++docker.run.example+
+
+.. code-block:: bash
+
+   $ docker run -d -p 443:443 \
+     --volumes-from pmm-data \
+     --name pmm-server \
+     -e SERVER_USER=jsmith \
+     -e SERVER_PASSWORD=pass1234 \
+     -v /etc/pmm-certs:/etc/nginx/ssl \
+     --restart always \
+     percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run d p volumes from name v restart
++docker.run.d.p.volumes.from.name.v.restart+
+
+.. code-block:: bash
+
+   $ docker run -d -p 443:443 \
+     --volumes-from pmm-data \
+     --name pmm-server \
+     -v /etc/pmm-certs:/srv/nginx/ \
+     --restart always \
+     percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run d p volumes-from name restart
++docker.run.latest+
+
+.. code-block:: bash
+
+   $ docker run -d \
+      -p 80:80 \
+      --volumes-from pmm-data \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run d p 443 volumes-from name restart
++docker.run.d.p.443.volumes-from.name.restart+
+
+.. code-block:: bash
+
+   $ docker run -d \
+      -p 443:443 \
+      --volumes-from pmm-data \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run d p volumes-from name restart +backup
++docker.run.d.p.volumes-from.name.restart.+backup+
+
+.. code-block:: bash
+
+   $ docker run -d \
+      -p 80:80 \
+      --volumes-from pmm-data \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server-backup
+
+#+end-block
+#+begin-block: docker run d p volumes-from name e server-user e server-password restart
++docker.run.server-user.example+
+
+.. code-block:: bash
+
+   $ docker run -d -p 80:80 \
+     --volumes-from pmm-data \
+     --name pmm-server \
+     -e SERVER_USER=jsmith \
+     -e SERVER_PASSWORD=pass1234 \
+     --restart always \
+     percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run d p volumes-from v name restart
++docker.run.iam-user-credential+
+
+.. code-block:: bash
+
+    $ docker run -d \
+      -p 80:80 \
+      --volumes-from pmm-data \
+      -v /path/to/file/with/creds:/usr/share/grafana/.aws/credentials \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e disable-telemetry
++docker.run.disable-telemetry+
+
+.. code-block:: bash
+
+   $ docker run ... -e DISABLE_TELEMETRY=true ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e disable-updates
++docker.run.disable-updates+
+
+.. code-block:: bash
+
+   $ docker run ... -e DISABLE_UPDATES=true ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e metrics-memory
++docker.run.metrics-memory+
+
+.. code-block:: bash
+
+   $ docker run ... -e METRICS_MEMORY=4194304 ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e server-user
++docker.run.server-user+
+
+.. code-block:: bash
+
+   $ docker run ... -e SERVER_USER=USER_NAME ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e server-password
++docker.run.server-password+
+
+.. code-block:: bash
+
+   $ docker run ... -e SERVER_PASSWORD=YOUR_PASSWORD ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e metrics-resolution
++docker.run.metrics-resolution+
+
+.. code-block:: bash
+
+   $ docker run ... -e METRICS_RESOLUTION=VALUE ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e metrics-retention
+Demonstrates how to set the option to 8 days.
+
++docker.run.e.metrics-retention+
+
+.. code-block:: bash
+
+   $ docker run ... -e METRICS_RETENTION=192h ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e queries-retention
++docker.run.e.queries-retention+
+
+
+.. code-block:: bash
+
+   $ docker run ... -e QUERIES_RETENTION=30 ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e orchestrator-enabled
++docker.run.orchestrator-enabled+
+
+.. code-block:: bash
+
+   $ docker run ... -e ORCHESTRATOR_ENABLED=true ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run e orchestrator-enabled orchestrator-user orchestrator-password
++docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
+
+.. code-block:: bash
+
+   $ docker run ... -e ORCHESTRATOR_ENABLED=true ORCHESTRATOR_USER=name -e ORCHESTRATOR_PASSWORD=pass ... percona/pmm-server:latest
+
+#+end-block
+#+begin-block: docker run rm it chown
++docker.run.rm.it.chown+
+
+.. code-block:: bash
+		   
+   $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:latest chown -R pmm:pmm /opt/prometheus/data /opt/consul-data
+   $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:latest chown -R grafana:grafana /var/lib/grafana
+   $ docker run --rm --volumes-from pmm-data -it percona/pmm-server:latest chown -R mysql:mysql /var/lib/mysql
+
+#+end-block
+
+** start
+
+#+begin-block: docker start pmm-server
++docker.start.pmm-server+
+.. code-block:: bash
+
+   $ docker start pmm-server
+
+#+end-block
+** stop
+
+#+begin-block: docker stop && docker rm
++docker.stop.pmm-server&docker.rm.pmm-server+
+
+.. code-block:: bash
+
+   $ docker stop pmm-server && docker rm pmm-server
+
+#+end-block
+#+begin-block: docker stop pmm-server
++docker.stop.pmm-server+
+
+.. code-block:: bash
+
+   $ docker stop pmm-server
+
+#+end-block
+
+** tag
+
+#+begin-block: docker tag
++docker.tag+
+
+.. code-block:: bash
+
+   $ docker tag percona/pmm-server:1.4.0 percona/pmm-server-backup
+
+#+end-block
+
+* dpkg
+
+#+begin-block: dpkg r
++dpkg.r.pmm-client+
+
+.. code-block:: bash
+
+   $ dpkg -r pmm-client
+  
+#+end-block
+
+* openssl
+
+#+begin-block: openssl dhparam out && openssl req nodes days newkey keyout out
++openssl.dhparam&openssl.req+
+
+.. code-block:: text
+
+   # openssl dhparam -out /etc/pmm-certs/dhparam.pem 4096
+   # openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/pmm-certs/server.key -out /etc/pmm-certs/server.crt
+   Generating a 2048 bit RSA private key
+   ....................................+++
+   ....+++
+   writing new private key to '/etc/pmm-certs/server.key'
+   -----
+   You are about to be asked to enter information that will be incorporated
+   into your certificate request.
+   What you are about to enter is what is called a Distinguished Name or a DN.
+   There are quite a few fields but you can leave some blank
+   For some fields there will be a default value,
+   If you enter '.', the field will be left blank.
+   -----
+   Country Name (2 letter code) [XX]:US
+   State or Province Name (full name) []:North Carolina
+   Locality Name (eg, city) [Default City]:Raleigh
+   Organization Name (eg, company) [Default Company Ltd]:Percona
+   Organizational Unit Name (eg, section) []:PMM
+   Common Name (eg, your name or your server's hostname) []:centos7.vm
+   Email Address []:jsmith@example.com
+
+#+end-block
+
+* pmm-admin
+
+** add
+
+#+begin-block: pmm-admin add host user password
++pmm-admin.add.mysql-metrics.rds+
+
+.. code-block:: bash
+
+   $ pmm-admin add mysql:metrics --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
+   $ pmm-admin add mysql:queries --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
+
+#+end-block
+#+begin-block: pmm-admin add mysql user password create-user query-source
++pmm-admin.add.mysql.user.password.create-user.query-source+
+
+.. code-block:: bash
+
+      pmm-admin add mysql --user root --password root --create-user --query-source perfschema
+
+#+end-block
+#+begin-block: pmm-admin add mongodb-metrics mongodb-tls
++pmm-admin.add.mongodb-metrics.mongodb.tls+
+
+.. code-block:: bash
+   :caption: *Passing an SSL/TLS parameter to* |mongod| *to enable a TLS connection.*
+
+   $ pmm-admin add mongodb:metrics -- --mongodb.tls
+
+#+end-block
+#+begin-block: pmm-admin add linux-metrics
++pmm-admin.add.linux-metrics+
+
+.. code-block:: text
+
+   $ pmm-admin add linux:metrics [NAME] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin add mysql-queries
++pmm-admin.add.mysql-queries+
+
+.. code-block:: text
+
+   pmm-admin add mysql:queries [NAME] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin add mysql-queries user password host create-user
++pmm-admin.add.mysql-queries.user.password.host.create-user+
+
+.. code-block:: bash
+
+   $ pmm-admin add mysql:queries --user root --password root --host 192.168.200.2 --create-user
+
+#+end-block
+#+begin-block: pmm-admin add mysql-metrics user password host create-user
++pmm-admin.add.mysql-metrics.user.password.host.create-user+
+
+.. code-block:: bash
+
+   $ pmm-admin add mysql:metrics --user root --password root --host 192.168.200.3 --create-user
+
+
+#+begin-block: pmm-admin add mysql-metrics
++pmm-adin.add.mysql-metrics+
+
+.. code-block:: text
+
+   $ pmm-admin add mysql:metrics [NAME] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin add mongodb-queries
++pmm-admin.add.mongodb-queries+
+
+.. code-block:: text
+
+   pmm-admin add mongodb:queries [NAME] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin add mongodb-metrics
++pmm-admin.add.mongodb-metrics+
+
+.. code-block:: text
+
+   pmm-admin add mongodb:metrics [NAME] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin add proxysql-metrics
++pmm-admin.add.proxysql-metrics+
+.. code-block:: text
+
+   pmm-admin add proxysql:metrics [NAME] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin add external-metrics postresql
++pmm-admin.add.external-metrics.postresql+
+
+.. code-block:: text
+
+   $ pmm-admin add external:metrics postgresql 192.168.200.1:9187
+
+   PMM Server      | 192.168.100.1
+   Client Name     | percona
+   Client Address  | 192.168.200.1
+   Service Manager | linux-systemd
+
+   -------------- -------- ----------- -------- ------------ --------
+   SERVICE TYPE   NAME     LOCAL PORT  RUNNING  DATA SOURCE  OPTIONS 
+   -------------- -------- ----------- -------- ------------ --------
+   linux:metrics  percona  42000       YES                 -                    
+
+
+   Name      Scrape interval  Scrape timeout  Metrics path  Scheme  Instances
+   postgres  1s               1s              /metrics      http    192.168.200.1:9187
+
+#+end-block
+#+begin-block: pmm-admin add external-metrics job-name url port-number
++pmm-admin.add.external-metrics.job-name.url.port-number+
+
+.. code-block:: bash
+
+   pmm-admin add external:metrics JOB-NAME URL:PORT-NUMBER
+
+#+end-block
+
+** config
+
+#+begin-block: pmm-admin config options
++pmm-admin.config.options+
+
+.. code-block:: text
+
+   pmm-admin config [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin config server url
++pmm-admin.config.server.url+
+
+.. code-block:: bash
+
+   $ pmm-admin config --server 192.168.100.1
+   OK, PMM server is alive.
+
+   PMM Server      | 192.168.100.1
+   Client Name     | ubuntu-amd641
+   Client Address  | 192.168.200.1
+
+#+end-block
+#+begin-block: pmm-admin config server url port
++pmm-admin.config.server.url.port+
+
+   .. code-block:: bash
+
+      $ pmm-admin config --server 192.168.100.1:8080
+
+#+end-block
+#+begin-block: pmm-admin config server server-user server-password server-insecure-ssl
++pmm-admin.config.example+
+
+.. code-block:: bash
+
+   $ pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234 --server-insecure-ssl
+
+#+end-block
+#+begin-block: pmm-admin config server server insecure-ssl
++pmm-admin.config.server.server-insecure-ssl+
+
+.. code-block:: bash
+
+   $ pmm-admin config --server 192.168.100.1 --server-insecure-ssl
+
+#+end-block
+#+begin-block: pmm-admin config server server-ssl
++pmm-admin.config.server.server-ssl+
+
+.. code-block:: bash
+
+   $ pmm-admin config --server 192.168.100.1 --server-ssl
+
+#+end-block
+#+begin-block: pmm-admin config server server-user server-password
++pmm-admin.config.server.server-user.server-password+
+
+.. code-block:: bash
+
+   $ pmm-admin config --server 192.168.100.1 --server-user jsmith --server-password pass1234
+
+#+end-block
+
+** check-network
+
+#+begin-block: pmm-admin check-network options
++pmm-admin.check-network.options+
+
+.. code-block:: text
+
+   pmm-admin check-network [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin check-network +output
++pmm-admin.check-network.+output+
+
+.. code-block:: text
+   :emphasize-lines: 1
+
+   $ pmm-admin check-network
+   PMM Network Status
+
+   Server Address | 192.168.100.1
+   Client Address | 192.168.200.1
+
+   * System Time
+   NTP Server (0.pool.ntp.org)         | 2017-05-03 12:05:38 -0400 EDT
+   PMM Server                          | 2017-05-03 16:05:38 +0000 GMT
+   PMM Client                          | 2017-05-03 12:05:38 -0400 EDT
+   PMM Server Time Drift               | OK
+   PMM Client Time Drift               | OK
+   PMM Client to PMM Server Time Drift | OK
+
+   * Connection: Client --> Server
+   -------------------- -------------
+   SERVER SERVICE       STATUS
+   -------------------- -------------
+   Consul API           OK
+   Prometheus API       OK
+   Query Analytics API  OK
+
+   Connection duration | 166.689µs
+   Request duration    | 364.527µs
+   Full round trip     | 531.216µs
+
+   * Connection: Client <-- Server
+   ---------------- ----------- -------------------- -------- ---------- ---------
+   SERVICE TYPE     NAME        REMOTE ENDPOINT      STATUS   HTTPS/TLS  PASSWORD
+   ---------------- ----------- -------------------- -------- ---------- ---------
+   linux:metrics    mongo-main  192.168.200.1:42000  OK       YES        -
+   mongodb:metrics  mongo-main  192.168.200.1:42003  PROBLEM  YES        -
+
+#+end-block
+#+begin-block: pmm-admin check-network
++pmm-admin.check-network+
+
+.. code-block:: bash
+
+   $ pmm-admin check-network
+
+#+end-block
+** help
+
+#+begin-block: pmm-admin help command
++pmm-admin.help.command+
+
+.. code-block:: text
+
+   $ pmm-admin help [COMMAND]
+
+
+#+end-block
+
+** info
+
+#+begin-block: pmm-admin info options
++pmm-admin.info.options+
+
+.. code-block:: text
+
+   pmm-admin info [OPTIONS]
+
+
+#+end-block
+#+begin-block: pmm-admin info
++pmm-admin.info+
+
+.. code-block:: text
+   :emphasize-lines: 1
+
+   $ pmm-admin info
+
+   PMM Server      | 192.168.100.1
+   Client Name     | ubuntu-amd64
+   Client Address  | 192.168.200.1
+   Service manager | linux-systemd
+
+   Go Version      | 1.8
+   Runtime Info    | linux/amd64
+
+#+end-block
+
+** list
+
+#+begin-block: pmm-admin list options
++pmm-admin.list.options+
+
+.. code-block:: text
+
+   pmm-admin list [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin list
++pmm-admin.list+
+
+.. code-block:: text
+   :emphasize-lines: 1
+
+   $ pmm-admin list
+
+   PMM Server      | 192.168.100.1
+   Client Name     | ubuntu-amd64
+   Client Address  | 192.168.200.1
+   Service manager | linux-systemd
+
+   ---------------- ----------- ----------- -------- ---------------- --------
+   SERVICE TYPE     NAME        LOCAL PORT  RUNNING  DATA SOURCE      OPTIONS
+   ---------------- ----------- ----------- -------- ---------------- --------
+   linux:metrics    mongo-main  42000       YES      -
+   mongodb:metrics  mongo-main  42003       YES      localhost:27017
+
+** ping
+
+#+begin-block: pmm-admin ping
++pmm-admin.ping+
+
+.. code-block:: text
+
+   $ pmm-admin ping
+   OK, PMM server is alive.
+
+   PMM Server      | 192.168.100.1 (insecure SSL, password-protected)
+   Client Name     | centos7.vm
+   Client Address  | 192.168.200.1
+
+#+end-block
+#+begin-block: pmm-admin ping options
++pmm-admin.ping.options+
+
+.. code-block:: text
+
+   pmm-admin ping [OPTIONS]
+
+
+#+end-block
+
+** purge
+
+#+begin-block: pmm-admin purge service name options
++pmm-admin.purge.service.name.options+
+
+.. code-block:: text
+
+   pmm-admin purge [SERVICE [NAME]] [OPTIONS]
+
+
+#+end-block
+
+** repair
+
+#+begin-block: pmm-admin repair options
++pmm-admin.repair.options+
+
+.. code-block:: text
+
+   $ pmm-admin repair [OPTIONS]
+
+#+end-block
+
+** restart
+
+#+begin-block: pmm-admin restart service name options
++pmm-admin.restart.service.name.options+
+
+.. code-block:: text
+
+   pmm-admin restart [SERVICE [NAME]] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin restart all
++pmm-admin.restart.all+
+
+.. code-block:: bash
+
+   # pmm-admin restart --all
+
+#+end-block
+#+begin-block: pmm-admin restart mysql
++pmm-admin.restart.mysql+
+
+.. code-block:: bash
+
+   $ pmm-admin restart mysql
+
+#+end-block
+#+begin-block: pmm-admin restart mongodb-metrics
++pmm-admin.restart.mongodb-metrics+
+
+.. code-block:: bash
+
+   $ pmm-admin restart mongodb:metrics
+
+
+#+end-block
+** rm
+
+#+begin-block: pmm-admin rm options service
++pmm-admin.rm.options.service+
+
+.. code-block:: text
+
+   pmm-admin rm [OPTIONS] [SERVICE]
+
+#+end-block
+#+begin-block: pmm-admin rm all
++pmm-admin.rm.all+
+
+.. code-block:: bash
+
+   $ pmm-admin rm --all
+
+#+end-block
+#+begin-block: pmm-admin rm mysql
++pmm-admin.rm.mysql+
+
+.. code-block:: bash
+
+   $ pmm-admin rm mysql
+
+
+#+end-block
+#+begin-block: pmm-admin rm mongodb-metrics
++pmm-admin.rm.mongodb-metrics+
+
+.. code-block:: bash
+
+   $ pmm-admin rm mongodb:metrics
+
+
+#+end-block
+
+** show-passwords
+
+#+begin-block: pmm-admin show-passwords options
++pmm-admin.show-passwords.options+
+
+.. code-block:: text
+
+   pmm-admin show-passwords [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin show-passwords
++pmm-admin.show-passwords+
+
+.. code-block:: bash
+   :emphasize-lines: 1
+
+   $ pmm-admin show-passwords
+   HTTP basic authentication
+   User     | aname
+   Password | secr3tPASS
+
+   MySQL new user creation
+   Password | g,3i-QR50tQJi9M1yl9-
+
+#+end-block
+
+** start
+
+#+begin-block: pmm-admin start service name options
++pmm-admin.start.service.name.options+
+
+.. code-block:: text
+
+   pmm-admin start [SERVICE [NAME]] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin start all
++pmm-admin.start.all+
+
+.. code-block:: bash
+
+   $ pmm-admin start --all
+
+#+end-block
+#+begin-block: pmm-admin start mysql
++pmm-admin.start.mysql+
+
+.. code-block:: bash
+
+   $ pmm-admin start mysql
+
+
+#+end-block
+#+begin-block: pmm-admin start mongodb-metrics
++pmm-admin.start.mongodb-metrics+
+
+.. code-block:: bash
+
+   $ pmm-admin start mongodb:metrics
+
+
+#+end-block
+
+** stop
+
+#+begin-block: pmm-admin stop service name options
++pmm-admin.stop.service.name.options+
+
+.. code-block:: text
+
+   pmm-admin stop [SERVICE [NAME]] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin stop all
++pmm-admin.stop.all+
+
+.. code-block:: bash
+
+   $ pmm-admin stop --all
+
+#+end-block
+#+begin-block: pmm-admin stop mysql
++pmm-admin.stop.mysql+
+
+.. code-block:: bash
+
+   $ pmm-admin stop mysql
+
+#+end-block
+#+begin-block: pmm-admin stop mongodb-metrics
++pmm-admin.stop.mongodb-metrics+
+
+.. code-block:: bash
+
+   $ pmm-admin stop mongodb:metrics
+
+#+end-block 
+
+** uninstall
+
+#+begin-block: pmm-admin uninstall options
++pmm-admin.uninstall.options+
+
+.. code-block:: text
+
+   pmm-admin uninstall [OPTIONS]
+
+#+end-block
+
+* rpm
+
+#+begin-block: rpm e
++rpm.e.pmm-client+
+
+.. code-block:: bash
+
+   $ rpm -e pmm-client
+
+#+end-block
+
+* yum
+
+#+begin-block: yum remove
++yum.remove.pmm-client+
+
+.. code-block:: bash
+
+   $ yum remove pmm-client
+
+#+end-block
+
+* mongod
+
+#+begin-block: mongod dbpath profile slowms ratelimit
++mongod.dbpath.profile.slowms.ratelimit+
+
+
+.. code-block:: bash
+
+   $ mongod --dbpath=DATABASEDIR --profile 1 --slowms 200 --rateLimit 100
+#+end-block
+* vboxmanage
+
+#+begin-block: vboxmanage
++vboxmanage+
+
+.. code-block:: text
+
+   # Import image
+   VBoxManage import PMM-Server-2017-01-24.ova
+
+   # Modify NIC settings if needed
+   VBoxManage list bridgedifs
+   VBoxManage modifyvm 'PMM Server [2017-01-24]' --nic1 bridged --bridgeadapter1 'en0: Wi-Fi (AirPort)'
+
+   # Log console output into file
+   VBoxManage modifyvm 'PMM Server [2017-01-24]' --uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
+
+   # Start instance
+   VBoxManage startvm --type headless 'PMM Server [2017-01-24]'
+
+   # Wait for 1 minute and get IP address from the log
+   sleep 60
+   grep cloud-init /tmp/pmm-server-console.log
+
+#+end-block

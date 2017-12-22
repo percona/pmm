@@ -1,7 +1,7 @@
 // Package parse implements parsing of Go structs in files and runtime.
 //
 // This package, despite containing exported types, methods and functions,
-// is an internal part of implementation of 'reform' tool, used by generated files,
+// is an internal part of implementation of 'reform' command, also used by generated files,
 // and not a part of public stable API.
 package parse // import "gopkg.in/reform.v1/parse"
 
@@ -14,7 +14,7 @@ import (
 // FieldInfo represents information about struct field.
 type FieldInfo struct {
 	Name   string // field name as defined in source file, e.g. Name
-	PKType string // primary key field type as defined in source file, e.g. string
+	Type   string // field type as defined in source file, e.g. string; always present for primary key, may be absent otherwise
 	Column string // SQL database column name from "reform:" struct field tag, e.g. name
 }
 
@@ -54,7 +54,7 @@ func (s *StructInfo) PKField() FieldInfo {
 func AssertUpToDate(si *StructInfo, obj interface{}) {
 	msg := fmt.Sprintf(`reform:
 		%s struct information is not up-to-date.
-		Typically this means that %s type definition was changed, but 'reform' tool / 'go generate' was not run.
+		Typically this means that %s type definition was changed, but 'reform' command / 'go generate' was not run.
 
 		`, si.Type, si.Type)
 	si2, err := Object(obj, si.SQLSchema, si.SQLName)

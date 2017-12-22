@@ -2,6 +2,7 @@ package reform_test
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -73,7 +74,8 @@ func (s *ReformSuite) TestInsertWithPrimaryKey() {
 }
 
 func (s *ReformSuite) TestInsertWithStringPrimaryKey() {
-	project := &Project{ID: "new", End: pointer.ToTime(time.Now().Truncate(24 * time.Hour))}
+	start := time.Now().UTC().Truncate(24 * time.Hour)
+	project := &Project{ID: "new", Start: start, End: pointer.ToTime(start.AddDate(0, 0, 1))}
 	err := s.q.Insert(project)
 	s.NoError(err)
 	s.Equal("new", project.ID)
@@ -105,7 +107,8 @@ func (s *ReformSuite) TestInsertColumns() {
 	t := time.Now()
 	newEmail := faker.Internet().Email()
 	person := &Person{Email: &newEmail, CreatedAt: t, UpdatedAt: &t}
-	err := s.q.InsertColumns(person, "name", "email", "created_at", "updated_at")
+	columns := []string{"name", "email", "created_at", "updated_at"}
+	err := s.q.InsertColumns(person, columns...)
 	s.NoError(err)
 	s.NotEqual(int32(0), person.ID)
 	s.Equal("", person.Name)
@@ -113,6 +116,7 @@ func (s *ReformSuite) TestInsertColumns() {
 	s.Equal(&newEmail, person.Email)
 	s.WithinDuration(t, person.CreatedAt, 2*time.Second)
 	s.WithinDuration(t, *person.UpdatedAt, 2*time.Second)
+	s.Equal([]string{"name", "email", "created_at", "updated_at"}, columns, "should not be changed")
 
 	person2, err := s.q.FindByPrimaryKeyFrom(PersonTable, person.ID)
 	s.NoError(err)
@@ -259,6 +263,9 @@ func (s *ReformSuite) TestUpdateColumns() {
 		err := s.q.FindByPrimaryKeyTo(&person, 102)
 		s.NoError(err)
 
+		columnsCopy := make([]string, len(columns))
+		copy(columnsCopy, columns)
+
 		person.Name = p.Name
 		person.Email = p.Email
 		err = s.q.UpdateColumns(&person, columns...)
@@ -266,6 +273,7 @@ func (s *ReformSuite) TestUpdateColumns() {
 		s.Equal(personCreated, person.CreatedAt)
 		s.Require().NotNil(person.UpdatedAt)
 		s.WithinDuration(time.Now(), *person.UpdatedAt, 2*time.Second)
+		s.Equal(columnsCopy, columns, "should not be changed")
 
 		person2, err := s.q.FindByPrimaryKeyFrom(PersonTable, person.ID)
 		s.NoError(err)
@@ -282,6 +290,52 @@ func (s *ReformSuite) TestUpdateColumns() {
 	} {
 		err := s.q.UpdateColumns(person, columns...)
 		s.Error(err)
+		s.Equal(e, err)
+	}
+}
+
+func (s *ReformSuite) TestUpdateView() {
+	newName := faker.Name().Name()
+	newEmail := faker.Internet().Email()
+
+	for p, columns := range map[*Person][]string{
+		&Person{Name: "Elfrieda Abbott", Email: &newEmail}:                             {"email", "updated_at"},
+		&Person{Name: newName, Email: pointer.ToString("elfrieda_abbott@example.org")}: {"name", "name", "updated_at"},
+		&Person{Name: newName, Email: &newEmail}:                                       {"name", "email", "updated_at"},
+	} {
+		var person Person
+		err := s.q.FindByPrimaryKeyTo(&person, 102)
+		s.NoError(err)
+
+		columnsCopy := make([]string, len(columns))
+		copy(columnsCopy, columns)
+
+		person.Name = p.Name
+		person.Email = p.Email
+		ra, err := s.q.UpdateView(&person, columns, fmt.Sprintf("WHERE id = %d", person.ID))
+		s.NoError(err)
+		s.Equal(uint(1), ra)
+		s.Equal(personCreated, person.CreatedAt)
+		s.Require().NotNil(person.UpdatedAt)
+		s.WithinDuration(time.Now(), *person.UpdatedAt, 2*time.Second)
+		s.Equal(columnsCopy, columns, "should not be changed")
+
+		person2, err := s.q.FindByPrimaryKeyFrom(PersonTable, person.ID)
+		s.NoError(err)
+		s.Equal(&person, person2)
+
+		s.RestartTransaction()
+	}
+
+	person := &Person{ID: 102, Name: newName, Email: &newEmail, CreatedAt: personCreated}
+	for e, columns := range map[error][]string{
+		errors.New("reform: unexpected columns: [foo]"):     {"foo"},
+		errors.New("reform: will not update PK column: id"): {"id"},
+		errors.New("reform: nothing to update"):             {},
+	} {
+		ra, err := s.q.UpdateView(person, columns, "")
+		s.Error(err)
+		s.Zero(ra)
 		s.Equal(e, err)
 	}
 }
@@ -308,6 +362,19 @@ func (s *ReformSuite) TestSave() {
 	s.Equal(newName, person2.(*Person).Name)
 	s.Equal(&newEmail, person2.(*Person).Email)
 	s.Equal(person, person2)
+}
+
+func (s *ReformSuite) TestSaveWithPrimaryKey() {
+	setIdentityInsert(s.T(), s.q, "people", true)
+
+	newName := faker.Name().Name()
+	person := &Person{ID: 99, Name: newName}
+	err := s.q.Save(person)
+	s.NoError(err)
+
+	// that should cause no-op UPDATE, see https://github.com/go-reform/reform/issues/131
+	err = s.q.Save(person)
+	s.NoError(err)
 }
 
 func (s *ReformSuite) TestDelete() {

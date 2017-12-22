@@ -18,8 +18,8 @@ this scenario, the |pmm.abbrev| server is set up on a dedicated monitoring host.
 Installing |pmm-server|
 ================================================================================
 
-To install and set up the |pmm-server|, use one of the
-following options:
+To install and set up the |pmm-server|, use one of the following
+options:
 
 -  :ref:`run-server-docker`
 -  :ref:`run-server-ova`
@@ -31,6 +31,11 @@ following options:
    server/docker
    server/virtual-appliance
    server/ami
+
+.. seealso::
+
+   Default ports
+      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
 
 .. _deploy-pmm.server.verifying:
 
@@ -81,7 +86,6 @@ In addition to DEB and RPM packages, this site also offers:
 
 * Generic tarballs that you can extract and run the included ``install`` script.
 * Source code tarball to build your |pmm.abbrev| client from source.
-
    
 .. _deploy-pmm.client_server.connecting:
 
@@ -98,23 +102,18 @@ For example, if your |pmm-server| is running on `192.168.100.1`,
 and you have installed |pmm-client| on a machine with IP
 `192.168.200.1`, run the following in the terminal of your client:
 
-.. code-block:: bash
+|tip.run-all.root|
 
-   $ sudo pmm-admin config --server 192.168.100.1
-   OK, PMM server is alive.
+.. include:: ../.res/code/sh.org
+   :start-after: +pmm-admin.config.server.url+
+   :end-before: #+end-block
 
-   PMM Server      | 192.168.100.1
-   Client Name     | ubuntu-amd641
-   Client Address  | 192.168.200.1
+If you change the default port **80**   when :ref:`running PMM Server <deploy-pmm.server.installing>`,
+specify it after the server's IP address. For example:
 
-.. note:: If you change the default port 80
-   when :ref:`running PMM Server <deploy-pmm.server.installing>`,
-   specify it after the server's IP address. For example:
-
-   .. code-block:: bash
-
-      $ sudo pmm-admin config --server 192.168.100.1:8080
-
+.. include:: ../.res/code/sh.org
+   :start-after: +pmm-admin.config.server.url.port+
+   :end-before: #+end-block
 
 .. _deploy-pmm.data-collecting:
 
@@ -126,7 +125,7 @@ To start collecting data on each |pmm.abbrev| client connected to a
 name of the selected monitoring service.
 
 For example, to enable general system metrics, MySQL metrics,
-as well as MySQL query analytics, run |pmm-admin.add| as follows:
+as well as MySQL query analytics, run |pmm-admin.add| as follows. |tip.run-all.root|.
 
 .. code-block:: bash
 
@@ -192,21 +191,26 @@ or using :ref:`Amazon Machine Image <run-server-ami>`, you can use the update
 button in the bottom right corner of the |pmm.abbrev| home page (see
 :term:`PMM Home Page`).
 
+.. TODO: Replace screenshot with Grafana looks
+
 .. figure:: ../images/update-button.png
 
-   Update your server by clicking the *Update* button on the |pmm.abbrev|
-   landing page.
+   *Update your server by clicking the*
+   |gui.update|
+   *button on the*
+   |pmm.abbrev|
+   *landing page.*
 
-.. rubric:: Updating |pmm.abbrev| clients
+.. rubric:: **Updating clients**
 
 When a newer version of |pmm-client| becomes available, you can update to it
 from the Percona software repositories:
 
-* For Debian or Ubuntu::
+* For |debian| or |ubuntu|::
 
    $ sudo apt-get update && sudo apt-get install pmm-client
 
-* For RedHat or CentOS::
+* For |red-hat| or |centos|::
 
    $ yum update pmm-client
 
@@ -224,59 +228,62 @@ separately. First, remove all monitored services by using the
 |pmm-admin.remove| command (see :ref:`pmm-admin.rm`). Then you can
 remove each |pmm.abbrev| client and the |pmm.abbrev| server.
 
-.. rubric:: Removing the |pmm.abbrev| Client
+Removing the |pmm-client|
+--------------------------------------------------------------------------------
 
 The exact procedure of removing the |pmm.abbrev| client, depends
-on the method of installation:
+on the method of installation.
+
+|tip.run-all.root|
 
 - Removing an installed package using YUM:
 
-  .. code-block:: bash
-
-     $ sudo yum remove pmm-client
-  
+  .. include:: ../.res/code/sh.org
+     :start-after: +yum.remove.pmm-client+
+     :end-before: #+end-block
+		  
 - Removing an installed package using APT:
 
-  .. code-block:: bash
-
-     $ sudo apt-get remove pmm-client
-  
+  .. include:: ../.res/code/sh.org
+     :start-after: +apt-get.remove.pmm-client+
+     :end-before: #+end-block
+		  
 - Removing a manually installed RPM package:
 
-  .. code-block:: bash
-
-     $ rpm -e pmm-client
+  .. include:: ../.res/code/sh.org
+     :start-after: +rpm.e.pmm-client+
+     :end-before: #+end-block
 
 - Removing a manually installed DEB package:
 
-  .. code-block:: bash
+  .. include:: ../.res/code/sh.org
+     :start-after: +dpkg.r.pmm-client+
+     :end-before: #+end-block
 
-     $ dpkg -r pmm-client
-  
 - Removing a binary installed by using the generic |pmm-client|
-  tarball (assuming you have changed into the directory where
-  the tarball contents was extracted to):
+  tarball. Changed into the directory where the tarball contents was
+  extracted to. Then, run the :file:`unistall` script:
   
-  .. code-block:: bash
+  .. include:: ../.res/code/sh.org
+     :start-after: +uninstall+
+     :end-before: #+end-block
 
-      $ sudo ./uninstall
+Removing the |pmm-server|
+--------------------------------------------------------------------------------
 
-.. rubric:: Removing the |pmm-server|
+If you run your |pmm-server| using |docker|, stop the container as follows:
 
-If you run your |pmm-server| using a |docker|,
-stop the container as follows:
+.. include:: ../.res/code/sh.org
+   :start-after: +docker.stop.pmm-server&docker.rm.pmm-server+
+   :end-before: #+end-block
 
-.. code-block:: bash
-
-   $ docker stop pmm-server && docker rm pmm-server
-
-To discard all collected data (if you do not plan to user
+To discard all collected data (if you do not plan to use
 |pmm-server| in the future), remove the ``pmm-data``
 container:
 
-.. code-block:: bash
-
-   $ docker rm pmm-data
+.. include:: ../.res/code/sh.org
+   :start-after: +docker.rm.pmm-data+
+   :end-before: #+end-block
 
 If you run your |pmm-server| using a virtual appliance, just stop and
 remove it.
@@ -284,9 +291,9 @@ remove it.
 To terminate the |pmm-server| running from an |amazon| machine image, run
 the following command in your terminal:
 
-.. code-block:: bash
-
-   $ aws ec2 terminate-instances --instance-ids -i-XXXX-INSTANCE-ID-XXXX
+.. include:: ../.res/code/sh.org
+   :start-after: +aws.ec2.terminate-instances+
+   :end-before: #+end-block
 
 .. toctree::
    :hidden:
@@ -300,4 +307,7 @@ the following command in your terminal:
    - :ref:`architecture`
    - :ref:`pmm-admin.add`.
 
-.. include:: ../.resources/name.txt
+.. include:: ../.res/replace/name.txt
+.. include:: ../.res/replace/option.txt
+.. include:: ../.res/replace/program.txt
+.. include:: ../.res/replace/fragment.txt

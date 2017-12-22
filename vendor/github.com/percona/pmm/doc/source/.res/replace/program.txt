@@ -1,0 +1,48 @@
+
+.. Programs
+
+.. |mongod|          replace:: :program:`mongod`
+.. |pmm-admin|       replace:: :program:`pmm-admin`
+.. |sudo|            replace:: :program:`sudo`   
+.. |virtualbox|      replace:: :program:`VirtualBox`
+.. |vboxmanage|      replace:: :program:`VBoxManage`
+
+.. Commands
+
+.. |docker.cp|     replace:: :program:`docker cp`
+.. |docker.create| replace:: :program:`docker create`
+.. |docker.exec|   replace:: :program:`docker exec`
+.. |docker.images| replace:: :program:`docker images`
+.. |docker.ps|     replace:: :program:`docker ps`
+.. |docker.pull|   replace:: :program:`docker pull`
+.. |docker.rmi|    replace:: :program:`docker rmi`
+.. |docker.rm|     replace:: :program:`docker rm`
+.. |docker.run|    replace:: :program:`docker run`
+.. |docker.start|  replace:: :program:`docker start`
+.. |docker.stop|   replace:: :program:`docker stop`
+.. |docker.tag|    replace:: :program:`docker tag`
+
+.. |pmm-admin.add|            replace:: :program:`pmm-admin add`
+.. |pmm-admin.check-network|  replace:: :program:`pmm-admin check-network`
+.. |pmm-admin.config|         replace:: :program:`pmm-admin config`
+.. |pmm-admin.help|           replace:: :program:`pmm-admin help`
+.. |pmm-admin.info|           replace:: :program:`pmm-admin info`
+.. |pmm-admin.list|           replace:: :program:`pmm-admin list`
+.. |pmm-admin.ping|           replace:: :program:`pmm-admin ping`
+.. |pmm-admin.purge|          replace:: :program:`pmm-admin purge`
+.. |pmm-admin.remove|         replace:: :program:`pmm-admin remove`
+.. |pmm-admin.repair|         replace:: :program:`pmm-admin repair`
+.. |pmm-admin.restart|        replace:: :program:`pmm-admin restart`
+.. |pmm-admin.rm|             replace:: :program:`pmm-admin rm`
+.. |pmm-admin.show-passwords| replace:: :program:`pmm-admin show-passwords`
+.. |pmm-admin.start|          replace:: :program:`pmm-admin start`
+.. |pmm-admin.stop|           replace:: :program:`pmm-admin stop`
+.. |pmm-admin.uninstall|      replace:: :program:`pmm-admin uninstall`
+
+.. |sql.delete|        replace:: :program:`DELETE`
+.. |sql.explain|       replace:: :program:`EXPLAIN`
+.. |sql.insert|        replace:: :program:`INSERT`
+.. |sql.replace|       replace:: :program:`REPLACE`
+.. |sql.select|        replace:: :program:`SELECT`
+.. |sql.show-status|   replace:: :program:`SHOW STATUS`
+.. |sql.update|        replace:: :program:`UPDATE`

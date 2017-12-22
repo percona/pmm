@@ -10,28 +10,26 @@ is a :command:`tar` archive with necessary files that follow the *Open
 Virtualization Format* (OVF).  OVF is supported by most popular virtualization
 platforms, including:
 
-* `VMware <http://www.vmware.com/>`_
-* `Red Hat Virtualization <https://www.redhat.com/en/technologies/virtualization>`_
-* `VirtualBox <https://www.virtualbox.org/>`_
-* `XenServer <https://www.xenserver.org/>`_
-* `Microsoft System Center Virtual Machine Manager <https://www.microsoft.com/en-us/cloud-platform/system-center>`_
+* `VMware - ESXi 6.5`_
+* `Red Hat Virtualization`_
+* `VirtualBox`_
+* `XenServer`_
+* `Microsoft System Center Virtual Machine Manager`_
 
-The virtual appliance is ideal for running |pmm-server|
-on an enterprise virtualization platform of your choice.
-This page provides examples for running the appliance in |virtualbox|
-and VMware Workstation Player,
-which is a good choice to experiment with PMM
-at a smaller scale on a local machine.
-Similar procedure should work for other platforms
-(including enterprise deployments on VMware ESXi, for example),
-but additional steps may be required.
+The virtual appliance is ideal for running |pmm-server| on an
+enterprise virtualization platform of your choice.  This page provides
+examples for running the appliance in |virtualbox| and VMware
+Workstation Player, which is a good choice to experiment with |pmm| at
+a smaller scale on a local machine.  Similar procedure should work for
+other platforms (including enterprise deployments on VMware ESXi, for
+example), but additional steps may be required.
 
-.. note:: The virtual machine used for the appliance runs CentOS 7.
+.. note:: The virtual machine used for the appliance runs |centos| 7.
 
-.. warning:: The appliance must run in a network with DHCP,
-   which will automatically assign an IP address for it.
-   Currently it is not possible to run it in a network without DHCP
-   and manually assign a static IP for the appliance.
+.. warning:: The appliance must run in a network with DHCP, which will
+   automatically assign an IP address for it.  Currently it is not
+   possible to run it in a network without DHCP and manually assign a
+   static IP for the appliance.
 
 Running in VMware Workstation Player
 ================================================================================
@@ -45,12 +43,12 @@ using VMware Workstation Player:
 
 #. Import the appliance.
 
-   1. Open the **File** menu and click **Open...**.
+   1. Open the |gui.file| menu and click |gui.open|.
 
-   #. Specify the path to the OVA and click **Continue**.
+   #. Specify the path to the OVA and click |gui.continue|.
 
       .. note:: You may get an error indicating that import failed.
-         Simply click **Retry** and import should succeed.
+         Simply click |gui.retry| and import should succeed.
 
 #. Configure network settings to make the appliance accessible
    from other hosts in your network.
@@ -103,12 +101,12 @@ using the graphical user interface of VirtualBox:
 Running in VirtualBox Using the Command Line
 ============================================
 
-Instead of using the VirtualBox GUI,
+Instead of using the |virtualbox| GUI,
 you can do everything on the command line.
 Use the ``VBoxManage`` command to import, configure,
 and start the appliance.
 
-The following script imports the *PMM Server* appliance
+The following script imports the |pmm-server| appliance
 from :file:`PMM-Server-2017-01-24.ova`
 and configures it to bridge the `en0` adapter from the host.
 Then the script routes console output from the appliance
@@ -119,24 +117,9 @@ To get the IP address for accessing PMM,
 the script waits for 1 minute until the appliance boots up
 and returns the lines with the IP address from the log file.
 
-.. code-block:: text
-
-   # Import image
-   VBoxManage import PMM-Server-2017-01-24.ova
-
-   # Modify NIC settings if needed
-   VBoxManage list bridgedifs
-   VBoxManage modifyvm 'PMM Server [2017-01-24]' --nic1 bridged --bridgeadapter1 'en0: Wi-Fi (AirPort)'
-
-   # Log console output into file
-   VBoxManage modifyvm 'PMM Server [2017-01-24]' --uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
-
-   # Start instance
-   VBoxManage startvm --type headless 'PMM Server [2017-01-24]'
-
-   # Wait for 1 minute and get IP address from the log
-   sleep 60
-   grep cloud-init /tmp/pmm-server-console.log
+.. include:: ../../.res/code/sh.org
+   :start-after: +vboxmanage+
+   :end-before: #+end-block
 
 To use this script, change the name of the image to the latest version
 downloaded from the `Download Percona Monitoring and Management` site
@@ -170,5 +153,7 @@ assigned to the virtual appliance,
 then :ref:`install PMM Client <install-client>`
 on all database hosts that you want to monitor.
 
-.. include:: ../../.resources/name.txt
-.. include:: ../../.resources/url.txt
+.. include:: ../../.res/replace/name.txt
+.. include:: ../../.res/replace/program.txt
+.. include:: ../../.res/replace/option.txt
+.. include:: ../../.res/replace/url.txt

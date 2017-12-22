@@ -42,7 +42,7 @@ type Logger interface {
 }
 
 // Printf is a (fmt.Printf|log.Printf|testing.T.Logf)-like function.
-type Printf func(format string, a ...interface{})
+type Printf func(format string, args ...interface{})
 
 // PrintfLogger is a simple query logger.
 type PrintfLogger struct {
@@ -96,4 +96,4 @@ func (pl *PrintfLogger) After(query string, args []interface{}, d time.Duration,
 }
 
 // check interface
-var _ Logger = new(PrintfLogger)
+var _ Logger = (*PrintfLogger)(nil)

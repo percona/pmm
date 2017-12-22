@@ -1,0 +1,24 @@
+.. -*- mode: rst -*-
+
+.. URLs
+
+.. _mongodb: https://www.mongodb.com
+.. _orchestrator: https://www.percona.com/blog/2016/03/08/orchestrator-mysql-replication-topology-manager/
+.. _myrocks: http://myrocks.io
+.. _v.percona.com: http://v.percona.com
+.. _`percona/pmm-server`: https://hub.docker.com/r/percona/pmm-server/tags/
+.. _btrfs: https://btrfs.wiki.kernel.org
+.. _`AWS Marketplace`: https://aws.amazon.com/marketplace
+.. _`download percona monitoring and management`: https://www.percona.com/downloads/pmm
+.. _`Docker Docs`: https://docs.docker.com
+.. _`Orchestrator Manual`: https://github.com/outbrain/orchestrator/wiki/Orchestrator-Manual
+.. _`Grafana Docs`: http://docs.grafana.org/
+.. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
+.. _`Consul Docs`: https://www.consul.io/docs/
+.. _`VMware`: http://www.vmware.com/
+.. _`VMware - ESXi 6.5`: https://www.vmware.com/products/esxi-and-esx.html
+.. _`Red Hat Virtualization`: https://www.redhat.com/en/technologies/virtualization
+.. _`VirtualBox`: https://www.virtualbox.org/
+.. _`XenServer`: https://www.xenserver.org/
+.. _`Microsoft System Center Virtual Machine Manager`: https://www.microsoft.com/en-us/cloud-platform/system-center
+

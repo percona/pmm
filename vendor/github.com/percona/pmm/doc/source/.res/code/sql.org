@@ -1,0 +1,41 @@
+
+* grant
+
+#+begin-block: grant super process replication slave reload on
++grant.orc-client-user+
+
+.. code-block:: guess
+
+   GRANT SUPER, PROCESS, REPLICATION SLAVE, RELOAD ON *.*
+   TO 'orc_client_user'@'%'
+   IDENTIFIED BY 'orc_client_password’;
+
+#+end-block
+
+* show variables
+
+#+begin-block: show variables like performance_schema
++show-variables.like.performance-schema+
+
+.. code-block:: sql
+
+      mysql> SHOW VARIABLES LIKE 'performance_schema';
+      +--------------------+-------+
+      | Variable_name      | Value |
+      +--------------------+-------+
+      | performance_schema | ON    |
+      +--------------------+-------+
+
+#+end-block
+
+* my.conf
+
+#+begin-block: my-conf mysql performance_schema
++my-conf.mysql.performance-schema+
+
+.. code-block:: sql
+
+      [mysql]
+      performance_schema=ON
+
+#+end-block

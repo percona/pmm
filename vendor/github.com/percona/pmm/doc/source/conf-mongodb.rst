@@ -4,16 +4,16 @@
 Configuring profiling in MongoDB
 ================================================================================
 
-For `MongoDB`_ to work correctly with QAN (Query Analytics), you need to enable
-profiling in your :program:`mongod` configuration. When started without
-profiling enabled, QAN displays the following warning:
+For `MongoDB`_ to work correctly with |qan.intro|, you need to enable
+profiling in your |mongod| configuration. When started without
+profiling enabled, |qan| displays the following warning:
 
 .. note:: **The warning message displayed when profiling is not enabled**
 
-   It is required that profiling of monitored MongoDB databases be enabled.
+   It is required that profiling of monitored |mongodb| databases be enabled.
 
    Note that profiling is not enabled by default because it may reduce the
-   performance of your MongoDB server.
+   performance of your |mongodb| server.
 
 .. _pmm/qan/mongodb/conf/profiling.command_line.enable:
 
@@ -23,18 +23,20 @@ Enabling Profiling on Command Line
 You can enable profiling from command line when you start the :program:`mongod`
 server. This command is useful if you start :program:`mongod` manually.
 
-.. code-block:: bash
+|tip.run-this.root|
 
-   $ sudo mongod --dbpath=DATABASEDIR --profile 1 --slowms 200 --rateLimit 100
+.. include:: .res/code/sh.org
+   :start-after: +mongod.dbpath.profile.slowms.ratelimit+
+   :end-before: #+end-block
 
 Note that you need to specify a path to an existing directory that stores
-database files with the :option:`dbpath`. When the :option:`profile` option
-is set to **1**, :program:`mongod` only collects the profiling data for slow
-operations. The :option:`slowms` option sets the minimum time for a slow
+database files with the |opt.dbpath|. When the |opt.profile| option
+is set to **1**, |mongod| only collects the profiling data for slow
+operations. The |opt.slowms| option sets the minimum time for a slow
 operation. In the given example, any operation which takes longer than **200**
 milliseconds is a slow operation.
 
-The :option:`rateLimit` option refers to the number of queries that the MongoDB
+The |opt.rate-limit| option refers to the number of queries that the |mongodb|
 profiler collects. The lower the rate limit, the less impact on the
 performance. However, the accuracy of the collected information decreases as
 well.
@@ -42,22 +44,16 @@ well.
 Enabling Profiling in the Configuration File
 --------------------------------------------------------------------------------
 
-If you run *mongod* as a service, you need to use the configuration file which
-is found by default as follows:
+If you run |mongod| as a service, you need to use the configuration file which
+by default is |etc.mongod.conf|.
 
-.. code-block:: bash
-
-   /etc/mongod.conf
-
-In this file, you need to locate the *#operationProfiling:* section and add the
+In this file, you need to locate the *operationProfiling:* section and add the
 following settings:
 
-.. code-block:: yaml
+.. include:: .res/code/yaml.org
+   :start-after: +operationprofiling+
+   :end-before: #+end-block
 
-   operationProfiling:
-      slowOpThresholdMs: 200
-      mode: slowOp
-      rateLimit: 100
 
 These settings affect :program:`mongod` in the same way as the command line
 options described in section
@@ -73,7 +69,7 @@ Restart the *mongod* service to enable the settings.
 
 .. seealso:: 
 
-   .. rubric:: Official MongoDB documentation:
+   .. rubric:: *Official MongoDB documentation:*
    
    Enabling Profiling
       https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/
@@ -84,7 +80,7 @@ Restart the *mongod* service to enable the settings.
    Profiler Overhead
       https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/#profiler-overhead
       
-   .. rubric:: Percona documentation:
+   .. rubric:: *Percona documentation:*
 
    Profiling Rate Limit
       https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html
@@ -92,3 +88,8 @@ Restart the *mongod* service to enable the settings.
 
 .. _YAML: http://yaml.org/spec/
 .. _MongoDB: https://www.mongodb.com/
+
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/fragment.txt

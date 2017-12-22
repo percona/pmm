@@ -88,18 +88,29 @@ and QAN stores query data for 8 days.
 Depending on available disk space and your requirements,
 you may need to adjust data retention time.
 
-You can control data retention by passing
-the ``METRICS_RETENTION`` and ``QUERIES_RETENTION`` environment variables
-when :ref:`creating and running the PMM Server container <server-container>`.
-To set environment variables, use the ``-e`` option.
-The value is passed as a combination of hours, minutes, and seconds.
-For example, the default value of 30 days
-for ``METRICS_RETENTION`` is ``720h0m0s``.
-You probably do not need to be more precise than the number hours,
-so you can discard the minutes and seconds.
-For example, to decrease the retention period for Prometheus to 8 days::
+You can control data retention by passing the :term:`METRICS_RETENTION
+<METRICS_RETENTION (Option)>` and :term:`QUERIES_RETENTION
+<QUERIES_RETENTION (Option)>` environment variables when
+:ref:`creating and running the PMM Server container
+<server-container>`.  To set environment variables, use the ``-e``
+option.  The value is passed as a combination of hours, minutes, and
+seconds.  For example, the default value of 30 days for
+``METRICS_RETENTION`` is ``720h0m0s``.  You probably do not need to be
+more precise than the number hours, so you can discard the minutes and
+seconds.  For example, to decrease the retention period for
+|prometheus| to 8 days::
 
- -e METRICS_RETENTION=192h
+-e METRICS_RETENTION=192h
+
+.. seealso::
+
+   Metrics retention
+
+      :term:`METRICS_RETENTION <METRICS_RETENTION (Option)>`
+
+   Queries retention
+
+      :term:`QUERIES_RETENTION <QUERIES_RETENTION (Option)>`
 
 .. _service-location:
 
@@ -227,7 +238,7 @@ it will create a user with only the necessary privileges for collecting data.
 You can also set up the ``pmm`` user manually with necessary privileges
 and pass its credentials when adding the instance.
 
-To enable complete MySQL instance monitoring,
+To enable complete |mysql| instance monitoring,
 a command similar to the following is recommended:
 
 .. prompt:: bash
@@ -370,5 +381,7 @@ You need to create Orchestrator's topology user on |mysql|
 according to :ref:`this section <pmm/using.orchestrator>`.
 
 
-.. include:: .resources/name.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/program.txt
 

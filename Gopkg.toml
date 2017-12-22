@@ -16,11 +16,6 @@ required = [
   version = "1.8.2"
 
 [[constraint]]
-  # we need allow_delete_body
-  name = "github.com/grpc-ecosystem/grpc-gateway"
-  branch = "master"
-
-[[constraint]]
   # this branch is not merged yet
   name = "github.com/percona/kardianos-service"
   branch = "PMM-1710-supervisord"

@@ -15,8 +15,6 @@ type StructData struct {
 
 var (
 	prologTemplate = template.Must(template.New("prolog").Parse(`
-// generated with gopkg.in/reform.v1
-
 import (
 	"fmt"
 	"strings"
@@ -129,9 +127,9 @@ func (s *{{ .Type }}) HasPK() bool {
 // SetPK sets record primary key.
 func (s *{{ .Type }}) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.{{ .PKField.Name }} = {{ .PKField.PKType }}(i64)
+		s.{{ .PKField.Name }} = {{ .PKField.Type }}(i64)
 	} else {
-		s.{{ .PKField.Name }} = pk.({{ .PKField.PKType }})
+		s.{{ .PKField.Name }} = pk.({{ .PKField.Type }})
 	}
 }
 
@@ -140,12 +138,12 @@ func (s *{{ .Type }}) SetPK(pk interface{}) {
 // check interfaces
 var (
 	_ reform.View   = {{ .TableVar }}
-	_ reform.Struct = new({{ .Type }})
+	_ reform.Struct = (*{{ .Type }})(nil)
 {{- if .IsTable }}
 	_ reform.Table  = {{ .TableVar }}
-	_ reform.Record = new({{ .Type }})
+	_ reform.Record = (*{{ .Type }})(nil)
 {{- end }}
-	_ fmt.Stringer  = new({{ .Type }})
+	_ fmt.Stringer  = (*{{ .Type }})(nil)
 )
 `))
 

@@ -1,98 +1,138 @@
-all: test test_lib_pq test_mattn_go-sqlite3 test_go-sql-driver_mysql
+all: test-dc check
 
-init:
+# extra flags like -v
+REFORM_TEST_FLAGS ?=
+
+# SHELL = go run .github/shell.go
+
+# install dependencies
+deps:
 	go get -u github.com/lib/pq
-	go get -u github.com/jackc/pgx/stdlib
-	go get -u github.com/mattn/go-sqlite3
 	go get -u github.com/go-sql-driver/mysql
-	go get -u github.com/ziutek/mymysql/...
+	go get -u github.com/mattn/go-sqlite3
 	go get -u github.com/denisenkom/go-mssqldb
+
 	go get -u github.com/AlekSi/pointer
-	go get -u github.com/kisielk/errcheck
-	go get -u github.com/golang/lint/golint
 	go get -u github.com/stretchr/testify/...
 	go get -u github.com/enodata/faker
-	go get -u github.com/mattn/goveralls
+	go get -u gopkg.in/alecthomas/gometalinter.v1
+	go get -u github.com/AlekSi/gocoverutil
 
-install:
+	gometalinter.v1 --install
+
+# run all linters
+check:
+	-gometalinter.v1 ./... --deadline=180s --severity=vet:error
+
+# run unit tests, generate models, install tools
+test:
+	rm -f *.cover coverage.txt
 	rm -f internal/test/models/*_reform.go
-	go install -v gopkg.in/reform.v1/...
+	rm -f reform-db/*_reform.go
 
-test: install
-	go test -coverprofile=parse.cover gopkg.in/reform.v1/parse
+	go install -v gopkg.in/reform.v1/reform
+	go test $(REFORM_TEST_FLAGS) -covermode=count -coverprofile=parse.cover gopkg.in/reform.v1/parse
 	go generate -v -x gopkg.in/reform.v1/internal/test/models
 	go install -v gopkg.in/reform.v1/internal/test/models
-	go test -i -v
 
-check: test
-	go vet ./...
-	-errcheck ./...
-	golint ./...
+	go generate -v -x gopkg.in/reform.v1/reform-db
+	go install -v gopkg.in/reform.v1/reform-db
 
-test_lib_pq: export REFORM_TEST_DRIVER = postgres
-test_lib_pq: export REFORM_TEST_SOURCE = postgres://localhost:5432/reform-test?sslmode=disable&TimeZone=America/New_York
-test_lib_pq:
-	-dropdb reform-test
-	createdb reform-test
-	env PGTZ=UTC psql -v ON_ERROR_STOP=1 -q -d reform-test < internal/test/sql/postgresql_init.sql
-	env PGTZ=UTC psql -v ON_ERROR_STOP=1 -q -d reform-test < internal/test/sql/data.sql
-	env PGTZ=UTC psql -v ON_ERROR_STOP=1 -q -d reform-test < internal/test/sql/postgresql_data.sql
-	env PGTZ=UTC psql -v ON_ERROR_STOP=1 -q -d reform-test < internal/test/sql/postgresql_set.sql
-	go test -coverprofile=test_lib_pq.cover
+# initialize database and run integration tests
+test-db:
+	-reform-db -db-driver="$(REFORM_DRIVER)" -db-source="$(REFORM_ROOT_SOURCE)" -db-wait=15s exec \
+		internal/test/sql/$(REFORM_DATABASE)_drop.sql
+	reform-db -db-driver="$(REFORM_DRIVER)" -db-source="$(REFORM_ROOT_SOURCE)" exec \
+		internal/test/sql/$(REFORM_DATABASE)_create.sql
+	reform-db -db-driver="$(REFORM_DRIVER)" -db-source="$(REFORM_INIT_SOURCE)" exec \
+		internal/test/sql/$(REFORM_DATABASE)_init.sql \
+		internal/test/sql/data.sql \
+		internal/test/sql/$(REFORM_DATABASE)_data.sql \
+		internal/test/sql/$(REFORM_DATABASE)_set.sql
+	go test $(REFORM_TEST_FLAGS) -covermode=count -coverprofile=reform-db.cover gopkg.in/reform.v1/reform-db
+	go test $(REFORM_TEST_FLAGS) -covermode=count -coverprofile=reform.cover
+	gocoverutil -coverprofile=coverage.txt merge *.cover
+	rm -f *.cover
 
-# currently broken due to pgx's timezone handling
-test_jackc_pgx: export REFORM_TEST_DRIVER = pgx
-test_jackc_pgx: export REFORM_TEST_SOURCE = postgres://localhost:5432/reform-test?sslmode=disable
-test_jackc_pgx:
-	-dropdb reform-test
-	createdb reform-test
-	env PGTZ=UTC psql -v ON_ERROR_STOP=1 -q -d reform-test < internal/test/sql/postgresql_init.sql
-	env PGTZ=UTC psql -v ON_ERROR_STOP=1 -q -d reform-test < internal/test/sql/data.sql
-	env PGTZ=UTC psql -v ON_ERROR_STOP=1 -q -d reform-test < internal/test/sql/postgresql_set.sql
-	go test
+# run all integration tests with Docker Compose
+test-dc:
+	go run .github/test-dc.go test
 
-test_mattn_go-sqlite3: export REFORM_TEST_DRIVER = sqlite3
-test_mattn_go-sqlite3: export REFORM_TEST_SOURCE = reform-test.sqlite3
-test_mattn_go-sqlite3:
-	rm -f reform-test.sqlite3
-	sqlite3 -bail reform-test.sqlite3 < internal/test/sql/sqlite3_init.sql
-	sqlite3 -bail reform-test.sqlite3 < internal/test/sql/data.sql
-	sqlite3 -bail reform-test.sqlite3 < internal/test/sql/sqlite3_set.sql
-	go test -coverprofile=test_mattn_go-sqlite3.cover
+# run unit tests and integration tests for PostgreSQL
+postgres: export REFORM_DATABASE = postgres
+postgres: export REFORM_DRIVER = postgres
+postgres: export REFORM_ROOT_SOURCE = postgres://postgres@127.0.0.1/template1?sslmode=disable
+postgres: export REFORM_INIT_SOURCE = postgres://postgres@127.0.0.1/reform-database?sslmode=disable&TimeZone=UTC
+postgres: export REFORM_TEST_SOURCE = postgres://postgres@127.0.0.1/reform-database?sslmode=disable&TimeZone=America/New_York
+postgres: test
+	make test-db
 
-test_go-sql-driver_mysql: export REFORM_TEST_DRIVER = mysql
-test_go-sql-driver_mysql: export REFORM_TEST_SOURCE = root@/reform-test?parseTime=true&strict=true&sql_notes=false&time_zone='America%2FNew_York'
-test_go-sql-driver_mysql:
-	echo 'DROP DATABASE IF EXISTS `reform-test`;' | mysql -uroot
-	echo 'CREATE DATABASE `reform-test`;' | mysql -uroot
-	mysql -uroot reform-test < internal/test/sql/mysql_init.sql
-	mysql -uroot reform-test < internal/test/sql/data.sql
-	mysql -uroot reform-test < internal/test/sql/mysql_set.sql
-	go test -coverprofile=test_go-sql-driver_mysql.cover
+# run unit tests and integration tests for MySQL (ANSI SQL mode)
+mysql: export REFORM_DATABASE = mysql
+mysql: export REFORM_DRIVER = mysql
+mysql: export REFORM_ROOT_SOURCE = root@/mysql
+mysql: export REFORM_INIT_SOURCE = root@/reform-database?parseTime=true&clientFoundRows=true&time_zone='UTC'&sql_mode='ANSI'&multiStatements=true
+mysql: export REFORM_TEST_SOURCE = root@/reform-database?parseTime=true&clientFoundRows=true&time_zone='America%2FNew_York'&sql_mode='ANSI'
+mysql: test
+	make test-db
 
-# currently broken due to mymysql's timezone handling
-test_ziutek_mymysql: export REFORM_TEST_DRIVER = mymysql
-test_ziutek_mymysql: export REFORM_TEST_SOURCE = reform-test/root/
-test_ziutek_mymysql:
-	echo 'DROP DATABASE IF EXISTS `reform-test`;' | mysql -uroot
-	echo 'CREATE DATABASE `reform-test`;' | mysql -uroot
-	mysql -uroot reform-test < internal/test/sql/mysql_init.sql
-	mysql -uroot reform-test < internal/test/sql/data.sql
-	mysql -uroot reform-test < internal/test/sql/mysql_set.sql
-	go test
+# run unit tests and integration tests for MySQL (traditional SQL mode + interpolateParams)
+mysql-traditional: export REFORM_DATABASE = mysql
+mysql-traditional: export REFORM_DRIVER = mysql
+mysql-traditional: export REFORM_ROOT_SOURCE = root@/mysql
+mysql-traditional: export REFORM_INIT_SOURCE = root@/reform-database?parseTime=true&clientFoundRows=true&time_zone='UTC'&sql_mode='ANSI'&multiStatements=true
+mysql-traditional: export REFORM_TEST_SOURCE = root@/reform-database?parseTime=true&clientFoundRows=true&time_zone='America%2FNew_York'&sql_mode='TRADITIONAL'&interpolateParams=true
+mysql-traditional: test
+	make test-db
 
-# this target is configured for Windows
-test_denisenkom_go-mssqldb: REFORM_SQL_INSTANCE ?= 127.0.0.1\SQLEXPRESS
-test_denisenkom_go-mssqldb: export REFORM_TEST_DRIVER = mssql
-test_denisenkom_go-mssqldb: export REFORM_TEST_SOURCE = server=$(REFORM_SQL_INSTANCE);database=reform-test
-test_denisenkom_go-mssqldb:
-	-sqlcmd -b -I -S "$(REFORM_SQL_INSTANCE)" -Q "DROP DATABASE [reform-test];"
-	sqlcmd -b -I -S "$(REFORM_SQL_INSTANCE)" -Q "CREATE DATABASE [reform-test];"
-	sqlcmd -b -I -S "$(REFORM_SQL_INSTANCE)" -d "reform-test" -i internal/test/sql/mssql_init.sql
-	sqlcmd -b -I -S "$(REFORM_SQL_INSTANCE)" -d "reform-test" -i internal/test/sql/mssql_data.sql
-	sqlcmd -b -I -S "$(REFORM_SQL_INSTANCE)" -d "reform-test" -i internal/test/sql/mssql_set.sql
-	go test -coverprofile=test_denisenkom_go-mssqldb.cover
+# run unit tests and integration tests for SQLite3
+sqlite3: export REFORM_DATABASE = sqlite3
+sqlite3: export REFORM_DRIVER = sqlite3
+sqlite3: export REFORM_ROOT_SOURCE = /tmp/reform-database.sqlite3
+sqlite3: export REFORM_INIT_SOURCE = /tmp/reform-database.sqlite3
+sqlite3: export REFORM_TEST_SOURCE = /tmp/reform-database.sqlite3
+sqlite3: test
+	rm -f /tmp/reform-database.sqlite3
+	make test-db
 
-parse:
-	# nothing, hack for our Travis-CI configuration
-	# see 'test' target here and $TARGET in .travis.yml
+# run unit tests and integration tests for SQL Server (mssql driver)
+mssql: export REFORM_DATABASE = mssql
+mssql: export REFORM_DRIVER = mssql
+mssql: export REFORM_ROOT_SOURCE = server=localhost;user id=sa;password=reform-password123
+mssql: export REFORM_INIT_SOURCE = server=localhost;user id=sa;password=reform-password123;database=reform-database
+mssql: export REFORM_TEST_SOURCE = server=localhost;user id=sa;password=reform-password123;database=reform-database
+mssql: test
+	make test-db
+
+# run unit tests and integration tests for SQL Server (sqlserver driver)
+sqlserver: export REFORM_DATABASE = mssql
+sqlserver: export REFORM_DRIVER = sqlserver
+sqlserver: export REFORM_ROOT_SOURCE = server=localhost;user id=sa;password=reform-password123
+sqlserver: export REFORM_INIT_SOURCE = server=localhost;user id=sa;password=reform-password123;database=reform-database
+sqlserver: export REFORM_TEST_SOURCE = server=localhost;user id=sa;password=reform-password123;database=reform-database
+sqlserver: test
+	make test-db
+
+# Windows: run unit tests and integration tests for SQL Server (mssql driver)
+win-mssql: REFORM_SQL_HOST ?= 127.0.0.1
+win-mssql: REFORM_SQL_INSTANCE ?= SQLEXPRESS
+win-mssql: export REFORM_DATABASE = mssql
+win-mssql: export REFORM_DRIVER = mssql
+win-mssql: export REFORM_ROOT_SOURCE = server=$(REFORM_SQL_HOST)\$(REFORM_SQL_INSTANCE)
+win-mssql: export REFORM_INIT_SOURCE = server=$(REFORM_SQL_HOST)\$(REFORM_SQL_INSTANCE);database=reform-database
+win-mssql: export REFORM_TEST_SOURCE = server=$(REFORM_SQL_HOST)\$(REFORM_SQL_INSTANCE);database=reform-database
+win-mssql: test
+	mingw32-make test-db
+
+# Windows: run unit tests and integration tests for SQL Server (sqlserver driver)
+win-sqlserver: REFORM_SQL_HOST ?= 127.0.0.1
+win-sqlserver: REFORM_SQL_INSTANCE ?= SQLEXPRESS
+win-sqlserver: export REFORM_DATABASE = mssql
+win-sqlserver: export REFORM_DRIVER = sqlserver
+win-sqlserver: export REFORM_ROOT_SOURCE = sqlserver://$(REFORM_SQL_HOST)/$(REFORM_SQL_INSTANCE)
+win-sqlserver: export REFORM_INIT_SOURCE = sqlserver://$(REFORM_SQL_HOST)/$(REFORM_SQL_INSTANCE)?database=reform-database
+win-sqlserver: export REFORM_TEST_SOURCE = sqlserver://$(REFORM_SQL_HOST)/$(REFORM_SQL_INSTANCE)?database=reform-database
+win-sqlserver: test
+	mingw32-make test-db
+
+.PHONY: docs parse reform reform-db

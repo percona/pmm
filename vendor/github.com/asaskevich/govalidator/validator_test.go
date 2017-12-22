@@ -536,6 +536,37 @@ func TestIsInt(t *testing.T) {
 	}
 }
 
+
+func TestIsHash(t *testing.T) {
+	t.Parallel()
+
+	var tests = []struct {
+		param    string
+		algo 	 string
+		expected bool
+	}{
+		{"3ca25ae354e192b26879f651a51d92aa8a34d8d3", "sha1", true},
+		{"3ca25ae354e192b26879f651a51d34d8d3", "sha1", false},
+		{"3ca25ae354e192b26879f651a51d92aa8a34d8d3", "Tiger160", true},
+		{"3ca25ae354e192b26879f651a51d34d8d3", "ripemd160", false},
+		{"579282cfb65ca1f109b78536effaf621b853c9f7079664a3fbe2b519f435898c", "sha256", true},
+		{"579282cfb65ca1f109b78536effaf621b853c9f7079664a3fbe2b519f435898casfdsafsadfsdf", "sha256", false},
+		{"bf547c3fc5841a377eb1519c2890344dbab15c40ae4150b4b34443d2212e5b04aa9d58865bf03d8ae27840fef430b891", "sha384", true},
+		{"579282cfb65ca1f109b78536effaf621b853c9f7079664a3fbe2b519f435898casfdsafsadfsdf", "sha384", false},
+		{"45bc5fa8cb45ee408c04b6269e9f1e1c17090c5ce26ffeeda2af097735b29953ce547e40ff3ad0d120e5361cc5f9cee35ea91ecd4077f3f589b4d439168f91b9", "sha512", true},
+		{"579282cfb65ca1f109b78536effaf621b853c9f7079664a3fbe2b519f435898casfdsafsadfsdf", "sha512", false},
+		{"46fc0125a148788a3ac1d649566fc04eb84a746f1a6e4fa7", "tiger192", true},
+		{"46fc0125a148788a3ac1d649566fc04eb84a746f1a6$$%@^", "TIGER192", false},
+		{"46fc0125a148788a3ac1d649566fc04eb84a746f1a6$$%@^", "SOMEHASH", false},
+	}
+	for _, test := range tests {
+		actual := IsHash(test.param, test.algo)
+		if actual != test.expected {
+			t.Errorf("Expected IsHash(%q, %q) to be %v, got %v", test.param, test.algo, test.expected, actual)
+		}
+	}
+}
+
 func TestIsEmail(t *testing.T) {
 	t.Parallel()
 
@@ -549,6 +580,8 @@ func TestIsEmail(t *testing.T) {
 		{"foo@bar.com.au", true},
 		{"foo+bar@bar.com", true},
 		{"foo@bar.coffee", true},
+		{"foo@bar.coffee..coffee", false},
+		{"foo@bar.bar.coffee", true},
 		{"foo@bar.中文网", true},
 		{"invalidemail@", false},
 		{"invalid.com", false},
@@ -631,6 +664,7 @@ func TestIsURL(t *testing.T) {
 		{"https://pbs.twimg.com/profile_images/560826135676588032/j8fWrmYY_normal.jpeg", true},
 		// according to #125
 		{"http://prometheus-alertmanager.service.q:9093", true},
+		{"aio1_alertmanager_container-63376c45:9093", true},
 		{"https://www.logn-123-123.url.with.sigle.letter.d:12345/url/path/foo?bar=zzz#user", true},
 		{"http://me.example.com", true},
 		{"http://www.me.example.com", true},
@@ -651,6 +685,18 @@ func TestIsURL(t *testing.T) {
 		{"http://[1200:0000:AB00:1234:0000:2552:7777:1313]", true},
 		{"http://user:pass@[::1]:9093/a/b/c/?a=v#abc", true},
 		{"https://127.0.0.1/a/b/c?a=v&c=11d", true},
+		{"https://foo_bar.example.com", true},
+		{"http://foo_bar.example.com", true},
+		{"http://foo_bar_fizz_buzz.example.com", true},
+		{"http://_cant_start_with_underescore", false},
+		{"http://cant_end_with_underescore_", false},
+		{"foo_bar.example.com", true},
+		{"foo_bar_fizz_buzz.example.com", true},
+		{"http://hello_world.example.com", true},
+		// According to #212
+		{"foo_bar-fizz-buzz:1313", true},
+		{"foo_bar-fizz-buzz:13:13", false},
+		{"foo_bar-fizz-buzz://1313", false},
 	}
 	for _, test := range tests {
 		actual := IsURL(test.param)
@@ -970,6 +1016,7 @@ func TestIsMultibyte(t *testing.T) {
 		{"test＠example.com", true},
 		{"1234abcDEｘｙｚ", true},
 		{"ｶﾀｶﾅ", true},
+		{"", true},
 	}
 	for _, test := range tests {
 		actual := IsMultibyte(test.param)
@@ -1401,6 +1448,64 @@ func TestIsISO3166Alpha3(t *testing.T) {
 	}
 }
 
+func TestIsISO693Alpha2(t *testing.T) {
+	t.Parallel()
+
+	var tests = []struct {
+		param    string
+		expected bool
+	}{
+		{"", false},
+		{"abcd", false},
+		{"a", false},
+		{"ac", false},
+		{"ap", false},
+		{"de", true},
+		{"DE", false},
+		{"mk", true},
+		{"mac", false},
+		{"sw", true},
+		{"SW", false},
+		{"ger", false},
+		{"deu", false},
+	}
+	for _, test := range tests {
+		actual := IsISO693Alpha2(test.param)
+		if actual != test.expected {
+			t.Errorf("Expected IsISO693Alpha2(%q) to be %v, got %v", test.param, test.expected, actual)
+		}
+	}
+}
+
+func TestIsISO693Alpha3b(t *testing.T) {
+	t.Parallel()
+
+	var tests = []struct {
+		param    string
+		expected bool
+	}{
+		{"", false},
+		{"abcd", false},
+		{"a", false},
+		{"ac", false},
+		{"ap", false},
+		{"de", false},
+		{"DE", false},
+		{"mkd", false},
+		{"mac", true},
+		{"sw", false},
+		{"SW", false},
+		{"ger", true},
+		{"deu", false},
+	}
+	for _, test := range tests {
+		actual := IsISO693Alpha3b(test.param)
+		if actual != test.expected {
+			t.Errorf("Expected IsISO693Alpha3b(%q) to be %v, got %v", test.param, test.expected, actual)
+		}
+	}
+}
+
 func TestIsIP(t *testing.T) {
 	t.Parallel()
 
@@ -1499,17 +1604,23 @@ func TestIsDNSName(t *testing.T) {
 	}{
 		{"localhost", true},
 		{"a.bc", true},
+		{"a.b.", true},
+		{"a.b..", false},
 		{"localhost.local", true},
 		{"localhost.localdomain.intern", true},
+		{"l.local.intern", true},
+		{"ru.link.n.svpncloud.com", true},
 		{"-localhost", false},
 		{"localhost.-localdomain", false},
 		{"localhost.localdomain.-int", false},
-		{"_localhost", false},
-		{"localhost._localdomain", false},
-		{"localhost.localdomain._int", false},
+		{"_localhost", true},
+		{"localhost._localdomain", true},
+		{"localhost.localdomain._int", true},
 		{"lÖcalhost", false},
 		{"localhost.lÖcaldomain", false},
 		{"localhost.localdomain.üntern", false},
+		{"__", true},
+		{"localhost/", false},
 		{"127.0.0.1", false},
 		{"[::1]", false},
 		{"50.50.50.50", false},
@@ -1776,6 +1887,13 @@ func TestIsTime(t *testing.T) {
 		{"2016-12-31T11:00:00.05Z", time.RFC3339, true},
 		{"2016-12-31T11:00:00.05-01:00", time.RFC3339, true},
 		{"2016-12-31T11:00:00.05+01:00", time.RFC3339, true},
+		{"2016-12-31T11:00:00", RF3339WithoutZone, true},
+		{"2016-12-31T11:00:00Z", RF3339WithoutZone, false},
+		{"2016-12-31T11:00:00+01:00", RF3339WithoutZone, false},
+		{"2016-12-31T11:00:00-01:00", RF3339WithoutZone, false},
+		{"2016-12-31T11:00:00.05Z", RF3339WithoutZone, false},
+		{"2016-12-31T11:00:00.05-01:00", RF3339WithoutZone, false},
+		{"2016-12-31T11:00:00.05+01:00", RF3339WithoutZone, false},
 	}
 	for _, test := range tests {
 		actual := IsTime(test.param, test.format)
@@ -2088,7 +2206,7 @@ func TestInvalidValidator(t *testing.T) {
 
 	invalidStruct := InvalidStruct{1}
 	if valid, err := ValidateStruct(&invalidStruct); valid || err == nil ||
-		err.Error() != `Field: The following validator is invalid or can't be applied to the field: "someInvalidValidator";` {
+		err.Error() != `Field: The following validator is invalid or can't be applied to the field: "someInvalidValidator"` {
 		t.Errorf("Got an unexpected result for struct with invalid validator: %t %s", valid, err)
 	}
 }
@@ -2110,12 +2228,12 @@ func TestCustomValidator(t *testing.T) {
 		t.Errorf("Got an unexpected result for struct with custom always true validator: %t %s", valid, err)
 	}
 
-	if valid, err := ValidateStruct(&InvalidStruct{Field: 1}); valid || err == nil || err.Error() != "Custom validator error;;" {
+	if valid, err := ValidateStruct(&InvalidStruct{Field: 1}); valid || err == nil || err.Error() != "Custom validator error" {
 		t.Errorf("Got an unexpected result for struct with custom always false validator: %t %s", valid, err)
 	}
 
 	mixedStruct := StructWithCustomAndBuiltinValidator{}
-	if valid, err := ValidateStruct(&mixedStruct); valid || err == nil || err.Error() != "Field: non zero value required;" {
+	if valid, err := ValidateStruct(&mixedStruct); valid || err == nil || err.Error() != "Field: non zero value required" {
 		t.Errorf("Got an unexpected result for invalid struct with custom and built-in validators: %t %s", valid, err)
 	}
 
@@ -2448,6 +2566,8 @@ func TestValidateStruct(t *testing.T) {
 type testByteArray [8]byte
 type testByteMap map[byte]byte
 type testByteSlice []byte
+type testStringStringMap map[string]string
+type testStringIntMap map[string]int
 
 func TestRequired(t *testing.T) {
 
@@ -2531,6 +2651,22 @@ func TestRequired(t *testing.T) {
 				TestByteSlice testByteSlice `valid:"required"`
 			}{},
 			false,
+		},
+		{
+			struct {
+				TestStringStringMap testStringStringMap `valid:"required"`
+			}{
+				testStringStringMap{"test": "test"},
+			},
+			true,
+		},
+		{
+			struct {
+				TestIntMap testStringIntMap `valid:"required"`
+			}{
+				testStringIntMap{"test": 42},
+			},
+			true,
 		},
 	}
 	for _, test := range tests {
@@ -2616,10 +2752,10 @@ func TestErrorsByField(t *testing.T) {
 		param    string
 		expected string
 	}{
-		{"CustomField", "An error occured"},
+		{"CustomField", "An error occurred"},
 	}
 
-	err = Error{"CustomField", fmt.Errorf("An error occured"), false}
+	err = Error{"CustomField", fmt.Errorf("An error occurred"), false, "hello"}
 	errs = ErrorsByField(err)
 
 	if len(errs) != 1 {
@@ -2764,10 +2900,11 @@ func TestOptionalCustomValidators(t *testing.T) {
 func TestJSONValidator(t *testing.T) {
 
 	var val struct {
-		WithJSONName    string `json:"with_json_name" valid:"-,required"`
-		WithoutJSONName string `valid:"-,required"`
-		WithJSONOmit    string `json:"with_other_json_name,omitempty" valid:"-,required"`
-		WithJSONOption  string `json:",omitempty" valid:"-,required"`
+		WithJSONName      string `json:"with_json_name" valid:"-,required"`
+		WithoutJSONName   string `valid:"-,required"`
+		WithJSONOmit      string `json:"with_other_json_name,omitempty" valid:"-,required"`
+		WithJSONOption    string `json:",omitempty" valid:"-,required"`
+		WithEmptyJSONName string `json:"-" valid:"-,required"`
 	}
 
 	_, err := ValidateStruct(val)
@@ -2786,5 +2923,118 @@ func TestJSONValidator(t *testing.T) {
 
 	if Contains(err.Error(), "omitempty") {
 		t.Errorf("Expected error message to not contain ',omitempty' but actual error is: %s", err.Error())
+	}
+
+	if !Contains(err.Error(), "WithEmptyJSONName") {
+		t.Errorf("Expected error message to contain WithEmptyJSONName but actual error is: %s", err.Error())
+	}
+}
+
+func TestValidatorIncludedInError(t *testing.T) {
+	post := Post{
+		Title:    "",
+		Message:  "👍",
+		AuthorIP: "xyz",
+	}
+
+	validatorMap := map[string]string{
+		"Title":    "required",
+		"Message":  "ascii",
+		"AuthorIP": "ipv4",
+	}
+
+	ok, errors := ValidateStruct(post)
+	if ok {
+		t.Errorf("expected validation to fail %v", ok)
+	}
+
+	for _, e := range errors.(Errors) {
+		casted := e.(Error)
+		if validatorMap[casted.Name] != casted.Validator {
+			t.Errorf("expected validator for %s to be %s, but was %s", casted.Name, validatorMap[casted.Name], casted.Validator)
+		}
+	}
+
+	// check to make sure that validators with arguments (like length(1|10)) don't include the arguments
+	// in the validator name
+	message := MessageWithSeveralFieldsStruct{
+		Title: "",
+		Body:  "asdfasdfasdfasdfasdf",
+	}
+
+	validatorMap = map[string]string{
+		"Title": "length",
+		"Body":  "length",
+	}
+
+	ok, errors = ValidateStruct(message)
+	if ok {
+		t.Errorf("expected validation to fail, %v", ok)
+	}
+
+	for _, e := range errors.(Errors) {
+		casted := e.(Error)
+		if validatorMap[casted.Name] != casted.Validator {
+			t.Errorf("expected validator for %s to be %s, but was %s", casted.Name, validatorMap[casted.Name], casted.Validator)
+		}
+	}
+
+	// make sure validators with custom messages don't show up in the validator string
+	type CustomMessage struct {
+		Text string `valid:"length(1|10)~Custom message"`
+	}
+	cs := CustomMessage{Text: "asdfasdfasdfasdf"}
+
+	ok, errors = ValidateStruct(&cs)
+	if ok {
+		t.Errorf("expected validation to fail, %v", ok)
+	}
+
+	validator := errors.(Errors)[0].(Error).Validator
+	if validator != "length" {
+		t.Errorf("expected validator for Text to be length, but was %s", validator)
+	}
+
+}
+
+func TestIsRsaPublicKey(t *testing.T) {
+	var tests = []struct {
+		rsastr   string
+		keylen   int
+		expected bool
+	}{
+		{`fubar`, 2048, false},
+		{`MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvncDCeibmEkabJLmFec7x9y86RP6dIvkVxxbQoOJo06E+p7tH6vCmiGHKnuu
+XwKYLq0DKUE3t/HHsNdowfD9+NH8caLzmXqGBx45/Dzxnwqz0qYq7idK+Qff34qrk/YFoU7498U1Ee7PkKb7/VE9BmMEcI3uoKbeXCbJRI
+HoTp8bUXOpNTSUfwUNwJzbm2nsHo2xu6virKtAZLTsJFzTUmRd11MrWCvj59lWzt1/eIMN+ekjH8aXeLOOl54CL+kWp48C+V9BchyKCShZ
+B7ucimFvjHTtuxziXZQRO7HlcsBOa0WwvDJnRnskdyoD31s4F4jpKEYBJNWTo63v6lUvbQIDAQAB`, 2048, true},
+		{`MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvncDCeibmEkabJLmFec7x9y86RP6dIvkVxxbQoOJo06E+p7tH6vCmiGHKnuu
+XwKYLq0DKUE3t/HHsNdowfD9+NH8caLzmXqGBx45/Dzxnwqz0qYq7idK+Qff34qrk/YFoU7498U1Ee7PkKb7/VE9BmMEcI3uoKbeXCbJRI
+HoTp8bUXOpNTSUfwUNwJzbm2nsHo2xu6virKtAZLTsJFzTUmRd11MrWCvj59lWzt1/eIMN+ekjH8aXeLOOl54CL+kWp48C+V9BchyKCShZ
+B7ucimFvjHTtuxziXZQRO7HlcsBOa0WwvDJnRnskdyoD31s4F4jpKEYBJNWTo63v6lUvbQIDAQAB`, 1024, false},
+		{`-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvncDCeibmEkabJLmFec7
+x9y86RP6dIvkVxxbQoOJo06E+p7tH6vCmiGHKnuuXwKYLq0DKUE3t/HHsNdowfD9
++NH8caLzmXqGBx45/Dzxnwqz0qYq7idK+Qff34qrk/YFoU7498U1Ee7PkKb7/VE9
+BmMEcI3uoKbeXCbJRIHoTp8bUXOpNTSUfwUNwJzbm2nsHo2xu6virKtAZLTsJFzT
+UmRd11MrWCvj59lWzt1/eIMN+ekjH8aXeLOOl54CL+kWp48C+V9BchyKCShZB7uc
+imFvjHTtuxziXZQRO7HlcsBOa0WwvDJnRnskdyoD31s4F4jpKEYBJNWTo63v6lUv
+bQIDAQAB
+-----END PUBLIC KEY-----`, 2048, true},
+		{`-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvncDCeibmEkabJLmFec7
+x9y86RP6dIvkVxxbQoOJo06E+p7tH6vCmiGHKnuuXwKYLq0DKUE3t/HHsNdowfD9
++NH8caLzmXqGBx45/Dzxnwqz0qYq7idK+Qff34qrk/YFoU7498U1Ee7PkKb7/VE9
+BmMEcI3uoKbeXCbJRIHoTp8bUXOpNTSUfwUNwJzbm2nsHo2xu6virKtAZLTsJFzT
+UmRd11MrWCvj59lWzt1/eIMN+ekjH8aXeLOOl54CL+kWp48C+V9BchyKCShZB7uc
+imFvjHTtuxziXZQRO7HlcsBOa0WwvDJnRnskdyoD31s4F4jpKEYBJNWTo63v6lUv
+bQIDAQAB
+-----END PUBLIC KEY-----`, 4096, false},
+	}
+	for i, test := range tests {
+		actual := IsRsaPublicKey(test.rsastr, test.keylen)
+		if actual != test.expected {
+			t.Errorf("Expected TestIsRsaPublicKey(%d, %d) to be %v, got %v", i, test.keylen, test.expected, actual)
+		}
 	}
 }
