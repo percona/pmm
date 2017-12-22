@@ -31,6 +31,7 @@ type AgentType string
 
 const (
 	MySQLdExporterAgentType AgentType = "mysqld_exporter"
+	RDSExporterAgentType    AgentType = "rds_exporter"
 	QanAgentAgentType       AgentType = "qan-agent"
 )
 
@@ -89,6 +90,19 @@ func (m *MySQLdExporter) DSN(service *RDSService) string {
 
 func (m *MySQLdExporter) NameForSupervisor() string {
 	return fmt.Sprintf("pmm-%s-%d", m.Type, *m.ListenPort)
+}
+
+//reform:agents
+type RDSExporter struct {
+	ID           int32     `reform:"id,pk"`
+	Type         AgentType `reform:"type"`
+	RunsOnNodeID int32     `reform:"runs_on_node_id"`
+
+	ListenPort *uint16 `reform:"listen_port"`
+}
+
+func (r *RDSExporter) NameForSupervisor() string {
+	return fmt.Sprintf("pmm-%s-%d", r.Type, *r.ListenPort)
 }
 
 //reform:agents

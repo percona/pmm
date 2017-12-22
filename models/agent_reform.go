@@ -249,6 +249,124 @@ var (
 	_ fmt.Stringer  = (*MySQLdExporter)(nil)
 )
 
+type rDSExporterTableType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("").
+func (v *rDSExporterTableType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("agents").
+func (v *rDSExporterTableType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *rDSExporterTableType) Columns() []string {
+	return []string{"id", "type", "runs_on_node_id", "listen_port"}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *rDSExporterTableType) NewStruct() reform.Struct {
+	return new(RDSExporter)
+}
+
+// NewRecord makes a new record for that table.
+func (v *rDSExporterTableType) NewRecord() reform.Record {
+	return new(RDSExporter)
+}
+
+// PKColumnIndex returns an index of primary key column for that table in SQL database.
+func (v *rDSExporterTableType) PKColumnIndex() uint {
+	return uint(v.s.PKFieldIndex)
+}
+
+// RDSExporterTable represents agents view or table in SQL database.
+var RDSExporterTable = &rDSExporterTableType{
+	s: parse.StructInfo{Type: "RDSExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "int32", Column: "runs_on_node_id"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
+	z: new(RDSExporter).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s RDSExporter) String() string {
+	res := make([]string, 4)
+	res[0] = "ID: " + reform.Inspect(s.ID, true)
+	res[1] = "Type: " + reform.Inspect(s.Type, true)
+	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
+	res[3] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *RDSExporter) Values() []interface{} {
+	return []interface{}{
+		s.ID,
+		s.Type,
+		s.RunsOnNodeID,
+		s.ListenPort,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *RDSExporter) Pointers() []interface{} {
+	return []interface{}{
+		&s.ID,
+		&s.Type,
+		&s.RunsOnNodeID,
+		&s.ListenPort,
+	}
+}
+
+// View returns View object for that struct.
+func (s *RDSExporter) View() reform.View {
+	return RDSExporterTable
+}
+
+// Table returns Table object for that record.
+func (s *RDSExporter) Table() reform.Table {
+	return RDSExporterTable
+}
+
+// PKValue returns a value of primary key for that record.
+// Returned interface{} value is never untyped nil.
+func (s *RDSExporter) PKValue() interface{} {
+	return s.ID
+}
+
+// PKPointer returns a pointer to primary key field for that record.
+// Returned interface{} value is never untyped nil.
+func (s *RDSExporter) PKPointer() interface{} {
+	return &s.ID
+}
+
+// HasPK returns true if record has non-zero primary key set, false otherwise.
+func (s *RDSExporter) HasPK() bool {
+	return s.ID != RDSExporterTable.z[RDSExporterTable.s.PKFieldIndex]
+}
+
+// SetPK sets record primary key.
+func (s *RDSExporter) SetPK(pk interface{}) {
+	if i64, ok := pk.(int64); ok {
+		s.ID = int32(i64)
+	} else {
+		s.ID = pk.(int32)
+	}
+}
+
+// check interfaces
+var (
+	_ reform.View   = RDSExporterTable
+	_ reform.Struct = (*RDSExporter)(nil)
+	_ reform.Table  = RDSExporterTable
+	_ reform.Record = (*RDSExporter)(nil)
+	_ fmt.Stringer  = (*RDSExporter)(nil)
+)
+
 type qanAgentTableType struct {
 	s parse.StructInfo
 	z []interface{}
@@ -379,5 +497,6 @@ var (
 func init() {
 	parse.AssertUpToDate(&AgentTable.s, new(Agent))
 	parse.AssertUpToDate(&MySQLdExporterTable.s, new(MySQLdExporter))
+	parse.AssertUpToDate(&RDSExporterTable.s, new(RDSExporter))
 	parse.AssertUpToDate(&QanAgentTable.s, new(QanAgent))
 }

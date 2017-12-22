@@ -1,0 +1,11 @@
+# Managed by pmm-managed. DO NOT EDIT.
+---
+instances:
+- region: us-east-1
+  instance: rds-aurora1
+- region: us-east-1
+  instance: rds-aurora2
+- region: us-east-1
+  instance: rds-mysql56
+- region: us-east-1
+  instance: rds-mysql57
