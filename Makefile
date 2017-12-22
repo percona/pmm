@@ -13,8 +13,8 @@ init:
 
 	go get -u github.com/AlekSi/gocoverutil
 
-	go get -u gopkg.in/alecthomas/gometalinter.v1
-	gometalinter.v1 --install
+	go get -u gopkg.in/alecthomas/gometalinter.v2
+	gometalinter.v2 --install
 
 install:
 	go install -v ./...
@@ -34,7 +34,7 @@ cover: install
 	gocoverutil -ignore=github.com/percona/pmm-managed/api/... test -v -p 1 ./...
 
 check: install
-	-gometalinter.v1 --tests --vendor --skip=api --deadline=300s ./...
+	-gometalinter.v2 --tests --vendor --skip=api --deadline=300s --sort=path ./...
 
 run: install _run
 
