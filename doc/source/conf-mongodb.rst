@@ -1,7 +1,30 @@
 .. _pmm/qan/mongodb/conf:
 
 ================================================================================
-Configuring profiling in MongoDB
+Configuring |mongodb| for Monitoring in |qan.name|
+================================================================================
+
+In |qan.intro|, you can monitor |mongodb| metrics and |mongodb| queries with the
+|opt.mongodb-metrics| or |opt.mongodb-queries| monitoring services
+accordingly. Run the |pmm-admin.add| command to use these monitoring services
+(for more information, see :ref:`pmm-admin.add`).
+
+Setting Up the Essential Permissions
+================================================================================
+
+For |opt.mongodb-metrics| and |opt.mongodb-queries| monitoring services to be
+able work in |qan|, you need to set up the |mongodb-exporter| user. This user
+should be assigned the |cluster-monitor| role for the |db.admin| database and
+the *read* role for the |db.local| database.
+
+The following example that you can run in the |mongodb| shell, adds the
+|mongodb-exporter| user and assigns the appropriate roles.
+
+.. include:: .res/code/js.org
+   :start-after: +db.get-sibling-db.create-user+
+   :end-before: #+end-block
+
+Enabling Profiling
 ================================================================================
 
 For `MongoDB`_ to work correctly with |qan.intro|, you need to enable
@@ -54,7 +77,6 @@ following settings:
    :start-after: +operationprofiling+
    :end-before: #+end-block
 
-
 These settings affect :program:`mongod` in the same way as the command line
 options described in section
 :ref:`pmm/qan/mongodb/conf/profiling.command_line.enable`. Note that the
@@ -85,11 +107,8 @@ Restart the *mongod* service to enable the settings.
    Profiling Rate Limit
       https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html
 
-
-.. _YAML: http://yaml.org/spec/
-.. _MongoDB: https://www.mongodb.com/
-
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/program.txt
 .. include:: .res/replace/option.txt
 .. include:: .res/replace/fragment.txt
+.. include:: .res/replace/url.txt

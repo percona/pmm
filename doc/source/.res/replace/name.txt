@@ -126,3 +126,14 @@
 .. |server.key|          replace:: :file:`server.key`
 .. |etc.mongod.conf|     replace:: :file:`/etc/mongod.conf`
 .. |srv.update.main.yml| replace:: :file:`/srv/update/main.yml`
+
+.. Default users and roles
+
+.. |mongodb-exporter| replace:: *mongodb_exporter*
+.. |cluster-monitor|  replace:: *clusterMonitor*
+
+
+.. Default databases (prefix `db`)
+
+.. |db.admin| replace:: :file:`admin` 
+.. |db.local| replace:: :file:`local`
