@@ -118,32 +118,6 @@ func TestDiscover(t *testing.T) {
 				Engine:        pointer.ToString("mysql"),
 				EngineVersion: pointer.ToString("5.7.19"),
 			},
-		}, {
-			Node: models.RDSNode{
-				Type:   "rds",
-				Name:   "pmmdemo-aurora-node1",
-				Region: "us-east-2",
-			},
-			Service: models.RDSService{
-				Type:          "rds",
-				Address:       pointer.ToString("pmmdemo-aurora-node1.c15j790utla2.us-east-2.rds.amazonaws.com"),
-				Port:          pointer.ToUint16(3306),
-				Engine:        pointer.ToString("aurora"),
-				EngineVersion: pointer.ToString("5.6.10a"),
-			},
-		}, {
-			Node: models.RDSNode{
-				Type:   "rds",
-				Name:   "pmmdemo-rds-1",
-				Region: "us-east-2",
-			},
-			Service: models.RDSService{
-				Type:          "rds",
-				Address:       pointer.ToString("pmmdemo-rds-1.c15j790utla2.us-east-2.rds.amazonaws.com"),
-				Port:          pointer.ToUint16(3306),
-				Engine:        pointer.ToString("mysql"),
-				EngineVersion: pointer.ToString("5.7.19"),
-			},
 		}}
 
 		assert.Equal(t, expected, actual)
