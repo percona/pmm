@@ -476,7 +476,7 @@ For more information, run
 Adding |mongodb| query analytics service
 --------------------------------------------------------------------------------
 
-Use the |opt.mongodb-queries| alias to enable MongoDB query analytics.
+Use the |opt.mongodb-queries| alias to enable |mongodb| query analytics.
 
 .. rubric:: **USAGE**
 
@@ -485,7 +485,7 @@ Use the |opt.mongodb-queries| alias to enable MongoDB query analytics.
    :end-before: #+end-block
 		 
 This creates the ``pmm-mongodb-queries-0`` service
-that is able to collect |qan| data for multiple remote MongoDB server instances.
+that is able to collect |qan| data for multiple remote |mongodb| server instances.
 
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
