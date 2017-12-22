@@ -83,7 +83,7 @@ var (
 	dbPasswordF = flag.String("db-password", "pmm-managed", "Database password")
 
 	agentMySQLdExporterF    = flag.String("agent-mysqld-exporter", "/usr/local/percona/pmm-client/mysqld_exporter", "mysqld_exporter path")
-	agentRDSExporterF       = flag.String("agent-rds-exporter", "/usr/local/percona/pmm-client/rds_exporter", "rds_exporter path")
+	agentRDSExporterF       = flag.String("agent-rds-exporter", "/usr/sbin/rds_exporter", "rds_exporter path")
 	agentRDSExporterConfigF = flag.String("agent-rds-exporter-config", "/etc/percona-rds-exporter.yml", "rds_exporter configuration file path")
 	agentQANBaseF           = flag.String("agent-qan-base", "/usr/local/percona/qan-agent", "qan-agent installation base path")
 
