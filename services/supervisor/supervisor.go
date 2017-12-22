@@ -20,7 +20,7 @@ package supervisor
 import (
 	"context"
 
-	"github.com/percona/kardianos-service"
+	servicelib "github.com/percona/kardianos-service"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
@@ -34,21 +34,21 @@ type Supervisor struct {
 }
 
 func New(l *logrus.Entry) *Supervisor {
-	l.WithField("component", "supervisor").Infof("Using %s", service.Platform())
+	l.WithField("component", "supervisor").Infof("Using %s", servicelib.Platform())
 	return &Supervisor{}
 }
 
-func makeService(config *service.Config) (service.Service, error) {
+func makeService(config *servicelib.Config) (servicelib.Service, error) {
 	config.Option = adjustOption(config.Option)
 
-	svc, err := service.New(new(program), config)
+	svc, err := servicelib.New(new(program), config)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return svc, nil
 }
 
-func (s *Supervisor) Start(ctx context.Context, config *service.Config) error {
+func (s *Supervisor) Start(ctx context.Context, config *servicelib.Config) error {
 	svc, err := makeService(config)
 	if err != nil {
 		return err
@@ -64,7 +64,7 @@ func (s *Supervisor) Start(ctx context.Context, config *service.Config) error {
 }
 
 func (s *Supervisor) Stop(ctx context.Context, name string) error {
-	config := &service.Config{Name: name}
+	config := &servicelib.Config{Name: name}
 	svc, err := makeService(config)
 	if err != nil {
 		return err
@@ -80,7 +80,7 @@ func (s *Supervisor) Stop(ctx context.Context, name string) error {
 }
 
 func (s *Supervisor) Status(ctx context.Context, name string) error {
-	config := &service.Config{Name: name}
+	config := &servicelib.Config{Name: name}
 	svc, err := makeService(config)
 	if err != nil {
 		return err

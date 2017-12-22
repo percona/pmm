@@ -17,13 +17,13 @@
 package supervisor
 
 import (
-	"github.com/percona/kardianos-service"
+	servicelib "github.com/percona/kardianos-service"
 )
 
 // for development on macOS
-func adjustOption(option service.KeyValue) service.KeyValue {
+func adjustOption(option servicelib.KeyValue) servicelib.KeyValue {
 	if option == nil {
-		option = make(service.KeyValue)
+		option = make(servicelib.KeyValue)
 	}
 	option["UserService"] = true
 	return option

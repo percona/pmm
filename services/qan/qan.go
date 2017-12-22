@@ -34,7 +34,7 @@ import (
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/kardianos-service"
+	servicelib "github.com/percona/kardianos-service"
 	"github.com/percona/pmm/proto"
 	"github.com/percona/pmm/proto/config"
 	"github.com/pkg/errors"
@@ -76,7 +76,7 @@ func (svc *Service) ensureAgentIsRegistered(ctx context.Context) (*url.URL, erro
 
 	// do not change anything if qan-agent is already registered
 	path := filepath.Join(svc.baseDir, "config", "agent.conf")
-	if _, err := os.Stat(path); err == nil {
+	if _, err = os.Stat(path); err == nil {
 		logger.Get(ctx).Debugf("qan-agent already registered (%s exists).", path)
 		return qanURL, nil
 	}
@@ -229,7 +229,7 @@ func (svc *Service) ensureAgentRuns(ctx context.Context, nameForSupervisor strin
 			logger.Get(ctx).Warn(err)
 		}
 
-		config := &service.Config{
+		config := &servicelib.Config{
 			Name:        nameForSupervisor,
 			DisplayName: nameForSupervisor,
 			Description: nameForSupervisor,
@@ -361,7 +361,7 @@ func (svc *Service) RemoveMySQL(ctx context.Context, qanAgent *models.QanAgent) 
 	}
 
 	// agent should be running to remove instance from it
-	if err := svc.ensureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
+	if err = svc.ensureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
 		return err
 	}
 
@@ -373,7 +373,7 @@ func (svc *Service) RemoveMySQL(ctx context.Context, qanAgent *models.QanAgent) 
 	command := "StopTool"
 	b := []byte(*qanAgent.QANDBInstanceUUID)
 	logger.Get(ctx).Debugf("%s %s %s", agentUUID, command, b)
-	if err := svc.sendQANCommand(ctx, qanURL, agentUUID, command, b); err != nil {
+	if err = svc.sendQANCommand(ctx, qanURL, agentUUID, command, b); err != nil {
 		return err
 	}
 

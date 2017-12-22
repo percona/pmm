@@ -19,10 +19,10 @@
 package supervisor
 
 import (
-	"github.com/percona/kardianos-service"
+	servicelib "github.com/percona/kardianos-service"
 )
 
 // no-op
-func adjustOption(option service.KeyValue) service.KeyValue {
+func adjustOption(option servicelib.KeyValue) servicelib.KeyValue {
 	return option
 }

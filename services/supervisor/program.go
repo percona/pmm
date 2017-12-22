@@ -17,14 +17,14 @@
 package supervisor
 
 import (
-	"github.com/percona/kardianos-service"
+	servicelib "github.com/percona/kardianos-service"
 )
 
 // we always run external programs, so we don't need a real implementation
 type program struct{}
 
-func (p *program) Start(s service.Service) error { return nil }
-func (p *program) Stop(s service.Service) error  { return nil }
+func (p *program) Start(s servicelib.Service) error { return nil }
+func (p *program) Stop(s servicelib.Service) error  { return nil }
 
 // check interface
-var _ service.Interface = new(program)
+var _ servicelib.Interface = new(program)
