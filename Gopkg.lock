@@ -106,7 +106,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/runtime"
-  packages = [".","middleware","middleware/denco","middleware/header","middleware/untyped","security"]
+  packages = [".","client","middleware","middleware/denco","middleware/header","middleware/untyped","security"]
   revision = "bf2ff8f7150788b1c7256abb0805ba0410cbbabb"
 
 [[projects]]
@@ -411,7 +411,7 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
+  packages = ["context","context/ctxhttp","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
   revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
 
 [[projects]]
@@ -477,6 +477,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8b41b1db3a5223c7d62cdfcdf5f02b028ce67d52fd0d398a0ae5b13a46dd16b8"
+  inputs-digest = "c8c224eb93220622c844ef9a374a58cce182bccf556cb4752b17a96925276805"
   solver-name = "gps-cdcl"
   solver-version = 1
