@@ -21,6 +21,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os/exec"
 	"sort"
@@ -51,12 +52,15 @@ import (
 )
 
 const (
-	awsCallTimeout        = 7 * time.Second
-	qanAgentPort   uint16 = 9000
+	awsCallTimeout         = 7 * time.Second
+	qanAgentPort    uint16 = 9000
+	rdsExporterPort uint16 = 9042
 )
 
 type ServiceConfig struct {
-	MySQLdExporterPath string
+	MySQLdExporterPath    string
+	RDSExporterPath       string
+	RDSExporterConfigPath string
 
 	DB            *reform.DB
 	Prometheus    *prometheus.Service
@@ -80,11 +84,9 @@ func NewService(config *ServiceConfig) (*Service, error) {
 		return nil, err
 	}
 
-	if config == nil {
-		config = &ServiceConfig{}
-	}
 	for _, path := range []*string{
 		&config.MySQLdExporterPath,
+		&config.RDSExporterPath,
 	} {
 		if *path == "" {
 			continue
@@ -149,6 +151,18 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 			Replacement: "mysql",
 		}},
 	}
+	rdsBasic := &prometheus.ScrapeConfig{
+		JobName:        "rds-basic",
+		ScrapeInterval: "60s",
+		ScrapeTimeout:  "55s",
+		MetricsPath:    "/basic",
+	}
+	rdsEnhanced := &prometheus.ScrapeConfig{
+		JobName:        "rds-enhanced",
+		ScrapeInterval: "10s",
+		ScrapeTimeout:  "9s",
+		MetricsPath:    "/enhanced",
+	}
 
 	nodes, err := q.FindAllFrom(models.RDSNodeTable, "type", models.RDSNodeType)
 	if err != nil {
@@ -173,23 +187,55 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 				if e := q.Reload(&a); e != nil {
 					return errors.WithStack(e)
 				}
-				logger.Get(ctx).Infof("%s %s %d", node.Name, node.Region, *a.ListenPort)
+				logger.Get(ctx).Infof("%s %s %s %d", a.Type, node.Name, node.Region, *a.ListenPort)
 
 				sc := prometheus.StaticConfig{
 					Targets: []string{fmt.Sprintf("127.0.0.1:%d", *a.ListenPort)},
 					Labels: []prometheus.LabelPair{
-						{Name: "instance", Value: node.Name},
 						{Name: "aws_region", Value: node.Region},
+						{Name: "instance", Value: node.Name},
 					},
 				}
 				rdsMySQLHR.StaticConfigs = append(rdsMySQLHR.StaticConfigs, sc)
 				rdsMySQLMR.StaticConfigs = append(rdsMySQLMR.StaticConfigs, sc)
 				rdsMySQLLR.StaticConfigs = append(rdsMySQLLR.StaticConfigs, sc)
+
+			case models.RDSExporterAgentType:
+				a := models.RDSExporter{ID: agent.ID}
+				if e := q.Reload(&a); e != nil {
+					return errors.WithStack(e)
+				}
+				logger.Get(ctx).Infof("%s %s %s %d", a.Type, node.Name, node.Region, *a.ListenPort)
+
+				sc := prometheus.StaticConfig{
+					Targets: []string{fmt.Sprintf("127.0.0.1:%d", *a.ListenPort)},
+					Labels: []prometheus.LabelPair{
+						{Name: "aws_region", Value: node.Region},
+						{Name: "instance", Value: node.Name},
+					},
+				}
+				rdsBasic.StaticConfigs = append(rdsBasic.StaticConfigs, sc)
+				rdsEnhanced.StaticConfigs = append(rdsEnhanced.StaticConfigs, sc)
 			}
 		}
 	}
 
-	return svc.Prometheus.SetScrapeConfigs(ctx, false, rdsMySQLHR, rdsMySQLMR, rdsMySQLLR)
+	// sort by region and name
+	sorterFor := func(sc []prometheus.StaticConfig) func(int, int) bool {
+		return func(i, j int) bool {
+			if sc[i].Labels[0].Value != sc[j].Labels[0].Value {
+				return sc[i].Labels[0].Value < sc[j].Labels[0].Value
+			}
+			return sc[i].Labels[1].Value < sc[j].Labels[1].Value
+		}
+	}
+	sort.Slice(rdsMySQLHR.StaticConfigs, sorterFor(rdsMySQLHR.StaticConfigs))
+	sort.Slice(rdsMySQLMR.StaticConfigs, sorterFor(rdsMySQLMR.StaticConfigs))
+	sort.Slice(rdsMySQLLR.StaticConfigs, sorterFor(rdsMySQLLR.StaticConfigs))
+	sort.Slice(rdsBasic.StaticConfigs, sorterFor(rdsBasic.StaticConfigs))
+	sort.Slice(rdsEnhanced.StaticConfigs, sorterFor(rdsEnhanced.StaticConfigs))
+
+	return svc.Prometheus.SetScrapeConfigs(ctx, false, rdsMySQLHR, rdsMySQLMR, rdsMySQLLR, rdsBasic, rdsEnhanced)
 }
 
 func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) ([]Instance, error) {
@@ -276,6 +322,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 		close(instances)
 	}()
 
+	// sort by region and name
 	res := []Instance{}
 	for i := range instances {
 		res = append(res, i)
@@ -325,6 +372,209 @@ func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 	return res, err
 }
 
+func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, service *models.RDSService, username, password string) error {
+	// insert mysqld_exporter agent and association
+	port, err := svc.PortsRegistry.Reserve()
+	if err != nil {
+		return err
+	}
+	agent := &models.MySQLdExporter{
+		Type:         models.MySQLdExporterAgentType,
+		RunsOnNodeID: svc.pmmServerNode.ID,
+
+		ServiceUsername: &username,
+		ServicePassword: &password,
+		ListenPort:      &port,
+	}
+	if err = tx.Insert(agent); err != nil {
+		return errors.WithStack(err)
+	}
+	if err = tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); err != nil {
+		return errors.WithStack(err)
+	}
+
+	// check connection
+	dsn := agent.DSN(service)
+	db, err := sql.Open("mysql", dsn)
+	if err == nil {
+		err = db.PingContext(ctx)
+		db.Close()
+	}
+	if err != nil {
+		if err, ok := err.(*mysql.MySQLError); ok {
+			switch err.Number {
+			case 0x414: // 1044
+				return status.Error(codes.PermissionDenied, err.Message)
+			case 0x415: // 1045
+				return status.Error(codes.Unauthenticated, err.Message)
+			}
+		}
+		return errors.WithStack(err)
+	}
+
+	// start mysqld_exporter agent
+	if svc.MySQLdExporterPath != "" {
+		name := agent.NameForSupervisor()
+		cfg := &servicelib.Config{
+			Name:        name,
+			DisplayName: name,
+			Description: name,
+			Executable:  svc.MySQLdExporterPath,
+			Arguments: []string{
+				"-collect.auto_increment.columns",
+				"-collect.binlog_size",
+				"-collect.global_status",
+				"-collect.global_variables",
+				"-collect.info_schema.innodb_metrics",
+				"-collect.info_schema.processlist",
+				"-collect.info_schema.query_response_time",
+				"-collect.info_schema.tables",
+				"-collect.info_schema.tablestats",
+				"-collect.info_schema.userstats",
+				"-collect.perf_schema.eventswaits",
+				"-collect.perf_schema.file_events",
+				"-collect.perf_schema.indexiowaits",
+				"-collect.perf_schema.tableiowaits",
+				"-collect.perf_schema.tablelocks",
+				"-collect.slave_status",
+
+				fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
+			},
+			Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)},
+		}
+		if err = svc.Supervisor.Start(ctx, cfg); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (svc *Service) updateRDSExporterConfig(tx *reform.TX, service *models.RDSService) (*rdsExporterConfig, error) {
+	// collect all RDS nodes
+	var config rdsExporterConfig
+	nodes, err := tx.FindAllFrom(models.RDSNodeTable, "type", models.RDSNodeType)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	for _, n := range nodes {
+		node := n.(*models.RDSNode)
+		config.Instances = append(config.Instances, rdsExporterInstance{
+			Region:       node.Region,
+			Instance:     node.Name,
+			AWSAccessKey: service.AWSAccessKey,
+			AWSSecretKey: service.AWSSecretKey,
+		})
+	}
+	sort.Slice(config.Instances, func(i, j int) bool {
+		if config.Instances[i].Region != config.Instances[j].Region {
+			return config.Instances[i].Region < config.Instances[j].Region
+		}
+		return config.Instances[i].Instance < config.Instances[j].Instance
+	})
+
+	// update rds_exporter configuration
+	b, err := config.Marshal()
+	if err != nil {
+		return nil, err
+	}
+	if err = ioutil.WriteFile(svc.RDSExporterConfigPath, b, 0666); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return &config, nil
+}
+
+func (svc *Service) rdsExporterServiceConfig(serviceName string) *servicelib.Config {
+	return &servicelib.Config{
+		Name:        serviceName,
+		DisplayName: serviceName,
+		Description: serviceName,
+		Executable:  svc.RDSExporterPath,
+		Arguments: []string{
+			fmt.Sprintf("-config.file=%s", svc.RDSExporterConfigPath),
+			fmt.Sprintf("-web.listen-address=127.0.0.1:%d", rdsExporterPort),
+		},
+	}
+}
+
+func (svc *Service) addRDSExporter(ctx context.Context, tx *reform.TX, service *models.RDSService, node *models.RDSNode) error {
+	// insert rds_exporter agent and associations
+	agent := &models.RDSExporter{
+		Type:         models.RDSExporterAgentType,
+		RunsOnNodeID: svc.pmmServerNode.ID,
+
+		ListenPort: pointer.ToUint16(rdsExporterPort),
+	}
+	var err error
+	if err = tx.Insert(agent); err != nil {
+		return errors.WithStack(err)
+	}
+	if err = tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); err != nil {
+		return errors.WithStack(err)
+	}
+	if err = tx.Insert(&models.AgentNode{AgentID: agent.ID, NodeID: node.ID}); err != nil {
+		return errors.WithStack(err)
+	}
+
+	if svc.RDSExporterPath != "" {
+		// update rds_exporter configuration
+		if _, err = svc.updateRDSExporterConfig(tx, service); err != nil {
+			return err
+		}
+
+		// restart rds_exporter
+		name := agent.NameForSupervisor()
+		if err = svc.Supervisor.Stop(ctx, name); err != nil {
+			logger.Get(ctx).Warn(err)
+		}
+		if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(name)); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (svc *Service) addQanAgent(ctx context.Context, tx *reform.TX, service *models.RDSService, node *models.RDSNode, username, password string) error {
+	// Despite running a single qan-agent process on PMM Server, we use one database record per MySQL instance
+	// to store username/password and UUID.
+
+	// insert qan-agent agent and association
+	agent := &models.QanAgent{
+		Type:         models.QanAgentAgentType,
+		RunsOnNodeID: svc.pmmServerNode.ID,
+
+		ServiceUsername: &username,
+		ServicePassword: &password,
+		ListenPort:      pointer.ToUint16(qanAgentPort),
+	}
+	var err error
+	if err = tx.Insert(agent); err != nil {
+		return errors.WithStack(err)
+	}
+	if err = tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); err != nil {
+		return errors.WithStack(err)
+	}
+
+	// DSNs for mysqld_exporter and qan-agent are currently identical,
+	// so we do not check connection again
+
+	// start or reconfigure qan-agent
+	if svc.QAN != nil {
+		if err = svc.QAN.AddMySQL(ctx, node, service, agent); err != nil {
+			return err
+		}
+
+		// re-save agent with set QANDBInstanceUUID
+		if err = tx.Save(agent); err != nil {
+			return errors.WithStack(err)
+		}
+	}
+
+	return nil
+}
+
 func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *InstanceID, username, password string) error {
 	if id.Name == "" {
 		return status.Error(codes.InvalidArgument, "RDS instance name is not given.")
@@ -360,12 +610,12 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 
 			Region: add.Node.Region,
 		}
-		if e := tx.Insert(node); e != nil {
-			if e, ok := e.(*mysql.MySQLError); ok && e.Number == 0x426 {
+		if err = tx.Insert(node); err != nil {
+			if err, ok := err.(*mysql.MySQLError); ok && err.Number == 0x426 {
 				return status.Errorf(codes.AlreadyExists, "RDS instance %q already exists in region %q.",
 					node.Name, node.Region)
 			}
-			return errors.WithStack(e)
+			return errors.WithStack(err)
 		}
 
 		// insert service
@@ -382,123 +632,18 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 			service.AWSAccessKey = &accessKey
 			service.AWSSecretKey = &secretKey
 		}
-		if e := tx.Insert(service); e != nil {
-			return errors.WithStack(e)
+		if err = tx.Insert(service); err != nil {
+			return errors.WithStack(err)
 		}
 
-		// mysqld_exporter
-		{
-			// insert mysqld_exporter agent and association
-			port, e := svc.PortsRegistry.Reserve()
-			if e != nil {
-				return e
-			}
-			agent := &models.MySQLdExporter{
-				Type:         models.MySQLdExporterAgentType,
-				RunsOnNodeID: svc.pmmServerNode.ID,
-
-				ServiceUsername: &username,
-				ServicePassword: &password,
-				ListenPort:      &port,
-			}
-			if e := tx.Insert(agent); e != nil {
-				return errors.WithStack(e)
-			}
-			if e := tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); e != nil {
-				return errors.WithStack(e)
-			}
-
-			// check connection
-			dsn := agent.DSN(service)
-			db, e := sql.Open("mysql", dsn)
-			if e == nil {
-				e = db.PingContext(ctx)
-				db.Close()
-			}
-			if e != nil {
-				if e, ok := e.(*mysql.MySQLError); ok {
-					switch e.Number {
-					case 0x414: // 1044
-						return status.Error(codes.PermissionDenied, e.Message)
-					case 0x415: // 1045
-						return status.Error(codes.Unauthenticated, e.Message)
-					}
-				}
-				return errors.WithStack(e)
-			}
-
-			// start mysqld_exporter agent
-			if svc.MySQLdExporterPath != "" {
-				name := agent.NameForSupervisor()
-				cfg := &servicelib.Config{
-					Name:        name,
-					DisplayName: name,
-					Description: name,
-					Executable:  svc.MySQLdExporterPath,
-					Arguments: []string{
-						// TODO use proper flags
-						"-collect.auto_increment.columns",
-						"-collect.binlog_size",
-						"-collect.global_status",
-						"-collect.global_variables",
-						"-collect.info_schema.innodb_metrics",
-						"-collect.info_schema.processlist",
-						"-collect.info_schema.query_response_time",
-						"-collect.info_schema.tables",
-						"-collect.info_schema.tablestats",
-						"-collect.info_schema.userstats",
-						"-collect.perf_schema.eventswaits",
-						"-collect.perf_schema.file_events",
-						"-collect.perf_schema.indexiowaits",
-						"-collect.perf_schema.tableiowaits",
-						"-collect.perf_schema.tablelocks",
-						"-collect.slave_status",
-
-						fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
-					},
-					Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)},
-				}
-				if e := svc.Supervisor.Start(ctx, cfg); e != nil {
-					return e
-				}
-			}
+		if err = svc.addMySQLdExporter(ctx, tx, service, username, password); err != nil {
+			return err
 		}
-
-		// qan-agent
-		{
-			// Despite running a single qan-agent process on PMM Server, we use one database record per MySQL instance
-			// to store username/password and UUID.
-
-			// insert qan-agent agent and association
-			agent := &models.QanAgent{
-				Type:         models.QanAgentAgentType,
-				RunsOnNodeID: svc.pmmServerNode.ID,
-
-				ServiceUsername: &username,
-				ServicePassword: &password,
-				ListenPort:      pointer.ToUint16(qanAgentPort),
-			}
-			if e := tx.Insert(agent); e != nil {
-				return errors.WithStack(e)
-			}
-			if e := tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); e != nil {
-				return errors.WithStack(e)
-			}
-
-			// DSNs for mysqld_exporter and qan-agent are currently identical,
-			// so we do not check connection again
-
-			// start or reconfigure qan-agent
-			if svc.QAN != nil {
-				if e := svc.QAN.AddMySQL(ctx, node, service, agent); e != nil {
-					return e
-				}
-
-				// re-save agent with set QANDBInstanceUUID
-				if e := tx.Save(agent); e != nil {
-					return errors.WithStack(e)
-				}
-			}
+		if err = svc.addRDSExporter(ctx, tx, service, node); err != nil {
+			return err
+		}
+		if err = svc.addQanAgent(ctx, tx, service, node, username, password); err != nil {
+			return err
 		}
 
 		return svc.ApplyPrometheusConfiguration(ctx, tx.Querier)
@@ -513,30 +658,31 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 		return status.Error(codes.InvalidArgument, "RDS instance region is not given.")
 	}
 
+	var err error
 	return svc.DB.InTransaction(func(tx *reform.TX) error {
 		var node models.RDSNode
-		if e := tx.SelectOneTo(&node, "WHERE type = ? AND name = ? AND region = ?", models.RDSNodeType, id.Name, id.Region); e != nil {
-			if e == reform.ErrNoRows {
+		if err = tx.SelectOneTo(&node, "WHERE type = ? AND name = ? AND region = ?", models.RDSNodeType, id.Name, id.Region); err != nil {
+			if err == reform.ErrNoRows {
 				return status.Errorf(codes.NotFound, "RDS instance %q not found in region %q.", id.Name, id.Region)
 			}
-			return errors.WithStack(e)
+			return errors.WithStack(err)
 		}
 
 		var service models.RDSService
-		if e := tx.SelectOneTo(&service, "WHERE node_id = ?", node.ID); e != nil {
-			return errors.WithStack(e)
+		if err = tx.SelectOneTo(&service, "WHERE node_id = ?", node.ID); err != nil {
+			return errors.WithStack(err)
 		}
 
 		// remove associations of the service and agents
-		agentsForService, e := models.AgentsForServiceID(tx.Querier, service.ID)
-		if e != nil {
-			return e
+		agentsForService, err := models.AgentsForServiceID(tx.Querier, service.ID)
+		if err != nil {
+			return err
 		}
 		for _, agent := range agentsForService {
 			var deleted uint
-			deleted, e = tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ? AND agent_id = ?", service.ID, agent.ID)
-			if e != nil {
-				return errors.WithStack(e)
+			deleted, err = tx.DeleteFrom(models.AgentServiceView, "WHERE service_id = ? AND agent_id = ?", service.ID, agent.ID)
+			if err != nil {
+				return errors.WithStack(err)
 			}
 			if deleted != 1 {
 				return errors.Errorf("expected to delete 1 record, deleted %d", deleted)
@@ -544,15 +690,15 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 		}
 
 		// remove associations of the node and agents
-		agentsForNode, e := models.AgentsForNodeID(tx.Querier, node.ID)
-		if e != nil {
-			return e
+		agentsForNode, err := models.AgentsForNodeID(tx.Querier, node.ID)
+		if err != nil {
+			return err
 		}
 		for _, agent := range agentsForNode {
 			var deleted uint
-			deleted, e = tx.DeleteFrom(models.AgentNodeView, "WHERE node_id = ? AND agent_id = ?", node.ID, agent.ID)
-			if e != nil {
-				return errors.WithStack(e)
+			deleted, err = tx.DeleteFrom(models.AgentNodeView, "WHERE node_id = ? AND agent_id = ?", node.ID, agent.ID)
+			if err != nil {
+				return errors.WithStack(err)
 			}
 			if deleted != 1 {
 				return errors.Errorf("expected to delete 1 record, deleted %d", deleted)
@@ -560,30 +706,58 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 		}
 
 		// stop agents
-		agents := make([]models.Agent, 0, len(agentsForService)+len(agentsForNode))
-		agents = append(agents, agentsForService...)
-		agents = append(agents, agentsForNode...)
+		agents := make(map[int32]models.Agent, len(agentsForService)+len(agentsForNode))
+		for _, agent := range agentsForService {
+			agents[agent.ID] = agent
+		}
+		for _, agent := range agentsForNode {
+			agents[agent.ID] = agent
+		}
 		for _, agent := range agents {
 			switch agent.Type {
 			case models.MySQLdExporterAgentType:
 				a := models.MySQLdExporter{ID: agent.ID}
-				if e := tx.Reload(&a); e != nil {
-					return errors.WithStack(e)
+				if err = tx.Reload(&a); err != nil {
+					return errors.WithStack(err)
 				}
 				if svc.MySQLdExporterPath != "" {
-					if e := svc.Supervisor.Stop(ctx, a.NameForSupervisor()); e != nil {
-						return e
+					if err = svc.Supervisor.Stop(ctx, a.NameForSupervisor()); err != nil {
+						return err
+					}
+				}
+
+			case models.RDSExporterAgentType:
+				a := models.RDSExporter{ID: agent.ID}
+				if err = tx.Reload(&a); err != nil {
+					return errors.WithStack(err)
+				}
+				if svc.RDSExporterPath != "" {
+					// update rds_exporter configuration
+					config, err := svc.updateRDSExporterConfig(tx, &service)
+					if err != nil {
+						return err
+					}
+
+					// stop or restart rds_exporter
+					name := a.NameForSupervisor()
+					if err = svc.Supervisor.Stop(ctx, name); err != nil {
+						return err
+					}
+					if len(config.Instances) > 0 {
+						if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(name)); err != nil {
+							return err
+						}
 					}
 				}
 
 			case models.QanAgentAgentType:
 				a := models.QanAgent{ID: agent.ID}
-				if e := tx.Reload(&a); e != nil {
-					return errors.WithStack(e)
+				if err = tx.Reload(&a); err != nil {
+					return errors.WithStack(err)
 				}
 				if svc.QAN != nil {
-					if e := svc.QAN.RemoveMySQL(ctx, &a); e != nil {
-						return e
+					if err = svc.QAN.RemoveMySQL(ctx, &a); err != nil {
+						return err
 					}
 				}
 			}
@@ -591,16 +765,16 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 
 		// remove agents
 		for _, agent := range agents {
-			if e := tx.Delete(&agent); e != nil {
-				return errors.WithStack(e)
+			if err = tx.Delete(&agent); err != nil {
+				return errors.WithStack(err)
 			}
 		}
 
-		if e := tx.Delete(&service); e != nil {
-			return errors.WithStack(e)
+		if err = tx.Delete(&service); err != nil {
+			return errors.WithStack(err)
 		}
-		if e := tx.Delete(&node); e != nil {
-			return errors.WithStack(e)
+		if err = tx.Delete(&node); err != nil {
+			return errors.WithStack(err)
 		}
 
 		return svc.ApplyPrometheusConfiguration(ctx, tx.Querier)

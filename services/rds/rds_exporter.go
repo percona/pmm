@@ -14,17 +14,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-package supervisor
+package rds
 
 import (
-	servicelib "github.com/percona/kardianos-service"
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 )
 
-// we always run external programs, so we don't need a real implementation
-type program struct{}
+type rdsExporterInstance struct {
+	Region       string  `yaml:"region"`
+	Instance     string  `yaml:"instance"`
+	AWSAccessKey *string `yaml:"aws_access_key,omitempty"`
+	AWSSecretKey *string `yaml:"aws_secret_key,omitempty"`
+}
 
-func (p *program) Start(s servicelib.Service) error { return nil }
-func (p *program) Stop(s servicelib.Service) error  { return nil }
+type rdsExporterConfig struct {
+	Instances []rdsExporterInstance `yaml:"instances"`
+}
 
-// check interface
-var _ servicelib.Interface = new(program)
+func (config *rdsExporterConfig) Marshal() ([]byte, error) {
+	b, err := yaml.Marshal(config)
+	if err != nil {
+		return nil, errors.Wrap(err, "can't marshal rds_exporter configuration file")
+	}
+	b = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), b...)
+	return b, nil
+}

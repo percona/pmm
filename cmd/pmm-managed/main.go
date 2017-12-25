@@ -82,14 +82,17 @@ var (
 	dbUsernameF = flag.String("db-username", "pmm-managed", "Database username")
 	dbPasswordF = flag.String("db-password", "pmm-managed", "Database password")
 
-	agentMySQLdExporterF = flag.String("agent-mysqld-exporter", "/usr/local/percona/pmm-client/mysqld_exporter", "mysqld_exporter path")
-	agentQANBaseF        = flag.String("agent-qan-base", "/usr/local/percona/qan-agent", "qan-agent installation base path")
+	agentMySQLdExporterF    = flag.String("agent-mysqld-exporter", "/usr/local/percona/pmm-client/mysqld_exporter", "mysqld_exporter path")
+	agentRDSExporterF       = flag.String("agent-rds-exporter", "/usr/sbin/rds_exporter", "rds_exporter path")
+	agentRDSExporterConfigF = flag.String("agent-rds-exporter-config", "/etc/percona-rds-exporter.yml", "rds_exporter configuration file path")
+	agentQANBaseF           = flag.String("agent-qan-base", "/usr/local/percona/qan-agent", "qan-agent installation base path")
 
 	debugF = flag.Bool("debug", false, "Enable debug logging")
 )
 
-func addSwaggerHandler(mux *http.ServeMux, pattern string) {
+func addSwaggerHandler(mux *http.ServeMux) {
 	// TODO embed swagger resources?
+	pattern := "/swagger/"
 	fileServer := http.StripPrefix(pattern, http.FileServer(http.Dir("api/swagger")))
 	mux.HandleFunc(pattern, func(rw http.ResponseWriter, req *http.Request) {
 		rw.Header().Set("Access-Control-Allow-Origin", "*")
@@ -137,7 +140,9 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 	}
 
 	rdsConfig := rds.ServiceConfig{
-		MySQLdExporterPath: *agentMySQLdExporterF,
+		MySQLdExporterPath:    *agentMySQLdExporterF,
+		RDSExporterPath:       *agentRDSExporterF,
+		RDSExporterConfigPath: *agentRDSExporterConfigF,
 
 		DB:            db,
 		Prometheus:    prometheus,
@@ -179,7 +184,7 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 	go func() {
 		for {
 			err = gRPCServer.Serve(listener)
-			if err == grpc.ErrServerStopped {
+			if err == nil || err == grpc.ErrServerStopped {
 				break
 			}
 			l.Errorf("Failed to serve: %s", err)
@@ -219,8 +224,8 @@ func runRESTServer(ctx context.Context) {
 
 	mux := http.NewServeMux()
 	if *swaggerF == "rest" {
-		l.Printf("Swagger enabled.")
-		addSwaggerHandler(mux, "/swagger/")
+		l.Printf("Swagger enabled. http://%s/swagger/", *restAddrF)
+		addSwaggerHandler(mux)
 	}
 	mux.Handle("/", proxyMux)
 
@@ -258,8 +263,8 @@ func runDebugServer(ctx context.Context) {
 	handlers := []string{"/debug/metrics", "/debug/vars", "/debug/requests", "/debug/events", "/debug/pprof"}
 	if *swaggerF == "debug" {
 		handlers = append(handlers, "/swagger")
-		l.Printf("Swagger enabled.")
-		addSwaggerHandler(http.DefaultServeMux, "/swagger/")
+		l.Printf("Swagger enabled. http://%s/swagger/", *debugAddrF)
+		addSwaggerHandler(http.DefaultServeMux)
 	}
 
 	for i, h := range handlers {
@@ -362,16 +367,14 @@ func main() {
 	ctx, _ = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
-	// handle termination signals: first one gracefully, force exit on the second one
+	// handle termination signals
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
 	go func() {
 		s := <-signals
+		signal.Stop(signals)
 		l.Warnf("Got %v (%d) signal, shutting down...", s, s)
 		cancel()
-
-		s = <-signals
-		l.Panicf("Got %v (%d) signal, exiting!", s, s)
 	}()
 
 	consulClient, err := consul.NewClient(*consulAddrF)
