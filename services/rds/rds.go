@@ -154,13 +154,13 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 	rdsBasic := &prometheus.ScrapeConfig{
 		JobName:        "rds-basic",
 		ScrapeInterval: "60s",
-		ScrapeTimeout:  "5s",
+		ScrapeTimeout:  "55s",
 		MetricsPath:    "/basic",
 	}
 	rdsEnhanced := &prometheus.ScrapeConfig{
 		JobName:        "rds-enhanced",
-		ScrapeInterval: "60s",
-		ScrapeTimeout:  "5s",
+		ScrapeInterval: "10s",
+		ScrapeTimeout:  "9s",
 		MetricsPath:    "/enhanced",
 	}
 
@@ -421,7 +421,6 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 			Description: name,
 			Executable:  svc.MySQLdExporterPath,
 			Arguments: []string{
-				// TODO use proper flags
 				"-collect.auto_increment.columns",
 				"-collect.binlog_size",
 				"-collect.global_status",
@@ -451,6 +450,54 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 	return nil
 }
 
+func (svc *Service) updateRDSExporterConfig(tx *reform.TX, service *models.RDSService) (*rdsExporterConfig, error) {
+	// collect all RDS nodes
+	var config rdsExporterConfig
+	nodes, err := tx.FindAllFrom(models.RDSNodeTable, "type", models.RDSNodeType)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	for _, n := range nodes {
+		node := n.(*models.RDSNode)
+		config.Instances = append(config.Instances, rdsExporterInstance{
+			Region:       node.Region,
+			Instance:     node.Name,
+			AWSAccessKey: service.AWSAccessKey,
+			AWSSecretKey: service.AWSSecretKey,
+		})
+	}
+	sort.Slice(config.Instances, func(i, j int) bool {
+		if config.Instances[i].Region != config.Instances[j].Region {
+			return config.Instances[i].Region < config.Instances[j].Region
+		}
+		return config.Instances[i].Instance < config.Instances[j].Instance
+	})
+
+	// update rds_exporter configuration
+	b, err := config.Marshal()
+	if err != nil {
+		return nil, err
+	}
+	if err = ioutil.WriteFile(svc.RDSExporterConfigPath, b, 0666); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return &config, nil
+}
+
+func (svc *Service) rdsExporterServiceConfig(serviceName string) *servicelib.Config {
+	return &servicelib.Config{
+		Name:        serviceName,
+		DisplayName: serviceName,
+		Description: serviceName,
+		Executable:  svc.RDSExporterPath,
+		Arguments: []string{
+			fmt.Sprintf("-config.file=%s", svc.RDSExporterConfigPath),
+			fmt.Sprintf("-web.listen-address=127.0.0.1:%d", rdsExporterPort),
+		},
+	}
+}
+
 func (svc *Service) addRDSExporter(ctx context.Context, tx *reform.TX, service *models.RDSService, node *models.RDSNode) error {
 	// insert rds_exporter agent and associations
 	agent := &models.RDSExporter{
@@ -471,35 +518,9 @@ func (svc *Service) addRDSExporter(ctx context.Context, tx *reform.TX, service *
 	}
 
 	if svc.RDSExporterPath != "" {
-		// collect all RDS nodes
-		var config rdsExporterConfig
-		nodes, err := tx.FindAllFrom(models.RDSNodeTable, "type", models.RDSNodeType)
-		if err != nil {
-			return errors.WithStack(err)
-		}
-		for _, n := range nodes {
-			node := n.(*models.RDSNode)
-			config.Instances = append(config.Instances, rdsExporterInstance{
-				Region:       node.Region,
-				Instance:     node.Name,
-				AWSAccessKey: service.AWSAccessKey,
-				AWSSecretKey: service.AWSSecretKey,
-			})
-		}
-		sort.Slice(config.Instances, func(i, j int) bool {
-			if config.Instances[i].Region != config.Instances[j].Region {
-				return config.Instances[i].Region < config.Instances[j].Region
-			}
-			return config.Instances[i].Instance < config.Instances[j].Instance
-		})
-
 		// update rds_exporter configuration
-		b, err := config.Marshal()
-		if err != nil {
+		if _, err = svc.updateRDSExporterConfig(tx, service); err != nil {
 			return err
-		}
-		if err = ioutil.WriteFile(svc.RDSExporterConfigPath, b, 0666); err != nil {
-			return errors.WithStack(err)
 		}
 
 		// restart rds_exporter
@@ -507,17 +528,7 @@ func (svc *Service) addRDSExporter(ctx context.Context, tx *reform.TX, service *
 		if err = svc.Supervisor.Stop(ctx, name); err != nil {
 			logger.Get(ctx).Warn(err)
 		}
-		cfg := &servicelib.Config{
-			Name:        name,
-			DisplayName: name,
-			Description: name,
-			Executable:  svc.RDSExporterPath,
-			Arguments: []string{
-				fmt.Sprintf("-config.file=%s", svc.RDSExporterConfigPath),
-				fmt.Sprintf("-web.listen-address=127.0.0.1:%d", rdsExporterPort),
-			},
-		}
-		if err = svc.Supervisor.Start(ctx, cfg); err != nil {
+		if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(name)); err != nil {
 			return err
 		}
 	}
@@ -721,8 +732,21 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 					return errors.WithStack(err)
 				}
 				if svc.RDSExporterPath != "" {
-					if err = svc.Supervisor.Stop(ctx, a.NameForSupervisor()); err != nil {
+					// update rds_exporter configuration
+					config, err := svc.updateRDSExporterConfig(tx, &service)
+					if err != nil {
 						return err
+					}
+
+					// stop or restart rds_exporter
+					name := a.NameForSupervisor()
+					if err = svc.Supervisor.Stop(ctx, name); err != nil {
+						return err
+					}
+					if len(config.Instances) > 0 {
+						if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(name)); err != nil {
+							return err
+						}
 					}
 				}
 
