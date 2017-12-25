@@ -20,6 +20,7 @@ import (
 	"io/ioutil"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -27,10 +28,26 @@ import (
 func TestRDSExporterMarshal(t *testing.T) {
 	cfg := &rdsExporterConfig{
 		Instances: []rdsExporterInstance{
-			{Region: "us-east-1", Instance: "rds-aurora1"},
-			{Region: "us-east-1", Instance: "rds-aurora2"},
-			{Region: "us-east-1", Instance: "rds-mysql56"},
-			{Region: "us-east-1", Instance: "rds-mysql57"},
+			{
+				Region:   "us-east-1",
+				Instance: "rds-aurora1",
+			},
+			{
+				Region:       "us-east-1",
+				Instance:     "rds-aurora2",
+				AWSAccessKey: pointer.ToString("AKIAIOSFODNN7EXAMPLE"),
+				AWSSecretKey: pointer.ToString("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"),
+			},
+			{
+				Region:   "us-east-1",
+				Instance: "rds-mysql56",
+			},
+			{
+				Region:       "us-east-1",
+				Instance:     "rds-mysql57",
+				AWSAccessKey: pointer.ToString("AKIAIOSFODNN7EXAMPLE"),
+				AWSSecretKey: pointer.ToString("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"),
+			},
 		},
 	}
 
