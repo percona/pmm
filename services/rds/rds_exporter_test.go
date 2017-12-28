@@ -18,6 +18,7 @@ package rds
 
 import (
 	"io/ioutil"
+	"strings"
 	"testing"
 
 	"github.com/AlekSi/pointer"
@@ -31,20 +32,24 @@ func TestRDSExporterMarshal(t *testing.T) {
 			{
 				Region:   "us-east-1",
 				Instance: "rds-aurora1",
+				Type:     auroraMySQL,
 			},
 			{
 				Region:       "us-east-1",
 				Instance:     "rds-aurora2",
+				Type:         auroraMySQL,
 				AWSAccessKey: pointer.ToString("AKIAIOSFODNN7EXAMPLE"),
 				AWSSecretKey: pointer.ToString("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"),
 			},
 			{
 				Region:   "us-east-1",
 				Instance: "rds-mysql56",
+				Type:     mySQL,
 			},
 			{
 				Region:       "us-east-1",
 				Instance:     "rds-mysql57",
+				Type:         mySQL,
 				AWSAccessKey: pointer.ToString("AKIAIOSFODNN7EXAMPLE"),
 				AWSSecretKey: pointer.ToString("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"),
 			},
@@ -55,5 +60,5 @@ func TestRDSExporterMarshal(t *testing.T) {
 	require.NoError(t, err)
 	actual, err := cfg.Marshal()
 	require.NoError(t, err)
-	assert.Equal(t, string(expected), string(actual))
+	assert.Equal(t, strings.Split(string(expected), "\n"), strings.Split(string(actual), "\n"))
 }

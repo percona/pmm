@@ -459,12 +459,20 @@ func (svc *Service) updateRDSExporterConfig(tx *reform.TX, service *models.RDSSe
 	}
 	for _, n := range nodes {
 		node := n.(*models.RDSNode)
-		config.Instances = append(config.Instances, rdsExporterInstance{
+		instance := rdsExporterInstance{
 			Region:       node.Region,
 			Instance:     node.Name,
+			Type:         unknown,
 			AWSAccessKey: service.AWSAccessKey,
 			AWSSecretKey: service.AWSSecretKey,
-		})
+		}
+		switch *service.Engine {
+		case "aurora":
+			instance.Type = auroraMySQL
+		case "mysql":
+			instance.Type = mySQL
+		}
+		config.Instances = append(config.Instances, instance)
 	}
 	sort.Slice(config.Instances, func(i, j int) bool {
 		if config.Instances[i].Region != config.Instances[j].Region {

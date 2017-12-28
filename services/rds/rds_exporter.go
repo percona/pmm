@@ -21,11 +21,20 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type instanceType string
+
+const (
+	unknown     instanceType = "unknown"
+	auroraMySQL instanceType = "aurora_mysql"
+	mySQL       instanceType = "mysql"
+)
+
 type rdsExporterInstance struct {
-	Region       string  `yaml:"region"`
-	Instance     string  `yaml:"instance"`
-	AWSAccessKey *string `yaml:"aws_access_key,omitempty"`
-	AWSSecretKey *string `yaml:"aws_secret_key,omitempty"`
+	Region       string       `yaml:"region"`
+	Instance     string       `yaml:"instance"`
+	Type         instanceType `yaml:"type"`
+	AWSAccessKey *string      `yaml:"aws_access_key,omitempty"`
+	AWSSecretKey *string      `yaml:"aws_secret_key,omitempty"`
 }
 
 type rdsExporterConfig struct {
