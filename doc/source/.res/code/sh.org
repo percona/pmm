@@ -514,6 +514,8 @@ Demonstrates how to set the option to 8 days.
 ** add
 
 #+begin-block: pmm-admin add host user password
+
+
 +pmm-admin.add.mysql-metrics.rds+
 
 .. code-block:: bash

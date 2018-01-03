@@ -1,0 +1,33 @@
+.. _1.6.0:
+
+================================================================================
+|pmm.name| |release|
+================================================================================
+
+:Date: January 16, 2018
+
+|percona| announces the release of |pmm.name| |release|.
+
+Improvements
+--------------------------------------------------------------------------------
+
+- :pmmbug:`1701`: Enumerate changes from upstream prometheus/mysqld_exporter
+
+Bug fixes
+--------------------------------------------------------------------------------
+
+- :pmmbug:`1549`: Broken default auth db for mongodb:queries
+- :pmmbug:`1631`: In some cases percentage values were displayed
+  incorrectedly for |mongodb| hosts.
+- :pmmbug:`1640`: RDS exporter: simplify configuration
+- :pmmbug:`1760`: Very high CPU usage in |qan| 1.4.1 with added
+  |opt.mongodb-metrics| monitoring services.
+- :pmmbug:`1815`: |qan| could show data for a |mysql| host when a
+  |mongodb| host was selected.
+- :pmmbug:`1888`: In |qan|, query metrics were not loaded when the
+  |qan| page was refreshed.
+
+.. |release| replace:: 1.6.0
+		       
+.. include:: ../.res/replace/name.txt
+.. include:: ../.res/replace/option.txt			    
