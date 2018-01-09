@@ -24,6 +24,35 @@ List of |pmm-server| Options
 .. glossary::
    :sorted:
 
+   MySQL Server Exporter (Option)
+
+      The following options may be passed to the |opt.mysql-metrics|
+      monitoring service as additional options.
+
+      .. rubric:: Collector options
+
+      .. include:: .res/table/table.org
+	 :start-after: +mysqld-exporter.collector-flag+
+	 :end-before: #+end-table
+
+      .. rubric:: General options
+
+      .. include:: .res/table/table.org
+	 :start-after: +mysqld-exporter.collector-flag+
+	 :end-before: #+end-table
+
+      .. seealso::
+
+	 Adding monitoring services
+	    :ref:`pmm-admin.add`
+	 Passing options to a monitoring service
+	    :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
+
+   mysqld_exporter
+
+      See :term:`MySQL Server Exporters <MySQL Server Exporter (Option)>`
+
+
    METRICS_RETENTION (Option)
 
       This option determines how long metrics are stored at :term:`PMM
