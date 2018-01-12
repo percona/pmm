@@ -1,0 +1,21 @@
+sudo: required
+language: python
+python:
+- 2.7
+before_install:
+- sudo apt-get -qq update
+- sudo apt-get install -y awscli curl
+install:
+- pip install sphinx~=1.6.6
+script:
+- make -C doc clean html
+after_success:
+- test ${TRAVIS_PULL_REQUEST} == false && aws s3 sync --delete ./doc/build/html/ s3://docs-test.cd.percona.com/${TRAVIS_BRANCH}/
+- test ${TRAVIS_PULL_REQUEST} != false && aws s3 sync --delete ./doc/build/html/ s3://docs-test.cd.percona.com/${TRAVIS_PULL_REQUEST}/
+- "test ${TRAVIS_PULL_REQUEST} != false && curl -H \"Authorization: token ${GITHUB_API_TOKEN}\" -X POST -d \"{\\\"body\\\":\\\"http://docs-test.cd.percona.com/${TRAVIS_PULL_REQUEST}/\\\"}\" \"https://api.github.com/repos/${TRAVIS_REPO_SLUG}/issues/${TRAVIS_PULL_REQUEST}/comments\""
+env:
+  global:
+  - secure: gykyvmEEGV4K7CTmSB+VFs/l8K+f5c+r+Q5C8I+yMIqjv7EcnwVfeOy7ZZbtXBFzhsdv2TP+BJpWgMv1GLyqJ+7UOhNK6lkMzn267LDp93p6OjKG10jYTwXu0YRIKyc6Sc6fb9T/rvAyV8XcborrHEOn47iBM8HQq1c4qtaMXql0tl9qk81GuOSYRnrw7dgjVAYEAhfypOoMQYt6+b7lXy6bqHesSEmnZVkv/ub3sIiJVZzk9wHntTssGq/Yr9tW5GrxzD+91bRBUdXapzPxiPM1hqmfb4J7APcDtxD7T78MQyxYd0+tFptL/CL+TvCe7CogOyJ0L2DTkSoH/KyXM12bxxIQaaVUmQepvAv8XXoNtXq4VDXKNok3BkhYsEpYCgr3adI23b7sA5QXcZc41AYl6H4G7CYO226bUUasmg+wRHnC6SuthvSSMzE+ShxWjwHozw6RZWm88c6qzw+D+oO6yHTqX+yDutYu46HHVLV2D8tfX7vE/xoPoE9WAEz83rBHDTuklxbVCkIwC1O39t4mqLcUAIEHVb3tC6U1J0B3MzCBM3l3N+Z6GIbvtFgNA7vb4g+bSqOAOwly84jARs4kEj3cWngS+DUPn3Tz5geqf8Qgzaeu2TqZqovgB3f2WkPekkmCxnImXt79DfN0cpH7HV2HNNvTXmVmnTYq0qM=
+  - secure: Blh5LeklvztihS29xV3NKuDPXOcUikRecTkHSwo6IQl73Ei27mI7gLgBl4xnItXcL+UeYgb8ohHAoLgXw/MyyzWG7YquGunbPcPEGNdCwD+5+UtpglJfhoNNSLEiYY5ie3Pwgjj6xNm6wij2ZXfjsMsgbw47icSkFkw7HtnrrtfAyRfADzfl8aarA5sIhfUyoSltLGW3spDmkzToCRRhRnTagu4Ngj03ISnPMof5jPKZLsqvX0omfuxs57J/Jh56aoCCEgGCrlyZpkvtpx8YNRSiBUDQBNz+2j9L9bCy8/qHpbCi/XHQWDLw2SicQxaznSNH3IcErFlwtoTw7OaWJrQ4R6oLpJHje6mkbnTMXCxRl3G5VWpjmgwzts8f5ZxEtoMLX4W3xpawF2wMj4m8Ia5xv12+6FNPPGu6dCK2I/0Uw09GfPpdbhwjzvZlO88VsqvjvxurkoqhUsJevOKguVBko/9fnMGW26GIFMQ4ReusQwi/I0K2QlEhlhpuFPmqpmhEwM6rchcR+8Ab0OZxmzFLz7K+wPDCjN8uaG0xPS0lr1Egfa5wVLY2A68L86NNcEH85OMpAV/KYmwlk6cvBYpUfiWkKIdk8kVeloEDI574X2AaCV9Enk/cTu16TO1xiuIl9Gps20w6DTJw8aM8vIZfvJSVWH/ZFxFKdSsRucI=
+  - secure: VZeugL9XF26WZnaNG1i89kV7D/Hj+U30ABQ2diyp6zsog6iXU9GGyAdKaUjuC6K10UrFHuHoGYHRppM7wW6OSWADx+AbpP6KFm91T7NzqXpr6Fcm8UFLH21G1EXZOSj5VlAQf3y9ec8o4zT+rTz/uoqDuKZzRQKBKZJeJ6iXmc7CvrV/Up8ih3/FvsQh/oyrCXGYs6Vi0DT8nso/9CX2saXcuYJ/JKZppt3vgHQJc6eqeURY55fjWbopRvo2wwkz8e2z4QncCp/yg3CGNaJnRWK5jQmg2qGxCXVO97h27MI2OaE9iuzS/zzb4rVHWnY2VbdWxk9JcEaDtPo9SiieZwJzXPfH25+YbbIgMdzXiZ5xG4+rutYXvNpgnLJ9sAAAw0M6894EDGT+RrqJzo3mYJocygU2OR1WemZMgBi4UAFRxSgbiNHEDREoGZ8SYp5yr80CJJs7YtacOYmGuHAcb1JBm8TzXKnc+fEQ4SH6bUPSF17/0uT496axi8JFNOfw6XBsKjn7ohUfBad4LaPz+M911B7ZTcr0LtEMVCyRB+53F5suIZtWml2ixm01Ve6RUzDcQQG6y/1cOAnD07qLF2LaPgm1ZfN3BarACuSQuAog+Kzu8qQmfTSirgqW21TOMcpoOUE+Y0lrOlCMGwLI2fOCmVOGqUFi5ZPNO/7pO3M=
+  - secure: 0hlbCq5hb7NP3lOe+04J1wZL0iUGoGQPC2FtWkMTVSmPUWetHlDtUGLZaxlvG34epesCOPDy+nrt1zUJSk3xkoRLgHLwLIRwXPO1hw4upiJfBkqb8Znx3RDFsysdY6VkXSizZgld+8Vrq2TdQopX71os7JV0xBLEeCmwkyNuYpI2LB04tuwBudBIzk6aKslJlINpeNUtbkHhuKExJ5x45jaP2JVExxig/TzyvV0buvmbB8ePazPBV6CVtRsGjMhSYxpyeCKgMmFsgJRQ5Mby3PzRScpUM33K0GLwxr1IRugbmvGsxfT+i0j40+xGU6nSJ7iVNlU3a6ahSB1A9GDYeZ/U9ToB+6eaPNIH+Wy3PFPnzEWLftXBaiTPY2OUcKFefF3mcxAoCFmogJEOeKubQQNwgK+jZ9bwsu+wQ+Y5RAkUmTSm6u+5DlaR6zhcTriEPFcIyt1Bt0VazReX/hrFjyr8iWERmrZUX37UHfvtmIG2kwhuDZvHF/jBUjjdMe77LOpkEuwLIi1gmItA8Fgy+cTtOhgzThHvd/YMzLg9uqaKIrfKzdI1a3zWQqAL8lhrsAK4/WVDaPNf5Fz3kTF+IsKXyWni+gVJG5aCGGI5tPYu4HqvkRLQQ73NdfYHCwZnWQuFkn+YTuFu7OEWB85ZdYrkDKdZkhcFQAE1kzxt/sA=
