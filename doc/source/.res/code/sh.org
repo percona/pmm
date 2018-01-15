@@ -23,6 +23,15 @@
 
 #+end-block
 
+** systemctl
+#+begin-block: systemctl daemon-reload
++systemctl.daemon-reload+
+
+.. code-block:: bash
+
+   $ systemctl daemon-reload
+
+#+end-block
 * apt-get
 
 #+begin-block: apt-get remove
@@ -906,6 +915,14 @@ Demonstrates how to set the option to 8 days.
 
    $ pmm-admin restart mongodb:metrics
 
+
+#+end-block
+#+begin-block: pmm-admin restart mongodb-metrics
++pmm-admin.restart.mysql-metrics+
+
+.. code-block:: bash
+
+   $ pmm-admin restart mysql:metrics
 
 #+end-block
 ** rm
