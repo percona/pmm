@@ -6,6 +6,8 @@
 .. |sudo|            replace:: :program:`sudo`   
 .. |virtualbox|      replace:: :program:`VirtualBox`
 .. |vboxmanage|      replace:: :program:`VBoxManage`
+.. |systemd|         replace:: :program:`systemd`
+
 
 .. Commands
 

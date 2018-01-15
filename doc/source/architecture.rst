@@ -83,6 +83,24 @@ For more information, see :ref:`install-client`.
   that collects |proxysql| performance metrics.
   For more information, see https://github.com/percona/proxysql_exporter.
 
+.. tip:: 
+   
+   To disable the HTTPS protocol for exporters:
+
+   1. Remove the SSL related configuration options (key, cert) from
+      the :program:`systemd` unit file or `init.d` startup script.
+   #. Reload :program:`systemd`:
+
+      .. include:: .res/code/sh.org
+	 :start-after: +systemctl.daemon-reload+
+	 :end-before: #+end-block
+
+   #. Restart the exporter
+
+      .. include:: .res/code/sh.org
+	 :start-after: +pmm-admin.restart.mysql-metrics+
+	 :end-before: #+end-block
+
 .. _pmm-server:
 
 |pmm-server|
