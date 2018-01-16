@@ -28,8 +28,8 @@ sys.path.append(os.path.abspath('ext'))
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 
-extensions = ['sphinx.ext.intersphinx', 'sphinx.ext.todo', 
-              'sphinx.ext.coverage', 'sphinx.ext.ifconfig', 
+extensions = ['sphinx.ext.intersphinx', 'sphinx.ext.todo',
+              'sphinx.ext.coverage', 'sphinx.ext.ifconfig',
               'sphinx.ext.extlinks', 'psdom', 'sphinx-prompt']
 
 # Add any paths that contain templates here, relative to this directory.
@@ -69,7 +69,7 @@ release = '1.5.3'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['pqa', 'sys-monitor.rst']
+exclude_patterns = ['*.txt']
 
 # The reST default role (used for this markup: `text`) to use for all documents.
 #default_role = None

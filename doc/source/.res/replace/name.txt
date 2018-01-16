@@ -125,6 +125,10 @@
 .. |server.crt|          replace:: :file:`server.crt`
 .. |server.key|          replace:: :file:`server.key`
 .. |etc.mongod.conf|     replace:: :file:`/etc/mongod.conf`
+.. |etc.systemd.system|  replace:: :file:`/etc/systemd/system`
+.. |pmm-mysql-metrics.service| replace:: :file:`pmm-mysql-metrics-42002.service`
+.. |pmm-linux-metrics.service| replace:: :file:`pmm-linux-metrics-42000.service`
+.. |pmm-mysql-queries.service| replace:: :file:`pmm-mysql-queries-0.service`
 .. |srv.update.main.yml| replace:: :file:`/srv/update/main.yml`
 
 .. Default users and roles

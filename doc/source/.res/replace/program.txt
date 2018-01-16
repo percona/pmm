@@ -8,7 +8,6 @@
 .. |vboxmanage|      replace:: :program:`VBoxManage`
 .. |systemd|         replace:: :program:`systemd`
 
-
 .. Commands
 
 .. |docker.cp|     replace:: :program:`docker cp`
