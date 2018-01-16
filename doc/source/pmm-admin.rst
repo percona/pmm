@@ -104,6 +104,40 @@ Use the |pmm-admin.add| command to add monitoring services.
 
    pmm-admin add [OPTIONS] [SERVICE]
 
+When you add a monitoring service |pmm-admin| automatically creates
+and sets up a service in the operating system. You can tweak the
+|systemd| configuration file and change its behavior.
+   
+For example, you may need to disable the HTTPS protocol for the
+|prometheus| exporter associated with the given service. To accomplish this
+task, you need to remove all SSL related options.
+
+1. Open the |systemd| unit file associated with the
+   monitoring service that you need to change, such as
+   |pmm-mysql-metrics.service|.
+
+   .. include:: .res/code/sh.org
+      :start-after: +edit.etc-systemd-system-pmm-mysql-metrics+
+      :end-before: #+end-block
+   
+#. Remove the SSL related configuration options (key, cert) from the
+   |systemd| unit file or `init.d` startup
+   script. :ref:`sample.systemd` highlights the SSL related options in
+   the |systemd| unit file.
+
+#. Reload |systemd|:
+
+   .. include:: .res/code/sh.org
+      :start-after: +systemctl.daemon-reload+
+      :end-before: #+end-block
+
+#. Restart the monitoring service by using |pmm-admin.restart|:
+
+   .. include:: .res/code/sh.org
+      :start-after: +pmm-admin.restart.mysql-metrics+
+      :end-before: #+end-block
+
+
 .. _pmm-admin.add-options:
 
 .. rubric:: **OPTIONS**
@@ -128,6 +162,7 @@ along with any relevant additional arguments.
 For more information, run
 |pmm-admin.add|
 |opt.help|.
+
 
 .. _pmm/pmm-admin/external-monitoring-service.adding:
 
