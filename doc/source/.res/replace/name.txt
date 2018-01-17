@@ -89,6 +89,7 @@
 
 .. GUI Elements
 
+.. |gui.load|                               replace:: :guilabel:`Load`
 .. |gui.add-rds-aurora-instance|            replace:: :guilabel:`Add an AWS RDS MySQL or Aurora MySQL Instance`
 .. |gui.apply|                              replace:: :guilabel:`Apply`
 .. |gui.collect-from|                       replace:: :guilabel:`Collect from`

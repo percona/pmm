@@ -4,29 +4,45 @@
 |pmm.name| |release|
 ================================================================================
 
-:Date: January 16, 2018
+:Date: January 18, 2018
 
 |percona| announces the release of |pmm.name| |release|.
 
+New Features
+================================================================================
+
+- :pmmbug:`1773`: Get PMM Grafana Stats into Prometheus
+
 Improvements
---------------------------------------------------------------------------------
+================================================================================
 
 - :pmmbug:`1701`: Enumerate changes from upstream prometheus/mysqld_exporter
+- :pmmbug:`1485`: Update MyRocks integration
+- :pmmbug:`1895`: Update |grafana| to the latest version in its 4.6
 
 Bug fixes
---------------------------------------------------------------------------------
+================================================================================
 
 - :pmmbug:`1549`: Broken default auth db for mongodb:queries
 - :pmmbug:`1631`: In some cases percentage values were displayed
   incorrectedly for |mongodb| hosts.
 - :pmmbug:`1640`: RDS exporter: simplify configuration
-- :pmmbug:`1760`: Very high CPU usage in |qan| 1.4.1 with added
-  |opt.mongodb-metrics| monitoring services.
+- :pmmbug:`1760`: Very high CPU usage in |qan| 1.4.1 with the 
+  |opt.mongodb-metrics| monitoring service added.
 - :pmmbug:`1815`: |qan| could show data for a |mysql| host when a
   |mongodb| host was selected.
 - :pmmbug:`1888`: In |qan|, query metrics were not loaded when the
   |qan| page was refreshed.
-
+- :pmmbug:`1898`: In |qan|, the `Per Query Stats` graph displayed incorrect
+  values for |mongodb|
+- :pmmbug:`1796`: In |metrics-monitor|, The Top Process States Hourly graph from
+  the the MySQL Overview dashboard showed incorrect data.
+- :pmmbug:`1777`: In |qan|, the |gui.load| column could display incorrect data.
+- :pmmbug:`1744`: The error `Please provide AWS access credentials error`
+  appeared although the provided credentials could be processed successfully.
+- :pmmbug:`1676`: The CPU Usage and Saturation Metrics graphs on the System
+  Overview dashboard were broken because of changes in |prometheus| 2.0
+  
 .. |release| replace:: 1.6.0
 		       
 .. include:: ../.res/replace/name.txt
