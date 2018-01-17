@@ -112,12 +112,14 @@ For example, you may need to disable the HTTPS protocol for the
 |prometheus| exporter associated with the given service. To accomplish this
 task, you need to remove all SSL related options.
 
+|tip.run-all.root|:
+
 1. Open the |systemd| unit file associated with the
    monitoring service that you need to change, such as
    |pmm-mysql-metrics.service|.
 
    .. include:: .res/code/sh.org
-      :start-after: +edit.etc-systemd-system-pmm-mysql-metrics+
+      :start-after: +cat.etc-systemd-system-pmm-mysql-metrics+
       :end-before: #+end-block
    
 #. Remove the SSL related configuration options (key, cert) from the
@@ -125,6 +127,14 @@ task, you need to remove all SSL related options.
    script. :ref:`sample.systemd` highlights the SSL related options in
    the |systemd| unit file.
 
+   The following code demonstrates how you can remove the options
+   using the |sed| command. (If you need more information about how
+   |sed| works, see the documentation of your system).
+   
+   .. include:: .res/code/sh.org
+      :start-after: +sed.e.web-ssl.pmm-mysql-metrics-service+
+      :end-before: #+end-block
+   
 #. Reload |systemd|:
 
    .. include:: .res/code/sh.org
