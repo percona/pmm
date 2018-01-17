@@ -83,6 +83,7 @@ For more information, see :ref:`install-client`.
   that collects |proxysql| performance metrics.
   For more information, see https://github.com/percona/proxysql_exporter.
 
+
 .. _pmm-server:
 
 |pmm-server|
