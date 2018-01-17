@@ -647,9 +647,13 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 		if err = svc.addMySQLdExporter(ctx, tx, service, username, password); err != nil {
 			return err
 		}
-		if err = svc.addRDSExporter(ctx, tx, service, node); err != nil {
-			return err
-		}
+
+		// TODO Enable in PMM 1.7
+		// https://jira.percona.com/browse/PMM-1729
+		// if err = svc.addRDSExporter(ctx, tx, service, node); err != nil {
+		// 	return err
+		// }
+
 		if err = svc.addQanAgent(ctx, tx, service, node, username, password); err != nil {
 			return err
 		}
