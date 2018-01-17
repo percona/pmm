@@ -82,19 +82,6 @@ func TestDiscover(t *testing.T) {
 		}, {
 			Node: models.RDSNode{
 				Type:   "rds",
-				Name:   "rds-aurora2",
-				Region: "us-east-1",
-			},
-			Service: models.RDSService{
-				Type:          "rds",
-				Address:       pointer.ToString("rds-aurora2.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
-				Port:          pointer.ToUint16(3306),
-				Engine:        pointer.ToString("aurora"),
-				EngineVersion: pointer.ToString("5.6.10a"),
-			},
-		}, {
-			Node: models.RDSNode{
-				Type:   "rds",
 				Name:   "rds-mysql56",
 				Region: "us-east-1",
 			},
