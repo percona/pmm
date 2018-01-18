@@ -191,6 +191,7 @@ followed by the name of a |prometheus| job, URL and port number to reach it.
    :start-after: +pmm-admin.add.external-metrics.job-name.url.port-number+
    :end-before: #+end-block
 
+
 The following example adds an external monitoring service which
 monitors a |postgresql| instance at 192.168.200.1, port 9187. If the
 command succeeds then running :ref:`pmm-admin.list` shows the newly
@@ -262,6 +263,9 @@ when adding the |opt.mongodb-metrics| monitoring service.
    * - |opt.mongodb-tls-private-key| *string*
      - A path to a PEM file that contains the private key (if not contained in the :option:`mongodb.tls-cert` file).
 
+.. include:: .res/code/sh.org
+   :start-after: +mongod.dbpath.profile.slowms.ratelimit+
+   :end-before: #+end-block
 
 .. _pmm-admin-add-linux-metrics:
 
