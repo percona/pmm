@@ -48,6 +48,13 @@ Improvements
   **mongodb_scrape_errors_total** informing the total number of times an error
   occurred when scraping |mongodb|.
 
+- :pmmbug:`1764`: Various small **mongodb_exporter** improvement
+- :pmmbug:`1942`: Improved the consistency of using labels in all |prometheus|
+  related dashboards.
+- :pmmbug:`1936`: Updated the *Prometheus* dashboard in |metrics-monitor|
+- :pmmbug:`1937` Added the *CPU Utilization Details (Cores)* dashboard to
+  |metrics-monitor|.
+
 Bug fixes
 ================================================================================
 
