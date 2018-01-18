@@ -58,11 +58,13 @@ Improvements
 Bug fixes
 ================================================================================
 
+.. - :pmmbug:`1660`: n some cases, |qan| did not show data for |mongodb| hosts.
+   
 - :pmmbug:`1549`: Broken default auth db for |opt.mongodb-queries|
 - :pmmbug:`1631`: In some cases percentage values were displayed
   incorrectedly for |mongodb| hosts.
 - :pmmbug:`1640`: RDS exporter: simplify configuration.
-- :pmmbug:`1660`: n some cases, |qan| did not show data for |mongodb| hosts.
+
 - :pmmbug:`1760`: After the mongodb:metrics monitoring service was added, the
   usage of CPU considerably increased in |qan| versions 1.4.1 through 1.5.3.
 
