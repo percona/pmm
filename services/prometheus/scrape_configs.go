@@ -19,8 +19,13 @@ package prometheus
 import (
 	"context"
 	"encoding/json"
+	"path"
+	"sort"
+	"sync"
+	"time"
 
 	"github.com/pkg/errors"
+	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -67,6 +72,23 @@ type ScrapeConfig struct {
 	RelabelConfigs []RelabelConfig
 }
 
+type Health int32
+
+const (
+	HealthUnknown Health = 0
+	HealthDown    Health = 1
+	HealthUp      Health = 2
+)
+
+// ScrapeTargetHealth represents Prometheus scrape target health: unknown, down, or up.
+type ScrapeTargetHealth struct {
+	JobName  string
+	Job      string
+	Target   string
+	Instance string
+	Health   Health
+}
+
 type consulData struct {
 	ScrapeConfigs []ScrapeConfig
 }
@@ -97,18 +119,110 @@ func (svc *Service) putToConsul(scs []ScrapeConfig) error {
 	return svc.consul.PutKV(ConsulKey, b)
 }
 
+// getTargetsHealth gets all targets from Prometheus and converts response to job -> instance -> health map.
+func (svc *Service) getTargetsHealth(ctx context.Context) (map[string]map[string]Health, error) {
+	u := *svc.baseURL
+	u.Path = path.Join(u.Path, "api/v1/targets")
+	resp, err := svc.client.Get(u.String())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	defer resp.Body.Close()
+
+	// Copied from vendor/github.com/prometheus/prometheus/web/api/v1/api.go to avoid a ton of dependencies
+	type target struct {
+		DiscoveredLabels model.LabelSet `json:"discoveredLabels"`
+		Labels           model.LabelSet `json:"labels"`
+		ScrapeURL        string         `json:"scrapeUrl"`
+		LastError        string         `json:"lastError"`
+		LastScrape       time.Time      `json:"lastScrape"`
+		Health           string         `json:"health"` // 	"unknown", "up", or "down"
+	}
+	type result struct {
+		Status string `json:"status"`
+		Data   struct {
+			ActiveTargets []target `json:"activeTargets"`
+		} `json:"data"`
+	}
+	var res result
+	if err = json.NewDecoder(resp.Body).Decode(&res); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	health := make(map[string]map[string]Health)
+	for _, target := range res.Data.ActiveTargets {
+		job := string(target.Labels["job"])
+		instance := string(target.Labels["instance"])
+		if health[job] == nil {
+			health[job] = make(map[string]Health)
+		}
+
+		health[job][instance] = HealthUnknown
+		switch target.Health {
+		case "down":
+			health[job][instance] = HealthDown
+		case "up":
+			health[job][instance] = HealthUp
+		}
+	}
+	return health, nil
+}
+
+// jobInstanceValues returns "job" and "instance" label values for given ScrapeConfig and static target.
+// Relabeling is considered.
+func jobInstanceValues(cfg *ScrapeConfig, target string) (job string, instance string) {
+	job = cfg.JobName
+	instance = target
+
+	for _, rl := range cfg.RelabelConfigs {
+		if rl.TargetLabel == "job" {
+			job = rl.Replacement
+		}
+		if rl.TargetLabel == "instance" {
+			instance = rl.Replacement
+		}
+	}
+
+	for _, sc := range cfg.StaticConfigs {
+		for _, t := range sc.Targets {
+			if t == target {
+				for _, lp := range sc.Labels {
+					if lp.Name == "job" {
+						job = lp.Value
+					}
+					if lp.Name == "instance" {
+						instance = lp.Value
+					}
+				}
+				return
+			}
+		}
+	}
+	return
+}
+
 // ListScrapeConfigs returns all scrape configs.
-func (svc *Service) ListScrapeConfigs(ctx context.Context) ([]ScrapeConfig, error) {
+func (svc *Service) ListScrapeConfigs(ctx context.Context) ([]ScrapeConfig, []ScrapeTargetHealth, error) {
 	svc.lock.RLock()
 	defer svc.lock.RUnlock()
 
+	// start getting targets health from Prometheus early
+	var healthWG sync.WaitGroup
+	var health map[string]map[string]Health
+	var healthErr error
+	healthWG.Add(1)
+	go func() {
+		defer healthWG.Done()
+		health, healthErr = svc.getTargetsHealth(ctx)
+	}()
+
 	consulData, err := svc.getFromConsul()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	config, err := svc.loadConfig()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// return data from Prometheus config to fill default values
@@ -123,27 +237,81 @@ func (svc *Service) ListScrapeConfigs(ctx context.Context) ([]ScrapeConfig, erro
 			}
 		}
 		if !found {
-			return nil, status.Errorf(codes.FailedPrecondition, "scrape config with job name %q not found in configuration file", consulCfg.JobName)
+			err = status.Errorf(codes.FailedPrecondition, "scrape config with job name %q not found in configuration file", consulCfg.JobName)
+			return nil, nil, err
 		}
 	}
-	return res, nil
+
+	healthWG.Wait()
+	if healthErr != nil {
+		return nil, nil, healthErr
+	}
+
+	// return only health of managed scrape targets, not all of them
+	var healthRes []ScrapeTargetHealth
+	for _, cfg := range res {
+		for _, sc := range cfg.StaticConfigs {
+			for _, t := range sc.Targets {
+				// default health is unknown
+				jobValue, instanceValue := jobInstanceValues(&cfg, t)
+				st := ScrapeTargetHealth{
+					JobName:  cfg.JobName,
+					Job:      jobValue,
+					Target:   t,
+					Instance: instanceValue,
+					Health:   HealthUnknown,
+				}
+
+				// check we know real health from Prometheus
+				for job, instances := range health {
+					if jobValue != job {
+						continue
+					}
+					for instance, h := range instances {
+						if instanceValue != instance {
+							continue
+						}
+						st.Health = h
+					}
+				}
+
+				healthRes = append(healthRes, st)
+			}
+		}
+	}
+
+	sort.Slice(healthRes, func(i, j int) bool {
+		ri, rj := healthRes[i], healthRes[j]
+		if ri.JobName != rj.JobName {
+			return ri.JobName < rj.JobName
+		}
+		return ri.Instance < rj.Instance
+	})
+
+	return res, healthRes, nil
 }
 
 // GetScrapeConfig returns a scrape config by job name.
 // Errors: NotFound(5) if no such scrape config is present.
-func (svc *Service) GetScrapeConfig(ctx context.Context, jobName string) (*ScrapeConfig, error) {
+func (svc *Service) GetScrapeConfig(ctx context.Context, jobName string) (*ScrapeConfig, []ScrapeTargetHealth, error) {
 	// lock is held by ListScrapeConfigs
-	cfgs, err := svc.ListScrapeConfigs(ctx)
+	cfgs, health, err := svc.ListScrapeConfigs(ctx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	for _, cfg := range cfgs {
 		if cfg.JobName == jobName {
-			return &cfg, nil
+			var healthRes []ScrapeTargetHealth
+			for _, h := range health {
+				if h.JobName == jobName {
+					healthRes = append(healthRes, h)
+				}
+			}
+			return &cfg, healthRes, nil
 		}
 	}
-	return nil, status.Errorf(codes.NotFound, "scrape config with job name %q not found", jobName)
+	return nil, nil, status.Errorf(codes.NotFound, "scrape config with job name %q not found", jobName)
 }
 
 // CreateScrapeConfig creates a new scrape config.

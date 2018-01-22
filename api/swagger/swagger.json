@@ -309,6 +309,16 @@
     }
   },
   "definitions": {
+    "ScrapeTargetHealthHealth": {
+      "description": "Target health : unknown, down, or up.",
+      "type": "string",
+      "default": "UNKNOWN",
+      "enum": [
+        "UNKNOWN",
+        "DOWN",
+        "UP"
+      ]
+    },
     "apiBaseVersionResponse": {
       "type": "object",
       "properties": {
@@ -539,6 +549,13 @@
       "properties": {
         "scrape_config": {
           "$ref": "#/definitions/apiScrapeConfig"
+        },
+        "scrape_targets_health": {
+          "type": "array",
+          "title": "Scrape targets health for this scrape job",
+          "items": {
+            "$ref": "#/definitions/apiScrapeTargetHealth"
+          }
         }
       }
     },
@@ -549,6 +566,13 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/apiScrapeConfig"
+          }
+        },
+        "scrape_targets_health": {
+          "type": "array",
+          "title": "Scrape targets health for all managed scrape jobs",
+          "items": {
+            "$ref": "#/definitions/apiScrapeTargetHealth"
           }
         }
       }
@@ -570,6 +594,31 @@
     },
     "apiScrapeConfigsRemoveStaticTargetsResponse": {
       "type": "object"
+    },
+    "apiScrapeTargetHealth": {
+      "description": "ScrapeTargetHealth represents Prometheus scrape target health: unknown, down, or up.",
+      "type": "object",
+      "properties": {
+        "health": {
+          "$ref": "#/definitions/ScrapeTargetHealthHealth"
+        },
+        "instance": {
+          "type": "string",
+          "title": "\"instance\" label value, may be different from target due to relabeling"
+        },
+        "job": {
+          "type": "string",
+          "title": "\"job\" label value, may be different from job_name due to relabeling"
+        },
+        "job_name": {
+          "type": "string",
+          "title": "Original scrape job name"
+        },
+        "target": {
+          "type": "string",
+          "title": "Original target"
+        }
+      }
     },
     "apiStaticConfig": {
       "type": "object",

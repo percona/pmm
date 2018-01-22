@@ -66,11 +66,37 @@ message ScrapeConfig {
     repeated StaticConfig static_configs = 8;
 }
 
+// ScrapeTargetHealth represents Prometheus scrape target health: unknown, down, or up.
+message ScrapeTargetHealth {
+    // Original scrape job name
+    string job_name = 1;
+
+    // "job" label value, may be different from job_name due to relabeling
+    string job = 2;
+
+    // Original target
+    string target = 3;
+
+    // "instance" label value, may be different from target due to relabeling
+    string instance = 4;
+
+    // Target health : unknown, down, or up.
+    enum Health {
+        UNKNOWN = 0;
+        DOWN = 1;
+        UP = 2;
+    }
+    Health health = 5;
+}
+
 message ScrapeConfigsListRequest {
 }
 
 message ScrapeConfigsListResponse {
     repeated ScrapeConfig scrape_configs = 1;
+
+    // Scrape targets health for all managed scrape jobs
+    repeated ScrapeTargetHealth scrape_targets_health = 2;
 }
 
 message ScrapeConfigsGetRequest {
@@ -79,6 +105,9 @@ message ScrapeConfigsGetRequest {
 
 message ScrapeConfigsGetResponse {
     ScrapeConfig scrape_config = 1;
+
+    // Scrape targets health for this scrape job
+    repeated ScrapeTargetHealth scrape_targets_health = 2;
 }
 
 message ScrapeConfigsCreateRequest {

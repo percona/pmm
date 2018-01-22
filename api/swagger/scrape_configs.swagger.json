@@ -169,6 +169,16 @@
     }
   },
   "definitions": {
+    "ScrapeTargetHealthHealth": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "DOWN",
+        "UP"
+      ],
+      "default": "UNKNOWN",
+      "description": "Target health : unknown, down, or up."
+    },
     "apiBasicAuth": {
       "type": "object",
       "properties": {
@@ -270,6 +280,13 @@
       "properties": {
         "scrape_config": {
           "$ref": "#/definitions/apiScrapeConfig"
+        },
+        "scrape_targets_health": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiScrapeTargetHealth"
+          },
+          "title": "Scrape targets health for this scrape job"
         }
       }
     },
@@ -281,6 +298,13 @@
           "items": {
             "$ref": "#/definitions/apiScrapeConfig"
           }
+        },
+        "scrape_targets_health": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiScrapeTargetHealth"
+          },
+          "title": "Scrape targets health for all managed scrape jobs"
         }
       }
     },
@@ -301,6 +325,31 @@
     },
     "apiScrapeConfigsRemoveStaticTargetsResponse": {
       "type": "object"
+    },
+    "apiScrapeTargetHealth": {
+      "type": "object",
+      "properties": {
+        "job_name": {
+          "type": "string",
+          "title": "Original scrape job name"
+        },
+        "job": {
+          "type": "string",
+          "title": "\"job\" label value, may be different from job_name due to relabeling"
+        },
+        "target": {
+          "type": "string",
+          "title": "Original target"
+        },
+        "instance": {
+          "type": "string",
+          "title": "\"instance\" label value, may be different from target due to relabeling"
+        },
+        "health": {
+          "$ref": "#/definitions/ScrapeTargetHealthHealth"
+        }
+      },
+      "description": "ScrapeTargetHealth represents Prometheus scrape target health: unknown, down, or up."
     },
     "apiStaticConfig": {
       "type": "object",

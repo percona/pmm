@@ -32,6 +32,7 @@ It has these top-level messages:
 	BasicAuth
 	TLSConfig
 	ScrapeConfig
+	ScrapeTargetHealth
 	ScrapeConfigsListRequest
 	ScrapeConfigsListResponse
 	ScrapeConfigsGetRequest
