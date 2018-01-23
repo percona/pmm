@@ -221,7 +221,7 @@ func (svc *Service) removeInstance(ctx context.Context, qanURL *url.URL, uuid st
 }
 
 // ensureAgentRuns checks qan-agent process status and starts it if it is not configured or down.
-func (svc *Service) ensureAgentRuns(ctx context.Context, nameForSupervisor string, port uint16) error {
+func (svc *Service) EnsureAgentRuns(ctx context.Context, nameForSupervisor string, port uint16) error {
 	err := svc.supervisor.Status(ctx, nameForSupervisor)
 	if err != nil {
 		err = svc.supervisor.Stop(ctx, nameForSupervisor)
@@ -335,7 +335,7 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 		return errors.WithStack(err)
 	}
 
-	if err = svc.ensureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
+	if err = svc.EnsureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
 		return err
 	}
 
@@ -361,7 +361,7 @@ func (svc *Service) RemoveMySQL(ctx context.Context, qanAgent *models.QanAgent) 
 	}
 
 	// agent should be running to remove instance from it
-	if err = svc.ensureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
+	if err = svc.EnsureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
 		return err
 	}
 
