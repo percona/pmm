@@ -48,17 +48,24 @@ Improvements
   **mongodb_scrape_errors_total** informing the total number of times an error
   occurred when scraping |mongodb|.
 
-- :pmmbug:`1764`: Various small **mongodb_exporter** improvement
+- :pmmbug:`1764`: Various small **mongodb_exporter** improvements
+- :pmmbug:`1887`: Improved the help text for |pmm-admin| to provide
+  more information about exporter options.
 - :pmmbug:`1942`: Improved the consistency of using labels in all |prometheus|
   related dashboards.
-- :pmmbug:`1936`: Updated the *Prometheus* dashboard in |metrics-monitor|
-- :pmmbug:`1937` Added the *CPU Utilization Details (Cores)* dashboard to
+- :pmmbug:`1936`: Updated the |prometheus| dashboard in |metrics-monitor|
+- :pmmbug:`1937`: Added the *CPU Utilization Details (Cores)* dashboard to
   |metrics-monitor|.
+- :pmmbug:`1939`: In |metrics-monitor|, two new dashboards have been
+  added to provide more information about |prometheus| exporters. The
+  *Prometheus Exporters Overview* dashboard provides a summary of how
+  exporters utilize system resources and the *Prometheus Exporter Status*
+  dashboard tracks the performance of each |prometheus| exporter.
 
 Bug fixes
 ================================================================================
 
-.. - :pmmbug:`1660`: n some cases, |qan| did not show data for |mongodb| hosts.
+.. - :pmmbug:`1660`: In some cases, |qan| did not show data for |mongodb| hosts.
    
 - :pmmbug:`1549`: Broken default auth db for |opt.mongodb-queries|
 - :pmmbug:`1631`: In some cases percentage values were displayed
@@ -98,5 +105,6 @@ Bug fixes
 .. |release| replace:: 1.6.0
 		       
 .. include:: ../.res/replace/name.txt
+.. include:: ../.res/replace/program.txt
 .. include:: ../.res/replace/option.txt			    
 .. include:: ../.res/replace/url.txt
