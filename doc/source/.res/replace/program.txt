@@ -8,6 +8,7 @@
 .. |vboxmanage| replace:: :program:`VBoxManage`
 .. |systemd|    replace:: :program:`systemd`
 .. |sed|        replace:: :program:`sed`
+.. |cd|         replace:: :program:`cd`
 
 .. Commands
 

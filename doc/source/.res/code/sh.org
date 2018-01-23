@@ -1235,17 +1235,17 @@ Demonstrates how to set the option to 8 days.
 .. code-block:: text
 
    # Import image
-   VBoxManage import PMM-Server-2017-01-24.ova
+   VBoxManage import pmm-server-|VERSION NUMBER|.ova
 
    # Modify NIC settings if needed
    VBoxManage list bridgedifs
-   VBoxManage modifyvm 'PMM Server [2017-01-24]' --nic1 bridged --bridgeadapter1 'en0: Wi-Fi (AirPort)'
+   VBoxManage modifyvm 'PMM Server [VERSION NUMBER]' --nic1 bridged --bridgeadapter1 'en0: Wi-Fi (AirPort)'
 
    # Log console output into file
-   VBoxManage modifyvm 'PMM Server [2017-01-24]' --uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
+   VBoxManage modifyvm 'PMM Server [VERSION NUMBER]' --uart1 0x3F8 4 --uartmode1 file /tmp/pmm-server-console.log
 
    # Start instance
-   VBoxManage startvm --type headless 'PMM Server [2017-01-24]'
+   VBoxManage startvm --type headless 'PMM Server [VERSION NUMBER]'
 
    # Wait for 1 minute and get IP address from the log
    sleep 60

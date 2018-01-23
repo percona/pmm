@@ -47,15 +47,14 @@ Improvements
   **mongodb_up** informing if the |mongodb| server is running and
   **mongodb_scrape_errors_total** informing the total number of times an error
   occurred when scraping |mongodb|.
-
 - :pmmbug:`1764`: Various small **mongodb_exporter** improvements
-- :pmmbug:`1887`: Improved the help text for |pmm-admin| to provide
-  more information about exporter options.
 - :pmmbug:`1942`: Improved the consistency of using labels in all |prometheus|
   related dashboards.
 - :pmmbug:`1936`: Updated the |prometheus| dashboard in |metrics-monitor|
 - :pmmbug:`1937`: Added the *CPU Utilization Details (Cores)* dashboard to
   |metrics-monitor|.
+- :pmmbug:`1887`: Improved the help text for |pmm-admin| to provide
+  more information about exporter options.
 - :pmmbug:`1939`: In |metrics-monitor|, two new dashboards have been
   added to provide more information about |prometheus| exporters. The
   *Prometheus Exporters Overview* dashboard provides a summary of how

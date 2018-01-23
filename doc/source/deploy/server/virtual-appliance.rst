@@ -99,34 +99,37 @@ using the graphical user interface of VirtualBox:
    the URL for accessing PMM will be printed in the console window.
 
 Running in VirtualBox Using the Command Line
-============================================
+================================================================================
 
-Instead of using the |virtualbox| GUI,
-you can do everything on the command line.
-Use the ``VBoxManage`` command to import, configure,
-and start the appliance.
+Instead of using the |virtualbox| GUI, you can do everything on the command
+line. Use the ``VBoxManage`` command to import, configure, and start the
+appliance.
 
-The following script imports the |pmm-server| appliance
-from :file:`PMM-Server-2017-01-24.ova`
-and configures it to bridge the `en0` adapter from the host.
-Then the script routes console output from the appliance
-to :file:`/tmp/pmm-server-console.log`.
-This is done because the script then starts the appliance in headless mode
-(that is, without the console).
-To get the IP address for accessing PMM,
-the script waits for 1 minute until the appliance boots up
-and returns the lines with the IP address from the log file.
+The following script imports the |pmm-server| appliance from
+:file:`PMM-Server-1.6.0.ova` and configures it to bridge the `en0` adapter from
+the host.  Then the script routes console output from the appliance to
+:file:`/tmp/pmm-server-console.log`.  This is done because the script then
+starts the appliance in headless (without the console) mode.
+
+To get the IP address for accessing PMM, the script waits for 1 minute until the
+appliance boots up and returns the lines with the IP address from the log file.
 
 .. include:: ../../.res/code/sh.org
    :start-after: +vboxmanage+
    :end-before: #+end-block
 
-To use this script, change the name of the image to the latest version
-downloaded from the `Download Percona Monitoring and Management` site
-and run it in the same directory.
+In this script, :code:`[VERSION NUMBER]` is the placeholder of the version of
+|pmm-server| that you are installing. By convention **OVA** files start with
+*pmm-server-* followed by the full version number such as |release|.
+
+To use this script, make sure to replace this placeholder with the the name of
+the image that you have downloaded from the `Download Percona Monitoring and
+Management`_ site. This script also assumes that you have changed the working
+directory (using the |cd| command, for example) to the directory which contains
+the downloaded image file.
 
 Accessing the Virtual Machine
-=============================
+================================================================================
 
 To access the VM with the *PMM Server* appliance via SSH,
 provide your public key:
@@ -145,7 +148,7 @@ use the following command::
  ssh admin@192.168.100.1 -i ~/.ssh/pmm-admin.key
 
 Next Steps
-==========
+================================================================================
 
 :ref:`Verify that PMM Server is running <deploy-pmm.server.verifying>`
 by connecting to the PMM web interface using the IP address
