@@ -205,41 +205,45 @@ added external exporter at the bottom of the command's output:
 
 .. _pmm.pmm-admin.monitoring-service.pass-parameter:
 
-Passing parameters to a monitoring service
+Passing options to the exporter
 --------------------------------------------------------------------------------
 
-|pmm-admin.add| sends all options which follow :option:`--` (two
-consecutive dashes delimited by whitespace) to the monitoring service as
-parameters.
+|pmm-admin.add| sends all options which follow :option:`--` (two consecutive
+dashes delimited by whitespace) to the |prometheus| exporter that the given
+monitoring services uses. Each exporter has its own set of options.
+
+|tip.run-all.root|.
 
 .. code-block:: bash
-   :caption: Passing :option:`--collect.perf_schema.eventsstatements` to the
+   :caption: Passing :code:`--collect.perf_schema.eventsstatements` to the
              |opt.mysql-metrics| monitoring service
    :name: pmm.pmm-admin.monitoring-service.pass-parameter.example
 
-   $ sudo pmm-admin add mysql:metrics -- --collect.perf_schema.eventsstatements
+   $ pmm-admin add mysql:metrics -- --collect.perf_schema.eventsstatements
 
 .. code-block:: bash
    :caption: Passing :option:`--collect.perf_schema.eventswaits=false` to the
              :option:`mysql:metrics` monitoring service
    :name: pmm.pmm-admin.monitoring-service.pass-parameter.example2
 
-   $ sudo pmm-admin add mysql:metrics -- --collect.perf_schema.eventswaits=false
+   $ pmm-admin add mysql:metrics -- --collect.perf_schema.eventswaits=false
 
-
+The section :ref:`pmm/list.exporter-option` contains all option
+grouped by exporters.
+   
 .. _pmm.pmm-admin.mongodb.pass-ssl-parameter:
 
 Passing SSL parameters to the mongodb monitoring service
 --------------------------------------------------------------------------------
 
 SSL/TLS related parameters are passed to an SSL enabled MongoDB server as
-monitoring service parameters along with the |pmm-admin.add| command
-when adding the |opt.mongodb-metrics| monitoring service.
+monitoring service parameters along with the |pmm-admin.add| command when adding
+the |opt.mongodb-metrics| monitoring service.
 
 |tip.run-this.root|
 
 .. include:: .res/code/sh.org
-   :start-after: +pmm-admin.add.mongodb-metrics.mongodb.tls+
+   :start-after: +pmm-admin.add.mongodb-metrics.mongodb-tls+
    :end-before: #+end-block
    
 .. list-table:: Supported SSL/TLS Parameters
