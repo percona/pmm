@@ -1,11 +1,11 @@
-.. _pmm/glossary.option:
+.. _pmm/glossary.pmm-server.additional-option:
 
 ================================================================================
-|pmm-server| Options
+|pmm-server| Additional Options
 ================================================================================
 
-This glossary contains the options that you may pass as additional parameters
-when starting |pmm-server|.
+This glossary contains the addtional options that you may pass when starting
+|pmm-server|.
 
 If you use |docker| to run the server, use the :option:`-e` flag followed by the
 parameter. Use this flag in front of each parameter that you pass to the
@@ -24,34 +24,24 @@ List of |pmm-server| Options
 .. glossary::
    :sorted:
 
-   MySQL Server Exporter (Option)
+   DISABLE_TELEMETRY
 
-      The following options may be passed to the |opt.mysql-metrics|
-      monitoring service as additional options.
+      With :term:`telemetry` enabled, your |pmm-server| sends some statistics to
+      `v.percona.com`_ every 24 hours. This statistics includes the following
+      details:
 
-      .. rubric:: Collector options
+      - |pmm-server| unique ID
+      - |pmm| version
+      - The name and version of the operating system
+      - |mysql| version
+      - |perl| version
 
-      .. include:: .res/table/table.org
-	 :start-after: +mysqld-exporter.collector-flag+
-	 :end-before: #+end-table
+      If you do not want your |pmm-server| to send this information, disable telemetry
+      when running your |docker| container:
 
-      .. rubric:: General options
-
-      .. include:: .res/table/table.org
-	 :start-after: +mysqld-exporter.collector-flag+
-	 :end-before: #+end-table
-
-      .. seealso::
-
-	 Adding monitoring services
-	    :ref:`pmm-admin.add`
-	 Passing options to a monitoring service
-	    :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
-
-   mysqld_exporter
-
-      See :term:`MySQL Server Exporters <MySQL Server Exporter (Option)>`
-
+      .. include:: .res/code/sh.org
+	 :start-after: +docker.run.disable-telemetry+
+	 :end-before: #+end-block
 
    METRICS_RETENTION (Option)
 
@@ -180,7 +170,6 @@ List of |pmm-server| Options
 	 :start-after: +docker.run.metrics-resolution+
 	 :end-before: #+end-block
 
-
    METRICS_MEMORY (Option)
 
       By default, |prometheus| in |pmm-server| uses up to 768 MB of memory for storing
@@ -205,16 +194,22 @@ List of |pmm-server| Options
 
    DISABLE_UPDATES (Option)
 
-      The |opt.disable-updates| option removes the :guilabel:`Update` button
-      from the interface and prevents the system from being updated manually.
+      To update your |pmm| from web interface you only need to click the
+      |gui.update| on the home page. The |opt.disable-updates| option is useful
+      if updating is not desirable. Set it to **true** when running |pmm| in
+      the |docker| container.
 
-      Set it to *true* when running a docker container:
+      |tip.run-this.root|.
 
       .. include:: .res/code/sh.org
 	 :start-after: +docker.run.disable-updates+
 	 :end-before: #+end-block
 
+      The |opt.disable-updates| option removes the :guilabel:`Update` button
+      from the interface and prevents the system from being updated manually.
+
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/option.txt
 .. include:: .res/replace/program.txt
 .. include:: .res/replace/fragment.txt
+.. include:: .res/replace/url.txt
