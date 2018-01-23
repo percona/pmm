@@ -64,9 +64,10 @@ Bug fixes
 - :pmmbug:`1631`: In some cases percentage values were displayed
   incorrectedly for |mongodb| hosts.
 - :pmmbug:`1640`: RDS exporter: simplify configuration.
-
 - :pmmbug:`1760`: After the mongodb:metrics monitoring service was added, the
   usage of CPU considerably increased in |qan| versions 1.4.1 through 1.5.3.
+
+  In our limited testing we observed the following results:
 
   ===========  =================================================================
   PMM Version  CPU Usage

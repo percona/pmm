@@ -75,7 +75,7 @@ To create and launch |pmm-server| in one command, use |docker.run|:
 .. include:: ../../.res/code/sh.org
    :start-after: +docker.run.latest+
    :end-before: #+end-block
-		
+
 This command does the following:
 
 * The |docker.run| command runs a new container based on the
