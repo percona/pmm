@@ -32,7 +32,7 @@
         ]
       },
       "post": {
-        "summary": "Create creates a new scrape config.\nErrors: InvalidArgument(3) if some argument is not valid,\nAlreadyExists(6) if scrape config with that job name is already present.",
+        "summary": "Create creates a new scrape config.\nErrors: InvalidArgument(3) if some argument is not valid,\nAlreadyExists(6) if scrape config with that job name is already present,\nFailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.",
         "operationId": "Create",
         "responses": {
           "200": {
@@ -107,6 +107,7 @@
     },
     "/v0/scrape-configs/{job_name}/static-targets": {
       "delete": {
+        "summary": "Remove static targets from existing scrape config.\nErrors: NotFound(5) if no such scrape config is present.",
         "operationId": "RemoveStaticTargets",
         "responses": {
           "200": {
@@ -137,6 +138,7 @@
         ]
       },
       "post": {
+        "summary": "Add static targets to existing scrape config.\nErrors: NotFound(5) if no such scrape config is present,\nFailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.",
         "operationId": "AddStaticTargets",
         "responses": {
           "200": {
@@ -255,6 +257,11 @@
             "type": "string"
           },
           "title": "Hostnames or IPs followed by an optional port number: \"1.2.3.4:9090\""
+        },
+        "check_reachability": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Check that added targets can be scraped from PMM Server"
         }
       }
     },
@@ -266,6 +273,11 @@
       "properties": {
         "scrape_config": {
           "$ref": "#/definitions/apiScrapeConfig"
+        },
+        "check_reachability": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Check that added targets can be scraped from PMM Server"
         }
       }
     },

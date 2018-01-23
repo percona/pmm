@@ -112,6 +112,9 @@ message ScrapeConfigsGetResponse {
 
 message ScrapeConfigsCreateRequest {
     ScrapeConfig scrape_config = 1;
+
+    // Check that added targets can be scraped from PMM Server
+    bool check_reachability = 2;
 }
 
 message ScrapeConfigsCreateResponse {
@@ -129,6 +132,9 @@ message ScrapeConfigsAddStaticTargetsRequest {
 
     // Hostnames or IPs followed by an optional port number: "1.2.3.4:9090"
     repeated string targets = 2;
+
+    // Check that added targets can be scraped from PMM Server
+    bool check_reachability = 3;
 }
 
 message ScrapeConfigsAddStaticTargetsResponse {
@@ -162,7 +168,8 @@ service ScrapeConfigs {
 
     // Create creates a new scrape config.
     // Errors: InvalidArgument(3) if some argument is not valid,
-    // AlreadyExists(6) if scrape config with that job name is already present.
+    // AlreadyExists(6) if scrape config with that job name is already present,
+    // FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
     rpc Create(ScrapeConfigsCreateRequest) returns (ScrapeConfigsCreateResponse) {
         option (google.api.http) = {
             post: "/v0/scrape-configs",
@@ -178,6 +185,9 @@ service ScrapeConfigs {
         };
     }
 
+    // Add static targets to existing scrape config.
+    // Errors: NotFound(5) if no such scrape config is present,
+    // FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
     rpc AddStaticTargets(ScrapeConfigsAddStaticTargetsRequest) returns (ScrapeConfigsAddStaticTargetsResponse) {
         option (google.api.http) = {
             post: "/v0/scrape-configs/{job_name}/static-targets",
@@ -185,6 +195,8 @@ service ScrapeConfigs {
         };
     }
 
+    // Remove static targets from existing scrape config.
+    // Errors: NotFound(5) if no such scrape config is present.
     rpc RemoveStaticTargets(ScrapeConfigsRemoveStaticTargetsRequest) returns (ScrapeConfigsRemoveStaticTargetsResponse) {
         option (google.api.http) = {
             delete: "/v0/scrape-configs/{job_name}/static-targets",

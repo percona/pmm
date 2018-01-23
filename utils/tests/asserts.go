@@ -32,8 +32,8 @@ func AssertGRPCError(t testing.TB, expected *status.Status, actual error) {
 	if !assert.True(t, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
 		return
 	}
-	assert.Equal(t, expected.Code(), s.Code())
-	assert.Equal(t, expected.Message(), s.Message())
+	assert.Equal(t, expected.Code(), s.Code(), "gRPC status codes are not equal")
+	assert.Equal(t, expected.Message(), s.Message(), "gRPC status messages are not equal")
 }
 
 func AssertGRPCErrorRE(t testing.TB, expectedCode codes.Code, expectedMessageRE string, actual error) {
@@ -43,6 +43,6 @@ func AssertGRPCErrorRE(t testing.TB, expectedCode codes.Code, expectedMessageRE 
 	if !assert.True(t, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
 		return
 	}
-	assert.Equal(t, expectedCode, s.Code())
-	assert.Regexp(t, expectedMessageRE, s.Message())
+	assert.Equal(t, expectedCode, s.Code(), "gRPC status codes are not equal")
+	assert.Regexp(t, expectedMessageRE, s.Message(), "gRPC status message does not match")
 }

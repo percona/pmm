@@ -124,13 +124,13 @@ func TestPrometheusScrapeConfigs(t *testing.T) {
 			Replacement: "ScrapeConfigs_relabeled",
 		}},
 	}
-	err = p.CreateScrapeConfig(ctx, cfg)
+	err = p.CreateScrapeConfig(ctx, cfg, false)
 	require.NoError(t, err)
 
-	err = p.CreateScrapeConfig(ctx, cfg)
+	err = p.CreateScrapeConfig(ctx, cfg, false)
 	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `scrape config with job name "ScrapeConfigs" already exist`), err)
 
-	err = p.CreateScrapeConfig(ctx, &ScrapeConfig{JobName: "prometheus"})
+	err = p.CreateScrapeConfig(ctx, &ScrapeConfig{JobName: "prometheus"}, false)
 	tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `scrape config with job name "prometheus" is built-in`), err)
 
 	// other fields are filled by global values or defaults
@@ -172,6 +172,27 @@ func TestPrometheusScrapeConfigs(t *testing.T) {
 	assert.Equal(t, expectedHealth, health)
 }
 
+func TestPrometheusScrapeConfigsReachability(t *testing.T) {
+	p, ctx, before := setup(t)
+	defer teardown(t, p, before)
+
+	cfg := &ScrapeConfig{
+		JobName:        "ScrapeConfigsReachability",
+		ScrapeInterval: "1s",
+		StaticConfigs: []StaticConfig{
+			{[]string{"127.0.0.1:12345"}, nil},
+		},
+	}
+	err := p.CreateScrapeConfig(ctx, cfg, true)
+	expectedErr := status.New(codes.FailedPrecondition, `127.0.0.1:12345: Get http://127.0.0.1:12345/metrics: dial tcp 127.0.0.1:12345: getsockopt: connection refused`)
+	tests.AssertGRPCError(t, expectedErr, err)
+
+	actual, health, err := p.GetScrapeConfig(ctx, "ScrapeConfigsReachability")
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "ScrapeConfigsReachability" not found`), err)
+	assert.Nil(t, actual)
+	assert.Nil(t, health)
+}
+
 func TestPrometheusStaticTargets(t *testing.T) {
 	p, ctx, before := setup(t)
 	defer teardown(t, p, before)
@@ -186,12 +207,12 @@ func TestPrometheusStaticTargets(t *testing.T) {
 			{[]string{"127.0.1.1:12345"}, nil},
 		},
 	}
-	err := p.CreateScrapeConfig(ctx, cfg)
+	err := p.CreateScrapeConfig(ctx, cfg, false)
 	require.NoError(t, err)
 
 	// add the same targets twice: no error, no duplicate
 	for i := 0; i < 2; i++ {
-		err = p.AddStaticTargets(ctx, "StaticTargets", []string{"127.0.1.2:12345", "127.0.1.2:12345"})
+		err = p.AddStaticTargets(ctx, "StaticTargets", []string{"127.0.1.2:12345", "127.0.1.2:12345"}, false)
 		require.NoError(t, err)
 	}
 
@@ -207,10 +228,10 @@ func TestPrometheusStaticTargets(t *testing.T) {
 	}
 	assert.Equal(t, expectedHealth, statuses)
 
-	err = p.AddStaticTargets(ctx, "no_such_config", []string{"127.0.1.2:12345", "127.0.1.2:12345"})
+	err = p.AddStaticTargets(ctx, "no_such_config", []string{"127.0.1.2:12345", "127.0.1.2:12345"}, false)
 	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
 
-	err = p.AddStaticTargets(ctx, "prometheus", []string{"127.0.1.2:12345", "127.0.1.2:12345"})
+	err = p.AddStaticTargets(ctx, "prometheus", []string{"127.0.1.2:12345", "127.0.1.2:12345"}, false)
 	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
 
 	// remove the same target twice: no error
@@ -246,6 +267,30 @@ func TestPrometheusStaticTargets(t *testing.T) {
 	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
 }
 
+func TestPrometheusStaticTargetsReachability(t *testing.T) {
+	p, ctx, before := setup(t)
+	defer teardown(t, p, before)
+
+	cfg := &ScrapeConfig{
+		JobName:        "StaticTargetsReachability",
+		ScrapeInterval: "1s",
+		ScrapeTimeout:  "1s",
+		MetricsPath:    "/external",
+		Scheme:         "http",
+	}
+	err := p.CreateScrapeConfig(ctx, cfg, false)
+	require.NoError(t, err)
+
+	err = p.AddStaticTargets(ctx, "StaticTargetsReachability", []string{"127.0.0.1:12345"}, true)
+	expectedErr := status.New(codes.FailedPrecondition, `127.0.0.1:12345: Get http://127.0.0.1:12345/external: dial tcp 127.0.0.1:12345: getsockopt: connection refused`)
+	tests.AssertGRPCError(t, expectedErr, err)
+
+	actual, health, err := p.GetScrapeConfig(ctx, "StaticTargetsReachability")
+	assert.NoError(t, err)
+	assert.Equal(t, cfg, actual)
+	assert.Nil(t, health)
+}
+
 // https://jira.percona.com/browse/PMM-1310?focusedCommentId=196688
 func TestPrometheusBadScrapeConfig(t *testing.T) {
 	p, ctx, before := setup(t)
@@ -255,7 +300,7 @@ func TestPrometheusBadScrapeConfig(t *testing.T) {
 	cfg := &ScrapeConfig{
 		JobName: "10.10.11.50:9187",
 	}
-	err := p.CreateScrapeConfig(ctx, cfg)
+	err := p.CreateScrapeConfig(ctx, cfg, false)
 	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `job_name: invalid format. Job name must be 2 to 60 characters long, characters long, contain only letters, numbers, and symbols '-', '_', and start with a letter.`), err)
 
 	cfg = &ScrapeConfig{
@@ -263,7 +308,7 @@ func TestPrometheusBadScrapeConfig(t *testing.T) {
 		ScrapeInterval: "1s",
 		ScrapeTimeout:  "5s",
 	}
-	err = p.CreateScrapeConfig(ctx, cfg)
+	err = p.CreateScrapeConfig(ctx, cfg, false)
 	tests.AssertGRPCError(t, status.New(codes.Aborted, `scrape timeout greater than scrape interval for scrape config with job name "BadScrapeConfig"`), err)
 
 	cfgs, statuses, err := p.ListScrapeConfigs(ctx)
@@ -288,7 +333,7 @@ func TestPrometheusReadDefaults(t *testing.T) {
 	cfg := &ScrapeConfig{
 		JobName: "ReadDefaults",
 	}
-	err := p.CreateScrapeConfig(ctx, cfg)
+	err := p.CreateScrapeConfig(ctx, cfg, false)
 	assert.NoError(t, err)
 
 	expected := &ScrapeConfig{

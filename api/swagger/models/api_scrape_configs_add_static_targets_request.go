@@ -17,12 +17,17 @@ import (
 
 type APIScrapeConfigsAddStaticTargetsRequest struct {
 
+	// Check that added targets can be scraped from PMM Server
+	CheckReachability bool `json:"check_reachability,omitempty"`
+
 	// job name
 	JobName string `json:"job_name,omitempty"`
 
 	// Hostnames or IPs followed by an optional port number: "1.2.3.4:9090"
 	Targets []string `json:"targets"`
 }
+
+/* polymorph apiScrapeConfigsAddStaticTargetsRequest check_reachability false */
 
 /* polymorph apiScrapeConfigsAddStaticTargetsRequest job_name false */
 

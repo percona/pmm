@@ -165,7 +165,7 @@ func (s *ScrapeConfigsServer) Create(ctx context.Context, req *api.ScrapeConfigs
 	if err != nil {
 		return nil, err
 	}
-	if err := s.Prometheus.CreateScrapeConfig(ctx, cfg); err != nil {
+	if err := s.Prometheus.CreateScrapeConfig(ctx, cfg, req.CheckReachability); err != nil {
 		return nil, err
 	}
 	return &api.ScrapeConfigsCreateResponse{}, nil
@@ -181,7 +181,7 @@ func (s *ScrapeConfigsServer) Delete(ctx context.Context, req *api.ScrapeConfigs
 }
 
 func (s *ScrapeConfigsServer) AddStaticTargets(ctx context.Context, req *api.ScrapeConfigsAddStaticTargetsRequest) (*api.ScrapeConfigsAddStaticTargetsResponse, error) {
-	if err := s.Prometheus.AddStaticTargets(ctx, req.JobName, req.Targets); err != nil {
+	if err := s.Prometheus.AddStaticTargets(ctx, req.JobName, req.Targets, req.CheckReachability); err != nil {
 		return nil, err
 	}
 	return &api.ScrapeConfigsAddStaticTargetsResponse{}, nil

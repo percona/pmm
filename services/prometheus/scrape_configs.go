@@ -18,7 +18,12 @@ package prometheus
 
 import (
 	"context"
+	"crypto/tls"
 	"encoding/json"
+	"fmt"
+	"net"
+	"net/http"
+	"net/url"
 	"path"
 	"sort"
 	"sync"
@@ -28,6 +33,8 @@ import (
 	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"github.com/percona/pmm-managed/services/prometheus/internal"
 )
 
 const (
@@ -87,6 +94,12 @@ type ScrapeTargetHealth struct {
 	Target   string
 	Instance string
 	Health   Health
+}
+
+// ScrapeTargetReachability represents a single reachability check result.
+type ScrapeTargetReachability struct {
+	Target string
+	Error  string
 }
 
 type consulData struct {
@@ -168,6 +181,95 @@ func (svc *Service) getTargetsHealth(ctx context.Context) (map[string]map[string
 	return health, nil
 }
 
+// checkReachability checks that given targets can be reached from PMM Server.
+// reachabilityCh is closed when this method returns.
+func (svc *Service) checkReachability(ctx context.Context, cfg *ScrapeConfig, targets []string, reachabilityCh chan<- ScrapeTargetReachability) {
+	// use ephemeral transport with small timeouts and disabled HTTP keep-alive
+	transport := &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   5 * time.Second,
+			DualStack: true,
+		}).DialContext,
+		TLSHandshakeTimeout: 5 * time.Second,
+		DisableKeepAlives:   true,
+		MaxIdleConns:        1,
+		MaxIdleConnsPerHost: 1,
+		IdleConnTimeout:     time.Second,
+
+		// Prometheus does not uses HTTP/2, so we disable it too
+		TLSNextProto: map[string]func(string, *tls.Conn) http.RoundTripper{},
+	}
+	if cfg.TLSConfig.InsecureSkipVerify {
+		transport.TLSClientConfig = &tls.Config{
+			InsecureSkipVerify: true,
+		}
+	}
+	defer transport.CloseIdleConnections()
+
+	defer close(reachabilityCh)
+
+	// create client with specified scrape timeout
+	var scrapeTimeout model.Duration
+	var err error
+	if cfg.ScrapeTimeout == "" {
+		scrapeTimeout = internal.DefaultGlobalConfig.ScrapeTimeout
+	} else {
+		scrapeTimeout, err = model.ParseDuration(cfg.ScrapeTimeout)
+		if err != nil {
+			reachabilityCh <- ScrapeTargetReachability{"", err.Error()}
+			return
+		}
+	}
+	client := &http.Client{
+		Transport: transport,
+		Timeout:   time.Duration(scrapeTimeout),
+	}
+
+	var wg sync.WaitGroup
+	for _, target := range targets {
+		wg.Add(1)
+		go func(target string) {
+			defer wg.Done()
+
+			// fill request default values
+			u := &url.URL{
+				Scheme: cfg.Scheme,
+				Host:   target,
+				Path:   cfg.MetricsPath,
+			}
+			if cfg.Scheme == "" {
+				u.Scheme = internal.DefaultScrapeConfig.Scheme
+			}
+			if cfg.MetricsPath == "" {
+				u.Path = internal.DefaultScrapeConfig.MetricsPath
+			}
+			if cfg.BasicAuth != nil {
+				u.User = url.UserPassword(cfg.BasicAuth.Username, cfg.BasicAuth.Password)
+			}
+			req, err := http.NewRequest("GET", u.String(), nil)
+			if err != nil {
+				reachabilityCh <- ScrapeTargetReachability{target, err.Error()}
+				return
+			}
+			req = req.WithContext(ctx)
+
+			// only HTTP 200 is ok
+			resp, err := client.Do(req)
+			if err != nil {
+				reachabilityCh <- ScrapeTargetReachability{target, err.Error()}
+				return
+			}
+			defer resp.Body.Close()
+			if resp.StatusCode != 200 {
+				reachabilityCh <- ScrapeTargetReachability{target, fmt.Sprintf("unexpected response status code %d", resp.StatusCode)}
+			}
+			reachabilityCh <- ScrapeTargetReachability{target, ""}
+		}(target)
+	}
+	wg.Wait()
+}
+
 // jobInstanceValues returns "job" and "instance" label values for given ScrapeConfig and static target.
 // Relabeling is considered.
 func jobInstanceValues(cfg *ScrapeConfig, target string) (job string, instance string) {
@@ -207,13 +309,14 @@ func (svc *Service) ListScrapeConfigs(ctx context.Context) ([]ScrapeConfig, []Sc
 	defer svc.lock.RUnlock()
 
 	// start getting targets health from Prometheus early
-	var healthWG sync.WaitGroup
-	var health map[string]map[string]Health
-	var healthErr error
-	healthWG.Add(1)
+	type targetsHealth struct {
+		data map[string]map[string]Health
+		err  error
+	}
+	targetsHealthCh := make(chan targetsHealth)
 	go func() {
-		defer healthWG.Done()
-		health, healthErr = svc.getTargetsHealth(ctx)
+		d, e := svc.getTargetsHealth(ctx)
+		targetsHealthCh <- targetsHealth{d, e}
 	}()
 
 	consulData, err := svc.getFromConsul()
@@ -242,9 +345,9 @@ func (svc *Service) ListScrapeConfigs(ctx context.Context) ([]ScrapeConfig, []Sc
 		}
 	}
 
-	healthWG.Wait()
-	if healthErr != nil {
-		return nil, nil, healthErr
+	health := <-targetsHealthCh
+	if health.err != nil {
+		return nil, nil, health.err
 	}
 
 	// return only health of managed scrape targets, not all of them
@@ -263,7 +366,7 @@ func (svc *Service) ListScrapeConfigs(ctx context.Context) ([]ScrapeConfig, []Sc
 				}
 
 				// check we know real health from Prometheus
-				for job, instances := range health {
+				for job, instances := range health.data {
 					if jobValue != job {
 						continue
 					}
@@ -316,10 +419,24 @@ func (svc *Service) GetScrapeConfig(ctx context.Context, jobName string) (*Scrap
 
 // CreateScrapeConfig creates a new scrape config.
 // Errors: InvalidArgument(3) if some argument is not valid,
-// AlreadyExists(6) if scrape config with that job name is already present.
-func (svc *Service) CreateScrapeConfig(ctx context.Context, cfg *ScrapeConfig) error {
+// AlreadyExists(6) if scrape config with that job name is already present,
+// FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
+func (svc *Service) CreateScrapeConfig(ctx context.Context, cfg *ScrapeConfig, checkReachability bool) error {
 	svc.lock.Lock()
 	defer svc.lock.Unlock()
+
+	// start scraping targets early
+	var reachabilityCh chan ScrapeTargetReachability
+	if checkReachability {
+		var targets []string
+		for _, sc := range cfg.StaticConfigs {
+			for _, t := range sc.Targets {
+				targets = append(targets, t)
+			}
+		}
+		reachabilityCh = make(chan ScrapeTargetReachability, len(targets)) // set cap so checkReachability always exits
+		svc.checkReachability(ctx, cfg, targets, reachabilityCh)
+	}
 
 	consulData, err := svc.getFromConsul()
 	if err != nil {
@@ -333,6 +450,17 @@ func (svc *Service) CreateScrapeConfig(ctx context.Context, cfg *ScrapeConfig) e
 	updater := &configUpdater{consulData, config.ScrapeConfigs}
 	if err = updater.addScrapeConfig(cfg); err != nil {
 		return err
+	}
+
+	if checkReachability {
+		for r := range reachabilityCh {
+			if msg := r.Error; msg != "" {
+				if r.Target != "" {
+					msg = fmt.Sprintf("%s: %s", r.Target, msg)
+				}
+				return status.Error(codes.FailedPrecondition, msg)
+			}
+		}
 	}
 
 	config.ScrapeConfigs = updater.fileData
@@ -353,6 +481,8 @@ func (svc *Service) SetScrapeConfigs(ctx context.Context, useConsul bool, config
 
 	svc.lock.Lock()
 	defer svc.lock.Unlock()
+
+	// do not check that targets are reachable - we do that only for external exporters
 
 	config, err := svc.loadConfig()
 	if err != nil {
@@ -409,8 +539,9 @@ func (svc *Service) DeleteScrapeConfig(ctx context.Context, jobName string) erro
 }
 
 // AddStaticTargets adds static targets to existing scrape config.
-// Errors: NotFound(5) if no such scrape config is present.
-func (svc *Service) AddStaticTargets(ctx context.Context, jobName string, targets []string) error {
+// Errors: NotFound(5) if no such scrape config is present,
+// FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
+func (svc *Service) AddStaticTargets(ctx context.Context, jobName string, targets []string, checkReachability bool) error {
 	svc.lock.Lock()
 	defer svc.lock.Unlock()
 
@@ -426,6 +557,29 @@ func (svc *Service) AddStaticTargets(ctx context.Context, jobName string, target
 	updater := &configUpdater{consulData, config.ScrapeConfigs}
 	if err = updater.addStaticTargets(jobName, targets); err != nil {
 		return err
+	}
+
+	if checkReachability {
+		var cfg *ScrapeConfig
+		for _, c := range updater.consulData {
+			if c.JobName == jobName {
+				cfg = &c
+				break
+			}
+		}
+		if cfg != nil {
+			reachabilityCh := make(chan ScrapeTargetReachability, len(targets)) // set cap so checkReachability always exits
+			svc.checkReachability(ctx, cfg, targets, reachabilityCh)
+
+			for r := range reachabilityCh {
+				if msg := r.Error; msg != "" {
+					if r.Target != "" {
+						msg = fmt.Sprintf("%s: %s", r.Target, msg)
+					}
+					return status.Error(codes.FailedPrecondition, msg)
+				}
+			}
+		}
 	}
 
 	config.ScrapeConfigs = updater.fileData

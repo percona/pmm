@@ -17,9 +17,14 @@ import (
 
 type APIScrapeConfigsCreateRequest struct {
 
+	// Check that added targets can be scraped from PMM Server
+	CheckReachability bool `json:"check_reachability,omitempty"`
+
 	// scrape config
 	ScrapeConfig *APIScrapeConfig `json:"scrape_config,omitempty"`
 }
+
+/* polymorph apiScrapeConfigsCreateRequest check_reachability false */
 
 /* polymorph apiScrapeConfigsCreateRequest scrape_config false */
 
