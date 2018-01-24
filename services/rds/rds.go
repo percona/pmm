@@ -44,9 +44,9 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
-	"github.com/percona/pmm-managed/services/supervisor"
 	"github.com/percona/pmm-managed/utils/logger"
 	"github.com/percona/pmm-managed/utils/ports"
 )
@@ -65,7 +65,7 @@ type ServiceConfig struct {
 	DB            *reform.DB
 	Prometheus    *prometheus.Service
 	QAN           *qan.Service
-	Supervisor    *supervisor.Supervisor
+	Supervisor    services.Supervisor
 	PortsRegistry *ports.Registry
 }
 
@@ -414,40 +414,45 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 
 	// start mysqld_exporter agent
 	if svc.MySQLdExporterPath != "" {
-		name := agent.NameForSupervisor()
-		cfg := &servicelib.Config{
-			Name:        name,
-			DisplayName: name,
-			Description: name,
-			Executable:  svc.MySQLdExporterPath,
-			Arguments: []string{
-				"-collect.auto_increment.columns",
-				"-collect.binlog_size",
-				"-collect.global_status",
-				"-collect.global_variables",
-				"-collect.info_schema.innodb_metrics",
-				"-collect.info_schema.processlist",
-				"-collect.info_schema.query_response_time",
-				"-collect.info_schema.tables",
-				"-collect.info_schema.tablestats",
-				"-collect.info_schema.userstats",
-				"-collect.perf_schema.eventswaits",
-				"-collect.perf_schema.file_events",
-				"-collect.perf_schema.indexiowaits",
-				"-collect.perf_schema.tableiowaits",
-				"-collect.perf_schema.tablelocks",
-				"-collect.slave_status",
-
-				fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
-			},
-			Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)},
-		}
+		cfg := svc.mysqlExporterCfg(agent, port, dsn)
 		if err = svc.Supervisor.Start(ctx, cfg); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// todo this shouldn't duplicate pmm-client job
+func (svc *Service) mysqlExporterCfg(agent *models.MySQLdExporter, port uint16, dsn string) *servicelib.Config {
+	name := agent.NameForSupervisor()
+	return &servicelib.Config{
+		Name:        name,
+		DisplayName: name,
+		Description: name,
+		Executable:  svc.MySQLdExporterPath,
+		Arguments: []string{
+			"-collect.auto_increment.columns",
+			"-collect.binlog_size",
+			"-collect.global_status",
+			"-collect.global_variables",
+			"-collect.info_schema.innodb_metrics",
+			"-collect.info_schema.processlist",
+			"-collect.info_schema.query_response_time",
+			"-collect.info_schema.tables",
+			"-collect.info_schema.tablestats",
+			"-collect.info_schema.userstats",
+			"-collect.perf_schema.eventswaits",
+			"-collect.perf_schema.file_events",
+			"-collect.perf_schema.indexiowaits",
+			"-collect.perf_schema.tableiowaits",
+			"-collect.perf_schema.tablelocks",
+			"-collect.slave_status",
+
+			fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
+		},
+		Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)},
+	}
 }
 
 func (svc *Service) updateRDSExporterConfig(tx *reform.TX, service *models.RDSService) (*rdsExporterConfig, error) {
@@ -791,4 +796,109 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 
 		return svc.ApplyPrometheusConfiguration(ctx, tx.Querier)
 	})
+}
+
+// Restore configuration from database.
+func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
+	nodes, err := tx.FindAllFrom(models.RDSNodeTable, "type", models.RDSNodeType)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	for _, n := range nodes {
+		node := n.(*models.RDSNode)
+
+		service := &models.RDSService{}
+		if e := tx.SelectOneTo(service, "WHERE node_id = ?", node.ID); e != nil {
+			return errors.WithStack(e)
+		}
+
+		agents, err := models.AgentsForServiceID(tx.Querier, service.ID)
+		if err != nil {
+			return err
+		}
+		for _, agent := range agents {
+			switch agent.Type {
+			case models.MySQLdExporterAgentType:
+				a := &models.MySQLdExporter{ID: agent.ID}
+				if err = tx.Reload(a); err != nil {
+					return errors.WithStack(err)
+				}
+				dsn := a.DSN(service)
+				port := *a.ListenPort
+				if svc.MySQLdExporterPath != "" {
+					name := a.NameForSupervisor()
+
+					// Checks if init script already running.
+					err := svc.Supervisor.Status(ctx, name)
+					if err == nil {
+						// Stops init script.
+						if err = svc.Supervisor.Stop(ctx, name); err != nil {
+							return err
+						}
+					}
+
+					// Installs new version of the script.
+					cfg := svc.mysqlExporterCfg(a, port, dsn)
+					if err = svc.Supervisor.Start(ctx, cfg); err != nil {
+						return err
+					}
+				}
+
+			case models.RDSExporterAgentType:
+				a := models.RDSExporter{ID: agent.ID}
+				if err = tx.Reload(&a); err != nil {
+					return errors.WithStack(err)
+				}
+				if svc.RDSExporterPath != "" {
+					config, err := svc.updateRDSExporterConfig(tx, service)
+					if err != nil {
+						return err
+					}
+
+					if len(config.Instances) > 0 {
+						name := a.NameForSupervisor()
+
+						// Checks if init script already running.
+						err := svc.Supervisor.Status(ctx, name)
+						if err == nil {
+							// Stops init script.
+							if err = svc.Supervisor.Stop(ctx, name); err != nil {
+								return err
+							}
+						}
+
+						// Installs new version of the script.
+						if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(name)); err != nil {
+							return err
+						}
+					}
+				}
+
+			case models.QanAgentAgentType:
+				a := models.QanAgent{ID: agent.ID}
+				if err = tx.Reload(&a); err != nil {
+					return errors.WithStack(err)
+				}
+				if svc.QAN != nil {
+					name := a.NameForSupervisor()
+
+					// Checks if init script already running.
+					err := svc.Supervisor.Status(ctx, name)
+					if err == nil {
+						// Stops init script.
+						if err = svc.Supervisor.Stop(ctx, name); err != nil {
+							return err
+						}
+					}
+
+					// Installs new version of the script.
+					if err = svc.QAN.EnsureAgentRuns(ctx, name, *a.ListenPort); err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
+
+	return nil
 }

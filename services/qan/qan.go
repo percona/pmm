@@ -40,7 +40,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/supervisor"
+	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
@@ -52,11 +52,11 @@ const (
 
 type Service struct {
 	baseDir    string
-	supervisor *supervisor.Supervisor
+	supervisor services.Supervisor
 	qanAPI     *http.Client
 }
 
-func NewService(ctx context.Context, baseDir string, supervisor *supervisor.Supervisor) (*Service, error) {
+func NewService(ctx context.Context, baseDir string, supervisor services.Supervisor) (*Service, error) {
 	svc := &Service{
 		baseDir:    baseDir,
 		supervisor: supervisor,
@@ -190,6 +190,7 @@ func (svc *Service) addInstance(ctx context.Context, qanURL *url.URL, instance *
 	// Response Location header looks like this: http://127.0.0.1/qan-api/instances/6cea8824082d4ade682b94109664e6a9
 	// Extract UUID directly from it instead of following it.
 	parts := strings.Split(resp.Header.Get("Location"), "/")
+	// todo avoid modifying data passed to func as pointer
 	instance.UUID = parts[len(parts)-1]
 	return nil
 }
@@ -221,9 +222,10 @@ func (svc *Service) removeInstance(ctx context.Context, qanURL *url.URL, uuid st
 }
 
 // ensureAgentRuns checks qan-agent process status and starts it if it is not configured or down.
-func (svc *Service) ensureAgentRuns(ctx context.Context, nameForSupervisor string, port uint16) error {
+func (svc *Service) EnsureAgentRuns(ctx context.Context, nameForSupervisor string, port uint16) error {
 	err := svc.supervisor.Status(ctx, nameForSupervisor)
 	if err != nil {
+		// todo: if it's not running then why we stop it?
 		err = svc.supervisor.Stop(ctx, nameForSupervisor)
 		if err != nil {
 			logger.Get(ctx).Warn(err)
@@ -335,7 +337,7 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 		return errors.WithStack(err)
 	}
 
-	if err = svc.ensureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
+	if err = svc.EnsureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
 		return err
 	}
 
@@ -361,7 +363,7 @@ func (svc *Service) RemoveMySQL(ctx context.Context, qanAgent *models.QanAgent) 
 	}
 
 	// agent should be running to remove instance from it
-	if err = svc.ensureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
+	if err = svc.EnsureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
 		return err
 	}
 
