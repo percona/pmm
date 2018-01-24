@@ -34,8 +34,8 @@
 .. |mysql|                    replace:: *MySQL*
 .. |oracle-linux|             replace:: *Oracle Linux*
 .. |orchestrator|             replace:: *Orchestrator*
-.. |percona|                  replace:: *Percona*
 .. |percona-server|           replace:: *Percona Server*
+.. |percona|                  replace:: *Percona*
 .. |perl|                     replace:: *Perl*
 .. |pmm-client|               replace:: *PMM Client*
 .. |pmm-server|               replace:: *PMM Server*
@@ -47,6 +47,8 @@
 .. |postgres|                 replace:: *PostgreSQL*
 .. |prometheus|               replace:: *Prometheus*
 .. |proxysql|                 replace:: *ProxySQL*
+.. |psmdb.name|               replace:: *Percona Server for MongoDB*
+.. |psmdb|                    replace:: *PSMDB*
 .. |qan.abbrev|               replace:: *QAN*
 .. |qan.intro|                replace:: *QAN* (Query Analytics)
 .. |qan.name|                 replace:: *Query Analytics*
