@@ -44,9 +44,9 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
-	"github.com/percona/pmm-managed/services/supervisor"
 	"github.com/percona/pmm-managed/utils/logger"
 	"github.com/percona/pmm-managed/utils/ports"
 )
@@ -65,7 +65,7 @@ type ServiceConfig struct {
 	DB            *reform.DB
 	Prometheus    *prometheus.Service
 	QAN           *qan.Service
-	Supervisor    *supervisor.Supervisor
+	Supervisor    services.Supervisor
 	PortsRegistry *ports.Registry
 }
 
@@ -798,7 +798,7 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 	})
 }
 
-// Restore service
+// Restore configuration from database.
 func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 	nodes, err := tx.FindAllFrom(models.RDSNodeTable, "type", models.RDSNodeType)
 	if err != nil {
@@ -807,8 +807,8 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 	for _, n := range nodes {
 		node := n.(*models.RDSNode)
 
-		var service *models.RDSService
-		if e := svc.DB.SelectOneTo(service, "WHERE node_id = ?", node.ID); e != nil {
+		service := &models.RDSService{}
+		if e := tx.SelectOneTo(service, "WHERE node_id = ?", node.ID); e != nil {
 			return errors.WithStack(e)
 		}
 
@@ -826,6 +826,18 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 				dsn := a.DSN(service)
 				port := *a.ListenPort
 				if svc.MySQLdExporterPath != "" {
+					name := a.NameForSupervisor()
+
+					// Checks if init script already running.
+					err := svc.Supervisor.Status(ctx, name)
+					if err == nil {
+						// Stops init script.
+						if err = svc.Supervisor.Stop(ctx, name); err != nil {
+							return err
+						}
+					}
+
+					// Installs new version of the script.
 					cfg := svc.mysqlExporterCfg(a, port, dsn)
 					if err = svc.Supervisor.Start(ctx, cfg); err != nil {
 						return err
@@ -838,15 +850,24 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 					return errors.WithStack(err)
 				}
 				if svc.RDSExporterPath != "" {
-					// update rds_exporter configuration
 					config, err := svc.updateRDSExporterConfig(tx, service)
 					if err != nil {
 						return err
 					}
 
-					// start rds_exporter
 					if len(config.Instances) > 0 {
 						name := a.NameForSupervisor()
+
+						// Checks if init script already running.
+						err := svc.Supervisor.Status(ctx, name)
+						if err == nil {
+							// Stops init script.
+							if err = svc.Supervisor.Stop(ctx, name); err != nil {
+								return err
+							}
+						}
+
+						// Installs new version of the script.
 						if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(name)); err != nil {
 							return err
 						}
@@ -859,7 +880,19 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 					return errors.WithStack(err)
 				}
 				if svc.QAN != nil {
-					if err = svc.QAN.EnsureAgentRuns(ctx, a.NameForSupervisor(), *a.ListenPort); err != nil {
+					name := a.NameForSupervisor()
+
+					// Checks if init script already running.
+					err := svc.Supervisor.Status(ctx, name)
+					if err == nil {
+						// Stops init script.
+						if err = svc.Supervisor.Stop(ctx, name); err != nil {
+							return err
+						}
+					}
+
+					// Installs new version of the script.
+					if err = svc.QAN.EnsureAgentRuns(ctx, name, *a.ListenPort); err != nil {
 						return err
 					}
 				}
