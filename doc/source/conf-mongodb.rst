@@ -59,10 +59,16 @@ operations. The |opt.slowms| option sets the minimum time for a slow
 operation. In the given example, any operation which takes longer than **200**
 milliseconds is a slow operation.
 
-The |opt.rate-limit| option refers to the number of queries that the |mongodb|
-profiler collects. The lower the rate limit, the less impact on the
-performance. However, the accuracy of the collected information decreases as
-well.
+The |opt.rate-limit| option, which is available if you use
+|psmdb.name| instead of |mongodb|, refers to the number of queries
+that the |mongodb| profiler collects. The lower the rate limit, the
+less impact on the performance. However, the accuracy of the collected
+information decreases as well.
+
+.. seealso::
+
+   |opt.rate-limit| in |psmdb.name| documentation
+       https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html
 
 Enabling Profiling in the Configuration File
 --------------------------------------------------------------------------------
