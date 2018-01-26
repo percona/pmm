@@ -393,7 +393,7 @@ SSL related options removed
    $ docker run -d -p 443:443 \
      --volumes-from pmm-data \
      --name pmm-server \
-     -v /etc/pmm-certs:/srv/nginx/ \
+     -v /etc/pmm-certs:/srv/nginx \
      --restart always \
      percona/pmm-server:latest
 
@@ -725,7 +725,16 @@ Demonstrates how to set the option to 8 days.
 
 .. code-block:: text
 
-   pmm-admin add mongodb:metrics [NAME] [OPTIONS]
+   $ pmm-admin add mongodb:metrics [NAME] [OPTIONS]
+
+#+end-block
+#+begin-block: pmm-admin add mongodb-metrics uri
++pmm-admin.add.mongodb-metrics.uri+
+
+
+.. code=block:: bash
+
+   $ pmm-admin add mongodb-metrics --uri mongodb://mongodb_exporter:s3cR#tpa$$worD@localhost:27017
 
 #+end-block
 #+begin-block: pmm-admin add proxysql-metrics

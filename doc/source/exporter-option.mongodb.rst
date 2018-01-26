@@ -1,13 +1,16 @@
 :orphan: true
 
-.. _pmm/exporter-option.mysqld:
+.. _pmm/exporter-option.mongodb:
 
 ================================================================================
-|mysql| Server Exporter (mysqld_exporter)
+|mongodb| Exporter (mongodb_exporter)
 ================================================================================
 
-The following options may be passed to the |opt.mysql-metrics| monitoring
-service as additional options.
+The following options may be passed to the |opt.mongodb-metrics| monitoring
+service as additional options. For more information about this exporter see its |github| repository: https://github.com/percona/mongodb_exporter.
+
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/name.txt
 
 .. seealso::
 
@@ -18,20 +21,14 @@ service as additional options.
    All exporter options
       :ref:`pmm/list.exporter-option`
 
-Collector options
+.. _pmm/exporter-option.mongodb.option:
+	   
+Options
 ================================================================================
 
 .. include:: .res/table/table.org
-   :start-after: +mysqld-exporter.collector-flag+
+   :start-after: +mongodb-exporter.flag+
    :end-before: #+end-table
 
-General options
-================================================================================
 
-.. include:: .res/table/table.org
-   :start-after: +mysqld-exporter.collector-flag+
-   :end-before: #+end-table
-
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/name.txt
 

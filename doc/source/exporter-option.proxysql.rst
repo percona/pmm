@@ -1,13 +1,14 @@
 :orphan: true
 
-.. _pmm/exporter-option.mysqld:
+.. _pmm/exporter-option.proxysql:
 
 ================================================================================
-|mysql| Server Exporter (mysqld_exporter)
+|proxysql| Server Exporter (proxysql_exporter)
 ================================================================================
 
-The following options may be passed to the |opt.mysql-metrics| monitoring
-service as additional options.
+The following options may be passed to the |opt.proxysql-metrics| monitoring
+service as additional options. For more information about this exporter see its
+|github| repository: https://github.com/percona/proxysql_exporter.
 
 .. seealso::
 
@@ -18,20 +19,22 @@ service as additional options.
    All exporter options
       :ref:`pmm/list.exporter-option`
 
-Collector options
+Collector Options
 ================================================================================
 
 .. include:: .res/table/table.org
-   :start-after: +mysqld-exporter.collector-flag+
+   :start-after: +proxysql-exporter.collector-flag+
    :end-before: #+end-table
 
-General options
+General Options
 ================================================================================
 
 .. include:: .res/table/table.org
-   :start-after: +mysqld-exporter.collector-flag+
+   :start-after: +proxysql-exporter.general-flag+
    :end-before: #+end-table
 
 .. include:: .res/replace/option.txt
 .. include:: .res/replace/name.txt
 
+
+   

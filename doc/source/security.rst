@@ -1,4 +1,4 @@
-.. _security:
+.. _pmm.security:
 
 ================================================================================
 Security Features in |pmm.name|
@@ -9,7 +9,6 @@ features:
 
 - HTTP password protection adds authentication
   when accessing the |pmm-server| web interface
-
 - SSL encryption secures traffic between |pmm-client| and |pmm-server|
 
 Enabling Password Protection
@@ -24,7 +23,7 @@ To set the environment variable, use the ``-e`` option.
 By default, the user name is ``pmm``. You can change it by passing the
 :term:`SERVER_USER <SERVER_USER (Option)>` environment variable. For example:
 
-|tip.run-all.root|
+|tip.run-all.root|.
 
 .. include:: .res/code/sh.org
    :start-after: +docker.run.server-user.example+
@@ -79,9 +78,9 @@ certificate files.
 Self-signed certificates
 --------------------------------------------------------------------------------
 
-The |pmm-server| images at `percona/pmm-server` |docker| repository already
-include self-signed certificates. To be able to use them make sure to publish
-the container's port *443* to the host's port *443* when running the
+The |pmm-server| images (|docker|, OVF, and AMI) already include self-signed
+certificates. To be able to use them in your |docker| container, make sure to
+publish the container's port *443* to the host's port *443* when running the
 |docker.run| command.
 
 .. include:: .res/code/sh.org

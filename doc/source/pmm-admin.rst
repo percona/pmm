@@ -236,7 +236,7 @@ grouped by exporters.
 Passing SSL parameters to the mongodb monitoring service
 --------------------------------------------------------------------------------
 
-SSL/TLS related parameters are passed to an SSL enabled MongoDB server as
+SSL/TLS related parameters are passed to an SSL enabled |mongodb| server as
 monitoring service parameters along with the |pmm-admin.add| command when adding
 the |opt.mongodb-metrics| monitoring service.
 
@@ -583,7 +583,7 @@ Use the |opt.mongodb-metrics| alias to enable MongoDB metrics monitoring.
    :end-before: #+end-block
 
 This creates the ``pmm-mongodb-metrics-42003`` service
-that collects local MongoDB metrics for this particular MongoDB instance.
+that collects local |mongodb| metrics for this particular |mongodb| instance.
 
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
@@ -618,6 +618,9 @@ For more information, run
 
    Default ports
       :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+   Essential |mongodb| configuration 
+      :ref:`pmm/qan/mongodb/conf`
+   
 
 .. _pmm-admin.add-proxysql-metrics:
 

@@ -1,13 +1,14 @@
 :orphan: true
 
-.. _pmm/exporter-option.mysqld:
+.. _pmm/exporter-option.node:
 
 ================================================================================
-|mysql| Server Exporter (mysqld_exporter)
+Node Exporter (node_exporter)
 ================================================================================
 
-The following options may be passed to the |opt.mysql-metrics| monitoring
-service as additional options.
+The following options may be passed to the |opt.linux-metrics| monitoring
+service as additional options. For more information about this exporter see its
+|github| repository: https://github.com/percona/node_exporter.
 
 .. seealso::
 
@@ -22,16 +23,8 @@ Collector options
 ================================================================================
 
 .. include:: .res/table/table.org
-   :start-after: +mysqld-exporter.collector-flag+
-   :end-before: #+end-table
-
-General options
-================================================================================
-
-.. include:: .res/table/table.org
-   :start-after: +mysqld-exporter.collector-flag+
+   :start-after: +node-exporter.flag+
    :end-before: #+end-table
 
 .. include:: .res/replace/option.txt
 .. include:: .res/replace/name.txt
-

@@ -9,6 +9,8 @@ In |qan.intro|, you can monitor |mongodb| metrics and |mongodb| queries with the
 accordingly. Run the |pmm-admin.add| command to use these monitoring services
 (for more information, see :ref:`pmm-admin.add`).
 
+.. _pmm/qan/mongodb/conf/essential-permission.setting-up:
+
 Setting Up the Essential Permissions
 ================================================================================
 
@@ -23,6 +25,21 @@ The following example that you can run in the |mongodb| shell, adds the
 .. include:: .res/code/js.org
    :start-after: +db.get-sibling-db.create-user+
    :end-before: #+end-block
+
+Then, you need to pass the user name and password in the value of the
+|opt.uri| option when adding the |opt.mongodb-metrics| monitoring
+service in the |pmm-admin.add| command:
+
+|tip.run-this.root|.
+
+.. include:: .res/code/sh.org
+   :start-after: +pmm-admin.add.mongodb-metrics.uri+
+   :end-before: #+end-block
+
+.. seealso::
+
+   Adding a |opt.mongodb-metrics| monitoring service
+      :ref:`pmm-admin.add.mongodb-metrics`
 
 Enabling Profiling
 ================================================================================
