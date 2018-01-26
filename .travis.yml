@@ -68,6 +68,7 @@ script:
   - rm -fr vendor/
   - ~/dep ensure -v
   - make init gen
+  - git status
   - git diff --exit-code
 
   - make cover
