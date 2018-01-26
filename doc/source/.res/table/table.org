@@ -42,7 +42,6 @@ collect.heartbeat.table                                  5.1             Table f
 =======================================================  ==============  ===================================================================================   
 
 #+end-table
-
 #+begin-table: mysqld-exporter general-flag
 +mysqld-exporter.general-flag+
 
@@ -58,6 +57,8 @@ version                                      Print the version information.
 ===========================================  =================================================================================================
 
 #+end-table
+
+** node_exporter
 
 #+begin-table: node_exporter flag
 +node-exporter.flag+
@@ -108,6 +109,7 @@ ntp            Deprecated         Time drift from an NTP server
 
 #+end-table
 
+** mongodb_exporter
 #+begin-table: mongodb_exporter flag
 +mongodb-exporter.flag+
 
@@ -143,5 +145,42 @@ Name                                         Description
 -web.ssl-cert-file string                    Path to SSL certificate file.
 -web.ssl-key-file string                     Path to SSL key file.
 ===========================================  =================================================================================================
+
+#+end-table
+
+** proxysql_exporter
+
+#+begin-table: proxysql_exporter collector-flag
++proxysql-exporter.collector-flag+
+
+==============================  ==========================================================
+Name                            Description
+==============================  ==========================================================
+collect.mysql_connection_pool   Collect from stats_mysql_connection_pool.
+collect.mysql_status            Collect from stats_mysql_global (SHOW MYSQL STATUS).
+==============================  ==========================================================
+
+#+end-table
+#+begin-table: proxysql_exporter general-flag
++proxysql-exporter.general-flag+
+
+==============================  ==========================================================
+Name                            Description
+==============================  ==========================================================
+log.format                      Set the log target and format. 
+                                Example: "logger:syslog?appname=bob&local=7" or 
+                                "logger:stdout?json=true" (default "logger:stderr")
+log.level                       Only log messages with the given severity or above. 
+                                Valid levels: [debug, info, warn, error, fatal]
+version                         Print version information and exit.
+web.auth-file                   Path to YAML file with server_user, server_password 
+                                options for http basic auth (overrides HTTP_AUTH env var).
+web.listen-address              Address to listen on for web interface and telemetry. 
+                                (default ":42004")
+web.ssl-cert-file               Path to SSL certificate file.
+web.ssl-key-file                Path to SSL key file.
+web.telemetry-path              Path under which to expose metrics. (default "/metrics")
+==============================  ==========================================================
+
 
 #+end-table

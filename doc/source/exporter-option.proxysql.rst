@@ -1,14 +1,14 @@
 :orphan: true
 
-.. _pmm/exporter-option.node:
+.. _pmm/exporter-option.proxysql:
 
 ================================================================================
-Node Exporter (node_exporter)
+|proxysql| Server Exporter (proxysql_exporter)
 ================================================================================
 
-The following options may be passed to the |opt.linux-metrics| monitoring
+The following options may be passed to the |opt.proxysql-metrics| monitoring
 service as additional options. For more information about this exporter see its
-|github| repository: https://github.com/percona/node_exporter.
+|github| repository: https://github.com/percona/proxysql_exporter.
 
 .. seealso::
 
@@ -19,12 +19,22 @@ service as additional options. For more information about this exporter see its
    All exporter options
       :ref:`pmm/list.exporter-option`
 
-Collector options
+Collector Options
 ================================================================================
 
 .. include:: .res/table/table.org
-   :start-after: +node-exporter.flag+
+   :start-after: +proxysql-exporter.collector-flag+
+   :end-before: #+end-table
+
+General Options
+================================================================================
+
+.. include:: .res/table/table.org
+   :start-after: +proxysql-exporter.general-flag+
    :end-before: #+end-table
 
 .. include:: .res/replace/option.txt
 .. include:: .res/replace/name.txt
+
+
+   

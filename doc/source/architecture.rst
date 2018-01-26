@@ -56,33 +56,37 @@ For more information, see :ref:`install-client`.
   for example, adding and removing database instances
   that you want to monitor.
   For more information, see :ref:`pmm-admin`.
-
 * ``pmm-mysql-queries-0`` is a service
   that manages the |qan| agent
   as it collects query performance data from |mysql|
   and sends it to the |qan| API on :ref:`pmm-server`.
-
 * ``pmm-mongodb-queries-0`` is a service
   that manages the QAN agent
   as it collects query performance data from |mongodb|
   and sends it to |qan| API on :ref:`pmm-server`.
+* |node_exporter| is a |prometheus| exporter that collects general system
+  metrics.
+* |mysqld_exporter| is a |prometheus| exporter that collects |mysql| server
+  metrics.
+* |mongodb_exporter| is a |prometheus| exporter that collects |mongodb| server
+  metrics.
+* |proxysql_exporter| is a |prometheus| exporter that collects |proxysql|
+  performance metrics.
 
-* ``node_exporter`` is a |prometheus| exporter
-  that collects general system metrics.
-  For more information, see https://github.com/percona/node_exporter.
+.. seealso::
 
-* ``mysqld_exporter`` is a |prometheus| exporter
-  that collects |mysql| server metrics.
-  For more information, see https://github.com/percona/mysqld_exporter.
-
-* ``mongodb_exporter`` is a |prometheus| exporter
-  that collects |mongodb| server metrics.
-  For more information, see https://github.com/percona/mongodb_exporter.
-
-* ``proxysql_exporter`` is a |prometheus| exporter
-  that collects |proxysql| performance metrics.
-  For more information, see https://github.com/percona/proxysql_exporter.
-
+   |mongodb_exporter| repository at |github|
+       `percona/mongodb_exporter`_
+   |mysqld_exporter| repository at |github|
+       `percona/mysqld_exporter`_
+   |node_exporter| repository at |github|
+       `percona/node_exporter`_
+   |proxysql_exporter| repository at |github|
+       `percona/proxysql_exporter`_
+   Passing exporter options when adding a monitoring service
+       :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
+   List of available exporter options
+       :ref:`pmm/list.exporter-option`
 
 .. _pmm-server:
 

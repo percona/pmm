@@ -3,11 +3,11 @@
 .. _pmm/exporter-option.mongodb:
 
 ================================================================================
-|mongodb| Server Exporter (mysqld_exporter)
+|mongodb| Exporter (mongodb_exporter)
 ================================================================================
 
 The following options may be passed to the |opt.mongodb-metrics| monitoring
-service as additional options.
+service as additional options. For more information about this exporter see its |github| repository: https://github.com/percona/mongodb_exporter.
 
 .. include:: .res/replace/option.txt
 .. include:: .res/replace/name.txt
@@ -21,7 +21,9 @@ service as additional options.
    All exporter options
       :ref:`pmm/list.exporter-option`
 
-|opt.mongodb-metrics| Options
+.. _pmm/exporter-option.mongodb.option:
+	   
+Options
 ================================================================================
 
 .. include:: .res/table/table.org
