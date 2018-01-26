@@ -36,6 +36,8 @@ options:
 
    Default ports
       :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+   Improving security
+      :ref:`pmm.security`
 
 .. _deploy-pmm.server.verifying:
 
