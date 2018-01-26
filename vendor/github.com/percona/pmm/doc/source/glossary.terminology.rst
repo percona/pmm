@@ -78,7 +78,7 @@ Terminology Reference
       - |perl| version
 
       You may disable telemetry :ref:`by passing an additional parameter
-      <pmm/docker.additional_parameters>` to |docker|.
+      <pmm/docker.additional_option>` to |docker|.
 
       .. include:: .res/code/sh.org
 	 :start-after: docker.run.disable-telemetry
@@ -98,7 +98,7 @@ Terminology Reference
 
       .. seealso::
 
-	 - :ref:`Enabling orchestrator when running a docker container <pmm/docker.additional_parameters>`.
+	 - :ref:`Enabling orchestrator when running a docker container <pmm/docker.additional_option>`.
 
    Data Source Name
 

@@ -104,6 +104,50 @@ Use the |pmm-admin.add| command to add monitoring services.
 
    pmm-admin add [OPTIONS] [SERVICE]
 
+When you add a monitoring service |pmm-admin| automatically creates
+and sets up a service in the operating system. You can tweak the
+|systemd| configuration file and change its behavior.
+   
+For example, you may need to disable the HTTPS protocol for the
+|prometheus| exporter associated with the given service. To accomplish this
+task, you need to remove all SSL related options.
+
+|tip.run-all.root|:
+
+1. Open the |systemd| unit file associated with the
+   monitoring service that you need to change, such as
+   |pmm-mysql-metrics.service|.
+
+   .. include:: .res/code/sh.org
+      :start-after: +cat.etc-systemd-system-pmm-mysql-metrics+
+      :end-before: #+end-block
+   
+#. Remove the SSL related configuration options (key, cert) from the
+   |systemd| unit file or `init.d` startup
+   script. :ref:`sample.systemd` highlights the SSL related options in
+   the |systemd| unit file.
+
+   The following code demonstrates how you can remove the options
+   using the |sed| command. (If you need more information about how
+   |sed| works, see the documentation of your system).
+   
+   .. include:: .res/code/sh.org
+      :start-after: +sed.e.web-ssl.pmm-mysql-metrics-service+
+      :end-before: #+end-block
+   
+#. Reload |systemd|:
+
+   .. include:: .res/code/sh.org
+      :start-after: +systemctl.daemon-reload+
+      :end-before: #+end-block
+
+#. Restart the monitoring service by using |pmm-admin.restart|:
+
+   .. include:: .res/code/sh.org
+      :start-after: +pmm-admin.restart.mysql-metrics+
+      :end-before: #+end-block
+
+
 .. _pmm-admin.add-options:
 
 .. rubric:: **OPTIONS**
@@ -129,6 +173,7 @@ For more information, run
 |pmm-admin.add|
 |opt.help|.
 
+
 .. _pmm/pmm-admin/external-monitoring-service.adding:
 
 Adding external monitoring services
@@ -146,6 +191,7 @@ followed by the name of a |prometheus| job, URL and port number to reach it.
    :start-after: +pmm-admin.add.external-metrics.job-name.url.port-number+
    :end-before: #+end-block
 
+
 The following example adds an external monitoring service which
 monitors a |postgresql| instance at 192.168.200.1, port 9187. If the
 command succeeds then running :ref:`pmm-admin.list` shows the newly
@@ -159,41 +205,45 @@ added external exporter at the bottom of the command's output:
 
 .. _pmm.pmm-admin.monitoring-service.pass-parameter:
 
-Passing parameters to a monitoring service
+Passing options to the exporter
 --------------------------------------------------------------------------------
 
-|pmm-admin.add| sends all options which follow :option:`--` (two
-consecutive dashes delimited by whitespace) to the monitoring service as
-parameters.
+|pmm-admin.add| sends all options which follow :option:`--` (two consecutive
+dashes delimited by whitespace) to the |prometheus| exporter that the given
+monitoring services uses. Each exporter has its own set of options.
+
+|tip.run-all.root|.
 
 .. code-block:: bash
-   :caption: Passing :option:`--collect.perf_schema.eventsstatements` to the
+   :caption: Passing :code:`--collect.perf_schema.eventsstatements` to the
              |opt.mysql-metrics| monitoring service
    :name: pmm.pmm-admin.monitoring-service.pass-parameter.example
 
-   $ sudo pmm-admin add mysql:metrics -- --collect.perf_schema.eventsstatements
+   $ pmm-admin add mysql:metrics -- --collect.perf_schema.eventsstatements
 
 .. code-block:: bash
    :caption: Passing :option:`--collect.perf_schema.eventswaits=false` to the
              :option:`mysql:metrics` monitoring service
    :name: pmm.pmm-admin.monitoring-service.pass-parameter.example2
 
-   $ sudo pmm-admin add mysql:metrics -- --collect.perf_schema.eventswaits=false
+   $ pmm-admin add mysql:metrics -- --collect.perf_schema.eventswaits=false
 
-
+The section :ref:`pmm/list.exporter-option` contains all option
+grouped by exporters.
+   
 .. _pmm.pmm-admin.mongodb.pass-ssl-parameter:
 
 Passing SSL parameters to the mongodb monitoring service
 --------------------------------------------------------------------------------
 
 SSL/TLS related parameters are passed to an SSL enabled MongoDB server as
-monitoring service parameters along with the |pmm-admin.add| command
-when adding the |opt.mongodb-metrics| monitoring service.
+monitoring service parameters along with the |pmm-admin.add| command when adding
+the |opt.mongodb-metrics| monitoring service.
 
 |tip.run-this.root|
 
 .. include:: .res/code/sh.org
-   :start-after: +pmm-admin.add.mongodb-metrics.mongodb.tls+
+   :start-after: +pmm-admin.add.mongodb-metrics.mongodb-tls+
    :end-before: #+end-block
    
 .. list-table:: Supported SSL/TLS Parameters
@@ -217,6 +267,9 @@ when adding the |opt.mongodb-metrics| monitoring service.
    * - |opt.mongodb-tls-private-key| *string*
      - A path to a PEM file that contains the private key (if not contained in the :option:`mongodb.tls-cert` file).
 
+.. include:: .res/code/sh.org
+   :start-after: +mongod.dbpath.profile.slowms.ratelimit+
+   :end-before: #+end-block
 
 .. _pmm-admin-add-linux-metrics:
 
@@ -476,7 +529,7 @@ For more information, run
 Adding |mongodb| query analytics service
 --------------------------------------------------------------------------------
 
-Use the |opt.mongodb-queries| alias to enable MongoDB query analytics.
+Use the |opt.mongodb-queries| alias to enable |mongodb| query analytics.
 
 .. rubric:: **USAGE**
 
@@ -485,7 +538,7 @@ Use the |opt.mongodb-queries| alias to enable MongoDB query analytics.
    :end-before: #+end-block
 		 
 This creates the ``pmm-mongodb-queries-0`` service
-that is able to collect |qan| data for multiple remote MongoDB server instances.
+that is able to collect |qan| data for multiple remote |mongodb| server instances.
 
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.

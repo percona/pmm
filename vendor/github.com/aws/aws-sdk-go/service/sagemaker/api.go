@@ -349,9 +349,8 @@ func (c *SageMaker) CreateModelRequest(input *CreateModelInput) (req *request.Re
 // Amazon SageMaker then deploys all of the containers that you defined for
 // the model in the hosting environment.
 //
-// In the CreateModel request, you must define at least one container with the
-// PrimaryContainer parameter. You can optionally specify additional containers
-// with the SupplementalContainers parameter.
+// In the CreateModel request, you must define a container with the PrimaryContainer
+// parameter.
 //
 // In the request, you also provide an IAM role that Amazon SageMaker can assume
 // to access model artifacts and docker image for deployment on ML compute hosting
@@ -2303,8 +2302,8 @@ func (c *SageMaker) StartNotebookInstanceRequest(input *StartNotebookInstanceInp
 // Launches an ML compute instance with the latest version of the libraries
 // and attaches your ML storage volume. After configuring the notebook instance,
 // Amazon SageMaker sets the notebook instance status to InService. A notebook
-// instance's status must be InService (is this same as "Running" in the console?)
-// before you can connect to your Jupyter notebook.
+// instance's status must be InService before you can connect to your Jupyter
+// notebook.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -2647,12 +2646,11 @@ func (c *SageMaker) UpdateEndpointWeightsAndCapacitiesRequest(input *UpdateEndpo
 
 // UpdateEndpointWeightsAndCapacities API operation for Amazon SageMaker Service.
 //
-// Updates variant weight, capacity, or both of one or more variants associated
-// with an endpoint. This operation updates weight, capacity, or both for the
-// previously provisioned endpoint. When it receives the request, Amazon SageMaker
-// sets the endpoint status to Updating. After updating the endpoint, it sets
-// the status to InService. To check the status of an endpoint, use the DescribeEndpoint
-// (http://docs.aws.amazon.com/sagemaker/latest/dg/API_DescribeEndpoint.html)
+// Updates variant weight of one or more variants associated with an existing
+// endpoint, or capacity of one variant associated with an existing endpoint.
+// When it receives the request, Amazon SageMaker sets the endpoint status to
+// Updating. After updating the endpoint, it sets the status to InService. To
+// check the status of an endpoint, use the DescribeEndpoint (http://docs.aws.amazon.com/sagemaker/latest/dg/API_DescribeEndpoint.html)
 // API.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -3121,6 +3119,11 @@ type CreateEndpointConfigInput struct {
 	// EndpointConfigName is a required field
 	EndpointConfigName *string `type:"string" required:"true"`
 
+	// The Amazon Resource Name (ARN) of a AWS Key Management Service key that Amazon
+	// SageMaker uses to encrypt data on the storage volume attached to the ML compute
+	// instance that hosts the endpoint.
+	KmsKeyId *string `type:"string"`
+
 	// An array of ProductionVariant objects, one for each model that you want to
 	// host at this endpoint.
 	//
@@ -3185,6 +3188,12 @@ func (s *CreateEndpointConfigInput) Validate() error {
 // SetEndpointConfigName sets the EndpointConfigName field's value.
 func (s *CreateEndpointConfigInput) SetEndpointConfigName(v string) *CreateEndpointConfigInput {
 	s.EndpointConfigName = &v
+	return s
+}
+
+// SetKmsKeyId sets the KmsKeyId field's value.
+func (s *CreateEndpointConfigInput) SetKmsKeyId(v string) *CreateEndpointConfigInput {
+	s.KmsKeyId = &v
 	return s
 }
 
@@ -3352,9 +3361,6 @@ type CreateModelInput struct {
 	// PrimaryContainer is a required field
 	PrimaryContainer *ContainerDefinition `type:"structure" required:"true"`
 
-	// The additional optional containers to deploy.
-	SupplementalContainers []*ContainerDefinition `type:"list"`
-
 	// An array of key-value pairs. For more information, see Using Cost Allocation
 	// Tags (http://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/cost-alloc-tags.html#allocation-what)
 	// in the AWS Billing and Cost Management User Guide.
@@ -3391,16 +3397,6 @@ func (s *CreateModelInput) Validate() error {
 			invalidParams.AddNested("PrimaryContainer", err.(request.ErrInvalidParams))
 		}
 	}
-	if s.SupplementalContainers != nil {
-		for i, v := range s.SupplementalContainers {
-			if v == nil {
-				continue
-			}
-			if err := v.Validate(); err != nil {
-				invalidParams.AddNested(fmt.Sprintf("%s[%v]", "SupplementalContainers", i), err.(request.ErrInvalidParams))
-			}
-		}
-	}
 	if s.Tags != nil {
 		for i, v := range s.Tags {
 			if v == nil {
@@ -3433,12 +3429,6 @@ func (s *CreateModelInput) SetModelName(v string) *CreateModelInput {
 // SetPrimaryContainer sets the PrimaryContainer field's value.
 func (s *CreateModelInput) SetPrimaryContainer(v *ContainerDefinition) *CreateModelInput {
 	s.PrimaryContainer = v
-	return s
-}
-
-// SetSupplementalContainers sets the SupplementalContainers field's value.
-func (s *CreateModelInput) SetSupplementalContainers(v []*ContainerDefinition) *CreateModelInput {
-	s.SupplementalContainers = v
 	return s
 }
 
@@ -4353,6 +4343,10 @@ type DescribeEndpointConfigOutput struct {
 	// EndpointConfigName is a required field
 	EndpointConfigName *string `type:"string" required:"true"`
 
+	// AWS KMS key ID Amazon SageMaker uses to encrypt data when storing it on the
+	// ML storage volume attached to the instance.
+	KmsKeyId *string `type:"string"`
+
 	// An array of ProductionVariant objects, one for each model that you want to
 	// host at this endpoint.
 	//
@@ -4385,6 +4379,12 @@ func (s *DescribeEndpointConfigOutput) SetEndpointConfigArn(v string) *DescribeE
 // SetEndpointConfigName sets the EndpointConfigName field's value.
 func (s *DescribeEndpointConfigOutput) SetEndpointConfigName(v string) *DescribeEndpointConfigOutput {
 	s.EndpointConfigName = &v
+	return s
+}
+
+// SetKmsKeyId sets the KmsKeyId field's value.
+func (s *DescribeEndpointConfigOutput) SetKmsKeyId(v string) *DescribeEndpointConfigOutput {
+	s.KmsKeyId = &v
 	return s
 }
 
@@ -4602,12 +4602,6 @@ type DescribeModelOutput struct {
 	//
 	// PrimaryContainer is a required field
 	PrimaryContainer *ContainerDefinition `type:"structure" required:"true"`
-
-	// The description of additional optional containers that you defined when creating
-	// the model.
-	//
-	// SupplementalContainers is a required field
-	SupplementalContainers []*ContainerDefinition `type:"list" required:"true"`
 }
 
 // String returns the string representation
@@ -4647,12 +4641,6 @@ func (s *DescribeModelOutput) SetModelName(v string) *DescribeModelOutput {
 // SetPrimaryContainer sets the PrimaryContainer field's value.
 func (s *DescribeModelOutput) SetPrimaryContainer(v *ContainerDefinition) *DescribeModelOutput {
 	s.PrimaryContainer = v
-	return s
-}
-
-// SetSupplementalContainers sets the SupplementalContainers field's value.
-func (s *DescribeModelOutput) SetSupplementalContainers(v []*ContainerDefinition) *DescribeModelOutput {
-	s.SupplementalContainers = v
 	return s
 }
 
@@ -6513,6 +6501,11 @@ type ResourceConfig struct {
 	// InstanceType is a required field
 	InstanceType *string `type:"string" required:"true" enum:"TrainingInstanceType"`
 
+	// The Amazon Resource Name (ARN) of a AWS Key Management Service key that Amazon
+	// SageMaker uses to encrypt data on the storage volume attached to the ML compute
+	// instance(s) that run the training job.
+	VolumeKmsKeyId *string `type:"string"`
+
 	// The size of the ML storage volume that you want to provision.
 	//
 	// ML storage volumes store model artifacts and incremental states. Training
@@ -6573,6 +6566,12 @@ func (s *ResourceConfig) SetInstanceCount(v int64) *ResourceConfig {
 // SetInstanceType sets the InstanceType field's value.
 func (s *ResourceConfig) SetInstanceType(v string) *ResourceConfig {
 	s.InstanceType = &v
+	return s
+}
+
+// SetVolumeKmsKeyId sets the VolumeKmsKeyId field's value.
+func (s *ResourceConfig) SetVolumeKmsKeyId(v string) *ResourceConfig {
+	s.VolumeKmsKeyId = &v
 	return s
 }
 
