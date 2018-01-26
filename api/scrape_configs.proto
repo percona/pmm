@@ -127,29 +127,6 @@ message ScrapeConfigsDeleteRequest {
 message ScrapeConfigsDeleteResponse {
 }
 
-message ScrapeConfigsAddStaticTargetsRequest {
-    string job_name = 1;
-
-    // Hostnames or IPs followed by an optional port number: "1.2.3.4:9090"
-    repeated string targets = 2;
-
-    // Check that added targets can be scraped from PMM Server
-    bool check_reachability = 3;
-}
-
-message ScrapeConfigsAddStaticTargetsResponse {
-}
-
-message ScrapeConfigsRemoveStaticTargetsRequest {
-    string job_name = 1;
-
-    // Hostnames or IPs followed by an optional port number: "1.2.3.4:9090"
-    repeated string targets = 2;
-}
-
-message ScrapeConfigsRemoveStaticTargetsResponse {
-}
-
 service ScrapeConfigs {
     // List returns all scrape configs.
     rpc List(ScrapeConfigsListRequest) returns (ScrapeConfigsListResponse) {
@@ -182,25 +159,6 @@ service ScrapeConfigs {
     rpc Delete(ScrapeConfigsDeleteRequest) returns (ScrapeConfigsDeleteResponse) {
         option (google.api.http) = {
             delete: "/v0/scrape-configs/{job_name}"
-        };
-    }
-
-    // Add static targets to existing scrape config.
-    // Errors: NotFound(5) if no such scrape config is present,
-    // FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
-    rpc AddStaticTargets(ScrapeConfigsAddStaticTargetsRequest) returns (ScrapeConfigsAddStaticTargetsResponse) {
-        option (google.api.http) = {
-            post: "/v0/scrape-configs/{job_name}/static-targets",
-            body: "*"
-        };
-    }
-
-    // Remove static targets from existing scrape config.
-    // Errors: NotFound(5) if no such scrape config is present.
-    rpc RemoveStaticTargets(ScrapeConfigsRemoveStaticTargetsRequest) returns (ScrapeConfigsRemoveStaticTargetsResponse) {
-        option (google.api.http) = {
-            delete: "/v0/scrape-configs/{job_name}/static-targets",
-            body: "*"
         };
     }
 }

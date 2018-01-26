@@ -41,10 +41,6 @@ It has these top-level messages:
 	ScrapeConfigsCreateResponse
 	ScrapeConfigsDeleteRequest
 	ScrapeConfigsDeleteResponse
-	ScrapeConfigsAddStaticTargetsRequest
-	ScrapeConfigsAddStaticTargetsResponse
-	ScrapeConfigsRemoveStaticTargetsRequest
-	ScrapeConfigsRemoveStaticTargetsResponse
 */
 package api
 
