@@ -22,7 +22,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/alecthomas/template"
-  packages = [".","parse"]
+  packages = [
+    ".",
+    "parse"
+  ]
   revision = "a0175ee3bccc567396460bf5acd36800cb10c49c"
 
 [[projects]]
@@ -39,7 +42,32 @@
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
-  packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/shareddefaults","private/protocol","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/rds","service/sts"]
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/awsutil",
+    "aws/client",
+    "aws/client/metadata",
+    "aws/corehandlers",
+    "aws/credentials",
+    "aws/credentials/ec2rolecreds",
+    "aws/credentials/endpointcreds",
+    "aws/credentials/stscreds",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/endpoints",
+    "aws/request",
+    "aws/session",
+    "aws/signer/v4",
+    "internal/shareddefaults",
+    "private/protocol",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/xml/xmlutil",
+    "service/rds",
+    "service/sts"
+  ]
   revision = "32d0e45c3f93cd20c25614183246d7e34bc7385c"
   version = "v1.12.52"
 
@@ -100,13 +128,24 @@
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/loads"
-  packages = [".","fmts"]
+  packages = [
+    ".",
+    "fmts"
+  ]
   revision = "a80dea3052f00e5f032e860dd7355cd0cc67e24d"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/runtime"
-  packages = [".","client","middleware","middleware/denco","middleware/header","middleware/untyped","security"]
+  packages = [
+    ".",
+    "client",
+    "middleware",
+    "middleware/denco",
+    "middleware/header",
+    "middleware/untyped",
+    "security"
+  ]
   revision = "bf2ff8f7150788b1c7256abb0805ba0410cbbabb"
 
 [[projects]]
@@ -141,7 +180,14 @@
 
 [[projects]]
   name = "github.com/go-swagger/go-swagger"
-  packages = ["cmd/swagger","cmd/swagger/commands","cmd/swagger/commands/generate","cmd/swagger/commands/initcmd","generator","scan"]
+  packages = [
+    "cmd/swagger",
+    "cmd/swagger/commands",
+    "cmd/swagger/commands/generate",
+    "cmd/swagger/commands/initcmd",
+    "generator",
+    "scan"
+  ]
   revision = "68ea41dcf206410c74d397d3bbff42aedff35e4d"
   version = "0.12.0"
 
@@ -154,7 +200,20 @@
 [[projects]]
   branch = "master"
   name = "github.com/golang/protobuf"
-  packages = ["jsonpb","proto","protoc-gen-go","protoc-gen-go/descriptor","protoc-gen-go/generator","protoc-gen-go/grpc","protoc-gen-go/plugin","ptypes","ptypes/any","ptypes/duration","ptypes/struct","ptypes/timestamp"]
+  packages = [
+    "jsonpb",
+    "proto",
+    "protoc-gen-go",
+    "protoc-gen-go/descriptor",
+    "protoc-gen-go/generator",
+    "protoc-gen-go/grpc",
+    "protoc-gen-go/plugin",
+    "ptypes",
+    "ptypes/any",
+    "ptypes/duration",
+    "ptypes/struct",
+    "ptypes/timestamp"
+  ]
   revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
 
 [[projects]]
@@ -183,7 +242,19 @@
 
 [[projects]]
   name = "github.com/grpc-ecosystem/grpc-gateway"
-  packages = ["protoc-gen-grpc-gateway","protoc-gen-grpc-gateway/descriptor","protoc-gen-grpc-gateway/generator","protoc-gen-grpc-gateway/gengateway","protoc-gen-grpc-gateway/httprule","protoc-gen-swagger","protoc-gen-swagger/genswagger","protoc-gen-swagger/options","runtime","runtime/internal","utilities"]
+  packages = [
+    "protoc-gen-grpc-gateway",
+    "protoc-gen-grpc-gateway/descriptor",
+    "protoc-gen-grpc-gateway/generator",
+    "protoc-gen-grpc-gateway/gengateway",
+    "protoc-gen-grpc-gateway/httprule",
+    "protoc-gen-swagger",
+    "protoc-gen-swagger/genswagger",
+    "protoc-gen-swagger/options",
+    "runtime",
+    "runtime/internal",
+    "utilities"
+  ]
   revision = "8cc3a55af3bcf171a1c23a90c4df9cf591706104"
   version = "v1.3.0"
 
@@ -208,7 +279,18 @@
 [[projects]]
   branch = "master"
   name = "github.com/hashicorp/hcl"
-  packages = [".","hcl/ast","hcl/parser","hcl/printer","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
+  packages = [
+    ".",
+    "hcl/ast",
+    "hcl/parser",
+    "hcl/printer",
+    "hcl/scanner",
+    "hcl/strconv",
+    "hcl/token",
+    "json/parser",
+    "json/scanner",
+    "json/token"
+  ]
   revision = "23c074d0eceb2b8a5bfdbb271ab780cde70f05a8"
 
 [[projects]]
@@ -255,7 +337,11 @@
 [[projects]]
   branch = "master"
   name = "github.com/mailru/easyjson"
-  packages = ["buffer","jlexer","jwriter"]
+  packages = [
+    "buffer",
+    "jlexer",
+    "jwriter"
+  ]
   revision = "32fa128f234d041f196a9f3e0fea5ac9772c08e1"
 
 [[projects]]
@@ -278,7 +364,10 @@
 
 [[projects]]
   name = "github.com/opentracing/opentracing-go"
-  packages = [".","log"]
+  packages = [
+    ".",
+    "log"
+  ]
   revision = "1949ddbfd147afd4d964a9f00b24eb291e0e7c38"
   version = "v1.0.2"
 
@@ -297,7 +386,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/percona/pmm"
-  packages = ["proto","proto/config"]
+  packages = [
+    "proto",
+    "proto/config"
+  ]
   revision = "406fd002a95db787839985233fb487b5e30a851c"
 
 [[projects]]
@@ -314,7 +406,10 @@
 
 [[projects]]
   name = "github.com/prometheus/client_golang"
-  packages = ["prometheus","prometheus/promhttp"]
+  packages = [
+    "prometheus",
+    "prometheus/promhttp"
+  ]
   revision = "c5b7fccd204277076155f10851dad72b76a49317"
   version = "v0.8.0"
 
@@ -327,18 +422,43 @@
 [[projects]]
   branch = "master"
   name = "github.com/prometheus/common"
-  packages = ["expfmt","internal/bitbucket.org/ww/goautoneg","log","model","version"]
+  packages = [
+    "expfmt",
+    "internal/bitbucket.org/ww/goautoneg",
+    "log",
+    "model",
+    "version"
+  ]
   revision = "2e54d0b93cba2fd133edc32211dcc32c06ef72ca"
 
 [[projects]]
   branch = "master"
   name = "github.com/prometheus/procfs"
-  packages = [".","xfs"]
+  packages = [
+    ".",
+    "xfs"
+  ]
   revision = "8f918ac9ab4be3a790338bda8624fec5d71260b3"
 
 [[projects]]
   name = "github.com/prometheus/prometheus"
-  packages = ["cmd/promtool","config","promql","storage","storage/local","storage/local/chunk","storage/local/codable","storage/local/index","storage/metric","util/cli","util/flock","util/promlint","util/stats","util/strutil","util/testutil"]
+  packages = [
+    "cmd/promtool",
+    "config",
+    "promql",
+    "storage",
+    "storage/local",
+    "storage/local/chunk",
+    "storage/local/codable",
+    "storage/local/index",
+    "storage/metric",
+    "util/cli",
+    "util/flock",
+    "util/promlint",
+    "util/stats",
+    "util/strutil",
+    "util/testutil"
+  ]
   revision = "5211b96d4d1291c3dd1a569f711d3b301b635ecb"
   version = "v1.8.2"
 
@@ -350,7 +470,10 @@
 
 [[projects]]
   name = "github.com/spf13/afero"
-  packages = [".","mem"]
+  packages = [
+    ".",
+    "mem"
+  ]
   revision = "8d919cbe7e2627e417f3e45c3c0e489a5b7e2536"
   version = "v1.0.0"
 
@@ -386,14 +509,31 @@
 
 [[projects]]
   name = "github.com/stretchr/testify"
-  packages = ["assert","mock","require"]
+  packages = [
+    "assert",
+    "mock",
+    "require"
+  ]
   revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
   version = "v1.1.4"
 
 [[projects]]
   branch = "master"
   name = "github.com/syndtr/goleveldb"
-  packages = ["leveldb","leveldb/cache","leveldb/comparer","leveldb/errors","leveldb/filter","leveldb/iterator","leveldb/journal","leveldb/memdb","leveldb/opt","leveldb/storage","leveldb/table","leveldb/util"]
+  packages = [
+    "leveldb",
+    "leveldb/cache",
+    "leveldb/comparer",
+    "leveldb/errors",
+    "leveldb/filter",
+    "leveldb/iterator",
+    "leveldb/journal",
+    "leveldb/memdb",
+    "leveldb/opt",
+    "leveldb/storage",
+    "leveldb/table",
+    "leveldb/util"
+  ]
   revision = "34011bf325bce385408353a30b101fe5e923eb6e"
 
 [[projects]]
@@ -417,7 +557,16 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
+  packages = [
+    "context",
+    "context/ctxhttp",
+    "http2",
+    "http2/hpack",
+    "idna",
+    "internal/timeseries",
+    "lex/httplex",
+    "trace"
+  ]
   revision = "d866cfc389cec985d6fda2859936a575a55a3ab6"
 
 [[projects]]
@@ -429,30 +578,83 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix","windows","windows/registry","windows/svc","windows/svc/eventlog","windows/svc/mgr"]
+  packages = [
+    "unix",
+    "windows",
+    "windows/registry",
+    "windows/svc",
+    "windows/svc/eventlog",
+    "windows/svc/mgr"
+  ]
   revision = "d818ba11af4465e00c1998bd3f8a55603b422290"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
-  packages = ["collate","collate/build","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable","width"]
+  packages = [
+    "collate",
+    "collate/build",
+    "internal/colltab",
+    "internal/gen",
+    "internal/tag",
+    "internal/triegen",
+    "internal/ucd",
+    "language",
+    "secure/bidirule",
+    "transform",
+    "unicode/bidi",
+    "unicode/cldr",
+    "unicode/norm",
+    "unicode/rangetable",
+    "width"
+  ]
   revision = "eb22672bea55af56d225d4e35405f4d2e9f062a0"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/tools"
-  packages = ["go/ast/astutil","go/buildutil","go/loader","imports"]
+  packages = [
+    "go/ast/astutil",
+    "go/buildutil",
+    "go/loader",
+    "imports"
+  ]
   revision = "ae8cc594552814363a7aeeb4f2825515a771fa38"
 
 [[projects]]
   branch = "master"
   name = "google.golang.org/genproto"
-  packages = ["googleapis/api/annotations","googleapis/rpc/status"]
+  packages = [
+    "googleapis/api/annotations",
+    "googleapis/rpc/status"
+  ]
   revision = "a8101f21cf983e773d0c1133ebc5424792003214"
 
 [[projects]]
   name = "google.golang.org/grpc"
-  packages = [".","balancer","balancer/roundrobin","codes","connectivity","credentials","encoding","grpclb/grpc_lb_v1/messages","grpclog","internal","keepalive","metadata","naming","peer","resolver","resolver/dns","resolver/passthrough","stats","status","tap","transport"]
+  packages = [
+    ".",
+    "balancer",
+    "balancer/roundrobin",
+    "codes",
+    "connectivity",
+    "credentials",
+    "encoding",
+    "grpclb/grpc_lb_v1/messages",
+    "grpclog",
+    "internal",
+    "keepalive",
+    "metadata",
+    "naming",
+    "peer",
+    "resolver",
+    "resolver/dns",
+    "resolver/passthrough",
+    "stats",
+    "status",
+    "tap",
+    "transport"
+  ]
   revision = "e687fa4e6424368ece6e4fe727cea2c806a0fcb4"
   version = "v1.8.2"
 
@@ -465,12 +667,26 @@
 [[projects]]
   branch = "v2"
   name = "gopkg.in/mgo.v2"
-  packages = ["bson","internal/json"]
+  packages = [
+    "bson",
+    "internal/json"
+  ]
   revision = "3f83fa5005286a7fe593b055f0d7771a7dce4655"
 
 [[projects]]
   name = "gopkg.in/reform.v1"
-  packages = [".","dialects","dialects/mssql","dialects/mysql","dialects/postgresql","dialects/sqlite3","dialects/sqlserver","internal","parse","reform"]
+  packages = [
+    ".",
+    "dialects",
+    "dialects/mssql",
+    "dialects/mysql",
+    "dialects/postgresql",
+    "dialects/sqlite3",
+    "dialects/sqlserver",
+    "internal",
+    "parse",
+    "reform"
+  ]
   revision = "161dee950cbd38085dac33c87ef81140f2da99cc"
   version = "v1.3.1"
 
