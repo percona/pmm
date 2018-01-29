@@ -66,11 +66,37 @@ message ScrapeConfig {
     repeated StaticConfig static_configs = 8;
 }
 
+// ScrapeTargetHealth represents Prometheus scrape target health: unknown, down, or up.
+message ScrapeTargetHealth {
+    // Original scrape job name
+    string job_name = 1;
+
+    // "job" label value, may be different from job_name due to relabeling
+    string job = 2;
+
+    // Original target
+    string target = 3;
+
+    // "instance" label value, may be different from target due to relabeling
+    string instance = 4;
+
+    // Target health : unknown, down, or up.
+    enum Health {
+        UNKNOWN = 0;
+        DOWN = 1;
+        UP = 2;
+    }
+    Health health = 5;
+}
+
 message ScrapeConfigsListRequest {
 }
 
 message ScrapeConfigsListResponse {
     repeated ScrapeConfig scrape_configs = 1;
+
+    // Scrape targets health for all managed scrape jobs
+    repeated ScrapeTargetHealth scrape_targets_health = 2;
 }
 
 message ScrapeConfigsGetRequest {
@@ -79,13 +105,29 @@ message ScrapeConfigsGetRequest {
 
 message ScrapeConfigsGetResponse {
     ScrapeConfig scrape_config = 1;
+
+    // Scrape targets health for this scrape job
+    repeated ScrapeTargetHealth scrape_targets_health = 2;
 }
 
 message ScrapeConfigsCreateRequest {
     ScrapeConfig scrape_config = 1;
+
+    // Check that added targets can be scraped from PMM Server
+    bool check_reachability = 2;
 }
 
 message ScrapeConfigsCreateResponse {
+}
+
+message ScrapeConfigsUpdateRequest {
+    ScrapeConfig scrape_config = 1;
+
+    // Check that added targets can be scraped from PMM Server
+    bool check_reachability = 2;
+}
+
+message ScrapeConfigsUpdateResponse {
 }
 
 message ScrapeConfigsDeleteRequest {
@@ -93,26 +135,6 @@ message ScrapeConfigsDeleteRequest {
 }
 
 message ScrapeConfigsDeleteResponse {
-}
-
-message ScrapeConfigsAddStaticTargetsRequest {
-    string job_name = 1;
-
-    // Hostnames or IPs followed by an optional port number: "1.2.3.4:9090"
-    repeated string targets = 2;
-}
-
-message ScrapeConfigsAddStaticTargetsResponse {
-}
-
-message ScrapeConfigsRemoveStaticTargetsRequest {
-    string job_name = 1;
-
-    // Hostnames or IPs followed by an optional port number: "1.2.3.4:9090"
-    repeated string targets = 2;
-}
-
-message ScrapeConfigsRemoveStaticTargetsResponse {
 }
 
 service ScrapeConfigs {
@@ -133,10 +155,22 @@ service ScrapeConfigs {
 
     // Create creates a new scrape config.
     // Errors: InvalidArgument(3) if some argument is not valid,
-    // AlreadyExists(6) if scrape config with that job name is already present.
+    // AlreadyExists(6) if scrape config with that job name is already present,
+    // FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
     rpc Create(ScrapeConfigsCreateRequest) returns (ScrapeConfigsCreateResponse) {
         option (google.api.http) = {
             post: "/v0/scrape-configs",
+            body: "*"
+        };
+    }
+
+    // Update updates existing scrape config by job name.
+    // Errors: InvalidArgument(3) if some argument is not valid,
+    // NotFound(5) if no such scrape config is present,
+    // FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
+    rpc Update(ScrapeConfigsUpdateRequest) returns (ScrapeConfigsUpdateResponse) {
+        option (google.api.http) = {
+            put: "/v0/scrape-configs/{scrape_config.job_name}",
             body: "*"
         };
     }
@@ -146,20 +180,6 @@ service ScrapeConfigs {
     rpc Delete(ScrapeConfigsDeleteRequest) returns (ScrapeConfigsDeleteResponse) {
         option (google.api.http) = {
             delete: "/v0/scrape-configs/{job_name}"
-        };
-    }
-
-    rpc AddStaticTargets(ScrapeConfigsAddStaticTargetsRequest) returns (ScrapeConfigsAddStaticTargetsResponse) {
-        option (google.api.http) = {
-            post: "/v0/scrape-configs/{job_name}/static-targets",
-            body: "*"
-        };
-    }
-
-    rpc RemoveStaticTargets(ScrapeConfigsRemoveStaticTargetsRequest) returns (ScrapeConfigsRemoveStaticTargetsResponse) {
-        option (google.api.http) = {
-            delete: "/v0/scrape-configs/{job_name}/static-targets",
-            body: "*"
         };
     }
 }

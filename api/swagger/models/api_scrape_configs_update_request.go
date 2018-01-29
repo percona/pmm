@@ -12,10 +12,10 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// APIScrapeConfigsCreateRequest api scrape configs create request
-// swagger:model apiScrapeConfigsCreateRequest
+// APIScrapeConfigsUpdateRequest api scrape configs update request
+// swagger:model apiScrapeConfigsUpdateRequest
 
-type APIScrapeConfigsCreateRequest struct {
+type APIScrapeConfigsUpdateRequest struct {
 
 	// Check that added targets can be scraped from PMM Server
 	CheckReachability bool `json:"check_reachability,omitempty"`
@@ -24,12 +24,12 @@ type APIScrapeConfigsCreateRequest struct {
 	ScrapeConfig *APIScrapeConfig `json:"scrape_config,omitempty"`
 }
 
-/* polymorph apiScrapeConfigsCreateRequest check_reachability false */
+/* polymorph apiScrapeConfigsUpdateRequest check_reachability false */
 
-/* polymorph apiScrapeConfigsCreateRequest scrape_config false */
+/* polymorph apiScrapeConfigsUpdateRequest scrape_config false */
 
-// Validate validates this api scrape configs create request
-func (m *APIScrapeConfigsCreateRequest) Validate(formats strfmt.Registry) error {
+// Validate validates this api scrape configs update request
+func (m *APIScrapeConfigsUpdateRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateScrapeConfig(formats); err != nil {
@@ -43,7 +43,7 @@ func (m *APIScrapeConfigsCreateRequest) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-func (m *APIScrapeConfigsCreateRequest) validateScrapeConfig(formats strfmt.Registry) error {
+func (m *APIScrapeConfigsUpdateRequest) validateScrapeConfig(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ScrapeConfig) { // not required
 		return nil
@@ -63,7 +63,7 @@ func (m *APIScrapeConfigsCreateRequest) validateScrapeConfig(formats strfmt.Regi
 }
 
 // MarshalBinary interface implementation
-func (m *APIScrapeConfigsCreateRequest) MarshalBinary() ([]byte, error) {
+func (m *APIScrapeConfigsUpdateRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -71,8 +71,8 @@ func (m *APIScrapeConfigsCreateRequest) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *APIScrapeConfigsCreateRequest) UnmarshalBinary(b []byte) error {
-	var res APIScrapeConfigsCreateRequest
+func (m *APIScrapeConfigsUpdateRequest) UnmarshalBinary(b []byte) error {
+	var res APIScrapeConfigsUpdateRequest
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

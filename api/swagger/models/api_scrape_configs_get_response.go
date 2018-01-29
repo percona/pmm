@@ -6,6 +6,8 @@ package models
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"strconv"
+
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/go-openapi/errors"
@@ -19,15 +21,25 @@ type APIScrapeConfigsGetResponse struct {
 
 	// scrape config
 	ScrapeConfig *APIScrapeConfig `json:"scrape_config,omitempty"`
+
+	// Scrape targets health for this scrape job
+	ScrapeTargetsHealth []*APIScrapeTargetHealth `json:"scrape_targets_health"`
 }
 
 /* polymorph apiScrapeConfigsGetResponse scrape_config false */
+
+/* polymorph apiScrapeConfigsGetResponse scrape_targets_health false */
 
 // Validate validates this api scrape configs get response
 func (m *APIScrapeConfigsGetResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateScrapeConfig(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
+
+	if err := m.validateScrapeTargetsHealth(formats); err != nil {
 		// prop
 		res = append(res, err)
 	}
@@ -52,6 +64,33 @@ func (m *APIScrapeConfigsGetResponse) validateScrapeConfig(formats strfmt.Regist
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *APIScrapeConfigsGetResponse) validateScrapeTargetsHealth(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ScrapeTargetsHealth) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.ScrapeTargetsHealth); i++ {
+
+		if swag.IsZero(m.ScrapeTargetsHealth[i]) { // not required
+			continue
+		}
+
+		if m.ScrapeTargetsHealth[i] != nil {
+
+			if err := m.ScrapeTargetsHealth[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("scrape_targets_health" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

@@ -104,17 +104,38 @@ func convertAPIScrapeConfig(cfg *api.ScrapeConfig) (*prometheus.ScrapeConfig, er
 	}, nil
 }
 
+func convertServiceScrapeTargetHealth(health *prometheus.ScrapeTargetHealth) *api.ScrapeTargetHealth {
+	h := api.ScrapeTargetHealth_UNKNOWN
+	switch health.Health {
+	case prometheus.HealthDown:
+		h = api.ScrapeTargetHealth_DOWN
+	case prometheus.HealthUp:
+		h = api.ScrapeTargetHealth_UP
+	}
+	return &api.ScrapeTargetHealth{
+		JobName:  health.JobName,
+		Job:      health.Job,
+		Target:   health.Target,
+		Instance: health.Instance,
+		Health:   h,
+	}
+}
+
 // List returns all scrape configs.
 func (s *ScrapeConfigsServer) List(ctx context.Context, req *api.ScrapeConfigsListRequest) (*api.ScrapeConfigsListResponse, error) {
-	cfgs, err := s.Prometheus.ListScrapeConfigs(ctx)
+	cfgs, health, err := s.Prometheus.ListScrapeConfigs(ctx)
 	if err != nil {
 		return nil, err
 	}
 	res := &api.ScrapeConfigsListResponse{
-		ScrapeConfigs: make([]*api.ScrapeConfig, len(cfgs)),
+		ScrapeConfigs:       make([]*api.ScrapeConfig, len(cfgs)),
+		ScrapeTargetsHealth: make([]*api.ScrapeTargetHealth, len(health)),
 	}
 	for i, cfg := range cfgs {
 		res.ScrapeConfigs[i] = convertServiceScrapeConfig(&cfg)
+	}
+	for i, h := range health {
+		res.ScrapeTargetsHealth[i] = convertServiceScrapeTargetHealth(&h)
 	}
 	return res, nil
 }
@@ -122,13 +143,18 @@ func (s *ScrapeConfigsServer) List(ctx context.Context, req *api.ScrapeConfigsLi
 // Get returns a scrape config by job name.
 // Errors: NotFound(5) if no such scrape config is present.
 func (s *ScrapeConfigsServer) Get(ctx context.Context, req *api.ScrapeConfigsGetRequest) (*api.ScrapeConfigsGetResponse, error) {
-	cfg, err := s.Prometheus.GetScrapeConfig(ctx, req.JobName)
+	cfg, health, err := s.Prometheus.GetScrapeConfig(ctx, req.JobName)
 	if err != nil {
 		return nil, err
 	}
-	return &api.ScrapeConfigsGetResponse{
-		ScrapeConfig: convertServiceScrapeConfig(cfg),
-	}, nil
+	res := &api.ScrapeConfigsGetResponse{
+		ScrapeConfig:        convertServiceScrapeConfig(cfg),
+		ScrapeTargetsHealth: make([]*api.ScrapeTargetHealth, len(health)),
+	}
+	for i, h := range health {
+		res.ScrapeTargetsHealth[i] = convertServiceScrapeTargetHealth(&h)
+	}
+	return res, nil
 }
 
 // Create creates a new scrape config.
@@ -139,10 +165,25 @@ func (s *ScrapeConfigsServer) Create(ctx context.Context, req *api.ScrapeConfigs
 	if err != nil {
 		return nil, err
 	}
-	if err := s.Prometheus.CreateScrapeConfig(ctx, cfg); err != nil {
+	if err := s.Prometheus.CreateScrapeConfig(ctx, cfg, req.CheckReachability); err != nil {
 		return nil, err
 	}
 	return &api.ScrapeConfigsCreateResponse{}, nil
+}
+
+// Update updates existing scrape config by job name.
+// Errors: InvalidArgument(3) if some argument is not valid,
+// NotFound(5) if no such scrape config is present,
+// FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
+func (s *ScrapeConfigsServer) Update(ctx context.Context, req *api.ScrapeConfigsUpdateRequest) (*api.ScrapeConfigsUpdateResponse, error) {
+	cfg, err := convertAPIScrapeConfig(req.ScrapeConfig)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.Prometheus.UpdateScrapeConfig(ctx, cfg, req.CheckReachability); err != nil {
+		return nil, err
+	}
+	return &api.ScrapeConfigsUpdateResponse{}, nil
 }
 
 // Delete removes existing scrape config by job name.
@@ -152,20 +193,6 @@ func (s *ScrapeConfigsServer) Delete(ctx context.Context, req *api.ScrapeConfigs
 		return nil, err
 	}
 	return &api.ScrapeConfigsDeleteResponse{}, nil
-}
-
-func (s *ScrapeConfigsServer) AddStaticTargets(ctx context.Context, req *api.ScrapeConfigsAddStaticTargetsRequest) (*api.ScrapeConfigsAddStaticTargetsResponse, error) {
-	if err := s.Prometheus.AddStaticTargets(ctx, req.JobName, req.Targets); err != nil {
-		return nil, err
-	}
-	return &api.ScrapeConfigsAddStaticTargetsResponse{}, nil
-}
-
-func (s *ScrapeConfigsServer) RemoveStaticTargets(ctx context.Context, req *api.ScrapeConfigsRemoveStaticTargetsRequest) (*api.ScrapeConfigsRemoveStaticTargetsResponse, error) {
-	if err := s.Prometheus.RemoveStaticTargets(ctx, req.JobName, req.Targets); err != nil {
-		return nil, err
-	}
-	return &api.ScrapeConfigsRemoveStaticTargetsResponse{}, nil
 }
 
 // check interface

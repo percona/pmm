@@ -32,18 +32,17 @@ It has these top-level messages:
 	BasicAuth
 	TLSConfig
 	ScrapeConfig
+	ScrapeTargetHealth
 	ScrapeConfigsListRequest
 	ScrapeConfigsListResponse
 	ScrapeConfigsGetRequest
 	ScrapeConfigsGetResponse
 	ScrapeConfigsCreateRequest
 	ScrapeConfigsCreateResponse
+	ScrapeConfigsUpdateRequest
+	ScrapeConfigsUpdateResponse
 	ScrapeConfigsDeleteRequest
 	ScrapeConfigsDeleteResponse
-	ScrapeConfigsAddStaticTargetsRequest
-	ScrapeConfigsAddStaticTargetsResponse
-	ScrapeConfigsRemoveStaticTargetsRequest
-	ScrapeConfigsRemoveStaticTargetsResponse
 */
 package api
 

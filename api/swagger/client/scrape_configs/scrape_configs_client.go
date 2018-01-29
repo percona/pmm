@@ -25,35 +25,7 @@ type Client struct {
 }
 
 /*
-AddStaticTargets add static targets API
-*/
-func (a *Client) AddStaticTargets(params *AddStaticTargetsParams) (*AddStaticTargetsOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddStaticTargetsParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddStaticTargets",
-		Method:             "POST",
-		PathPattern:        "/v0/scrape-configs/{job_name}/static-targets",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddStaticTargetsReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*AddStaticTargetsOK), nil
-
-}
-
-/*
-Create creates creates a new scrape config errors invalid argument 3 if some argument is not valid already exists 6 if scrape config with that job name is already present
+Create creates creates a new scrape config errors invalid argument 3 if some argument is not valid already exists 6 if scrape config with that job name is already present failed precondition 9 if reachability check was requested and some scrape target can t be reached
 */
 func (a *Client) Create(params *CreateParams) (*CreateOK, error) {
 	// TODO: Validate the params before sending
@@ -165,30 +137,30 @@ func (a *Client) ListMixin2(params *ListMixin2Params) (*ListMixin2OK, error) {
 }
 
 /*
-RemoveStaticTargets remove static targets API
+Update updates updates existing scrape config by job name errors invalid argument 3 if some argument is not valid not found 5 if no such scrape config is present failed precondition 9 if reachability check was requested and some scrape target can t be reached
 */
-func (a *Client) RemoveStaticTargets(params *RemoveStaticTargetsParams) (*RemoveStaticTargetsOK, error) {
+func (a *Client) Update(params *UpdateParams) (*UpdateOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewRemoveStaticTargetsParams()
+		params = NewUpdateParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RemoveStaticTargets",
-		Method:             "DELETE",
-		PathPattern:        "/v0/scrape-configs/{job_name}/static-targets",
+		ID:                 "Update",
+		Method:             "PUT",
+		PathPattern:        "/v0/scrape-configs/{scrape_config.job_name}",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &RemoveStaticTargetsReader{formats: a.formats},
+		Reader:             &UpdateReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*RemoveStaticTargetsOK), nil
+	return result.(*UpdateOK), nil
 
 }
 

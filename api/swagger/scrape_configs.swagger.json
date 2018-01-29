@@ -32,7 +32,7 @@
         ]
       },
       "post": {
-        "summary": "Create creates a new scrape config.\nErrors: InvalidArgument(3) if some argument is not valid,\nAlreadyExists(6) if scrape config with that job name is already present.",
+        "summary": "Create creates a new scrape config.\nErrors: InvalidArgument(3) if some argument is not valid,\nAlreadyExists(6) if scrape config with that job name is already present,\nFailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.",
         "operationId": "Create",
         "responses": {
           "200": {
@@ -105,20 +105,21 @@
         ]
       }
     },
-    "/v0/scrape-configs/{job_name}/static-targets": {
-      "delete": {
-        "operationId": "RemoveStaticTargets",
+    "/v0/scrape-configs/{scrape_config.job_name}": {
+      "put": {
+        "summary": "Update updates existing scrape config by job name.\nErrors: InvalidArgument(3) if some argument is not valid,\nNotFound(5) if no such scrape config is present,\nFailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.",
+        "operationId": "Update",
         "responses": {
           "200": {
             "description": "",
             "schema": {
-              "$ref": "#/definitions/apiScrapeConfigsRemoveStaticTargetsResponse"
+              "$ref": "#/definitions/apiScrapeConfigsUpdateResponse"
             }
           }
         },
         "parameters": [
           {
-            "name": "job_name",
+            "name": "scrape_config.job_name",
             "in": "path",
             "required": true,
             "type": "string"
@@ -128,37 +129,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/apiScrapeConfigsRemoveStaticTargetsRequest"
-            }
-          }
-        ],
-        "tags": [
-          "ScrapeConfigs"
-        ]
-      },
-      "post": {
-        "operationId": "AddStaticTargets",
-        "responses": {
-          "200": {
-            "description": "",
-            "schema": {
-              "$ref": "#/definitions/apiScrapeConfigsAddStaticTargetsResponse"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "job_name",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/apiScrapeConfigsAddStaticTargetsRequest"
+              "$ref": "#/definitions/apiScrapeConfigsUpdateRequest"
             }
           }
         ],
@@ -169,6 +140,16 @@
     }
   },
   "definitions": {
+    "ScrapeTargetHealthHealth": {
+      "type": "string",
+      "enum": [
+        "UNKNOWN",
+        "DOWN",
+        "UP"
+      ],
+      "default": "UNKNOWN",
+      "description": "Target health : unknown, down, or up."
+    },
     "apiBasicAuth": {
       "type": "object",
       "properties": {
@@ -233,29 +214,16 @@
         }
       }
     },
-    "apiScrapeConfigsAddStaticTargetsRequest": {
-      "type": "object",
-      "properties": {
-        "job_name": {
-          "type": "string"
-        },
-        "targets": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "title": "Hostnames or IPs followed by an optional port number: \"1.2.3.4:9090\""
-        }
-      }
-    },
-    "apiScrapeConfigsAddStaticTargetsResponse": {
-      "type": "object"
-    },
     "apiScrapeConfigsCreateRequest": {
       "type": "object",
       "properties": {
         "scrape_config": {
           "$ref": "#/definitions/apiScrapeConfig"
+        },
+        "check_reachability": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Check that added targets can be scraped from PMM Server"
         }
       }
     },
@@ -270,6 +238,13 @@
       "properties": {
         "scrape_config": {
           "$ref": "#/definitions/apiScrapeConfig"
+        },
+        "scrape_targets_health": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiScrapeTargetHealth"
+          },
+          "title": "Scrape targets health for this scrape job"
         }
       }
     },
@@ -281,26 +256,56 @@
           "items": {
             "$ref": "#/definitions/apiScrapeConfig"
           }
+        },
+        "scrape_targets_health": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiScrapeTargetHealth"
+          },
+          "title": "Scrape targets health for all managed scrape jobs"
         }
       }
     },
-    "apiScrapeConfigsRemoveStaticTargetsRequest": {
+    "apiScrapeConfigsUpdateRequest": {
+      "type": "object",
+      "properties": {
+        "scrape_config": {
+          "$ref": "#/definitions/apiScrapeConfig"
+        },
+        "check_reachability": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Check that added targets can be scraped from PMM Server"
+        }
+      }
+    },
+    "apiScrapeConfigsUpdateResponse": {
+      "type": "object"
+    },
+    "apiScrapeTargetHealth": {
       "type": "object",
       "properties": {
         "job_name": {
-          "type": "string"
+          "type": "string",
+          "title": "Original scrape job name"
         },
-        "targets": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "title": "Hostnames or IPs followed by an optional port number: \"1.2.3.4:9090\""
+        "job": {
+          "type": "string",
+          "title": "\"job\" label value, may be different from job_name due to relabeling"
+        },
+        "target": {
+          "type": "string",
+          "title": "Original target"
+        },
+        "instance": {
+          "type": "string",
+          "title": "\"instance\" label value, may be different from target due to relabeling"
+        },
+        "health": {
+          "$ref": "#/definitions/ScrapeTargetHealthHealth"
         }
-      }
-    },
-    "apiScrapeConfigsRemoveStaticTargetsResponse": {
-      "type": "object"
+      },
+      "description": "ScrapeTargetHealth represents Prometheus scrape target health: unknown, down, or up."
     },
     "apiStaticConfig": {
       "type": "object",

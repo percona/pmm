@@ -24,7 +24,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
-	"path/filepath"
+	"path"
 	"regexp"
 	"sync"
 
@@ -48,9 +48,10 @@ var checkFailedRE = regexp.MustCompile(`FAILED: (.+)\n`)
 type Service struct {
 	ConfigPath   string
 	baseURL      *url.URL
+	client       *http.Client
 	promtoolPath string
 	consul       *consul.Client
-	lock         sync.RWMutex
+	lock         sync.RWMutex // for Prometheus configuration file and, by extension, for most methods
 }
 
 func NewService(config string, baseURL string, promtool string, consul *consul.Client) (*Service, error) {
@@ -61,6 +62,7 @@ func NewService(config string, baseURL string, promtool string, consul *consul.C
 	return &Service{
 		ConfigPath:   config,
 		baseURL:      u,
+		client:       new(http.Client),
 		promtoolPath: promtool,
 		consul:       consul,
 	}, nil
@@ -148,8 +150,8 @@ func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Confi
 // reload causes Prometheus to reload configuration.
 func (svc *Service) reload() error {
 	u := *svc.baseURL
-	u.Path = filepath.Join(u.Path, "-", "reload")
-	resp, err := http.Post(u.String(), "", nil)
+	u.Path = path.Join(u.Path, "-", "reload")
+	resp, err := svc.client.Post(u.String(), "", nil)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -180,8 +182,8 @@ func (svc *Service) Check(ctx context.Context) error {
 		return errors.New("URL is not set")
 	}
 	u := *svc.baseURL
-	u.Path = filepath.Join(u.Path, "version")
-	resp, err := http.Get(u.String())
+	u.Path = path.Join(u.Path, "version")
+	resp, err := svc.client.Get(u.String())
 	if err != nil {
 		return err
 	}
