@@ -1,11 +1,14 @@
 
 .. Programs
 
-.. |mongod|          replace:: :program:`mongod`
-.. |pmm-admin|       replace:: :program:`pmm-admin`
-.. |sudo|            replace:: :program:`sudo`   
-.. |virtualbox|      replace:: :program:`VirtualBox`
-.. |vboxmanage|      replace:: :program:`VBoxManage`
+.. |mongod|     replace:: :program:`mongod`
+.. |pmm-admin|  replace:: :program:`pmm-admin`
+.. |sudo|       replace:: :program:`sudo`   
+.. |virtualbox| replace:: :program:`VirtualBox`
+.. |vboxmanage| replace:: :program:`VBoxManage`
+.. |systemd|    replace:: :program:`systemd`
+.. |sed|        replace:: :program:`sed`
+.. |cd|         replace:: :program:`cd`
 
 .. Commands
 

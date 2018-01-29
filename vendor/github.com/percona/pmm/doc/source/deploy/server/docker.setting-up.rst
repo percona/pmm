@@ -75,7 +75,7 @@ To create and launch |pmm-server| in one command, use |docker.run|:
 .. include:: ../../.res/code/sh.org
    :start-after: +docker.run.latest+
    :end-before: #+end-block
-		
+
 This command does the following:
 
 * The |docker.run| command runs a new container based on the
@@ -102,59 +102,25 @@ This command does the following:
 * |opt.pmm-server.latest| is the name and version tag of the image
   to derive the container from.
 
-.. _pmm/docker.additional_parameters:
+.. _pmm/docker.additional_option:
 
-Additional parameters
+Additional options
 --------------------------------------------------------------------------------
 
 When running the |pmm-server|, you may pass additional parameters to the
 |docker.run| subcommand. All options that appear after the |opt.e| option
 are the additional parameters that modify the way how |pmm-server| operates.
 
-.. rubric:: **To enable Orchestrator**
+The section :ref:`pmm/glossary.pmm-server.additional-option` lists all
+supported additional options.
 
-By default, Orchestrator_ is disabled. To enable it, set the
-|opt.orchestrator-enabled| option to **true**.
-
-.. include:: ../../.res/code/sh.org
-   :start-after: +docker.run.orchestrator-enabled+
-   :end-before: #+end-block
-
-.. rubric:: **To disable telemetry**
-
-With :term:`telemetry` enabled, your |pmm-server| sends some statistics to `v.percona.com`_
-every 24 hours. This statistics includes the following details:
-
-- |pmm-server| unique ID
-- |pmm| version
-- The name and version of the operating system
-- |mysql| version
-- |perl| version
-
-If you do not want your |pmm-server| to send this information, disable telemetry
-when running your |docker| container:
-
-.. include:: ../../.res/code/sh.org
-   :start-after: +docker.run.disable-telemetry+
-   :end-before: #+end-block
-
-.. rubric:: **To disable updates**
-
-To update your |pmm| from web interface you only need to click the
-|gui.update| on the home page. The |opt.disable-updates| option is useful
-if updating is not desirable. Set it to **true** when running |pmm| in
-the |docker| container.
-
-.. include:: ../../.res/code/sh.org
-   :start-after: +docker.run.disable-updates+
-   :end-before: #+end-block
 
 .. seealso::
 
    Default ports
       :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
    Updating PMM
-     :ref:`Updating PMM <deploy-pmm.updating>`
+      :ref:`Updating PMM <deploy-pmm.updating>`
    Backing Up the |pmm-server| |docker| container
       :ref:`pmm/server/docker/backing-up`
    Restoring |opt.pmm-data|

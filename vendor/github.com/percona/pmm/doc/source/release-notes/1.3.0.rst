@@ -20,7 +20,7 @@ supporting all types of MongoDB queries.
 
 :program:`Orchestrator` is not enabled by default because leaving it in a
 non-configured state was confusing to users. :ref:`It is still possible to
-enable it <pmm/docker.additional_parameters>`.
+enable it <pmm/docker.additional_option>`.
 
 New Features
 --------------------------------------------------------------------------------

@@ -1,0 +1,18 @@
+
+* db
+
+#+begin-block: db get-sibling-db create-user
++db.get-sibling-db.create-user+
+
+.. code-block:: js
+
+   db.getSiblingDB("admin").createUser({
+       user: "mongodb_exporter",
+       pwd: "s3cr3tpassw0rd",
+       roles: [
+           { role: "clusterMonitor", db: "admin" },
+           { role: "read", db: "local" }
+       ]
+   })
+
+#+end-block

@@ -28,7 +28,7 @@ env:
     - PROMETHEUS_IMAGE=prom/prometheus:v1.8.2
       CONSUL_IMAGE=consul:0.8.5
     - PROMETHEUS_IMAGE=prom/prometheus:v1.8.2
-      CONSUL_IMAGE=consul:1.0.0
+      CONSUL_IMAGE=consul:1.0.2
     # TODO
     # - PROMETHEUS_IMAGE=prom/prometheus:master
     #   CONSUL_IMAGE=consul:latest
@@ -64,10 +64,11 @@ script:
 
   # ensure that vendor/ is in sync with code and Gopkg.*
   # and generated files are not changed
-  - curl https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64 -L -o ~/dep && chmod +x ~/dep
+  - curl https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -L -o ~/dep && chmod +x ~/dep
   - rm -fr vendor/
   - ~/dep ensure -v
   - make init gen
+  - git status
   - git diff --exit-code
 
   - make cover

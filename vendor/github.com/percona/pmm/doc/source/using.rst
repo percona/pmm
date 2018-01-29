@@ -491,7 +491,7 @@ to add the instances to the topology.
 
    In version 1.3.0 and later, |orchestrator| is not enabled
    by default. To enable it, see
-   :ref:`pmm/docker.additional_parameters` in the
+   :ref:`pmm/docker.additional_option` in the
    :ref:`run-server-docker` section.
 
 .. include:: .res/replace/name.txt

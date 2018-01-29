@@ -1,6 +1,6 @@
 all: test
 
-# installs tools to $GOPATH/bin which is expected to be in $PATH
+# installs tools to $GOBIN (or $GOPATH/bin) which is expected to be in $PATH
 init:
 	go install -v ./vendor/gopkg.in/reform.v1/reform
 
