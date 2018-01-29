@@ -136,6 +136,34 @@ func (a *Client) ListMixin2(params *ListMixin2Params) (*ListMixin2OK, error) {
 
 }
 
+/*
+Update updates updates existing scrape config by job name errors invalid argument 3 if some argument is not valid not found 5 if no such scrape config is present failed precondition 9 if reachability check was requested and some scrape target can t be reached
+*/
+func (a *Client) Update(params *UpdateParams) (*UpdateOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewUpdateParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "Update",
+		Method:             "PUT",
+		PathPattern:        "/v0/scrape-configs/{scrape_config.job_name}",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &UpdateReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*UpdateOK), nil
+
+}
+
 // SetTransport changes the transport on the client
 func (a *Client) SetTransport(transport runtime.ClientTransport) {
 	a.transport = transport

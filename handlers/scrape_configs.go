@@ -171,6 +171,21 @@ func (s *ScrapeConfigsServer) Create(ctx context.Context, req *api.ScrapeConfigs
 	return &api.ScrapeConfigsCreateResponse{}, nil
 }
 
+// Update updates existing scrape config by job name.
+// Errors: InvalidArgument(3) if some argument is not valid,
+// NotFound(5) if no such scrape config is present,
+// FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
+func (s *ScrapeConfigsServer) Update(ctx context.Context, req *api.ScrapeConfigsUpdateRequest) (*api.ScrapeConfigsUpdateResponse, error) {
+	cfg, err := convertAPIScrapeConfig(req.ScrapeConfig)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.Prometheus.UpdateScrapeConfig(ctx, cfg, req.CheckReachability); err != nil {
+		return nil, err
+	}
+	return &api.ScrapeConfigsUpdateResponse{}, nil
+}
+
 // Delete removes existing scrape config by job name.
 // Errors: NotFound(5) if no such scrape config is present.
 func (s *ScrapeConfigsServer) Delete(ctx context.Context, req *api.ScrapeConfigsDeleteRequest) (*api.ScrapeConfigsDeleteResponse, error) {

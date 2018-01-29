@@ -39,6 +39,8 @@ It has these top-level messages:
 	ScrapeConfigsGetResponse
 	ScrapeConfigsCreateRequest
 	ScrapeConfigsCreateResponse
+	ScrapeConfigsUpdateRequest
+	ScrapeConfigsUpdateResponse
 	ScrapeConfigsDeleteRequest
 	ScrapeConfigsDeleteResponse
 */

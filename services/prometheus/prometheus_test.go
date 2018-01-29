@@ -170,6 +170,16 @@ func TestPrometheusScrapeConfigs(t *testing.T) {
 		{JobName: "ScrapeConfigs", Job: "ScrapeConfigs_relabeled", Target: "127.0.0.1:12345", Instance: "test_instance", Health: HealthDown},
 	}
 	assert.Equal(t, expectedHealth, health)
+
+	cfg.ScrapeInterval = "2s"
+	err = p.UpdateScrapeConfig(ctx, cfg, false)
+	require.NoError(t, err)
+
+	actual, _, err = p.GetScrapeConfig(ctx, "ScrapeConfigs")
+	require.NoError(t, err)
+	expected.ScrapeInterval = "2s"
+	expected.ScrapeTimeout = "2s" // internal.Config.UnmarshalYAML sets timeout to interval if default timeout > interval
+	assert.Equal(t, expected, actual)
 }
 
 func TestPrometheusScrapeConfigsReachability(t *testing.T) {

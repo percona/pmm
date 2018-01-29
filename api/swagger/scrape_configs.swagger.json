@@ -104,6 +104,39 @@
           "ScrapeConfigs"
         ]
       }
+    },
+    "/v0/scrape-configs/{scrape_config.job_name}": {
+      "put": {
+        "summary": "Update updates existing scrape config by job name.\nErrors: InvalidArgument(3) if some argument is not valid,\nNotFound(5) if no such scrape config is present,\nFailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.",
+        "operationId": "Update",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsUpdateResponse"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "scrape_config.job_name",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsUpdateRequest"
+            }
+          }
+        ],
+        "tags": [
+          "ScrapeConfigs"
+        ]
+      }
     }
   },
   "definitions": {
@@ -232,6 +265,22 @@
           "title": "Scrape targets health for all managed scrape jobs"
         }
       }
+    },
+    "apiScrapeConfigsUpdateRequest": {
+      "type": "object",
+      "properties": {
+        "scrape_config": {
+          "$ref": "#/definitions/apiScrapeConfig"
+        },
+        "check_reachability": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Check that added targets can be scraped from PMM Server"
+        }
+      }
+    },
+    "apiScrapeConfigsUpdateResponse": {
+      "type": "object"
     },
     "apiScrapeTargetHealth": {
       "type": "object",

@@ -32,11 +32,13 @@ import (
 )
 
 func assertYAMLEqual(t *testing.T, expected interface{}, actual interface{}) {
+	t.Helper()
+
 	e, err := yaml.Marshal(expected)
 	require.NoError(t, err)
 	a, err := yaml.Marshal(actual)
 	require.NoError(t, err)
-	assert.Equal(t, strings.Split(string(e), "\n"), strings.Split(string(a), "\n"))
+	assert.Equal(t, strings.Split(string(e), "\n"), strings.Split(string(a), "\n"), "expected:\n%s\nactual:\n%s", e, a)
 }
 
 func getConfigUpdater() *configUpdater {
@@ -64,11 +66,11 @@ func getConfigUpdater() *configUpdater {
 	return &configUpdater{consulData, fileData}
 }
 
-func TestConfigUpdaterTestConfigUpdaterAddRemoveScrapeConfig(t *testing.T) {
+func TestConfigUpdaterAddSetRemoveScrapeConfig(t *testing.T) {
 	configUpdater := getConfigUpdater()
 
 	add := &ScrapeConfig{
-		JobName: "TestConfigUpdaterAddRemoveScrapeConfig",
+		JobName: "AddSetRemoveScrapeConfig",
 		StaticConfigs: []StaticConfig{{
 			Targets: []string{"5.6.7.8:12345"},
 		}},
@@ -82,7 +84,7 @@ func TestConfigUpdaterTestConfigUpdaterAddRemoveScrapeConfig(t *testing.T) {
 			Targets: []string{"1.2.3.4:12345"},
 		}},
 	}, {
-		JobName: "TestConfigUpdaterAddRemoveScrapeConfig",
+		JobName: "AddSetRemoveScrapeConfig",
 		StaticConfigs: []StaticConfig{{
 			Targets: []string{"5.6.7.8:12345"},
 		}},
@@ -102,7 +104,7 @@ func TestConfigUpdaterTestConfigUpdaterAddRemoveScrapeConfig(t *testing.T) {
 			}},
 		},
 	}, {
-		JobName: "TestConfigUpdaterAddRemoveScrapeConfig",
+		JobName: "AddSetRemoveScrapeConfig",
 		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
 			StaticConfigs: []*internal.TargetGroup{{
 				Targets: []model.LabelSet{{"__address__": "5.6.7.8:12345"}},
@@ -111,13 +113,72 @@ func TestConfigUpdaterTestConfigUpdaterAddRemoveScrapeConfig(t *testing.T) {
 	}}, configUpdater.fileData)
 
 	err = configUpdater.addScrapeConfig(add)
-	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `scrape config with job name "TestConfigUpdaterAddRemoveScrapeConfig" already exist`), err)
+	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `scrape config with job name "AddSetRemoveScrapeConfig" already exist`), err)
 
 	add.JobName = "prometheus"
 	err = configUpdater.addScrapeConfig(add)
 	tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `scrape config with job name "prometheus" is built-in`), err)
 
-	err = configUpdater.removeScrapeConfig("TestConfigUpdaterAddRemoveScrapeConfig")
+	set := add
+	set.JobName = "AddSetRemoveScrapeConfig"
+	set.StaticConfigs = []StaticConfig{{
+		Targets: []string{"5.6.7.8:12345"},
+		Labels: []LabelPair{{
+			Name:  "instance",
+			Value: "test_host",
+		}},
+	}}
+	err = configUpdater.setScrapeConfig(set)
+	assert.NoError(t, err)
+
+	assertYAMLEqual(t, []ScrapeConfig{{
+		JobName: "postgresql",
+		StaticConfigs: []StaticConfig{{
+			Targets: []string{"1.2.3.4:12345"},
+		}},
+	}, {
+		JobName: "AddSetRemoveScrapeConfig",
+		StaticConfigs: []StaticConfig{{
+			Targets: []string{"5.6.7.8:12345"},
+			Labels: []LabelPair{{
+				Name:  "instance",
+				Value: "test_host",
+			}},
+		}},
+	}}, configUpdater.consulData)
+	assertYAMLEqual(t, []*internal.ScrapeConfig{{
+		JobName: "prometheus",
+		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
+			StaticConfigs: []*internal.TargetGroup{{
+				Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
+			}},
+		},
+	}, {
+		JobName: "postgresql",
+		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
+			StaticConfigs: []*internal.TargetGroup{{
+				Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+			}},
+		},
+	}, {
+		JobName: "AddSetRemoveScrapeConfig",
+		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
+			StaticConfigs: []*internal.TargetGroup{{
+				Targets: []model.LabelSet{{"__address__": "5.6.7.8:12345"}},
+				Labels:  model.LabelSet{"instance": "test_host"},
+			}},
+		},
+	}}, configUpdater.fileData)
+
+	set.JobName = "no_such_config"
+	err = configUpdater.setScrapeConfig(set)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "no_such_config" not found`), err)
+
+	set.JobName = "prometheus"
+	err = configUpdater.setScrapeConfig(set)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)
+
+	err = configUpdater.removeScrapeConfig("AddSetRemoveScrapeConfig")
 	assert.NoError(t, err)
 
 	assertYAMLEqual(t, []ScrapeConfig{{
@@ -142,8 +203,8 @@ func TestConfigUpdaterTestConfigUpdaterAddRemoveScrapeConfig(t *testing.T) {
 		},
 	}}, configUpdater.fileData)
 
-	err = configUpdater.removeScrapeConfig("TestConfigUpdaterAddRemoveScrapeConfig")
-	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "TestConfigUpdaterAddRemoveScrapeConfig" not found`), err)
+	err = configUpdater.removeScrapeConfig("AddSetRemoveScrapeConfig")
+	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "AddSetRemoveScrapeConfig" not found`), err)
 
 	err = configUpdater.removeScrapeConfig("prometheus")
 	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "prometheus" not found`), err)

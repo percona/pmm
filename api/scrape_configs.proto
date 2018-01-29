@@ -120,6 +120,16 @@ message ScrapeConfigsCreateRequest {
 message ScrapeConfigsCreateResponse {
 }
 
+message ScrapeConfigsUpdateRequest {
+    ScrapeConfig scrape_config = 1;
+
+    // Check that added targets can be scraped from PMM Server
+    bool check_reachability = 2;
+}
+
+message ScrapeConfigsUpdateResponse {
+}
+
 message ScrapeConfigsDeleteRequest {
     string job_name = 1;
 }
@@ -150,6 +160,17 @@ service ScrapeConfigs {
     rpc Create(ScrapeConfigsCreateRequest) returns (ScrapeConfigsCreateResponse) {
         option (google.api.http) = {
             post: "/v0/scrape-configs",
+            body: "*"
+        };
+    }
+
+    // Update updates existing scrape config by job name.
+    // Errors: InvalidArgument(3) if some argument is not valid,
+    // NotFound(5) if no such scrape config is present,
+    // FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
+    rpc Update(ScrapeConfigsUpdateRequest) returns (ScrapeConfigsUpdateResponse) {
+        option (google.api.http) = {
+            put: "/v0/scrape-configs/{scrape_config.job_name}",
             body: "*"
         };
     }

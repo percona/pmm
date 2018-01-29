@@ -470,6 +470,86 @@ func (svc *Service) CreateScrapeConfig(ctx context.Context, cfg *ScrapeConfig, c
 	return svc.putToConsul(updater.consulData)
 }
 
+// UpdateScrapeConfig updates existing scrape config by job name.
+// Errors: InvalidArgument(3) if some argument is not valid,
+// NotFound(5) if no such scrape config is present,
+// FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
+func (svc *Service) UpdateScrapeConfig(ctx context.Context, cfg *ScrapeConfig, checkReachability bool) error {
+	svc.lock.Lock()
+	defer svc.lock.Unlock()
+
+	// start scraping targets early
+	var reachabilityCh chan ScrapeTargetReachability
+	if checkReachability {
+		var targets []string
+		for _, sc := range cfg.StaticConfigs {
+			for _, t := range sc.Targets {
+				targets = append(targets, t)
+			}
+		}
+		reachabilityCh = make(chan ScrapeTargetReachability, len(targets)) // set cap so checkReachability always exits
+		svc.checkReachability(ctx, cfg, targets, reachabilityCh)
+	}
+
+	consulData, err := svc.getFromConsul()
+	if err != nil {
+		return err
+	}
+	config, err := svc.loadConfig()
+	if err != nil {
+		return err
+	}
+
+	updater := &configUpdater{consulData, config.ScrapeConfigs}
+	if err = updater.setScrapeConfig(cfg); err != nil {
+		return err
+	}
+
+	if checkReachability {
+		for r := range reachabilityCh {
+			if msg := r.Error; msg != "" {
+				if r.Target != "" {
+					msg = fmt.Sprintf("%s: %s", r.Target, msg)
+				}
+				return status.Error(codes.FailedPrecondition, msg)
+			}
+		}
+	}
+
+	config.ScrapeConfigs = updater.fileData
+	if err = svc.saveConfigAndReload(ctx, config); err != nil {
+		return err
+	}
+	return svc.putToConsul(updater.consulData)
+}
+
+// DeleteScrapeConfig removes existing scrape config by job name.
+// Errors: NotFound(5) if no such scrape config is present.
+func (svc *Service) DeleteScrapeConfig(ctx context.Context, jobName string) error {
+	svc.lock.Lock()
+	defer svc.lock.Unlock()
+
+	consulData, err := svc.getFromConsul()
+	if err != nil {
+		return err
+	}
+	config, err := svc.loadConfig()
+	if err != nil {
+		return err
+	}
+
+	updater := &configUpdater{consulData, config.ScrapeConfigs}
+	if err = updater.removeScrapeConfig(jobName); err != nil {
+		return err
+	}
+
+	config.ScrapeConfigs = updater.fileData
+	if err = svc.saveConfigAndReload(ctx, config); err != nil {
+		return err
+	}
+	return svc.putToConsul(updater.consulData)
+}
+
 // SetScrapeConfigs creates new or completely replaces existing scrape configs with a given names.
 // Errors: InvalidArgument(3) if some argument is not valid.
 func (svc *Service) SetScrapeConfigs(ctx context.Context, useConsul bool, configs ...*ScrapeConfig) error {
@@ -509,31 +589,4 @@ func (svc *Service) SetScrapeConfigs(ctx context.Context, useConsul bool, config
 	}
 
 	return svc.saveConfigAndReload(ctx, config)
-}
-
-// DeleteScrapeConfig removes existing scrape config by job name.
-// Errors: NotFound(5) if no such scrape config is present.
-func (svc *Service) DeleteScrapeConfig(ctx context.Context, jobName string) error {
-	svc.lock.Lock()
-	defer svc.lock.Unlock()
-
-	consulData, err := svc.getFromConsul()
-	if err != nil {
-		return err
-	}
-	config, err := svc.loadConfig()
-	if err != nil {
-		return err
-	}
-
-	updater := &configUpdater{consulData, config.ScrapeConfigs}
-	if err = updater.removeScrapeConfig(jobName); err != nil {
-		return err
-	}
-
-	config.ScrapeConfigs = updater.fileData
-	if err = svc.saveConfigAndReload(ctx, config); err != nil {
-		return err
-	}
-	return svc.putToConsul(updater.consulData)
 }

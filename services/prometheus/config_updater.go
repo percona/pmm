@@ -199,6 +199,39 @@ func (cu *configUpdater) addScrapeConfig(scrapeConfig *ScrapeConfig) error {
 	return nil
 }
 
+func (cu *configUpdater) setScrapeConfig(scrapeConfig *ScrapeConfig) error {
+	cfg, err := convertScrapeConfig(scrapeConfig)
+	if err != nil {
+		return err
+	}
+
+	consulDataI := -1
+	for i, sc := range cu.consulData {
+		if sc.JobName == cfg.JobName {
+			consulDataI = i
+			break
+		}
+	}
+	if consulDataI < 0 {
+		return status.Errorf(codes.NotFound, "scrape config with job name %q not found", cfg.JobName)
+	}
+
+	fileDataI := -1
+	for i, sc := range cu.fileData {
+		if sc.JobName == cfg.JobName {
+			fileDataI = i
+			break
+		}
+	}
+	if fileDataI < 0 {
+		return status.Errorf(codes.FailedPrecondition, "scrape config with job name %q not found in configuration file", cfg.JobName)
+	}
+
+	cu.consulData[consulDataI] = *scrapeConfig
+	cu.fileData[fileDataI] = cfg
+	return nil
+}
+
 func (cu *configUpdater) removeScrapeConfig(jobName string) error {
 	consulDataI := -1
 	for i, sc := range cu.consulData {

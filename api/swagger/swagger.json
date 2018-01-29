@@ -229,6 +229,39 @@
         }
       }
     },
+    "/v0/scrape-configs/{scrape_config.job_name}": {
+      "put": {
+        "tags": [
+          "ScrapeConfigs"
+        ],
+        "summary": "Update updates existing scrape config by job name.\nErrors: InvalidArgument(3) if some argument is not valid,\nNotFound(5) if no such scrape config is present,\nFailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.",
+        "operationId": "Update",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "scrape_config.job_name",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsUpdateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiScrapeConfigsUpdateResponse"
+            }
+          }
+        }
+      }
+    },
     "/v1/version": {
       "get": {
         "tags": [
@@ -501,6 +534,22 @@
           }
         }
       }
+    },
+    "apiScrapeConfigsUpdateRequest": {
+      "type": "object",
+      "properties": {
+        "check_reachability": {
+          "type": "boolean",
+          "format": "boolean",
+          "title": "Check that added targets can be scraped from PMM Server"
+        },
+        "scrape_config": {
+          "$ref": "#/definitions/apiScrapeConfig"
+        }
+      }
+    },
+    "apiScrapeConfigsUpdateResponse": {
+      "type": "object"
     },
     "apiScrapeTargetHealth": {
       "description": "ScrapeTargetHealth represents Prometheus scrape target health: unknown, down, or up.",
