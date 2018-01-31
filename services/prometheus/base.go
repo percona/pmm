@@ -223,6 +223,7 @@ func (svc *Service) Check(ctx context.Context) error {
 				return err
 			}
 			config.ScrapeConfigs = append(config.ScrapeConfigs, scrapeConfig)
+			l.Infof("Scrape configuration restored from Consul: %+v", sc)
 			changed = true
 		}
 	}
