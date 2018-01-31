@@ -81,7 +81,8 @@
 .. |pmm-add-instance|                replace:: *PMM Add Instance*
 .. |pmm-query-analytics|             replace:: *PMM Query Analytics*
 .. |pmm-system-summary|              replace:: *PMM System Summary*
-
+.. |prometheus-exporters-overview|   replace:: *Prometheus Exporters Overview*
+					       
 .. Metrics Monitor Graphs
 
 .. |advanced-data-exploration| replace:: *Advanced Data Exploration*
@@ -89,7 +90,7 @@
 .. |cpu-credit-usage|          replace:: *CPU Credit Usage*			     
 .. |cpu-usage|                 replace:: *CPU Usage*
 .. |mysql-myrocks-metrics|     replace:: *MySQL MyRocks Metrics*
-
+.. |mysql-amazon-aurora-metrics| replace:: *MySQL Amazon Aurora Metrics*
 .. GUI Elements
 
 .. |gui.load|                               replace:: :guilabel:`Load`

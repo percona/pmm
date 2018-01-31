@@ -771,10 +771,29 @@ Demonstrates how to set the option to 8 days.
 
 .. code-block:: bash
 
-   pmm-admin add external:metrics JOB-NAME URL:PORT-NUMBER
+   $ pmm-admin add external:metrics JOB-NAME URL:PORT-NUMBER
 
 #+end-block
+#+begin-block: pmm-admin add external-service service-port postgresql
++pmm-admin.add.external-service.service-port.postgresql+
 
+.. code-block:: bash
+
+   $ pmm-admin add external:service --service-port=9187 postgresql
+
+   pmm-admin 1.7.0
+
+   PMM Server      | 127.0.0.1:80 
+   Client Name     | percona
+   Client Address  | 172.17.0.1 
+   Service Manager | linux-systemd
+   
+   ...
+
+   Job name    Scrape interval  Scrape timeout  Metrics path  Scheme  Target           Labels              Health
+   postgresql  1s               1s              /metrics      http    172.17.0.1:9187  instance="percona"  
+   
+#+end-block
 ** config
 
 #+begin-block: pmm-admin config options

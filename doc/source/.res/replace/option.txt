@@ -35,6 +35,7 @@
 .. |opt.disable-userstats|     replace:: :option:`--disable-userstats`
 .. |opt.dsn|                   replace:: :option:`--dsn`
 .. |opt.external-metrics|      replace:: :option:`external:metrics`
+.. |opt.external-service|      replace:: :option:`external:service`
 .. |opt.force|                 replace:: :option:`--force`
 .. |opt.help|                  replace:: :option:`--help`
 .. |opt.host|                  replace:: :option:`--host`

@@ -184,18 +184,28 @@ services <External Monitoring Service>`. This command adds an external
 monitoring service assuming that the underlying |prometheus| exporter is
 already set up and accessible.
 
-To add an external monitoring service use the |opt.external-metrics| service
-followed by the name of a |prometheus| job, URL and port number to reach it.
+To add an external monitoring service use the |opt.external-service|
+monitoring service followed by the port number, name of a |prometheus|
+job. These options are required. To specify the port number the
+|opt.service-port| option. 
 
 .. include:: .res/code/sh.org
-   :start-after: +pmm-admin.add.external-metrics.job-name.url.port-number+
+   :start-after: +pmm-admin.add.external-service.service-port.postgresql+
    :end-before: #+end-block
 
-
-The following example adds an external monitoring service which
-monitors a |postgresql| instance at 192.168.200.1, port 9187. If the
-command succeeds then running :ref:`pmm-admin.list` shows the newly
-added external exporter at the bottom of the command's output:
+By default, the |pmm-admin.add| command automatically creates the name of the
+dashboard where the metrics of the newly added external monitoring service will
+be displayed. This name matches the name of the host where |pmm-admin| is
+installed. You may choose another display name when adding the
+|opt.external-service| monitoring service giving it explicitly after the
+|prometheus| exporter name.
+		
+You may also use the |opt.external-metrics| monitoring service. When using this
+option, you refer to the exporter by using a URL and a port number. The
+following example adds an external monitoring service which monitors a
+|postgresql| instance at 192.168.200.1, port 9187. After the command completes,
+the :ref:`pmm-admin.list` command shows the newly added external exporter at the
+bottom of the command's output:
 
 |tip.run-this.root|
 

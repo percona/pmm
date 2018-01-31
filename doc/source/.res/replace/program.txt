@@ -52,7 +52,7 @@
 
 .. Exporters
 
-.. |proxysql_exporter| replace:: :code:`proxysql_exporter`
-.. |mysqld_exporter|   replace:: :code:`mysqld_exporter`
 .. |mongodb_exporter|  replace:: :code:`mongodb_exporter`
+.. |mysqld_exporter|   replace:: :code:`mysqld_exporter`
 .. |node_exporter|     replace:: :code:`node_exporter`
+.. |proxysql_exporter| replace:: :code:`proxysql_exporter`
