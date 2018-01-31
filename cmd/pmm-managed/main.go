@@ -359,9 +359,8 @@ func main() {
 
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
+		grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 	}
-
-	grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 
 	if *swaggerF != "rest" && *swaggerF != "debug" && *swaggerF != "off" {
 		flag.Usage()
