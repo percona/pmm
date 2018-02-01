@@ -193,12 +193,13 @@ job. These options are required. To specify the port number the
    :start-after: +pmm-admin.add.external-service.service-port.postgresql+
    :end-before: #+end-block
 
-By default, the |pmm-admin.add| command automatically creates the name of the
-dashboard where the metrics of the newly added external monitoring service will
-be displayed. This name matches the name of the host where |pmm-admin| is
-installed. You may choose another display name when adding the
-|opt.external-service| monitoring service giving it explicitly after the
-|prometheus| exporter name.
+By default, the |pmm-admin.add| command automatically creates the name
+of the host to be displayed in the |gui.host| field of the
+|advanced-data-exploration| dashboard where the metrics of the newly
+added external monitoring service will be displayed. This name matches
+the name of the host where |pmm-admin| is installed. You may choose
+another display name when adding the |opt.external-service| monitoring
+service giving it explicitly after the |prometheus| exporter name.
 		
 You may also use the |opt.external-metrics| monitoring service. When using this
 option, you refer to the exporter by using a URL and a port number. The

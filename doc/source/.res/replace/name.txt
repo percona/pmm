@@ -82,7 +82,7 @@
 .. |pmm-query-analytics|             replace:: *PMM Query Analytics*
 .. |pmm-system-summary|              replace:: *PMM System Summary*
 .. |prometheus-exporters-overview|   replace:: *Prometheus Exporters Overview*
-					       
+
 .. Metrics Monitor Graphs
 
 .. |advanced-data-exploration| replace:: *Advanced Data Exploration*

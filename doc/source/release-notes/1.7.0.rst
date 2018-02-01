@@ -14,9 +14,9 @@ servers to ensure that your data works as efficiently as possible.
 
 This release features improved support for external services, which enables a
 |pmm-server| to store and display metrics for any available |prometheus|
-exporter. For example, you could deploy the postgres_exporter and use |pmm|'s
+exporter. For example, you could deploy the postgres_exporter and use |pmm|
 external services feature to store |postgresql| metrics in |pmm|.  Immediately,
-you'll see these new metrics in the |advanced-data-exploration| dashboard. Then
+you will see these new metrics in the |advanced-data-exploration| dashboard. Then
 you could leverage many of the pre-developed |postgresql| dashboards available
 on Grafana.com, and with a minimal amount of edits have a working |postgresql|
 dashboard in |pmm|!  Watch for an upcoming blog post to demonstrate a
@@ -35,7 +35,7 @@ Improvements
 - :pmmbug:`1712`: Improve external exporters to let you easily add data
   monitoring from an arbitrary |prometheus| exporter you have running on your
   host.
-- :pmmbug:`1510`: Rename 'swap in' and 'swap out' labels to be more specific and
+- :pmmbug:`1510`: Rename *swap in* and *swap out* labels to be more specific and
   help clearly see the direction of data flow for *Swap In* and *Swap Out*. The
   new labels are *Swap In (Reads)* and *Swap Out (Writes)* accordingly.
 - :pmmbug:`1966`: Remove |grafana| from list of exporters on dashboard to
