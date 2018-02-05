@@ -653,7 +653,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 			return err
 		}
 
-		// TODO Enable in PMM 1.7
+		// TODO Enable in PMM 1.8
 		// https://jira.percona.com/browse/PMM-1729
 		// if err = svc.addRDSExporter(ctx, tx, service, node); err != nil {
 		// 	return err
