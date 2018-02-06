@@ -150,9 +150,9 @@ For more information, see :ref:`using`.
    Enabling orchestrator
       :term:`Orchestrator` in :ref:`pmm/glossary/terminology-reference`
 
-.. rubric:: **References**
+.. .. rubric:: References
 
-.. target-notes::
+.. .. target-notes::
 
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/program.txt

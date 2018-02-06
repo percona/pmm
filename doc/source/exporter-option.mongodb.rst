@@ -6,11 +6,10 @@
 |mongodb| Exporter (mongodb_exporter)
 ================================================================================
 
-The following options may be passed to the |opt.mongodb-metrics| monitoring
-service as additional options. For more information about this exporter see its |github| repository: https://github.com/percona/mongodb_exporter.
-
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/name.txt
+The following options may be passed to the |opt.mongodb-metrics|
+monitoring service as additional options. For more information about
+this exporter see its |github| repository:
+https://github.com/percona/mongodb_exporter.
 
 .. seealso::
 
@@ -30,5 +29,5 @@ Options
    :start-after: +mongodb-exporter.flag+
    :end-before: #+end-table
 
-
-
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/name.txt

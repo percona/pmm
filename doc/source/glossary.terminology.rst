@@ -98,7 +98,9 @@ Terminology Reference
 
       .. seealso::
 
-	 - :ref:`Enabling orchestrator when running a docker container <pmm/docker.additional_option>`.
+	 Docker container: Enabling orchestrator
+
+	    :term:`ORCHESTRATOR_ENABLED (Option)`
 
    Data Source Name
 

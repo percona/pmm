@@ -48,9 +48,9 @@ For `MongoDB`_ to work correctly with |qan.intro|, you need to enable
 profiling in your |mongod| configuration. When started without
 profiling enabled, |qan| displays the following warning:
 
-.. note:: **The warning message displayed when profiling is not enabled**
+.. note:: **A warning message is displayed when profiling is not enabled**
 
-   It is required that profiling of monitored |mongodb| databases be enabled.
+   It is required that profiling of the monitored |mongodb| databases be enabled.
 
    Note that profiling is not enabled by default because it may reduce the
    performance of your |mongodb| server.
@@ -114,20 +114,15 @@ Restart the *mongod* service to enable the settings.
 
 .. seealso:: 
 
-   .. rubric:: *Official MongoDB documentation:*
-   
-   Enabling Profiling
+   Enabling Profiling (from |mongodb| documentation)
       https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/
-   Profiling Mode
+   Profiling Mode (from |mongodb| documentation)
       https://docs.mongodb.com/manual/reference/configuration-options/#operationProfiling.mode
-   The :option:`SlowOpThresholdMd` option
+   The :option:`SlowOpThresholdMd` option (from |mongodb| documentation)
       https://docs.mongodb.com/manual/reference/configuration-options/#operationProfiling.slowOpThresholdMs
-   Profiler Overhead
+   Profiler Overhead (from |mongodb| documentation)
       https://docs.mongodb.com/manual/tutorial/manage-the-database-profiler/#profiler-overhead
-      
-   .. rubric:: *Percona documentation:*
-
-   Profiling Rate Limit
+   Profiling Rate Limit (from the documentation for *Percona Server for MongoDB*)
       https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html
 
 .. include:: .res/replace/name.txt

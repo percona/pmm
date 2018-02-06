@@ -37,6 +37,8 @@
 .. |orchestrator|             replace:: *Orchestrator*
 .. |percona-server|           replace:: *Percona Server*
 .. |percona|                  replace:: *Percona*
+.. |percona-xtradb-cluster|   replace:: *Percona XtraDB Cluster*
+.. |xtradb-cluster|           replace:: *Percona XtraDB Cluster*
 .. |perl|                     replace:: *Perl*
 .. |pmm-client|               replace:: *PMM Client*
 .. |pmm-server|               replace:: *PMM Server*
@@ -75,6 +77,8 @@
 
 .. Metrics Monitor Dashboards 
 
+.. |advanced-data-exploration|       replace:: *Advanced Data Exploration*
+.. |adv-data-expl|                   replace:: *Advanced Data Exploration*
 .. |amazon-rds-aurora-mysql-metrics| replace:: *Amazon RDS / Aurora MySQL Metrics*
 .. |cross-server-graphs|             replace:: *Cross Server Graphs*
 .. |mysql-overview|                  replace:: *MySQL Overview*
@@ -85,8 +89,6 @@
 
 .. Metrics Monitor Graphs
 
-.. |advanced-data-exploration| replace:: *Advanced Data Exploration*
-.. |adv-data-expl|             replace:: *Advanced Data Exploration*
 .. |cpu-credit-usage|          replace:: *CPU Credit Usage*			     
 .. |cpu-usage|                 replace:: *CPU Usage*
 .. |mysql-myrocks-metrics|     replace:: *MySQL MyRocks Metrics*
