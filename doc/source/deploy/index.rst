@@ -72,8 +72,8 @@ services yet, the site will not show any data.
 Installing Clients
 ================================================================================
 
-|percona| provides |pmm-client| packages through
-software repositories of popular Linux distributions:
+|percona| provides |pmm-client| packages through software repositories
+of popular Linux distributions:
 
 * :ref:`DEB packages for Debian or Ubuntu <install-client-apt>`
 * :ref:`RPM packages for Red Hat or CentOS <install-client-yum>`
@@ -96,9 +96,7 @@ Connecting |pmm.abbrev| Clients to the |pmm-server|
 
 With your server and clients set up, you need to establish connection
 from clients to the server by specifying the IP address of the server
-as a parameter to the
-|pmm-admin.config|
-|opt.server| command.
+as a parameter to the |pmm-admin.config| |opt.server| command.
 
 For example, if your |pmm-server| is running on `192.168.100.1`,
 and you have installed |pmm-client| on a machine with IP
@@ -197,11 +195,8 @@ button in the bottom right corner of the |pmm.abbrev| home page (see
 
 .. figure:: ../images/update-button.png
 
-   *Update your server by clicking the*
-   |gui.update|
-   *button on the*
-   |pmm.abbrev|
-   *landing page.*
+   Update your server by clicking the |gui.update| button on the
+   |pmm.abbrev| landing page.
 
 .. rubric:: **Updating clients**
 
@@ -238,33 +233,34 @@ on the method of installation.
 
 |tip.run-all.root|
 
-- Removing an installed package using YUM:
+- Removing an installed package using YUM
 
   .. include:: ../.res/code/sh.org
      :start-after: +yum.remove.pmm-client+
      :end-before: #+end-block
 		  
-- Removing an installed package using APT:
+- Removing an installed package using APT
 
   .. include:: ../.res/code/sh.org
      :start-after: +apt-get.remove.pmm-client+
      :end-before: #+end-block
 		  
-- Removing a manually installed RPM package:
+- Removing a manually installed RPM package
 
   .. include:: ../.res/code/sh.org
      :start-after: +rpm.e.pmm-client+
      :end-before: #+end-block
 
-- Removing a manually installed DEB package:
+- Removing a manually installed DEB package
 
   .. include:: ../.res/code/sh.org
      :start-after: +dpkg.r.pmm-client+
      :end-before: #+end-block
 
-- Removing a binary installed by using the generic |pmm-client|
-  tarball. Changed into the directory where the tarball contents was
-  extracted to. Then, run the :file:`unistall` script:
+- Removing a binary installed by using the generic |pmm-client| tarball.
+
+  |cd| into the directory where you extracted the tarball
+  contents. Then, run the :file:`unistall` script:
   
   .. include:: ../.res/code/sh.org
      :start-after: +uninstall+
@@ -306,8 +302,10 @@ the following command in your terminal:
 
 .. seealso::
 
-   - :ref:`architecture`
-   - :ref:`pmm-admin.add`.
+   About architecture
+      :ref:`architecture`
+   About using the |pmm-admin.add| command
+      :ref:`pmm-admin.add`
 
 .. include:: ../.res/replace/name.txt
 .. include:: ../.res/replace/option.txt

@@ -136,8 +136,7 @@ to |pmm|:
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.1.png
 
-   |pmm| *displays the available*
-   |amazon-rds| *instances*
+   |pmm| displays the available |amazon-rds| instances
 
 For each instance that you would like to monitor, select the |gui.enabled| button
 and enter the user name and password. Click |gui.connect|. You can now monitor your

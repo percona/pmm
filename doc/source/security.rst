@@ -106,27 +106,26 @@ If you generated a self-signed certificate:
 Combining Security Features
 ================================================================================
 
-You can enable both HTTP password protection and SSL encryption
-by combining the corresponding options.
+You can enable both HTTP password protection and SSL encryption by combining the
+corresponding options.
 
-The following example shows how you might
-:ref:`run the PMM Server container <server-container>`:
+The following example shows how you might :ref:`run the PMM Server container
+<server-container>`:
 
 .. include:: .res/code/sh.org
    :start-after: +docker.run.example+
    :end-before: #+end-block
 		 
-The following example shows how you might
-:ref:`connect to PMM Server <connect-client>`:
+The following example shows how you might :ref:`connect to PMM Server
+<connect-client>`:
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.config.example+
    :end-before: #+end-block
 
-To see which security features are enabled,
-run either ``pmm-admin ping``, ``pmm-admin config``,
-``pmm-admin info``, or ``pmm-admin list``
-and look at the server address field. For example:
+To see which security features are enabled, run either |pmm-admin.ping|,
+|pmm-admin.config|, |pmm-admin.info|, or |pmm-admin.list| and look at the server
+address field. For example:
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.ping+

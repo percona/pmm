@@ -41,6 +41,7 @@
 .. |opt.host|                  replace:: :option:`--host`
 .. |opt.json|                  replace:: :option:`--json`
 .. |opt.linux-metrics|         replace:: :option:`linux:metrics`
+.. |opt.long-query-time|       replace:: :option:`long_query_time`
 .. |opt.mongodb-metrics|       replace:: :option:`mongodb:metrics`
 .. |opt.mongodb-queries|       replace:: :option:`mongodb:queries`
 .. |opt.mongodb|               replace:: :option:`mongodb`

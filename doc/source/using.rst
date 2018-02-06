@@ -59,8 +59,8 @@ the query summary table.
 
 .. figure:: .res/graphics/png/pmm.qan.query-summary-table.default.1.png
 
-   *The query summary table shows the monitored queries from the selected
-   database.*
+   The query summary table shows the monitored queries from the selected
+   database.
 
 Filtering Queries
 --------------------------------------------------------------------------------
@@ -97,12 +97,12 @@ Selecting Time or Date Range
 
 The query metrics that appear in *QAN* are computed based on a time period or a
 range of dates. The default value is *the last hour*. To set another range use
-the *range selection tool* located at the top of your *QAN* page.
+the *range selection tool* located at the top of your |qan| page.
 
 .. figure:: .res/graphics/png/pmm.qan.range-selection.1.png
 
    |qan| displays query metrics for the time period or date range that you
-   specify.*
+   specify.
 
 The tool consists of two parts. The *Quick ranges* offers frequently used time
 ranges.. The date picker sets a range of dates.
@@ -116,7 +116,7 @@ during the time period that you've specified.
 
 .. figure:: .res/graphics/png/pmm.qan.query-summary-table.totals.1.png
 	   
-   *The totals appear at the top of the query summary table.*
+   The totals appear at the top of the query summary table.
 
 The *load* is the amount of time that the database server spent during the
 selected time or date range running all queries.
@@ -164,7 +164,7 @@ in the query.
 
 .. figure:: .res/graphics/png/pmm.qan.query-metrics.1.png
 
-   *Select a query from the query summary table to open its metrics.*
+   Select a query from the query summary table to open its metrics.
 
 Query Section
 --------------------------------------------------------------------------------
@@ -176,7 +176,7 @@ the query.
 
 .. figure:: .res/graphics/png/pmm.qan.query.1.png
 
-   *The Query section shows the SQL statement for the selected query.*
+   The Query section shows the SQL statement for the selected query.
 
 Explain Section
 --------------------------------------------------------------------------------
@@ -192,9 +192,7 @@ format presents the output of |sql.explain| as a |json| document.
 
 .. figure:: .res/graphics/png/pmm.qan.explain.1.png
 
-   *The two output formats of the*
-   |sql.explain|
-   *command.*
+   The two output formats of the |sql.explain| command.
 
 Note that the |sql.explain| command only works with the following statements:
 
@@ -241,9 +239,8 @@ the value of the |gui.collect-from| field accordingly.
 
 .. figure:: .res/graphics/png/pmm.qan.settings.1.png
 	   
-   *The*
-   |gui.settings|
-   *tab to view the essential settings of the selected database server.*
+   The |gui.settings| tab to view the essential settings of the selected
+   database server.
 
 .. rubric:: |gui.status| Tab
 
@@ -270,7 +267,7 @@ The |gui.system-summary| section contains details about the platform while the
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.system-summary.png
 
-   *Accessing information about the system and database*
+   Accessing information about the system and database
    
 You can download the current values on this dashboard locally if you click the
 |gui.download-summary| button.
@@ -346,9 +343,7 @@ complex object is stored together.
 
 .. figure:: .res/graphics/png/pmm.qan.query-summary-table.mongodb.1.png
 
-   *A list of queries from a*
-   |mongodb|
-   *host*
+   A list of queries from a |mongodb| host
 
 |qan| supports monitoring |mongodb| queries. Although |mongodb| is not a relational
 database management system, you analyze its databases and collections in the
@@ -362,9 +357,8 @@ reading and writing data in the collections of your |mongodb| databases.
 
 .. figure:: .res/graphics/png/pmm.qan.query-metrics.mongodb.1.png
 
-   *Analyze*
-   |mongodb|
-   *queries using the same tools as relational database management systems.*
+   Analyze |mongodb| queries using the same tools as relational database
+   management systems.
 
 .. _using-mm:
 
@@ -422,8 +416,8 @@ button the description disappears.
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.description.1.png
 
-   *Graph descriptions provide more information about a graph without claiming
-   any space in the interface.*
+   Graph descriptions provide more information about a graph without claiming
+   any space in the interface.
 
 |mysql-myrocks-metrics| Dashboard
 --------------------------------------------------------------------------------
@@ -441,10 +435,7 @@ drives.
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.mysql-myrocks-metrics.1.png
 	    
-   *The*
-   |mysql|
-   |myrocks|
-   *metrics dashboard*
+   The |mysql| |myrocks| metrics dashboard
 
 .. seealso::
 
