@@ -263,6 +263,7 @@ func (svc *Service) checkReachability(ctx context.Context, cfg *ScrapeConfig, ta
 			defer resp.Body.Close()
 			if resp.StatusCode != 200 {
 				reachabilityCh <- ScrapeTargetReachability{target, fmt.Sprintf("unexpected response status code %d", resp.StatusCode)}
+				return
 			}
 			reachabilityCh <- ScrapeTargetReachability{target, ""}
 		}(target)
