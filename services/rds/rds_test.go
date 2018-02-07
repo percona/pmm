@@ -21,13 +21,13 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"testing"
-	"fmt"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/proto"
@@ -176,6 +176,19 @@ func TestDiscover(t *testing.T) {
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("aurora"),
 				EngineVersion: pointer.ToString("5.6.10a"),
+			},
+		}, {
+			Node: models.RDSNode{
+				Type:   "rds",
+				Name:   "rds-aurora57",
+				Region: "us-east-1",
+			},
+			Service: models.RDSService{
+				Type:          "rds",
+				Address:       pointer.ToString("rds-aurora57.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
+				Port:          pointer.ToUint16(3306),
+				Engine:        pointer.ToString("aurora-mysql"),
+				EngineVersion: pointer.ToString("5.7.12"),
 			},
 		}, {
 			Node: models.RDSNode{
