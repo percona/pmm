@@ -1,8 +1,7 @@
-# -*- mode: rst -*-
 
 * alias services
 
-#+begin-table: alias services
+#+begin-block: alias services
 +alias.services+
 
 .. list-table::
@@ -44,4 +43,113 @@
        * |opt.mongodb-metrics|
        * |opt.mongodb-queries|
 
-#+end-table
+#+end-block
+
+* dashboards
+
+** MySQL Overview
+
+#+begin-block: dashboard mysql-overview
++dashboard.mysql-overview+
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Metric
+     - Description
+
+   * - MySQL Uptime
+     - The amount of time since the MySQL server process was started.
+
+   * - Current QPS
+     - The number of queries executed by the server during the last second,
+       *including those executed within stored programs*.
+
+       This variable does not include the following commands:
+
+       * ``COM_PING``
+       * ``COM_STATISTICS``
+
+   * - InnoDB Buffer Pool Size
+     - Absolute value of the InnoDB buffer pool
+       used for caching data and indexes in memory.
+       This should be big enough to store the working set
+       and never exceed the available memory on the database host.
+
+   * - Buffer Pool Size of Total RAM
+     - Ratio between InnoDB buffer pool size and total memory.
+       In most cases, the InnoDB buffer pool should be between 60% and 90%
+       of available memory on a dedicated database host,
+       but it depends on many factors.
+
+   * - MySQL Connections
+     - **Max Connections** is the maximum permitted number
+       of simultaneous client connections.
+       This is the value of the ``max_connections`` variable.
+
+       **Max Used Connections** is the maximum number of connections
+       that have been in use simultaneously since the server was started.
+
+       **Connections** is the number of connection attempts
+       (successful or not) to the MySQL server.
+
+   * - MySQL Active Threads
+     - **Threads Connected** is the number of open connections.
+
+       **Threads Running** is the number of threads not sleeping.
+
+   * - MySQL Questions
+     - The number of queries sent to the server by clients,
+       *excluding those executed within stored programs*.
+
+       This variable does not count the following commands:
+
+       * ``COM_PING``
+       * ``COM_STATISTICS``
+       * ``COM_STMT_PREPARE``
+       * ``COM_STMT_CLOSE``
+       * ``COM_STMT_RESET``
+
+#+end-block
+
+** Cross Server Graphs
+
+#+begin-block: dashboard cross-server-graphs
++dashboard.cross-server-graphs+
+
+.. list-table::
+   :header-rows: 1
+   :widths: 25 75
+
+   * - Metric
+     - Description
+   * - Load Average
+     - On Linux, this is the number of processes which are either in the **running** state or
+       **uninterruptible sleep** state. These states typically correspond to disk
+       IO. You can also map the **LoadAvg** to **VMSTAT** output – it is something like
+       moving average of sum of *r* and *b* columns from **VMSTAT**.
+
+       This chart is best used for trends. If you notice the load average
+       rising, it may be due to innefficient queries. In that case, you may further analyze your queries in term:`QAN`.
+
+       .. seealso::
+
+	  Using LoadAvg for Performance Optimization
+	     https://www.percona.com/blog/2006/12/04/using-loadavg-for-performance-optimization/
+
+   * - MySQL Queries
+     - Based on the queries reported by MySQL's *SHOW STATUS* command, this metric shows 
+       the average number of statements executed by the server. This variable
+       includes statements executed within stored programs, unlike the *Questions*
+       variable. It does not count *COM_PING* or *COM_STATISTICS* commands.
+
+       .. seealso::
+
+	  MySQL Server Status Variables: Queries
+	     https://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Queries
+
+   * - MySQL Traffic
+     - Network traffic used by the MySQL process.
+
+#+end-block
