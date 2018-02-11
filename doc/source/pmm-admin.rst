@@ -1351,7 +1351,9 @@ The following aliases are used to designate PMM services that you want to
 
 .. include:: .res/table/list-table.org
    :start-after: +alias.services+
-   :end-before: #+end-table
+   :end-before: #+end-block
+
+
 
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/option.txt

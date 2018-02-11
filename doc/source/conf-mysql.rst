@@ -1,7 +1,7 @@
 .. _conf-mysql:
 
 ================================================================================
-Configuring MySQL for Percona Monitoring and Management
+Configuring MySQL for Best Results
 ================================================================================
 
 |pmm| supports all commonly used variants of |mysql|, including
