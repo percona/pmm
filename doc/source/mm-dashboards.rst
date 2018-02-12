@@ -1,8 +1,8 @@
 .. _mm-dashboards:
 
-==========================
+================================================================================
 Metrics Monitor Dashboards
-==========================
+================================================================================
 
 This section contains a reference of dashboards
 available in Metrics Monitor.
@@ -18,6 +18,17 @@ This dashboard provides basic information about MySQL hosts.
 .. include:: .res/table/list-table.org
    :start-after: +dashboard.mysql-overview+
    :end-before: #+end-block
+
+.. seealso::
+
+   |mysql| Documentation: |innodb| buffer pool
+      https://dev.mysql.com/doc/refman/5.7/en/innodb-buffer-pool.html
+   |mysql| Server System Variables: key_buffer_size
+      https://dev.mysql.com/doc/refman/5.7/en/server-system-variables.html#sysvar_key_buffer_size
+   |percona-server| Documentation: Running |tokudb| in Production
+      https://www.percona.com/doc/percona-server/LATEST/tokudb/tokudb_quickstart.html#considerations-to-run-tokudb-in-production
+   Blog post: Adaptive Hash Index in |innodb|
+      https://www.percona.com/blog/2016/04/12/is-adaptive-hash-index-in-innodb-right-for-my-workload/
 
 MySQL Query Response Time
 ================================================================================
@@ -172,3 +183,5 @@ Cross Server Graphs
    :end-before: #+end-block
 
 
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/name.txt
