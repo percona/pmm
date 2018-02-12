@@ -26,6 +26,7 @@
 .. |firefox|                  replace:: *Firefox*
 .. |grafana|                  replace:: *Grafana*
 .. |innodb|                   replace:: *InnoDB*
+.. |tokudb|                   replace:: *TokuDB*
 .. |linux|                    replace:: *Linux*
 .. |mariadb|                  replace:: *MariaDB*
 .. |metrics-monitor|          replace:: *Metrics Monitor*
