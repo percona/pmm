@@ -176,6 +176,8 @@ If you are running a custom Performance Schema configuration, make sure that the
 For more information about using Performance Schema in PMM, see
 :ref:`perf-schema`.
 
+.. _pmm/mysql/conf/dashboard:
+
 Settings for Dashboards
 =======================
 
@@ -186,6 +188,8 @@ plugins, or additional configuration.
 Collecting metrics and statistics for graphs increases overhead.  You can keep
 collecting and graphing low-overhead metrics all the time, and enable
 high-overhead metrics only when troubleshooting problems.
+
+.. _pmm/mysql/conf/dashboard/mysql-innodb-metrics:
 
 MySQL InnoDB Metrics
 --------------------
@@ -199,6 +203,8 @@ all them are enabled all the time.  To enable all InnoDB metrics, set the global
 
 .. |innodb_monitor_enable| replace:: ``innodb_monitor_enable``
 .. _innodb_monitor_enable: https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable
+
+.. _pmm/mysql/conf/dashboard/mysql-user-statistics:
 
 MySQL User Statistics
 ---------------------
@@ -229,6 +235,8 @@ at startup::
 
 .. |performance_schema_instrument| replace:: ``--performance_schema_instrument``
 .. _performance_schema_instrument: https://dev.mysql.com/doc/refman/5.7/en/performance-schema-options.html#option_mysqld_performance-schema-instrument
+
+.. _pmm/mysql/conf/dashboard/mysql-query-response-time:
 
 MySQL Query Response Time
 --------------------------------------------------------------------------------
