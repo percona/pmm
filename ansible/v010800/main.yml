@@ -94,12 +94,12 @@
 
     - name: PMM                        | Update entrypoint.sh
       when: supervisorctl.stat.exists
-      copy: src={{ item.src }} dest={{ item.dest }}
+      copy: src={{ item.src }} dest={{ item.dest }} mode={{ item.mode }}
       with_items:
-        - { src: '/usr/share/pmm-server/entrypoint.sh', dest: '/opt/entrypoint.sh' }
+        - { src: '/usr/share/pmm-server/entrypoint.sh', dest: '/opt/entrypoint.sh', mode: 'u=rwx,g=rx,o=rx' }
 
     - name: PMM                        | Update supervisord config
-      when: supervisorctl.stat.exists
+      when: supervisorctl.stat.exists and image_creation is not defined
       command: /usr/bin/env UPDATE_MODE=1 ENABLE_DEBUG=1 /opt/entrypoint.sh
 
     - name: PMM                        | Restore configuration
