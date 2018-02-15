@@ -185,7 +185,6 @@
         replace: '-storage.local.target-heap-size=766957568'
 
     - name: Grafana                    | Set snapshot server
-      when: not grafana_db.stat.exists
       ini_file:
         dest: /etc/grafana/grafana.ini
         section: snapshots
@@ -193,7 +192,6 @@
         value: true
 
     - name: Grafana                    | Set snapshot server
-      when: not grafana_db.stat.exists
       ini_file:
         dest: /etc/grafana/grafana.ini
         section: snapshots
@@ -201,7 +199,6 @@
         value: https://snapshots.secure.percona.com
 
     - name: Grafana                    | Set snapshot server
-      when: not grafana_db.stat.exists
       ini_file:
         dest: /etc/grafana/grafana.ini
         section: snapshots
