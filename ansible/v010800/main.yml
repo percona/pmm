@@ -72,7 +72,7 @@
         - percona-dashboards-1.8.0
         - pmm-server-1.8.0
         - pmm-client-1.8.0
-        - percona-orchestrator-2.1.5
+        - percona-orchestrator-3.0.6
         - percona-prometheus-1.8.2
         - percona-qan-api-1.8.0
         - percona-grafana-4.6.3
