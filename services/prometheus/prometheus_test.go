@@ -194,8 +194,7 @@ func TestPrometheusScrapeConfigsReachability(t *testing.T) {
 		},
 	}
 	err := p.CreateScrapeConfig(ctx, cfg, true)
-	expectedErr := status.New(codes.FailedPrecondition, `127.0.0.1:12345: Get http://127.0.0.1:12345/metrics: dial tcp 127.0.0.1:12345: getsockopt: connection refused`)
-	tests.AssertGRPCError(t, expectedErr, err)
+	tests.AssertGRPCErrorRE(t, codes.FailedPrecondition, `127.0.0.1:12345: Get http://127.0.0.1:12345/metrics: dial tcp 127.0.0.1:12345: \w+: connection refused`, err)
 
 	actual, health, err := p.GetScrapeConfig(ctx, "ScrapeConfigsReachability")
 	tests.AssertGRPCError(t, status.New(codes.NotFound, `scrape config with job name "ScrapeConfigsReachability" not found`), err)
