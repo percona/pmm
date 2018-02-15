@@ -505,8 +505,8 @@ func (svc *Service) rdsExporterServiceConfig(serviceName string) *servicelib.Con
 		Description: serviceName,
 		Executable:  svc.RDSExporterPath,
 		Arguments: []string{
-			fmt.Sprintf("-config.file=%s", svc.RDSExporterConfigPath),
-			fmt.Sprintf("-web.listen-address=127.0.0.1:%d", rdsExporterPort),
+			fmt.Sprintf("--config.file=%s", svc.RDSExporterConfigPath),
+			fmt.Sprintf("--web.listen-address=127.0.0.1:%d", rdsExporterPort),
 		},
 	}
 }
@@ -652,13 +652,9 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 		if err = svc.addMySQLdExporter(ctx, tx, service, username, password); err != nil {
 			return err
 		}
-
-		// TODO Enable in PMM 1.8
-		// https://jira.percona.com/browse/PMM-1729
-		// if err = svc.addRDSExporter(ctx, tx, service, node); err != nil {
-		// 	return err
-		// }
-
+		if err = svc.addRDSExporter(ctx, tx, service, node); err != nil {
+			return err
+		}
 		if err = svc.addQanAgent(ctx, tx, service, node, username, password); err != nil {
 			return err
 		}

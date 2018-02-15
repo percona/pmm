@@ -110,16 +110,20 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 
 	mySQLdExporterPath := filepath.Join(rootDir, "mysqld_exporter")
 	rdsExporterPath := filepath.Join(rootDir, "rds_exporter")
+	rdsExporterConfigPath := filepath.Join(rootDir, "etc/percona-rds-exporter.yml")
 	createFakeBin(t, mySQLdExporterPath)
 	createFakeBin(t, rdsExporterPath)
+	os.MkdirAll(filepath.Join(rootDir, "etc"), 0777)
+	err = ioutil.WriteFile(rdsExporterConfigPath, []byte(`---`), 0666)
+	require.Nil(t, err)
 	createFakeBin(t, filepath.Join(rootDir, "bin/percona-qan-agent"))
 	createFakeBin(t, filepath.Join(rootDir, "bin/percona-qan-agent-installer"))
 	os.MkdirAll(filepath.Join(rootDir, "config"), 0777)
 	os.MkdirAll(filepath.Join(rootDir, "instance"), 0777)
 	err = ioutil.WriteFile(filepath.Join(rootDir, "config/agent.conf"), []byte(`{"UUID":"42","ApiHostname":"somehostname","ApiPath":"/qan-api","ServerUser":"pmm"}`), 0666)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 	err = ioutil.WriteFile(filepath.Join(rootDir, "instance/13.json"), []byte(`{"UUID":"13"}`), 0666)
-	assert.Nil(t, err)
+	require.Nil(t, err)
 
 	p, ctx, before := promtest.Setup(t)
 
@@ -131,10 +135,11 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 	qan, err := qan.NewService(ctx, rootDir, supervisor)
 	require.NoError(t, err)
 	svc, err := NewService(&ServiceConfig{
-		MySQLdExporterPath: mySQLdExporterPath,
-		RDSExporterPath:    rdsExporterPath,
-		QAN:                qan,
-		Supervisor:         supervisor,
+		MySQLdExporterPath:    mySQLdExporterPath,
+		RDSExporterPath:       rdsExporterPath,
+		RDSExporterConfigPath: rdsExporterConfigPath,
+		QAN:        qan,
+		Supervisor: supervisor,
 
 		DB:            db,
 		Prometheus:    p,
@@ -250,7 +255,7 @@ func TestAddListRemove(t *testing.T) {
 	username, password := os.Getenv("AWS_RDS_USERNAME"), os.Getenv("AWS_RDS_PASSWORD")
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
 	supervisor.On("Status", mock.Anything, mock.Anything).Return(fmt.Errorf("not running"))
-	supervisor.On("Stop", mock.Anything, "pmm-qan-agent-9000").Return(nil) // todo why we stop it if it was not running?
+	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil) // todo why we stop it if it was not running?
 	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, username, password)
 	assert.NoError(t, err)
 
@@ -283,7 +288,7 @@ func TestAddListRemove(t *testing.T) {
 	err = svc.Remove(ctx, &InstanceID{})
 	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `RDS instance name is not given.`), err)
 
-	supervisor.On("Stop", mock.Anything, "pmm-mysqld_exporter-30001").Return(nil)
+	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil)
 	err = svc.Remove(ctx, &InstanceID{"us-east-1", "rds-mysql57"})
 	assert.NoError(t, err)
 
@@ -314,7 +319,7 @@ func TestRestore(t *testing.T) {
 	// todo: mock AWS service
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
 	supervisor.On("Status", mock.Anything, mock.Anything).Return(fmt.Errorf("not running"))
-	supervisor.On("Stop", mock.Anything, "pmm-qan-agent-9000").Return(nil) // todo why we stop it if it was not running?
+	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil) // todo why we stop it if it was not running?
 	username, password := os.Getenv("AWS_RDS_USERNAME"), os.Getenv("AWS_RDS_PASSWORD")
 	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, username, password)
 	assert.NoError(t, err)
