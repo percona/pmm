@@ -209,11 +209,18 @@
       when: supervisorctl.stat.exists
       command: /usr/bin/supervisorctl update
 
+    - name: PMM                        | Restart orchestrator if needed
+      when: supervisorctl.stat.exists
+      command: sh -c '[[ "${ORCHESTRATOR_ENABLED}" = "true" ]] && /usr/bin/supervisorctl restart orchestrator || :'
+
+    - name: PMM                        | Restart orchestrator if needed
+      when: not supervisorctl.stat.exists
+      command: /bin/systemctl condrestart orchestrator
+
     - name: PMM                        | Restart services (supervisord)
       when: supervisorctl.stat.exists
       command: /usr/bin/supervisorctl restart {{ item }}
       with_items:
-        - orchestrator
         - prometheus
         - node_exporter
         - qan-api
@@ -225,7 +232,6 @@
       when: not supervisorctl.stat.exists
       service: name={{ item }} state=restarted
       with_items:
-        - orchestrator
         - prometheus
         - node_exporter
         - percona-qan-api
