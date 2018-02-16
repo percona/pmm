@@ -622,7 +622,6 @@
 	 
 #+end-block
 
-
 ** Cross Server Graphs
 
 #+begin-block: dashboard cross-server-graphs

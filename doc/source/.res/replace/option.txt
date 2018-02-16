@@ -83,7 +83,6 @@
 .. |opt.mongodb-tls-dis-hostname-val|            replace:: :option:`--mongodb.tls-disable-hostname-validation`
 .. |opt.mongodb-tls-private-key|                 replace:: :option:`--mongodb.tls-private-key`
 
-
 .. One letter
 
 .. |opt.a.upper|              replace:: :option:`-A`
@@ -161,3 +160,8 @@
 .. |opt.pmm-server-backup| replace:: :option:`pmm-server-backup`
 .. |opt.pmm-server|        replace:: :option:`pmm-server`
 
+.. MySQL variables
+
+.. |opt.questions| replace:: :option:`Questions`
+
+   
