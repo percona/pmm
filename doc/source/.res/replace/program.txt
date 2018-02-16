@@ -52,6 +52,8 @@
 .. |sql.show-status|   replace:: :command:`SHOW STATUS`
 .. |sql.update|        replace:: :command:`UPDATE`
 .. |sql.flush-hosts|   replace:: :command:`FLUSH HOSTS`
+.. |sql.rollback|      replace:: :command:`ROLLBACK`
+.. |sql.commit|        replace:: :command:`COMMIT`
 
 .. Exporters
 
