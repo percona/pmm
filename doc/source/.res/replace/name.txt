@@ -149,3 +149,8 @@
 
 .. |db.admin| replace:: :file:`admin` 
 .. |db.local| replace:: :file:`local`
+
+.. Metrics
+
+.. |mysql-global-status-commands-total| replace:: :command:`mysql_global_status_commands_total`
+.. |mysql-global-variables-autocommit|  replace:: :command:`mysql_global_variables_autocommit`
