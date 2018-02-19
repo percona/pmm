@@ -4,3 +4,5 @@
 .. |tip.run-this.root| replace:: Run this command as root or by using the :program:`sudo` command
 .. |tip.run-all.root|  replace:: Run the following commands as root or by using the :program:`sudo` command
 .. |info.pmm.about| replace:: |pmm.intro| is a free and open-source platform for managing and monitoring |mysql| and |mongodb| performance.  You can run |pmm| in your own environment for maximum security and reliability. It provides thorough time-based analysis for |mysql| and |mongodb| servers to ensure that your data works as efficiently as possible.
+
+.. |view-all-metrics| replace::  **View all metrics of**

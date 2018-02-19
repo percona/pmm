@@ -19,7 +19,9 @@ When the checkpoint age reaches the maximum checkpoint age, blocks are flushed
 syncronously. The rules of the thumb is to keep one hour of traffic in those
 logs and let the checkpointing perform its work as smooth as possible. If you
 don't do this, InnoDB will do synchronous flushing at the worst possible time,
-ie when you are busiest.
+i.e. when you are busiest.
+
+|view-all-metrics| |this-dashboard|
 
 |innodb| Transactions
 --------------------------------------------------------------------------------
@@ -36,6 +38,8 @@ If the history length is rising regularly, do not let open connections linger
 for a long period as this can affect the performance of |innodb|
 considerably. It is also a good idea to look for long running queries in |qan|.
 
+|view-all-metrics| |this-dashboard|
+
 |innodb| Row Operations
 --------------------------------------------------------------------------------
 
@@ -43,10 +47,12 @@ This metric allows you to see which operations occur and the number of rows
 affected per operation. A metric like *Queries Per Second* will give you an idea
 of queries, but one query could effect millions of rows.
        
+|view-all-metrics| |this-dashboard|
+
 |innodb| Row Lock Time
 --------------------------------------------------------------------------------
 
-When data is locked, then that means that another session can NOT update that
+When data is locked, then that means that another session cannot update that
 data until the lock is released (which unlocks the data and allows other users
 to update that data. Locks are usually released by either a |sql.rollback| or
 |sql.commit| SQL statement.
@@ -63,6 +69,8 @@ the number of row locks.
 second.
 
 *Row Lock Wait Load* is a rolling *5* minute average of *Row Lock Waits*.
+
+|view-all-metrics| |this-dashboard|
 
 .. seealso::
 
@@ -85,6 +93,8 @@ This metric has the following series:
   calls is influenced by the setting of the innodb_flush_method configuration
   option.
 
+|view-all-metrics| |this-dashboard|
+
 |innodb| Log File Usage Hourly
 --------------------------------------------------------------------------------
 
@@ -99,6 +109,8 @@ InnoDB will do synchronous flushing at the worst possible time, ie when you are
 busiest.
 
 This graph can help guide you in setting the correct `innodb_log_file_size`.
+
+|view-all-metrics| |this-dashboard|
 
 .. seealso::
 
@@ -116,11 +128,16 @@ system, deadlocks are a fact of life and not completely avoidable. InnoDB
 automatically detects transaction deadlocks, rollbacks a transaction
 immediately and returns an error.
 
+|view-all-metrics| |this-dashboard|
+
 .. seealso::
 
    |percona| Database Performance Blog: Dealing with |mysql| deadlocks
       https://www.percona.com/blog/2014/10/28/how-to-deal-with-mysql-deadlocks/
 
+.. |this-dashboard| replace:: :ref:`dashboard.mysql-innodb-metrics`
+
 .. include:: .res/replace/program.txt
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/option.txt
+.. include:: .res/replace/fragment.txt

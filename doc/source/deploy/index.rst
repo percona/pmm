@@ -32,12 +32,7 @@ options:
    server/virtual-appliance
    server/ami
 
-.. seealso::
-
-   Default ports
-      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
-   Improving security
-      :ref:`pmm.security`
+.. include:: ../.res/contents/important.port.txt
 
 .. _deploy-pmm.server.verifying:
 
@@ -97,6 +92,8 @@ Connecting |pmm.abbrev| Clients to the |pmm-server|
 With your server and clients set up, you need to establish connection
 from clients to the server by specifying the IP address of the server
 as a parameter to the |pmm-admin.config| |opt.server| command.
+
+.. include:: ../.res/contents/important.port.txt
 
 For example, if your |pmm-server| is running on `192.168.100.1`,
 and you have installed |pmm-client| on a machine with IP

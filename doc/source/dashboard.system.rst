@@ -1,4 +1,4 @@
-.. _general-dashboard.system:
+.. _dashboard.system:
 
 System Dashboard
 ================================================================================
@@ -29,6 +29,8 @@ Softirq
    a single core may be saturated.  Look for any quantity saturating at 100/(cpu
    core count).
 
+|view-all-metrics| |this-dashboard|
+
 .. seealso::
 
    Linux CPU Statistics
@@ -47,6 +49,8 @@ When the number of process blocked waiting for I/O is large, the load is disk bo
 
 The running average of the sum of these two quantities is the basis of the loadavg metric.
 
+|view-all-metrics| |this-dashboard|
+
 .. seealso::
 
    More information about Vmstat
@@ -64,11 +68,15 @@ outbound rate is coffffnstantly high and close to saturation and you have plenty
 of available CPU, you should consider activating the compression option on the
 |mysql| clients and slaves.
 
+|view-all-metrics| |this-dashboard|
+
 I/O Activity
 --------------------------------------------------------------------------------
 
 The I/O Activity graph shows the rates of data read from (Page In) and written
 to (Page Out) the all the disks as collected from the vmstat bi and bo columns.
+
+|view-all-metrics| |this-dashboard|
 
 Disk Latency
 --------------------------------------------------------------------------------
@@ -82,11 +90,15 @@ the server.
 High latency values, typically more than 15 ms,  are an indication of a disk
 bound workload saturating the storage subsystem or, a faulty/degraded hardware.
 
+|view-all-metrics| |this-dashboard|
+
 MySQL Queries
 --------------------------------------------------------------------------------
 
 The MySQL Queries graph shows the rate of queries processed by MySQL.  The rate
 of queries is a rough indication of the MySQL server load.
+
+|view-all-metrics| |this-dashboard|
 
 InnoDB Row Operations
 --------------------------------------------------------------------------------
@@ -99,11 +111,15 @@ indexing.
 The amounts of rows inserted, updated and deleted help appreciate the server
 write load.
 
+|view-all-metrics| |this-dashboard|
+
 Top |mysql| Commands
 --------------------------------------------------------------------------------
 
 The Top MySQL Commands graph shows the rate of the various kind of SQL
 statements executed on the MySQL server.
+
+|view-all-metrics| |this-dashboard|
 
 Top MySQL Handlers
 --------------------------------------------------------------------------------
@@ -115,7 +131,11 @@ engine handler calls. The most important ones to watch are *read_next* and
 A high values for read_rnd_next is an indication there are table scans while a
 high value of read_next is an indication of index scans.
 
+|view-all-metrics| |this-dashboard|
+
+.. |this-dashboard| replace:: :ref:`dashboard.system`
+
 .. include:: .res/replace/program.txt
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/option.txt
-
+.. include:: .res/replace/fragment.txt
