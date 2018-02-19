@@ -52,7 +52,7 @@ of queries, but one query could effect millions of rows.
 |innodb| Row Lock Time
 --------------------------------------------------------------------------------
 
-When data is locked, then that means that another session can NOT update that
+When data is locked, then that means that another session cannot update that
 data until the lock is released (which unlocks the data and allows other users
 to update that data. Locks are usually released by either a |sql.rollback| or
 |sql.commit| SQL statement.
