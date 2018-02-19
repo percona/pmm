@@ -379,7 +379,7 @@ SSL related options removed
      --volumes-from pmm-data \
      --name pmm-server \
      -e SERVER_USER=jsmith \
-     -e SERVER_PASSWORD=pass1234 \
+     -e SERVER_PASSWORD=SomeR4ndom-Pa$$w0rd \
      -v /etc/pmm-certs:/etc/nginx/ssl \
      --restart always \
      percona/pmm-server:latest
@@ -446,7 +446,7 @@ SSL related options removed
      --volumes-from pmm-data \
      --name pmm-server \
      -e SERVER_USER=jsmith \
-     -e SERVER_PASSWORD=pass1234 \
+     -e SERVER_PASSWORD=SomeR4ndom-Pa$$w0rd \
      --restart always \
      percona/pmm-server:latest
 

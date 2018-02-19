@@ -7,35 +7,10 @@ Security Features in |pmm.name|
 You can protect |pmm| from unauthorized access using the following security
 features:
 
-- HTTP password protection adds authentication
-  when accessing the |pmm-server| web interface
 - SSL encryption secures traffic between |pmm-client| and |pmm-server|
+- HTTP password protection adds authentication when accessing the |pmm-server|
+  web interface
 
-Enabling Password Protection
-================================================================================
-
-You can set the password for accessing the |pmm-server| web interface by passing
-the :term:`SERVER_PASSWORD <SERVER_PASSWORD (Option)>` environment variable when
-:ref:`creating and running the PMM Server container <server-container>`.
-
-To set the environment variable, use the ``-e`` option.
-
-By default, the user name is ``pmm``. You can change it by passing the
-:term:`SERVER_USER <SERVER_USER (Option)>` environment variable. For example:
-
-|tip.run-all.root|.
-
-.. include:: .res/code/sh.org
-   :start-after: +docker.run.server-user.example+
-   :end-before: #+end-block
-
-|pmm-client| uses the same credentials to communicate with |pmm-server|.
-If you set the user name and password as described,
-specify them when :ref:`connect-client`:
-
-.. include:: .res/code/sh.org
-   :start-after: +pmm-admin.config.server.server-user.server-password+
-   :end-before: #+end-block
 
 Enabling SSL Encryption
 ================================================================================
@@ -101,6 +76,34 @@ If you generated a self-signed certificate:
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.config.server.server-insecure-ssl+
+   :end-before: #+end-block
+
+Enabling Password Protection
+================================================================================
+
+You can set the password for accessing the |pmm-server| web interface by passing
+the :term:`SERVER_PASSWORD <SERVER_PASSWORD (Option)>` environment variable when
+:ref:`creating and running the PMM Server container <server-container>`.
+
+To set the environment variable, use the ``-e`` option.
+
+By default, the user name is ``pmm``. You can change it by passing the
+:term:`SERVER_USER <SERVER_USER (Option)>` environment variable. Note that the
+following example uses an insecure port 80 which is typically used for HTTP
+connections.
+
+|tip.run-all.root|.
+
+.. include:: .res/code/sh.org
+   :start-after: +docker.run.server-user.example+
+   :end-before: #+end-block
+
+|pmm-client| uses the same credentials to communicate with |pmm-server|.  If you
+set the user name and password as described, specify them when
+:ref:`connect-client`:
+
+.. include:: .res/code/sh.org
+   :start-after: +pmm-admin.config.server.server-user.server-password+
    :end-before: #+end-block
 		
 Combining Security Features
