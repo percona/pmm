@@ -16,6 +16,8 @@ the Response Time Distribution plugin sourced from table
 *INFORMATION_SCHEMA.QUERY_RESPONSE_TIME*. It computes this value across all
 queries by taking the sum of seconds divided by the count of seconds.
 
+|view-all-metrics| |this-dashboard|
+
 .. seealso::
 
    |percona| Server Documentation: QUERY_RESPONSE_TIME table
@@ -32,11 +34,15 @@ Query response time counts (operations) are grouped into three buckets:
 - 1s - 10s
 - > 10s
 
+|view-all-metrics| |this-dashboard|
+
 Average Query Response Time (Read/Write Split)
 --------------------------------------------------------------------------------
 
 Available only in |percona| Server for |mysql|, this metric provides
 visibility of the split of READ vs WRITE query response time.
+
+|view-all-metrics| |this-dashboard|
 
 .. seealso::
 
@@ -57,6 +63,8 @@ counts (operations) grouped into three buckets:
 - 1s - 10s
 - > 10s
 
+|view-all-metrics| |this-dashboard|
+
 .. seealso::
 
    |percona| Server Documentation: QUERY_RESPONSE_TIME_READ
@@ -72,6 +80,8 @@ time counts (operations) grouped into three buckets:
 - 1s - 10s
 - > 10s
 
+|view-all-metrics| |this-dashboard|
+
 .. seealso::
    
    Configuring |mysql| for |pmm|
@@ -80,6 +90,9 @@ time counts (operations) grouped into three buckets:
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE
 
 
+.. |this-dashboard| replace:: :ref:`dashboard.mysql-query-response-time`
+
 .. include:: .res/replace/program.txt
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/option.txt
+.. include:: .res/replace/fragment.txt

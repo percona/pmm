@@ -1,4 +1,4 @@
-.. _general-dashboard.cross-server-graphs:
+.. _dashboard.cross-server-graphs:
 
 Cross Server Graphs
 ================================================================================
@@ -18,12 +18,10 @@ This metric is best used for trends. If you notice the load average rising, it
 may be due to innefficient queries. In that case, you may further analyze your
 queries in term:`QAN`.
 
-**View all metrics in dashboard:** :ref:`general-dashboard.cross-server-graphs`
+|view-all-metrics| |this-dashboard|
 
 .. seealso::
 
-   Dashboard reference
-      :ref:`general-dashboard.cross-server-graphs`
    Description of *load average* in the man page of the |uptime| command in Debian
       https://manpages.debian.org/stretch/procps/uptime.1.en.html
 
@@ -36,12 +34,10 @@ server. This variable includes statements executed within stored programs,
 unlike the |opt.questions| variable. It does not count *COM_PING* or
 *COM_STATISTICS* commands.
 
-**View all metrics in dashboard:** :ref:`general-dashboard.cross-server-graphs`
+|view-all-metrics| |this-dashboard|
 
 .. seealso::
 
-   Dashboard reference
-      :ref:`general-dashboard.cross-server-graphs`
    |mysql| Server Status Variables: Queries
       https://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Queries
 
@@ -50,8 +46,11 @@ unlike the |opt.questions| variable. It does not count *COM_PING* or
 
 This metric shows the network traffic used by the |mysql| process.
 
-**View all metrics in dashboard:** :ref:`general-dashboard.cross-server-graphs`
+|view-all-metrics| |this-dashboard|
+
+.. |this-dashboard| replace:: :ref:`dashboard.cross-server-graphs`
 
 .. include:: .res/replace/program.txt
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/option.txt
+.. include:: .res/replace/fragment.txt

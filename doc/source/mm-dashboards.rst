@@ -10,10 +10,10 @@ General Dashboards
 ================================================================================
 
 .. toctree::
-   :glob:
    :maxdepth: 1
 
-   general-dashboard.*
+   dashboard.system
+   dashboard.cross-server-graphs
 
 |mysql| Dashboards
 ================================================================================
