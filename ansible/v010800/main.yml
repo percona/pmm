@@ -177,6 +177,15 @@
         encrypted: yes
         state: present
 
+    - name: qan-api                    | Create MySQL user for Grafana
+      mysql_user:
+        name: grafana
+        host: localhost
+        password: '*58324E2D77A9BBFD9DD1E904649697615FE74649'
+        priv: 'pmm.*:SELECT'
+        encrypted: yes
+        state: present
+
     - name: Hotfix                     | PMM-1232 Fix prometheus memory
       when: supervisorctl.stat.exists
       replace:
