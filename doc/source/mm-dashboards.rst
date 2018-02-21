@@ -12,7 +12,7 @@ General Dashboards
 .. toctree::
    :maxdepth: 1
 
-   dashboard.system
+   dashboard.summary-dashboard
    dashboard.cross-server-graphs
 
 |mysql| Dashboards

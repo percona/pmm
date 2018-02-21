@@ -55,7 +55,6 @@ services yet, the site will not show any data.
    Component                            URL
    ==================================== ======================================
    :term:`PMM Home Page`                ``http://192.168.100.1``
-   :term:`Query Analytics (QAN)`        ``http://192.168.100.1/qan/``
    :term:`Metrics Monitor (MM)`         | ``http://192.168.100.1/graph/``
                                         | User name: ``admin``
                                         | Password: ``admin``

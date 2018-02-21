@@ -1,6 +1,6 @@
 .. _dashboard.system:
 
-System Dashboard
+Summary Dashboard
 ================================================================================
 
 .. contents::
