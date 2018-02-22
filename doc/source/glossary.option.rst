@@ -172,10 +172,10 @@ List of |pmm-server| Options
 
    METRICS_MEMORY (Option)
 
-      By default, |prometheus| in |pmm-server| uses up to 768 MB of memory for storing
-      the most recently used data chunks.  Depending on the amount of data coming into
-      |prometheus|, you may require a higher limit to avoid throttling data ingestion,
-      or allow less memory consumption if it is needed for other processes.
+      By default, |prometheus| in |pmm-server| uses all avaiable memory for
+      storing the most recently used data chunks.  Depending on the amount of
+      data coming into |prometheus|, you may require to allow less memory
+      consumption if it is needed for other processes.
 
       |tip.run-this.root|. The value must be passed in kilobytes. For example,
       to set the limit to 4 GB of memory run the following command:
@@ -191,6 +191,11 @@ List of |pmm-server| Options
 	 roughly 2/3 of the total memory that you are planning to allow for
 	 Prometheus. For example, if you set the limit to 4 GB, then
 	 |prometheus| will use up to 6 GB of memory.
+
+      .. seealso::
+
+	 |docker| documentation: Controlling memory usage in a |docker| container
+	    https://docs.docker.com/config/containers/resource_constraints/
 
    DISABLE_UPDATES (Option)
 
