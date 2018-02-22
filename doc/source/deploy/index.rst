@@ -61,6 +61,57 @@ services yet, the site will not show any data.
    Orchestrator                         ``http://192.168.100.1/orchestrator``
    ==================================== ======================================
 
+.. _deploy-pmm.server.plugin:
+
+|pmm| Plugin
+--------------------------------------------------------------------------------
+
+|pmm| web interface is implemented on top of |grafana| as a separate
+plugin with all dashboards inside.
+
+.. figure:: ../.res/graphics/png/pmm.menu.png
+
+   To reach the |pmm| plugin use the |grafana| menu.
+
+To reach the plugin, click the |grafana| menu button at the top left
+corner and select |gui.plugins|. Then, select the |gui.apps| tab. 
+
+.. figure:: ../.res/graphics/png/pmm.plugins.apps.png
+
+   The |pmm| plugin on the |gui.apps| tab
+
+.. important::
+
+   The |gui.plugins| menu option may not be available if you have not
+   logged in to |grafana| or you lack the required permissions.
+
+   .. seealso::
+
+      Permissions in |grafana|
+         http://docs.grafana.org/administration/permissions/
+
+Click the |pmm| button to open the plugin settings. The |gui.config|
+tab enables updating and enabling the plugin.
+
+The |gui.dashboards| tab lists all available dashboards. To deactivate any
+dashboard, select the |gui.trash-bin| button.
+
+.. figure:: ../.res/graphics/png/pmm.plugins.dashboards.png
+
+   The |prometheus-exporter-status| dashboard is deactivated
+
+The |gui.import| button appears in its place for you to import this dashboard
+later. If a dashboard is deactivated it is automatically removed from the
+|gui.dashboard-dropdown| and the dashboard navigation menu.
+
+The data associated with the deactivated dashboard are not lost and become
+available when you activate the dashboard again.
+
+.. seealso::
+
+   More about navigating dashboards
+      :ref:`using-mm`
+
 .. _deploy-pmm.client.installing:
 
 Installing Clients

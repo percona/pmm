@@ -9,7 +9,12 @@ where |pmm-server| is running.
 For example, if |pmm-server| is running on a host with IP 192.168.100.1,
 access the following address with your web browser: ``http://192.168.100.1``.
 
-The landing page has links to corresponding PMM tools:
+.. seealso::
+
+   Installing |pmm-server|
+      :ref:`deploy-pmm.server.installing`
+
+The home page has links to corresponding PMM tools:
 
 .. contents::
    :local:
