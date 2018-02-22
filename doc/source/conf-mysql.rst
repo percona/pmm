@@ -216,6 +216,11 @@ feature sparingly.
 
 To enable user statistics, set the |userstat|_ variable to ``1``.
 
+.. seealso::
+
+   Setting variables
+      https://dev.mysql.com/doc/refman/5.7/en/set-variable.html
+
 .. |userstat| replace:: ``userstat``
 .. _userstat: https://www.percona.com/doc/percona-server/5.7/diagnostics/user_stats.html#userstat
 

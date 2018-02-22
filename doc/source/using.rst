@@ -9,7 +9,12 @@ where |pmm-server| is running.
 For example, if |pmm-server| is running on a host with IP 192.168.100.1,
 access the following address with your web browser: ``http://192.168.100.1``.
 
-The landing page has links to corresponding PMM tools:
+.. seealso::
+
+   Installing |pmm-server|
+      :ref:`deploy-pmm.server.installing`
+
+The home page has links to corresponding PMM tools:
 
 .. contents::
    :local:
@@ -90,7 +95,7 @@ range.
 
 .. figure:: .res/graphics/png/pmm.qan.query-summary-table.1.png
 
-   *A list of queries*
+   A list of queries
 
 Selecting Time or Date Range
 --------------------------------------------------------------------------------
@@ -370,6 +375,48 @@ critical to a database server.  Time-based graphs are separated into dashboards
 by themes: some are related to |mysql| or |mongodb|, others provide general
 system metrics.
 
+The default |pmm| installation provides more than thirty
+dashboards. To make it easier to reach a specific dashboard, the
+system offers two tools. The |gui.dashboard-dropdown| is a button in
+the header of any |pmm| page. It lists all dashboards
+alphabetically. To locate the required dashboard quickly, start typing
+its name in the provided text box.
+
+.. figure:: .res/graphics/png/metrics-monitor.dashboard-dropdown.png
+
+   With |gui.dashboard-dropdown|, search the alphabetical list for any
+   dashboard.
+
+You can also use a navigation menu which groups dashboards by
+application. Click the required group and then select the dashboard
+that matches your choice.
+
+.. table:: Navigation menu groups
+
+   =============  ==============================================================
+   Group          Dashboards for monitoring
+   =============  ==============================================================   
+   |qan.name|     |qan| component (see :ref:`using-qan`
+   OS             The operating system status
+   |mysql|        |mysql| and |amazon-aurora|
+   |mongodb|      State of |mongodb| hosts
+   HA             High availability
+   Cloud          |amazon-rds| and |amazon-aurora|
+   Insight        Summary, cross-server and |prometheus|
+   |pmm|          Server settings
+   =============  ==============================================================
+
+.. figure:: .res/graphics/png/metrics-monitor.menu.png
+
+   |mysql| group selected in the navigation menu
+
+.. seealso::
+
+   |percona| support for high availability
+      https://www.percona.com/services/support/mysql-ha-cluster-support
+   List of |metrics-monitor| dashboards
+      See section :ref:`mm-dashboards`
+
 When you open |metrics-monitor| for the first time, it loads the
 |cross-server-graphs| dashboard.  The credentials used to sign in to |grafana|
 depend on the options that you specified when :ref:`starting PMM Server
@@ -419,6 +466,12 @@ button the description disappears.
    Graph descriptions provide more information about a graph without claiming
    any space in the interface.
 
+Enabling dashboards
+--------------------------------------------------------------------------------
+
+In |pmm|, you can disable the dashboards that you do not require. They
+will disappear from the |gui.dashboard-dropdown| list. You can enable them back again
+   
 |mysql-myrocks-metrics| Dashboard
 --------------------------------------------------------------------------------
 
@@ -439,7 +492,8 @@ drives.
 
 .. seealso::
 
-   `Information schema <https://github.com/facebook/mysql-5.6/wiki/MyRocks-Information-Schema>`_
+   Information schema
+      https://github.com/facebook/mysql-5.6/wiki/MyRocks-Information-Schema
 
 .. _pmm/using.orchestrator:
 

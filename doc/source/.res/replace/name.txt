@@ -87,21 +87,29 @@
 .. |pmm-query-analytics|             replace:: *PMM Query Analytics*
 .. |pmm-system-summary|              replace:: *PMM System Summary*
 .. |prometheus-exporters-overview|   replace:: *Prometheus Exporters Overview*
-
+.. |prometheus-exporter-status|      replace:: *Prometheus Exporter Status*
 .. Metrics Monitor Graphs
 
 .. |cpu-credit-usage|          replace:: *CPU Credit Usage*			     
 .. |cpu-usage|                 replace:: *CPU Usage*
 .. |mysql-myrocks-metrics|     replace:: *MySQL MyRocks Metrics*
 .. |mysql-amazon-aurora-metrics| replace:: *MySQL Amazon Aurora Metrics*
+
 .. GUI Elements
 
-.. |gui.load|                               replace:: :guilabel:`Load`
+.. |gui.import|                             replace:: :guilabel:`Import`
+.. |gui.dashboards|                         replace:: :guilabel:`Dashboards`
+.. |gui.trash-bin|                          replace:: :guilabel:`Trash Bin`
+.. |gui.config|                             replace:: :guilabel:`Config`
+.. |gui.apps|                               replace:: :guilabel:`Apps`
+.. |gui.plugins|                            replace:: :guilabel:`Plugins`
+.. |gui.public-accessibility|               replace:: :guilabel:`Public accessibility`
 .. |gui.add-rds-aurora-instance|            replace:: :guilabel:`Add an AWS RDS MySQL or Aurora MySQL Instance`
 .. |gui.apply|                              replace:: :guilabel:`Apply`
 .. |gui.collect-from|                       replace:: :guilabel:`Collect from`
 .. |gui.connect|                            replace:: :guilabel:`Connect`
 .. |gui.continue|                           replace:: :guilabel:`Continue`
+.. |gui.dashboard-dropdown|                 replace:: :guilabel:`Dashboard Dropdown`
 .. |gui.database-summary|                   replace:: :guilabel:`Database Summary`	  
 .. |gui.databases|                          replace:: :guilabel:`Databases`
 .. |gui.discover|                           replace:: :guilabel:`Discover`
@@ -109,18 +117,22 @@
 .. |gui.enabled|                            replace:: :guilabel:`Enabled`
 .. |gui.file|                               replace:: :guilabel:`File`
 .. |gui.host|                               replace:: :guilabel:`Host`
+.. |gui.insight|                            replace:: :guilabel:`Insight`
+.. |gui.insite|                             replace:: :guilabel:`Insight`
+.. |gui.load|                               replace:: :guilabel:`Load`
 .. |gui.log|                                replace:: :guilabel:`Log`
+.. |gui.metric|                             replace:: :guilabel:`Metric`
 .. |gui.more-information|                   replace:: :guilabel:`More Information`
 .. |gui.more-inf|                           replace:: :guilabel:`More Information`
 .. |gui.mysql-replication-topology-manager| replace:: :guilabel:`MySQL Replication Topology Manager`
 .. |gui.open|                               replace:: :guilabel:`Open`
 .. |gui.query-abstract|                     replace:: :guilabel:`Query Abstract`
 .. |gui.query-filter|                       replace:: :guilabel:`Query Filter`
+.. |gui.retry|                              replace:: :guilabel:`Retry`
 .. |gui.settings|                           replace:: :guilabel:`Settings`
 .. |gui.status|                             replace:: :guilabel:`Status`
 .. |gui.system-summary|                     replace:: :guilabel:`System Summary`
 .. |gui.update|                             replace:: :guilabel:`Update`
-.. |gui.retry|                              replace:: :guilabel:`Retry`
 
 .. Files and directories
 
