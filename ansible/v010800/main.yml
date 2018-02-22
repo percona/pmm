@@ -47,8 +47,8 @@
       when: supervisorctl.stat.exists
       replace:
         dest: /etc/nginx/conf.d/pmm.conf
-        regexp: '/usr/share/pmm-server/password-page'
-        replace: '/usr/share/pmm-server/landing-page'
+        regexp: 'setup_type ovf-ami'
+        replace: 'setup_type docker'
 
     - name: PMM                        | PMM-1826 Remove broken 1.5.0 rpms
       command: sh -c "/usr/bin/rpm --erase --noscripts pmm-server-1.5.0 || :"
