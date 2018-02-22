@@ -154,6 +154,19 @@ SSL related options removed
    
 #+end-block
 
+** sudo
+
+#+begin-block:: sudo data-source-name postgresql-exporter
++sudo.data-source-name.postgresql-exporter+
+
+.. code-block:: bash
+
+   $ sudo -u postgres \
+   DATA_SOURCE_NAME="postgresql://pmm_doc_user:SomeR4ndom-Pa$$w0rd@pmm-doc-postgres-db.cdy17lilqrl7.us-east-1.rds.amazonaws.com:5432/postgres?sslmode=disable" \
+   ./postgres_exporter
+
+#+end-block
+
 * apt-get
 
 #+begin-block: apt-get remove

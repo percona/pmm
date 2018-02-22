@@ -214,6 +214,11 @@ bottom of the command's output:
    :start-after: +pmm-admin.add.external-metrics.postresql+
    :end-before: #+end-block
 
+.. seealso::
+
+   Using the external monitoring service to add |postgres| running on an |amazon-rds| instance
+      See :ref:`use-case.external-monitoring-service.postgresql.rds`
+		
 .. _pmm.pmm-admin.monitoring-service.pass-parameter:
 
 Passing options to the exporter
