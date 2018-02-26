@@ -126,6 +126,7 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		ScrapeInterval: "1s",
 		ScrapeTimeout:  "1s",
 		MetricsPath:    "/metrics-hr",
+		HonorLabels:    true,
 		RelabelConfigs: []prometheus.RelabelConfig{{
 			TargetLabel: "job",
 			Replacement: "mysql",
@@ -136,6 +137,7 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		ScrapeInterval: "5s",
 		ScrapeTimeout:  "1s",
 		MetricsPath:    "/metrics-mr",
+		HonorLabels:    true,
 		RelabelConfigs: []prometheus.RelabelConfig{{
 			TargetLabel: "job",
 			Replacement: "mysql",
@@ -146,6 +148,7 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		ScrapeInterval: "60s",
 		ScrapeTimeout:  "5s",
 		MetricsPath:    "/metrics-lr",
+		HonorLabels:    true,
 		RelabelConfigs: []prometheus.RelabelConfig{{
 			TargetLabel: "job",
 			Replacement: "mysql",
@@ -156,12 +159,14 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		ScrapeInterval: "60s",
 		ScrapeTimeout:  "55s",
 		MetricsPath:    "/basic",
+		HonorLabels:    true,
 	}
 	rdsEnhanced := &prometheus.ScrapeConfig{
 		JobName:        "rds-enhanced",
 		ScrapeInterval: "10s",
 		ScrapeTimeout:  "9s",
 		MetricsPath:    "/enhanced",
+		HonorLabels:    true,
 	}
 
 	nodes, err := q.FindAllFrom(models.RDSNodeTable, "type", models.RDSNodeType)
