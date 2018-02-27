@@ -88,12 +88,20 @@
 .. |pmm-system-summary|              replace:: *PMM System Summary*
 .. |prometheus-exporters-overview|   replace:: *Prometheus Exporters Overview*
 .. |prometheus-exporter-status|      replace:: *Prometheus Exporter Status*
+.. |summary|                         replace:: *Summary*
+.. |mysql-innodb-metrics|            replace:: *MySQL InnoDB Metrics*
+.. |mysql-amazon-aurora|             replace:: *MySQL Amazon Aurora*
+					       
+
+
 .. Metrics Monitor Graphs
 
 .. |cpu-credit-usage|          replace:: *CPU Credit Usage*			     
 .. |cpu-usage|                 replace:: *CPU Usage*
 .. |mysql-myrocks-metrics|     replace:: *MySQL MyRocks Metrics*
 .. |mysql-amazon-aurora-metrics| replace:: *MySQL Amazon Aurora Metrics*
+.. |mysql-performance-schema|    replace:: *MySQL Performance Schema*
+.. |system-overview|             replace:: *System Overview*
 
 .. GUI Elements
 
@@ -133,6 +141,8 @@
 .. |gui.status|                             replace:: :guilabel:`Status`
 .. |gui.system-summary|                     replace:: :guilabel:`System Summary`
 .. |gui.update|                             replace:: :guilabel:`Update`
+.. |gui.check-for-updates-manually|         replace:: :guilabel:`Check for Updates Manually`
+
 
 .. Files and directories
 

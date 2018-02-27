@@ -22,7 +22,8 @@ installed on an |amazon-rds| instance.
    such, it does not demostrate how to use the security features of |amazon-rds|
    or of the |prometheus| exporter being used.
    
-.. rubric:: Set Up the |postgresql| Exporter
+Set Up the |postgresql| Exporter
+================================================================================
 
 First, you need to install a |prometheus| exporter for |postgresql| on the
 computer where you have installed the |pmm-client| package. This example uses
@@ -39,7 +40,8 @@ properly set up and configured. Alternatively, you may run the exporter from the
    Installing the Go programming language
       https://golang.org/doc/install
 
-.. rubric:: Check Settings of Your |amazon-rds| Instance
+Check Settings of Your |amazon-rds| Instance
+================================================================================
 
 Your |amazon-rds| instance where you have installed |postgresql| must be allowed
 to communicate outside of the VPC hosting the DB instance. Select *Yes* in the
@@ -58,7 +60,8 @@ to communicate outside of the VPC hosting the DB instance. Select *Yes* in the
    Connecting to an |amazon-rds| DB instance running |postgresql|
       https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToPostgreSQLInstance.html
    
-.. rubric:: Read Metrics from the |postgresql| DB Instance
+Read Metrics from the |postgresql| DB Instance
+================================================================================
 
 As suggested in the documentation of the |postgresql| exporter, we set the
 :code:`DATA_SOURCE_NAME` variable and start the exporter.
@@ -74,7 +77,8 @@ directory that contains the built :program:`postgresql_exporter` binary.
 
 The |postgresql| exporter makes its metrics available on port 9187.
 
-.. rubric:: Add an external monitoring service for |postgresql|
+Add an external monitoring service for |postgresql|
+================================================================================
 
 To make the metrics from your |amazon-rds| instance available to |pmm|, you need
 to run |pmm-admin.add| command as follows:
@@ -104,7 +108,8 @@ automatically.
    Job name  Scrape interval  Scrape timeout  Metrics path  Scheme  Target           Labels                       Health
    postgres  1m0s             10s             /metrics      http    172.17.0.1:9187  instance="postgresql_rds01"  DOWN
 
-.. rubric:: Viewing |postgresql| Metrics in |pmm|
+Viewing |postgresql| Metrics in |pmm|
+================================================================================
 
 Now, open |metrics-monitor| in your browser and select the
 |advanced-data-exploration| dashboard either using the |gui.dashboard-dropdown|
