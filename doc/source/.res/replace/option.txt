@@ -73,6 +73,8 @@
 .. |opt.verbose|               replace:: :option:`--verbose`
 .. |opt.version|               replace:: :option:`--version`
 .. |opt.volumes-from|          replace:: :option:`--volumes-from`
+.. |opt.metrics-memory|        replace:: :option:`--METRICS_MEMORY`
+
 					     
 .. SSL parameters
 
