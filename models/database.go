@@ -18,6 +18,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 
 	"github.com/go-sql-driver/mysql" // register SQL driver
@@ -25,73 +26,76 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
+//
 // Initial AUTO_INCREMENT values are spaced to prevent programming errors, or at least make them more visible.
 // It does not imply that one can have at most 1000 nodes, etc.
-var databaseSchema = []string{
-	`CREATE TABLE schema_migrations (
-		id INT NOT NULL,
-		PRIMARY KEY (id)
-	)`,
-	`INSERT INTO schema_migrations (id) VALUES (1)`,
+var databaseSchema = [][]string{
+	1: []string{
+		`CREATE TABLE schema_migrations (
+			id INT NOT NULL,
+			PRIMARY KEY (id)
+		)`,
 
-	`CREATE TABLE nodes (
-		id INT NOT NULL AUTO_INCREMENT,
-		type VARCHAR(255) NOT NULL,
-		name VARCHAR(255) NOT NULL,
+		`CREATE TABLE nodes (
+			id INT NOT NULL AUTO_INCREMENT,
+			type VARCHAR(255) NOT NULL,
+			name VARCHAR(255) NOT NULL,
 
-		region VARCHAR(255) NOT NULL DEFAULT '', -- NOT NULL for unique index below
+			region VARCHAR(255) NOT NULL DEFAULT '', -- NOT NULL for unique index below
 
-		PRIMARY KEY (id),
-		UNIQUE (type, name, region)
-	) AUTO_INCREMENT = 1`,
+			PRIMARY KEY (id),
+			UNIQUE (type, name, region)
+		) AUTO_INCREMENT = 1`,
 
-	`INSERT INTO nodes (type, name) VALUES ('` + string(PMMServerNodeType) + `', 'PMM Server')`,
+		`INSERT INTO nodes (type, name) VALUES ('` + string(PMMServerNodeType) + `', 'PMM Server')`,
 
-	`CREATE TABLE services (
-		id INT NOT NULL AUTO_INCREMENT,
-		type VARCHAR(255) NOT NULL,
-		node_id INT NOT NULL,
+		`CREATE TABLE services (
+			id INT NOT NULL AUTO_INCREMENT,
+			type VARCHAR(255) NOT NULL,
+			node_id INT NOT NULL,
 
-		aws_access_key VARCHAR(255),
-		aws_secret_key VARCHAR(255),
-		address VARCHAR(255),
-		port SMALLINT UNSIGNED,
-		engine VARCHAR(255),
-		engine_version VARCHAR(255),
+			aws_access_key VARCHAR(255),
+			aws_secret_key VARCHAR(255),
+			address VARCHAR(255),
+			port SMALLINT UNSIGNED,
+			engine VARCHAR(255),
+			engine_version VARCHAR(255),
 
-		PRIMARY KEY (id),
-		FOREIGN KEY (node_id) REFERENCES nodes (id)
-	) AUTO_INCREMENT = 1000`,
+			PRIMARY KEY (id),
+			FOREIGN KEY (node_id) REFERENCES nodes (id)
+		) AUTO_INCREMENT = 1000`,
 
-	`CREATE TABLE agents (
-		id INT NOT NULL AUTO_INCREMENT,
-		type VARCHAR(255) NOT NULL,
-		runs_on_node_id INT NOT NULL,
+		`CREATE TABLE agents (
+			id INT NOT NULL AUTO_INCREMENT,
+			type VARCHAR(255) NOT NULL,
+			runs_on_node_id INT NOT NULL,
 
-		service_username VARCHAR(255),
-		service_password VARCHAR(255),
-		listen_port SMALLINT UNSIGNED,
-		qan_db_instance_uuid VARCHAR(255),
+			service_username VARCHAR(255),
+			service_password VARCHAR(255),
+			listen_port SMALLINT UNSIGNED,
+			qan_db_instance_uuid VARCHAR(255),
 
-		PRIMARY KEY (id),
-		FOREIGN KEY (runs_on_node_id) REFERENCES nodes (id)
-	) AUTO_INCREMENT = 1000000`,
+			PRIMARY KEY (id),
+			FOREIGN KEY (runs_on_node_id) REFERENCES nodes (id)
+		) AUTO_INCREMENT = 1000000`,
 
-	`CREATE TABLE agent_nodes (
-		agent_id INT NOT NULL,
-		node_id INT NOT NULL,
-		FOREIGN KEY (agent_id) REFERENCES agents (id),
-		FOREIGN KEY (node_id) REFERENCES nodes (id),
-		UNIQUE (agent_id, node_id)
-	)`,
+		`CREATE TABLE agent_nodes (
+			agent_id INT NOT NULL,
+			node_id INT NOT NULL,
+			FOREIGN KEY (agent_id) REFERENCES agents (id),
+			FOREIGN KEY (node_id) REFERENCES nodes (id),
+			UNIQUE (agent_id, node_id)
+		)`,
 
-	`CREATE TABLE agent_services (
-		agent_id INT NOT NULL,
-		service_id INT NOT NULL,
-		FOREIGN KEY (agent_id) REFERENCES agents (id),
-		FOREIGN KEY (service_id) REFERENCES services (id),
-		UNIQUE (agent_id, service_id)
-	)`,
+		`CREATE TABLE agent_services (
+			agent_id INT NOT NULL,
+			service_id INT NOT NULL,
+			FOREIGN KEY (agent_id) REFERENCES agents (id),
+			FOREIGN KEY (service_id) REFERENCES services (id),
+			UNIQUE (agent_id, service_id)
+		)`,
+	},
 }
 
 func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error) {
@@ -123,16 +127,27 @@ func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error
 		return db, nil
 	}
 
-	var count int
-	if err = db.QueryRow("SELECT COUNT(*) FROM schema_migrations").Scan(&count); err == nil && count > 0 {
-		return db, nil
+	latestVersion := len(databaseSchema) - 1 // skip item 0
+	var currentVersion int
+	err = db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
+	if myErr, ok := err.(*mysql.MySQLError); ok && myErr.Number == 0x47a { // 1046 table doesn't exist
+		err = nil
 	}
+	if err != nil {
+		return nil, err
+	}
+	logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
 
-	for _, q := range databaseSchema {
-		q = strings.TrimSpace(q)
-		logf("\n%s\n", q)
-		if _, err = db.Exec(q); err != nil {
-			return nil, errors.Wrapf(err, "Failed to execute\n%s", q)
+	for version := currentVersion + 1; version <= latestVersion; version++ {
+		logf("Migrating database to schema version %d ...", version)
+		queries := databaseSchema[version]
+		queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
+		for _, q := range queries {
+			q = strings.TrimSpace(q)
+			logf("\n%s\n", q)
+			if _, err = db.Exec(q); err != nil {
+				return nil, errors.Wrapf(err, "Failed to execute\n%s", q)
+			}
 		}
 	}
 

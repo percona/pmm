@@ -38,5 +38,5 @@ type RDSNode struct {
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"` // DBInstanceIdentifier
 
-	Region string `reform:"region"`
+	Region string `reform:"region"` // not a pointer, see database structure
 }
