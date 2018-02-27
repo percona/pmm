@@ -4,24 +4,36 @@
 Using the Percona Monitoring and Management Platform
 ================================================================================
 
-You can access the PMM web interface using the IP address of the host
-where |pmm-server| is running.
-For example, if |pmm-server| is running on a host with IP 192.168.100.1,
-access the following address with your web browser: ``http://192.168.100.1``.
+You can access the PMM web interface using the IP address of the host where
+|pmm-server| is running.  For example, if |pmm-server| is running on a host with
+IP 192.168.100.1, access the following address with your web browser:
+``http://192.168.100.1``.
 
 .. seealso::
 
    Installing |pmm-server|
       :ref:`deploy-pmm.server.installing`
 
-The home page has links to corresponding PMM tools:
+The |pmm| home page that opens provides an overview of the environment that you
+have set up to monitor. From this page you can access specific monitoring tools,
+or dashboards. Each dashboard features a collection of metrics. These are graphs
+of a certain type that represent one specific aspect showing how metric values
+change over time.
+
+.. figure:: .res/graphics/png/pmm.home-page.png
+
+   The home page is an overview of your system
+
+By default the home page lists most recently used dashboards and helpful links
+to the information that may be useful to understand |pmm| better.
+
+The home page lists all hosts that you have set up for monitoring as well as the
+essential details about their performance such as CPU load, disk performance, or
+network activity.
 
 .. contents::
    :local:
    :depth: 1
-
-These tools, implemented as |grafana| dashboards, provide
-comprehensive information about the performance of monitored hosts.
 
 .. _using-qan:
 
@@ -37,8 +49,8 @@ get detailed metrics for them.
 
 .. figure:: .res/graphics/png/query-analytics.png
 	    
-   |qan| *helps analyze database queries over periods of time and find performance
-   problems.*
+   |qan| helps analyze database queries over periods of time and find performance
+   problems.
 
 |qan| displays its metrics in both visual and numeric form: the performance
 related characteristics appear as plotted graphics with summaries.

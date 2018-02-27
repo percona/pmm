@@ -174,9 +174,9 @@ Terminology Reference
 
       The version of PMM appears at the bottom of the :term:`PMM server home page <PMM Home Page>`.
 
-      .. figure:: ./images/update-button.png
+      .. figure:: .res/graphics/png/pmm.home-page.1.png
 
-	 To update your |pmm-server|, click the *Update* button
+	 To update your |pmm-server|, click the |gui.check-for-updates-manually| button
 	 located next to the version number.
 
       .. seealso::
@@ -197,10 +197,10 @@ Terminology Reference
 
    PMM Home Page
 
-      The starting page of the PMM portal from which you can open the tools of
-      PMM, view or download documentation.
+      The starting page of the PMM portal from which you can have an overview of your environment, open the tools of
+      PMM, and browse to online resources.
 
-      On the PMM home page, you can also find the version number and a button to
+      On the |pmm| home page, you can also find the version number and a button to
       update your |pmm-server| (see :term:`PMM Version`).
 
    PMM

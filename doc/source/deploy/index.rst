@@ -61,6 +61,15 @@ services yet, the site will not show any data.
    Orchestrator                         ``http://192.168.100.1/orchestrator``
    ==================================== ======================================
 
+You can also check if |pmm-server| is available requesting the /ping
+URL as in the following example:
+
+.. code-block:: bash
+
+   $ curl http://192.168.100.1/ping
+   {'version': '1.8.0'}
+
+
 .. _deploy-pmm.server.plugin:
 
 |pmm| Plugin
@@ -225,25 +234,24 @@ run :program:`pmm-admin add --help` in your terminal.
 Updating
 ================================================================================
 
-When changing to a new version of |pmm.abbrev|, you update the |pmm.abbrev|
-server and each |pmm.abbrev| client separately.
+When changing to a new version of |pmm|, you update the |pmm-server|
+and each |pmm-client| separately.
 
-The updating procedure of your |pmm.abbrev| server, depends on the option
-that you selected for installing it. If you have installed your |pmm.abbrev|
-server from a |docker| image, follow instructions in the
+The updating procedure of your |pmm.abbrev| server, depends on the
+option that you selected for installing it. If you have installed your
+|pmm-server| from a |docker| image, follow instructions in the
 :ref:`update-server.docker` section.
 
 If you are running |pmm-server| as a :ref:`virtual appliance <run-server-ova>`
-or using :ref:`Amazon Machine Image <run-server-ami>`, you can use the update
-button in the bottom right corner of the |pmm.abbrev| home page (see
-:term:`PMM Home Page`).
+or using :ref:`Amazon Machine Image <run-server-ami>`, you can use the |gui.check-for-updates-manually|
+button on the Home dashboard (see :term:`PMM Home Page`).
 
 .. TODO: Replace screenshot with Grafana looks
 
-.. figure:: ../images/update-button.png
+.. figure:: ../.res/graphics/png/pmm.home-page.1.png
 
-   Update your server by clicking the |gui.update| button on the
-   |pmm.abbrev| landing page.
+   Update your server by clicking the |gui.check-for-updates-manually| button on the
+   |pmm| home page.
 
 .. rubric:: **Updating clients**
 

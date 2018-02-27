@@ -12,6 +12,7 @@ General Dashboards
 .. toctree::
    :maxdepth: 1
 
+   dashboard.home
    dashboard.summary-dashboard
    dashboard.cross-server-graphs
 
