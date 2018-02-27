@@ -30,11 +30,12 @@ const (
 )
 
 type rdsExporterInstance struct {
-	Region       string       `yaml:"region"`
-	Instance     string       `yaml:"instance"`
-	Type         instanceType `yaml:"type"`
-	AWSAccessKey *string      `yaml:"aws_access_key,omitempty"`
-	AWSSecretKey *string      `yaml:"aws_secret_key,omitempty"`
+	Region        string       `yaml:"region"`
+	Instance      string       `yaml:"instance"`
+	DBIResourceID *string      `yaml:"dbi_resource_id,omitempty"`
+	Type          instanceType `yaml:"type"`
+	AWSAccessKey  *string      `yaml:"aws_access_key,omitempty"`
+	AWSSecretKey  *string      `yaml:"aws_secret_key,omitempty"`
 }
 
 type rdsExporterConfig struct {

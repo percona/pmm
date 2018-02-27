@@ -31,7 +31,7 @@ import (
 // Initial AUTO_INCREMENT values are spaced to prevent programming errors, or at least make them more visible.
 // It does not imply that one can have at most 1000 nodes, etc.
 var databaseSchema = [][]string{
-	1: []string{
+	1: {
 		`CREATE TABLE schema_migrations (
 			id INT NOT NULL,
 			PRIMARY KEY (id)
@@ -95,6 +95,12 @@ var databaseSchema = [][]string{
 			FOREIGN KEY (service_id) REFERENCES services (id),
 			UNIQUE (agent_id, service_id)
 		)`,
+	},
+
+	2: {
+		`ALTER TABLE nodes
+			ADD COLUMN aws_dbi_resource_id VARCHAR(255)
+		`,
 	},
 }
 

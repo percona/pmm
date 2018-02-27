@@ -3,17 +3,21 @@
 instances:
 - region: us-east-1
   instance: rds-aurora1
+  dbi_resource_id: db-P5QCHK64NWDD5BLLBVT5NPQS2Q
   type: aurora_mysql
 - region: us-east-1
-  instance: rds-aurora2
+  instance: rds-aurora57
+  dbi_resource_id: db-QYBVFI3OW6VME5FQNM2URY4ZOY
   type: aurora_mysql
   aws_access_key: AKIAIOSFODNN7EXAMPLE
   aws_secret_key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 - region: us-east-1
   instance: rds-mysql56
+  dbi_resource_id: db-J6JH3LJAWBZ6MXDDWYRG4RRJ6A
   type: mysql
 - region: us-east-1
   instance: rds-mysql57
+  dbi_resource_id: db-FE4Y2GIJU6UADBOXKULV3DBATY
   type: mysql
   aws_access_key: AKIAIOSFODNN7EXAMPLE
   aws_secret_key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY

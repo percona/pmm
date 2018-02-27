@@ -304,9 +304,10 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 				instances <- Instance{
 					Node: models.RDSNode{
 						Type: models.RDSNodeType,
+						Name: *db.DBInstanceIdentifier,
 
-						Name:   *db.DBInstanceIdentifier,
-						Region: region,
+						Region:           region,
+						AWSDBIResourceID: db.DbiResourceId,
 					},
 					Service: models.RDSService{
 						Type: models.RDSServiceType,
