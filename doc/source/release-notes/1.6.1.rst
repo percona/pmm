@@ -6,8 +6,7 @@ Percona Monitoring and Management |release|
 
 :Date: January 25, 2018
 
-|percona| announces the release of |pmm.name| |release|. This release
-contains bug fixes only and supersedes |pmm.name| |prev-release|.
+|percona| announces the release of |pmm.name| |release|. |tip.bug-fix-release|.
 
 Bug fixes
 --------------------------------------------------------------------------------
@@ -21,6 +20,7 @@ Bug fixes
 - :pmmbug:`1965`: In the *Prometheus Exporters Overview* dashboard of |metrics-monitor|, the drill down links of some metrics could direct to a wrong host.
 
 .. include:: ../.res/replace/name.txt
+.. include:: ../.res/replace/fragment.txt
 
 .. |release|      replace:: 1.6.1
 .. |prev-release| replace:: 1.6.0
