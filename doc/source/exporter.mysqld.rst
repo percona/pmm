@@ -1,6 +1,6 @@
 :orphan: true
 
-.. _pmm/exporter-option.mysqld:
+.. _pmm/exporter.mysqld:
 
 ================================================================================
 |mysql| Server Exporter (mysqld_exporter)
@@ -29,7 +29,7 @@ service as additional options.
    Passing options to a monitoring service
       :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
    All exporter options
-      :ref:`pmm/list.exporter-option`
+      :ref:`pmm/list.exporter`
 
 Collector options
 ================================================================================

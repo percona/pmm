@@ -6,7 +6,10 @@ Percona Monitoring and Management |release|
 
 :Date: January 25, 2018
 
-|percona| announces the release of |pmm.name| |release|. |tip.bug-fix-release|.
+|percona| announces the release of |pmm.name| |release|.
+|tip.bug-fix-release|
+|pmm.name|
+|prev-release|.
 
 Bug fixes
 --------------------------------------------------------------------------------

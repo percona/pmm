@@ -86,7 +86,7 @@ For more information, see :ref:`install-client`.
    Passing exporter options when adding a monitoring service
        :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
    List of available exporter options
-       :ref:`pmm/list.exporter-option`
+       :ref:`pmm/list.exporter`
 
 .. _pmm-server:
 

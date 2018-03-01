@@ -406,7 +406,7 @@ that matches your choice.
 .. table:: Navigation menu groups
 
    =============  ==============================================================
-   Group          Dashboards for monitoring
+   Group          Dashboards for monitoring ...
    =============  ==============================================================   
    |qan.name|     |qan| component (see :ref:`using-qan`
    OS             The operating system status

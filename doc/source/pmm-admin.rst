@@ -244,7 +244,7 @@ monitoring services uses. Each exporter has its own set of options.
 
    $ pmm-admin add mysql:metrics -- --collect.perf_schema.eventswaits=false
 
-The section :ref:`pmm/list.exporter-option` contains all option
+The section :ref:`pmm/list.exporter` contains all option
 grouped by exporters.
    
 .. _pmm.pmm-admin.mongodb.pass-ssl-parameter:

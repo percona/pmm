@@ -1,13 +1,15 @@
 :orphan: true
 
-.. _pmm/list.exporter-option:
+.. _pmm/list.exporter:
 
 ================================================================================
-Exporter Options
+Exporters Overview
 ================================================================================
 
-This is a list of options that you may pass directly to the |prometheus| exporter
-when running |pmm-admin.add|.
+This is a list of exporters that |pmm.name| uses to provides metrics
+from the supported systems. For each exporter, you may find
+informatioih about the options that can be passed directly to the
+|prometheus|.  when running |pmm-admin.add|.
 
 The exporter options are passed along with the monitoring service
 after two dashes (:code:`--`).
@@ -20,7 +22,7 @@ after two dashes (:code:`--`).
    :glob:
    :maxdepth: 1
 
-   exporter-option.*
+   exporter.*
 
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/program.txt
