@@ -57,7 +57,7 @@
       command: sh -c "/usr/bin/rpm --erase --noscripts pmm-server-1.5.1 || :"
 
     - name: PMM                        | Remove broken percona-dashboards rpm
-      when: ansible_os_family == 'RedHat'
+      when: ansible_os_family == 'RedHat' and image_creation is not defined
       yum: name={{ item }} state=absent enablerepo=pmm
       with_items:
         - percona-dashboards
