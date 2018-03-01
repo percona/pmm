@@ -1,6 +1,6 @@
 :orphan: true
 
-.. _pmm/exporter-option.proxysql:
+.. _pmm/exporter.proxysql:
 
 ================================================================================
 |proxysql| Server Exporter (proxysql_exporter)
@@ -17,7 +17,7 @@ service as additional options. For more information about this exporter see its
    Passing options to a monitoring service
       :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
    All exporter options
-      :ref:`pmm/list.exporter-option`
+      :ref:`pmm/list.exporter`
 
 Collector Options
 ================================================================================

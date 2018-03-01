@@ -142,7 +142,7 @@
 .. |gui.system-summary|                     replace:: :guilabel:`System Summary`
 .. |gui.update|                             replace:: :guilabel:`Update`
 .. |gui.check-for-updates-manually|         replace:: :guilabel:`Check for Updates Manually`
-
+.. |gui.enable-enhanced-monitoring|         replace:: :guilabel:`Enable Enhanced Monitoring`
 
 .. Files and directories
 
