@@ -76,7 +76,32 @@ can make whaterver changes required.
 
 .. important::
 
-   You cannot access the root account if you access |pmm-server| using SSH or via the Web interface
+   You cannot access the root account if you access |pmm-server| using
+   SSH or via the Web interface.
+
+Opening the |pmm-server| Web Interface
+================================================================================
+
+To run the |pmm-server|, start the virtual machine and open in your browser the
+URL that appears at the top of the terminal when you were logging in to the
+virtual machine.
+
+.. figure:: .res/graphics/png/command-line.login.1.png
+
+   The URL to open in the browser appears at the top of the terminal when
+   running the virtual machine.
+
+If you run |pmm-server| in your browser for the first time, you are requested to
+supply the user and a new password. Optionally, you may also provide your SSH publish key.
+
+.. figure:: .res/graphics/png/pmm.server.password-change.png
+
+   Set the user and password to access the |pmm-server| web interface.
+
+Click |gui.submit| and enter your user name in the dialog window that pops
+up. The |pmm-server| is now ready and the home page opens.
+
+.. figure:: .res/graphics/png/pmm.home-page.png
 
 Accessing the Virtual Machine
 ================================================================================
