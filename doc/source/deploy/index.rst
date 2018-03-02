@@ -21,15 +21,15 @@ Installing |pmm-server|
 To install and set up the |pmm-server|, use one of the following
 options:
 
--  :ref:`run-server-docker`
--  :ref:`run-server-ova`
--  :ref:`run-server-ami`
+.. -  :ref:`run-server-docker`
+.. -  :ref:`pmm/deploying/server/virtual-appliance`
+.. -  :ref:`run-server-ami`
 
 .. toctree::
-   :hidden:
+   :maxdepth: 1
 
    server/docker
-   server/virtual-appliance
+   ../deploying.server.virtual-appliance
    server/ami
 
 .. include:: ../.res/contents/important.port.txt
@@ -242,7 +242,7 @@ option that you selected for installing it. If you have installed your
 |pmm-server| from a |docker| image, follow instructions in the
 :ref:`update-server.docker` section.
 
-If you are running |pmm-server| as a :ref:`virtual appliance <run-server-ova>`
+If you are running |pmm-server| as a :ref:`virtual appliance <pmm/deploying/server/virtual-appliance>`
 or using :ref:`Amazon Machine Image <run-server-ami>`, you can use the |gui.check-for-updates-manually|
 button on the Home dashboard (see :term:`PMM Home Page`).
 
