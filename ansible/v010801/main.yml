@@ -125,13 +125,6 @@
         dest: /etc/nginx/nginx.conf
         line: 'daemon off;'
 
-    - name: NGINX                      | Disable password-page
-      when: supervisorctl.stat.exists
-      replace:
-        dest: /etc/nginx/conf.d/pmm.conf
-        regexp: '/usr/share/pmm-server/password-page'
-        replace: '/usr/share/pmm-server/landing-page'
-
     - name: NGINX                      | Fix nginx config
       replace:
         dest: /etc/nginx/nginx.conf
