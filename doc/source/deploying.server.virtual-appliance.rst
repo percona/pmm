@@ -83,7 +83,7 @@ Opening the |pmm-server| Web Interface
 ================================================================================
 
 To run the |pmm-server|, start the virtual machine and open in your browser the
-URL that appears at the top of the terminal when you were logging in to the
+URL that appears at the top of the terminal when you are logging in to the
 virtual machine.
 
 .. figure:: .res/graphics/png/command-line.login.1.png
