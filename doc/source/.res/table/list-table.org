@@ -1,5 +1,5 @@
 
-* alias services
+* Alias services
 
 #+begin-block: alias services
 +alias.services+
@@ -45,10 +45,10 @@
 
 #+end-block
 
-* dashboards
+* Dashboards
 
 ** MongoDB Overview
-
+n
 #+begin-block:: dashboard mongodb-overview
 +dashboard.mongodb-overview+
 
@@ -662,5 +662,84 @@
 
    * - MySQL Traffic
      - Network traffic used by the MySQL process.
+
+#+end-block
+
+* Exporters
+
+** rds_exporter
+#+begin-block:: exporter rds metrics
++exporter.rds.metrics+
+
+.. list-table::
+   :header-rows:1
+   :widths: 40 40 20
+
+   * - rds_exporter Metric
+     - |amazon-cloudwatch| Metric
+     - Units
+   * - aws_rds_bin_log_disk_usage_average
+     - BinLogDiskUsage
+     - Bytes
+   * - aws_rds_cpu_credit_balance_average
+     - CPUCreditBalance
+     - Credits (vCPU-minutes)
+   * - aws_rds_cpu_credit_usage_average
+     - CPUCreditUsage
+     - Credits (vCPU-minutes)
+   * - aws_rds_database_connections_average
+     - DatabaseConnections
+     - Count
+   * - aws_rds_disk_queue_depth_average
+     - DiskQueueDepth
+     - Count
+   * - aws_rds_network_receive_throughput_average
+     - NetworkReceiveThroughput
+     - Bytes per second
+   * - aws_rds_network_transmit_throughput_average
+     - NetworkTransmitThroughput
+     - Bytes per second
+   * - aws_rds_read_iops_average
+     - ReadIOPS
+     - Count per second
+   * - aws_rds_read_latency_average
+     - ReadLatency
+     - Seconds
+   * - aws_rds_read_throughput_average
+     - ReadThroughput
+     - Bytes per second
+   * - aws_rds_swap_usage_average
+     - SwapUsage
+     - Bytes
+   * - aws_rds_write_iops_average
+     - WriteIOPS
+     - Count per second
+   * - aws_rds_write_latency_average
+     - WriteLatency
+     - Seconds
+   * - aws_rds_write_throughput_average
+     - WriteThroughput
+     - Bytes per second
+   * - node_cpu_average
+     - CPUUtilization
+     - Percentage
+   * - node_filesystem_free
+     - FreeStorageSpace
+     - Bytes
+   * - node_memory_Cached
+     - FreeableMemory
+     - Bytes
+   * - rds_exporter_erroneous_requests
+     - No corresponding |amazon-cloundwatch| metric. The number of erroneous API requests made to CloudWatch.
+     - Count
+   * - rds_exporter_requests_total
+     - No corresponding |amazon-cloundwatch| metric. API requests made to |amazon-cloudwatch|
+     - Count
+   * - rds_exporter_scrape_duration_seconds
+     - No corresponding |amazon-cloudwatch| metric. The time that the current RDS scrape took.
+     - Seconds
+   * - rds_latency
+     - No corresponding |amazon-cloudwatch| metric. The difference between the current time and timestamp in the metric itself.
+     - Seconds
 
 #+end-block
