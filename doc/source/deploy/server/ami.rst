@@ -10,58 +10,68 @@ an AMI (Amazon Machine Image) by using its ID, different for each region.
 
 .. _figure/pmm/deploying/aws-marketplace/home-page.1:
 
-.. figure:: ../../images/aws-marketplace.pmm.home-page.1.png
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.home-page.1.png
 
-   *The home page of PMM in AWS Marketplace. Click the Continue button to start
-   setting up your instance. You can also preselect your region on this screen.*
+   The home page of PMM in AWS Marketplace. Click the Continue button to start
+   setting up your instance. You can also preselect your region on this screen.
 
 Assuming that you have an AWS (Amazon Web Services) account, locate
-*Percona Monitoring and Management Server 1.4.1* in `AWS Marketplace
+*Percona Monitoring and Management Server* in `AWS Marketplace
 <https://aws.amazon.com/marketplace>`_.
 
-.. note:: **Available versions**
+In the |gui.pricing-information| section, select your region and choose an
+instance type in the table that shows the pricing for the software and
+infrastructure hosted in the region you have selected. Note that the recommended
+EC2 instance type is preselected for you.
 
-   Currently, you can use this method to run an instance of |pmm| version 1.4.1.
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.home-page.2.png
 
-Click the :guilabel:`Continue` button to start setting up your instance. There
+   As soon as you select your region, you can choose the EC2 instance in it and
+   see its price. |pmm| comes for no cost, you may only need to pay for the
+   infrastructure provided by |amazon|.
+
+Click the |gui.continue-to-subscribe| button to start setting up your instance. There
 are two options available to you. The ``1-Click Launch`` option is a quick way
 to make your instance ready. For more control, use the ``Manual Launch`` option.
 
-.. figure:: ../../images/aws-marketplace.pmm.launch-on-ec2.png
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.png
 
    *Percona Monitoring and Management is now available from AWS Marketplace*
 	    
-Setting up a |pmm| instance using the ``1-Click Launch`` option
+Setting Up a |pmm| Instance Using the 1-Click Launch Option
 ================================================================================
 
-With the ``1-Click Launch`` tab selected, make sure that all sections match your
-preferences. In this demonstration, we use the :option:`US East (N. Virginia)`
-region and the VPC (virtual private cloud) named :option:`vpc-aba20dce`. To
-reduce cost, you need to choose the region closest to your location.
+With the |gui.1-click-launch| tab selected, make sure that all sections match
+your preferences. In this demonstration, we use the :option:`US East
+(N. Virginia)` region and the VPC (virtual private cloud) named
+:option:`vpc-484bb12f`. To reduce cost, you need to choose the region closest to
+your location.
 
-On the :guilabel:`1-Click Launch` tab, you select your region in the
-:guilabel:`Region` section. Note that your choice of the region is preserved
-from
-:ref:`the previous screen <figure/pmm/deploying/aws-marketplace/home-page.1>`
-where it is available next to the :guilabel:`Continue` button.
+.. note::
 
-Setting up a VPC and an EC2 instance type
+   The exact name of VPC may be different from the example discussed here.
+
+On the |gui.1-click-launch| tab, select your region in the |gui.region|
+section. By default, the region is the same as the one you chose in the
+|gui.pricing-information| section.
+
+Setting up a VPC and an EC2 Instance Type
 --------------------------------------------------------------------------------
 
-Depending on your choice of a VPC some configurations of CPU and RAM may be disabled
+Depending on your choice of a VPC, some configurations of CPU and RAM may be disabled
 in the :guilabel:`EC2 Instance Type` section.
 
 In this demonstration, we select the :option:`vpc-aba20dce` in the
 :guilabel:`VPC Settings` section. Then, we choose :option:`m4.large` as the EC2
 instance type.
 
-.. figure:: ../../images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png
 
-   *Select VPC in the VPC Settings section and then choose an EC2 instance type
-   that suits your planned configuration.*
+   Select VPC in the VPC Settings section and then choose an EC2 instance type
+   that suits your planned configuration.
 
-Instead of a VPC (virtual private cloud) you may choose the :option:`EC2 Classic (no VPC)`
-option and use a public cloud.
+Instead of a VPC (virtual private cloud) you may choose the :option:`EC2 Classic
+(no VPC)` option and use a public cloud.
 
 Selecting a subnet, you effectively choose an availability zone in the selected
 region. We recommend that you choose the availability zone where your RDS is
@@ -72,18 +82,32 @@ Note that the cost estimation is automatically updated based on your choice.
 Limiting Access to the instance: security group and a key pair
 --------------------------------------------------------------------------------
 
-In the Security group, which acts like a firewall, select a preconfigured
-security group in the :guilabel:`Security group` section. In the :guilabel:`Key
-Pair` select an already set up EC2 key pair to limit access to your instance.
+In the |gui.security-group| section, which acts like a firewall, you may use the
+preselected option :option:`Create new based on seller settings` to create a
+security group with recommended settings. In the :guilabel:`Key Pair` select an
+already set up EC2 key pair to limit access to your instance.
+
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
+
+   Select an already existing key pair (use the EC2 console to create one if necessary)
 
 It is important that the security group allow communication via the following
-ports: 22, 80, and 443. |pmm| should also be able to access port 3306 on the RDS
-that uses the instance.
+ports: *22*, *80*, and *443*. |pmm| should also be able to access port *3306* on
+the RDS that uses the instance.
 
-.. figure:: ../../images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png
 
-   *Select a security group which manages firewall settings.*
+   Select a security group which manages firewall settings.
    
+.. seealso::
+
+   |amazon| Documentation: Security groups
+      https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html
+   |amazon| Documentation: Key pairs
+      https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html
+   |amazon| Documentation: Importing your own public key to |amazon| EC2
+      https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#how-to-generate-your-own-key-and-import-it-to-aws
+      
 Applying settings
 --------------------------------------------------------------------------------
 
@@ -93,8 +117,8 @@ the :program:`EC2 console`.
 
 .. figure:: ../../images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
 	    
-   *Your instance settings are summarized in a special area. Click
-   the Launch with 1 click button to continue.*
+   Your instance settings are summarized in a special area. Click
+   the Launch with 1 click button to continue.
 
 .. note:: The :guilabel:`Launch with 1 click` button may alternatively be titled
           as :guilabel:`Accept Software Terms & Launch with 1-Click`.
@@ -121,7 +145,7 @@ managed via the :program:`EC2 console`.
 
 .. figure:: ../../images/aws-marketplace.ec2-console.pmm.1.png
 
-   *The newly created instance selected.*
+   The newly created instance selected.
 
 Running the instance
 --------------------------------------------------------------------------------
@@ -135,9 +159,10 @@ can run it.
    When started the next time after rebooting, your instance may acquire another
    IP address. You may choose to set up an elastic IP to avoid this problem.
 
-   For more information, see
-   `Elastic IP Addresses <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html>`_
-   in AWS documentation.
+   .. seealso::
+
+      |amazon| Documentation: Elastic IP Addresses
+         http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html
 
 With your instance selected, open its IP address in a web browser. The IP
 address appears in the :guilabel:`IPv4 Public IP` column or as value of the
@@ -145,15 +170,15 @@ address appears in the :guilabel:`IPv4 Public IP` column or as value of the
 
 .. figure:: ../../images/aws-marketplace.pmm.ec2.properties.png
 
-   *To run the instance, copy and paste its public IP address to the location bar
-   of your brower.*
+   To run the instance, copy and paste its public IP address to the location bar
+   of your brower.
 
 In the |pmm.name| welcome page that opens, enter the instance ID in the
 :guilabel:`Instance ID` field.
 
 .. figure:: ../../images/aws-marketplace.pmm.ec2.dialog.instance-id.1.png
 
-   *Enter the instance ID on the welcome page.*
+   Enter the instance ID on the welcome page.
 
 You can copy the instance ID in the :guilabel:`Properties` panel of your
 instance, select the :guilabel:`Description` tab back in the :program:`EC2
@@ -163,18 +188,18 @@ over the ID.
 
 .. figure:: ../../images/aws-marketplace.pmm.ec2.properties.instance-id.png
 
-   *Hover the cursor over the instance ID for Copy button to appear.*
+   Hover the cursor over the instance ID for the Copy button to appear.
 
 Paste the instance in the :guilabel:`Instance ID` field of the |pmm.name|
-welcome page and click :guilabel:`Submit`.
+welcome page and click |gui.submit|.
 
 The next screen offers to create a user and a password that you will later use
 to run your instance. Create a user name, assign a password, and click
-:guilabel:`Submit`.
+|gui.submit|.
 
 .. figure:: ../../images/aws-marketplace.pmm.ec2.dialog.user-name.png
 
-   *Create credentials for your instance.*
+   Create credentials for your instance.
 
 The system authentication window then appears for you to use
 your newly created credentials. Enter the user name and password that you have
