@@ -393,7 +393,7 @@ SSL related options removed
      --name pmm-server \
      -e SERVER_USER=jsmith \
      -e SERVER_PASSWORD=SomeR4ndom-Pa$$w0rd \
-     -v /etc/pmm-certs:/etc/nginx/ssl \
+     -v /etc/pmm-certs:/srv/nginx \
      --restart always \
      percona/pmm-server:latest
 

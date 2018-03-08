@@ -7,6 +7,23 @@ Terminology Reference
 .. glossary::
    :sorted:
 
+   PMM user permissions for AWS
+
+      When creating a `IAM user
+      <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html#CHAP_SettingUp.IAM>`_
+      for |amazon-rds| that you intend to monitor in PMM, you need to set all
+      required permissions properly. You may copy the following |JSON| for your
+      IAM user:
+
+      .. include:: .res/code/js.org
+	 :start-after: +aws.iam-user.permission+
+	 :end-before: #+end-block
+
+      .. seealso::
+
+	 Creating an IAM user
+	    :ref:`pmm.amazon-rds.iam-user.creating`
+
    Data retention
 
       By default, |prometheus| stores time-series data for 30 days,

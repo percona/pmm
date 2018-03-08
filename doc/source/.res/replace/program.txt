@@ -57,8 +57,9 @@
 
 .. Exporters
 
-.. |mongodb_exporter|    replace:: :code:`mongodb_exporter`
-.. |mysqld_exporter|     replace:: :code:`mysqld_exporter`
-.. |node_exporter|       replace:: :code:`node_exporter`
-.. |proxysql_exporter|   replace:: :code:`proxysql_exporter`
-.. |postgresql_exporter| replace:: :code:`postgresql_exporter`
+.. |rds-exporter|        replace:: :code:`rds_exporter`
+.. |mongodb-exporter|    replace:: :code:`mongodb_exporter`
+.. |mysqld-exporter|     replace:: :code:`mysqld_exporter`
+.. |node-exporter|       replace:: :code:`node_exporter`
+.. |proxysql-exporter|   replace:: :code:`proxysql_exporter`
+.. |postgresql-exporter| replace:: :code:`postgresql_exporter`

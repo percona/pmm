@@ -6,7 +6,7 @@
 |mysql| Server Exporter (mysqld_exporter)
 ================================================================================
 
-|mysqld_exporter| is the |prometheus| exporter for |mysql| metrics. This
+|mysqld-exporter| is the |prometheus| exporter for |mysql| metrics. This
 exporter has three resolutions to group the metrics:
 
 - metrics-lr (metrics with a low resolution) uses the default |prometheus| scrape interval
