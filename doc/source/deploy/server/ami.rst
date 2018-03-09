@@ -36,7 +36,7 @@ to make your instance ready. For more control, use the ``Manual Launch`` option.
 
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.png
 
-   *Percona Monitoring and Management is now available from AWS Marketplace*
+   Percona Monitoring and Management is now available from AWS Marketplace
 	    
 Setting Up a |pmm| Instance Using the 1-Click Launch Option
 ================================================================================
@@ -78,6 +78,12 @@ region. We recommend that you choose the availability zone where your RDS is
 located.
 
 Note that the cost estimation is automatically updated based on your choice.
+
+.. seealso::
+
+   |aws| Documentation: Availability zones
+      https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html
+   
 
 Limiting Access to the instance: security group and a key pair
 --------------------------------------------------------------------------------

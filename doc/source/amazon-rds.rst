@@ -5,7 +5,16 @@ Using |pmm| with |amazon-rds|
 ================================================================================
 
 It is possible to use |pmm| for monitoring |amazon-rds| (just like any remote
-|mysql| instance).
+|mysql| instance). In this case, the |pmm-client| is not installed on the host
+where the database server is deployed. By using the |pmm| web interface, you
+connect to the |amazon-rds| DB instance. You only need to provide the |iam| user
+access key and |pmm| discovers the |amazon-rds| DB instances available for
+monitoring.
+
+.. seealso::
+
+   How do I use the |pmm-add-instance| dashboard to discover |amazon-rds| DB instances?
+      pmm.amazon-rds.pmm-add-instance-dashboard.connecting
 
 First of all, ensure that there is minimal latency between |pmm-server| and the
 |amazon-rds| instance.
@@ -22,6 +31,8 @@ metrics with 1 second resolution.  We strongly suggest that you run
 
 .. seealso::
 
+   Which ports should be open?
+      See :term:`Ports` in glossary
    |amazon-rds| Documentation: Setting Up
       https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html
    |amazon-rds| Documentation: Getting started
@@ -31,7 +42,7 @@ metrics with 1 second resolution.  We strongly suggest that you run
 
 .. _pmm.amazon-rds.iam-user.creating:
       
-Creating an IAM User with Permission to Access |amazon-rds| DB Instances
+Creating an |iam| user with permission to access |amazon-rds| DB instances
 ================================================================================
 
 It is recommended that you use an |aws-iam| user account to access |amazon-rds|
@@ -106,6 +117,8 @@ user, select |gui.users| on the |aws-iam.name| page at |aws|. Then click
 
    |aws| Documentation: Creating |iam| users
       https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html#CHAP_SettingUp.IAM
+   |aws| Documentation: IAM roles
+      https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html
 
 Attaching a policy to an |iam| user
 --------------------------------------------------------------------------------
@@ -134,24 +147,26 @@ The |policy-name| is now added to your |iam| user.
    Creating an |iam| policy for |pmm|
       :ref:`pmm.amazon-rds.iam-user.policy`
 
+Setting up the |amazon-rds| DB Instance
+--------------------------------------------------------------------------------
+
 |qan.name| requires :ref:`perf-schema` as the query source, because
-the slow query log is stored on AWS side, and |qan| agent is not able
+the slow query log is stored on the |amazon-aws| side, and |qan| agent is not able
 to read it.  Enable the ``performance_schema`` option under
-|gui.parameter-groups| on RDS (you will probably need to create a new
-**Parameter Group** and set it to the database instance).
+|gui.parameter-groups| in |amazon-rds|.
 
-.. TODO: Check if the explanation about how to enable the performance schema is needed
+.. seealso::
 
-It also requires the ``statements_digest`` and ``events_statements_history``
-to be enabled on the RDS instance.
-For more information, see :ref:`perf-schema-settings`.
+   Performance schema settings
+      See :ref:`perf-schema-settings`.
+   |aws| Documentation: Parameter groups
+      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html
 
-.. note:: Because of the previous requirements,
-   it is not possible to collect query analytics for |amazon-rds|
-   running a |mysql| version prior to 5.6.
-   For |mysql| version 5.5 on |amazon-rds|, see :ref:`cloudwatch`.
+.. note::
 
-.. TODO: Check if the referenced cloudwatch material is still relevant.
+   It is not possible to collect query analytics for |amazon-rds|
+   running a |mysql| version prior to 5.6.  For |mysql| version 5.5 on
+   |amazon-rds|, see :ref:`cloudwatch`.
 
 When adding a monitoring instance for |amazon-rds|,
 specify a unique name to distinguish it from the local |mysql| instance.
@@ -163,9 +178,18 @@ on the |amazon-rds| instance that you want to monitor::
  GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
  GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
 
-If you have |amazon-rds| with a |mysql| version prior to 5.7,
+If you have |amazon-rds| with a |mysql| version prior to 5.5,
 `REPLICATION CLIENT` privilege is not available there
 and has to be excluded from the above statement.
+
+.. note::
+
+   General system metrics are monitored by using the |rds-exporter| |prometheus|
+   exporter which replaces |node-exporter|. |rds-exporter| gives acces to
+   |amazon-cloudwatch| metrics.
+
+   |node-exporter|, used in versions of |pmm| prior to 1.8.0, was not able to
+   monitor general system metrics remotely.
 
 The following example shows how to enable |qan| and |mysql| metrics monitoring
 on |amazon-rds|:
@@ -174,10 +198,10 @@ on |amazon-rds|:
    :start-after: +pmm-admin.add.mysql-metrics.rds+
    :end-before: #+end-block
 
-.. note:: General system metrics cannot be monitored remotely,
-   because ``node_exporter`` requires access to the local file system.
-   This means that the ``linux:metrics`` service cannot be used
-   to monitor |amazon-rds| instances or any remote |mysql| instance.
+.. seealso::
+
+   |aws| Documentation: Connecting to a DB instance (|mysql| engine)
+      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html
 
 .. _cloudwatch:
 
@@ -186,7 +210,7 @@ Monitoring |amazon-rds| OS Metrics
 
 |pmm| provides the |amazon-rds-aurora-mysql-metrics| dashboard to monitor
 |amazon-rds| instances. The metrics are collected by using the |rds-exporter|
-developed and maintained by the |pmm| team.
+developed and maintained by the |pmm| team. 
 
 .. seealso::
 
@@ -231,7 +255,9 @@ including |mysql|, |amazon-aurora|, etc.
    For more information, see
    `Amazon CloudWatch Pricing <https://aws.amazon.com/cloudwatch/pricing/>`_.
 
-Connecting to an |amazon-rds| instance using the |pmm-add-instance| dashboard
+.. _pmm.amazon-rds.pmm-add-instance-dashboard.connecting:
+   
+Connecting to an |amazon-rds| DB instance using the |pmm-add-instance| dashboard
 ================================================================================
 
 .. versionadded:: 1.5.0
@@ -267,7 +293,7 @@ instances in the |amazon-rds-aurora-mysql-metrics|.
 
    |aws| Documentation: Managing access keys of |iam| users
       https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
-
+ 
 .. |policy-name| replace:: *AmazonRDSforPMMPolicy*
 
 .. include:: .res/replace/name.txt

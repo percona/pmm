@@ -11,8 +11,8 @@ Terminology Reference
 
       When creating a `IAM user
       <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html#CHAP_SettingUp.IAM>`_
-      for |amazon-rds| that you intend to monitor in PMM, you need to set all
-      required permissions properly. You may copy the following |JSON| for your
+      for |amazon-rds| DB instance that you intend to monitor in PMM, you need to set all
+      required permissions properly. For this, you may copy the following |JSON| for your
       IAM user:
 
       .. include:: .res/code/js.org
