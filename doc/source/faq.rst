@@ -372,7 +372,7 @@ For example, to set the minimum resolution to 3 seconds:
 
 .. note:: Consider increasing minimum resolution
    when |pmm-server| and |pmm-client| are on different networks,
-   or when :ref:`amazon-rds`.
+   or when :ref:`pmm.amazon-rds`.
 
 Why do I get ``Failed ReadTopologyInstance`` error when adding MySQL host to Orchestrator?
 ==========================================================================================

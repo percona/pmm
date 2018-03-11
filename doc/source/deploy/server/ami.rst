@@ -8,8 +8,6 @@ You can run an instance of |pmm-server| hosted at AWS Marketplace. This
 method replaces the outdated method where you would have to accessing
 an AMI (Amazon Machine Image) by using its ID, different for each region.
 
-.. _figure/pmm/deploying/aws-marketplace/home-page.1:
-
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.home-page.1.png
 
    The home page of PMM in AWS Marketplace. Click the Continue button to start

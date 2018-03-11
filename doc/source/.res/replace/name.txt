@@ -107,6 +107,9 @@
 
 .. GUI Elements
 
+.. |gui.security-credentials|               replace:: :guilabel:`Security credentials`
+.. |gui.create-access-key|                  replace:: :guilabel:`Create access key`
+.. |gui.programmatic-access|                replace:: :guilabel:`Programmatic access`
 .. |gui.permissions|                        replace:: :guilabel:`Permissions`
 .. |gui.add-permissions|                    replace:: :guilabel:`Add permissions`
 .. |gui.aws-management-console-access|      replace:: :guilabel:`AWS Management Console access`
