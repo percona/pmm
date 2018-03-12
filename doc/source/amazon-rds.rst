@@ -6,8 +6,9 @@ Connecting to an |amazon-rds| DB instance
 
 .. versionadded:: 1.5.0
 
-The |pmm-add-instance| is now a preferred method to add an |amazon-rds| instance
-to |pmm|:
+The |pmm-add-instance| is now a preferred method of adding an |amazon-rds| DB
+instance to |pmm|. It supports |amazon-rds| DB instances that use
+|amazon-aurora|, |mysql|, or |mariadb| engines.
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.png
    
@@ -30,8 +31,8 @@ instances in the |amazon-rds-aurora-mysql-metrics|.
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.rds-instances.1.png
 
-   *Enter the DB user name and password to connect to the selected* |rds| or
-   |aurora| *instance*.
+   Enter the DB user name and password to connect to the selected* |rds| or
+   |aurora| instance.
 
 .. seealso::
 
@@ -45,8 +46,8 @@ It is possible to use |pmm| for monitoring |amazon-rds| (just like any remote
 |mysql| instance). In this case, the |pmm-client| is not installed on the host
 where the database server is deployed. By using the |pmm| web interface, you
 connect to the |amazon-rds| DB instance. You only need to provide the |iam| user
-access key (or assign an IAM role) and |pmm| discovers the |amazon-rds| DB instances available for
-monitoring.
+access key (or assign an IAM role) and |pmm| discovers the |amazon-rds| DB
+instances available for monitoring.
 
 .. seealso::
 
@@ -72,6 +73,8 @@ metrics with 1 second resolution.  We strongly suggest that you run
       https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.MySQL.html
    |aws| Documentation: Availability zones
       https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html
+   |aws| Documentation: What privileges are automatically granted to the master user of an |amazon-rds| DB instance?
+      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.MasterAccounts.html
 
 .. contents::
    :local:
@@ -117,7 +120,7 @@ To define a new policy use the |aws-iam.name| page at |aws|.
 1. Select the |gui.policies| option on the navigation panel and click the
    |gui.create-policy| button.
 #. On the |gui.create-policy| page, select the |json| tab and replace the
-   existing contents with the following |json| file.
+   existing contents with the following |json| document.
 
    .. include:: .res/code/js.org
       :start-after: +aws.iam-user.permission+

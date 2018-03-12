@@ -151,6 +151,8 @@ managed via the :program:`EC2 console`.
 
    The newly created instance selected.
 
+.. _pmm.server.ami.running-instance:
+
 Running the instance
 --------------------------------------------------------------------------------
 
