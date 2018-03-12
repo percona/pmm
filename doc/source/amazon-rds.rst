@@ -49,11 +49,6 @@ connect to the |amazon-rds| DB instance. You only need to provide the |iam| user
 access key (or assign an IAM role) and |pmm| discovers the |amazon-rds| DB
 instances available for monitoring.
 
-.. seealso::
-
-   How do I use the |pmm-add-instance| dashboard to discover |amazon-rds| DB instances?
-      pmm.amazon-rds.pmm-add-instance-dashboard.connecting
-
 First of all, ensure that there is minimal latency between |pmm-server| and the
 |amazon-rds| instance.
 
