@@ -32,7 +32,7 @@ developed by |percona| and some are third-party open-source tools.
 
 The following diagram illustrates how |pmm| is currently structured:
 
-.. image:: images/pmm-diagram.png
+.. image:: .res/graphics/png/diagram.pmm-architecture.png
 
 .. _pmm-client:
 

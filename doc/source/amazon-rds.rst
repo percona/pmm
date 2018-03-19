@@ -31,7 +31,7 @@ instances in the |amazon-rds-aurora-mysql-metrics|.
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.rds-instances.1.png
 
-   Enter the DB user name and password to connect to the selected* |rds| or
+   Enter the DB user name and password to connect to the selected |rds| or
    |aurora| instance.
 
 .. seealso::
@@ -49,12 +49,27 @@ connect to the |amazon-rds| DB instance. You only need to provide the |iam| user
 access key (or assign an IAM role) and |pmm| discovers the |amazon-rds| DB
 instances available for monitoring.
 
-First of all, ensure that there is minimal latency between |pmm-server| and the
+First of all, ensure that there is the minimal latency between |pmm-server| and the
 |amazon-rds| instance.
 
 Network connectivity can become an issue for |prometheus| to scrape
 metrics with 1 second resolution.  We strongly suggest that you run
-|pmm-server| on |aws.name| in the same availability zone as |amazon-rds| instances.
+|pmm-server| on |aws.name| in the same availability zone as
+|amazon-rds| instances.
+
+It is crucial that *enhanced monitoring* be enabled for the |amazon-rds| DB
+instances you intend to monitor.
+
+.. figure:: .res/graphics/png/amazon-rds.modify-db-instance.2.png
+
+   Set the |gui.enable-enhanced-monitoring| option in the settings of your
+   |amazon-rds| DB instance.
+
+.. seealso::
+
+   |amazon-rds| Documentation: 
+      - `Modifying an Amazon RDS DB Instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Modifying.html>`_
+      - `More information about enhanced monitoring <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.html>`_
 
 .. seealso::
 
@@ -196,11 +211,10 @@ need to use the access key and secret access key of an existing |iam| user or an
 |iam| role. To create an access key for use with |pmm|, open the |iam| console
 and click |gui.users| on the navigation pane. Then, select your |iam| user.
 
-To create the access key, open the |gui.security-credentials| tab and
-click the |gui.create-access-key| button. The system automatically
-generates a new access key ID and a secret access key that you can
-provide on the |pmm-add-instance| dashboard to have your |amazon-rds|
-DB instances discovered.
+To create the access key, open the |gui.security-credentials| tab and click the
+|gui.create-access-key| button. The system automatically generates a new access
+key ID and a secret access key that you can provide on the |pmm-add-instance|
+dashboard to have your |amazon-rds| DB instances discovered.
 
 .. important:: 
 
@@ -217,6 +231,83 @@ discover your |amazon-rds| DB instances.
    |aws| Documentation: Managing access keys of |iam| users
       https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
 
+Attaching a policy to an |iam| user
+--------------------------------------------------------------------------------
+
+The last step before you are ready to create an |amazon-rds| DB instance is to
+attach the policy with the required permissions to the |iam| user.
+
+First, make sure that the |aws-iam.name| page is open and open
+|gui.users|. Then, locate and open the |iam| user that you plan to use with
+|amazon-rds| DB instances. Complete the following steps, to apply the policy:
+
+1. On the |gui.permissions| tab, click the |gui.add-permissions| button.
+#. On the |gui.add-permissions| page, click |gui.attach-existing-policies-directly|.
+#. Using the |gui.filter|, locate the policy with the required permissions (such as |policy-name|).
+#. Select a checkbox next to the name of the policy and click |gui.review|.
+#. The selected policy appears on the |gui.permissions-summary| page. Click |gui.add-permissions|.
+
+The |policy-name| is now added to your |iam| user.
+   
+.. figure:: .res/graphics/png/aws.iam.add-permissions.png
+
+   To attach, find the policy on the list and place a check mark to select it
+	      
+.. seealso::
+
+   Creating an |iam| policy for |pmm|
+      :ref:`pmm.amazon-rds.iam-user.policy`
+
+Setting up the |amazon-rds| DB Instance
+--------------------------------------------------------------------------------
+
+|qan.name| requires :ref:`perf-schema` as the query source, because the slow
+query log is stored on the |amazon-aws| side, and |qan| agent is not able to
+read it.  Enable the ``performance_schema`` option under |gui.parameter-groups|
+in |amazon-rds|.
+
+.. seealso::
+
+   Performance schema settings
+      See :ref:`perf-schema-settings`.
+   |aws| Documentation: Parameter groups
+      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html
+
+When adding a monitoring instance for |amazon-rds|, specify a unique name to
+distinguish it from the local |mysql| instance.  If you do not specify a name,
+it will use the client's host name.
+
+Create the ``pmm`` user with the following privileges on the |amazon-rds|
+instance that you want to monitor::
+
+ GRANT SELECT, PROCESS, REPLICATION CLIENT ON *.* TO 'pmm'@'%' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
+ GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'%';
+
+If you have |amazon-rds| with a |mysql| version prior to 5.5, `REPLICATION
+CLIENT` privilege is not available there and has to be excluded from the above
+statement.
+
+.. note::
+
+   General system metrics are monitored by using the |rds-exporter| |prometheus|
+   exporter which replaces |node-exporter|. |rds-exporter| gives acces to
+   |amazon-cloudwatch| metrics.
+
+   |node-exporter|, used in versions of |pmm| prior to 1.8.0, was not able to
+   monitor general system metrics remotely.
+
+The following example shows how to enable |qan| and |mysql| metrics monitoring
+on |amazon-rds|:
+
+.. include:: .res/code/sh.org
+   :start-after: +pmm-admin.add.mysql-metrics.rds+
+   :end-before: #+end-block
+
+.. seealso::
+
+   |aws| Documentation: Connecting to a DB instance (|mysql| engine)
+      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html
+      
 .. |policy-name| replace:: *AmazonRDSforPMMPolicy*
 
 .. include:: .res/replace/name.txt

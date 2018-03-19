@@ -95,9 +95,11 @@ already set up EC2 key pair to limit access to your instance.
 
    Select an already existing key pair (use the EC2 console to create one if necessary)
 
-It is important that the security group allow communication via the following
-ports: *22*, *80*, and *443*. |pmm| should also be able to access port *3306* on
-the RDS that uses the instance.
+.. important::
+
+   It is important that the security group allow communication via the following
+   ports: *22*, *80*, and *443*. |pmm| should also be able to access port *3306* on
+   the RDS that uses the instance.
 
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png
 
@@ -119,7 +121,7 @@ Scroll up to the top of the page to view your settings. Then, click the
 :guilabel:`Launch with 1 click` button to continue and adjust your settings in
 the :program:`EC2 console`.
 
-.. figure:: ../../images/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
 	    
    Your instance settings are summarized in a special area. Click
    the Launch with 1 click button to continue.
@@ -137,17 +139,12 @@ instance. To continue setting up your instance, run the :program:`EC2
 console`. It is available as a link at the top of the page that opens after you
 click the :guilabel:`Launch with 1 click` button.
 
-.. figure:: ../../images/aws-marketplace.launch-on-ec2.1-click-launch.4.png
-
-   *Adjust your settings in the EC2 console. To run it, click the EC2 Console
-   link in the message at the top of the page.*
-
 Your instance appears in the :program:`EC2 console` in a table that lists all
 instances available to you. When a new instance is only created, it has no
 name. Make sure that you give it a name to distinguish from other instances
 managed via the :program:`EC2 console`.
 
-.. figure:: ../../images/aws-marketplace.ec2-console.pmm.1.png
+.. figure:: ../../.res/graphics/png/aws-marketplace.ec2-console.pmm.1.png
 
    The newly created instance selected.
 
@@ -174,15 +171,16 @@ With your instance selected, open its IP address in a web browser. The IP
 address appears in the :guilabel:`IPv4 Public IP` column or as value of the
 :guilabel:`Public IP` field at the top of the :guilabel:`Properties` panel.
 
-.. figure:: ../../images/aws-marketplace.pmm.ec2.properties.png
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.ec2.properties.png
 
    To run the instance, copy and paste its public IP address to the location bar
    of your brower.
 
-In the |pmm.name| welcome page that opens, enter the instance ID in the
-:guilabel:`Instance ID` field.
+To run the instance, copy and paste its public IP address to the location bar of
+your brower. In the |pmm.name| welcome page that opens, enter the instance ID in
+the :guilabel:`Instance ID` field.
 
-.. figure:: ../../images/aws-marketplace.pmm.ec2.dialog.instance-id.1.png
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.ec2.dialog.instance-id.1.png
 
    Enter the instance ID on the welcome page.
 
@@ -192,7 +190,7 @@ console`. Click the :guilabel:`Copy` button next to the :guilabel:`Instance
 ID` field. This button appears as soon as you hover the cursor of your mouse
 over the ID.
 
-.. figure:: ../../images/aws-marketplace.pmm.ec2.properties.instance-id.png
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.ec2.properties.instance-id.png
 
    Hover the cursor over the instance ID for the Copy button to appear.
 
@@ -203,7 +201,7 @@ The next screen offers to create a user and a password that you will later use
 to run your instance. Create a user name, assign a password, and click
 |gui.submit|.
 
-.. figure:: ../../images/aws-marketplace.pmm.ec2.dialog.user-name.png
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.ec2.dialog.user-name.png
 
    Create credentials for your instance.
 
@@ -211,9 +209,9 @@ The system authentication window then appears for you to use
 your newly created credentials. Enter the user name and password that you have
 just created. Your instance is now ready.
 
-.. figure:: ../../images/pmm.home-page.1-4-1b.png
+.. figure:: ../../.res/graphics/png/pmm.home-page.png
 
-   *Percona Monitoring and Management is now ready*
+   Percona Monitoring and Management is now ready
 
 .. note:: **Accessing the instance by using an SSH client.**
 
