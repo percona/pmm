@@ -22,34 +22,35 @@ use the `PMM project in JIRA <https://jira.percona.com/projects/PMM>`_.
 What are the minimum system requirements for PMM?
 ================================================================================
 
-* |pmm-server|
+.. rubric:: |pmm-server|
 
-  Any system which can run Docker version 1.12.6 or later.
+Any system which can run Docker version 1.12.6 or later.
 
-  It needs roughly 1 GB of storage for each monitored database node
-  with data retention set to one week.
+It needs roughly 1 GB of storage for each monitored database node
+with data retention set to one week.
 
-  .. note:: By default, :ref:`retention <data-retention>`
-     is set to 30 days for Metrics Monitor
-     and to 8 days for Query Analytics.
-     Also consider :ref:`disabling table statistics <performance-issues>`,
-     which can greatly decrease Prometheus database size.
+.. note::
 
-  Minimum memory is 2 GB for one monitored database node,
-  but it is not linear when you add more nodes.
-  For example, data from 20 nodes should be easily handled with 16 GB.
+   By default, :ref:`retention <data-retention>` is set to 30 days for
+   Metrics Monitor and to 8 days for Query Analytics.  Also consider
+   :ref:`disabling table statistics <performance-issues>`, which can
+   greatly decrease Prometheus database size.
 
-* |pmm-client|
+Minimum memory is 2 GB for one monitored database node, but it is not
+linear when you add more nodes.  For example, data from 20 nodes
+should be easily handled with 16 GB.
 
-  Any modern 64-bit Linux distribution.
-  It is tested on the latest versions of
-  Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux.
+.. rubric:: |pmm-client|
 
-  Minimum 100 MB of storage is required for installing the |pmm-client| package.
-  With good constant connection to |pmm-server|, additional storage is not
-  required.  However, the client needs to store any collected data that it is
-  not able to send over immediately, so additional storage may be required if
-  connection is unstable or throughput is too low.
+Any modern 64-bit Linux distribution. It is tested on the latest
+versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux.
+
+Minimum 100 MB of storage is required for installing the |pmm-client|
+package.  With good constant connection to |pmm-server|, additional
+storage is not required.  However, the client needs to store any
+collected data that it is not able to send over immediately, so
+additional storage may be required if connection is unstable or
+throughput is too low.
 
 .. _metrics_memory:
 
