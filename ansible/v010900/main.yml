@@ -186,6 +186,27 @@
         regexp: '-storage.local.target-heap-size=268435456$'
         replace: '-storage.local.target-heap-size=766957568'
 
+    - name: Grafana                    | Set snapshot server
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: snapshots
+        option: external_enabled
+        value: true
+
+    - name: Grafana                    | Set snapshot server
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: snapshots
+        option: external_snapshot_url
+        value: https://snapshots.percona.com
+
+    - name: Grafana                    | Set snapshot server
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: snapshots
+        option: external_snapshot_name
+        value: Share with Percona Team at snapshots.percona.com
+
     - name: PMM                        | Reload config (supervisord)
       when: supervisorctl.stat.exists
       command: /usr/bin/supervisorctl update
