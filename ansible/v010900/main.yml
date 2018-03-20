@@ -207,6 +207,13 @@
         option: external_snapshot_name
         value: Share with Percona Team at snapshots.percona.com
 
+    - name: Grafana                    | Enable gzip
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: server
+        option: enable_gzip
+        value: true
+
     - name: PMM                        | Reload config (supervisord)
       when: supervisorctl.stat.exists
       command: /usr/bin/supervisorctl update
