@@ -157,6 +157,7 @@
 .. Labels and tags
 
 .. |opt.latest|            replace:: :option:`latest`
+.. |opt.dev-latest|        replace:: :option:`dev-latest`
 .. |opt.pmm-data-backup|   replace:: :option:`pmm-data-backup`
 .. |opt.pmm-data|          replace:: :option:`pmm-data`
 .. |opt.pmm-server-backup| replace:: :option:`pmm-server-backup`

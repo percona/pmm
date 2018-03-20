@@ -38,6 +38,20 @@ the downloaded image file.
    Setting the root password
       :ref:`pmm/deploying/server/virtual-appliance/root-password/set`
 
+.. rubric:: Downloading the latest development version
+
+If you would like to experiment with the latest development version of
+|pmm-server| |virtualbox| image, download the development version as
+follows:
+
+.. include:: .res/code/sh.org
+   :start-after: +wget.pmm-server-dev-latest-ova+
+   :end-before: #+end-block
+
+.. important:: 
+
+   This is a development version which is not designed for a
+   production environment.
 
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/url.txt
