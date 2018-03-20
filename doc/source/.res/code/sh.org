@@ -302,6 +302,15 @@ SSL related options removed
    $ docker pull percona/pmm-server:latest
 
 #+end-block
+#+begin-block: docker pull perconalab dev-latest
++docker.pull.perconalab-pmm-server-dev-latest+
+
+.. code-block:: bash
+
+   $ docker pull perconalab/pmm-server:dev-latest
+
+#+end-block
+
 #+begin-block: docker pull percona-pmm-server-latest
 +docker.pull.percona-pmm-server-latest+
 
@@ -1293,3 +1302,13 @@ Demonstrates how to set the option to 8 days.
    grep cloud-init /tmp/pmm-server-console.log
 
 #+end-block
+* wget
+
+#+begin-block:  wget pmm-server-dev-latest.ova
++wget.pmm-server-dev-latest-ova+
+
+.. code-block:: bash
+
+   $ wget "http://percona-vm.s3-website-us-east-1.amazonaws.com/PMM-Server-dev-latest.ova"
+
+#+end-block:

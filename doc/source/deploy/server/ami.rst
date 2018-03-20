@@ -222,7 +222,7 @@ just created. Your instance is now ready.
    ``admin``.
 
 Next Steps
-==========
+================================================================================
 
 :ref:`Verify that PMM Server is running <deploy-pmm.server.verifying>`
 by connecting to the PMM web interface using the IP address
@@ -239,9 +239,9 @@ on all database hosts that you want to monitor.
    - `Connecting to Your Linux Instance Using SSH <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html>`_ (use ``admin`` as the user name)
 
 Running PMM Server Using Amazon Machine Images
-==============================================
+================================================================================
 
-Percona provides public Amazon Machine Images (AMI) with *PMM Server*
+Percona provides public Amazon Machine Images (AMI) with |pmm-server|
 in all regions where Amazon Web Services (AWS) is available.
 You can launch an instance using the web console
 for the corresponding image:
@@ -305,7 +305,7 @@ for the corresponding image:
 Running from Command Line
 --------------------------------------------------------------------------------
 
-1. Launch the *PMM Server* instance using the ``run-instances`` command
+1. Launch the |pmm-server| instance using the ``run-instances`` command
    for the corresponding region and image.
    For example:
 
@@ -320,7 +320,7 @@ Running from Command Line
         --key-name SSH-KEYNAME
 
    .. note:: Providing the public SSH key is optional.
-      Specify it if you want SSH access to *PMM Server*.
+      Specify it if you want SSH access to |pmm-server|.
 
 #. Set a name for the instance using the ``create-tags`` command.
    For example:
