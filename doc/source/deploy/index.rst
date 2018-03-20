@@ -71,13 +71,13 @@ URL as in the following example:
 
 
 .. .. _deploy-pmm.server.plugin:
-
+..
 .. Excluded to apply changes requested in jira@pmm-2247
-
-.. |pmm| Plugin
+.. 
+.. ..|pmm| Plugin
 .. --------------------------------------------------------------------------------
 .. 
-.. |pmm| web interface is implemented on top of |grafana| as a separate
+.. ..|pmm| web interface is implemented on top of |grafana| as a separate
 .. plugin with all dashboards inside.
 .. 
 .. .. figure:: ../.res/graphics/png/pmm.menu.png
@@ -113,7 +113,7 @@ URL as in the following example:
 .. 
 .. The |gui.import| button appears in its place for you to import this dashboard
 .. later. If a dashboard is deactivated it is automatically removed from the
-.. |gui.dashboard-dropdown| and the dashboard navigation menu.
+.. ..|gui.dashboard-dropdown| and the dashboard navigation menu.
 .. 
 .. The data associated with the deactivated dashboard are not lost and become
 .. available when you activate the dashboard again.
@@ -121,8 +121,8 @@ URL as in the following example:
 .. .. seealso::
 .. 
 ..    More about navigating dashboards
-..       :ref:`using-mm`
-.. 
+.. ..       :ref:`using-mm`
+
 
 .. _deploy-pmm.client.installing:
 
