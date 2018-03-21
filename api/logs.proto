@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+
+service Logs {
+    rpc All(LogsAllRequest) returns (LogsAllResponse) {
+        option (google.api.http) = {
+            get: "/v0/logs"
+        };
+    }
+}
+
+message LogsAllRequest {
+}
+
+message LogsAllResponse {
+    map<string, Log> logs = 1;
+}
+
+message Log {
+    string name = 1;
+    bytes  data = 2;
+}

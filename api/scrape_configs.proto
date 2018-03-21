@@ -159,7 +159,7 @@ service ScrapeConfigs {
     // FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
     rpc Create(ScrapeConfigsCreateRequest) returns (ScrapeConfigsCreateResponse) {
         option (google.api.http) = {
-            post: "/v0/scrape-configs",
+            post: "/v0/scrape-configs"
             body: "*"
         };
     }
@@ -170,7 +170,7 @@ service ScrapeConfigs {
     // FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
     rpc Update(ScrapeConfigsUpdateRequest) returns (ScrapeConfigsUpdateResponse) {
         option (google.api.http) = {
-            put: "/v0/scrape-configs/{scrape_config.job_name}",
+            put: "/v0/scrape-configs/{scrape_config.job_name}"
             body: "*"
         };
     }

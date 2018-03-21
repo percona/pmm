@@ -49,6 +49,22 @@
         }
       }
     },
+    "/v0/logs": {
+      "get": {
+        "tags": [
+          "Logs"
+        ],
+        "operationId": "All",
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiLogsAllResponse"
+            }
+          }
+        }
+      }
+    },
     "/v0/rds": {
       "get": {
         "tags": [
@@ -145,7 +161,7 @@
           "ScrapeConfigs"
         ],
         "summary": "List returns all scrape configs.",
-        "operationId": "ListMixin2",
+        "operationId": "ListMixin3",
         "responses": {
           "200": {
             "description": "(empty)",
@@ -322,6 +338,29 @@
         "value": {
           "type": "string",
           "title": "Label value"
+        }
+      }
+    },
+    "apiLog": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "string",
+          "format": "byte"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "apiLogsAllResponse": {
+      "type": "object",
+      "properties": {
+        "logs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/apiLog"
+          }
         }
       }
     },

@@ -1,0 +1,60 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "logs.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v0/logs": {
+      "get": {
+        "operationId": "All",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiLogsAllResponse"
+            }
+          }
+        },
+        "tags": [
+          "Logs"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiLog": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "data": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "apiLogsAllResponse": {
+      "type": "object",
+      "properties": {
+        "logs": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/apiLog"
+          }
+        }
+      }
+    }
+  }
+}
