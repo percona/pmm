@@ -179,10 +179,12 @@ For more information, run
 Adding external monitoring services
 --------------------------------------------------------------------------------
 
-The |pmm-admin.add| command is also used to add external :term:`monitoring
-services <External Monitoring Service>`. This command adds an external
-monitoring service assuming that the underlying |prometheus| exporter is
-already set up and accessible.
+The |pmm-admin.add| command is also used to add external
+:term:`monitoring services <External Monitoring Service>`. This
+command adds an external monitoring service assuming that the
+underlying |prometheus| exporter is already set up and accessible. The
+default scrape timeout is 10 seconds, and the interval equals to 1
+minute.
 
 To add an external monitoring service use the |opt.external-service|
 monitoring service followed by the port number, name of a |prometheus|
@@ -213,6 +215,8 @@ bottom of the command's output:
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.add.external-metrics.postresql+
    :end-before: #+end-block
+
+
 
 .. seealso::
 
