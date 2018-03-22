@@ -344,44 +344,6 @@ Running from Command Line
         --output text \
         | grep cloud-init
 
-.. rubric:: Using the development version of |pmm-server|
-
-If you are eager to experiment, you may use the latest development version of
-|pmm-server|. Although the steps are essentially the same to the procedure
-described in this section, there is one extra step for acquiring the image ID of
-the development version of |pmm-server|. The following command demonstrates how
-to retrieve the image ID of the development version and assign it to the
-environment variable :code:`IMAGE_ID`:
-
-.. code-block:: bash
-
-   $ IMAGE_ID=$( 
-    aws ec2 describe-images \ 
-        --owners self \ 
-        --filters "Name=name,Values=PMM Server*" \ 
-        --query 'Images[].{ImageId:ImageId}' \ 
-        --output text \ 
-        | sort -k 4 \ 
-        | tail -1
-    )
-
-Now, you can pass the value of :code:`IMAGE_ID` to :program:`aws ec2 run-instances`:
-
-.. code-block:: bash
-   :emphasize-lines: 2
-
-   $ aws ec2 run-instances \
-        --image-id $IMAGE_ID \
-        --security-group-ids sg-3b6e5e46 \
-        --instance-type t2.micro \
-        --subnet-id subnet-4765a930 \
-        --region us-east-1 \
-        --key-name SSH-KEYNAME
-
-.. important::
-
-   It is not recommended to use the development version in a production environment.
-
 .. include:: ../../.res/replace/name.txt
 .. include:: ../../.res/replace/program.txt
 .. include:: ../../.res/replace/option.txt
