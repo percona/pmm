@@ -23,7 +23,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"runtime"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -31,7 +30,7 @@ import (
 )
 
 func TestZip(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", testName())
+	tmpDir, err := ioutil.TempDir("", t.Name())
 	require.NoError(t, err)
 	defer func() {
 		err := os.RemoveAll(tmpDir)
@@ -70,7 +69,7 @@ func TestZip(t *testing.T) {
 }
 
 func TestZipDefaultLogs(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", testName())
+	tmpDir, err := ioutil.TempDir("", t.Name())
 	require.NoError(t, err)
 	defer func() {
 		err := os.RemoveAll(tmpDir)
@@ -96,7 +95,7 @@ func TestZipDefaultLogs(t *testing.T) {
 }
 
 func TestFiles(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", testName())
+	tmpDir, err := ioutil.TempDir("", t.Name())
 	require.NoError(t, err)
 	defer func() {
 		err := os.RemoveAll(tmpDir)
@@ -121,12 +120,4 @@ func TestFiles(t *testing.T) {
 		assert.NoError(t, files[i].Err)
 		assert.Equal(t, fmt.Sprintf("%s: log line %d\n", files[i].Name, 1), string(files[i].Data))
 	}
-}
-
-func testName() string {
-	pc := make([]uintptr, 1)
-	n := runtime.Callers(2, pc)
-	frames := runtime.CallersFrames(pc[:n])
-	frame, _ := frames.Next()
-	return filepath.Base(frame.Function)
 }
