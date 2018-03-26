@@ -104,16 +104,14 @@ func addSwaggerHandler(mux *http.ServeMux) {
 func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
 	l := logrus.WithField("component", "logs.zip")
 
-	pattern := "/logs.zip"
-	mux.HandleFunc(pattern, func(rw http.ResponseWriter, req *http.Request) {
+	mux.HandleFunc("/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
 		// fail-safe
 		ctx, cancel := context.WithTimeout(req.Context(), time.Second)
 		defer cancel()
 
 		rw.Header().Set("Access-Control-Allow-Origin", "*")
 		rw.Header().Set("Content-Type", "application/zip")
-		err := logs.Zip(ctx, rw)
-		if err != nil {
+		if err := logs.Zip(ctx, rw); err != nil {
 			l.Error(err)
 		}
 	})
