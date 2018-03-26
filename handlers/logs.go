@@ -23,28 +23,23 @@ import (
 	"github.com/percona/pmm-managed/services/logs"
 )
 
-// check interface
-var _ api.LogsServer = (*LogsServer)(nil)
-
-func NewLogsServer(logs *logs.Logs) *LogsServer {
-	return &LogsServer{
-		logs: logs,
-	}
-}
-
 type LogsServer struct {
-	logs *logs.Logs
+	Logs *logs.Logs
 }
 
 func (s *LogsServer) All(ctx context.Context, req *api.LogsAllRequest) (*api.LogsAllResponse, error) {
-	var resp api.LogsAllResponse
-	files := s.logs.Files()
-	for i := range files {
-		resp.Logs[files[i].Name] = &api.Log{
-			Name: files[i].Name,
-			Data: files[i].Data,
+	resp := api.LogsAllResponse{
+		Logs: make(map[string]*api.Log),
+	}
+	for _, f := range s.Logs.Files() {
+		resp.Logs[f.Name] = &api.Log{
+			Name: f.Name,
+			Data: f.Data,
 		}
 	}
 
 	return &resp, nil
 }
+
+// check interface
+var _ api.LogsServer = (*LogsServer)(nil)

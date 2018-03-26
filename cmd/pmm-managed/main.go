@@ -194,7 +194,9 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 	api.RegisterRDSServer(gRPCServer, &handlers.RDSServer{
 		RDS: rds,
 	})
-	api.RegisterLogsServer(gRPCServer, handlers.NewLogsServer(logs))
+	api.RegisterLogsServer(gRPCServer, &handlers.LogsServer{
+		Logs: logs,
+	})
 
 	grpc_prometheus.Register(gRPCServer)
 	grpc_prometheus.EnableHandlingTimeHistogram()
