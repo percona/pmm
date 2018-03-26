@@ -106,9 +106,13 @@ func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
 
 	pattern := "/logs.zip"
 	mux.HandleFunc(pattern, func(rw http.ResponseWriter, req *http.Request) {
+		// fail-safe
+		ctx, cancel := context.WithTimeout(req.Context(), time.Second)
+		defer cancel()
+
 		rw.Header().Set("Access-Control-Allow-Origin", "*")
 		rw.Header().Set("Content-Type", "application/zip")
-		err := logs.Zip(rw)
+		err := logs.Zip(ctx, rw)
 		if err != nil {
 			l.Error(err)
 		}
@@ -414,7 +418,7 @@ func main() {
 	defer sqlDB.Close()
 	db := reform.NewDB(sqlDB, mysql.Dialect, nil)
 
-	logs := logs.New(logs.DefaultLogs, 1000)
+	logs := logs.New(1000)
 
 	var wg sync.WaitGroup
 

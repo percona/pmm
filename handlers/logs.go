@@ -18,6 +18,7 @@ package handlers
 
 import (
 	"strings"
+	"time"
 
 	"golang.org/x/net/context"
 
@@ -34,7 +35,12 @@ func (s *LogsServer) All(ctx context.Context, req *api.LogsAllRequest) (*api.Log
 	resp := api.LogsAllResponse{
 		Logs: make(map[string]*api.Log),
 	}
-	for _, f := range s.Logs.Files() {
+
+	// fail-safe
+	ctx, cancel := context.WithTimeout(ctx, time.Second)
+	defer cancel()
+
+	for _, f := range s.Logs.Files(ctx) {
 		lines := strings.Split(string(f.Data), "\n")
 		resp.Logs[f.Name] = &api.Log{
 			Lines: lines,

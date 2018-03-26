@@ -19,6 +19,7 @@ package logs
 import (
 	"archive/zip"
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -42,13 +43,14 @@ func TestZip(t *testing.T) {
 	f.WriteString(fmt.Sprintf("%s: log line %d\n", logFileName, 1))
 	f.Close()
 
-	logs := []Log{
+	logs := []log{
 		{f.Name(), ""},
 	}
-	l := New(logs, 1000)
+	l := New(1000)
+	l.logs = logs
 
 	buf := new(bytes.Buffer)
-	err = l.Zip(buf)
+	err = l.Zip(context.Background(), buf)
 	require.NoError(t, err)
 
 	zr, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
@@ -81,17 +83,17 @@ func TestZipDefaultLogs(t *testing.T) {
 	f.WriteString(fmt.Sprintf("%s: log line %d", logFileName, 1))
 	f.Close()
 
-	l := New(DefaultLogs, 1000)
+	l := New(1000)
 
 	buf := new(bytes.Buffer)
-	err = l.Zip(buf)
+	err = l.Zip(context.Background(), buf)
 	require.NoError(t, err)
 
 	zr, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
 	if err != nil {
 		t.Fatalf("NewReader: %v", err)
 	}
-	assert.Len(t, zr.File, len(DefaultLogs))
+	assert.Len(t, zr.File, len(defaultLogs))
 }
 
 func TestFiles(t *testing.T) {
@@ -107,12 +109,13 @@ func TestFiles(t *testing.T) {
 	f.WriteString(fmt.Sprintf("%s: log line %d\n", logFileName, 1))
 	f.Close()
 
-	logs := []Log{
+	logs := []log{
 		{f.Name(), ""},
 	}
-	l := New(logs, 1000)
+	l := New(1000)
+	l.logs = logs
 
-	files := l.Files()
+	files := l.Files(context.Background())
 	require.NoError(t, err)
 	assert.Len(t, files, len(logs))
 

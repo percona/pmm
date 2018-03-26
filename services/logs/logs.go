@@ -25,10 +25,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
-	"time"
 )
 
-type Log struct {
+type log struct {
 	Path       string
 	Journalctl string
 }
@@ -40,7 +39,7 @@ type File struct {
 }
 
 var (
-	DefaultLogs = []Log{
+	defaultLogs = []log{
 		// Managed by supervisord
 		{"/var/log/mysql.log", ""},
 		{"/var/log/consul.log", "consul"},
@@ -69,26 +68,26 @@ var (
 
 // Logs is responsible for interactions with logs.
 type Logs struct {
-	logs []Log
 	n    int
+	logs []log
 }
 
 // New creates a new Logs service.
-func New(logs []Log, n int) *Logs {
+func New(n int) *Logs {
 	return &Logs{
-		logs: logs,
 		n:    n,
+		logs: defaultLogs,
 	}
 }
 
 // Zip creates .zip archive with all logs.
-func (l *Logs) Zip(w io.Writer) error {
+func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 	// Create a new zip archive.
 	zw := zip.NewWriter(w)
 
 	// Add logs to the archive.
 	for _, log := range l.logs {
-		name, content, err := l.TailN(log, l.n)
+		name, content, err := l.tailN(ctx, &log, l.n)
 		if err != nil {
 			content = append(content, '\n')
 			content = append(content, []byte(err.Error())...)
@@ -108,36 +107,33 @@ func (l *Logs) Zip(w io.Writer) error {
 }
 
 // Files returns list of logs and their content.
-func (l *Logs) Files() []File {
+func (l *Logs) Files(ctx context.Context) []File {
 	files := make([]File, 0, len(l.logs))
 
 	for _, log := range l.logs {
 		file := File{}
-		file.Name, file.Data, file.Err = l.TailN(log, l.n)
+		file.Name, file.Data, file.Err = l.tailN(ctx, &log, l.n)
 		files = append(files, file)
 	}
 
 	return files
 }
 
-// TailN reads last n lines from defined Log configuration
-func (l *Logs) TailN(log Log, n int) (name string, data []byte, err error) {
+// tailN reads last n lines from defined Log configuration
+func (l *Logs) tailN(ctx context.Context, log *log, n int) (name string, data []byte, err error) {
 	if _, err := exec.LookPath("journalctl"); err == nil && log.Journalctl != "" {
-		data, err := JournalctlN(log.Journalctl, n)
+		data, err := journalctlN(ctx, log.Journalctl, n)
 		return log.Journalctl, data, err
 	} else if log.Path != "" {
-		data, err := TailN(log.Path, n)
+		data, err := tailN(ctx, log.Path, n)
 		return filepath.Base(log.Path), data, err
 	}
 
 	return "", nil, fmt.Errorf("unable to get log: %v", log)
 }
 
-// JournalctlN reads last n lines from systemd unit u.
-func JournalctlN(u string, n int) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
+// journalctlN reads last n lines from systemd unit u.
+func journalctlN(ctx context.Context, u string, n int) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, "journalctl", "-n", strconv.Itoa(n), "-u", u)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
@@ -148,11 +144,8 @@ func JournalctlN(u string, n int) ([]byte, error) {
 	return b, nil
 }
 
-// TailN reads last n lines from log file at given path.
-func TailN(path string, n int) ([]byte, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
-
+// tailN reads last n lines from log file at given path.
+func tailN(ctx context.Context, path string, n int) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, "/usr/bin/tail", "-n", strconv.Itoa(n), path)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
