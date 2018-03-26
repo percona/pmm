@@ -7,6 +7,7 @@ Package api is a generated protocol buffer package.
 It is generated from these files:
 	base.proto
 	demo.proto
+	logs.proto
 	rds.proto
 	scrape_configs.proto
 
@@ -15,6 +16,9 @@ It has these top-level messages:
 	BaseVersionResponse
 	DemoErrorRequest
 	DemoErrorResponse
+	Log
+	LogsAllRequest
+	LogsAllResponse
 	RDSNode
 	RDSService
 	RDSInstanceID

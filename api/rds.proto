@@ -67,7 +67,7 @@ message RDSRemoveResponse {
 service RDS {
     rpc Discover(RDSDiscoverRequest) returns (RDSDiscoverResponse) {
         option (google.api.http) = {
-            post: "/v0/rds/discover",
+            post: "/v0/rds/discover"
             body: "*"
         };
     }
@@ -80,14 +80,14 @@ service RDS {
 
     rpc Add(RDSAddRequest) returns (RDSAddResponse) {
         option (google.api.http) = {
-            post: "/v0/rds",
+            post: "/v0/rds"
             body: "*"
         };
     }
 
     rpc Remove(RDSRemoveRequest) returns (RDSRemoveResponse) {
         option (google.api.http) = {
-            delete: "/v0/rds",
+            delete: "/v0/rds"
             body: "*"
         };
     }

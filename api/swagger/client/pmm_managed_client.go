@@ -13,6 +13,7 @@ import (
 
 	"github.com/percona/pmm-managed/api/swagger/client/base"
 	"github.com/percona/pmm-managed/api/swagger/client/demo"
+	"github.com/percona/pmm-managed/api/swagger/client/logs"
 	"github.com/percona/pmm-managed/api/swagger/client/r_d_s"
 	"github.com/percona/pmm-managed/api/swagger/client/scrape_configs"
 )
@@ -61,6 +62,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PmmManaged
 	cli.Base = base.New(transport, formats)
 
 	cli.Demo = demo.New(transport, formats)
+
+	cli.Logs = logs.New(transport, formats)
 
 	cli.RDS = r_d_s.New(transport, formats)
 
@@ -114,6 +117,8 @@ type PmmManaged struct {
 
 	Demo *demo.Client
 
+	Logs *logs.Client
+
 	RDS *r_d_s.Client
 
 	ScrapeConfigs *scrape_configs.Client
@@ -128,6 +133,8 @@ func (c *PmmManaged) SetTransport(transport runtime.ClientTransport) {
 	c.Base.SetTransport(transport)
 
 	c.Demo.SetTransport(transport)
+
+	c.Logs.SetTransport(transport)
 
 	c.RDS.SetTransport(transport)
 

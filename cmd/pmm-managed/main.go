@@ -20,6 +20,7 @@ import (
 	"bytes"
 	_ "expvar"
 	"flag"
+	"fmt"
 	"html/template"
 	"log"
 	"net"
@@ -46,6 +47,7 @@ import (
 	"github.com/percona/pmm-managed/handlers"
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/consul"
+	"github.com/percona/pmm-managed/services/logs"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/services/rds"
@@ -101,8 +103,28 @@ func addSwaggerHandler(mux *http.ServeMux) {
 	})
 }
 
+func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
+	l := logrus.WithField("component", "logs.zip")
+
+	mux.HandleFunc("/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
+		// fail-safe
+		ctx, cancel := context.WithTimeout(req.Context(), time.Second)
+		defer cancel()
+
+		t := time.Now().UTC()
+		filename := fmt.Sprintf("pmm-server_%4d-%02d-%02d-%02d-%02d.zip", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute())
+
+		rw.Header().Set(`Access-Control-Allow-Origin`, `*`)
+		rw.Header().Set(`Content-Type`, `application/zip`)
+		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
+		if err := logs.Zip(ctx, rw); err != nil {
+			l.Error(err)
+		}
+	})
+}
+
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
-func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.DB) {
+func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.DB, logs *logs.Logs) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
 
@@ -180,6 +202,9 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 	api.RegisterRDSServer(gRPCServer, &handlers.RDSServer{
 		RDS: rds,
 	})
+	api.RegisterLogsServer(gRPCServer, &handlers.LogsServer{
+		Logs: logs,
+	})
 
 	grpc_prometheus.Register(gRPCServer)
 	grpc_prometheus.EnableHandlingTimeHistogram()
@@ -210,7 +235,7 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 }
 
 // runRESTServer runs REST proxy server until context is canceled, then gracefully stops it.
-func runRESTServer(ctx context.Context) {
+func runRESTServer(ctx context.Context, logs *logs.Logs) {
 	l := logrus.WithField("component", "REST")
 	l.Infof("Starting server on http://%s/ ...", *restAddrF)
 
@@ -223,6 +248,7 @@ func runRESTServer(ctx context.Context) {
 		api.RegisterDemoHandlerFromEndpoint,
 		api.RegisterScrapeConfigsHandlerFromEndpoint,
 		api.RegisterRDSHandlerFromEndpoint,
+		api.RegisterLogsHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, *gRPCAddrF, opts); err != nil {
 			l.Panic(err)
@@ -234,6 +260,7 @@ func runRESTServer(ctx context.Context) {
 		l.Printf("Swagger enabled. http://%s/swagger/", *restAddrF)
 		addSwaggerHandler(mux)
 	}
+	addLogsHandler(mux, logs)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{
@@ -395,18 +422,20 @@ func main() {
 	defer sqlDB.Close()
 	db := reform.NewDB(sqlDB, mysql.Dialect, nil)
 
+	logs := logs.New(1000)
+
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runGRPCServer(ctx, consulClient, db)
+		runGRPCServer(ctx, consulClient, db, logs)
 	}()
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runRESTServer(ctx)
+		runRESTServer(ctx, logs)
 	}()
 
 	wg.Add(1)
