@@ -239,7 +239,7 @@
 
     - name: PMM                        | Restart services (systemd)
       when: not supervisorctl.stat.exists
-      service: name={{ item }} state=restarted
+      service: name={{ item }} state=restarted enabled=yes
       with_items:
         - prometheus
         - node_exporter
