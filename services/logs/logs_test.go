@@ -30,33 +30,40 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestZip(t *testing.T) {
+func setup(t *testing.T) string {
 	tmpDir, err := ioutil.TempDir("", t.Name())
 	require.NoError(t, err)
-	defer func() {
-		err := os.RemoveAll(tmpDir)
-		assert.NoError(t, err)
-	}()
 
 	logFileName := "test-1.log"
-	f, _ := os.Create(filepath.Join(tmpDir, logFileName))
+	f, err := os.Create(filepath.Join(tmpDir, logFileName))
+	require.NoError(t, err)
 	f.WriteString(fmt.Sprintf("%s: log line %d\n", logFileName, 1))
 	f.Close()
 
+	return f.Name()
+}
+
+func teardown(t *testing.T, logFileName string) {
+	err := os.RemoveAll(filepath.Dir(logFileName))
+	require.NoError(t, err)
+}
+
+func TestZip(t *testing.T) {
+	logFileName := setup(t)
+	defer teardown(t, logFileName)
+
 	logs := []log{
-		{f.Name(), ""},
+		{logFileName, ""},
 	}
 	l := New(1000)
 	l.logs = logs
 
 	buf := new(bytes.Buffer)
-	err = l.Zip(context.Background(), buf)
+	err := l.Zip(context.Background(), buf)
 	require.NoError(t, err)
 
 	zr, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
-	if err != nil {
-		t.Fatalf("NewReader: %v", err)
-	}
+	require.NoError(t, err)
 	assert.Len(t, zr.File, len(logs))
 
 	for i := range zr.File {
@@ -71,52 +78,28 @@ func TestZip(t *testing.T) {
 }
 
 func TestZipDefaultLogs(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", t.Name())
-	require.NoError(t, err)
-	defer func() {
-		err := os.RemoveAll(tmpDir)
-		assert.NoError(t, err)
-	}()
-
-	logFileName := "test-1.log"
-	f, _ := os.Create(filepath.Join(tmpDir, logFileName))
-	f.WriteString(fmt.Sprintf("%s: log line %d", logFileName, 1))
-	f.Close()
-
 	l := New(1000)
 
 	buf := new(bytes.Buffer)
-	err = l.Zip(context.Background(), buf)
+	err := l.Zip(context.Background(), buf)
 	require.NoError(t, err)
 
 	zr, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
-	if err != nil {
-		t.Fatalf("NewReader: %v", err)
-	}
+	require.NoError(t, err)
 	assert.Len(t, zr.File, len(defaultLogs))
 }
 
 func TestFiles(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", t.Name())
-	require.NoError(t, err)
-	defer func() {
-		err := os.RemoveAll(tmpDir)
-		assert.NoError(t, err)
-	}()
-
-	logFileName := "test-1.log"
-	f, _ := os.Create(filepath.Join(tmpDir, logFileName))
-	f.WriteString(fmt.Sprintf("%s: log line %d\n", logFileName, 1))
-	f.Close()
+	logFileName := setup(t)
+	defer teardown(t, logFileName)
 
 	logs := []log{
-		{f.Name(), ""},
+		{logFileName, ""},
 	}
 	l := New(1000)
 	l.logs = logs
 
 	files := l.Files(context.Background())
-	require.NoError(t, err)
 	assert.Len(t, files, len(logs))
 
 	for i := range files {

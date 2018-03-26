@@ -111,12 +111,12 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 
 // Files returns list of logs and their content.
 func (l *Logs) Files(ctx context.Context) []File {
-	files := make([]File, 0, len(l.logs))
+	files := make([]File, len(l.logs))
 
-	for _, log := range l.logs {
-		file := File{}
+	for i, log := range l.logs {
+		var file File
 		file.Name, file.Data, file.Err = l.readLog(ctx, &log)
-		files = append(files, file)
+		files[i] = file
 	}
 
 	return files
