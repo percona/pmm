@@ -25,7 +25,7 @@ type Client struct {
 }
 
 /*
-All all API
+All alls returns last lines of all log files
 */
 func (a *Client) All(params *AllParams) (*AllOK, error) {
 	// TODO: Validate the params before sending

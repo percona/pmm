@@ -17,6 +17,8 @@
 package handlers
 
 import (
+	"strings"
+
 	"golang.org/x/net/context"
 
 	"github.com/percona/pmm-managed/api"
@@ -27,14 +29,15 @@ type LogsServer struct {
 	Logs *logs.Logs
 }
 
+// All returns last lines of all log files.
 func (s *LogsServer) All(ctx context.Context, req *api.LogsAllRequest) (*api.LogsAllResponse, error) {
 	resp := api.LogsAllResponse{
 		Logs: make(map[string]*api.Log),
 	}
 	for _, f := range s.Logs.Files() {
+		lines := strings.Split(string(f.Data), "\n")
 		resp.Logs[f.Name] = &api.Log{
-			Name: f.Name,
-			Data: f.Data,
+			Lines: lines,
 		}
 	}
 

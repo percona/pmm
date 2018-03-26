@@ -17,6 +17,7 @@
   "paths": {
     "/v0/logs": {
       "get": {
+        "summary": "All returns last lines of all log files.",
         "operationId": "All",
         "responses": {
           "200": {
@@ -36,12 +37,12 @@
     "apiLog": {
       "type": "object",
       "properties": {
-        "name": {
-          "type": "string"
-        },
-        "data": {
-          "type": "string",
-          "format": "byte"
+        "lines": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "title": "Last lines of log file"
         }
       }
     },
@@ -52,7 +53,8 @@
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/apiLog"
-          }
+          },
+          "title": "Maps log file name to content"
         }
       }
     }

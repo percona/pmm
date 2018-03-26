@@ -4,22 +4,24 @@ package api;
 
 import "google/api/annotations.proto";
 
-service Logs {
-    rpc All(LogsAllRequest) returns (LogsAllResponse) {
-        option (google.api.http) = {
-            get: "/v0/logs"
-        };
-    }
+message Log {
+    // Last lines of log file
+    repeated string lines = 1;
 }
 
 message LogsAllRequest {
 }
 
 message LogsAllResponse {
+    // Maps log file name to content
     map<string, Log> logs = 1;
 }
 
-message Log {
-    string name = 1;
-    bytes  data = 2;
+service Logs {
+    // All returns last lines of all log files.
+    rpc All(LogsAllRequest) returns (LogsAllResponse) {
+        option (google.api.http) = {
+            get: "/v0/logs"
+        };
+    }
 }

@@ -18,7 +18,7 @@ import (
 
 type APILogsAllResponse struct {
 
-	// logs
+	// Maps log file name to content
 	Logs map[string]APILog `json:"logs,omitempty"`
 }
 

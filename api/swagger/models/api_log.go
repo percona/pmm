@@ -17,24 +17,33 @@ import (
 
 type APILog struct {
 
-	// data
-	Data strfmt.Base64 `json:"data,omitempty"`
-
-	// name
-	Name string `json:"name,omitempty"`
+	// Last lines of log file
+	Lines []string `json:"lines"`
 }
 
-/* polymorph apiLog data false */
-
-/* polymorph apiLog name false */
+/* polymorph apiLog lines false */
 
 // Validate validates this api log
 func (m *APILog) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateLines(formats); err != nil {
+		// prop
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *APILog) validateLines(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Lines) { // not required
+		return nil
+	}
+
 	return nil
 }
 

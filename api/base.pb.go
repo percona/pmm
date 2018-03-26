@@ -16,9 +16,9 @@ It has these top-level messages:
 	BaseVersionResponse
 	DemoErrorRequest
 	DemoErrorResponse
+	Log
 	LogsAllRequest
 	LogsAllResponse
-	Log
 	RDSNode
 	RDSService
 	RDSInstanceID
