@@ -113,10 +113,11 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 		}
 
 		f, err := zw.CreateHeader(&zip.FileHeader{
-			Name:     name,
-			Method:   zip.Deflate,
-			Modified: now,
+			Name:   name,
+			Method: zip.Deflate,
+			// Modified: now, TODO uncomment when we build with Go 1.10+
 		})
+		_ = now // TODO remove
 		if err != nil {
 			return err
 		}
