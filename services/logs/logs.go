@@ -26,7 +26,9 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
+	servicelib "github.com/percona/kardianos-service"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,12 +45,16 @@ type log struct {
 }
 
 var defaultLogs = []log{
-	// Managed by supervisord
 	{"/var/log/consul.log", "consul"},
 	{"/var/log/createdb.log", ""},
-	{"/var/log/cron.log", ""},
+	{"/var/log/cron.log", "crond"},
 	{"/var/log/dashboard-upgrade.log", ""},
+	{"/var/log/grafana/grafana.log", ""},
 	{"/var/log/mysql.log", ""},
+	{"/var/log/mysqld.log", "mysqld"},
+	{"/var/log/nginx.log", "nginx"},
+	{"/var/log/nginx/access.log", ""},
+	{"/var/log/nginx/error.log", ""},
 	{"/var/log/node_exporter.log", "node_exporter"},
 	{"/var/log/orchestrator.log", "orchestrator"},
 	{"/var/log/pmm-manage.log", "pmm-manage"},
@@ -56,16 +62,6 @@ var defaultLogs = []log{
 	{"/var/log/prometheus.log", "prometheus"},
 	{"/var/log/qan-api.log", "percona-qan-api"},
 	{"/var/log/supervisor/supervisord.log", ""},
-
-	// Grafana and Nginx
-	{"/var/log/grafana/grafana.log", ""},
-	{"/var/log/nginx.log", "nginx"},
-	{"/var/log/nginx/access.log", ""},
-	{"/var/log/nginx/error.log", ""},
-
-	// AMI/OVF
-	{"", "crond"},
-	{"/var/log/mysqld.log", "mysqld"},
 }
 
 // Logs is responsible for interactions with logs.
@@ -79,21 +75,33 @@ type Logs struct {
 // New creates a new Logs service.
 // n is a number of last lines of log to read.
 func New(n int) *Logs {
-	journalctlPath, _ := exec.LookPath("journalctl")
-	return &Logs{
-		n:              n,
-		logs:           defaultLogs,
-		journalctlPath: journalctlPath,
-		l:              logrus.WithField("component", "logs"),
+	l := &Logs{
+		n:    n,
+		logs: defaultLogs,
+		l:    logrus.WithField("component", "logs"),
 	}
+
+	// PMM Server Docker image contails journalctl, so we can't use exec.LookPath("journalctl") alone for detection.
+	// TODO Probably, that check should be moved to supervisor service.
+	//      Or the whole logs service should be merged with it.
+	if servicelib.Platform() == "linux-systemd" {
+		l.journalctlPath, _ = exec.LookPath("journalctl")
+	}
+
+	return l
 }
 
 // Zip creates .zip archive with all logs.
 func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 	zw := zip.NewWriter(w)
 
+	now := time.Now().UTC()
 	for _, log := range l.logs {
 		name, content, err := l.readLog(ctx, &log)
+		if name == "" {
+			continue
+		}
+
 		if err != nil {
 			l.l.Error(err)
 
@@ -104,7 +112,11 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 			content = append(content, []byte(err.Error())...)
 		}
 
-		f, err := zw.Create(name)
+		f, err := zw.CreateHeader(&zip.FileHeader{
+			Name:     name,
+			Method:   zip.Deflate,
+			Modified: now,
+		})
 		if err != nil {
 			return err
 		}
@@ -144,7 +156,6 @@ func (l *Logs) readLog(ctx context.Context, log *log) (name string, data []byte,
 		return
 	}
 
-	err = fmt.Errorf("unable to get log %+v", log)
 	return
 }
 
