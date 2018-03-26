@@ -59,7 +59,8 @@ import (
 const (
 	shutdownTimeout = 3 * time.Second
 
-	pmmVersion = "1.8.0"
+	// TODO set during build
+	Version = "1.9.0"
 )
 
 var (
@@ -171,7 +172,7 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 		grpc.UnaryInterceptor(interceptors.Unary),
 		grpc.StreamInterceptor(interceptors.Stream),
 	)
-	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{PMMVersion: pmmVersion})
+	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{PMMVersion: Version})
 	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
 	api.RegisterScrapeConfigsServer(gRPCServer, &handlers.ScrapeConfigsServer{
 		Prometheus: prometheus,
@@ -324,7 +325,7 @@ func runTelemetryService(ctx context.Context, consulClient *consul.Client) {
 		l.Panicf("cannot get/set telemetry UUID in Consul: %s", err)
 	}
 
-	svc := telemetry.NewService(uuid, pmmVersion)
+	svc := telemetry.NewService(uuid, Version)
 	svc.Run(ctx)
 }
 
@@ -349,7 +350,7 @@ func getTelemetryUUID(consulClient *consul.Client) (string, error) {
 
 func main() {
 	log.SetFlags(0)
-	log.Printf("pmm-managed %s", pmmVersion)
+	log.Printf("pmm-managed %s", Version)
 	log.SetPrefix("stdlog: ")
 	flag.Parse()
 
