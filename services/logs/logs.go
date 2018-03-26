@@ -25,6 +25,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
+
+	"github.com/sirupsen/logrus"
 )
 
 // File represents log file content.
@@ -70,6 +73,7 @@ type Logs struct {
 	n              int
 	logs           []log
 	journalctlPath string
+	l              *logrus.Entry
 }
 
 // New creates a new Logs service.
@@ -80,6 +84,7 @@ func New(n int) *Logs {
 		n:              n,
 		logs:           defaultLogs,
 		journalctlPath: journalctlPath,
+		l:              logrus.WithField("component", "logs"),
 	}
 }
 
@@ -90,6 +95,9 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 	for _, log := range l.logs {
 		name, content, err := l.readLog(ctx, &log)
 		if err != nil {
+			l.l.Error(err)
+
+			// do not let a single error break the whole archive
 			if len(content) > 0 {
 				content = append(content, "\n\n"...)
 			}
@@ -136,7 +144,7 @@ func (l *Logs) readLog(ctx context.Context, log *log) (name string, data []byte,
 		return
 	}
 
-	err = fmt.Errorf("unable to get log: %v", log)
+	err = fmt.Errorf("unable to get log %+v", log)
 	return
 }
 
@@ -147,7 +155,7 @@ func (l *Logs) journalctlN(ctx context.Context, u string) ([]byte, error) {
 	cmd.Stderr = &stderr
 	b, err := cmd.Output()
 	if err != nil {
-		return b, fmt.Errorf("JournalctlN(%s, %d): %s: %s", u, l.n, err, stderr.String())
+		return b, fmt.Errorf("%s: %s: %s", strings.Join(cmd.Args, " "), err, stderr.String())
 	}
 	return b, nil
 }
@@ -159,7 +167,7 @@ func (l *Logs) tailN(ctx context.Context, path string) ([]byte, error) {
 	cmd.Stderr = &stderr
 	b, err := cmd.Output()
 	if err != nil {
-		return b, fmt.Errorf("TailN(%s, %d): %s: %s", path, l.n, err, stderr.String())
+		return b, fmt.Errorf("%s: %s: %s", strings.Join(cmd.Args, " "), err, stderr.String())
 	}
 	return b, nil
 }
