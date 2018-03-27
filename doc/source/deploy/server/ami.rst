@@ -197,11 +197,15 @@ over the ID.
 Paste the instance in the :guilabel:`Instance ID` field of the |pmm.name|
 welcome page and click |gui.submit|.
 
+.. figure:: ../../.res/graphics/png/installation-wizard.ami.instance-id-verification.png
+
+   Entering the instance ID when installing |pmm-server|
+
 The next screen offers to create a user and a password that you will later use
 to run your instance. Create a user name, assign a password, and click
 |gui.submit|.
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.ec2.dialog.user-name.png
+.. figure:: ../../.res/graphics/png/installation-wizard.ami.instance-id-verification.png
 
    Create credentials for your instance.
 

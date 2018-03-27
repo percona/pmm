@@ -79,6 +79,8 @@ can make whaterver changes required.
    You cannot access the root account if you access |pmm-server| using
    SSH or via the Web interface.
 
+.. _deploying.pmm-server.web-interface.opening:
+
 Opening the |pmm-server| Web Interface
 ================================================================================
 
