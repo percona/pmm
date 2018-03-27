@@ -177,14 +177,13 @@ address appears in the :guilabel:`IPv4 Public IP` column or as value of the
    of your brower.
 
 To run the instance, copy and paste its public IP address to the location bar of
-your brower. In the |pmm.name| welcome page that opens, enter the instance ID in
-the :guilabel:`Instance ID` field.
+your brower. In the |pmm.name| welcome page that opens, enter the instance ID.
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.ec2.dialog.instance-id.1.png
+.. figure:: ../../.res/graphics/png/installation-wizard.ami.instance-id-verification.png
 
-   Enter the instance ID on the welcome page.
+   Entering the instance ID when installing |pmm-server|
 
-You can copy the instance ID in the :guilabel:`Properties` panel of your
+You can copy the instance ID from the :guilabel:`Properties` panel of your
 instance, select the :guilabel:`Description` tab back in the :program:`EC2
 console`. Click the :guilabel:`Copy` button next to the :guilabel:`Instance
 ID` field. This button appears as soon as you hover the cursor of your mouse
@@ -196,10 +195,6 @@ over the ID.
 
 Paste the instance in the :guilabel:`Instance ID` field of the |pmm.name|
 welcome page and click |gui.submit|.
-
-.. figure:: ../../.res/graphics/png/installation-wizard.ami.instance-id-verification.png
-
-   Entering the instance ID when installing |pmm-server|
 
 The next screen offers to create a user and a password that you will later use
 to run your instance. Create a user name, assign a password, and click
