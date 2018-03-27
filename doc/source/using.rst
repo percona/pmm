@@ -55,6 +55,8 @@ get detailed metrics for them.
 |qan| displays its metrics in both visual and numeric form: the performance
 related characteristics appear as plotted graphics with summaries.
 
+.. _using.qan.home-page.open:
+
 Open |qan| from the |pmm| Home Page
 --------------------------------------------------------------------------------
    
@@ -78,6 +80,8 @@ the query summary table.
 
    The query summary table shows the monitored queries from the selected
    database.
+
+.. _using.qan.query.filtering:
 
 Filtering Queries
 --------------------------------------------------------------------------------
@@ -109,6 +113,8 @@ range.
 
    A list of queries
 
+.. _using.qan.time-date-range.selecting:
+
 Selecting Time or Date Range
 --------------------------------------------------------------------------------
 
@@ -123,6 +129,8 @@ the *range selection tool* located at the top of your |qan| page.
 
 The tool consists of two parts. The *Quick ranges* offers frequently used time
 ranges.. The date picker sets a range of dates.
+
+.. _using.qan.query-summary.total:
 
 Totals of the Query Summary
 --------------------------------------------------------------------------------
@@ -144,6 +152,8 @@ time or date range.
 The *latency* is the average amount of time that it took the database server to
 retrieve and return the data.
 
+.. _using.qan.query-summary-table.query:
+
 Queries in the Query Summary Table
 --------------------------------------------------------------------------------
 
@@ -159,6 +169,8 @@ form. The summary values have two parts. The average value of the metric and its
 percentage with respect to the corresponding total value at the top of the query
 summary table.
 
+.. _using.qan.metric.value.viewing:
+
 Viewing a Specific Value of a Metric
 --------------------------------------------------------------------------------
 
@@ -169,6 +181,8 @@ the plotted line to watch how the value is changing.
 .. figure:: .res/graphics/png/pmm.qan.query-summary-table.1.png
 
    *Hover the cursor to see a value at the point.*
+
+.. _using.qan.query.zooming:
 
 Zooming into a Query
 --------------------------------------------------------------------------------
@@ -183,6 +197,8 @@ in the query.
 
    Select a query from the query summary table to open its metrics.
 
+.. _using.qan.query.selecting:
+
 Query Section
 --------------------------------------------------------------------------------
    
@@ -194,6 +210,8 @@ the query.
 .. figure:: .res/graphics/png/pmm.qan.query.1.png
 
    The Query section shows the SQL statement for the selected query.
+
+.. _using.qan.explain-section:
 
 Explain Section
 --------------------------------------------------------------------------------
@@ -222,6 +240,8 @@ Note that the |sql.explain| command only works with the following statements:
 If you are viewing the details of a query of another type, the
 ``Explain`` section will not contain any data.
 
+.. _using.qan.table-info-section:
+
 Table Info Section
 --------------------------------------------------------------------------------
 
@@ -232,6 +252,8 @@ web interface.
 
 .. image:: .res/graphics/png/qan-create-table.png
 
+.. _using.qan.configuring:
+
 Configuring Query Analytics
 --------------------------------------------------------------------------------
 
@@ -239,6 +261,8 @@ The :guilabel:`Settings` button opens a separate page with settings,
 status, and log for the selected database instance.
 
 .. SCREENSHOT: Settings button
+
+.. _using.qan.configuring.settings-tab:
 
 .. rubric:: |gui.settings| Tab
 
@@ -271,6 +295,8 @@ command is used.
 The |gui.log| tab contains the latest version of the monitored log, such
 as |slow-log|. At the top of this tab, you may notice when exactly the snapshot
 was taken.
+
+.. _using.database-server-summary.viewing:
 
 Viewing Database and Server Summary Information
 --------------------------------------------------------------------------------
@@ -347,6 +373,8 @@ For more information, run
 |pmm-admin.add|
 |opt.mysql|
 |opt.help|.
+
+.. _using.qan.mongodb:
 
 |qan| for |mongodb|
 --------------------------------------------------------------------------------
@@ -478,12 +506,35 @@ button the description disappears.
    Graph descriptions provide more information about a graph without claiming
    any space in the interface.
 
+.. _using.dashboard.enabling:
+
 Enabling dashboards
 --------------------------------------------------------------------------------
 
-In |pmm|, you can disable the dashboards that you do not require. They
-will disappear from the |gui.dashboard-dropdown| list. You can enable them back again
-   
+In |pmm|, you can disable the dashboards that you do not require. They will
+disappear from the |gui.dashboard-dropdown| list. You can enable them back again
+
+.. _using.dashboard.snapshot.creating:
+
+Creating snapshots
+--------------------------------------------------------------------------------
+
+When communicating with |percona| support it is useful to provide a
+snapshot of the dashboard that you are having problems with. |pmm|
+enables creating snaptshots of the selected dashboard and making them
+available to |percona| automatically.
+
+First, open the snapshot that you would like to share. Click the
+|gui.share| button at the top of the page and select the
+|gui.snapshot| command. Finally, click the
+|gui.share-with-percona-team| button.
+
+.. figure:: .res/graphics/png/pmm.metrics-monitor.share.snapshot.png
+
+   The |gui.snapshot| tab in the |gui.share| dialog window.
+
+.. _using.dashboard.mysql-myrocks-metrics:
+
 |mysql-myrocks-metrics| Dashboard
 --------------------------------------------------------------------------------
 
