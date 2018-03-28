@@ -15,6 +15,7 @@ General Dashboards
    dashboard.home
    dashboard.summary-dashboard
    dashboard.cross-server-graphs
+   dashboard.prometheus
 
 |mysql| Dashboards
 ================================================================================
