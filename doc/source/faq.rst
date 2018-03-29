@@ -381,6 +381,42 @@ Why do I get ``Failed ReadTopologyInstance`` error when adding MySQL host to Orc
 You need to create Orchestrator's topology user on |mysql|
 according to :ref:`this section <pmm/using.orchestrator>`.
 
+.. _pmm/deploying/server/virtual-appliance/root-password/set:
+
+How to set the root password when |pmm-server| is installed as a virtual appliance
+====================================================================================================
+
+With your virtual appliance set up, you need to set the root password for your
+|pmm-server|. By default, the virtual machine is configured to enforce changing
+the default password upon the first login.
+
+.. figure:: .res/graphics/png/command-line.login.1.png
+
+   Set the root password when logging in.
+
+Run your virtual machine and when requested to log in, use the following
+credentials:
+
+:User: root
+:Password: percona
+
+The system immediately requests that you change your password. Note that, for
+the sake of security, your password must not be trivial and pass at least the
+dictionary check. If you do not provide your password within sixty seconds you
+are automatically logged out. In this case use the default credentials to log in
+again.
+
+.. figure:: .res/graphics/png/command-line.login.3.png
+
+   Set a new password and have full access to your system
+
+After the new password is set you control this system as a superuser and
+can make whaterver changes required.
+
+.. important::
+
+   You cannot access the root account if you access |pmm-server| using
+   SSH or via the Web interface.
 
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/option.txt
