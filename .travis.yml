@@ -24,13 +24,12 @@ env:
     - MYSQL_IMAGE=percona/percona-server:5.7
 
   matrix:
-    - PROMETHEUS_IMAGE=prom/prometheus:v1.8.2
+    - PROMETHEUS_IMAGE=prom/prometheus:v2.2.1
       CONSUL_IMAGE=consul:0.8.5
-    - PROMETHEUS_IMAGE=prom/prometheus:v1.8.2
+    - PROMETHEUS_IMAGE=prom/prometheus:latest
       CONSUL_IMAGE=consul:1.0.2
-    # TODO
-    # - PROMETHEUS_IMAGE=prom/prometheus:master
-    #   CONSUL_IMAGE=consul:latest
+    - PROMETHEUS_IMAGE=prom/prometheus:master
+      CONSUL_IMAGE=consul:1.0.2
 
 before_install:
   # no package for Trusty yet

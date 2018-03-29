@@ -2,7 +2,8 @@
 required = [
   "gopkg.in/reform.v1/reform",
 
-  "github.com/prometheus/prometheus/cmd/promtool",
+  # We do not vendor promtool. See https://jira.percona.com/browse/PMM-2182
+  # "github.com/prometheus/prometheus/cmd/promtool",
 
   "github.com/golang/protobuf/protoc-gen-go",
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
@@ -16,11 +17,6 @@ required = [
   # to keep google/api/annotations.proto
   # non-go = true
   # unused-packages = true
-
-[[constraint]]
-  # we do not support 2.0 yet
-  name = "github.com/prometheus/prometheus"
-  version = "1.8.2"
 
 [[constraint]]
   # this branch is not merged yet

@@ -29,12 +29,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Percona-Lab/promconfig/config"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/percona/pmm-managed/services/prometheus/internal"
 )
 
 const (
@@ -79,12 +78,16 @@ type ScrapeConfig struct {
 	RelabelConfigs []RelabelConfig
 }
 
-type Health int32
+// Health of the target.
+type Health string
 
 const (
-	HealthUnknown Health = 0
-	HealthDown    Health = 1
-	HealthUp      Health = 2
+	// HealthUnknown represents unknown health state of target.
+	HealthUnknown Health = "unknown"
+	// HealthDown represents target that is down.
+	HealthDown Health = "down"
+	// HealthUp represents target that is up and healthy.
+	HealthUp Health = "up"
 )
 
 // ScrapeTargetHealth represents Prometheus scrape target health: unknown, down, or up.
@@ -142,14 +145,14 @@ func (svc *Service) getTargetsHealth(ctx context.Context) (map[string]map[string
 	}
 	defer resp.Body.Close()
 
-	// Copied from vendor/github.com/prometheus/prometheus/web/api/v1/api.go to avoid a ton of dependencies
+	// copied from https://github.com/prometheus/prometheus/blob/v2.2.1/web/api/v1/api.go to avoid a ton of dependencies
 	type target struct {
 		DiscoveredLabels model.LabelSet `json:"discoveredLabels"`
 		Labels           model.LabelSet `json:"labels"`
 		ScrapeURL        string         `json:"scrapeUrl"`
 		LastError        string         `json:"lastError"`
 		LastScrape       time.Time      `json:"lastScrape"`
-		Health           string         `json:"health"` // 	"unknown", "up", or "down"
+		Health           Health         `json:"health"`
 	}
 	type result struct {
 		Status string `json:"status"`
@@ -169,14 +172,7 @@ func (svc *Service) getTargetsHealth(ctx context.Context) (map[string]map[string
 		if health[job] == nil {
 			health[job] = make(map[string]Health)
 		}
-
-		health[job][instance] = HealthUnknown
-		switch target.Health {
-		case "down":
-			health[job][instance] = HealthDown
-		case "up":
-			health[job][instance] = HealthUp
-		}
+		health[job][instance] = target.Health
 	}
 	return health, nil
 }
@@ -213,7 +209,7 @@ func (svc *Service) checkReachability(ctx context.Context, cfg *ScrapeConfig, ta
 	var scrapeTimeout model.Duration
 	var err error
 	if cfg.ScrapeTimeout == "" {
-		scrapeTimeout = internal.DefaultGlobalConfig.ScrapeTimeout
+		scrapeTimeout = config.DefaultGlobalConfig.ScrapeTimeout
 	} else {
 		scrapeTimeout, err = model.ParseDuration(cfg.ScrapeTimeout)
 		if err != nil {
@@ -239,10 +235,10 @@ func (svc *Service) checkReachability(ctx context.Context, cfg *ScrapeConfig, ta
 				Path:   cfg.MetricsPath,
 			}
 			if cfg.Scheme == "" {
-				u.Scheme = internal.DefaultScrapeConfig.Scheme
+				u.Scheme = config.DefaultScrapeConfig.Scheme
 			}
 			if cfg.MetricsPath == "" {
-				u.Path = internal.DefaultScrapeConfig.MetricsPath
+				u.Path = config.DefaultScrapeConfig.MetricsPath
 			}
 			if cfg.BasicAuth != nil {
 				u.User = url.UserPassword(cfg.BasicAuth.Username, cfg.BasicAuth.Password)

@@ -160,7 +160,7 @@ func TestPrometheusScrapeConfigs(t *testing.T) {
 	assert.Equal(t, expectedHealth, health)
 
 	// wait for Prometheus to scrape targets
-	time.Sleep(time.Second)
+	time.Sleep(6 * time.Second)
 
 	_, health, err = p.GetScrapeConfig(ctx, "ScrapeConfigs")
 	require.NoError(t, err)
@@ -178,7 +178,7 @@ func TestPrometheusScrapeConfigs(t *testing.T) {
 	actual, _, err = p.GetScrapeConfig(ctx, "ScrapeConfigs")
 	require.NoError(t, err)
 	expected.ScrapeInterval = "2s"
-	expected.ScrapeTimeout = "2s" // internal.Config.UnmarshalYAML sets timeout to interval if default timeout > interval
+	expected.ScrapeTimeout = "2s" // config.Config.UnmarshalYAML sets timeout to interval if default timeout > interval
 	assert.Equal(t, expected, actual)
 }
 

@@ -28,17 +28,17 @@ import (
 	"regexp"
 	"sync"
 
+	"github.com/Percona-Lab/promconfig/config"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/yaml.v2"
 
 	"github.com/percona/pmm-managed/services/consul"
-	"github.com/percona/pmm-managed/services/prometheus/internal"
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
-var checkFailedRE = regexp.MustCompile(`FAILED: (.+)\n`)
+var checkFailedRE = regexp.MustCompile(`FAILED: parsing YAML file \S+: (.+)\n`)
 
 // Service is responsible for interactions with Prometheus.
 // It assumes the following:
@@ -69,8 +69,8 @@ func NewService(config string, baseURL string, promtool string, consul *consul.C
 }
 
 // loadConfig loads current Prometheus configuration from file.
-func (svc *Service) loadConfig() (*internal.Config, error) {
-	cfg, err := internal.LoadFile(svc.ConfigPath)
+func (svc *Service) loadConfig() (*config.Config, error) {
+	cfg, err := config.LoadFile(svc.ConfigPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "can't load Prometheus configuration file")
 	}
@@ -79,7 +79,7 @@ func (svc *Service) loadConfig() (*internal.Config, error) {
 
 // saveConfigAndReload saves given Prometheus configuration to file and reloads Prometheus.
 // If configuration can't be reloaded for some reason, old file is restored, and configuration is reloaded again.
-func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Config) error {
+func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *config.Config) error {
 	// read existing content
 	old, err := ioutil.ReadFile(svc.ConfigPath)
 	if err != nil {
@@ -122,7 +122,7 @@ func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Confi
 		f.Close()
 		os.Remove(f.Name())
 	}()
-	b, err := exec.Command(svc.promtoolPath, "check-config", f.Name()).CombinedOutput()
+	b, err := exec.Command(svc.promtoolPath, "check", "config", f.Name()).CombinedOutput()
 	if err != nil {
 		logger.Get(ctx).WithField("component", "prometheus").Errorf("%s", b)
 
@@ -197,7 +197,7 @@ func (svc *Service) Check(ctx context.Context) error {
 		return errors.Errorf("expected 200, got %d", resp.StatusCode)
 	}
 
-	b, err = exec.Command(svc.promtoolPath, "version").CombinedOutput()
+	b, err = exec.Command(svc.promtoolPath, "--version").CombinedOutput()
 	if err != nil {
 		return errors.Wrap(err, string(b))
 	}

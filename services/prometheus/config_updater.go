@@ -19,11 +19,13 @@ package prometheus
 import (
 	"regexp"
 
+	config_url "github.com/Percona-Lab/promconfig/common/config"
+	"github.com/Percona-Lab/promconfig/config"
+	sd_config "github.com/Percona-Lab/promconfig/discovery/config"
+	"github.com/Percona-Lab/promconfig/discovery/targetgroup"
 	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
-	"github.com/percona/pmm-managed/services/prometheus/internal"
 )
 
 // RegExp for valid scrape job name. Prometheus itself doesn't seem to impose any limits on it,
@@ -36,7 +38,7 @@ var (
 )
 
 // keep in sync with convertScrapeConfig
-func convertInternalScrapeConfig(cfg *internal.ScrapeConfig) *ScrapeConfig {
+func convertInternalScrapeConfig(cfg *config.ScrapeConfig) *ScrapeConfig {
 	var basicAuth *BasicAuth
 	if cfg.HTTPClientConfig.BasicAuth != nil {
 		basicAuth = &BasicAuth{
@@ -89,7 +91,7 @@ func convertInternalScrapeConfig(cfg *internal.ScrapeConfig) *ScrapeConfig {
 }
 
 // keep in sync with convertInternalScrapeConfig
-func convertScrapeConfig(cfg *ScrapeConfig) (*internal.ScrapeConfig, error) {
+func convertScrapeConfig(cfg *ScrapeConfig) (*config.ScrapeConfig, error) {
 	if len(cfg.JobName) < scrapeConfigJobNameMinLength || len(cfg.JobName) > scrapeConfigJobNameMaxLength || !scrapeConfigJobNameRE.MatchString(cfg.JobName) {
 		msg := "job_name: invalid format. Job name must be 2 to 60 characters long, characters long, contain only letters, numbers, and symbols '-', '_', and start with a letter."
 		return nil, status.Error(codes.InvalidArgument, msg)
@@ -110,17 +112,17 @@ func convertScrapeConfig(cfg *ScrapeConfig) (*internal.ScrapeConfig, error) {
 		}
 	}
 
-	var basicAuth *internal.BasicAuth
+	var basicAuth *config_url.BasicAuth
 	if cfg.BasicAuth != nil {
-		basicAuth = &internal.BasicAuth{
+		basicAuth = &config_url.BasicAuth{
 			Username: cfg.BasicAuth.Username,
 			Password: cfg.BasicAuth.Password,
 		}
 	}
 
-	tg := make([]*internal.TargetGroup, len(cfg.StaticConfigs))
+	tg := make([]*targetgroup.Group, len(cfg.StaticConfigs))
 	for i, sc := range cfg.StaticConfigs {
-		tg[i] = new(internal.TargetGroup)
+		tg[i] = new(targetgroup.Group)
 
 		for _, t := range sc.Targets {
 			ls := model.LabelSet{model.AddressLabel: model.LabelValue(t)}
@@ -140,28 +142,28 @@ func convertScrapeConfig(cfg *ScrapeConfig) (*internal.ScrapeConfig, error) {
 		tg[i].Labels = ls
 	}
 
-	relabelConfigs := make([]*internal.RelabelConfig, len(cfg.RelabelConfigs))
+	relabelConfigs := make([]*config.RelabelConfig, len(cfg.RelabelConfigs))
 	for i, rc := range cfg.RelabelConfigs {
-		relabelConfigs[i] = &internal.RelabelConfig{
+		relabelConfigs[i] = &config.RelabelConfig{
 			TargetLabel: rc.TargetLabel,
 			Replacement: rc.Replacement,
 		}
 	}
 
-	return &internal.ScrapeConfig{
+	return &config.ScrapeConfig{
 		JobName:        cfg.JobName,
 		ScrapeInterval: interval,
 		ScrapeTimeout:  timeout,
 		MetricsPath:    cfg.MetricsPath,
 		HonorLabels:    cfg.HonorLabels,
 		Scheme:         cfg.Scheme,
-		HTTPClientConfig: internal.HTTPClientConfig{
+		HTTPClientConfig: config_url.HTTPClientConfig{
 			BasicAuth: basicAuth,
-			TLSConfig: internal.TLSConfig{
+			TLSConfig: config_url.TLSConfig{
 				InsecureSkipVerify: cfg.TLSConfig.InsecureSkipVerify,
 			},
 		},
-		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
 			StaticConfigs: tg,
 		},
 		RelabelConfigs: relabelConfigs,
@@ -173,7 +175,7 @@ func convertScrapeConfig(cfg *ScrapeConfig) (*internal.ScrapeConfig, error) {
 // Input-output is done in Service.
 type configUpdater struct {
 	consulData []ScrapeConfig
-	fileData   []*internal.ScrapeConfig
+	fileData   []*config.ScrapeConfig
 }
 
 func (cu *configUpdater) addScrapeConfig(scrapeConfig *ScrapeConfig) error {

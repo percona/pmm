@@ -8,6 +8,29 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "github.com/Percona-Lab/promconfig"
+  packages = [
+    "common/config",
+    "config",
+    "discovery/azure",
+    "discovery/config",
+    "discovery/consul",
+    "discovery/dns",
+    "discovery/ec2",
+    "discovery/file",
+    "discovery/gce",
+    "discovery/kubernetes",
+    "discovery/marathon",
+    "discovery/openstack",
+    "discovery/targetgroup",
+    "discovery/triton",
+    "discovery/zookeeper",
+    "util/yaml"
+  ]
+  revision = "c318f5f07e0904391b8b58335fd4c12a7e0381a1"
+  version = "v2.2.1"
+
+[[projects]]
   name = "github.com/PuerkitoBio/purell"
   packages = ["."]
   revision = "0bcb03f4b4d0a9428594752bd2a3b9aa0a9d4bd4"
@@ -18,21 +41,6 @@
   name = "github.com/PuerkitoBio/urlesc"
   packages = ["."]
   revision = "de5bf2ad457846296e2031421a34e2568e304e35"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/alecthomas/template"
-  packages = [
-    ".",
-    "parse"
-  ]
-  revision = "a0175ee3bccc567396460bf5acd36800cb10c49c"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/alecthomas/units"
-  packages = ["."]
-  revision = "2efee857e7cfd4f3d0138cc3cbb1b4966962b93a"
 
 [[projects]]
   name = "github.com/asaskevich/govalidator"
@@ -220,12 +228,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/golang/snappy"
-  packages = ["."]
-  revision = "553a641470496b2327abcac10b36396bd98e45c9"
-
-[[projects]]
   name = "github.com/google/uuid"
   packages = ["."]
   revision = "064e2069ce9c359c118179501254f67d7d37ba24"
@@ -366,15 +368,6 @@
   revision = "00c29f56e2386353d58c599509e8dc3801b0d716"
 
 [[projects]]
-  name = "github.com/opentracing/opentracing-go"
-  packages = [
-    ".",
-    "log"
-  ]
-  revision = "1949ddbfd147afd4d964a9f00b24eb291e0e7c38"
-  version = "v1.0.2"
-
-[[projects]]
   name = "github.com/pelletier/go-toml"
   packages = ["."]
   revision = "acdc4509485b587f5e675510c4f2c63e90ff68a8"
@@ -428,9 +421,7 @@
   packages = [
     "expfmt",
     "internal/bitbucket.org/ww/goautoneg",
-    "log",
-    "model",
-    "version"
+    "model"
   ]
   revision = "38c53a9f4bfcd932d1b00bfc65e256a7fba6b37a"
 
@@ -444,28 +435,6 @@
     "xfs"
   ]
   revision = "780932d4fbbe0e69b84c34c20f5c8d0981e109ea"
-
-[[projects]]
-  name = "github.com/prometheus/prometheus"
-  packages = [
-    "cmd/promtool",
-    "config",
-    "promql",
-    "storage",
-    "storage/local",
-    "storage/local/chunk",
-    "storage/local/codable",
-    "storage/local/index",
-    "storage/metric",
-    "util/cli",
-    "util/flock",
-    "util/promlint",
-    "util/stats",
-    "util/strutil",
-    "util/testutil"
-  ]
-  revision = "5211b96d4d1291c3dd1a569f711d3b301b635ecb"
-  version = "v1.8.2"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -521,25 +490,6 @@
   ]
   revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
   version = "v1.2.1"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/syndtr/goleveldb"
-  packages = [
-    "leveldb",
-    "leveldb/cache",
-    "leveldb/comparer",
-    "leveldb/errors",
-    "leveldb/filter",
-    "leveldb/iterator",
-    "leveldb/journal",
-    "leveldb/memdb",
-    "leveldb/opt",
-    "leveldb/storage",
-    "leveldb/table",
-    "leveldb/util"
-  ]
-  revision = "169b1b37be738edb2813dab48c97a549bcf99bb5"
 
 [[projects]]
   name = "github.com/toqueteos/webbrowser"
@@ -672,12 +622,6 @@
   version = "v1.11.0"
 
 [[projects]]
-  name = "gopkg.in/alecthomas/kingpin.v2"
-  packages = ["."]
-  revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
-  version = "v2.2.6"
-
-[[projects]]
   branch = "v2"
   name = "gopkg.in/mgo.v2"
   packages = [
@@ -712,6 +656,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "37aecb1897e8d427ce4df32f035eb77582f193000a76d537fa0a06623fb90567"
+  inputs-digest = "91245a4d66969e3fe4d63e3ed5404773cf62d801da66a634c143fb56354b2045"
   solver-name = "gps-cdcl"
   solver-version = 1

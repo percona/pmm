@@ -4,7 +4,8 @@ all: test
 init:
 	go install -v ./vendor/gopkg.in/reform.v1/reform
 
-	go install -v ./vendor/github.com/prometheus/prometheus/cmd/promtool
+	# Do not fail if installation fails. https://jira.percona.com/browse/PMM-2182
+	-go get -u github.com/prometheus/prometheus/cmd/promtool
 
 	go install -v ./vendor/github.com/golang/protobuf/protoc-gen-go
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway

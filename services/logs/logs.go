@@ -60,6 +60,7 @@ var DefaultLogs = []Log{
 	{"/var/log/orchestrator.log", "orchestrator"},
 	{"/var/log/pmm-manage.log", "pmm-manage"},
 	{"/var/log/pmm-managed.log", "pmm-managed"},
+	{"/var/log/prometheus1.log", "prometheus1"},
 	{"/var/log/prometheus.log", "prometheus"},
 	{"/var/log/qan-api.log", "percona-qan-api"},
 	{"/var/log/supervisor/supervisord.log", ""},

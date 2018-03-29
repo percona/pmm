@@ -20,6 +20,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Percona-Lab/promconfig/config"
+	sd_config "github.com/Percona-Lab/promconfig/discovery/config"
+	"github.com/Percona-Lab/promconfig/discovery/targetgroup"
 	"github.com/prometheus/common/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -27,7 +30,6 @@ import (
 	"google.golang.org/grpc/status"
 	"gopkg.in/yaml.v2"
 
-	"github.com/percona/pmm-managed/services/prometheus/internal"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
@@ -48,17 +50,17 @@ func getConfigUpdater() *configUpdater {
 			Targets: []string{"1.2.3.4:12345"},
 		}},
 	}}
-	fileData := []*internal.ScrapeConfig{{
+	fileData := []*config.ScrapeConfig{{
 		JobName: "prometheus",
-		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-			StaticConfigs: []*internal.TargetGroup{{
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
 				Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
 			}},
 		},
 	}, {
 		JobName: "postgresql",
-		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-			StaticConfigs: []*internal.TargetGroup{{
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
 				Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
 			}},
 		},
@@ -89,24 +91,24 @@ func TestConfigUpdaterAddSetRemoveScrapeConfig(t *testing.T) {
 			Targets: []string{"5.6.7.8:12345"},
 		}},
 	}}, configUpdater.consulData)
-	assertYAMLEqual(t, []*internal.ScrapeConfig{{
+	assertYAMLEqual(t, []*config.ScrapeConfig{{
 		JobName: "prometheus",
-		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-			StaticConfigs: []*internal.TargetGroup{{
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
 				Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
 			}},
 		},
 	}, {
 		JobName: "postgresql",
-		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-			StaticConfigs: []*internal.TargetGroup{{
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
 				Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
 			}},
 		},
 	}, {
 		JobName: "AddSetRemoveScrapeConfig",
-		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-			StaticConfigs: []*internal.TargetGroup{{
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
 				Targets: []model.LabelSet{{"__address__": "5.6.7.8:12345"}},
 			}},
 		},
@@ -146,24 +148,24 @@ func TestConfigUpdaterAddSetRemoveScrapeConfig(t *testing.T) {
 			}},
 		}},
 	}}, configUpdater.consulData)
-	assertYAMLEqual(t, []*internal.ScrapeConfig{{
+	assertYAMLEqual(t, []*config.ScrapeConfig{{
 		JobName: "prometheus",
-		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-			StaticConfigs: []*internal.TargetGroup{{
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
 				Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
 			}},
 		},
 	}, {
 		JobName: "postgresql",
-		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-			StaticConfigs: []*internal.TargetGroup{{
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
 				Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
 			}},
 		},
 	}, {
 		JobName: "AddSetRemoveScrapeConfig",
-		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-			StaticConfigs: []*internal.TargetGroup{{
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
 				Targets: []model.LabelSet{{"__address__": "5.6.7.8:12345"}},
 				Labels:  model.LabelSet{"instance": "test_host"},
 			}},
@@ -187,17 +189,17 @@ func TestConfigUpdaterAddSetRemoveScrapeConfig(t *testing.T) {
 			Targets: []string{"1.2.3.4:12345"},
 		}},
 	}}, configUpdater.consulData)
-	assertYAMLEqual(t, []*internal.ScrapeConfig{{
+	assertYAMLEqual(t, []*config.ScrapeConfig{{
 		JobName: "prometheus",
-		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-			StaticConfigs: []*internal.TargetGroup{{
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
 				Targets: []model.LabelSet{{"__address__": "127.0.0.1:9090"}},
 			}},
 		},
 	}, {
 		JobName: "postgresql",
-		ServiceDiscoveryConfig: internal.ServiceDiscoveryConfig{
-			StaticConfigs: []*internal.TargetGroup{{
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
 				Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
 			}},
 		},
