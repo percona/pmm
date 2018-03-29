@@ -4,19 +4,36 @@
 Using the Percona Monitoring and Management Platform
 ================================================================================
 
-You can access the PMM web interface using the IP address of the host
-where |pmm-server| is running.
-For example, if |pmm-server| is running on a host with IP 192.168.100.1,
-access the following address with your web browser: ``http://192.168.100.1``.
+You can access the PMM web interface using the IP address of the host where
+|pmm-server| is running.  For example, if |pmm-server| is running on a host with
+IP 192.168.100.1, access the following address with your web browser:
+``http://192.168.100.1``.
 
-The landing page has links to corresponding PMM tools:
+.. seealso::
+
+   Installing |pmm-server|
+      :ref:`deploy-pmm.server.installing`
+
+The |pmm| home page that opens provides an overview of the environment that you
+have set up to monitor. From this page you can access specific monitoring tools,
+or dashboards. Each dashboard features a collection of metrics. These are graphs
+of a certain type that represent one specific aspect showing how metric values
+change over time.
+
+.. figure:: .res/graphics/png/pmm.home-page.png
+
+   The home page is an overview of your system
+
+By default the home page lists most recently used dashboards and helpful links
+to the information that may be useful to understand |pmm| better.
+
+The home page lists all hosts that you have set up for monitoring as well as the
+essential details about their performance such as CPU load, disk performance, or
+network activity.
 
 .. contents::
    :local:
    :depth: 1
-
-These tools, implemented as |grafana| dashboards, provide
-comprehensive information about the performance of monitored hosts.
 
 .. _using-qan:
 
@@ -32,11 +49,13 @@ get detailed metrics for them.
 
 .. figure:: .res/graphics/png/query-analytics.png
 	    
-   |qan| *helps analyze database queries over periods of time and find performance
-   problems.*
+   |qan| helps analyze database queries over periods of time and find performance
+   problems.
 
 |qan| displays its metrics in both visual and numeric form: the performance
 related characteristics appear as plotted graphics with summaries.
+
+.. _using.qan.home-page.open:
 
 Open |qan| from the |pmm| Home Page
 --------------------------------------------------------------------------------
@@ -59,8 +78,10 @@ the query summary table.
 
 .. figure:: .res/graphics/png/pmm.qan.query-summary-table.default.1.png
 
-   *The query summary table shows the monitored queries from the selected
-   database.*
+   The query summary table shows the monitored queries from the selected
+   database.
+
+.. _using.qan.query.filtering:
 
 Filtering Queries
 --------------------------------------------------------------------------------
@@ -90,22 +111,26 @@ range.
 
 .. figure:: .res/graphics/png/pmm.qan.query-summary-table.1.png
 
-   *A list of queries*
+   A list of queries
+
+.. _using.qan.time-date-range.selecting:
 
 Selecting Time or Date Range
 --------------------------------------------------------------------------------
 
 The query metrics that appear in *QAN* are computed based on a time period or a
 range of dates. The default value is *the last hour*. To set another range use
-the *range selection tool* located at the top of your *QAN* page.
+the *range selection tool* located at the top of your |qan| page.
 
 .. figure:: .res/graphics/png/pmm.qan.range-selection.1.png
 
    |qan| displays query metrics for the time period or date range that you
-   specify.*
+   specify.
 
 The tool consists of two parts. The *Quick ranges* offers frequently used time
 ranges.. The date picker sets a range of dates.
+
+.. _using.qan.query-summary.total:
 
 Totals of the Query Summary
 --------------------------------------------------------------------------------
@@ -116,7 +141,7 @@ during the time period that you've specified.
 
 .. figure:: .res/graphics/png/pmm.qan.query-summary-table.totals.1.png
 	   
-   *The totals appear at the top of the query summary table.*
+   The totals appear at the top of the query summary table.
 
 The *load* is the amount of time that the database server spent during the
 selected time or date range running all queries.
@@ -126,6 +151,8 @@ time or date range.
 
 The *latency* is the average amount of time that it took the database server to
 retrieve and return the data.
+
+.. _using.qan.query-summary-table.query:
 
 Queries in the Query Summary Table
 --------------------------------------------------------------------------------
@@ -142,6 +169,8 @@ form. The summary values have two parts. The average value of the metric and its
 percentage with respect to the corresponding total value at the top of the query
 summary table.
 
+.. _using.qan.metric.value.viewing:
+
 Viewing a Specific Value of a Metric
 --------------------------------------------------------------------------------
 
@@ -152,6 +181,8 @@ the plotted line to watch how the value is changing.
 .. figure:: .res/graphics/png/pmm.qan.query-summary-table.1.png
 
    *Hover the cursor to see a value at the point.*
+
+.. _using.qan.query.zooming:
 
 Zooming into a Query
 --------------------------------------------------------------------------------
@@ -164,7 +195,9 @@ in the query.
 
 .. figure:: .res/graphics/png/pmm.qan.query-metrics.1.png
 
-   *Select a query from the query summary table to open its metrics.*
+   Select a query from the query summary table to open its metrics.
+
+.. _using.qan.query.selecting:
 
 Query Section
 --------------------------------------------------------------------------------
@@ -176,7 +209,9 @@ the query.
 
 .. figure:: .res/graphics/png/pmm.qan.query.1.png
 
-   *The Query section shows the SQL statement for the selected query.*
+   The Query section shows the SQL statement for the selected query.
+
+.. _using.qan.explain-section:
 
 Explain Section
 --------------------------------------------------------------------------------
@@ -192,9 +227,7 @@ format presents the output of |sql.explain| as a |json| document.
 
 .. figure:: .res/graphics/png/pmm.qan.explain.1.png
 
-   *The two output formats of the*
-   |sql.explain|
-   *command.*
+   The two output formats of the |sql.explain| command.
 
 Note that the |sql.explain| command only works with the following statements:
 
@@ -207,6 +240,8 @@ Note that the |sql.explain| command only works with the following statements:
 If you are viewing the details of a query of another type, the
 ``Explain`` section will not contain any data.
 
+.. _using.qan.table-info-section:
+
 Table Info Section
 --------------------------------------------------------------------------------
 
@@ -217,6 +252,8 @@ web interface.
 
 .. image:: .res/graphics/png/qan-create-table.png
 
+.. _using.qan.configuring:
+
 Configuring Query Analytics
 --------------------------------------------------------------------------------
 
@@ -224,6 +261,8 @@ The :guilabel:`Settings` button opens a separate page with settings,
 status, and log for the selected database instance.
 
 .. SCREENSHOT: Settings button
+
+.. _using.qan.configuring.settings-tab:
 
 .. rubric:: |gui.settings| Tab
 
@@ -241,9 +280,8 @@ the value of the |gui.collect-from| field accordingly.
 
 .. figure:: .res/graphics/png/pmm.qan.settings.1.png
 	   
-   *The*
-   |gui.settings|
-   *tab to view the essential settings of the selected database server.*
+   The |gui.settings| tab to view the essential settings of the selected
+   database server.
 
 .. rubric:: |gui.status| Tab
 
@@ -258,6 +296,8 @@ The |gui.log| tab contains the latest version of the monitored log, such
 as |slow-log|. At the top of this tab, you may notice when exactly the snapshot
 was taken.
 
+.. _using.database-server-summary.viewing:
+
 Viewing Database and Server Summary Information
 --------------------------------------------------------------------------------
 
@@ -270,7 +310,7 @@ The |gui.system-summary| section contains details about the platform while the
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.system-summary.png
 
-   *Accessing information about the system and database*
+   Accessing information about the system and database
    
 You can download the current values on this dashboard locally if you click the
 |gui.download-summary| button.
@@ -334,6 +374,8 @@ For more information, run
 |opt.mysql|
 |opt.help|.
 
+.. _using.qan.mongodb:
+
 |qan| for |mongodb|
 --------------------------------------------------------------------------------
 
@@ -346,9 +388,7 @@ complex object is stored together.
 
 .. figure:: .res/graphics/png/pmm.qan.query-summary-table.mongodb.1.png
 
-   *A list of queries from a*
-   |mongodb|
-   *host*
+   A list of queries from a |mongodb| host
 
 |qan| supports monitoring |mongodb| queries. Although |mongodb| is not a relational
 database management system, you analyze its databases and collections in the
@@ -362,9 +402,8 @@ reading and writing data in the collections of your |mongodb| databases.
 
 .. figure:: .res/graphics/png/pmm.qan.query-metrics.mongodb.1.png
 
-   *Analyze*
-   |mongodb|
-   *queries using the same tools as relational database management systems.*
+   Analyze |mongodb| queries using the same tools as relational database
+   management systems.
 
 .. _using-mm:
 
@@ -375,6 +414,48 @@ The |metrics-monitor| tool provides a historical view of metrics that are
 critical to a database server.  Time-based graphs are separated into dashboards
 by themes: some are related to |mysql| or |mongodb|, others provide general
 system metrics.
+
+The default |pmm| installation provides more than thirty
+dashboards. To make it easier to reach a specific dashboard, the
+system offers two tools. The |gui.dashboard-dropdown| is a button in
+the header of any |pmm| page. It lists all dashboards
+alphabetically. To locate the required dashboard quickly, start typing
+its name in the provided text box.
+
+.. figure:: .res/graphics/png/metrics-monitor.dashboard-dropdown.png
+
+   With |gui.dashboard-dropdown|, search the alphabetical list for any
+   dashboard.
+
+You can also use a navigation menu which groups dashboards by
+application. Click the required group and then select the dashboard
+that matches your choice.
+
+.. table:: Navigation menu groups
+
+   =============  ==============================================================
+   Group          Dashboards for monitoring ...
+   =============  ==============================================================   
+   |qan.name|     |qan| component (see :ref:`using-qan`
+   OS             The operating system status
+   |mysql|        |mysql| and |amazon-aurora|
+   |mongodb|      State of |mongodb| hosts
+   HA             High availability
+   Cloud          |amazon-rds| and |amazon-aurora|
+   Insight        Summary, cross-server and |prometheus|
+   |pmm|          Server settings
+   =============  ==============================================================
+
+.. figure:: .res/graphics/png/metrics-monitor.menu.png
+
+   |mysql| group selected in the navigation menu
+
+.. seealso::
+
+   |percona| support for high availability
+      https://www.percona.com/services/support/mysql-ha-cluster-support
+   List of |metrics-monitor| dashboards
+      See section :ref:`mm-dashboards`
 
 When you open |metrics-monitor| for the first time, it loads the
 |cross-server-graphs| dashboard.  The credentials used to sign in to |grafana|
@@ -422,8 +503,37 @@ button the description disappears.
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.description.1.png
 
-   *Graph descriptions provide more information about a graph without claiming
-   any space in the interface.*
+   Graph descriptions provide more information about a graph without claiming
+   any space in the interface.
+
+.. _using.dashboard.enabling:
+
+Enabling dashboards
+--------------------------------------------------------------------------------
+
+In |pmm|, you can disable the dashboards that you do not require. They will
+disappear from the |gui.dashboard-dropdown| list. You can enable them back again
+
+.. _using.dashboard.snapshot.creating:
+
+Creating snapshots
+--------------------------------------------------------------------------------
+
+When communicating with |percona| support it is useful to provide a
+snapshot of the dashboard that you are having problems with. |pmm|
+enables creating snaptshots of the selected dashboard and making them
+available to |percona| automatically.
+
+First, open the snapshot that you would like to share. Click the
+|gui.share| button at the top of the page and select the
+|gui.snapshot| command. Finally, click the
+|gui.share-with-percona-team| button.
+
+.. figure:: .res/graphics/png/pmm.metrics-monitor.share.snapshot.png
+
+   The |gui.snapshot| tab in the |gui.share| dialog window.
+
+.. _using.dashboard.mysql-myrocks-metrics:
 
 |mysql-myrocks-metrics| Dashboard
 --------------------------------------------------------------------------------
@@ -441,14 +551,12 @@ drives.
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.mysql-myrocks-metrics.1.png
 	    
-   *The*
-   |mysql|
-   |myrocks|
-   *metrics dashboard*
+   The |mysql| |myrocks| metrics dashboard
 
 .. seealso::
 
-   `Information schema <https://github.com/facebook/mysql-5.6/wiki/MyRocks-Information-Schema>`_
+   Information schema
+      https://github.com/facebook/mysql-5.6/wiki/MyRocks-Information-Schema
 
 .. _pmm/using.orchestrator:
 

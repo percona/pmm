@@ -6,7 +6,7 @@ Managing |pmm-client|
 
 Use the |pmm-admin| tool to manage |pmm-client|.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 .. code-block:: text
 
@@ -25,7 +25,7 @@ run |pmm-admin| without any commands or options:
 
 .. _pmm-admin.options:
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following options can be used with any command:
 
@@ -44,7 +44,7 @@ The following options can be used with any command:
 
 .. _pmm-admin.commands:
 
-.. rubric:: **COMMANDS**
+.. rubric:: COMMANDS
 
 |pmm-admin.add|_
   Add a monitoring service.
@@ -98,7 +98,7 @@ Adding monitoring services
 
 Use the |pmm-admin.add| command to add monitoring services.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 .. code-block:: text
 
@@ -150,7 +150,7 @@ task, you need to remove all SSL related options.
 
 .. _pmm-admin.add-options:
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following option can be used with the |pmm-admin.add| command:
 
@@ -164,7 +164,7 @@ The following option can be used with the |pmm-admin.add| command:
 You can also use
 :ref:`global options that apply to any other command <pmm-admin.options>`.
 
-.. rubric:: **SERVICES**
+.. rubric:: SERVICES
 
 Specify a :ref:`monitoring service alias <pmm-admin.service-aliases>`,
 along with any relevant additional arguments.
@@ -179,23 +179,36 @@ For more information, run
 Adding external monitoring services
 --------------------------------------------------------------------------------
 
-The |pmm-admin.add| command is also used to add external :term:`monitoring
-services <External Monitoring Service>`. This command adds an external
-monitoring service assuming that the underlying |prometheus| exporter is
-already set up and accessible.
+The |pmm-admin.add| command is also used to add external
+:term:`monitoring services <External Monitoring Service>`. This
+command adds an external monitoring service assuming that the
+underlying |prometheus| exporter is already set up and accessible. The
+default scrape timeout is 10 seconds, and the interval equals to 1
+minute.
 
-To add an external monitoring service use the |opt.external-metrics| service
-followed by the name of a |prometheus| job, URL and port number to reach it.
+To add an external monitoring service use the |opt.external-service|
+monitoring service followed by the port number, name of a |prometheus|
+job. These options are required. To specify the port number the
+|opt.service-port| option. 
 
 .. include:: .res/code/sh.org
-   :start-after: +pmm-admin.add.external-metrics.job-name.url.port-number+
+   :start-after: +pmm-admin.add.external-service.service-port.postgresql+
    :end-before: #+end-block
 
-
-The following example adds an external monitoring service which
-monitors a |postgresql| instance at 192.168.200.1, port 9187. If the
-command succeeds then running :ref:`pmm-admin.list` shows the newly
-added external exporter at the bottom of the command's output:
+By default, the |pmm-admin.add| command automatically creates the name
+of the host to be displayed in the |gui.host| field of the
+|advanced-data-exploration| dashboard where the metrics of the newly
+added external monitoring service will be displayed. This name matches
+the name of the host where |pmm-admin| is installed. You may choose
+another display name when adding the |opt.external-service| monitoring
+service giving it explicitly after the |prometheus| exporter name.
+		
+You may also use the |opt.external-metrics| monitoring service. When using this
+option, you refer to the exporter by using a URL and a port number. The
+following example adds an external monitoring service which monitors a
+|postgresql| instance at 192.168.200.1, port 9187. After the command completes,
+the :ref:`pmm-admin.list` command shows the newly added external exporter at the
+bottom of the command's output:
 
 |tip.run-this.root|
 
@@ -203,6 +216,13 @@ added external exporter at the bottom of the command's output:
    :start-after: +pmm-admin.add.external-metrics.postresql+
    :end-before: #+end-block
 
+
+
+.. seealso::
+
+   Using the external monitoring service to add |postgres| running on an |amazon-rds| instance
+      See :ref:`use-case.external-monitoring-service.postgresql.rds`
+		
 .. _pmm.pmm-admin.monitoring-service.pass-parameter:
 
 Passing options to the exporter
@@ -228,7 +248,7 @@ monitoring services uses. Each exporter has its own set of options.
 
    $ pmm-admin add mysql:metrics -- --collect.perf_schema.eventswaits=false
 
-The section :ref:`pmm/list.exporter-option` contains all option
+The section :ref:`pmm/list.exporter` contains all option
 grouped by exporters.
    
 .. _pmm.pmm-admin.mongodb.pass-ssl-parameter:
@@ -236,7 +256,7 @@ grouped by exporters.
 Passing SSL parameters to the mongodb monitoring service
 --------------------------------------------------------------------------------
 
-SSL/TLS related parameters are passed to an SSL enabled MongoDB server as
+SSL/TLS related parameters are passed to an SSL enabled |mongodb| server as
 monitoring service parameters along with the |pmm-admin.add| command when adding
 the |opt.mongodb-metrics| monitoring service.
 
@@ -278,7 +298,7 @@ Adding general system metrics service
 
 Use the |opt.linux-metrics| alias to enable general system metrics monitoring.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.add.linux-metrics+
@@ -290,7 +310,7 @@ that collects local system metrics for this particular OS instance.
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following option can be used with the ``linux:metrics`` alias:
 
@@ -322,7 +342,7 @@ Adding |mysql| query analytics service
 
 Use the |opt.mysql-queries| alias to enable |mysql| query analytics.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.add.mysql-queries+
@@ -334,7 +354,7 @@ that is able to collect |qan| data for multiple remote |mysql| server instances.
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following options can be used with the |opt.mysql-queries| alias:
 
@@ -388,7 +408,7 @@ as well as
    Default ports
       :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
 
-.. rubric:: **DETAILED DESCRIPTION**
+.. rubric:: DETAILED DESCRIPTION
 
 When adding the |mysql| query analytics service, the |pmm-admin| tool
 will attempt to automatically detect the local |mysql| instance and
@@ -427,7 +447,7 @@ Adding |mysql| metrics service
 
 Use the |opt.mysql-metrics| alias to enable |mysql| metrics monitoring.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-adin.add.mysql-metrics+
@@ -439,7 +459,7 @@ that collects |mysql| instance metrics.
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following options can be used with the |opt.mysql-metrics| alias:
 
@@ -500,7 +520,7 @@ as well as
    Default ports
       :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
 
-.. rubric:: **DETAILED DESCRIPTION**
+.. rubric:: DETAILED DESCRIPTION
 
 When adding the |mysql| metrics monitoring service, the |pmm-admin| tool
 attempts to automatically detect the local |mysql| instance and |mysql|
@@ -531,7 +551,7 @@ Adding |mongodb| query analytics service
 
 Use the |opt.mongodb-queries| alias to enable |mongodb| query analytics.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.add.mongodb-queries+
@@ -543,7 +563,7 @@ that is able to collect |qan| data for multiple remote |mongodb| server instance
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following options can be used with the |opt.mongodb-queries| alias:
 
@@ -576,19 +596,19 @@ Adding |mongodb| metrics service
 
 Use the |opt.mongodb-metrics| alias to enable MongoDB metrics monitoring.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.add.mongodb-metrics+
    :end-before: #+end-block
 
 This creates the ``pmm-mongodb-metrics-42003`` service
-that collects local MongoDB metrics for this particular MongoDB instance.
+that collects local |mongodb| metrics for this particular |mongodb| instance.
 
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following options can be used with the |opt.mongodb-metrics| alias:
 
@@ -618,6 +638,9 @@ For more information, run
 
    Default ports
       :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+   Essential |mongodb| configuration 
+      :ref:`pmm/qan/mongodb/conf`
+   
 
 .. _pmm-admin.add-proxysql-metrics:
 
@@ -627,19 +650,19 @@ Adding |proxysql| metrics service
 Use the |opt.proxysql-metrics| alias
 to enable |proxysql| performance metrics monitoring.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.add.proxysql-metrics+
    :end-before: #+end-block
 
 This creates the ``pmm-proxysql-metrics-42004`` service
-that collects local ProxySQL performance metrics.
+that collects local |proxysql| performance metrics.
 
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following option can be used with the |opt.proxysql-metrics| alias:
 
@@ -672,7 +695,7 @@ Checking network connectivity
 Use the |pmm-admin.check-network| command to run tests
 that verify connectivity between |pmm-client| and |pmm-server|.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -680,13 +703,13 @@ that verify connectivity between |pmm-client| and |pmm-server|.
    :start-after: +pmm-admin.check-network.options+
    :end-before: #+end-block
 		
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The |pmm-admin.check-network| command does not have its own options,
 but you can use :ref:`global options that apply to any other command
 <pmm-admin.options>`
 
-.. rubric:: **DETAILED DESCRIPTION**
+.. rubric:: DETAILED DESCRIPTION
 
 Connection tests are performed both ways,
 with results separated accordingly:
@@ -713,7 +736,7 @@ with results separated accordingly:
   make sure that firewall settings on the |pmm-client| host
   allow incoming connections for corresponding ports.
 
-.. rubric:: **OUTPUT EXAMPLE**
+.. rubric:: OUTPUT EXAMPLE
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.check-network.+output+
@@ -731,7 +754,7 @@ Configuring PMM Client
 Use the |pmm-admin.config| command to configure
 how |pmm-client| communicates with |pmm-server|.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|.
 
@@ -739,7 +762,7 @@ how |pmm-client| communicates with |pmm-server|.
    :start-after: +pmm-admin.config.options+
    :end-before: #+end-block
 		
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following options can be used with the |pmm-admin.config| command:
 
@@ -795,7 +818,7 @@ Getting help for any command
 
 Use the |pmm-admin.help| command to print help for any command.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -809,7 +832,7 @@ and options are ignored.
 .. note:: You can also use the global |opt.h| or |opt.help| option after any
    command to get the same help information.
 
-.. rubric:: **COMMANDS**
+.. rubric:: COMMANDS
 
 You can print help information for any :ref:`command <pmm-admin.commands>`
 or :ref:`service alias <pmm-admin.service-aliases>`.
@@ -822,7 +845,7 @@ Getting information about PMM Client
 Use the |pmm-admin.info| command
 to print basic information about |pmm-client|.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -830,13 +853,13 @@ to print basic information about |pmm-client|.
    :start-after: +pmm-admin.info.options+
    :end-before: #+end-block
 		
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The |pmm-admin.info| command does not have its own options,
 but you can use :ref:`global options that apply to any other command
 <pmm-admin.options>`
 
-.. rubric:: **OUTPUT**
+.. rubric:: OUTPUT
 
 The output provides the following information:
 
@@ -863,7 +886,7 @@ Listing monitoring services
 
 Use the |pmm-admin.list| command to list all enabled services with details.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -871,7 +894,7 @@ Use the |pmm-admin.list| command to list all enabled services with details.
    :start-after: +pmm-admin.list.options+
    :end-before: #+end-block
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The |pmm-admin.list| command supports :ref:`global options that apply to any other command
 <pmm-admin.options>` and also provides a machine friendly |json| output.
@@ -905,7 +928,7 @@ The |pmm-admin.list| command supports :ref:`global options that apply to any oth
    enabled external monitoring services. Each attribute in a document maps to
    the column in the tabular output.
 
-.. rubric:: **OUTPUT**
+.. rubric:: OUTPUT
 
 The output provides the following information:
 
@@ -932,7 +955,7 @@ Pinging |pmm-server|
 
 Use the |pmm-admin.ping| command to verify connectivity with |pmm-server|.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -946,7 +969,7 @@ If the ping is successful, it returns ``OK``.
    :start-after: +pmm-admin.ping+
    :end-before: #+end-block
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The |pmm-admin.ping| command does not have its own options,
 but you can use :ref:`global options that apply to any other command
@@ -966,7 +989,7 @@ associated with a service on |pmm-server|.
 This is usually required after you :ref:`remove a service <pmm-admin.rm>`
 and do not want its metrics data to show up on graphs.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -977,12 +1000,12 @@ and do not want its metrics data to show up on graphs.
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
 
-.. rubric:: **SERVICES**
+.. rubric:: SERVICES
 
 Specify a :ref:`monitoring service alias <pmm-admin.service-aliases>`.
 To see which services are enabled, run |pmm-admin.list|_.
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The |pmm-admin.purge| command does not have its own options,
 but you can use :ref:`global options that apply to any other command
@@ -1000,7 +1023,7 @@ Removing monitoring services
 
 Use the |pmm-admin.rm| command to remove monitoring services.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -1012,7 +1035,7 @@ When you remove a service,
 collected data remains in |metrics-monitor| on |pmm-server|.
 To remove the collected data, use the |pmm-admin.purge|_ command.
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following option can be used with the |pmm-admin.rm| command:
 
@@ -1023,12 +1046,12 @@ You can also use
 :ref:`global options that apply to any other command
 <pmm-admin.options>`.
 
-.. rubric:: **SERVICES**
+.. rubric:: SERVICES
 
 Specify a :ref:`monitoring service alias <pmm-admin.service-aliases>`.
 To see which services are enabled, run |pmm-admin.list|_.
 
-.. rubric:: **EXAMPLES**
+.. rubric:: EXAMPLES
 
 * To remove all services enabled for this |pmm-client|:
 
@@ -1061,7 +1084,7 @@ This can happen if you removed services locally
 while |pmm-server| was not available (disconnected or shut down),
 for example, using the |pmm-admin.uninstall|_ command.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -1069,7 +1092,7 @@ for example, using the |pmm-admin.uninstall|_ command.
    :start-after: +pmm-admin.repair.options+
    :end-before: #+end-block
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The |pmm-admin.repair| command does not have its own options,
 but you can use :ref:`global options that apply to any other command
@@ -1086,7 +1109,7 @@ Use the |pmm-admin.restart| command to restart services
 managed by this |pmm-client|.
 This is the same as running |pmm-admin.stop|_ and |pmm-admin.start|_.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -1097,7 +1120,7 @@ This is the same as running |pmm-admin.stop|_ and |pmm-admin.start|_.
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following option can be used with the |pmm-admin.restart| command:
 
@@ -1108,13 +1131,13 @@ You can also use
 :ref:`global options that apply to any other command
 <pmm-admin.options>`.
 
-.. rubric:: **SERVICES**
+.. rubric:: SERVICES
 
 Specify a :ref:`monitoring service alias <pmm-admin.service-aliases>`
 that you want to restart.
 To see which services are available, run |pmm-admin.list|_.
 
-.. rubric:: **EXAMPLES**
+.. rubric:: EXAMPLES
 
 * To restart all available services for this |pmm-client|:
 
@@ -1144,7 +1167,7 @@ Getting passwords used by PMM Client
 Use the |pmm-admin.show-passwords| command to print credentials stored in the
 configuration file (by default: :file:`/usr/local/percona/pmm-client/pmm.yml`).
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -1152,13 +1175,13 @@ configuration file (by default: :file:`/usr/local/percona/pmm-client/pmm.yml`).
    :start-after: +pmm-admin.show-passwords.options+
    :end-before: #+end-block
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The |pmm-admin.show-passwords| command does not have its own options, but you
 can use :ref:`global options that apply to any other command
 <pmm-admin.options>`
 
-.. rubric:: **OUTPUT**
+.. rubric:: OUTPUT
 
 This command prints HTTP authentication credentials and the password for the
 ``pmm`` user that is created on the |mysql| instance if you specify the
@@ -1178,7 +1201,7 @@ Starting monitoring services
 Use the |pmm-admin.start| command to start services managed by this
 |pmm-client|.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -1189,7 +1212,7 @@ Use the |pmm-admin.start| command to start services managed by this
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following option can be used with the |pmm-admin.start| command:
 
@@ -1200,13 +1223,13 @@ You can also use
 :ref:`global options that apply to any other command
 <pmm-admin.options>`.
 
-.. rubric:: **SERVICES**
+.. rubric:: SERVICES
 
 Specify a :ref:`monitoring service alias <pmm-admin.service-aliases>`
 that you want to start.
 To see which services are available, run |pmm-admin.list|_.
 
-.. rubric:: **EXAMPLES**
+.. rubric:: EXAMPLES
 
 * To start all available services for this |pmm-client|:
 
@@ -1238,7 +1261,7 @@ Stopping monitoring services
 Use the |pmm-admin.stop| command to stop services
 managed by this |pmm-client|.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -1249,7 +1272,7 @@ managed by this |pmm-client|.
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The following option can be used with the |pmm-admin.stop| command:
 
@@ -1260,13 +1283,13 @@ You can also use
 :ref:`global options that apply to any other command
 <pmm-admin.options>`.
 
-.. rubric:: **SERVICES**
+.. rubric:: SERVICES
 
 Specify a :ref:`monitoring service alias <pmm-admin.service-aliases>`
 that you want to stop.
 To see which services are available, run |pmm-admin.list|_.
 
-.. rubric:: **EXAMPLES**
+.. rubric:: EXAMPLES
 
 * To stop all available services for this |pmm-client|:
 
@@ -1308,7 +1331,7 @@ down), |pmm-admin.rm|_ will not work.  In this case, you can use
    services from |pmm-server|, once it is back up and available to |pmm-client|,
    use the |pmm-admin.repair|_ command.
 
-.. rubric:: **USAGE**
+.. rubric:: USAGE
 
 |tip.run-this.root|
 
@@ -1316,7 +1339,7 @@ down), |pmm-admin.rm|_ will not work.  In this case, you can use
    :start-after: +pmm-admin.uninstall.options+
    :end-before: #+end-block
 
-.. rubric:: **OPTIONS**
+.. rubric:: OPTIONS
 
 The |pmm-admin.uninstall| command does not have its own options, but you can use
 :ref:`global options that apply to any other command <pmm-admin.options>`.
@@ -1337,7 +1360,9 @@ The following aliases are used to designate PMM services that you want to
 
 .. include:: .res/table/list-table.org
    :start-after: +alias.services+
-   :end-before: #+end-table
+   :end-before: #+end-block
+
+
 
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/option.txt

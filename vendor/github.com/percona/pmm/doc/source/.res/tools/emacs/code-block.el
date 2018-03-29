@@ -14,7 +14,6 @@
 ;;;   1. White space characters are replaced with the dot (.) character.
 ;;;   2. The whole string is surrounded by the id limit marks.
 
-
 ;;; CONSTANTS
 
 (defconst pmm-code-block ".. include:: .res/code/sh.org
@@ -26,6 +25,9 @@
   "The symbol which separates tokens in the code block ID")
 (defconst pmm-sig-sep-mark " "
   "The symbol which separates tokens in the code block signature")
+
+
+
 
 
 ;;; PRIVATE FUNCTIONS
@@ -54,7 +56,11 @@ This function expects that a valid code block signature is supplied.
   (insert (format pmm-code-block (pmm-make-code-block-id code-block-sig))))
 
 (defun pmm-insert-code-block-id (code-block-sig)
-    "Inserts the code block ID at the point by transforming the
-supplied code block signature."
+    "Inserts the code block ID at the point by transforming the supplied code block signature."
     (interactive "sCode block signature: ")
     (insert (pmm-make-code-block-id code-block-sig)))
+
+;; inserting fragments of text possibly decorated with RST syntax
+
+
+

@@ -22,34 +22,35 @@ use the `PMM project in JIRA <https://jira.percona.com/projects/PMM>`_.
 What are the minimum system requirements for PMM?
 ================================================================================
 
-* |pmm-server|
+.. rubric:: |pmm-server|
 
-  Any system which can run Docker version 1.12.6 or later.
+Any system which can run Docker version 1.12.6 or later.
 
-  It needs roughly 1 GB of storage for each monitored database node
-  with data retention set to one week.
+It needs roughly 1 GB of storage for each monitored database node
+with data retention set to one week.
 
-  .. note:: By default, :ref:`retention <data-retention>`
-     is set to 30 days for Metrics Monitor
-     and to 8 days for Query Analytics.
-     Also consider :ref:`disabling table statistics <performance-issues>`,
-     which can greatly decrease Prometheus database size.
+.. note::
 
-  Minimum memory is 2 GB for one monitored database node,
-  but it is not linear when you add more nodes.
-  For example, data from 20 nodes should be easily handled with 16 GB.
+   By default, :ref:`retention <data-retention>` is set to 30 days for
+   Metrics Monitor and to 8 days for Query Analytics.  Also consider
+   :ref:`disabling table statistics <performance-issues>`, which can
+   greatly decrease Prometheus database size.
 
-* |pmm-client|
+Minimum memory is 2 GB for one monitored database node, but it is not
+linear when you add more nodes.  For example, data from 20 nodes
+should be easily handled with 16 GB.
 
-  Any modern 64-bit Linux distribution.
-  It is tested on the latest versions of
-  Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux.
+.. rubric:: |pmm-client|
 
-  Minimum 100 MB of storage is required for installing the |pmm-client| package.
-  With good constant connection to |pmm-server|, additional storage is not
-  required.  However, the client needs to store any collected data that it is
-  not able to send over immediately, so additional storage may be required if
-  connection is unstable or throughput is too low.
+Any modern 64-bit Linux distribution. It is tested on the latest
+versions of Debian, Ubuntu, CentOS, and Red Hat Enterprise Linux.
+
+Minimum 100 MB of storage is required for installing the |pmm-client|
+package.  With good constant connection to |pmm-server|, additional
+storage is not required.  However, the client needs to store any
+collected data that it is not able to send over immediately, so
+additional storage may be required if connection is unstable or
+throughput is too low.
 
 .. _metrics_memory:
 
@@ -252,7 +253,7 @@ yourself, the following privileges are required:
 .. code-block:: sql
 
    GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
-   GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@' localhost';
+   GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'localhost';
 
 If the ``pmm`` user already exists,
 simply pass its credential when you add the instance:
@@ -372,7 +373,7 @@ For example, to set the minimum resolution to 3 seconds:
 
 .. note:: Consider increasing minimum resolution
    when |pmm-server| and |pmm-client| are on different networks,
-   or when :ref:`amazon-rds`.
+   or when :ref:`pmm.amazon-rds`.
 
 Why do I get ``Failed ReadTopologyInstance`` error when adding MySQL host to Orchestrator?
 ==========================================================================================
@@ -380,6 +381,42 @@ Why do I get ``Failed ReadTopologyInstance`` error when adding MySQL host to Orc
 You need to create Orchestrator's topology user on |mysql|
 according to :ref:`this section <pmm/using.orchestrator>`.
 
+.. _pmm/deploying/server/virtual-appliance/root-password/set:
+
+How to set the root password when |pmm-server| is installed as a virtual appliance
+====================================================================================================
+
+With your virtual appliance set up, you need to set the root password for your
+|pmm-server|. By default, the virtual machine is configured to enforce changing
+the default password upon the first login.
+
+.. figure:: .res/graphics/png/command-line.login.1.png
+
+   Set the root password when logging in.
+
+Run your virtual machine and when requested to log in, use the following
+credentials:
+
+:User: root
+:Password: percona
+
+The system immediately requests that you change your password. Note that, for
+the sake of security, your password must not be trivial and pass at least the
+dictionary check. If you do not provide your password within sixty seconds you
+are automatically logged out. In this case use the default credentials to log in
+again.
+
+.. figure:: .res/graphics/png/command-line.login.3.png
+
+   Set a new password and have full access to your system
+
+After the new password is set you control this system as a superuser and
+can make whaterver changes required.
+
+.. important::
+
+   You cannot access the root account if you access |pmm-server| using
+   SSH or via the Web interface.
 
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/option.txt

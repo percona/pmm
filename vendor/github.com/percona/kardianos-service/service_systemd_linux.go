@@ -79,9 +79,9 @@ func (s *systemd) Install() error {
 
 	var to = &struct {
 		*Config
-		Path string
+		Path         string
 		ReloadSignal string
-		PIDFile string
+		PIDFile      string
 	}{
 		s.Config,
 		path,
@@ -170,7 +170,7 @@ StartLimitInterval=5
 StartLimitBurst=10
 ExecStart=/bin/sh -c '{{.Path|cmdEscape}}{{range .Arguments}} {{.}}{{end}} >> /var/log/{{.Name}}.log 2>&1'
 {{if .ChRoot}}RootDirectory={{.ChRoot|cmd}}{{end}}
-{{if .WorkingDirectory}}WorkingDirectory={{.WorkingDirectory|cmd}}{{end}}
+{{if .WorkingDirectory}}WorkingDirectory={{.WorkingDirectory|cmdEscape}}{{end}}
 {{if .UserName}}User={{.UserName}}{{end}}
 {{if .ReloadSignal}}ExecReload=/bin/kill -{{.ReloadSignal}} "$MAINPID"{{end}}
 {{if .PIDFile}}PIDFile={{.PIDFile}}{{end}}
@@ -178,6 +178,7 @@ ExecStart=/bin/sh -c '{{.Path|cmdEscape}}{{range .Arguments}} {{.}}{{end}} >> /v
 {{end}}
 Restart=always
 RestartSec=120
+EnvironmentFile=-/etc/sysconfig/{{.Name}}
 
 [Install]
 WantedBy=multi-user.target

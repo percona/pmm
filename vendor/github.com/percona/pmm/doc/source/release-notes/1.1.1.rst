@@ -12,7 +12,7 @@ For install instructions, see :ref:`deploy-pmm`.
 
 This release introduces new ways for running *PMM Server*:
 
-* :ref:`Run PMM Server as a virtual appliance <run-server-ova>`
+* :ref:`Run PMM Server as a virtual appliance <pmm/deploying/server/virtual-appliance>`
 
 * :ref:`Run PMM Server using Amazon Machine Image (AMI) <run-server-ami>`
 

@@ -2,6 +2,7 @@
 .. Programs
 
 .. |mongod|     replace:: :program:`mongod`
+.. |mysqld|     replace:: :command:`mysqld`
 .. |pmm-admin|  replace:: :program:`pmm-admin`
 .. |sudo|       replace:: :program:`sudo`   
 .. |virtualbox| replace:: :program:`VirtualBox`
@@ -9,6 +10,7 @@
 .. |systemd|    replace:: :program:`systemd`
 .. |sed|        replace:: :program:`sed`
 .. |cd|         replace:: :program:`cd`
+.. |uptime|     replace:: :command:`uptime`
 
 .. Commands
 
@@ -42,10 +44,22 @@
 .. |pmm-admin.stop|           replace:: :program:`pmm-admin stop`
 .. |pmm-admin.uninstall|      replace:: :program:`pmm-admin uninstall`
 
-.. |sql.delete|        replace:: :program:`DELETE`
-.. |sql.explain|       replace:: :program:`EXPLAIN`
-.. |sql.insert|        replace:: :program:`INSERT`
-.. |sql.replace|       replace:: :program:`REPLACE`
-.. |sql.select|        replace:: :program:`SELECT`
-.. |sql.show-status|   replace:: :program:`SHOW STATUS`
-.. |sql.update|        replace:: :program:`UPDATE`
+.. |sql.delete|        replace:: :command:`DELETE`
+.. |sql.explain|       replace:: :command:`EXPLAIN`
+.. |sql.insert|        replace:: :command:`INSERT`
+.. |sql.replace|       replace:: :command:`REPLACE`
+.. |sql.select|        replace:: :command:`SELECT`
+.. |sql.show-status|   replace:: :command:`SHOW STATUS`
+.. |sql.update|        replace:: :command:`UPDATE`
+.. |sql.flush-hosts|   replace:: :command:`FLUSH HOSTS`
+.. |sql.rollback|      replace:: :command:`ROLLBACK`
+.. |sql.commit|        replace:: :command:`COMMIT`
+
+.. Exporters
+
+.. |rds-exporter|        replace:: :code:`rds_exporter`
+.. |mongodb-exporter|    replace:: :code:`mongodb_exporter`
+.. |mysqld-exporter|     replace:: :code:`mysqld_exporter`
+.. |node-exporter|       replace:: :code:`node_exporter`
+.. |proxysql-exporter|   replace:: :code:`proxysql_exporter`
+.. |postgresql-exporter| replace:: :code:`postgresql_exporter`

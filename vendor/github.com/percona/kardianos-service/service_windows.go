@@ -328,8 +328,8 @@ func (ws *windowsService) Restart() error {
 }
 
 func (ws *windowsService) Status() error {
-        // Not implemented
-        return nil
+	// Not implemented
+	return nil
 }
 
 func (ws *windowsService) stopWait(s *mgr.Service) error {
