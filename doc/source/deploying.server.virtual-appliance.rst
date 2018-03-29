@@ -28,10 +28,16 @@ VMware ESXi, for example), but additional steps may be required.
 
 The virtual machine used for the appliance runs |centos| 7.
 
-.. warning:: The appliance must run in a network with DHCP, which will
-   automatically assign an IP address for it.  Currently, it is not possible to
-   run it in a network without DHCP and manually assign a static IP for the
-   appliance.
+.. warning:: 
+
+   The appliance must run in a network with DHCP, which will automatically
+   assign an IP address for it.
+
+   To assign a static IP manually, you need to acquire the root access as
+   described in :ref:`pmm/deploying/server/virtual-appliance/root-password/set`.
+   Then, see the documentation for the operating system for further
+   instructions: `Configuring network interfaces in CentOS
+   <https://www.centos.org/docs/5/html/Deployment_Guide-en-US/s1-networkscripts-interfaces.html>`_
 
 .. rubric:: Instructions for setting up the virtual machine for different
             platforms
@@ -42,46 +48,25 @@ The virtual machine used for the appliance runs |centos| 7.
       
    deploying.server.ova.*
 
-.. _pmm/deploying/server/virtual-appliance/root-password/set:
-
-Setting the Root Password
+Identifying |pmm-server| IP Address
 ================================================================================
 
-With your virtual appliance set up, you need to set the root password for your
-|pmm-server|. By default, the virtual machine is configured to enforce changing
-the default password upon the first login.
+When run |pmm-server| as virtual appliance, The IP address of your |pmm-server|
+appears at the top of the screen above the login prompt. Use this address to
+acces the web interface of |pmm-server|.
 
 .. figure:: .res/graphics/png/command-line.login.1.png
 
-   Set the root password when logging in for the first time
+   The IP address appears above the login prompt.
 
-Run your virtual machine and when requested to log in, use the following
-credentials:
-
-:User: root
-:Password: percona
-
-The system immediately requests that you change your password. Note that, for
-the sake of security, your password must not be trivial and pass at least the
-dictionary check. If you do not provide your password within sixty seconds you
-are automatically logged out. In this case use the default credentials to log in
-again.
-
-.. figure:: .res/graphics/png/command-line.login.3.png
-
-   Set a new password and have full access to your system
-
-After the new password is set you control this system as a superuser and
-can make whaterver changes required.
-
-.. important::
-
-   You cannot access the root account if you access |pmm-server| using
-   SSH or via the Web interface.
+PMM Server uses DHCP for security reasons, and thus you need to check the PMM
+Server console in order to identify the address.  If you require configuration
+of a static IP address, see
+`Configuring network interfaces in CentOS <https://www.centos.org/docs/5/html/Deployment_Guide-en-US/s1-networkscripts-interfaces.html>`_
 
 .. _deploying.pmm-server.web-interface.opening:
 
-Opening the |pmm-server| Web Interface
+Accessing |pmm-server|
 ================================================================================
 
 To run the |pmm-server|, start the virtual machine and open in your browser the
@@ -94,16 +79,35 @@ virtual machine.
    running the virtual machine.
 
 If you run |pmm-server| in your browser for the first time, you are requested to
-supply the user and a new password. Optionally, you may also provide your SSH publish key.
+supply the user and a new password. Optionally, you may also provide your SSH
+public key.
 
 .. figure:: .res/graphics/png/pmm.server.password-change.png
 
    Set the user and password to access the |pmm-server| web interface.
 
-Click |gui.submit| and enter your user name in the dialog window that pops
-up. The |pmm-server| is now ready and the home page opens.
+Click |gui.submit| and enter your user name and password in the dialog window
+that pops up. The |pmm-server| is now ready and the home page opens.
 
 .. figure:: .res/graphics/png/pmm.home-page.png
+
+   |pmm-server| home page
+
+You are creating a username and password that will be used for two purposes:
+
+1. authentication as a user to PMM - this will be the credentials you need in order
+   to log in to PMM.
+#. authentication between PMM Server and PMM Clients - you will
+   re-use these credentials when configuring pmm-client for the first time on a
+   server, for example:
+
+   |tip.run-this.root|
+
+   .. code-block:: sh
+
+      $ pmm-admin config --username= --password= --server=1.2.3.4
+
+.. _pmm.deploying.server.virtual-appliance.accessing:
 
 Accessing the Virtual Machine
 ================================================================================
@@ -137,3 +141,4 @@ on all database hosts that you want to monitor.
 .. include:: .res/replace/program.txt
 .. include:: .res/replace/option.txt
 .. include:: .res/replace/url.txt
+.. include:: .res/replace/fragment.txt

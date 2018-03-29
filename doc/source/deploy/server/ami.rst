@@ -154,8 +154,8 @@ Running the instance
 --------------------------------------------------------------------------------
 
 After you add your new instance it will take some time to initialize it. When
-the :guilabel:`Instance State` contains :option:`running` for your instance, you
-can run it.
+the AWS console reports that the instance is now in a running state, you many
+continue with configuration of |pmm-server|.
 
 .. note::
 
@@ -173,11 +173,10 @@ address appears in the :guilabel:`IPv4 Public IP` column or as value of the
 
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.ec2.properties.png
 
-   To run the instance, copy and paste its public IP address to the location bar
-   of your brower.
+   The public IP address of the instance
 
 To run the instance, copy and paste its public IP address to the location bar of
-your brower. In the |pmm.name| welcome page that opens, enter the instance ID.
+your browser. In the |pmm.name| welcome page that opens, enter the instance ID.
 
 .. figure:: ../../.res/graphics/png/installation-wizard.ami.instance-id-verification.png
 
@@ -196,21 +195,33 @@ over the ID.
 Paste the instance in the :guilabel:`Instance ID` field of the |pmm.name|
 welcome page and click |gui.submit|.
 
-The next screen offers to create a user and a password that you will later use
-to run your instance. Create a user name, assign a password, and click
-|gui.submit|.
+Click |gui.submit| and enter your user name and password in the dialog window
+that pops up. The |pmm-server| is now ready and the home page opens.
 
-.. figure:: ../../.res/graphics/png/installation-wizard.ami.instance-id-verification.png
+.. figure:: ../../.res/graphics/png/installation-wizard.ami.account-credentials.png
 
    Create credentials for your instance.
 
-The system authentication window then appears for you to use
-your newly created credentials. Enter the user name and password that you have
-just created. Your instance is now ready.
+Click |gui.submit| and enter your user name and password in the dialog window
+that pops up. The |pmm-server| is now ready and the home page opens.
 
 .. figure:: ../../.res/graphics/png/pmm.home-page.png
 
-   Percona Monitoring and Management is now ready
+   |pmm-server| home page
+
+You are creating a username and password that will be used for two purposes:
+
+1. authentication as a user to PMM - this will be the credentials you need in order
+   to log in to PMM.
+#. authentication between PMM Server and PMM Clients - you will
+   re-use these credentials when configuring pmm-client for the first time on a
+   server, for example:
+
+   |tip.run-this.root|
+
+   .. code-block:: sh
+
+      $ pmm-admin config --username= --password= --server=1.2.3.4
 
 .. note:: **Accessing the instance by using an SSH client.**
 
@@ -346,3 +357,4 @@ Running from Command Line
 .. include:: ../../.res/replace/name.txt
 .. include:: ../../.res/replace/program.txt
 .. include:: ../../.res/replace/option.txt
+.. include:: ../../.res/replace/fragment.txt
