@@ -77,7 +77,7 @@ func (svc *Service) ensureAgentIsRegistered(ctx context.Context) (*url.URL, erro
 	// do not change anything if qan-agent is already registered
 	path := filepath.Join(svc.baseDir, "config", "agent.conf")
 	if _, err = os.Stat(path); err == nil {
-		logger.Get(ctx).Debugf("qan-agent already registered (%s exists).", path)
+		logger.Get(ctx).WithField("component", "qan").Debugf("qan-agent already registered (%s exists).", path)
 		return qanURL, nil
 	}
 
@@ -90,13 +90,13 @@ func (svc *Service) ensureAgentIsRegistered(ctx context.Context) (*url.URL, erro
 	}
 	args = append(args, qanURL.String()) // full URL, with username and password (yes, again! that's how installer is written)
 	cmd := exec.Command(path, args...)
-	logger.Get(ctx).Debug(strings.Join(cmd.Args, " "))
+	logger.Get(ctx).WithField("component", "qan").Debug(strings.Join(cmd.Args, " "))
 	b, err := cmd.CombinedOutput()
 	if err != nil {
-		logger.Get(ctx).Infof("%s", b)
+		logger.Get(ctx).WithField("component", "qan").Infof("%s", b)
 		return nil, errors.Wrap(err, "failed to register qan-agent")
 	}
-	logger.Get(ctx).Debugf("%s", b)
+	logger.Get(ctx).WithField("component", "qan").Debugf("%s", b)
 
 	// set logging level to the specified one, very useful for debugging
 	path = filepath.Join(svc.baseDir, "config", "log.conf")
@@ -134,7 +134,7 @@ func (svc *Service) getOSUUID(ctx context.Context, qanURL *url.URL, agentUUID st
 		return "", errors.WithStack(err)
 	}
 	rb, _ := httputil.DumpRequestOut(req, true)
-	logger.Get(ctx).Debugf("getOSUUID request:\n\n%s\n", rb)
+	logger.Get(ctx).WithField("component", "qan").Debugf("getOSUUID request:\n\n%s\n", rb)
 
 	resp, err := svc.qanAPI.Do(req)
 	if err != nil {
@@ -144,10 +144,10 @@ func (svc *Service) getOSUUID(ctx context.Context, qanURL *url.URL, agentUUID st
 
 	rb, _ = httputil.DumpResponse(resp, true)
 	if resp.StatusCode != 200 {
-		logger.Get(ctx).Errorf("getOSUUID response:\n\n%s\n", rb)
+		logger.Get(ctx).WithField("component", "qan").Errorf("getOSUUID response:\n\n%s\n", rb)
 		return "", errors.Errorf("unexpected QAN response status code %d", resp.StatusCode)
 	}
-	logger.Get(ctx).Debugf("getOSUUID response:\n\n%s\n", rb)
+	logger.Get(ctx).WithField("component", "qan").Debugf("getOSUUID response:\n\n%s\n", rb)
 
 	var instance proto.Instance
 	if err = json.NewDecoder(resp.Body).Decode(&instance); err != nil {
@@ -172,7 +172,7 @@ func (svc *Service) addInstance(ctx context.Context, qanURL *url.URL, instance *
 	}
 	req.Header.Set("Content-Type", "application/json")
 	rb, _ := httputil.DumpRequestOut(req, true)
-	logger.Get(ctx).Debugf("addInstance request:\n\n%s\n", rb)
+	logger.Get(ctx).WithField("component", "qan").Debugf("addInstance request:\n\n%s\n", rb)
 
 	resp, err := svc.qanAPI.Do(req)
 	if err != nil {
@@ -182,10 +182,10 @@ func (svc *Service) addInstance(ctx context.Context, qanURL *url.URL, instance *
 
 	rb, _ = httputil.DumpResponse(resp, true)
 	if resp.StatusCode != 201 {
-		logger.Get(ctx).Errorf("addInstance response:\n\n%s\n", rb)
+		logger.Get(ctx).WithField("component", "qan").Errorf("addInstance response:\n\n%s\n", rb)
 		return errors.Errorf("unexpected QAN response status code %d", resp.StatusCode)
 	}
-	logger.Get(ctx).Debugf("addInstance response:\n\n%s\n", rb)
+	logger.Get(ctx).WithField("component", "qan").Debugf("addInstance response:\n\n%s\n", rb)
 
 	// Response Location header looks like this: http://127.0.0.1/qan-api/instances/6cea8824082d4ade682b94109664e6a9
 	// Extract UUID directly from it instead of following it.
@@ -204,7 +204,7 @@ func (svc *Service) removeInstance(ctx context.Context, qanURL *url.URL, uuid st
 		return errors.WithStack(err)
 	}
 	rb, _ := httputil.DumpRequestOut(req, true)
-	logger.Get(ctx).Debugf("removeInstance request:\n\n%s\n", rb)
+	logger.Get(ctx).WithField("component", "qan").Debugf("removeInstance request:\n\n%s\n", rb)
 
 	resp, err := svc.qanAPI.Do(req)
 	if err != nil {
@@ -214,10 +214,10 @@ func (svc *Service) removeInstance(ctx context.Context, qanURL *url.URL, uuid st
 
 	rb, _ = httputil.DumpResponse(resp, true)
 	if resp.StatusCode != 204 {
-		logger.Get(ctx).Errorf("removeInstance response:\n\n%s\n", rb)
+		logger.Get(ctx).WithField("component", "qan").Errorf("removeInstance response:\n\n%s\n", rb)
 		return errors.Errorf("unexpected QAN response status code %d", resp.StatusCode)
 	}
-	logger.Get(ctx).Debugf("removeInstance response:\n\n%s\n", rb)
+	logger.Get(ctx).WithField("component", "qan").Debugf("removeInstance response:\n\n%s\n", rb)
 	return nil
 }
 
@@ -228,7 +228,7 @@ func (svc *Service) EnsureAgentRuns(ctx context.Context, nameForSupervisor strin
 		// todo: if it's not running then why we stop it?
 		err = svc.supervisor.Stop(ctx, nameForSupervisor)
 		if err != nil {
-			logger.Get(ctx).Warn(err)
+			logger.Get(ctx).WithField("component", "qan").Warn(err)
 		}
 
 		config := &servicelib.Config{
@@ -271,7 +271,7 @@ func (svc *Service) sendQANCommand(ctx context.Context, qanURL *url.URL, agentUU
 		}
 		req.Header.Set("Content-Type", "application/json")
 		rb, _ := httputil.DumpRequestOut(req, true)
-		logger.Get(ctx).Debugf("sendQANCommand request:\n\n%s\n", rb)
+		logger.Get(ctx).WithField("component", "qan").Debugf("sendQANCommand request:\n\n%s\n", rb)
 
 		resp, err := svc.qanAPI.Do(req)
 		if err != nil {
@@ -281,16 +281,16 @@ func (svc *Service) sendQANCommand(ctx context.Context, qanURL *url.URL, agentUU
 		resp.Body.Close()
 
 		if resp.StatusCode == 200 {
-			logger.Get(ctx).Debugf("sendQANCommand response:\n\n%s\n", rb)
+			logger.Get(ctx).WithField("component", "qan").Debugf("sendQANCommand response:\n\n%s\n", rb)
 			return nil
 		}
 		if resp.StatusCode == 404 {
-			logger.Get(ctx).Debugf("sendQANCommand response:\n\n%s\n", rb)
+			logger.Get(ctx).WithField("component", "qan").Debugf("sendQANCommand response:\n\n%s\n", rb)
 			time.Sleep(time.Second)
 			continue
 		}
 
-		logger.Get(ctx).Errorf("sendQANCommand response:\n\n%s\n", rb)
+		logger.Get(ctx).WithField("component", "qan").Errorf("sendQANCommand response:\n\n%s\n", rb)
 		return errors.Errorf("%s: unexpected QAN API response status code %d", command, resp.StatusCode)
 	}
 
@@ -352,7 +352,7 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	logger.Get(ctx).Debugf("%s %s %s", agentUUID, command, b)
+	logger.Get(ctx).WithField("component", "qan").Debugf("%s %s %s", agentUUID, command, b)
 	return svc.sendQANCommand(ctx, qanURL, agentUUID, command, b)
 }
 
@@ -374,7 +374,7 @@ func (svc *Service) RemoveMySQL(ctx context.Context, qanAgent *models.QanAgent) 
 
 	command := "StopTool"
 	b := []byte(*qanAgent.QANDBInstanceUUID)
-	logger.Get(ctx).Debugf("%s %s %s", agentUUID, command, b)
+	logger.Get(ctx).WithField("component", "qan").Debugf("%s %s %s", agentUUID, command, b)
 	if err = svc.sendQANCommand(ctx, qanURL, agentUUID, command, b); err != nil {
 		return err
 	}

@@ -88,9 +88,9 @@ func (s *Supervisor) Status(ctx context.Context, name string) error {
 
 	err = svc.Status()
 	if err == nil {
-		logger.Get(ctx).Infof("%s is running", name)
+		logger.Get(ctx).WithField("component", "supervisor").Infof("%s is running", name)
 	} else {
-		logger.Get(ctx).Warnf("%s is not running: %s", name, err)
+		logger.Get(ctx).WithField("component", "supervisor").Warnf("%s is not running: %s", name, err)
 	}
 	return err
 }
