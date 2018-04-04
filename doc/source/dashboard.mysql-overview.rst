@@ -8,12 +8,16 @@ This dashboard provides basic information about MySQL hosts.
 .. contents::
    :local:
 
+.. _dashboard.mysql-overview.uptime:
+
 |mysql| Uptime
 --------------------------------------------------------------------------------
 
 The amount of time since the MySQL server process was started.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mysql-overview.current-qps:
 
 Current QPS
 --------------------------------------------------------------------------------
@@ -35,6 +39,7 @@ This variable does not include the following commands:
    MySQL Server Status Variables: Queries
       https://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Queries
           
+.. _dashboard.mysql-overview.innodb-buffer-pool-size:
 
 |innodb| Buffer Pool Size
 --------------------------------------------------------------------------------
@@ -48,6 +53,8 @@ many factors.
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.mysql-overview.buffer-poolsize-percentage-of-total-ram:
+
 Buffer Pool Size % of Total RAM
 --------------------------------------------------------------------------------
 
@@ -56,6 +63,8 @@ InnoDB buffer pool should be between 60% and 90% of available memory on a
 dedicated database host, but it depends on many factors.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mysql-overview.connections:
 
 |mysql| Connections
 --------------------------------------------------------------------------------
@@ -78,6 +87,8 @@ Connections
    |mysql| Server status variables: max_connections
       https://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_max_connections
 
+.. _dashboard.mysql-overview.active-threads:
+
 |mysql| Active Threads
 --------------------------------------------------------------------------------
 
@@ -88,6 +99,8 @@ Threads Running
     The number of threads not sleeping.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mysql-overview.questions:
 
 |mysql| Questions
 --------------------------------------------------------------------------------
@@ -106,6 +119,8 @@ This variable does not count the following commands:
 * COM_STMT_RESET
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mysql-overview.thread-cache:
 
 |mysql| Thread Cache
 --------------------------------------------------------------------------------
@@ -128,6 +143,8 @@ possible, and only when the cache is empty is a new thread created.
    |mysql| Server status variables: thread_cache_size
       https://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_thread_cache_size
 
+.. _dashboard.mysql-overview.select-types:
+
 |mysql| Select Types
 --------------------------------------------------------------------------------
 
@@ -144,6 +161,8 @@ not done with indexes.
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.mysql-overview.sorts:
+
 |mysql| Sorts
 --------------------------------------------------------------------------------
 
@@ -157,6 +176,8 @@ index.
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.mysql-overview.slow-queries:
+
 |mysql| Slow Queries
 --------------------------------------------------------------------------------
 
@@ -165,6 +186,8 @@ setting. For example, if you have *long_query_time* set to 3, all queries that
 take longer than 3 seconds to complete will show on this graph.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mysql-overview.aborted-connections:
 
 Aborted Connections
 --------------------------------------------------------------------------------
@@ -182,6 +205,8 @@ To allow connections from that host again, you need to issue the
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.mysql-overview.table-locks:
+
 Table Locks
 --------------------------------------------------------------------------------
 
@@ -196,6 +221,8 @@ Immediate* rising and falling is normal activity.
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.mysql-overview.network-traffic:
+
 |mysql| Network Traffic
 --------------------------------------------------------------------------------
 
@@ -205,6 +232,8 @@ is network traffic sent from |mysql| and *Inbound* is the network traffic that
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.mysql-overview.network-usage-hourly:
+
 |mysql| Network Usage Hourly
 --------------------------------------------------------------------------------
 
@@ -213,6 +242,8 @@ hour. You can use the bar graph to compare data sent by |mysql| and data
 received by |mysql|.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mysql-overview.internal-memory-overview:
 
 |mysql| Internal Memory Overview
 --------------------------------------------------------------------------------
@@ -276,12 +307,16 @@ Query Cache Size
 
 |view-all-metrics| |this-dashboard|
 
-*Top Command Counters* and *Top Command Counters Hourly*
+.. _dashboard.mysql-overview.top-command-counters.top-command-counters-hourly:
+
+Top Command Counters and Top Command Counters Hourly
 --------------------------------------------------------------------------------
 
 See https://dev.mysql.com/doc/refman/5.7/en/server-status-variables.html#statvar_Com_xxx
 	 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mysql-overview.handlers:
 
 |mysql| Handlers
 --------------------------------------------------------------------------------
@@ -298,6 +333,8 @@ This is in fact the layer between the Storage Engine and |mysql|.
   index entry'. A high value means a lot of index scans are being done.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mysql-overview.query-cache-memory.query-cache-activity:
 
 |mysql| Query Cache Memory and |mysql| Query Cache Activity
 --------------------------------------------------------------------------------

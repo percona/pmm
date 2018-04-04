@@ -10,6 +10,8 @@ The *Home* dashboard is a high level overview of your environment.
    Overview of |pmm|
       :ref:`using`
 
+.. _dashboard.home.general-information:
+
 General Information
 --------------------------------------------------------------------------------
 

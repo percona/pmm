@@ -49,6 +49,8 @@ In the given example, you would need to direct your browser to
 *http://192.168.100.1*. Since you have not added any monitoring
 services yet, the site will not show any data.
 
+.. _deploy-pmm.table.web-interface.component.access:
+
 .. table:: Accessing the Components of the Web Interface
 
    ==================================== ======================================
@@ -64,11 +66,9 @@ services yet, the site will not show any data.
 You can also check if |pmm-server| is available requesting the /ping
 URL as in the following example:
 
-.. code-block:: bash
-
-   $ curl http://192.168.100.1/ping
-   {'version': '1.8.0'}
-
+.. include:: ../.res/code/sh.org
+   :start-after: +curl.url-ping+
+   :end-before: #+end-block
 
 .. .. _deploy-pmm.server.plugin:
 ..

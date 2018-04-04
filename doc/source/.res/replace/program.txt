@@ -11,6 +11,8 @@
 .. |sed|        replace:: :program:`sed`
 .. |cd|         replace:: :program:`cd`
 .. |uptime|     replace:: :command:`uptime`
+.. |gzip|       replace:: :program:`gzip`
+.. |http2|      replace:: :program:`HTTP2`
 
 .. Commands
 
