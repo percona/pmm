@@ -6,6 +6,8 @@ Cross Server Graphs
 .. contents::
    :local:
 
+.. _dashboard.cross-server-graphs.load-average:
+
 Load Average
 --------------------------------------------------------------------------------
 
@@ -25,6 +27,8 @@ queries in term:`QAN`.
    Description of *load average* in the man page of the |uptime| command in Debian
       https://manpages.debian.org/stretch/procps/uptime.1.en.html
 
+.. _dashboard.cross-server-graphs.mysql-queries:
+
 |mysql| Queries
 --------------------------------------------------------------------------------
 
@@ -40,6 +44,8 @@ unlike the |opt.questions| variable. It does not count *COM_PING* or
 
    |mysql| Server Status Variables: Queries
       https://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Queries
+
+.. _dashboard.cross-server-graphs.mysql-traffic:
 
 |mysql| Traffic
 --------------------------------------------------------------------------------

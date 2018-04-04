@@ -41,6 +41,8 @@ service in the |pmm-admin.add| command:
    Adding a |opt.mongodb-metrics| monitoring service
       :ref:`pmm-admin.add.mongodb-metrics`
 
+.. _pmm.qan.mongodb.configuring.profiling.enabling:
+
 Enabling Profiling
 ================================================================================
 
@@ -86,6 +88,8 @@ information decreases as well.
 
    |opt.rate-limit| in |psmdb.name| documentation
        https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html
+
+.. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling:
 
 Enabling Profiling in the Configuration File
 --------------------------------------------------------------------------------

@@ -10,6 +10,8 @@ The |pmm-add-instance| is now a preferred method of adding an |amazon-rds| DB
 instance to |pmm|. It supports |amazon-rds| DB instances that use
 |amazon-aurora|, |mysql|, or |mariadb| engines.
 
+.. _figure.pmm.amazon-rds.pmm-server.add-instance.access-key-id:
+
 .. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.png
    
    Enter the access key ID and the secret access key of your |iam| user to view
@@ -21,6 +23,8 @@ instance to |pmm|. It supports |amazon-rds| DB instances that use
 #. Click the |gui.discover| button for |pmm| to retrieve the available |amazon-rds|
    instances.
 
+.. _figure.pmm.amazon-rds.pmm-server.add-instance.displaying:
+
 .. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.1.png
 
    |pmm| displays the available |amazon-rds| instances
@@ -28,6 +32,9 @@ instance to |pmm|. It supports |amazon-rds| DB instances that use
 For each instance that you would like to monitor, select the |gui.enabled| button
 and enter the user name and password. Click |gui.connect|. You can now monitor your
 instances in the |amazon-rds-aurora-mysql-metrics|.
+
+
+.. _figure.pmm.amazon-rds.pmm-server.add-instance.rds-instances.db-user-credentials:
 
 .. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.rds-instances.1.png
 
@@ -38,6 +45,8 @@ instances in the |amazon-rds-aurora-mysql-metrics|.
 
    |aws| Documentation: Managing access keys of |iam| users
       https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
+
+.. _pmm.amazon-rds.essential-aws-setting.amazon-rds.db-instance.monitoring:
 
 Essential |aws| settings for monitoring |amazon-rds| DB instances in |pmm|
 ================================================================================
@@ -60,6 +69,8 @@ metrics with 1 second resolution.  We strongly suggest that you run
 It is crucial that *enhanced monitoring* be enabled for the |amazon-rds| DB
 instances you intend to monitor.
 
+.. _figure.pmm.amazon-rds.amazon-rds.modify-db-instance:
+
 .. figure:: .res/graphics/png/amazon-rds.modify-db-instance.2.png
 
    Set the |gui.enable-enhanced-monitoring| option in the settings of your
@@ -70,26 +81,19 @@ instances you intend to monitor.
    |amazon-rds| Documentation: 
       - `Modifying an Amazon RDS DB Instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Modifying.html>`_
       - `More information about enhanced monitoring <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.html>`_
-
-.. seealso::
-
+      - `Setting Up <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html>`_
+      - `Getting started <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.html>`_
+      - `Creating a MySQL DB Instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.MySQL.html>`_
+      - `Availability zones <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html>`_
+      - `What privileges are automatically granted to the master user of an Amazon RDS DB instance? 
+	<https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.MasterAccounts.html>`_
    Which ports should be open?
       See :term:`Ports` in glossary
-   |amazon-rds| Documentation: Setting Up
-      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html
-   |amazon-rds| Documentation: Getting started
-      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.html
-   |amazon-rds| Documentation: Creating a MySQL DB Instance
-      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_GettingStarted.CreatingConnecting.MySQL.html
-   |aws| Documentation: Availability zones
-      https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html
-   |aws| Documentation: What privileges are automatically granted to the master user of an |amazon-rds| DB instance?
-      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.MasterAccounts.html
 
 .. contents::
    :local:
 
-.. _pmm.amazon-rds.iam-user.creating:
+.. _pmm.amazon-rds.permission-access-db-instance.iam-user.creating:
       
 Creating an |iam| user with permission to access |amazon-rds| DB instances
 --------------------------------------------------------------------------------
@@ -123,6 +127,8 @@ associated with an existing user or group.
 
 To define a new policy use the |aws-iam.name| page at |aws|.
 
+.. _figure.pmm.amazon-rds.aws.iam:
+
 .. figure:: .res/graphics/png/aws.iam.png
 
    The |aws-iam.name| page at |aws|
@@ -139,6 +145,8 @@ To define a new policy use the |aws-iam.name| page at |aws|.
 #. Click |gui.review-policy| and set a name to your policy, such as
    |policy-name|. Then, click the |gui.create-policy| button.
 
+.. _figure.pmm.amazon-rds.aws.iam.create-policy:
+
 .. figure:: .res/graphics/png/aws.iam.create-policy.png
 
    A new policy is ready to be created.
@@ -148,6 +156,8 @@ To define a new policy use the |aws-iam.name| page at |aws|.
    |aws| Documenation: Creating |iam| policies
       https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_create.html
 
+.. _pmm.amazon-rds.iam-user.creating:
+
 Creating an |iam| user
 --------------------------------------------------------------------------------   
    
@@ -155,9 +165,11 @@ Policies are attached to existing |iam| users or groups. To create a new |iam|
 user, select |gui.users| on the |aws-iam.name| page at |aws|. Then click
 |gui.add-user| and complete the following steps:
 
+.. _figure.pmm.amazon-rds.aws.iam-users:
+
 .. figure:: .res/graphics/png/aws.iam-users.1.png
 
-   Navigate to  |gui.users| on the IAM console
+   Navigate to |gui.users| on the IAM console
 
 1. On the |gui.add-user| page, set the user name and select the
    |gui.programmatic-access| option under
@@ -169,37 +181,9 @@ user, select |gui.users| on the |aws-iam.name| page at |aws|. Then click
 
 .. seealso::
 
-   |aws| Documentation: Creating |iam| users
-      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html#CHAP_SettingUp.IAM
-   |aws| Documentation: |iam| roles
-      https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html
-
-Attaching a policy to an |iam| user
---------------------------------------------------------------------------------
-
-The last step before you are ready to create an |amazon-rds| DB instance is to
-attach the policy with the required permissions to the |iam| user.
-
-On the |aws-iam.name| page, open |gui.users|. Then, locate and open the |iam|
-user that you plan to use with |amazon-rds| DB instances. Complete the following
-steps to apply the policy:
-
-1. On the |gui.permissions| tab, click the |gui.add-permissions| button.
-#. On the |gui.add-permissions| page, click |gui.attach-existing-policies-directly|.
-#. Using the |gui.filter|, locate the policy with the required permissions (such as |policy-name|).
-#. Select a checkbox next to the name of the policy and click |gui.review|.
-#. The selected policy appears on the |gui.permissions-summary| page. Click |gui.add-permissions|.
-
-The |policy-name| is now added to your |iam| user.
-   
-.. figure:: .res/graphics/png/aws.iam.add-permissions.png
-
-   To attach, find the policy on the list and place a check mark to select it
-	      
-.. seealso::
-
-   Creating an |iam| policy for |pmm|
-      :ref:`pmm.amazon-rds.iam-user.policy`
+   |aws| Documentation: 
+      - `Creating IAM users <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html#CHAP_SettingUp.IAM>`_
+      -  `IAM roles <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html>`_
 
 .. _pmm.amazon-rds.iam-user.access-key.creating:
 
@@ -231,6 +215,8 @@ discover your |amazon-rds| DB instances.
    |aws| Documentation: Managing access keys of |iam| users
       https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html
 
+.. _pmm.amazon-rds.iam-user.policy.attaching:
+
 Attaching a policy to an |iam| user
 --------------------------------------------------------------------------------
 
@@ -249,6 +235,8 @@ First, make sure that the |aws-iam.name| page is open and open
 
 The |policy-name| is now added to your |iam| user.
    
+.. _figure.pmm.amazon-rds.aws.iam.add-permissions:
+
 .. figure:: .res/graphics/png/aws.iam.add-permissions.png
 
    To attach, find the policy on the list and place a check mark to select it
@@ -257,6 +245,8 @@ The |policy-name| is now added to your |iam| user.
 
    Creating an |iam| policy for |pmm|
       :ref:`pmm.amazon-rds.iam-user.policy`
+
+.. _pmm.amazon-rds.db-instance.setting-up:
 
 Setting up the |amazon-rds| DB Instance
 --------------------------------------------------------------------------------

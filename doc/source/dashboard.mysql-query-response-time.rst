@@ -8,6 +8,8 @@ This dashboard provides information about query response time distribution.
 .. contents::
    :local:
 
+.. _dashboard.mysql-query-response-time.average:
+
 Average Query Response Time
 --------------------------------------------------------------------------------
 
@@ -22,6 +24,8 @@ queries by taking the sum of seconds divided by the count of seconds.
 
    |percona| Server Documentation: QUERY_RESPONSE_TIME table
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME
+
+.. _dashboard.mysql-query-response-time.distribution:
 
 Query Response Time Distribution
 --------------------------------------------------------------------------------
