@@ -26,7 +26,7 @@ type Log struct {
 func (m *Log) Reset()                    { *m = Log{} }
 func (m *Log) String() string            { return proto.CompactTextString(m) }
 func (*Log) ProtoMessage()               {}
-func (*Log) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
+func (*Log) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
 
 func (m *Log) GetLines() []string {
 	if m != nil {
@@ -41,7 +41,7 @@ type LogsAllRequest struct {
 func (m *LogsAllRequest) Reset()                    { *m = LogsAllRequest{} }
 func (m *LogsAllRequest) String() string            { return proto.CompactTextString(m) }
 func (*LogsAllRequest) ProtoMessage()               {}
-func (*LogsAllRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
+func (*LogsAllRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
 
 type LogsAllResponse struct {
 	// Maps log file name to content
@@ -51,7 +51,7 @@ type LogsAllResponse struct {
 func (m *LogsAllResponse) Reset()                    { *m = LogsAllResponse{} }
 func (m *LogsAllResponse) String() string            { return proto.CompactTextString(m) }
 func (*LogsAllResponse) ProtoMessage()               {}
-func (*LogsAllResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{2} }
+func (*LogsAllResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{2} }
 
 func (m *LogsAllResponse) GetLogs() map[string]*Log {
 	if m != nil {
@@ -140,9 +140,9 @@ var _Logs_serviceDesc = grpc.ServiceDesc{
 	Metadata: "logs.proto",
 }
 
-func init() { proto.RegisterFile("logs.proto", fileDescriptor2) }
+func init() { proto.RegisterFile("logs.proto", fileDescriptor3) }
 
-var fileDescriptor2 = []byte{
+var fileDescriptor3 = []byte{
 	// 243 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0xca, 0xc9, 0x4f, 0x2f,
 	0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4e, 0x2c, 0xc8, 0x94, 0x92, 0x49, 0xcf, 0xcf,
