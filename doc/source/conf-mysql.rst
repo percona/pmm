@@ -179,7 +179,7 @@ For more information about using Performance Schema in PMM, see
 .. _pmm/mysql/conf/dashboard:
 
 Settings for Dashboards
-=======================
+================================================================================
 
 Not all dashboards in :ref:`using-mm` are available by default for all MySQL
 variants and configurations.  Some graphs require Percona Server, specialized
@@ -192,7 +192,7 @@ high-overhead metrics only when troubleshooting problems.
 .. _pmm/mysql/conf/dashboard/mysql-innodb-metrics:
 
 MySQL InnoDB Metrics
---------------------
+--------------------------------------------------------------------------------
 
 InnoDB metrics provide detailed insight about InnoDB operation.  Although you
 can select to capture only specific counters, their overhead is low even when
@@ -207,7 +207,7 @@ all them are enabled all the time.  To enable all InnoDB metrics, set the global
 .. _pmm/mysql/conf/dashboard/mysql-user-statistics:
 
 MySQL User Statistics
----------------------
+--------------------------------------------------------------------------------
 
 User statistics is a feature available in Percona Server and MariaDB.  It
 provides information about user activity, individual table and index access.  In

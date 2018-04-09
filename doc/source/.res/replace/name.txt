@@ -4,6 +4,8 @@
 
 .. Organizations and Products
 
+.. |myisam|                   replace:: *MyISAM*
+.. |aria|                     replace:: *Aria*
 .. |aws-iam|                  replace:: *IAM*
 .. |iam|                      replace:: *IAM*
 .. |aws-iam.name|             replace:: *Identity and Access Management*
@@ -29,7 +31,9 @@
 .. |facebook|                 replace:: *Facebook*
 .. |firefox|                  replace:: *Firefox*
 .. |grafana|                  replace:: *Grafana*
+.. |inmemory|                 replace:: *In-Memory*
 .. |innodb|                   replace:: *InnoDB*
+.. |mmapv1|                   replace:: *MMAPv1*
 .. |tokudb|                   replace:: *TokuDB*
 .. |linux|                    replace:: *Linux*
 .. |mariadb|                  replace:: *MariaDB*
@@ -69,6 +73,7 @@
 .. |redhat|                   replace:: *Red Hat*
 .. |rocksdb|                  replace:: *RocksDB*
 .. |ubuntu|                   replace:: *Ubuntu*
+.. |wiredtiger|               replace:: *WiredTiger*
 
 .. Terminology
 

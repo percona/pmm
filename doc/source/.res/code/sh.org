@@ -24,6 +24,17 @@
 
 * bash
 
+** service
+
+#+begin-block: service mongod restart
++service.mongod.restart+
+
+.. code-block:: bash
+
+   $ sudo service mongod restart
+
+#+end-block
+
 ** cd
 
 #+begin-block: cd pmm-data-backup
