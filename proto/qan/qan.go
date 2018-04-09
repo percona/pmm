@@ -64,6 +64,7 @@ type QueryLog struct {
 	Query_count    float32
 	Query_load     float32
 	Query_time_avg float32
+	NoData         bool
 }
 
 type QueryRank struct {
