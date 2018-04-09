@@ -31,12 +31,16 @@ service as additional options.
    All exporter options
       :ref:`pmm/list.exporter`
 
+.. _pmm/exporter.mysqld.collector-option:
+
 Collector options
 ================================================================================
 
 .. include:: .res/table/table.org
    :start-after: +mysqld-exporter.collector-flag+
    :end-before: #+end-table
+
+.. _pmm/exporter.mysqld.general-option:
 
 General options
 ================================================================================

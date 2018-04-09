@@ -6,6 +6,8 @@ Summary Dashboard
 .. contents::
    :local:
 
+.. _dashboard.system.cpu-usage:
+
 CPU Usage
 --------------------------------------------------------------------------------
 
@@ -36,6 +38,8 @@ Softirq
    Linux CPU Statistics
       http://blog.scoutapp.com/articles/2015/02/24/understanding-linuxs-cpu-stats
 
+.. _dashboard.system.processes:
+
 Processes
 --------------------------------------------------------------------------------
 
@@ -56,6 +60,8 @@ The running average of the sum of these two quantities is the basis of the loada
    More information about Vmstat
       http://nonfunctionaltestingtools.blogspot.ca/2013/03/vmstat-output-explained.html
 
+.. _dashboard.system.network-traffic:
+
 Network Traffic
 --------------------------------------------------------------------------------
 
@@ -70,6 +76,8 @@ of available CPU, you should consider activating the compression option on the
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.system.io-activity:
+
 I/O Activity
 --------------------------------------------------------------------------------
 
@@ -77,6 +85,8 @@ The I/O Activity graph shows the rates of data read from (Page In) and written
 to (Page Out) the all the disks as collected from the vmstat bi and bo columns.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.system.disk-latency:
 
 Disk Latency
 --------------------------------------------------------------------------------
@@ -92,6 +102,8 @@ bound workload saturating the storage subsystem or, a faulty/degraded hardware.
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.system.mysql-query:
+
 MySQL Queries
 --------------------------------------------------------------------------------
 
@@ -99,6 +111,8 @@ The MySQL Queries graph shows the rate of queries processed by MySQL.  The rate
 of queries is a rough indication of the MySQL server load.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.system.innodb-row-operation:
 
 InnoDB Row Operations
 --------------------------------------------------------------------------------
@@ -113,6 +127,8 @@ write load.
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.system.top-mysql-command:
+
 Top |mysql| Commands
 --------------------------------------------------------------------------------
 
@@ -120,6 +136,8 @@ The Top MySQL Commands graph shows the rate of the various kind of SQL
 statements executed on the MySQL server.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.system.top-mysql-handler:
 
 Top MySQL Handlers
 --------------------------------------------------------------------------------

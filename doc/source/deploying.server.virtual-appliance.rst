@@ -16,6 +16,8 @@ platforms, including:
 * `XenServer`_
 * `Microsoft System Center Virtual Machine Manager`_
 
+.. _pmm/deploying/server/virtual-appliance.supported-platform.virtual-appliance:
+
 Supported Platforms for Running the |pmm-server| Virtual Appliance
 ================================================================================
 
@@ -39,6 +41,8 @@ The virtual machine used for the appliance runs |centos| 7.
    instructions: `Configuring network interfaces in CentOS
    <https://www.centos.org/docs/5/html/Deployment_Guide-en-US/s1-networkscripts-interfaces.html>`_
 
+.. _pmm/deploying/server/virtual-appliance.supported-platform.virtual-appliance.setting-up:
+
 .. rubric:: Instructions for setting up the virtual machine for different
             platforms
    
@@ -48,6 +52,8 @@ The virtual machine used for the appliance runs |centos| 7.
       
    deploying.server.ova.*
 
+.. _pmm/deploying/server/virtual-appliance.pmm-server.ip-address.identifying:
+
 Identifying |pmm-server| IP Address
 ================================================================================
 
@@ -55,15 +61,18 @@ When run |pmm-server| as virtual appliance, The IP address of your |pmm-server|
 appears at the top of the screen above the login prompt. Use this address to
 acces the web interface of |pmm-server|.
 
+.. _figure.pmm/deploying/server/virtual-appliance.pmm-server.ip-address.identifying.above-login-prompt:
+
 .. figure:: .res/graphics/png/command-line.login.1.png
 
    The IP address appears above the login prompt.
 
-PMM Server uses DHCP for security reasons, and thus you need to check the PMM
+|pmm-server| uses DHCP for security reasons, and thus you need to check the PMM
 Server console in order to identify the address.  If you require configuration
 of a static IP address, see
 `Configuring network interfaces in CentOS <https://www.centos.org/docs/5/html/Deployment_Guide-en-US/s1-networkscripts-interfaces.html>`_
 
+.. id 9a96a76
 .. _deploying.pmm-server.web-interface.opening:
 
 Accessing |pmm-server|
@@ -73,6 +82,8 @@ To run the |pmm-server|, start the virtual machine and open in your browser the
 URL that appears at the top of the terminal when you are logging in to the
 virtual machine.
 
+.. _figure.9a96a76.command-line-login:
+
 .. figure:: .res/graphics/png/command-line.login.1.png
 
    The URL to open in the browser appears at the top of the terminal when
@@ -81,6 +92,8 @@ virtual machine.
 If you run |pmm-server| in your browser for the first time, you are requested to
 supply the user and a new password. Optionally, you may also provide your SSH
 public key.
+
+.. _figure.9a96a76.pmm-server.password-change:
 
 .. figure:: .res/graphics/png/pmm.server.password-change.png
 

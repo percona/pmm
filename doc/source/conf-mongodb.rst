@@ -22,6 +22,8 @@ the *read* role for the |db.local| database.
 The following example that you can run in the |mongodb| shell, adds the
 |mongodb-exporter| user and assigns the appropriate roles.
 
+.. _code.pmm/qan/mongodb/conf/essential-permission.setting-up.db.get-sibling-db.create-user:
+
 .. include:: .res/code/js.org
    :start-after: +db.get-sibling-db.create-user+
    :end-before: #+end-block
@@ -31,6 +33,8 @@ Then, you need to pass the user name and password in the value of the
 service in the |pmm-admin.add| command:
 
 |tip.run-this.root|.
+
+.. _pmm/qan/mongodb/conf/essential-permission.setting-up.pmm-admin.add.mongodb-metrics.uri:
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.add.mongodb-metrics.uri+
@@ -67,6 +71,8 @@ server. This command is useful if you start :program:`mongod` manually.
 
 |tip.run-this.root|
 
+.. _pmm/qan/mongodb/conf/profiling.command_line.enable.mongod.dbpath.profile.slowms.ratelimit:
+
 .. include:: .res/code/sh.org
    :start-after: +mongod.dbpath.profile.slowms.ratelimit+
    :end-before: #+end-block
@@ -100,6 +106,8 @@ by default is |etc.mongod.conf|.
 In this file, you need to locate the *operationProfiling:* section and add the
 following settings:
 
+.. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling.operationprofiling:
+
 .. include:: .res/code/yaml.org
    :start-after: +operationprofiling+
    :end-before: #+end-block
@@ -112,9 +120,11 @@ your lines is important as it defines levels of nesting.
 
 Restart the *mongod* service to enable the settings.
 
-.. code-block:: bash
+.. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling.service.mongod.restart:
 
-   $ sudo service mongod restart
+.. include:: .res/code/sh.org
+   :start-after: +service.mongod.restart+
+   :end-before: #+end-block
 
 .. seealso:: 
 
