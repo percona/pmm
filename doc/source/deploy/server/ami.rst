@@ -253,10 +253,50 @@ You are creating a username and password that will be used for two purposes:
 .. note:: **Accessing the instance by using an SSH client.**
 
    For instructions about how to access your instances by using an SSH client, see
-   `Connecting to Your Linux Instance Using SSH <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html>`_
+   `Connecting to Your Linux Instance Using SSH 
+   <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html>`_
 	     
    Make sure to replace the user name ``ec2-user`` used in this document with
    ``admin``.
+
+.. _run-server-ami.ebs-volume.resizing:
+
+Resizing the EBS Volume
+--------------------------------------------------------------------------------
+
+Your instance comes with a predefined size which can become a limitation. To
+make more disk space available to your instance, you need to increase the size
+of the EBS volume as needed and then reconfigure your instance to use the new
+size.
+
+The procedure of resizing EBS volumes is described in the |amazon|
+documentation: `Modifying the Size, IOPS, or Type of an EBS Volume on Linux 
+<https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modify-volume.html>`_.
+
+As soon as the EBS volume is updated, connect to your instance and update it to
+use the new size:
+
+|tip.run-all.root|
+
+1. Detect the type of your filesystem: :code:`mount | grep '/srv'`
+2. In case of *XFS* reboot instance or run the following commands:
+
+   .. include:: ../../.res/code/sh.org
+      :start-after: +pvresize.lvextend.xfs-growfs+
+      :end-before: #+end-block
+
+3. In case of *btrfs*, run the following command:
+
+   .. include:: ../../.res/code/sh.org
+      :start-after: +btrfs.filesystem.resize.max+
+      :end-before: #+end-block
+
+.. seealso::
+
+   |amazon| Documentation: Connecting to Your Linux Instance Using SSH 
+   
+      https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html
+
 
 Next Steps
 ================================================================================
@@ -271,9 +311,13 @@ on all database hosts that you want to monitor.
 
    AWS Documentation:
 
-   - `Elastic IP Addresses <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html>`_.
-   - `Amazon EC2 Security Groups for Linux Instances <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`_.
-   - `Connecting to Your Linux Instance Using SSH <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html>`_ (use ``admin`` as the user name)
+   - `Elastic IP Addresses 
+     <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html>`_
+   - `Amazon EC2 Security Groups for Linux Instances 
+     <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`_
+   - `Connecting to Your Linux Instance Using SSH 
+     <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html>`_ 
+     (use ``admin`` as the user name)
 
 .. _run-server-ami.amazon-machine-image:
 
@@ -291,55 +335,65 @@ for the corresponding image:
    * - Region
      - String
      - AMI ID
-   * - US East (N. Virginia)
-     - ``us-east-1``
-     - `ami-30ad0f4d <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-30ad0f4d>`_
-   * - US East (Ohio)
-     - ``us-east-2``
-     - `ami-aa4e7ecf <https://console.aws.amazon.com/ec2/v2/home?region=us-east-2#Images:visibility=public-images;imageId=ami-aa4e7ecf>`_
-   * - US West (N. California)
-     - ``us-west-1``
-     - `ami-34667654 <https://console.aws.amazon.com/ec2/v2/home?region=us-west-1#Images:visibility=public-images;imageId=ami-34667654>`_
-   * - US West (Oregon)
-     - ``us-west-2``
-     - `ami-ded5b1a6 <https://console.aws.amazon.com/ec2/v2/home?region=us-west-2#Images:visibility=public-images;imageId=ami-ded5b1a6>`_
-   * - Canada (Central)
-     - ``ca-central-1``
-     - `ami-067bfd62 <https://console.aws.amazon.com/ec2/v2/home?region=ca-central-1#Images:visibility=public-images;imageId=ami-067bfd62>`_
-   * - EU (Ireland)
-     - ``eu-west-1``
-     - `ami-a40957dd <https://console.aws.amazon.com/ec2/v2/home?region=eu-west-1#Images:visibility=public-images;imageId=ami-a40957dd>`_
-   * - EU (Frankfurt)
-     - ``eu-central-1``
-     - `ami-bfd08f54 <https://console.aws.amazon.com/ec2/v2/home?region=eu-central-1#Images:visibility=public-images;imageId=ami-bfd08f54>`_
-   * - EU (London)
-     - ``eu-west-2``
-     - `ami-5015f437 <https://console.aws.amazon.com/ec2/v2/home?region=eu-west-2#Images:visibility=public-images;imageId=ami-5015f437>`_
-   * - EU (Paris)
-     - ``eu-west-3``
-     - `ami-a600b6db <https://console.aws.amazon.com/ec2/v2/home?region=eu-west-2#Images:visibility=public-images;imageId=ami-a600b6db>`_
-   * - Asia Pacific (Singapore)
-     - ``ap-southeast-1``
-     - `ami-6ae1bb16 <https://console.aws.amazon.com/ec2/v2/home?region=ap-southeast-1#Images:visibility=public-images;imageId=ami-6ae1bb16>`_
-   * - Asia Pacific (Sydney)
-     - ``ap-southeast-2``
-     - `ami-e1c30d83 <https://console.aws.amazon.com/ec2/v2/home?region=ap-southeast-2#Images:visibility=public-images;imageId=ami-e1c30d83>`_
-   * - Asia Pacific (Seoul)
-     - ``ap-northeast-2``
-     - `ami-2753fc49 <https://console.aws.amazon.com/ec2/v2/home?region=ap-northeast-2#Images:visibility=public-images;imageId=ami-2753fc49>`_
    * - Asia Pacific (Tokyo)
-     - ``ap-northeast-1``
-     - `ami-81e8fffd <https://console.aws.amazon.com/ec2/v2/home?region=ap-northeast-1#Images:visibility=public-images;imageId=ami-81e8fffd>`_
-   * - Asia Pacific (Mumbai)
-     - ``ap-south-1``
-     - `ami-a9e0c5c6 <https://console.aws.amazon.com/ec2/v2/home?region=ap-south-1#Images:visibility=public-images;imageId=ami-a9e0c5c6>`_
-   * - South America (São Paulo)
-     - ``sa-east-1``
-     - `ami-24722448 <https://console.aws.amazon.com/ec2/v2/home?region=sa-east-1#Images:visibility=public-images;imageId=ami-24722448>`_
-   * - US East (Ohio)
-     - ``us-east-2``
-     - `ami-06083d63 <https://console.aws.amazon.com/ec2/v2/home?region=sa-east-1#Images:visibility=public-images;imageId=ami-06083d63>`_
+     - **ap-northeast-1**
+     - `ami-81e8fffd <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-81e8fffd>`_
 
+   * - Asia Pacific (Seoul)
+     - **ap-northeast-2**
+     - `ami-2753fc49 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-2753fc49>`_
+
+   * - Asia Pacific (Mumbai)
+     - **ap-south-1**
+     - `ami-a9e0c5c6 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-a9e0c5c6>`_
+
+   * - Asia Pacific (Singapore)
+     - **ap-southeast-1**
+     - `ami-6ae1bb16 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-6ae1bb16>`_
+
+   * - Asia Pacific (Sydney)
+     - **ap-southeast-2**
+     - `ami-e1c30d83 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-e1c30d83>`_
+
+   * - Canada (Central)
+     - **ca-central-1**
+     - `ami-067bfd62 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-067bfd62>`_
+
+   * - EU (Frankfurt)
+     - **eu-central-1**
+     - `ami-bfd08f54 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-bfd08f54>`_
+
+   * - EU (Ireland)
+     - **eu-west-1**
+     - `ami-a40957dd <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-a40957dd>`_
+
+   * - EU (London)
+     - **eu-west-2**
+     - `ami-5015f437 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-5015f437>`_
+
+   * - EU (Paris)
+     - **eu-west-3**
+     - `ami-a600b6db <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-a600b6db>`_
+
+   * - South America (São Paulo)
+     - **sa-east-1**
+     - `ami-24722448 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-24722448>`_
+
+   * - US East (N. Virginia)
+     - **us-east-1**
+     - `ami-30ad0f4d <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-30ad0f4d>`_
+
+   * - US East (Ohio)
+     - **us-east-2**
+     - `ami-aa4e7ecf <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-aa4e7ecf>`_
+
+   * - US West (N. California)
+     - **us-west-1**
+     - `ami-34667654 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-34667654>`_
+
+   * - US West (Oregon)
+     - **us-west-2**
+     - `ami-ded5b1a6 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-ded5b1a6>`_
 
 Running from Command Line
 --------------------------------------------------------------------------------
