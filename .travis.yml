@@ -4,6 +4,7 @@ language: go
 
 go:
   - 1.9.x
+  - 1.10.x
   - master
 
 matrix:
@@ -77,6 +78,7 @@ after_success:
   - bash <(curl -s https://codecov.io/bash) -X fix
 
 notifications:
+  email: false
   slack:
     on_success: change
     on_failure: always
