@@ -205,7 +205,7 @@
         dest: /etc/grafana/grafana.ini
         section: snapshots
         option: external_snapshot_name
-        value: Share with Percona  
+        value: Share with Percona
 
     - name: Grafana                    | Enable gzip
       ini_file:
