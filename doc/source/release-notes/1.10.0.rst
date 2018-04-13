@@ -28,9 +28,9 @@ events and displaying them as annotations using the new command
 |pmm-admin.annotate|. A recent |percona| survey reveals that database and DevOps
 engineers highly value visibility into the application layer.
 
-By displaying application events on top of your |pmm| graphs, engineers can now
-correlate application events (common cases: application deploys, outages, and
-upgrades).
+By displaying application events on top of your |pmm| graphs,
+engineers can now correlate application events to database events
+(common cases: application deploys, outages, and upgrades).
 
 Usage
 --------------------------------------------------------------------------------

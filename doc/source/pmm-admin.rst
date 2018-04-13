@@ -51,6 +51,9 @@ The following options can be used with any command:
 |pmm-admin.add|_
   Add a monitoring service.
 
+|pmm-admin.annotate|_
+  Add an annotation
+
 |pmm-admin.check-network|_
   Check network connection between |pmm-client| and |pmm-server|.
 
@@ -104,9 +107,9 @@ Use the |pmm-admin.add| command to add monitoring services.
 
 .. rubric:: USAGE
 
-.. code-block:: text
+.. code-block:: bash
 
-   pmm-admin add [OPTIONS] [SERVICE]
+   $ pmm-admin add [OPTIONS] [SERVICE]
 
 When you add a monitoring service |pmm-admin| automatically creates
 and sets up a service in the operating system. You can tweak the
@@ -755,6 +758,40 @@ For more information, run
    Default ports
       :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
 
+.. _pmm-admin.annotate:
+
+Adding annotations
+================================================================================
+
+Use the |pmm-admin.annotate| command to set notifications about important
+application events and display them on all dashboards. By using annotations, you
+can conveniently analyze the impact of application events on your database.
+
+.. _pmm-admin.annotate.usage:
+
+.. rubric:: USAGE
+
+|tip.run-this.root|
+
+.. include:: .res/code/sh.org
+   :start-after: +pmm-admin.annotate.tags+
+   :end-before: #+end-block
+
+.. _pmm-admin.annotate.options:
+
+.. rubric:: OPTIONS
+
+The |pmm-admin.annotate| supports the following options:
+
+|opt.tags|
+
+   Specify one or more tags applicable to the annotation that you are
+   creating. Enclose your tags in quotes and separate individual tags by a
+   comma, such as "tag 1,tag 2".
+
+You can also use
+:ref:`global options that apply to any other command <pmm-admin.options>`.
+
 .. _pmm-admin.check-network:
 
 Checking network connectivity
@@ -787,8 +824,7 @@ but you can use :ref:`global options that apply to any other command
 
 .. rubric:: DETAILED DESCRIPTION
 
-Connection tests are performed both ways,
-with results separated accordingly:
+Connection tests are performed both ways, with results separated accordingly:
 
 * ``Client --> Server``
 
