@@ -679,7 +679,7 @@ that collects local |mongodb| metrics for this particular |mongodb| instance.
 The following options can be used with the |opt.mongodb-metrics| alias:
 
 |opt.cluster|
-  Specify the MongoDB cluster name.
+  Specify the MongoDB cluster name. 
 
 |opt.uri|
   Specify the MongoDB instance URI with the following format::
@@ -699,6 +699,24 @@ For more information, run
 |pmm-admin.add|
 |opt.mongodb-metrics|
 |opt.help|.
+
+.. _pmm-admin.add.mongodb-metrics.cluster.monitoring:
+
+.. rubric:: Monitoring a cluster
+
+When using |pmm| to monitor a cluster, you should enable monitoring for each
+instance by using the |pmm-admin.add| command. This includes each member of
+replica sets in shards, mongos, and all configuration servers. Make sure that
+for each instance you supply the cluster name via the |opt.cluster| option and
+provide its URI via the |opt.uri| option.
+
+|tip.run-this.root|. This examples uses *127.0.0.1* as a URL.
+
+.. code-block:: bash
+
+   $ pmm-admin add mongodb:metrics \
+   --uri mongodb://127.0.0.1:<port>/admin <instance name> \
+   --cluster <cluster name>
 
 .. seealso::
 

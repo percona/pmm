@@ -546,8 +546,8 @@ You may toggle displaying annotations on metric graphs by using the
 
    |grafana| Documentation:
 
-      - `Annotations <http://docs.grafana.org/reference/annotations/#annotations>`
-      - `Using annotations in queries <http://docs.grafana.org/reference/annotations/#querying-other-data-sources>`
+      - `Annotations <http://docs.grafana.org/reference/annotations/#annotations>`_
+      - `Using annotations in queries <http://docs.grafana.org/reference/annotations/#querying-other-data-sources>`_
 
 .. _using.dashboard.snapshot.creating:
 
