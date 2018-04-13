@@ -396,7 +396,7 @@ same interface using the same tools. By using the familiar and intuitive
 interface of :term:`QAN` you can analyze the efficiency of your application
 reading and writing data in the collections of your |mongodb| databases.
 
-.. note:: **Suppored** |mongodb| **versions**
+.. note:: **Supported** |mongodb| **versions**
 
    PMM supports `MongoDB`_ version 3.2 or higher. 
 
@@ -431,20 +431,18 @@ You can also use a navigation menu which groups dashboards by
 application. Click the required group and then select the dashboard
 that matches your choice.
 
-.. table:: Navigation menu groups
-
-   =============  ==============================================================
-   Group          Dashboards for monitoring ...
-   =============  ==============================================================   
-   |qan.name|     |qan| component (see :ref:`using-qan`
-   OS             The operating system status
-   |mysql|        |mysql| and |amazon-aurora|
-   |mongodb|      State of |mongodb| hosts
-   HA             High availability
-   Cloud          |amazon-rds| and |amazon-aurora|
-   Insight        Summary, cross-server and |prometheus|
-   |pmm|          Server settings
-   =============  ==============================================================
+=============  ==============================================================
+Group          Dashboards for monitoring ...
+=============  ==============================================================   
+|qan.name|     |qan| component (see :ref:`using-qan`
+OS             The operating system status
+|mysql|        |mysql| and |amazon-aurora|
+|mongodb|      State of |mongodb| hosts
+HA             High availability
+Cloud          |amazon-rds| and |amazon-aurora|
+Insight        Summary, cross-server and |prometheus|
+|pmm|          Server settings
+=============  ==============================================================
 
 .. figure:: .res/graphics/png/metrics-monitor.menu.png
 
@@ -513,6 +511,43 @@ Enabling dashboards
 
 In |pmm|, you can disable the dashboards that you do not require. They will
 disappear from the |gui.dashboard-dropdown| list. You can enable them back again
+
+.. _using.annotation.application-event.marking:
+
+Using Annotations to Mark Important Application Events
+--------------------------------------------------------------------------------
+
+Some events in your application may impact your database. Annotations
+visualize these events on each dashboard of |pmm-server|.
+
+.. figure:: .res/graphics/png/pmm-server.mysql-overview.mysql-client-thread-activity.1.png
+
+   An annotation appears as a vertical line which crosses a graph at a
+   specific point. Its text explains which event occurred at that time.
+
+To create a new annotation, run |pmm-admin.annotate| command on
+|pmm-client| passing it text which explains what event the new
+annotation should represent. Use the |opt.tags| option to supply one
+or more tags separated by a comma.
+
+You may toggle displaying annotations on metric graphs by using the
+|gui.pmm-annotations| checkbox.
+
+.. figure:: .res/graphics/png/pmm-server.pmm-annotations.png
+
+   Remove the checkmark from the |gui.pmm-annotations| checkbox to
+   hide annotations from all dashboards.
+
+.. seealso::
+
+   Adding annotations
+
+     :ref:`pmm-admin.annotate`
+
+   |grafana| Documentation:
+
+      - `Annotations <http://docs.grafana.org/reference/annotations/#annotations>`_
+      - `Using annotations in queries <http://docs.grafana.org/reference/annotations/#querying-other-data-sources>`_
 
 .. _using.dashboard.snapshot.creating:
 

@@ -1,0 +1,86 @@
+.. _1.10.0:
+
+================================================================================
+|pmm.name| |release|
+================================================================================
+
+:Date: April 18, 2018
+
+|percona| announces the release of |pmm.name| |release|.  |pmm.intro| is a free
+and open-source platform for managing and monitoring |mysql| and |mongodb|
+performance.  You can run |pmm| in your own environment for maximum security and
+reliability. It provides thorough time-based analysis for |mysql| and |mongodb|
+servers to ensure that your data works as efficiently as possible.
+
+We focused mainly on two features in |release|, but there are also several
+notable improvements worth highlighting:
+
+- Annotations - Record and display application events as annotations using
+  |pmm-admin.annotate|
+- |grafana| 5.0 - Improved visualization effects
+
+Annotations  
+================================================================================
+
+Application events are one of the contributors to changes in database
+performance characteristics, and in this release |pmm| now supports receiving
+events and displaying them as annotations using the new command
+|pmm-admin.annotate|. A recent |percona| survey reveals that database and DevOps
+engineers highly value visibility into the application layer.
+
+By displaying application events on top of your |pmm| graphs,
+engineers can now correlate application events to database events
+(common cases: application deploys, outages, and upgrades).
+
+Usage
+--------------------------------------------------------------------------------
+
+For example, you have an application deployment that just completed to version
+1.2, and it affects the UI only, so you want to set tags for the version and
+interface impacted:
+
+.. code-block:: bash
+
+   $ pmm-admin annotate "Application deploy v1.2" --tags "UI, v1.2"
+
+Using the optional |opt.tags| option allows you to filter which annotations are
+displayed on the dashboard via a toggle option.
+
+|grafana| 5.0
+================================================================================
+
+Included in |grafana| 5.0 are a number of dramatic improvements, which in future
+|pmm| releases we plan to extend our usage of each feature, and the one we like
+best is the virtually unlimited way you can size and shape graphs.  No longer
+are you bound by panel constraints to keep all objects at the same fixed height!
+This improvement indirectly addresses the visualization error in |pmm-server|
+where some graphs would appear to be on two lines and ended up wasting screen
+space.
+
+Issues in this release
+================================================================================	   
+
+New Features and Improvements
+--------------------------------------------------------------------------------
+
+- :pmmbug:`2293`: Added the *Galera Replication Latency* graph to the
+  *PXC/Galera Cluster overview* dashboard.
+- :pmmbug:`2295`: PXC/Galera Graphs -> Galera Replication Latency
+- :pmmbug:`2353`: Additional snapshot changes for using |grafana| 5
+
+Bug fixes
+--------------------------------------------------------------------------------
+
+- :pmmbug:`2311`: Metric's table in |qan| looks weird
+- :pmmbug:`2341`: Typo in text on password page of OVF
+- :pmmbug:`2359`: Trim leading and trailing whitespaces for all fields on
+  AWS/OVF Installation wizard
+- :pmmbug:`2360`: Whats new link for Update widget
+- :pmmbug:`2366`: Some charts were moved on Home dashboards
+
+.. |release| replace:: 1.10.0
+		       
+.. include:: ../.res/replace/name.txt
+.. include:: ../.res/replace/program.txt
+.. include:: ../.res/replace/option.txt			    
+.. include:: ../.res/replace/url.txt

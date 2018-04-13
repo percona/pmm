@@ -29,6 +29,7 @@
 .. |docker.stop|   replace:: :program:`docker stop`
 .. |docker.tag|    replace:: :program:`docker tag`
 
+.. |pmm-admin.annotate|            replace:: :program:`pmm-admin annotate`
 .. |pmm-admin.add|            replace:: :program:`pmm-admin add`
 .. |pmm-admin.check-network|  replace:: :program:`pmm-admin check-network`
 .. |pmm-admin.config|         replace:: :program:`pmm-admin config`

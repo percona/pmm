@@ -51,6 +51,9 @@ The following options can be used with any command:
 |pmm-admin.add|_
   Add a monitoring service.
 
+|pmm-admin.annotate|_
+  Add an annotation
+
 |pmm-admin.check-network|_
   Check network connection between |pmm-client| and |pmm-server|.
 
@@ -104,9 +107,9 @@ Use the |pmm-admin.add| command to add monitoring services.
 
 .. rubric:: USAGE
 
-.. code-block:: text
+.. code-block:: bash
 
-   pmm-admin add [OPTIONS] [SERVICE]
+   $ pmm-admin add [OPTIONS] [SERVICE]
 
 When you add a monitoring service |pmm-admin| automatically creates
 and sets up a service in the operating system. You can tweak the
@@ -676,7 +679,7 @@ that collects local |mongodb| metrics for this particular |mongodb| instance.
 The following options can be used with the |opt.mongodb-metrics| alias:
 
 |opt.cluster|
-  Specify the MongoDB cluster name.
+  Specify the MongoDB cluster name. 
 
 |opt.uri|
   Specify the MongoDB instance URI with the following format::
@@ -696,6 +699,24 @@ For more information, run
 |pmm-admin.add|
 |opt.mongodb-metrics|
 |opt.help|.
+
+.. _pmm-admin.add.mongodb-metrics.cluster.monitoring:
+
+.. rubric:: Monitoring a cluster
+
+When using |pmm| to monitor a cluster, you should enable monitoring for each
+instance by using the |pmm-admin.add| command. This includes each member of
+replica sets in shards, mongos, and all configuration servers. Make sure that
+for each instance you supply the cluster name via the |opt.cluster| option and
+provide its URI via the |opt.uri| option.
+
+|tip.run-this.root|. This examples uses *127.0.0.1* as a URL.
+
+.. code-block:: bash
+
+   $ pmm-admin add mongodb:metrics \
+   --uri mongodb://127.0.0.1:<port>/admin <instance name> \
+   --cluster <cluster name>
 
 .. seealso::
 
@@ -755,6 +776,40 @@ For more information, run
    Default ports
       :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
 
+.. _pmm-admin.annotate:
+
+Adding annotations
+================================================================================
+
+Use the |pmm-admin.annotate| command to set notifications about important
+application events and display them on all dashboards. By using annotations, you
+can conveniently analyze the impact of application events on your database.
+
+.. _pmm-admin.annotate.usage:
+
+.. rubric:: USAGE
+
+|tip.run-this.root|
+
+.. include:: .res/code/sh.org
+   :start-after: +pmm-admin.annotate.tags+
+   :end-before: #+end-block
+
+.. _pmm-admin.annotate.options:
+
+.. rubric:: OPTIONS
+
+The |pmm-admin.annotate| supports the following options:
+
+|opt.tags|
+
+   Specify one or more tags applicable to the annotation that you are
+   creating. Enclose your tags in quotes and separate individual tags by a
+   comma, such as "tag 1,tag 2".
+
+You can also use
+:ref:`global options that apply to any other command <pmm-admin.options>`.
+
 .. _pmm-admin.check-network:
 
 Checking network connectivity
@@ -787,8 +842,7 @@ but you can use :ref:`global options that apply to any other command
 
 .. rubric:: DETAILED DESCRIPTION
 
-Connection tests are performed both ways,
-with results separated accordingly:
+Connection tests are performed both ways, with results separated accordingly:
 
 * ``Client --> Server``
 

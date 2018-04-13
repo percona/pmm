@@ -713,10 +713,22 @@ Demonstrates how to set the option to 8 days.
 
 * pmm-admin
 
+** annotate
+
+#+begin-block: pmm-admin annotate tags
+
++pmm-admin.annotate.tags+
+
+.. code-block:: bash
+
+   $ pmm-admin annotate "Upgrade to v1.2" --tags "UX Imrovement,v1.2"
+
+#+end-block
+
+
 ** add
 
 #+begin-block: pmm-admin add host user password
-
 
 +pmm-admin.add.mysql-metrics.rds+
 

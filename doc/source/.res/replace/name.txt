@@ -112,6 +112,7 @@
 
 .. GUI Elements
 
+.. |gui.pmm-annotations|                    replace:: :guilabel:`PMM Annotations`
 .. |gui.count|                              replace:: :guilabel:`Count`
 .. |gui.1-click-launch|                     replace:: :guilabel:`1-Click Launch`
 .. |gui.add-permissions|                    replace:: :guilabel:`Add permissions`
