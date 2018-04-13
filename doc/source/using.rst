@@ -431,20 +431,18 @@ You can also use a navigation menu which groups dashboards by
 application. Click the required group and then select the dashboard
 that matches your choice.
 
-.. table:: 
-
-   =============  ==============================================================
-   Group          Dashboards for monitoring ...
-   =============  ==============================================================   
-   |qan.name|     |qan| component (see :ref:`using-qan`
-   OS             The operating system status
-   |mysql|        |mysql| and |amazon-aurora|
-   |mongodb|      State of |mongodb| hosts
-   HA             High availability
-   Cloud          |amazon-rds| and |amazon-aurora|
-   Insight        Summary, cross-server and |prometheus|
-   |pmm|          Server settings
-   =============  ==============================================================
+=============  ==============================================================
+Group          Dashboards for monitoring ...
+=============  ==============================================================   
+|qan.name|     |qan| component (see :ref:`using-qan`
+OS             The operating system status
+|mysql|        |mysql| and |amazon-aurora|
+|mongodb|      State of |mongodb| hosts
+HA             High availability
+Cloud          |amazon-rds| and |amazon-aurora|
+Insight        Summary, cross-server and |prometheus|
+|pmm|          Server settings
+=============  ==============================================================
 
 .. figure:: .res/graphics/png/metrics-monitor.menu.png
 

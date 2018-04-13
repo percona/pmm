@@ -1,6 +1,7 @@
 .. -*- mode: rst -*-
 .. Options (all using the 'opt.' prefix)
    
+.. |opt.tags|                  replace:: :option:`--tags`
 .. |opt.all|                   replace:: :option:`--all`
 .. |opt.bind-address|          replace:: :option:`--bind-address`
 .. |opt.client-address|        replace:: :option:`--client-address`
