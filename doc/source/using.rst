@@ -396,7 +396,7 @@ same interface using the same tools. By using the familiar and intuitive
 interface of :term:`QAN` you can analyze the efficiency of your application
 reading and writing data in the collections of your |mongodb| databases.
 
-.. note:: **Suppored** |mongodb| **versions**
+.. note:: **Supported** |mongodb| **versions**
 
    PMM supports `MongoDB`_ version 3.2 or higher. 
 
@@ -431,7 +431,7 @@ You can also use a navigation menu which groups dashboards by
 application. Click the required group and then select the dashboard
 that matches your choice.
 
-.. table:: Navigation menu groups
+.. table:: 
 
    =============  ==============================================================
    Group          Dashboards for monitoring ...
