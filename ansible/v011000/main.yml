@@ -68,14 +68,14 @@
       with_items:
         - nginx
         - pmm-update
-        - percona-toolkit-3.0.5
+        - percona-toolkit-3.0.8
         - percona-dashboards-1.10.0
         - pmm-server-1.10.0
         - pmm-client-1.10.0
         - percona-orchestrator-3.0.6
         - percona-prometheus-1.8.2
         - percona-qan-api-1.10.0
-        - percona-grafana-4.6.3
+        - percona-grafana-5.0.4
         - percona-qan-app-1.10.0
         - pmm-manage-1.10.0
         - pmm-managed-1.10.0
