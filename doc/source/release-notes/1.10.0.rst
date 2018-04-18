@@ -4,7 +4,7 @@
 |pmm.name| |release|
 ================================================================================
 
-:Date: April 18, 2018
+:Date: April 19, 2018
 
 |percona| announces the release of |pmm.name| |release|.  |pmm.intro| is a free
 and open-source platform for managing and monitoring |mysql| and |mongodb|
@@ -66,7 +66,10 @@ New Features and Improvements
 - :pmmbug:`2293`: Added the *Galera Replication Latency* graph to the
   *PXC/Galera Cluster overview* dashboard.
 - :pmmbug:`2295`: PXC/Galera Graphs -> Galera Replication Latency
-- :pmmbug:`2353`: Additional snapshot changes for using |grafana| 5
+- :pmmbug:`2371`: Add back Host parameters to menu
+- :pmmbug:`2330`: PMM Application Annotations
+- :pmmbug:`2332`: Grafana 5 update
+
 
 Bug fixes
 --------------------------------------------------------------------------------
@@ -76,7 +79,10 @@ Bug fixes
 - :pmmbug:`2359`: Trim leading and trailing whitespaces for all fields on
   AWS/OVF Installation wizard
 - :pmmbug:`2360`: Whats new link for Update widget
-- :pmmbug:`2366`: Some charts were moved on Home dashboards
+- :pmmbug:`2346`: Innodb AHI Graphs invalid
+- :pmmbug:`2364`: QPS are wrong in QAN
+- :pmmbug:`2388`: Query fingerprint not rendering
+
 
 .. |release| replace:: 1.10.0
 		       
