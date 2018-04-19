@@ -214,6 +214,13 @@
         option: enable_gzip
         value: true
 
+    - name: Grafana                    | Enable Anonymous access
+      ini_file:
+        dest: /etc/grafana/grafana.ini
+        section: auth.anonymous
+        option: enabled
+        value: true
+
     - name: PMM                        | Reload config (supervisord)
       when: supervisorctl.stat.exists
       command: /usr/bin/supervisorctl update
