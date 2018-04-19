@@ -18,10 +18,12 @@ notable improvements worth highlighting:
   |pmm-admin.annotate|
 - `Grafana 5.0`_ - Improved visualization effects
 - `Switching between Dashboards`_ - Now switching dashboards
-- `New PXC Galera Replication Latency Graphs`_ - Added Galera Replication Latency graphs on PXC
+- `New PXC Galera Replication Latency Graphs`_ - Added Galera Replication
+  Latency graphs on PXC
   Overview dashboard with consistent colours
 
-The `issues in the release <https://confluence.percona.com/display/PMM/Release+Notes+1.9.0#ReleaseNotes1.9.0-issuesinrelease>`_ includes 5 new features & improvements, and 6 bugs fixed.
+The `Issues in this release`_ includes 4 new features & improvements, and 8
+bugs fixed.
 
 Annotations
 ================================================================================
@@ -51,13 +53,13 @@ interface impacted:
 
 Using the optional |opt.tags| option allows you to filter which Annotations are
 displayed on the dashboard via a toggle option. Read more about Annotations
-utilization in the Documentation.
+utilization in the `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/using.html#using-annotations-to-mark-important-application-events>`_.
 
 Grafana 5.0
 ================================================================================
 
 We're extremely pleased to see Grafana ship 5.0 and we were fortunate enough to
-be at Grafanacon, including Percona's very own `@Dimitri Vanoverbeke <https://confluence.percona.com/display/~dimitri.vanoverbeke>`_ (Dim0) who presented What we Learned Integrating
+be at Grafanacon, including Percona's very own `@Dimitri Vanoverbeke <https://www.percona.com/blog/author/dimitri-vanoverbeke/>`_ (Dim0) who presented What we Learned Integrating
 Grafana and Prometheus!
 
 .. raw:: html
@@ -103,7 +105,6 @@ New Features and Improvements
   *PXC/Galera Cluster overview* dashboard.
 - :pmmbug:`2295`: Improve colour selection on the *PXC/Galera Cluster Overview*
   dashboard
-- :pmmbug:`2371`: Add back host passing when switching between Dashboards
 - :pmmbug:`2330`: Application Annotations
 - :pmmbug:`2332`: Grafana 5 update
 
@@ -120,13 +121,14 @@ Bug fixes
 - :pmmbug:`2364`: QPS are wrong in QAN
 - :pmmbug:`2388`: Query Analytics does not render fingerprint section in some
   cases
+- :pmmbug:`2371`: Pass host when switching between Dashboards
 
 How to get PMM
 ================================================================================
 
 |pmm| is available for installation using three methods:
 
-* On `Docker Hub <https://hub.docker.com/r/percona/pmm-server/>`_- ``docker pull
+* On `Docker Hub <https://hub.docker.com/r/percona/pmm-server/>`_ - ``docker pull
   percona/pmm-server`` - `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/docker.html>`_
 * `AWS Marketplace <https://aws.amazon.com/marketplace/pp/B077J7FYGX>`_ - `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html>`_
 * `Open Virtualization Format (OVF) <https://www.percona.com/downloads/pmm/>`_ - `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/virtual-appliance.html>`_
