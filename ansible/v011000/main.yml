@@ -218,8 +218,8 @@
       ini_file:
         dest: /etc/grafana/grafana.ini
         section: auth.anonymous
-        option: enabled
-        value: true
+        option: org_role
+        value: Editor
 
     - name: PMM                        | Reload config (supervisord)
       when: supervisorctl.stat.exists
