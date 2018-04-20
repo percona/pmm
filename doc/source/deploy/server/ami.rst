@@ -339,63 +339,63 @@ for the corresponding image:
      - AMI ID
    * - Asia Pacific (Tokyo)
      - **ap-northeast-1**
-     - `ami-3280924e <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-3280924e>`_
+     - `ami-9f4c56e3 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-9f4c56e3>`_
 
    * - Asia Pacific (Seoul)
      - **ap-northeast-2**
-     - `ami-b1d779df <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-b1d779df>`_
+     - `ami-b754fad9 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-b754fad9>`_
 
    * - Asia Pacific (Mumbai)
      - **ap-south-1**
-     - `ami-948aaefb <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-948aaefb>`_
+     - `ami-4c321423 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-4c321423>`_
 
    * - Asia Pacific (Singapore)
      - **ap-southeast-1**
-     - `ami-df6647a3 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-df6647a3>`_
+     - `ami-4f83a133 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-4f83a133>`_
 
    * - Asia Pacific (Sydney)
      - **ap-southeast-2**
-     - `ami-0d9a526f <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0d9a526f>`_
+     - `ami-50418a32 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-50418a32>`_
 
    * - Canada (Central)
      - **ca-central-1**
-     - `ami-f131b795 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-f131b795>`_
+     - `ami-038b0a67 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-038b0a67>`_
 
    * - EU (Frankfurt)
      - **eu-central-1**
-     - `ami-c8c19923 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-c8c19923>`_
+     - `ami-d8644033 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-d8644033>`_
 
    * - EU (Ireland)
      - **eu-west-1**
-     - `ami-f2f6d38b <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-f2f6d38b>`_
+     - `ami-23bc9c5a <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-23bc9c5a>`_
 
    * - EU (London)
      - **eu-west-2**
-     - `ami-5323c334 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-5323c334>`_
+     - `ami-afe407c8 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-afe407c8>`_
 
    * - EU (Paris)
      - **eu-west-3**
-     - `ami-2cfe4f51 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-2cfe4f51>`_
+     - `ami-5bdb6a26 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-5bdb6a26>`_
 
    * - South America (São Paulo)
      - **sa-east-1**
-     - `ami-a59fcec9 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-a59fcec9>`_
+     - `ami-26aafa4a <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-26aafa4a>`_
 
    * - US East (N. Virginia)
      - **us-east-1**
-     - `ami-b01cc5cf <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-b01cc5cf>`_
+     - `ami-48218e37 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-48218e37>`_
 
    * - US East (Ohio)
      - **us-east-2**
-     - `ami-9b7546fe <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-9b7546fe>`_
+     - `ami-35bd8e50 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-35bd8e50>`_
 
    * - US West (N. California)
      - **us-west-1**
-     - `ami-e4ccdf84 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-e4ccdf84>`_
+     - `ami-f0594490 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-f0594490>`_
 
    * - US West (Oregon)
      - **us-west-2**
-     - `ami-2f523157 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-2f523157>`_
+     - `ami-2adcb352 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-2adcb352>`_
 
 Running from Command Line
 --------------------------------------------------------------------------------
