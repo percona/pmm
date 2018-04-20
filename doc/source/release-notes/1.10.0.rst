@@ -4,7 +4,7 @@
 |pmm.name| |release|
 ================================================================================
 
-:Date: April 19, 2018
+:Date: April 20, 2018
 
 |percona| announces the release of |pmm.name| |release|.  |pmm.intro| is a free
 and open-source platform for managing and monitoring |mysql| and |mongodb|
