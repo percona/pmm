@@ -342,7 +342,7 @@ for the corresponding image:
      - `ami-9f4c56e3 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-9f4c56e3>`_
 
    * - Asia Pacific (Seoul)
-     - **ami-b754fad9**
+     - **ap-northeast-2**
      - `ami-b1d779df <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-b754fad9>`_
 
    * - Asia Pacific (Mumbai)
