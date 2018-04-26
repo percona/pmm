@@ -254,13 +254,15 @@ web interface.
 
 .. _using.qan.configuring:
 
-Configuring Query Analytics
+Configuring |qan.name|
 --------------------------------------------------------------------------------
 
-The :guilabel:`Settings` button opens a separate page with settings,
-status, and log for the selected database instance.
+All |qan.name| settings are available from the |query-analytics-settings|
+dashboard. To open this dashboard, use the |pmm| menu group.
 
-.. SCREENSHOT: Settings button
+.. figure:: .res/graphics/png/metrics-monitor.menu.pmm.png
+
+   The |pmm| group in the |metrics-monitor| navigation menu
 
 .. _using.qan.configuring.settings-tab:
 
@@ -275,13 +277,32 @@ This tab contains several settings which influence how the monitored data are
 collected. Note that these settings cannot be changed directly in |qan|. You
 need to set the appropriate options by using the tools from the database server
 itself. You can, however, select where the database server mentrics are
-collected from, such as *slow log*, or *performance schema*. For this, change
-the value of the |gui.collect-from| field accordingly.
+collected from, such as |slow-log|, or |perf-schema|. For this, change the value
+of the |gui.collect-from| field accordingly.
 
 .. figure:: .res/graphics/png/pmm.qan.settings.1.png
 	   
    The |gui.settings| tab to view the essential settings of the selected
    database server.
+
+When you choose to collect |mysql| data from |slow-log|, a group of read only
+values becomes available. Note that these settings cannot be set in |pmm|
+directly. These are essential parameters of |mysql| that affect the operation of
+|slow-log|. If you need to change these settings refer to the appriate sections
+of |mysql| documentation.
+
+.. seealso::
+
+   |percona-server| Documentation:
+
+      `Slow Query Log Rotation and Expiration
+      <https://www.percona.com/doc/percona-server/LATEST/flexibility/slowlog_rotation.html>`_
+
+   |mysql| Documentation:
+
+      `The Slow Query Log
+      <https://dev.mysql.com/doc/refman/5.7/en/slow-query-log.html>`_
+
 
 .. rubric:: |gui.status| Tab
 
