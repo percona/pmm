@@ -288,7 +288,7 @@ of the |gui.collect-from| field accordingly.
 When you choose to collect |mysql| data from |slow-log|, a group of read only
 values becomes available. Note that these settings cannot be set in |pmm|
 directly. These are essential parameters of |mysql| that affect the operation of
-|slow-log|. If you need to change these settings refer to the appriate sections
+|slow-log|. If you need to change these settings refer to the appropriate sections
 of |mysql| documentation.
 
 .. seealso::
