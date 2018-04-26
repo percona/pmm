@@ -32,11 +32,10 @@ Application events are one of the contributors to changes in database
 performance characteristics, and in this release |pmm| now supports receiving
 events and displaying them as Annotations using the new command
 |pmm-admin.annotate|. A recent |percona| survey reveals that database and DevOps
-engineers highly value visibility into the application layer. 
-By displaying application events on top of your |pmm| graphs,
-engineers can now correlate application events to database events
-(common cases: application deploys, outages, and upgrades) against Database and
-System level metric changes.
+engineers highly value visibility into the application layer.  By displaying
+application events on top of your |pmm| graphs, engineers can now correlate
+application events to database events (common cases: application deploys,
+outages, and upgrades) against Database and System level metric changes.
 
 .. image:: 1.10.0-1.png
 
@@ -53,13 +52,15 @@ interface impacted:
 
 Using the optional |opt.tags| option allows you to filter which Annotations are
 displayed on the dashboard via a toggle option. Read more about Annotations
-utilization in the `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/using.html#using-annotations-to-mark-important-application-events>`_.
+utilization in the
+`PMM documentation
+<https://www.percona.com/doc/percona-monitoring-and-management/using.html#using-annotations-to-mark-important-application-events>`_.
 
-Grafana 5.0
+|grafana| 5.0
 ================================================================================
 
-We're extremely pleased to see Grafana ship 5.0 and we were fortunate enough to
-be at Grafanacon, including Percona's very own `@Dimitri Vanoverbeke <https://www.percona.com/blog/author/dimitri-vanoverbeke/>`_ (Dim0) who presented What we Learned Integrating
+We're extremely pleased to see |grafana| ship 5.0 and we were fortunate enough to
+be at Grafanacon, including |percona|'s very own `@Dimitri Vanoverbeke <https://www.percona.com/blog/author/dimitri-vanoverbeke/>`_ (Dim0) who presented What we Learned Integrating
 Grafana and Prometheus!
 
 .. raw:: html
@@ -78,11 +79,11 @@ space.
 
 .. image:: 1.10.0-2.png
 
-Switching between Dashboards
+Switching Between Dashboards
 ================================================================================
 
 |pmm| now allows you to navigate between dashboards while maintaining the same
-host under observation, so that for example you can start on MySQL Overview
+host under observation, so that for example you can start on |mysql-overview|
 looking at host serverA, switch to MySQL InnoDB Advanced dashboard and continue
 looking at serverA, thus saving you a few clicks in the interface.
 
@@ -123,15 +124,12 @@ Bug fixes
   cases
 - :pmmbug:`2371`: Pass host when switching between Dashboards
 
-How to get PMM
-================================================================================
+.. seealso::
 
-|pmm| is available for installation using three methods:
+   How to get |pmm|
 
-* On `Docker Hub <https://hub.docker.com/r/percona/pmm-server/>`_ - ``docker pull
-  percona/pmm-server`` - `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/docker.html>`_
-* `AWS Marketplace <https://aws.amazon.com/marketplace/pp/B077J7FYGX>`_ - `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html>`_
-* `Open Virtualization Format (OVF) <https://www.percona.com/downloads/pmm/>`_ - `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/virtual-appliance.html>`_
+      `Deploying Percona Monitoring and Management
+      <https://www.percona.com/doc/percona-monitoring-and-management/deploy/index.html>`_
 
 .. |release| replace:: 1.10.0
 		       

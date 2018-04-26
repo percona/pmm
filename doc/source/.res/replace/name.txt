@@ -87,6 +87,7 @@
 
 .. Metrics Monitor Dashboards 
 
+.. |query-analytics-settings|        replace:: *Query Analytics Settings*
 .. |advanced-data-exploration|       replace:: *Advanced Data Exploration*
 .. |adv-data-expl|                   replace:: *Advanced Data Exploration*
 .. |amazon-rds-aurora-mysql-metrics| replace:: *Amazon RDS / Aurora MySQL Metrics*
