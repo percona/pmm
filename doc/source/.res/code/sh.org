@@ -1336,7 +1336,7 @@ Demonstrates how to set the option to 8 days.
 
 .. code-block:: bash
 
-   $ mongod --dbpath=DATABASEDIR --profile 1 --slowms 200 --rateLimit 100
+   $ mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
 #+end-block
 * vboxmanage
 

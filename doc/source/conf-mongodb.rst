@@ -78,17 +78,19 @@ server. This command is useful if you start :program:`mongod` manually.
    :end-before: #+end-block
 
 Note that you need to specify a path to an existing directory that stores
-database files with the |opt.dbpath|. When the |opt.profile| option
-is set to **1**, |mongod| only collects the profiling data for slow
-operations. The |opt.slowms| option sets the minimum time for a slow
-operation. In the given example, any operation which takes longer than **200**
-milliseconds is a slow operation.
+database files with the |opt.dbpath|. When the |opt.profile| option is set to
+**2**, |mongod| collects the profiling data for all operations. To decrease the
+load, you may consider setting this option to **1** so that the profiling data
+are only collected for slow operations.
 
-The |opt.rate-limit| option, which is available if you use
-|psmdb.name| instead of |mongodb|, refers to the number of queries
-that the |mongodb| profiler collects. The lower the rate limit, the
-less impact on the performance. However, the accuracy of the collected
-information decreases as well.
+The |opt.slowms| option sets the minimum time for a slow operation. In the given
+example, any operation which takes longer than **200** milliseconds is a slow
+operation.
+
+The |opt.rate-limit| option, which is available if you use |psmdb.name| instead
+of |mongodb|, refers to the number of queries that the |mongodb| profiler
+collects. The lower the rate limit, the less impact on the performance. However,
+the accuracy of the collected information decreases as well.
 
 .. seealso::
 
