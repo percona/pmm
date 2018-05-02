@@ -22,7 +22,7 @@ Basics
 
    Architecture Overview <architecture>
    Deployment Instructions <deploy/index>
-   Usage Information <using>
+   using
 
 Advanced
 ================================================================================

@@ -43,6 +43,7 @@
 .. |myrocks|                  replace:: *MyRocks*
 .. |mysql|                    replace:: *MySQL*
 .. |oracle-linux|             replace:: *Oracle Linux*
+.. |oracle|                   replace:: *Oracle*
 .. |orchestrator|             replace:: *Orchestrator*
 .. |percona-server|           replace:: *Percona Server*
 .. |percona|                  replace:: *Percona*
@@ -113,6 +114,7 @@
 
 .. GUI Elements
 
+.. |gui.explain|                            replace:: :guilabel:`Explain`
 .. |gui.pmm-annotations|                    replace:: :guilabel:`PMM Annotations`
 .. |gui.count|                              replace:: :guilabel:`Count`
 .. |gui.1-click-launch|                     replace:: :guilabel:`1-Click Launch`
@@ -206,6 +208,9 @@
 
 .. |cluster-monitor|  replace:: *clusterMonitor*
 
+.. Plugins
+
+.. |query-response-time| replace:: :code:`QUERY_RESPONSE_TIME`
 
 .. Default databases (prefix `db`)
 

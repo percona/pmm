@@ -75,7 +75,6 @@
 .. |opt.version|               replace:: :option:`--version`
 .. |opt.volumes-from|          replace:: :option:`--volumes-from`
 .. |opt.metrics-memory|        replace:: :option:`--METRICS_MEMORY`
-
 					     
 .. SSL parameters
 
@@ -164,8 +163,11 @@
 .. |opt.pmm-server-backup| replace:: :option:`pmm-server-backup`
 .. |opt.pmm-server|        replace:: :option:`pmm-server`
 
-.. MySQL variables
+.. MySQL (Percona Server, MongoDB) variables
 
-.. |opt.questions| replace:: :option:`Questions`
-
-   
+.. |opt.questions|                     replace:: :option:`Questions`
+.. |opt.innodb-monitor-enable|         replace:: :option:`innodb_monitor_enable`
+.. |opt.userstat|                      replace:: :option:`userstat`
+.. |opt.performance-schema-instrument| replace:: :option:`--performance_schema_instrument`
+.. |opt.perf-schema-instrument|        replace:: :option:`--performance_schema_instrument`
+.. |opt.query-response-time-stats|     replace:: :option:`query_response_time_stats`

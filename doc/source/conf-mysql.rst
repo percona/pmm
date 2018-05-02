@@ -133,6 +133,66 @@ connections, set the |slow_query_log_use_global_control|_ variable to ``all``.
 .. |slow_query_log_use_global_control| replace:: ``slow_query_log_use_global_control``
 .. _slow_query_log_use_global_control: https://www.percona.com/doc/percona-server/5.7/diagnostics/slow_extended.html#slow_query_log_use_global_control
 
+.. _perf-schema:
+
+|performance-schema|
+--------------------------------------------------------------------------------
+
+The default source of query data for |pmm| is the |slow-query-log|.  It is
+available in |mysql| 5.1 and later versions.  Starting from |mysql| 5.6
+(including |percona-server| 5.6 and later), you can choose to parse query data
+from the |perf-schema|.  Starting from |mysql| 5.6.6, |perf-schema| is enabled
+by default.
+
+|perf-schema| is not as data-rich as the |slow-query-log|, but it has all the
+critical data and is generally faster to parse.  If you are running
+|percona-server|, a :ref:`properly configured slow query log
+<slow-log-settings>` will provide the most amount of information with the lowest
+overhead.  Otherwise, using :ref:`Performance Schema <perf-schema-settings>`
+will likely provide better results.
+
+To use |perf-schema|, make sure that the ``performance_schema`` variable is set
+to ``ON``:
+
+.. include:: .res/code/sql.org
+   :start-after: +show-variables.like.performance-schema+
+   :end-before: #+end-block
+
+If not, add the the following lines to :file:`my.cnf` and restart |mysql|:
+
+.. include:: .res/code/sql.org
+   :start-after: +my-conf.mysql.performance-schema+
+   :end-before: #+end-block
+		
+.. note::
+
+   |perf-schema| instrumentation is enabled by default
+   in |mysql| 5.6.6 and later versions.
+   It is not available at all in |mysql| versions prior to 5.6.
+
+If the instance is already running, configure the |qan| agent to collect data
+from |perf-schema|.
+
+1. Open the |qan.name| dashboard.
+#. Click the |gui.settings| button.
+#. Open the |gui.settings| section.
+#. Select |opt.performance-schema| in the |gui.collect-from| drop-down list.
+#. Click |gui.apply| to save changes.
+
+If you are adding a new monitoring instance with the |pmm-admin| tool, use the
+|opt.query-source| *perfschema* option:
+
+|tip.run-this.root|
+
+.. include:: .res/code/sh.org
+   :start-after: +pmm-admin.add.mysql.user.password.create-user.query-source+
+   :end-before: #+end-block
+		   
+For more information, run
+|pmm-admin.add|
+|opt.mysql|
+|opt.help|.
+
 .. _perf-schema-settings:
 
 Configuring Performance Schema
@@ -173,106 +233,141 @@ If you are running a custom Performance Schema configuration, make sure that the
  +----------------------------------+---------+
  15 rows in set (0.00 sec)
 
-For more information about using Performance Schema in PMM, see
-:ref:`perf-schema`.
+.. seealso::
+
+   More information about using |performance-schema| in PMM
+
+      See :ref:`perf-schema`
 
 .. _pmm/mysql/conf/dashboard:
 
 Settings for Dashboards
 ================================================================================
 
-Not all dashboards in :ref:`using-mm` are available by default for all MySQL
-variants and configurations.  Some graphs require Percona Server, specialized
-plugins, or additional configuration.
+Not all dashboards in |metrics-monitor| are available by default for all |mysql|
+variants and configurations: |oracle|'s |mysql|, |percona-server|. or |mariadb|.
+Some graphs require |percona-server|, specialized plugins, or additional
+configuration.
 
 Collecting metrics and statistics for graphs increases overhead.  You can keep
 collecting and graphing low-overhead metrics all the time, and enable
 high-overhead metrics only when troubleshooting problems.
 
+.. seealso::
+
+   More information about |pmm| dashboards
+
+      :ref:`pmm.metrics-monitor`
+
 .. _pmm/mysql/conf/dashboard/mysql-innodb-metrics:
 
-MySQL InnoDB Metrics
+|mysql| |innodb| Metrics
 --------------------------------------------------------------------------------
 
-InnoDB metrics provide detailed insight about InnoDB operation.  Although you
+InnoDB metrics provide detailed insight about |innodb| operation.  Although you
 can select to capture only specific counters, their overhead is low even when
-all them are enabled all the time.  To enable all InnoDB metrics, set the global
-|innodb_monitor_enable|_ variable to ``all``::
+they all are enabled all the time.  To enable all |innodb| metrics, set the
+global variable |opt.innodb-monitor-enable| to ``all``:
 
- mysql> SET GLOBAL innodb_monitor_enable=all
+.. code-block:: sql
 
-.. |innodb_monitor_enable| replace:: ``innodb_monitor_enable``
-.. _innodb_monitor_enable: https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable
-
-.. _pmm/mysql/conf/dashboard/mysql-user-statistics:
-
-MySQL User Statistics
---------------------------------------------------------------------------------
-
-User statistics is a feature available in Percona Server and MariaDB.  It
-provides information about user activity, individual table and index access.  In
-some cases, collecting user statistics can lead to high overhead, so use this
-feature sparingly.
-
-To enable user statistics, set the |userstat|_ variable to ``1``.
+   mysql> SET GLOBAL innodb_monitor_enable=all
 
 .. seealso::
 
-   Setting variables
-      https://dev.mysql.com/doc/refman/5.7/en/set-variable.html
+   |mysql| Documentation: |opt.innodb-monitor-enable| variable
+      https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable
 
-.. |userstat| replace:: ``userstat``
-.. _userstat: https://www.percona.com/doc/percona-server/5.7/diagnostics/user_stats.html#userstat
+.. _pmm/mysql/conf/dashboard/mysql-user-statistics:
 
-MySQL Performance Schema
+|mysql| User Statistics
 --------------------------------------------------------------------------------
 
-With MySQL version 5.6 or later, Performance Schema instrumentation is enabled
-by default.  If certain instruments are not enabled, you will not see the
-corresponding graphs in the *Performance Schema* dashboard.  To enable full
-instrumentation, set the |performance_schema_instrument|_ option to ``'%=on'``
-at startup::
+User statistics is a feature of |percona-server| and |mariadb|.  It provides
+information about user activity, individual table and index access.  In some
+cases, collecting user statistics can lead to high overhead, so use this feature
+sparingly.
 
-   mysqld --performance-schema-instrument='%=on'
+To enable user statistics, set the |opt.userstat| variable to ``1``.
 
-.. note:: This option can cause additional overhead
-   and should be used with care.
+.. seealso::
 
-.. |performance_schema_instrument| replace:: ``--performance_schema_instrument``
-.. _performance_schema_instrument: https://dev.mysql.com/doc/refman/5.7/en/performance-schema-options.html#option_mysqld_performance-schema-instrument
+   |percona-server| Documentation: |opt.userstat|
+
+      https://www.percona.com/doc/percona-server/5.7/diagnostics/user_stats.html#userstat
+
+   |mysql| Documentation
+
+      `Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`_
+
+
+|mysql| |performance-schema|
+--------------------------------------------------------------------------------
+
+With |mysql| version 5.6 or later, |performance-schema| instrumentation is
+enabled by default.  If certain instruments are not enabled, you will not see
+the corresponding graphs in the :ref:`dashboard.mysql-performance-schema`
+dashboard.  To enable full instrumentation, set the option
+|opt.performance-schema-instrument| to ``'%=on'`` when starting the |mysql| server.
+
+.. code-block:: bash
+
+   $ mysqld --performance-schema-instrument='%=on'
+
+.. warning::
+
+   This option can cause additional overhead and should be used with care.
+
+.. seealso::
+
+   |mysql| Documentation: |opt.performance-schema-instrument| option
+
+      https://dev.mysql.com/doc/refman/5.7/en/performance-schema-options.html#option_mysqld_performance-schema-instrument
 
 .. _pmm/mysql/conf/dashboard/mysql-query-response-time:
 
-MySQL Query Response Time
+|percona-server| Query Response Time Distribution
 --------------------------------------------------------------------------------
 
-Query response time distribution is a feature available in Percona Server.  It
+Query response time distribution is a feature available in |percona-server|.  It
 provides information about changes in query response time for different groups
 of queries, often allowing to spot performance problems before they lead to
 serious issues.
 
-.. note:: This feature causes very high overhead,
-   especially on systems processing more than 10 000 queries per second.
-   Use it only temporarily when troubleshooting problems.
+.. warning::
+
+   This feature causes very high overhead, especially on systems processing more
+   than 10 000 queries per second.  Use it only temporarily when troubleshooting
+   problems.
 
 To enable collection of query response time:
 
-1. Install the ``QUERY_RESPONSE_TIME`` plugins::
+1. Install the |query-response-time| plugins:
 
-    mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
-    mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
-    mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_READ SONAME 'query_response_time.so';
-    mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_WRITE SONAME 'query_response_time.so';
+   .. code-block:: sql
 
-   For more information, see `this guide
-   <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#installing-the-plugins>`_
+      mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_AUDIT SONAME 'query_response_time.so';
+      mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME SONAME 'query_response_time.so';
+      mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_READ SONAME 'query_response_time.so';
+      mysql> INSTALL PLUGIN QUERY_RESPONSE_TIME_WRITE SONAME 'query_response_time.so';
 
-2. Set the global |query_response_time_stats|_ varible to ``ON``::
+#. Set the global varible |opt.query-response-time-stats| to ``ON``:
 
+   .. code-block:: sql
+		   
       mysql> SET GLOBAL query_response_time_stats=ON;
 
-.. |query_response_time_stats| replace:: ``query_response_time_stats``
-.. _query_response_time_stats: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#query_response_time_stats
+
+.. seealso::
+
+   |percona-server| Documentation:
+
+      - |opt.query-response-time-stats|
+	(https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#query_response_time_stats)
+
+      - `Response time distribution <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#installing-the-plugins>`_
 
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/option.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/fragment.txt

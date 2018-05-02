@@ -10,7 +10,7 @@ The |prometheus| dashboard informs how |prometheus| functions.
    Overview of |pmm|
       :ref:`using`
    All dashboards
-      :ref:`mm-dashboards`
+      :ref:`pmm.dashboard.list`
 
 |prometheus| overview
 --------------------------------------------------------------------------------
