@@ -36,6 +36,7 @@ Softirq
 .. seealso::
 
    Linux CPU Statistics
+
       http://blog.scoutapp.com/articles/2015/02/24/understanding-linuxs-cpu-stats
 
 .. _dashboard.system.processes:
@@ -104,21 +105,21 @@ bound workload saturating the storage subsystem or, a faulty/degraded hardware.
 
 .. _dashboard.system.mysql-query:
 
-MySQL Queries
+|mysql| Queries
 --------------------------------------------------------------------------------
 
-The MySQL Queries graph shows the rate of queries processed by MySQL.  The rate
-of queries is a rough indication of the MySQL server load.
+The |mysql| Queries graph shows the rate of queries processed by |mysql|.  The rate
+of queries is a rough indication of the |mysql| Server load.
 
 |view-all-metrics| |this-dashboard|
 
 .. _dashboard.system.innodb-row-operation:
 
-InnoDB Row Operations
+|innodb| Row Operations
 --------------------------------------------------------------------------------
 
-The InnoDB Row Operations graph shows the rate of rows processed by InnoDB.  It
-is a good indication of the MySQL server load.  A high value of Rows read, which
+The |innodb| Row Operations graph shows the rate of rows processed by |innodb|.  It
+is a good indication of the |mysql| Server load.  A high value of Rows read, which
 can easily be above a million, is an indication of poor queries or deficient
 indexing.
 
@@ -132,17 +133,17 @@ write load.
 Top |mysql| Commands
 --------------------------------------------------------------------------------
 
-The Top MySQL Commands graph shows the rate of the various kind of SQL
-statements executed on the MySQL server.
+The Top |mysql| Commands graph shows the rate of the various kind of SQL
+statements executed on the |mysql| Server.
 
 |view-all-metrics| |this-dashboard|
 
 .. _dashboard.system.top-mysql-handler:
 
-Top MySQL Handlers
+Top |mysql| Handlers
 --------------------------------------------------------------------------------
 
-The Top MySQL Handlers graph shows the rate of the various low level storage
+The Top |mysql| Handlers graph shows the rate of the various low level storage
 engine handler calls. The most important ones to watch are *read_next* and
 *read_rnd_next*.
 

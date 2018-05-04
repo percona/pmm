@@ -9,6 +9,8 @@ performs.
 .. contents::
    :local:
 
+.. _dashboard.mysql-innodb-metrics.innodb-checkpoint-age:
+
 InnoDB Checkpoint Age
 --------------------------------------------------------------------------------
 
@@ -22,6 +24,8 @@ don't do this, InnoDB will do synchronous flushing at the worst possible time,
 i.e. when you are busiest.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mysql-innodb-metrics.innodb-transactions:
 
 |innodb| Transactions
 --------------------------------------------------------------------------------
@@ -40,6 +44,8 @@ considerably. It is also a good idea to look for long running queries in |qan|.
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.mysql-innodb-metrics.innodb-row-operations:
+
 |innodb| Row Operations
 --------------------------------------------------------------------------------
 
@@ -48,6 +54,8 @@ affected per operation. A metric like *Queries Per Second* will give you an idea
 of queries, but one query could effect millions of rows.
        
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mysql-innodb-metrics.innodb-row-lock-time:
 
 |innodb| Row Lock Time
 --------------------------------------------------------------------------------
@@ -81,6 +89,8 @@ second.
    |mysql| Server Documentation: |innodb| locking
       https://dev.mysql.com/doc/refman/5.7/en/innodb-locking.html
 
+.. _dashboard.mysql-innodb-metrics.innodb-io:
+
 |innodb| I/O
 --------------------------------------------------------------------------------
 
@@ -94,6 +104,8 @@ This metric has the following series:
   option.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mysql-innodb-metrics.innodb-log-file-usage-hourly:
 
 |innodb| Log File Usage Hourly
 --------------------------------------------------------------------------------
@@ -119,7 +131,9 @@ This graph can help guide you in setting the correct `innodb_log_file_size`.
    |percona| Server Documentation: Improved |innodb| I/O scalability
       http://www.percona.com/doc/percona-server/5.5/scalability/innodb_io_55.html#innodb_log_file_size
 
-InnoDB Deadlocks
+.. _dashboard.mysql-innodb-metrics.innodb-deadlocks:
+
+|innodb| Deadlocks
 --------------------------------------------------------------------------------
 
 A deadlock in |mysql| happens when two or more transactions mutually hold

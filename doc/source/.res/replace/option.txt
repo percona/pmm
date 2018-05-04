@@ -167,7 +167,16 @@
 
 .. |opt.questions|                     replace:: :option:`Questions`
 .. |opt.innodb-monitor-enable|         replace:: :option:`innodb_monitor_enable`
+.. |opt.innodb-log-buffer-size|        replace:: :option:`innodb_log_buffer_size`
 .. |opt.userstat|                      replace:: :option:`userstat`
 .. |opt.performance-schema-instrument| replace:: :option:`--performance_schema_instrument`
 .. |opt.perf-schema-instrument|        replace:: :option:`--performance_schema_instrument`
 .. |opt.query-response-time-stats|     replace:: :option:`query_response_time_stats`
+.. |opt.key-buffer-size|               replace:: :option:`key_buffer_size`
+.. |opt.aria-pagecache-buffer-size|    replace:: :option:`aria-pagecache-buffer-size`
+.. |opt.innodb-buffer-pool-size|       replace:: :option:`innodb_buffer_pool_size`
+.. |opt.aria-checkpoint-interval|      replace:: :option:`aria_checkpoint_interval`
+.. |opt.max-binlog-size|               replace:: :option:`max_binlog_size`
+.. |opt.expire-logs-days|              replace:: :option:`expire_logs_days`
+.. |opt.max-relay-log-size|            replace:: :option:`max_relay_log_size`
+.. |opt.max-relay-log-file|            replace:: :option:`max_relay_log_file`

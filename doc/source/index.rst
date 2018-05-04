@@ -35,7 +35,7 @@ Advanced
    Configuring MySQL for Best Results <conf-mysql>
    conf-mongodb
    security
-   mm-dashboards
+   metrics-monitor.dashboard.list
 
 Reference
 ================================================================================

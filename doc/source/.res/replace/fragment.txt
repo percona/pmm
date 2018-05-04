@@ -11,3 +11,5 @@
 
 .. |metrics-monitor.what-is| replace:: historical view of metrics that are critical to a database server
 .. |qan.what-is| replace:: analyze database queries over periods of time and find performance problems
+
+.. |section.toc| replace:: In this section
