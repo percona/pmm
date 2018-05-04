@@ -8,14 +8,16 @@ The |metrics-monitor| tool provides a |metrics-monitor.what-is|. Time-based
 graphs are separated into dashboards by themes: some are related to |mysql| or
 |mongodb|, others provide general system metrics.
 
+.. rubric:: |section.toc|
+
+.. contents::
+   :local:
+
 .. seealso::
 
    How to |qan.what-is|
 
       :ref:`pmm.qan`
-
-.. contents::
-   :local:
 
 .. _pmm.metrics-monitor.signing-in:
 
@@ -96,8 +98,11 @@ Insight        Summary, cross-server and |prometheus|
 .. seealso::
 
    |percona| support for high availability
+
       https://www.percona.com/services/support/mysql-ha-cluster-support
+
    List of |metrics-monitor| dashboards
+
       See section :ref:`pmm.dashboard.list`
 
 .. .. _pmm.metrics-monitor.dashboard.enabling:

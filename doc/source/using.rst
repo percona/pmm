@@ -33,6 +33,8 @@ The |pmm| home page lists all hosts that you have set up for monitoring as well
 as the essential details about their performance such as CPU load, disk
 performance, or network activity.
 
+.. rubric:: More about |pmm| Components
+
 .. toctree::
    :maxdepth: 2
    

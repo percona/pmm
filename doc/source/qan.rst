@@ -15,19 +15,23 @@ get detailed metrics for them.
    |qan| helps analyze database queries over periods of time and find performance
    problems.
 
+|qan| displays its metrics in both visual and numeric form: the performance
+related characteristics appear as plotted graphics with summaries.
+
+.. rubric:: |section.toc|
+
+.. contents::
+   :local:
+
 .. seealso::
 
    A |metrics-monitor.what-is|
 
       :ref:`pmm.metrics-monitor`
 
+   Overview of |pmm| Components
 
-|qan| displays its metrics in both visual and numeric form: the performance
-related characteristics appear as plotted graphics with summaries.
-
-.. contents::
-   :local:
-
+      :ref:`using`
 
 .. _pmm.qan.home-page.opening:
 
