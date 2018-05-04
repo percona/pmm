@@ -203,6 +203,7 @@
 .. |pmm-linux-metrics.service| replace:: :file:`pmm-linux-metrics-42000.service`
 .. |pmm-mysql-queries.service| replace:: :file:`pmm-mysql-queries-0.service`
 .. |srv.update.main.yml| replace:: :file:`/srv/update/main.yml`
+.. |relay-log| replace:: :file:`relay log`
 
 .. Default users and roles
 

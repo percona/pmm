@@ -47,6 +47,8 @@
 .. |pmm-admin.stop|           replace:: :program:`pmm-admin stop`
 .. |pmm-admin.uninstall|      replace:: :program:`pmm-admin uninstall`
 
+.. |sql.show-volume-status| replace:: :command:`SHOW VOLUME STATUS`
+.. |sql.show-slave-status| replace:: :command:`SHOW SLAVE STATUS`
 .. |sql.delete|        replace:: :command:`DELETE`
 .. |sql.explain|       replace:: :command:`EXPLAIN`
 .. |sql.insert|        replace:: :command:`INSERT`

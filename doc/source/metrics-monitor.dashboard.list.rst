@@ -18,7 +18,9 @@ General Dashboards
    dashboard.pmm-system-summary
    dashboard.advanced-data-exploration
    dashboard.cross-server-graphs
-   dashboard.summary-dashboard
+   dashboard.cpu-utilization-details-cores
+   dashboard.disk-space
+   dashboard.summary
    dashboard.trends
 
 .. _pmm.dashboard.prometheus.list:
@@ -53,6 +55,14 @@ General Dashboards
    :maxdepth: 1
 
    dashboard.mongodb-*
+
+HA Dashboards
+================================================================================
+
+.. toctree::
+   :maxdepth: 1
+
+   dashboard.pxc-galera-cluster-overview
 
 .. include:: .res/replace/program.txt
 .. include:: .res/replace/name.txt
