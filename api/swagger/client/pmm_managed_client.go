@@ -11,6 +11,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
+	"github.com/percona/pmm-managed/api/swagger/client/annotations"
 	"github.com/percona/pmm-managed/api/swagger/client/base"
 	"github.com/percona/pmm-managed/api/swagger/client/demo"
 	"github.com/percona/pmm-managed/api/swagger/client/logs"
@@ -58,6 +59,8 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *Pmm
 func New(transport runtime.ClientTransport, formats strfmt.Registry) *PmmManaged {
 	cli := new(PmmManaged)
 	cli.Transport = transport
+
+	cli.Annotations = annotations.New(transport, formats)
 
 	cli.Base = base.New(transport, formats)
 
@@ -113,6 +116,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PmmManaged is a client for pmm managed
 type PmmManaged struct {
+	Annotations *annotations.Client
+
 	Base *base.Client
 
 	Demo *demo.Client
@@ -129,6 +134,8 @@ type PmmManaged struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PmmManaged) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
+
+	c.Annotations.SetTransport(transport)
 
 	c.Base.SetTransport(transport)
 

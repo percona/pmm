@@ -72,6 +72,8 @@ script:
   - git status
   - git diff --exit-code
 
+  - go get -u github.com/percona/mysqld_exporter
+  - go get -u github.com/percona/rds_exporter
   - make cover
 
 after_success:

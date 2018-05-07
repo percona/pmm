@@ -41,7 +41,7 @@ var ScrapeTargetHealth_Health_value = map[string]int32{
 func (x ScrapeTargetHealth_Health) String() string {
 	return proto.EnumName(ScrapeTargetHealth_Health_name, int32(x))
 }
-func (ScrapeTargetHealth_Health) EnumDescriptor() ([]byte, []int) { return fileDescriptor4, []int{5, 0} }
+func (ScrapeTargetHealth_Health) EnumDescriptor() ([]byte, []int) { return fileDescriptor5, []int{5, 0} }
 
 type LabelPair struct {
 	// Label name
@@ -53,7 +53,7 @@ type LabelPair struct {
 func (m *LabelPair) Reset()                    { *m = LabelPair{} }
 func (m *LabelPair) String() string            { return proto.CompactTextString(m) }
 func (*LabelPair) ProtoMessage()               {}
-func (*LabelPair) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{0} }
+func (*LabelPair) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{0} }
 
 func (m *LabelPair) GetName() string {
 	if m != nil {
@@ -79,7 +79,7 @@ type StaticConfig struct {
 func (m *StaticConfig) Reset()                    { *m = StaticConfig{} }
 func (m *StaticConfig) String() string            { return proto.CompactTextString(m) }
 func (*StaticConfig) ProtoMessage()               {}
-func (*StaticConfig) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{1} }
+func (*StaticConfig) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{1} }
 
 func (m *StaticConfig) GetTargets() []string {
 	if m != nil {
@@ -103,7 +103,7 @@ type BasicAuth struct {
 func (m *BasicAuth) Reset()                    { *m = BasicAuth{} }
 func (m *BasicAuth) String() string            { return proto.CompactTextString(m) }
 func (*BasicAuth) ProtoMessage()               {}
-func (*BasicAuth) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{2} }
+func (*BasicAuth) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{2} }
 
 func (m *BasicAuth) GetUsername() string {
 	if m != nil {
@@ -126,7 +126,7 @@ type TLSConfig struct {
 func (m *TLSConfig) Reset()                    { *m = TLSConfig{} }
 func (m *TLSConfig) String() string            { return proto.CompactTextString(m) }
 func (*TLSConfig) ProtoMessage()               {}
-func (*TLSConfig) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{3} }
+func (*TLSConfig) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{3} }
 
 func (m *TLSConfig) GetInsecureSkipVerify() bool {
 	if m != nil {
@@ -157,7 +157,7 @@ type ScrapeConfig struct {
 func (m *ScrapeConfig) Reset()                    { *m = ScrapeConfig{} }
 func (m *ScrapeConfig) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeConfig) ProtoMessage()               {}
-func (*ScrapeConfig) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{4} }
+func (*ScrapeConfig) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{4} }
 
 func (m *ScrapeConfig) GetJobName() string {
 	if m != nil {
@@ -231,7 +231,7 @@ type ScrapeTargetHealth struct {
 func (m *ScrapeTargetHealth) Reset()                    { *m = ScrapeTargetHealth{} }
 func (m *ScrapeTargetHealth) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeTargetHealth) ProtoMessage()               {}
-func (*ScrapeTargetHealth) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{5} }
+func (*ScrapeTargetHealth) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{5} }
 
 func (m *ScrapeTargetHealth) GetJobName() string {
 	if m != nil {
@@ -274,7 +274,7 @@ type ScrapeConfigsListRequest struct {
 func (m *ScrapeConfigsListRequest) Reset()                    { *m = ScrapeConfigsListRequest{} }
 func (m *ScrapeConfigsListRequest) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeConfigsListRequest) ProtoMessage()               {}
-func (*ScrapeConfigsListRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{6} }
+func (*ScrapeConfigsListRequest) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{6} }
 
 type ScrapeConfigsListResponse struct {
 	ScrapeConfigs []*ScrapeConfig `protobuf:"bytes,1,rep,name=scrape_configs,json=scrapeConfigs" json:"scrape_configs,omitempty"`
@@ -285,7 +285,7 @@ type ScrapeConfigsListResponse struct {
 func (m *ScrapeConfigsListResponse) Reset()                    { *m = ScrapeConfigsListResponse{} }
 func (m *ScrapeConfigsListResponse) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeConfigsListResponse) ProtoMessage()               {}
-func (*ScrapeConfigsListResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{7} }
+func (*ScrapeConfigsListResponse) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{7} }
 
 func (m *ScrapeConfigsListResponse) GetScrapeConfigs() []*ScrapeConfig {
 	if m != nil {
@@ -308,7 +308,7 @@ type ScrapeConfigsGetRequest struct {
 func (m *ScrapeConfigsGetRequest) Reset()                    { *m = ScrapeConfigsGetRequest{} }
 func (m *ScrapeConfigsGetRequest) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeConfigsGetRequest) ProtoMessage()               {}
-func (*ScrapeConfigsGetRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{8} }
+func (*ScrapeConfigsGetRequest) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{8} }
 
 func (m *ScrapeConfigsGetRequest) GetJobName() string {
 	if m != nil {
@@ -326,7 +326,7 @@ type ScrapeConfigsGetResponse struct {
 func (m *ScrapeConfigsGetResponse) Reset()                    { *m = ScrapeConfigsGetResponse{} }
 func (m *ScrapeConfigsGetResponse) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeConfigsGetResponse) ProtoMessage()               {}
-func (*ScrapeConfigsGetResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{9} }
+func (*ScrapeConfigsGetResponse) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{9} }
 
 func (m *ScrapeConfigsGetResponse) GetScrapeConfig() *ScrapeConfig {
 	if m != nil {
@@ -351,7 +351,7 @@ type ScrapeConfigsCreateRequest struct {
 func (m *ScrapeConfigsCreateRequest) Reset()                    { *m = ScrapeConfigsCreateRequest{} }
 func (m *ScrapeConfigsCreateRequest) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeConfigsCreateRequest) ProtoMessage()               {}
-func (*ScrapeConfigsCreateRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{10} }
+func (*ScrapeConfigsCreateRequest) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{10} }
 
 func (m *ScrapeConfigsCreateRequest) GetScrapeConfig() *ScrapeConfig {
 	if m != nil {
@@ -373,7 +373,7 @@ type ScrapeConfigsCreateResponse struct {
 func (m *ScrapeConfigsCreateResponse) Reset()                    { *m = ScrapeConfigsCreateResponse{} }
 func (m *ScrapeConfigsCreateResponse) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeConfigsCreateResponse) ProtoMessage()               {}
-func (*ScrapeConfigsCreateResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{11} }
+func (*ScrapeConfigsCreateResponse) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{11} }
 
 type ScrapeConfigsUpdateRequest struct {
 	ScrapeConfig *ScrapeConfig `protobuf:"bytes,1,opt,name=scrape_config,json=scrapeConfig" json:"scrape_config,omitempty"`
@@ -384,7 +384,7 @@ type ScrapeConfigsUpdateRequest struct {
 func (m *ScrapeConfigsUpdateRequest) Reset()                    { *m = ScrapeConfigsUpdateRequest{} }
 func (m *ScrapeConfigsUpdateRequest) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeConfigsUpdateRequest) ProtoMessage()               {}
-func (*ScrapeConfigsUpdateRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{12} }
+func (*ScrapeConfigsUpdateRequest) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{12} }
 
 func (m *ScrapeConfigsUpdateRequest) GetScrapeConfig() *ScrapeConfig {
 	if m != nil {
@@ -406,7 +406,7 @@ type ScrapeConfigsUpdateResponse struct {
 func (m *ScrapeConfigsUpdateResponse) Reset()                    { *m = ScrapeConfigsUpdateResponse{} }
 func (m *ScrapeConfigsUpdateResponse) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeConfigsUpdateResponse) ProtoMessage()               {}
-func (*ScrapeConfigsUpdateResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{13} }
+func (*ScrapeConfigsUpdateResponse) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{13} }
 
 type ScrapeConfigsDeleteRequest struct {
 	JobName string `protobuf:"bytes,1,opt,name=job_name,json=jobName" json:"job_name,omitempty"`
@@ -415,7 +415,7 @@ type ScrapeConfigsDeleteRequest struct {
 func (m *ScrapeConfigsDeleteRequest) Reset()                    { *m = ScrapeConfigsDeleteRequest{} }
 func (m *ScrapeConfigsDeleteRequest) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeConfigsDeleteRequest) ProtoMessage()               {}
-func (*ScrapeConfigsDeleteRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{14} }
+func (*ScrapeConfigsDeleteRequest) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{14} }
 
 func (m *ScrapeConfigsDeleteRequest) GetJobName() string {
 	if m != nil {
@@ -430,7 +430,7 @@ type ScrapeConfigsDeleteResponse struct {
 func (m *ScrapeConfigsDeleteResponse) Reset()                    { *m = ScrapeConfigsDeleteResponse{} }
 func (m *ScrapeConfigsDeleteResponse) String() string            { return proto.CompactTextString(m) }
 func (*ScrapeConfigsDeleteResponse) ProtoMessage()               {}
-func (*ScrapeConfigsDeleteResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{15} }
+func (*ScrapeConfigsDeleteResponse) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{15} }
 
 func init() {
 	proto.RegisterType((*LabelPair)(nil), "api.LabelPair")
@@ -682,9 +682,9 @@ var _ScrapeConfigs_serviceDesc = grpc.ServiceDesc{
 	Metadata: "scrape_configs.proto",
 }
 
-func init() { proto.RegisterFile("scrape_configs.proto", fileDescriptor4) }
+func init() { proto.RegisterFile("scrape_configs.proto", fileDescriptor5) }
 
-var fileDescriptor4 = []byte{
+var fileDescriptor5 = []byte{
 	// 858 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x56, 0xdd, 0x8e, 0xdb, 0x44,
 	0x14, 0xc6, 0x49, 0xea, 0x8d, 0xcf, 0xfe, 0xb0, 0x1d, 0x02, 0xeb, 0x9a, 0xa6, 0x0d, 0x96, 0x4a,
