@@ -143,11 +143,15 @@ func testAnnotations(t *testing.T) {
 	require.NoError(t, err)
 	defer r.Body.Close()
 
-	resp := api.AnnotationsCreateResponse{}
-	err = json.NewDecoder(r.Body).Decode(&resp)
+	body, err := ioutil.ReadAll(r.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, "Annotation added", resp.Message)
+	resp := api.AnnotationsCreateResponse{}
+	err = json.Unmarshal(body, &resp)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+	assert.Equal(t, "Annotation added", resp.Message, "body: %s", string(body))
 }
 
 // waitForBody is a helper function which makes http calls until http server is up
