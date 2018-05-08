@@ -65,7 +65,7 @@ func TestServer(t *testing.T) {
 	ctx, _ = logger.Set(ctx, "main") // todo runGRPCServer panics without this global being set.
 	defer cancel()
 
-	l := logs.New(logs.DefaultLogs, 1000)
+	l := logs.New(ctx, logs.DefaultLogs, 1000)
 	consulClient, err := consul.NewClient(*consulAddrF)
 	require.NoError(t, err)
 	sqlDB, err := models.OpenDB(*dbNameF, *dbUsernameF, *dbPasswordF, logrus.WithField("component", "main").Debugf)

@@ -59,7 +59,7 @@ func TestZip(t *testing.T) {
 	logs := []Log{
 		{logFileName, ""},
 	}
-	l := New(logs, 1000)
+	l := New(ctx, logs, 1000)
 
 	buf := new(bytes.Buffer)
 	err := l.Zip(ctx, buf)
@@ -82,7 +82,7 @@ func TestZip(t *testing.T) {
 
 func TestZipDefaultLogs(t *testing.T) {
 	ctx, _ := logger.Set(context.Background(), t.Name())
-	l := New(DefaultLogs, 1000)
+	l := New(ctx, DefaultLogs, 1000)
 
 	buf := new(bytes.Buffer)
 	err := l.Zip(ctx, buf)
@@ -100,7 +100,7 @@ func TestFiles(t *testing.T) {
 	logs := []Log{
 		{logFileName, ""},
 	}
-	l := New(logs, 1000)
+	l := New(ctx, logs, 1000)
 
 	files := l.Files(ctx)
 	assert.Len(t, files, len(logs))
