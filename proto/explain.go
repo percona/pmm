@@ -57,6 +57,61 @@ type TableInfoQuery struct {
 	Status []Table // SHOW TABLE STATUS FROM Db LIKE 'Table'
 }
 
+// ShowIndexRow describes one row from `SHOW INDEX FROM %s` query.
+//# mysql -e 'SHOW INDEX FROM mysql.user\G'
+//*************************** 1. row ***************************
+//        Table: user
+//   Non_unique: 0
+//     Key_name: PRIMARY
+// Seq_in_index: 1
+//  Column_name: Host
+//    Collation: A
+//  Cardinality: 2
+//     Sub_part: NULL
+//       Packed: NULL
+//         Null:
+//   Index_type: BTREE
+//      Comment:
+//Index_comment:
+//      Visible: YES
+//*************************** 2. row ***************************
+//        Table: user
+//   Non_unique: 0
+//     Key_name: PRIMARY
+// Seq_in_index: 2
+//  Column_name: User
+//    Collation: A
+//  Cardinality: 5
+//     Sub_part: NULL
+//       Packed: NULL
+//         Null:
+//   Index_type: BTREE
+//      Comment:
+//Index_comment:
+//      Visible: YES
+//
+//# mysql -e 'DESCRIBE INFORMATION_SCHEMA.STATISTICS'
+//+---------------+------------------+------+-----+---------+-------+
+//| Field         | Type             | Null | Key | Default | Extra |
+//+---------------+------------------+------+-----+---------+-------+
+//| TABLE_CATALOG | varchar(64)      | NO   |     | NULL    |       |
+//| TABLE_SCHEMA  | varchar(64)      | NO   |     | NULL    |       |
+//| TABLE_NAME    | varchar(64)      | NO   |     | NULL    |       |
+//| NON_UNIQUE    | int(1)           | NO   |     | 0       |       |
+//| INDEX_SCHEMA  | varchar(64)      | NO   |     | NULL    |       |
+//| INDEX_NAME    | varchar(64)      | YES  |     | NULL    |       |
+//| SEQ_IN_INDEX  | int(10) unsigned | NO   |     | NULL    |       |
+//| COLUMN_NAME   | varchar(64)      | YES  |     | NULL    |       |
+//| COLLATION     | varchar(1)       | YES  |     | NULL    |       |
+//| CARDINALITY   | bigint(21)       | YES  |     | NULL    |       |
+//| SUB_PART      | bigint(21)       | YES  |     | NULL    |       |
+//| PACKED        | binary(0)        | YES  |     | NULL    |       |
+//| NULLABLE      | varchar(3)       | NO   |     |         |       |
+//| INDEX_TYPE    | varchar(11)      | NO   |     |         |       |
+//| COMMENT       | varchar(8)       | NO   |     |         |       |
+//| INDEX_COMMENT | varchar(2048)    | NO   |     | NULL    |       |
+//| IS_VISIBLE    | varchar(3)       | NO   |     |         |       |
+//+---------------+------------------+------+-----+---------+-------+
 type ShowIndexRow struct {
 	Table        string
 	NonUnique    bool
@@ -71,6 +126,7 @@ type ShowIndexRow struct {
 	IndexType    string
 	Comment      NullString
 	IndexComment NullString
+	Visible      NullString
 }
 
 type ShowTableStatus struct {

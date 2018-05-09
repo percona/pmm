@@ -1,4 +1,15 @@
 
+* set global
+
+#+begin-block: set global innodb-monitor-enable
++set.global.innodb-monitor-enable+
+
+.. code-block:: mysql
+
+      mysql > SET GLOBAL innodb_monitor_enable=all;
+
+#+end-block
+
 * grant
 
 #+begin-block: grant super process replication slave reload on

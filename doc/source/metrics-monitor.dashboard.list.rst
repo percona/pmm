@@ -1,4 +1,4 @@
-.. _mm-dashboards:
+.. _pmm.dashboard.list:
 
 ================================================================================
 Metrics Monitor Dashboards
@@ -6,7 +6,7 @@ Metrics Monitor Dashboards
 
 This section contains a reference of dashboards available in |metrics-monitor|.
 
-.. _mm-dashboards.general:
+.. _pmm.dashboard.general.list:
 
 General Dashboards
 ================================================================================
@@ -15,12 +15,15 @@ General Dashboards
    :maxdepth: 1
 
    dashboard.home
-   dashboard.summary-dashboard
+   dashboard.pmm-system-summary
    dashboard.advanced-data-exploration
    dashboard.cross-server-graphs
+   dashboard.cpu-utilization-details-cores
+   dashboard.disk-space
+   dashboard.summary
    dashboard.trends
 
-.. _mm-dashboards.prometheus:
+.. _pmm.dashboard.prometheus.list:
 
 |prometheus| Dashboards
 ================================================================================
@@ -31,7 +34,7 @@ General Dashboards
 
    dashboard.prometheus*
 
-.. _mm-dashboards.mysql:
+.. _pmm.dashboard.mysql.list:
 
 |mysql| Dashboards
 ================================================================================
@@ -42,7 +45,7 @@ General Dashboards
 
    dashboard.mysql-*
 
-.. _mm-dashboards.mongodb:
+.. _pmm.dashboard.mongodb.list:
 
 |mongodb| Dashboards
 ================================================================================
@@ -52,6 +55,14 @@ General Dashboards
    :maxdepth: 1
 
    dashboard.mongodb-*
+
+HA Dashboards
+================================================================================
+
+.. toctree::
+   :maxdepth: 1
+
+   dashboard.pxc-galera-cluster-overview
 
 .. include:: .res/replace/program.txt
 .. include:: .res/replace/name.txt
