@@ -26,11 +26,8 @@ related characteristics appear as plotted graphics with summaries.
 .. seealso::
 
    A |metrics-monitor.what-is|
-
       :ref:`pmm.metrics-monitor`
-
    Overview of |pmm| Components
-
       :ref:`using`
 
 .. _pmm.qan.home-page.opening:

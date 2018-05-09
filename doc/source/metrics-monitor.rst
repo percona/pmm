@@ -16,7 +16,6 @@ graphs are separated into dashboards by themes: some are related to |mysql| or
 .. seealso::
 
    How to |qan.what-is|
-
       :ref:`pmm.qan`
 
 .. _pmm.metrics-monitor.signing-in:
