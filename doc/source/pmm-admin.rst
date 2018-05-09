@@ -412,6 +412,9 @@ The following options can be used with the |opt.mysql-queries| alias:
   * ``slowlog``: Use the slow query log.
   * ``perfschema``: Use Performance Schema.
 
+|opt.retain-slow-logs|
+   Specify the maximum number of files of the |slow-log| to keep automatically.
+
 |opt.socket|
   Specify the |mysql| instance socket file.
 
