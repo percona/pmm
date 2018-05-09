@@ -1,13 +1,31 @@
 
 .. _dashboard.mysql-myrocks-metrics:
 
-|mysql| |myrocks| Metrics Dashboard
+|mysql-myrocks-metrics| Dashboard
 ================================================================================
 
-The |mysql| |myrocks| Metrics dashboard contains metrics to analyze the
-performance of the |myrocks| storage engine for the selected |mysql|
-host. Namely, this dashboard contains the following:
+The MyRocks_ storage engine developed by |facebook| based on the |rocksdb|
+storage engine is applicable to systems which primarily interact with the
+database by writing data to it rather than reading from it. |rocksdb| also
+features a good level of compression, higher than that of the |innodb| storage
+engine, which makes it especially valuable when optimizing the usage of hard
+drives.
 
+|pmm| collects statistics on the |myrocks| storage engine for |mysql| in the
+|metrics-monitor| information for this dashboard comes from the
+|inf-schema| tables.
+
+.. figure:: .res/graphics/png/pmm.metrics-monitor.mysql-myrocks-metrics.1.png
+	    
+   The |mysql| |myrocks| metrics dashboard
+
+.. seealso::
+
+   Information schema
+      https://github.com/facebook/mysql-5.6/wiki/MyRocks-Information-Schema
+
+.. rubric:: Metrics
+	    
 .. hlist::
    :columns: 2
 
@@ -31,3 +49,4 @@ host. Namely, this dashboard contains the following:
    - |myrocks| file operations
 
 .. include:: .res/replace/name.txt
+.. include:: .res/replace/url.txt

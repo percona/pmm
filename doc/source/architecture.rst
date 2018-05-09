@@ -150,6 +150,50 @@ For more information, see :ref:`using`.
    Enabling orchestrator
       :term:`Orchestrator` in :ref:`pmm/glossary/terminology-reference`
 
+.. _pmm/using.orchestrator:
+
+|orchestrator|
+================================================================================
+
+|orchestrator| is a |mysql| replication topology management and visualization
+tool.  If it is enabled, you can access it using the ``/orchestrator`` URL after
+|pmm-server| address.  Alternatively, you can click the
+|gui.mysql-replication-topology-manager| button on the |pmm-server| landing
+page.
+
+To use it, create a |mysql| user for |orchestrator| on all managed instances:
+
+.. include:: .res/code/sql.org
+   :start-after: +grant.orc-client-user+
+   :end-before: #+end-block
+
+.. note:: The credentials in the previous example are default.
+   If you use a different user name or password,
+   you have to pass them when
+   :ref:`running PMM Server <deploy-pmm.server.installing>`
+   using the
+   :term:`ORCHESTRATOR_PASSWORD <ORCHESTRATOR_PASSWORD (Option)>`
+   and
+   :term:`ORCHESTRATOR_USER  <ORCHESTRATOR_USER (Option)>` options.
+
+   .. include:: .res/code/sh.org
+      :start-after: +docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
+      :end-before: #+end-block
+
+Then you can use the |gui.discover| page in the |orchestrator| web interface
+to add the instances to the topology.
+
+.. note:: **Orchestrator is not enabled by default starting with PMM 1.3.0**
+
+   |orchestrator| was included into |pmm| for experimental purposes.  It is a
+   standalone tool, not integrated with |pmm| other than that you can access it
+   from the landing page.
+
+   In version 1.3.0 and later, |orchestrator| is not enabled
+   by default. To enable it, see
+   :ref:`pmm/docker.additional_option` in the
+   :ref:`run-server-docker` section.
+
 .. .. rubric:: References
 
 .. .. target-notes::

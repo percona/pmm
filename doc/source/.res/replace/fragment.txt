@@ -8,3 +8,8 @@
 .. |tip.bug-fix-release| replace:: This release contains bug fixes only and supersedes
 
 .. |view-all-metrics| replace::  **View all metrics of**
+
+.. |metrics-monitor.what-is| replace:: historical view of metrics that are critical to a database server
+.. |qan.what-is| replace:: analyze database queries over periods of time and find performance problems
+
+.. |section.toc| replace:: In this section
