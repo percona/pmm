@@ -6,12 +6,6 @@
 
 :Date: April 12, 2018
 
-|percona| announces the release of |pmm.name| |release|.  |pmm.intro| is a free
-and open-source platform for managing and monitoring |mysql| and |mongodb|
-performance.  You can run |pmm| in your own environment for maximum security and
-reliability. It provides thorough time-based analysis for |mysql| and |mongodb|
-servers to ensure that your data works as efficiently as possible.
-
 |tip.bug-fix-release| |pmm.name| |prev-release|. This release
 effectively solves the problem in |qan| when the |gui.count| column
 actually displayed the number of queries per minute, not per second,

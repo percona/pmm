@@ -6,12 +6,6 @@
 
 :Date: April 4, 2018
 
-|percona| announces the release of |pmm.name| |release|.  |pmm.intro| is a free
-and open-source platform for managing and monitoring |mysql| and |mongodb|
-performance.  You can run |pmm| in your own environment for maximum security and
-reliability. It provides thorough time-based analysis for |mysql| and |mongodb|
-servers to ensure that your data works as efficiently as possible.
-
 There are a number of significant updates in |release| that we hope you
 will like, some of the key highlights include:
 

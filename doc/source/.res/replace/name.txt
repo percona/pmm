@@ -4,6 +4,7 @@
 
 .. Organizations and Products
 
+.. |jira|                     replace:: *Jira*
 .. |myisam|                   replace:: *MyISAM*
 .. |aria|                     replace:: *Aria*
 .. |aws-iam|                  replace:: *IAM*
@@ -88,6 +89,8 @@
 
 .. Metrics Monitor Dashboards 
 
+.. |mysql-innodb-metrics-advanced|           replace:: *MySQL InnoDB Metrics Advanced*
+.. |pxc-galera-cluster-overview|     replace:: *PXC/Galera Cluster Overview*
 .. |query-analytics-settings|        replace:: *Query Analytics Settings*
 .. |advanced-data-exploration|       replace:: *Advanced Data Exploration*
 .. |adv-data-expl|                   replace:: *Advanced Data Exploration*
