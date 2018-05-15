@@ -135,6 +135,8 @@ button the description disappears.
 Marking Important Events with Annotations
 ================================================================================
 
+.. versionadded:: 1.10.0
+
 Some events in your application may impact your database. Annotations
 visualize these events on each dashboard of |pmm-server|.
 
@@ -159,13 +161,14 @@ You may toggle displaying annotations on metric graphs by using the
 .. seealso::
 
    Adding annotations
-
      :ref:`pmm-admin.annotate`
 
    |grafana| Documentation:
-
       - `Annotations <http://docs.grafana.org/reference/annotations/#annotations>`_
       - `Using annotations in queries <http://docs.grafana.org/reference/annotations/#querying-other-data-sources>`_
+   
+   Release Notes:
+      :ref:`1.10.0`
 
 .. _pmm.metrics-monitor.dashboard.snapshot.creating:
 
