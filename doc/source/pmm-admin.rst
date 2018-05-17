@@ -374,8 +374,16 @@ name, but you can also specify it explicitly as an argument.
 
 .. important::
 
-   If you connect |mysql| server version 8.0, make sure it is started with the |opt.default-authentication-plugin| set to the value **mysql_native_password**.
+   If you connect |mysql| Server version 8.0, make sure it is started
+   with the |opt.default-authentication-plugin| set to the value
+   **mysql_native_password**.
 
+   You may alter your PMM user and pass the authentication plugin as a parameter:
+
+   .. include:: .res/code/sql.org
+      :start-after: +alter.user.identified.with.by+
+      :end-before: #+end-block
+   
    .. seealso::
 
       |mysql| Documentation: Authentication Plugins
