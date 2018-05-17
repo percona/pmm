@@ -1,6 +1,10 @@
 .. -*- mode: rst -*-
 .. Options (all using the 'opt.' prefix)
    
+.. |opt.disable-slow-log-rotation| replace:: :option:`--disable-slow-log-rotation`
+.. |opt.slow-log-rotation| replace:: :option:`--slow-log-rotation`
+.. |opt.retain-slow-logs| replace:: :option:`--retain-slow-logs`
+.. |opt.default-authentication-plugin| replace:: :option:`--default-authentication-plugin`
 .. |opt.tags|                  replace:: :option:`--tags`
 .. |opt.all|                   replace:: :option:`--all`
 .. |opt.bind-address|          replace:: :option:`--bind-address`
