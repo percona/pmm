@@ -393,9 +393,10 @@ The following options can be used with the |opt.mysql-queries| alias:
 |opt.disable-queryexamples|
   Disable collection of query examples.
 
-|opt.disable-slow-log-rotation|
+|opt.slow-log-rotation|
   Do not manage |slow-log| files by using |pmm|. Use this option if
   you intend to manage |slow-log| files by using a third party tool.
+  The default value is *ON*
 
 |opt.force|
   Force to create or update the dedicated |mysql| user.
@@ -418,6 +419,7 @@ The following options can be used with the |opt.mysql-queries| alias:
 
 |opt.retain-slow-logs|
    Specify the maximum number of files of the |slow-log| to keep automatically.
+   The default value is 1 file.
 
 |opt.socket|
   Specify the |mysql| instance socket file.
