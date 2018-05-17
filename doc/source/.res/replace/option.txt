@@ -1,6 +1,8 @@
 .. -*- mode: rst -*-
 .. Options (all using the 'opt.' prefix)
    
+.. |opt.disable-slow-log-rotation| replace:: :option:`--disable-slow-log-rotation`
+.. |opt.retain-slow-logs| replace:: :option:`--retain-slow-logs`
 .. |opt.tags|                  replace:: :option:`--tags`
 .. |opt.all|                   replace:: :option:`--all`
 .. |opt.bind-address|          replace:: :option:`--bind-address`
