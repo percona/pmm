@@ -11,10 +11,36 @@
   ],
   "swagger": "2.0",
   "info": {
-    "title": "base.proto",
+    "title": "annotations.proto",
     "version": "version not set"
   },
   "paths": {
+    "/v0/annotations": {
+      "post": {
+        "tags": [
+          "Annotations"
+        ],
+        "operationId": "Create",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiAnnotationsCreateRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiAnnotationsCreateResponse"
+            }
+          }
+        }
+      }
+    },
     "/v0/error": {
       "get": {
         "tags": [
@@ -162,7 +188,7 @@
           "ScrapeConfigs"
         ],
         "summary": "List returns all scrape configs.",
-        "operationId": "ListMixin3",
+        "operationId": "ListMixin4",
         "responses": {
           "200": {
             "description": "(empty)",
@@ -177,7 +203,7 @@
           "ScrapeConfigs"
         ],
         "summary": "Create creates a new scrape config.\nErrors: InvalidArgument(3) if some argument is not valid,\nAlreadyExists(6) if scrape config with that job name is already present,\nFailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.",
-        "operationId": "Create",
+        "operationId": "CreateMixin4",
         "parameters": [
           {
             "name": "body",
@@ -306,6 +332,28 @@
         "DOWN",
         "UP"
       ]
+    },
+    "apiAnnotationsCreateRequest": {
+      "type": "object",
+      "properties": {
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "text": {
+          "type": "string"
+        }
+      }
+    },
+    "apiAnnotationsCreateResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
     },
     "apiBaseVersionResponse": {
       "type": "object",

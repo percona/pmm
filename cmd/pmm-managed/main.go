@@ -62,7 +62,7 @@ const (
 	shutdownTimeout = 3 * time.Second
 
 	// TODO set during build
-	Version = "1.9.1"
+	Version = "1.11.0"
 )
 
 var (
@@ -79,7 +79,8 @@ var (
 	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/", "Prometheus base URL")
 	promtoolF         = flag.String("promtool", "promtool", "promtool path")
 
-	consulAddrF = flag.String("consul-addr", "127.0.0.1:8500", "Consul HTTP API address")
+	consulAddrF  = flag.String("consul-addr", "127.0.0.1:8500", "Consul HTTP API address")
+	grafanaAddrF = flag.String("grafana-addr", "127.0.0.1:3000", "Grafana HTTP API address")
 
 	dbNameF     = flag.String("db-name", "", "Database name")
 	dbUsernameF = flag.String("db-username", "pmm-managed", "Database username")
@@ -205,6 +206,9 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 	api.RegisterLogsServer(gRPCServer, &handlers.LogsServer{
 		Logs: logs,
 	})
+	api.RegisterAnnotationsServer(gRPCServer, &handlers.AnnotationsServer{
+		Addr: *grafanaAddrF,
+	})
 
 	grpc_prometheus.Register(gRPCServer)
 	grpc_prometheus.EnableHandlingTimeHistogram()
@@ -249,6 +253,7 @@ func runRESTServer(ctx context.Context, logs *logs.Logs) {
 		api.RegisterScrapeConfigsHandlerFromEndpoint,
 		api.RegisterRDSHandlerFromEndpoint,
 		api.RegisterLogsHandlerFromEndpoint,
+		api.RegisterAnnotationsHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, *gRPCAddrF, opts); err != nil {
 			l.Panic(err)
@@ -422,7 +427,7 @@ func main() {
 	defer sqlDB.Close()
 	db := reform.NewDB(sqlDB, mysql.Dialect, nil)
 
-	logs := logs.New(1000)
+	logs := logs.New(logs.DefaultLogs, 1000)
 
 	var wg sync.WaitGroup
 
