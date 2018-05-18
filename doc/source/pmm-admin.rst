@@ -413,9 +413,10 @@ The following options can be used with the |opt.mysql-queries| alias:
   Disable collection of query examples.
 
 |opt.slow-log-rotation|
-  Do not manage |slow-log| files by using |pmm|. Use this option if
-  you intend to manage |slow-log| files by using a third party tool.
-  The default value is *ON*
+
+  Do not manage |slow-log| files by using |pmm|. Set this option to *false* if
+  you intend to manage |slow-log| files by using a third party tool.  The
+  default value is *true*
 
   .. seealso::
 
