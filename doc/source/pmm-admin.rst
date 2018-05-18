@@ -413,9 +413,18 @@ The following options can be used with the |opt.mysql-queries| alias:
   Disable collection of query examples.
 
 |opt.slow-log-rotation|
-  Do not manage |slow-log| files by using |pmm|. Use this option if
-  you intend to manage |slow-log| files by using a third party tool.
-  The default value is *ON*
+
+  Do not manage |slow-log| files by using |pmm|. Set this option to *false* if
+  you intend to manage |slow-log| files by using a third party tool.  The
+  default value is *true*
+
+  .. seealso::
+
+     |percona| Database Performance Blog: Rotating MySQL Slow Logs Safely
+        https://www.percona.com/blog/2013/04/18/rotating-mysql-slow-logs-safely/
+
+     |percona| Database Performance Blog: Log Rotate and the (Deleted) MySQL Log File Mystery
+        https://www.percona.com/blog/2014/11/12/log-rotate-and-the-deleted-mysql-log-file-mystery/
 
 |opt.force|
   Force to create or update the dedicated |mysql| user.
