@@ -119,7 +119,7 @@
 
 .. |gui.explain|                            replace:: :guilabel:`Explain`
 .. |gui.pmm-annotations|                    replace:: :guilabel:`PMM Annotations`
-.. |gui.count|                              replace:: :guilabel:`Count`
+.. |gui.count|                              replace:: *Count*
 .. |gui.1-click-launch|                     replace:: :guilabel:`1-Click Launch`
 .. |gui.add-permissions|                    replace:: :guilabel:`Add permissions`
 .. |gui.add-rds-aurora-instance|            replace:: :guilabel:`Add an AWS RDS MySQL or Aurora MySQL Instance`
