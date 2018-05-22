@@ -261,8 +261,12 @@ You may alter your PMM user and pass the authentication plugin as a parameter:
    :end-before: #+end-block
 
 Then, pass this user to ``pmm-admin add`` as the value of the ``--user``
-parameter along with ``--create-user``, such as in the following example which
-adds the ``mysql:queries`` monitoring service:
+parameter.
+
+Alternatively, you may create the new user that will be identified with the
+**mysql_native_password** plugin. You only need to add the ``--create-user``
+parameter on the command line, such as in the following example which adds the
+``mysql:queries`` monitoring service and creates a new user accordingly:
 
 .. code-block:: bash
 
