@@ -253,13 +253,13 @@ Setting up the |amazon-rds| DB Instance
 
 |qan.name| requires :ref:`perf-schema` as the query source, because the slow
 query log is stored on the |amazon-aws| side, and |qan| agent is not able to
-read it.  Enable the ``performance_schema`` option under |gui.parameter-groups|
+read it.  Enable the ``performance_schema`` option under ``Parameter Groups``
 in |amazon-rds|.
 
 .. seealso::
 
-   Performance schema settings
-      See :ref:`perf-schema-settings`.
+   More information about the performance schema
+      See :ref:`perf-schema`.
    |aws| Documentation: Parameter groups
       https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_WorkingWithParamGroups.html
 

@@ -192,6 +192,7 @@
 
 .. Files and directories
 
+.. |my.cnf|              replace:: :file:`my.cnf`
 .. |dhparam.pem|         replace:: :file:`dhparam.pem`
 .. |ca-certs.pem|        replace:: :file:`ca-certs.pem`
 .. |certificate.crt|     replace:: :file:`certificate.crt`
