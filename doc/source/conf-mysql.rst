@@ -244,8 +244,8 @@ with MySQL 8 must be encrypted when using ``caching_sha2_password``.
 
 The MySQL driver used with PMM does not yet support the SHA-256 authentication.
 
-With currently supported versions of MySQL, PMM requires that a dedicated
-account be set up. This account should be authenticated using the
+With currently supported versions of MySQL, PMM requires that a dedicated MySQL
+user be set up. This MySQL user should be authenticated using the
 ``mysql_native_password`` plugin.  Although MySQL is configured to support SSL
 clients, connections to MySQL Server are not encrypted.
 
@@ -257,7 +257,7 @@ or higher as a monitoring service to PMM:
 
 .. rubric:: Altering the MySQL User
 
-Provided you have already created a MySQL user that you plan to use
+Provided you have already created the MySQL user that you plan to use
 with PMM, alter this user as follows:
 
 .. include:: .res/code/sql.org
@@ -276,6 +276,10 @@ to the value **mysql_native_password** before adding it as a
 monitoring service. Then, restart your MySQL Server to apply this
 change.
 
+.. include:: .res/code/sql.org
+   :start-after: +my-conf.mysqld.default-authentication-plugin+
+   :end-before: #+end-block
+   
 .. seealso::
 
    Creating a MySQL User for PMM
