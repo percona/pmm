@@ -239,22 +239,27 @@ Configuring MySQL 8.0 for PMM
 
 MySQL 8 (in version 8.0.4) changes the way clients are authenticated by
 default. The |opt.default-authentication-plugin| parameter is set to
-**caching_sha2_password**. This change of the default value implies that MySQL
+``caching_sha2_password``. This change of the default value implies that MySQL
 drivers must support the SHA-256 authentication. Also, the communication channel
-with MySQL 8 must be encrypted.
+with MySQL 8 must be encrypted when using ``caching_sha2_password``.
 
 The MySQL driver used with PMM does not yet support the SHA-256 authentication.
 
 With currently supported versions of MySQL, PMM requires that a dedicated
 account be set up. This account should be authenticated using the
-**mysql_native_password** plugin.  Although MySQL is configured to support SSL
-clients, connections to MySQL server are not encrypted.
+``mysql_native_password`` plugin.  Although MySQL is configured to support SSL
+clients, connections to MySQL Server are not encrypted.
 
-If you connect to MySQL Server version 8.0.4 or higher, make sure to start it
-with the |opt.default-authentication-plugin| set to the value
-**mysql_native_password** before adding it as a monitoring service.
+There are two workarounds to be able to add MySQL Server version 8.0.4
+or higher as a monitoring service to PMM:
 
-You may alter your PMM user and pass the authentication plugin as a parameter:
+1. Alter the MySQL user that you plan to use with PMM
+2. Change the global MySQL configuration
+
+.. rubric:: Altering the MySQL User
+
+Provided you have already created a MySQL user that you plan to use
+with PMM, alter this user as follows:
 
 .. include:: .res/code/sql.org
    :start-after: +alter.user.identified.with.by+
@@ -263,15 +268,15 @@ You may alter your PMM user and pass the authentication plugin as a parameter:
 Then, pass this user to ``pmm-admin add`` as the value of the ``--user``
 parameter.
 
-Alternatively, you may create the new user that will be identified with the
-**mysql_native_password** plugin. You only need to add the ``--create-user``
-parameter on the command line, such as in the following example which adds the
-``mysql:queries`` monitoring service and creates a new user accordingly:
+This is a preferred approach as it only weakens the security of one user.
 
-.. code-block:: bash
+.. rubric:: Changing the global MySQL Configuration
 
-   $ pmm-admin add mysql:queries --user root --password root --host 192.168.200.2 --create-user
-		
+A less secure approach is to set |opt.default-authentication-plugin|
+to the value **mysql_native_password** before adding it as a
+monitoring service. Then, restart your MySQL Server to apply this
+change.
+
 .. seealso::
 
    More information about adding the MySQL query analytics monitoring service
