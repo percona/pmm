@@ -208,7 +208,6 @@ If you are running a custom Performance Schema configuration, make sure that the
    .. seealso::
 
       MySQL Documentation: |opt.performance-schema-instrument| option
-
          https://dev.mysql.com/doc/refman/5.7/en/performance-schema-options.html#option_mysqld_performance-schema-instrument
 
 If the instance is already running, configure the |qan| agent to collect data
@@ -279,6 +278,9 @@ change.
 
 .. seealso::
 
+   Creating a MySQL User for PMM
+      :ref:`privileges`
+
    More information about adding the MySQL query analytics monitoring service
       :ref:`pmm-admin.add-mysql-queries`
 
@@ -308,7 +310,6 @@ high-overhead metrics only when troubleshooting problems.
 .. seealso::
 
    More information about PMM dashboards
-
       :ref:`pmm.metrics-monitor`
 
 .. _pmm/mysql/conf/dashboard/mysql-innodb-metrics:
@@ -390,7 +391,6 @@ To enable collection of query response time:
 
       - |opt.query-response-time-stats|
 	(https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#query_response_time_stats)
-
       - `Response time distribution <https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#installing-the-plugins>`_
 
 .. include:: .res/replace/name.txt

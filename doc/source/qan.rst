@@ -27,6 +27,7 @@ related characteristics appear as plotted graphics with summaries.
 
    A |metrics-monitor.what-is|
       :ref:`pmm.metrics-monitor`
+
    Overview of |pmm| Components
       :ref:`using`
 
@@ -269,12 +270,10 @@ of |mysql| documentation.
 .. seealso::
 
    |percona-server| Documentation:
-
       `Slow Query Log Rotation and Expiration
       <https://www.percona.com/doc/percona-server/LATEST/flexibility/slowlog_rotation.html>`_
 
    |mysql| Documentation:
-
       `The Slow Query Log
       <https://dev.mysql.com/doc/refman/5.7/en/slow-query-log.html>`_
 
