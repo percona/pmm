@@ -276,6 +276,10 @@ to the value **mysql_native_password** before adding it as a
 monitoring service. Then, restart your MySQL Server to apply this
 change.
 
+.. include:: .res/code/sql.org
+   :start-after: +my-conf.mysqld.default-authentication-plugin+
+   :end-before: #+end-block
+   
 .. seealso::
 
    Creating a MySQL User for PMM
