@@ -102,7 +102,7 @@ the accuracy of the collected information decreases as well.
 Enabling Profiling in the Configuration File
 --------------------------------------------------------------------------------
 
-If you run |mongod| as a service, you need to use the configuration file which
+If you run ``mongod`` as a service, you need to use the configuration file which
 by default is |etc.mongod.conf|.
 
 In this file, you need to locate the *operationProfiling:* section and add the
@@ -110,11 +110,14 @@ following settings:
 
 .. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling.operationprofiling:
 
-.. include:: .res/code/yaml.org
-   :start-after: +operationprofiling+
-   :end-before: #+end-block
+.. code-block:: yaml
 
-These settings affect :program:`mongod` in the same way as the command line
+   operationProfiling:
+      slowOpThresholdMs: 200
+      mode: slowOp
+      rateLimit: 100
+
+These settings affect ``mongod`` in the same way as the command line
 options described in section
 :ref:`pmm/qan/mongodb/conf/profiling.command_line.enable`. Note that the
 configuration file is in the `YAML`_ format. In this format the indentation of
