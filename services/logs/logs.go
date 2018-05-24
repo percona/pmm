@@ -29,7 +29,8 @@ import (
 	"time"
 
 	servicelib "github.com/percona/kardianos-service"
-	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
 // File represents log file content.
@@ -69,16 +70,16 @@ type Logs struct {
 	n              int
 	logs           []Log
 	journalctlPath string
-	l              *logrus.Entry
+	ctx            context.Context
 }
 
 // New creates a new Logs service.
 // n is a number of last lines of log to read.
-func New(logs []Log, n int) *Logs {
+func New(ctx context.Context, logs []Log, n int) *Logs {
 	l := &Logs{
 		n:    n,
 		logs: logs,
-		l:    logrus.WithField("component", "logs"),
+		ctx:  ctx,
 	}
 
 	// PMM Server Docker image contails journalctl, so we can't use exec.LookPath("journalctl") alone for detection.
@@ -103,7 +104,7 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 		}
 
 		if err != nil {
-			l.l.Error(err)
+			logger.Get(l.ctx).WithField("component", "logs").Error(err)
 
 			// do not let a single error break the whole archive
 			if len(content) > 0 {

@@ -177,13 +177,14 @@ const sysvScript = `#!/bin/sh
 
 cmd='{{.Path}}{{range .Arguments}} {{.}}{{end}}'
 
-real_path=$(readlink -f $0)
-name=$(basename $real_path)
+name=$(basename $(readlink -f $0))
 pid_file="/var/run/$name.pid"
 log_file="/var/log/$name.log"
 
 {{range .Environment}}export {{.|cmd}}
 {{end}}
+
+[ -e /etc/sysconfig/$name ] && . /etc/sysconfig/$name
 
 get_pid() {
     cat "$pid_file"

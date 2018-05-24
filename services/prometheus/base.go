@@ -95,10 +95,10 @@ func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Confi
 	defer func() {
 		if restore {
 			if err = ioutil.WriteFile(svc.ConfigPath, old, fi.Mode()); err != nil {
-				logger.Get(ctx).Error(err)
+				logger.Get(ctx).WithField("component", "prometheus").Error(err)
 			}
 			if err = svc.reload(); err != nil {
-				logger.Get(ctx).Error(err)
+				logger.Get(ctx).WithField("component", "prometheus").Error(err)
 			}
 		}
 	}()
@@ -124,7 +124,7 @@ func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Confi
 	}()
 	b, err := exec.Command(svc.promtoolPath, "check-config", f.Name()).CombinedOutput()
 	if err != nil {
-		logger.Get(ctx).Errorf("%s", b)
+		logger.Get(ctx).WithField("component", "prometheus").Errorf("%s", b)
 
 		// return typed error if possible
 		s := string(b)
@@ -133,7 +133,7 @@ func (svc *Service) saveConfigAndReload(ctx context.Context, cfg *internal.Confi
 		}
 		return errors.Wrap(err, s)
 	}
-	logger.Get(ctx).Debugf("%s", b)
+	logger.Get(ctx).WithField("component", "prometheus").Debugf("%s", b)
 
 	// write to permanent location and reload
 	restore = true

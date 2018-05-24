@@ -4,6 +4,10 @@
 
 .. Organizations and Products
 
+.. |aws-iam|                  replace:: *IAM*
+.. |iam|                      replace:: *IAM*
+.. |aws-iam.name|             replace:: *Identity and Access Management*
+.. |github|                   replace:: *GitHub*
 .. |amazon-aurora|            replace:: *Amazon Aurora*
 .. |amazon-cloudwatch|        replace:: *Amazon Cloudwatch*
 .. |amazon-linux|             replace:: *Amazon Linux*
@@ -16,6 +20,7 @@
 .. |aws.intro|                replace:: *AWS* (Amazon Web Services)
 .. |aws.name|                 replace:: *Amazon Web Services*
 .. |aws|                      replace:: *AWS*
+.. |amazon-aws|               replace:: *AWS*
 .. |centos|                   replace:: *CentOS*
 .. |cloudwatch|               replace:: *Amazon Cloudwatch*
 .. |consul|                   replace:: *Consul*
@@ -25,6 +30,7 @@
 .. |firefox|                  replace:: *Firefox*
 .. |grafana|                  replace:: *Grafana*
 .. |innodb|                   replace:: *InnoDB*
+.. |tokudb|                   replace:: *TokuDB*
 .. |linux|                    replace:: *Linux*
 .. |mariadb|                  replace:: *MariaDB*
 .. |metrics-monitor|          replace:: *Metrics Monitor*
@@ -36,6 +42,8 @@
 .. |orchestrator|             replace:: *Orchestrator*
 .. |percona-server|           replace:: *Percona Server*
 .. |percona|                  replace:: *Percona*
+.. |percona-xtradb-cluster|   replace:: *Percona XtraDB Cluster*
+.. |xtradb-cluster|           replace:: *Percona XtraDB Cluster*
 .. |perl|                     replace:: *Perl*
 .. |pmm-client|               replace:: *PMM Client*
 .. |pmm-server|               replace:: *PMM Server*
@@ -74,48 +82,100 @@
 
 .. Metrics Monitor Dashboards 
 
+.. |advanced-data-exploration|       replace:: *Advanced Data Exploration*
+.. |adv-data-expl|                   replace:: *Advanced Data Exploration*
 .. |amazon-rds-aurora-mysql-metrics| replace:: *Amazon RDS / Aurora MySQL Metrics*
 .. |cross-server-graphs|             replace:: *Cross Server Graphs*
 .. |mysql-overview|                  replace:: *MySQL Overview*
 .. |pmm-add-instance|                replace:: *PMM Add Instance*
 .. |pmm-query-analytics|             replace:: *PMM Query Analytics*
 .. |pmm-system-summary|              replace:: *PMM System Summary*
+.. |prometheus-exporters-overview|   replace:: *Prometheus Exporters Overview*
+.. |prometheus-exporter-status|      replace:: *Prometheus Exporter Status*
+.. |summary|                         replace:: *Summary*
+.. |mysql-innodb-metrics|            replace:: *MySQL InnoDB Metrics*
+.. |mysql-amazon-aurora|             replace:: *MySQL Amazon Aurora*
 
 .. Metrics Monitor Graphs
 
-.. |advanced-data-exploration| replace:: *Advanced Data Exploration*
-.. |adv-data-expl|             replace:: *Advanced Data Exploration*
 .. |cpu-credit-usage|          replace:: *CPU Credit Usage*			     
 .. |cpu-usage|                 replace:: *CPU Usage*
 .. |mysql-myrocks-metrics|     replace:: *MySQL MyRocks Metrics*
+.. |mysql-amazon-aurora-metrics| replace:: *MySQL Amazon Aurora Metrics*
+.. |mysql-performance-schema|    replace:: *MySQL Performance Schema*
+.. |system-overview|             replace:: *System Overview*
 
 .. GUI Elements
 
-.. |gui.load|                               replace:: :guilabel:`Load`
+.. |gui.1-click-launch|                     replace:: :guilabel:`1-Click Launch`
+.. |gui.add-permissions|                    replace:: :guilabel:`Add permissions`
 .. |gui.add-rds-aurora-instance|            replace:: :guilabel:`Add an AWS RDS MySQL or Aurora MySQL Instance`
+.. |gui.add-user|                           replace:: :guilabel:`Add user`
 .. |gui.apply|                              replace:: :guilabel:`Apply`
+.. |gui.apps|                               replace:: :guilabel:`Apps`
+.. |gui.attach-existing-policies-directly|  replace:: :guilabel:`Attach existing policies directly`
+.. |gui.aws-management-console-access|      replace:: :guilabel:`AWS Management Console access`
+.. |gui.check-for-updates-manually|         replace:: :guilabel:`Check for Updates Manually`
 .. |gui.collect-from|                       replace:: :guilabel:`Collect from`
+.. |gui.config|                             replace:: :guilabel:`Config`
 .. |gui.connect|                            replace:: :guilabel:`Connect`
+.. |gui.continue-to-subscribe|              replace:: :guilabel:`Continue to Subscribe`
 .. |gui.continue|                           replace:: :guilabel:`Continue`
+.. |gui.create-access-key|                  replace:: :guilabel:`Create access key`
+.. |gui.create-policy|                      replace:: :guilabel:`Create policy`
+.. |gui.create-user|                        replace:: :guilabel:`Create user`
+.. |gui.dashboard-dropdown|                 replace:: :guilabel:`Dashboard Dropdown`
+.. |gui.dashboards|                         replace:: :guilabel:`Dashboards`
 .. |gui.database-summary|                   replace:: :guilabel:`Database Summary`	  
 .. |gui.databases|                          replace:: :guilabel:`Databases`
+.. |gui.database|                           replace:: :guilabel:`Database`
 .. |gui.discover|                           replace:: :guilabel:`Discover`
 .. |gui.download-summary|                   replace:: :guilabel:`Download Summary`
+.. |gui.enable-enhanced-monitoring|         replace:: :guilabel:`Enable Enhanced Monitoring`
 .. |gui.enabled|                            replace:: :guilabel:`Enabled`
 .. |gui.file|                               replace:: :guilabel:`File`
+.. |gui.filter|                             replace:: :guilabel:`Filter`
 .. |gui.host|                               replace:: :guilabel:`Host`
+.. |gui.import|                             replace:: :guilabel:`Import`
+.. |gui.insight|                            replace:: :guilabel:`Insight`
+.. |gui.insite|                             replace:: :guilabel:`Insight`
+.. |gui.load|                               replace:: :guilabel:`Load`
 .. |gui.log|                                replace:: :guilabel:`Log`
+.. |gui.metric|                             replace:: :guilabel:`Metric`
 .. |gui.more-information|                   replace:: :guilabel:`More Information`
 .. |gui.more-inf|                           replace:: :guilabel:`More Information`
 .. |gui.mysql-replication-topology-manager| replace:: :guilabel:`MySQL Replication Topology Manager`
 .. |gui.open|                               replace:: :guilabel:`Open`
+.. |gui.parameter-groups|                   replace:: :guilabel:`Parameter Groups`
+.. |gui.permissions-summary|                replace:: :guilabel:`Permissions summary`
+.. |gui.permissions|                        replace:: :guilabel:`Permissions`
+.. |gui.plugins|                            replace:: :guilabel:`Plugins`
+.. |gui.policies|                           replace:: :guilabel:`Policies`
+.. |gui.pricing-information|                replace:: :guilabel:`Pricing Information`
+.. |gui.programmatic-access|                replace:: :guilabel:`Programmatic access`
+.. |gui.public-accessibility|               replace:: :guilabel:`Public accessibility`
 .. |gui.query-abstract|                     replace:: :guilabel:`Query Abstract`
 .. |gui.query-filter|                       replace:: :guilabel:`Query Filter`
-.. |gui.settings|                           replace:: :guilabel:`Settings`
-.. |gui.status|                             replace:: :guilabel:`Status`
-.. |gui.system-summary|                     replace:: :guilabel:`System Summary`
-.. |gui.update|                             replace:: :guilabel:`Update`
+.. |gui.region|                             replace:: :guilabel:`Region`
+.. |gui.rel-db-services|                    replace:: :guilabel:`Relational Database Services`
+.. |gui.relational-database-services|       replace:: :guilabel:`Relational Database Services`
 .. |gui.retry|                              replace:: :guilabel:`Retry`
+.. |gui.review-policy|                      replace:: :guilabel:`Review policy`
+.. |gui.review|                             replace:: :guilabel:`Review`
+.. |gui.security-credentials|               replace:: :guilabel:`Security credentials`
+.. |gui.security-group|                     replace:: :guilabel:`Security Group`
+.. |gui.select-aws-access-type|             replace:: :guilabel:`Select AWS access type`
+.. |gui.set-permissions|                    replace:: :guilabel:`Set permissions`
+.. |gui.settings|                           replace:: :guilabel:`Settings`
+.. |gui.share|                              replace:: :guilabel:`Share`
+.. |gui.share-with-percona-team|            replace:: :guilabel:`Share with Percona Team at snapshots.percona.com`
+.. |gui.snapshot|                           replace:: :guilabel:`Snapshot`
+.. |gui.status|                             replace:: :guilabel:`Status`
+.. |gui.submit|                             replace:: :guilabel:`Submit`
+.. |gui.system-summary|                     replace:: :guilabel:`System Summary`
+.. |gui.trash-bin|                          replace:: :guilabel:`Trash Bin`
+.. |gui.update|                             replace:: :guilabel:`Update`
+.. |gui.users|                              replace:: :guilabel:`Users`
 
 .. Files and directories
 
@@ -136,7 +196,6 @@
 
 .. Default users and roles
 
-.. |mongodb-exporter| replace:: *mongodb_exporter*
 .. |cluster-monitor|  replace:: *clusterMonitor*
 
 
@@ -144,3 +203,8 @@
 
 .. |db.admin| replace:: :file:`admin` 
 .. |db.local| replace:: :file:`local`
+
+.. Metrics
+
+.. |mysql-global-status-commands-total| replace:: :command:`mysql_global_status_commands_total`
+.. |mysql-global-variables-autocommit|  replace:: :command:`mysql_global_variables_autocommit`

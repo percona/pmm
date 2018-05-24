@@ -28,9 +28,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
-func setup(t *testing.T) string {
+func setup(t *testing.T) (context.Context, string) {
+	ctx, _ := logger.Set(context.Background(), t.Name())
+
 	tmpDir, err := ioutil.TempDir("", t.Name())
 	require.NoError(t, err)
 
@@ -40,7 +44,7 @@ func setup(t *testing.T) string {
 	f.WriteString(fmt.Sprintf("%s: log line %d\n", logFileName, 1))
 	f.Close()
 
-	return f.Name()
+	return ctx, f.Name()
 }
 
 func teardown(t *testing.T, logFileName string) {
@@ -49,16 +53,16 @@ func teardown(t *testing.T, logFileName string) {
 }
 
 func TestZip(t *testing.T) {
-	logFileName := setup(t)
+	ctx, logFileName := setup(t)
 	defer teardown(t, logFileName)
 
 	logs := []Log{
 		{logFileName, ""},
 	}
-	l := New(logs, 1000)
+	l := New(ctx, logs, 1000)
 
 	buf := new(bytes.Buffer)
-	err := l.Zip(context.Background(), buf)
+	err := l.Zip(ctx, buf)
 	require.NoError(t, err)
 
 	zr, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
@@ -77,10 +81,11 @@ func TestZip(t *testing.T) {
 }
 
 func TestZipDefaultLogs(t *testing.T) {
-	l := New(DefaultLogs, 1000)
+	ctx, _ := logger.Set(context.Background(), t.Name())
+	l := New(ctx, DefaultLogs, 1000)
 
 	buf := new(bytes.Buffer)
-	err := l.Zip(context.Background(), buf)
+	err := l.Zip(ctx, buf)
 	require.NoError(t, err)
 
 	zr, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
@@ -89,15 +94,15 @@ func TestZipDefaultLogs(t *testing.T) {
 }
 
 func TestFiles(t *testing.T) {
-	logFileName := setup(t)
+	ctx, logFileName := setup(t)
 	defer teardown(t, logFileName)
 
 	logs := []Log{
 		{logFileName, ""},
 	}
-	l := New(logs, 1000)
+	l := New(ctx, logs, 1000)
 
-	files := l.Files(context.Background())
+	files := l.Files(ctx)
 	assert.Len(t, files, len(logs))
 
 	for i := range files {

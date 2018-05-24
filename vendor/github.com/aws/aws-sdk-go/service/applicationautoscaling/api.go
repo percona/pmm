@@ -1196,7 +1196,6 @@ func (c *ApplicationAutoScaling) RegisterScalableTargetWithContext(ctx aws.Conte
 }
 
 // Represents a CloudWatch alarm associated with a scaling policy.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/Alarm
 type Alarm struct {
 	_ struct{} `type:"structure"`
 
@@ -1234,7 +1233,6 @@ func (s *Alarm) SetAlarmName(v string) *Alarm {
 }
 
 // Configures a customized metric for a target tracking policy.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/CustomizedMetricSpecification
 type CustomizedMetricSpecification struct {
 	_ struct{} `type:"structure"`
 
@@ -1329,7 +1327,6 @@ func (s *CustomizedMetricSpecification) SetUnit(v string) *CustomizedMetricSpeci
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DeleteScalingPolicyRequest
 type DeleteScalingPolicyInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1362,6 +1359,9 @@ type DeleteScalingPolicyInput struct {
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
 	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
+	//
 	// ResourceId is a required field
 	ResourceId *string `min:"1" type:"string" required:"true"`
 
@@ -1393,6 +1393,9 @@ type DeleteScalingPolicyInput struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	//
 	// ScalableDimension is a required field
 	ScalableDimension *string `type:"string" required:"true" enum:"ScalableDimension"`
@@ -1467,7 +1470,6 @@ func (s *DeleteScalingPolicyInput) SetServiceNamespace(v string) *DeleteScalingP
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DeleteScalingPolicyResponse
 type DeleteScalingPolicyOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -1482,7 +1484,6 @@ func (s DeleteScalingPolicyOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DeleteScheduledActionRequest
 type DeleteScheduledActionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1509,6 +1510,9 @@ type DeleteScheduledActionInput struct {
 	//
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
+	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
 	//
 	// ResourceId is a required field
 	ResourceId *string `min:"1" type:"string" required:"true"`
@@ -1541,6 +1545,9 @@ type DeleteScheduledActionInput struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	ScalableDimension *string `type:"string" enum:"ScalableDimension"`
 
 	// The name of the scheduled action.
@@ -1615,7 +1622,6 @@ func (s *DeleteScheduledActionInput) SetServiceNamespace(v string) *DeleteSchedu
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DeleteScheduledActionResponse
 type DeleteScheduledActionOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -1630,7 +1636,6 @@ func (s DeleteScheduledActionOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DeregisterScalableTargetRequest
 type DeregisterScalableTargetInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1657,6 +1662,9 @@ type DeregisterScalableTargetInput struct {
 	//
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
+	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
 	//
 	// ResourceId is a required field
 	ResourceId *string `min:"1" type:"string" required:"true"`
@@ -1689,6 +1697,9 @@ type DeregisterScalableTargetInput struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	//
 	// ScalableDimension is a required field
 	ScalableDimension *string `type:"string" required:"true" enum:"ScalableDimension"`
@@ -1751,7 +1762,6 @@ func (s *DeregisterScalableTargetInput) SetServiceNamespace(v string) *Deregiste
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DeregisterScalableTargetResponse
 type DeregisterScalableTargetOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -1766,7 +1776,6 @@ func (s DeregisterScalableTargetOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DescribeScalableTargetsRequest
 type DescribeScalableTargetsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1806,6 +1815,9 @@ type DescribeScalableTargetsInput struct {
 	//
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
+	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
 	ResourceIds []*string `type:"list"`
 
 	// The scalable dimension associated with the scalable target. This string consists
@@ -1837,6 +1849,9 @@ type DescribeScalableTargetsInput struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	ScalableDimension *string `type:"string" enum:"ScalableDimension"`
 
 	// The namespace of the AWS service. For more information, see AWS Service Namespaces
@@ -1900,7 +1915,6 @@ func (s *DescribeScalableTargetsInput) SetServiceNamespace(v string) *DescribeSc
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DescribeScalableTargetsResponse
 type DescribeScalableTargetsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -1934,7 +1948,6 @@ func (s *DescribeScalableTargetsOutput) SetScalableTargets(v []*ScalableTarget) 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DescribeScalingActivitiesRequest
 type DescribeScalingActivitiesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -1974,6 +1987,9 @@ type DescribeScalingActivitiesInput struct {
 	//
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
+	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
 	ResourceId *string `min:"1" type:"string"`
 
 	// The scalable dimension. This string consists of the service namespace, resource
@@ -2005,6 +2021,9 @@ type DescribeScalingActivitiesInput struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	ScalableDimension *string `type:"string" enum:"ScalableDimension"`
 
 	// The namespace of the AWS service. For more information, see AWS Service Namespaces
@@ -2071,7 +2090,6 @@ func (s *DescribeScalingActivitiesInput) SetServiceNamespace(v string) *Describe
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DescribeScalingActivitiesResponse
 type DescribeScalingActivitiesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2105,7 +2123,6 @@ func (s *DescribeScalingActivitiesOutput) SetScalingActivities(v []*ScalingActiv
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DescribeScalingPoliciesRequest
 type DescribeScalingPoliciesInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2148,6 +2165,9 @@ type DescribeScalingPoliciesInput struct {
 	//
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
+	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
 	ResourceId *string `min:"1" type:"string"`
 
 	// The scalable dimension. This string consists of the service namespace, resource
@@ -2179,6 +2199,9 @@ type DescribeScalingPoliciesInput struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	ScalableDimension *string `type:"string" enum:"ScalableDimension"`
 
 	// The namespace of the AWS service. For more information, see AWS Service Namespaces
@@ -2251,7 +2274,6 @@ func (s *DescribeScalingPoliciesInput) SetServiceNamespace(v string) *DescribeSc
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DescribeScalingPoliciesResponse
 type DescribeScalingPoliciesOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2285,7 +2307,6 @@ func (s *DescribeScalingPoliciesOutput) SetScalingPolicies(v []*ScalingPolicy) *
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DescribeScheduledActionsRequest
 type DescribeScheduledActionsInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2325,6 +2346,9 @@ type DescribeScheduledActionsInput struct {
 	//
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
+	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
 	ResourceId *string `min:"1" type:"string"`
 
 	// The scalable dimension. This string consists of the service namespace, resource
@@ -2356,6 +2380,9 @@ type DescribeScheduledActionsInput struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	ScalableDimension *string `type:"string" enum:"ScalableDimension"`
 
 	// The names of the scheduled actions to describe.
@@ -2431,7 +2458,6 @@ func (s *DescribeScheduledActionsInput) SetServiceNamespace(v string) *DescribeS
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/DescribeScheduledActionsResponse
 type DescribeScheduledActionsOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2466,7 +2492,6 @@ func (s *DescribeScheduledActionsOutput) SetScheduledActions(v []*ScheduledActio
 }
 
 // Describes the dimension of a metric.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/MetricDimension
 type MetricDimension struct {
 	_ struct{} `type:"structure"`
 
@@ -2520,7 +2545,6 @@ func (s *MetricDimension) SetValue(v string) *MetricDimension {
 }
 
 // Configures a predefined metric for a target tracking policy.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/PredefinedMetricSpecification
 type PredefinedMetricSpecification struct {
 	_ struct{} `type:"structure"`
 
@@ -2583,7 +2607,6 @@ func (s *PredefinedMetricSpecification) SetResourceLabel(v string) *PredefinedMe
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/PutScalingPolicyRequest
 type PutScalingPolicyInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2623,6 +2646,9 @@ type PutScalingPolicyInput struct {
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
 	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
+	//
 	// ResourceId is a required field
 	ResourceId *string `min:"1" type:"string" required:"true"`
 
@@ -2654,6 +2680,9 @@ type PutScalingPolicyInput struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	//
 	// ScalableDimension is a required field
 	ScalableDimension *string `type:"string" required:"true" enum:"ScalableDimension"`
@@ -2768,7 +2797,6 @@ func (s *PutScalingPolicyInput) SetTargetTrackingScalingPolicyConfiguration(v *T
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/PutScalingPolicyResponse
 type PutScalingPolicyOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -2803,7 +2831,6 @@ func (s *PutScalingPolicyOutput) SetPolicyARN(v string) *PutScalingPolicyOutput 
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/PutScheduledActionRequest
 type PutScheduledActionInput struct {
 	_ struct{} `type:"structure"`
 
@@ -2833,6 +2860,9 @@ type PutScheduledActionInput struct {
 	//
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
+	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
 	//
 	// ResourceId is a required field
 	ResourceId *string `min:"1" type:"string" required:"true"`
@@ -2866,6 +2896,9 @@ type PutScheduledActionInput struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	ScalableDimension *string `type:"string" enum:"ScalableDimension"`
 
 	// The new minimum and maximum capacity. You can set both values or just one.
@@ -2993,7 +3026,6 @@ func (s *PutScheduledActionInput) SetStartTime(v time.Time) *PutScheduledActionI
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/PutScheduledActionResponse
 type PutScheduledActionOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -3008,7 +3040,6 @@ func (s PutScheduledActionOutput) GoString() string {
 	return s.String()
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/RegisterScalableTargetRequest
 type RegisterScalableTargetInput struct {
 	_ struct{} `type:"structure"`
 
@@ -3043,6 +3074,9 @@ type RegisterScalableTargetInput struct {
 	//
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
+	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
 	//
 	// ResourceId is a required field
 	ResourceId *string `min:"1" type:"string" required:"true"`
@@ -3084,6 +3118,9 @@ type RegisterScalableTargetInput struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	//
 	// ScalableDimension is a required field
 	ScalableDimension *string `type:"string" required:"true" enum:"ScalableDimension"`
@@ -3167,7 +3204,6 @@ func (s *RegisterScalableTargetInput) SetServiceNamespace(v string) *RegisterSca
 	return s
 }
 
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/RegisterScalableTargetResponse
 type RegisterScalableTargetOutput struct {
 	_ struct{} `type:"structure"`
 }
@@ -3183,7 +3219,6 @@ func (s RegisterScalableTargetOutput) GoString() string {
 }
 
 // Represents a scalable target.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/ScalableTarget
 type ScalableTarget struct {
 	_ struct{} `type:"structure"`
 
@@ -3226,6 +3261,9 @@ type ScalableTarget struct {
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
 	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
+	//
 	// ResourceId is a required field
 	ResourceId *string `min:"1" type:"string" required:"true"`
 
@@ -3263,6 +3301,9 @@ type ScalableTarget struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	//
 	// ScalableDimension is a required field
 	ScalableDimension *string `type:"string" required:"true" enum:"ScalableDimension"`
@@ -3328,7 +3369,6 @@ func (s *ScalableTarget) SetServiceNamespace(v string) *ScalableTarget {
 }
 
 // Represents the minimum and maximum capacity for a scheduled action.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/ScalableTargetAction
 type ScalableTargetAction struct {
 	_ struct{} `type:"structure"`
 
@@ -3362,7 +3402,6 @@ func (s *ScalableTargetAction) SetMinCapacity(v int64) *ScalableTargetAction {
 }
 
 // Represents a scaling activity.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/ScalingActivity
 type ScalingActivity struct {
 	_ struct{} `type:"structure"`
 
@@ -3411,6 +3450,9 @@ type ScalingActivity struct {
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
 	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
+	//
 	// ResourceId is a required field
 	ResourceId *string `min:"1" type:"string" required:"true"`
 
@@ -3442,6 +3484,9 @@ type ScalingActivity struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	//
 	// ScalableDimension is a required field
 	ScalableDimension *string `type:"string" required:"true" enum:"ScalableDimension"`
@@ -3544,7 +3589,6 @@ func (s *ScalingActivity) SetStatusMessage(v string) *ScalingActivity {
 }
 
 // Represents a scaling policy.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/ScalingPolicy
 type ScalingPolicy struct {
 	_ struct{} `type:"structure"`
 
@@ -3595,6 +3639,9 @@ type ScalingPolicy struct {
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
 	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
+	//
 	// ResourceId is a required field
 	ResourceId *string `min:"1" type:"string" required:"true"`
 
@@ -3626,6 +3673,9 @@ type ScalingPolicy struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	//
 	// ScalableDimension is a required field
 	ScalableDimension *string `type:"string" required:"true" enum:"ScalableDimension"`
@@ -3715,7 +3765,6 @@ func (s *ScalingPolicy) SetTargetTrackingScalingPolicyConfiguration(v *TargetTra
 }
 
 // Represents a scheduled action.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/ScheduledAction
 type ScheduledAction struct {
 	_ struct{} `type:"structure"`
 
@@ -3751,6 +3800,9 @@ type ScheduledAction struct {
 	//    * Aurora DB cluster - The resource type is cluster and the unique identifier
 	//    is the cluster name. Example: cluster:my-db-cluster.
 	//
+	//    * Amazon SageMaker endpoint variants - The resource type is variant and
+	//    the unique identifier is the resource ID. Example: endpoint/my-end-point/variant/KMeansClustering.
+	//
 	// ResourceId is a required field
 	ResourceId *string `min:"1" type:"string" required:"true"`
 
@@ -3782,6 +3834,9 @@ type ScheduledAction struct {
 	//
 	//    * rds:cluster:ReadReplicaCount - The count of Aurora Replicas in an Aurora
 	//    DB cluster. Available for Aurora MySQL-compatible edition.
+	//
+	//    * sagemaker:variant:DesiredInstanceCount - The number of EC2 instances
+	//    for an Amazon SageMaker model endpoint variant.
 	ScalableDimension *string `type:"string" enum:"ScalableDimension"`
 
 	// The new minimum and maximum capacity. You can set both values or just one.
@@ -3928,7 +3983,6 @@ func (s *ScheduledAction) SetStartTime(v time.Time) *ScheduledAction {
 //    with a null upper bound.
 //
 //    * The upper and lower bound can't be null in the same step adjustment.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/StepAdjustment
 type StepAdjustment struct {
 	_ struct{} `type:"structure"`
 
@@ -3999,7 +4053,6 @@ func (s *StepAdjustment) SetScalingAdjustment(v int64) *StepAdjustment {
 }
 
 // Represents a step scaling policy configuration.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/StepScalingPolicyConfiguration
 type StepScalingPolicyConfiguration struct {
 	_ struct{} `type:"structure"`
 
@@ -4105,11 +4158,10 @@ func (s *StepScalingPolicyConfiguration) SetStepAdjustments(v []*StepAdjustment)
 }
 
 // Represents a target tracking scaling policy configuration.
-// See also, https://docs.aws.amazon.com/goto/WebAPI/application-autoscaling-2016-02-06/TargetTrackingScalingPolicyConfiguration
 type TargetTrackingScalingPolicyConfiguration struct {
 	_ struct{} `type:"structure"`
 
-	// Reserved for future use.
+	// A customized metric.
 	CustomizedMetricSpecification *CustomizedMetricSpecification `type:"structure"`
 
 	// Indicates whether scale in by the target tracking policy is disabled. If
@@ -4281,6 +4333,9 @@ const (
 	// MetricTypeEc2spotFleetRequestAverageNetworkOut is a MetricType enum value
 	MetricTypeEc2spotFleetRequestAverageNetworkOut = "EC2SpotFleetRequestAverageNetworkOut"
 
+	// MetricTypeSageMakerVariantInvocationsPerInstance is a MetricType enum value
+	MetricTypeSageMakerVariantInvocationsPerInstance = "SageMakerVariantInvocationsPerInstance"
+
 	// MetricTypeEcsserviceAverageCpuutilization is a MetricType enum value
 	MetricTypeEcsserviceAverageCpuutilization = "ECSServiceAverageCPUUtilization"
 
@@ -4323,6 +4378,9 @@ const (
 
 	// ScalableDimensionRdsClusterReadReplicaCount is a ScalableDimension enum value
 	ScalableDimensionRdsClusterReadReplicaCount = "rds:cluster:ReadReplicaCount"
+
+	// ScalableDimensionSagemakerVariantDesiredInstanceCount is a ScalableDimension enum value
+	ScalableDimensionSagemakerVariantDesiredInstanceCount = "sagemaker:variant:DesiredInstanceCount"
 )
 
 const (
@@ -4363,4 +4421,7 @@ const (
 
 	// ServiceNamespaceRds is a ServiceNamespace enum value
 	ServiceNamespaceRds = "rds"
+
+	// ServiceNamespaceSagemaker is a ServiceNamespace enum value
+	ServiceNamespaceSagemaker = "sagemaker"
 )

@@ -32,7 +32,7 @@ developed by |percona| and some are third-party open-source tools.
 
 The following diagram illustrates how |pmm| is currently structured:
 
-.. image:: images/pmm-diagram.png
+.. image:: .res/graphics/png/diagram.pmm-architecture.png
 
 .. _pmm-client:
 
@@ -56,33 +56,37 @@ For more information, see :ref:`install-client`.
   for example, adding and removing database instances
   that you want to monitor.
   For more information, see :ref:`pmm-admin`.
-
 * ``pmm-mysql-queries-0`` is a service
   that manages the |qan| agent
   as it collects query performance data from |mysql|
   and sends it to the |qan| API on :ref:`pmm-server`.
-
 * ``pmm-mongodb-queries-0`` is a service
   that manages the QAN agent
   as it collects query performance data from |mongodb|
   and sends it to |qan| API on :ref:`pmm-server`.
+* |node-exporter| is a |prometheus| exporter that collects general system
+  metrics.
+* |mysqld-exporter| is a |prometheus| exporter that collects |mysql| server
+  metrics.
+* |mongodb-exporter| is a |prometheus| exporter that collects |mongodb| server
+  metrics.
+* |proxysql-exporter| is a |prometheus| exporter that collects |proxysql|
+  performance metrics.
 
-* ``node_exporter`` is a |prometheus| exporter
-  that collects general system metrics.
-  For more information, see https://github.com/percona/node_exporter.
+.. seealso::
 
-* ``mysqld_exporter`` is a |prometheus| exporter
-  that collects |mysql| server metrics.
-  For more information, see https://github.com/percona/mysqld_exporter.
-
-* ``mongodb_exporter`` is a |prometheus| exporter
-  that collects |mongodb| server metrics.
-  For more information, see https://github.com/percona/mongodb_exporter.
-
-* ``proxysql_exporter`` is a |prometheus| exporter
-  that collects |proxysql| performance metrics.
-  For more information, see https://github.com/percona/proxysql_exporter.
-
+   |mongodb-exporter| repository at |github|
+       `percona/mongodb_exporter`_
+   |mysqld-exporter| repository at |github|
+       `percona/mysqld_exporter`_
+   |node-exporter| repository at |github|
+       `percona/node_exporter`_
+   |proxysql-exporter| repository at |github|
+       `percona/proxysql_exporter`_
+   Passing exporter options when adding a monitoring service
+       :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
+   List of available exporter options
+       :ref:`pmm/list.exporter`
 
 .. _pmm-server:
 
@@ -146,9 +150,9 @@ For more information, see :ref:`using`.
    Enabling orchestrator
       :term:`Orchestrator` in :ref:`pmm/glossary/terminology-reference`
 
-.. rubric:: **References**
+.. .. rubric:: References
 
-.. target-notes::
+.. .. target-notes::
 
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/program.txt

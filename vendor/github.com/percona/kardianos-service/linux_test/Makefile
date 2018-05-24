@@ -1,7 +1,7 @@
 all: systemd upstart supervisord sysv clean
 
 test:
-	@env GOOS=linux go test -c -o service.test ..
+	@go test -o service.test -c ..
 
 clean:
 	-rm service.test

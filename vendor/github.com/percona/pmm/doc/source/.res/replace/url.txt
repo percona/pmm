@@ -23,3 +23,10 @@
 .. _orchestrator: https://www.percona.com/blog/2016/03/08/orchestrator-mysql-replication-topology-manager/
 .. _v.percona.com: http://v.percona.com
 .. _`Grafana's change log`: https://github.com/grafana/grafana/blob/master/CHANGELOG.md#463-2017-12-14
+
+.. Exporter repositories at GitHub
+
+.. _`percona/node_exporter`: https://github.com/percona/node_exporter
+.. _`percona/proxysql_exporter`: https://github.com/percona/proxysql_exporter
+.. _`percona/mysqld_exporter`: https://github.com/percona/mysqld_exporter
+.. _`percona/mongodb_exporter`: https://github.com/percona/mongodb_exporter
