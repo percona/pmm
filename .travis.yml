@@ -4,7 +4,7 @@ language: go
 
 go:
   - 1.9.x
-  - master
+  - 1.10.x
 
 matrix:
   allow_failures:
@@ -49,8 +49,8 @@ before_install:
   # - sudo ldconfig
 
   # install compiled release
-  - wget https://github.com/google/protobuf/releases/download/v3.5.0/protoc-3.5.0-linux-x86_64.zip
-  - unzip -q protoc-3.5.0-linux-x86_64.zip
+  - wget https://github.com/google/protobuf/releases/download/v3.5.1/protoc-3.5.1-linux-x86_64.zip
+  - unzip -q protoc-3.5.1-linux-x86_64.zip
   - sudo install -d /usr/local/include/google/protobuf/compiler
   - sudo install -m 755 bin/protoc /usr/local/bin/
   - sudo install -m 644 include/google/protobuf/*.proto /usr/local/include/google/protobuf/

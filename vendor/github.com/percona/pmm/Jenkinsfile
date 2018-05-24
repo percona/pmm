@@ -3,7 +3,7 @@ pipeline {
         specName = 'pmm-doc'
     }
     agent {
-        label 'min-amazon'
+        label 'micro-amazon'
     }
     stages {
         stage('Prepare') {

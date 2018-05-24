@@ -48,14 +48,14 @@ number of new tools that will facilitate data analysis in PMM:
 - New ``query editor`` for Prometheus expressions which features syntax highlighting
   and autocompletion for metrics, functions and range vectors.
   
-  .. image:: ../images/pmm.metrics-monitor.graph.metrics.1.png
+  .. image:: ../.res/graphics/png/pmm.metrics-monitor.graph.metrics.1.png
      :width: 50%
 
 - ``Query inspector`` which provides detailed information about the query. The
   primary goal of graph inspector is to enable analyzing a graph which does not
   display data as expected.
   
-  .. image:: ../images/pmm.metrics-monitor.graph.metrics.query-inspector.1.png
+  .. image:: ../.res/graphics/png/pmm.metrics-monitor.graph.metrics.query-inspector.1.png
      :width: 50%
 
 The complete list of new features in :program:`Grafana` 4.5.0 is

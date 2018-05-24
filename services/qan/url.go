@@ -59,7 +59,7 @@ func getQanURL(ctx context.Context) (*url.URL, error) {
 	f, err := os.Open("/srv/update/pmm-manage.yml")
 	if err != nil {
 		if os.IsNotExist(err) {
-			logger.Get(ctx).Info("pmm-manage.yml not found, assuming default QAN API URL.")
+			logger.Get(ctx).WithField("component", "qan").Info("pmm-manage.yml not found, assuming default QAN API URL.")
 			return u, nil
 		}
 		return nil, errors.WithStack(err)

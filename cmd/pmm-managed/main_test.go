@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -33,6 +34,7 @@ import (
 	"sync"
 	"syscall"
 	"testing"
+
 	"time"
 
 	"github.com/percona/pmm-managed/api"
@@ -46,6 +48,10 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/mysql"
+)
+
+var (
+	ErrServiceUnavailable = errors.New("service unavailable")
 )
 
 func TestServer(t *testing.T) {
@@ -65,7 +71,7 @@ func TestServer(t *testing.T) {
 	ctx, _ = logger.Set(ctx, "main") // todo runGRPCServer panics without this global being set.
 	defer cancel()
 
-	l := logs.New(logs.DefaultLogs, 1000)
+	l := logs.New(ctx, logs.DefaultLogs, 1000)
 	consulClient, err := consul.NewClient(*consulAddrF)
 	require.NoError(t, err)
 	sqlDB, err := models.OpenDB(*dbNameF, *dbUsernameF, *dbPasswordF, logrus.WithField("component", "main").Debugf)
@@ -143,11 +149,15 @@ func testAnnotations(t *testing.T) {
 	require.NoError(t, err)
 	defer r.Body.Close()
 
-	resp := api.AnnotationsCreateResponse{}
-	err = json.NewDecoder(r.Body).Decode(&resp)
+	body, err := ioutil.ReadAll(r.Body)
 	require.NoError(t, err)
 
-	assert.Equal(t, "Annotation added", resp.Message)
+	resp := api.AnnotationsCreateResponse{}
+	err = json.Unmarshal(body, &resp)
+	require.NoError(t, err)
+
+	assert.Equal(t, http.StatusOK, r.StatusCode)
+	assert.Equal(t, "Annotation added", resp.Message, "body: %s", string(body))
 }
 
 // waitForBody is a helper function which makes http calls until http server is up
@@ -163,16 +173,23 @@ func waitForBody(urlToGet string) (body []byte, err error) {
 			return body, err
 		}
 
+		// If there was an error then wait.
+		time.Sleep(1 * time.Second)
+
 		// If there is a syscall.ECONNREFUSED error (web server not available) then retry.
 		if urlError, ok := err.(*url.Error); ok {
 			if opError, ok := urlError.Err.(*net.OpError); ok {
 				if osSyscallError, ok := opError.Err.(*os.SyscallError); ok {
 					if osSyscallError.Err == syscall.ECONNREFUSED {
-						time.Sleep(1 * time.Second)
 						continue
 					}
 				}
 			}
+		}
+
+		// If statusCode == http.StatusServiceUnavailable then retry.
+		if err == ErrServiceUnavailable {
+			continue
 		}
 
 		// There was an error, and it wasn't syscall.ECONNREFUSED.
@@ -189,6 +206,11 @@ func getBody(urlToGet string) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	// This is for GRPC, rest API is reported working but GRPC can be still down.
+	if resp.StatusCode == http.StatusServiceUnavailable {
+		return nil, ErrServiceUnavailable
+	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

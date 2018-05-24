@@ -10,6 +10,13 @@ required = [
   "github.com/go-swagger/go-swagger/cmd/swagger"
 ]
 
+[prune]
+  go-tests = true
+
+  # to keep google/api/annotations.proto
+  # non-go = true
+  # unused-packages = true
+
 [[constraint]]
   # we do not support 2.0 yet
   name = "github.com/prometheus/prometheus"

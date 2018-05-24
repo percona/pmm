@@ -1,23 +1,22 @@
-dist: trusty
-sudo: required
 language: go
-
-services:
-  - docker
+go_import_path: github.com/percona/kardianos-service
+sudo: required
 
 go:
+  - 1.8.x
   - 1.9.x
+  - 1.10.x
   - master
 
-go_import_path: github.com/percona/kardianos-service
+matrix:
+  allow_failures:
+  - go: master
 
-before_script:
-  - docker --version
+before_install:
+  - go get github.com/mattn/goveralls
+  - go get golang.org/x/tools/cmd/cover
 
 script:
-  - go install -v
-  - make -C linux_test
-  #- sudo go test -v -cover
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash) -X fix
+  - chmod +x linux-test-su.sh
+  - sudo ./linux-test-su.sh $GOPATH `which go`
+  - $GOPATH/bin/goveralls -service=travis-ci

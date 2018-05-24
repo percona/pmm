@@ -35,11 +35,13 @@
 .. |opt.disable-userstats|     replace:: :option:`--disable-userstats`
 .. |opt.dsn|                   replace:: :option:`--dsn`
 .. |opt.external-metrics|      replace:: :option:`external:metrics`
+.. |opt.external-service|      replace:: :option:`external:service`
 .. |opt.force|                 replace:: :option:`--force`
 .. |opt.help|                  replace:: :option:`--help`
 .. |opt.host|                  replace:: :option:`--host`
 .. |opt.json|                  replace:: :option:`--json`
 .. |opt.linux-metrics|         replace:: :option:`linux:metrics`
+.. |opt.long-query-time|       replace:: :option:`long_query_time`
 .. |opt.mongodb-metrics|       replace:: :option:`mongodb:metrics`
 .. |opt.mongodb-queries|       replace:: :option:`mongodb:queries`
 .. |opt.mongodb|               replace:: :option:`mongodb`
@@ -71,6 +73,8 @@
 .. |opt.verbose|               replace:: :option:`--verbose`
 .. |opt.version|               replace:: :option:`--version`
 .. |opt.volumes-from|          replace:: :option:`--volumes-from`
+.. |opt.metrics-memory|        replace:: :option:`--METRICS_MEMORY`
+
 					     
 .. SSL parameters
 
@@ -80,7 +84,6 @@
 .. |opt.mongodb-tls-disable-hostname-validation| replace:: :option:`--mongodb.tls-disable-hostname-validation`
 .. |opt.mongodb-tls-dis-hostname-val|            replace:: :option:`--mongodb.tls-disable-hostname-validation`
 .. |opt.mongodb-tls-private-key|                 replace:: :option:`--mongodb.tls-private-key`
-
 
 .. One letter
 
@@ -154,8 +157,14 @@
 .. Labels and tags
 
 .. |opt.latest|            replace:: :option:`latest`
+.. |opt.dev-latest|        replace:: :option:`dev-latest`
 .. |opt.pmm-data-backup|   replace:: :option:`pmm-data-backup`
 .. |opt.pmm-data|          replace:: :option:`pmm-data`
 .. |opt.pmm-server-backup| replace:: :option:`pmm-server-backup`
 .. |opt.pmm-server|        replace:: :option:`pmm-server`
 
+.. MySQL variables
+
+.. |opt.questions| replace:: :option:`Questions`
+
+   

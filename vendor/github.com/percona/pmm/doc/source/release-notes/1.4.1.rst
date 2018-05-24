@@ -40,7 +40,7 @@ Bug fixes
   not always display data points from |opt.external-metrics| monitoring
   services due to a too restrictive Grafana Template filter.
 
-  .. image:: ../images/pmm.metrics-monitor.advanced-data-exploration.1.png
+  .. image:: ../.res/graphics/png/pmm.metrics-monitor.advanced-data-exploration.1.png
      :scale: 50%
 
 * :pmmbug:`1636`: Special characters prevented the removal of

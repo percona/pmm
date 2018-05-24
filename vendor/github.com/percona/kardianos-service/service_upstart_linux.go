@@ -8,7 +8,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/exec"
 	"os/signal"
+	"regexp"
+	"strconv"
+	"strings"
 	"text/template"
 	"time"
 )
@@ -16,6 +20,13 @@ import (
 func isUpstart() bool {
 	if _, err := os.Stat("/sbin/upstart-udev-bridge"); err == nil {
 		return true
+	}
+	if _, err := os.Stat("/sbin/init"); err == nil {
+		if out, err := exec.Command("/sbin/init", "--version").Output(); err == nil {
+			if strings.Contains(string(out), "init (upstart") {
+				return true
+			}
+		}
 	}
 	return false
 }
@@ -54,6 +65,47 @@ func (s *upstart) configPath() (cp string, err error) {
 	cp = "/etc/init/" + s.Config.Name + ".conf"
 	return
 }
+
+func (s *upstart) hasKillStanza() bool {
+	defaultValue := true
+
+	out, err := exec.Command("/sbin/init", "--version").Output()
+	if err != nil {
+		return defaultValue
+	}
+
+	re := regexp.MustCompile(`init \(upstart (\d+.\d+.\d+)\)`)
+	matches := re.FindStringSubmatch(string(out))
+	if len(matches) != 2 {
+		return defaultValue
+	}
+
+	version := make([]int, 3)
+	for idx, vStr := range strings.Split(matches[1], ".") {
+		version[idx], err = strconv.Atoi(vStr)
+		if err != nil {
+			return defaultValue
+		}
+	}
+
+	maxVersion := []int{0, 6, 5}
+	if versionAtMost(version, maxVersion) {
+		return false
+	}
+
+	return defaultValue
+}
+
+func versionAtMost(version, max []int) bool {
+	for idx, m := range max {
+		v := version[idx]
+		if v > m {
+			return false
+		}
+	}
+	return true
+}
+
 func (s *upstart) template() *template.Template {
 	return template.Must(template.New("").Funcs(tf).Parse(upstartScript))
 }
@@ -81,10 +133,12 @@ func (s *upstart) Install() error {
 
 	var to = &struct {
 		*Config
-		Path string
+		Path          string
+		HasKillStanza bool
 	}{
 		s.Config,
 		path,
+		s.hasKillStanza(),
 	}
 
 	return s.template().Execute(f, to)
@@ -155,18 +209,18 @@ func (s *upstart) Status() error {
 // the program before the Stop handler can run.
 const upstartScript = `# {{.Description}}
 
-{{if .DisplayName}}description "{{.DisplayName}}"{{end}}
+{{if .DisplayName}}description    "{{.DisplayName}}"{{end}}
 
 {{range .Environment}}env {{.|cmd}}
 {{end}}
 
-kill signal INT
+{{if .HasKillStanza}}kill signal INT{{end}}
 {{if .ChRoot}}chroot {{.ChRoot}}{{end}}
 {{if .WorkingDirectory}}chdir {{.WorkingDirectory}}{{end}}
 start on filesystem or runlevel [2345]
 stop on runlevel [!2345]
 
-#setuid username
+{{if .UserName}}setuid {{.UserName}}{{end}}
 
 respawn
 respawn limit 10 5

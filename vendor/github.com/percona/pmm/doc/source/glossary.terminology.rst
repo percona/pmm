@@ -7,6 +7,23 @@ Terminology Reference
 .. glossary::
    :sorted:
 
+   PMM user permissions for AWS
+
+      When creating a `IAM user
+      <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_SettingUp.html#CHAP_SettingUp.IAM>`_
+      for |amazon-rds| DB instance that you intend to monitor in PMM, you need to set all
+      required permissions properly. For this, you may copy the following |JSON| for your
+      IAM user:
+
+      .. include:: .res/code/js.org
+	 :start-after: +aws.iam-user.permission+
+	 :end-before: #+end-block
+
+      .. seealso::
+
+	 Creating an IAM user
+	    :ref:`pmm.amazon-rds.iam-user.creating`
+
    Data retention
 
       By default, |prometheus| stores time-series data for 30 days,
@@ -36,15 +53,12 @@ Terminology Reference
 
    Ports
 
-      The following ports must be open to enable communication between the
-      :term:`PMM Server` and :term:`PMM clients <PMM Client>`.
+      The following ports must be open to enable communication between
+      the :term:`PMM Server` and :term:`PMM clients <PMM Client>`.
 
-      |pmm-server| should keep ports 80 or 443 ports open for computers where
-      |pmm-client| is installed to access the |pmm| web interface.
-
-      On each computer where |pmm-client| is installed, the following ports must
-      be open. These are default ports that you can change when adding the
-      respective monitoring service with the |pmm-admin.add| command.
+      |pmm-server| should keep ports 80 or 443 ports open for
+      computers where |pmm-client| is installed to access the |pmm|
+      web interface.
 
       42000
          For |pmm| to collect genenal system metrics.
@@ -98,7 +112,9 @@ Terminology Reference
 
       .. seealso::
 
-	 - :ref:`Enabling orchestrator when running a docker container <pmm/docker.additional_option>`.
+	 Docker container: Enabling orchestrator
+
+	    :term:`ORCHESTRATOR_ENABLED (Option)`
 
    Data Source Name
 
@@ -175,9 +191,9 @@ Terminology Reference
 
       The version of PMM appears at the bottom of the :term:`PMM server home page <PMM Home Page>`.
 
-      .. figure:: ./images/update-button.png
+      .. figure:: .res/graphics/png/pmm.home-page.1.png
 
-	 To update your |pmm-server|, click the *Update* button
+	 To update your |pmm-server|, click the |gui.check-for-updates-manually| button
 	 located next to the version number.
 
       .. seealso::
@@ -198,10 +214,10 @@ Terminology Reference
 
    PMM Home Page
 
-      The starting page of the PMM portal from which you can open the tools of
-      PMM, view or download documentation.
+      The starting page of the PMM portal from which you can have an overview of your environment, open the tools of
+      PMM, and browse to online resources.
 
-      On the PMM home page, you can also find the version number and a button to
+      On the |pmm| home page, you can also find the version number and a button to
       update your |pmm-server| (see :term:`PMM Version`).
 
    PMM

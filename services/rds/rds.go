@@ -192,7 +192,7 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 				if e := q.Reload(&a); e != nil {
 					return errors.WithStack(e)
 				}
-				logger.Get(ctx).Infof("%s %s %s %d", a.Type, node.Name, node.Region, *a.ListenPort)
+				logger.Get(ctx).WithField("component", "rds").Infof("%s %s %s %d", a.Type, node.Name, node.Region, *a.ListenPort)
 
 				sc := prometheus.StaticConfig{
 					Targets: []string{fmt.Sprintf("127.0.0.1:%d", *a.ListenPort)},
@@ -210,7 +210,7 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 				if e := q.Reload(&a); e != nil {
 					return errors.WithStack(e)
 				}
-				logger.Get(ctx).Infof("%s %s %s %d", a.Type, node.Name, node.Region, *a.ListenPort)
+				logger.Get(ctx).WithField("component", "rds").Infof("%s %s %s %d", a.Type, node.Name, node.Region, *a.ListenPort)
 
 				sc := prometheus.StaticConfig{
 					Targets: []string{fmt.Sprintf("127.0.0.1:%d", *a.ListenPort)},
@@ -544,7 +544,7 @@ func (svc *Service) addRDSExporter(ctx context.Context, tx *reform.TX, service *
 		// restart rds_exporter
 		name := agent.NameForSupervisor()
 		if err = svc.Supervisor.Stop(ctx, name); err != nil {
-			logger.Get(ctx).Warn(err)
+			logger.Get(ctx).WithField("component", "rds").Warn(err)
 		}
 		if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(name)); err != nil {
 			return err
