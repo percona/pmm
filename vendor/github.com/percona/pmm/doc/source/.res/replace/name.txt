@@ -4,6 +4,9 @@
 
 .. Organizations and Products
 
+.. |jira|                     replace:: *Jira*
+.. |myisam|                   replace:: *MyISAM*
+.. |aria|                     replace:: *Aria*
 .. |aws-iam|                  replace:: *IAM*
 .. |iam|                      replace:: *IAM*
 .. |aws-iam.name|             replace:: *Identity and Access Management*
@@ -29,7 +32,9 @@
 .. |facebook|                 replace:: *Facebook*
 .. |firefox|                  replace:: *Firefox*
 .. |grafana|                  replace:: *Grafana*
+.. |inmemory|                 replace:: *In-Memory*
 .. |innodb|                   replace:: *InnoDB*
+.. |mmapv1|                   replace:: *MMAPv1*
 .. |tokudb|                   replace:: *TokuDB*
 .. |linux|                    replace:: *Linux*
 .. |mariadb|                  replace:: *MariaDB*
@@ -39,6 +44,7 @@
 .. |myrocks|                  replace:: *MyRocks*
 .. |mysql|                    replace:: *MySQL*
 .. |oracle-linux|             replace:: *Oracle Linux*
+.. |oracle|                   replace:: *Oracle*
 .. |orchestrator|             replace:: *Orchestrator*
 .. |percona-server|           replace:: *Percona Server*
 .. |percona|                  replace:: *Percona*
@@ -69,6 +75,7 @@
 .. |redhat|                   replace:: *Red Hat*
 .. |rocksdb|                  replace:: *RocksDB*
 .. |ubuntu|                   replace:: *Ubuntu*
+.. |wiredtiger|               replace:: *WiredTiger*
 
 .. Terminology
 
@@ -82,6 +89,9 @@
 
 .. Metrics Monitor Dashboards 
 
+.. |mysql-innodb-metrics-advanced|           replace:: *MySQL InnoDB Metrics Advanced*
+.. |pxc-galera-cluster-overview|     replace:: *PXC/Galera Cluster Overview*
+.. |query-analytics-settings|        replace:: *Query Analytics Settings*
 .. |advanced-data-exploration|       replace:: *Advanced Data Exploration*
 .. |adv-data-expl|                   replace:: *Advanced Data Exploration*
 .. |amazon-rds-aurora-mysql-metrics| replace:: *Amazon RDS / Aurora MySQL Metrics*
@@ -107,6 +117,9 @@
 
 .. GUI Elements
 
+.. |gui.explain|                            replace:: :guilabel:`Explain`
+.. |gui.pmm-annotations|                    replace:: :guilabel:`PMM Annotations`
+.. |gui.count|                              replace:: *Count*
 .. |gui.1-click-launch|                     replace:: :guilabel:`1-Click Launch`
 .. |gui.add-permissions|                    replace:: :guilabel:`Add permissions`
 .. |gui.add-rds-aurora-instance|            replace:: :guilabel:`Add an AWS RDS MySQL or Aurora MySQL Instance`
@@ -179,6 +192,7 @@
 
 .. Files and directories
 
+.. |my.cnf|              replace:: :file:`my.cnf`
 .. |dhparam.pem|         replace:: :file:`dhparam.pem`
 .. |ca-certs.pem|        replace:: :file:`ca-certs.pem`
 .. |certificate.crt|     replace:: :file:`certificate.crt`
@@ -193,11 +207,15 @@
 .. |pmm-linux-metrics.service| replace:: :file:`pmm-linux-metrics-42000.service`
 .. |pmm-mysql-queries.service| replace:: :file:`pmm-mysql-queries-0.service`
 .. |srv.update.main.yml| replace:: :file:`/srv/update/main.yml`
+.. |relay-log| replace:: :file:`relay log`
 
 .. Default users and roles
 
 .. |cluster-monitor|  replace:: *clusterMonitor*
 
+.. Plugins
+
+.. |query-response-time| replace:: :code:`QUERY_RESPONSE_TIME`
 
 .. Default databases (prefix `db`)
 

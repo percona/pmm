@@ -19,12 +19,16 @@ service as additional options. For more information about this exporter see its
    All exporter options
       :ref:`pmm/list.exporter`
 
+.. _pmm/exporter.proxysql.collector-option:
+
 Collector Options
 ================================================================================
 
 .. include:: .res/table/table.org
    :start-after: +proxysql-exporter.collector-flag+
    :end-before: #+end-table
+
+.. _pmm/exporter.proxysql.general-option:
 
 General Options
 ================================================================================

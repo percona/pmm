@@ -49,19 +49,6 @@ type Log struct {
 	Offline string `json:",omitempty"` // dev
 }
 
-type QAN struct {
-	UUID           string // of MySQL instance
-	CollectFrom    string // "slowlog" or "perfschema"
-	Interval       uint   // seconds, 0 = DEFAULT_INTERVAL
-	MaxSlowLogSize int64  `json:"-"` // bytes, 0 = DEFAULT_MAX_SLOW_LOG_SIZE. Don't write it to the config
-	ExampleQueries bool   // send real example of each query
-	// internal
-	Start         []string `json:",omitempty"` // queries to configure MySQL (enable slow log, etc.)
-	Stop          []string `json:",omitempty"` // queries to un-configure MySQL (disable slow log, etc.)
-	WorkerRunTime uint     `json:",omitempty"` // seconds, 0 = DEFAULT_WORKER_RUNTIME
-	ReportLimit   uint     `json:",omitempty"` // top N queries, 0 = DEFAULT_REPORT_LIMIT
-}
-
 // Response for GET /qan/:uuid/config
 type RunningQAN struct {
 	AgentUUID     string

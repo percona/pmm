@@ -7,6 +7,19 @@ Terminology Reference
 .. glossary::
    :sorted:
 
+   PMM annotation
+
+      A feature of |pmm-server| which adds a special mark to all
+      dashboards and signifies an important event in your
+      application. Annotations are added on the |pmm-client| by using
+      the |pmm-admin.annotate| command.
+
+      .. seealso::
+
+	 |grafana| Documentation: Annotations
+
+	    http://docs.grafana.org/reference/annotations/
+
    PMM user permissions for AWS
 
       When creating a `IAM user
