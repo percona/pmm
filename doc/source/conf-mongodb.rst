@@ -9,6 +9,12 @@ In |qan.intro|, you can monitor |mongodb| metrics and |mongodb| queries with the
 accordingly. Run the |pmm-admin.add| command to use these monitoring services
 (for more information, see :ref:`pmm-admin.add`).
 
+.. _pmm.conf.mongodb.supported-version:
+
+.. rubric:: Supported versions of |mongodb|
+
+|qan| supports |mongodb| version 3.2 or higher.
+
 .. _pmm/qan/mongodb/conf/essential-permission.setting-up:
 
 Setting Up the Essential Permissions
@@ -50,9 +56,9 @@ service in the |pmm-admin.add| command:
 Enabling Profiling
 ================================================================================
 
-For `MongoDB`_ to work correctly with |qan.intro|, you need to enable
-profiling in your |mongod| configuration. When started without
-profiling enabled, |qan| displays the following warning:
+For `MongoDB`_ to work correctly with |qan.intro|, you need to enable profiling
+in your |mongod| configuration. When started without profiling enabled, |qan|
+displays the following warning:
 
 .. note:: **A warning message is displayed when profiling is not enabled**
 

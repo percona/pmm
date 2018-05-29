@@ -1,7 +1,7 @@
 .. _architecture:
 
 ================================================================================
-|pmm.name| Architecture
+Overview of |pmm.name| Architecture
 ================================================================================
 
 The |pmm| platform is based on a client-server model that enables scalability.
@@ -36,19 +36,11 @@ The following diagram illustrates how |pmm| is currently structured:
 
 .. _pmm-client:
 
-PMM Client
+|pmm-client|
 ================================================================================
 
-|pmm-client| packages are available for most popular |linux| distributions:
-
-* DEB for |debian|-based distributions
-  (including |ubuntu| and others)
-* RPM for |red-hat.name| derivatives
-  (including |centos|, |oracle-linux|, |amazon-linux|, and others)
-
-There are also generic tarball binaries that can be used on any |linux| system.
-
-For more information, see :ref:`install-client`.
+Each |pmm-client| collects various data about general system and database
+performance, and sends this data to the corresponding |pmm-server|.
 
 |pmm-client| packages consist of the following:
 
@@ -75,18 +67,14 @@ For more information, see :ref:`install-client`.
 
 .. seealso::
 
-   |mongodb-exporter| repository at |github|
-       `percona/mongodb_exporter`_
-   |mysqld-exporter| repository at |github|
-       `percona/mysqld_exporter`_
-   |node-exporter| repository at |github|
-       `percona/node_exporter`_
-   |proxysql-exporter| repository at |github|
-       `percona/proxysql_exporter`_
-   Passing exporter options when adding a monitoring service
-       :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
+   How to install |pmm-client|
+      :ref:`deploy-pmm.client.installing`
+
+   How to pass exporter specific options when adding a monitoring service
+      :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
+
    List of available exporter options
-       :ref:`pmm/list.exporter`
+      :ref:`pmm/list.exporter`
 
 .. _pmm-server:
 
@@ -194,9 +182,9 @@ to add the instances to the topology.
    :ref:`pmm/docker.additional_option` in the
    :ref:`run-server-docker` section.
 
-.. .. rubric:: References
+.. rubric:: More information
 
-.. .. target-notes::
+.. target-notes::
 
 .. include:: .res/replace/name.txt
 .. include:: .res/replace/program.txt

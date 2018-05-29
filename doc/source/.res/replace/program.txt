@@ -1,8 +1,13 @@
 
 .. Programs
 
+.. Any executables
+
+.. |ping|       replace:: :program:`ping`
+.. |apt|        replace:: :program:`apt`
+.. |yum|        replace:: :program:`yum`
 .. |mongod|     replace:: :program:`mongod`
-.. |mysqld|     replace:: :command:`mysqld`
+.. |mysqld|     replace:: :program:`mysqld`
 .. |pmm-admin|  replace:: :program:`pmm-admin`
 .. |sudo|       replace:: :program:`sudo`   
 .. |virtualbox| replace:: :program:`VirtualBox`
@@ -10,11 +15,11 @@
 .. |systemd|    replace:: :program:`systemd`
 .. |sed|        replace:: :program:`sed`
 .. |cd|         replace:: :program:`cd`
-.. |uptime|     replace:: :command:`uptime`
+.. |uptime|     replace:: :program:`uptime`
 .. |gzip|       replace:: :program:`gzip`
 .. |http2|      replace:: :program:`HTTP2`
 
-.. Commands
+.. Docker
 
 .. |docker.cp|     replace:: :program:`docker cp`
 .. |docker.create| replace:: :program:`docker create`
@@ -29,8 +34,10 @@
 .. |docker.stop|   replace:: :program:`docker stop`
 .. |docker.tag|    replace:: :program:`docker tag`
 
-.. |pmm-admin.annotate|            replace:: :program:`pmm-admin annotate`
+.. PMM Admin
+
 .. |pmm-admin.add|            replace:: :program:`pmm-admin add`
+.. |pmm-admin.annotate|       replace:: :program:`pmm-admin annotate`
 .. |pmm-admin.check-network|  replace:: :program:`pmm-admin check-network`
 .. |pmm-admin.config|         replace:: :program:`pmm-admin config`
 .. |pmm-admin.help|           replace:: :program:`pmm-admin help`
@@ -47,24 +54,29 @@
 .. |pmm-admin.stop|           replace:: :program:`pmm-admin stop`
 .. |pmm-admin.uninstall|      replace:: :program:`pmm-admin uninstall`
 
-.. |sql.show-volume-status| replace:: :command:`SHOW VOLUME STATUS`
-.. |sql.show-slave-status| replace:: :command:`SHOW SLAVE STATUS`
-.. |sql.delete|        replace:: :command:`DELETE`
-.. |sql.explain|       replace:: :command:`EXPLAIN`
-.. |sql.insert|        replace:: :command:`INSERT`
-.. |sql.replace|       replace:: :command:`REPLACE`
-.. |sql.select|        replace:: :command:`SELECT`
-.. |sql.show-status|   replace:: :command:`SHOW STATUS`
-.. |sql.update|        replace:: :command:`UPDATE`
-.. |sql.flush-hosts|   replace:: :command:`FLUSH HOSTS`
-.. |sql.rollback|      replace:: :command:`ROLLBACK`
-.. |sql.commit|        replace:: :command:`COMMIT`
-
 .. Exporters
 
-.. |rds-exporter|        replace:: :code:`rds_exporter`
-.. |mongodb-exporter|    replace:: :code:`mongodb_exporter`
-.. |mysqld-exporter|     replace:: :code:`mysqld_exporter`
-.. |node-exporter|       replace:: :code:`node_exporter`
-.. |proxysql-exporter|   replace:: :code:`proxysql_exporter`
-.. |postgresql-exporter| replace:: :code:`postgresql_exporter`
+.. |rds-exporter|        replace:: :program:`rds_exporter`
+.. |mongodb-exporter|    replace:: :program:`mongodb_exporter`
+.. |mysqld-exporter|     replace:: :program:`mysqld_exporter`
+.. |node-exporter|       replace:: :program:`node_exporter`
+.. |proxysql-exporter|   replace:: :program:`proxysql_exporter`
+.. |postgresql-exporter| replace:: :program:`postgresql_exporter`
+
+.. Commands
+
+.. SQL Statements
+
+.. |sql.show-volume-status| replace:: :command:`SHOW VOLUME STATUS`
+.. |sql.show-slave-status|  replace:: :command:`SHOW SLAVE STATUS`
+.. |sql.delete|             replace:: :command:`DELETE`
+.. |sql.explain|            replace:: :command:`EXPLAIN`
+.. |sql.insert|             replace:: :command:`INSERT`
+.. |sql.replace|            replace:: :command:`REPLACE`
+.. |sql.select|             replace:: :command:`SELECT`
+.. |sql.show-status|        replace:: :command:`SHOW STATUS`
+.. |sql.update|             replace:: :command:`UPDATE`
+.. |sql.flush-hosts|        replace:: :command:`FLUSH HOSTS`
+.. |sql.rollback|           replace:: :command:`ROLLBACK`
+.. |sql.commit|             replace:: :command:`COMMIT`
+

@@ -65,8 +65,9 @@ publish the container's port *443* to the host's port *443* when running the
 Enabling SSL when connecting |pmm-client| to |pmm-server|
 --------------------------------------------------------------------------------
 
-Then, you need to enable SSL when :ref:`connect-client`.
-If you purchased the certificate from a certificate authority (CA):
+Then, you need to enable SSL when :ref:`connecting a PMM Client to a PMM Server
+<deploy-pmm.client_server.connecting>`.  If you purchased the certificate from a
+certificate authority (CA):
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.config.server.server-ssl+
@@ -99,8 +100,9 @@ connections.
    :end-before: #+end-block
 
 |pmm-client| uses the same credentials to communicate with |pmm-server|.  If you
-set the user name and password as described, specify them when
-:ref:`connect-client`:
+set the user name and password as described, specify them when :ref:`connecting
+a PMM Client to a PMM Server <deploy-pmm.client_server.connecting>`:
+
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.config.server.server-user.server-password+
@@ -120,7 +122,7 @@ The following example shows how you might :ref:`run the PMM Server container
    :end-before: #+end-block
 		 
 The following example shows how you might :ref:`connect to PMM Server
-<connect-client>`:
+<deploy-pmm.client_server.connecting>`:
 
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.config.example+

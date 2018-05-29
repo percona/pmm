@@ -1317,6 +1317,16 @@ Demonstrates how to set the option to 8 days.
 
 #+end-block
 
+#+begin-block: apt-get install pmm-client
++apt-get.install.pmm-client+
+
+.. code-block:: bash
+
+   $ apt-get install pmm-client
+
+#+end-block
+
+
 * yum
 
 #+begin-block: yum remove

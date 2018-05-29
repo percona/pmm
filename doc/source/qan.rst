@@ -4,16 +4,27 @@
 |qan.name|
 ================================================================================
 
-The |qan| dashboard enables database administrators and application
-developers to |qan.what-is|.  |qan| helps you optimize database performance by making
-sure that queries are executed as expected and within the shortest time
-possible.  In case of problems, you can see which queries may be the cause and
-get detailed metrics for them. 
+The |qan| is a special dashboard which enables database administrators and
+application developers to |qan.what-is|. |qan| helps you optimize database
+performance by making sure that queries are executed as expected and within the
+shortest time possible.  In case of problems, you can see which queries may be
+the cause and get detailed metrics for them.
 
 .. figure:: .res/graphics/png/query-analytics.png
 	    
-   |qan| helps analyze database queries over periods of time and find performance
-   problems.
+   |qan| helps analyze database queries over periods of time and find
+   performance problems.
+
+
+.. important::
+   
+   |qan.name| supports |mysql| and |mongodb|. The minimum requirements
+   for |mysql| are:
+
+   * |mysql| 5.1 or later (if using the slow query log)
+   * |mysql| 5.6.9 or later (if using Performance Schema)
+ 
+   .. tell about 8.0 |qan| 
 
 |qan| displays its metrics in both visual and numeric form: the performance
 related characteristics appear as plotted graphics with summaries.
@@ -73,9 +84,9 @@ view all queries that contain that fragment in their fingerprints.
 
 The query abstract is the portion of the query fingerprint which contains the
 type of the query, such as *SELECT* or *FIND*, and the attributes from the
-projection (a set of requested columns in case of MySQL database, for example).
+projection (a set of requested columns in case of |mysql| database, for example).
 
-When you apply your filter, the query summary table changes to display only the
+When you apply a filter, the query summary table changes to display only the
 queries which match your criterion. Note that the TOTAL row which runs above the
 list of queries in the summary table does not change its values. These are
 always calculated based on all queries run within the selected time or date
@@ -89,9 +100,9 @@ range.
 
 .. rubric:: Selecting Time or Date Range
 
-The query metrics that appear in *QAN* are computed based on a time period or a
+The query metrics that appear in |qan| are computed based on a time period or a
 range of dates. The default value is *the last hour*. To set another range use
-the *range selection tool* located at the top of your |qan| page.
+the *range selection tool* located at the top of the |qan| page.
 
 .. figure:: .res/graphics/png/pmm.qan.range-selection.1.png
 
@@ -316,9 +327,11 @@ same interface using the same tools. By using the familiar and intuitive
 interface of :term:`QAN` you can analyze the efficiency of your application
 reading and writing data in the collections of your |mongodb| databases.
 
-.. note:: **Supported** |mongodb| **versions**
+.. seealso:: 
 
-   PMM supports `MongoDB`_ version 3.2 or higher. 
+   What |mongodb| versions are supported by |qan|?
+      :ref:`See more information about how to configure MongoDB <pmm.conf.mongodb.supported-version>`
+
 
 .. _figure.pmm.qan.mongodb.query-metrics:
 
