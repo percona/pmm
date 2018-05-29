@@ -4,78 +4,78 @@
 
 .. Organizations and Products
 
-.. |jira|                     replace:: *Jira*
-.. |myisam|                   replace:: *MyISAM*
-.. |aria|                     replace:: *Aria*
-.. |aws-iam|                  replace:: *IAM*
-.. |iam|                      replace:: *IAM*
-.. |aws-iam.name|             replace:: *Identity and Access Management*
-.. |github|                   replace:: *GitHub*
-.. |amazon-aurora|            replace:: *Amazon Aurora*
-.. |amazon-cloudwatch|        replace:: *Amazon Cloudwatch*
-.. |amazon-linux|             replace:: *Amazon Linux*
-.. |amazon-rds|               replace:: *Amazon RDS*
-.. |amazon|                   replace:: *Amazon*
-.. |ami.intro|                replace:: *AMI* (Amazon Machine Image)
-.. |ami.name|                 replace:: *Amazon Machine Image*
-.. |ami|                      replace:: *AMI*
-.. |aurora|                   replace:: *Amazon Aurora*
-.. |aws.intro|                replace:: *AWS* (Amazon Web Services)
-.. |aws.name|                 replace:: *Amazon Web Services*
-.. |aws|                      replace:: *AWS*
-.. |amazon-aws|               replace:: *AWS*
-.. |centos|                   replace:: *CentOS*
-.. |cloudwatch|               replace:: *Amazon Cloudwatch*
-.. |consul|                   replace:: *Consul*
-.. |debian|                   replace:: *Debian*
-.. |docker|                   replace:: *Docker*
-.. |facebook|                 replace:: *Facebook*
-.. |firefox|                  replace:: *Firefox*
-.. |grafana|                  replace:: *Grafana*
-.. |inmemory|                 replace:: *In-Memory*
-.. |innodb|                   replace:: *InnoDB*
-.. |mmapv1|                   replace:: *MMAPv1*
-.. |tokudb|                   replace:: *TokuDB*
-.. |linux|                    replace:: *Linux*
-.. |mariadb|                  replace:: *MariaDB*
-.. |metrics-monitor|          replace:: *Metrics Monitor*
-.. |mm|                       replace:: *Metrics Monitor*
-.. |mongodb|                  replace:: *MongoDB*
-.. |myrocks|                  replace:: *MyRocks*
-.. |mysql|                    replace:: *MySQL*
-.. |oracle-linux|             replace:: *Oracle Linux*
-.. |oracle|                   replace:: *Oracle*
-.. |orchestrator|             replace:: *Orchestrator*
-.. |percona-server|           replace:: *Percona Server*
-.. |percona|                  replace:: *Percona*
-.. |percona-xtradb-cluster|   replace:: *Percona XtraDB Cluster*
-.. |xtradb-cluster|           replace:: *Percona XtraDB Cluster*
-.. |perl|                     replace:: *Perl*
-.. |pmm-client|               replace:: *PMM Client*
-.. |pmm-server|               replace:: *PMM Server*
-.. |pmm.abbrev|               replace:: *PMM*
-.. |pmm.intro|                replace:: *PMM* (Percona Monitoring and Management)
-.. |pmm.name|                 replace:: *Percona Monitoring and Management*
-.. |pmm|                      replace:: *PMM*
-.. |postgresql|               replace:: *PostgreSQL*
-.. |postgres|                 replace:: *PostgreSQL*
-.. |prometheus|               replace:: *Prometheus*
-.. |proxysql|                 replace:: *ProxySQL*
-.. |psmdb.name|               replace:: *Percona Server for MongoDB*
-.. |psmdb|                    replace:: *PSMDB*
-.. |qan.abbrev|               replace:: *QAN*
-.. |qan.intro|                replace:: *QAN* (Query Analytics)
-.. |qan.name|                 replace:: *Query Analytics*
-.. |qan|                      replace:: *QAN*
-.. |query-analytics|          replace:: *Query Analytics*
-.. |rds|                      replace:: *Amazon RDS*
-.. |red-hat-enterprise-linux| replace:: *Red Hat Enterprise Linux*
-.. |red-hat.name|             replace:: *Red Hat Enterprise Linux*
-.. |red-hat|                  replace:: *Red Hat*
-.. |redhat|                   replace:: *Red Hat*
-.. |rocksdb|                  replace:: *RocksDB*
-.. |ubuntu|                   replace:: *Ubuntu*
-.. |wiredtiger|               replace:: *WiredTiger*
+.. |jira|                     replace:: Jira
+.. |myisam|                   replace:: MyISAM
+.. |aria|                     replace:: Aria
+.. |aws-iam|                  replace:: IAM
+.. |iam|                      replace:: IAM
+.. |aws-iam.name|             replace:: Identity and Access Management
+.. |github|                   replace:: GitHub
+.. |amazon-aurora|            replace:: Amazon Aurora
+.. |amazon-cloudwatch|        replace:: Amazon Cloudwatch
+.. |amazon-linux|             replace:: Amazon Linux
+.. |amazon-rds|               replace:: Amazon RDS
+.. |amazon|                   replace:: Amazon
+.. |ami.intro|                replace:: AMI (Amazon Machine Image)
+.. |ami.name|                 replace:: Amazon Machine Image
+.. |ami|                      replace:: AMI
+.. |aurora|                   replace:: Amazon Aurora
+.. |aws.intro|                replace:: AWS (Amazon Web Services)
+.. |aws.name|                 replace:: Amazon Web Services
+.. |aws|                      replace:: AWS
+.. |amazon-aws|               replace:: AWS
+.. |centos|                   replace:: CentOS
+.. |cloudwatch|               replace:: Amazon Cloudwatch
+.. |consul|                   replace:: Consul
+.. |debian|                   replace:: Debian
+.. |docker|                   replace:: Docker
+.. |facebook|                 replace:: Facebook
+.. |firefox|                  replace:: Firefox
+.. |grafana|                  replace:: Grafana
+.. |inmemory|                 replace:: In-Memory
+.. |innodb|                   replace:: InnoDB
+.. |mmapv1|                   replace:: MMAPv1
+.. |tokudb|                   replace:: TokuDB
+.. |linux|                    replace:: Linux
+.. |mariadb|                  replace:: MariaDB
+.. |metrics-monitor|          replace:: Metrics Monitor
+.. |mm|                       replace:: Metrics Monitor
+.. |mongodb|                  replace:: MongoDB
+.. |myrocks|                  replace:: MyRocks
+.. |mysql|                    replace:: MySQL
+.. |oracle-linux|             replace:: Oracle Linux
+.. |oracle|                   replace:: Oracle
+.. |orchestrator|             replace:: Orchestrator
+.. |percona-server|           replace:: Percona Server
+.. |percona|                  replace:: Percona
+.. |percona-xtradb-cluster|   replace:: Percona XtraDB Cluster
+.. |xtradb-cluster|           replace:: Percona XtraDB Cluster
+.. |perl|                     replace:: Perl
+.. |pmm-client|               replace:: PMM Client
+.. |pmm-server|               replace:: PMM Server
+.. |pmm.abbrev|               replace:: PMM
+.. |pmm.intro|                replace:: PMM* (Percona Monitoring and Management)
+.. |pmm.name|                 replace:: Percona Monitoring and Management
+.. |pmm|                      replace:: PMM
+.. |postgresql|               replace:: PostgreSQL
+.. |postgres|                 replace:: PostgreSQL
+.. |prometheus|               replace:: Prometheus
+.. |proxysql|                 replace:: ProxySQL
+.. |psmdb.name|               replace:: Percona Server for MongoDB
+.. |psmdb|                    replace:: PSMDB
+.. |qan.abbrev|               replace:: QAN
+.. |qan.intro|                replace:: QAN* (Query Analytics)
+.. |qan.name|                 replace:: Query Analytics
+.. |qan|                      replace:: QAN
+.. |query-analytics|          replace:: Query Analytics
+.. |rds|                      replace:: Amazon RDS
+.. |red-hat-enterprise-linux| replace:: Red Hat Enterprise Linux
+.. |red-hat.name|             replace:: Red Hat Enterprise Linux
+.. |red-hat|                  replace:: Red Hat
+.. |redhat|                   replace:: Red Hat
+.. |rocksdb|                  replace:: RocksDB
+.. |ubuntu|                   replace:: Ubuntu
+.. |wiredtiger|               replace:: WiredTiger
 
 .. Terminology
 
@@ -89,7 +89,7 @@
 
 .. Metrics Monitor Dashboards 
 
-.. |mysql-innodb-metrics-advanced|           replace:: *MySQL InnoDB Metrics Advanced*
+.. |mysql-innodb-metrics-advanced|   replace:: *MySQL InnoDB Metrics Advanced*
 .. |pxc-galera-cluster-overview|     replace:: *PXC/Galera Cluster Overview*
 .. |query-analytics-settings|        replace:: *Query Analytics Settings*
 .. |advanced-data-exploration|       replace:: *Advanced Data Exploration*

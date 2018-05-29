@@ -259,6 +259,16 @@ You are creating a username and password that will be used for two purposes:
    Make sure to replace the user name ``ec2-user`` used in this document with
    ``admin``.
 
+.. seealso::
+
+   How to verify that the |pmm-server| is running properly?
+      :ref:`deploy-pmm.server.verifying`
+
+   How to connect a |pmm-client| to the |pmm-server|?
+      :ref:`deploy-pmm.client_server.connecting`
+
+
+
 .. _run-server-ami.ebs-volume.resizing:
 
 Resizing the EBS Volume
@@ -291,40 +301,23 @@ use the new size:
       :start-after: +btrfs.filesystem.resize.max+
       :end-before: #+end-block
 
-.. seealso::
+.. admonition:: More information in |aws| documentation
 
-   |amazon| Documentation: Connecting to Your Linux Instance Using SSH 
-   
-      https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html
+   Elastic IP Addresses
+      http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html
 
+   |amazon| EC2 Security Groups for Linux Instances 
+      http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html
 
-Next Steps
-================================================================================
-
-:ref:`Verify that PMM Server is running <deploy-pmm.server.verifying>`
-by connecting to the PMM web interface using the IP address
-from the console output,
-then :ref:`install PMM Client <install-client>`
-on all database hosts that you want to monitor.
-
-.. seealso::
-
-   AWS Documentation:
-
-   - `Elastic IP Addresses 
-     <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html>`_
-   - `Amazon EC2 Security Groups for Linux Instances 
-     <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-network-security.html>`_
-   - `Connecting to Your Linux Instance Using SSH 
-     <http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html>`_ 
-     (use ``admin`` as the user name)
+   Connecting to Your Linux Instance Using SSH (use ``admin`` as the user name)
+      http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html
 
 .. _run-server-ami.amazon-machine-image:
 
 Running PMM Server Using Amazon Machine Images
 ================================================================================
 
-Percona provides public Amazon Machine Images (AMI) with |pmm-server|
+|percona| provides public |amazon| Machine Images (AMI) with |pmm-server|
 in all regions where Amazon Web Services (AWS) is available.
 You can launch an instance using the web console
 for the corresponding image:

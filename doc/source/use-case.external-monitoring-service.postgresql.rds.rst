@@ -10,7 +10,7 @@ Use case: Monitoring a |postgresql| database running on an |amazon-rds| instance
 monitor your |postgresql| host by using external monitoring services.  The
 external monitoring services only require that the appropriate |prometheus|
 exporter be properly installed on the system where |pmm-admin| is available (see
-section :ref:`install-client`).
+section :ref:`deploy-pmm.client.installing`).
 
 This example demonstrates how to start monitoring a |postgresql| host which is
 installed on an |amazon-rds| instance.

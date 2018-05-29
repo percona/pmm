@@ -147,7 +147,7 @@ Next Steps
 :ref:`Verify that PMM Server is running <deploy-pmm.server.verifying>`
 by connecting to the PMM web interface using the IP address
 assigned to the virtual appliance,
-then :ref:`install PMM Client <install-client>`
+then :ref:`install PMM Client <deploy-pmm.client.installing>`
 on all database hosts that you want to monitor.
 
 .. include:: .res/replace/name.txt
