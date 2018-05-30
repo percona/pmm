@@ -42,5 +42,5 @@ PMM is available for installation using three methods:
 
 Help us improve our software quality by reporting any bugs you encounter using our `bug tracking system`_.
 
-.. _`release announcement`: https://www.percona.com/blog/2018/05/23/percona-monitoring-and-management-1-11-0-is-now-available/>
+.. _`release announcement`: https://www.percona.com/blog/2018/05/23/percona-monitoring-and-management-1-11-0-is-now-available/
 .. _`bug tracking system`: https://jira.percona.com/secure/Dashboard.jspa
