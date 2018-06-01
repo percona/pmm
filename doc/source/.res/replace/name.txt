@@ -54,7 +54,7 @@
 .. |pmm-client|               replace:: PMM Client
 .. |pmm-server|               replace:: PMM Server
 .. |pmm.abbrev|               replace:: PMM
-.. |pmm.intro|                replace:: PMM* (Percona Monitoring and Management)
+.. |pmm.intro|                replace:: PMM (Percona Monitoring and Management)
 .. |pmm.name|                 replace:: Percona Monitoring and Management
 .. |pmm|                      replace:: PMM
 .. |postgresql|               replace:: PostgreSQL
@@ -64,7 +64,7 @@
 .. |psmdb.name|               replace:: Percona Server for MongoDB
 .. |psmdb|                    replace:: PSMDB
 .. |qan.abbrev|               replace:: QAN
-.. |qan.intro|                replace:: QAN* (Query Analytics)
+.. |qan.intro|                replace:: QAN (Query Analytics)
 .. |qan.name|                 replace:: Query Analytics
 .. |qan|                      replace:: QAN
 .. |query-analytics|          replace:: Query Analytics
@@ -117,6 +117,7 @@
 
 .. GUI Elements
 
+.. |gui.copy-to-clipboard|                  replace:: :guilabel:`Copy to clipboard`
 .. |gui.explain|                            replace:: :guilabel:`Explain`
 .. |gui.pmm-annotations|                    replace:: :guilabel:`PMM Annotations`
 .. |gui.count|                              replace:: *Count*
