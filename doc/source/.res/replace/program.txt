@@ -3,6 +3,7 @@
 
 .. Any executables
 
+.. |pt-visual-explain| replace:: :program:`pt-visual-explain`
 .. |ping|       replace:: :program:`ping`
 .. |apt|        replace:: :program:`apt`
 .. |yum|        replace:: :program:`yum`

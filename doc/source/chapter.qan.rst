@@ -203,13 +203,21 @@ directly from the PMM web interface (simply specify the database).
 
 .. image:: .res/graphics/png/qan-realtime-explain.png
 
-The output appears in two forms: classic and |json|. The classic form presents
-the attributes of the |sql.explain| command as columns of a table. The JSON
-format presents the output of |sql.explain| as a |json| document.
+The output appears in three forms: classic, |json| and visual. The classic form
+presents the attributes of the |sql.explain| command as columns of a table. The
+JSON format presents the output of |sql.explain| as a |json| document. To help
+you better understand how the query has been optimized, the visual form shows
+how the query accesses the tables it includes. The output of the visual form is
+identical to that of |pt-visual-explain|.
+
+.. note::
+
+   Use the |gui.copy-to-clipboard| button to save the output and pass it to
+   external tools, such as |pt-visual-explain|.
 
 .. figure:: .res/graphics/png/pmm.qan.explain.1.png
 
-   The two output formats of the |sql.explain| command.
+   The three output formats of the |sql.explain| command.
 
 Note that the |sql.explain| command only works with the following statements:
 
@@ -221,6 +229,12 @@ Note that the |sql.explain| command only works with the following statements:
 	    
 If you are viewing the details of a query of another type, the
 |gui.explain| section will not contain any data.
+
+.. admonition:: Related information
+
+   |pt-visual-explain|: a tool to show the query plan based on the |sql.explain| output
+      https://www.percona.com/doc/percona-toolkit/LATEST/pt-visual-explain.html
+
 
 .. _pmm.qan.table-info-section:
 
