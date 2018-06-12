@@ -11,6 +11,8 @@
 .. |sed|        replace:: :program:`sed`
 .. |cd|         replace:: :program:`cd`
 .. |uptime|     replace:: :command:`uptime`
+.. |gzip|       replace:: :program:`gzip`
+.. |http2|      replace:: :program:`HTTP2`
 
 .. Commands
 
@@ -27,6 +29,7 @@
 .. |docker.stop|   replace:: :program:`docker stop`
 .. |docker.tag|    replace:: :program:`docker tag`
 
+.. |pmm-admin.annotate|            replace:: :program:`pmm-admin annotate`
 .. |pmm-admin.add|            replace:: :program:`pmm-admin add`
 .. |pmm-admin.check-network|  replace:: :program:`pmm-admin check-network`
 .. |pmm-admin.config|         replace:: :program:`pmm-admin config`
@@ -44,6 +47,8 @@
 .. |pmm-admin.stop|           replace:: :program:`pmm-admin stop`
 .. |pmm-admin.uninstall|      replace:: :program:`pmm-admin uninstall`
 
+.. |sql.show-volume-status| replace:: :command:`SHOW VOLUME STATUS`
+.. |sql.show-slave-status| replace:: :command:`SHOW SLAVE STATUS`
 .. |sql.delete|        replace:: :command:`DELETE`
 .. |sql.explain|       replace:: :command:`EXPLAIN`
 .. |sql.insert|        replace:: :command:`INSERT`

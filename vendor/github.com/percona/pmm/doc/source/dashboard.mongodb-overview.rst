@@ -5,6 +5,8 @@
 
 This dashboard provides basic information about |mongodb| instances.
 
+.. _dashboard.mongodb-overview.command-operations:
+
 Command Operations
 --------------------------------------------------------------------------------
 
@@ -28,6 +30,8 @@ connections correctly.
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.mongodb-overview.cursors:
+
 Cursors
 --------------------------------------------------------------------------------
 
@@ -36,6 +40,8 @@ cursors being automatically killed after 10 minutes due to an application not
 closing the connection.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mongodb-overview.document-operations:
 
 Document Operations
 --------------------------------------------------------------------------------
@@ -47,6 +53,8 @@ documents.
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.mongodb-overview.queued-operations:
+
 Queued Operations
 --------------------------------------------------------------------------------
 
@@ -56,6 +64,8 @@ queue.
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.mongodb-overview.getlasterror-write-time.operations:
+
 getLastError Write Time, getLastError Write Operations
 --------------------------------------------------------------------------------
 
@@ -64,6 +74,8 @@ verify writes and how many concurrent writes are occurring.
 
 |view-all-metrics| |this-dashboard|
 
+.. _dashboard.mongodb-overview.asserts:
+
 Asserts
 --------------------------------------------------------------------------------
 
@@ -71,6 +83,8 @@ Asserts are not important by themselves, but you can correlate spikes with other
 graphs.
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mongodb-overview.memory-faults:
 
 Memory Faults
 --------------------------------------------------------------------------------

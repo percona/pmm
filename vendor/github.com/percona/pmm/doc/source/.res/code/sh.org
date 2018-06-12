@@ -10,7 +10,42 @@
 
 #+end-block
 
+* curl
+
+#+begin-block:: curl url/ping
++curl.url-ping+
+
+.. code-block:: bash
+
+   $ curl http://192.168.100.1/ping
+   {'version': '1.8.0'}
+
+#+end-block
+
 * bash
+
+** btrfs
+
+#+begin-block: btrfs filesystem resize max
+
++btrfs.filesystem.resize.max+
+
+.. code-block:: bash
+
+   $ btrfs filesystem resize max /srv
+
+#+end-block
+
+** service
+
+#+begin-block: service mongod restart
++service.mongod.restart+
+
+.. code-block:: bash
+
+   $ sudo service mongod restart
+
+#+end-block
 
 ** cd
 
@@ -156,7 +191,7 @@ SSL related options removed
 
 ** sudo
 
-#+begin-block:: sudo data-source-name postgresql-exporter
+#+begin-block: sudo data-source-name postgresql-exporter
 +sudo.data-source-name.postgresql-exporter+
 
 .. code-block:: bash
@@ -164,6 +199,20 @@ SSL related options removed
    $ sudo -u postgres \
    DATA_SOURCE_NAME="postgresql://pmm_doc_user:SomeR4ndom-Pa$$w0rd@pmm-doc-postgres-db.cdy17lilqrl7.us-east-1.rds.amazonaws.com:5432/postgres?sslmode=disable" \
    ./postgres_exporter
+
+#+end-block
+
+** pvresize
+
+#+begin-block: pvresize lvextend xfs_growfs
++pvresize.lvextend.xfs-growfs+
+
+.. code-block:: bash
+
+   $ pvresize /dev/xvdb
+   $ lvextend -l '100%VG' /dev/DataVG/ThinPool
+   $ lvextend -l '80%VG' /dev/DataVG/DataLV
+   $ xfs_growfs -d /srv
 
 #+end-block
 
@@ -664,10 +713,22 @@ Demonstrates how to set the option to 8 days.
 
 * pmm-admin
 
+** annotate
+
+#+begin-block: pmm-admin annotate tags
+
++pmm-admin.annotate.tags+
+
+.. code-block:: bash
+
+   $ pmm-admin annotate "Upgrade to v1.2" --tags "UX Imrovement,v1.2"
+
+#+end-block
+
+
 ** add
 
 #+begin-block: pmm-admin add host user password
-
 
 +pmm-admin.add.mysql-metrics.rds+
 
@@ -1275,7 +1336,7 @@ Demonstrates how to set the option to 8 days.
 
 .. code-block:: bash
 
-   $ mongod --dbpath=DATABASEDIR --profile 1 --slowms 200 --rateLimit 100
+   $ mongod --dbpath=DATABASEDIR --profile 2 --slowms 200 --rateLimit 100
 #+end-block
 * vboxmanage
 

@@ -8,6 +8,15 @@ This dashboard provides information about replica sets and their members.
 .. contents::
    :local:
 
+.. _dashboard.mongodb-replset.replication-operations:
+
+Replication Operations
+--------------------------------------------------------------------------------
+
+This metric provides an overview of database replication operations by type and
+makes it possible to analyze the load on the replica in more granular
+manner. These values only appear when the current host has replication enabled.
+
 .. _dashboard.mongodb-replset.replset-state:
 
 ReplSet State

@@ -6,6 +6,8 @@ Cross Server Graphs
 .. contents::
    :local:
 
+.. _dashboard.cross-server-graphs.load-average:
+
 Load Average
 --------------------------------------------------------------------------------
 
@@ -16,7 +18,7 @@ I/O access, eg waiting for disk.
 
 This metric is best used for trends. If you notice the load average rising, it
 may be due to innefficient queries. In that case, you may further analyze your
-queries in term:`QAN`.
+queries in :term:`QAN`.
 
 |view-all-metrics| |this-dashboard|
 
@@ -24,6 +26,8 @@ queries in term:`QAN`.
 
    Description of *load average* in the man page of the |uptime| command in Debian
       https://manpages.debian.org/stretch/procps/uptime.1.en.html
+
+.. _dashboard.cross-server-graphs.mysql-queries:
 
 |mysql| Queries
 --------------------------------------------------------------------------------
@@ -40,6 +44,8 @@ unlike the |opt.questions| variable. It does not count *COM_PING* or
 
    |mysql| Server Status Variables: Queries
       https://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Queries
+
+.. _dashboard.cross-server-graphs.mysql-traffic:
 
 |mysql| Traffic
 --------------------------------------------------------------------------------

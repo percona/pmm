@@ -77,14 +77,16 @@ type MySQLdExporter struct {
 }
 
 func (m *MySQLdExporter) DSN(service *RDSService) string {
-	cfg := mysql.Config{
-		User:   *m.ServiceUsername,
-		Passwd: *m.ServicePassword,
-		Net:    "tcp",
-		Addr:   net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port))),
-		// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
-		// TODO Other parameters?
-	}
+	cfg := mysql.NewConfig()
+	cfg.User = *m.ServiceUsername
+	cfg.Passwd = *m.ServicePassword
+
+	// todo why are below hardcoded?
+	cfg.Net = "tcp"
+	cfg.Addr = net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port)))
+
+	// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
+	// TODO Other parameters?
 	return cfg.FormatDSN()
 }
 
@@ -118,14 +120,16 @@ type QanAgent struct {
 }
 
 func (q *QanAgent) DSN(service *RDSService) string {
-	cfg := mysql.Config{
-		User:   *q.ServiceUsername,
-		Passwd: *q.ServicePassword,
-		Net:    "tcp",
-		Addr:   net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port))),
-		// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
-		// TODO Other parameters?
-	}
+	cfg := mysql.NewConfig()
+	cfg.User = *q.ServiceUsername
+	cfg.Passwd = *q.ServicePassword
+
+	// todo why are below hardcoded?
+	cfg.Net = "tcp"
+	cfg.Addr = net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port)))
+
+	// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
+	// TODO Other parameters?
 	return cfg.FormatDSN()
 }
 

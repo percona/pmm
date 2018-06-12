@@ -38,3 +38,8 @@ required = [
   # https://github.com/go-swagger/go-swagger/pull/1285
   name = "github.com/go-swagger/go-swagger"
   version = "=0.12.0"
+
+# PMM-2569: Version 1.4.0 introduces support for new auth methods in MySQL 8.
+[[constraint]]
+  name = "github.com/go-sql-driver/mysql"
+  version = "^1.4.0"

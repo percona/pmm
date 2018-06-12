@@ -22,7 +22,7 @@ Basics
 
    Architecture Overview <architecture>
    Deployment Instructions <deploy/index>
-   Usage Information <using>
+   using
 
 Advanced
 ================================================================================
@@ -35,7 +35,7 @@ Advanced
    Configuring MySQL for Best Results <conf-mysql>
    conf-mongodb
    security
-   mm-dashboards
+   metrics-monitor.dashboard.list
 
 Reference
 ================================================================================

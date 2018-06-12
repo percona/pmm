@@ -8,6 +8,8 @@ This dashboard provides information about query response time distribution.
 .. contents::
    :local:
 
+.. _dashboard.mysql-query-response-time.average:
+
 Average Query Response Time
 --------------------------------------------------------------------------------
 
@@ -23,6 +25,8 @@ queries by taking the sum of seconds divided by the count of seconds.
    |percona| Server Documentation: QUERY_RESPONSE_TIME table
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME
 
+.. _dashboard.mysql-query-response-time.distribution:
+
 Query Response Time Distribution
 --------------------------------------------------------------------------------
 
@@ -35,6 +39,8 @@ Query response time counts (operations) are grouped into three buckets:
 - > 10s
 
 |view-all-metrics| |this-dashboard|
+
+.. _dashboard.mysql-query-response-time.average.read-write-split:
 
 Average Query Response Time (Read/Write Split)
 --------------------------------------------------------------------------------
@@ -53,6 +59,8 @@ visibility of the split of READ vs WRITE query response time.
    |percona| Server Documentation: QUERY_RESPONSE_TIME_WRITE
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE
 
+.. _dashboard.mysql-query-response-time.read-distribution:
+
 Read Query Response Time Distribution
 --------------------------------------------------------------------------------
 
@@ -69,6 +77,8 @@ counts (operations) grouped into three buckets:
 
    |percona| Server Documentation: QUERY_RESPONSE_TIME_READ
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_READ
+
+.. _dashboard.mysql-query-response-time.write-distribution:
 
 Write Query Response Time Distribution
 --------------------------------------------------------------------------------
@@ -88,7 +98,6 @@ time counts (operations) grouped into three buckets:
       :ref:`pmm/mysql/conf/dashboard/mysql-query-response-time`
    |percona| Server Documentation: QUERY_RESPONSE_TIME_WRITE
       https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#QUERY_RESPONSE_TIME_WRITE
-
 
 .. |this-dashboard| replace:: :ref:`dashboard.mysql-query-response-time`
 

@@ -18,8 +18,7 @@ this scenario, the |pmm.abbrev| server is set up on a dedicated monitoring host.
 Installing |pmm-server|
 ================================================================================
 
-To install and set up the |pmm-server|, use one of the following
-options:
+To install and set up the |pmm-server|, use one of the following options:
 
 .. -  :ref:`run-server-docker`
 .. -  :ref:`pmm/deploying/server/virtual-appliance`
@@ -49,6 +48,8 @@ In the given example, you would need to direct your browser to
 *http://192.168.100.1*. Since you have not added any monitoring
 services yet, the site will not show any data.
 
+.. _deploy-pmm.table.web-interface.component.access:
+
 .. table:: Accessing the Components of the Web Interface
 
    ==================================== ======================================
@@ -64,11 +65,9 @@ services yet, the site will not show any data.
 You can also check if |pmm-server| is available requesting the /ping
 URL as in the following example:
 
-.. code-block:: bash
-
-   $ curl http://192.168.100.1/ping
-   {'version': '1.8.0'}
-
+.. include:: ../.res/code/sh.org
+   :start-after: +curl.url-ping+
+   :end-before: #+end-block
 
 .. .. _deploy-pmm.server.plugin:
 ..
@@ -123,7 +122,6 @@ URL as in the following example:
 ..    More about navigating dashboards
 .. ..       :ref:`using-mm`
 
-
 .. _deploy-pmm.client.installing:
 
 Installing Clients
@@ -176,7 +174,7 @@ specify it after the server's IP address. For example:
 
 .. _deploy-pmm.data-collecting:
 
-Collecting Data from |pmm.abbrev| Clients on |pmm.abbrev| Server
+Collecting Data from |pmm.abbrev| Clients on |pmm-server|
 ========================================================================
 
 To start collecting data on each |pmm.abbrev| client connected to a
@@ -249,8 +247,6 @@ If you are running |pmm-server| as a :ref:`virtual appliance <pmm/deploying/serv
 or using :ref:`Amazon Machine Image <run-server-ami>`, you can use the |gui.check-for-updates-manually|
 button on the Home dashboard (see :term:`PMM Home Page`).
 
-.. TODO: Replace screenshot with Grafana looks
-
 .. figure:: ../.res/graphics/png/pmm.home-page.1.png
 
    Update your server by clicking the |gui.check-for-updates-manually| button on the
@@ -275,7 +271,7 @@ install a newer version <deploy-pmm.client.installing>`.
 
 .. _deploy-pmm.removing:
 
-Removing the |pmm.abbrev| Client and |pmm.abbrev| Server
+Removing the |pmm.abbrev| Client and |pmm-server|
 ================================================================================
 
 Each |pmm.abbrev| client and the |pmm.abbrev| server are removed

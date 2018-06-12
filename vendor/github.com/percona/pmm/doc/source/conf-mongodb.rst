@@ -22,6 +22,8 @@ the *read* role for the |db.local| database.
 The following example that you can run in the |mongodb| shell, adds the
 |mongodb-exporter| user and assigns the appropriate roles.
 
+.. _code.pmm/qan/mongodb/conf/essential-permission.setting-up.db.get-sibling-db.create-user:
+
 .. include:: .res/code/js.org
    :start-after: +db.get-sibling-db.create-user+
    :end-before: #+end-block
@@ -32,6 +34,8 @@ service in the |pmm-admin.add| command:
 
 |tip.run-this.root|.
 
+.. _pmm/qan/mongodb/conf/essential-permission.setting-up.pmm-admin.add.mongodb-metrics.uri:
+
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.add.mongodb-metrics.uri+
    :end-before: #+end-block
@@ -40,6 +44,8 @@ service in the |pmm-admin.add| command:
 
    Adding a |opt.mongodb-metrics| monitoring service
       :ref:`pmm-admin.add.mongodb-metrics`
+
+.. _pmm.qan.mongodb.configuring.profiling.enabling:
 
 Enabling Profiling
 ================================================================================
@@ -65,42 +71,53 @@ server. This command is useful if you start :program:`mongod` manually.
 
 |tip.run-this.root|
 
+.. _pmm/qan/mongodb/conf/profiling.command_line.enable.mongod.dbpath.profile.slowms.ratelimit:
+
 .. include:: .res/code/sh.org
    :start-after: +mongod.dbpath.profile.slowms.ratelimit+
    :end-before: #+end-block
 
 Note that you need to specify a path to an existing directory that stores
-database files with the |opt.dbpath|. When the |opt.profile| option
-is set to **1**, |mongod| only collects the profiling data for slow
-operations. The |opt.slowms| option sets the minimum time for a slow
-operation. In the given example, any operation which takes longer than **200**
-milliseconds is a slow operation.
+database files with the |opt.dbpath|. When the |opt.profile| option is set to
+**2**, |mongod| collects the profiling data for all operations. To decrease the
+load, you may consider setting this option to **1** so that the profiling data
+are only collected for slow operations.
 
-The |opt.rate-limit| option, which is available if you use
-|psmdb.name| instead of |mongodb|, refers to the number of queries
-that the |mongodb| profiler collects. The lower the rate limit, the
-less impact on the performance. However, the accuracy of the collected
-information decreases as well.
+The |opt.slowms| option sets the minimum time for a slow operation. In the given
+example, any operation which takes longer than **200** milliseconds is a slow
+operation.
+
+The |opt.rate-limit| option, which is available if you use |psmdb.name| instead
+of |mongodb|, refers to the number of queries that the |mongodb| profiler
+collects. The lower the rate limit, the less impact on the performance. However,
+the accuracy of the collected information decreases as well.
 
 .. seealso::
 
    |opt.rate-limit| in |psmdb.name| documentation
        https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html
 
+.. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling:
+
 Enabling Profiling in the Configuration File
 --------------------------------------------------------------------------------
 
-If you run |mongod| as a service, you need to use the configuration file which
+If you run ``mongod`` as a service, you need to use the configuration file which
 by default is |etc.mongod.conf|.
 
 In this file, you need to locate the *operationProfiling:* section and add the
 following settings:
 
-.. include:: .res/code/yaml.org
-   :start-after: +operationprofiling+
-   :end-before: #+end-block
+.. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling.operationprofiling:
 
-These settings affect :program:`mongod` in the same way as the command line
+.. code-block:: yaml
+
+   operationProfiling:
+      slowOpThresholdMs: 200
+      mode: slowOp
+      rateLimit: 100
+
+These settings affect ``mongod`` in the same way as the command line
 options described in section
 :ref:`pmm/qan/mongodb/conf/profiling.command_line.enable`. Note that the
 configuration file is in the `YAML`_ format. In this format the indentation of
@@ -108,9 +125,11 @@ your lines is important as it defines levels of nesting.
 
 Restart the *mongod* service to enable the settings.
 
-.. code-block:: bash
+.. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling.service.mongod.restart:
 
-   $ sudo service mongod restart
+.. include:: .res/code/sh.org
+   :start-after: +service.mongod.restart+
+   :end-before: #+end-block
 
 .. seealso:: 
 

@@ -19,6 +19,8 @@ service as additional options. For more information about this exporter see its
    All exporter options
       :ref:`pmm/list.exporter`
 
+.. _pmm/exporter.node.collector-option:
+
 Collector options
 ================================================================================
 
