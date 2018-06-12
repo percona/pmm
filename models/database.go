@@ -19,7 +19,6 @@ package models
 import (
 	"database/sql"
 	"strings"
-	"time"
 
 	"github.com/go-sql-driver/mysql" // register SQL driver
 	"github.com/pkg/errors"
@@ -96,17 +95,20 @@ var databaseSchema = []string{
 }
 
 func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error) {
-	dsn := (&mysql.Config{
-		User:            username,
-		Passwd:          password,
-		Net:             "tcp",
-		Addr:            "127.0.0.1:3306",
-		DBName:          name,
-		Collation:       "utf8_general_ci",
-		Loc:             time.UTC,
-		ClientFoundRows: true,
-		ParseTime:       true,
-	}).FormatDSN()
+	cfg := mysql.NewConfig()
+	cfg.User = username
+	cfg.Passwd = password
+	cfg.DBName = name
+
+	// todo why are below hardcoded?
+	cfg.Net = "tcp"
+	cfg.Addr = "127.0.0.1:3306"
+
+	// todo why we need below options?
+	cfg.ClientFoundRows = true
+	cfg.ParseTime = true
+
+	dsn := cfg.FormatDSN()
 	db, err := sql.Open("mysql", dsn)
 	if err == nil {
 		db.SetMaxIdleConns(10)
