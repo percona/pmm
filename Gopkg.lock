@@ -176,10 +176,10 @@
   revision = "180bba53b98899f743a112e568bed9e2ef31aa20"
 
 [[projects]]
-  branch = "master"
   name = "github.com/go-sql-driver/mysql"
   packages = ["."]
-  revision = "ceae19ce1c5ac766abad8db04d649a7a83e91ced"
+  revision = "d523deb1b23d913de5bdada721a6071e71283618"
+  version = "v1.4.0"
 
 [[projects]]
   name = "github.com/go-swagger/go-swagger"
@@ -712,6 +712,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "752e6646d0d668b6b1f1144fb4e45585dccd18020b9af8150b344b17e38734ba"
+  inputs-digest = "37aecb1897e8d427ce4df32f035eb77582f193000a76d537fa0a06623fb90567"
   solver-name = "gps-cdcl"
   solver-version = 1
