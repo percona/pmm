@@ -37,18 +37,6 @@ pipeline {
                             s3://docs-test.cd.percona.com/${GIT_BRANCH}/
                     '''
                 }
-                script {
-                    if (binding.hasVariable('CHANGE_URL')) {
-                        withCredentials([string(credentialsId: 'GITHUB_API_TOKEN', variable: 'GITHUB_API_TOKEN')]) {
-                            sh """
-                                curl -X POST \
-                                    -H "Authorization: token ${GITHUB_API_TOKEN}" \
-                                    -d "{\\"body\\":\\"http://docs-test.cd.percona.com/${GIT_BRANCH}/\\"}" \
-                                    "https://api.github.com/repos/\$(echo $CHANGE_URL | cut -d '/' -f 4-5)/issues/${CHANGE_ID}/comments"
-                            """
-                        }
-                    }
-                }
             }
         }
     }
@@ -57,6 +45,17 @@ pipeline {
         always {
             script {
                 if (currentBuild.result == null || currentBuild.result == 'SUCCESS') {
+                    if (env.CHANGE_URL) {
+                        withCredentials([string(credentialsId: 'GITHUB_API_TOKEN', variable: 'GITHUB_API_TOKEN')]) {
+                            sh """
+                                set -o xtrace
+                                curl -v -X POST \
+                                    -H "Authorization: token ${GITHUB_API_TOKEN}" \
+                                    -d "{\\"body\\":\\"http://docs-test.cd.percona.com/${GIT_BRANCH}/\\"}" \
+                                    "https://api.github.com/repos/\$(echo $CHANGE_URL | cut -d '/' -f 4-5)/issues/${CHANGE_ID}/comments"
+                            """
+                        }
+                    }
                     slackSend channel: '#pmm-ci', color: '#00FF00', message: "[${specName}]: build finished - http://docs-test.cd.percona.com/${GIT_BRANCH}/"
                 } else {
                     slackSend channel: '#pmm-ci', color: '#FF0000', message: "[${specName}]: build ${currentBuild.result}"
