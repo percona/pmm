@@ -6,9 +6,7 @@ VMware Workstation Player
 The following procedure describes how to run the *PMM Server* appliance
 using VMware Workstation Player:
 
-1. Download the OVA.
-
-   The latest version is available at the `Download Percona Monitoring and Management`_ site.
+1. Download the OVA. The latest version is available at the `Download Percona Monitoring and Management`_ site.
 
 #. Import the appliance.
 
@@ -42,5 +40,7 @@ using VMware Workstation Player:
    Setting the root password
       :ref:`pmm/deploying/server/virtual-appliance/root-password/set`
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/url.txt
+.. _`download percona monitoring and management`: https://www.percona.com/downloads/pmm
+
+.. include:: .res/replace.txt
+

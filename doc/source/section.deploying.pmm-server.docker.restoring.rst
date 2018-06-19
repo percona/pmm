@@ -88,9 +88,8 @@ command from the computer where |pmm-client| is installed. |tip.run-this.root|.
    Backing Up the |pmm-server| |docker| container
       :ref:`pmm/server/docker/backing-up`
 
+.. References
 
-.. include:: .res/replace/fragment.txt
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/url.txt
+.. _`percona/pmm-server`: https://hub.docker.com/r/percona/pmm-server/tags/
+
+.. include:: .res/replace.txt

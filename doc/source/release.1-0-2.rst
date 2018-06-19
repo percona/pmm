@@ -77,9 +77,9 @@ For more inforamtion about using ``pmm-admin``, see :ref:`pmm-admin`.
   For more information, see :ref:`service-port`
 
 * Added the ``check-network`` command to test bidirectional connection
-  and latency between *PMM Client* and *PMM Server*.
+  and latency between |pmm-client| and |pmm-server|.
 
-* Added the ``ping`` command to ping *PMM Server* from *PMM Client*.
+* Added the ``ping`` command to ping |pmm-server| from |pmm-client|.
 
 * Added the ``start`` and ``stop`` commands
   to manually start and stop services managed by ``pmm-admin``.
@@ -87,11 +87,11 @@ For more inforamtion about using ``pmm-admin``, see :ref:`pmm-admin`.
 * Added the following new options for ``pmm-admin add mysql``
   to deal with performance issues:
 
-  * ``--disable-infoschema``:
-    Disable all metrics from the ``information_schema`` tables.
+  * |opt.disable-infoschema|:
+    Disable all metrics from the |information-schema| tables.
 
-  * ``--disable-per-table-stats``:
-    Disable per table metrics (for MySQL servers with a huge number of tables)
+  * |opt.disable-per-table-stats|:
+    Disable per table metrics (for |mysql| servers with a huge number of tables)
 
   For more information, see :ref:`performance-issues`
 
@@ -114,4 +114,4 @@ For more inforamtion about using ``pmm-admin``, see :ref:`pmm-admin`.
 
 .. |release| replace:: Beta 1.0.2
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

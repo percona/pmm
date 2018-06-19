@@ -36,7 +36,4 @@ procedure. |tip.run-all.root|:
    What other installation methods exist for |pmm-client|?
       :ref:`deploy-pmm.client.installing`
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/fragment.txt
-
+.. include:: .res/replace.txt

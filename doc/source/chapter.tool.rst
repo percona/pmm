@@ -41,8 +41,4 @@ performance, or network activity.
    chapter.qan
    chapter.metrics-monitor
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/url.txt
-.. include:: .res/replace/fragment.txt
+.. include:: .res/replace.txt

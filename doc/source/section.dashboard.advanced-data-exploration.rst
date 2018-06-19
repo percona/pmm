@@ -37,6 +37,4 @@ This section presents the values of the selected metric in the tabular form.
    |prometheus| Documentation: Metric types
        https://prometheus.io/docs/concepts/metric_types/
 
-.. include:: .res/replace/name.txt
-
-
+.. include:: .res/replace.txt

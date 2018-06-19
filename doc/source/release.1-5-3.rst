@@ -27,7 +27,7 @@ Bug fixes
 - :pmmbug:`1797`: It was not possible to update the CloudWatch data source
   credentials.
 - :pmmbug:`1829`: When the user clicked a link in the Query Abstract column, an
-  outdated version of QAN would open.
+  outdated version of |qan| would open.
 - :pmmbug:`1836`: |pmm-server| installed in a |docker| container could not be
   started if the updating procedure had been temporarily interrupted.
 - :pmmbug:`1871`: In some cases, RDS instances could not be discovered.
@@ -38,6 +38,4 @@ Bug fixes
 .. |release|      replace:: 1.5.3
 .. |prev-release| replace:: 1.5.2
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/program.txt
+.. include:: .res/replace.txt

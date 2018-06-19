@@ -28,5 +28,4 @@ Collector options
    :start-after: +node-exporter.flag+
    :end-before: #+end-table
 
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

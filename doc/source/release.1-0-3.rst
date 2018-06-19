@@ -62,4 +62,4 @@ Changes
 
 .. |release| replace:: Beta 1.0.3
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

@@ -52,4 +52,4 @@ The following changes were introduced in |pmm-server| |release|:
 
 .. |release| replace:: 1.2.2
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

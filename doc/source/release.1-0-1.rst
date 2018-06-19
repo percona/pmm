@@ -61,11 +61,11 @@ New Features
   * ``/consul/``: Consul web UI
   * ``/v1/``: Consul API
 
-  The only other port is 9001 used by QAN API.
+  The only other port is 9001 used by |qan| |api|.
 
 * ``pmm-admin`` tool now  includes the ability to add MongoDB instance
   and specify the port after the address of the PMM Server.
 
 .. |release| replace:: Beta 1.0.1
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

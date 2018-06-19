@@ -112,5 +112,4 @@ to confirm that your |innodb| rows changed are the same for your scheduled tasks
 
 .. |this-dashboard| replace:: :ref:`dashboard.trends`
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/fragment.txt
+.. include:: .res/replace.txt

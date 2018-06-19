@@ -1,13 +1,13 @@
 .. _pmm/architecture:
 
-Overview of |pmm.name| Architecture
+Overview of |percona-monitoring-management| Architecture
 ********************************************************************************
 
 The |pmm| platform is based on a client-server model that enables scalability.
 It includes the following modules:
 
 * :ref:`pmm-client` installed on every database host that you want to monitor.
-  It collects server metrics, general system metrics, and |qan.name| data
+  It collects server metrics, general system metrics, and |query-analytics| data
   for a complete performance overview.
 
 * :ref:`pmm-server` is the central part of |pmm| that aggregates collected data
@@ -82,21 +82,21 @@ The |pmm-client| package consist of the following:
 It is distributed as an appliance via the following:
 
 * |docker| image that you can use to run a container
-* Open Virtual Appliance (OVA) that you can run in |virtualbox| or another
+* |abbr.ova| that you can run in |virtualbox| or another
   hypervisor
-* |ami.intro| that you can run via |aws.intro|
+* |abbr.ami| that you can run via |amazon-web-services|
 
 For more information, see :ref:`deploy-pmm.server.installing`.
 
 |pmm-server| includes the following tools:
 
-* |qan.intro| enables you to analyze |mysql| query performance over periods of
+* |query-analytics| enables you to analyze |mysql| query performance over periods of
   time. In addition to the client-side |qan| agent, it includes the following:
 
   * |qan| API is the backend for storing and accessing query data collected by
     the |qan| agent running on a :ref:`pmm-client`.
 
-  * |qan| Web App is a web application for visualizing collected |qan.name|
+  * |qan| Web App is a web application for visualizing collected |query-analytics|
     data.
 
 * |metrics-monitor| provides a historical view of metrics
@@ -179,6 +179,9 @@ to add the instances to the topology.
    :ref:`pmm/docker.additional_option` in the
    :ref:`run-server-docker` section.
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/url.txt
+.. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
+.. _`Consul Docs`: https://www.consul.io/docs/
+.. _`Grafana Docs`: http://docs.grafana.org/
+.. _`Orchestrator Manual`: https://github.com/outbrain/orchestrator/wiki/Orchestrator-Manual
+
+.. include:: .res/replace.txt
