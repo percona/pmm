@@ -151,7 +151,4 @@ immediately and returns an error.
 
 .. |this-dashboard| replace:: :ref:`dashboard.mysql-innodb-metrics`
 
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/fragment.txt
+.. include:: .res/replace.txt

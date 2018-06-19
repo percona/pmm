@@ -125,7 +125,6 @@ are the additional parameters that modify the way how |pmm-server| operates.
 The section :ref:`pmm/glossary.pmm-server.additional-option` lists all
 supported additional options.
 
-
 .. seealso::
 
    Default ports
@@ -137,8 +136,4 @@ supported additional options.
    Restoring |opt.pmm-data|
       :ref:`pmm/server/docker.restoring`
 
-
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/url.txt
+.. include:: .res/replace.txt

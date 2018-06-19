@@ -1,9 +1,9 @@
 .. _dashboard.prometheus:
 
-Prometheus Dashboard
+|dbd.prometheus| Dashboard
 ================================================================================
 
-The |prometheus| dashboard informs how |prometheus| functions. 
+The |dbd.prometheus| dashboard informs how |prometheus| functions. 
 
 .. seealso::
 
@@ -28,7 +28,8 @@ This section provides details about the consumption of CPU and memory by the
 Storage
 --------------------------------------------------------------------------------
 
-This section includes a collection of metrics related to the usage of storage. It includes the following metrics:
+This section includes a collection of metrics related to the usage of
+storage. It includes the following metrics:
 
 .. hlist::
    :columns: 2
@@ -70,7 +71,8 @@ section contains the following metrics:
 Queries
 --------------------------------------------------------------------------------
 
-This section contains metrics that monitor |prometheus| queries. This section contains the following metrics:
+This section contains metrics that monitor |prometheus| queries. This section
+contains the following metrics:
 
 .. hlist::
    :columns: 2
@@ -105,7 +107,7 @@ System Level Metrics
 --------------------------------------------------------------------------------
 
 Metrics in this section give an overview of the essential system characteristics
-of |pmm-server|. This information is also available from the |system-overview|
+of |pmm-server|. This information is also available from the |dbd.system-overview|
 dashboard.
 
 |pmm| Server Logs
@@ -115,5 +117,5 @@ This section contains a link to download the logs collected from your
 |pmm-server| and further analyze possible problems. The exported logs are
 requested when you submit a bug report.
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt
 	

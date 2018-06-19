@@ -36,15 +36,17 @@ instance.
    Set the |gui.enable-enhanced-monitoring| option in the settings of your
    |amazon-rds| DB instance.
 
-.. seealso::
+.. admonition:: Related information: |amazon-rds| Documentation
 
-   |amazon-rds| Documentation: 
-      - `Modifying an Amazon RDS DB Instance <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Modifying.html>`_
-      - `More information about enhanced monitoring <https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.html>`_
-      - `Metrics and Dimensions <https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/rds-metricscollected.html>`_
+   Modifying an Amazon RDS DB Instance
+      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Overview.DBInstance.Modifying.html
+   More information about enhanced monitoring
+      https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.html
+   Metrics and Dimensions
+      https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/rds-metricscollected.html
 
 .. include:: .res/table/list-table.org
    :start-after: +exporter.rds.metrics+
    :end-before: #+end-block
    
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

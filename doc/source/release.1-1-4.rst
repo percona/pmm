@@ -74,4 +74,4 @@ Changes in PMM Client
 
 .. |release| replace:: 1.1.4
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

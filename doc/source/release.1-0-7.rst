@@ -68,13 +68,13 @@ Changes
 
 **New in PMM Client:**
 
-* Added the ``--bind-address`` option
-  to support running *PMM Server* and *PMM Client* on the different networks.
+* Added the |opt.bind-address| option
+  to support running |pmm-server| and |pmm-client| on the different networks.
 
-  By default, this is the address of *PMM Client*.
+  By default, this is the address of |pmm-client|.
   When running PMM on different networks,
-  set ``--client-address`` to remote (public) address
-  and ``--bind-address`` to local (private) address.
+  set |opt.client-address| to remote (public) address
+  and |opt.bind-address| to local (private) address.
 
   .. note:: This assumes you configure NAT and port forwarding
      between those addresses.
@@ -96,7 +96,7 @@ Changes
   (requires re-adding services, see ``check-network`` output).
 
 * Enabled basic HTTP authentication for metric services
-  when defined on *PMM Server* and configured on *PMM Client*
+  when defined on |pmm-server| and configured on |pmm-client|
   to achieve client-side protection
   (requires re-adding services, see ``check-network`` output).
 
@@ -112,4 +112,4 @@ Changes
 
 .. |release| replace:: 1.0.7
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

@@ -432,7 +432,4 @@ Running from Command Line
         --output text \
         | grep cloud-init
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/fragment.txt
+.. include:: .res/replace.txt

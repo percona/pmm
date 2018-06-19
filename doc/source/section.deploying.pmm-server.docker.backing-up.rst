@@ -1,22 +1,21 @@
 .. _pmm/server/docker/backing-up:
 
-Backing Up PMM Data from the |docker| Container
+Backing Up |pmm| Data from the |docker| Container
 ================================================================================
 
 When |pmm-server| is run via |docker|, its data are stored in the |opt.pmm-data|
 container. To avoid data loss, you can extract the data and store outside of the
 container.
 
-This example demonstrates how to back up |pmm| data on the computer
-where the |docker| container is run and then how to restore them.
+This example demonstrates how to back up |pmm| data on the computer where the
+|docker| container is run and then how to restore them.
 
 To back up the information from |opt.pmm-data|, you need to create a local
-directory with essential sub folders and then run |docker| commands to
-copy |pmm| related files into it.
+directory with essential sub folders and then run |docker| commands to copy
+|pmm| related files into it.
 
-#. Create a backup directory and make it the current working
-   directory. In this example, we use *pmm-data-backup* as the
-   directory name.
+#. Create a backup directory and make it the current working directory. In this
+   example, we use *pmm-data-backup* as the directory name.
 
    .. code-block:: bash
 
@@ -61,6 +60,4 @@ Now, your |pmm| data are backed up and you can start |pmm-server| again:
       :ref:`update-server.docker`
 
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/fragment.txt
+.. include:: .res/replace.txt

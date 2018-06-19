@@ -30,5 +30,5 @@ patches accepted please sign the Contributor License Agreement (CLA).
 
 .. _GitHub repository: https://github.com/percona/pmm
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt
 

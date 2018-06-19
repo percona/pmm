@@ -232,7 +232,7 @@ If you are viewing the details of a query of another type, the
 
 .. admonition:: Related information
 
-   |pt-visual-explain|: a tool to show the query plan based on the |sql.explain| output
+   |pt-visual-explain|: a tool to show the query plan based on the output of the |sql.explain| command
       https://www.percona.com/doc/percona-toolkit/LATEST/pt-visual-explain.html
 
 
@@ -354,7 +354,4 @@ reading and writing data in the collections of your |mongodb| databases.
    Analyze |mongodb| queries using the same tools as relational database
    management systems.
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/url.txt
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/fragment.txt
+.. include:: .res/replace.txt

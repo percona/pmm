@@ -4,7 +4,7 @@
 Configuring |mongodb| for Monitoring in |qan.name|
 ********************************************************************************
 
-In |qan.intro|, you can monitor |mongodb| metrics and |mongodb| queries with the
+In |abbr.qan|, you can monitor |mongodb| metrics and |mongodb| queries with the
 |opt.mongodb-metrics| or |opt.mongodb-queries| monitoring services
 accordingly. Run the |pmm-admin.add| command to use these monitoring services
 (for more information, see :ref:`pmm-admin.add`).
@@ -56,7 +56,7 @@ service in the |pmm-admin.add| command:
 Enabling Profiling
 ================================================================================
 
-For `MongoDB`_ to work correctly with |qan.intro|, you need to enable profiling
+For `MongoDB`_ to work correctly with |abbr.qan|, you need to enable profiling
 in your |mongod| configuration. When started without profiling enabled, |qan|
 displays the following warning:
 
@@ -93,14 +93,14 @@ The |opt.slowms| option sets the minimum time for a slow operation. In the given
 example, any operation which takes longer than **200** milliseconds is a slow
 operation.
 
-The |opt.rate-limit| option, which is available if you use |psmdb.name| instead
+The |opt.rate-limit| option, which is available if you use |psmdb| instead
 of |mongodb|, refers to the number of queries that the |mongodb| profiler
 collects. The lower the rate limit, the less impact on the performance. However,
 the accuracy of the collected information decreases as well.
 
 .. seealso::
 
-   |opt.rate-limit| in |psmdb.name| documentation
+   |opt.rate-limit| in |psmdb| documentation
        https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html
 
 .. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling:
@@ -150,8 +150,7 @@ Restart the *mongod* service to enable the settings.
    Profiling Rate Limit (from the documentation for *Percona Server for MongoDB*)
       https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/fragment.txt
-.. include:: .res/replace/url.txt
+.. _MongoDB: https://www.mongodb.com
+.. _YAML: http://yaml.org/spec/
+
+.. include:: .res/replace.txt

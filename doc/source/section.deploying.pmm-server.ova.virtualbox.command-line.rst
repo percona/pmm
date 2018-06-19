@@ -8,10 +8,10 @@ line. Use the ``VBoxManage`` command to import, configure, and start the
 appliance.
 
 The following script imports the |pmm-server| appliance from
-:file:`PMM-Server-1.6.0.ova` and configures it to bridge the `en0` adapter from
-the host.  Then the script routes console output from the appliance to
-:file:`/tmp/pmm-server-console.log`.  This is done because the script then
-starts the appliance in headless (without the console) mode.
+|pmm-server-1.6.0.ova| and configures it to bridge the `en0` adapter from the
+host.  Then the script routes console output from the appliance to
+|tmp.pmm-server-console.log|.  This is done because the script then starts the
+appliance in headless (without the console) mode.
 
 To get the IP address for accessing PMM, the script waits for 1 minute until the
 appliance boots up and returns the lines with the IP address from the log file.
@@ -52,6 +52,6 @@ follows:
    This is a development version which is not designed for a
    production environment.
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/url.txt
-.. include:: .res/replace/program.txt
+.. _`download percona monitoring and management`: https://www.percona.com/downloads/pmm
+
+.. include:: .res/replace.txt

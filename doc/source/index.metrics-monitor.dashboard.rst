@@ -63,6 +63,4 @@ HA Dashboards
 
    section.dashboard.pxc-galera-cluster-overview
 
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/option.txt
+.. include:: .res/replace.txt
