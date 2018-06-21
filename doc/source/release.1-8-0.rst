@@ -14,7 +14,7 @@ optimizations of performance.
 .. contents::
    :local:
 
-Improved: New landing page
+|status.improved|: New landing page
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`1425`
@@ -30,7 +30,7 @@ dashboard menu.
    How to open a dashboard using |gui.dashboard-dropdown|
       :ref:`pmm.metrics-monitor.dashboard.opening`
    
-Improved: Dashboard menu layout
+|status.improved|: Dashboard menu layout
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`1738`
@@ -40,7 +40,7 @@ switching between dashboards easy: select a group, such as |mysql| or *OS*, and
 choose from a short list in the menu that opens. The new dashboard menu is
 available from every dashboard in |pmm|.
 
-New: Automatic Memory Configuration
+|status.new|: Automatic Memory Configuration
 ================================================================================
 
 :pmmbug:`2046`
@@ -50,7 +50,7 @@ This release also features improved memory usage on the host system in
 size rather than using static amount of memory, unless you explicitly set the
 maximum value (by using the |opt.metrics-memory| in |docker|, for example).
 
-Bug fix releases
+|h.bug-fix-releases|
 ================================================================================
 
 |tip.bug-fix-release-list| |release|:
@@ -62,13 +62,16 @@ Bug fix releases
    All releases
       :ref:`pmm/release/list`
 
-Issues in this release
+   Latest release
+      :ref:`pmm/release/latest`
+
+|h.issues|
 ================================================================================
 
 Release |release| of |pmm.name| contains new features, improvements, and bug
 fixes registered in the following |jira| tickets:
 
-.. rubric:: New Features
+.. rubric:: |h.new-features|
 
 .. list-table::
    :widths: 20 80
@@ -83,7 +86,7 @@ fixes registered in the following |jira| tickets:
    * - :pmmbug:`2046`
      - Configure memory consumption automatically for |pmm-server|. |pmm| now automatically scales its use with system size rather than using a static amount of memory.
 
-.. rubric:: Improvements
+.. rubric:: |h.improvements|
 
 .. list-table::
    :widths: 20 80
@@ -124,7 +127,7 @@ fixes registered in the following |jira| tickets:
    * - :pmmbug:`2128`
      - Improved formula for :guilabel:`Saturation Metrics` on the |dbd.system-overview| dashboard.
 
-.. rubric:: Bug fixes
+.. rubric:: |h.bug-fixes|
 
 .. list-table::
    :widths: 20 80

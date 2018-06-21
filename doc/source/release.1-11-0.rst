@@ -1,3 +1,4 @@
+.. _pmm/release/latest:
 .. _pmm/release/1-11-0:
 
 |pmm.name| |release|
@@ -10,7 +11,7 @@ For more information about this release, see the `release announcement`_.
 .. contents::
    :local:
 
-Improved: |mysql| |slow-log| improvements
+|status.improved|: |mysql| |slow-log| improvements
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`2432`
@@ -27,7 +28,7 @@ Disable the |slow-log| rotation feature if you prefer another tool, such as
    How to enable monitoring of |mysql| queries with options?
       :ref:`pmm-admin.add-mysql-queries`
 
-Fixed: Predictable graphs
+|status.fixed|: Predictable graphs
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`1187`
@@ -35,12 +36,12 @@ Fixed: Predictable graphs
 The logic of the following dashboards has been improved to better handle
 predictability and also to allow zooming to look at shorter time ranges:
 
-- Home Dashboard
-- PXC/Galera Graphs Dashboard
-- MySQL Overview Dashboard
-- MySQL InnoDB Metrics Dashboard
+- |dbd.home| Dashboard
+- |dbd.pxc-galera-graphs| Dashboard
+- |dbd.mysql-overview| Dashboard
+- |dbd.mysql-innodb-metrics| Dashboard
 
-Fixed: MySQL Exporter parsing of |my.cnf|
+|status.fixed|: MySQL Exporter parsing of |my.cnf|
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`2469`
@@ -54,7 +55,7 @@ compatible.
    How |pmm| uses the |mysqld-exporter|?
       :ref:`pmm-client`
 
-Improved: Annotation improvements
+|status.improved|: Annotation improvements
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`2515`
@@ -75,13 +76,13 @@ form the text of one annotation.
    |grafana| Documentation: Annotations
       http://docs.grafana.org/reference/annotations/
 
-Issues in this release
+|h.issues|
 ================================================================================
 
 Release |release| of |pmm.name| contains new features, improvements, and bug
 fixes registered in the following |jira| tickets:
 
-.. rubric:: New Features & Improvements
+.. rubric:: |h.new-features-and-improvements|
 
 .. list-table::
    :widths: 20 80
@@ -92,7 +93,7 @@ fixes registered in the following |jira| tickets:
    * - :pmmbug:`2432`
      - Configurable |mysql| |slow-log| file rotation
 
-.. rubric:: Bug fixes
+.. rubric:: |h.bug-fixes|
 
 .. list-table::
    :widths: 20 80

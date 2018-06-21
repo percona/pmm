@@ -1,6 +1,6 @@
 .. _dashboard.mysql-overview:
 
-|mysql| Overview
+|dbd.mysql-overview|
 ================================================================================
 
 This dashboard provides basic information about |mysql| hosts.

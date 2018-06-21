@@ -10,7 +10,7 @@ For more information about this release, see the `release announcement`_.
 .. contents::
    :local:
 
-Improved:  Annotations - display application events
+|status.improved|:  Annotations - display application events
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`2330`
@@ -26,7 +26,7 @@ annotations using the new command |pmm-admin.annotate|.
    |grafana| Documentation: Annotations
       http://docs.grafana.org/reference/annotations/
 
-New: |grafana| 5.0 - Upgraded to improve the presentation of graphs
+|status.new|: |grafana| 5.0 - Upgraded to improve the presentation of graphs
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`2332`
@@ -40,7 +40,7 @@ error in |pmm-server| where some graphs would appear to be on two lines.
    |grafana| Documentation: What\'s new in version 5.0?
       http://docs.grafana.org/guides/whats-new-in-v5/
 
-Fixed: Switching between dashboards while maintaining the same host
+|status.fixed|: Switching between dashboards while maintaining the same host
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`2371`
@@ -48,7 +48,7 @@ Fixed: Switching between dashboards while maintaining the same host
 The selected server will not change when you switch from one dashboard
 to another.
 
-New: PXC Galera replication latency graphs: compare latency across all members in a cluster
+|status.new|: PXC Galera replication latency graphs: compare latency across all members in a cluster
 ====================================================================================================
 
 :JIRA Ticket ID: :pmmbug:`2293`
@@ -61,13 +61,13 @@ Compare latency across all members in a cluster on the
    |dbd.pxc-galera-cluster-overview| dashboard
       :ref:`dashboard.pxc-galera-cluster-overview`
 
-Issues in this release
+|h.issues|
 ================================================================================
 
 Release |release| of |pmm.name| contains new features, improvements, and bug
 fixes registered in the following |jira| tickets:
 
-.. rubric:: New Features and Improvements
+.. rubric:: |h.new-features-and-improvements|
 
 .. list-table::
    :widths: 20 80
@@ -84,7 +84,7 @@ fixes registered in the following |jira| tickets:
    * - :pmmbug:`2332`
      - Grafana 5 update
 
-.. rubric:: Bug fixes
+.. rubric:: |h.bug-fixes|
 
 .. list-table::
    :widths: 20 80
@@ -113,6 +113,9 @@ fixes registered in the following |jira| tickets:
 
    All releases
       :ref:`pmm/release/list`
+
+   Latest release
+      :ref:`pmm/release/latest`
 
 .. |release| replace:: 1.10.0
 

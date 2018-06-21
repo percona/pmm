@@ -76,7 +76,7 @@ The |pmm-client| package consist of the following:
 .. _pmm-server:
 
 |pmm-server|
---------------------------------------------------------------------------------
+================================================================================
 
 |pmm-server| runs on the machine that will be your central monitoring host.
 It is distributed as an appliance via the following:

@@ -466,6 +466,7 @@
 .. |dbd.advanced-data-exploration| replace:: *Advanced Data Exploration*
 .. |dbd.amazon-rds-aurora-mysql-metrics| replace:: *Amazon RDS / Aurora MySQL Metrics*
 .. |dbd.home| replace:: *Home*
+.. |dbd.mysql-innodb-compression| replace:: *MySQL InnoDB Compression*
 .. |dbd.mysql-amazon-aurora-metrics| replace:: *MySQL Amazon Aurora Metrics*
 .. |dbd.mysql-amazon-aurora| replace:: *MySQL Amazon Aurora*
 .. |dbd.mysql-innodb-metrics-advanced| replace:: *MySQL InnoDB Metrics Advanced*
@@ -479,3 +480,20 @@
 .. |dbd.system-overview| replace:: *System Overview*
 .. |dbd.cross-server-graphs| replace:: *Cross Server Graphs*
 .. |dbd.prometheus| replace:: *Prometheus*
+
+.. * Text labels
+
+.. Special headings (h)
+
+.. |h.bug-fix-releases| replace:: --- Bug Fix Releases ---
+.. |h.issues| replace:: --- Issues in this Release ---
+.. |h.new-features-and-improvements| replace:: New Features & Improvements
+.. |h.bug-fixes| replace:: Bug Fixes
+.. |h.improvements| replace:: Improvements
+.. |h.new-features| replace:: New Features
+
+.. Status labels (status)
+
+.. |status.fixed| replace:: Fixed
+.. |status.improved| replace:: Improved
+.. |status.new| replace:: New
