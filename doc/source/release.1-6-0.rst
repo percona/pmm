@@ -26,7 +26,7 @@ improved.
   false and using OR operator. `#9318
   <https://github.com/grafana/grafana/issues/9318>`_
 
-|h.bug-fix-releases|
+Bug fix releases
 ================================================================================
 
 |tip.bug-fix-release-list| |release|:
@@ -38,16 +38,13 @@ improved.
    All releases
       :ref:`pmm/release/list`
 
-   Latest release
-      :ref:`pmm/release/latest`
-
-|h.issues|
+Issues in this release
 ================================================================================
 
 Release |release| of |pmm.name| contains new features, improvements, and bug
 fixes registered in the following |jira| tickets:
 
-.. rubric:: |h.new-features|
+.. rubric:: New Features
 
 .. list-table::
    :widths: 20 80
@@ -59,7 +56,7 @@ fixes registered in the following |jira| tickets:
      - |pmm| |grafana| specific metrics have been added to the
        |dbd.advanced-data-exploration| dashboard.
 
-.. rubric:: |h.improvements|
+.. rubric:: Improvements
 
 .. list-table::
    :widths: 20 80
@@ -94,7 +91,7 @@ fixes registered in the following |jira| tickets:
        exporters utilize system resources and the |dbd.prometheus-exporter-status|
        dashboard tracks the performance of each |prometheus| exporter.
 
-.. rubric:: |h.bug-fixes|
+.. rubric:: Bug fixes
 
 .. list-table::
    :widths: 20 80

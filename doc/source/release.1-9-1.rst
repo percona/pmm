@@ -13,12 +13,12 @@ This release effectively solves the problem in |qan| when the
 |gui.count| column actually displayed the number of queries per
 minute, not per second, as the user would expect.
 
-|h.issues|
+Issues in this release
 ================================================================================
 
 |tip.bug-fix-release| |pmm.name| |prev-release|.
 
-.. rubric:: |h.bug-fixes|
+.. rubric:: Bug fixes
 
 - :pmmbug:`2364`: QPS are wrong in QAN
 
@@ -26,9 +26,6 @@ minute, not per second, as the user would expect.
 
    All releases
       :ref:`pmm/release/list`
-
-   Latest release
-      :ref:`pmm/release/latest`
 
    To release |prev-release|
       :ref:`pmm/release/1-9-0`

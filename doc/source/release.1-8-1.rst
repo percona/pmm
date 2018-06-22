@@ -9,14 +9,14 @@
 
 For more information about this release, see the `release announcement`_.
 
-|h.issues|
+Issues in this release
 ================================================================================
 
 |tip.bug-fix-release|
 |pmm.name|
 |prev-release|.
 
-.. rubric:: |h.improvements|
+.. rubric:: Improvements
 
 .. list-table::
    :widths: 20 80
@@ -29,7 +29,7 @@ For more information about this release, see the `release announcement`_.
    * - :pmmbug:`2163`
      - Dashboards based on the rds_exporter now use the *node_cpu_average* metric instead of *node_cpu*
 
-.. rubric:: |h.bug-fixes|
+.. rubric:: Bug fixes
 
 .. list-table::
    :widths: 20 80
@@ -73,12 +73,8 @@ For more information about this release, see the `release announcement`_.
    All releases
       :ref:`pmm/release/list`
 
-   Latest release
-      :ref:`pmm/release/latest`
-
    To release |prev-release|
       :ref:`pmm/release/1-8-0`
-
   
 .. |release| replace:: 1.8.1
 .. |prev-release| replace:: 1.8.0

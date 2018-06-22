@@ -10,7 +10,7 @@ For more information about this release, see the `release announcement`_.
 .. contents::
    :local:
       
-|status.improved|: CloudWatch RDS metrics
+Improved: CloudWatch RDS metrics
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`2010`
@@ -24,7 +24,7 @@ For more information about this release, see the `release announcement`_.
 - Summary Dashboard (Network Traffic)
 - System Overview (Network Traffic)
 
-|status.improved|: AWS Add Instance changes
+Improved: AWS Add Instance changes
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`1823`
@@ -32,7 +32,7 @@ For more information about this release, see the `release announcement`_.
 The |aws| add instance interface has changed to provide more information about
 how to add an |amazon-aurora| |mysql| or |amazon-rds| |mysql| instance.
 
-|status.improved|: |aws| Settings in Documentation
+Improved: |aws| Settings in Documentation
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`1788`
@@ -40,7 +40,7 @@ how to add an |amazon-aurora| |mysql| or |amazon-rds| |mysql| instance.
 The documentation highlights connectivity best practices, and
 authentication options - IAM Role or IAM User Access Key.
 
-|status.improved|: Low RAM Support
+Improved: Low RAM Support
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`2217`
@@ -56,7 +56,7 @@ experiment with PMM.  Our memory calculation is now:
         METRICS_MEMORY_MULTIPLIED=$((128*1024*1024))
     fi
 
-|status.new|: |percona| Snapshot Server
+New: |percona| Snapshot Server
 ================================================================================    
 
 :JIRA Ticket ID: :pmmbug:`2058`
@@ -69,7 +69,7 @@ to retrieve the data.
 Snapshots automatically expire after 90 days; when sharing, you can configure a
 shorter retention period.
 
-|status.new|: Export of |pmm-server| Logs
+New: Export of |pmm-server| Logs
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`1274`
@@ -77,7 +77,7 @@ shorter retention period.
 The logs from |pmm-server| can be exported using single button-click, avoiding
 the need to log in manually to the docker container.
 
-|status.improved|: Faster Loading of the Index Page
+Improved: Faster Loading of the Index Page
 ================================================================================
 
 :JIRA Ticket ID: :pmmbug:`2215`
@@ -85,7 +85,7 @@ the need to log in manually to the docker container.
 The load time of the index page has been improved with |gzip| and |http2|
 enabled.
 
-|h.bug-fix-releases|
+Bug fix releases
 ================================================================================
 
 |tip.bug-fix-release-list| |release|:
@@ -97,16 +97,13 @@ enabled.
    All releases
       :ref:`pmm/release/list`
 
-   Latest release
-      :ref:`pmm/release/latest`
-
-|h.issues|
+Issues in this release
 ================================================================================
 
 Release |release| of |pmm.name| contains new features, improvements, and bug
 fixes registered in the following |jira| tickets:
 
-.. rubric:: |h.new-features|
+.. rubric:: New Features
 
 .. list-table::
    :widths: 20 80
@@ -121,7 +118,7 @@ fixes registered in the following |jira| tickets:
    * - :pmmbug:`2058`
      - |percona| Snapshot Server
 
-.. rubric:: |h.improvements|
+.. rubric:: Improvements
 
 .. list-table::
    :widths: 20 80
@@ -148,7 +145,7 @@ fixes registered in the following |jira| tickets:
    * - :pmmbug:`2252`
      - Better handling of variables in the navigation menu
 
-.. rubric:: |h.bug-fixes|
+.. rubric:: Bug fixes
 
 .. list-table::
    :widths: 20 80
