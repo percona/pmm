@@ -7,130 +7,41 @@
 
 For more information about this release, see the `release announcement`_.
 
-.. contents::
-   :local:
-
-Improved: |mysql| |slow-log| improvements
-================================================================================
-
-:JIRA Ticket ID: :pmmbug:`2432`
-
-Enable the |slow-log| rotation to keep a limited number of |slow-log| files on
-disk. By default, |pmm| keeps one |slow-log| file. The |slow-log| rotation
-feature is enabled by default.
-
-Disable the |slow-log| rotation feature if you prefer another tool, such as
-|logrotate|.
-
-.. seealso::
-
-   How to enable monitoring of |mysql| queries with options?
-      :ref:`pmm-admin.add-mysql-queries`
-
-Fixed: Predictable graphs
-================================================================================
-
-:JIRA Ticket ID: :pmmbug:`1187`
-
-The logic of the following dashboards has been improved to better handle
-predictability and also to allow zooming to look at shorter time ranges:
-
-- Home Dashboard
-- PXC/Galera Graphs Dashboard
-- MySQL Overview Dashboard
-- MySQL InnoDB Metrics Dashboard
-
-Fixed: MySQL Exporter parsing of |my.cnf|
-================================================================================
-
-:JIRA Ticket ID: :pmmbug:`2469`
-
-|mysqld-exporter| could ignore options without values and read a wrong section
-of the the |my.cnf| file.  In this release, the parsing engine is more |mysql|
-compatible.
-
-.. seealso::
-
-   How |pmm| uses the |mysqld-exporter|?
-      :ref:`pmm-client`
-
-Improved: Annotation improvements
-================================================================================
-
-:JIRA Ticket ID: :pmmbug:`2515`
-
-Passing multiple arguments to the |pmm-admin.annotate| command produced an
-error. In this release, the parsing of arguments has changed and
-multiple words supplied to the |pmm-admin.annotate| command are concatenated to
-form the text of one annotation.
-
-.. seealso::
-
-   How to add an annotation?
-      :ref:`pmm-admin/annotate`
-
-   How to use annotations in |pmm|?
-      :ref:`pmm.metrics-monitor.annotation.application-event.marking`
-
-   |grafana| Documentation: Annotations
-      http://docs.grafana.org/reference/annotations/
-
 Issues in this release
 ================================================================================
 
-Release |release| of |pmm.name| contains new features, improvements, and bug
-fixes registered in the following |jira| tickets:
-
 .. rubric:: New Features & Improvements
 
-.. list-table::
-   :widths: 20 80
-   :header-rows: 1
-
-   * - JIRA Ticket ID
-     - Description
-   * - :pmmbug:`2432`
-     - Configurable |mysql| |slow-log| file rotation
+- :pmmbug:`2432`: Configurable MySQL Slow Log File Rotation
 
 .. rubric:: Bug fixes
 
-.. list-table::
-   :widths: 20 80
-   :header-rows: 1
+- :pmmbug:`1187`: Graphs breaks at tight resolution
+- :pmmbug:`2362`: Explain is a part of query
+- :pmmbug:`2399`: RPM for PMM Server is missing some files
+- :pmmbug:`2407`: Menu items are not visible on PMM QAN dashboard
+- :pmmbug:`2469`: Parsing of a valid my.cnf can break the mysqld_exporter
+- :pmmbug:`2479`: PXC/Galera Cluster Overview dashboard: typo in metric names
+- :pmmbug:`2484`: PXC/Galera Graphs display unpredictable results each time they are refreshed
+- :pmmbug:`2503`: Wrong Innodb Adaptive Hash Index Statistics
+- :pmmbug:`2513`: QAN-agent always changes ``max_slowlog_size`` to **0**
+- :pmmbug:`2514`: ``pmm-admin annotate help`` - fix typos
+- :pmmbug:`2515`: ``pmm-admin annotate`` - more than 1 annotation
 
-   * - JIRA Ticket ID
-     - Description
-   * - :pmmbug:`1187`
-     - Graphs breaks at tight resolution
-   * - :pmmbug:`2362`
-     - Explain is a part of query
-   * - :pmmbug:`2399`
-     - RPM for PMM Server is missing some files
-   * - :pmmbug:`2407`
-     - Menu items are not visible on PMM QAN dashboard
-   * - :pmmbug:`2469`
-     - Parsing of a valid my.cnf can break the mysqld_exporter
-   * - :pmmbug:`2479`
-     - PXC/Galera Cluster Overview dashboard: typo in metric names
-   * - :pmmbug:`2484`
-     - PXC/Galera Graphs display unpredictable results each time they are refreshed
-   * - :pmmbug:`2503`
-     - Wrong Innodb Adaptive Hash Index Statistics
-   * - :pmmbug:`2513`
-     - QAN-agent always changes ``max_slowlog_size`` to **0**
-   * - :pmmbug:`2514`
-     - ``pmm-admin annotate help`` - fix typos
-   * - :pmmbug:`2515`
-     - ``pmm-admin annotate`` - more than 1 annotation
+How to get PMM
+================================================================================
 
-.. seealso::
+PMM is available for installation using three methods:
 
-   All releases
-      :ref:`pmm/release/list`
+- On Docker Hub – ``docker pull percona/pmm-server`` https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/docker.html
+- AWS Marketplace – https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html
+- Open Virtualization Format (OVF) – https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/virtual-appliance.html
+
+Help us improve our software quality by reporting any bugs you encounter using our `bug tracking system`_.
 
 .. _`release announcement`: https://www.percona.com/blog/2018/05/23/percona-monitoring-and-management-1-11-0-is-now-available/
+.. _`bug tracking system`: https://jira.percona.com/secure/Dashboard.jspa
 
 .. |release| replace:: 1.11.0
 
-.. include:: .res/replace.txt
-
+.. include:: .res/replace/name.txt

@@ -38,4 +38,6 @@ To install the |pmm-client| package, complete the following procedure. |tip.run-
    Next steps: Connecting to |pmm-server|
       :ref:`deploy-pmm.client_server.connecting`
    
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/fragment.txt

@@ -46,4 +46,4 @@ This is the initial beta release of PMM.
 
 .. |release| replace:: Beta 1.0.0
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

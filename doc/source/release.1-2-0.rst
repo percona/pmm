@@ -175,4 +175,4 @@ This release introduced the following breaking change:
 
 .. |release| replace:: 1.2.0
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

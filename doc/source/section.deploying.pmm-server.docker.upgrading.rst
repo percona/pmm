@@ -11,13 +11,14 @@ To check the version of |pmm-server|, run |docker.ps| on the host.
    :start-after: +docker.ps.+1.4.0+
    :end-before: #+end-block
 
-The version number is visible in the |gui.image| column. For a |docker|
-container created from the image tagged |opt.latest|, the |gui.image| column
-contains |opt.latest| and not the specific version number of |pmm-server|.
+The version number is visible in the :guilabel:`IMAGE` column. For a
+|docker| container created from the image tagged |opt.latest|, the
+:guilabel:`IMAGE` column contains |opt.latest| and not the specific
+version number of |pmm-server|.
 
 The information about the currently installed version of |pmm-server| is
-available from the |srv.update.main.yml| file. You may extract the version
-number by using the |docker.exec| command:
+available from the |srv.update.main.yml| file. You may extract the version number by using
+the |docker.exec| command:
 
 .. include:: .res/code/sh.org
    :start-after: +docker.exec.it.pmm-server.head+
@@ -161,8 +162,9 @@ Now, rename the |opt.pmm-server-backup| to |opt.pmm-server|
       :ref:`deploy-pmm.updating` section.
 
 .. References
-
-.. _`percona/pmm-server`: https://hub.docker.com/r/percona/pmm-server/tags/
    
-.. include:: .res/replace.txt
-
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/fragment.txt
+.. include:: .res/replace/url.txt

@@ -13,4 +13,4 @@ This minor release contains one security hot fix:
 
 .. |release| replace:: 1.1.4-2
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

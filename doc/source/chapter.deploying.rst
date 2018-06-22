@@ -3,14 +3,14 @@
 Deploying |pmm.name|
 ********************************************************************************
 
-|abbr.pmm| is designed to be scalable for various environments.  If you have
-just one |mysql| or |mongodb| server, you can install and run both |abbr.pmm|
-server and |abbr.pmm| clients on one database host.
+|pmm.intro| is designed to be scalable for various environments.  If you have
+just one |mysql| or |mongodb| server, you can install and run both |pmm.abbrev|
+server and |pmm.abbrev| clients on one database host.
 
 It is more typical to have several |mysql| and |mongodb| server instances
 distributed over different hosts. In this case, you need to install the
-|abbr.pmm| client package on each database host that you want to monitor. In
-this scenario, the |abbr.pmm| server is set up on a dedicated monitoring host.
+|pmm.abbrev| client package on each database host that you want to monitor. In
+this scenario, the |pmm.abbrev| server is set up on a dedicated monitoring host.
 
 .. _deploy-pmm.server.installing:
 
@@ -98,7 +98,7 @@ software repositories only on the most popular |linux| distributions:
 * :ref:`DEB packages for Debian based distributions such as Ubuntu <install-client-apt>`
 * :ref:`RPM packages for Red Hat based distributions such as CentOS <install-client-yum>`
 
-It is recommended that you install your |abbr.pmm| client by using the
+It is recommended that you install your |pmm.abbrev| client by using the
 software repository for your system. If this option does not work for you,
 |percona| provides downloadable |pmm-client| packages
 from the `Download Percona Monitoring and Management
@@ -107,7 +107,7 @@ from the `Download Percona Monitoring and Management
 In addition to DEB and RPM packages, this site also offers:
 
 * Generic tarballs that you can extract and run the included ``install`` script.
-* Source code tarball to build your |abbr.pmm| client from source.
+* Source code tarball to build your |pmm.abbrev| client from source.
 
 .. warning:: You should not install agents on database servers that have
    the same host name, because host names are used by |pmm-server| to
@@ -123,7 +123,7 @@ connection is unstable or throughput is too low.
    
 .. _deploy-pmm.client_server.connecting:
 
-Connecting |abbr.pmm| Clients to the |pmm-server|
+Connecting |pmm.abbrev| Clients to the |pmm-server|
 ================================================================================
 
 With your server and clients set up, you must configure each |pmm-client| and
@@ -161,10 +161,10 @@ address of |pmm-server|. For example:
 
 .. _deploy-pmm.data-collecting:
 
-Collecting Data from |abbr.pmm| Clients on |pmm-server|
+Collecting Data from |pmm.abbrev| Clients on |pmm-server|
 ================================================================================
 
-To start collecting data on each |pmm-client| connected to a |abbr.pmm|
+To start collecting data on each |pmm-client| connected to a |pmm.abbrev|
 server, run the |pmm-admin.add| command along with the name of the selected
 monitoring service.
 
@@ -254,7 +254,7 @@ from  the |percona| software repositories:
 
       $ yum update pmm-client
 
-If you installed your |abbr.pmm| client manually, :ref:`remove it
+If you installed your |pmm.abbrev| client manually, :ref:`remove it
 <deploy-pmm.removing>` and then :ref:`download and install a newer version
 <deploy-pmm.client.installing>`.
 
@@ -341,4 +341,7 @@ the following command in your terminal:
    About using the |pmm-admin.add| command
       :ref:`pmm-admin.add`
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/fragment.txt

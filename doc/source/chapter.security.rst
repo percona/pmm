@@ -136,4 +136,7 @@ address field. For example:
    :start-after: +pmm-admin.ping+
    :end-before: #+end-block
 	     
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/fragment.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/option.txt

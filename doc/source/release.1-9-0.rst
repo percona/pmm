@@ -5,17 +5,34 @@
 
 :Date: April 4, 2018
 
-For more information about this release, see the `release announcement`_.
+There are a number of significant updates in |release| that we hope you
+will like, some of the key highlights include:
 
-.. contents::
-   :local:
-      
-Improved: CloudWatch RDS metrics
+- Faster loading of the index page: We have enabled performance
+  optimizations using |gzip| and |http2|.
+- AWS improvements: We have added metrics from CloudWatch RDS to 6
+  dashboards, as well as changed our |aws| add instance workflow, and
+  made some changes to credentials handling.
+- |percona| Snapshot Server: If you are a |percona| Customer you can now
+  securely share your dashboards with |percona| Engineers.
+- Exporting |pmm-server| logs: Retrieve logs from |pmm-server| for
+  troubleshooting using single button-click, avoiding the need to log
+  in manually to the docker container.
+- Low RAM support: We have reduced the memory requirement so
+  |pmm-server| will run on systems with 512MB
+- Dashboard improvements: We ave changed |mongodb| instance
+  identification for |mongodb| graphs, and set maximum graph Y-axis on
+  Prometheus Exporter Status dashboard
+
+|aws| Improvements
 ================================================================================
 
-:JIRA Ticket ID: :pmmbug:`2010`
+CloudWatch RDS metrics
+--------------------------------------------------------------------------------
 
-6 node-specific dashboards now display |amazon-rds| node-level metrics:
+Since we are already consuming |amazon-cloudwatch| metrics and persisting them in
+|prometheus|, we have improved 6 node-specific dashboards to now display
+|amazon-rds| node-level metrics:
 
 - Cross_Server (Network Traffic)
 - Disk Performance (Disk Latency)
@@ -24,26 +41,22 @@ Improved: CloudWatch RDS metrics
 - Summary Dashboard (Network Traffic)
 - System Overview (Network Traffic)
 
-Improved: AWS Add Instance changes
-================================================================================
+AWS Add Instance changes
+--------------------------------------------------------------------------------
 
-:JIRA Ticket ID: :pmmbug:`1823`
+We have changed our |aws| add instance interface and workflow to be more clear on
+information needed to add an |amazon-aurora| |mysql| or |amazon-rds| |mysql|
+instance. We have provided some clarity on how to locate your |aws| credentials.
 
-The |aws| add instance interface has changed to provide more information about
-how to add an |amazon-aurora| |mysql| or |amazon-rds| |mysql| instance.
+|aws| Settings
+--------------------------------------------------------------------------------
 
-Improved: |aws| Settings in Documentation
-================================================================================
-
-:JIRA Ticket ID: :pmmbug:`1788`
-
-The documentation highlights connectivity best practices, and
+We have improved our documentation to highlight connectivity best practices, and
 authentication options - IAM Role or IAM User Access Key.
 
-Improved: Low RAM Support
+Low RAM Support
 ================================================================================
 
-:JIRA Ticket ID: :pmmbug:`2217`
 
 You can now run PMM Server on instances with memory as low as 512MB RAM, which
 means you can deploy to  the free tier of many cloud providers if you want to
@@ -56,134 +69,86 @@ experiment with PMM.  Our memory calculation is now:
         METRICS_MEMORY_MULTIPLIED=$((128*1024*1024))
     fi
 
-New: |percona| Snapshot Server
+|percona| Snapshot Server
 ================================================================================    
 
-:JIRA Ticket ID: :pmmbug:`2058`
+Snapshots are a way of sharing |pmm| dashboards via a link to individuals who do
+not normally have access to your |pmm-server|.  If you are a |percona| Customer
+you can now securely share your dashboards with |percona| Engineers.  We have
+replaced the button for sharing to the |grafana| publicly hosted platform onto one
+administered by |percona|.  Your dashboard will be written to |percona|
+snapshots and only |percona| Engineers will be able to retrieve the data.  We
+will be expiring old snapshots automatically at 90 days, but when sharing you
+will have the option to configure a shorter retention period.
 
-The button for sharing to the |grafana| publicly hosted platform has been
-replaced and now directs to the host administered by |percona|. Your dashboard
-will be written to |percona| snapshots and only |percona| engineers will be able
-to retrieve the data.
-
-Snapshots automatically expire after 90 days; when sharing, you can configure a
-shorter retention period.
-
-New: Export of |pmm-server| Logs
+Export of |pmm-server| Logs
 ================================================================================
 
-:JIRA Ticket ID: :pmmbug:`1274`
+In this release, the logs from |pmm-server| can be exported using single
+button-click, avoiding the need to log in manually to the docker container.
+This simplifies the troubleshooting process of a |pmm-server|, and especially for
+Percona Customers, this feature will provide a more consistent data gathering
+task that you will perform on behalf of requests from |percona| Engineers.
 
-The logs from |pmm-server| can be exported using single button-click, avoiding
-the need to log in manually to the docker container.
-
-Improved: Faster Loading of the Index Page
+Faster Loading of the Index Page
 ================================================================================
 
-:JIRA Ticket ID: :pmmbug:`2215`
-
-The load time of the index page has been improved with |gzip| and |http2|
-enabled.
-
-Bug fix releases
-================================================================================
-
-|tip.bug-fix-release-list| |release|:
-
-- :ref:`pmm/release/1-9-1`
-
-.. seealso::
-
-   All releases
-      :ref:`pmm/release/list`
+In version 1.8.0, the index page was redesigned to reveal more useful
+information about the performance of your hosts as well an immediate access to
+essential components of PMM, however the index page had to load much data
+dynamically resulting in a noticeably longer load time. In this release we
+enabled |gzip| and |http2| to improve the load time of the index page. The
+following screenshots demonstrate the results of our tests on webpagetest.org
+where we reduce page load time by half.  We will continue to look for
+opportunities to improve the performance of the index page and expect that when
+we upgrade to Prometheus 2 we will see another improvement.
 
 Issues in this release
-================================================================================
-
-Release |release| of |pmm.name| contains new features, improvements, and bug
-fixes registered in the following |jira| tickets:
+================================================================================	   
 
 .. rubric:: New Features
 
-.. list-table::
-   :widths: 20 80
-   :header-rows: 1
-
-   * - JIRA Ticket ID
-     - Description
-   * - :pmmbug:`781`
-     - Plot new PXC 5.7.17, 5.7.18 status variables on new graphs for PXC Galera, PXC Overview dashboards
-   * - :pmmbug:`1274`
-     - Export |pmm-server| logs as zip file to the browser
-   * - :pmmbug:`2058`
-     - |percona| Snapshot Server
+- :pmmbug:`781`: Plot new PXC 5.7.17, 5.7.18 status variables on new graphs for
+  PXC Galera, PXC Overview dashboards
+- :pmmbug:`1274`: Export |pmm-server| logs as zip file to the browser
+- :pmmbug:`2058`: |percona| Snapshot Server
 
 .. rubric:: Improvements
 
-.. list-table::
-   :widths: 20 80
-   :header-rows: 1
-
-   * - JIRA Ticket ID
-     - Description
-   * - :pmmbug:`1587`
-     - Use :option:`mongodb_up` variable for the |mongodb| Overview dashboard to identify if a host is |mongodb|.
-   * - :pmmbug:`1788`
-     - |aws| Credentials form changes
-   * - :pmmbug:`1823`
-     - |aws| Install wizard improvements
-   * - :pmmbug:`2010`
-     - System dashboards update to be compatible with RDS nodes
-   * - :pmmbug:`2118`
-     - Update grafana config for metric series that will not go above 1.0
-   * - :pmmbug:`2215`
-     - |pmm| Web speed improvements
-   * - :pmmbug:`2216`
-     - |pmm| can now be started on systems without memory limit capabilities in the kernel
-   * - :pmmbug:`2217`
-     - |pmm-server| can now run in |docker| with 512 Mb memory
-   * - :pmmbug:`2252`
-     - Better handling of variables in the navigation menu
+- :pmmbug:`1587`: Use :option:`mongodb_up` variable for the |mongodb| Overview
+  dashboard to identify if a host is |mongodb|.
+- :pmmbug:`1788`: |aws| Credentials form changes
+- :pmmbug:`1823`: |aws| Install wizard improvements
+- :pmmbug:`2010`: System dashboards update to be compatible with RDS nodes
+- :pmmbug:`2118`: Update grafana config for metric series that will not go above 1.0
+- :pmmbug:`2215`: |pmm| Web speed improvements
+- :pmmbug:`2216`: |pmm| can now be started on systems without memory limit
+  capabilities in the kernel
+- :pmmbug:`2217`: |pmm-server| can now run in |docker| with 512 Mb memory
+- :pmmbug:`2252`: Better handling of variables in the navigation menu
 
 .. rubric:: Bug fixes
 
-.. list-table::
-   :widths: 20 80
-   :header-rows: 1
-
-   * - JIRA Ticket ID
-     - Description
-   * - :pmmbug:`605`
-     - :program:`pt-mysql-summary` requires additional configuration
-   * - :pmmbug:`941`
-     - ParseSocketFromNetstat finds an incorrect socket
-   * - :pmmbug:`948`
-     - Wrong load reported by |qan| due to mis-alignment of time intervals
-   * - :pmmbug:`1486`
-     - |mysql| passwords containing the dollar sign ($) were not processed properly.
-   * - :pmmbug:`1905`
-     - In |qan|, the Explain command could fail in some cases.
-   * - :pmmbug:`2090`
-     - Minor formatting issues in |qan|
-   * - :pmmbug:`2214`
-     - Setting Send real query examples for Query Analytic OFF still shows the real query in example.
-   * - :pmmbug:`2221`
-     - no Rate of Scrapes for |mysql| & |mysql| Errors
-   * - :pmmbug:`2224`
-     - Exporter CPU Usage glitches 
-   * - :pmmbug:`2227`
-     - Auto Refresh for dashboards 
-   * - :pmmbug:`2243`
-     - Long host names in |grafana| dashboards are not displayed correctly
-   * - :pmmbug:`2257`
-     - PXC/galera cluster overview Flow control paused time has a percentage glitch 
-   * - :pmmbug:`2282`
-     - No data is displayed on dashboards for OVA images
-   * - :pmmbug:`2296`
-     - The |opt.mysql-metrics| service will not start on Ubuntu LTS 16.04
+- :pmmbug:`605`: :program:`pt-mysql-summary` requires additional configuration
+- :pmmbug:`941`: ParseSocketFromNetstat finds an incorrect socket
+- :pmmbug:`948`: Wrong load reported by |qan| due to mis-alignment of time intervals
+- :pmmbug:`1486`: |mysql| passwords containing the dollar sign ($) were not
+  processed properly.
+- :pmmbug:`1905`: In |qan|, the Explain command could fail in some cases.
+- :pmmbug:`2090`: Minor formatting issues in |qan|
+- :pmmbug:`2214`: Setting Send real query examples for Query Analytic
+  OFF still shows the real query in example.
+- :pmmbug:`2221`: no Rate of Scrapes for |mysql| & |mysql| Errors
+- :pmmbug:`2224`: Exporter CPU Usage glitches 
+- :pmmbug:`2227`: Auto Refresh for dashboards 
+- :pmmbug:`2243`: Long host names in |grafana| dashboards are not displayed correctly
+- :pmmbug:`2257`: PXC/galera cluster overview Flow control paused time has a percentage glitch 
+- :pmmbug:`2282`: No data is displayed on dashboards for OVA images
+- :pmmbug:`2296`: The |opt.mysql-metrics| service will not start on Ubuntu LTS 16.04
   
 .. |release| replace:: 1.9.0
 		       
-.. _`release announcement`: https://www.percona.com/blog/2018/04/20/percona-monitoring-and-management-1-9-0-is-now-available/
-
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/option.txt			    
+.. include:: .res/replace/url.txt

@@ -5,117 +5,125 @@
 
 :Date: April 20, 2018
 
-For more information about this release, see the `release announcement`_.
+|percona| announces the release of |pmm.name| |release|.  |pmm.intro| is a free
+and open-source platform for managing and monitoring |mysql| and |mongodb|
+performance.  You can run |pmm| in your own environment for maximum security and
+reliability. It provides thorough time-based analysis for |mysql| and |mongodb|
+servers to ensure that your data works as efficiently as possible.
+We focused mainly on two features in |release|, but there are also several
+notable improvements worth highlighting:
 
-.. contents::
-   :local:
+- `Annotations`_ - Record and display application events as Annotations using
+  |pmm-admin.annotate|
+- `Grafana 5.0`_ - Improved visualization effects
+- `Switching between Dashboards`_ - Now switching dashboards
+- `New PXC Galera Replication Latency Graphs`_ - Added Galera Replication
+  Latency graphs on PXC
+  Overview dashboard with consistent colours
 
-Improved:  Annotations - display application events
+The `Issues in this release`_ includes 4 new features & improvements, and 8
+bugs fixed.
+
+Annotations
 ================================================================================
 
-:JIRA Ticket ID: :pmmbug:`2330`
+Application events are one of the contributors to changes in database
+performance characteristics, and in this release |pmm| now supports receiving
+events and displaying them as Annotations using the new command
+|pmm-admin.annotate|. A recent |percona| survey reveals that database and DevOps
+engineers highly value visibility into the application layer.  By displaying
+application events on top of your |pmm| graphs, engineers can now correlate
+application events to database events (common cases: application deploys,
+outages, and upgrades) against Database and System level metric changes.
 
-|pmm| now supports receiving application events and displays them as |grafana|
-annotations using the new command |pmm-admin.annotate|.
+Usage
+--------------------------------------------------------------------------------
 
-.. seealso::
+For example, you have an application deployment that just completed to version
+1.2, and it affects the UI only, so you want to set tags for the version and
+interface impacted:
 
-   How to use annotations in |pmm|?
-      :ref:`pmm.metrics-monitor.annotation.application-event.marking`
+.. code-block:: bash
 
-   |grafana| Documentation: Annotations
-      http://docs.grafana.org/reference/annotations/
+   $ pmm-admin annotate "Application deploy v1.2" --tags "UI, v1.2"
 
-New: |grafana| 5.0 - Upgraded to improve the presentation of graphs
+Using the optional |opt.tags| option allows you to filter which Annotations are
+displayed on the dashboard via a toggle option. Read more about Annotations
+utilization in the
+`PMM documentation
+<https://www.percona.com/doc/percona-monitoring-and-management/using.html#using-annotations-to-mark-important-application-events>`_.
+
+|grafana| 5.0
 ================================================================================
 
-:JIRA Ticket ID: :pmmbug:`2332`
+We're extremely pleased to see |grafana| ship 5.0 and we were fortunate enough to
+be at Grafanacon, including |percona|'s very own `@Dimitri Vanoverbeke <https://www.percona.com/blog/author/dimitri-vanoverbeke/>`_ (Dim0) who presented What we Learned Integrating
+Grafana and Prometheus!
 
-|grafana| 5.0 is no longer bound by panel constraints to keep all objects at the
-same fixed height.  This improvement indirectly addresses the visualization
-error in |pmm-server| where some graphs would appear to be on two lines.
+.. raw:: html
 
-.. seealso::
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/Mno1nYBmlIE" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
-   |grafana| Documentation: What\'s new in version 5.0?
-      http://docs.grafana.org/guides/whats-new-in-v5/
+    <iframe width="560" height="315" src="https://www.youtube.com/embed/nYCE24DV8xA" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
-Fixed: Switching between dashboards while maintaining the same host
+Included in |grafana| 5.0 are a number of dramatic improvements, which in future
+|pmm| releases we plan to extend our usage of each feature, and the one we like
+best is the virtually unlimited way you can size and shape graphs.  No longer
+are you bound by panel constraints to keep all objects at the same fixed height!
+This improvement indirectly addresses the visualization error in |pmm-server|
+where some graphs would appear to be on two lines and ended up wasting screen
+space.
+
+Switching Between Dashboards
 ================================================================================
 
-:JIRA Ticket ID: :pmmbug:`2371`
+|pmm| now allows you to navigate between dashboards while maintaining the same
+host under observation, so that for example you can start on |mysql-overview|
+looking at host serverA, switch to MySQL InnoDB Advanced dashboard and continue
+looking at serverA, thus saving you a few clicks in the interface.
 
-The selected server will not change when you switch from one dashboard
-to another.
+New PXC Galera Replication Latency Graphs
+================================================================================
 
-New: PXC Galera replication latency graphs: compare latency across all members in a cluster
-====================================================================================================
-
-:JIRA Ticket ID: :pmmbug:`2293`
-
-Compare latency across all members in a cluster on the
-|dbd.pxc-galera-cluster-overview| dashboard.
-
-.. seealso::
-	      
-   |dbd.pxc-galera-cluster-overview| dashboard
-      :ref:`dashboard.pxc-galera-cluster-overview`
+We have added new PXC Replication Latency graphs on our *PXC Galera Cluster
+Overview* dashboard so that you can compare latency across all members in a
+cluster in one view.
 
 Issues in this release
 ================================================================================
 
-Release |release| of |pmm.name| contains new features, improvements, and bug
-fixes registered in the following |jira| tickets:
-
 .. rubric:: New Features and Improvements
 
-.. list-table::
-   :widths: 20 80
-   :header-rows: 1
-
-   * - JIRA Ticket ID
-     - Description
-   * - :pmmbug:`2293`
-     - Add the *Galera Replication Latency* graph to the |dbd.pxc-galera-cluster-overview| dashboard.
-   * - :pmmbug:`2295`
-     - Improve colour selection on the |dbd.pxc-galera-cluster-overview| dashboard
-   * - :pmmbug:`2330`
-     - Application Annotations
-   * - :pmmbug:`2332`
-     - Grafana 5 update
+- :pmmbug:`2293`: Add the *Galera Replication Latency* graph to the
+  *PXC/Galera Cluster overview* dashboard.
+- :pmmbug:`2295`: Improve colour selection on the *PXC/Galera Cluster Overview*
+  dashboard
+- :pmmbug:`2330`: Application Annotations
+- :pmmbug:`2332`: Grafana 5 update
 
 .. rubric:: Bug fixes
 
-.. list-table::
-   :widths: 20 80
-   :header-rows: 1
-
-   * - JIRA Ticket ID
-     - Description
-   * - :pmmbug:`2311`
-     - Fix mis-alignment in Query Analytics Metrics table
-   * - :pmmbug:`2341`
-     - Typo in text on password page of OVF
-   * - :pmmbug:`2359`
-     - Trim leading and trailing whitespaces for all fields on AWS/OVF Installation wizard
-   * - :pmmbug:`2360`
-     - Include a *What's new?* link for Update widget
-   * - :pmmbug:`2346`
-     - Arithmetic on InnoDB AHI Graphs are invalid
-   * - :pmmbug:`2364`
-     - QPS are wrong in QAN
-   * - :pmmbug:`2388`
-     - Query Analytics does not render fingerprint section in some cases
-   * - :pmmbug:`2371`
-     - Pass host when switching between Dashboards
+- :pmmbug:`2311`: Fix mis-alignment in Query Analytics Metrics table
+- :pmmbug:`2341`: Typo in text on password page of OVF
+- :pmmbug:`2359`: Trim leading and trailing whitespaces for all fields on
+  AWS/OVF Installation wizard
+- :pmmbug:`2360`: Include a "What's new?" link for Update widget
+- :pmmbug:`2346`: Arithmetic on InnoDB AHI Graphs are invalid
+- :pmmbug:`2364`: QPS are wrong in QAN
+- :pmmbug:`2388`: Query Analytics does not render fingerprint section in some
+  cases
+- :pmmbug:`2371`: Pass host when switching between Dashboards
 
 .. seealso::
 
-   All releases
-      :ref:`pmm/release/list`
+   How to get |pmm|
+
+      `Deploying Percona Monitoring and Management
+      <https://www.percona.com/doc/percona-monitoring-and-management/deploy/index.html>`_
 
 .. |release| replace:: 1.10.0
-
-.. _`release announcement`: https://www.percona.com/blog/2018/04/20/percona-monitoring-and-management-pmm-1-10-0-is-now-available/
 		       
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/option.txt			    
+.. include:: .res/replace/url.txt

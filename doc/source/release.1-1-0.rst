@@ -39,12 +39,12 @@ Introduced Amazon Machine Image (AMI) and VirtualBox images for PMM Server:
 * Updated the **MongoDB ReplSet** dashboard
   to show the storage engine used by the instance
 
-* :pmmbug:`551`: Fixed |qan| changing query format
+* :pmmbug:`551`: Fixed QAN changing query format
   when a time-based filter was applied to the digest
 
 **New in PMM Client:**
 
-* :pmmbug:`530`: Fixed |pmm-admin| to support special characters
+* :pmmbug:`530`: Fixed ``pmm-admin`` to support special characters
   in passwords
 
 * Added displaying of original error message
@@ -58,4 +58,4 @@ Introduced Amazon Machine Image (AMI) and VirtualBox images for PMM Server:
 
 .. |release| replace:: 1.1.0 Beta
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

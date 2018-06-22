@@ -29,7 +29,8 @@ following features:
 
 **Amazon RDS for MySQL unique elements**
 
-|abbr.qan| is now integrated into |metrics-monitor| and appears as a separate
+
+|qan.abbrev| is now integrated into |metrics-monitor| and appears as a separate
 dashboard known as |pmm|.
 
 
@@ -73,6 +74,6 @@ fixes. For more information, see the
 
 .. |release| replace:: 1.5.0
 
-.. include:: .res/replace.txt
-
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt
 

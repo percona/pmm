@@ -50,7 +50,7 @@ To access the dashboards, provide default user credentials:
 * Password: ``admin``
 
 On the Home screen, select a dashboard from the list of available |percona|
-dashboards.  For example, the following image shows the |dbd.mysql-overview|
+dashboards.  For example, the following image shows the |mysql-overview|
 dashboard:
 
 .. image:: .res/graphics/png/metrics-monitor.png
@@ -212,4 +212,8 @@ After clicking |gui.share-with-percona-team|, wait for the dashboard to be gener
 and you will be provided a unique URL that then needs to be communicated to
 |percona| via the ticket.
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/url.txt
+.. include:: .res/replace/fragment.txt

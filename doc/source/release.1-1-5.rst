@@ -33,4 +33,4 @@ Changes in |pmm-client|
 
 .. |release| replace:: 1.1.5
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

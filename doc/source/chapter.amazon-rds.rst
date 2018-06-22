@@ -1,12 +1,12 @@
 .. _pmm.amazon-rds:
 
-Adding an |amazon-rds| DB instance to |pmm|
+Connecting to an |amazon-rds| DB instance
 ********************************************************************************
 
 .. versionadded:: 1.5.0
 
 The |pmm-add-instance| is now a preferred method of adding an |amazon-rds| DB
-instance to |pmm|. This method supports |amazon-rds| DB instances that use
+instance to |pmm|. It supports |amazon-rds| DB instances that use
 |amazon-aurora|, |mysql|, or |mariadb| engines.
 
 .. _figure.pmm.amazon-rds.pmm-server.add-instance.access-key-id:
@@ -30,7 +30,7 @@ instance to |pmm|. This method supports |amazon-rds| DB instances that use
 
 For each instance that you would like to monitor, select the |gui.enabled| button
 and enter the user name and password. Click |gui.connect|. You can now monitor your
-instances in the |dbd.amazon-rds-aurora-mysql-metrics|.
+instances in the |amazon-rds-aurora-mysql-metrics|.
 
 
 .. _figure.pmm.amazon-rds.pmm-server.add-instance.rds-instances.db-user-credentials:
@@ -38,7 +38,7 @@ instances in the |dbd.amazon-rds-aurora-mysql-metrics|.
 .. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.rds-instances.1.png
 
    Enter the DB user name and password to connect to the selected |rds| or
-   |amazon-aurora| instance.
+   |aurora| instance.
 
 .. seealso::
 
@@ -62,7 +62,7 @@ First of all, ensure that there is the minimal latency between |pmm-server| and 
 
 Network connectivity can become an issue for |prometheus| to scrape
 metrics with 1 second resolution.  We strongly suggest that you run
-|pmm-server| on |abbr.aws| in the same availability zone as
+|pmm-server| on |aws.name| in the same availability zone as
 |amazon-rds| instances.
 
 It is crucial that *enhanced monitoring* be enabled for the |amazon-rds| DB
@@ -97,7 +97,7 @@ instances you intend to monitor.
 Creating an |iam| user with permission to access |amazon-rds| DB instances
 --------------------------------------------------------------------------------
 
-It is recommended that you use an |iam| user account to access |amazon-rds|
+It is recommended that you use an |aws-iam| user account to access |amazon-rds|
 DB instances instead of using your |aws| account. This measure improves security
 as the permissions of an |iam| user account can be limited so that this account
 only grants access to your |amazon-rds| DB instances. On the other
@@ -105,7 +105,7 @@ hand, you use your |aws| account to access all |aws| services.
 
 The procedure for creating |iam| user accounts is well described in the
 |amazon-rds| documentation. This section only goes through the essential steps
-and points out the steps required for using |amazon-rds| with |percona-monitoring-management|. 
+and points out the steps required for using |amazon-rds| with |pmm.name|. 
 
 .. seealso::
 
@@ -124,13 +124,13 @@ Creating a policy
 A policy defines how |aws| services can be accessed. Once defined it can be
 associated with an existing user or group.
 
-To define a new policy use the |iam| page at |aws|.
+To define a new policy use the |aws-iam.name| page at |aws|.
 
 .. _figure.pmm.amazon-rds.aws.iam:
 
 .. figure:: .res/graphics/png/aws.iam.png
 
-   The |iam| page at |aws|
+   The |aws-iam.name| page at |aws|
 
 1. Select the |gui.policies| option on the navigation panel and click the
    |gui.create-policy| button.
@@ -161,7 +161,7 @@ Creating an |iam| user
 --------------------------------------------------------------------------------   
    
 Policies are attached to existing |iam| users or groups. To create a new |iam|
-user, select |gui.users| on the |identity-access-management| page at |aws|. Then click
+user, select |gui.users| on the |aws-iam.name| page at |aws|. Then click
 |gui.add-user| and complete the following steps:
 
 .. _figure.pmm.amazon-rds.aws.iam-users:
@@ -222,7 +222,7 @@ Attaching a policy to an |iam| user
 The last step before you are ready to create an |amazon-rds| DB instance is to
 attach the policy with the required permissions to the |iam| user.
 
-First, make sure that the |identity-access-management| page is open and open
+First, make sure that the |aws-iam.name| page is open and open
 |gui.users|. Then, locate and open the |iam| user that you plan to use with
 |amazon-rds| DB instances. Complete the following steps, to apply the policy:
 
@@ -250,8 +250,8 @@ The |policy-name| is now added to your |iam| user.
 Setting up the |amazon-rds| DB Instance
 --------------------------------------------------------------------------------
 
-|query-analytics| requires :ref:`perf-schema` as the query source, because the slow
-query log is stored on the |abbr.aws| side, and |qan| agent is not able to
+|qan.name| requires :ref:`perf-schema` as the query source, because the slow
+query log is stored on the |amazon-aws| side, and |qan| agent is not able to
 read it.  Enable the ``performance_schema`` option under ``Parameter Groups``
 in |amazon-rds|.
 
@@ -299,4 +299,6 @@ on |amazon-rds|:
       
 .. |policy-name| replace:: *AmazonRDSforPMMPolicy*
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/option.txt

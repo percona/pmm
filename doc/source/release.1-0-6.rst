@@ -101,4 +101,4 @@ Changes
 
 .. |release|  replace:: 1.0.6
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

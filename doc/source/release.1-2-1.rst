@@ -45,4 +45,4 @@ The following changes were introduced in *PMM Server* 1.2.1:
 
 .. |release| replace:: 1.2.1
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

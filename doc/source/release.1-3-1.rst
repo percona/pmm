@@ -24,4 +24,4 @@ Other bug fixes in this release: :pmmbug:`1452`, :pmmbug:`1515`.
 
 .. |release| replace:: 1.3.1
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

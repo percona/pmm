@@ -31,7 +31,7 @@ For install and upgrade instructions, see :ref:`deploy-pmm`.
   having been upgraded from earlier releases of |pmm|, due to incorrect values
   being stored in the database.  This has been addressed to identify the
   incorrect values and replace with accurate schema and table information.
-* :pmmbug:`1634`: The |dbd.advanced-data-exploration| dashboard did
+* :pmmbug:`1634`: The |advanced-data-exploration| dashboard did
   not always display data points from |opt.external-metrics| monitoring
   services due to a too restrictive Grafana Template filter.
 
@@ -41,7 +41,7 @@ For install and upgrade instructions, see :ref:`deploy-pmm`.
 .. |release|      replace:: 1.4.1
 .. |prev-release| replace:: 1.4.0
 
-.. _btrfs: https://btrfs.wiki.kernel.org
-.. _`aws marketplace`: https://aws.amazon.com/marketplace
-
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/url.txt

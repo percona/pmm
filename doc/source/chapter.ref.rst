@@ -9,4 +9,4 @@ References
    Release Notes <index.release>
    index.metrics-monitor.dashboard
    index.glossary
-   faq
+

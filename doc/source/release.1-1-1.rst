@@ -23,4 +23,4 @@ except small fixes for MongoDB metrics dashboards.
 
 .. |release| replace::  1.1.1
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

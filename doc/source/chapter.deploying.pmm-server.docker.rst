@@ -32,7 +32,5 @@ For more information about using |docker|, see the `Docker Docs`_.
    section.deploying.pmm-server.docker.backing-up
    section.deploying.pmm-server.docker.restoring
 
-.. _`percona/pmm-server`: https://hub.docker.com/r/percona/pmm-server/tags/
-.. _`Docker Docs`: https://docs.docker.com
-
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/url.txt

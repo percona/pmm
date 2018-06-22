@@ -23,4 +23,4 @@ Installing Components
    chapter.pmm-admin
    chapter.security
    
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

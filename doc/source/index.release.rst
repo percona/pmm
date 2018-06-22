@@ -10,9 +10,12 @@
 
    1.11.0: May 23, 2018 <release.1-11-0> 
    1.10.0: April 20, 2018 <release.1-10-0> 
+   1.9.1: April 12, 2018 <release.1-9-1>
    1.9.0: April 4, 2018 <release.1-9-0>
+   1.8.1: March 06, 2018 <release.1-8-1>
    1.8.0: February 27, 2018 <release.1-8-0>
    1.7.0: January 31, 2018 <release.1-7-0>
+   1.6.1: January 25, 2018 <release.1-6-1>
    1.6.0: January 18, 2018 <release.1-6-0>
 
 .. rubric:: Old releases
@@ -49,4 +52,4 @@
    - :ref:`Beta 1.0.1: June 10, 2016 <pmm/release/1-0-1>`
    - :ref:`Beta 1.0.0: April 17, 2016 <pmm/release/1-0-0>`
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

@@ -28,5 +28,5 @@ Options
    :start-after: +mongodb-exporter.flag+
    :end-before: #+end-table
 
-.. include:: .res/replace.txt
-
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/name.txt

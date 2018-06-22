@@ -207,7 +207,7 @@ job. These options are required. To specify the port number the
 
 By default, the |pmm-admin.add| command automatically creates the name
 of the host to be displayed in the |gui.host| field of the
-|dbd.advanced-data-exploration| dashboard where the metrics of the newly
+|advanced-data-exploration| dashboard where the metrics of the newly
 added external monitoring service will be displayed. This name matches
 the name of the host where |pmm-admin| is installed. You may choose
 another display name when adding the |opt.external-service| monitoring
@@ -230,7 +230,7 @@ bottom of the command's output:
 
 .. seealso::
 
-   Using the external monitoring service to add |postgresql| running on an |amazon-rds| instance
+   Using the external monitoring service to add |postgres| running on an |amazon-rds| instance
       See :ref:`use-case.external-monitoring-service.postgresql.rds`
 		
 .. _pmm.pmm-admin.monitoring-service.pass-parameter:
@@ -479,12 +479,7 @@ You can also specify the |opt.create-user| option to create a dedicated
 This user will be given all the necessary privileges for monitoring,
 and is recommended over using the |mysql| superuser.
 
-.. seealso::
-
-   More information about |mysql| users with |pmm|
-      :ref:`pmm/conf-mysql/user-account/pmm/creating`
-
-For example, to set up remote monitoring of |qan| data on a |mysql| server
+For example, to set up remote monitoring of QAN data on a |mysql| server
 located at 192.168.200.2, use a command similar to the following:
 
 .. _code.pmm-admin.add-mysql-queries.user.password.host.create-user:
@@ -505,11 +500,6 @@ For more information, run
 |pmm-admin.add|
 |opt.mysql-queries|
 |opt.help|.
-
-.. seealso::
-
-   How to set up |mysql| for monitoring?
-      :ref:`conf-mysql`
 
 .. _pmm-admin.add-mysql-metrics:
 
@@ -622,11 +612,6 @@ For more information, run
 |pmm-admin.add|
 |opt.mysql-metrics|
 |opt.help|.
-
-.. seealso::
-
-   How to set up |mysql| for monitoring?
-      :ref:`conf-mysql`
 
 .. _pmm-admin.add-mongodb-queries:
 
@@ -1660,4 +1645,7 @@ The following aliases are used to designate PMM services that you want to
    :start-after: +alias.services+
    :end-before: #+end-block
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/fragment.txt

@@ -24,5 +24,6 @@ after two dashes (:code:`--`).
 
    section.exporter.*
 
-.. include:: .res/replace.txt
-
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt
+   

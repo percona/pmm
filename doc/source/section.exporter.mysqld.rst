@@ -49,4 +49,6 @@ General options
    :start-after: +mysqld-exporter.collector-flag+
    :end-before: #+end-table
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt

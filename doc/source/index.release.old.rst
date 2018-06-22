@@ -44,4 +44,4 @@ This section contains releases of |pmm.name| made available prior to January
    All release notes
       :ref:`pmm/release/list`
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

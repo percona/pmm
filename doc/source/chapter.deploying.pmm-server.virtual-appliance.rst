@@ -128,11 +128,11 @@ Accessing the Virtual Machine
 To access the VM with the *PMM Server* appliance via SSH,
 provide your public key:
 
-1. Open the URL for accessing |pmm| in a web browser.
+1. Open the URL for accessing PMM in a web browser.
 
    The URL is provided either in the console window or in the appliance log.
 
-#. Submit your **public key** in the |pmm| web interface.
+#. Submit your **public key** in the PMM web interface.
 
 After that you can use ``ssh`` to log in as the ``admin`` user.
 For example, if *PMM Server* is running at 192.168.100.1
@@ -150,11 +150,8 @@ assigned to the virtual appliance,
 then :ref:`install PMM Client <deploy-pmm.client.installing>`
 on all database hosts that you want to monitor.
 
-.. _`Red Hat Virtualization`: https://www.redhat.com/en/technologies/virtualization
-.. _`VMware - ESXi 6.5`: https://www.vmware.com/products/esxi-and-esx.html
-.. _`VMware`: http://www.vmware.com/
-.. _`VirtualBox`: https://www.virtualbox.org/
-.. _`XenServer`: https://www.xenserver.org/
-.. _`Microsoft System Center Virtual Machine Manager`: https://www.microsoft.com/en-us/cloud-platform/system-center
-
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/url.txt
+.. include:: .res/replace/fragment.txt

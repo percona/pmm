@@ -314,4 +314,7 @@ Terminology Reference
       An element of :term:`Query Analytics (QAN)` which displays the available
       metrics for the selected query.
    
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/fragment.txt
