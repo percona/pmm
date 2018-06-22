@@ -7,22 +7,27 @@ Contacting and Contributing
 developers and experts directly, submit bug reports and feature requests, and
 contribute to source code directly.
 
-.. rubric:: Contacting Developers
+Contacting Developers
+=====================
 
-Use the `community forum`_ to ask questions about using |pmm|.  Developers and
-experts will try to help with problems that you experience.
+Use the `community forum`_ to ask questions about using |pmm|.
+Developers and experts will try to help with problems that you experience.
 
-.. rubric:: Reporting Bugs
+Reporting Bugs
+==============
 
-Use the `PMM project in JIRA`_ to report bugs and request features.  Please
-register and search for similar issues before submitting a bug or feature
-request.
+Use the `PMM project in JIRA`_ to report bugs and request features.
+Please register and search for similar issues
+before submitting a bug or feature request.
 
-.. rubric:: Contributing Source Code
+Contributing Source Code
+========================
 
-Use the `GitHub repository`_ to explore source code and suggest contributions.
-You can fork and clone any |percona| repositories, but to have your source code
-patches accepted please sign the Contributor License Agreement (CLA).
+Use the `GitHub repository`_ to explore source code
+and suggest contributions.
+You can fork and clone any |percona| repositories,
+but to have your source code patches accepted
+please sign the Contributor License Agreement (CLA).
 
 .. _community forum: https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management
 
