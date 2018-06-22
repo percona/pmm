@@ -1,0 +1,60 @@
+.. _1.2.2:
+
+=======================================
+Percona Monitoring and Management 1.2.2
+=======================================
+
+:Date: August 23, 2017
+
+For install and upgrade instructions, see :ref:`deploy-pmm`.
+
+This release contains bug fixes related to performance and introduces
+various improvements. It also contains an updated version of Grafana.
+
+
+Changes in PMM Server
+=====================
+
+The following changes were introduced in *PMM Server* 1.2.2:
+
+Bug fixes
+---------
+
+* :pmmbug:`927`: The error "Cannot read property 'hasOwnProperty' of
+  undefined" was displayed on the QAN page for mongodb.
+
+  After enabling monitoring and generating data for mongodb, the PMM client
+  showed the following error message on the QAN page: "Cannot read property
+  'hasOwnProperty' of undefined". This bug is now fixed.
+
+* :pmmbug:`949`: Percona Server was not detected properly, the log_slow_* variables were not properly detected.
+
+* :pmmbug:`1081`: Performance Schema Monitor treated queries that
+  didn't show up in every snapshot as new queries reporting a wrong
+  number of counts between snapshots.
+
+* :pmmbug:`1272`: mongodb`: the query empty abstract. This bug is now fixed.
+
+* :pmmbug:`1277`: The QPS Graph had inappropriate prometheus query. This bug is now fixed.
+
+* :pmmbug:`1279`: The MongoDB summary did not work in QAN2 if mongodb authentication was activated. This bug is now fixed.
+
+* :pmmbug:`1284`: Dashboards pointed to QAN2 instead of QAN. This bug is now fixed.
+
+Improvements
+------------
+
+* :pmmbug:`586`: The wsrep_evs_repl_latency parameter is now monitored in Grafana dashboards
+* :pmmbug:`624`: The Grafana User ID remains the same in the pmm-server docker image
+* :pmmbug:`1209`: OpenStack support is now enabled during the OVA image creation
+* :pmmbug:`1211`: It is now possible to configure a static IP for an OVA image
+
+  The root password can only be set from console. If the root password
+  is not changed from the default, a warning message appears on the
+  console requesting the user to change the root password on the root
+  first login from console. Web/SSH users can neither use the root
+  account password nor detect if the root password is set to the
+  default value.
+
+* :pmmbug:`1221`: Grafana updated to version 4.4.3
+

@@ -1,0 +1,34 @@
+.. _1.1.5:
+
+=======================================
+Percona Monitoring and Management 1.1.5
+=======================================
+
+:Date: June 21, 2017
+
+For install and upgrade instructions, see :ref:`deploy-pmm`.
+
+Changes in PMM Server
+=====================
+
+* :pmmbug:`667`: Fixed the *Latency* graph
+  in the *ProxySQL Overview* dashboard
+  to plot microsecond values instead of milliseconds.
+
+* :pmmbug:`800`: Fixed the *InnoDB Page Splits* graph
+  in the *MySQL InnoDB Metrics Advanced* dashboard
+  to show correct page merge success ratio.
+
+* :pmmbug:`1007`: Added links to Query Analytics
+  from *MySQL Overview* and *MongoDB Overview* dashboards.
+  The links also pass selected host and time period values.
+
+  .. note:: These links currently open QAN2,
+     which is still considered experimental.
+
+Changes in PMM Client
+=====================
+
+* :pmmbug:`931`: Fixed ``pmm-admin`` script
+  when adding MongoDB metrics monitoring for secondary in replica set.
+

@@ -270,7 +270,7 @@ Terminology Reference
 
       The collected data is sent to :term:`PMM Server`.
 
-      For more information, see :ref:`pmm/architecture`.
+      For more information, see :ref:`architecture`.
 
    PMM Server
 
@@ -287,7 +287,7 @@ Terminology Reference
 
 	 PMM Architecture
 
-	    :ref:`pmm/architecture`
+	    :ref:`architecture`
 
    Query Analytics (QAN)
 

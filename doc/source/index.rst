@@ -1,17 +1,18 @@
-.. _pmm.index:
 
+================================================================================
 Percona Monitoring and Management Documentation
-********************************************************************************
+================================================================================
 
-Percona Monitoring and Management (PMM) is an open-source platform for managing
-and monitoring MySQL and MongoDB performance.  It is developed by Percona in
-collaboration with experts in the field of managed database services, support
-and consulting.
+Percona Monitoring and Management (PMM) is an open-source platform
+for managing and monitoring MySQL and MongoDB performance.
+It is developed by Percona in collaboration with experts
+in the field of managed database services, support and consulting.
 
-PMM is a free and open-source solution that you can run in your own environment
-for maximum security and reliability.  It provides thorough time-based analysis
-for MySQL and MongoDB servers to ensure that your data works as efficiently as
-possible.
+PMM is a free and open-source solution
+that you can run in your own environment
+for maximum security and reliability.
+It provides thorough time-based analysis for MySQL and MongoDB servers
+to ensure that your data works as efficiently as possible.
 
 Basics
 ================================================================================
@@ -19,9 +20,9 @@ Basics
 .. toctree::
    :maxdepth: 1
 
-   Architecture Overview <chapter.architecture>
-   Deployment Instructions <chapter.deploying>
-   chapter.tool
+   Architecture Overview <architecture>
+   Deployment Instructions <deploy/index>
+   using
 
 Advanced
 ================================================================================
@@ -29,12 +30,12 @@ Advanced
 .. toctree::
    :maxdepth: 1
 
-   chapter.pmm-admin
-   chapter.amazon-rds
-   chapter.conf-mysql
-   chapter.conf-mongodb
-   chapter.security
-   index.metrics-monitor.dashboard
+   pmm-admin
+   amazon-rds
+   Configuring MySQL for Best Results <conf-mysql>
+   conf-mongodb
+   security
+   metrics-monitor.dashboard.list
 
 Reference
 ================================================================================
@@ -42,7 +43,7 @@ Reference
 .. toctree::
    :maxdepth: 1
 
-   Release Notes <index.release>
-   chapter.contact
-   faq
-   index.glossary
+   Release Notes <release-notes/index>
+   Contact Us <contact>
+   FAQ <faq>
+   Glossaries <list.glossary>
