@@ -1,0 +1,89 @@
+.. _1.5.0:
+
+================================================================================
+Percona Monitoring and Management |release|
+================================================================================
+
+:Date: November 23, 2017
+
+|percona| announces the release of |pmm.name|
+|release|, with a focus on the following features:
+
+- Enhanced support for |mysql| on |amazon| RDS and |amazon| Aurora – Dedicated |amazon|
+  Aurora dashboard offers maximum visibility into key database characteristics,
+  eliminating the need for additional monitoring nodes.  We renamed |amazon| RDS
+  OS Metrics to |amazon| RDS /
+  |amazon|
+  |mysql| Metrics
+- Simpler configuration – |pmm.name| now offers easier
+  configuration of key |amazon| RDS and |amazon| Aurora settings via a web interface
+- One-click data collection – One button retrieves vital information on server
+  performance to assist with troubleshooting
+- Improved interface – A simple, consistent user interface makes it faster and
+  more fluid to switch between |qan.name| and |metrics-monitor|
+
+*Highlights from our new Amazon RDS / Aurora MySQL Metrics dashboard:*
+
+**Amazon Aurora MySQL & RDS MySQL  shared elements**
+
+.. image:: ./1.5.0-1.png
+
+**Amazon Aurora MySQL unique elements**
+
+.. image:: ./1.5.0-2.png
+
+**Amazon RDS for MySQL unique elements**
+
+.. image:: ./1.5.0-3.png
+
+|qan.abbrev| is now integrated into |metrics-monitor| and appears as a separate
+dashboard known as |pmm|.
+
+.. image:: ./1.5.0-4.png
+
+With this release, |pmm.name| introduces a new deployment
+option via AWS Marketplace.  This is in addition to our distribution method of
+`Amazon Machine Images (AMI)
+<https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html>`_.
+
+In this release, |grafana| and |prometheus| have been upgraded. |pmm| now includes
+|grafana| 4.6.1. One of the most prominent features that the upgraded |grafana|
+offers is the support of annotations. You can mark a point or select a region in
+a graph and give it a meaningful description. For more information, see the
+`release highlights <http://docs.grafana.org/guides/whats-new-in-v4-6/>`_.
+
+|prometheus| version 1.8.2, shipped with this release, offers a number of bug
+fixes. For more information, see the
+`Prometheus change log <https://github.com/prometheus/prometheus/blob/master/CHANGELOG.md#182--2017-11-04>`_.
+
+New features
+--------------------------------------------------------------------------------
+
+- :pmmbug:`434`: |pmm| enables monitoring of |amazon-rds| and |amazon-aurora| metrics
+- :pmmbug:`1133`: |qan.name| is available from |grafana| as a dashboard
+- :pmmbug:`1470`: Cloudwatch metrics have been integrated into |prometheus|
+- :pmmbug:`699`: AWS RDS and |amazon-aurora| metrics were combined into one dashboard
+- :pmmbug:`722`: The MariaDB dashboard graph elements were distributed among other existing dashboards and MariaDB dashboard was removed; further the MyISAM dashboard was renamed to MyISAM/Aria Metrics
+- :pmmbug:`1258`: The DISABLE_UPDATES option enables preventing manual updates when PMM Server is run from a Docker container.
+- :pmmbug:`1500`: Added InnoDB Buffer Disk Reads to graph InnoDB Buffer Pool Requests to better understand missed InnoDB BP cache hits
+
+Improvements
+--------------------------------------------------------------------------------
+
+- :pmmbug:`1577`: |prometheus| was updated to version 1.8.2
+- :pmmbug:`1603`: |grafana| was updated to version 4.6.1
+- :pmmbug:`1669`: The representation of numeric values in the Context Switches graph in the System Overview dashboard was changed to improve readability.
+- :pmmbug:`1575`: Templating rules were improved for the MyRocks and TokuDB dashboards so that only those instances with these storage engines are displayed.
+
+Bug fixes
+--------------------------------------------------------------------------------
+
+- :pmmbug:`1082`: The CPU Usage graph on the Trends dashboard showed incorrect spikes
+- :pmmbug:`1549`: The authentication of the mongodb:queries monitoring service did not work properly when the name of the database to authenticate was not provided.
+- :pmmbug:`1673`: Fixed display issue with Microsoft Internet Explorer 11
+
+.. |release| replace:: 1.5.0
+
+.. include:: ../.res/replace/name.txt
+.. include:: ../.res/replace/program.txt
+
