@@ -213,8 +213,6 @@ List of |pmm-server| Options
       The |opt.disable-updates| option removes the :guilabel:`Update` button
       from the interface and prevents the system from being updated manually.
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/fragment.txt
-.. include:: .res/replace/url.txt
+.. _v.percona.com: http://v.percona.com
+
+.. include:: .res/replace.txt

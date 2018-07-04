@@ -27,4 +27,4 @@ metrics:
 
       https://dev.mysql.com/doc/refman/5.7/en/performance-schema.html
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

@@ -58,5 +58,5 @@ well.
 
       https://mariadb.com/kb/en/library/aria-system-variables/
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/option.txt
+.. include:: .res/replace.txt
+
