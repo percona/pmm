@@ -10,6 +10,17 @@
 
 #+end-block
 
+* logrotate
+
+#+begin-block: logrotate config_file
+
++logrotate.config_file+
+
+.. code-block:: bash
+
+   $ logrotate CONFIG_FILE
+
+#+end-block
 * curl
 
 #+begin-block:: curl url/ping
@@ -725,8 +736,15 @@ Demonstrates how to set the option to 8 days.
 
 #+end-block
 
-
 ** add
+
+#+begin-block: pmm-admin add mysql slow-log-rotation
+
++pmm-admin.add.mysql.slow-log-rotation+
+
+.. pmm-admin add mysql ... --slow-log-rotation=false
+
+#+end-block
 
 #+begin-block: pmm-admin add host user password
 
@@ -846,7 +864,7 @@ Demonstrates how to set the option to 8 days.
 
 
    Name      Scrape interval  Scrape timeout  Metrics path  Scheme  Instances
-   postgres  1s               1s              /metrics      http    192.168.200.1:9187
+   postgres  10s              1m              /metrics      http    192.168.200.1:9187
 
 #+end-block
 #+begin-block: pmm-admin add external-metrics job-name url port-number
@@ -864,7 +882,7 @@ Demonstrates how to set the option to 8 days.
 
    $ pmm-admin add external:service --service-port=9187 postgresql
 
-   pmm-admin 1.7.0
+   pmm-admin 1.12.0
 
    PMM Server      | 127.0.0.1:80 
    Client Name     | percona
@@ -874,7 +892,7 @@ Demonstrates how to set the option to 8 days.
    ...
 
    Job name    Scrape interval  Scrape timeout  Metrics path  Scheme  Target           Labels              Health
-   postgresql  1s               1s              /metrics      http    172.17.0.1:9187  instance="percona"  
+   postgresql  10s              1m              /metrics      http    172.17.0.1:9187  instance="percona"  
    
 #+end-block
 ** config
