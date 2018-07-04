@@ -73,7 +73,8 @@
         - pmm-server-1.13.0
         - pmm-client-1.13.0
         - percona-orchestrator-3.0.6
-        - percona-prometheus-1.8.2
+        - percona-prometheus1-1.8.2
+        - percona-prometheus-2.3.1
         - percona-qan-api-1.13.0
         - percona-grafana-5.0.4
         - percona-qan-app-1.13.0
@@ -238,6 +239,7 @@
       command: /usr/bin/supervisorctl restart {{ item }}
       with_items:
         - prometheus
+        - prometheus1
         - node_exporter
         - qan-api
         - grafana
@@ -249,6 +251,7 @@
       service: name={{ item }} state=restarted enabled=yes
       with_items:
         - prometheus
+        - prometheus1
         - node_exporter
         - percona-qan-api
         - grafana-server
