@@ -68,7 +68,7 @@
       with_items:
         - nginx
         - pmm-update
-        - percona-toolkit-3.0.8
+        - percona-toolkit-3.0.10
         - percona-dashboards-1.13.0
         - pmm-server-1.13.0
         - pmm-client-1.13.0
