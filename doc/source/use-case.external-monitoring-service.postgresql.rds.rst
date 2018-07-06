@@ -2,8 +2,9 @@
 
 .. _use-case.external-monitoring-service.postgresql.rds:
 
+================================================================================
 Use case: Monitoring a |postgresql| database running on an |amazon-rds| instance
-********************************************************************************
+================================================================================
 
 |pmm| currently does not support |postgresql| out-of-the-box. However, you can
 monitor your |postgresql| host by using external monitoring services.  The
@@ -20,9 +21,6 @@ installed on an |amazon-rds| instance.
    external monitoring services of |pmm| and should be treated as an example. As
    such, it does not demostrate how to use the security features of |amazon-rds|
    or of the |prometheus| exporter being used.
-
-.. contents::
-   :local:
    
 Set Up the |postgresql| Exporter
 ================================================================================
@@ -114,18 +112,20 @@ Viewing |postgresql| Metrics in |pmm|
 ================================================================================
 
 Now, open |metrics-monitor| in your browser and select the
-|dbd.advanced-data-exploration| dashboard either using the |gui.dashboard-dropdown|
+|advanced-data-exploration| dashboard either using the |gui.dashboard-dropdown|
 or the |gui.insight| group of the navigation menu. Use the |gui.metric| field to
 select the name of a metric. Note that postgresql specific metrics start with
 *pg_*.
 
 .. figure:: .res/graphics/png/metrics-monitor.advanced-data-exploration.1.png
 
-   Using the |dbd.advanced-data-exploration| dashboard to select a |postgresql| metric.
+   Using the |advanced-data-exploration| dashboard to select a |postgresql| metric.
 
 .. seealso::
 
-   How to add an external monitoring services to |pmm|
+   Adding external monitoring services to |PMM|
       :ref:`pmm/pmm-admin/external-monitoring-service.adding`
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/fragment.txt

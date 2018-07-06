@@ -1,7 +1,7 @@
 
 .. _dashboard.mysql-myrocks-metrics:
 
-|dbd.mysql-myrocks-metrics| Dashboard
+|mysql-myrocks-metrics| Dashboard
 ================================================================================
 
 The MyRocks_ storage engine developed by |facebook| based on the |rocksdb|
@@ -48,7 +48,5 @@ drives.
    - |myrocks| WAL
    - |myrocks| file operations
 
-.. _myrocks: http://myrocks.io
-
-.. include:: .res/replace.txt
-
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/url.txt

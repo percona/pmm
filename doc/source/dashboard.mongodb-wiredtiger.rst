@@ -31,4 +31,4 @@ following statistics:
    - Scanned and moved objects
    - Page faults
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

@@ -42,4 +42,4 @@ dashboard contains the following metrics:
    - Scanned and moved objects
    - Page faults
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

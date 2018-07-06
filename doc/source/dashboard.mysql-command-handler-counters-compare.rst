@@ -1,6 +1,6 @@
 .. _dashboard.mysql-command-handler-counters-compare:
 
-|dbd.mysql-command-handler-counters-compare| Dashboard
+MySQL Command/Hander Counters Compare Dashboard
 ================================================================================
 
 This dashboard shows server status variables. On this dashboard, you may select
@@ -20,4 +20,4 @@ handler respectively.
    |mysql| Documentation: Server Status Variables
       https://dev.mysql.com/doc/refman/8.0/en/server-status-variables.html
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/name.txt

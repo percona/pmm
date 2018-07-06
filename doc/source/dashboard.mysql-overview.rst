@@ -1,9 +1,9 @@
 .. _dashboard.mysql-overview:
 
-|dbd.mysql-overview|
+|mysql| Overview
 ================================================================================
 
-This dashboard provides basic information about |mysql| hosts.
+This dashboard provides basic information about MySQL hosts.
 
 .. contents::
    :local:
@@ -13,7 +13,7 @@ This dashboard provides basic information about |mysql| hosts.
 |mysql| Uptime
 --------------------------------------------------------------------------------
 
-The amount of time since the |mysql| server process was started.
+The amount of time since the MySQL server process was started.
 
 |view-all-metrics| |this-dashboard|
 
@@ -22,7 +22,7 @@ The amount of time since the |mysql| server process was started.
 Current QPS
 --------------------------------------------------------------------------------
 
-Based on the queries reported by |mysql|'s |sql.show-status| command,
+Based on the queries reported by MySQL's |sql.show-status| command,
 this metric shows the number of queries executed by the server during
 the last second.n This metric includes statements executed within
 stored programs.
@@ -36,7 +36,7 @@ This variable does not include the following commands:
 
 .. seealso::
 
-   |mysql| Server Status Variables: Queries
+   MySQL Server Status Variables: Queries
       https://dev.mysql.com/doc/refman/5.6/en/server-status-variables.html#statvar_Queries
           
 .. _dashboard.mysql-overview.innodb-buffer-pool-size:
@@ -78,7 +78,7 @@ Max Used Connections
    the server was started.
 
 Connections
-   The number of connection attempts (successful or not) to the |mysql| server.
+   The number of connection attempts (successful or not) to the MySQL server.
 
 |view-all-metrics| |this-dashboard|
 
@@ -154,7 +154,7 @@ not done with indexes.
 
 - *Select Scan* is how many queries caused full table scans, in which all the
   data in the table had to be read and either discarded or returned.
-- *Select Range* is how many queries used a range scan, which means |mysql|
+- *Select Range* is how many queries used a range scan, which means MySQL
   scanned all rows in a given range.
 - *Select Full Join* is the number of joins that are not joined on an index,
   this is usually a huge performance hit.
@@ -166,9 +166,9 @@ not done with indexes.
 |mysql| Sorts
 --------------------------------------------------------------------------------
 
-Due to a query's structure, order, or other requirements, |mysql| sorts the rows
+Due to a query's structure, order, or other requirements, MySQL sorts the rows
 before returning them. For example, if a table is ordered 1 to 10 but you want
-the results reversed, |mysql| then has to sort the rows to return 10 to 1.
+the results reversed, MySQL then has to sort the rows to return 10 to 1.
 
 This graph also shows when sorts had to scan a whole table or a given range of a
 table in order to return the results and which could not have been sorted via an
@@ -181,9 +181,9 @@ index.
 |mysql| Slow Queries
 --------------------------------------------------------------------------------
 
-Slow queries are defined as queries being slower than the |opt.long-query-time|
-setting. For example, if you have |opt.long-query-time| set to **3**, all
-queries that take longer than **3** seconds to complete will show on this graph.
+Slow queries are defined as queries being slower than the *long_query_time*
+setting. For example, if you have *long_query_time* set to 3, all queries that
+take longer than 3 seconds to complete will show on this graph.
 
 |view-all-metrics| |this-dashboard|
 
@@ -212,12 +212,12 @@ Table Locks
 
 |mysql| takes a number of different locks for varying reasons. In this graph we
 see how many Table level locks |mysql| has requested from the storage engine. In
-the case of |innodb|, many times the locks could actually be row locks as it
-only takes table level locks in a few specific cases.
+the case of InnoDB, many times the locks could actually be row locks as it only
+takes table level locks in a few specific cases.
 
-It is most useful to compare |locks-immediate| and |locks-waited|. If
-|locks-waited| is rising, it means you have lock contention. Otherwise,
-|locks-immediate| rising and falling is normal activity.
+It is most useful to compare *Locks Immediate* and *Locks Waited*. If *Locks
+waited* is rising, it means you have lock contention. Otherwise, *Locks
+Immediate* rising and falling is normal activity.
 
 |view-all-metrics| |this-dashboard|
 
@@ -401,5 +401,8 @@ they are autosized |mysql| 5.6 and above (do not set them to any value).
    |mysql| Server System Variables: table_open_cache
       http://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_table_open_cache
 
-.. include:: .res/replace.txt
+.. include:: .res/replace/program.txt
+.. include:: .res/replace/name.txt
+.. include:: .res/replace/option.txt
+.. include:: .res/replace/fragment.txt
 
