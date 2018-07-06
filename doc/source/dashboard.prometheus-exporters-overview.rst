@@ -13,9 +13,6 @@ how exporters are used across the selected hosts.
       `Understand Your Prometheus Exporters with Percona Monitoring and Management (PMM)
       <https://www.percona.com/blog/2018/02/20/understand-prometheus-exporters-percona-monitoring-management-pmm/>`_
    
-   |prometheus| Documentation
-
-      `Exporters and integrations <https://prometheus.io/docs/instrumenting/exporters/>`_
 
 .. Metrics
 
@@ -48,7 +45,7 @@ hosts being monitored and the total number of running exporters.
 |prometheus| Exporters Resource Usage by Host
 --------------------------------------------------------------------------------
 
-This section shows how resources, such as CPU and memory, are being used by the
+This section shows how resources, such as |cpu| and memory, are being used by the
 exporters for the selected hosts.
 
 .. rubric:: Metrics in this section
@@ -61,7 +58,7 @@ exporters for the selected hosts.
 |prometheus| Exporters Resource Usage by Type
 --------------------------------------------------------------------------------
 
-This section shows how resources, such as CPU and memory, are being used by the
+This section shows how resources, such as |cpu| and memory, are being used by the
 exporters for host types: |mysql|, |mongodb|, |proxysql|, and the system.
 
 .. rubric:: Metrics in this section
@@ -75,14 +72,13 @@ List of Hosts
 --------------------------------------------------------------------------------
 
 At the bottom, this dashboard shows details for each running host. You can click
-the value of the *CPU Used*, *Memory Used*, or *Exporters Running* column to
-open the :ref:`dashboard.prometheus-exporter-status` for further analysis.
+the value of the |gui.cpu-used|, |gui.memory-used|, or |gui.exporters-running|
+column to open the :ref:`dashboard.prometheus-exporter-status` for further
+analysis.
 
-.. include:: .res/replace/name.txt
+.. admonition:: Related information: |prometheus| Documentation
 
+      Exporters and integrations
+         https://prometheus.io/docs/instrumenting/exporters
 
-
-
-
-
-
+.. include:: .res/replace.txt

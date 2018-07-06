@@ -17,4 +17,4 @@ The |gui.system-summary| section contains details about the platform while the
 You can download the current values on this dashboard locally if you click the
 |gui.download-summary| button.
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

@@ -1,6 +1,6 @@
 .. _dashboard.mysql-innodb-compression:
 
-MySQL InnoDB Compression Dashboard
+|dbd.mysql-innodb-compression| Dashboard
 ================================================================================
 
 This dashboard helps you analyze the efficiency of |innodb| compression.
@@ -80,5 +80,4 @@ Buffer Pool All
    - Used Pages (Buffer Pool 0)
    - Pages Free (Buffer Pool 0)
 
-.. include:: .res/replace/name.txt
-   
+.. include:: .res/replace.txt

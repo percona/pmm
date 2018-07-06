@@ -30,4 +30,4 @@ selected |mongodb| cluster. Namely, it reports the following information:
    - Shard elections
    - Collection lock time
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt
