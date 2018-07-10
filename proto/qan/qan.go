@@ -59,11 +59,11 @@ type RankBy struct {
 
 // start_ts, query_count, Query_time_sum
 type QueryLog struct {
-	Point          uint
-	Start_ts       time.Time
-	Query_count    float32
-	Query_load     float32
-	Query_time_avg float32
+	Point          uint      `db:"Point"`
+	Start_ts       time.Time `db:"Start_ts"`
+	Query_count    float32   `db:"Query_count"`
+	Query_load     float32   `db:"Query_load"`
+	Query_time_avg float32   `db:"Query_time_avg"`
 }
 
 type QueryRank struct {
