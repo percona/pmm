@@ -1,8 +1,7 @@
 .. _pmm.metrics-monitor:
 
-================================================================================
 |metrics-monitor|
-================================================================================
+********************************************************************************
 
 The |metrics-monitor| tool provides a |metrics-monitor.what-is|. Time-based
 graphs are separated into dashboards by themes: some are related to |mysql| or
@@ -20,7 +19,7 @@ graphs are separated into dashboards by themes: some are related to |mysql| or
 
 .. _pmm.metrics-monitor.signing-in:
 
-Signing in
+:ref:`Signing in <pmm.metrics-monitor.signing-in>`
 ================================================================================
 
 The credentials used to sign in to |grafana| depend on the options that
@@ -57,7 +56,7 @@ dashboard:
 
 .. _pmm.metrics-monitor.dashboard.opening:
 
-Opening a Dashboard
+:ref:`Opening a Dashboard <pmm.metrics-monitor.dashboard.opening>`
 ================================================================================	   
 
 The default |pmm| installation provides more than thirty dashboards. To make it
@@ -114,8 +113,8 @@ Insight        Summary, cross-server and |prometheus|
 
 .. _pmm.metrics-monitor.graph-description:
 
-Viewing More Information about a Graph
-================================================================================
+:ref:`Viewing More Information about a Graph <pmm.metrics-monitor.graph-description>`
+====================================================================================================
 
 Each graph has a descriptions to display more information about the monitored
 data without cluttering the interface.
@@ -132,10 +131,8 @@ button the description disappears.
 
 .. _pmm.metrics-monitor.annotation.application-event.marking:
 
-Marking Important Events with Annotations
-================================================================================
-
-.. versionadded:: 1.10.0
+:ref:`Marking Important Events with Annotations <pmm.metrics-monitor.annotation.application-event.marking>`
+===========================================================================================================
 
 Some events in your application may impact your database. Annotations
 visualize these events on each dashboard of |pmm-server|.
@@ -167,13 +164,10 @@ You may toggle displaying annotations on metric graphs by using the
       - `Annotations <http://docs.grafana.org/reference/annotations/#annotations>`_
       - `Using annotations in queries <http://docs.grafana.org/reference/annotations/#querying-other-data-sources>`_
    
-   Release Notes:
-      :ref:`pmm/release/1-10-0`
-
 .. _pmm.metrics-monitor.dashboard.snapshot.creating:
 
-Creating Snapshots of a Dashboard
-================================================================================
+:ref:`Creating Snapshots of a Dashboard <pmm.metrics-monitor.dashboard.snapshot.creating>`
+==========================================================================================
 
 A snapshot is a way to securely share your dashboard with |percona|. When
 created, we strip sensitive data like queries (metrics, template variables, and
