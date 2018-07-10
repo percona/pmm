@@ -74,6 +74,7 @@ type QueryRank struct {
 	Fingerprint string  // e.g. SELECT tbl
 	QPS         float64 // ResponseTime.Cnt / Profile.TotalTime
 	Load        float64 // Query_time_sum / (Profile.End - Profile.Begin)
+	FirstSeen   time.Time
 	Log         []QueryLog
 	Stats       metrics.Stats // this query's Profile.Metric stats
 }
