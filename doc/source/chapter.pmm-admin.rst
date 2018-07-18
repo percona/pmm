@@ -1,8 +1,7 @@
 .. _pmm-admin:
 
-================================================================================
 Managing |pmm-client|
-================================================================================
+********************************************************************************
 
 Use the |pmm-admin| tool to manage |pmm-client|.
 
@@ -104,7 +103,7 @@ The following options can be used with any command:
 
 .. _pmm-admin.add:
 
-Adding monitoring services
+:ref:`Adding monitoring services <pmm-admin.add>`
 ================================================================================
 
 Use the |pmm-admin.add| command to add monitoring services.
@@ -194,8 +193,8 @@ For more information, run
 
 .. _pmm/pmm-admin/external-monitoring-service.adding:
 
-Adding external monitoring services
---------------------------------------------------------------------------------
+:ref:`Adding external monitoring services <pmm/pmm-admin/external-monitoring-service.adding>`
+---------------------------------------------------------------------------------------------
 
 The |pmm-admin.add| command is also used to add external :term:`monitoring
 services <External Monitoring Service>`. This command adds an external
@@ -246,8 +245,8 @@ bottom of the command's output:
 		
 .. _pmm.pmm-admin.monitoring-service.pass-parameter:
 
-Passing options to the exporter
---------------------------------------------------------------------------------
+:ref:`Passing options to the exporter <pmm.pmm-admin.monitoring-service.pass-parameter>`
+----------------------------------------------------------------------------------------
 
 |pmm-admin.add| sends all options which follow :option:`--` (two consecutive
 dashes delimited by whitespace) to the |prometheus| exporter that the given
@@ -274,8 +273,8 @@ grouped by exporters.
    
 .. _pmm.pmm-admin.mongodb.pass-ssl-parameter:
 
-Passing SSL parameters to the mongodb monitoring service
---------------------------------------------------------------------------------
+:ref:`Passing SSL parameters to the mongodb monitoring service <pmm.pmm-admin.mongodb.pass-ssl-parameter>`
+----------------------------------------------------------------------------------------------------------
 
 SSL/TLS related parameters are passed to an SSL enabled |mongodb| server as
 monitoring service parameters along with the |pmm-admin.add| command when adding
@@ -314,7 +313,7 @@ the |opt.mongodb-metrics| monitoring service.
 
 .. _pmm-admin-add-linux-metrics:
 
-Adding general system metrics service
+:ref:`Adding general system metrics service <pmm-admin-add-linux-metrics>`
 --------------------------------------------------------------------------------
 
 Use the |opt.linux-metrics| alias to enable general system metrics monitoring.
@@ -364,7 +363,7 @@ For more information, run
 
 .. _pmm-admin.add-mysql-queries:
 
-Adding |mysql| query analytics service
+:ref:`Adding MySQL query analytics service <pmm-admin.add-mysql-queries>`
 --------------------------------------------------------------------------------
 
 Use the |opt.mysql-queries| alias to enable |mysql| query analytics.
@@ -496,7 +495,7 @@ and is recommended over using the |mysql| superuser.
 .. seealso::
 
    More information about |mysql| users with |pmm|
-      :ref:`pmm/conf-mysql/user-account/pmm/creating`
+      :ref:`pmm.conf-mysql.user-account.creating`
 
 For example, to set up remote monitoring of |qan| data on a |mysql| server
 located at 192.168.200.2, use a command similar to the following:
@@ -527,7 +526,7 @@ For more information, run
 
 .. _pmm-admin.add-mysql-metrics:
 
-Adding |mysql| metrics service
+:ref:`Adding MySQL metrics service <pmm-admin.add-mysql-metrics>`
 --------------------------------------------------------------------------------
 
 Use the |opt.mysql-metrics| alias to enable |mysql| metrics monitoring.
@@ -647,7 +646,7 @@ For more information, run
 
 .. _pmm-admin.add-mongodb-queries:
 
-Adding |mongodb| query analytics service
+:ref:`Adding MongoDB query analytics service <pmm-admin.add-mongodb-queries>`
 --------------------------------------------------------------------------------
 
 Use the |opt.mongodb-queries| alias to enable |mongodb| query analytics.
@@ -697,10 +696,9 @@ The following options can be used with the |opt.mongodb-queries| alias:
 	> encodeURIComponent('$ecRet_pas$w@rd')
 	"%24ecRet_pas%24w%40rd"
 
-     .. seealso::
+     .. admonition:: Related Information
 
 	MDN Web Docs: encodeURIComponent
-	
 	   https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent
 
 You can also use
@@ -720,7 +718,7 @@ For more information, run
 
 .. _pmm-admin.add.mongodb-metrics:
 
-Adding |mongodb| metrics service
+:ref:`Adding MongoDB metrics service <pmm-admin.add.mongodb-metrics>`
 --------------------------------------------------------------------------------
 
 Use the |opt.mongodb-metrics| alias to enable MongoDB metrics monitoring.
@@ -796,7 +794,7 @@ provide its URI via the |opt.uri| option.
    
 .. _pmm-admin.add-proxysql-metrics:
 
-Adding |proxysql| metrics service
+:ref:`Adding ProxySQL metrics service <pmm-admin.add-proxysql-metrics>`
 --------------------------------------------------------------------------------
 
 Use the |opt.proxysql-metrics| alias
@@ -847,7 +845,7 @@ For more information, run
 
 .. _pmm-admin/annotate:
 
-Adding annotations
+:ref:`Adding annotations <pmm-admin/annotate>`
 ================================================================================
 
 Use the |pmm-admin.annotate| command to set notifications about important
@@ -881,7 +879,7 @@ You can also use
 
 .. _pmm-admin.check-network:
 
-Checking network connectivity
+:ref:`Checking network connectivity <pmm-admin.check-network>`
 ================================================================================
 
 Use the |pmm-admin.check-network| command to run tests
@@ -951,7 +949,7 @@ For more information, run
 
 .. _pmm-admin.config:
 
-Configuring PMM Client
+:ref:`Configuring PMM Client <pmm-admin.config>`
 ================================================================================
 
 Use the |pmm-admin.config| command to configure
@@ -1022,7 +1020,7 @@ For more information, run |pmm-admin.config| --help.
 
 .. _pmm-admin.help:
 
-Getting help for any command
+:ref:`Getting help for any command <pmm-admin.help>`
 ================================================================================
 
 Use the |pmm-admin.help| command to print help for any command.
@@ -1054,7 +1052,7 @@ or :ref:`service alias <pmm-admin.service-aliases>`.
 
 .. _pmm-admin.info:
 
-Getting information about PMM Client
+:ref:`Getting information about PMM Client <pmm-admin.info>`
 ================================================================================
 
 Use the |pmm-admin.info| command
@@ -1106,7 +1104,7 @@ For more information, run
 
 .. _pmm-admin.list:
 
-Listing monitoring services
+:ref:`Listing monitoring services <pmm-admin.list>`
 ================================================================================
 
 Use the |pmm-admin.list| command to list all enabled services with details.
@@ -1185,7 +1183,7 @@ should be similar to the following:
 
 .. _pmm-admin.ping:
 
-Pinging |pmm-server|
+:ref:`Pinging PMM Server <pmm-admin.ping>`
 ================================================================================
 
 Use the |pmm-admin.ping| command to verify connectivity with |pmm-server|.
@@ -1224,7 +1222,7 @@ For more information, run
 
 .. _pmm-admin.purge:
 
-Purging metrics data
+:ref:`Purging metrics data <pmm-admin.purge>`
 ================================================================================
 
 Use the |pmm-admin.purge| command to purge metrics data
@@ -1269,7 +1267,7 @@ For more infomation, run
 .. _pmm-admin.remove:
 .. _pmm-admin.rm:
 
-Removing monitoring services
+:ref:`Removing monitoring services <pmm-admin.remove>`
 ================================================================================
 
 Use the |pmm-admin.rm| command to remove monitoring services.
@@ -1334,7 +1332,7 @@ For more information, run |pmm-admin.rm| --help.
 
 .. _pmm-admin.repair:
 
-Removing orphaned services
+:ref:`Removing orphaned services <pmm-admin.repair>`
 ================================================================================
 
 Use the |pmm-admin.repair| command
@@ -1367,8 +1365,8 @@ For more information, run |pmm-admin.repair| --help.
 
 .. _pmm-admin.restart:
 
-Restarting monitoring services
-==============================
+:ref:`Restarting monitoring services <pmm-admin.restart>`
+=========================================================
 
 Use the |pmm-admin.restart| command to restart services
 managed by this |pmm-client|.
@@ -1436,7 +1434,7 @@ For more information, run |pmm-admin.restart| :option:`--help`.
 
 .. _pmm-admin.show-passwords:
 
-Getting passwords used by PMM Client
+:ref:`Getting passwords used by PMM Client <pmm-admin.show-passwords>`
 ================================================================================
 
 Use the |pmm-admin.show-passwords| command to print credentials stored in the
@@ -1482,7 +1480,7 @@ For more information, run |pmm-admin.show-passwords|  |opt.help|.
 
 .. _pmm-admin.start:
 
-Starting monitoring services
+:ref:`Starting monitoring services <pmm-admin.start>`
 ================================================================================
 
 Use the |pmm-admin.start| command to start services managed by this
@@ -1552,7 +1550,7 @@ For more information, run
 
 .. _pmm-admin.stop:
 
-Stopping monitoring services
+:ref:`Stopping monitoring services <pmm-admin.stop>`
 ================================================================================
 
 Use the |pmm-admin.stop| command to stop services
@@ -1622,7 +1620,7 @@ For more information, run
 
 .. _pmm-admin.uninstall:
 
-Cleaning Up |pmm-client| Before Uninstall
+:ref:`Cleaning Up Before Uninstall <pmm-admin.uninstall>`
 ================================================================================
 
 Use the |pmm-admin.uninstall| command to remove all services even if
@@ -1663,7 +1661,7 @@ For more information, run
 
 .. _pmm-admin.service-aliases:
 
-Monitoring Service Aliases
+:ref:`Monitoring Service Aliases <pmm-admin.service-aliases>`
 ================================================================================
 
 The following aliases are used to designate PMM services that you want to

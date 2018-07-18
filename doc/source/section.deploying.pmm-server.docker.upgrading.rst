@@ -26,10 +26,10 @@ number by using the |docker.exec| command:
 To check if there exists a newer version of |pmm-server|,
 visit `percona/pmm-server`_.
 
-.. _pmm/docker/pmm-server/container.renaming:
+.. _pmm.deploying.server.docker-container.renaming:
 
-Creating a backup version of the current |opt.pmm-server| container
---------------------------------------------------------------------------------
+:ref:`Creating a backup version of the current pmm-server Docker container <pmm.deploying.server.docker-container.renaming>`
+----------------------------------------------------------------------------------------------------------------------------
 
 You need to create a backup version of the current |opt.pmm-server| container if
 the update procedure does not complete successfully or if you decide not to
@@ -48,9 +48,9 @@ avoid name conflicts during the update procedure:
    :start-after: +docker.rename.pmm-server.pmm-server-backup+
    :end-before: #+end-block
 
-.. _pmm/docker/image.pulling:
+.. _pmm.deploying.docker-image.pulling:
 
-Pulling a new |docker| image
+:ref:`Pulling a new Docker Image <pmm.deploying.docker-image.pulling>`
 --------------------------------------------------------------------------------
 
 |docker| images for all versions of |pmm| are available from
@@ -73,8 +73,10 @@ This example shows how to pull the |opt.latest| version:
    :start-after: +docker.pull.percona-pmm-server-latest+
    :end-before: #+end-block
    
-Creating a new container based on the new image
---------------------------------------------------------------------------------
+.. _pmm.deploying.docker-container.creating:
+
+:ref:`Creating a new Docker container based on the new image <pmm.deploying.docker-container.creating>`
+-------------------------------------------------------------------------------------------------------
 
 After you have pulled a new version of |pmm| from the |docker| repository, you can
 use |docker.run| to create a |opt.pmm-server| container using the new image.
@@ -87,10 +89,9 @@ use |docker.run| to create a |opt.pmm-server| container using the new image.
 
    The |opt.pmm-server| container must be stopped before attempting |docker.run|.
 
-
 The |docker.run| command refers to the pulled image as the last parameter. If
 you used a specific version number when running |docker.pull| (see
-:ref:`pmm/docker/image.pulling`) replace |opt.latest| accordingly.
+:ref:`pmm.server.docker-image.pulling`) replace |opt.latest| accordingly.
 
 Note that this command also refers to |opt.pmm-data| as the value of
 |opt.volumes-from| option. This way, your new version will continue to use the
@@ -110,12 +111,12 @@ Version`) by checking the |pmm-server| web interface.
 
 .. _pmm/docker/backup-container.removing:
 
-Removing the backup container
+:ref:`Removing the backup container <pmm/docker/backup-container.removing>`
 --------------------------------------------------------------------------------
 
 After you have tried the features of the new version, you may decide to
 continupe using it. The backup container that you have stored
-(:ref:`pmm/docker/pmm-server/container.renaming`) is no longer needed in this
+(:ref:`pmm.deploying.server.docker-container.renaming`) is no longer needed in this
 case.
 
 To remove this backup container, you need the |docker.rm| command:
@@ -138,7 +139,7 @@ to stop and remove the new |opt.pmm-server| container.
    :end-before: #+end-block
 
 Now, rename the |opt.pmm-server-backup| to |opt.pmm-server|
-(see :ref:`pmm/docker/pmm-server/container.renaming`) and start it.
+(see :ref:`pmm.deploying.server.docker-container.renaming`) and start it.
 
 .. include:: .res/code/sh.org
    :start-after: +docker.start.pmm-server+

@@ -2,9 +2,8 @@
 
 .. _pmm/list.exporter:
 
-================================================================================
 Exporters Overview
-================================================================================
+********************************************************************************
 
 This is a list of exporters that |pmm.name| uses to provides metrics
 from the supported systems. For each exporter, you may find

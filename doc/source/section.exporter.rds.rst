@@ -2,7 +2,6 @@
 
 .. _pmm/exporter/rds:
 
-================================================================================
 |amazon-rds| Exporter (rds_exporter)
 ================================================================================
 
@@ -23,8 +22,8 @@ that you choose to monitor.
 
 .. _pmm/exporter/rds/metrics:
 
-Metrics
-================================================================================
+:ref:`Metrics <pmm/exporter/rds/metrics>`
+--------------------------------------------------------------------------------
 
 The |amazon-rds| exporter has two types of metrics: basic and advanced. To be
 able to use advanced metrics, make sure to set the

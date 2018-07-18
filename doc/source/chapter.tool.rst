@@ -1,8 +1,7 @@
 .. _using:
 
-================================================================================
 Tools of |pmm.name|
-================================================================================
+********************************************************************************
 
 You can access the |pmm| web interface using the IP address of the host where
 |pmm-server| is running.  For example, if |pmm-server| is running on a host with

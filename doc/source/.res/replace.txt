@@ -177,6 +177,8 @@
 
 .. Graphical interface elements (gui)
 
+.. |gui.back-to-dashboard| replace:: :guilabel:`Back to dashboard`
+.. |gui.view| replace:: :guilabel:`View`
 .. |gui.slow-logs-rotation| replace:: :guilabel:`Slow logs rotation`
 .. |gui.network| replace:: :guilabel:`Network`
 .. |gui.1-click-launch| replace:: :guilabel:`1-Click Launch`
@@ -262,6 +264,7 @@
 
 .. Options and parameters (opt)
 
+.. |opt.meminfo-numa| replace:: :option:`meminfo_numa`
 .. |opt.a.upper| replace:: :option:`-A`
 .. |opt.all| replace:: :option:`--all`
 .. |opt.aria-checkpoint-interval| replace:: :option:`aria_checkpoint_interval`

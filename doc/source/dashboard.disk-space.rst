@@ -8,7 +8,7 @@ Disk space
 
 .. _dashboard.disk-space.mountpoint-usage:
 
-Mountpoint Usage
+:ref:`Mountpoint Usage <dashboard.disk-space.mountpoint-usage>`
 --------------------------------------------------------------------------------
 
 This metric shows the percentage of disk space utilization for every mountpoint
@@ -23,18 +23,15 @@ expand the space allocate to it.
 
 .. _dashboard.disk-space.mountpoint.root:
 
-Mountpoint
+:ref:`Mountpoint <dashboard.disk-space.mountpoint.root>`
 --------------------------------------------------------------------------------
 
 This metric shows information about the disk space usage of the specified
 mountpoint.
 
 Used
-
    Is the amount of space used
-
 Free
-
    Is the amount if space not in use
 
 The total disk space allocated to the mountpoint is the sum of *Used* and *Free*

@@ -16,14 +16,17 @@ features:
    :local:
    :depth: 2
 
+.. _pmm.security.ssl-encryption.enabling:
 
-Enabling SSL Encryption
+:ref:`Enabling SSL Encryption <pmm.security.ssl-encryption.enabling>`
 ================================================================================
 
 You can encrypt traffic between |pmm-client| and |pmm-server| using SSL
 certificates.
 
-Valid certificates
+.. _pmm.security.valid-certificate:
+
+:ref:`Valid certificates <pmm.security.valid-certificate>`
 --------------------------------------------------------------------------------
 
 To use a valid SSL certificate, mount the directory with the certificate
@@ -55,7 +58,9 @@ container.
 This example assumes that you have changed to the directory that contains the
 certificate files.
 
-Self-signed certificates
+.. _pmm.security.certificate.self-signed:
+
+:ref:`Self-signed certificates <pmm.security.certificate.self-signed>`
 --------------------------------------------------------------------------------
 
 The |pmm-server| images (|docker|, OVF, and AMI) already include self-signed
@@ -67,8 +72,10 @@ publish the container's port *443* to the host's port *443* when running the
    :start-after: +docker.run.d.p.443.volumes-from.name.restart+
    :end-before: #+end-block
 
-Enabling SSL when connecting |pmm-client| to |pmm-server|
---------------------------------------------------------------------------------
+.. _pmm.security.pmm-client.pmm-server.ssl.enabling:
+
+:ref:`Enabling SSL when connecting PMM Client to PMM Server <pmm.security.pmm-client.pmm-server.ssl.enabling>`
+--------------------------------------------------------------------------------------------------------------
 
 Then, you need to enable SSL when :ref:`connecting a PMM Client to a PMM Server
 <deploy-pmm.client_server.connecting>`.  If you purchased the certificate from a
@@ -84,7 +91,9 @@ If you generated a self-signed certificate:
    :start-after: +pmm-admin.config.server.server-insecure-ssl+
    :end-before: #+end-block
 
-Enabling Password Protection
+.. _pmm.security.password-protection.enabling:
+
+:ref:`Enabling Password Protection <pmm.security.password-protection.enabling>`
 ================================================================================
 
 You can set the password for accessing the |pmm-server| web interface by passing
@@ -112,8 +121,10 @@ a PMM Client to a PMM Server <deploy-pmm.client_server.connecting>`:
 .. include:: .res/code/sh.org
    :start-after: +pmm-admin.config.server.server-user.server-password+
    :end-before: #+end-block
+
+.. _pmm.security.combining:
 		
-Combining Security Features
+:ref:`Combining Security Features <pmm.security.combining>`
 ================================================================================
 
 You can enable both HTTP password protection and SSL encryption by combining the

@@ -1,4 +1,3 @@
-
 .. _dashboard.mongodb-wiredtiger:
 
 |mongodb| |wiredtiger| Dashboard

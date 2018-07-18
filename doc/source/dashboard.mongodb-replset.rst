@@ -10,7 +10,7 @@ This dashboard provides information about replica sets and their members.
 
 .. _dashboard.mongodb-replset.replication-operations:
 
-Replication Operations
+:ref:`Replication Operations <dashboard.mongodb-replset.replication-operations>`
 --------------------------------------------------------------------------------
 
 This metric provides an overview of database replication operations by type and
@@ -19,7 +19,7 @@ manner. These values only appear when the current host has replication enabled.
 
 .. _dashboard.mongodb-replset.replset-state:
 
-ReplSet State
+:ref:`ReplSet State <dashboard.mongodb-replset.replset-state>`
 --------------------------------------------------------------------------------
 
 This metric shows the role of the selected member instance (PRIMARY or SECONDARY).
@@ -28,7 +28,7 @@ This metric shows the role of the selected member instance (PRIMARY or SECONDARY
 
 .. _dashboard.mongodb-replset.replset-members:
 
-ReplSet Members
+:ref:`ReplSet Members <dashboard.mongodb-replset.replset-members>`
 --------------------------------------------------------------------------------
 
 This metric the number of members in the replica set.
@@ -37,7 +37,7 @@ This metric the number of members in the replica set.
 
 .. _dashboard.mongodb-replset.replset-last-election:
 
-ReplSet Last Election
+:ref:`ReplSet Last Election <dashboard.mongodb-replset.replset-last-election>`
 --------------------------------------------------------------------------------
 
 This metric how long ago the last election occurred.
@@ -46,7 +46,7 @@ This metric how long ago the last election occurred.
 
 .. _dashboard.mongodb-replset.replset-lag:
 
-ReplSet Lag
+:ref:`ReplSet Lag <dashboard.mongodb-replset.replset-lag>`
 --------------------------------------------------------------------------------
 
 This metric shows the current replication lag for the selected member.
@@ -55,7 +55,7 @@ This metric shows the current replication lag for the selected member.
 
 .. _dashboard.mongodb-replset.storage-engine:
 
-Storage Engine
+:ref:`Storage Engine <dashboard.mongodb-replset.storage-engine>`
 --------------------------------------------------------------------------------
 
 This metric shows the storage engine used on the instance
@@ -64,7 +64,7 @@ This metric shows the storage engine used on the instance
 
 .. _dashboard.mongodb-replset.oplog-insert-time:
 
-Oplog Insert Time
+:ref:`Oplog Insert Time <dashboard.mongodb-replset.oplog-insert-time>`
 --------------------------------------------------------------------------------
 
 This metric shows how long it takes to write to the oplog. Without it the write
@@ -77,7 +77,7 @@ engines).
 
 .. _dashboard.mongodb-replset.oplog-recovery-window:
 
-Oplog Recovery Window
+:ref:`Oplog Recovery Window <dashboard.mongodb-replset.oplog-recovery-window>`
 --------------------------------------------------------------------------------
 
 This metric shows the time range in the oplog and the oldest backed up
@@ -90,7 +90,7 @@ least 36 hours of backed up operations, giving you 12 hours of restore window.
 
 .. _dashboard.mongodb-replset.replication-lag:
 
-Replication Lag
+:ref:`Replication Lag <dashboard.mongodb-replset.replication-lag>`
 --------------------------------------------------------------------------------
 
 This metric shows the delay between an operation occurring on the primary and
@@ -100,7 +100,7 @@ that same operation getting applied on the selected member
 
 .. _dashboard.mongodb-replset.elections:
 
-Elections
+:ref:`Elections <dashboard.mongodb-replset.elections>`
 --------------------------------------------------------------------------------
 
 Elections happen when a primary becomes unavailable. Look at this graph over
@@ -111,7 +111,7 @@ with other events.
 
 .. _dashboard.mongodb-replset.member-state-uptime:
 
-Member State Uptime
+:ref:`Member State Uptime <dashboard.mongodb-replset.member-state-uptime>`
 --------------------------------------------------------------------------------
 
 This metric shows how long various members were in PRIMARY and SECONDARY roles.
@@ -120,7 +120,7 @@ This metric shows how long various members were in PRIMARY and SECONDARY roles.
 
 .. _dashboard.mongodb-replset.max-heartbeat-time:
 
-Max Heartbeat Time
+:ref:`Max Heartbeat Time <dashboard.mongodb-replset.max-heartbeat-time>`
 --------------------------------------------------------------------------------
 
 This metric shows the heartbeat return times sent by the current member to other
@@ -132,7 +132,7 @@ Long heartbeat times can indicate network issues or that the server is too busy.
 
 .. _dashboard.mongodb-replset.max-member-ping-time:
 
-Max Member Ping Time
+:ref:`Max Member Ping Time <dashboard.mongodb-replset.max-member-ping-time>`
 --------------------------------------------------------------------------------
 
 This metric can show a correlation with the replication lag value.

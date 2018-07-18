@@ -43,8 +43,8 @@ to make your instance ready. For more control, use the ``Manual Launch`` option.
 	    
 .. _run-server-ami.pmm-instance.1-click-launch-option.setting-up:
 
-Setting Up a |pmm| Instance Using the 1-Click Launch Option
-================================================================================
+:ref:`Setting Up a PMM Instance Using the 1-Click Launch Option <run-server-ami.pmm-instance.1-click-launch-option.setting-up>`
+===============================================================================================================================
 
 With the |gui.1-click-launch| tab selected, make sure that all sections match
 your preferences. In this demonstration, we use the :option:`US East
@@ -62,8 +62,8 @@ section. By default, the region is the same as the one you chose in the
 
 .. _run-server-ami.pmm-instance.1-click-launch-option.vpc.ec2-instance-type:
 
-Setting up a VPC and an EC2 Instance Type
---------------------------------------------------------------------------------
+:ref:`Setting up a VPC and an EC2 Instance Type <run-server-ami.pmm-instance.1-click-launch-option.vpc.ec2-instance-type>`
+--------------------------------------------------------------------------------------------------------------------------
 
 Depending on your choice of a VPC, some configurations of CPU and RAM may be disabled
 in the :guilabel:`EC2 Instance Type` section.
@@ -95,8 +95,8 @@ Note that the cost estimation is automatically updated based on your choice.
    
 .. _run-server-ami.security-group.key-pair:
 
-Limiting Access to the instance: security group and a key pair
---------------------------------------------------------------------------------
+:ref:`Limiting Access to the instance: security group and a key pair <run-server-ami.security-group.key-pair>`
+--------------------------------------------------------------------------------------------------------------
 
 In the |gui.security-group| section, which acts like a firewall, you may use the
 preselected option :option:`Create new based on seller settings` to create a
@@ -132,7 +132,7 @@ already set up EC2 key pair to limit access to your instance.
       
 .. _run-server-ami.setting.applying:
 
-Applying settings
+:ref:`Applying settings <run-server-ami.setting.applying>`
 --------------------------------------------------------------------------------
 
 Scroll up to the top of the page to view your settings. Then, click the
@@ -151,8 +151,8 @@ the :program:`EC2 console`.
 
 .. _pmm/ami/instance-setting/ec2-console.adjusting:
 
-Adjusting instance settings in the EC2 Console
---------------------------------------------------------------------------------
+:ref:`Adjusting instance settings in the EC2 Console <pmm/ami/instance-setting/ec2-console.adjusting>`
+------------------------------------------------------------------------------------------------------
 
 Your clicking the :guilabel:`Launch with 1 click` button, deploys your
 instance. To continue setting up your instance, run the :program:`EC2
@@ -172,7 +172,7 @@ managed via the :program:`EC2 console`.
 
 .. _pmm.server.ami.running-instance:
 
-Running the instance
+:ref:`Running the instance <pmm.server.ami.running-instance>`
 --------------------------------------------------------------------------------
 
 After you add your new instance it will take some time to initialize it. When
@@ -272,11 +272,9 @@ You are creating a username and password that will be used for two purposes:
    How to connect a |pmm-client| to the |pmm-server|?
       :ref:`deploy-pmm.client_server.connecting`
 
-
-
 .. _run-server-ami.ebs-volume.resizing:
 
-Resizing the EBS Volume
+:ref:`Resizing the EBS Volume <run-server-ami.ebs-volume.resizing>`
 --------------------------------------------------------------------------------
 
 Your instance comes with a predefined size which can become a limitation. To
@@ -319,15 +317,13 @@ use the new size:
 
 .. _run-server-ami.amazon-machine-image:
 
-Running PMM Server Using Amazon Machine Images
-================================================================================
+:ref:`Running PMM Server Using Amazon Machine Images <run-server-ami.amazon-machine-image>`
+===========================================================================================
 
 |percona| provides public |amazon| Machine Images (AMI) with |pmm-server|
 in all regions where Amazon Web Services (AWS) is available.
 You can launch an instance using the web console
 for the corresponding image:
-
-
 
 .. list-table::
    :header-rows: 1
@@ -396,7 +392,9 @@ for the corresponding image:
      - **us-west-2**
      - `ami-8ff789f7 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-8ff789f7>`_
 
-Running from Command Line
+.. _run-server-ami.command-line:
+
+:ref:`Running from Command Line <run-server-ami.command-line>`
 --------------------------------------------------------------------------------
 
 1. Launch the |pmm-server| instance using the ``run-instances`` command

@@ -42,7 +42,7 @@ related characteristics appear as plotted graphics with summaries.
 
 .. _pmm.qan.home-page.opening:
 
-Opening |qan| from the |pmm| Home Page
+:ref:`Opening QAN from the PMM Home Page <pmm.qan.home-page.opening>`
 ================================================================================
    
 To start working with |qan|, open the list of dashboards on the |pmm| home
@@ -64,7 +64,7 @@ the query summary table.
 
 .. _pmm.qan.query.filtering:
 
-Filtering Queries
+:ref:`Filtering Queries <pmm.qan.query.filtering>`
 ================================================================================
 
 If you need to limit the list of available queries to only those that you are
@@ -112,7 +112,7 @@ ranges.. The date picker sets a range of dates.
 
 .. _pmm.qan.query-summary.total:
 
-Totals of the Query Summary
+:ref:`Totals of the Query Summary <pmm.qan.query-summary.total>`
 --------------------------------------------------------------------------------
 
 The first line of the query summary contains the totals of the *load*, *count*,
@@ -134,7 +134,7 @@ retrieve and return the data.
 
 .. _pmm.qan.query-summary.query:
 
-Queries in the Query Summary Table
+:ref:`Queries in the Query Summary Table <pmm.qan.query-summary.query>`
 --------------------------------------------------------------------------------
 
 Each row in the query summary contains information about a single
@@ -151,7 +151,7 @@ summary table.
 
 .. _pmm.qan.metric.value.viewing:
 
-Viewing a Specific Value of a Metric
+:ref:`Viewing a Specific Value of a Metric <pmm.qan.metric.value.viewing>`
 --------------------------------------------------------------------------------
 
 If you hover the cursor over one of the metrics in a query, you can see a
@@ -164,7 +164,7 @@ the plotted line to watch how the value is changing.
 
 .. _pmm.qan.query.zooming:
 
-Zooming into a Query
+:ref:`Zooming into a Query <pmm.qan.query.zooming>`
 ================================================================================
 
 Click one of the queries to zoom it in. QAN displays detailed information about
@@ -179,7 +179,7 @@ in the query.
 
 .. _pmm.qan.query.selecting:
 
-Query Section
+:ref:`Query Section <pmm.qan.query.selecting>`
 --------------------------------------------------------------------------------
    
 In addition to the metrics in the :term:`query metrics summary table`,
@@ -193,7 +193,7 @@ the query.
 
 .. _pmm.qan.explain-section:
 
-Explain Section
+:ref:`Explain Section <pmm.qan.explain-section>`
 --------------------------------------------------------------------------------
 
 The |gui.explain| section enables you to run |sql.explain| on the selected query
@@ -236,7 +236,7 @@ If you are viewing the details of a query of another type, the
 
 .. _pmm.qan.table-info-section:
 
-Table Info Section
+:ref:`Table Info Section <pmm.qan.table-info-section>`
 --------------------------------------------------------------------------------
 
 At the bottom, you can run Table Info for the selected query.  This
@@ -248,7 +248,7 @@ web interface.
 
 .. _pmm.qan.configuring:
 
-Configuring |qan.name|
+:ref:`Configuring QAN <pmm.qan.configuring>`
 ================================================================================
 
 All |qan.name| settings are available from the |query-analytics-settings|
@@ -262,7 +262,7 @@ dashboard. To open this dashboard, use the |pmm| menu group.
 
 .. _pmm.qan.configuring.settings-tab:
 
-|gui.settings| Tab
+:ref:`Settings Tab <pmm.qan.configuring.settings-tab>`
 --------------------------------------------------------------------------------
 
 The |gui.settings| tab displays the essential configuration settings of
@@ -300,7 +300,9 @@ of |mysql| documentation.
       `The Slow Query Log
       <https://dev.mysql.com/doc/refman/5.7/en/slow-query-log.html>`_
 
-|gui.status| Tab
+.. _pmm.qan.configuring.status-tab:
+
+:ref:`Status Tab <pmm.qan.configuring.status-tab>`
 --------------------------------------------------------------------------------
 
 The |gui.status| tab contains detailed information about the current status of
@@ -308,7 +310,9 @@ the monitored database server. |qan| collects this information from the database
 server directly. For example, in case of a |mysql| server, the |sql.show-status|
 command is used.
 
-|gui.log| Tab
+.. _pmm.qan.configuring.log-tab:
+
+:ref:`Log Tab <pmm.qan.configuring.log-tab>`
 --------------------------------------------------------------------------------
 
 The |gui.log| tab contains the latest version of the monitored log, such
@@ -317,7 +321,7 @@ was taken.
 
 .. _pmm.qan.mongodb:
 
-|qan| for |mongodb|
+:ref:`QAN for MongoDB <pmm.qan.mongodb>`
 ================================================================================
 
 |mongodb| is conceptually different from relational database management systems,

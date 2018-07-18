@@ -44,8 +44,6 @@ storage. It includes the following metrics:
    - |prometheus| Storage Operations
    - ChunkDesc Memory Details
 
-  
-
 Scraping
 --------------------------------------------------------------------------------
 

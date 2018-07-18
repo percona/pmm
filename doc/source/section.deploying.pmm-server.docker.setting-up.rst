@@ -13,7 +13,9 @@ The setup begins with pulling the required |docker| image. Then, you proceed by
 creating a special container for persistent |pmm| data. The last step is
 creating and launching the |pmm-server| container.
 
-Pulling the |pmm-server| Image
+.. _pmm.server.docker-image.pulling:
+
+:ref:`Pulling the |pmm-server| Docker Image <pmm.server.docker-image.pulling>`
 --------------------------------------------------------------------------------
 
 To pull the latest version from Docker Hub:
@@ -40,7 +42,7 @@ version.
 
 .. _data-container:
 
-Creating the |opt.pmm-data| Container
+:ref:`Creating the pmm-data Container <data-container>`
 --------------------------------------------------------------------------------
 
 To create a container for persistent |pmm| data, run the following command:
@@ -78,7 +80,7 @@ The previous command does the following:
 
 .. _server-container:
 
-Creating and Launching the |pmm-server| Container
+:ref:`Creating and Launching the PMM Server Container <server-container>`
 --------------------------------------------------------------------------------
 
 To create and launch |pmm-server| in one command, use |docker.run|:
@@ -113,9 +115,9 @@ This command does the following:
 * |opt.pmm-server.latest| is the name and version tag of the image
   to derive the container from.
 
-.. _pmm/docker.additional_option:
+.. _pmm/docker.additional-option:
 
-Additional options
+:ref:`Additional options <pmm/docker.additional-option>`
 --------------------------------------------------------------------------------
 
 When running the |pmm-server|, you may pass additional parameters to the

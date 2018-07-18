@@ -105,7 +105,7 @@ Terminology Reference
       - |perl| version
 
       You may disable telemetry :ref:`by passing an additional parameter
-      <pmm/docker.additional_option>` to |docker|.
+      <pmm/docker.additional-option>` to |docker|.
 
       .. include:: .res/code/sh.org
 	 :start-after: docker.run.disable-telemetry

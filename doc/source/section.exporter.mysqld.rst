@@ -2,7 +2,6 @@
 
 .. _pmm/exporter.mysqld:
 
-================================================================================
 |mysql| Server Exporter (mysqld_exporter)
 ================================================================================
 
@@ -33,8 +32,8 @@ service as additional options.
 
 .. _pmm/exporter.mysqld.collector-option:
 
-Collector options
-================================================================================
+:ref:`Collector options <pmm/exporter.mysqld.collector-option>`
+--------------------------------------------------------------------------------
 
 .. include:: .res/table/table.org
    :start-after: +mysqld-exporter.collector-flag+
@@ -42,8 +41,8 @@ Collector options
 
 .. _pmm/exporter.mysqld.general-option:
 
-General options
-================================================================================
+:ref:`General options <pmm/exporter.mysqld.general-option>`
+--------------------------------------------------------------------------------
 
 .. include:: .res/table/table.org
    :start-after: +mysqld-exporter.collector-flag+

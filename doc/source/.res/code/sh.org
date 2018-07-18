@@ -1068,6 +1068,27 @@ Demonstrates how to set the option to 8 days.
    pmm-admin list [OPTIONS]
 
 #+end-block
+
+#+begin-block: pmm-admin list +output slow-log-rotation false
+
++pmm-admin.list.+output.slow-log-rotation+
+
+.. code-block:: text
+
+   $ pmm-admin list
+
+   PMM Server      | 127.0.0.1 
+   Client Name     | percona
+   Client Address  | 172.17.0.1 
+   Service Manager | linux-systemd
+
+   -------------- -------- ----------- -------- ------------------------------------------- --------------------------------------------------------------------------------------
+   SERVICE TYPE   NAME     LOCAL PORT  RUNNING  DATA SOURCE                                 OPTIONS                                                                               
+   -------------- -------- ----------- -------- ------------------------------------------- --------------------------------------------------------------------------------------
+   mysql:queries  percona  -           YES      root:***@unix(/var/run/mysqld/mysqld.sock)  query_source=slowlog, query_examples=true, slow_log_rotation=false, retain_slow_logs=1 
+
+#+end-block
+
 #+begin-block: pmm-admin list
 +pmm-admin.list+
 
@@ -1203,7 +1224,6 @@ Demonstrates how to set the option to 8 days.
 
    $ pmm-admin rm mysql
 
-
 #+end-block
 #+begin-block: pmm-admin rm mongodb-metrics
 +pmm-admin.rm.mongodb-metrics+
@@ -1315,7 +1335,7 @@ Demonstrates how to set the option to 8 days.
 
 ** uninstall
 
-#+begin-block: pmm-admin uninstall options
+#+begin-block pmm-admin uninstall options
 +pmm-admin.uninstall.options+
 
 .. code-block:: text

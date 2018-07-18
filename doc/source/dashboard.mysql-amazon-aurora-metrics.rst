@@ -10,8 +10,8 @@ This dashboard provides metrics for analyzing |amazon-aurora| instances.
 
 .. _dashboard.mysql-amazon-aurora-metrics.amazon-aurora-transaction-commits:
 
-|amazon-aurora| Transaction Commits
---------------------------------------------------------------------------------
+:ref:`Amazon Aurora Transaction Commits <dashboard.mysql-amazon-aurora-metrics.amazon-aurora-transaction-commits>`
+------------------------------------------------------------------------------------------------------------------
 
 This graph shows number of commits which the |amazon-aurora| engine performed as
 well as the average commit latency. Graph Latency does not always correlates
@@ -19,8 +19,8 @@ with number of commits performed and can quite high in certain situations.
 
 .. _dashboard.mysql-amazon-aurora-metrics.amazon-aurora-load:
 
-|amazon-aurora| Load
---------------------------------------------------------------------------------
+:ref:`Amazon Aurora Load <dashboard.mysql-amazon-aurora-metrics.amazon-aurora-transaction-commits>`
+---------------------------------------------------------------------------------------------------
 
 This graph shows what statements contribute most load on the system as well
 as what load corresponds to |amazon-aurora| transaction commit.
@@ -32,16 +32,16 @@ as what load corresponds to |amazon-aurora| transaction commit.
 
 .. _dashboard.mysql-amazon-aurora-metrics.aurora-memory-used:
 
-Aurora Memory Used
---------------------------------------------------------------------------------
+:ref:`Aurora Memory Used <dashboard.mysql-amazon-aurora-metrics.aurora-memory-used>`
+------------------------------------------------------------------------------------
 
 This graph shows how much memory is used by |amazon-aurora| lock manager as well
 as amount of memory used by |amazon-aurora| to store Data Dictionary.
 
 .. _dashboard.mysql-amazon-aurora-metrics.amazon-aurora-statement-latency:
 
-|amazon-aurora| Statement Latency
---------------------------------------------------------------------------------
+:ref:`Amazon Aurora Statement Latency <dashboard.mysql-amazon-aurora-metrics.amazon-aurora-statement-latency>`
+--------------------------------------------------------------------------------------------------------------
 
 This graph shows average latency for most important types of statements. Latency
 spikes are often indicative of the instance overload.
@@ -53,8 +53,8 @@ spikes are often indicative of the instance overload.
 
 .. _dashboard.mysql-amazon-aurora-metrics.amazon-aurora-special-command-counters:
 
-Amazon Aurora Special Command Counters
---------------------------------------------------------------------------------
+:ref:`Amazon Aurora Special Command Counters <dashboard.mysql-amazon-aurora-metrics.amazon-aurora-special-command-counters>`
+----------------------------------------------------------------------------------------------------------------------------
 
 |amazon-aurora| |mysql| allows a number of commands which are not available from
 standard |mysql|. This graph shows usage of such commands. Regular
@@ -62,29 +62,26 @@ standard |mysql|. This graph shows usage of such commands. Regular
 will depend on your workload.
 
 show_volume_status
-
    The number of executions per second of the command |sql.show-volume-status|. The
    |sql.show-volume-status| query returns two server status variables: Disks and
    Nodes. These variables represent the total number of logical blocks of data
    and storage nodes, respectively, for the DB cluster volume.
 
 awslambda
-
    The number of AWS Lambda calls per second. AWS Lambda is an event-drive,
    serverless computing platform provided by AWS. It is a compute service that
    run codes in response to an event. You can run any kind of code from Aurora
    invoking Lambda from a stored procedure or a trigger.
  
 alter_system
-
    The number of executions per second of the special query ALTER SYSTEM, that
    is a special query to simulate an instance crash, a disk failure, a disk
    congestion or a replica failure. It is a useful query for testing the system.
 
 .. _dashboard.mysql-amazon-aurora-metrics.amazon-aurora-problems:
 
-Amazon Aurora Problems
---------------------------------------------------------------------------------
+:ref:`Amazon Aurora Problems <dashboard.mysql-amazon-aurora-metrics.amazon-aurora-problems>`
+--------------------------------------------------------------------------------------------
 
 This metric shows different kinds of internal |amazon-aurora| |mysql| problems
 which should be zero in case of normal operation.

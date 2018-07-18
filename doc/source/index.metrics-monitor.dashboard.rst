@@ -7,7 +7,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
 
 .. _pmm.dashboard.general.list:
 
-General Dashboards
+:ref:`General Dashboards <pmm.dashboard.general.list>`
 ================================================================================
 
 .. toctree::
@@ -17,14 +17,23 @@ General Dashboards
    dashboard.pmm-system-summary
    dashboard.advanced-data-exploration
    dashboard.cross-server-graphs
-   dashboard.cpu-utilization-details-cores
-   dashboard.disk-space
    dashboard.summary
    dashboard.trends
 
+.. _pmm.dashboard.os.list:
+
+:ref:`OS Dashboards <pmm.dashboard.os.list>`
+================================================================================
+
+.. toctree::
+
+   dashboard.cpu-utilization-details-cores
+   dashboard.disk-space
+   dashboard.system-overview
+
 .. _pmm.dashboard.prometheus.list:
 
-|prometheus| Dashboards
+:ref:`Prometheus Dashboards <pmm.dashboard.prometheus.list>`
 ================================================================================
 
 .. toctree::
@@ -35,7 +44,7 @@ General Dashboards
 
 .. _pmm.dashboard.mysql.list:
 
-|mysql| Dashboards
+:ref:`MySQL Dashboards <pmm.dashboard.mysql.list>`
 ================================================================================
 
 .. toctree::
@@ -46,7 +55,7 @@ General Dashboards
 
 .. _pmm.dashboard.mongodb.list:
 
-|mongodb| Dashboards
+:ref:`MongoDB Dashboards <pmm.dashboard.mongodb.list>`
 ================================================================================
 
 .. toctree::
@@ -55,7 +64,9 @@ General Dashboards
 
    dashboard.mongodb-*
 
-HA Dashboards
+.. _pmm.dashboard.ha.list:
+
+:ref:`HA Dashboards <pmm.dashboard.ha.list>`
 ================================================================================
 
 .. toctree::

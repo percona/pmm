@@ -231,7 +231,7 @@ For more information, see :ref:`pmm-admin.list`.
 What privileges are required to monitor a |mysql| instance?
 ================================================================================
 
-See :ref:`pmm/conf-mysql/user-account/pmm/creating`.
+See :ref:`pmm.conf-mysql.user-account.creating`.
 
 Can I monitor multiple |mysql| instances?
 ================================================================================

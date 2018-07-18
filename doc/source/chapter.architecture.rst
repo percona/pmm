@@ -35,7 +35,7 @@ The following diagram illustrates how |pmm| is currently structured:
 
 .. _pmm-client:
 
-|pmm-client|
+:ref:`PMM Client <pmm-client>`
 ================================================================================
 
 Each |pmm-client| collects various data about general system and database
@@ -75,7 +75,7 @@ The |pmm-client| package consist of the following:
 
 .. _pmm-server:
 
-|pmm-server|
+:ref:`PMM Server <pmm-server>`
 ================================================================================
 
 |pmm-server| runs on the machine that will be your central monitoring host.
@@ -137,7 +137,7 @@ For more information, see :ref:`using`.
 
 .. _pmm/using.orchestrator:
 
-|orchestrator|
+:ref:`Orchestrator <pmm/using.orchestrator>`
 ================================================================================
 
 |orchestrator| is a |mysql| replication topology management and visualization
@@ -176,7 +176,7 @@ to add the instances to the topology.
 
    In version 1.3.0 and later, |orchestrator| is not enabled
    by default. To enable it, see
-   :ref:`pmm/docker.additional_option` in the
+   :ref:`pmm/docker.additional-option` in the
    :ref:`run-server-docker` section.
 
 .. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/

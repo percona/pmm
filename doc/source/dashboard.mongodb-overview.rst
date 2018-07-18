@@ -7,7 +7,7 @@ This dashboard provides basic information about |mongodb| instances.
 
 .. _dashboard.mongodb-overview.command-operations:
 
-Command Operations
+:ref:`Command Operations <dashboard.mongodb-overview.command-operations>`
 --------------------------------------------------------------------------------
 
 Shows how many times a command is executed per second on average during the
@@ -19,7 +19,7 @@ Look for peaks and drops and correlate them with other graphs.
 
 .. _dashboard.mongodb-overview.connections:
 
-Connections
+:ref:`Connections <dashboard.mongodb-overview.connections>`
 --------------------------------------------------------------------------------
 
 Keep in mind the hard limit on the maximum number of connections set by your
@@ -32,7 +32,7 @@ connections correctly.
 
 .. _dashboard.mongodb-overview.cursors:
 
-Cursors
+:ref:`Cursors <dashboard.mongodb-overview.cursors>`
 --------------------------------------------------------------------------------
 
 Helps identify why connections are increasing.  Shows active cursors compared to
@@ -43,7 +43,7 @@ closing the connection.
 
 .. _dashboard.mongodb-overview.document-operations:
 
-Document Operations
+:ref:`Document Operations <dashboard.mongodb-overview.document-operations>`
 --------------------------------------------------------------------------------
 
 When used in combination with **Command Operations**, this graph can help
@@ -55,7 +55,7 @@ documents.
 
 .. _dashboard.mongodb-overview.queued-operations:
 
-Queued Operations
+:ref:`Queued Operations <dashboard.mongodb-overview.queued-operations>`
 --------------------------------------------------------------------------------
 
 Any number of queued operations for long periods of time is an indication of
@@ -66,8 +66,8 @@ queue.
 
 .. _dashboard.mongodb-overview.getlasterror-write-time.operations:
 
-getLastError Write Time, getLastError Write Operations
---------------------------------------------------------------------------------
+:ref:`getLastError Write Time, getLastError Write Operations <dashboard.mongodb-overview.getlasterror-write-time.operations>`
+-----------------------------------------------------------------------------------------------------------------------------
 
 This is useful for write-heavy workloads to understand how long it takes to
 verify writes and how many concurrent writes are occurring.
@@ -76,7 +76,7 @@ verify writes and how many concurrent writes are occurring.
 
 .. _dashboard.mongodb-overview.asserts:
 
-Asserts
+:ref:`Asserts <dashboard.mongodb-overview.asserts>`
 --------------------------------------------------------------------------------
 
 Asserts are not important by themselves, but you can correlate spikes with other
@@ -86,7 +86,7 @@ graphs.
 
 .. _dashboard.mongodb-overview.memory-faults:
 
-Memory Faults
+:ref:`Memory Faults <dashboard.mongodb-overview.memory-faults>`
 --------------------------------------------------------------------------------
 
 Memory faults indicate that requests are processed from disk either because an
