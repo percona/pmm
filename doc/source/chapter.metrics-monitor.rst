@@ -114,7 +114,7 @@ Insight        Summary, cross-server and |prometheus|
 .. _pmm.metrics-monitor.graph-description:
 
 :ref:`Viewing More Information about a Graph <pmm.metrics-monitor.graph-description>`
-====================================================================================================
+=====================================================================================
 
 Each graph has a descriptions to display more information about the monitored
 data without cluttering the interface.
@@ -128,6 +128,47 @@ button the description disappears.
 
    Graph descriptions provide more information about a graph without claiming
    any space in the interface.
+
+.. _pmm.metrics-monitor.metric.zooming-in:
+
+:ref:`Zooming in on a single metric <pmm.metrics-monitor.metric.zooming-in>`
+================================================================================
+     
+On dashboards with multiple metrics, it is hard to see how the value of a single
+metric changes over time. Use the context menu to zoom in on the selected metric
+so that it temporarily occupies the whole dashboard space.
+
+Click the title of the metric that you are interested in and select the
+|gui.view| option from the context menu that opens.
+
+.. figure:: .res/graphics/png/metrics-monitor.metric-context-menu.1.png
+
+   The context menu of a metric
+
+The selected metric opens to occupy the whole dashboard space. You may now set
+another time range using the time and date range selector at the top of the
+|metrics-monitor| page and analyze the metric data further.
+
+.. figure:: .res/graphics/png/metrics-monitor.cross-server-graphs.load-average.1.png
+
+.. note::
+
+   If you are zooming in on a metric which is represented as a single number on
+   its dashboard, you cannot change the level of detail by selecting a range on
+   the graph itself.
+
+To return to the dashboard, click the |gui.back-to-dashboard| button next to the time range selector.
+
+.. figure:: .res/graphics/png/metrics-monitor.time-range-selector.1.png
+
+   The |gui.back-to-dashboard| button returns to the dashboard; this button
+   appears when you are zooming in on one metric.
+
+.. seealso::
+
+   More information about the time range selector
+      :ref:`Selecting time or date range <pmm.qan.time-date-range.selecting>`
+
 
 .. _pmm.metrics-monitor.annotation.application-event.marking:
 
@@ -178,18 +219,17 @@ for viewing by |percona| engineers. The content on the dashboard will assist
 You can safely leave the defaults set as they are, but for further information:
 
 Snapshot name
-
    The name |percona| will see when viewing your dashboard.
 
 Expire 
-
    How long before snapshot should expire, configure lower if
    required. |percona| automatically purges shared dashboards after 90 days.
 
 Timeout (seconds)
-
-   Duration the dashboard will take to load before the snapshot is generated.
-   Can lead to empty values on some graphs in the snapshot version
+   Duration the dashboard will take to load before the snapshot is
+   generated.  Can lead to empty values on some graphs in the snapshot
+   version. considering increasing this value if |percona| reports only
+   partial dashboard contents were transmitted.
 
 First, open the snapshot that you would like to share. Click the
 |gui.share| button at the top of the page and select the
