@@ -2,7 +2,6 @@
 
 .. _pmm/exporter.node:
 
-================================================================================
 Node Exporter (node_exporter)
 ================================================================================
 
@@ -21,11 +20,25 @@ service as additional options. For more information about this exporter see its
 
 .. _pmm/exporter.node.collector-option:
 
-Collector options
-================================================================================
+:ref:`Collector options <pmm/exporter.node.collector-option>`
+--------------------------------------------------------------------------------
 
 .. include:: .res/table/table.org
    :start-after: +node-exporter.flag+
    :end-before: #+end-table
+
+.. important::
+
+   .. versionadded:: 1.13.0
+
+   |pmm| shows NUMA related metrics on the
+   |dbd.advanced-data-exploration|. To enable this feature, the
+   |opt.meminfo-numa| option is enabled when you install |pmm|.
+
+
+.. admonition:: Relatedion information
+
+   Setting collector options
+      https://github.com/prometheus/node_exporter#collectors
 
 .. include:: .res/replace.txt
