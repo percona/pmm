@@ -25,8 +25,8 @@ graphs are separated into dashboards by themes: some are related to |mysql| or
 The credentials used to sign in to |grafana| depend on the options that
 you specified when :ref:`starting PMM Server <deploy-pmm.server.installing>`:
 
-* If you do not specify either :term:`SERVER_USER <SERVER_USER (Option)>` or
-  :term:`SERVER_PASSWORD <SERVER_PASSWORD (Option)>`, you will log in
+* If you do not specify either :term:`SERVER_USER <SERVER_USER>` or
+  :term:`SERVER_PASSWORD <SERVER_PASSWORD>`, you will log in
   as an anonymous user.  You can change to a different existing |grafana| user.
 
 * If you specify both |opt.server-user| and |opt.server-password|,
@@ -231,7 +231,7 @@ Timeout (seconds)
    version. considering increasing this value if |percona| reports only
    partial dashboard contents were transmitted.
 
-First, open the snapshot that you would like to share. Click the
+First, open the dashboard that you would like to share. Click the
 |gui.share| button at the top of the page and select the
 |gui.snapshot| command. Finally, click the
 |gui.share-with-percona-team| button.
