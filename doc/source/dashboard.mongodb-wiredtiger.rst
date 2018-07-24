@@ -1,4 +1,3 @@
-
 .. _dashboard.mongodb-wiredtiger:
 
 |mongodb| |wiredtiger| Dashboard
@@ -31,4 +30,4 @@ following statistics:
    - Scanned and moved objects
    - Page faults
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

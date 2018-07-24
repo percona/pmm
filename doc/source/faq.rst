@@ -1,3 +1,5 @@
+:orphan: true
+
 .. _faq:
 
 ================================================================================
@@ -229,43 +231,7 @@ For more information, see :ref:`pmm-admin.list`.
 What privileges are required to monitor a |mysql| instance?
 ================================================================================
 
-When adding |mysql| instance to monitoring,
-you can specify the |mysql| server superuser account credentials,
-which has all privileges.
-However, monitoring with the superuser account is not secure.
-If you also specify the |opt.create-user| option,
-it will create a user with only the necessary privileges for collecting data.
-
-You can also set up the ``pmm`` user manually with necessary privileges
-and pass its credentials when adding the instance.
-
-To enable complete |mysql| instance monitoring,
-a command similar to the following is recommended:
-
-.. prompt:: bash
-
-   sudo pmm-admin add mysql --user root --password root --create-user
-
-The superuser credentials are required only to set up the ``pmm`` user with
-necessary privileges for collecting data.  If you want to create this user
-yourself, the following privileges are required:
-
-.. code-block:: sql
-
-   GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
-   GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'localhost';
-
-If the ``pmm`` user already exists,
-simply pass its credential when you add the instance:
-
-.. prompt:: bash
-
-   sudo pmm-admin add mysql --user pmm --password pass
-
-For more information, run as root
-|pmm-admin.add|
-|opt.mysql|
-|opt.help|.
+See :ref:`pmm.conf-mysql.user-account.creating`.
 
 Can I monitor multiple |mysql| instances?
 ================================================================================
@@ -418,7 +384,5 @@ can make whaterver changes required.
    You cannot access the root account if you access |pmm-server| using
    SSH or via the Web interface.
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/program.txt
+.. include:: .res/replace.txt
 

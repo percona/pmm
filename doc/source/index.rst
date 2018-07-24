@@ -1,7 +1,6 @@
 
-================================================================================
 Percona Monitoring and Management Documentation
-================================================================================
+********************************************************************************
 
 Percona Monitoring and Management (PMM) is an open-source platform
 for managing and monitoring MySQL and MongoDB performance.
@@ -20,9 +19,9 @@ Basics
 .. toctree::
    :maxdepth: 1
 
-   Architecture Overview <architecture>
-   Deployment Instructions <deploy/index>
-   using
+   Architecture Overview <chapter.architecture>
+   Deployment Instructions <chapter.deploying>
+   chapter.tool
 
 Advanced
 ================================================================================
@@ -30,12 +29,12 @@ Advanced
 .. toctree::
    :maxdepth: 1
 
-   pmm-admin
-   amazon-rds
-   Configuring MySQL for Best Results <conf-mysql>
-   conf-mongodb
-   security
-   metrics-monitor.dashboard.list
+   chapter.pmm-admin
+   chapter.amazon-rds
+   Configuring MySQL for Best Results <chapter.conf-mysql>
+   chapter.conf-mongodb
+   chapter.security
+   index.metrics-monitor.dashboard
 
 Reference
 ================================================================================
@@ -44,6 +43,6 @@ Reference
    :maxdepth: 1
 
    Release Notes <release-notes/index>
-   Contact Us <contact>
+   Contact Us <chapter.contact>
    FAQ <faq>
-   Glossaries <list.glossary>
+   Glossaries <index.glossary>

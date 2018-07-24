@@ -25,6 +25,4 @@ Remove the SSL related options to disable HTTPS for the exporter.
    :start-after: +systemd.pmm-mysql-metrics-service.+remove-ssl+
    :end-before: #+end-block
 
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/program.txt
+.. include:: .res/replace.txt

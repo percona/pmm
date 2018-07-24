@@ -292,7 +292,4 @@ the last 24 hours.
 
 .. |this-dashboard| replace:: :ref:`dashboard.mysql-replication`
 
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/fragment.txt
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/program.txt
+.. include:: .res/replace.txt

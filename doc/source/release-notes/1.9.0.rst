@@ -49,9 +49,9 @@ We have changed our |aws| add instance interface and workflow to be more clear o
 information needed to add an |amazon-aurora| |mysql| or |amazon-rds| |mysql|
 instance. We have provided some clarity on how to locate your |aws| credentials.
 
-.. image:: 1.9.0-2.png
+.. image:: 1-9-0.2.png
 
-.. image:: 1.9.0-3.png
+.. image:: 1-9-0.3.png
 
 |aws| Settings
 --------------------------------------------------------------------------------
@@ -61,11 +61,11 @@ authentication options - IAM Role or IAM User Access Key.
 
 .. rubric:: Enabling Enhanced Monitoring
 
-.. image:: 1.9.0-4.png
+.. image:: 1-9-0.4.png
 
 .. rubric:: Credentials Screen
 
-.. image:: 1.9.0-1.png
+.. image:: 1-9-0.1.png
 
 Low RAM Support
 ================================================================================
@@ -94,7 +94,7 @@ snapshots and only |percona| Engineers will be able to retrieve the data.  We
 will be expiring old snapshots automatically at 90 days, but when sharing you
 will have the option to configure a shorter retention period.
 
-.. image:: 1.9.0-5.png
+.. image:: 1-9-0.5.png
 
 Export of |pmm-server| Logs
 ================================================================================
@@ -105,7 +105,7 @@ This simplifies the troubleshooting process of a |pmm-server|, and especially fo
 Percona Customers, this feature will provide a more consistent data gathering
 task that you will perform on behalf of requests from |percona| Engineers.
 
-.. image:: 1.9.0-6.png
+.. image:: 1-9-0.6.png
 
 Faster Loading of the Index Page
 ================================================================================
@@ -122,11 +122,11 @@ we upgrade to Prometheus 2 we will see another improvement.
 
 .. rubric:: The load time of the index page of |pmm| version 1.8.0
 
-.. image:: 1.9.0-7.png 
+.. image:: 1-9-0.7.png 
 
 .. rubric:: The load time of the index page of |pmm| version 1.9.0
 
-.. image:: 1.9.0-8.png
+.. image:: 1-9-0.8.png
 
 
 Issues in this release
@@ -177,7 +177,4 @@ Bug fixes
   
 .. |release| replace:: 1.9.0
 		       
-.. include:: ../.res/replace/name.txt
-.. include:: ../.res/replace/program.txt
-.. include:: ../.res/replace/option.txt			    
-.. include:: ../.res/replace/url.txt
+.. include:: ../.res/replace.txt

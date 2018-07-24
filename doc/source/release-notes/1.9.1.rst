@@ -32,10 +32,10 @@ chosen time range.
 Bug fixes
 ================================================================================
 
-- :pmmbug:`2364`: QPS are wrong in QAN
+- :pmmbug:`2364`: QPS are wrong in |qan|
   
 .. |release| replace:: 1.9.1
 .. |prev-release| replace:: 1.9.0
 		       
-.. include:: ../.res/replace/name.txt
-.. include:: ../.res/replace/fragment.txt
+.. include:: ../.res/replace.txt
+

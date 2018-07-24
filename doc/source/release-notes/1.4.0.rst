@@ -90,5 +90,5 @@ Bug fixes
 
 .. |release| replace:: 1.4.0
 
-.. include:: ../.res/replace/name.txt
-.. include:: ../.res/replace/program.txt
+.. include:: ../.res/replace.txt
+
