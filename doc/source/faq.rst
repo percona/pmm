@@ -56,49 +56,57 @@ throughput is too low.
 
 .. _metrics_memory:
 
-How to control memory consumption for PMM?
-================================================================================
+How to control memory consumption for PMM? (relevant to versions lower than 1.13.0 of |pmm|)
+============================================================================================
 
-By default, Prometheus in |pmm-server| uses up to 768 MB of memory for storing
-the most recently used data chunks.  Depending on the amount of data coming into
-Prometheus, you may require a higher limit to avoid throttling data ingestion,
-or allow less memory consumption if it is needed for other processes.
+|prometheus| 1.x.x, shipped with |pmm| up to version
+1.13.0, used up to 768 MB of memory for storing the most recently used
+data chunks.
 
-You can control the allowed memory consumption for Prometheus
-by passing the ``METRICS_MEMORY`` environment variable
-when :ref:`creating and running the PMM Server container <server-container>`.
-To set the environment variable, use the ``-e`` option.
-The value must be passed in kilobytes.
+If you haven't upgraded to a version 1.13.0 or higher, you may require
+a higher limit, depending on the amount of data coming into
+|prometheus|, to avoid throttling data ingestion, or to allow less
+memory consumption by |prometheus|.
+
+.. include:: .res/contents/important.option.metrics-memory.txt
+
+You can control the allowed memory consumption for |prometheus| by
+passing the |opt.metrics-memory| environment variable when
+:ref:`creating and running the PMM Server container
+<server-container>`.  To set the environment variable, use the ``-e``
+flag.  The value must be passed in kilobytes.
+
 For example, to set the limit to 4 GB of memory::
 
  -e METRICS_MEMORY=4194304
 
-.. note:: The limit affects only memory reserved for data chunks.
-   Actual RAM usage by Prometheus is higher.
-   It is recommended to set this limit to roughly 2/3 of the total memory
-   that you are planning to allow for Prometheus.
-   So in the previous example, if you set the limit to 4 GB,
-   then Prometheus will use up to 6 GB of memory.
+.. important::
+
+   The limit affects only memory reserved for data chunks.  Actual RAM
+   usage by |prometheus| is higher.  It is recommended to set this limit
+   to roughly 2/3 of the total memory that you are planning to allow
+   for Prometheus.  So in the previous example, if you set the limit
+   to 4 GB, then |prometheus| will use up to 6 GB of memory.
 
 .. _data-retention:
 
 How to control data retention for PMM?
 ================================================================================
 
-By default, Prometheus stores time-series data for 30 days,
+By default, |prometheus| stores time-series data for 30 days,
 and QAN stores query data for 8 days.
 
 Depending on available disk space and your requirements,
 you may need to adjust data retention time.
 
 You can control data retention by passing the :term:`METRICS_RETENTION
-<METRICS_RETENTION (Option)>` and :term:`QUERIES_RETENTION
-<QUERIES_RETENTION (Option)>` environment variables when
+<METRICS_RETENTION>` and :term:`QUERIES_RETENTION
+<QUERIES_RETENTION>` environment variables when
 :ref:`creating and running the PMM Server container
 <server-container>`.  To set environment variables, use the ``-e``
 option.  The value is passed as a combination of hours, minutes, and
 seconds.  For example, the default value of 30 days for
-``METRICS_RETENTION`` is ``720h0m0s``.  You probably do not need to be
+|opt.metrics-retention| is ``720h0m0s``.  You probably do not need to be
 more precise than the number hours, so you can discard the minutes and
 seconds.  For example, to decrease the retention period for
 |prometheus| to 8 days::
@@ -108,21 +116,19 @@ seconds.  For example, to decrease the retention period for
 .. seealso::
 
    Metrics retention
-
-      :term:`METRICS_RETENTION <METRICS_RETENTION (Option)>`
+      :term:`METRICS_RETENTION <METRICS_RETENTION>`
 
    Queries retention
-
-      :term:`QUERIES_RETENTION <QUERIES_RETENTION (Option)>`
+      :term:`QUERIES_RETENTION <QUERIES_RETENTION>`
 
 .. _service-location:
 
 Where are the services created by PMM Client?
 ================================================================================
 
-When you add a monitoring instance using the |pmm-admin| tool,
-it creates a corresponding service.
-The name of the service has the following syntax:
+When you add a monitoring instance using the |pmm-admin| tool, it creates a
+corresponding service.  The name of the service has the following syntax:
+
 ``pmm-<type>-<port>``
 
 For example: ``pmm-mysql-metrics-42002``.

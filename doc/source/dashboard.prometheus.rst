@@ -16,16 +16,22 @@ The |dbd.prometheus| dashboard informs how |prometheus| functions.
 --------------------------------------------------------------------------------
 
 This section shows the most essential parameters of the system where
-|prometheus| is running, such as CPU and memory usage, scrapes performed or the
-amount of memory that time series consume.
+|prometheus| is running, such as CPU and memory usage, scrapes performed and the
+samples ingested in the head block.
 
 Resources
 --------------------------------------------------------------------------------
 
 This section provides details about the consumption of CPU and memory by the
-|prometheus| process.
+|prometheus| process. This section contains the following metrics:
 
-Storage
+.. hlist::
+   :columns: 2
+
+   - |prometheus| Process CPU Usage
+   - |prometheus| Process Memory Usage
+
+Storage (TSDB)
 --------------------------------------------------------------------------------
 
 This section includes a collection of metrics related to the usage of
@@ -34,15 +40,12 @@ storage. It includes the following metrics:
 .. hlist::
    :columns: 2
 
-   - Time Series
-   - Local Storage Urgency Score
-   - |prometheus| Problems
-   - |prometheus| Checkpointing
-   - |prometheus| Out of Order Samples
-   - Chunks Memory Details
-   - Series Operations
-   - |prometheus| Storage Operations
-   - ChunkDesc Memory Details
+   - Data blocks (Number of currently loaded data blocks)
+   - Total chunks in the head block
+   - Number of series in the head block
+   - Current retention period of the head block
+   - Activity with chunks in the head block
+   - Reload block data from disk
 
 Scraping
 --------------------------------------------------------------------------------
