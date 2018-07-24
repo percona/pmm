@@ -1,5 +1,6 @@
 .. -*- mode: rst -*-
 
+.. |related-information| replace:: Related Information
 .. |adv-data-expl| replace:: *Advanced Data Exploration*
 .. |amazon-aurora| replace:: Amazon Aurora
 .. |amazon-cloudwatch| replace:: Amazon Cloudwatch
@@ -131,7 +132,7 @@
 .. |sudo| replace:: :program:`sudo` 
 .. |summary| replace:: *Summary*
 .. |systemd| replace:: :program:`systemd`
-.. |term.metrics-resolution| replace:: :term:`METRICS_RESOLUTION <METRICS_RESOLUTION (Option)>`
+.. |term.metrics-resolution| replace:: :term:`METRICS_RESOLUTION <METRICS_RESOLUTION>`
 .. |tmp.pmm-server-console.log| replace:: :file:`/tmp/pmm-server-console.log`
 .. |tokudb| replace:: TokuDB
 .. |ubuntu| replace:: Ubuntu
@@ -347,7 +348,7 @@
 .. |opt.max-binlog-size| replace:: :option:`max_binlog_size`
 .. |opt.max-relay-log-file| replace:: :option:`max_relay_log_file`
 .. |opt.max-relay-log-size| replace:: :option:`max_relay_log_size`
-.. |opt.metrics-memory| replace:: :option:`--METRICS_MEMORY`
+.. |opt.metrics-memory| replace:: :option:`METRICS_MEMORY`
 .. |opt.metrics-resolution| replace:: :option:`METRICS_RESOLUTION>`
 .. |opt.metrics-retention|  replace:: :option:`METRICS_RETENTION>`
 .. |opt.mongodb-metrics| replace:: :option:`mongodb:metrics`
@@ -472,6 +473,7 @@
 
 .. PMM Dashboards (dbd)
 
+.. |dbd.overview-numa-metrics| replace:: *Overview NUMA Metrics*
 .. |dbd.advanced-data-exploration| replace:: *Advanced Data Exploration*
 .. |dbd.amazon-rds-aurora-mysql-metrics| replace:: *Amazon RDS / Aurora MySQL Metrics*
 .. |dbd.cross-server-graphs| replace:: *Cross Server Graphs*
