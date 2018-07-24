@@ -1,14 +1,14 @@
 .. _pmm/glossary.pmm-server.additional-option:
 
 ================================================================================
-|pmm-server| Additional Options
+|pmm-server| Additional Options 
 ================================================================================
 
-This glossary contains the addtional options that you may pass when starting
+This glossary contains the addtional parameters that you may pass when starting
 |pmm-server|.
 
 If you use |docker| to run the server, use the :option:`-e` flag followed by the
-parameter. Use this flag in front of each parameter that you pass to the
+parameter. Use this flag in front of each parameter that you pass to
 |pmm-server|.
 
 Here, we pass more than one option to |pmm-server| along with the |docker.run|
@@ -18,7 +18,7 @@ command. |tip.run-this.root|.
    :start-after: +docker.run.server-user.example+
    :end-before: #+end-block
 
-List of |pmm-server| Options
+List of |pmm-server| Parameters
 ================================================================================
 
 .. glossary::
@@ -43,7 +43,7 @@ List of |pmm-server| Options
 	 :start-after: +docker.run.disable-telemetry+
 	 :end-before: #+end-block
 
-   METRICS_RETENTION (Option)
+   METRICS_RETENTION
 
       This option determines how long metrics are stored at :term:`PMM
       Server`. The value is passed as a combination of hours, minutes, and
@@ -66,9 +66,9 @@ List of |pmm-server| Options
 
 	 Queries retention
 
-	    :term:`QUERIES_RETENTION <QUERIES_RETENTION (Option)>`
+	    :term:`QUERIES_RETENTION <QUERIES_RETENTION>`
 
-   QUERIES_RETENTION (Option)
+   QUERIES_RETENTION
 
       This option determines how many days queries are stored at :term:`PMM Server`. 
 
@@ -80,13 +80,13 @@ List of |pmm-server| Options
 
 	 Metrics retention
 
-	    :term:`METRICS_RETENTION <METRICS_RETENTION (Option)>`
+	    :term:`METRICS_RETENTION <METRICS_RETENTION>`
 
 	 Data retention in PMM
 
 	    :term:`Data retention`
 
-   ORCHESTRATOR_ENABLED (Option)
+   ORCHESTRATOR_ENABLED
 
       This option enables |orchestrator| (See
       :ref:`pmm/using.orchestrator`). By default it is disabled. It is
@@ -101,41 +101,41 @@ List of |pmm-server| Options
 	 Orchestrator
 	    :term:`Orchestrator`
 	 Orchestrator Credentials
-	    - :term:`ORCHESTRATOR_USER <ORCHESTRATOR_USER (Option)>`
-	    - :term:`ORCHESTRATOR_PASSWORD <ORCHESTRATOR_PASSWORD (Option)>`
+	    - :term:`ORCHESTRATOR_USER <ORCHESTRATOR_USER>`
+	    - :term:`ORCHESTRATOR_PASSWORD <ORCHESTRATOR_PASSWORD>`
 
-   ORCHESTRATOR_USER (Option)
+   ORCHESTRATOR_USER
 
       Pass this option, when running your :term:`PMM Server` via
       |docker| to set the orchestrator user. You only need this
       parameter (along with :term:`ORCHESTRATOR_PASSWORD
-      <ORCHESTRATOR_PASSWORD (Option)>` if you have set up a custom
+      <ORCHESTRATOR_PASSWORD>` if you have set up a custom
       |orchestrator| user.
 
       This option has no effect if the
-      :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED (Option)>` option is
+      :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED>` option is
       set to **false**.
 
       .. include:: .res/code/sh.org
 	 :start-after: +docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
 	 :end-before: #+end-block
 
-   ORCHESTRATOR_PASSWORD (Option)
+   ORCHESTRATOR_PASSWORD
 
       Pass this option, when running your :term:`PMM Server` via |docker| to set
       the orchestrator password.
 
       This option has no effect if the
-      :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED (Option)>`
+      :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED>`
       option is set to **false**.
 
       .. include:: .res/code/sh.org
 	 :start-after: +docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
 	 :end-before: #+end-block
 
-      .. seealso:: :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED (Option)>`
+      .. seealso:: :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED>`
 
-   SERVER_USER (Option)
+   SERVER_USER
 
       By default, the user name is ``pmm``. Use this option to use another user
       name.
@@ -146,7 +146,7 @@ List of |pmm-server| Options
 	 :start-after: +docker.run.server-user+
 	 :end-before: #+end-block
 
-   SERVER_PASSWORD (Option)
+   SERVER_PASSWORD
 
       Set the password to access the |pmm-server| web interface.
 
@@ -157,11 +157,11 @@ List of |pmm-server| Options
 	 :end-before: #+end-block
       
       By default, the user name is ``pmm``. You can change it by passing the
-      :term:`SERVER_USER <SERVER_USER (Option)>` variable.
+      :term:`SERVER_USER <SERVER_USER>` variable.
 
-   METRICS_RESOLUTION (Option)
+   METRICS_RESOLUTION
 
-      This option sets the minimum resolution for checking metrics. You should
+      This environment variable sets the minimum resolution for checking metrics. You should
       set it if the latency is higher than 1 second.
 
       |tip.run-this.root|.
@@ -170,12 +170,18 @@ List of |pmm-server| Options
 	 :start-after: +docker.run.metrics-resolution+
 	 :end-before: #+end-block
 
-   METRICS_MEMORY (Option)
+   METRICS_MEMORY
 
       By default, |prometheus| in |pmm-server| uses all avaiable memory for
       storing the most recently used data chunks.  Depending on the amount of
       data coming into |prometheus|, you may require to allow less memory
       consumption if it is needed for other processes.
+
+      .. include:: .res/contents/important.option.metrics-memory.txt
+
+      If you are still using a version of |pmm| prior to 1.13.0 you might need
+      to set the metrics memory by passing the |opt.metrics-memory| environment variable along
+      with the |docker.run| command.
 
       |tip.run-this.root|. The value must be passed in kilobytes. For example,
       to set the limit to 4 GB of memory run the following command:
@@ -184,20 +190,12 @@ List of |pmm-server| Options
 	 :start-after: +docker.run.metrics-memory+
 	 :end-before: #+end-block
 
-      .. note::
-
-	 The limit affects only memory reserved for data chunks.  Actual RAM
-	 usage by Prometheus is higher.  It is recommended to set this limit to
-	 roughly 2/3 of the total memory that you are planning to allow for
-	 Prometheus. For example, if you set the limit to 4 GB, then
-	 |prometheus| will use up to 6 GB of memory.
-
-      .. seealso::
+      .. admonition:: |related-information|
 
 	 |docker| documentation: Controlling memory usage in a |docker| container
 	    https://docs.docker.com/config/containers/resource_constraints/
 
-   DISABLE_UPDATES (Option)
+   DISABLE_UPDATES
 
       To update your |pmm| from web interface you only need to click the
       |gui.update| on the home page. The |opt.disable-updates| option is useful
