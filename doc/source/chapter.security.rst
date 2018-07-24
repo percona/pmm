@@ -97,13 +97,13 @@ If you generated a self-signed certificate:
 ================================================================================
 
 You can set the password for accessing the |pmm-server| web interface by passing
-the :term:`SERVER_PASSWORD <SERVER_PASSWORD (Option)>` environment variable when
+the :term:`SERVER_PASSWORD <SERVER_PASSWORD>` environment variable when
 :ref:`creating and running the PMM Server container <server-container>`.
 
 To set the environment variable, use the ``-e`` option.
 
 By default, the user name is ``pmm``. You can change it by passing the
-:term:`SERVER_USER <SERVER_USER (Option)>` environment variable. Note that the
+:term:`SERVER_USER <SERVER_USER>` environment variable. Note that the
 following example uses an insecure port 80 which is typically used for HTTP
 connections.
 

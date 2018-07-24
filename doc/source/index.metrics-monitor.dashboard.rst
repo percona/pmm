@@ -30,6 +30,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
    dashboard.cpu-utilization-details-cores
    dashboard.disk-space
    dashboard.system-overview
+   dashboard.overview-numa-metrics
 
 .. _pmm.dashboard.prometheus.list:
 
