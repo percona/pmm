@@ -5,9 +5,10 @@ Metrics Monitor Dashboards
 
 This section contains a reference of dashboards available in |metrics-monitor|.
 
+.. _pmm.dashboard.insight.list:
 .. _pmm.dashboard.general.list:
 
-:ref:`General Dashboards <pmm.dashboard.general.list>`
+:ref:`Insight <pmm.dashboard.general.list>`
 ================================================================================
 
 .. toctree::
@@ -19,6 +20,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
    dashboard.cross-server-graphs
    dashboard.summary
    dashboard.trends
+   dashboard.network-overview
 
 .. _pmm.dashboard.os.list:
 
@@ -26,6 +28,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
 ================================================================================
 
 .. toctree::
+   :maxdepth: 1
 
    dashboard.cpu-utilization-details-cores
    dashboard.disk-space
