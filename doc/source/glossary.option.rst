@@ -61,11 +61,8 @@ List of |pmm-server| Parameters
       .. seealso::
 
 	 Data retention in PMM
-
 	    :term:`Data retention`
-
 	 Queries retention
-
 	    :term:`QUERIES_RETENTION <QUERIES_RETENTION>`
 
    QUERIES_RETENTION
@@ -79,11 +76,8 @@ List of |pmm-server| Parameters
       .. seealso::
 
 	 Metrics retention
-
 	    :term:`METRICS_RETENTION <METRICS_RETENTION>`
-
 	 Data retention in PMM
-
 	    :term:`Data retention`
 
    ORCHESTRATOR_ENABLED
@@ -172,7 +166,7 @@ List of |pmm-server| Parameters
 
    METRICS_MEMORY
 
-      By default, |prometheus| in |pmm-server| uses all avaiable memory for
+      By default, |prometheus| in |pmm-server| uses all available memory for
       storing the most recently used data chunks.  Depending on the amount of
       data coming into |prometheus|, you may require to allow less memory
       consumption if it is needed for other processes.
@@ -190,7 +184,7 @@ List of |pmm-server| Parameters
 	 :start-after: +docker.run.metrics-memory+
 	 :end-before: #+end-block
 
-      .. admonition:: |related-information|
+      .. seealso:: 
 
 	 |docker| documentation: Controlling memory usage in a |docker| container
 	    https://docs.docker.com/config/containers/resource_constraints/
@@ -208,7 +202,7 @@ List of |pmm-server| Parameters
 	 :start-after: +docker.run.disable-updates+
 	 :end-before: #+end-block
 
-      The |opt.disable-updates| option removes the :guilabel:`Update` button
+      The |opt.disable-updates| option removes the |gui.update| button
       from the interface and prevents the system from being updated manually.
 
 .. _v.percona.com: http://v.percona.com

@@ -473,7 +473,6 @@
 
 .. PMM Dashboards (dbd)
 
-.. |dbd.overview-numa-metrics| replace:: *Overview NUMA Metrics*
 .. |dbd.advanced-data-exploration| replace:: *Advanced Data Exploration*
 .. |dbd.amazon-rds-aurora-mysql-metrics| replace:: *Amazon RDS / Aurora MySQL Metrics*
 .. |dbd.cross-server-graphs| replace:: *Cross Server Graphs*
@@ -486,6 +485,8 @@
 .. |dbd.mysql-innodb-metrics| replace:: *MySQL InnoDB Metrics*
 .. |dbd.mysql-myrocks-metrics| replace:: *MySQL MyRocks Metrics*
 .. |dbd.mysql-overview| replace:: *MySQL Overview*
+.. |dbd.network-overview| replace:: *Network Overview*
+.. |dbd.overview-numa-metrics| replace:: *Overview NUMA Metrics*
 .. |dbd.prometheus-exporter-status| replace:: *Prometheus Exporter Status*
 .. |dbd.prometheus-exporters-overview| replace:: *Prometheus Exporters Overview*
 .. |dbd.prometheus| replace:: *Prometheus*
