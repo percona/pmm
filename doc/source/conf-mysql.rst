@@ -71,7 +71,7 @@ version of |mysql|:
 
    log_output=file
    slow_query_log=ON
-   long_query_time=0.01
+   long_query_time=0
    log_slow_admin_statements=ON
    log_slow_slave_statements=ON
 

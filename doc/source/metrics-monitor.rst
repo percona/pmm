@@ -227,9 +227,7 @@ Expire
 
 Timeout (seconds)
    Duration the dashboard will take to load before the snapshot is
-   generated.  Can lead to empty values on some graphs in the snapshot
-   version. considering increasing this value if |percona| reports only
-   partial dashboard contents were transmitted.
+   generated.
 
 First, open the dashboard that you would like to share. Click the
 |gui.share| button at the top of the page and select the

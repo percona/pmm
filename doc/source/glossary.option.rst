@@ -155,8 +155,8 @@ List of |pmm-server| Parameters
 
    METRICS_RESOLUTION
 
-      This environment variable sets the minimum resolution for checking metrics. You should
-      set it if the latency is higher than 1 second.
+      This environment variable sets the minimum resolution for checking
+      metrics. You should set it if the latency is higher than 1 second.
 
       |tip.run-this.root|.
 
@@ -173,9 +173,9 @@ List of |pmm-server| Parameters
 
       .. include:: .res/contents/important.option.metrics-memory.txt
 
-      If you are still using a version of |pmm| prior to 1.13.0 you might need
-      to set the metrics memory by passing the |opt.metrics-memory| environment variable along
-      with the |docker.run| command.
+      If you are still using a version of |pmm| prior to 1.13 you might need to
+      set the metrics memory by passing the |opt.metrics-memory| environment
+      variable along with the |docker.run| command.
 
       |tip.run-this.root|. The value must be passed in kilobytes. For example,
       to set the limit to 4 GB of memory run the following command:

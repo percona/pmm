@@ -37,7 +37,7 @@ performance, or network activity.
 .. toctree::
    :maxdepth: 2
    
-   chapter.qan
-   chapter.metrics-monitor
+   qan
+   metrics-monitor
 
 .. include:: .res/replace.txt

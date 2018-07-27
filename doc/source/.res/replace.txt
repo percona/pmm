@@ -248,7 +248,7 @@
 .. |gui.select-aws-access-type| replace:: :guilabel:`Select AWS access type`
 .. |gui.set-permissions| replace:: :guilabel:`Set permissions`
 .. |gui.settings| replace:: :guilabel:`Settings`
-.. |gui.share-with-percona-team| replace:: :guilabel:`Share with Percona Team at snapshots.percona.com`
+.. |gui.share-with-percona-team| replace:: :guilabel:`Share with Percona`
 .. |gui.share| replace:: :guilabel:`Share`
 .. |gui.snapshot| replace:: :guilabel:`Snapshot`
 .. |gui.status| replace:: :guilabel:`Status`

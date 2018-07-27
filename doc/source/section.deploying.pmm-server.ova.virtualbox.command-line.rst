@@ -1,4 +1,4 @@
-.. _pmm/deploying/server/ova/virtualbox/command-line:
+.. _pmm.deploying.server.ova.virtualbox.cli:
 
 VirtualBox Using the Command Line
 ================================================================================
@@ -39,18 +39,6 @@ the downloaded image file.
 
 .. rubric:: Downloading the latest development version
 
-If you would like to experiment with the latest development version of
-|pmm-server| |virtualbox| image, download the development version as
-follows:
-
-.. include:: .res/code/sh.org
-   :start-after: +wget.pmm-server-dev-latest-ova+
-   :end-before: #+end-block
-
-.. important:: 
-
-   This is a development version which is not designed for a
-   production environment.
 
 .. _`download percona monitoring and management`: https://www.percona.com/downloads/pmm
 
