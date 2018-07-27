@@ -155,7 +155,7 @@ Now, rename the |opt.pmm-server-backup| to |opt.pmm-server|
 .. seealso:: 
 
    Setting up a |docker| container
-      :ref:`pmm/server/docker.setting-up`
+      :ref:`pmm.server.docker.setting-up`
    Backing Up the |pmm-server| |docker| container
       :ref:`pmm/server/docker/backing-up`
    Updating the |pmm-server| and the |pmm-client|

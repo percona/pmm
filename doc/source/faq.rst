@@ -56,11 +56,11 @@ throughput is too low.
 
 .. _metrics_memory:
 
-How to control memory consumption for PMM? (relevant to versions lower than 1.13.0 of |pmm|)
+How to control memory consumption for PMM? (relevant to versions lower than 1.13 of |pmm|)
 ============================================================================================
 
 |prometheus| 1.x.x, shipped with |pmm| up to version
-1.13.0, used up to 768 MB of memory for storing the most recently used
+1.13.0, used by default 768 MB of memory for storing the most recently used
 data chunks.
 
 If you haven't upgraded to a version 1.13.0 or higher, you may require
@@ -69,24 +69,6 @@ a higher limit, depending on the amount of data coming into
 memory consumption by |prometheus|.
 
 .. include:: .res/contents/important.option.metrics-memory.txt
-
-You can control the allowed memory consumption for |prometheus| by
-passing the |opt.metrics-memory| environment variable when
-:ref:`creating and running the PMM Server container
-<server-container>`.  To set the environment variable, use the ``-e``
-flag.  The value must be passed in kilobytes.
-
-For example, to set the limit to 4 GB of memory::
-
- -e METRICS_MEMORY=4194304
-
-.. important::
-
-   The limit affects only memory reserved for data chunks.  Actual RAM
-   usage by |prometheus| is higher.  It is recommended to set this limit
-   to roughly 2/3 of the total memory that you are planning to allow
-   for Prometheus.  So in the previous example, if you set the limit
-   to 4 GB, then |prometheus| will use up to 6 GB of memory.
 
 .. _data-retention:
 
@@ -389,6 +371,38 @@ can make whaterver changes required.
 
    You cannot access the root account if you access |pmm-server| using
    SSH or via the Web interface.
+
+.. _pmm.pmm-server.experimental-version.installing:
+
+How to install the experimental version of |pmm-server|?
+================================================================================
+
+If you would like to experiment with the latest development version using
+|docker|, you may use the |opt.dev-latest| image. This version, however, is not
+intended to be used in a production environment.
+
+.. include:: .res/code/sh.org
+   :start-after: +docker.pull.perconalab-pmm-server-dev-latest+
+   :end-before: #+end-block
+
+If you would like to experiment with the latest development version of
+|pmm-server| |virtualbox| image, download the development version as follows:
+
+.. include:: .res/code/sh.org
+   :start-after: +wget.pmm-server-dev-latest-ova+
+   :end-before: #+end-block
+
+.. important:: 
+
+   This is a development version which is not designed for a production
+   environment.
+
+.. seealso::
+
+   Setting up |pmm-server| via |docker|
+      :ref:`setup procedure <pmm.server.docker.setting-up>`
+   Setting up |pmm-server| via |virtualbox|
+      :ref:`pmm.deploying.server.ova.virtualbox.cli`
 
 .. include:: .res/replace.txt
 

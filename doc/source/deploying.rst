@@ -32,9 +32,9 @@ To install and set up the |pmm-server|, use one of the following options:
 .. toctree::
    :maxdepth: 1
 
-   chapter.deploying.pmm-server.docker
-   chapter.deploying.pmm-server.virtual-appliance
-   chapter.deploying.pmm-server.ami
+   deploying.pmm-server.docker
+   deploying.pmm-server.virtual-appliance
+   deploying.pmm-server.ami
 
 .. include:: .res/contents/important.port.txt
 

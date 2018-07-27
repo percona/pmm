@@ -82,7 +82,7 @@ command from the computer where |pmm-client| is installed. |tip.run-this.root|.
 .. seealso::
 
    Setting up |pmm-server| via |docker|
-      :ref:`pmm/server/docker.setting-up`
+      :ref:`pmm.server.docker.setting-up`
    Updating PMM
      :ref:`Updating PMM <deploy-pmm.updating>`
    Backing Up the |pmm-server| |docker| container

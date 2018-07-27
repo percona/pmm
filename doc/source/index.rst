@@ -19,9 +19,9 @@ Basics
 .. toctree::
    :maxdepth: 1
 
-   Architecture Overview <chapter.architecture>
-   Deployment Instructions <chapter.deploying>
-   chapter.tool
+   Architecture Overview <architecture>
+   Deployment Instructions <deploying>
+   tool
 
 Advanced
 ================================================================================
@@ -29,11 +29,11 @@ Advanced
 .. toctree::
    :maxdepth: 1
 
-   chapter.pmm-admin
-   chapter.amazon-rds
-   Configuring MySQL for Best Results <chapter.conf-mysql>
-   chapter.conf-mongodb
-   chapter.security
+   pmm-admin
+   amazon-rds
+   Configuring MySQL for Best Results <conf-mysql>
+   conf-mongodb
+   security
    index.metrics-monitor.dashboard
 
 Reference
@@ -43,6 +43,6 @@ Reference
    :maxdepth: 1
 
    Release Notes <release-notes/index>
-   Contact Us <chapter.contact>
+   Contact Us <contact>
    FAQ <faq>
    Glossaries <index.glossary>

@@ -1,4 +1,4 @@
-.. _pmm/server/docker.setting-up:
+.. _pmm.server.docker.setting-up:
 
 Setting Up a |docker| Container for |pmm-server|
 ================================================================================
@@ -28,17 +28,6 @@ This step is not required if you are running |pmm-server| for the first time.
 However, it ensures that if there is an older version of the image tagged with
 |opt.latest| available locally, it will be replaced by the actual latest
 version.
-
-.. note::
-
-   If you would like to experiment with the latest development
-   version, you may use the |opt.dev-latest| image:
-
-   .. include:: .res/code/sh.org
-      :start-after: +docker.pull.perconalab-pmm-server-dev-latest+
-      :end-before: #+end-block
-
-   This version, however, is not intended to be used in a production environment.
 
 .. _data-container:
 
