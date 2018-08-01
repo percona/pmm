@@ -9,11 +9,12 @@ Percona Monitoring and Management 1.12.0
 
 In release 1.12, we invested our efforts in the following areas:
 
-Visual Explain in Query Analytics – Gain insight into MySQL’s query optimizer for your queries
-New Dashboard – InnoDB Compression Metrics – Evaluate effectiveness of InnoDB Compression
-New Dashboard – MySQL Command/Handler Compare – Contrast MySQL instances side by side
-Updated Grafana to 5.1 – Fixed scrolling issues
-We addressed 10 new features and improvements, and fixed 13 bugs.
+Visual Explain in Query Analytics – Gain insight into MySQL\’s query
+optimizer for your queries New Dashboard – InnoDB Compression Metrics
+– Evaluate effectiveness of InnoDB Compression New Dashboard – MySQL
+Command/Handler Compare – Contrast MySQL instances side by side
+Updated Grafana to 5.1 – Fixed scrolling issues We addressed 10 new
+features and improvements, and fixed 13 bugs.
 
 In release 1.12, we invested our efforts in the following areas:
 
