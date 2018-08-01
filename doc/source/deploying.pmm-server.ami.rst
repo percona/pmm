@@ -294,15 +294,11 @@ use the new size:
 1. Detect the type of your filesystem: :code:`mount | grep '/srv'`
 2. In case of *XFS* reboot instance or run the following commands:
 
-   .. include:: .res/code/sh.org
-      :start-after: +pvresize.lvextend.xfs-growfs+
-      :end-before: #+end-block
+   .. include:: .res/code/pvresize.lvextend.xfs-growfs.txt
 
 3. In case of *btrfs*, run the following command:
 
-   .. include:: .res/code/sh.org
-      :start-after: +btrfs.filesystem.resize.max+
-      :end-before: #+end-block
+   .. include:: .res/code/btrfs.filesystem.resize.max.txt
 
 .. admonition:: More information in |aws| documentation
 
@@ -334,63 +330,63 @@ for the corresponding image:
 
    * - Asia Pacific (Tokyo)
      - **ap-northeast-1**
-     - `ami-94aa56eb <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-94aa56eb>`_
+     - `ami-0a83f03af403bab50 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0a83f03af403bab50>`_
 
    * - Asia Pacific (Seoul)
      - **ap-northeast-2**
-     - `ami-990da5f7 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-990da5f7>`_
+     - `ami-035b00cc303628749 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-035b00cc303628749>`_
 
    * - Asia Pacific (Mumbai)
      - **ap-south-1**
-     - `ami-d1c0ecbe <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-d1c0ecbe>`_
+     - `ami-0526b4888a6eaf292 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0526b4888a6eaf292>`_
 
    * - Asia Pacific (Singapore)
      - **ap-southeast-1**
-     - `ami-b45b66c8 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-b45b66c8>`_
+     - `ami-06eb5245e95978eeb <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-06eb5245e95978eeb>`_
 
    * - Asia Pacific (Sydney)
      - **ap-southeast-2**
-     - `ami-d172a2b3 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-d172a2b3>`_
+     - `ami-095a6e197a9e5ff61 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-095a6e197a9e5ff61>`_
 
    * - Canada (Central)
      - **ca-central-1**
-     - `ami-6a30b00e <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-6a30b00e>`_
+     - `ami-0e7b3299503423a7d <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0e7b3299503423a7d>`_
 
    * - EU (Frankfurt)
      - **eu-central-1**
-     - `ami-b08ba35b <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-b08ba35b>`_
+     - `ami-0e4e7908e9304d377 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0e4e7908e9304d377>`_
 
    * - EU (Ireland)
      - **eu-west-1**
-     - `ami-f96d5380 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-f96d5380>`_
+     - `ami-06c38252b36351884 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-06c38252b36351884>`_
 
    * - EU (London)
      - **eu-west-2**
-     - `ami-098d616e <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-098d616e>`_
+     - `ami-099e46427b4fec067 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-099e46427b4fec067>`_
 
    * - EU (Paris)
      - **eu-west-3**
-     - `ami-1f6edf62 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-1f6edf62>`_
+     - `ami-05df06f90786b069d <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-05df06f90786b069d>`_
 
    * - South America (São Paulo)
      - **sa-east-1**
-     - `ami-f21e409e <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-f21e409e>`_
+     - `ami-042003019d8a49351 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-042003019d8a49351>`_
 
    * - US East (N. Virginia)
      - **us-east-1**
-     - `ami-baa9ccc5 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-baa9ccc5>`_
+     - `ami-08f8831645d9ee639 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-08f8831645d9ee639>`_
 
    * - US East (Ohio)
      - **us-east-2**
-     - `ami-77edd112 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-77edd112>`_
+     - `ami-023c8278e069bf988 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-023c8278e069bf988>`_
 
    * - US West (N. California)
      - **us-west-1**
-     - `ami-2ca3bb4c <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-2ca3bb4c>`_
+     - `ami-07db71ee07e4c8542 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-07db71ee07e4c8542>`_
 
    * - US West (Oregon)
      - **us-west-2**
-     - `ami-8ff789f7 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-8ff789f7>`_
+     - `ami-00a43b21b282fb676 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-00a43b21b282fb676>`_
 
 .. _run-server-ami.command-line:
 
@@ -401,15 +397,7 @@ for the corresponding image:
    for the corresponding region and image.
    For example:
 
-   .. code-block:: bash
-
-      aws ec2 run-instances \
-        --image-id ami-30ad0f4d \
-        --security-group-ids sg-3b6e5e46 \
-        --instance-type t2.micro \
-        --subnet-id subnet-4765a930 \
-        --region us-east-1 \
-        --key-name SSH-KEYNAME
+   .. include:: .res/code/aws.ec2.run-instances.txt
 
    .. note:: Providing the public SSH key is optional.
       Specify it if you want SSH access to |pmm-server|.
@@ -417,23 +405,12 @@ for the corresponding image:
 #. Set a name for the instance using the ``create-tags`` command.
    For example:
 
-   .. code-block:: bash
-
-      aws ec2 create-tags  \
-        --resources i-XXXX-INSTANCE-ID-XXXX \
-        --region us-east-1 \
-        --tags Key=Name,Value=OWNER_NAME-pmm
+   .. include:: .res/code/aws.ec2.create-tags.txt
 
 #. Get the IP address for accessing |pmm-server| from console output
    using the ``get-console-output`` command.
    For example:
 
-   .. code-block:: bash
-
-      aws ec2 get-console-output \
-        --instance-id i-XXXX-INSTANCE-ID-XXXX \
-        --region us-east-1 \
-        --output text \
-        | grep cloud-init
+   .. include:: .res/code/aws.ec2.get-console-output.txt
 
 .. include:: .res/replace.txt
