@@ -1,0 +1,3 @@
+.. code-block:: sql
+
+   mysql> ALTER USER pmm@'localhost' IDENTIFIED WITH mysql_native_password BY '$eCR8Tp@s$w*rD';

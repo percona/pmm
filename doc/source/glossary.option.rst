@@ -14,9 +14,7 @@ parameter. Use this flag in front of each parameter that you pass to
 Here, we pass more than one option to |pmm-server| along with the |docker.run|
 command. |tip.run-this.root|.
 
-.. include:: .res/code/sh.org
-   :start-after: +docker.run.server-user.example+
-   :end-before: #+end-block
+.. include:: .res/code/docker.run.server-user.example.txt
 
 List of |pmm-server| Parameters
 ================================================================================
@@ -39,9 +37,7 @@ List of |pmm-server| Parameters
       If you do not want your |pmm-server| to send this information, disable telemetry
       when running your |docker| container:
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.run.disable-telemetry+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.disable-telemetry.txt
 
    METRICS_RETENTION
 
@@ -54,9 +50,7 @@ List of |pmm-server| Parameters
 
       |tip.run-this.root|
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.run.e.metrics-retention+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.e.metrics-retention.txt
 
       .. seealso::
 

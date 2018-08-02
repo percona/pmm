@@ -23,17 +23,15 @@ service as additional options. For more information about this exporter see its
 :ref:`Collector options <pmm/exporter.node.collector-option>`
 --------------------------------------------------------------------------------
 
-.. include:: .res/table/table.org
-   :start-after: +node-exporter.flag+
-   :end-before: #+end-table
+.. include:: .res/table/node-exporter.flag.txt
 
 .. important::
 
    .. versionadded:: 1.13.0
 
-   |pmm| shows NUMA related metrics on the
-   |dbd.advanced-data-exploration|. To enable this feature, the
-   |opt.meminfo-numa| option is enabled when you install |pmm|.
+   |pmm| shows NUMA related metrics on the |dbd.advanced-data-exploration| and
+   |dbd.overview-numa-metrics| dashboards. To enable this feature, the
+   |opt.meminfo-numa| option is enabled automatically when you install |pmm|.
 
 
 .. admonition:: Relatedion information

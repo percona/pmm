@@ -35,17 +35,13 @@ service as additional options.
 :ref:`Collector options <pmm/exporter.mysqld.collector-option>`
 --------------------------------------------------------------------------------
 
-.. include:: .res/table/table.org
-   :start-after: +mysqld-exporter.collector-flag+
-   :end-before: #+end-table
+.. include:: .res/table/mysqld-exporter.collector-flag.txt
 
 .. _pmm/exporter.mysqld.general-option:
 
 :ref:`General options <pmm/exporter.mysqld.general-option>`
 --------------------------------------------------------------------------------
 
-.. include:: .res/table/table.org
-   :start-after: +mysqld-exporter.collector-flag+
-   :end-before: #+end-table
+.. include:: .res/table/mysqld-exporter.general-flag.txt
 
 .. include:: .res/replace.txt
