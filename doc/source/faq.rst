@@ -381,16 +381,12 @@ If you would like to experiment with the latest development version using
 |docker|, you may use the |opt.dev-latest| image. This version, however, is not
 intended to be used in a production environment.
 
-.. include:: .res/code/sh.org
-   :start-after: +docker.pull.perconalab-pmm-server-dev-latest+
-   :end-before: #+end-block
+.. include:: .res/code/docker.pull.perconalab-pmm-server-dev-latest.txt
 
 If you would like to experiment with the latest development version of
 |pmm-server| |virtualbox| image, download the development version as follows:
 
-.. include:: .res/code/sh.org
-   :start-after: +wget.pmm-server-dev-latest-ova+
-   :end-before: #+end-block
+.. include:: .res/code/wget.pmm-server-dev-latest-ova.txt
 
 .. important:: 
 

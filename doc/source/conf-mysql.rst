@@ -11,10 +11,9 @@ efficiency. These recommendations depend on the variant and version of |mysql|
 you are using, and mostly apply to very high loads.
 
 |pmm| can collect query data either from the |slow-query-log| or from
-|performance-schema|.  The |slow-query-log| provides maximum details,
-but can impact performance on heavily loaded systems. On
-|percona-server| the query sampling feature may reduce the performance
-impact.
+|performance-schema|.  The |slow-query-log| provides maximum details, but can
+impact performance on heavily loaded systems. On |percona-server| the query
+sampling feature may reduce the performance impact.
 
 |performance-schema| is generally better for recent versions of other |mysql|
 variants. For older |mysql| variants, which have neither sampling, nor
@@ -202,16 +201,12 @@ critical data and is generally faster to parse. If you are not running
 
 To use |perf-schema|, set the ``performance_schema`` variable to ``ON``:
 
-.. include:: .res/code/sql.org
-   :start-after: +show-variables.like.performance-schema+
-   :end-before: #+end-block
+.. include:: .res/code/show-variables.like.performance-schema.txt
 
 If this variable is not set to **ON**, add the the following lines to the
 |mysql| configuration file |my.cnf| and restart |mysql|:
 
-.. include:: .res/code/sql.org
-   :start-after: +my-conf.mysql.performance-schema+
-   :end-before: #+end-block
+.. include:: .res/code/my-conf.mysql.performance-schema.txt
 
 If you are running a custom Performance Schema configuration, make sure that the
 ``statements_digest`` consumer is enabled:
@@ -275,9 +270,7 @@ If you are adding a new monitoring instance with the |pmm-admin| tool, use the
 
 |tip.run-this.root|
 
-.. include:: .res/code/sh.org
-   :start-after: +pmm-admin.add.mysql.user.password.create-user.query-source+
-   :end-before: #+end-block
+.. include:: .res/code/pmm-admin.add.mysql.user.password.create-user.query-source.txt
 		   
 For more information, run
 |pmm-admin.add|
@@ -313,9 +306,7 @@ or higher as a monitoring service to |pmm|:
 Provided you have already created the |mysql| user that you plan to use
 with |pmm|, alter this user as follows:
 
-.. include:: .res/code/sql.org
-   :start-after: +alter.user.identified.with.by+
-   :end-before: #+end-block
+.. include:: .res/code/alter.user.identified.with.by.txt
 
 Then, pass this user to ``pmm-admin add`` as the value of the ``--user``
 parameter.
@@ -329,9 +320,7 @@ to the value **mysql_native_password** before adding it as a
 monitoring service. Then, restart your |mysql| Server to apply this
 change.
 
-.. include:: .res/code/sql.org
-   :start-after: +my-conf.mysqld.default-authentication-plugin+
-   :end-before: #+end-block
+.. include:: .res/code/my-conf.mysqld.default-authentication-plugin.txt
    
 .. seealso::
 
@@ -440,7 +429,6 @@ To enable collection of query response time:
    .. code-block:: sql
 		   
       mysql> SET GLOBAL query_response_time_stats=ON;
-
 
 .. admonition:: Related Information: |percona-server| Documentation
 

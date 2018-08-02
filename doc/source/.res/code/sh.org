@@ -6,7 +6,7 @@
 
 .. code-block:: bash
 
-      $ ./uninstall
+   $ ./uninstall
 
 #+end-block
 

@@ -20,7 +20,7 @@ Basics
    :maxdepth: 1
 
    Architecture Overview <architecture>
-   Deployment Instructions <deploying>
+   Deployment Instructions <deploy/index>
    tool
 
 Advanced

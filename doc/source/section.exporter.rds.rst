@@ -1,6 +1,6 @@
 :orphan: true
 
-.. _pmm/exporter/rds:
+.. _pmm.exporter.rds:
 
 |amazon-rds| Exporter (rds_exporter)
 ================================================================================
@@ -20,9 +20,9 @@ that you choose to monitor.
    All exporter options
       :ref:`pmm/list.exporter`
 
-.. _pmm/exporter/rds/metrics:
+.. _pmm.exporter.rds.metrics:
 
-:ref:`Metrics <pmm/exporter/rds/metrics>`
+:ref:`Metrics <pmm.exporter.rds.metrics>`
 --------------------------------------------------------------------------------
 
 The |amazon-rds| exporter has two types of metrics: basic and advanced. To be
@@ -44,8 +44,6 @@ instance.
    Metrics and Dimensions
       https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/rds-metricscollected.html
 
-.. include:: .res/table/list-table.org
-   :start-after: +exporter.rds.metrics+
-   :end-before: #+end-block
+.. include:: .res/table/exporter.rds.metrics.txt
    
 .. include:: .res/replace.txt

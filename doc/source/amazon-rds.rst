@@ -141,9 +141,7 @@ To define a new policy use the |iam| page at |aws|.
 #. On the |gui.create-policy| page, select the |json| tab and replace the
    existing contents with the following |json| document.
 
-   .. include:: .res/code/js.org
-      :start-after: +aws.iam-user.permission+
-      :end-before: #+end-block
+   .. include:: .res/code/aws.iam-user.permission.txt
    
 #. Click |gui.review-policy| and set a name to your policy, such as
    |policy-name|. Then, click the |gui.create-policy| button.
@@ -292,9 +290,7 @@ statement.
 The following example shows how to enable |qan| and |mysql| metrics monitoring
 on |amazon-rds|:
 
-.. include:: .res/code/sh.org
-   :start-after: +pmm-admin.add.mysql-metrics.rds+
-   :end-before: #+end-block
+.. include:: .res/code/pmm-admin.add.mysql-metrics.rds.txt
 
 .. seealso::
 

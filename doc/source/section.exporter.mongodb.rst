@@ -24,9 +24,7 @@ https://github.com/percona/mongodb_exporter.
 :ref:`Options <pmm/exporter-option.mongodb.option>`
 --------------------------------------------------------------------------------
 
-.. include:: .res/table/table.org
-   :start-after: +mongodb-exporter.flag+
-   :end-before: #+end-table
+.. include:: .res/table/mongodb-exporter.flag.txt
 
 .. include:: .res/replace.txt
 
