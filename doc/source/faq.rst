@@ -333,9 +333,9 @@ Why do I get ``Failed ReadTopologyInstance`` error when adding MySQL host to Orc
 ==========================================================================================
 
 You need to create Orchestrator's topology user on |mysql|
-according to :ref:`this section <pmm/using.orchestrator>`.
+according to :ref:`this section <pmm.using.orchestrator>`.
 
-.. _pmm/deploying/server/virtual-appliance/root-password/set:
+.. _pmm.deploying.server.virtual-appliance.root-password.setting:
 
 How to set the root password when |pmm-server| is installed as a virtual appliance
 ====================================================================================================

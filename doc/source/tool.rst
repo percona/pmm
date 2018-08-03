@@ -1,6 +1,6 @@
 .. _using:
 
-Tools of |pmm.name|
+Tools of |pmm|
 ********************************************************************************
 
 You can access the |pmm| web interface using the IP address of the host where

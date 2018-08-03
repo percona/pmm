@@ -1,0 +1,4 @@
+.. code-block:: bash
+
+   $ cd /etc/systemd/system
+   $ cat pmm-mysql-metrics-42002.service

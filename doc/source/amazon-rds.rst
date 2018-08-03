@@ -15,7 +15,7 @@ instance to |pmm|. This method supports |amazon-rds| DB instances that use
 
 .. _figure.pmm.amazon-rds.pmm-server.add-instance.access-key-id:
 
-.. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.png
+.. figure:: .res/graphics/png/metrics-monitor.add-instance.png
    
    Enter the access key ID and the secret access key of your |iam| user to view
    |amazon-rds| DB instances.
@@ -28,7 +28,7 @@ instance to |pmm|. This method supports |amazon-rds| DB instances that use
 
 .. _figure.pmm.amazon-rds.pmm-server.add-instance.displaying:
 
-.. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.1.png
+.. figure:: .res/graphics/png/metrics-monitor.add-instance.1.png
 
    |pmm| displays the available |amazon-rds| instances
 
@@ -39,7 +39,7 @@ instances in the |dbd.amazon-rds-aurora-mysql-metrics|.
 
 .. _figure.pmm.amazon-rds.pmm-server.add-instance.rds-instances.db-user-credentials:
 
-.. figure:: .res/graphics/png/pmm.metrics-monitor.add-instance.rds-instances.1.png
+.. figure:: .res/graphics/png/metrics-monitor.add-instance.rds-instances.1.png
 
    Enter the DB user name and password to connect to the selected |rds| or
    |amazon-aurora| instance.

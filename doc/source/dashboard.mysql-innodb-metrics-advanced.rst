@@ -12,9 +12,7 @@ selected |mysql| host. This dashboard contains the following metrics:
    If you do not see any metric, try running the following command in the
    |mysql| client:
 
-   .. include:: .res/code/sql.org
-      :start-after: +set.global.innodb-monitor-enable+
-      :end-before: #+end-block
+   .. include:: .res/code/set.global.innodb-monitor-enable.txt
 
 .. rubric:: Metrics of |this-dashboard|
    

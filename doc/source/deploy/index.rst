@@ -26,7 +26,7 @@ this scenario, the |abbr.pmm| server is set up on a dedicated monitoring host.
 To install and set up the |pmm-server|, use one of the following options:
 
 .. -  :ref:`run-server-docker`
-.. -  :ref:`pmm/deploying/server/virtual-appliance`
+.. -  :ref:`pmm.deploying.server.virtual-appliance`
 .. -  :ref:`run-server-ami`
 
 .. toctree::
@@ -203,8 +203,7 @@ When changing to a new version of |pmm|, you update the |pmm-server| and each
 The updating procedure of your |pmm-server| depends on the option that you
 selected for installing it.
 
-If you are running |pmm-server| as a :ref:`virtual appliance
-<pmm/deploying/server/virtual-appliance>` or using an :ref:`Amazon Machine Image
+If you are running |pmm-server| as a :ref:`virtual appliance <pmm.deploying.server.virtual-appliance>` or using an :ref:`Amazon Machine Image
 <run-server-ami>`, use the |gui.check-for-updates-manually| button on the Home
 dashboard (see :term:`PMM Home Page`).
 
@@ -298,7 +297,7 @@ the following command in your terminal:
 .. seealso::
 
    |pmm| Building Blocks
-      :ref:`pmm/architecture`
+      :ref:`pmm.architecture`
    About using the |pmm-admin.add| command
       :ref:`pmm-admin.add`
 

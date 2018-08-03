@@ -2,8 +2,8 @@
 
 .. _use-case.slow-log-rotation:
 
-Use |logrotate| instead of the slow log rotation feature to manage |slow-log|
-********************************************************************************
+Use |logrotate| instead of the slow log rotation feature to manage MySQL |slow-log|
+***********************************************************************************
 
 By default, |pmm| manages the slow log for the added |mysql| monitoring service
 on the computer where |pmm-client| is installed. This example demonstrates how
@@ -23,15 +23,15 @@ The first step is to disable the default slow log rotation when adding the
 
 For this, set the |opt.slow-log-rotation| to *false*.
 
-.. include:: .res/code/sh.org
-   :start-after: +pmm-admin.add.mysql.slow-log-rotation+
-   :end-before: #+end-block
+|tip.run-this.root|
+
+.. include:: .res/code/pmm-admin.add.mysql.slow-log-rotation.txt
 
 On |pmm-server|, you can check the value of the
 |gui.slow-logs-rotation| field on the |qan| Settings page. It should
 be *OFF*.
 
-.. figure:: .res/graphics/png/pmm.qan.settings.1.png
+.. figure:: .res/graphics/png/qan.settings.1.png
 
    See the |gui.slow-logs-rotation| field on the |qan| Settings page
    to determine whether or not the slow log rotation feature is
@@ -41,9 +41,7 @@ On |pmm-client| (the host where you ran |pmm-admin.add| command to add
 the |mysql| monitoring service), use the |pmm-admin.list| command to
 determine if the |slow-log| rotation is disabled.
 
-.. include:: .res/code/sh.org
-   :start-after: +pmm-admin.list.+output.slow-log-rotation+
-   :end-before: #+end-block
+.. include:: .res/code/pmm-admin.list.output.slow-log-rotation.txt
    
 .. seealso::
 
@@ -62,15 +60,11 @@ determine if the |slow-log| rotation is disabled.
    rotation was not disabled explicitly using the |opt.slow-log-rotation|
    option, remove this monitoring service.
 
-   .. include:: .res/code/sh.org
-      :start-after: +pmm-admin.rm.mysql+
-      :end-before: #+end-block
+   .. include:: .res/code/pmm-admin.rm.mysql.txt
 
    Add it again setting the |opt.slow-log-rotation| to *false*.
 
-   .. include:: .res/code/sh.org
-      :start-after: +pmm-admin.add.mysql.slow-log-rotation+
-      :end-before: #+end-block
+   .. include:: .res/code/pmm-admin.add.mysql.slow-log-rotation.txt
 
 Set up |logrotate| to manage the slow log rotation
 ================================================================================
@@ -84,9 +78,7 @@ run |logrotate| as follows.
 
 |tip.run-this.root|
 
-.. include:: .res/code/sh.org
-   :start-after: +logrotate.config_file+
-   :end-before: #+end-block
+.. include:: .res/code/logrotate.config-file.txt
 
 *CONFIG_FILE* is a placeholder for a configuration file that you should supply to
 |logrotate| as a mandatory parameter. To use |logrotate| to manage the
@@ -95,9 +87,7 @@ run |logrotate| as follows.
 This is a basic example of |logrotate| for the |mysql| slow logs at 1G for 30
 copies (30GB).
 
-.. include:: .res/code/conf.org
-   :start-after: +logrotate.slow-log+
-   :end-before: #+end-block
+.. include:: .res/code/logrotate.slow-log.txt
 
 .. important::
 
@@ -114,7 +104,7 @@ copies (30GB).
 For more information about how to use |logrotate|, refer to its documentation
 installed along with the program. 
 
-.. admonition:: Related information
+.. admonition:: |related-information|
 
    |mysql| Documentation:
 

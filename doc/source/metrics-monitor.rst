@@ -15,7 +15,7 @@ graphs are separated into dashboards by themes: some are related to |mysql| or
 .. seealso::
 
    How to |qan.what-is|
-      :ref:`pmm/qan`
+      :ref:`pmm.qan`
 
 .. _pmm.metrics-monitor.signing-in:
 
@@ -79,7 +79,7 @@ that matches your choice.
 =============  ==============================================================
 Group          Dashboards for monitoring ...
 =============  ==============================================================   
-|qan.name|     |qan| component (see :ref:`pmm/qan`)
+|qan.name|     |qan| component (see :ref:`pmm.qan`)
 OS             The operating system status
 |mysql|        |mysql| and |amazon-aurora|
 |mongodb|      State of |mongodb| hosts
@@ -96,11 +96,9 @@ Insight        Summary, cross-server and |prometheus|
 .. seealso::
 
    |percona| support for high availability
-
       https://www.percona.com/services/support/mysql-ha-cluster-support
 
    List of |metrics-monitor| dashboards
-
       See section :ref:`pmm.dashboard.list`
 
 .. .. _pmm.metrics-monitor.dashboard.enabling:
@@ -124,7 +122,7 @@ hovering the mouse pointer over the |gui.more-information| icon at the top left
 corner of a graph. When you move the mouse pointer away from the |gui.more-inf|
 button the description disappears.
 
-.. figure:: .res/graphics/png/pmm.metrics-monitor.description.1.png
+.. figure:: .res/graphics/png/metrics-monitor.description.1.png
 
    Graph descriptions provide more information about a graph without claiming
    any space in the interface.
@@ -199,7 +197,7 @@ You may toggle displaying annotations on metric graphs by using the
 .. seealso::
 
    Adding annotations
-     :ref:`pmm-admin/annotate`
+     :ref:`pmm-admin.annotate`
 
    |grafana| Documentation:
       - `Annotations <http://docs.grafana.org/reference/annotations/#annotations>`_
@@ -234,7 +232,7 @@ First, open the dashboard that you would like to share. Click the
 |gui.snapshot| command. Finally, click the
 |gui.share-with-percona-team| button.
 
-.. figure:: .res/graphics/png/pmm.metrics-monitor.share.snapshot.png
+.. figure:: .res/graphics/png/metrics-monitor.share.snapshot.png
 
    The |gui.snapshot| tab in the |gui.share| dialog window.
 

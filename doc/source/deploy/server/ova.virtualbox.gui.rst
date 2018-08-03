@@ -1,4 +1,4 @@
-.. _pmm/deploying/server/ova/virtualbox/gui:
+.. _pmm.deploying.server.ova.virtualbox.gui:
 
 VirtualBox Using the GUI
 ================================================================================
@@ -30,9 +30,9 @@ using the graphical user interface of VirtualBox:
 .. seealso::
 
    Using |pmm-server| as a virtual appliance
-      :ref:`pmm/deploying/server/virtual-appliance`
+      :ref:`pmm.deploying.server.virtual-appliance`
    Setting the root password
-      :ref:`pmm/deploying/server/virtual-appliance/root-password/set`
+      :ref:`pmm.deploying.server.virtual-appliance.root-password.setting`
 
 .. _`download percona monitoring and management`: https://www.percona.com/downloads/pmm
 

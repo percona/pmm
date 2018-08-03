@@ -1,4 +1,4 @@
-.. _pmm/architecture:
+.. _pmm.architecture:
 
 Overview of |percona-monitoring-management| Architecture
 ********************************************************************************
@@ -71,7 +71,7 @@ The |pmm-client| package consist of the following:
       :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
 
    List of available exporter options
-      :ref:`pmm/list.exporter`
+      :ref:`pmm.list.exporter`
 
 .. _pmm-server:
 
@@ -131,13 +131,13 @@ For more information, see :ref:`using`.
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
    Enabling orchestrator
-      :term:`Orchestrator` in :ref:`pmm/glossary/terminology-reference`
+      :term:`Orchestrator` in :ref:`pmm.glossary.terminology-reference`
 
-.. _pmm/using.orchestrator:
+.. _pmm.using.orchestrator:
 
-:ref:`Orchestrator <pmm/using.orchestrator>`
+:ref:`Orchestrator <pmm.using.orchestrator>`
 ================================================================================
 
 |orchestrator| is a |mysql| replication topology management and visualization
@@ -148,9 +148,7 @@ page.
 
 To use it, create a |mysql| user for |orchestrator| on all managed instances:
 
-.. include:: .res/code/sql.org
-   :start-after: +grant.orc-client-user+
-   :end-before: #+end-block
+.. include:: .res/code/grant.orc-client-user.txt
 
 .. note:: The credentials in the previous example are default.
    If you use a different user name or password,
@@ -161,9 +159,7 @@ To use it, create a |mysql| user for |orchestrator| on all managed instances:
    and
    :term:`ORCHESTRATOR_USER  <ORCHESTRATOR_USER>` options.
 
-   .. include:: .res/code/sh.org
-      :start-after: +docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
-      :end-before: #+end-block
+   .. include:: .res/code/docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password.txt
 
 Then you can use the |gui.discover| page in the |orchestrator| web interface
 to add the instances to the topology.
@@ -176,7 +172,7 @@ to add the instances to the topology.
 
    In version 1.3.0 and later, |orchestrator| is not enabled
    by default. To enable it, see
-   :ref:`pmm/docker.additional-option` in the
+   :ref:`pmm.docker.additional-option` in the
    :ref:`run-server-docker` section.
 
 .. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/

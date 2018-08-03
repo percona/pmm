@@ -1,6 +1,6 @@
 :orphan: true
 
-.. _pmm/exporter.mysqld:
+.. _pmm.exporter.mysqld:
 
 |mysql| Server Exporter (mysqld_exporter)
 ================================================================================
@@ -28,18 +28,18 @@ service as additional options.
    Passing options to a monitoring service
       :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
    All exporter options
-      :ref:`pmm/list.exporter`
+      :ref:`pmm.list.exporter`
 
-.. _pmm/exporter.mysqld.collector-option:
+.. _pmm.exporter.mysqld.collector-option:
 
-:ref:`Collector options <pmm/exporter.mysqld.collector-option>`
+:ref:`Collector options <pmm.exporter.mysqld.collector-option>`
 --------------------------------------------------------------------------------
 
 .. include:: .res/table/mysqld-exporter.collector-flag.txt
 
-.. _pmm/exporter.mysqld.general-option:
+.. _pmm.exporter.mysqld.general-option:
 
-:ref:`General options <pmm/exporter.mysqld.general-option>`
+:ref:`General options <pmm.exporter.mysqld.general-option>`
 --------------------------------------------------------------------------------
 
 .. include:: .res/table/mysqld-exporter.general-flag.txt
