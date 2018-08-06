@@ -1,4 +1,4 @@
-.. _pmm/glossary.pmm-server.additional-option:
+.. _pmm.glossary.pmm-server.additional-option:
 
 ================================================================================
 |pmm-server| Additional Options 
@@ -63,9 +63,7 @@ List of |pmm-server| Parameters
 
       This option determines how many days queries are stored at :term:`PMM Server`. 
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.run.e.queries-retention+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.e.queries-retention.txt
 
       .. seealso::
 
@@ -77,12 +75,10 @@ List of |pmm-server| Parameters
    ORCHESTRATOR_ENABLED
 
       This option enables |orchestrator| (See
-      :ref:`pmm/using.orchestrator`). By default it is disabled. It is
+      :ref:`pmm.using.orchestrator`). By default it is disabled. It is
       also desabled if this option contains **false**.
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.run.orchestrator-enabled+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.orchestrator-enabled.txt
 
       .. seealso::
 
@@ -104,9 +100,7 @@ List of |pmm-server| Parameters
       :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED>` option is
       set to **false**.
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password.txt
 
    ORCHESTRATOR_PASSWORD
 
@@ -117,9 +111,7 @@ List of |pmm-server| Parameters
       :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED>`
       option is set to **false**.
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password.txt
 
       .. seealso:: :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED>`
 
@@ -130,9 +122,7 @@ List of |pmm-server| Parameters
 
       |tip.run-this.root|.
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.run.server-user+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.server-user.txt
 
    SERVER_PASSWORD
 
@@ -140,9 +130,7 @@ List of |pmm-server| Parameters
 
       |tip.run-this.root|.
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.run.server-password+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.server-password.txt
       
       By default, the user name is ``pmm``. You can change it by passing the
       :term:`SERVER_USER <SERVER_USER>` variable.
@@ -154,9 +142,7 @@ List of |pmm-server| Parameters
 
       |tip.run-this.root|.
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.run.metrics-resolution+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.metrics-resolution.txt
 
    METRICS_MEMORY
 
@@ -174,9 +160,7 @@ List of |pmm-server| Parameters
       |tip.run-this.root|. The value must be passed in kilobytes. For example,
       to set the limit to 4 GB of memory run the following command:
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.run.metrics-memory+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.metrics-memory.txt
 
       .. seealso:: 
 
@@ -192,9 +176,7 @@ List of |pmm-server| Parameters
 
       |tip.run-this.root|.
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.run.disable-updates+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.disable-updates.txt
 
       The |opt.disable-updates| option removes the |gui.update| button
       from the interface and prevents the system from being updated manually.

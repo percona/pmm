@@ -1,6 +1,6 @@
 :orphan: true
 
-.. _pmm/exporter.node:
+.. _pmm.exporter.node:
 
 Node Exporter (node_exporter)
 ================================================================================
@@ -16,11 +16,11 @@ service as additional options. For more information about this exporter see its
    Passing options to a monitoring service
       :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
    All exporter options
-      :ref:`pmm/list.exporter`
+      :ref:`pmm.list.exporter`
 
-.. _pmm/exporter.node.collector-option:
+.. _pmm.exporter.node.collector-option:
 
-:ref:`Collector options <pmm/exporter.node.collector-option>`
+:ref:`Collector options <pmm.exporter.node.collector-option>`
 --------------------------------------------------------------------------------
 
 .. include:: .res/table/node-exporter.flag.txt

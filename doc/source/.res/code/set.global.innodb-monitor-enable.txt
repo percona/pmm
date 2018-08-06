@@ -1,0 +1,3 @@
+.. code-block:: mysql
+
+      mysql > SET GLOBAL innodb_monitor_enable=all;

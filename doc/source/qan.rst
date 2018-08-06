@@ -1,4 +1,4 @@
-.. _pmm/qan:
+.. _pmm.qan:
 
 |qan.name|
 ********************************************************************************
@@ -57,7 +57,7 @@ essential metrics: *Load*, *Count*, and *Latency*.
 To view more queries, click the :guilabel:`Load next 10 queries` button below
 the query summary table.
 
-.. figure:: .res/graphics/png/pmm.qan.query-summary-table.default.1.png
+.. figure:: .res/graphics/png/qan.query-summary-table.default.1.png
 
    The query summary table shows the monitored queries from the selected
    database.
@@ -90,7 +90,7 @@ list of queries in the summary table does not change its values. These are
 always calculated based on all queries run within the selected time or date
 range.
 
-.. figure:: .res/graphics/png/pmm.qan.query-summary-table.1.png
+.. figure:: .res/graphics/png/qan.query-summary-table.1.png
 
    A list of queries
 
@@ -102,7 +102,7 @@ The query metrics that appear in |qan| are computed based on a time period or a
 range of dates. The default value is *the last hour*. To set another range use
 the *range selection tool* located at the top of the |qan| page.
 
-.. figure:: .res/graphics/png/pmm.qan.range-selection.1.png
+.. figure:: .res/graphics/png/qan.range-selection.1.png
 
    |qan| displays query metrics for the time period or date range that you
    specify.
@@ -119,7 +119,7 @@ The first line of the query summary contains the totals of the *load*, *count*,
 and *latency* for all queries that were run on the selected database server
 during the time period that you've specified.
 
-.. figure:: .res/graphics/png/pmm.qan.query-summary-table.totals.1.png
+.. figure:: .res/graphics/png/qan.query-summary-table.totals.1.png
 	   
    The totals appear at the top of the query summary table.
 
@@ -158,7 +158,7 @@ If you hover the cursor over one of the metrics in a query, you can see a
 concrete value at the point where your cursor is located. Move the cursor along
 the plotted line to watch how the value is changing.
 
-.. figure:: .res/graphics/png/pmm.qan.query-summary-table.1.png
+.. figure:: .res/graphics/png/qan.query-summary-table.1.png
 
    *Hover the cursor to see a value at the point.*
 
@@ -173,7 +173,7 @@ summary table`. The detailed information includes the query type specific
 metrics. It also contains details about the database and tables which are used
 in the query.
 
-.. figure:: .res/graphics/png/pmm.qan.query-metrics.1.png
+.. figure:: .res/graphics/png/qan.query-metrics.1.png
 
    Select a query from the query summary table to open its metrics.
 
@@ -187,7 +187,7 @@ In addition to the metrics in the :term:`query metrics summary table`,
 section contains the :term:`fingerprint <Query Fingerprint>` and an example of
 the query.
 
-.. figure:: .res/graphics/png/pmm.qan.query.1.png
+.. figure:: .res/graphics/png/qan.query.1.png
 
    The Query section shows the SQL statement for the selected query.
 
@@ -213,7 +213,7 @@ identical to that of |pt-visual-explain|.
    Use the |gui.copy-to-clipboard| button to save the output and pass it to
    external tools, such as |pt-visual-explain|.
 
-.. figure:: .res/graphics/png/pmm.qan.explain.1.png
+.. figure:: .res/graphics/png/qan.explain.1.png
 
    The three output formats of the |sql.explain| command.
 
@@ -279,7 +279,7 @@ of the |gui.collect-from| field accordingly.
 
 .. _figure.pmm.qan.configuring.pmm.qan.tab.settings:
 
-.. figure:: .res/graphics/png/pmm.qan.settings.1.png
+.. figure:: .res/graphics/png/qan.settings.1.png
 	   
    The |gui.settings| tab to view the essential settings of the selected
    database server.
@@ -333,7 +333,7 @@ complex object is stored together.
 
 .. _figure.pmm.qan.mongodb.query-summary-table.mongodb:
 
-.. figure:: .res/graphics/png/pmm.qan.query-summary-table.mongodb.1.png
+.. figure:: .res/graphics/png/qan.query-summary-table.mongodb.1.png
 
    A list of queries from a |mongodb| host
 
@@ -351,7 +351,7 @@ reading and writing data in the collections of your |mongodb| databases.
 
 .. _figure.pmm.qan.mongodb.query-metrics:
 
-.. figure:: .res/graphics/png/pmm.qan.query-metrics.mongodb.1.png
+.. figure:: .res/graphics/png/qan.query-metrics.mongodb.1.png
 
    Analyze |mongodb| queries using the same tools as relational database
    management systems.

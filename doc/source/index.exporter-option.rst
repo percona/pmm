@@ -1,6 +1,6 @@
 :orphan: true
 
-.. _pmm/list.exporter:
+.. _pmm.list.exporter:
 
 Exporters Overview
 ********************************************************************************

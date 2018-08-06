@@ -15,7 +15,7 @@ drives.
 |metrics-monitor| information for this dashboard comes from the
 |inf-schema| tables.
 
-.. figure:: .res/graphics/png/pmm.metrics-monitor.mysql-myrocks-metrics.1.png
+.. figure:: .res/graphics/png/metrics-monitor.mysql-myrocks-metrics.1.png
 	    
    The |mysql| |myrocks| metrics dashboard
 

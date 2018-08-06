@@ -1,4 +1,4 @@
-.. _pmm/deploying/server/virtual-appliance:
+.. _pmm.deploying.server.virtual-appliance:
 
 PMM Server as a Virtual Appliance
 ********************************************************************************
@@ -21,9 +21,9 @@ platforms, including:
    :local:
    :depth: 1
 
-.. _pmm/deploying/server/virtual-appliance.supported-platform.virtual-appliance:
+.. _pmm.deploying.server.virtual-appliance.supported-platform.virtual-appliance:
 
-:ref:`Supported Platforms for Running the PMM Server Virtual Appliance <pmm/deploying/server/virtual-appliance.supported-platform.virtual-appliance>`
+:ref:`Supported Platforms for Running the PMM Server Virtual Appliance <pmm.deploying.server.virtual-appliance.supported-platform.virtual-appliance>`
 =====================================================================================================================================================
 
 The virtual appliance is ideal for running |pmm-server| on an enterprise
@@ -41,12 +41,12 @@ The virtual machine used for the appliance runs |centos| 7.
    assign an IP address for it.
 
    To assign a static IP manually, you need to acquire the root access as
-   described in :ref:`pmm/deploying/server/virtual-appliance/root-password/set`.
+   described in :ref:`pmm.deploying.server.virtual-appliance.root-password.setting`.
    Then, see the documentation for the operating system for further
    instructions: `Configuring network interfaces in CentOS
    <https://www.centos.org/docs/5/html/Deployment_Guide-en-US/s1-networkscripts-interfaces.html>`_
 
-.. _pmm/deploying/server/virtual-appliance.supported-platform.virtual-appliance.setting-up:
+.. _pmm.deploying.server.virtual-appliance.supported-platform.virtual-appliance.setting-up:
 
 .. rubric:: Instructions for setting up the virtual machine for different platforms
    
@@ -56,9 +56,9 @@ The virtual machine used for the appliance runs |centos| 7.
       
    ova.*
 
-.. _pmm/deploying/server/virtual-appliance.pmm-server.ip-address.identifying:
+.. _pmm.deploying.server.virtual-appliance.pmm-server.ip-address.identifying:
 
-:ref:`Identifying PMM Server IP Address <pmm/deploying/server/virtual-appliance.pmm-server.ip-address.identifying>`
+:ref:`Identifying PMM Server IP Address <pmm.deploying.server.virtual-appliance.pmm-server.ip-address.identifying>`
 ===================================================================================================================
 
 When run |pmm-server| as virtual appliance, The IP address of your |pmm-server|

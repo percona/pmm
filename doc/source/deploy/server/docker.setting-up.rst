@@ -98,22 +98,22 @@ This command does the following:
 * |opt.pmm-server.latest| is the name and version tag of the image
   to derive the container from.
 
-.. _pmm/docker.additional-option:
+.. _pmm.docker.additional-option:
 
-:ref:`Additional options <pmm/docker.additional-option>`
+:ref:`Additional options <pmm.docker.additional-option>`
 --------------------------------------------------------------------------------
 
 When running the |pmm-server|, you may pass additional parameters to the
 |docker.run| subcommand. All options that appear after the |opt.e| option
 are the additional parameters that modify the way how |pmm-server| operates.
 
-The section :ref:`pmm/glossary.pmm-server.additional-option` lists all
+The section :ref:`pmm.glossary.pmm-server.additional-option` lists all
 supported additional options.
 
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
    Updating PMM
       :ref:`Updating PMM <deploy-pmm.updating>`
    Backing Up the |pmm-server| |docker| container

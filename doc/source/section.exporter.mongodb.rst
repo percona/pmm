@@ -1,6 +1,6 @@
 :orphan: true
 
-.. _pmm/exporter.mongodb:
+.. _pmm.exporter.mongodb:
 
 |mongodb| Exporter (mongodb_exporter)
 ================================================================================
@@ -17,11 +17,11 @@ https://github.com/percona/mongodb_exporter.
    Passing options to a monitoring service
       :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
    All exporter options
-      :ref:`pmm/list.exporter`
+      :ref:`pmm.list.exporter`
 
-.. _pmm/exporter-option.mongodb.option:
+.. _pmm.exporter-option.mongodb.option:
 	   
-:ref:`Options <pmm/exporter-option.mongodb.option>`
+:ref:`Options <pmm.exporter-option.mongodb.option>`
 --------------------------------------------------------------------------------
 
 .. include:: .res/table/mongodb-exporter.flag.txt

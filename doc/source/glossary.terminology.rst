@@ -1,8 +1,7 @@
-.. _pmm/glossary/terminology-reference:
+.. _pmm.glossary.terminology-reference:
 
-================================================================================
 Terminology Reference
-================================================================================
+********************************************************************************
 
 .. glossary::
    :sorted:
@@ -28,9 +27,7 @@ Terminology Reference
       required permissions properly. For this, you may copy the following |JSON| for your
       IAM user:
 
-      .. include:: .res/code/js.org
-	 :start-after: +aws.iam-user.permission+
-	 :end-before: #+end-block
+      .. include:: .res/code/aws.iam-user.permission.txt
 
       .. seealso::
 
@@ -102,11 +99,9 @@ Terminology Reference
       - |perl| version
 
       You may disable telemetry :ref:`by passing an additional parameter
-      <pmm/docker.additional-option>` to |docker|.
+      <pmm.docker.additional-option>` to |docker|.
 
-      .. include:: .res/code/sh.org
-	 :start-after: docker.run.disable-telemetry
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.disable-telemetry.txt
 
    External Monitoring Service
 
@@ -266,7 +261,7 @@ Terminology Reference
 
       The collected data is sent to :term:`PMM Server`.
 
-      For more information, see :ref:`pmm/architecture`.
+      For more information, see :ref:`pmm.architecture`.
 
    PMM Server
 
@@ -283,7 +278,7 @@ Terminology Reference
 
 	 PMM Architecture
 
-	    :ref:`pmm/architecture`
+	    :ref:`pmm.architecture`
 
    Query Analytics (QAN)
 
@@ -297,9 +292,7 @@ Terminology Reference
 
       |tip.run-this.root|
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.exec.it.pmm-server.head+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.exec.it.pmm-server.head.txt
 
    QAN
 

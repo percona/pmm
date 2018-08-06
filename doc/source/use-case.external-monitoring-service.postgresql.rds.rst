@@ -73,9 +73,7 @@ less secure. It also uses |sudo| to demonstrate that the code should be run as
 the *postgres* user. Before running this command make sure to |cd| into the
 directory that contains the built :program:`postgresql_exporter` binary.
 
-.. include:: .res/code/sh.org
-   :start-after: +sudo.data-source-name.postgresql-exporter+
-   :end-before: #+end-block
+.. include:: .res/code/sudo.data-source-name.postgresql-exporter.txt
 
 The |postgresql| exporter makes its metrics available on port 9187.
 
@@ -87,9 +85,7 @@ to run |pmm-admin.add| command as follows:
 
 |tip.run-this.root|
 
-.. code-block:: bash
-   
-   $ pmm-admin add external:service postgres --service-port=9187 postgres_rds01
+.. include:: .res/code/pmm-admin.add.external-service.postgres.service-port.txt
 
 The last parameter gives a distinct name to your host. If you do not specify a
 custom instance name, the name of the host where you run |pmm-admin.add| is used
@@ -126,6 +122,6 @@ select the name of a metric. Note that postgresql specific metrics start with
 .. seealso::
 
    How to add an external monitoring services to |pmm|
-      :ref:`pmm/pmm-admin/external-monitoring-service.adding`
+      :ref:`pmm.pmm-admin.external-monitoring-service.adding`
 
 .. include:: .res/replace.txt

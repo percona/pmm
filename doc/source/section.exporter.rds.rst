@@ -18,7 +18,7 @@ that you choose to monitor.
    Passing options to a monitoring service
       :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
    All exporter options
-      :ref:`pmm/list.exporter`
+      :ref:`pmm.list.exporter`
 
 .. _pmm.exporter.rds.metrics:
 
