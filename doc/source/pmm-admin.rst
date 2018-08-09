@@ -160,6 +160,12 @@ The following option can be used with the |pmm-admin.add| command:
 |opt.dev-enable|
   Enable experimental features.
 
+|opt.disable-ssl|
+  Disable (otherwise enabled) SSL for the connection between |pmm-client| and
+  |pmm-server|. Turning off SSL encryption for the data acquired from some
+  objects of monitoring allows to decrease the overhead for a |pmm-server|
+  connected with a lot of nodes.
+
 |opt.service-port|
 
   Specify the :ref:`service port <service-port>`.

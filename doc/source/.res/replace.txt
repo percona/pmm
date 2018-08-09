@@ -305,6 +305,7 @@
 .. |opt.disable-processlist| replace:: :option:`--disable-processlist`
 .. |opt.disable-queryexamples| replace:: :option:`--disable-queryexamples`
 .. |opt.disable-slow-log-rotation| replace:: :option:`--disable-slow-log-rotation`
+.. |opt.disable-ssl| replace:: :option:`--disable-ssl`
 .. |opt.disable-table-stats-limit| replace:: :option:`--disable-tablestats-limit`
 .. |opt.disable-table-stats| replace:: :option:`--disable-tablestats`
 .. |opt.disable-tablestats-limit| replace:: :option:`--disable-tablestats-limit`
