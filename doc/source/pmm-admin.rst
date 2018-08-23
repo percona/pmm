@@ -282,6 +282,8 @@ the |opt.mongodb-metrics| monitoring service.
    * - |opt.mongodb-tls-private-key| *string*
      - A path to a PEM file that contains the private key (if not contained in the :option:`mongodb.tls-cert` file).
 
+.. include:: .res/contents/note.option.mongodb-queries.txt
+       
 .. include:: .res/code/mongod.dbpath.profile.slowms.ratelimit.txt
 
 .. _pmm-admin-add-linux-metrics:
@@ -667,6 +669,8 @@ You can also use
 :ref:`global options that apply to any other command <pmm-admin.options>`,
 as well as
 :ref:`options that apply to adding services in general <pmm-admin.add-options>`.
+
+.. include:: .res/contents/note.option.mongodb-queries.txt
 
 For more information, run
 |pmm-admin.add|
