@@ -494,6 +494,7 @@
 .. |dbd.pxc-galera-graphs| replace:: *PXC/Galera Graphs*
 .. |dbd.summary| replace:: *Summary*
 .. |dbd.system-overview| replace:: *System Overview*
+.. |dbd.compare-system-parameters| replace:: *Compare System Parameters*
 
 .. * Text labels
 
