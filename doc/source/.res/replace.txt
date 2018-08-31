@@ -487,7 +487,7 @@
 .. |dbd.mysql-myrocks-metrics| replace:: *MySQL MyRocks Metrics*
 .. |dbd.mysql-overview| replace:: *MySQL Overview*
 .. |dbd.network-overview| replace:: *Network Overview*
-.. |dbd.overview-numa-metrics| replace:: *Overview NUMA Metrics*
+.. |dbd.overview-numa-metrics| replace:: *NUMA Overview*
 .. |dbd.prometheus-exporter-status| replace:: *Prometheus Exporter Status*
 .. |dbd.prometheus-exporters-overview| replace:: *Prometheus Exporters Overview*
 .. |dbd.prometheus| replace:: *Prometheus*
