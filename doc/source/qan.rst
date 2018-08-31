@@ -25,8 +25,7 @@ the cause and get detailed metrics for them.
    .. tell about 8.0 |qan| 
 
 |qan| displays its metrics in both visual and numeric form: the performance
-related characteristics appear as plotted graphics with summaries.
-
+related characteristics appear as plotted graphics with summaries. 
 .. rubric:: |section.toc|
 
 .. contents::
@@ -52,7 +51,9 @@ the list of database instances.  where the |pmm-client| is installed.
 The list of queries opens below in a summary table. Be default, |qan| shows the
 top *ten* queries ranked by :term:`%GTT` (Grand total time) as a result of
 monitoring your database server for the last hour. Each query displays three
-essential metrics: *Load*, *Count*, and *Latency*.
+essential metrics: *Load*, *Count*, and *Latency*. Also queries
+which are newly seen within the the time range selected are highlighted with a
+blue color for their better noticeability.
 
 To view more queries, click the :guilabel:`Load next 10 queries` button below
 the query summary table.
