@@ -62,8 +62,9 @@ dashboard:
 The default |pmm| installation provides more than thirty dashboards. To make it
 easier to reach a specific dashboard, the system offers two tools. The
 |gui.dashboard-dropdown| is a button in the header of any |pmm| page. It lists
-all dashboards alphabetically. To locate the required dashboard quickly, start
-typing its name in the provided text box.
+all dashboards, organized into folders. Right sub-panel allows to rearrange
+things, creating new folders and dragging dashboards into them. Also a text box
+on the top allows to search the required dashboard by typing.
 
 .. figure:: .res/graphics/png/metrics-monitor.dashboard-dropdown.png
 
