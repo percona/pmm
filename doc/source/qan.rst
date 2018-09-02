@@ -55,6 +55,16 @@ essential metrics: *Load*, *Count*, and *Latency*. Also queries
 which are newly seen within the the time range selected are highlighted with a
 blue color for their better noticeability.
 
+Also it worth to mention that |qan| data come in with typical 1-2 min delay,
+though it is possible to be delayed more because of specific network condition
+and state of the monitored object. In such situations |qan| reflects "no data"
+situation, using sparkline to and showing a gap in place of the time interval,
+for which data are not available yet.
+
+.. figure:: .res/graphics/png/qan.query-summary-table.sparkline.png
+
+   Showing intervals for which data are unavailable yet.
+
 To view more queries, click the :guilabel:`Load next 10 queries` button below
 the query summary table.
 
