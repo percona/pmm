@@ -4,21 +4,15 @@
 Configuring |postgresql| for Monitoring
 ===============================================================================
 
-Monitoring |postgresql| metrics with the `postgres_exporter <https://github.com/wrouesnel/postgres_exporter>`_ can be turned on with ``pmm-admin add postgresql`` command. The ``postgresql`` alias will set up
+Monitoring |postgresql| metrics with the `postgres_exporter <https://github.com/wrouesnel/postgres_exporter>`_ is enabled by ``pmm-admin add postgresql`` command. The ``postgresql`` alias will set up
 ``postgresql:metrics`` and also ``linux:metrics`` on a host (for more information, see `Adding monitoring services <https://www.percona.com/doc/percona-monitoring-and-management/pmm-admin.html#pmm-admin-add>`_).
-
-Several parameters are expected by postgres_exporter to make things work. 
-
-The 1st parameter is an example URI, which will be built up based on the correct flags being passed to pmm-admin. An example of the URI is::
-
-   DATA_SOURCE_NAME=postgresql://postgres_exporter:password@172.17.0.2:5432/postgres?sslmode=disable
 
 ``pmm-admin`` supports passing |postgresql| connection information via following flags:
 
 ==========================    =================================================
 Flag                          Description 
 ==========================    =================================================
-``--create-user``             create a new |postgresql| user
+``--create-user``             create a new |postgresql| user (default: ``pmm``)
 ``--create-user-password``    optional password for a new PostgreSQL user
 ``--force``                   force user creation
 ``--host``                    |postgresql| host
@@ -45,7 +39,7 @@ PMM  supports monitoring PostgreSQL version 9.1 and above.
 Setting Up the Required Permissions
 ================================================================================
 
-User creation should follow these permissions)::
+User creation should follow these permissions::
 
    CREATE USER "pmm" WITH PASSWORD 'password';
    ALTER USER "pmm" SET SEARCH_PATH TO "pmm",pg_catalog;
