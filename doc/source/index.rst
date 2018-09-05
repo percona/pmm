@@ -32,6 +32,7 @@ Advanced
    pmm-admin
    amazon-rds
    Configuring MySQL for Best Results <conf-mysql>
+   conf-postgres
    conf-mongodb
    security
    index.metrics-monitor.dashboard
