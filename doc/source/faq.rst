@@ -70,6 +70,11 @@ memory consumption by |prometheus|.
 
 .. include:: .res/contents/important.option.metrics-memory.txt
 
+For compatibility reasons |pmm| 1.13.0 and above is still supporting
+|prometheus| 1.x, but with substantially decreased resources: now it uses only
+15% of available memory and its connections amount limit is managed by the
+``MAX_CONNECTIONS`` environment variable, set to 15 by default.
+
 .. _data-retention:
 
 How to control data retention for PMM?
