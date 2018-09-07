@@ -1,0 +1,27 @@
+.. _1.14.1:
+
+================================================================================
+Percona Monitoring and Management 1.14.1
+================================================================================
+
+:Date: September 7, 2018
+
+*PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL| and |MongoDB| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL| and |MongoDB| servers to ensure that your data works as efficiently as possible.
+
+We\'re releasing hotfix 1.14.1 to address three issues found post-release of
+1.14.0:
+
+* :pmmbug:`2963` - Upgrading to PMM 1.14.0 fails due to attempt to create already
+  existing Dashboard
+
+  * Our upgrade script incorrectly tried to create dashboards that already
+    existed, and generating failure message::
+
+        A folder or dashboard in the general folder with the same name already exists
+
+* :pmmbug:`2958` - Grafana did not update to 5.1 when upgrading from versions
+  older than 1.11
+
+  * We identified a niche case where PMM installations that were upgraded from
+    < 1.11 would fail to upgrade Grafana to correct release 5.1 (Users were
+    left on Grafana 5.0)
