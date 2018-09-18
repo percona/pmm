@@ -62,7 +62,7 @@ const (
 	shutdownTimeout = 3 * time.Second
 
 	// TODO set during build
-	Version = "1.14.1"
+	Version = "1.15.0-dev"
 )
 
 var (

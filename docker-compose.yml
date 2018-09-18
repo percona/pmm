@@ -2,7 +2,7 @@
 version: '3'
 services:
   prometheus:
-    image: ${PROMETHEUS_IMAGE:-prom/prometheus:v2.2.1}
+    image: ${PROMETHEUS_IMAGE:-prom/prometheus:v2.3.2}
     command: [ "--config.file=/etc/prometheus/prometheus.yml",
                "--log.level=debug",
                "--storage.tsdb.path=/prometheus",
@@ -11,19 +11,23 @@ services:
       - 127.0.0.1:9090:9090
     volumes:
       - ./testdata/prometheus:/etc/prometheus
+
   consul:
     image: ${CONSUL_IMAGE:-consul:0.8.5}
     ports:
       - 127.0.0.1:8500:8500
+
   grafana:
-    image: ${GRAFANA_IMAGE:-grafana/grafana:4.6.3}
+    image: ${GRAFANA_IMAGE:-grafana/grafana:5.1.3}
     ports:
       - 127.0.0.1:3000:3000
     environment:
       # https://github.com/Percona-Lab/pmm-submodules/blob/ec2b115bfe88b426084c576dbe69c6e3e4b50c71/build/pmm-server-docker/playbook-install.yml#L208-L222
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Editor
+
   mysql:
+    # We use 5.5 inside pmm-server Docker container, but there is no percona/percona-server:5.5
     image: ${MYSQL_IMAGE:-percona/percona-server:5.7}
     ports:
       - 127.0.0.1:3306:3306

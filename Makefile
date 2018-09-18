@@ -14,8 +14,7 @@ init:
 
 	go get -u github.com/AlekSi/gocoverutil
 
-	go get -u gopkg.in/alecthomas/gometalinter.v2
-	gometalinter.v2 --install
+	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 
 install:
 	go install -v ./...
@@ -35,7 +34,7 @@ cover: install
 	gocoverutil -ignore=github.com/percona/pmm-managed/api/... test -v -p 1 ./...
 
 check: install
-	-gometalinter.v2 --tests --vendor --skip=api --deadline=300s --sort=path ./...
+	golangci-lint run
 
 run: install _run
 

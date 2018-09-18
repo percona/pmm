@@ -21,7 +21,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -34,8 +33,14 @@ import (
 	"sync"
 	"syscall"
 	"testing"
-
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/models"
@@ -43,11 +48,6 @@ import (
 	"github.com/percona/pmm-managed/services/logs"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/utils/logger"
-	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"gopkg.in/reform.v1"
-	"gopkg.in/reform.v1/dialects/mysql"
 )
 
 var (

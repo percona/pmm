@@ -427,9 +427,7 @@ func (svc *Service) CreateScrapeConfig(ctx context.Context, cfg *ScrapeConfig, c
 	if checkReachability {
 		var targets []string
 		for _, sc := range cfg.StaticConfigs {
-			for _, t := range sc.Targets {
-				targets = append(targets, t)
-			}
+			targets = append(targets, sc.Targets...)
 		}
 		reachabilityCh = make(chan ScrapeTargetReachability, len(targets)) // set cap so checkReachability always exits
 		svc.checkReachability(ctx, cfg, targets, reachabilityCh)
@@ -480,9 +478,7 @@ func (svc *Service) UpdateScrapeConfig(ctx context.Context, cfg *ScrapeConfig, c
 	if checkReachability {
 		var targets []string
 		for _, sc := range cfg.StaticConfigs {
-			for _, t := range sc.Targets {
-				targets = append(targets, t)
-			}
+			targets = append(targets, sc.Targets...)
 		}
 		reachabilityCh = make(chan ScrapeTargetReachability, len(targets)) // set cap so checkReachability always exits
 		svc.checkReachability(ctx, cfg, targets, reachabilityCh)

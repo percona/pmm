@@ -24,13 +24,13 @@ import (
 
 func TestSanitizeDSN(t *testing.T) {
 	uris := map[string]string{
-		"admin:abc123@127.0.0.1:100":                                                          "admin:***@127.0.0.1:100",
-		"localhost:27017/":                                                                    "localhost:27017",
-		"localhost:27017?opt=5":                                                               "localhost:27017",
-		"localhost":                                                                           "localhost",
-		"admin:abc123@localhost:1,localhost:2":                                                "admin:***@localhost:1,localhost:2",
-		"root:qwertyUIOP)(*&^%$#@1@localhost":                                                 "root:***@localhost",
-		"root:qwerty:UIOP)(*&^%$#@1@localhost":                                                "root:***@localhost",
+		"admin:abc123@127.0.0.1:100":           "admin:***@127.0.0.1:100",
+		"localhost:27017/":                     "localhost:27017",
+		"localhost:27017?opt=5":                "localhost:27017",
+		"localhost":                            "localhost",
+		"admin:abc123@localhost:1,localhost:2": "admin:***@localhost:1,localhost:2",
+		"root:qwertyUIOP)(*&^%$#@1@localhost":  "root:***@localhost",
+		"root:qwerty:UIOP)(*&^%$#@1@localhost": "root:***@localhost",
 		"mysql57:secret_password@tcp(mysql57.ckpwzom1xccn.eu-west-1.rds.amazonaws.com:3306)/": "mysql57:***@tcp(mysql57.ckpwzom1xccn.eu-west-1.rds.amazonaws.com:3306)",
 	}
 	for uri, expected := range uris {

@@ -20,6 +20,7 @@ import (
 	"context"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -69,19 +70,24 @@ func TestPrometheusConfig(t *testing.T) {
 	assert.NoError(t, p.saveConfigAndReload(ctx, c))
 	after, err := ioutil.ReadFile(p.ConfigPath)
 	require.NoError(t, err)
-	b, a := string(before), string(after)
-	diff, _ := difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
-		A: difflib.SplitLines(b),
-		B: difflib.SplitLines(a),
+	beforeS, afterS := string(before), string(after)
+	diff, err := difflib.GetUnifiedDiffString(difflib.UnifiedDiff{
+		A:        difflib.SplitLines(beforeS),
+		FromFile: "Before",
+		B:        difflib.SplitLines(afterS),
+		ToFile:   "After",
+		Context:  1,
 	})
-	require.Equal(t, b, a, "%s", diff)
-	require.Len(t, c.ScrapeConfigs, 4)
+	require.NoError(t, err)
+	require.Equal(t, strings.Split(beforeS, "\n"), strings.Split(afterS, "\n"), "%s", diff)
+	require.Len(t, c.ScrapeConfigs, 14)
 
 	// specifically check that we can read secrets
-	assert.Equal(t, "pmm", c.ScrapeConfigs[1].HTTPClientConfig.BasicAuth.Password)
+	require.NotNil(t, c.ScrapeConfigs[2].HTTPClientConfig.BasicAuth)
+	assert.Equal(t, "pmm", c.ScrapeConfigs[2].HTTPClientConfig.BasicAuth.Password)
 
 	// check that invalid configuration is reverted
-	c.ScrapeConfigs[0].ScrapeInterval = model.Duration(time.Second)
+	c.ScrapeConfigs[1].ScrapeInterval = model.Duration(time.Second)
 	err = p.saveConfigAndReload(ctx, c)
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), `scrape timeout greater than scrape interval`)
@@ -249,8 +255,8 @@ func TestPrometheusReadDefaults(t *testing.T) {
 
 	expected := &ScrapeConfig{
 		JobName:        "ReadDefaults",
-		ScrapeInterval: "30s",
-		ScrapeTimeout:  "15s",
+		ScrapeInterval: "1m",
+		ScrapeTimeout:  "10s",
 		MetricsPath:    "/metrics",
 		Scheme:         "http",
 	}

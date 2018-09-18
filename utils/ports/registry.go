@@ -17,10 +17,11 @@
 package ports
 
 import (
-	"errors"
 	"fmt"
 	"net"
 	"sync"
+
+	"github.com/pkg/errors"
 )
 
 var (

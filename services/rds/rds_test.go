@@ -138,8 +138,8 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 		MySQLdExporterPath:    mySQLdExporterPath,
 		RDSExporterPath:       rdsExporterPath,
 		RDSExporterConfigPath: rdsExporterConfigPath,
-		QAN:        qan,
-		Supervisor: supervisor,
+		QAN:                   qan,
+		Supervisor:            supervisor,
 
 		DB:            db,
 		Prometheus:    p,

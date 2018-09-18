@@ -4,6 +4,7 @@ language: go
 
 go:
   - 1.10.x
+  - 1.11.x
 
 matrix:
   allow_failures:
@@ -21,34 +22,23 @@ env:
     # AWS_RDS_PASSWORD
     - secure: "oD1CbcvhiIoNQbQJaiS+DmVoNnUyMAbkVyJ+UjOJgDaSuMXQJZp+/ocyvgubespBhV2ojj7hxMakTtB1uRqNvBLwp1qxuoevk19RISOWK7tZivtXdx6+HG2pu27jQM9uf8uP+Co3Nf+PUifBFIps6fuZFaPWMYHNHWEUp3Z2RBiRDXyT7Wi3j+J2JO8DmNMaPHmnUrxPRJZBypvmIwt3CDVEd+6Hy37cvMw3CsphAXPQOokfTmR/D7f/uziGFg9NRuYhjQv2ncxmIUjRqqxzvaVS1zoDfts/s2tnqwswWZpq5ossg+crWFTZmm80QCzfnWoyOHqtkZM8fwD+jMwDdEiI6LdSCkDmaEAVWB2KcRYTtY0JmfQMixrNRG413BG792otwT/ShlS78uTAEVT1tjDnh7bUwjpbmaVSDpuaeijpEnrVrXJObRBO+E1Y0QLhV0I0ZVKleaT5Y8M04YR2MWGfzr4Bz+q8p4cIWZ6R5kTtrCEAElgCgKfdfZep+YxyerHTCZlCBal2SL/ZcCR0CVzrAiCOO5QId5dA0AE5h185BzhXLXrs5I1PiO5ZXDjRAFw2z+Vr3EdV1Onx0/ulrnCZ0BsOO/t0nUIMqD33JG27xkaMB4+leSjAwcW7N+Wc9ql1+CBT7uHkXKmDyhDY7+UjSBlqHhC6zF2D3stmeMY="
 
-    - MYSQL_IMAGE=percona/percona-server:5.7
-
   matrix:
-    - PROMETHEUS_IMAGE=prom/prometheus:v2.2.1
+    # what we currently use in PMM
+    - PROMETHEUS_IMAGE=prom/prometheus:v2.3.2
       CONSUL_IMAGE=consul:0.8.5
+
+    # latest released version
     - PROMETHEUS_IMAGE=prom/prometheus:latest
-      CONSUL_IMAGE=consul:1.0.2
+      CONSUL_IMAGE=consul:latest
+
+    # current master (for Prometheus only)
     - PROMETHEUS_IMAGE=prom/prometheus:master
-      CONSUL_IMAGE=consul:1.0.2
+      CONSUL_IMAGE=consul:latest
 
 before_install:
-  # no package for Trusty yet
-  # - sudo add-apt-repository -y ppa:maarten-fonville/protobuf
-  # - sudo apt-get -qq update
-  # - sudo apt-get install -y protobuf
-
-  # install protoc the hard way
-  # - git clone --depth 1 --branch v3.3.2 https://github.com/google/protobuf /tmp/protobuf
-  # - cd /tmp/protobuf
-  # - ./autogen.sh
-  # - ./configure
-  # - make -j2
-  # - sudo make install
-  # - sudo ldconfig
-
-  # install compiled release
-  - wget https://github.com/google/protobuf/releases/download/v3.5.1/protoc-3.5.1-linux-x86_64.zip
-  - unzip -q protoc-3.5.1-linux-x86_64.zip
+  # install binary protoc release
+  - wget https://github.com/google/protobuf/releases/download/v3.6.1/protoc-3.6.1-linux-x86_64.zip
+  - unzip -q protoc-3.6.1-linux-x86_64.zip
   - sudo install -d /usr/local/include/google/protobuf/compiler
   - sudo install -m 755 bin/protoc /usr/local/bin/
   - sudo install -m 644 include/google/protobuf/*.proto /usr/local/include/google/protobuf/
@@ -60,17 +50,18 @@ script:
   - sudo service mysql stop
   - docker-compose up -d
 
-  # ensure that vendor/ is in sync with code and Gopkg.*
-  # and generated files are not changed
-  - curl https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 -L -o ~/dep && chmod +x ~/dep
-  - rm -fr vendor/
-  - ~/dep ensure -v
+  # ensure that vendor/ is in sync with code and Gopkg.toml/lock
+  - curl https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 -L -o ~/dep && chmod +x ~/dep
+  - ~/dep check
+
+  # ensure that generated files are not changed
   - make init gen
   - git status
   - git diff --exit-code
 
   - go get -u github.com/percona/mysqld_exporter
   - go get -u github.com/percona/rds_exporter
+
   - make cover
 
 after_success:
