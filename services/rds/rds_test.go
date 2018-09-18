@@ -192,7 +192,7 @@ func TestDiscover(t *testing.T) {
 				Type:             "rds",
 				Name:             "rds-aurora57",
 				Region:           "us-east-1",
-				AWSDBIResourceID: pointer.ToString("db-QYBVFI3OW6VME5FQNM2URY4ZOY"),
+				AWSDBIResourceID: pointer.ToString("db-CDBSN4EK5SMBQCSXI4UPZVF3W4"),
 			},
 			Service: models.RDSService{
 				Type:          "rds",

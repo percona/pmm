@@ -38,7 +38,7 @@ func TestRDSExporterMarshal(t *testing.T) {
 			{
 				Region:        "us-east-1",
 				Instance:      "rds-aurora57",
-				DBIResourceID: pointer.ToString("db-QYBVFI3OW6VME5FQNM2URY4ZOY"),
+				DBIResourceID: pointer.ToString("db-CDBSN4EK5SMBQCSXI4UPZVF3W4"),
 				Type:          auroraMySQL,
 				AWSAccessKey:  pointer.ToString("AKIAIOSFODNN7EXAMPLE"),
 				AWSSecretKey:  pointer.ToString("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"),

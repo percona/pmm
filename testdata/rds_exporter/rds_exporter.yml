@@ -7,7 +7,7 @@ instances:
   type: aurora_mysql
 - region: us-east-1
   instance: rds-aurora57
-  dbi_resource_id: db-QYBVFI3OW6VME5FQNM2URY4ZOY
+  dbi_resource_id: db-CDBSN4EK5SMBQCSXI4UPZVF3W4
   type: aurora_mysql
   aws_access_key: AKIAIOSFODNN7EXAMPLE
   aws_secret_key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
