@@ -5,11 +5,7 @@
 Use case: Monitoring a |postgresql| database running on an |amazon-rds| instance
 ********************************************************************************
 
-|pmm| currently does not support |postgresql| out-of-the-box. However, you can
-monitor your |postgresql| host by using external monitoring services.  The
-external monitoring services only require that the appropriate |prometheus|
-exporter be properly installed on the system where |pmm-admin| is available (see
-section :ref:`deploy-pmm.client.installing`).
+As of version 1.14.0 |pmm| supports |postgresql| `out-of-the-box <https://www.percona.com/doc/percona-monitoring-and-management/conf-postgres.html>`_. 
 
 This example demonstrates how to start monitoring a |postgresql| host which is
 installed on an |amazon-rds| instance.
@@ -27,20 +23,11 @@ installed on an |amazon-rds| instance.
 Set Up the |postgresql| Exporter
 ================================================================================
 
-First, you need to install a |prometheus| exporter for |postgresql| on the
-computer where you have installed the |pmm-client| package. This example uses
-the |postgresql| exporter listed on the |prometheus| site:
-https://github.com/wrouesnel/postgres_exporter. Note that this exporter requires
-that the `Go <https://golang.org/>`_ programming language environment be
-properly set up and configured. Alternatively, you may run the exporter from the
-|docker| image as explained on the site.
+First, you need to enable an exporter for |postgresql| on the
+computer where you have installed the |pmm-client| package with the
+``by pmm-admin add postgresql`` command. More information on enabling and
+configuring |postgresql| exporter can be found in the `detailed instruction <https://www.percona.com/doc/percona-monitoring-and-management/conf-postgres.html>`_.
 
-.. seealso::
-
-   |prometheus| Exporters and integrations
-      https://prometheus.io/docs/instrumenting/exporters/
-   Installing the Go programming language
-      https://golang.org/doc/install
 
 Check Settings of Your |amazon-rds| Instance
 ================================================================================
