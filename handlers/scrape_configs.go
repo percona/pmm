@@ -195,5 +195,7 @@ func (s *ScrapeConfigsServer) Delete(ctx context.Context, req *api.ScrapeConfigs
 	return &api.ScrapeConfigsDeleteResponse{}, nil
 }
 
-// check interface
-var _ api.ScrapeConfigsServer = (*ScrapeConfigsServer)(nil)
+// check interfaces
+var (
+	_ api.ScrapeConfigsServer = (*ScrapeConfigsServer)(nil)
+)

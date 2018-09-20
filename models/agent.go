@@ -17,15 +17,14 @@
 package models
 
 import (
-	"database/sql"
-	"database/sql/driver"
 	"fmt"
 	"net"
 	"strconv"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/pkg/errors"
 )
+
+//go:generate reform
 
 type AgentType string
 
@@ -33,29 +32,6 @@ const (
 	MySQLdExporterAgentType AgentType = "mysqld_exporter"
 	RDSExporterAgentType    AgentType = "rds_exporter"
 	QanAgentAgentType       AgentType = "qan-agent"
-)
-
-func (u AgentType) Value() (driver.Value, error) {
-	return string(u), nil
-}
-
-func (u *AgentType) Scan(src interface{}) error {
-	switch src := src.(type) {
-	case string:
-		*u = AgentType(src)
-	case []byte:
-		*u = AgentType(src)
-	default:
-		return errors.Errorf("unexpected type %T (%#v)", src, src)
-	}
-	return nil
-}
-
-// check interfaces
-// TODO we should not need those methods with version 1.4 of the MySQL driver, and with SQLite3 driver
-var (
-	_ driver.Valuer = AgentType("")
-	_ sql.Scanner   = (*AgentType)(nil)
 )
 
 //reform:agents
@@ -81,7 +57,6 @@ func (m *MySQLdExporter) DSN(service *RDSService) string {
 	cfg.User = *m.ServiceUsername
 	cfg.Passwd = *m.ServicePassword
 
-	// todo why are below hardcoded?
 	cfg.Net = "tcp"
 	cfg.Addr = net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port)))
 
@@ -124,7 +99,6 @@ func (q *QanAgent) DSN(service *RDSService) string {
 	cfg.User = *q.ServiceUsername
 	cfg.Passwd = *q.ServicePassword
 
-	// todo why are below hardcoded?
 	cfg.Net = "tcp"
 	cfg.Addr = net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port)))
 

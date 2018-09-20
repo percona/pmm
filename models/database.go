@@ -100,11 +100,10 @@ func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error
 	cfg.Passwd = password
 	cfg.DBName = name
 
-	// todo why are below hardcoded?
 	cfg.Net = "tcp"
 	cfg.Addr = "127.0.0.1:3306"
 
-	// todo why we need below options?
+	// required for reform
 	cfg.ClientFoundRows = true
 	cfg.ParseTime = true
 

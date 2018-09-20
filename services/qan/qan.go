@@ -157,7 +157,7 @@ func (svc *Service) getOSUUID(ctx context.Context, qanURL *url.URL, agentUUID st
 }
 
 // addInstance adds instance to QAN API.
-// If successful, instance UUID will be set.
+// If successful, instance's UUID field will be set.
 func (svc *Service) addInstance(ctx context.Context, qanURL *url.URL, instance *proto.Instance) error {
 	b, err := json.Marshal(instance)
 	if err != nil {
@@ -190,7 +190,6 @@ func (svc *Service) addInstance(ctx context.Context, qanURL *url.URL, instance *
 	// Response Location header looks like this: http://127.0.0.1/qan-api/instances/6cea8824082d4ade682b94109664e6a9
 	// Extract UUID directly from it instead of following it.
 	parts := strings.Split(resp.Header.Get("Location"), "/")
-	// todo avoid modifying data passed to func as pointer
 	instance.UUID = parts[len(parts)-1]
 	return nil
 }
@@ -221,11 +220,11 @@ func (svc *Service) removeInstance(ctx context.Context, qanURL *url.URL, uuid st
 	return nil
 }
 
-// ensureAgentRuns checks qan-agent process status and starts it if it is not configured or down.
+// EnsureAgentRuns checks qan-agent process status and starts it if it is not configured or down.
 func (svc *Service) EnsureAgentRuns(ctx context.Context, nameForSupervisor string, port uint16) error {
 	err := svc.supervisor.Status(ctx, nameForSupervisor)
 	if err != nil {
-		// todo: if it's not running then why we stop it?
+		// error can also mean that service status can't be determined, so we always stop it first
 		err = svc.supervisor.Stop(ctx, nameForSupervisor)
 		if err != nil {
 			logger.Get(ctx).WithField("component", "qan").Warn(err)

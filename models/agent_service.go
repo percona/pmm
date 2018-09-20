@@ -21,6 +21,8 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+//go:generate reform
+
 //reform:agent_services
 type AgentService struct {
 	AgentID   int32 `reform:"agent_id"`

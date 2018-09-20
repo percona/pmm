@@ -47,6 +47,7 @@ import (
 	"github.com/percona/pmm-managed/handlers"
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/consul"
+	"github.com/percona/pmm-managed/services/grafana"
 	"github.com/percona/pmm-managed/services/logs"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
@@ -191,6 +192,8 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 		l.Panicf("RDS service problem with restoring: %s", err)
 	}
 
+	grafana := grafana.NewClient(*grafanaAddrF)
+
 	gRPCServer := grpc.NewServer(
 		grpc.UnaryInterceptor(interceptors.Unary),
 		grpc.StreamInterceptor(interceptors.Stream),
@@ -207,7 +210,7 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 		Logs: logs,
 	})
 	api.RegisterAnnotationsServer(gRPCServer, &handlers.AnnotationsServer{
-		Addr: *grafanaAddrF,
+		Grafana: grafana,
 	})
 
 	grpc_prometheus.Register(gRPCServer)

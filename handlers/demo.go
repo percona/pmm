@@ -48,5 +48,7 @@ func (s *DemoServer) Error(ctx context.Context, req *api.DemoErrorRequest) (*api
 	}
 }
 
-// check interface
-var _ api.DemoServer = (*DemoServer)(nil)
+// check interfaces
+var (
+	_ api.DemoServer = (*DemoServer)(nil)
+)

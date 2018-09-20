@@ -3,9 +3,8 @@ all: test
 # installs tools to $GOBIN (or $GOPATH/bin) which is expected to be in $PATH
 init:
 	go install -v ./vendor/gopkg.in/reform.v1/reform
-
-	# Do not fail if installation fails. https://jira.percona.com/browse/PMM-2182
-	-go get -u github.com/prometheus/prometheus/cmd/promtool
+	go install -v ./vendor/github.com/vektra/mockery/cmd/mockery
+	go get -u github.com/prometheus/prometheus/cmd/promtool
 
 	go install -v ./vendor/github.com/golang/protobuf/protoc-gen-go
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
@@ -16,11 +15,14 @@ init:
 
 	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 
-install:
+check-license:
+	go run .github/check-license.go
+
+install: check-license
 	go install -v ./...
 	go test -v -i ./...
 
-install-race:
+install-race: check-license
 	go install -v -race ./...
 	go test -v -race -i ./...
 
@@ -50,7 +52,8 @@ _run:
 
 gen:
 	rm -f models/*_reform.go
-	reform models/
+
+	go generate ./...
 
 	rm -fr api/*.pb.* api/swagger/*.json api/swagger/client api/swagger/models
 
@@ -66,3 +69,9 @@ gen:
 	swagger generate client -f api/swagger/swagger.json -t api/swagger -A pmm-managed
 
 	go install -v github.com/percona/pmm-managed/api github.com/percona/pmm-managed/api/swagger/client
+
+up:
+	docker-compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
+
+down:
+	docker-compose down --volumes --remove-orphans

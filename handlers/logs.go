@@ -50,5 +50,7 @@ func (s *LogsServer) All(ctx context.Context, req *api.LogsAllRequest) (*api.Log
 	return &resp, nil
 }
 
-// check interface
-var _ api.LogsServer = (*LogsServer)(nil)
+// check interfaces
+var (
+	_ api.LogsServer = (*LogsServer)(nil)
+)

@@ -55,7 +55,6 @@ func getQanURL(ctx context.Context) (*url.URL, error) {
 		Host:   "127.0.0.1",
 		Path:   "/qan-api/",
 	}
-	// todo why this path is hardcoded?
 	f, err := os.Open("/srv/update/pmm-manage.yml")
 	if err != nil {
 		if os.IsNotExist(err) {

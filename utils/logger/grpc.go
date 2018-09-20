@@ -32,5 +32,7 @@ func (v *GRPC) V(l int) bool {
 	return true
 }
 
-// check interface
-var _ grpclog.LoggerV2 = (*GRPC)(nil)
+// check interfaces
+var (
+	_ grpclog.LoggerV2 = (*GRPC)(nil)
+)

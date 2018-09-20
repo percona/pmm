@@ -24,6 +24,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
@@ -94,3 +95,8 @@ func (s *Supervisor) Status(ctx context.Context, name string) error {
 	}
 	return err
 }
+
+// check interfaces
+var (
+	_ services.Supervisor = (*Supervisor)(nil)
+)

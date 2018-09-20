@@ -16,41 +16,13 @@
 
 package models
 
-import (
-	"database/sql"
-	"database/sql/driver"
-
-	"github.com/pkg/errors"
-)
+//go:generate reform
 
 type NodeType string
 
 const (
 	PMMServerNodeType NodeType = "pmm-server"
 	RDSNodeType       NodeType = "rds"
-)
-
-func (u NodeType) Value() (driver.Value, error) {
-	return string(u), nil
-}
-
-func (u *NodeType) Scan(src interface{}) error {
-	switch src := src.(type) {
-	case string:
-		*u = NodeType(src)
-	case []byte:
-		*u = NodeType(src)
-	default:
-		return errors.Errorf("unexpected type %T (%#v)", src, src)
-	}
-	return nil
-}
-
-// check interfaces
-// TODO we should not need those methods with version 1.4 of the MySQL driver, and with SQLite3 driver
-var (
-	_ driver.Valuer = NodeType("")
-	_ sql.Scanner   = (*NodeType)(nil)
 )
 
 //reform:nodes

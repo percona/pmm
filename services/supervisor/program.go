@@ -26,5 +26,7 @@ type program struct{}
 func (p *program) Start(s servicelib.Service) error { return nil }
 func (p *program) Stop(s servicelib.Service) error  { return nil }
 
-// check interface
-var _ servicelib.Interface = new(program)
+// check interfaces
+var (
+	_ servicelib.Interface = new(program)
+)

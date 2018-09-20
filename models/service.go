@@ -16,40 +16,12 @@
 
 package models
 
-import (
-	"database/sql"
-	"database/sql/driver"
-
-	"github.com/pkg/errors"
-)
+//go:generate reform
 
 type ServiceType string
 
 const (
 	RDSServiceType ServiceType = "rds"
-)
-
-func (u ServiceType) Value() (driver.Value, error) {
-	return string(u), nil
-}
-
-func (u *ServiceType) Scan(src interface{}) error {
-	switch src := src.(type) {
-	case string:
-		*u = ServiceType(src)
-	case []byte:
-		*u = ServiceType(src)
-	default:
-		return errors.Errorf("unexpected type %T (%#v)", src, src)
-	}
-	return nil
-}
-
-// check interfaces
-// TODO we should not need those methods with version 1.4 of the MySQL driver, and with SQLite3 driver
-var (
-	_ driver.Valuer = ServiceType("")
-	_ sql.Scanner   = (*ServiceType)(nil)
 )
 
 //reform:services

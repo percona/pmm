@@ -428,7 +428,6 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 	return nil
 }
 
-// todo this shouldn't duplicate pmm-client job
 func (svc *Service) mysqlExporterCfg(agent *models.MySQLdExporter, port uint16, dsn string) *servicelib.Config {
 	name := agent.NameForSupervisor()
 	return &servicelib.Config{

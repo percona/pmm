@@ -30,13 +30,17 @@ type key struct{}
 
 // Get returns logrus entry for given context. Set must be called before this method is called.
 func Get(ctx context.Context) *logrus.Entry {
-	return ctx.Value(key{}).(*logrus.Entry)
+	v := ctx.Value(key{})
+	if v == nil {
+		panic("context logger not set")
+	}
+	return v.(*logrus.Entry)
 }
 
 // Set returns derived context with set logrus entry with given request ID.
 func Set(ctx context.Context, requestID string) (context.Context, *logrus.Entry) {
 	if ctx.Value(key{}) != nil {
-		Get(ctx).Panicf("request ID already present")
+		Get(ctx).Panicf("context logger already set")
 		return nil, nil
 	}
 

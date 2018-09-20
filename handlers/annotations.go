@@ -17,47 +17,28 @@
 package handlers
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"fmt"
-	"net/http"
 
 	"github.com/percona/pmm-managed/api"
+	"github.com/percona/pmm-managed/services/grafana"
 )
 
 type AnnotationsServer struct {
-	Addr string
+	Grafana *grafana.Client
 }
 
-// Create creates a new annotation.
+// Create creates annotation with given text and tags ("pmm_annotation" is added automatically).
 func (s *AnnotationsServer) Create(ctx context.Context, req *api.AnnotationsCreateRequest) (*api.AnnotationsCreateResponse, error) {
-	// PMM-2347: We always add `pmm_annotation` tag.
-	req.Tags = append(req.Tags, "pmm_annotation")
-
-	// Encode json.
-	b := &bytes.Buffer{}
-	err := json.NewEncoder(b).Encode(req)
+	msg, err := s.Grafana.CreateAnnotation(ctx, req.Tags, req.Text)
 	if err != nil {
 		return nil, err
 	}
-
-	// Call annotations API with json.
-	r, err := http.Post(fmt.Sprintf("http://%s/api/annotations", s.Addr), "application/json", b)
-	if err != nil {
-		return nil, err
-	}
-	defer r.Body.Close()
-
-	// Decode response json.
-	resp := &api.AnnotationsCreateResponse{}
-	err = json.NewDecoder(r.Body).Decode(resp)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
+	return &api.AnnotationsCreateResponse{
+		Message: msg,
+	}, nil
 }
 
-// check interface
-var _ api.AnnotationsServer = (*AnnotationsServer)(nil)
+// check interfaces
+var (
+	_ api.AnnotationsServer = (*AnnotationsServer)(nil)
+)

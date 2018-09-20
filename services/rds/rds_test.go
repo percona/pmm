@@ -41,10 +41,10 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/mocks"
+	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/utils/ports"
 	"github.com/percona/pmm-managed/utils/tests"
-	"github.com/percona/pmm-managed/utils/tests/promtest"
 )
 
 func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *mocks.Supervisor, *httptest.Server) {
@@ -101,7 +101,8 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 			panic("unsupported path: " + r.URL.Path)
 		}
 	}))
-	os.Setenv("PMM_QAN_API_URL", ts.URL)
+
+	require.NoError(t, os.Setenv("PMM_QAN_API_URL", ts.URL))
 
 	// We can't/shouldn't use /usr/local/percona/ (the default basedir), so use
 	// a tmpdir instead with roughly the same, fake structure.
@@ -125,7 +126,7 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 	err = ioutil.WriteFile(filepath.Join(rootDir, "instance/13.json"), []byte(`{"UUID":"13"}`), 0666)
 	require.Nil(t, err)
 
-	p, ctx, before := promtest.Setup(t)
+	ctx, p, before := prometheus.SetupTest(t)
 
 	sqlDB := tests.OpenTestDB(t)
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
@@ -150,7 +151,10 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 }
 
 func teardown(t *testing.T, svc *Service, sqlDB *sql.DB, before []byte, rootDir string, supervisor *mocks.Supervisor, ts *httptest.Server) {
-	promtest.TearDown(t, svc.Prometheus, before)
+	prometheus.TearDownTest(t, svc.Prometheus, before)
+
+	require.NoError(t, os.Unsetenv("PMM_QAN_API_URL"))
+
 	err := sqlDB.Close()
 	require.NoError(t, err)
 	if rootDir != "" {
@@ -255,7 +259,7 @@ func TestAddListRemove(t *testing.T) {
 	username, password := os.Getenv("AWS_RDS_USERNAME"), os.Getenv("AWS_RDS_PASSWORD")
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
 	supervisor.On("Status", mock.Anything, mock.Anything).Return(fmt.Errorf("not running"))
-	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil) // todo why we stop it if it was not running?
+	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil)
 	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, username, password)
 	assert.NoError(t, err)
 
@@ -316,10 +320,9 @@ func TestRestore(t *testing.T) {
 	})
 
 	// Add one instance.
-	// todo: mock AWS service
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
 	supervisor.On("Status", mock.Anything, mock.Anything).Return(fmt.Errorf("not running"))
-	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil) // todo why we stop it if it was not running?
+	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil)
 	username, password := os.Getenv("AWS_RDS_USERNAME"), os.Getenv("AWS_RDS_PASSWORD")
 	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, username, password)
 	assert.NoError(t, err)

@@ -106,5 +106,7 @@ func (s *RDSServer) Remove(ctx context.Context, req *api.RDSRemoveRequest) (*api
 	return &resp, nil
 }
 
-// check interface
-var _ api.RDSServer = (*RDSServer)(nil)
+// check interfaces
+var (
+	_ api.RDSServer = (*RDSServer)(nil)
+)

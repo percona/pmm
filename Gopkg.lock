@@ -631,6 +631,17 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:9976e1c09a14336c8999225a3aaab66520550dd6031a2636f926b64e95a14283"
+  name = "github.com/vektra/mockery"
+  packages = [
+    "cmd/mockery",
+    "mockery",
+  ]
+  pruneopts = "T"
+  revision = "ea265755d541b124de6bc248f7744eab9005fd33"
+
+[[projects]]
+  branch = "master"
   digest = "1:7f741d83810406485360a038c04c431534674e2f107731f4ee95b7af01d7e828"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
@@ -846,6 +857,7 @@
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",
     "github.com/stretchr/testify/require",
+    "github.com/vektra/mockery/cmd/mockery",
     "golang.org/x/net/context",
     "golang.org/x/sync/errgroup",
     "google.golang.org/genproto/googleapis/api/annotations",

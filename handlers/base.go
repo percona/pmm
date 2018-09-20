@@ -33,5 +33,7 @@ func (s *BaseServer) Version(context.Context, *api.BaseVersionRequest) (*api.Bas
 	}, nil
 }
 
-// check interface
-var _ api.BaseServer = (*BaseServer)(nil)
+// check interfaces
+var (
+	_ api.BaseServer = (*BaseServer)(nil)
+)

@@ -14,7 +14,10 @@ go get -u github.com/percona/rds_exporter
 You have to use Docker Compose to run most of the tests.
 
 ```sh
-docker-compose up
+make up
+```
+
+```sh
 make
 ```
 
