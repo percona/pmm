@@ -31,8 +31,7 @@ An example command line would look like this::
 Supported versions of PostgreSQL
 --------------------------------
 
-PMM  supports monitoring PostgreSQL version 9.1 and above.
-
+|pmm| follows `postgresql.org EOL policy <https://www.postgresql.org/support/versioning/>`_, and thus supports monitoring |postgresql| version 9.4 and up.  Older versions may work, but will not be supported.  For additional assistance, visit the Percona PMM Forums at https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management/.
 
 .. _pmm.qan.postgres.conf.essential-permission.setting-up:
 
