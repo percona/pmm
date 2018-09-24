@@ -21,8 +21,9 @@ Flag                          Description
 ``--user``                    |postgresql| user
 ==========================    =================================================
 
-..note: Password authentication should be turned on for the privileged
-|postgresql| user (e.g. `postgres`)to make ``--create-user`` flag working.
+.. note:: Password authentication should be turned on for the privileged
+          |postgresql| user (e.g. `postgres`) to make ``--create-user`` flag
+          working.
 
 An example command line would look like this::
 

@@ -48,23 +48,8 @@ to communicate outside of the VPC hosting the DB instance. Select *Yes* in the
       https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html
    Connecting to an |amazon-rds| DB instance running |postgresql|
       https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToPostgreSQLInstance.html
-   
-Read Metrics from the |postgresql| DB Instance
-================================================================================
 
-As suggested in the documentation of the |postgresql| exporter, we set the
-:code:`DATA_SOURCE_NAME` variable and start the exporter.
-
-Note that the following example disables **sslmode** which will make your system
-less secure. It also uses |sudo| to demonstrate that the code should be run as
-the *postgres* user. Before running this command make sure to |cd| into the
-directory that contains the built :program:`postgresql_exporter` binary.
-
-.. include:: .res/code/sudo.data-source-name.postgresql-exporter.txt
-
-The |postgresql| exporter makes its metrics available on port 9187.
-
-Add an external monitoring service for |postgresql|
+Add monitoring service for |postgresql|
 ================================================================================
 
 To make the metrics from your |amazon-rds| instance available to |pmm|, you need
@@ -72,7 +57,8 @@ to run |pmm-admin.add| command as follows:
 
 |tip.run-this.root|
 
-.. include:: .res/code/pmm-admin.add.external-service.postgres.service-port.txt
+.. code-block:: bash 
+    pmm-admin add postgresql --create-user --host=172.17.0.2 --password=ABC123 --port=5432 --user=postgres_exporter postgresql_rds01
 
 The last parameter gives a distinct name to your host. If you do not specify a
 custom instance name, the name of the host where you run |pmm-admin.add| is used
