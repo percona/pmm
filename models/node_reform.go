@@ -142,7 +142,7 @@ func (v *rDSNodeTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *rDSNodeTableType) Columns() []string {
-	return []string{"id", "type", "name", "region", "aws_dbi_resource_id"}
+	return []string{"id", "type", "name", "region"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -162,18 +162,17 @@ func (v *rDSNodeTableType) PKColumnIndex() uint {
 
 // RDSNodeTable represents nodes view or table in SQL database.
 var RDSNodeTable = &rDSNodeTableType{
-	s: parse.StructInfo{Type: "RDSNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "string", Column: "region"}, {Name: "AWSDBIResourceID", Type: "*string", Column: "aws_dbi_resource_id"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RDSNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "string", Column: "region"}}, PKFieldIndex: 0},
 	z: new(RDSNode).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s RDSNode) String() string {
-	res := make([]string, 5)
+	res := make([]string, 4)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "Name: " + reform.Inspect(s.Name, true)
 	res[3] = "Region: " + reform.Inspect(s.Region, true)
-	res[4] = "AWSDBIResourceID: " + reform.Inspect(s.AWSDBIResourceID, true)
 	return strings.Join(res, ", ")
 }
 
@@ -185,7 +184,6 @@ func (s *RDSNode) Values() []interface{} {
 		s.Type,
 		s.Name,
 		s.Region,
-		s.AWSDBIResourceID,
 	}
 }
 
@@ -197,7 +195,6 @@ func (s *RDSNode) Pointers() []interface{} {
 		&s.Type,
 		&s.Name,
 		&s.Region,
-		&s.AWSDBIResourceID,
 	}
 }
 

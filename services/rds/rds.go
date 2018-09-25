@@ -306,8 +306,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 						Type: models.RDSNodeType,
 						Name: *db.DBInstanceIdentifier,
 
-						Region:           region,
-						AWSDBIResourceID: db.DbiResourceId,
+						Region: region,
 					},
 					Service: models.RDSService{
 						Type: models.RDSServiceType,
