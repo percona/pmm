@@ -399,12 +399,14 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 		return errors.WithStack(err)
 	}
 
-	// check connection
+	// check connection and a number of tables
+	var tableCount int
 	dsn := agent.DSN(service)
 	db, err := sql.Open("mysql", dsn)
 	if err == nil {
-		err = db.PingContext(ctx)
+		err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM information_schema.tables").Scan(&tableCount)
 		db.Close()
+		agent.MySQLDisableTablestats = pointer.ToBool(tableCount > 1000)
 	}
 	if err != nil {
 		if err, ok := err.(*mysql.MySQLError); ok {
@@ -431,31 +433,36 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 
 func (svc *Service) mysqlExporterCfg(agent *models.MySQLdExporter, port uint16, dsn string) *servicelib.Config {
 	name := agent.NameForSupervisor()
+
+	arguments := []string{
+		"-collect.auto_increment.columns",
+		"-collect.binlog_size",
+		"-collect.global_status",
+		"-collect.global_variables",
+		"-collect.info_schema.innodb_metrics",
+		"-collect.info_schema.processlist",
+		"-collect.info_schema.query_response_time",
+		"-collect.info_schema.tables",
+		"-collect.info_schema.userstats",
+		"-collect.perf_schema.eventswaits",
+		"-collect.perf_schema.file_events",
+		"-collect.perf_schema.indexiowaits",
+		"-collect.perf_schema.tableiowaits",
+		"-collect.perf_schema.tablelocks",
+		"-collect.slave_status",
+		fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
+	}
+	if agent.MySQLDisableTablestats == nil || !*agent.MySQLDisableTablestats {
+		arguments = append(arguments, "-collect.info_schema.tablestats")
+	}
+	sort.Strings(arguments)
+
 	return &servicelib.Config{
 		Name:        name,
 		DisplayName: name,
 		Description: name,
 		Executable:  svc.MySQLdExporterPath,
-		Arguments: []string{
-			"-collect.auto_increment.columns",
-			"-collect.binlog_size",
-			"-collect.global_status",
-			"-collect.global_variables",
-			"-collect.info_schema.innodb_metrics",
-			"-collect.info_schema.processlist",
-			"-collect.info_schema.query_response_time",
-			"-collect.info_schema.tables",
-			"-collect.info_schema.tablestats",
-			"-collect.info_schema.userstats",
-			"-collect.perf_schema.eventswaits",
-			"-collect.perf_schema.file_events",
-			"-collect.perf_schema.indexiowaits",
-			"-collect.perf_schema.tableiowaits",
-			"-collect.perf_schema.tablelocks",
-			"-collect.slave_status",
-
-			fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
-		},
+		Arguments:   arguments,
 		Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)},
 	}
 }

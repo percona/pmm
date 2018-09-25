@@ -322,6 +322,7 @@ func TestRestore(t *testing.T) {
 	err = svc.DB.InTransaction(func(tx *reform.TX) error {
 		return svc.Restore(ctx, tx)
 	})
+	require.NoError(t, err)
 
 	// Add one instance.
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
@@ -335,7 +336,6 @@ func TestRestore(t *testing.T) {
 	err = svc.DB.InTransaction(func(tx *reform.TX) error {
 		return svc.Restore(ctx, tx)
 	})
-
 	require.NoError(t, err)
 }
 

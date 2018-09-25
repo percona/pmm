@@ -47,9 +47,10 @@ type MySQLdExporter struct {
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID int32     `reform:"runs_on_node_id"`
 
-	ServiceUsername *string `reform:"service_username"`
-	ServicePassword *string `reform:"service_password"`
-	ListenPort      *uint16 `reform:"listen_port"`
+	ServiceUsername        *string `reform:"service_username"`
+	ServicePassword        *string `reform:"service_password"`
+	ListenPort             *uint16 `reform:"listen_port"`
+	MySQLDisableTablestats *bool   `reform:"mysql_disable_tablestats"`
 }
 
 func (m *MySQLdExporter) DSN(service *RDSService) string {

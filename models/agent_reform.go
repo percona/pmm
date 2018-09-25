@@ -142,7 +142,7 @@ func (v *mySQLdExporterTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *mySQLdExporterTableType) Columns() []string {
-	return []string{"id", "type", "runs_on_node_id", "service_username", "service_password", "listen_port"}
+	return []string{"id", "type", "runs_on_node_id", "service_username", "service_password", "listen_port", "mysql_disable_tablestats"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -162,19 +162,20 @@ func (v *mySQLdExporterTableType) PKColumnIndex() uint {
 
 // MySQLdExporterTable represents agents view or table in SQL database.
 var MySQLdExporterTable = &mySQLdExporterTableType{
-	s: parse.StructInfo{Type: "MySQLdExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "int32", Column: "runs_on_node_id"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "MySQLdExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "int32", Column: "runs_on_node_id"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "MySQLDisableTablestats", Type: "*bool", Column: "mysql_disable_tablestats"}}, PKFieldIndex: 0},
 	z: new(MySQLdExporter).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s MySQLdExporter) String() string {
-	res := make([]string, 6)
+	res := make([]string, 7)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
 	res[3] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
 	res[4] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
 	res[5] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
+	res[6] = "MySQLDisableTablestats: " + reform.Inspect(s.MySQLDisableTablestats, true)
 	return strings.Join(res, ", ")
 }
 
@@ -188,6 +189,7 @@ func (s *MySQLdExporter) Values() []interface{} {
 		s.ServiceUsername,
 		s.ServicePassword,
 		s.ListenPort,
+		s.MySQLDisableTablestats,
 	}
 }
 
@@ -201,6 +203,7 @@ func (s *MySQLdExporter) Pointers() []interface{} {
 		&s.ServiceUsername,
 		&s.ServicePassword,
 		&s.ListenPort,
+		&s.MySQLDisableTablestats,
 	}
 }
 

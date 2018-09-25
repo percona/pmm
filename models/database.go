@@ -102,6 +102,12 @@ var databaseSchema = [][]string{
 			ADD COLUMN aws_dbi_resource_id VARCHAR(255)
 		`,
 	},
+
+	3: {
+		`ALTER TABLE agents
+			ADD COLUMN mysql_disable_tablestats TINYINT(1)
+		`,
+	},
 }
 
 func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error) {
