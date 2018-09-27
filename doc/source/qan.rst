@@ -221,7 +221,8 @@ identical to that of |pt-visual-explain|.
 
 .. note::
 
-   Use the |gui.copy-to-clipboard| button to save the output and pass it to
+   The |gui.copy-to-clipboard| button available in Explain, Fingerprint,
+   Example, and Tables sections is useful to save the output and pass it to
    external tools, such as |pt-visual-explain|.
 
 .. figure:: .res/graphics/png/qan.explain.1.png
