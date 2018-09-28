@@ -488,6 +488,7 @@
 .. |dbd.mysql-overview| replace:: *MySQL Overview*
 .. |dbd.network-overview| replace:: *Network Overview*
 .. |dbd.overview-numa-metrics| replace:: *NUMA Overview*
+.. |dbd.postgres-overview| replace:: *PostgreSQL Overview*
 .. |dbd.prometheus-exporter-status| replace:: *Prometheus Exporter Status*
 .. |dbd.prometheus-exporters-overview| replace:: *Prometheus Exporters Overview*
 .. |dbd.prometheus| replace:: *Prometheus*
