@@ -30,7 +30,7 @@ install_docker() {
         curl -fsSL get.docker.com -o /tmp/get-docker.sh \
             || wget -qO /tmp/get-docker.sh get.docker.com
         sh /tmp/get-docker.sh
-        run_root 'service docker start'
+        run_root 'service docker start' || :
     fi
     if ! docker ps; then
         root_is_needed='yes'
