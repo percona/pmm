@@ -434,25 +434,27 @@ func (svc *Service) mysqlExporterCfg(agent *models.MySQLdExporter, port uint16, 
 	name := agent.NameForSupervisor()
 
 	arguments := []string{
-		"-collect.auto_increment.columns",
 		"-collect.binlog_size",
 		"-collect.global_status",
 		"-collect.global_variables",
 		"-collect.info_schema.innodb_metrics",
 		"-collect.info_schema.processlist",
 		"-collect.info_schema.query_response_time",
-		"-collect.info_schema.tables",
 		"-collect.info_schema.userstats",
 		"-collect.perf_schema.eventswaits",
 		"-collect.perf_schema.file_events",
-		"-collect.perf_schema.indexiowaits",
-		"-collect.perf_schema.tableiowaits",
-		"-collect.perf_schema.tablelocks",
 		"-collect.slave_status",
 		fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
 	}
 	if agent.MySQLDisableTablestats == nil || !*agent.MySQLDisableTablestats {
+		// enable tablestats and a few related collectors just like pmm-admin
+		// https://github.com/percona/pmm-client/blob/e94b61ed0e5482a27039f0d1b0b36076731f0c29/pmm/plugin/mysql/metrics/metrics.go#L98-L105
+		arguments = append(arguments, "-collect.auto_increment.columns")
+		arguments = append(arguments, "-collect.info_schema.tables")
 		arguments = append(arguments, "-collect.info_schema.tablestats")
+		arguments = append(arguments, "-collect.perf_schema.indexiowaits")
+		arguments = append(arguments, "-collect.perf_schema.tableiowaits")
+		arguments = append(arguments, "-collect.perf_schema.tablelocks")
 	}
 	sort.Strings(arguments)
 
