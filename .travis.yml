@@ -32,8 +32,9 @@ env:
       CONSUL_IMAGE=consul:latest
 
     # current master (for Prometheus only)
-    - PROMETHEUS_IMAGE=prom/prometheus:master
-      CONSUL_IMAGE=consul:latest
+    # TODO enable this configuration: https://jira.percona.com/browse/PMM-3040
+    # - PROMETHEUS_IMAGE=prom/prometheus:master
+      # CONSUL_IMAGE=consul:latest
 
 before_install:
   # install binary protoc release
