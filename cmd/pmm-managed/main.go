@@ -35,6 +35,7 @@ import (
 
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
@@ -63,7 +64,7 @@ const (
 	shutdownTimeout = 3 * time.Second
 
 	// TODO set during build
-	Version = "1.15.0-dev"
+	Version = "1.15.0"
 )
 
 var (
@@ -125,43 +126,31 @@ func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
 	})
 }
 
-// runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
-func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.DB, logs *logs.Logs) {
-	l := logrus.WithField("component", "gRPC")
-	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
+type rdsServiceDependencies struct {
+	prometheus *prometheus.Service
+	supervisor *supervisor.Supervisor
+	qan        *qan.Service
+	db         *reform.DB
+}
 
-	prometheus, err := prometheus.NewService(*prometheusConfigF, *prometheusURLF, *promtoolF, consulClient)
-	if err == nil {
-		err = prometheus.Check(ctx)
-	}
-	if err != nil {
-		l.Panicf("Prometheus service problem: %+v", err)
-	}
-
-	supervisor := supervisor.New(l)
-	qan, err := qan.NewService(ctx, *agentQANBaseF, supervisor)
-	if err != nil {
-		l.Panicf("QAN service problem: %+v", err)
-	}
-
+func makeRDSService(ctx context.Context, deps *rdsServiceDependencies) (*rds.Service, error) {
 	// collect already reserved ports
-	rows, err := db.Query("SELECT listen_port FROM agents")
+	rows, err := deps.db.Query("SELECT listen_port FROM agents")
 	if err != nil {
-		l.Panicf("Failed to collect reserved ports: %s", err)
+		return nil, errors.WithStack(err)
 	}
+	defer rows.Close()
+
 	var reserved []uint16
 	for rows.Next() {
 		var port uint16
 		if err = rows.Scan(&port); err != nil {
-			l.Panic(err)
+			return nil, errors.WithStack(err)
 		}
 		reserved = append(reserved, port)
 	}
 	if err = rows.Err(); err != nil {
-		l.Panic(err)
-	}
-	if err = rows.Close(); err != nil {
-		l.Panic(err)
+		return nil, errors.WithStack(err)
 	}
 
 	rdsConfig := rds.ServiceConfig{
@@ -169,28 +158,44 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 		RDSExporterPath:       *agentRDSExporterF,
 		RDSExporterConfigPath: *agentRDSExporterConfigF,
 
-		DB:            db,
-		Prometheus:    prometheus,
-		QAN:           qan,
-		Supervisor:    supervisor,
+		DB:            deps.db,
+		Prometheus:    deps.prometheus,
+		QAN:           deps.qan,
+		Supervisor:    deps.supervisor,
 		PortsRegistry: ports.NewRegistry(10000, 10999, reserved),
 	}
 	rds, err := rds.NewService(&rdsConfig)
 	if err != nil {
-		l.Panicf("RDS service problem: %+v", err)
+		return nil, err
 	}
-	err = db.InTransaction(func(tx *reform.TX) error {
+
+	err = deps.db.InTransaction(func(tx *reform.TX) error {
 		return rds.ApplyPrometheusConfiguration(ctx, tx.Querier)
 	})
 	if err != nil {
-		l.Panicf("RDS service problem with Prometheus configuration: %+v", err)
+		return nil, err
 	}
-	err = db.InTransaction(func(tx *reform.TX) error {
+	err = deps.db.InTransaction(func(tx *reform.TX) error {
 		return rds.Restore(ctx, tx)
 	})
 	if err != nil {
-		l.Panicf("RDS service problem with restoring: %s", err)
+		return nil, err
 	}
+
+	return rds, nil
+}
+
+type grpcServerDependencies struct {
+	*rdsServiceDependencies
+	rds          *rds.Service
+	consulClient *consul.Client
+	logs         *logs.Logs
+}
+
+// runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
+func runGRPCServer(ctx context.Context, deps *grpcServerDependencies) {
+	l := logrus.WithField("component", "gRPC")
+	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
 
 	grafana := grafana.NewClient(*grafanaAddrF)
 
@@ -201,13 +206,13 @@ func runGRPCServer(ctx context.Context, consulClient *consul.Client, db *reform.
 	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{PMMVersion: Version})
 	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
 	api.RegisterScrapeConfigsServer(gRPCServer, &handlers.ScrapeConfigsServer{
-		Prometheus: prometheus,
+		Prometheus: deps.prometheus,
 	})
 	api.RegisterRDSServer(gRPCServer, &handlers.RDSServer{
-		RDS: rds,
+		RDS: deps.rds,
 	})
 	api.RegisterLogsServer(gRPCServer, &handlers.LogsServer{
-		Logs: logs,
+		Logs: deps.logs,
 	})
 	api.RegisterAnnotationsServer(gRPCServer, &handlers.AnnotationsServer{
 		Grafana: grafana,
@@ -423,6 +428,21 @@ func main() {
 		l.Panic(err)
 	}
 
+	prometheus, err := prometheus.NewService(*prometheusConfigF, *prometheusURLF, *promtoolF, consulClient)
+	if err == nil {
+		err = prometheus.Check(ctx)
+	}
+	if err != nil {
+		l.Panicf("Prometheus service problem: %+v", err)
+	}
+
+	supervisor := supervisor.New(l)
+
+	qan, err := qan.NewService(ctx, *agentQANBaseF, supervisor)
+	if err != nil {
+		l.Panicf("QAN service problem: %+v", err)
+	}
+
 	sqlDB, err := models.OpenDB(*dbNameF, *dbUsernameF, *dbPasswordF, l.Debugf)
 	if err != nil {
 		l.Panic(err)
@@ -430,14 +450,30 @@ func main() {
 	defer sqlDB.Close()
 	db := reform.NewDB(sqlDB, mysql.Dialect, nil)
 
-	logs := logs.New(ctx, logs.DefaultLogs, 1000)
+	deps := &rdsServiceDependencies{
+		prometheus: prometheus,
+		supervisor: supervisor,
+		qan:        qan,
+		db:         db,
+	}
+	rds, err := makeRDSService(ctx, deps)
+	if err != nil {
+		l.Panicf("RDS service problem: %+v", err)
+	}
+
+	logs := logs.New(Version, consulClient, rds, nil)
 
 	var wg sync.WaitGroup
 
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runGRPCServer(ctx, consulClient, db, logs)
+		runGRPCServer(ctx, &grpcServerDependencies{
+			rdsServiceDependencies: deps,
+			rds:                    rds,
+			consulClient:           consulClient,
+			logs:                   logs,
+		})
 	}()
 
 	wg.Add(1)
