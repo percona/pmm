@@ -16,7 +16,7 @@ import (
   {{ end -}}
   {{ if .UsePFlags }}flag "github.com/spf13/pflag"
   {{ end -}}
-	graceful "github.com/tylerb/graceful"
+
 
   {{range .DefaultImports}}{{printf "%q" .}}
   {{end}}
@@ -34,7 +34,7 @@ func init() {
 
 func main() {
   {{ if .UsePFlags }}{{ if not .ExcludeSpec }}
-  swaggerSpec, err := loads.Analyzed({{ .APIPackage }}.SwaggerJSON, "")
+  swaggerSpec, err := loads.Embedded({{ .APIPackage }}.SwaggerJSON, {{ .APIPackage }}.FlatSwaggerJSON)
   if err != nil {
     log.Fatalln(err)
   }
@@ -77,7 +77,7 @@ func main() {
 	}
   {{ else }}{{ if .ExcludeSpec }}
   server := {{ .APIPackage }}.NewServer(nil){{ else }}
-  swaggerSpec, err := loads.Analyzed({{ .APIPackage }}.SwaggerJSON, "")
+  swaggerSpec, err := loads.Embedded({{ .APIPackage }}.SwaggerJSON, {{ .APIPackage }}.FlatSwaggerJSON)
   if err != nil {
     log.Fatalln(err)
   }

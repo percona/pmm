@@ -7,5 +7,4 @@ package models
 
 // APIScrapeConfigsUpdateResponse api scrape configs update response
 // swagger:model apiScrapeConfigsUpdateResponse
-
 type APIScrapeConfigsUpdateResponse interface{}

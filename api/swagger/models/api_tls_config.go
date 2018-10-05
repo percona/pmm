@@ -8,28 +8,19 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 )
 
 // APITLSConfig api TLS config
 // swagger:model apiTLSConfig
-
 type APITLSConfig struct {
 
 	// insecure skip verify
 	InsecureSkipVerify bool `json:"insecure_skip_verify,omitempty"`
 }
 
-/* polymorph apiTLSConfig insecure_skip_verify false */
-
 // Validate validates this api TLS config
 func (m *APITLSConfig) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
 

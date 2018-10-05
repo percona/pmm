@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/task-tracker/models"
+	models "github.com/go-swagger/go-swagger/examples/task-tracker/models"
 )
 
 // GetTaskCommentsOKCode is the HTTP code returned for type GetTaskCommentsOK
@@ -30,6 +30,7 @@ type GetTaskCommentsOK struct {
 
 // NewGetTaskCommentsOK creates GetTaskCommentsOK with default headers values
 func NewGetTaskCommentsOK() *GetTaskCommentsOK {
+
 	return &GetTaskCommentsOK{}
 }
 
@@ -66,8 +67,8 @@ swagger:response getTaskCommentsDefault
 type GetTaskCommentsDefault struct {
 	_statusCode int
 	/*
-	  Required: true
-	*/
+
+	 */
 	XErrorCode string `json:"X-Error-Code"`
 
 	/*

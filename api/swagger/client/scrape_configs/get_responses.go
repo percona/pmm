@@ -13,7 +13,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm-managed/api/swagger/models"
+	models "github.com/percona/pmm-managed/api/swagger/models"
 )
 
 // GetReader is a Reader for the Get structure.

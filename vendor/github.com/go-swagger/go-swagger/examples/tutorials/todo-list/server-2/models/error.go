@@ -15,7 +15,6 @@ import (
 
 // Error error
 // swagger:model error
-
 type Error struct {
 
 	// code
@@ -26,16 +25,11 @@ type Error struct {
 	Message *string `json:"message"`
 }
 
-/* polymorph error code false */
-
-/* polymorph error message false */
-
 // Validate validates this error
 func (m *Error) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMessage(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 

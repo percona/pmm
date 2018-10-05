@@ -32,7 +32,7 @@ func request_Annotations_Create_0(ctx context.Context, marshaler runtime.Marshal
 	var protoReq AnnotationsCreateRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -51,14 +51,14 @@ func RegisterAnnotationsHandlerFromEndpoint(ctx context.Context, mux *runtime.Se
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Printf("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Printf("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()
@@ -72,8 +72,8 @@ func RegisterAnnotationsHandler(ctx context.Context, mux *runtime.ServeMux, conn
 	return RegisterAnnotationsHandlerClient(ctx, mux, NewAnnotationsClient(conn))
 }
 
-// RegisterAnnotationsHandler registers the http handlers for service Annotations to "mux".
-// The handlers forward requests to the grpc endpoint over the given implementation of "AnnotationsClient".
+// RegisterAnnotationsHandlerClient registers the http handlers for service Annotations
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "AnnotationsClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "AnnotationsClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "AnnotationsClient" to call the correct interceptors.

@@ -14,7 +14,6 @@ import (
 
 // ValidationError validation error
 // swagger:model ValidationError
-
 type ValidationError struct {
 	Error
 
@@ -24,28 +23,29 @@ type ValidationError struct {
 
 // UnmarshalJSON unmarshals this object from a JSON structure
 func (m *ValidationError) UnmarshalJSON(raw []byte) error {
-
+	// AO0
 	var aO0 Error
 	if err := swag.ReadJSON(raw, &aO0); err != nil {
 		return err
 	}
 	m.Error = aO0
 
-	var data struct {
+	// AO1
+	var dataAO1 struct {
 		Field string `json:"field,omitempty"`
 	}
-	if err := swag.ReadJSON(raw, &data); err != nil {
+	if err := swag.ReadJSON(raw, &dataAO1); err != nil {
 		return err
 	}
 
-	m.Field = data.Field
+	m.Field = dataAO1.Field
 
 	return nil
 }
 
 // MarshalJSON marshals this object to a JSON structure
 func (m ValidationError) MarshalJSON() ([]byte, error) {
-	var _parts [][]byte
+	_parts := make([][]byte, 0, 2)
 
 	aO0, err := swag.WriteJSON(m.Error)
 	if err != nil {
@@ -53,17 +53,17 @@ func (m ValidationError) MarshalJSON() ([]byte, error) {
 	}
 	_parts = append(_parts, aO0)
 
-	var data struct {
+	var dataAO1 struct {
 		Field string `json:"field,omitempty"`
 	}
 
-	data.Field = m.Field
+	dataAO1.Field = m.Field
 
-	jsonData, err := swag.WriteJSON(data)
-	if err != nil {
-		return nil, err
+	jsonDataAO1, errAO1 := swag.WriteJSON(dataAO1)
+	if errAO1 != nil {
+		return nil, errAO1
 	}
-	_parts = append(_parts, jsonData)
+	_parts = append(_parts, jsonDataAO1)
 
 	return swag.ConcatJSON(_parts...), nil
 }
@@ -72,6 +72,7 @@ func (m ValidationError) MarshalJSON() ([]byte, error) {
 func (m *ValidationError) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	// validation for a type composition with Error
 	if err := m.Error.Validate(formats); err != nil {
 		res = append(res, err)
 	}

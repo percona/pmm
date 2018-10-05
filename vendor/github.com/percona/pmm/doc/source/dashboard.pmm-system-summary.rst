@@ -10,11 +10,11 @@ this host.
 The |gui.system-summary| section contains details about the platform while the
 |gui.database-summary| offers detailed statistics about the database server.
 
-.. figure:: .res/graphics/png/pmm.metrics-monitor.system-summary.png
+.. figure:: .res/graphics/png/metrics-monitor.system-summary.png
 
    Accessing information about the system and database
    
 You can download the current values on this dashboard locally if you click the
 |gui.download-summary| button.
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

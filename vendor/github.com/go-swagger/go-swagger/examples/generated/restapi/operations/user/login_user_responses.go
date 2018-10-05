@@ -28,6 +28,7 @@ type LoginUserOK struct {
 
 // NewLoginUserOK creates LoginUserOK with default headers values
 func NewLoginUserOK() *LoginUserOK {
+
 	return &LoginUserOK{}
 }
 
@@ -65,11 +66,14 @@ type LoginUserBadRequest struct {
 
 // NewLoginUserBadRequest creates LoginUserBadRequest with default headers values
 func NewLoginUserBadRequest() *LoginUserBadRequest {
+
 	return &LoginUserBadRequest{}
 }
 
 // WriteResponse to the client
 func (o *LoginUserBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(400)
 }

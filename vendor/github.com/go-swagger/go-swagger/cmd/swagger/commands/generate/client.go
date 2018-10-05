@@ -15,10 +15,7 @@
 package generate
 
 import (
-	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
+	"log"
 
 	"github.com/go-swagger/go-swagger/generator"
 )
@@ -39,33 +36,8 @@ type Client struct {
 	SkipValidation  bool     `long:"skip-validation" description:"skips validation of spec prior to generation"`
 }
 
-// Execute runs this command
-func (c *Client) Execute(args []string) error {
-	cfg, err := readConfig(string(c.ConfigFile))
-	if err != nil {
-		return err
-	}
-	setDebug(cfg)
-
-	if c.ExistingModels != "" {
-		c.SkipModels = true
-	}
-
-	var bytebuffer []byte
-	var copyrightstr string
-	copyrightfile := string(c.CopyrightFile)
-	if copyrightfile != "" {
-		//Read the Copyright from file path in opts
-		bytebuffer, err = ioutil.ReadFile(copyrightfile)
-		if err != nil {
-			return err
-		}
-		copyrightstr = string(bytebuffer)
-	} else {
-		copyrightstr = ""
-	}
-
-	opts := &generator.GenOpts{
+func (c *Client) getOpts() (*generator.GenOpts, error) {
+	return &generator.GenOpts{
 		Spec: string(c.Spec),
 
 		Target:            string(c.Target),
@@ -84,49 +56,36 @@ func (c *Client) Execute(args []string) error {
 		ValidateSpec:      !c.SkipValidation,
 		Tags:              c.Tags,
 		IncludeSupport:    true,
+		Template:          c.Template,
 		TemplateDir:       string(c.TemplateDir),
 		DumpData:          c.DumpData,
 		ExistingModels:    c.ExistingModels,
-		Copyright:         copyrightstr,
-	}
+		IsClient:          true,
+	}, nil
+}
 
-	if err = opts.EnsureDefaults(true); err != nil {
-		return err
-	}
+func (c *Client) getShared() *shared {
+	return &c.shared
+}
 
-	if err = configureOptsFromConfig(cfg, opts); err != nil {
-		return err
-	}
+func (c *Client) generate(opts *generator.GenOpts) error {
+	return generator.GenerateClient(c.Name, c.Models, c.Operations, opts)
+}
 
-	if err = generator.GenerateClient(c.Name, c.Models, c.Operations, opts); err != nil {
-		return err
-	}
-
-	var basepath, rp, targetAbs string
-
-	basepath, err = filepath.Abs(".")
-	if err != nil {
-		return err
-	}
-	targetAbs, err = filepath.Abs(opts.Target)
-	if err != nil {
-		return err
-	}
-	rp, err = filepath.Rel(basepath, targetAbs)
-	if err != nil {
-		return err
-	}
-
-	fmt.Fprintf(os.Stderr, `Generation completed!
+func (c *Client) log(rp string) {
+	log.Printf(`Generation completed!
 
 For this generation to compile you need to have some packages in your GOPATH:
 
-  * github.com/go-openapi/runtime
-  * golang.org/x/net/context
-  * golang.org/x/net/context/ctxhttp
+	* github.com/go-openapi/runtime
+	* golang.org/x/net/context
+	* golang.org/x/net/context/ctxhttp
 
 You can get these now with: go get -u -f %s/...
 `, rp)
+}
 
-	return nil
+// Execute runs this command
+func (c *Client) Execute(args []string) error {
+	return createSwagger(c)
 }

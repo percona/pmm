@@ -8,13 +8,11 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 )
 
 // APIRDSDiscoverRequest api r d s discover request
 // swagger:model apiRDSDiscoverRequest
-
 type APIRDSDiscoverRequest struct {
 
 	// aws access key id
@@ -24,17 +22,8 @@ type APIRDSDiscoverRequest struct {
 	AwsSecretAccessKey string `json:"aws_secret_access_key,omitempty"`
 }
 
-/* polymorph apiRDSDiscoverRequest aws_access_key_id false */
-
-/* polymorph apiRDSDiscoverRequest aws_secret_access_key false */
-
 // Validate validates this api r d s discover request
 func (m *APIRDSDiscoverRequest) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
 

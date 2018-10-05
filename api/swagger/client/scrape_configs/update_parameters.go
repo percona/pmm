@@ -17,7 +17,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm-managed/api/swagger/models"
+	models "github.com/percona/pmm-managed/api/swagger/models"
 )
 
 // NewUpdateParams creates a new UpdateParams object
@@ -66,7 +66,10 @@ type UpdateParams struct {
 
 	/*Body*/
 	Body *models.APIScrapeConfigsUpdateRequest
-	/*ScrapeConfigJobName*/
+	/*ScrapeConfigJobName
+	  The job name assigned to scraped metrics by default: "example-job" (required)
+
+	*/
 	ScrapeConfigJobName string
 
 	timeout    time.Duration
@@ -137,12 +140,10 @@ func (o *UpdateParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regist
 	}
 	var res []error
 
-	if o.Body == nil {
-		o.Body = new(models.APIScrapeConfigsUpdateRequest)
-	}
-
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	// path param scrape_config.job_name

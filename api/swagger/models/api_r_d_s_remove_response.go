@@ -7,5 +7,4 @@ package models
 
 // APIRDSRemoveResponse api r d s remove response
 // swagger:model apiRDSRemoveResponse
-
 type APIRDSRemoveResponse interface{}

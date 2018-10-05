@@ -1,8 +1,7 @@
-.. _pmm/glossary/terminology-reference:
+.. _pmm.glossary.terminology-reference:
 
-================================================================================
 Terminology Reference
-================================================================================
+********************************************************************************
 
 .. glossary::
    :sorted:
@@ -28,9 +27,7 @@ Terminology Reference
       required permissions properly. For this, you may copy the following |JSON| for your
       IAM user:
 
-      .. include:: .res/code/js.org
-	 :start-after: +aws.iam-user.permission+
-	 :end-before: #+end-block
+      .. include:: .res/code/aws.iam-user.permission.txt
 
       .. seealso::
 
@@ -46,19 +43,16 @@ Terminology Reference
       need to adjust data retention time.
 
       You can control data retention by passing the :term:`METRICS_RETENTION
-      <METRICS_RETENTION (Option)>` and :term:`QUERIES_RETENTION
-      <QUERIES_RETENTION (Option)>` environment variables when :ref:`creating
+      <METRICS_RETENTION>` and :term:`QUERIES_RETENTION
+      <QUERIES_RETENTION>` environment variables when :ref:`creating
       and running the PMM Server container <server-container>`.
 
       .. seealso::
 
 	 Metrics retention
-
-	    :term:`METRICS_RETENTION <METRICS_RETENTION (Option)>`
-
+	    :term:`METRICS_RETENTION <METRICS_RETENTION>`
 	 Queries retention
-
-	    :term:`QUERIES_RETENTION <QUERIES_RETENTION (Option)>`
+	    :term:`QUERIES_RETENTION <QUERIES_RETENTION>`
 
    Default ports
 
@@ -105,11 +99,9 @@ Terminology Reference
       - |perl| version
 
       You may disable telemetry :ref:`by passing an additional parameter
-      <pmm/docker.additional_option>` to |docker|.
+      <pmm.docker.additional-option>` to |docker|.
 
-      .. include:: .res/code/sh.org
-	 :start-after: docker.run.disable-telemetry
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.run.disable-telemetry.txt
 
    External Monitoring Service
 
@@ -126,8 +118,7 @@ Terminology Reference
       .. seealso::
 
 	 Docker container: Enabling orchestrator
-
-	    :term:`ORCHESTRATOR_ENABLED (Option)`
+	    :term:`ORCHESTRATOR_ENABLED`
 
    Data Source Name
 
@@ -270,7 +261,7 @@ Terminology Reference
 
       The collected data is sent to :term:`PMM Server`.
 
-      For more information, see :ref:`architecture`.
+      For more information, see :ref:`pmm.architecture`.
 
    PMM Server
 
@@ -287,7 +278,7 @@ Terminology Reference
 
 	 PMM Architecture
 
-	    :ref:`architecture`
+	    :ref:`pmm.architecture`
 
    Query Analytics (QAN)
 
@@ -301,9 +292,7 @@ Terminology Reference
 
       |tip.run-this.root|
 
-      .. include:: .res/code/sh.org
-	 :start-after: +docker.exec.it.pmm-server.head+
-	 :end-before: #+end-block
+      .. include:: .res/code/docker.exec.it.pmm-server.head.txt
 
    QAN
 
@@ -314,7 +303,4 @@ Terminology Reference
       An element of :term:`Query Analytics (QAN)` which displays the available
       metrics for the selected query.
    
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/fragment.txt
+.. include:: .res/replace.txt

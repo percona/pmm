@@ -18,6 +18,12 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 // Target health : unknown, down, or up.
 type ScrapeTargetHealth_Health int32
 
@@ -41,19 +47,43 @@ var ScrapeTargetHealth_Health_value = map[string]int32{
 func (x ScrapeTargetHealth_Health) String() string {
 	return proto.EnumName(ScrapeTargetHealth_Health_name, int32(x))
 }
-func (ScrapeTargetHealth_Health) EnumDescriptor() ([]byte, []int) { return fileDescriptor5, []int{5, 0} }
+func (ScrapeTargetHealth_Health) EnumDescriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{5, 0}
+}
 
 type LabelPair struct {
 	// Label name
-	Name string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	Name string `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	// Label value
-	Value string `protobuf:"bytes,2,opt,name=value" json:"value,omitempty"`
+	Value                string   `protobuf:"bytes,2,opt,name=value,proto3" json:"value,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *LabelPair) Reset()                    { *m = LabelPair{} }
-func (m *LabelPair) String() string            { return proto.CompactTextString(m) }
-func (*LabelPair) ProtoMessage()               {}
-func (*LabelPair) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{0} }
+func (m *LabelPair) Reset()         { *m = LabelPair{} }
+func (m *LabelPair) String() string { return proto.CompactTextString(m) }
+func (*LabelPair) ProtoMessage()    {}
+func (*LabelPair) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{0}
+}
+func (m *LabelPair) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_LabelPair.Unmarshal(m, b)
+}
+func (m *LabelPair) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_LabelPair.Marshal(b, m, deterministic)
+}
+func (dst *LabelPair) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LabelPair.Merge(dst, src)
+}
+func (m *LabelPair) XXX_Size() int {
+	return xxx_messageInfo_LabelPair.Size(m)
+}
+func (m *LabelPair) XXX_DiscardUnknown() {
+	xxx_messageInfo_LabelPair.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LabelPair proto.InternalMessageInfo
 
 func (m *LabelPair) GetName() string {
 	if m != nil {
@@ -71,15 +101,37 @@ func (m *LabelPair) GetValue() string {
 
 type StaticConfig struct {
 	// Hostnames or IPs followed by an optional port number: "1.2.3.4:9090"
-	Targets []string `protobuf:"bytes,1,rep,name=targets" json:"targets,omitempty"`
+	Targets []string `protobuf:"bytes,1,rep,name=targets,proto3" json:"targets,omitempty"`
 	// Labels assigned to all metrics scraped from the targets
-	Labels []*LabelPair `protobuf:"bytes,2,rep,name=labels" json:"labels,omitempty"`
+	Labels               []*LabelPair `protobuf:"bytes,2,rep,name=labels,proto3" json:"labels,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
 }
 
-func (m *StaticConfig) Reset()                    { *m = StaticConfig{} }
-func (m *StaticConfig) String() string            { return proto.CompactTextString(m) }
-func (*StaticConfig) ProtoMessage()               {}
-func (*StaticConfig) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{1} }
+func (m *StaticConfig) Reset()         { *m = StaticConfig{} }
+func (m *StaticConfig) String() string { return proto.CompactTextString(m) }
+func (*StaticConfig) ProtoMessage()    {}
+func (*StaticConfig) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{1}
+}
+func (m *StaticConfig) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StaticConfig.Unmarshal(m, b)
+}
+func (m *StaticConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StaticConfig.Marshal(b, m, deterministic)
+}
+func (dst *StaticConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StaticConfig.Merge(dst, src)
+}
+func (m *StaticConfig) XXX_Size() int {
+	return xxx_messageInfo_StaticConfig.Size(m)
+}
+func (m *StaticConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_StaticConfig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StaticConfig proto.InternalMessageInfo
 
 func (m *StaticConfig) GetTargets() []string {
 	if m != nil {
@@ -96,14 +148,36 @@ func (m *StaticConfig) GetLabels() []*LabelPair {
 }
 
 type BasicAuth struct {
-	Username string `protobuf:"bytes,1,opt,name=username" json:"username,omitempty"`
-	Password string `protobuf:"bytes,2,opt,name=password" json:"password,omitempty"`
+	Username             string   `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty"`
+	Password             string   `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *BasicAuth) Reset()                    { *m = BasicAuth{} }
-func (m *BasicAuth) String() string            { return proto.CompactTextString(m) }
-func (*BasicAuth) ProtoMessage()               {}
-func (*BasicAuth) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{2} }
+func (m *BasicAuth) Reset()         { *m = BasicAuth{} }
+func (m *BasicAuth) String() string { return proto.CompactTextString(m) }
+func (*BasicAuth) ProtoMessage()    {}
+func (*BasicAuth) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{2}
+}
+func (m *BasicAuth) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BasicAuth.Unmarshal(m, b)
+}
+func (m *BasicAuth) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BasicAuth.Marshal(b, m, deterministic)
+}
+func (dst *BasicAuth) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BasicAuth.Merge(dst, src)
+}
+func (m *BasicAuth) XXX_Size() int {
+	return xxx_messageInfo_BasicAuth.Size(m)
+}
+func (m *BasicAuth) XXX_DiscardUnknown() {
+	xxx_messageInfo_BasicAuth.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BasicAuth proto.InternalMessageInfo
 
 func (m *BasicAuth) GetUsername() string {
 	if m != nil {
@@ -120,13 +194,35 @@ func (m *BasicAuth) GetPassword() string {
 }
 
 type TLSConfig struct {
-	InsecureSkipVerify bool `protobuf:"varint,5,opt,name=insecure_skip_verify,json=insecureSkipVerify" json:"insecure_skip_verify,omitempty"`
+	InsecureSkipVerify   bool     `protobuf:"varint,5,opt,name=insecure_skip_verify,json=insecureSkipVerify,proto3" json:"insecure_skip_verify,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *TLSConfig) Reset()                    { *m = TLSConfig{} }
-func (m *TLSConfig) String() string            { return proto.CompactTextString(m) }
-func (*TLSConfig) ProtoMessage()               {}
-func (*TLSConfig) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{3} }
+func (m *TLSConfig) Reset()         { *m = TLSConfig{} }
+func (m *TLSConfig) String() string { return proto.CompactTextString(m) }
+func (*TLSConfig) ProtoMessage()    {}
+func (*TLSConfig) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{3}
+}
+func (m *TLSConfig) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_TLSConfig.Unmarshal(m, b)
+}
+func (m *TLSConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_TLSConfig.Marshal(b, m, deterministic)
+}
+func (dst *TLSConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_TLSConfig.Merge(dst, src)
+}
+func (m *TLSConfig) XXX_Size() int {
+	return xxx_messageInfo_TLSConfig.Size(m)
+}
+func (m *TLSConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_TLSConfig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_TLSConfig proto.InternalMessageInfo
 
 func (m *TLSConfig) GetInsecureSkipVerify() bool {
 	if m != nil {
@@ -137,27 +233,49 @@ func (m *TLSConfig) GetInsecureSkipVerify() bool {
 
 type ScrapeConfig struct {
 	// The job name assigned to scraped metrics by default: "example-job" (required)
-	JobName string `protobuf:"bytes,1,opt,name=job_name,json=jobName" json:"job_name,omitempty"`
+	JobName string `protobuf:"bytes,1,opt,name=job_name,json=jobName,proto3" json:"job_name,omitempty"`
 	// How frequently to scrape targets from this job: "10s"
-	ScrapeInterval string `protobuf:"bytes,2,opt,name=scrape_interval,json=scrapeInterval" json:"scrape_interval,omitempty"`
+	ScrapeInterval string `protobuf:"bytes,2,opt,name=scrape_interval,json=scrapeInterval,proto3" json:"scrape_interval,omitempty"`
 	// Per-scrape timeout when scraping this job: "5s"
-	ScrapeTimeout string `protobuf:"bytes,3,opt,name=scrape_timeout,json=scrapeTimeout" json:"scrape_timeout,omitempty"`
+	ScrapeTimeout string `protobuf:"bytes,3,opt,name=scrape_timeout,json=scrapeTimeout,proto3" json:"scrape_timeout,omitempty"`
 	// The HTTP resource path on which to fetch metrics from targets: "/metrics"
-	MetricsPath string `protobuf:"bytes,4,opt,name=metrics_path,json=metricsPath" json:"metrics_path,omitempty"`
+	MetricsPath string `protobuf:"bytes,4,opt,name=metrics_path,json=metricsPath,proto3" json:"metrics_path,omitempty"`
 	// Configures the protocol scheme used for requests: "http" or "https"
-	Scheme string `protobuf:"bytes,5,opt,name=scheme" json:"scheme,omitempty"`
+	Scheme string `protobuf:"bytes,5,opt,name=scheme,proto3" json:"scheme,omitempty"`
 	// Sets the `Authorization` header on every scrape request with the configured username and password
-	BasicAuth *BasicAuth `protobuf:"bytes,6,opt,name=basic_auth,json=basicAuth" json:"basic_auth,omitempty"`
+	BasicAuth *BasicAuth `protobuf:"bytes,6,opt,name=basic_auth,json=basicAuth,proto3" json:"basic_auth,omitempty"`
 	// Configures the scrape request's TLS settings
-	TlsConfig *TLSConfig `protobuf:"bytes,7,opt,name=tls_config,json=tlsConfig" json:"tls_config,omitempty"`
+	TlsConfig *TLSConfig `protobuf:"bytes,7,opt,name=tls_config,json=tlsConfig,proto3" json:"tls_config,omitempty"`
 	// List of labeled statically configured targets for this job
-	StaticConfigs []*StaticConfig `protobuf:"bytes,8,rep,name=static_configs,json=staticConfigs" json:"static_configs,omitempty"`
+	StaticConfigs        []*StaticConfig `protobuf:"bytes,8,rep,name=static_configs,json=staticConfigs,proto3" json:"static_configs,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_unrecognized     []byte          `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
 }
 
-func (m *ScrapeConfig) Reset()                    { *m = ScrapeConfig{} }
-func (m *ScrapeConfig) String() string            { return proto.CompactTextString(m) }
-func (*ScrapeConfig) ProtoMessage()               {}
-func (*ScrapeConfig) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{4} }
+func (m *ScrapeConfig) Reset()         { *m = ScrapeConfig{} }
+func (m *ScrapeConfig) String() string { return proto.CompactTextString(m) }
+func (*ScrapeConfig) ProtoMessage()    {}
+func (*ScrapeConfig) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{4}
+}
+func (m *ScrapeConfig) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ScrapeConfig.Unmarshal(m, b)
+}
+func (m *ScrapeConfig) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ScrapeConfig.Marshal(b, m, deterministic)
+}
+func (dst *ScrapeConfig) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScrapeConfig.Merge(dst, src)
+}
+func (m *ScrapeConfig) XXX_Size() int {
+	return xxx_messageInfo_ScrapeConfig.Size(m)
+}
+func (m *ScrapeConfig) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScrapeConfig.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScrapeConfig proto.InternalMessageInfo
 
 func (m *ScrapeConfig) GetJobName() string {
 	if m != nil {
@@ -218,20 +336,42 @@ func (m *ScrapeConfig) GetStaticConfigs() []*StaticConfig {
 // ScrapeTargetHealth represents Prometheus scrape target health: unknown, down, or up.
 type ScrapeTargetHealth struct {
 	// Original scrape job name
-	JobName string `protobuf:"bytes,1,opt,name=job_name,json=jobName" json:"job_name,omitempty"`
+	JobName string `protobuf:"bytes,1,opt,name=job_name,json=jobName,proto3" json:"job_name,omitempty"`
 	// "job" label value, may be different from job_name due to relabeling
-	Job string `protobuf:"bytes,2,opt,name=job" json:"job,omitempty"`
+	Job string `protobuf:"bytes,2,opt,name=job,proto3" json:"job,omitempty"`
 	// Original target
-	Target string `protobuf:"bytes,3,opt,name=target" json:"target,omitempty"`
+	Target string `protobuf:"bytes,3,opt,name=target,proto3" json:"target,omitempty"`
 	// "instance" label value, may be different from target due to relabeling
-	Instance string                    `protobuf:"bytes,4,opt,name=instance" json:"instance,omitempty"`
-	Health   ScrapeTargetHealth_Health `protobuf:"varint,5,opt,name=health,enum=api.ScrapeTargetHealth_Health" json:"health,omitempty"`
+	Instance             string                    `protobuf:"bytes,4,opt,name=instance,proto3" json:"instance,omitempty"`
+	Health               ScrapeTargetHealth_Health `protobuf:"varint,5,opt,name=health,proto3,enum=api.ScrapeTargetHealth_Health" json:"health,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}                  `json:"-"`
+	XXX_unrecognized     []byte                    `json:"-"`
+	XXX_sizecache        int32                     `json:"-"`
 }
 
-func (m *ScrapeTargetHealth) Reset()                    { *m = ScrapeTargetHealth{} }
-func (m *ScrapeTargetHealth) String() string            { return proto.CompactTextString(m) }
-func (*ScrapeTargetHealth) ProtoMessage()               {}
-func (*ScrapeTargetHealth) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{5} }
+func (m *ScrapeTargetHealth) Reset()         { *m = ScrapeTargetHealth{} }
+func (m *ScrapeTargetHealth) String() string { return proto.CompactTextString(m) }
+func (*ScrapeTargetHealth) ProtoMessage()    {}
+func (*ScrapeTargetHealth) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{5}
+}
+func (m *ScrapeTargetHealth) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ScrapeTargetHealth.Unmarshal(m, b)
+}
+func (m *ScrapeTargetHealth) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ScrapeTargetHealth.Marshal(b, m, deterministic)
+}
+func (dst *ScrapeTargetHealth) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScrapeTargetHealth.Merge(dst, src)
+}
+func (m *ScrapeTargetHealth) XXX_Size() int {
+	return xxx_messageInfo_ScrapeTargetHealth.Size(m)
+}
+func (m *ScrapeTargetHealth) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScrapeTargetHealth.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScrapeTargetHealth proto.InternalMessageInfo
 
 func (m *ScrapeTargetHealth) GetJobName() string {
 	if m != nil {
@@ -269,23 +409,67 @@ func (m *ScrapeTargetHealth) GetHealth() ScrapeTargetHealth_Health {
 }
 
 type ScrapeConfigsListRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ScrapeConfigsListRequest) Reset()                    { *m = ScrapeConfigsListRequest{} }
-func (m *ScrapeConfigsListRequest) String() string            { return proto.CompactTextString(m) }
-func (*ScrapeConfigsListRequest) ProtoMessage()               {}
-func (*ScrapeConfigsListRequest) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{6} }
+func (m *ScrapeConfigsListRequest) Reset()         { *m = ScrapeConfigsListRequest{} }
+func (m *ScrapeConfigsListRequest) String() string { return proto.CompactTextString(m) }
+func (*ScrapeConfigsListRequest) ProtoMessage()    {}
+func (*ScrapeConfigsListRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{6}
+}
+func (m *ScrapeConfigsListRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ScrapeConfigsListRequest.Unmarshal(m, b)
+}
+func (m *ScrapeConfigsListRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ScrapeConfigsListRequest.Marshal(b, m, deterministic)
+}
+func (dst *ScrapeConfigsListRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScrapeConfigsListRequest.Merge(dst, src)
+}
+func (m *ScrapeConfigsListRequest) XXX_Size() int {
+	return xxx_messageInfo_ScrapeConfigsListRequest.Size(m)
+}
+func (m *ScrapeConfigsListRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScrapeConfigsListRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScrapeConfigsListRequest proto.InternalMessageInfo
 
 type ScrapeConfigsListResponse struct {
-	ScrapeConfigs []*ScrapeConfig `protobuf:"bytes,1,rep,name=scrape_configs,json=scrapeConfigs" json:"scrape_configs,omitempty"`
+	ScrapeConfigs []*ScrapeConfig `protobuf:"bytes,1,rep,name=scrape_configs,json=scrapeConfigs,proto3" json:"scrape_configs,omitempty"`
 	// Scrape targets health for all managed scrape jobs
-	ScrapeTargetsHealth []*ScrapeTargetHealth `protobuf:"bytes,2,rep,name=scrape_targets_health,json=scrapeTargetsHealth" json:"scrape_targets_health,omitempty"`
+	ScrapeTargetsHealth  []*ScrapeTargetHealth `protobuf:"bytes,2,rep,name=scrape_targets_health,json=scrapeTargetsHealth,proto3" json:"scrape_targets_health,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
-func (m *ScrapeConfigsListResponse) Reset()                    { *m = ScrapeConfigsListResponse{} }
-func (m *ScrapeConfigsListResponse) String() string            { return proto.CompactTextString(m) }
-func (*ScrapeConfigsListResponse) ProtoMessage()               {}
-func (*ScrapeConfigsListResponse) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{7} }
+func (m *ScrapeConfigsListResponse) Reset()         { *m = ScrapeConfigsListResponse{} }
+func (m *ScrapeConfigsListResponse) String() string { return proto.CompactTextString(m) }
+func (*ScrapeConfigsListResponse) ProtoMessage()    {}
+func (*ScrapeConfigsListResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{7}
+}
+func (m *ScrapeConfigsListResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ScrapeConfigsListResponse.Unmarshal(m, b)
+}
+func (m *ScrapeConfigsListResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ScrapeConfigsListResponse.Marshal(b, m, deterministic)
+}
+func (dst *ScrapeConfigsListResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScrapeConfigsListResponse.Merge(dst, src)
+}
+func (m *ScrapeConfigsListResponse) XXX_Size() int {
+	return xxx_messageInfo_ScrapeConfigsListResponse.Size(m)
+}
+func (m *ScrapeConfigsListResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScrapeConfigsListResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScrapeConfigsListResponse proto.InternalMessageInfo
 
 func (m *ScrapeConfigsListResponse) GetScrapeConfigs() []*ScrapeConfig {
 	if m != nil {
@@ -302,13 +486,35 @@ func (m *ScrapeConfigsListResponse) GetScrapeTargetsHealth() []*ScrapeTargetHeal
 }
 
 type ScrapeConfigsGetRequest struct {
-	JobName string `protobuf:"bytes,1,opt,name=job_name,json=jobName" json:"job_name,omitempty"`
+	JobName              string   `protobuf:"bytes,1,opt,name=job_name,json=jobName,proto3" json:"job_name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ScrapeConfigsGetRequest) Reset()                    { *m = ScrapeConfigsGetRequest{} }
-func (m *ScrapeConfigsGetRequest) String() string            { return proto.CompactTextString(m) }
-func (*ScrapeConfigsGetRequest) ProtoMessage()               {}
-func (*ScrapeConfigsGetRequest) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{8} }
+func (m *ScrapeConfigsGetRequest) Reset()         { *m = ScrapeConfigsGetRequest{} }
+func (m *ScrapeConfigsGetRequest) String() string { return proto.CompactTextString(m) }
+func (*ScrapeConfigsGetRequest) ProtoMessage()    {}
+func (*ScrapeConfigsGetRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{8}
+}
+func (m *ScrapeConfigsGetRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ScrapeConfigsGetRequest.Unmarshal(m, b)
+}
+func (m *ScrapeConfigsGetRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ScrapeConfigsGetRequest.Marshal(b, m, deterministic)
+}
+func (dst *ScrapeConfigsGetRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScrapeConfigsGetRequest.Merge(dst, src)
+}
+func (m *ScrapeConfigsGetRequest) XXX_Size() int {
+	return xxx_messageInfo_ScrapeConfigsGetRequest.Size(m)
+}
+func (m *ScrapeConfigsGetRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScrapeConfigsGetRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScrapeConfigsGetRequest proto.InternalMessageInfo
 
 func (m *ScrapeConfigsGetRequest) GetJobName() string {
 	if m != nil {
@@ -318,15 +524,37 @@ func (m *ScrapeConfigsGetRequest) GetJobName() string {
 }
 
 type ScrapeConfigsGetResponse struct {
-	ScrapeConfig *ScrapeConfig `protobuf:"bytes,1,opt,name=scrape_config,json=scrapeConfig" json:"scrape_config,omitempty"`
+	ScrapeConfig *ScrapeConfig `protobuf:"bytes,1,opt,name=scrape_config,json=scrapeConfig,proto3" json:"scrape_config,omitempty"`
 	// Scrape targets health for this scrape job
-	ScrapeTargetsHealth []*ScrapeTargetHealth `protobuf:"bytes,2,rep,name=scrape_targets_health,json=scrapeTargetsHealth" json:"scrape_targets_health,omitempty"`
+	ScrapeTargetsHealth  []*ScrapeTargetHealth `protobuf:"bytes,2,rep,name=scrape_targets_health,json=scrapeTargetsHealth,proto3" json:"scrape_targets_health,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
-func (m *ScrapeConfigsGetResponse) Reset()                    { *m = ScrapeConfigsGetResponse{} }
-func (m *ScrapeConfigsGetResponse) String() string            { return proto.CompactTextString(m) }
-func (*ScrapeConfigsGetResponse) ProtoMessage()               {}
-func (*ScrapeConfigsGetResponse) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{9} }
+func (m *ScrapeConfigsGetResponse) Reset()         { *m = ScrapeConfigsGetResponse{} }
+func (m *ScrapeConfigsGetResponse) String() string { return proto.CompactTextString(m) }
+func (*ScrapeConfigsGetResponse) ProtoMessage()    {}
+func (*ScrapeConfigsGetResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{9}
+}
+func (m *ScrapeConfigsGetResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ScrapeConfigsGetResponse.Unmarshal(m, b)
+}
+func (m *ScrapeConfigsGetResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ScrapeConfigsGetResponse.Marshal(b, m, deterministic)
+}
+func (dst *ScrapeConfigsGetResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScrapeConfigsGetResponse.Merge(dst, src)
+}
+func (m *ScrapeConfigsGetResponse) XXX_Size() int {
+	return xxx_messageInfo_ScrapeConfigsGetResponse.Size(m)
+}
+func (m *ScrapeConfigsGetResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScrapeConfigsGetResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScrapeConfigsGetResponse proto.InternalMessageInfo
 
 func (m *ScrapeConfigsGetResponse) GetScrapeConfig() *ScrapeConfig {
 	if m != nil {
@@ -343,15 +571,37 @@ func (m *ScrapeConfigsGetResponse) GetScrapeTargetsHealth() []*ScrapeTargetHealt
 }
 
 type ScrapeConfigsCreateRequest struct {
-	ScrapeConfig *ScrapeConfig `protobuf:"bytes,1,opt,name=scrape_config,json=scrapeConfig" json:"scrape_config,omitempty"`
+	ScrapeConfig *ScrapeConfig `protobuf:"bytes,1,opt,name=scrape_config,json=scrapeConfig,proto3" json:"scrape_config,omitempty"`
 	// Check that added targets can be scraped from PMM Server
-	CheckReachability bool `protobuf:"varint,2,opt,name=check_reachability,json=checkReachability" json:"check_reachability,omitempty"`
+	CheckReachability    bool     `protobuf:"varint,2,opt,name=check_reachability,json=checkReachability,proto3" json:"check_reachability,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ScrapeConfigsCreateRequest) Reset()                    { *m = ScrapeConfigsCreateRequest{} }
-func (m *ScrapeConfigsCreateRequest) String() string            { return proto.CompactTextString(m) }
-func (*ScrapeConfigsCreateRequest) ProtoMessage()               {}
-func (*ScrapeConfigsCreateRequest) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{10} }
+func (m *ScrapeConfigsCreateRequest) Reset()         { *m = ScrapeConfigsCreateRequest{} }
+func (m *ScrapeConfigsCreateRequest) String() string { return proto.CompactTextString(m) }
+func (*ScrapeConfigsCreateRequest) ProtoMessage()    {}
+func (*ScrapeConfigsCreateRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{10}
+}
+func (m *ScrapeConfigsCreateRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ScrapeConfigsCreateRequest.Unmarshal(m, b)
+}
+func (m *ScrapeConfigsCreateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ScrapeConfigsCreateRequest.Marshal(b, m, deterministic)
+}
+func (dst *ScrapeConfigsCreateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScrapeConfigsCreateRequest.Merge(dst, src)
+}
+func (m *ScrapeConfigsCreateRequest) XXX_Size() int {
+	return xxx_messageInfo_ScrapeConfigsCreateRequest.Size(m)
+}
+func (m *ScrapeConfigsCreateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScrapeConfigsCreateRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScrapeConfigsCreateRequest proto.InternalMessageInfo
 
 func (m *ScrapeConfigsCreateRequest) GetScrapeConfig() *ScrapeConfig {
 	if m != nil {
@@ -368,23 +618,67 @@ func (m *ScrapeConfigsCreateRequest) GetCheckReachability() bool {
 }
 
 type ScrapeConfigsCreateResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ScrapeConfigsCreateResponse) Reset()                    { *m = ScrapeConfigsCreateResponse{} }
-func (m *ScrapeConfigsCreateResponse) String() string            { return proto.CompactTextString(m) }
-func (*ScrapeConfigsCreateResponse) ProtoMessage()               {}
-func (*ScrapeConfigsCreateResponse) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{11} }
+func (m *ScrapeConfigsCreateResponse) Reset()         { *m = ScrapeConfigsCreateResponse{} }
+func (m *ScrapeConfigsCreateResponse) String() string { return proto.CompactTextString(m) }
+func (*ScrapeConfigsCreateResponse) ProtoMessage()    {}
+func (*ScrapeConfigsCreateResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{11}
+}
+func (m *ScrapeConfigsCreateResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ScrapeConfigsCreateResponse.Unmarshal(m, b)
+}
+func (m *ScrapeConfigsCreateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ScrapeConfigsCreateResponse.Marshal(b, m, deterministic)
+}
+func (dst *ScrapeConfigsCreateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScrapeConfigsCreateResponse.Merge(dst, src)
+}
+func (m *ScrapeConfigsCreateResponse) XXX_Size() int {
+	return xxx_messageInfo_ScrapeConfigsCreateResponse.Size(m)
+}
+func (m *ScrapeConfigsCreateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScrapeConfigsCreateResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScrapeConfigsCreateResponse proto.InternalMessageInfo
 
 type ScrapeConfigsUpdateRequest struct {
-	ScrapeConfig *ScrapeConfig `protobuf:"bytes,1,opt,name=scrape_config,json=scrapeConfig" json:"scrape_config,omitempty"`
+	ScrapeConfig *ScrapeConfig `protobuf:"bytes,1,opt,name=scrape_config,json=scrapeConfig,proto3" json:"scrape_config,omitempty"`
 	// Check that added targets can be scraped from PMM Server
-	CheckReachability bool `protobuf:"varint,2,opt,name=check_reachability,json=checkReachability" json:"check_reachability,omitempty"`
+	CheckReachability    bool     `protobuf:"varint,2,opt,name=check_reachability,json=checkReachability,proto3" json:"check_reachability,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ScrapeConfigsUpdateRequest) Reset()                    { *m = ScrapeConfigsUpdateRequest{} }
-func (m *ScrapeConfigsUpdateRequest) String() string            { return proto.CompactTextString(m) }
-func (*ScrapeConfigsUpdateRequest) ProtoMessage()               {}
-func (*ScrapeConfigsUpdateRequest) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{12} }
+func (m *ScrapeConfigsUpdateRequest) Reset()         { *m = ScrapeConfigsUpdateRequest{} }
+func (m *ScrapeConfigsUpdateRequest) String() string { return proto.CompactTextString(m) }
+func (*ScrapeConfigsUpdateRequest) ProtoMessage()    {}
+func (*ScrapeConfigsUpdateRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{12}
+}
+func (m *ScrapeConfigsUpdateRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ScrapeConfigsUpdateRequest.Unmarshal(m, b)
+}
+func (m *ScrapeConfigsUpdateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ScrapeConfigsUpdateRequest.Marshal(b, m, deterministic)
+}
+func (dst *ScrapeConfigsUpdateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScrapeConfigsUpdateRequest.Merge(dst, src)
+}
+func (m *ScrapeConfigsUpdateRequest) XXX_Size() int {
+	return xxx_messageInfo_ScrapeConfigsUpdateRequest.Size(m)
+}
+func (m *ScrapeConfigsUpdateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScrapeConfigsUpdateRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScrapeConfigsUpdateRequest proto.InternalMessageInfo
 
 func (m *ScrapeConfigsUpdateRequest) GetScrapeConfig() *ScrapeConfig {
 	if m != nil {
@@ -401,21 +695,65 @@ func (m *ScrapeConfigsUpdateRequest) GetCheckReachability() bool {
 }
 
 type ScrapeConfigsUpdateResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ScrapeConfigsUpdateResponse) Reset()                    { *m = ScrapeConfigsUpdateResponse{} }
-func (m *ScrapeConfigsUpdateResponse) String() string            { return proto.CompactTextString(m) }
-func (*ScrapeConfigsUpdateResponse) ProtoMessage()               {}
-func (*ScrapeConfigsUpdateResponse) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{13} }
+func (m *ScrapeConfigsUpdateResponse) Reset()         { *m = ScrapeConfigsUpdateResponse{} }
+func (m *ScrapeConfigsUpdateResponse) String() string { return proto.CompactTextString(m) }
+func (*ScrapeConfigsUpdateResponse) ProtoMessage()    {}
+func (*ScrapeConfigsUpdateResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{13}
+}
+func (m *ScrapeConfigsUpdateResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ScrapeConfigsUpdateResponse.Unmarshal(m, b)
+}
+func (m *ScrapeConfigsUpdateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ScrapeConfigsUpdateResponse.Marshal(b, m, deterministic)
+}
+func (dst *ScrapeConfigsUpdateResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScrapeConfigsUpdateResponse.Merge(dst, src)
+}
+func (m *ScrapeConfigsUpdateResponse) XXX_Size() int {
+	return xxx_messageInfo_ScrapeConfigsUpdateResponse.Size(m)
+}
+func (m *ScrapeConfigsUpdateResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScrapeConfigsUpdateResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScrapeConfigsUpdateResponse proto.InternalMessageInfo
 
 type ScrapeConfigsDeleteRequest struct {
-	JobName string `protobuf:"bytes,1,opt,name=job_name,json=jobName" json:"job_name,omitempty"`
+	JobName              string   `protobuf:"bytes,1,opt,name=job_name,json=jobName,proto3" json:"job_name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ScrapeConfigsDeleteRequest) Reset()                    { *m = ScrapeConfigsDeleteRequest{} }
-func (m *ScrapeConfigsDeleteRequest) String() string            { return proto.CompactTextString(m) }
-func (*ScrapeConfigsDeleteRequest) ProtoMessage()               {}
-func (*ScrapeConfigsDeleteRequest) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{14} }
+func (m *ScrapeConfigsDeleteRequest) Reset()         { *m = ScrapeConfigsDeleteRequest{} }
+func (m *ScrapeConfigsDeleteRequest) String() string { return proto.CompactTextString(m) }
+func (*ScrapeConfigsDeleteRequest) ProtoMessage()    {}
+func (*ScrapeConfigsDeleteRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{14}
+}
+func (m *ScrapeConfigsDeleteRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ScrapeConfigsDeleteRequest.Unmarshal(m, b)
+}
+func (m *ScrapeConfigsDeleteRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ScrapeConfigsDeleteRequest.Marshal(b, m, deterministic)
+}
+func (dst *ScrapeConfigsDeleteRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScrapeConfigsDeleteRequest.Merge(dst, src)
+}
+func (m *ScrapeConfigsDeleteRequest) XXX_Size() int {
+	return xxx_messageInfo_ScrapeConfigsDeleteRequest.Size(m)
+}
+func (m *ScrapeConfigsDeleteRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScrapeConfigsDeleteRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScrapeConfigsDeleteRequest proto.InternalMessageInfo
 
 func (m *ScrapeConfigsDeleteRequest) GetJobName() string {
 	if m != nil {
@@ -425,12 +763,34 @@ func (m *ScrapeConfigsDeleteRequest) GetJobName() string {
 }
 
 type ScrapeConfigsDeleteResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ScrapeConfigsDeleteResponse) Reset()                    { *m = ScrapeConfigsDeleteResponse{} }
-func (m *ScrapeConfigsDeleteResponse) String() string            { return proto.CompactTextString(m) }
-func (*ScrapeConfigsDeleteResponse) ProtoMessage()               {}
-func (*ScrapeConfigsDeleteResponse) Descriptor() ([]byte, []int) { return fileDescriptor5, []int{15} }
+func (m *ScrapeConfigsDeleteResponse) Reset()         { *m = ScrapeConfigsDeleteResponse{} }
+func (m *ScrapeConfigsDeleteResponse) String() string { return proto.CompactTextString(m) }
+func (*ScrapeConfigsDeleteResponse) ProtoMessage()    {}
+func (*ScrapeConfigsDeleteResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_scrape_configs_62bf05e6659ff558, []int{15}
+}
+func (m *ScrapeConfigsDeleteResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ScrapeConfigsDeleteResponse.Unmarshal(m, b)
+}
+func (m *ScrapeConfigsDeleteResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ScrapeConfigsDeleteResponse.Marshal(b, m, deterministic)
+}
+func (dst *ScrapeConfigsDeleteResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ScrapeConfigsDeleteResponse.Merge(dst, src)
+}
+func (m *ScrapeConfigsDeleteResponse) XXX_Size() int {
+	return xxx_messageInfo_ScrapeConfigsDeleteResponse.Size(m)
+}
+func (m *ScrapeConfigsDeleteResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ScrapeConfigsDeleteResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ScrapeConfigsDeleteResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*LabelPair)(nil), "api.LabelPair")
@@ -460,8 +820,9 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for ScrapeConfigs service
-
+// ScrapeConfigsClient is the client API for ScrapeConfigs service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ScrapeConfigsClient interface {
 	// List returns all scrape configs.
 	List(ctx context.Context, in *ScrapeConfigsListRequest, opts ...grpc.CallOption) (*ScrapeConfigsListResponse, error)
@@ -493,7 +854,7 @@ func NewScrapeConfigsClient(cc *grpc.ClientConn) ScrapeConfigsClient {
 
 func (c *scrapeConfigsClient) List(ctx context.Context, in *ScrapeConfigsListRequest, opts ...grpc.CallOption) (*ScrapeConfigsListResponse, error) {
 	out := new(ScrapeConfigsListResponse)
-	err := grpc.Invoke(ctx, "/api.ScrapeConfigs/List", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/api.ScrapeConfigs/List", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -502,7 +863,7 @@ func (c *scrapeConfigsClient) List(ctx context.Context, in *ScrapeConfigsListReq
 
 func (c *scrapeConfigsClient) Get(ctx context.Context, in *ScrapeConfigsGetRequest, opts ...grpc.CallOption) (*ScrapeConfigsGetResponse, error) {
 	out := new(ScrapeConfigsGetResponse)
-	err := grpc.Invoke(ctx, "/api.ScrapeConfigs/Get", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/api.ScrapeConfigs/Get", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -511,7 +872,7 @@ func (c *scrapeConfigsClient) Get(ctx context.Context, in *ScrapeConfigsGetReque
 
 func (c *scrapeConfigsClient) Create(ctx context.Context, in *ScrapeConfigsCreateRequest, opts ...grpc.CallOption) (*ScrapeConfigsCreateResponse, error) {
 	out := new(ScrapeConfigsCreateResponse)
-	err := grpc.Invoke(ctx, "/api.ScrapeConfigs/Create", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/api.ScrapeConfigs/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -520,7 +881,7 @@ func (c *scrapeConfigsClient) Create(ctx context.Context, in *ScrapeConfigsCreat
 
 func (c *scrapeConfigsClient) Update(ctx context.Context, in *ScrapeConfigsUpdateRequest, opts ...grpc.CallOption) (*ScrapeConfigsUpdateResponse, error) {
 	out := new(ScrapeConfigsUpdateResponse)
-	err := grpc.Invoke(ctx, "/api.ScrapeConfigs/Update", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/api.ScrapeConfigs/Update", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -529,15 +890,14 @@ func (c *scrapeConfigsClient) Update(ctx context.Context, in *ScrapeConfigsUpdat
 
 func (c *scrapeConfigsClient) Delete(ctx context.Context, in *ScrapeConfigsDeleteRequest, opts ...grpc.CallOption) (*ScrapeConfigsDeleteResponse, error) {
 	out := new(ScrapeConfigsDeleteResponse)
-	err := grpc.Invoke(ctx, "/api.ScrapeConfigs/Delete", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/api.ScrapeConfigs/Delete", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Server API for ScrapeConfigs service
-
+// ScrapeConfigsServer is the server API for ScrapeConfigs service.
 type ScrapeConfigsServer interface {
 	// List returns all scrape configs.
 	List(context.Context, *ScrapeConfigsListRequest) (*ScrapeConfigsListResponse, error)
@@ -682,9 +1042,11 @@ var _ScrapeConfigs_serviceDesc = grpc.ServiceDesc{
 	Metadata: "scrape_configs.proto",
 }
 
-func init() { proto.RegisterFile("scrape_configs.proto", fileDescriptor5) }
+func init() {
+	proto.RegisterFile("scrape_configs.proto", fileDescriptor_scrape_configs_62bf05e6659ff558)
+}
 
-var fileDescriptor5 = []byte{
+var fileDescriptor_scrape_configs_62bf05e6659ff558 = []byte{
 	// 858 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x56, 0xdd, 0x8e, 0xdb, 0x44,
 	0x14, 0xc6, 0x49, 0xea, 0x8d, 0xcf, 0xfe, 0xb0, 0x1d, 0x02, 0xeb, 0x9a, 0xa6, 0x0d, 0x96, 0x4a,

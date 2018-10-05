@@ -16,7 +16,6 @@ import (
 
 // APIScrapeConfigsListResponse api scrape configs list response
 // swagger:model apiScrapeConfigsListResponse
-
 type APIScrapeConfigsListResponse struct {
 
 	// scrape configs
@@ -26,21 +25,15 @@ type APIScrapeConfigsListResponse struct {
 	ScrapeTargetsHealth []*APIScrapeTargetHealth `json:"scrape_targets_health"`
 }
 
-/* polymorph apiScrapeConfigsListResponse scrape_configs false */
-
-/* polymorph apiScrapeConfigsListResponse scrape_targets_health false */
-
 // Validate validates this api scrape configs list response
 func (m *APIScrapeConfigsListResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateScrapeConfigs(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateScrapeTargetsHealth(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -57,13 +50,11 @@ func (m *APIScrapeConfigsListResponse) validateScrapeConfigs(formats strfmt.Regi
 	}
 
 	for i := 0; i < len(m.ScrapeConfigs); i++ {
-
 		if swag.IsZero(m.ScrapeConfigs[i]) { // not required
 			continue
 		}
 
 		if m.ScrapeConfigs[i] != nil {
-
 			if err := m.ScrapeConfigs[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("scrape_configs" + "." + strconv.Itoa(i))
@@ -84,13 +75,11 @@ func (m *APIScrapeConfigsListResponse) validateScrapeTargetsHealth(formats strfm
 	}
 
 	for i := 0; i < len(m.ScrapeTargetsHealth); i++ {
-
 		if swag.IsZero(m.ScrapeTargetsHealth[i]) { // not required
 			continue
 		}
 
 		if m.ScrapeTargetsHealth[i] != nil {
-
 			if err := m.ScrapeTargetsHealth[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("scrape_targets_health" + "." + strconv.Itoa(i))

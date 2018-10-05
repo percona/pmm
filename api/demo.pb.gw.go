@@ -55,14 +55,14 @@ func RegisterDemoHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux,
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Printf("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Printf("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()
@@ -76,8 +76,8 @@ func RegisterDemoHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.
 	return RegisterDemoHandlerClient(ctx, mux, NewDemoClient(conn))
 }
 
-// RegisterDemoHandler registers the http handlers for service Demo to "mux".
-// The handlers forward requests to the grpc endpoint over the given implementation of "DemoClient".
+// RegisterDemoHandlerClient registers the http handlers for service Demo
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "DemoClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "DemoClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "DemoClient" to call the correct interceptors.

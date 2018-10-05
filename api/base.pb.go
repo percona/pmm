@@ -18,22 +18,72 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 type BaseVersionRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *BaseVersionRequest) Reset()                    { *m = BaseVersionRequest{} }
-func (m *BaseVersionRequest) String() string            { return proto.CompactTextString(m) }
-func (*BaseVersionRequest) ProtoMessage()               {}
-func (*BaseVersionRequest) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{0} }
+func (m *BaseVersionRequest) Reset()         { *m = BaseVersionRequest{} }
+func (m *BaseVersionRequest) String() string { return proto.CompactTextString(m) }
+func (*BaseVersionRequest) ProtoMessage()    {}
+func (*BaseVersionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_base_fabe7fe911e46744, []int{0}
+}
+func (m *BaseVersionRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BaseVersionRequest.Unmarshal(m, b)
+}
+func (m *BaseVersionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BaseVersionRequest.Marshal(b, m, deterministic)
+}
+func (dst *BaseVersionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BaseVersionRequest.Merge(dst, src)
+}
+func (m *BaseVersionRequest) XXX_Size() int {
+	return xxx_messageInfo_BaseVersionRequest.Size(m)
+}
+func (m *BaseVersionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_BaseVersionRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BaseVersionRequest proto.InternalMessageInfo
 
 type BaseVersionResponse struct {
-	Version string `protobuf:"bytes,1,opt,name=version" json:"version,omitempty"`
+	Version              string   `protobuf:"bytes,1,opt,name=version,proto3" json:"version,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *BaseVersionResponse) Reset()                    { *m = BaseVersionResponse{} }
-func (m *BaseVersionResponse) String() string            { return proto.CompactTextString(m) }
-func (*BaseVersionResponse) ProtoMessage()               {}
-func (*BaseVersionResponse) Descriptor() ([]byte, []int) { return fileDescriptor1, []int{1} }
+func (m *BaseVersionResponse) Reset()         { *m = BaseVersionResponse{} }
+func (m *BaseVersionResponse) String() string { return proto.CompactTextString(m) }
+func (*BaseVersionResponse) ProtoMessage()    {}
+func (*BaseVersionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_base_fabe7fe911e46744, []int{1}
+}
+func (m *BaseVersionResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_BaseVersionResponse.Unmarshal(m, b)
+}
+func (m *BaseVersionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_BaseVersionResponse.Marshal(b, m, deterministic)
+}
+func (dst *BaseVersionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_BaseVersionResponse.Merge(dst, src)
+}
+func (m *BaseVersionResponse) XXX_Size() int {
+	return xxx_messageInfo_BaseVersionResponse.Size(m)
+}
+func (m *BaseVersionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_BaseVersionResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_BaseVersionResponse proto.InternalMessageInfo
 
 func (m *BaseVersionResponse) GetVersion() string {
 	if m != nil {
@@ -55,8 +105,9 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for Base service
-
+// BaseClient is the client API for Base service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type BaseClient interface {
 	Version(ctx context.Context, in *BaseVersionRequest, opts ...grpc.CallOption) (*BaseVersionResponse, error)
 }
@@ -71,15 +122,14 @@ func NewBaseClient(cc *grpc.ClientConn) BaseClient {
 
 func (c *baseClient) Version(ctx context.Context, in *BaseVersionRequest, opts ...grpc.CallOption) (*BaseVersionResponse, error) {
 	out := new(BaseVersionResponse)
-	err := grpc.Invoke(ctx, "/api.Base/Version", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/api.Base/Version", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Server API for Base service
-
+// BaseServer is the server API for Base service.
 type BaseServer interface {
 	Version(context.Context, *BaseVersionRequest) (*BaseVersionResponse, error)
 }
@@ -119,9 +169,9 @@ var _Base_serviceDesc = grpc.ServiceDesc{
 	Metadata: "base.proto",
 }
 
-func init() { proto.RegisterFile("base.proto", fileDescriptor1) }
+func init() { proto.RegisterFile("base.proto", fileDescriptor_base_fabe7fe911e46744) }
 
-var fileDescriptor1 = []byte{
+var fileDescriptor_base_fabe7fe911e46744 = []byte{
 	// 166 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4a, 0x4a, 0x2c, 0x4e,
 	0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4e, 0x2c, 0xc8, 0x94, 0x92, 0x49, 0xcf, 0xcf,

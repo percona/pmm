@@ -15,7 +15,6 @@ import (
 
 // Mark mark
 // swagger:model Mark
-
 type Mark struct {
 
 	// remains
@@ -23,14 +22,11 @@ type Mark struct {
 	Remains *int64 `json:"remains"`
 }
 
-/* polymorph Mark remains false */
-
 // Validate validates this mark
 func (m *Mark) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateRemains(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 

@@ -8,13 +8,11 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 )
 
 // APIRDSService api r d s service
 // swagger:model apiRDSService
-
 type APIRDSService struct {
 
 	// address
@@ -30,21 +28,8 @@ type APIRDSService struct {
 	Port int64 `json:"port,omitempty"`
 }
 
-/* polymorph apiRDSService address false */
-
-/* polymorph apiRDSService engine false */
-
-/* polymorph apiRDSService engine_version false */
-
-/* polymorph apiRDSService port false */
-
 // Validate validates this api r d s service
 func (m *APIRDSService) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
 

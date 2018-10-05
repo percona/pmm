@@ -16,9 +16,9 @@ import (
 )
 
 // NewFindPetsByStatusParams creates a new FindPetsByStatusParams object
-// with the default values initialized.
+// no default values defined in spec.
 func NewFindPetsByStatusParams() FindPetsByStatusParams {
-	var ()
+
 	return FindPetsByStatusParams{}
 }
 
@@ -29,7 +29,7 @@ func NewFindPetsByStatusParams() FindPetsByStatusParams {
 type FindPetsByStatusParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*Status values that need to be considered for filter
 	  In: query
@@ -39,9 +39,12 @@ type FindPetsByStatusParams struct {
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
-// for simple values it will use straight method calls
+// for simple values it will use straight method calls.
+//
+// To ensure default values, the struct must have been initialized with NewFindPetsByStatusParams() beforehand.
 func (o *FindPetsByStatusParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
+
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
@@ -57,8 +60,12 @@ func (o *FindPetsByStatusParams) BindRequest(r *http.Request, route *middleware.
 	return nil
 }
 
+// bindStatus binds and validates array parameter Status from query.
+//
+// Arrays are parsed according to CollectionFormat: "multi" (defaults to "csv" when empty).
 func (o *FindPetsByStatusParams) bindStatus(rawData []string, hasKey bool, formats strfmt.Registry) error {
 
+	// CollectionFormat: multi
 	statusIC := rawData
 
 	if len(statusIC) == 0 {

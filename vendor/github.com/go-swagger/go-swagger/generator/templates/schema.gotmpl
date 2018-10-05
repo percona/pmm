@@ -1,6 +1,14 @@
-{{ if .IncludeModel }}
-  {{ if and .IsBaseType .IsExported }}type {{ pascalize .Name }} interface {
-    {{if or .Required .HasValidations }}runtime.Validatable{{ end }}
+{{ if .IncludeModel -}}
+  {{ if and .IsBaseType .IsExported -}}type {{ pascalize .Name }} interface {
+    {{- if not (or .IsInterface .IsStream) }}{{/* 
+        A base type is always Validatable. 
+        Under normal conditions, we can't have a base type rendered a .IsStream or .IsInterface: this check is just for sanity check). 
+
+        In the definition of the base type itself, this means that the unexported struct holding
+        the definition of the base type has a Validate() func.
+    */}}
+        runtime.Validatable 
+    {{- end }}
     {{ range .AllOf }}
       {{ if .IsAnonymous }}
         {{ range .Properties }}
@@ -42,17 +50,15 @@
   type {{ camelize .Name }} {{ template "schemaBody" . }}
 
   {{ range .Properties }}
+    // {{ pascalize .Name}} gets the {{ humanize .Name }} of this polymorphic type
     func ({{ $.ReceiverName}} *{{ camelize $.Name}}) {{ pascalize .Name}}() {{ template "schemaType" . }}{
       {{ if eq $.DiscriminatorField .Name }}return {{ printf "%q" $.DiscriminatorValue }}{{ else }}return {{ $.ReceiverName }}.{{camelize .Name}}Field{{end}}
     }
+    // Set{{ pascalize .Name}} sets the {{ humanize .Name }} of this polymorphic type
     func ({{ $.ReceiverName}} *{{ camelize $.Name}}) Set{{ pascalize .Name}}(val {{ template "schemaType" . }}) {
       {{ if ne $.DiscriminatorField .Name }}{{ $.ReceiverName }}.{{camelize .Name}}Field = val{{end}}
     }
   {{ end }}
-  {{if and (not .IsInterface) (or .Required .HasValidations) }}
-    {{ template "schemavalidator" . }}
-  {{ end }}
-
 // Unmarshal{{ pascalize .Name }}Slice unmarshals polymorphic slices of {{ pascalize .Name }}
 func Unmarshal{{ pascalize .Name }}Slice(reader io.Reader, consumer runtime.Consumer) ([]{{ pascalize .Name }}, error) {
   var elements []json.RawMessage
@@ -99,7 +105,7 @@ func unmarshal{{ pascalize .Name }}(data []byte, consumer runtime.Consumer) ({{ 
   // The value of {{ .DiscriminatorField }} is used to determine which type to create and unmarshal the data into
   switch getType.{{ pascalize .DiscriminatorField }} { {{ range $k, $v := .Discriminates }}
     case {{ printf "%q" $k }}:
-      var result {{ if eq (upper $.Name) (upper $v) }}{{ camelize $.Name }}{{ else }}{{ $v }}{{ end }}
+      var result {{ if eq (upper (pascalize $.Name)) (upper $v) }}{{ camelize $.Name }}{{ else }}{{ $v }}{{ end }}
       if err := consumer.Consume(buf2, &result); err != nil {
         return nil, err
       }
@@ -109,15 +115,16 @@ func unmarshal{{ pascalize .Name }}(data []byte, consumer runtime.Consumer) ({{ 
   return nil, errors.New(422, "invalid {{ .DiscriminatorField }} value: %q", getType.{{ pascalize .DiscriminatorField }})
 
 }
-{{ else }}
-  {{ if or .IsComplexObject .IsTuple .IsAdditionalProperties }}
+{{ else -}}
+  {{ if or .IsComplexObject .IsTuple .IsAdditionalProperties -}}
     {{ if .Name }}type {{ if not .IsExported }}{{ .Name }}{{ else }}{{ pascalize .Name }}{{ end }}{{ end }} {{ template "schemaBody" . }}
     {{ range .Properties }}
-      /* polymorph {{ $.Name }} {{ .Name }} {{ .IsBaseType }} */
       {{ if .IsBaseType }}
+        // {{ pascalize .Name}} gets the {{ humanize .Name }} of this base type
         func ({{ $.ReceiverName}} *{{ pascalize $.Name}}) {{ pascalize .Name}}() {{ template "schemaType" . }}{
           {{ if eq $.DiscriminatorField .Name }}return {{ printf "%q" $.DiscriminatorValue }}{{ else }}return {{ $.ReceiverName }}.{{camelize .Name}}Field{{end}}
         }
+        // Set{{ pascalize .Name}} sets the {{ humanize .Name }} of this base type
         func ({{ $.ReceiverName}} *{{ pascalize $.Name}}) Set{{ pascalize .Name}}(val {{ template "schemaType" . }}) {
           {{ if ne $.DiscriminatorField .Name }}{{ $.ReceiverName }}.{{camelize .Name}}Field = val{{end}}
         }
@@ -137,15 +144,28 @@ func unmarshal{{ pascalize .Name }}(data []byte, consumer runtime.Consumer) ({{ 
         return nil
       }
     {{end}}
-  {{ else }}
+  {{ else -}}
     type {{ pascalize .Name }} {{ template "typeSchemaType" . }}
+  {{ end -}}
+  {{ if (and .IsPrimitive .IsAliased .IsCustomFormatter (not (stringContains .Zero "(\""))) }}
+      // UnmarshalJSON sets a {{ pascalize .Name }} value from JSON input
+      func ({{.ReceiverName}} *{{ pascalize .Name }}) UnmarshalJSON(b []byte) error {
+        return ((*{{ .AliasedType }})({{ .ReceiverName}})).UnmarshalJSON(b)
+      }
+
+      // MarshalJSON retrieves a {{ pascalize .Name }} value as JSON output
+      func ({{.ReceiverName}} {{ pascalize .Name }}) MarshalJSON() ([]byte, error) {
+        return ({{ .AliasedType }}({{ .ReceiverName}})).MarshalJSON()
+      }
   {{ end -}}
   {{ if .IsSubType }}
     {{ range .AllOf }}
       {{ range .Properties }}
+        // {{ pascalize .Name}} gets the {{ humanize .Name }} of this subtype
         {{ if .IsBaseType }}func ({{$.ReceiverName}} *{{ pascalize $.Name}}) {{ pascalize .Name}}() {{ template "schemaType" . }}{
           {{ if eq $.DiscriminatorField .Name }}return {{ printf "%q" $.DiscriminatorValue }}{{ else }}return {{ $.ReceiverName }}.{{camelize .Name}}Field{{end}}
         }
+        // Set{{ pascalize .Name}} sets the {{ humanize .Name }} of this subtype
         func ({{$.ReceiverName}} *{{ pascalize $.Name}}) Set{{ pascalize .Name}}(val {{ template "schemaType" . }}) {
           {{ if ne $.DiscriminatorField .Name }}{{ $.ReceiverName }}.{{camelize .Name}}Field = val{{end}}
         }
@@ -159,15 +179,22 @@ func unmarshal{{ pascalize .Name }}(data []byte, consumer runtime.Consumer) ({{ 
 {{ if .AdditionalItems -}}
   // {{ template "docstring" .AdditionalItems }}
   {{- template "propertyValidationDocString" .AdditionalItems}} {{ pascalize .AdditionalItems.Name }}() []{{ template "schemaType" .AdditionalItems }}
-{{ end }}{{ end }}{{ template "schemaSerializer" . }}{{ end }}{{ if .IncludeValidator }}{{if and (not .IsInterface) (not .IsBaseType) (or .Required .HasValidations .HasBaseType) }}
-{{ template "schemavalidator" . }}
-{{ else if gt (len .AllOf) 0 }}
-{{ template "schemavalidator" . }}
-{{ else if not (or .IsInterface .IsStream .IsBaseType) }}// Validate validates this {{ humanize .Name }}
-func ({{.ReceiverName}} {{ if or .IsTuple .IsComplexObject .IsAdditionalProperties }}*{{ end }}{{ if not .IsExported }}{{ .Name }}{{ else }}{{ pascalize .Name }}{{ end }}) Validate(formats strfmt.Registry) error {
+{{ end }}{{ end -}} 
+  {{ template "schemaSerializer" . }}{{ end }} 
+{{- if .IncludeValidator -}}
+  {{- if and (not (or .IsInterface .IsStream)) (or .Required .HasValidations .HasBaseType) }}
+    {{ template "schemavalidator" . }}
+  {{- else if not (or .IsInterface .IsStream) -}}
+// Validate validates this {{ humanize .Name }}{{/* this schema implements the runtime.Validatable interface but has no validations to check */}}
+func ({{.ReceiverName}} {{ if or .IsTuple .IsComplexObject .IsAdditionalProperties }}*{{ end }}{{ if or (not .IsExported) .Discriminates }}{{ camelize .Name }}{{ else }}{{ pascalize .Name }}{{ end }}) Validate(formats strfmt.Registry) error {
   return nil
-}{{ end }}{{ end }}{{ end }}
-{{ if and (not (or .IsInterface .IsStream .IsBaseType)) (or .IsTuple .IsComplexObject .IsAdditionalProperties) }}
+}
+  {{- else -}}
+    {{- /* {{ .Name }} does not implement the runtime.Validatable interface */ -}}
+  {{- end -}}
+{{- end }}
+{{- end }}
+{{ if and (not (or .IsInterface .IsStream .IsBaseType)) (or .IsTuple .IsComplexObject .IsAdditionalProperties (and .IsPrimitive .IsAliased .IsCustomFormatter (not (stringContains .Zero "(\"")))) }}
 // MarshalBinary interface implementation
 func ({{.ReceiverName}} *{{ pascalize .Name }}) MarshalBinary() ([]byte, error) {
   if {{ .ReceiverName }} == nil {

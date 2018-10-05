@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/task-tracker/models"
+	models "github.com/go-swagger/go-swagger/examples/task-tracker/models"
 )
 
 // CreateTaskCreatedCode is the HTTP code returned for type CreateTaskCreated
@@ -25,11 +25,14 @@ type CreateTaskCreated struct {
 
 // NewCreateTaskCreated creates CreateTaskCreated with default headers values
 func NewCreateTaskCreated() *CreateTaskCreated {
+
 	return &CreateTaskCreated{}
 }
 
 // WriteResponse to the client
 func (o *CreateTaskCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(201)
 }
@@ -41,8 +44,8 @@ swagger:response createTaskDefault
 type CreateTaskDefault struct {
 	_statusCode int
 	/*
-	  Required: true
-	*/
+
+	 */
 	XErrorCode string `json:"X-Error-Code"`
 
 	/*

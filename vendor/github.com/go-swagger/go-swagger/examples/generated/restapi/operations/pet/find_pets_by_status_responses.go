@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/generated/models"
+	models "github.com/go-swagger/go-swagger/examples/generated/models"
 )
 
 // FindPetsByStatusOKCode is the HTTP code returned for type FindPetsByStatusOK
@@ -30,6 +30,7 @@ type FindPetsByStatusOK struct {
 
 // NewFindPetsByStatusOK creates FindPetsByStatusOK with default headers values
 func NewFindPetsByStatusOK() *FindPetsByStatusOK {
+
 	return &FindPetsByStatusOK{}
 }
 
@@ -71,11 +72,14 @@ type FindPetsByStatusBadRequest struct {
 
 // NewFindPetsByStatusBadRequest creates FindPetsByStatusBadRequest with default headers values
 func NewFindPetsByStatusBadRequest() *FindPetsByStatusBadRequest {
+
 	return &FindPetsByStatusBadRequest{}
 }
 
 // WriteResponse to the client
 func (o *FindPetsByStatusBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(400)
 }

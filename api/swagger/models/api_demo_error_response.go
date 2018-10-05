@@ -7,5 +7,4 @@ package models
 
 // APIDemoErrorResponse api demo error response
 // swagger:model apiDemoErrorResponse
-
 type APIDemoErrorResponse interface{}

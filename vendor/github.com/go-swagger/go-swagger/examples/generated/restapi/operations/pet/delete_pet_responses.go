@@ -23,11 +23,14 @@ type DeletePetBadRequest struct {
 
 // NewDeletePetBadRequest creates DeletePetBadRequest with default headers values
 func NewDeletePetBadRequest() *DeletePetBadRequest {
+
 	return &DeletePetBadRequest{}
 }
 
 // WriteResponse to the client
 func (o *DeletePetBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(400)
 }

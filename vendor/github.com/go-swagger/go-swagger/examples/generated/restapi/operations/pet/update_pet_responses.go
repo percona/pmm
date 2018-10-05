@@ -23,11 +23,14 @@ type UpdatePetBadRequest struct {
 
 // NewUpdatePetBadRequest creates UpdatePetBadRequest with default headers values
 func NewUpdatePetBadRequest() *UpdatePetBadRequest {
+
 	return &UpdatePetBadRequest{}
 }
 
 // WriteResponse to the client
 func (o *UpdatePetBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(400)
 }
@@ -44,11 +47,14 @@ type UpdatePetNotFound struct {
 
 // NewUpdatePetNotFound creates UpdatePetNotFound with default headers values
 func NewUpdatePetNotFound() *UpdatePetNotFound {
+
 	return &UpdatePetNotFound{}
 }
 
 // WriteResponse to the client
 func (o *UpdatePetNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(404)
 }
@@ -65,11 +71,14 @@ type UpdatePetMethodNotAllowed struct {
 
 // NewUpdatePetMethodNotAllowed creates UpdatePetMethodNotAllowed with default headers values
 func NewUpdatePetMethodNotAllowed() *UpdatePetMethodNotAllowed {
+
 	return &UpdatePetMethodNotAllowed{}
 }
 
 // WriteResponse to the client
 func (o *UpdatePetMethodNotAllowed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(405)
 }

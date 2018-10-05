@@ -18,7 +18,6 @@ import (
 // This representation of a user is mainly meant for inclusion in other models, or for list views.
 //
 // swagger:model UserCard
-
 type UserCard struct {
 
 	// When true this user is an admin.
@@ -60,30 +59,19 @@ type UserCard struct {
 	ScreenName *string `json:"screenName"`
 }
 
-/* polymorph UserCard admin false */
-
-/* polymorph UserCard availableKarma false */
-
-/* polymorph UserCard id false */
-
-/* polymorph UserCard screenName false */
-
 // Validate validates this user card
 func (m *UserCard) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAvailableKarma(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateID(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateScreenName(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 

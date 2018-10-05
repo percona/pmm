@@ -12,7 +12,8 @@ build_binary() {
 
 prepare() {
   rm -rf $prjdir/dist
-  mkdir -p $prjdir/dist/{bin,build}
+  mkdir -p $prjdir/dist/bin
+  mkdir -p $prjdir/dist/build
   mkdir -p $prjdir/dist/linux/amd64/usr/bin
 }
 
@@ -67,13 +68,13 @@ deploy_docker() {
   cp Dockerfile ./dist/swagger-musl ./deploybuild
   docker build -t quay.io/goswagger/swagger:$CIRCLE_TAG ./deploybuild
   docker tag quay.io/goswagger/swagger:$CIRCLE_TAG quay.io/goswagger/swagger:latest
-  docker login -u $API_USERNAME -e $API_EMAIL -p $QUAY_PASS https://quay.io
+  docker login -u $API_USERNAME -p $QUAY_PASS https://quay.io
   docker push quay.io/goswagger/swagger
 }
 
 # prepare
 
-# build binaries
+# # build binaries
 # build_binary -os="linux darwin windows" -arch="amd64 386"
 # build_binary -os="linux" -arch="arm64 arm"
 

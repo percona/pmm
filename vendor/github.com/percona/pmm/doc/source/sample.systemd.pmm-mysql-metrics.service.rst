@@ -2,29 +2,24 @@
 
 .. _sample.systemd:
 
-===============================================================================
 Examples of the |systemd| Unit File
-===============================================================================
+********************************************************************************
 
 This page contains examples of setting up the |systemd| unit file.
 
-Default |systemd| unit file with SSL related options highlighted
-================================================================================
+.. _sample.systemd.unit-file.ssl-option:
+
+:ref:`Default systemd unit file with SSL related options highlighted <sample.systemd.unit-file.ssl-option>`
+===========================================================================================================
 
 If the |systemd| unit file contains options related to SSL the
 communication between the |prometheus| exporter and the monitored
 system occurs via the HTTPS protocol.
 
-.. include:: .res/code/sh.org
-   :start-after: +systemd.pmm-mysql-metrics-service.+highlight-ssl+
-   :end-before: #+end-block
+.. include:: .res/code/systemd.pmm-mysql-metrics-service.highlight-ssl.txt
 
 Remove the SSL related options to disable HTTPS for the exporter.
 
-.. include:: .res/code/sh.org
-   :start-after: +systemd.pmm-mysql-metrics-service.+remove-ssl+
-   :end-before: #+end-block
+.. include:: .res/code/systemd.pmm-mysql-metrics-service.remove-ssl.txt
 
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/program.txt
+.. include:: .res/replace.txt

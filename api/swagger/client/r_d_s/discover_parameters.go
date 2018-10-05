@@ -17,7 +17,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm-managed/api/swagger/models"
+	models "github.com/percona/pmm-managed/api/swagger/models"
 )
 
 // NewDiscoverParams creates a new DiscoverParams object
@@ -124,12 +124,10 @@ func (o *DiscoverParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regi
 	}
 	var res []error
 
-	if o.Body == nil {
-		o.Body = new(models.APIRDSDiscoverRequest)
-	}
-
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

@@ -16,7 +16,6 @@ import (
 
 // APIScrapeConfig api scrape config
 // swagger:model apiScrapeConfig
-
 type APIScrapeConfig struct {
 
 	// Sets the `Authorization` header on every scrape request with the configured username and password
@@ -44,38 +43,19 @@ type APIScrapeConfig struct {
 	TLSConfig *APITLSConfig `json:"tls_config,omitempty"`
 }
 
-/* polymorph apiScrapeConfig basic_auth false */
-
-/* polymorph apiScrapeConfig job_name false */
-
-/* polymorph apiScrapeConfig metrics_path false */
-
-/* polymorph apiScrapeConfig scheme false */
-
-/* polymorph apiScrapeConfig scrape_interval false */
-
-/* polymorph apiScrapeConfig scrape_timeout false */
-
-/* polymorph apiScrapeConfig static_configs false */
-
-/* polymorph apiScrapeConfig tls_config false */
-
 // Validate validates this api scrape config
 func (m *APIScrapeConfig) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateBasicAuth(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateStaticConfigs(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateTLSConfig(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -92,7 +72,6 @@ func (m *APIScrapeConfig) validateBasicAuth(formats strfmt.Registry) error {
 	}
 
 	if m.BasicAuth != nil {
-
 		if err := m.BasicAuth.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("basic_auth")
@@ -111,13 +90,11 @@ func (m *APIScrapeConfig) validateStaticConfigs(formats strfmt.Registry) error {
 	}
 
 	for i := 0; i < len(m.StaticConfigs); i++ {
-
 		if swag.IsZero(m.StaticConfigs[i]) { // not required
 			continue
 		}
 
 		if m.StaticConfigs[i] != nil {
-
 			if err := m.StaticConfigs[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("static_configs" + "." + strconv.Itoa(i))
@@ -138,7 +115,6 @@ func (m *APIScrapeConfig) validateTLSConfig(formats strfmt.Registry) error {
 	}
 
 	if m.TLSConfig != nil {
-
 		if err := m.TLSConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("tls_config")

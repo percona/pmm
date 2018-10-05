@@ -8,13 +8,11 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 )
 
 // APIAnnotationsCreateRequest api annotations create request
 // swagger:model apiAnnotationsCreateRequest
-
 type APIAnnotationsCreateRequest struct {
 
 	// tags
@@ -24,31 +22,8 @@ type APIAnnotationsCreateRequest struct {
 	Text string `json:"text,omitempty"`
 }
 
-/* polymorph apiAnnotationsCreateRequest tags false */
-
-/* polymorph apiAnnotationsCreateRequest text false */
-
 // Validate validates this api annotations create request
 func (m *APIAnnotationsCreateRequest) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateTags(formats); err != nil {
-		// prop
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *APIAnnotationsCreateRequest) validateTags(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Tags) { // not required
-		return nil
-	}
-
 	return nil
 }
 

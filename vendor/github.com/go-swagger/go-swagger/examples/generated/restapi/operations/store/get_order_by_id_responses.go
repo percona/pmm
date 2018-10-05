@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/generated/models"
+	models "github.com/go-swagger/go-swagger/examples/generated/models"
 )
 
 // GetOrderByIDOKCode is the HTTP code returned for type GetOrderByIDOK
@@ -30,6 +30,7 @@ type GetOrderByIDOK struct {
 
 // NewGetOrderByIDOK creates GetOrderByIDOK with default headers values
 func NewGetOrderByIDOK() *GetOrderByIDOK {
+
 	return &GetOrderByIDOK{}
 }
 
@@ -68,11 +69,14 @@ type GetOrderByIDBadRequest struct {
 
 // NewGetOrderByIDBadRequest creates GetOrderByIDBadRequest with default headers values
 func NewGetOrderByIDBadRequest() *GetOrderByIDBadRequest {
+
 	return &GetOrderByIDBadRequest{}
 }
 
 // WriteResponse to the client
 func (o *GetOrderByIDBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(400)
 }
@@ -89,11 +93,14 @@ type GetOrderByIDNotFound struct {
 
 // NewGetOrderByIDNotFound creates GetOrderByIDNotFound with default headers values
 func NewGetOrderByIDNotFound() *GetOrderByIDNotFound {
+
 	return &GetOrderByIDNotFound{}
 }
 
 // WriteResponse to the client
 func (o *GetOrderByIDNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(404)
 }

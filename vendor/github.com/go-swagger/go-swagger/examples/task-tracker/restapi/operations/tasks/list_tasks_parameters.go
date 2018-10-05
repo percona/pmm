@@ -21,9 +21,13 @@ import (
 // NewListTasksParams creates a new ListTasksParams object
 // with the default values initialized.
 func NewListTasksParams() ListTasksParams {
+
 	var (
+		// initialize parameters with default values
+
 		pageSizeDefault = int32(20)
 	)
+
 	return ListTasksParams{
 		PageSize: &pageSizeDefault,
 	}
@@ -36,7 +40,7 @@ func NewListTasksParams() ListTasksParams {
 type ListTasksParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*Amount of items to return in a single page
 	  In: query
@@ -61,9 +65,12 @@ type ListTasksParams struct {
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
-// for simple values it will use straight method calls
+// for simple values it will use straight method calls.
+//
+// To ensure default values, the struct must have been initialized with NewListTasksParams() beforehand.
 func (o *ListTasksParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
+
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
@@ -94,14 +101,17 @@ func (o *ListTasksParams) BindRequest(r *http.Request, route *middleware.Matched
 	return nil
 }
 
+// bindPageSize binds and validates parameter PageSize from query.
 func (o *ListTasksParams) bindPageSize(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
+
+	// Required: false
+	// AllowEmptyValue: false
 	if raw == "" { // empty values pass all other validations
-		var pageSizeDefault int32 = int32(20)
-		o.PageSize = &pageSizeDefault
+		// Default values have been previously initialized by NewListTasksParams()
 		return nil
 	}
 
@@ -114,11 +124,15 @@ func (o *ListTasksParams) bindPageSize(rawData []string, hasKey bool, formats st
 	return nil
 }
 
+// bindSinceID binds and validates parameter SinceID from query.
 func (o *ListTasksParams) bindSinceID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
+
+	// Required: false
+	// AllowEmptyValue: false
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -132,6 +146,9 @@ func (o *ListTasksParams) bindSinceID(rawData []string, hasKey bool, formats str
 	return nil
 }
 
+// bindStatus binds and validates array parameter Status from query.
+//
+// Arrays are parsed according to CollectionFormat: "pipes" (defaults to "csv" when empty).
 func (o *ListTasksParams) bindStatus(rawData []string, hasKey bool, formats strfmt.Registry) error {
 
 	var qvStatus string
@@ -139,8 +156,8 @@ func (o *ListTasksParams) bindStatus(rawData []string, hasKey bool, formats strf
 		qvStatus = rawData[len(rawData)-1]
 	}
 
+	// CollectionFormat: pipes
 	statusIC := swag.SplitByFormat(qvStatus, "pipes")
-
 	if len(statusIC) == 0 {
 		return nil
 	}
@@ -164,8 +181,10 @@ func (o *ListTasksParams) bindStatus(rawData []string, hasKey bool, formats strf
 	return nil
 }
 
+// validateStatus carries on validations for parameter Status
 func (o *ListTasksParams) validateStatus(formats strfmt.Registry) error {
 
+	// uniqueItems: true
 	if err := validate.UniqueItems("status", "query", o.Status); err != nil {
 		return err
 	}
@@ -173,6 +192,9 @@ func (o *ListTasksParams) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
+// bindTags binds and validates array parameter Tags from query.
+//
+// Arrays are parsed according to CollectionFormat: "" (defaults to "csv" when empty).
 func (o *ListTasksParams) bindTags(rawData []string, hasKey bool, formats strfmt.Registry) error {
 
 	var qvTags string
@@ -180,8 +202,8 @@ func (o *ListTasksParams) bindTags(rawData []string, hasKey bool, formats strfmt
 		qvTags = rawData[len(rawData)-1]
 	}
 
+	// CollectionFormat:
 	tagsIC := swag.SplitByFormat(qvTags, "")
-
 	if len(tagsIC) == 0 {
 		return nil
 	}
@@ -201,8 +223,10 @@ func (o *ListTasksParams) bindTags(rawData []string, hasKey bool, formats strfmt
 	return nil
 }
 
+// validateTags carries on validations for parameter Tags
 func (o *ListTasksParams) validateTags(formats strfmt.Registry) error {
 
+	// uniqueItems: true
 	if err := validate.UniqueItems("tags", "query", o.Tags); err != nil {
 		return err
 	}

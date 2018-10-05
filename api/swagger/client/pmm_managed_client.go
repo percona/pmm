@@ -43,9 +43,6 @@ func NewHTTPClient(formats strfmt.Registry) *PmmManaged {
 // using a customizable transport config.
 func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PmmManaged {
 	// ensure nullable parameters have default
-	if formats == nil {
-		formats = strfmt.Default
-	}
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
 	}
@@ -57,6 +54,11 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *Pmm
 
 // New creates a new pmm managed client
 func New(transport runtime.ClientTransport, formats strfmt.Registry) *PmmManaged {
+	// ensure nullable parameters have default
+	if formats == nil {
+		formats = strfmt.Default
+	}
+
 	cli := new(PmmManaged)
 	cli.Transport = transport
 

@@ -14,7 +14,6 @@ import (
 
 // APIScrapeConfigsCreateRequest api scrape configs create request
 // swagger:model apiScrapeConfigsCreateRequest
-
 type APIScrapeConfigsCreateRequest struct {
 
 	// Check that added targets can be scraped from PMM Server
@@ -24,16 +23,11 @@ type APIScrapeConfigsCreateRequest struct {
 	ScrapeConfig *APIScrapeConfig `json:"scrape_config,omitempty"`
 }
 
-/* polymorph apiScrapeConfigsCreateRequest check_reachability false */
-
-/* polymorph apiScrapeConfigsCreateRequest scrape_config false */
-
 // Validate validates this api scrape configs create request
 func (m *APIScrapeConfigsCreateRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateScrapeConfig(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -50,7 +44,6 @@ func (m *APIScrapeConfigsCreateRequest) validateScrapeConfig(formats strfmt.Regi
 	}
 
 	if m.ScrapeConfig != nil {
-
 		if err := m.ScrapeConfig.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("scrape_config")

@@ -14,7 +14,6 @@ import (
 
 // APIRDSInstance api r d s instance
 // swagger:model apiRDSInstance
-
 type APIRDSInstance struct {
 
 	// node
@@ -24,21 +23,15 @@ type APIRDSInstance struct {
 	Service *APIRDSService `json:"service,omitempty"`
 }
 
-/* polymorph apiRDSInstance node false */
-
-/* polymorph apiRDSInstance service false */
-
 // Validate validates this api r d s instance
 func (m *APIRDSInstance) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateNode(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateService(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -55,7 +48,6 @@ func (m *APIRDSInstance) validateNode(formats strfmt.Registry) error {
 	}
 
 	if m.Node != nil {
-
 		if err := m.Node.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("node")
@@ -74,7 +66,6 @@ func (m *APIRDSInstance) validateService(formats strfmt.Registry) error {
 	}
 
 	if m.Service != nil {
-
 		if err := m.Service.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("service")

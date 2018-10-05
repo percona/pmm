@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/task-tracker/models"
+	models "github.com/go-swagger/go-swagger/examples/task-tracker/models"
 )
 
 // GetTaskDetailsOKCode is the HTTP code returned for type GetTaskDetailsOK
@@ -30,6 +30,7 @@ type GetTaskDetailsOK struct {
 
 // NewGetTaskDetailsOK creates GetTaskDetailsOK with default headers values
 func NewGetTaskDetailsOK() *GetTaskDetailsOK {
+
 	return &GetTaskDetailsOK{}
 }
 
@@ -73,6 +74,7 @@ type GetTaskDetailsUnprocessableEntity struct {
 
 // NewGetTaskDetailsUnprocessableEntity creates GetTaskDetailsUnprocessableEntity with default headers values
 func NewGetTaskDetailsUnprocessableEntity() *GetTaskDetailsUnprocessableEntity {
+
 	return &GetTaskDetailsUnprocessableEntity{}
 }
 
@@ -106,8 +108,8 @@ swagger:response getTaskDetailsDefault
 type GetTaskDetailsDefault struct {
 	_statusCode int
 	/*
-	  Required: true
-	*/
+
+	 */
 	XErrorCode string `json:"X-Error-Code"`
 
 	/*

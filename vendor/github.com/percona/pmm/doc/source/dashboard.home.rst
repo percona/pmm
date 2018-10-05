@@ -61,4 +61,4 @@ values of the following metrics:
    - Host Uptime
    - DB Uptime
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

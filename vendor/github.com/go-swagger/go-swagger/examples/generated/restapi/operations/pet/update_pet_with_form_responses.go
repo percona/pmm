@@ -23,11 +23,14 @@ type UpdatePetWithFormMethodNotAllowed struct {
 
 // NewUpdatePetWithFormMethodNotAllowed creates UpdatePetWithFormMethodNotAllowed with default headers values
 func NewUpdatePetWithFormMethodNotAllowed() *UpdatePetWithFormMethodNotAllowed {
+
 	return &UpdatePetWithFormMethodNotAllowed{}
 }
 
 // WriteResponse to the client
 func (o *UpdatePetWithFormMethodNotAllowed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(405)
 }

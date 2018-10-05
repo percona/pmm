@@ -8,8 +8,11 @@ package tasks
 import (
 	"net/http"
 
+	errors "github.com/go-openapi/errors"
 	middleware "github.com/go-openapi/runtime/middleware"
+	strfmt "github.com/go-openapi/strfmt"
 	swag "github.com/go-openapi/swag"
+	validate "github.com/go-openapi/validate"
 )
 
 // AddCommentToTaskHandlerFunc turns a function with the right signature into a add comment to task handler
@@ -80,7 +83,6 @@ func (o *AddCommentToTask) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 // These values can have github flavored markdown.
 //
 // swagger:model AddCommentToTaskBody
-
 type AddCommentToTaskBody struct {
 
 	// content
@@ -92,9 +94,41 @@ type AddCommentToTaskBody struct {
 	UserID *int64 `json:"userId"`
 }
 
-/* polymorph AddCommentToTaskBody content false */
+// Validate validates this add comment to task body
+func (o *AddCommentToTaskBody) Validate(formats strfmt.Registry) error {
+	var res []error
 
-/* polymorph AddCommentToTaskBody userId false */
+	if err := o.validateContent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateUserID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddCommentToTaskBody) validateContent(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"content", "body", o.Content); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AddCommentToTaskBody) validateUserID(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"userId", "body", o.UserID); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // MarshalBinary interface implementation
 func (o *AddCommentToTaskBody) MarshalBinary() ([]byte, error) {

@@ -16,7 +16,9 @@ type LanguageDefinition struct {
 // ConfigureOpts for generation
 func (d *LanguageDefinition) ConfigureOpts(opts *GenOpts) error {
 	opts.Sections = d.Layout
-	opts.LanguageOpts = GoLangOpts()
+	if opts.LanguageOpts == nil {
+		opts.LanguageOpts = GoLangOpts()
+	}
 	return nil
 }
 
@@ -36,7 +38,7 @@ func ReadConfig(fpath string) (*viper.Viper, error) {
 		if err != nil {
 			return nil, err
 		}
-		defer file.Close()
+		defer func() { _ = file.Close() }()
 		ext := filepath.Ext(fpath)
 		if len(ext) > 0 {
 			ext = ext[1:]

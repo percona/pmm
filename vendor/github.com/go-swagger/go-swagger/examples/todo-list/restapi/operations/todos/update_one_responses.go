@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/todo-list/models"
+	models "github.com/go-swagger/go-swagger/examples/todo-list/models"
 )
 
 // UpdateOneOKCode is the HTTP code returned for type UpdateOneOK
@@ -30,6 +30,7 @@ type UpdateOneOK struct {
 
 // NewUpdateOneOK creates UpdateOneOK with default headers values
 func NewUpdateOneOK() *UpdateOneOK {
+
 	return &UpdateOneOK{}
 }
 

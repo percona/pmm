@@ -15,9 +15,9 @@ import (
 )
 
 // NewGetUserByNameParams creates a new GetUserByNameParams object
-// with the default values initialized.
+// no default values defined in spec.
 func NewGetUserByNameParams() GetUserByNameParams {
-	var ()
+
 	return GetUserByNameParams{}
 }
 
@@ -28,7 +28,7 @@ func NewGetUserByNameParams() GetUserByNameParams {
 type GetUserByNameParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*The name that needs to be fetched. Use user1 for testing.
 	  Required: true
@@ -38,9 +38,12 @@ type GetUserByNameParams struct {
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
-// for simple values it will use straight method calls
+// for simple values it will use straight method calls.
+//
+// To ensure default values, the struct must have been initialized with NewGetUserByNameParams() beforehand.
 func (o *GetUserByNameParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
+
 	o.HTTPRequest = r
 
 	rUsername, rhkUsername, _ := route.Params.GetOK("username")
@@ -54,11 +57,15 @@ func (o *GetUserByNameParams) BindRequest(r *http.Request, route *middleware.Mat
 	return nil
 }
 
+// bindUsername binds and validates parameter Username from path.
 func (o *GetUserByNameParams) bindUsername(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
+
+	// Required: true
+	// Parameter is provided by construction from the route
 
 	o.Username = raw
 

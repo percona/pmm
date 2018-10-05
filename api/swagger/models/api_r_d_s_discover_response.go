@@ -16,21 +16,17 @@ import (
 
 // APIRDSDiscoverResponse api r d s discover response
 // swagger:model apiRDSDiscoverResponse
-
 type APIRDSDiscoverResponse struct {
 
 	// instances
 	Instances []*APIRDSInstance `json:"instances"`
 }
 
-/* polymorph apiRDSDiscoverResponse instances false */
-
 // Validate validates this api r d s discover response
 func (m *APIRDSDiscoverResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateInstances(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -47,13 +43,11 @@ func (m *APIRDSDiscoverResponse) validateInstances(formats strfmt.Registry) erro
 	}
 
 	for i := 0; i < len(m.Instances); i++ {
-
 		if swag.IsZero(m.Instances[i]) { // not required
 			continue
 		}
 
 		if m.Instances[i] != nil {
-
 			if err := m.Instances[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("instances" + "." + strconv.Itoa(i))

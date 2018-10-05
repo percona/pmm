@@ -17,9 +17,9 @@ import (
 )
 
 // NewDeletePetParams creates a new DeletePetParams object
-// with the default values initialized.
+// no default values defined in spec.
 func NewDeletePetParams() DeletePetParams {
-	var ()
+
 	return DeletePetParams{}
 }
 
@@ -30,7 +30,7 @@ func NewDeletePetParams() DeletePetParams {
 type DeletePetParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*
 	  Required: true
@@ -45,9 +45,12 @@ type DeletePetParams struct {
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
-// for simple values it will use straight method calls
+// for simple values it will use straight method calls.
+//
+// To ensure default values, the struct must have been initialized with NewDeletePetParams() beforehand.
 func (o *DeletePetParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
+
 	o.HTTPRequest = r
 
 	if err := o.bindAPIKey(r.Header[http.CanonicalHeaderKey("api_key")], true, route.Formats); err != nil {
@@ -65,6 +68,7 @@ func (o *DeletePetParams) BindRequest(r *http.Request, route *middleware.Matched
 	return nil
 }
 
+// bindAPIKey binds and validates parameter APIKey from header.
 func (o *DeletePetParams) bindAPIKey(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
 		return errors.Required("api_key", "header")
@@ -73,6 +77,9 @@ func (o *DeletePetParams) bindAPIKey(rawData []string, hasKey bool, formats strf
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
+
+	// Required: true
+
 	if err := validate.RequiredString("api_key", "header", raw); err != nil {
 		return err
 	}
@@ -82,11 +89,15 @@ func (o *DeletePetParams) bindAPIKey(rawData []string, hasKey bool, formats strf
 	return nil
 }
 
+// bindPetID binds and validates parameter PetID from path.
 func (o *DeletePetParams) bindPetID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
+
+	// Required: true
+	// Parameter is provided by construction from the route
 
 	value, err := swag.ConvertInt64(raw)
 	if err != nil {

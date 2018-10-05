@@ -8,28 +8,19 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 )
 
 // APIAnnotationsCreateResponse api annotations create response
 // swagger:model apiAnnotationsCreateResponse
-
 type APIAnnotationsCreateResponse struct {
 
 	// message
 	Message string `json:"message,omitempty"`
 }
 
-/* polymorph apiAnnotationsCreateResponse message false */
-
 // Validate validates this api annotations create response
 func (m *APIAnnotationsCreateResponse) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
 

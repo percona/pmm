@@ -18,15 +18,43 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 type Log struct {
 	// Last lines of log file
-	Lines []string `protobuf:"bytes,1,rep,name=lines" json:"lines,omitempty"`
+	Lines                []string `protobuf:"bytes,1,rep,name=lines,proto3" json:"lines,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *Log) Reset()                    { *m = Log{} }
-func (m *Log) String() string            { return proto.CompactTextString(m) }
-func (*Log) ProtoMessage()               {}
-func (*Log) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{0} }
+func (m *Log) Reset()         { *m = Log{} }
+func (m *Log) String() string { return proto.CompactTextString(m) }
+func (*Log) ProtoMessage()    {}
+func (*Log) Descriptor() ([]byte, []int) {
+	return fileDescriptor_logs_d10e52a3d0677415, []int{0}
+}
+func (m *Log) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Log.Unmarshal(m, b)
+}
+func (m *Log) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Log.Marshal(b, m, deterministic)
+}
+func (dst *Log) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Log.Merge(dst, src)
+}
+func (m *Log) XXX_Size() int {
+	return xxx_messageInfo_Log.Size(m)
+}
+func (m *Log) XXX_DiscardUnknown() {
+	xxx_messageInfo_Log.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Log proto.InternalMessageInfo
 
 func (m *Log) GetLines() []string {
 	if m != nil {
@@ -36,22 +64,66 @@ func (m *Log) GetLines() []string {
 }
 
 type LogsAllRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *LogsAllRequest) Reset()                    { *m = LogsAllRequest{} }
-func (m *LogsAllRequest) String() string            { return proto.CompactTextString(m) }
-func (*LogsAllRequest) ProtoMessage()               {}
-func (*LogsAllRequest) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{1} }
+func (m *LogsAllRequest) Reset()         { *m = LogsAllRequest{} }
+func (m *LogsAllRequest) String() string { return proto.CompactTextString(m) }
+func (*LogsAllRequest) ProtoMessage()    {}
+func (*LogsAllRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_logs_d10e52a3d0677415, []int{1}
+}
+func (m *LogsAllRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_LogsAllRequest.Unmarshal(m, b)
+}
+func (m *LogsAllRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_LogsAllRequest.Marshal(b, m, deterministic)
+}
+func (dst *LogsAllRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LogsAllRequest.Merge(dst, src)
+}
+func (m *LogsAllRequest) XXX_Size() int {
+	return xxx_messageInfo_LogsAllRequest.Size(m)
+}
+func (m *LogsAllRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_LogsAllRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LogsAllRequest proto.InternalMessageInfo
 
 type LogsAllResponse struct {
 	// Maps log file name to content
-	Logs map[string]*Log `protobuf:"bytes,1,rep,name=logs" json:"logs,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Logs                 map[string]*Log `protobuf:"bytes,1,rep,name=logs,proto3" json:"logs,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_unrecognized     []byte          `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
 }
 
-func (m *LogsAllResponse) Reset()                    { *m = LogsAllResponse{} }
-func (m *LogsAllResponse) String() string            { return proto.CompactTextString(m) }
-func (*LogsAllResponse) ProtoMessage()               {}
-func (*LogsAllResponse) Descriptor() ([]byte, []int) { return fileDescriptor3, []int{2} }
+func (m *LogsAllResponse) Reset()         { *m = LogsAllResponse{} }
+func (m *LogsAllResponse) String() string { return proto.CompactTextString(m) }
+func (*LogsAllResponse) ProtoMessage()    {}
+func (*LogsAllResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_logs_d10e52a3d0677415, []int{2}
+}
+func (m *LogsAllResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_LogsAllResponse.Unmarshal(m, b)
+}
+func (m *LogsAllResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_LogsAllResponse.Marshal(b, m, deterministic)
+}
+func (dst *LogsAllResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_LogsAllResponse.Merge(dst, src)
+}
+func (m *LogsAllResponse) XXX_Size() int {
+	return xxx_messageInfo_LogsAllResponse.Size(m)
+}
+func (m *LogsAllResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_LogsAllResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_LogsAllResponse proto.InternalMessageInfo
 
 func (m *LogsAllResponse) GetLogs() map[string]*Log {
 	if m != nil {
@@ -64,6 +136,7 @@ func init() {
 	proto.RegisterType((*Log)(nil), "api.Log")
 	proto.RegisterType((*LogsAllRequest)(nil), "api.LogsAllRequest")
 	proto.RegisterType((*LogsAllResponse)(nil), "api.LogsAllResponse")
+	proto.RegisterMapType((map[string]*Log)(nil), "api.LogsAllResponse.LogsEntry")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -74,8 +147,9 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for Logs service
-
+// LogsClient is the client API for Logs service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type LogsClient interface {
 	// All returns last lines of all log files.
 	All(ctx context.Context, in *LogsAllRequest, opts ...grpc.CallOption) (*LogsAllResponse, error)
@@ -91,15 +165,14 @@ func NewLogsClient(cc *grpc.ClientConn) LogsClient {
 
 func (c *logsClient) All(ctx context.Context, in *LogsAllRequest, opts ...grpc.CallOption) (*LogsAllResponse, error) {
 	out := new(LogsAllResponse)
-	err := grpc.Invoke(ctx, "/api.Logs/All", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/api.Logs/All", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Server API for Logs service
-
+// LogsServer is the server API for Logs service.
 type LogsServer interface {
 	// All returns last lines of all log files.
 	All(context.Context, *LogsAllRequest) (*LogsAllResponse, error)
@@ -140,9 +213,9 @@ var _Logs_serviceDesc = grpc.ServiceDesc{
 	Metadata: "logs.proto",
 }
 
-func init() { proto.RegisterFile("logs.proto", fileDescriptor3) }
+func init() { proto.RegisterFile("logs.proto", fileDescriptor_logs_d10e52a3d0677415) }
 
-var fileDescriptor3 = []byte{
+var fileDescriptor_logs_d10e52a3d0677415 = []byte{
 	// 243 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0xca, 0xc9, 0x4f, 0x2f,
 	0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4e, 0x2c, 0xc8, 0x94, 0x92, 0x49, 0xcf, 0xcf,

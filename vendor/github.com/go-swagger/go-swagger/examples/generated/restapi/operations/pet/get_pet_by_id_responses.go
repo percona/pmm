@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/generated/models"
+	models "github.com/go-swagger/go-swagger/examples/generated/models"
 )
 
 // GetPetByIDOKCode is the HTTP code returned for type GetPetByIDOK
@@ -30,6 +30,7 @@ type GetPetByIDOK struct {
 
 // NewGetPetByIDOK creates GetPetByIDOK with default headers values
 func NewGetPetByIDOK() *GetPetByIDOK {
+
 	return &GetPetByIDOK{}
 }
 
@@ -68,11 +69,14 @@ type GetPetByIDBadRequest struct {
 
 // NewGetPetByIDBadRequest creates GetPetByIDBadRequest with default headers values
 func NewGetPetByIDBadRequest() *GetPetByIDBadRequest {
+
 	return &GetPetByIDBadRequest{}
 }
 
 // WriteResponse to the client
 func (o *GetPetByIDBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(400)
 }
@@ -89,11 +93,14 @@ type GetPetByIDNotFound struct {
 
 // NewGetPetByIDNotFound creates GetPetByIDNotFound with default headers values
 func NewGetPetByIDNotFound() *GetPetByIDNotFound {
+
 	return &GetPetByIDNotFound{}
 }
 
 // WriteResponse to the client
 func (o *GetPetByIDNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(404)
 }

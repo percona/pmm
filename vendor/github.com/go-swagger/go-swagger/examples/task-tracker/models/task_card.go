@@ -21,7 +21,6 @@ import (
 // A task card is a minimalistic representation of a task. Useful for display in list views, like a card list.
 //
 // swagger:model TaskCard
-
 type TaskCard struct {
 
 	// assigned to
@@ -62,6 +61,7 @@ type TaskCard struct {
 	// This field is read-only, so it's only sent as part of the response.
 	//
 	// Read Only: true
+	// Format: date-time
 	ReportedAt strfmt.DateTime `json:"reportedAt,omitempty"`
 
 	// severity
@@ -75,6 +75,7 @@ type TaskCard struct {
 	// Ignored means as much as accepted but not now, perhaps later.
 	//
 	// Required: true
+	// Enum: [open closed ignored rejected]
 	Status *string `json:"status"`
 
 	// task tags.
@@ -95,69 +96,43 @@ type TaskCard struct {
 	Title *string `json:"title"`
 }
 
-/* polymorph TaskCard assignedTo false */
-
-/* polymorph TaskCard description false */
-
-/* polymorph TaskCard effort false */
-
-/* polymorph TaskCard id false */
-
-/* polymorph TaskCard karma false */
-
-/* polymorph TaskCard milestone false */
-
-/* polymorph TaskCard reportedAt false */
-
-/* polymorph TaskCard severity false */
-
-/* polymorph TaskCard status false */
-
-/* polymorph TaskCard tags false */
-
-/* polymorph TaskCard title false */
-
 // Validate validates this task card
 func (m *TaskCard) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAssignedTo(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateEffort(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateKarma(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateMilestone(formats); err != nil {
-		// prop
+		res = append(res, err)
+	}
+
+	if err := m.validateReportedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateSeverity(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateStatus(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateTags(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateTitle(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -174,7 +149,6 @@ func (m *TaskCard) validateAssignedTo(formats strfmt.Registry) error {
 	}
 
 	if m.AssignedTo != nil {
-
 		if err := m.AssignedTo.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("assignedTo")
@@ -227,13 +201,25 @@ func (m *TaskCard) validateMilestone(formats strfmt.Registry) error {
 	}
 
 	if m.Milestone != nil {
-
 		if err := m.Milestone.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("milestone")
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *TaskCard) validateReportedAt(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ReportedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("reportedAt", "body", "date-time", m.ReportedAt.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -269,12 +255,16 @@ func init() {
 }
 
 const (
+
 	// TaskCardStatusOpen captures enum value "open"
 	TaskCardStatusOpen string = "open"
+
 	// TaskCardStatusClosed captures enum value "closed"
 	TaskCardStatusClosed string = "closed"
+
 	// TaskCardStatusIgnored captures enum value "ignored"
 	TaskCardStatusIgnored string = "ignored"
+
 	// TaskCardStatusRejected captures enum value "rejected"
 	TaskCardStatusRejected string = "rejected"
 )

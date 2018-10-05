@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/generated/models"
+	models "github.com/go-swagger/go-swagger/examples/generated/models"
 )
 
 // GetUserByNameOKCode is the HTTP code returned for type GetUserByNameOK
@@ -30,6 +30,7 @@ type GetUserByNameOK struct {
 
 // NewGetUserByNameOK creates GetUserByNameOK with default headers values
 func NewGetUserByNameOK() *GetUserByNameOK {
+
 	return &GetUserByNameOK{}
 }
 
@@ -68,11 +69,14 @@ type GetUserByNameBadRequest struct {
 
 // NewGetUserByNameBadRequest creates GetUserByNameBadRequest with default headers values
 func NewGetUserByNameBadRequest() *GetUserByNameBadRequest {
+
 	return &GetUserByNameBadRequest{}
 }
 
 // WriteResponse to the client
 func (o *GetUserByNameBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(400)
 }
@@ -89,11 +93,14 @@ type GetUserByNameNotFound struct {
 
 // NewGetUserByNameNotFound creates GetUserByNameNotFound with default headers values
 func NewGetUserByNameNotFound() *GetUserByNameNotFound {
+
 	return &GetUserByNameNotFound{}
 }
 
 // WriteResponse to the client
 func (o *GetUserByNameNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(404)
 }

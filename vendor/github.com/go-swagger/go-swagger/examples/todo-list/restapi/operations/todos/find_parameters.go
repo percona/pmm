@@ -19,9 +19,9 @@ import (
 )
 
 // NewFindParams creates a new FindParams object
-// with the default values initialized.
+// no default values defined in spec.
 func NewFindParams() FindParams {
-	var ()
+
 	return FindParams{}
 }
 
@@ -32,7 +32,7 @@ func NewFindParams() FindParams {
 type FindParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*
 	  Required: true
@@ -53,16 +53,19 @@ type FindParams struct {
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
-// for simple values it will use straight method calls
+// for simple values it will use straight method calls.
+//
+// To ensure default values, the struct must have been initialized with NewFindParams() beforehand.
 func (o *FindParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
+
 	o.HTTPRequest = r
 
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
 		if err != http.ErrNotMultipart {
-			return err
+			return errors.New(400, "%v", err)
 		} else if err := r.ParseForm(); err != nil {
-			return err
+			return errors.New(400, "%v", err)
 		}
 	}
 	fds := runtime.Values(r.Form)
@@ -87,6 +90,7 @@ func (o *FindParams) BindRequest(r *http.Request, route *middleware.MatchedRoute
 	return nil
 }
 
+// bindXRateLimit binds and validates parameter XRateLimit from header.
 func (o *FindParams) bindXRateLimit(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
 		return errors.Required("X-Rate-Limit", "header")
@@ -95,6 +99,9 @@ func (o *FindParams) bindXRateLimit(rawData []string, hasKey bool, formats strfm
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
+
+	// Required: true
+
 	if err := validate.RequiredString("X-Rate-Limit", "header", raw); err != nil {
 		return err
 	}
@@ -108,6 +115,7 @@ func (o *FindParams) bindXRateLimit(rawData []string, hasKey bool, formats strfm
 	return nil
 }
 
+// bindLimit binds and validates parameter Limit from formData.
 func (o *FindParams) bindLimit(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
 		return errors.Required("limit", "formData")
@@ -116,6 +124,9 @@ func (o *FindParams) bindLimit(rawData []string, hasKey bool, formats strfmt.Reg
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
+
+	// Required: true
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -129,15 +140,24 @@ func (o *FindParams) bindLimit(rawData []string, hasKey bool, formats strfmt.Reg
 	return nil
 }
 
+// bindTags binds and validates array parameter Tags from formData.
+//
+// Arrays are parsed according to CollectionFormat: "multi" (defaults to "csv" when empty).
 func (o *FindParams) bindTags(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	if !hasKey {
 		return errors.Required("tags", "formData")
 	}
 
+	// CollectionFormat: multi
 	tagsIC := rawData
+
+	if len(tagsIC) == 0 {
+		return nil
+	}
 
 	var tagsIR []int32
 	for i, tagsIV := range tagsIC {
+		// items.Format: "int32"
 		tagsI, err := swag.ConvertInt32(tagsIV)
 		if err != nil {
 			return errors.InvalidType(fmt.Sprintf("%s.%v", "tags", i), "formData", "int32", tagsI)

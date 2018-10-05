@@ -32,7 +32,7 @@ func request_RDS_Discover_0(ctx context.Context, marshaler runtime.Marshaler, cl
 	var protoReq RDSDiscoverRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -54,7 +54,7 @@ func request_RDS_Add_0(ctx context.Context, marshaler runtime.Marshaler, client 
 	var protoReq RDSAddRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -67,7 +67,7 @@ func request_RDS_Remove_0(ctx context.Context, marshaler runtime.Marshaler, clie
 	var protoReq RDSRemoveRequest
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -86,14 +86,14 @@ func RegisterRDSHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, 
 	defer func() {
 		if err != nil {
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Printf("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 			return
 		}
 		go func() {
 			<-ctx.Done()
 			if cerr := conn.Close(); cerr != nil {
-				grpclog.Printf("Failed to close conn to %s: %v", endpoint, cerr)
+				grpclog.Infof("Failed to close conn to %s: %v", endpoint, cerr)
 			}
 		}()
 	}()
@@ -107,8 +107,8 @@ func RegisterRDSHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.C
 	return RegisterRDSHandlerClient(ctx, mux, NewRDSClient(conn))
 }
 
-// RegisterRDSHandler registers the http handlers for service RDS to "mux".
-// The handlers forward requests to the grpc endpoint over the given implementation of "RDSClient".
+// RegisterRDSHandlerClient registers the http handlers for service RDS
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "RDSClient".
 // Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "RDSClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
 // "RDSClient" to call the correct interceptors.

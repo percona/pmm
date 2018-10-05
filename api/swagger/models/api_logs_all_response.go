@@ -15,21 +15,17 @@ import (
 
 // APILogsAllResponse api logs all response
 // swagger:model apiLogsAllResponse
-
 type APILogsAllResponse struct {
 
 	// Maps log file name to content
 	Logs map[string]APILog `json:"logs,omitempty"`
 }
 
-/* polymorph apiLogsAllResponse logs false */
-
 // Validate validates this api logs all response
 func (m *APILogsAllResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateLogs(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -45,8 +41,17 @@ func (m *APILogsAllResponse) validateLogs(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Required("logs", "body", m.Logs); err != nil {
-		return err
+	for k := range m.Logs {
+
+		if err := validate.Required("logs"+"."+k, "body", m.Logs[k]); err != nil {
+			return err
+		}
+		if val, ok := m.Logs[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
 	}
 
 	return nil

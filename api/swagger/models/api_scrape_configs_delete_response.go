@@ -7,5 +7,4 @@ package models
 
 // APIScrapeConfigsDeleteResponse api scrape configs delete response
 // swagger:model apiScrapeConfigsDeleteResponse
-
 type APIScrapeConfigsDeleteResponse interface{}

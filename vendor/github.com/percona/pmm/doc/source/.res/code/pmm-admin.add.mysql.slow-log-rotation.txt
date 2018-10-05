@@ -1,0 +1,3 @@
+.. code-block:: bash
+
+   $ pmm-admin add mysql ... --slow-log-rotation=false

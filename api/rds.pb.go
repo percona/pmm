@@ -18,15 +18,43 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 type RDSNode struct {
-	Region string `protobuf:"bytes,3,opt,name=region" json:"region,omitempty"`
-	Name   string `protobuf:"bytes,4,opt,name=name" json:"name,omitempty"`
+	Region               string   `protobuf:"bytes,3,opt,name=region,proto3" json:"region,omitempty"`
+	Name                 string   `protobuf:"bytes,4,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RDSNode) Reset()                    { *m = RDSNode{} }
-func (m *RDSNode) String() string            { return proto.CompactTextString(m) }
-func (*RDSNode) ProtoMessage()               {}
-func (*RDSNode) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{0} }
+func (m *RDSNode) Reset()         { *m = RDSNode{} }
+func (m *RDSNode) String() string { return proto.CompactTextString(m) }
+func (*RDSNode) ProtoMessage()    {}
+func (*RDSNode) Descriptor() ([]byte, []int) {
+	return fileDescriptor_rds_b2bbb8c123f60b23, []int{0}
+}
+func (m *RDSNode) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RDSNode.Unmarshal(m, b)
+}
+func (m *RDSNode) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RDSNode.Marshal(b, m, deterministic)
+}
+func (dst *RDSNode) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RDSNode.Merge(dst, src)
+}
+func (m *RDSNode) XXX_Size() int {
+	return xxx_messageInfo_RDSNode.Size(m)
+}
+func (m *RDSNode) XXX_DiscardUnknown() {
+	xxx_messageInfo_RDSNode.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RDSNode proto.InternalMessageInfo
 
 func (m *RDSNode) GetRegion() string {
 	if m != nil {
@@ -43,16 +71,38 @@ func (m *RDSNode) GetName() string {
 }
 
 type RDSService struct {
-	Address       string `protobuf:"bytes,4,opt,name=address" json:"address,omitempty"`
-	Port          uint32 `protobuf:"varint,5,opt,name=port" json:"port,omitempty"`
-	Engine        string `protobuf:"bytes,6,opt,name=engine" json:"engine,omitempty"`
-	EngineVersion string `protobuf:"bytes,7,opt,name=engine_version,json=engineVersion" json:"engine_version,omitempty"`
+	Address              string   `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
+	Port                 uint32   `protobuf:"varint,5,opt,name=port,proto3" json:"port,omitempty"`
+	Engine               string   `protobuf:"bytes,6,opt,name=engine,proto3" json:"engine,omitempty"`
+	EngineVersion        string   `protobuf:"bytes,7,opt,name=engine_version,json=engineVersion,proto3" json:"engine_version,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RDSService) Reset()                    { *m = RDSService{} }
-func (m *RDSService) String() string            { return proto.CompactTextString(m) }
-func (*RDSService) ProtoMessage()               {}
-func (*RDSService) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{1} }
+func (m *RDSService) Reset()         { *m = RDSService{} }
+func (m *RDSService) String() string { return proto.CompactTextString(m) }
+func (*RDSService) ProtoMessage()    {}
+func (*RDSService) Descriptor() ([]byte, []int) {
+	return fileDescriptor_rds_b2bbb8c123f60b23, []int{1}
+}
+func (m *RDSService) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RDSService.Unmarshal(m, b)
+}
+func (m *RDSService) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RDSService.Marshal(b, m, deterministic)
+}
+func (dst *RDSService) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RDSService.Merge(dst, src)
+}
+func (m *RDSService) XXX_Size() int {
+	return xxx_messageInfo_RDSService.Size(m)
+}
+func (m *RDSService) XXX_DiscardUnknown() {
+	xxx_messageInfo_RDSService.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RDSService proto.InternalMessageInfo
 
 func (m *RDSService) GetAddress() string {
 	if m != nil {
@@ -83,14 +133,36 @@ func (m *RDSService) GetEngineVersion() string {
 }
 
 type RDSInstanceID struct {
-	Region string `protobuf:"bytes,1,opt,name=region" json:"region,omitempty"`
-	Name   string `protobuf:"bytes,2,opt,name=name" json:"name,omitempty"`
+	Region               string   `protobuf:"bytes,1,opt,name=region,proto3" json:"region,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RDSInstanceID) Reset()                    { *m = RDSInstanceID{} }
-func (m *RDSInstanceID) String() string            { return proto.CompactTextString(m) }
-func (*RDSInstanceID) ProtoMessage()               {}
-func (*RDSInstanceID) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{2} }
+func (m *RDSInstanceID) Reset()         { *m = RDSInstanceID{} }
+func (m *RDSInstanceID) String() string { return proto.CompactTextString(m) }
+func (*RDSInstanceID) ProtoMessage()    {}
+func (*RDSInstanceID) Descriptor() ([]byte, []int) {
+	return fileDescriptor_rds_b2bbb8c123f60b23, []int{2}
+}
+func (m *RDSInstanceID) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RDSInstanceID.Unmarshal(m, b)
+}
+func (m *RDSInstanceID) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RDSInstanceID.Marshal(b, m, deterministic)
+}
+func (dst *RDSInstanceID) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RDSInstanceID.Merge(dst, src)
+}
+func (m *RDSInstanceID) XXX_Size() int {
+	return xxx_messageInfo_RDSInstanceID.Size(m)
+}
+func (m *RDSInstanceID) XXX_DiscardUnknown() {
+	xxx_messageInfo_RDSInstanceID.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RDSInstanceID proto.InternalMessageInfo
 
 func (m *RDSInstanceID) GetRegion() string {
 	if m != nil {
@@ -107,14 +179,36 @@ func (m *RDSInstanceID) GetName() string {
 }
 
 type RDSInstance struct {
-	Node    *RDSNode    `protobuf:"bytes,1,opt,name=node" json:"node,omitempty"`
-	Service *RDSService `protobuf:"bytes,2,opt,name=service" json:"service,omitempty"`
+	Node                 *RDSNode    `protobuf:"bytes,1,opt,name=node,proto3" json:"node,omitempty"`
+	Service              *RDSService `protobuf:"bytes,2,opt,name=service,proto3" json:"service,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_unrecognized     []byte      `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
-func (m *RDSInstance) Reset()                    { *m = RDSInstance{} }
-func (m *RDSInstance) String() string            { return proto.CompactTextString(m) }
-func (*RDSInstance) ProtoMessage()               {}
-func (*RDSInstance) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{3} }
+func (m *RDSInstance) Reset()         { *m = RDSInstance{} }
+func (m *RDSInstance) String() string { return proto.CompactTextString(m) }
+func (*RDSInstance) ProtoMessage()    {}
+func (*RDSInstance) Descriptor() ([]byte, []int) {
+	return fileDescriptor_rds_b2bbb8c123f60b23, []int{3}
+}
+func (m *RDSInstance) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RDSInstance.Unmarshal(m, b)
+}
+func (m *RDSInstance) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RDSInstance.Marshal(b, m, deterministic)
+}
+func (dst *RDSInstance) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RDSInstance.Merge(dst, src)
+}
+func (m *RDSInstance) XXX_Size() int {
+	return xxx_messageInfo_RDSInstance.Size(m)
+}
+func (m *RDSInstance) XXX_DiscardUnknown() {
+	xxx_messageInfo_RDSInstance.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RDSInstance proto.InternalMessageInfo
 
 func (m *RDSInstance) GetNode() *RDSNode {
 	if m != nil {
@@ -131,14 +225,36 @@ func (m *RDSInstance) GetService() *RDSService {
 }
 
 type RDSDiscoverRequest struct {
-	AwsAccessKeyId     string `protobuf:"bytes,1,opt,name=aws_access_key_id,json=awsAccessKeyId" json:"aws_access_key_id,omitempty"`
-	AwsSecretAccessKey string `protobuf:"bytes,2,opt,name=aws_secret_access_key,json=awsSecretAccessKey" json:"aws_secret_access_key,omitempty"`
+	AwsAccessKeyId       string   `protobuf:"bytes,1,opt,name=aws_access_key_id,json=awsAccessKeyId,proto3" json:"aws_access_key_id,omitempty"`
+	AwsSecretAccessKey   string   `protobuf:"bytes,2,opt,name=aws_secret_access_key,json=awsSecretAccessKey,proto3" json:"aws_secret_access_key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RDSDiscoverRequest) Reset()                    { *m = RDSDiscoverRequest{} }
-func (m *RDSDiscoverRequest) String() string            { return proto.CompactTextString(m) }
-func (*RDSDiscoverRequest) ProtoMessage()               {}
-func (*RDSDiscoverRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{4} }
+func (m *RDSDiscoverRequest) Reset()         { *m = RDSDiscoverRequest{} }
+func (m *RDSDiscoverRequest) String() string { return proto.CompactTextString(m) }
+func (*RDSDiscoverRequest) ProtoMessage()    {}
+func (*RDSDiscoverRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_rds_b2bbb8c123f60b23, []int{4}
+}
+func (m *RDSDiscoverRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RDSDiscoverRequest.Unmarshal(m, b)
+}
+func (m *RDSDiscoverRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RDSDiscoverRequest.Marshal(b, m, deterministic)
+}
+func (dst *RDSDiscoverRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RDSDiscoverRequest.Merge(dst, src)
+}
+func (m *RDSDiscoverRequest) XXX_Size() int {
+	return xxx_messageInfo_RDSDiscoverRequest.Size(m)
+}
+func (m *RDSDiscoverRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RDSDiscoverRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RDSDiscoverRequest proto.InternalMessageInfo
 
 func (m *RDSDiscoverRequest) GetAwsAccessKeyId() string {
 	if m != nil {
@@ -155,13 +271,35 @@ func (m *RDSDiscoverRequest) GetAwsSecretAccessKey() string {
 }
 
 type RDSDiscoverResponse struct {
-	Instances []*RDSInstance `protobuf:"bytes,1,rep,name=instances" json:"instances,omitempty"`
+	Instances            []*RDSInstance `protobuf:"bytes,1,rep,name=instances,proto3" json:"instances,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
-func (m *RDSDiscoverResponse) Reset()                    { *m = RDSDiscoverResponse{} }
-func (m *RDSDiscoverResponse) String() string            { return proto.CompactTextString(m) }
-func (*RDSDiscoverResponse) ProtoMessage()               {}
-func (*RDSDiscoverResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{5} }
+func (m *RDSDiscoverResponse) Reset()         { *m = RDSDiscoverResponse{} }
+func (m *RDSDiscoverResponse) String() string { return proto.CompactTextString(m) }
+func (*RDSDiscoverResponse) ProtoMessage()    {}
+func (*RDSDiscoverResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_rds_b2bbb8c123f60b23, []int{5}
+}
+func (m *RDSDiscoverResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RDSDiscoverResponse.Unmarshal(m, b)
+}
+func (m *RDSDiscoverResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RDSDiscoverResponse.Marshal(b, m, deterministic)
+}
+func (dst *RDSDiscoverResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RDSDiscoverResponse.Merge(dst, src)
+}
+func (m *RDSDiscoverResponse) XXX_Size() int {
+	return xxx_messageInfo_RDSDiscoverResponse.Size(m)
+}
+func (m *RDSDiscoverResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RDSDiscoverResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RDSDiscoverResponse proto.InternalMessageInfo
 
 func (m *RDSDiscoverResponse) GetInstances() []*RDSInstance {
 	if m != nil {
@@ -171,21 +309,65 @@ func (m *RDSDiscoverResponse) GetInstances() []*RDSInstance {
 }
 
 type RDSListRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RDSListRequest) Reset()                    { *m = RDSListRequest{} }
-func (m *RDSListRequest) String() string            { return proto.CompactTextString(m) }
-func (*RDSListRequest) ProtoMessage()               {}
-func (*RDSListRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{6} }
+func (m *RDSListRequest) Reset()         { *m = RDSListRequest{} }
+func (m *RDSListRequest) String() string { return proto.CompactTextString(m) }
+func (*RDSListRequest) ProtoMessage()    {}
+func (*RDSListRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_rds_b2bbb8c123f60b23, []int{6}
+}
+func (m *RDSListRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RDSListRequest.Unmarshal(m, b)
+}
+func (m *RDSListRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RDSListRequest.Marshal(b, m, deterministic)
+}
+func (dst *RDSListRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RDSListRequest.Merge(dst, src)
+}
+func (m *RDSListRequest) XXX_Size() int {
+	return xxx_messageInfo_RDSListRequest.Size(m)
+}
+func (m *RDSListRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RDSListRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RDSListRequest proto.InternalMessageInfo
 
 type RDSListResponse struct {
-	Instances []*RDSInstance `protobuf:"bytes,1,rep,name=instances" json:"instances,omitempty"`
+	Instances            []*RDSInstance `protobuf:"bytes,1,rep,name=instances,proto3" json:"instances,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
-func (m *RDSListResponse) Reset()                    { *m = RDSListResponse{} }
-func (m *RDSListResponse) String() string            { return proto.CompactTextString(m) }
-func (*RDSListResponse) ProtoMessage()               {}
-func (*RDSListResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{7} }
+func (m *RDSListResponse) Reset()         { *m = RDSListResponse{} }
+func (m *RDSListResponse) String() string { return proto.CompactTextString(m) }
+func (*RDSListResponse) ProtoMessage()    {}
+func (*RDSListResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_rds_b2bbb8c123f60b23, []int{7}
+}
+func (m *RDSListResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RDSListResponse.Unmarshal(m, b)
+}
+func (m *RDSListResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RDSListResponse.Marshal(b, m, deterministic)
+}
+func (dst *RDSListResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RDSListResponse.Merge(dst, src)
+}
+func (m *RDSListResponse) XXX_Size() int {
+	return xxx_messageInfo_RDSListResponse.Size(m)
+}
+func (m *RDSListResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RDSListResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RDSListResponse proto.InternalMessageInfo
 
 func (m *RDSListResponse) GetInstances() []*RDSInstance {
 	if m != nil {
@@ -195,17 +377,39 @@ func (m *RDSListResponse) GetInstances() []*RDSInstance {
 }
 
 type RDSAddRequest struct {
-	AwsAccessKeyId     string         `protobuf:"bytes,1,opt,name=aws_access_key_id,json=awsAccessKeyId" json:"aws_access_key_id,omitempty"`
-	AwsSecretAccessKey string         `protobuf:"bytes,2,opt,name=aws_secret_access_key,json=awsSecretAccessKey" json:"aws_secret_access_key,omitempty"`
-	Id                 *RDSInstanceID `protobuf:"bytes,3,opt,name=id" json:"id,omitempty"`
-	Username           string         `protobuf:"bytes,4,opt,name=username" json:"username,omitempty"`
-	Password           string         `protobuf:"bytes,5,opt,name=password" json:"password,omitempty"`
+	AwsAccessKeyId       string         `protobuf:"bytes,1,opt,name=aws_access_key_id,json=awsAccessKeyId,proto3" json:"aws_access_key_id,omitempty"`
+	AwsSecretAccessKey   string         `protobuf:"bytes,2,opt,name=aws_secret_access_key,json=awsSecretAccessKey,proto3" json:"aws_secret_access_key,omitempty"`
+	Id                   *RDSInstanceID `protobuf:"bytes,3,opt,name=id,proto3" json:"id,omitempty"`
+	Username             string         `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
+	Password             string         `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
-func (m *RDSAddRequest) Reset()                    { *m = RDSAddRequest{} }
-func (m *RDSAddRequest) String() string            { return proto.CompactTextString(m) }
-func (*RDSAddRequest) ProtoMessage()               {}
-func (*RDSAddRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{8} }
+func (m *RDSAddRequest) Reset()         { *m = RDSAddRequest{} }
+func (m *RDSAddRequest) String() string { return proto.CompactTextString(m) }
+func (*RDSAddRequest) ProtoMessage()    {}
+func (*RDSAddRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_rds_b2bbb8c123f60b23, []int{8}
+}
+func (m *RDSAddRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RDSAddRequest.Unmarshal(m, b)
+}
+func (m *RDSAddRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RDSAddRequest.Marshal(b, m, deterministic)
+}
+func (dst *RDSAddRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RDSAddRequest.Merge(dst, src)
+}
+func (m *RDSAddRequest) XXX_Size() int {
+	return xxx_messageInfo_RDSAddRequest.Size(m)
+}
+func (m *RDSAddRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RDSAddRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RDSAddRequest proto.InternalMessageInfo
 
 func (m *RDSAddRequest) GetAwsAccessKeyId() string {
 	if m != nil {
@@ -243,21 +447,65 @@ func (m *RDSAddRequest) GetPassword() string {
 }
 
 type RDSAddResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RDSAddResponse) Reset()                    { *m = RDSAddResponse{} }
-func (m *RDSAddResponse) String() string            { return proto.CompactTextString(m) }
-func (*RDSAddResponse) ProtoMessage()               {}
-func (*RDSAddResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{9} }
+func (m *RDSAddResponse) Reset()         { *m = RDSAddResponse{} }
+func (m *RDSAddResponse) String() string { return proto.CompactTextString(m) }
+func (*RDSAddResponse) ProtoMessage()    {}
+func (*RDSAddResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_rds_b2bbb8c123f60b23, []int{9}
+}
+func (m *RDSAddResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RDSAddResponse.Unmarshal(m, b)
+}
+func (m *RDSAddResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RDSAddResponse.Marshal(b, m, deterministic)
+}
+func (dst *RDSAddResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RDSAddResponse.Merge(dst, src)
+}
+func (m *RDSAddResponse) XXX_Size() int {
+	return xxx_messageInfo_RDSAddResponse.Size(m)
+}
+func (m *RDSAddResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RDSAddResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RDSAddResponse proto.InternalMessageInfo
 
 type RDSRemoveRequest struct {
-	Id *RDSInstanceID `protobuf:"bytes,1,opt,name=id" json:"id,omitempty"`
+	Id                   *RDSInstanceID `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
-func (m *RDSRemoveRequest) Reset()                    { *m = RDSRemoveRequest{} }
-func (m *RDSRemoveRequest) String() string            { return proto.CompactTextString(m) }
-func (*RDSRemoveRequest) ProtoMessage()               {}
-func (*RDSRemoveRequest) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{10} }
+func (m *RDSRemoveRequest) Reset()         { *m = RDSRemoveRequest{} }
+func (m *RDSRemoveRequest) String() string { return proto.CompactTextString(m) }
+func (*RDSRemoveRequest) ProtoMessage()    {}
+func (*RDSRemoveRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_rds_b2bbb8c123f60b23, []int{10}
+}
+func (m *RDSRemoveRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RDSRemoveRequest.Unmarshal(m, b)
+}
+func (m *RDSRemoveRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RDSRemoveRequest.Marshal(b, m, deterministic)
+}
+func (dst *RDSRemoveRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RDSRemoveRequest.Merge(dst, src)
+}
+func (m *RDSRemoveRequest) XXX_Size() int {
+	return xxx_messageInfo_RDSRemoveRequest.Size(m)
+}
+func (m *RDSRemoveRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RDSRemoveRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RDSRemoveRequest proto.InternalMessageInfo
 
 func (m *RDSRemoveRequest) GetId() *RDSInstanceID {
 	if m != nil {
@@ -267,12 +515,34 @@ func (m *RDSRemoveRequest) GetId() *RDSInstanceID {
 }
 
 type RDSRemoveResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RDSRemoveResponse) Reset()                    { *m = RDSRemoveResponse{} }
-func (m *RDSRemoveResponse) String() string            { return proto.CompactTextString(m) }
-func (*RDSRemoveResponse) ProtoMessage()               {}
-func (*RDSRemoveResponse) Descriptor() ([]byte, []int) { return fileDescriptor4, []int{11} }
+func (m *RDSRemoveResponse) Reset()         { *m = RDSRemoveResponse{} }
+func (m *RDSRemoveResponse) String() string { return proto.CompactTextString(m) }
+func (*RDSRemoveResponse) ProtoMessage()    {}
+func (*RDSRemoveResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_rds_b2bbb8c123f60b23, []int{11}
+}
+func (m *RDSRemoveResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RDSRemoveResponse.Unmarshal(m, b)
+}
+func (m *RDSRemoveResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RDSRemoveResponse.Marshal(b, m, deterministic)
+}
+func (dst *RDSRemoveResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RDSRemoveResponse.Merge(dst, src)
+}
+func (m *RDSRemoveResponse) XXX_Size() int {
+	return xxx_messageInfo_RDSRemoveResponse.Size(m)
+}
+func (m *RDSRemoveResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RDSRemoveResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RDSRemoveResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*RDSNode)(nil), "api.RDSNode")
@@ -297,8 +567,9 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for RDS service
-
+// RDSClient is the client API for RDS service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type RDSClient interface {
 	Discover(ctx context.Context, in *RDSDiscoverRequest, opts ...grpc.CallOption) (*RDSDiscoverResponse, error)
 	List(ctx context.Context, in *RDSListRequest, opts ...grpc.CallOption) (*RDSListResponse, error)
@@ -316,7 +587,7 @@ func NewRDSClient(cc *grpc.ClientConn) RDSClient {
 
 func (c *rDSClient) Discover(ctx context.Context, in *RDSDiscoverRequest, opts ...grpc.CallOption) (*RDSDiscoverResponse, error) {
 	out := new(RDSDiscoverResponse)
-	err := grpc.Invoke(ctx, "/api.RDS/Discover", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/api.RDS/Discover", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -325,7 +596,7 @@ func (c *rDSClient) Discover(ctx context.Context, in *RDSDiscoverRequest, opts .
 
 func (c *rDSClient) List(ctx context.Context, in *RDSListRequest, opts ...grpc.CallOption) (*RDSListResponse, error) {
 	out := new(RDSListResponse)
-	err := grpc.Invoke(ctx, "/api.RDS/List", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/api.RDS/List", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -334,7 +605,7 @@ func (c *rDSClient) List(ctx context.Context, in *RDSListRequest, opts ...grpc.C
 
 func (c *rDSClient) Add(ctx context.Context, in *RDSAddRequest, opts ...grpc.CallOption) (*RDSAddResponse, error) {
 	out := new(RDSAddResponse)
-	err := grpc.Invoke(ctx, "/api.RDS/Add", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/api.RDS/Add", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -343,15 +614,14 @@ func (c *rDSClient) Add(ctx context.Context, in *RDSAddRequest, opts ...grpc.Cal
 
 func (c *rDSClient) Remove(ctx context.Context, in *RDSRemoveRequest, opts ...grpc.CallOption) (*RDSRemoveResponse, error) {
 	out := new(RDSRemoveResponse)
-	err := grpc.Invoke(ctx, "/api.RDS/Remove", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/api.RDS/Remove", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Server API for RDS service
-
+// RDSServer is the server API for RDS service.
 type RDSServer interface {
 	Discover(context.Context, *RDSDiscoverRequest) (*RDSDiscoverResponse, error)
 	List(context.Context, *RDSListRequest) (*RDSListResponse, error)
@@ -460,9 +730,9 @@ var _RDS_serviceDesc = grpc.ServiceDesc{
 	Metadata: "rds.proto",
 }
 
-func init() { proto.RegisterFile("rds.proto", fileDescriptor4) }
+func init() { proto.RegisterFile("rds.proto", fileDescriptor_rds_b2bbb8c123f60b23) }
 
-var fileDescriptor4 = []byte{
+var fileDescriptor_rds_b2bbb8c123f60b23 = []byte{
 	// 594 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x54, 0xbb, 0x6e, 0x13, 0x4d,
 	0x14, 0xd6, 0x5e, 0x7e, 0x5f, 0x8e, 0x73, 0xd9, 0x1c, 0xff, 0x09, 0x2b, 0x43, 0x61, 0x8d, 0x84,

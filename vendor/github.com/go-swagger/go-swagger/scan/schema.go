@@ -92,6 +92,7 @@ func (sv schemaValidations) SetMaxLength(val int64)     { sv.current.MaxLength =
 func (sv schemaValidations) SetPattern(val string)      { sv.current.Pattern = val }
 func (sv schemaValidations) SetUnique(val bool)         { sv.current.UniqueItems = val }
 func (sv schemaValidations) SetDefault(val interface{}) { sv.current.Default = val }
+func (sv schemaValidations) SetExample(val interface{}) { sv.current.Example = val }
 func (sv schemaValidations) SetEnum(val string) {
 	list := strings.Split(val, ",")
 	interfaceSlice := make([]interface{}, len(list))
@@ -591,7 +592,12 @@ func (scp *schemaParser) parseStructType(gofile *ast.File, bschema *spec.Schema,
 
 	for _, fld := range tpe.Fields.List {
 		if len(fld.Names) == 0 {
-			_, ignore, err := parseJSONTag(fld)
+			// if the field is annotated with swagger:ignore, ignore it
+			if ignored(fld.Doc) {
+				continue
+			}
+
+			_, ignore, _, err := parseJSONTag(fld)
 			if err != nil {
 				return err
 			}
@@ -655,8 +661,13 @@ func (scp *schemaParser) parseStructType(gofile *ast.File, bschema *spec.Schema,
 	schema.Typed("object", "")
 	for _, fld := range tpe.Fields.List {
 		if len(fld.Names) > 0 && fld.Names[0] != nil && fld.Names[0].IsExported() {
+			// if the field is annotated with swagger:ignore, ignore it
+			if ignored(fld.Doc) {
+				continue
+			}
+
 			gnm := fld.Names[0].Name
-			nm, ignore, err := parseJSONTag(fld)
+			nm, ignore, isString, err := parseJSONTag(fld)
 			if err != nil {
 				return err
 			}
@@ -673,6 +684,10 @@ func (scp *schemaParser) parseStructType(gofile *ast.File, bschema *spec.Schema,
 			ps := schema.Properties[nm]
 			if err := parseProperty(scp, gofile, fld.Type, schemaTypable{&ps, 0}); err != nil {
 				return err
+			}
+			if isString {
+				ps.Typed("string", ps.Format)
+				ps.Ref = spec.Ref{}
 			}
 			if strfmtName, ok := strfmtName(fld.Doc); ok {
 				ps.Typed("string", strfmtName)
@@ -727,6 +742,8 @@ func (scp *schemaParser) createParser(nm string, schema, ps *spec.Schema, fld *a
 			newSingleLineTagParser("unique", &setUnique{schemaValidations{ps}, rxf(rxUniqueFmt, "")}),
 			newSingleLineTagParser("enum", &setEnum{schemaValidations{ps}, rxf(rxEnumFmt, "")}),
 			newSingleLineTagParser("default", &setDefault{&spec.SimpleSchema{Type: string(schemeType)}, schemaValidations{ps}, rxf(rxDefaultFmt, "")}),
+			newSingleLineTagParser("type", &setDefault{&spec.SimpleSchema{Type: string(schemeType)}, schemaValidations{ps}, rxf(rxDefaultFmt, "")}),
+			newSingleLineTagParser("example", &setExample{&spec.SimpleSchema{Type: string(schemeType)}, schemaValidations{ps}, rxf(rxExampleFmt, "")}),
 			newSingleLineTagParser("required", &setRequiredSchema{schema, nm}),
 			newSingleLineTagParser("readOnly", &setReadOnlySchema{ps}),
 			newSingleLineTagParser("discriminator", &setDiscriminator{schema, nm}),
@@ -751,6 +768,7 @@ func (scp *schemaParser) createParser(nm string, schema, ps *spec.Schema, fld *a
 				newSingleLineTagParser(fmt.Sprintf("items%dUnique", level), &setUnique{schemaValidations{items}, rxf(rxUniqueFmt, itemsPrefix)}),
 				newSingleLineTagParser(fmt.Sprintf("items%dEnum", level), &setEnum{schemaValidations{items}, rxf(rxEnumFmt, itemsPrefix)}),
 				newSingleLineTagParser(fmt.Sprintf("items%dDefault", level), &setDefault{&spec.SimpleSchema{Type: string(schemeType)}, schemaValidations{items}, rxf(rxDefaultFmt, itemsPrefix)}),
+				newSingleLineTagParser(fmt.Sprintf("items%dExample", level), &setExample{&spec.SimpleSchema{Type: string(schemeType)}, schemaValidations{items}, rxf(rxExampleFmt, itemsPrefix)}),
 			}
 		}
 
@@ -833,7 +851,7 @@ func hasFilePathPrefix(s, prefix string) bool {
 func (scp *schemaParser) packageForFile(gofile *ast.File, tpe *ast.Ident) (*loader.PackageInfo, error) {
 	fn := scp.program.Fset.File(gofile.Pos()).Name()
 	if Debug {
-		log.Println("trying for", fn)
+		log.Println("trying for", fn, tpe.Name, tpe.String())
 	}
 	fa, err := filepath.Abs(fn)
 	if err != nil {
@@ -941,8 +959,15 @@ func (scp *schemaParser) makeRef(file *ast.File, pkg *loader.PackageInfo, gd *as
 }
 
 func (scp *schemaParser) parseIdentProperty(pkg *loader.PackageInfo, expr *ast.Ident, prop swaggerTypable) error {
+	// before proceeding make an exception to time.Time because it is a well known string format
+	if pkg.String() == "time" && expr.String() == "Time" {
+		prop.Typed("string", "date-time")
+		return nil
+	}
+
 	// find the file this selector points to
 	file, gd, ts, err := findSourceFile(pkg, expr.Name)
+
 	if err != nil {
 		err := swaggerSchemaForType(expr.Name, prop)
 		if err != nil {
@@ -985,6 +1010,11 @@ func (scp *schemaParser) parseIdentProperty(pkg *loader.PackageInfo, expr *ast.I
 		return nil
 	}
 
+	if typeName, ok := typeName(gd.Doc); ok {
+		_ = swaggerSchemaForType(typeName, prop)
+		return nil
+	}
+
 	if isAliasParam(prop) || aliasParam(gd.Doc) {
 		itype, ok := ts.Type.(*ast.Ident)
 		if ok {
@@ -994,7 +1024,6 @@ func (scp *schemaParser) parseIdentProperty(pkg *loader.PackageInfo, expr *ast.I
 			}
 		}
 	}
-
 	switch tpe := ts.Type.(type) {
 	case *ast.ArrayType:
 		return scp.makeRef(file, pkg, gd, ts, prop)
@@ -1094,6 +1123,19 @@ func strfmtName(comments *ast.CommentGroup) (string, bool) {
 	return "", false
 }
 
+func ignored(comments *ast.CommentGroup) bool {
+	if comments != nil {
+		for _, cmt := range comments.List {
+			for _, ln := range strings.Split(cmt.Text, "\n") {
+				if rxIgnoreOverride.MatchString(ln) {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
 func enumName(comments *ast.CommentGroup) (string, bool) {
 	if comments != nil {
 		for _, cmt := range comments.List {
@@ -1128,6 +1170,23 @@ func defaultName(comments *ast.CommentGroup) (string, bool) {
 				matches := rxDefault.FindStringSubmatch(ln)
 				if len(matches) > 1 && len(strings.TrimSpace(matches[1])) > 0 {
 					return strings.TrimSpace(matches[1]), true
+				}
+			}
+		}
+	}
+	return "", false
+}
+
+func typeName(comments *ast.CommentGroup) (string, bool) {
+
+	var typ string
+	if comments != nil {
+		for _, cmt := range comments.List {
+			for _, ln := range strings.Split(cmt.Text, "\n") {
+				matches := rxType.FindStringSubmatch(ln)
+				if len(matches) > 1 && len(strings.TrimSpace(matches[1])) > 0 {
+					typ = strings.TrimSpace(matches[1])
+					return typ, true
 				}
 			}
 		}
@@ -1204,25 +1263,41 @@ func parseProperty(scp *schemaParser, gofile *ast.File, fld ast.Expr, prop swagg
 	return nil
 }
 
-func parseJSONTag(field *ast.Field) (name string, ignore bool, err error) {
+func parseJSONTag(field *ast.Field) (name string, ignore bool, isString bool, err error) {
 	if len(field.Names) > 0 {
 		name = field.Names[0].Name
 	}
 	if field.Tag != nil && len(strings.TrimSpace(field.Tag.Value)) > 0 {
 		tv, err := strconv.Unquote(field.Tag.Value)
 		if err != nil {
-			return name, false, err
+			return name, false, false, err
 		}
 
 		if strings.TrimSpace(tv) != "" {
 			st := reflect.StructTag(tv)
-			jsonName := strings.Split(st.Get("json"), ",")[0]
+			jsonParts := strings.Split(st.Get("json"), ",")
+			jsonName := jsonParts[0]
+
+			if len(jsonParts) > 1 && jsonParts[1] == "string" {
+				// Need to check if the field type is a scalar. Otherwise, the
+				// ",string" directive doesn't apply.
+				ident, ok := field.Type.(*ast.Ident)
+				if ok {
+					switch ident.Name {
+					case "int", "int8", "int16", "int32", "int64",
+						"uint", "uint8", "uint16", "uint32", "uint64",
+						"float64", "string", "bool":
+						isString = true
+					}
+				}
+			}
+
 			if jsonName == "-" {
-				return name, true, nil
+				return name, true, isString, nil
 			} else if jsonName != "" {
-				return jsonName, false, nil
+				return jsonName, false, isString, nil
 			}
 		}
 	}
-	return name, false, nil
+	return name, false, false, nil
 }

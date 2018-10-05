@@ -23,11 +23,14 @@ type AddPetMethodNotAllowed struct {
 
 // NewAddPetMethodNotAllowed creates AddPetMethodNotAllowed with default headers values
 func NewAddPetMethodNotAllowed() *AddPetMethodNotAllowed {
+
 	return &AddPetMethodNotAllowed{}
 }
 
 // WriteResponse to the client
 func (o *AddPetMethodNotAllowed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(405)
 }

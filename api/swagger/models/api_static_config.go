@@ -16,7 +16,6 @@ import (
 
 // APIStaticConfig api static config
 // swagger:model apiStaticConfig
-
 type APIStaticConfig struct {
 
 	// Labels assigned to all metrics scraped from the targets
@@ -26,21 +25,11 @@ type APIStaticConfig struct {
 	Targets []string `json:"targets"`
 }
 
-/* polymorph apiStaticConfig labels false */
-
-/* polymorph apiStaticConfig targets false */
-
 // Validate validates this api static config
 func (m *APIStaticConfig) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateLabels(formats); err != nil {
-		// prop
-		res = append(res, err)
-	}
-
-	if err := m.validateTargets(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -57,13 +46,11 @@ func (m *APIStaticConfig) validateLabels(formats strfmt.Registry) error {
 	}
 
 	for i := 0; i < len(m.Labels); i++ {
-
 		if swag.IsZero(m.Labels[i]) { // not required
 			continue
 		}
 
 		if m.Labels[i] != nil {
-
 			if err := m.Labels[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("labels" + "." + strconv.Itoa(i))
@@ -72,15 +59,6 @@ func (m *APIStaticConfig) validateLabels(formats strfmt.Registry) error {
 			}
 		}
 
-	}
-
-	return nil
-}
-
-func (m *APIStaticConfig) validateTargets(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Targets) { // not required
-		return nil
 	}
 
 	return nil

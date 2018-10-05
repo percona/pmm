@@ -29,6 +29,8 @@ func NewTaskTrackerAPI(spec *loads.Document) *TaskTrackerAPI {
 		formats:               strfmt.Default,
 		defaultConsumes:       "application/json",
 		defaultProduces:       "application/json",
+		customConsumers:       make(map[string]runtime.Consumer),
+		customProducers:       make(map[string]runtime.Producer),
 		ServerShutdown:        func() {},
 		spec:                  spec,
 		ServeError:            errors.ServeError,
@@ -63,13 +65,13 @@ func NewTaskTrackerAPI(spec *loads.Document) *TaskTrackerAPI {
 			return middleware.NotImplemented("operation TasksUploadTaskFile has not yet been implemented")
 		}),
 
-		// Applies when the "X-Token" header is set
-		TokenHeaderAuth: func(token string) (interface{}, error) {
-			return nil, errors.NotImplemented("api key auth (token_header) X-Token from header param [X-Token] has not yet been implemented")
-		},
 		// Applies when the "token" query is set
 		APIKeyAuth: func(token string) (interface{}, error) {
 			return nil, errors.NotImplemented("api key auth (api_key) token from query param [token] has not yet been implemented")
+		},
+		// Applies when the "X-Token" header is set
+		TokenHeaderAuth: func(token string) (interface{}, error) {
+			return nil, errors.NotImplemented("api key auth (token_header) X-Token from header param [X-Token] has not yet been implemented")
 		},
 
 		// default authorizer is authorized meaning no requests are blocked
@@ -89,6 +91,8 @@ type TaskTrackerAPI struct {
 	context         *middleware.Context
 	handlers        map[string]map[string]http.Handler
 	formats         strfmt.Registry
+	customConsumers map[string]runtime.Consumer
+	customProducers map[string]runtime.Producer
 	defaultConsumes string
 	defaultProduces string
 	Middleware      func(middleware.Builder) http.Handler
@@ -111,13 +115,13 @@ type TaskTrackerAPI struct {
 	// JSONProducer registers a producer for a "application/vnd.goswagger.examples.task-tracker.v1+json" mime type
 	JSONProducer runtime.Producer
 
-	// TokenHeaderAuth registers a function that takes a token and returns a principal
-	// it performs authentication based on an api key X-Token provided in the header
-	TokenHeaderAuth func(string) (interface{}, error)
-
 	// APIKeyAuth registers a function that takes a token and returns a principal
 	// it performs authentication based on an api key token provided in the query
 	APIKeyAuth func(string) (interface{}, error)
+
+	// TokenHeaderAuth registers a function that takes a token and returns a principal
+	// it performs authentication based on an api key X-Token provided in the header
+	TokenHeaderAuth func(string) (interface{}, error)
 
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
@@ -205,12 +209,12 @@ func (o *TaskTrackerAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.TokenHeaderAuth == nil {
-		unregistered = append(unregistered, "XTokenAuth")
-	}
-
 	if o.APIKeyAuth == nil {
 		unregistered = append(unregistered, "TokenAuth")
+	}
+
+	if o.TokenHeaderAuth == nil {
+		unregistered = append(unregistered, "XTokenAuth")
 	}
 
 	if o.TasksAddCommentToTaskHandler == nil {
@@ -264,13 +268,13 @@ func (o *TaskTrackerAPI) AuthenticatorsFor(schemes map[string]spec.SecuritySchem
 	for name, scheme := range schemes {
 		switch name {
 
-		case "token_header":
-
-			result[name] = o.APIKeyAuthenticator(scheme.Name, scheme.In, o.TokenHeaderAuth)
-
 		case "api_key":
 
 			result[name] = o.APIKeyAuthenticator(scheme.Name, scheme.In, o.APIKeyAuth)
+
+		case "token_header":
+
+			result[name] = o.APIKeyAuthenticator(scheme.Name, scheme.In, o.TokenHeaderAuth)
 
 		}
 	}
@@ -299,6 +303,10 @@ func (o *TaskTrackerAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Co
 			result["multipart/form-data"] = o.MultipartformConsumer
 
 		}
+
+		if c, ok := o.customConsumers[mt]; ok {
+			result[mt] = c
+		}
 	}
 	return result
 
@@ -314,6 +322,10 @@ func (o *TaskTrackerAPI) ProducersFor(mediaTypes []string) map[string]runtime.Pr
 		case "application/vnd.goswagger.examples.task-tracker.v1+json":
 			result["application/vnd.goswagger.examples.task-tracker.v1+json"] = o.JSONProducer
 
+		}
+
+		if p, ok := o.customProducers[mt]; ok {
+			result[mt] = p
 		}
 	}
 	return result
@@ -405,9 +417,19 @@ func (o *TaskTrackerAPI) Serve(builder middleware.Builder) http.Handler {
 	return o.context.APIHandler(builder)
 }
 
-// Init allows you to just initialize the handler cache, you can then recompose the middelware as you see fit
+// Init allows you to just initialize the handler cache, you can then recompose the middleware as you see fit
 func (o *TaskTrackerAPI) Init() {
 	if len(o.handlers) == 0 {
 		o.initHandlerCache()
 	}
+}
+
+// RegisterConsumer allows you to add (or override) a consumer for a media type.
+func (o *TaskTrackerAPI) RegisterConsumer(mediaType string, consumer runtime.Consumer) {
+	o.customConsumers[mediaType] = consumer
+}
+
+// RegisterProducer allows you to add (or override) a producer for a media type.
+func (o *TaskTrackerAPI) RegisterProducer(mediaType string, producer runtime.Producer) {
+	o.customProducers[mediaType] = producer
 }

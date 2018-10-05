@@ -9,12 +9,14 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-swagger/go-swagger/examples/task-tracker/models"
+	models "github.com/go-swagger/go-swagger/examples/task-tracker/models"
 )
 
 // AddCommentToTaskReader is a Reader for the AddCommentToTask structure.
@@ -115,7 +117,6 @@ func (o *AddCommentToTaskDefault) readResponse(response runtime.ClientResponse, 
 //
 swagger:model AddCommentToTaskBody
 */
-
 type AddCommentToTaskBody struct {
 
 	// content
@@ -127,9 +128,41 @@ type AddCommentToTaskBody struct {
 	UserID *int64 `json:"userId"`
 }
 
-/* polymorph AddCommentToTaskBody content false */
+// Validate validates this add comment to task body
+func (o *AddCommentToTaskBody) Validate(formats strfmt.Registry) error {
+	var res []error
 
-/* polymorph AddCommentToTaskBody userId false */
+	if err := o.validateContent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateUserID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddCommentToTaskBody) validateContent(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"content", "body", o.Content); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *AddCommentToTaskBody) validateUserID(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"userId", "body", o.UserID); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 // MarshalBinary interface implementation
 func (o *AddCommentToTaskBody) MarshalBinary() ([]byte, error) {

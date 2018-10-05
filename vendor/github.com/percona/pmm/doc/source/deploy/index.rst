@@ -1,41 +1,46 @@
 .. _deploy-pmm:
 
-================================================================================
 Deploying |pmm.name|
-================================================================================
+********************************************************************************
 
-|pmm.intro| is designed to be scalable for various environments.  If you have
-just one |mysql| or |mongodb| server, you can install and run both |pmm.abbrev|
-server and |pmm.abbrev| clients on one database host.
+|abbr.pmm| is designed to be scalable for various environments.  If you have
+just one |mysql| or |mongodb| server, you can install and run both |abbr.pmm|
+server and |abbr.pmm| clients on one database host.
 
 It is more typical to have several |mysql| and |mongodb| server instances
 distributed over different hosts. In this case, you need to install the
-|pmm.abbrev| client package on each database host that you want to monitor. In
-this scenario, the |pmm.abbrev| server is set up on a dedicated monitoring host.
+|abbr.pmm| client package on each database host that you want to monitor. In
+this scenario, the |abbr.pmm| server is set up on a dedicated monitoring host.
+
+|chapter.toc|
+
+.. contents::
+   :local:
+   :depth: 1
 
 .. _deploy-pmm.server.installing:
 
-Installing |pmm-server|
+:ref:`Installing PMM Server <deploy-pmm.server.installing>`
 ================================================================================
 
 To install and set up the |pmm-server|, use one of the following options:
 
 .. -  :ref:`run-server-docker`
-.. -  :ref:`pmm/deploying/server/virtual-appliance`
+.. -  :ref:`pmm.deploying.server.virtual-appliance`
 .. -  :ref:`run-server-ami`
 
 .. toctree::
    :maxdepth: 1
 
    server/docker
-   ../deploying.server.virtual-appliance
+   server/virtual-appliance
    server/ami
 
 .. include:: ../.res/contents/important.port.txt
 
 .. _deploy-pmm.server.verifying:
 
-Verifying |pmm-server|
+:ref:`Verifying PMM Server <deploy-pmm.server.verifying>`
 --------------------------------------------------------------------------------
 
 In your browser, go to the server by its IP address. If you run your server as a
@@ -45,8 +50,8 @@ server by using ssh. This step is not needed if you run |pmm-server| using
 |docker|.
 
 In the given example, you would need to direct your browser to
-*http://192.168.100.1*. Since you have not added any monitoring
-services yet, the site will not show any data.
+*http://192.168.100.1*. Since you have not added any monitoring services yet,
+the site will not show any data.
 
 .. _deploy-pmm.table.web-interface.component.access:
 
@@ -65,75 +70,39 @@ services yet, the site will not show any data.
 You can also check if |pmm-server| is available requesting the /ping
 URL as in the following example:
 
-.. include:: ../.res/code/sh.org
-   :start-after: +curl.url-ping+
-   :end-before: #+end-block
-
-.. .. _deploy-pmm.server.plugin:
-..
-.. Excluded to apply changes requested in jira@pmm-2247
-.. 
-.. ..|pmm| Plugin
-.. --------------------------------------------------------------------------------
-.. 
-.. ..|pmm| web interface is implemented on top of |grafana| as a separate
-.. plugin with all dashboards inside.
-.. 
-.. .. figure:: ../.res/graphics/png/pmm.menu.png
-.. 
-..    To reach the |pmm| plugin use the |grafana| menu.
-.. 
-.. To reach the plugin, click the |grafana| menu button at the top left
-.. corner and select |gui.plugins|. Then, select the |gui.apps| tab. 
-.. 
-.. .. figure:: ../.res/graphics/png/pmm.plugins.apps.png
-.. 
-..    The |pmm| plugin on the |gui.apps| tab
-.. 
-.. .. important::
-.. 
-..    The |gui.plugins| menu option may not be available if you have not
-..    logged in to |grafana| or you lack the required permissions.
-.. 
-..    .. seealso::
-.. 
-..       Permissions in |grafana|
-..          http://docs.grafana.org/administration/permissions/
-.. 
-.. Click the |pmm| button to open the plugin settings. The |gui.config|
-.. tab enables updating and enabling the plugin.
-.. 
-.. The |gui.dashboards| tab lists all available dashboards. To deactivate any
-.. dashboard, select the |gui.trash-bin| button.
-.. 
-.. .. figure:: ../.res/graphics/png/pmm.plugins.dashboards.png
-.. 
-..    The |prometheus-exporter-status| dashboard is deactivated
-.. 
-.. The |gui.import| button appears in its place for you to import this dashboard
-.. later. If a dashboard is deactivated it is automatically removed from the
-.. ..|gui.dashboard-dropdown| and the dashboard navigation menu.
-.. 
-.. The data associated with the deactivated dashboard are not lost and become
-.. available when you activate the dashboard again.
-.. 
-.. .. seealso::
-.. 
-..    More about navigating dashboards
-.. ..       :ref:`using-mm`
+.. include:: ../.res/code/curl.ping.txt
 
 .. _deploy-pmm.client.installing:
 
-Installing Clients
+:ref:`Installing Clients <deploy-pmm.client.installing>`
 ================================================================================
 
-|percona| provides |pmm-client| packages through software repositories
-of popular Linux distributions:
+|pmm-client| is a package of agents and exporters installed on a database host
+that you want to monitor. Before installing the |pmm-client| package on each
+database host that you intend to monitor, make sure that your |pmm-server| host
+is accessible.
 
-* :ref:`DEB packages for Debian or Ubuntu <install-client-apt>`
-* :ref:`RPM packages for Red Hat or CentOS <install-client-yum>`
+For example, you can run the |ping| command passing the IP address of the
+computer that |pmm-server| is running on. For example:
 
-It is recommended that you install your |pmm.abbrev| client by using the
+.. code-block:: bash
+
+   $ ping 192.168.100.1
+
+You will need to have root access on the database host where you will be
+installing |pmm-client| (either logged in as a user with root privileges or be
+able to run commands with |sudo|).
+
+.. rubric:: Supported platforms
+
+|pmm-client| should run on any modern |linux| 64-bit distribution, however
+|percona| provides |pmm-client| packages for automatic installation from
+software repositories only on the most popular |linux| distributions:
+
+* :ref:`DEB packages for Debian based distributions such as Ubuntu <install-client-apt>`
+* :ref:`RPM packages for Red Hat based distributions such as CentOS <install-client-yum>`
+
+It is recommended that you install your |abbr.pmm| client by using the
 software repository for your system. If this option does not work for you,
 |percona| provides downloadable |pmm-client| packages
 from the `Download Percona Monitoring and Management
@@ -142,200 +111,180 @@ from the `Download Percona Monitoring and Management
 In addition to DEB and RPM packages, this site also offers:
 
 * Generic tarballs that you can extract and run the included ``install`` script.
-* Source code tarball to build your |pmm.abbrev| client from source.
+* Source code tarball to build your |abbr.pmm| client from source.
+
+.. warning:: You should not install agents on database servers that have
+   the same host name, because host names are used by |pmm-server| to
+   identify collected data.
+
+.. rubric:: Storage requirements
+   
+Minimum **100** MB of storage is required for installing the |pmm-client|
+package. With a good constant connection to |pmm-server|, additional storage is
+not required. However, the client needs to store any collected data that it is
+not able to send over immediately, so additional storage may be required if
+connection is unstable or throughput is too low.
    
 .. _deploy-pmm.client_server.connecting:
 
-Connecting |pmm.abbrev| Clients to the |pmm-server|
-================================================================================
+:ref:`Connecting PMM Clients to the PMM Server <deploy-pmm.client_server.connecting>`
+=====================================================================================
 
-With your server and clients set up, you need to establish connection
-from clients to the server by specifying the IP address of the server
-as a parameter to the |pmm-admin.config| |opt.server| command.
+With your server and clients set up, you must configure each |pmm-client| and
+specify which |pmm-server| it should send its data to.
+
+To connect a |pmm-client|, enter the IP address of the |pmm-server| as the value
+of the |opt.server| parameter to the |pmm-admin.config| command.
+
+|tip.run-this.root|
+
+.. include:: ../.res/code/pmm-admin.config.server.url.port.txt
+
+For example, if your |pmm-server| is running on `192.168.100.1`, and you have
+installed |pmm-client| on a machine with IP `192.168.200.1`, run the following
+in the terminal of your client. |tip.run-all.root|:
+
+.. include:: ../.res/code/pmm-admin.config.server.url.txt
+
+If you change the default port **80** when :ref:`running PMM Server
+<deploy-pmm.server.installing>`, specify the new port number after the IP
+address of |pmm-server|. For example:
+
+.. include:: ../.res/code/pmm-admin.config.server.url.port.txt
 
 .. include:: ../.res/contents/important.port.txt
 
-For example, if your |pmm-server| is running on `192.168.100.1`,
-and you have installed |pmm-client| on a machine with IP
-`192.168.200.1`, run the following in the terminal of your client:
+.. seealso::
 
-|tip.run-all.root|
-
-.. include:: ../.res/code/sh.org
-   :start-after: +pmm-admin.config.server.url+
-   :end-before: #+end-block
-
-If you change the default port **80**   when :ref:`running PMM Server <deploy-pmm.server.installing>`,
-specify it after the server's IP address. For example:
-
-.. include:: ../.res/code/sh.org
-   :start-after: +pmm-admin.config.server.url.port+
-   :end-before: #+end-block
+   What other options can I pass to |pmm-admin.config|?
+      Run |pmm-admin.config| |opt.help|
 
 .. _deploy-pmm.data-collecting:
 
-Collecting Data from |pmm.abbrev| Clients on |pmm-server|
-========================================================================
+:ref:`Collecting Data from PMM Clients on PMM Server <deploy-pmm.data-collecting>`
+==================================================================================
 
-To start collecting data on each |pmm.abbrev| client connected to a
-|pmm.abbrev| server, run the |pmm-admin.add| command along with the
-name of the selected monitoring service.
+To start collecting data on each |pmm-client| connected to a |abbr.pmm|
+server, run the |pmm-admin.add| command along with the name of the selected
+monitoring service.
 
-For example, to enable general system metrics, MySQL metrics,
-as well as MySQL query analytics, run |pmm-admin.add| as follows. |tip.run-all.root|.
+|tip.run-all.root|.
 
-.. code-block:: bash
+Enable general system metrics, |mysql| metrics, |mysql| query analytics:
+   .. include:: ../.res/code/pmm-admin.add.mysql.txt
 
-   $ sudo pmm-admin add mysql
+Enable general system metrics, |mongodb| metrics, and |mongodb| query analytics:
+   .. include:: ../.res/code/pmm-admin.add.mongodb.txt
 
-To enable general system metrics, MongoDB metrics,
-and MongoDB query analytics, run:
+Enable |proxysql| performance metrics:
+   .. include:: ../.res/code/pmm-admin.add.proxysql-metrics.txt
 
-.. code-block:: bash
+To see what is being monitored, run |pmm-admin.list|. For example, if you enable
+general OS and |mongodb| metrics monitoring, the output should be similar to the
+following:
 
-   $ sudo pmm-admin add mongodb
+.. include:: ../.res/code/pmm-admin.list.txt
 
-To enable ProxySQL performance metrics, run:
+.. seealso::
 
-.. code-block:: bash
-
-   $ sudo pmm-admin add proxysql:metrics
-
-To see what is being monitored, run:
-
-.. code-block:: bash
-
-   $ sudo pmm-admin list
-
-For example, if you enable general OS and MongoDB metrics monitoring,
-the output should be similar to the following:
-
-.. code-block:: text
-
-   $ sudo pmm-admin list
-
-   ...
-
-   PMM Server      | 192.168.100.1
-   Client Name     | ubuntu-amd64
-   Client Address  | 192.168.200.1
-   Service manager | linux-systemd
-
-   ---------------- ----------- ----------- -------- ---------------- --------
-   SERVICE TYPE     NAME        LOCAL PORT  RUNNING  DATA SOURCE      OPTIONS
-   ---------------- ----------- ----------- -------- ---------------- --------
-   linux:metrics    mongo-main  42000       YES      -
-   mongodb:metrics  mongo-main  42003       YES      localhost:27017
-
-For more information about the available commands of :program:`pmm-admin add`,
-run :program:`pmm-admin add --help` in your terminal.
+   What other monitoring services can I add using the |pmm-admin.add| command?
+      Run :program:`pmm-admin add --help` in your terminal
 
 .. _deploy-pmm.updating:
 
-Updating
+:ref:`Updating <deploy-pmm.updating>`
 ================================================================================
 
-When changing to a new version of |pmm|, you update the |pmm-server|
-and each |pmm-client| separately.
+When changing to a new version of |pmm|, you update the |pmm-server| and each
+|pmm-client| separately.
 
-The updating procedure of your |pmm.abbrev| server, depends on the
-option that you selected for installing it. If you have installed your
-|pmm-server| from a |docker| image, follow instructions in the
-:ref:`update-server.docker` section.
+.. rubric:: Updating the |pmm-server|
 
-If you are running |pmm-server| as a :ref:`virtual appliance <pmm/deploying/server/virtual-appliance>`
-or using :ref:`Amazon Machine Image <run-server-ami>`, you can use the |gui.check-for-updates-manually|
-button on the Home dashboard (see :term:`PMM Home Page`).
+The updating procedure of your |pmm-server| depends on the option that you
+selected for installing it.
+
+If you are running |pmm-server| as a :ref:`virtual appliance <pmm.deploying.server.virtual-appliance>` or using an :ref:`Amazon Machine Image
+<run-server-ami>`, use the |gui.check-for-updates-manually| button on the Home
+dashboard (see :term:`PMM Home Page`).
 
 .. figure:: ../.res/graphics/png/pmm.home-page.1.png
 
-   Update your server by clicking the |gui.check-for-updates-manually| button on the
+   Click |gui.check-for-updates-manually| to updating the |pmm-server| from the
    |pmm| home page.
 
-.. rubric:: **Updating clients**
+.. seealso::
+
+   How to update |pmm-server| installed using |docker|?
+      :ref:`update-server.docker`
+
+.. rubric:: Updating a |pmm-client|
 
 When a newer version of |pmm-client| becomes available, you can update to it
-from the Percona software repositories:
+from  the |percona| software repositories:
 
-* For |debian| or |ubuntu|::
+|debian| or |ubuntu|
+   .. include:: ../.res/code/apt-get.update.install.pmm-client.txt
 
-   $ sudo apt-get update && sudo apt-get install pmm-client
+|red-hat| or |centos|
+   .. include:: ../.res/code/yum.update.pmm-client.txt
 
-* For |red-hat| or |centos|::
-
-   $ yum update pmm-client
-
-If you have installed your |pmm.abbrev| client manually, you need
-to :ref:`remove it <deploy-pmm.removing>` and then :ref:`download and
-install a newer version <deploy-pmm.client.installing>`.
+If you installed your |abbr.pmm| client manually, :ref:`remove it
+<deploy-pmm.removing>` and then :ref:`download and install a newer version
+<deploy-pmm.client.installing>`.
 
 .. _deploy-pmm.removing:
 
-Removing the |pmm.abbrev| Client and |pmm-server|
+:ref:`Uninstalling PMM Components <deploy-pmm.removing>`
 ================================================================================
 
-Each |pmm.abbrev| client and the |pmm.abbrev| server are removed
-separately. First, remove all monitored services by using the
-|pmm-admin.remove| command (see :ref:`pmm-admin.rm`). Then you can
-remove each |pmm.abbrev| client and the |pmm.abbrev| server.
+Each |pmm-client| and the |pmm-server| are removed separately. First, remove all
+monitored services by using the |pmm-admin.remove| command (see
+:ref:`pmm-admin.rm`). Then you can remove each |pmm-client| and the
+|pmm-server|.
 
-Removing the |pmm-client|
+.. _deploy.pmm-client.removing:
+
+:ref:`Removing the PMM Client <deploy.pmm-client.removing>`
 --------------------------------------------------------------------------------
 
-The exact procedure of removing the |pmm.abbrev| client, depends
-on the method of installation.
+Remove all monitored instances as described in :ref:`pmm-admin.rm`. Then,
+uninstall the |pmm-admin| package. The exact procedure of removing the
+|pmm-client| depends on the method of installation.
 
 |tip.run-all.root|
 
-- Removing an installed package using YUM
-
-  .. include:: ../.res/code/sh.org
-     :start-after: +yum.remove.pmm-client+
-     :end-before: #+end-block
+Using YUM
+   .. include:: ../.res/code/yum.remove.pmm-client.txt
 		  
-- Removing an installed package using APT
-
-  .. include:: ../.res/code/sh.org
-     :start-after: +apt-get.remove.pmm-client+
-     :end-before: #+end-block
+Using APT
+   .. include:: ../.res/code/apt-get.remove.pmm-client.txt
 		  
-- Removing a manually installed RPM package
+Manually installed RPM package
+   .. include:: ../.res/code/rpm.e.pmm-client.txt
 
-  .. include:: ../.res/code/sh.org
-     :start-after: +rpm.e.pmm-client+
-     :end-before: #+end-block
+Manually installed DEB package
+   .. include:: ../.res/code/dpkg.r.pmm-client.txt
 
-- Removing a manually installed DEB package
-
-  .. include:: ../.res/code/sh.org
-     :start-after: +dpkg.r.pmm-client+
-     :end-before: #+end-block
-
-- Removing a binary installed by using the generic |pmm-client| tarball.
-
+Using the generic |pmm-client| tarball.
   |cd| into the directory where you extracted the tarball
   contents. Then, run the :file:`unistall` script:
   
-  .. include:: ../.res/code/sh.org
-     :start-after: +uninstall+
-     :end-before: #+end-block
+  .. include:: ../.res/code/uninstall.txt
 
-Removing the |pmm-server|
+.. _deploy.pmm-server.removing:
+
+:ref:`Removing the PMM Server <deploy.pmm-server.removing>`
 --------------------------------------------------------------------------------
 
 If you run your |pmm-server| using |docker|, stop the container as follows:
 
-.. include:: ../.res/code/sh.org
-   :start-after: +docker.stop.pmm-server&docker.rm.pmm-server+
-   :end-before: #+end-block
+.. include:: ../.res/code/docker.stop.pmm-server.rm.txt
 
 To discard all collected data (if you do not plan to use
 |pmm-server| in the future), remove the ``pmm-data``
 container:
 
-.. include:: ../.res/code/sh.org
-   :start-after: +docker.rm.pmm-data+
-   :end-before: #+end-block
+.. include:: ../.res/code/docker.rm.pmm-data.txt
 
 If you run your |pmm-server| using a virtual appliance, just stop and
 remove it.
@@ -343,25 +292,13 @@ remove it.
 To terminate the |pmm-server| running from an |amazon| machine image, run
 the following command in your terminal:
 
-.. include:: ../.res/code/sh.org
-   :start-after: +aws.ec2.terminate-instances+
-   :end-before: #+end-block
-
-.. toctree::
-   :hidden:
-
-   client/index
-   connect-client
-   start-collect
+.. include:: ../.res/code/aws.ec2.terminate-instances.txt
 
 .. seealso::
 
-   About architecture
-      :ref:`architecture`
+   |pmm| Building Blocks
+      :ref:`pmm.architecture`
    About using the |pmm-admin.add| command
       :ref:`pmm-admin.add`
 
-.. include:: ../.res/replace/name.txt
-.. include:: ../.res/replace/option.txt
-.. include:: ../.res/replace/program.txt
-.. include:: ../.res/replace/fragment.txt
+.. include:: ../.res/replace.txt

@@ -29,6 +29,15 @@ type GenericError struct {
 	}
 }
 
+// MyOwnFunc contains a response inside it.
+func MyOwnFunc() {
+	// SimpleOnesFunc is a collection of SimpleOne
+	// swagger:response simpleOnesFunc
+	type SimpleOnesFunc struct {
+		Ones []*SimpleOne `json:"ones"`
+	}
+}
+
 // A ValidationError is an error that is used when the required input fails validation.
 // swagger:response validationError
 type ValidationError struct {
@@ -96,6 +105,7 @@ type SomeResponse struct {
 	// minimum: 3
 	// maximum: 45
 	// multiple of: 3
+	// example: 27
 	Score int32 `json:"score"`
 
 	// Active state of the record
@@ -121,6 +131,7 @@ type SomeResponse struct {
 	// items.minLength: 3
 	// items.maxLength: 10
 	// items.pattern: \w+
+	// items.example: foo
 	// collection format: pipe
 	FooSlice []string `json:"foo_slice"`
 

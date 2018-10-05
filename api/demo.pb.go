@@ -18,16 +18,44 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the proto package it is being compiled against.
+// A compilation error at this line likely means your copy of the
+// proto package needs to be updated.
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+
 type DemoErrorRequest struct {
-	Code  uint32 `protobuf:"varint,1,opt,name=code" json:"code,omitempty"`
-	Key   string `protobuf:"bytes,2,opt,name=key" json:"key,omitempty"`
-	Value string `protobuf:"bytes,3,opt,name=value" json:"value,omitempty"`
+	Code                 uint32   `protobuf:"varint,1,opt,name=code,proto3" json:"code,omitempty"`
+	Key                  string   `protobuf:"bytes,2,opt,name=key,proto3" json:"key,omitempty"`
+	Value                string   `protobuf:"bytes,3,opt,name=value,proto3" json:"value,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *DemoErrorRequest) Reset()                    { *m = DemoErrorRequest{} }
-func (m *DemoErrorRequest) String() string            { return proto.CompactTextString(m) }
-func (*DemoErrorRequest) ProtoMessage()               {}
-func (*DemoErrorRequest) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{0} }
+func (m *DemoErrorRequest) Reset()         { *m = DemoErrorRequest{} }
+func (m *DemoErrorRequest) String() string { return proto.CompactTextString(m) }
+func (*DemoErrorRequest) ProtoMessage()    {}
+func (*DemoErrorRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_demo_70ffe8b6a430dfcc, []int{0}
+}
+func (m *DemoErrorRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DemoErrorRequest.Unmarshal(m, b)
+}
+func (m *DemoErrorRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DemoErrorRequest.Marshal(b, m, deterministic)
+}
+func (dst *DemoErrorRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DemoErrorRequest.Merge(dst, src)
+}
+func (m *DemoErrorRequest) XXX_Size() int {
+	return xxx_messageInfo_DemoErrorRequest.Size(m)
+}
+func (m *DemoErrorRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DemoErrorRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DemoErrorRequest proto.InternalMessageInfo
 
 func (m *DemoErrorRequest) GetCode() uint32 {
 	if m != nil {
@@ -51,12 +79,34 @@ func (m *DemoErrorRequest) GetValue() string {
 }
 
 type DemoErrorResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *DemoErrorResponse) Reset()                    { *m = DemoErrorResponse{} }
-func (m *DemoErrorResponse) String() string            { return proto.CompactTextString(m) }
-func (*DemoErrorResponse) ProtoMessage()               {}
-func (*DemoErrorResponse) Descriptor() ([]byte, []int) { return fileDescriptor2, []int{1} }
+func (m *DemoErrorResponse) Reset()         { *m = DemoErrorResponse{} }
+func (m *DemoErrorResponse) String() string { return proto.CompactTextString(m) }
+func (*DemoErrorResponse) ProtoMessage()    {}
+func (*DemoErrorResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_demo_70ffe8b6a430dfcc, []int{1}
+}
+func (m *DemoErrorResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DemoErrorResponse.Unmarshal(m, b)
+}
+func (m *DemoErrorResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DemoErrorResponse.Marshal(b, m, deterministic)
+}
+func (dst *DemoErrorResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DemoErrorResponse.Merge(dst, src)
+}
+func (m *DemoErrorResponse) XXX_Size() int {
+	return xxx_messageInfo_DemoErrorResponse.Size(m)
+}
+func (m *DemoErrorResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DemoErrorResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DemoErrorResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*DemoErrorRequest)(nil), "api.DemoErrorRequest")
@@ -71,8 +121,9 @@ var _ grpc.ClientConn
 // is compatible with the grpc package it is being compiled against.
 const _ = grpc.SupportPackageIsVersion4
 
-// Client API for Demo service
-
+// DemoClient is the client API for Demo service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type DemoClient interface {
 	Error(ctx context.Context, in *DemoErrorRequest, opts ...grpc.CallOption) (*DemoErrorResponse, error)
 }
@@ -87,15 +138,14 @@ func NewDemoClient(cc *grpc.ClientConn) DemoClient {
 
 func (c *demoClient) Error(ctx context.Context, in *DemoErrorRequest, opts ...grpc.CallOption) (*DemoErrorResponse, error) {
 	out := new(DemoErrorResponse)
-	err := grpc.Invoke(ctx, "/api.Demo/Error", in, out, c.cc, opts...)
+	err := c.cc.Invoke(ctx, "/api.Demo/Error", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// Server API for Demo service
-
+// DemoServer is the server API for Demo service.
 type DemoServer interface {
 	Error(context.Context, *DemoErrorRequest) (*DemoErrorResponse, error)
 }
@@ -135,9 +185,9 @@ var _Demo_serviceDesc = grpc.ServiceDesc{
 	Metadata: "demo.proto",
 }
 
-func init() { proto.RegisterFile("demo.proto", fileDescriptor2) }
+func init() { proto.RegisterFile("demo.proto", fileDescriptor_demo_70ffe8b6a430dfcc) }
 
-var fileDescriptor2 = []byte{
+var fileDescriptor_demo_70ffe8b6a430dfcc = []byte{
 	// 196 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4a, 0x49, 0xcd, 0xcd,
 	0xd7, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4e, 0x2c, 0xc8, 0x94, 0x92, 0x49, 0xcf, 0xcf,

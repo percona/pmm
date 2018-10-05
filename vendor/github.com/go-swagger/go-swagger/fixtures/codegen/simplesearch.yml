@@ -32,6 +32,9 @@ paths:
           type: string
           description: the search string
           required: true
+      responses:
+        default:  
+          description: Generic Error
   /tasks:
     get:
       operationId: getTasks
@@ -69,13 +72,13 @@ paths:
             X-Rate-Limit-Reset:
               type: integer
               format: int32
-              default: "1449875311"
+              default: 1449875311
             X-Rate-Limit-Reset-Human:
               type: string
               default: 3 days
             X-Rate-Limit-Reset-Human-Number:
               type: string
-              default: 3
+              default: "3"
             Access-Control-Allow-Origin:
               type: string
               default: "*"

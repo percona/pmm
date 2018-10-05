@@ -6,11 +6,7 @@
 
 :Date: February 27, 2018
 
-|percona| announces the release of |pmm.name| |release|.  |pmm.intro| is a free
-and open-source platform for managing and monitoring |mysql| and |mongodb|
-performance.  You can run |pmm| in your own environment for maximum security and
-reliability. It provides thorough time-based analysis for |mysql| and |mongodb|
-servers to ensure that your data works as efficiently as possible.
+|percona| announces the release of |pmm.name| |release|.  |info.pmm.about|.
 
 This release introduces many improvements in the user interface and
 optimizations of performance.
@@ -52,7 +48,7 @@ New Features
   simplify upgrades.
 - :pmmbug:`1470`: Implement a custom |prometheus| rds_exporter to collect
   |amazon-cloudwatch| metrics.  You can now explore |amazon-cloudwatch| metrics
-  from |prometheus|, for example using the |advanced-data-exploration|
+  from |prometheus|, for example using the |dbd.advanced-data-exploration|
   dashboard. In prior versions we were using |amazon-cloudwatch| API calls
   directly.
 - :pmmbug:`2046`: Configure memory consumption automatically for |pmm-server|.
@@ -78,8 +74,8 @@ Improvements
 - :pmmbug:`1738`: Add the *Dashboard* menu to make the discovery of dashboards
   easier.
 - :pmmbug:`1976`: Apply consistent rules for computing CPU metrics. We updated
-  the query that generates CPU utilization for the |mysql-overview|, |summary|
-  and |system-overview| dashboards as before we were being in-consistent in our
+  the query that generates CPU utilization for the |dbd.mysql-overview|, |dbd.summary|
+  and |dbd.system-overview| dashboards as before we were being in-consistent in our
   determination of CPU.
 - :pmmbug:`2007`: Squash new |docker| layers for a smaller total size
   We reduced the size of the |docker| container from ~475 MB to ~350 MB
@@ -88,7 +84,7 @@ Improvements
   |mysql-performance-schema| dashboard to show locks from perspective of count
   of events and from time.
 
-  .. image:: 1.8.0-1.png
+  .. image:: 1-8-0.1.png
 
 - :pmmbug:`1763`: Update the forked |prometheus| exporter mysqld_exporter to the
   `latest upstream version <https://github.com/prometheus/mysqld_exporter>`_ to
@@ -96,17 +92,17 @@ Improvements
 - :pmmbug:`2004`: Add the */ping* alias to nginx to enable a basic health check
   URL to the |pmm-server| API.
 - :pmmbug:`1365`: Provide descriptions of all metrics in the
-  |cross-server-graphs| dashboard. We have added metric descriptions in order to
+  |dbd.cross-server-graphs| dashboard. We have added metric descriptions in order to
   improve the understanding of the displayed metric series and to provide links
-  to documentation and blog articles, beginning with the |cross-server-graphs|.
+  to documentation and blog articles, beginning with the |dbd.cross-server-graphs|.
 
-  .. image:: 1.8.0-2.png
+  .. image:: 1-8-0.2.png
   
-- :pmmbug:`1343`: Provide descriptions of all metrics in the |summary| dashboard 
+- :pmmbug:`1343`: Provide descriptions of all metrics in the |dbd.summary| dashboard 
 - :pmmbug:`1364`: Provide descriptions of all metrics in the
-  |mysql-innodb-metrics| dashboard
+  |dbd.mysql-innodb-metrics| dashboard
 - :pmmbug:`1994`: Provide descriptions of all metrics in the
-  |mysql-amazon-aurora| dashboard
+  |dbd.mysql-amazon-aurora| dashboard
 - :pmmbug:``
 - :pmmbug:`1922`: *pmm-server* as instance for all components on |pmm-server|
 - :pmmbug:`2005`: Upgrade |orchestrator| to the latest stable release 
@@ -142,7 +138,4 @@ Bug fixes
   
 .. |release| replace:: 1.8.0
 		       
-.. include:: ../.res/replace/name.txt
-.. include:: ../.res/replace/program.txt
-.. include:: ../.res/replace/option.txt			    
-.. include:: ../.res/replace/url.txt
+.. include:: ../.res/replace.txt

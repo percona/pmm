@@ -30,9 +30,3 @@ required = [
   # https://jira.percona.com/browse/PMM-1561
   name = "github.com/hashicorp/consul"
   version = "=0.8.5"
-
-[[constraint]]
-  # 0.13.0 is broken
-  # https://github.com/go-swagger/go-swagger/pull/1285
-  name = "github.com/go-swagger/go-swagger"
-  version = "=0.12.0"

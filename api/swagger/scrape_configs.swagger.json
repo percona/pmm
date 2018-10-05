@@ -120,6 +120,7 @@
         "parameters": [
           {
             "name": "scrape_config.job_name",
+            "description": "The job name assigned to scraped metrics by default: \"example-job\" (required)",
             "in": "path",
             "required": true,
             "type": "string"

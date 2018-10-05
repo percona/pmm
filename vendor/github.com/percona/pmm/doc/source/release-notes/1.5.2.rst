@@ -19,11 +19,11 @@ Bug fixes
   metrics for the selected host.
 - :pmmbug:`1826`: If |pmm-server| 1.5.0 is deployed via |docker|, the
   |gui.update| button would not upgrade the instance to a later release.
-- :pmmbug:`1830`: If |pmm-server| 1.5.0 is deployed via |ami.intro| instance,
+- :pmmbug:`1830`: If |pmm-server| 1.5.0 is deployed via |ami| instance,
   the |gui.update| button would not upgrade the instance to a later release.
 
 .. |release|      replace:: 1.5.2
 .. |prev-release| replace:: 1.5.1
 
-.. include:: ../.res/replace/name.txt
-.. include:: ../.res/replace/option.txt
+.. include:: ../.res/replace.txt
+

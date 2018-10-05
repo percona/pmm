@@ -12,13 +12,13 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/go-swagger/go-swagger/examples/generated/models"
+	models "github.com/go-swagger/go-swagger/examples/generated/models"
 )
 
 // NewAddPetParams creates a new AddPetParams object
-// with the default values initialized.
+// no default values defined in spec.
 func NewAddPetParams() AddPetParams {
-	var ()
+
 	return AddPetParams{}
 }
 
@@ -29,7 +29,7 @@ func NewAddPetParams() AddPetParams {
 type AddPetParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*Pet object that needs to be added to the store
 	  In: body
@@ -38,9 +38,12 @@ type AddPetParams struct {
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
-// for simple values it will use straight method calls
+// for simple values it will use straight method calls.
+//
+// To ensure default values, the struct must have been initialized with NewAddPetParams() beforehand.
 func (o *AddPetParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
+
 	o.HTTPRequest = r
 
 	if runtime.HasBody(r) {
@@ -49,6 +52,7 @@ func (o *AddPetParams) BindRequest(r *http.Request, route *middleware.MatchedRou
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {
+			// validate body object
 			if err := body.Validate(route.Formats); err != nil {
 				res = append(res, err)
 			}
@@ -57,9 +61,7 @@ func (o *AddPetParams) BindRequest(r *http.Request, route *middleware.MatchedRou
 				o.Body = &body
 			}
 		}
-
 	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}

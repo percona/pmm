@@ -1,0 +1,3 @@
+.. code-block:: bash
+
+   $ pmm-admin add proxysql:metrics [NAME] [OPTIONS]

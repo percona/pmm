@@ -1,9 +1,9 @@
 .. _dashboard.prometheus:
 
-Prometheus Dashboard
+|dbd.prometheus| Dashboard
 ================================================================================
 
-The |prometheus| dashboard informs how |prometheus| functions. 
+The |dbd.prometheus| dashboard informs how |prometheus| functions. 
 
 .. seealso::
 
@@ -16,34 +16,36 @@ The |prometheus| dashboard informs how |prometheus| functions.
 --------------------------------------------------------------------------------
 
 This section shows the most essential parameters of the system where
-|prometheus| is running, such as CPU and memory usage, scrapes performed or the
-amount of memory that time series consume.
+|prometheus| is running, such as CPU and memory usage, scrapes performed and the
+samples ingested in the head block.
 
 Resources
 --------------------------------------------------------------------------------
 
 This section provides details about the consumption of CPU and memory by the
-|prometheus| process.
-
-Storage
---------------------------------------------------------------------------------
-
-This section includes a collection of metrics related to the usage of storage. It includes the following metrics:
+|prometheus| process. This section contains the following metrics:
 
 .. hlist::
    :columns: 2
 
-   - Time Series
-   - Local Storage Urgency Score
-   - |prometheus| Problems
-   - |prometheus| Checkpointing
-   - |prometheus| Out of Order Samples
-   - Chunks Memory Details
-   - Series Operations
-   - |prometheus| Storage Operations
-   - ChunkDesc Memory Details
+   - |prometheus| Process CPU Usage
+   - |prometheus| Process Memory Usage
 
-  
+Storage (TSDB)
+--------------------------------------------------------------------------------
+
+This section includes a collection of metrics related to the usage of
+storage. It includes the following metrics:
+
+.. hlist::
+   :columns: 2
+
+   - Data blocks (Number of currently loaded data blocks)
+   - Total chunks in the head block
+   - Number of series in the head block
+   - Current retention period of the head block
+   - Activity with chunks in the head block
+   - Reload block data from disk
 
 Scraping
 --------------------------------------------------------------------------------
@@ -70,7 +72,8 @@ section contains the following metrics:
 Queries
 --------------------------------------------------------------------------------
 
-This section contains metrics that monitor |prometheus| queries. This section contains the following metrics:
+This section contains metrics that monitor |prometheus| queries. This section
+contains the following metrics:
 
 .. hlist::
    :columns: 2
@@ -105,7 +108,7 @@ System Level Metrics
 --------------------------------------------------------------------------------
 
 Metrics in this section give an overview of the essential system characteristics
-of |pmm-server|. This information is also available from the |system-overview|
+of |pmm-server|. This information is also available from the |dbd.system-overview|
 dashboard.
 
 |pmm| Server Logs
@@ -115,5 +118,5 @@ This section contains a link to download the logs collected from your
 |pmm-server| and further analyze possible problems. The exported logs are
 requested when you submit a bug report.
 
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt
 	

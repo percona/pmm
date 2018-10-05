@@ -8,13 +8,11 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 )
 
 // APIRDSInstanceID api r d s instance ID
 // swagger:model apiRDSInstanceID
-
 type APIRDSInstanceID struct {
 
 	// name
@@ -24,17 +22,8 @@ type APIRDSInstanceID struct {
 	Region string `json:"region,omitempty"`
 }
 
-/* polymorph apiRDSInstanceID name false */
-
-/* polymorph apiRDSInstanceID region false */
-
 // Validate validates this api r d s instance ID
 func (m *APIRDSInstanceID) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
 

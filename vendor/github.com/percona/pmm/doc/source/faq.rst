@@ -1,3 +1,5 @@
+:orphan: true
+
 .. _faq:
 
 ================================================================================
@@ -54,49 +56,44 @@ throughput is too low.
 
 .. _metrics_memory:
 
-How to control memory consumption for PMM?
-================================================================================
+How to control memory consumption for PMM? (relevant to versions lower than 1.13 of |pmm|)
+============================================================================================
 
-By default, Prometheus in |pmm-server| uses up to 768 MB of memory for storing
-the most recently used data chunks.  Depending on the amount of data coming into
-Prometheus, you may require a higher limit to avoid throttling data ingestion,
-or allow less memory consumption if it is needed for other processes.
+|prometheus| 1.x.x, shipped with |pmm| up to version
+1.13.0, used by default 768 MB of memory for storing the most recently used
+data chunks.
 
-You can control the allowed memory consumption for Prometheus
-by passing the ``METRICS_MEMORY`` environment variable
-when :ref:`creating and running the PMM Server container <server-container>`.
-To set the environment variable, use the ``-e`` option.
-The value must be passed in kilobytes.
-For example, to set the limit to 4 GB of memory::
+If you haven't upgraded to a version 1.13.0 or higher, you may require
+a higher limit, depending on the amount of data coming into
+|prometheus|, to avoid throttling data ingestion, or to allow less
+memory consumption by |prometheus|.
 
- -e METRICS_MEMORY=4194304
+.. include:: .res/contents/important.option.metrics-memory.txt
 
-.. note:: The limit affects only memory reserved for data chunks.
-   Actual RAM usage by Prometheus is higher.
-   It is recommended to set this limit to roughly 2/3 of the total memory
-   that you are planning to allow for Prometheus.
-   So in the previous example, if you set the limit to 4 GB,
-   then Prometheus will use up to 6 GB of memory.
+For compatibility reasons |pmm| 1.13.0 and above is still supporting
+|prometheus| 1.x, but with substantially decreased resources: now it uses only
+15% of available memory and its connections amount limit is managed by the
+``MAX_CONNECTIONS`` environment variable, set to 15 by default.
 
 .. _data-retention:
 
 How to control data retention for PMM?
 ================================================================================
 
-By default, Prometheus stores time-series data for 30 days,
+By default, |prometheus| stores time-series data for 30 days,
 and QAN stores query data for 8 days.
 
 Depending on available disk space and your requirements,
 you may need to adjust data retention time.
 
 You can control data retention by passing the :term:`METRICS_RETENTION
-<METRICS_RETENTION (Option)>` and :term:`QUERIES_RETENTION
-<QUERIES_RETENTION (Option)>` environment variables when
+<METRICS_RETENTION>` and :term:`QUERIES_RETENTION
+<QUERIES_RETENTION>` environment variables when
 :ref:`creating and running the PMM Server container
 <server-container>`.  To set environment variables, use the ``-e``
 option.  The value is passed as a combination of hours, minutes, and
 seconds.  For example, the default value of 30 days for
-``METRICS_RETENTION`` is ``720h0m0s``.  You probably do not need to be
+|opt.metrics-retention| is ``720h0m0s``.  You probably do not need to be
 more precise than the number hours, so you can discard the minutes and
 seconds.  For example, to decrease the retention period for
 |prometheus| to 8 days::
@@ -106,21 +103,19 @@ seconds.  For example, to decrease the retention period for
 .. seealso::
 
    Metrics retention
-
-      :term:`METRICS_RETENTION <METRICS_RETENTION (Option)>`
+      :term:`METRICS_RETENTION <METRICS_RETENTION>`
 
    Queries retention
-
-      :term:`QUERIES_RETENTION <QUERIES_RETENTION (Option)>`
+      :term:`QUERIES_RETENTION <QUERIES_RETENTION>`
 
 .. _service-location:
 
 Where are the services created by PMM Client?
 ================================================================================
 
-When you add a monitoring instance using the |pmm-admin| tool,
-it creates a corresponding service.
-The name of the service has the following syntax:
+When you add a monitoring instance using the |pmm-admin| tool, it creates a
+corresponding service.  The name of the service has the following syntax:
+
 ``pmm-<type>-<port>``
 
 For example: ``pmm-mysql-metrics-42002``.
@@ -229,43 +224,7 @@ For more information, see :ref:`pmm-admin.list`.
 What privileges are required to monitor a |mysql| instance?
 ================================================================================
 
-When adding |mysql| instance to monitoring,
-you can specify the |mysql| server superuser account credentials,
-which has all privileges.
-However, monitoring with the superuser account is not secure.
-If you also specify the |opt.create-user| option,
-it will create a user with only the necessary privileges for collecting data.
-
-You can also set up the ``pmm`` user manually with necessary privileges
-and pass its credentials when adding the instance.
-
-To enable complete |mysql| instance monitoring,
-a command similar to the following is recommended:
-
-.. prompt:: bash
-
-   sudo pmm-admin add mysql --user root --password root --create-user
-
-The superuser credentials are required only to set up the ``pmm`` user with
-necessary privileges for collecting data.  If you want to create this user
-yourself, the following privileges are required:
-
-.. code-block:: sql
-
-   GRANT SELECT, PROCESS, SUPER, REPLICATION CLIENT, RELOAD ON *.* TO 'pmm'@' localhost' IDENTIFIED BY 'pass' WITH MAX_USER_CONNECTIONS 10;
-   GRANT SELECT, UPDATE, DELETE, DROP ON performance_schema.* TO 'pmm'@'localhost';
-
-If the ``pmm`` user already exists,
-simply pass its credential when you add the instance:
-
-.. prompt:: bash
-
-   sudo pmm-admin add mysql --user pmm --password pass
-
-For more information, run as root
-|pmm-admin.add|
-|opt.mysql|
-|opt.help|.
+See :ref:`pmm.conf-mysql.user-account.creating`.
 
 Can I monitor multiple |mysql| instances?
 ================================================================================
@@ -379,9 +338,9 @@ Why do I get ``Failed ReadTopologyInstance`` error when adding MySQL host to Orc
 ==========================================================================================
 
 You need to create Orchestrator's topology user on |mysql|
-according to :ref:`this section <pmm/using.orchestrator>`.
+according to :ref:`this section <pmm.using.orchestrator>`.
 
-.. _pmm/deploying/server/virtual-appliance/root-password/set:
+.. _pmm.deploying.server.virtual-appliance.root-password.setting:
 
 How to set the root password when |pmm-server| is installed as a virtual appliance
 ====================================================================================================
@@ -418,7 +377,33 @@ can make whaterver changes required.
    You cannot access the root account if you access |pmm-server| using
    SSH or via the Web interface.
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/option.txt
-.. include:: .res/replace/program.txt
+.. _pmm.pmm-server.experimental-version.installing:
+
+How to install the experimental version of |pmm-server|?
+================================================================================
+
+If you would like to experiment with the latest development version using
+|docker|, you may use the |opt.dev-latest| image. This version, however, is not
+intended to be used in a production environment.
+
+.. include:: .res/code/docker.pull.perconalab-pmm-server-dev-latest.txt
+
+If you would like to experiment with the latest development version of
+|pmm-server| |virtualbox| image, download the development version as follows:
+
+.. include:: .res/code/wget.pmm-server-dev-latest-ova.txt
+
+.. important:: 
+
+   This is a development version which is not designed for a production
+   environment.
+
+.. seealso::
+
+   Setting up |pmm-server| via |docker|
+      :ref:`setup procedure <pmm.server.docker.setting-up>`
+   Setting up |pmm-server| via |virtualbox|
+      :ref:`pmm.deploying.server.ova.virtualbox.cli`
+
+.. include:: .res/replace.txt
 

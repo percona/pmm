@@ -1,14 +1,13 @@
-.. _architecture:
+.. _pmm.architecture:
 
-================================================================================
-|pmm.name| Architecture
-================================================================================
+Overview of |percona-monitoring-management| Architecture
+********************************************************************************
 
 The |pmm| platform is based on a client-server model that enables scalability.
 It includes the following modules:
 
 * :ref:`pmm-client` installed on every database host that you want to monitor.
-  It collects server metrics, general system metrics, and |qan.name| data
+  It collects server metrics, general system metrics, and |query-analytics| data
   for a complete performance overview.
 
 * :ref:`pmm-server` is the central part of |pmm| that aggregates collected data
@@ -36,34 +35,24 @@ The following diagram illustrates how |pmm| is currently structured:
 
 .. _pmm-client:
 
-PMM Client
+:ref:`PMM Client <pmm-client>`
 ================================================================================
 
-|pmm-client| packages are available for most popular |linux| distributions:
+Each |pmm-client| collects various data about general system and database
+performance, and sends this data to the corresponding |pmm-server|.
 
-* DEB for |debian|-based distributions
-  (including |ubuntu| and others)
-* RPM for |red-hat.name| derivatives
-  (including |centos|, |oracle-linux|, |amazon-linux|, and others)
-
-There are also generic tarball binaries that can be used on any |linux| system.
-
-For more information, see :ref:`install-client`.
-
-|pmm-client| packages consist of the following:
+The |pmm-client| package consist of the following:
 
 * |pmm-admin| is a command-line tool for managing |pmm-client|,
   for example, adding and removing database instances
   that you want to monitor.
   For more information, see :ref:`pmm-admin`.
-* ``pmm-mysql-queries-0`` is a service
-  that manages the |qan| agent
-  as it collects query performance data from |mysql|
-  and sends it to the |qan| API on :ref:`pmm-server`.
-* ``pmm-mongodb-queries-0`` is a service
-  that manages the QAN agent
-  as it collects query performance data from |mongodb|
-  and sends it to |qan| API on :ref:`pmm-server`.
+* ``pmm-mysql-queries-0`` is a service that manages the |qan| agent as it
+  collects query performance data from |mysql| and sends it to the |qan| API on
+  :ref:`pmm-server`.
+* ``pmm-mongodb-queries-0`` is a service that manages the |qan| agent as it
+  collects query performance data from |mongodb| and sends it to |qan| API on
+  :ref:`pmm-server`.
 * |node-exporter| is a |prometheus| exporter that collects general system
   metrics.
 * |mysqld-exporter| is a |prometheus| exporter that collects |mysql| server
@@ -75,43 +64,39 @@ For more information, see :ref:`install-client`.
 
 .. seealso::
 
-   |mongodb-exporter| repository at |github|
-       `percona/mongodb_exporter`_
-   |mysqld-exporter| repository at |github|
-       `percona/mysqld_exporter`_
-   |node-exporter| repository at |github|
-       `percona/node_exporter`_
-   |proxysql-exporter| repository at |github|
-       `percona/proxysql_exporter`_
-   Passing exporter options when adding a monitoring service
-       :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
+   How to install |pmm-client|
+      :ref:`deploy-pmm.client.installing`
+
+   How to pass exporter specific options when adding a monitoring service
+      :ref:`pmm.pmm-admin.monitoring-service.pass-parameter`
+
    List of available exporter options
-       :ref:`pmm/list.exporter`
+      :ref:`pmm.list.exporter`
 
 .. _pmm-server:
 
-|pmm-server|
---------------------------------------------------------------------------------
+:ref:`PMM Server <pmm-server>`
+================================================================================
 
 |pmm-server| runs on the machine that will be your central monitoring host.
 It is distributed as an appliance via the following:
 
 * |docker| image that you can use to run a container
-* Open Virtual Appliance (OVA) that you can run in |virtualbox| or another
+* |abbr.ova| that you can run in |virtualbox| or another
   hypervisor
-* |ami.intro| that you can run via |aws.intro|
+* |abbr.ami| that you can run via |amazon-web-services|
 
 For more information, see :ref:`deploy-pmm.server.installing`.
 
 |pmm-server| includes the following tools:
 
-* |qan.intro| enables you to analyze |mysql| query performance over periods of
+* |query-analytics| enables you to analyze |mysql| query performance over periods of
   time. In addition to the client-side |qan| agent, it includes the following:
 
   * |qan| API is the backend for storing and accessing query data collected by
     the |qan| agent running on a :ref:`pmm-client`.
 
-  * |qan| Web App is a web application for visualizing collected |qan.name|
+  * |qan| Web App is a web application for visualizing collected |query-analytics|
     data.
 
 * |metrics-monitor| provides a historical view of metrics
@@ -146,13 +131,13 @@ For more information, see :ref:`using`.
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
    Enabling orchestrator
-      :term:`Orchestrator` in :ref:`pmm/glossary/terminology-reference`
+      :term:`Orchestrator` in :ref:`pmm.glossary.terminology-reference`
 
-.. _pmm/using.orchestrator:
+.. _pmm.using.orchestrator:
 
-|orchestrator|
+:ref:`Orchestrator <pmm.using.orchestrator>`
 ================================================================================
 
 |orchestrator| is a |mysql| replication topology management and visualization
@@ -163,22 +148,18 @@ page.
 
 To use it, create a |mysql| user for |orchestrator| on all managed instances:
 
-.. include:: .res/code/sql.org
-   :start-after: +grant.orc-client-user+
-   :end-before: #+end-block
+.. include:: .res/code/grant.orc-client-user.txt
 
 .. note:: The credentials in the previous example are default.
    If you use a different user name or password,
    you have to pass them when
    :ref:`running PMM Server <deploy-pmm.server.installing>`
    using the
-   :term:`ORCHESTRATOR_PASSWORD <ORCHESTRATOR_PASSWORD (Option)>`
+   :term:`ORCHESTRATOR_PASSWORD <ORCHESTRATOR_PASSWORD>`
    and
-   :term:`ORCHESTRATOR_USER  <ORCHESTRATOR_USER (Option)>` options.
+   :term:`ORCHESTRATOR_USER  <ORCHESTRATOR_USER>` options.
 
-   .. include:: .res/code/sh.org
-      :start-after: +docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password+
-      :end-before: #+end-block
+   .. include:: .res/code/docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password.txt
 
 Then you can use the |gui.discover| page in the |orchestrator| web interface
 to add the instances to the topology.
@@ -191,13 +172,12 @@ to add the instances to the topology.
 
    In version 1.3.0 and later, |orchestrator| is not enabled
    by default. To enable it, see
-   :ref:`pmm/docker.additional_option` in the
+   :ref:`pmm.docker.additional-option` in the
    :ref:`run-server-docker` section.
 
-.. .. rubric:: References
+.. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
+.. _`Consul Docs`: https://www.consul.io/docs/
+.. _`Grafana Docs`: http://docs.grafana.org/
+.. _`Orchestrator Manual`: https://github.com/outbrain/orchestrator/wiki/Orchestrator-Manual
 
-.. .. target-notes::
-
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/program.txt
-.. include:: .res/replace/url.txt
+.. include:: .res/replace.txt

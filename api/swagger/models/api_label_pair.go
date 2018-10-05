@@ -8,13 +8,11 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 )
 
 // APILabelPair api label pair
 // swagger:model apiLabelPair
-
 type APILabelPair struct {
 
 	// Label name
@@ -24,17 +22,8 @@ type APILabelPair struct {
 	Value string `json:"value,omitempty"`
 }
 
-/* polymorph apiLabelPair name false */
-
-/* polymorph apiLabelPair value false */
-
 // Validate validates this api label pair
 func (m *APILabelPair) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
 

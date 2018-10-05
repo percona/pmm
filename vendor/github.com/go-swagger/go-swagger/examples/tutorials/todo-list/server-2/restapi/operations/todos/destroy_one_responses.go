@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/tutorials/todo-list/server-2/models"
+	models "github.com/go-swagger/go-swagger/examples/tutorials/todo-list/server-2/models"
 )
 
 // DestroyOneNoContentCode is the HTTP code returned for type DestroyOneNoContent
@@ -25,11 +25,14 @@ type DestroyOneNoContent struct {
 
 // NewDestroyOneNoContent creates DestroyOneNoContent with default headers values
 func NewDestroyOneNoContent() *DestroyOneNoContent {
+
 	return &DestroyOneNoContent{}
 }
 
 // WriteResponse to the client
 func (o *DestroyOneNoContent) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(204)
 }

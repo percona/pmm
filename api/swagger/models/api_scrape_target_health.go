@@ -14,7 +14,6 @@ import (
 
 // APIScrapeTargetHealth ScrapeTargetHealth represents Prometheus scrape target health: unknown, down, or up.
 // swagger:model apiScrapeTargetHealth
-
 type APIScrapeTargetHealth struct {
 
 	// health
@@ -33,22 +32,11 @@ type APIScrapeTargetHealth struct {
 	Target string `json:"target,omitempty"`
 }
 
-/* polymorph apiScrapeTargetHealth health false */
-
-/* polymorph apiScrapeTargetHealth instance false */
-
-/* polymorph apiScrapeTargetHealth job false */
-
-/* polymorph apiScrapeTargetHealth job_name false */
-
-/* polymorph apiScrapeTargetHealth target false */
-
 // Validate validates this api scrape target health
 func (m *APIScrapeTargetHealth) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateHealth(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 

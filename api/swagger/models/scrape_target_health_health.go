@@ -16,14 +16,16 @@ import (
 
 // ScrapeTargetHealthHealth Target health : unknown, down, or up.
 // swagger:model ScrapeTargetHealthHealth
-
 type ScrapeTargetHealthHealth string
 
 const (
+
 	// ScrapeTargetHealthHealthUNKNOWN captures enum value "UNKNOWN"
 	ScrapeTargetHealthHealthUNKNOWN ScrapeTargetHealthHealth = "UNKNOWN"
+
 	// ScrapeTargetHealthHealthDOWN captures enum value "DOWN"
 	ScrapeTargetHealthHealthDOWN ScrapeTargetHealthHealth = "DOWN"
+
 	// ScrapeTargetHealthHealthUP captures enum value "UP"
 	ScrapeTargetHealthHealthUP ScrapeTargetHealthHealth = "UP"
 )

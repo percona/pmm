@@ -7,5 +7,4 @@ package models
 
 // APIScrapeConfigsCreateResponse api scrape configs create response
 // swagger:model apiScrapeConfigsCreateResponse
-
 type APIScrapeConfigsCreateResponse interface{}

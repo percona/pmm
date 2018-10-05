@@ -6,6 +6,8 @@ package tasks
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"io"
+	"mime/multipart"
 	"net/http"
 
 	"github.com/go-openapi/errors"
@@ -17,9 +19,9 @@ import (
 )
 
 // NewUploadTaskFileParams creates a new UploadTaskFileParams object
-// with the default values initialized.
+// no default values defined in spec.
 func NewUploadTaskFileParams() UploadTaskFileParams {
-	var ()
+
 	return UploadTaskFileParams{}
 }
 
@@ -30,7 +32,7 @@ func NewUploadTaskFileParams() UploadTaskFileParams {
 type UploadTaskFileParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*Extra information describing the file
 	  In: formData
@@ -39,7 +41,7 @@ type UploadTaskFileParams struct {
 	/*The file to upload
 	  In: formData
 	*/
-	File runtime.File
+	File io.ReadCloser
 	/*The id of the item
 	  Required: true
 	  In: path
@@ -48,16 +50,19 @@ type UploadTaskFileParams struct {
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
-// for simple values it will use straight method calls
+// for simple values it will use straight method calls.
+//
+// To ensure default values, the struct must have been initialized with NewUploadTaskFileParams() beforehand.
 func (o *UploadTaskFileParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
+
 	o.HTTPRequest = r
 
 	if err := r.ParseMultipartForm(32 << 20); err != nil {
 		if err != http.ErrNotMultipart {
-			return err
+			return errors.New(400, "%v", err)
 		} else if err := r.ParseForm(); err != nil {
-			return err
+			return errors.New(400, "%v", err)
 		}
 	}
 	fds := runtime.Values(r.Form)
@@ -68,10 +73,14 @@ func (o *UploadTaskFileParams) BindRequest(r *http.Request, route *middleware.Ma
 	}
 
 	file, fileHeader, err := r.FormFile("file")
-	if err != nil {
+	if err != nil && err != http.ErrMissingFile {
 		res = append(res, errors.New(400, "reading file %q failed: %v", "file", err))
+	} else if err == http.ErrMissingFile {
+		// no-op for missing but optional file parameter
+	} else if err := o.bindFile(file, fileHeader); err != nil {
+		res = append(res, err)
 	} else {
-		o.File = runtime.File{Data: file, Header: fileHeader}
+		o.File = &runtime.File{Data: file, Header: fileHeader}
 	}
 
 	rID, rhkID, _ := route.Params.GetOK("id")
@@ -85,11 +94,15 @@ func (o *UploadTaskFileParams) BindRequest(r *http.Request, route *middleware.Ma
 	return nil
 }
 
+// bindDescription binds and validates parameter Description from formData.
 func (o *UploadTaskFileParams) bindDescription(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
+
+	// Required: false
+
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
@@ -99,11 +112,22 @@ func (o *UploadTaskFileParams) bindDescription(rawData []string, hasKey bool, fo
 	return nil
 }
 
+// bindFile binds file parameter File.
+//
+// The only supported validations on files are MinLength and MaxLength
+func (o *UploadTaskFileParams) bindFile(file multipart.File, header *multipart.FileHeader) error {
+	return nil
+}
+
+// bindID binds and validates parameter ID from path.
 func (o *UploadTaskFileParams) bindID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
+
+	// Required: true
+	// Parameter is provided by construction from the route
 
 	value, err := swag.ConvertInt64(raw)
 	if err != nil {

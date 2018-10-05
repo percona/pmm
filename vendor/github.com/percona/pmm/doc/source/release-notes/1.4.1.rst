@@ -24,7 +24,7 @@ Improvements
   been updated to show more information about the running |prometheus|
   jobs and help estimate their efficiency.
   
-  .. image:: ../.res/graphics/png/pmm.metrics-monitor.prometheus.1.png
+  .. image:: ../.res/graphics/png/metrics-monitor.prometheus.1.png
 
 Bug fixes
 --------------------------------------------------------------------------------
@@ -36,11 +36,11 @@ Bug fixes
   having been upgraded from earlier releases of |pmm|, due to incorrect values
   being stored in the database.  This has been addressed to identify the
   incorrect values and replace with accurate schema and table information.
-* :pmmbug:`1634`: The |advanced-data-exploration| dashboard did
+* :pmmbug:`1634`: The |dbd.advanced-data-exploration| dashboard did
   not always display data points from |opt.external-metrics| monitoring
   services due to a too restrictive Grafana Template filter.
 
-  .. image:: ../.res/graphics/png/pmm.metrics-monitor.advanced-data-exploration.1.png
+  .. image:: ../.res/graphics/png/metrics-monitor.advanced-data-exploration.png
      :scale: 50%
 
 * :pmmbug:`1636`: Special characters prevented the removal of
@@ -49,7 +49,7 @@ Bug fixes
 .. |release|      replace:: 1.4.1
 .. |prev-release| replace:: 1.4.0
 
-.. include:: ../.res/replace/name.txt
-.. include:: ../.res/replace/program.txt
-.. include:: ../.res/replace/option.txt
-.. include:: ../.res/replace/url.txt
+.. include:: ../.res/replace.txt
+
+.. _btrfs: https://btrfs.wiki.kernel.org
+.. _`aws marketplace`: https://aws.amazon.com/marketplace

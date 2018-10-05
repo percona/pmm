@@ -12,9 +12,7 @@ selected |mysql| host. This dashboard contains the following metrics:
    If you do not see any metric, try running the following command in the
    |mysql| client:
 
-   .. include:: .res/code/sql.org
-      :start-after: +set.global.innodb-monitor-enable+
-      :end-before: #+end-block
+   .. include:: .res/code/set.global.innodb-monitor-enable.txt
 
 .. rubric:: Metrics of |this-dashboard|
    
@@ -260,7 +258,7 @@ the rows processed by the online DDL.
 The |innodb| Defragmentation graph shows the status information related to the
 |innodb| online defragmentation feature of |mariadb| for the optimize table
 command.  To enable this feature, the variable innodb-defragment must be set to
-1 in the configuration file.
+**1** in the configuration file.
 
 |view-all-metrics|
 |this-dashboard|
@@ -271,6 +269,4 @@ command.  To enable this feature, the variable innodb-defragment must be set to
 
 .. |this-dashboard| replace:: :ref:`dashboard.mysql-innodb-metrics-advanced`
 
-.. include:: .res/replace/name.txt
-.. include:: .res/replace/fragment.txt
-.. include:: .res/replace/option.txt
+.. include:: .res/replace.txt

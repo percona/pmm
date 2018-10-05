@@ -33,6 +33,7 @@ type Presentation struct {
 	ImplementsHTML,
 	MethodSetHTML,
 	PackageHTML,
+	PackageRootHTML,
 	PackageText,
 	SearchHTML,
 	SearchDocHTML,
@@ -90,6 +91,10 @@ type Presentation struct {
 	// SearchResults optionally specifies a list of functions returning an HTML
 	// body for displaying search results.
 	SearchResults []SearchResultFunc
+
+	// GoogleAnalytics optionally adds Google Analytics via the provided
+	// tracking ID to each page.
+	GoogleAnalytics string
 
 	initFuncMapOnce sync.Once
 	funcMap         template.FuncMap

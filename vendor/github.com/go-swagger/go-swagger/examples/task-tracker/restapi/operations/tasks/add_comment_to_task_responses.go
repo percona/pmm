@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/task-tracker/models"
+	models "github.com/go-swagger/go-swagger/examples/task-tracker/models"
 )
 
 // AddCommentToTaskCreatedCode is the HTTP code returned for type AddCommentToTaskCreated
@@ -25,11 +25,14 @@ type AddCommentToTaskCreated struct {
 
 // NewAddCommentToTaskCreated creates AddCommentToTaskCreated with default headers values
 func NewAddCommentToTaskCreated() *AddCommentToTaskCreated {
+
 	return &AddCommentToTaskCreated{}
 }
 
 // WriteResponse to the client
 func (o *AddCommentToTaskCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(201)
 }
@@ -41,8 +44,8 @@ swagger:response addCommentToTaskDefault
 type AddCommentToTaskDefault struct {
 	_statusCode int
 	/*
-	  Required: true
-	*/
+
+	 */
 	XErrorCode string `json:"X-Error-Code"`
 
 	/*

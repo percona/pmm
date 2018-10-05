@@ -13,7 +13,14 @@
 
 package util
 
-import "strconv"
+import (
+	"bytes"
+	"io/ioutil"
+	"os"
+	"strconv"
+	"strings"
+	"syscall"
+)
 
 // ParseUint32s parses a slice of strings into a slice of uint32s.
 func ParseUint32s(ss []string) ([]uint32, error) {
@@ -43,4 +50,36 @@ func ParseUint64s(ss []string) ([]uint64, error) {
 	}
 
 	return us, nil
+}
+
+// ReadUintFromFile reads a file and attempts to parse a uint64 from it.
+func ReadUintFromFile(path string) (uint64, error) {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return 0, err
+	}
+	return strconv.ParseUint(strings.TrimSpace(string(data)), 10, 64)
+}
+
+// SysReadFile is a simplified ioutil.ReadFile that invokes syscall.Read directly.
+// https://github.com/prometheus/node_exporter/pull/728/files
+func SysReadFile(file string) (string, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	// On some machines, hwmon drivers are broken and return EAGAIN.  This causes
+	// Go's ioutil.ReadFile implementation to poll forever.
+	//
+	// Since we either want to read data or bail immediately, do the simplest
+	// possible read using syscall directly.
+	b := make([]byte, 128)
+	n, err := syscall.Read(int(f.Fd()), b)
+	if err != nil {
+		return "", err
+	}
+
+	return string(bytes.TrimSpace(b[:n])), nil
 }

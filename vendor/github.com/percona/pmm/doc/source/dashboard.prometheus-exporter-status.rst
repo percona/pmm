@@ -15,8 +15,8 @@ reveals the following information:
 .. seealso::
 
    All |pmm| exporters 
-      :ref:`pmm/list.exporter` 
+      :ref:`pmm.list.exporter` 
    Summary information about the usage of |prometheus| exporters
       :ref:`dashboard.prometheus-exporters-overview`
 	   
-.. include:: .res/replace/name.txt
+.. include:: .res/replace.txt

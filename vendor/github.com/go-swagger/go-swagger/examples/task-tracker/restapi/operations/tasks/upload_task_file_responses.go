@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/task-tracker/models"
+	models "github.com/go-swagger/go-swagger/examples/task-tracker/models"
 )
 
 // UploadTaskFileCreatedCode is the HTTP code returned for type UploadTaskFileCreated
@@ -25,11 +25,14 @@ type UploadTaskFileCreated struct {
 
 // NewUploadTaskFileCreated creates UploadTaskFileCreated with default headers values
 func NewUploadTaskFileCreated() *UploadTaskFileCreated {
+
 	return &UploadTaskFileCreated{}
 }
 
 // WriteResponse to the client
 func (o *UploadTaskFileCreated) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(201)
 }
@@ -41,8 +44,8 @@ swagger:response uploadTaskFileDefault
 type UploadTaskFileDefault struct {
 	_statusCode int
 	/*
-	  Required: true
-	*/
+
+	 */
 	XErrorCode string `json:"X-Error-Code"`
 
 	/*

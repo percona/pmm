@@ -15,6 +15,7 @@
 package client
 
 import (
+	"context"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/rsa"
@@ -29,9 +30,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"golang.org/x/net/context"
-	"golang.org/x/net/context/ctxhttp"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/logger"
@@ -196,7 +194,6 @@ type Runtime struct {
 	clientOnce *sync.Once
 	client     *http.Client
 	schemes    []string
-	do         func(ctx context.Context, client *http.Client, req *http.Request) (*http.Response, error)
 }
 
 // New creates a new default runtime for a swagger api runtime.Client
@@ -209,12 +206,14 @@ func New(host, basePath string, schemes []string) *Runtime {
 		runtime.JSONMime:    runtime.JSONConsumer(),
 		runtime.XMLMime:     runtime.XMLConsumer(),
 		runtime.TextMime:    runtime.TextConsumer(),
+		runtime.HTMLMime:    runtime.TextConsumer(),
 		runtime.DefaultMime: runtime.ByteStreamConsumer(),
 	}
 	rt.Producers = map[string]runtime.Producer{
 		runtime.JSONMime:    runtime.JSONProducer(),
 		runtime.XMLMime:     runtime.XMLProducer(),
 		runtime.TextMime:    runtime.TextProducer(),
+		runtime.HTMLMime:    runtime.TextProducer(),
 		runtime.DefaultMime: runtime.ByteStreamProducer(),
 	}
 	rt.Transport = http.DefaultTransport
@@ -233,7 +232,6 @@ func New(host, basePath string, schemes []string) *Runtime {
 	if len(schemes) > 0 {
 		rt.schemes = schemes
 	}
-	rt.do = ctxhttp.Do
 	return &rt
 }
 
@@ -340,6 +338,10 @@ func (r *Runtime) Submit(operation *runtime.ClientOperation) (interface{}, error
 		}
 	}
 
+	if _, ok := r.Producers[cmt]; !ok && cmt != runtime.MultipartFormMime && cmt != runtime.URLencodedFormMime {
+		return nil, fmt.Errorf("none of producers: %v registered. try %s", r.Producers, cmt)
+	}
+
 	req, err := request.buildHTTP(cmt, r.BasePath, r.Producers, r.Formats, auth)
 	if err != nil {
 		return nil, err
@@ -385,10 +387,8 @@ func (r *Runtime) Submit(operation *runtime.ClientOperation) (interface{}, error
 	if client == nil {
 		client = r.client
 	}
-	if r.do == nil {
-		r.do = ctxhttp.Do
-	}
-	res, err := r.do(ctx, client, req) // make requests, by default follows 10 redirects before failing
+	req = req.WithContext(ctx)
+	res, err := client.Do(req) // make requests, by default follows 10 redirects before failing
 	if err != nil {
 		return nil, err
 	}
@@ -414,8 +414,10 @@ func (r *Runtime) Submit(operation *runtime.ClientOperation) (interface{}, error
 
 	cons, ok := r.Consumers[mt]
 	if !ok {
-		// scream about not knowing what to do
-		return nil, fmt.Errorf("no consumer: %q", ct)
+		if cons, ok = r.Consumers["*/*"]; !ok {
+			// scream about not knowing what to do
+			return nil, fmt.Errorf("no consumer: %q", ct)
+		}
 	}
 	return readResponse.ReadResponse(response{res}, cons)
 }

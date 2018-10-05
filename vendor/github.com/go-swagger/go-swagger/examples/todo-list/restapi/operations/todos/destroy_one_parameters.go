@@ -15,9 +15,9 @@ import (
 )
 
 // NewDestroyOneParams creates a new DestroyOneParams object
-// with the default values initialized.
+// no default values defined in spec.
 func NewDestroyOneParams() DestroyOneParams {
-	var ()
+
 	return DestroyOneParams{}
 }
 
@@ -28,7 +28,7 @@ func NewDestroyOneParams() DestroyOneParams {
 type DestroyOneParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*
 	  Required: true
@@ -38,9 +38,12 @@ type DestroyOneParams struct {
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
-// for simple values it will use straight method calls
+// for simple values it will use straight method calls.
+//
+// To ensure default values, the struct must have been initialized with NewDestroyOneParams() beforehand.
 func (o *DestroyOneParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
+
 	o.HTTPRequest = r
 
 	rID, rhkID, _ := route.Params.GetOK("id")
@@ -54,11 +57,15 @@ func (o *DestroyOneParams) BindRequest(r *http.Request, route *middleware.Matche
 	return nil
 }
 
+// bindID binds and validates parameter ID from path.
 func (o *DestroyOneParams) bindID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
+
+	// Required: true
+	// Parameter is provided by construction from the route
 
 	o.ID = raw
 

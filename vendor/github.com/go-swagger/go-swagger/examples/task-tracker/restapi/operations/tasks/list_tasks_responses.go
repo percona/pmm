@@ -11,7 +11,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 
-	"github.com/go-swagger/go-swagger/examples/task-tracker/models"
+	models "github.com/go-swagger/go-swagger/examples/task-tracker/models"
 )
 
 // ListTasksOKCode is the HTTP code returned for type ListTasksOK
@@ -23,8 +23,8 @@ swagger:response listTasksOK
 */
 type ListTasksOK struct {
 	/*the last task id known to the application
-	  Required: true
-	*/
+
+	 */
 	XLastTaskID int64 `json:"X-Last-Task-Id"`
 
 	/*
@@ -35,6 +35,7 @@ type ListTasksOK struct {
 
 // NewListTasksOK creates ListTasksOK with default headers values
 func NewListTasksOK() *ListTasksOK {
+
 	return &ListTasksOK{}
 }
 
@@ -99,6 +100,7 @@ type ListTasksUnprocessableEntity struct {
 
 // NewListTasksUnprocessableEntity creates ListTasksUnprocessableEntity with default headers values
 func NewListTasksUnprocessableEntity() *ListTasksUnprocessableEntity {
+
 	return &ListTasksUnprocessableEntity{}
 }
 
@@ -132,8 +134,8 @@ swagger:response listTasksDefault
 type ListTasksDefault struct {
 	_statusCode int
 	/*
-	  Required: true
-	*/
+
+	 */
 	XErrorCode string `json:"X-Error-Code"`
 
 	/*

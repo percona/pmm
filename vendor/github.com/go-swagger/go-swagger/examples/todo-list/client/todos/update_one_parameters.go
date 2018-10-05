@@ -17,7 +17,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-swagger/go-swagger/examples/todo-list/models"
+	models "github.com/go-swagger/go-swagger/examples/todo-list/models"
 )
 
 // NewUpdateOneParams creates a new UpdateOneParams object
@@ -137,12 +137,10 @@ func (o *UpdateOneParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 	}
 	var res []error
 
-	if o.Body == nil {
-		o.Body = new(models.Item)
-	}
-
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	// path param id

@@ -16,9 +16,9 @@ import (
 )
 
 // NewFindPetsByTagsParams creates a new FindPetsByTagsParams object
-// with the default values initialized.
+// no default values defined in spec.
 func NewFindPetsByTagsParams() FindPetsByTagsParams {
-	var ()
+
 	return FindPetsByTagsParams{}
 }
 
@@ -29,7 +29,7 @@ func NewFindPetsByTagsParams() FindPetsByTagsParams {
 type FindPetsByTagsParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*Tags to filter by
 	  In: query
@@ -39,9 +39,12 @@ type FindPetsByTagsParams struct {
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
-// for simple values it will use straight method calls
+// for simple values it will use straight method calls.
+//
+// To ensure default values, the struct must have been initialized with NewFindPetsByTagsParams() beforehand.
 func (o *FindPetsByTagsParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
+
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
@@ -57,8 +60,12 @@ func (o *FindPetsByTagsParams) BindRequest(r *http.Request, route *middleware.Ma
 	return nil
 }
 
+// bindTags binds and validates array parameter Tags from query.
+//
+// Arrays are parsed according to CollectionFormat: "multi" (defaults to "csv" when empty).
 func (o *FindPetsByTagsParams) bindTags(rawData []string, hasKey bool, formats strfmt.Registry) error {
 
+	// CollectionFormat: multi
 	tagsIC := rawData
 
 	if len(tagsIC) == 0 {

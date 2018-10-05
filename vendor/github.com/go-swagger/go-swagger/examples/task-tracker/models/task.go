@@ -20,7 +20,6 @@ import (
 // A Task is the main entity in this application. Everything revolves around tasks and managing them.
 //
 // swagger:model Task
-
 type Task struct {
 	TaskCard
 
@@ -43,6 +42,7 @@ type Task struct {
 	// This field is read only so it's only sent as part of the response.
 	//
 	// Read Only: true
+	// Format: date-time
 	LastUpdated strfmt.DateTime `json:"lastUpdated,omitempty"`
 
 	// last updated by
@@ -54,14 +54,15 @@ type Task struct {
 
 // UnmarshalJSON unmarshals this object from a JSON structure
 func (m *Task) UnmarshalJSON(raw []byte) error {
-
+	// AO0
 	var aO0 TaskCard
 	if err := swag.ReadJSON(raw, &aO0); err != nil {
 		return err
 	}
 	m.TaskCard = aO0
 
-	var data struct {
+	// AO1
+	var dataAO1 struct {
 		Attachments map[string]TaskAttachmentsAnon `json:"attachments,omitempty"`
 
 		Comments []*Comment `json:"comments,omitempty"`
@@ -72,26 +73,26 @@ func (m *Task) UnmarshalJSON(raw []byte) error {
 
 		ReportedBy *UserCard `json:"reportedBy,omitempty"`
 	}
-	if err := swag.ReadJSON(raw, &data); err != nil {
+	if err := swag.ReadJSON(raw, &dataAO1); err != nil {
 		return err
 	}
 
-	m.Attachments = data.Attachments
+	m.Attachments = dataAO1.Attachments
 
-	m.Comments = data.Comments
+	m.Comments = dataAO1.Comments
 
-	m.LastUpdated = data.LastUpdated
+	m.LastUpdated = dataAO1.LastUpdated
 
-	m.LastUpdatedBy = data.LastUpdatedBy
+	m.LastUpdatedBy = dataAO1.LastUpdatedBy
 
-	m.ReportedBy = data.ReportedBy
+	m.ReportedBy = dataAO1.ReportedBy
 
 	return nil
 }
 
 // MarshalJSON marshals this object to a JSON structure
 func (m Task) MarshalJSON() ([]byte, error) {
-	var _parts [][]byte
+	_parts := make([][]byte, 0, 2)
 
 	aO0, err := swag.WriteJSON(m.TaskCard)
 	if err != nil {
@@ -99,7 +100,7 @@ func (m Task) MarshalJSON() ([]byte, error) {
 	}
 	_parts = append(_parts, aO0)
 
-	var data struct {
+	var dataAO1 struct {
 		Attachments map[string]TaskAttachmentsAnon `json:"attachments,omitempty"`
 
 		Comments []*Comment `json:"comments,omitempty"`
@@ -111,21 +112,21 @@ func (m Task) MarshalJSON() ([]byte, error) {
 		ReportedBy *UserCard `json:"reportedBy,omitempty"`
 	}
 
-	data.Attachments = m.Attachments
+	dataAO1.Attachments = m.Attachments
 
-	data.Comments = m.Comments
+	dataAO1.Comments = m.Comments
 
-	data.LastUpdated = m.LastUpdated
+	dataAO1.LastUpdated = m.LastUpdated
 
-	data.LastUpdatedBy = m.LastUpdatedBy
+	dataAO1.LastUpdatedBy = m.LastUpdatedBy
 
-	data.ReportedBy = m.ReportedBy
+	dataAO1.ReportedBy = m.ReportedBy
 
-	jsonData, err := swag.WriteJSON(data)
-	if err != nil {
-		return nil, err
+	jsonDataAO1, errAO1 := swag.WriteJSON(dataAO1)
+	if errAO1 != nil {
+		return nil, errAO1
 	}
-	_parts = append(_parts, jsonData)
+	_parts = append(_parts, jsonDataAO1)
 
 	return swag.ConcatJSON(_parts...), nil
 }
@@ -134,6 +135,7 @@ func (m Task) MarshalJSON() ([]byte, error) {
 func (m *Task) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	// validation for a type composition with TaskCard
 	if err := m.TaskCard.Validate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -143,6 +145,10 @@ func (m *Task) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateComments(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLastUpdated(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -166,18 +172,12 @@ func (m *Task) validateAttachments(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if swag.IsZero(m.Attachments) { // not required
-		return nil
-	}
-
 	for k := range m.Attachments {
 
 		if swag.IsZero(m.Attachments[k]) { // not required
 			continue
 		}
-
 		if val, ok := m.Attachments[k]; ok {
-
 			if err := val.Validate(formats); err != nil {
 				return err
 			}
@@ -195,13 +195,11 @@ func (m *Task) validateComments(formats strfmt.Registry) error {
 	}
 
 	for i := 0; i < len(m.Comments); i++ {
-
 		if swag.IsZero(m.Comments[i]) { // not required
 			continue
 		}
 
 		if m.Comments[i] != nil {
-
 			if err := m.Comments[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("comments" + "." + strconv.Itoa(i))
@@ -215,6 +213,19 @@ func (m *Task) validateComments(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Task) validateLastUpdated(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.LastUpdated) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("lastUpdated", "body", "date-time", m.LastUpdated.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Task) validateLastUpdatedBy(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.LastUpdatedBy) { // not required
@@ -222,7 +233,6 @@ func (m *Task) validateLastUpdatedBy(formats strfmt.Registry) error {
 	}
 
 	if m.LastUpdatedBy != nil {
-
 		if err := m.LastUpdatedBy.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("lastUpdatedBy")
@@ -241,7 +251,6 @@ func (m *Task) validateReportedBy(formats strfmt.Registry) error {
 	}
 
 	if m.ReportedBy != nil {
-
 		if err := m.ReportedBy.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("reportedBy")
@@ -273,7 +282,6 @@ func (m *Task) UnmarshalBinary(b []byte) error {
 
 // TaskAttachmentsAnon task attachments anon
 // swagger:model TaskAttachmentsAnon
-
 type TaskAttachmentsAnon struct {
 
 	// The content type of the file.
@@ -308,25 +316,19 @@ type TaskAttachmentsAnon struct {
 	// This URL is generated on the server, based on where it was able to store the file when it was uploaded.
 	//
 	// Read Only: true
+	// Format: uri
 	URL strfmt.URI `json:"url,omitempty"`
 }
-
-/* polymorph TaskAttachmentsAnon contentType false */
-
-/* polymorph TaskAttachmentsAnon description false */
-
-/* polymorph TaskAttachmentsAnon name false */
-
-/* polymorph TaskAttachmentsAnon size false */
-
-/* polymorph TaskAttachmentsAnon url false */
 
 // Validate validates this task attachments anon
 func (m *TaskAttachmentsAnon) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateDescription(formats); err != nil {
-		// prop
+		res = append(res, err)
+	}
+
+	if err := m.validateURL(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -343,6 +345,19 @@ func (m *TaskAttachmentsAnon) validateDescription(formats strfmt.Registry) error
 	}
 
 	if err := validate.MinLength("description", "body", string(m.Description), 3); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *TaskAttachmentsAnon) validateURL(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.URL) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("url", "body", "uri", m.URL.String(), formats); err != nil {
 		return err
 	}
 

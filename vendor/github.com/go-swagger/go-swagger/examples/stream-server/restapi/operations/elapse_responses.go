@@ -29,6 +29,7 @@ type ElapseOK struct {
 
 // NewElapseOK creates ElapseOK with default headers values
 func NewElapseOK() *ElapseOK {
+
 	return &ElapseOK{}
 }
 
@@ -66,11 +67,14 @@ type ElapseForbidden struct {
 
 // NewElapseForbidden creates ElapseForbidden with default headers values
 func NewElapseForbidden() *ElapseForbidden {
+
 	return &ElapseForbidden{}
 }
 
 // WriteResponse to the client
 func (o *ElapseForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(403)
 }

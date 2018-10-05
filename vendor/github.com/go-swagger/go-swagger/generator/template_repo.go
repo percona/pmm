@@ -1,6 +1,7 @@
 package generator
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -27,7 +28,7 @@ var FuncMap template.FuncMap = map[string]interface{}{
 	"camelize":  swag.ToJSONName,
 	"varname":   golang.MangleVarName,
 	"humanize":  swag.ToHumanNameLower,
-	"snakize":   swag.ToFileName,
+	"snakize":   golang.MangleFileName,
 	"dasherize": swag.ToCommandName,
 	"pluralizeFirstWord": func(arg string) string {
 		sentence := strings.Split(arg, " ")
@@ -91,17 +92,21 @@ var FuncMap template.FuncMap = map[string]interface{}{
 		lines := strings.Split(str, "\n")
 		return (strings.Join(lines, "\n// "))
 	},
+	"blockcomment": func(str string) string {
+		return strings.Replace(str, "*/", "[*]/", -1)
+	},
 	"inspect":   pretty.Sprint,
 	"cleanPath": path.Clean,
 	"mediaTypeName": func(orig string) string {
 		return strings.SplitN(orig, ";", 2)[0]
 	},
+	"goSliceInitializer": goSliceInitializer,
+	"hasPrefix":          strings.HasPrefix,
+	"stringContains":     strings.Contains,
 }
 
 func init() {
 	templates = NewRepository(FuncMap)
-	templates.LoadDefaults()
-
 }
 
 var assets = map[string][]byte{
@@ -205,6 +210,20 @@ func asPrettyJSON(data interface{}) (string, error) {
 	return string(b), nil
 }
 
+func goSliceInitializer(data interface{}) (string, error) {
+	// goSliceInitializer constructs a Go literal initializer from interface{} literals.
+	// e.g. []interface{}{"a", "b"} is transformed in {"a","b",}
+	// e.g. map[string]interface{}{ "a": "x", "b": "y"} is transformed in {"a":"x","b":"y",}.
+	//
+	// NOTE: this is currently used to construct simple slice intializers for default values.
+	// This allows for nicer slice initializers for slices of primitive types and avoid systematic use for json.Unmarshal().
+	b, err := json.Marshal(data)
+	if err != nil {
+		return "", err
+	}
+	return strings.Replace(strings.Replace(strings.Replace(string(b), "}", ",}", -1), "[", "{", -1), "]", ",}", -1), nil
+}
+
 // NewRepository creates a new template repository with the provided functions defined
 func NewRepository(funcs template.FuncMap) *Repository {
 	repo := Repository{
@@ -220,7 +239,7 @@ func NewRepository(funcs template.FuncMap) *Repository {
 	return &repo
 }
 
-// Repository is the repository for the generator templates.
+// Repository is the repository for the generator templates
 type Repository struct {
 	files     map[string]string
 	templates map[string]*template.Template
@@ -239,26 +258,56 @@ func (t *Repository) LoadDefaults() {
 
 // LoadDir will walk the specified path and add each .gotmpl file it finds to the repository
 func (t *Repository) LoadDir(templatePath string) error {
-
 	err := filepath.Walk(templatePath, func(path string, info os.FileInfo, err error) error {
 
 		if strings.HasSuffix(path, ".gotmpl") {
 			if assetName, e := filepath.Rel(templatePath, path); e == nil {
 				if data, e := ioutil.ReadFile(path); e == nil {
 					if ee := t.AddFile(assetName, string(data)); ee != nil {
-						log.Fatal(ee)
+						// Fatality is decided by caller
+						// log.Fatal(ee)
+						return fmt.Errorf("Could not add template: %v", ee)
 					}
 				}
+				// Non-readable files are skipped
 			}
 		}
 		if err != nil {
 			return err
 		}
-
+		// Non-template files are skipped
 		return nil
 	})
+	if err != nil {
+		return fmt.Errorf("Could not complete template processing in directory \"%s\": %v", templatePath, err)
+	}
+	return nil
+}
 
-	return err
+// LoadContrib loads template from contrib directory
+func (t *Repository) LoadContrib(name string) error {
+	log.Printf("loading contrib %s", name)
+	const pathPrefix = "templates/contrib/"
+	basePath := pathPrefix + name
+	filesAdded := 0
+	for _, aname := range AssetNames() {
+		if !strings.HasSuffix(aname, ".gotmpl") {
+			continue
+		}
+		if strings.HasPrefix(aname, basePath) {
+			target := aname[len(basePath)+1:]
+			err := t.addFile(target, string(MustAsset(aname)), true)
+			if err != nil {
+				return err
+			}
+			log.Printf("added contributed template %s from %s", target, aname)
+			filesAdded++
+		}
+	}
+	if filesAdded == 0 {
+		return fmt.Errorf("no files added from template: %s", name)
+	}
+	return nil
 }
 
 func (t *Repository) addFile(name, data string, allowOverride bool) error {
@@ -280,7 +329,7 @@ func (t *Repository) addFile(name, data string, allowOverride bool) error {
 		}
 	}
 
-	// Add each defined tempalte into the cache
+	// Add each defined template into the cache
 	for _, template := range templ.Templates() {
 
 		t.files[template.Name()] = fileName
@@ -438,16 +487,17 @@ func (t *Repository) Get(name string) (*template.Template, error) {
 
 // DumpTemplates prints out a dump of all the defined templates, where they are defined and what their dependencies are.
 func (t *Repository) DumpTemplates() {
-
-	fmt.Println("# Templates")
+	buf := bytes.NewBuffer(nil)
+	fmt.Fprintln(buf, "\n# Templates")
 	for name, templ := range t.templates {
-		fmt.Printf("## %s\n", name)
-		fmt.Printf("Defined in `%s`\n", t.files[name])
+		fmt.Fprintf(buf, "## %s\n", name)
+		fmt.Fprintf(buf, "Defined in `%s`\n", t.files[name])
 
 		if deps := findDependencies(templ.Tree.Root); len(deps) > 0 {
 
-			fmt.Printf("####requires \n - %v\n\n\n", strings.Join(deps, "\n - "))
+			fmt.Fprintf(buf, "####requires \n - %v\n\n\n", strings.Join(deps, "\n - "))
 		}
-		fmt.Println("\n---")
+		fmt.Fprintln(buf, "\n---")
 	}
+	log.Println(buf.String())
 }

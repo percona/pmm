@@ -14,7 +14,6 @@ import (
 
 // APIRDSAddRequest api r d s add request
 // swagger:model apiRDSAddRequest
-
 type APIRDSAddRequest struct {
 
 	// aws access key id
@@ -33,22 +32,11 @@ type APIRDSAddRequest struct {
 	Username string `json:"username,omitempty"`
 }
 
-/* polymorph apiRDSAddRequest aws_access_key_id false */
-
-/* polymorph apiRDSAddRequest aws_secret_access_key false */
-
-/* polymorph apiRDSAddRequest id false */
-
-/* polymorph apiRDSAddRequest password false */
-
-/* polymorph apiRDSAddRequest username false */
-
 // Validate validates this api r d s add request
 func (m *APIRDSAddRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -65,7 +53,6 @@ func (m *APIRDSAddRequest) validateID(formats strfmt.Registry) error {
 	}
 
 	if m.ID != nil {
-
 		if err := m.ID.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("id")

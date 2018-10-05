@@ -17,9 +17,9 @@ import (
 )
 
 // NewElapseParams creates a new ElapseParams object
-// with the default values initialized.
+// no default values defined in spec.
 func NewElapseParams() ElapseParams {
-	var ()
+
 	return ElapseParams{}
 }
 
@@ -30,7 +30,7 @@ func NewElapseParams() ElapseParams {
 type ElapseParams struct {
 
 	// HTTP Request Object
-	HTTPRequest *http.Request
+	HTTPRequest *http.Request `json:"-"`
 
 	/*How many seconds to count down
 	  Required: true
@@ -42,9 +42,12 @@ type ElapseParams struct {
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
-// for simple values it will use straight method calls
+// for simple values it will use straight method calls.
+//
+// To ensure default values, the struct must have been initialized with NewElapseParams() beforehand.
 func (o *ElapseParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
+
 	o.HTTPRequest = r
 
 	rLength, rhkLength, _ := route.Params.GetOK("length")
@@ -58,11 +61,15 @@ func (o *ElapseParams) BindRequest(r *http.Request, route *middleware.MatchedRou
 	return nil
 }
 
+// bindLength binds and validates parameter Length from path.
 func (o *ElapseParams) bindLength(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
 	}
+
+	// Required: true
+	// Parameter is provided by construction from the route
 
 	value, err := swag.ConvertInt64(raw)
 	if err != nil {
@@ -77,6 +84,7 @@ func (o *ElapseParams) bindLength(rawData []string, hasKey bool, formats strfmt.
 	return nil
 }
 
+// validateLength carries on validations for parameter Length
 func (o *ElapseParams) validateLength(formats strfmt.Registry) error {
 
 	if err := validate.MinimumInt("length", "path", int64(o.Length), 2, false); err != nil {

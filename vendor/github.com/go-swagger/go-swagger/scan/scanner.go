@@ -21,6 +21,7 @@ import (
 	"go/ast"
 	"go/build"
 	goparser "go/parser"
+	"go/types"
 	"log"
 	"os"
 	"regexp"
@@ -49,6 +50,7 @@ const (
 	rxCollectionFormatFmt = "%s[Cc]ollection(?:\\p{Zs}*[\\p{Pd}\\p{Pc}]?[Ff]ormat)\\p{Zs}*:\\p{Zs}*(.*)$"
 	rxEnumFmt             = "%s[Ee]num\\p{Zs}*:\\p{Zs}*(.*)$"
 	rxDefaultFmt          = "%s[Dd]efault\\p{Zs}*:\\p{Zs}*(.*)$"
+	rxExampleFmt          = "%s[Ee]xample\\p{Zs}*:\\p{Zs}*(.*)$"
 
 	rxMaxItemsFmt = "%s[Mm]ax(?:imum)?(?:\\p{Zs}*|[\\p{Pd}\\p{Pc}]|\\.)?[Ii]tems\\p{Zs}*:\\p{Zs}*(\\p{N}+)$"
 	rxMinItemsFmt = "%s[Mm]in(?:imum)?(?:\\p{Zs}*|[\\p{Pd}\\p{Pc}]|\\.)?[Ii]tems\\p{Zs}*:\\p{Zs}*(\\p{N}+)$"
@@ -70,6 +72,7 @@ var (
 	rxEnum               = regexp.MustCompile(`swagger:enum\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}]+)$`)
 	rxIgnoreOverride     = regexp.MustCompile(`swagger:ignore\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}]+)?$`)
 	rxDefault            = regexp.MustCompile(`swagger:default\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}]+)$`)
+	rxType               = regexp.MustCompile(`swagger:type\p{Zs}*(\p{L}[\p{L}\p{N}\p{Pd}\p{Pc}]+)$`)
 	rxRoute              = regexp.MustCompile(
 		"swagger:route\\p{Zs}*" +
 			rxMethod +
@@ -80,7 +83,7 @@ var (
 			")?\\p{Zs}+" +
 			rxOpID + "\\p{Zs}*$")
 	rxBeginYAMLSpec    = regexp.MustCompile(`---\p{Zs}*$`)
-	rxUncommentHeaders = regexp.MustCompile(`^[\p{Zs}\t/\*-]*`)
+	rxUncommentHeaders = regexp.MustCompile(`^[\p{Zs}\t/\*-]*\|?`)
 	rxUncommentYAML    = regexp.MustCompile(`^[\p{Zs}\t]*/*`)
 	rxOperation        = regexp.MustCompile(
 		"swagger:operation\\p{Zs}*" +
@@ -108,6 +111,7 @@ var (
 	rxSecuritySchemes = regexp.MustCompile(`[Ss]ecurity\p{Zs}*:`)
 	rxSecurity        = regexp.MustCompile(`[Ss]ecurity\p{Zs}*[Dd]efinitions:`)
 	rxResponses       = regexp.MustCompile(`[Rr]esponses\p{Zs}*:`)
+	rxParameters      = regexp.MustCompile(`[Pp]arameters\p{Zs}*:`)
 	rxSchemes         = regexp.MustCompile(`[Ss]chemes\p{Zs}*:\p{Zs}*((?:(?:https?|HTTPS?|wss?|WSS?)[\p{Zs},]*)+)$`)
 	rxVersion         = regexp.MustCompile(`[Vv]ersion\p{Zs}*:\p{Zs}*(.+)$`)
 	rxHost            = regexp.MustCompile(`[Hh]ost\p{Zs}*:\p{Zs}*(.+)$`)
@@ -116,6 +120,8 @@ var (
 	rxContact         = regexp.MustCompile(`[Cc]ontact\p{Zs}*-?(?:[Ii]info\p{Zs}*)?:\p{Zs}*(.+)$`)
 	rxTOS             = regexp.MustCompile(`[Tt](:?erms)?\p{Zs}*-?[Oo]f?\p{Zs}*-?[Ss](?:ervice)?\p{Zs}*:`)
 	rxExtensions      = regexp.MustCompile(`[Ee]xtensions\p{Zs}*:`)
+	rxInfoExtensions  = regexp.MustCompile(`[In]nfo\p{Zs}*[Ee]xtensions:`)
+	// currently unused: rxExample         = regexp.MustCompile(`[Ex]ample\p{Zs}*:\p{Zs}*(.*)$`)
 )
 
 // Many thanks go to https://github.com/yvasiyarov/swagger
@@ -199,11 +205,12 @@ func newAppScanner(opts *Opts, includes, excludes packageFilters) (*appScanner, 
 	}
 	var ldr loader.Config
 	ldr.ParserMode = goparser.ParseComments
-	ldr.ImportWithTests(opts.BasePath)
+	ldr.Import(opts.BasePath)
 	if opts.BuildTags != "" {
 		ldr.Build = &build.Default
 		ldr.Build.BuildTags = strings.Split(opts.BuildTags, ",")
 	}
+	ldr.TypeChecker = types.Config{FakeImportC: true}
 	prog, err := ldr.Load()
 	if err != nil {
 		return nil, err

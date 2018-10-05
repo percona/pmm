@@ -17,7 +17,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm-managed/api/swagger/models"
+	models "github.com/percona/pmm-managed/api/swagger/models"
 )
 
 // NewAddParams creates a new AddParams object
@@ -124,12 +124,10 @@ func (o *AddParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry)
 	}
 	var res []error
 
-	if o.Body == nil {
-		o.Body = new(models.APIRDSAddRequest)
-	}
-
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

@@ -8,13 +8,11 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 )
 
 // User user
 // swagger:model User
-
 type User struct {
 
 	// email
@@ -42,29 +40,8 @@ type User struct {
 	Username string `json:"username,omitempty"`
 }
 
-/* polymorph User email false */
-
-/* polymorph User firstName false */
-
-/* polymorph User id false */
-
-/* polymorph User lastName false */
-
-/* polymorph User password false */
-
-/* polymorph User phone false */
-
-/* polymorph User userStatus false */
-
-/* polymorph User username false */
-
 // Validate validates this user
 func (m *User) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
 

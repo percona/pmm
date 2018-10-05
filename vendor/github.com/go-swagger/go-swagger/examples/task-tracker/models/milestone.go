@@ -19,7 +19,6 @@ import (
 // This can be useful for filters and such.
 //
 // swagger:model Milestone
-
 type Milestone struct {
 
 	// The description of the milestone.
@@ -32,6 +31,7 @@ type Milestone struct {
 	//
 	// This property is optional, but when present it lets people know when they can expect this milestone to be completed.
 	//
+	// Format: date
 	DueDate strfmt.Date `json:"dueDate,omitempty"`
 
 	// The name of the milestone.
@@ -48,31 +48,38 @@ type Milestone struct {
 	Stats *MilestoneStats `json:"stats,omitempty"`
 }
 
-/* polymorph Milestone description false */
-
-/* polymorph Milestone dueDate false */
-
-/* polymorph Milestone name false */
-
-/* polymorph Milestone stats false */
-
 // Validate validates this milestone
 func (m *Milestone) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateDueDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateName(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if err := m.validateStats(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Milestone) validateDueDate(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DueDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("dueDate", "body", "date", m.DueDate.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -104,7 +111,6 @@ func (m *Milestone) validateStats(formats strfmt.Registry) error {
 	}
 
 	if m.Stats != nil {
-
 		if err := m.Stats.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("stats")
@@ -139,7 +145,6 @@ func (m *Milestone) UnmarshalBinary(b []byte) error {
 // This object contains counts for the remaining open issues and the amount of issues that have been closed.
 //
 // swagger:model MilestoneStats
-
 type MilestoneStats struct {
 
 	// The closed issues.
@@ -152,19 +157,8 @@ type MilestoneStats struct {
 	Total int32 `json:"total,omitempty"`
 }
 
-/* polymorph MilestoneStats closed false */
-
-/* polymorph MilestoneStats open false */
-
-/* polymorph MilestoneStats total false */
-
 // Validate validates this milestone stats
 func (m *MilestoneStats) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
 	return nil
 }
 

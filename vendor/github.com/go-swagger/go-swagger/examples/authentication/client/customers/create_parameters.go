@@ -17,7 +17,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/go-swagger/go-swagger/examples/authentication/models"
+	models "github.com/go-swagger/go-swagger/examples/authentication/models"
 )
 
 // NewCreateParams creates a new CreateParams object
@@ -124,12 +124,10 @@ func (o *CreateParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regist
 	}
 	var res []error
 
-	if o.Info == nil {
-		o.Info = new(models.Customer)
-	}
-
-	if err := r.SetBodyParam(o.Info); err != nil {
-		return err
+	if o.Info != nil {
+		if err := r.SetBodyParam(o.Info); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

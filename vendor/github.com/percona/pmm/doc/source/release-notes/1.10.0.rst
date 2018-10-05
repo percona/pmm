@@ -6,11 +6,7 @@
 
 :Date: April 20, 2018
 
-|percona| announces the release of |pmm.name| |release|.  |pmm.intro| is a free
-and open-source platform for managing and monitoring |mysql| and |mongodb|
-performance.  You can run |pmm| in your own environment for maximum security and
-reliability. It provides thorough time-based analysis for |mysql| and |mongodb|
-servers to ensure that your data works as efficiently as possible.
+|percona| announces the release of |pmm.name| |release|.  |info.pmm.about|
 We focused mainly on two features in |release|, but there are also several
 notable improvements worth highlighting:
 
@@ -37,7 +33,7 @@ application events on top of your |pmm| graphs, engineers can now correlate
 application events to database events (common cases: application deploys,
 outages, and upgrades) against Database and System level metric changes.
 
-.. image:: 1.10.0-1.png
+.. image:: 1-10-0.1.png
 
 Usage
 --------------------------------------------------------------------------------
@@ -77,13 +73,13 @@ This improvement indirectly addresses the visualization error in |pmm-server|
 where some graphs would appear to be on two lines and ended up wasting screen
 space.
 
-.. image:: 1.10.0-2.png
+.. image:: 1-10-0.2.png
 
 Switching Between Dashboards
 ================================================================================
 
 |pmm| now allows you to navigate between dashboards while maintaining the same
-host under observation, so that for example you can start on |mysql-overview|
+host under observation, so that for example you can start on |dbd.mysql-overview|
 looking at host serverA, switch to MySQL InnoDB Advanced dashboard and continue
 looking at serverA, thus saving you a few clicks in the interface.
 
@@ -94,7 +90,7 @@ We have added new PXC Replication Latency graphs on our *PXC Galera Cluster
 Overview* dashboard so that you can compare latency across all members in a
 cluster in one view.
 
-.. image:: 1.10.0-3.png
+.. image:: 1-10-0.3.png
 
 Issues in this release
 ================================================================================
@@ -133,7 +129,4 @@ Bug fixes
 
 .. |release| replace:: 1.10.0
 		       
-.. include:: ../.res/replace/name.txt
-.. include:: ../.res/replace/program.txt
-.. include:: ../.res/replace/option.txt			    
-.. include:: ../.res/replace/url.txt
+.. include:: ../.res/replace.txt

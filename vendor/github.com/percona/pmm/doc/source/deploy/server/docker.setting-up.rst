@@ -1,4 +1,4 @@
-.. _pmm/server/docker.setting-up:
+.. _pmm.server.docker.setting-up:
 
 Setting Up a |docker| Container for |pmm-server|
 ================================================================================
@@ -13,41 +13,28 @@ The setup begins with pulling the required |docker| image. Then, you proceed by
 creating a special container for persistent |pmm| data. The last step is
 creating and launching the |pmm-server| container.
 
-Pulling the |pmm-server| Image
+.. _pmm.server.docker-image.pulling:
+
+:ref:`Pulling the PMM Server Docker Image <pmm.server.docker-image.pulling>`
 --------------------------------------------------------------------------------
 
 To pull the latest version from Docker Hub:
 
-.. include:: ../../.res/code/sh.org
-   :start-after: +docker.pull.percona-pmm-server-latest+
-   :end-before: #+end-block
+.. include:: ../../.res/code/docker.pull.percona-pmm-server-latest.txt
 
 This step is not required if you are running |pmm-server| for the first time.
 However, it ensures that if there is an older version of the image tagged with
 |opt.latest| available locally, it will be replaced by the actual latest
 version.
 
-.. note::
-
-   If you would like to experiment with the latest development
-   version, you may use the |opt.dev-latest| image:
-
-   .. include:: ../../.res/code/sh.org
-      :start-after: +docker.pull.perconalab-pmm-server-dev-latest+
-      :end-before: #+end-block
-
-   This version, however, is not intended to be used in a production environment.
-
 .. _data-container:
 
-Creating the |opt.pmm-data| Container
+:ref:`Creating the pmm-data Container <data-container>`
 --------------------------------------------------------------------------------
 
 To create a container for persistent |pmm| data, run the following command:
 
-.. include:: ../../.res/code/sh.org
-   :start-after: +docker.create.percona-pmm-server-latest+
-   :end-before: #+end-block
+.. include:: ../../.res/code/docker.create.percona-pmm-server-latest.txt
 	     
 .. note:: This container does not run, it simply exists to make sure you retain
 	  all |pmm| data when you upgrade to a newer |pmm-server| image.  Do not remove
@@ -78,14 +65,12 @@ The previous command does the following:
 
 .. _server-container:
 
-Creating and Launching the |pmm-server| Container
+:ref:`Creating and Launching the PMM Server Container <server-container>`
 --------------------------------------------------------------------------------
 
 To create and launch |pmm-server| in one command, use |docker.run|:
 
-.. include:: ../../.res/code/sh.org
-   :start-after: +docker.run.latest+
-   :end-before: #+end-block
+.. include:: ../../.res/code/docker.run.latest.txt
 
 This command does the following:
 
@@ -113,32 +98,27 @@ This command does the following:
 * |opt.pmm-server.latest| is the name and version tag of the image
   to derive the container from.
 
-.. _pmm/docker.additional_option:
+.. _pmm.docker.additional-option:
 
-Additional options
+:ref:`Additional options <pmm.docker.additional-option>`
 --------------------------------------------------------------------------------
 
 When running the |pmm-server|, you may pass additional parameters to the
 |docker.run| subcommand. All options that appear after the |opt.e| option
 are the additional parameters that modify the way how |pmm-server| operates.
 
-The section :ref:`pmm/glossary.pmm-server.additional-option` lists all
+The section :ref:`pmm.glossary.pmm-server.additional-option` lists all
 supported additional options.
-
 
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm/glossary/terminology-reference`
+      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
    Updating PMM
       :ref:`Updating PMM <deploy-pmm.updating>`
    Backing Up the |pmm-server| |docker| container
-      :ref:`pmm/server/docker/backing-up`
+      :ref:`pmm.server.docker.backing-up`
    Restoring |opt.pmm-data|
-      :ref:`pmm/server/docker.restoring`
+      :ref:`pmm.server.docker.restoring`
 
-
-.. include:: ../../.res/replace/name.txt
-.. include:: ../../.res/replace/option.txt
-.. include:: ../../.res/replace/program.txt
-.. include:: ../../.res/replace/url.txt
+.. include:: ../../.res/replace.txt

@@ -26,20 +26,20 @@ Percona Monitoring and Management |release|
 
 **Amazon Aurora MySQL & RDS MySQL  shared elements**
 
-.. image:: ./1.5.0-1.png
+.. image:: ./1-5-0.1.png
 
 **Amazon Aurora MySQL unique elements**
 
-.. image:: ./1.5.0-2.png
+.. image:: ./1-5-0.2.png
 
 **Amazon RDS for MySQL unique elements**
 
-.. image:: ./1.5.0-3.png
+.. image:: ./1-5-0.3.png
 
-|qan.abbrev| is now integrated into |metrics-monitor| and appears as a separate
+|qan| is now integrated into |metrics-monitor| and appears as a separate
 dashboard known as |pmm|.
 
-.. image:: ./1.5.0-4.png
+.. image:: ./1-5-0.4.png
 
 With this release, |pmm.name| introduces a new deployment
 option via AWS Marketplace.  This is in addition to our distribution method of
@@ -84,6 +84,4 @@ Bug fixes
 
 .. |release| replace:: 1.5.0
 
-.. include:: ../.res/replace/name.txt
-.. include:: ../.res/replace/program.txt
-
+.. include:: ../.res/replace.txt

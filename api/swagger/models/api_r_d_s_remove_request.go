@@ -14,21 +14,17 @@ import (
 
 // APIRDSRemoveRequest api r d s remove request
 // swagger:model apiRDSRemoveRequest
-
 type APIRDSRemoveRequest struct {
 
 	// id
 	ID *APIRDSInstanceID `json:"id,omitempty"`
 }
 
-/* polymorph apiRDSRemoveRequest id false */
-
 // Validate validates this api r d s remove request
 func (m *APIRDSRemoveRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateID(formats); err != nil {
-		// prop
 		res = append(res, err)
 	}
 
@@ -45,7 +41,6 @@ func (m *APIRDSRemoveRequest) validateID(formats strfmt.Registry) error {
 	}
 
 	if m.ID != nil {
-
 		if err := m.ID.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("id")

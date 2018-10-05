@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/authentication/models"
+	models "github.com/go-swagger/go-swagger/examples/authentication/models"
 )
 
 // GetIDOKCode is the HTTP code returned for type GetIDOK
@@ -30,6 +30,7 @@ type GetIDOK struct {
 
 // NewGetIDOK creates GetIDOK with default headers values
 func NewGetIDOK() *GetIDOK {
+
 	return &GetIDOK{}
 }
 
@@ -73,6 +74,7 @@ type GetIDUnauthorized struct {
 
 // NewGetIDUnauthorized creates GetIDUnauthorized with default headers values
 func NewGetIDUnauthorized() *GetIDUnauthorized {
+
 	return &GetIDUnauthorized{}
 }
 
@@ -116,6 +118,7 @@ type GetIDNotFound struct {
 
 // NewGetIDNotFound creates GetIDNotFound with default headers values
 func NewGetIDNotFound() *GetIDNotFound {
+
 	return &GetIDNotFound{}
 }
 

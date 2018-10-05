@@ -7,5 +7,4 @@ package models
 
 // APIRDSAddResponse api r d s add response
 // swagger:model apiRDSAddResponse
-
 type APIRDSAddResponse interface{}

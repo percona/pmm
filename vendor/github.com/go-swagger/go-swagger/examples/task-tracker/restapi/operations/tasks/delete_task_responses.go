@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime"
 
-	"github.com/go-swagger/go-swagger/examples/task-tracker/models"
+	models "github.com/go-swagger/go-swagger/examples/task-tracker/models"
 )
 
 // DeleteTaskNoContentCode is the HTTP code returned for type DeleteTaskNoContent
@@ -25,11 +25,14 @@ type DeleteTaskNoContent struct {
 
 // NewDeleteTaskNoContent creates DeleteTaskNoContent with default headers values
 func NewDeleteTaskNoContent() *DeleteTaskNoContent {
+
 	return &DeleteTaskNoContent{}
 }
 
 // WriteResponse to the client
 func (o *DeleteTaskNoContent) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(204)
 }
@@ -41,8 +44,8 @@ swagger:response deleteTaskDefault
 type DeleteTaskDefault struct {
 	_statusCode int
 	/*
-	  Required: true
-	*/
+
+	 */
 	XErrorCode string `json:"X-Error-Code"`
 
 	/*
