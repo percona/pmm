@@ -38,15 +38,19 @@ drives.
    - |myrocks| cache data byltes inserted
    - |myrocks| bloom filter
    - |myrocks| memtable
-   - |myrocks| cache L0/L1
+   - |myrocks| memtable size
    - |myrocks| number of keys
-   - |myrocks| R/W
+   - |myrocks| cache L0/L1
    - |myrocks| number of DB ops
-   - |myrocks| write ops
+   - |myrocks| R/W
    - |myrocks| bytes read by iterations
-   - |myrocks| number reseeks in iterations
+   - |myrocks| write ops
    - |myrocks| WAL
+   - |myrocks| number reseeks in iterations
+   - |rocksdb| row operations
    - |myrocks| file operations
+   - |rocksdb| stalls
+   - |rocksdb| stops/slowdowns
 
 .. _myrocks: http://myrocks.io
 
