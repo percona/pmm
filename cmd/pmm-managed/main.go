@@ -111,7 +111,7 @@ func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
 
 	mux.HandleFunc("/logs.zip", func(rw http.ResponseWriter, req *http.Request) {
 		// fail-safe
-		ctx, cancel := context.WithTimeout(req.Context(), time.Second)
+		ctx, cancel := context.WithTimeout(req.Context(), 10*time.Second)
 		defer cancel()
 
 		t := time.Now().UTC()
@@ -120,6 +120,7 @@ func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
 		rw.Header().Set(`Access-Control-Allow-Origin`, `*`)
 		rw.Header().Set(`Content-Type`, `application/zip`)
 		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
+		ctx, _ = logger.Set(ctx, "logs")
 		if err := logs.Zip(ctx, rw); err != nil {
 			l.Error(err)
 		}
