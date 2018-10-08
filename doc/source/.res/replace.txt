@@ -195,6 +195,8 @@
 .. |gui.config| replace:: :guilabel:`Config`
 .. |gui.connect| replace:: :guilabel:`Connect`
 .. |gui.continue-to-subscribe| replace:: :guilabel:`Continue to Subscribe`
+.. |gui.continue-to-configuration| replace:: :guilabel:`Continue to Configuration`
+.. |gui.continue-to-launch| replace:: :guilabel:`Continue to Launch`
 .. |gui.reinitialize-mac-address-of-all-network-cards| replace:: :guilabel:`Reinitialize the MAC address of all network cards`
 .. |gui.continue| replace:: :guilabel:`Continue`
 .. |gui.copy-to-clipboard| replace:: :guilabel:`Copy to clipboard`

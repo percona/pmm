@@ -9,17 +9,17 @@ an AMI (Amazon Machine Image) by using its ID, different for each region.
 
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.home-page.1.png
 
-   The home page of PMM in AWS Marketplace. Click the Continue button to start
-   setting up your instance. You can also preselect your region on this screen.
+   The home page of PMM in AWS Marketplace.
 
 Assuming that you have an AWS (Amazon Web Services) account, locate
 *Percona Monitoring and Management Server* in `AWS Marketplace
 <https://aws.amazon.com/marketplace/pp/B077J7FYGX>`_.
 
-In the |gui.pricing-information| section, select your region and choose an
+The |gui.pricing-information| section allows to select your region and choose an
 instance type in the table that shows the pricing for the software and
-infrastructure hosted in the region you have selected. Note that the recommended
-EC2 instance type is preselected for you.
+infrastructure hosted in the region you have selected (the recommended
+EC2 instance type is preselected for you). Note that actual choice will be done
+later, and this table serves the information purposes, to plan costs.
 
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.home-page.2.png
 
@@ -27,13 +27,17 @@ EC2 instance type is preselected for you.
    see its price. |pmm| comes for no cost, you may only need to pay for the
    infrastructure provided by |amazon|.
 
-Click the |gui.continue-to-subscribe| button to start setting up your instance. There
-are two options available to you. The ``1-Click Launch`` option is a quick way
-to make your instance ready. For more control, use the ``Manual Launch`` option.
+Clicking the |gui.continue-to-subscribe| button will proceed to the terms and
+conditions page. Clicking |gui.continue-to-configuration| there will bring a
+new page to start setting up your instance.
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.png
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.0.png
 
-   Percona Monitoring and Management is now available from AWS Marketplace
+   Percona Monitoring and Management on AWS Marketplace - launch options.
+
+Available launch options in the drop-down menu include *Launch from Website* and
+*Launch through EC2*. The first one is a quick way to make your instance ready.
+For more control, use the Manual Launch through EC2 option.
 
 |chapter.toc|
 
@@ -43,41 +47,31 @@ to make your instance ready. For more control, use the ``Manual Launch`` option.
 	    
 .. _run-server-ami.pmm-instance.1-click-launch-option.setting-up:
 
-:ref:`Setting Up a PMM Instance Using the 1-Click Launch Option <run-server-ami.pmm-instance.1-click-launch-option.setting-up>`
+:ref:`Setting Up a PMM Instance Using the website GUI <run-server-ami.pmm-instance.1-click-launch-option.setting-up>`
 ===============================================================================================================================
 
-With the |gui.1-click-launch| tab selected, make sure that all sections match
-your preferences. In this demonstration, we use the :option:`US East
-(N. Virginia)` region and the VPC (virtual private cloud) named
-:option:`vpc-484bb12f`. To reduce cost, you need to choose the region closest to
+Choose *Launch from Website* option, your region, and the EC2 instance type on
+the launch options page. On the previous screenshot, we use the 
+:option:`US East (N. Virginia)` region and the :guilabel:`EC2 Instance Type` named
+:option:`m4.large`. To reduce cost, you need to choose the region closest to
 your location.
 
-.. note::
-
-   The exact name of VPC may be different from the example discussed here.
-
-On the |gui.1-click-launch| tab, select your region in the |gui.region|
-section. By default, the region is the same as the one you chose in the
-|gui.pricing-information| section.
+When all choices are done, click the |gui.continue-to-launch| button to proceed.
 
 .. _run-server-ami.pmm-instance.1-click-launch-option.vpc.ec2-instance-type:
 
 :ref:`Setting up a VPC and an EC2 Instance Type <run-server-ami.pmm-instance.1-click-launch-option.vpc.ec2-instance-type>`
 --------------------------------------------------------------------------------------------------------------------------
 
-Depending on your choice of a VPC, some configurations of CPU and RAM may be disabled
-in the :guilabel:`EC2 Instance Type` section.
-
-In this demonstration, we select the :option:`vpc-aba20dce` in the
-:guilabel:`VPC Settings` section. Then, we choose :option:`m4.large` as the EC2
-instance type.
+ In this demonstration, we use the VPC (virtual private cloud) named
+:option:`vpc-484bb12f`. The exact name of VPC may be different from the example
+discussed here.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch.vpc.ec2-instance-type:
-
+  
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png
 
-   Select VPC in the VPC Settings section and then choose an EC2 instance type
-   that suits your planned configuration.
+   Select VPC in the VPC Settings section.
 
 Instead of a VPC (virtual private cloud) you may choose the :option:`EC2 Classic
 (no VPC)` option and use a public cloud.
