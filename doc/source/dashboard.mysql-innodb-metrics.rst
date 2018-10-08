@@ -149,6 +149,50 @@ immediately and returns an error.
    |percona| Database Performance Blog: Dealing with |mysql| deadlocks
       https://www.percona.com/blog/2014/10/28/how-to-deal-with-mysql-deadlocks/
 
+.. _dashboard.mysql-innodb-metrics.condition-pushdown:
+
+|innodb| Condition Pushdown
+--------------------------------------------------------------------------------
+
+Index Condition Pushdown (ICP) is an optimization for the case where |mysql|
+retrieves rows from a table using an index.
+
+Without ICP, the storage engine traverses the index to locate rows in the base
+table and returns them to the |mysql| server which evaluates the ``WHERE``
+condition for the rows. With ICP enabled, and if parts of the ``WHERE``
+condition can be evaluated by using only columns from the index, the |mysql|
+server pushes this part of the ``WHERE`` condition down to the storage engine.
+The storage engine then evaluates the pushed index condition by using the index
+entry and only if this is satisfied is the row read from the table.
+
+ICP can reduce the number of times the storage engine must access the base table
+and the number of times the |mysql| server must access the storage engine.
+
+|view-all-metrics| |this-dashboard|
+
+.. seealso::
+    |mysql| Server Documentation: Index Condition Pushdown optimisation
+       https://dev.mysql.com/doc/refman/5.7/en/index-condition-pushdown-optimization.html
+    |percona| Database Performance Blog: ICP counters and how to interpret them
+       https://www.percona.com/blog/2017/05/09/mariadb-handler_icp_-counters-what-they-are-and-how-to-use-them/
+
+.. _dashboard.mysql-innodb-metrics.other-metrics:
+
+Other Metrics
+--------------------------------------------------------------------------------
+
+.. hlist::
+   :columns: 2
+
+   - |innodb| Logging Performance
+   - |innodb| Buffer Pool Content
+   - |innodb| Buffer Pool Pages
+   - |innodb| Buffer Pool I/O
+   - |innodb| Buffer Pool Requests
+   - |innodb| Buffer Read-Ahead
+   - |innodb| Change Buffer
+   - |innodb| Change Buffer Activity
+
 .. |this-dashboard| replace:: :ref:`dashboard.mysql-innodb-metrics`
 
 .. include:: .res/replace.txt
