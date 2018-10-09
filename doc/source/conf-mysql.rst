@@ -435,4 +435,57 @@ To enable collection of query response time:
       - |opt.query-response-time-stats|: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#query_response_time_stats
       - Response time distribution: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#installing-the-plugins
 
+.. _pmm.conf-mysql.executing.custom.cueries:
+
+:ref:`executing Custom Queries <pmm.conf-mysql.executing.custom.cueries>`
+================================================================================
+
+Starting from the version 1.15.0, |pmm| provides user the ability to interpret
+results of the arbitrary SQL query executed by |mysql| as a metric series, which
+can be added to Dashboards.
+
+Custom query should be defined in an yaml file, which has the following format:
+
+.. code-block:: yaml
+
+   mysql_performance_schema:
+     query: "SELECT event_name, current_alloc, high_alloc FROM sys.memory_global_by_current_bytes WHERE current_count > 0;"
+     metrics:
+       - event_name:
+           usage: "LABEL"
+           description: "Performance Schema Event Name"
+       - current_alloc:
+           usage: "GAUGE"
+           description: "Memory currently allocated to the Event"
+       - high_alloc:
+           usage: "GAUGE"
+           description: "High Water Mark of Memory allocated to the Event"
+
+In this example we have created custom query based on the following SQL statement:
+
+.. code-block:: sql
+
+   SELECT event_name, current_alloc, high_alloc 
+   FROM sys.memory_global_by_current_bytes 
+   WHERE current_count > 0;
+
+Three columns of the query result will be presented on the dashboard as one
+label-style metric (the ``event_name`` one) and two gauges (``current_alloc``
+and ``high_alloc``).
+
+This custom query description should be placed in a yaml file (let's say a
+``query.yaml``) on the server with |mysql-server|.
+
+.. note: User is responsible for moving queriy.yaml file to the |mysql| instance
+   against which the results of the custom query are to be retrieved.
+
+The query should be then added to the |pmm-server| |mysql| metrics with the
+``pmm-admin add`` command after the standalone double dash::
+
+   pmm-admin add mysql:metrics ... -- --queries-file-name=/usr/local/percona/pmm-client/query.yml
+
+.. note: |pmm| does not control custom queries safety. User has responsibility
+   for any side effects caused by the executed query on the sever and/or the
+   database.
+
 .. include:: .res/replace.txt
