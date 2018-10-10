@@ -192,8 +192,8 @@ following:
 
 .. _deploy-pmm.diagnostics-for-support:
 
-:ref:`Obtaining Diagnostics for Support <deploy-pmm.diagnostics-for-support>`
-================================================================================
+:ref:`Obtaining Diagnostics Data for Support <deploy-pmm.diagnostics-for-support>`
+==================================================================================
 
 |pmm-server| is able to generate a set of files for enhanced diagnostics, which
 can be examined and/or shared with Percona Support to solve an issue faster.
