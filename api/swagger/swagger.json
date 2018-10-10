@@ -92,12 +92,142 @@
         }
       }
     },
+    "/v0/mysql": {
+      "get": {
+        "tags": [
+          "MySQL"
+        ],
+        "operationId": "List",
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiMySQLListResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "MySQL"
+        ],
+        "operationId": "Add",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiMySQLAddRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiMySQLAddResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/mysql/{id}": {
+      "delete": {
+        "tags": [
+          "MySQL"
+        ],
+        "operationId": "Remove",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int32",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiMySQLRemoveResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/postgresql": {
+      "get": {
+        "tags": [
+          "PostgreSQL"
+        ],
+        "operationId": "ListMixin4",
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiPostgreSQLListResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "PostgreSQL"
+        ],
+        "operationId": "AddMixin4",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiPostgreSQLAddRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiPostgreSQLAddResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/postgresql/{id}": {
+      "delete": {
+        "tags": [
+          "PostgreSQL"
+        ],
+        "operationId": "RemoveMixin4",
+        "parameters": [
+          {
+            "type": "integer",
+            "format": "int32",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiPostgreSQLRemoveResponse"
+            }
+          }
+        }
+      }
+    },
     "/v0/rds": {
       "get": {
         "tags": [
           "RDS"
         ],
-        "operationId": "List",
+        "operationId": "ListMixin5",
         "responses": {
           "200": {
             "description": "(empty)",
@@ -111,7 +241,7 @@
         "tags": [
           "RDS"
         ],
-        "operationId": "Add",
+        "operationId": "AddMixin5",
         "parameters": [
           {
             "name": "body",
@@ -135,7 +265,7 @@
         "tags": [
           "RDS"
         ],
-        "operationId": "Remove",
+        "operationId": "RemoveMixin5",
         "parameters": [
           {
             "name": "body",
@@ -188,7 +318,7 @@
           "ScrapeConfigs"
         ],
         "summary": "List returns all scrape configs.",
-        "operationId": "ListMixin4",
+        "operationId": "ListMixin6",
         "responses": {
           "200": {
             "description": "(empty)",
@@ -203,7 +333,7 @@
           "ScrapeConfigs"
         ],
         "summary": "Create creates a new scrape config.\nErrors: InvalidArgument(3) if some argument is not valid,\nAlreadyExists(6) if scrape config with that job name is already present,\nFailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.",
-        "operationId": "CreateMixin4",
+        "operationId": "CreateMixin6",
         "parameters": [
           {
             "name": "body",
@@ -412,6 +542,162 @@
           "additionalProperties": {
             "$ref": "#/definitions/apiLog"
           }
+        }
+      }
+    },
+    "apiMySQLAddRequest": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "username": {
+          "type": "string"
+        }
+      }
+    },
+    "apiMySQLAddResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "apiMySQLInstance": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "$ref": "#/definitions/apiMySQLNode"
+        },
+        "service": {
+          "$ref": "#/definitions/apiMySQLService"
+        }
+      }
+    },
+    "apiMySQLListResponse": {
+      "type": "object",
+      "properties": {
+        "instances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiMySQLInstance"
+          }
+        }
+      }
+    },
+    "apiMySQLNode": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "apiMySQLRemoveResponse": {
+      "type": "object"
+    },
+    "apiMySQLService": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "engine": {
+          "type": "string"
+        },
+        "engine_version": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "apiPostgreSQLAddRequest": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "username": {
+          "type": "string"
+        }
+      }
+    },
+    "apiPostgreSQLAddResponse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "apiPostgreSQLInstance": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "$ref": "#/definitions/apiPostgreSQLNode"
+        },
+        "service": {
+          "$ref": "#/definitions/apiPostgreSQLService"
+        }
+      }
+    },
+    "apiPostgreSQLListResponse": {
+      "type": "object",
+      "properties": {
+        "instances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiPostgreSQLInstance"
+          }
+        }
+      }
+    },
+    "apiPostgreSQLNode": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "apiPostgreSQLRemoveResponse": {
+      "type": "object"
+    },
+    "apiPostgreSQLService": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "engine": {
+          "type": "string"
+        },
+        "engine_version": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
         }
       }
     },
