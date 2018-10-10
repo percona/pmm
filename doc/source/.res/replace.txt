@@ -488,6 +488,8 @@
 .. |dbd.mysql-innodb-metrics| replace:: *MySQL InnoDB Metrics*
 .. |dbd.mysql-myrocks-metrics| replace:: *MySQL MyRocks Metrics*
 .. |dbd.mysql-overview| replace:: *MySQL Overview*
+.. |dbd.mysql-table-statistics| replace:: *MySQL Table Statistics*
+.. |dbd.mysql-user-statistics| replace:: *MySQL User Statistics*
 .. |dbd.network-overview| replace:: *Network Overview*
 .. |dbd.overview-numa-metrics| replace:: *NUMA Overview*
 .. |dbd.postgres-overview| replace:: *PostgreSQL Overview*
