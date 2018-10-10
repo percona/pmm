@@ -190,6 +190,29 @@ following:
    What other monitoring services can I add using the |pmm-admin.add| command?
       Run :program:`pmm-admin add --help` in your terminal
 
+.. _deploy-pmm.diagnostics-for-support:
+
+:ref:`Obtaining Diagnostics for Support <deploy-pmm.diagnostics-for-support>`
+================================================================================
+
+|pmm-server| is able to generate a set of files for enhanced diagnostics, which
+can be examined and/or shared with Percona Support to solve an issue faster.
+
+Collected data are provided by the ``logs.zip`` service, and cover the following
+subjects:
+
+* Prometheus targets
+* Consul nodes, QAN API instances
+* Amazon RDS and Aurora instances
+* Version
+* Server configuration
+* Percona Toolkit commands
+
+You can retrieve collected data from your |pmm-server| in a single zip archive
+using this URL::
+
+   https://<address-of-your-pmm-server>/managed/logs.zip
+
 .. _deploy-pmm.updating:
 
 :ref:`Updating <deploy-pmm.updating>`
