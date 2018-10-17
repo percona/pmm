@@ -47,8 +47,13 @@ before_install:
 
   - protoc --version
 
+  - go get -u github.com/percona/mysqld_exporter
+  - go get -u github.com/percona/rds_exporter
+  - go get -u github.com/percona/postgres_exporter/...
+
 script:
   - sudo service mysql stop
+  - sudo service postgresql stop
   - docker-compose up -d
 
   # ensure that vendor/ is in sync with code and Gopkg.toml/lock
@@ -59,9 +64,6 @@ script:
   - make init gen
   - git status
   - git diff --exit-code
-
-  - go get -u github.com/percona/mysqld_exporter
-  - go get -u github.com/percona/rds_exporter
 
   - make cover
 

@@ -19,6 +19,7 @@ package models
 import (
 	"fmt"
 	"net"
+	"net/url"
 	"strconv"
 
 	"github.com/go-sql-driver/mysql"
@@ -28,10 +29,12 @@ import (
 
 type AgentType string
 
+// AgentType agent types for exporters and agents
 const (
-	MySQLdExporterAgentType AgentType = "mysqld_exporter"
-	RDSExporterAgentType    AgentType = "rds_exporter"
-	QanAgentAgentType       AgentType = "qan-agent"
+	MySQLdExporterAgentType   AgentType = "mysqld_exporter"
+	PostgresExporterAgentType AgentType = "postgres_exporter"
+	RDSExporterAgentType      AgentType = "rds_exporter"
+	QanAgentAgentType         AgentType = "qan-agent"
 )
 
 //reform:agents
@@ -68,6 +71,37 @@ func (m *MySQLdExporter) DSN(service *RDSService) string {
 
 func (m *MySQLdExporter) NameForSupervisor() string {
 	return fmt.Sprintf("pmm-%s-%d", m.Type, *m.ListenPort)
+}
+
+// binary name is postgres_exporter, that's why PostgresExporter below is not PostgreSQLExporter
+
+//reform:agents
+// PostgresExporter exports PostgreSQL metrics.
+type PostgresExporter struct {
+	ID           int32     `reform:"id,pk"`
+	Type         AgentType `reform:"type"`
+	RunsOnNodeID int32     `reform:"runs_on_node_id"`
+
+	ServiceUsername *string `reform:"service_username"`
+	ServicePassword *string `reform:"service_password"`
+	ListenPort      *uint16 `reform:"listen_port"`
+}
+
+// DSN returns DSN for PostgreSQL service.
+func (p *PostgresExporter) DSN(service *PostgreSQLService) string {
+	address := net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port)))
+	uri := url.URL{
+		User:     url.UserPassword(*p.ServiceUsername, *p.ServicePassword),
+		Host:     address,
+		Scheme:   "postgres",
+		RawQuery: "sslmode=disable",
+	}
+	return uri.String()
+}
+
+// NameForSupervisor is a name of exporter for supervisor.
+func (p *PostgresExporter) NameForSupervisor() string {
+	return fmt.Sprintf("pmm-%s-%d", p.Type, *p.ListenPort)
 }
 
 //reform:agents

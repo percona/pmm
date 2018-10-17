@@ -20,9 +20,11 @@ package models
 
 type NodeType string
 
+// Node types
 const (
-	PMMServerNodeType NodeType = "pmm-server"
-	RDSNodeType       NodeType = "rds"
+	PMMServerNodeType  NodeType = "pmm-server"
+	RDSNodeType        NodeType = "rds"
+	PostgreSQLNodeType NodeType = "postgresql"
 )
 
 //reform:nodes
@@ -39,4 +41,11 @@ type RDSNode struct {
 	Name string   `reform:"name"` // DBInstanceIdentifier
 
 	Region string `reform:"region"` // not a pointer, see database structure
+}
+
+//reform:nodes
+type PostgreSQLNode struct {
+	ID   int32    `reform:"id,pk"`
+	Type NodeType `reform:"type"`
+	Name string   `reform:"name"` // DBInstanceIdentifier
 }

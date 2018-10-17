@@ -4,11 +4,12 @@
 
 Run `make init` to install dependencies.
 
-You should also have `mysqld_exporter` and `rds_exporter` binaries somewhere in you `$PATH`.
+You should also have `mysqld_exporter`, `rds_exporter`, and `postgres_exporter` binaries somewhere in you `$PATH`.
 One way to get them is to install them using `go get`:
 ```sh
 go get -u github.com/percona/mysqld_exporter
 go get -u github.com/percona/rds_exporter
+go get -u github.com/percona/postgres_exporter/...
 ```
 
 You have to use Docker Compose to run most of the tests.

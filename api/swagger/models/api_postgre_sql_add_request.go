@@ -18,6 +18,9 @@ type APIPostgreSQLAddRequest struct {
 	// address
 	Address string `json:"address,omitempty"`
 
+	// name
+	Name string `json:"name,omitempty"`
+
 	// password
 	Password string `json:"password,omitempty"`
 

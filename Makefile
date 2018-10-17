@@ -45,6 +45,7 @@ run-race: install-race _run
 _run:
 	pmm-managed -swagger=rest -debug \
 		-agent-mysqld-exporter=mysqld_exporter \
+		-agent-postgres-exporter=postgres_exporter \
 		-agent-rds-exporter=rds_exporter \
 		-agent-rds-exporter-config=testdata/rds_exporter/rds_exporter.yml \
 		-prometheus-config=testdata/prometheus/prometheus.yml \

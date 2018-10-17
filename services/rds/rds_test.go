@@ -26,6 +26,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 
@@ -109,11 +110,11 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 	rootDir, err := ioutil.TempDir("/tmp", "pmm-managed-test-rootdir-")
 	assert.Nil(t, err)
 
-	mySQLdExporterPath := filepath.Join(rootDir, "mysqld_exporter")
-	rdsExporterPath := filepath.Join(rootDir, "rds_exporter")
+	mySQLdExporterPath, err := exec.LookPath("mysqld_exporter")
+	require.NoError(t, err)
+	rdsExporterPath, err := exec.LookPath("rds_exporter")
+	require.NoError(t, err)
 	rdsExporterConfigPath := filepath.Join(rootDir, "etc/percona-rds-exporter.yml")
-	createFakeBin(t, mySQLdExporterPath)
-	createFakeBin(t, rdsExporterPath)
 	os.MkdirAll(filepath.Join(rootDir, "etc"), 0777)
 	err = ioutil.WriteFile(rdsExporterConfigPath, []byte(`---`), 0666)
 	require.Nil(t, err)
@@ -139,8 +140,8 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 		MySQLdExporterPath:    mySQLdExporterPath,
 		RDSExporterPath:       rdsExporterPath,
 		RDSExporterConfigPath: rdsExporterConfigPath,
-		QAN:                   qan,
-		Supervisor:            supervisor,
+		QAN:        qan,
+		Supervisor: supervisor,
 
 		DB:            db,
 		Prometheus:    p,

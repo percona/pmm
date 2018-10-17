@@ -243,7 +243,123 @@ var (
 	_ fmt.Stringer  = (*RDSNode)(nil)
 )
 
+type postgreSQLNodeTableType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("").
+func (v *postgreSQLNodeTableType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("nodes").
+func (v *postgreSQLNodeTableType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *postgreSQLNodeTableType) Columns() []string {
+	return []string{"id", "type", "name"}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *postgreSQLNodeTableType) NewStruct() reform.Struct {
+	return new(PostgreSQLNode)
+}
+
+// NewRecord makes a new record for that table.
+func (v *postgreSQLNodeTableType) NewRecord() reform.Record {
+	return new(PostgreSQLNode)
+}
+
+// PKColumnIndex returns an index of primary key column for that table in SQL database.
+func (v *postgreSQLNodeTableType) PKColumnIndex() uint {
+	return uint(v.s.PKFieldIndex)
+}
+
+// PostgreSQLNodeTable represents nodes view or table in SQL database.
+var PostgreSQLNodeTable = &postgreSQLNodeTableType{
+	s: parse.StructInfo{Type: "PostgreSQLNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}}, PKFieldIndex: 0},
+	z: new(PostgreSQLNode).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s PostgreSQLNode) String() string {
+	res := make([]string, 3)
+	res[0] = "ID: " + reform.Inspect(s.ID, true)
+	res[1] = "Type: " + reform.Inspect(s.Type, true)
+	res[2] = "Name: " + reform.Inspect(s.Name, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *PostgreSQLNode) Values() []interface{} {
+	return []interface{}{
+		s.ID,
+		s.Type,
+		s.Name,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *PostgreSQLNode) Pointers() []interface{} {
+	return []interface{}{
+		&s.ID,
+		&s.Type,
+		&s.Name,
+	}
+}
+
+// View returns View object for that struct.
+func (s *PostgreSQLNode) View() reform.View {
+	return PostgreSQLNodeTable
+}
+
+// Table returns Table object for that record.
+func (s *PostgreSQLNode) Table() reform.Table {
+	return PostgreSQLNodeTable
+}
+
+// PKValue returns a value of primary key for that record.
+// Returned interface{} value is never untyped nil.
+func (s *PostgreSQLNode) PKValue() interface{} {
+	return s.ID
+}
+
+// PKPointer returns a pointer to primary key field for that record.
+// Returned interface{} value is never untyped nil.
+func (s *PostgreSQLNode) PKPointer() interface{} {
+	return &s.ID
+}
+
+// HasPK returns true if record has non-zero primary key set, false otherwise.
+func (s *PostgreSQLNode) HasPK() bool {
+	return s.ID != PostgreSQLNodeTable.z[PostgreSQLNodeTable.s.PKFieldIndex]
+}
+
+// SetPK sets record primary key.
+func (s *PostgreSQLNode) SetPK(pk interface{}) {
+	if i64, ok := pk.(int64); ok {
+		s.ID = int32(i64)
+	} else {
+		s.ID = pk.(int32)
+	}
+}
+
+// check interfaces
+var (
+	_ reform.View   = PostgreSQLNodeTable
+	_ reform.Struct = (*PostgreSQLNode)(nil)
+	_ reform.Table  = PostgreSQLNodeTable
+	_ reform.Record = (*PostgreSQLNode)(nil)
+	_ fmt.Stringer  = (*PostgreSQLNode)(nil)
+)
+
 func init() {
 	parse.AssertUpToDate(&NodeTable.s, new(Node))
 	parse.AssertUpToDate(&RDSNodeTable.s, new(RDSNode))
+	parse.AssertUpToDate(&PostgreSQLNodeTable.s, new(PostgreSQLNode))
 }

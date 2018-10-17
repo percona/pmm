@@ -444,6 +444,17 @@
   version = "v0.1.0"
 
 [[projects]]
+  digest = "1:2106821001befed6a5783b54950030dd0614257d18bef539e46cae9afd02b89b"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "oid",
+  ]
+  pruneopts = "T"
+  revision = "4ded0e9383f75c197b3a2aaa6d590ac52df6fd79"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:53e8c5c79716437e601696140e8b1801aae4204f4ec54a504333702a49572c4f"
   name = "github.com/magiconair/properties"
   packages = ["."]
@@ -862,6 +873,7 @@
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
     "github.com/grpc-ecosystem/grpc-gateway/utilities",
     "github.com/hashicorp/consul/api",
+    "github.com/lib/pq",
     "github.com/percona/kardianos-service",
     "github.com/percona/pmm/proto",
     "github.com/percona/pmm/proto/config",

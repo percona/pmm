@@ -258,7 +258,135 @@ var (
 	_ fmt.Stringer  = (*RDSService)(nil)
 )
 
+type postgreSQLServiceTableType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("").
+func (v *postgreSQLServiceTableType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("services").
+func (v *postgreSQLServiceTableType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *postgreSQLServiceTableType) Columns() []string {
+	return []string{"id", "type", "node_id", "address", "port", "engine", "engine_version"}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *postgreSQLServiceTableType) NewStruct() reform.Struct {
+	return new(PostgreSQLService)
+}
+
+// NewRecord makes a new record for that table.
+func (v *postgreSQLServiceTableType) NewRecord() reform.Record {
+	return new(PostgreSQLService)
+}
+
+// PKColumnIndex returns an index of primary key column for that table in SQL database.
+func (v *postgreSQLServiceTableType) PKColumnIndex() uint {
+	return uint(v.s.PKFieldIndex)
+}
+
+// PostgreSQLServiceTable represents services view or table in SQL database.
+var PostgreSQLServiceTable = &postgreSQLServiceTableType{
+	s: parse.StructInfo{Type: "PostgreSQLService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "NodeID", Type: "int32", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
+	z: new(PostgreSQLService).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s PostgreSQLService) String() string {
+	res := make([]string, 7)
+	res[0] = "ID: " + reform.Inspect(s.ID, true)
+	res[1] = "Type: " + reform.Inspect(s.Type, true)
+	res[2] = "NodeID: " + reform.Inspect(s.NodeID, true)
+	res[3] = "Address: " + reform.Inspect(s.Address, true)
+	res[4] = "Port: " + reform.Inspect(s.Port, true)
+	res[5] = "Engine: " + reform.Inspect(s.Engine, true)
+	res[6] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *PostgreSQLService) Values() []interface{} {
+	return []interface{}{
+		s.ID,
+		s.Type,
+		s.NodeID,
+		s.Address,
+		s.Port,
+		s.Engine,
+		s.EngineVersion,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *PostgreSQLService) Pointers() []interface{} {
+	return []interface{}{
+		&s.ID,
+		&s.Type,
+		&s.NodeID,
+		&s.Address,
+		&s.Port,
+		&s.Engine,
+		&s.EngineVersion,
+	}
+}
+
+// View returns View object for that struct.
+func (s *PostgreSQLService) View() reform.View {
+	return PostgreSQLServiceTable
+}
+
+// Table returns Table object for that record.
+func (s *PostgreSQLService) Table() reform.Table {
+	return PostgreSQLServiceTable
+}
+
+// PKValue returns a value of primary key for that record.
+// Returned interface{} value is never untyped nil.
+func (s *PostgreSQLService) PKValue() interface{} {
+	return s.ID
+}
+
+// PKPointer returns a pointer to primary key field for that record.
+// Returned interface{} value is never untyped nil.
+func (s *PostgreSQLService) PKPointer() interface{} {
+	return &s.ID
+}
+
+// HasPK returns true if record has non-zero primary key set, false otherwise.
+func (s *PostgreSQLService) HasPK() bool {
+	return s.ID != PostgreSQLServiceTable.z[PostgreSQLServiceTable.s.PKFieldIndex]
+}
+
+// SetPK sets record primary key.
+func (s *PostgreSQLService) SetPK(pk interface{}) {
+	if i64, ok := pk.(int64); ok {
+		s.ID = int32(i64)
+	} else {
+		s.ID = pk.(int32)
+	}
+}
+
+// check interfaces
+var (
+	_ reform.View   = PostgreSQLServiceTable
+	_ reform.Struct = (*PostgreSQLService)(nil)
+	_ reform.Table  = PostgreSQLServiceTable
+	_ reform.Record = (*PostgreSQLService)(nil)
+	_ fmt.Stringer  = (*PostgreSQLService)(nil)
+)
+
 func init() {
 	parse.AssertUpToDate(&ServiceTable.s, new(Service))
 	parse.AssertUpToDate(&RDSServiceTable.s, new(RDSService))
+	parse.AssertUpToDate(&PostgreSQLServiceTable.s, new(PostgreSQLService))
 }
