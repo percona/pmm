@@ -35,6 +35,35 @@
         - { src: '/etc/cron.daily/purge-qan-data', dest: '/srv/update/purge-qan-data-backup' }
         - { src: '/etc/grafana/grafana.ini',       dest: '/srv/update/grafana-backup' }
 
+    - name: Data partition             | Create a file for changing partitions
+      when: ansible_lvm is defined
+      copy:
+        content: |
+          #!/bin/sh
+
+          set -o errexit
+
+          /usr/sbin/pvresize $(/usr/bin/ls /dev/sda /dev/sdb /dev/sdc /dev/xvdb /dev/nvme1n1 2>/dev/null | /usr/bin/grep -v ^$(/usr/sbin/pvdisplay -c | /usr/bin/grep ':VolGroup00:' | /usr/bin/cut -d ':' -f 1 | /usr/bin/tr -d '[:space:]' | /usr/bin/sed 's/[0-9]$//')$ | /usr/bin/grep -v ^$(/usr/bin/findmnt -f -n -o SOURCE / | /usr/bin/sed 's/[0-9]$//')$ | /usr/bin/grep -v ^$(/usr/bin/findmnt -f -n -o SOURCE /mnt/resource | /usr/bin/sed 's/[0-9]$//')$)
+          /usr/sbin/lvextend -l '1%VG' /dev/DataVG/ThinPool_tmeta
+          /usr/sbin/lvextend -l '100%VG' /dev/DataVG/ThinPool
+          /usr/sbin/lvextend -l '80%VG' /dev/DataVG/DataLV
+          /usr/sbin/xfs_growfs -d /srv
+        dest: /var/lib/cloud/scripts/per-boot/resize-xfs
+        force: yes
+        mode: 0755
+
+    - stat: path=/var/lib/cloud/scripts/per-boot/resize-xfs
+      register: resizeXfs
+
+    - name: Cron tasks                 | Add partition resize task to cron
+      when: resizeXfs.stat.exists == True
+      cron:
+        name: "resize data partition"
+        minute: "*/5"
+        user: root
+        job: "/var/lib/cloud/scripts/per-boot/resize-xfs"
+        cron_file: resizeXfs
+
     - name: PMM                        | Update pmm-server RPM
       when: ansible_os_family == 'RedHat'
       yum: name={{ item }} state=present enablerepo=pmm
