@@ -407,12 +407,6 @@ provides information about changes in query response time for different groups
 of queries, often allowing to spot performance problems before they lead to
 serious issues.
 
-.. warning::
-
-   This feature causes very high overhead, especially on systems processing more
-   than 10000 queries per second.  Use it only temporarily when troubleshooting
-   problems.
-
 To enable collection of query response time:
 
 1. Install the |query-response-time| plugins:
