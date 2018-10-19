@@ -312,13 +312,29 @@
         }
       }
     },
+    "/v0/remote": {
+      "get": {
+        "tags": [
+          "Remote"
+        ],
+        "operationId": "ListMixin6",
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/apiRemoteListResponse"
+            }
+          }
+        }
+      }
+    },
     "/v0/scrape-configs": {
       "get": {
         "tags": [
           "ScrapeConfigs"
         ],
         "summary": "List returns all scrape configs.",
-        "operationId": "ListMixin6",
+        "operationId": "ListMixin7",
         "responses": {
           "200": {
             "description": "(empty)",
@@ -333,7 +349,7 @@
           "ScrapeConfigs"
         ],
         "summary": "Create creates a new scrape config.\nErrors: InvalidArgument(3) if some argument is not valid,\nAlreadyExists(6) if scrape config with that job name is already present,\nFailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.",
-        "operationId": "CreateMixin6",
+        "operationId": "CreateMixin7",
         "parameters": [
           {
             "name": "body",
@@ -805,6 +821,54 @@
       "type": "object"
     },
     "apiRDSService": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "engine": {
+          "type": "string"
+        },
+        "engine_version": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "apiRemoteInstance": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "$ref": "#/definitions/apiRemoteNode"
+        },
+        "service": {
+          "$ref": "#/definitions/apiRemoteService"
+        }
+      }
+    },
+    "apiRemoteListResponse": {
+      "type": "object",
+      "properties": {
+        "instances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiRemoteInstance"
+          }
+        }
+      }
+    },
+    "apiRemoteNode": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "apiRemoteService": {
       "type": "object",
       "properties": {
         "address": {

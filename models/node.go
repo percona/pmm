@@ -22,9 +22,9 @@ type NodeType string
 
 // Node types
 const (
-	PMMServerNodeType  NodeType = "pmm-server"
-	RDSNodeType        NodeType = "rds"
-	PostgreSQLNodeType NodeType = "postgresql"
+	PMMServerNodeType NodeType = "pmm-server"
+	RDSNodeType       NodeType = "rds"
+	RemoteNodeType    NodeType = "remote"
 )
 
 //reform:nodes
@@ -44,7 +44,7 @@ type RDSNode struct {
 }
 
 //reform:nodes
-type PostgreSQLNode struct {
+type RemoteNode struct {
 	ID   int32    `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"` // DBInstanceIdentifier

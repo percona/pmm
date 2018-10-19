@@ -16,17 +16,17 @@ import (
 	models "github.com/percona/pmm-managed/api/swagger/models"
 )
 
-// CreateMixin6Reader is a Reader for the CreateMixin6 structure.
-type CreateMixin6Reader struct {
+// CreateMixin7Reader is a Reader for the CreateMixin7 structure.
+type CreateMixin7Reader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *CreateMixin6Reader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *CreateMixin7Reader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
 	case 200:
-		result := NewCreateMixin6OK()
+		result := NewCreateMixin7OK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -37,24 +37,24 @@ func (o *CreateMixin6Reader) ReadResponse(response runtime.ClientResponse, consu
 	}
 }
 
-// NewCreateMixin6OK creates a CreateMixin6OK with default headers values
-func NewCreateMixin6OK() *CreateMixin6OK {
-	return &CreateMixin6OK{}
+// NewCreateMixin7OK creates a CreateMixin7OK with default headers values
+func NewCreateMixin7OK() *CreateMixin7OK {
+	return &CreateMixin7OK{}
 }
 
-/*CreateMixin6OK handles this case with default header values.
+/*CreateMixin7OK handles this case with default header values.
 
 (empty)
 */
-type CreateMixin6OK struct {
+type CreateMixin7OK struct {
 	Payload models.APIScrapeConfigsCreateResponse
 }
 
-func (o *CreateMixin6OK) Error() string {
-	return fmt.Sprintf("[POST /v0/scrape-configs][%d] createMixin6OK  %+v", 200, o.Payload)
+func (o *CreateMixin7OK) Error() string {
+	return fmt.Sprintf("[POST /v0/scrape-configs][%d] createMixin7OK  %+v", 200, o.Payload)
 }
 
-func (o *CreateMixin6OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *CreateMixin7OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
