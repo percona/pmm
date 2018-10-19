@@ -31,7 +31,6 @@ import (
 	"github.com/lib/pq"
 	servicelib "github.com/percona/kardianos-service"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -266,7 +265,6 @@ func (svc *Service) engineAndEngineVersion(ctx context.Context, host string, por
 		Port:    pointer.ToUint16(uint16(port)),
 	}
 	dsn := agent.DSN(service)
-	logrus.Println(dsn)
 	db, err := sql.Open("postgres", dsn)
 	if err == nil {
 		err = db.QueryRowContext(ctx, "SELECT Version();").Scan(&databaseVersion)
