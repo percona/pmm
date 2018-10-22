@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package postgresql contains business logic of working with Remote PostgreSQL instances.
+// Package remote contains business logic of working with Remote instances.
 package remote
 
 import (
@@ -26,13 +26,12 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
-// regexps to extract version numbers from the `SELECT Version();` output
-
+// ServiceConfig contains configuration for remote.Service
 type ServiceConfig struct {
 	DB *reform.DB
 }
 
-// Service is responsible for interactions with PostgreSQL.
+// Service is responsible for interactions with Remote instances.
 type Service struct {
 	*ServiceConfig
 	httpClient    *http.Client
@@ -60,6 +59,7 @@ type Instance struct {
 	Service models.RemoteService
 }
 
+// List returns list of all nodes except PMM Server node
 func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 	var res []Instance
 	err := svc.DB.InTransaction(func(tx *reform.TX) error {

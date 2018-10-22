@@ -260,7 +260,7 @@ func (v *remoteNodeTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *remoteNodeTableType) Columns() []string {
-	return []string{"id", "type", "name"}
+	return []string{"id", "type", "name", "region"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -280,16 +280,17 @@ func (v *remoteNodeTableType) PKColumnIndex() uint {
 
 // RemoteNodeTable represents nodes view or table in SQL database.
 var RemoteNodeTable = &remoteNodeTableType{
-	s: parse.StructInfo{Type: "RemoteNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RemoteNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "string", Column: "region"}}, PKFieldIndex: 0},
 	z: new(RemoteNode).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s RemoteNode) String() string {
-	res := make([]string, 3)
+	res := make([]string, 4)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "Name: " + reform.Inspect(s.Name, true)
+	res[3] = "Region: " + reform.Inspect(s.Region, true)
 	return strings.Join(res, ", ")
 }
 
@@ -300,6 +301,7 @@ func (s *RemoteNode) Values() []interface{} {
 		s.ID,
 		s.Type,
 		s.Name,
+		s.Region,
 	}
 }
 
@@ -310,6 +312,7 @@ func (s *RemoteNode) Pointers() []interface{} {
 		&s.ID,
 		&s.Type,
 		&s.Name,
+		&s.Region,
 	}
 }
 

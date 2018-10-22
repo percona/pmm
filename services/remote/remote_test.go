@@ -103,9 +103,10 @@ func TestList(t *testing.T) {
 	require.NoError(t, err)
 	expected := []Instance{{
 		Node: models.RemoteNode{
-			ID:   2,
-			Type: "remote",
-			Name: "localhost:5432",
+			ID:     2,
+			Type:   "remote",
+			Name:   "localhost:5432",
+			Region: "remote",
 		},
 		Service: models.RemoteService{
 			ID:            1000,

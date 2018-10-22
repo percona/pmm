@@ -27,6 +27,8 @@ const (
 	RemoteNodeType    NodeType = "remote"
 )
 
+const RemoteNodeRegion string = "remote"
+
 //reform:nodes
 type Node struct {
 	ID   int32    `reform:"id,pk"`
@@ -48,4 +50,6 @@ type RemoteNode struct {
 	ID   int32    `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"` // DBInstanceIdentifier
+
+	Region string `reform:"region"` // not a pointer, see database structure
 }

@@ -8,6 +8,7 @@ message RemoteNode {
     reserved 1, 2; // id and type
 
     string name = 3;
+    string region = 4;
 }
 
 message RemoteService {

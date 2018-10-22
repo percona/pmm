@@ -213,8 +213,9 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 	err := svc.DB.InTransaction(func(tx *reform.TX) error {
 		// insert node
 		node := &models.RemoteNode{
-			Type: models.RemoteNodeType,
-			Name: name,
+			Type:   models.RemoteNodeType,
+			Name:   name,
+			Region: models.RemoteNodeRegion,
 		}
 		if err := tx.Insert(node); err != nil {
 			if err, ok := err.(*mysql.MySQLError); ok && err.Number == 0x426 {

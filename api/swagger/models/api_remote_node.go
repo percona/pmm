@@ -17,6 +17,9 @@ type APIRemoteNode struct {
 
 	// name
 	Name string `json:"name,omitempty"`
+
+	// region
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this api remote node

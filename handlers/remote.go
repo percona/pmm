@@ -24,7 +24,7 @@ import (
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
-// PostgreSQLServer handles requests to manage PostgreSQL nodes and services.
+// RemoteServer handles requests to return Remote nodes and services list.
 type RemoteServer struct {
 	Remote *remote.Service
 }
@@ -41,7 +41,8 @@ func (s *RemoteServer) List(ctx context.Context, req *api.RemoteListRequest) (*a
 	for _, db := range res {
 		resp.Instances = append(resp.Instances, &api.RemoteInstance{
 			Node: &api.RemoteNode{
-				Name: db.Node.Name,
+				Name:   db.Node.Name,
+				Region: db.Node.Region,
 			},
 			Service: &api.RemoteService{
 				Address:       *db.Service.Address,
@@ -56,5 +57,5 @@ func (s *RemoteServer) List(ctx context.Context, req *api.RemoteListRequest) (*a
 
 // check interfaces
 var (
-	_ api.PostgreSQLServer = (*PostgreSQLServer)(nil)
+	_ api.RemoteServer = (*RemoteServer)(nil)
 )

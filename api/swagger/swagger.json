@@ -865,6 +865,9 @@
       "properties": {
         "name": {
           "type": "string"
+        },
+        "region": {
+          "type": "string"
         }
       }
     },
