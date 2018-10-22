@@ -56,7 +56,7 @@ type MySQLdExporter struct {
 	MySQLDisableTablestats *bool   `reform:"mysql_disable_tablestats"`
 }
 
-func (m *MySQLdExporter) DSN(service *RDSService) string {
+func (m *MySQLdExporter) DSN(service *MySQLService) string {
 	cfg := mysql.NewConfig()
 	cfg.User = *m.ServiceUsername
 	cfg.Passwd = *m.ServicePassword
@@ -129,7 +129,7 @@ type QanAgent struct {
 	QANDBInstanceUUID *string `reform:"qan_db_instance_uuid"` // MySQL instance UUID in QAN
 }
 
-func (q *QanAgent) DSN(service *RDSService) string {
+func (q *QanAgent) DSN(service *MySQLService) string {
 	cfg := mysql.NewConfig()
 	cfg.User = *q.ServiceUsername
 	cfg.Passwd = *q.ServicePassword

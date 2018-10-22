@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package rds contains business logic of working with AWS RDS.
+// Package postgresql contains business logic of working with Remote PostgreSQL instances.
 package postgresql
 
 import (
@@ -102,7 +102,7 @@ func TestAddListRemove(t *testing.T) {
 	assert.NoError(t, err)
 
 	_, err = svc.Add(ctx, "", "localhost", 5432, "username", "password")
-	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `PostgreSQL instance "localhost:5432" already exists.`), err)
+	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `PostgreSQL instance "localhost" already exists.`), err)
 
 	actual, err = svc.List(ctx)
 	require.NoError(t, err)
@@ -110,7 +110,7 @@ func TestAddListRemove(t *testing.T) {
 		Node: models.RemoteNode{
 			ID:     2,
 			Type:   "remote",
-			Name:   "localhost:5432",
+			Name:   "localhost",
 			Region: "remote",
 		},
 		Service: models.PostgreSQLService{

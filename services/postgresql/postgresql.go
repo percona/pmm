@@ -114,7 +114,7 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		node := n.(*models.RemoteNode)
 
 		var service models.PostgreSQLService
-		if e := q.SelectOneTo(&service, "WHERE node_id = ?", node.ID); e != nil {
+		if e := q.SelectOneTo(&service, "WHERE node_id = ? and type = ?", node.ID, models.PostgreSQLServiceType); e != nil {
 			return errors.WithStack(e)
 		}
 
@@ -206,7 +206,7 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 		return 0, status.Error(codes.InvalidArgument, "Username is not given.")
 	}
 	if name == "" {
-		name = fmt.Sprintf("%s:%d", address, port)
+		name = address
 	}
 
 	var id int32
@@ -307,7 +307,7 @@ func (svc *Service) Remove(ctx context.Context, id int32) error {
 		}
 
 		var service models.PostgreSQLService
-		if err = tx.SelectOneTo(&service, "WHERE node_id = ?", node.ID); err != nil {
+		if err = tx.SelectOneTo(&service, "WHERE node_id = ? and type = ?", node.ID, models.PostgreSQLServiceType); err != nil {
 			return errors.WithStack(err)
 		}
 

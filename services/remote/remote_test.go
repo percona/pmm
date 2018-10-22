@@ -83,7 +83,6 @@ func teardown(t *testing.T, postgreSQLService *postgresql.Service, sqlDB *sql.DB
 		err := os.RemoveAll(rootDir)
 		assert.Nil(t, err)
 	}
-	supervisor.AssertExpectations(t)
 }
 
 func TestList(t *testing.T) {
@@ -105,7 +104,7 @@ func TestList(t *testing.T) {
 		Node: models.RemoteNode{
 			ID:     2,
 			Type:   "remote",
-			Name:   "localhost:5432",
+			Name:   "localhost",
 			Region: "remote",
 		},
 		Service: models.RemoteService{

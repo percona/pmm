@@ -298,7 +298,7 @@ func (svc *Service) sendQANCommand(ctx context.Context, qanURL *url.URL, agentUU
 
 // AddMySQL adds MySQL instance to QAN, configuring and enabling it.
 // It sets MySQL instance UUID to qanAgent.QANDBInstanceUUID.
-func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsService *models.RDSService, qanAgent *models.QanAgent) error {
+func (svc *Service) AddMySQL(ctx context.Context, nodeName string, mySQLService *models.MySQLService, qanAgent *models.QanAgent) error {
 	qanURL, err := svc.ensureAgentIsRegistered(ctx)
 	if err != nil {
 		return err
@@ -316,9 +316,9 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 	instance := &proto.Instance{
 		Subsystem:  "mysql",
 		ParentUUID: osUUID,
-		Name:       rdsNode.Name,
-		DSN:        sanitizeDSN(qanAgent.DSN(rdsService)),
-		Version:    *rdsService.EngineVersion,
+		Name:       nodeName,
+		DSN:        sanitizeDSN(qanAgent.DSN(mySQLService)),
+		Version:    *mySQLService.EngineVersion,
 	}
 	if err = svc.addInstance(ctx, qanURL, instance); err != nil {
 		return err
@@ -327,7 +327,7 @@ func (svc *Service) AddMySQL(ctx context.Context, rdsNode *models.RDSNode, rdsSe
 
 	// we need real DSN (with password) for qan-agent to work, and it seems to be the only way to pass it
 	path := filepath.Join(svc.baseDir, "instance", fmt.Sprintf("%s.json", instance.UUID))
-	instance.DSN = qanAgent.DSN(rdsService)
+	instance.DSN = qanAgent.DSN(mySQLService)
 	b, err := json.MarshalIndent(instance, "", "    ")
 	if err != nil {
 		return errors.WithStack(err)
