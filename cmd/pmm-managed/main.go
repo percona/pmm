@@ -307,6 +307,7 @@ func runRESTServer(ctx context.Context, logs *logs.Logs) {
 		api.RegisterDemoHandlerFromEndpoint,
 		api.RegisterScrapeConfigsHandlerFromEndpoint,
 		api.RegisterRDSHandlerFromEndpoint,
+		api.RegisterRemoteHandlerFromEndpoint,
 		api.RegisterPostgreSQLHandlerFromEndpoint,
 		api.RegisterLogsHandlerFromEndpoint,
 		api.RegisterAnnotationsHandlerFromEndpoint,
