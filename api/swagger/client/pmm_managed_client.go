@@ -18,6 +18,7 @@ import (
 	"github.com/percona/pmm-managed/api/swagger/client/my_sql"
 	"github.com/percona/pmm-managed/api/swagger/client/postgre_sql"
 	"github.com/percona/pmm-managed/api/swagger/client/r_d_s"
+	"github.com/percona/pmm-managed/api/swagger/client/remote"
 	"github.com/percona/pmm-managed/api/swagger/client/scrape_configs"
 )
 
@@ -77,6 +78,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PmmManaged
 	cli.PostgreSQL = postgre_sql.New(transport, formats)
 
 	cli.RDS = r_d_s.New(transport, formats)
+
+	cli.Remote = remote.New(transport, formats)
 
 	cli.ScrapeConfigs = scrape_configs.New(transport, formats)
 
@@ -138,6 +141,8 @@ type PmmManaged struct {
 
 	RDS *r_d_s.Client
 
+	Remote *remote.Client
+
 	ScrapeConfigs *scrape_configs.Client
 
 	Transport runtime.ClientTransport
@@ -160,6 +165,8 @@ func (c *PmmManaged) SetTransport(transport runtime.ClientTransport) {
 	c.PostgreSQL.SetTransport(transport)
 
 	c.RDS.SetTransport(transport)
+
+	c.Remote.SetTransport(transport)
 
 	c.ScrapeConfigs.SetTransport(transport)
 

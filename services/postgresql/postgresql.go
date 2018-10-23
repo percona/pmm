@@ -106,12 +106,12 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		}},
 	}
 
-	nodes, err := q.FindAllFrom(models.PostgreSQLNodeTable, "type", models.PostgreSQLNodeType)
+	nodes, err := q.FindAllFrom(models.RemoteNodeTable, "type", models.RemoteNodeType)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 	for _, n := range nodes {
-		node := n.(*models.PostgreSQLNode)
+		node := n.(*models.RemoteNode)
 
 		var service models.PostgreSQLService
 		if e := q.SelectOneTo(&service, "WHERE node_id = ?", node.ID); e != nil {
@@ -154,20 +154,20 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 }
 
 type Instance struct {
-	Node    models.PostgreSQLNode
+	Node    models.RemoteNode
 	Service models.PostgreSQLService
 }
 
 func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 	var res []Instance
 	err := svc.DB.InTransaction(func(tx *reform.TX) error {
-		structs, e := tx.SelectAllFrom(models.PostgreSQLNodeTable, "WHERE type = ? ORDER BY id", models.PostgreSQLNodeType)
+		structs, e := tx.SelectAllFrom(models.RemoteNodeTable, "WHERE type = ? ORDER BY id", models.RemoteNodeType)
 		if e != nil {
 			return e
 		}
-		nodes := make([]models.PostgreSQLNode, len(structs))
+		nodes := make([]models.RemoteNode, len(structs))
 		for i, str := range structs {
-			nodes[i] = *str.(*models.PostgreSQLNode)
+			nodes[i] = *str.(*models.RemoteNode)
 		}
 
 		structs, e = tx.SelectAllFrom(models.PostgreSQLServiceTable, "WHERE type = ? ORDER BY id", models.PostgreSQLServiceType)
@@ -212,9 +212,10 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 	var id int32
 	err := svc.DB.InTransaction(func(tx *reform.TX) error {
 		// insert node
-		node := &models.PostgreSQLNode{
-			Type: models.PostgreSQLNodeType,
-			Name: name,
+		node := &models.RemoteNode{
+			Type:   models.RemoteNodeType,
+			Name:   name,
+			Region: models.RemoteNodeRegion,
 		}
 		if err := tx.Insert(node); err != nil {
 			if err, ok := err.(*mysql.MySQLError); ok && err.Number == 0x426 {
@@ -297,8 +298,8 @@ func (svc *Service) engineAndVersionFromPlainText(databaseVersion string) (strin
 func (svc *Service) Remove(ctx context.Context, id int32) error {
 	var err error
 	return svc.DB.InTransaction(func(tx *reform.TX) error {
-		var node models.PostgreSQLNode
-		if err = tx.SelectOneTo(&node, "WHERE type = ? AND id = ?", models.PostgreSQLNodeType, id); err != nil {
+		var node models.RemoteNode
+		if err = tx.SelectOneTo(&node, "WHERE type = ? AND id = ?", models.RemoteNodeType, id); err != nil {
 			if err == reform.ErrNoRows {
 				return status.Errorf(codes.NotFound, "PostgreSQL instance with ID %d not found.", id)
 			}
@@ -437,12 +438,12 @@ func (svc *Service) addPostgresExporter(ctx context.Context, tx *reform.TX, serv
 
 // Restore configuration from database.
 func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
-	nodes, err := tx.FindAllFrom(models.PostgreSQLNodeTable, "type", models.PostgreSQLNodeType)
+	nodes, err := tx.FindAllFrom(models.RemoteNodeTable, "type", models.RemoteNodeType)
 	if err != nil {
 		return errors.WithStack(err)
 	}
 	for _, n := range nodes {
-		node := n.(*models.PostgreSQLNode)
+		node := n.(*models.RemoteNode)
 
 		service := &models.PostgreSQLService{}
 		if e := tx.SelectOneTo(service, "WHERE node_id = ?", node.ID); e != nil {

@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package api;
+
+import "google/api/annotations.proto";
+
+message RemoteNode {
+    reserved 1, 2; // id and type
+
+    string name = 3;
+    string region = 4;
+}
+
+message RemoteService {
+    reserved 1, 2, 3; // id, type, and node_id
+
+    string address = 4;
+    uint32 port = 5;
+    string engine = 6;
+    string engine_version = 7;
+}
+
+message RemoteInstance {
+    RemoteNode node = 1;
+    RemoteService service = 2;
+}
+
+
+message RemoteListRequest {
+}
+
+message RemoteListResponse {
+    repeated RemoteInstance instances = 1;
+}
+
+service Remote {
+    rpc List(RemoteListRequest) returns (RemoteListResponse) {
+        option (google.api.http) = {
+            get: "/v0/remote"
+        };
+    }
+}

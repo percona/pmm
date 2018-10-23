@@ -1,0 +1,88 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "remote.proto",
+    "version": "version not set"
+  },
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v0/remote": {
+      "get": {
+        "operationId": "List",
+        "responses": {
+          "200": {
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/apiRemoteListResponse"
+            }
+          }
+        },
+        "tags": [
+          "Remote"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiRemoteInstance": {
+      "type": "object",
+      "properties": {
+        "node": {
+          "$ref": "#/definitions/apiRemoteNode"
+        },
+        "service": {
+          "$ref": "#/definitions/apiRemoteService"
+        }
+      }
+    },
+    "apiRemoteListResponse": {
+      "type": "object",
+      "properties": {
+        "instances": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/apiRemoteInstance"
+          }
+        }
+      }
+    },
+    "apiRemoteNode": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "region": {
+          "type": "string"
+        }
+      }
+    },
+    "apiRemoteService": {
+      "type": "object",
+      "properties": {
+        "address": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "engine": {
+          "type": "string"
+        },
+        "engine_version": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

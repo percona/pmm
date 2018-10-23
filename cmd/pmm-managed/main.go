@@ -54,6 +54,7 @@ import (
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/services/rds"
+	"github.com/percona/pmm-managed/services/remote"
 	"github.com/percona/pmm-managed/services/supervisor"
 	"github.com/percona/pmm-managed/services/telemetry"
 	"github.com/percona/pmm-managed/utils/interceptors"
@@ -229,6 +230,7 @@ type grpcServerDependencies struct {
 	rds          *rds.Service
 	consulClient *consul.Client
 	logs         *logs.Logs
+	remote       *remote.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -252,6 +254,9 @@ func runGRPCServer(ctx context.Context, deps *grpcServerDependencies) {
 	})
 	api.RegisterPostgreSQLServer(gRPCServer, &handlers.PostgreSQLServer{
 		PostgreSQL: deps.postgres,
+	})
+	api.RegisterRemoteServer(gRPCServer, &handlers.RemoteServer{
+		Remote: deps.remote,
 	})
 	api.RegisterLogsServer(gRPCServer, &handlers.LogsServer{
 		Logs: deps.logs,
@@ -302,6 +307,7 @@ func runRESTServer(ctx context.Context, logs *logs.Logs) {
 		api.RegisterDemoHandlerFromEndpoint,
 		api.RegisterScrapeConfigsHandlerFromEndpoint,
 		api.RegisterRDSHandlerFromEndpoint,
+		api.RegisterRemoteHandlerFromEndpoint,
 		api.RegisterPostgreSQLHandlerFromEndpoint,
 		api.RegisterLogsHandlerFromEndpoint,
 		api.RegisterAnnotationsHandlerFromEndpoint,
@@ -515,6 +521,13 @@ func main() {
 		l.Panicf("PostgreSQL service problem: %+v", err)
 	}
 
+	remoteService, err := remote.NewService(&remote.ServiceConfig{
+		DB: deps.db,
+	})
+	if err != nil {
+		l.Panicf("Remote service problem: %+v", err)
+	}
+
 	logs := logs.New(Version, consulClient, rds, nil)
 
 	var wg sync.WaitGroup
@@ -526,6 +539,7 @@ func main() {
 			serviceDependencies: deps,
 			rds:                 rds,
 			postgres:            postgres,
+			remote:              remoteService,
 			consulClient:        consulClient,
 			logs:                logs,
 		})
