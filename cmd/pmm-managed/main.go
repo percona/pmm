@@ -50,6 +50,7 @@ import (
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/grafana"
 	"github.com/percona/pmm-managed/services/logs"
+	mysql2 "github.com/percona/pmm-managed/services/mysql"
 	"github.com/percona/pmm-managed/services/postgresql"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
@@ -224,6 +225,36 @@ func makePostgreSQLService(ctx context.Context, deps *serviceDependencies) (*pos
 	return postgresqlService, nil
 }
 
+func makeMySQLService(ctx context.Context, deps *serviceDependencies) (*mysql2.Service, error) {
+	serviceConfig := mysql2.ServiceConfig{
+		MySQLdExporterPath: *agentMySQLdExporterF,
+
+		DB:            deps.db,
+		Prometheus:    deps.prometheus,
+		Supervisor:    deps.supervisor,
+		PortsRegistry: deps.registry,
+	}
+	mysqlService, err := mysql2.NewService(&serviceConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	err = deps.db.InTransaction(func(tx *reform.TX) error {
+		return mysqlService.ApplyPrometheusConfiguration(ctx, tx.Querier)
+	})
+	if err != nil {
+		return nil, err
+	}
+	err = deps.db.InTransaction(func(tx *reform.TX) error {
+		return mysqlService.Restore(ctx, tx)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return mysqlService, nil
+}
+
 type grpcServerDependencies struct {
 	*serviceDependencies
 	postgres     *postgresql.Service
@@ -231,6 +262,7 @@ type grpcServerDependencies struct {
 	consulClient *consul.Client
 	logs         *logs.Logs
 	remote       *remote.Service
+	mysql        *mysql2.Service
 }
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
@@ -254,6 +286,9 @@ func runGRPCServer(ctx context.Context, deps *grpcServerDependencies) {
 	})
 	api.RegisterPostgreSQLServer(gRPCServer, &handlers.PostgreSQLServer{
 		PostgreSQL: deps.postgres,
+	})
+	api.RegisterMySQLServer(gRPCServer, &handlers.MySQLServer{
+		MySQL: deps.mysql,
 	})
 	api.RegisterRemoteServer(gRPCServer, &handlers.RemoteServer{
 		Remote: deps.remote,
@@ -522,6 +557,11 @@ func main() {
 		l.Panicf("PostgreSQL service problem: %+v", err)
 	}
 
+	mysqlService, err := makeMySQLService(ctx, deps)
+	if err != nil {
+		l.Panicf("PostgreSQL service problem: %+v", err)
+	}
+
 	remoteService, err := remote.NewService(&remote.ServiceConfig{
 		DB: deps.db,
 	})
@@ -540,6 +580,7 @@ func main() {
 			serviceDependencies: deps,
 			rds:                 rds,
 			postgres:            postgres,
+			mysql:               mysqlService,
 			remote:              remoteService,
 			consulClient:        consulClient,
 			logs:                logs,
