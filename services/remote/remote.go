@@ -21,9 +21,8 @@ import (
 	"context"
 	"net/http"
 
-	"gopkg.in/reform.v1"
-
 	"github.com/percona/pmm-managed/models"
+	"gopkg.in/reform.v1"
 )
 
 // ServiceConfig contains configuration for remote.Service
@@ -54,6 +53,7 @@ func NewService(config *ServiceConfig) (*Service, error) {
 	return svc, nil
 }
 
+// Instance contains data about node and service placed on the node
 type Instance struct {
 	Node    models.RemoteNode
 	Service models.RemoteService
