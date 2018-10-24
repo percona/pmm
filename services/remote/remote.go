@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package remote contains business logic of working with Remote instances.
+// Package remote contains business logic of working with all Remote instances.
 package remote
 
 import (
