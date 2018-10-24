@@ -95,7 +95,7 @@ type Instance struct {
 
 func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.Querier) error {
 	mySQLHR := &prometheus.ScrapeConfig{
-		JobName:        "mysql-hr",
+		JobName:        "remote-mysql-hr",
 		ScrapeInterval: "1s",
 		ScrapeTimeout:  "1s",
 		MetricsPath:    "/metrics-hr",
@@ -106,7 +106,7 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		}},
 	}
 	mySQLMR := &prometheus.ScrapeConfig{
-		JobName:        "mysql-mr",
+		JobName:        "remote-mysql-mr",
 		ScrapeInterval: "5s",
 		ScrapeTimeout:  "1s",
 		MetricsPath:    "/metrics-mr",
@@ -117,7 +117,7 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		}},
 	}
 	mySQLLR := &prometheus.ScrapeConfig{
-		JobName:        "mysql-lr",
+		JobName:        "remote-mysql-lr",
 		ScrapeInterval: "60s",
 		ScrapeTimeout:  "5s",
 		MetricsPath:    "/metrics-lr",
