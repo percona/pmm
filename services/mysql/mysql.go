@@ -166,13 +166,10 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		}
 	}
 
-	// sort by region and name
+	// sort by instance
 	sorterFor := func(sc []prometheus.StaticConfig) func(int, int) bool {
 		return func(i, j int) bool {
-			if sc[i].Labels[0].Value != sc[j].Labels[0].Value {
-				return sc[i].Labels[0].Value < sc[j].Labels[0].Value
-			}
-			return sc[i].Labels[1].Value < sc[j].Labels[1].Value
+			return sc[i].Labels[0].Value < sc[j].Labels[0].Value
 		}
 	}
 	sort.Slice(mySQLHR.StaticConfigs, sorterFor(mySQLHR.StaticConfigs))
