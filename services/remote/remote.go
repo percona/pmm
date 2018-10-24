@@ -19,7 +19,6 @@ package remote
 
 import (
 	"context"
-	"net/http"
 
 	"gopkg.in/reform.v1"
 
@@ -34,24 +33,13 @@ type ServiceConfig struct {
 // Service is responsible for interactions with Remote instances.
 type Service struct {
 	*ServiceConfig
-	httpClient    *http.Client
-	pmmServerNode *models.Node
 }
 
 // NewService creates a new service.
 func NewService(config *ServiceConfig) (*Service, error) {
-	var node models.Node
-	err := config.DB.FindOneTo(&node, "type", models.PMMServerNodeType)
-	if err != nil {
-		return nil, err
-	}
-
-	svc := &Service{
+	return &Service{
 		ServiceConfig: config,
-		httpClient:    new(http.Client),
-		pmmServerNode: &node,
-	}
-	return svc, nil
+	}, nil
 }
 
 // Instance contains data about node and service placed on the node

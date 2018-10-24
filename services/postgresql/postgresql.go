@@ -21,7 +21,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"net/http"
 	"os/exec"
 	"regexp"
 	"sort"
@@ -60,7 +59,6 @@ type ServiceConfig struct {
 // Service is responsible for interactions with PostgreSQL.
 type Service struct {
 	*ServiceConfig
-	httpClient    *http.Client
 	pmmServerNode *models.Node
 }
 
@@ -87,7 +85,6 @@ func NewService(config *ServiceConfig) (*Service, error) {
 
 	svc := &Service{
 		ServiceConfig: config,
-		httpClient:    new(http.Client),
 		pmmServerNode: &node,
 	}
 	return svc, nil
