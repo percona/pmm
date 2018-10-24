@@ -62,11 +62,11 @@ type ServiceConfig struct {
 	RDSExporterPath       string
 	RDSExporterConfigPath string
 
-	DB            *reform.DB
 	Prometheus    *prometheus.Service
-	QAN           *qan.Service
 	Supervisor    services.Supervisor
+	DB            *reform.DB
 	PortsRegistry *ports.Registry
+	QAN           *qan.Service
 }
 
 // Service is responsible for interactions with AWS RDS.

@@ -51,9 +51,9 @@ var (
 type ServiceConfig struct {
 	PostgresExporterPath string
 
-	DB            *reform.DB
 	Prometheus    *prometheus.Service
 	Supervisor    services.Supervisor
+	DB            *reform.DB
 	PortsRegistry *ports.Registry
 }
 

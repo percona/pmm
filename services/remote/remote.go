@@ -21,8 +21,9 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/percona/pmm-managed/models"
 	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm-managed/models"
 )
 
 // ServiceConfig contains configuration for remote.Service

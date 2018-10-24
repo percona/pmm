@@ -21,6 +21,10 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"net/http"
+	"os/exec"
+	"sort"
+
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
 	servicelib "github.com/percona/kardianos-service"
@@ -28,9 +32,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
-	"net/http"
-	"os/exec"
-	"sort"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
@@ -47,11 +48,11 @@ const (
 type ServiceConfig struct {
 	MySQLdExporterPath string
 
-	DB            *reform.DB
 	Prometheus    *prometheus.Service
-	QAN           *qan.Service
 	Supervisor    services.Supervisor
+	DB            *reform.DB
 	PortsRegistry *ports.Registry
+	QAN           *qan.Service
 }
 
 // Service is responsible for interactions with AWS RDS.
