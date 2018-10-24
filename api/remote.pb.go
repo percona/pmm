@@ -37,7 +37,7 @@ func (m *RemoteNode) Reset()         { *m = RemoteNode{} }
 func (m *RemoteNode) String() string { return proto.CompactTextString(m) }
 func (*RemoteNode) ProtoMessage()    {}
 func (*RemoteNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_remote_1a2ea762dab1d6d9, []int{0}
+	return fileDescriptor_remote_3b85652993ee3360, []int{0}
 }
 func (m *RemoteNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoteNode.Unmarshal(m, b)
@@ -93,7 +93,7 @@ func (m *RemoteService) Reset()         { *m = RemoteService{} }
 func (m *RemoteService) String() string { return proto.CompactTextString(m) }
 func (*RemoteService) ProtoMessage()    {}
 func (*RemoteService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_remote_1a2ea762dab1d6d9, []int{1}
+	return fileDescriptor_remote_3b85652993ee3360, []int{1}
 }
 func (m *RemoteService) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoteService.Unmarshal(m, b)
@@ -160,7 +160,7 @@ func (m *RemoteInstance) Reset()         { *m = RemoteInstance{} }
 func (m *RemoteInstance) String() string { return proto.CompactTextString(m) }
 func (*RemoteInstance) ProtoMessage()    {}
 func (*RemoteInstance) Descriptor() ([]byte, []int) {
-	return fileDescriptor_remote_1a2ea762dab1d6d9, []int{2}
+	return fileDescriptor_remote_3b85652993ee3360, []int{2}
 }
 func (m *RemoteInstance) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoteInstance.Unmarshal(m, b)
@@ -204,7 +204,7 @@ func (m *RemoteListRequest) Reset()         { *m = RemoteListRequest{} }
 func (m *RemoteListRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoteListRequest) ProtoMessage()    {}
 func (*RemoteListRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_remote_1a2ea762dab1d6d9, []int{3}
+	return fileDescriptor_remote_3b85652993ee3360, []int{3}
 }
 func (m *RemoteListRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoteListRequest.Unmarshal(m, b)
@@ -235,7 +235,7 @@ func (m *RemoteListResponse) Reset()         { *m = RemoteListResponse{} }
 func (m *RemoteListResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoteListResponse) ProtoMessage()    {}
 func (*RemoteListResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_remote_1a2ea762dab1d6d9, []int{4}
+	return fileDescriptor_remote_3b85652993ee3360, []int{4}
 }
 func (m *RemoteListResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoteListResponse.Unmarshal(m, b)
@@ -342,9 +342,9 @@ var _Remote_serviceDesc = grpc.ServiceDesc{
 	Metadata: "remote.proto",
 }
 
-func init() { proto.RegisterFile("remote.proto", fileDescriptor_remote_1a2ea762dab1d6d9) }
+func init() { proto.RegisterFile("remote.proto", fileDescriptor_remote_3b85652993ee3360) }
 
-var fileDescriptor_remote_1a2ea762dab1d6d9 = []byte{
+var fileDescriptor_remote_3b85652993ee3360 = []byte{
 	// 365 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x52, 0xdd, 0xca, 0xd3, 0x40,
 	0x10, 0x25, 0xc9, 0x36, 0x6d, 0xa7, 0x3f, 0xd6, 0x29, 0xd4, 0xa5, 0x78, 0x11, 0x22, 0x42, 0x2e,
