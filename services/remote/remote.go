@@ -48,11 +48,11 @@ type Instance struct {
 	Service models.RemoteService
 }
 
-// List returns list of all nodes except PMM Server node
+// List returns a list of all remote nodes (including RDS nodes).
 func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 	var res []Instance
 	err := svc.DB.InTransaction(func(tx *reform.TX) error {
-		structs, e := tx.SelectAllFrom(models.RemoteNodeTable, "WHERE type != ? ORDER BY id", models.PMMServerNodeType)
+		structs, e := tx.SelectAllFrom(models.RemoteNodeTable, "WHERE type IN (?, ?) ORDER BY id", models.RDSNodeType, models.RemoteNodeType)
 		if e != nil {
 			return e
 		}
