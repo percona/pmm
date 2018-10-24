@@ -62,11 +62,11 @@ type ServiceConfig struct {
 	RDSExporterPath       string
 	RDSExporterConfigPath string
 
-	DB            *reform.DB
 	Prometheus    *prometheus.Service
-	QAN           *qan.Service
 	Supervisor    services.Supervisor
+	DB            *reform.DB
 	PortsRegistry *ports.Registry
+	QAN           *qan.Service
 }
 
 // Service is responsible for interactions with AWS RDS.
@@ -328,7 +328,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 	}()
 
 	// sort by region and name
-	res := []Instance{}
+	var res []Instance
 	for i := range instances {
 		res = append(res, i)
 	}
@@ -342,7 +342,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 }
 
 func (svc *Service) List(ctx context.Context) ([]Instance, error) {
-	res := []Instance{}
+	var res []Instance
 	err := svc.DB.InTransaction(func(tx *reform.TX) error {
 		structs, e := tx.SelectAllFrom(models.RDSNodeTable, "WHERE type = ? ORDER BY id", models.RDSNodeType)
 		if e != nil {
@@ -400,7 +400,7 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 
 	// check connection and a number of tables
 	var tableCount int
-	dsn := agent.DSN(service)
+	dsn := agent.DSN(svc.MySQLServiceFromRDSService(service))
 	db, err := sql.Open("mysql", dsn)
 	if err == nil {
 		err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM information_schema.tables").Scan(&tableCount)
@@ -588,7 +588,7 @@ func (svc *Service) addQanAgent(ctx context.Context, tx *reform.TX, service *mod
 
 	// start or reconfigure qan-agent
 	if svc.QAN != nil {
-		if err = svc.QAN.AddMySQL(ctx, node, service, agent); err != nil {
+		if err = svc.QAN.AddMySQL(ctx, node.Name, svc.MySQLServiceFromRDSService(service), agent); err != nil {
 			return err
 		}
 
@@ -599,6 +599,19 @@ func (svc *Service) addQanAgent(ctx context.Context, tx *reform.TX, service *mod
 	}
 
 	return nil
+}
+
+func (svc *Service) MySQLServiceFromRDSService(service *models.RDSService) *models.MySQLService {
+	return &models.MySQLService{
+		ID:     service.ID,
+		Type:   service.Type,
+		NodeID: service.NodeID,
+
+		Address:       service.Address,
+		Port:          service.Port,
+		Engine:        service.Engine,
+		EngineVersion: service.EngineVersion,
+	}
 }
 
 func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *InstanceID, username, password string) error {
@@ -832,7 +845,7 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 				if err = tx.Reload(a); err != nil {
 					return errors.WithStack(err)
 				}
-				dsn := a.DSN(service)
+				dsn := a.DSN(svc.MySQLServiceFromRDSService(service))
 				port := *a.ListenPort
 				if svc.MySQLdExporterPath != "" {
 					name := a.NameForSupervisor()

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package rds contains business logic of working with AWS RDS.
 package remote
 
 import (
@@ -83,7 +82,6 @@ func teardown(t *testing.T, postgreSQLService *postgresql.Service, sqlDB *sql.DB
 		err := os.RemoveAll(rootDir)
 		assert.Nil(t, err)
 	}
-	supervisor.AssertExpectations(t)
 }
 
 func TestList(t *testing.T) {
@@ -105,7 +103,7 @@ func TestList(t *testing.T) {
 		Node: models.RemoteNode{
 			ID:     2,
 			Type:   "remote",
-			Name:   "localhost:5432",
+			Name:   "localhost",
 			Region: "remote",
 		},
 		Service: models.RemoteService{

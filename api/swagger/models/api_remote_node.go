@@ -15,6 +15,9 @@ import (
 // swagger:model apiRemoteNode
 type APIRemoteNode struct {
 
+	// id
+	ID int32 `json:"id,omitempty"`
+
 	// name
 	Name string `json:"name,omitempty"`
 

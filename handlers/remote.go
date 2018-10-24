@@ -41,10 +41,12 @@ func (s *RemoteServer) List(ctx context.Context, req *api.RemoteListRequest) (*a
 	for _, db := range res {
 		resp.Instances = append(resp.Instances, &api.RemoteInstance{
 			Node: &api.RemoteNode{
+				Id:     db.Node.ID,
 				Name:   db.Node.Name,
 				Region: db.Node.Region,
 			},
 			Service: &api.RemoteService{
+				Type:          string(db.Service.Type),
 				Address:       *db.Service.Address,
 				Port:          uint32(*db.Service.Port),
 				Engine:        *db.Service.Engine,

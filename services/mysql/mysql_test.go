@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package rds
+package mysql
 
 import (
 	"context"
@@ -111,12 +111,6 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 
 	mySQLdExporterPath, err := exec.LookPath("mysqld_exporter")
 	require.NoError(t, err)
-	rdsExporterPath, err := exec.LookPath("rds_exporter")
-	require.NoError(t, err)
-	rdsExporterConfigPath := filepath.Join(rootDir, "etc/percona-rds-exporter.yml")
-	os.MkdirAll(filepath.Join(rootDir, "etc"), 0777)
-	err = ioutil.WriteFile(rdsExporterConfigPath, []byte(`---`), 0666)
-	require.Nil(t, err)
 	createFakeBin(t, filepath.Join(rootDir, "bin/percona-qan-agent"))
 	createFakeBin(t, filepath.Join(rootDir, "bin/percona-qan-agent-installer"))
 	os.MkdirAll(filepath.Join(rootDir, "config"), 0777)
@@ -136,11 +130,9 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 	qan, err := qan.NewService(ctx, rootDir, supervisor)
 	require.NoError(t, err)
 	svc, err := NewService(&ServiceConfig{
-		MySQLdExporterPath:    mySQLdExporterPath,
-		RDSExporterPath:       rdsExporterPath,
-		RDSExporterConfigPath: rdsExporterConfigPath,
-		QAN:                   qan,
-		Supervisor:            supervisor,
+		MySQLdExporterPath: mySQLdExporterPath,
+		QAN:                qan,
+		Supervisor:         supervisor,
 
 		DB:            db,
 		Prometheus:    p,
@@ -165,84 +157,7 @@ func teardown(t *testing.T, svc *Service, sqlDB *sql.DB, before []byte, rootDir 
 	supervisor.AssertExpectations(t)
 }
 
-func TestDiscover(t *testing.T) {
-	t.Run("OK", func(t *testing.T) {
-		accessKey, secretKey := tests.GetAWSKeys(t)
-		ctx, svc, sqlDB, before, rootDir, supervisor, ts := setup(t)
-		defer teardown(t, svc, sqlDB, before, rootDir, supervisor, ts)
-
-		actual, err := svc.Discover(ctx, accessKey, secretKey)
-		require.NoError(t, err)
-		expected := []Instance{{
-			Node: models.RDSNode{
-				Type:   "rds",
-				Name:   "rds-aurora1",
-				Region: "us-east-1",
-			},
-			Service: models.RDSService{
-				Type:          "rds",
-				Address:       pointer.ToString("rds-aurora1.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
-				Port:          pointer.ToUint16(3306),
-				Engine:        pointer.ToString("aurora"),
-				EngineVersion: pointer.ToString("5.6.10a"),
-			},
-		}, {
-			Node: models.RDSNode{
-				Type:   "rds",
-				Name:   "rds-aurora57",
-				Region: "us-east-1",
-			},
-			Service: models.RDSService{
-				Type:          "rds",
-				Address:       pointer.ToString("rds-aurora57.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
-				Port:          pointer.ToUint16(3306),
-				Engine:        pointer.ToString("aurora-mysql"),
-				EngineVersion: pointer.ToString("5.7.12"),
-			},
-		}, {
-			Node: models.RDSNode{
-				Type:   "rds",
-				Name:   "rds-mysql56",
-				Region: "us-east-1",
-			},
-			Service: models.RDSService{
-				Type:          "rds",
-				Address:       pointer.ToString("rds-mysql56.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
-				Port:          pointer.ToUint16(3306),
-				Engine:        pointer.ToString("mysql"),
-				EngineVersion: pointer.ToString("5.6.37"),
-			},
-		}, {
-			Node: models.RDSNode{
-				Type:   "rds",
-				Name:   "rds-mysql57",
-				Region: "us-east-1",
-			},
-			Service: models.RDSService{
-				Type:          "rds",
-				Address:       pointer.ToString("rds-mysql57.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
-				Port:          pointer.ToUint16(3306),
-				Engine:        pointer.ToString("mysql"),
-				EngineVersion: pointer.ToString("5.7.19"),
-			},
-		}}
-
-		assert.Equal(t, expected, actual)
-	})
-
-	t.Run("WrongKeys", func(t *testing.T) {
-		accessKey, secretKey := "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-		ctx, svc, sqlDB, before, rootDir, supervisor, ts := setup(t)
-		defer teardown(t, svc, sqlDB, before, rootDir, supervisor, ts)
-
-		res, err := svc.Discover(ctx, accessKey, secretKey)
-		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `The security token included in the request is invalid.`), err)
-		assert.Empty(t, res)
-	})
-}
-
 func TestAddListRemove(t *testing.T) {
-	accessKey, secretKey := tests.GetAWSKeys(t)
 	ctx, svc, sqlDB, before, rootDir, supervisor, ts := setup(t)
 	defer teardown(t, svc, sqlDB, before, rootDir, supervisor, ts)
 
@@ -250,54 +165,48 @@ func TestAddListRemove(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, actual)
 
-	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{}, "username", "password")
-	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `RDS instance name is not given.`), err)
+	_, err = svc.Add(ctx, "", "", 0, "username", "password")
+	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `MySQL instance host is not given.`), err)
 
-	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, "wrong-username", "wrong-password")
-	tests.AssertGRPCErrorRE(t, codes.Unauthenticated, `Access denied for user 'wrong\-username'@'.+' \(using password: YES\)`, err)
+	_, err = svc.Add(ctx, "", "localhost", 0, "username", "password")
+	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `MySQL instance port is not given.`), err)
 
-	username, password := os.Getenv("AWS_RDS_USERNAME"), os.Getenv("AWS_RDS_PASSWORD")
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
 	supervisor.On("Status", mock.Anything, mock.Anything).Return(fmt.Errorf("not running"))
 	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil)
-	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, username, password)
+	id, err := svc.Add(ctx, "", "localhost", 3306, "pmm-managed", "pmm-managed")
 	assert.NoError(t, err)
 
-	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, username, password)
-	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `RDS instance "rds-mysql57" already exists in region "us-east-1".`), err)
+	_, err = svc.Add(ctx, "", "localhost", 3306, "pmm-managed", "pmm-managed")
+	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `MySQL instance "localhost" already exists.`), err)
 
 	actual, err = svc.List(ctx)
 	require.NoError(t, err)
 	expected := []Instance{{
-		Node: models.RDSNode{
-			ID:     3,
-			Type:   "rds",
-			Name:   "rds-mysql57",
-			Region: "us-east-1",
+		Node: models.RemoteNode{
+			ID:     2,
+			Type:   "remote",
+			Name:   "localhost",
+			Region: "remote",
 		},
-		Service: models.RDSService{
-			ID:            1001,
-			Type:          "rds",
-			NodeID:        3,
-			AWSAccessKey:  &accessKey,
-			AWSSecretKey:  &secretKey,
-			Address:       pointer.ToString("rds-mysql57.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
+		Service: models.MySQLService{
+			ID:            1000,
+			Type:          "mysql",
+			NodeID:        2,
+			Address:       pointer.ToString("localhost"),
 			Port:          pointer.ToUint16(3306),
-			Engine:        pointer.ToString("mysql"),
-			EngineVersion: pointer.ToString("5.7.19"),
+			Engine:        pointer.ToString("Percona Server (GPL), Release '23', Revision '500fcf5'"),
+			EngineVersion: pointer.ToString("5.7.23-23"),
 		},
 	}}
 	assert.Equal(t, expected, actual)
 
-	err = svc.Remove(ctx, &InstanceID{})
-	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `RDS instance name is not given.`), err)
-
 	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil)
-	err = svc.Remove(ctx, &InstanceID{"us-east-1", "rds-mysql57"})
+	err = svc.Remove(ctx, id)
 	assert.NoError(t, err)
 
-	err = svc.Remove(ctx, &InstanceID{"us-east-1", "rds-mysql57"})
-	tests.AssertGRPCError(t, status.New(codes.NotFound, `RDS instance "rds-mysql57" not found in region "us-east-1".`), err)
+	err = svc.Remove(ctx, id)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`MySQL instance with ID %d not found.`, id)), err)
 
 	actual, err = svc.List(ctx)
 	require.NoError(t, err)
@@ -305,7 +214,6 @@ func TestAddListRemove(t *testing.T) {
 }
 
 func TestRestore(t *testing.T) {
-	accessKey, secretKey := tests.GetAWSKeys(t)
 	ctx, svc, sqlDB, before, rootDir, supervisor, ts := setup(t)
 	defer teardown(t, svc, sqlDB, before, rootDir, supervisor, ts)
 
@@ -322,10 +230,9 @@ func TestRestore(t *testing.T) {
 
 	// Add one instance.
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
-	supervisor.On("Status", mock.Anything, mock.Anything).Return(fmt.Errorf("not running"))
+	supervisor.On("Status", mock.Anything, mock.Anything).Return(nil)
 	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil)
-	username, password := os.Getenv("AWS_RDS_USERNAME"), os.Getenv("AWS_RDS_PASSWORD")
-	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, username, password)
+	_, err = svc.Add(ctx, "", "localhost", 3306, "pmm-managed", "pmm-managed")
 	assert.NoError(t, err)
 
 	// Restore should succeed.

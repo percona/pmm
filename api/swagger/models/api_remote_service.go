@@ -26,6 +26,9 @@ type APIRemoteService struct {
 
 	// port
 	Port int64 `json:"port,omitempty"`
+
+	// type
+	Type string `json:"type,omitempty"`
 }
 
 // Validate validates this api remote service

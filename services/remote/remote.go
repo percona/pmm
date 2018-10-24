@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package remote contains business logic of working with Remote instances.
+// Package remote contains business logic of working with all Remote instances.
 package remote
 
 import (
 	"context"
-	"net/http"
+
+	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
-	"gopkg.in/reform.v1"
 )
 
 // ServiceConfig contains configuration for remote.Service
@@ -33,24 +33,13 @@ type ServiceConfig struct {
 // Service is responsible for interactions with Remote instances.
 type Service struct {
 	*ServiceConfig
-	httpClient    *http.Client
-	pmmServerNode *models.Node
 }
 
 // NewService creates a new service.
 func NewService(config *ServiceConfig) (*Service, error) {
-	var node models.Node
-	err := config.DB.FindOneTo(&node, "type", models.PMMServerNodeType)
-	if err != nil {
-		return nil, err
-	}
-
-	svc := &Service{
+	return &Service{
 		ServiceConfig: config,
-		httpClient:    new(http.Client),
-		pmmServerNode: &node,
-	}
-	return svc, nil
+	}, nil
 }
 
 // Instance contains data about node and service placed on the node
@@ -59,11 +48,11 @@ type Instance struct {
 	Service models.RemoteService
 }
 
-// List returns list of all nodes except PMM Server node
+// List returns a list of all remote nodes (including RDS nodes).
 func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 	var res []Instance
 	err := svc.DB.InTransaction(func(tx *reform.TX) error {
-		structs, e := tx.SelectAllFrom(models.RemoteNodeTable, "WHERE type != ? ORDER BY id", models.PMMServerNodeType)
+		structs, e := tx.SelectAllFrom(models.RemoteNodeTable, "WHERE type IN (?, ?) ORDER BY id", models.RDSNodeType, models.RemoteNodeType)
 		if e != nil {
 			return e
 		}

@@ -32,10 +32,11 @@ message MySQLListResponse {
 }
 
 message MySQLAddRequest {
-    string address = 1;
-    uint32 port = 2;
-    string username = 3;
-    string password = 4;
+    string name = 1;
+    string address = 2;
+    uint32 port = 3;
+    string username = 4;
+    string password = 5;
 }
 
 message MySQLAddResponse {
