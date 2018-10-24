@@ -863,6 +863,10 @@
     "apiRemoteNode": {
       "type": "object",
       "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
         "name": {
           "type": "string"
         },
@@ -886,6 +890,9 @@
         "port": {
           "type": "integer",
           "format": "int64"
+        },
+        "type": {
+          "type": "string"
         }
       }
     },
