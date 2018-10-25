@@ -85,15 +85,8 @@ see more details:
 Viewing |postgresql| Metrics in |pmm|
 ================================================================================
 
-Now, open |metrics-monitor| in your browser and select the
-|dbd.advanced-data-exploration| dashboard either using the |gui.dashboard-dropdown|
-or the |gui.insight| group of the navigation menu. Use the |gui.metric| field to
-select the name of a metric. Note that postgresql specific metrics start with
-*pg_*.
-
-.. figure:: .res/graphics/png/metrics-monitor.advanced-data-exploration.1.png
-
-   Using the |dbd.advanced-data-exploration| dashboard to select a |postgresql| metric.
+Now, open |metrics-monitor| in your browser and select the `PostgreSQL Overview dashboard <https://www.percona.com/doc/percona-monitoring-and-management/dashboard.postgres-overview.html>`_ either using the |gui.dashboard-dropdown|
+or the |gui.postgres| group of the navigation menu.
 
 .. seealso::
 
