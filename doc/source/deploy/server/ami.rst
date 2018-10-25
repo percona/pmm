@@ -273,26 +273,16 @@ You are creating a username and password that will be used for two purposes:
 
 Your instance comes with a predefined size which can become a limitation. To
 make more disk space available to your instance, you need to increase the size
-of the EBS volume as needed and then reconfigure your instance to use the new
-size.
+of the EBS volume as needed and then your instance will reconfigure itself to
+use the new size.
 
 The procedure of resizing EBS volumes is described in the |amazon|
 documentation: `Modifying the Size, IOPS, or Type of an EBS Volume on Linux 
 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modify-volume.html>`_.
 
-As soon as the EBS volume is updated, connect to your instance and update it to
-use the new size:
-
-|tip.run-all.root|
-
-1. Detect the type of your filesystem: :code:`mount | grep '/srv'`
-2. In case of *XFS* reboot instance or run the following commands:
-
-   .. include:: ../../.res/code/pvresize.lvextend.xfs-growfs.txt
-
-3. In case of *btrfs*, run the following command:
-
-   .. include:: ../../.res/code/btrfs.filesystem.resize.max.txt
+After the EBS volume is updated, |pmm-server| instance will autodetect changes
+in approximately 5 minutes or less and will reconfigure itself for the updated
+conditions.
 
 .. admonition:: More information in |aws| documentation
 
