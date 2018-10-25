@@ -58,11 +58,14 @@ to run |pmm-admin.add| command as follows:
 |tip.run-this.root|
 
 .. code-block:: bash 
-    pmm-admin add postgresql --create-user --host=172.17.0.2 --password=ABC123 --port=5432 --user=postgres_exporter postgresql_rds01
+    pmm-admin add postgresql --host=172.17.0.1 --password=ABC123 --port=5432 --user=pmm_user postgresql_rds01
 
 The last parameter gives a distinct name to your host. If you do not specify a
 custom instance name, the name of the host where you run |pmm-admin.add| is used
-automatically.
+automatically. The command adds the given PostgreSQL instance to both system and
+metrics monitoring, and confirms that now monitoring the given system and the
+PostgreSQL metrics on it. Also |pmm-admin.list| command can be used further to
+see more details:
 
 .. code-block:: bash
 
