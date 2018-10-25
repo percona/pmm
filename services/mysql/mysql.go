@@ -41,7 +41,8 @@ import (
 )
 
 const (
-	qanAgentPort uint16 = 9000
+	qanAgentPort     uint16 = 9000
+	defaultMySQLPort uint32 = 3306
 )
 
 type ServiceConfig struct {
@@ -349,11 +350,11 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 	if address == "" {
 		return 0, status.Error(codes.InvalidArgument, "MySQL instance host is not given.")
 	}
-	if port == 0 {
-		return 0, status.Error(codes.InvalidArgument, "MySQL instance port is not given.")
-	}
 	if username == "" {
 		return 0, status.Error(codes.InvalidArgument, "Username is not given.")
+	}
+	if port == 0 {
+		port = defaultMySQLPort
 	}
 	if name == "" {
 		name = address
