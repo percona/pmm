@@ -909,6 +909,23 @@ For more information, run
 |pmm-admin.check-network|
 |opt.help|.
 
+.. _pmm-admin.diagnostics-for-support:
+
+:ref:`Obtaining Diagnostics Data for Support <pmm-admin.diagnostics-for-support>`
+=================================================================================
+
+|pmm-client| is able to generate a set of files for enhanced diagnostics, which
+is designed to be shared with Percona Support to solve an issue faster. This
+feature fetches logs, network, and the Percona Toolkit output. To perform data
+collection by |pmm-client|, execute::
+
+   pmm-admin summary
+
+The output will be a tarball you can examine and/or attach to your Support
+ticket in the Percona's `issue tracking system <https://jira.percona.com/projects/PMM/issues>`_. The single file will look like this::
+
+   summary__2018_10_10_16_20_00.tar.gz
+
 .. _pmm-admin.config:
 
 :ref:`Configuring PMM Client <pmm-admin.config>`
