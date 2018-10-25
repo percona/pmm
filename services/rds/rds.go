@@ -52,9 +52,14 @@ import (
 )
 
 const (
-	awsCallTimeout         = 7 * time.Second
 	qanAgentPort    uint16 = 9000
 	rdsExporterPort uint16 = 9042
+
+	// maximum time for AWS discover APIs calls
+	awsDiscoverTimeout = 7 * time.Second
+
+	// maximum time for connecting to the database and running all queries
+	sqlCheckTimeout = 5 * time.Second
 )
 
 type ServiceConfig struct {
@@ -250,7 +255,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 	l := logger.Get(ctx).WithField("component", "rds")
 
 	// do not break our API if some AWS region is slow or down
-	ctx, cancel := context.WithTimeout(ctx, awsCallTimeout)
+	ctx, cancel := context.WithTimeout(ctx, awsDiscoverTimeout)
 	defer cancel()
 	var g errgroup.Group
 	instances := make(chan Instance)
@@ -406,7 +411,9 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 	dsn := agent.DSN(svc.MySQLServiceFromRDSService(service))
 	db, err := sql.Open("mysql", dsn)
 	if err == nil {
-		err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM information_schema.tables").Scan(&tableCount)
+		sqlCtx, cancel := context.WithTimeout(ctx, sqlCheckTimeout)
+		err = db.QueryRowContext(sqlCtx, "SELECT COUNT(*) FROM information_schema.tables").Scan(&tableCount)
+		cancel()
 		db.Close()
 		agent.MySQLDisableTablestats = pointer.ToBool(tableCount > 1000)
 	}

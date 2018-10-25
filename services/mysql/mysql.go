@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"os/exec"
 	"sort"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
@@ -43,6 +44,9 @@ import (
 const (
 	qanAgentPort     uint16 = 9000
 	defaultMySQLPort uint32 = 3306
+
+	// maximum time for connecting to the database and running all queries
+	sqlCheckTimeout = 5 * time.Second
 )
 
 type ServiceConfig struct {
@@ -239,7 +243,9 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 	dsn := agent.DSN(service)
 	db, err := sql.Open("mysql", dsn)
 	if err == nil {
-		err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM information_schema.tables").Scan(&tableCount)
+		sqlCtx, cancel := context.WithTimeout(ctx, sqlCheckTimeout)
+		err = db.QueryRowContext(sqlCtx, "SELECT COUNT(*) FROM information_schema.tables").Scan(&tableCount)
+		cancel()
 		db.Close()
 		agent.MySQLDisableTablestats = pointer.ToBool(tableCount > 1000)
 	}
@@ -595,8 +601,9 @@ func (svc *Service) engineAndEngineVersion(ctx context.Context, host string, por
 	dsn := agent.DSN(service)
 	db, err := sql.Open("mysql", dsn)
 	if err == nil {
-		err = db.QueryRowContext(ctx, "select @@version;").Scan(&version)
-		err = db.QueryRowContext(ctx, "select @@version_comment;").Scan(&versionComment)
+		sqlCtx, cancel := context.WithTimeout(ctx, sqlCheckTimeout)
+		err = db.QueryRowContext(sqlCtx, "SELECT @@version, @@version_comment").Scan(&version, &versionComment)
+		cancel()
 		db.Close()
 	}
 	if err != nil {

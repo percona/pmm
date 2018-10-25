@@ -24,6 +24,7 @@ import (
 	"os/exec"
 	"regexp"
 	"sort"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
@@ -41,9 +42,14 @@ import (
 	"github.com/percona/pmm-managed/utils/ports"
 )
 
-const defaultPostgreSQLPort uint32 = 5432
+const (
+	defaultPostgreSQLPort uint32 = 5432
 
-// regexps to extract version numbers from the `SELECT Version();` output
+	// maximum time for connecting to the database and running all queries
+	sqlCheckTimeout = 5 * time.Second
+)
+
+// regexps to extract version numbers from the `SELECT version()` output
 var (
 	postgresDBRegexp  = regexp.MustCompile(`PostgreSQL ([\d\.]+)`)
 	cockroachDBRegexp = regexp.MustCompile(`CockroachDB CCL (v[\d\.]+)`)
@@ -267,7 +273,9 @@ func (svc *Service) engineAndEngineVersion(ctx context.Context, host string, por
 	dsn := agent.DSN(service)
 	db, err := sql.Open("postgres", dsn)
 	if err == nil {
-		err = db.QueryRowContext(ctx, "SELECT Version();").Scan(&databaseVersion)
+		sqlCtx, cancel := context.WithTimeout(ctx, sqlCheckTimeout)
+		err = db.QueryRowContext(sqlCtx, "SELECT version()").Scan(&databaseVersion)
+		cancel()
 		db.Close()
 	}
 	if err != nil {
@@ -409,7 +417,9 @@ func (svc *Service) addPostgresExporter(ctx context.Context, tx *reform.TX, serv
 	dsn := agent.DSN(service)
 	db, err := sql.Open("postgres", dsn)
 	if err == nil {
-		err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM information_schema.tables").Scan(&tableCount)
+		sqlCtx, cancel := context.WithTimeout(ctx, sqlCheckTimeout)
+		err = db.QueryRowContext(sqlCtx, "SELECT COUNT(*) FROM information_schema.tables").Scan(&tableCount)
+		cancel()
 		db.Close()
 	}
 	if err != nil {

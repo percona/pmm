@@ -21,11 +21,17 @@ import (
 	"net"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/go-sql-driver/mysql"
 )
 
 //go:generate reform
+
+const (
+	// maximum time for connecting to the database
+	sqlDialTimeout = 5 * time.Second
+)
 
 type AgentType string
 
@@ -64,6 +70,8 @@ func (m *MySQLdExporter) DSN(service *MySQLService) string {
 	cfg.Net = "tcp"
 	cfg.Addr = net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port)))
 
+	cfg.Timeout = sqlDialTimeout
+
 	// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
 	// TODO Other parameters?
 	return cfg.FormatDSN()
@@ -89,12 +97,16 @@ type PostgresExporter struct {
 
 // DSN returns DSN for PostgreSQL service.
 func (p *PostgresExporter) DSN(service *PostgreSQLService) string {
+	q := make(url.Values)
+	q.Set("sslmode", "disable") // TODO https://jira.percona.com/browse/PMM-1727
+	q.Set("connect_timeout", strconv.Itoa(int(sqlDialTimeout.Seconds())))
+
 	address := net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port)))
 	uri := url.URL{
 		User:     url.UserPassword(*p.ServiceUsername, *p.ServicePassword),
 		Host:     address,
 		Scheme:   "postgres",
-		RawQuery: "sslmode=disable",
+		RawQuery: q.Encode(),
 	}
 	return uri.String()
 }
@@ -136,6 +148,8 @@ func (q *QanAgent) DSN(service *MySQLService) string {
 
 	cfg.Net = "tcp"
 	cfg.Addr = net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port)))
+
+	cfg.Timeout = sqlDialTimeout
 
 	// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
 	// TODO Other parameters?
