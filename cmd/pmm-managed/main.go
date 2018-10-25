@@ -555,7 +555,7 @@ func main() {
 
 	mysqlService, err := makeMySQLService(ctx, deps)
 	if err != nil {
-		l.Panicf("PostgreSQL service problem: %+v", err)
+		l.Panicf("MySQL service problem: %+v", err)
 	}
 
 	postgres, err := makePostgreSQLService(ctx, deps)
