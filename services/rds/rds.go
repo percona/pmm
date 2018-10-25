@@ -181,6 +181,9 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 			return errors.WithStack(e)
 		}
 
+		// FIXME PMM 2.0: Remove labels from Prometheus configuration, fix sorting.
+		// https://jira.percona.com/browse/PMM-3162
+
 		agents, err := models.AgentsForServiceID(q, service.ID)
 		if err != nil {
 			return err
