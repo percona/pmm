@@ -118,9 +118,16 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 	for _, n := range nodes {
 		node := n.(*models.RemoteNode)
 
-		var service models.PostgreSQLService
-		if e := q.SelectOneTo(&service, "WHERE node_id = ? and type = ?", node.ID, models.PostgreSQLServiceType); e != nil {
+		postgreSQLServices, e := q.SelectAllFrom(models.PostgreSQLServiceTable, "WHERE node_id = ?", node.ID)
+		if e != nil {
 			return errors.WithStack(e)
+		}
+		if len(postgreSQLServices) != 1 {
+			return errors.Errorf("expected to fetch 1 record, fetched %d. %v", len(postgreSQLServices), postgreSQLServices)
+		}
+		service := postgreSQLServices[0].(*models.PostgreSQLService)
+		if service.Type != models.PostgreSQLServiceType {
+			continue
 		}
 
 		agents, err := models.AgentsForServiceID(q, service.ID)
@@ -454,9 +461,16 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 	for _, n := range nodes {
 		node := n.(*models.RemoteNode)
 
-		service := &models.PostgreSQLService{}
-		if e := tx.SelectOneTo(service, "WHERE node_id = ?", node.ID); e != nil {
+		postgreSQLServices, e := tx.SelectAllFrom(models.PostgreSQLServiceTable, "WHERE node_id = ?", node.ID)
+		if e != nil {
 			return errors.WithStack(e)
+		}
+		if len(postgreSQLServices) != 1 {
+			return errors.Errorf("expected to fetch 1 record, fetched %d. %v", len(postgreSQLServices), postgreSQLServices)
+		}
+		service := postgreSQLServices[0].(*models.PostgreSQLService)
+		if service.Type != models.PostgreSQLServiceType {
+			continue
 		}
 
 		agents, err := models.AgentsForServiceID(tx.Querier, service.ID)

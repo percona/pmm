@@ -137,9 +137,16 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 	for _, n := range nodes {
 		node := n.(*models.RemoteNode)
 
-		var service models.MySQLService
-		if e := q.SelectOneTo(&service, "WHERE node_id = ? and type = ?", node.ID, models.MySQLServiceType); e != nil {
-			return errors.WithStack(e)
+		mySQLServices, err := q.SelectAllFrom(models.MySQLServiceTable, "WHERE node_id = ?", node.ID)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		if len(mySQLServices) != 1 {
+			return errors.Errorf("expected to fetch 1 record, fetched %d. %v", len(mySQLServices), mySQLServices)
+		}
+		service := mySQLServices[0].(*models.MySQLService)
+		if service.Type != models.MySQLServiceType {
+			continue
 		}
 
 		agents, err := models.AgentsForServiceID(q, service.ID)
@@ -521,9 +528,16 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 	for _, n := range nodes {
 		node := n.(*models.RemoteNode)
 
-		service := &models.MySQLService{}
-		if e := tx.SelectOneTo(service, "WHERE node_id = ?", node.ID); e != nil {
-			return errors.WithStack(e)
+		mySQLServices, err := tx.SelectAllFrom(models.MySQLServiceTable, "WHERE node_id = ?", node.ID)
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		if len(mySQLServices) != 1 {
+			return errors.Errorf("expected to fetch 1 record, fetched %d. %v", len(mySQLServices), mySQLServices)
+		}
+		service := mySQLServices[0].(*models.MySQLService)
+		if service.Type != models.MySQLServiceType {
+			continue
 		}
 
 		agents, err := models.AgentsForServiceID(tx.Querier, service.ID)
