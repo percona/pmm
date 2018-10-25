@@ -100,7 +100,6 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		ScrapeInterval: "1s",
 		ScrapeTimeout:  "1s",
 		MetricsPath:    "/metrics-hr",
-		HonorLabels:    true,
 		RelabelConfigs: []prometheus.RelabelConfig{{
 			TargetLabel: "job",
 			Replacement: "mysql",
@@ -111,7 +110,6 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		ScrapeInterval: "5s",
 		ScrapeTimeout:  "1s",
 		MetricsPath:    "/metrics-mr",
-		HonorLabels:    true,
 		RelabelConfigs: []prometheus.RelabelConfig{{
 			TargetLabel: "job",
 			Replacement: "mysql",
@@ -122,7 +120,6 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		ScrapeInterval: "60s",
 		ScrapeTimeout:  "5s",
 		MetricsPath:    "/metrics-lr",
-		HonorLabels:    true,
 		RelabelConfigs: []prometheus.RelabelConfig{{
 			TargetLabel: "job",
 			Replacement: "mysql",
