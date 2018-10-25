@@ -294,21 +294,12 @@ There is a ``pmm-admin check-network`` command, which `checks connectivity <http
 and |pmm-server| and presents the summary of this check in a human readable form.
 
 Broken network connectivity may be caused by rather wide set of reasons.
-Particularly, when :ref:`using Docker <run-server-docker>`, the container is constrained by
-the host-level routing and firewall rules.  For example, your hosting provider
-might have default *iptables* rules on their hosts that block communication
-between |pmm-server| and |pmm-client|, resulting in *DOWN* targets in
-Prometheus.  If this happens, check firewall and routing settings on the Docker
-host.
-
-Troubleshooting Tips
---------------------------------------------------------------------------------
-
-If you encounter communication issues, try the following:
-* Run ``curl www.google.com`` to see if you get a reply,
-* Try pinging the route from inside the container,
-* Use low-level networking diagnostic tool like ``netstat`` to get information
-  about existing network connections.
+Particularly, when :ref:`using Docker <run-server-docker>`, the container is
+constrained by the host-level routing and firewall rules. For example, your
+hosting provider might have default *iptables* rules on their hosts that block
+communication between |pmm-server| and |pmm-client|, resulting in *DOWN* targets
+in Prometheus. If this happens, check firewall and routing settings on the
+Docker host.
 
 Also |pmm| is able to generate a set of diagnostics data which can be examined
 and/or shared with Percona Support to solve an issue faster. See details on how
