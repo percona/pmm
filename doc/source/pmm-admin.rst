@@ -357,20 +357,36 @@ Starting from version 1.16.0, this collector is enabled for the
 ``linux:metrics`` in |pmm-client| by default.
 
 The default directory for reading text files with the metrics is
-``/usr/local/percona/pmm-client/textfile-collector``, and the exporter reads files
-from it with the `.prom` extension.
+``/usr/local/percona/pmm-client/textfile-collector``, and the exporter reads
+files from it with the ``.prom`` extension. By default it contains an example
+file  ``example.prom`` which has commented contents and can be used as a
+template.
 
-The most obvious way to fill this text file with the needed data is to add a
-``crontab`` task, which would collect metrics and place them into a file.
+You are responsible for running a cronjob or other regular process to generate
+the metric series data and write it to this directory.
 
-Here are the ``cron`` commands example for collecting the number of running and
-stopping docker containers::
+Example - collecting docker container information
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This example will show you how to collect the number of running and stopped
+docker containers on a host. It uses a ``crontab`` task, set with the following
+lines in the cron configuration file (e.g. in ``/etc/crontab``)::
 
   */1 * * * *     root   echo -n "" > /tmp/docker_all.prom; /usr/bin/docker ps -a | sed -n '1!p'| /usr/bin/wc -l | sed -ne 's/^/node_docker_containers_total /p' >> /usr/local/percona/pmm-client/docker_all.prom;
   */1 * * * *     root   echo -n "" > /tmp/docker_running.prom; /usr/bin/docker ps | sed -n '1!p'| /usr/bin/wc -l | sed -ne 's/^/node_docker_containers_running_total /p' >>/usr/local/percona/pmm-client/docker_running.prom;
 
 The result of the commands is placed into the ``docker_running.prom`` and
 ``docker_running.prom`` files and read by exporter.
+
+The first command executed by cron is rather simple: the destination text file
+is cleared by executing ``echo -n ""``, then a list of running and closed
+containers is generated with ``docker ps -a``, and finally ``sed`` and ``wc``
+tools are used to count the number of containers in this list and to form the
+output file which looks like follows::
+
+  node_docker_containers_total 2
+
+The second command is similar, but it counts only running containers.
 
 .. _pmm-admin.add-mysql-queries:
 
