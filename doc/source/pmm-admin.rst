@@ -340,6 +340,38 @@ For more information, run
    Default ports
       :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
 
+.. _pmm-admin-textfile-collector:
+
+:ref:`Extending metrics with textfile collector <pmm-admin-textfile-collector>`
+--------------------------------------------------------------------------------
+
+.. versionadded:: 1.16.0
+
+While |pmm| provides an excellent solution for system monitoring, sometimes you
+may have the need for a metric that’s not present in the list of
+``node_exporter`` metrics out of the box. There is a simple method to extend the
+list of available metrics without modifying the ``node_exporter`` code. It is
+based on the textfile collector.
+
+Starting from version 1.16.0, this collector is enabled for the
+``linux:metrics`` in |pmm-client| by default.
+
+The default directory for reading text files with the metrics is
+``/usr/local/percona/pmm-client/textfile-collector``, and the exporter reads files
+from it with the `.prom` extension.
+
+The most obvious way to fill this text file with the needed data is to add a
+``crontab`` task, which would collect metrics and place them into a file.
+
+Here are the ``cron`` commands example for collecting the number of running and
+stopping docker containers::
+
+  */1 * * * *     root   echo -n "" > /tmp/docker_all.prom; /usr/bin/docker ps -a | sed -n '1!p'| /usr/bin/wc -l | sed -ne 's/^/node_docker_containers_total /p' >> /usr/local/percona/pmm-client/docker_all.prom;
+  */1 * * * *     root   echo -n "" > /tmp/docker_running.prom; /usr/bin/docker ps | sed -n '1!p'| /usr/bin/wc -l | sed -ne 's/^/node_docker_containers_running_total /p' >>/usr/local/percona/pmm-client/docker_running.prom;
+
+The result of the commands is placed into the ``docker_running.prom`` and
+``docker_running.prom`` files and read by exporter.
+
 .. _pmm-admin.add-mysql-queries:
 
 :ref:`Adding MySQL query analytics service <pmm-admin.add-mysql-queries>`
