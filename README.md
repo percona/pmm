@@ -1,6 +1,7 @@
 # Percona Monitoring and Management
 
 ![PMM](https://www.percona.com/sites/default/files/pmm-logo.png)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpercona%2Fpmm?ref=badge_shield)
 
 See the [PMM docs](https://www.percona.com/doc/percona-monitoring-and-management/index.html) for more information.
 
@@ -24,3 +25,7 @@ See the [PMM docs](https://www.percona.com/doc/percona-monitoring-and-management
   * [rds_exporter](https://github.com/percona/rds_exporter) - based on `github.com/Technofy/cloudwatch_exporter`
   * [proxysql_exporter](https://github.com/percona/proxysql_exporter)
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fpercona%2Fpmm.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fpercona%2Fpmm?ref=badge_large)
