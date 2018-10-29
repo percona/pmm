@@ -13,7 +13,7 @@ init:
 
 	go get -u github.com/AlekSi/gocoverutil
 
-	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh
 
 check-license:
 	go run .github/check-license.go
@@ -36,7 +36,7 @@ cover: install
 	gocoverutil -ignore=github.com/percona/pmm-managed/api/... test -v -p 1 ./...
 
 check: install
-	golangci-lint run
+	./bin/golangci-lint run
 
 run: install _run
 

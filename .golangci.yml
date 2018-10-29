@@ -7,6 +7,9 @@ linters-settings:
     packages:
       - errors
 
+  goimports:
+    local-prefixes: github.com/percona/pmm-managed
+
   lll:
     line-length: 140
     tab-width: 4
