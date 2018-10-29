@@ -25,8 +25,12 @@ Set Up the |postgresql| Exporter
 
 First, you need to enable an exporter for |postgresql| on the
 computer where you have installed the |pmm-client| package with the
-``by pmm-admin add postgresql`` command. More information on enabling and
-configuring |postgresql| exporter can be found in the `detailed instruction <https://www.percona.com/doc/percona-monitoring-and-management/conf-postgres.html>`_.
+``pmm-admin add`` command::
+
+  pmm-admin add postgresql --host=172.17.0.2 --password=ABC123 --user=pmm_user
+
+More information on enabling and
+configuring |postgresql| exporter can be found in the `detailed instructions <https://www.percona.com/doc/percona-monitoring-and-management/conf-postgres.html>`_.
 
 
 Check Settings of Your |amazon-rds| Instance
@@ -86,7 +90,9 @@ Viewing |postgresql| Metrics in |pmm|
 ================================================================================
 
 Now, open |metrics-monitor| in your browser and select the `PostgreSQL Overview dashboard <https://www.percona.com/doc/percona-monitoring-and-management/dashboard.postgres-overview.html>`_ either using the |gui.dashboard-dropdown|
-or the |gui.postgres| group of the navigation menu.
+or the |gui.postgres| group of the navigation menu:
+
+.. figure:: .res/graphics/png/amazon-rds-postgres-overview-dashboard.png
 
 .. seealso::
 
