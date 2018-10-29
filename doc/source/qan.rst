@@ -53,7 +53,7 @@ activity metrics followed by the list of queries in a summary table. By
 default, |qan| shows the top *ten* queries ranked by :term:`%GTT` (Grand total
 time). Each query displays three essential metrics: *Load*, *Count*, and
 *Latency*. Also queries which are newly seen within the the time range selected
-are highlighted with a blue color for their better noticeability.
+are highlighted with a blue color for quicker identification.
 
 Also it worth to mention that |qan| data come in with typical 1-2 min delay,
 though it is possible to be delayed more because of specific network condition
