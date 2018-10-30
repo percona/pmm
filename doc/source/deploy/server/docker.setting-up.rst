@@ -134,6 +134,34 @@ This command does the following:
 * |opt.pmm-server.latest| is the name and version tag of the image
   to derive the container from.
 
+.. _pmm.docker.specific-version:
+
+:ref:`Installing and using specific docker version <pmm.docker.specific-version>`
+----------------------------------------------------------------------------------
+
+To install specific |pmm-server| version instead of the latest one, just put
+desired version number after the colon. For example, installing version 1.14.1
+would look as follows:
+
+.. code-block:: bash
+
+   $ docker create \
+      -v /opt/prometheus/data \
+      -v /opt/consul-data \
+      -v /var/lib/mysql \
+      -v /var/lib/grafana \
+      --name pmm-data \
+      percona/pmm-server:1.14.1 /bin/true
+
+   $ docker run -d \
+      -p 80:80 \
+      --volumes-from pmm-data \
+      --name pmm-server \
+      --restart always \
+      percona/pmm-server:1.14.1
+
+Also in this scenario it may be useful to `prevent updating PMM Server via the web interface <https://www.percona.com/doc/percona-monitoring-and-management/glossary.option.html>`_ with the ``DISABLE_UPDATES`` docker option, and to consider `giving the docker container a different name <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/docker.upgrading.html#pmm-deploying-server-docker-container-renaming>'_.
+
 .. _pmm.docker.additional-option:
 
 :ref:`Additional options <pmm.docker.additional-option>`
