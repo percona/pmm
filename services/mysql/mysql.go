@@ -361,6 +361,9 @@ func (svc *Service) addQanAgent(ctx context.Context, tx *reform.TX, service *mod
 }
 
 func (svc *Service) Add(ctx context.Context, name, address string, port uint32, username, password string) (int32, error) {
+	address = strings.TrimSpace(address)
+	username = strings.TrimSpace(username)
+	name = strings.TrimSpace(name)
 	if address == "" {
 		return 0, status.Error(codes.InvalidArgument, "MySQL instance host is not given.")
 	}
