@@ -43,11 +43,19 @@ const (
 	QanAgentAgentType         AgentType = "qan-agent"
 )
 
+// NameForSupervisor returns a name of agent for supervisor.
+func NameForSupervisor(typ AgentType, listenPort uint16) string {
+	return fmt.Sprintf("pmm-%s-%d", typ, listenPort)
+}
+
 //reform:agents
 type Agent struct {
 	ID           int32     `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID int32     `reform:"runs_on_node_id"`
+
+	// TODO Does it really belong there? Remove when we have agent without one.
+	ListenPort *uint16 `reform:"listen_port"`
 }
 
 //reform:agents
@@ -75,10 +83,6 @@ func (m *MySQLdExporter) DSN(service *MySQLService) string {
 	// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
 	// TODO Other parameters?
 	return cfg.FormatDSN()
-}
-
-func (m *MySQLdExporter) NameForSupervisor() string {
-	return fmt.Sprintf("pmm-%s-%d", m.Type, *m.ListenPort)
 }
 
 // binary name is postgres_exporter, that's why PostgresExporter below is not PostgreSQLExporter
@@ -111,11 +115,6 @@ func (p *PostgresExporter) DSN(service *PostgreSQLService) string {
 	return uri.String()
 }
 
-// NameForSupervisor is a name of exporter for supervisor.
-func (p *PostgresExporter) NameForSupervisor() string {
-	return fmt.Sprintf("pmm-%s-%d", p.Type, *p.ListenPort)
-}
-
 //reform:agents
 type RDSExporter struct {
 	ID           int32     `reform:"id,pk"`
@@ -123,10 +122,6 @@ type RDSExporter struct {
 	RunsOnNodeID int32     `reform:"runs_on_node_id"`
 
 	ListenPort *uint16 `reform:"listen_port"`
-}
-
-func (r *RDSExporter) NameForSupervisor() string {
-	return fmt.Sprintf("pmm-%s-%d", r.Type, *r.ListenPort)
 }
 
 //reform:agents
@@ -154,8 +149,4 @@ func (q *QanAgent) DSN(service *MySQLService) string {
 	// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
 	// TODO Other parameters?
 	return cfg.FormatDSN()
-}
-
-func (q *QanAgent) NameForSupervisor() string {
-	return fmt.Sprintf("pmm-%s-%d", q.Type, *q.ListenPort)
 }

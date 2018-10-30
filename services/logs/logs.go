@@ -28,14 +28,17 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	servicelib "github.com/percona/kardianos-service"
 	"github.com/pkg/errors"
+	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v2"
 
+	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/rds"
 	"github.com/percona/pmm-managed/utils/logger"
@@ -56,25 +59,28 @@ type Log struct {
 
 const lastLines = 1000
 
+// overridden in tests
+var logsRootDir = "/var/log/"
+
 var defaultLogs = []Log{
-	{"/var/log/consul.log", "consul", nil},
-	{"/var/log/createdb.log", "", nil},
-	{"/var/log/cron.log", "crond", nil},
-	{"/var/log/dashboard-upgrade.log", "", nil},
-	{"/var/log/grafana/grafana.log", "", nil},
-	{"/var/log/mysql.log", "", nil},
-	{"/var/log/mysqld.log", "mysqld", nil},
-	{"/var/log/nginx.log", "nginx", nil},
-	{"/var/log/nginx/access.log", "", nil},
-	{"/var/log/nginx/error.log", "", nil},
-	{"/var/log/node_exporter.log", "node_exporter", nil},
-	{"/var/log/orchestrator.log", "orchestrator", nil},
-	{"/var/log/pmm-manage.log", "pmm-manage", nil},
-	{"/var/log/pmm-managed.log", "pmm-managed", nil},
-	{"/var/log/prometheus1.log", "prometheus1", nil},
-	{"/var/log/prometheus.log", "prometheus", nil},
-	{"/var/log/qan-api.log", "percona-qan-api", nil},
-	{"/var/log/supervisor/supervisord.log", "", nil},
+	{logsRootDir + "consul.log", "consul", nil},
+	{logsRootDir + "createdb.log", "", nil},
+	{logsRootDir + "cron.log", "crond", nil},
+	{logsRootDir + "dashboard-upgrade.log", "", nil},
+	{logsRootDir + "grafana/grafana.log", "", nil},
+	{logsRootDir + "mysql.log", "", nil},
+	{logsRootDir + "mysqld.log", "mysqld", nil},
+	{logsRootDir + "nginx.log", "nginx", nil},
+	{logsRootDir + "nginx/access.log", "", nil},
+	{logsRootDir + "nginx/error.log", "", nil},
+	{logsRootDir + "node_exporter.log", "node_exporter", nil},
+	{logsRootDir + "orchestrator.log", "orchestrator", nil},
+	{logsRootDir + "pmm-manage.log", "pmm-manage", nil},
+	{logsRootDir + "pmm-managed.log", "pmm-managed", nil},
+	{logsRootDir + "prometheus1.log", "prometheus1", nil},
+	{logsRootDir + "prometheus.log", "prometheus", nil},
+	{logsRootDir + "qan-api.log", "percona-qan-api", nil},
+	{logsRootDir + "supervisor/supervisord.log", "", nil},
 
 	// logs
 	// TODO handle separately
@@ -88,9 +94,9 @@ var defaultLogs = []Log{
 	{"/etc/supervisord.d/pmm.ini", "", []string{"cat", ""}},
 	{"/etc/nginx/conf.d/pmm.conf", "", []string{"cat", ""}},
 	{"prometheus_targets.html", "", []string{"http", "http://localhost/prometheus/targets"}},
-	{"consul_nodes.json", "", []string{"consul", "http://localhost/v1/internal/ui/nodes?dc=dc1"}},
+	{"consul_nodes.json", "", []string{"consul"}},
 	{"qan-api_instances.json", "", []string{"http", "http://localhost/qan-api/instances"}},
-	{"managed_RDS-Aurora.json", "", []string{"rds", "http://localhost/managed/v0/rds"}},
+	{"managed_RDS-Aurora.json", "", []string{"rds"}},
 	{"pmm-version.txt", "", []string{"pmmVersion", ""}},
 }
 
@@ -98,6 +104,7 @@ var defaultLogs = []Log{
 type Logs struct {
 	pmmVersion string
 	consul     *consul.Client
+	db         *reform.DB
 	rds        *rds.Service
 	logs       []Log
 
@@ -142,7 +149,7 @@ func getCredential() (string, error) {
 
 // New creates a new Logs service.
 // n is a number of last lines of log to read.
-func New(pmmVersion string, consul *consul.Client, rds *rds.Service, logs []Log) *Logs {
+func New(pmmVersion string, consul *consul.Client, db *reform.DB, rds *rds.Service, logs []Log) *Logs {
 	if logs == nil {
 		logs = defaultLogs
 	}
@@ -150,6 +157,7 @@ func New(pmmVersion string, consul *consul.Client, rds *rds.Service, logs []Log)
 	l := &Logs{
 		pmmVersion: pmmVersion,
 		consul:     consul,
+		db:         db,
 		rds:        rds,
 		logs:       logs,
 	}
@@ -164,54 +172,86 @@ func New(pmmVersion string, consul *consul.Client, rds *rds.Service, logs []Log)
 	return l
 }
 
+// Files returns list of logs and their content.
+func (l *Logs) Files(ctx context.Context) []File {
+	files := make([]File, 0, len(l.logs))
+
+	for _, log := range l.logs {
+		var f File
+		f.Name, f.Data, f.Err = l.readLog(ctx, &log)
+		files = append(files, f)
+	}
+
+	var agents []reform.Struct
+	err := l.db.InTransaction(func(tx *reform.TX) error {
+		var node models.Node
+		err := tx.FindOneTo(&node, "type", models.PMMServerNodeType)
+		if err != nil {
+			return errors.Wrap(err, "failed to get PMM Server node")
+		}
+
+		agents, err = tx.FindAllFrom(models.AgentTable, "runs_on_node_id", node.ID)
+		return errors.Wrap(err, "failed to get agents running in PMM Server")
+	})
+	if err != nil {
+		logger.Get(ctx).WithField("component", "logs").Errorf("Failed to get RDS agents: %s.", err)
+	}
+
+	// collect names in set, not in slice,
+	// in case a single agent does several jobs and is returned several times
+	names := make(map[string]struct{}, len(agents))
+	for _, a := range agents {
+		agent := a.(*models.Agent)
+		name := models.NameForSupervisor(agent.Type, *agent.ListenPort)
+		names[name] = struct{}{}
+	}
+
+	for name := range names {
+		log := Log{
+			FilePath: logsRootDir + name + ".log",
+			UnitName: name,
+		}
+		var f File
+		f.Name, f.Data, f.Err = l.readLog(ctx, &log)
+		files = append(files, f)
+	}
+
+	sort.Slice(files, func(i, j int) bool { return files[i].Name < files[j].Name })
+	return files
+}
+
 // Zip creates .zip archive with all logs.
 func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 	zw := zip.NewWriter(w)
 	now := time.Now().UTC()
-	for _, log := range l.logs {
-		name, content, err := l.readLog(ctx, &log)
-		if name == "" {
+	for _, file := range l.Files(ctx) {
+		if file.Name == "" {
 			continue
 		}
 
-		if err != nil {
-			logger.Get(ctx).WithField("component", "logs").Error(err)
+		if file.Err != nil {
+			logger.Get(ctx).WithField("component", "logs").Error(file.Err)
 
 			// do not let a single error break the whole archive
-			if len(content) > 0 {
-				content = append(content, "\n\n"...)
+			if len(file.Data) > 0 {
+				file.Data = append(file.Data, "\n\n"...)
 			}
-			content = append(content, []byte(err.Error())...)
+			file.Data = append(file.Data, []byte(file.Err.Error())...)
 		}
 
 		f, err := zw.CreateHeader(&zip.FileHeader{
-			Name:     name,
+			Name:     file.Name,
 			Method:   zip.Deflate,
 			Modified: now,
 		})
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to create zip file header")
 		}
-		if _, err = f.Write(content); err != nil {
-			return err
+		if _, err = f.Write(file.Data); err != nil {
+			return errors.Wrap(err, "failed to write zip file data")
 		}
 	}
-
-	// make sure to check the error on Close
-	return zw.Close()
-}
-
-// Files returns list of logs and their content.
-func (l *Logs) Files(ctx context.Context) []File {
-	files := make([]File, len(l.logs))
-
-	for i, log := range l.logs {
-		var file File
-		file.Name, file.Data, file.Err = l.readLog(ctx, &log)
-		files[i] = file
-	}
-
-	return files
+	return errors.Wrap(zw.Close(), "failed to close zip file")
 }
 
 // readLog reads last lines from defined Log configuration.

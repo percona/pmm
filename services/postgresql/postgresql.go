@@ -377,7 +377,7 @@ func (svc *Service) Remove(ctx context.Context, id int32) error {
 					return errors.WithStack(err)
 				}
 				if svc.PostgresExporterPath != "" {
-					if err = svc.Supervisor.Stop(ctx, a.NameForSupervisor()); err != nil {
+					if err = svc.Supervisor.Stop(ctx, models.NameForSupervisor(a.Type, *a.ListenPort)); err != nil {
 						return err
 					}
 				}
@@ -447,7 +447,7 @@ func (svc *Service) addPostgresExporter(ctx context.Context, tx *reform.TX, serv
 
 	// start postgres_exporter agent
 	if svc.PostgresExporterPath != "" {
-		cfg := svc.postgresExporterCfg(agent, port, dsn)
+		cfg := svc.postgresExporterCfg(agent, dsn)
 		if err = svc.Supervisor.Start(ctx, cfg); err != nil {
 			return err
 		}
@@ -488,22 +488,18 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 				if err = tx.Reload(a); err != nil {
 					return errors.WithStack(err)
 				}
-				dsn := a.DSN(service)
-				port := *a.ListenPort
 				if svc.PostgresExporterPath != "" {
-					name := a.NameForSupervisor()
+					name := models.NameForSupervisor(a.Type, *a.ListenPort)
 
-					// Checks if init script already running.
 					err := svc.Supervisor.Status(ctx, name)
 					if err == nil {
-						// Stops init script.
 						if err = svc.Supervisor.Stop(ctx, name); err != nil {
 							return err
 						}
 					}
 
-					// Installs new version of the script.
-					cfg := svc.postgresExporterCfg(a, port, dsn)
+					dsn := a.DSN(service)
+					cfg := svc.postgresExporterCfg(a, dsn)
 					if err = svc.Supervisor.Start(ctx, cfg); err != nil {
 						return err
 					}
@@ -515,11 +511,11 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 	return nil
 }
 
-func (svc *Service) postgresExporterCfg(agent *models.PostgresExporter, port uint16, dsn string) *servicelib.Config {
-	name := agent.NameForSupervisor()
+func (svc *Service) postgresExporterCfg(agent *models.PostgresExporter, dsn string) *servicelib.Config {
+	name := models.NameForSupervisor(agent.Type, *agent.ListenPort)
 
 	arguments := []string{
-		fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
+		fmt.Sprintf("-web.listen-address=127.0.0.1:%d", *agent.ListenPort),
 	}
 	sort.Strings(arguments)
 

@@ -431,7 +431,7 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 
 	// start mysqld_exporter agent
 	if svc.MySQLdExporterPath != "" {
-		cfg := svc.mysqlExporterCfg(agent, port, dsn)
+		cfg := svc.mysqlExporterCfg(agent, dsn)
 		if err = svc.Supervisor.Start(ctx, cfg); err != nil {
 			return err
 		}
@@ -440,8 +440,8 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 	return nil
 }
 
-func (svc *Service) mysqlExporterCfg(agent *models.MySQLdExporter, port uint16, dsn string) *servicelib.Config {
-	name := agent.NameForSupervisor()
+func (svc *Service) mysqlExporterCfg(agent *models.MySQLdExporter, dsn string) *servicelib.Config {
+	name := models.NameForSupervisor(agent.Type, *agent.ListenPort)
 
 	arguments := []string{
 		"-collect.binlog_size",
@@ -454,7 +454,7 @@ func (svc *Service) mysqlExporterCfg(agent *models.MySQLdExporter, port uint16, 
 		"-collect.perf_schema.eventswaits",
 		"-collect.perf_schema.file_events",
 		"-collect.slave_status",
-		fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
+		fmt.Sprintf("-web.listen-address=127.0.0.1:%d", *agent.ListenPort),
 	}
 	if agent.MySQLDisableTablestats == nil || !*agent.MySQLDisableTablestats {
 		// enable tablestats and a few related collectors just like pmm-admin
@@ -521,15 +521,17 @@ func (svc *Service) updateRDSExporterConfig(tx *reform.TX, service *models.RDSSe
 	return &config, nil
 }
 
-func (svc *Service) rdsExporterServiceConfig(serviceName string) *servicelib.Config {
+func (svc *Service) rdsExporterServiceConfig(agent *models.RDSExporter) *servicelib.Config {
+	name := models.NameForSupervisor(agent.Type, *agent.ListenPort)
+
 	return &servicelib.Config{
-		Name:        serviceName,
-		DisplayName: serviceName,
-		Description: serviceName,
+		Name:        name,
+		DisplayName: name,
+		Description: name,
 		Executable:  svc.RDSExporterPath,
 		Arguments: []string{
 			fmt.Sprintf("--config.file=%s", svc.RDSExporterConfigPath),
-			fmt.Sprintf("--web.listen-address=127.0.0.1:%d", rdsExporterPort),
+			fmt.Sprintf("--web.listen-address=127.0.0.1:%d", *agent.ListenPort),
 		},
 	}
 }
@@ -560,11 +562,11 @@ func (svc *Service) addRDSExporter(ctx context.Context, tx *reform.TX, service *
 		}
 
 		// restart rds_exporter
-		name := agent.NameForSupervisor()
+		name := models.NameForSupervisor(agent.Type, *agent.ListenPort)
 		if err = svc.Supervisor.Stop(ctx, name); err != nil {
 			logger.Get(ctx).WithField("component", "rds").Warn(err)
 		}
-		if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(name)); err != nil {
+		if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(agent)); err != nil {
 			return err
 		}
 	}
@@ -770,7 +772,7 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 					return errors.WithStack(err)
 				}
 				if svc.MySQLdExporterPath != "" {
-					if err = svc.Supervisor.Stop(ctx, a.NameForSupervisor()); err != nil {
+					if err = svc.Supervisor.Stop(ctx, models.NameForSupervisor(a.Type, *a.ListenPort)); err != nil {
 						return err
 					}
 				}
@@ -788,12 +790,12 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 					}
 
 					// stop or restart rds_exporter
-					name := a.NameForSupervisor()
+					name := models.NameForSupervisor(a.Type, *a.ListenPort)
 					if err = svc.Supervisor.Stop(ctx, name); err != nil {
 						return err
 					}
 					if len(config.Instances) > 0 {
-						if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(name)); err != nil {
+						if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(&a)); err != nil {
 							return err
 						}
 					}
@@ -855,22 +857,18 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 				if err = tx.Reload(a); err != nil {
 					return errors.WithStack(err)
 				}
-				dsn := a.DSN(svc.MySQLServiceFromRDSService(service))
-				port := *a.ListenPort
 				if svc.MySQLdExporterPath != "" {
-					name := a.NameForSupervisor()
+					name := models.NameForSupervisor(a.Type, *a.ListenPort)
 
-					// Checks if init script already running.
 					err := svc.Supervisor.Status(ctx, name)
 					if err == nil {
-						// Stops init script.
 						if err = svc.Supervisor.Stop(ctx, name); err != nil {
 							return err
 						}
 					}
 
-					// Installs new version of the script.
-					cfg := svc.mysqlExporterCfg(a, port, dsn)
+					dsn := a.DSN(svc.MySQLServiceFromRDSService(service))
+					cfg := svc.mysqlExporterCfg(a, dsn)
 					if err = svc.Supervisor.Start(ctx, cfg); err != nil {
 						return err
 					}
@@ -888,19 +886,16 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 					}
 
 					if len(config.Instances) > 0 {
-						name := a.NameForSupervisor()
+						name := models.NameForSupervisor(a.Type, *a.ListenPort)
 
-						// Checks if init script already running.
 						err := svc.Supervisor.Status(ctx, name)
 						if err == nil {
-							// Stops init script.
 							if err = svc.Supervisor.Stop(ctx, name); err != nil {
 								return err
 							}
 						}
 
-						// Installs new version of the script.
-						if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(name)); err != nil {
+						if err = svc.Supervisor.Start(ctx, svc.rdsExporterServiceConfig(&a)); err != nil {
 							return err
 						}
 					}
@@ -912,19 +907,16 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 					return errors.WithStack(err)
 				}
 				if svc.QAN != nil {
-					name := a.NameForSupervisor()
+					name := models.NameForSupervisor(a.Type, *a.ListenPort)
 
-					// Checks if init script already running.
 					err := svc.Supervisor.Status(ctx, name)
 					if err == nil {
-						// Stops init script.
 						if err = svc.Supervisor.Stop(ctx, name); err != nil {
 							return err
 						}
 					}
 
-					// Installs new version of the script.
-					if err = svc.QAN.EnsureAgentRuns(ctx, name, *a.ListenPort); err != nil {
+					if err = svc.QAN.EnsureAgentRuns(ctx, &a); err != nil {
 						return err
 					}
 				}

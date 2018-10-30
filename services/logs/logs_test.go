@@ -20,51 +20,62 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
+	"database/sql"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/mysql"
 
+	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/utils/tests"
 )
 
 // TODO add RDS service
-func setup(t *testing.T) (context.Context, *consul.Client, string) {
+func setup(t *testing.T) (context.Context, *consul.Client, *reform.DB, string) {
 	ctx, _ := logger.Set(context.Background(), t.Name())
 
 	consulClient, err := consul.NewClient("127.0.0.1:8500")
 	require.NoError(t, err)
 
+	db := reform.NewDB(tests.OpenTestDB(t), mysql.Dialect, reform.NewPrintfLogger(t.Logf))
+
 	tmpDir, err := ioutil.TempDir("", t.Name())
 	require.NoError(t, err)
+	logsRootDir = tmpDir + "/"
 
-	logFileName := "test-1.log"
-	f, err := os.Create(filepath.Join(tmpDir, logFileName))
-	require.NoError(t, err)
-	f.WriteString(fmt.Sprintf("%s: log line %d\n", logFileName, 1))
-	f.Close()
+	for _, name := range []string{"test-1.log", "pmm-test-agent-12345.log"} {
+		err = ioutil.WriteFile(filepath.Join(tmpDir, name), []byte(fmt.Sprintf("%s: test\n", name)), 0600)
+		require.NoError(t, err)
+	}
 
-	return ctx, consulClient, f.Name()
+	return ctx, consulClient, db, filepath.Join(tmpDir, "test-1.log")
 }
 
-func teardown(t *testing.T, logFileName string) {
-	err := os.RemoveAll(filepath.Dir(logFileName))
+func teardown(t *testing.T, db *reform.DB, logFileName string) {
+	err := db.DBInterface().(*sql.DB).Close()
+	assert.NoError(t, err)
+
+	err = os.RemoveAll(filepath.Dir(logFileName))
 	require.NoError(t, err)
 }
 
 func TestZip(t *testing.T) {
-	ctx, consulClient, logFileName := setup(t)
-	defer teardown(t, logFileName)
+	ctx, consulClient, db, logFileName := setup(t)
+	defer teardown(t, db, logFileName)
 
 	logs := []Log{
 		{logFileName, "", nil},
 	}
-	l := New("1.2.3", consulClient, nil, logs)
+	l := New("1.2.3", consulClient, db, nil, logs)
 
 	buf := new(bytes.Buffer)
 	err := l.Zip(ctx, buf)
@@ -81,15 +92,15 @@ func TestZip(t *testing.T) {
 		assert.NoError(t, err)
 		f.Close()
 		fName := filepath.Base(zr.File[i].Name)
-		assert.Equal(t, fmt.Sprintf("%s: log line %d\n", fName, 1), string(b))
+		assert.Equal(t, fmt.Sprintf("%s: test\n", fName), string(b))
 	}
 }
 
 func TestZipDefaultLogs(t *testing.T) {
-	ctx, consulClient, logFileName := setup(t)
-	defer teardown(t, logFileName)
+	ctx, consulClient, db, logFileName := setup(t)
+	defer teardown(t, db, logFileName)
 
-	l := New("1.2.3", consulClient, nil, nil)
+	l := New("1.2.3", consulClient, db, nil, nil)
 
 	buf := new(bytes.Buffer)
 	err := l.Zip(ctx, buf)
@@ -101,19 +112,23 @@ func TestZipDefaultLogs(t *testing.T) {
 }
 
 func TestFiles(t *testing.T) {
-	ctx, consulClient, logFileName := setup(t)
-	defer teardown(t, logFileName)
+	ctx, consulClient, db, logFileName := setup(t)
+	defer teardown(t, db, logFileName)
+
+	err := db.Insert(&models.Agent{Type: "test-agent", RunsOnNodeID: 1, ListenPort: pointer.ToUint16(12345)})
+	require.NoError(t, err)
 
 	logs := []Log{
 		{logFileName, "", nil},
 	}
-	l := New("1.2.3", consulClient, nil, logs)
+	l := New("1.2.3", consulClient, db, nil, logs)
 
 	files := l.Files(ctx)
-	assert.Len(t, files, len(logs))
+	assert.Len(t, files, 2)
 
 	for i := range files {
 		assert.NoError(t, files[i].Err)
-		assert.Equal(t, fmt.Sprintf("%s: log line %d\n", files[i].Name, 1), string(files[i].Data))
+		fName := filepath.Base(files[i].Name)
+		assert.Equal(t, fmt.Sprintf("%s: test\n", fName), string(files[i].Data))
 	}
 }

@@ -274,7 +274,7 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 
 	// start mysqld_exporter agent
 	if svc.MySQLdExporterPath != "" {
-		cfg := svc.mysqlExporterCfg(agent, port, dsn)
+		cfg := svc.mysqlExporterCfg(agent, dsn)
 		if err = svc.Supervisor.Start(ctx, cfg); err != nil {
 			return err
 		}
@@ -283,8 +283,8 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 	return nil
 }
 
-func (svc *Service) mysqlExporterCfg(agent *models.MySQLdExporter, port uint16, dsn string) *servicelib.Config {
-	name := agent.NameForSupervisor()
+func (svc *Service) mysqlExporterCfg(agent *models.MySQLdExporter, dsn string) *servicelib.Config {
+	name := models.NameForSupervisor(agent.Type, *agent.ListenPort)
 
 	arguments := []string{
 		"-collect.binlog_size",
@@ -297,7 +297,7 @@ func (svc *Service) mysqlExporterCfg(agent *models.MySQLdExporter, port uint16, 
 		"-collect.perf_schema.eventswaits",
 		"-collect.perf_schema.file_events",
 		"-collect.slave_status",
-		fmt.Sprintf("-web.listen-address=127.0.0.1:%d", port),
+		fmt.Sprintf("-web.listen-address=127.0.0.1:%d", *agent.ListenPort),
 	}
 	if agent.MySQLDisableTablestats == nil || !*agent.MySQLDisableTablestats {
 		// enable tablestats and a few related collectors just like pmm-admin
@@ -490,7 +490,7 @@ func (svc *Service) Remove(ctx context.Context, id int32) error {
 					return errors.WithStack(err)
 				}
 				if svc.MySQLdExporterPath != "" {
-					if err = svc.Supervisor.Stop(ctx, a.NameForSupervisor()); err != nil {
+					if err = svc.Supervisor.Stop(ctx, models.NameForSupervisor(a.Type, *a.ListenPort)); err != nil {
 						return err
 					}
 				}
@@ -558,22 +558,17 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 				if err = tx.Reload(a); err != nil {
 					return errors.WithStack(err)
 				}
-				dsn := a.DSN(service)
-				port := *a.ListenPort
 				if svc.MySQLdExporterPath != "" {
-					name := a.NameForSupervisor()
-
-					// Checks if init script already running.
+					name := models.NameForSupervisor(a.Type, *a.ListenPort)
 					err := svc.Supervisor.Status(ctx, name)
 					if err == nil {
-						// Stops init script.
 						if err = svc.Supervisor.Stop(ctx, name); err != nil {
 							return err
 						}
 					}
 
-					// Installs new version of the script.
-					cfg := svc.mysqlExporterCfg(a, port, dsn)
+					dsn := a.DSN(service)
+					cfg := svc.mysqlExporterCfg(a, dsn)
 					if err = svc.Supervisor.Start(ctx, cfg); err != nil {
 						return err
 					}
@@ -585,19 +580,15 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 					return errors.WithStack(err)
 				}
 				if svc.QAN != nil {
-					name := a.NameForSupervisor()
-
-					// Checks if init script already running.
+					name := models.NameForSupervisor(a.Type, *a.ListenPort)
 					err := svc.Supervisor.Status(ctx, name)
 					if err == nil {
-						// Stops init script.
 						if err = svc.Supervisor.Stop(ctx, name); err != nil {
 							return err
 						}
 					}
 
-					// Installs new version of the script.
-					if err = svc.QAN.EnsureAgentRuns(ctx, name, *a.ListenPort); err != nil {
+					if err = svc.QAN.EnsureAgentRuns(ctx, &a); err != nil {
 						return err
 					}
 				}

@@ -221,7 +221,8 @@ func (svc *Service) removeInstance(ctx context.Context, qanURL *url.URL, uuid st
 }
 
 // EnsureAgentRuns checks qan-agent process status and starts it if it is not configured or down.
-func (svc *Service) EnsureAgentRuns(ctx context.Context, nameForSupervisor string, port uint16) error {
+func (svc *Service) EnsureAgentRuns(ctx context.Context, agent *models.QanAgent) error {
+	nameForSupervisor := models.NameForSupervisor(agent.Type, *agent.ListenPort)
 	err := svc.supervisor.Status(ctx, nameForSupervisor)
 	if err != nil {
 		// error can also mean that service status can't be determined, so we always stop it first
@@ -236,7 +237,7 @@ func (svc *Service) EnsureAgentRuns(ctx context.Context, nameForSupervisor strin
 			Description: nameForSupervisor,
 			Executable:  filepath.Join(svc.baseDir, "bin", "percona-qan-agent"),
 			Arguments: []string{
-				fmt.Sprintf("-listen=127.0.0.1:%d", port),
+				fmt.Sprintf("-listen=127.0.0.1:%d", *agent.ListenPort),
 			},
 		}
 		err = svc.supervisor.Start(ctx, config)
@@ -336,7 +337,7 @@ func (svc *Service) AddMySQL(ctx context.Context, nodeName string, mySQLService 
 		return errors.WithStack(err)
 	}
 
-	if err = svc.EnsureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
+	if err = svc.EnsureAgentRuns(ctx, qanAgent); err != nil {
 		return err
 	}
 
@@ -362,7 +363,7 @@ func (svc *Service) RemoveMySQL(ctx context.Context, qanAgent *models.QanAgent) 
 	}
 
 	// agent should be running to remove instance from it
-	if err = svc.EnsureAgentRuns(ctx, qanAgent.NameForSupervisor(), *qanAgent.ListenPort); err != nil {
+	if err = svc.EnsureAgentRuns(ctx, qanAgent); err != nil {
 		return err
 	}
 

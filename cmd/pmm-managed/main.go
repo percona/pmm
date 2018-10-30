@@ -570,7 +570,7 @@ func main() {
 		l.Panicf("Remote service problem: %+v", err)
 	}
 
-	logs := logs.New(Version, consulClient, rds, nil)
+	logs := logs.New(Version, consulClient, db, rds, nil)
 
 	var wg sync.WaitGroup
 
