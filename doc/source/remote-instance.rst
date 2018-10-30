@@ -1,6 +1,6 @@
 .. _pmm.amazon-rds-agentless:
 
-Adding Remote DB instance to |pmm|
+Adding a MySQL or PostgreSQL Remote DB instance to |pmm|
 ********************************************************************************
 
 There is a quick method for users to add DBaaS instances to |pmm| without having
@@ -16,7 +16,7 @@ memory, and disk activity will not be captured nor displayed in |pmm|).
 Both methods can be accessed in the |metrics-monitor| navigation menu by
 selecting the |pmm-add-instance| item in a |gui.pmm-dropdown| group:
 
-.. figure:: .res/graphics/png/metrics-monitor.cloud-menu.png
+.. figure:: .res/graphics/png/metrics-monitor.menu.pmm1.png
 
 Two database servers are currently supported by this method: |postgresql| and
 |mysql|.
@@ -47,7 +47,13 @@ Viewing Remote MySQL and PostgreSQL Instances
 ================================================================================
 
 After adding, both |amazon-rds| and remote instances can be seen in the RDS and
-Remote Instances` list: remote ones have `remote` keyword as a Region:  
+Remote Instances list, which can be accessed in the |metrics-monitor| navigation
+menu by selecting the *PMM RDS and Remote Instances* item in a
+|gui.pmm-dropdown| group:
+
+.. figure:: .res/graphics/png/metrics-monitor.menu.pmm2.png
+
+Remote ones have `remote` keyword as a Region:
 
 .. figure:: .res/graphics/png/metrics-monitor.add-rds-or-remote-instance1.png
 
