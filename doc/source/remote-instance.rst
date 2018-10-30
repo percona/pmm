@@ -27,9 +27,8 @@ Two database servers are currently supported by this method: |postgresql| and
 Adding a Remote PostgreSQL Instance
 ================================================================================
 
-To add a remote PostgreSQL DB instance, user should fill in at least the
-hostname, username and password field, and optionally also non-default hostname
-and port ones:
+To add a remote PostgreSQL DB instance, you will need to fill in three fields:
+Hostname, Username, and Password, and optionally override the default Port and Name fields:
 
 .. figure:: .res/graphics/png/metrics-monitor.add-remote-postgres-instance.png
 
@@ -37,19 +36,18 @@ and port ones:
 Adding a Remote MySQL Instance
 ================================================================================
 
-To add a remote MySQL DB instance, user should fill in at least the
-hostname, username and password field, and optionally also non-default hostname
-and port ones:
+To add a remote MySQL DB instance, you will need to fill in three fields:
+Hostname, Username, and Password, and optionally override the default Port and Name fields:
 
 .. figure:: .res/graphics/png/metrics-monitor.add-remote-mysql-instance.png
 
 Viewing Remote MySQL and PostgreSQL Instances
 ================================================================================
 
-After adding, both |amazon-rds| and remote instances can be seen in the RDS and
+|amazon-rds| and remote instances can be seen in the RDS and
 Remote Instances list, which can be accessed in the |metrics-monitor| navigation
-menu by selecting the *PMM RDS and Remote Instances* item in a
-|gui.pmm-dropdown| group:
+menu by selecting the *PMM RDS and Remote Instances* item from the
+|gui.pmm-dropdown| menu:
 
 .. figure:: .res/graphics/png/metrics-monitor.menu.pmm2.png
 
