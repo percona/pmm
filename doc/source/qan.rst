@@ -45,15 +45,15 @@ related characteristics appear as plotted graphics with summaries.
 ================================================================================
    
 To start working with |qan|, open the list of dashboards on the |pmm| home
-page. Then, select a host in the |gui.host| field at the top of the page from
-the list of database instances.  where the |pmm-client| is installed.
+page. Then, proceed to the |gui.host| field at the top of the page and select a
+host where the |pmm-client| is installed from the list of database instances.
 
-The list of queries opens below in a summary table. Be default, |qan| shows the
-top *ten* queries ranked by :term:`%GTT` (Grand total time) as a result of
-monitoring your database server for the last hour. Each query displays three
-essential metrics: *Load*, *Count*, and *Latency*. Also queries
-which are newly seen within the the time range selected are highlighted with a
-blue color for their better noticeability.
+The |qan| dashboard will show a summary of the selected host and database
+activity metrics followed by the list of queries in a summary table. By
+default, |qan| shows the top *ten* queries ranked by :term:`%GTT` (Grand total
+time). Each query displays three essential metrics: *Load*, *Count*, and
+*Latency*. Also queries which are newly seen within the the time range selected
+are highlighted with a blue color for quicker identification.
 
 Also it worth to mention that |qan| data come in with typical 1-2 min delay,
 though it is possible to be delayed more because of specific network condition
