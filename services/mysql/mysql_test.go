@@ -192,8 +192,8 @@ func TestAddListRemove(t *testing.T) {
 			NodeID:        2,
 			Address:       pointer.ToString("localhost"),
 			Port:          pointer.ToUint16(3306),
-			Engine:        pointer.ToString("Percona Server (GPL), Release '23', Revision '500fcf5'"),
-			EngineVersion: pointer.ToString("5.7.23-23"),
+			Engine:        pointer.ToString("Percona Server"),
+			EngineVersion: pointer.ToString("5.7.23"),
 		},
 	}}
 	assert.Equal(t, expected, actual)
@@ -237,6 +237,29 @@ func TestRestore(t *testing.T) {
 		return svc.Restore(ctx, tx)
 	})
 	require.NoError(t, err)
+}
+
+func TestNormalizeEngineAndEngineVersion(t *testing.T) {
+	parameters := []struct {
+		versionComment  string
+		version         string
+		expectedEngine  string
+		expectedVersion string
+	}{
+		{version: "5.7.23-23", versionComment: "Percona Server (GPL), Release '23', Revision '500fcf5'", expectedEngine: "Percona Server", expectedVersion: "5.7.23"},
+		{version: "10.3.10-MariaDB-1:10.3.10+maria~bionic", versionComment: "mariadb.org binary distribution", expectedEngine: "MariaDB", expectedVersion: "10.3.10"},
+		{version: "5.7.24-0ubuntu0.18.04.1", versionComment: "(Ubuntu)", expectedEngine: "MySQL", expectedVersion: "5.7.24"},
+		{version: "8.0.13", versionComment: "MySQL Community Server - GPL", expectedEngine: "MySQL", expectedVersion: "8.0.13"},
+		{version: "5.6.42", versionComment: "MySQL Community Server - GPL", expectedEngine: "MySQL", expectedVersion: "5.6.42"},
+	}
+
+	for _, params := range parameters {
+		engine, engineVersion, err := normalizeEngineAndEngineVersion(params.versionComment, params.version)
+		assert.NoError(t, err)
+
+		assert.Equal(t, params.expectedEngine, engine, "engine is not equal")
+		assert.Equal(t, params.expectedVersion, engineVersion, "engineVersion is not equal")
+	}
 }
 
 func createFakeBin(t *testing.T, name string) {

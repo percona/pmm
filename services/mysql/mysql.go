@@ -22,7 +22,9 @@ import (
 	"database/sql"
 	"fmt"
 	"os/exec"
+	"regexp"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -48,6 +50,8 @@ const (
 	// maximum time for connecting to the database and running all queries
 	sqlCheckTimeout = 5 * time.Second
 )
+
+var versionRegexp = regexp.MustCompile(`([\d\.]+)-.*`)
 
 type ServiceConfig struct {
 	MySQLdExporterPath string
@@ -623,5 +627,22 @@ func (svc *Service) engineAndEngineVersion(ctx context.Context, host string, por
 	if err != nil {
 		return "", "", errors.WithStack(err)
 	}
-	return versionComment, version, nil
+	return normalizeEngineAndEngineVersion(versionComment, version)
+}
+
+func normalizeEngineAndEngineVersion(engine string, engineVersion string) (string, string, error) {
+	if versionRegexp.MatchString(engineVersion) {
+		submatch := versionRegexp.FindStringSubmatch(engineVersion)
+		engineVersion = submatch[1]
+	}
+
+	lowerEngine := strings.ToLower(engine)
+	switch {
+	case strings.Contains(lowerEngine, "mariadb"):
+		return "MariaDB", engineVersion, nil
+	case strings.Contains(lowerEngine, "percona"):
+		return "Percona Server", engineVersion, nil
+	default:
+		return "MySQL", engineVersion, nil
+	}
 }
