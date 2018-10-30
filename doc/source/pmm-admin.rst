@@ -375,7 +375,7 @@ lines in the cron configuration file (e.g. in ``/etc/crontab``)::
   */1 * * * *     root   echo -n "" > /tmp/docker_all.prom; /usr/bin/docker ps -a | sed -n '1!p'| /usr/bin/wc -l | sed -ne 's/^/node_docker_containers_total /p' >> /usr/local/percona/pmm-client/docker_all.prom;
   */1 * * * *     root   echo -n "" > /tmp/docker_running.prom; /usr/bin/docker ps | sed -n '1!p'| /usr/bin/wc -l | sed -ne 's/^/node_docker_containers_running_total /p' >>/usr/local/percona/pmm-client/docker_running.prom;
 
-The result of the commands is placed into the ``docker_running.prom`` and
+The result of the commands is placed into the ``docker_all.prom`` and
 ``docker_running.prom`` files and read by exporter.
 
 The first command executed by cron is rather simple: the destination text file
