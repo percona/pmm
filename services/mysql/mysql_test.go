@@ -168,6 +168,9 @@ func TestAddListRemove(t *testing.T) {
 	_, err = svc.Add(ctx, "", "", 0, "username", "password")
 	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `MySQL instance host is not given.`), err)
 
+	_, err = svc.Add(ctx, "", " ", 0, "username", "password")
+	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `MySQL instance host is not given.`), err)
+
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
 	supervisor.On("Status", mock.Anything, mock.Anything).Return(fmt.Errorf("not running"))
 	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil)

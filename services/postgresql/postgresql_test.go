@@ -92,6 +92,9 @@ func TestAddListRemove(t *testing.T) {
 	_, err = svc.Add(ctx, "", "", 0, "username", "password")
 	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `PostgreSQL instance host is not given.`), err)
 
+	_, err = svc.Add(ctx, "", " ", 0, "username", "password")
+	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `PostgreSQL instance host is not given.`), err)
+
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
 	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil)
 	id, err := svc.Add(ctx, "", "localhost", 0, "username", "password")

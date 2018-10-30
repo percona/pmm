@@ -24,6 +24,7 @@ import (
 	"os/exec"
 	"regexp"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -208,6 +209,9 @@ func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 
 // Add new postgreSQL service and start postgres_exporter
 func (svc *Service) Add(ctx context.Context, name, address string, port uint32, username, password string) (int32, error) {
+	address = strings.TrimSpace(address)
+	username = strings.TrimSpace(username)
+	name = strings.TrimSpace(name)
 	if address == "" {
 		return 0, status.Error(codes.InvalidArgument, "PostgreSQL instance host is not given.")
 	}
