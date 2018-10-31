@@ -234,6 +234,7 @@
 .. |gui.plugins| replace:: :guilabel:`Plugins`
 .. |gui.pmm-annotations| replace:: :guilabel:`PMM Annotations`
 .. |gui.policies| replace:: :guilabel:`Policies`
+.. |gui.postgres| replace:: :guilabel:`PostgreSQL`
 .. |gui.pricing-information| replace:: :guilabel:`Pricing Information`
 .. |gui.programmatic-access| replace:: :guilabel:`Programmatic access`
 .. |gui.public-accessibility| replace:: :guilabel:`Public accessibility`
