@@ -30,6 +30,7 @@ Advanced
    :maxdepth: 1
 
    pmm-admin
+   remote-instance
    amazon-rds
    Configuring MySQL for Best Results <conf-mysql>
    conf-postgres
