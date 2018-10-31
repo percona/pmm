@@ -107,9 +107,10 @@ func (p *PostgresExporter) DSN(service *PostgreSQLService) string {
 
 	address := net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port)))
 	uri := url.URL{
+		Scheme:   "postgres",
 		User:     url.UserPassword(*p.ServiceUsername, *p.ServicePassword),
 		Host:     address,
-		Scheme:   "postgres",
+		Path:     "postgres",
 		RawQuery: q.Encode(),
 	}
 	return uri.String()
