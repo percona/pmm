@@ -55,3 +55,4 @@ Remote ones have `remote` keyword as a Region:
 
 .. figure:: .res/graphics/png/metrics-monitor.add-rds-or-remote-instance1.png
 
+.. include:: .res/replace.txt

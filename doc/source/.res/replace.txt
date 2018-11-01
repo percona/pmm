@@ -205,6 +205,7 @@
 .. |gui.create-policy| replace:: :guilabel:`Create policy`
 .. |gui.create-user| replace:: :guilabel:`Create user`
 .. |gui.dashboard-dropdown| replace:: :guilabel:`Dashboard Dropdown`
+.. |gui.pmm-dropdown| replace:: :guilabel:`PMM Dropdown`
 .. |gui.dashboards| replace:: :guilabel:`Dashboards`
 .. |gui.database-summary| replace:: :guilabel:`Database Summary`	 
 .. |gui.databases| replace:: :guilabel:`Databases`

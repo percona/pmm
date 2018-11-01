@@ -188,7 +188,7 @@ Size of Temp files
 
 .. _dashboard.postgres-overview.conflicts.and.locks:
 
-:ref:`Conflicts and Locks <dashboard.postgres-conflicts.and.locks>`
+:ref:`Conflicts and Locks <dashboard.postgres-overview.conflicts.and.locks>`
 --------------------------------------------------------------------------------
 
 Conflicts/Deadlocks
