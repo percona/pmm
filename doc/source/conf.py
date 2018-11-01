@@ -115,6 +115,18 @@ rst_prolog = '''
 
 .. |Percona|  replace:: *Percona*
 
+.. |pmm|  replace:: *PMM*
+
+.. |pmm-server|  replace:: *PMM Server*
+
+.. |pmm-client|  replace:: *PMM Client*
+
+.. |postgresql|  replace:: *PostgreSQL*
+
+.. |pmm-add-instance| replace:: *PMM Add Instance*
+
+.. |gui.pmm-dropdown| replace:: :guilabel:`PMM Dropdown`
+
 .. |MySQL|  replace:: *MySQL*
 
 .. |sysbench|  replace:: *sysbench*

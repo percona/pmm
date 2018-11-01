@@ -35,7 +35,7 @@ Using the |pmm-add-instance| screen, you can now add instances from any cloud
 provider (AWS RDS and Aurora, Google Cloud SQL for MySQL, Azure Database for
 MySQL) and benefit from the same dashboards that you are already accustomed to.
 You’ll be able to collect Metrics and Queries from |MySQL|, and Metrics from
-|posgresql|.  You can add remote instances by selecting the |pmm-add-instance|
+|postgresql|.  You can add remote instances by selecting the |pmm-add-instance|
 item in a |gui.pmm-dropdown| group of the system menu:
 
 .. figure:: 1.16.0-1.png
@@ -92,8 +92,8 @@ This example will show you how to collect the number of running and stopped
 docker containers on a host. It uses a ``crontab`` task, set with the following
 lines in the cron configuration file (e.g. in ``/etc/crontab``)::
 
-  */1 * * * *     root   echo -n "" > /tmp/docker_all.prom; /usr/bin/docker ps -a | sed -n '1!p'| /usr/bin/wc -l | sed -ne 's/^/node_docker_containers_total /p' >> /usr/local/percona/pmm-client/docker_all.prom;
-  */1 * * * *     root   echo -n "" > /tmp/docker_running.prom; /usr/bin/docker ps | sed -n '1!p'| /usr/bin/wc -l | sed -ne 's/^/node_docker_containers_running_total /p' >>/usr/local/percona/pmm-client/docker_running.prom;
+  */1 * * * *     root   echo -n "" > /tmp/docker_all.prom; docker ps -a -q | wc -l | xargs echo node_docker_containers_total >> /usr/local/percona/pmm-client/docker_all.prom;
+  */1 * * * *     root   echo -n "" > /tmp/docker_running.prom; docker ps | wc -l | xargs echo node_docker_containers_running_total >> /usr/local/percona/pmm-client/docker_running.prom;
 
 The result of the commands is placed into the ``docker_all.prom`` and
 ``docker_running.prom`` files and read by exporter and will create two new
@@ -164,3 +164,5 @@ PMM is available for installation using three methods:
 * `Docker Hub <https://hub.docker.com/r/percona/pmm-server/>`_ – ``docker pull percona/pmm-server`` – `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/docker.html>`_
 * `AWS Marketplace <https://aws.amazon.com/marketplace/pp/B077J7FYGX>`_ – `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html>`_
 * `Open Virtualization Format (OVF) <https://www.percona.com/downloads/pmm/>`_ – `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/virtual-appliance.html>`_
+
+.. include:: .res/replace.txt

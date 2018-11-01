@@ -303,7 +303,7 @@ Docker host.
 
 Also |pmm| is able to generate a set of diagnostics data which can be examined
 and/or shared with Percona Support to solve an issue faster. See details on how
-to get collected logs `from PMM Server <https://www.percona.com/doc/percona-monitoring-and-management/deploy/index.html#deploy-pmm.diagnostics-for-support>`_ and `from PMM Client <https://www.percona.com/doc/percona-monitoring-and-management/pmm-admin.html#pmm-admin.diagnostics-for-support>`_.
+to get collected logs `from PMM Server <https://www.percona.com/doc/percona-monitoring-and-management/deploy/index.html#deploy-pmm-diagnostics-for-support>`_ and `from PMM Client <https://www.percona.com/doc/percona-monitoring-and-management/pmm-admin.html#pmm-admin-diagnostics-for-support>`_.
 
 .. _metrics-resolution:
 
