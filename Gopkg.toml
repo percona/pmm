@@ -1,0 +1,9 @@
+[prune]
+  non-go = true
+  go-tests = true
+  unused-packages = true
+
+# TODO switch to tags before PMM 2.0 release
+[[constraint]]
+  name = "github.com/percona/pmm"
+  branch = "PMM-3105-api-2.0"
