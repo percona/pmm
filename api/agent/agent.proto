@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package agent;
+
+import "google/protobuf/any.proto";
+import "google/protobuf/timestamp.proto";
+import "inventory/agents.proto";
+
+message RegisterRequest {
+  // FIXME We need node information there to create a new node or map new agent to the existing node.
+  //       This is hard problem.
+
+  string hostname = 1;
+}
+
+message RegisterResponse {
+  string uuid = 1;
+}
+
+// AuthRequest is an AgentMessage for authenticating pmm-agent on pmm-managed.
+message AuthRequest {
+  string uuid = 1;
+  string version = 2;
+}
+
+// AuthResponse is a ServerMessage for successful authentication.
+message AuthResponse {}
+
+// QANDataRequest is an AgentMessage for sending QAN data.
+message QANDataRequest {
+  google.protobuf.Any data = 1; // agent.QANData
+}
+
+// QANDataResponse is a ServerMessage for QAN data acceptance.
+message QANDataResponse {}
+
+// PingRequest is a ServerMessage for checking connectivity, latency and clock drift.
+message PingRequest {}
+
+// PingResponse is an AgentMessage with current time for measuring clock drift.
+message PingResponse {
+  google.protobuf.Timestamp current_time = 1;
+}
+
+// SetStateRequest is a ServerMessage asking pmm-agent to run agents according to desired state.
+message SetStateRequest {
+  // AgentProcess describes desired configuration of a single agent.
+  message AgentProcess {
+    uint32 agent_id = 1;
+    inventory.AgentType type = 2;
+    repeated string args = 3;
+    repeated string env = 4;
+    map<string, string> configs = 5;
+  }
+  repeated AgentProcess agent_processes = 1;
+}
+
+// SetStateResponse is an AgentMessage describing agent statuses.
+message SetStateResponse {
+  // AgentProcess describes status of a single agent.
+  message AgentProcess {
+    uint32 agent_id = 1;
+    inventory.AgentProcessStatus status = 2;
+    uint32 listen_port = 3;
+  }
+  repeated AgentProcess agent_processes = 1;
+}
+
+message AgentMessage {
+  uint32 id = 1;
+  oneof payload {
+    // requests from agent
+    AuthRequest auth = 2;
+    QANDataRequest qan_data = 3;
+    // responses from agent
+    PingResponse ping = 8;
+    SetStateResponse state = 9;
+  }
+}
+
+message ServerMessage {
+  uint32 id = 1;
+  oneof payload {
+    // responses from server
+    AuthResponse auth = 2;
+    QANDataResponse qan_data = 3;
+    // requests from server
+    PingRequest ping = 8;
+    SetStateRequest state = 9;
+  }
+}
+
+// Agent service provides private methods for pmm-agent <-> pmm-managed interactions.
+service Agent {
+  // Register adds pmm-agent to pmm-managed database and returns agent's UUID.
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
+  rpc Connect(stream AgentMessage) returns (stream ServerMessage);
+}

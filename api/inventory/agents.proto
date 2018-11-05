@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package inventory;
+
+import "google/api/annotations.proto";
+
+// AgentType represents Agent type.
+enum AgentType {
+  AGENT_TYPE_INVALID = 0;
+  MYSQLD_EXPORTER = 1;
+}
+
+// AgentProcessStatus represents agent process state.
+enum AgentProcessStatus {
+  AGENT_PROCESS_STATUS_INVALID = 0;
+  DISABLED = 1;
+  RUNNING = 2;
+  // TODO adopt http://supervisord.org/subprocess.html#process-states ?
+
+}
+
+// MySQLdExporter represents mysqld_exporter Agent configuration.
+message MySQLdExporter {
+  // Unique agent identifier.
+  uint32 id = 1;
+  reserved 2; // type
+  // Node identifier where agent runs.
+  uint32 runs_on_node_id = 3;
+  // Service identifier for extracting metrics.
+  uint32 service_id = 4;
+  // MySQL username for extracting metrics.
+  string username = 5;
+  // MySQL password for extracting metrics.
+  string password = 6;
+  // HTTP listen port for exposing metrics.
+  uint32 listen_port = 7;
+}
+
+message ListAgentsRequest {}
+
+message ListAgentsResponse {
+  repeated MySQLdExporter mysqld_exporter = 1;
+}
+
+message GetAgentRequest {
+  // Unique Agent identifier.
+  uint32 id = 1;
+}
+
+message GetAgentResponse {
+  oneof agent {
+    MySQLdExporter mysqld_exporter = 1;
+  }
+}
+
+message AddMySQLdExporterAgentRequest {
+  reserved 1; // id
+  reserved 2; // type
+  // Node identifier where agent should run.
+  uint32 runs_on_node_id = 3;
+  // Service identifier for extracting metrics.
+  uint32 service_id = 4;
+  // MySQL username for extracting metrics.
+  string username = 5;
+  // MySQL password for extracting metrics.
+  string password = 6;
+  reserved 7; // listen_port
+}
+
+message AddMySQLdExporterAgentResponse {
+  MySQLdExporter mysqld_exporter = 1;
+}
+
+message RemoveAgentRequest {
+  uint32 id = 1;
+}
+
+message RemoveAgentResponse {}
+
+// Agents service provides public methods for managing Agents.
+service Agents {
+  // ListAgents returns a list of all Agents.
+  rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Agents/ListAgents"
+      body: "*"
+    };
+  }
+  // GetAgent returns a single Agent by ID.
+  rpc GetAgent(GetAgentRequest) returns (GetAgentResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Agents/GetAgent"
+      body: "*"
+    };
+  }
+  // AddMySQLdExporterAgent adds mysqld_exporter Agent.
+  rpc AddMySQLdExporterAgent(AddMySQLdExporterAgentRequest) returns (AddMySQLdExporterAgentResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Agents/AddMySQLdExporterAgent"
+      body: "*"
+    };
+  }
+  // RemoveAgent removes Agent.
+  rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Agents/RemoveAgent"
+      body: "*"
+    };
+  }
+}

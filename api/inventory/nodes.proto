@@ -1,0 +1,187 @@
+syntax = "proto3";
+
+package inventory;
+
+import "google/api/annotations.proto";
+
+// NodeType represents Node type.
+enum NodeType {
+  NODE_TYPE_INVALID = 0;
+  BARE_METAL = 1;
+  VIRTUAL_MACHINE = 2;
+  CONTAINER = 3;
+  REMOTE = 4; // a.k.a. external
+  RDS = 5;
+}
+
+// BareMetalNode represents bare metal Node.
+message BareMetalNode {
+  // Unique Node identifier.
+  uint32 id = 1;
+  reserved 2; // type
+  // Unique Node name.
+  string name = 3;
+  // Hostname. Is not unique.
+  string hostname = 4;
+}
+
+// VirtualMachineNode represents virtual machine Node.
+message VirtualMachineNode {
+  // Unique Node identifier.
+  uint32 id = 1;
+  reserved 2; // type
+  // Unique Node name.
+  string name = 3;
+  // Hostname. Is not unique.
+  string hostname = 4;
+}
+
+// ContainerNode represents a container (Docker) Node.
+message ContainerNode {
+  // Unique Node identifier.
+  uint32 id = 1;
+  reserved 2; // type
+  // Unique Node name.
+  string name = 3;
+  reserved 4; // hostname
+}
+
+// RemoteNode represents a generic remote Node.
+message RemoteNode {
+  // Unique Node identifier.
+  uint32 id = 1;
+  reserved 2; // type
+  // Unique Node name.
+  string name = 3;
+  reserved 4; // hostname
+}
+
+// RDSNode represents AWS RDS Node.
+message RDSNode {
+  // Unique Node identifier.
+  uint32 id = 1;
+  reserved 2; // type
+  // Unique Node name.
+  string name = 3;
+  reserved 4; // hostname
+  string region = 5;
+}
+
+message ListNodesRequest {}
+
+message ListNodesResponse {
+  repeated BareMetalNode bare_metal = 1;
+  repeated VirtualMachineNode virtual_machine = 2;
+  repeated ContainerNode container = 3;
+  repeated RemoteNode remote = 4;
+  repeated RDSNode rds = 5;
+}
+
+message GetNodeRequest {
+  // Unique Node identifier.
+  uint32 id = 1;
+}
+
+message GetNodeResponse {
+  oneof node {
+    BareMetalNode bare_metal = 1;
+    VirtualMachineNode virtual_machine = 2;
+    ContainerNode container = 3;
+    RemoteNode remote = 4;
+    RDSNode rds = 5;
+  }
+}
+
+message AddNodeRequest {
+  reserved 1; // id
+  // Node type.
+  NodeType type = 2;
+  // Unique Node name.
+  string name = 3;
+  // Hostname. Is not unique.
+  string hostname = 4;
+}
+
+message AddNodeResponse {
+  oneof node {
+    BareMetalNode bare_metal = 1;
+    VirtualMachineNode virtual_machine = 2;
+    ContainerNode container = 3;
+  }
+}
+
+message AddRemoveNodeRequest {
+  reserved 1; // id
+  reserved 2; // type
+  // Unique Node name.
+  string name = 3;
+  reserved 4; // hostname
+}
+
+message AddRemoveNodeResponse {
+  RemoteNode remote = 1;
+}
+
+message AddRDSNodeRequest {
+  reserved 1; // id
+  reserved 2; // type
+  // Unique Node name.
+  string name = 3;
+  reserved 4; // hostname
+}
+
+message AddRDSNodeResponse {
+  RDSNode rds = 1;
+}
+
+message RemoveNodeRequest {
+  uint32 id = 1;
+}
+
+message RemoveNodeResponse {}
+
+// Nodes service provides public methods for managing Nodes.
+service Nodes {
+  // ListNodes returns a list of all Nodes.
+  rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Nodes/ListNodes"
+      body: "*"
+    };
+  }
+  // GetNode returns a single Node by ID.
+  rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Nodes/GetNode"
+      body: "*"
+    };
+  }
+  // AddNode adds bare metal, virtual machine, or container node Node.
+  rpc AddNode(AddNodeRequest) returns (AddNodeResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Nodes/AddNode"
+      body: "*"
+    };
+  }
+  // AddRemoveNode adds remote Node.
+  rpc AddRemoveNode(AddRemoveNodeRequest) returns (AddRemoveNodeResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Nodes/AddRemoveNode"
+      body: "*"
+    };
+  }
+  // AddRDSNode adds AWS RDS Node.
+  rpc AddRDSNode(AddRDSNodeRequest) returns (AddRDSNodeResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Nodes/AddRDSNode"
+      body: "*"
+    };
+  }
+  // RemoveNode removes Node without any Agents and Services.
+  rpc RemoveNode(RemoveNodeRequest) returns (RemoveNodeResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Nodes/RemoveNode"
+      body: "*"
+    };
+  }
+}
