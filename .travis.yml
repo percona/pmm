@@ -1,0 +1,24 @@
+language: go
+
+go:
+  - 1.11.x
+  - master
+
+matrix:
+  allow_failures:
+    - go: master
+
+script:
+  # ensure that vendor/ is in sync with code and Gopkg.toml/lock
+  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+  - dep check
+
+  - make check-license
+  - make install
+
+notifications:
+  slack:
+    on_success: change
+    on_failure: always
+    rooms:
+      secure: lmlesUUiOPssxPgNS7/CsUwd7XbKWbzbFskH4TXvFRGHoN0ZMGAtZK3VlXNT25sqek/NZZjADM7+lq9Jsm6HI+A6twsIzS4gp7Xqz3uToxwIukXNccQddMqMXgQF9qJWsN4RtTNs8zhOYoZNvPeOhseBURY5UIdJPD95iBocCnvToXaip4o/Kr/mrIFqRRXXb2oq6k93xzggFwwvnp78gS0gvYAWIvQYVjs4gUNuPWZvxFrWLuEPAPHwA6uLFdcqqv6RJPnWH5J6N5LTsIxJKktRCtXeJHBIdIIAq4gJJ8lYIQENjKw50h704adz73coXZDvyTnGVihUrCX2wIb896y/LEM8aCOTSJGnrPFS2pv/ZDluCdztfxbM6BWJsatTbuaXkZXy/5teVpt3VZgLwmcqVyFdGnCL00F8v6RNv7IhUbyTgmr13mNeeKGDzvVda1DKOx3PZ6L4b8Da9KLz+StoUZ7DWm1ZY8cUU2pAm7cYoJ7WSP8qLsgmbMaYpUS3wq4okxLcZbdTRef1ltcinKMwdjwLQOZtvohl/qpPZsiA2nc5pVkHr1pDMghBsUv31H5T7zsDLKYq1iL+MxTl/CWDxa/DbU7LmTO598NjVT654EH6R83ROFGmVXb3HGbD9u71tQs0Tq/Q2tsRXa0UsFvQKpyc1sIO1a5+0KyNx6Y=
