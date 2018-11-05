@@ -68,14 +68,10 @@ func main() {
 	// disable HTTP/2
 	transport.Transport.(*http.Transport).TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 	client.Default = client.New(transport, nil)
-	commonParams := commands.CommonParams{
-		Client: client.Default,
-	}
 
 	cmd := commands.AddMySQLCmd{
-		CommonParams: commonParams,
-		Username:     "username",
-		Password:     "password",
+		Username: "username",
+		Password: "password",
 	}
 	cmd.Run()
 }

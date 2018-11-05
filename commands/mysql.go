@@ -19,6 +19,7 @@ package commands
 import (
 	"context"
 
+	"github.com/percona/pmm/api/json/client"
 	"github.com/percona/pmm/api/json/client/agents"
 	"github.com/percona/pmm/api/json/models"
 	"github.com/sirupsen/logrus"
@@ -26,15 +27,20 @@ import (
 
 // AddMySQLCmd implements `pmm-admin add mysql` command.
 type AddMySQLCmd struct {
-	CommonParams
 	Username string
 	Password string
 }
 
 // Run implements Command interface.
 func (cmd *AddMySQLCmd) Run() {
+	// TODO get NodeID from local pmm-agent
+
+	// TODO get or create MySQL service for this Node via pmm-managed
+
 	params := &agents.AddMySqldExporterAgentParams{
 		Body: &models.InventoryAddMySqldExporterAgentRequest{
+			// TODO RunsOnNodeID
+			// TODO ServiceID
 			Username: cmd.Username,
 			Password: cmd.Password,
 		},
@@ -42,7 +48,7 @@ func (cmd *AddMySQLCmd) Run() {
 		// FIXME remove this from every request
 		Context: context.Background(),
 	}
-	resp, err := cmd.Client.Agents.AddMySqldExporterAgent(params)
+	resp, err := client.Default.Agents.AddMySqldExporterAgent(params)
 	logrus.Info(resp)
 	logrus.Error(err)
 }
