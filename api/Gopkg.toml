@@ -25,3 +25,8 @@ required = [
 [[constraint]]
   name = "github.com/go-swagger/go-swagger"
   version = "=0.17.2"
+[[constraint]]
+  # https://github.com/grpc-ecosystem/grpc-gateway/blob/v1.5.1/Gopkg.toml#L28
+  # without that containts dep 0.5.0 can't resolve dependecies
+  name = "google.golang.org/genproto"
+  revision = "383e8b2c3b9e36c4076b235b32537292176bae20"

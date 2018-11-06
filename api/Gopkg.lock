@@ -107,7 +107,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c89d8f74ab52ebe9a033051fa1b09a33ef106cd2eb7a43fa74b33120aae86de3"
+  digest = "1:05465247ac26dd1a910d65c5b5ebb84535866d52bd3c2253b5f4a6ba54eee58c"
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
@@ -120,7 +120,7 @@
     "security",
   ]
   pruneopts = "T"
-  revision = "231d7876b7019dbcbfc97a7ba764379497b67c1d"
+  revision = "aadb2cc7b8862fdab251bf60a8b9d2a951c9746c"
 
 [[projects]]
   branch = "master"
@@ -132,11 +132,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9d9d53f7fc98a0a9e1879fa7fead9b7b964cb1a9afd9f74a3e1c0686b47e1af4"
+  digest = "1:05ce429adb35b81a78c6d3be93ce8b86a3bd1d384bc831fba5875a4798fd05a4"
   name = "github.com/go-openapi/strfmt"
   packages = ["."]
   pruneopts = "T"
-  revision = "edab9990ffc9b4a428f3306ecf4d18a069ca3317"
+  revision = "b7bbaf9c758e8bee9311b1bb94262cd30f79dc16"
 
 [[projects]]
   branch = "master"
@@ -359,7 +359,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0c04b2a25e05e53a014eb3329cd9e3759bee811e333cf6db2ec1819d6c2dad31"
+  digest = "1:f424ce07b2aac5a743e2809a4901c0aacdc73acd302f9860ca156e71b088c91d"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -371,15 +371,15 @@
     "trace",
   ]
   pruneopts = "T"
-  revision = "9b4f9f5ad5197c79fd623a3638e70d8b26cef344"
+  revision = "10aee181995363b41f712a55844a0dd52ea04646"
 
 [[projects]]
   branch = "master"
-  digest = "1:8e6c1fddbee6ef8cfd1e4c368874d974f085b5424fae5c1a00ec5e23c71e7c40"
+  digest = "1:685e202ccf30edb79c8d4c1ac2d5c136ff14a0dd1b7a1adb4fe63a732d977658"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "T"
-  revision = "95b1ffbd15a57cc5abb3f04402b9e8ec0016a52c"
+  revision = "7155702f2d47d94b134229da97195d0130cab001"
 
 [[projects]]
   digest = "1:6164911cb5e94e8d8d5131d646613ff82c14f5a8ce869de2f6d80d9889df8c5a"
@@ -407,7 +407,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:62468f8d9abb738a892313231b2809db45a5b52681fa6084b1cd3dde15fc7cc8"
+  digest = "1:317fcaa739945b71a7abf2bcc664b004a0f798f40a2852c09c834c4ed9fe18e0"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -419,7 +419,7 @@
     "internal/gopathwalk",
   ]
   pruneopts = "T"
-  revision = "f60e5f99f0816fc2d9ecb338008ea420248d2943"
+  revision = "78dc5bac0cacea7969e98b79c3b86597e0aa4e25"
 
 [[projects]]
   digest = "1:3970150423e3f47a6d354b2868f7db632b665463755194aac1a30c4fb341be57"
