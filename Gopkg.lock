@@ -507,7 +507,7 @@
   version = "v1.2.0"
 
 [[projects]]
-  branch = "PMM-1710-supervisord"
+  branch = "PMM-3209-supervisord-fixes-for-pmm-managed"
   digest = "1:cd264622a192343ec556f40ef59db7e9386f0d7d475b8f1c3c78a86aab9e0548"
   name = "github.com/percona/kardianos-service"
   packages = ["."]
