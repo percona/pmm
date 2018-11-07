@@ -176,7 +176,7 @@
   version = "v1.1.2"
 
 [[projects]]
-  branch = "PMM-3105-api-2.0"
+  branch = "PMM-2.0"
   digest = "1:f9e8f6719af2f2abdca91370e0bedfdd51ca03c831570136fa3b8d7aae7311a7"
   name = "github.com/percona/pmm"
   packages = [
@@ -187,7 +187,7 @@
     "api/json/models",
   ]
   pruneopts = "NUT"
-  revision = "e852048bb9bcd0d91a28e9405e47dcb93f8c5857"
+  revision = "b0fbe07536d45f05077b838378bed9c079c676e6"
 
 [[projects]]
   digest = "1:d848e2bdc690ea54c4b49894b67a05db318a97ee6561879b814c2c1f82f61406"
