@@ -508,11 +508,11 @@
 
 [[projects]]
   branch = "PMM-3209-supervisord-fixes-for-pmm-managed"
-  digest = "1:cd264622a192343ec556f40ef59db7e9386f0d7d475b8f1c3c78a86aab9e0548"
+  digest = "1:5aa0fd2697f43fa6b020e0e49562f82a5577d079e9997765ca236987afa5cbc4"
   name = "github.com/percona/kardianos-service"
   packages = ["."]
   pruneopts = "T"
-  revision = "53dc743339ca3089f5648746b6a7eb42f0fe2c02"
+  revision = "0ea0c37c12980df5eaab8d4bc7fe70da830d6743"
 
 [[projects]]
   branch = "master"

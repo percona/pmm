@@ -157,7 +157,7 @@ const supervisordScript = `# {{.Description}}
 [program:{{.Name}}]
 command = {{.Path}}{{range .Arguments}} {{.}}{{end}}
 
-{{if .Environment}}environment = {{range .Environment}}{{.|envKey}}={{.|envValue|cmd}} {{end}}{{end}}
+{{if .Environment}}environment = {{range .Environment}}{{.|envKey}}={{.|envValueSupervisord}} {{end}}{{end}}
 
 {{if .UserName}}user = {{.UserName}}{{end}}
 
