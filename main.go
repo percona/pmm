@@ -24,12 +24,15 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/inventory"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/grpclog"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-agent/config"
+	"github.com/percona/pmm-agent/utils/logger"
 )
 
 var (
@@ -95,6 +98,8 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 		case *agent.ServerMessage_State:
 			for _, agent := range payload.State.AgentProcesses {
 				switch agent.Type {
+				case inventory.AgentType_MYSQLD_EXPORTER:
+					l.Info("Starting mysqld_exporter...")
 				default:
 					l.Warnf("Got unhandled agent type %s (%d), ignoring.", agent.Type, agent.Type)
 				}
@@ -131,7 +136,7 @@ func main() {
 
 	if cfg.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
-		// grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "gRPC")})
+		grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "gRPC")})
 		logrus.Debug("Debug logging enabled.")
 	}
 
