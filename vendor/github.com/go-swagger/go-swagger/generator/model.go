@@ -203,10 +203,8 @@ func shallowValidationLookup(sch GenSchema) bool {
 }
 
 func makeGenDefinitionHierarchy(name, pkg, container string, schema spec.Schema, specDoc *loads.Document, opts *GenOpts) (*GenDefinition, error) {
-	_, ok := schema.Extensions[xGoType]
-	if ok {
-		return nil, nil
-	}
+	// Check if model is imported from external package using x-go-type
+	_, external := schema.Extensions[xGoType]
 
 	receiver := "m"
 	// models are resolved in the current package
@@ -342,6 +340,7 @@ func makeGenDefinitionHierarchy(name, pkg, container string, schema spec.Schema,
 		DefaultImports: defaultImports,
 		ExtraSchemas:   gatherExtraSchemas(pg.ExtraSchemas),
 		Imports:        findImports(&pg.GenSchema),
+		External:       external,
 	}, nil
 }
 

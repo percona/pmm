@@ -30,3 +30,8 @@ required = [
   # https://jira.percona.com/browse/PMM-1561
   name = "github.com/hashicorp/consul"
   version = "=0.8.5"
+
+# TODO switch to tags before PMM 2.0 release
+[[constraint]]
+  name = "github.com/percona/pmm"
+  branch = "PMM-2.0"

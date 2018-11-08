@@ -290,21 +290,20 @@ when :ref:`adding instances <pmm-admin.add>`.
 How to troubleshoot communication issues between PMM Client and PMM Server?
 ================================================================================
 
-When :ref:`using Docker <run-server-docker>`, the container is constrained by
-the host-level routing and firewall rules.  For example, your hosting provider
-might have default *iptables* rules on their hosts that block communication
-between |pmm-server| and |pmm-client|, resulting in *DOWN* targets in
-Prometheus.  If this happens, check firewall and routing settings on the Docker
-host.
+There is a ``pmm-admin check-network`` command, which `checks connectivity <https://www.percona.com/doc/percona-monitoring-and-management/pmm-admin.html#pmm-admin-check-network>`_ between |pmm-client|
+and |pmm-server| and presents the summary of this check in a human readable form.
 
-Troubleshooting Tips
---------------------------------------------------------------------------------
+Broken network connectivity may be caused by rather wide set of reasons.
+Particularly, when :ref:`using Docker <run-server-docker>`, the container is
+constrained by the host-level routing and firewall rules. For example, your
+hosting provider might have default *iptables* rules on their hosts that block
+communication between |pmm-server| and |pmm-client|, resulting in *DOWN* targets
+in Prometheus. If this happens, check firewall and routing settings on the
+Docker host.
 
-If you encounter communication issues, try the following:
-
-* Check ``netstat`` on |pmm-client| to see what state the connections are in
-* Run ``curl www.google.com`` to see if you get a reply
-* Try pinging the route from inside the container
+Also |pmm| is able to generate a set of diagnostics data which can be examined
+and/or shared with Percona Support to solve an issue faster. See details on how
+to get collected logs `from PMM Server <https://www.percona.com/doc/percona-monitoring-and-management/deploy/index.html#deploy-pmm-diagnostics-for-support>`_ and `from PMM Client <https://www.percona.com/doc/percona-monitoring-and-management/pmm-admin.html#pmm-admin-diagnostics-for-support>`_.
 
 .. _metrics-resolution:
 

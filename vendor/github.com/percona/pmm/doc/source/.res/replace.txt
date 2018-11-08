@@ -195,6 +195,8 @@
 .. |gui.config| replace:: :guilabel:`Config`
 .. |gui.connect| replace:: :guilabel:`Connect`
 .. |gui.continue-to-subscribe| replace:: :guilabel:`Continue to Subscribe`
+.. |gui.continue-to-configuration| replace:: :guilabel:`Continue to Configuration`
+.. |gui.continue-to-launch| replace:: :guilabel:`Continue to Launch`
 .. |gui.reinitialize-mac-address-of-all-network-cards| replace:: :guilabel:`Reinitialize the MAC address of all network cards`
 .. |gui.continue| replace:: :guilabel:`Continue`
 .. |gui.copy-to-clipboard| replace:: :guilabel:`Copy to clipboard`
@@ -203,6 +205,7 @@
 .. |gui.create-policy| replace:: :guilabel:`Create policy`
 .. |gui.create-user| replace:: :guilabel:`Create user`
 .. |gui.dashboard-dropdown| replace:: :guilabel:`Dashboard Dropdown`
+.. |gui.pmm-dropdown| replace:: :guilabel:`PMM Dropdown`
 .. |gui.dashboards| replace:: :guilabel:`Dashboards`
 .. |gui.database-summary| replace:: :guilabel:`Database Summary`	 
 .. |gui.databases| replace:: :guilabel:`Databases`
@@ -232,6 +235,7 @@
 .. |gui.plugins| replace:: :guilabel:`Plugins`
 .. |gui.pmm-annotations| replace:: :guilabel:`PMM Annotations`
 .. |gui.policies| replace:: :guilabel:`Policies`
+.. |gui.postgres| replace:: :guilabel:`PostgreSQL`
 .. |gui.pricing-information| replace:: :guilabel:`Pricing Information`
 .. |gui.programmatic-access| replace:: :guilabel:`Programmatic access`
 .. |gui.public-accessibility| replace:: :guilabel:`Public accessibility`
@@ -486,8 +490,11 @@
 .. |dbd.mysql-innodb-metrics| replace:: *MySQL InnoDB Metrics*
 .. |dbd.mysql-myrocks-metrics| replace:: *MySQL MyRocks Metrics*
 .. |dbd.mysql-overview| replace:: *MySQL Overview*
+.. |dbd.mysql-table-statistics| replace:: *MySQL Table Statistics*
+.. |dbd.mysql-user-statistics| replace:: *MySQL User Statistics*
 .. |dbd.network-overview| replace:: *Network Overview*
 .. |dbd.overview-numa-metrics| replace:: *NUMA Overview*
+.. |dbd.postgres-overview| replace:: *PostgreSQL Overview*
 .. |dbd.prometheus-exporter-status| replace:: *Prometheus Exporter Status*
 .. |dbd.prometheus-exporters-overview| replace:: *Prometheus Exporters Overview*
 .. |dbd.prometheus| replace:: *Prometheus*

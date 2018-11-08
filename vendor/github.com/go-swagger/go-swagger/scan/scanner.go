@@ -37,7 +37,7 @@ import (
 const (
 	rxMethod = "(\\p{L}+)"
 	rxPath   = "((?:/[\\p{L}\\p{N}\\p{Pd}\\p{Pc}{}\\-\\._~%!$&'()*+,;=:@/]*)+/?)"
-	rxOpTags = "(\\p{L}[\\p{L}\\p{N}\\p{Pd}\\p{Pc}\\p{Zs}]+)"
+	rxOpTags = "(\\p{L}[\\p{L}\\p{N}\\p{Pd}\\.\\p{Pc}\\p{Zs}]+)"
 	rxOpID   = "((?:\\p{L}[\\p{L}\\p{N}\\p{Pd}\\p{Pc}]+)+)"
 
 	rxMaximumFmt    = "%s[Mm]ax(?:imum)?\\p{Zs}*:\\p{Zs}*([\\<=])?\\p{Zs}*([\\+-]?(?:\\p{N}+\\.)?\\p{N}+)$"
@@ -155,6 +155,10 @@ type Opts struct {
 	Input      *spec.Swagger
 	ScanModels bool
 	BuildTags  string
+	Include    []string
+	Exclude    []string
+	IncludeTags []string
+	ExcludeTags []string
 }
 
 func safeConvert(str string) bool {
@@ -174,7 +178,8 @@ var Debug = safeConvert(os.Getenv("DEBUG"))
 // When something in the discovered items requires a type that is contained in the includes or excludes it will still be
 // in the spec.
 func Application(opts Opts) (*spec.Swagger, error) {
-	parser, err := newAppScanner(&opts, nil, nil)
+	parser, err := newAppScanner(&opts)
+
 	if err != nil {
 		return nil, err
 	}
@@ -193,13 +198,15 @@ type appScanner struct {
 	responses   map[string]spec.Response
 	operations  map[string]*spec.Operation
 	scanModels  bool
+	includeTags map[string]bool
+	excludeTas  map[string]bool
 
 	// MainPackage the path to find the main class in
 	MainPackage string
 }
 
 // newAppScanner creates a new api parser
-func newAppScanner(opts *Opts, includes, excludes packageFilters) (*appScanner, error) {
+func newAppScanner(opts *Opts) (*appScanner, error) {
 	if Debug {
 		log.Println("scanning packages discovered through entrypoint @ ", opts.BasePath)
 	}
@@ -214,6 +221,26 @@ func newAppScanner(opts *Opts, includes, excludes packageFilters) (*appScanner, 
 	prog, err := ldr.Load()
 	if err != nil {
 		return nil, err
+	}
+
+	var includes, excludes packageFilters
+	if len(opts.Include) > 0 {
+		for _, include := range opts.Include {
+			includes = append(includes, packageFilter{Name: include})
+		}
+	}
+	if len(opts.Exclude) > 0 {
+		for _, exclude := range opts.Exclude {
+			excludes = append(excludes, packageFilter{Name: exclude})
+		}
+	}
+	includeTags := make(map[string]bool)
+	for _, includeTag := range opts.IncludeTags {
+		includeTags[includeTag] = true
+	}
+	excludeTags := make(map[string]bool)
+	for _, excludeTag := range opts.ExcludeTags {
+		excludeTags[excludeTag] = true
 	}
 
 	input := opts.Input
@@ -248,6 +275,8 @@ func newAppScanner(opts *Opts, includes, excludes packageFilters) (*appScanner, 
 			Includes: includes,
 			Excludes: excludes,
 		},
+		includeTags: includeTags,
+		excludeTas:  excludeTags,
 	}, nil
 }
 
@@ -390,7 +419,8 @@ func (a *appScanner) parseRoutes(file *ast.File) error {
 	rp.operations = a.operations
 	rp.definitions = a.definitions
 	rp.responses = a.responses
-	return rp.Parse(file, a.input.Paths)
+
+	return rp.Parse(file, a.input.Paths, a.includeTags, a.excludeTas)
 }
 
 func (a *appScanner) parseOperations(file *ast.File) error {
@@ -398,7 +428,7 @@ func (a *appScanner) parseOperations(file *ast.File) error {
 	op.operations = a.operations
 	op.definitions = a.definitions
 	op.responses = a.responses
-	return op.Parse(file, a.input.Paths)
+	return op.Parse(file, a.input.Paths, a.includeTags, a.excludeTas)
 }
 
 func (a *appScanner) parseParameters(file *ast.File) error {

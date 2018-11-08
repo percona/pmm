@@ -5,11 +5,7 @@
 Use case: Monitoring a |postgresql| database running on an |amazon-rds| instance
 ********************************************************************************
 
-|pmm| currently does not support |postgresql| out-of-the-box. However, you can
-monitor your |postgresql| host by using external monitoring services.  The
-external monitoring services only require that the appropriate |prometheus|
-exporter be properly installed on the system where |pmm-admin| is available (see
-section :ref:`deploy-pmm.client.installing`).
+As of version 1.14.0 |pmm| supports |postgresql| `out-of-the-box <https://www.percona.com/doc/percona-monitoring-and-management/conf-postgres.html>`_. 
 
 This example demonstrates how to start monitoring a |postgresql| host which is
 installed on an |amazon-rds| instance.
@@ -27,20 +23,15 @@ installed on an |amazon-rds| instance.
 Set Up the |postgresql| Exporter
 ================================================================================
 
-First, you need to install a |prometheus| exporter for |postgresql| on the
-computer where you have installed the |pmm-client| package. This example uses
-the |postgresql| exporter listed on the |prometheus| site:
-https://github.com/wrouesnel/postgres_exporter. Note that this exporter requires
-that the `Go <https://golang.org/>`_ programming language environment be
-properly set up and configured. Alternatively, you may run the exporter from the
-|docker| image as explained on the site.
+First, you need to enable an exporter for |postgresql| on the
+computer where you have installed the |pmm-client| package with the
+``pmm-admin add`` command::
 
-.. seealso::
+  pmm-admin add postgresql --host=172.17.0.2 --password=ABC123 --user=pmm_user
 
-   |prometheus| Exporters and integrations
-      https://prometheus.io/docs/instrumenting/exporters/
-   Installing the Go programming language
-      https://golang.org/doc/install
+More information on enabling and
+configuring |postgresql| exporter can be found in the `detailed instructions <https://www.percona.com/doc/percona-monitoring-and-management/conf-postgres.html>`_.
+
 
 Check Settings of Your |amazon-rds| Instance
 ================================================================================
@@ -61,23 +52,8 @@ to communicate outside of the VPC hosting the DB instance. Select *Yes* in the
       https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html
    Connecting to an |amazon-rds| DB instance running |postgresql|
       https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToPostgreSQLInstance.html
-   
-Read Metrics from the |postgresql| DB Instance
-================================================================================
 
-As suggested in the documentation of the |postgresql| exporter, we set the
-:code:`DATA_SOURCE_NAME` variable and start the exporter.
-
-Note that the following example disables **sslmode** which will make your system
-less secure. It also uses |sudo| to demonstrate that the code should be run as
-the *postgres* user. Before running this command make sure to |cd| into the
-directory that contains the built :program:`postgresql_exporter` binary.
-
-.. include:: .res/code/sudo.data-source-name.postgresql-exporter.txt
-
-The |postgresql| exporter makes its metrics available on port 9187.
-
-Add an external monitoring service for |postgresql|
+Add monitoring service for |postgresql|
 ================================================================================
 
 To make the metrics from your |amazon-rds| instance available to |pmm|, you need
@@ -85,11 +61,16 @@ to run |pmm-admin.add| command as follows:
 
 |tip.run-this.root|
 
-.. include:: .res/code/pmm-admin.add.external-service.postgres.service-port.txt
+.. code-block:: bash 
+
+   pmm-admin add postgresql --host=172.17.0.1 --password=ABC123 --port=5432 --user=pmm_user postgresql_rds01
 
 The last parameter gives a distinct name to your host. If you do not specify a
 custom instance name, the name of the host where you run |pmm-admin.add| is used
-automatically.
+automatically. The command adds the given PostgreSQL instance to both system and
+metrics monitoring, and confirms that now monitoring the given system and the
+PostgreSQL metrics on it. Also |pmm-admin.list| command can be used further to
+see more details:
 
 .. code-block:: bash
 
@@ -109,15 +90,10 @@ automatically.
 Viewing |postgresql| Metrics in |pmm|
 ================================================================================
 
-Now, open |metrics-monitor| in your browser and select the
-|dbd.advanced-data-exploration| dashboard either using the |gui.dashboard-dropdown|
-or the |gui.insight| group of the navigation menu. Use the |gui.metric| field to
-select the name of a metric. Note that postgresql specific metrics start with
-*pg_*.
+Now, open |metrics-monitor| in your browser and select the `PostgreSQL Overview dashboard <https://www.percona.com/doc/percona-monitoring-and-management/dashboard.postgres-overview.html>`_ either using the |gui.dashboard-dropdown|
+or the |gui.postgres| group of the navigation menu:
 
-.. figure:: .res/graphics/png/metrics-monitor.advanced-data-exploration.1.png
-
-   Using the |dbd.advanced-data-exploration| dashboard to select a |postgresql| metric.
+.. figure:: .res/graphics/png/amazon-rds-postgres-overview-dashboard.png
 
 .. seealso::
 

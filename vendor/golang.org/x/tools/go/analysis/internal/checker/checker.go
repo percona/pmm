@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"golang.org/x/tools/go/analysis"
+	"golang.org/x/tools/go/analysis/internal/unitchecker"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -106,6 +107,18 @@ func Run(args []string, analyzers []*analysis.Analyzer) error {
 		}()
 	}
 
+	// The undocumented protocol used by 'go vet'
+	// is that a vet-like tool must support:
+	//
+	//      -flags          describe flags in JSON
+	//      -V=full         describe executable for build caching
+	//      foo.cfg         perform separate modular analyze on the single
+	//                      unit described by a JSON config file foo.cfg.
+	if len(args) == 1 && strings.HasSuffix(args[0], ".cfg") {
+		unitchecker.Main(args[0], analyzers)
+		panic("unreachable")
+	}
+
 	// Load the packages.
 	if dbg('v') {
 		log.SetPrefix("")
@@ -150,29 +163,39 @@ func load(patterns []string, allSyntax bool) ([]*packages.Package, error) {
 	return initial, err
 }
 
-// Analyze applies an analysis to a package (and their dependencies if
-// necessary) and returns the graph of results.
+// TestAnalyzer applies an analysis to a set of packages (and their
+// dependencies if necessary) and returns the results.
 //
 // Facts about pkg are returned in a map keyed by object; package facts
 // have a nil key.
 //
-// It is exposed for use in testing.
-func Analyze(pkg *packages.Package, a *analysis.Analyzer) (*analysis.Pass, []analysis.Diagnostic, map[types.Object][]analysis.Fact, error) {
-	act := analyze([]*packages.Package{pkg}, []*analysis.Analyzer{a})[0]
-
-	facts := make(map[types.Object][]analysis.Fact)
-	for key, fact := range act.objectFacts {
-		if key.obj.Pkg() == pkg.Types {
-			facts[key.obj] = append(facts[key.obj], fact)
+// This entry point is used only by analysistest.
+func TestAnalyzer(a *analysis.Analyzer, pkgs []*packages.Package) []*TestAnalyzerResult {
+	var results []*TestAnalyzerResult
+	for _, act := range analyze(pkgs, []*analysis.Analyzer{a}) {
+		facts := make(map[types.Object][]analysis.Fact)
+		for key, fact := range act.objectFacts {
+			if key.obj.Pkg() == act.pass.Pkg {
+				facts[key.obj] = append(facts[key.obj], fact)
+			}
 		}
-	}
-	for key, fact := range act.packageFacts {
-		if key.pkg == pkg.Types {
-			facts[nil] = append(facts[nil], fact)
+		for key, fact := range act.packageFacts {
+			if key.pkg == act.pass.Pkg {
+				facts[nil] = append(facts[nil], fact)
+			}
 		}
-	}
 
-	return act.pass, act.diagnostics, facts, act.err
+		results = append(results, &TestAnalyzerResult{act.pass, act.diagnostics, facts, act.result, act.err})
+	}
+	return results
+}
+
+type TestAnalyzerResult struct {
+	Pass        *analysis.Pass
+	Diagnostics []analysis.Diagnostic
+	Facts       map[types.Object][]analysis.Fact
+	Result      interface{}
+	Err         error
 }
 
 func analyze(pkgs []*packages.Package, analyzers []*analysis.Analyzer) []*action {

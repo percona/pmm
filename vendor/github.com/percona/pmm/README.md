@@ -22,5 +22,6 @@ See the [PMM docs](https://www.percona.com/doc/percona-monitoring-and-management
   * [mysqld_exporter](https://github.com/percona/mysqld_exporter) - based on `github.com/prometheus/mysqld_exporter`
   * [mongodb_exporter](https://github.com/percona/mongodb_exporter) - based on `github.com/dcu/mongodb_exporter`
   * [rds_exporter](https://github.com/percona/rds_exporter) - based on `github.com/Technofy/cloudwatch_exporter`
+  * [postgres_exporter](https://github.com/percona/postgres_exporter) - based on `github.com/wrouesnel/postgres_exporter`
   * [proxysql_exporter](https://github.com/percona/proxysql_exporter)
 

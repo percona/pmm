@@ -9,17 +9,17 @@ an AMI (Amazon Machine Image) by using its ID, different for each region.
 
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.home-page.1.png
 
-   The home page of PMM in AWS Marketplace. Click the Continue button to start
-   setting up your instance. You can also preselect your region on this screen.
+   The home page of PMM in AWS Marketplace.
 
 Assuming that you have an AWS (Amazon Web Services) account, locate
 *Percona Monitoring and Management Server* in `AWS Marketplace
 <https://aws.amazon.com/marketplace/pp/B077J7FYGX>`_.
 
-In the |gui.pricing-information| section, select your region and choose an
+The |gui.pricing-information| section allows to select your region and choose an
 instance type in the table that shows the pricing for the software and
-infrastructure hosted in the region you have selected. Note that the recommended
-EC2 instance type is preselected for you.
+infrastructure hosted in the region you have selected (the recommended
+EC2 instance type is preselected for you). Note that actual choice will be done
+later, and this table serves the information purposes, to plan costs.
 
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.home-page.2.png
 
@@ -27,13 +27,17 @@ EC2 instance type is preselected for you.
    see its price. |pmm| comes for no cost, you may only need to pay for the
    infrastructure provided by |amazon|.
 
-Click the |gui.continue-to-subscribe| button to start setting up your instance. There
-are two options available to you. The ``1-Click Launch`` option is a quick way
-to make your instance ready. For more control, use the ``Manual Launch`` option.
+Clicking the |gui.continue-to-subscribe| button will proceed to the terms and
+conditions page. Clicking |gui.continue-to-configuration| there will bring a
+new page to start setting up your instance.
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.png
+.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.0.png
 
-   Percona Monitoring and Management is now available from AWS Marketplace
+   Percona Monitoring and Management on AWS Marketplace - launch options.
+
+Available launch options in the drop-down menu include *Launch from Website* and
+*Launch through EC2*. The first one is a quick way to make your instance ready.
+For more control, use the Manual Launch through EC2 option.
 
 |chapter.toc|
 
@@ -43,41 +47,31 @@ to make your instance ready. For more control, use the ``Manual Launch`` option.
 	    
 .. _run-server-ami.pmm-instance.1-click-launch-option.setting-up:
 
-:ref:`Setting Up a PMM Instance Using the 1-Click Launch Option <run-server-ami.pmm-instance.1-click-launch-option.setting-up>`
+:ref:`Setting Up a PMM Instance Using the website GUI <run-server-ami.pmm-instance.1-click-launch-option.setting-up>`
 ===============================================================================================================================
 
-With the |gui.1-click-launch| tab selected, make sure that all sections match
-your preferences. In this demonstration, we use the :option:`US East
-(N. Virginia)` region and the VPC (virtual private cloud) named
-:option:`vpc-484bb12f`. To reduce cost, you need to choose the region closest to
+Choose *Launch from Website* option, your region, and the EC2 instance type on
+the launch options page. On the previous screenshot, we use the 
+:option:`US East (N. Virginia)` region and the :guilabel:`EC2 Instance Type` named
+:option:`m4.large`. To reduce cost, you need to choose the region closest to
 your location.
 
-.. note::
-
-   The exact name of VPC may be different from the example discussed here.
-
-On the |gui.1-click-launch| tab, select your region in the |gui.region|
-section. By default, the region is the same as the one you chose in the
-|gui.pricing-information| section.
+When all choices are done, click the |gui.continue-to-launch| button to proceed.
 
 .. _run-server-ami.pmm-instance.1-click-launch-option.vpc.ec2-instance-type:
 
 :ref:`Setting up a VPC and an EC2 Instance Type <run-server-ami.pmm-instance.1-click-launch-option.vpc.ec2-instance-type>`
 --------------------------------------------------------------------------------------------------------------------------
 
-Depending on your choice of a VPC, some configurations of CPU and RAM may be disabled
-in the :guilabel:`EC2 Instance Type` section.
-
-In this demonstration, we select the :option:`vpc-aba20dce` in the
-:guilabel:`VPC Settings` section. Then, we choose :option:`m4.large` as the EC2
-instance type.
+ In this demonstration, we use the VPC (virtual private cloud) named
+:option:`vpc-484bb12f`. The exact name of VPC may be different from the example
+discussed here.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch.vpc.ec2-instance-type:
-
+  
 .. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png
 
-   Select VPC in the VPC Settings section and then choose an EC2 instance type
-   that suits your planned configuration.
+   Select VPC in the VPC Settings section.
 
 Instead of a VPC (virtual private cloud) you may choose the :option:`EC2 Classic
 (no VPC)` option and use a public cloud.
@@ -279,26 +273,16 @@ You are creating a username and password that will be used for two purposes:
 
 Your instance comes with a predefined size which can become a limitation. To
 make more disk space available to your instance, you need to increase the size
-of the EBS volume as needed and then reconfigure your instance to use the new
-size.
+of the EBS volume as needed and then your instance will reconfigure itself to
+use the new size.
 
 The procedure of resizing EBS volumes is described in the |amazon|
 documentation: `Modifying the Size, IOPS, or Type of an EBS Volume on Linux 
 <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-modify-volume.html>`_.
 
-As soon as the EBS volume is updated, connect to your instance and update it to
-use the new size:
-
-|tip.run-all.root|
-
-1. Detect the type of your filesystem: :code:`mount | grep '/srv'`
-2. In case of *XFS* reboot instance or run the following commands:
-
-   .. include:: ../../.res/code/pvresize.lvextend.xfs-growfs.txt
-
-3. In case of *btrfs*, run the following command:
-
-   .. include:: ../../.res/code/btrfs.filesystem.resize.max.txt
+After the EBS volume is updated, |pmm-server| instance will autodetect changes
+in approximately 5 minutes or less and will reconfigure itself for the updated
+conditions.
 
 .. admonition:: More information in |aws| documentation
 
@@ -330,63 +314,63 @@ for the corresponding image:
 
    * - Asia Pacific (Tokyo)
      - **ap-northeast-1**
-     - `ami-09e4f3addb6bc60d5 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-09e4f3addb6bc60d5>`_
+     - `ami-0735c70f807ceb02e <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0735c70f807ceb02e>`_
 
    * - Asia Pacific (Seoul)
      - **ap-northeast-2**
-     - `ami-0765f19859206e024 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0765f19859206e024>`_
+     - `ami-02959dc86cbba1d9 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-02959dc86cbba1d9>`_
 
    * - Asia Pacific (Mumbai)
      - **ap-south-1**
-     - `ami-02618637ea696157d <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-02618637ea696157d>`_
+     - `ami-088af60c6d7df26e5 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-088af60c6d7df26e5>`_
 
    * - Asia Pacific (Singapore)
      - **ap-southeast-1**
-     - `ami-02f302d25740b9e12 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-02f302d25740b9e12>`_
+     - `ami-081859d2d05522d3f <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-081859d2d05522d3f>`_
 
    * - Asia Pacific (Sydney)
      - **ap-southeast-2**
-     - `ami-0876ff149c5e9a56f <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0876ff149c5e9a56f>`_
+     - `ami-0af5b9a2d707a23cd <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0af5b9a2d707a23cd>`_
 
    * - Canada (Central)
      - **ca-central-1**
-     - `ami-0d8f04e949f6d5220 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0d8f04e949f6d5220>`_
+     - `ami-09b423106a44e9e09 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-09b423106a44e9e09>`_
 
    * - EU (Frankfurt)
      - **eu-central-1**
-     - `ami-0bbfe65ae993465c7 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0bbfe65ae993465c7>`_
+     - `ami-0b0f987616de03121 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0b0f987616de03121>`_
 
    * - EU (Ireland)
      - **eu-west-1**
-     - `ami-05e49e3f8faf45948 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-05e49e3f8faf45948>`_
+     - `ami-0ca00824577a73172 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0ca00824577a73172>`_
 
    * - EU (London)
      - **eu-west-2**
-     - `ami-01cee833852c24ae8 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-01cee833852c24ae8>`_
+     - `ami-0dbe0b464393605b9 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0dbe0b464393605b9>`_
 
    * - EU (Paris)
      - **eu-west-3**
-     - `ami-0165068a8f98adbc6 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0165068a8f98adbc6>`_
+     - `ami-08a8a2a837be41bdb <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-08a8a2a837be41bdb>`_
 
    * - South America (São Paulo)
      - **sa-east-1**
-     - `ami-0e4dace1602fdfdd7 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0e4dace1602fdfdd7>`_
+     - `ami-0ce04e6e4b319169e <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0ce04e6e4b319169e>`_
 
    * - US East (N. Virginia)
      - **us-east-1**
-     - `ami-026c70ca8375bbb7e <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-026c70ca8375bbb7e5>`_
+     - `ami-029b77d59a919a2f2 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-029b77d59a919a2f2>`_
 
    * - US East (Ohio)
      - **us-east-2**
-     - `ami-062f3216e8406f864 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-062f3216e8406f864>`_
+     - `ami-0d217cedf5a341226 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0d217cedf5a341226>`_
 
    * - US West (N. California)
      - **us-west-1**
-     - `ami-0b7e5a1b4405361ae <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0b7e5a1b4405361ae>`_
+     - `ami-03b7810e7380b5e72 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-03b7810e7380b5e72>`_
 
    * - US West (Oregon)
      - **us-west-2**
-     - `ami-06862dba0b1b5cc62 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-06862dba0b1b5cc62>`_
+     - `ami-0871ee9cdb4ed09ae <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0871ee9cdb4ed09ae>`_
 
 .. _run-server-ami.command-line:
 

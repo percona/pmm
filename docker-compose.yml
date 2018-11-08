@@ -13,17 +13,17 @@ services:
     volumes:
       - ./testdata/prometheus:/etc/prometheus
 
-  consul:
-    image: ${CONSUL_IMAGE:-consul:0.8.5}
-    ports:
-      - 127.0.0.1:8500:8500
-
   grafana:
     image: ${GRAFANA_IMAGE:-grafana/grafana:5.1.3}
     ports:
       - 127.0.0.1:3000:3000
     volumes:
       - ./testdata/grafana:/etc/grafana
+
+  consul:
+    image: ${CONSUL_IMAGE:-consul:0.8.5}
+    ports:
+      - 127.0.0.1:8500:8500
 
   mysql:
     # We use 5.5 inside pmm-server Docker container, but there is no percona/percona-server:5.5

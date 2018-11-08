@@ -121,10 +121,11 @@ func newAppGenerator(name string, modelNames, operationIDs []string, opts *GenOp
 		defaultConsumes = runtime.JSONMime
 	}
 
+	opts.Name = appNameOrDefault(specDoc, name, "swagger")
 	apiPackage := opts.LanguageOpts.MangleName(swag.ToFileName(opts.APIPackage), "api")
 	serverPackage := opts.LanguageOpts.MangleName(swag.ToFileName(opts.ServerPackage), "server")
 	return &appGenerator{
-		Name:       appNameOrDefault(specDoc, name, "swagger"),
+		Name:       opts.Name,
 		Receiver:   "o",
 		SpecDoc:    specDoc,
 		Analyzed:   analyzed,
@@ -523,14 +524,11 @@ func (a *appGenerator) makeCodegenApp() (GenApp, error) {
 	sort.Sort(produces)
 	security := a.makeSecuritySchemes()
 	baseImport := a.GenOpts.LanguageOpts.baseImport(a.Target)
-	var imports map[string]string
+	var imports = make(map[string]string)
 
 	var genMods GenDefinitions
 	importPath := a.GenOpts.ExistingModels
 	if a.GenOpts.ExistingModels == "" {
-		if imports == nil {
-			imports = make(map[string]string)
-		}
 		imports[a.ModelsPackage] = filepath.ToSlash(filepath.Join(baseImport, manglePackageName(a.GenOpts, a.GenOpts.ModelPackage, "models")))
 	}
 	if importPath != "" {
@@ -551,7 +549,14 @@ func (a *appGenerator) makeCodegenApp() (GenApp, error) {
 		}
 		if mod != nil {
 			//mod.ReceiverName = receiver
-			genMods = append(genMods, *mod)
+			if !mod.External {
+				genMods = append(genMods, *mod)
+			}
+
+			// Copy model imports to operation imports
+			for alias, pkg := range mod.Imports {
+				imports[alias] = pkg
+			}
 		}
 	}
 	sort.Sort(genMods)

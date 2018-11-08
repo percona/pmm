@@ -1,3 +1,7 @@
+// Copyright 2018 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // The pkgfact package is a demonstration and test of the package fact
 // mechanism.
 //
@@ -66,14 +70,14 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		}
 	}
 
-	// At each "const _name = value", add a fact into env.
+	// At each "const _name_ = value", add a fact into env.
 	doConst := func(spec *ast.ValueSpec) {
 		if len(spec.Names) == len(spec.Values) {
 			for i := range spec.Names {
 				name := spec.Names[i].Name
 				if strings.HasPrefix(name, "_") && strings.HasSuffix(name, "_") {
 
-					if key := strings.Trim(name[1:], "_"); key != "" {
+					if key := strings.Trim(name, "_"); key != "" {
 						value := pass.TypesInfo.Types[spec.Values[i]].Value.String()
 						result[key] = value
 					}

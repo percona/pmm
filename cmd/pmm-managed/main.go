@@ -35,18 +35,21 @@ import (
 
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/inventory"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/reflection"
 	"gopkg.in/reform.v1"
 	reformMySQL "gopkg.in/reform.v1/dialects/mysql"
 
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/handlers"
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services/agents"
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/grafana"
 	"github.com/percona/pmm-managed/services/logs"
@@ -301,6 +304,26 @@ func runGRPCServer(ctx context.Context, deps *grpcServerDependencies) {
 		Grafana: grafana,
 	})
 
+	// PMM 2.0 APIs
+	store := agents.NewStore()
+	agent.RegisterAgentServer(gRPCServer, &handlers.AgentServer{
+		Store: store,
+	})
+	inventory.RegisterNodesServer(gRPCServer, &handlers.NodesServer{
+		Store: store,
+	})
+	inventory.RegisterServicesServer(gRPCServer, &handlers.ServicesServer{
+		Store: store,
+	})
+	inventory.RegisterAgentsServer(gRPCServer, &handlers.AgentsServer{
+		Store: store,
+	})
+
+	if *debugF {
+		l.Debug("Reflection enabled.")
+		reflection.Register(gRPCServer)
+	}
+
 	grpc_prometheus.Register(gRPCServer)
 	grpc_prometheus.EnableHandlingTimeHistogram()
 
@@ -348,6 +371,9 @@ func runRESTServer(ctx context.Context, logs *logs.Logs) {
 		api.RegisterRemoteHandlerFromEndpoint,
 		api.RegisterLogsHandlerFromEndpoint,
 		api.RegisterAnnotationsHandlerFromEndpoint,
+
+		inventory.RegisterNodesHandlerFromEndpoint,
+		inventory.RegisterAgentsHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, *gRPCAddrF, opts); err != nil {
 			l.Panic(err)
@@ -486,7 +512,7 @@ func main() {
 
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
-		grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
+		// grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 	}
 
 	if *swaggerF != "rest" && *swaggerF != "debug" && *swaggerF != "off" {

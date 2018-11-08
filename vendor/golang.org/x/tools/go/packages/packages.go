@@ -15,8 +15,10 @@ import (
 	"go/scanner"
 	"go/token"
 	"go/types"
+	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"golang.org/x/tools/go/gcexportdata"
@@ -96,12 +98,14 @@ type Config struct {
 	// It must be safe to call ParseFile simultaneously from multiple goroutines.
 	// If ParseFile is nil, the loader will uses parser.ParseFile.
 	//
-	// Setting ParseFile to a custom implementation can allow
-	// providing alternate file content in order to type-check
-	// unsaved text editor buffers, or to selectively eliminate
-	// unwanted function bodies to reduce the amount of work
-	// done by the type checker.
-	ParseFile func(fset *token.FileSet, filename string) (*ast.File, error)
+	// ParseFile should parse the source from src and use filename only for
+	// recording position information.
+	//
+	// An application may supply a custom implementation of ParseFile
+	// to change the effective file contents or the behavior of the parser,
+	// or to modify the syntax tree. For example, selectively eliminating
+	// unwanted function bodies can significantly accelerate type checking.
+	ParseFile func(fset *token.FileSet, filename string, src []byte) (*ast.File, error)
 
 	// If Tests is set, the loader includes not just the packages
 	// matching a particular pattern but also any related test packages,
@@ -116,6 +120,15 @@ type Config struct {
 	// In build systems with explicit names for tests,
 	// setting Tests may have no effect.
 	Tests bool
+
+	// Overlay provides a mapping of absolute file paths to file contents.
+	// If the file  with the given path already exists, the parser will use the
+	// alternative file contents provided by the map.
+	//
+	// The Package.Imports map may not include packages that are imported only
+	// by the alternative file contents provided by Overlay. This may cause
+	// type-checking to fail.
+	Overlay map[string][]byte
 }
 
 // driver is the type for functions that query the build system for the
@@ -124,6 +137,9 @@ type driver func(cfg *Config, patterns ...string) (*driverResponse, error)
 
 // driverResponse contains the results for a driver query.
 type driverResponse struct {
+	// Sizes, if not nil, is the types.Sizes to use when type checking.
+	Sizes *types.StdSizes
+
 	// Roots is the set of package IDs that make up the root packages.
 	// We have to encode this separately because when we encode a single package
 	// we cannot know if it is one of the roots as that requires knowledge of the
@@ -158,6 +174,7 @@ func Load(cfg *Config, patterns ...string) ([]*Package, error) {
 	if err != nil {
 		return nil, err
 	}
+	l.sizes = response.Sizes
 	return l.refine(response.Roots, response.Packages...)
 }
 
@@ -352,6 +369,7 @@ type loaderPackage struct {
 type loader struct {
 	pkgs map[string]*loaderPackage
 	Config
+	sizes    types.Sizes
 	exportMu sync.Mutex // enforces mutual exclusion of exportdata operations
 }
 
@@ -380,9 +398,13 @@ func newLoader(cfg *Config) *loader {
 		// ParseFile is required even in LoadTypes mode
 		// because we load source if export data is missing.
 		if ld.ParseFile == nil {
-			ld.ParseFile = func(fset *token.FileSet, filename string) (*ast.File, error) {
+			ld.ParseFile = func(fset *token.FileSet, filename string, src []byte) (*ast.File, error) {
+				var isrc interface{}
+				if src != nil {
+					isrc = src
+				}
 				const mode = parser.AllErrors | parser.ParseComments
-				return parser.ParseFile(fset, filename, nil, mode)
+				return parser.ParseFile(fset, filename, isrc, mode)
 			}
 		}
 	}
@@ -392,26 +414,35 @@ func newLoader(cfg *Config) *loader {
 // refine connects the supplied packages into a graph and then adds type and
 // and syntax information as requested by the LoadMode.
 func (ld *loader) refine(roots []string, list ...*Package) ([]*Package, error) {
-	isRoot := make(map[string]bool, len(roots))
-	for _, root := range roots {
-		isRoot[root] = true
+	rootMap := make(map[string]int, len(roots))
+	for i, root := range roots {
+		rootMap[root] = i
 	}
 	ld.pkgs = make(map[string]*loaderPackage)
 	// first pass, fixup and build the map and roots
-	var initial []*loaderPackage
+	var initial = make([]*loaderPackage, len(roots))
 	for _, pkg := range list {
+		rootIndex := -1
+		if i, found := rootMap[pkg.ID]; found {
+			rootIndex = i
+		}
 		lpkg := &loaderPackage{
 			Package: pkg,
 			needtypes: ld.Mode >= LoadAllSyntax ||
-				ld.Mode >= LoadTypes && isRoot[pkg.ID],
+				ld.Mode >= LoadTypes && rootIndex >= 0,
 			needsrc: ld.Mode >= LoadAllSyntax ||
-				ld.Mode >= LoadSyntax && isRoot[pkg.ID] ||
+				ld.Mode >= LoadSyntax && rootIndex >= 0 ||
 				pkg.ExportFile == "" && pkg.PkgPath != "unsafe",
 		}
 		ld.pkgs[lpkg.ID] = lpkg
-		if isRoot[lpkg.ID] {
-			initial = append(initial, lpkg)
+		if rootIndex >= 0 {
+			initial[rootIndex] = lpkg
 			lpkg.initial = true
+		}
+	}
+	for i, root := range roots {
+		if initial[i] == nil {
+			return nil, fmt.Errorf("root package %v is missing", root)
 		}
 	}
 
@@ -674,9 +705,7 @@ func (ld *loader) loadPackage(lpkg *loaderPackage) {
 		IgnoreFuncBodies: ld.Mode < LoadAllSyntax && !lpkg.initial,
 
 		Error: appendError,
-
-		// TODO(adonovan): derive Sizes from the underlying
-		// build system.
+		Sizes: ld.sizes,
 	}
 	types.NewChecker(tc, ld.Fset, lpkg.Types, lpkg.TypesInfo).Files(lpkg.Syntax)
 
@@ -743,7 +772,21 @@ func (ld *loader) parseFiles(filenames []string) ([]*ast.File, []error) {
 		go func(i int, filename string) {
 			ioLimit <- true // wait
 			// ParseFile may return both an AST and an error.
-			parsed[i], errors[i] = ld.ParseFile(ld.Fset, filename)
+			var src []byte
+			for f, contents := range ld.Config.Overlay {
+				if sameFile(f, filename) {
+					src = contents
+				}
+			}
+			var err error
+			if src == nil {
+				src, err = ioutil.ReadFile(filename)
+			}
+			if err != nil {
+				parsed[i], errors[i] = nil, err
+			} else {
+				parsed[i], errors[i] = ld.ParseFile(ld.Fset, filename, src)
+			}
 			<-ioLimit // signal
 			wg.Done()
 		}(i, file)
@@ -770,6 +813,20 @@ func (ld *loader) parseFiles(filenames []string) ([]*ast.File, []error) {
 	errors = errors[:o]
 
 	return parsed, errors
+}
+
+// sameFile returns true if x and y have the same basename and denote
+// the same file.
+//
+func sameFile(x, y string) bool {
+	if filepath.Base(x) == filepath.Base(y) { // (optimisation)
+		if xi, err := os.Stat(x); err == nil {
+			if yi, err := os.Stat(y); err == nil {
+				return os.SameFile(xi, yi)
+			}
+		}
+	}
+	return false
 }
 
 // loadFromExportData returns type information for the specified

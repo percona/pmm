@@ -69,6 +69,17 @@ This section contains a reference of dashboards available in |metrics-monitor|.
 
    dashboard.mongodb-*
 
+.. _pmm.dashboard.postgres.list:
+
+:ref:`PostgreSQL Dashboards <pmm.dashboard.postgres.list>`
+================================================================================
+
+.. toctree::
+   :glob:
+   :maxdepth: 1
+
+   dashboard.postgres-*
+
 .. _pmm.dashboard.ha.list:
 
 :ref:`HA Dashboards <pmm.dashboard.ha.list>`

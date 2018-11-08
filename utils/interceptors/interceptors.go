@@ -18,8 +18,10 @@
 package interceptors
 
 import (
+	"context"
+
+	middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
 	"github.com/percona/pmm-managed/utils/logger"
@@ -31,10 +33,12 @@ func Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, han
 	return grpc_prometheus.UnaryServerInterceptor(ctx, req, info, handler)
 }
 
-// Stream adds Prometheus metrics to unary server RPC. Logger should be explicitly set by handler if required.
-// See https://github.com/grpc-ecosystem/go-grpc-prometheus/issues/24
+// Stream adds context logger and Prometheus metrics to stream server RPC.
 func Stream(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-	return grpc_prometheus.StreamServerInterceptor(srv, ss, info, handler)
+	wrapped := middleware.WrapServerStream(ss)
+	wrapped.WrappedContext, _ = logger.Set(ss.Context(), logger.MakeRequestID())
+
+	return grpc_prometheus.StreamServerInterceptor(srv, wrapped, info, handler)
 }
 
 // check interfaces
