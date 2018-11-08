@@ -32,6 +32,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-agent/config"
+	"github.com/percona/pmm-agent/supervisor"
 	"github.com/percona/pmm-agent/utils/logger"
 )
 
@@ -99,7 +100,9 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 			for _, agent := range payload.State.AgentProcesses {
 				switch agent.Type {
 				case inventory.AgentType_MYSQLD_EXPORTER:
-					l.Info("Starting mysqld_exporter...")
+					if err := supervisor.StartMySQLdExporter(agent.Args, agent.Env); err != nil {
+						l.Error(err)
+					}
 				default:
 					l.Warnf("Got unhandled agent type %s (%d), ignoring.", agent.Type, agent.Type)
 				}

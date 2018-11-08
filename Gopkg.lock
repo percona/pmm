@@ -194,6 +194,7 @@
   input-imports = [
     "github.com/golang/protobuf/ptypes",
     "github.com/percona/pmm/api/agent",
+    "github.com/percona/pmm/api/inventory",
     "github.com/sirupsen/logrus",
     "google.golang.org/grpc",
     "google.golang.org/grpc/credentials",
