@@ -169,12 +169,12 @@ After=syslog.target
 StartLimitInterval=5
 StartLimitBurst=10
 ExecStart=/bin/sh -c '{{.Path|cmdEscape}}{{range .Arguments}} {{.}}{{end}} >> /var/log/{{.Name}}.log 2>&1'
-{{if .ChRoot}}RootDirectory={{.ChRoot|cmd}}{{end}}
+{{if .ChRoot}}RootDirectory={{.ChRoot|cmdSystemD}}{{end}}
 {{if .WorkingDirectory}}WorkingDirectory={{.WorkingDirectory|cmdEscape}}{{end}}
 {{if .UserName}}User={{.UserName}}{{end}}
 {{if .ReloadSignal}}ExecReload=/bin/kill -{{.ReloadSignal}} "$MAINPID"{{end}}
 {{if .PIDFile}}PIDFile={{.PIDFile}}{{end}}
-{{range .Environment}}Environment={{.|cmd}}
+{{range .Environment}}Environment={{.|cmdSystemD}}
 {{end}}
 Restart=always
 RestartSec=120

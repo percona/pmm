@@ -21,10 +21,10 @@ required = [
   # unused-packages = true
 
 [[constraint]]
-  # this branch is not merged yet
   # https://jira.percona.com/browse/PMM-1710
+  # https://jira.percona.com/browse/PMM-3209
   name = "github.com/percona/kardianos-service"
-  branch = "PMM-1710-supervisord"
+  branch = "PMM-3209-supervisord-fixes-for-pmm-managed"
 
 [[constraint]]
   # https://jira.percona.com/browse/PMM-1561

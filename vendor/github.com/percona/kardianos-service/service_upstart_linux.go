@@ -217,7 +217,7 @@ const upstartScript = `# {{.Description}}
 {{if .HasKillStanza}}kill signal INT{{end}}
 {{if .ChRoot}}chroot {{.ChRoot}}{{end}}
 {{if .WorkingDirectory}}chdir {{.WorkingDirectory}}{{end}}
-start on filesystem or runlevel [2345]
+start on stopped rc RUNLEVEL=[2345]
 stop on runlevel [!2345]
 
 {{if .UserName}}setuid {{.UserName}}{{end}}
