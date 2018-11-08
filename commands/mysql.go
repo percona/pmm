@@ -49,8 +49,11 @@ func (cmd *AddMySQLCmd) Run() {
 		Context: context.Background(),
 	}
 	resp, err := client.Default.Agents.AddMySqldExporterAgent(params)
-	logrus.Info(resp)
-	logrus.Error(err)
+	if err != nil {
+		logrus.Error(err)
+		return
+	}
+	logrus.Infof("mysqld_exporter started on %d.", resp.Payload.MysqldExporter.ListenPort)
 }
 
 // check interfaces
