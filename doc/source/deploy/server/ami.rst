@@ -27,6 +27,15 @@ later, and this table serves the information purposes, to plan costs.
    see its price. |pmm| comes for no cost, you may only need to pay for the
    infrastructure provided by |amazon|.
 
+.. note::
+
+   Disk space used by |pmm-server| highly depends on the amount of hosts under
+   monitoring. There is an approximate formula tested on the PMM Demo <https://pmmdemo.percona.com/>`_
+   web site, which estimates allocated space as ~230MB/host/day, or ~6.9GB/host
+   in case of 30 day retention period, which is set by default. See `this blog post <https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/>`_ for more
+   details about the |pmm-server| disk space consumption and its more precise
+   planning.
+
 Clicking the |gui.continue-to-subscribe| button will proceed to the terms and
 conditions page. Clicking |gui.continue-to-configuration| there will bring a
 new page to start setting up your instance.
