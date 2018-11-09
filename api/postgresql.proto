@@ -40,11 +40,11 @@ message PostgreSQLAddRequest {
 }
 
 message PostgreSQLAddResponse {
-    int32 id = 1;
+    uint32 id = 1;
 }
 
 message PostgreSQLRemoveRequest {
-    int32 id = 1;
+    uint32 id = 1;
 }
 
 message PostgreSQLRemoveResponse {

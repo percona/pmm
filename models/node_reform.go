@@ -47,7 +47,7 @@ func (v *nodeTableType) PKColumnIndex() uint {
 
 // NodeTable represents nodes view or table in SQL database.
 var NodeTable = &nodeTableType{
-	s: parse.StructInfo{Type: "Node", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Node", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}}, PKFieldIndex: 0},
 	z: new(Node).Values(),
 }
 
@@ -110,9 +110,9 @@ func (s *Node) HasPK() bool {
 // SetPK sets record primary key.
 func (s *Node) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int32(i64)
+		s.ID = uint32(i64)
 	} else {
-		s.ID = pk.(int32)
+		s.ID = pk.(uint32)
 	}
 }
 
@@ -162,7 +162,7 @@ func (v *rDSNodeTableType) PKColumnIndex() uint {
 
 // RDSNodeTable represents nodes view or table in SQL database.
 var RDSNodeTable = &rDSNodeTableType{
-	s: parse.StructInfo{Type: "RDSNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "string", Column: "region"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RDSNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "string", Column: "region"}}, PKFieldIndex: 0},
 	z: new(RDSNode).Values(),
 }
 
@@ -228,9 +228,9 @@ func (s *RDSNode) HasPK() bool {
 // SetPK sets record primary key.
 func (s *RDSNode) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int32(i64)
+		s.ID = uint32(i64)
 	} else {
-		s.ID = pk.(int32)
+		s.ID = pk.(uint32)
 	}
 }
 
@@ -280,7 +280,7 @@ func (v *remoteNodeTableType) PKColumnIndex() uint {
 
 // RemoteNodeTable represents nodes view or table in SQL database.
 var RemoteNodeTable = &remoteNodeTableType{
-	s: parse.StructInfo{Type: "RemoteNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "string", Column: "region"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RemoteNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "string", Column: "region"}}, PKFieldIndex: 0},
 	z: new(RemoteNode).Values(),
 }
 
@@ -346,9 +346,9 @@ func (s *RemoteNode) HasPK() bool {
 // SetPK sets record primary key.
 func (s *RemoteNode) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int32(i64)
+		s.ID = uint32(i64)
 	} else {
-		s.ID = pk.(int32)
+		s.ID = pk.(uint32)
 	}
 }
 

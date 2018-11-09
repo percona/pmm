@@ -31,14 +31,14 @@ const RemoteNodeRegion string = "remote"
 
 //reform:nodes
 type Node struct {
-	ID   int32    `reform:"id,pk"`
+	ID   uint32   `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"`
 }
 
 //reform:nodes
 type RDSNode struct {
-	ID   int32    `reform:"id,pk"`
+	ID   uint32   `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"` // DBInstanceIdentifier
 
@@ -47,7 +47,7 @@ type RDSNode struct {
 
 //reform:nodes
 type RemoteNode struct {
-	ID   int32    `reform:"id,pk"`
+	ID   uint32   `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"` // DBInstanceIdentifier
 

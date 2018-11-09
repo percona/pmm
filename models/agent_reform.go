@@ -47,7 +47,7 @@ func (v *agentTableType) PKColumnIndex() uint {
 
 // AgentTable represents agents view or table in SQL database.
 var AgentTable = &agentTableType{
-	s: parse.StructInfo{Type: "Agent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "int32", Column: "runs_on_node_id"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Agent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
 	z: new(Agent).Values(),
 }
 
@@ -113,9 +113,9 @@ func (s *Agent) HasPK() bool {
 // SetPK sets record primary key.
 func (s *Agent) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int32(i64)
+		s.ID = uint32(i64)
 	} else {
-		s.ID = pk.(int32)
+		s.ID = pk.(uint32)
 	}
 }
 
@@ -165,7 +165,7 @@ func (v *mySQLdExporterTableType) PKColumnIndex() uint {
 
 // MySQLdExporterTable represents agents view or table in SQL database.
 var MySQLdExporterTable = &mySQLdExporterTableType{
-	s: parse.StructInfo{Type: "MySQLdExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "int32", Column: "runs_on_node_id"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "MySQLDisableTablestats", Type: "*bool", Column: "mysql_disable_tablestats"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "MySQLdExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "MySQLDisableTablestats", Type: "*bool", Column: "mysql_disable_tablestats"}}, PKFieldIndex: 0},
 	z: new(MySQLdExporter).Values(),
 }
 
@@ -240,9 +240,9 @@ func (s *MySQLdExporter) HasPK() bool {
 // SetPK sets record primary key.
 func (s *MySQLdExporter) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int32(i64)
+		s.ID = uint32(i64)
 	} else {
-		s.ID = pk.(int32)
+		s.ID = pk.(uint32)
 	}
 }
 
@@ -292,7 +292,7 @@ func (v *postgresExporterTableType) PKColumnIndex() uint {
 
 // PostgresExporterTable represents agents view or table in SQL database.
 var PostgresExporterTable = &postgresExporterTableType{
-	s: parse.StructInfo{Type: "PostgresExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "int32", Column: "runs_on_node_id"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "PostgresExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
 	z: new(PostgresExporter).Values(),
 }
 
@@ -364,9 +364,9 @@ func (s *PostgresExporter) HasPK() bool {
 // SetPK sets record primary key.
 func (s *PostgresExporter) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int32(i64)
+		s.ID = uint32(i64)
 	} else {
-		s.ID = pk.(int32)
+		s.ID = pk.(uint32)
 	}
 }
 
@@ -416,7 +416,7 @@ func (v *rDSExporterTableType) PKColumnIndex() uint {
 
 // RDSExporterTable represents agents view or table in SQL database.
 var RDSExporterTable = &rDSExporterTableType{
-	s: parse.StructInfo{Type: "RDSExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "int32", Column: "runs_on_node_id"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RDSExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
 	z: new(RDSExporter).Values(),
 }
 
@@ -482,9 +482,9 @@ func (s *RDSExporter) HasPK() bool {
 // SetPK sets record primary key.
 func (s *RDSExporter) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int32(i64)
+		s.ID = uint32(i64)
 	} else {
-		s.ID = pk.(int32)
+		s.ID = pk.(uint32)
 	}
 }
 
@@ -534,7 +534,7 @@ func (v *qanAgentTableType) PKColumnIndex() uint {
 
 // QanAgentTable represents agents view or table in SQL database.
 var QanAgentTable = &qanAgentTableType{
-	s: parse.StructInfo{Type: "QanAgent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "int32", Column: "runs_on_node_id"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "QANDBInstanceUUID", Type: "*string", Column: "qan_db_instance_uuid"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "QanAgent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "QANDBInstanceUUID", Type: "*string", Column: "qan_db_instance_uuid"}}, PKFieldIndex: 0},
 	z: new(QanAgent).Values(),
 }
 
@@ -609,9 +609,9 @@ func (s *QanAgent) HasPK() bool {
 // SetPK sets record primary key.
 func (s *QanAgent) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int32(i64)
+		s.ID = uint32(i64)
 	} else {
-		s.ID = pk.(int32)
+		s.ID = pk.(uint32)
 	}
 }
 

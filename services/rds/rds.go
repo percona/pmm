@@ -757,7 +757,7 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 		}
 
 		// stop agents
-		agents := make(map[int32]models.Agent, len(agentsForService)+len(agentsForNode))
+		agents := make(map[uint32]models.Agent, len(agentsForService)+len(agentsForNode))
 		for _, agent := range agentsForService {
 			agents[agent.ID] = agent
 		}

@@ -28,16 +28,16 @@ const (
 
 //reform:services
 type Service struct {
-	ID     int32       `reform:"id,pk"`
+	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
-	NodeID int32       `reform:"node_id"`
+	NodeID uint32      `reform:"node_id"`
 }
 
 //reform:services
 type RDSService struct {
-	ID     int32       `reform:"id,pk"`
+	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
-	NodeID int32       `reform:"node_id"`
+	NodeID uint32      `reform:"node_id"`
 
 	AWSAccessKey  *string `reform:"aws_access_key"` // may be nil
 	AWSSecretKey  *string `reform:"aws_secret_key"` // may be nil
@@ -49,9 +49,9 @@ type RDSService struct {
 
 //reform:services
 type PostgreSQLService struct {
-	ID     int32       `reform:"id,pk"`
+	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
-	NodeID int32       `reform:"node_id"`
+	NodeID uint32      `reform:"node_id"`
 
 	Address       *string `reform:"address"`
 	Port          *uint16 `reform:"port"`
@@ -61,9 +61,9 @@ type PostgreSQLService struct {
 
 //reform:services
 type MySQLService struct {
-	ID     int32       `reform:"id,pk"`
+	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
-	NodeID int32       `reform:"node_id"`
+	NodeID uint32      `reform:"node_id"`
 
 	Address       *string `reform:"address"`
 	Port          *uint16 `reform:"port"`
@@ -73,9 +73,9 @@ type MySQLService struct {
 
 //reform:services
 type RemoteService struct {
-	ID     int32       `reform:"id,pk"`
+	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
-	NodeID int32       `reform:"node_id"`
+	NodeID uint32      `reform:"node_id"`
 
 	Address       *string `reform:"address"`
 	Port          *uint16 `reform:"port"`

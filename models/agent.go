@@ -50,9 +50,9 @@ func NameForSupervisor(typ AgentType, listenPort uint16) string {
 
 //reform:agents
 type Agent struct {
-	ID           int32     `reform:"id,pk"`
+	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
-	RunsOnNodeID int32     `reform:"runs_on_node_id"`
+	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
 
 	// TODO Does it really belong there? Remove when we have agent without one.
 	ListenPort *uint16 `reform:"listen_port"`
@@ -60,9 +60,9 @@ type Agent struct {
 
 //reform:agents
 type MySQLdExporter struct {
-	ID           int32     `reform:"id,pk"`
+	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
-	RunsOnNodeID int32     `reform:"runs_on_node_id"`
+	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
 
 	ServiceUsername        *string `reform:"service_username"`
 	ServicePassword        *string `reform:"service_password"`
@@ -90,9 +90,9 @@ func (m *MySQLdExporter) DSN(service *MySQLService) string {
 //reform:agents
 // PostgresExporter exports PostgreSQL metrics.
 type PostgresExporter struct {
-	ID           int32     `reform:"id,pk"`
+	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
-	RunsOnNodeID int32     `reform:"runs_on_node_id"`
+	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
 
 	ServiceUsername *string `reform:"service_username"`
 	ServicePassword *string `reform:"service_password"`
@@ -118,18 +118,18 @@ func (p *PostgresExporter) DSN(service *PostgreSQLService) string {
 
 //reform:agents
 type RDSExporter struct {
-	ID           int32     `reform:"id,pk"`
+	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
-	RunsOnNodeID int32     `reform:"runs_on_node_id"`
+	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
 
 	ListenPort *uint16 `reform:"listen_port"`
 }
 
 //reform:agents
 type QanAgent struct {
-	ID           int32     `reform:"id,pk"`
+	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
-	RunsOnNodeID int32     `reform:"runs_on_node_id"`
+	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
 
 	ServiceUsername   *string `reform:"service_username"`
 	ServicePassword   *string `reform:"service_password"`
