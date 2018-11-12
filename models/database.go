@@ -43,6 +43,7 @@ var databaseSchema = [][]string{
 			name VARCHAR(255) NOT NULL,
 
 			region VARCHAR(255) NOT NULL DEFAULT '', -- NOT NULL for unique index below
+			hostname VARCHAR(255),
 
 			PRIMARY KEY (id),
 			UNIQUE (type, name, region)
@@ -75,6 +76,7 @@ var databaseSchema = [][]string{
 			service_password VARCHAR(255),
 			listen_port SMALLINT UNSIGNED,
 			qan_db_instance_uuid VARCHAR(255),
+			mysql_disable_tablestats TINYINT(1),
 
 			PRIMARY KEY (id),
 			FOREIGN KEY (runs_on_node_id) REFERENCES nodes (id)
@@ -95,24 +97,6 @@ var databaseSchema = [][]string{
 			FOREIGN KEY (service_id) REFERENCES services (id),
 			UNIQUE (agent_id, service_id)
 		)`,
-	},
-
-	2: {
-		`ALTER TABLE nodes
-			ADD COLUMN aws_dbi_resource_id VARCHAR(255)
-		`,
-	},
-
-	3: {
-		`ALTER TABLE agents
-			ADD COLUMN mysql_disable_tablestats TINYINT(1)
-		`,
-	},
-
-	4: {
-		`ALTER TABLE nodes
-			DROP COLUMN aws_dbi_resource_id
-		`,
 	},
 }
 

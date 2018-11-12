@@ -18,88 +18,75 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/percona/pmm/api/inventory"
+	api "github.com/percona/pmm/api/inventory"
 
 	"github.com/percona/pmm-managed/services/agents"
+	"github.com/percona/pmm-managed/services/inventory"
 )
 
 type NodesServer struct {
+	Nodes  *inventory.NodesService
 	Store  *agents.Store
 	Agents map[uint32]*agents.Conn
 }
 
-func (s *NodesServer) ListNodes(ctx context.Context, req *inventory.ListNodesRequest) (*inventory.ListNodesResponse, error) {
+func (s *NodesServer) ListNodes(ctx context.Context, req *api.ListNodesRequest) (*api.ListNodesResponse, error) {
+	return s.Nodes.List(ctx)
+}
+
+func (s *NodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*api.GetNodeResponse, error) {
+	node, err := s.Nodes.Get(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	res := new(api.GetNodeResponse)
+	switch node := node.(type) {
+	case *api.BareMetalNode:
+		res.Node = &api.GetNodeResponse_BareMetal{
+			BareMetal: node,
+		}
+	case *api.VirtualMachineNode:
+		res.Node = &api.GetNodeResponse_VirtualMachine{
+			VirtualMachine: node,
+		}
+	case *api.ContainerNode:
+		res.Node = &api.GetNodeResponse_Container{
+			Container: node,
+		}
+	case *api.RemoteNode:
+		res.Node = &api.GetNodeResponse_Remote{
+			Remote: node,
+		}
+	case *api.RDSNode:
+		res.Node = &api.GetNodeResponse_Rds{
+			Rds: node,
+		}
+	default:
+		panic(fmt.Errorf("unhandled inventory Node type %T", node))
+	}
+	return res, nil
+}
+
+func (s *NodesServer) AddNode(ctx context.Context, req *api.AddNodeRequest) (*api.AddNodeResponse, error) {
 	panic("not implemented")
 }
 
-func (s *NodesServer) GetNode(ctx context.Context, req *inventory.GetNodeRequest) (*inventory.GetNodeResponse, error) {
+func (s *NodesServer) AddRemoveNode(ctx context.Context, req *api.AddRemoveNodeRequest) (*api.AddRemoveNodeResponse, error) {
 	panic("not implemented")
 }
 
-func (s *NodesServer) AddNode(ctx context.Context, req *inventory.AddNodeRequest) (*inventory.AddNodeResponse, error) {
+func (s *NodesServer) AddRDSNode(ctx context.Context, req *api.AddRDSNodeRequest) (*api.AddRDSNodeResponse, error) {
 	panic("not implemented")
 }
 
-func (s *NodesServer) AddRemoveNode(ctx context.Context, req *inventory.AddRemoveNodeRequest) (*inventory.AddRemoveNodeResponse, error) {
+func (s *NodesServer) RemoveNode(ctx context.Context, req *api.RemoveNodeRequest) (*api.RemoveNodeResponse, error) {
 	panic("not implemented")
 }
-
-func (s *NodesServer) AddRDSNode(ctx context.Context, req *inventory.AddRDSNodeRequest) (*inventory.AddRDSNodeResponse, error) {
-	panic("not implemented")
-}
-
-func (s *NodesServer) RemoveNode(ctx context.Context, req *inventory.RemoveNodeRequest) (*inventory.RemoveNodeResponse, error) {
-	panic("not implemented")
-}
-
-// func (s *NodesServer) List(ctx context.Context, req *inventory.NodesListRequest) (*inventory.NodesListResponse, error) {
-// 	logger.Get(ctx).Infof("%#v", req)
-// 	return &inventory.NodesListResponse{
-// 		Node: []*inventory.Node{
-// 			{
-// 				Id: 1,
-// 			},
-// 		},
-// 		BareMetal: []*inventory.BareMetalNode{
-// 			{
-// 				Id: 2,
-// 			},
-// 		},
-// 		Container: []*inventory.ContainerNode{
-// 			{
-// 				Id: 3,
-// 			},
-// 		},
-// 	}, nil
-// }
-
-// func (s *NodesServer) Get(ctx context.Context, req *inventory.NodesGetRequest) (*inventory.NodesGetResponse, error) {
-// 	logger.Get(ctx).Infof("%#v", req)
-// 	return &inventory.NodesGetResponse{
-// 		OnlyOne: &inventory.NodesGetResponse_BareMetal{
-// 			BareMetal: &inventory.BareMetalNode{
-// 				Id: 1,
-// 			},
-// 		},
-// 	}, nil
-// }
-
-// func (s *NodesServer) AddBareMetal(ctx context.Context, req *inventory.AddBareMetalRequest) (*inventory.AddBareMetalResponse, error) {
-// 	node := s.Store.AddBareMetalNode(req)
-// 	return &inventory.AddBareMetalResponse{
-// 		Node: node,
-// 	}, nil
-// }
-
-// func (s *NodesServer) AddMySQLdExporter(ctx context.Context, req *inventory.AddMySQLdExporterRequest) (*inventory.AddMySQLdExporterResponse, error) {
-// 	exporter := s.Store.AddMySQLdExporter(req)
-// 	return &inventory.AddMySQLdExporterResponse{
-// 		Agent: exporter,
-// 	}, nil
-// }
 
 // check interfaces
 var (
-	_ inventory.NodesServer = (*NodesServer)(nil)
+	_ api.NodesServer = (*NodesServer)(nil)
 )
