@@ -48,8 +48,9 @@ message RDSNode {
   uint32 id = 1;
   // Unique user-defined Node name.
   string name = 2;
-  reserved 3; // hostname
-  // AWS region.
+  // Hostname. Unique in combination with region.
+  string hostname = 3;
+  // AWS region. Unique in combination with hostname.
   string region = 4;
 }
 
@@ -128,7 +129,10 @@ message AddRDSNodeRequest {
   reserved 1; // id
   // Unique user-defined Node name.
   string name = 2;
-  reserved 3; // hostname
+  // Hostname. Unique in combination with region.
+  string hostname = 3;
+  // AWS region. Unique in combination with hostname.
+  string region = 4;
 }
 
 message AddRDSNodeResponse {
@@ -183,6 +187,7 @@ message ChangeRDSNodeRequest {
   // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
+  reserved 4; // region
 }
 
 message ChangeRDSNodeResponse {}

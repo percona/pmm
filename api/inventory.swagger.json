@@ -678,8 +678,16 @@
     "inventoryAddRDSNodeRequest": {
       "type": "object",
       "properties": {
+        "hostname": {
+          "description": "Hostname. Unique in combination with region.",
+          "type": "string"
+        },
         "name": {
           "description": "Unique user-defined Node name.",
+          "type": "string"
+        },
+        "region": {
+          "description": "AWS region. Unique in combination with hostname.",
           "type": "string"
         }
       }
@@ -1067,6 +1075,10 @@
       "description": "RDSNode represents AWS RDS Node.",
       "type": "object",
       "properties": {
+        "hostname": {
+          "description": "Hostname. Unique in combination with region.",
+          "type": "string"
+        },
         "id": {
           "description": "Unique Node identifier.",
           "type": "integer",
@@ -1077,7 +1089,7 @@
           "type": "string"
         },
         "region": {
-          "description": "AWS region.",
+          "description": "AWS region. Unique in combination with hostname.",
           "type": "string"
         }
       }
