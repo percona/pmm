@@ -22,9 +22,11 @@ import (
 
 	api "github.com/percona/pmm/api/inventory"
 
+	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
+// NodesServer handles Inventory API requests to manage Nodes.
 type NodesServer struct {
 	Nodes *inventory.NodesService
 }
@@ -80,47 +82,111 @@ func (s *NodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*ap
 }
 
 func (s *NodesServer) AddBareMetalNode(ctx context.Context, req *api.AddBareMetalNodeRequest) (*api.AddBareMetalNodeResponse, error) {
-	panic("not implemented")
+	node, err := s.Nodes.Add(ctx, models.BareMetalNodeType, req.Name, &req.Hostname, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddBareMetalNodeResponse{
+		BareMetal: node.(*api.BareMetalNode),
+	}
+	return res, nil
 }
 
 func (s *NodesServer) AddVirtualMachineNode(ctx context.Context, req *api.AddVirtualMachineNodeRequest) (*api.AddVirtualMachineNodeResponse, error) {
-	panic("not implemented")
+	node, err := s.Nodes.Add(ctx, models.VirtualMachineNodeType, req.Name, &req.Hostname, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddVirtualMachineNodeResponse{
+		VirtualMachine: node.(*api.VirtualMachineNode),
+	}
+	return res, nil
 }
 
 func (s *NodesServer) AddContainerNode(ctx context.Context, req *api.AddContainerNodeRequest) (*api.AddContainerNodeResponse, error) {
-	panic("not implemented")
+	node, err := s.Nodes.Add(ctx, models.ContainerNodeType, req.Name, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddContainerNodeResponse{
+		Container: node.(*api.ContainerNode),
+	}
+	return res, nil
 }
 
 func (s *NodesServer) AddRemoteNode(ctx context.Context, req *api.AddRemoteNodeRequest) (*api.AddRemoteNodeResponse, error) {
-	panic("not implemented")
+	node, err := s.Nodes.Add(ctx, models.RemoteNodeType, req.Name, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddRemoteNodeResponse{
+		Remote: node.(*api.RemoteNode),
+	}
+	return res, nil
 }
 
 func (s *NodesServer) AddRDSNode(ctx context.Context, req *api.AddRDSNodeRequest) (*api.AddRDSNodeResponse, error) {
-	panic("not implemented")
+	node, err := s.Nodes.Add(ctx, models.RemoteNodeType, req.Name, &req.Hostname, &req.Region)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddRDSNodeResponse{
+		Rds: node.(*api.RDSNode),
+	}
+	return res, nil
 }
 
 func (s *NodesServer) ChangeBareMetalNode(ctx context.Context, req *api.ChangeBareMetalNodeRequest) (*api.ChangeBareMetalNodeResponse, error) {
-	panic("not implemented")
+	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+		return nil, err
+	}
+
+	return new(api.ChangeBareMetalNodeResponse), nil
 }
 
 func (s *NodesServer) ChangeVirtualMachineNode(ctx context.Context, req *api.ChangeVirtualMachineNodeRequest) (*api.ChangeVirtualMachineNodeResponse, error) {
-	panic("not implemented")
+	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+		return nil, err
+	}
+
+	return new(api.ChangeVirtualMachineNodeResponse), nil
 }
 
 func (s *NodesServer) ChangeContainerNode(ctx context.Context, req *api.ChangeContainerNodeRequest) (*api.ChangeContainerNodeResponse, error) {
-	panic("not implemented")
+	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+		return nil, err
+	}
+
+	return new(api.ChangeContainerNodeResponse), nil
 }
 
 func (s *NodesServer) ChangeRemoteNode(ctx context.Context, req *api.ChangeRemoteNodeRequest) (*api.ChangeRemoteNodeResponse, error) {
-	panic("not implemented")
+	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+		return nil, err
+	}
+
+	return new(api.ChangeRemoteNodeResponse), nil
 }
 
 func (s *NodesServer) ChangeRDSNode(ctx context.Context, req *api.ChangeRDSNodeRequest) (*api.ChangeRDSNodeResponse, error) {
-	panic("not implemented")
+	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+		return nil, err
+	}
+
+	return new(api.ChangeRDSNodeResponse), nil
 }
 
 func (s *NodesServer) RemoveNode(ctx context.Context, req *api.RemoveNodeRequest) (*api.RemoveNodeResponse, error) {
-	panic("not implemented")
+	if err := s.Nodes.Remove(ctx, req.Id); err != nil {
+		return nil, err
+	}
+
+	return new(api.RemoveNodeResponse), nil
 }
 
 // check interfaces

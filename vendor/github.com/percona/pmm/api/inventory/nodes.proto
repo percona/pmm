@@ -8,7 +8,7 @@ import "google/api/annotations.proto";
 message BareMetalNode {
   // Unique Node identifier.
   uint32 id = 1;
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
   // Hostname. Is not unique.
   string hostname = 3;
@@ -18,7 +18,7 @@ message BareMetalNode {
 message VirtualMachineNode {
   // Unique Node identifier.
   uint32 id = 1;
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
   // Hostname. Is not unique.
   string hostname = 3;
@@ -28,7 +28,7 @@ message VirtualMachineNode {
 message ContainerNode {
   // Unique Node identifier.
   uint32 id = 1;
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
 }
@@ -37,7 +37,7 @@ message ContainerNode {
 message RemoteNode {
   // Unique Node identifier.
   uint32 id = 1;
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
 }
@@ -46,10 +46,11 @@ message RemoteNode {
 message RDSNode {
   // Unique Node identifier.
   uint32 id = 1;
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
-  reserved 3; // hostname
-  // AWS region.
+  // Hostname. Unique in combination with region.
+  string hostname = 3;
+  // AWS region. Unique in combination with hostname.
   string region = 4;
 }
 
@@ -80,7 +81,7 @@ message GetNodeResponse {
 
 message AddBareMetalNodeRequest {
   reserved 1; // id
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
   // Hostname. Is not unique.
   string hostname = 3;
@@ -92,7 +93,7 @@ message AddBareMetalNodeResponse {
 
 message AddVirtualMachineNodeRequest {
   reserved 1; // id
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
   // Hostname. Is not unique.
   string hostname = 3;
@@ -104,7 +105,7 @@ message AddVirtualMachineNodeResponse {
 
 message AddContainerNodeRequest {
   reserved 1; // id
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
 }
@@ -115,7 +116,7 @@ message AddContainerNodeResponse {
 
 message AddRemoteNodeRequest {
   reserved 1; // id
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
 }
@@ -126,9 +127,12 @@ message AddRemoteNodeResponse {
 
 message AddRDSNodeRequest {
   reserved 1; // id
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
-  reserved 3; // hostname
+  // Hostname. Unique in combination with region.
+  string hostname = 3;
+  // AWS region. Unique in combination with hostname.
+  string region = 4;
 }
 
 message AddRDSNodeResponse {
@@ -138,10 +142,9 @@ message AddRDSNodeResponse {
 message ChangeBareMetalNodeRequest {
   // Unique Node identifier.
   uint32 id = 1;
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
-  // Hostname. Is not unique.
-  string hostname = 3;
+  reserved 3; // hostname
 }
 
 message ChangeBareMetalNodeResponse {}
@@ -149,10 +152,9 @@ message ChangeBareMetalNodeResponse {}
 message ChangeVirtualMachineNodeRequest {
   // Unique Node identifier.
   uint32 id = 1;
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
-  // Hostname. Is not unique.
-  string hostname = 3;
+  reserved 3; // hostname
 }
 
 message ChangeVirtualMachineNodeResponse {}
@@ -160,7 +162,7 @@ message ChangeVirtualMachineNodeResponse {}
 message ChangeContainerNodeRequest {
   // Unique Node identifier.
   uint32 id = 1;
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
 }
@@ -170,7 +172,7 @@ message ChangeContainerNodeResponse {}
 message ChangeRemoteNodeRequest {
   // Unique Node identifier.
   uint32 id = 1;
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
 }
@@ -180,9 +182,10 @@ message ChangeRemoteNodeResponse {}
 message ChangeRDSNodeRequest {
   // Unique Node identifier.
   uint32 id = 1;
-  // Unique Node name.
+  // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
+  reserved 4; // region
 }
 
 message ChangeRDSNodeResponse {}

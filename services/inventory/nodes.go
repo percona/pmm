@@ -28,10 +28,14 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
+// TODO Better errors.
+
+// NodesService works with inventory API Nodes.
 type NodesService struct {
 	DB *reform.DB
 }
 
+// makeNode converts database row to Inventory API Node.
 func makeNode(row *models.NodeRow) inventory.Node {
 	switch row.Type {
 	case models.BareMetalNodeType:
@@ -40,33 +44,40 @@ func makeNode(row *models.NodeRow) inventory.Node {
 			Name:     row.Name,
 			Hostname: pointer.GetString(row.Hostname),
 		}
+
 	case models.VirtualMachineNodeType:
 		return &inventory.VirtualMachineNode{
 			Id:       row.ID,
 			Name:     row.Name,
 			Hostname: pointer.GetString(row.Hostname),
 		}
+
 	case models.ContainerNodeType:
 		return &inventory.ContainerNode{
 			Id:   row.ID,
 			Name: row.Name,
 		}
+
 	case models.RemoteNodeType:
 		return &inventory.RemoteNode{
 			Id:   row.ID,
 			Name: row.Name,
 		}
+
 	case models.RDSNodeType:
 		return &inventory.RDSNode{
-			Id:     row.ID,
-			Name:   row.Name,
-			Region: pointer.GetString(row.Region),
+			Id:       row.ID,
+			Name:     row.Name,
+			Hostname: pointer.GetString(row.Hostname),
+			Region:   pointer.GetString(row.Region),
 		}
+
 	default:
 		panic(fmt.Errorf("unhandled NodeRow type %s", row.Type))
 	}
 }
 
+// List selects all Nodes in a stable order.
 func (ns *NodesService) List(ctx context.Context) ([]inventory.Node, error) {
 	structs, err := ns.DB.SelectAllFrom(models.NodeRowTable, "ORDER BY id")
 	if err != nil {
@@ -81,12 +92,51 @@ func (ns *NodesService) List(ctx context.Context) ([]inventory.Node, error) {
 	return res, nil
 }
 
+// Get selects a single Node by ID.
 func (ns *NodesService) Get(ctx context.Context, id uint32) (inventory.Node, error) {
-	record, err := ns.DB.FindByPrimaryKeyFrom(models.NodeRowTable, id)
-	if err != nil {
+	row := &models.NodeRow{ID: id}
+	if err := ns.DB.Reload(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	row := record.(*models.NodeRow)
 	return makeNode(row), nil
+}
+
+// Add inserts Node with given parameters.
+func (ns *NodesService) Add(ctx context.Context, nodeType models.NodeType, name string, hostname, region *string) (inventory.Node, error) {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+
+	row := &models.NodeRow{
+		Type:     nodeType,
+		Name:     name,
+		Hostname: hostname,
+		Region:   region,
+	}
+	if err := ns.DB.Insert(row); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	return makeNode(row), nil
+}
+
+// Change updates Node by ID.
+func (ns *NodesService) Change(ctx context.Context, id uint32, name string) error {
+	row := &models.NodeRow{ID: id}
+	if err := ns.DB.Reload(row); err != nil {
+		return errors.WithStack(err)
+	}
+
+	row.Name = name
+	if err := ns.DB.Update(row); err != nil {
+		return errors.WithStack(err)
+	}
+
+	return nil
+}
+
+// Remove deletes Node by ID.
+func (ns *NodesService) Remove(ctx context.Context, id uint32) error {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+
+	return ns.DB.Delete(&models.NodeRow{ID: id})
 }

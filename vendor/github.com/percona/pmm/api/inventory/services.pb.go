@@ -24,11 +24,11 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// MySQLService represents MySQL service configuration.
+// MySQLService represents MySQL Service configuration.
 type MySQLService struct {
-	// Unique service identifier.
+	// Unique Service identifier.
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Unique service name.
+	// Unique user-defined Service name.
 	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -39,7 +39,7 @@ func (m *MySQLService) Reset()         { *m = MySQLService{} }
 func (m *MySQLService) String() string { return proto.CompactTextString(m) }
 func (*MySQLService) ProtoMessage()    {}
 func (*MySQLService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_4c072c4a84f41d02, []int{0}
+	return fileDescriptor_services_1ee5b9b0047f2b0a, []int{0}
 }
 func (m *MySQLService) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLService.Unmarshal(m, b)
@@ -83,7 +83,7 @@ func (m *ListServicesRequest) Reset()         { *m = ListServicesRequest{} }
 func (m *ListServicesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListServicesRequest) ProtoMessage()    {}
 func (*ListServicesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_4c072c4a84f41d02, []int{1}
+	return fileDescriptor_services_1ee5b9b0047f2b0a, []int{1}
 }
 func (m *ListServicesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServicesRequest.Unmarshal(m, b)
@@ -114,7 +114,7 @@ func (m *ListServicesResponse) Reset()         { *m = ListServicesResponse{} }
 func (m *ListServicesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListServicesResponse) ProtoMessage()    {}
 func (*ListServicesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_4c072c4a84f41d02, []int{2}
+	return fileDescriptor_services_1ee5b9b0047f2b0a, []int{2}
 }
 func (m *ListServicesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServicesResponse.Unmarshal(m, b)
@@ -153,7 +153,7 @@ func (m *GetServiceRequest) Reset()         { *m = GetServiceRequest{} }
 func (m *GetServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*GetServiceRequest) ProtoMessage()    {}
 func (*GetServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_4c072c4a84f41d02, []int{3}
+	return fileDescriptor_services_1ee5b9b0047f2b0a, []int{3}
 }
 func (m *GetServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetServiceRequest.Unmarshal(m, b)
@@ -193,7 +193,7 @@ func (m *GetServiceResponse) Reset()         { *m = GetServiceResponse{} }
 func (m *GetServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*GetServiceResponse) ProtoMessage()    {}
 func (*GetServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_4c072c4a84f41d02, []int{4}
+	return fileDescriptor_services_1ee5b9b0047f2b0a, []int{4}
 }
 func (m *GetServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetServiceResponse.Unmarshal(m, b)
@@ -302,7 +302,7 @@ func (m *AddMySQLServiceRequest) Reset()         { *m = AddMySQLServiceRequest{}
 func (m *AddMySQLServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*AddMySQLServiceRequest) ProtoMessage()    {}
 func (*AddMySQLServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_4c072c4a84f41d02, []int{5}
+	return fileDescriptor_services_1ee5b9b0047f2b0a, []int{5}
 }
 func (m *AddMySQLServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMySQLServiceRequest.Unmarshal(m, b)
@@ -333,7 +333,7 @@ func (m *AddMySQLServiceResponse) Reset()         { *m = AddMySQLServiceResponse
 func (m *AddMySQLServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*AddMySQLServiceResponse) ProtoMessage()    {}
 func (*AddMySQLServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_4c072c4a84f41d02, []int{6}
+	return fileDescriptor_services_1ee5b9b0047f2b0a, []int{6}
 }
 func (m *AddMySQLServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMySQLServiceResponse.Unmarshal(m, b)
@@ -371,7 +371,7 @@ func (m *RemoveServiceRequest) Reset()         { *m = RemoveServiceRequest{} }
 func (m *RemoveServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveServiceRequest) ProtoMessage()    {}
 func (*RemoveServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_4c072c4a84f41d02, []int{7}
+	return fileDescriptor_services_1ee5b9b0047f2b0a, []int{7}
 }
 func (m *RemoveServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveServiceRequest.Unmarshal(m, b)
@@ -408,7 +408,7 @@ func (m *RemoveServiceResponse) Reset()         { *m = RemoveServiceResponse{} }
 func (m *RemoveServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveServiceResponse) ProtoMessage()    {}
 func (*RemoveServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_4c072c4a84f41d02, []int{8}
+	return fileDescriptor_services_1ee5b9b0047f2b0a, []int{8}
 }
 func (m *RemoveServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveServiceResponse.Unmarshal(m, b)
@@ -619,9 +619,9 @@ var _Services_serviceDesc = grpc.ServiceDesc{
 	Metadata: "inventory/services.proto",
 }
 
-func init() { proto.RegisterFile("inventory/services.proto", fileDescriptor_services_4c072c4a84f41d02) }
+func init() { proto.RegisterFile("inventory/services.proto", fileDescriptor_services_1ee5b9b0047f2b0a) }
 
-var fileDescriptor_services_4c072c4a84f41d02 = []byte{
+var fileDescriptor_services_1ee5b9b0047f2b0a = []byte{
 	// 410 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0xcf, 0x6e, 0xda, 0x40,
 	0x10, 0xc6, 0xbb, 0x2e, 0xfd, 0xc3, 0x14, 0x5a, 0x75, 0x0b, 0xc5, 0xb2, 0x68, 0x6b, 0x96, 0x0a,
