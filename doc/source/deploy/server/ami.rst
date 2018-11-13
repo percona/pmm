@@ -34,7 +34,6 @@ later, and this table serves the information purposes, to plan costs.
    web site, which estimates allocated space as ~230MB/host/day, or ~6.9GB/host
 at the default 30 day retention period. See `this blog post <https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/>`_ for more
    details.
-   planning.
 
 Clicking the |gui.continue-to-subscribe| button will proceed to the terms and
 conditions page. Clicking |gui.continue-to-configuration| there will bring a
