@@ -57,7 +57,7 @@ func (x NodeType) String() string {
 	return proto.EnumName(NodeType_name, int32(x))
 }
 func (NodeType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{0}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{0}
 }
 
 // BareMetalNode represents bare metal Node.
@@ -65,9 +65,9 @@ type BareMetalNode struct {
 	// Unique Node identifier.
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique Node name.
-	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Hostname. Is not unique.
-	Hostname             string   `protobuf:"bytes,4,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	Hostname             string   `protobuf:"bytes,3,opt,name=hostname,proto3" json:"hostname,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -77,7 +77,7 @@ func (m *BareMetalNode) Reset()         { *m = BareMetalNode{} }
 func (m *BareMetalNode) String() string { return proto.CompactTextString(m) }
 func (*BareMetalNode) ProtoMessage()    {}
 func (*BareMetalNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{0}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{0}
 }
 func (m *BareMetalNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_BareMetalNode.Unmarshal(m, b)
@@ -123,9 +123,9 @@ type VirtualMachineNode struct {
 	// Unique Node identifier.
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique Node name.
-	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Hostname. Is not unique.
-	Hostname             string   `protobuf:"bytes,4,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	Hostname             string   `protobuf:"bytes,3,opt,name=hostname,proto3" json:"hostname,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -135,7 +135,7 @@ func (m *VirtualMachineNode) Reset()         { *m = VirtualMachineNode{} }
 func (m *VirtualMachineNode) String() string { return proto.CompactTextString(m) }
 func (*VirtualMachineNode) ProtoMessage()    {}
 func (*VirtualMachineNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{1}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{1}
 }
 func (m *VirtualMachineNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_VirtualMachineNode.Unmarshal(m, b)
@@ -181,7 +181,7 @@ type ContainerNode struct {
 	// Unique Node identifier.
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique Node name.
-	Name                 string   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -191,7 +191,7 @@ func (m *ContainerNode) Reset()         { *m = ContainerNode{} }
 func (m *ContainerNode) String() string { return proto.CompactTextString(m) }
 func (*ContainerNode) ProtoMessage()    {}
 func (*ContainerNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{2}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{2}
 }
 func (m *ContainerNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ContainerNode.Unmarshal(m, b)
@@ -230,7 +230,7 @@ type RemoteNode struct {
 	// Unique Node identifier.
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique Node name.
-	Name                 string   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -240,7 +240,7 @@ func (m *RemoteNode) Reset()         { *m = RemoteNode{} }
 func (m *RemoteNode) String() string { return proto.CompactTextString(m) }
 func (*RemoteNode) ProtoMessage()    {}
 func (*RemoteNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{3}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{3}
 }
 func (m *RemoteNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoteNode.Unmarshal(m, b)
@@ -279,8 +279,9 @@ type RDSNode struct {
 	// Unique Node identifier.
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique Node name.
-	Name                 string   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Region               string   `protobuf:"bytes,5,opt,name=region,proto3" json:"region,omitempty"`
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// AWS region.
+	Region               string   `protobuf:"bytes,4,opt,name=region,proto3" json:"region,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -290,7 +291,7 @@ func (m *RDSNode) Reset()         { *m = RDSNode{} }
 func (m *RDSNode) String() string { return proto.CompactTextString(m) }
 func (*RDSNode) ProtoMessage()    {}
 func (*RDSNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{4}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{4}
 }
 func (m *RDSNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RDSNode.Unmarshal(m, b)
@@ -341,7 +342,7 @@ func (m *ListNodesRequest) Reset()         { *m = ListNodesRequest{} }
 func (m *ListNodesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNodesRequest) ProtoMessage()    {}
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{5}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{5}
 }
 func (m *ListNodesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesRequest.Unmarshal(m, b)
@@ -376,7 +377,7 @@ func (m *ListNodesResponse) Reset()         { *m = ListNodesResponse{} }
 func (m *ListNodesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNodesResponse) ProtoMessage()    {}
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{6}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{6}
 }
 func (m *ListNodesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesResponse.Unmarshal(m, b)
@@ -443,7 +444,7 @@ func (m *GetNodeRequest) Reset()         { *m = GetNodeRequest{} }
 func (m *GetNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetNodeRequest) ProtoMessage()    {}
 func (*GetNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{7}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{7}
 }
 func (m *GetNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeRequest.Unmarshal(m, b)
@@ -487,7 +488,7 @@ func (m *GetNodeResponse) Reset()         { *m = GetNodeResponse{} }
 func (m *GetNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*GetNodeResponse) ProtoMessage()    {}
 func (*GetNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{8}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{8}
 }
 func (m *GetNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeResponse.Unmarshal(m, b)
@@ -714,244 +715,258 @@ func _GetNodeResponse_OneofSizer(msg proto.Message) (n int) {
 	return n
 }
 
-type AddNodeRequest struct {
-	// Node type.
-	Type NodeType `protobuf:"varint,2,opt,name=type,proto3,enum=inventory.NodeType" json:"type,omitempty"`
+type AddBareMetalNodeRequest struct {
 	// Unique Node name.
-	Name string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Hostname. Is not unique.
-	Hostname             string   `protobuf:"bytes,4,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	Hostname             string   `protobuf:"bytes,3,opt,name=hostname,proto3" json:"hostname,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *AddNodeRequest) Reset()         { *m = AddNodeRequest{} }
-func (m *AddNodeRequest) String() string { return proto.CompactTextString(m) }
-func (*AddNodeRequest) ProtoMessage()    {}
-func (*AddNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{9}
+func (m *AddBareMetalNodeRequest) Reset()         { *m = AddBareMetalNodeRequest{} }
+func (m *AddBareMetalNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*AddBareMetalNodeRequest) ProtoMessage()    {}
+func (*AddBareMetalNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{9}
 }
-func (m *AddNodeRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AddNodeRequest.Unmarshal(m, b)
+func (m *AddBareMetalNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddBareMetalNodeRequest.Unmarshal(m, b)
 }
-func (m *AddNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AddNodeRequest.Marshal(b, m, deterministic)
+func (m *AddBareMetalNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddBareMetalNodeRequest.Marshal(b, m, deterministic)
 }
-func (dst *AddNodeRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AddNodeRequest.Merge(dst, src)
+func (dst *AddBareMetalNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddBareMetalNodeRequest.Merge(dst, src)
 }
-func (m *AddNodeRequest) XXX_Size() int {
-	return xxx_messageInfo_AddNodeRequest.Size(m)
+func (m *AddBareMetalNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_AddBareMetalNodeRequest.Size(m)
 }
-func (m *AddNodeRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_AddNodeRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AddNodeRequest proto.InternalMessageInfo
-
-func (m *AddNodeRequest) GetType() NodeType {
-	if m != nil {
-		return m.Type
-	}
-	return NodeType_NODE_TYPE_INVALID
+func (m *AddBareMetalNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddBareMetalNodeRequest.DiscardUnknown(m)
 }
 
-func (m *AddNodeRequest) GetName() string {
+var xxx_messageInfo_AddBareMetalNodeRequest proto.InternalMessageInfo
+
+func (m *AddBareMetalNodeRequest) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *AddNodeRequest) GetHostname() string {
+func (m *AddBareMetalNodeRequest) GetHostname() string {
 	if m != nil {
 		return m.Hostname
 	}
 	return ""
 }
 
-type AddNodeResponse struct {
-	// Types that are valid to be assigned to Node:
-	//	*AddNodeResponse_BareMetal
-	//	*AddNodeResponse_VirtualMachine
-	//	*AddNodeResponse_Container
-	Node                 isAddNodeResponse_Node `protobuf_oneof:"node"`
-	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
-	XXX_unrecognized     []byte                 `json:"-"`
-	XXX_sizecache        int32                  `json:"-"`
+type AddBareMetalNodeResponse struct {
+	BareMetal            *BareMetalNode `protobuf:"bytes,1,opt,name=bare_metal,json=bareMetal,proto3" json:"bare_metal,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
 }
 
-func (m *AddNodeResponse) Reset()         { *m = AddNodeResponse{} }
-func (m *AddNodeResponse) String() string { return proto.CompactTextString(m) }
-func (*AddNodeResponse) ProtoMessage()    {}
-func (*AddNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{10}
+func (m *AddBareMetalNodeResponse) Reset()         { *m = AddBareMetalNodeResponse{} }
+func (m *AddBareMetalNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*AddBareMetalNodeResponse) ProtoMessage()    {}
+func (*AddBareMetalNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{10}
 }
-func (m *AddNodeResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AddNodeResponse.Unmarshal(m, b)
+func (m *AddBareMetalNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddBareMetalNodeResponse.Unmarshal(m, b)
 }
-func (m *AddNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AddNodeResponse.Marshal(b, m, deterministic)
+func (m *AddBareMetalNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddBareMetalNodeResponse.Marshal(b, m, deterministic)
 }
-func (dst *AddNodeResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AddNodeResponse.Merge(dst, src)
+func (dst *AddBareMetalNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddBareMetalNodeResponse.Merge(dst, src)
 }
-func (m *AddNodeResponse) XXX_Size() int {
-	return xxx_messageInfo_AddNodeResponse.Size(m)
+func (m *AddBareMetalNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_AddBareMetalNodeResponse.Size(m)
 }
-func (m *AddNodeResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_AddNodeResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AddNodeResponse proto.InternalMessageInfo
-
-type isAddNodeResponse_Node interface {
-	isAddNodeResponse_Node()
+func (m *AddBareMetalNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddBareMetalNodeResponse.DiscardUnknown(m)
 }
 
-type AddNodeResponse_BareMetal struct {
-	BareMetal *BareMetalNode `protobuf:"bytes,1,opt,name=bare_metal,json=bareMetal,proto3,oneof"`
-}
+var xxx_messageInfo_AddBareMetalNodeResponse proto.InternalMessageInfo
 
-type AddNodeResponse_VirtualMachine struct {
-	VirtualMachine *VirtualMachineNode `protobuf:"bytes,2,opt,name=virtual_machine,json=virtualMachine,proto3,oneof"`
-}
-
-type AddNodeResponse_Container struct {
-	Container *ContainerNode `protobuf:"bytes,3,opt,name=container,proto3,oneof"`
-}
-
-func (*AddNodeResponse_BareMetal) isAddNodeResponse_Node() {}
-
-func (*AddNodeResponse_VirtualMachine) isAddNodeResponse_Node() {}
-
-func (*AddNodeResponse_Container) isAddNodeResponse_Node() {}
-
-func (m *AddNodeResponse) GetNode() isAddNodeResponse_Node {
+func (m *AddBareMetalNodeResponse) GetBareMetal() *BareMetalNode {
 	if m != nil {
-		return m.Node
+		return m.BareMetal
 	}
 	return nil
 }
 
-func (m *AddNodeResponse) GetBareMetal() *BareMetalNode {
-	if x, ok := m.GetNode().(*AddNodeResponse_BareMetal); ok {
-		return x.BareMetal
+type AddVirtualMachineNodeRequest struct {
+	// Unique Node name.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Hostname. Is not unique.
+	Hostname             string   `protobuf:"bytes,3,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *AddVirtualMachineNodeRequest) Reset()         { *m = AddVirtualMachineNodeRequest{} }
+func (m *AddVirtualMachineNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*AddVirtualMachineNodeRequest) ProtoMessage()    {}
+func (*AddVirtualMachineNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{11}
+}
+func (m *AddVirtualMachineNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddVirtualMachineNodeRequest.Unmarshal(m, b)
+}
+func (m *AddVirtualMachineNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddVirtualMachineNodeRequest.Marshal(b, m, deterministic)
+}
+func (dst *AddVirtualMachineNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddVirtualMachineNodeRequest.Merge(dst, src)
+}
+func (m *AddVirtualMachineNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_AddVirtualMachineNodeRequest.Size(m)
+}
+func (m *AddVirtualMachineNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddVirtualMachineNodeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddVirtualMachineNodeRequest proto.InternalMessageInfo
+
+func (m *AddVirtualMachineNodeRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *AddVirtualMachineNodeRequest) GetHostname() string {
+	if m != nil {
+		return m.Hostname
+	}
+	return ""
+}
+
+type AddVirtualMachineNodeResponse struct {
+	VirtualMachine       *VirtualMachineNode `protobuf:"bytes,1,opt,name=virtual_machine,json=virtualMachine,proto3" json:"virtual_machine,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
+	XXX_unrecognized     []byte              `json:"-"`
+	XXX_sizecache        int32               `json:"-"`
+}
+
+func (m *AddVirtualMachineNodeResponse) Reset()         { *m = AddVirtualMachineNodeResponse{} }
+func (m *AddVirtualMachineNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*AddVirtualMachineNodeResponse) ProtoMessage()    {}
+func (*AddVirtualMachineNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{12}
+}
+func (m *AddVirtualMachineNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddVirtualMachineNodeResponse.Unmarshal(m, b)
+}
+func (m *AddVirtualMachineNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddVirtualMachineNodeResponse.Marshal(b, m, deterministic)
+}
+func (dst *AddVirtualMachineNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddVirtualMachineNodeResponse.Merge(dst, src)
+}
+func (m *AddVirtualMachineNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_AddVirtualMachineNodeResponse.Size(m)
+}
+func (m *AddVirtualMachineNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddVirtualMachineNodeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddVirtualMachineNodeResponse proto.InternalMessageInfo
+
+func (m *AddVirtualMachineNodeResponse) GetVirtualMachine() *VirtualMachineNode {
+	if m != nil {
+		return m.VirtualMachine
 	}
 	return nil
 }
 
-func (m *AddNodeResponse) GetVirtualMachine() *VirtualMachineNode {
-	if x, ok := m.GetNode().(*AddNodeResponse_VirtualMachine); ok {
-		return x.VirtualMachine
+type AddContainerNodeRequest struct {
+	// Unique Node name.
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *AddContainerNodeRequest) Reset()         { *m = AddContainerNodeRequest{} }
+func (m *AddContainerNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*AddContainerNodeRequest) ProtoMessage()    {}
+func (*AddContainerNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{13}
+}
+func (m *AddContainerNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddContainerNodeRequest.Unmarshal(m, b)
+}
+func (m *AddContainerNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddContainerNodeRequest.Marshal(b, m, deterministic)
+}
+func (dst *AddContainerNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddContainerNodeRequest.Merge(dst, src)
+}
+func (m *AddContainerNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_AddContainerNodeRequest.Size(m)
+}
+func (m *AddContainerNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddContainerNodeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddContainerNodeRequest proto.InternalMessageInfo
+
+func (m *AddContainerNodeRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type AddContainerNodeResponse struct {
+	Container            *ContainerNode `protobuf:"bytes,1,opt,name=container,proto3" json:"container,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
+}
+
+func (m *AddContainerNodeResponse) Reset()         { *m = AddContainerNodeResponse{} }
+func (m *AddContainerNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*AddContainerNodeResponse) ProtoMessage()    {}
+func (*AddContainerNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{14}
+}
+func (m *AddContainerNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddContainerNodeResponse.Unmarshal(m, b)
+}
+func (m *AddContainerNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddContainerNodeResponse.Marshal(b, m, deterministic)
+}
+func (dst *AddContainerNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddContainerNodeResponse.Merge(dst, src)
+}
+func (m *AddContainerNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_AddContainerNodeResponse.Size(m)
+}
+func (m *AddContainerNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddContainerNodeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddContainerNodeResponse proto.InternalMessageInfo
+
+func (m *AddContainerNodeResponse) GetContainer() *ContainerNode {
+	if m != nil {
+		return m.Container
 	}
 	return nil
-}
-
-func (m *AddNodeResponse) GetContainer() *ContainerNode {
-	if x, ok := m.GetNode().(*AddNodeResponse_Container); ok {
-		return x.Container
-	}
-	return nil
-}
-
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*AddNodeResponse) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _AddNodeResponse_OneofMarshaler, _AddNodeResponse_OneofUnmarshaler, _AddNodeResponse_OneofSizer, []interface{}{
-		(*AddNodeResponse_BareMetal)(nil),
-		(*AddNodeResponse_VirtualMachine)(nil),
-		(*AddNodeResponse_Container)(nil),
-	}
-}
-
-func _AddNodeResponse_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*AddNodeResponse)
-	// node
-	switch x := m.Node.(type) {
-	case *AddNodeResponse_BareMetal:
-		b.EncodeVarint(1<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.BareMetal); err != nil {
-			return err
-		}
-	case *AddNodeResponse_VirtualMachine:
-		b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.VirtualMachine); err != nil {
-			return err
-		}
-	case *AddNodeResponse_Container:
-		b.EncodeVarint(3<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Container); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("AddNodeResponse.Node has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _AddNodeResponse_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*AddNodeResponse)
-	switch tag {
-	case 1: // node.bare_metal
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(BareMetalNode)
-		err := b.DecodeMessage(msg)
-		m.Node = &AddNodeResponse_BareMetal{msg}
-		return true, err
-	case 2: // node.virtual_machine
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(VirtualMachineNode)
-		err := b.DecodeMessage(msg)
-		m.Node = &AddNodeResponse_VirtualMachine{msg}
-		return true, err
-	case 3: // node.container
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(ContainerNode)
-		err := b.DecodeMessage(msg)
-		m.Node = &AddNodeResponse_Container{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _AddNodeResponse_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*AddNodeResponse)
-	// node
-	switch x := m.Node.(type) {
-	case *AddNodeResponse_BareMetal:
-		s := proto.Size(x.BareMetal)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *AddNodeResponse_VirtualMachine:
-		s := proto.Size(x.VirtualMachine)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *AddNodeResponse_Container:
-		s := proto.Size(x.Container)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
 }
 
 type AddRemoteNodeRequest struct {
 	// Unique Node name.
-	Name                 string   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -961,7 +976,7 @@ func (m *AddRemoteNodeRequest) Reset()         { *m = AddRemoteNodeRequest{} }
 func (m *AddRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddRemoteNodeRequest) ProtoMessage()    {}
 func (*AddRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{11}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{15}
 }
 func (m *AddRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRemoteNodeRequest.Unmarshal(m, b)
@@ -999,7 +1014,7 @@ func (m *AddRemoteNodeResponse) Reset()         { *m = AddRemoteNodeResponse{} }
 func (m *AddRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddRemoteNodeResponse) ProtoMessage()    {}
 func (*AddRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{12}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{16}
 }
 func (m *AddRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRemoteNodeResponse.Unmarshal(m, b)
@@ -1028,7 +1043,7 @@ func (m *AddRemoteNodeResponse) GetRemote() *RemoteNode {
 
 type AddRDSNodeRequest struct {
 	// Unique Node name.
-	Name                 string   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1038,7 +1053,7 @@ func (m *AddRDSNodeRequest) Reset()         { *m = AddRDSNodeRequest{} }
 func (m *AddRDSNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddRDSNodeRequest) ProtoMessage()    {}
 func (*AddRDSNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{13}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{17}
 }
 func (m *AddRDSNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRDSNodeRequest.Unmarshal(m, b)
@@ -1076,7 +1091,7 @@ func (m *AddRDSNodeResponse) Reset()         { *m = AddRDSNodeResponse{} }
 func (m *AddRDSNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddRDSNodeResponse) ProtoMessage()    {}
 func (*AddRDSNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{14}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{18}
 }
 func (m *AddRDSNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRDSNodeResponse.Unmarshal(m, b)
@@ -1103,6 +1118,414 @@ func (m *AddRDSNodeResponse) GetRds() *RDSNode {
 	return nil
 }
 
+type ChangeBareMetalNodeRequest struct {
+	// Unique Node identifier.
+	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Unique Node name.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Hostname. Is not unique.
+	Hostname             string   `protobuf:"bytes,3,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeBareMetalNodeRequest) Reset()         { *m = ChangeBareMetalNodeRequest{} }
+func (m *ChangeBareMetalNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeBareMetalNodeRequest) ProtoMessage()    {}
+func (*ChangeBareMetalNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{19}
+}
+func (m *ChangeBareMetalNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeBareMetalNodeRequest.Unmarshal(m, b)
+}
+func (m *ChangeBareMetalNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeBareMetalNodeRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeBareMetalNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeBareMetalNodeRequest.Merge(dst, src)
+}
+func (m *ChangeBareMetalNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeBareMetalNodeRequest.Size(m)
+}
+func (m *ChangeBareMetalNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeBareMetalNodeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeBareMetalNodeRequest proto.InternalMessageInfo
+
+func (m *ChangeBareMetalNodeRequest) GetId() uint32 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *ChangeBareMetalNodeRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *ChangeBareMetalNodeRequest) GetHostname() string {
+	if m != nil {
+		return m.Hostname
+	}
+	return ""
+}
+
+type ChangeBareMetalNodeResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeBareMetalNodeResponse) Reset()         { *m = ChangeBareMetalNodeResponse{} }
+func (m *ChangeBareMetalNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeBareMetalNodeResponse) ProtoMessage()    {}
+func (*ChangeBareMetalNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{20}
+}
+func (m *ChangeBareMetalNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeBareMetalNodeResponse.Unmarshal(m, b)
+}
+func (m *ChangeBareMetalNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeBareMetalNodeResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeBareMetalNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeBareMetalNodeResponse.Merge(dst, src)
+}
+func (m *ChangeBareMetalNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeBareMetalNodeResponse.Size(m)
+}
+func (m *ChangeBareMetalNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeBareMetalNodeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeBareMetalNodeResponse proto.InternalMessageInfo
+
+type ChangeVirtualMachineNodeRequest struct {
+	// Unique Node identifier.
+	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Unique Node name.
+	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Hostname. Is not unique.
+	Hostname             string   `protobuf:"bytes,3,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeVirtualMachineNodeRequest) Reset()         { *m = ChangeVirtualMachineNodeRequest{} }
+func (m *ChangeVirtualMachineNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeVirtualMachineNodeRequest) ProtoMessage()    {}
+func (*ChangeVirtualMachineNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{21}
+}
+func (m *ChangeVirtualMachineNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeVirtualMachineNodeRequest.Unmarshal(m, b)
+}
+func (m *ChangeVirtualMachineNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeVirtualMachineNodeRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeVirtualMachineNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeVirtualMachineNodeRequest.Merge(dst, src)
+}
+func (m *ChangeVirtualMachineNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeVirtualMachineNodeRequest.Size(m)
+}
+func (m *ChangeVirtualMachineNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeVirtualMachineNodeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeVirtualMachineNodeRequest proto.InternalMessageInfo
+
+func (m *ChangeVirtualMachineNodeRequest) GetId() uint32 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *ChangeVirtualMachineNodeRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+func (m *ChangeVirtualMachineNodeRequest) GetHostname() string {
+	if m != nil {
+		return m.Hostname
+	}
+	return ""
+}
+
+type ChangeVirtualMachineNodeResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeVirtualMachineNodeResponse) Reset()         { *m = ChangeVirtualMachineNodeResponse{} }
+func (m *ChangeVirtualMachineNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeVirtualMachineNodeResponse) ProtoMessage()    {}
+func (*ChangeVirtualMachineNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{22}
+}
+func (m *ChangeVirtualMachineNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeVirtualMachineNodeResponse.Unmarshal(m, b)
+}
+func (m *ChangeVirtualMachineNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeVirtualMachineNodeResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeVirtualMachineNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeVirtualMachineNodeResponse.Merge(dst, src)
+}
+func (m *ChangeVirtualMachineNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeVirtualMachineNodeResponse.Size(m)
+}
+func (m *ChangeVirtualMachineNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeVirtualMachineNodeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeVirtualMachineNodeResponse proto.InternalMessageInfo
+
+type ChangeContainerNodeRequest struct {
+	// Unique Node identifier.
+	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Unique Node name.
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeContainerNodeRequest) Reset()         { *m = ChangeContainerNodeRequest{} }
+func (m *ChangeContainerNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeContainerNodeRequest) ProtoMessage()    {}
+func (*ChangeContainerNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{23}
+}
+func (m *ChangeContainerNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeContainerNodeRequest.Unmarshal(m, b)
+}
+func (m *ChangeContainerNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeContainerNodeRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeContainerNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeContainerNodeRequest.Merge(dst, src)
+}
+func (m *ChangeContainerNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeContainerNodeRequest.Size(m)
+}
+func (m *ChangeContainerNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeContainerNodeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeContainerNodeRequest proto.InternalMessageInfo
+
+func (m *ChangeContainerNodeRequest) GetId() uint32 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *ChangeContainerNodeRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type ChangeContainerNodeResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeContainerNodeResponse) Reset()         { *m = ChangeContainerNodeResponse{} }
+func (m *ChangeContainerNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeContainerNodeResponse) ProtoMessage()    {}
+func (*ChangeContainerNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{24}
+}
+func (m *ChangeContainerNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeContainerNodeResponse.Unmarshal(m, b)
+}
+func (m *ChangeContainerNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeContainerNodeResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeContainerNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeContainerNodeResponse.Merge(dst, src)
+}
+func (m *ChangeContainerNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeContainerNodeResponse.Size(m)
+}
+func (m *ChangeContainerNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeContainerNodeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeContainerNodeResponse proto.InternalMessageInfo
+
+type ChangeRemoteNodeRequest struct {
+	// Unique Node identifier.
+	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Unique Node name.
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeRemoteNodeRequest) Reset()         { *m = ChangeRemoteNodeRequest{} }
+func (m *ChangeRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeRemoteNodeRequest) ProtoMessage()    {}
+func (*ChangeRemoteNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{25}
+}
+func (m *ChangeRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeRemoteNodeRequest.Unmarshal(m, b)
+}
+func (m *ChangeRemoteNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeRemoteNodeRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeRemoteNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeRemoteNodeRequest.Merge(dst, src)
+}
+func (m *ChangeRemoteNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeRemoteNodeRequest.Size(m)
+}
+func (m *ChangeRemoteNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeRemoteNodeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeRemoteNodeRequest proto.InternalMessageInfo
+
+func (m *ChangeRemoteNodeRequest) GetId() uint32 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *ChangeRemoteNodeRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type ChangeRemoteNodeResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeRemoteNodeResponse) Reset()         { *m = ChangeRemoteNodeResponse{} }
+func (m *ChangeRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeRemoteNodeResponse) ProtoMessage()    {}
+func (*ChangeRemoteNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{26}
+}
+func (m *ChangeRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeRemoteNodeResponse.Unmarshal(m, b)
+}
+func (m *ChangeRemoteNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeRemoteNodeResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeRemoteNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeRemoteNodeResponse.Merge(dst, src)
+}
+func (m *ChangeRemoteNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeRemoteNodeResponse.Size(m)
+}
+func (m *ChangeRemoteNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeRemoteNodeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeRemoteNodeResponse proto.InternalMessageInfo
+
+type ChangeRDSNodeRequest struct {
+	// Unique Node identifier.
+	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Unique Node name.
+	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeRDSNodeRequest) Reset()         { *m = ChangeRDSNodeRequest{} }
+func (m *ChangeRDSNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeRDSNodeRequest) ProtoMessage()    {}
+func (*ChangeRDSNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{27}
+}
+func (m *ChangeRDSNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeRDSNodeRequest.Unmarshal(m, b)
+}
+func (m *ChangeRDSNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeRDSNodeRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeRDSNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeRDSNodeRequest.Merge(dst, src)
+}
+func (m *ChangeRDSNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeRDSNodeRequest.Size(m)
+}
+func (m *ChangeRDSNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeRDSNodeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeRDSNodeRequest proto.InternalMessageInfo
+
+func (m *ChangeRDSNodeRequest) GetId() uint32 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *ChangeRDSNodeRequest) GetName() string {
+	if m != nil {
+		return m.Name
+	}
+	return ""
+}
+
+type ChangeRDSNodeResponse struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeRDSNodeResponse) Reset()         { *m = ChangeRDSNodeResponse{} }
+func (m *ChangeRDSNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeRDSNodeResponse) ProtoMessage()    {}
+func (*ChangeRDSNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{28}
+}
+func (m *ChangeRDSNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeRDSNodeResponse.Unmarshal(m, b)
+}
+func (m *ChangeRDSNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeRDSNodeResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeRDSNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeRDSNodeResponse.Merge(dst, src)
+}
+func (m *ChangeRDSNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeRDSNodeResponse.Size(m)
+}
+func (m *ChangeRDSNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeRDSNodeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeRDSNodeResponse proto.InternalMessageInfo
+
 type RemoveNodeRequest struct {
 	Id                   uint32   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1114,7 +1537,7 @@ func (m *RemoveNodeRequest) Reset()         { *m = RemoveNodeRequest{} }
 func (m *RemoveNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveNodeRequest) ProtoMessage()    {}
 func (*RemoveNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{15}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{29}
 }
 func (m *RemoveNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveNodeRequest.Unmarshal(m, b)
@@ -1151,7 +1574,7 @@ func (m *RemoveNodeResponse) Reset()         { *m = RemoveNodeResponse{} }
 func (m *RemoveNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveNodeResponse) ProtoMessage()    {}
 func (*RemoveNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_5bb69443c55253c7, []int{16}
+	return fileDescriptor_nodes_21f0ca354183ea9e, []int{30}
 }
 func (m *RemoveNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveNodeResponse.Unmarshal(m, b)
@@ -1181,12 +1604,26 @@ func init() {
 	proto.RegisterType((*ListNodesResponse)(nil), "inventory.ListNodesResponse")
 	proto.RegisterType((*GetNodeRequest)(nil), "inventory.GetNodeRequest")
 	proto.RegisterType((*GetNodeResponse)(nil), "inventory.GetNodeResponse")
-	proto.RegisterType((*AddNodeRequest)(nil), "inventory.AddNodeRequest")
-	proto.RegisterType((*AddNodeResponse)(nil), "inventory.AddNodeResponse")
+	proto.RegisterType((*AddBareMetalNodeRequest)(nil), "inventory.AddBareMetalNodeRequest")
+	proto.RegisterType((*AddBareMetalNodeResponse)(nil), "inventory.AddBareMetalNodeResponse")
+	proto.RegisterType((*AddVirtualMachineNodeRequest)(nil), "inventory.AddVirtualMachineNodeRequest")
+	proto.RegisterType((*AddVirtualMachineNodeResponse)(nil), "inventory.AddVirtualMachineNodeResponse")
+	proto.RegisterType((*AddContainerNodeRequest)(nil), "inventory.AddContainerNodeRequest")
+	proto.RegisterType((*AddContainerNodeResponse)(nil), "inventory.AddContainerNodeResponse")
 	proto.RegisterType((*AddRemoteNodeRequest)(nil), "inventory.AddRemoteNodeRequest")
 	proto.RegisterType((*AddRemoteNodeResponse)(nil), "inventory.AddRemoteNodeResponse")
 	proto.RegisterType((*AddRDSNodeRequest)(nil), "inventory.AddRDSNodeRequest")
 	proto.RegisterType((*AddRDSNodeResponse)(nil), "inventory.AddRDSNodeResponse")
+	proto.RegisterType((*ChangeBareMetalNodeRequest)(nil), "inventory.ChangeBareMetalNodeRequest")
+	proto.RegisterType((*ChangeBareMetalNodeResponse)(nil), "inventory.ChangeBareMetalNodeResponse")
+	proto.RegisterType((*ChangeVirtualMachineNodeRequest)(nil), "inventory.ChangeVirtualMachineNodeRequest")
+	proto.RegisterType((*ChangeVirtualMachineNodeResponse)(nil), "inventory.ChangeVirtualMachineNodeResponse")
+	proto.RegisterType((*ChangeContainerNodeRequest)(nil), "inventory.ChangeContainerNodeRequest")
+	proto.RegisterType((*ChangeContainerNodeResponse)(nil), "inventory.ChangeContainerNodeResponse")
+	proto.RegisterType((*ChangeRemoteNodeRequest)(nil), "inventory.ChangeRemoteNodeRequest")
+	proto.RegisterType((*ChangeRemoteNodeResponse)(nil), "inventory.ChangeRemoteNodeResponse")
+	proto.RegisterType((*ChangeRDSNodeRequest)(nil), "inventory.ChangeRDSNodeRequest")
+	proto.RegisterType((*ChangeRDSNodeResponse)(nil), "inventory.ChangeRDSNodeResponse")
 	proto.RegisterType((*RemoveNodeRequest)(nil), "inventory.RemoveNodeRequest")
 	proto.RegisterType((*RemoveNodeResponse)(nil), "inventory.RemoveNodeResponse")
 	proto.RegisterEnum("inventory.NodeType", NodeType_name, NodeType_value)
@@ -1208,12 +1645,26 @@ type NodesClient interface {
 	ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (*ListNodesResponse, error)
 	// GetNode returns a single Node by ID.
 	GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error)
-	// AddNode adds bare metal, virtual machine, or container node Node.
-	AddNode(ctx context.Context, in *AddNodeRequest, opts ...grpc.CallOption) (*AddNodeResponse, error)
+	// AddBareMetalNode adds bare metal Node.
+	AddBareMetalNode(ctx context.Context, in *AddBareMetalNodeRequest, opts ...grpc.CallOption) (*AddBareMetalNodeResponse, error)
+	// AddVirtualMachineNode adds virtual machine Node.
+	AddVirtualMachineNode(ctx context.Context, in *AddVirtualMachineNodeRequest, opts ...grpc.CallOption) (*AddVirtualMachineNodeResponse, error)
+	// AddContainerNode adds container Node.
+	AddContainerNode(ctx context.Context, in *AddContainerNodeRequest, opts ...grpc.CallOption) (*AddContainerNodeResponse, error)
 	// AddRemoteNode adds remote Node.
 	AddRemoteNode(ctx context.Context, in *AddRemoteNodeRequest, opts ...grpc.CallOption) (*AddRemoteNodeResponse, error)
 	// AddRDSNode adds AWS RDS Node.
 	AddRDSNode(ctx context.Context, in *AddRDSNodeRequest, opts ...grpc.CallOption) (*AddRDSNodeResponse, error)
+	// ChangeBareMetalNode changes bare metal Node.
+	ChangeBareMetalNode(ctx context.Context, in *ChangeBareMetalNodeRequest, opts ...grpc.CallOption) (*ChangeBareMetalNodeResponse, error)
+	// ChangeVirtualMachineNode changes virtual machine Node.
+	ChangeVirtualMachineNode(ctx context.Context, in *ChangeVirtualMachineNodeRequest, opts ...grpc.CallOption) (*ChangeVirtualMachineNodeResponse, error)
+	// ChangeContainerNode changes container Node.
+	ChangeContainerNode(ctx context.Context, in *ChangeContainerNodeRequest, opts ...grpc.CallOption) (*ChangeContainerNodeResponse, error)
+	// ChangeRemoteNode changes remote Node.
+	ChangeRemoteNode(ctx context.Context, in *ChangeRemoteNodeRequest, opts ...grpc.CallOption) (*ChangeRemoteNodeResponse, error)
+	// ChangeRDSNode changes AWS RDS Node.
+	ChangeRDSNode(ctx context.Context, in *ChangeRDSNodeRequest, opts ...grpc.CallOption) (*ChangeRDSNodeResponse, error)
 	// RemoveNode removes Node without any Agents and Services.
 	RemoveNode(ctx context.Context, in *RemoveNodeRequest, opts ...grpc.CallOption) (*RemoveNodeResponse, error)
 }
@@ -1244,9 +1695,27 @@ func (c *nodesClient) GetNode(ctx context.Context, in *GetNodeRequest, opts ...g
 	return out, nil
 }
 
-func (c *nodesClient) AddNode(ctx context.Context, in *AddNodeRequest, opts ...grpc.CallOption) (*AddNodeResponse, error) {
-	out := new(AddNodeResponse)
-	err := c.cc.Invoke(ctx, "/inventory.Nodes/AddNode", in, out, opts...)
+func (c *nodesClient) AddBareMetalNode(ctx context.Context, in *AddBareMetalNodeRequest, opts ...grpc.CallOption) (*AddBareMetalNodeResponse, error) {
+	out := new(AddBareMetalNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/AddBareMetalNode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodesClient) AddVirtualMachineNode(ctx context.Context, in *AddVirtualMachineNodeRequest, opts ...grpc.CallOption) (*AddVirtualMachineNodeResponse, error) {
+	out := new(AddVirtualMachineNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/AddVirtualMachineNode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodesClient) AddContainerNode(ctx context.Context, in *AddContainerNodeRequest, opts ...grpc.CallOption) (*AddContainerNodeResponse, error) {
+	out := new(AddContainerNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/AddContainerNode", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1271,6 +1740,51 @@ func (c *nodesClient) AddRDSNode(ctx context.Context, in *AddRDSNodeRequest, opt
 	return out, nil
 }
 
+func (c *nodesClient) ChangeBareMetalNode(ctx context.Context, in *ChangeBareMetalNodeRequest, opts ...grpc.CallOption) (*ChangeBareMetalNodeResponse, error) {
+	out := new(ChangeBareMetalNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/ChangeBareMetalNode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodesClient) ChangeVirtualMachineNode(ctx context.Context, in *ChangeVirtualMachineNodeRequest, opts ...grpc.CallOption) (*ChangeVirtualMachineNodeResponse, error) {
+	out := new(ChangeVirtualMachineNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/ChangeVirtualMachineNode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodesClient) ChangeContainerNode(ctx context.Context, in *ChangeContainerNodeRequest, opts ...grpc.CallOption) (*ChangeContainerNodeResponse, error) {
+	out := new(ChangeContainerNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/ChangeContainerNode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodesClient) ChangeRemoteNode(ctx context.Context, in *ChangeRemoteNodeRequest, opts ...grpc.CallOption) (*ChangeRemoteNodeResponse, error) {
+	out := new(ChangeRemoteNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/ChangeRemoteNode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodesClient) ChangeRDSNode(ctx context.Context, in *ChangeRDSNodeRequest, opts ...grpc.CallOption) (*ChangeRDSNodeResponse, error) {
+	out := new(ChangeRDSNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/ChangeRDSNode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *nodesClient) RemoveNode(ctx context.Context, in *RemoveNodeRequest, opts ...grpc.CallOption) (*RemoveNodeResponse, error) {
 	out := new(RemoveNodeResponse)
 	err := c.cc.Invoke(ctx, "/inventory.Nodes/RemoveNode", in, out, opts...)
@@ -1286,12 +1800,26 @@ type NodesServer interface {
 	ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error)
 	// GetNode returns a single Node by ID.
 	GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error)
-	// AddNode adds bare metal, virtual machine, or container node Node.
-	AddNode(context.Context, *AddNodeRequest) (*AddNodeResponse, error)
+	// AddBareMetalNode adds bare metal Node.
+	AddBareMetalNode(context.Context, *AddBareMetalNodeRequest) (*AddBareMetalNodeResponse, error)
+	// AddVirtualMachineNode adds virtual machine Node.
+	AddVirtualMachineNode(context.Context, *AddVirtualMachineNodeRequest) (*AddVirtualMachineNodeResponse, error)
+	// AddContainerNode adds container Node.
+	AddContainerNode(context.Context, *AddContainerNodeRequest) (*AddContainerNodeResponse, error)
 	// AddRemoteNode adds remote Node.
 	AddRemoteNode(context.Context, *AddRemoteNodeRequest) (*AddRemoteNodeResponse, error)
 	// AddRDSNode adds AWS RDS Node.
 	AddRDSNode(context.Context, *AddRDSNodeRequest) (*AddRDSNodeResponse, error)
+	// ChangeBareMetalNode changes bare metal Node.
+	ChangeBareMetalNode(context.Context, *ChangeBareMetalNodeRequest) (*ChangeBareMetalNodeResponse, error)
+	// ChangeVirtualMachineNode changes virtual machine Node.
+	ChangeVirtualMachineNode(context.Context, *ChangeVirtualMachineNodeRequest) (*ChangeVirtualMachineNodeResponse, error)
+	// ChangeContainerNode changes container Node.
+	ChangeContainerNode(context.Context, *ChangeContainerNodeRequest) (*ChangeContainerNodeResponse, error)
+	// ChangeRemoteNode changes remote Node.
+	ChangeRemoteNode(context.Context, *ChangeRemoteNodeRequest) (*ChangeRemoteNodeResponse, error)
+	// ChangeRDSNode changes AWS RDS Node.
+	ChangeRDSNode(context.Context, *ChangeRDSNodeRequest) (*ChangeRDSNodeResponse, error)
 	// RemoveNode removes Node without any Agents and Services.
 	RemoveNode(context.Context, *RemoveNodeRequest) (*RemoveNodeResponse, error)
 }
@@ -1336,20 +1864,56 @@ func _Nodes_GetNode_Handler(srv interface{}, ctx context.Context, dec func(inter
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Nodes_AddNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddNodeRequest)
+func _Nodes_AddBareMetalNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddBareMetalNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NodesServer).AddNode(ctx, in)
+		return srv.(NodesServer).AddBareMetalNode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/inventory.Nodes/AddNode",
+		FullMethod: "/inventory.Nodes/AddBareMetalNode",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodesServer).AddNode(ctx, req.(*AddNodeRequest))
+		return srv.(NodesServer).AddBareMetalNode(ctx, req.(*AddBareMetalNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Nodes_AddVirtualMachineNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddVirtualMachineNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServer).AddVirtualMachineNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Nodes/AddVirtualMachineNode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServer).AddVirtualMachineNode(ctx, req.(*AddVirtualMachineNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Nodes_AddContainerNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddContainerNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServer).AddContainerNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Nodes/AddContainerNode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServer).AddContainerNode(ctx, req.(*AddContainerNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1390,6 +1954,96 @@ func _Nodes_AddRDSNode_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Nodes_ChangeBareMetalNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeBareMetalNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServer).ChangeBareMetalNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Nodes/ChangeBareMetalNode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServer).ChangeBareMetalNode(ctx, req.(*ChangeBareMetalNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Nodes_ChangeVirtualMachineNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeVirtualMachineNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServer).ChangeVirtualMachineNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Nodes/ChangeVirtualMachineNode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServer).ChangeVirtualMachineNode(ctx, req.(*ChangeVirtualMachineNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Nodes_ChangeContainerNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeContainerNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServer).ChangeContainerNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Nodes/ChangeContainerNode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServer).ChangeContainerNode(ctx, req.(*ChangeContainerNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Nodes_ChangeRemoteNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeRemoteNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServer).ChangeRemoteNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Nodes/ChangeRemoteNode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServer).ChangeRemoteNode(ctx, req.(*ChangeRemoteNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Nodes_ChangeRDSNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeRDSNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServer).ChangeRDSNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Nodes/ChangeRDSNode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServer).ChangeRDSNode(ctx, req.(*ChangeRDSNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Nodes_RemoveNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveNodeRequest)
 	if err := dec(in); err != nil {
@@ -1421,8 +2075,16 @@ var _Nodes_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Nodes_GetNode_Handler,
 		},
 		{
-			MethodName: "AddNode",
-			Handler:    _Nodes_AddNode_Handler,
+			MethodName: "AddBareMetalNode",
+			Handler:    _Nodes_AddBareMetalNode_Handler,
+		},
+		{
+			MethodName: "AddVirtualMachineNode",
+			Handler:    _Nodes_AddVirtualMachineNode_Handler,
+		},
+		{
+			MethodName: "AddContainerNode",
+			Handler:    _Nodes_AddContainerNode_Handler,
 		},
 		{
 			MethodName: "AddRemoteNode",
@@ -1433,6 +2095,26 @@ var _Nodes_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Nodes_AddRDSNode_Handler,
 		},
 		{
+			MethodName: "ChangeBareMetalNode",
+			Handler:    _Nodes_ChangeBareMetalNode_Handler,
+		},
+		{
+			MethodName: "ChangeVirtualMachineNode",
+			Handler:    _Nodes_ChangeVirtualMachineNode_Handler,
+		},
+		{
+			MethodName: "ChangeContainerNode",
+			Handler:    _Nodes_ChangeContainerNode_Handler,
+		},
+		{
+			MethodName: "ChangeRemoteNode",
+			Handler:    _Nodes_ChangeRemoteNode_Handler,
+		},
+		{
+			MethodName: "ChangeRDSNode",
+			Handler:    _Nodes_ChangeRDSNode_Handler,
+		},
+		{
 			MethodName: "RemoveNode",
 			Handler:    _Nodes_RemoveNode_Handler,
 		},
@@ -1441,60 +2123,78 @@ var _Nodes_serviceDesc = grpc.ServiceDesc{
 	Metadata: "inventory/nodes.proto",
 }
 
-func init() { proto.RegisterFile("inventory/nodes.proto", fileDescriptor_nodes_5bb69443c55253c7) }
+func init() { proto.RegisterFile("inventory/nodes.proto", fileDescriptor_nodes_21f0ca354183ea9e) }
 
-var fileDescriptor_nodes_5bb69443c55253c7 = []byte{
-	// 830 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xdc, 0x96, 0xdd, 0x4e, 0xe3, 0x46,
-	0x14, 0xc7, 0x33, 0x8e, 0x13, 0x92, 0x53, 0x25, 0x71, 0x06, 0x52, 0xb9, 0x01, 0xda, 0xd4, 0x54,
-	0x34, 0x45, 0x2d, 0xa9, 0xa8, 0xd4, 0x16, 0x84, 0x54, 0x19, 0x62, 0x9a, 0xa0, 0x24, 0xb4, 0x43,
-	0x40, 0x6a, 0x6f, 0x22, 0x83, 0x47, 0xe0, 0x8a, 0xd8, 0xa9, 0x6d, 0x22, 0x71, 0xb7, 0xda, 0x57,
-	0xd8, 0x27, 0xd8, 0x47, 0xd8, 0xfb, 0x7d, 0x8b, 0xbd, 0xd9, 0x07, 0xd8, 0x07, 0x59, 0x79, 0x3c,
-	0xf1, 0x47, 0xbe, 0x96, 0x45, 0x7b, 0xb5, 0x77, 0x78, 0xfc, 0x3f, 0xe7, 0x3f, 0xfe, 0x9d, 0x0f,
-	0x02, 0x15, 0xd3, 0x1a, 0x53, 0xcb, 0xb3, 0x9d, 0x87, 0x86, 0x65, 0x1b, 0xd4, 0xdd, 0x1d, 0x39,
-	0xb6, 0x67, 0xe3, 0x7c, 0x78, 0x5c, 0xdd, 0xb8, 0xb1, 0xed, 0x9b, 0x3b, 0xda, 0xd0, 0x47, 0x66,
-	0x43, 0xb7, 0x2c, 0xdb, 0xd3, 0x3d, 0xd3, 0xb6, 0xb8, 0x50, 0xb9, 0x80, 0xc2, 0x91, 0xee, 0xd0,
-	0x2e, 0xf5, 0xf4, 0xbb, 0x9e, 0x6d, 0x50, 0x5c, 0x04, 0xc1, 0x34, 0x64, 0x54, 0x43, 0xf5, 0x02,
-	0x11, 0x4c, 0x03, 0x63, 0x10, 0x2d, 0x7d, 0x48, 0xe5, 0x74, 0x0d, 0xd5, 0xf3, 0x84, 0xfd, 0x8d,
-	0xab, 0x90, 0xbb, 0xb5, 0x5d, 0x8f, 0x9d, 0x8b, 0xec, 0x3c, 0x7c, 0x3e, 0x15, 0x73, 0x82, 0x94,
-	0x56, 0xfe, 0x05, 0x7c, 0x69, 0x3a, 0xde, 0xbd, 0x7e, 0xd7, 0xd5, 0xaf, 0x6f, 0x4d, 0x8b, 0x7e,
-	0xc2, 0xdc, 0x7f, 0x40, 0xe1, 0xd8, 0xb6, 0x3c, 0xdd, 0xb4, 0xa8, 0xf3, 0xd8, 0xb4, 0x41, 0xe8,
-	0xa9, 0x98, 0x13, 0xa5, 0x8c, 0x72, 0x08, 0x40, 0xe8, 0xd0, 0xf6, 0xe8, 0x93, 0xa2, 0xff, 0x86,
-	0x15, 0xd2, 0x3c, 0x7f, 0xf4, 0xf7, 0x7c, 0x09, 0x59, 0x87, 0xde, 0x98, 0xb6, 0x25, 0x67, 0xd8,
-	0x29, 0x7f, 0x4a, 0xa4, 0xc4, 0x20, 0x75, 0x4c, 0xd7, 0xf3, 0x73, 0xba, 0x84, 0xfe, 0x7f, 0x4f,
-	0x5d, 0x4f, 0x79, 0x29, 0x40, 0x39, 0x76, 0xe8, 0x8e, 0x6c, 0xcb, 0xa5, 0xf8, 0x37, 0x80, 0x2b,
-	0xdd, 0xa1, 0x83, 0xa1, 0x5f, 0x2f, 0x19, 0xd5, 0xd2, 0xf5, 0x2f, 0xf6, 0xe4, 0xdd, 0xb0, 0xd8,
-	0xbb, 0x89, 0x5a, 0x92, 0xfc, 0xd5, 0xe4, 0x11, 0x9f, 0x40, 0x69, 0x1c, 0x14, 0x64, 0x30, 0x0c,
-	0x2a, 0x22, 0x0b, 0x2c, 0x7a, 0x33, 0x16, 0x3d, 0x5b, 0x32, 0x52, 0x1c, 0x27, 0xce, 0xf0, 0xaf,
-	0x90, 0xbf, 0x9e, 0xc0, 0x97, 0xd3, 0x33, 0xfe, 0x89, 0xc2, 0x90, 0x48, 0x8a, 0x7f, 0xf2, 0x31,
-	0xf8, 0xcc, 0x65, 0x91, 0x05, 0x55, 0x62, 0x41, 0x51, 0x31, 0x08, 0x17, 0xe1, 0xef, 0x20, 0xed,
-	0x18, 0xae, 0x9c, 0x61, 0x5a, 0x1c, 0xd7, 0x06, 0xe8, 0x89, 0xff, 0x5a, 0xa9, 0x41, 0xf1, 0x4f,
-	0xca, 0x08, 0x71, 0x6a, 0xd3, 0x15, 0x51, 0x5e, 0x09, 0x50, 0x0a, 0x25, 0x9c, 0xe1, 0xfe, 0x14,
-	0x43, 0xb4, 0x8c, 0x61, 0x2b, 0x15, 0xa7, 0xd8, 0x9a, 0x47, 0x11, 0x7d, 0x90, 0x62, 0x2b, 0x35,
-	0xc3, 0xf1, 0xf7, 0x24, 0x47, 0xb4, 0x8c, 0xa3, 0x7f, 0x87, 0x88, 0x64, 0x23, 0x46, 0x12, 0x2d,
-	0x24, 0xd9, 0x4a, 0x85, 0x2c, 0xb7, 0x27, 0x2c, 0xd1, 0x7c, 0x96, 0xad, 0x14, 0xa3, 0x79, 0x94,
-	0x05, 0xd1, 0x5f, 0x21, 0x8a, 0x0d, 0x45, 0xd5, 0x30, 0xe2, 0x54, 0xbf, 0x07, 0xd1, 0x7b, 0x18,
-	0x05, 0xdf, 0x5a, 0xdc, 0x5b, 0x8d, 0xa5, 0xf0, 0x55, 0xfd, 0x87, 0x11, 0x25, 0x4c, 0xf0, 0x84,
-	0x81, 0x46, 0x92, 0xa0, 0xbc, 0x45, 0x50, 0x0a, 0x1d, 0x3f, 0x8b, 0x22, 0x85, 0x2c, 0x0f, 0x61,
-	0x4d, 0x35, 0x8c, 0x58, 0x83, 0x73, 0xa2, 0xf3, 0x97, 0x0c, 0x92, 0x84, 0xc4, 0x5e, 0x38, 0x81,
-	0xca, 0x54, 0x34, 0xa7, 0x13, 0x4d, 0x13, 0x5a, 0xd2, 0x03, 0x93, 0x0e, 0x50, 0xf6, 0xa1, 0xec,
-	0xe7, 0xe1, 0xa3, 0xf3, 0x51, 0x57, 0x38, 0x00, 0x1c, 0x0f, 0xe5, 0xfe, 0x7c, 0x3c, 0xd1, 0xa2,
-	0x96, 0x0a, 0xc6, 0x73, 0x0b, 0xca, 0xfe, 0x65, 0xc6, 0x74, 0xd9, 0x84, 0xae, 0x01, 0x8e, 0x8b,
-	0x02, 0x83, 0x9d, 0xff, 0x20, 0x37, 0x69, 0x2d, 0x5c, 0x81, 0x72, 0xef, 0xac, 0xa9, 0x0d, 0xfa,
-	0xff, 0xfc, 0xa5, 0x0d, 0xda, 0xbd, 0x4b, 0xb5, 0xd3, 0x6e, 0x4a, 0x29, 0x5c, 0x04, 0x38, 0x52,
-	0x89, 0x36, 0xe8, 0x6a, 0x7d, 0xb5, 0x23, 0x21, 0xbc, 0x0a, 0xa5, 0xcb, 0x36, 0xe9, 0x5f, 0xa8,
-	0x9d, 0x41, 0x57, 0x3d, 0x6e, 0xb5, 0x7b, 0x9a, 0x24, 0xe0, 0x02, 0xe4, 0x8f, 0xcf, 0x7a, 0x7d,
-	0xb5, 0xdd, 0xd3, 0x88, 0x94, 0xc6, 0x00, 0x59, 0xa2, 0x75, 0xcf, 0xfa, 0x9a, 0x24, 0xe2, 0x15,
-	0x48, 0x93, 0xe6, 0xb9, 0x94, 0xd9, 0x7b, 0x9d, 0x81, 0x0c, 0xdb, 0xb2, 0x78, 0x04, 0xf9, 0x70,
-	0xe5, 0xe2, 0xf5, 0xd8, 0x67, 0x4d, 0x6f, 0xe7, 0xea, 0xc6, 0xfc, 0x97, 0xc1, 0xed, 0x95, 0xfa,
-	0xf3, 0x37, 0xef, 0x5e, 0x08, 0x8a, 0xb2, 0xd9, 0x18, 0xff, 0xdc, 0x88, 0xfe, 0x41, 0x33, 0x51,
-	0x23, 0x94, 0x1f, 0xa0, 0x1d, 0x7c, 0x0b, 0x2b, 0x7c, 0x3d, 0xe1, 0xaf, 0x62, 0x29, 0x93, 0x5b,
-	0xad, 0x5a, 0x9d, 0xf7, 0x8a, 0x7b, 0x6d, 0x33, 0xaf, 0x9a, 0xb2, 0x3e, 0xcf, 0x8b, 0x8b, 0xb9,
-	0x13, 0x9f, 0xb1, 0x84, 0x53, 0x72, 0xd2, 0x13, 0x4e, 0x53, 0x23, 0xb9, 0xdc, 0x89, 0x8b, 0x7d,
-	0xa7, 0x67, 0x08, 0x0a, 0x89, 0xb6, 0xc5, 0xdf, 0x24, 0xb3, 0xce, 0x8c, 0x43, 0xb5, 0xb6, 0x58,
-	0xc0, 0xcd, 0x7f, 0x64, 0xe6, 0xdb, 0xca, 0xb7, 0x0b, 0xcc, 0xa3, 0x10, 0xff, 0x0a, 0x1e, 0x40,
-	0xd4, 0xb5, 0x78, 0x63, 0x2a, 0x7b, 0x62, 0x0e, 0xaa, 0x9b, 0x0b, 0xde, 0x72, 0xe3, 0x1f, 0x98,
-	0xf1, 0x96, 0xf2, 0xf5, 0x22, 0xe3, 0x40, 0xcf, 0x5d, 0xa3, 0x56, 0x4e, 0xb8, 0xce, 0x8c, 0x41,
-	0xc2, 0x75, 0xb6, 0xff, 0x97, 0xbb, 0x46, 0xfa, 0x03, 0xb4, 0x73, 0x95, 0x65, 0x3f, 0xe4, 0x7e,
-	0x79, 0x1f, 0x00, 0x00, 0xff, 0xff, 0x1e, 0x8e, 0x10, 0x34, 0x0a, 0x0a, 0x00, 0x00,
+var fileDescriptor_nodes_21f0ca354183ea9e = []byte{
+	// 1116 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x58, 0x4f, 0x6f, 0xe3, 0xc4,
+	0x1b, 0xce, 0x24, 0xe9, 0x9f, 0xbc, 0x3f, 0x25, 0x75, 0x67, 0x9b, 0x5f, 0x8d, 0xdb, 0xb0, 0x61,
+	0xba, 0x64, 0xd3, 0x52, 0x1a, 0xe8, 0xa2, 0x2e, 0xed, 0x89, 0x34, 0x4d, 0x49, 0x96, 0x26, 0x41,
+	0x6e, 0xa8, 0x84, 0x84, 0x14, 0xb9, 0x6b, 0x2b, 0x35, 0x6a, 0xed, 0x90, 0x78, 0x23, 0xed, 0x0d,
+	0x71, 0x44, 0xdc, 0xb8, 0x70, 0x84, 0x3b, 0x17, 0x3e, 0x0b, 0x5f, 0x81, 0x0f, 0x82, 0x3c, 0x9e,
+	0xc4, 0x1e, 0x7b, 0x9c, 0x78, 0x55, 0x6e, 0xf5, 0xcc, 0xfb, 0xe7, 0xc9, 0x33, 0xcf, 0x33, 0xef,
+	0xa8, 0x50, 0x34, 0xad, 0xa9, 0x61, 0x39, 0xf6, 0xf8, 0x6d, 0xcd, 0xb2, 0x75, 0x63, 0x72, 0x34,
+	0x1a, 0xdb, 0x8e, 0x8d, 0x73, 0xf3, 0x65, 0x65, 0x77, 0x68, 0xdb, 0xc3, 0x7b, 0xa3, 0xa6, 0x8d,
+	0xcc, 0x9a, 0x66, 0x59, 0xb6, 0xa3, 0x39, 0xa6, 0x6d, 0xb1, 0x40, 0xd2, 0x83, 0xfc, 0xb9, 0x36,
+	0x36, 0x3a, 0x86, 0xa3, 0xdd, 0x77, 0x6d, 0xdd, 0xc0, 0x05, 0x48, 0x9b, 0xba, 0x8c, 0xca, 0xa8,
+	0x9a, 0x57, 0xd3, 0xa6, 0x8e, 0x31, 0x64, 0x2d, 0xed, 0xc1, 0x90, 0xd3, 0x65, 0x54, 0xcd, 0xa9,
+	0xf4, 0x6f, 0xac, 0xc0, 0xfa, 0x9d, 0x3d, 0x71, 0xe8, 0x7a, 0x86, 0xae, 0xcf, 0xbf, 0x49, 0x1f,
+	0xf0, 0x8d, 0x39, 0x76, 0xde, 0x68, 0xf7, 0x1d, 0xed, 0xf5, 0x9d, 0x69, 0x19, 0xff, 0x49, 0xd5,
+	0x53, 0xc8, 0x37, 0x6c, 0xcb, 0xd1, 0x4c, 0xcb, 0x18, 0x27, 0x2d, 0xf8, 0x2a, 0xbb, 0x9e, 0x91,
+	0xb2, 0xe4, 0x04, 0x40, 0x35, 0x1e, 0x6c, 0xc7, 0x78, 0xc7, 0xbc, 0xaf, 0x60, 0x4d, 0xbd, 0xb8,
+	0x4e, 0x8c, 0xfe, 0xff, 0xb0, 0x3a, 0x36, 0x86, 0xa6, 0x6d, 0xc9, 0x59, 0xba, 0xca, 0xbe, 0x58,
+	0x31, 0x0c, 0xd2, 0x95, 0x39, 0x71, 0xdc, 0x6a, 0x13, 0xd5, 0xf8, 0xe1, 0x8d, 0x31, 0x71, 0xc8,
+	0x1f, 0x69, 0xd8, 0x0c, 0x2c, 0x4e, 0x46, 0xb6, 0x35, 0x31, 0xf0, 0x4b, 0x80, 0x5b, 0x6d, 0x6c,
+	0x0c, 0x1e, 0xdc, 0x13, 0x91, 0x51, 0x39, 0x53, 0xfd, 0xdf, 0xb1, 0x7c, 0x34, 0x3f, 0xce, 0x23,
+	0xee, 0xb4, 0xd4, 0xdc, 0xed, 0xec, 0x13, 0x5f, 0xc2, 0xc6, 0xd4, 0x23, 0x7e, 0xf0, 0xe0, 0x31,
+	0x2f, 0xa7, 0x69, 0x76, 0x29, 0x90, 0x1d, 0x3d, 0x1a, 0xb5, 0x30, 0xe5, 0xd6, 0xf0, 0x09, 0xe4,
+	0x5e, 0xcf, 0xa8, 0x96, 0x33, 0x91, 0xfe, 0xdc, 0x31, 0xa8, 0x7e, 0x28, 0xfe, 0xd8, 0x25, 0xc0,
+	0xe5, 0x59, 0xce, 0xd2, 0xa4, 0x62, 0x20, 0xc9, 0x3f, 0x00, 0x95, 0x05, 0xe1, 0x67, 0x90, 0x19,
+	0xeb, 0x13, 0x79, 0x85, 0xc6, 0xe2, 0x60, 0xac, 0x47, 0xba, 0xea, 0x6e, 0x93, 0x32, 0x14, 0xbe,
+	0x34, 0x28, 0x43, 0x8c, 0xb5, 0xf0, 0x59, 0x90, 0xbf, 0xd2, 0xb0, 0x31, 0x0f, 0x61, 0x1c, 0x9e,
+	0x86, 0x38, 0x44, 0x8b, 0x38, 0x6c, 0xa5, 0x82, 0x2c, 0xb6, 0x44, 0x2c, 0xa2, 0xa5, 0x2c, 0xb6,
+	0x52, 0x11, 0x1e, 0x3f, 0xe7, 0x79, 0x44, 0x8b, 0x78, 0x74, 0x31, 0xf8, 0x4c, 0xd6, 0x02, 0x4c,
+	0xa2, 0x58, 0x26, 0x5b, 0xa9, 0x39, 0x97, 0x95, 0x19, 0x97, 0x48, 0xcc, 0x65, 0x2b, 0x45, 0xd9,
+	0x3c, 0x5f, 0x85, 0xac, 0x7b, 0x49, 0x90, 0x1e, 0x6c, 0xd7, 0x75, 0x9d, 0x57, 0x12, 0xa3, 0xf7,
+	0x1d, 0x8d, 0xf9, 0x2a, 0xbb, 0x8e, 0xa4, 0x34, 0xb9, 0x06, 0x39, 0x5a, 0x30, 0x46, 0xd0, 0x28,
+	0xa1, 0xa0, 0x49, 0x1f, 0x76, 0xeb, 0xba, 0x2e, 0x50, 0xec, 0xa3, 0xa0, 0x0e, 0xa1, 0x14, 0x53,
+	0x95, 0xe1, 0x15, 0xf8, 0x08, 0x25, 0x50, 0x40, 0xf8, 0xfc, 0xc9, 0x29, 0x25, 0x99, 0xb7, 0x4b,
+	0x3c, 0x72, 0x0f, 0x1d, 0xbb, 0x2d, 0x54, 0x4a, 0x67, 0x28, 0x95, 0xc1, 0xe3, 0xec, 0x89, 0x16,
+	0xcb, 0x2a, 0x20, 0x2a, 0x72, 0x02, 0x5b, 0x75, 0x5d, 0x0f, 0x18, 0x31, 0x21, 0x96, 0x4b, 0x28,
+	0x86, 0xf2, 0x18, 0x10, 0xdf, 0xef, 0x68, 0x81, 0x4a, 0x67, 0x1a, 0x25, 0x2f, 0x60, 0xd3, 0xad,
+	0xc3, 0xcc, 0x9d, 0xb0, 0xf9, 0x19, 0xe0, 0x60, 0x12, 0xeb, 0xcc, 0xae, 0x0e, 0x14, 0x27, 0x77,
+	0xef, 0xea, 0xf8, 0x0e, 0x94, 0xc6, 0x9d, 0x66, 0x0d, 0x0d, 0xa1, 0xce, 0x1f, 0x3b, 0x90, 0x4a,
+	0xb0, 0x23, 0xac, 0xee, 0x41, 0x24, 0x1a, 0x3c, 0xf5, 0xb6, 0xe3, 0xe5, 0xfb, 0x58, 0x04, 0x04,
+	0xca, 0xf1, 0x2d, 0x18, 0x8c, 0xcb, 0x19, 0x07, 0x42, 0x19, 0x26, 0x9f, 0x85, 0xf3, 0x5f, 0x2b,
+	0xd4, 0x24, 0x69, 0xc0, 0xb6, 0xb7, 0x1d, 0x95, 0x57, 0xf2, 0x1e, 0x0a, 0xc8, 0xd1, 0x22, 0xac,
+	0xc1, 0x17, 0xb0, 0xc5, 0xf6, 0x78, 0xfd, 0x24, 0xaf, 0xbe, 0x0d, 0xc5, 0x50, 0x05, 0x56, 0x7a,
+	0x0f, 0x36, 0xdd, 0x86, 0xd3, 0x45, 0xa8, 0xc9, 0x16, 0xe0, 0x60, 0x90, 0x97, 0x7a, 0xf0, 0x3d,
+	0xac, 0xbb, 0xdf, 0xfd, 0xb7, 0x23, 0x03, 0x17, 0x61, 0xb3, 0xdb, 0xbb, 0x68, 0x0e, 0xfa, 0xdf,
+	0x7e, 0xdd, 0x1c, 0xb4, 0xbb, 0x37, 0xf5, 0xab, 0xf6, 0x85, 0x94, 0xc2, 0x05, 0x80, 0xf3, 0xba,
+	0xda, 0x1c, 0x74, 0x9a, 0xfd, 0xfa, 0x95, 0x84, 0xf0, 0x13, 0xd8, 0xb8, 0x69, 0xab, 0xfd, 0x6f,
+	0xea, 0x57, 0x83, 0x4e, 0xbd, 0xd1, 0x6a, 0x77, 0x9b, 0x52, 0x1a, 0xe7, 0x21, 0xd7, 0xe8, 0x75,
+	0xfb, 0xf5, 0x76, 0xb7, 0xa9, 0x4a, 0x19, 0x0c, 0xb0, 0xaa, 0x36, 0x3b, 0xbd, 0x7e, 0x53, 0xca,
+	0xe2, 0x35, 0xc8, 0xa8, 0x17, 0xd7, 0xd2, 0xca, 0xf1, 0xcf, 0x05, 0x58, 0xa1, 0x0f, 0x05, 0x3c,
+	0x82, 0xdc, 0xfc, 0xd5, 0x80, 0x77, 0x02, 0xea, 0x0f, 0x3f, 0x30, 0x94, 0x5d, 0xf1, 0x26, 0xfb,
+	0xe1, 0xd5, 0x9f, 0xfe, 0xfe, 0xe7, 0xd7, 0x34, 0x21, 0xa5, 0xda, 0xf4, 0x93, 0x9a, 0xff, 0x8a,
+	0xa4, 0x41, 0xb5, 0x79, 0xf8, 0x19, 0x3a, 0xc0, 0x77, 0xb0, 0xc6, 0x26, 0x2c, 0x7e, 0x2f, 0x50,
+	0x92, 0x1f, 0xcc, 0x8a, 0x22, 0xda, 0x62, 0xbd, 0x2a, 0xb4, 0x57, 0x99, 0xec, 0x88, 0x7a, 0xb1,
+	0x60, 0xb7, 0xd3, 0x2f, 0x08, 0xa4, 0xf0, 0x20, 0xc1, 0x24, 0x50, 0x38, 0x66, 0x6c, 0x29, 0x7b,
+	0x0b, 0x63, 0x18, 0x8a, 0x1a, 0x45, 0xb1, 0x4f, 0x9e, 0x89, 0x50, 0x84, 0xb3, 0x5c, 0x38, 0xbf,
+	0x23, 0x7a, 0xf9, 0x09, 0xde, 0xb3, 0xcf, 0xf9, 0x7e, 0xb1, 0x2e, 0x57, 0xaa, 0xcb, 0x03, 0x19,
+	0xba, 0xcf, 0x28, 0xba, 0x23, 0xb2, 0x1f, 0x83, 0x2e, 0x9a, 0x1a, 0x60, 0x8c, 0x7f, 0x1c, 0x87,
+	0x18, 0x13, 0x99, 0x3f, 0xcc, 0x98, 0xd8, 0xd8, 0xcb, 0x18, 0xe3, 0xb2, 0x5c, 0x38, 0x3f, 0x22,
+	0xc8, 0x73, 0xe3, 0x02, 0x3f, 0xe5, 0xfb, 0x44, 0x6e, 0x08, 0xa5, 0x1c, 0x1f, 0xc0, 0x50, 0x1c,
+	0x52, 0x14, 0x15, 0xf2, 0x41, 0x0c, 0x0a, 0x3f, 0xc5, 0x85, 0xe0, 0x00, 0xf8, 0x33, 0x03, 0xef,
+	0x86, 0xaa, 0x73, 0xf7, 0x87, 0x52, 0x8a, 0xd9, 0x65, 0x8d, 0xf7, 0x69, 0xe3, 0x3d, 0xf2, 0x7e,
+	0x5c, 0x63, 0x2f, 0xde, 0xed, 0xfa, 0x1b, 0x82, 0x27, 0x82, 0x81, 0x80, 0x3f, 0x0c, 0xce, 0xe6,
+	0xd8, 0x71, 0xa4, 0x54, 0x96, 0x85, 0x31, 0x44, 0xc7, 0x14, 0xd1, 0x21, 0x79, 0x2e, 0x42, 0x24,
+	0x48, 0x74, 0xa1, 0xfd, 0x89, 0x66, 0x37, 0xab, 0x40, 0xc8, 0x07, 0x91, 0xc6, 0xf1, 0x5a, 0xfe,
+	0x28, 0x51, 0x2c, 0x43, 0xfa, 0x92, 0x22, 0xfd, 0x94, 0x1c, 0xc6, 0x23, 0x15, 0x2b, 0xda, 0x67,
+	0x92, 0x17, 0x75, 0x94, 0x49, 0xa1, 0xae, 0x2b, 0xcb, 0xc2, 0x92, 0x33, 0x19, 0x51, 0xb7, 0x6b,
+	0xb6, 0xf0, 0x8c, 0xe2, 0xcc, 0x16, 0x33, 0x05, 0x39, 0xb3, 0xc5, 0x0e, 0xb9, 0x85, 0x66, 0x0b,
+	0x67, 0xcd, 0xcc, 0xc6, 0x0d, 0x35, 0xce, 0x6c, 0xa2, 0x81, 0xc9, 0x99, 0x4d, 0x3c, 0x0f, 0x17,
+	0x9a, 0x8d, 0x4b, 0x61, 0x66, 0xf3, 0x07, 0x23, 0x67, 0xb6, 0xc8, 0x50, 0xe5, 0xcc, 0x16, 0x9d,
+	0xa6, 0x8b, 0xcd, 0xe6, 0xc7, 0x9f, 0xa1, 0x83, 0xdb, 0x55, 0xfa, 0xbf, 0x8b, 0x17, 0xff, 0x06,
+	0x00, 0x00, 0xff, 0xff, 0x70, 0x3d, 0xaf, 0x7f, 0xfd, 0x10, 0x00, 0x00,
 }
