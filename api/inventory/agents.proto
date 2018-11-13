@@ -4,12 +4,6 @@ package inventory;
 
 import "google/api/annotations.proto";
 
-// AgentType represents Agent type.
-enum AgentType {
-  AGENT_TYPE_INVALID = 0;
-  MYSQLD_EXPORTER = 1;
-}
-
 // AgentProcessStatus represents agent process state.
 enum AgentProcessStatus {
   AGENT_PROCESS_STATUS_INVALID = 0;
@@ -21,18 +15,22 @@ enum AgentProcessStatus {
 
 // MySQLdExporter represents mysqld_exporter Agent configuration.
 message MySQLdExporter {
-  // Unique agent identifier.
+  // Unique Agent identifier.
   uint32 id = 1;
-  // Node identifier where agent runs.
+  // Node identifier where Agent runs.
   uint32 runs_on_node_id = 2;
-  // Service identifier for extracting metrics.
-  uint32 service_id = 3;
-  // MySQL username for extracting metrics.
-  string username = 4;
-  // MySQL password for extracting metrics.
-  string password = 5;
+  // Node identifiers for which insights are provided by that Agent.
+  repeated uint32 node_ids = 3;
+  // Service identifiers for which insights are provided by that Agent.
+  repeated uint32 service_ids = 4;
+  // Agent process status.
+  AgentProcessStatus process_status = 5;
   // HTTP listen port for exposing metrics.
   uint32 listen_port = 6;
+  // MySQL username for extracting metrics.
+  string username = 7;
+  // MySQL password for extracting metrics.
+  string password = 8;
 }
 
 message ListAgentsRequest {}
@@ -54,15 +52,18 @@ message GetAgentResponse {
 
 message AddMySQLdExporterAgentRequest {
   reserved 1; // id
-  // Node identifier where agent should run.
+  // Node identifier where Agent runs.
   uint32 runs_on_node_id = 2;
-  // Service identifier for extracting metrics.
-  uint32 service_id = 3;
-  // MySQL username for extracting metrics.
-  string username = 4;
-  // MySQL password for extracting metrics.
-  string password = 5;
+  // Node identifiers for which insights are provided by that Agent.
+  repeated uint32 node_ids = 3;
+  // Service identifiers for which insights are provided by that Agent.
+  repeated uint32 service_ids = 4;
+  reserved 5; // process_status
   reserved 6; // listen_port
+  // MySQL username for extracting metrics.
+  string username = 7;
+  // MySQL password for extracting metrics.
+  string password = 8;
 }
 
 message AddMySQLdExporterAgentResponse {

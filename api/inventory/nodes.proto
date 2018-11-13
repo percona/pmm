@@ -4,16 +4,6 @@ package inventory;
 
 import "google/api/annotations.proto";
 
-// NodeType represents Node type.
-enum NodeType {
-  NODE_TYPE_INVALID = 0;
-  BARE_METAL = 1;
-  VIRTUAL_MACHINE = 2;
-  CONTAINER = 3;
-  REMOTE = 4;
-  RDS = 5;
-}
-
 // BareMetalNode represents bare metal Node.
 message BareMetalNode {
   // Unique Node identifier.

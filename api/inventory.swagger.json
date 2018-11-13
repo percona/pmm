@@ -636,19 +636,30 @@
     "inventoryAddMySQLdExporterAgentRequest": {
       "type": "object",
       "properties": {
+        "node_ids": {
+          "description": "Node identifiers for which insights are provided by that Agent.",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
         "password": {
           "description": "MySQL password for extracting metrics.",
           "type": "string"
         },
         "runs_on_node_id": {
-          "description": "Node identifier where agent should run.",
+          "description": "Node identifier where Agent runs.",
           "type": "integer",
           "format": "int64"
         },
-        "service_id": {
-          "description": "Service identifier for extracting metrics.",
-          "type": "integer",
-          "format": "int64"
+        "service_ids": {
+          "description": "Service identifiers for which insights are provided by that Agent.",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
         },
         "username": {
           "description": "MySQL username for extracting metrics.",
@@ -718,6 +729,16 @@
           "$ref": "#/definitions/inventoryVirtualMachineNode"
         }
       }
+    },
+    "inventoryAgentProcessStatus": {
+      "description": "AgentProcessStatus represents agent process state.",
+      "type": "string",
+      "default": "AGENT_PROCESS_STATUS_INVALID",
+      "enum": [
+        "AGENT_PROCESS_STATUS_INVALID",
+        "DISABLED",
+        "RUNNING"
+      ]
     },
     "inventoryBareMetalNode": {
       "description": "BareMetalNode represents bare metal Node.",
@@ -998,7 +1019,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "description": "Unique agent identifier.",
+          "description": "Unique Agent identifier.",
           "type": "integer",
           "format": "int64"
         },
@@ -1007,19 +1028,34 @@
           "type": "integer",
           "format": "int64"
         },
+        "node_ids": {
+          "description": "Node identifiers for which insights are provided by that Agent.",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
         "password": {
           "description": "MySQL password for extracting metrics.",
           "type": "string"
         },
+        "process_status": {
+          "description": "Agent process status.",
+          "$ref": "#/definitions/inventoryAgentProcessStatus"
+        },
         "runs_on_node_id": {
-          "description": "Node identifier where agent runs.",
+          "description": "Node identifier where Agent runs.",
           "type": "integer",
           "format": "int64"
         },
-        "service_id": {
-          "description": "Service identifier for extracting metrics.",
-          "type": "integer",
-          "format": "int64"
+        "service_ids": {
+          "description": "Service identifiers for which insights are provided by that Agent.",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
         },
         "username": {
           "description": "MySQL username for extracting metrics.",

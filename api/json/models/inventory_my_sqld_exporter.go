@@ -8,6 +8,7 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 )
 
@@ -15,20 +16,26 @@ import (
 // swagger:model inventoryMySQLdExporter
 type InventoryMySqldExporter struct {
 
-	// Unique agent identifier.
+	// Unique Agent identifier.
 	ID int64 `json:"id,omitempty"`
 
 	// HTTP listen port for exposing metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
+	// Node identifiers for which insights are provided by that Agent.
+	NodeIds []int64 `json:"node_ids"`
+
 	// MySQL password for extracting metrics.
 	Password string `json:"password,omitempty"`
 
-	// Node identifier where agent runs.
+	// Agent process status.
+	ProcessStatus InventoryAgentProcessStatus `json:"process_status,omitempty"`
+
+	// Node identifier where Agent runs.
 	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
 
-	// Service identifier for extracting metrics.
-	ServiceID int64 `json:"service_id,omitempty"`
+	// Service identifiers for which insights are provided by that Agent.
+	ServiceIds []int64 `json:"service_ids"`
 
 	// MySQL username for extracting metrics.
 	Username string `json:"username,omitempty"`
@@ -36,6 +43,31 @@ type InventoryMySqldExporter struct {
 
 // Validate validates this inventory my sqld exporter
 func (m *InventoryMySqldExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateProcessStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *InventoryMySqldExporter) validateProcessStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ProcessStatus) { // not required
+		return nil
+	}
+
+	if err := m.ProcessStatus.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("process_status")
+		}
+		return err
+	}
+
 	return nil
 }
 
