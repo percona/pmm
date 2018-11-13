@@ -33,7 +33,7 @@ later, and this table serves the information purposes, to plan costs.
    monitoring. Each environment will be unique, however consider modeling your data consumption based on PMM Demo <https://pmmdemo.percona.com/>`_
    web site, which estimates allocated space as ~230MB/host/day, or ~6.9GB/host
 at the default 30 day retention period. See `this blog post <https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/>`_ for more
-   details about the |pmm-server| disk space consumption and its more precise
+   details.
    planning.
 
 Clicking the |gui.continue-to-subscribe| button will proceed to the terms and
