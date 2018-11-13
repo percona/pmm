@@ -49,7 +49,6 @@ import (
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/handlers"
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/agents"
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/grafana"
 	"github.com/percona/pmm-managed/services/logs"
@@ -305,19 +304,10 @@ func runGRPCServer(ctx context.Context, deps *grpcServerDependencies) {
 	})
 
 	// PMM 2.0 APIs
-	store := agents.NewStore()
-	agent.RegisterAgentServer(gRPCServer, &handlers.AgentServer{
-		Store: store,
-	})
-	inventory.RegisterNodesServer(gRPCServer, &handlers.NodesServer{
-		Store: store,
-	})
-	inventory.RegisterServicesServer(gRPCServer, &handlers.ServicesServer{
-		Store: store,
-	})
-	inventory.RegisterAgentsServer(gRPCServer, &handlers.AgentsServer{
-		Store: store,
-	})
+	agent.RegisterAgentServer(gRPCServer, &handlers.AgentServer{})
+	inventory.RegisterNodesServer(gRPCServer, &handlers.NodesServer{})
+	inventory.RegisterServicesServer(gRPCServer, &handlers.ServicesServer{})
+	inventory.RegisterAgentsServer(gRPCServer, &handlers.AgentsServer{})
 
 	if *debugF {
 		l.Debug("Reflection enabled.")

@@ -6,6 +6,12 @@ import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "inventory/agents.proto";
 
+// Type represents Agent type.
+enum Type {
+  TYPE_INVALID = 0;
+  MYSQLD_EXPORTER = 1;
+}
+
 message RegisterRequest {
   // FIXME We need node information there to create a new node or map new agent to the existing node.
   //       This is hard problem.
@@ -47,7 +53,7 @@ message SetStateRequest {
   // AgentProcess describes desired configuration of a single agent.
   message AgentProcess {
     uint32 agent_id = 1;
-    inventory.AgentType type = 2;
+    Type type = 2;
     repeated string args = 3;
     repeated string env = 4;
     map<string, string> configs = 5;

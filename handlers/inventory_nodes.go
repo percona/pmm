@@ -22,14 +22,11 @@ import (
 
 	api "github.com/percona/pmm/api/inventory"
 
-	"github.com/percona/pmm-managed/services/agents"
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
 type NodesServer struct {
-	Nodes  *inventory.NodesService
-	Store  *agents.Store
-	Agents map[uint32]*agents.Conn
+	Nodes *inventory.NodesService
 }
 
 func (s *NodesServer) ListNodes(ctx context.Context, req *api.ListNodesRequest) (*api.ListNodesResponse, error) {
@@ -70,15 +67,43 @@ func (s *NodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*ap
 	return res, nil
 }
 
-func (s *NodesServer) AddNode(ctx context.Context, req *api.AddNodeRequest) (*api.AddNodeResponse, error) {
+func (s *NodesServer) AddBareMetalNode(ctx context.Context, req *api.AddBareMetalNodeRequest) (*api.AddBareMetalNodeResponse, error) {
 	panic("not implemented")
 }
 
-func (s *NodesServer) AddRemoveNode(ctx context.Context, req *api.AddRemoveNodeRequest) (*api.AddRemoveNodeResponse, error) {
+func (s *NodesServer) AddVirtualMachineNode(ctx context.Context, req *api.AddVirtualMachineNodeRequest) (*api.AddVirtualMachineNodeResponse, error) {
+	panic("not implemented")
+}
+
+func (s *NodesServer) AddContainerNode(ctx context.Context, req *api.AddContainerNodeRequest) (*api.AddContainerNodeResponse, error) {
+	panic("not implemented")
+}
+
+func (s *NodesServer) AddRemoteNode(ctx context.Context, req *api.AddRemoteNodeRequest) (*api.AddRemoteNodeResponse, error) {
 	panic("not implemented")
 }
 
 func (s *NodesServer) AddRDSNode(ctx context.Context, req *api.AddRDSNodeRequest) (*api.AddRDSNodeResponse, error) {
+	panic("not implemented")
+}
+
+func (s *NodesServer) ChangeBareMetalNode(ctx context.Context, req *api.ChangeBareMetalNodeRequest) (*api.ChangeBareMetalNodeResponse, error) {
+	panic("not implemented")
+}
+
+func (s *NodesServer) ChangeVirtualMachineNode(ctx context.Context, req *api.ChangeVirtualMachineNodeRequest) (*api.ChangeVirtualMachineNodeResponse, error) {
+	panic("not implemented")
+}
+
+func (s *NodesServer) ChangeContainerNode(ctx context.Context, req *api.ChangeContainerNodeRequest) (*api.ChangeContainerNodeResponse, error) {
+	panic("not implemented")
+}
+
+func (s *NodesServer) ChangeRemoteNode(ctx context.Context, req *api.ChangeRemoteNodeRequest) (*api.ChangeRemoteNodeResponse, error) {
+	panic("not implemented")
+}
+
+func (s *NodesServer) ChangeRDSNode(ctx context.Context, req *api.ChangeRDSNodeRequest) (*api.ChangeRDSNodeResponse, error) {
 	panic("not implemented")
 }
 

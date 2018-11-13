@@ -22,7 +22,6 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agent"
-	"github.com/percona/pmm/api/inventory"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm-managed/services/agents"
@@ -30,13 +29,11 @@ import (
 )
 
 type AgentServer struct {
-	Store *agents.Store
 }
 
 func (s *AgentServer) Register(ctx context.Context, req *agent.RegisterRequest) (*agent.RegisterResponse, error) {
-	uuid := s.Store.RegisterAgent()
 	return &agent.RegisterResponse{
-		Uuid: uuid,
+		// Uuid: uuid,
 	}, nil
 }
 
@@ -70,24 +67,24 @@ func (s *AgentServer) Connect(stream agent.Agent_ConnectServer) error {
 		case <-stream.Context().Done():
 			return nil
 
-		case exporter := <-s.Store.NewExporters():
-			env := []string{
-				`DATA_SOURCE_NAME="/"`,
-			}
-			_, err = conn.SendAndRecv(&agent.ServerMessage_State{
-				State: &agent.SetStateRequest{
-					AgentProcesses: []*agent.SetStateRequest_AgentProcess{{
-						AgentId: exporter.Id,
-						Type:    inventory.AgentType_MYSQLD_EXPORTER,
-						Args:    nil,
-						Env:     env,
-						Configs: nil,
-					}},
-				},
-			})
-			if err != nil {
-				return err
-			}
+		// case exporter := <-s.Store.NewExporters():
+		// 	env := []string{
+		// 		`DATA_SOURCE_NAME="/"`,
+		// 	}
+		// 	_, err = conn.SendAndRecv(&agent.ServerMessage_State{
+		// 		State: &agent.SetStateRequest{
+		// 			AgentProcesses: []*agent.SetStateRequest_AgentProcess{{
+		// 				AgentId: exporter.Id,
+		// 				Type:    inventory.AgentType_MYSQLD_EXPORTER,
+		// 				Args:    nil,
+		// 				Env:     env,
+		// 				Configs: nil,
+		// 			}},
+		// 		},
+		// 	})
+		// 	if err != nil {
+		// 		return err
+		// 	}
 
 		case <-t.C:
 			start := time.Now()

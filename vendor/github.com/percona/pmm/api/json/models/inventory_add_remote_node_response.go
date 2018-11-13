@@ -12,16 +12,16 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryAddRemoveNodeResponse inventory add remove node response
-// swagger:model inventoryAddRemoveNodeResponse
-type InventoryAddRemoveNodeResponse struct {
+// InventoryAddRemoteNodeResponse inventory add remote node response
+// swagger:model inventoryAddRemoteNodeResponse
+type InventoryAddRemoteNodeResponse struct {
 
 	// remote
 	Remote *InventoryRemoteNode `json:"remote,omitempty"`
 }
 
-// Validate validates this inventory add remove node response
-func (m *InventoryAddRemoveNodeResponse) Validate(formats strfmt.Registry) error {
+// Validate validates this inventory add remote node response
+func (m *InventoryAddRemoteNodeResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateRemote(formats); err != nil {
@@ -34,7 +34,7 @@ func (m *InventoryAddRemoveNodeResponse) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-func (m *InventoryAddRemoveNodeResponse) validateRemote(formats strfmt.Registry) error {
+func (m *InventoryAddRemoteNodeResponse) validateRemote(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.Remote) { // not required
 		return nil
@@ -53,7 +53,7 @@ func (m *InventoryAddRemoveNodeResponse) validateRemote(formats strfmt.Registry)
 }
 
 // MarshalBinary interface implementation
-func (m *InventoryAddRemoveNodeResponse) MarshalBinary() ([]byte, error) {
+func (m *InventoryAddRemoteNodeResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -61,8 +61,8 @@ func (m *InventoryAddRemoveNodeResponse) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *InventoryAddRemoveNodeResponse) UnmarshalBinary(b []byte) error {
-	var res InventoryAddRemoveNodeResponse
+func (m *InventoryAddRemoteNodeResponse) UnmarshalBinary(b []byte) error {
+	var res InventoryAddRemoteNodeResponse
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

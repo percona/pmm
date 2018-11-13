@@ -25,30 +25,58 @@ type Client struct {
 }
 
 /*
-AddNode adds node adds bare metal virtual machine or container node node
+AddBareMetalNode adds bare metal node adds bare metal node
 */
-func (a *Client) AddNode(params *AddNodeParams) (*AddNodeOK, error) {
+func (a *Client) AddBareMetalNode(params *AddBareMetalNodeParams) (*AddBareMetalNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddNodeParams()
+		params = NewAddBareMetalNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddNode",
+		ID:                 "AddBareMetalNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddNode",
+		PathPattern:        "/v0/inventory/Nodes/AddBareMetalNode",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddNodeReader{formats: a.formats},
+		Reader:             &AddBareMetalNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddNodeOK), nil
+	return result.(*AddBareMetalNodeOK), nil
+
+}
+
+/*
+AddContainerNode adds container node adds container node
+*/
+func (a *Client) AddContainerNode(params *AddContainerNodeParams) (*AddContainerNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddContainerNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddContainerNode",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Nodes/AddContainerNode",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddContainerNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddContainerNodeOK), nil
 
 }
 
@@ -81,30 +109,198 @@ func (a *Client) AddRDSNode(params *AddRDSNodeParams) (*AddRDSNodeOK, error) {
 }
 
 /*
-AddRemoveNode adds remove node adds remote node
+AddRemoteNode adds remote node adds remote node
 */
-func (a *Client) AddRemoveNode(params *AddRemoveNodeParams) (*AddRemoveNodeOK, error) {
+func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddRemoveNodeParams()
+		params = NewAddRemoteNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddRemoveNode",
+		ID:                 "AddRemoteNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddRemoveNode",
+		PathPattern:        "/v0/inventory/Nodes/AddRemoteNode",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddRemoveNodeReader{formats: a.formats},
+		Reader:             &AddRemoteNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddRemoveNodeOK), nil
+	return result.(*AddRemoteNodeOK), nil
+
+}
+
+/*
+AddVirtualMachineNode adds virtual machine node adds virtual machine node
+*/
+func (a *Client) AddVirtualMachineNode(params *AddVirtualMachineNodeParams) (*AddVirtualMachineNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddVirtualMachineNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddVirtualMachineNode",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Nodes/AddVirtualMachineNode",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddVirtualMachineNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddVirtualMachineNodeOK), nil
+
+}
+
+/*
+ChangeBareMetalNode changes bare metal node changes bare metal node
+*/
+func (a *Client) ChangeBareMetalNode(params *ChangeBareMetalNodeParams) (*ChangeBareMetalNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeBareMetalNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeBareMetalNode",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Nodes/ChangeBareMetalNode",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeBareMetalNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeBareMetalNodeOK), nil
+
+}
+
+/*
+ChangeContainerNode changes container node changes container node
+*/
+func (a *Client) ChangeContainerNode(params *ChangeContainerNodeParams) (*ChangeContainerNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeContainerNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeContainerNode",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Nodes/ChangeContainerNode",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeContainerNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeContainerNodeOK), nil
+
+}
+
+/*
+ChangeRDSNode changes RDS node changes a w s RDS node
+*/
+func (a *Client) ChangeRDSNode(params *ChangeRDSNodeParams) (*ChangeRDSNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeRDSNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeRDSNode",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Nodes/ChangeRDSNode",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeRDSNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeRDSNodeOK), nil
+
+}
+
+/*
+ChangeRemoteNode changes remote node changes remote node
+*/
+func (a *Client) ChangeRemoteNode(params *ChangeRemoteNodeParams) (*ChangeRemoteNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeRemoteNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeRemoteNode",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Nodes/ChangeRemoteNode",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeRemoteNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeRemoteNodeOK), nil
+
+}
+
+/*
+ChangeVirtualMachineNode changes virtual machine node changes virtual machine node
+*/
+func (a *Client) ChangeVirtualMachineNode(params *ChangeVirtualMachineNodeParams) (*ChangeVirtualMachineNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeVirtualMachineNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeVirtualMachineNode",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Nodes/ChangeVirtualMachineNode",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeVirtualMachineNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeVirtualMachineNodeOK), nil
 
 }
 
