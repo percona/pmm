@@ -23,17 +23,16 @@ enum AgentProcessStatus {
 message MySQLdExporter {
   // Unique agent identifier.
   uint32 id = 1;
-  reserved 2; // type
   // Node identifier where agent runs.
-  uint32 runs_on_node_id = 3;
+  uint32 runs_on_node_id = 2;
   // Service identifier for extracting metrics.
-  uint32 service_id = 4;
+  uint32 service_id = 3;
   // MySQL username for extracting metrics.
-  string username = 5;
+  string username = 4;
   // MySQL password for extracting metrics.
-  string password = 6;
+  string password = 5;
   // HTTP listen port for exposing metrics.
-  uint32 listen_port = 7;
+  uint32 listen_port = 6;
 }
 
 message ListAgentsRequest {}
@@ -55,16 +54,15 @@ message GetAgentResponse {
 
 message AddMySQLdExporterAgentRequest {
   reserved 1; // id
-  reserved 2; // type
   // Node identifier where agent should run.
-  uint32 runs_on_node_id = 3;
+  uint32 runs_on_node_id = 2;
   // Service identifier for extracting metrics.
-  uint32 service_id = 4;
+  uint32 service_id = 3;
   // MySQL username for extracting metrics.
-  string username = 5;
+  string username = 4;
   // MySQL password for extracting metrics.
-  string password = 6;
-  reserved 7; // listen_port
+  string password = 5;
+  reserved 6; // listen_port
 }
 
 message AddMySQLdExporterAgentResponse {
