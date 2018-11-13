@@ -11,27 +11,24 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryRDSNode RDSNode represents AWS RDS Node.
-// swagger:model inventoryRDSNode
-type InventoryRDSNode struct {
+// InventoryChangeRDSNodeRequest inventory change RDS node request
+// swagger:model inventoryChangeRDSNodeRequest
+type InventoryChangeRDSNodeRequest struct {
 
 	// Unique Node identifier.
 	ID int64 `json:"id,omitempty"`
 
 	// Unique Node name.
 	Name string `json:"name,omitempty"`
-
-	// AWS region.
-	Region string `json:"region,omitempty"`
 }
 
-// Validate validates this inventory RDS node
-func (m *InventoryRDSNode) Validate(formats strfmt.Registry) error {
+// Validate validates this inventory change RDS node request
+func (m *InventoryChangeRDSNodeRequest) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *InventoryRDSNode) MarshalBinary() ([]byte, error) {
+func (m *InventoryChangeRDSNodeRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -39,8 +36,8 @@ func (m *InventoryRDSNode) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *InventoryRDSNode) UnmarshalBinary(b []byte) error {
-	var res InventoryRDSNode
+func (m *InventoryChangeRDSNodeRequest) UnmarshalBinary(b []byte) error {
+	var res InventoryChangeRDSNodeRequest
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
