@@ -592,7 +592,7 @@
           "type": "string"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -609,7 +609,7 @@
       "type": "object",
       "properties": {
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -679,7 +679,7 @@
       "type": "object",
       "properties": {
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -696,7 +696,7 @@
       "type": "object",
       "properties": {
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -717,7 +717,7 @@
           "type": "string"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -754,7 +754,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -772,7 +772,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -789,7 +789,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -806,7 +806,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -823,7 +823,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -844,7 +844,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -862,7 +862,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -1000,16 +1000,16 @@
       }
     },
     "inventoryMySQLService": {
-      "description": "MySQLService represents MySQL service configuration.",
+      "description": "MySQLService represents MySQL Service configuration.",
       "type": "object",
       "properties": {
         "id": {
-          "description": "Unique service identifier.",
+          "description": "Unique Service identifier.",
           "type": "integer",
           "format": "int64"
         },
         "name": {
-          "description": "Unique service name.",
+          "description": "Unique user-defined Service name.",
           "type": "string"
         }
       }
@@ -1073,7 +1073,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         },
         "region": {
@@ -1092,7 +1092,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -1147,7 +1147,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
