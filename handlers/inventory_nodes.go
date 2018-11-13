@@ -30,7 +30,29 @@ type NodesServer struct {
 }
 
 func (s *NodesServer) ListNodes(ctx context.Context, req *api.ListNodesRequest) (*api.ListNodesResponse, error) {
-	return s.Nodes.List(ctx)
+	nodes, err := s.Nodes.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res := new(api.ListNodesResponse)
+	for _, node := range nodes {
+		switch node := node.(type) {
+		case *api.BareMetalNode:
+			res.BareMetal = append(res.BareMetal, node)
+		case *api.VirtualMachineNode:
+			res.VirtualMachine = append(res.VirtualMachine, node)
+		case *api.ContainerNode:
+			res.Container = append(res.Container, node)
+		case *api.RemoteNode:
+			res.Remote = append(res.Remote, node)
+		case *api.RDSNode:
+			res.Rds = append(res.Rds, node)
+		default:
+			panic(fmt.Errorf("unhandled inventory Node type %T", node))
+		}
+	}
+	return res, nil
 }
 
 func (s *NodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*api.GetNodeResponse, error) {
@@ -42,25 +64,15 @@ func (s *NodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*ap
 	res := new(api.GetNodeResponse)
 	switch node := node.(type) {
 	case *api.BareMetalNode:
-		res.Node = &api.GetNodeResponse_BareMetal{
-			BareMetal: node,
-		}
+		res.Node = &api.GetNodeResponse_BareMetal{BareMetal: node}
 	case *api.VirtualMachineNode:
-		res.Node = &api.GetNodeResponse_VirtualMachine{
-			VirtualMachine: node,
-		}
+		res.Node = &api.GetNodeResponse_VirtualMachine{VirtualMachine: node}
 	case *api.ContainerNode:
-		res.Node = &api.GetNodeResponse_Container{
-			Container: node,
-		}
+		res.Node = &api.GetNodeResponse_Container{Container: node}
 	case *api.RemoteNode:
-		res.Node = &api.GetNodeResponse_Remote{
-			Remote: node,
-		}
+		res.Node = &api.GetNodeResponse_Remote{Remote: node}
 	case *api.RDSNode:
-		res.Node = &api.GetNodeResponse_Rds{
-			Rds: node,
-		}
+		res.Node = &api.GetNodeResponse_Rds{Rds: node}
 	default:
 		panic(fmt.Errorf("unhandled inventory Node type %T", node))
 	}

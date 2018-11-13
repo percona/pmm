@@ -67,30 +67,16 @@ func makeNode(row *models.NodeRow) inventory.Node {
 	}
 }
 
-func (ns *NodesService) List(ctx context.Context) (*inventory.ListNodesResponse, error) {
+func (ns *NodesService) List(ctx context.Context) ([]inventory.Node, error) {
 	structs, err := ns.DB.SelectAllFrom(models.NodeRowTable, "ORDER BY id")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	res := new(inventory.ListNodesResponse)
-	for _, str := range structs {
+	res := make([]inventory.Node, len(structs))
+	for i, str := range structs {
 		row := str.(*models.NodeRow)
-		node := makeNode(row)
-		switch node := node.(type) {
-		case *inventory.BareMetalNode:
-			res.BareMetal = append(res.BareMetal, node)
-		case *inventory.VirtualMachineNode:
-			res.VirtualMachine = append(res.VirtualMachine, node)
-		case *inventory.ContainerNode:
-			res.Container = append(res.Container, node)
-		case *inventory.RemoteNode:
-			res.Remote = append(res.Remote, node)
-		case *inventory.RDSNode:
-			res.Rds = append(res.Rds, node)
-		default:
-			panic(fmt.Errorf("unhandled inventory Node type %T", node))
-		}
+		res[i] = makeNode(row)
 	}
 	return res, nil
 }
@@ -100,6 +86,7 @@ func (ns *NodesService) Get(ctx context.Context, id uint32) (inventory.Node, err
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
+
 	row := record.(*models.NodeRow)
 	return makeNode(row), nil
 }

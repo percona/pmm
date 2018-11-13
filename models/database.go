@@ -42,8 +42,8 @@ var databaseSchema = [][]string{
 			type VARCHAR(255) NOT NULL,
 			name VARCHAR(255) NOT NULL,
 
-			region VARCHAR(255) NOT NULL DEFAULT '', -- NOT NULL for unique index below
 			hostname VARCHAR(255),
+			region VARCHAR(255) NOT NULL DEFAULT '', -- NOT NULL for unique index below
 
 			PRIMARY KEY (id),
 			UNIQUE (type, name, region)
