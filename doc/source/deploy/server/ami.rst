@@ -29,7 +29,7 @@ later, and this table serves the information purposes, to plan costs.
 
 .. note::
 
-   Disk space used by |pmm-server| highly depends on the amount of hosts under
+   Disk space consumed by |pmm-server| depends on the number of hosts under
    monitoring. Each environment will be unique, however consider modeling your data consumption based on PMM Demo <https://pmmdemo.percona.com/>`_
    web site, which consumes ~230MB/host/day, or ~6.9GB/host
 at the default 30 day retention period. See `this blog post <https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/>`_ for more
