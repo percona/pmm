@@ -33,32 +33,6 @@ const (
 
 const RemoteNodeRegion string = "remote"
 
-/*
-func InventoryNodeType(m NodeType) inventory.NodeType {
-	switch m {
-	default:
-		panic(fmt.Errorf("unhandled models node type %s", m))
-	}
-}
-
-func ModelsNodeType(i inventory.NodeType) NodeType {
-	switch i {
-	case inventory.NodeType_BARE_METAL:
-		return BareMetalNodeType
-	case inventory.NodeType_VIRTUAL_MACHINE:
-		return VirtualMachineNodeType
-	case inventory.NodeType_CONTAINER:
-		return ContainerNodeType
-	case inventory.NodeType_REMOTE:
-		return RemoteNodeType
-	case inventory.NodeType_RDS:
-		return RDSNodeType
-	default:
-		panic(fmt.Errorf("unhandled inventory node type %s (%d)", i, i))
-	}
-}
-*/
-
 //reform:nodes
 type Node struct {
 	ID   uint32   `reform:"id,pk"`
@@ -72,8 +46,8 @@ type NodeRow struct {
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"`
 
-	Region   string  `reform:"region"` // not a pointer, see database structure
 	Hostname *string `reform:"hostname"`
+	Region   *string `reform:"region"`
 }
 
 // TODO remove types below
@@ -84,7 +58,8 @@ type RDSNode struct {
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"` // DBInstanceIdentifier
 
-	Region string `reform:"region"` // not a pointer, see database structure
+	// Hostname *string `reform:"hostname"`
+	Region *string `reform:"region"`
 }
 
 //reform:nodes
@@ -93,5 +68,6 @@ type RemoteNode struct {
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"` // DBInstanceIdentifier
 
-	Region string `reform:"region"` // not a pointer, see database structure
+	// Hostname *string `reform:"hostname"`
+	Region *string `reform:"region"`
 }

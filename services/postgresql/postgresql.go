@@ -231,7 +231,7 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 		node := &models.RemoteNode{
 			Type:   models.RemoteNodeType,
 			Name:   name,
-			Region: models.RemoteNodeRegion,
+			Region: pointer.ToString(models.RemoteNodeRegion),
 		}
 		if err := tx.Insert(node); err != nil {
 			if err, ok := err.(*mysql.MySQLError); ok && err.Number == 0x426 {

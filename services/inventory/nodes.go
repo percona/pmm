@@ -60,7 +60,7 @@ func makeNode(row *models.NodeRow) inventory.Node {
 		return &inventory.RDSNode{
 			Id:     row.ID,
 			Name:   row.Name,
-			Region: row.Region,
+			Region: pointer.GetString(row.Region),
 		}
 	default:
 		panic(fmt.Errorf("unhandled NodeRow type %s", row.Type))

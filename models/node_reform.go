@@ -142,7 +142,7 @@ func (v *nodeRowTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *nodeRowTableType) Columns() []string {
-	return []string{"id", "type", "name", "region", "hostname"}
+	return []string{"id", "type", "name", "hostname", "region"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -162,7 +162,7 @@ func (v *nodeRowTableType) PKColumnIndex() uint {
 
 // NodeRowTable represents nodes view or table in SQL database.
 var NodeRowTable = &nodeRowTableType{
-	s: parse.StructInfo{Type: "NodeRow", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "string", Column: "region"}, {Name: "Hostname", Type: "*string", Column: "hostname"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "NodeRow", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Hostname", Type: "*string", Column: "hostname"}, {Name: "Region", Type: "*string", Column: "region"}}, PKFieldIndex: 0},
 	z: new(NodeRow).Values(),
 }
 
@@ -172,8 +172,8 @@ func (s NodeRow) String() string {
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "Name: " + reform.Inspect(s.Name, true)
-	res[3] = "Region: " + reform.Inspect(s.Region, true)
-	res[4] = "Hostname: " + reform.Inspect(s.Hostname, true)
+	res[3] = "Hostname: " + reform.Inspect(s.Hostname, true)
+	res[4] = "Region: " + reform.Inspect(s.Region, true)
 	return strings.Join(res, ", ")
 }
 
@@ -184,8 +184,8 @@ func (s *NodeRow) Values() []interface{} {
 		s.ID,
 		s.Type,
 		s.Name,
-		s.Region,
 		s.Hostname,
+		s.Region,
 	}
 }
 
@@ -196,8 +196,8 @@ func (s *NodeRow) Pointers() []interface{} {
 		&s.ID,
 		&s.Type,
 		&s.Name,
-		&s.Region,
 		&s.Hostname,
+		&s.Region,
 	}
 }
 
@@ -283,7 +283,7 @@ func (v *rDSNodeTableType) PKColumnIndex() uint {
 
 // RDSNodeTable represents nodes view or table in SQL database.
 var RDSNodeTable = &rDSNodeTableType{
-	s: parse.StructInfo{Type: "RDSNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "string", Column: "region"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RDSNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "*string", Column: "region"}}, PKFieldIndex: 0},
 	z: new(RDSNode).Values(),
 }
 
@@ -401,7 +401,7 @@ func (v *remoteNodeTableType) PKColumnIndex() uint {
 
 // RemoteNodeTable represents nodes view or table in SQL database.
 var RemoteNodeTable = &remoteNodeTableType{
-	s: parse.StructInfo{Type: "RemoteNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "string", Column: "region"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RemoteNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "*string", Column: "region"}}, PKFieldIndex: 0},
 	z: new(RemoteNode).Values(),
 }
 

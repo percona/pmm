@@ -19,6 +19,8 @@ package handlers
 import (
 	"context"
 
+	"github.com/AlekSi/pointer"
+
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/services/remote"
 	"github.com/percona/pmm-managed/utils/logger"
@@ -43,7 +45,7 @@ func (s *RemoteServer) List(ctx context.Context, req *api.RemoteListRequest) (*a
 			Node: &api.RemoteNode{
 				Id:     db.Node.ID,
 				Name:   db.Node.Name,
-				Region: db.Node.Region,
+				Region: pointer.GetString(db.Node.Region),
 			},
 			Service: &api.RemoteService{
 				Type:          string(db.Service.Type),

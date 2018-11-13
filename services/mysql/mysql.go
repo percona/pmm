@@ -164,7 +164,7 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 				if e := q.Reload(&a); e != nil {
 					return errors.WithStack(e)
 				}
-				logger.Get(ctx).WithField("component", "mysql").Infof("%s %s %s %d", a.Type, node.Name, node.Region, *a.ListenPort)
+				logger.Get(ctx).WithField("component", "mysql").Infof("%s %s %s %d", a.Type, node.Name, *node.Region, *a.ListenPort)
 
 				sc := prometheus.StaticConfig{
 					Targets: []string{fmt.Sprintf("127.0.0.1:%d", *a.ListenPort)},
@@ -383,7 +383,7 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 		node := &models.RemoteNode{
 			Type:   models.RemoteNodeType,
 			Name:   name,
-			Region: models.RemoteNodeRegion,
+			Region: pointer.ToString(models.RemoteNodeRegion),
 		}
 		if err := tx.Insert(node); err != nil {
 			if err, ok := err.(*mysql.MySQLError); ok && err.Number == 0x426 {

@@ -104,7 +104,7 @@ func TestList(t *testing.T) {
 			ID:     2,
 			Type:   "remote",
 			Name:   "localhost",
-			Region: "remote",
+			Region: pointer.ToString("remote"),
 		},
 		Service: models.RemoteService{
 			ID:            1000,

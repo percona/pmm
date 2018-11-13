@@ -200,12 +200,12 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 				if e := q.Reload(&a); e != nil {
 					return errors.WithStack(e)
 				}
-				logger.Get(ctx).WithField("component", "rds").Infof("%s %s %s %d", a.Type, node.Name, node.Region, *a.ListenPort)
+				logger.Get(ctx).WithField("component", "rds").Infof("%s %s %s %d", a.Type, node.Name, *node.Region, *a.ListenPort)
 
 				sc := prometheus.StaticConfig{
 					Targets: []string{fmt.Sprintf("127.0.0.1:%d", *a.ListenPort)},
 					Labels: []prometheus.LabelPair{
-						{Name: "aws_region", Value: node.Region},
+						{Name: "aws_region", Value: pointer.GetString(node.Region)},
 						{Name: "instance", Value: node.Name},
 					},
 				}
@@ -218,12 +218,12 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 				if e := q.Reload(&a); e != nil {
 					return errors.WithStack(e)
 				}
-				logger.Get(ctx).WithField("component", "rds").Infof("%s %s %s %d", a.Type, node.Name, node.Region, *a.ListenPort)
+				logger.Get(ctx).WithField("component", "rds").Infof("%s %s %s %d", a.Type, node.Name, *node.Region, *a.ListenPort)
 
 				sc := prometheus.StaticConfig{
 					Targets: []string{fmt.Sprintf("127.0.0.1:%d", *a.ListenPort)},
 					Labels: []prometheus.LabelPair{
-						{Name: "aws_region", Value: node.Region},
+						{Name: "aws_region", Value: pointer.GetString(node.Region)},
 						{Name: "instance", Value: node.Name},
 					},
 				}
@@ -314,7 +314,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 						Type: models.RDSNodeType,
 						Name: *db.DBInstanceIdentifier,
 
-						Region: region,
+						Region: pointer.ToString(region),
 					},
 					Service: models.RDSService{
 						Type: models.RDSServiceType,
@@ -342,7 +342,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 	}
 	sort.Slice(res, func(i, j int) bool {
 		if res[i].Node.Region != res[j].Node.Region {
-			return res[i].Node.Region < res[j].Node.Region
+			return pointer.GetString(res[i].Node.Region) < pointer.GetString(res[j].Node.Region)
 		}
 		return res[i].Node.Name < res[j].Node.Name
 	})
@@ -488,7 +488,7 @@ func (svc *Service) updateRDSExporterConfig(tx *reform.TX, service *models.RDSSe
 	for _, n := range nodes {
 		node := n.(*models.RDSNode)
 		instance := rdsExporterInstance{
-			Region:       node.Region,
+			Region:       pointer.GetString(node.Region),
 			Instance:     node.Name,
 			Type:         unknown,
 			AWSAccessKey: service.AWSAccessKey,
@@ -644,7 +644,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 
 	var add *Instance
 	for _, instance := range instances {
-		if instance.Node.Name == id.Name && instance.Node.Region == id.Region {
+		if instance.Node.Name == id.Name && pointer.GetString(instance.Node.Region) == id.Region {
 			add = &instance
 			break
 		}
@@ -664,7 +664,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 		if err = tx.Insert(node); err != nil {
 			if err, ok := err.(*mysql.MySQLError); ok && err.Number == 0x426 {
 				return status.Errorf(codes.AlreadyExists, "RDS instance %q already exists in region %q.",
-					node.Name, node.Region)
+					node.Name, *node.Region)
 			}
 			return errors.WithStack(err)
 		}

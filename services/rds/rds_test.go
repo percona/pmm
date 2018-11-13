@@ -177,7 +177,7 @@ func TestDiscover(t *testing.T) {
 			Node: models.RDSNode{
 				Type:   "rds",
 				Name:   "rds-aurora1",
-				Region: "us-east-1",
+				Region: pointer.ToString("us-east-1"),
 			},
 			Service: models.RDSService{
 				Type:          "rds",
@@ -190,7 +190,7 @@ func TestDiscover(t *testing.T) {
 			Node: models.RDSNode{
 				Type:   "rds",
 				Name:   "rds-aurora57",
-				Region: "us-east-1",
+				Region: pointer.ToString("us-east-1"),
 			},
 			Service: models.RDSService{
 				Type:          "rds",
@@ -203,7 +203,7 @@ func TestDiscover(t *testing.T) {
 			Node: models.RDSNode{
 				Type:   "rds",
 				Name:   "rds-mysql56",
-				Region: "us-east-1",
+				Region: pointer.ToString("us-east-1"),
 			},
 			Service: models.RDSService{
 				Type:          "rds",
@@ -216,7 +216,7 @@ func TestDiscover(t *testing.T) {
 			Node: models.RDSNode{
 				Type:   "rds",
 				Name:   "rds-mysql57",
-				Region: "us-east-1",
+				Region: pointer.ToString("us-east-1"),
 			},
 			Service: models.RDSService{
 				Type:          "rds",
@@ -273,7 +273,7 @@ func TestAddListRemove(t *testing.T) {
 			ID:     3,
 			Type:   "rds",
 			Name:   "rds-mysql57",
-			Region: "us-east-1",
+			Region: pointer.ToString("us-east-1"),
 		},
 		Service: models.RDSService{
 			ID:            1001,
