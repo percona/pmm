@@ -770,10 +770,6 @@
     "inventoryChangeBareMetalNodeRequest": {
       "type": "object",
       "properties": {
-        "hostname": {
-          "description": "Hostname. Is not unique.",
-          "type": "string"
-        },
         "id": {
           "description": "Unique Node identifier.",
           "type": "integer",
@@ -842,10 +838,6 @@
     "inventoryChangeVirtualMachineNodeRequest": {
       "type": "object",
       "properties": {
-        "hostname": {
-          "description": "Hostname. Is not unique.",
-          "type": "string"
-        },
         "id": {
           "description": "Unique Node identifier.",
           "type": "integer",

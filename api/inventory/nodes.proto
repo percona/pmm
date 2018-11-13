@@ -144,8 +144,7 @@ message ChangeBareMetalNodeRequest {
   uint32 id = 1;
   // Unique user-defined Node name.
   string name = 2;
-  // Hostname. Is not unique.
-  string hostname = 3;
+  reserved 3; // hostname
 }
 
 message ChangeBareMetalNodeResponse {}
@@ -155,8 +154,7 @@ message ChangeVirtualMachineNodeRequest {
   uint32 id = 1;
   // Unique user-defined Node name.
   string name = 2;
-  // Hostname. Is not unique.
-  string hostname = 3;
+  reserved 3; // hostname
 }
 
 message ChangeVirtualMachineNodeResponse {}

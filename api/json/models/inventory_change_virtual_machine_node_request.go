@@ -15,9 +15,6 @@ import (
 // swagger:model inventoryChangeVirtualMachineNodeRequest
 type InventoryChangeVirtualMachineNodeRequest struct {
 
-	// Hostname. Is not unique.
-	Hostname string `json:"hostname,omitempty"`
-
 	// Unique Node identifier.
 	ID int64 `json:"id,omitempty"`
 
