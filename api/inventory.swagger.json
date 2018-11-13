@@ -177,20 +177,20 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddRemoveNode": {
+    "/v0/inventory/Nodes/AddRemoteNode": {
       "post": {
         "tags": [
           "Nodes"
         ],
-        "summary": "AddRemoveNode adds remote Node.",
-        "operationId": "AddRemoveNode",
+        "summary": "AddRemoteNode adds remote Node.",
+        "operationId": "AddRemoteNode",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryAddRemoveNodeRequest"
+              "$ref": "#/definitions/inventoryAddRemoteNodeRequest"
             }
           }
         ],
@@ -198,7 +198,7 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryAddRemoveNodeResponse"
+              "$ref": "#/definitions/inventoryAddRemoteNodeResponse"
             }
           }
         }
@@ -485,7 +485,7 @@
         }
       }
     },
-    "inventoryAddRemoveNodeRequest": {
+    "inventoryAddRemoteNodeRequest": {
       "type": "object",
       "properties": {
         "name": {
@@ -494,7 +494,7 @@
         }
       }
     },
-    "inventoryAddRemoveNodeResponse": {
+    "inventoryAddRemoteNodeResponse": {
       "type": "object",
       "properties": {
         "remote": {

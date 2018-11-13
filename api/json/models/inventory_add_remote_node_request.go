@@ -11,21 +11,21 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryAddRemoveNodeRequest inventory add remove node request
-// swagger:model inventoryAddRemoveNodeRequest
-type InventoryAddRemoveNodeRequest struct {
+// InventoryAddRemoteNodeRequest inventory add remote node request
+// swagger:model inventoryAddRemoteNodeRequest
+type InventoryAddRemoteNodeRequest struct {
 
 	// Unique Node name.
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this inventory add remove node request
-func (m *InventoryAddRemoveNodeRequest) Validate(formats strfmt.Registry) error {
+// Validate validates this inventory add remote node request
+func (m *InventoryAddRemoteNodeRequest) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *InventoryAddRemoveNodeRequest) MarshalBinary() ([]byte, error) {
+func (m *InventoryAddRemoteNodeRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -33,8 +33,8 @@ func (m *InventoryAddRemoveNodeRequest) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *InventoryAddRemoveNodeRequest) UnmarshalBinary(b []byte) error {
-	var res InventoryAddRemoveNodeRequest
+func (m *InventoryAddRemoteNodeRequest) UnmarshalBinary(b []byte) error {
+	var res InventoryAddRemoteNodeRequest
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -110,7 +110,7 @@ message AddNodeResponse {
   }
 }
 
-message AddRemoveNodeRequest {
+message AddRemoteNodeRequest {
   reserved 1; // id
   reserved 2; // type
   // Unique Node name.
@@ -118,7 +118,7 @@ message AddRemoveNodeRequest {
   reserved 4; // hostname
 }
 
-message AddRemoveNodeResponse {
+message AddRemoteNodeResponse {
   RemoteNode remote = 1;
 }
 
@@ -163,10 +163,10 @@ service Nodes {
       body: "*"
     };
   }
-  // AddRemoveNode adds remote Node.
-  rpc AddRemoveNode(AddRemoveNodeRequest) returns (AddRemoveNodeResponse) {
+  // AddRemoteNode adds remote Node.
+  rpc AddRemoteNode(AddRemoteNodeRequest) returns (AddRemoteNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddRemoveNode"
+      post: "/v0/inventory/Nodes/AddRemoteNode"
       body: "*"
     };
   }
