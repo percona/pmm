@@ -21,7 +21,7 @@ type InventoryBareMetalNode struct {
 	// Unique Node identifier.
 	ID int64 `json:"id,omitempty"`
 
-	// Unique Node name.
+	// Unique user-defined Node name.
 	Name string `json:"name,omitempty"`
 }
 

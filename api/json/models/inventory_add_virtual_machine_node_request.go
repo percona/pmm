@@ -18,7 +18,7 @@ type InventoryAddVirtualMachineNodeRequest struct {
 	// Hostname. Is not unique.
 	Hostname string `json:"hostname,omitempty"`
 
-	// Unique Node name.
+	// Unique user-defined Node name.
 	Name string `json:"name,omitempty"`
 }
 
