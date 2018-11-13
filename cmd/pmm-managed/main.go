@@ -18,6 +18,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	_ "expvar"
 	"flag"
 	"fmt"
@@ -40,7 +41,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gopkg.in/reform.v1"
