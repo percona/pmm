@@ -20,9 +20,12 @@ import (
 	"context"
 
 	api "github.com/percona/pmm/api/inventory"
+
+	"github.com/percona/pmm-managed/services/inventory"
 )
 
 type ServicesServer struct {
+	Services *inventory.ServicesService
 }
 
 func (s *ServicesServer) ListServices(ctx context.Context, req *api.ListServicesRequest) (*api.ListServicesResponse, error) {

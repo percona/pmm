@@ -37,7 +37,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/percona/pmm/api/agent"
-	"github.com/percona/pmm/api/inventory"
+	inventoryAPI "github.com/percona/pmm/api/inventory"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
@@ -51,6 +51,7 @@ import (
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/grafana"
+	"github.com/percona/pmm-managed/services/inventory"
 	"github.com/percona/pmm-managed/services/logs"
 	"github.com/percona/pmm-managed/services/mysql"
 	"github.com/percona/pmm-managed/services/postgresql"
@@ -305,9 +306,21 @@ func runGRPCServer(ctx context.Context, deps *grpcServerDependencies) {
 
 	// PMM 2.0 APIs
 	agent.RegisterAgentServer(gRPCServer, &handlers.AgentServer{})
-	inventory.RegisterNodesServer(gRPCServer, &handlers.NodesServer{})
-	inventory.RegisterServicesServer(gRPCServer, &handlers.ServicesServer{})
-	inventory.RegisterAgentsServer(gRPCServer, &handlers.AgentsServer{})
+	inventoryAPI.RegisterNodesServer(gRPCServer, &handlers.NodesServer{
+		Nodes: &inventory.NodesService{
+			DB: deps.db,
+		},
+	})
+	inventoryAPI.RegisterServicesServer(gRPCServer, &handlers.ServicesServer{
+		Services: &inventory.ServicesService{
+			DB: deps.db,
+		},
+	})
+	inventoryAPI.RegisterAgentsServer(gRPCServer, &handlers.AgentsServer{
+		Agents: &inventory.AgentsService{
+			DB: deps.db,
+		},
+	})
 
 	if *debugF {
 		l.Debug("Reflection enabled.")
@@ -362,8 +375,8 @@ func runRESTServer(ctx context.Context, logs *logs.Logs) {
 		api.RegisterLogsHandlerFromEndpoint,
 		api.RegisterAnnotationsHandlerFromEndpoint,
 
-		inventory.RegisterNodesHandlerFromEndpoint,
-		inventory.RegisterAgentsHandlerFromEndpoint,
+		inventoryAPI.RegisterNodesHandlerFromEndpoint,
+		inventoryAPI.RegisterAgentsHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, *gRPCAddrF, opts); err != nil {
 			l.Panic(err)
