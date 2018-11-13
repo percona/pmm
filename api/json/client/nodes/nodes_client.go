@@ -81,30 +81,30 @@ func (a *Client) AddRDSNode(params *AddRDSNodeParams) (*AddRDSNodeOK, error) {
 }
 
 /*
-AddRemoveNode adds remove node adds remote node
+AddRemoteNode adds remote node adds remote node
 */
-func (a *Client) AddRemoveNode(params *AddRemoveNodeParams) (*AddRemoveNodeOK, error) {
+func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddRemoveNodeParams()
+		params = NewAddRemoteNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddRemoveNode",
+		ID:                 "AddRemoteNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddRemoveNode",
+		PathPattern:        "/v0/inventory/Nodes/AddRemoteNode",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddRemoveNodeReader{formats: a.formats},
+		Reader:             &AddRemoteNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddRemoveNodeOK), nil
+	return result.(*AddRemoteNodeOK), nil
 
 }
 
