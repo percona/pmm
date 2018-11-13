@@ -407,30 +407,27 @@ for the corresponding image:
 :ref:`Upgrading EC2 instance class <upgrade-ec2-instance-class>`
 --------------------------------------------------------------------------------
 
-Upgrading to a larger EC2 instance class should be straightforward as prescribed
-from the `AWS manual <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html>`_.
-The |pmm| AMI image uses a separate EBS volume for the |pmm| data and is
-independently upgraded following the next section.
+Upgrading to a larger EC2 instance class is supported by PMM provided you follow
+the instructions from the `AWS manual <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html>`_.
+The |pmm| AMI image uses a distinct EBS volume for the |pmm| data volume which
+permits independent resize of the EC2 instance without impacting the EBS volume.
 
-.. _enlarge-pmm-data-volume:
+.. _expand-pmm-data-volume:
 
-:ref:`Enlarging PMM Data Volume <enlarge-pmm-data-volume>`
+:ref:`Expanding the PMM Data EBS Volume <expand-pmm-data-volume>`
 --------------------------------------------------------------------------------
 
-The |pmm| data volume is mounted as XFS on top of an LVM volume. There are two
-ways to increase this volume as the |pmm| requirements change.
+The |pmm| data volume is mounted as an XFS formatted volume on top of an LVM
+volume. There are two ways to increase this volume size:
 
-1. Add a new disk and expand the LVM volume using the new disk.
-2. Expand the existing disk and grow the LVM volume.
+1. Add a new disk via EC2 console or API, and expand the LVM volume to include
+   the new disk volume.
+2. Expand existing EBS volume and grow the LVM volume.
 
-There is no significant difference or pros and cons between the two options.
-Option one may have the advantage of growing the volume as the OS permits while
-option two allows to snapshot the single disk from AWS console.
-
-Expanding Single Disk
+Expand existing EBS volume
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-To expand the single disk to increase capacity, the following steps can be
-followed.
+To expand the existing EBS volume in order to increase capacity, the following
+steps should be followed.
 
 1. Expand the disk from AWS Console/CLI to the desired capacity.
 2. Login to the |pmm| EC2 instance and verify that the disk capacity has
@@ -450,10 +447,10 @@ followed.
      DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.74
      ThinPool DataVG twi-aotz--  15.96g 1.39  1.29|
 
-4. Now we can use the ``lsblk`` command to see that our disk size has been read
-   by the kernel properly but LVM2 does not know about it yet. We can use
-   ``pvresize`` to make sure the PV device reflects the new size. Once
-   ``pvresize`` is executed, we can see that the VG has the new free space
+4. Now we can use the ``lsblk`` command to see that our disk size has been
+   identified by the kernel correctly but LVM2 is not yet aware of the new size.
+   We can use ``pvresize`` to make sure the PV device reflects the new size.
+   Once ``pvresize`` is executed, we can see that the VG has the new free space
    available.
 
    .. code-block:: bash
@@ -473,7 +470,7 @@ followed.
        PV         VG Fmt Attr PSize   PFree
        /dev/xvdb  DataVG lvm2 a--  <32.00g 16.00g
 
-5. We can then extend our logical volumes. Since the PMM image uses thin
+5. We then extend our logical volume. Since the PMM image uses thin
    provisioning, we need to extend both the pool and the volume::
 
       [root@ip-10-1-2-70 ~]# lvs
@@ -510,7 +507,9 @@ followed.
        DataLV   DataVG Vwi-aotz-- <31.80g ThinPool        0.71
        ThinPool DataVG twi-aotz--  31.96g 0.71  1.71
 
-7. Lastly, we need to expand the XFS filesystem to reflect the new size.
+7. We then expand the XFS filesystem to reflect the new size using
+   ``xfs_growfs``, and confirm the filesystem is accurate using the ``df``
+   command.
 
    .. code-block:: bash
 
