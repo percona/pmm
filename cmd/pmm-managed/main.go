@@ -307,17 +307,17 @@ func runGRPCServer(ctx context.Context, deps *grpcServerDependencies) {
 	agent.RegisterAgentServer(gRPCServer, &handlers.AgentServer{})
 	inventoryAPI.RegisterNodesServer(gRPCServer, &handlers.NodesServer{
 		Nodes: &inventory.NodesService{
-			DB: deps.db,
+			Q: deps.db.Querier,
 		},
 	})
 	inventoryAPI.RegisterServicesServer(gRPCServer, &handlers.ServicesServer{
 		Services: &inventory.ServicesService{
-			DB: deps.db,
+			Q: deps.db.Querier,
 		},
 	})
 	inventoryAPI.RegisterAgentsServer(gRPCServer, &handlers.AgentsServer{
 		Agents: &inventory.AgentsService{
-			DB: deps.db,
+			Q: deps.db.Querier,
 		},
 	})
 
@@ -374,7 +374,9 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 		api.RegisterLogsHandlerFromEndpoint,
 		api.RegisterAnnotationsHandlerFromEndpoint,
 
+		// PMM 2.0 APIs
 		inventoryAPI.RegisterNodesHandlerFromEndpoint,
+		inventoryAPI.RegisterServicesHandlerFromEndpoint,
 		inventoryAPI.RegisterAgentsHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, *gRPCAddrF, opts); err != nil {

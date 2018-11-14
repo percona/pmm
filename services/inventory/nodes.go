@@ -23,21 +23,24 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventory"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
 )
 
-// TODO Better errors.
-
 // NodesService works with inventory API Nodes.
 type NodesService struct {
-	DB *reform.DB
+	Q *reform.Querier
 }
 
 // makeNode converts database row to Inventory API Node.
 func makeNode(row *models.NodeRow) inventory.Node {
 	switch row.Type {
+	case models.PMMServerNodeType: // FIXME remove this branch
+		fallthrough
+
 	case models.BareMetalNodeType:
 		return &inventory.BareMetalNode{
 			Id:       row.ID,
@@ -77,9 +80,21 @@ func makeNode(row *models.NodeRow) inventory.Node {
 	}
 }
 
+func (ns *NodesService) checkUniqueName(ctx context.Context, name string) error {
+	_, err := ns.Q.FindOneFrom(models.NodeRowTable, "name", name)
+	switch err {
+	case nil:
+		return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", name)
+	case reform.ErrNoRows:
+		return nil
+	default:
+		return errors.WithStack(err)
+	}
+}
+
 // List selects all Nodes in a stable order.
 func (ns *NodesService) List(ctx context.Context) ([]inventory.Node, error) {
-	structs, err := ns.DB.SelectAllFrom(models.NodeRowTable, "ORDER BY id")
+	structs, err := ns.Q.SelectAllFrom(models.NodeRowTable, "ORDER BY id")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -95,7 +110,10 @@ func (ns *NodesService) List(ctx context.Context) ([]inventory.Node, error) {
 // Get selects a single Node by ID.
 func (ns *NodesService) Get(ctx context.Context, id uint32) (inventory.Node, error) {
 	row := &models.NodeRow{ID: id}
-	if err := ns.DB.Reload(row); err != nil {
+	if err := ns.Q.Reload(row); err != nil {
+		if err == reform.ErrNoRows {
+			return nil, status.Errorf(codes.NotFound, "Node with ID %d not found.", id)
+		}
 		return nil, errors.WithStack(err)
 	}
 
@@ -105,6 +123,11 @@ func (ns *NodesService) Get(ctx context.Context, id uint32) (inventory.Node, err
 // Add inserts Node with given parameters.
 func (ns *NodesService) Add(ctx context.Context, nodeType models.NodeType, name string, hostname, region *string) (inventory.Node, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+	// No hostname for Container, etc.
+
+	if err := ns.checkUniqueName(ctx, name); err != nil {
+		return nil, err
+	}
 
 	row := &models.NodeRow{
 		Type:     nodeType,
@@ -112,7 +135,7 @@ func (ns *NodesService) Add(ctx context.Context, nodeType models.NodeType, name 
 		Hostname: hostname,
 		Region:   region,
 	}
-	if err := ns.DB.Insert(row); err != nil {
+	if err := ns.Q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
@@ -121,22 +144,34 @@ func (ns *NodesService) Add(ctx context.Context, nodeType models.NodeType, name 
 
 // Change updates Node by ID.
 func (ns *NodesService) Change(ctx context.Context, id uint32, name string) error {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+	// ID is not 0, name is not empty and valid.
+
+	if err := ns.checkUniqueName(ctx, name); err != nil {
+		return err
+	}
+
 	row := &models.NodeRow{ID: id}
-	if err := ns.DB.Reload(row); err != nil {
+	if err := ns.Q.Reload(row); err != nil {
+		if err == reform.ErrNoRows {
+			return status.Errorf(codes.NotFound, "Node with ID %d not found.", id)
+		}
 		return errors.WithStack(err)
 	}
 
 	row.Name = name
-	if err := ns.DB.Update(row); err != nil {
-		return errors.WithStack(err)
-	}
-
-	return nil
+	err := ns.Q.Update(row)
+	return errors.WithStack(err)
 }
 
 // Remove deletes Node by ID.
 func (ns *NodesService) Remove(ctx context.Context, id uint32) error {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+	// ID is not 0.
 
-	return ns.DB.Delete(&models.NodeRow{ID: id})
+	err := ns.Q.Delete(&models.NodeRow{ID: id})
+	if err == reform.ErrNoRows {
+		return status.Errorf(codes.NotFound, "Node with ID %d not found.", id)
+	}
+	return errors.WithStack(err)
 }

@@ -22,5 +22,5 @@ import (
 
 // ServicesService works with inventory API Services.
 type ServicesService struct {
-	DB *reform.DB
+	Q *reform.Querier
 }

@@ -22,5 +22,5 @@ import (
 
 // AgentsService works with inventory API Agents.
 type AgentsService struct {
-	DB *reform.DB
+	Q *reform.Querier
 }
