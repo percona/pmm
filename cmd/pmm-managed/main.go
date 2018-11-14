@@ -74,14 +74,13 @@ const (
 )
 
 var (
-	// TODO we can combine gRPC and REST ports, but only with TLS
-	// see https://github.com/grpc/grpc-go/issues/555
-	// alternatively, we can try to use cmux: https://open.dgraph.io/post/cmux/
-	gRPCAddrF  = flag.String("listen-grpc-addr", "127.0.0.1:7771", "gRPC server listen address")
-	restAddrF  = flag.String("listen-rest-addr", "127.0.0.1:7772", "REST server listen address")
+	// TODO Switch to kingpin for flags parsing: https://jira.percona.com/browse/PMM-3259
+
+	gRPCAddrF  = flag.String("listen-grpc-addr", "127.0.0.1:7771", "gRPC APIs server listen address")
+	jsonAddrF  = flag.String("listen-json-addr", "127.0.0.1:7772", "JSON APIs server listen address")
 	debugAddrF = flag.String("listen-debug-addr", "127.0.0.1:7773", "Debug server listen address")
 
-	swaggerF = flag.String("swagger", "off", "Server to serve Swagger: rest, debug or off")
+	swaggerF = flag.String("swagger", "off", "Server to serve Swagger spec and documentation: json, debug, or off")
 
 	prometheusConfigF = flag.String("prometheus-config", "", "Prometheus configuration file path")
 	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/", "Prometheus base URL")
@@ -355,10 +354,10 @@ func runGRPCServer(ctx context.Context, deps *grpcServerDependencies) {
 	cancel()
 }
 
-// runRESTServer runs REST proxy server until context is canceled, then gracefully stops it.
-func runRESTServer(ctx context.Context, logs *logs.Logs) {
-	l := logrus.WithField("component", "REST")
-	l.Infof("Starting server on http://%s/ ...", *restAddrF)
+// runJSONServer runs JSON proxy server (grpc-gateway) until context is canceled, then gracefully stops it.
+func runJSONServer(ctx context.Context, logs *logs.Logs) {
+	l := logrus.WithField("component", "JSON")
+	l.Infof("Starting server on http://%s/ ...", *jsonAddrF)
 
 	proxyMux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
@@ -384,16 +383,16 @@ func runRESTServer(ctx context.Context, logs *logs.Logs) {
 	}
 
 	mux := http.NewServeMux()
-	if *swaggerF == "rest" {
-		l.Printf("Swagger enabled. http://%s/swagger/", *restAddrF)
+	if *swaggerF == "json" {
+		l.Printf("Swagger enabled. http://%s/swagger/", *jsonAddrF)
 		addSwaggerHandler(mux)
 	}
 	addLogsHandler(mux, logs)
 	mux.Handle("/", proxyMux)
 
 	server := &http.Server{
-		Addr:     *restAddrF,
-		ErrorLog: log.New(os.Stderr, "runRESTServer: ", 0),
+		Addr:     *jsonAddrF,
+		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
 		Handler:  mux,
 
 		// TODO we probably will need it for TLS+HTTP/2, see https://github.com/philips/grpc-gateway-example/issues/11
@@ -518,7 +517,7 @@ func main() {
 		// grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 	}
 
-	if *swaggerF != "rest" && *swaggerF != "debug" && *swaggerF != "off" {
+	if *swaggerF != "json" && *swaggerF != "debug" && *swaggerF != "off" {
 		flag.Usage()
 		log.Fatalf("Unexpected value %q for -swagger flag.", *swaggerF)
 	}
@@ -620,7 +619,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runRESTServer(ctx, logs)
+		runJSONServer(ctx, logs)
 	}()
 
 	wg.Add(1)

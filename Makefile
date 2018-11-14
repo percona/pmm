@@ -43,7 +43,7 @@ run: install _run
 run-race: install-race _run
 
 _run:
-	pmm-managed -swagger=rest -debug \
+	pmm-managed -swagger=json -debug \
 		-agent-mysqld-exporter=mysqld_exporter \
 		-agent-postgres-exporter=postgres_exporter \
 		-agent-rds-exporter=rds_exporter \
