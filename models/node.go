@@ -20,7 +20,7 @@ package models
 
 type NodeType string
 
-// Node types
+// Node types.
 const (
 	PMMServerNodeType NodeType = "pmm-server" // FIXME remove
 
@@ -28,7 +28,7 @@ const (
 	VirtualMachineNodeType NodeType = "virtual-machine"
 	ContainerNodeType      NodeType = "container"
 	RemoteNodeType         NodeType = "remote"
-	RDSNodeType            NodeType = "rds"
+	AWSRDSNodeType         NodeType = "aws-rds"
 )
 
 const RemoteNodeRegion string = "remote"
@@ -53,7 +53,7 @@ type NodeRow struct {
 // TODO remove types below
 
 //reform:nodes
-type RDSNode struct {
+type AWSRDSNode struct {
 	ID   uint32   `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"` // DBInstanceIdentifier

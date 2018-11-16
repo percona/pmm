@@ -122,10 +122,10 @@ func TestNodes(t *testing.T) {
 		ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, models.RDSNodeType, "test1", pointer.ToString("test-hostname"), pointer.ToString("test-region"))
+		_, err := ns.Add(ctx, models.AWSRDSNodeType, "test1", pointer.ToString("test-hostname"), pointer.ToString("test-region"))
 		require.NoError(t, err)
 
-		_, err = ns.Add(ctx, models.RDSNodeType, "test2", pointer.ToString("test-hostname"), pointer.ToString("test-region"))
+		_, err = ns.Add(ctx, models.AWSRDSNodeType, "test2", pointer.ToString("test-hostname"), pointer.ToString("test-region"))
 		expected := status.New(codes.AlreadyExists, `Node with hostname "test-hostname" and region "test-region" already exists.`)
 		tests.AssertGRPCError(t, expected, err)
 	})
@@ -145,7 +145,7 @@ func TestNodes(t *testing.T) {
 		_, err := ns.Add(ctx, models.RemoteNodeType, "test-remote", nil, nil)
 		require.NoError(t, err)
 
-		rdsNode, err := ns.Add(ctx, models.RDSNodeType, "test-rds", nil, nil)
+		rdsNode, err := ns.Add(ctx, models.AWSRDSNodeType, "test-rds", nil, nil)
 		require.NoError(t, err)
 
 		err = ns.Change(ctx, rdsNode.(*inventory.RDSNode).Id, "test-remote")

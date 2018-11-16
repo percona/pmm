@@ -67,7 +67,7 @@ func makeNode(row *models.NodeRow) inventory.Node {
 			Name: row.Name,
 		}
 
-	case models.RDSNodeType:
+	case models.AWSRDSNodeType:
 		return &inventory.RDSNode{
 			Id:       row.ID,
 			Name:     row.Name,

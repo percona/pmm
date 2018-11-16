@@ -20,10 +20,12 @@ package models
 
 type ServiceType string
 
+// Service types.
 const (
-	RDSServiceType        ServiceType = "rds"
+	MySQLServiceType ServiceType = "mysql"
+
+	AWSRDSServiceType     ServiceType = "aws-rds"
 	PostgreSQLServiceType ServiceType = "postgresql"
-	MySQLServiceType      ServiceType = "mysql"
 )
 
 //reform:services
@@ -34,7 +36,16 @@ type Service struct {
 }
 
 //reform:services
-type RDSService struct {
+type ServiceRow struct {
+	ID     uint32      `reform:"id,pk"`
+	Type   ServiceType `reform:"type"`
+	NodeID uint32      `reform:"node_id"`
+}
+
+// TODO remove types below
+
+//reform:services
+type AWSRDSService struct {
 	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
 	NodeID uint32      `reform:"node_id"`
