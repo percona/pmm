@@ -671,7 +671,35 @@
       }
     },
     "inventoryAddMySQLServiceRequest": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "address": {
+          "description": "MySQL access address (DNS name or IP address).",
+          "type": "string"
+        },
+        "name": {
+          "description": "Unique user-defined Service name.",
+          "type": "string"
+        },
+        "node_id": {
+          "description": "Node identifier where this Service runs.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "port": {
+          "description": "MySQL access port.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "unix_socket": {
+          "description": "MySQL access UNIX socket path.",
+          "type": "string"
+        },
+        "version": {
+          "description": "MySQL version and engine. Arbitrary format.",
+          "type": "string"
+        }
+      }
     },
     "inventoryAddMySQLServiceResponse": {
       "type": "object",
@@ -1023,9 +1051,13 @@
       }
     },
     "inventoryMySQLService": {
-      "description": "MySQLService represents MySQL Service configuration.",
+      "description": "MySQLService represents MySQL-compatible Service configuration.",
       "type": "object",
       "properties": {
+        "address": {
+          "description": "MySQL access address (DNS name or IP address).",
+          "type": "string"
+        },
         "id": {
           "description": "Unique Service identifier.",
           "type": "integer",
@@ -1033,6 +1065,24 @@
         },
         "name": {
           "description": "Unique user-defined Service name.",
+          "type": "string"
+        },
+        "node_id": {
+          "description": "Node identifier where this Service runs.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "port": {
+          "description": "MySQL access port.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "unix_socket": {
+          "description": "MySQL access UNIX socket path.",
+          "type": "string"
+        },
+        "version": {
+          "description": "MySQL version and engine. Arbitrary format.",
           "type": "string"
         }
       }

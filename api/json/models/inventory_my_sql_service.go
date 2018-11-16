@@ -11,15 +11,30 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryMySQLService MySQLService represents MySQL Service configuration.
+// InventoryMySQLService MySQLService represents MySQL-compatible Service configuration.
 // swagger:model inventoryMySQLService
 type InventoryMySQLService struct {
+
+	// MySQL access address (DNS name or IP address).
+	Address string `json:"address,omitempty"`
 
 	// Unique Service identifier.
 	ID int64 `json:"id,omitempty"`
 
 	// Unique user-defined Service name.
 	Name string `json:"name,omitempty"`
+
+	// Node identifier where this Service runs.
+	NodeID int64 `json:"node_id,omitempty"`
+
+	// MySQL access port.
+	Port int64 `json:"port,omitempty"`
+
+	// MySQL access UNIX socket path.
+	UnixSocket string `json:"unix_socket,omitempty"`
+
+	// MySQL version and engine. Arbitrary format.
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this inventory my SQL service

@@ -4,12 +4,22 @@ package inventory;
 
 import "google/api/annotations.proto";
 
-// MySQLService represents MySQL Service configuration.
+// MySQLService represents MySQL-compatible Service configuration.
 message MySQLService {
   // Unique Service identifier.
   uint32 id = 1;
   // Unique user-defined Service name.
   string name = 2;
+  // Node identifier where this Service runs.
+  uint32 node_id = 3;
+  // MySQL access address (DNS name or IP address).
+  string address = 4;
+  // MySQL access port.
+  uint32 port = 5;
+  // MySQL access UNIX socket path.
+  string unix_socket = 6;
+  // MySQL version and engine. Arbitrary format.
+  string version = 7;
 }
 
 message ListServicesRequest {}
@@ -29,7 +39,21 @@ message GetServiceResponse {
   }
 }
 
-message AddMySQLServiceRequest {}
+message AddMySQLServiceRequest {
+  reserved 1; // id
+  // Unique user-defined Service name.
+  string name = 2;
+  // Node identifier where this Service runs.
+  uint32 node_id = 3;
+  // MySQL access address (DNS name or IP address).
+  string address = 4;
+  // MySQL access port.
+  uint32 port = 5;
+  // MySQL access UNIX socket path.
+  string unix_socket = 6;
+  // MySQL version and engine. Arbitrary format.
+  string version = 7;
+}
 
 message AddMySQLServiceResponse {
   MySQLService mysql = 1;
