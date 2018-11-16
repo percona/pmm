@@ -92,6 +92,19 @@ func (ns *NodesService) checkUniqueName(ctx context.Context, name string) error 
 	}
 }
 
+func (ns *NodesService) checkUniqueHostnameRegion(ctx context.Context, hostname, region string) error {
+	tail := fmt.Sprintf("WHERE hostname = %s AND region = %s LIMIT 1", ns.Q.Placeholder(1), ns.Q.Placeholder(2))
+	_, err := ns.Q.SelectOneFrom(models.NodeRowTable, tail, hostname, region)
+	switch err {
+	case nil:
+		return status.Errorf(codes.AlreadyExists, "Node with hostname %q and region %q already exists.", hostname, region)
+	case reform.ErrNoRows:
+		return nil
+	default:
+		return errors.WithStack(err)
+	}
+}
+
 // List selects all Nodes in a stable order.
 func (ns *NodesService) List(ctx context.Context) ([]inventory.Node, error) {
 	structs, err := ns.Q.SelectAllFrom(models.NodeRowTable, "ORDER BY id")
@@ -127,6 +140,11 @@ func (ns *NodesService) Add(ctx context.Context, nodeType models.NodeType, name 
 
 	if err := ns.checkUniqueName(ctx, name); err != nil {
 		return nil, err
+	}
+	if hostname != nil && region != nil {
+		if err := ns.checkUniqueHostnameRegion(ctx, *hostname, *region); err != nil {
+			return nil, err
+		}
 	}
 
 	row := &models.NodeRow{
@@ -168,6 +186,8 @@ func (ns *NodesService) Change(ctx context.Context, id uint32, name string) erro
 func (ns *NodesService) Remove(ctx context.Context, id uint32) error {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// ID is not 0.
+
+	// TODO check absence of Services and Agents
 
 	err := ns.Q.Delete(&models.NodeRow{ID: id})
 	if err == reform.ErrNoRows {

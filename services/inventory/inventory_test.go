@@ -107,6 +107,29 @@ func TestNodes(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test" already exists.`), err)
 	})
 
+	t.Run("AddHostnameNotUnique", func(t *testing.T) {
+		ns, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := ns.Add(ctx, models.BareMetalNodeType, "test1", pointer.ToString("test"), nil)
+		require.NoError(t, err)
+
+		_, err = ns.Add(ctx, models.BareMetalNodeType, "test2", pointer.ToString("test"), nil)
+		require.NoError(t, err)
+	})
+
+	t.Run("AddHostnameRegionNotUnique", func(t *testing.T) {
+		ns, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := ns.Add(ctx, models.RDSNodeType, "test1", pointer.ToString("test-hostname"), pointer.ToString("test-region"))
+		require.NoError(t, err)
+
+		_, err = ns.Add(ctx, models.RDSNodeType, "test2", pointer.ToString("test-hostname"), pointer.ToString("test-region"))
+		expected := status.New(codes.AlreadyExists, `Node with hostname "test-hostname" and region "test-region" already exists.`)
+		tests.AssertGRPCError(t, expected, err)
+	})
+
 	t.Run("ChangeNotFound", func(t *testing.T) {
 		ns, teardown := setup(t)
 		defer teardown(t)
