@@ -105,7 +105,7 @@
         - percona-prometheus1-1.8.2
         - percona-prometheus-2.3.2
         - percona-qan-api-1.17.0
-        - percona-grafana-5.1.3
+        - percona-grafana-5.1.3-7
         - percona-qan-app-1.17.0
         - pmm-manage-1.17.0
         - pmm-managed-1.17.0
