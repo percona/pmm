@@ -16,6 +16,12 @@
 
 package models
 
+import (
+	"time"
+
+	"gopkg.in/reform.v1"
+)
+
 //go:generate reform
 
 type ServiceType string
@@ -37,10 +43,38 @@ type Service struct {
 
 //reform:services
 type ServiceRow struct {
-	ID     uint32      `reform:"id,pk"`
-	Type   ServiceType `reform:"type"`
-	NodeID uint32      `reform:"node_id"`
+	ID        uint32      `reform:"id,pk"`
+	Type      ServiceType `reform:"type"`
+	NodeID    uint32      `reform:"node_id"`
+	CreatedAt time.Time   `reform:"created_at"`
+	UpdatedAt time.Time   `reform:"updated_at"`
 }
+
+func (sr *ServiceRow) BeforeInsert() error {
+	now := time.Now().Truncate(time.Microsecond).UTC()
+	sr.CreatedAt = now
+	sr.UpdatedAt = now
+	return nil
+}
+
+func (sr *ServiceRow) BeforeUpdate() error {
+	now := time.Now().Truncate(time.Microsecond).UTC()
+	sr.UpdatedAt = now
+	return nil
+}
+
+func (sr *ServiceRow) AfterFind() error {
+	sr.CreatedAt = sr.CreatedAt.UTC()
+	sr.UpdatedAt = sr.UpdatedAt.UTC()
+	return nil
+}
+
+// check interfaces
+var (
+	_ reform.BeforeInserter = (*ServiceRow)(nil)
+	_ reform.BeforeUpdater  = (*ServiceRow)(nil)
+	_ reform.AfterFinder    = (*ServiceRow)(nil)
+)
 
 // TODO remove types below
 

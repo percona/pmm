@@ -142,7 +142,7 @@ func (v *serviceRowTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *serviceRowTableType) Columns() []string {
-	return []string{"id", "type", "node_id"}
+	return []string{"id", "type", "node_id", "created_at", "updated_at"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -162,16 +162,18 @@ func (v *serviceRowTableType) PKColumnIndex() uint {
 
 // ServiceRowTable represents services view or table in SQL database.
 var ServiceRowTable = &serviceRowTableType{
-	s: parse.StructInfo{Type: "ServiceRow", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "ServiceRow", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}}, PKFieldIndex: 0},
 	z: new(ServiceRow).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s ServiceRow) String() string {
-	res := make([]string, 3)
+	res := make([]string, 5)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "NodeID: " + reform.Inspect(s.NodeID, true)
+	res[3] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[4] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -182,6 +184,8 @@ func (s *ServiceRow) Values() []interface{} {
 		s.ID,
 		s.Type,
 		s.NodeID,
+		s.CreatedAt,
+		s.UpdatedAt,
 	}
 }
 
@@ -192,6 +196,8 @@ func (s *ServiceRow) Pointers() []interface{} {
 		&s.ID,
 		&s.Type,
 		&s.NodeID,
+		&s.CreatedAt,
+		&s.UpdatedAt,
 	}
 }
 

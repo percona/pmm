@@ -16,6 +16,12 @@
 
 package models
 
+import (
+	"time"
+
+	"gopkg.in/reform.v1"
+)
+
 //go:generate reform
 
 type NodeType string
@@ -42,13 +48,41 @@ type Node struct {
 
 //reform:nodes
 type NodeRow struct {
-	ID   uint32   `reform:"id,pk"`
-	Type NodeType `reform:"type"`
-	Name string   `reform:"name"`
+	ID        uint32    `reform:"id,pk"`
+	Type      NodeType  `reform:"type"`
+	Name      string    `reform:"name"`
+	CreatedAt time.Time `reform:"created_at"`
+	UpdatedAt time.Time `reform:"updated_at"`
 
 	Hostname *string `reform:"hostname"`
 	Region   *string `reform:"region"`
 }
+
+func (nr *NodeRow) BeforeInsert() error {
+	now := time.Now().Truncate(time.Microsecond).UTC()
+	nr.CreatedAt = now
+	nr.UpdatedAt = now
+	return nil
+}
+
+func (nr *NodeRow) BeforeUpdate() error {
+	now := time.Now().Truncate(time.Microsecond).UTC()
+	nr.UpdatedAt = now
+	return nil
+}
+
+func (nr *NodeRow) AfterFind() error {
+	nr.CreatedAt = nr.CreatedAt.UTC()
+	nr.UpdatedAt = nr.UpdatedAt.UTC()
+	return nil
+}
+
+// check interfaces
+var (
+	_ reform.BeforeInserter = (*NodeRow)(nil)
+	_ reform.BeforeUpdater  = (*NodeRow)(nil)
+	_ reform.AfterFinder    = (*NodeRow)(nil)
+)
 
 // TODO remove types below
 
