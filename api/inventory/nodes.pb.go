@@ -41,7 +41,7 @@ func (m *BareMetalNode) Reset()         { *m = BareMetalNode{} }
 func (m *BareMetalNode) String() string { return proto.CompactTextString(m) }
 func (*BareMetalNode) ProtoMessage()    {}
 func (*BareMetalNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{0}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{0}
 }
 func (m *BareMetalNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_BareMetalNode.Unmarshal(m, b)
@@ -99,7 +99,7 @@ func (m *VirtualMachineNode) Reset()         { *m = VirtualMachineNode{} }
 func (m *VirtualMachineNode) String() string { return proto.CompactTextString(m) }
 func (*VirtualMachineNode) ProtoMessage()    {}
 func (*VirtualMachineNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{1}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{1}
 }
 func (m *VirtualMachineNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_VirtualMachineNode.Unmarshal(m, b)
@@ -155,7 +155,7 @@ func (m *ContainerNode) Reset()         { *m = ContainerNode{} }
 func (m *ContainerNode) String() string { return proto.CompactTextString(m) }
 func (*ContainerNode) ProtoMessage()    {}
 func (*ContainerNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{2}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{2}
 }
 func (m *ContainerNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ContainerNode.Unmarshal(m, b)
@@ -204,7 +204,7 @@ func (m *RemoteNode) Reset()         { *m = RemoteNode{} }
 func (m *RemoteNode) String() string { return proto.CompactTextString(m) }
 func (*RemoteNode) ProtoMessage()    {}
 func (*RemoteNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{3}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{3}
 }
 func (m *RemoteNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoteNode.Unmarshal(m, b)
@@ -238,8 +238,8 @@ func (m *RemoteNode) GetName() string {
 	return ""
 }
 
-// RDSNode represents AWS RDS Node.
-type RDSNode struct {
+// AWSRDSNode represents AWS RDS Node.
+type AWSRDSNode struct {
 	// Unique Node identifier.
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
@@ -253,52 +253,52 @@ type RDSNode struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RDSNode) Reset()         { *m = RDSNode{} }
-func (m *RDSNode) String() string { return proto.CompactTextString(m) }
-func (*RDSNode) ProtoMessage()    {}
-func (*RDSNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{4}
+func (m *AWSRDSNode) Reset()         { *m = AWSRDSNode{} }
+func (m *AWSRDSNode) String() string { return proto.CompactTextString(m) }
+func (*AWSRDSNode) ProtoMessage()    {}
+func (*AWSRDSNode) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_35c185779baf7e13, []int{4}
 }
-func (m *RDSNode) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RDSNode.Unmarshal(m, b)
+func (m *AWSRDSNode) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AWSRDSNode.Unmarshal(m, b)
 }
-func (m *RDSNode) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RDSNode.Marshal(b, m, deterministic)
+func (m *AWSRDSNode) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AWSRDSNode.Marshal(b, m, deterministic)
 }
-func (dst *RDSNode) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RDSNode.Merge(dst, src)
+func (dst *AWSRDSNode) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AWSRDSNode.Merge(dst, src)
 }
-func (m *RDSNode) XXX_Size() int {
-	return xxx_messageInfo_RDSNode.Size(m)
+func (m *AWSRDSNode) XXX_Size() int {
+	return xxx_messageInfo_AWSRDSNode.Size(m)
 }
-func (m *RDSNode) XXX_DiscardUnknown() {
-	xxx_messageInfo_RDSNode.DiscardUnknown(m)
+func (m *AWSRDSNode) XXX_DiscardUnknown() {
+	xxx_messageInfo_AWSRDSNode.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_RDSNode proto.InternalMessageInfo
+var xxx_messageInfo_AWSRDSNode proto.InternalMessageInfo
 
-func (m *RDSNode) GetId() uint32 {
+func (m *AWSRDSNode) GetId() uint32 {
 	if m != nil {
 		return m.Id
 	}
 	return 0
 }
 
-func (m *RDSNode) GetName() string {
+func (m *AWSRDSNode) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *RDSNode) GetHostname() string {
+func (m *AWSRDSNode) GetHostname() string {
 	if m != nil {
 		return m.Hostname
 	}
 	return ""
 }
 
-func (m *RDSNode) GetRegion() string {
+func (m *AWSRDSNode) GetRegion() string {
 	if m != nil {
 		return m.Region
 	}
@@ -315,7 +315,7 @@ func (m *ListNodesRequest) Reset()         { *m = ListNodesRequest{} }
 func (m *ListNodesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNodesRequest) ProtoMessage()    {}
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{5}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{5}
 }
 func (m *ListNodesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesRequest.Unmarshal(m, b)
@@ -340,7 +340,7 @@ type ListNodesResponse struct {
 	VirtualMachine       []*VirtualMachineNode `protobuf:"bytes,2,rep,name=virtual_machine,json=virtualMachine,proto3" json:"virtual_machine,omitempty"`
 	Container            []*ContainerNode      `protobuf:"bytes,3,rep,name=container,proto3" json:"container,omitempty"`
 	Remote               []*RemoteNode         `protobuf:"bytes,4,rep,name=remote,proto3" json:"remote,omitempty"`
-	Rds                  []*RDSNode            `protobuf:"bytes,5,rep,name=rds,proto3" json:"rds,omitempty"`
+	AwsRds               []*AWSRDSNode         `protobuf:"bytes,5,rep,name=aws_rds,json=awsRds,proto3" json:"aws_rds,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
 	XXX_unrecognized     []byte                `json:"-"`
 	XXX_sizecache        int32                 `json:"-"`
@@ -350,7 +350,7 @@ func (m *ListNodesResponse) Reset()         { *m = ListNodesResponse{} }
 func (m *ListNodesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNodesResponse) ProtoMessage()    {}
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{6}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{6}
 }
 func (m *ListNodesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesResponse.Unmarshal(m, b)
@@ -398,9 +398,9 @@ func (m *ListNodesResponse) GetRemote() []*RemoteNode {
 	return nil
 }
 
-func (m *ListNodesResponse) GetRds() []*RDSNode {
+func (m *ListNodesResponse) GetAwsRds() []*AWSRDSNode {
 	if m != nil {
-		return m.Rds
+		return m.AwsRds
 	}
 	return nil
 }
@@ -417,7 +417,7 @@ func (m *GetNodeRequest) Reset()         { *m = GetNodeRequest{} }
 func (m *GetNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetNodeRequest) ProtoMessage()    {}
 func (*GetNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{7}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{7}
 }
 func (m *GetNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeRequest.Unmarshal(m, b)
@@ -450,7 +450,7 @@ type GetNodeResponse struct {
 	//	*GetNodeResponse_VirtualMachine
 	//	*GetNodeResponse_Container
 	//	*GetNodeResponse_Remote
-	//	*GetNodeResponse_Rds
+	//	*GetNodeResponse_AwsRds
 	Node                 isGetNodeResponse_Node `protobuf_oneof:"node"`
 	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
 	XXX_unrecognized     []byte                 `json:"-"`
@@ -461,7 +461,7 @@ func (m *GetNodeResponse) Reset()         { *m = GetNodeResponse{} }
 func (m *GetNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*GetNodeResponse) ProtoMessage()    {}
 func (*GetNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{8}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{8}
 }
 func (m *GetNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeResponse.Unmarshal(m, b)
@@ -501,8 +501,8 @@ type GetNodeResponse_Remote struct {
 	Remote *RemoteNode `protobuf:"bytes,4,opt,name=remote,proto3,oneof"`
 }
 
-type GetNodeResponse_Rds struct {
-	Rds *RDSNode `protobuf:"bytes,5,opt,name=rds,proto3,oneof"`
+type GetNodeResponse_AwsRds struct {
+	AwsRds *AWSRDSNode `protobuf:"bytes,5,opt,name=aws_rds,json=awsRds,proto3,oneof"`
 }
 
 func (*GetNodeResponse_BareMetal) isGetNodeResponse_Node() {}
@@ -513,7 +513,7 @@ func (*GetNodeResponse_Container) isGetNodeResponse_Node() {}
 
 func (*GetNodeResponse_Remote) isGetNodeResponse_Node() {}
 
-func (*GetNodeResponse_Rds) isGetNodeResponse_Node() {}
+func (*GetNodeResponse_AwsRds) isGetNodeResponse_Node() {}
 
 func (m *GetNodeResponse) GetNode() isGetNodeResponse_Node {
 	if m != nil {
@@ -550,9 +550,9 @@ func (m *GetNodeResponse) GetRemote() *RemoteNode {
 	return nil
 }
 
-func (m *GetNodeResponse) GetRds() *RDSNode {
-	if x, ok := m.GetNode().(*GetNodeResponse_Rds); ok {
-		return x.Rds
+func (m *GetNodeResponse) GetAwsRds() *AWSRDSNode {
+	if x, ok := m.GetNode().(*GetNodeResponse_AwsRds); ok {
+		return x.AwsRds
 	}
 	return nil
 }
@@ -564,7 +564,7 @@ func (*GetNodeResponse) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffe
 		(*GetNodeResponse_VirtualMachine)(nil),
 		(*GetNodeResponse_Container)(nil),
 		(*GetNodeResponse_Remote)(nil),
-		(*GetNodeResponse_Rds)(nil),
+		(*GetNodeResponse_AwsRds)(nil),
 	}
 }
 
@@ -592,9 +592,9 @@ func _GetNodeResponse_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 		if err := b.EncodeMessage(x.Remote); err != nil {
 			return err
 		}
-	case *GetNodeResponse_Rds:
+	case *GetNodeResponse_AwsRds:
 		b.EncodeVarint(5<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Rds); err != nil {
+		if err := b.EncodeMessage(x.AwsRds); err != nil {
 			return err
 		}
 	case nil:
@@ -639,13 +639,13 @@ func _GetNodeResponse_OneofUnmarshaler(msg proto.Message, tag, wire int, b *prot
 		err := b.DecodeMessage(msg)
 		m.Node = &GetNodeResponse_Remote{msg}
 		return true, err
-	case 5: // node.rds
+	case 5: // node.aws_rds
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
-		msg := new(RDSNode)
+		msg := new(AWSRDSNode)
 		err := b.DecodeMessage(msg)
-		m.Node = &GetNodeResponse_Rds{msg}
+		m.Node = &GetNodeResponse_AwsRds{msg}
 		return true, err
 	default:
 		return false, nil
@@ -676,8 +676,8 @@ func _GetNodeResponse_OneofSizer(msg proto.Message) (n int) {
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
-	case *GetNodeResponse_Rds:
-		s := proto.Size(x.Rds)
+	case *GetNodeResponse_AwsRds:
+		s := proto.Size(x.AwsRds)
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
@@ -702,7 +702,7 @@ func (m *AddBareMetalNodeRequest) Reset()         { *m = AddBareMetalNodeRequest
 func (m *AddBareMetalNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddBareMetalNodeRequest) ProtoMessage()    {}
 func (*AddBareMetalNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{9}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{9}
 }
 func (m *AddBareMetalNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddBareMetalNodeRequest.Unmarshal(m, b)
@@ -747,7 +747,7 @@ func (m *AddBareMetalNodeResponse) Reset()         { *m = AddBareMetalNodeRespon
 func (m *AddBareMetalNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddBareMetalNodeResponse) ProtoMessage()    {}
 func (*AddBareMetalNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{10}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{10}
 }
 func (m *AddBareMetalNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddBareMetalNodeResponse.Unmarshal(m, b)
@@ -788,7 +788,7 @@ func (m *AddVirtualMachineNodeRequest) Reset()         { *m = AddVirtualMachineN
 func (m *AddVirtualMachineNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddVirtualMachineNodeRequest) ProtoMessage()    {}
 func (*AddVirtualMachineNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{11}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{11}
 }
 func (m *AddVirtualMachineNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddVirtualMachineNodeRequest.Unmarshal(m, b)
@@ -833,7 +833,7 @@ func (m *AddVirtualMachineNodeResponse) Reset()         { *m = AddVirtualMachine
 func (m *AddVirtualMachineNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddVirtualMachineNodeResponse) ProtoMessage()    {}
 func (*AddVirtualMachineNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{12}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{12}
 }
 func (m *AddVirtualMachineNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddVirtualMachineNodeResponse.Unmarshal(m, b)
@@ -872,7 +872,7 @@ func (m *AddContainerNodeRequest) Reset()         { *m = AddContainerNodeRequest
 func (m *AddContainerNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddContainerNodeRequest) ProtoMessage()    {}
 func (*AddContainerNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{13}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{13}
 }
 func (m *AddContainerNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddContainerNodeRequest.Unmarshal(m, b)
@@ -910,7 +910,7 @@ func (m *AddContainerNodeResponse) Reset()         { *m = AddContainerNodeRespon
 func (m *AddContainerNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddContainerNodeResponse) ProtoMessage()    {}
 func (*AddContainerNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{14}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{14}
 }
 func (m *AddContainerNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddContainerNodeResponse.Unmarshal(m, b)
@@ -949,7 +949,7 @@ func (m *AddRemoteNodeRequest) Reset()         { *m = AddRemoteNodeRequest{} }
 func (m *AddRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddRemoteNodeRequest) ProtoMessage()    {}
 func (*AddRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{15}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{15}
 }
 func (m *AddRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRemoteNodeRequest.Unmarshal(m, b)
@@ -987,7 +987,7 @@ func (m *AddRemoteNodeResponse) Reset()         { *m = AddRemoteNodeResponse{} }
 func (m *AddRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddRemoteNodeResponse) ProtoMessage()    {}
 func (*AddRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{16}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{16}
 }
 func (m *AddRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRemoteNodeResponse.Unmarshal(m, b)
@@ -1014,7 +1014,7 @@ func (m *AddRemoteNodeResponse) GetRemote() *RemoteNode {
 	return nil
 }
 
-type AddRDSNodeRequest struct {
+type AddAWSRDSNodeRequest struct {
 	// Unique user-defined Node name.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Hostname. Unique in combination with region.
@@ -1026,85 +1026,85 @@ type AddRDSNodeRequest struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *AddRDSNodeRequest) Reset()         { *m = AddRDSNodeRequest{} }
-func (m *AddRDSNodeRequest) String() string { return proto.CompactTextString(m) }
-func (*AddRDSNodeRequest) ProtoMessage()    {}
-func (*AddRDSNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{17}
+func (m *AddAWSRDSNodeRequest) Reset()         { *m = AddAWSRDSNodeRequest{} }
+func (m *AddAWSRDSNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*AddAWSRDSNodeRequest) ProtoMessage()    {}
+func (*AddAWSRDSNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_35c185779baf7e13, []int{17}
 }
-func (m *AddRDSNodeRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AddRDSNodeRequest.Unmarshal(m, b)
+func (m *AddAWSRDSNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddAWSRDSNodeRequest.Unmarshal(m, b)
 }
-func (m *AddRDSNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AddRDSNodeRequest.Marshal(b, m, deterministic)
+func (m *AddAWSRDSNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddAWSRDSNodeRequest.Marshal(b, m, deterministic)
 }
-func (dst *AddRDSNodeRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AddRDSNodeRequest.Merge(dst, src)
+func (dst *AddAWSRDSNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddAWSRDSNodeRequest.Merge(dst, src)
 }
-func (m *AddRDSNodeRequest) XXX_Size() int {
-	return xxx_messageInfo_AddRDSNodeRequest.Size(m)
+func (m *AddAWSRDSNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_AddAWSRDSNodeRequest.Size(m)
 }
-func (m *AddRDSNodeRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_AddRDSNodeRequest.DiscardUnknown(m)
+func (m *AddAWSRDSNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddAWSRDSNodeRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_AddRDSNodeRequest proto.InternalMessageInfo
+var xxx_messageInfo_AddAWSRDSNodeRequest proto.InternalMessageInfo
 
-func (m *AddRDSNodeRequest) GetName() string {
+func (m *AddAWSRDSNodeRequest) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *AddRDSNodeRequest) GetHostname() string {
+func (m *AddAWSRDSNodeRequest) GetHostname() string {
 	if m != nil {
 		return m.Hostname
 	}
 	return ""
 }
 
-func (m *AddRDSNodeRequest) GetRegion() string {
+func (m *AddAWSRDSNodeRequest) GetRegion() string {
 	if m != nil {
 		return m.Region
 	}
 	return ""
 }
 
-type AddRDSNodeResponse struct {
-	Rds                  *RDSNode `protobuf:"bytes,1,opt,name=rds,proto3" json:"rds,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+type AddAWSRDSNodeResponse struct {
+	AwsRds               *AWSRDSNode `protobuf:"bytes,1,opt,name=aws_rds,json=awsRds,proto3" json:"aws_rds,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_unrecognized     []byte      `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
-func (m *AddRDSNodeResponse) Reset()         { *m = AddRDSNodeResponse{} }
-func (m *AddRDSNodeResponse) String() string { return proto.CompactTextString(m) }
-func (*AddRDSNodeResponse) ProtoMessage()    {}
-func (*AddRDSNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{18}
+func (m *AddAWSRDSNodeResponse) Reset()         { *m = AddAWSRDSNodeResponse{} }
+func (m *AddAWSRDSNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*AddAWSRDSNodeResponse) ProtoMessage()    {}
+func (*AddAWSRDSNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_35c185779baf7e13, []int{18}
 }
-func (m *AddRDSNodeResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AddRDSNodeResponse.Unmarshal(m, b)
+func (m *AddAWSRDSNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddAWSRDSNodeResponse.Unmarshal(m, b)
 }
-func (m *AddRDSNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AddRDSNodeResponse.Marshal(b, m, deterministic)
+func (m *AddAWSRDSNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddAWSRDSNodeResponse.Marshal(b, m, deterministic)
 }
-func (dst *AddRDSNodeResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AddRDSNodeResponse.Merge(dst, src)
+func (dst *AddAWSRDSNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddAWSRDSNodeResponse.Merge(dst, src)
 }
-func (m *AddRDSNodeResponse) XXX_Size() int {
-	return xxx_messageInfo_AddRDSNodeResponse.Size(m)
+func (m *AddAWSRDSNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_AddAWSRDSNodeResponse.Size(m)
 }
-func (m *AddRDSNodeResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_AddRDSNodeResponse.DiscardUnknown(m)
+func (m *AddAWSRDSNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddAWSRDSNodeResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_AddRDSNodeResponse proto.InternalMessageInfo
+var xxx_messageInfo_AddAWSRDSNodeResponse proto.InternalMessageInfo
 
-func (m *AddRDSNodeResponse) GetRds() *RDSNode {
+func (m *AddAWSRDSNodeResponse) GetAwsRds() *AWSRDSNode {
 	if m != nil {
-		return m.Rds
+		return m.AwsRds
 	}
 	return nil
 }
@@ -1123,7 +1123,7 @@ func (m *ChangeBareMetalNodeRequest) Reset()         { *m = ChangeBareMetalNodeR
 func (m *ChangeBareMetalNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeBareMetalNodeRequest) ProtoMessage()    {}
 func (*ChangeBareMetalNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{19}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{19}
 }
 func (m *ChangeBareMetalNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeBareMetalNodeRequest.Unmarshal(m, b)
@@ -1167,7 +1167,7 @@ func (m *ChangeBareMetalNodeResponse) Reset()         { *m = ChangeBareMetalNode
 func (m *ChangeBareMetalNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeBareMetalNodeResponse) ProtoMessage()    {}
 func (*ChangeBareMetalNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{20}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{20}
 }
 func (m *ChangeBareMetalNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeBareMetalNodeResponse.Unmarshal(m, b)
@@ -1201,7 +1201,7 @@ func (m *ChangeVirtualMachineNodeRequest) Reset()         { *m = ChangeVirtualMa
 func (m *ChangeVirtualMachineNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeVirtualMachineNodeRequest) ProtoMessage()    {}
 func (*ChangeVirtualMachineNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{21}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{21}
 }
 func (m *ChangeVirtualMachineNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeVirtualMachineNodeRequest.Unmarshal(m, b)
@@ -1245,7 +1245,7 @@ func (m *ChangeVirtualMachineNodeResponse) Reset()         { *m = ChangeVirtualM
 func (m *ChangeVirtualMachineNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeVirtualMachineNodeResponse) ProtoMessage()    {}
 func (*ChangeVirtualMachineNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{22}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{22}
 }
 func (m *ChangeVirtualMachineNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeVirtualMachineNodeResponse.Unmarshal(m, b)
@@ -1279,7 +1279,7 @@ func (m *ChangeContainerNodeRequest) Reset()         { *m = ChangeContainerNodeR
 func (m *ChangeContainerNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeContainerNodeRequest) ProtoMessage()    {}
 func (*ChangeContainerNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{23}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{23}
 }
 func (m *ChangeContainerNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeContainerNodeRequest.Unmarshal(m, b)
@@ -1323,7 +1323,7 @@ func (m *ChangeContainerNodeResponse) Reset()         { *m = ChangeContainerNode
 func (m *ChangeContainerNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeContainerNodeResponse) ProtoMessage()    {}
 func (*ChangeContainerNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{24}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{24}
 }
 func (m *ChangeContainerNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeContainerNodeResponse.Unmarshal(m, b)
@@ -1357,7 +1357,7 @@ func (m *ChangeRemoteNodeRequest) Reset()         { *m = ChangeRemoteNodeRequest
 func (m *ChangeRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeRemoteNodeRequest) ProtoMessage()    {}
 func (*ChangeRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{25}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{25}
 }
 func (m *ChangeRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeRemoteNodeRequest.Unmarshal(m, b)
@@ -1401,7 +1401,7 @@ func (m *ChangeRemoteNodeResponse) Reset()         { *m = ChangeRemoteNodeRespon
 func (m *ChangeRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeRemoteNodeResponse) ProtoMessage()    {}
 func (*ChangeRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{26}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{26}
 }
 func (m *ChangeRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeRemoteNodeResponse.Unmarshal(m, b)
@@ -1421,7 +1421,7 @@ func (m *ChangeRemoteNodeResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ChangeRemoteNodeResponse proto.InternalMessageInfo
 
-type ChangeRDSNodeRequest struct {
+type ChangeAWSRDSNodeRequest struct {
 	// Unique Node identifier.
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
@@ -1431,73 +1431,73 @@ type ChangeRDSNodeRequest struct {
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ChangeRDSNodeRequest) Reset()         { *m = ChangeRDSNodeRequest{} }
-func (m *ChangeRDSNodeRequest) String() string { return proto.CompactTextString(m) }
-func (*ChangeRDSNodeRequest) ProtoMessage()    {}
-func (*ChangeRDSNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{27}
+func (m *ChangeAWSRDSNodeRequest) Reset()         { *m = ChangeAWSRDSNodeRequest{} }
+func (m *ChangeAWSRDSNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeAWSRDSNodeRequest) ProtoMessage()    {}
+func (*ChangeAWSRDSNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_35c185779baf7e13, []int{27}
 }
-func (m *ChangeRDSNodeRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ChangeRDSNodeRequest.Unmarshal(m, b)
+func (m *ChangeAWSRDSNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeAWSRDSNodeRequest.Unmarshal(m, b)
 }
-func (m *ChangeRDSNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ChangeRDSNodeRequest.Marshal(b, m, deterministic)
+func (m *ChangeAWSRDSNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeAWSRDSNodeRequest.Marshal(b, m, deterministic)
 }
-func (dst *ChangeRDSNodeRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ChangeRDSNodeRequest.Merge(dst, src)
+func (dst *ChangeAWSRDSNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeAWSRDSNodeRequest.Merge(dst, src)
 }
-func (m *ChangeRDSNodeRequest) XXX_Size() int {
-	return xxx_messageInfo_ChangeRDSNodeRequest.Size(m)
+func (m *ChangeAWSRDSNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeAWSRDSNodeRequest.Size(m)
 }
-func (m *ChangeRDSNodeRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ChangeRDSNodeRequest.DiscardUnknown(m)
+func (m *ChangeAWSRDSNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeAWSRDSNodeRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ChangeRDSNodeRequest proto.InternalMessageInfo
+var xxx_messageInfo_ChangeAWSRDSNodeRequest proto.InternalMessageInfo
 
-func (m *ChangeRDSNodeRequest) GetId() uint32 {
+func (m *ChangeAWSRDSNodeRequest) GetId() uint32 {
 	if m != nil {
 		return m.Id
 	}
 	return 0
 }
 
-func (m *ChangeRDSNodeRequest) GetName() string {
+func (m *ChangeAWSRDSNodeRequest) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-type ChangeRDSNodeResponse struct {
+type ChangeAWSRDSNodeResponse struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ChangeRDSNodeResponse) Reset()         { *m = ChangeRDSNodeResponse{} }
-func (m *ChangeRDSNodeResponse) String() string { return proto.CompactTextString(m) }
-func (*ChangeRDSNodeResponse) ProtoMessage()    {}
-func (*ChangeRDSNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{28}
+func (m *ChangeAWSRDSNodeResponse) Reset()         { *m = ChangeAWSRDSNodeResponse{} }
+func (m *ChangeAWSRDSNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeAWSRDSNodeResponse) ProtoMessage()    {}
+func (*ChangeAWSRDSNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_35c185779baf7e13, []int{28}
 }
-func (m *ChangeRDSNodeResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ChangeRDSNodeResponse.Unmarshal(m, b)
+func (m *ChangeAWSRDSNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeAWSRDSNodeResponse.Unmarshal(m, b)
 }
-func (m *ChangeRDSNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ChangeRDSNodeResponse.Marshal(b, m, deterministic)
+func (m *ChangeAWSRDSNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeAWSRDSNodeResponse.Marshal(b, m, deterministic)
 }
-func (dst *ChangeRDSNodeResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ChangeRDSNodeResponse.Merge(dst, src)
+func (dst *ChangeAWSRDSNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeAWSRDSNodeResponse.Merge(dst, src)
 }
-func (m *ChangeRDSNodeResponse) XXX_Size() int {
-	return xxx_messageInfo_ChangeRDSNodeResponse.Size(m)
+func (m *ChangeAWSRDSNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeAWSRDSNodeResponse.Size(m)
 }
-func (m *ChangeRDSNodeResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_ChangeRDSNodeResponse.DiscardUnknown(m)
+func (m *ChangeAWSRDSNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeAWSRDSNodeResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ChangeRDSNodeResponse proto.InternalMessageInfo
+var xxx_messageInfo_ChangeAWSRDSNodeResponse proto.InternalMessageInfo
 
 type RemoveNodeRequest struct {
 	Id                   uint32   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -1510,7 +1510,7 @@ func (m *RemoveNodeRequest) Reset()         { *m = RemoveNodeRequest{} }
 func (m *RemoveNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveNodeRequest) ProtoMessage()    {}
 func (*RemoveNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{29}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{29}
 }
 func (m *RemoveNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveNodeRequest.Unmarshal(m, b)
@@ -1547,7 +1547,7 @@ func (m *RemoveNodeResponse) Reset()         { *m = RemoveNodeResponse{} }
 func (m *RemoveNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveNodeResponse) ProtoMessage()    {}
 func (*RemoveNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_ebf2711321a26cae, []int{30}
+	return fileDescriptor_nodes_35c185779baf7e13, []int{30}
 }
 func (m *RemoveNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveNodeResponse.Unmarshal(m, b)
@@ -1572,7 +1572,7 @@ func init() {
 	proto.RegisterType((*VirtualMachineNode)(nil), "inventory.VirtualMachineNode")
 	proto.RegisterType((*ContainerNode)(nil), "inventory.ContainerNode")
 	proto.RegisterType((*RemoteNode)(nil), "inventory.RemoteNode")
-	proto.RegisterType((*RDSNode)(nil), "inventory.RDSNode")
+	proto.RegisterType((*AWSRDSNode)(nil), "inventory.AWSRDSNode")
 	proto.RegisterType((*ListNodesRequest)(nil), "inventory.ListNodesRequest")
 	proto.RegisterType((*ListNodesResponse)(nil), "inventory.ListNodesResponse")
 	proto.RegisterType((*GetNodeRequest)(nil), "inventory.GetNodeRequest")
@@ -1585,8 +1585,8 @@ func init() {
 	proto.RegisterType((*AddContainerNodeResponse)(nil), "inventory.AddContainerNodeResponse")
 	proto.RegisterType((*AddRemoteNodeRequest)(nil), "inventory.AddRemoteNodeRequest")
 	proto.RegisterType((*AddRemoteNodeResponse)(nil), "inventory.AddRemoteNodeResponse")
-	proto.RegisterType((*AddRDSNodeRequest)(nil), "inventory.AddRDSNodeRequest")
-	proto.RegisterType((*AddRDSNodeResponse)(nil), "inventory.AddRDSNodeResponse")
+	proto.RegisterType((*AddAWSRDSNodeRequest)(nil), "inventory.AddAWSRDSNodeRequest")
+	proto.RegisterType((*AddAWSRDSNodeResponse)(nil), "inventory.AddAWSRDSNodeResponse")
 	proto.RegisterType((*ChangeBareMetalNodeRequest)(nil), "inventory.ChangeBareMetalNodeRequest")
 	proto.RegisterType((*ChangeBareMetalNodeResponse)(nil), "inventory.ChangeBareMetalNodeResponse")
 	proto.RegisterType((*ChangeVirtualMachineNodeRequest)(nil), "inventory.ChangeVirtualMachineNodeRequest")
@@ -1595,8 +1595,8 @@ func init() {
 	proto.RegisterType((*ChangeContainerNodeResponse)(nil), "inventory.ChangeContainerNodeResponse")
 	proto.RegisterType((*ChangeRemoteNodeRequest)(nil), "inventory.ChangeRemoteNodeRequest")
 	proto.RegisterType((*ChangeRemoteNodeResponse)(nil), "inventory.ChangeRemoteNodeResponse")
-	proto.RegisterType((*ChangeRDSNodeRequest)(nil), "inventory.ChangeRDSNodeRequest")
-	proto.RegisterType((*ChangeRDSNodeResponse)(nil), "inventory.ChangeRDSNodeResponse")
+	proto.RegisterType((*ChangeAWSRDSNodeRequest)(nil), "inventory.ChangeAWSRDSNodeRequest")
+	proto.RegisterType((*ChangeAWSRDSNodeResponse)(nil), "inventory.ChangeAWSRDSNodeResponse")
 	proto.RegisterType((*RemoveNodeRequest)(nil), "inventory.RemoveNodeRequest")
 	proto.RegisterType((*RemoveNodeResponse)(nil), "inventory.RemoveNodeResponse")
 }
@@ -1625,8 +1625,8 @@ type NodesClient interface {
 	AddContainerNode(ctx context.Context, in *AddContainerNodeRequest, opts ...grpc.CallOption) (*AddContainerNodeResponse, error)
 	// AddRemoteNode adds remote Node.
 	AddRemoteNode(ctx context.Context, in *AddRemoteNodeRequest, opts ...grpc.CallOption) (*AddRemoteNodeResponse, error)
-	// AddRDSNode adds AWS RDS Node.
-	AddRDSNode(ctx context.Context, in *AddRDSNodeRequest, opts ...grpc.CallOption) (*AddRDSNodeResponse, error)
+	// AddAWSRDSNode adds AWS RDS Node.
+	AddAWSRDSNode(ctx context.Context, in *AddAWSRDSNodeRequest, opts ...grpc.CallOption) (*AddAWSRDSNodeResponse, error)
 	// ChangeBareMetalNode changes bare metal Node.
 	ChangeBareMetalNode(ctx context.Context, in *ChangeBareMetalNodeRequest, opts ...grpc.CallOption) (*ChangeBareMetalNodeResponse, error)
 	// ChangeVirtualMachineNode changes virtual machine Node.
@@ -1635,8 +1635,8 @@ type NodesClient interface {
 	ChangeContainerNode(ctx context.Context, in *ChangeContainerNodeRequest, opts ...grpc.CallOption) (*ChangeContainerNodeResponse, error)
 	// ChangeRemoteNode changes remote Node.
 	ChangeRemoteNode(ctx context.Context, in *ChangeRemoteNodeRequest, opts ...grpc.CallOption) (*ChangeRemoteNodeResponse, error)
-	// ChangeRDSNode changes AWS RDS Node.
-	ChangeRDSNode(ctx context.Context, in *ChangeRDSNodeRequest, opts ...grpc.CallOption) (*ChangeRDSNodeResponse, error)
+	// ChangeAWSRDSNode changes AWS RDS Node.
+	ChangeAWSRDSNode(ctx context.Context, in *ChangeAWSRDSNodeRequest, opts ...grpc.CallOption) (*ChangeAWSRDSNodeResponse, error)
 	// RemoveNode removes Node without any Agents and Services.
 	RemoveNode(ctx context.Context, in *RemoveNodeRequest, opts ...grpc.CallOption) (*RemoveNodeResponse, error)
 }
@@ -1703,9 +1703,9 @@ func (c *nodesClient) AddRemoteNode(ctx context.Context, in *AddRemoteNodeReques
 	return out, nil
 }
 
-func (c *nodesClient) AddRDSNode(ctx context.Context, in *AddRDSNodeRequest, opts ...grpc.CallOption) (*AddRDSNodeResponse, error) {
-	out := new(AddRDSNodeResponse)
-	err := c.cc.Invoke(ctx, "/inventory.Nodes/AddRDSNode", in, out, opts...)
+func (c *nodesClient) AddAWSRDSNode(ctx context.Context, in *AddAWSRDSNodeRequest, opts ...grpc.CallOption) (*AddAWSRDSNodeResponse, error) {
+	out := new(AddAWSRDSNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/AddAWSRDSNode", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1748,9 +1748,9 @@ func (c *nodesClient) ChangeRemoteNode(ctx context.Context, in *ChangeRemoteNode
 	return out, nil
 }
 
-func (c *nodesClient) ChangeRDSNode(ctx context.Context, in *ChangeRDSNodeRequest, opts ...grpc.CallOption) (*ChangeRDSNodeResponse, error) {
-	out := new(ChangeRDSNodeResponse)
-	err := c.cc.Invoke(ctx, "/inventory.Nodes/ChangeRDSNode", in, out, opts...)
+func (c *nodesClient) ChangeAWSRDSNode(ctx context.Context, in *ChangeAWSRDSNodeRequest, opts ...grpc.CallOption) (*ChangeAWSRDSNodeResponse, error) {
+	out := new(ChangeAWSRDSNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/ChangeAWSRDSNode", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1780,8 +1780,8 @@ type NodesServer interface {
 	AddContainerNode(context.Context, *AddContainerNodeRequest) (*AddContainerNodeResponse, error)
 	// AddRemoteNode adds remote Node.
 	AddRemoteNode(context.Context, *AddRemoteNodeRequest) (*AddRemoteNodeResponse, error)
-	// AddRDSNode adds AWS RDS Node.
-	AddRDSNode(context.Context, *AddRDSNodeRequest) (*AddRDSNodeResponse, error)
+	// AddAWSRDSNode adds AWS RDS Node.
+	AddAWSRDSNode(context.Context, *AddAWSRDSNodeRequest) (*AddAWSRDSNodeResponse, error)
 	// ChangeBareMetalNode changes bare metal Node.
 	ChangeBareMetalNode(context.Context, *ChangeBareMetalNodeRequest) (*ChangeBareMetalNodeResponse, error)
 	// ChangeVirtualMachineNode changes virtual machine Node.
@@ -1790,8 +1790,8 @@ type NodesServer interface {
 	ChangeContainerNode(context.Context, *ChangeContainerNodeRequest) (*ChangeContainerNodeResponse, error)
 	// ChangeRemoteNode changes remote Node.
 	ChangeRemoteNode(context.Context, *ChangeRemoteNodeRequest) (*ChangeRemoteNodeResponse, error)
-	// ChangeRDSNode changes AWS RDS Node.
-	ChangeRDSNode(context.Context, *ChangeRDSNodeRequest) (*ChangeRDSNodeResponse, error)
+	// ChangeAWSRDSNode changes AWS RDS Node.
+	ChangeAWSRDSNode(context.Context, *ChangeAWSRDSNodeRequest) (*ChangeAWSRDSNodeResponse, error)
 	// RemoveNode removes Node without any Agents and Services.
 	RemoveNode(context.Context, *RemoveNodeRequest) (*RemoveNodeResponse, error)
 }
@@ -1908,20 +1908,20 @@ func _Nodes_AddRemoteNode_Handler(srv interface{}, ctx context.Context, dec func
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Nodes_AddRDSNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddRDSNodeRequest)
+func _Nodes_AddAWSRDSNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddAWSRDSNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NodesServer).AddRDSNode(ctx, in)
+		return srv.(NodesServer).AddAWSRDSNode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/inventory.Nodes/AddRDSNode",
+		FullMethod: "/inventory.Nodes/AddAWSRDSNode",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodesServer).AddRDSNode(ctx, req.(*AddRDSNodeRequest))
+		return srv.(NodesServer).AddAWSRDSNode(ctx, req.(*AddAWSRDSNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1998,20 +1998,20 @@ func _Nodes_ChangeRemoteNode_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Nodes_ChangeRDSNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeRDSNodeRequest)
+func _Nodes_ChangeAWSRDSNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeAWSRDSNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NodesServer).ChangeRDSNode(ctx, in)
+		return srv.(NodesServer).ChangeAWSRDSNode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/inventory.Nodes/ChangeRDSNode",
+		FullMethod: "/inventory.Nodes/ChangeAWSRDSNode",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodesServer).ChangeRDSNode(ctx, req.(*ChangeRDSNodeRequest))
+		return srv.(NodesServer).ChangeAWSRDSNode(ctx, req.(*ChangeAWSRDSNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2063,8 +2063,8 @@ var _Nodes_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Nodes_AddRemoteNode_Handler,
 		},
 		{
-			MethodName: "AddRDSNode",
-			Handler:    _Nodes_AddRDSNode_Handler,
+			MethodName: "AddAWSRDSNode",
+			Handler:    _Nodes_AddAWSRDSNode_Handler,
 		},
 		{
 			MethodName: "ChangeBareMetalNode",
@@ -2083,8 +2083,8 @@ var _Nodes_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Nodes_ChangeRemoteNode_Handler,
 		},
 		{
-			MethodName: "ChangeRDSNode",
-			Handler:    _Nodes_ChangeRDSNode_Handler,
+			MethodName: "ChangeAWSRDSNode",
+			Handler:    _Nodes_ChangeAWSRDSNode_Handler,
 		},
 		{
 			MethodName: "RemoveNode",
@@ -2095,72 +2095,73 @@ var _Nodes_serviceDesc = grpc.ServiceDesc{
 	Metadata: "inventory/nodes.proto",
 }
 
-func init() { proto.RegisterFile("inventory/nodes.proto", fileDescriptor_nodes_ebf2711321a26cae) }
+func init() { proto.RegisterFile("inventory/nodes.proto", fileDescriptor_nodes_35c185779baf7e13) }
 
-var fileDescriptor_nodes_ebf2711321a26cae = []byte{
-	// 1022 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x58, 0xcf, 0x53, 0xe4, 0x44,
-	0x14, 0xa6, 0x33, 0x81, 0x65, 0x9e, 0x05, 0x3b, 0xb4, 0x20, 0x31, 0x30, 0xee, 0xd8, 0xac, 0xb3,
-	0x03, 0x22, 0x51, 0xb4, 0x58, 0xe1, 0xc6, 0x62, 0xe1, 0x14, 0xba, 0x6e, 0x55, 0x76, 0xcb, 0xeb,
-	0x56, 0xd8, 0x74, 0x0d, 0xa9, 0x82, 0x04, 0x93, 0xec, 0x54, 0x79, 0xb3, 0x3c, 0x5a, 0xde, 0xbc,
-	0x78, 0xd4, 0xbb, 0x17, 0xff, 0x16, 0xff, 0x05, 0xff, 0x10, 0xab, 0x3b, 0x3d, 0x49, 0x3a, 0xe9,
-	0xce, 0x64, 0x57, 0x6e, 0x4c, 0xfa, 0xfd, 0xf8, 0xf2, 0xbd, 0xef, 0xeb, 0x97, 0x02, 0x36, 0x82,
-	0x70, 0x4a, 0xc3, 0x34, 0x8a, 0x7f, 0x74, 0xc2, 0xc8, 0xa7, 0xc9, 0xc1, 0x6d, 0x1c, 0xa5, 0x11,
-	0xee, 0xe6, 0x8f, 0xed, 0xed, 0x49, 0x14, 0x4d, 0xae, 0xa9, 0xe3, 0xdd, 0x06, 0x8e, 0x17, 0x86,
-	0x51, 0xea, 0xa5, 0x41, 0x14, 0x8a, 0x40, 0xf2, 0x0c, 0x56, 0x9e, 0x78, 0x31, 0x7d, 0x4a, 0x53,
-	0xef, 0xfa, 0xbb, 0xc8, 0xa7, 0x78, 0x15, 0x8c, 0xc0, 0xb7, 0xd0, 0x00, 0x8d, 0x56, 0x5c, 0x23,
-	0xf0, 0x31, 0x06, 0x33, 0xf4, 0x6e, 0xa8, 0x65, 0x0c, 0xd0, 0xa8, 0xeb, 0xf2, 0xbf, 0xb1, 0x0d,
-	0xcb, 0x57, 0x51, 0x92, 0xf2, 0xe7, 0x1d, 0xfe, 0x3c, 0xff, 0x4d, 0x5e, 0x00, 0xfe, 0x3e, 0x88,
-	0xd3, 0xd7, 0xde, 0xf5, 0x53, 0xef, 0xd5, 0x55, 0x10, 0xd2, 0x3b, 0xa9, 0x7a, 0x0c, 0x2b, 0x67,
-	0x51, 0x98, 0x7a, 0x41, 0x48, 0xe3, 0xb6, 0x05, 0x2f, 0xcc, 0xe5, 0x4e, 0xcf, 0x24, 0x47, 0x00,
-	0x2e, 0xbd, 0x89, 0x52, 0xfa, 0x86, 0x79, 0x1e, 0xdc, 0x73, 0xbf, 0x7a, 0x7e, 0x17, 0xe8, 0xf1,
-	0x7b, 0xb0, 0x14, 0xd3, 0x49, 0x10, 0x85, 0x96, 0xc9, 0x4f, 0xc4, 0x2f, 0x82, 0xa1, 0xf7, 0x6d,
-	0x90, 0xa4, 0xac, 0x47, 0xe2, 0xd2, 0x1f, 0x5e, 0xd3, 0x24, 0x25, 0x7f, 0x1a, 0xb0, 0x56, 0x7a,
-	0x98, 0xdc, 0x46, 0x61, 0x42, 0xf1, 0x63, 0x80, 0x4b, 0x2f, 0xa6, 0x2f, 0x6f, 0xd8, 0x9c, 0x2c,
-	0x34, 0xe8, 0x8c, 0xde, 0x39, 0xb4, 0x0e, 0xf2, 0x21, 0x1f, 0x48, 0x33, 0x74, 0xbb, 0x97, 0xb3,
-	0x9f, 0xf8, 0x1c, 0xee, 0x4f, 0xb3, 0x71, 0xbc, 0xbc, 0xc9, 0xe6, 0x61, 0x19, 0x3c, 0xbb, 0x5f,
-	0xca, 0xae, 0x0f, 0xcc, 0x5d, 0x9d, 0x4a, 0xcf, 0xf0, 0x11, 0x74, 0x5f, 0xcd, 0x06, 0x60, 0x75,
-	0x6a, 0xfd, 0xa5, 0xe1, 0xb8, 0x45, 0x28, 0xfe, 0x84, 0xbd, 0x3a, 0x63, 0xdf, 0x32, 0x79, 0xd2,
-	0x46, 0x29, 0xa9, 0x18, 0x8b, 0x2b, 0x82, 0xf0, 0x43, 0xe8, 0xc4, 0x7e, 0x62, 0x2d, 0xf2, 0x58,
-	0x5c, 0x8e, 0xcd, 0x46, 0xe1, 0xb2, 0x63, 0x32, 0x80, 0xd5, 0xaf, 0x29, 0x67, 0x48, 0xb0, 0x56,
-	0x9d, 0x10, 0xf9, 0xdb, 0x80, 0xfb, 0x79, 0x88, 0xe0, 0xf0, 0xb8, 0xc2, 0x21, 0x6a, 0xe2, 0x70,
-	0xbc, 0x50, 0x66, 0x71, 0xac, 0x62, 0x11, 0xcd, 0x65, 0x71, 0xbc, 0x50, 0xe3, 0xf1, 0x4b, 0x99,
-	0x47, 0xd4, 0xc4, 0x23, 0xc3, 0x50, 0x30, 0xe9, 0x94, 0x98, 0x44, 0x5a, 0x26, 0xc7, 0x0b, 0x39,
-	0x97, 0xc3, 0x19, 0x97, 0x48, 0xcd, 0xe5, 0x78, 0x81, 0xb3, 0xf9, 0x64, 0x09, 0x4c, 0x76, 0x75,
-	0x90, 0x67, 0xb0, 0x79, 0xea, 0xfb, 0xb2, 0x92, 0x04, 0xbd, 0x6f, 0x28, 0xf8, 0x0b, 0x73, 0x19,
-	0xf5, 0x0c, 0xf2, 0x1c, 0xac, 0x7a, 0x41, 0x8d, 0xa0, 0x51, 0x4b, 0x41, 0x93, 0x17, 0xb0, 0x7d,
-	0xea, 0xfb, 0x0a, 0xc5, 0xfe, 0x2f, 0xa8, 0x13, 0xe8, 0x6b, 0xaa, 0x0a, 0xbc, 0x0a, 0x1f, 0xa1,
-	0x16, 0x0a, 0xa8, 0xce, 0x9f, 0x1c, 0x73, 0x92, 0x65, 0xbb, 0xe8, 0x91, 0x67, 0xe8, 0xc4, 0x85,
-	0xe4, 0x72, 0x3a, 0x2b, 0xa9, 0x02, 0x9e, 0x64, 0x4f, 0xd4, 0x2c, 0xab, 0x92, 0xa8, 0xc8, 0x11,
-	0xac, 0x9f, 0xfa, 0x7e, 0xc9, 0x88, 0x2d, 0xb1, 0x9c, 0xc3, 0x46, 0x25, 0x4f, 0x00, 0x29, 0xfc,
-	0x8e, 0x1a, 0x54, 0x3a, 0xd3, 0x28, 0xf1, 0x60, 0x8d, 0xd5, 0x11, 0xe6, 0x7e, 0xbb, 0x11, 0xea,
-	0xae, 0x57, 0x31, 0xda, 0x13, 0xc0, 0xe5, 0x16, 0x02, 0xa7, 0xb8, 0x68, 0x90, 0xce, 0x1c, 0xd9,
-	0x45, 0x73, 0x0e, 0xf6, 0xd9, 0x95, 0x17, 0x4e, 0xa8, 0xd2, 0x15, 0xed, 0x77, 0x49, 0x1f, 0xb6,
-	0x94, 0x75, 0x32, 0x30, 0xe4, 0x1b, 0x78, 0x90, 0x1d, 0xeb, 0x65, 0xdd, 0xbe, 0x17, 0x81, 0x81,
-	0xbe, 0x98, 0x68, 0x98, 0xbf, 0x97, 0x52, 0x88, 0x6f, 0xf1, 0x5e, 0x4a, 0x55, 0x92, 0x33, 0xd8,
-	0xcc, 0x8e, 0xeb, 0x02, 0x6b, 0xdf, 0xc3, 0x06, 0xab, 0x5e, 0x24, 0x7f, 0x8f, 0x75, 0x71, 0x26,
-	0x2b, 0xa8, 0x75, 0xf5, 0x0b, 0x73, 0xd9, 0xec, 0x2d, 0x92, 0x4d, 0xd8, 0xa8, 0xd4, 0x11, 0x0d,
-	0x76, 0x60, 0x8d, 0xb5, 0x9d, 0x36, 0x61, 0x27, 0xeb, 0x80, 0xcb, 0x41, 0x59, 0xea, 0xe1, 0x2f,
-	0xab, 0xb0, 0xc8, 0x97, 0x38, 0xbe, 0x85, 0x6e, 0xbe, 0xd1, 0xf1, 0x56, 0x49, 0x6b, 0xd5, 0xe5,
-	0x6f, 0x6f, 0xab, 0x0f, 0x05, 0x98, 0xd1, 0xcf, 0xff, 0xfc, 0xfb, 0x9b, 0x41, 0x48, 0xdf, 0x99,
-	0x7e, 0xea, 0x14, 0xdf, 0x7d, 0x3c, 0xc8, 0xc9, 0xc3, 0x4f, 0xd0, 0x1e, 0xbe, 0x82, 0x7b, 0x62,
-	0xfb, 0xe1, 0xf7, 0x4b, 0x25, 0xe5, 0xa5, 0x69, 0xdb, 0xaa, 0x23, 0xd1, 0x6b, 0xc8, 0x7b, 0x0d,
-	0xc8, 0x96, 0xaa, 0x97, 0x08, 0x66, 0x9d, 0x7e, 0x45, 0xd0, 0xab, 0x5e, 0xf2, 0x98, 0x94, 0x0a,
-	0x6b, 0x56, 0x8a, 0xbd, 0xd3, 0x18, 0x23, 0x50, 0x38, 0x1c, 0xc5, 0x2e, 0x79, 0xa8, 0x42, 0x51,
-	0xcd, 0x62, 0x70, 0xfe, 0x40, 0xfc, 0x62, 0x52, 0x7c, 0x81, 0x3e, 0x92, 0xfb, 0x69, 0x9d, 0x66,
-	0x8f, 0xe6, 0x07, 0x0a, 0x74, 0x5f, 0x70, 0x74, 0x07, 0x64, 0x57, 0x83, 0xae, 0x9e, 0x5a, 0x62,
-	0x4c, 0xfe, 0x9c, 0xad, 0x30, 0xa6, 0xb2, 0x65, 0x95, 0x31, 0xb5, 0xe5, 0xe6, 0x31, 0x26, 0x65,
-	0x31, 0x38, 0x3f, 0x21, 0x58, 0x91, 0xae, 0x72, 0xfc, 0x40, 0xee, 0x53, 0xf3, 0xae, 0x3d, 0xd0,
-	0x07, 0x08, 0x14, 0xfb, 0x1c, 0xc5, 0x90, 0x7c, 0xa8, 0x41, 0x51, 0xa4, 0x30, 0x08, 0x29, 0x40,
-	0x71, 0x43, 0xe3, 0xed, 0x4a, 0x75, 0xc9, 0xd9, 0x76, 0x5f, 0x73, 0x2a, 0x1a, 0xef, 0xf2, 0xc6,
-	0x3b, 0xe4, 0x03, 0x5d, 0xe3, 0x2c, 0x9e, 0x75, 0xfd, 0x1d, 0xc1, 0xbb, 0x8a, 0x4b, 0x19, 0x7f,
-	0x54, 0xde, 0x9b, 0xda, 0xcb, 0xdf, 0x1e, 0xce, 0x0b, 0x13, 0x88, 0x0e, 0x39, 0xa2, 0x7d, 0xf2,
-	0x48, 0x85, 0x48, 0x91, 0xc8, 0xa0, 0xfd, 0x85, 0x66, 0x77, 0x9e, 0x42, 0xc8, 0x7b, 0xb5, 0xc6,
-	0x7a, 0x2d, 0x7f, 0xdc, 0x2a, 0x56, 0x20, 0x7d, 0xcc, 0x91, 0x7e, 0x46, 0xf6, 0xf5, 0x48, 0xd5,
-	0x8a, 0x2e, 0x98, 0x94, 0x45, 0x5d, 0x67, 0x52, 0xa9, 0xeb, 0xe1, 0xbc, 0xb0, 0xf6, 0x4c, 0xd6,
-	0xd4, 0xcd, 0xcc, 0x56, 0xdd, 0x1e, 0x92, 0xd9, 0x34, 0xfb, 0x49, 0x32, 0x9b, 0x76, 0xfd, 0x34,
-	0x9a, 0xad, 0x9a, 0x35, 0x33, 0x9b, 0xb4, 0x68, 0x24, 0xb3, 0xa9, 0x56, 0x99, 0x64, 0x36, 0xf5,
-	0x8e, 0x6a, 0x34, 0x9b, 0x94, 0x22, 0xcc, 0x56, 0x2c, 0x2b, 0xc9, 0x6c, 0xb5, 0x45, 0x27, 0x99,
-	0xad, 0xbe, 0xe1, 0x9a, 0xcd, 0x56, 0xc4, 0x9f, 0xa0, 0xbd, 0xcb, 0x25, 0xfe, 0xdf, 0x86, 0xcf,
-	0xff, 0x0b, 0x00, 0x00, 0xff, 0xff, 0x46, 0x62, 0xb0, 0x9a, 0xaf, 0x10, 0x00, 0x00,
+var fileDescriptor_nodes_35c185779baf7e13 = []byte{
+	// 1030 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x58, 0x4f, 0x73, 0xdc, 0x34,
+	0x14, 0x8f, 0x36, 0x4e, 0x9a, 0x7d, 0x4c, 0xd2, 0xad, 0x68, 0xa8, 0x71, 0xb2, 0x74, 0x51, 0x20,
+	0xdd, 0x84, 0xb0, 0x2e, 0x81, 0x49, 0x49, 0x6f, 0x69, 0x98, 0x34, 0x04, 0x4a, 0x67, 0x9c, 0x0e,
+	0x1c, 0x33, 0x4e, 0xad, 0xd9, 0x78, 0x26, 0xb1, 0x83, 0xed, 0x6e, 0x87, 0x1b, 0xc3, 0x99, 0x1b,
+	0x17, 0x8e, 0xcc, 0x70, 0x84, 0x6f, 0xc0, 0xc7, 0xe0, 0x2b, 0xf0, 0x41, 0x18, 0xcb, 0x5a, 0x5b,
+	0xb2, 0x24, 0xaf, 0xfb, 0xe7, 0x16, 0x5b, 0xef, 0xe9, 0xf7, 0xf3, 0xef, 0xfd, 0x9e, 0x9e, 0xb2,
+	0xb0, 0x1a, 0x46, 0x13, 0x1a, 0x65, 0x71, 0xf2, 0x93, 0x1b, 0xc5, 0x01, 0x4d, 0x47, 0xd7, 0x49,
+	0x9c, 0xc5, 0xb8, 0x5b, 0xbe, 0x76, 0xd6, 0xc7, 0x71, 0x3c, 0xbe, 0xa4, 0xae, 0x7f, 0x1d, 0xba,
+	0x7e, 0x14, 0xc5, 0x99, 0x9f, 0x85, 0x71, 0xc4, 0x03, 0xc9, 0x53, 0x58, 0x7e, 0xe4, 0x27, 0xf4,
+	0x09, 0xcd, 0xfc, 0xcb, 0xef, 0xe2, 0x80, 0xe2, 0x15, 0xe8, 0x84, 0x81, 0x8d, 0x06, 0x68, 0xb8,
+	0xec, 0x75, 0xc2, 0x00, 0x63, 0xb0, 0x22, 0xff, 0x8a, 0xda, 0x9d, 0x01, 0x1a, 0x76, 0x3d, 0xf6,
+	0x37, 0x76, 0x60, 0xe9, 0x22, 0x4e, 0x33, 0xf6, 0x7e, 0x9e, 0xbd, 0x2f, 0x9f, 0xc9, 0x33, 0xc0,
+	0xdf, 0x87, 0x49, 0xf6, 0xc2, 0xbf, 0x7c, 0xe2, 0x3f, 0xbf, 0x08, 0x23, 0xfa, 0x56, 0x76, 0xdd,
+	0x87, 0xe5, 0xc3, 0x38, 0xca, 0xfc, 0x30, 0xa2, 0x49, 0xdb, 0x0d, 0x4f, 0xac, 0xa5, 0xf9, 0x9e,
+	0x45, 0xf6, 0x00, 0x3c, 0x7a, 0x15, 0x67, 0xf4, 0x15, 0xf3, 0x02, 0x80, 0x83, 0x1f, 0x4e, 0xbd,
+	0xaf, 0x4e, 0xdf, 0xc6, 0x07, 0xe0, 0xf7, 0x60, 0x31, 0xa1, 0xe3, 0x30, 0x8e, 0x6c, 0x8b, 0xad,
+	0xf0, 0x27, 0x82, 0xa1, 0xf7, 0x6d, 0x98, 0x66, 0x39, 0x46, 0xea, 0xd1, 0x1f, 0x5f, 0xd0, 0x34,
+	0x23, 0x7f, 0x75, 0xe0, 0x96, 0xf0, 0x32, 0xbd, 0x8e, 0xa3, 0x94, 0xe2, 0x07, 0x00, 0xe7, 0x7e,
+	0x42, 0xcf, 0xae, 0xf2, 0x52, 0xd9, 0x68, 0x30, 0x3f, 0x7c, 0x67, 0xd7, 0x1e, 0x95, 0x75, 0x1e,
+	0x49, 0x65, 0xf4, 0xba, 0xe7, 0xd3, 0x47, 0x7c, 0x04, 0x37, 0x27, 0x45, 0x45, 0xce, 0xae, 0x8a,
+	0x92, 0xd8, 0x1d, 0x96, 0xdd, 0x17, 0xb2, 0xd5, 0x9a, 0x79, 0x2b, 0x13, 0xe9, 0x1d, 0xde, 0x83,
+	0xee, 0xf3, 0x69, 0x0d, 0xec, 0x79, 0x05, 0x5f, 0xaa, 0x8f, 0x57, 0x85, 0xe2, 0x4f, 0xf3, 0x4f,
+	0xcf, 0x0b, 0x60, 0x5b, 0x2c, 0x69, 0x55, 0x48, 0xaa, 0x2a, 0xe3, 0xf1, 0x20, 0x3c, 0x82, 0x1b,
+	0xfe, 0xcb, 0xf4, 0x2c, 0x09, 0x52, 0x7b, 0x41, 0x89, 0xaf, 0x2a, 0xe2, 0x2d, 0xfa, 0x2f, 0x53,
+	0x2f, 0x48, 0xc9, 0x00, 0x56, 0x1e, 0x53, 0xa6, 0x15, 0xd7, 0xaf, 0x5e, 0x2b, 0xf2, 0x4f, 0x07,
+	0x6e, 0x96, 0x21, 0x5c, 0xcd, 0xfd, 0x9a, 0x9a, 0xa8, 0x49, 0xcd, 0xe3, 0x39, 0x51, 0xcf, 0x63,
+	0x9d, 0x9e, 0x68, 0xa6, 0x9e, 0xc7, 0x73, 0x8a, 0xa2, 0x5f, 0xca, 0x8a, 0xa2, 0x26, 0x45, 0x73,
+	0x0e, 0x95, 0xa6, 0xae, 0xa0, 0x29, 0x32, 0x6a, 0x7a, 0x3c, 0x57, 0xaa, 0x7a, 0x5f, 0x54, 0x15,
+	0x19, 0x55, 0xcd, 0x33, 0x0a, 0x5d, 0x1f, 0x2d, 0x82, 0x95, 0x9f, 0x28, 0xe4, 0x29, 0xdc, 0x39,
+	0x08, 0x02, 0xd9, 0x5d, 0x5c, 0xe8, 0x57, 0x6c, 0x82, 0x13, 0x6b, 0x09, 0xf5, 0x3a, 0xe4, 0x14,
+	0x6c, 0x75, 0x43, 0x83, 0xc9, 0x51, 0x4b, 0x93, 0x93, 0x67, 0xb0, 0x7e, 0x10, 0x04, 0x1a, 0x17,
+	0xbf, 0x11, 0xd5, 0x31, 0xf4, 0x0d, 0xbb, 0x72, 0xbe, 0x9a, 0xde, 0x42, 0x2d, 0xbc, 0x50, 0x77,
+	0x02, 0xd9, 0x67, 0x22, 0xcb, 0x2d, 0x64, 0x66, 0x5e, 0xb0, 0xe3, 0xe7, 0x94, 0xc7, 0xe4, 0xac,
+	0xa5, 0x72, 0x7a, 0x52, 0xcb, 0xa2, 0x66, 0x83, 0x09, 0xf6, 0x22, 0x7b, 0x70, 0xfb, 0x20, 0x08,
+	0x84, 0xe6, 0x6c, 0xc9, 0xe5, 0x08, 0x56, 0x6b, 0x79, 0x9c, 0x48, 0x75, 0x06, 0xa0, 0x06, 0xbf,
+	0x4e, 0xdd, 0x4a, 0x02, 0x86, 0x2f, 0x34, 0xfb, 0xeb, 0x55, 0xd1, 0x74, 0xea, 0xf2, 0xea, 0x3e,
+	0x66, 0x6c, 0x45, 0x14, 0xce, 0x56, 0x38, 0x82, 0x50, 0x43, 0xb3, 0x94, 0x47, 0xd0, 0x11, 0x38,
+	0x87, 0x17, 0x7e, 0x34, 0xa6, 0xda, 0x2e, 0x69, 0x3f, 0x72, 0xfa, 0xb0, 0xa6, 0xdd, 0xa7, 0xa0,
+	0x45, 0xbe, 0x81, 0xbb, 0xc5, 0xb2, 0xd9, 0xe6, 0xed, 0xb1, 0x08, 0x0c, 0xcc, 0x9b, 0x71, 0xc0,
+	0xf2, 0xbb, 0xb4, 0xc6, 0x7c, 0x8d, 0xef, 0xd2, 0xba, 0x94, 0x1c, 0xc2, 0x9d, 0x62, 0x59, 0x35,
+	0x5c, 0x7b, 0x0c, 0x07, 0x6c, 0x75, 0x13, 0x0e, 0xf0, 0xf5, 0x14, 0x40, 0x75, 0x54, 0x6b, 0x80,
+	0x13, 0x6b, 0xc9, 0xea, 0x2d, 0x54, 0x30, 0xaa, 0x6d, 0xc8, 0x06, 0xdc, 0xca, 0xc1, 0x27, 0x4d,
+	0x5f, 0x40, 0x6e, 0x03, 0x16, 0x83, 0x8a, 0xd4, 0xdd, 0x3f, 0x57, 0x60, 0x81, 0x8d, 0x7b, 0x7c,
+	0x0d, 0xdd, 0x72, 0xf6, 0xe3, 0x35, 0xc1, 0x77, 0xf5, 0x6b, 0x82, 0xb3, 0xae, 0x5f, 0xe4, 0x64,
+	0x86, 0xbf, 0xfc, 0xfb, 0xdf, 0x6f, 0x1d, 0x42, 0xfa, 0xee, 0xe4, 0xbe, 0x5b, 0x5d, 0x12, 0x59,
+	0x90, 0x5b, 0x86, 0x3f, 0x44, 0xdb, 0xf8, 0x02, 0x6e, 0xf0, 0xe9, 0x88, 0xdf, 0x17, 0xb6, 0x94,
+	0x87, 0xaa, 0xe3, 0xe8, 0x96, 0x38, 0xd6, 0x26, 0xc3, 0x1a, 0x90, 0x35, 0x1d, 0x16, 0x0f, 0xce,
+	0x91, 0x7e, 0x45, 0xd0, 0xab, 0x1f, 0xfd, 0x98, 0x88, 0xbd, 0xa5, 0x1f, 0x34, 0xce, 0x46, 0x63,
+	0x0c, 0x67, 0xe1, 0x32, 0x16, 0x5b, 0xe4, 0x23, 0x1d, 0x8b, 0x7a, 0x56, 0x4e, 0xe7, 0x0f, 0xc4,
+	0x0e, 0x00, 0xcd, 0x75, 0xf5, 0x9e, 0x8c, 0x67, 0xec, 0x37, 0x67, 0x38, 0x3b, 0x90, 0xb3, 0xfb,
+	0x82, 0xb1, 0x1b, 0x91, 0x2d, 0x03, 0x3b, 0x35, 0x55, 0x50, 0x4c, 0xbe, 0xfb, 0xd6, 0x14, 0xd3,
+	0x35, 0x67, 0x5d, 0x31, 0x7d, 0xe3, 0xcd, 0x52, 0x4c, 0xca, 0xca, 0xe9, 0xfc, 0x8c, 0x60, 0x59,
+	0x3a, 0xe0, 0xf1, 0x5d, 0x19, 0x47, 0xe9, 0x60, 0x67, 0x60, 0x0e, 0xe0, 0x2c, 0x76, 0x18, 0x8b,
+	0x4d, 0xf2, 0xa1, 0x81, 0x45, 0x95, 0x22, 0x50, 0x10, 0xae, 0xe6, 0x35, 0x0a, 0x4a, 0x8f, 0xd7,
+	0x29, 0x68, 0x3a, 0x77, 0x16, 0x85, 0x2a, 0x25, 0xa7, 0xf0, 0x3b, 0x82, 0x77, 0x35, 0xe7, 0x34,
+	0xfe, 0x58, 0x1c, 0xad, 0xc6, 0x79, 0xe0, 0x6c, 0xce, 0x0a, 0xe3, 0xa4, 0x76, 0x19, 0xa9, 0x1d,
+	0x72, 0x4f, 0x47, 0x4a, 0x93, 0x98, 0x53, 0xfb, 0x1b, 0x4d, 0xcf, 0x27, 0x8d, 0xab, 0xb7, 0x15,
+	0x60, 0xb3, 0xb1, 0x3f, 0x69, 0x15, 0xcb, 0x99, 0x3e, 0x60, 0x4c, 0x3f, 0x23, 0x3b, 0x66, 0xa6,
+	0x7a, 0x7b, 0x57, 0x4a, 0xca, 0x0e, 0x57, 0x95, 0xd4, 0x9a, 0x7c, 0x73, 0x56, 0x58, 0x7b, 0x25,
+	0x15, 0xab, 0xe7, 0x9d, 0x57, 0x1f, 0x28, 0x52, 0xe7, 0x19, 0x46, 0x96, 0xd4, 0x79, 0xc6, 0x89,
+	0xd4, 0xd8, 0x79, 0xf5, 0x2c, 0x99, 0x8e, 0xe0, 0x7c, 0x95, 0x8e, 0x6a, 0xfe, 0x8d, 0xc6, 0x98,
+	0xf6, 0x74, 0xe4, 0x16, 0xc8, 0x8a, 0x7f, 0xaa, 0x8b, 0x29, 0x86, 0xd7, 0x6b, 0xb7, 0x39, 0x69,
+	0x02, 0x3a, 0x7d, 0xc3, 0x2a, 0xc7, 0xde, 0x62, 0xd8, 0x1b, 0xe4, 0x03, 0x1d, 0x76, 0x15, 0xff,
+	0x10, 0x6d, 0x9f, 0x2f, 0xb2, 0xdf, 0x2c, 0x3e, 0xff, 0x3f, 0x00, 0x00, 0xff, 0xff, 0xeb, 0xb9,
+	0x81, 0x22, 0xf5, 0x10, 0x00, 0x00,
 }
