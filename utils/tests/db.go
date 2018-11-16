@@ -25,6 +25,7 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
+// OpenTestDB recreates testing database and returns an open connection to it.
 func OpenTestDB(t testing.TB) *sql.DB {
 	t.Helper()
 
@@ -37,7 +38,8 @@ func OpenTestDB(t testing.TB) *sql.DB {
 	_, err = db.Exec("CREATE DATABASE `" + testDatabase + "`")
 	require.NoError(t, err)
 
-	db.Close()
+	err = db.Close()
+	require.NoError(t, err)
 
 	db, err = models.OpenDB(testDatabase, "pmm-managed", "pmm-managed", t.Logf)
 	require.NoError(t, err)

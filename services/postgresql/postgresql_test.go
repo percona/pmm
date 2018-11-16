@@ -110,7 +110,7 @@ func TestAddListRemove(t *testing.T) {
 			ID:     2,
 			Type:   "remote",
 			Name:   "localhost",
-			Region: "remote",
+			Region: pointer.ToString("remote"),
 		},
 		Service: models.PostgreSQLService{
 			ID:            1000,

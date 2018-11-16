@@ -123,20 +123,20 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddNode": {
+    "/v0/inventory/Nodes/AddBareMetalNode": {
       "post": {
         "tags": [
           "Nodes"
         ],
-        "summary": "AddNode adds bare metal, virtual machine, or container node Node.",
-        "operationId": "AddNode",
+        "summary": "AddBareMetalNode adds bare metal Node.",
+        "operationId": "AddBareMetalNode",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryAddNodeRequest"
+              "$ref": "#/definitions/inventoryAddBareMetalNodeRequest"
             }
           }
         ],
@@ -144,7 +144,34 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryAddNodeResponse"
+              "$ref": "#/definitions/inventoryAddBareMetalNodeResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/inventory/Nodes/AddContainerNode": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "AddContainerNode adds container Node.",
+        "operationId": "AddContainerNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryAddContainerNodeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryAddContainerNodeResponse"
             }
           }
         }
@@ -177,20 +204,20 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddRemoveNode": {
+    "/v0/inventory/Nodes/AddRemoteNode": {
       "post": {
         "tags": [
           "Nodes"
         ],
-        "summary": "AddRemoveNode adds remote Node.",
-        "operationId": "AddRemoveNode",
+        "summary": "AddRemoteNode adds remote Node.",
+        "operationId": "AddRemoteNode",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryAddRemoveNodeRequest"
+              "$ref": "#/definitions/inventoryAddRemoteNodeRequest"
             }
           }
         ],
@@ -198,7 +225,169 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryAddRemoveNodeResponse"
+              "$ref": "#/definitions/inventoryAddRemoteNodeResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/inventory/Nodes/AddVirtualMachineNode": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "AddVirtualMachineNode adds virtual machine Node.",
+        "operationId": "AddVirtualMachineNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryAddVirtualMachineNodeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryAddVirtualMachineNodeResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/inventory/Nodes/ChangeBareMetalNode": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "ChangeBareMetalNode changes bare metal Node.",
+        "operationId": "ChangeBareMetalNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryChangeBareMetalNodeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryChangeBareMetalNodeResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/inventory/Nodes/ChangeContainerNode": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "ChangeContainerNode changes container Node.",
+        "operationId": "ChangeContainerNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryChangeContainerNodeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryChangeContainerNodeResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/inventory/Nodes/ChangeRDSNode": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "ChangeRDSNode changes AWS RDS Node.",
+        "operationId": "ChangeRDSNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryChangeRDSNodeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryChangeRDSNodeResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/inventory/Nodes/ChangeRemoteNode": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "ChangeRemoteNode changes remote Node.",
+        "operationId": "ChangeRemoteNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryChangeRemoteNodeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryChangeRemoteNodeResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/inventory/Nodes/ChangeVirtualMachineNode": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "ChangeVirtualMachineNode changes virtual machine Node.",
+        "operationId": "ChangeVirtualMachineNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryChangeVirtualMachineNodeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryChangeVirtualMachineNodeResponse"
             }
           }
         }
@@ -395,6 +584,44 @@
     }
   },
   "definitions": {
+    "inventoryAddBareMetalNodeRequest": {
+      "type": "object",
+      "properties": {
+        "hostname": {
+          "description": "Hostname. Is not unique.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Unique user-defined Node name.",
+          "type": "string"
+        }
+      }
+    },
+    "inventoryAddBareMetalNodeResponse": {
+      "type": "object",
+      "properties": {
+        "bare_metal": {
+          "$ref": "#/definitions/inventoryBareMetalNode"
+        }
+      }
+    },
+    "inventoryAddContainerNodeRequest": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Unique user-defined Node name.",
+          "type": "string"
+        }
+      }
+    },
+    "inventoryAddContainerNodeResponse": {
+      "type": "object",
+      "properties": {
+        "container": {
+          "$ref": "#/definitions/inventoryContainerNode"
+        }
+      }
+    },
     "inventoryAddMySQLServiceRequest": {
       "type": "object"
     },
@@ -409,19 +636,30 @@
     "inventoryAddMySQLdExporterAgentRequest": {
       "type": "object",
       "properties": {
+        "node_ids": {
+          "description": "Node identifiers for which insights are provided by that Agent.",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
         "password": {
           "description": "MySQL password for extracting metrics.",
           "type": "string"
         },
         "runs_on_node_id": {
-          "description": "Node identifier where agent should run.",
+          "description": "Node identifier where Agent runs.",
           "type": "integer",
           "format": "int64"
         },
-        "service_id": {
-          "description": "Service identifier for extracting metrics.",
-          "type": "integer",
-          "format": "int64"
+        "service_ids": {
+          "description": "Service identifiers for which insights are provided by that Agent.",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
         },
         "username": {
           "description": "MySQL username for extracting metrics.",
@@ -437,42 +675,19 @@
         }
       }
     },
-    "inventoryAddNodeRequest": {
-      "type": "object",
-      "properties": {
-        "hostname": {
-          "description": "Hostname. Is not unique.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique Node name.",
-          "type": "string"
-        },
-        "type": {
-          "description": "Node type.",
-          "$ref": "#/definitions/inventoryNodeType"
-        }
-      }
-    },
-    "inventoryAddNodeResponse": {
-      "type": "object",
-      "properties": {
-        "bare_metal": {
-          "$ref": "#/definitions/inventoryBareMetalNode"
-        },
-        "container": {
-          "$ref": "#/definitions/inventoryContainerNode"
-        },
-        "virtual_machine": {
-          "$ref": "#/definitions/inventoryVirtualMachineNode"
-        }
-      }
-    },
     "inventoryAddRDSNodeRequest": {
       "type": "object",
       "properties": {
+        "hostname": {
+          "description": "Hostname. Unique in combination with region.",
+          "type": "string"
+        },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
+          "type": "string"
+        },
+        "region": {
+          "description": "AWS region. Unique in combination with hostname.",
           "type": "string"
         }
       }
@@ -485,22 +700,53 @@
         }
       }
     },
-    "inventoryAddRemoveNodeRequest": {
+    "inventoryAddRemoteNodeRequest": {
       "type": "object",
       "properties": {
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
     },
-    "inventoryAddRemoveNodeResponse": {
+    "inventoryAddRemoteNodeResponse": {
       "type": "object",
       "properties": {
         "remote": {
           "$ref": "#/definitions/inventoryRemoteNode"
         }
       }
+    },
+    "inventoryAddVirtualMachineNodeRequest": {
+      "type": "object",
+      "properties": {
+        "hostname": {
+          "description": "Hostname. Is not unique.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Unique user-defined Node name.",
+          "type": "string"
+        }
+      }
+    },
+    "inventoryAddVirtualMachineNodeResponse": {
+      "type": "object",
+      "properties": {
+        "virtual_machine": {
+          "$ref": "#/definitions/inventoryVirtualMachineNode"
+        }
+      }
+    },
+    "inventoryAgentProcessStatus": {
+      "description": "AgentProcessStatus represents agent process state.",
+      "type": "string",
+      "default": "AGENT_PROCESS_STATUS_INVALID",
+      "enum": [
+        "AGENT_PROCESS_STATUS_INVALID",
+        "DISABLED",
+        "RUNNING"
+      ]
     },
     "inventoryBareMetalNode": {
       "description": "BareMetalNode represents bare metal Node.",
@@ -516,10 +762,95 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
+    },
+    "inventoryChangeBareMetalNodeRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique Node identifier.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "description": "Unique user-defined Node name.",
+          "type": "string"
+        }
+      }
+    },
+    "inventoryChangeBareMetalNodeResponse": {
+      "type": "object"
+    },
+    "inventoryChangeContainerNodeRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique Node identifier.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "description": "Unique user-defined Node name.",
+          "type": "string"
+        }
+      }
+    },
+    "inventoryChangeContainerNodeResponse": {
+      "type": "object"
+    },
+    "inventoryChangeRDSNodeRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique Node identifier.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "description": "Unique user-defined Node name.",
+          "type": "string"
+        }
+      }
+    },
+    "inventoryChangeRDSNodeResponse": {
+      "type": "object"
+    },
+    "inventoryChangeRemoteNodeRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique Node identifier.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "description": "Unique user-defined Node name.",
+          "type": "string"
+        }
+      }
+    },
+    "inventoryChangeRemoteNodeResponse": {
+      "type": "object"
+    },
+    "inventoryChangeVirtualMachineNodeRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique Node identifier.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "description": "Unique user-defined Node name.",
+          "type": "string"
+        }
+      }
+    },
+    "inventoryChangeVirtualMachineNodeResponse": {
+      "type": "object"
     },
     "inventoryContainerNode": {
       "description": "ContainerNode represents a container (Docker) Node.",
@@ -531,7 +862,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -669,16 +1000,16 @@
       }
     },
     "inventoryMySQLService": {
-      "description": "MySQLService represents MySQL service configuration.",
+      "description": "MySQLService represents MySQL Service configuration.",
       "type": "object",
       "properties": {
         "id": {
-          "description": "Unique service identifier.",
+          "description": "Unique Service identifier.",
           "type": "integer",
           "format": "int64"
         },
         "name": {
-          "description": "Unique service name.",
+          "description": "Unique user-defined Service name.",
           "type": "string"
         }
       }
@@ -688,7 +1019,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "description": "Unique agent identifier.",
+          "description": "Unique Agent identifier.",
           "type": "integer",
           "format": "int64"
         },
@@ -697,19 +1028,34 @@
           "type": "integer",
           "format": "int64"
         },
+        "node_ids": {
+          "description": "Node identifiers for which insights are provided by that Agent.",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
         "password": {
           "description": "MySQL password for extracting metrics.",
           "type": "string"
         },
+        "process_status": {
+          "description": "Agent process status.",
+          "$ref": "#/definitions/inventoryAgentProcessStatus"
+        },
         "runs_on_node_id": {
-          "description": "Node identifier where agent runs.",
+          "description": "Node identifier where Agent runs.",
           "type": "integer",
           "format": "int64"
         },
-        "service_id": {
-          "description": "Service identifier for extracting metrics.",
-          "type": "integer",
-          "format": "int64"
+        "service_ids": {
+          "description": "Service identifiers for which insights are provided by that Agent.",
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
         },
         "username": {
           "description": "MySQL username for extracting metrics.",
@@ -717,33 +1063,25 @@
         }
       }
     },
-    "inventoryNodeType": {
-      "description": "NodeType represents Node type.",
-      "type": "string",
-      "default": "NODE_TYPE_INVALID",
-      "enum": [
-        "NODE_TYPE_INVALID",
-        "BARE_METAL",
-        "VIRTUAL_MACHINE",
-        "CONTAINER",
-        "REMOTE",
-        "RDS"
-      ]
-    },
     "inventoryRDSNode": {
       "description": "RDSNode represents AWS RDS Node.",
       "type": "object",
       "properties": {
+        "hostname": {
+          "description": "Hostname. Unique in combination with region.",
+          "type": "string"
+        },
         "id": {
           "description": "Unique Node identifier.",
           "type": "integer",
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         },
         "region": {
+          "description": "AWS region. Unique in combination with hostname.",
           "type": "string"
         }
       }
@@ -758,7 +1096,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }
@@ -813,7 +1151,7 @@
           "format": "int64"
         },
         "name": {
-          "description": "Unique Node name.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         }
       }

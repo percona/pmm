@@ -17,10 +17,9 @@
 package handlers
 
 import (
+	"context"
 	"strings"
 	"time"
-
-	"golang.org/x/net/context"
 
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/services/logs"

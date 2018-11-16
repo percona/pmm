@@ -17,9 +17,9 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 
-	"golang.org/x/net/context"
 	spb "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

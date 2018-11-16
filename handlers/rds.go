@@ -17,7 +17,9 @@
 package handlers
 
 import (
-	"golang.org/x/net/context"
+	"context"
+
+	"github.com/AlekSi/pointer"
 
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/services/rds"
@@ -39,8 +41,8 @@ func (s *RDSServer) Discover(ctx context.Context, req *api.RDSDiscoverRequest) (
 	for _, db := range res {
 		resp.Instances = append(resp.Instances, &api.RDSInstance{
 			Node: &api.RDSNode{
+				Region: pointer.GetString(db.Node.Region),
 				Name:   db.Node.Name,
-				Region: db.Node.Region,
 			},
 			Service: &api.RDSService{
 				Address:       *db.Service.Address,
@@ -64,8 +66,8 @@ func (s *RDSServer) List(ctx context.Context, req *api.RDSListRequest) (*api.RDS
 	for _, db := range res {
 		resp.Instances = append(resp.Instances, &api.RDSInstance{
 			Node: &api.RDSNode{
+				Region: pointer.GetString(db.Node.Region),
 				Name:   db.Node.Name,
-				Region: db.Node.Region,
 			},
 			Service: &api.RDSService{
 				Address:       *db.Service.Address,

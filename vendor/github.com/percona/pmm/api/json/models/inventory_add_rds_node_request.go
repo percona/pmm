@@ -15,8 +15,14 @@ import (
 // swagger:model inventoryAddRDSNodeRequest
 type InventoryAddRDSNodeRequest struct {
 
-	// Unique Node name.
+	// Hostname. Unique in combination with region.
+	Hostname string `json:"hostname,omitempty"`
+
+	// Unique user-defined Node name.
 	Name string `json:"name,omitempty"`
+
+	// AWS region. Unique in combination with hostname.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this inventory add RDS node request

@@ -19,33 +19,32 @@ package handlers
 import (
 	"context"
 
-	"github.com/percona/pmm/api/inventory"
+	api "github.com/percona/pmm/api/inventory"
 
-	"github.com/percona/pmm-managed/services/agents"
+	"github.com/percona/pmm-managed/services/inventory"
 )
 
 type AgentsServer struct {
-	Store  *agents.Store
-	Agents map[uint32]*agents.Conn
+	Agents *inventory.AgentsService
 }
 
-func (s *AgentsServer) ListAgents(ctx context.Context, req *inventory.ListAgentsRequest) (*inventory.ListAgentsResponse, error) {
+func (s *AgentsServer) ListAgents(ctx context.Context, req *api.ListAgentsRequest) (*api.ListAgentsResponse, error) {
 	panic("not implemented")
 }
 
-func (s *AgentsServer) GetAgent(ctx context.Context, req *inventory.GetAgentRequest) (*inventory.GetAgentResponse, error) {
+func (s *AgentsServer) GetAgent(ctx context.Context, req *api.GetAgentRequest) (*api.GetAgentResponse, error) {
 	panic("not implemented")
 }
 
-func (s *AgentsServer) AddMySQLdExporterAgent(ctx context.Context, req *inventory.AddMySQLdExporterAgentRequest) (*inventory.AddMySQLdExporterAgentResponse, error) {
-	return s.Store.AddMySQLdExporter(req), nil
+func (s *AgentsServer) AddMySQLdExporterAgent(ctx context.Context, req *api.AddMySQLdExporterAgentRequest) (*api.AddMySQLdExporterAgentResponse, error) {
+	panic("not implemented")
 }
 
-func (s *AgentsServer) RemoveAgent(ctx context.Context, req *inventory.RemoveAgentRequest) (*inventory.RemoveAgentResponse, error) {
+func (s *AgentsServer) RemoveAgent(ctx context.Context, req *api.RemoveAgentRequest) (*api.RemoveAgentResponse, error) {
 	panic("not implemented")
 }
 
 // check interfaces
 var (
-	_ inventory.AgentsServer = (*AgentsServer)(nil)
+	_ api.AgentsServer = (*AgentsServer)(nil)
 )

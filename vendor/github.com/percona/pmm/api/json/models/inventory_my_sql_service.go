@@ -11,14 +11,14 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryMySQLService MySQLService represents MySQL service configuration.
+// InventoryMySQLService MySQLService represents MySQL Service configuration.
 // swagger:model inventoryMySQLService
 type InventoryMySQLService struct {
 
-	// Unique service identifier.
+	// Unique Service identifier.
 	ID int64 `json:"id,omitempty"`
 
-	// Unique service name.
+	// Unique user-defined Service name.
 	Name string `json:"name,omitempty"`
 }
 

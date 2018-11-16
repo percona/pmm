@@ -47,7 +47,7 @@ func (v *nodeTableType) PKColumnIndex() uint {
 
 // NodeTable represents nodes view or table in SQL database.
 var NodeTable = &nodeTableType{
-	s: parse.StructInfo{Type: "Node", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Node", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}}, PKFieldIndex: 0},
 	z: new(Node).Values(),
 }
 
@@ -110,9 +110,9 @@ func (s *Node) HasPK() bool {
 // SetPK sets record primary key.
 func (s *Node) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int32(i64)
+		s.ID = uint32(i64)
 	} else {
-		s.ID = pk.(int32)
+		s.ID = pk.(uint32)
 	}
 }
 
@@ -123,6 +123,127 @@ var (
 	_ reform.Table  = NodeTable
 	_ reform.Record = (*Node)(nil)
 	_ fmt.Stringer  = (*Node)(nil)
+)
+
+type nodeRowTableType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("").
+func (v *nodeRowTableType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("nodes").
+func (v *nodeRowTableType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *nodeRowTableType) Columns() []string {
+	return []string{"id", "type", "name", "hostname", "region"}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *nodeRowTableType) NewStruct() reform.Struct {
+	return new(NodeRow)
+}
+
+// NewRecord makes a new record for that table.
+func (v *nodeRowTableType) NewRecord() reform.Record {
+	return new(NodeRow)
+}
+
+// PKColumnIndex returns an index of primary key column for that table in SQL database.
+func (v *nodeRowTableType) PKColumnIndex() uint {
+	return uint(v.s.PKFieldIndex)
+}
+
+// NodeRowTable represents nodes view or table in SQL database.
+var NodeRowTable = &nodeRowTableType{
+	s: parse.StructInfo{Type: "NodeRow", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Hostname", Type: "*string", Column: "hostname"}, {Name: "Region", Type: "*string", Column: "region"}}, PKFieldIndex: 0},
+	z: new(NodeRow).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s NodeRow) String() string {
+	res := make([]string, 5)
+	res[0] = "ID: " + reform.Inspect(s.ID, true)
+	res[1] = "Type: " + reform.Inspect(s.Type, true)
+	res[2] = "Name: " + reform.Inspect(s.Name, true)
+	res[3] = "Hostname: " + reform.Inspect(s.Hostname, true)
+	res[4] = "Region: " + reform.Inspect(s.Region, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *NodeRow) Values() []interface{} {
+	return []interface{}{
+		s.ID,
+		s.Type,
+		s.Name,
+		s.Hostname,
+		s.Region,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *NodeRow) Pointers() []interface{} {
+	return []interface{}{
+		&s.ID,
+		&s.Type,
+		&s.Name,
+		&s.Hostname,
+		&s.Region,
+	}
+}
+
+// View returns View object for that struct.
+func (s *NodeRow) View() reform.View {
+	return NodeRowTable
+}
+
+// Table returns Table object for that record.
+func (s *NodeRow) Table() reform.Table {
+	return NodeRowTable
+}
+
+// PKValue returns a value of primary key for that record.
+// Returned interface{} value is never untyped nil.
+func (s *NodeRow) PKValue() interface{} {
+	return s.ID
+}
+
+// PKPointer returns a pointer to primary key field for that record.
+// Returned interface{} value is never untyped nil.
+func (s *NodeRow) PKPointer() interface{} {
+	return &s.ID
+}
+
+// HasPK returns true if record has non-zero primary key set, false otherwise.
+func (s *NodeRow) HasPK() bool {
+	return s.ID != NodeRowTable.z[NodeRowTable.s.PKFieldIndex]
+}
+
+// SetPK sets record primary key.
+func (s *NodeRow) SetPK(pk interface{}) {
+	if i64, ok := pk.(int64); ok {
+		s.ID = uint32(i64)
+	} else {
+		s.ID = pk.(uint32)
+	}
+}
+
+// check interfaces
+var (
+	_ reform.View   = NodeRowTable
+	_ reform.Struct = (*NodeRow)(nil)
+	_ reform.Table  = NodeRowTable
+	_ reform.Record = (*NodeRow)(nil)
+	_ fmt.Stringer  = (*NodeRow)(nil)
 )
 
 type rDSNodeTableType struct {
@@ -162,7 +283,7 @@ func (v *rDSNodeTableType) PKColumnIndex() uint {
 
 // RDSNodeTable represents nodes view or table in SQL database.
 var RDSNodeTable = &rDSNodeTableType{
-	s: parse.StructInfo{Type: "RDSNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "string", Column: "region"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RDSNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "*string", Column: "region"}}, PKFieldIndex: 0},
 	z: new(RDSNode).Values(),
 }
 
@@ -228,9 +349,9 @@ func (s *RDSNode) HasPK() bool {
 // SetPK sets record primary key.
 func (s *RDSNode) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int32(i64)
+		s.ID = uint32(i64)
 	} else {
-		s.ID = pk.(int32)
+		s.ID = pk.(uint32)
 	}
 }
 
@@ -280,7 +401,7 @@ func (v *remoteNodeTableType) PKColumnIndex() uint {
 
 // RemoteNodeTable represents nodes view or table in SQL database.
 var RemoteNodeTable = &remoteNodeTableType{
-	s: parse.StructInfo{Type: "RemoteNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "int32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "string", Column: "region"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RemoteNode", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Region", Type: "*string", Column: "region"}}, PKFieldIndex: 0},
 	z: new(RemoteNode).Values(),
 }
 
@@ -346,9 +467,9 @@ func (s *RemoteNode) HasPK() bool {
 // SetPK sets record primary key.
 func (s *RemoteNode) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = int32(i64)
+		s.ID = uint32(i64)
 	} else {
-		s.ID = pk.(int32)
+		s.ID = pk.(uint32)
 	}
 }
 
@@ -363,6 +484,7 @@ var (
 
 func init() {
 	parse.AssertUpToDate(&NodeTable.s, new(Node))
+	parse.AssertUpToDate(&NodeRowTable.s, new(NodeRow))
 	parse.AssertUpToDate(&RDSNodeTable.s, new(RDSNode))
 	parse.AssertUpToDate(&RemoteNodeTable.s, new(RemoteNode))
 }

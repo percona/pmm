@@ -15,13 +15,16 @@ import (
 // swagger:model inventoryRDSNode
 type InventoryRDSNode struct {
 
+	// Hostname. Unique in combination with region.
+	Hostname string `json:"hostname,omitempty"`
+
 	// Unique Node identifier.
 	ID int64 `json:"id,omitempty"`
 
-	// Unique Node name.
+	// Unique user-defined Node name.
 	Name string `json:"name,omitempty"`
 
-	// region
+	// AWS region. Unique in combination with hostname.
 	Region string `json:"region,omitempty"`
 }
 

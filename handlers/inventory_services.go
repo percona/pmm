@@ -19,32 +19,32 @@ package handlers
 import (
 	"context"
 
-	"github.com/percona/pmm/api/inventory"
+	api "github.com/percona/pmm/api/inventory"
 
-	"github.com/percona/pmm-managed/services/agents"
+	"github.com/percona/pmm-managed/services/inventory"
 )
 
 type ServicesServer struct {
-	Store *agents.Store
+	Services *inventory.ServicesService
 }
 
-func (s *ServicesServer) ListServices(ctx context.Context, req *inventory.ListServicesRequest) (*inventory.ListServicesResponse, error) {
+func (s *ServicesServer) ListServices(ctx context.Context, req *api.ListServicesRequest) (*api.ListServicesResponse, error) {
 	panic("not implemented")
 }
 
-func (s *ServicesServer) GetService(ctx context.Context, req *inventory.GetServiceRequest) (*inventory.GetServiceResponse, error) {
+func (s *ServicesServer) GetService(ctx context.Context, req *api.GetServiceRequest) (*api.GetServiceResponse, error) {
 	panic("not implemented")
 }
 
-func (s *ServicesServer) AddMySQLService(ctx context.Context, req *inventory.AddMySQLServiceRequest) (*inventory.AddMySQLServiceResponse, error) {
+func (s *ServicesServer) AddMySQLService(ctx context.Context, req *api.AddMySQLServiceRequest) (*api.AddMySQLServiceResponse, error) {
 	panic("not implemented")
 }
 
-func (s *ServicesServer) RemoveService(ctx context.Context, req *inventory.RemoveServiceRequest) (*inventory.RemoveServiceResponse, error) {
+func (s *ServicesServer) RemoveService(ctx context.Context, req *api.RemoveServiceRequest) (*api.RemoveServiceResponse, error) {
 	panic("not implemented")
 }
 
 // check interfaces
 var (
-	_ inventory.ServicesServer = (*ServicesServer)(nil)
+	_ api.ServicesServer = (*ServicesServer)(nil)
 )

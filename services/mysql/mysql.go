@@ -164,7 +164,7 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 				if e := q.Reload(&a); e != nil {
 					return errors.WithStack(e)
 				}
-				logger.Get(ctx).WithField("component", "mysql").Infof("%s %s %s %d", a.Type, node.Name, node.Region, *a.ListenPort)
+				logger.Get(ctx).WithField("component", "mysql").Infof("%s %s %s %d", a.Type, node.Name, *node.Region, *a.ListenPort)
 
 				sc := prometheus.StaticConfig{
 					Targets: []string{fmt.Sprintf("127.0.0.1:%d", *a.ListenPort)},
@@ -360,7 +360,7 @@ func (svc *Service) addQanAgent(ctx context.Context, tx *reform.TX, service *mod
 	return nil
 }
 
-func (svc *Service) Add(ctx context.Context, name, address string, port uint32, username, password string) (int32, error) {
+func (svc *Service) Add(ctx context.Context, name, address string, port uint32, username, password string) (uint32, error) {
 	address = strings.TrimSpace(address)
 	username = strings.TrimSpace(username)
 	name = strings.TrimSpace(name)
@@ -377,13 +377,13 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 		name = address
 	}
 
-	var id int32
+	var id uint32
 	err := svc.DB.InTransaction(func(tx *reform.TX) error {
 		// insert node
 		node := &models.RemoteNode{
 			Type:   models.RemoteNodeType,
 			Name:   name,
-			Region: models.RemoteNodeRegion,
+			Region: pointer.ToString(models.RemoteNodeRegion),
 		}
 		if err := tx.Insert(node); err != nil {
 			if err, ok := err.(*mysql.MySQLError); ok && err.Number == 0x426 {
@@ -426,7 +426,7 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 	return id, err
 }
 
-func (svc *Service) Remove(ctx context.Context, id int32) error {
+func (svc *Service) Remove(ctx context.Context, id uint32) error {
 	var err error
 	return svc.DB.InTransaction(func(tx *reform.TX) error {
 		var node models.RemoteNode
@@ -475,7 +475,7 @@ func (svc *Service) Remove(ctx context.Context, id int32) error {
 		}
 
 		// stop agents
-		agents := make(map[int32]models.Agent, len(agentsForService)+len(agentsForNode))
+		agents := make(map[uint32]models.Agent, len(agentsForService)+len(agentsForNode))
 		for _, agent := range agentsForService {
 			agents[agent.ID] = agent
 		}

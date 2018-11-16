@@ -17,7 +17,7 @@
 package handlers
 
 import (
-	"golang.org/x/net/context"
+	"context"
 
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/services/prometheus"

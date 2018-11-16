@@ -22,34 +22,52 @@ type NodeType string
 
 // Node types
 const (
-	PMMServerNodeType NodeType = "pmm-server"
-	RDSNodeType       NodeType = "rds"
-	RemoteNodeType    NodeType = "remote"
+	PMMServerNodeType NodeType = "pmm-server" // FIXME remove
+
+	BareMetalNodeType      NodeType = "bare-metal"
+	VirtualMachineNodeType NodeType = "virtual-machine"
+	ContainerNodeType      NodeType = "container"
+	RemoteNodeType         NodeType = "remote"
+	RDSNodeType            NodeType = "rds"
 )
 
 const RemoteNodeRegion string = "remote"
 
 //reform:nodes
 type Node struct {
-	ID   int32    `reform:"id,pk"`
+	ID   uint32   `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"`
 }
 
 //reform:nodes
+type NodeRow struct {
+	ID   uint32   `reform:"id,pk"`
+	Type NodeType `reform:"type"`
+	Name string   `reform:"name"`
+
+	Hostname *string `reform:"hostname"`
+	Region   *string `reform:"region"`
+}
+
+// TODO remove types below
+
+//reform:nodes
 type RDSNode struct {
-	ID   int32    `reform:"id,pk"`
+	ID   uint32   `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"` // DBInstanceIdentifier
 
-	Region string `reform:"region"` // not a pointer, see database structure
+	// Hostname *string `reform:"hostname"`
+	Region *string `reform:"region"`
 }
 
 //reform:nodes
 type RemoteNode struct {
-	ID   int32    `reform:"id,pk"`
+	ID   uint32   `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"` // DBInstanceIdentifier
 
-	Region string `reform:"region"` // not a pointer, see database structure
+	// Hostname *string `reform:"hostname"`
+	Region *string `reform:"region"`
 }

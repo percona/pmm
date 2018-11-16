@@ -4,19 +4,12 @@ package inventory;
 
 import "google/api/annotations.proto";
 
-// ServiceType represents Service type.
-enum ServiceType {
-  SERVICE_TYPE_INVALID = 0;
-  MYSQL = 1;
-}
-
-// MySQLService represents MySQL service configuration.
+// MySQLService represents MySQL Service configuration.
 message MySQLService {
-  // Unique service identifier.
+  // Unique Service identifier.
   uint32 id = 1;
-  reserved 2; // type
-  // Unique service name.
-  string name = 3;
+  // Unique user-defined Service name.
+  string name = 2;
 }
 
 message ListServicesRequest {}

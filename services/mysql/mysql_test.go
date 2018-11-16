@@ -187,7 +187,7 @@ func TestAddListRemove(t *testing.T) {
 			ID:     2,
 			Type:   "remote",
 			Name:   "localhost",
-			Region: "remote",
+			Region: pointer.ToString("remote"),
 		},
 		Service: models.MySQLService{
 			ID:            1000,

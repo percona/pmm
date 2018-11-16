@@ -18,88 +18,191 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/percona/pmm/api/inventory"
+	api "github.com/percona/pmm/api/inventory"
 
-	"github.com/percona/pmm-managed/services/agents"
+	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services/inventory"
 )
 
+// NodesServer handles Inventory API requests to manage Nodes.
 type NodesServer struct {
-	Store  *agents.Store
-	Agents map[uint32]*agents.Conn
+	Nodes *inventory.NodesService
 }
 
-func (s *NodesServer) ListNodes(ctx context.Context, req *inventory.ListNodesRequest) (*inventory.ListNodesResponse, error) {
-	panic("not implemented")
+// ListNodes returns a list of all Nodes.
+func (s *NodesServer) ListNodes(ctx context.Context, req *api.ListNodesRequest) (*api.ListNodesResponse, error) {
+	nodes, err := s.Nodes.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res := new(api.ListNodesResponse)
+	for _, node := range nodes {
+		switch node := node.(type) {
+		case *api.BareMetalNode:
+			res.BareMetal = append(res.BareMetal, node)
+		case *api.VirtualMachineNode:
+			res.VirtualMachine = append(res.VirtualMachine, node)
+		case *api.ContainerNode:
+			res.Container = append(res.Container, node)
+		case *api.RemoteNode:
+			res.Remote = append(res.Remote, node)
+		case *api.RDSNode:
+			res.Rds = append(res.Rds, node)
+		default:
+			panic(fmt.Errorf("unhandled inventory Node type %T", node))
+		}
+	}
+	return res, nil
 }
 
-func (s *NodesServer) GetNode(ctx context.Context, req *inventory.GetNodeRequest) (*inventory.GetNodeResponse, error) {
-	panic("not implemented")
+// GetNode returns a single Node by ID.
+func (s *NodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*api.GetNodeResponse, error) {
+	node, err := s.Nodes.Get(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	res := new(api.GetNodeResponse)
+	switch node := node.(type) {
+	case *api.BareMetalNode:
+		res.Node = &api.GetNodeResponse_BareMetal{BareMetal: node}
+	case *api.VirtualMachineNode:
+		res.Node = &api.GetNodeResponse_VirtualMachine{VirtualMachine: node}
+	case *api.ContainerNode:
+		res.Node = &api.GetNodeResponse_Container{Container: node}
+	case *api.RemoteNode:
+		res.Node = &api.GetNodeResponse_Remote{Remote: node}
+	case *api.RDSNode:
+		res.Node = &api.GetNodeResponse_Rds{Rds: node}
+	default:
+		panic(fmt.Errorf("unhandled inventory Node type %T", node))
+	}
+	return res, nil
 }
 
-func (s *NodesServer) AddNode(ctx context.Context, req *inventory.AddNodeRequest) (*inventory.AddNodeResponse, error) {
-	panic("not implemented")
+// AddBareMetalNode adds bare metal Node.
+func (s *NodesServer) AddBareMetalNode(ctx context.Context, req *api.AddBareMetalNodeRequest) (*api.AddBareMetalNodeResponse, error) {
+	node, err := s.Nodes.Add(ctx, models.BareMetalNodeType, req.Name, &req.Hostname, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddBareMetalNodeResponse{
+		BareMetal: node.(*api.BareMetalNode),
+	}
+	return res, nil
 }
 
-func (s *NodesServer) AddRemoveNode(ctx context.Context, req *inventory.AddRemoveNodeRequest) (*inventory.AddRemoveNodeResponse, error) {
-	panic("not implemented")
+// AddVirtualMachineNode adds virtual machine Node.
+func (s *NodesServer) AddVirtualMachineNode(ctx context.Context, req *api.AddVirtualMachineNodeRequest) (*api.AddVirtualMachineNodeResponse, error) {
+	node, err := s.Nodes.Add(ctx, models.VirtualMachineNodeType, req.Name, &req.Hostname, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddVirtualMachineNodeResponse{
+		VirtualMachine: node.(*api.VirtualMachineNode),
+	}
+	return res, nil
 }
 
-func (s *NodesServer) AddRDSNode(ctx context.Context, req *inventory.AddRDSNodeRequest) (*inventory.AddRDSNodeResponse, error) {
-	panic("not implemented")
+// AddContainerNode adds container Node.
+func (s *NodesServer) AddContainerNode(ctx context.Context, req *api.AddContainerNodeRequest) (*api.AddContainerNodeResponse, error) {
+	node, err := s.Nodes.Add(ctx, models.ContainerNodeType, req.Name, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddContainerNodeResponse{
+		Container: node.(*api.ContainerNode),
+	}
+	return res, nil
 }
 
-func (s *NodesServer) RemoveNode(ctx context.Context, req *inventory.RemoveNodeRequest) (*inventory.RemoveNodeResponse, error) {
-	panic("not implemented")
+// AddRemoteNode adds remote Node.
+func (s *NodesServer) AddRemoteNode(ctx context.Context, req *api.AddRemoteNodeRequest) (*api.AddRemoteNodeResponse, error) {
+	node, err := s.Nodes.Add(ctx, models.RemoteNodeType, req.Name, nil, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddRemoteNodeResponse{
+		Remote: node.(*api.RemoteNode),
+	}
+	return res, nil
 }
 
-// func (s *NodesServer) List(ctx context.Context, req *inventory.NodesListRequest) (*inventory.NodesListResponse, error) {
-// 	logger.Get(ctx).Infof("%#v", req)
-// 	return &inventory.NodesListResponse{
-// 		Node: []*inventory.Node{
-// 			{
-// 				Id: 1,
-// 			},
-// 		},
-// 		BareMetal: []*inventory.BareMetalNode{
-// 			{
-// 				Id: 2,
-// 			},
-// 		},
-// 		Container: []*inventory.ContainerNode{
-// 			{
-// 				Id: 3,
-// 			},
-// 		},
-// 	}, nil
-// }
+// AddRDSNode adds AWS RDS Node.
+func (s *NodesServer) AddRDSNode(ctx context.Context, req *api.AddRDSNodeRequest) (*api.AddRDSNodeResponse, error) {
+	node, err := s.Nodes.Add(ctx, models.RemoteNodeType, req.Name, &req.Hostname, &req.Region)
+	if err != nil {
+		return nil, err
+	}
 
-// func (s *NodesServer) Get(ctx context.Context, req *inventory.NodesGetRequest) (*inventory.NodesGetResponse, error) {
-// 	logger.Get(ctx).Infof("%#v", req)
-// 	return &inventory.NodesGetResponse{
-// 		OnlyOne: &inventory.NodesGetResponse_BareMetal{
-// 			BareMetal: &inventory.BareMetalNode{
-// 				Id: 1,
-// 			},
-// 		},
-// 	}, nil
-// }
+	res := &api.AddRDSNodeResponse{
+		Rds: node.(*api.RDSNode),
+	}
+	return res, nil
+}
 
-// func (s *NodesServer) AddBareMetal(ctx context.Context, req *inventory.AddBareMetalRequest) (*inventory.AddBareMetalResponse, error) {
-// 	node := s.Store.AddBareMetalNode(req)
-// 	return &inventory.AddBareMetalResponse{
-// 		Node: node,
-// 	}, nil
-// }
+// ChangeBareMetalNode changes bare metal Node.
+func (s *NodesServer) ChangeBareMetalNode(ctx context.Context, req *api.ChangeBareMetalNodeRequest) (*api.ChangeBareMetalNodeResponse, error) {
+	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+		return nil, err
+	}
 
-// func (s *NodesServer) AddMySQLdExporter(ctx context.Context, req *inventory.AddMySQLdExporterRequest) (*inventory.AddMySQLdExporterResponse, error) {
-// 	exporter := s.Store.AddMySQLdExporter(req)
-// 	return &inventory.AddMySQLdExporterResponse{
-// 		Agent: exporter,
-// 	}, nil
-// }
+	return new(api.ChangeBareMetalNodeResponse), nil
+}
+
+// ChangeVirtualMachineNode changes virtual machine Node.
+func (s *NodesServer) ChangeVirtualMachineNode(ctx context.Context, req *api.ChangeVirtualMachineNodeRequest) (*api.ChangeVirtualMachineNodeResponse, error) {
+	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+		return nil, err
+	}
+
+	return new(api.ChangeVirtualMachineNodeResponse), nil
+}
+
+// ChangeContainerNode changes container Node.
+func (s *NodesServer) ChangeContainerNode(ctx context.Context, req *api.ChangeContainerNodeRequest) (*api.ChangeContainerNodeResponse, error) {
+	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+		return nil, err
+	}
+
+	return new(api.ChangeContainerNodeResponse), nil
+}
+
+// ChangeRemoteNode changes remote Node.
+func (s *NodesServer) ChangeRemoteNode(ctx context.Context, req *api.ChangeRemoteNodeRequest) (*api.ChangeRemoteNodeResponse, error) {
+	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+		return nil, err
+	}
+
+	return new(api.ChangeRemoteNodeResponse), nil
+}
+
+// ChangeRDSNode changes AWS RDS Node.
+func (s *NodesServer) ChangeRDSNode(ctx context.Context, req *api.ChangeRDSNodeRequest) (*api.ChangeRDSNodeResponse, error) {
+	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+		return nil, err
+	}
+
+	return new(api.ChangeRDSNodeResponse), nil
+}
+
+// RemoveNode removes Node without any Agents and Services.
+func (s *NodesServer) RemoveNode(ctx context.Context, req *api.RemoveNodeRequest) (*api.RemoveNodeResponse, error) {
+	if err := s.Nodes.Remove(ctx, req.Id); err != nil {
+		return nil, err
+	}
+
+	return new(api.RemoveNodeResponse), nil
+}
 
 // check interfaces
 var (
-	_ inventory.NodesServer = (*NodesServer)(nil)
+	_ api.NodesServer = (*NodesServer)(nil)
 )

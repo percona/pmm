@@ -25,12 +25,12 @@ import (
 
 //reform:agent_nodes
 type AgentNode struct {
-	AgentID int32 `reform:"agent_id"`
-	NodeID  int32 `reform:"node_id"`
+	AgentID uint32 `reform:"agent_id"`
+	NodeID  uint32 `reform:"node_id"`
 }
 
 // AgentsForNodeID returns agents providing insights for a given node.
-func AgentsForNodeID(q *reform.Querier, nodeID int32) ([]Agent, error) {
+func AgentsForNodeID(q *reform.Querier, nodeID uint32) ([]Agent, error) {
 	agentNodes, err := q.SelectAllFrom(AgentNodeView, "WHERE node_id = ?", nodeID)
 	if err != nil {
 		return nil, errors.WithStack(err)

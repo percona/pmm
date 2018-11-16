@@ -25,12 +25,12 @@ import (
 
 //reform:agent_services
 type AgentService struct {
-	AgentID   int32 `reform:"agent_id"`
-	ServiceID int32 `reform:"service_id"`
+	AgentID   uint32 `reform:"agent_id"`
+	ServiceID uint32 `reform:"service_id"`
 }
 
 // AgentsForServiceID returns agents providing insights for a given service.
-func AgentsForServiceID(q *reform.Querier, serviceID int32) ([]Agent, error) {
+func AgentsForServiceID(q *reform.Querier, serviceID uint32) ([]Agent, error) {
 	agentServices, err := q.SelectAllFrom(AgentServiceView, "WHERE service_id = ?", serviceID)
 	if err != nil {
 		return nil, errors.WithStack(err)
