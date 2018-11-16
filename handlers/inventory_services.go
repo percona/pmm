@@ -18,30 +18,66 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 
 	api "github.com/percona/pmm/api/inventory"
 
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
+// ServicesServer handles Inventory API requests to manage Services.
 type ServicesServer struct {
 	Services *inventory.ServicesService
 }
 
+// ListServices returns a list of all Services.
 func (s *ServicesServer) ListServices(ctx context.Context, req *api.ListServicesRequest) (*api.ListServicesResponse, error) {
-	panic("not implemented")
+	services, err := s.Services.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res := new(api.ListServicesResponse)
+	for _, service := range services {
+		switch service := service.(type) {
+		case *api.MySQLService:
+			res.Mysql = append(res.Mysql, service)
+		default:
+			panic(fmt.Errorf("unhandled inventory Service type %T", service))
+		}
+	}
+	return res, nil
 }
 
+// GetService returns a single Service by ID.
 func (s *ServicesServer) GetService(ctx context.Context, req *api.GetServiceRequest) (*api.GetServiceResponse, error) {
-	panic("not implemented")
+	service, err := s.Services.Get(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	res := new(api.GetServiceResponse)
+	switch service := service.(type) {
+	case *api.MySQLService:
+		res.Service = &api.GetServiceResponse_Mysql{Mysql: service}
+	default:
+		panic(fmt.Errorf("unhandled inventory Service type %T", service))
+	}
+	return res, nil
 }
 
+// AddMySQLService adds MySQL Service.
 func (s *ServicesServer) AddMySQLService(ctx context.Context, req *api.AddMySQLServiceRequest) (*api.AddMySQLServiceResponse, error) {
 	panic("not implemented")
 }
 
+// RemoveService removes Service without any Agents.
 func (s *ServicesServer) RemoveService(ctx context.Context, req *api.RemoveServiceRequest) (*api.RemoveServiceResponse, error) {
-	panic("not implemented")
+	if err := s.Services.Remove(ctx, req.Id); err != nil {
+		return nil, err
+	}
+
+	return new(api.RemoveServiceResponse), nil
 }
 
 // check interfaces
