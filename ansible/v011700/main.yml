@@ -93,7 +93,7 @@
 
     - name: PMM                        | Install RPMs
       when: ansible_os_family == 'RedHat'
-      yum: name={{ item }} state=present enablerepo=pmm
+      yum: name={{ item }} state=latest enablerepo=pmm
       with_items:
         - nginx
         - pmm-update
