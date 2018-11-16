@@ -49,8 +49,8 @@ func (s *NodesServer) ListNodes(ctx context.Context, req *api.ListNodesRequest) 
 			res.Container = append(res.Container, node)
 		case *api.RemoteNode:
 			res.Remote = append(res.Remote, node)
-		case *api.RDSNode:
-			res.Rds = append(res.Rds, node)
+		case *api.AWSRDSNode:
+			res.AwsRds = append(res.AwsRds, node)
 		default:
 			panic(fmt.Errorf("unhandled inventory Node type %T", node))
 		}
@@ -75,8 +75,8 @@ func (s *NodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*ap
 		res.Node = &api.GetNodeResponse_Container{Container: node}
 	case *api.RemoteNode:
 		res.Node = &api.GetNodeResponse_Remote{Remote: node}
-	case *api.RDSNode:
-		res.Node = &api.GetNodeResponse_Rds{Rds: node}
+	case *api.AWSRDSNode:
+		res.Node = &api.GetNodeResponse_AwsRds{AwsRds: node}
 	default:
 		panic(fmt.Errorf("unhandled inventory Node type %T", node))
 	}
@@ -135,15 +135,15 @@ func (s *NodesServer) AddRemoteNode(ctx context.Context, req *api.AddRemoteNodeR
 	return res, nil
 }
 
-// AddRDSNode adds AWS RDS Node.
-func (s *NodesServer) AddRDSNode(ctx context.Context, req *api.AddRDSNodeRequest) (*api.AddRDSNodeResponse, error) {
+// AddAWSRDSNode adds AWS RDS Node.
+func (s *NodesServer) AddAWSRDSNode(ctx context.Context, req *api.AddAWSRDSNodeRequest) (*api.AddAWSRDSNodeResponse, error) {
 	node, err := s.Nodes.Add(ctx, models.RemoteNodeType, req.Name, &req.Hostname, &req.Region)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &api.AddRDSNodeResponse{
-		Rds: node.(*api.RDSNode),
+	res := &api.AddAWSRDSNodeResponse{
+		AwsRds: node.(*api.AWSRDSNode),
 	}
 	return res, nil
 }
@@ -184,13 +184,13 @@ func (s *NodesServer) ChangeRemoteNode(ctx context.Context, req *api.ChangeRemot
 	return new(api.ChangeRemoteNodeResponse), nil
 }
 
-// ChangeRDSNode changes AWS RDS Node.
-func (s *NodesServer) ChangeRDSNode(ctx context.Context, req *api.ChangeRDSNodeRequest) (*api.ChangeRDSNodeResponse, error) {
+// ChangeAWSRDSNode changes AWS RDS Node.
+func (s *NodesServer) ChangeAWSRDSNode(ctx context.Context, req *api.ChangeAWSRDSNodeRequest) (*api.ChangeAWSRDSNodeResponse, error) {
 	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
 		return nil, err
 	}
 
-	return new(api.ChangeRDSNodeResponse), nil
+	return new(api.ChangeAWSRDSNodeResponse), nil
 }
 
 // RemoveNode removes Node without any Agents and Services.

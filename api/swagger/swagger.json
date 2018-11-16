@@ -123,6 +123,33 @@
         }
       }
     },
+    "/v0/inventory/Nodes/AddAWSRDSNode": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "AddAWSRDSNode adds AWS RDS Node.",
+        "operationId": "AddAWSRDSNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryAddAWSRDSNodeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryAddAWSRDSNodeResponse"
+            }
+          }
+        }
+      }
+    },
     "/v0/inventory/Nodes/AddBareMetalNode": {
       "post": {
         "tags": [
@@ -172,33 +199,6 @@
             "description": "(empty)",
             "schema": {
               "$ref": "#/definitions/inventoryAddContainerNodeResponse"
-            }
-          }
-        }
-      }
-    },
-    "/v0/inventory/Nodes/AddRDSNode": {
-      "post": {
-        "tags": [
-          "Nodes"
-        ],
-        "summary": "AddRDSNode adds AWS RDS Node.",
-        "operationId": "AddRDSNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/inventoryAddRDSNodeRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "$ref": "#/definitions/inventoryAddRDSNodeResponse"
             }
           }
         }
@@ -258,6 +258,33 @@
         }
       }
     },
+    "/v0/inventory/Nodes/ChangeAWSRDSNode": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "ChangeAWSRDSNode changes AWS RDS Node.",
+        "operationId": "ChangeAWSRDSNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryChangeAWSRDSNodeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryChangeAWSRDSNodeResponse"
+            }
+          }
+        }
+      }
+    },
     "/v0/inventory/Nodes/ChangeBareMetalNode": {
       "post": {
         "tags": [
@@ -307,33 +334,6 @@
             "description": "(empty)",
             "schema": {
               "$ref": "#/definitions/inventoryChangeContainerNodeResponse"
-            }
-          }
-        }
-      }
-    },
-    "/v0/inventory/Nodes/ChangeRDSNode": {
-      "post": {
-        "tags": [
-          "Nodes"
-        ],
-        "summary": "ChangeRDSNode changes AWS RDS Node.",
-        "operationId": "ChangeRDSNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/inventoryChangeRDSNodeRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "$ref": "#/definitions/inventoryChangeRDSNodeResponse"
             }
           }
         }
@@ -584,6 +584,54 @@
     }
   },
   "definitions": {
+    "inventoryAWSRDSNode": {
+      "description": "AWSRDSNode represents AWS RDS Node.",
+      "type": "object",
+      "properties": {
+        "hostname": {
+          "description": "Hostname. Unique in combination with region.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique Node identifier.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "description": "Unique user-defined Node name.",
+          "type": "string"
+        },
+        "region": {
+          "description": "AWS region. Unique in combination with hostname.",
+          "type": "string"
+        }
+      }
+    },
+    "inventoryAddAWSRDSNodeRequest": {
+      "type": "object",
+      "properties": {
+        "hostname": {
+          "description": "Hostname. Unique in combination with region.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Unique user-defined Node name.",
+          "type": "string"
+        },
+        "region": {
+          "description": "AWS region. Unique in combination with hostname.",
+          "type": "string"
+        }
+      }
+    },
+    "inventoryAddAWSRDSNodeResponse": {
+      "type": "object",
+      "properties": {
+        "aws_rds": {
+          "$ref": "#/definitions/inventoryAWSRDSNode"
+        }
+      }
+    },
     "inventoryAddBareMetalNodeRequest": {
       "type": "object",
       "properties": {
@@ -623,7 +671,35 @@
       }
     },
     "inventoryAddMySQLServiceRequest": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "address": {
+          "description": "MySQL access address (DNS name or IP address).",
+          "type": "string"
+        },
+        "name": {
+          "description": "Unique user-defined Service name.",
+          "type": "string"
+        },
+        "node_id": {
+          "description": "Node identifier where this Service runs.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "port": {
+          "description": "MySQL access port.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "unix_socket": {
+          "description": "MySQL access UNIX socket path.",
+          "type": "string"
+        },
+        "version": {
+          "description": "MySQL version and engine. Arbitrary format.",
+          "type": "string"
+        }
+      }
     },
     "inventoryAddMySQLServiceResponse": {
       "type": "object",
@@ -672,31 +748,6 @@
       "properties": {
         "mysqld_exporter": {
           "$ref": "#/definitions/inventoryMySQLdExporter"
-        }
-      }
-    },
-    "inventoryAddRDSNodeRequest": {
-      "type": "object",
-      "properties": {
-        "hostname": {
-          "description": "Hostname. Unique in combination with region.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        },
-        "region": {
-          "description": "AWS region. Unique in combination with hostname.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryAddRDSNodeResponse": {
-      "type": "object",
-      "properties": {
-        "rds": {
-          "$ref": "#/definitions/inventoryRDSNode"
         }
       }
     },
@@ -767,6 +818,23 @@
         }
       }
     },
+    "inventoryChangeAWSRDSNodeRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique Node identifier.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "name": {
+          "description": "Unique user-defined Node name.",
+          "type": "string"
+        }
+      }
+    },
+    "inventoryChangeAWSRDSNodeResponse": {
+      "type": "object"
+    },
     "inventoryChangeBareMetalNodeRequest": {
       "type": "object",
       "properties": {
@@ -799,23 +867,6 @@
       }
     },
     "inventoryChangeContainerNodeResponse": {
-      "type": "object"
-    },
-    "inventoryChangeRDSNodeRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryChangeRDSNodeResponse": {
       "type": "object"
     },
     "inventoryChangeRemoteNodeRequest": {
@@ -898,14 +949,14 @@
     "inventoryGetNodeResponse": {
       "type": "object",
       "properties": {
+        "aws_rds": {
+          "$ref": "#/definitions/inventoryAWSRDSNode"
+        },
         "bare_metal": {
           "$ref": "#/definitions/inventoryBareMetalNode"
         },
         "container": {
           "$ref": "#/definitions/inventoryContainerNode"
-        },
-        "rds": {
-          "$ref": "#/definitions/inventoryRDSNode"
         },
         "remote": {
           "$ref": "#/definitions/inventoryRemoteNode"
@@ -953,6 +1004,12 @@
     "inventoryListNodesResponse": {
       "type": "object",
       "properties": {
+        "aws_rds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/inventoryAWSRDSNode"
+          }
+        },
         "bare_metal": {
           "type": "array",
           "items": {
@@ -963,12 +1020,6 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/inventoryContainerNode"
-          }
-        },
-        "rds": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/inventoryRDSNode"
           }
         },
         "remote": {
@@ -1000,9 +1051,13 @@
       }
     },
     "inventoryMySQLService": {
-      "description": "MySQLService represents MySQL Service configuration.",
+      "description": "MySQLService represents MySQL-compatible Service configuration.",
       "type": "object",
       "properties": {
+        "address": {
+          "description": "MySQL access address (DNS name or IP address).",
+          "type": "string"
+        },
         "id": {
           "description": "Unique Service identifier.",
           "type": "integer",
@@ -1010,6 +1065,24 @@
         },
         "name": {
           "description": "Unique user-defined Service name.",
+          "type": "string"
+        },
+        "node_id": {
+          "description": "Node identifier where this Service runs.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "port": {
+          "description": "MySQL access port.",
+          "type": "integer",
+          "format": "int64"
+        },
+        "unix_socket": {
+          "description": "MySQL access UNIX socket path.",
+          "type": "string"
+        },
+        "version": {
+          "description": "MySQL version and engine. Arbitrary format.",
           "type": "string"
         }
       }
@@ -1059,29 +1132,6 @@
         },
         "username": {
           "description": "MySQL username for extracting metrics.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryRDSNode": {
-      "description": "RDSNode represents AWS RDS Node.",
-      "type": "object",
-      "properties": {
-        "hostname": {
-          "description": "Hostname. Unique in combination with region.",
-          "type": "string"
-        },
-        "id": {
-          "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        },
-        "region": {
-          "description": "AWS region. Unique in combination with hostname.",
           "type": "string"
         }
       }

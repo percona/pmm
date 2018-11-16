@@ -68,7 +68,7 @@ func makeNode(row *models.NodeRow) inventory.Node {
 		}
 
 	case models.AWSRDSNodeType:
-		return &inventory.RDSNode{
+		return &inventory.AWSRDSNode{
 			Id:       row.ID,
 			Name:     row.Name,
 			Hostname: pointer.GetString(row.Hostname),

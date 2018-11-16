@@ -18,14 +18,14 @@ import (
 // swagger:model inventoryListNodesResponse
 type InventoryListNodesResponse struct {
 
+	// aws rds
+	AWSRDS []*InventoryAWSRDSNode `json:"aws_rds"`
+
 	// bare metal
 	BareMetal []*InventoryBareMetalNode `json:"bare_metal"`
 
 	// container
 	Container []*InventoryContainerNode `json:"container"`
-
-	// rds
-	RDS []*InventoryRDSNode `json:"rds"`
 
 	// remote
 	Remote []*InventoryRemoteNode `json:"remote"`
@@ -38,15 +38,15 @@ type InventoryListNodesResponse struct {
 func (m *InventoryListNodesResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAWSRDS(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateBareMetal(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateContainer(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRDS(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -61,6 +61,31 @@ func (m *InventoryListNodesResponse) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *InventoryListNodesResponse) validateAWSRDS(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.AWSRDS) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.AWSRDS); i++ {
+		if swag.IsZero(m.AWSRDS[i]) { // not required
+			continue
+		}
+
+		if m.AWSRDS[i] != nil {
+			if err := m.AWSRDS[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("aws_rds" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -104,31 +129,6 @@ func (m *InventoryListNodesResponse) validateContainer(formats strfmt.Registry) 
 			if err := m.Container[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("container" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (m *InventoryListNodesResponse) validateRDS(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.RDS) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.RDS); i++ {
-		if swag.IsZero(m.RDS[i]) { // not required
-			continue
-		}
-
-		if m.RDS[i] != nil {
-			if err := m.RDS[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("rds" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

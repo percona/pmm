@@ -25,6 +25,34 @@ type Client struct {
 }
 
 /*
+AddAWSRDSNode adds AWS RDS node adds AWS RDS node
+*/
+func (a *Client) AddAWSRDSNode(params *AddAWSRDSNodeParams) (*AddAWSRDSNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddAWSRDSNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddAWSRDSNode",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Nodes/AddAWSRDSNode",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddAWSRDSNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddAWSRDSNodeOK), nil
+
+}
+
+/*
 AddBareMetalNode adds bare metal node adds bare metal node
 */
 func (a *Client) AddBareMetalNode(params *AddBareMetalNodeParams) (*AddBareMetalNodeOK, error) {
@@ -77,34 +105,6 @@ func (a *Client) AddContainerNode(params *AddContainerNodeParams) (*AddContainer
 		return nil, err
 	}
 	return result.(*AddContainerNodeOK), nil
-
-}
-
-/*
-AddRDSNode adds RDS node adds a w s RDS node
-*/
-func (a *Client) AddRDSNode(params *AddRDSNodeParams) (*AddRDSNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddRDSNodeParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddRDSNode",
-		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddRDSNode",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddRDSNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*AddRDSNodeOK), nil
 
 }
 
@@ -165,6 +165,34 @@ func (a *Client) AddVirtualMachineNode(params *AddVirtualMachineNodeParams) (*Ad
 }
 
 /*
+ChangeAWSRDSNode changes AWS RDS node changes AWS RDS node
+*/
+func (a *Client) ChangeAWSRDSNode(params *ChangeAWSRDSNodeParams) (*ChangeAWSRDSNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeAWSRDSNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeAWSRDSNode",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Nodes/ChangeAWSRDSNode",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeAWSRDSNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeAWSRDSNodeOK), nil
+
+}
+
+/*
 ChangeBareMetalNode changes bare metal node changes bare metal node
 */
 func (a *Client) ChangeBareMetalNode(params *ChangeBareMetalNodeParams) (*ChangeBareMetalNodeOK, error) {
@@ -217,34 +245,6 @@ func (a *Client) ChangeContainerNode(params *ChangeContainerNodeParams) (*Change
 		return nil, err
 	}
 	return result.(*ChangeContainerNodeOK), nil
-
-}
-
-/*
-ChangeRDSNode changes RDS node changes a w s RDS node
-*/
-func (a *Client) ChangeRDSNode(params *ChangeRDSNodeParams) (*ChangeRDSNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewChangeRDSNodeParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeRDSNode",
-		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/ChangeRDSNode",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ChangeRDSNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*ChangeRDSNodeOK), nil
 
 }
 

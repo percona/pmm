@@ -148,7 +148,7 @@ func TestNodes(t *testing.T) {
 		rdsNode, err := ns.Add(ctx, models.AWSRDSNodeType, "test-rds", nil, nil)
 		require.NoError(t, err)
 
-		err = ns.Change(ctx, rdsNode.(*inventory.RDSNode).Id, "test-remote")
+		err = ns.Change(ctx, rdsNode.(*inventory.AWSRDSNode).Id, "test-remote")
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test-remote" already exists.`), err)
 	})
 

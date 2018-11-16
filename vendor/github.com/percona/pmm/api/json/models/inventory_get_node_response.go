@@ -16,14 +16,14 @@ import (
 // swagger:model inventoryGetNodeResponse
 type InventoryGetNodeResponse struct {
 
+	// aws rds
+	AWSRDS *InventoryAWSRDSNode `json:"aws_rds,omitempty"`
+
 	// bare metal
 	BareMetal *InventoryBareMetalNode `json:"bare_metal,omitempty"`
 
 	// container
 	Container *InventoryContainerNode `json:"container,omitempty"`
-
-	// rds
-	RDS *InventoryRDSNode `json:"rds,omitempty"`
 
 	// remote
 	Remote *InventoryRemoteNode `json:"remote,omitempty"`
@@ -36,15 +36,15 @@ type InventoryGetNodeResponse struct {
 func (m *InventoryGetNodeResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAWSRDS(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateBareMetal(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateContainer(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRDS(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -59,6 +59,24 @@ func (m *InventoryGetNodeResponse) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *InventoryGetNodeResponse) validateAWSRDS(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.AWSRDS) { // not required
+		return nil
+	}
+
+	if m.AWSRDS != nil {
+		if err := m.AWSRDS.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("aws_rds")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -90,24 +108,6 @@ func (m *InventoryGetNodeResponse) validateContainer(formats strfmt.Registry) er
 		if err := m.Container.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("container")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *InventoryGetNodeResponse) validateRDS(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.RDS) { // not required
-		return nil
-	}
-
-	if m.RDS != nil {
-		if err := m.RDS.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("rds")
 			}
 			return err
 		}
