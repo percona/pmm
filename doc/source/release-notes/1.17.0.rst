@@ -24,7 +24,9 @@ description of what the graph displays, along with links to related
 documentation resources so you can learn further.  We hope you find the content
 useful!
 
-.. figure:: 1.17.0-1.png
+.. raw:: html
+
+   <img src="https://www.percona.com/blog/wp-content/uploads/2018/11/tooltips_1.17.0.gif" alt="Dashboard Tooltip"> 
 
 The Dashboards we're updating are:
 
