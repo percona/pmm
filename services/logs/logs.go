@@ -61,25 +61,26 @@ const lastLines = 1000
 
 // overridden in tests
 var logsRootDir = "/var/log/"
+var logsDataValumeContainerDir = "/srv/logs/"
 
 var defaultLogs = []Log{
-	{logsRootDir + "consul.log", "consul", nil},
-	{logsRootDir + "createdb.log", "", nil},
-	{logsRootDir + "cron.log", "crond", nil},
-	{logsRootDir + "dashboard-upgrade.log", "", nil},
+	{logsDataValumeContainerDir + "consul.log", "consul", nil},
+	{logsDataValumeContainerDir + "createdb.log", "", nil},
+	{logsDataValumeContainerDir + "cron.log", "crond", nil},
+	{logsDataValumeContainerDir + "dashboard-upgrade.log", "", nil},
 	{logsRootDir + "grafana/grafana.log", "", nil},
 	{logsRootDir + "mysql.log", "", nil},
 	{logsRootDir + "mysqld.log", "mysqld", nil},
-	{logsRootDir + "nginx.log", "nginx", nil},
+	{logsDataValumeContainerDir + "nginx.log", "nginx", nil},
 	{logsRootDir + "nginx/access.log", "", nil},
 	{logsRootDir + "nginx/error.log", "", nil},
-	{logsRootDir + "node_exporter.log", "node_exporter", nil},
+	{logsDataValumeContainerDir + "node_exporter.log", "node_exporter", nil},
 	{logsRootDir + "orchestrator.log", "orchestrator", nil},
-	{logsRootDir + "pmm-manage.log", "pmm-manage", nil},
-	{logsRootDir + "pmm-managed.log", "pmm-managed", nil},
-	{logsRootDir + "prometheus1.log", "prometheus1", nil},
-	{logsRootDir + "prometheus.log", "prometheus", nil},
-	{logsRootDir + "qan-api.log", "percona-qan-api", nil},
+	{logsDataValumeContainerDir + "pmm-manage.log", "pmm-manage", nil},
+	{logsDataValumeContainerDir + "pmm-managed.log", "pmm-managed", nil},
+	{logsDataValumeContainerDir + "prometheus1.log", "prometheus1", nil},
+	{logsDataValumeContainerDir + "prometheus.log", "prometheus", nil},
+	{logsDataValumeContainerDir + "qan-api.log", "percona-qan-api", nil},
 	{logsRootDir + "supervisor/supervisord.log", "", nil},
 
 	// logs
