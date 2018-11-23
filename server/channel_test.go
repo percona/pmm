@@ -18,6 +18,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net"
 	"testing"
@@ -47,8 +48,10 @@ func (s *testServer) Connect(stream agent.Agent_ConnectServer) error {
 
 var _ agent.AgentServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expectedErr error) (*Channel, *grpc.ClientConn, func(*testing.T)) {
-	// start server
+func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expectedErrs ...error) (*Channel, *grpc.ClientConn, func(*testing.T)) {
+	t.Parallel()
+
+	// start server with given connect handler
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 	server := grpc.NewServer()
@@ -75,10 +78,8 @@ func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expected
 	channel := NewChannel(stream)
 
 	teardown := func(t *testing.T) {
-		for range channel.Requests() {
-		}
 		err := channel.Wait()
-		assert.Equal(t, expectedErr, errors.Cause(err), "%+v", err)
+		assert.Contains(t, expectedErrs, errors.Cause(err), "%+v", err)
 
 		server.GracefulStop()
 		cancel()
@@ -88,19 +89,24 @@ func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expected
 }
 
 func TestAgentRequest(t *testing.T) {
-	connect := func(stream agent.Agent_ConnectServer) error {
-		msg, err := stream.Recv()
-		require.NoError(t, err)
-		assert.EqualValues(t, 1, msg.Id)
-		require.NotNil(t, msg.GetQanData())
+	const count = 50
+	require.True(t, count > serverRequestsCap)
 
-		err = stream.Send(&agent.ServerMessage{
-			Id: 1,
-			Payload: &agent.ServerMessage_QanData{
-				QanData: new(agent.QANDataResponse),
-			},
-		})
-		assert.NoError(t, err)
+	connect := func(stream agent.Agent_ConnectServer) error {
+		for i := uint32(1); i <= count; i++ {
+			msg, err := stream.Recv()
+			require.NoError(t, err)
+			assert.Equal(t, i, msg.Id)
+			require.NotNil(t, msg.GetQanData())
+
+			err = stream.Send(&agent.ServerMessage{
+				Id: i,
+				Payload: &agent.ServerMessage_QanData{
+					QanData: new(agent.QANDataResponse),
+				},
+			})
+			assert.NoError(t, err)
+		}
 
 		return nil
 	}
@@ -108,30 +114,39 @@ func TestAgentRequest(t *testing.T) {
 	channel, _, teardown := setup(t, connect, io.EOF)
 	defer teardown(t)
 
-	resp := channel.SendRequest(&agent.AgentMessage_QanData{
-		QanData: new(agent.QANDataRequest),
-	})
-	assert.NotNil(t, resp)
+	for i := uint32(1); i <= count; i++ {
+		resp := channel.SendRequest(&agent.AgentMessage_QanData{
+			QanData: new(agent.QANDataRequest),
+		})
+		assert.NotNil(t, resp)
+	}
 }
 
 func TestServerRequest(t *testing.T) {
-	connect := func(stream agent.Agent_ConnectServer) error {
-		err := stream.Send(&agent.ServerMessage{
-			Id: 1,
-			Payload: &agent.ServerMessage_Ping{
-				Ping: new(agent.PingRequest),
-			},
-		})
-		assert.NoError(t, err)
+	const count = 50
+	require.True(t, count > serverRequestsCap)
 
-		msg, err := stream.Recv()
-		require.NoError(t, err)
-		assert.EqualValues(t, 1, msg.Id)
-		pingResponse := msg.GetPing()
-		require.NotNil(t, pingResponse)
-		ts, err := ptypes.Timestamp(pingResponse.CurrentTime)
-		assert.NoError(t, err)
-		assert.InDelta(t, time.Now().Unix(), ts.Unix(), 1)
+	connect := func(stream agent.Agent_ConnectServer) error {
+		for i := uint32(1); i <= count; i++ {
+			err := stream.Send(&agent.ServerMessage{
+				Id: i,
+				Payload: &agent.ServerMessage_Ping{
+					Ping: new(agent.PingRequest),
+				},
+			})
+			assert.NoError(t, err)
+		}
+
+		for i := uint32(1); i <= count; i++ {
+			msg, err := stream.Recv()
+			require.NoError(t, err)
+			assert.Equal(t, i, msg.Id)
+			pingResponse := msg.GetPing()
+			require.NotNil(t, pingResponse)
+			ts, err := ptypes.Timestamp(pingResponse.CurrentTime)
+			assert.NoError(t, err)
+			assert.InDelta(t, time.Now().Unix(), ts.Unix(), 1)
+		}
 
 		return nil
 	}
@@ -139,21 +154,22 @@ func TestServerRequest(t *testing.T) {
 	channel, _, teardown := setup(t, connect, io.EOF)
 	defer teardown(t)
 
-	req := <-channel.Requests()
-	ping := req.GetPing()
-	require.NotNil(t, ping)
+	for req := range channel.Requests() {
+		ping := req.GetPing()
+		require.NotNil(t, ping)
 
-	channel.SendResponse(&agent.AgentMessage{
-		Id: req.Id,
-		Payload: &agent.AgentMessage_Ping{
-			Ping: &agent.PingResponse{
-				CurrentTime: ptypes.TimestampNow(),
+		channel.SendResponse(&agent.AgentMessage{
+			Id: req.Id,
+			Payload: &agent.AgentMessage_Ping{
+				Ping: &agent.PingResponse{
+					CurrentTime: ptypes.TimestampNow(),
+				},
 			},
-		},
-	})
+		})
+	}
 }
 
-func TestServerClosesConnection(t *testing.T) {
+func TestServerClosesStream(t *testing.T) {
 	connect := func(stream agent.Agent_ConnectServer) error {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
@@ -189,7 +205,8 @@ func TestAgentClosesConnection(t *testing.T) {
 		return nil
 	}
 
-	channel, cc, teardown := setup(t, connect, status.Error(codes.Canceled, "grpc: the client connection is closing"))
+	errConnClosing := status.Error(codes.Unavailable, "transport is closing")
+	channel, cc, teardown := setup(t, connect, grpc.ErrClientConnClosing, errConnClosing)
 	defer teardown(t)
 
 	req := <-channel.Requests()
@@ -197,4 +214,47 @@ func TestAgentClosesConnection(t *testing.T) {
 	assert.NotNil(t, ping)
 
 	assert.NoError(t, cc.Close())
+}
+
+func TestUnexpectedMessageFromServer(t *testing.T) {
+	connect := func(stream agent.Agent_ConnectServer) error {
+		// this message triggers "no subscriber for ID" error
+		err := stream.Send(&agent.ServerMessage{
+			Id: 111,
+			Payload: &agent.ServerMessage_QanData{
+				QanData: new(agent.QANDataResponse),
+			},
+		})
+		assert.NoError(t, err)
+
+		// this message should not trigger new error
+		err = stream.Send(&agent.ServerMessage{
+			Id: 222,
+			Payload: &agent.ServerMessage_QanData{
+				QanData: new(agent.QANDataResponse),
+			},
+		})
+		assert.NoError(t, err)
+
+		return nil
+	}
+
+	channel, _, teardown := setup(t, connect, fmt.Errorf("no subscriber for ID 111"), io.EOF)
+	defer teardown(t)
+
+	// after receiving unexpected response, channel is closed
+	resp := channel.SendRequest(&agent.AgentMessage_QanData{
+		QanData: new(agent.QANDataRequest),
+	})
+	assert.Nil(t, resp)
+	msg := <-channel.Requests()
+	assert.Nil(t, msg)
+
+	// future requests are ignored
+	resp = channel.SendRequest(&agent.AgentMessage_QanData{
+		QanData: new(agent.QANDataRequest),
+	})
+	assert.Nil(t, resp)
+	msg = <-channel.Requests()
+	assert.Nil(t, msg)
 }

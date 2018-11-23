@@ -18,6 +18,7 @@
 package server
 
 import (
+	"fmt"
 	"sync"
 	"sync/atomic"
 
@@ -30,70 +31,80 @@ const (
 	serverRequestsCap = 32
 )
 
-// Channel contains business logic of communication with pmm-managed.
+// Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
+//
+// All exported methods are thread-safe.
 type Channel struct {
 	s agent.Agent_ConnectClient
 	l *logrus.Entry
 
-	// server requests
-	requests chan *agent.ServerMessage
-
 	lastSentRequestID uint32
 
-	//
+	sendM sync.Mutex
+
 	m         sync.Mutex
 	responses map[uint32]chan agent.ServerMessagePayload
+	requests  chan *agent.ServerMessage
 
-	//
 	closeOnce sync.Once
-	closeDone chan struct{}
+	closeWait chan struct{}
 	closeErr  error
 }
 
-// NewChannel starts goroutine to dispatch messages from server and returns new Conn object
+// NewChannel creates new two-way communication channel with given stream.
+//
+// Stream should not be used by the caller after channel is created.
 func NewChannel(stream agent.Agent_ConnectClient) *Channel {
 	s := &Channel{
 		s:         stream,
 		l:         logrus.WithField("component", "channel"), // only for debug logging
-		requests:  make(chan *agent.ServerMessage, serverRequestsCap),
 		responses: make(map[uint32]chan agent.ServerMessagePayload),
-		closeDone: make(chan struct{}),
+		requests:  make(chan *agent.ServerMessage, serverRequestsCap),
+		closeWait: make(chan struct{}),
 	}
 
 	go s.runReceiver()
 	return s
 }
 
+// close marks channel as closed with given error - only once.
 func (c *Channel) close(err error) {
 	c.closeOnce.Do(func() {
 		c.l.Debugf("Closing with error: %+v", err)
 		c.closeErr = err
 
 		c.m.Lock()
-		for _, ch := range c.responses {
+		for _, ch := range c.responses { // unblock all subscribers
 			close(ch)
 		}
-		c.responses = nil
+		c.responses = nil // prevent future subscriptions
 		c.m.Unlock()
 
-		close(c.requests)
-		close(c.closeDone)
+		close(c.closeWait)
 	})
 }
 
+// Wait blocks until channel is closed and returns the reason why it was closed.
+//
+// When Wait returns, underlying gRPC connection should be terminated to prevent goroutine leak.
 func (c *Channel) Wait() error {
-	<-c.closeDone
+	<-c.closeWait
 	return c.closeErr
 }
 
+// Requests returns a channel for incoming requests. It must be read. It is closed on any error (see Wait).
 func (c *Channel) Requests() <-chan *agent.ServerMessage {
 	return c.requests
 }
 
+// SendResponse sends message to pmm-managed. It is no-op once channel is closed (see Wait).
 func (c *Channel) SendResponse(msg *agent.AgentMessage) {
 	c.send(msg)
 }
 
+// SendRequest sends request to pmm-managed, blocks until response is available, and returns it.
+// Response will nil if channel is closed.
+// It is no-op once channel is closed (see Wait).
 func (c *Channel) SendRequest(payload agent.AgentMessagePayload) agent.ServerMessagePayload {
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
@@ -107,11 +118,17 @@ func (c *Channel) SendRequest(payload agent.AgentMessagePayload) agent.ServerMes
 }
 
 func (c *Channel) send(msg *agent.AgentMessage) {
-	c.l.Debugf("Sending message: %c.", msg)
+	c.sendM.Lock()
+	select {
+	case <-c.closeWait:
+		c.sendM.Unlock()
+		return
+	default:
+	}
 
-	c.m.Lock()
+	c.l.Debugf("Sending message: %s.", msg)
 	err := c.s.Send(msg)
-	c.m.Unlock()
+	c.sendM.Unlock()
 	if err != nil {
 		c.close(errors.Wrap(err, "failed to send message"))
 	}
@@ -119,7 +136,10 @@ func (c *Channel) send(msg *agent.AgentMessage) {
 
 // runReader receives messages from server
 func (c *Channel) runReceiver() {
-	defer c.l.Debug("Exiting receiver goroutine.")
+	defer func() {
+		close(c.requests)
+		c.l.Debug("Exiting receiver goroutine.")
+	}()
 
 	for {
 		msg, err := c.s.Recv()
@@ -149,7 +169,7 @@ func (c *Channel) subscribe(id uint32) chan agent.ServerMessagePayload {
 	ch := make(chan agent.ServerMessagePayload, 1)
 
 	c.m.Lock()
-	if c.responses == nil {
+	if c.responses == nil { // Channel is closed, no more subscriptions
 		c.m.Unlock()
 		close(ch)
 		return ch
@@ -157,10 +177,8 @@ func (c *Channel) subscribe(id uint32) chan agent.ServerMessagePayload {
 
 	_, ok := c.responses[id]
 	if ok {
-		c.m.Unlock()
-		c.close(errors.Errorf("already have subscriber for ID %d", id))
-		close(ch)
-		return ch
+		// it is possible only on lastSentRequestID wrap around, and we can't recover from that
+		c.l.Panicf("Already have subscriber for ID %d.", id)
 	}
 
 	c.responses[id] = ch
@@ -170,7 +188,7 @@ func (c *Channel) subscribe(id uint32) chan agent.ServerMessagePayload {
 
 func (c *Channel) publish(id uint32, payload agent.ServerMessagePayload) {
 	c.m.Lock()
-	if c.responses == nil {
+	if c.responses == nil { // Channel is closed, no more publishing
 		c.m.Unlock()
 		return
 	}
@@ -178,7 +196,7 @@ func (c *Channel) publish(id uint32, payload agent.ServerMessagePayload) {
 	ch := c.responses[id]
 	if ch == nil {
 		c.m.Unlock()
-		c.close(errors.Errorf("no subscriber for ID %d", id))
+		c.close(errors.WithStack(fmt.Errorf("no subscriber for ID %d", id)))
 		return
 	}
 

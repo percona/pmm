@@ -104,7 +104,7 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 		conn.SendResponse(agentMessage)
 	}
 
-	l.Error(conn.Error())
+	l.Error(conn.Wait())
 }
 
 func main() {
