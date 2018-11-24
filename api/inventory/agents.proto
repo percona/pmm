@@ -4,6 +4,8 @@ package inventory;
 
 import "google/api/annotations.proto";
 
+// TODO allow enable/disable without deleting
+
 // AgentProcessStatus represents agent process state.
 enum AgentProcessStatus {
   AGENT_PROCESS_STATUS_INVALID = 0;
