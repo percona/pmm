@@ -48,7 +48,7 @@ func (x AgentProcessStatus) String() string {
 	return proto.EnumName(AgentProcessStatus_name, int32(x))
 }
 func (AgentProcessStatus) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_agents_68e561a4371a2dd5, []int{0}
+	return fileDescriptor_agents_fa740fe2f05d8fb1, []int{0}
 }
 
 // MySQLdExporter represents mysqld_exporter Agent configuration.
@@ -78,7 +78,7 @@ func (m *MySQLdExporter) Reset()         { *m = MySQLdExporter{} }
 func (m *MySQLdExporter) String() string { return proto.CompactTextString(m) }
 func (*MySQLdExporter) ProtoMessage()    {}
 func (*MySQLdExporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_68e561a4371a2dd5, []int{0}
+	return fileDescriptor_agents_fa740fe2f05d8fb1, []int{0}
 }
 func (m *MySQLdExporter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLdExporter.Unmarshal(m, b)
@@ -164,7 +164,7 @@ func (m *ListAgentsRequest) Reset()         { *m = ListAgentsRequest{} }
 func (m *ListAgentsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListAgentsRequest) ProtoMessage()    {}
 func (*ListAgentsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_68e561a4371a2dd5, []int{1}
+	return fileDescriptor_agents_fa740fe2f05d8fb1, []int{1}
 }
 func (m *ListAgentsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListAgentsRequest.Unmarshal(m, b)
@@ -195,7 +195,7 @@ func (m *ListAgentsResponse) Reset()         { *m = ListAgentsResponse{} }
 func (m *ListAgentsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListAgentsResponse) ProtoMessage()    {}
 func (*ListAgentsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_68e561a4371a2dd5, []int{2}
+	return fileDescriptor_agents_fa740fe2f05d8fb1, []int{2}
 }
 func (m *ListAgentsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListAgentsResponse.Unmarshal(m, b)
@@ -234,7 +234,7 @@ func (m *GetAgentRequest) Reset()         { *m = GetAgentRequest{} }
 func (m *GetAgentRequest) String() string { return proto.CompactTextString(m) }
 func (*GetAgentRequest) ProtoMessage()    {}
 func (*GetAgentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_68e561a4371a2dd5, []int{3}
+	return fileDescriptor_agents_fa740fe2f05d8fb1, []int{3}
 }
 func (m *GetAgentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetAgentRequest.Unmarshal(m, b)
@@ -274,7 +274,7 @@ func (m *GetAgentResponse) Reset()         { *m = GetAgentResponse{} }
 func (m *GetAgentResponse) String() string { return proto.CompactTextString(m) }
 func (*GetAgentResponse) ProtoMessage()    {}
 func (*GetAgentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_68e561a4371a2dd5, []int{4}
+	return fileDescriptor_agents_fa740fe2f05d8fb1, []int{4}
 }
 func (m *GetAgentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetAgentResponse.Unmarshal(m, b)
@@ -393,7 +393,7 @@ func (m *AddMySQLdExporterAgentRequest) Reset()         { *m = AddMySQLdExporter
 func (m *AddMySQLdExporterAgentRequest) String() string { return proto.CompactTextString(m) }
 func (*AddMySQLdExporterAgentRequest) ProtoMessage()    {}
 func (*AddMySQLdExporterAgentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_68e561a4371a2dd5, []int{5}
+	return fileDescriptor_agents_fa740fe2f05d8fb1, []int{5}
 }
 func (m *AddMySQLdExporterAgentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMySQLdExporterAgentRequest.Unmarshal(m, b)
@@ -459,7 +459,7 @@ func (m *AddMySQLdExporterAgentResponse) Reset()         { *m = AddMySQLdExporte
 func (m *AddMySQLdExporterAgentResponse) String() string { return proto.CompactTextString(m) }
 func (*AddMySQLdExporterAgentResponse) ProtoMessage()    {}
 func (*AddMySQLdExporterAgentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_68e561a4371a2dd5, []int{6}
+	return fileDescriptor_agents_fa740fe2f05d8fb1, []int{6}
 }
 func (m *AddMySQLdExporterAgentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMySQLdExporterAgentResponse.Unmarshal(m, b)
@@ -497,7 +497,7 @@ func (m *RemoveAgentRequest) Reset()         { *m = RemoveAgentRequest{} }
 func (m *RemoveAgentRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveAgentRequest) ProtoMessage()    {}
 func (*RemoveAgentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_68e561a4371a2dd5, []int{7}
+	return fileDescriptor_agents_fa740fe2f05d8fb1, []int{7}
 }
 func (m *RemoveAgentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveAgentRequest.Unmarshal(m, b)
@@ -534,7 +534,7 @@ func (m *RemoveAgentResponse) Reset()         { *m = RemoveAgentResponse{} }
 func (m *RemoveAgentResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveAgentResponse) ProtoMessage()    {}
 func (*RemoveAgentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_68e561a4371a2dd5, []int{8}
+	return fileDescriptor_agents_fa740fe2f05d8fb1, []int{8}
 }
 func (m *RemoveAgentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveAgentResponse.Unmarshal(m, b)
@@ -746,9 +746,9 @@ var _Agents_serviceDesc = grpc.ServiceDesc{
 	Metadata: "inventory/agents.proto",
 }
 
-func init() { proto.RegisterFile("inventory/agents.proto", fileDescriptor_agents_68e561a4371a2dd5) }
+func init() { proto.RegisterFile("inventory/agents.proto", fileDescriptor_agents_fa740fe2f05d8fb1) }
 
-var fileDescriptor_agents_68e561a4371a2dd5 = []byte{
+var fileDescriptor_agents_fa740fe2f05d8fb1 = []byte{
 	// 638 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x54, 0xcb, 0x4e, 0xdb, 0x40,
 	0x14, 0x65, 0x4c, 0x48, 0xcc, 0x0d, 0x04, 0x77, 0x50, 0x91, 0x71, 0x09, 0xb8, 0x23, 0x90, 0xdc,
