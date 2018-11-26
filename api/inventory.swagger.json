@@ -845,7 +845,14 @@
       }
     },
     "inventoryAddNodeExporterAgentRequest": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "node_id": {
+          "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
     },
     "inventoryAddNodeExporterAgentResponse": {
       "type": "object",
@@ -937,7 +944,12 @@
       }
     },
     "inventoryChangeAWSRDSNodeResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "aws_rds": {
+          "$ref": "#/definitions/inventoryAWSRDSNode"
+        }
+      }
     },
     "inventoryChangeBareMetalNodeRequest": {
       "type": "object",
@@ -954,7 +966,12 @@
       }
     },
     "inventoryChangeBareMetalNodeResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "bare_metal": {
+          "$ref": "#/definitions/inventoryBareMetalNode"
+        }
+      }
     },
     "inventoryChangeContainerNodeRequest": {
       "type": "object",
@@ -971,7 +988,12 @@
       }
     },
     "inventoryChangeContainerNodeResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "container": {
+          "$ref": "#/definitions/inventoryContainerNode"
+        }
+      }
     },
     "inventoryChangeMySQLServiceRequest": {
       "type": "object",
@@ -988,7 +1010,12 @@
       }
     },
     "inventoryChangeMySQLServiceResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "mysql": {
+          "$ref": "#/definitions/inventoryMySQLService"
+        }
+      }
     },
     "inventoryChangeRemoteNodeRequest": {
       "type": "object",
@@ -1005,7 +1032,12 @@
       }
     },
     "inventoryChangeRemoteNodeResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "remote": {
+          "$ref": "#/definitions/inventoryRemoteNode"
+        }
+      }
     },
     "inventoryChangeVirtualMachineNodeRequest": {
       "type": "object",
@@ -1022,7 +1054,12 @@
       }
     },
     "inventoryChangeVirtualMachineNodeResponse": {
-      "type": "object"
+      "type": "object",
+      "properties": {
+        "virtual_machine": {
+          "$ref": "#/definitions/inventoryVirtualMachineNode"
+        }
+      }
     },
     "inventoryContainerNode": {
       "description": "ContainerNode represents a container (Docker) Node.",

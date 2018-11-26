@@ -65,7 +65,7 @@ for the add node exporter agent operation typically these are written to a http.
 type AddNodeExporterAgentParams struct {
 
 	/*Body*/
-	Body models.InventoryAddNodeExporterAgentRequest
+	Body *models.InventoryAddNodeExporterAgentRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -106,13 +106,13 @@ func (o *AddNodeExporterAgentParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add node exporter agent params
-func (o *AddNodeExporterAgentParams) WithBody(body models.InventoryAddNodeExporterAgentRequest) *AddNodeExporterAgentParams {
+func (o *AddNodeExporterAgentParams) WithBody(body *models.InventoryAddNodeExporterAgentRequest) *AddNodeExporterAgentParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add node exporter agent params
-func (o *AddNodeExporterAgentParams) SetBody(body models.InventoryAddNodeExporterAgentRequest) {
+func (o *AddNodeExporterAgentParams) SetBody(body *models.InventoryAddNodeExporterAgentRequest) {
 	o.Body = body
 }
 

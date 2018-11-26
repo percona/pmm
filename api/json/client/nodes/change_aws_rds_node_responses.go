@@ -47,7 +47,7 @@ func NewChangeAWSRDSNodeOK() *ChangeAWSRDSNodeOK {
 (empty)
 */
 type ChangeAWSRDSNodeOK struct {
-	Payload models.InventoryChangeAWSRDSNodeResponse
+	Payload *models.InventoryChangeAWSRDSNodeResponse
 }
 
 func (o *ChangeAWSRDSNodeOK) Error() string {
@@ -56,8 +56,10 @@ func (o *ChangeAWSRDSNodeOK) Error() string {
 
 func (o *ChangeAWSRDSNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(models.InventoryChangeAWSRDSNodeResponse)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

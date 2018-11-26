@@ -67,7 +67,15 @@ message GetAgentResponse {
   }
 }
 
-message AddNodeExporterAgentRequest {}
+message AddNodeExporterAgentRequest {
+  reserved 1; // id
+  // Node identifier where Agent runs and for which insights are provided by that Agent.
+  uint32 node_id = 2;
+  reserved 3; // node_ids
+  reserved 4; // service_id, service_ids
+  reserved 5; // process_status
+  reserved 6; // listen_port
+}
 
 message AddNodeExporterAgentResponse {
   NodeExporter node_exporter = 1;

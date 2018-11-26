@@ -47,7 +47,7 @@ func NewChangeVirtualMachineNodeOK() *ChangeVirtualMachineNodeOK {
 (empty)
 */
 type ChangeVirtualMachineNodeOK struct {
-	Payload models.InventoryChangeVirtualMachineNodeResponse
+	Payload *models.InventoryChangeVirtualMachineNodeResponse
 }
 
 func (o *ChangeVirtualMachineNodeOK) Error() string {
@@ -56,8 +56,10 @@ func (o *ChangeVirtualMachineNodeOK) Error() string {
 
 func (o *ChangeVirtualMachineNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(models.InventoryChangeVirtualMachineNodeResponse)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
