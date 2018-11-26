@@ -28,10 +28,12 @@ type AgentsServer struct {
 	Agents *inventory.AgentsService
 }
 
+// ListAgents returns a list of all Agents.
 func (s *AgentsServer) ListAgents(ctx context.Context, req *api.ListAgentsRequest) (*api.ListAgentsResponse, error) {
 	panic("not implemented")
 }
 
+// GetAgent returns a single Agent by ID.
 func (s *AgentsServer) GetAgent(ctx context.Context, req *api.GetAgentRequest) (*api.GetAgentResponse, error) {
 	panic("not implemented")
 }
@@ -41,6 +43,7 @@ func (s *AgentsServer) AddNodeExporterAgent(ctx context.Context, req *api.AddNod
 	panic("not implemented")
 }
 
+// AddMySQLdExporterAgent adds mysqld_exporter Agent.
 func (s *AgentsServer) AddMySQLdExporterAgent(ctx context.Context, req *api.AddMySQLdExporterAgentRequest) (*api.AddMySQLdExporterAgentResponse, error) {
 	panic("not implemented")
 }
@@ -55,6 +58,7 @@ func (s *AgentsServer) StopAgent(ctx context.Context, req *api.StopAgentRequest)
 	panic("not implemented")
 }
 
+// RemoveAgent removes Agent.
 func (s *AgentsServer) RemoveAgent(ctx context.Context, req *api.RemoveAgentRequest) (*api.RemoveAgentResponse, error) {
 	panic("not implemented")
 }

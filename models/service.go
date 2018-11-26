@@ -45,9 +45,14 @@ type Service struct {
 type ServiceRow struct {
 	ID        uint32      `reform:"id,pk"`
 	Type      ServiceType `reform:"type"`
+	Name      string      `reform:"name"`
 	NodeID    uint32      `reform:"node_id"`
 	CreatedAt time.Time   `reform:"created_at"`
 	UpdatedAt time.Time   `reform:"updated_at"`
+
+	Address    *string `reform:"address"`
+	Port       *uint16 `reform:"port"`
+	UnixSocket *string `reform:"unix_socket"`
 }
 
 func (sr *ServiceRow) BeforeInsert() error {

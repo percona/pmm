@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventory"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -40,14 +41,27 @@ func makeService(row *models.ServiceRow) inventory.Service {
 	case models.MySQLServiceType:
 		return &inventory.MySQLService{
 			Id:         row.ID,
-			Name:       "",
+			Name:       row.Name,
 			NodeId:     row.NodeID,
-			Address:    "",
-			Port:       0,
-			UnixSocket: "",
+			Address:    pointer.GetString(row.Address),
+			Port:       uint32(pointer.GetUint16(row.Port)),
+			UnixSocket: pointer.GetString(row.UnixSocket),
 		}
+
 	default:
 		panic(fmt.Errorf("unhandled ServiceRow type %s", row.Type))
+	}
+}
+
+func (ss *ServicesService) checkUniqueName(ctx context.Context, name string) error {
+	_, err := ss.Q.FindOneFrom(models.ServiceRowTable, "name", name)
+	switch err {
+	case nil:
+		return status.Errorf(codes.AlreadyExists, "Service with name %q already exists.", name)
+	case reform.ErrNoRows:
+		return nil
+	default:
+		return errors.WithStack(err)
 	}
 }
 
@@ -73,6 +87,29 @@ func (ss *ServicesService) Get(ctx context.Context, id uint32) (inventory.Servic
 		if err == reform.ErrNoRows {
 			return nil, status.Errorf(codes.NotFound, "Service with ID %d not found.", id)
 		}
+		return nil, errors.WithStack(err)
+	}
+
+	return makeService(row), nil
+}
+
+// AddMySQL inserts MySQL Service with given parameters.
+func (ss *ServicesService) AddMySQL(ctx context.Context, name string, nodeID uint32, address *string, port *uint16, unixSocket *string) (inventory.Service, error) {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+
+	if err := ss.checkUniqueName(ctx, name); err != nil {
+		return nil, err
+	}
+
+	row := &models.ServiceRow{
+		Type:       models.MySQLServiceType,
+		Name:       name,
+		NodeID:     nodeID,
+		Address:    address,
+		Port:       port,
+		UnixSocket: unixSocket,
+	}
+	if err := ss.Q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 

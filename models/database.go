@@ -57,6 +57,7 @@ var databaseSchema = [][]string{
 		`CREATE TABLE services (
 			id INT NOT NULL AUTO_INCREMENT,
 			type VARCHAR(255) NOT NULL,
+			name VARCHAR(255) NOT NULL,
 			node_id INT NOT NULL,
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -65,10 +66,12 @@ var databaseSchema = [][]string{
 			aws_secret_key VARCHAR(255),
 			address VARCHAR(255),
 			port SMALLINT UNSIGNED,
+			unix_socket VARCHAR(255),
 			engine VARCHAR(255),
 			engine_version VARCHAR(255),
 
 			PRIMARY KEY (id),
+			UNIQUE (name),
 			FOREIGN KEY (node_id) REFERENCES nodes (id)
 		) AUTO_INCREMENT = 1000`,
 

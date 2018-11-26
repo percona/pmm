@@ -58,15 +58,13 @@ func TestNodes(t *testing.T) {
 		ns, teardown := setup(t)
 		defer teardown(t)
 
-		var actualNodes []inventory.Node
 		actualNodes, err := ns.List(ctx)
 		require.NoError(t, err)
 		require.Len(t, actualNodes, 1) // PMMServerNodeType
 
-		var actualNode, expectedNode inventory.Node
-		actualNode, err = ns.Add(ctx, models.BareMetalNodeType, "test-bm", pointer.ToString("test-bm"), nil)
+		actualNode, err := ns.Add(ctx, models.BareMetalNodeType, "test-bm", pointer.ToString("test-bm"), nil)
 		require.NoError(t, err)
-		expectedNode = &inventory.BareMetalNode{
+		expectedNode := &inventory.BareMetalNode{
 			Id:       2,
 			Name:     "test-bm",
 			Hostname: "test-bm",
@@ -158,5 +156,60 @@ func TestNodes(t *testing.T) {
 
 		err := ns.Remove(ctx, 2)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID 2 not found.`), err)
+	})
+}
+
+func TestServices(t *testing.T) {
+	sqlDB := tests.OpenTestDB(t)
+	defer func() {
+		require.NoError(t, sqlDB.Close())
+	}()
+	ctx := context.Background()
+
+	setup := func(t *testing.T) (ns *NodesService, ss *ServicesService, teardown func(t *testing.T)) {
+		db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
+		tx, err := db.Begin()
+		require.NoError(t, err)
+
+		teardown = func(t *testing.T) {
+			require.NoError(t, tx.Rollback())
+		}
+		ns = &NodesService{
+			Q: tx.Querier,
+		}
+		ss = &ServicesService{
+			Q: tx.Querier,
+		}
+		return
+	}
+
+	t.Run("Basic", func(t *testing.T) {
+		_, ss, teardown := setup(t)
+		defer teardown(t)
+
+		actualServices, err := ss.List(ctx)
+		require.NoError(t, err)
+		require.Len(t, actualServices, 0)
+
+		actualService, err := ss.AddMySQL(ctx, "test-mysql", 1, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
+		require.NoError(t, err)
+		expectedService := &inventory.MySQLService{
+			Id:      1000,
+			Name:    "test-mysql",
+			NodeId:  1,
+			Address: "127.0.0.1",
+			Port:    3306,
+		}
+		assert.Equal(t, expectedService, actualService)
+
+		actualService, err = ss.Get(ctx, 1000)
+		require.NoError(t, err)
+		assert.Equal(t, expectedService, actualService)
+
+		err = ss.Remove(ctx, 1000)
+		require.NoError(t, err)
+		actualService, err = ss.Get(ctx, 1000)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID 1000 not found.`), err)
+		assert.Nil(t, actualService)
 	})
 }
