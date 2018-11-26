@@ -57,30 +57,32 @@ type Log struct {
 	Extractor []string
 }
 
-const lastLines = 1000
+const (
+	lastLines                  = 1000
+	logsDataVolumeContainerDir = "/srv/logs/"
+)
 
 // overridden in tests
 var logsRootDir = "/var/log/"
-var logsDataValumeContainerDir = "/srv/logs/"
 
 var defaultLogs = []Log{
-	{logsDataValumeContainerDir + "consul.log", "consul", nil},
-	{logsDataValumeContainerDir + "createdb.log", "", nil},
-	{logsDataValumeContainerDir + "cron.log", "crond", nil},
-	{logsDataValumeContainerDir + "dashboard-upgrade.log", "", nil},
+	{logsDataVolumeContainerDir + "consul.log", "consul", nil},
+	{logsDataVolumeContainerDir + "createdb.log", "", nil},
+	{logsDataVolumeContainerDir + "cron.log", "crond", nil},
+	{logsDataVolumeContainerDir + "dashboard-upgrade.log", "", nil},
 	{logsRootDir + "grafana/grafana.log", "", nil},
 	{logsRootDir + "mysql.log", "", nil},
 	{logsRootDir + "mysqld.log", "mysqld", nil},
-	{logsDataValumeContainerDir + "nginx.log", "nginx", nil},
+	{logsDataVolumeContainerDir + "nginx.log", "nginx", nil},
 	{logsRootDir + "nginx/access.log", "", nil},
 	{logsRootDir + "nginx/error.log", "", nil},
-	{logsDataValumeContainerDir + "node_exporter.log", "node_exporter", nil},
+	{logsDataVolumeContainerDir + "node_exporter.log", "node_exporter", nil},
 	{logsRootDir + "orchestrator.log", "orchestrator", nil},
-	{logsDataValumeContainerDir + "pmm-manage.log", "pmm-manage", nil},
-	{logsDataValumeContainerDir + "pmm-managed.log", "pmm-managed", nil},
-	{logsDataValumeContainerDir + "prometheus1.log", "prometheus1", nil},
-	{logsDataValumeContainerDir + "prometheus.log", "prometheus", nil},
-	{logsDataValumeContainerDir + "qan-api.log", "percona-qan-api", nil},
+	{logsDataVolumeContainerDir + "pmm-manage.log", "pmm-manage", nil},
+	{logsDataVolumeContainerDir + "pmm-managed.log", "pmm-managed", nil},
+	{logsDataVolumeContainerDir + "prometheus1.log", "prometheus1", nil},
+	{logsDataVolumeContainerDir + "prometheus.log", "prometheus", nil},
+	{logsDataVolumeContainerDir + "qan-api.log", "percona-qan-api", nil},
 	{logsRootDir + "supervisor/supervisord.log", "", nil},
 
 	// logs
