@@ -12,24 +12,17 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryGetAgentResponse inventory get agent response
-// swagger:model inventoryGetAgentResponse
-type InventoryGetAgentResponse struct {
-
-	// mysqld exporter
-	MysqldExporter *InventoryMySqldExporter `json:"mysqld_exporter,omitempty"`
+// InventoryAddNodeExporterAgentResponse inventory add node exporter agent response
+// swagger:model inventoryAddNodeExporterAgentResponse
+type InventoryAddNodeExporterAgentResponse struct {
 
 	// node exporter
 	NodeExporter *InventoryNodeExporter `json:"node_exporter,omitempty"`
 }
 
-// Validate validates this inventory get agent response
-func (m *InventoryGetAgentResponse) Validate(formats strfmt.Registry) error {
+// Validate validates this inventory add node exporter agent response
+func (m *InventoryAddNodeExporterAgentResponse) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateMysqldExporter(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateNodeExporter(formats); err != nil {
 		res = append(res, err)
@@ -41,25 +34,7 @@ func (m *InventoryGetAgentResponse) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *InventoryGetAgentResponse) validateMysqldExporter(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.MysqldExporter) { // not required
-		return nil
-	}
-
-	if m.MysqldExporter != nil {
-		if err := m.MysqldExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("mysqld_exporter")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *InventoryGetAgentResponse) validateNodeExporter(formats strfmt.Registry) error {
+func (m *InventoryAddNodeExporterAgentResponse) validateNodeExporter(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.NodeExporter) { // not required
 		return nil
@@ -78,7 +53,7 @@ func (m *InventoryGetAgentResponse) validateNodeExporter(formats strfmt.Registry
 }
 
 // MarshalBinary interface implementation
-func (m *InventoryGetAgentResponse) MarshalBinary() ([]byte, error) {
+func (m *InventoryAddNodeExporterAgentResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -86,8 +61,8 @@ func (m *InventoryGetAgentResponse) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *InventoryGetAgentResponse) UnmarshalBinary(b []byte) error {
-	var res InventoryGetAgentResponse
+func (m *InventoryAddNodeExporterAgentResponse) UnmarshalBinary(b []byte) error {
+	var res InventoryAddNodeExporterAgentResponse
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

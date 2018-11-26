@@ -53,6 +53,34 @@ func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServic
 }
 
 /*
+ChangeMySQLService changes my SQL service changes my SQL service
+*/
+func (a *Client) ChangeMySQLService(params *ChangeMySQLServiceParams) (*ChangeMySQLServiceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeMySQLServiceParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeMySQLService",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Services/ChangeMySQLService",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeMySQLServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeMySQLServiceOK), nil
+
+}
+
+/*
 GetService gets service returns a single service by ID
 */
 func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {

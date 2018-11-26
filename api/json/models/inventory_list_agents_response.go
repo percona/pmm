@@ -20,6 +20,9 @@ type InventoryListAgentsResponse struct {
 
 	// mysqld exporter
 	MysqldExporter []*InventoryMySqldExporter `json:"mysqld_exporter"`
+
+	// node exporter
+	NodeExporter []*InventoryNodeExporter `json:"node_exporter"`
 }
 
 // Validate validates this inventory list agents response
@@ -27,6 +30,10 @@ func (m *InventoryListAgentsResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMysqldExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNodeExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -51,6 +58,31 @@ func (m *InventoryListAgentsResponse) validateMysqldExporter(formats strfmt.Regi
 			if err := m.MysqldExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("mysqld_exporter" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *InventoryListAgentsResponse) validateNodeExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.NodeExporter) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.NodeExporter); i++ {
+		if swag.IsZero(m.NodeExporter[i]) { // not required
+			continue
+		}
+
+		if m.NodeExporter[i] != nil {
+			if err := m.NodeExporter[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("node_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

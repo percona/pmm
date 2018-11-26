@@ -12,9 +12,9 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryMySqldExporter MySQLdExporter represents mysqld_exporter Agent configuration.
-// swagger:model inventoryMySQLdExporter
-type InventoryMySqldExporter struct {
+// InventoryNodeExporter NodeExporter represents node_exporter Agent configuration.
+// swagger:model inventoryNodeExporter
+type InventoryNodeExporter struct {
 
 	// Unique Agent identifier.
 	ID int64 `json:"id,omitempty"`
@@ -22,24 +22,15 @@ type InventoryMySqldExporter struct {
 	// HTTP listen port for exposing metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// MySQL password for extracting metrics.
-	Password string `json:"password,omitempty"`
+	// Node identifier where Agent runs and for which insights are provided by that Agent.
+	NodeID int64 `json:"node_id,omitempty"`
 
 	// Agent process status.
 	ProcessStatus InventoryAgentProcessStatus `json:"process_status,omitempty"`
-
-	// Node identifier where Agent runs.
-	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
-
-	// Service identifier for which insights are provided by that Agent.
-	ServiceID int64 `json:"service_id,omitempty"`
-
-	// MySQL username for extracting metrics.
-	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this inventory my sqld exporter
-func (m *InventoryMySqldExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this inventory node exporter
+func (m *InventoryNodeExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateProcessStatus(formats); err != nil {
@@ -52,7 +43,7 @@ func (m *InventoryMySqldExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *InventoryMySqldExporter) validateProcessStatus(formats strfmt.Registry) error {
+func (m *InventoryNodeExporter) validateProcessStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ProcessStatus) { // not required
 		return nil
@@ -69,7 +60,7 @@ func (m *InventoryMySqldExporter) validateProcessStatus(formats strfmt.Registry)
 }
 
 // MarshalBinary interface implementation
-func (m *InventoryMySqldExporter) MarshalBinary() ([]byte, error) {
+func (m *InventoryNodeExporter) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -77,8 +68,8 @@ func (m *InventoryMySqldExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *InventoryMySqldExporter) UnmarshalBinary(b []byte) error {
-	var res InventoryMySqldExporter
+func (m *InventoryNodeExporter) UnmarshalBinary(b []byte) error {
+	var res InventoryNodeExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
