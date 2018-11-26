@@ -32,9 +32,6 @@ type InventoryMySQLService struct {
 
 	// MySQL access UNIX socket path.
 	UnixSocket string `json:"unix_socket,omitempty"`
-
-	// MySQL version and engine. Arbitrary format.
-	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this inventory my SQL service
