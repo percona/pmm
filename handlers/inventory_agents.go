@@ -36,7 +36,22 @@ func (s *AgentsServer) GetAgent(ctx context.Context, req *api.GetAgentRequest) (
 	panic("not implemented")
 }
 
+// AddNodeExporterAgent adds node_exporter Agent.
+func (s *AgentsServer) AddNodeExporterAgent(ctx context.Context, req *api.AddNodeExporterAgentRequest) (*api.AddNodeExporterAgentResponse, error) {
+	panic("not implemented")
+}
+
 func (s *AgentsServer) AddMySQLdExporterAgent(ctx context.Context, req *api.AddMySQLdExporterAgentRequest) (*api.AddMySQLdExporterAgentResponse, error) {
+	panic("not implemented")
+}
+
+// StartAgent starts Agent.
+func (s *AgentsServer) StartAgent(ctx context.Context, req *api.StartAgentRequest) (*api.StartAgentResponse, error) {
+	panic("not implemented")
+}
+
+// StopAgent stops Agent.
+func (s *AgentsServer) StopAgent(ctx context.Context, req *api.StopAgentRequest) (*api.StopAgentResponse, error) {
 	panic("not implemented")
 }
 

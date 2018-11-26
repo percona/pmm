@@ -71,6 +71,11 @@ func (s *ServicesServer) AddMySQLService(ctx context.Context, req *api.AddMySQLS
 	panic("not implemented")
 }
 
+// ChangeMySQLService changes MySQL Service.
+func (s *ServicesServer) ChangeMySQLService(ctx context.Context, req *api.ChangeMySQLServiceRequest) (*api.ChangeMySQLServiceResponse, error) {
+	panic("not implemented")
+}
+
 // RemoveService removes Service without any Agents.
 func (s *ServicesServer) RemoveService(ctx context.Context, req *api.RemoveServiceRequest) (*api.RemoveServiceResponse, error) {
 	if err := s.Services.Remove(ctx, req.Id); err != nil {

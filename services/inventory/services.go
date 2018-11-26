@@ -45,7 +45,6 @@ func makeService(row *models.ServiceRow) inventory.Service {
 			Address:    "",
 			Port:       0,
 			UnixSocket: "",
-			Version:    "",
 		}
 	default:
 		panic(fmt.Errorf("unhandled ServiceRow type %s", row.Type))

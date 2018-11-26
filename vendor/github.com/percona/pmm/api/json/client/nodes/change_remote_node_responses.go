@@ -47,7 +47,7 @@ func NewChangeRemoteNodeOK() *ChangeRemoteNodeOK {
 (empty)
 */
 type ChangeRemoteNodeOK struct {
-	Payload models.InventoryChangeRemoteNodeResponse
+	Payload *models.InventoryChangeRemoteNodeResponse
 }
 
 func (o *ChangeRemoteNodeOK) Error() string {
@@ -56,8 +56,10 @@ func (o *ChangeRemoteNodeOK) Error() string {
 
 func (o *ChangeRemoteNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(models.InventoryChangeRemoteNodeResponse)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

@@ -47,7 +47,7 @@ func NewChangeBareMetalNodeOK() *ChangeBareMetalNodeOK {
 (empty)
 */
 type ChangeBareMetalNodeOK struct {
-	Payload models.InventoryChangeBareMetalNodeResponse
+	Payload *models.InventoryChangeBareMetalNodeResponse
 }
 
 func (o *ChangeBareMetalNodeOK) Error() string {
@@ -56,8 +56,10 @@ func (o *ChangeBareMetalNodeOK) Error() string {
 
 func (o *ChangeBareMetalNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
+	o.Payload = new(models.InventoryChangeBareMetalNodeResponse)
+
 	// response payload
-	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 

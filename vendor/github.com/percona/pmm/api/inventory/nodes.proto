@@ -147,7 +147,9 @@ message ChangeBareMetalNodeRequest {
   reserved 3; // hostname
 }
 
-message ChangeBareMetalNodeResponse {}
+message ChangeBareMetalNodeResponse {
+  BareMetalNode bare_metal = 1;
+}
 
 message ChangeVirtualMachineNodeRequest {
   // Unique Node identifier.
@@ -157,7 +159,9 @@ message ChangeVirtualMachineNodeRequest {
   reserved 3; // hostname
 }
 
-message ChangeVirtualMachineNodeResponse {}
+message ChangeVirtualMachineNodeResponse {
+  VirtualMachineNode virtual_machine = 2;
+}
 
 message ChangeContainerNodeRequest {
   // Unique Node identifier.
@@ -167,7 +171,9 @@ message ChangeContainerNodeRequest {
   reserved 3; // hostname
 }
 
-message ChangeContainerNodeResponse {}
+message ChangeContainerNodeResponse {
+  ContainerNode container = 3;
+}
 
 message ChangeRemoteNodeRequest {
   // Unique Node identifier.
@@ -177,7 +183,9 @@ message ChangeRemoteNodeRequest {
   reserved 3; // hostname
 }
 
-message ChangeRemoteNodeResponse {}
+message ChangeRemoteNodeResponse {
+  RemoteNode remote = 4;
+}
 
 message ChangeAWSRDSNodeRequest {
   // Unique Node identifier.
@@ -188,7 +196,9 @@ message ChangeAWSRDSNodeRequest {
   reserved 4; // region
 }
 
-message ChangeAWSRDSNodeResponse {}
+message ChangeAWSRDSNodeResponse {
+  AWSRDSNode aws_rds = 5;
+}
 
 message RemoveNodeRequest {
   uint32 id = 1;

@@ -18,8 +18,6 @@ message MySQLService {
   uint32 port = 5;
   // MySQL access UNIX socket path.
   string unix_socket = 6;
-  // MySQL version and engine. Arbitrary format.
-  string version = 7;
 }
 
 message ListServicesRequest {}
@@ -51,11 +49,20 @@ message AddMySQLServiceRequest {
   uint32 port = 5;
   // MySQL access UNIX socket path.
   string unix_socket = 6;
-  // MySQL version and engine. Arbitrary format.
-  string version = 7;
 }
 
 message AddMySQLServiceResponse {
+  MySQLService mysql = 1;
+}
+
+message ChangeMySQLServiceRequest {
+  // Unique Service identifier.
+  uint32 id = 1;
+  // Unique user-defined Service name.
+  string name = 2;
+}
+
+message ChangeMySQLServiceResponse {
   MySQLService mysql = 1;
 }
 
@@ -85,6 +92,13 @@ service Services {
   rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
     option (google.api.http) = {
       post: "/v0/inventory/Services/AddMySQLService"
+      body: "*"
+    };
+  }
+  // ChangeMySQLService changes MySQL Service.
+  rpc ChangeMySQLService(ChangeMySQLServiceRequest) returns (ChangeMySQLServiceResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Services/ChangeMySQLService"
       body: "*"
     };
   }
