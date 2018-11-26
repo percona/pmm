@@ -55,8 +55,8 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 	}
 	l.Info("Two-way communication channel established.")
 
-	conn := server.NewChannel(stream)
-	resp := conn.SendRequest(&agent.AgentMessage_Auth{
+	channel := server.NewChannel(stream)
+	resp := channel.SendRequest(&agent.AgentMessage_Auth{
 		Auth: &agent.AuthRequest{
 			Uuid:    cfg.UUID,
 			Version: Version,
@@ -64,7 +64,7 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 	})
 	l.Infof("Authentication response: %s.", resp)
 
-	for serverMessage := range conn.Requests() {
+	for serverMessage := range channel.Requests() {
 		var agentMessage *agent.AgentMessage
 		switch payload := serverMessage.Payload.(type) {
 		case *agent.ServerMessage_Ping:
@@ -98,13 +98,13 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 			}
 
 		default:
-			l.Panic("Unexpected server message type.")
+			l.Panicf("Unhandled server message payload: %s.", payload)
 		}
 
-		conn.SendResponse(agentMessage)
+		channel.SendResponse(agentMessage)
 	}
 
-	l.Error(conn.Wait())
+	l.Error(channel.Wait())
 }
 
 func main() {
