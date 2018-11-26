@@ -62,7 +62,9 @@ message ChangeMySQLServiceRequest {
   string name = 2;
 }
 
-message ChangeMySQLServiceResponse {}
+message ChangeMySQLServiceResponse {
+  MySQLService mysql = 1;
+}
 
 message RemoveServiceRequest {
   uint32 id = 1;
