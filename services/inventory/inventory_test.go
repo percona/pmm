@@ -75,16 +75,18 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedNode, actualNode)
 
-		err = ns.Change(ctx, 2, "test-bm-new")
+		actualNode, err = ns.Change(ctx, 2, "test-bm-new")
 		require.NoError(t, err)
-		actualNodes, err = ns.List(ctx)
-		require.NoError(t, err)
-		require.Len(t, actualNodes, 2)
 		expectedNode = &inventory.BareMetalNode{
 			Id:       2,
 			Name:     "test-bm-new",
 			Hostname: "test-bm",
 		}
+		assert.Equal(t, expectedNode, actualNode)
+
+		actualNodes, err = ns.List(ctx)
+		require.NoError(t, err)
+		require.Len(t, actualNodes, 2)
 		assert.Equal(t, expectedNode, actualNodes[1])
 
 		err = ns.Remove(ctx, 2)
@@ -132,7 +134,7 @@ func TestNodes(t *testing.T) {
 		ns, teardown := setup(t)
 		defer teardown(t)
 
-		err := ns.Change(ctx, 2, "test-bm-new")
+		_, err := ns.Change(ctx, 2, "test-bm-new")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID 2 not found.`), err)
 	})
 
@@ -146,7 +148,7 @@ func TestNodes(t *testing.T) {
 		rdsNode, err := ns.Add(ctx, models.AWSRDSNodeType, "test-rds", nil, nil)
 		require.NoError(t, err)
 
-		err = ns.Change(ctx, rdsNode.(*inventory.AWSRDSNode).Id, "test-remote")
+		_, err = ns.Change(ctx, rdsNode.(*inventory.AWSRDSNode).Id, "test-remote")
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test-remote" already exists.`), err)
 	})
 
@@ -203,11 +205,8 @@ func TestServices(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedService, actualService)
 
-		err = ss.Change(ctx, 1000, "test-mysql-new")
+		actualService, err = ss.Change(ctx, 1000, "test-mysql-new")
 		require.NoError(t, err)
-		actualServices, err = ss.List(ctx)
-		require.NoError(t, err)
-		require.Len(t, actualServices, 1)
 		expectedService = &inventory.MySQLService{
 			Id:      1000,
 			Name:    "test-mysql-new",
@@ -215,6 +214,11 @@ func TestServices(t *testing.T) {
 			Address: "127.0.0.1",
 			Port:    3306,
 		}
+		assert.Equal(t, expectedService, actualService)
+
+		actualServices, err = ss.List(ctx)
+		require.NoError(t, err)
+		require.Len(t, actualServices, 1)
 		assert.Equal(t, expectedService, actualServices[0])
 
 		err = ss.Remove(ctx, 1000)
@@ -247,7 +251,7 @@ func TestServices(t *testing.T) {
 		ss, teardown := setup(t)
 		defer teardown(t)
 
-		err := ss.Change(ctx, 1, "test-mysql-new")
+		_, err := ss.Change(ctx, 1, "test-mysql-new")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID 1 not found.`), err)
 	})
 
@@ -261,7 +265,7 @@ func TestServices(t *testing.T) {
 		s, err := ss.AddMySQL(ctx, "test-mysql-2", 1, pointer.ToString("127.0.0.2"), pointer.ToUint16(3306), nil)
 		require.NoError(t, err)
 
-		err = ss.Change(ctx, s.(*inventory.MySQLService).Id, "test-mysql")
+		_, err = ss.Change(ctx, s.(*inventory.MySQLService).Id, "test-mysql")
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Service with name "test-mysql" already exists.`), err)
 	})
 

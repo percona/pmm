@@ -163,27 +163,28 @@ func (ns *NodesService) Add(ctx context.Context, nodeType models.NodeType, name 
 	if err := ns.Q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
-
 	return makeNode(row), nil
 }
 
 // Change updates Node by ID.
-func (ns *NodesService) Change(ctx context.Context, id uint32, name string) error {
+func (ns *NodesService) Change(ctx context.Context, id uint32, name string) (inventory.Node, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// ID is not 0, name is not empty and valid.
 
 	if err := ns.checkUniqueName(ctx, name); err != nil {
-		return err
+		return nil, err
 	}
 
 	row, err := ns.get(ctx, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	row.Name = name
-	err = ns.Q.Update(row)
-	return errors.WithStack(err)
+	if err = ns.Q.Update(row); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return makeNode(row), nil
 }
 
 // Remove deletes Node by ID.

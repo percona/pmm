@@ -150,47 +150,67 @@ func (s *NodesServer) AddAWSRDSNode(ctx context.Context, req *api.AddAWSRDSNodeR
 
 // ChangeBareMetalNode changes bare metal Node.
 func (s *NodesServer) ChangeBareMetalNode(ctx context.Context, req *api.ChangeBareMetalNodeRequest) (*api.ChangeBareMetalNodeResponse, error) {
-	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+	node, err := s.Nodes.Change(ctx, req.Id, req.Name)
+	if err != nil {
 		return nil, err
 	}
 
-	return new(api.ChangeBareMetalNodeResponse), nil
+	res := &api.ChangeBareMetalNodeResponse{
+		BareMetal: node.(*api.BareMetalNode),
+	}
+	return res, nil
 }
 
 // ChangeVirtualMachineNode changes virtual machine Node.
 func (s *NodesServer) ChangeVirtualMachineNode(ctx context.Context, req *api.ChangeVirtualMachineNodeRequest) (*api.ChangeVirtualMachineNodeResponse, error) {
-	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+	node, err := s.Nodes.Change(ctx, req.Id, req.Name)
+	if err != nil {
 		return nil, err
 	}
 
-	return new(api.ChangeVirtualMachineNodeResponse), nil
+	res := &api.ChangeVirtualMachineNodeResponse{
+		VirtualMachine: node.(*api.VirtualMachineNode),
+	}
+	return res, nil
 }
 
 // ChangeContainerNode changes container Node.
 func (s *NodesServer) ChangeContainerNode(ctx context.Context, req *api.ChangeContainerNodeRequest) (*api.ChangeContainerNodeResponse, error) {
-	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+	node, err := s.Nodes.Change(ctx, req.Id, req.Name)
+	if err != nil {
 		return nil, err
 	}
 
-	return new(api.ChangeContainerNodeResponse), nil
+	res := &api.ChangeContainerNodeResponse{
+		Container: node.(*api.ContainerNode),
+	}
+	return res, nil
 }
 
 // ChangeRemoteNode changes remote Node.
 func (s *NodesServer) ChangeRemoteNode(ctx context.Context, req *api.ChangeRemoteNodeRequest) (*api.ChangeRemoteNodeResponse, error) {
-	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+	node, err := s.Nodes.Change(ctx, req.Id, req.Name)
+	if err != nil {
 		return nil, err
 	}
 
-	return new(api.ChangeRemoteNodeResponse), nil
+	res := &api.ChangeRemoteNodeResponse{
+		Remote: node.(*api.RemoteNode),
+	}
+	return res, nil
 }
 
 // ChangeAWSRDSNode changes AWS RDS Node.
 func (s *NodesServer) ChangeAWSRDSNode(ctx context.Context, req *api.ChangeAWSRDSNodeRequest) (*api.ChangeAWSRDSNodeResponse, error) {
-	if err := s.Nodes.Change(ctx, req.Id, req.Name); err != nil {
+	node, err := s.Nodes.Change(ctx, req.Id, req.Name)
+	if err != nil {
 		return nil, err
 	}
 
-	return new(api.ChangeAWSRDSNodeResponse), nil
+	res := &api.ChangeAWSRDSNodeResponse{
+		AwsRds: node.(*api.AWSRDSNode),
+	}
+	return res, nil
 }
 
 // RemoveNode removes Node without any Agents and Services.

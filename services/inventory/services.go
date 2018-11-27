@@ -127,27 +127,28 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, name string, nodeID uin
 	if err := ss.Q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
-
 	return makeService(row), nil
 }
 
 // Change updates Service by ID.
-func (ss *ServicesService) Change(ctx context.Context, id uint32, name string) error {
+func (ss *ServicesService) Change(ctx context.Context, id uint32, name string) (inventory.Service, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// ID is not 0, name is not empty and valid.
 
 	if err := ss.checkUniqueName(ctx, name); err != nil {
-		return err
+		return nil, err
 	}
 
 	row, err := ss.get(ctx, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	row.Name = name
-	err = ss.Q.Update(row)
-	return errors.WithStack(err)
+	if err = ss.Q.Update(row); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return makeService(row), nil
 }
 
 // Remove deletes Service by ID.
