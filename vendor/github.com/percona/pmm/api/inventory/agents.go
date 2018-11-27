@@ -5,4 +5,5 @@ type Agent interface {
 	agent()
 }
 
+func (*NodeExporter) agent()   {}
 func (*MySQLdExporter) agent() {}

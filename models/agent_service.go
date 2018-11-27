@@ -17,6 +17,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
@@ -25,8 +27,9 @@ import (
 
 //reform:agent_services
 type AgentService struct {
-	AgentID   uint32 `reform:"agent_id"`
-	ServiceID uint32 `reform:"service_id"`
+	AgentID   uint32    `reform:"agent_id"`
+	ServiceID uint32    `reform:"service_id"`
+	CreatedAt time.Time `reform:"created_at"`
 }
 
 // AgentsForServiceID returns agents providing insights for a given service.

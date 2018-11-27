@@ -18,24 +18,58 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 
 	api "github.com/percona/pmm/api/inventory"
 
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
+// AgentsServer handles Inventory API requests to manage Agents.
 type AgentsServer struct {
 	Agents *inventory.AgentsService
 }
 
 // ListAgents returns a list of all Agents.
 func (s *AgentsServer) ListAgents(ctx context.Context, req *api.ListAgentsRequest) (*api.ListAgentsResponse, error) {
-	panic("not implemented")
+	agents, err := s.Agents.List(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res := new(api.ListAgentsResponse)
+	for _, agent := range agents {
+		switch agent := agent.(type) {
+		case *api.NodeExporter:
+			res.NodeExporter = append(res.NodeExporter, agent)
+		case *api.MySQLdExporter:
+			res.MysqldExporter = append(res.MysqldExporter, agent)
+		default:
+			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
+		}
+	}
+	return res, nil
+
 }
 
 // GetAgent returns a single Agent by ID.
 func (s *AgentsServer) GetAgent(ctx context.Context, req *api.GetAgentRequest) (*api.GetAgentResponse, error) {
-	panic("not implemented")
+	agent, err := s.Agents.Get(ctx, req.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	res := new(api.GetAgentResponse)
+	switch agent := agent.(type) {
+	case *api.NodeExporter:
+		res.Agent = &api.GetAgentResponse_NodeExporter{NodeExporter: agent}
+	case *api.MySQLdExporter:
+		res.Agent = &api.GetAgentResponse_MysqldExporter{MysqldExporter: agent}
+	default:
+		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
+	}
+	return res, nil
+
 }
 
 // AddNodeExporterAgent adds node_exporter Agent.
@@ -60,7 +94,11 @@ func (s *AgentsServer) StopAgent(ctx context.Context, req *api.StopAgentRequest)
 
 // RemoveAgent removes Agent.
 func (s *AgentsServer) RemoveAgent(ctx context.Context, req *api.RemoveAgentRequest) (*api.RemoveAgentResponse, error) {
-	panic("not implemented")
+	if err := s.Agents.Remove(ctx, req.Id); err != nil {
+		return nil, err
+	}
+
+	return new(api.RemoveAgentResponse), nil
 }
 
 // check interfaces

@@ -34,30 +34,20 @@ const (
 	sqlDialTimeout = 5 * time.Second
 )
 
+// AgentType represents Agent type as stored in database.
 type AgentType string
 
-// AgentType agent types for exporters and agents
+// Agent types.
 const (
-	MySQLdExporterAgentType   AgentType = "mysqld_exporter"
+	NodeExporterAgentType   AgentType = "node_exporter"
+	MySQLdExporterAgentType AgentType = "mysqld_exporter"
+
+	PMMAgentType AgentType = "pmm-agent"
+
 	PostgresExporterAgentType AgentType = "postgres_exporter"
 	RDSExporterAgentType      AgentType = "rds_exporter"
 	QanAgentAgentType         AgentType = "qan-agent"
 )
-
-// NameForSupervisor returns a name of agent for supervisor.
-func NameForSupervisor(typ AgentType, listenPort uint16) string {
-	return fmt.Sprintf("pmm-%s-%d", typ, listenPort)
-}
-
-//reform:agents
-type Agent struct {
-	ID           uint32    `reform:"id,pk"`
-	Type         AgentType `reform:"type"`
-	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
-
-	// TODO Does it really belong there? Remove when we have agent without one.
-	ListenPort *uint16 `reform:"listen_port"`
-}
 
 //reform:agents
 type AgentRow struct {
@@ -66,6 +56,10 @@ type AgentRow struct {
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
 	CreatedAt    time.Time `reform:"created_at"`
 	UpdatedAt    time.Time `reform:"updated_at"`
+
+	ServiceUsername *string `reform:"service_username"`
+	ServicePassword *string `reform:"service_password"`
+	ListenPort      *uint16 `reform:"listen_port"`
 }
 
 func (ar *AgentRow) BeforeInsert() error {
@@ -94,7 +88,22 @@ var (
 	_ reform.AfterFinder    = (*AgentRow)(nil)
 )
 
-// TODO remove types below
+// TODO remove code below
+
+//reform:agents
+type Agent struct {
+	ID           uint32    `reform:"id,pk"`
+	Type         AgentType `reform:"type"`
+	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+
+	// TODO Does it really belong there? Remove when we have agent without one.
+	ListenPort *uint16 `reform:"listen_port"`
+}
+
+// NameForSupervisor returns a name of agent for supervisor.
+func NameForSupervisor(typ AgentType, listenPort uint16) string {
+	return fmt.Sprintf("pmm-%s-%d", typ, listenPort)
+}
 
 //reform:agents
 type MySQLdExporter struct {

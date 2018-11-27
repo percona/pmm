@@ -277,3 +277,34 @@ func TestServices(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID 1 not found.`), err)
 	})
 }
+
+func TestAgents(t *testing.T) {
+	sqlDB := tests.OpenTestDB(t)
+	defer func() {
+		require.NoError(t, sqlDB.Close())
+	}()
+	ctx := context.Background()
+
+	setup := func(t *testing.T) (as *AgentsService, teardown func(t *testing.T)) {
+		db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
+		tx, err := db.Begin()
+		require.NoError(t, err)
+
+		teardown = func(t *testing.T) {
+			require.NoError(t, tx.Rollback())
+		}
+		as = &AgentsService{
+			Q: tx.Querier,
+		}
+		return
+	}
+
+	t.Run("Basic", func(t *testing.T) {
+		as, teardown := setup(t)
+		defer teardown(t)
+
+		actualAgents, err := as.List(ctx)
+		require.NoError(t, err)
+		require.Len(t, actualAgents, 0)
+	})
+}

@@ -24,6 +24,7 @@ import (
 
 //go:generate reform
 
+// ServiceType represents Service type as stored in database.
 type ServiceType string
 
 // Service types.
@@ -33,13 +34,6 @@ const (
 	AWSRDSServiceType     ServiceType = "aws-rds"
 	PostgreSQLServiceType ServiceType = "postgresql"
 )
-
-//reform:services
-type Service struct {
-	ID     uint32      `reform:"id,pk"`
-	Type   ServiceType `reform:"type"`
-	NodeID uint32      `reform:"node_id"`
-}
 
 //reform:services
 type ServiceRow struct {
@@ -81,7 +75,14 @@ var (
 	_ reform.AfterFinder    = (*ServiceRow)(nil)
 )
 
-// TODO remove types below
+// TODO remove code below
+
+//reform:services
+type Service struct {
+	ID     uint32      `reform:"id,pk"`
+	Type   ServiceType `reform:"type"`
+	NodeID uint32      `reform:"node_id"`
+}
 
 //reform:services
 type AWSRDSService struct {
