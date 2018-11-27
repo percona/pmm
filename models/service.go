@@ -87,6 +87,7 @@ var (
 type AWSRDSService struct {
 	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
+	Name   string      `reform:"name"`
 	NodeID uint32      `reform:"node_id"`
 
 	AWSAccessKey  *string `reform:"aws_access_key"` // may be nil
@@ -101,6 +102,7 @@ type AWSRDSService struct {
 type PostgreSQLService struct {
 	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
+	Name   string      `reform:"name"`
 	NodeID uint32      `reform:"node_id"`
 
 	Address       *string `reform:"address"`
@@ -113,6 +115,7 @@ type PostgreSQLService struct {
 type MySQLService struct {
 	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
+	Name   string      `reform:"name"`
 	NodeID uint32      `reform:"node_id"`
 
 	Address       *string `reform:"address"`
@@ -125,6 +128,7 @@ type MySQLService struct {
 type RemoteService struct {
 	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
+	Name   string      `reform:"name"`
 	NodeID uint32      `reform:"node_id"`
 
 	Address       *string `reform:"address"`

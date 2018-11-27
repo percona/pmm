@@ -250,6 +250,7 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 		// insert service
 		service := &models.PostgreSQLService{
 			Type:   models.PostgreSQLServiceType,
+			Name:   name,
 			NodeID: node.ID,
 
 			Address:       &address,

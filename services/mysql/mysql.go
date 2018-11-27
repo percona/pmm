@@ -402,6 +402,7 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 		// insert service
 		service := &models.MySQLService{
 			Type:   models.MySQLServiceType,
+			Name:   name,
 			NodeID: node.ID,
 
 			Address:       &address,

@@ -115,6 +115,7 @@ func TestAddListRemove(t *testing.T) {
 		Service: models.PostgreSQLService{
 			ID:            1000,
 			Type:          "postgresql",
+			Name:          "localhost",
 			NodeID:        2,
 			Address:       pointer.ToString("localhost"),
 			Port:          pointer.ToUint16(5432),
