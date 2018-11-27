@@ -3,11 +3,11 @@
 
 [[projects]]
   branch = "develop"
-  digest = "1:7c6af5e8cba05b39c2a8b14f2246e18faa8f0fcaeb84c7271cdc2feded6905e5"
+  digest = "1:2d1ff1b0b69f512b32d5472cfa3f006c45ff836215207167cf3212dd97d50a04"
   name = "github.com/AlekSi/pointer"
   packages = ["."]
   pruneopts = "T"
-  revision = "1e3f92fd5d80cc417bd2957e26b059963c549c51"
+  revision = "d2bd5b449f293d7e250dc1ce5398845e0c7928e0"
 
 [[projects]]
   digest = "1:4362374738ba28a25378bcf08dc29d7e720ca214b2674b641dcaaa3320b2be19"

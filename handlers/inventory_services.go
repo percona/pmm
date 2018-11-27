@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/AlekSi/pointer"
 	api "github.com/percona/pmm/api/inventory"
 
 	"github.com/percona/pmm-managed/services/inventory"
@@ -68,12 +69,31 @@ func (s *ServicesServer) GetService(ctx context.Context, req *api.GetServiceRequ
 
 // AddMySQLService adds MySQL Service.
 func (s *ServicesServer) AddMySQLService(ctx context.Context, req *api.AddMySQLServiceRequest) (*api.AddMySQLServiceResponse, error) {
-	panic("not implemented")
+	address := pointer.ToStringOrNil(req.Address)
+	port := pointer.ToUint16OrNil(uint16(req.Port))
+	unixSocket := pointer.ToStringOrNil(req.UnixSocket)
+	service, err := s.Services.AddMySQL(ctx, req.Name, req.NodeId, address, port, unixSocket)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddMySQLServiceResponse{
+		Mysql: service.(*api.MySQLService),
+	}
+	return res, nil
 }
 
 // ChangeMySQLService changes MySQL Service.
 func (s *ServicesServer) ChangeMySQLService(ctx context.Context, req *api.ChangeMySQLServiceRequest) (*api.ChangeMySQLServiceResponse, error) {
-	panic("not implemented")
+	service, err := s.Services.Change(ctx, req.Id, req.Name)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.ChangeMySQLServiceResponse{
+		Mysql: service.(*api.MySQLService),
+	}
+	return res, nil
 }
 
 // RemoveService removes Service without any Agents.
