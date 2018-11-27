@@ -65,6 +65,17 @@ func (ss *ServicesService) checkUniqueName(ctx context.Context, name string) err
 	}
 }
 
+func (ss *ServicesService) get(ctx context.Context, id uint32) (*models.ServiceRow, error) {
+	row := &models.ServiceRow{ID: id}
+	if err := ss.Q.Reload(row); err != nil {
+		if err == reform.ErrNoRows {
+			return nil, status.Errorf(codes.NotFound, "Service with ID %d not found.", id)
+		}
+		return nil, errors.WithStack(err)
+	}
+	return row, nil
+}
+
 // List selects all Services in a stable order.
 func (ss *ServicesService) List(ctx context.Context) ([]inventory.Service, error) {
 	structs, err := ss.Q.SelectAllFrom(models.ServiceRowTable, "ORDER BY id")
@@ -82,22 +93,26 @@ func (ss *ServicesService) List(ctx context.Context) ([]inventory.Service, error
 
 // Get selects a single Service by ID.
 func (ss *ServicesService) Get(ctx context.Context, id uint32) (inventory.Service, error) {
-	row := &models.ServiceRow{ID: id}
-	if err := ss.Q.Reload(row); err != nil {
-		if err == reform.ErrNoRows {
-			return nil, status.Errorf(codes.NotFound, "Service with ID %d not found.", id)
-		}
-		return nil, errors.WithStack(err)
+	row, err := ss.get(ctx, id)
+	if err != nil {
+		return nil, err
 	}
-
 	return makeService(row), nil
 }
 
 // AddMySQL inserts MySQL Service with given parameters.
 func (ss *ServicesService) AddMySQL(ctx context.Context, name string, nodeID uint32, address *string, port *uint16, unixSocket *string) (inventory.Service, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+	// Both address and socket can't be empty, etc.
 
 	if err := ss.checkUniqueName(ctx, name); err != nil {
+		return nil, err
+	}
+
+	ns := &NodesService{
+		Q: ss.Q,
+	}
+	if _, err := ns.get(ctx, nodeID); err != nil {
 		return nil, err
 	}
 
@@ -114,6 +129,25 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, name string, nodeID uin
 	}
 
 	return makeService(row), nil
+}
+
+// Change updates Service by ID.
+func (ss *ServicesService) Change(ctx context.Context, id uint32, name string) error {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+	// ID is not 0, name is not empty and valid.
+
+	if err := ss.checkUniqueName(ctx, name); err != nil {
+		return err
+	}
+
+	row, err := ss.get(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	row.Name = name
+	err = ss.Q.Update(row)
+	return errors.WithStack(err)
 }
 
 // Remove deletes Service by ID.

@@ -16,3 +16,5 @@
 
 // Package inventory contains inventory business logic: Nodes, Services, Agents.
 package inventory
+
+// TODO Decide about transactions.

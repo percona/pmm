@@ -166,16 +166,13 @@ func TestServices(t *testing.T) {
 	}()
 	ctx := context.Background()
 
-	setup := func(t *testing.T) (ns *NodesService, ss *ServicesService, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ss *ServicesService, teardown func(t *testing.T)) {
 		db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
 
 		teardown = func(t *testing.T) {
 			require.NoError(t, tx.Rollback())
-		}
-		ns = &NodesService{
-			Q: tx.Querier,
 		}
 		ss = &ServicesService{
 			Q: tx.Querier,
@@ -184,7 +181,7 @@ func TestServices(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		_, ss, teardown := setup(t)
+		ss, teardown := setup(t)
 		defer teardown(t)
 
 		actualServices, err := ss.List(ctx)
@@ -206,10 +203,73 @@ func TestServices(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedService, actualService)
 
+		err = ss.Change(ctx, 1000, "test-mysql-new")
+		require.NoError(t, err)
+		actualServices, err = ss.List(ctx)
+		require.NoError(t, err)
+		require.Len(t, actualServices, 1)
+		expectedService = &inventory.MySQLService{
+			Id:      1000,
+			Name:    "test-mysql-new",
+			NodeId:  1,
+			Address: "127.0.0.1",
+			Port:    3306,
+		}
+		assert.Equal(t, expectedService, actualServices[0])
+
 		err = ss.Remove(ctx, 1000)
 		require.NoError(t, err)
 		actualService, err = ss.Get(ctx, 1000)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID 1000 not found.`), err)
 		assert.Nil(t, actualService)
+	})
+
+	t.Run("AddNameNotUnique", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := ss.AddMySQL(ctx, "test-mysql", 1, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
+		require.NoError(t, err)
+
+		_, err = ss.AddMySQL(ctx, "test-mysql", 1, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
+		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Service with name "test-mysql" already exists.`), err)
+	})
+
+	t.Run("AddNodeNotFound", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := ss.AddMySQL(ctx, "test-mysql", 2, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID 2 not found.`), err)
+	})
+
+	t.Run("ChangeNotFound", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		err := ss.Change(ctx, 1, "test-mysql-new")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID 1 not found.`), err)
+	})
+
+	t.Run("ChangeNameNotUnique", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := ss.AddMySQL(ctx, "test-mysql", 1, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
+		require.NoError(t, err)
+
+		s, err := ss.AddMySQL(ctx, "test-mysql-2", 1, pointer.ToString("127.0.0.2"), pointer.ToUint16(3306), nil)
+		require.NoError(t, err)
+
+		err = ss.Change(ctx, s.(*inventory.MySQLService).Id, "test-mysql")
+		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Service with name "test-mysql" already exists.`), err)
+	})
+
+	t.Run("RemoveNotFound", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		err := ss.Remove(ctx, 1)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID 1 not found.`), err)
 	})
 }

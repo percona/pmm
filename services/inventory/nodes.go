@@ -105,6 +105,17 @@ func (ns *NodesService) checkUniqueHostnameRegion(ctx context.Context, hostname,
 	}
 }
 
+func (ns *NodesService) get(ctx context.Context, id uint32) (*models.NodeRow, error) {
+	row := &models.NodeRow{ID: id}
+	if err := ns.Q.Reload(row); err != nil {
+		if err == reform.ErrNoRows {
+			return nil, status.Errorf(codes.NotFound, "Node with ID %d not found.", id)
+		}
+		return nil, errors.WithStack(err)
+	}
+	return row, nil
+}
+
 // List selects all Nodes in a stable order.
 func (ns *NodesService) List(ctx context.Context) ([]inventory.Node, error) {
 	structs, err := ns.Q.SelectAllFrom(models.NodeRowTable, "ORDER BY id")
@@ -122,14 +133,10 @@ func (ns *NodesService) List(ctx context.Context) ([]inventory.Node, error) {
 
 // Get selects a single Node by ID.
 func (ns *NodesService) Get(ctx context.Context, id uint32) (inventory.Node, error) {
-	row := &models.NodeRow{ID: id}
-	if err := ns.Q.Reload(row); err != nil {
-		if err == reform.ErrNoRows {
-			return nil, status.Errorf(codes.NotFound, "Node with ID %d not found.", id)
-		}
-		return nil, errors.WithStack(err)
+	row, err := ns.get(ctx, id)
+	if err != nil {
+		return nil, err
 	}
-
 	return makeNode(row), nil
 }
 
@@ -169,16 +176,13 @@ func (ns *NodesService) Change(ctx context.Context, id uint32, name string) erro
 		return err
 	}
 
-	row := &models.NodeRow{ID: id}
-	if err := ns.Q.Reload(row); err != nil {
-		if err == reform.ErrNoRows {
-			return status.Errorf(codes.NotFound, "Node with ID %d not found.", id)
-		}
-		return errors.WithStack(err)
+	row, err := ns.get(ctx, id)
+	if err != nil {
+		return err
 	}
 
 	row.Name = name
-	err := ns.Q.Update(row)
+	err = ns.Q.Update(row)
 	return errors.WithStack(err)
 }
 
