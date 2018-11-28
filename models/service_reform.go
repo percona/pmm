@@ -125,68 +125,203 @@ var (
 	_ fmt.Stringer  = (*Service)(nil)
 )
 
-type rDSServiceTableType struct {
+type serviceRowTableType struct {
 	s parse.StructInfo
 	z []interface{}
 }
 
 // Schema returns a schema name in SQL database ("").
-func (v *rDSServiceTableType) Schema() string {
+func (v *serviceRowTableType) Schema() string {
 	return v.s.SQLSchema
 }
 
 // Name returns a view or table name in SQL database ("services").
-func (v *rDSServiceTableType) Name() string {
+func (v *serviceRowTableType) Name() string {
 	return v.s.SQLName
 }
 
 // Columns returns a new slice of column names for that view or table in SQL database.
-func (v *rDSServiceTableType) Columns() []string {
-	return []string{"id", "type", "node_id", "aws_access_key", "aws_secret_key", "address", "port", "engine", "engine_version"}
+func (v *serviceRowTableType) Columns() []string {
+	return []string{"id", "type", "name", "node_id", "created_at", "updated_at", "address", "port", "unix_socket"}
 }
 
 // NewStruct makes a new struct for that view or table.
-func (v *rDSServiceTableType) NewStruct() reform.Struct {
-	return new(RDSService)
+func (v *serviceRowTableType) NewStruct() reform.Struct {
+	return new(ServiceRow)
 }
 
 // NewRecord makes a new record for that table.
-func (v *rDSServiceTableType) NewRecord() reform.Record {
-	return new(RDSService)
+func (v *serviceRowTableType) NewRecord() reform.Record {
+	return new(ServiceRow)
 }
 
 // PKColumnIndex returns an index of primary key column for that table in SQL database.
-func (v *rDSServiceTableType) PKColumnIndex() uint {
+func (v *serviceRowTableType) PKColumnIndex() uint {
 	return uint(v.s.PKFieldIndex)
 }
 
-// RDSServiceTable represents services view or table in SQL database.
-var RDSServiceTable = &rDSServiceTableType{
-	s: parse.StructInfo{Type: "RDSService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "AWSAccessKey", Type: "*string", Column: "aws_access_key"}, {Name: "AWSSecretKey", Type: "*string", Column: "aws_secret_key"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
-	z: new(RDSService).Values(),
+// ServiceRowTable represents services view or table in SQL database.
+var ServiceRowTable = &serviceRowTableType{
+	s: parse.StructInfo{Type: "ServiceRow", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "UnixSocket", Type: "*string", Column: "unix_socket"}}, PKFieldIndex: 0},
+	z: new(ServiceRow).Values(),
 }
 
 // String returns a string representation of this struct or record.
-func (s RDSService) String() string {
+func (s ServiceRow) String() string {
 	res := make([]string, 9)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
-	res[2] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[3] = "AWSAccessKey: " + reform.Inspect(s.AWSAccessKey, true)
-	res[4] = "AWSSecretKey: " + reform.Inspect(s.AWSSecretKey, true)
-	res[5] = "Address: " + reform.Inspect(s.Address, true)
-	res[6] = "Port: " + reform.Inspect(s.Port, true)
-	res[7] = "Engine: " + reform.Inspect(s.Engine, true)
-	res[8] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
+	res[2] = "Name: " + reform.Inspect(s.Name, true)
+	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
+	res[4] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[5] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[6] = "Address: " + reform.Inspect(s.Address, true)
+	res[7] = "Port: " + reform.Inspect(s.Port, true)
+	res[8] = "UnixSocket: " + reform.Inspect(s.UnixSocket, true)
 	return strings.Join(res, ", ")
 }
 
 // Values returns a slice of struct or record field values.
 // Returned interface{} values are never untyped nils.
-func (s *RDSService) Values() []interface{} {
+func (s *ServiceRow) Values() []interface{} {
 	return []interface{}{
 		s.ID,
 		s.Type,
+		s.Name,
+		s.NodeID,
+		s.CreatedAt,
+		s.UpdatedAt,
+		s.Address,
+		s.Port,
+		s.UnixSocket,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *ServiceRow) Pointers() []interface{} {
+	return []interface{}{
+		&s.ID,
+		&s.Type,
+		&s.Name,
+		&s.NodeID,
+		&s.CreatedAt,
+		&s.UpdatedAt,
+		&s.Address,
+		&s.Port,
+		&s.UnixSocket,
+	}
+}
+
+// View returns View object for that struct.
+func (s *ServiceRow) View() reform.View {
+	return ServiceRowTable
+}
+
+// Table returns Table object for that record.
+func (s *ServiceRow) Table() reform.Table {
+	return ServiceRowTable
+}
+
+// PKValue returns a value of primary key for that record.
+// Returned interface{} value is never untyped nil.
+func (s *ServiceRow) PKValue() interface{} {
+	return s.ID
+}
+
+// PKPointer returns a pointer to primary key field for that record.
+// Returned interface{} value is never untyped nil.
+func (s *ServiceRow) PKPointer() interface{} {
+	return &s.ID
+}
+
+// HasPK returns true if record has non-zero primary key set, false otherwise.
+func (s *ServiceRow) HasPK() bool {
+	return s.ID != ServiceRowTable.z[ServiceRowTable.s.PKFieldIndex]
+}
+
+// SetPK sets record primary key.
+func (s *ServiceRow) SetPK(pk interface{}) {
+	if i64, ok := pk.(int64); ok {
+		s.ID = uint32(i64)
+	} else {
+		s.ID = pk.(uint32)
+	}
+}
+
+// check interfaces
+var (
+	_ reform.View   = ServiceRowTable
+	_ reform.Struct = (*ServiceRow)(nil)
+	_ reform.Table  = ServiceRowTable
+	_ reform.Record = (*ServiceRow)(nil)
+	_ fmt.Stringer  = (*ServiceRow)(nil)
+)
+
+type aWSRDSServiceTableType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("").
+func (v *aWSRDSServiceTableType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("services").
+func (v *aWSRDSServiceTableType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *aWSRDSServiceTableType) Columns() []string {
+	return []string{"id", "type", "name", "node_id", "aws_access_key", "aws_secret_key", "address", "port", "engine", "engine_version"}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *aWSRDSServiceTableType) NewStruct() reform.Struct {
+	return new(AWSRDSService)
+}
+
+// NewRecord makes a new record for that table.
+func (v *aWSRDSServiceTableType) NewRecord() reform.Record {
+	return new(AWSRDSService)
+}
+
+// PKColumnIndex returns an index of primary key column for that table in SQL database.
+func (v *aWSRDSServiceTableType) PKColumnIndex() uint {
+	return uint(v.s.PKFieldIndex)
+}
+
+// AWSRDSServiceTable represents services view or table in SQL database.
+var AWSRDSServiceTable = &aWSRDSServiceTableType{
+	s: parse.StructInfo{Type: "AWSRDSService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "AWSAccessKey", Type: "*string", Column: "aws_access_key"}, {Name: "AWSSecretKey", Type: "*string", Column: "aws_secret_key"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
+	z: new(AWSRDSService).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s AWSRDSService) String() string {
+	res := make([]string, 10)
+	res[0] = "ID: " + reform.Inspect(s.ID, true)
+	res[1] = "Type: " + reform.Inspect(s.Type, true)
+	res[2] = "Name: " + reform.Inspect(s.Name, true)
+	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
+	res[4] = "AWSAccessKey: " + reform.Inspect(s.AWSAccessKey, true)
+	res[5] = "AWSSecretKey: " + reform.Inspect(s.AWSSecretKey, true)
+	res[6] = "Address: " + reform.Inspect(s.Address, true)
+	res[7] = "Port: " + reform.Inspect(s.Port, true)
+	res[8] = "Engine: " + reform.Inspect(s.Engine, true)
+	res[9] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *AWSRDSService) Values() []interface{} {
+	return []interface{}{
+		s.ID,
+		s.Type,
+		s.Name,
 		s.NodeID,
 		s.AWSAccessKey,
 		s.AWSSecretKey,
@@ -199,10 +334,11 @@ func (s *RDSService) Values() []interface{} {
 
 // Pointers returns a slice of pointers to struct or record fields.
 // Returned interface{} values are never untyped nils.
-func (s *RDSService) Pointers() []interface{} {
+func (s *AWSRDSService) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
 		&s.Type,
+		&s.Name,
 		&s.NodeID,
 		&s.AWSAccessKey,
 		&s.AWSSecretKey,
@@ -214,34 +350,34 @@ func (s *RDSService) Pointers() []interface{} {
 }
 
 // View returns View object for that struct.
-func (s *RDSService) View() reform.View {
-	return RDSServiceTable
+func (s *AWSRDSService) View() reform.View {
+	return AWSRDSServiceTable
 }
 
 // Table returns Table object for that record.
-func (s *RDSService) Table() reform.Table {
-	return RDSServiceTable
+func (s *AWSRDSService) Table() reform.Table {
+	return AWSRDSServiceTable
 }
 
 // PKValue returns a value of primary key for that record.
 // Returned interface{} value is never untyped nil.
-func (s *RDSService) PKValue() interface{} {
+func (s *AWSRDSService) PKValue() interface{} {
 	return s.ID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
 // Returned interface{} value is never untyped nil.
-func (s *RDSService) PKPointer() interface{} {
+func (s *AWSRDSService) PKPointer() interface{} {
 	return &s.ID
 }
 
 // HasPK returns true if record has non-zero primary key set, false otherwise.
-func (s *RDSService) HasPK() bool {
-	return s.ID != RDSServiceTable.z[RDSServiceTable.s.PKFieldIndex]
+func (s *AWSRDSService) HasPK() bool {
+	return s.ID != AWSRDSServiceTable.z[AWSRDSServiceTable.s.PKFieldIndex]
 }
 
 // SetPK sets record primary key.
-func (s *RDSService) SetPK(pk interface{}) {
+func (s *AWSRDSService) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
 		s.ID = uint32(i64)
 	} else {
@@ -251,11 +387,11 @@ func (s *RDSService) SetPK(pk interface{}) {
 
 // check interfaces
 var (
-	_ reform.View   = RDSServiceTable
-	_ reform.Struct = (*RDSService)(nil)
-	_ reform.Table  = RDSServiceTable
-	_ reform.Record = (*RDSService)(nil)
-	_ fmt.Stringer  = (*RDSService)(nil)
+	_ reform.View   = AWSRDSServiceTable
+	_ reform.Struct = (*AWSRDSService)(nil)
+	_ reform.Table  = AWSRDSServiceTable
+	_ reform.Record = (*AWSRDSService)(nil)
+	_ fmt.Stringer  = (*AWSRDSService)(nil)
 )
 
 type postgreSQLServiceTableType struct {
@@ -275,7 +411,7 @@ func (v *postgreSQLServiceTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *postgreSQLServiceTableType) Columns() []string {
-	return []string{"id", "type", "node_id", "address", "port", "engine", "engine_version"}
+	return []string{"id", "type", "name", "node_id", "address", "port", "engine", "engine_version"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -295,20 +431,21 @@ func (v *postgreSQLServiceTableType) PKColumnIndex() uint {
 
 // PostgreSQLServiceTable represents services view or table in SQL database.
 var PostgreSQLServiceTable = &postgreSQLServiceTableType{
-	s: parse.StructInfo{Type: "PostgreSQLService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "PostgreSQLService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
 	z: new(PostgreSQLService).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s PostgreSQLService) String() string {
-	res := make([]string, 7)
+	res := make([]string, 8)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
-	res[2] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[3] = "Address: " + reform.Inspect(s.Address, true)
-	res[4] = "Port: " + reform.Inspect(s.Port, true)
-	res[5] = "Engine: " + reform.Inspect(s.Engine, true)
-	res[6] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
+	res[2] = "Name: " + reform.Inspect(s.Name, true)
+	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
+	res[4] = "Address: " + reform.Inspect(s.Address, true)
+	res[5] = "Port: " + reform.Inspect(s.Port, true)
+	res[6] = "Engine: " + reform.Inspect(s.Engine, true)
+	res[7] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
 	return strings.Join(res, ", ")
 }
 
@@ -318,6 +455,7 @@ func (s *PostgreSQLService) Values() []interface{} {
 	return []interface{}{
 		s.ID,
 		s.Type,
+		s.Name,
 		s.NodeID,
 		s.Address,
 		s.Port,
@@ -332,6 +470,7 @@ func (s *PostgreSQLService) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
 		&s.Type,
+		&s.Name,
 		&s.NodeID,
 		&s.Address,
 		&s.Port,
@@ -402,7 +541,7 @@ func (v *mySQLServiceTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *mySQLServiceTableType) Columns() []string {
-	return []string{"id", "type", "node_id", "address", "port", "engine", "engine_version"}
+	return []string{"id", "type", "name", "node_id", "address", "port", "engine", "engine_version"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -422,20 +561,21 @@ func (v *mySQLServiceTableType) PKColumnIndex() uint {
 
 // MySQLServiceTable represents services view or table in SQL database.
 var MySQLServiceTable = &mySQLServiceTableType{
-	s: parse.StructInfo{Type: "MySQLService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "MySQLService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
 	z: new(MySQLService).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s MySQLService) String() string {
-	res := make([]string, 7)
+	res := make([]string, 8)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
-	res[2] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[3] = "Address: " + reform.Inspect(s.Address, true)
-	res[4] = "Port: " + reform.Inspect(s.Port, true)
-	res[5] = "Engine: " + reform.Inspect(s.Engine, true)
-	res[6] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
+	res[2] = "Name: " + reform.Inspect(s.Name, true)
+	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
+	res[4] = "Address: " + reform.Inspect(s.Address, true)
+	res[5] = "Port: " + reform.Inspect(s.Port, true)
+	res[6] = "Engine: " + reform.Inspect(s.Engine, true)
+	res[7] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
 	return strings.Join(res, ", ")
 }
 
@@ -445,6 +585,7 @@ func (s *MySQLService) Values() []interface{} {
 	return []interface{}{
 		s.ID,
 		s.Type,
+		s.Name,
 		s.NodeID,
 		s.Address,
 		s.Port,
@@ -459,6 +600,7 @@ func (s *MySQLService) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
 		&s.Type,
+		&s.Name,
 		&s.NodeID,
 		&s.Address,
 		&s.Port,
@@ -529,7 +671,7 @@ func (v *remoteServiceTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *remoteServiceTableType) Columns() []string {
-	return []string{"id", "type", "node_id", "address", "port", "engine", "engine_version"}
+	return []string{"id", "type", "name", "node_id", "address", "port", "engine", "engine_version"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -549,20 +691,21 @@ func (v *remoteServiceTableType) PKColumnIndex() uint {
 
 // RemoteServiceTable represents services view or table in SQL database.
 var RemoteServiceTable = &remoteServiceTableType{
-	s: parse.StructInfo{Type: "RemoteService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RemoteService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
 	z: new(RemoteService).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s RemoteService) String() string {
-	res := make([]string, 7)
+	res := make([]string, 8)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
-	res[2] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[3] = "Address: " + reform.Inspect(s.Address, true)
-	res[4] = "Port: " + reform.Inspect(s.Port, true)
-	res[5] = "Engine: " + reform.Inspect(s.Engine, true)
-	res[6] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
+	res[2] = "Name: " + reform.Inspect(s.Name, true)
+	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
+	res[4] = "Address: " + reform.Inspect(s.Address, true)
+	res[5] = "Port: " + reform.Inspect(s.Port, true)
+	res[6] = "Engine: " + reform.Inspect(s.Engine, true)
+	res[7] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
 	return strings.Join(res, ", ")
 }
 
@@ -572,6 +715,7 @@ func (s *RemoteService) Values() []interface{} {
 	return []interface{}{
 		s.ID,
 		s.Type,
+		s.Name,
 		s.NodeID,
 		s.Address,
 		s.Port,
@@ -586,6 +730,7 @@ func (s *RemoteService) Pointers() []interface{} {
 	return []interface{}{
 		&s.ID,
 		&s.Type,
+		&s.Name,
 		&s.NodeID,
 		&s.Address,
 		&s.Port,
@@ -641,7 +786,8 @@ var (
 
 func init() {
 	parse.AssertUpToDate(&ServiceTable.s, new(Service))
-	parse.AssertUpToDate(&RDSServiceTable.s, new(RDSService))
+	parse.AssertUpToDate(&ServiceRowTable.s, new(ServiceRow))
+	parse.AssertUpToDate(&AWSRDSServiceTable.s, new(AWSRDSService))
 	parse.AssertUpToDate(&PostgreSQLServiceTable.s, new(PostgreSQLService))
 	parse.AssertUpToDate(&MySQLServiceTable.s, new(MySQLService))
 	parse.AssertUpToDate(&RemoteServiceTable.s, new(RemoteService))

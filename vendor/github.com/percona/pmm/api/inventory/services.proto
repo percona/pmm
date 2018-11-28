@@ -4,12 +4,20 @@ package inventory;
 
 import "google/api/annotations.proto";
 
-// MySQLService represents MySQL Service configuration.
+// MySQLService represents MySQL-compatible Service configuration.
 message MySQLService {
   // Unique Service identifier.
   uint32 id = 1;
   // Unique user-defined Service name.
   string name = 2;
+  // Node identifier where this Service runs.
+  uint32 node_id = 3;
+  // MySQL access address (DNS name or IP address).
+  string address = 4;
+  // MySQL access port.
+  uint32 port = 5;
+  // MySQL access UNIX socket path.
+  string unix_socket = 6;
 }
 
 message ListServicesRequest {}
@@ -29,9 +37,32 @@ message GetServiceResponse {
   }
 }
 
-message AddMySQLServiceRequest {}
+message AddMySQLServiceRequest {
+  reserved 1; // id
+  // Unique user-defined Service name.
+  string name = 2;
+  // Node identifier where this Service runs.
+  uint32 node_id = 3;
+  // MySQL access address (DNS name or IP address).
+  string address = 4;
+  // MySQL access port.
+  uint32 port = 5;
+  // MySQL access UNIX socket path.
+  string unix_socket = 6;
+}
 
 message AddMySQLServiceResponse {
+  MySQLService mysql = 1;
+}
+
+message ChangeMySQLServiceRequest {
+  // Unique Service identifier.
+  uint32 id = 1;
+  // Unique user-defined Service name.
+  string name = 2;
+}
+
+message ChangeMySQLServiceResponse {
   MySQLService mysql = 1;
 }
 
@@ -61,6 +92,13 @@ service Services {
   rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
     option (google.api.http) = {
       post: "/v0/inventory/Services/AddMySQLService"
+      body: "*"
+    };
+  }
+  // ChangeMySQLService changes MySQL Service.
+  rpc ChangeMySQLService(ChangeMySQLServiceRequest) returns (ChangeMySQLServiceResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Services/ChangeMySQLService"
       body: "*"
     };
   }

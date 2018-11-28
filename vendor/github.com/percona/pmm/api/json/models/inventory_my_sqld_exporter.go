@@ -22,9 +22,6 @@ type InventoryMySqldExporter struct {
 	// HTTP listen port for exposing metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifiers for which insights are provided by that Agent.
-	NodeIds []int64 `json:"node_ids"`
-
 	// MySQL password for extracting metrics.
 	Password string `json:"password,omitempty"`
 
@@ -34,8 +31,8 @@ type InventoryMySqldExporter struct {
 	// Node identifier where Agent runs.
 	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
 
-	// Service identifiers for which insights are provided by that Agent.
-	ServiceIds []int64 `json:"service_ids"`
+	// Service identifier for which insights are provided by that Agent.
+	ServiceID int64 `json:"service_id,omitempty"`
 
 	// MySQL username for extracting metrics.
 	Username string `json:"username,omitempty"`

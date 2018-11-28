@@ -174,52 +174,52 @@ func TestDiscover(t *testing.T) {
 		actual, err := svc.Discover(ctx, accessKey, secretKey)
 		require.NoError(t, err)
 		expected := []Instance{{
-			Node: models.RDSNode{
-				Type:   "rds",
+			Node: models.AWSRDSNode{
+				Type:   "aws-rds",
 				Name:   "rds-aurora1",
 				Region: pointer.ToString("us-east-1"),
 			},
-			Service: models.RDSService{
-				Type:          "rds",
+			Service: models.AWSRDSService{
+				Type:          "aws-rds",
 				Address:       pointer.ToString("rds-aurora1.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("aurora"),
 				EngineVersion: pointer.ToString("5.6.10a"),
 			},
 		}, {
-			Node: models.RDSNode{
-				Type:   "rds",
+			Node: models.AWSRDSNode{
+				Type:   "aws-rds",
 				Name:   "rds-aurora57",
 				Region: pointer.ToString("us-east-1"),
 			},
-			Service: models.RDSService{
-				Type:          "rds",
+			Service: models.AWSRDSService{
+				Type:          "aws-rds",
 				Address:       pointer.ToString("rds-aurora57.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("aurora-mysql"),
 				EngineVersion: pointer.ToString("5.7.12"),
 			},
 		}, {
-			Node: models.RDSNode{
-				Type:   "rds",
+			Node: models.AWSRDSNode{
+				Type:   "aws-rds",
 				Name:   "rds-mysql56",
 				Region: pointer.ToString("us-east-1"),
 			},
-			Service: models.RDSService{
-				Type:          "rds",
+			Service: models.AWSRDSService{
+				Type:          "aws-rds",
 				Address:       pointer.ToString("rds-mysql56.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("mysql"),
 				EngineVersion: pointer.ToString("5.6.37"),
 			},
 		}, {
-			Node: models.RDSNode{
-				Type:   "rds",
+			Node: models.AWSRDSNode{
+				Type:   "aws-rds",
 				Name:   "rds-mysql57",
 				Region: pointer.ToString("us-east-1"),
 			},
-			Service: models.RDSService{
-				Type:          "rds",
+			Service: models.AWSRDSService{
+				Type:          "aws-rds",
 				Address:       pointer.ToString("rds-mysql57.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("mysql"),
@@ -269,15 +269,15 @@ func TestAddListRemove(t *testing.T) {
 	actual, err = svc.List(ctx)
 	require.NoError(t, err)
 	expected := []Instance{{
-		Node: models.RDSNode{
+		Node: models.AWSRDSNode{
 			ID:     3,
-			Type:   "rds",
+			Type:   "aws-rds",
 			Name:   "rds-mysql57",
 			Region: pointer.ToString("us-east-1"),
 		},
-		Service: models.RDSService{
+		Service: models.AWSRDSService{
 			ID:            1001,
-			Type:          "rds",
+			Type:          "aws-rds",
 			NodeID:        3,
 			AWSAccessKey:  &accessKey,
 			AWSSecretKey:  &secretKey,

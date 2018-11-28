@@ -3,11 +3,11 @@
 
 [[projects]]
   branch = "develop"
-  digest = "1:7c6af5e8cba05b39c2a8b14f2246e18faa8f0fcaeb84c7271cdc2feded6905e5"
+  digest = "1:2d1ff1b0b69f512b32d5472cfa3f006c45ff836215207167cf3212dd97d50a04"
   name = "github.com/AlekSi/pointer"
   packages = ["."]
   pruneopts = "T"
-  revision = "1e3f92fd5d80cc417bd2957e26b059963c549c51"
+  revision = "d2bd5b449f293d7e250dc1ce5398845e0c7928e0"
 
 [[projects]]
   digest = "1:4362374738ba28a25378bcf08dc29d7e720ca214b2674b641dcaaa3320b2be19"
@@ -516,7 +516,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:36608191d3179a2c004472c71a38e1b6dc53c0a5765bd53014c178ef30c430e2"
+  digest = "1:cad92d22644cf03e19c9fa3bd1e2f3542aa19780df7cc3553e9f8086571c3e8b"
   name = "github.com/percona/pmm"
   packages = [
     "api/agent",
@@ -525,7 +525,7 @@
     "proto/config",
   ]
   pruneopts = "T"
-  revision = "7b1d25342ed98b63686c1ce6cd554ee9d413762f"
+  revision = "5cfa868d9431ffdc392e62f1d1772c2992bdcceb"
 
 [[projects]]
   digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"

@@ -65,7 +65,7 @@ for the add my SQL service operation typically these are written to a http.Reque
 type AddMySQLServiceParams struct {
 
 	/*Body*/
-	Body models.InventoryAddMySQLServiceRequest
+	Body *models.InventoryAddMySQLServiceRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -106,13 +106,13 @@ func (o *AddMySQLServiceParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add my SQL service params
-func (o *AddMySQLServiceParams) WithBody(body models.InventoryAddMySQLServiceRequest) *AddMySQLServiceParams {
+func (o *AddMySQLServiceParams) WithBody(body *models.InventoryAddMySQLServiceRequest) *AddMySQLServiceParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add my SQL service params
-func (o *AddMySQLServiceParams) SetBody(body models.InventoryAddMySQLServiceRequest) {
+func (o *AddMySQLServiceParams) SetBody(body *models.InventoryAddMySQLServiceRequest) {
 	o.Body = body
 }
 

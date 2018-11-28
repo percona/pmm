@@ -41,8 +41,8 @@ var databaseSchema = [][]string{
 			id INT NOT NULL AUTO_INCREMENT,
 			type VARCHAR(255) NOT NULL,
 			name VARCHAR(255) NOT NULL,
-			-- TODO created_at
-			-- TODO updated_at
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 			hostname VARCHAR(255),
 			region VARCHAR(255),
@@ -57,18 +57,21 @@ var databaseSchema = [][]string{
 		`CREATE TABLE services (
 			id INT NOT NULL AUTO_INCREMENT,
 			type VARCHAR(255) NOT NULL,
+			name VARCHAR(255) NOT NULL,
 			node_id INT NOT NULL,
-			-- TODO created_at
-			-- TODO updated_at
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 			aws_access_key VARCHAR(255),
 			aws_secret_key VARCHAR(255),
 			address VARCHAR(255),
 			port SMALLINT UNSIGNED,
+			unix_socket VARCHAR(255),
 			engine VARCHAR(255),
 			engine_version VARCHAR(255),
 
 			PRIMARY KEY (id),
+			UNIQUE (name),
 			FOREIGN KEY (node_id) REFERENCES nodes (id)
 		) AUTO_INCREMENT = 1000`,
 
@@ -76,8 +79,8 @@ var databaseSchema = [][]string{
 			id INT NOT NULL AUTO_INCREMENT,
 			type VARCHAR(255) NOT NULL,
 			runs_on_node_id INT NOT NULL,
-			-- TODO created_at
-			-- TODO updated_at
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 			service_username VARCHAR(255),
 			service_password VARCHAR(255),
@@ -92,7 +95,7 @@ var databaseSchema = [][]string{
 		`CREATE TABLE agent_nodes (
 			agent_id INT NOT NULL,
 			node_id INT NOT NULL,
-			-- TODO created_at
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (agent_id) REFERENCES agents (id),
 			FOREIGN KEY (node_id) REFERENCES nodes (id),
 			UNIQUE (agent_id, node_id)
@@ -101,7 +104,7 @@ var databaseSchema = [][]string{
 		`CREATE TABLE agent_services (
 			agent_id INT NOT NULL,
 			service_id INT NOT NULL,
-			-- TODO created_at
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (agent_id) REFERENCES agents (id),
 			FOREIGN KEY (service_id) REFERENCES services (id),
 			UNIQUE (agent_id, service_id)

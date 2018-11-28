@@ -42,8 +42,8 @@ message RemoteNode {
   reserved 3; // hostname
 }
 
-// RDSNode represents AWS RDS Node.
-message RDSNode {
+// AWSRDSNode represents AWS RDS Node.
+message AWSRDSNode {
   // Unique Node identifier.
   uint32 id = 1;
   // Unique user-defined Node name.
@@ -61,7 +61,7 @@ message ListNodesResponse {
   repeated VirtualMachineNode virtual_machine = 2;
   repeated ContainerNode container = 3;
   repeated RemoteNode remote = 4;
-  repeated RDSNode rds = 5;
+  repeated AWSRDSNode aws_rds = 5;
 }
 
 message GetNodeRequest {
@@ -75,7 +75,7 @@ message GetNodeResponse {
     VirtualMachineNode virtual_machine = 2;
     ContainerNode container = 3;
     RemoteNode remote = 4;
-    RDSNode rds = 5;
+    AWSRDSNode aws_rds = 5;
   }
 }
 
@@ -125,7 +125,7 @@ message AddRemoteNodeResponse {
   RemoteNode remote = 1;
 }
 
-message AddRDSNodeRequest {
+message AddAWSRDSNodeRequest {
   reserved 1; // id
   // Unique user-defined Node name.
   string name = 2;
@@ -135,8 +135,8 @@ message AddRDSNodeRequest {
   string region = 4;
 }
 
-message AddRDSNodeResponse {
-  RDSNode rds = 1;
+message AddAWSRDSNodeResponse {
+  AWSRDSNode aws_rds = 1;
 }
 
 message ChangeBareMetalNodeRequest {
@@ -147,7 +147,9 @@ message ChangeBareMetalNodeRequest {
   reserved 3; // hostname
 }
 
-message ChangeBareMetalNodeResponse {}
+message ChangeBareMetalNodeResponse {
+  BareMetalNode bare_metal = 1;
+}
 
 message ChangeVirtualMachineNodeRequest {
   // Unique Node identifier.
@@ -157,7 +159,9 @@ message ChangeVirtualMachineNodeRequest {
   reserved 3; // hostname
 }
 
-message ChangeVirtualMachineNodeResponse {}
+message ChangeVirtualMachineNodeResponse {
+  VirtualMachineNode virtual_machine = 2;
+}
 
 message ChangeContainerNodeRequest {
   // Unique Node identifier.
@@ -167,7 +171,9 @@ message ChangeContainerNodeRequest {
   reserved 3; // hostname
 }
 
-message ChangeContainerNodeResponse {}
+message ChangeContainerNodeResponse {
+  ContainerNode container = 3;
+}
 
 message ChangeRemoteNodeRequest {
   // Unique Node identifier.
@@ -177,9 +183,11 @@ message ChangeRemoteNodeRequest {
   reserved 3; // hostname
 }
 
-message ChangeRemoteNodeResponse {}
+message ChangeRemoteNodeResponse {
+  RemoteNode remote = 4;
+}
 
-message ChangeRDSNodeRequest {
+message ChangeAWSRDSNodeRequest {
   // Unique Node identifier.
   uint32 id = 1;
   // Unique user-defined Node name.
@@ -188,7 +196,9 @@ message ChangeRDSNodeRequest {
   reserved 4; // region
 }
 
-message ChangeRDSNodeResponse {}
+message ChangeAWSRDSNodeResponse {
+  AWSRDSNode aws_rds = 5;
+}
 
 message RemoveNodeRequest {
   uint32 id = 1;
@@ -240,10 +250,10 @@ service Nodes {
       body: "*"
     };
   }
-  // AddRDSNode adds AWS RDS Node.
-  rpc AddRDSNode(AddRDSNodeRequest) returns (AddRDSNodeResponse) {
+  // AddAWSRDSNode adds AWS RDS Node.
+  rpc AddAWSRDSNode(AddAWSRDSNodeRequest) returns (AddAWSRDSNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddRDSNode"
+      post: "/v0/inventory/Nodes/AddAWSRDSNode"
       body: "*"
     };
   }
@@ -275,10 +285,10 @@ service Nodes {
       body: "*"
     };
   }
-  // ChangeRDSNode changes AWS RDS Node.
-  rpc ChangeRDSNode(ChangeRDSNodeRequest) returns (ChangeRDSNodeResponse) {
+  // ChangeAWSRDSNode changes AWS RDS Node.
+  rpc ChangeAWSRDSNode(ChangeAWSRDSNodeRequest) returns (ChangeAWSRDSNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeRDSNode"
+      post: "/v0/inventory/Nodes/ChangeAWSRDSNode"
       body: "*"
     };
   }

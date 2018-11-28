@@ -16,14 +16,22 @@
 
 package models
 
+import (
+	"time"
+
+	"gopkg.in/reform.v1"
+)
+
 //go:generate reform
 
 type ServiceType string
 
+// Service types.
 const (
-	RDSServiceType        ServiceType = "rds"
+	MySQLServiceType ServiceType = "mysql"
+
+	AWSRDSServiceType     ServiceType = "aws-rds"
 	PostgreSQLServiceType ServiceType = "postgresql"
-	MySQLServiceType      ServiceType = "mysql"
 )
 
 //reform:services
@@ -34,9 +42,52 @@ type Service struct {
 }
 
 //reform:services
-type RDSService struct {
+type ServiceRow struct {
+	ID        uint32      `reform:"id,pk"`
+	Type      ServiceType `reform:"type"`
+	Name      string      `reform:"name"`
+	NodeID    uint32      `reform:"node_id"`
+	CreatedAt time.Time   `reform:"created_at"`
+	UpdatedAt time.Time   `reform:"updated_at"`
+
+	Address    *string `reform:"address"`
+	Port       *uint16 `reform:"port"`
+	UnixSocket *string `reform:"unix_socket"`
+}
+
+func (sr *ServiceRow) BeforeInsert() error {
+	now := time.Now().Truncate(time.Microsecond).UTC()
+	sr.CreatedAt = now
+	sr.UpdatedAt = now
+	return nil
+}
+
+func (sr *ServiceRow) BeforeUpdate() error {
+	now := time.Now().Truncate(time.Microsecond).UTC()
+	sr.UpdatedAt = now
+	return nil
+}
+
+func (sr *ServiceRow) AfterFind() error {
+	sr.CreatedAt = sr.CreatedAt.UTC()
+	sr.UpdatedAt = sr.UpdatedAt.UTC()
+	return nil
+}
+
+// check interfaces
+var (
+	_ reform.BeforeInserter = (*ServiceRow)(nil)
+	_ reform.BeforeUpdater  = (*ServiceRow)(nil)
+	_ reform.AfterFinder    = (*ServiceRow)(nil)
+)
+
+// TODO remove types below
+
+//reform:services
+type AWSRDSService struct {
 	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
+	Name   string      `reform:"name"`
 	NodeID uint32      `reform:"node_id"`
 
 	AWSAccessKey  *string `reform:"aws_access_key"` // may be nil
@@ -51,6 +102,7 @@ type RDSService struct {
 type PostgreSQLService struct {
 	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
+	Name   string      `reform:"name"`
 	NodeID uint32      `reform:"node_id"`
 
 	Address       *string `reform:"address"`
@@ -63,6 +115,7 @@ type PostgreSQLService struct {
 type MySQLService struct {
 	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
+	Name   string      `reform:"name"`
 	NodeID uint32      `reform:"node_id"`
 
 	Address       *string `reform:"address"`
@@ -75,6 +128,7 @@ type MySQLService struct {
 type RemoteService struct {
 	ID     uint32      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
+	Name   string      `reform:"name"`
 	NodeID uint32      `reform:"node_id"`
 
 	Address       *string `reform:"address"`

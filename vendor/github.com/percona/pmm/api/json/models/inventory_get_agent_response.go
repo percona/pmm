@@ -18,6 +18,9 @@ type InventoryGetAgentResponse struct {
 
 	// mysqld exporter
 	MysqldExporter *InventoryMySqldExporter `json:"mysqld_exporter,omitempty"`
+
+	// node exporter
+	NodeExporter *InventoryNodeExporter `json:"node_exporter,omitempty"`
 }
 
 // Validate validates this inventory get agent response
@@ -25,6 +28,10 @@ func (m *InventoryGetAgentResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMysqldExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNodeExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -44,6 +51,24 @@ func (m *InventoryGetAgentResponse) validateMysqldExporter(formats strfmt.Regist
 		if err := m.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("mysqld_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *InventoryGetAgentResponse) validateNodeExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.NodeExporter) { // not required
+		return nil
+	}
+
+	if m.NodeExporter != nil {
+		if err := m.NodeExporter.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("node_exporter")
 			}
 			return err
 		}

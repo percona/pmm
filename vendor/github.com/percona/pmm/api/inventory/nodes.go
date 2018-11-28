@@ -9,4 +9,4 @@ func (*BareMetalNode) node()      {}
 func (*VirtualMachineNode) node() {}
 func (*ContainerNode) node()      {}
 func (*RemoteNode) node()         {}
-func (*RDSNode) node()            {}
+func (*AWSRDSNode) node()         {}

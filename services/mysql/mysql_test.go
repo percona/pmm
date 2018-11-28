@@ -192,6 +192,7 @@ func TestAddListRemove(t *testing.T) {
 		Service: models.MySQLService{
 			ID:            1000,
 			Type:          "mysql",
+			Name:          "localhost",
 			NodeID:        2,
 			Address:       pointer.ToString("localhost"),
 			Port:          pointer.ToUint16(3306),

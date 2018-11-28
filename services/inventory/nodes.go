@@ -67,8 +67,8 @@ func makeNode(row *models.NodeRow) inventory.Node {
 			Name: row.Name,
 		}
 
-	case models.RDSNodeType:
-		return &inventory.RDSNode{
+	case models.AWSRDSNodeType:
+		return &inventory.AWSRDSNode{
 			Id:       row.ID,
 			Name:     row.Name,
 			Hostname: pointer.GetString(row.Hostname),
@@ -105,6 +105,17 @@ func (ns *NodesService) checkUniqueHostnameRegion(ctx context.Context, hostname,
 	}
 }
 
+func (ns *NodesService) get(ctx context.Context, id uint32) (*models.NodeRow, error) {
+	row := &models.NodeRow{ID: id}
+	if err := ns.Q.Reload(row); err != nil {
+		if err == reform.ErrNoRows {
+			return nil, status.Errorf(codes.NotFound, "Node with ID %d not found.", id)
+		}
+		return nil, errors.WithStack(err)
+	}
+	return row, nil
+}
+
 // List selects all Nodes in a stable order.
 func (ns *NodesService) List(ctx context.Context) ([]inventory.Node, error) {
 	structs, err := ns.Q.SelectAllFrom(models.NodeRowTable, "ORDER BY id")
@@ -122,14 +133,10 @@ func (ns *NodesService) List(ctx context.Context) ([]inventory.Node, error) {
 
 // Get selects a single Node by ID.
 func (ns *NodesService) Get(ctx context.Context, id uint32) (inventory.Node, error) {
-	row := &models.NodeRow{ID: id}
-	if err := ns.Q.Reload(row); err != nil {
-		if err == reform.ErrNoRows {
-			return nil, status.Errorf(codes.NotFound, "Node with ID %d not found.", id)
-		}
-		return nil, errors.WithStack(err)
+	row, err := ns.get(ctx, id)
+	if err != nil {
+		return nil, err
 	}
-
 	return makeNode(row), nil
 }
 
@@ -156,30 +163,28 @@ func (ns *NodesService) Add(ctx context.Context, nodeType models.NodeType, name 
 	if err := ns.Q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
-
 	return makeNode(row), nil
 }
 
 // Change updates Node by ID.
-func (ns *NodesService) Change(ctx context.Context, id uint32, name string) error {
+func (ns *NodesService) Change(ctx context.Context, id uint32, name string) (inventory.Node, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// ID is not 0, name is not empty and valid.
 
 	if err := ns.checkUniqueName(ctx, name); err != nil {
-		return err
+		return nil, err
 	}
 
-	row := &models.NodeRow{ID: id}
-	if err := ns.Q.Reload(row); err != nil {
-		if err == reform.ErrNoRows {
-			return status.Errorf(codes.NotFound, "Node with ID %d not found.", id)
-		}
-		return errors.WithStack(err)
+	row, err := ns.get(ctx, id)
+	if err != nil {
+		return nil, err
 	}
 
 	row.Name = name
-	err := ns.Q.Update(row)
-	return errors.WithStack(err)
+	if err = ns.Q.Update(row); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return makeNode(row), nil
 }
 
 // Remove deletes Node by ID.

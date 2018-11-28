@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
+	"gopkg.in/reform.v1"
 )
 
 //go:generate reform
@@ -57,6 +58,43 @@ type Agent struct {
 	// TODO Does it really belong there? Remove when we have agent without one.
 	ListenPort *uint16 `reform:"listen_port"`
 }
+
+//reform:agents
+type AgentRow struct {
+	ID           uint32    `reform:"id,pk"`
+	Type         AgentType `reform:"type"`
+	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	CreatedAt    time.Time `reform:"created_at"`
+	UpdatedAt    time.Time `reform:"updated_at"`
+}
+
+func (ar *AgentRow) BeforeInsert() error {
+	now := time.Now().Truncate(time.Microsecond).UTC()
+	ar.CreatedAt = now
+	ar.UpdatedAt = now
+	return nil
+}
+
+func (ar *AgentRow) BeforeUpdate() error {
+	now := time.Now().Truncate(time.Microsecond).UTC()
+	ar.UpdatedAt = now
+	return nil
+}
+
+func (ar *AgentRow) AfterFind() error {
+	ar.CreatedAt = ar.CreatedAt.UTC()
+	ar.UpdatedAt = ar.UpdatedAt.UTC()
+	return nil
+}
+
+// check interfaces
+var (
+	_ reform.BeforeInserter = (*AgentRow)(nil)
+	_ reform.BeforeUpdater  = (*AgentRow)(nil)
+	_ reform.AfterFinder    = (*AgentRow)(nil)
+)
+
+// TODO remove types below
 
 //reform:agents
 type MySQLdExporter struct {

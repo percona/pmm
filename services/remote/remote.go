@@ -52,7 +52,7 @@ type Instance struct {
 func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 	var res []Instance
 	err := svc.DB.InTransaction(func(tx *reform.TX) error {
-		structs, e := tx.SelectAllFrom(models.RemoteNodeTable, "WHERE type IN (?, ?) ORDER BY id", models.RDSNodeType, models.RemoteNodeType)
+		structs, e := tx.SelectAllFrom(models.RemoteNodeTable, "WHERE type IN (?, ?) ORDER BY id", models.AWSRDSNodeType, models.RemoteNodeType)
 		if e != nil {
 			return e
 		}
