@@ -9,6 +9,15 @@ install:                        ## Install pmm-agent binary.
 install-race:                   ## Install pmm-agent binary with race detector.
 	go install -v -race ./...
 
+test:                           ## Run tests.
+	go test -v ./...
+
+test-race:                      ## Run tests with race detector.
+	go test -v -race ./...
+
+test-cover:                     ## Run tests and collect coverage information.
+	go test -v -coverprofile=cover.out -covermode=count ./...
+
 check-license:                  ## Check that all files have the same license header.
 	go run .github/check-license.go
 

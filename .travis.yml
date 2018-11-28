@@ -14,7 +14,11 @@ script:
   - dep check
 
   - make check-license
-  - make install
+  - make test-cover
+  - make test-race
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -X fix
 
 notifications:
   slack:
