@@ -24,6 +24,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agent"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -56,6 +57,8 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 	l.Info("Two-way communication channel established.")
 
 	channel := server.NewChannel(stream)
+	prometheus.MustRegister(channel)
+
 	resp := channel.SendRequest(&agent.AgentMessage_Auth{
 		Auth: &agent.AuthRequest{
 			Uuid:    cfg.UUID,
