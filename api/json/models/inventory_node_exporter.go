@@ -16,17 +16,20 @@ import (
 // swagger:model inventoryNodeExporter
 type InventoryNodeExporter struct {
 
+	// Agent status: enabled or disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
 	// Unique Agent identifier.
 	ID int64 `json:"id,omitempty"`
 
 	// HTTP listen port for exposing metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where Agent runs and for which insights are provided by that Agent.
-	NodeID int64 `json:"node_id,omitempty"`
-
 	// Agent process status.
 	ProcessStatus InventoryAgentProcessStatus `json:"process_status,omitempty"`
+
+	// Node identifier where Agent runs and for which insights are provided by that Agent.
+	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this inventory node exporter

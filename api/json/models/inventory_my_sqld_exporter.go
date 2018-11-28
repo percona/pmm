@@ -16,6 +16,9 @@ import (
 // swagger:model inventoryMySQLdExporter
 type InventoryMySqldExporter struct {
 
+	// Agent status: enabled or disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
 	// Unique Agent identifier.
 	ID int64 `json:"id,omitempty"`
 
