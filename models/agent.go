@@ -49,6 +49,7 @@ const (
 	QanAgentAgentType         AgentType = "qan-agent"
 )
 
+// AgentRow represents Agent as stored in database.
 //reform:agents
 type AgentRow struct {
 	ID           uint32    `reform:"id,pk"`
@@ -63,6 +64,7 @@ type AgentRow struct {
 	ListenPort      *uint16 `reform:"listen_port"`
 }
 
+// BeforeInsert implements reform.BeforeInserter interface.
 func (ar *AgentRow) BeforeInsert() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	ar.CreatedAt = now
@@ -70,12 +72,14 @@ func (ar *AgentRow) BeforeInsert() error {
 	return nil
 }
 
+// BeforeUpdate implements reform.BeforeUpdater interface.
 func (ar *AgentRow) BeforeUpdate() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	ar.UpdatedAt = now
 	return nil
 }
 
+// AfterFind implements reform.AfterFinder interface.
 func (ar *AgentRow) AfterFind() error {
 	ar.CreatedAt = ar.CreatedAt.UTC()
 	ar.UpdatedAt = ar.UpdatedAt.UTC()

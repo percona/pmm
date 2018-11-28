@@ -25,6 +25,7 @@ import (
 
 //go:generate reform
 
+// AgentService implements many-to-many relationship between Agents and Services.
 //reform:agent_services
 type AgentService struct {
 	AgentID   uint32    `reform:"agent_id"`
@@ -32,16 +33,19 @@ type AgentService struct {
 	CreatedAt time.Time `reform:"created_at"`
 }
 
+// BeforeInsert implements reform.BeforeInserter interface.
 func (as *AgentService) BeforeInsert() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	as.CreatedAt = now
 	return nil
 }
 
+// BeforeUpdate implements reform.BeforeUpdater interface.
 func (as *AgentService) BeforeUpdate() error {
 	panic("AgentService should not be updated")
 }
 
+// AfterFind implements reform.AfterFinder interface.
 func (as *AgentService) AfterFind() error {
 	as.CreatedAt = as.CreatedAt.UTC()
 	return nil

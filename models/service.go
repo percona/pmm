@@ -35,6 +35,7 @@ const (
 	PostgreSQLServiceType ServiceType = "postgresql"
 )
 
+// ServiceRow represents Service as stored in database.
 //reform:services
 type ServiceRow struct {
 	ID        uint32      `reform:"id,pk"`
@@ -49,6 +50,7 @@ type ServiceRow struct {
 	UnixSocket *string `reform:"unix_socket"`
 }
 
+// BeforeInsert implements reform.BeforeInserter interface.
 func (sr *ServiceRow) BeforeInsert() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	sr.CreatedAt = now
@@ -56,12 +58,14 @@ func (sr *ServiceRow) BeforeInsert() error {
 	return nil
 }
 
+// BeforeUpdate implements reform.BeforeUpdater interface.
 func (sr *ServiceRow) BeforeUpdate() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	sr.UpdatedAt = now
 	return nil
 }
 
+// AfterFind implements reform.AfterFinder interface.
 func (sr *ServiceRow) AfterFind() error {
 	sr.CreatedAt = sr.CreatedAt.UTC()
 	sr.UpdatedAt = sr.UpdatedAt.UTC()

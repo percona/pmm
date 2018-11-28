@@ -40,6 +40,7 @@ const (
 
 const RemoteNodeRegion string = "remote"
 
+// NodeRow represents Node as stored in database.
 //reform:nodes
 type NodeRow struct {
 	ID        uint32    `reform:"id,pk"`
@@ -52,6 +53,7 @@ type NodeRow struct {
 	Region   *string `reform:"region"`
 }
 
+// BeforeInsert implements reform.BeforeInserter interface.
 func (nr *NodeRow) BeforeInsert() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	nr.CreatedAt = now
@@ -59,12 +61,14 @@ func (nr *NodeRow) BeforeInsert() error {
 	return nil
 }
 
+// BeforeUpdate implements reform.BeforeUpdater interface.
 func (nr *NodeRow) BeforeUpdate() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	nr.UpdatedAt = now
 	return nil
 }
 
+// AfterFind implements reform.AfterFinder interface.
 func (nr *NodeRow) AfterFind() error {
 	nr.CreatedAt = nr.CreatedAt.UTC()
 	nr.UpdatedAt = nr.UpdatedAt.UTC()

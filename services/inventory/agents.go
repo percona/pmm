@@ -105,6 +105,7 @@ func (as *AgentsService) Get(ctx context.Context, id uint32) (inventory.Agent, e
 	return as.makeAgent(ctx, row)
 }
 
+// AddNodeExporter inserts node_exporter Agent with given parameters.
 func (as *AgentsService) AddNodeExporter(ctx context.Context, nodeID uint32, disabled bool) (inventory.Agent, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 
@@ -135,6 +136,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, nodeID uint32, dis
 	return as.makeAgent(ctx, row)
 }
 
+// AddMySQLdExporter inserts mysqld_exporter Agent with given parameters.
 func (as *AgentsService) AddMySQLdExporter(ctx context.Context, nodeID uint32, disabled bool, serviceID uint32, username, password *string) (inventory.Agent, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 
