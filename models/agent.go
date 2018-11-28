@@ -96,6 +96,7 @@ type Agent struct {
 	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	Disabled     bool      `reform:"disabled"`
 
 	// TODO Does it really belong there? Remove when we have agent without one.
 	ListenPort *uint16 `reform:"listen_port"`
@@ -111,6 +112,7 @@ type MySQLdExporter struct {
 	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	Disabled     bool      `reform:"disabled"`
 
 	ServiceUsername        *string `reform:"service_username"`
 	ServicePassword        *string `reform:"service_password"`
@@ -141,6 +143,7 @@ type PostgresExporter struct {
 	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	Disabled     bool      `reform:"disabled"`
 
 	ServiceUsername *string `reform:"service_username"`
 	ServicePassword *string `reform:"service_password"`
@@ -169,6 +172,7 @@ type RDSExporter struct {
 	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	Disabled     bool      `reform:"disabled"`
 
 	ListenPort *uint16 `reform:"listen_port"`
 }
@@ -178,6 +182,7 @@ type QanAgent struct {
 	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	Disabled     bool      `reform:"disabled"`
 
 	ServiceUsername   *string `reform:"service_username"`
 	ServicePassword   *string `reform:"service_password"`
