@@ -24,7 +24,6 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agent"
-	"github.com/percona/pmm/api/inventory"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -32,6 +31,7 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-agent/config"
+	"github.com/percona/pmm-agent/server"
 	"github.com/percona/pmm-agent/supervisor"
 	"github.com/percona/pmm-agent/utils/logger"
 )
@@ -54,37 +54,18 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 		l.Fatal(err)
 	}
 	l.Info("Two-way communication channel established.")
-	defer stream.CloseSend()
-	var id uint32 = 1
 
-	// connect request/response
-	agentMessage := &agent.AgentMessage{
-		Id: id,
-		Payload: &agent.AgentMessage_Auth{
-			Auth: &agent.AuthRequest{
-				Uuid:    cfg.UUID,
-				Version: Version,
-			},
+	channel := server.NewChannel(stream)
+	resp := channel.SendRequest(&agent.AgentMessage_Auth{
+		Auth: &agent.AuthRequest{
+			Uuid:    cfg.UUID,
+			Version: Version,
 		},
-	}
-	l.Debugf("Send: %s.", agentMessage)
-	if err = stream.Send(agentMessage); err != nil {
-		l.Fatal(err)
-	}
-	serverMessage, err := stream.Recv()
-	if err != nil {
-		l.Fatal(err)
-	}
-	l.Debugf("Recv: %s.", serverMessage)
+	})
+	l.Infof("Authentication response: %s.", resp)
 
-	for {
-		serverMessage, err = stream.Recv()
-		if err != nil {
-			l.Fatal(err)
-		}
-		l.Debugf("Recv: %s.", serverMessage)
-
-		agentMessage = nil
+	for serverMessage := range channel.Requests() {
+		var agentMessage *agent.AgentMessage
 		switch payload := serverMessage.Payload.(type) {
 		case *agent.ServerMessage_Ping:
 			agentMessage = &agent.AgentMessage{
@@ -97,14 +78,14 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 			}
 
 		case *agent.ServerMessage_State:
-			for _, agent := range payload.State.AgentProcesses {
-				switch agent.Type {
-				case inventory.AgentType_MYSQLD_EXPORTER:
-					if err := supervisor.StartMySQLdExporter(agent.Args, agent.Env); err != nil {
+			for _, p := range payload.State.AgentProcesses {
+				switch p.Type {
+				case agent.Type_MYSQLD_EXPORTER:
+					if err := supervisor.StartMySQLdExporter(p.Args, p.Env); err != nil {
 						l.Error(err)
 					}
 				default:
-					l.Warnf("Got unhandled agent type %s (%d), ignoring.", agent.Type, agent.Type)
+					l.Warnf("Got unhandled agent process type %s (%d), ignoring.", p.Type, p.Type)
 				}
 				// l.Infof("Starting mysqld_exporter on 127.0.0.1:%d ...", exporter.ListenPort)
 			}
@@ -117,17 +98,13 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 			}
 
 		default:
-			l.Warn("Unexpected server message type.")
+			l.Panicf("Unhandled server message payload: %s.", payload)
 		}
 
-		if agentMessage != nil {
-			l.Debugf("Send: %s.", agentMessage)
-			if err = stream.Send(agentMessage); err != nil {
-				l.Errorf("Failed to send message: %s.", err)
-				return
-			}
-		}
+		channel.SendResponse(agentMessage)
 	}
+
+	l.Error(channel.Wait())
 }
 
 func main() {
@@ -153,8 +130,8 @@ func main() {
 	}
 
 	opts := []grpc.DialOption{
-		grpc.WithWaitForHandshake(), // TODO check if we need it
-		grpc.WithBlock(),            // TODO check if we need it
+		grpc.WithBlock(),
+		grpc.WithWaitForHandshake(),
 		grpc.WithBackoffMaxDelay(backoffMaxDelay),
 		grpc.WithUserAgent("pmm-agent/" + Version),
 	}
