@@ -34,7 +34,7 @@ const (
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
 //
 // All exported methods are thread-safe.
-type Channel struct {
+type Channel struct { //nolint:maligned
 	s agent.Agent_ConnectClient
 	l *logrus.Entry
 

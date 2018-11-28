@@ -48,7 +48,7 @@ func (s *testServer) Connect(stream agent.Agent_ConnectServer) error {
 
 var _ agent.AgentServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expectedErrs ...error) (*Channel, *grpc.ClientConn, func(*testing.T)) {
+func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expected ...error) (*Channel, *grpc.ClientConn, func(*testing.T)) {
 	t.Parallel()
 
 	// start server with given connect handler
@@ -79,7 +79,7 @@ func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expected
 
 	teardown := func(t *testing.T) {
 		err := channel.Wait()
-		assert.Contains(t, expectedErrs, errors.Cause(err), "%+v", err)
+		assert.Contains(t, expected, errors.Cause(err), "%+v", err)
 
 		server.GracefulStop()
 		cancel()
@@ -92,7 +92,7 @@ func TestAgentRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
 
-	connect := func(stream agent.Agent_ConnectServer) error {
+	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
 		for i := uint32(1); i <= count; i++ {
 			msg, err := stream.Recv()
 			require.NoError(t, err)
@@ -126,7 +126,7 @@ func TestServerRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
 
-	connect := func(stream agent.Agent_ConnectServer) error {
+	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
 		for i := uint32(1); i <= count; i++ {
 			err := stream.Send(&agent.ServerMessage{
 				Id: i,
@@ -189,7 +189,7 @@ func TestServerClosesStream(t *testing.T) {
 }
 
 func TestAgentClosesConnection(t *testing.T) {
-	connect := func(stream agent.Agent_ConnectServer) error {
+	connect := func(stream agent.Agent_ConnectServer) error { // nolint:unparam
 		err := stream.Send(&agent.ServerMessage{
 			Id: 1,
 			Payload: &agent.ServerMessage_Ping{
@@ -205,8 +205,9 @@ func TestAgentClosesConnection(t *testing.T) {
 		return nil
 	}
 
+	errClientConnClosing := status.Error(codes.Canceled, "grpc: the client connection is closing") // == grpc.ErrClientConnClosing
 	errConnClosing := status.Error(codes.Unavailable, "transport is closing")
-	channel, cc, teardown := setup(t, connect, grpc.ErrClientConnClosing, errConnClosing)
+	channel, cc, teardown := setup(t, connect, errClientConnClosing, errConnClosing)
 	defer teardown(t)
 
 	req := <-channel.Requests()
@@ -217,7 +218,7 @@ func TestAgentClosesConnection(t *testing.T) {
 }
 
 func TestUnexpectedMessageFromServer(t *testing.T) {
-	connect := func(stream agent.Agent_ConnectServer) error {
+	connect := func(stream agent.Agent_ConnectServer) error { // nolint:unparam
 		// this message triggers "no subscriber for ID" error
 		err := stream.Send(&agent.ServerMessage{
 			Id: 111,
