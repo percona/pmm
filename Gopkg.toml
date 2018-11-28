@@ -7,3 +7,9 @@
 [[constraint]]
   name = "github.com/percona/pmm"
   branch = "PMM-2.0"
+
+[[constraint]]
+  # Stick to 0.9.x for now.
+  # https://github.com/prometheus/client_golang#important-note-about-releases-versioning-tagging-and-stability
+  name = "github.com/prometheus/client_golang"
+  version = "0.9.1"
