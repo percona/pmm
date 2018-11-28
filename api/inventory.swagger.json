@@ -69,6 +69,60 @@
         }
       }
     },
+    "/v0/inventory/Agents/DisableAgent": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "DisableAgent disables and stops Agent.",
+        "operationId": "DisableAgent",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryDisableAgentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryDisableAgentResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/inventory/Agents/EnableAgent": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "EnableAgent enabled and starts Agent.",
+        "operationId": "EnableAgent",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryEnableAgentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryEnableAgentResponse"
+            }
+          }
+        }
+      }
+    },
     "/v0/inventory/Agents/GetAgent": {
       "post": {
         "tags": [
@@ -145,60 +199,6 @@
             "description": "(empty)",
             "schema": {
               "$ref": "#/definitions/inventoryRemoveAgentResponse"
-            }
-          }
-        }
-      }
-    },
-    "/v0/inventory/Agents/StartAgent": {
-      "post": {
-        "tags": [
-          "Agents"
-        ],
-        "summary": "StartAgent starts Agent.",
-        "operationId": "StartAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/inventoryStartAgentRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "$ref": "#/definitions/inventoryStartAgentResponse"
-            }
-          }
-        }
-      }
-    },
-    "/v0/inventory/Agents/StopAgent": {
-      "post": {
-        "tags": [
-          "Agents"
-        ],
-        "summary": "StopAgent stops Agent.",
-        "operationId": "StopAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/inventoryStopAgentRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "$ref": "#/definitions/inventoryStopAgentResponse"
             }
           }
         }
@@ -1086,6 +1086,32 @@
         }
       }
     },
+    "inventoryDisableAgentRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique Agent identifier.",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "inventoryDisableAgentResponse": {
+      "type": "object"
+    },
+    "inventoryEnableAgentRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique Agent identifier.",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "inventoryEnableAgentResponse": {
+      "type": "object"
+    },
     "inventoryGetAgentRequest": {
       "type": "object",
       "properties": {
@@ -1382,32 +1408,6 @@
       }
     },
     "inventoryRemoveServiceResponse": {
-      "type": "object"
-    },
-    "inventoryStartAgentRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Agent identifier.",
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "inventoryStartAgentResponse": {
-      "type": "object"
-    },
-    "inventoryStopAgentRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Agent identifier.",
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "inventoryStopAgentResponse": {
       "type": "object"
     },
     "inventoryVirtualMachineNode": {
