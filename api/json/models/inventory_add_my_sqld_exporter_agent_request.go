@@ -15,6 +15,9 @@ import (
 // swagger:model inventoryAddMySQLdExporterAgentRequest
 type InventoryAddMySqldExporterAgentRequest struct {
 
+	// Agent status: enabled or disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
 	// MySQL password for extracting metrics.
 	Password string `json:"password,omitempty"`
 

@@ -816,6 +816,11 @@
     "inventoryAddMySQLdExporterAgentRequest": {
       "type": "object",
       "properties": {
+        "disabled": {
+          "description": "Agent status: enabled or disabled.",
+          "type": "boolean",
+          "format": "boolean"
+        },
         "password": {
           "description": "MySQL password for extracting metrics.",
           "type": "string"
@@ -847,7 +852,12 @@
     "inventoryAddNodeExporterAgentRequest": {
       "type": "object",
       "properties": {
-        "node_id": {
+        "disabled": {
+          "description": "Agent status: enabled or disabled.",
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "runs_on_node_id": {
           "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
           "type": "integer",
           "format": "int64"
@@ -1254,6 +1264,11 @@
       "description": "MySQLdExporter represents mysqld_exporter Agent configuration.",
       "type": "object",
       "properties": {
+        "disabled": {
+          "description": "Agent status: enabled or disabled.",
+          "type": "boolean",
+          "format": "boolean"
+        },
         "id": {
           "description": "Unique Agent identifier.",
           "type": "integer",
@@ -1292,6 +1307,11 @@
       "description": "NodeExporter represents node_exporter Agent configuration.",
       "type": "object",
       "properties": {
+        "disabled": {
+          "description": "Agent status: enabled or disabled.",
+          "type": "boolean",
+          "format": "boolean"
+        },
         "id": {
           "description": "Unique Agent identifier.",
           "type": "integer",
@@ -1302,14 +1322,14 @@
           "type": "integer",
           "format": "int64"
         },
-        "node_id": {
-          "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
-          "type": "integer",
-          "format": "int64"
-        },
         "process_status": {
           "description": "Agent process status.",
           "$ref": "#/definitions/inventoryAgentProcessStatus"
+        },
+        "runs_on_node_id": {
+          "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
+          "type": "integer",
+          "format": "int64"
         }
       }
     },
