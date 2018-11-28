@@ -34,6 +34,7 @@ type AgentNode struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
+// nolint:unparam
 func (an *AgentNode) BeforeInsert() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	an.CreatedAt = now
@@ -41,11 +42,13 @@ func (an *AgentNode) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
+// nolint:unparam
 func (an *AgentNode) BeforeUpdate() error {
 	panic("AgentNode should not be updated")
 }
 
 // AfterFind implements reform.AfterFinder interface.
+// nolint:unparam
 func (an *AgentNode) AfterFind() error {
 	an.CreatedAt = an.CreatedAt.UTC()
 	return nil

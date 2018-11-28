@@ -54,6 +54,7 @@ type NodeRow struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
+// nolint:unparam
 func (nr *NodeRow) BeforeInsert() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	nr.CreatedAt = now
@@ -62,6 +63,7 @@ func (nr *NodeRow) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
+// nolint:unparam
 func (nr *NodeRow) BeforeUpdate() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	nr.UpdatedAt = now
@@ -69,6 +71,7 @@ func (nr *NodeRow) BeforeUpdate() error {
 }
 
 // AfterFind implements reform.AfterFinder interface.
+// nolint:unparam
 func (nr *NodeRow) AfterFind() error {
 	nr.CreatedAt = nr.CreatedAt.UTC()
 	nr.UpdatedAt = nr.UpdatedAt.UTC()

@@ -65,6 +65,7 @@ type AgentRow struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
+// nolint:unparam
 func (ar *AgentRow) BeforeInsert() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	ar.CreatedAt = now
@@ -73,6 +74,7 @@ func (ar *AgentRow) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
+// nolint:unparam
 func (ar *AgentRow) BeforeUpdate() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	ar.UpdatedAt = now
@@ -80,6 +82,7 @@ func (ar *AgentRow) BeforeUpdate() error {
 }
 
 // AfterFind implements reform.AfterFinder interface.
+// nolint:unparam
 func (ar *AgentRow) AfterFind() error {
 	ar.CreatedAt = ar.CreatedAt.UTC()
 	ar.UpdatedAt = ar.UpdatedAt.UTC()

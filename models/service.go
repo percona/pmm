@@ -51,6 +51,7 @@ type ServiceRow struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
+// nolint:unparam
 func (sr *ServiceRow) BeforeInsert() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	sr.CreatedAt = now
@@ -59,6 +60,7 @@ func (sr *ServiceRow) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
+// nolint:unparam
 func (sr *ServiceRow) BeforeUpdate() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	sr.UpdatedAt = now
@@ -66,6 +68,7 @@ func (sr *ServiceRow) BeforeUpdate() error {
 }
 
 // AfterFind implements reform.AfterFinder interface.
+// nolint:unparam
 func (sr *ServiceRow) AfterFind() error {
 	sr.CreatedAt = sr.CreatedAt.UTC()
 	sr.UpdatedAt = sr.UpdatedAt.UTC()
