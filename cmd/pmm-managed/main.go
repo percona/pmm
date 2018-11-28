@@ -561,7 +561,7 @@ func main() {
 
 	sqlDB, err := models.OpenDB(*dbNameF, *dbUsernameF, *dbPasswordF, l.Debugf)
 	if err != nil {
-		l.Panic(err)
+		l.Panicf("Failed to connect to database: %+v", err)
 	}
 	defer sqlDB.Close()
 	db := reform.NewDB(sqlDB, reformMySQL.Dialect, nil)

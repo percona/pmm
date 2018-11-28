@@ -134,7 +134,7 @@ func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error
 		err = db.Ping()
 	}
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to connect to MySQL")
+		return nil, errors.Wrap(err, "Failed to connect to MySQL.")
 	}
 
 	if name == "" {
@@ -148,7 +148,7 @@ func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error
 		err = nil
 	}
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Failed to get current version.")
 	}
 	logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
 
@@ -160,7 +160,7 @@ func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error
 			q = strings.TrimSpace(q)
 			logf("\n%s\n", q)
 			if _, err = db.Exec(q); err != nil {
-				return nil, errors.Wrapf(err, "Failed to execute\n%s", q)
+				return nil, errors.Wrapf(err, "Failed to execute statement:\n%s.", q)
 			}
 		}
 	}
