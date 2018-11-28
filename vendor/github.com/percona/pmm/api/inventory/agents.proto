@@ -20,13 +20,15 @@ message NodeExporter {
   // Unique Agent identifier.
   uint32 id = 1;
   // Node identifier where Agent runs and for which insights are provided by that Agent.
-  uint32 node_id = 2;
-  reserved 3; // node_ids
-  reserved 4; // service_id, service_ids
+  uint32 runs_on_node_id = 2;
+  // Agent status: enabled or disabled.
+  bool disabled = 3;
+  reserved 4; // node_id, node_ids
+  reserved 5; // service_id, service_ids
   // Agent process status.
-  AgentProcessStatus process_status = 5;
+  AgentProcessStatus process_status = 6;
   // HTTP listen port for exposing metrics.
-  uint32 listen_port = 6;
+  uint32 listen_port = 7;
 }
 
 // MySQLdExporter represents mysqld_exporter Agent configuration.
@@ -35,17 +37,19 @@ message MySQLdExporter {
   uint32 id = 1;
   // Node identifier where Agent runs.
   uint32 runs_on_node_id = 2;
-  reserved 3; // node_id, node_ids
+  // Agent status: enabled or disabled.
+  bool disabled = 3;
+  reserved 4; // node_id, node_ids
   // Service identifier for which insights are provided by that Agent.
-  uint32 service_id = 4;
+  uint32 service_id = 5;
   // Agent process status.
-  AgentProcessStatus process_status = 5;
+  AgentProcessStatus process_status = 6;
   // HTTP listen port for exposing metrics.
-  uint32 listen_port = 6;
+  uint32 listen_port = 7;
   // MySQL username for extracting metrics.
-  string username = 7;
+  string username = 8;
   // MySQL password for extracting metrics.
-  string password = 8;
+  string password = 9;
 }
 
 message ListAgentsRequest {}
@@ -70,11 +74,13 @@ message GetAgentResponse {
 message AddNodeExporterAgentRequest {
   reserved 1; // id
   // Node identifier where Agent runs and for which insights are provided by that Agent.
-  uint32 node_id = 2;
-  reserved 3; // node_ids
-  reserved 4; // service_id, service_ids
-  reserved 5; // process_status
-  reserved 6; // listen_port
+  uint32 runs_on_node_id = 2;
+  // Agent status: enabled or disabled.
+  bool disabled = 3;
+  reserved 4; // node_id, node_ids
+  reserved 5; // service_id, service_ids
+  reserved 6; // process_status
+  reserved 7; // listen_port
 }
 
 message AddNodeExporterAgentResponse {
@@ -85,34 +91,36 @@ message AddMySQLdExporterAgentRequest {
   reserved 1; // id
   // Node identifier where Agent runs.
   uint32 runs_on_node_id = 2;
-  reserved 3; // node_id, node_ids
+  // Agent status: enabled or disabled.
+  bool disabled = 3;
+  reserved 4; // node_id, node_ids
   // Service identifier for which insights are provided by that Agent.
-  uint32 service_id = 4;
-  reserved 5; // process_status
-  reserved 6; // listen_port
+  uint32 service_id = 5;
+  reserved 6; // process_status
+  reserved 7; // listen_port
   // MySQL username for extracting metrics.
-  string username = 7;
+  string username = 8;
   // MySQL password for extracting metrics.
-  string password = 8;
+  string password = 9;
 }
 
 message AddMySQLdExporterAgentResponse {
   MySQLdExporter mysqld_exporter = 1;
 }
 
-message StartAgentRequest {
+message EnableAgentRequest {
   // Unique Agent identifier.
   uint32 id = 1;
 }
 
-message StartAgentResponse {}
+message EnableAgentResponse {}
 
-message StopAgentRequest {
+message DisableAgentRequest {
   // Unique Agent identifier.
   uint32 id = 1;
 }
 
-message StopAgentResponse {}
+message DisableAgentResponse {}
 
 message RemoveAgentRequest {
   uint32 id = 1;
@@ -150,17 +158,17 @@ service Agents {
       body: "*"
     };
   }
-  // StartAgent starts Agent.
-  rpc StartAgent(StartAgentRequest) returns (StartAgentResponse) {
+  // EnableAgent enabled and starts Agent.
+  rpc EnableAgent(EnableAgentRequest) returns (EnableAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/StartAgent"
+      post: "/v0/inventory/Agents/EnableAgent"
       body: "*"
     };
   }
-  // StopAgent stops Agent.
-  rpc StopAgent(StopAgentRequest) returns (StopAgentResponse) {
+  // DisableAgent disables and stops Agent.
+  rpc DisableAgent(DisableAgentRequest) returns (DisableAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/StopAgent"
+      post: "/v0/inventory/Agents/DisableAgent"
       body: "*"
     };
   }

@@ -15,8 +15,11 @@ import (
 // swagger:model inventoryAddNodeExporterAgentRequest
 type InventoryAddNodeExporterAgentRequest struct {
 
+	// Agent status: enabled or disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
 	// Node identifier where Agent runs and for which insights are provided by that Agent.
-	NodeID int64 `json:"node_id,omitempty"`
+	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this inventory add node exporter agent request

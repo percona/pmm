@@ -11,21 +11,21 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryStopAgentRequest inventory stop agent request
-// swagger:model inventoryStopAgentRequest
-type InventoryStopAgentRequest struct {
+// InventoryEnableAgentRequest inventory enable agent request
+// swagger:model inventoryEnableAgentRequest
+type InventoryEnableAgentRequest struct {
 
 	// Unique Agent identifier.
 	ID int64 `json:"id,omitempty"`
 }
 
-// Validate validates this inventory stop agent request
-func (m *InventoryStopAgentRequest) Validate(formats strfmt.Registry) error {
+// Validate validates this inventory enable agent request
+func (m *InventoryEnableAgentRequest) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *InventoryStopAgentRequest) MarshalBinary() ([]byte, error) {
+func (m *InventoryEnableAgentRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -33,8 +33,8 @@ func (m *InventoryStopAgentRequest) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *InventoryStopAgentRequest) UnmarshalBinary(b []byte) error {
-	var res InventoryStopAgentRequest
+func (m *InventoryEnableAgentRequest) UnmarshalBinary(b []byte) error {
+	var res InventoryEnableAgentRequest
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
