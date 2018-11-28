@@ -285,13 +285,16 @@ func TestAgents(t *testing.T) {
 	}()
 	ctx := context.Background()
 
-	setup := func(t *testing.T) (as *AgentsService, teardown func(t *testing.T)) {
+	setup := func(t *testing.T) (ss *ServicesService, as *AgentsService, teardown func(t *testing.T)) {
 		db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
 
 		teardown = func(t *testing.T) {
 			require.NoError(t, tx.Rollback())
+		}
+		ss = &ServicesService{
+			Q: tx.Querier,
 		}
 		as = &AgentsService{
 			Q: tx.Querier,
@@ -300,11 +303,102 @@ func TestAgents(t *testing.T) {
 	}
 
 	t.Run("Basic", func(t *testing.T) {
-		as, teardown := setup(t)
+		ss, as, teardown := setup(t)
 		defer teardown(t)
 
 		actualAgents, err := as.List(ctx)
 		require.NoError(t, err)
 		require.Len(t, actualAgents, 0)
+
+		actualAgent, err := as.AddNodeExporter(ctx, 1, true)
+		require.NoError(t, err)
+		expectedNodeExporterAgent := &inventory.NodeExporter{
+			Id:           1000000,
+			RunsOnNodeId: 1,
+			Disabled:     true,
+		}
+		assert.Equal(t, expectedNodeExporterAgent, actualAgent)
+
+		actualAgent, err = as.Get(ctx, 1000000)
+		require.NoError(t, err)
+		assert.Equal(t, expectedNodeExporterAgent, actualAgent)
+
+		_, err = ss.AddMySQL(ctx, "test-mysql", 1, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
+		require.NoError(t, err)
+
+		actualAgent, err = as.AddMySQLdExporter(ctx, 1, false, 1000, pointer.ToString("username"), nil)
+		require.NoError(t, err)
+		expectedMySQLdExporterAgent := &inventory.MySQLdExporter{
+			Id:           1000001,
+			RunsOnNodeId: 1,
+			ServiceId:    1000,
+			Username:     "username",
+		}
+		assert.Equal(t, expectedMySQLdExporterAgent, actualAgent)
+
+		actualAgent, err = as.Get(ctx, 1000001)
+		require.NoError(t, err)
+		assert.Equal(t, expectedMySQLdExporterAgent, actualAgent)
+
+		err = as.SetDisabled(ctx, 1000001, true)
+		require.NoError(t, err)
+		expectedMySQLdExporterAgent.Disabled = true
+		actualAgent, err = as.Get(ctx, 1000001)
+		require.NoError(t, err)
+		assert.Equal(t, expectedMySQLdExporterAgent, actualAgent)
+
+		actualAgents, err = as.List(ctx)
+		require.NoError(t, err)
+		require.Len(t, actualAgents, 2)
+		assert.Equal(t, expectedNodeExporterAgent, actualAgents[0])
+		assert.Equal(t, expectedMySQLdExporterAgent, actualAgents[1])
+
+		err = as.Remove(ctx, 1000000)
+		require.NoError(t, err)
+		actualAgent, err = as.Get(ctx, 1000000)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID 1000000 not found.`), err)
+		assert.Nil(t, actualAgent)
+
+		err = as.Remove(ctx, 1000001)
+		require.NoError(t, err)
+		actualAgent, err = as.Get(ctx, 1000001)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID 1000001 not found.`), err)
+		assert.Nil(t, actualAgent)
+
+		actualAgents, err = as.List(ctx)
+		require.NoError(t, err)
+		require.Len(t, actualAgents, 0)
+	})
+
+	t.Run("AddNodeNotFound", func(t *testing.T) {
+		_, as, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := as.AddNodeExporter(ctx, 1000, true)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID 1000 not found.`), err)
+	})
+
+	t.Run("AddServiceNotFound", func(t *testing.T) {
+		_, as, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := as.AddMySQLdExporter(ctx, 1, false, 1000, pointer.ToString("username"), nil)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID 1000 not found.`), err)
+	})
+
+	t.Run("DisableNotFound", func(t *testing.T) {
+		_, as, teardown := setup(t)
+		defer teardown(t)
+
+		err := as.SetDisabled(ctx, 1, true)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID 1 not found.`), err)
+	})
+
+	t.Run("RemoveNotFound", func(t *testing.T) {
+		_, as, teardown := setup(t)
+		defer teardown(t)
+
+		err := as.Remove(ctx, 999999999)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID 999999999 not found.`), err)
 	})
 }

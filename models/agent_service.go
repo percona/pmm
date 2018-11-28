@@ -32,6 +32,28 @@ type AgentService struct {
 	CreatedAt time.Time `reform:"created_at"`
 }
 
+func (as *AgentService) BeforeInsert() error {
+	now := time.Now().Truncate(time.Microsecond).UTC()
+	as.CreatedAt = now
+	return nil
+}
+
+func (as *AgentService) BeforeUpdate() error {
+	panic("AgentService should not be updated")
+}
+
+func (as *AgentService) AfterFind() error {
+	as.CreatedAt = as.CreatedAt.UTC()
+	return nil
+}
+
+// check interfaces
+var (
+	_ reform.BeforeInserter = (*AgentService)(nil)
+	_ reform.BeforeUpdater  = (*AgentService)(nil)
+	_ reform.AfterFinder    = (*AgentService)(nil)
+)
+
 // AgentsForServiceID returns agents providing insights for a given service.
 func AgentsForServiceID(q *reform.Querier, serviceID uint32) ([]Agent, error) {
 	agentServices, err := q.SelectAllFrom(AgentServiceView, "WHERE service_id = ?", serviceID)

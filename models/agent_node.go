@@ -32,6 +32,28 @@ type AgentNode struct {
 	CreatedAt time.Time `reform:"created_at"`
 }
 
+func (an *AgentNode) BeforeInsert() error {
+	now := time.Now().Truncate(time.Microsecond).UTC()
+	an.CreatedAt = now
+	return nil
+}
+
+func (an *AgentNode) BeforeUpdate() error {
+	panic("AgentNode should not be updated")
+}
+
+func (an *AgentNode) AfterFind() error {
+	an.CreatedAt = an.CreatedAt.UTC()
+	return nil
+}
+
+// check interfaces
+var (
+	_ reform.BeforeInserter = (*AgentNode)(nil)
+	_ reform.BeforeUpdater  = (*AgentNode)(nil)
+	_ reform.AfterFinder    = (*AgentNode)(nil)
+)
+
 // AgentsForNodeID returns agents providing insights for a given node.
 func AgentsForNodeID(q *reform.Querier, nodeID uint32) ([]Agent, error) {
 	agentNodes, err := q.SelectAllFrom(AgentNodeView, "WHERE node_id = ?", nodeID)

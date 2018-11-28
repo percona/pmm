@@ -54,6 +54,7 @@ type AgentRow struct {
 	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	Disabled     bool      `reform:"disabled"`
 	CreatedAt    time.Time `reform:"created_at"`
 	UpdatedAt    time.Time `reform:"updated_at"`
 

@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/AlekSi/pointer"
 	api "github.com/percona/pmm/api/inventory"
 
 	"github.com/percona/pmm-managed/services/inventory"
@@ -74,22 +75,46 @@ func (s *AgentsServer) GetAgent(ctx context.Context, req *api.GetAgentRequest) (
 
 // AddNodeExporterAgent adds node_exporter Agent.
 func (s *AgentsServer) AddNodeExporterAgent(ctx context.Context, req *api.AddNodeExporterAgentRequest) (*api.AddNodeExporterAgentResponse, error) {
-	panic("not implemented")
+	agent, err := s.Agents.AddNodeExporter(ctx, req.RunsOnNodeId, req.Disabled)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddNodeExporterAgentResponse{
+		NodeExporter: agent.(*api.NodeExporter),
+	}
+	return res, nil
 }
 
 // AddMySQLdExporterAgent adds mysqld_exporter Agent.
 func (s *AgentsServer) AddMySQLdExporterAgent(ctx context.Context, req *api.AddMySQLdExporterAgentRequest) (*api.AddMySQLdExporterAgentResponse, error) {
-	panic("not implemented")
+	username := pointer.ToStringOrNil(req.Username)
+	password := pointer.ToStringOrNil(req.Password)
+	agent, err := s.Agents.AddMySQLdExporter(ctx, req.RunsOnNodeId, req.Disabled, req.ServiceId, username, password)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddMySQLdExporterAgentResponse{
+		MysqldExporter: agent.(*api.MySQLdExporter),
+	}
+	return res, nil
 }
 
-// StartAgent starts Agent.
-func (s *AgentsServer) StartAgent(ctx context.Context, req *api.StartAgentRequest) (*api.StartAgentResponse, error) {
-	panic("not implemented")
+// EnableAgent enables and starts Agent.
+func (s *AgentsServer) EnableAgent(ctx context.Context, req *api.EnableAgentRequest) (*api.EnableAgentResponse, error) {
+	if err := s.Agents.SetDisabled(ctx, req.Id, false); err != nil {
+		return nil, err
+	}
+	return new(api.EnableAgentResponse), nil
 }
 
-// StopAgent stops Agent.
-func (s *AgentsServer) StopAgent(ctx context.Context, req *api.StopAgentRequest) (*api.StopAgentResponse, error) {
-	panic("not implemented")
+// DisableAgent disables and stops Agent.
+func (s *AgentsServer) DisableAgent(ctx context.Context, req *api.DisableAgentRequest) (*api.DisableAgentResponse, error) {
+	if err := s.Agents.SetDisabled(ctx, req.Id, true); err != nil {
+		return nil, err
+	}
+	return new(api.DisableAgentResponse), nil
 }
 
 // RemoveAgent removes Agent.
