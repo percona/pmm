@@ -23,6 +23,9 @@ type InventoryListAgentsResponse struct {
 
 	// node exporter
 	NodeExporter []*InventoryNodeExporter `json:"node_exporter"`
+
+	// pmm agent
+	PMMAgent []*InventoryPMMAgent `json:"pmm_agent"`
 }
 
 // Validate validates this inventory list agents response
@@ -34,6 +37,10 @@ func (m *InventoryListAgentsResponse) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateNodeExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePMMAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -83,6 +90,31 @@ func (m *InventoryListAgentsResponse) validateNodeExporter(formats strfmt.Regist
 			if err := m.NodeExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("node_exporter" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *InventoryListAgentsResponse) validatePMMAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PMMAgent) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.PMMAgent); i++ {
+		if swag.IsZero(m.PMMAgent[i]) { // not required
+			continue
+		}
+
+		if m.PMMAgent[i] != nil {
+			if err := m.PMMAgent[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("pmm_agent" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

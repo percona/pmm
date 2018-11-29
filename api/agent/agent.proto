@@ -4,24 +4,26 @@ package agent;
 
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
-import "inventory/agents.proto";
 
 // Type represents Agent type.
 enum Type {
   TYPE_INVALID = 0;
-  MYSQLD_EXPORTER = 1;
+  NODE_EXPORTER = 1;
+  MYSQLD_EXPORTER = 2;
 }
 
-message RegisterRequest {
-  // FIXME We need node information there to create a new node or map new agent to the existing node.
-  //       This is hard problem.
-
-  string hostname = 1;
-}
-
-message RegisterResponse {
-  string uuid = 1;
-}
+//
+//message RegisterRequest {
+//  // FIXME We need node information there to create a new node or map new agent to the existing node.
+//  //       This is hard problem.
+//
+//  string hostname = 1;
+//}
+//
+//message RegisterResponse {
+//  string uuid = 1;
+//}
+//
 
 // AuthRequest is an AgentMessage for authenticating pmm-agent on pmm-managed.
 message AuthRequest {
@@ -66,7 +68,7 @@ message SetStateResponse {
   // AgentProcess describes status of a single agent.
   message AgentProcess {
     uint32 agent_id = 1;
-    inventory.AgentProcessStatus status = 2;
+    bool disabled = 2;
     uint32 listen_port = 3;
   }
   repeated AgentProcess agent_processes = 1;
@@ -98,8 +100,11 @@ message ServerMessage {
 
 // Agent service provides private methods for pmm-agent <-> pmm-managed interactions.
 service Agent {
-  // Register adds pmm-agent to pmm-managed database and returns agent's UUID.
-  rpc Register(RegisterRequest) returns (RegisterResponse);
+  //
+  // // Register adds pmm-agent to pmm-managed database and returns agent's UUID.
+  // rpc Register(RegisterRequest) returns (RegisterResponse);
+  //
+
   // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
   rpc Connect(stream AgentMessage) returns (stream ServerMessage);
 }

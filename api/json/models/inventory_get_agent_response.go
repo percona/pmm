@@ -21,6 +21,9 @@ type InventoryGetAgentResponse struct {
 
 	// node exporter
 	NodeExporter *InventoryNodeExporter `json:"node_exporter,omitempty"`
+
+	// pmm agent
+	PMMAgent *InventoryPMMAgent `json:"pmm_agent,omitempty"`
 }
 
 // Validate validates this inventory get agent response
@@ -32,6 +35,10 @@ func (m *InventoryGetAgentResponse) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateNodeExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePMMAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -69,6 +76,24 @@ func (m *InventoryGetAgentResponse) validateNodeExporter(formats strfmt.Registry
 		if err := m.NodeExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("node_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *InventoryGetAgentResponse) validatePMMAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PMMAgent) { // not required
+		return nil
+	}
+
+	if m.PMMAgent != nil {
+		if err := m.PMMAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("pmm_agent")
 			}
 			return err
 		}
