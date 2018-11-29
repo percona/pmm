@@ -12,16 +12,16 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryAddMySqldExporterAgentResponse inventory add my sqld exporter agent response
-// swagger:model inventoryAddMySQLdExporterAgentResponse
-type InventoryAddMySqldExporterAgentResponse struct {
+// InventoryAddMySqldExporterResponse inventory add my sqld exporter response
+// swagger:model inventoryAddMySQLdExporterResponse
+type InventoryAddMySqldExporterResponse struct {
 
 	// mysqld exporter
 	MysqldExporter *InventoryMySqldExporter `json:"mysqld_exporter,omitempty"`
 }
 
-// Validate validates this inventory add my sqld exporter agent response
-func (m *InventoryAddMySqldExporterAgentResponse) Validate(formats strfmt.Registry) error {
+// Validate validates this inventory add my sqld exporter response
+func (m *InventoryAddMySqldExporterResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateMysqldExporter(formats); err != nil {
@@ -34,7 +34,7 @@ func (m *InventoryAddMySqldExporterAgentResponse) Validate(formats strfmt.Regist
 	return nil
 }
 
-func (m *InventoryAddMySqldExporterAgentResponse) validateMysqldExporter(formats strfmt.Registry) error {
+func (m *InventoryAddMySqldExporterResponse) validateMysqldExporter(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.MysqldExporter) { // not required
 		return nil
@@ -53,7 +53,7 @@ func (m *InventoryAddMySqldExporterAgentResponse) validateMysqldExporter(formats
 }
 
 // MarshalBinary interface implementation
-func (m *InventoryAddMySqldExporterAgentResponse) MarshalBinary() ([]byte, error) {
+func (m *InventoryAddMySqldExporterResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -61,8 +61,8 @@ func (m *InventoryAddMySqldExporterAgentResponse) MarshalBinary() ([]byte, error
 }
 
 // UnmarshalBinary interface implementation
-func (m *InventoryAddMySqldExporterAgentResponse) UnmarshalBinary(b []byte) error {
-	var res InventoryAddMySqldExporterAgentResponse
+func (m *InventoryAddMySqldExporterResponse) UnmarshalBinary(b []byte) error {
+	var res InventoryAddMySqldExporterResponse
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

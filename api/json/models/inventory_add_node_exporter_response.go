@@ -12,16 +12,16 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryAddNodeExporterAgentResponse inventory add node exporter agent response
-// swagger:model inventoryAddNodeExporterAgentResponse
-type InventoryAddNodeExporterAgentResponse struct {
+// InventoryAddNodeExporterResponse inventory add node exporter response
+// swagger:model inventoryAddNodeExporterResponse
+type InventoryAddNodeExporterResponse struct {
 
 	// node exporter
 	NodeExporter *InventoryNodeExporter `json:"node_exporter,omitempty"`
 }
 
-// Validate validates this inventory add node exporter agent response
-func (m *InventoryAddNodeExporterAgentResponse) Validate(formats strfmt.Registry) error {
+// Validate validates this inventory add node exporter response
+func (m *InventoryAddNodeExporterResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateNodeExporter(formats); err != nil {
@@ -34,7 +34,7 @@ func (m *InventoryAddNodeExporterAgentResponse) Validate(formats strfmt.Registry
 	return nil
 }
 
-func (m *InventoryAddNodeExporterAgentResponse) validateNodeExporter(formats strfmt.Registry) error {
+func (m *InventoryAddNodeExporterResponse) validateNodeExporter(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.NodeExporter) { // not required
 		return nil
@@ -53,7 +53,7 @@ func (m *InventoryAddNodeExporterAgentResponse) validateNodeExporter(formats str
 }
 
 // MarshalBinary interface implementation
-func (m *InventoryAddNodeExporterAgentResponse) MarshalBinary() ([]byte, error) {
+func (m *InventoryAddNodeExporterResponse) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -61,8 +61,8 @@ func (m *InventoryAddNodeExporterAgentResponse) MarshalBinary() ([]byte, error) 
 }
 
 // UnmarshalBinary interface implementation
-func (m *InventoryAddNodeExporterAgentResponse) UnmarshalBinary(b []byte) error {
-	var res InventoryAddNodeExporterAgentResponse
+func (m *InventoryAddNodeExporterResponse) UnmarshalBinary(b []byte) error {
+	var res InventoryAddNodeExporterResponse
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

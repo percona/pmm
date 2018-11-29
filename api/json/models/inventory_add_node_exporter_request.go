@@ -11,24 +11,24 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryAddNodeExporterAgentRequest inventory add node exporter agent request
-// swagger:model inventoryAddNodeExporterAgentRequest
-type InventoryAddNodeExporterAgentRequest struct {
+// InventoryAddNodeExporterRequest inventory add node exporter request
+// swagger:model inventoryAddNodeExporterRequest
+type InventoryAddNodeExporterRequest struct {
 
-	// Agent status: enabled or disabled.
+	// Agent desired status: enabled or disabled.
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Node identifier where Agent runs and for which insights are provided by that Agent.
 	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
 }
 
-// Validate validates this inventory add node exporter agent request
-func (m *InventoryAddNodeExporterAgentRequest) Validate(formats strfmt.Registry) error {
+// Validate validates this inventory add node exporter request
+func (m *InventoryAddNodeExporterRequest) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *InventoryAddNodeExporterAgentRequest) MarshalBinary() ([]byte, error) {
+func (m *InventoryAddNodeExporterRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -36,8 +36,8 @@ func (m *InventoryAddNodeExporterAgentRequest) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *InventoryAddNodeExporterAgentRequest) UnmarshalBinary(b []byte) error {
-	var res InventoryAddNodeExporterAgentRequest
+func (m *InventoryAddNodeExporterRequest) UnmarshalBinary(b []byte) error {
+	var res InventoryAddNodeExporterRequest
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
