@@ -62,11 +62,12 @@ var databaseSchema = [][]string{
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-			aws_access_key VARCHAR(255),
-			aws_secret_key VARCHAR(255),
 			address VARCHAR(255),
 			port SMALLINT UNSIGNED,
 			unix_socket VARCHAR(255),
+
+			aws_access_key VARCHAR(255),
+			aws_secret_key VARCHAR(255),
 			engine VARCHAR(255),
 			engine_version VARCHAR(255),
 
@@ -79,12 +80,15 @@ var databaseSchema = [][]string{
 			id INT NOT NULL AUTO_INCREMENT,
 			type VARCHAR(255) NOT NULL,
 			runs_on_node_id INT NOT NULL,
+			disabled BOOL NOT NULL,
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+			listen_port SMALLINT UNSIGNED,
+			uuid VARCHAR(255),
 			service_username VARCHAR(255),
 			service_password VARCHAR(255),
-			listen_port SMALLINT UNSIGNED,
+
 			qan_db_instance_uuid VARCHAR(255),
 			mysql_disable_tablestats TINYINT(1),
 

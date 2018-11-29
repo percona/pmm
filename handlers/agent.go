@@ -17,11 +17,10 @@
 package handlers
 
 import (
-	"context"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
-	"github.com/percona/pmm/api/agent"
+	api "github.com/percona/pmm/api/agent"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm-managed/services/agents"
@@ -31,13 +30,7 @@ import (
 type AgentServer struct {
 }
 
-func (s *AgentServer) Register(ctx context.Context, req *agent.RegisterRequest) (*agent.RegisterResponse, error) {
-	return &agent.RegisterResponse{
-		// Uuid: uuid,
-	}, nil
-}
-
-func (s *AgentServer) Connect(stream agent.Agent_ConnectServer) error {
+func (s *AgentServer) Connect(stream api.Agent_ConnectServer) error {
 	l := logger.Get(stream.Context())
 
 	// connect request/response
@@ -50,9 +43,9 @@ func (s *AgentServer) Connect(stream agent.Agent_ConnectServer) error {
 	if auth == nil {
 		return errors.Errorf("Expected AuthRequest, got %T.", agentMessage.Payload)
 	}
-	serverMessage := &agent.ServerMessage{
-		Payload: &agent.ServerMessage_Auth{
-			Auth: &agent.AuthResponse{},
+	serverMessage := &api.ServerMessage{
+		Payload: &api.ServerMessage_Auth{
+			Auth: &api.AuthResponse{},
 		},
 	}
 	if err = stream.Send(serverMessage); err != nil {
@@ -61,7 +54,7 @@ func (s *AgentServer) Connect(stream agent.Agent_ConnectServer) error {
 
 	t := time.NewTicker(10 * time.Second)
 	defer t.Stop()
-	conn := agents.NewConn(auth.Uuid, stream)
+	channel := agents.NewChannel(stream)
 	for {
 		select {
 		case <-stream.Context().Done():
@@ -88,18 +81,11 @@ func (s *AgentServer) Connect(stream agent.Agent_ConnectServer) error {
 
 		case <-t.C:
 			start := time.Now()
-			agentMessage, err := conn.SendAndRecv(&agent.ServerMessage_Ping{
-				Ping: &agent.PingRequest{},
+			agentMessage := channel.SendRequest(&api.ServerMessage_Ping{
+				Ping: &api.PingRequest{},
 			})
-			if err != nil {
-				return err
-			}
 			latency := time.Since(start) / 2
-			ping := agentMessage.GetPing()
-			if ping == nil {
-				return errors.Errorf("Expected PingResponse, got %T.", agentMessage.Payload)
-			}
-			t, err := ptypes.Timestamp(ping.CurrentTime)
+			t, err := ptypes.Timestamp(agentMessage.(*api.AgentMessage_Ping).Ping.CurrentTime)
 			if err != nil {
 				return err
 			}
@@ -110,5 +96,5 @@ func (s *AgentServer) Connect(stream agent.Agent_ConnectServer) error {
 
 // check interfaces
 var (
-	_ agent.AgentServer = (*AgentServer)(nil)
+	_ api.AgentServer = (*AgentServer)(nil)
 )

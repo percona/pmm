@@ -17,17 +17,49 @@
 package models
 
 import (
+	"time"
+
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
 //go:generate reform
 
+// AgentNode implements many-to-many relationship between Agents and Nodes.
 //reform:agent_nodes
 type AgentNode struct {
-	AgentID uint32 `reform:"agent_id"`
-	NodeID  uint32 `reform:"node_id"`
+	AgentID   uint32    `reform:"agent_id"`
+	NodeID    uint32    `reform:"node_id"`
+	CreatedAt time.Time `reform:"created_at"`
 }
+
+// BeforeInsert implements reform.BeforeInserter interface.
+// nolint:unparam
+func (an *AgentNode) BeforeInsert() error {
+	now := time.Now().Truncate(time.Microsecond).UTC()
+	an.CreatedAt = now
+	return nil
+}
+
+// BeforeUpdate implements reform.BeforeUpdater interface.
+// nolint:unparam
+func (an *AgentNode) BeforeUpdate() error {
+	panic("AgentNode should not be updated")
+}
+
+// AfterFind implements reform.AfterFinder interface.
+// nolint:unparam
+func (an *AgentNode) AfterFind() error {
+	an.CreatedAt = an.CreatedAt.UTC()
+	return nil
+}
+
+// check interfaces
+var (
+	_ reform.BeforeInserter = (*AgentNode)(nil)
+	_ reform.BeforeUpdater  = (*AgentNode)(nil)
+	_ reform.AfterFinder    = (*AgentNode)(nil)
+)
 
 // AgentsForNodeID returns agents providing insights for a given node.
 func AgentsForNodeID(q *reform.Querier, nodeID uint32) ([]Agent, error) {

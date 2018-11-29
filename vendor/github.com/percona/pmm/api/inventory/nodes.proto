@@ -211,91 +211,91 @@ service Nodes {
   // ListNodes returns a list of all Nodes.
   rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ListNodes"
+      post: "/v0/inventory/Nodes/List"
       body: "*"
     };
   }
   // GetNode returns a single Node by ID.
   rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/GetNode"
+      post: "/v0/inventory/Nodes/Get"
       body: "*"
     };
   }
   // AddBareMetalNode adds bare metal Node.
   rpc AddBareMetalNode(AddBareMetalNodeRequest) returns (AddBareMetalNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddBareMetalNode"
+      post: "/v0/inventory/Nodes/AddBareMetal"
       body: "*"
     };
   }
   // AddVirtualMachineNode adds virtual machine Node.
   rpc AddVirtualMachineNode(AddVirtualMachineNodeRequest) returns (AddVirtualMachineNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddVirtualMachineNode"
+      post: "/v0/inventory/Nodes/AddVirtualMachine"
       body: "*"
     };
   }
   // AddContainerNode adds container Node.
   rpc AddContainerNode(AddContainerNodeRequest) returns (AddContainerNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddContainerNode"
+      post: "/v0/inventory/Nodes/AddContainer"
       body: "*"
     };
   }
   // AddRemoteNode adds remote Node.
   rpc AddRemoteNode(AddRemoteNodeRequest) returns (AddRemoteNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddRemoteNode"
+      post: "/v0/inventory/Nodes/AddRemote"
       body: "*"
     };
   }
   // AddAWSRDSNode adds AWS RDS Node.
   rpc AddAWSRDSNode(AddAWSRDSNodeRequest) returns (AddAWSRDSNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddAWSRDSNode"
+      post: "/v0/inventory/Nodes/AddAWSRDS"
       body: "*"
     };
   }
   // ChangeBareMetalNode changes bare metal Node.
   rpc ChangeBareMetalNode(ChangeBareMetalNodeRequest) returns (ChangeBareMetalNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeBareMetalNode"
+      post: "/v0/inventory/Nodes/ChangeBareMetal"
       body: "*"
     };
   }
   // ChangeVirtualMachineNode changes virtual machine Node.
   rpc ChangeVirtualMachineNode(ChangeVirtualMachineNodeRequest) returns (ChangeVirtualMachineNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeVirtualMachineNode"
+      post: "/v0/inventory/Nodes/ChangeVirtualMachine"
       body: "*"
     };
   }
   // ChangeContainerNode changes container Node.
   rpc ChangeContainerNode(ChangeContainerNodeRequest) returns (ChangeContainerNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeContainerNode"
+      post: "/v0/inventory/Nodes/ChangeContainer"
       body: "*"
     };
   }
   // ChangeRemoteNode changes remote Node.
   rpc ChangeRemoteNode(ChangeRemoteNodeRequest) returns (ChangeRemoteNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeRemoteNode"
+      post: "/v0/inventory/Nodes/ChangeRemote"
       body: "*"
     };
   }
   // ChangeAWSRDSNode changes AWS RDS Node.
   rpc ChangeAWSRDSNode(ChangeAWSRDSNodeRequest) returns (ChangeAWSRDSNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeAWSRDSNode"
+      post: "/v0/inventory/Nodes/ChangeAWSRDS"
       body: "*"
     };
   }
   // RemoveNode removes Node without any Agents and Services.
   rpc RemoveNode(RemoveNodeRequest) returns (RemoveNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/RemoveNode"
+      post: "/v0/inventory/Nodes/Remove"
       body: "*"
     };
   }

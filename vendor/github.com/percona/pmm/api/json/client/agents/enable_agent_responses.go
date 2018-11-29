@@ -16,17 +16,17 @@ import (
 	models "github.com/percona/pmm/api/json/models"
 )
 
-// StopAgentReader is a Reader for the StopAgent structure.
-type StopAgentReader struct {
+// EnableAgentReader is a Reader for the EnableAgent structure.
+type EnableAgentReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *StopAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *EnableAgentReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
 	case 200:
-		result := NewStopAgentOK()
+		result := NewEnableAgentOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -37,24 +37,24 @@ func (o *StopAgentReader) ReadResponse(response runtime.ClientResponse, consumer
 	}
 }
 
-// NewStopAgentOK creates a StopAgentOK with default headers values
-func NewStopAgentOK() *StopAgentOK {
-	return &StopAgentOK{}
+// NewEnableAgentOK creates a EnableAgentOK with default headers values
+func NewEnableAgentOK() *EnableAgentOK {
+	return &EnableAgentOK{}
 }
 
-/*StopAgentOK handles this case with default header values.
+/*EnableAgentOK handles this case with default header values.
 
 (empty)
 */
-type StopAgentOK struct {
-	Payload models.InventoryStopAgentResponse
+type EnableAgentOK struct {
+	Payload models.InventoryEnableAgentResponse
 }
 
-func (o *StopAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/StopAgent][%d] stopAgentOK  %+v", 200, o.Payload)
+func (o *EnableAgentOK) Error() string {
+	return fmt.Sprintf("[POST /v0/inventory/Agents/Enable][%d] enableAgentOK  %+v", 200, o.Payload)
 }
 
-func (o *StopAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *EnableAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	// response payload
 	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {

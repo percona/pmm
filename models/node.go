@@ -24,6 +24,7 @@ import (
 
 //go:generate reform
 
+// NodeType represents Node type as stored in database.
 type NodeType string
 
 // Node types.
@@ -39,13 +40,7 @@ const (
 
 const RemoteNodeRegion string = "remote"
 
-//reform:nodes
-type Node struct {
-	ID   uint32   `reform:"id,pk"`
-	Type NodeType `reform:"type"`
-	Name string   `reform:"name"`
-}
-
+// NodeRow represents Node as stored in database.
 //reform:nodes
 type NodeRow struct {
 	ID        uint32    `reform:"id,pk"`
@@ -58,6 +53,8 @@ type NodeRow struct {
 	Region   *string `reform:"region"`
 }
 
+// BeforeInsert implements reform.BeforeInserter interface.
+// nolint:unparam
 func (nr *NodeRow) BeforeInsert() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	nr.CreatedAt = now
@@ -65,12 +62,16 @@ func (nr *NodeRow) BeforeInsert() error {
 	return nil
 }
 
+// BeforeUpdate implements reform.BeforeUpdater interface.
+// nolint:unparam
 func (nr *NodeRow) BeforeUpdate() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	nr.UpdatedAt = now
 	return nil
 }
 
+// AfterFind implements reform.AfterFinder interface.
+// nolint:unparam
 func (nr *NodeRow) AfterFind() error {
 	nr.CreatedAt = nr.CreatedAt.UTC()
 	nr.UpdatedAt = nr.UpdatedAt.UTC()
@@ -84,7 +85,14 @@ var (
 	_ reform.AfterFinder    = (*NodeRow)(nil)
 )
 
-// TODO remove types below
+// TODO remove code below
+
+//reform:nodes
+type Node struct {
+	ID   uint32   `reform:"id,pk"`
+	Type NodeType `reform:"type"`
+	Name string   `reform:"name"`
+}
 
 //reform:nodes
 type AWSRDSNode struct {

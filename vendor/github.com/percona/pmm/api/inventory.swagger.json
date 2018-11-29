@@ -15,20 +15,20 @@
     "version": "version 0"
   },
   "paths": {
-    "/v0/inventory/Agents/AddMySQLdExporterAgent": {
+    "/v0/inventory/Agents/AddMySQLdExporter": {
       "post": {
         "tags": [
           "Agents"
         ],
-        "summary": "AddMySQLdExporterAgent adds mysqld_exporter Agent.",
-        "operationId": "AddMySQLdExporterAgent",
+        "summary": "AddMySQLdExporter adds mysqld_exporter Agent.",
+        "operationId": "AddMySQLdExporter",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryAddMySQLdExporterAgentRequest"
+              "$ref": "#/definitions/inventoryAddMySQLdExporterRequest"
             }
           }
         ],
@@ -36,26 +36,26 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryAddMySQLdExporterAgentResponse"
+              "$ref": "#/definitions/inventoryAddMySQLdExporterResponse"
             }
           }
         }
       }
     },
-    "/v0/inventory/Agents/AddNodeExporterAgent": {
+    "/v0/inventory/Agents/AddNodeExporter": {
       "post": {
         "tags": [
           "Agents"
         ],
-        "summary": "AddNodeExporterAgent adds node_exporter Agent.",
-        "operationId": "AddNodeExporterAgent",
+        "summary": "AddNodeExporter adds node_exporter Agent.",
+        "operationId": "AddNodeExporter",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryAddNodeExporterAgentRequest"
+              "$ref": "#/definitions/inventoryAddNodeExporterRequest"
             }
           }
         ],
@@ -63,13 +63,94 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryAddNodeExporterAgentResponse"
+              "$ref": "#/definitions/inventoryAddNodeExporterResponse"
             }
           }
         }
       }
     },
-    "/v0/inventory/Agents/GetAgent": {
+    "/v0/inventory/Agents/AddPMMAgent": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "AddPMMAgent adds pmm-agent Agent.",
+        "operationId": "AddPMMAgent",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryAddPMMAgentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryAddPMMAgentResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/inventory/Agents/Disable": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "DisableAgent disables and stops Agent.",
+        "operationId": "DisableAgent",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryDisableAgentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryDisableAgentResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/inventory/Agents/Enable": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "EnableAgent enables and starts Agent.",
+        "operationId": "EnableAgent",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/inventoryEnableAgentRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "$ref": "#/definitions/inventoryEnableAgentResponse"
+            }
+          }
+        }
+      }
+    },
+    "/v0/inventory/Agents/Get": {
       "post": {
         "tags": [
           "Agents"
@@ -96,7 +177,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ListAgents": {
+    "/v0/inventory/Agents/List": {
       "post": {
         "tags": [
           "Agents"
@@ -123,7 +204,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/RemoveAgent": {
+    "/v0/inventory/Agents/Remove": {
       "post": {
         "tags": [
           "Agents"
@@ -150,61 +231,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/StartAgent": {
-      "post": {
-        "tags": [
-          "Agents"
-        ],
-        "summary": "StartAgent starts Agent.",
-        "operationId": "StartAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/inventoryStartAgentRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "$ref": "#/definitions/inventoryStartAgentResponse"
-            }
-          }
-        }
-      }
-    },
-    "/v0/inventory/Agents/StopAgent": {
-      "post": {
-        "tags": [
-          "Agents"
-        ],
-        "summary": "StopAgent stops Agent.",
-        "operationId": "StopAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/inventoryStopAgentRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "$ref": "#/definitions/inventoryStopAgentResponse"
-            }
-          }
-        }
-      }
-    },
-    "/v0/inventory/Nodes/AddAWSRDSNode": {
+    "/v0/inventory/Nodes/AddAWSRDS": {
       "post": {
         "tags": [
           "Nodes"
@@ -231,7 +258,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddBareMetalNode": {
+    "/v0/inventory/Nodes/AddBareMetal": {
       "post": {
         "tags": [
           "Nodes"
@@ -258,7 +285,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddContainerNode": {
+    "/v0/inventory/Nodes/AddContainer": {
       "post": {
         "tags": [
           "Nodes"
@@ -285,7 +312,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddRemoteNode": {
+    "/v0/inventory/Nodes/AddRemote": {
       "post": {
         "tags": [
           "Nodes"
@@ -312,7 +339,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddVirtualMachineNode": {
+    "/v0/inventory/Nodes/AddVirtualMachine": {
       "post": {
         "tags": [
           "Nodes"
@@ -339,7 +366,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeAWSRDSNode": {
+    "/v0/inventory/Nodes/ChangeAWSRDS": {
       "post": {
         "tags": [
           "Nodes"
@@ -366,7 +393,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeBareMetalNode": {
+    "/v0/inventory/Nodes/ChangeBareMetal": {
       "post": {
         "tags": [
           "Nodes"
@@ -393,7 +420,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeContainerNode": {
+    "/v0/inventory/Nodes/ChangeContainer": {
       "post": {
         "tags": [
           "Nodes"
@@ -420,7 +447,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeRemoteNode": {
+    "/v0/inventory/Nodes/ChangeRemote": {
       "post": {
         "tags": [
           "Nodes"
@@ -447,7 +474,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeVirtualMachineNode": {
+    "/v0/inventory/Nodes/ChangeVirtualMachine": {
       "post": {
         "tags": [
           "Nodes"
@@ -474,7 +501,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/GetNode": {
+    "/v0/inventory/Nodes/Get": {
       "post": {
         "tags": [
           "Nodes"
@@ -501,7 +528,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ListNodes": {
+    "/v0/inventory/Nodes/List": {
       "post": {
         "tags": [
           "Nodes"
@@ -528,7 +555,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/RemoveNode": {
+    "/v0/inventory/Nodes/Remove": {
       "post": {
         "tags": [
           "Nodes"
@@ -555,7 +582,7 @@
         }
       }
     },
-    "/v0/inventory/Services/AddMySQLService": {
+    "/v0/inventory/Services/AddMySQL": {
       "post": {
         "tags": [
           "Services"
@@ -582,7 +609,7 @@
         }
       }
     },
-    "/v0/inventory/Services/ChangeMySQLService": {
+    "/v0/inventory/Services/ChangeMySQL": {
       "post": {
         "tags": [
           "Services"
@@ -609,7 +636,7 @@
         }
       }
     },
-    "/v0/inventory/Services/GetService": {
+    "/v0/inventory/Services/Get": {
       "post": {
         "tags": [
           "Services"
@@ -636,7 +663,7 @@
         }
       }
     },
-    "/v0/inventory/Services/ListServices": {
+    "/v0/inventory/Services/List": {
       "post": {
         "tags": [
           "Services"
@@ -663,7 +690,7 @@
         }
       }
     },
-    "/v0/inventory/Services/RemoveService": {
+    "/v0/inventory/Services/Remove": {
       "post": {
         "tags": [
           "Services"
@@ -813,9 +840,14 @@
         }
       }
     },
-    "inventoryAddMySQLdExporterAgentRequest": {
+    "inventoryAddMySQLdExporterRequest": {
       "type": "object",
       "properties": {
+        "disabled": {
+          "description": "Agent desired status: enabled or disabled.",
+          "type": "boolean",
+          "format": "boolean"
+        },
         "password": {
           "description": "MySQL password for extracting metrics.",
           "type": "string"
@@ -836,7 +868,7 @@
         }
       }
     },
-    "inventoryAddMySQLdExporterAgentResponse": {
+    "inventoryAddMySQLdExporterResponse": {
       "type": "object",
       "properties": {
         "mysqld_exporter": {
@@ -844,21 +876,48 @@
         }
       }
     },
-    "inventoryAddNodeExporterAgentRequest": {
+    "inventoryAddNodeExporterRequest": {
       "type": "object",
       "properties": {
-        "node_id": {
+        "disabled": {
+          "description": "Agent desired status: enabled or disabled.",
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "runs_on_node_id": {
           "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
           "type": "integer",
           "format": "int64"
         }
       }
     },
-    "inventoryAddNodeExporterAgentResponse": {
+    "inventoryAddNodeExporterResponse": {
       "type": "object",
       "properties": {
         "node_exporter": {
           "$ref": "#/definitions/inventoryNodeExporter"
+        }
+      }
+    },
+    "inventoryAddPMMAgentRequest": {
+      "type": "object",
+      "properties": {
+        "runs_on_node_id": {
+          "description": "Node identifier where Agent runs.",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "inventoryAddPMMAgentResponse": {
+      "type": "object",
+      "properties": {
+        "pmm_agent": {
+          "$ref": "#/definitions/inventoryPMMAgent"
+        },
+        "uuid": {
+          "description": "pmm-agent UUID.",
+          "type": "string"
         }
       }
     },
@@ -899,16 +958,6 @@
           "$ref": "#/definitions/inventoryVirtualMachineNode"
         }
       }
-    },
-    "inventoryAgentProcessStatus": {
-      "description": "AgentProcessStatus represents agent process state.",
-      "type": "string",
-      "default": "AGENT_PROCESS_STATUS_INVALID",
-      "enum": [
-        "AGENT_PROCESS_STATUS_INVALID",
-        "DISABLED",
-        "RUNNING"
-      ]
     },
     "inventoryBareMetalNode": {
       "description": "BareMetalNode represents bare metal Node.",
@@ -1076,6 +1125,32 @@
         }
       }
     },
+    "inventoryDisableAgentRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique Agent identifier.",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "inventoryDisableAgentResponse": {
+      "type": "object"
+    },
+    "inventoryEnableAgentRequest": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique Agent identifier.",
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "inventoryEnableAgentResponse": {
+      "type": "object"
+    },
     "inventoryGetAgentRequest": {
       "type": "object",
       "properties": {
@@ -1094,6 +1169,9 @@
         },
         "node_exporter": {
           "$ref": "#/definitions/inventoryNodeExporter"
+        },
+        "pmm_agent": {
+          "$ref": "#/definitions/inventoryPMMAgent"
         }
       }
     },
@@ -1161,6 +1239,12 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/inventoryNodeExporter"
+          }
+        },
+        "pmm_agent": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/inventoryPMMAgent"
           }
         }
       }
@@ -1254,6 +1338,11 @@
       "description": "MySQLdExporter represents mysqld_exporter Agent configuration.",
       "type": "object",
       "properties": {
+        "disabled": {
+          "description": "Agent desired status: enabled or disabled.",
+          "type": "boolean",
+          "format": "boolean"
+        },
         "id": {
           "description": "Unique Agent identifier.",
           "type": "integer",
@@ -1264,13 +1353,10 @@
           "type": "integer",
           "format": "int64"
         },
-        "password": {
-          "description": "MySQL password for extracting metrics.",
-          "type": "string"
-        },
-        "process_status": {
-          "description": "Agent process status.",
-          "$ref": "#/definitions/inventoryAgentProcessStatus"
+        "running": {
+          "description": "Agent process status: running or not.",
+          "type": "boolean",
+          "format": "boolean"
         },
         "runs_on_node_id": {
           "description": "Node identifier where Agent runs.",
@@ -1292,6 +1378,11 @@
       "description": "NodeExporter represents node_exporter Agent configuration.",
       "type": "object",
       "properties": {
+        "disabled": {
+          "description": "Agent desired status: enabled or disabled.",
+          "type": "boolean",
+          "format": "boolean"
+        },
         "id": {
           "description": "Unique Agent identifier.",
           "type": "integer",
@@ -1302,14 +1393,36 @@
           "type": "integer",
           "format": "int64"
         },
-        "node_id": {
+        "running": {
+          "description": "Agent process status: running or not.",
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "runs_on_node_id": {
           "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
           "type": "integer",
           "format": "int64"
+        }
+      }
+    },
+    "inventoryPMMAgent": {
+      "description": "PMMAgent represent pmm-agent Agent configuration.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Unique Agent identifier.",
+          "type": "integer",
+          "format": "int64"
         },
-        "process_status": {
-          "description": "Agent process status.",
-          "$ref": "#/definitions/inventoryAgentProcessStatus"
+        "running": {
+          "description": "Agent process status: running and connected to pmm-managed, or not.",
+          "type": "boolean",
+          "format": "boolean"
+        },
+        "runs_on_node_id": {
+          "description": "Node identifier where Agent runs.",
+          "type": "integer",
+          "format": "int64"
         }
       }
     },
@@ -1362,32 +1475,6 @@
       }
     },
     "inventoryRemoveServiceResponse": {
-      "type": "object"
-    },
-    "inventoryStartAgentRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Agent identifier.",
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "inventoryStartAgentResponse": {
-      "type": "object"
-    },
-    "inventoryStopAgentRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Agent identifier.",
-          "type": "integer",
-          "format": "int64"
-        }
-      }
-    },
-    "inventoryStopAgentResponse": {
       "type": "object"
     },
     "inventoryVirtualMachineNode": {

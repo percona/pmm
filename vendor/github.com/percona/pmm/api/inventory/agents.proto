@@ -4,15 +4,18 @@ package inventory;
 
 import "google/api/annotations.proto";
 
-// TODO Do we need agent name?
-
-// AgentProcessStatus represents agent process state.
-enum AgentProcessStatus {
-  AGENT_PROCESS_STATUS_INVALID = 0;
-  DISABLED = 1;
-  RUNNING = 2;
-  // TODO adopt http://supervisord.org/subprocess.html#process-states ?
-
+// PMMAgent represent pmm-agent Agent configuration.
+message PMMAgent {
+  // Unique Agent identifier.
+  uint32 id = 1;
+  // Node identifier where Agent runs.
+  uint32 runs_on_node_id = 2;
+  reserved 3; // disabled
+  // Agent process status: running and connected to pmm-managed, or not.
+  bool running = 4;
+  reserved 5; // node_id, node_ids
+  reserved 6; // service_id, service_ids
+  reserved 7; // listen_port
 }
 
 // NodeExporter represents node_exporter Agent configuration.
@@ -20,13 +23,15 @@ message NodeExporter {
   // Unique Agent identifier.
   uint32 id = 1;
   // Node identifier where Agent runs and for which insights are provided by that Agent.
-  uint32 node_id = 2;
-  reserved 3; // node_ids
-  reserved 4; // service_id, service_ids
-  // Agent process status.
-  AgentProcessStatus process_status = 5;
+  uint32 runs_on_node_id = 2;
+  // Agent desired status: enabled or disabled.
+  bool disabled = 3;
+  // Agent process status: running or not.
+  bool running = 4;
+  reserved 5; // node_id, node_ids
+  reserved 6; // service_id, service_ids
   // HTTP listen port for exposing metrics.
-  uint32 listen_port = 6;
+  uint32 listen_port = 7;
 }
 
 // MySQLdExporter represents mysqld_exporter Agent configuration.
@@ -35,24 +40,26 @@ message MySQLdExporter {
   uint32 id = 1;
   // Node identifier where Agent runs.
   uint32 runs_on_node_id = 2;
-  reserved 3; // node_id, node_ids
+  // Agent desired status: enabled or disabled.
+  bool disabled = 3;
+  // Agent process status: running or not.
+  bool running = 4;
+  reserved 5; // node_id, node_ids
   // Service identifier for which insights are provided by that Agent.
-  uint32 service_id = 4;
-  // Agent process status.
-  AgentProcessStatus process_status = 5;
+  uint32 service_id = 6;
   // HTTP listen port for exposing metrics.
-  uint32 listen_port = 6;
+  uint32 listen_port = 7;
   // MySQL username for extracting metrics.
-  string username = 7;
-  // MySQL password for extracting metrics.
-  string password = 8;
+  string username = 8;
+  reserved 9; // password
 }
 
 message ListAgentsRequest {}
 
 message ListAgentsResponse {
-  repeated NodeExporter node_exporter = 1;
-  repeated MySQLdExporter mysqld_exporter = 2;
+  repeated PMMAgent pmm_agent = 1;
+  repeated NodeExporter node_exporter = 2;
+  repeated MySQLdExporter mysqld_exporter = 3;
 }
 
 message GetAgentRequest {
@@ -62,57 +69,79 @@ message GetAgentRequest {
 
 message GetAgentResponse {
   oneof agent {
-    NodeExporter node_exporter = 1;
-    MySQLdExporter mysqld_exporter = 2;
+    PMMAgent pmm_agent = 1;
+    NodeExporter node_exporter = 2;
+    MySQLdExporter mysqld_exporter = 3;
   }
 }
 
-message AddNodeExporterAgentRequest {
-  reserved 1; // id
-  // Node identifier where Agent runs and for which insights are provided by that Agent.
-  uint32 node_id = 2;
-  reserved 3; // node_ids
-  reserved 4; // service_id, service_ids
-  reserved 5; // process_status
-  reserved 6; // listen_port
-}
-
-message AddNodeExporterAgentResponse {
-  NodeExporter node_exporter = 1;
-}
-
-message AddMySQLdExporterAgentRequest {
+message AddPMMAgentRequest {
   reserved 1; // id
   // Node identifier where Agent runs.
   uint32 runs_on_node_id = 2;
-  reserved 3; // node_id, node_ids
-  // Service identifier for which insights are provided by that Agent.
-  uint32 service_id = 4;
-  reserved 5; // process_status
-  reserved 6; // listen_port
-  // MySQL username for extracting metrics.
-  string username = 7;
-  // MySQL password for extracting metrics.
-  string password = 8;
+  reserved 3; // disabled
+  reserved 4; // running
+  reserved 5; // node_id, node_ids
+  reserved 6; // service_id, service_ids
+  reserved 7; // listen_port
 }
 
-message AddMySQLdExporterAgentResponse {
+message AddPMMAgentResponse {
+  PMMAgent pmm_agent = 1;
+  // pmm-agent UUID.
+  string uuid = 2;
+}
+
+message AddNodeExporterRequest {
+  reserved 1; // id
+  // Node identifier where Agent runs and for which insights are provided by that Agent.
+  uint32 runs_on_node_id = 2;
+  // Agent desired status: enabled or disabled.
+  bool disabled = 3;
+  reserved 4; // node_id, node_ids
+  reserved 5; // service_id, service_ids
+  reserved 6; // running
+  reserved 7; // listen_port
+}
+
+message AddNodeExporterResponse {
+  NodeExporter node_exporter = 1;
+}
+
+message AddMySQLdExporterRequest {
+  reserved 1; // id
+  // Node identifier where Agent runs.
+  uint32 runs_on_node_id = 2;
+  // Agent desired status: enabled or disabled.
+  bool disabled = 3;
+  reserved 4; // node_id, node_ids
+  // Service identifier for which insights are provided by that Agent.
+  uint32 service_id = 5;
+  reserved 6; // running
+  reserved 7; // listen_port
+  // MySQL username for extracting metrics.
+  string username = 8;
+  // MySQL password for extracting metrics.
+  string password = 9;
+}
+
+message AddMySQLdExporterResponse {
   MySQLdExporter mysqld_exporter = 1;
 }
 
-message StartAgentRequest {
+message EnableAgentRequest {
   // Unique Agent identifier.
   uint32 id = 1;
 }
 
-message StartAgentResponse {}
+message EnableAgentResponse {}
 
-message StopAgentRequest {
+message DisableAgentRequest {
   // Unique Agent identifier.
   uint32 id = 1;
 }
 
-message StopAgentResponse {}
+message DisableAgentResponse {}
 
 message RemoveAgentRequest {
   uint32 id = 1;
@@ -125,49 +154,56 @@ service Agents {
   // ListAgents returns a list of all Agents.
   rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ListAgents"
+      post: "/v0/inventory/Agents/List"
       body: "*"
     };
   }
   // GetAgent returns a single Agent by ID.
   rpc GetAgent(GetAgentRequest) returns (GetAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/GetAgent"
+      post: "/v0/inventory/Agents/Get"
       body: "*"
     };
   }
-  // AddNodeExporterAgent adds node_exporter Agent.
-  rpc AddNodeExporterAgent(AddNodeExporterAgentRequest) returns (AddNodeExporterAgentResponse) {
+  // AddPMMAgent adds pmm-agent Agent.
+  rpc AddPMMAgent(AddPMMAgentRequest) returns (AddPMMAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddNodeExporterAgent"
+      post: "/v0/inventory/Agents/AddPMMAgent"
       body: "*"
     };
   }
-  // AddMySQLdExporterAgent adds mysqld_exporter Agent.
-  rpc AddMySQLdExporterAgent(AddMySQLdExporterAgentRequest) returns (AddMySQLdExporterAgentResponse) {
+  // AddNodeExporter adds node_exporter Agent.
+  rpc AddNodeExporter(AddNodeExporterRequest) returns (AddNodeExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddMySQLdExporterAgent"
+      post: "/v0/inventory/Agents/AddNodeExporter"
       body: "*"
     };
   }
-  // StartAgent starts Agent.
-  rpc StartAgent(StartAgentRequest) returns (StartAgentResponse) {
+  // AddMySQLdExporter adds mysqld_exporter Agent.
+  rpc AddMySQLdExporter(AddMySQLdExporterRequest) returns (AddMySQLdExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/StartAgent"
+      post: "/v0/inventory/Agents/AddMySQLdExporter"
       body: "*"
     };
   }
-  // StopAgent stops Agent.
-  rpc StopAgent(StopAgentRequest) returns (StopAgentResponse) {
+  // EnableAgent enables and starts Agent.
+  rpc EnableAgent(EnableAgentRequest) returns (EnableAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/StopAgent"
+      post: "/v0/inventory/Agents/Enable"
+      body: "*"
+    };
+  }
+  // DisableAgent disables and stops Agent.
+  rpc DisableAgent(DisableAgentRequest) returns (DisableAgentResponse) {
+    option (google.api.http) = {
+      post: "/v0/inventory/Agents/Disable"
       body: "*"
     };
   }
   // RemoveAgent removes Agent.
   rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/RemoveAgent"
+      post: "/v0/inventory/Agents/Remove"
       body: "*"
     };
   }

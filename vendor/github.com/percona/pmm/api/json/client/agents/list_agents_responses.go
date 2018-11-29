@@ -51,7 +51,7 @@ type ListAgentsOK struct {
 }
 
 func (o *ListAgentsOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/ListAgents][%d] listAgentsOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Agents/List][%d] listAgentsOK  %+v", 200, o.Payload)
 }
 
 func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -17,17 +17,49 @@
 package models
 
 import (
+	"time"
+
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
 //go:generate reform
 
+// AgentService implements many-to-many relationship between Agents and Services.
 //reform:agent_services
 type AgentService struct {
-	AgentID   uint32 `reform:"agent_id"`
-	ServiceID uint32 `reform:"service_id"`
+	AgentID   uint32    `reform:"agent_id"`
+	ServiceID uint32    `reform:"service_id"`
+	CreatedAt time.Time `reform:"created_at"`
 }
+
+// BeforeInsert implements reform.BeforeInserter interface.
+// nolint:unparam
+func (as *AgentService) BeforeInsert() error {
+	now := time.Now().Truncate(time.Microsecond).UTC()
+	as.CreatedAt = now
+	return nil
+}
+
+// BeforeUpdate implements reform.BeforeUpdater interface.
+// nolint:unparam
+func (as *AgentService) BeforeUpdate() error {
+	panic("AgentService should not be updated")
+}
+
+// AfterFind implements reform.AfterFinder interface.
+// nolint:unparam
+func (as *AgentService) AfterFind() error {
+	as.CreatedAt = as.CreatedAt.UTC()
+	return nil
+}
+
+// check interfaces
+var (
+	_ reform.BeforeInserter = (*AgentService)(nil)
+	_ reform.BeforeUpdater  = (*AgentService)(nil)
+	_ reform.AfterFinder    = (*AgentService)(nil)
+)
 
 // AgentsForServiceID returns agents providing insights for a given service.
 func AgentsForServiceID(q *reform.Querier, serviceID uint32) ([]Agent, error) {

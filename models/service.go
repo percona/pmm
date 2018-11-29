@@ -24,6 +24,7 @@ import (
 
 //go:generate reform
 
+// ServiceType represents Service type as stored in database.
 type ServiceType string
 
 // Service types.
@@ -34,13 +35,7 @@ const (
 	PostgreSQLServiceType ServiceType = "postgresql"
 )
 
-//reform:services
-type Service struct {
-	ID     uint32      `reform:"id,pk"`
-	Type   ServiceType `reform:"type"`
-	NodeID uint32      `reform:"node_id"`
-}
-
+// ServiceRow represents Service as stored in database.
 //reform:services
 type ServiceRow struct {
 	ID        uint32      `reform:"id,pk"`
@@ -55,6 +50,8 @@ type ServiceRow struct {
 	UnixSocket *string `reform:"unix_socket"`
 }
 
+// BeforeInsert implements reform.BeforeInserter interface.
+// nolint:unparam
 func (sr *ServiceRow) BeforeInsert() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	sr.CreatedAt = now
@@ -62,12 +59,16 @@ func (sr *ServiceRow) BeforeInsert() error {
 	return nil
 }
 
+// BeforeUpdate implements reform.BeforeUpdater interface.
+// nolint:unparam
 func (sr *ServiceRow) BeforeUpdate() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	sr.UpdatedAt = now
 	return nil
 }
 
+// AfterFind implements reform.AfterFinder interface.
+// nolint:unparam
 func (sr *ServiceRow) AfterFind() error {
 	sr.CreatedAt = sr.CreatedAt.UTC()
 	sr.UpdatedAt = sr.UpdatedAt.UTC()
@@ -81,7 +82,14 @@ var (
 	_ reform.AfterFinder    = (*ServiceRow)(nil)
 )
 
-// TODO remove types below
+// TODO remove code below
+
+//reform:services
+type Service struct {
+	ID     uint32      `reform:"id,pk"`
+	Type   ServiceType `reform:"type"`
+	NodeID uint32      `reform:"node_id"`
+}
 
 //reform:services
 type AWSRDSService struct {

@@ -51,7 +51,7 @@ type AddRemoteNodeOK struct {
 }
 
 func (o *AddRemoteNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddRemoteNode][%d] addRemoteNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddRemote][%d] addRemoteNodeOK  %+v", 200, o.Payload)
 }
 
 func (o *AddRemoteNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -34,40 +34,38 @@ const (
 	sqlDialTimeout = 5 * time.Second
 )
 
+// AgentType represents Agent type as stored in database.
 type AgentType string
 
-// AgentType agent types for exporters and agents
+// Agent types.
 const (
-	MySQLdExporterAgentType   AgentType = "mysqld_exporter"
+	PMMAgentType            AgentType = "pmm-agent"
+	NodeExporterAgentType   AgentType = "node_exporter"
+	MySQLdExporterAgentType AgentType = "mysqld_exporter"
+
 	PostgresExporterAgentType AgentType = "postgres_exporter"
 	RDSExporterAgentType      AgentType = "rds_exporter"
 	QanAgentAgentType         AgentType = "qan-agent"
 )
 
-// NameForSupervisor returns a name of agent for supervisor.
-func NameForSupervisor(typ AgentType, listenPort uint16) string {
-	return fmt.Sprintf("pmm-%s-%d", typ, listenPort)
-}
-
-//reform:agents
-type Agent struct {
-	ID           uint32    `reform:"id,pk"`
-	Type         AgentType `reform:"type"`
-	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
-
-	// TODO Does it really belong there? Remove when we have agent without one.
-	ListenPort *uint16 `reform:"listen_port"`
-}
-
+// AgentRow represents Agent as stored in database.
 //reform:agents
 type AgentRow struct {
 	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	Disabled     bool      `reform:"disabled"`
 	CreatedAt    time.Time `reform:"created_at"`
 	UpdatedAt    time.Time `reform:"updated_at"`
+
+	ListenPort      *uint16 `reform:"listen_port"`
+	UUID            *string `reform:"uuid"`
+	ServiceUsername *string `reform:"service_username"`
+	ServicePassword *string `reform:"service_password"`
 }
 
+// BeforeInsert implements reform.BeforeInserter interface.
+// nolint:unparam
 func (ar *AgentRow) BeforeInsert() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	ar.CreatedAt = now
@@ -75,12 +73,16 @@ func (ar *AgentRow) BeforeInsert() error {
 	return nil
 }
 
+// BeforeUpdate implements reform.BeforeUpdater interface.
+// nolint:unparam
 func (ar *AgentRow) BeforeUpdate() error {
 	now := time.Now().Truncate(time.Microsecond).UTC()
 	ar.UpdatedAt = now
 	return nil
 }
 
+// AfterFind implements reform.AfterFinder interface.
+// nolint:unparam
 func (ar *AgentRow) AfterFind() error {
 	ar.CreatedAt = ar.CreatedAt.UTC()
 	ar.UpdatedAt = ar.UpdatedAt.UTC()
@@ -94,13 +96,30 @@ var (
 	_ reform.AfterFinder    = (*AgentRow)(nil)
 )
 
-// TODO remove types below
+// TODO remove code below
+
+//reform:agents
+type Agent struct {
+	ID           uint32    `reform:"id,pk"`
+	Type         AgentType `reform:"type"`
+	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	Disabled     bool      `reform:"disabled"`
+
+	// TODO Does it really belong there? Remove when we have agent without one.
+	ListenPort *uint16 `reform:"listen_port"`
+}
+
+// NameForSupervisor returns a name of agent for supervisor.
+func NameForSupervisor(typ AgentType, listenPort uint16) string {
+	return fmt.Sprintf("pmm-%s-%d", typ, listenPort)
+}
 
 //reform:agents
 type MySQLdExporter struct {
 	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	Disabled     bool      `reform:"disabled"`
 
 	ServiceUsername        *string `reform:"service_username"`
 	ServicePassword        *string `reform:"service_password"`
@@ -131,6 +150,7 @@ type PostgresExporter struct {
 	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	Disabled     bool      `reform:"disabled"`
 
 	ServiceUsername *string `reform:"service_username"`
 	ServicePassword *string `reform:"service_password"`
@@ -159,6 +179,7 @@ type RDSExporter struct {
 	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	Disabled     bool      `reform:"disabled"`
 
 	ListenPort *uint16 `reform:"listen_port"`
 }
@@ -168,6 +189,7 @@ type QanAgent struct {
 	ID           uint32    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	Disabled     bool      `reform:"disabled"`
 
 	ServiceUsername   *string `reform:"service_username"`
 	ServicePassword   *string `reform:"service_password"`

@@ -10,6 +10,142 @@ import (
 	"gopkg.in/reform.v1/parse"
 )
 
+type agentRowTableType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("").
+func (v *agentRowTableType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("agents").
+func (v *agentRowTableType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *agentRowTableType) Columns() []string {
+	return []string{"id", "type", "runs_on_node_id", "disabled", "created_at", "updated_at", "listen_port", "uuid", "service_username", "service_password"}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *agentRowTableType) NewStruct() reform.Struct {
+	return new(AgentRow)
+}
+
+// NewRecord makes a new record for that table.
+func (v *agentRowTableType) NewRecord() reform.Record {
+	return new(AgentRow)
+}
+
+// PKColumnIndex returns an index of primary key column for that table in SQL database.
+func (v *agentRowTableType) PKColumnIndex() uint {
+	return uint(v.s.PKFieldIndex)
+}
+
+// AgentRowTable represents agents view or table in SQL database.
+var AgentRowTable = &agentRowTableType{
+	s: parse.StructInfo{Type: "AgentRow", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "UUID", Type: "*string", Column: "uuid"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}}, PKFieldIndex: 0},
+	z: new(AgentRow).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s AgentRow) String() string {
+	res := make([]string, 10)
+	res[0] = "ID: " + reform.Inspect(s.ID, true)
+	res[1] = "Type: " + reform.Inspect(s.Type, true)
+	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
+	res[3] = "Disabled: " + reform.Inspect(s.Disabled, true)
+	res[4] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[5] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[6] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
+	res[7] = "UUID: " + reform.Inspect(s.UUID, true)
+	res[8] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
+	res[9] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *AgentRow) Values() []interface{} {
+	return []interface{}{
+		s.ID,
+		s.Type,
+		s.RunsOnNodeID,
+		s.Disabled,
+		s.CreatedAt,
+		s.UpdatedAt,
+		s.ListenPort,
+		s.UUID,
+		s.ServiceUsername,
+		s.ServicePassword,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *AgentRow) Pointers() []interface{} {
+	return []interface{}{
+		&s.ID,
+		&s.Type,
+		&s.RunsOnNodeID,
+		&s.Disabled,
+		&s.CreatedAt,
+		&s.UpdatedAt,
+		&s.ListenPort,
+		&s.UUID,
+		&s.ServiceUsername,
+		&s.ServicePassword,
+	}
+}
+
+// View returns View object for that struct.
+func (s *AgentRow) View() reform.View {
+	return AgentRowTable
+}
+
+// Table returns Table object for that record.
+func (s *AgentRow) Table() reform.Table {
+	return AgentRowTable
+}
+
+// PKValue returns a value of primary key for that record.
+// Returned interface{} value is never untyped nil.
+func (s *AgentRow) PKValue() interface{} {
+	return s.ID
+}
+
+// PKPointer returns a pointer to primary key field for that record.
+// Returned interface{} value is never untyped nil.
+func (s *AgentRow) PKPointer() interface{} {
+	return &s.ID
+}
+
+// HasPK returns true if record has non-zero primary key set, false otherwise.
+func (s *AgentRow) HasPK() bool {
+	return s.ID != AgentRowTable.z[AgentRowTable.s.PKFieldIndex]
+}
+
+// SetPK sets record primary key.
+func (s *AgentRow) SetPK(pk interface{}) {
+	if i64, ok := pk.(int64); ok {
+		s.ID = uint32(i64)
+	} else {
+		s.ID = pk.(uint32)
+	}
+}
+
+// check interfaces
+var (
+	_ reform.View   = AgentRowTable
+	_ reform.Struct = (*AgentRow)(nil)
+	_ reform.Table  = AgentRowTable
+	_ reform.Record = (*AgentRow)(nil)
+	_ fmt.Stringer  = (*AgentRow)(nil)
+)
+
 type agentTableType struct {
 	s parse.StructInfo
 	z []interface{}
@@ -27,7 +163,7 @@ func (v *agentTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *agentTableType) Columns() []string {
-	return []string{"id", "type", "runs_on_node_id", "listen_port"}
+	return []string{"id", "type", "runs_on_node_id", "disabled", "listen_port"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,17 +183,18 @@ func (v *agentTableType) PKColumnIndex() uint {
 
 // AgentTable represents agents view or table in SQL database.
 var AgentTable = &agentTableType{
-	s: parse.StructInfo{Type: "Agent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Agent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
 	z: new(Agent).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s Agent) String() string {
-	res := make([]string, 4)
+	res := make([]string, 5)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
-	res[3] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
+	res[3] = "Disabled: " + reform.Inspect(s.Disabled, true)
+	res[4] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
 	return strings.Join(res, ", ")
 }
 
@@ -68,6 +205,7 @@ func (s *Agent) Values() []interface{} {
 		s.ID,
 		s.Type,
 		s.RunsOnNodeID,
+		s.Disabled,
 		s.ListenPort,
 	}
 }
@@ -79,6 +217,7 @@ func (s *Agent) Pointers() []interface{} {
 		&s.ID,
 		&s.Type,
 		&s.RunsOnNodeID,
+		&s.Disabled,
 		&s.ListenPort,
 	}
 }
@@ -128,127 +267,6 @@ var (
 	_ fmt.Stringer  = (*Agent)(nil)
 )
 
-type agentRowTableType struct {
-	s parse.StructInfo
-	z []interface{}
-}
-
-// Schema returns a schema name in SQL database ("").
-func (v *agentRowTableType) Schema() string {
-	return v.s.SQLSchema
-}
-
-// Name returns a view or table name in SQL database ("agents").
-func (v *agentRowTableType) Name() string {
-	return v.s.SQLName
-}
-
-// Columns returns a new slice of column names for that view or table in SQL database.
-func (v *agentRowTableType) Columns() []string {
-	return []string{"id", "type", "runs_on_node_id", "created_at", "updated_at"}
-}
-
-// NewStruct makes a new struct for that view or table.
-func (v *agentRowTableType) NewStruct() reform.Struct {
-	return new(AgentRow)
-}
-
-// NewRecord makes a new record for that table.
-func (v *agentRowTableType) NewRecord() reform.Record {
-	return new(AgentRow)
-}
-
-// PKColumnIndex returns an index of primary key column for that table in SQL database.
-func (v *agentRowTableType) PKColumnIndex() uint {
-	return uint(v.s.PKFieldIndex)
-}
-
-// AgentRowTable represents agents view or table in SQL database.
-var AgentRowTable = &agentRowTableType{
-	s: parse.StructInfo{Type: "AgentRow", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}}, PKFieldIndex: 0},
-	z: new(AgentRow).Values(),
-}
-
-// String returns a string representation of this struct or record.
-func (s AgentRow) String() string {
-	res := make([]string, 5)
-	res[0] = "ID: " + reform.Inspect(s.ID, true)
-	res[1] = "Type: " + reform.Inspect(s.Type, true)
-	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
-	res[3] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[4] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
-	return strings.Join(res, ", ")
-}
-
-// Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *AgentRow) Values() []interface{} {
-	return []interface{}{
-		s.ID,
-		s.Type,
-		s.RunsOnNodeID,
-		s.CreatedAt,
-		s.UpdatedAt,
-	}
-}
-
-// Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *AgentRow) Pointers() []interface{} {
-	return []interface{}{
-		&s.ID,
-		&s.Type,
-		&s.RunsOnNodeID,
-		&s.CreatedAt,
-		&s.UpdatedAt,
-	}
-}
-
-// View returns View object for that struct.
-func (s *AgentRow) View() reform.View {
-	return AgentRowTable
-}
-
-// Table returns Table object for that record.
-func (s *AgentRow) Table() reform.Table {
-	return AgentRowTable
-}
-
-// PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *AgentRow) PKValue() interface{} {
-	return s.ID
-}
-
-// PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *AgentRow) PKPointer() interface{} {
-	return &s.ID
-}
-
-// HasPK returns true if record has non-zero primary key set, false otherwise.
-func (s *AgentRow) HasPK() bool {
-	return s.ID != AgentRowTable.z[AgentRowTable.s.PKFieldIndex]
-}
-
-// SetPK sets record primary key.
-func (s *AgentRow) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = uint32(i64)
-	} else {
-		s.ID = pk.(uint32)
-	}
-}
-
-// check interfaces
-var (
-	_ reform.View   = AgentRowTable
-	_ reform.Struct = (*AgentRow)(nil)
-	_ reform.Table  = AgentRowTable
-	_ reform.Record = (*AgentRow)(nil)
-	_ fmt.Stringer  = (*AgentRow)(nil)
-)
-
 type mySQLdExporterTableType struct {
 	s parse.StructInfo
 	z []interface{}
@@ -266,7 +284,7 @@ func (v *mySQLdExporterTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *mySQLdExporterTableType) Columns() []string {
-	return []string{"id", "type", "runs_on_node_id", "service_username", "service_password", "listen_port", "mysql_disable_tablestats"}
+	return []string{"id", "type", "runs_on_node_id", "disabled", "service_username", "service_password", "listen_port", "mysql_disable_tablestats"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -286,20 +304,21 @@ func (v *mySQLdExporterTableType) PKColumnIndex() uint {
 
 // MySQLdExporterTable represents agents view or table in SQL database.
 var MySQLdExporterTable = &mySQLdExporterTableType{
-	s: parse.StructInfo{Type: "MySQLdExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "MySQLDisableTablestats", Type: "*bool", Column: "mysql_disable_tablestats"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "MySQLdExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "MySQLDisableTablestats", Type: "*bool", Column: "mysql_disable_tablestats"}}, PKFieldIndex: 0},
 	z: new(MySQLdExporter).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s MySQLdExporter) String() string {
-	res := make([]string, 7)
+	res := make([]string, 8)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
-	res[3] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
-	res[4] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
-	res[5] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
-	res[6] = "MySQLDisableTablestats: " + reform.Inspect(s.MySQLDisableTablestats, true)
+	res[3] = "Disabled: " + reform.Inspect(s.Disabled, true)
+	res[4] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
+	res[5] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
+	res[6] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
+	res[7] = "MySQLDisableTablestats: " + reform.Inspect(s.MySQLDisableTablestats, true)
 	return strings.Join(res, ", ")
 }
 
@@ -310,6 +329,7 @@ func (s *MySQLdExporter) Values() []interface{} {
 		s.ID,
 		s.Type,
 		s.RunsOnNodeID,
+		s.Disabled,
 		s.ServiceUsername,
 		s.ServicePassword,
 		s.ListenPort,
@@ -324,6 +344,7 @@ func (s *MySQLdExporter) Pointers() []interface{} {
 		&s.ID,
 		&s.Type,
 		&s.RunsOnNodeID,
+		&s.Disabled,
 		&s.ServiceUsername,
 		&s.ServicePassword,
 		&s.ListenPort,
@@ -393,7 +414,7 @@ func (v *postgresExporterTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *postgresExporterTableType) Columns() []string {
-	return []string{"id", "type", "runs_on_node_id", "service_username", "service_password", "listen_port"}
+	return []string{"id", "type", "runs_on_node_id", "disabled", "service_username", "service_password", "listen_port"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -413,19 +434,20 @@ func (v *postgresExporterTableType) PKColumnIndex() uint {
 
 // PostgresExporterTable represents agents view or table in SQL database.
 var PostgresExporterTable = &postgresExporterTableType{
-	s: parse.StructInfo{Type: "PostgresExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "PostgresExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
 	z: new(PostgresExporter).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s PostgresExporter) String() string {
-	res := make([]string, 6)
+	res := make([]string, 7)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
-	res[3] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
-	res[4] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
-	res[5] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
+	res[3] = "Disabled: " + reform.Inspect(s.Disabled, true)
+	res[4] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
+	res[5] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
+	res[6] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
 	return strings.Join(res, ", ")
 }
 
@@ -436,6 +458,7 @@ func (s *PostgresExporter) Values() []interface{} {
 		s.ID,
 		s.Type,
 		s.RunsOnNodeID,
+		s.Disabled,
 		s.ServiceUsername,
 		s.ServicePassword,
 		s.ListenPort,
@@ -449,6 +472,7 @@ func (s *PostgresExporter) Pointers() []interface{} {
 		&s.ID,
 		&s.Type,
 		&s.RunsOnNodeID,
+		&s.Disabled,
 		&s.ServiceUsername,
 		&s.ServicePassword,
 		&s.ListenPort,
@@ -517,7 +541,7 @@ func (v *rDSExporterTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *rDSExporterTableType) Columns() []string {
-	return []string{"id", "type", "runs_on_node_id", "listen_port"}
+	return []string{"id", "type", "runs_on_node_id", "disabled", "listen_port"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -537,17 +561,18 @@ func (v *rDSExporterTableType) PKColumnIndex() uint {
 
 // RDSExporterTable represents agents view or table in SQL database.
 var RDSExporterTable = &rDSExporterTableType{
-	s: parse.StructInfo{Type: "RDSExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RDSExporter", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}}, PKFieldIndex: 0},
 	z: new(RDSExporter).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s RDSExporter) String() string {
-	res := make([]string, 4)
+	res := make([]string, 5)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
-	res[3] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
+	res[3] = "Disabled: " + reform.Inspect(s.Disabled, true)
+	res[4] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
 	return strings.Join(res, ", ")
 }
 
@@ -558,6 +583,7 @@ func (s *RDSExporter) Values() []interface{} {
 		s.ID,
 		s.Type,
 		s.RunsOnNodeID,
+		s.Disabled,
 		s.ListenPort,
 	}
 }
@@ -569,6 +595,7 @@ func (s *RDSExporter) Pointers() []interface{} {
 		&s.ID,
 		&s.Type,
 		&s.RunsOnNodeID,
+		&s.Disabled,
 		&s.ListenPort,
 	}
 }
@@ -635,7 +662,7 @@ func (v *qanAgentTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *qanAgentTableType) Columns() []string {
-	return []string{"id", "type", "runs_on_node_id", "service_username", "service_password", "listen_port", "qan_db_instance_uuid"}
+	return []string{"id", "type", "runs_on_node_id", "disabled", "service_username", "service_password", "listen_port", "qan_db_instance_uuid"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -655,20 +682,21 @@ func (v *qanAgentTableType) PKColumnIndex() uint {
 
 // QanAgentTable represents agents view or table in SQL database.
 var QanAgentTable = &qanAgentTableType{
-	s: parse.StructInfo{Type: "QanAgent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "QANDBInstanceUUID", Type: "*string", Column: "qan_db_instance_uuid"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "QanAgent", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "uint32", Column: "runs_on_node_id"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "QANDBInstanceUUID", Type: "*string", Column: "qan_db_instance_uuid"}}, PKFieldIndex: 0},
 	z: new(QanAgent).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s QanAgent) String() string {
-	res := make([]string, 7)
+	res := make([]string, 8)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
-	res[3] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
-	res[4] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
-	res[5] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
-	res[6] = "QANDBInstanceUUID: " + reform.Inspect(s.QANDBInstanceUUID, true)
+	res[3] = "Disabled: " + reform.Inspect(s.Disabled, true)
+	res[4] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
+	res[5] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
+	res[6] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
+	res[7] = "QANDBInstanceUUID: " + reform.Inspect(s.QANDBInstanceUUID, true)
 	return strings.Join(res, ", ")
 }
 
@@ -679,6 +707,7 @@ func (s *QanAgent) Values() []interface{} {
 		s.ID,
 		s.Type,
 		s.RunsOnNodeID,
+		s.Disabled,
 		s.ServiceUsername,
 		s.ServicePassword,
 		s.ListenPort,
@@ -693,6 +722,7 @@ func (s *QanAgent) Pointers() []interface{} {
 		&s.ID,
 		&s.Type,
 		&s.RunsOnNodeID,
+		&s.Disabled,
 		&s.ServiceUsername,
 		&s.ServicePassword,
 		&s.ListenPort,
@@ -746,8 +776,8 @@ var (
 )
 
 func init() {
-	parse.AssertUpToDate(&AgentTable.s, new(Agent))
 	parse.AssertUpToDate(&AgentRowTable.s, new(AgentRow))
+	parse.AssertUpToDate(&AgentTable.s, new(Agent))
 	parse.AssertUpToDate(&MySQLdExporterTable.s, new(MySQLdExporter))
 	parse.AssertUpToDate(&PostgresExporterTable.s, new(PostgresExporter))
 	parse.AssertUpToDate(&RDSExporterTable.s, new(RDSExporter))

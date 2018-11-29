@@ -51,7 +51,7 @@ type GetAgentOK struct {
 }
 
 func (o *GetAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/GetAgent][%d] getAgentOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Agents/Get][%d] getAgentOK  %+v", 200, o.Payload)
 }
 
 func (o *GetAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
