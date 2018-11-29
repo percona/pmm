@@ -51,7 +51,7 @@ type AddVirtualMachineNodeOK struct {
 }
 
 func (o *AddVirtualMachineNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddVirtualMachineNode][%d] addVirtualMachineNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Nodes/AddVirtualMachine][%d] addVirtualMachineNodeOK  %+v", 200, o.Payload)
 }
 
 func (o *AddVirtualMachineNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

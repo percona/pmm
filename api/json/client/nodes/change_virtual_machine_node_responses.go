@@ -51,7 +51,7 @@ type ChangeVirtualMachineNodeOK struct {
 }
 
 func (o *ChangeVirtualMachineNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/ChangeVirtualMachineNode][%d] changeVirtualMachineNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Nodes/ChangeVirtualMachine][%d] changeVirtualMachineNodeOK  %+v", 200, o.Payload)
 }
 
 func (o *ChangeVirtualMachineNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

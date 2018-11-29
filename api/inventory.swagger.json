@@ -96,7 +96,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/DisableAgent": {
+    "/v0/inventory/Agents/Disable": {
       "post": {
         "tags": [
           "Agents"
@@ -123,7 +123,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/EnableAgent": {
+    "/v0/inventory/Agents/Enable": {
       "post": {
         "tags": [
           "Agents"
@@ -150,7 +150,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/GetAgent": {
+    "/v0/inventory/Agents/Get": {
       "post": {
         "tags": [
           "Agents"
@@ -177,7 +177,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/ListAgents": {
+    "/v0/inventory/Agents/List": {
       "post": {
         "tags": [
           "Agents"
@@ -204,7 +204,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/RemoveAgent": {
+    "/v0/inventory/Agents/Remove": {
       "post": {
         "tags": [
           "Agents"
@@ -231,7 +231,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddAWSRDSNode": {
+    "/v0/inventory/Nodes/AddAWSRDS": {
       "post": {
         "tags": [
           "Nodes"
@@ -258,7 +258,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddBareMetalNode": {
+    "/v0/inventory/Nodes/AddBareMetal": {
       "post": {
         "tags": [
           "Nodes"
@@ -285,7 +285,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddContainerNode": {
+    "/v0/inventory/Nodes/AddContainer": {
       "post": {
         "tags": [
           "Nodes"
@@ -312,7 +312,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddRemoteNode": {
+    "/v0/inventory/Nodes/AddRemote": {
       "post": {
         "tags": [
           "Nodes"
@@ -339,7 +339,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddVirtualMachineNode": {
+    "/v0/inventory/Nodes/AddVirtualMachine": {
       "post": {
         "tags": [
           "Nodes"
@@ -366,7 +366,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeAWSRDSNode": {
+    "/v0/inventory/Nodes/ChangeAWSRDS": {
       "post": {
         "tags": [
           "Nodes"
@@ -393,7 +393,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeBareMetalNode": {
+    "/v0/inventory/Nodes/ChangeBareMetal": {
       "post": {
         "tags": [
           "Nodes"
@@ -420,7 +420,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeContainerNode": {
+    "/v0/inventory/Nodes/ChangeContainer": {
       "post": {
         "tags": [
           "Nodes"
@@ -447,7 +447,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeRemoteNode": {
+    "/v0/inventory/Nodes/ChangeRemote": {
       "post": {
         "tags": [
           "Nodes"
@@ -474,7 +474,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeVirtualMachineNode": {
+    "/v0/inventory/Nodes/ChangeVirtualMachine": {
       "post": {
         "tags": [
           "Nodes"
@@ -501,7 +501,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/GetNode": {
+    "/v0/inventory/Nodes/Get": {
       "post": {
         "tags": [
           "Nodes"
@@ -528,7 +528,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ListNodes": {
+    "/v0/inventory/Nodes/List": {
       "post": {
         "tags": [
           "Nodes"
@@ -555,7 +555,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/RemoveNode": {
+    "/v0/inventory/Nodes/Remove": {
       "post": {
         "tags": [
           "Nodes"
@@ -582,7 +582,7 @@
         }
       }
     },
-    "/v0/inventory/Services/AddMySQLService": {
+    "/v0/inventory/Services/AddMySQL": {
       "post": {
         "tags": [
           "Services"
@@ -609,7 +609,7 @@
         }
       }
     },
-    "/v0/inventory/Services/ChangeMySQLService": {
+    "/v0/inventory/Services/ChangeMySQL": {
       "post": {
         "tags": [
           "Services"
@@ -636,7 +636,7 @@
         }
       }
     },
-    "/v0/inventory/Services/GetService": {
+    "/v0/inventory/Services/Get": {
       "post": {
         "tags": [
           "Services"
@@ -663,7 +663,7 @@
         }
       }
     },
-    "/v0/inventory/Services/ListServices": {
+    "/v0/inventory/Services/List": {
       "post": {
         "tags": [
           "Services"
@@ -690,7 +690,7 @@
         }
       }
     },
-    "/v0/inventory/Services/RemoveService": {
+    "/v0/inventory/Services/Remove": {
       "post": {
         "tags": [
           "Services"

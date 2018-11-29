@@ -51,7 +51,7 @@ type GetServiceOK struct {
 }
 
 func (o *GetServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/GetService][%d] getServiceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Services/Get][%d] getServiceOK  %+v", 200, o.Payload)
 }
 
 func (o *GetServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
