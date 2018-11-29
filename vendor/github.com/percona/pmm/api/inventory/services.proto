@@ -77,35 +77,35 @@ service Services {
   // ListServices returns a list of all Services.
   rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/ListServices"
+      post: "/v0/inventory/Services/List"
       body: "*"
     };
   }
   // GetService returns a single Service by ID.
   rpc GetService(GetServiceRequest) returns (GetServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/GetService"
+      post: "/v0/inventory/Services/Get"
       body: "*"
     };
   }
   // AddMySQLService adds MySQL Service.
   rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddMySQLService"
+      post: "/v0/inventory/Services/AddMySQL"
       body: "*"
     };
   }
   // ChangeMySQLService changes MySQL Service.
   rpc ChangeMySQLService(ChangeMySQLServiceRequest) returns (ChangeMySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/ChangeMySQLService"
+      post: "/v0/inventory/Services/ChangeMySQL"
       body: "*"
     };
   }
   // RemoveService removes Service without any Agents.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/RemoveService"
+      post: "/v0/inventory/Services/Remove"
       body: "*"
     };
   }

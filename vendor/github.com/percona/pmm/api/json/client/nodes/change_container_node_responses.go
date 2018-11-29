@@ -51,7 +51,7 @@ type ChangeContainerNodeOK struct {
 }
 
 func (o *ChangeContainerNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/ChangeContainerNode][%d] changeContainerNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Nodes/ChangeContainer][%d] changeContainerNodeOK  %+v", 200, o.Payload)
 }
 
 func (o *ChangeContainerNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
