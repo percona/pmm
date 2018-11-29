@@ -21,6 +21,7 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
+	"github.com/google/uuid"
 	"github.com/percona/pmm/api/inventory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -368,6 +369,21 @@ func TestAgents(t *testing.T) {
 		actualAgents, err = as.List(ctx)
 		require.NoError(t, err)
 		require.Len(t, actualAgents, 0)
+	})
+
+	t.Run("AddPMMAgent", func(t *testing.T) {
+		_, as, teardown := setup(t)
+		defer teardown(t)
+
+		actualAgent, uuidS, err := as.AddPMMAgent(ctx, 1)
+		require.NoError(t, err)
+		_, err = uuid.Parse(uuidS)
+		assert.NoError(t, err)
+		expectedPMMAgent := &inventory.PMMAgent{
+			Id:           1000002,
+			RunsOnNodeId: 1,
+		}
+		assert.Equal(t, expectedPMMAgent, actualAgent)
 	})
 
 	t.Run("AddNodeNotFound", func(t *testing.T) {

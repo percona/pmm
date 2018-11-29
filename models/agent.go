@@ -39,10 +39,9 @@ type AgentType string
 
 // Agent types.
 const (
+	PMMAgentType            AgentType = "pmm-agent"
 	NodeExporterAgentType   AgentType = "node_exporter"
 	MySQLdExporterAgentType AgentType = "mysqld_exporter"
-
-	PMMAgentType AgentType = "pmm-agent"
 
 	PostgresExporterAgentType AgentType = "postgres_exporter"
 	RDSExporterAgentType      AgentType = "rds_exporter"
@@ -59,9 +58,10 @@ type AgentRow struct {
 	CreatedAt    time.Time `reform:"created_at"`
 	UpdatedAt    time.Time `reform:"updated_at"`
 
+	ListenPort      *uint16 `reform:"listen_port"`
+	UUID            *string `reform:"uuid"`
 	ServiceUsername *string `reform:"service_username"`
 	ServicePassword *string `reform:"service_password"`
-	ListenPort      *uint16 `reform:"listen_port"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

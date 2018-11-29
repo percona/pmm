@@ -21,6 +21,7 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
+	"github.com/google/uuid"
 	"github.com/percona/pmm/api/inventory"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -38,6 +39,13 @@ type AgentsService struct {
 // makeAgent converts database row to Inventory API Agent.
 func (as *AgentsService) makeAgent(ctx context.Context, row *models.AgentRow) (inventory.Agent, error) {
 	switch row.Type {
+	case models.PMMAgentType:
+		return &inventory.PMMAgent{
+			Id:           row.ID,
+			RunsOnNodeId: row.RunsOnNodeID,
+			Running:      !row.Disabled,
+		}, nil
+
 	case models.NodeExporterAgentType:
 		return &inventory.NodeExporter{
 			Id:           row.ID,
@@ -57,7 +65,6 @@ func (as *AgentsService) makeAgent(ctx context.Context, row *models.AgentRow) (i
 			Disabled:     row.Disabled,
 			ServiceId:    agentService.ServiceID,
 			Username:     pointer.GetString(row.ServiceUsername),
-			Password:     pointer.GetString(row.ServicePassword),
 		}, nil
 
 	default:
@@ -103,6 +110,45 @@ func (as *AgentsService) Get(ctx context.Context, id uint32) (inventory.Agent, e
 		return nil, err
 	}
 	return as.makeAgent(ctx, row)
+}
+
+// AddPMMAgent inserts pmm-agent Agent with given parameters.
+func (as *AgentsService) AddPMMAgent(ctx context.Context, nodeID uint32) (inventory.Agent, string, error) {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+
+	ns := &NodesService{
+		Q: as.Q,
+	}
+	if _, err := ns.get(ctx, nodeID); err != nil {
+		return nil, "", err
+	}
+
+	uuidA, err := uuid.NewRandom()
+	if err != nil {
+		return nil, "", errors.Wrap(err, "can't generate UUID")
+	}
+	uuidS := uuidA.String()
+
+	row := &models.AgentRow{
+		Type:         models.PMMAgentType,
+		RunsOnNodeID: nodeID,
+		Disabled:     true, // not connected when we create it
+		UUID:         pointer.ToString(uuidS),
+	}
+	if err := as.Q.Insert(row); err != nil {
+		return nil, "", errors.WithStack(err)
+	}
+
+	err = as.Q.Insert(&models.AgentNode{
+		AgentID: row.ID,
+		NodeID:  nodeID,
+	})
+	if err != nil {
+		return nil, "", errors.WithStack(err)
+	}
+
+	agent, err := as.makeAgent(ctx, row)
+	return agent, uuidS, err
 }
 
 // AddNodeExporter inserts node_exporter Agent with given parameters.

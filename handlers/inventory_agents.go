@@ -73,21 +73,35 @@ func (s *AgentsServer) GetAgent(ctx context.Context, req *api.GetAgentRequest) (
 
 }
 
-// AddNodeExporterAgent adds node_exporter Agent.
-func (s *AgentsServer) AddNodeExporterAgent(ctx context.Context, req *api.AddNodeExporterAgentRequest) (*api.AddNodeExporterAgentResponse, error) {
+// AddPMMAgent adds pmm-agent Agent.
+func (s *AgentsServer) AddPMMAgent(ctx context.Context, req *api.AddPMMAgentRequest) (*api.AddPMMAgentResponse, error) {
+	agent, uuidS, err := s.Agents.AddPMMAgent(ctx, req.RunsOnNodeId)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddPMMAgentResponse{
+		PmmAgent: agent.(*api.PMMAgent),
+		Uuid:     uuidS,
+	}
+	return res, nil
+}
+
+// AddNodeExporter adds node_exporter Agent.
+func (s *AgentsServer) AddNodeExporter(ctx context.Context, req *api.AddNodeExporterRequest) (*api.AddNodeExporterResponse, error) {
 	agent, err := s.Agents.AddNodeExporter(ctx, req.RunsOnNodeId, req.Disabled)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &api.AddNodeExporterAgentResponse{
+	res := &api.AddNodeExporterResponse{
 		NodeExporter: agent.(*api.NodeExporter),
 	}
 	return res, nil
 }
 
-// AddMySQLdExporterAgent adds mysqld_exporter Agent.
-func (s *AgentsServer) AddMySQLdExporterAgent(ctx context.Context, req *api.AddMySQLdExporterAgentRequest) (*api.AddMySQLdExporterAgentResponse, error) {
+// AddMySQLdExporter adds mysqld_exporter Agent.
+func (s *AgentsServer) AddMySQLdExporter(ctx context.Context, req *api.AddMySQLdExporterRequest) (*api.AddMySQLdExporterResponse, error) {
 	username := pointer.ToStringOrNil(req.Username)
 	password := pointer.ToStringOrNil(req.Password)
 	agent, err := s.Agents.AddMySQLdExporter(ctx, req.RunsOnNodeId, req.Disabled, req.ServiceId, username, password)
@@ -95,7 +109,7 @@ func (s *AgentsServer) AddMySQLdExporterAgent(ctx context.Context, req *api.AddM
 		return nil, err
 	}
 
-	res := &api.AddMySQLdExporterAgentResponse{
+	res := &api.AddMySQLdExporterResponse{
 		MysqldExporter: agent.(*api.MySQLdExporter),
 	}
 	return res, nil

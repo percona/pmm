@@ -84,9 +84,10 @@ var databaseSchema = [][]string{
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+			listen_port SMALLINT UNSIGNED,
+			uuid VARCHAR(255),
 			service_username VARCHAR(255),
 			service_password VARCHAR(255),
-			listen_port SMALLINT UNSIGNED,
 
 			qan_db_instance_uuid VARCHAR(255),
 			mysql_disable_tablestats TINYINT(1),
