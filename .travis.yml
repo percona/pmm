@@ -68,7 +68,9 @@ script:
   - git status
   - git diff --exit-code
 
-  - make cover
+  - make check-license
+  - make test-cover
+  - make test-race
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -X fix

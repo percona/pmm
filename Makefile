@@ -1,7 +1,11 @@
-all: test
+help:                           ## Display this help message.
+	@echo "Please use \`make <target>\` where <target> is one of:"
+	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
+	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
-# installs tools to $GOPATH/bin which is expected to be in $PATH
-init:
+init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
+	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
+
 	go install -v ./vendor/gopkg.in/reform.v1/reform
 	go install -v ./vendor/github.com/vektra/mockery/cmd/mockery
 	go get -u github.com/prometheus/prometheus/cmd/promtool
@@ -11,47 +15,10 @@ init:
 	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
 	go install -v ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 
-	go get -u github.com/AlekSi/gocoverutil
-
-	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
-
-check-license:
-	go run .github/check-license.go
-
-install: check-license
-	go install -v ./...
 	go test -v -i ./...
-
-install-race: check-license
-	go install -v -race ./...
 	go test -v -race -i ./...
 
-test: install
-	go test -v -p 1 ./...
-
-test-race: install-race
-	go test -v -p 1 -race ./...
-
-cover: install
-	gocoverutil -ignore=github.com/percona/pmm-managed/api/... test -v -p 1 ./...
-
-check: install
-	golangci-lint run
-
-run: install _run
-
-run-race: install-race _run
-
-_run:
-	pmm-managed -swagger=json -debug \
-		-agent-mysqld-exporter=mysqld_exporter \
-		-agent-postgres-exporter=postgres_exporter \
-		-agent-rds-exporter=rds_exporter \
-		-agent-rds-exporter-config=testdata/rds_exporter/rds_exporter.yml \
-		-prometheus-config=testdata/prometheus/prometheus.yml \
-		-db-name=pmm-managed-dev
-
-gen:
+gen:                            ## Generate files.
 	rm -f models/*_reform.go
 
 	go generate ./...
@@ -73,8 +40,45 @@ gen:
 
 	cp ./vendor/github.com/percona/pmm/api/inventory.swagger.json api/swagger/swagger.json
 
-up:
+install:                        ## Install pmm-managed binary.
+	go install -v ./...
+
+install-race:                   ## Install pmm-managed binary with race detector.
+	go install -v -race ./...
+
+test:                           ## Run tests.
+	go test -v -p 1 ./...
+
+test-race:                      ## Run tests with race detector.
+	go test -v -p 1 -race ./...
+
+test-cover:                     ## Run tests and collect coverage information.
+	go test -v -coverprofile=cover.out -covermode=count ./...
+
+check-license:                  ## Check that all files have the same license header.
+	go run .github/check-license.go
+
+check: install check-license    ## Run checkers and linters.
+	golangci-lint run
+
+format:                         ## Run `goimports`.
+	goimports -local github.com/percona/pmm-managed -l -w $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+
+run: install _run               ## Run pmm-managed.
+
+run-race: install-race _run     ## Run pmm-managed with race detector.
+
+_run:
+	pmm-managed -swagger=json -debug \
+		-agent-mysqld-exporter=mysqld_exporter \
+		-agent-postgres-exporter=postgres_exporter \
+		-agent-rds-exporter=rds_exporter \
+		-agent-rds-exporter-config=testdata/rds_exporter/rds_exporter.yml \
+		-prometheus-config=testdata/prometheus/prometheus.yml \
+		-db-name=pmm-managed-dev
+
+env-up:                         ## Start development environment.
 	docker-compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
 
-down:
+env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans
