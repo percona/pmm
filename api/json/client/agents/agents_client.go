@@ -120,7 +120,7 @@ func (a *Client) DisableAgent(params *DisableAgentParams) (*DisableAgentOK, erro
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "DisableAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/DisableAgent",
+		PathPattern:        "/v0/inventory/Agents/Disable",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -148,7 +148,7 @@ func (a *Client) EnableAgent(params *EnableAgentParams) (*EnableAgentOK, error) 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "EnableAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/EnableAgent",
+		PathPattern:        "/v0/inventory/Agents/Enable",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -176,7 +176,7 @@ func (a *Client) GetAgent(params *GetAgentParams) (*GetAgentOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/GetAgent",
+		PathPattern:        "/v0/inventory/Agents/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -204,7 +204,7 @@ func (a *Client) ListAgents(params *ListAgentsParams) (*ListAgentsOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ListAgents",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ListAgents",
+		PathPattern:        "/v0/inventory/Agents/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -232,7 +232,7 @@ func (a *Client) RemoveAgent(params *RemoveAgentParams) (*RemoveAgentOK, error) 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RemoveAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/RemoveAgent",
+		PathPattern:        "/v0/inventory/Agents/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

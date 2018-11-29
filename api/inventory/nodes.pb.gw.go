@@ -616,31 +616,31 @@ func RegisterNodesHandlerClient(ctx context.Context, mux *runtime.ServeMux, clie
 }
 
 var (
-	pattern_Nodes_ListNodes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "ListNodes"}, ""))
+	pattern_Nodes_ListNodes_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "List"}, ""))
 
-	pattern_Nodes_GetNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "GetNode"}, ""))
+	pattern_Nodes_GetNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "Get"}, ""))
 
-	pattern_Nodes_AddBareMetalNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddBareMetalNode"}, ""))
+	pattern_Nodes_AddBareMetalNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddBareMetal"}, ""))
 
-	pattern_Nodes_AddVirtualMachineNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddVirtualMachineNode"}, ""))
+	pattern_Nodes_AddVirtualMachineNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddVirtualMachine"}, ""))
 
-	pattern_Nodes_AddContainerNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddContainerNode"}, ""))
+	pattern_Nodes_AddContainerNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddContainer"}, ""))
 
-	pattern_Nodes_AddRemoteNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddRemoteNode"}, ""))
+	pattern_Nodes_AddRemoteNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddRemote"}, ""))
 
-	pattern_Nodes_AddAWSRDSNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddAWSRDSNode"}, ""))
+	pattern_Nodes_AddAWSRDSNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "AddAWSRDS"}, ""))
 
-	pattern_Nodes_ChangeBareMetalNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "ChangeBareMetalNode"}, ""))
+	pattern_Nodes_ChangeBareMetalNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "ChangeBareMetal"}, ""))
 
-	pattern_Nodes_ChangeVirtualMachineNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "ChangeVirtualMachineNode"}, ""))
+	pattern_Nodes_ChangeVirtualMachineNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "ChangeVirtualMachine"}, ""))
 
-	pattern_Nodes_ChangeContainerNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "ChangeContainerNode"}, ""))
+	pattern_Nodes_ChangeContainerNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "ChangeContainer"}, ""))
 
-	pattern_Nodes_ChangeRemoteNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "ChangeRemoteNode"}, ""))
+	pattern_Nodes_ChangeRemoteNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "ChangeRemote"}, ""))
 
-	pattern_Nodes_ChangeAWSRDSNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "ChangeAWSRDSNode"}, ""))
+	pattern_Nodes_ChangeAWSRDSNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "ChangeAWSRDS"}, ""))
 
-	pattern_Nodes_RemoveNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "RemoveNode"}, ""))
+	pattern_Nodes_RemoveNode_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Nodes", "Remove"}, ""))
 )
 
 var (

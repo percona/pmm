@@ -51,7 +51,7 @@ type AddMySQLServiceOK struct {
 }
 
 func (o *AddMySQLServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/AddMySQLService][%d] addMySqlServiceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Services/AddMySQL][%d] addMySqlServiceOK  %+v", 200, o.Payload)
 }
 
 func (o *AddMySQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

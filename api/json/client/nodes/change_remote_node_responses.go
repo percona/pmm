@@ -51,7 +51,7 @@ type ChangeRemoteNodeOK struct {
 }
 
 func (o *ChangeRemoteNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/ChangeRemoteNode][%d] changeRemoteNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Nodes/ChangeRemote][%d] changeRemoteNodeOK  %+v", 200, o.Payload)
 }
 
 func (o *ChangeRemoteNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

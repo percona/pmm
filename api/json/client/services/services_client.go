@@ -36,7 +36,7 @@ func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServic
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddMySQLService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/AddMySQLService",
+		PathPattern:        "/v0/inventory/Services/AddMySQL",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -64,7 +64,7 @@ func (a *Client) ChangeMySQLService(params *ChangeMySQLServiceParams) (*ChangeMy
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeMySQLService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/ChangeMySQLService",
+		PathPattern:        "/v0/inventory/Services/ChangeMySQL",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -92,7 +92,7 @@ func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/GetService",
+		PathPattern:        "/v0/inventory/Services/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -120,7 +120,7 @@ func (a *Client) ListServices(params *ListServicesParams) (*ListServicesOK, erro
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ListServices",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/ListServices",
+		PathPattern:        "/v0/inventory/Services/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -148,7 +148,7 @@ func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, e
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RemoveService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/RemoveService",
+		PathPattern:        "/v0/inventory/Services/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

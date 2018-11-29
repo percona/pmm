@@ -1,0 +1,18 @@
+digraph {
+  node [style=filled];
+
+  Stopped [fillcolor=red];
+  Starting [fillcolor=greenyellow];
+  Running [fillcolor=green];
+
+  Stopped -> Starting
+  Starting -> Running
+  Running -> Stopping
+  Stopping -> Stopped
+
+  Starting -> Backoff
+  Backoff -> Starting
+
+  Running -> Exited
+  Exited -> Starting
+}

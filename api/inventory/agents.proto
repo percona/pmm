@@ -154,14 +154,14 @@ service Agents {
   // ListAgents returns a list of all Agents.
   rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/ListAgents"
+      post: "/v0/inventory/Agents/List"
       body: "*"
     };
   }
   // GetAgent returns a single Agent by ID.
   rpc GetAgent(GetAgentRequest) returns (GetAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/GetAgent"
+      post: "/v0/inventory/Agents/Get"
       body: "*"
     };
   }
@@ -189,21 +189,21 @@ service Agents {
   // EnableAgent enables and starts Agent.
   rpc EnableAgent(EnableAgentRequest) returns (EnableAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/EnableAgent"
+      post: "/v0/inventory/Agents/Enable"
       body: "*"
     };
   }
   // DisableAgent disables and stops Agent.
   rpc DisableAgent(DisableAgentRequest) returns (DisableAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/DisableAgent"
+      post: "/v0/inventory/Agents/Disable"
       body: "*"
     };
   }
   // RemoveAgent removes Agent.
   rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/RemoveAgent"
+      post: "/v0/inventory/Agents/Remove"
       body: "*"
     };
   }
