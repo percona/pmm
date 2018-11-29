@@ -80,7 +80,6 @@ var defaultLogs = []Log{
 	{logsRootDir + "orchestrator.log", "orchestrator", nil},
 	{logsDataVolumeContainerDir + "pmm-manage.log", "pmm-manage", nil},
 	{logsDataVolumeContainerDir + "pmm-managed.log", "pmm-managed", nil},
-	{logsDataVolumeContainerDir + "prometheus1.log", "prometheus1", nil},
 	{logsDataVolumeContainerDir + "prometheus.log", "prometheus", nil},
 	{logsDataVolumeContainerDir + "qan-api.log", "percona-qan-api", nil},
 	{logsRootDir + "supervisor/supervisord.log", "", nil},
