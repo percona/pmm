@@ -38,10 +38,6 @@ type testServer struct {
 	connect func(agent.Agent_ConnectServer) error
 }
 
-func (s *testServer) Register(context.Context, *agent.RegisterRequest) (*agent.RegisterResponse, error) {
-	panic("should not be called")
-}
-
 func (s *testServer) Connect(stream agent.Agent_ConnectServer) error {
 	return s.connect(stream)
 }
