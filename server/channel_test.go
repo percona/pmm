@@ -25,8 +25,11 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/percona/exporter_shared/helpers"
 	"github.com/percona/pmm/api/agent"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
+	dto "github.com/prometheus/client_model/go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -116,6 +119,29 @@ func TestAgentRequest(t *testing.T) {
 		})
 		assert.NotNil(t, resp)
 	}
+
+	ch := make(chan prometheus.Metric)
+	go func() {
+		channel.Collect(ch)
+		close(ch)
+	}()
+	expectedReceived := &helpers.Metric{
+		Name:   "pmm_agent_channel_messages_received_total",
+		Help:   "A total number of received messages from pmm-managed.",
+		Labels: prometheus.Labels{},
+		Type:   dto.MetricType_COUNTER,
+		Value:  50,
+	}
+	assert.Equal(t, expectedReceived, helpers.ReadMetric(<-ch))
+	expectedSent := &helpers.Metric{
+		Name:   "pmm_agent_channel_messages_sent_total",
+		Help:   "A total number of sent messages to pmm-managed.",
+		Labels: prometheus.Labels{},
+		Type:   dto.MetricType_COUNTER,
+		Value:  50,
+	}
+	assert.Equal(t, expectedSent, helpers.ReadMetric(<-ch))
+	assert.Nil(t, <-ch)
 }
 
 func TestServerRequest(t *testing.T) {

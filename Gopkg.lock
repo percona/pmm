@@ -82,6 +82,14 @@
   version = "v1.0.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:c706e6cf1803e8cbce88ad1159c8750ec0dacbeac7c3906e615af69c0c1d6281"
+  name = "github.com/percona/exporter_shared"
+  packages = ["helpers"]
+  pruneopts = "NUT"
+  revision = "16b0da83255720371d18b2304257e073491ed63c"
+
+[[projects]]
   branch = "PMM-2.0"
   digest = "1:042aec1c79d5f237d7e8d74fe936f27c26b39d3750af4868c52aa591d02204dc"
   name = "github.com/percona/pmm"
@@ -288,10 +296,12 @@
   analyzer-version = 1
   input-imports = [
     "github.com/golang/protobuf/ptypes",
+    "github.com/percona/exporter_shared/helpers",
     "github.com/percona/pmm/api/agent",
     "github.com/percona/pmm/api/agentlocal",
     "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",
+    "github.com/prometheus/client_model/go",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
