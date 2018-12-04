@@ -483,7 +483,6 @@
     "github.com/go-openapi/runtime/client",
     "github.com/go-openapi/strfmt",
     "github.com/go-openapi/swag",
-    "github.com/go-openapi/validate",
     "github.com/go-swagger/go-swagger/cmd/swagger",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/protoc-gen-go",
@@ -498,6 +497,7 @@
     "google.golang.org/grpc",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/grpclog",
+    "google.golang.org/grpc/metadata",
     "google.golang.org/grpc/status",
   ]
   solver-name = "gps-cdcl"

@@ -25,15 +25,6 @@ enum Type {
 //}
 //
 
-// AuthRequest is an AgentMessage for authenticating pmm-agent on pmm-managed.
-message AuthRequest {
-  string uuid = 1;
-  string version = 2;
-}
-
-// AuthResponse is a ServerMessage for successful authentication.
-message AuthResponse {}
-
 // QANDataRequest is an AgentMessage for sending QAN data.
 message QANDataRequest {
   google.protobuf.Any data = 1; // agent.QANData
@@ -78,8 +69,7 @@ message AgentMessage {
   uint32 id = 1;
   oneof payload {
     // requests from agent
-    AuthRequest auth = 2;
-    QANDataRequest qan_data = 3;
+    QANDataRequest qan_data = 2;
     // responses from agent
     PingResponse ping = 8;
     SetStateResponse state = 9;
@@ -90,8 +80,7 @@ message ServerMessage {
   uint32 id = 1;
   oneof payload {
     // responses from server
-    AuthResponse auth = 2;
-    QANDataResponse qan_data = 3;
+    QANDataResponse qan_data = 2;
     // requests from server
     PingRequest ping = 8;
     SetStateRequest state = 9;
