@@ -27,7 +27,7 @@ func (v *serviceRowTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *serviceRowTableType) Columns() []string {
-	return []string{"id", "type", "name", "node_id", "created_at", "updated_at", "address", "port", "unix_socket"}
+	return []string{"id", "type", "name", "node_id", "address", "port", "unix_socket"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,22 +47,20 @@ func (v *serviceRowTableType) PKColumnIndex() uint {
 
 // ServiceRowTable represents services view or table in SQL database.
 var ServiceRowTable = &serviceRowTableType{
-	s: parse.StructInfo{Type: "ServiceRow", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "UnixSocket", Type: "*string", Column: "unix_socket"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "ServiceRow", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "UnixSocket", Type: "*string", Column: "unix_socket"}}, PKFieldIndex: 0},
 	z: new(ServiceRow).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s ServiceRow) String() string {
-	res := make([]string, 9)
+	res := make([]string, 7)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "Name: " + reform.Inspect(s.Name, true)
 	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[4] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[5] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
-	res[6] = "Address: " + reform.Inspect(s.Address, true)
-	res[7] = "Port: " + reform.Inspect(s.Port, true)
-	res[8] = "UnixSocket: " + reform.Inspect(s.UnixSocket, true)
+	res[4] = "Address: " + reform.Inspect(s.Address, true)
+	res[5] = "Port: " + reform.Inspect(s.Port, true)
+	res[6] = "UnixSocket: " + reform.Inspect(s.UnixSocket, true)
 	return strings.Join(res, ", ")
 }
 
@@ -74,8 +72,6 @@ func (s *ServiceRow) Values() []interface{} {
 		s.Type,
 		s.Name,
 		s.NodeID,
-		s.CreatedAt,
-		s.UpdatedAt,
 		s.Address,
 		s.Port,
 		s.UnixSocket,
@@ -90,8 +86,6 @@ func (s *ServiceRow) Pointers() []interface{} {
 		&s.Type,
 		&s.Name,
 		&s.NodeID,
-		&s.CreatedAt,
-		&s.UpdatedAt,
 		&s.Address,
 		&s.Port,
 		&s.UnixSocket,

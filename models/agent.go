@@ -55,8 +55,8 @@ type AgentRow struct {
 	Type         AgentType `reform:"type"`
 	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
 	Disabled     bool      `reform:"disabled"`
-	CreatedAt    time.Time `reform:"created_at"`
-	UpdatedAt    time.Time `reform:"updated_at"`
+	// CreatedAt    time.Time `reform:"created_at"`
+	// UpdatedAt    time.Time `reform:"updated_at"`
 
 	ListenPort      *uint16 `reform:"listen_port"`
 	UUID            *string `reform:"uuid"`
@@ -65,27 +65,27 @@ type AgentRow struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-// nolint:unparam
+//nolint:unparam
 func (ar *AgentRow) BeforeInsert() error {
-	now := time.Now().Truncate(time.Microsecond).UTC()
-	ar.CreatedAt = now
-	ar.UpdatedAt = now
+	// now := time.Now().Truncate(time.Microsecond).UTC()
+	// ar.CreatedAt = now
+	// ar.UpdatedAt = now
 	return nil
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-// nolint:unparam
+//nolint:unparam
 func (ar *AgentRow) BeforeUpdate() error {
-	now := time.Now().Truncate(time.Microsecond).UTC()
-	ar.UpdatedAt = now
+	// now := time.Now().Truncate(time.Microsecond).UTC()
+	// ar.UpdatedAt = now
 	return nil
 }
 
 // AfterFind implements reform.AfterFinder interface.
-// nolint:unparam
+//nolint:unparam
 func (ar *AgentRow) AfterFind() error {
-	ar.CreatedAt = ar.CreatedAt.UTC()
-	ar.UpdatedAt = ar.UpdatedAt.UTC()
+	// ar.CreatedAt = ar.CreatedAt.UTC()
+	// ar.UpdatedAt = ar.UpdatedAt.UTC()
 	return nil
 }
 

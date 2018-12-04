@@ -69,6 +69,10 @@ script:
   - git diff --exit-code
 
   - make check-license
+
+  # for main_test.go
+  - make install
+
   - make test-cover
   - make test-race
 

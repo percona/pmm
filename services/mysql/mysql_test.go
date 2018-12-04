@@ -197,7 +197,7 @@ func TestAddListRemove(t *testing.T) {
 			Address:       pointer.ToString("localhost"),
 			Port:          pointer.ToUint16(3306),
 			Engine:        pointer.ToString("Percona Server"),
-			EngineVersion: pointer.ToString("5.7.23"),
+			EngineVersion: pointer.ToString("5.7.24"),
 		},
 	}}
 	assert.Equal(t, expected, actual)

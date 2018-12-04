@@ -17,8 +17,6 @@
 package models
 
 import (
-	"time"
-
 	"gopkg.in/reform.v1"
 )
 
@@ -38,12 +36,12 @@ const (
 // ServiceRow represents Service as stored in database.
 //reform:services
 type ServiceRow struct {
-	ID        uint32      `reform:"id,pk"`
-	Type      ServiceType `reform:"type"`
-	Name      string      `reform:"name"`
-	NodeID    uint32      `reform:"node_id"`
-	CreatedAt time.Time   `reform:"created_at"`
-	UpdatedAt time.Time   `reform:"updated_at"`
+	ID     uint32      `reform:"id,pk"`
+	Type   ServiceType `reform:"type"`
+	Name   string      `reform:"name"`
+	NodeID uint32      `reform:"node_id"`
+	// CreatedAt time.Time   `reform:"created_at"`
+	// UpdatedAt time.Time   `reform:"updated_at"`
 
 	Address    *string `reform:"address"`
 	Port       *uint16 `reform:"port"`
@@ -51,27 +49,27 @@ type ServiceRow struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-// nolint:unparam
+//nolint:unparam
 func (sr *ServiceRow) BeforeInsert() error {
-	now := time.Now().Truncate(time.Microsecond).UTC()
-	sr.CreatedAt = now
-	sr.UpdatedAt = now
+	// now := time.Now().Truncate(time.Microsecond).UTC()
+	// sr.CreatedAt = now
+	// sr.UpdatedAt = now
 	return nil
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-// nolint:unparam
+//nolint:unparam
 func (sr *ServiceRow) BeforeUpdate() error {
-	now := time.Now().Truncate(time.Microsecond).UTC()
-	sr.UpdatedAt = now
+	// now := time.Now().Truncate(time.Microsecond).UTC()
+	// sr.UpdatedAt = now
 	return nil
 }
 
 // AfterFind implements reform.AfterFinder interface.
-// nolint:unparam
+//nolint:unparam
 func (sr *ServiceRow) AfterFind() error {
-	sr.CreatedAt = sr.CreatedAt.UTC()
-	sr.UpdatedAt = sr.UpdatedAt.UTC()
+	// sr.CreatedAt = sr.CreatedAt.UTC()
+	// sr.UpdatedAt = sr.UpdatedAt.UTC()
 	return nil
 }
 

@@ -26,6 +26,8 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+// FIXME Re-add created_at/updated_at: https://jira.percona.com/browse/PMM-3350
+
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
 //
 // Initial AUTO_INCREMENT values are spaced to prevent programming errors, or at least make them more visible.
@@ -41,8 +43,8 @@ var databaseSchema = [][]string{
 			id INT NOT NULL AUTO_INCREMENT,
 			type VARCHAR(255) NOT NULL,
 			name VARCHAR(255) NOT NULL,
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 			hostname VARCHAR(255),
 			region VARCHAR(255),
@@ -59,8 +61,8 @@ var databaseSchema = [][]string{
 			type VARCHAR(255) NOT NULL,
 			name VARCHAR(255) NOT NULL,
 			node_id INT NOT NULL,
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 			address VARCHAR(255),
 			port SMALLINT UNSIGNED,
@@ -81,8 +83,8 @@ var databaseSchema = [][]string{
 			type VARCHAR(255) NOT NULL,
 			runs_on_node_id INT NOT NULL,
 			disabled BOOL NOT NULL,
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 			listen_port SMALLINT UNSIGNED,
 			uuid VARCHAR(255),
@@ -99,7 +101,7 @@ var databaseSchema = [][]string{
 		`CREATE TABLE agent_nodes (
 			agent_id INT NOT NULL,
 			node_id INT NOT NULL,
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (agent_id) REFERENCES agents (id),
 			FOREIGN KEY (node_id) REFERENCES nodes (id),
 			UNIQUE (agent_id, node_id)
@@ -108,7 +110,7 @@ var databaseSchema = [][]string{
 		`CREATE TABLE agent_services (
 			agent_id INT NOT NULL,
 			service_id INT NOT NULL,
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (agent_id) REFERENCES agents (id),
 			FOREIGN KEY (service_id) REFERENCES services (id),
 			UNIQUE (agent_id, service_id)

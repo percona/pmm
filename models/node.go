@@ -17,8 +17,6 @@
 package models
 
 import (
-	"time"
-
 	"gopkg.in/reform.v1"
 )
 
@@ -43,38 +41,38 @@ const RemoteNodeRegion string = "remote"
 // NodeRow represents Node as stored in database.
 //reform:nodes
 type NodeRow struct {
-	ID        uint32    `reform:"id,pk"`
-	Type      NodeType  `reform:"type"`
-	Name      string    `reform:"name"`
-	CreatedAt time.Time `reform:"created_at"`
-	UpdatedAt time.Time `reform:"updated_at"`
+	ID   uint32   `reform:"id,pk"`
+	Type NodeType `reform:"type"`
+	Name string   `reform:"name"`
+	// CreatedAt time.Time `reform:"created_at"`
+	// UpdatedAt time.Time `reform:"updated_at"`
 
 	Hostname *string `reform:"hostname"`
 	Region   *string `reform:"region"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-// nolint:unparam
+//nolint:unparam
 func (nr *NodeRow) BeforeInsert() error {
-	now := time.Now().Truncate(time.Microsecond).UTC()
-	nr.CreatedAt = now
-	nr.UpdatedAt = now
+	// now := time.Now().Truncate(time.Microsecond).UTC()
+	// nr.CreatedAt = now
+	// nr.UpdatedAt = now
 	return nil
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-// nolint:unparam
+//nolint:unparam
 func (nr *NodeRow) BeforeUpdate() error {
-	now := time.Now().Truncate(time.Microsecond).UTC()
-	nr.UpdatedAt = now
+	// now := time.Now().Truncate(time.Microsecond).UTC()
+	// nr.UpdatedAt = now
 	return nil
 }
 
 // AfterFind implements reform.AfterFinder interface.
-// nolint:unparam
+//nolint:unparam
 func (nr *NodeRow) AfterFind() error {
-	nr.CreatedAt = nr.CreatedAt.UTC()
-	nr.UpdatedAt = nr.UpdatedAt.UTC()
+	// nr.CreatedAt = nr.CreatedAt.UTC()
+	// nr.UpdatedAt = nr.UpdatedAt.UTC()
 	return nil
 }
 

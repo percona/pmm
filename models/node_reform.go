@@ -27,7 +27,7 @@ func (v *nodeRowTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *nodeRowTableType) Columns() []string {
-	return []string{"id", "type", "name", "created_at", "updated_at", "hostname", "region"}
+	return []string{"id", "type", "name", "hostname", "region"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,20 +47,18 @@ func (v *nodeRowTableType) PKColumnIndex() uint {
 
 // NodeRowTable represents nodes view or table in SQL database.
 var NodeRowTable = &nodeRowTableType{
-	s: parse.StructInfo{Type: "NodeRow", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}, {Name: "Hostname", Type: "*string", Column: "hostname"}, {Name: "Region", Type: "*string", Column: "region"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "NodeRow", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "NodeType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "Hostname", Type: "*string", Column: "hostname"}, {Name: "Region", Type: "*string", Column: "region"}}, PKFieldIndex: 0},
 	z: new(NodeRow).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s NodeRow) String() string {
-	res := make([]string, 7)
+	res := make([]string, 5)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "Name: " + reform.Inspect(s.Name, true)
-	res[3] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[4] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
-	res[5] = "Hostname: " + reform.Inspect(s.Hostname, true)
-	res[6] = "Region: " + reform.Inspect(s.Region, true)
+	res[3] = "Hostname: " + reform.Inspect(s.Hostname, true)
+	res[4] = "Region: " + reform.Inspect(s.Region, true)
 	return strings.Join(res, ", ")
 }
 
@@ -71,8 +69,6 @@ func (s *NodeRow) Values() []interface{} {
 		s.ID,
 		s.Type,
 		s.Name,
-		s.CreatedAt,
-		s.UpdatedAt,
 		s.Hostname,
 		s.Region,
 	}
@@ -85,8 +81,6 @@ func (s *NodeRow) Pointers() []interface{} {
 		&s.ID,
 		&s.Type,
 		&s.Name,
-		&s.CreatedAt,
-		&s.UpdatedAt,
 		&s.Hostname,
 		&s.Region,
 	}

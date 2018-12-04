@@ -27,7 +27,7 @@ func (v *agentNodeViewType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *agentNodeViewType) Columns() []string {
-	return []string{"agent_id", "node_id", "created_at"}
+	return []string{"agent_id", "node_id"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -37,16 +37,15 @@ func (v *agentNodeViewType) NewStruct() reform.Struct {
 
 // AgentNodeView represents agent_nodes view or table in SQL database.
 var AgentNodeView = &agentNodeViewType{
-	s: parse.StructInfo{Type: "AgentNode", SQLSchema: "", SQLName: "agent_nodes", Fields: []parse.FieldInfo{{Name: "AgentID", Type: "uint32", Column: "agent_id"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}}, PKFieldIndex: -1},
+	s: parse.StructInfo{Type: "AgentNode", SQLSchema: "", SQLName: "agent_nodes", Fields: []parse.FieldInfo{{Name: "AgentID", Type: "uint32", Column: "agent_id"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}}, PKFieldIndex: -1},
 	z: new(AgentNode).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s AgentNode) String() string {
-	res := make([]string, 3)
+	res := make([]string, 2)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[2] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -56,7 +55,6 @@ func (s *AgentNode) Values() []interface{} {
 	return []interface{}{
 		s.AgentID,
 		s.NodeID,
-		s.CreatedAt,
 	}
 }
 
@@ -66,7 +64,6 @@ func (s *AgentNode) Pointers() []interface{} {
 	return []interface{}{
 		&s.AgentID,
 		&s.NodeID,
-		&s.CreatedAt,
 	}
 }
 
