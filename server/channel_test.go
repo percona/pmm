@@ -25,8 +25,11 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/percona/exporter_shared/helpers"
 	"github.com/percona/pmm/api/agent"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus"
+	dto "github.com/prometheus/client_model/go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -38,17 +41,13 @@ type testServer struct {
 	connect func(agent.Agent_ConnectServer) error
 }
 
-func (s *testServer) Register(context.Context, *agent.RegisterRequest) (*agent.RegisterResponse, error) {
-	panic("should not be called")
-}
-
 func (s *testServer) Connect(stream agent.Agent_ConnectServer) error {
 	return s.connect(stream)
 }
 
 var _ agent.AgentServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expectedErrs ...error) (*Channel, *grpc.ClientConn, func(*testing.T)) {
+func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expected ...error) (*Channel, *grpc.ClientConn, func(*testing.T)) {
 	t.Parallel()
 
 	// start server with given connect handler
@@ -79,7 +78,7 @@ func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expected
 
 	teardown := func(t *testing.T) {
 		err := channel.Wait()
-		assert.Contains(t, expectedErrs, errors.Cause(err), "%+v", err)
+		assert.Contains(t, expected, errors.Cause(err), "%+v", err)
 
 		server.GracefulStop()
 		cancel()
@@ -92,7 +91,7 @@ func TestAgentRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
 
-	connect := func(stream agent.Agent_ConnectServer) error {
+	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
 		for i := uint32(1); i <= count; i++ {
 			msg, err := stream.Recv()
 			require.NoError(t, err)
@@ -120,13 +119,36 @@ func TestAgentRequest(t *testing.T) {
 		})
 		assert.NotNil(t, resp)
 	}
+
+	ch := make(chan prometheus.Metric)
+	go func() {
+		channel.Collect(ch)
+		close(ch)
+	}()
+	expectedReceived := &helpers.Metric{
+		Name:   "pmm_agent_channel_messages_received_total",
+		Help:   "A total number of received messages from pmm-managed.",
+		Labels: prometheus.Labels{},
+		Type:   dto.MetricType_COUNTER,
+		Value:  50,
+	}
+	assert.Equal(t, expectedReceived, helpers.ReadMetric(<-ch))
+	expectedSent := &helpers.Metric{
+		Name:   "pmm_agent_channel_messages_sent_total",
+		Help:   "A total number of sent messages to pmm-managed.",
+		Labels: prometheus.Labels{},
+		Type:   dto.MetricType_COUNTER,
+		Value:  50,
+	}
+	assert.Equal(t, expectedSent, helpers.ReadMetric(<-ch))
+	assert.Nil(t, <-ch)
 }
 
 func TestServerRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
 
-	connect := func(stream agent.Agent_ConnectServer) error {
+	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
 		for i := uint32(1); i <= count; i++ {
 			err := stream.Send(&agent.ServerMessage{
 				Id: i,
@@ -189,7 +211,7 @@ func TestServerClosesStream(t *testing.T) {
 }
 
 func TestAgentClosesConnection(t *testing.T) {
-	connect := func(stream agent.Agent_ConnectServer) error {
+	connect := func(stream agent.Agent_ConnectServer) error { // nolint:unparam
 		err := stream.Send(&agent.ServerMessage{
 			Id: 1,
 			Payload: &agent.ServerMessage_Ping{
@@ -205,8 +227,9 @@ func TestAgentClosesConnection(t *testing.T) {
 		return nil
 	}
 
+	errClientConnClosing := status.Error(codes.Canceled, "grpc: the client connection is closing") // == grpc.ErrClientConnClosing
 	errConnClosing := status.Error(codes.Unavailable, "transport is closing")
-	channel, cc, teardown := setup(t, connect, grpc.ErrClientConnClosing, errConnClosing)
+	channel, cc, teardown := setup(t, connect, errClientConnClosing, errConnClosing)
 	defer teardown(t)
 
 	req := <-channel.Requests()
@@ -217,7 +240,7 @@ func TestAgentClosesConnection(t *testing.T) {
 }
 
 func TestUnexpectedMessageFromServer(t *testing.T) {
-	connect := func(stream agent.Agent_ConnectServer) error {
+	connect := func(stream agent.Agent_ConnectServer) error { // nolint:unparam
 		// this message triggers "no subscriber for ID" error
 		err := stream.Send(&agent.ServerMessage{
 			Id: 111,

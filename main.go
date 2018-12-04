@@ -24,12 +24,14 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agent"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
 	"gopkg.in/alecthomas/kingpin.v2"
 
+	"github.com/percona/pmm-agent/agentlocal"
 	"github.com/percona/pmm-agent/config"
 	"github.com/percona/pmm-agent/server"
 	"github.com/percona/pmm-agent/supervisor"
@@ -56,6 +58,8 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 	l.Info("Two-way communication channel established.")
 
 	channel := server.NewChannel(stream)
+	prometheus.MustRegister(channel)
+
 	resp := channel.SendRequest(&agent.AgentMessage_Auth{
 		Auth: &agent.AuthRequest{
 			Uuid:    cfg.UUID,
@@ -120,6 +124,8 @@ func main() {
 		logrus.Debug("Debug logging enabled.")
 	}
 
+	_ = agentlocal.AgentLocalServer{}
+
 	// TODO add signal handling, etc
 	ctx := context.TODO()
 
@@ -152,15 +158,15 @@ func main() {
 	logrus.Infof("Connected to %s.", cfg.Address)
 	client := agent.NewAgentClient(conn)
 
-	if cfg.UUID == "" {
-		logrus.Info("Registering pmm-agent ...")
-		resp, err := client.Register(ctx, &agent.RegisterRequest{})
-		if err != nil {
-			logrus.Fatalf("Failed to register pmm-agent: %s.", err)
-		}
-		cfg.UUID = resp.Uuid
-		logrus.Infof("pmm-agent registered: %s.", cfg.UUID)
-	}
+	// if cfg.UUID == "" {
+	// 	logrus.Info("Registering pmm-agent ...")
+	// 	resp, err := client.Register(ctx, &agent.RegisterRequest{})
+	// 	if err != nil {
+	// 		logrus.Fatalf("Failed to register pmm-agent: %s.", err)
+	// 	}
+	// 	cfg.UUID = resp.Uuid
+	// 	logrus.Infof("pmm-agent registered: %s.", cfg.UUID)
+	// }
 
 	workLoop(ctx, &cfg, client)
 }
