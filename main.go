@@ -51,6 +51,10 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 	l := logrus.WithField("component", "conn")
 
 	l.Info("Establishing two-way communication channel ...")
+	ctx = agent.AddAgentConnectMetadata(ctx, &agent.AgentConnectMetadata{
+		UUID:    cfg.UUID,
+		Version: Version,
+	})
 	stream, err := client.Connect(ctx)
 	if err != nil {
 		l.Fatal(err)
@@ -59,14 +63,6 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 
 	channel := server.NewChannel(stream)
 	prometheus.MustRegister(channel)
-
-	resp := channel.SendRequest(&agent.AgentMessage_Auth{
-		Auth: &agent.AuthRequest{
-			Uuid:    cfg.UUID,
-			Version: Version,
-		},
-	})
-	l.Infof("Authentication response: %s.", resp)
 
 	for serverMessage := range channel.Requests() {
 		var agentMessage *agent.AgentMessage

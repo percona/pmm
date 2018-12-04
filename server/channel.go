@@ -179,7 +179,7 @@ func (c *Channel) runReceiver() {
 			c.requests <- msg
 
 		// responses
-		case *agent.ServerMessage_Auth, *agent.ServerMessage_QanData:
+		case *agent.ServerMessage_QanData:
 			c.publish(msg.Id, msg.Payload)
 
 		default:
