@@ -112,7 +112,7 @@ func TestAgentRequest(t *testing.T) {
 		return nil
 	}
 
-	channel, _, teardown := setup(t, connect, io.EOF)
+	channel, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
 	defer teardown(t)
 
 	for i := uint32(1); i <= count; i++ {
@@ -185,7 +185,7 @@ func TestServerRequest(t *testing.T) {
 		return nil
 	}
 
-	channel, _, teardown := setup(t, connect, io.EOF)
+	channel, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
 	defer teardown(t)
 
 	for req := range channel.Requests() {
@@ -203,23 +203,71 @@ func TestServerRequest(t *testing.T) {
 	}
 }
 
-func TestServerClosesStream(t *testing.T) {
+func TestServerExitsWithGRPCError(t *testing.T) {
+	errUnimplemented := status.Error(codes.Unimplemented, "Test error")
 	connect := func(stream agent.Agent_ConnectServer) error {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
 		assert.EqualValues(t, 1, msg.Id)
 		require.NotNil(t, msg.GetQanData())
 
-		return status.Error(codes.Unimplemented, "Test error")
+		return errUnimplemented
 	}
 
-	channel, _, teardown := setup(t, connect, status.Error(codes.Unimplemented, "Test error"))
+	channel, _, teardown := setup(t, connect, errUnimplemented)
 	defer teardown(t)
 
 	resp := channel.SendRequest(&agent.AgentMessage_QanData{
 		QanData: new(agent.QANDataRequest),
 	})
 	assert.Nil(t, resp)
+}
+
+func TestServerExitsWithUnknownError(t *testing.T) {
+	connect := func(stream agent.Agent_ConnectServer) error {
+		msg, err := stream.Recv()
+		require.NoError(t, err)
+		assert.EqualValues(t, 1, msg.Id)
+		require.NotNil(t, msg.GetQanData())
+
+		return io.EOF // any error without GRPCStatus() method
+	}
+
+	channel, _, teardown := setup(t, connect, status.Error(codes.Unknown, "EOF"))
+	defer teardown(t)
+
+	resp := channel.SendRequest(&agent.AgentMessage_QanData{
+		QanData: new(agent.QANDataRequest),
+	})
+	assert.Nil(t, resp)
+}
+
+func TestAgentClosesStream(t *testing.T) {
+	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
+		err := stream.Send(&agent.ServerMessage{
+			Id: 1,
+			Payload: &agent.ServerMessage_Ping{
+				Ping: new(agent.PingRequest),
+			},
+		})
+		assert.NoError(t, err)
+
+		msg, err := stream.Recv()
+		assert.Equal(t, io.EOF, err)
+		assert.Nil(t, msg)
+
+		return nil
+	}
+
+	channel, _, teardown := setup(t, connect, io.EOF)
+	defer teardown(t)
+
+	req := <-channel.Requests()
+	ping := req.GetPing()
+	assert.NotNil(t, ping)
+
+	err := channel.s.CloseSend()
+	assert.NoError(t, err)
 }
 
 func TestAgentClosesConnection(t *testing.T) {
@@ -239,6 +287,7 @@ func TestAgentClosesConnection(t *testing.T) {
 		return nil
 	}
 
+	// gRPC library has a race in that case, so we can get two errors
 	errClientConnClosing := status.Error(codes.Canceled, "grpc: the client connection is closing") // == grpc.ErrClientConnClosing
 	errConnClosing := status.Error(codes.Unavailable, "transport is closing")
 	channel, cc, teardown := setup(t, connect, errClientConnClosing, errConnClosing)
@@ -248,7 +297,8 @@ func TestAgentClosesConnection(t *testing.T) {
 	ping := req.GetPing()
 	assert.NotNil(t, ping)
 
-	assert.NoError(t, cc.Close())
+	err := cc.Close()
+	assert.NoError(t, err)
 }
 
 func TestUnexpectedMessageFromServer(t *testing.T) {
@@ -274,7 +324,7 @@ func TestUnexpectedMessageFromServer(t *testing.T) {
 		return nil
 	}
 
-	channel, _, teardown := setup(t, connect, fmt.Errorf("no subscriber for ID 111"), io.EOF)
+	channel, _, teardown := setup(t, connect, fmt.Errorf("no subscriber for ID 111"))
 	defer teardown(t)
 
 	// after receiving unexpected response, channel is closed
