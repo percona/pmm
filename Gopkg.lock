@@ -301,7 +301,6 @@
     "github.com/percona/pmm/api/agentlocal",
     "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",
-    "github.com/prometheus/client_model/go",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",

@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strings"
 	"testing"
 	"time"
 
@@ -29,7 +30,6 @@ import (
 	"github.com/percona/pmm/api/agent"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
-	dto "github.com/prometheus/client_model/go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -122,28 +122,38 @@ func TestAgentRequest(t *testing.T) {
 		assert.NotNil(t, resp)
 	}
 
-	ch := make(chan prometheus.Metric)
+	// check metrics
+	metrics := make([]prometheus.Metric, 0, 100)
+	metricsCh := make(chan prometheus.Metric)
 	go func() {
-		channel.Collect(ch)
-		close(ch)
+		channel.Collect(metricsCh)
+		close(metricsCh)
 	}()
-	expectedReceived := &helpers.Metric{
-		Name:   "pmm_agent_channel_messages_received_total",
-		Help:   "A total number of received messages from pmm-managed.",
-		Labels: prometheus.Labels{},
-		Type:   dto.MetricType_COUNTER,
-		Value:  50,
+	for m := range metricsCh {
+		metrics = append(metrics, m)
 	}
-	assert.Equal(t, expectedReceived, helpers.ReadMetric(<-ch))
-	expectedSent := &helpers.Metric{
-		Name:   "pmm_agent_channel_messages_sent_total",
-		Help:   "A total number of sent messages to pmm-managed.",
-		Labels: prometheus.Labels{},
-		Type:   dto.MetricType_COUNTER,
-		Value:  50,
+	expectedMetrics := strings.Split(strings.TrimSpace(`
+# HELP pmm_agent_channel_messages_received_total A total number of received messages from pmm-managed.
+# TYPE pmm_agent_channel_messages_received_total counter
+pmm_agent_channel_messages_received_total 50
+# HELP pmm_agent_channel_messages_sent_total A total number of sent messages to pmm-managed.
+# TYPE pmm_agent_channel_messages_sent_total counter
+pmm_agent_channel_messages_sent_total 50
+`), "\n")
+	assert.Equal(t, expectedMetrics, helpers.Format(metrics))
+
+	// check that descriptions match metrics: same number, same order
+	descCh := make(chan *prometheus.Desc)
+	go func() {
+		channel.Describe(descCh)
+		close(descCh)
+	}()
+	var i int
+	for d := range descCh {
+		assert.Equal(t, metrics[i].Desc(), d)
+		i++
 	}
-	assert.Equal(t, expectedSent, helpers.ReadMetric(<-ch))
-	assert.Nil(t, <-ch)
+	assert.Len(t, metrics, i)
 }
 
 func TestServerRequest(t *testing.T) {
