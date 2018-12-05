@@ -101,7 +101,10 @@ func (c *Channel) close(err error) {
 		c.responses = nil // prevent future subscriptions
 		c.m.Unlock()
 
+		c.sendM.Lock()
+		_ = c.s.CloseSend()
 		close(c.closeWait)
+		c.sendM.Unlock()
 	})
 }
 

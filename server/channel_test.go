@@ -48,6 +48,8 @@ func (s *testServer) Connect(stream agent.Agent_ConnectServer) error {
 var _ agent.AgentServer = (*testServer)(nil)
 
 func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expected ...error) (*Channel, *grpc.ClientConn, func(*testing.T)) {
+	// logrus.SetLevel(logrus.DebugLevel)
+
 	t.Parallel()
 
 	// start server with given connect handler
