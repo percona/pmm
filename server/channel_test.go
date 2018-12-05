@@ -211,7 +211,7 @@ func TestServerClosesStream(t *testing.T) {
 }
 
 func TestAgentClosesConnection(t *testing.T) {
-	connect := func(stream agent.Agent_ConnectServer) error { // nolint:unparam
+	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
 		err := stream.Send(&agent.ServerMessage{
 			Id: 1,
 			Payload: &agent.ServerMessage_Ping{
@@ -240,7 +240,7 @@ func TestAgentClosesConnection(t *testing.T) {
 }
 
 func TestUnexpectedMessageFromServer(t *testing.T) {
-	connect := func(stream agent.Agent_ConnectServer) error { // nolint:unparam
+	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
 		// this message triggers "no subscriber for ID" error
 		err := stream.Send(&agent.ServerMessage{
 			Id: 111,
