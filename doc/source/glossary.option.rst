@@ -7,6 +7,9 @@
 This glossary contains the addtional parameters that you may pass when starting
 |pmm-server|.
 
+Passing options to *PMM Server* on the docker initial start up
+================================================================================
+
 If you use |docker| to run the server, use the :option:`-e` flag followed by the
 parameter. Use this flag in front of each parameter that you pass to
 |pmm-server|.
@@ -15,6 +18,47 @@ Here, we pass more than one option to |pmm-server| along with the |docker.run|
 command. |tip.run-this.root|.
 
 .. include:: .res/code/docker.run.server-user.example.txt
+
+Passing options to *PMM Server* already deployed via docker
+================================================================================
+
+You can't just stop the container with **docker stop** and pass new environment
+variable with **docker start** if you want to change the setting for existing
+installation, because **docker start** cares to keep container immutable and
+doesn't support changing environment variables. Therefore if you want container
+with different properties,  you should run a new container instead.
+
+1. Stop and Rename the old container, just in case you want to go back::
+
+   docker stop pmm-server
+   docker rename pmm-server pmm-server-old
+
+2. Refresh the container with the latest
+   version::
+
+      docker pull percona/pmm-server:latest
+
+   .. warning:: When you destroy and recreate the container, all the
+      updates you have done through PMM Web interface will be lost. What’s more,
+      the software version will be reset to the one in the Docker image. Running
+      an old PMM version with a data volume modified by a new PMM version may
+      cause unpredictable results. This could include data loss.
+
+4. Run the container with the new settings. For example, changing
+   :term:`METRICS_RETENTION <METRICS_RETENTION>` would look as follows::
+
+      docker run -d \
+        -p 80:80 \
+        --volumes-from pmm-data \
+        --name pmm-server \
+        --restart always \
+        -e METRICS_RESOLUTION=5s \
+        percona/pmm-server:latest
+
+5. After you’re happy with your new container deployment you can remove the old
+   container::
+
+     docker rm pmm-server-old
 
 List of |pmm-server| Parameters
 ================================================================================
