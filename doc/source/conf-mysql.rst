@@ -74,9 +74,7 @@ version of |mysql|:
    log_slow_admin_statements=ON
    log_slow_slave_statements=ON
 
-.. _pmm.conf-mysql.user-account.creating:
-
-:ref:`Creating a MySQL User Account to Be Used with PMM <pmm.conf-mysql.user-account.creating>`
+`Creating a MySQL User Account to Be Used with PMM <pmm.conf-mysql.user-account.creating>`_
 ===============================================================================================
 
 When adding a |mysql| instance to monitoring, you can specify the |mysql| server
@@ -120,9 +118,7 @@ For more information, run as root
 |opt.mysql|
 |opt.help|.
 
-.. _pmm.conf-mysql.slow-log-settings:
-
-:ref:`Configuring the slow query log in Percona Server <pmm.conf-mysql.slow-log-settings>`
+`Configuring the slow query log in Percona Server <pmm.conf-mysql.slow-log-settings>`_
 ==========================================================================================
 
 If you are running |percona-server|, a properly configured slow query log will
@@ -185,7 +181,7 @@ connections, set the |slow_query_log_use_global_control|_ variable to ``all``.
 
 .. _perf-schema:
 
-:ref:`Configuring Performance Schema <perf-schema>`
+`Configuring Performance Schema <perf-schema>`_
 ===================================================
 
 The default source of query data for |pmm| is the |slow-query-log|.  It is
@@ -277,9 +273,7 @@ For more information, run
 |opt.mysql|
 |opt.help|.
 
-.. _pmm.conf-mysql.8-0:
-
-:ref:`Configuring MySQL 8.0 for PMM <pmm.conf-mysql.8-0>`
+`Configuring MySQL 8.0 for PMM <pmm.conf-mysql.8-0>`_
 =========================================================
 
 |mysql| 8 (in version 8.0.4) changes the way clients are authenticated by
@@ -339,9 +333,7 @@ change.
    |mysql| Documentation: Native Pluggable Authentication
       https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html
 
-.. _pmm.conf-mysql.settings.dashboard:
-
-:ref:`Settings for Dashboards <pmm.conf-mysql.settings.dashboard>`
+`Settings for Dashboards <pmm.conf-mysql.settings.dashboard>`_
 ==================================================================
 
 Not all dashboards in |metrics-monitor| are available by default for all |mysql|
@@ -358,9 +350,7 @@ high-overhead metrics only when troubleshooting problems.
    More information about |pmm| dashboards
       :ref:`pmm.metrics-monitor`
 
-.. _pmm.conf-mysql.mysql-innodb.metrics:
-
-:ref:`MySQL InnoDB Metrics <pmm.conf-mysql.mysql-innodb.metrics>`
+`MySQL InnoDB Metrics <pmm.conf-mysql.mysql-innodb.metrics>`_
 --------------------------------------------------------------------------------
 
 InnoDB metrics provide detailed insight about |innodb| operation.  Although you
@@ -377,9 +367,7 @@ global variable |opt.innodb-monitor-enable| to ``all``:
    |mysql| Documentation: |opt.innodb-monitor-enable| variable
       https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable
 
-.. _pmm.conf-mysql.user-statistics:
-
-:ref:`MySQL User Statistics <pmm.conf-mysql.user-statistics>`
+`MySQL User Statistics <pmm.conf-mysql.user-statistics>`_
 --------------------------------------------------------------------------------
 
 User statistics is a feature of |percona-server| and |mariadb|.  It provides
@@ -397,9 +385,7 @@ To enable user statistics, set the |opt.userstat| variable to ``1``.
    |mysql| Documentation
       `Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`_
 
-.. _pmm.conf-mysql.query-response-time:
-
-:ref:`Percona Server Query Response Time Distribution <pmm.conf-mysql.query-response-time>`
+`Percona Server Query Response Time Distribution <pmm.conf-mysql.query-response-time>`_
 -------------------------------------------------------------------------------------------
 
 Query response time distribution is a feature available in |percona-server|.  It
@@ -429,9 +415,7 @@ To enable collection of query response time:
       - |opt.query-response-time-stats|: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#query_response_time_stats
       - Response time distribution: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#installing-the-plugins
 
-.. _pmm.conf-mysql.executing.custom.queries:
-
-:ref:`executing Custom Queries <pmm.conf-mysql.executing.custom.queries>`
+`Executing Custom Queries <pmm.conf-mysql.executing.custom.queries>`_
 ================================================================================
 
 Starting from the version 1.15.0, |pmm| provides user the ability to take a SQL
