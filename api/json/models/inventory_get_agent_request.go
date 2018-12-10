@@ -16,7 +16,7 @@ import (
 type InventoryGetAgentRequest struct {
 
 	// Unique Agent identifier.
-	ID int64 `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 }
 
 // Validate validates this inventory get agent request

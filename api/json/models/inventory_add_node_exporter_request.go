@@ -19,7 +19,7 @@ type InventoryAddNodeExporterRequest struct {
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Node identifier where Agent runs and for which insights are provided by that Agent.
-	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this inventory add node exporter request
