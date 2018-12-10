@@ -115,6 +115,7 @@ func (as *AgentsService) Get(ctx context.Context, id uint32) (inventory.Agent, e
 // AddPMMAgent inserts pmm-agent Agent with given parameters.
 func (as *AgentsService) AddPMMAgent(ctx context.Context, nodeID uint32) (inventory.Agent, string, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
 
 	ns := &NodesService{
 		Q: as.Q,
@@ -154,6 +155,7 @@ func (as *AgentsService) AddPMMAgent(ctx context.Context, nodeID uint32) (invent
 // AddNodeExporter inserts node_exporter Agent with given parameters.
 func (as *AgentsService) AddNodeExporter(ctx context.Context, nodeID uint32, disabled bool) (inventory.Agent, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
 
 	ns := &NodesService{
 		Q: as.Q,
@@ -185,6 +187,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, nodeID uint32, dis
 // AddMySQLdExporter inserts mysqld_exporter Agent with given parameters.
 func (as *AgentsService) AddMySQLdExporter(ctx context.Context, nodeID uint32, disabled bool, serviceID uint32, username, password *string) (inventory.Agent, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
 
 	ns := &NodesService{
 		Q: as.Q,
