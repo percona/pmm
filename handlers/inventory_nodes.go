@@ -137,7 +137,7 @@ func (s *NodesServer) AddRemoteNode(ctx context.Context, req *api.AddRemoteNodeR
 
 // AddAWSRDSNode adds AWS RDS Node.
 func (s *NodesServer) AddAWSRDSNode(ctx context.Context, req *api.AddAWSRDSNodeRequest) (*api.AddAWSRDSNodeResponse, error) {
-	node, err := s.Nodes.Add(ctx, models.RemoteNodeType, req.Name, &req.Hostname, &req.Region)
+	node, err := s.Nodes.Add(ctx, models.AWSRDSNodeType, req.Name, &req.Hostname, &req.Region)
 	if err != nil {
 		return nil, err
 	}
