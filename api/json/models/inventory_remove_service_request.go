@@ -16,7 +16,7 @@ import (
 type InventoryRemoveServiceRequest struct {
 
 	// id
-	ID int64 `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 }
 
 // Validate validates this inventory remove service request

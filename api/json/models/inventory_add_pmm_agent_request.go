@@ -16,7 +16,7 @@ import (
 type InventoryAddPMMAgentRequest struct {
 
 	// Node identifier where Agent runs.
-	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this inventory add PMM agent request

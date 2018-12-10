@@ -7,9 +7,9 @@ import "google/api/annotations.proto";
 // PMMAgent represent pmm-agent Agent configuration.
 message PMMAgent {
   // Unique Agent identifier.
-  uint32 id = 1;
+  string id = 1;
   // Node identifier where Agent runs.
-  uint32 runs_on_node_id = 2;
+  string runs_on_node_id = 2;
   reserved 3; // disabled
   // Agent process status: running and connected to pmm-managed, or not.
   bool running = 4;
@@ -21,9 +21,9 @@ message PMMAgent {
 // NodeExporter represents node_exporter Agent configuration.
 message NodeExporter {
   // Unique Agent identifier.
-  uint32 id = 1;
+  string id = 1;
   // Node identifier where Agent runs and for which insights are provided by that Agent.
-  uint32 runs_on_node_id = 2;
+  string runs_on_node_id = 2;
   // Agent desired status: enabled or disabled.
   bool disabled = 3;
   // Agent process status: running or not.
@@ -37,16 +37,16 @@ message NodeExporter {
 // MySQLdExporter represents mysqld_exporter Agent configuration.
 message MySQLdExporter {
   // Unique Agent identifier.
-  uint32 id = 1;
+  string id = 1;
   // Node identifier where Agent runs.
-  uint32 runs_on_node_id = 2;
+  string runs_on_node_id = 2;
   // Agent desired status: enabled or disabled.
   bool disabled = 3;
   // Agent process status: running or not.
   bool running = 4;
   reserved 5; // node_id, node_ids
   // Service identifier for which insights are provided by that Agent.
-  uint32 service_id = 6;
+  string service_id = 6;
   // HTTP listen port for exposing metrics.
   uint32 listen_port = 7;
   // MySQL username for extracting metrics.
@@ -64,7 +64,7 @@ message ListAgentsResponse {
 
 message GetAgentRequest {
   // Unique Agent identifier.
-  uint32 id = 1;
+  string id = 1;
 }
 
 message GetAgentResponse {
@@ -78,7 +78,7 @@ message GetAgentResponse {
 message AddPMMAgentRequest {
   reserved 1; // id
   // Node identifier where Agent runs.
-  uint32 runs_on_node_id = 2;
+  string runs_on_node_id = 2;
   reserved 3; // disabled
   reserved 4; // running
   reserved 5; // node_id, node_ids
@@ -88,14 +88,12 @@ message AddPMMAgentRequest {
 
 message AddPMMAgentResponse {
   PMMAgent pmm_agent = 1;
-  // pmm-agent UUID.
-  string uuid = 2;
 }
 
 message AddNodeExporterRequest {
   reserved 1; // id
   // Node identifier where Agent runs and for which insights are provided by that Agent.
-  uint32 runs_on_node_id = 2;
+  string runs_on_node_id = 2;
   // Agent desired status: enabled or disabled.
   bool disabled = 3;
   reserved 4; // node_id, node_ids
@@ -111,12 +109,12 @@ message AddNodeExporterResponse {
 message AddMySQLdExporterRequest {
   reserved 1; // id
   // Node identifier where Agent runs.
-  uint32 runs_on_node_id = 2;
+  string runs_on_node_id = 2;
   // Agent desired status: enabled or disabled.
   bool disabled = 3;
   reserved 4; // node_id, node_ids
   // Service identifier for which insights are provided by that Agent.
-  uint32 service_id = 5;
+  string service_id = 5;
   reserved 6; // running
   reserved 7; // listen_port
   // MySQL username for extracting metrics.
@@ -131,20 +129,20 @@ message AddMySQLdExporterResponse {
 
 message EnableAgentRequest {
   // Unique Agent identifier.
-  uint32 id = 1;
+  string id = 1;
 }
 
 message EnableAgentResponse {}
 
 message DisableAgentRequest {
   // Unique Agent identifier.
-  uint32 id = 1;
+  string id = 1;
 }
 
 message DisableAgentResponse {}
 
 message RemoveAgentRequest {
-  uint32 id = 1;
+  string id = 1;
 }
 
 message RemoveAgentResponse {}
