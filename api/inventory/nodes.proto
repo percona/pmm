@@ -80,7 +80,8 @@ message GetNodeResponse {
 }
 
 message AddBareMetalNodeRequest {
-  reserved 1; // id
+  // Unique Node identifier (may be empty).
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   // Hostname. Is not unique.
@@ -92,7 +93,8 @@ message AddBareMetalNodeResponse {
 }
 
 message AddVirtualMachineNodeRequest {
-  reserved 1; // id
+  // Unique Node identifier (may be empty).
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   // Hostname. Is not unique.
@@ -115,7 +117,8 @@ message AddContainerNodeResponse {
 }
 
 message AddRemoteNodeRequest {
-  reserved 1; // id
+  // Unique Node identifier (may be empty).
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
@@ -126,7 +129,8 @@ message AddRemoteNodeResponse {
 }
 
 message AddAWSRDSNodeRequest {
-  reserved 1; // id
+  // Unique Node identifier (may be empty).
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   // Hostname. Unique in combination with region.
