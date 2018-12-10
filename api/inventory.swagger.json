@@ -748,6 +748,10 @@
           "description": "Hostname. Unique in combination with region.",
           "type": "string"
         },
+        "id": {
+          "description": "Unique Node identifier (may be empty).",
+          "type": "string"
+        },
         "name": {
           "description": "Unique user-defined Node name.",
           "type": "string"
@@ -771,6 +775,10 @@
       "properties": {
         "hostname": {
           "description": "Hostname. Is not unique.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique Node identifier (may be empty).",
           "type": "string"
         },
         "name": {
@@ -914,6 +922,10 @@
     "inventoryAddRemoteNodeRequest": {
       "type": "object",
       "properties": {
+        "id": {
+          "description": "Unique Node identifier (may be empty).",
+          "type": "string"
+        },
         "name": {
           "description": "Unique user-defined Node name.",
           "type": "string"
@@ -933,6 +945,10 @@
       "properties": {
         "hostname": {
           "description": "Hostname. Is not unique.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique Node identifier (may be empty).",
           "type": "string"
         },
         "name": {
