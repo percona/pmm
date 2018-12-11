@@ -281,7 +281,7 @@ func TestAgentClosesConnection(t *testing.T) {
 		assert.NoError(t, err)
 
 		msg, err := stream.Recv()
-		assert.Equal(t, status.Error(codes.Canceled, "context canceled"), err)
+		assert.Equal(t, status.Error(codes.Canceled, context.Canceled.Error()), err)
 		assert.Nil(t, msg)
 
 		return nil
@@ -301,7 +301,7 @@ func TestAgentClosesConnection(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestUnexpectedMessageFromServer(t *testing.T) {
+func TestUnexpectedResponseFromServer(t *testing.T) {
 	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
 		// this message triggers "no subscriber for ID" error
 		err := stream.Send(&agent.ServerMessage{
