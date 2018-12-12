@@ -7,7 +7,7 @@
 This glossary contains the addtional parameters that you may pass when starting
 |pmm-server|.
 
-Passing options to *PMM Server* on the docker initial start up
+Passing options to PMM Server docker at first run
 ================================================================================
 
 If you use |docker| to run the server, use the :option:`-e` flag followed by the
