@@ -20,7 +20,7 @@ command. |tip.run-this.root|.
 Passing options to *PMM Server* for an already deployed docker instance
 ================================================================================
 
-You can't just stop the container with **docker stop** and pass new environment
+docker doesn't support changing environment variables on an already provisioned container, therefore you need to stop the current container and start a new container with the new options.
 variable with **docker start** if you want to change the setting for existing
 installation, because **docker start** cares to keep container immutable and
 doesn't support changing environment variables. Therefore if you want container
