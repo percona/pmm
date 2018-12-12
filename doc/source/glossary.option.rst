@@ -52,7 +52,7 @@ with different properties,  you should run a new container instead.
         -e METRICS_RESOLUTION=5s \
         percona/pmm-server:latest
 
-5. After you’re happy with your new container deployment you can remove the old
+5. Once you're satisfied with the new container deployment options and you don't plan to revert, you can remove the old
    container::
 
      docker rm pmm-server-old
