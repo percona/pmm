@@ -26,7 +26,7 @@ installation, because **docker start** cares to keep container immutable and
 doesn't support changing environment variables. Therefore if you want container
 with different properties,  you should run a new container instead.
 
-1. Stop and Rename the old container, just in case you want to go back::
+1. Stop and Rename the old container::
 
    docker stop pmm-server
    docker rename pmm-server pmm-server-old
