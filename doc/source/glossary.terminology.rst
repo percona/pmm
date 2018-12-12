@@ -78,6 +78,8 @@ Terminology Reference
          For |pmm| to collect |mongodb| server metrics.
       42004
 	 For |pmm| to collect |proxysql| server metrics.
+      42005
+	 For |pmm| to collect |postgresql| server metrics.
 
       .. seealso::
 

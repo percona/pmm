@@ -269,15 +269,17 @@ Can I use non-default ports for instances?
 When you add an instance with the |pmm-admin| tool,
 it creates a corresponding service that listens on a predefined client port:
 
-+--------------------+----------------------+-------+
-| General OS metrics | ``linux:metrics``    | 42000 |
-+--------------------+----------------------+-------+
-| MySQL metrics      | ``mysql:metrics``    | 42002 |
-+--------------------+----------------------+-------+
-| MongoDB metrics    | ``mongodb:metrics``  | 42003 |
-+--------------------+----------------------+-------+
-| ProxySQL metrics   | ``proxysql:metrics`` | 42004 |
-+--------------------+----------------------+-------+
++--------------------+-----------------------+-------+
+| General OS metrics | ``linux:metrics``     | 42000 |
++--------------------+-----------------------+-------+
+| MySQL metrics      | ``mysql:metrics``     | 42002 |
++--------------------+-----------------------+-------+
+| MongoDB metrics    | ``mongodb:metrics``   | 42003 |
++--------------------+-----------------------+-------+
+| ProxySQL metrics   | ``proxysql:metrics``  | 42004 |
++--------------------+-----------------------+-------+
+| PostgreSQL metrics | ``postgresql:metrics``| 42005 |
++--------------------+-----------------------+-------+
 
 If a default port for the service is not available, |pmm-admin| automatically
 chooses a different port.
