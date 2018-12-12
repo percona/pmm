@@ -32,7 +32,6 @@ with different properties,  you should run a new container instead.
    docker rename pmm-server pmm-server-old
 
 2. Ensure you are running the latest version of PMM Server:
-   version::
 
       docker pull percona/pmm-server:latest
 
