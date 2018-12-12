@@ -11,7 +11,6 @@ Passing options to PMM Server docker at first run
 ================================================================================
 
 |docker| allows configuration options to be passed using the flag :option:`-e` followed by the option you would like to set.
-|pmm-server|.
 
 Here, we pass more than one option to |pmm-server| along with the |docker.run|
 command. |tip.run-this.root|.
