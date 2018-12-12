@@ -41,7 +41,7 @@ with different properties,  you should run a new container instead.
       an old PMM version with a data volume modified by a new PMM version may
       cause unpredictable results. This could include data loss.
 
-4. Run the container with the new settings. For example, changing
+4. Start the container with the new settings. For example, changing
    :term:`METRICS_RETENTION <METRICS_RETENTION>` would look as follows::
 
       docker run -d \
