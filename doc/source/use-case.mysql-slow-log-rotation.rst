@@ -2,7 +2,7 @@
 
 .. _use-case.mysql-slow-log-rotation:
 
-Use |logrotate| instead of the slow log rotation feature to manage The MySQL Slow Log
+Use |logrotate| instead of the slow log rotation feature to manage the MySQL Slow Log
 **************************************************************************************
 
 By default, |pmm| manages the slow log for the added |mysql| monitoring service
