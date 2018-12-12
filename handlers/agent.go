@@ -21,7 +21,6 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	api "github.com/percona/pmm/api/agent"
-	"github.com/pkg/errors"
 
 	"github.com/percona/pmm-managed/services/agents"
 	"github.com/percona/pmm-managed/utils/logger"
@@ -33,24 +32,8 @@ type AgentServer struct {
 func (s *AgentServer) Connect(stream api.Agent_ConnectServer) error {
 	l := logger.Get(stream.Context())
 
-	// connect request/response
-	agentMessage, err := stream.Recv()
-	if err != nil {
-		return err
-	}
-	l.Infof("Recv: %T %s.", agentMessage, agentMessage)
-	auth := agentMessage.GetAuth()
-	if auth == nil {
-		return errors.Errorf("Expected AuthRequest, got %T.", agentMessage.Payload)
-	}
-	serverMessage := &api.ServerMessage{
-		Payload: &api.ServerMessage_Auth{
-			Auth: &api.AuthResponse{},
-		},
-	}
-	if err = stream.Send(serverMessage); err != nil {
-		return err
-	}
+	md := api.GetAgentConnectMetadata(stream)
+	l.Infof("Connected client: %+v.", md)
 
 	t := time.NewTicker(10 * time.Second)
 	defer t.Stop()

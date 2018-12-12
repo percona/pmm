@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package server contains business logic of working with pmm-agent.
+// Package agents contains business logic of working with pmm-agent.
 package agents
 
 import (
@@ -38,7 +38,7 @@ const (
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
 //
 // All exported methods are thread-safe.
-type Channel struct {
+type Channel struct { //nolint:maligned
 	s agent.Agent_ConnectServer
 	l *logrus.Entry
 
@@ -118,12 +118,12 @@ func (c *Channel) Requests() <-chan *agent.AgentMessage {
 	return c.requests
 }
 
-// SendResponse sends message to pmm-agent. It is no-op once channel is closed (see Wait).
+// SendResponse sends message to pmm-managed. It is no-op once channel is closed (see Wait).
 func (c *Channel) SendResponse(msg *agent.ServerMessage) {
 	c.send(msg)
 }
 
-// SendRequest sends request to pmm-agent, blocks until response is available, and returns it.
+// SendRequest sends request to pmm-managed, blocks until response is available, and returns it.
 // Response will nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
 func (c *Channel) SendRequest(payload agent.ServerMessagePayload) agent.AgentMessagePayload {
@@ -175,7 +175,7 @@ func (c *Channel) runReceiver() {
 
 		switch msg.Payload.(type) {
 		// requests
-		case *agent.AgentMessage_Auth, *agent.AgentMessage_QanData:
+		case *agent.AgentMessage_QanData:
 			c.requests <- msg
 
 		// responses
