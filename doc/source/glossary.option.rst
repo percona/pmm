@@ -10,7 +10,7 @@ This glossary contains the addtional parameters that you may pass when starting
 Passing options to PMM Server docker at first run
 ================================================================================
 
-If you use |docker| to run the server, use the :option:`-e` flag followed by the
+|docker| allows configuration options to be passed using the flag :option:`-e` followed by the option you would like to set.
 parameter. Use this flag in front of each parameter that you pass to
 |pmm-server|.
 
