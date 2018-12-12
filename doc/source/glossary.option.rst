@@ -19,7 +19,7 @@ command. |tip.run-this.root|.
 
 .. include:: .res/code/docker.run.server-user.example.txt
 
-Passing options to *PMM Server* already deployed via docker
+Passing options to *PMM Server* for an already deployed docker instance
 ================================================================================
 
 You can't just stop the container with **docker stop** and pass new environment
