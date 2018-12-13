@@ -21,7 +21,7 @@ enum Type {
 //}
 //
 //message RegisterResponse {
-//  string uuid = 1;
+//  string id = 1;
 //}
 //
 
@@ -90,7 +90,7 @@ message ServerMessage {
 // Agent service provides private methods for pmm-agent <-> pmm-managed interactions.
 service Agent {
   //
-  // // Register adds pmm-agent to pmm-managed database and returns agent's UUID.
+  // // Register adds pmm-agent to pmm-managed database and returns agent's ID.
   // rpc Register(RegisterRequest) returns (RegisterResponse);
   //
 
