@@ -33,14 +33,16 @@ func getValue(md metadata.MD, key string) string {
 }
 
 // AddAgentConnectMetadata adds metadata to pmm-agent's Connect RPC call.
+// Used by pmm-agent.
 func AddAgentConnectMetadata(ctx context.Context, md *AgentConnectMetadata) context.Context {
 	return metadata.AppendToOutgoingContext(ctx, mdID, md.ID, mdVersion, md.Version)
 }
 
 // GetAgentConnectMetadata returns pmm-agent's metadata.
-func GetAgentConnectMetadata(stream Agent_ConnectServer) *AgentConnectMetadata {
+// Used by pmm-managed.
+func GetAgentConnectMetadata(ctx context.Context) *AgentConnectMetadata {
 	res := new(AgentConnectMetadata)
-	md, ok := metadata.FromIncomingContext(stream.Context())
+	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		res.ID = getValue(md, mdID)
 		res.Version = getValue(md, mdVersion)
