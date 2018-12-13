@@ -7,7 +7,7 @@ import "google/api/annotations.proto";
 message StatusRequest {}
 
 message StatusResponse {
-  uint32 node_id = 1;
+  string node_id = 1;
 }
 
 // AgentLocal service provides public methods for checking pmm-agent status locally.

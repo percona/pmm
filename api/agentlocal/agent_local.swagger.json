@@ -51,8 +51,7 @@
       "type": "object",
       "properties": {
         "node_id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     }
