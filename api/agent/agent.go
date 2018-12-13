@@ -40,8 +40,8 @@ func AddAgentConnectMetadata(ctx context.Context, md *AgentConnectMetadata) cont
 
 // GetAgentConnectMetadata returns pmm-agent's metadata.
 // Used by pmm-managed.
-func GetAgentConnectMetadata(ctx context.Context) *AgentConnectMetadata {
-	res := new(AgentConnectMetadata)
+func GetAgentConnectMetadata(ctx context.Context) AgentConnectMetadata {
+	var res AgentConnectMetadata
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		res.ID = getValue(md, mdID)
