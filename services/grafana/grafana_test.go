@@ -29,7 +29,7 @@ import (
 
 func TestCreateAnnotation(t *testing.T) {
 	from := time.Now()
-	ctx, _ := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(context.Background(), t.Name())
 	c := NewClient("127.0.0.1:3000")
 
 	t.Run("Normal", func(t *testing.T) {

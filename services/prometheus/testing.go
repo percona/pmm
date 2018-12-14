@@ -35,7 +35,7 @@ type testingT interface {
 // SetupTest returns a Prometheus service for testing.
 // Returned parameters should be passed to TearDownTest after test.
 func SetupTest(t testingT) (ctx context.Context, p *Service, before []byte) {
-	ctx, _ = logger.Set(context.Background(), t.Name())
+	ctx = logger.Set(context.Background(), t.Name())
 
 	consulClient, err := consul.NewClient("127.0.0.1:8500")
 	if err != nil {

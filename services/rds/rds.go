@@ -281,7 +281,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 				HTTPClient:                    svc.httpClient,
 				Logger:                        aws.LoggerFunc(l.Debug),
 			}
-			if l.Level >= logrus.DebugLevel {
+			if l.Logger.GetLevel() >= logrus.DebugLevel {
 				config.LogLevel = aws.LogLevel(aws.LogDebug)
 			}
 			s, err := session.NewSession(config)

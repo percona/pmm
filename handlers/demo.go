@@ -20,7 +20,7 @@ import (
 	"context"
 	"fmt"
 
-	spb "google.golang.org/genproto/googleapis/rpc/status"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -30,21 +30,22 @@ import (
 type DemoServer struct{}
 
 func (s *DemoServer) Error(ctx context.Context, req *api.DemoErrorRequest) (*api.DemoErrorResponse, error) {
-	if req.Code >= 100 {
-		panic(fmt.Sprintf("panic with code %d", req.Code))
-	}
-
-	code := codes.Code(req.Code)
-	switch code {
-	case codes.OK:
+	switch {
+	case req.Code == 0:
 		return &api.DemoErrorResponse{}, nil
-	case codes.InvalidArgument:
-		return nil, status.ErrorProto(&spb.Status{
-			Code:    int32(codes.InvalidArgument),
-			Message: "invalid argument",
-		})
+	case req.Code < 20:
+		code := codes.Code(req.Code)
+		return nil, status.Error(code, code.String())
+	case req.Code < 40:
+		return nil, errors.Errorf("pkg/errors error with code %d", req.Code)
+	case req.Code < 60:
+		return nil, fmt.Errorf("raw error with code %d", req.Code)
+	case req.Code < 80:
+		panic(errors.Errorf("pkg/errors panic with code %d", req.Code))
+	case req.Code < 100:
+		panic(fmt.Errorf("error panic with code %d", req.Code))
 	default:
-		return nil, status.Errorf(code, "unhandled error: %s", code)
+		panic(fmt.Sprintf("string panic with code %d", req.Code))
 	}
 }
 

@@ -19,26 +19,105 @@ package interceptors
 
 import (
 	"context"
+	"fmt"
+	"runtime/debug"
+	"runtime/pprof"
+	"time"
 
 	middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	api "github.com/percona/pmm/api/agent"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
+func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
+	start := time.Now()
+	l.Infof("Starting %s ...", prefix)
+
+	defer func() {
+		dur := time.Since(start)
+
+		if p := recover(); p != nil {
+			// Always log with %+v, even before re-panic - there can be inner stacktraces
+			// produced by panic(errors.WithStack(err)).
+			// Also always log debug.Stack() for all panics.
+			l.Errorf("Panic: %+v.\nStack: %s", p, debug.Stack())
+
+			if l.Logger.GetLevel() < logrus.DebugLevel {
+				panic(p)
+			}
+
+			// replace with plain error without gRPC code or stacktrace - we already logged it
+			err = fmt.Errorf("Internal server error.")
+		}
+
+		_, gRPCError := status.FromError(err)
+		switch {
+		case err == nil:
+			l.Infof("%s done in %s.", prefix, dur)
+		case gRPCError:
+			l.Warnf("%s done in %s with %s", prefix, dur, err)
+		default:
+			// %+v for inner stacktraces produced by errors.WithStack(err)
+			l.Errorf("%s done in %s with unexpected error: %+v", prefix, dur, err)
+			err = status.Error(codes.Internal, "Internal server error.")
+		}
+	}()
+
+	err = f()
+	return
+}
+
 // Unary adds context logger and Prometheus metrics to unary server RPC.
 func Unary(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	ctx, _ = logger.Set(ctx, logger.MakeRequestID())
-	return grpc_prometheus.UnaryServerInterceptor(ctx, req, info, handler)
+	// add pprof labels for more useful profiles
+	defer pprof.SetGoroutineLabels(ctx)
+	ctx = pprof.WithLabels(ctx, pprof.Labels("method", info.FullMethod))
+	pprof.SetGoroutineLabels(ctx)
+
+	// set logger
+	l := logrus.WithField("request", logger.MakeRequestID())
+	ctx = logger.SetEntry(ctx, l)
+
+	var res interface{}
+	err := logRequest(l, "RPC "+info.FullMethod, func() error {
+		var origErr error
+		res, origErr = grpc_prometheus.UnaryServerInterceptor(ctx, req, info, handler)
+		return origErr
+	})
+	return res, err
 }
 
 // Stream adds context logger and Prometheus metrics to stream server RPC.
 func Stream(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-	wrapped := middleware.WrapServerStream(ss)
-	wrapped.WrappedContext, _ = logger.Set(ss.Context(), logger.MakeRequestID())
+	ctx := ss.Context()
 
-	return grpc_prometheus.StreamServerInterceptor(srv, wrapped, info, handler)
+	// add pprof labels for more useful profiles
+	defer pprof.SetGoroutineLabels(ctx)
+	ctx = pprof.WithLabels(ctx, pprof.Labels("method", info.FullMethod))
+	pprof.SetGoroutineLabels(ctx)
+
+	// set logger
+	l := logrus.WithField("request", logger.MakeRequestID())
+	if info.FullMethod == "/agent.Agent/Connect" {
+		agentID := api.GetAgentConnectMetadata(ctx).ID
+		if agentID != "" {
+			l = l.WithField("agent_id", agentID)
+		}
+	}
+	ctx = logger.SetEntry(ctx, l)
+
+	err := logRequest(l, "Stream "+info.FullMethod, func() error {
+		wrapped := middleware.WrapServerStream(ss)
+		wrapped.WrappedContext = ctx
+		return grpc_prometheus.StreamServerInterceptor(srv, wrapped, info, handler)
+	})
+	return err
 }
 
 // check interfaces

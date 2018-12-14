@@ -524,7 +524,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:6a913983e3aa71ee6315446497c6dc533fa2bff3de476b30d41e2251324cfd8e"
+  digest = "1:e45ef8bccddb55106153b5d165aa9267f2a11f390196c6a4d9ec0d2a5c8e267f"
   name = "github.com/percona/pmm"
   packages = [
     "api/agent",
@@ -533,7 +533,7 @@
     "proto/config",
   ]
   pruneopts = "T"
-  revision = "6c056de1adb0657f1466493d766545ea922a6c78"
+  revision = "d0f72b05e468fb0e554e5d312f0c22617d979c5f"
 
 [[projects]]
   digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
@@ -903,7 +903,6 @@
     "golang.org/x/net/context",
     "golang.org/x/sync/errgroup",
     "google.golang.org/genproto/googleapis/api/annotations",
-    "google.golang.org/genproto/googleapis/rpc/status",
     "google.golang.org/grpc",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/grpclog",

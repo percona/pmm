@@ -19,9 +19,8 @@ package logger
 
 import (
 	"context"
-	"fmt"
-	"time"
 
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,17 +37,28 @@ func Get(ctx context.Context) *logrus.Entry {
 }
 
 // Set returns derived context with set logrus entry with given request ID.
-func Set(ctx context.Context, requestID string) (context.Context, *logrus.Entry) {
+func Set(ctx context.Context, requestID string) context.Context {
+	return SetEntry(ctx, logrus.WithField("request", requestID))
+}
+
+// SetEntry returns derived context with set given logrus entry.
+func SetEntry(ctx context.Context, l *logrus.Entry) context.Context {
 	if ctx.Value(key{}) != nil {
 		Get(ctx).Panicf("context logger already set")
-		return nil, nil
+		return nil
 	}
 
-	l := logrus.WithField("request", requestID)
-	return context.WithValue(ctx, key{}, l), l
+	return context.WithValue(ctx, key{}, l)
 }
 
 // MakeRequestID returns a new request ID.
 func MakeRequestID() string {
-	return fmt.Sprintf("%016x", time.Now().UnixNano())
+	// UUID version 1: first 8 characters are time-based and lexicography sorted,
+	// which is a useful property there
+	u, err := uuid.NewUUID()
+	if err != nil {
+		panic(err)
+	}
+
+	return u.String()
 }

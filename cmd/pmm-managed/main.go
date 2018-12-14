@@ -42,6 +42,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"gopkg.in/reform.v1"
 	reformMySQL "gopkg.in/reform.v1/dialects/mysql"
@@ -100,6 +101,7 @@ var (
 	agentQANBaseF           = flag.String("agent-qan-base", "/usr/local/percona/qan-agent", "qan-agent installation base path")
 
 	debugF = flag.Bool("debug", false, "Enable debug logging")
+	traceF = flag.Bool("trace", false, "Enable trace logging")
 )
 
 func addSwaggerHandler(mux *http.ServeMux) {
@@ -126,7 +128,7 @@ func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
 		rw.Header().Set(`Access-Control-Allow-Origin`, `*`)
 		rw.Header().Set(`Content-Type`, `application/zip`)
 		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
-		ctx, _ = logger.Set(ctx, "logs")
+		ctx = logger.Set(ctx, "logs")
 		if err := logs.Zip(ctx, rw); err != nil {
 			l.Error(err)
 		}
@@ -326,8 +328,8 @@ func runGRPCServer(ctx context.Context, deps *grpcServerDependencies) {
 		reflection.Register(gRPCServer)
 	}
 
-	grpc_prometheus.Register(gRPCServer)
 	grpc_prometheus.EnableHandlingTimeHistogram()
+	grpc_prometheus.Register(gRPCServer)
 
 	listener, err := net.Listen("tcp", *gRPCAddrF)
 	if err != nil {
@@ -396,11 +398,6 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 		Addr:     *jsonAddrF,
 		ErrorLog: log.New(os.Stderr, "runJSONServer: ", 0),
 		Handler:  mux,
-
-		// TODO we probably will need it for TLS+HTTP/2, see https://github.com/philips/grpc-gateway-example/issues/11
-		// TLSConfig: &tls.Config{
-		// 	NextProtos: []string{"h2"},
-		// },
 	}
 	go func() {
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
@@ -516,7 +513,11 @@ func main() {
 
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
-		// grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
+	}
+	if *traceF {
+		logrus.SetLevel(logrus.TraceLevel)
+		logrus.SetReportCaller(true)
+		grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 	}
 
 	if *swaggerF != "json" && *swaggerF != "debug" && *swaggerF != "off" {
@@ -524,9 +525,11 @@ func main() {
 		log.Fatalf("Unexpected value %q for -swagger flag.", *swaggerF)
 	}
 
+	logrus.Infof("Log level: %s.", logrus.GetLevel())
+
 	l := logrus.WithField("component", "main")
 	ctx, cancel := context.WithCancel(context.Background())
-	ctx, _ = logger.Set(ctx, "main")
+	ctx = logger.Set(ctx, "main")
 	defer l.Info("Done.")
 
 	// handle termination signals

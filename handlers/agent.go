@@ -32,7 +32,7 @@ type AgentServer struct {
 func (s *AgentServer) Connect(stream api.Agent_ConnectServer) error {
 	l := logger.Get(stream.Context())
 
-	md := api.GetAgentConnectMetadata(stream)
+	md := api.GetAgentConnectMetadata(stream.Context())
 	l.Infof("Connected client: %+v.", md)
 
 	t := time.NewTicker(10 * time.Second)

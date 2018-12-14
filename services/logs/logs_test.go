@@ -41,7 +41,7 @@ import (
 
 // TODO add RDS service
 func setup(t *testing.T) (context.Context, *consul.Client, *reform.DB, string) {
-	ctx, _ := logger.Set(context.Background(), t.Name())
+	ctx := logger.Set(context.Background(), t.Name())
 
 	consulClient, err := consul.NewClient("127.0.0.1:8500")
 	require.NoError(t, err)
