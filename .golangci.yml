@@ -11,7 +11,7 @@ linters-settings:
     local-prefixes: github.com/percona/pmm-managed
 
   lll:
-    line-length: 140
+    line-length: 170
     tab-width: 4
 
   unused:

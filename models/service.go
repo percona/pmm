@@ -36,10 +36,10 @@ const (
 // ServiceRow represents Service as stored in database.
 //reform:services
 type ServiceRow struct {
-	ID     uint32      `reform:"id,pk"`
+	ID     string      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
 	Name   string      `reform:"name"`
-	NodeID uint32      `reform:"node_id"`
+	NodeID string      `reform:"node_id"`
 	// CreatedAt time.Time   `reform:"created_at"`
 	// UpdatedAt time.Time   `reform:"updated_at"`
 
@@ -84,17 +84,17 @@ var (
 
 //reform:services
 type Service struct {
-	ID     uint32      `reform:"id,pk"`
+	ID     string      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
-	NodeID uint32      `reform:"node_id"`
+	NodeID string      `reform:"node_id"`
 }
 
 //reform:services
 type AWSRDSService struct {
-	ID     uint32      `reform:"id,pk"`
+	ID     string      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
 	Name   string      `reform:"name"`
-	NodeID uint32      `reform:"node_id"`
+	NodeID string      `reform:"node_id"`
 
 	AWSAccessKey  *string `reform:"aws_access_key"` // may be nil
 	AWSSecretKey  *string `reform:"aws_secret_key"` // may be nil
@@ -106,10 +106,10 @@ type AWSRDSService struct {
 
 //reform:services
 type PostgreSQLService struct {
-	ID     uint32      `reform:"id,pk"`
+	ID     string      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
 	Name   string      `reform:"name"`
-	NodeID uint32      `reform:"node_id"`
+	NodeID string      `reform:"node_id"`
 
 	Address       *string `reform:"address"`
 	Port          *uint16 `reform:"port"`
@@ -119,10 +119,10 @@ type PostgreSQLService struct {
 
 //reform:services
 type MySQLService struct {
-	ID     uint32      `reform:"id,pk"`
+	ID     string      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
 	Name   string      `reform:"name"`
-	NodeID uint32      `reform:"node_id"`
+	NodeID string      `reform:"node_id"`
 
 	Address       *string `reform:"address"`
 	Port          *uint16 `reform:"port"`
@@ -132,10 +132,10 @@ type MySQLService struct {
 
 //reform:services
 type RemoteService struct {
-	ID     uint32      `reform:"id,pk"`
+	ID     string      `reform:"id,pk"`
 	Type   ServiceType `reform:"type"`
 	Name   string      `reform:"name"`
-	NodeID uint32      `reform:"node_id"`
+	NodeID string      `reform:"node_id"`
 
 	Address       *string `reform:"address"`
 	Port          *uint16 `reform:"port"`

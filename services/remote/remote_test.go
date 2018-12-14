@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -40,6 +41,8 @@ import (
 )
 
 func setup(t *testing.T) (context.Context, *postgresql.Service, *Service, *sql.DB, []byte, string, *mocks.Supervisor) {
+	uuid.SetRand(new(tests.IDReader))
+
 	// We can't/shouldn't use /usr/local/percona/ (the default basedir), so use
 	// a tmpdir instead with roughly the same, fake structure.
 	rootDir, err := ioutil.TempDir("/tmp", "pmm-managed-test-rootdir-")
@@ -101,16 +104,16 @@ func TestList(t *testing.T) {
 	require.NoError(t, err)
 	expected := []Instance{{
 		Node: models.RemoteNode{
-			ID:     2,
+			ID:     "gen:00000000-0000-4000-8000-000000000001",
 			Type:   "remote",
 			Name:   "localhost",
 			Region: pointer.ToString("remote"),
 		},
 		Service: models.RemoteService{
-			ID:            1000,
+			ID:            "gen:00000000-0000-4000-8000-000000000002",
 			Type:          "postgresql",
 			Name:          "localhost",
-			NodeID:        2,
+			NodeID:        "gen:00000000-0000-4000-8000-000000000001",
 			Address:       pointer.ToString("localhost"),
 			Port:          pointer.ToUint16(5432),
 			Engine:        pointer.ToString("PostgreSQL"),

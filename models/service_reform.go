@@ -47,7 +47,7 @@ func (v *serviceRowTableType) PKColumnIndex() uint {
 
 // ServiceRowTable represents services view or table in SQL database.
 var ServiceRowTable = &serviceRowTableType{
-	s: parse.StructInfo{Type: "ServiceRow", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "UnixSocket", Type: "*string", Column: "unix_socket"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "ServiceRow", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "UnixSocket", Type: "*string", Column: "unix_socket"}}, PKFieldIndex: 0},
 	z: new(ServiceRow).Values(),
 }
 
@@ -122,9 +122,9 @@ func (s *ServiceRow) HasPK() bool {
 // SetPK sets record primary key.
 func (s *ServiceRow) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = uint32(i64)
+		s.ID = string(i64)
 	} else {
-		s.ID = pk.(uint32)
+		s.ID = pk.(string)
 	}
 }
 
@@ -174,7 +174,7 @@ func (v *serviceTableType) PKColumnIndex() uint {
 
 // ServiceTable represents services view or table in SQL database.
 var ServiceTable = &serviceTableType{
-	s: parse.StructInfo{Type: "Service", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Service", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "NodeID", Type: "string", Column: "node_id"}}, PKFieldIndex: 0},
 	z: new(Service).Values(),
 }
 
@@ -237,9 +237,9 @@ func (s *Service) HasPK() bool {
 // SetPK sets record primary key.
 func (s *Service) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = uint32(i64)
+		s.ID = string(i64)
 	} else {
-		s.ID = pk.(uint32)
+		s.ID = pk.(string)
 	}
 }
 
@@ -289,7 +289,7 @@ func (v *aWSRDSServiceTableType) PKColumnIndex() uint {
 
 // AWSRDSServiceTable represents services view or table in SQL database.
 var AWSRDSServiceTable = &aWSRDSServiceTableType{
-	s: parse.StructInfo{Type: "AWSRDSService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "AWSAccessKey", Type: "*string", Column: "aws_access_key"}, {Name: "AWSSecretKey", Type: "*string", Column: "aws_secret_key"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "AWSRDSService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "AWSAccessKey", Type: "*string", Column: "aws_access_key"}, {Name: "AWSSecretKey", Type: "*string", Column: "aws_secret_key"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
 	z: new(AWSRDSService).Values(),
 }
 
@@ -373,9 +373,9 @@ func (s *AWSRDSService) HasPK() bool {
 // SetPK sets record primary key.
 func (s *AWSRDSService) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = uint32(i64)
+		s.ID = string(i64)
 	} else {
-		s.ID = pk.(uint32)
+		s.ID = pk.(string)
 	}
 }
 
@@ -425,7 +425,7 @@ func (v *postgreSQLServiceTableType) PKColumnIndex() uint {
 
 // PostgreSQLServiceTable represents services view or table in SQL database.
 var PostgreSQLServiceTable = &postgreSQLServiceTableType{
-	s: parse.StructInfo{Type: "PostgreSQLService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "PostgreSQLService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
 	z: new(PostgreSQLService).Values(),
 }
 
@@ -503,9 +503,9 @@ func (s *PostgreSQLService) HasPK() bool {
 // SetPK sets record primary key.
 func (s *PostgreSQLService) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = uint32(i64)
+		s.ID = string(i64)
 	} else {
-		s.ID = pk.(uint32)
+		s.ID = pk.(string)
 	}
 }
 
@@ -555,7 +555,7 @@ func (v *mySQLServiceTableType) PKColumnIndex() uint {
 
 // MySQLServiceTable represents services view or table in SQL database.
 var MySQLServiceTable = &mySQLServiceTableType{
-	s: parse.StructInfo{Type: "MySQLService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "MySQLService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
 	z: new(MySQLService).Values(),
 }
 
@@ -633,9 +633,9 @@ func (s *MySQLService) HasPK() bool {
 // SetPK sets record primary key.
 func (s *MySQLService) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = uint32(i64)
+		s.ID = string(i64)
 	} else {
-		s.ID = pk.(uint32)
+		s.ID = pk.(string)
 	}
 }
 
@@ -685,7 +685,7 @@ func (v *remoteServiceTableType) PKColumnIndex() uint {
 
 // RemoteServiceTable represents services view or table in SQL database.
 var RemoteServiceTable = &remoteServiceTableType{
-	s: parse.StructInfo{Type: "RemoteService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "uint32", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "RemoteService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
 	z: new(RemoteService).Values(),
 }
 
@@ -763,9 +763,9 @@ func (s *RemoteService) HasPK() bool {
 // SetPK sets record primary key.
 func (s *RemoteService) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = uint32(i64)
+		s.ID = string(i64)
 	} else {
-		s.ID = pk.(uint32)
+		s.ID = pk.(string)
 	}
 }
 

@@ -30,6 +30,7 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
+	"github.com/google/uuid"
 	"github.com/percona/pmm/proto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -48,6 +49,8 @@ import (
 )
 
 func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *mocks.Supervisor, *httptest.Server) {
+	uuid.SetRand(new(tests.IDReader))
+
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/instances/42":
@@ -270,15 +273,15 @@ func TestAddListRemove(t *testing.T) {
 	require.NoError(t, err)
 	expected := []Instance{{
 		Node: models.AWSRDSNode{
-			ID:     3,
+			ID:     "gen:00000000-0000-4000-8000-000000000004",
 			Type:   "aws-rds",
 			Name:   "rds-mysql57",
 			Region: pointer.ToString("us-east-1"),
 		},
 		Service: models.AWSRDSService{
-			ID:            1001,
+			ID:            "gen:00000000-0000-4000-8000-000000000005",
 			Type:          "aws-rds",
-			NodeID:        3,
+			NodeID:        "gen:00000000-0000-4000-8000-000000000004",
 			AWSAccessKey:  &accessKey,
 			AWSSecretKey:  &secretKey,
 			Address:       pointer.ToString("rds-mysql57.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),

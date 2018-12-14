@@ -16,7 +16,7 @@ import (
 type InventoryChangeMySQLServiceRequest struct {
 
 	// Unique Service identifier.
-	ID int64 `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 
 	// Unique user-defined Service name.
 	Name string `json:"name,omitempty"`

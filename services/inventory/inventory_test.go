@@ -42,6 +42,8 @@ func TestNodes(t *testing.T) {
 	ctx := context.Background()
 
 	setup := func(t *testing.T) (ns *NodesService, teardown func(t *testing.T)) {
+		uuid.SetRand(new(tests.IDReader))
+
 		db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
@@ -63,23 +65,23 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualNodes, 1) // PMMServerNodeType
 
-		actualNode, err := ns.Add(ctx, models.BareMetalNodeType, "test-bm", pointer.ToString("test-bm"), nil)
+		actualNode, err := ns.Add(ctx, "", models.BareMetalNodeType, "test-bm", pointer.ToString("test-bm"), nil)
 		require.NoError(t, err)
 		expectedNode := &inventory.BareMetalNode{
-			Id:       2,
+			Id:       "gen:00000000-0000-4000-8000-000000000001",
 			Name:     "test-bm",
 			Hostname: "test-bm",
 		}
 		assert.Equal(t, expectedNode, actualNode)
 
-		actualNode, err = ns.Get(ctx, 2)
+		actualNode, err = ns.Get(ctx, "gen:00000000-0000-4000-8000-000000000001")
 		require.NoError(t, err)
 		assert.Equal(t, expectedNode, actualNode)
 
-		actualNode, err = ns.Change(ctx, 2, "test-bm-new")
+		actualNode, err = ns.Change(ctx, "gen:00000000-0000-4000-8000-000000000001", "test-bm-new")
 		require.NoError(t, err)
 		expectedNode = &inventory.BareMetalNode{
-			Id:       2,
+			Id:       "gen:00000000-0000-4000-8000-000000000001",
 			Name:     "test-bm-new",
 			Hostname: "test-bm",
 		}
@@ -88,23 +90,51 @@ func TestNodes(t *testing.T) {
 		actualNodes, err = ns.List(ctx)
 		require.NoError(t, err)
 		require.Len(t, actualNodes, 2)
-		assert.Equal(t, expectedNode, actualNodes[1])
+		assert.Equal(t, expectedNode, actualNodes[0])
 
-		err = ns.Remove(ctx, 2)
+		err = ns.Remove(ctx, "gen:00000000-0000-4000-8000-000000000001")
 		require.NoError(t, err)
-		actualNode, err = ns.Get(ctx, 2)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID 2 not found.`), err)
+		actualNode, err = ns.Get(ctx, "gen:00000000-0000-4000-8000-000000000001")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "gen:00000000-0000-4000-8000-000000000001" not found.`), err)
 		assert.Nil(t, actualNode)
+	})
+
+	t.Run("GetEmptyID", func(t *testing.T) {
+		ns, teardown := setup(t)
+		defer teardown(t)
+
+		actualNode, err := ns.Get(ctx, "")
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Node ID.`), err)
+		assert.Nil(t, actualNode)
+	})
+
+	t.Run("AddNameEmpty", func(t *testing.T) {
+		ns, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := ns.Add(ctx, "", models.VirtualMachineNodeType, "", nil, nil)
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Node name.`), err)
+	})
+
+	t.Run("AddIDNotUnique", func(t *testing.T) {
+		ns, teardown := setup(t)
+		defer teardown(t)
+
+		_, err := ns.Add(ctx, "test-id", models.ContainerNodeType, "test", nil, nil)
+		require.NoError(t, err)
+
+		_, err = ns.Add(ctx, "test-id", models.ContainerNodeType, "test", nil, nil)
+		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with ID "test-id" already exists.`), err)
 	})
 
 	t.Run("AddNameNotUnique", func(t *testing.T) {
 		ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, models.VirtualMachineNodeType, "test", pointer.ToString("test"), nil)
+		_, err := ns.Add(ctx, "", models.VirtualMachineNodeType, "test", pointer.ToString("test"), nil)
 		require.NoError(t, err)
 
-		_, err = ns.Add(ctx, models.ContainerNodeType, "test", nil, nil)
+		_, err = ns.Add(ctx, "", models.ContainerNodeType, "test", nil, nil)
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test" already exists.`), err)
 	})
 
@@ -112,10 +142,10 @@ func TestNodes(t *testing.T) {
 		ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, models.BareMetalNodeType, "test1", pointer.ToString("test"), nil)
+		_, err := ns.Add(ctx, "", models.BareMetalNodeType, "test1", pointer.ToString("test"), nil)
 		require.NoError(t, err)
 
-		_, err = ns.Add(ctx, models.BareMetalNodeType, "test2", pointer.ToString("test"), nil)
+		_, err = ns.Add(ctx, "", models.BareMetalNodeType, "test2", pointer.ToString("test"), nil)
 		require.NoError(t, err)
 	})
 
@@ -123,10 +153,10 @@ func TestNodes(t *testing.T) {
 		ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, models.AWSRDSNodeType, "test1", pointer.ToString("test-hostname"), pointer.ToString("test-region"))
+		_, err := ns.Add(ctx, "", models.AWSRDSNodeType, "test1", pointer.ToString("test-hostname"), pointer.ToString("test-region"))
 		require.NoError(t, err)
 
-		_, err = ns.Add(ctx, models.AWSRDSNodeType, "test2", pointer.ToString("test-hostname"), pointer.ToString("test-region"))
+		_, err = ns.Add(ctx, "", models.AWSRDSNodeType, "test2", pointer.ToString("test-hostname"), pointer.ToString("test-region"))
 		expected := status.New(codes.AlreadyExists, `Node with hostname "test-hostname" and region "test-region" already exists.`)
 		tests.AssertGRPCError(t, expected, err)
 	})
@@ -135,18 +165,18 @@ func TestNodes(t *testing.T) {
 		ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Change(ctx, 2, "test-bm-new")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID 2 not found.`), err)
+		_, err := ns.Change(ctx, "no-such-id", "test-bm-new")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
 	})
 
 	t.Run("ChangeNameNotUnique", func(t *testing.T) {
 		ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, models.RemoteNodeType, "test-remote", nil, nil)
+		_, err := ns.Add(ctx, "", models.RemoteNodeType, "test-remote", nil, nil)
 		require.NoError(t, err)
 
-		rdsNode, err := ns.Add(ctx, models.AWSRDSNodeType, "test-rds", nil, nil)
+		rdsNode, err := ns.Add(ctx, "", models.AWSRDSNodeType, "test-rds", nil, nil)
 		require.NoError(t, err)
 
 		_, err = ns.Change(ctx, rdsNode.(*inventory.AWSRDSNode).Id, "test-remote")
@@ -157,8 +187,8 @@ func TestNodes(t *testing.T) {
 		ns, teardown := setup(t)
 		defer teardown(t)
 
-		err := ns.Remove(ctx, 2)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID 2 not found.`), err)
+		err := ns.Remove(ctx, "no-such-id")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
 	})
 }
 
@@ -170,6 +200,8 @@ func TestServices(t *testing.T) {
 	ctx := context.Background()
 
 	setup := func(t *testing.T) (ss *ServicesService, teardown func(t *testing.T)) {
+		uuid.SetRand(new(tests.IDReader))
+
 		db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
@@ -191,27 +223,27 @@ func TestServices(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualServices, 0)
 
-		actualService, err := ss.AddMySQL(ctx, "test-mysql", 1, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
+		actualService, err := ss.AddMySQL(ctx, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
 		require.NoError(t, err)
 		expectedService := &inventory.MySQLService{
-			Id:      1000,
+			Id:      "gen:00000000-0000-4000-8000-000000000001",
 			Name:    "test-mysql",
-			NodeId:  1,
+			NodeId:  models.PMMServerNodeID,
 			Address: "127.0.0.1",
 			Port:    3306,
 		}
 		assert.Equal(t, expectedService, actualService)
 
-		actualService, err = ss.Get(ctx, 1000)
+		actualService, err = ss.Get(ctx, "gen:00000000-0000-4000-8000-000000000001")
 		require.NoError(t, err)
 		assert.Equal(t, expectedService, actualService)
 
-		actualService, err = ss.Change(ctx, 1000, "test-mysql-new")
+		actualService, err = ss.Change(ctx, "gen:00000000-0000-4000-8000-000000000001", "test-mysql-new")
 		require.NoError(t, err)
 		expectedService = &inventory.MySQLService{
-			Id:      1000,
+			Id:      "gen:00000000-0000-4000-8000-000000000001",
 			Name:    "test-mysql-new",
-			NodeId:  1,
+			NodeId:  models.PMMServerNodeID,
 			Address: "127.0.0.1",
 			Port:    3306,
 		}
@@ -222,21 +254,30 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 1)
 		assert.Equal(t, expectedService, actualServices[0])
 
-		err = ss.Remove(ctx, 1000)
+		err = ss.Remove(ctx, "gen:00000000-0000-4000-8000-000000000001")
 		require.NoError(t, err)
-		actualService, err = ss.Get(ctx, 1000)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID 1000 not found.`), err)
+		actualService, err = ss.Get(ctx, "gen:00000000-0000-4000-8000-000000000001")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "gen:00000000-0000-4000-8000-000000000001" not found.`), err)
 		assert.Nil(t, actualService)
+	})
+
+	t.Run("GetEmptyID", func(t *testing.T) {
+		ss, teardown := setup(t)
+		defer teardown(t)
+
+		actualNode, err := ss.Get(ctx, "")
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Service ID.`), err)
+		assert.Nil(t, actualNode)
 	})
 
 	t.Run("AddNameNotUnique", func(t *testing.T) {
 		ss, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ss.AddMySQL(ctx, "test-mysql", 1, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
+		_, err := ss.AddMySQL(ctx, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
 		require.NoError(t, err)
 
-		_, err = ss.AddMySQL(ctx, "test-mysql", 1, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
+		_, err = ss.AddMySQL(ctx, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Service with name "test-mysql" already exists.`), err)
 	})
 
@@ -244,26 +285,26 @@ func TestServices(t *testing.T) {
 		ss, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ss.AddMySQL(ctx, "test-mysql", 2, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID 2 not found.`), err)
+		_, err := ss.AddMySQL(ctx, "test-mysql", "no-such-id", pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
 	})
 
 	t.Run("ChangeNotFound", func(t *testing.T) {
 		ss, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ss.Change(ctx, 1, "test-mysql-new")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID 1 not found.`), err)
+		_, err := ss.Change(ctx, "no-such-id", "test-mysql-new")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "no-such-id" not found.`), err)
 	})
 
 	t.Run("ChangeNameNotUnique", func(t *testing.T) {
 		ss, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ss.AddMySQL(ctx, "test-mysql", 1, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
+		_, err := ss.AddMySQL(ctx, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
 		require.NoError(t, err)
 
-		s, err := ss.AddMySQL(ctx, "test-mysql-2", 1, pointer.ToString("127.0.0.2"), pointer.ToUint16(3306), nil)
+		s, err := ss.AddMySQL(ctx, "test-mysql-2", models.PMMServerNodeID, pointer.ToString("127.0.0.2"), pointer.ToUint16(3306), nil)
 		require.NoError(t, err)
 
 		_, err = ss.Change(ctx, s.(*inventory.MySQLService).Id, "test-mysql")
@@ -274,8 +315,8 @@ func TestServices(t *testing.T) {
 		ss, teardown := setup(t)
 		defer teardown(t)
 
-		err := ss.Remove(ctx, 1)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID 1 not found.`), err)
+		err := ss.Remove(ctx, "no-such-id")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "no-such-id" not found.`), err)
 	})
 }
 
@@ -287,6 +328,8 @@ func TestAgents(t *testing.T) {
 	ctx := context.Background()
 
 	setup := func(t *testing.T) (ss *ServicesService, as *AgentsService, teardown func(t *testing.T)) {
+		uuid.SetRand(new(tests.IDReader))
+
 		db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
@@ -311,40 +354,40 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualAgents, 0)
 
-		actualAgent, err := as.AddNodeExporter(ctx, 1, true)
+		actualAgent, err := as.AddNodeExporter(ctx, models.PMMServerNodeID, true)
 		require.NoError(t, err)
 		expectedNodeExporterAgent := &inventory.NodeExporter{
-			Id:           1000000,
-			RunsOnNodeId: 1,
+			Id:           "gen:00000000-0000-4000-8000-000000000001",
+			RunsOnNodeId: models.PMMServerNodeID,
 			Disabled:     true,
 		}
 		assert.Equal(t, expectedNodeExporterAgent, actualAgent)
 
-		actualAgent, err = as.Get(ctx, 1000000)
+		actualAgent, err = as.Get(ctx, "gen:00000000-0000-4000-8000-000000000001")
 		require.NoError(t, err)
 		assert.Equal(t, expectedNodeExporterAgent, actualAgent)
 
-		_, err = ss.AddMySQL(ctx, "test-mysql", 1, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
+		_, err = ss.AddMySQL(ctx, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306), nil)
 		require.NoError(t, err)
 
-		actualAgent, err = as.AddMySQLdExporter(ctx, 1, false, 1000, pointer.ToString("username"), nil)
+		actualAgent, err = as.AddMySQLdExporter(ctx, models.PMMServerNodeID, false, "gen:00000000-0000-4000-8000-000000000002", pointer.ToString("username"), nil)
 		require.NoError(t, err)
 		expectedMySQLdExporterAgent := &inventory.MySQLdExporter{
-			Id:           1000001,
-			RunsOnNodeId: 1,
-			ServiceId:    1000,
+			Id:           "gen:00000000-0000-4000-8000-000000000003",
+			RunsOnNodeId: models.PMMServerNodeID,
+			ServiceId:    "gen:00000000-0000-4000-8000-000000000002",
 			Username:     "username",
 		}
 		assert.Equal(t, expectedMySQLdExporterAgent, actualAgent)
 
-		actualAgent, err = as.Get(ctx, 1000001)
+		actualAgent, err = as.Get(ctx, "gen:00000000-0000-4000-8000-000000000003")
 		require.NoError(t, err)
 		assert.Equal(t, expectedMySQLdExporterAgent, actualAgent)
 
-		err = as.SetDisabled(ctx, 1000001, true)
+		err = as.SetDisabled(ctx, "gen:00000000-0000-4000-8000-000000000003", true)
 		require.NoError(t, err)
 		expectedMySQLdExporterAgent.Disabled = true
-		actualAgent, err = as.Get(ctx, 1000001)
+		actualAgent, err = as.Get(ctx, "gen:00000000-0000-4000-8000-000000000003")
 		require.NoError(t, err)
 		assert.Equal(t, expectedMySQLdExporterAgent, actualAgent)
 
@@ -354,16 +397,16 @@ func TestAgents(t *testing.T) {
 		assert.Equal(t, expectedNodeExporterAgent, actualAgents[0])
 		assert.Equal(t, expectedMySQLdExporterAgent, actualAgents[1])
 
-		err = as.Remove(ctx, 1000000)
+		err = as.Remove(ctx, "gen:00000000-0000-4000-8000-000000000001")
 		require.NoError(t, err)
-		actualAgent, err = as.Get(ctx, 1000000)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID 1000000 not found.`), err)
+		actualAgent, err = as.Get(ctx, "gen:00000000-0000-4000-8000-000000000001")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "gen:00000000-0000-4000-8000-000000000001" not found.`), err)
 		assert.Nil(t, actualAgent)
 
-		err = as.Remove(ctx, 1000001)
+		err = as.Remove(ctx, "gen:00000000-0000-4000-8000-000000000003")
 		require.NoError(t, err)
-		actualAgent, err = as.Get(ctx, 1000001)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID 1000001 not found.`), err)
+		actualAgent, err = as.Get(ctx, "gen:00000000-0000-4000-8000-000000000003")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "gen:00000000-0000-4000-8000-000000000003" not found.`), err)
 		assert.Nil(t, actualAgent)
 
 		actualAgents, err = as.List(ctx)
@@ -371,17 +414,24 @@ func TestAgents(t *testing.T) {
 		require.Len(t, actualAgents, 0)
 	})
 
+	t.Run("GetEmptyID", func(t *testing.T) {
+		_, as, teardown := setup(t)
+		defer teardown(t)
+
+		actualNode, err := as.Get(ctx, "")
+		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Agent ID.`), err)
+		assert.Nil(t, actualNode)
+	})
+
 	t.Run("AddPMMAgent", func(t *testing.T) {
 		_, as, teardown := setup(t)
 		defer teardown(t)
 
-		actualAgent, uuidS, err := as.AddPMMAgent(ctx, 1)
+		actualAgent, err := as.AddPMMAgent(ctx, models.PMMServerNodeID)
 		require.NoError(t, err)
-		_, err = uuid.Parse(uuidS)
-		assert.NoError(t, err)
 		expectedPMMAgent := &inventory.PMMAgent{
-			Id:           1000002,
-			RunsOnNodeId: 1,
+			Id:           "gen:00000000-0000-4000-8000-000000000001",
+			RunsOnNodeId: models.PMMServerNodeID,
 		}
 		assert.Equal(t, expectedPMMAgent, actualAgent)
 	})
@@ -390,31 +440,31 @@ func TestAgents(t *testing.T) {
 		_, as, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := as.AddNodeExporter(ctx, 1000, true)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID 1000 not found.`), err)
+		_, err := as.AddNodeExporter(ctx, "no-such-id", true)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
 	})
 
 	t.Run("AddServiceNotFound", func(t *testing.T) {
 		_, as, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := as.AddMySQLdExporter(ctx, 1, false, 1000, pointer.ToString("username"), nil)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID 1000 not found.`), err)
+		_, err := as.AddMySQLdExporter(ctx, models.PMMServerNodeID, false, "no-such-id", pointer.ToString("username"), nil)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "no-such-id" not found.`), err)
 	})
 
 	t.Run("DisableNotFound", func(t *testing.T) {
 		_, as, teardown := setup(t)
 		defer teardown(t)
 
-		err := as.SetDisabled(ctx, 1, true)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID 1 not found.`), err)
+		err := as.SetDisabled(ctx, "no-such-id", true)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "no-such-id" not found.`), err)
 	})
 
 	t.Run("RemoveNotFound", func(t *testing.T) {
 		_, as, teardown := setup(t)
 		defer teardown(t)
 
-		err := as.Remove(ctx, 999999999)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID 999999999 not found.`), err)
+		err := as.Remove(ctx, "no-such-id")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "no-such-id" not found.`), err)
 	})
 }

@@ -26,8 +26,8 @@ import (
 // AgentService implements many-to-many relationship between Agents and Services.
 //reform:agent_services
 type AgentService struct {
-	AgentID   uint32 `reform:"agent_id"`
-	ServiceID uint32 `reform:"service_id"`
+	AgentID   string `reform:"agent_id"`
+	ServiceID string `reform:"service_id"`
 	// CreatedAt time.Time `reform:"created_at"`
 }
 
@@ -60,7 +60,7 @@ var (
 )
 
 // AgentsForServiceID returns agents providing insights for a given service.
-func AgentsForServiceID(q *reform.Querier, serviceID uint32) ([]Agent, error) {
+func AgentsForServiceID(q *reform.Querier, serviceID string) ([]Agent, error) {
 	agentServices, err := q.SelectAllFrom(AgentServiceView, "WHERE service_id = ?", serviceID)
 	if err != nil {
 		return nil, errors.WithStack(err)

@@ -7,7 +7,7 @@ import "google/api/annotations.proto";
 message RemoteNode {
     reserved 2; // type
 
-    uint32 id = 1;
+    string id = 1;
     string name = 3;
     string region = 4;
 }

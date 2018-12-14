@@ -56,7 +56,6 @@ func (s *MySQLServer) List(ctx context.Context, req *api.MySQLListRequest) (*api
 
 // Add adds new MySQL instance.
 func (s *MySQLServer) Add(ctx context.Context, req *api.MySQLAddRequest) (*api.MySQLAddResponse, error) {
-
 	id, err := s.MySQL.Add(ctx, req.Name, req.Address, req.Port, req.Username, req.Password)
 	if err != nil {
 		logger.Get(ctx).Errorf("%+v", err)

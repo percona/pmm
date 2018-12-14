@@ -729,8 +729,7 @@
         },
         "id": {
           "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "name": {
           "description": "Unique user-defined Node name.",
@@ -747,6 +746,10 @@
       "properties": {
         "hostname": {
           "description": "Hostname. Unique in combination with region.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique Node identifier (may be empty).",
           "type": "string"
         },
         "name": {
@@ -772,6 +775,10 @@
       "properties": {
         "hostname": {
           "description": "Hostname. Is not unique.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique Node identifier (may be empty).",
           "type": "string"
         },
         "name": {
@@ -818,8 +825,7 @@
         },
         "node_id": {
           "description": "Node identifier where this Service runs.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "port": {
           "description": "MySQL access port.",
@@ -854,13 +860,11 @@
         },
         "runs_on_node_id": {
           "description": "Node identifier where Agent runs.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "service_id": {
           "description": "Service identifier for which insights are provided by that Agent.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "username": {
           "description": "MySQL username for extracting metrics.",
@@ -886,8 +890,7 @@
         },
         "runs_on_node_id": {
           "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },
@@ -904,8 +907,7 @@
       "properties": {
         "runs_on_node_id": {
           "description": "Node identifier where Agent runs.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },
@@ -914,16 +916,16 @@
       "properties": {
         "pmm_agent": {
           "$ref": "#/definitions/inventoryPMMAgent"
-        },
-        "uuid": {
-          "description": "pmm-agent UUID.",
-          "type": "string"
         }
       }
     },
     "inventoryAddRemoteNodeRequest": {
       "type": "object",
       "properties": {
+        "id": {
+          "description": "Unique Node identifier (may be empty).",
+          "type": "string"
+        },
         "name": {
           "description": "Unique user-defined Node name.",
           "type": "string"
@@ -943,6 +945,10 @@
       "properties": {
         "hostname": {
           "description": "Hostname. Is not unique.",
+          "type": "string"
+        },
+        "id": {
+          "description": "Unique Node identifier (may be empty).",
           "type": "string"
         },
         "name": {
@@ -969,8 +975,7 @@
         },
         "id": {
           "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "name": {
           "description": "Unique user-defined Node name.",
@@ -983,8 +988,7 @@
       "properties": {
         "id": {
           "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "name": {
           "description": "Unique user-defined Node name.",
@@ -1005,8 +1009,7 @@
       "properties": {
         "id": {
           "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "name": {
           "description": "Unique user-defined Node name.",
@@ -1027,8 +1030,7 @@
       "properties": {
         "id": {
           "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "name": {
           "description": "Unique user-defined Node name.",
@@ -1049,8 +1051,7 @@
       "properties": {
         "id": {
           "description": "Unique Service identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "name": {
           "description": "Unique user-defined Service name.",
@@ -1071,8 +1072,7 @@
       "properties": {
         "id": {
           "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "name": {
           "description": "Unique user-defined Node name.",
@@ -1093,8 +1093,7 @@
       "properties": {
         "id": {
           "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "name": {
           "description": "Unique user-defined Node name.",
@@ -1116,8 +1115,7 @@
       "properties": {
         "id": {
           "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "name": {
           "description": "Unique user-defined Node name.",
@@ -1130,8 +1128,7 @@
       "properties": {
         "id": {
           "description": "Unique Agent identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },
@@ -1143,8 +1140,7 @@
       "properties": {
         "id": {
           "description": "Unique Agent identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },
@@ -1156,8 +1152,7 @@
       "properties": {
         "id": {
           "description": "Unique Agent identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },
@@ -1180,8 +1175,7 @@
       "properties": {
         "id": {
           "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },
@@ -1210,8 +1204,7 @@
       "properties": {
         "id": {
           "description": "Unique Service identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },
@@ -1311,8 +1304,7 @@
         },
         "id": {
           "description": "Unique Service identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "name": {
           "description": "Unique user-defined Service name.",
@@ -1320,8 +1312,7 @@
         },
         "node_id": {
           "description": "Node identifier where this Service runs.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "port": {
           "description": "MySQL access port.",
@@ -1345,8 +1336,7 @@
         },
         "id": {
           "description": "Unique Agent identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "listen_port": {
           "description": "HTTP listen port for exposing metrics.",
@@ -1360,13 +1350,11 @@
         },
         "runs_on_node_id": {
           "description": "Node identifier where Agent runs.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "service_id": {
           "description": "Service identifier for which insights are provided by that Agent.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "username": {
           "description": "MySQL username for extracting metrics.",
@@ -1385,8 +1373,7 @@
         },
         "id": {
           "description": "Unique Agent identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "listen_port": {
           "description": "HTTP listen port for exposing metrics.",
@@ -1400,8 +1387,7 @@
         },
         "runs_on_node_id": {
           "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },
@@ -1411,8 +1397,7 @@
       "properties": {
         "id": {
           "description": "Unique Agent identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "running": {
           "description": "Agent process status: running and connected to pmm-managed, or not.",
@@ -1421,8 +1406,7 @@
         },
         "runs_on_node_id": {
           "description": "Node identifier where Agent runs.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },
@@ -1432,8 +1416,7 @@
       "properties": {
         "id": {
           "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "name": {
           "description": "Unique user-defined Node name.",
@@ -1445,8 +1428,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },
@@ -1457,8 +1439,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },
@@ -1469,8 +1450,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         }
       }
     },
@@ -1487,8 +1467,7 @@
         },
         "id": {
           "description": "Unique Node identifier.",
-          "type": "integer",
-          "format": "int64"
+          "type": "string"
         },
         "name": {
           "description": "Unique user-defined Node name.",

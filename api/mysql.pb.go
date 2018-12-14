@@ -35,7 +35,7 @@ func (m *MySQLNode) Reset()         { *m = MySQLNode{} }
 func (m *MySQLNode) String() string { return proto.CompactTextString(m) }
 func (*MySQLNode) ProtoMessage()    {}
 func (*MySQLNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mysql_6da2f4df45af7868, []int{0}
+	return fileDescriptor_mysql_ec59ee5ec9efbcab, []int{0}
 }
 func (m *MySQLNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLNode.Unmarshal(m, b)
@@ -76,7 +76,7 @@ func (m *MySQLService) Reset()         { *m = MySQLService{} }
 func (m *MySQLService) String() string { return proto.CompactTextString(m) }
 func (*MySQLService) ProtoMessage()    {}
 func (*MySQLService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mysql_6da2f4df45af7868, []int{1}
+	return fileDescriptor_mysql_ec59ee5ec9efbcab, []int{1}
 }
 func (m *MySQLService) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLService.Unmarshal(m, b)
@@ -136,7 +136,7 @@ func (m *MySQLInstance) Reset()         { *m = MySQLInstance{} }
 func (m *MySQLInstance) String() string { return proto.CompactTextString(m) }
 func (*MySQLInstance) ProtoMessage()    {}
 func (*MySQLInstance) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mysql_6da2f4df45af7868, []int{2}
+	return fileDescriptor_mysql_ec59ee5ec9efbcab, []int{2}
 }
 func (m *MySQLInstance) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLInstance.Unmarshal(m, b)
@@ -180,7 +180,7 @@ func (m *MySQLListRequest) Reset()         { *m = MySQLListRequest{} }
 func (m *MySQLListRequest) String() string { return proto.CompactTextString(m) }
 func (*MySQLListRequest) ProtoMessage()    {}
 func (*MySQLListRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mysql_6da2f4df45af7868, []int{3}
+	return fileDescriptor_mysql_ec59ee5ec9efbcab, []int{3}
 }
 func (m *MySQLListRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLListRequest.Unmarshal(m, b)
@@ -211,7 +211,7 @@ func (m *MySQLListResponse) Reset()         { *m = MySQLListResponse{} }
 func (m *MySQLListResponse) String() string { return proto.CompactTextString(m) }
 func (*MySQLListResponse) ProtoMessage()    {}
 func (*MySQLListResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mysql_6da2f4df45af7868, []int{4}
+	return fileDescriptor_mysql_ec59ee5ec9efbcab, []int{4}
 }
 func (m *MySQLListResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLListResponse.Unmarshal(m, b)
@@ -253,7 +253,7 @@ func (m *MySQLAddRequest) Reset()         { *m = MySQLAddRequest{} }
 func (m *MySQLAddRequest) String() string { return proto.CompactTextString(m) }
 func (*MySQLAddRequest) ProtoMessage()    {}
 func (*MySQLAddRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mysql_6da2f4df45af7868, []int{5}
+	return fileDescriptor_mysql_ec59ee5ec9efbcab, []int{5}
 }
 func (m *MySQLAddRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLAddRequest.Unmarshal(m, b)
@@ -309,7 +309,7 @@ func (m *MySQLAddRequest) GetPassword() string {
 }
 
 type MySQLAddResponse struct {
-	Id                   uint32   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -319,7 +319,7 @@ func (m *MySQLAddResponse) Reset()         { *m = MySQLAddResponse{} }
 func (m *MySQLAddResponse) String() string { return proto.CompactTextString(m) }
 func (*MySQLAddResponse) ProtoMessage()    {}
 func (*MySQLAddResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mysql_6da2f4df45af7868, []int{6}
+	return fileDescriptor_mysql_ec59ee5ec9efbcab, []int{6}
 }
 func (m *MySQLAddResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLAddResponse.Unmarshal(m, b)
@@ -339,15 +339,15 @@ func (m *MySQLAddResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MySQLAddResponse proto.InternalMessageInfo
 
-func (m *MySQLAddResponse) GetId() uint32 {
+func (m *MySQLAddResponse) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 type MySQLRemoveRequest struct {
-	Id                   uint32   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -357,7 +357,7 @@ func (m *MySQLRemoveRequest) Reset()         { *m = MySQLRemoveRequest{} }
 func (m *MySQLRemoveRequest) String() string { return proto.CompactTextString(m) }
 func (*MySQLRemoveRequest) ProtoMessage()    {}
 func (*MySQLRemoveRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mysql_6da2f4df45af7868, []int{7}
+	return fileDescriptor_mysql_ec59ee5ec9efbcab, []int{7}
 }
 func (m *MySQLRemoveRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLRemoveRequest.Unmarshal(m, b)
@@ -377,11 +377,11 @@ func (m *MySQLRemoveRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MySQLRemoveRequest proto.InternalMessageInfo
 
-func (m *MySQLRemoveRequest) GetId() uint32 {
+func (m *MySQLRemoveRequest) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 type MySQLRemoveResponse struct {
@@ -394,7 +394,7 @@ func (m *MySQLRemoveResponse) Reset()         { *m = MySQLRemoveResponse{} }
 func (m *MySQLRemoveResponse) String() string { return proto.CompactTextString(m) }
 func (*MySQLRemoveResponse) ProtoMessage()    {}
 func (*MySQLRemoveResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_mysql_6da2f4df45af7868, []int{8}
+	return fileDescriptor_mysql_ec59ee5ec9efbcab, []int{8}
 }
 func (m *MySQLRemoveResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLRemoveResponse.Unmarshal(m, b)
@@ -564,10 +564,10 @@ var _MySQL_serviceDesc = grpc.ServiceDesc{
 	Metadata: "mysql.proto",
 }
 
-func init() { proto.RegisterFile("mysql.proto", fileDescriptor_mysql_6da2f4df45af7868) }
+func init() { proto.RegisterFile("mysql.proto", fileDescriptor_mysql_ec59ee5ec9efbcab) }
 
-var fileDescriptor_mysql_6da2f4df45af7868 = []byte{
-	// 487 bytes of a gzipped FileDescriptorProto
+var fileDescriptor_mysql_ec59ee5ec9efbcab = []byte{
+	// 486 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x53, 0x4d, 0x6f, 0xd3, 0x40,
 	0x10, 0xd5, 0xda, 0x6e, 0x3e, 0x26, 0x24, 0x24, 0x43, 0x13, 0x56, 0x16, 0x87, 0x68, 0x05, 0x52,
 	0xd4, 0x4a, 0x71, 0x15, 0x6e, 0xdc, 0x7a, 0x40, 0x2a, 0x51, 0x41, 0xc2, 0x91, 0xb8, 0x82, 0xe9,
@@ -590,13 +590,13 @@ var fileDescriptor_mysql_6da2f4df45af7868 = []byte{
 	0x18, 0x3c, 0x26, 0xf0, 0x5c, 0xca, 0x52, 0xba, 0x3a, 0x00, 0xab, 0x0f, 0xd0, 0xcc, 0xd8, 0x7b,
 	0x38, 0x63, 0xbf, 0x91, 0x71, 0x08, 0x9d, 0x5b, 0xa7, 0x32, 0x52, 0x29, 0x4e, 0x52, 0xd5, 0x3b,
 	0x2c, 0x4d, 0x9c, 0xfb, 0x62, 0x33, 0x49, 0x77, 0xe9, 0xc6, 0x55, 0x2d, 0x44, 0xb9, 0x28, 0x99,
-	0x29, 0x77, 0x1a, 0x80, 0xa7, 0x25, 0x79, 0xe9, 0xc7, 0x9e, 0x96, 0xe2, 0x39, 0x20, 0x71, 0x62,
-	0xb5, 0xb1, 0x5b, 0xb5, 0xf7, 0x7c, 0xc8, 0x1a, 0xc3, 0x93, 0x7b, 0xac, 0x42, 0x6c, 0xf1, 0x97,
-	0xc1, 0x11, 0xf5, 0xf1, 0x02, 0x82, 0x5d, 0x74, 0x38, 0xae, 0xf3, 0x69, 0xc4, 0x1b, 0x4e, 0x0e,
-	0xdb, 0x85, 0x80, 0x18, 0x7d, 0xff, 0xfd, 0xe7, 0x97, 0xd7, 0xc3, 0x6e, 0xb4, 0x3d, 0x8b, 0xe8,
-	0x2b, 0xc7, 0x0b, 0xf0, 0xcf, 0xa5, 0xc4, 0xe3, 0x7a, 0xa2, 0xce, 0x32, 0x1c, 0x1f, 0x74, 0x4b,
-	0x99, 0x63, 0x92, 0x19, 0x88, 0x5a, 0xe6, 0x15, 0x3b, 0xc1, 0x15, 0xb4, 0x0a, 0xbf, 0xf8, 0xb4,
-	0x1e, 0xbb, 0xb7, 0x67, 0xc8, 0xff, 0x07, 0x4a, 0xc9, 0x09, 0x49, 0x0e, 0x4f, 0x06, 0x95, 0x64,
-	0xf4, 0x55, 0xcb, 0x6f, 0x9f, 0x5b, 0xf4, 0x8b, 0xbd, 0xfc, 0x17, 0x00, 0x00, 0xff, 0xff, 0x46,
-	0xff, 0x8e, 0x47, 0x94, 0x03, 0x00, 0x00,
+	0x29, 0x77, 0x1a, 0x80, 0xa7, 0x65, 0xe9, 0xc5, 0xd3, 0x52, 0x3c, 0x07, 0x24, 0x4e, 0xac, 0x36,
+	0x76, 0xab, 0xf6, 0x9e, 0x0f, 0x59, 0x63, 0x78, 0x72, 0x8f, 0x55, 0x88, 0x2d, 0xfe, 0x32, 0x38,
+	0xa2, 0x3e, 0x5e, 0x40, 0xb0, 0x8b, 0x0e, 0xc7, 0x75, 0x3e, 0x8d, 0x78, 0xc3, 0xc9, 0x61, 0xbb,
+	0x10, 0x10, 0xa3, 0xef, 0xbf, 0xff, 0xfc, 0xf2, 0x7a, 0xd8, 0x8d, 0xb6, 0x67, 0x11, 0x7d, 0xe5,
+	0x78, 0x01, 0xfe, 0xb9, 0x94, 0x78, 0x5c, 0x4f, 0xd4, 0x59, 0x86, 0xe3, 0x83, 0x6e, 0x29, 0x73,
+	0x4c, 0x32, 0x03, 0x51, 0xcb, 0xbc, 0x62, 0x27, 0xb8, 0x82, 0x56, 0xe1, 0x17, 0x9f, 0xd6, 0x63,
+	0xf7, 0xf6, 0x0c, 0xf9, 0xff, 0x40, 0x29, 0x39, 0x21, 0xc9, 0xe1, 0xc9, 0xa0, 0x92, 0x8c, 0xbe,
+	0x6a, 0xf9, 0xed, 0x73, 0x8b, 0x7e, 0xb1, 0x97, 0xff, 0x02, 0x00, 0x00, 0xff, 0xff, 0xcd, 0x19,
+	0x4a, 0x4f, 0x94, 0x03, 0x00, 0x00,
 }

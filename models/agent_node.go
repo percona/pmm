@@ -26,8 +26,8 @@ import (
 // AgentNode implements many-to-many relationship between Agents and Nodes.
 //reform:agent_nodes
 type AgentNode struct {
-	AgentID uint32 `reform:"agent_id"`
-	NodeID  uint32 `reform:"node_id"`
+	AgentID string `reform:"agent_id"`
+	NodeID  string `reform:"node_id"`
 	// CreatedAt time.Time `reform:"created_at"`
 }
 
@@ -60,7 +60,7 @@ var (
 )
 
 // AgentsForNodeID returns agents providing insights for a given node.
-func AgentsForNodeID(q *reform.Querier, nodeID uint32) ([]Agent, error) {
+func AgentsForNodeID(q *reform.Querier, nodeID string) ([]Agent, error) {
 	agentNodes, err := q.SelectAllFrom(AgentNodeView, "WHERE node_id = ?", nodeID)
 	if err != nil {
 		return nil, errors.WithStack(err)

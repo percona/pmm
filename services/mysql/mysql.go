@@ -37,6 +37,7 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm-managed/services/inventory"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/utils/logger"
@@ -235,6 +236,7 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 		return err
 	}
 	agent := &models.MySQLdExporter{
+		ID:           inventory.MakeID(),
 		Type:         models.MySQLdExporterAgentType,
 		RunsOnNodeID: svc.pmmServerNode.ID,
 
@@ -327,6 +329,7 @@ func (svc *Service) addQanAgent(ctx context.Context, tx *reform.TX, service *mod
 
 	// insert qan-agent agent and association
 	agent := &models.QanAgent{
+		ID:           inventory.MakeID(),
 		Type:         models.QanAgentAgentType,
 		RunsOnNodeID: svc.pmmServerNode.ID,
 
@@ -360,15 +363,15 @@ func (svc *Service) addQanAgent(ctx context.Context, tx *reform.TX, service *mod
 	return nil
 }
 
-func (svc *Service) Add(ctx context.Context, name, address string, port uint32, username, password string) (uint32, error) {
+func (svc *Service) Add(ctx context.Context, name, address string, port uint32, username, password string) (string, error) {
 	address = strings.TrimSpace(address)
 	username = strings.TrimSpace(username)
 	name = strings.TrimSpace(name)
 	if address == "" {
-		return 0, status.Error(codes.InvalidArgument, "MySQL instance host is not given.")
+		return "", status.Error(codes.InvalidArgument, "MySQL instance host is not given.")
 	}
 	if username == "" {
-		return 0, status.Error(codes.InvalidArgument, "Username is not given.")
+		return "", status.Error(codes.InvalidArgument, "Username is not given.")
 	}
 	if port == 0 {
 		port = defaultMySQLPort
@@ -377,10 +380,11 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 		name = address
 	}
 
-	var id uint32
+	var id string
 	err := svc.DB.InTransaction(func(tx *reform.TX) error {
 		// insert node
 		node := &models.RemoteNode{
+			ID:     inventory.MakeID(),
 			Type:   models.RemoteNodeType,
 			Name:   name,
 			Region: pointer.ToString(models.RemoteNodeRegion),
@@ -401,6 +405,7 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 
 		// insert service
 		service := &models.MySQLService{
+			ID:     inventory.MakeID(),
 			Type:   models.MySQLServiceType,
 			Name:   name,
 			NodeID: node.ID,
@@ -427,13 +432,13 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 	return id, err
 }
 
-func (svc *Service) Remove(ctx context.Context, id uint32) error {
+func (svc *Service) Remove(ctx context.Context, id string) error {
 	var err error
 	return svc.DB.InTransaction(func(tx *reform.TX) error {
 		var node models.RemoteNode
 		if err = tx.SelectOneTo(&node, "WHERE type = ? AND id = ?", models.RemoteNodeType, id); err != nil {
 			if err == reform.ErrNoRows {
-				return status.Errorf(codes.NotFound, "MySQL instance with ID %d not found.", id)
+				return status.Errorf(codes.NotFound, "MySQL instance with ID %q not found.", id)
 			}
 			return errors.WithStack(err)
 		}
@@ -476,7 +481,7 @@ func (svc *Service) Remove(ctx context.Context, id uint32) error {
 		}
 
 		// stop agents
-		agents := make(map[uint32]models.Agent, len(agentsForService)+len(agentsForNode))
+		agents := make(map[string]models.Agent, len(agentsForService)+len(agentsForNode))
 		for _, agent := range agentsForService {
 			agents[agent.ID] = agent
 		}

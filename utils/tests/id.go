@@ -14,19 +14,35 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package inventory contains inventory business logic: Nodes, Services, Agents.
-package inventory
+package tests
 
 import (
-	"github.com/google/uuid"
+	"encoding/binary"
+	"fmt"
+	"io"
+	"sync/atomic"
 )
 
-// TODO Decide about transactions.
-
-// FIXME remove it when we remove old services (mysql, postgresql, remote)
-var MakeID = makeID
-
-// makeID generates new random ID for Node, Service, or Agent.
-func makeID() string {
-	return "gen:" + uuid.New().String()
+// IDReader is used in tests for ID/UUID generation.
+type IDReader struct {
+	lastID uint64
 }
+
+// Read returns non-random data for ID/UUID generation.
+func (t *IDReader) Read(b []byte) (int, error) {
+	if len(b) != 16 {
+		panic(fmt.Errorf("unexpected read of length %d", b))
+	}
+
+	for i := range b {
+		b[i] = 0
+	}
+	id := atomic.AddUint64(&t.lastID, 1)
+	binary.BigEndian.PutUint64(b[8:], id)
+	return len(b), nil
+}
+
+// check interfaces
+var (
+	_ io.Reader = (*IDReader)(nil)
+)

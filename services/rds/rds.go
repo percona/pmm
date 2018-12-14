@@ -45,6 +45,7 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm-managed/services/inventory"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/utils/logger"
@@ -392,6 +393,7 @@ func (svc *Service) addMySQLdExporter(ctx context.Context, tx *reform.TX, servic
 		return err
 	}
 	agent := &models.MySQLdExporter{
+		ID:           inventory.MakeID(),
 		Type:         models.MySQLdExporterAgentType,
 		RunsOnNodeID: svc.pmmServerNode.ID,
 
@@ -539,6 +541,7 @@ func (svc *Service) rdsExporterServiceConfig(agent *models.RDSExporter) *service
 func (svc *Service) addRDSExporter(ctx context.Context, tx *reform.TX, service *models.AWSRDSService, node *models.AWSRDSNode) error {
 	// insert rds_exporter agent and associations
 	agent := &models.RDSExporter{
+		ID:           inventory.MakeID(),
 		Type:         models.RDSExporterAgentType,
 		RunsOnNodeID: svc.pmmServerNode.ID,
 
@@ -580,6 +583,7 @@ func (svc *Service) addQanAgent(ctx context.Context, tx *reform.TX, service *mod
 
 	// insert qan-agent agent and association
 	agent := &models.QanAgent{
+		ID:           inventory.MakeID(),
 		Type:         models.QanAgentAgentType,
 		RunsOnNodeID: svc.pmmServerNode.ID,
 
@@ -656,6 +660,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 	return svc.DB.InTransaction(func(tx *reform.TX) error {
 		// insert node
 		node := &models.AWSRDSNode{
+			ID:   inventory.MakeID(),
 			Type: models.AWSRDSNodeType,
 			Name: add.Node.Name,
 
@@ -671,6 +676,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 
 		// insert service
 		service := &models.AWSRDSService{
+			ID:     inventory.MakeID(),
 			Type:   models.AWSRDSServiceType,
 			NodeID: node.ID,
 
@@ -757,7 +763,7 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 		}
 
 		// stop agents
-		agents := make(map[uint32]models.Agent, len(agentsForService)+len(agentsForNode))
+		agents := make(map[string]models.Agent, len(agentsForService)+len(agentsForNode))
 		for _, agent := range agentsForService {
 			agents[agent.ID] = agent
 		}

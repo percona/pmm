@@ -40,7 +40,7 @@ var databaseSchema = [][]string{
 		)`,
 
 		`CREATE TABLE nodes (
-			id INT NOT NULL AUTO_INCREMENT,
+			id VARCHAR(255) NOT NULL,
 			type VARCHAR(255) NOT NULL,
 			name VARCHAR(255) NOT NULL,
 			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -52,15 +52,15 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (id),
 			UNIQUE (name),
 			UNIQUE (hostname, region)
-		) AUTO_INCREMENT = 1`,
+		)`,
 
-		`INSERT INTO nodes (type, name) VALUES ('` + string(PMMServerNodeType) + `', 'PMM Server')`,
+		`INSERT INTO nodes (id, type, name) VALUES ('` + PMMServerNodeID + `', '` + string(PMMServerNodeType) + `', 'PMM Server')`,
 
 		`CREATE TABLE services (
-			id INT NOT NULL AUTO_INCREMENT,
+			id VARCHAR(255) NOT NULL,
 			type VARCHAR(255) NOT NULL,
 			name VARCHAR(255) NOT NULL,
-			node_id INT NOT NULL,
+			node_id VARCHAR(255) NOT NULL,
 			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -76,18 +76,17 @@ var databaseSchema = [][]string{
 			PRIMARY KEY (id),
 			UNIQUE (name),
 			FOREIGN KEY (node_id) REFERENCES nodes (id)
-		) AUTO_INCREMENT = 1000`,
+		)`,
 
 		`CREATE TABLE agents (
-			id INT NOT NULL AUTO_INCREMENT,
+			id VARCHAR(255) NOT NULL,
 			type VARCHAR(255) NOT NULL,
-			runs_on_node_id INT NOT NULL,
+			runs_on_node_id VARCHAR(255) NOT NULL,
 			disabled BOOL NOT NULL,
 			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 			listen_port SMALLINT UNSIGNED,
-			uuid VARCHAR(255),
 			service_username VARCHAR(255),
 			service_password VARCHAR(255),
 
@@ -96,11 +95,11 @@ var databaseSchema = [][]string{
 
 			PRIMARY KEY (id),
 			FOREIGN KEY (runs_on_node_id) REFERENCES nodes (id)
-		) AUTO_INCREMENT = 1000000`,
+		)`,
 
 		`CREATE TABLE agent_nodes (
-			agent_id INT NOT NULL,
-			node_id INT NOT NULL,
+			agent_id VARCHAR(255) NOT NULL,
+			node_id VARCHAR(255) NOT NULL,
 			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (agent_id) REFERENCES agents (id),
 			FOREIGN KEY (node_id) REFERENCES nodes (id),
@@ -108,8 +107,8 @@ var databaseSchema = [][]string{
 		)`,
 
 		`CREATE TABLE agent_services (
-			agent_id INT NOT NULL,
-			service_id INT NOT NULL,
+			agent_id VARCHAR(255) NOT NULL,
+			service_id VARCHAR(255) NOT NULL,
 			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (agent_id) REFERENCES agents (id),
 			FOREIGN KEY (service_id) REFERENCES services (id),

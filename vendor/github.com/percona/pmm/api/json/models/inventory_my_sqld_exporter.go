@@ -19,7 +19,7 @@ type InventoryMySqldExporter struct {
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Unique Agent identifier.
-	ID int64 `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 
 	// HTTP listen port for exposing metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
@@ -28,10 +28,10 @@ type InventoryMySqldExporter struct {
 	Running bool `json:"running,omitempty"`
 
 	// Node identifier where Agent runs.
-	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Service identifier for which insights are provided by that Agent.
-	ServiceID int64 `json:"service_id,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MySQL username for extracting metrics.
 	Username string `json:"username,omitempty"`

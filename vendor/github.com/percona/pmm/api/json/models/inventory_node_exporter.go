@@ -19,7 +19,7 @@ type InventoryNodeExporter struct {
 	Disabled bool `json:"disabled,omitempty"`
 
 	// Unique Agent identifier.
-	ID int64 `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 
 	// HTTP listen port for exposing metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
@@ -28,7 +28,7 @@ type InventoryNodeExporter struct {
 	Running bool `json:"running,omitempty"`
 
 	// Node identifier where Agent runs and for which insights are provided by that Agent.
-	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this inventory node exporter

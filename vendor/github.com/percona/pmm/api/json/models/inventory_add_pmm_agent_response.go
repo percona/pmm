@@ -18,9 +18,6 @@ type InventoryAddPMMAgentResponse struct {
 
 	// pmm agent
 	PMMAgent *InventoryPMMAgent `json:"pmm_agent,omitempty"`
-
-	// pmm-agent UUID.
-	UUID string `json:"uuid,omitempty"`
 }
 
 // Validate validates this inventory add PMM agent response

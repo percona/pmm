@@ -37,7 +37,7 @@ func (v *agentNodeViewType) NewStruct() reform.Struct {
 
 // AgentNodeView represents agent_nodes view or table in SQL database.
 var AgentNodeView = &agentNodeViewType{
-	s: parse.StructInfo{Type: "AgentNode", SQLSchema: "", SQLName: "agent_nodes", Fields: []parse.FieldInfo{{Name: "AgentID", Type: "uint32", Column: "agent_id"}, {Name: "NodeID", Type: "uint32", Column: "node_id"}}, PKFieldIndex: -1},
+	s: parse.StructInfo{Type: "AgentNode", SQLSchema: "", SQLName: "agent_nodes", Fields: []parse.FieldInfo{{Name: "AgentID", Type: "string", Column: "agent_id"}, {Name: "NodeID", Type: "string", Column: "node_id"}}, PKFieldIndex: -1},
 	z: new(AgentNode).Values(),
 }
 

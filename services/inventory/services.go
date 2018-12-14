@@ -53,6 +53,22 @@ func makeService(row *models.ServiceRow) inventory.Service {
 	}
 }
 
+func (ss *ServicesService) get(ctx context.Context, id string) (*models.ServiceRow, error) {
+	if id == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Service ID.")
+	}
+
+	row := &models.ServiceRow{ID: id}
+	switch err := ss.Q.Reload(row); err {
+	case nil:
+		return row, nil
+	case reform.ErrNoRows:
+		return nil, status.Errorf(codes.NotFound, "Service with ID %q not found.", id)
+	default:
+		return nil, errors.WithStack(err)
+	}
+}
+
 func (ss *ServicesService) checkUniqueName(ctx context.Context, name string) error {
 	_, err := ss.Q.FindOneFrom(models.ServiceRowTable, "name", name)
 	switch err {
@@ -63,17 +79,6 @@ func (ss *ServicesService) checkUniqueName(ctx context.Context, name string) err
 	default:
 		return errors.WithStack(err)
 	}
-}
-
-func (ss *ServicesService) get(ctx context.Context, id uint32) (*models.ServiceRow, error) {
-	row := &models.ServiceRow{ID: id}
-	if err := ss.Q.Reload(row); err != nil {
-		if err == reform.ErrNoRows {
-			return nil, status.Errorf(codes.NotFound, "Service with ID %d not found.", id)
-		}
-		return nil, errors.WithStack(err)
-	}
-	return row, nil
 }
 
 // List selects all Services in a stable order.
@@ -92,7 +97,7 @@ func (ss *ServicesService) List(ctx context.Context) ([]inventory.Service, error
 }
 
 // Get selects a single Service by ID.
-func (ss *ServicesService) Get(ctx context.Context, id uint32) (inventory.Service, error) {
+func (ss *ServicesService) Get(ctx context.Context, id string) (inventory.Service, error) {
 	row, err := ss.get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -101,7 +106,7 @@ func (ss *ServicesService) Get(ctx context.Context, id uint32) (inventory.Servic
 }
 
 // AddMySQL inserts MySQL Service with given parameters.
-func (ss *ServicesService) AddMySQL(ctx context.Context, name string, nodeID uint32, address *string, port *uint16, unixSocket *string) (inventory.Service, error) {
+func (ss *ServicesService) AddMySQL(ctx context.Context, name string, nodeID string, address *string, port *uint16, unixSocket *string) (inventory.Service, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// Both address and socket can't be empty, etc.
 
@@ -117,6 +122,7 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, name string, nodeID uin
 	}
 
 	row := &models.ServiceRow{
+		ID:         makeID(),
 		Type:       models.MySQLServiceType,
 		Name:       name,
 		NodeID:     nodeID,
@@ -131,7 +137,7 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, name string, nodeID uin
 }
 
 // Change updates Service by ID.
-func (ss *ServicesService) Change(ctx context.Context, id uint32, name string) (inventory.Service, error) {
+func (ss *ServicesService) Change(ctx context.Context, id string, name string) (inventory.Service, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// ID is not 0, name is not empty and valid.
 
@@ -152,7 +158,7 @@ func (ss *ServicesService) Change(ctx context.Context, id uint32, name string) (
 }
 
 // Remove deletes Service by ID.
-func (ss *ServicesService) Remove(ctx context.Context, id uint32) error {
+func (ss *ServicesService) Remove(ctx context.Context, id string) error {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// ID is not 0.
 
@@ -160,7 +166,7 @@ func (ss *ServicesService) Remove(ctx context.Context, id uint32) error {
 
 	err := ss.Q.Delete(&models.ServiceRow{ID: id})
 	if err == reform.ErrNoRows {
-		return status.Errorf(codes.NotFound, "Service with ID %d not found.", id)
+		return status.Errorf(codes.NotFound, "Service with ID %q not found.", id)
 	}
 	return errors.WithStack(err)
 }

@@ -7,7 +7,7 @@ import "google/api/annotations.proto";
 // BareMetalNode represents bare metal Node.
 message BareMetalNode {
   // Unique Node identifier.
-  uint32 id = 1;
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   // Hostname. Is not unique.
@@ -17,7 +17,7 @@ message BareMetalNode {
 // VirtualMachineNode represents virtual machine Node.
 message VirtualMachineNode {
   // Unique Node identifier.
-  uint32 id = 1;
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   // Hostname. Is not unique.
@@ -27,7 +27,7 @@ message VirtualMachineNode {
 // ContainerNode represents a container (Docker) Node.
 message ContainerNode {
   // Unique Node identifier.
-  uint32 id = 1;
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
@@ -36,7 +36,7 @@ message ContainerNode {
 // RemoteNode represents a generic remote Node.
 message RemoteNode {
   // Unique Node identifier.
-  uint32 id = 1;
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
@@ -45,7 +45,7 @@ message RemoteNode {
 // AWSRDSNode represents AWS RDS Node.
 message AWSRDSNode {
   // Unique Node identifier.
-  uint32 id = 1;
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   // Hostname. Unique in combination with region.
@@ -66,7 +66,7 @@ message ListNodesResponse {
 
 message GetNodeRequest {
   // Unique Node identifier.
-  uint32 id = 1;
+  string id = 1;
 }
 
 message GetNodeResponse {
@@ -80,7 +80,8 @@ message GetNodeResponse {
 }
 
 message AddBareMetalNodeRequest {
-  reserved 1; // id
+  // Unique Node identifier (may be empty).
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   // Hostname. Is not unique.
@@ -92,7 +93,8 @@ message AddBareMetalNodeResponse {
 }
 
 message AddVirtualMachineNodeRequest {
-  reserved 1; // id
+  // Unique Node identifier (may be empty).
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   // Hostname. Is not unique.
@@ -115,7 +117,8 @@ message AddContainerNodeResponse {
 }
 
 message AddRemoteNodeRequest {
-  reserved 1; // id
+  // Unique Node identifier (may be empty).
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
@@ -126,7 +129,8 @@ message AddRemoteNodeResponse {
 }
 
 message AddAWSRDSNodeRequest {
-  reserved 1; // id
+  // Unique Node identifier (may be empty).
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   // Hostname. Unique in combination with region.
@@ -141,7 +145,7 @@ message AddAWSRDSNodeResponse {
 
 message ChangeBareMetalNodeRequest {
   // Unique Node identifier.
-  uint32 id = 1;
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
@@ -153,7 +157,7 @@ message ChangeBareMetalNodeResponse {
 
 message ChangeVirtualMachineNodeRequest {
   // Unique Node identifier.
-  uint32 id = 1;
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
@@ -165,7 +169,7 @@ message ChangeVirtualMachineNodeResponse {
 
 message ChangeContainerNodeRequest {
   // Unique Node identifier.
-  uint32 id = 1;
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
@@ -177,7 +181,7 @@ message ChangeContainerNodeResponse {
 
 message ChangeRemoteNodeRequest {
   // Unique Node identifier.
-  uint32 id = 1;
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
@@ -189,7 +193,7 @@ message ChangeRemoteNodeResponse {
 
 message ChangeAWSRDSNodeRequest {
   // Unique Node identifier.
-  uint32 id = 1;
+  string id = 1;
   // Unique user-defined Node name.
   string name = 2;
   reserved 3; // hostname
@@ -201,7 +205,7 @@ message ChangeAWSRDSNodeResponse {
 }
 
 message RemoveNodeRequest {
-  uint32 id = 1;
+  string id = 1;
 }
 
 message RemoveNodeResponse {}

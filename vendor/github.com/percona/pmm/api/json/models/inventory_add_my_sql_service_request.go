@@ -22,7 +22,7 @@ type InventoryAddMySQLServiceRequest struct {
 	Name string `json:"name,omitempty"`
 
 	// Node identifier where this Service runs.
-	NodeID int64 `json:"node_id,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 
 	// MySQL access port.
 	Port int64 `json:"port,omitempty"`

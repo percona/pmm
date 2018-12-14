@@ -115,7 +115,12 @@ func TestFiles(t *testing.T) {
 	ctx, consulClient, db, logFileName := setup(t)
 	defer teardown(t, db, logFileName)
 
-	err := db.Insert(&models.Agent{Type: "test-agent", RunsOnNodeID: 1, ListenPort: pointer.ToUint16(12345)})
+	err := db.Insert(&models.Agent{
+		ID:           "test-agent-id",
+		Type:         "test-agent",
+		RunsOnNodeID: models.PMMServerNodeID,
+		ListenPort:   pointer.ToUint16(12345),
+	})
 	require.NoError(t, err)
 
 	logs := []Log{

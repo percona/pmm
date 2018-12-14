@@ -85,7 +85,7 @@ func (s *NodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*ap
 
 // AddBareMetalNode adds bare metal Node.
 func (s *NodesServer) AddBareMetalNode(ctx context.Context, req *api.AddBareMetalNodeRequest) (*api.AddBareMetalNodeResponse, error) {
-	node, err := s.Nodes.Add(ctx, models.BareMetalNodeType, req.Name, &req.Hostname, nil)
+	node, err := s.Nodes.Add(ctx, req.Id, models.BareMetalNodeType, req.Name, &req.Hostname, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (s *NodesServer) AddBareMetalNode(ctx context.Context, req *api.AddBareMeta
 
 // AddVirtualMachineNode adds virtual machine Node.
 func (s *NodesServer) AddVirtualMachineNode(ctx context.Context, req *api.AddVirtualMachineNodeRequest) (*api.AddVirtualMachineNodeResponse, error) {
-	node, err := s.Nodes.Add(ctx, models.VirtualMachineNodeType, req.Name, &req.Hostname, nil)
+	node, err := s.Nodes.Add(ctx, req.Id, models.VirtualMachineNodeType, req.Name, &req.Hostname, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (s *NodesServer) AddVirtualMachineNode(ctx context.Context, req *api.AddVir
 
 // AddContainerNode adds container Node.
 func (s *NodesServer) AddContainerNode(ctx context.Context, req *api.AddContainerNodeRequest) (*api.AddContainerNodeResponse, error) {
-	node, err := s.Nodes.Add(ctx, models.ContainerNodeType, req.Name, nil, nil)
+	node, err := s.Nodes.Add(ctx, "", models.ContainerNodeType, req.Name, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +124,7 @@ func (s *NodesServer) AddContainerNode(ctx context.Context, req *api.AddContaine
 
 // AddRemoteNode adds remote Node.
 func (s *NodesServer) AddRemoteNode(ctx context.Context, req *api.AddRemoteNodeRequest) (*api.AddRemoteNodeResponse, error) {
-	node, err := s.Nodes.Add(ctx, models.RemoteNodeType, req.Name, nil, nil)
+	node, err := s.Nodes.Add(ctx, req.Id, models.RemoteNodeType, req.Name, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func (s *NodesServer) AddRemoteNode(ctx context.Context, req *api.AddRemoteNodeR
 
 // AddAWSRDSNode adds AWS RDS Node.
 func (s *NodesServer) AddAWSRDSNode(ctx context.Context, req *api.AddAWSRDSNodeRequest) (*api.AddAWSRDSNodeResponse, error) {
-	node, err := s.Nodes.Add(ctx, models.AWSRDSNodeType, req.Name, &req.Hostname, &req.Region)
+	node, err := s.Nodes.Add(ctx, req.Id, models.AWSRDSNodeType, req.Name, &req.Hostname, &req.Region)
 	if err != nil {
 		return nil, err
 	}

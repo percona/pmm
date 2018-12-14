@@ -36,12 +36,17 @@ const (
 	AWSRDSNodeType         NodeType = "aws-rds"
 )
 
-const RemoteNodeRegion string = "remote"
+const (
+	// PMMServerNodeID is a fixed Node ID for PMM Server where pmm-managed runs.
+	PMMServerNodeID string = "pmm-server"
+
+	RemoteNodeRegion string = "remote"
+)
 
 // NodeRow represents Node as stored in database.
 //reform:nodes
 type NodeRow struct {
-	ID   uint32   `reform:"id,pk"`
+	ID   string   `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"`
 	// CreatedAt time.Time `reform:"created_at"`
@@ -87,14 +92,14 @@ var (
 
 //reform:nodes
 type Node struct {
-	ID   uint32   `reform:"id,pk"`
+	ID   string   `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"`
 }
 
 //reform:nodes
 type AWSRDSNode struct {
-	ID   uint32   `reform:"id,pk"`
+	ID   string   `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"` // DBInstanceIdentifier
 
@@ -104,7 +109,7 @@ type AWSRDSNode struct {
 
 //reform:nodes
 type RemoteNode struct {
-	ID   uint32   `reform:"id,pk"`
+	ID   string   `reform:"id,pk"`
 	Type NodeType `reform:"type"`
 	Name string   `reform:"name"` // DBInstanceIdentifier
 

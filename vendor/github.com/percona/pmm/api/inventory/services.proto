@@ -7,11 +7,11 @@ import "google/api/annotations.proto";
 // MySQLService represents MySQL-compatible Service configuration.
 message MySQLService {
   // Unique Service identifier.
-  uint32 id = 1;
+  string id = 1;
   // Unique user-defined Service name.
   string name = 2;
   // Node identifier where this Service runs.
-  uint32 node_id = 3;
+  string node_id = 3;
   // MySQL access address (DNS name or IP address).
   string address = 4;
   // MySQL access port.
@@ -28,7 +28,7 @@ message ListServicesResponse {
 
 message GetServiceRequest {
   // Unique Service identifier.
-  uint32 id = 1;
+  string id = 1;
 }
 
 message GetServiceResponse {
@@ -42,7 +42,7 @@ message AddMySQLServiceRequest {
   // Unique user-defined Service name.
   string name = 2;
   // Node identifier where this Service runs.
-  uint32 node_id = 3;
+  string node_id = 3;
   // MySQL access address (DNS name or IP address).
   string address = 4;
   // MySQL access port.
@@ -57,7 +57,7 @@ message AddMySQLServiceResponse {
 
 message ChangeMySQLServiceRequest {
   // Unique Service identifier.
-  uint32 id = 1;
+  string id = 1;
   // Unique user-defined Service name.
   string name = 2;
 }
@@ -67,7 +67,7 @@ message ChangeMySQLServiceResponse {
 }
 
 message RemoveServiceRequest {
-  uint32 id = 1;
+  string id = 1;
 }
 
 message RemoveServiceResponse {}

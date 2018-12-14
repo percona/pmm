@@ -30,6 +30,7 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
+	"github.com/google/uuid"
 	"github.com/percona/pmm/proto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -48,6 +49,8 @@ import (
 )
 
 func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *mocks.Supervisor, *httptest.Server) {
+	uuid.SetRand(new(tests.IDReader))
+
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case "/instances/42":
@@ -184,16 +187,16 @@ func TestAddListRemove(t *testing.T) {
 	require.NoError(t, err)
 	expected := []Instance{{
 		Node: models.RemoteNode{
-			ID:     2,
+			ID:     "gen:00000000-0000-4000-8000-000000000001",
 			Type:   "remote",
 			Name:   "localhost",
 			Region: pointer.ToString("remote"),
 		},
 		Service: models.MySQLService{
-			ID:            1000,
+			ID:            "gen:00000000-0000-4000-8000-000000000002",
 			Type:          "mysql",
 			Name:          "localhost",
-			NodeID:        2,
+			NodeID:        "gen:00000000-0000-4000-8000-000000000001",
 			Address:       pointer.ToString("localhost"),
 			Port:          pointer.ToUint16(3306),
 			Engine:        pointer.ToString("Percona Server"),
@@ -207,7 +210,7 @@ func TestAddListRemove(t *testing.T) {
 	assert.NoError(t, err)
 
 	err = svc.Remove(ctx, id)
-	tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`MySQL instance with ID %d not found.`, id)), err)
+	tests.AssertGRPCError(t, status.New(codes.NotFound, fmt.Sprintf(`MySQL instance with ID %q not found.`, id)), err)
 
 	actual, err = svc.List(ctx)
 	require.NoError(t, err)

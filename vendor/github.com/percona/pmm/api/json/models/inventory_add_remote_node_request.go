@@ -15,6 +15,9 @@ import (
 // swagger:model inventoryAddRemoteNodeRequest
 type InventoryAddRemoteNodeRequest struct {
 
+	// Unique Node identifier (may be empty).
+	ID string `json:"id,omitempty"`
+
 	// Unique user-defined Node name.
 	Name string `json:"name,omitempty"`
 }

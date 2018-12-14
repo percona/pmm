@@ -38,6 +38,7 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services"
+	"github.com/percona/pmm-managed/services/inventory"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/utils/logger"
 	"github.com/percona/pmm-managed/utils/ports"
@@ -208,15 +209,15 @@ func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 }
 
 // Add new postgreSQL service and start postgres_exporter
-func (svc *Service) Add(ctx context.Context, name, address string, port uint32, username, password string) (uint32, error) {
+func (svc *Service) Add(ctx context.Context, name, address string, port uint32, username, password string) (string, error) {
 	address = strings.TrimSpace(address)
 	username = strings.TrimSpace(username)
 	name = strings.TrimSpace(name)
 	if address == "" {
-		return 0, status.Error(codes.InvalidArgument, "PostgreSQL instance host is not given.")
+		return "", status.Error(codes.InvalidArgument, "PostgreSQL instance host is not given.")
 	}
 	if username == "" {
-		return 0, status.Error(codes.InvalidArgument, "Username is not given.")
+		return "", status.Error(codes.InvalidArgument, "Username is not given.")
 	}
 	if port == 0 {
 		port = defaultPostgreSQLPort
@@ -225,10 +226,11 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 		name = address
 	}
 
-	var id uint32
+	var id string
 	err := svc.DB.InTransaction(func(tx *reform.TX) error {
 		// insert node
 		node := &models.RemoteNode{
+			ID:     inventory.MakeID(),
 			Type:   models.RemoteNodeType,
 			Name:   name,
 			Region: pointer.ToString(models.RemoteNodeRegion),
@@ -249,6 +251,7 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 
 		// insert service
 		service := &models.PostgreSQLService{
+			ID:     inventory.MakeID(),
 			Type:   models.PostgreSQLServiceType,
 			Name:   name,
 			NodeID: node.ID,
@@ -314,13 +317,13 @@ func (svc *Service) engineAndVersionFromPlainText(databaseVersion string) (strin
 }
 
 // Remove stops postgres_exporter and agent and remove agent from db
-func (svc *Service) Remove(ctx context.Context, id uint32) error {
+func (svc *Service) Remove(ctx context.Context, id string) error {
 	var err error
 	return svc.DB.InTransaction(func(tx *reform.TX) error {
 		var node models.RemoteNode
 		if err = tx.SelectOneTo(&node, "WHERE type = ? AND id = ?", models.RemoteNodeType, id); err != nil {
 			if err == reform.ErrNoRows {
-				return status.Errorf(codes.NotFound, "PostgreSQL instance with ID %d not found.", id)
+				return status.Errorf(codes.NotFound, "PostgreSQL instance with ID %q not found.", id)
 			}
 			return errors.WithStack(err)
 		}
@@ -363,7 +366,7 @@ func (svc *Service) Remove(ctx context.Context, id uint32) error {
 		}
 
 		// stop agents
-		agents := make(map[uint32]models.Agent, len(agentsForService)+len(agentsForNode))
+		agents := make(map[string]models.Agent, len(agentsForService)+len(agentsForNode))
 		for _, agent := range agentsForService {
 			agents[agent.ID] = agent
 		}
@@ -410,6 +413,7 @@ func (svc *Service) addPostgresExporter(ctx context.Context, tx *reform.TX, serv
 		return err
 	}
 	agent := &models.PostgresExporter{
+		ID:           inventory.MakeID(),
 		Type:         models.PostgresExporterAgentType,
 		RunsOnNodeID: svc.pmmServerNode.ID,
 

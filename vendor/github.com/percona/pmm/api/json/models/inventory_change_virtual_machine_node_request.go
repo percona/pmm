@@ -16,7 +16,7 @@ import (
 type InventoryChangeVirtualMachineNodeRequest struct {
 
 	// Unique Node identifier.
-	ID int64 `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 
 	// Unique user-defined Node name.
 	Name string `json:"name,omitempty"`

@@ -40,11 +40,11 @@ message MySQLAddRequest {
 }
 
 message MySQLAddResponse {
-    uint32 id = 1;
+    string id = 1;
 }
 
 message MySQLRemoveRequest {
-    uint32 id = 1;
+    string id = 1;
 }
 
 message MySQLRemoveResponse {

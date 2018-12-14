@@ -75,14 +75,13 @@ func (s *AgentsServer) GetAgent(ctx context.Context, req *api.GetAgentRequest) (
 
 // AddPMMAgent adds pmm-agent Agent.
 func (s *AgentsServer) AddPMMAgent(ctx context.Context, req *api.AddPMMAgentRequest) (*api.AddPMMAgentResponse, error) {
-	agent, uuidS, err := s.Agents.AddPMMAgent(ctx, req.RunsOnNodeId)
+	agent, err := s.Agents.AddPMMAgent(ctx, req.RunsOnNodeId)
 	if err != nil {
 		return nil, err
 	}
 
 	res := &api.AddPMMAgentResponse{
 		PmmAgent: agent.(*api.PMMAgent),
-		Uuid:     uuidS,
 	}
 	return res, nil
 }

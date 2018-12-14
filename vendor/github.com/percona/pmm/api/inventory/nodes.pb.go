@@ -27,7 +27,7 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 // BareMetalNode represents bare metal Node.
 type BareMetalNode struct {
 	// Unique Node identifier.
-	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Hostname. Is not unique.
@@ -41,7 +41,7 @@ func (m *BareMetalNode) Reset()         { *m = BareMetalNode{} }
 func (m *BareMetalNode) String() string { return proto.CompactTextString(m) }
 func (*BareMetalNode) ProtoMessage()    {}
 func (*BareMetalNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{0}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{0}
 }
 func (m *BareMetalNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_BareMetalNode.Unmarshal(m, b)
@@ -61,11 +61,11 @@ func (m *BareMetalNode) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_BareMetalNode proto.InternalMessageInfo
 
-func (m *BareMetalNode) GetId() uint32 {
+func (m *BareMetalNode) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 func (m *BareMetalNode) GetName() string {
@@ -85,7 +85,7 @@ func (m *BareMetalNode) GetHostname() string {
 // VirtualMachineNode represents virtual machine Node.
 type VirtualMachineNode struct {
 	// Unique Node identifier.
-	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Hostname. Is not unique.
@@ -99,7 +99,7 @@ func (m *VirtualMachineNode) Reset()         { *m = VirtualMachineNode{} }
 func (m *VirtualMachineNode) String() string { return proto.CompactTextString(m) }
 func (*VirtualMachineNode) ProtoMessage()    {}
 func (*VirtualMachineNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{1}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{1}
 }
 func (m *VirtualMachineNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_VirtualMachineNode.Unmarshal(m, b)
@@ -119,11 +119,11 @@ func (m *VirtualMachineNode) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_VirtualMachineNode proto.InternalMessageInfo
 
-func (m *VirtualMachineNode) GetId() uint32 {
+func (m *VirtualMachineNode) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 func (m *VirtualMachineNode) GetName() string {
@@ -143,7 +143,7 @@ func (m *VirtualMachineNode) GetHostname() string {
 // ContainerNode represents a container (Docker) Node.
 type ContainerNode struct {
 	// Unique Node identifier.
-	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -155,7 +155,7 @@ func (m *ContainerNode) Reset()         { *m = ContainerNode{} }
 func (m *ContainerNode) String() string { return proto.CompactTextString(m) }
 func (*ContainerNode) ProtoMessage()    {}
 func (*ContainerNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{2}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{2}
 }
 func (m *ContainerNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ContainerNode.Unmarshal(m, b)
@@ -175,11 +175,11 @@ func (m *ContainerNode) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ContainerNode proto.InternalMessageInfo
 
-func (m *ContainerNode) GetId() uint32 {
+func (m *ContainerNode) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 func (m *ContainerNode) GetName() string {
@@ -192,7 +192,7 @@ func (m *ContainerNode) GetName() string {
 // RemoteNode represents a generic remote Node.
 type RemoteNode struct {
 	// Unique Node identifier.
-	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -204,7 +204,7 @@ func (m *RemoteNode) Reset()         { *m = RemoteNode{} }
 func (m *RemoteNode) String() string { return proto.CompactTextString(m) }
 func (*RemoteNode) ProtoMessage()    {}
 func (*RemoteNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{3}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{3}
 }
 func (m *RemoteNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoteNode.Unmarshal(m, b)
@@ -224,11 +224,11 @@ func (m *RemoteNode) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_RemoteNode proto.InternalMessageInfo
 
-func (m *RemoteNode) GetId() uint32 {
+func (m *RemoteNode) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 func (m *RemoteNode) GetName() string {
@@ -241,7 +241,7 @@ func (m *RemoteNode) GetName() string {
 // AWSRDSNode represents AWS RDS Node.
 type AWSRDSNode struct {
 	// Unique Node identifier.
-	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Hostname. Unique in combination with region.
@@ -257,7 +257,7 @@ func (m *AWSRDSNode) Reset()         { *m = AWSRDSNode{} }
 func (m *AWSRDSNode) String() string { return proto.CompactTextString(m) }
 func (*AWSRDSNode) ProtoMessage()    {}
 func (*AWSRDSNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{4}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{4}
 }
 func (m *AWSRDSNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AWSRDSNode.Unmarshal(m, b)
@@ -277,11 +277,11 @@ func (m *AWSRDSNode) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_AWSRDSNode proto.InternalMessageInfo
 
-func (m *AWSRDSNode) GetId() uint32 {
+func (m *AWSRDSNode) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 func (m *AWSRDSNode) GetName() string {
@@ -315,7 +315,7 @@ func (m *ListNodesRequest) Reset()         { *m = ListNodesRequest{} }
 func (m *ListNodesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNodesRequest) ProtoMessage()    {}
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{5}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{5}
 }
 func (m *ListNodesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesRequest.Unmarshal(m, b)
@@ -350,7 +350,7 @@ func (m *ListNodesResponse) Reset()         { *m = ListNodesResponse{} }
 func (m *ListNodesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNodesResponse) ProtoMessage()    {}
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{6}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{6}
 }
 func (m *ListNodesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesResponse.Unmarshal(m, b)
@@ -407,7 +407,7 @@ func (m *ListNodesResponse) GetAwsRds() []*AWSRDSNode {
 
 type GetNodeRequest struct {
 	// Unique Node identifier.
-	Id                   uint32   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -417,7 +417,7 @@ func (m *GetNodeRequest) Reset()         { *m = GetNodeRequest{} }
 func (m *GetNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetNodeRequest) ProtoMessage()    {}
 func (*GetNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{7}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{7}
 }
 func (m *GetNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeRequest.Unmarshal(m, b)
@@ -437,11 +437,11 @@ func (m *GetNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GetNodeRequest proto.InternalMessageInfo
 
-func (m *GetNodeRequest) GetId() uint32 {
+func (m *GetNodeRequest) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 type GetNodeResponse struct {
@@ -461,7 +461,7 @@ func (m *GetNodeResponse) Reset()         { *m = GetNodeResponse{} }
 func (m *GetNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*GetNodeResponse) ProtoMessage()    {}
 func (*GetNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{8}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{8}
 }
 func (m *GetNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeResponse.Unmarshal(m, b)
@@ -689,6 +689,8 @@ func _GetNodeResponse_OneofSizer(msg proto.Message) (n int) {
 }
 
 type AddBareMetalNodeRequest struct {
+	// Unique Node identifier (may be empty).
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Hostname. Is not unique.
@@ -702,7 +704,7 @@ func (m *AddBareMetalNodeRequest) Reset()         { *m = AddBareMetalNodeRequest
 func (m *AddBareMetalNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddBareMetalNodeRequest) ProtoMessage()    {}
 func (*AddBareMetalNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{9}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{9}
 }
 func (m *AddBareMetalNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddBareMetalNodeRequest.Unmarshal(m, b)
@@ -721,6 +723,13 @@ func (m *AddBareMetalNodeRequest) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_AddBareMetalNodeRequest proto.InternalMessageInfo
+
+func (m *AddBareMetalNodeRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
 
 func (m *AddBareMetalNodeRequest) GetName() string {
 	if m != nil {
@@ -747,7 +756,7 @@ func (m *AddBareMetalNodeResponse) Reset()         { *m = AddBareMetalNodeRespon
 func (m *AddBareMetalNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddBareMetalNodeResponse) ProtoMessage()    {}
 func (*AddBareMetalNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{10}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{10}
 }
 func (m *AddBareMetalNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddBareMetalNodeResponse.Unmarshal(m, b)
@@ -775,6 +784,8 @@ func (m *AddBareMetalNodeResponse) GetBareMetal() *BareMetalNode {
 }
 
 type AddVirtualMachineNodeRequest struct {
+	// Unique Node identifier (may be empty).
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Hostname. Is not unique.
@@ -788,7 +799,7 @@ func (m *AddVirtualMachineNodeRequest) Reset()         { *m = AddVirtualMachineN
 func (m *AddVirtualMachineNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddVirtualMachineNodeRequest) ProtoMessage()    {}
 func (*AddVirtualMachineNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{11}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{11}
 }
 func (m *AddVirtualMachineNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddVirtualMachineNodeRequest.Unmarshal(m, b)
@@ -807,6 +818,13 @@ func (m *AddVirtualMachineNodeRequest) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_AddVirtualMachineNodeRequest proto.InternalMessageInfo
+
+func (m *AddVirtualMachineNodeRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
 
 func (m *AddVirtualMachineNodeRequest) GetName() string {
 	if m != nil {
@@ -833,7 +851,7 @@ func (m *AddVirtualMachineNodeResponse) Reset()         { *m = AddVirtualMachine
 func (m *AddVirtualMachineNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddVirtualMachineNodeResponse) ProtoMessage()    {}
 func (*AddVirtualMachineNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{12}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{12}
 }
 func (m *AddVirtualMachineNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddVirtualMachineNodeResponse.Unmarshal(m, b)
@@ -872,7 +890,7 @@ func (m *AddContainerNodeRequest) Reset()         { *m = AddContainerNodeRequest
 func (m *AddContainerNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddContainerNodeRequest) ProtoMessage()    {}
 func (*AddContainerNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{13}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{13}
 }
 func (m *AddContainerNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddContainerNodeRequest.Unmarshal(m, b)
@@ -910,7 +928,7 @@ func (m *AddContainerNodeResponse) Reset()         { *m = AddContainerNodeRespon
 func (m *AddContainerNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddContainerNodeResponse) ProtoMessage()    {}
 func (*AddContainerNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{14}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{14}
 }
 func (m *AddContainerNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddContainerNodeResponse.Unmarshal(m, b)
@@ -938,6 +956,8 @@ func (m *AddContainerNodeResponse) GetContainer() *ContainerNode {
 }
 
 type AddRemoteNodeRequest struct {
+	// Unique Node identifier (may be empty).
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -949,7 +969,7 @@ func (m *AddRemoteNodeRequest) Reset()         { *m = AddRemoteNodeRequest{} }
 func (m *AddRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddRemoteNodeRequest) ProtoMessage()    {}
 func (*AddRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{15}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{15}
 }
 func (m *AddRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRemoteNodeRequest.Unmarshal(m, b)
@@ -969,6 +989,13 @@ func (m *AddRemoteNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_AddRemoteNodeRequest proto.InternalMessageInfo
 
+func (m *AddRemoteNodeRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
+
 func (m *AddRemoteNodeRequest) GetName() string {
 	if m != nil {
 		return m.Name
@@ -987,7 +1014,7 @@ func (m *AddRemoteNodeResponse) Reset()         { *m = AddRemoteNodeResponse{} }
 func (m *AddRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddRemoteNodeResponse) ProtoMessage()    {}
 func (*AddRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{16}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{16}
 }
 func (m *AddRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRemoteNodeResponse.Unmarshal(m, b)
@@ -1015,6 +1042,8 @@ func (m *AddRemoteNodeResponse) GetRemote() *RemoteNode {
 }
 
 type AddAWSRDSNodeRequest struct {
+	// Unique Node identifier (may be empty).
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	// Hostname. Unique in combination with region.
@@ -1030,7 +1059,7 @@ func (m *AddAWSRDSNodeRequest) Reset()         { *m = AddAWSRDSNodeRequest{} }
 func (m *AddAWSRDSNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddAWSRDSNodeRequest) ProtoMessage()    {}
 func (*AddAWSRDSNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{17}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{17}
 }
 func (m *AddAWSRDSNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddAWSRDSNodeRequest.Unmarshal(m, b)
@@ -1049,6 +1078,13 @@ func (m *AddAWSRDSNodeRequest) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_AddAWSRDSNodeRequest proto.InternalMessageInfo
+
+func (m *AddAWSRDSNodeRequest) GetId() string {
+	if m != nil {
+		return m.Id
+	}
+	return ""
+}
 
 func (m *AddAWSRDSNodeRequest) GetName() string {
 	if m != nil {
@@ -1082,7 +1118,7 @@ func (m *AddAWSRDSNodeResponse) Reset()         { *m = AddAWSRDSNodeResponse{} }
 func (m *AddAWSRDSNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddAWSRDSNodeResponse) ProtoMessage()    {}
 func (*AddAWSRDSNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{18}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{18}
 }
 func (m *AddAWSRDSNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddAWSRDSNodeResponse.Unmarshal(m, b)
@@ -1111,7 +1147,7 @@ func (m *AddAWSRDSNodeResponse) GetAwsRds() *AWSRDSNode {
 
 type ChangeBareMetalNodeRequest struct {
 	// Unique Node identifier.
-	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1123,7 +1159,7 @@ func (m *ChangeBareMetalNodeRequest) Reset()         { *m = ChangeBareMetalNodeR
 func (m *ChangeBareMetalNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeBareMetalNodeRequest) ProtoMessage()    {}
 func (*ChangeBareMetalNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{19}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{19}
 }
 func (m *ChangeBareMetalNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeBareMetalNodeRequest.Unmarshal(m, b)
@@ -1143,11 +1179,11 @@ func (m *ChangeBareMetalNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ChangeBareMetalNodeRequest proto.InternalMessageInfo
 
-func (m *ChangeBareMetalNodeRequest) GetId() uint32 {
+func (m *ChangeBareMetalNodeRequest) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 func (m *ChangeBareMetalNodeRequest) GetName() string {
@@ -1168,7 +1204,7 @@ func (m *ChangeBareMetalNodeResponse) Reset()         { *m = ChangeBareMetalNode
 func (m *ChangeBareMetalNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeBareMetalNodeResponse) ProtoMessage()    {}
 func (*ChangeBareMetalNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{20}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{20}
 }
 func (m *ChangeBareMetalNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeBareMetalNodeResponse.Unmarshal(m, b)
@@ -1197,7 +1233,7 @@ func (m *ChangeBareMetalNodeResponse) GetBareMetal() *BareMetalNode {
 
 type ChangeVirtualMachineNodeRequest struct {
 	// Unique Node identifier.
-	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1209,7 +1245,7 @@ func (m *ChangeVirtualMachineNodeRequest) Reset()         { *m = ChangeVirtualMa
 func (m *ChangeVirtualMachineNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeVirtualMachineNodeRequest) ProtoMessage()    {}
 func (*ChangeVirtualMachineNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{21}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{21}
 }
 func (m *ChangeVirtualMachineNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeVirtualMachineNodeRequest.Unmarshal(m, b)
@@ -1229,11 +1265,11 @@ func (m *ChangeVirtualMachineNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ChangeVirtualMachineNodeRequest proto.InternalMessageInfo
 
-func (m *ChangeVirtualMachineNodeRequest) GetId() uint32 {
+func (m *ChangeVirtualMachineNodeRequest) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 func (m *ChangeVirtualMachineNodeRequest) GetName() string {
@@ -1254,7 +1290,7 @@ func (m *ChangeVirtualMachineNodeResponse) Reset()         { *m = ChangeVirtualM
 func (m *ChangeVirtualMachineNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeVirtualMachineNodeResponse) ProtoMessage()    {}
 func (*ChangeVirtualMachineNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{22}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{22}
 }
 func (m *ChangeVirtualMachineNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeVirtualMachineNodeResponse.Unmarshal(m, b)
@@ -1283,7 +1319,7 @@ func (m *ChangeVirtualMachineNodeResponse) GetVirtualMachine() *VirtualMachineNo
 
 type ChangeContainerNodeRequest struct {
 	// Unique Node identifier.
-	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1295,7 +1331,7 @@ func (m *ChangeContainerNodeRequest) Reset()         { *m = ChangeContainerNodeR
 func (m *ChangeContainerNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeContainerNodeRequest) ProtoMessage()    {}
 func (*ChangeContainerNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{23}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{23}
 }
 func (m *ChangeContainerNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeContainerNodeRequest.Unmarshal(m, b)
@@ -1315,11 +1351,11 @@ func (m *ChangeContainerNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ChangeContainerNodeRequest proto.InternalMessageInfo
 
-func (m *ChangeContainerNodeRequest) GetId() uint32 {
+func (m *ChangeContainerNodeRequest) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 func (m *ChangeContainerNodeRequest) GetName() string {
@@ -1340,7 +1376,7 @@ func (m *ChangeContainerNodeResponse) Reset()         { *m = ChangeContainerNode
 func (m *ChangeContainerNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeContainerNodeResponse) ProtoMessage()    {}
 func (*ChangeContainerNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{24}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{24}
 }
 func (m *ChangeContainerNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeContainerNodeResponse.Unmarshal(m, b)
@@ -1369,7 +1405,7 @@ func (m *ChangeContainerNodeResponse) GetContainer() *ContainerNode {
 
 type ChangeRemoteNodeRequest struct {
 	// Unique Node identifier.
-	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1381,7 +1417,7 @@ func (m *ChangeRemoteNodeRequest) Reset()         { *m = ChangeRemoteNodeRequest
 func (m *ChangeRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeRemoteNodeRequest) ProtoMessage()    {}
 func (*ChangeRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{25}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{25}
 }
 func (m *ChangeRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeRemoteNodeRequest.Unmarshal(m, b)
@@ -1401,11 +1437,11 @@ func (m *ChangeRemoteNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ChangeRemoteNodeRequest proto.InternalMessageInfo
 
-func (m *ChangeRemoteNodeRequest) GetId() uint32 {
+func (m *ChangeRemoteNodeRequest) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 func (m *ChangeRemoteNodeRequest) GetName() string {
@@ -1426,7 +1462,7 @@ func (m *ChangeRemoteNodeResponse) Reset()         { *m = ChangeRemoteNodeRespon
 func (m *ChangeRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeRemoteNodeResponse) ProtoMessage()    {}
 func (*ChangeRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{26}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{26}
 }
 func (m *ChangeRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeRemoteNodeResponse.Unmarshal(m, b)
@@ -1455,7 +1491,7 @@ func (m *ChangeRemoteNodeResponse) GetRemote() *RemoteNode {
 
 type ChangeAWSRDSNodeRequest struct {
 	// Unique Node identifier.
-	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Unique user-defined Node name.
 	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1467,7 +1503,7 @@ func (m *ChangeAWSRDSNodeRequest) Reset()         { *m = ChangeAWSRDSNodeRequest
 func (m *ChangeAWSRDSNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeAWSRDSNodeRequest) ProtoMessage()    {}
 func (*ChangeAWSRDSNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{27}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{27}
 }
 func (m *ChangeAWSRDSNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeAWSRDSNodeRequest.Unmarshal(m, b)
@@ -1487,11 +1523,11 @@ func (m *ChangeAWSRDSNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ChangeAWSRDSNodeRequest proto.InternalMessageInfo
 
-func (m *ChangeAWSRDSNodeRequest) GetId() uint32 {
+func (m *ChangeAWSRDSNodeRequest) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 func (m *ChangeAWSRDSNodeRequest) GetName() string {
@@ -1512,7 +1548,7 @@ func (m *ChangeAWSRDSNodeResponse) Reset()         { *m = ChangeAWSRDSNodeRespon
 func (m *ChangeAWSRDSNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeAWSRDSNodeResponse) ProtoMessage()    {}
 func (*ChangeAWSRDSNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{28}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{28}
 }
 func (m *ChangeAWSRDSNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeAWSRDSNodeResponse.Unmarshal(m, b)
@@ -1540,7 +1576,7 @@ func (m *ChangeAWSRDSNodeResponse) GetAwsRds() *AWSRDSNode {
 }
 
 type RemoveNodeRequest struct {
-	Id                   uint32   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1550,7 +1586,7 @@ func (m *RemoveNodeRequest) Reset()         { *m = RemoveNodeRequest{} }
 func (m *RemoveNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveNodeRequest) ProtoMessage()    {}
 func (*RemoveNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{29}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{29}
 }
 func (m *RemoveNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveNodeRequest.Unmarshal(m, b)
@@ -1570,11 +1606,11 @@ func (m *RemoveNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_RemoveNodeRequest proto.InternalMessageInfo
 
-func (m *RemoveNodeRequest) GetId() uint32 {
+func (m *RemoveNodeRequest) GetId() string {
 	if m != nil {
 		return m.Id
 	}
-	return 0
+	return ""
 }
 
 type RemoveNodeResponse struct {
@@ -1587,7 +1623,7 @@ func (m *RemoveNodeResponse) Reset()         { *m = RemoveNodeResponse{} }
 func (m *RemoveNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveNodeResponse) ProtoMessage()    {}
 func (*RemoveNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_16f43f73dc311cde, []int{30}
+	return fileDescriptor_nodes_9779309ac5b27425, []int{30}
 }
 func (m *RemoveNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveNodeResponse.Unmarshal(m, b)
@@ -2135,74 +2171,74 @@ var _Nodes_serviceDesc = grpc.ServiceDesc{
 	Metadata: "inventory/nodes.proto",
 }
 
-func init() { proto.RegisterFile("inventory/nodes.proto", fileDescriptor_nodes_16f43f73dc311cde) }
+func init() { proto.RegisterFile("inventory/nodes.proto", fileDescriptor_nodes_9779309ac5b27425) }
 
-var fileDescriptor_nodes_16f43f73dc311cde = []byte{
-	// 1050 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x58, 0xcd, 0x6e, 0xdb, 0x46,
-	0x10, 0xf6, 0x4a, 0xb4, 0x63, 0x4d, 0x21, 0x47, 0xd9, 0xc6, 0x35, 0xcb, 0x48, 0xb0, 0xb0, 0x82,
-	0x53, 0xc1, 0x41, 0x24, 0x23, 0x01, 0xdc, 0x3a, 0x37, 0xc7, 0x85, 0xed, 0xb8, 0x4d, 0x03, 0xd0,
-	0x69, 0x7a, 0x34, 0xe8, 0x70, 0x21, 0xb3, 0xb5, 0x49, 0x57, 0x64, 0x14, 0x14, 0xe8, 0xa9, 0xa7,
-	0xde, 0xdb, 0x63, 0x1f, 0xa0, 0x40, 0x1f, 0xa1, 0x8f, 0xd1, 0x57, 0xe8, 0xb1, 0x0f, 0x51, 0x70,
-	0xb9, 0x22, 0x77, 0xb9, 0xbb, 0x14, 0x93, 0xf8, 0x26, 0x2e, 0xe7, 0xe7, 0xd3, 0x37, 0xf3, 0xcd,
-	0xac, 0x04, 0xeb, 0x41, 0x38, 0xa3, 0x61, 0x12, 0x4d, 0x7f, 0x1a, 0x87, 0x91, 0x4f, 0xe3, 0xd1,
-	0xf5, 0x34, 0x4a, 0x22, 0xdc, 0xca, 0x8f, 0x9d, 0xee, 0x24, 0x8a, 0x26, 0x97, 0x74, 0xec, 0x5d,
-	0x07, 0x63, 0x2f, 0x0c, 0xa3, 0xc4, 0x4b, 0x82, 0x28, 0xe4, 0x86, 0xe4, 0x05, 0xb4, 0x9f, 0x7a,
-	0x53, 0xfa, 0x9c, 0x26, 0xde, 0xe5, 0x37, 0x91, 0x4f, 0xf1, 0x1a, 0x34, 0x02, 0xdf, 0x46, 0x7d,
-	0x34, 0x6c, 0xbb, 0x8d, 0xc0, 0xc7, 0x18, 0xac, 0xd0, 0xbb, 0xa2, 0x76, 0xa3, 0x8f, 0x86, 0x2d,
-	0x97, 0x7d, 0xc6, 0x0e, 0xac, 0x5e, 0x44, 0x71, 0xc2, 0xce, 0x9b, 0xec, 0x3c, 0x7f, 0x26, 0x2f,
-	0x01, 0xbf, 0x0a, 0xa6, 0xc9, 0x1b, 0xef, 0xf2, 0xb9, 0xf7, 0xfa, 0x22, 0x08, 0xe9, 0x8d, 0x44,
-	0xdd, 0x83, 0xf6, 0x41, 0x14, 0x26, 0x5e, 0x10, 0xd2, 0x69, 0xdd, 0x80, 0x27, 0xd6, 0x6a, 0xb3,
-	0x63, 0x91, 0x5d, 0x00, 0x97, 0x5e, 0x45, 0x09, 0x7d, 0x47, 0x3f, 0x1f, 0x60, 0xff, 0xbb, 0x53,
-	0xf7, 0xcb, 0xd3, 0x9b, 0xf8, 0x02, 0xf8, 0x13, 0x58, 0x99, 0xd2, 0x49, 0x10, 0x85, 0xb6, 0xc5,
-	0xde, 0xf0, 0x27, 0x82, 0xa1, 0xf3, 0x75, 0x10, 0x27, 0x69, 0x8e, 0xd8, 0xa5, 0x3f, 0xbe, 0xa1,
-	0x71, 0x42, 0xfe, 0x6a, 0xc0, 0x1d, 0xe1, 0x30, 0xbe, 0x8e, 0xc2, 0x98, 0xe2, 0xcf, 0x01, 0xce,
-	0xbd, 0x29, 0x3d, 0xbb, 0x4a, 0x4b, 0x65, 0xa3, 0x7e, 0x73, 0xf8, 0xd1, 0x23, 0x7b, 0x94, 0xd7,
-	0x79, 0x24, 0x95, 0xd1, 0x6d, 0x9d, 0xcf, 0x1f, 0xf1, 0x21, 0xdc, 0x9e, 0x65, 0x15, 0x39, 0xbb,
-	0xca, 0x4a, 0x62, 0x37, 0x98, 0x77, 0x4f, 0xf0, 0x56, 0x6b, 0xe6, 0xae, 0xcd, 0xa4, 0x33, 0xbc,
-	0x0b, 0xad, 0xd7, 0xf3, 0x1a, 0xd8, 0x4d, 0x25, 0xbf, 0x54, 0x1f, 0xb7, 0x30, 0xc5, 0x0f, 0xd3,
-	0xaf, 0x9e, 0x16, 0xc0, 0xb6, 0x98, 0xd3, 0xba, 0xe0, 0x54, 0x54, 0xc6, 0xe5, 0x46, 0x78, 0x04,
-	0xb7, 0xbc, 0xb7, 0xf1, 0xd9, 0xd4, 0x8f, 0xed, 0x65, 0xc5, 0xbe, 0xa8, 0x88, 0xbb, 0xe2, 0xbd,
-	0x8d, 0x5d, 0x3f, 0x26, 0x7d, 0x58, 0x3b, 0xa2, 0x8c, 0x2b, 0xce, 0x5f, 0xb9, 0x56, 0xe4, 0xef,
-	0x06, 0xdc, 0xce, 0x4d, 0x38, 0x9b, 0x7b, 0x25, 0x36, 0x51, 0x15, 0x9b, 0xc7, 0x4b, 0x22, 0x9f,
-	0xc7, 0x3a, 0x3e, 0xd1, 0x42, 0x3e, 0x8f, 0x97, 0x14, 0x46, 0xbf, 0x90, 0x19, 0x45, 0x55, 0x8c,
-	0xa6, 0x18, 0x0a, 0x4e, 0xc7, 0x02, 0xa7, 0xc8, 0xc8, 0xe9, 0xf1, 0x52, 0xce, 0xea, 0x8e, 0xc8,
-	0x2a, 0x32, 0xb2, 0x9a, 0x7a, 0x64, 0xbc, 0x3e, 0x5d, 0x01, 0x2b, 0x9d, 0x28, 0xe4, 0x05, 0x6c,
-	0xec, 0xfb, 0xbe, 0xdc, 0x5d, 0x9c, 0xe8, 0x77, 0x14, 0xc1, 0x89, 0xb5, 0x8a, 0x3a, 0x0d, 0x72,
-	0x0a, 0xb6, 0x1a, 0xd0, 0xd0, 0xe4, 0xa8, 0x66, 0x93, 0x93, 0x97, 0xd0, 0xdd, 0xf7, 0x7d, 0x4d,
-	0x17, 0x7f, 0x10, 0xd4, 0x09, 0xf4, 0x0c, 0x51, 0x39, 0x5e, 0x8d, 0xb6, 0x50, 0x8d, 0x5e, 0x28,
-	0x77, 0x02, 0xd9, 0x63, 0x24, 0xcb, 0x12, 0x32, 0x23, 0xcf, 0xd0, 0xf1, 0x39, 0xe5, 0x32, 0x3a,
-	0x4b, 0xae, 0x1c, 0x9e, 0x24, 0x59, 0x54, 0xdd, 0x60, 0x42, 0x7b, 0x91, 0x5d, 0xb8, 0xbb, 0xef,
-	0xfb, 0x82, 0x38, 0x6b, 0x62, 0x39, 0x84, 0xf5, 0x92, 0x1f, 0x07, 0x52, 0xcc, 0x00, 0x54, 0xd1,
-	0xaf, 0xf3, 0x6e, 0x25, 0x3e, 0xcb, 0x2f, 0x88, 0xfd, 0xfd, 0xaa, 0x68, 0x9a, 0xba, 0xbc, 0xba,
-	0x47, 0x0c, 0xad, 0x98, 0x85, 0xa3, 0x15, 0x46, 0x10, 0xaa, 0x10, 0x4b, 0x3e, 0x82, 0x0e, 0xc1,
-	0x39, 0xb8, 0xf0, 0xc2, 0x09, 0xd5, 0xaa, 0xa4, 0xfe, 0xca, 0x79, 0x05, 0xf7, 0xb4, 0x71, 0x3e,
-	0x54, 0x1c, 0x5f, 0xc1, 0x66, 0x16, 0xd7, 0xac, 0x8f, 0xfa, 0x20, 0xbf, 0x87, 0xbe, 0x39, 0x98,
-	0x59, 0x16, 0x8d, 0xf7, 0x91, 0x45, 0x4e, 0xac, 0x56, 0x19, 0xf5, 0x31, 0x7f, 0x3b, 0x27, 0xb6,
-	0x86, 0x4c, 0x9a, 0xf5, 0x65, 0x72, 0x00, 0x1b, 0x59, 0x58, 0x55, 0x29, 0xf5, 0xb1, 0x3d, 0x03,
-	0x5b, 0x0d, 0xa2, 0xc8, 0xc6, 0xaa, 0x23, 0x9b, 0x67, 0x73, 0x3c, 0xaa, 0x72, 0x6a, 0xe3, 0x39,
-	0xb1, 0x56, 0xad, 0xce, 0x32, 0x39, 0x99, 0xa3, 0xaa, 0x96, 0xc7, 0x72, 0x1d, 0x79, 0x0c, 0xe0,
-	0x4e, 0x0a, 0x76, 0x56, 0x45, 0x10, 0xb9, 0x0b, 0x58, 0x34, 0xca, 0x52, 0x3d, 0xfa, 0xaf, 0x0d,
-	0xcb, 0xec, 0x1a, 0x84, 0x7f, 0x80, 0x56, 0x7e, 0x27, 0xc2, 0xf7, 0x84, 0x84, 0xe5, 0xeb, 0x93,
-	0xd3, 0xd5, 0xbf, 0xcc, 0x22, 0x92, 0xc1, 0x2f, 0xff, 0xfc, 0xfb, 0x5b, 0xa3, 0x47, 0xec, 0xf1,
-	0x6c, 0x67, 0x5c, 0x5c, 0x9e, 0x99, 0xd1, 0x38, 0x35, 0x7f, 0x82, 0xb6, 0xb1, 0x0f, 0xb7, 0xf8,
-	0x85, 0x01, 0x7f, 0x2a, 0x44, 0x93, 0xef, 0x19, 0x8e, 0xa3, 0x7b, 0xc5, 0xd3, 0x10, 0x96, 0xa6,
-	0x4b, 0x36, 0x74, 0x69, 0x8e, 0x28, 0xcb, 0xf2, 0x2b, 0x82, 0x4e, 0x79, 0x13, 0x62, 0x22, 0x72,
-	0xa9, 0xdf, 0xbb, 0xce, 0xa0, 0xd2, 0x86, 0x23, 0x78, 0xc0, 0x10, 0x6c, 0x91, 0xbe, 0x0e, 0x81,
-	0xe8, 0x95, 0x42, 0xf9, 0x03, 0xb1, 0x59, 0xa8, 0xb9, 0xb9, 0x7f, 0x26, 0xe7, 0x32, 0x4e, 0x10,
-	0x67, 0xb8, 0xd8, 0x90, 0x23, 0xdb, 0x61, 0xc8, 0xb6, 0xc9, 0x96, 0x01, 0x99, 0xec, 0x2a, 0x30,
-	0x25, 0xff, 0x04, 0x28, 0x31, 0xa5, 0x1b, 0x11, 0x65, 0xa6, 0xb4, 0xf2, 0x5f, 0xc8, 0x54, 0xee,
-	0x95, 0x42, 0xf9, 0x19, 0xda, 0xd2, 0x8a, 0xc3, 0x9b, 0x72, 0x0a, 0x65, 0x14, 0x38, 0x7d, 0xb3,
-	0x01, 0x07, 0x30, 0x64, 0x00, 0x08, 0xe9, 0x19, 0x00, 0x64, 0x2e, 0x45, 0x76, 0xe1, 0x77, 0x49,
-	0x29, 0xbb, 0x22, 0xfc, 0x72, 0x76, 0x55, 0xce, 0x0b, 0xb3, 0x67, 0x2e, 0x69, 0xf6, 0xdf, 0x11,
-	0x7c, 0xac, 0x59, 0x50, 0x78, 0x4b, 0x1c, 0x96, 0xc6, 0x45, 0xe8, 0xdc, 0x5f, 0x64, 0xc6, 0x01,
-	0x8d, 0x18, 0xa0, 0x21, 0x19, 0xe8, 0x00, 0x95, 0x1c, 0x53, 0x58, 0x7f, 0xa2, 0xf9, 0xb0, 0xd2,
-	0xf4, 0xef, 0xb6, 0x92, 0xd4, 0xdc, 0xc2, 0x0f, 0x6a, 0xd9, 0x72, 0x94, 0x8f, 0x19, 0xca, 0x87,
-	0x64, 0x68, 0x46, 0xa9, 0x36, 0x72, 0xc1, 0xa0, 0xdc, 0xcb, 0x2a, 0x83, 0xda, 0x76, 0xbe, 0xbf,
-	0xc8, 0xac, 0x3e, 0x83, 0x52, 0x53, 0xa7, 0xfa, 0x2a, 0x2f, 0x21, 0x49, 0x5f, 0x86, 0x35, 0x27,
-	0xe9, 0xcb, 0xb4, 0xc5, 0xaa, 0xf5, 0x25, 0x7a, 0xc9, 0x50, 0x84, 0x2e, 0x57, 0xa1, 0xa8, 0x8d,
-	0x3e, 0xa8, 0xb4, 0xa9, 0x0f, 0xa5, 0x68, 0xf7, 0xeb, 0xec, 0x9f, 0x83, 0x6c, 0x25, 0xe1, 0x6e,
-	0x69, 0xf7, 0x4a, 0xeb, 0xcc, 0xe9, 0x19, 0xde, 0xf2, 0xbc, 0x5b, 0x2c, 0xef, 0x26, 0x71, 0x74,
-	0x79, 0x33, 0xfb, 0x27, 0x68, 0xfb, 0x7c, 0x85, 0xfd, 0x29, 0xf3, 0xf8, 0xff, 0x00, 0x00, 0x00,
-	0xff, 0xff, 0x19, 0xdf, 0x00, 0xde, 0xd6, 0x11, 0x00, 0x00,
+var fileDescriptor_nodes_9779309ac5b27425 = []byte{
+	// 1045 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x58, 0xdd, 0x6e, 0xdc, 0x44,
+	0x14, 0xce, 0x78, 0x9d, 0x34, 0x7b, 0x50, 0xd2, 0xed, 0xd0, 0x10, 0xe3, 0xee, 0x2a, 0xab, 0x59,
+	0xa5, 0xac, 0x52, 0x75, 0x37, 0x6a, 0xa5, 0x42, 0x7a, 0x45, 0x1a, 0x94, 0xa4, 0x81, 0x82, 0xe4,
+	0x40, 0x11, 0x37, 0x44, 0x4e, 0x3d, 0xda, 0x18, 0x12, 0x3b, 0xd8, 0xee, 0x56, 0x48, 0x5c, 0x71,
+	0xc5, 0x3d, 0x5c, 0xf2, 0x00, 0x48, 0x3c, 0x02, 0x8f, 0xc1, 0x2b, 0x70, 0xc9, 0x43, 0x54, 0x1e,
+	0xcf, 0xda, 0x33, 0xf6, 0x8c, 0xd7, 0x4d, 0x72, 0x17, 0x8f, 0xcf, 0xcf, 0xe7, 0xef, 0x9c, 0xef,
+	0x9c, 0xc9, 0xc2, 0x9a, 0x1f, 0x4c, 0x69, 0x90, 0x84, 0xd1, 0xcf, 0xe3, 0x20, 0xf4, 0x68, 0x3c,
+	0xba, 0x8c, 0xc2, 0x24, 0xc4, 0xed, 0xfc, 0xd8, 0xee, 0x4e, 0xc2, 0x70, 0x72, 0x4e, 0xc7, 0xee,
+	0xa5, 0x3f, 0x76, 0x83, 0x20, 0x4c, 0xdc, 0xc4, 0x0f, 0x03, 0x6e, 0x48, 0xbe, 0x82, 0x95, 0x67,
+	0x6e, 0x44, 0x5f, 0xd0, 0xc4, 0x3d, 0xff, 0x32, 0xf4, 0x28, 0x5e, 0x05, 0xc3, 0xf7, 0x2c, 0xd4,
+	0x47, 0xc3, 0xb6, 0x63, 0xf8, 0x1e, 0xc6, 0x60, 0x06, 0xee, 0x05, 0xb5, 0x0c, 0x76, 0xc2, 0xfe,
+	0xc6, 0x36, 0x2c, 0x9f, 0x85, 0x71, 0xc2, 0xce, 0x5b, 0xec, 0x3c, 0x7f, 0x26, 0x5f, 0x03, 0x7e,
+	0xe9, 0x47, 0xc9, 0x6b, 0xf7, 0xfc, 0x85, 0xfb, 0xea, 0xcc, 0x0f, 0xe8, 0x8d, 0x44, 0xdd, 0x81,
+	0x95, 0xbd, 0x30, 0x48, 0x5c, 0x3f, 0xa0, 0x51, 0xd3, 0x80, 0x47, 0xe6, 0x72, 0xab, 0x63, 0x92,
+	0x27, 0x00, 0x0e, 0xbd, 0x08, 0x13, 0xfa, 0x8e, 0x7e, 0x1e, 0xc0, 0xee, 0xb7, 0xc7, 0xce, 0x67,
+	0xc7, 0x37, 0xf1, 0x01, 0xf8, 0x03, 0x58, 0x8a, 0xe8, 0xc4, 0x0f, 0x03, 0xcb, 0x64, 0x6f, 0xf8,
+	0x13, 0xc1, 0xd0, 0xf9, 0xc2, 0x8f, 0x93, 0x34, 0x47, 0xec, 0xd0, 0x9f, 0x5e, 0xd3, 0x38, 0x21,
+	0x7f, 0x1b, 0x70, 0x47, 0x38, 0x8c, 0x2f, 0xc3, 0x20, 0xa6, 0xf8, 0x63, 0x80, 0x53, 0x37, 0xa2,
+	0x27, 0x17, 0x69, 0xa9, 0x2c, 0xd4, 0x6f, 0x0d, 0xdf, 0x7b, 0x64, 0x8d, 0xf2, 0x3a, 0x8f, 0xa4,
+	0x32, 0x3a, 0xed, 0xd3, 0xd9, 0x23, 0xde, 0x87, 0xdb, 0xd3, 0xac, 0x22, 0x27, 0x17, 0x59, 0x49,
+	0x2c, 0x83, 0x79, 0xf7, 0x04, 0xef, 0x6a, 0xcd, 0x9c, 0xd5, 0xa9, 0x74, 0x86, 0x9f, 0x40, 0xfb,
+	0xd5, 0xac, 0x06, 0x56, 0xab, 0x92, 0x5f, 0xaa, 0x8f, 0x53, 0x98, 0xe2, 0x87, 0xe9, 0xa7, 0xa7,
+	0x05, 0xb0, 0x4c, 0xe6, 0xb4, 0x26, 0x38, 0x15, 0x95, 0x71, 0xb8, 0x11, 0x1e, 0xc1, 0x2d, 0xf7,
+	0x4d, 0x7c, 0x12, 0x79, 0xb1, 0xb5, 0x58, 0xb1, 0x2f, 0x2a, 0xe2, 0x2c, 0xb9, 0x6f, 0x62, 0xc7,
+	0x8b, 0x49, 0x1f, 0x56, 0x0f, 0x28, 0xe3, 0x8a, 0xf3, 0x57, 0xae, 0x15, 0xf9, 0xc7, 0x80, 0xdb,
+	0xb9, 0x09, 0x67, 0x73, 0xa7, 0xc4, 0x26, 0xaa, 0x63, 0xf3, 0x70, 0x41, 0xe4, 0xf3, 0x50, 0xc5,
+	0x27, 0x9a, 0xcb, 0xe7, 0xe1, 0x42, 0x85, 0xd1, 0x4f, 0x64, 0x46, 0x51, 0x1d, 0xa3, 0x29, 0x86,
+	0x82, 0xd3, 0xb1, 0xc0, 0x29, 0xd2, 0x72, 0x7a, 0xb8, 0x90, 0xb3, 0xba, 0x2d, 0xb2, 0x8a, 0xb4,
+	0xac, 0xa6, 0x1e, 0x19, 0xaf, 0xcf, 0x96, 0xc0, 0x4c, 0x27, 0x0a, 0xf9, 0x0e, 0xd6, 0x77, 0x3d,
+	0x4f, 0xee, 0x2e, 0x35, 0xd1, 0xef, 0xac, 0xea, 0x63, 0xb0, 0xaa, 0xa1, 0x35, 0xed, 0x8e, 0x1a,
+	0xb6, 0x3b, 0xf9, 0x1e, 0xba, 0xbb, 0x9e, 0xa7, 0xe8, 0xe7, 0x1b, 0x02, 0x3d, 0x81, 0x9e, 0x26,
+	0x3e, 0x47, 0xae, 0xd0, 0x1b, 0x6a, 0xd0, 0x1f, 0xe5, 0xee, 0x20, 0x3b, 0x8c, 0x78, 0x59, 0x56,
+	0xfc, 0x1b, 0xd4, 0x53, 0x0b, 0x75, 0x0c, 0x3e, 0xbb, 0x1c, 0x46, 0x6c, 0xc9, 0x95, 0xc3, 0x93,
+	0x64, 0x8c, 0xea, 0x9b, 0x4e, 0x68, 0x39, 0xf2, 0x29, 0xdc, 0xdd, 0xf5, 0x3c, 0x41, 0xb0, 0xcd,
+	0xf9, 0xe4, 0xa8, 0xf6, 0x61, 0xad, 0x14, 0x81, 0x43, 0x2a, 0x26, 0x04, 0xaa, 0xe9, 0xe6, 0x59,
+	0x2f, 0x93, 0x80, 0x21, 0x11, 0x46, 0xc1, 0xcd, 0x54, 0x56, 0x3b, 0xa3, 0x0f, 0x18, 0x6e, 0x31,
+	0x1f, 0xc7, 0x2d, 0x8c, 0x2a, 0x54, 0x23, 0xaa, 0x7c, 0x54, 0xed, 0x83, 0xbd, 0x77, 0xe6, 0x06,
+	0x13, 0x7a, 0x55, 0x35, 0x71, 0x22, 0x5f, 0xc2, 0x3d, 0x65, 0x9c, 0xeb, 0x4a, 0xe7, 0x73, 0xd8,
+	0xc8, 0xe2, 0x5e, 0x4b, 0x3d, 0x1c, 0xe4, 0x0f, 0xd0, 0xd7, 0x07, 0xd3, 0x4b, 0xc5, 0xb8, 0x8a,
+	0x54, 0x72, 0x62, 0x95, 0x6a, 0x69, 0x8e, 0xf9, 0x9b, 0x19, 0xb1, 0x0d, 0xa4, 0xd3, 0x6a, 0x2e,
+	0x9d, 0x3d, 0x58, 0xcf, 0xc2, 0x5e, 0x47, 0x3d, 0xcf, 0xc1, 0xaa, 0x06, 0xa9, 0x08, 0xc8, 0x6c,
+	0x22, 0xa0, 0xe7, 0x33, 0x3c, 0x57, 0xd2, 0x50, 0x86, 0xe7, 0xc8, 0x5c, 0x36, 0x3b, 0x8b, 0xe4,
+	0x68, 0x86, 0xaa, 0x5e, 0x1e, 0x8b, 0x4d, 0xe4, 0x31, 0x80, 0x3b, 0x29, 0xd8, 0x69, 0x1d, 0x41,
+	0xe4, 0x2e, 0x60, 0xd1, 0x28, 0x4b, 0xf5, 0xe8, 0xff, 0x15, 0x58, 0x64, 0xd7, 0x25, 0xfc, 0x23,
+	0xb4, 0xf3, 0xbb, 0x13, 0xbe, 0x27, 0x24, 0x2c, 0x5f, 0xb3, 0xec, 0xae, 0xfa, 0x65, 0x16, 0x91,
+	0x0c, 0x7e, 0xfd, 0xf7, 0xbf, 0xdf, 0x8d, 0x1e, 0xb1, 0xc6, 0xd3, 0xed, 0x71, 0x71, 0xc9, 0x66,
+	0x46, 0xe3, 0xd4, 0xfc, 0x29, 0xda, 0xc2, 0x1e, 0xdc, 0xe2, 0x17, 0x0b, 0xfc, 0xa1, 0x10, 0x4d,
+	0xbe, 0x8f, 0xd8, 0xb6, 0xea, 0x15, 0x4f, 0x43, 0x58, 0x9a, 0x2e, 0x59, 0x57, 0xa5, 0x39, 0xa0,
+	0x2c, 0xcb, 0x6f, 0x08, 0x3a, 0xe5, 0x3d, 0x89, 0x89, 0xc8, 0xa5, 0x7a, 0x3f, 0xdb, 0x83, 0x5a,
+	0x1b, 0x8e, 0xe0, 0x01, 0x43, 0xb0, 0x49, 0xfa, 0x2a, 0x04, 0xa2, 0x57, 0x0a, 0xe5, 0x4f, 0xc4,
+	0x66, 0xa1, 0xe2, 0x86, 0xff, 0x91, 0x9c, 0x4b, 0x3b, 0x41, 0xec, 0xe1, 0x7c, 0x43, 0x8e, 0x6c,
+	0x9b, 0x21, 0xdb, 0x22, 0x9b, 0x1a, 0x64, 0xb2, 0xab, 0xc0, 0x94, 0xfc, 0xaf, 0x42, 0x89, 0x29,
+	0xd5, 0x88, 0x28, 0x33, 0xa5, 0x94, 0xff, 0x5c, 0xa6, 0x72, 0xaf, 0x14, 0xca, 0x2f, 0xb0, 0x22,
+	0x2d, 0x3b, 0xbc, 0x21, 0xa7, 0xa8, 0x8c, 0x02, 0xbb, 0xaf, 0x37, 0xe0, 0x00, 0x86, 0x0c, 0x00,
+	0x21, 0x3d, 0x0d, 0x80, 0xcc, 0xa5, 0xc8, 0x2e, 0xfc, 0xff, 0x52, 0xca, 0x5e, 0x11, 0x7e, 0x39,
+	0x7b, 0x55, 0xce, 0x73, 0xb3, 0x67, 0x2e, 0x69, 0xf6, 0x3f, 0x10, 0xbc, 0xaf, 0x58, 0x50, 0x78,
+	0x53, 0x1c, 0x96, 0xda, 0x45, 0x68, 0xdf, 0x9f, 0x67, 0xc6, 0x01, 0x8d, 0x18, 0xa0, 0x21, 0x19,
+	0xa8, 0x00, 0x95, 0x1c, 0x53, 0x58, 0x7f, 0xa1, 0xd9, 0xb0, 0x52, 0xf4, 0xef, 0x56, 0x25, 0xa9,
+	0xbe, 0x85, 0x1f, 0x34, 0xb2, 0xe5, 0x28, 0x1f, 0x33, 0x94, 0x0f, 0xc9, 0x50, 0x8f, 0xb2, 0xda,
+	0xc8, 0x05, 0x83, 0x72, 0x2f, 0x57, 0x19, 0x54, 0xb6, 0xf3, 0xfd, 0x79, 0x66, 0xcd, 0x19, 0x94,
+	0x9a, 0x3a, 0xd5, 0x57, 0x79, 0x09, 0x49, 0xfa, 0xd2, 0xac, 0x39, 0x49, 0x5f, 0xba, 0x2d, 0x56,
+	0xaf, 0x2f, 0xd1, 0x4b, 0x86, 0x22, 0x74, 0x79, 0x15, 0x4a, 0xb5, 0xd1, 0x07, 0xb5, 0x36, 0xcd,
+	0xa1, 0x14, 0xed, 0x7e, 0x99, 0xfd, 0xc2, 0x90, 0xad, 0x24, 0xdc, 0x2d, 0xed, 0x5e, 0x69, 0x9d,
+	0xd9, 0x3d, 0xcd, 0x5b, 0x9e, 0x77, 0x93, 0xe5, 0xdd, 0x20, 0xb6, 0x2a, 0x6f, 0x66, 0xff, 0x14,
+	0x6d, 0x9d, 0x2e, 0xb1, 0x1f, 0x6f, 0x1e, 0xbf, 0x0d, 0x00, 0x00, 0xff, 0xff, 0xfe, 0x00, 0x24,
+	0xf2, 0xfe, 0x11, 0x00, 0x00,
 }

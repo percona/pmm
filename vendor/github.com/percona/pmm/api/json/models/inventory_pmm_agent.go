@@ -16,13 +16,13 @@ import (
 type InventoryPMMAgent struct {
 
 	// Unique Agent identifier.
-	ID int64 `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 
 	// Agent process status: running and connected to pmm-managed, or not.
 	Running bool `json:"running,omitempty"`
 
 	// Node identifier where Agent runs.
-	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this inventory PMM agent

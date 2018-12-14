@@ -45,7 +45,7 @@ message PingResponse {
 message SetStateRequest {
   // AgentProcess describes desired configuration of a single agent.
   message AgentProcess {
-    uint32 agent_id = 1;
+    string agent_id = 1;
     Type type = 2;
     repeated string args = 3;
     repeated string env = 4;
@@ -58,7 +58,7 @@ message SetStateRequest {
 message SetStateResponse {
   // AgentProcess describes status of a single agent.
   message AgentProcess {
-    uint32 agent_id = 1;
+    string agent_id = 1;
     bool disabled = 2;
     uint32 listen_port = 3;
   }

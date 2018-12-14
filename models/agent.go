@@ -51,15 +51,14 @@ const (
 // AgentRow represents Agent as stored in database.
 //reform:agents
 type AgentRow struct {
-	ID           uint32    `reform:"id,pk"`
+	ID           string    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
-	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	RunsOnNodeID string    `reform:"runs_on_node_id"`
 	Disabled     bool      `reform:"disabled"`
 	// CreatedAt    time.Time `reform:"created_at"`
 	// UpdatedAt    time.Time `reform:"updated_at"`
 
 	ListenPort      *uint16 `reform:"listen_port"`
-	UUID            *string `reform:"uuid"`
 	ServiceUsername *string `reform:"service_username"`
 	ServicePassword *string `reform:"service_password"`
 }
@@ -100,9 +99,9 @@ var (
 
 //reform:agents
 type Agent struct {
-	ID           uint32    `reform:"id,pk"`
+	ID           string    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
-	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	RunsOnNodeID string    `reform:"runs_on_node_id"`
 	Disabled     bool      `reform:"disabled"`
 
 	// TODO Does it really belong there? Remove when we have agent without one.
@@ -116,9 +115,9 @@ func NameForSupervisor(typ AgentType, listenPort uint16) string {
 
 //reform:agents
 type MySQLdExporter struct {
-	ID           uint32    `reform:"id,pk"`
+	ID           string    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
-	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	RunsOnNodeID string    `reform:"runs_on_node_id"`
 	Disabled     bool      `reform:"disabled"`
 
 	ServiceUsername        *string `reform:"service_username"`
@@ -147,9 +146,9 @@ func (m *MySQLdExporter) DSN(service *MySQLService) string {
 //reform:agents
 // PostgresExporter exports PostgreSQL metrics.
 type PostgresExporter struct {
-	ID           uint32    `reform:"id,pk"`
+	ID           string    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
-	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	RunsOnNodeID string    `reform:"runs_on_node_id"`
 	Disabled     bool      `reform:"disabled"`
 
 	ServiceUsername *string `reform:"service_username"`
@@ -176,9 +175,9 @@ func (p *PostgresExporter) DSN(service *PostgreSQLService) string {
 
 //reform:agents
 type RDSExporter struct {
-	ID           uint32    `reform:"id,pk"`
+	ID           string    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
-	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	RunsOnNodeID string    `reform:"runs_on_node_id"`
 	Disabled     bool      `reform:"disabled"`
 
 	ListenPort *uint16 `reform:"listen_port"`
@@ -186,9 +185,9 @@ type RDSExporter struct {
 
 //reform:agents
 type QanAgent struct {
-	ID           uint32    `reform:"id,pk"`
+	ID           string    `reform:"id,pk"`
 	Type         AgentType `reform:"type"`
-	RunsOnNodeID uint32    `reform:"runs_on_node_id"`
+	RunsOnNodeID string    `reform:"runs_on_node_id"`
 	Disabled     bool      `reform:"disabled"`
 
 	ServiceUsername   *string `reform:"service_username"`

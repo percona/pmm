@@ -21,7 +21,6 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/google/uuid"
 	"github.com/percona/pmm/api/inventory"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
@@ -72,15 +71,20 @@ func (as *AgentsService) makeAgent(ctx context.Context, row *models.AgentRow) (i
 	}
 }
 
-func (as *AgentsService) get(ctx context.Context, id uint32) (*models.AgentRow, error) {
+func (as *AgentsService) get(ctx context.Context, id string) (*models.AgentRow, error) {
+	if id == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Agent ID.")
+	}
+
 	row := &models.AgentRow{ID: id}
-	if err := as.Q.Reload(row); err != nil {
-		if err == reform.ErrNoRows {
-			return nil, status.Errorf(codes.NotFound, "Agent with ID %d not found.", id)
-		}
+	switch err := as.Q.Reload(row); err {
+	case nil:
+		return row, nil
+	case reform.ErrNoRows:
+		return nil, status.Errorf(codes.NotFound, "Agent with ID %q not found.", id)
+	default:
 		return nil, errors.WithStack(err)
 	}
-	return row, nil
 }
 
 // List selects all Agents in a stable order.
@@ -104,7 +108,7 @@ func (as *AgentsService) List(ctx context.Context) ([]inventory.Agent, error) {
 }
 
 // Get selects a single Agent by ID.
-func (as *AgentsService) Get(ctx context.Context, id uint32) (inventory.Agent, error) {
+func (as *AgentsService) Get(ctx context.Context, id string) (inventory.Agent, error) {
 	row, err := as.get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -113,47 +117,7 @@ func (as *AgentsService) Get(ctx context.Context, id uint32) (inventory.Agent, e
 }
 
 // AddPMMAgent inserts pmm-agent Agent with given parameters.
-func (as *AgentsService) AddPMMAgent(ctx context.Context, nodeID uint32) (inventory.Agent, string, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
-
-	ns := &NodesService{
-		Q: as.Q,
-	}
-	if _, err := ns.get(ctx, nodeID); err != nil {
-		return nil, "", err
-	}
-
-	uuidA, err := uuid.NewRandom()
-	if err != nil {
-		return nil, "", errors.Wrap(err, "can't generate UUID")
-	}
-	uuidS := uuidA.String()
-
-	row := &models.AgentRow{
-		Type:         models.PMMAgentType,
-		RunsOnNodeID: nodeID,
-		Disabled:     true, // not connected when we create it
-		UUID:         pointer.ToString(uuidS),
-	}
-	if err := as.Q.Insert(row); err != nil {
-		return nil, "", errors.WithStack(err)
-	}
-
-	err = as.Q.Insert(&models.AgentNode{
-		AgentID: row.ID,
-		NodeID:  nodeID,
-	})
-	if err != nil {
-		return nil, "", errors.WithStack(err)
-	}
-
-	agent, err := as.makeAgent(ctx, row)
-	return agent, uuidS, err
-}
-
-// AddNodeExporter inserts node_exporter Agent with given parameters.
-func (as *AgentsService) AddNodeExporter(ctx context.Context, nodeID uint32, disabled bool) (inventory.Agent, error) {
+func (as *AgentsService) AddPMMAgent(ctx context.Context, nodeID string) (inventory.Agent, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
 
@@ -165,6 +129,41 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, nodeID uint32, dis
 	}
 
 	row := &models.AgentRow{
+		ID:           makeID(),
+		Type:         models.PMMAgentType,
+		RunsOnNodeID: nodeID,
+		Disabled:     true, // not connected when we create it
+	}
+	if err := as.Q.Insert(row); err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	err := as.Q.Insert(&models.AgentNode{
+		AgentID: row.ID,
+		NodeID:  nodeID,
+	})
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
+	agent, err := as.makeAgent(ctx, row)
+	return agent, err
+}
+
+// AddNodeExporter inserts node_exporter Agent with given parameters.
+func (as *AgentsService) AddNodeExporter(ctx context.Context, nodeID string, disabled bool) (inventory.Agent, error) {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
+
+	ns := &NodesService{
+		Q: as.Q,
+	}
+	if _, err := ns.get(ctx, nodeID); err != nil {
+		return nil, err
+	}
+
+	row := &models.AgentRow{
+		ID:           makeID(),
 		Type:         models.NodeExporterAgentType,
 		RunsOnNodeID: nodeID,
 		Disabled:     disabled,
@@ -185,7 +184,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, nodeID uint32, dis
 }
 
 // AddMySQLdExporter inserts mysqld_exporter Agent with given parameters.
-func (as *AgentsService) AddMySQLdExporter(ctx context.Context, nodeID uint32, disabled bool, serviceID uint32, username, password *string) (inventory.Agent, error) {
+func (as *AgentsService) AddMySQLdExporter(ctx context.Context, nodeID string, disabled bool, serviceID string, username, password *string) (inventory.Agent, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
 
@@ -204,6 +203,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, nodeID uint32, d
 	}
 
 	row := &models.AgentRow{
+		ID:              makeID(),
 		Type:            models.MySQLdExporterAgentType,
 		RunsOnNodeID:    nodeID,
 		Disabled:        disabled,
@@ -233,7 +233,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, nodeID uint32, d
 }
 
 // SetDisabled enables or disables Agent by ID.
-func (as *AgentsService) SetDisabled(ctx context.Context, id uint32, disabled bool) error {
+func (as *AgentsService) SetDisabled(ctx context.Context, id string, disabled bool) error {
 	row, err := as.get(ctx, id)
 	if err != nil {
 		return err
@@ -245,7 +245,7 @@ func (as *AgentsService) SetDisabled(ctx context.Context, id uint32, disabled bo
 }
 
 // Remove deletes Agent by ID.
-func (as *AgentsService) Remove(ctx context.Context, id uint32) error {
+func (as *AgentsService) Remove(ctx context.Context, id string) error {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// ID is not 0.
 

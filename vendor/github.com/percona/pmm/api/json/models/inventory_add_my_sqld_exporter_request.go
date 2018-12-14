@@ -22,10 +22,10 @@ type InventoryAddMySqldExporterRequest struct {
 	Password string `json:"password,omitempty"`
 
 	// Node identifier where Agent runs.
-	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Service identifier for which insights are provided by that Agent.
-	ServiceID int64 `json:"service_id,omitempty"`
+	ServiceID string `json:"service_id,omitempty"`
 
 	// MySQL username for extracting metrics.
 	Username string `json:"username,omitempty"`
