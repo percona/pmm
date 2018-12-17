@@ -1,18 +1,20 @@
 digraph {
   node [style=filled];
 
-  Stopped [fillcolor=red];
-  Starting [fillcolor=greenyellow];
-  Running [fillcolor=green];
+  STOPPED [fillcolor=blue];
+  STARTING;
+  RUNNING [fillcolor=blue];
+  STOPPING;
+  BACKOFF;
 
-  Stopped -> Starting
-  Starting -> Running
-  Running -> Stopping
-  Stopping -> Stopped
+  STOPPED -> STARTING [label=start];
+  STARTING -> RUNNING;
+  RUNNING -> STOPPING [label=stop];
+  STOPPING -> STOPPED;
 
-  Starting -> Backoff
-  Backoff -> Starting
+  STARTING -> BACKOFF;
+  BACKOFF -> STARTING;
 
-  Running -> Exited
-  Exited -> Starting
+  RUNNING -> BACKOFF;
+  BACKOFF -> STOPPING [label=stop];
 }
