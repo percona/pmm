@@ -1,9 +1,9 @@
 :orphan: true
 
-.. _use-case.slow-log-rotation:
+.. _use-case.mysql-slow-log-rotation:
 
-Use |logrotate| instead of the slow log rotation feature to manage MySQL |slow-log|
-***********************************************************************************
+Use |logrotate| instead of the slow log rotation feature to manage the MySQL Slow Log
+**************************************************************************************
 
 By default, |pmm| manages the slow log for the added |mysql| monitoring service
 on the computer where |pmm-client| is installed. This example demonstrates how
@@ -13,10 +13,10 @@ to substitute |logrotate| for this default behavior.
    :local:
    :depth: 1
 
-.. _use-case.slow-log-rotation.disable-default:
+.. _use-case.mysql-slow-log-rotation.disable-default:
 
-:ref:`Disable the default behavior of the slow log rotation <use-case.slow-log-rotation.disable-default>`
-=========================================================================================================
+:ref:`Disable the default behavior of the slow log rotation <use-case.mysql-slow-log-rotation.disable-default>`
+===============================================================================================================
 
 The first step is to disable the default slow log rotation when adding the
 |mysql| monitoring service.
