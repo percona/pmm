@@ -33,6 +33,16 @@ message QANDataRequest {
 // QANDataResponse is a ServerMessage for QAN data acceptance.
 message QANDataResponse {}
 
+// StateChangedRequest is an AgentMessage describing actual agent status.
+message StateChangedRequest {
+  string agent_id = 1;
+  bool running = 2;
+  uint32 listen_port = 3;
+}
+
+// StateChangedResponse is a ServerMessage for StateChangedRequest acceptance.
+message StateChangedResponse {}
+
 // PingRequest is a ServerMessage for checking connectivity, latency and clock drift.
 message PingRequest {}
 
@@ -54,22 +64,15 @@ message SetStateRequest {
   repeated AgentProcess agent_processes = 1;
 }
 
-// SetStateResponse is an AgentMessage describing agent statuses.
-message SetStateResponse {
-  // AgentProcess describes status of a single agent.
-  message AgentProcess {
-    string agent_id = 1;
-    bool disabled = 2;
-    uint32 listen_port = 3;
-  }
-  repeated AgentProcess agent_processes = 1;
-}
+// SetStateResponse is an AgentMessage for SetStateRequest acceptance.
+message SetStateResponse {}
 
 message AgentMessage {
   uint32 id = 1;
   oneof payload {
     // requests from agent
     QANDataRequest qan_data = 2;
+    StateChangedRequest state_changed = 3;
     // responses from agent
     PingResponse ping = 8;
     SetStateResponse state = 9;
@@ -81,6 +84,7 @@ message ServerMessage {
   oneof payload {
     // responses from server
     QANDataResponse qan_data = 2;
+    StateChangedResponse state_changed = 3;
     // requests from server
     PingRequest ping = 8;
     SetStateRequest state = 9;
