@@ -137,34 +137,6 @@ func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, e
 }
 
 /*
-AddVirtualMachineNode adds virtual machine node adds virtual machine node
-*/
-func (a *Client) AddVirtualMachineNode(params *AddVirtualMachineNodeParams) (*AddVirtualMachineNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewAddVirtualMachineNodeParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddVirtualMachineNode",
-		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddVirtualMachine",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &AddVirtualMachineNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*AddVirtualMachineNodeOK), nil
-
-}
-
-/*
 ChangeAWSRDSNode changes AWS RDS node changes AWS RDS node
 */
 func (a *Client) ChangeAWSRDSNode(params *ChangeAWSRDSNodeParams) (*ChangeAWSRDSNodeOK, error) {
@@ -273,34 +245,6 @@ func (a *Client) ChangeRemoteNode(params *ChangeRemoteNodeParams) (*ChangeRemote
 		return nil, err
 	}
 	return result.(*ChangeRemoteNodeOK), nil
-
-}
-
-/*
-ChangeVirtualMachineNode changes virtual machine node changes virtual machine node
-*/
-func (a *Client) ChangeVirtualMachineNode(params *ChangeVirtualMachineNodeParams) (*ChangeVirtualMachineNodeOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewChangeVirtualMachineNodeParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeVirtualMachineNode",
-		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/ChangeVirtualMachine",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ChangeVirtualMachineNodeReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*ChangeVirtualMachineNodeOK), nil
 
 }
 

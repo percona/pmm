@@ -5,8 +5,7 @@ type Node interface {
 	node()
 }
 
-func (*BareMetalNode) node()      {}
-func (*VirtualMachineNode) node() {}
-func (*ContainerNode) node()      {}
-func (*RemoteNode) node()         {}
-func (*AWSRDSNode) node()         {}
+func (*BareMetalNode) node() {}
+func (*ContainerNode) node() {}
+func (*RemoteNode) node()    {}
+func (*AWSRDSNode) node()    {}
