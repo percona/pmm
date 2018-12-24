@@ -339,33 +339,6 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddVirtualMachine": {
-      "post": {
-        "tags": [
-          "Nodes"
-        ],
-        "summary": "AddVirtualMachineNode adds virtual machine Node.",
-        "operationId": "AddVirtualMachineNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/inventoryAddVirtualMachineNodeRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "$ref": "#/definitions/inventoryAddVirtualMachineNodeResponse"
-            }
-          }
-        }
-      }
-    },
     "/v0/inventory/Nodes/ChangeAWSRDS": {
       "post": {
         "tags": [
@@ -469,33 +442,6 @@
             "description": "(empty)",
             "schema": {
               "$ref": "#/definitions/inventoryChangeRemoteNodeResponse"
-            }
-          }
-        }
-      }
-    },
-    "/v0/inventory/Nodes/ChangeVirtualMachine": {
-      "post": {
-        "tags": [
-          "Nodes"
-        ],
-        "summary": "ChangeVirtualMachineNode changes virtual machine Node.",
-        "operationId": "ChangeVirtualMachineNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/inventoryChangeVirtualMachineNodeRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "$ref": "#/definitions/inventoryChangeVirtualMachineNodeResponse"
             }
           }
         }
@@ -940,31 +886,6 @@
         }
       }
     },
-    "inventoryAddVirtualMachineNodeRequest": {
-      "type": "object",
-      "properties": {
-        "hostname": {
-          "description": "Hostname. Is not unique.",
-          "type": "string"
-        },
-        "id": {
-          "description": "Unique Node identifier (may be empty).",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryAddVirtualMachineNodeResponse": {
-      "type": "object",
-      "properties": {
-        "virtual_machine": {
-          "$ref": "#/definitions/inventoryVirtualMachineNode"
-        }
-      }
-    },
     "inventoryBareMetalNode": {
       "description": "BareMetalNode represents bare metal Node.",
       "type": "object",
@@ -1088,27 +1009,6 @@
         }
       }
     },
-    "inventoryChangeVirtualMachineNodeRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Node identifier.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryChangeVirtualMachineNodeResponse": {
-      "type": "object",
-      "properties": {
-        "virtual_machine": {
-          "$ref": "#/definitions/inventoryVirtualMachineNode"
-        }
-      }
-    },
     "inventoryContainerNode": {
       "description": "ContainerNode represents a container (Docker) Node.",
       "type": "object",
@@ -1193,9 +1093,6 @@
         },
         "remote": {
           "$ref": "#/definitions/inventoryRemoteNode"
-        },
-        "virtual_machine": {
-          "$ref": "#/definitions/inventoryVirtualMachineNode"
         }
       }
     },
@@ -1270,12 +1167,6 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/inventoryRemoteNode"
-          }
-        },
-        "virtual_machine": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/inventoryVirtualMachineNode"
           }
         }
       }
@@ -1456,24 +1347,6 @@
     },
     "inventoryRemoveServiceResponse": {
       "type": "object"
-    },
-    "inventoryVirtualMachineNode": {
-      "description": "VirtualMachineNode represents virtual machine Node.",
-      "type": "object",
-      "properties": {
-        "hostname": {
-          "description": "Hostname. Is not unique.",
-          "type": "string"
-        },
-        "id": {
-          "description": "Unique Node identifier.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        }
-      }
     }
   }
 }

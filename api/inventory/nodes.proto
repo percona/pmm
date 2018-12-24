@@ -14,16 +14,6 @@ message BareMetalNode {
   string hostname = 3;
 }
 
-// VirtualMachineNode represents virtual machine Node.
-message VirtualMachineNode {
-  // Unique Node identifier.
-  string id = 1;
-  // Unique user-defined Node name.
-  string name = 2;
-  // Hostname. Is not unique.
-  string hostname = 3;
-}
-
 // ContainerNode represents a container (Docker) Node.
 message ContainerNode {
   // Unique Node identifier.
@@ -58,10 +48,9 @@ message ListNodesRequest {}
 
 message ListNodesResponse {
   repeated BareMetalNode bare_metal = 1;
-  repeated VirtualMachineNode virtual_machine = 2;
-  repeated ContainerNode container = 3;
-  repeated RemoteNode remote = 4;
-  repeated AWSRDSNode aws_rds = 5;
+  repeated ContainerNode container = 2;
+  repeated RemoteNode remote = 3;
+  repeated AWSRDSNode aws_rds = 4;
 }
 
 message GetNodeRequest {
@@ -72,10 +61,9 @@ message GetNodeRequest {
 message GetNodeResponse {
   oneof node {
     BareMetalNode bare_metal = 1;
-    VirtualMachineNode virtual_machine = 2;
-    ContainerNode container = 3;
-    RemoteNode remote = 4;
-    AWSRDSNode aws_rds = 5;
+    ContainerNode container = 2;
+    RemoteNode remote = 3;
+    AWSRDSNode aws_rds = 4;
   }
 }
 
@@ -90,19 +78,6 @@ message AddBareMetalNodeRequest {
 
 message AddBareMetalNodeResponse {
   BareMetalNode bare_metal = 1;
-}
-
-message AddVirtualMachineNodeRequest {
-  // Unique Node identifier (may be empty).
-  string id = 1;
-  // Unique user-defined Node name.
-  string name = 2;
-  // Hostname. Is not unique.
-  string hostname = 3;
-}
-
-message AddVirtualMachineNodeResponse {
-  VirtualMachineNode virtual_machine = 1;
 }
 
 message AddContainerNodeRequest {
@@ -153,18 +128,6 @@ message ChangeBareMetalNodeRequest {
 
 message ChangeBareMetalNodeResponse {
   BareMetalNode bare_metal = 1;
-}
-
-message ChangeVirtualMachineNodeRequest {
-  // Unique Node identifier.
-  string id = 1;
-  // Unique user-defined Node name.
-  string name = 2;
-  reserved 3; // hostname
-}
-
-message ChangeVirtualMachineNodeResponse {
-  VirtualMachineNode virtual_machine = 2;
 }
 
 message ChangeContainerNodeRequest {
@@ -233,13 +196,6 @@ service Nodes {
       body: "*"
     };
   }
-  // AddVirtualMachineNode adds virtual machine Node.
-  rpc AddVirtualMachineNode(AddVirtualMachineNodeRequest) returns (AddVirtualMachineNodeResponse) {
-    option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddVirtualMachine"
-      body: "*"
-    };
-  }
   // AddContainerNode adds container Node.
   rpc AddContainerNode(AddContainerNodeRequest) returns (AddContainerNodeResponse) {
     option (google.api.http) = {
@@ -265,13 +221,6 @@ service Nodes {
   rpc ChangeBareMetalNode(ChangeBareMetalNodeRequest) returns (ChangeBareMetalNodeResponse) {
     option (google.api.http) = {
       post: "/v0/inventory/Nodes/ChangeBareMetal"
-      body: "*"
-    };
-  }
-  // ChangeVirtualMachineNode changes virtual machine Node.
-  rpc ChangeVirtualMachineNode(ChangeVirtualMachineNodeRequest) returns (ChangeVirtualMachineNodeResponse) {
-    option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeVirtualMachine"
       body: "*"
     };
   }

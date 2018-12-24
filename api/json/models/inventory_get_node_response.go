@@ -27,9 +27,6 @@ type InventoryGetNodeResponse struct {
 
 	// remote
 	Remote *InventoryRemoteNode `json:"remote,omitempty"`
-
-	// virtual machine
-	VirtualMachine *InventoryVirtualMachineNode `json:"virtual_machine,omitempty"`
 }
 
 // Validate validates this inventory get node response
@@ -49,10 +46,6 @@ func (m *InventoryGetNodeResponse) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRemote(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateVirtualMachine(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -126,24 +119,6 @@ func (m *InventoryGetNodeResponse) validateRemote(formats strfmt.Registry) error
 		if err := m.Remote.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("remote")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *InventoryGetNodeResponse) validateVirtualMachine(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.VirtualMachine) { // not required
-		return nil
-	}
-
-	if m.VirtualMachine != nil {
-		if err := m.VirtualMachine.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("virtual_machine")
 			}
 			return err
 		}

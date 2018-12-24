@@ -29,9 +29,6 @@ type InventoryListNodesResponse struct {
 
 	// remote
 	Remote []*InventoryRemoteNode `json:"remote"`
-
-	// virtual machine
-	VirtualMachine []*InventoryVirtualMachineNode `json:"virtual_machine"`
 }
 
 // Validate validates this inventory list nodes response
@@ -51,10 +48,6 @@ func (m *InventoryListNodesResponse) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRemote(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateVirtualMachine(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -154,31 +147,6 @@ func (m *InventoryListNodesResponse) validateRemote(formats strfmt.Registry) err
 			if err := m.Remote[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("remote" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (m *InventoryListNodesResponse) validateVirtualMachine(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.VirtualMachine) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.VirtualMachine); i++ {
-		if swag.IsZero(m.VirtualMachine[i]) { // not required
-			continue
-		}
-
-		if m.VirtualMachine[i] != nil {
-			if err := m.VirtualMachine[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("virtual_machine" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
