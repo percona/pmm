@@ -42,7 +42,7 @@ func (m *GenericNode) Reset()         { *m = GenericNode{} }
 func (m *GenericNode) String() string { return proto.CompactTextString(m) }
 func (*GenericNode) ProtoMessage()    {}
 func (*GenericNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{0}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{0}
 }
 func (m *GenericNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GenericNode.Unmarshal(m, b)
@@ -99,7 +99,7 @@ func (m *RemoteNode) Reset()         { *m = RemoteNode{} }
 func (m *RemoteNode) String() string { return proto.CompactTextString(m) }
 func (*RemoteNode) ProtoMessage()    {}
 func (*RemoteNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{1}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{1}
 }
 func (m *RemoteNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoteNode.Unmarshal(m, b)
@@ -152,7 +152,7 @@ func (m *AmazonRDSRemoteNode) Reset()         { *m = AmazonRDSRemoteNode{} }
 func (m *AmazonRDSRemoteNode) String() string { return proto.CompactTextString(m) }
 func (*AmazonRDSRemoteNode) ProtoMessage()    {}
 func (*AmazonRDSRemoteNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{2}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{2}
 }
 func (m *AmazonRDSRemoteNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AmazonRDSRemoteNode.Unmarshal(m, b)
@@ -210,7 +210,7 @@ func (m *ListNodesRequest) Reset()         { *m = ListNodesRequest{} }
 func (m *ListNodesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNodesRequest) ProtoMessage()    {}
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{3}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{3}
 }
 func (m *ListNodesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesRequest.Unmarshal(m, b)
@@ -243,7 +243,7 @@ func (m *ListNodesResponse) Reset()         { *m = ListNodesResponse{} }
 func (m *ListNodesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNodesResponse) ProtoMessage()    {}
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{4}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{4}
 }
 func (m *ListNodesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesResponse.Unmarshal(m, b)
@@ -296,7 +296,7 @@ func (m *GetNodeRequest) Reset()         { *m = GetNodeRequest{} }
 func (m *GetNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetNodeRequest) ProtoMessage()    {}
 func (*GetNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{5}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{5}
 }
 func (m *GetNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeRequest.Unmarshal(m, b)
@@ -338,7 +338,7 @@ func (m *GetNodeResponse) Reset()         { *m = GetNodeResponse{} }
 func (m *GetNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*GetNodeResponse) ProtoMessage()    {}
 func (*GetNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{6}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{6}
 }
 func (m *GetNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeResponse.Unmarshal(m, b)
@@ -517,7 +517,7 @@ func (m *AddGenericNodeRequest) Reset()         { *m = AddGenericNodeRequest{} }
 func (m *AddGenericNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddGenericNodeRequest) ProtoMessage()    {}
 func (*AddGenericNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{7}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{7}
 }
 func (m *AddGenericNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddGenericNodeRequest.Unmarshal(m, b)
@@ -569,7 +569,7 @@ func (m *AddGenericNodeResponse) Reset()         { *m = AddGenericNodeResponse{}
 func (m *AddGenericNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddGenericNodeResponse) ProtoMessage()    {}
 func (*AddGenericNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{8}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{8}
 }
 func (m *AddGenericNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddGenericNodeResponse.Unmarshal(m, b)
@@ -610,7 +610,7 @@ func (m *AddRemoteNodeRequest) Reset()         { *m = AddRemoteNodeRequest{} }
 func (m *AddRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddRemoteNodeRequest) ProtoMessage()    {}
 func (*AddRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{9}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{9}
 }
 func (m *AddRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRemoteNodeRequest.Unmarshal(m, b)
@@ -655,7 +655,7 @@ func (m *AddRemoteNodeResponse) Reset()         { *m = AddRemoteNodeResponse{} }
 func (m *AddRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddRemoteNodeResponse) ProtoMessage()    {}
 func (*AddRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{10}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{10}
 }
 func (m *AddRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRemoteNodeResponse.Unmarshal(m, b)
@@ -700,7 +700,7 @@ func (m *AddAmazonRDSRemoteNodeRequest) Reset()         { *m = AddAmazonRDSRemot
 func (m *AddAmazonRDSRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddAmazonRDSRemoteNodeRequest) ProtoMessage()    {}
 func (*AddAmazonRDSRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{11}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{11}
 }
 func (m *AddAmazonRDSRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddAmazonRDSRemoteNodeRequest.Unmarshal(m, b)
@@ -759,7 +759,7 @@ func (m *AddAmazonRDSRemoteNodeResponse) Reset()         { *m = AddAmazonRDSRemo
 func (m *AddAmazonRDSRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddAmazonRDSRemoteNodeResponse) ProtoMessage()    {}
 func (*AddAmazonRDSRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{12}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{12}
 }
 func (m *AddAmazonRDSRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddAmazonRDSRemoteNodeResponse.Unmarshal(m, b)
@@ -800,7 +800,7 @@ func (m *ChangeGenericNodeRequest) Reset()         { *m = ChangeGenericNodeReque
 func (m *ChangeGenericNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeGenericNodeRequest) ProtoMessage()    {}
 func (*ChangeGenericNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{13}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{13}
 }
 func (m *ChangeGenericNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeGenericNodeRequest.Unmarshal(m, b)
@@ -845,7 +845,7 @@ func (m *ChangeGenericNodeResponse) Reset()         { *m = ChangeGenericNodeResp
 func (m *ChangeGenericNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeGenericNodeResponse) ProtoMessage()    {}
 func (*ChangeGenericNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{14}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{14}
 }
 func (m *ChangeGenericNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeGenericNodeResponse.Unmarshal(m, b)
@@ -886,7 +886,7 @@ func (m *ChangeRemoteNodeRequest) Reset()         { *m = ChangeRemoteNodeRequest
 func (m *ChangeRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeRemoteNodeRequest) ProtoMessage()    {}
 func (*ChangeRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{15}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{15}
 }
 func (m *ChangeRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeRemoteNodeRequest.Unmarshal(m, b)
@@ -931,7 +931,7 @@ func (m *ChangeRemoteNodeResponse) Reset()         { *m = ChangeRemoteNodeRespon
 func (m *ChangeRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeRemoteNodeResponse) ProtoMessage()    {}
 func (*ChangeRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{16}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{16}
 }
 func (m *ChangeRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeRemoteNodeResponse.Unmarshal(m, b)
@@ -972,7 +972,7 @@ func (m *ChangeAmazonRDSRemoteNodeRequest) Reset()         { *m = ChangeAmazonRD
 func (m *ChangeAmazonRDSRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeAmazonRDSRemoteNodeRequest) ProtoMessage()    {}
 func (*ChangeAmazonRDSRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{17}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{17}
 }
 func (m *ChangeAmazonRDSRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeAmazonRDSRemoteNodeRequest.Unmarshal(m, b)
@@ -1017,7 +1017,7 @@ func (m *ChangeAmazonRDSRemoteNodeResponse) Reset()         { *m = ChangeAmazonR
 func (m *ChangeAmazonRDSRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeAmazonRDSRemoteNodeResponse) ProtoMessage()    {}
 func (*ChangeAmazonRDSRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{18}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{18}
 }
 func (m *ChangeAmazonRDSRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeAmazonRDSRemoteNodeResponse.Unmarshal(m, b)
@@ -1056,7 +1056,7 @@ func (m *RemoveNodeRequest) Reset()         { *m = RemoveNodeRequest{} }
 func (m *RemoveNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveNodeRequest) ProtoMessage()    {}
 func (*RemoveNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{19}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{19}
 }
 func (m *RemoveNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveNodeRequest.Unmarshal(m, b)
@@ -1093,7 +1093,7 @@ func (m *RemoveNodeResponse) Reset()         { *m = RemoveNodeResponse{} }
 func (m *RemoveNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveNodeResponse) ProtoMessage()    {}
 func (*RemoveNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_593ddf25fd6fdafb, []int{20}
+	return fileDescriptor_nodes_a108399da7217dd2, []int{20}
 }
 func (m *RemoveNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveNodeResponse.Unmarshal(m, b)
@@ -1153,13 +1153,13 @@ type NodesClient interface {
 	ListNodes(ctx context.Context, in *ListNodesRequest, opts ...grpc.CallOption) (*ListNodesResponse, error)
 	// GetNode returns a single Node by ID.
 	GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error)
-	// AddGenericNode adds bare metal Node.
+	// AddGenericNode adds generic Node.
 	AddGenericNode(ctx context.Context, in *AddGenericNodeRequest, opts ...grpc.CallOption) (*AddGenericNodeResponse, error)
 	// AddRemoteNode adds remote Node.
 	AddRemoteNode(ctx context.Context, in *AddRemoteNodeRequest, opts ...grpc.CallOption) (*AddRemoteNodeResponse, error)
 	// AddAmazonRDSRemoteNode adds Amazon (AWS) RDS remote Node.
 	AddAmazonRDSRemoteNode(ctx context.Context, in *AddAmazonRDSRemoteNodeRequest, opts ...grpc.CallOption) (*AddAmazonRDSRemoteNodeResponse, error)
-	// ChangeGenericNode changes bare metal Node.
+	// ChangeGenericNode changes generic Node.
 	ChangeGenericNode(ctx context.Context, in *ChangeGenericNodeRequest, opts ...grpc.CallOption) (*ChangeGenericNodeResponse, error)
 	// ChangeRemoteNode changes remote Node.
 	ChangeRemoteNode(ctx context.Context, in *ChangeRemoteNodeRequest, opts ...grpc.CallOption) (*ChangeRemoteNodeResponse, error)
@@ -1264,13 +1264,13 @@ type NodesServer interface {
 	ListNodes(context.Context, *ListNodesRequest) (*ListNodesResponse, error)
 	// GetNode returns a single Node by ID.
 	GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error)
-	// AddGenericNode adds bare metal Node.
+	// AddGenericNode adds generic Node.
 	AddGenericNode(context.Context, *AddGenericNodeRequest) (*AddGenericNodeResponse, error)
 	// AddRemoteNode adds remote Node.
 	AddRemoteNode(context.Context, *AddRemoteNodeRequest) (*AddRemoteNodeResponse, error)
 	// AddAmazonRDSRemoteNode adds Amazon (AWS) RDS remote Node.
 	AddAmazonRDSRemoteNode(context.Context, *AddAmazonRDSRemoteNodeRequest) (*AddAmazonRDSRemoteNodeResponse, error)
-	// ChangeGenericNode changes bare metal Node.
+	// ChangeGenericNode changes generic Node.
 	ChangeGenericNode(context.Context, *ChangeGenericNodeRequest) (*ChangeGenericNodeResponse, error)
 	// ChangeRemoteNode changes remote Node.
 	ChangeRemoteNode(context.Context, *ChangeRemoteNodeRequest) (*ChangeRemoteNodeResponse, error)
@@ -1491,9 +1491,9 @@ var _Nodes_serviceDesc = grpc.ServiceDesc{
 	Metadata: "inventory/nodes.proto",
 }
 
-func init() { proto.RegisterFile("inventory/nodes.proto", fileDescriptor_nodes_593ddf25fd6fdafb) }
+func init() { proto.RegisterFile("inventory/nodes.proto", fileDescriptor_nodes_a108399da7217dd2) }
 
-var fileDescriptor_nodes_593ddf25fd6fdafb = []byte{
+var fileDescriptor_nodes_a108399da7217dd2 = []byte{
 	// 884 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x57, 0xcd, 0x6e, 0xeb, 0x44,
 	0x14, 0xee, 0xa4, 0x6e, 0x6e, 0x73, 0x2a, 0x7a, 0x93, 0xe1, 0x36, 0x37, 0xd7, 0x24, 0x69, 0x3a,
