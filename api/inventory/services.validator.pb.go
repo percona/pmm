@@ -3,10 +3,11 @@
 
 package inventory
 
+import fmt "fmt"
 import github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
 import math "math"
+import _ "github.com/mwitkow/go-proto-validators"
 import _ "google.golang.org/genproto/googleapis/api/annotations"
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -15,6 +16,11 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *MySQLService) Validate() error {
+	if this.HostNodeInfo != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
+		}
+	}
 	return nil
 }
 func (this *ListServicesRequest) Validate() error {
@@ -31,6 +37,9 @@ func (this *ListServicesResponse) Validate() error {
 	return nil
 }
 func (this *GetServiceRequest) Validate() error {
+	if this.Id == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+	}
 	return nil
 }
 func (this *GetServiceResponse) Validate() error {
@@ -44,6 +53,17 @@ func (this *GetServiceResponse) Validate() error {
 	return nil
 }
 func (this *AddMySQLServiceRequest) Validate() error {
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
+	if nil == this.HostNodeInfo {
+		return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", fmt.Errorf("message must exist"))
+	}
+	if this.HostNodeInfo != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
+		}
+	}
 	return nil
 }
 func (this *AddMySQLServiceResponse) Validate() error {
@@ -55,6 +75,12 @@ func (this *AddMySQLServiceResponse) Validate() error {
 	return nil
 }
 func (this *ChangeMySQLServiceRequest) Validate() error {
+	if this.Id == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+	}
+	if this.Name == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	}
 	return nil
 }
 func (this *ChangeMySQLServiceResponse) Validate() error {
@@ -66,6 +92,9 @@ func (this *ChangeMySQLServiceResponse) Validate() error {
 	return nil
 }
 func (this *RemoveServiceRequest) Validate() error {
+	if this.Id == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+	}
 	return nil
 }
 func (this *RemoveServiceResponse) Validate() error {

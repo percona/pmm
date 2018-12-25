@@ -672,12 +672,12 @@
           "description": "MySQL access address (DNS name or IP address).",
           "type": "string"
         },
+        "host_node_info": {
+          "description": "Host Node information where this Service runs.",
+          "$ref": "#/definitions/inventoryHostNodeInfo"
+        },
         "name": {
           "description": "Unique user-defined Service name.",
-          "type": "string"
-        },
-        "node_id": {
-          "description": "Node identifier where this Service runs.",
           "type": "string"
         },
         "port": {
@@ -1004,6 +1004,32 @@
         }
       }
     },
+    "inventoryHostNodeInfo": {
+      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+      "type": "object",
+      "properties": {
+        "container_id": {
+          "description": "Docker container ID.",
+          "type": "string"
+        },
+        "container_name": {
+          "description": "Docker container name.",
+          "type": "string"
+        },
+        "kubernetes_pod_name": {
+          "description": "Kubernetes pod name.",
+          "type": "string"
+        },
+        "kubernetes_pod_uid": {
+          "description": "Kubernetes pod UID.",
+          "type": "string"
+        },
+        "node_id": {
+          "description": "Node identifier where Service or Agent runs.",
+          "type": "string"
+        }
+      }
+    },
     "inventoryListAgentsRequest": {
       "type": "object"
     },
@@ -1078,16 +1104,16 @@
           "description": "MySQL access address (DNS name or IP address).",
           "type": "string"
         },
+        "host_node_info": {
+          "description": "Host Node information where this Service runs.",
+          "$ref": "#/definitions/inventoryHostNodeInfo"
+        },
         "id": {
           "description": "Unique Service identifier.",
           "type": "string"
         },
         "name": {
           "description": "Unique user-defined Service name.",
-          "type": "string"
-        },
-        "node_id": {
-          "description": "Node identifier where this Service runs.",
           "type": "string"
         },
         "port": {

@@ -4,7 +4,9 @@ package inventory;
 
 option go_package = "inventory";
 
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "inventory/host.proto";
 
 // MySQLService represents MySQL-compatible Service configuration.
 message MySQLService {
@@ -12,8 +14,8 @@ message MySQLService {
   string id = 1;
   // Unique user-defined Service name.
   string name = 2;
-  // Node identifier where this Service runs.
-  string node_id = 3;
+  // Host Node information where this Service runs.
+  HostNodeInfo host_node_info = 3;
   // MySQL access address (DNS name or IP address).
   string address = 4;
   // MySQL access port.
@@ -30,7 +32,11 @@ message ListServicesResponse {
 
 message GetServiceRequest {
   // Unique Service identifier.
-  string id = 1;
+  string id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message GetServiceResponse {
@@ -42,9 +48,17 @@ message GetServiceResponse {
 message AddMySQLServiceRequest {
   reserved 1; // id
   // Unique user-defined Service name.
-  string name = 2;
-  // Node identifier where this Service runs.
-  string node_id = 3;
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Host Node information where this Service runs.
+  HostNodeInfo host_node_info = 3 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
   // MySQL access address (DNS name or IP address).
   string address = 4;
   // MySQL access port.
@@ -59,9 +73,17 @@ message AddMySQLServiceResponse {
 
 message ChangeMySQLServiceRequest {
   // Unique Service identifier.
-  string id = 1;
+  string id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // Unique user-defined Service name.
-  string name = 2;
+  string name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message ChangeMySQLServiceResponse {
@@ -69,7 +91,11 @@ message ChangeMySQLServiceResponse {
 }
 
 message RemoveServiceRequest {
-  string id = 1;
+  string id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message RemoveServiceResponse {}
