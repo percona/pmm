@@ -4,7 +4,7 @@ help:                 ## Display this help message.
 	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
 cert:                 ## Generate TLS certificate for nginx for local testing with mkcert.
-	cd nginx && mkcert pmm-api pmm-api.test pmm-api.localhost 127.0.0.1
+	cd nginx && mkcert pmm-api pmm-api.localhost 127.0.0.1
 
 init:                 ## Install prototool and fill vendor/.
 	# https://github.com/uber/prototool#installation
@@ -48,5 +48,5 @@ clean: clean_swagger  ## Remove generated files.
 	done
 
 serve:                ## Serve API documentation with nginx.
-	# https://pmm-api.test:8443/
+	# https://127.0.0.1:8443/
 	nginx -p . -c nginx/nginx.conf
