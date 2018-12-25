@@ -15,16 +15,16 @@ import (
 // swagger:model inventoryAddAmazonRDSRemoteNodeRequest
 type InventoryAddAmazonRDSRemoteNodeRequest struct {
 
-	// Hostname. Unique in combination with region. Can't be empty.
+	// Hostname. Unique in combination with region.
 	Hostname string `json:"hostname,omitempty"`
 
-	// Unique Node identifier (may be empty).
+	// Unique Node identifier. Will be generated if empty.
 	ID string `json:"id,omitempty"`
 
 	// Unique user-defined Node name.
 	Name string `json:"name,omitempty"`
 
-	// AWS region. Unique in combination with hostname. Can't be empty.
+	// AWS region. Unique in combination with hostname.
 	Region string `json:"region,omitempty"`
 }
 

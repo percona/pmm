@@ -615,11 +615,11 @@
       "type": "object",
       "properties": {
         "hostname": {
-          "description": "Hostname. Unique in combination with region. Can't be empty.",
+          "description": "Hostname. Unique in combination with region.",
           "type": "string"
         },
         "id": {
-          "description": "Unique Node identifier (may be empty).",
+          "description": "Unique Node identifier. Will be generated if empty.",
           "type": "string"
         },
         "name": {
@@ -627,7 +627,7 @@
           "type": "string"
         },
         "region": {
-          "description": "AWS region. Unique in combination with hostname. Can't be empty.",
+          "description": "AWS region. Unique in combination with hostname.",
           "type": "string"
         }
       }
@@ -644,11 +644,11 @@
       "type": "object",
       "properties": {
         "hostname": {
-          "description": "Hostname. Is not unique.",
+          "description": "Hostname. Is not unique. May be empty.",
           "type": "string"
         },
         "id": {
-          "description": "Unique Node identifier (may be empty).",
+          "description": "Unique Node identifier. Will be generated if empty.",
           "type": "string"
         },
         "name": {
@@ -776,7 +776,7 @@
       "type": "object",
       "properties": {
         "id": {
-          "description": "Unique Node identifier (may be empty).",
+          "description": "Unique Node identifier. Will be generated if empty.",
           "type": "string"
         },
         "name": {
@@ -798,7 +798,7 @@
       "type": "object",
       "properties": {
         "hostname": {
-          "description": "Hostname. Unique in combination with region. Can't be empty.",
+          "description": "Hostname. Unique in combination with region.",
           "type": "string"
         },
         "id": {
@@ -806,11 +806,11 @@
           "type": "string"
         },
         "name": {
-          "description": "Unique user-defined Node name. Can't be empty.",
+          "description": "Unique user-defined Node name.",
           "type": "string"
         },
         "region": {
-          "description": "AWS region. Unique in combination with hostname. Can't be empty.",
+          "description": "AWS region. Unique in combination with hostname.",
           "type": "string"
         }
       }
@@ -1215,6 +1215,7 @@
       "type": "object",
       "properties": {
         "id": {
+          "description": "Unique Node identifier.",
           "type": "string"
         }
       }

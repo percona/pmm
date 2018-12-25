@@ -15,10 +15,10 @@ import (
 // swagger:model inventoryAddGenericNodeRequest
 type InventoryAddGenericNodeRequest struct {
 
-	// Hostname. Is not unique.
+	// Hostname. Is not unique. May be empty.
 	Hostname string `json:"hostname,omitempty"`
 
-	// Unique Node identifier (may be empty).
+	// Unique Node identifier. Will be generated if empty.
 	ID string `json:"id,omitempty"`
 
 	// Unique user-defined Node name.
