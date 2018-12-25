@@ -4,26 +4,18 @@ package inventory;
 
 import "google/api/annotations.proto";
 
-// BareMetalNode represents bare metal Node.
-message BareMetalNode {
+// GenericNode represents Node without more specialized type.
+message GenericNode {
   // Unique Node identifier.
   string id = 1;
   // Unique user-defined Node name.
   string name = 2;
-  // Hostname. Is not unique.
+  // Hostname. Is not unique. May be empty.
   string hostname = 3;
 }
 
-// ContainerNode represents a container (Docker) Node.
-message ContainerNode {
-  // Unique Node identifier.
-  string id = 1;
-  // Unique user-defined Node name.
-  string name = 2;
-  reserved 3; // hostname
-}
-
 // RemoteNode represents a generic remote Node.
+// Agents can't be run on remote Nodes.
 message RemoteNode {
   // Unique Node identifier.
   string id = 1;
@@ -32,25 +24,24 @@ message RemoteNode {
   reserved 3; // hostname
 }
 
-// AWSRDSNode represents AWS RDS Node.
-message AWSRDSNode {
+// AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.
+message AmazonRDSRemoteNode {
   // Unique Node identifier.
   string id = 1;
-  // Unique user-defined Node name.
+  // Unique user-defined Node name. Can't be empty.
   string name = 2;
-  // Hostname. Unique in combination with region.
+  // Hostname. Unique in combination with region. Can't be empty.
   string hostname = 3;
-  // AWS region. Unique in combination with hostname.
+  // AWS region. Unique in combination with hostname. Can't be empty.
   string region = 4;
 }
 
 message ListNodesRequest {}
 
 message ListNodesResponse {
-  repeated BareMetalNode bare_metal = 1;
-  repeated ContainerNode container = 2;
-  repeated RemoteNode remote = 3;
-  repeated AWSRDSNode aws_rds = 4;
+  repeated GenericNode generic = 1;
+  repeated RemoteNode remote = 4;
+  repeated AmazonRDSRemoteNode amazon_rds = 5;
 }
 
 message GetNodeRequest {
@@ -60,14 +51,13 @@ message GetNodeRequest {
 
 message GetNodeResponse {
   oneof node {
-    BareMetalNode bare_metal = 1;
-    ContainerNode container = 2;
-    RemoteNode remote = 3;
-    AWSRDSNode aws_rds = 4;
+    GenericNode generic = 1;
+    RemoteNode remote = 4;
+    AmazonRDSRemoteNode amazon_rds = 5;
   }
 }
 
-message AddBareMetalNodeRequest {
+message AddGenericNodeRequest {
   // Unique Node identifier (may be empty).
   string id = 1;
   // Unique user-defined Node name.
@@ -76,19 +66,8 @@ message AddBareMetalNodeRequest {
   string hostname = 3;
 }
 
-message AddBareMetalNodeResponse {
-  BareMetalNode bare_metal = 1;
-}
-
-message AddContainerNodeRequest {
-  reserved 1; // id
-  // Unique user-defined Node name.
-  string name = 2;
-  reserved 3; // hostname
-}
-
-message AddContainerNodeResponse {
-  ContainerNode container = 1;
+message AddGenericNodeResponse {
+  GenericNode generic = 1;
 }
 
 message AddRemoteNodeRequest {
@@ -103,22 +82,22 @@ message AddRemoteNodeResponse {
   RemoteNode remote = 1;
 }
 
-message AddAWSRDSNodeRequest {
+message AddAmazonRDSRemoteNodeRequest {
   // Unique Node identifier (may be empty).
   string id = 1;
   // Unique user-defined Node name.
   string name = 2;
-  // Hostname. Unique in combination with region.
+  // Hostname. Unique in combination with region. Can't be empty.
   string hostname = 3;
-  // AWS region. Unique in combination with hostname.
+  // AWS region. Unique in combination with hostname. Can't be empty.
   string region = 4;
 }
 
-message AddAWSRDSNodeResponse {
-  AWSRDSNode aws_rds = 1;
+message AddAmazonRDSRemoteNodeResponse {
+  AmazonRDSRemoteNode amazon_rds = 1;
 }
 
-message ChangeBareMetalNodeRequest {
+message ChangeGenericNodeRequest {
   // Unique Node identifier.
   string id = 1;
   // Unique user-defined Node name.
@@ -126,20 +105,8 @@ message ChangeBareMetalNodeRequest {
   reserved 3; // hostname
 }
 
-message ChangeBareMetalNodeResponse {
-  BareMetalNode bare_metal = 1;
-}
-
-message ChangeContainerNodeRequest {
-  // Unique Node identifier.
-  string id = 1;
-  // Unique user-defined Node name.
-  string name = 2;
-  reserved 3; // hostname
-}
-
-message ChangeContainerNodeResponse {
-  ContainerNode container = 3;
+message ChangeGenericNodeResponse {
+  GenericNode generic = 1;
 }
 
 message ChangeRemoteNodeRequest {
@@ -151,10 +118,10 @@ message ChangeRemoteNodeRequest {
 }
 
 message ChangeRemoteNodeResponse {
-  RemoteNode remote = 4;
+  RemoteNode remote = 1;
 }
 
-message ChangeAWSRDSNodeRequest {
+message ChangeAmazonRDSRemoteNodeRequest {
   // Unique Node identifier.
   string id = 1;
   // Unique user-defined Node name.
@@ -163,8 +130,8 @@ message ChangeAWSRDSNodeRequest {
   reserved 4; // region
 }
 
-message ChangeAWSRDSNodeResponse {
-  AWSRDSNode aws_rds = 5;
+message ChangeAmazonRDSRemoteNodeResponse {
+  AmazonRDSRemoteNode amazon_rds = 1;
 }
 
 message RemoveNodeRequest {
@@ -189,17 +156,10 @@ service Nodes {
       body: "*"
     };
   }
-  // AddBareMetalNode adds bare metal Node.
-  rpc AddBareMetalNode(AddBareMetalNodeRequest) returns (AddBareMetalNodeResponse) {
+  // AddGenericNode adds bare metal Node.
+  rpc AddGenericNode(AddGenericNodeRequest) returns (AddGenericNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddBareMetal"
-      body: "*"
-    };
-  }
-  // AddContainerNode adds container Node.
-  rpc AddContainerNode(AddContainerNodeRequest) returns (AddContainerNodeResponse) {
-    option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddContainer"
+      post: "/v0/inventory/Nodes/AddGeneric"
       body: "*"
     };
   }
@@ -210,24 +170,17 @@ service Nodes {
       body: "*"
     };
   }
-  // AddAWSRDSNode adds AWS RDS Node.
-  rpc AddAWSRDSNode(AddAWSRDSNodeRequest) returns (AddAWSRDSNodeResponse) {
+  // AddAmazonRDSRemoteNode adds AWS RDS Node.
+  rpc AddAmazonRDSRemoteNode(AddAmazonRDSRemoteNodeRequest) returns (AddAmazonRDSRemoteNodeResponse) {
     option (google.api.http) = {
       post: "/v0/inventory/Nodes/AddAWSRDS"
       body: "*"
     };
   }
-  // ChangeBareMetalNode changes bare metal Node.
-  rpc ChangeBareMetalNode(ChangeBareMetalNodeRequest) returns (ChangeBareMetalNodeResponse) {
+  // ChangeGenericNode changes bare metal Node.
+  rpc ChangeGenericNode(ChangeGenericNodeRequest) returns (ChangeGenericNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeBareMetal"
-      body: "*"
-    };
-  }
-  // ChangeContainerNode changes container Node.
-  rpc ChangeContainerNode(ChangeContainerNodeRequest) returns (ChangeContainerNodeResponse) {
-    option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeContainer"
+      post: "/v0/inventory/Nodes/ChangeGeneric"
       body: "*"
     };
   }
@@ -238,8 +191,8 @@ service Nodes {
       body: "*"
     };
   }
-  // ChangeAWSRDSNode changes AWS RDS Node.
-  rpc ChangeAWSRDSNode(ChangeAWSRDSNodeRequest) returns (ChangeAWSRDSNodeResponse) {
+  // ChangeAmazonRDSRemoteNode changes AWS RDS Node.
+  rpc ChangeAmazonRDSRemoteNode(ChangeAmazonRDSRemoteNodeRequest) returns (ChangeAmazonRDSRemoteNodeResponse) {
     option (google.api.http) = {
       post: "/v0/inventory/Nodes/ChangeAWSRDS"
       body: "*"

@@ -18,14 +18,11 @@ import (
 // swagger:model inventoryListNodesResponse
 type InventoryListNodesResponse struct {
 
-	// aws rds
-	AWSRDS []*InventoryAWSRDSNode `json:"aws_rds"`
+	// amazon rds
+	AmazonRDS []*InventoryAmazonRDSRemoteNode `json:"amazon_rds"`
 
-	// bare metal
-	BareMetal []*InventoryBareMetalNode `json:"bare_metal"`
-
-	// container
-	Container []*InventoryContainerNode `json:"container"`
+	// generic
+	Generic []*InventoryGenericNode `json:"generic"`
 
 	// remote
 	Remote []*InventoryRemoteNode `json:"remote"`
@@ -35,15 +32,11 @@ type InventoryListNodesResponse struct {
 func (m *InventoryListNodesResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAWSRDS(formats); err != nil {
+	if err := m.validateAmazonRDS(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateBareMetal(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateContainer(formats); err != nil {
+	if err := m.validateGeneric(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -57,21 +50,21 @@ func (m *InventoryListNodesResponse) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *InventoryListNodesResponse) validateAWSRDS(formats strfmt.Registry) error {
+func (m *InventoryListNodesResponse) validateAmazonRDS(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.AWSRDS) { // not required
+	if swag.IsZero(m.AmazonRDS) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(m.AWSRDS); i++ {
-		if swag.IsZero(m.AWSRDS[i]) { // not required
+	for i := 0; i < len(m.AmazonRDS); i++ {
+		if swag.IsZero(m.AmazonRDS[i]) { // not required
 			continue
 		}
 
-		if m.AWSRDS[i] != nil {
-			if err := m.AWSRDS[i].Validate(formats); err != nil {
+		if m.AmazonRDS[i] != nil {
+			if err := m.AmazonRDS[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("aws_rds" + "." + strconv.Itoa(i))
+					return ve.ValidateName("amazon_rds" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -82,46 +75,21 @@ func (m *InventoryListNodesResponse) validateAWSRDS(formats strfmt.Registry) err
 	return nil
 }
 
-func (m *InventoryListNodesResponse) validateBareMetal(formats strfmt.Registry) error {
+func (m *InventoryListNodesResponse) validateGeneric(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.BareMetal) { // not required
+	if swag.IsZero(m.Generic) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(m.BareMetal); i++ {
-		if swag.IsZero(m.BareMetal[i]) { // not required
+	for i := 0; i < len(m.Generic); i++ {
+		if swag.IsZero(m.Generic[i]) { // not required
 			continue
 		}
 
-		if m.BareMetal[i] != nil {
-			if err := m.BareMetal[i].Validate(formats); err != nil {
+		if m.Generic[i] != nil {
+			if err := m.Generic[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("bare_metal" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (m *InventoryListNodesResponse) validateContainer(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Container) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.Container); i++ {
-		if swag.IsZero(m.Container[i]) { // not required
-			continue
-		}
-
-		if m.Container[i] != nil {
-			if err := m.Container[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("container" + "." + strconv.Itoa(i))
+					return ve.ValidateName("generic" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

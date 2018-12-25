@@ -12,6 +12,7 @@ import (
 )
 
 // InventoryRemoteNode RemoteNode represents a generic remote Node.
+// Agents can't be run on remote Nodes.
 // swagger:model inventoryRemoteNode
 type InventoryRemoteNode struct {
 
