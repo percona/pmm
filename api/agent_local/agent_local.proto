@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package agentlocal;
+package agent_local;
 
-option go_package = "agentlocal";
+option go_package = "agent_local";
 
 import "google/api/annotations.proto";
 

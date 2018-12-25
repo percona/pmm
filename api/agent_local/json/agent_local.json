@@ -11,8 +11,8 @@
   ],
   "swagger": "2.0",
   "info": {
-    "title": "agentlocal/agentlocal.proto",
-    "version": "version not set"
+    "title": "PMM Agent Local API",
+    "version": "version 0"
   },
   "paths": {
     "/v0/local/Status": {
@@ -34,6 +34,7 @@
         ],
         "responses": {
           "200": {
+            "description": "(empty)",
             "schema": {
               "type": "object",
               "properties": {
