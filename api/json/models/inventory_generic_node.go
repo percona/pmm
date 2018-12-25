@@ -11,27 +11,27 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryAddBareMetalNodeRequest inventory add bare metal node request
-// swagger:model inventoryAddBareMetalNodeRequest
-type InventoryAddBareMetalNodeRequest struct {
+// InventoryGenericNode GenericNode represents Node without more specialized type.
+// swagger:model inventoryGenericNode
+type InventoryGenericNode struct {
 
-	// Hostname. Is not unique.
+	// Hostname. Is not unique. May be empty.
 	Hostname string `json:"hostname,omitempty"`
 
-	// Unique Node identifier (may be empty).
+	// Unique Node identifier.
 	ID string `json:"id,omitempty"`
 
 	// Unique user-defined Node name.
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this inventory add bare metal node request
-func (m *InventoryAddBareMetalNodeRequest) Validate(formats strfmt.Registry) error {
+// Validate validates this inventory generic node
+func (m *InventoryGenericNode) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *InventoryAddBareMetalNodeRequest) MarshalBinary() ([]byte, error) {
+func (m *InventoryGenericNode) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -39,8 +39,8 @@ func (m *InventoryAddBareMetalNodeRequest) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *InventoryAddBareMetalNodeRequest) UnmarshalBinary(b []byte) error {
-	var res InventoryAddBareMetalNodeRequest
+func (m *InventoryGenericNode) UnmarshalBinary(b []byte) error {
+	var res InventoryGenericNode
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

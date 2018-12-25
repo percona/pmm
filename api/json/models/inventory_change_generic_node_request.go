@@ -11,21 +11,24 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// InventoryAddContainerNodeRequest inventory add container node request
-// swagger:model inventoryAddContainerNodeRequest
-type InventoryAddContainerNodeRequest struct {
+// InventoryChangeGenericNodeRequest inventory change generic node request
+// swagger:model inventoryChangeGenericNodeRequest
+type InventoryChangeGenericNodeRequest struct {
+
+	// Unique Node identifier.
+	ID string `json:"id,omitempty"`
 
 	// Unique user-defined Node name.
 	Name string `json:"name,omitempty"`
 }
 
-// Validate validates this inventory add container node request
-func (m *InventoryAddContainerNodeRequest) Validate(formats strfmt.Registry) error {
+// Validate validates this inventory change generic node request
+func (m *InventoryChangeGenericNodeRequest) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (m *InventoryAddContainerNodeRequest) MarshalBinary() ([]byte, error) {
+func (m *InventoryChangeGenericNodeRequest) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
@@ -33,8 +36,8 @@ func (m *InventoryAddContainerNodeRequest) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (m *InventoryAddContainerNodeRequest) UnmarshalBinary(b []byte) error {
-	var res InventoryAddContainerNodeRequest
+func (m *InventoryChangeGenericNodeRequest) UnmarshalBinary(b []byte) error {
+	var res InventoryChangeGenericNodeRequest
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
