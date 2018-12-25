@@ -20,7 +20,7 @@ lint:
       - ENUMS_NO_ALLOW_ALIAS                                  # Verifies that no enums use the option "allow_alias".
       - ENUM_FIELD_NAMES_UPPERCASE                            # Verifies that all enum field names are UPPERCASE.
       - ENUM_FIELD_NAMES_UPPER_SNAKE_CASE                     # Verifies that all enum field names are UPPER_SNAKE_CASE.
-      - ENUM_FIELD_PREFIXES                                   # Verifies that all enum fields are prefixed with [NESTED_MESSAGE_NAME_]ENUM_NAME_.
+      # - ENUM_FIELD_PREFIXES                                   # Verifies that all enum fields are prefixed with [NESTED_MESSAGE_NAME_]ENUM_NAME_.
       - ENUM_NAMES_CAMEL_CASE                                 # Verifies that all enum names are CamelCase.
       - ENUM_NAMES_CAPITALIZED                                # Verifies that all enum names are Capitalized.
       - ENUM_ZERO_VALUES_INVALID                              # Verifies that all enum zero value names are [NESTED_MESSAGE_NAME_]ENUM_NAME_INVALID.
