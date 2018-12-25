@@ -16,15 +16,15 @@ import (
 // swagger:model inventoryAddAmazonRDSRemoteNodeResponse
 type InventoryAddAmazonRDSRemoteNodeResponse struct {
 
-	// amazon rds
-	AmazonRDS *InventoryAmazonRDSRemoteNode `json:"amazon_rds,omitempty"`
+	// amazon rds remote
+	AmazonRDSRemote *InventoryAmazonRDSRemoteNode `json:"amazon_rds_remote,omitempty"`
 }
 
 // Validate validates this inventory add amazon RDS remote node response
 func (m *InventoryAddAmazonRDSRemoteNodeResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAmazonRDS(formats); err != nil {
+	if err := m.validateAmazonRDSRemote(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -34,16 +34,16 @@ func (m *InventoryAddAmazonRDSRemoteNodeResponse) Validate(formats strfmt.Regist
 	return nil
 }
 
-func (m *InventoryAddAmazonRDSRemoteNodeResponse) validateAmazonRDS(formats strfmt.Registry) error {
+func (m *InventoryAddAmazonRDSRemoteNodeResponse) validateAmazonRDSRemote(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.AmazonRDS) { // not required
+	if swag.IsZero(m.AmazonRDSRemote) { // not required
 		return nil
 	}
 
-	if m.AmazonRDS != nil {
-		if err := m.AmazonRDS.Validate(formats); err != nil {
+	if m.AmazonRDSRemote != nil {
+		if err := m.AmazonRDSRemote.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("amazon_rds")
+				return ve.ValidateName("amazon_rds_remote")
 			}
 			return err
 		}

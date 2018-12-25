@@ -44,7 +44,7 @@ message ListNodesRequest {}
 message ListNodesResponse {
   repeated GenericNode generic = 1;
   repeated RemoteNode remote = 4;
-  repeated AmazonRDSRemoteNode amazon_rds = 5;
+  repeated AmazonRDSRemoteNode amazon_rds_remote = 5;
 }
 
 message GetNodeRequest {
@@ -60,7 +60,7 @@ message GetNodeResponse {
   oneof node {
     GenericNode generic = 1;
     RemoteNode remote = 4;
-    AmazonRDSRemoteNode amazon_rds = 5;
+    AmazonRDSRemoteNode amazon_rds_remote = 5;
   }
 }
 
@@ -121,7 +121,7 @@ message AddAmazonRDSRemoteNodeRequest {
 }
 
 message AddAmazonRDSRemoteNodeResponse {
-  AmazonRDSRemoteNode amazon_rds = 1;
+  AmazonRDSRemoteNode amazon_rds_remote = 1;
 }
 
 message ChangeGenericNodeRequest {
@@ -182,7 +182,7 @@ message ChangeAmazonRDSRemoteNodeRequest {
 }
 
 message ChangeAmazonRDSRemoteNodeResponse {
-  AmazonRDSRemoteNode amazon_rds = 1;
+  AmazonRDSRemoteNode amazon_rds_remote = 1;
 }
 
 message RemoveNodeRequest {
