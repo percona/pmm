@@ -226,10 +226,10 @@ service Nodes {
       body: "*"
     };
   }
-  // AddAmazonRDSRemoteNode adds AWS RDS Node.
+  // AddAmazonRDSRemoteNode adds Amazon (AWS) RDS remote Node.
   rpc AddAmazonRDSRemoteNode(AddAmazonRDSRemoteNodeRequest) returns (AddAmazonRDSRemoteNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddAWSRDS"
+      post: "/v0/inventory/Nodes/AddAmazonRDSRemote"
       body: "*"
     };
   }
@@ -247,10 +247,10 @@ service Nodes {
       body: "*"
     };
   }
-  // ChangeAmazonRDSRemoteNode changes AWS RDS Node.
+  // ChangeAmazonRDSRemoteNode changes Amazon (AWS) RDS remote Node.
   rpc ChangeAmazonRDSRemoteNode(ChangeAmazonRDSRemoteNodeRequest) returns (ChangeAmazonRDSRemoteNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeAWSRDS"
+      post: "/v0/inventory/Nodes/ChangeAmazonRDSRemote"
       body: "*"
     };
   }

@@ -231,12 +231,12 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddAWSRDS": {
+    "/v0/inventory/Nodes/AddAmazonRDSRemote": {
       "post": {
         "tags": [
           "Nodes"
         ],
-        "summary": "AddAmazonRDSRemoteNode adds AWS RDS Node.",
+        "summary": "AddAmazonRDSRemoteNode adds Amazon (AWS) RDS remote Node.",
         "operationId": "AddAmazonRDSRemoteNode",
         "parameters": [
           {
@@ -312,12 +312,12 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeAWSRDS": {
+    "/v0/inventory/Nodes/ChangeAmazonRDSRemote": {
       "post": {
         "tags": [
           "Nodes"
         ],
-        "summary": "ChangeAmazonRDSRemoteNode changes AWS RDS Node.",
+        "summary": "ChangeAmazonRDSRemoteNode changes Amazon (AWS) RDS remote Node.",
         "operationId": "ChangeAmazonRDSRemoteNode",
         "parameters": [
           {
