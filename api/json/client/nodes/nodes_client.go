@@ -25,7 +25,7 @@ type Client struct {
 }
 
 /*
-AddAmazonRDSRemoteNode adds amazon RDS remote node adds AWS RDS node
+AddAmazonRDSRemoteNode adds amazon RDS remote node adds amazon AWS RDS remote node
 */
 func (a *Client) AddAmazonRDSRemoteNode(params *AddAmazonRDSRemoteNodeParams) (*AddAmazonRDSRemoteNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -36,7 +36,7 @@ func (a *Client) AddAmazonRDSRemoteNode(params *AddAmazonRDSRemoteNodeParams) (*
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddAmazonRDSRemoteNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddAWSRDS",
+		PathPattern:        "/v0/inventory/Nodes/AddAmazonRDSRemote",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -109,7 +109,7 @@ func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, e
 }
 
 /*
-ChangeAmazonRDSRemoteNode changes amazon RDS remote node changes AWS RDS node
+ChangeAmazonRDSRemoteNode changes amazon RDS remote node changes amazon AWS RDS remote node
 */
 func (a *Client) ChangeAmazonRDSRemoteNode(params *ChangeAmazonRDSRemoteNodeParams) (*ChangeAmazonRDSRemoteNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -120,7 +120,7 @@ func (a *Client) ChangeAmazonRDSRemoteNode(params *ChangeAmazonRDSRemoteNodePara
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeAmazonRDSRemoteNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/ChangeAWSRDS",
+		PathPattern:        "/v0/inventory/Nodes/ChangeAmazonRDSRemote",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
