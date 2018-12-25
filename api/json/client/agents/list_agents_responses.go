@@ -8,12 +8,13 @@ package agents
 import (
 	"fmt"
 	"io"
+	"strconv"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // ListAgentsReader is a Reader for the ListAgents structure.
@@ -47,7 +48,7 @@ func NewListAgentsOK() *ListAgentsOK {
 (empty)
 */
 type ListAgentsOK struct {
-	Payload *models.InventoryListAgentsResponse
+	Payload *ListAgentsOKBody
 }
 
 func (o *ListAgentsOK) Error() string {
@@ -56,12 +57,345 @@ func (o *ListAgentsOK) Error() string {
 
 func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.InventoryListAgentsResponse)
+	o.Payload = new(ListAgentsOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
+	return nil
+}
+
+/*ListAgentsOKBody list agents o k body
+swagger:model ListAgentsOKBody
+*/
+type ListAgentsOKBody struct {
+
+	// mysqld exporter
+	MysqldExporter []*MysqldExporterItems0 `json:"mysqld_exporter"`
+
+	// node exporter
+	NodeExporter []*NodeExporterItems0 `json:"node_exporter"`
+
+	// pmm agent
+	PMMAgent []*PMMAgentItems0 `json:"pmm_agent"`
+}
+
+// Validate validates this list agents o k body
+func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateMysqldExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateNodeExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePMMAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateMysqldExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.MysqldExporter) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.MysqldExporter); i++ {
+		if swag.IsZero(o.MysqldExporter[i]) { // not required
+			continue
+		}
+
+		if o.MysqldExporter[i] != nil {
+			if err := o.MysqldExporter[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOK" + "." + "mysqld_exporter" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateNodeExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.NodeExporter) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.NodeExporter); i++ {
+		if swag.IsZero(o.NodeExporter[i]) { // not required
+			continue
+		}
+
+		if o.NodeExporter[i] != nil {
+			if err := o.NodeExporter[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOK" + "." + "node_exporter" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validatePMMAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PMMAgent) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.PMMAgent); i++ {
+		if swag.IsZero(o.PMMAgent[i]) { // not required
+			continue
+		}
+
+		if o.PMMAgent[i] != nil {
+			if err := o.PMMAgent[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOK" + "." + "pmm_agent" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsOKBody) UnmarshalBinary(b []byte) error {
+	var res ListAgentsOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*MysqldExporterItems0 MySQLdExporter represents mysqld_exporter Agent configuration.
+swagger:model MysqldExporterItems0
+*/
+type MysqldExporterItems0 struct {
+
+	// Agent desired status: enabled or disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Unique Agent identifier.
+	ID string `json:"id,omitempty"`
+
+	// HTTP listen port for exposing metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Agent process status: running or not.
+	Running bool `json:"running,omitempty"`
+
+	// Node identifier where Agent runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+
+	// Service identifier for which insights are provided by that Agent.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// MySQL username for extracting metrics.
+	Username string `json:"username,omitempty"`
+}
+
+// Validate validates this mysqld exporter items0
+func (o *MysqldExporterItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *MysqldExporterItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *MysqldExporterItems0) UnmarshalBinary(b []byte) error {
+	var res MysqldExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*NodeExporterItems0 NodeExporter represents node_exporter Agent configuration.
+swagger:model NodeExporterItems0
+*/
+type NodeExporterItems0 struct {
+
+	// Agent desired status: enabled or disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Unique Agent identifier.
+	ID string `json:"id,omitempty"`
+
+	// HTTP listen port for exposing metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Agent process status: running or not.
+	Running bool `json:"running,omitempty"`
+
+	// Node identifier where Agent runs and for which insights are provided by that Agent.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+}
+
+// Validate validates this node exporter items0
+func (o *NodeExporterItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *NodeExporterItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *NodeExporterItems0) UnmarshalBinary(b []byte) error {
+	var res NodeExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*PMMAgentItems0 PMMAgent represent pmm-agent Agent configuration.
+swagger:model PMMAgentItems0
+*/
+type PMMAgentItems0 struct {
+
+	// host node info
+	HostNodeInfo *PMMAgentItems0HostNodeInfo `json:"host_node_info,omitempty"`
+
+	// Unique Agent identifier.
+	ID string `json:"id,omitempty"`
+
+	// Agent process status: running and connected to pmm-managed, or not.
+	Running bool `json:"running,omitempty"`
+}
+
+// Validate validates this PMM agent items0
+func (o *PMMAgentItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateHostNodeInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *PMMAgentItems0) validateHostNodeInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.HostNodeInfo) { // not required
+		return nil
+	}
+
+	if o.HostNodeInfo != nil {
+		if err := o.HostNodeInfo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("host_node_info")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *PMMAgentItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *PMMAgentItems0) UnmarshalBinary(b []byte) error {
+	var res PMMAgentItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*PMMAgentItems0HostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
+swagger:model PMMAgentItems0HostNodeInfo
+*/
+type PMMAgentItems0HostNodeInfo struct {
+
+	// Docker container ID.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Docker container name.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Kubernetes pod name.
+	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
+
+	// Kubernetes pod UID.
+	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
+
+	// Node identifier where Service or Agent runs.
+	NodeID string `json:"node_id,omitempty"`
+}
+
+// Validate validates this PMM agent items0 host node info
+func (o *PMMAgentItems0HostNodeInfo) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *PMMAgentItems0HostNodeInfo) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *PMMAgentItems0HostNodeInfo) UnmarshalBinary(b []byte) error {
+	var res PMMAgentItems0HostNodeInfo
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }

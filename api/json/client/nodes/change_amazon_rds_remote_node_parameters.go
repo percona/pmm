@@ -16,8 +16,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // NewChangeAmazonRDSRemoteNodeParams creates a new ChangeAmazonRDSRemoteNodeParams object
@@ -65,7 +63,7 @@ for the change amazon RDS remote node operation typically these are written to a
 type ChangeAmazonRDSRemoteNodeParams struct {
 
 	/*Body*/
-	Body *models.InventoryChangeAmazonRDSRemoteNodeRequest
+	Body ChangeAmazonRDSRemoteNodeBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -106,13 +104,13 @@ func (o *ChangeAmazonRDSRemoteNodeParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the change amazon RDS remote node params
-func (o *ChangeAmazonRDSRemoteNodeParams) WithBody(body *models.InventoryChangeAmazonRDSRemoteNodeRequest) *ChangeAmazonRDSRemoteNodeParams {
+func (o *ChangeAmazonRDSRemoteNodeParams) WithBody(body ChangeAmazonRDSRemoteNodeBody) *ChangeAmazonRDSRemoteNodeParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the change amazon RDS remote node params
-func (o *ChangeAmazonRDSRemoteNodeParams) SetBody(body *models.InventoryChangeAmazonRDSRemoteNodeRequest) {
+func (o *ChangeAmazonRDSRemoteNodeParams) SetBody(body ChangeAmazonRDSRemoteNodeBody) {
 	o.Body = body
 }
 
@@ -124,10 +122,8 @@ func (o *ChangeAmazonRDSRemoteNodeParams) WriteToRequest(r runtime.ClientRequest
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

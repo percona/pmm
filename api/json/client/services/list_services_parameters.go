@@ -16,8 +16,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // NewListServicesParams creates a new ListServicesParams object
@@ -65,7 +63,7 @@ for the list services operation typically these are written to a http.Request
 type ListServicesParams struct {
 
 	/*Body*/
-	Body models.InventoryListServicesRequest
+	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
@@ -106,13 +104,13 @@ func (o *ListServicesParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list services params
-func (o *ListServicesParams) WithBody(body models.InventoryListServicesRequest) *ListServicesParams {
+func (o *ListServicesParams) WithBody(body interface{}) *ListServicesParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list services params
-func (o *ListServicesParams) SetBody(body models.InventoryListServicesRequest) {
+func (o *ListServicesParams) SetBody(body interface{}) {
 	o.Body = body
 }
 

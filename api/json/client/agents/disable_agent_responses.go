@@ -10,10 +10,9 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // DisableAgentReader is a Reader for the DisableAgent structure.
@@ -47,7 +46,7 @@ func NewDisableAgentOK() *DisableAgentOK {
 (empty)
 */
 type DisableAgentOK struct {
-	Payload models.InventoryDisableAgentResponse
+	Payload interface{}
 }
 
 func (o *DisableAgentOK) Error() string {
@@ -61,5 +60,37 @@ func (o *DisableAgentOK) readResponse(response runtime.ClientResponse, consumer 
 		return err
 	}
 
+	return nil
+}
+
+/*DisableAgentBody disable agent body
+swagger:model DisableAgentBody
+*/
+type DisableAgentBody struct {
+
+	// Unique Agent identifier.
+	ID string `json:"id,omitempty"`
+}
+
+// Validate validates this disable agent body
+func (o *DisableAgentBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *DisableAgentBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *DisableAgentBody) UnmarshalBinary(b []byte) error {
+	var res DisableAgentBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }

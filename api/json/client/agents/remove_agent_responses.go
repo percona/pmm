@@ -10,10 +10,9 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // RemoveAgentReader is a Reader for the RemoveAgent structure.
@@ -47,7 +46,7 @@ func NewRemoveAgentOK() *RemoveAgentOK {
 (empty)
 */
 type RemoveAgentOK struct {
-	Payload models.InventoryRemoveAgentResponse
+	Payload interface{}
 }
 
 func (o *RemoveAgentOK) Error() string {
@@ -61,5 +60,37 @@ func (o *RemoveAgentOK) readResponse(response runtime.ClientResponse, consumer r
 		return err
 	}
 
+	return nil
+}
+
+/*RemoveAgentBody remove agent body
+swagger:model RemoveAgentBody
+*/
+type RemoveAgentBody struct {
+
+	// id
+	ID string `json:"id,omitempty"`
+}
+
+// Validate validates this remove agent body
+func (o *RemoveAgentBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RemoveAgentBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RemoveAgentBody) UnmarshalBinary(b []byte) error {
+	var res RemoveAgentBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }

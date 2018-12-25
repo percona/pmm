@@ -16,8 +16,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // NewDisableAgentParams creates a new DisableAgentParams object
@@ -65,7 +63,7 @@ for the disable agent operation typically these are written to a http.Request
 type DisableAgentParams struct {
 
 	/*Body*/
-	Body *models.InventoryDisableAgentRequest
+	Body DisableAgentBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -106,13 +104,13 @@ func (o *DisableAgentParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the disable agent params
-func (o *DisableAgentParams) WithBody(body *models.InventoryDisableAgentRequest) *DisableAgentParams {
+func (o *DisableAgentParams) WithBody(body DisableAgentBody) *DisableAgentParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the disable agent params
-func (o *DisableAgentParams) SetBody(body *models.InventoryDisableAgentRequest) {
+func (o *DisableAgentParams) SetBody(body DisableAgentBody) {
 	o.Body = body
 }
 
@@ -124,10 +122,8 @@ func (o *DisableAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

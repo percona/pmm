@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // AddGenericNodeReader is a Reader for the AddGenericNode structure.
@@ -47,7 +47,7 @@ func NewAddGenericNodeOK() *AddGenericNodeOK {
 (empty)
 */
 type AddGenericNodeOK struct {
-	Payload *models.InventoryAddGenericNodeResponse
+	Payload *AddGenericNodeOKBody
 }
 
 func (o *AddGenericNodeOK) Error() string {
@@ -56,12 +56,147 @@ func (o *AddGenericNodeOK) Error() string {
 
 func (o *AddGenericNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.InventoryAddGenericNodeResponse)
+	o.Payload = new(AddGenericNodeOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
+	return nil
+}
+
+/*AddGenericNodeBody add generic node body
+swagger:model AddGenericNodeBody
+*/
+type AddGenericNodeBody struct {
+
+	// Hostname. Is not unique. May be empty.
+	Hostname string `json:"hostname,omitempty"`
+
+	// Unique Node identifier. Will be generated if empty.
+	ID string `json:"id,omitempty"`
+
+	// Unique user-defined Node name.
+	Name string `json:"name,omitempty"`
+}
+
+// Validate validates this add generic node body
+func (o *AddGenericNodeBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddGenericNodeBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddGenericNodeBody) UnmarshalBinary(b []byte) error {
+	var res AddGenericNodeBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddGenericNodeOKBody add generic node o k body
+swagger:model AddGenericNodeOKBody
+*/
+type AddGenericNodeOKBody struct {
+
+	// generic
+	Generic *AddGenericNodeOKBodyGeneric `json:"generic,omitempty"`
+}
+
+// Validate validates this add generic node o k body
+func (o *AddGenericNodeOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateGeneric(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddGenericNodeOKBody) validateGeneric(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Generic) { // not required
+		return nil
+	}
+
+	if o.Generic != nil {
+		if err := o.Generic.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addGenericNodeOK" + "." + "generic")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddGenericNodeOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddGenericNodeOKBody) UnmarshalBinary(b []byte) error {
+	var res AddGenericNodeOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddGenericNodeOKBodyGeneric GenericNode represents Node without more specialized type.
+swagger:model AddGenericNodeOKBodyGeneric
+*/
+type AddGenericNodeOKBodyGeneric struct {
+
+	// Hostname. Is not unique. May be empty.
+	Hostname string `json:"hostname,omitempty"`
+
+	// Unique Node identifier.
+	ID string `json:"id,omitempty"`
+
+	// Unique user-defined Node name.
+	Name string `json:"name,omitempty"`
+}
+
+// Validate validates this add generic node o k body generic
+func (o *AddGenericNodeOKBodyGeneric) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddGenericNodeOKBodyGeneric) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddGenericNodeOKBodyGeneric) UnmarshalBinary(b []byte) error {
+	var res AddGenericNodeOKBodyGeneric
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }

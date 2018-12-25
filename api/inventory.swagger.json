@@ -28,7 +28,30 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryAddMySQLdExporterRequest"
+              "type": "object",
+              "properties": {
+                "disabled": {
+                  "description": "Agent desired status: enabled or disabled.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "password": {
+                  "description": "MySQL password for extracting metrics.",
+                  "type": "string"
+                },
+                "runs_on_node_id": {
+                  "description": "Node identifier where Agent runs.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service identifier for which insights are provided by that Agent.",
+                  "type": "string"
+                },
+                "username": {
+                  "description": "MySQL username for extracting metrics.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -36,7 +59,46 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryAddMySQLdExporterResponse"
+              "type": "object",
+              "properties": {
+                "mysqld_exporter": {
+                  "description": "MySQLdExporter represents mysqld_exporter Agent configuration.",
+                  "type": "object",
+                  "properties": {
+                    "disabled": {
+                      "description": "Agent desired status: enabled or disabled.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "id": {
+                      "description": "Unique Agent identifier.",
+                      "type": "string"
+                    },
+                    "listen_port": {
+                      "description": "HTTP listen port for exposing metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "running": {
+                      "description": "Agent process status: running or not.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where Agent runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier for which insights are provided by that Agent.",
+                      "type": "string"
+                    },
+                    "username": {
+                      "description": "MySQL username for extracting metrics.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -55,7 +117,18 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryAddNodeExporterRequest"
+              "type": "object",
+              "properties": {
+                "disabled": {
+                  "description": "Agent desired status: enabled or disabled.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "runs_on_node_id": {
+                  "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -63,7 +136,38 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryAddNodeExporterResponse"
+              "type": "object",
+              "properties": {
+                "node_exporter": {
+                  "description": "NodeExporter represents node_exporter Agent configuration.",
+                  "type": "object",
+                  "properties": {
+                    "disabled": {
+                      "description": "Agent desired status: enabled or disabled.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "id": {
+                      "description": "Unique Agent identifier.",
+                      "type": "string"
+                    },
+                    "listen_port": {
+                      "description": "HTTP listen port for exposing metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "running": {
+                      "description": "Agent process status: running or not.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -82,7 +186,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryAddPMMAgentRequest"
+              "type": "object",
+              "properties": {
+                "runs_on_node_id": {
+                  "description": "Node identifier where Agent runs.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -90,7 +200,50 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryAddPMMAgentResponse"
+              "type": "object",
+              "properties": {
+                "pmm_agent": {
+                  "description": "PMMAgent represent pmm-agent Agent configuration.",
+                  "type": "object",
+                  "properties": {
+                    "host_node_info": {
+                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                      "type": "object",
+                      "properties": {
+                        "container_id": {
+                          "description": "Docker container ID.",
+                          "type": "string"
+                        },
+                        "container_name": {
+                          "description": "Docker container name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_name": {
+                          "description": "Kubernetes pod name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_uid": {
+                          "description": "Kubernetes pod UID.",
+                          "type": "string"
+                        },
+                        "node_id": {
+                          "description": "Node identifier where Service or Agent runs.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "id": {
+                      "description": "Unique Agent identifier.",
+                      "type": "string"
+                    },
+                    "running": {
+                      "description": "Agent process status: running and connected to pmm-managed, or not.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -109,7 +262,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryDisableAgentRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Unique Agent identifier.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -117,7 +276,7 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryDisableAgentResponse"
+              "type": "object"
             }
           }
         }
@@ -136,7 +295,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryEnableAgentRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Unique Agent identifier.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -144,7 +309,7 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryEnableAgentResponse"
+              "type": "object"
             }
           }
         }
@@ -163,7 +328,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryGetAgentRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Unique Agent identifier.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -171,7 +342,116 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryGetAgentResponse"
+              "type": "object",
+              "properties": {
+                "mysqld_exporter": {
+                  "description": "MySQLdExporter represents mysqld_exporter Agent configuration.",
+                  "type": "object",
+                  "properties": {
+                    "disabled": {
+                      "description": "Agent desired status: enabled or disabled.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "id": {
+                      "description": "Unique Agent identifier.",
+                      "type": "string"
+                    },
+                    "listen_port": {
+                      "description": "HTTP listen port for exposing metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "running": {
+                      "description": "Agent process status: running or not.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where Agent runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier for which insights are provided by that Agent.",
+                      "type": "string"
+                    },
+                    "username": {
+                      "description": "MySQL username for extracting metrics.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "node_exporter": {
+                  "description": "NodeExporter represents node_exporter Agent configuration.",
+                  "type": "object",
+                  "properties": {
+                    "disabled": {
+                      "description": "Agent desired status: enabled or disabled.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "id": {
+                      "description": "Unique Agent identifier.",
+                      "type": "string"
+                    },
+                    "listen_port": {
+                      "description": "HTTP listen port for exposing metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "running": {
+                      "description": "Agent process status: running or not.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "pmm_agent": {
+                  "description": "PMMAgent represent pmm-agent Agent configuration.",
+                  "type": "object",
+                  "properties": {
+                    "host_node_info": {
+                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                      "type": "object",
+                      "properties": {
+                        "container_id": {
+                          "description": "Docker container ID.",
+                          "type": "string"
+                        },
+                        "container_name": {
+                          "description": "Docker container name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_name": {
+                          "description": "Kubernetes pod name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_uid": {
+                          "description": "Kubernetes pod UID.",
+                          "type": "string"
+                        },
+                        "node_id": {
+                          "description": "Node identifier where Service or Agent runs.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "id": {
+                      "description": "Unique Agent identifier.",
+                      "type": "string"
+                    },
+                    "running": {
+                      "description": "Agent process status: running and connected to pmm-managed, or not.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -190,7 +470,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryListAgentsRequest"
+              "type": "object"
             }
           }
         ],
@@ -198,7 +478,125 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryListAgentsResponse"
+              "type": "object",
+              "properties": {
+                "mysqld_exporter": {
+                  "type": "array",
+                  "items": {
+                    "description": "MySQLdExporter represents mysqld_exporter Agent configuration.",
+                    "type": "object",
+                    "properties": {
+                      "disabled": {
+                        "description": "Agent desired status: enabled or disabled.",
+                        "type": "boolean",
+                        "format": "boolean"
+                      },
+                      "id": {
+                        "description": "Unique Agent identifier.",
+                        "type": "string"
+                      },
+                      "listen_port": {
+                        "description": "HTTP listen port for exposing metrics.",
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "running": {
+                        "description": "Agent process status: running or not.",
+                        "type": "boolean",
+                        "format": "boolean"
+                      },
+                      "runs_on_node_id": {
+                        "description": "Node identifier where Agent runs.",
+                        "type": "string"
+                      },
+                      "service_id": {
+                        "description": "Service identifier for which insights are provided by that Agent.",
+                        "type": "string"
+                      },
+                      "username": {
+                        "description": "MySQL username for extracting metrics.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "node_exporter": {
+                  "type": "array",
+                  "items": {
+                    "description": "NodeExporter represents node_exporter Agent configuration.",
+                    "type": "object",
+                    "properties": {
+                      "disabled": {
+                        "description": "Agent desired status: enabled or disabled.",
+                        "type": "boolean",
+                        "format": "boolean"
+                      },
+                      "id": {
+                        "description": "Unique Agent identifier.",
+                        "type": "string"
+                      },
+                      "listen_port": {
+                        "description": "HTTP listen port for exposing metrics.",
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "running": {
+                        "description": "Agent process status: running or not.",
+                        "type": "boolean",
+                        "format": "boolean"
+                      },
+                      "runs_on_node_id": {
+                        "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "pmm_agent": {
+                  "type": "array",
+                  "items": {
+                    "description": "PMMAgent represent pmm-agent Agent configuration.",
+                    "type": "object",
+                    "properties": {
+                      "host_node_info": {
+                        "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                        "type": "object",
+                        "properties": {
+                          "container_id": {
+                            "description": "Docker container ID.",
+                            "type": "string"
+                          },
+                          "container_name": {
+                            "description": "Docker container name.",
+                            "type": "string"
+                          },
+                          "kubernetes_pod_name": {
+                            "description": "Kubernetes pod name.",
+                            "type": "string"
+                          },
+                          "kubernetes_pod_uid": {
+                            "description": "Kubernetes pod UID.",
+                            "type": "string"
+                          },
+                          "node_id": {
+                            "description": "Node identifier where Service or Agent runs.",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "id": {
+                        "description": "Unique Agent identifier.",
+                        "type": "string"
+                      },
+                      "running": {
+                        "description": "Agent process status: running and connected to pmm-managed, or not.",
+                        "type": "boolean",
+                        "format": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -217,7 +615,12 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryRemoveAgentRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -225,7 +628,7 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryRemoveAgentResponse"
+              "type": "object"
             }
           }
         }
@@ -244,7 +647,25 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryAddAmazonRDSRemoteNodeRequest"
+              "type": "object",
+              "properties": {
+                "hostname": {
+                  "description": "Hostname. Unique in combination with region.",
+                  "type": "string"
+                },
+                "id": {
+                  "description": "Unique Node identifier. Will be generated if empty.",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Unique user-defined Node name.",
+                  "type": "string"
+                },
+                "region": {
+                  "description": "AWS region. Unique in combination with hostname.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -252,7 +673,31 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryAddAmazonRDSRemoteNodeResponse"
+              "type": "object",
+              "properties": {
+                "amazon_rds_remote": {
+                  "description": "AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.",
+                  "type": "object",
+                  "properties": {
+                    "hostname": {
+                      "description": "Hostname. Unique in combination with region.",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "Unique Node identifier.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Unique user-defined Node name.",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "AWS region. Unique in combination with hostname.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -271,7 +716,21 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryAddGenericNodeRequest"
+              "type": "object",
+              "properties": {
+                "hostname": {
+                  "description": "Hostname. Is not unique. May be empty.",
+                  "type": "string"
+                },
+                "id": {
+                  "description": "Unique Node identifier. Will be generated if empty.",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Unique user-defined Node name.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -279,7 +738,27 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryAddGenericNodeResponse"
+              "type": "object",
+              "properties": {
+                "generic": {
+                  "description": "GenericNode represents Node without more specialized type.",
+                  "type": "object",
+                  "properties": {
+                    "hostname": {
+                      "description": "Hostname. Is not unique. May be empty.",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "Unique Node identifier.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Unique user-defined Node name.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -298,7 +777,17 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryAddRemoteNodeRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Unique Node identifier. Will be generated if empty.",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Unique user-defined Node name.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -306,7 +795,23 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryAddRemoteNodeResponse"
+              "type": "object",
+              "properties": {
+                "remote": {
+                  "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "Unique Node identifier.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Unique user-defined Node name.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -325,7 +830,17 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryChangeAmazonRDSRemoteNodeRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Unique Node identifier.",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Unique user-defined Node name.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -333,7 +848,31 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryChangeAmazonRDSRemoteNodeResponse"
+              "type": "object",
+              "properties": {
+                "amazon_rds_remote": {
+                  "description": "AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.",
+                  "type": "object",
+                  "properties": {
+                    "hostname": {
+                      "description": "Hostname. Unique in combination with region.",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "Unique Node identifier.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Unique user-defined Node name.",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "AWS region. Unique in combination with hostname.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -352,7 +891,17 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryChangeGenericNodeRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Unique Node identifier.",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Unique user-defined Node name.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -360,7 +909,27 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryChangeGenericNodeResponse"
+              "type": "object",
+              "properties": {
+                "generic": {
+                  "description": "GenericNode represents Node without more specialized type.",
+                  "type": "object",
+                  "properties": {
+                    "hostname": {
+                      "description": "Hostname. Is not unique. May be empty.",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "Unique Node identifier.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Unique user-defined Node name.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -379,7 +948,17 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryChangeRemoteNodeRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Unique Node identifier.",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Unique user-defined Node name.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -387,7 +966,23 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryChangeRemoteNodeResponse"
+              "type": "object",
+              "properties": {
+                "remote": {
+                  "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "Unique Node identifier.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Unique user-defined Node name.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -406,7 +1001,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryGetNodeRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Unique Node identifier.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -414,7 +1015,63 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryGetNodeResponse"
+              "type": "object",
+              "properties": {
+                "amazon_rds_remote": {
+                  "description": "AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.",
+                  "type": "object",
+                  "properties": {
+                    "hostname": {
+                      "description": "Hostname. Unique in combination with region.",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "Unique Node identifier.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Unique user-defined Node name.",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "AWS region. Unique in combination with hostname.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "generic": {
+                  "description": "GenericNode represents Node without more specialized type.",
+                  "type": "object",
+                  "properties": {
+                    "hostname": {
+                      "description": "Hostname. Is not unique. May be empty.",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "Unique Node identifier.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Unique user-defined Node name.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "remote": {
+                  "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "description": "Unique Node identifier.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Unique user-defined Node name.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -433,7 +1090,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryListNodesRequest"
+              "type": "object"
             }
           }
         ],
@@ -441,7 +1098,72 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryListNodesResponse"
+              "type": "object",
+              "properties": {
+                "amazon_rds_remote": {
+                  "type": "array",
+                  "items": {
+                    "description": "AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.",
+                    "type": "object",
+                    "properties": {
+                      "hostname": {
+                        "description": "Hostname. Unique in combination with region.",
+                        "type": "string"
+                      },
+                      "id": {
+                        "description": "Unique Node identifier.",
+                        "type": "string"
+                      },
+                      "name": {
+                        "description": "Unique user-defined Node name.",
+                        "type": "string"
+                      },
+                      "region": {
+                        "description": "AWS region. Unique in combination with hostname.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "generic": {
+                  "type": "array",
+                  "items": {
+                    "description": "GenericNode represents Node without more specialized type.",
+                    "type": "object",
+                    "properties": {
+                      "hostname": {
+                        "description": "Hostname. Is not unique. May be empty.",
+                        "type": "string"
+                      },
+                      "id": {
+                        "description": "Unique Node identifier.",
+                        "type": "string"
+                      },
+                      "name": {
+                        "description": "Unique user-defined Node name.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "remote": {
+                  "type": "array",
+                  "items": {
+                    "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "description": "Unique Node identifier.",
+                        "type": "string"
+                      },
+                      "name": {
+                        "description": "Unique user-defined Node name.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -460,7 +1182,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryRemoveNodeRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Unique Node identifier.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -468,7 +1196,7 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryRemoveNodeResponse"
+              "type": "object"
             }
           }
         }
@@ -487,7 +1215,52 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryAddMySQLServiceRequest"
+              "type": "object",
+              "properties": {
+                "address": {
+                  "description": "MySQL access address (DNS name or IP address).",
+                  "type": "string"
+                },
+                "host_node_info": {
+                  "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                  "type": "object",
+                  "properties": {
+                    "container_id": {
+                      "description": "Docker container ID.",
+                      "type": "string"
+                    },
+                    "container_name": {
+                      "description": "Docker container name.",
+                      "type": "string"
+                    },
+                    "kubernetes_pod_name": {
+                      "description": "Kubernetes pod name.",
+                      "type": "string"
+                    },
+                    "kubernetes_pod_uid": {
+                      "description": "Kubernetes pod UID.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Node identifier where Service or Agent runs.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "name": {
+                  "description": "Unique user-defined Service name.",
+                  "type": "string"
+                },
+                "port": {
+                  "description": "MySQL access port.",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "unix_socket": {
+                  "description": "MySQL access UNIX socket path.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -495,7 +1268,62 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryAddMySQLServiceResponse"
+              "type": "object",
+              "properties": {
+                "mysql": {
+                  "description": "MySQLService represents MySQL-compatible Service configuration.",
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "description": "MySQL access address (DNS name or IP address).",
+                      "type": "string"
+                    },
+                    "host_node_info": {
+                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                      "type": "object",
+                      "properties": {
+                        "container_id": {
+                          "description": "Docker container ID.",
+                          "type": "string"
+                        },
+                        "container_name": {
+                          "description": "Docker container name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_name": {
+                          "description": "Kubernetes pod name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_uid": {
+                          "description": "Kubernetes pod UID.",
+                          "type": "string"
+                        },
+                        "node_id": {
+                          "description": "Node identifier where Service or Agent runs.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "id": {
+                      "description": "Unique Service identifier.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Unique user-defined Service name.",
+                      "type": "string"
+                    },
+                    "port": {
+                      "description": "MySQL access port.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "unix_socket": {
+                      "description": "MySQL access UNIX socket path.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -514,7 +1342,17 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryChangeMySQLServiceRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Unique Service identifier.",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Unique user-defined Service name.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -522,7 +1360,62 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryChangeMySQLServiceResponse"
+              "type": "object",
+              "properties": {
+                "mysql": {
+                  "description": "MySQLService represents MySQL-compatible Service configuration.",
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "description": "MySQL access address (DNS name or IP address).",
+                      "type": "string"
+                    },
+                    "host_node_info": {
+                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                      "type": "object",
+                      "properties": {
+                        "container_id": {
+                          "description": "Docker container ID.",
+                          "type": "string"
+                        },
+                        "container_name": {
+                          "description": "Docker container name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_name": {
+                          "description": "Kubernetes pod name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_uid": {
+                          "description": "Kubernetes pod UID.",
+                          "type": "string"
+                        },
+                        "node_id": {
+                          "description": "Node identifier where Service or Agent runs.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "id": {
+                      "description": "Unique Service identifier.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Unique user-defined Service name.",
+                      "type": "string"
+                    },
+                    "port": {
+                      "description": "MySQL access port.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "unix_socket": {
+                      "description": "MySQL access UNIX socket path.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -541,7 +1434,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryGetServiceRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "description": "Unique Service identifier.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -549,7 +1448,62 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryGetServiceResponse"
+              "type": "object",
+              "properties": {
+                "mysql": {
+                  "description": "MySQLService represents MySQL-compatible Service configuration.",
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "description": "MySQL access address (DNS name or IP address).",
+                      "type": "string"
+                    },
+                    "host_node_info": {
+                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                      "type": "object",
+                      "properties": {
+                        "container_id": {
+                          "description": "Docker container ID.",
+                          "type": "string"
+                        },
+                        "container_name": {
+                          "description": "Docker container name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_name": {
+                          "description": "Kubernetes pod name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_uid": {
+                          "description": "Kubernetes pod UID.",
+                          "type": "string"
+                        },
+                        "node_id": {
+                          "description": "Node identifier where Service or Agent runs.",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "id": {
+                      "description": "Unique Service identifier.",
+                      "type": "string"
+                    },
+                    "name": {
+                      "description": "Unique user-defined Service name.",
+                      "type": "string"
+                    },
+                    "port": {
+                      "description": "MySQL access port.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "unix_socket": {
+                      "description": "MySQL access UNIX socket path.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -568,7 +1522,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryListServicesRequest"
+              "type": "object"
             }
           }
         ],
@@ -576,7 +1530,65 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryListServicesResponse"
+              "type": "object",
+              "properties": {
+                "mysql": {
+                  "type": "array",
+                  "items": {
+                    "description": "MySQLService represents MySQL-compatible Service configuration.",
+                    "type": "object",
+                    "properties": {
+                      "address": {
+                        "description": "MySQL access address (DNS name or IP address).",
+                        "type": "string"
+                      },
+                      "host_node_info": {
+                        "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                        "type": "object",
+                        "properties": {
+                          "container_id": {
+                            "description": "Docker container ID.",
+                            "type": "string"
+                          },
+                          "container_name": {
+                            "description": "Docker container name.",
+                            "type": "string"
+                          },
+                          "kubernetes_pod_name": {
+                            "description": "Kubernetes pod name.",
+                            "type": "string"
+                          },
+                          "kubernetes_pod_uid": {
+                            "description": "Kubernetes pod UID.",
+                            "type": "string"
+                          },
+                          "node_id": {
+                            "description": "Node identifier where Service or Agent runs.",
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "id": {
+                        "description": "Unique Service identifier.",
+                        "type": "string"
+                      },
+                      "name": {
+                        "description": "Unique user-defined Service name.",
+                        "type": "string"
+                      },
+                      "port": {
+                        "description": "MySQL access port.",
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "unix_socket": {
+                        "description": "MySQL access UNIX socket path.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
@@ -595,7 +1607,12 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/inventoryRemoveServiceRequest"
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -603,662 +1620,11 @@
           "200": {
             "description": "(empty)",
             "schema": {
-              "$ref": "#/definitions/inventoryRemoveServiceResponse"
+              "type": "object"
             }
           }
         }
       }
-    }
-  },
-  "definitions": {
-    "inventoryAddAmazonRDSRemoteNodeRequest": {
-      "type": "object",
-      "properties": {
-        "hostname": {
-          "description": "Hostname. Unique in combination with region.",
-          "type": "string"
-        },
-        "id": {
-          "description": "Unique Node identifier. Will be generated if empty.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        },
-        "region": {
-          "description": "AWS region. Unique in combination with hostname.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryAddAmazonRDSRemoteNodeResponse": {
-      "type": "object",
-      "properties": {
-        "amazon_rds_remote": {
-          "$ref": "#/definitions/inventoryAmazonRDSRemoteNode"
-        }
-      }
-    },
-    "inventoryAddGenericNodeRequest": {
-      "type": "object",
-      "properties": {
-        "hostname": {
-          "description": "Hostname. Is not unique. May be empty.",
-          "type": "string"
-        },
-        "id": {
-          "description": "Unique Node identifier. Will be generated if empty.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryAddGenericNodeResponse": {
-      "type": "object",
-      "properties": {
-        "generic": {
-          "$ref": "#/definitions/inventoryGenericNode"
-        }
-      }
-    },
-    "inventoryAddMySQLServiceRequest": {
-      "type": "object",
-      "properties": {
-        "address": {
-          "description": "MySQL access address (DNS name or IP address).",
-          "type": "string"
-        },
-        "host_node_info": {
-          "description": "Host Node information where this Service runs.",
-          "$ref": "#/definitions/inventoryHostNodeInfo"
-        },
-        "name": {
-          "description": "Unique user-defined Service name.",
-          "type": "string"
-        },
-        "port": {
-          "description": "MySQL access port.",
-          "type": "integer",
-          "format": "int64"
-        },
-        "unix_socket": {
-          "description": "MySQL access UNIX socket path.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryAddMySQLServiceResponse": {
-      "type": "object",
-      "properties": {
-        "mysql": {
-          "$ref": "#/definitions/inventoryMySQLService"
-        }
-      }
-    },
-    "inventoryAddMySQLdExporterRequest": {
-      "type": "object",
-      "properties": {
-        "disabled": {
-          "description": "Agent desired status: enabled or disabled.",
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "password": {
-          "description": "MySQL password for extracting metrics.",
-          "type": "string"
-        },
-        "runs_on_node_id": {
-          "description": "Node identifier where Agent runs.",
-          "type": "string"
-        },
-        "service_id": {
-          "description": "Service identifier for which insights are provided by that Agent.",
-          "type": "string"
-        },
-        "username": {
-          "description": "MySQL username for extracting metrics.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryAddMySQLdExporterResponse": {
-      "type": "object",
-      "properties": {
-        "mysqld_exporter": {
-          "$ref": "#/definitions/inventoryMySQLdExporter"
-        }
-      }
-    },
-    "inventoryAddNodeExporterRequest": {
-      "type": "object",
-      "properties": {
-        "disabled": {
-          "description": "Agent desired status: enabled or disabled.",
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "runs_on_node_id": {
-          "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryAddNodeExporterResponse": {
-      "type": "object",
-      "properties": {
-        "node_exporter": {
-          "$ref": "#/definitions/inventoryNodeExporter"
-        }
-      }
-    },
-    "inventoryAddPMMAgentRequest": {
-      "type": "object",
-      "properties": {
-        "runs_on_node_id": {
-          "description": "Node identifier where Agent runs.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryAddPMMAgentResponse": {
-      "type": "object",
-      "properties": {
-        "pmm_agent": {
-          "$ref": "#/definitions/inventoryPMMAgent"
-        }
-      }
-    },
-    "inventoryAddRemoteNodeRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Node identifier. Will be generated if empty.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryAddRemoteNodeResponse": {
-      "type": "object",
-      "properties": {
-        "remote": {
-          "$ref": "#/definitions/inventoryRemoteNode"
-        }
-      }
-    },
-    "inventoryAmazonRDSRemoteNode": {
-      "description": "AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.",
-      "type": "object",
-      "properties": {
-        "hostname": {
-          "description": "Hostname. Unique in combination with region.",
-          "type": "string"
-        },
-        "id": {
-          "description": "Unique Node identifier.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        },
-        "region": {
-          "description": "AWS region. Unique in combination with hostname.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryChangeAmazonRDSRemoteNodeRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Node identifier.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryChangeAmazonRDSRemoteNodeResponse": {
-      "type": "object",
-      "properties": {
-        "amazon_rds_remote": {
-          "$ref": "#/definitions/inventoryAmazonRDSRemoteNode"
-        }
-      }
-    },
-    "inventoryChangeGenericNodeRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Node identifier.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryChangeGenericNodeResponse": {
-      "type": "object",
-      "properties": {
-        "generic": {
-          "$ref": "#/definitions/inventoryGenericNode"
-        }
-      }
-    },
-    "inventoryChangeMySQLServiceRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Service identifier.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Service name.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryChangeMySQLServiceResponse": {
-      "type": "object",
-      "properties": {
-        "mysql": {
-          "$ref": "#/definitions/inventoryMySQLService"
-        }
-      }
-    },
-    "inventoryChangeRemoteNodeRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Node identifier.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryChangeRemoteNodeResponse": {
-      "type": "object",
-      "properties": {
-        "remote": {
-          "$ref": "#/definitions/inventoryRemoteNode"
-        }
-      }
-    },
-    "inventoryDisableAgentRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Agent identifier.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryDisableAgentResponse": {
-      "type": "object"
-    },
-    "inventoryEnableAgentRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Agent identifier.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryEnableAgentResponse": {
-      "type": "object"
-    },
-    "inventoryGenericNode": {
-      "description": "GenericNode represents Node without more specialized type.",
-      "type": "object",
-      "properties": {
-        "hostname": {
-          "description": "Hostname. Is not unique. May be empty.",
-          "type": "string"
-        },
-        "id": {
-          "description": "Unique Node identifier.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryGetAgentRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Agent identifier.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryGetAgentResponse": {
-      "type": "object",
-      "properties": {
-        "mysqld_exporter": {
-          "$ref": "#/definitions/inventoryMySQLdExporter"
-        },
-        "node_exporter": {
-          "$ref": "#/definitions/inventoryNodeExporter"
-        },
-        "pmm_agent": {
-          "$ref": "#/definitions/inventoryPMMAgent"
-        }
-      }
-    },
-    "inventoryGetNodeRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Node identifier.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryGetNodeResponse": {
-      "type": "object",
-      "properties": {
-        "amazon_rds_remote": {
-          "$ref": "#/definitions/inventoryAmazonRDSRemoteNode"
-        },
-        "generic": {
-          "$ref": "#/definitions/inventoryGenericNode"
-        },
-        "remote": {
-          "$ref": "#/definitions/inventoryRemoteNode"
-        }
-      }
-    },
-    "inventoryGetServiceRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Service identifier.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryGetServiceResponse": {
-      "type": "object",
-      "properties": {
-        "mysql": {
-          "$ref": "#/definitions/inventoryMySQLService"
-        }
-      }
-    },
-    "inventoryHostNodeInfo": {
-      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-      "type": "object",
-      "properties": {
-        "container_id": {
-          "description": "Docker container ID.",
-          "type": "string"
-        },
-        "container_name": {
-          "description": "Docker container name.",
-          "type": "string"
-        },
-        "kubernetes_pod_name": {
-          "description": "Kubernetes pod name.",
-          "type": "string"
-        },
-        "kubernetes_pod_uid": {
-          "description": "Kubernetes pod UID.",
-          "type": "string"
-        },
-        "node_id": {
-          "description": "Node identifier where Service or Agent runs.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryListAgentsRequest": {
-      "type": "object"
-    },
-    "inventoryListAgentsResponse": {
-      "type": "object",
-      "properties": {
-        "mysqld_exporter": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/inventoryMySQLdExporter"
-          }
-        },
-        "node_exporter": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/inventoryNodeExporter"
-          }
-        },
-        "pmm_agent": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/inventoryPMMAgent"
-          }
-        }
-      }
-    },
-    "inventoryListNodesRequest": {
-      "type": "object"
-    },
-    "inventoryListNodesResponse": {
-      "type": "object",
-      "properties": {
-        "amazon_rds_remote": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/inventoryAmazonRDSRemoteNode"
-          }
-        },
-        "generic": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/inventoryGenericNode"
-          }
-        },
-        "remote": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/inventoryRemoteNode"
-          }
-        }
-      }
-    },
-    "inventoryListServicesRequest": {
-      "type": "object"
-    },
-    "inventoryListServicesResponse": {
-      "type": "object",
-      "properties": {
-        "mysql": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/inventoryMySQLService"
-          }
-        }
-      }
-    },
-    "inventoryMySQLService": {
-      "description": "MySQLService represents MySQL-compatible Service configuration.",
-      "type": "object",
-      "properties": {
-        "address": {
-          "description": "MySQL access address (DNS name or IP address).",
-          "type": "string"
-        },
-        "host_node_info": {
-          "description": "Host Node information where this Service runs.",
-          "$ref": "#/definitions/inventoryHostNodeInfo"
-        },
-        "id": {
-          "description": "Unique Service identifier.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Service name.",
-          "type": "string"
-        },
-        "port": {
-          "description": "MySQL access port.",
-          "type": "integer",
-          "format": "int64"
-        },
-        "unix_socket": {
-          "description": "MySQL access UNIX socket path.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryMySQLdExporter": {
-      "description": "MySQLdExporter represents mysqld_exporter Agent configuration.",
-      "type": "object",
-      "properties": {
-        "disabled": {
-          "description": "Agent desired status: enabled or disabled.",
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "id": {
-          "description": "Unique Agent identifier.",
-          "type": "string"
-        },
-        "listen_port": {
-          "description": "HTTP listen port for exposing metrics.",
-          "type": "integer",
-          "format": "int64"
-        },
-        "running": {
-          "description": "Agent process status: running or not.",
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "runs_on_node_id": {
-          "description": "Node identifier where Agent runs.",
-          "type": "string"
-        },
-        "service_id": {
-          "description": "Service identifier for which insights are provided by that Agent.",
-          "type": "string"
-        },
-        "username": {
-          "description": "MySQL username for extracting metrics.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryNodeExporter": {
-      "description": "NodeExporter represents node_exporter Agent configuration.",
-      "type": "object",
-      "properties": {
-        "disabled": {
-          "description": "Agent desired status: enabled or disabled.",
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "id": {
-          "description": "Unique Agent identifier.",
-          "type": "string"
-        },
-        "listen_port": {
-          "description": "HTTP listen port for exposing metrics.",
-          "type": "integer",
-          "format": "int64"
-        },
-        "running": {
-          "description": "Agent process status: running or not.",
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "runs_on_node_id": {
-          "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryPMMAgent": {
-      "description": "PMMAgent represent pmm-agent Agent configuration.",
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Agent identifier.",
-          "type": "string"
-        },
-        "running": {
-          "description": "Agent process status: running and connected to pmm-managed, or not.",
-          "type": "boolean",
-          "format": "boolean"
-        },
-        "runs_on_node_id": {
-          "description": "Node identifier where Agent runs.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryRemoteNode": {
-      "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Node identifier.",
-          "type": "string"
-        },
-        "name": {
-          "description": "Unique user-defined Node name.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryRemoveAgentRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        }
-      }
-    },
-    "inventoryRemoveAgentResponse": {
-      "type": "object"
-    },
-    "inventoryRemoveNodeRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "description": "Unique Node identifier.",
-          "type": "string"
-        }
-      }
-    },
-    "inventoryRemoveNodeResponse": {
-      "type": "object"
-    },
-    "inventoryRemoveServiceRequest": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "type": "string"
-        }
-      }
-    },
-    "inventoryRemoveServiceResponse": {
-      "type": "object"
     }
   }
 }

@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // AddNodeExporterReader is a Reader for the AddNodeExporter structure.
@@ -47,7 +47,7 @@ func NewAddNodeExporterOK() *AddNodeExporterOK {
 (empty)
 */
 type AddNodeExporterOK struct {
-	Payload *models.InventoryAddNodeExporterResponse
+	Payload *AddNodeExporterOKBody
 }
 
 func (o *AddNodeExporterOK) Error() string {
@@ -56,12 +56,150 @@ func (o *AddNodeExporterOK) Error() string {
 
 func (o *AddNodeExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.InventoryAddNodeExporterResponse)
+	o.Payload = new(AddNodeExporterOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
+	return nil
+}
+
+/*AddNodeExporterBody add node exporter body
+swagger:model AddNodeExporterBody
+*/
+type AddNodeExporterBody struct {
+
+	// Agent desired status: enabled or disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Node identifier where Agent runs and for which insights are provided by that Agent.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+}
+
+// Validate validates this add node exporter body
+func (o *AddNodeExporterBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddNodeExporterBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddNodeExporterBody) UnmarshalBinary(b []byte) error {
+	var res AddNodeExporterBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddNodeExporterOKBody add node exporter o k body
+swagger:model AddNodeExporterOKBody
+*/
+type AddNodeExporterOKBody struct {
+
+	// node exporter
+	NodeExporter *AddNodeExporterOKBodyNodeExporter `json:"node_exporter,omitempty"`
+}
+
+// Validate validates this add node exporter o k body
+func (o *AddNodeExporterOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateNodeExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddNodeExporterOKBody) validateNodeExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.NodeExporter) { // not required
+		return nil
+	}
+
+	if o.NodeExporter != nil {
+		if err := o.NodeExporter.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addNodeExporterOK" + "." + "node_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddNodeExporterOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddNodeExporterOKBody) UnmarshalBinary(b []byte) error {
+	var res AddNodeExporterOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddNodeExporterOKBodyNodeExporter NodeExporter represents node_exporter Agent configuration.
+swagger:model AddNodeExporterOKBodyNodeExporter
+*/
+type AddNodeExporterOKBodyNodeExporter struct {
+
+	// Agent desired status: enabled or disabled.
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Unique Agent identifier.
+	ID string `json:"id,omitempty"`
+
+	// HTTP listen port for exposing metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Agent process status: running or not.
+	Running bool `json:"running,omitempty"`
+
+	// Node identifier where Agent runs and for which insights are provided by that Agent.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+}
+
+// Validate validates this add node exporter o k body node exporter
+func (o *AddNodeExporterOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddNodeExporterOKBodyNodeExporter) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddNodeExporterOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
+	var res AddNodeExporterOKBodyNodeExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }

@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // ChangeAmazonRDSRemoteNodeReader is a Reader for the ChangeAmazonRDSRemoteNode structure.
@@ -47,7 +47,7 @@ func NewChangeAmazonRDSRemoteNodeOK() *ChangeAmazonRDSRemoteNodeOK {
 (empty)
 */
 type ChangeAmazonRDSRemoteNodeOK struct {
-	Payload *models.InventoryChangeAmazonRDSRemoteNodeResponse
+	Payload *ChangeAmazonRDSRemoteNodeOKBody
 }
 
 func (o *ChangeAmazonRDSRemoteNodeOK) Error() string {
@@ -56,12 +56,147 @@ func (o *ChangeAmazonRDSRemoteNodeOK) Error() string {
 
 func (o *ChangeAmazonRDSRemoteNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.InventoryChangeAmazonRDSRemoteNodeResponse)
+	o.Payload = new(ChangeAmazonRDSRemoteNodeOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
+	return nil
+}
+
+/*ChangeAmazonRDSRemoteNodeBody change amazon RDS remote node body
+swagger:model ChangeAmazonRDSRemoteNodeBody
+*/
+type ChangeAmazonRDSRemoteNodeBody struct {
+
+	// Unique Node identifier.
+	ID string `json:"id,omitempty"`
+
+	// Unique user-defined Node name.
+	Name string `json:"name,omitempty"`
+}
+
+// Validate validates this change amazon RDS remote node body
+func (o *ChangeAmazonRDSRemoteNodeBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAmazonRDSRemoteNodeBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAmazonRDSRemoteNodeBody) UnmarshalBinary(b []byte) error {
+	var res ChangeAmazonRDSRemoteNodeBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeAmazonRDSRemoteNodeOKBody change amazon RDS remote node o k body
+swagger:model ChangeAmazonRDSRemoteNodeOKBody
+*/
+type ChangeAmazonRDSRemoteNodeOKBody struct {
+
+	// amazon rds remote
+	AmazonRDSRemote *ChangeAmazonRDSRemoteNodeOKBodyAmazonRDSRemote `json:"amazon_rds_remote,omitempty"`
+}
+
+// Validate validates this change amazon RDS remote node o k body
+func (o *ChangeAmazonRDSRemoteNodeOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateAmazonRDSRemote(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAmazonRDSRemoteNodeOKBody) validateAmazonRDSRemote(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AmazonRDSRemote) { // not required
+		return nil
+	}
+
+	if o.AmazonRDSRemote != nil {
+		if err := o.AmazonRDSRemote.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAmazonRdsRemoteNodeOK" + "." + "amazon_rds_remote")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAmazonRDSRemoteNodeOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAmazonRDSRemoteNodeOKBody) UnmarshalBinary(b []byte) error {
+	var res ChangeAmazonRDSRemoteNodeOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeAmazonRDSRemoteNodeOKBodyAmazonRDSRemote AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.
+swagger:model ChangeAmazonRDSRemoteNodeOKBodyAmazonRDSRemote
+*/
+type ChangeAmazonRDSRemoteNodeOKBodyAmazonRDSRemote struct {
+
+	// Hostname. Unique in combination with region.
+	Hostname string `json:"hostname,omitempty"`
+
+	// Unique Node identifier.
+	ID string `json:"id,omitempty"`
+
+	// Unique user-defined Node name.
+	Name string `json:"name,omitempty"`
+
+	// AWS region. Unique in combination with hostname.
+	Region string `json:"region,omitempty"`
+}
+
+// Validate validates this change amazon RDS remote node o k body amazon RDS remote
+func (o *ChangeAmazonRDSRemoteNodeOKBodyAmazonRDSRemote) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAmazonRDSRemoteNodeOKBodyAmazonRDSRemote) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAmazonRDSRemoteNodeOKBodyAmazonRDSRemote) UnmarshalBinary(b []byte) error {
+	var res ChangeAmazonRDSRemoteNodeOKBodyAmazonRDSRemote
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }

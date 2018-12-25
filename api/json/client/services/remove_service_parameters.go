@@ -16,8 +16,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // NewRemoveServiceParams creates a new RemoveServiceParams object
@@ -65,7 +63,7 @@ for the remove service operation typically these are written to a http.Request
 type RemoveServiceParams struct {
 
 	/*Body*/
-	Body *models.InventoryRemoveServiceRequest
+	Body RemoveServiceBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -106,13 +104,13 @@ func (o *RemoveServiceParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the remove service params
-func (o *RemoveServiceParams) WithBody(body *models.InventoryRemoveServiceRequest) *RemoveServiceParams {
+func (o *RemoveServiceParams) WithBody(body RemoveServiceBody) *RemoveServiceParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the remove service params
-func (o *RemoveServiceParams) SetBody(body *models.InventoryRemoveServiceRequest) {
+func (o *RemoveServiceParams) SetBody(body RemoveServiceBody) {
 	o.Body = body
 }
 
@@ -124,10 +122,8 @@ func (o *RemoveServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

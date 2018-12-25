@@ -22,9 +22,10 @@ gen: clean   ## Generate files.
 
 	./prototool all
 
-	# no public API for pmm-agent
+	# no public API for pmm-agent <-> pmm-managed
 	rm -f agent/*.swagger.json
 
+	find . -name '*.swagger.json' -not -path './vendor/*' -print -exec swagger flatten --with-flatten=expand --with-flatten=remove-unused '{}' --output='{}' \;
 	swagger mixin inventory/inventory.json inventory/*.swagger.json --output=inventory.swagger.json
 	swagger validate inventory.swagger.json
 	rm -f inventory/*.swagger.json
@@ -37,10 +38,9 @@ gen: clean   ## Generate files.
 	go install -v ./...
 
 clean:       ## Remove generated files.
-	find . -name '*.pb.go' -not -path './vendor/*' -delete
-	find . -name '*.validator.pb.go' -not -path './vendor/*' -delete
-	find . -name '*.pb.gw.go' -not -path './vendor/*' -delete
-	find . -name '*.swagger.json' -not -path './vendor/*' -delete
+	find . -name '*.pb.go' -not -path './vendor/*' -print -delete
+	find . -name '*.pb.gw.go' -not -path './vendor/*' -print -delete
+	find . -name '*.swagger.json' -not -path './vendor/*' -print -delete
 
 	rm -fr json
 
