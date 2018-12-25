@@ -86,7 +86,11 @@ message GetAgentResponse {
 message AddPMMAgentRequest {
   reserved 1; // id
   // Host Node information where this Agent runs.
-  HostNodeInfo host_node_info = 2;
+  HostNodeInfo host_node_info = 2 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
   reserved 3; // disabled
   reserved 4; // running
   reserved 5; // node_id, node_ids
@@ -101,7 +105,11 @@ message AddPMMAgentResponse {
 message AddNodeExporterRequest {
   reserved 1; // id
   // Host Node information where Agent runs and for which insights are provided by that Agent.
-  HostNodeInfo host_node_info = 2;
+  HostNodeInfo host_node_info = 2 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
   // Agent desired status: enabled or disabled.
   bool disabled = 3;
   reserved 4; // node_id, node_ids
@@ -117,7 +125,11 @@ message AddNodeExporterResponse {
 message AddMySQLdExporterRequest {
   reserved 1; // id
   // Host Node information where this Agent runs.
-  HostNodeInfo host_node_info = 2;
+  HostNodeInfo host_node_info = 2 [
+    (validator.field) = {
+      msg_exists: true
+    }
+  ];
   // Agent desired status: enabled or disabled.
   bool disabled = 3;
   reserved 4; // node_id, node_ids
