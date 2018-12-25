@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package inventory;
 
+option go_package = "inventory";
+
 import "google/api/annotations.proto";
 
 // MySQLService represents MySQL-compatible Service configuration.

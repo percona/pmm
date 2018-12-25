@@ -15,6 +15,7 @@ init:        ## Install prototool and fill vendor/.
 
 gen: clean   ## Generate files.
 	go install -v ./vendor/github.com/golang/protobuf/protoc-gen-go \
+					./vendor/github.com/mwitkow/go-proto-validators/protoc-gen-govalidators \
 					./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
 					./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger \
 					./vendor/github.com/go-swagger/go-swagger/cmd/swagger
@@ -37,6 +38,7 @@ gen: clean   ## Generate files.
 
 clean:       ## Remove generated files.
 	find . -name '*.pb.go' -not -path './vendor/*' -delete
+	find . -name '*.validator.pb.go' -not -path './vendor/*' -delete
 	find . -name '*.pb.gw.go' -not -path './vendor/*' -delete
 	find . -name '*.swagger.json' -not -path './vendor/*' -delete
 

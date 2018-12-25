@@ -15,7 +15,7 @@ import (
 // swagger:model inventoryRemoveNodeRequest
 type InventoryRemoveNodeRequest struct {
 
-	// id
+	// Unique Node identifier.
 	ID string `json:"id,omitempty"`
 }
 

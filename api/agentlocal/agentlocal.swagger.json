@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "agentlocal/agent_local.proto",
+    "title": "agentlocal/agentlocal.proto",
     "version": "version not set"
   },
   "schemes": [

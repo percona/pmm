@@ -1,6 +1,7 @@
 # tools
 required = [
   "github.com/golang/protobuf/protoc-gen-go",
+  "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators",
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
   "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
   "github.com/go-swagger/go-swagger/cmd/swagger"
@@ -8,7 +9,7 @@ required = [
 
 [prune]
   go-tests = true
-  # to keep google/api/annotations.proto and google/protobuf/timestamp.proto
+  # to keep *.proto files
   # non-go = true
   # unused-packages = true
 
@@ -16,6 +17,9 @@ required = [
 [[constraint]]
   name = "github.com/golang/protobuf"
   version = "=1.2.0"
+# [[constraint]]
+#   name = "github.com/gogo/protobuf"
+#   version = "=1.2.0"
 [[constraint]]
   name = "google.golang.org/grpc"
   version = "=1.16.0"
@@ -25,6 +29,9 @@ required = [
 [[constraint]]
   name = "github.com/go-swagger/go-swagger"
   version = "=0.17.2"
+[[constraint]]
+  name = "github.com/mwitkow/go-proto-validators"
+  revision = "0950a79900071e9f3f5979b78078c599376422fd"  # https://github.com/mwitkow/go-proto-validators/issues/29
 [[constraint]]
   # https://github.com/grpc-ecosystem/grpc-gateway/blob/v1.5.1/Gopkg.toml#L28
   # without that containts dep 0.5.0 can't resolve dependecies

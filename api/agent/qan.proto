@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package agent;
 
+option go_package = "agent";
+
 // QANData represents sent QAN data.
 message QANData {
   // Row describes a single row of QAN data.

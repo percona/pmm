@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package agentlocal;
 
+option go_package = "agentlocal";
+
 import "google/api/annotations.proto";
 
 message StatusRequest {}

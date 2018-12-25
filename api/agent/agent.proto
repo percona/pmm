@@ -2,14 +2,16 @@ syntax = "proto3";
 
 package agent;
 
+option go_package = "agent";
+
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 
 // Type represents Agent type.
 enum Type {
   TYPE_INVALID = 0;
-  NODE_EXPORTER = 1;
-  MYSQLD_EXPORTER = 2;
+  TYPE_NODE_EXPORTER = 1;
+  TYPE_MYSQLD_EXPORTER = 2;
 }
 
 //
