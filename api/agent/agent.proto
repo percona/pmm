@@ -10,8 +10,8 @@ import "google/protobuf/timestamp.proto";
 // Type represents Agent type.
 enum Type {
   TYPE_INVALID = 0;
-  TYPE_NODE_EXPORTER = 1;
-  TYPE_MYSQLD_EXPORTER = 2;
+  NODE_EXPORTER = 1;
+  MYSQLD_EXPORTER = 2;
 }
 
 //
