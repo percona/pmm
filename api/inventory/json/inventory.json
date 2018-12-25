@@ -35,12 +35,34 @@
                   "type": "boolean",
                   "format": "boolean"
                 },
+                "host_node_info": {
+                  "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                  "type": "object",
+                  "properties": {
+                    "container_id": {
+                      "description": "Docker container ID.",
+                      "type": "string"
+                    },
+                    "container_name": {
+                      "description": "Docker container name.",
+                      "type": "string"
+                    },
+                    "kubernetes_pod_name": {
+                      "description": "Kubernetes pod name.",
+                      "type": "string"
+                    },
+                    "kubernetes_pod_uid": {
+                      "description": "Kubernetes pod UID.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Node identifier where Service or Agent runs.",
+                      "type": "string"
+                    }
+                  }
+                },
                 "password": {
                   "description": "MySQL password for extracting metrics.",
-                  "type": "string"
-                },
-                "runs_on_node_id": {
-                  "description": "Node identifier where Agent runs.",
                   "type": "string"
                 },
                 "service_id": {
@@ -70,6 +92,32 @@
                       "type": "boolean",
                       "format": "boolean"
                     },
+                    "host_node_info": {
+                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                      "type": "object",
+                      "properties": {
+                        "container_id": {
+                          "description": "Docker container ID.",
+                          "type": "string"
+                        },
+                        "container_name": {
+                          "description": "Docker container name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_name": {
+                          "description": "Kubernetes pod name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_uid": {
+                          "description": "Kubernetes pod UID.",
+                          "type": "string"
+                        },
+                        "node_id": {
+                          "description": "Node identifier where Service or Agent runs.",
+                          "type": "string"
+                        }
+                      }
+                    },
                     "id": {
                       "description": "Unique Agent identifier.",
                       "type": "string"
@@ -83,10 +131,6 @@
                       "description": "Agent process status: running or not.",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where Agent runs.",
-                      "type": "string"
                     },
                     "service_id": {
                       "description": "Service identifier for which insights are provided by that Agent.",
@@ -124,9 +168,31 @@
                   "type": "boolean",
                   "format": "boolean"
                 },
-                "runs_on_node_id": {
-                  "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
-                  "type": "string"
+                "host_node_info": {
+                  "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                  "type": "object",
+                  "properties": {
+                    "container_id": {
+                      "description": "Docker container ID.",
+                      "type": "string"
+                    },
+                    "container_name": {
+                      "description": "Docker container name.",
+                      "type": "string"
+                    },
+                    "kubernetes_pod_name": {
+                      "description": "Kubernetes pod name.",
+                      "type": "string"
+                    },
+                    "kubernetes_pod_uid": {
+                      "description": "Kubernetes pod UID.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Node identifier where Service or Agent runs.",
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -147,6 +213,32 @@
                       "type": "boolean",
                       "format": "boolean"
                     },
+                    "host_node_info": {
+                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                      "type": "object",
+                      "properties": {
+                        "container_id": {
+                          "description": "Docker container ID.",
+                          "type": "string"
+                        },
+                        "container_name": {
+                          "description": "Docker container name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_name": {
+                          "description": "Kubernetes pod name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_uid": {
+                          "description": "Kubernetes pod UID.",
+                          "type": "string"
+                        },
+                        "node_id": {
+                          "description": "Node identifier where Service or Agent runs.",
+                          "type": "string"
+                        }
+                      }
+                    },
                     "id": {
                       "description": "Unique Agent identifier.",
                       "type": "string"
@@ -160,10 +252,6 @@
                       "description": "Agent process status: running or not.",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
-                      "type": "string"
                     }
                   }
                 }
@@ -188,9 +276,31 @@
             "schema": {
               "type": "object",
               "properties": {
-                "runs_on_node_id": {
-                  "description": "Node identifier where Agent runs.",
-                  "type": "string"
+                "host_node_info": {
+                  "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                  "type": "object",
+                  "properties": {
+                    "container_id": {
+                      "description": "Docker container ID.",
+                      "type": "string"
+                    },
+                    "container_name": {
+                      "description": "Docker container name.",
+                      "type": "string"
+                    },
+                    "kubernetes_pod_name": {
+                      "description": "Kubernetes pod name.",
+                      "type": "string"
+                    },
+                    "kubernetes_pod_uid": {
+                      "description": "Kubernetes pod UID.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Node identifier where Service or Agent runs.",
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
@@ -353,6 +463,32 @@
                       "type": "boolean",
                       "format": "boolean"
                     },
+                    "host_node_info": {
+                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                      "type": "object",
+                      "properties": {
+                        "container_id": {
+                          "description": "Docker container ID.",
+                          "type": "string"
+                        },
+                        "container_name": {
+                          "description": "Docker container name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_name": {
+                          "description": "Kubernetes pod name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_uid": {
+                          "description": "Kubernetes pod UID.",
+                          "type": "string"
+                        },
+                        "node_id": {
+                          "description": "Node identifier where Service or Agent runs.",
+                          "type": "string"
+                        }
+                      }
+                    },
                     "id": {
                       "description": "Unique Agent identifier.",
                       "type": "string"
@@ -366,10 +502,6 @@
                       "description": "Agent process status: running or not.",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where Agent runs.",
-                      "type": "string"
                     },
                     "service_id": {
                       "description": "Service identifier for which insights are provided by that Agent.",
@@ -390,6 +522,32 @@
                       "type": "boolean",
                       "format": "boolean"
                     },
+                    "host_node_info": {
+                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                      "type": "object",
+                      "properties": {
+                        "container_id": {
+                          "description": "Docker container ID.",
+                          "type": "string"
+                        },
+                        "container_name": {
+                          "description": "Docker container name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_name": {
+                          "description": "Kubernetes pod name.",
+                          "type": "string"
+                        },
+                        "kubernetes_pod_uid": {
+                          "description": "Kubernetes pod UID.",
+                          "type": "string"
+                        },
+                        "node_id": {
+                          "description": "Node identifier where Service or Agent runs.",
+                          "type": "string"
+                        }
+                      }
+                    },
                     "id": {
                       "description": "Unique Agent identifier.",
                       "type": "string"
@@ -403,10 +561,6 @@
                       "description": "Agent process status: running or not.",
                       "type": "boolean",
                       "format": "boolean"
-                    },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
-                      "type": "string"
                     }
                   }
                 },
@@ -491,6 +645,32 @@
                         "type": "boolean",
                         "format": "boolean"
                       },
+                      "host_node_info": {
+                        "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                        "type": "object",
+                        "properties": {
+                          "container_id": {
+                            "description": "Docker container ID.",
+                            "type": "string"
+                          },
+                          "container_name": {
+                            "description": "Docker container name.",
+                            "type": "string"
+                          },
+                          "kubernetes_pod_name": {
+                            "description": "Kubernetes pod name.",
+                            "type": "string"
+                          },
+                          "kubernetes_pod_uid": {
+                            "description": "Kubernetes pod UID.",
+                            "type": "string"
+                          },
+                          "node_id": {
+                            "description": "Node identifier where Service or Agent runs.",
+                            "type": "string"
+                          }
+                        }
+                      },
                       "id": {
                         "description": "Unique Agent identifier.",
                         "type": "string"
@@ -504,10 +684,6 @@
                         "description": "Agent process status: running or not.",
                         "type": "boolean",
                         "format": "boolean"
-                      },
-                      "runs_on_node_id": {
-                        "description": "Node identifier where Agent runs.",
-                        "type": "string"
                       },
                       "service_id": {
                         "description": "Service identifier for which insights are provided by that Agent.",
@@ -531,6 +707,32 @@
                         "type": "boolean",
                         "format": "boolean"
                       },
+                      "host_node_info": {
+                        "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
+                        "type": "object",
+                        "properties": {
+                          "container_id": {
+                            "description": "Docker container ID.",
+                            "type": "string"
+                          },
+                          "container_name": {
+                            "description": "Docker container name.",
+                            "type": "string"
+                          },
+                          "kubernetes_pod_name": {
+                            "description": "Kubernetes pod name.",
+                            "type": "string"
+                          },
+                          "kubernetes_pod_uid": {
+                            "description": "Kubernetes pod UID.",
+                            "type": "string"
+                          },
+                          "node_id": {
+                            "description": "Node identifier where Service or Agent runs.",
+                            "type": "string"
+                          }
+                        }
+                      },
                       "id": {
                         "description": "Unique Agent identifier.",
                         "type": "string"
@@ -544,10 +746,6 @@
                         "description": "Agent process status: running or not.",
                         "type": "boolean",
                         "format": "boolean"
-                      },
-                      "runs_on_node_id": {
-                        "description": "Node identifier where Agent runs and for which insights are provided by that Agent.",
-                        "type": "string"
                       }
                     }
                   }

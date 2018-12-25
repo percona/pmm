@@ -4,6 +4,7 @@ package inventory;
 
 option go_package = "inventory";
 
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventory/host.proto";
 
@@ -25,8 +26,8 @@ message PMMAgent {
 message NodeExporter {
   // Unique Agent identifier.
   string id = 1;
-  // Node identifier where Agent runs and for which insights are provided by that Agent.
-  string runs_on_node_id = 2;
+  // Host Node information where Agent runs and for which insights are provided by that Agent.
+  HostNodeInfo host_node_info = 2;
   // Agent desired status: enabled or disabled.
   bool disabled = 3;
   // Agent process status: running or not.
@@ -41,8 +42,8 @@ message NodeExporter {
 message MySQLdExporter {
   // Unique Agent identifier.
   string id = 1;
-  // Node identifier where Agent runs.
-  string runs_on_node_id = 2;
+  // Host Node information where this Agent runs.
+  HostNodeInfo host_node_info = 2;
   // Agent desired status: enabled or disabled.
   bool disabled = 3;
   // Agent process status: running or not.
@@ -67,7 +68,11 @@ message ListAgentsResponse {
 
 message GetAgentRequest {
   // Unique Agent identifier.
-  string id = 1;
+  string id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message GetAgentResponse {
@@ -80,8 +85,8 @@ message GetAgentResponse {
 
 message AddPMMAgentRequest {
   reserved 1; // id
-  // Node identifier where Agent runs.
-  string runs_on_node_id = 2;
+  // Host Node information where this Agent runs.
+  HostNodeInfo host_node_info = 2;
   reserved 3; // disabled
   reserved 4; // running
   reserved 5; // node_id, node_ids
@@ -95,8 +100,8 @@ message AddPMMAgentResponse {
 
 message AddNodeExporterRequest {
   reserved 1; // id
-  // Node identifier where Agent runs and for which insights are provided by that Agent.
-  string runs_on_node_id = 2;
+  // Host Node information where Agent runs and for which insights are provided by that Agent.
+  HostNodeInfo host_node_info = 2;
   // Agent desired status: enabled or disabled.
   bool disabled = 3;
   reserved 4; // node_id, node_ids
@@ -111,8 +116,8 @@ message AddNodeExporterResponse {
 
 message AddMySQLdExporterRequest {
   reserved 1; // id
-  // Node identifier where Agent runs.
-  string runs_on_node_id = 2;
+  // Host Node information where this Agent runs.
+  HostNodeInfo host_node_info = 2;
   // Agent desired status: enabled or disabled.
   bool disabled = 3;
   reserved 4; // node_id, node_ids
@@ -132,20 +137,32 @@ message AddMySQLdExporterResponse {
 
 message EnableAgentRequest {
   // Unique Agent identifier.
-  string id = 1;
+  string id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message EnableAgentResponse {}
 
 message DisableAgentRequest {
   // Unique Agent identifier.
-  string id = 1;
+  string id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message DisableAgentResponse {}
 
 message RemoveAgentRequest {
-  string id = 1;
+  string id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message RemoveAgentResponse {}

@@ -215,6 +215,9 @@ type GetAgentOKBodyMysqldExporter struct {
 	// Agent desired status: enabled or disabled.
 	Disabled bool `json:"disabled,omitempty"`
 
+	// host node info
+	HostNodeInfo *GetAgentOKBodyMysqldExporterHostNodeInfo `json:"host_node_info,omitempty"`
+
 	// Unique Agent identifier.
 	ID string `json:"id,omitempty"`
 
@@ -223,9 +226,6 @@ type GetAgentOKBodyMysqldExporter struct {
 
 	// Agent process status: running or not.
 	Running bool `json:"running,omitempty"`
-
-	// Node identifier where Agent runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Service identifier for which insights are provided by that Agent.
 	ServiceID string `json:"service_id,omitempty"`
@@ -236,6 +236,33 @@ type GetAgentOKBodyMysqldExporter struct {
 
 // Validate validates this get agent o k body mysqld exporter
 func (o *GetAgentOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateHostNodeInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyMysqldExporter) validateHostNodeInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.HostNodeInfo) { // not required
+		return nil
+	}
+
+	if o.HostNodeInfo != nil {
+		if err := o.HostNodeInfo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOK" + "." + "mysqld_exporter" + "." + "host_node_info")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -257,6 +284,50 @@ func (o *GetAgentOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetAgentOKBodyMysqldExporterHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
+swagger:model GetAgentOKBodyMysqldExporterHostNodeInfo
+*/
+type GetAgentOKBodyMysqldExporterHostNodeInfo struct {
+
+	// Docker container ID.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Docker container name.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Kubernetes pod name.
+	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
+
+	// Kubernetes pod UID.
+	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
+
+	// Node identifier where Service or Agent runs.
+	NodeID string `json:"node_id,omitempty"`
+}
+
+// Validate validates this get agent o k body mysqld exporter host node info
+func (o *GetAgentOKBodyMysqldExporterHostNodeInfo) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyMysqldExporterHostNodeInfo) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyMysqldExporterHostNodeInfo) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyMysqldExporterHostNodeInfo
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetAgentOKBodyNodeExporter NodeExporter represents node_exporter Agent configuration.
 swagger:model GetAgentOKBodyNodeExporter
 */
@@ -264,6 +335,9 @@ type GetAgentOKBodyNodeExporter struct {
 
 	// Agent desired status: enabled or disabled.
 	Disabled bool `json:"disabled,omitempty"`
+
+	// host node info
+	HostNodeInfo *GetAgentOKBodyNodeExporterHostNodeInfo `json:"host_node_info,omitempty"`
 
 	// Unique Agent identifier.
 	ID string `json:"id,omitempty"`
@@ -273,13 +347,37 @@ type GetAgentOKBodyNodeExporter struct {
 
 	// Agent process status: running or not.
 	Running bool `json:"running,omitempty"`
-
-	// Node identifier where Agent runs and for which insights are provided by that Agent.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this get agent o k body node exporter
 func (o *GetAgentOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateHostNodeInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyNodeExporter) validateHostNodeInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.HostNodeInfo) { // not required
+		return nil
+	}
+
+	if o.HostNodeInfo != nil {
+		if err := o.HostNodeInfo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOK" + "." + "node_exporter" + "." + "host_node_info")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -294,6 +392,50 @@ func (o *GetAgentOKBodyNodeExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetAgentOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
 	var res GetAgentOKBodyNodeExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentOKBodyNodeExporterHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
+swagger:model GetAgentOKBodyNodeExporterHostNodeInfo
+*/
+type GetAgentOKBodyNodeExporterHostNodeInfo struct {
+
+	// Docker container ID.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Docker container name.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Kubernetes pod name.
+	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
+
+	// Kubernetes pod UID.
+	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
+
+	// Node identifier where Service or Agent runs.
+	NodeID string `json:"node_id,omitempty"`
+}
+
+// Validate validates this get agent o k body node exporter host node info
+func (o *GetAgentOKBodyNodeExporterHostNodeInfo) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyNodeExporterHostNodeInfo) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyNodeExporterHostNodeInfo) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyNodeExporterHostNodeInfo
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
