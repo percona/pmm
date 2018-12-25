@@ -15,6 +15,11 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *PMMAgent) Validate() error {
+	if this.HostNodeInfo != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
+		}
+	}
 	return nil
 }
 func (this *NodeExporter) Validate() error {

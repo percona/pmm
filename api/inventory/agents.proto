@@ -5,13 +5,14 @@ package inventory;
 option go_package = "inventory";
 
 import "google/api/annotations.proto";
+import "inventory/host.proto";
 
 // PMMAgent represent pmm-agent Agent configuration.
 message PMMAgent {
   // Unique Agent identifier.
   string id = 1;
-  // Node identifier where Agent runs.
-  string runs_on_node_id = 2;
+  // Host Node information where this Agent runs.
+  HostNodeInfo host_node_info = 2;
   reserved 3; // disabled
   // Agent process status: running and connected to pmm-managed, or not.
   bool running = 4;

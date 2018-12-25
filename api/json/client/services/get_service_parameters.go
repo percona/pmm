@@ -16,8 +16,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // NewGetServiceParams creates a new GetServiceParams object
@@ -65,7 +63,7 @@ for the get service operation typically these are written to a http.Request
 type GetServiceParams struct {
 
 	/*Body*/
-	Body *models.InventoryGetServiceRequest
+	Body GetServiceBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -106,13 +104,13 @@ func (o *GetServiceParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the get service params
-func (o *GetServiceParams) WithBody(body *models.InventoryGetServiceRequest) *GetServiceParams {
+func (o *GetServiceParams) WithBody(body GetServiceBody) *GetServiceParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the get service params
-func (o *GetServiceParams) SetBody(body *models.InventoryGetServiceRequest) {
+func (o *GetServiceParams) SetBody(body GetServiceBody) {
 	o.Body = body
 }
 
@@ -124,10 +122,8 @@ func (o *GetServiceParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

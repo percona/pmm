@@ -16,8 +16,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // NewEnableAgentParams creates a new EnableAgentParams object
@@ -65,7 +63,7 @@ for the enable agent operation typically these are written to a http.Request
 type EnableAgentParams struct {
 
 	/*Body*/
-	Body *models.InventoryEnableAgentRequest
+	Body EnableAgentBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -106,13 +104,13 @@ func (o *EnableAgentParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the enable agent params
-func (o *EnableAgentParams) WithBody(body *models.InventoryEnableAgentRequest) *EnableAgentParams {
+func (o *EnableAgentParams) WithBody(body EnableAgentBody) *EnableAgentParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the enable agent params
-func (o *EnableAgentParams) SetBody(body *models.InventoryEnableAgentRequest) {
+func (o *EnableAgentParams) SetBody(body EnableAgentBody) {
 	o.Body = body
 }
 
@@ -124,10 +122,8 @@ func (o *EnableAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

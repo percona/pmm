@@ -16,8 +16,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // NewListAgentsParams creates a new ListAgentsParams object
@@ -65,7 +63,7 @@ for the list agents operation typically these are written to a http.Request
 type ListAgentsParams struct {
 
 	/*Body*/
-	Body models.InventoryListAgentsRequest
+	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
@@ -106,13 +104,13 @@ func (o *ListAgentsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list agents params
-func (o *ListAgentsParams) WithBody(body models.InventoryListAgentsRequest) *ListAgentsParams {
+func (o *ListAgentsParams) WithBody(body interface{}) *ListAgentsParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list agents params
-func (o *ListAgentsParams) SetBody(body models.InventoryListAgentsRequest) {
+func (o *ListAgentsParams) SetBody(body interface{}) {
 	o.Body = body
 }
 

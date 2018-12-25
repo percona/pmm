@@ -10,10 +10,9 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // EnableAgentReader is a Reader for the EnableAgent structure.
@@ -47,7 +46,7 @@ func NewEnableAgentOK() *EnableAgentOK {
 (empty)
 */
 type EnableAgentOK struct {
-	Payload models.InventoryEnableAgentResponse
+	Payload interface{}
 }
 
 func (o *EnableAgentOK) Error() string {
@@ -61,5 +60,37 @@ func (o *EnableAgentOK) readResponse(response runtime.ClientResponse, consumer r
 		return err
 	}
 
+	return nil
+}
+
+/*EnableAgentBody enable agent body
+swagger:model EnableAgentBody
+*/
+type EnableAgentBody struct {
+
+	// Unique Agent identifier.
+	ID string `json:"id,omitempty"`
+}
+
+// Validate validates this enable agent body
+func (o *EnableAgentBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *EnableAgentBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *EnableAgentBody) UnmarshalBinary(b []byte) error {
+	var res EnableAgentBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }

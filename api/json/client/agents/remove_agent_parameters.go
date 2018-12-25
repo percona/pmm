@@ -16,8 +16,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/json/models"
 )
 
 // NewRemoveAgentParams creates a new RemoveAgentParams object
@@ -65,7 +63,7 @@ for the remove agent operation typically these are written to a http.Request
 type RemoveAgentParams struct {
 
 	/*Body*/
-	Body *models.InventoryRemoveAgentRequest
+	Body RemoveAgentBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -106,13 +104,13 @@ func (o *RemoveAgentParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the remove agent params
-func (o *RemoveAgentParams) WithBody(body *models.InventoryRemoveAgentRequest) *RemoveAgentParams {
+func (o *RemoveAgentParams) WithBody(body RemoveAgentBody) *RemoveAgentParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the remove agent params
-func (o *RemoveAgentParams) SetBody(body *models.InventoryRemoveAgentRequest) {
+func (o *RemoveAgentParams) SetBody(body RemoveAgentBody) {
 	o.Body = body
 }
 
@@ -124,10 +122,8 @@ func (o *RemoveAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
