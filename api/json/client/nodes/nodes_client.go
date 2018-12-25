@@ -53,7 +53,7 @@ func (a *Client) AddAmazonRDSRemoteNode(params *AddAmazonRDSRemoteNodeParams) (*
 }
 
 /*
-AddGenericNode adds generic node adds bare metal node
+AddGenericNode adds generic node adds generic node
 */
 func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK, error) {
 	// TODO: Validate the params before sending
@@ -137,7 +137,7 @@ func (a *Client) ChangeAmazonRDSRemoteNode(params *ChangeAmazonRDSRemoteNodePara
 }
 
 /*
-ChangeGenericNode changes generic node changes bare metal node
+ChangeGenericNode changes generic node changes generic node
 */
 func (a *Client) ChangeGenericNode(params *ChangeGenericNodeParams) (*ChangeGenericNodeOK, error) {
 	// TODO: Validate the params before sending

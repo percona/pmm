@@ -263,7 +263,7 @@
         "tags": [
           "Nodes"
         ],
-        "summary": "AddGenericNode adds bare metal Node.",
+        "summary": "AddGenericNode adds generic Node.",
         "operationId": "AddGenericNode",
         "parameters": [
           {
@@ -344,7 +344,7 @@
         "tags": [
           "Nodes"
         ],
-        "summary": "ChangeGenericNode changes bare metal Node.",
+        "summary": "ChangeGenericNode changes generic Node.",
         "operationId": "ChangeGenericNode",
         "parameters": [
           {

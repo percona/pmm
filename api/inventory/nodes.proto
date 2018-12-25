@@ -212,7 +212,7 @@ service Nodes {
       body: "*"
     };
   }
-  // AddGenericNode adds bare metal Node.
+  // AddGenericNode adds generic Node.
   rpc AddGenericNode(AddGenericNodeRequest) returns (AddGenericNodeResponse) {
     option (google.api.http) = {
       post: "/v0/inventory/Nodes/AddGeneric"
@@ -233,7 +233,7 @@ service Nodes {
       body: "*"
     };
   }
-  // ChangeGenericNode changes bare metal Node.
+  // ChangeGenericNode changes generic Node.
   rpc ChangeGenericNode(ChangeGenericNodeRequest) returns (ChangeGenericNodeResponse) {
     option (google.api.http) = {
       post: "/v0/inventory/Nodes/ChangeGeneric"
