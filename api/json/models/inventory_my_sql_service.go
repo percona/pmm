@@ -8,6 +8,7 @@ package models
 import (
 	strfmt "github.com/go-openapi/strfmt"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 )
 
@@ -18,14 +19,14 @@ type InventoryMySQLService struct {
 	// MySQL access address (DNS name or IP address).
 	Address string `json:"address,omitempty"`
 
+	// Host Node information where this Service runs.
+	HostNodeInfo *InventoryHostNodeInfo `json:"host_node_info,omitempty"`
+
 	// Unique Service identifier.
 	ID string `json:"id,omitempty"`
 
 	// Unique user-defined Service name.
 	Name string `json:"name,omitempty"`
-
-	// Node identifier where this Service runs.
-	NodeID string `json:"node_id,omitempty"`
 
 	// MySQL access port.
 	Port int64 `json:"port,omitempty"`
@@ -36,6 +37,33 @@ type InventoryMySQLService struct {
 
 // Validate validates this inventory my SQL service
 func (m *InventoryMySQLService) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateHostNodeInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *InventoryMySQLService) validateHostNodeInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.HostNodeInfo) { // not required
+		return nil
+	}
+
+	if m.HostNodeInfo != nil {
+		if err := m.HostNodeInfo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("host_node_info")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
