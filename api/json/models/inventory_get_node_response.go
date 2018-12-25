@@ -16,8 +16,8 @@ import (
 // swagger:model inventoryGetNodeResponse
 type InventoryGetNodeResponse struct {
 
-	// amazon rds
-	AmazonRDS *InventoryAmazonRDSRemoteNode `json:"amazon_rds,omitempty"`
+	// amazon rds remote
+	AmazonRDSRemote *InventoryAmazonRDSRemoteNode `json:"amazon_rds_remote,omitempty"`
 
 	// generic
 	Generic *InventoryGenericNode `json:"generic,omitempty"`
@@ -30,7 +30,7 @@ type InventoryGetNodeResponse struct {
 func (m *InventoryGetNodeResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAmazonRDS(formats); err != nil {
+	if err := m.validateAmazonRDSRemote(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -48,16 +48,16 @@ func (m *InventoryGetNodeResponse) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *InventoryGetNodeResponse) validateAmazonRDS(formats strfmt.Registry) error {
+func (m *InventoryGetNodeResponse) validateAmazonRDSRemote(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.AmazonRDS) { // not required
+	if swag.IsZero(m.AmazonRDSRemote) { // not required
 		return nil
 	}
 
-	if m.AmazonRDS != nil {
-		if err := m.AmazonRDS.Validate(formats); err != nil {
+	if m.AmazonRDSRemote != nil {
+		if err := m.AmazonRDSRemote.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("amazon_rds")
+				return ve.ValidateName("amazon_rds_remote")
 			}
 			return err
 		}

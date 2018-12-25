@@ -42,10 +42,10 @@ func (this *ListNodesResponse) Validate() error {
 			}
 		}
 	}
-	for _, item := range this.AmazonRds {
+	for _, item := range this.AmazonRdsRemote {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("AmazonRds", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsRemote", err)
 			}
 		}
 	}
@@ -72,10 +72,10 @@ func (this *GetNodeResponse) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetNode().(*GetNodeResponse_AmazonRds); ok {
-		if oneOfNester.AmazonRds != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.AmazonRds); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("AmazonRds", err)
+	if oneOfNester, ok := this.GetNode().(*GetNodeResponse_AmazonRdsRemote); ok {
+		if oneOfNester.AmazonRdsRemote != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.AmazonRdsRemote); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsRemote", err)
 			}
 		}
 	}
@@ -122,9 +122,9 @@ func (this *AddAmazonRDSRemoteNodeRequest) Validate() error {
 	return nil
 }
 func (this *AddAmazonRDSRemoteNodeResponse) Validate() error {
-	if this.AmazonRds != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AmazonRds); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("AmazonRds", err)
+	if this.AmazonRdsRemote != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AmazonRdsRemote); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsRemote", err)
 		}
 	}
 	return nil
@@ -173,9 +173,9 @@ func (this *ChangeAmazonRDSRemoteNodeRequest) Validate() error {
 	return nil
 }
 func (this *ChangeAmazonRDSRemoteNodeResponse) Validate() error {
-	if this.AmazonRds != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AmazonRds); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("AmazonRds", err)
+	if this.AmazonRdsRemote != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AmazonRdsRemote); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsRemote", err)
 		}
 	}
 	return nil

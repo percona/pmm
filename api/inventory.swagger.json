@@ -635,7 +635,7 @@
     "inventoryAddAmazonRDSRemoteNodeResponse": {
       "type": "object",
       "properties": {
-        "amazon_rds": {
+        "amazon_rds_remote": {
           "$ref": "#/definitions/inventoryAmazonRDSRemoteNode"
         }
       }
@@ -831,7 +831,7 @@
     "inventoryChangeAmazonRDSRemoteNodeResponse": {
       "type": "object",
       "properties": {
-        "amazon_rds": {
+        "amazon_rds_remote": {
           "$ref": "#/definitions/inventoryAmazonRDSRemoteNode"
         }
       }
@@ -976,7 +976,7 @@
     "inventoryGetNodeResponse": {
       "type": "object",
       "properties": {
-        "amazon_rds": {
+        "amazon_rds_remote": {
           "$ref": "#/definitions/inventoryAmazonRDSRemoteNode"
         },
         "generic": {
@@ -1036,7 +1036,7 @@
     "inventoryListNodesResponse": {
       "type": "object",
       "properties": {
-        "amazon_rds": {
+        "amazon_rds_remote": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/inventoryAmazonRDSRemoteNode"

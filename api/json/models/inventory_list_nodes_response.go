@@ -18,8 +18,8 @@ import (
 // swagger:model inventoryListNodesResponse
 type InventoryListNodesResponse struct {
 
-	// amazon rds
-	AmazonRDS []*InventoryAmazonRDSRemoteNode `json:"amazon_rds"`
+	// amazon rds remote
+	AmazonRDSRemote []*InventoryAmazonRDSRemoteNode `json:"amazon_rds_remote"`
 
 	// generic
 	Generic []*InventoryGenericNode `json:"generic"`
@@ -32,7 +32,7 @@ type InventoryListNodesResponse struct {
 func (m *InventoryListNodesResponse) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAmazonRDS(formats); err != nil {
+	if err := m.validateAmazonRDSRemote(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -50,21 +50,21 @@ func (m *InventoryListNodesResponse) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *InventoryListNodesResponse) validateAmazonRDS(formats strfmt.Registry) error {
+func (m *InventoryListNodesResponse) validateAmazonRDSRemote(formats strfmt.Registry) error {
 
-	if swag.IsZero(m.AmazonRDS) { // not required
+	if swag.IsZero(m.AmazonRDSRemote) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(m.AmazonRDS); i++ {
-		if swag.IsZero(m.AmazonRDS[i]) { // not required
+	for i := 0; i < len(m.AmazonRDSRemote); i++ {
+		if swag.IsZero(m.AmazonRDSRemote[i]) { // not required
 			continue
 		}
 
-		if m.AmazonRDS[i] != nil {
-			if err := m.AmazonRDS[i].Validate(formats); err != nil {
+		if m.AmazonRDSRemote[i] != nil {
+			if err := m.AmazonRDSRemote[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("amazon_rds" + "." + strconv.Itoa(i))
+					return ve.ValidateName("amazon_rds_remote" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
