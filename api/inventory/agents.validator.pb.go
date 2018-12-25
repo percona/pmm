@@ -97,6 +97,9 @@ func (this *GetAgentResponse) Validate() error {
 	return nil
 }
 func (this *AddPMMAgentRequest) Validate() error {
+	if nil == this.HostNodeInfo {
+		return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", fmt.Errorf("message must exist"))
+	}
 	if this.HostNodeInfo != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
@@ -113,6 +116,9 @@ func (this *AddPMMAgentResponse) Validate() error {
 	return nil
 }
 func (this *AddNodeExporterRequest) Validate() error {
+	if nil == this.HostNodeInfo {
+		return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", fmt.Errorf("message must exist"))
+	}
 	if this.HostNodeInfo != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
@@ -129,6 +135,9 @@ func (this *AddNodeExporterResponse) Validate() error {
 	return nil
 }
 func (this *AddMySQLdExporterRequest) Validate() error {
+	if nil == this.HostNodeInfo {
+		return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", fmt.Errorf("message must exist"))
+	}
 	if this.HostNodeInfo != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
