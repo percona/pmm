@@ -71,12 +71,39 @@ swagger:model AddPMMAgentBody
 */
 type AddPMMAgentBody struct {
 
-	// Node identifier where Agent runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// host node info
+	HostNodeInfo *AddPMMAgentParamsBodyHostNodeInfo `json:"host_node_info,omitempty"`
 }
 
 // Validate validates this add PMM agent body
 func (o *AddPMMAgentBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateHostNodeInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddPMMAgentBody) validateHostNodeInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.HostNodeInfo) { // not required
+		return nil
+	}
+
+	if o.HostNodeInfo != nil {
+		if err := o.HostNodeInfo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "host_node_info")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -259,6 +286,50 @@ func (o *AddPMMAgentOKBodyPMMAgentHostNodeInfo) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *AddPMMAgentOKBodyPMMAgentHostNodeInfo) UnmarshalBinary(b []byte) error {
 	var res AddPMMAgentOKBodyPMMAgentHostNodeInfo
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddPMMAgentParamsBodyHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
+swagger:model AddPMMAgentParamsBodyHostNodeInfo
+*/
+type AddPMMAgentParamsBodyHostNodeInfo struct {
+
+	// Docker container ID.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Docker container name.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Kubernetes pod name.
+	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
+
+	// Kubernetes pod UID.
+	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
+
+	// Node identifier where Service or Agent runs.
+	NodeID string `json:"node_id,omitempty"`
+}
+
+// Validate validates this add PMM agent params body host node info
+func (o *AddPMMAgentParamsBodyHostNodeInfo) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddPMMAgentParamsBodyHostNodeInfo) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddPMMAgentParamsBodyHostNodeInfo) UnmarshalBinary(b []byte) error {
+	var res AddPMMAgentParamsBodyHostNodeInfo
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

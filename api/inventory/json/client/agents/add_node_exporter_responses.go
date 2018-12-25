@@ -74,12 +74,39 @@ type AddNodeExporterBody struct {
 	// Agent desired status: enabled or disabled.
 	Disabled bool `json:"disabled,omitempty"`
 
-	// Node identifier where Agent runs and for which insights are provided by that Agent.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// host node info
+	HostNodeInfo *AddNodeExporterParamsBodyHostNodeInfo `json:"host_node_info,omitempty"`
 }
 
 // Validate validates this add node exporter body
 func (o *AddNodeExporterBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateHostNodeInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddNodeExporterBody) validateHostNodeInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.HostNodeInfo) { // not required
+		return nil
+	}
+
+	if o.HostNodeInfo != nil {
+		if err := o.HostNodeInfo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "host_node_info")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -168,6 +195,9 @@ type AddNodeExporterOKBodyNodeExporter struct {
 	// Agent desired status: enabled or disabled.
 	Disabled bool `json:"disabled,omitempty"`
 
+	// host node info
+	HostNodeInfo *AddNodeExporterOKBodyNodeExporterHostNodeInfo `json:"host_node_info,omitempty"`
+
 	// Unique Agent identifier.
 	ID string `json:"id,omitempty"`
 
@@ -176,13 +206,37 @@ type AddNodeExporterOKBodyNodeExporter struct {
 
 	// Agent process status: running or not.
 	Running bool `json:"running,omitempty"`
-
-	// Node identifier where Agent runs and for which insights are provided by that Agent.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this add node exporter o k body node exporter
 func (o *AddNodeExporterOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateHostNodeInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *AddNodeExporterOKBodyNodeExporter) validateHostNodeInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.HostNodeInfo) { // not required
+		return nil
+	}
+
+	if o.HostNodeInfo != nil {
+		if err := o.HostNodeInfo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addNodeExporterOK" + "." + "node_exporter" + "." + "host_node_info")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -197,6 +251,94 @@ func (o *AddNodeExporterOKBodyNodeExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddNodeExporterOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
 	var res AddNodeExporterOKBodyNodeExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddNodeExporterOKBodyNodeExporterHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
+swagger:model AddNodeExporterOKBodyNodeExporterHostNodeInfo
+*/
+type AddNodeExporterOKBodyNodeExporterHostNodeInfo struct {
+
+	// Docker container ID.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Docker container name.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Kubernetes pod name.
+	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
+
+	// Kubernetes pod UID.
+	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
+
+	// Node identifier where Service or Agent runs.
+	NodeID string `json:"node_id,omitempty"`
+}
+
+// Validate validates this add node exporter o k body node exporter host node info
+func (o *AddNodeExporterOKBodyNodeExporterHostNodeInfo) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddNodeExporterOKBodyNodeExporterHostNodeInfo) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddNodeExporterOKBodyNodeExporterHostNodeInfo) UnmarshalBinary(b []byte) error {
+	var res AddNodeExporterOKBodyNodeExporterHostNodeInfo
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddNodeExporterParamsBodyHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
+swagger:model AddNodeExporterParamsBodyHostNodeInfo
+*/
+type AddNodeExporterParamsBodyHostNodeInfo struct {
+
+	// Docker container ID.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Docker container name.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Kubernetes pod name.
+	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
+
+	// Kubernetes pod UID.
+	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
+
+	// Node identifier where Service or Agent runs.
+	NodeID string `json:"node_id,omitempty"`
+}
+
+// Validate validates this add node exporter params body host node info
+func (o *AddNodeExporterParamsBodyHostNodeInfo) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddNodeExporterParamsBodyHostNodeInfo) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddNodeExporterParamsBodyHostNodeInfo) UnmarshalBinary(b []byte) error {
+	var res AddNodeExporterParamsBodyHostNodeInfo
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

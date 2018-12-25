@@ -205,6 +205,9 @@ type MysqldExporterItems0 struct {
 	// Agent desired status: enabled or disabled.
 	Disabled bool `json:"disabled,omitempty"`
 
+	// host node info
+	HostNodeInfo *MysqldExporterItems0HostNodeInfo `json:"host_node_info,omitempty"`
+
 	// Unique Agent identifier.
 	ID string `json:"id,omitempty"`
 
@@ -213,9 +216,6 @@ type MysqldExporterItems0 struct {
 
 	// Agent process status: running or not.
 	Running bool `json:"running,omitempty"`
-
-	// Node identifier where Agent runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
 	// Service identifier for which insights are provided by that Agent.
 	ServiceID string `json:"service_id,omitempty"`
@@ -226,6 +226,33 @@ type MysqldExporterItems0 struct {
 
 // Validate validates this mysqld exporter items0
 func (o *MysqldExporterItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateHostNodeInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *MysqldExporterItems0) validateHostNodeInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.HostNodeInfo) { // not required
+		return nil
+	}
+
+	if o.HostNodeInfo != nil {
+		if err := o.HostNodeInfo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("host_node_info")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -247,6 +274,50 @@ func (o *MysqldExporterItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*MysqldExporterItems0HostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
+swagger:model MysqldExporterItems0HostNodeInfo
+*/
+type MysqldExporterItems0HostNodeInfo struct {
+
+	// Docker container ID.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Docker container name.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Kubernetes pod name.
+	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
+
+	// Kubernetes pod UID.
+	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
+
+	// Node identifier where Service or Agent runs.
+	NodeID string `json:"node_id,omitempty"`
+}
+
+// Validate validates this mysqld exporter items0 host node info
+func (o *MysqldExporterItems0HostNodeInfo) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *MysqldExporterItems0HostNodeInfo) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *MysqldExporterItems0HostNodeInfo) UnmarshalBinary(b []byte) error {
+	var res MysqldExporterItems0HostNodeInfo
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*NodeExporterItems0 NodeExporter represents node_exporter Agent configuration.
 swagger:model NodeExporterItems0
 */
@@ -254,6 +325,9 @@ type NodeExporterItems0 struct {
 
 	// Agent desired status: enabled or disabled.
 	Disabled bool `json:"disabled,omitempty"`
+
+	// host node info
+	HostNodeInfo *NodeExporterItems0HostNodeInfo `json:"host_node_info,omitempty"`
 
 	// Unique Agent identifier.
 	ID string `json:"id,omitempty"`
@@ -263,13 +337,37 @@ type NodeExporterItems0 struct {
 
 	// Agent process status: running or not.
 	Running bool `json:"running,omitempty"`
-
-	// Node identifier where Agent runs and for which insights are provided by that Agent.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this node exporter items0
 func (o *NodeExporterItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateHostNodeInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *NodeExporterItems0) validateHostNodeInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.HostNodeInfo) { // not required
+		return nil
+	}
+
+	if o.HostNodeInfo != nil {
+		if err := o.HostNodeInfo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("host_node_info")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -284,6 +382,50 @@ func (o *NodeExporterItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *NodeExporterItems0) UnmarshalBinary(b []byte) error {
 	var res NodeExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*NodeExporterItems0HostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
+swagger:model NodeExporterItems0HostNodeInfo
+*/
+type NodeExporterItems0HostNodeInfo struct {
+
+	// Docker container ID.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Docker container name.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Kubernetes pod name.
+	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
+
+	// Kubernetes pod UID.
+	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
+
+	// Node identifier where Service or Agent runs.
+	NodeID string `json:"node_id,omitempty"`
+}
+
+// Validate validates this node exporter items0 host node info
+func (o *NodeExporterItems0HostNodeInfo) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *NodeExporterItems0HostNodeInfo) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *NodeExporterItems0HostNodeInfo) UnmarshalBinary(b []byte) error {
+	var res NodeExporterItems0HostNodeInfo
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
