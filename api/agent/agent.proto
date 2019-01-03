@@ -14,6 +14,16 @@ enum Type {
   MYSQLD_EXPORTER = 2;
 }
 
+// Status represents Agent process status.
+enum Status {
+  STATUS_INVALID = 0;
+  STARTING = 1;
+  RUNNING = 2;
+  WAITING = 3;
+  STOPPING = 4;
+  STOPPED = 5;
+}
+
 //
 //message RegisterRequest {
 //  // FIXME We need node information there to create a new node or map new agent to the existing node.
@@ -38,7 +48,7 @@ message QANDataResponse {}
 // StateChangedRequest is an AgentMessage describing actual agent status.
 message StateChangedRequest {
   string agent_id = 1;
-  bool running = 2;
+  Status status = 2;
   uint32 listen_port = 3;
 }
 
