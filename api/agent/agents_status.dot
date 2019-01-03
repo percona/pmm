@@ -1,0 +1,17 @@
+digraph {
+  node [style=filled];
+
+  starting [fillcolor=green];
+  running;
+  waiting;
+  stopping;
+  stopped [fillcolor=red];
+
+  starting -> running;
+  starting -> waiting;
+  running  -> stopping;
+  running  -> waiting;
+  waiting  -> starting;
+  waiting  -> stopped;
+  stopping -> stopped;
+}
