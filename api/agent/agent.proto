@@ -21,7 +21,7 @@ enum Status {
   RUNNING = 2;
   WAITING = 3;
   STOPPING = 4;
-  STOPPED = 5;
+  DONE = 5;
 }
 
 //
