@@ -5,7 +5,7 @@ digraph {
   RUNNING;
   WAITING;
   STOPPING;
-  STOPPED [fillcolor=red];
+  DONE [fillcolor=red];
 
   STARTING -> RUNNING;
   STARTING -> WAITING;
@@ -14,9 +14,9 @@ digraph {
   RUNNING -> WAITING;
 
   WAITING -> STARTING;
-  WAITING -> STOPPED;
+  WAITING -> DONE;
 
-  STOPPING -> STOPPED;
+  STOPPING -> DONE;
 
-  STOPPED -> STARTING;
+  DONE -> STARTING [style=dotted];
 }
