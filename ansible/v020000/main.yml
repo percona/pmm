@@ -95,7 +95,7 @@
       when: ansible_os_family == 'RedHat'
       yum: name={{ item }} state=latest enablerepo=pmm
       with_items:
-        - nginx-1.15.7
+        - nginx-1.15.8
         - pmm-update
         - percona-toolkit-3.0.10
         - percona-dashboards-1.17.1
