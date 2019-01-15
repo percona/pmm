@@ -7,11 +7,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/jteeuwen/go-bindata"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/kevinburke/go-bindata"
 )
 
 func main() {
@@ -30,6 +31,7 @@ func main() {
 // This function exits the program with an error, if
 // any of the command line options are incorrect.
 func parseArgs() *bindata.Config {
+	var longVersion bool
 	var version bool
 
 	c := bindata.NewConfig()
@@ -40,13 +42,18 @@ func parseArgs() *bindata.Config {
 	}
 
 	flag.BoolVar(&c.Debug, "debug", c.Debug, "Do not embed the assets, but provide the embedding API. Contents will still be loaded from disk.")
+	flag.BoolVar(&c.Dev, "dev", c.Dev, "Similar to debug, but does not emit absolute paths. Expects a rootDir variable to already exist in the generated code's package.")
 	flag.StringVar(&c.Tags, "tags", c.Tags, "Optional set of build tags to include.")
 	flag.StringVar(&c.Prefix, "prefix", c.Prefix, "Optional path prefix to strip off asset names.")
 	flag.StringVar(&c.Package, "pkg", c.Package, "Package name to use in the generated code.")
 	flag.BoolVar(&c.NoMemCopy, "nomemcopy", c.NoMemCopy, "Use a .rodata hack to get rid of unnecessary memcopies. Refer to the documentation to see what implications this carries.")
 	flag.BoolVar(&c.NoCompress, "nocompress", c.NoCompress, "Assets will *not* be GZIP compressed when this flag is specified.")
+	flag.BoolVar(&c.NoMetadata, "nometadata", c.NoMetadata, "Assets will not preserve size, mode, and modtime info.")
+	flag.UintVar(&c.Mode, "mode", c.Mode, "Optional file mode override for all files.")
+	flag.Int64Var(&c.ModTime, "modtime", c.ModTime, "Optional modification unix timestamp override for all files.")
 	flag.StringVar(&c.Output, "o", c.Output, "Optional name of the output file to be generated.")
-	flag.BoolVar(&version, "version", false, "Displays version information.")
+	flag.BoolVar(&longVersion, "version", false, "Displays verbose version information.")
+	flag.BoolVar(&version, "v", false, "Displays version information.")
 
 	ignore := make([]string, 0)
 	flag.Var((*AppendSliceValue)(&ignore), "ignore", "Regex pattern to ignore")
@@ -61,6 +68,10 @@ func parseArgs() *bindata.Config {
 
 	if version {
 		fmt.Printf("%s\n", Version())
+		os.Exit(0)
+	}
+	if longVersion {
+		fmt.Printf("%s\n", LongVersion())
 		os.Exit(0)
 	}
 
@@ -80,7 +91,7 @@ func parseArgs() *bindata.Config {
 	return c
 }
 
-// parseRecursive determines whether the given path has a recrusive indicator and
+// parseRecursive determines whether the given path has a recursive indicator and
 // returns a new path with the recursive indicator chopped off if it does.
 //
 //  ex:

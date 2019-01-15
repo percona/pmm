@@ -44,7 +44,7 @@ go-run:
 go-generate:
 	@echo "  >  Generating dependency files..."
 
-	go install -v ./vendor/github.com/jteeuwen/go-bindata/go-bindata
+	go install -v ./vendor/github.com/kevinburke/go-bindata/go-bindata
 	go-bindata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql
 
 	go install -v ./vendor/github.com/golang/protobuf/protoc-gen-go \

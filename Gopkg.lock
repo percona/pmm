@@ -79,15 +79,15 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:f323645b7acc76b09a838a67be43111fd0b0e918217ddd101aa67c8aaad88d48"
-  name = "github.com/jteeuwen/go-bindata"
+  digest = "1:62fdbad5c22e79a72e7d60270089329654a3d7e64dbb0f250e331915148cf874"
+  name = "github.com/kevinburke/go-bindata"
   packages = [
     ".",
     "go-bindata",
   ]
   pruneopts = "NUT"
-  revision = "bbd0c6e271208dce66d8fda4bc536453cd27fc4a"
-  version = "v3.0.7"
+  revision = "53d73b98acf3bd9f56d7f9136ed8e1be64756e1d"
+  version = "v3.13.0"
 
 [[projects]]
   digest = "1:32c45107d229b1cf9129e56fe1fabc14c5cac0fc7ce1b0d51bf53bbfde7e84c3"
@@ -262,7 +262,7 @@
     "github.com/golang/protobuf/protoc-gen-go",
     "github.com/jmoiron/sqlx",
     "github.com/jmoiron/sqlx/reflectx",
-    "github.com/jteeuwen/go-bindata/go-bindata",
+    "github.com/kevinburke/go-bindata/go-bindata",
     "github.com/kshvakov/clickhouse",
     "github.com/kshvakov/clickhouse/lib/column",
     "github.com/kshvakov/clickhouse/lib/types",
