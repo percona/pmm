@@ -624,7 +624,21 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "node_id": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "runs_on_node_id": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "service_id": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
             }
           }
         ],
@@ -1720,7 +1734,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "node_id": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
             }
           }
         ],
