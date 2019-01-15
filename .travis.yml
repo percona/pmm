@@ -13,9 +13,8 @@ script:
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - dep check
 
-  # TODO
+  - make check-license
   - make init
-  - make go-build
   - make test
 
 after_success:

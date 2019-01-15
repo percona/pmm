@@ -1,24 +1,29 @@
-include .env
+# include .env
 
-init:                 ## Install prototool.
+help:                           ## Display this help message.
+	@echo "Please use \`make <target>\` where <target> is one of:"
+	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
+	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+
+init:                           ## Install prototool.
 	# https://github.com/uber/prototool#installation
 	curl -L https://github.com/uber/prototool/releases/download/v1.3.0/prototool-$(shell uname -s)-$(shell uname -m) -o ./prototool
 	chmod +x ./prototool
 
-# Run ClickHouse, MySQL Server and sysbench containers. Create pmm DB in ClickHouse.
-env-up:
+install:                        ## Install qan-api binary.
+	go install -v ./...
+
+env-up:                         ## Run ClickHouse, MySQL Server and sysbench containers. Create pmm DB in ClickHouse.
 	mkdir -p logs
 	docker-compose up $(DCFLAGS) ch sysbench-ps
 	sleep 60
 	docker exec ch-server clickhouse client -h 127.0.0.1 --query="CREATE DATABASE IF NOT EXISTS pmm;"
 
-# Remove docker containers.
-env-down:
+env-down:                       ## Remove docker containers.
 	docker-compose down --volumes
 	rm -rf logs
 
-# Run PMM server, MySQL Server and sysbench containers.
-pmm-env-up:
+pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench containers.
 	docker-compose up pmm-server sysbench-ps
 
 deploy:
@@ -27,21 +32,17 @@ deploy:
 	docker cp percona-qan-api2 pmm-server:/usr/sbin/percona-qan-api2
 	docker exec pmm-server supervisorctl start qan-api2
 
-# Connect to pmm DB.
-ch-client:
+ch-client:                      ## Connect to pmm DB.
 	docker exec -ti ch-server clickhouse client -d pmm
 
 ps-client:
 	docker exec -ti ps-server mysql -uroot -psecret
 
-# Run qan-api with envs.
-# env $(cat .env | xargs) go run *.go
-go-run:
+go-run:                         ## Run qan-api with envs.
 	@echo "  > Runing with envs..."
 	GRPC_VERBOSITY=DEBUG GRPC_TRACE=all go run *.go
 
-# Pack ClickHouse migrations into go file.
-go-generate:
+go-generate:                    ## Pack ClickHouse migrations into go file.
 	@echo "  >  Generating dependency files..."
 
 	go install -v ./vendor/github.com/kevinburke/go-bindata/go-bindata
@@ -51,27 +52,25 @@ go-generate:
 					./vendor/github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
 	./prototool all
 
-# Build binary.
 linux-go-build: go-generate
 	@echo "  >  Building binary..."
 	GOOS=linux go build -o percona-qan-api2 *.go
 
-# Build binary.
 go-build: go-generate
 	@echo "  >  Building binary..."
 	go build -o percona-qan-api2 *.go
 
-# Request API version.
-api-version:
+api-version:                    ## Request API version.
 	./prototool grpc api/version --address 0.0.0.0:9911 --method version.Version/HandleVersion --data '{"name": "john"}'
 
-# Lint project.
-lint:
-	golangci-lint run
-
-# Run tests
-test:
+test: install                   ## Run tests
 	go test -v -p 1 -race ./...
+
+check-license:                  ## Check that all files have the same license header.
+	go run .github/check-license.go
+
+check: install check-license    ## Run checkers and linters.
+	golangci-lint run
 
 format:                         ## Run `goimports`.
 	goimports -local github.com/Percona-Lab/qan-api -l -w $(shell find . -type f -name '*.go' -not -path "./vendor/*")
