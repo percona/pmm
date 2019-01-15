@@ -1,0 +1,64 @@
+excludes:
+  - ./vendor
+
+protoc:
+  version: 3.6.1
+  includes:
+    # for go-proto-validators
+    - ./vendor
+
+lint:
+  rules:
+    no_default: true
+    add:
+      # ./prototool lint --list-all-linters | grep -v java
+      - COMMENTS_NO_C_STYLE                                   # Verifies that there are no /* c-style */ comments.
+      - ENUMS_HAVE_COMMENTS                                   # Verifies that all enums have a comment of the form "// EnumName ...".
+      - ENUMS_NO_ALLOW_ALIAS                                  # Verifies that no enums use the option "allow_alias".
+      - ENUM_FIELD_NAMES_UPPERCASE                            # Verifies that all enum field names are UPPERCASE.
+      - ENUM_FIELD_NAMES_UPPER_SNAKE_CASE                     # Verifies that all enum field names are UPPER_SNAKE_CASE.
+      # - ENUM_FIELD_PREFIXES                                 # Verifies that all enum fields are prefixed with [NESTED_MESSAGE_NAME_]ENUM_NAME_.
+      - ENUM_NAMES_CAMEL_CASE                                 # Verifies that all enum names are CamelCase.
+      - ENUM_NAMES_CAPITALIZED                                # Verifies that all enum names are Capitalized.
+      # - ENUM_ZERO_VALUES_INVALID                            # Verifies that all enum zero value names are [NESTED_MESSAGE_NAME_]ENUM_NAME_INVALID.
+      # - FILE_OPTIONS_EQUAL_GO_PACKAGE_PB_SUFFIX             # Verifies that the file option "go_package" is equal to $(basename PACKAGE)pb.
+      - FILE_OPTIONS_GO_PACKAGE_NOT_LONG_FORM                 # Verifies that the file option "go_package" is not of the form "go/import/path;package".
+      - FILE_OPTIONS_GO_PACKAGE_SAME_IN_DIR                   # Verifies that the file option "go_package" of all files in a directory are the same.
+      - FILE_OPTIONS_REQUIRE_GO_PACKAGE                       # Verifies that the file option "go_package" is set.
+      # - MESSAGES_HAVE_COMMENTS                              # Verifies that all non-extended messages have a comment of the form "// MessageName ...".
+      - MESSAGES_HAVE_COMMENTS_EXCEPT_REQUEST_RESPONSE_TYPES  # Verifies that all non-extended messages except for request and response types have a comment of the form "// MessageName ...".
+      # - MESSAGE_FIELDS_NOT_FLOATS                           # Verifies that all message fields are not floats or doubles.
+      - MESSAGE_FIELD_NAMES_LOWERCASE                         # Verifies that all message field names are lowercase.
+      - MESSAGE_FIELD_NAMES_LOWER_SNAKE_CASE                  # Verifies that all message field names are lower_snake_case.
+      - MESSAGE_NAMES_CAMEL_CASE                              # Verifies that all non-extended message names are CamelCase.
+      - MESSAGE_NAMES_CAPITALIZED                             # Verifies that all non-extended message names are Capitalized.
+      - ONEOF_NAMES_LOWER_SNAKE_CASE                          # Verifies that all oneof names are lower_snake_case.
+      - PACKAGES_SAME_IN_DIR                                  # Verifies that the packages of all files in a directory are the same.
+      - PACKAGE_IS_DECLARED                                   # Verifies that there is a package declaration.
+      - PACKAGE_LOWER_SNAKE_CASE                              # Verifies that the package is lower_snake.case.
+      # - REQUEST_RESPONSE_NAMES_MATCH_RPC                      # Verifies that all request names are RpcNameRequest and all response names are RpcNameResponse.
+      - REQUEST_RESPONSE_TYPES_IN_SAME_FILE                   # Verifies that all request and response types are in the same file as their corresponding service and are not nested messages.
+      - REQUEST_RESPONSE_TYPES_UNIQUE                         # Verifies that all request and response types are unique to each RPC.
+      - RPCS_HAVE_COMMENTS                                    # Verifies that all rpcs have a comment of the form "// RPCName ...".
+      - RPC_NAMES_CAMEL_CASE                                  # Verifies that all RPC names are CamelCase.
+      - RPC_NAMES_CAPITALIZED                                 # Verifies that all RPC names are Capitalized.
+      - SERVICES_HAVE_COMMENTS                                # Verifies that all services have a comment of the form "// ServiceName ...".
+      - SERVICE_NAMES_CAMEL_CASE                              # Verifies that all service names are CamelCase.
+      - SERVICE_NAMES_CAPITALIZED                             # Verifies that all service names are Capitalized.
+      - SYNTAX_PROTO3                                         # Verifies that the syntax is proto3.
+      - WKT_DIRECTLY_IMPORTED                                 # Verifies that the Well-Known Types are directly imported using "google/protobuf/" as the base of the import.
+
+generate:
+  go_options:
+    import_path: github.com/Percona-Lan/qan-api/api
+
+  plugins:
+    - name: go
+      type: go
+      flags: plugins=grpc
+      output: .
+
+    - name: govalidators
+      type: go
+      # flags: gogoimport=true
+      output: .

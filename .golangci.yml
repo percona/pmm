@@ -1,0 +1,36 @@
+---
+linters-settings:
+  # prevent import of "errors" instead of "github.com/pkg/errors"
+  depguard:
+    list-type: blacklist
+    include-go-root: true
+    packages:
+      - errors
+
+  goimports:
+    local-prefixes: github.com/Percona-Lab/qan-api
+
+  lll:
+    line-length: 140
+    tab-width: 4
+
+  unused:
+    check-exported: true
+
+  unparam:
+    algo: rta
+    check-exported: true
+
+linters:
+  enable-all: true
+
+# options for analysis running
+run:
+  skip-dirs:
+    - migrations
+
+issues:
+  exclude-use-default: false
+  exclude:
+    # gas: Duplicated errcheck checks
+    - 'G104: Errors unhandled'

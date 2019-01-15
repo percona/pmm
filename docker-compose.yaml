@@ -1,0 +1,98 @@
+version: "3"
+services:
+
+  pmm-data:
+    container_name: pmm-data
+    image: "perconalab/pmm-server-fb:PR-129-f83d0a9"
+    volumes:
+      - "/opt/prometheus/data"
+      - "/opt/consul-data"
+      - "/var/lib/mysql"
+      - "/var/lib/grafana"
+
+  pmm-server:
+    container_name: pmm-server
+    image: "perconalab/pmm-server-fb:PR-129-f83d0a9"
+    volumes:
+      - "/opt/prometheus/data"
+      - "/opt/consul-data"
+      - "/var/lib/mysql"
+      - "/var/lib/grafana"
+    ports:
+      - "80:80"
+      - "9911:9911"
+    restart: always
+    depends_on:
+      - pmm-data
+
+  ch:
+    image: "yandex/clickhouse-server"
+    container_name: "ch-server"
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    ports:
+      - "9000:9000/tcp"
+
+  ps:
+    image: "percona/percona-server:latest"
+    container_name: "ps-server"
+    environment:
+     - MYSQL_ROOT_PASSWORD=secret
+    ports:
+     - "3306:3306"
+    volumes:
+      - logs-directory:/var/log/mysql
+
+  sysbench-ps:
+    image: "perconalab/sysbench"
+    depends_on:
+     - "ps"
+    command: >
+        bash -c "
+            set -o xtrace
+            sleep 20
+            mysql \
+                --host=ps \
+                --port=3306 \
+                --user=root \
+                --password=secret \
+                -e 'CREATE DATABASE IF NOT EXISTS sbtest; SET GLOBAL slow_query_log_file = \"/var/log/mysql/mysql-slow.log\"; SET GLOBAL slow_query_log = \"ON\";  SET GLOBAL slow_query_log_always_write_time = 0;'
+            sysbench \
+                --db-driver=mysql \
+                --mysql-host=ps \
+                --mysql-port=3306 \
+                --mysql-user=root \
+                --mysql-password=secret \
+                --mysql-db=sbtest \
+                --mysql-table-engine=innodb \
+                --oltp-table-size=1000000 \
+                /usr/share/sysbench/tests/include/oltp_legacy/oltp.lua \
+                prepare
+            sysbench \
+                --rate=200 \
+                --threads=64 \
+                --report-interval=10 \
+                --time=0 \
+                --events=0 \
+                --rand-type=pareto \
+                --db-driver=mysql \
+                --mysql-host=ps \
+                --mysql-port=3306 \
+                --mysql-user=root \
+                --mysql-password=secret \
+                --mysql-db=sbtest \
+                --mysql-table-engine=innodb \
+                --oltp-reconnect \
+                --oltp-table-size=1000000 \
+                /usr/share/sysbench/tests/include/oltp_legacy/select.lua \
+                run
+        "
+
+volumes:
+  logs-directory:
+    driver_opts:
+      type: volume
+      device: ${PWD}/logs
+      o: bind

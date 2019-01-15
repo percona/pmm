@@ -2,15 +2,17 @@ syntax = "proto3";
 
 package version;
 
-// The version service definition.
+option go_package = "version";
+
+// Version service to check version of QAN-API.
 service Version {
-  // Sends a version
-  rpc HandleVersion (VersionRequest) returns (VersionReply) {}
+  // HandleVersion return build version of QAN-API.
+  rpc HandleVersion(VersionRequest) returns (VersionReply);
 }
 
 // The request message containing the requestor name.
 message VersionRequest {
-    string name = 1;
+  string name = 1;
 }
 
 // The response message containing the version of QAN-API

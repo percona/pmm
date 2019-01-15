@@ -6,6 +6,7 @@ import (
 	_ "github.com/kshvakov/clickhouse"
 
 	"github.com/Percona-Lab/qan-api/migrations"
+	// TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/database/clickhouse"
 	"github.com/golang-migrate/migrate/source/go_bindata"
