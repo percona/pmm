@@ -24,7 +24,10 @@ message MySQLService {
   string unix_socket = 6;
 }
 
-message ListServicesRequest {}
+message ListServicesRequest {
+  // string node_id = 1;
+
+}
 
 message ListServicesResponse {
   repeated MySQLService mysql = 1;

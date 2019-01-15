@@ -624,7 +624,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "service_id": {
+                  "description": "Return Agents only for that Service.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],

@@ -67,6 +67,38 @@ func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer ru
 	return nil
 }
 
+/*ListAgentsBody list agents body
+swagger:model ListAgentsBody
+*/
+type ListAgentsBody struct {
+
+	// Return Agents only for that Service.
+	ServiceID string `json:"service_id,omitempty"`
+}
+
+// Validate validates this list agents body
+func (o *ListAgentsBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsBody) UnmarshalBinary(b []byte) error {
+	var res ListAgentsBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListAgentsOKBody list agents o k body
 swagger:model ListAgentsOKBody
 */
