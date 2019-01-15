@@ -627,8 +627,8 @@
               "type": "object",
               "properties": {
                 "service_id": {
-                  "type": "string",
-                  "title": "string node_id = 1;\nstring runs_on_node_id = 2;"
+                  "description": "Return Agents only for that Service.",
+                  "type": "string"
                 }
               }
             }
