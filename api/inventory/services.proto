@@ -25,7 +25,8 @@ message MySQLService {
 }
 
 message ListServicesRequest {
-  uint32 node_id = 1;
+  // string node_id = 1;
+
 }
 
 message ListServicesResponse {

@@ -72,14 +72,9 @@ swagger:model ListAgentsBody
 */
 type ListAgentsBody struct {
 
-	// node id
-	NodeID int64 `json:"node_id,omitempty"`
-
-	// runs on node id
-	RunsOnNodeID int64 `json:"runs_on_node_id,omitempty"`
-
-	// service id
-	ServiceID int64 `json:"service_id,omitempty"`
+	// string node_id = 1;
+	// string runs_on_node_id = 2;
+	ServiceID string `json:"service_id,omitempty"`
 }
 
 // Validate validates this list agents body

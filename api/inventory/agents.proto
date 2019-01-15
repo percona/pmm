@@ -59,9 +59,9 @@ message MySQLdExporter {
 }
 
 message ListAgentsRequest {
-  uint32 node_id = 1;
-  uint32 runs_on_node_id = 2;
-  uint32 service_id = 3;
+  // string node_id = 1;
+  // string runs_on_node_id = 2;
+  string service_id = 3;
 }
 
 message ListAgentsResponse {
