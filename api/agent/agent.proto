@@ -76,7 +76,14 @@ message SetStateRequest {
 }
 
 // SetStateResponse is an AgentMessage for SetStateRequest acceptance.
-message SetStateResponse {}
+message SetStateResponse {
+  // TODO
+  // Fatal errors:
+  //   - invalid template
+  // Temporary errors:
+  //   - no free ports
+  // Send them there or via StateChangedRequest?
+}
 
 message AgentMessage {
   uint32 id = 1;
