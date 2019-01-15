@@ -58,7 +58,11 @@ message MySQLdExporter {
   reserved 9; // password
 }
 
-message ListAgentsRequest {}
+message ListAgentsRequest {
+  uint32 node_id = 1;
+  uint32 runs_on_node_id = 2;
+  uint32 service_id = 3;
+}
 
 message ListAgentsResponse {
   repeated PMMAgent pmm_agent = 1;
