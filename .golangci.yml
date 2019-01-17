@@ -7,8 +7,11 @@ linters-settings:
     packages:
       - errors
 
+  goimports:
+    local-prefixes: github.com/percona/pmm-agent
+
   lll:
-    line-length: 140
+    line-length: 170
     tab-width: 4
 
   unused:
@@ -20,6 +23,8 @@ linters-settings:
 
 linters:
   enable-all: true
+  disable:
+    - scopelint  # too many false positives
 
 issues:
   exclude-use-default: false
