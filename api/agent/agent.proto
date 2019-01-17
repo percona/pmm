@@ -90,6 +90,8 @@ message SetStateResponse {
 }
 
 message AgentMessage {
+  // TODO https://jira.percona.com/browse/PMM-3449
+
   uint32 id = 1;
   oneof payload {
     // requests from agent
@@ -102,6 +104,8 @@ message AgentMessage {
 }
 
 message ServerMessage {
+  // TODO https://jira.percona.com/browse/PMM-3449
+
   uint32 id = 1;
   oneof payload {
     // responses from server
