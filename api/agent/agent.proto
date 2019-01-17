@@ -68,9 +68,11 @@ message SetStateRequest {
   // AgentProcess describes desired configuration of a single agent.
   message AgentProcess {
     Type type = 1;
-    repeated string args = 2;
-    repeated string env = 3;
-    map<string, string> configs = 4;
+    string template_left_delim = 2;
+    string template_right_delim = 3;
+    repeated string args = 4;
+    repeated string env = 5;
+    map<string, string> text_files = 6;
   }
   map<string, AgentProcess> agent_processes = 1;
 }
