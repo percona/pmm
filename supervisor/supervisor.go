@@ -51,7 +51,6 @@ type Supervisor struct {
 }
 
 type agentInfo struct {
-	process        *process
 	cancel         func()
 	done           chan struct{}
 	requestedState *agent.SetStateRequest_AgentProcess
@@ -90,7 +89,8 @@ func (s *Supervisor) SetState(agentProcesses map[string]*agent.SetStateRequest_A
 
 	toStart, toRestart, toStop := s.filter(agentProcesses)
 
-	// We have to wait for processes to terminate before starting a new ones to reuse ports.
+	// We have to wait for processes to terminate before starting a new ones to reuse ports,
+	// and to send all state updates.
 	// If that place is slow, we can cancel them all in parallel, but then we still have to wait.
 
 	// stop first to avoid extra load
@@ -204,7 +204,6 @@ func (s *Supervisor) start(agentID string, agentProcess *agent.SetStateRequest_A
 	}()
 
 	return &agentInfo{
-		process:        process,
 		cancel:         cancel,
 		done:           done,
 		requestedState: proto.Clone(agentProcess).(*agent.SetStateRequest_AgentProcess),
@@ -213,7 +212,7 @@ func (s *Supervisor) start(agentID string, agentProcess *agent.SetStateRequest_A
 }
 
 // _ as a first rune is kept for possible extensions
-var textFileRE = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`)
+var textFileRE = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`) //nolint:gochecknoglobals
 
 // processParams makes processParams from SetStateRequest parameters and other data.
 func (s *Supervisor) processParams(agentID string, agentProcess *agent.SetStateRequest_AgentProcess, port uint16) (*processParams, error) {
