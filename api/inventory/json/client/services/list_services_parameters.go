@@ -63,7 +63,7 @@ for the list services operation typically these are written to a http.Request
 type ListServicesParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body ListServicesBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -104,13 +104,13 @@ func (o *ListServicesParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list services params
-func (o *ListServicesParams) WithBody(body interface{}) *ListServicesParams {
+func (o *ListServicesParams) WithBody(body ListServicesBody) *ListServicesParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list services params
-func (o *ListServicesParams) SetBody(body interface{}) {
+func (o *ListServicesParams) SetBody(body ListServicesBody) {
 	o.Body = body
 }
 
@@ -122,10 +122,8 @@ func (o *ListServicesParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
