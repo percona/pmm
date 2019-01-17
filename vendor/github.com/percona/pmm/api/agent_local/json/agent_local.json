@@ -1,0 +1,51 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM Agent Local API",
+    "version": "version 0"
+  },
+  "paths": {
+    "/v0/local/Status": {
+      "post": {
+        "tags": [
+          "AgentLocal"
+        ],
+        "summary": "Status returns current pmm-agent status.",
+        "operationId": "Status",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "(empty)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -178,12 +178,12 @@ func TestDiscover(t *testing.T) {
 		require.NoError(t, err)
 		expected := []Instance{{
 			Node: models.AWSRDSNode{
-				Type:   "aws-rds",
+				Type:   models.AmazonRDSRemoteNodeType,
 				Name:   "rds-aurora1",
 				Region: pointer.ToString("us-east-1"),
 			},
 			Service: models.AWSRDSService{
-				Type:          "aws-rds",
+				Type:          models.AWSRDSServiceType,
 				Address:       pointer.ToString("rds-aurora1.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("aurora"),
@@ -191,12 +191,12 @@ func TestDiscover(t *testing.T) {
 			},
 		}, {
 			Node: models.AWSRDSNode{
-				Type:   "aws-rds",
+				Type:   models.AmazonRDSRemoteNodeType,
 				Name:   "rds-aurora57",
 				Region: pointer.ToString("us-east-1"),
 			},
 			Service: models.AWSRDSService{
-				Type:          "aws-rds",
+				Type:          models.AWSRDSServiceType,
 				Address:       pointer.ToString("rds-aurora57.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("aurora-mysql"),
@@ -204,12 +204,12 @@ func TestDiscover(t *testing.T) {
 			},
 		}, {
 			Node: models.AWSRDSNode{
-				Type:   "aws-rds",
+				Type:   models.AmazonRDSRemoteNodeType,
 				Name:   "rds-mysql56",
 				Region: pointer.ToString("us-east-1"),
 			},
 			Service: models.AWSRDSService{
-				Type:          "aws-rds",
+				Type:          models.AWSRDSServiceType,
 				Address:       pointer.ToString("rds-mysql56.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("mysql"),
@@ -217,12 +217,12 @@ func TestDiscover(t *testing.T) {
 			},
 		}, {
 			Node: models.AWSRDSNode{
-				Type:   "aws-rds",
+				Type:   models.AmazonRDSRemoteNodeType,
 				Name:   "rds-mysql57",
 				Region: pointer.ToString("us-east-1"),
 			},
 			Service: models.AWSRDSService{
-				Type:          "aws-rds",
+				Type:          models.AWSRDSServiceType,
 				Address:       pointer.ToString("rds-mysql57.cg8slbmxcsve.us-east-1.rds.amazonaws.com"),
 				Port:          pointer.ToUint16(3306),
 				Engine:        pointer.ToString("mysql"),
@@ -230,6 +230,7 @@ func TestDiscover(t *testing.T) {
 			},
 		}}
 
+		// If this test fails, see https://jira.percona.com/browse/PMM-1772 and linked issues.
 		assert.Equal(t, expected, actual)
 	})
 
@@ -274,13 +275,13 @@ func TestAddListRemove(t *testing.T) {
 	expected := []Instance{{
 		Node: models.AWSRDSNode{
 			ID:     "gen:00000000-0000-4000-8000-000000000004",
-			Type:   "aws-rds",
+			Type:   models.AmazonRDSRemoteNodeType,
 			Name:   "rds-mysql57",
 			Region: pointer.ToString("us-east-1"),
 		},
 		Service: models.AWSRDSService{
 			ID:            "gen:00000000-0000-4000-8000-000000000005",
-			Type:          "aws-rds",
+			Type:          models.AWSRDSServiceType,
 			NodeID:        "gen:00000000-0000-4000-8000-000000000004",
 			AWSAccessKey:  &accessKey,
 			AWSSecretKey:  &secretKey,

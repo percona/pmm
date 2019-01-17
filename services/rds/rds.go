@@ -175,7 +175,7 @@ func (svc *Service) ApplyPrometheusConfiguration(ctx context.Context, q *reform.
 		HonorLabels:    true,
 	}
 
-	nodes, err := q.FindAllFrom(models.AWSRDSNodeTable, "type", models.AWSRDSNodeType)
+	nodes, err := q.FindAllFrom(models.AWSRDSNodeTable, "type", models.AmazonRDSRemoteNodeType)
 	if err != nil {
 		return errors.WithStack(err)
 	}
@@ -312,7 +312,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 			for _, db := range out.DBInstances {
 				instances <- Instance{
 					Node: models.AWSRDSNode{
-						Type: models.AWSRDSNodeType,
+						Type: models.AmazonRDSRemoteNodeType,
 						Name: *db.DBInstanceIdentifier,
 
 						Region: pointer.ToString(region),
@@ -353,7 +353,7 @@ func (svc *Service) Discover(ctx context.Context, accessKey, secretKey string) (
 func (svc *Service) List(ctx context.Context) ([]Instance, error) {
 	var res []Instance
 	err := svc.DB.InTransaction(func(tx *reform.TX) error {
-		structs, e := tx.SelectAllFrom(models.AWSRDSNodeTable, "WHERE type = ? ORDER BY id", models.AWSRDSNodeType)
+		structs, e := tx.SelectAllFrom(models.AWSRDSNodeTable, "WHERE type = ? ORDER BY id", models.AmazonRDSRemoteNodeType)
 		if e != nil {
 			return e
 		}
@@ -483,7 +483,7 @@ func (svc *Service) mysqlExporterCfg(agent *models.MySQLdExporter, dsn string) *
 func (svc *Service) updateRDSExporterConfig(tx *reform.TX, service *models.AWSRDSService) (*rdsExporterConfig, error) {
 	// collect all RDS nodes
 	var config rdsExporterConfig
-	nodes, err := tx.FindAllFrom(models.AWSRDSNodeTable, "type", models.AWSRDSNodeType)
+	nodes, err := tx.FindAllFrom(models.AWSRDSNodeTable, "type", models.AmazonRDSRemoteNodeType)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -661,7 +661,7 @@ func (svc *Service) Add(ctx context.Context, accessKey, secretKey string, id *In
 		// insert node
 		node := &models.AWSRDSNode{
 			ID:   inventory.MakeID(),
-			Type: models.AWSRDSNodeType,
+			Type: models.AmazonRDSRemoteNodeType,
 			Name: add.Node.Name,
 
 			Region: add.Node.Region,
@@ -718,7 +718,7 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 	var err error
 	return svc.DB.InTransaction(func(tx *reform.TX) error {
 		var node models.AWSRDSNode
-		if err = tx.SelectOneTo(&node, "WHERE type = ? AND name = ? AND region = ?", models.AWSRDSNodeType, id.Name, id.Region); err != nil {
+		if err = tx.SelectOneTo(&node, "WHERE type = ? AND name = ? AND region = ?", models.AmazonRDSRemoteNodeType, id.Name, id.Region); err != nil {
 			if err == reform.ErrNoRows {
 				return status.Errorf(codes.NotFound, "RDS instance %q not found in region %q.", id.Name, id.Region)
 			}
@@ -840,7 +840,7 @@ func (svc *Service) Remove(ctx context.Context, id *InstanceID) error {
 
 // Restore configuration from database.
 func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
-	nodes, err := tx.FindAllFrom(models.AWSRDSNodeTable, "type", models.AWSRDSNodeType)
+	nodes, err := tx.FindAllFrom(models.AWSRDSNodeTable, "type", models.AmazonRDSRemoteNodeType)
 	if err != nil {
 		return errors.WithStack(err)
 	}

@@ -29,11 +29,9 @@ type NodeType string
 const (
 	PMMServerNodeType NodeType = "pmm-server" // FIXME remove
 
-	BareMetalNodeType      NodeType = "bare-metal"
-	VirtualMachineNodeType NodeType = "virtual-machine"
-	ContainerNodeType      NodeType = "container"
-	RemoteNodeType         NodeType = "remote"
-	AWSRDSNodeType         NodeType = "aws-rds"
+	GenericNodeType         NodeType = "generic"
+	RemoteNodeType          NodeType = "remote"
+	AmazonRDSRemoteNodeType NodeType = "remote-amazon-rds"
 )
 
 const (

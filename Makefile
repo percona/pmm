@@ -38,7 +38,7 @@ gen:                            ## Generate files.
 
 	# go install -v github.com/percona/pmm-managed/api github.com/percona/pmm-managed/api/swagger/client
 
-	cp ./vendor/github.com/percona/pmm/api/inventory.swagger.json api/swagger/swagger.json
+	cp ./vendor/github.com/percona/pmm/api/inventory/json/inventory.json api/swagger/swagger.json
 
 install:                        ## Install pmm-managed binary.
 	go install -v ./...

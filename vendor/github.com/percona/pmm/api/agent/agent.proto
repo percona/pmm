@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package agent;
 
+option go_package = "agent";
+
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -10,6 +12,16 @@ enum Type {
   TYPE_INVALID = 0;
   NODE_EXPORTER = 1;
   MYSQLD_EXPORTER = 2;
+}
+
+// Status represents Agent process status.
+enum Status {
+  STATUS_INVALID = 0;
+  STARTING = 1;
+  RUNNING = 2;
+  WAITING = 3;
+  STOPPING = 4;
+  DONE = 5;
 }
 
 //
@@ -33,6 +45,16 @@ message QANDataRequest {
 // QANDataResponse is a ServerMessage for QAN data acceptance.
 message QANDataResponse {}
 
+// StateChangedRequest is an AgentMessage describing actual agent status.
+message StateChangedRequest {
+  string agent_id = 1;
+  Status status = 2;
+  uint32 listen_port = 3;
+}
+
+// StateChangedResponse is a ServerMessage for StateChangedRequest acceptance.
+message StateChangedResponse {}
+
 // PingRequest is a ServerMessage for checking connectivity, latency and clock drift.
 message PingRequest {}
 
@@ -45,31 +67,23 @@ message PingResponse {
 message SetStateRequest {
   // AgentProcess describes desired configuration of a single agent.
   message AgentProcess {
-    string agent_id = 1;
-    Type type = 2;
-    repeated string args = 3;
-    repeated string env = 4;
-    map<string, string> configs = 5;
+    Type type = 1;
+    repeated string args = 2;
+    repeated string env = 3;
+    map<string, string> configs = 4;
   }
-  repeated AgentProcess agent_processes = 1;
+  map<string, AgentProcess> agent_processes = 1;
 }
 
-// SetStateResponse is an AgentMessage describing agent statuses.
-message SetStateResponse {
-  // AgentProcess describes status of a single agent.
-  message AgentProcess {
-    string agent_id = 1;
-    bool disabled = 2;
-    uint32 listen_port = 3;
-  }
-  repeated AgentProcess agent_processes = 1;
-}
+// SetStateResponse is an AgentMessage for SetStateRequest acceptance.
+message SetStateResponse {}
 
 message AgentMessage {
   uint32 id = 1;
   oneof payload {
     // requests from agent
     QANDataRequest qan_data = 2;
+    StateChangedRequest state_changed = 3;
     // responses from agent
     PingResponse ping = 8;
     SetStateResponse state = 9;
@@ -81,6 +95,7 @@ message ServerMessage {
   oneof payload {
     // responses from server
     QANDataResponse qan_data = 2;
+    StateChangedResponse state_changed = 3;
     // requests from server
     PingRequest ping = 8;
     SetStateRequest state = 9;

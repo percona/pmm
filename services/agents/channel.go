@@ -24,25 +24,20 @@ import (
 
 	"github.com/percona/pmm/api/agent"
 	"github.com/pkg/errors"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
 )
 
 const (
 	serverRequestsCap = 32
-
-	prometheusNamespace = "pmm_managed"
-	prometheusSubsystem = "channel"
 )
 
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
 //
 // All exported methods are thread-safe.
 type Channel struct { //nolint:maligned
-	s agent.Agent_ConnectServer
-	l *logrus.Entry
-
-	mRecv, mSend prometheus.Counter
+	s       agent.Agent_ConnectServer
+	l       *logrus.Entry
+	metrics *sharedChannelMetrics
 
 	lastSentRequestID uint32
 
@@ -60,23 +55,11 @@ type Channel struct { //nolint:maligned
 // NewChannel creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
-func NewChannel(stream agent.Agent_ConnectServer) *Channel {
+func NewChannel(stream agent.Agent_ConnectServer, l *logrus.Entry, m *sharedChannelMetrics) *Channel {
 	s := &Channel{
-		s: stream,
-		l: logrus.WithField("component", "channel"), // only for debug logging
-
-		mRecv: prometheus.NewCounter(prometheus.CounterOpts{
-			Namespace: prometheusNamespace,
-			Subsystem: prometheusSubsystem,
-			Name:      "messages_received_total",
-			Help:      "A total number of received messages from pmm-agent.",
-		}),
-		mSend: prometheus.NewCounter(prometheus.CounterOpts{
-			Namespace: prometheusNamespace,
-			Subsystem: prometheusSubsystem,
-			Name:      "messages_sent_total",
-			Help:      "A total number of sent messages to pmm-agent.",
-		}),
+		s:       stream,
+		l:       l, // only for debug logging
+		metrics: m,
 
 		responses: make(map[uint32]chan agent.AgentMessagePayload),
 		requests:  make(chan *agent.AgentMessage, serverRequestsCap),
@@ -154,7 +137,7 @@ func (c *Channel) send(msg *agent.ServerMessage) {
 		c.close(errors.Wrap(err, "failed to send message"))
 		return
 	}
-	c.mSend.Inc()
+	c.metrics.mSend.Inc()
 }
 
 // runReader receives messages from server
@@ -171,7 +154,7 @@ func (c *Channel) runReceiver() {
 			return
 		}
 		c.l.Debugf("Received message: %s.", msg)
-		c.mRecv.Inc()
+		c.metrics.mRecv.Inc()
 
 		switch msg.Payload.(type) {
 		// requests
@@ -228,20 +211,3 @@ func (c *Channel) publish(id uint32, payload agent.AgentMessagePayload) {
 	c.m.Unlock()
 	ch <- payload
 }
-
-// Describe implements prometheus.Collector.
-func (c *Channel) Describe(ch chan<- *prometheus.Desc) {
-	c.mRecv.Describe(ch)
-	c.mSend.Describe(ch)
-}
-
-// Collect implement prometheus.Collector.
-func (c *Channel) Collect(ch chan<- prometheus.Metric) {
-	c.mRecv.Collect(ch)
-	c.mSend.Collect(ch)
-}
-
-// check interfaces
-var (
-	_ prometheus.Collector = (*Channel)(nil)
-)

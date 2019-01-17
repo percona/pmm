@@ -75,7 +75,7 @@ func (s *AgentsServer) GetAgent(ctx context.Context, req *api.GetAgentRequest) (
 
 // AddPMMAgent adds pmm-agent Agent.
 func (s *AgentsServer) AddPMMAgent(ctx context.Context, req *api.AddPMMAgentRequest) (*api.AddPMMAgentResponse, error) {
-	agent, err := s.Agents.AddPMMAgent(ctx, req.RunsOnNodeId)
+	agent, err := s.Agents.AddPMMAgent(ctx, req.HostNodeInfo.NodeId)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (s *AgentsServer) AddPMMAgent(ctx context.Context, req *api.AddPMMAgentRequ
 
 // AddNodeExporter adds node_exporter Agent.
 func (s *AgentsServer) AddNodeExporter(ctx context.Context, req *api.AddNodeExporterRequest) (*api.AddNodeExporterResponse, error) {
-	agent, err := s.Agents.AddNodeExporter(ctx, req.RunsOnNodeId, req.Disabled)
+	agent, err := s.Agents.AddNodeExporter(ctx, req.HostNodeInfo.NodeId, req.Disabled)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (s *AgentsServer) AddNodeExporter(ctx context.Context, req *api.AddNodeExpo
 func (s *AgentsServer) AddMySQLdExporter(ctx context.Context, req *api.AddMySQLdExporterRequest) (*api.AddMySQLdExporterResponse, error) {
 	username := pointer.ToStringOrNil(req.Username)
 	password := pointer.ToStringOrNil(req.Password)
-	agent, err := s.Agents.AddMySQLdExporter(ctx, req.RunsOnNodeId, req.Disabled, req.ServiceId, username, password)
+	agent, err := s.Agents.AddMySQLdExporter(ctx, req.HostNodeInfo.NodeId, req.Disabled, req.ServiceId, username, password)
 	if err != nil {
 		return nil, err
 	}

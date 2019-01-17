@@ -1,0 +1,22 @@
+digraph {
+  node [style=filled];
+
+  STARTING [fillcolor=green];
+  RUNNING;
+  WAITING;
+  STOPPING;
+  DONE [fillcolor=red];
+
+  STARTING -> RUNNING;
+  STARTING -> WAITING;
+
+  RUNNING -> STOPPING;
+  RUNNING -> WAITING;
+
+  WAITING -> STARTING;
+  WAITING -> DONE;
+
+  STOPPING -> DONE;
+
+  DONE -> STARTING [style=dotted];
+}

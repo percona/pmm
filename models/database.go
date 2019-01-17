@@ -86,6 +86,7 @@ var databaseSchema = [][]string{
 			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+			version VARCHAR(255),
 			listen_port SMALLINT UNSIGNED,
 			service_username VARCHAR(255),
 			service_password VARCHAR(255),
@@ -101,6 +102,12 @@ var databaseSchema = [][]string{
 			agent_id VARCHAR(255) NOT NULL,
 			node_id VARCHAR(255) NOT NULL,
 			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+			container_id VARCHAR(255),
+			container_name VARCHAR(255),
+			kubernetes_pod_uid VARCHAR(255),
+			kubernetes_pod_name VARCHAR(255),
+
 			FOREIGN KEY (agent_id) REFERENCES agents (id),
 			FOREIGN KEY (node_id) REFERENCES nodes (id),
 			UNIQUE (agent_id, node_id)
@@ -110,6 +117,12 @@ var databaseSchema = [][]string{
 			agent_id VARCHAR(255) NOT NULL,
 			service_id VARCHAR(255) NOT NULL,
 			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+			container_id VARCHAR(255),
+			container_name VARCHAR(255),
+			kubernetes_pod_uid VARCHAR(255),
+			kubernetes_pod_name VARCHAR(255),
+
 			FOREIGN KEY (agent_id) REFERENCES agents (id),
 			FOREIGN KEY (service_id) REFERENCES services (id),
 			UNIQUE (agent_id, service_id)

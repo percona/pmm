@@ -29,6 +29,11 @@ type AgentNode struct {
 	AgentID string `reform:"agent_id"`
 	NodeID  string `reform:"node_id"`
 	// CreatedAt time.Time `reform:"created_at"`
+
+	ContainerID       *string `reform:"container_id"`
+	ContainerName     *string `reform:"container_name"`
+	KubernetesPodUID  *string `reform:"kubernetes_pod_uid"`
+	KubernetesPodName *string `reform:"kubernetes_pod_name"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.

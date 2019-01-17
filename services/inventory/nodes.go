@@ -32,7 +32,15 @@ import (
 
 // NodesService works with inventory API Nodes.
 type NodesService struct {
-	Q *reform.Querier
+	q *reform.Querier
+	// r *agents.Registry
+}
+
+func NewNodesService(q *reform.Querier) *NodesService {
+	return &NodesService{
+		q: q,
+		// r: r,
+	}
 }
 
 // makeNode converts database row to Inventory API Node.
@@ -41,24 +49,11 @@ func makeNode(row *models.NodeRow) inventory.Node {
 	case models.PMMServerNodeType: // FIXME remove this branch
 		fallthrough
 
-	case models.BareMetalNodeType:
-		return &inventory.BareMetalNode{
+	case models.GenericNodeType:
+		return &inventory.GenericNode{
 			Id:       row.ID,
 			Name:     row.Name,
 			Hostname: pointer.GetString(row.Hostname),
-		}
-
-	case models.VirtualMachineNodeType:
-		return &inventory.VirtualMachineNode{
-			Id:       row.ID,
-			Name:     row.Name,
-			Hostname: pointer.GetString(row.Hostname),
-		}
-
-	case models.ContainerNodeType:
-		return &inventory.ContainerNode{
-			Id:   row.ID,
-			Name: row.Name,
 		}
 
 	case models.RemoteNodeType:
@@ -67,8 +62,8 @@ func makeNode(row *models.NodeRow) inventory.Node {
 			Name: row.Name,
 		}
 
-	case models.AWSRDSNodeType:
-		return &inventory.AWSRDSNode{
+	case models.AmazonRDSRemoteNodeType:
+		return &inventory.AmazonRDSRemoteNode{
 			Id:       row.ID,
 			Name:     row.Name,
 			Hostname: pointer.GetString(row.Hostname),
@@ -86,7 +81,7 @@ func (ns *NodesService) get(ctx context.Context, id string) (*models.NodeRow, er
 	}
 
 	row := &models.NodeRow{ID: id}
-	switch err := ns.Q.Reload(row); err {
+	switch err := ns.q.Reload(row); err {
 	case nil:
 		return row, nil
 	case reform.ErrNoRows:
@@ -102,7 +97,7 @@ func (ns *NodesService) checkUniqueID(ctx context.Context, id string) error {
 	}
 
 	row := &models.NodeRow{ID: id}
-	switch err := ns.Q.Reload(row); err {
+	switch err := ns.q.Reload(row); err {
 	case nil:
 		return status.Errorf(codes.AlreadyExists, "Node with ID %q already exists.", id)
 	case reform.ErrNoRows:
@@ -117,7 +112,7 @@ func (ns *NodesService) checkUniqueName(ctx context.Context, name string) error 
 		return status.Error(codes.InvalidArgument, "Empty Node name.")
 	}
 
-	_, err := ns.Q.FindOneFrom(models.NodeRowTable, "name", name)
+	_, err := ns.q.FindOneFrom(models.NodeRowTable, "name", name)
 	switch err {
 	case nil:
 		return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", name)
@@ -136,8 +131,8 @@ func (ns *NodesService) checkUniqueHostnameRegion(ctx context.Context, hostname,
 		return status.Error(codes.InvalidArgument, "Empty Node region.")
 	}
 
-	tail := fmt.Sprintf("WHERE hostname = %s AND region = %s LIMIT 1", ns.Q.Placeholder(1), ns.Q.Placeholder(2))
-	_, err := ns.Q.SelectOneFrom(models.NodeRowTable, tail, hostname, region)
+	tail := fmt.Sprintf("WHERE hostname = %s AND region = %s LIMIT 1", ns.q.Placeholder(1), ns.q.Placeholder(2))
+	_, err := ns.q.SelectOneFrom(models.NodeRowTable, tail, hostname, region)
 	switch err {
 	case nil:
 		return status.Errorf(codes.AlreadyExists, "Node with hostname %q and region %q already exists.", hostname, region)
@@ -150,7 +145,7 @@ func (ns *NodesService) checkUniqueHostnameRegion(ctx context.Context, hostname,
 
 // List selects all Nodes in a stable order.
 func (ns *NodesService) List(ctx context.Context) ([]inventory.Node, error) {
-	structs, err := ns.Q.SelectAllFrom(models.NodeRowTable, "ORDER BY id")
+	structs, err := ns.q.SelectAllFrom(models.NodeRowTable, "ORDER BY id")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -200,7 +195,7 @@ func (ns *NodesService) Add(ctx context.Context, id string, nodeType models.Node
 		Hostname: hostname,
 		Region:   region,
 	}
-	if err := ns.Q.Insert(row); err != nil {
+	if err := ns.q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return makeNode(row), nil
@@ -221,7 +216,7 @@ func (ns *NodesService) Change(ctx context.Context, id string, name string) (inv
 	}
 
 	row.Name = name
-	if err = ns.Q.Update(row); err != nil {
+	if err = ns.q.Update(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return makeNode(row), nil
@@ -234,7 +229,7 @@ func (ns *NodesService) Remove(ctx context.Context, id string) error {
 
 	// TODO check absence of Services and Agents
 
-	err := ns.Q.Delete(&models.NodeRow{ID: id})
+	err := ns.q.Delete(&models.NodeRow{ID: id})
 	if err == reform.ErrNoRows {
 		return status.Errorf(codes.NotFound, "Node with ID %q not found.", id)
 	}

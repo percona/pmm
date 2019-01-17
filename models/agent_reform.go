@@ -27,7 +27,7 @@ func (v *agentRowTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *agentRowTableType) Columns() []string {
-	return []string{"id", "type", "runs_on_node_id", "disabled", "listen_port", "service_username", "service_password"}
+	return []string{"id", "type", "runs_on_node_id", "disabled", "version", "listen_port", "service_username", "service_password"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,20 +47,21 @@ func (v *agentRowTableType) PKColumnIndex() uint {
 
 // AgentRowTable represents agents view or table in SQL database.
 var AgentRowTable = &agentRowTableType{
-	s: parse.StructInfo{Type: "AgentRow", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "string", Column: "runs_on_node_id"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "AgentRow", SQLSchema: "", SQLName: "agents", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "AgentType", Column: "type"}, {Name: "RunsOnNodeID", Type: "string", Column: "runs_on_node_id"}, {Name: "Disabled", Type: "bool", Column: "disabled"}, {Name: "Version", Type: "*string", Column: "version"}, {Name: "ListenPort", Type: "*uint16", Column: "listen_port"}, {Name: "ServiceUsername", Type: "*string", Column: "service_username"}, {Name: "ServicePassword", Type: "*string", Column: "service_password"}}, PKFieldIndex: 0},
 	z: new(AgentRow).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s AgentRow) String() string {
-	res := make([]string, 7)
+	res := make([]string, 8)
 	res[0] = "ID: " + reform.Inspect(s.ID, true)
 	res[1] = "Type: " + reform.Inspect(s.Type, true)
 	res[2] = "RunsOnNodeID: " + reform.Inspect(s.RunsOnNodeID, true)
 	res[3] = "Disabled: " + reform.Inspect(s.Disabled, true)
-	res[4] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
-	res[5] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
-	res[6] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
+	res[4] = "Version: " + reform.Inspect(s.Version, true)
+	res[5] = "ListenPort: " + reform.Inspect(s.ListenPort, true)
+	res[6] = "ServiceUsername: " + reform.Inspect(s.ServiceUsername, true)
+	res[7] = "ServicePassword: " + reform.Inspect(s.ServicePassword, true)
 	return strings.Join(res, ", ")
 }
 
@@ -72,6 +73,7 @@ func (s *AgentRow) Values() []interface{} {
 		s.Type,
 		s.RunsOnNodeID,
 		s.Disabled,
+		s.Version,
 		s.ListenPort,
 		s.ServiceUsername,
 		s.ServicePassword,
@@ -86,6 +88,7 @@ func (s *AgentRow) Pointers() []interface{} {
 		&s.Type,
 		&s.RunsOnNodeID,
 		&s.Disabled,
+		&s.Version,
 		&s.ListenPort,
 		&s.ServiceUsername,
 		&s.ServicePassword,

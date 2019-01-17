@@ -17,64 +17,16 @@
 package handlers
 
 import (
-	"time"
-
-	"github.com/golang/protobuf/ptypes"
-	api "github.com/percona/pmm/api/agent"
-
 	"github.com/percona/pmm-managed/services/agents"
-	"github.com/percona/pmm-managed/utils/logger"
+	api "github.com/percona/pmm/api/agent"
 )
 
 type AgentServer struct {
+	Registry *agents.Registry
 }
 
 func (s *AgentServer) Connect(stream api.Agent_ConnectServer) error {
-	l := logger.Get(stream.Context())
-
-	md := api.GetAgentConnectMetadata(stream.Context())
-	l.Infof("Connected client: %+v.", md)
-
-	t := time.NewTicker(10 * time.Second)
-	defer t.Stop()
-	channel := agents.NewChannel(stream)
-	for {
-		select {
-		case <-stream.Context().Done():
-			return nil
-
-		// case exporter := <-s.Store.NewExporters():
-		// 	env := []string{
-		// 		`DATA_SOURCE_NAME="/"`,
-		// 	}
-		// 	_, err = conn.SendAndRecv(&agent.ServerMessage_State{
-		// 		State: &agent.SetStateRequest{
-		// 			AgentProcesses: []*agent.SetStateRequest_AgentProcess{{
-		// 				AgentId: exporter.Id,
-		// 				Type:    inventory.AgentType_MYSQLD_EXPORTER,
-		// 				Args:    nil,
-		// 				Env:     env,
-		// 				Configs: nil,
-		// 			}},
-		// 		},
-		// 	})
-		// 	if err != nil {
-		// 		return err
-		// 	}
-
-		case <-t.C:
-			start := time.Now()
-			agentMessage := channel.SendRequest(&api.ServerMessage_Ping{
-				Ping: &api.PingRequest{},
-			})
-			latency := time.Since(start) / 2
-			t, err := ptypes.Timestamp(agentMessage.(*api.AgentMessage_Ping).Ping.CurrentTime)
-			if err != nil {
-				return err
-			}
-			l.Debugf("Latency: %s. Time drift: %s.", latency, t.Sub(start.Add(latency)))
-		}
-	}
+	return s.Registry.Run(stream)
 }
 
 // check interfaces

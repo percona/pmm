@@ -31,7 +31,6 @@ import (
 	"os/signal"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/grpc-ecosystem/go-grpc-prometheus"
@@ -41,6 +40,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
@@ -50,6 +50,7 @@ import (
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/handlers"
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services/agents"
 	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/grafana"
 	"github.com/percona/pmm-managed/services/inventory"
@@ -306,21 +307,18 @@ func runGRPCServer(ctx context.Context, deps *grpcServerDependencies) {
 	})
 
 	// PMM 2.0 APIs
-	agent.RegisterAgentServer(gRPCServer, &handlers.AgentServer{})
+	agentsRegistry := agents.NewRegistry(deps.db)
+	agent.RegisterAgentServer(gRPCServer, &handlers.AgentServer{
+		Registry: agentsRegistry,
+	})
 	inventoryAPI.RegisterNodesServer(gRPCServer, &handlers.NodesServer{
-		Nodes: &inventory.NodesService{
-			Q: deps.db.Querier,
-		},
+		Nodes: inventory.NewNodesService(deps.db.Querier),
 	})
 	inventoryAPI.RegisterServicesServer(gRPCServer, &handlers.ServicesServer{
-		Services: &inventory.ServicesService{
-			Q: deps.db.Querier,
-		},
+		Services: inventory.NewServicesService(deps.db.Querier),
 	})
 	inventoryAPI.RegisterAgentsServer(gRPCServer, &handlers.AgentsServer{
-		Agents: &inventory.AgentsService{
-			Q: deps.db.Querier,
-		},
+		Agents: inventory.NewAgentsService(deps.db.Querier, agentsRegistry),
 	})
 
 	if *debugF {
@@ -534,11 +532,11 @@ func main() {
 
 	// handle termination signals
 	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
+	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
 	go func() {
 		s := <-signals
 		signal.Stop(signals)
-		l.Warnf("Got %v (%d) signal, shutting down...", s, s)
+		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
 		cancel()
 	}()
 
