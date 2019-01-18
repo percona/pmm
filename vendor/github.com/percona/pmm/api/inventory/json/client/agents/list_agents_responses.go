@@ -72,7 +72,13 @@ swagger:model ListAgentsBody
 */
 type ListAgentsBody struct {
 
-	// Return Agents only for that Service.
+	// Return only Agents running on that Node.
+	HostNodeID string `json:"host_node_id,omitempty"`
+
+	// Return only Agents that provide insights for that Node.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Return only Agents that provide insights for that Service.
 	ServiceID string `json:"service_id,omitempty"`
 }
 

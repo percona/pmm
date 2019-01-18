@@ -81,7 +81,6 @@ var defaultLogs = []Log{
 	{logsDataVolumeContainerDir + "pmm-manage.log", "pmm-manage", nil},
 	{logsDataVolumeContainerDir + "pmm-managed.log", "pmm-managed", nil},
 	{logsDataVolumeContainerDir + "prometheus.log", "prometheus", nil},
-	{logsDataVolumeContainerDir + "qan-api.log", "percona-qan-api", nil},
 	{logsRootDir + "supervisor/supervisord.log", "", nil},
 
 	// logs
@@ -97,7 +96,6 @@ var defaultLogs = []Log{
 	{"/etc/nginx/conf.d/pmm.conf", "", []string{"cat", ""}},
 	{"prometheus_targets.html", "", []string{"http", "http://localhost/prometheus/targets"}},
 	{"consul_nodes.json", "", []string{"consul"}},
-	{"qan-api_instances.json", "", []string{"http", "http://localhost/qan-api/instances"}},
 	{"managed_RDS-Aurora.json", "", []string{"rds"}},
 	{"pmm-version.txt", "", []string{"pmmVersion", ""}},
 }

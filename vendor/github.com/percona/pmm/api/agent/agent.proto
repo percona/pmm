@@ -68,17 +68,30 @@ message SetStateRequest {
   // AgentProcess describes desired configuration of a single agent.
   message AgentProcess {
     Type type = 1;
-    repeated string args = 2;
-    repeated string env = 3;
-    map<string, string> configs = 4;
+    string template_left_delim = 2;
+    string template_right_delim = 3;
+    repeated string args = 4;
+    repeated string env = 5;
+    map<string, string> text_files = 6;
   }
   map<string, AgentProcess> agent_processes = 1;
 }
 
 // SetStateResponse is an AgentMessage for SetStateRequest acceptance.
-message SetStateResponse {}
+message SetStateResponse {
+  // TODO
+  // Fatal errors:
+  //   - invalid template
+  //   - pmm-agent is shuting down
+  // Temporary errors:
+  //   - no free ports
+  // Send them there or via StateChangedRequest?
+
+}
 
 message AgentMessage {
+  // TODO https://jira.percona.com/browse/PMM-3449
+
   uint32 id = 1;
   oneof payload {
     // requests from agent
@@ -91,6 +104,8 @@ message AgentMessage {
 }
 
 message ServerMessage {
+  // TODO https://jira.percona.com/browse/PMM-3449
+
   uint32 id = 1;
   oneof payload {
     // responses from server

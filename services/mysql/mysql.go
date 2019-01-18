@@ -39,13 +39,11 @@ import (
 	"github.com/percona/pmm-managed/services"
 	"github.com/percona/pmm-managed/services/inventory"
 	"github.com/percona/pmm-managed/services/prometheus"
-	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/utils/logger"
 	"github.com/percona/pmm-managed/utils/ports"
 )
 
 const (
-	qanAgentPort     uint16 = 9000
 	defaultMySQLPort uint32 = 3306
 
 	// maximum time for connecting to the database and running all queries
@@ -61,7 +59,6 @@ type ServiceConfig struct {
 	Supervisor    services.Supervisor
 	DB            *reform.DB
 	PortsRegistry *ports.Registry
-	QAN           *qan.Service
 }
 
 // Service is responsible for interactions with AWS RDS.
@@ -323,46 +320,6 @@ func (svc *Service) mysqlExporterCfg(agent *models.MySQLdExporter, dsn string) *
 	}
 }
 
-func (svc *Service) addQanAgent(ctx context.Context, tx *reform.TX, service *models.MySQLService, node *models.RemoteNode, username, password string) error {
-	// Despite running a single qan-agent process on PMM Server, we use one database record per MySQL instance
-	// to store username/password and UUID.
-
-	// insert qan-agent agent and association
-	agent := &models.QanAgent{
-		ID:           inventory.MakeID(),
-		Type:         models.QanAgentAgentType,
-		RunsOnNodeID: svc.pmmServerNode.ID,
-
-		ServiceUsername: &username,
-		ServicePassword: &password,
-		ListenPort:      pointer.ToUint16(qanAgentPort),
-	}
-	var err error
-	if err = tx.Insert(agent); err != nil {
-		return errors.WithStack(err)
-	}
-	if err = tx.Insert(&models.AgentService{AgentID: agent.ID, ServiceID: service.ID}); err != nil {
-		return errors.WithStack(err)
-	}
-
-	// DSNs for mysqld_exporter and qan-agent are currently identical,
-	// so we do not check connection again
-
-	// start or reconfigure qan-agent
-	if svc.QAN != nil {
-		if err = svc.QAN.AddMySQL(ctx, node.Name, service, agent); err != nil {
-			return err
-		}
-
-		// re-save agent with set QANDBInstanceUUID
-		if err = tx.Save(agent); err != nil {
-			return errors.WithStack(err)
-		}
-	}
-
-	return nil
-}
-
 func (svc *Service) Add(ctx context.Context, name, address string, port uint32, username, password string) (string, error) {
 	address = strings.TrimSpace(address)
 	username = strings.TrimSpace(username)
@@ -420,9 +377,6 @@ func (svc *Service) Add(ctx context.Context, name, address string, port uint32, 
 		}
 
 		if err = svc.addMySQLdExporter(ctx, tx, service, username, password); err != nil {
-			return err
-		}
-		if err = svc.addQanAgent(ctx, tx, service, node, username, password); err != nil {
 			return err
 		}
 
@@ -500,17 +454,6 @@ func (svc *Service) Remove(ctx context.Context, id string) error {
 						return err
 					}
 				}
-
-			case models.QanAgentAgentType:
-				a := models.QanAgent{ID: agent.ID}
-				if err = tx.Reload(&a); err != nil {
-					return errors.WithStack(err)
-				}
-				if svc.QAN != nil {
-					if err = svc.QAN.RemoveMySQL(ctx, &a); err != nil {
-						return err
-					}
-				}
 			}
 		}
 
@@ -576,25 +519,6 @@ func (svc *Service) Restore(ctx context.Context, tx *reform.TX) error {
 					dsn := a.DSN(service)
 					cfg := svc.mysqlExporterCfg(a, dsn)
 					if err = svc.Supervisor.Start(ctx, cfg); err != nil {
-						return err
-					}
-				}
-
-			case models.QanAgentAgentType:
-				a := models.QanAgent{ID: agent.ID}
-				if err = tx.Reload(&a); err != nil {
-					return errors.WithStack(err)
-				}
-				if svc.QAN != nil {
-					name := models.NameForSupervisor(a.Type, *a.ListenPort)
-					err := svc.Supervisor.Status(ctx, name)
-					if err == nil {
-						if err = svc.Supervisor.Stop(ctx, name); err != nil {
-							return err
-						}
-					}
-
-					if err = svc.QAN.EnsureAgentRuns(ctx, &a); err != nil {
 						return err
 					}
 				}

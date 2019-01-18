@@ -19,11 +19,8 @@ package rds
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -31,7 +28,6 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
-	"github.com/percona/pmm/proto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -43,69 +39,12 @@ import (
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/mocks"
 	"github.com/percona/pmm-managed/services/prometheus"
-	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/utils/ports"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
-func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *mocks.Supervisor, *httptest.Server) {
+func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *mocks.Supervisor) {
 	uuid.SetRand(new(tests.IDReader))
-
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch r.URL.Path {
-		case "/instances/42":
-			switch r.Method {
-			case "GET":
-				var in *proto.Instance
-				w.WriteHeader(http.StatusOK)
-				t := r.URL.Query().Get("type")
-				switch t {
-				case "agent":
-					in = &proto.Instance{
-						Subsystem:  "agent",
-						UUID:       "42",
-						ParentUUID: "17",
-					}
-				case "mysql":
-					in = &proto.Instance{
-						Subsystem:  "mysql",
-						UUID:       "13",
-						ParentUUID: "17",
-					}
-				}
-				data, _ := json.Marshal(in)
-				w.Write(data)
-			default:
-				w.WriteHeader(600)
-			}
-		case "/instances":
-			switch r.Method {
-			case "POST":
-				w.Header().Set("Location", "13")
-				w.WriteHeader(http.StatusCreated)
-			default:
-				w.WriteHeader(600)
-			}
-		case "/instances/13":
-			switch r.Method {
-			case "DELETE":
-				w.WriteHeader(http.StatusNoContent)
-			default:
-				w.WriteHeader(600)
-			}
-		case "/agents/42/cmd":
-			switch r.Method {
-			case "PUT":
-				w.WriteHeader(http.StatusOK)
-			default:
-				w.WriteHeader(600)
-			}
-		default:
-			panic("unsupported path: " + r.URL.Path)
-		}
-	}))
-
-	require.NoError(t, os.Setenv("PMM_QAN_API_URL", ts.URL))
 
 	// We can't/shouldn't use /usr/local/percona/ (the default basedir), so use
 	// a tmpdir instead with roughly the same, fake structure.
@@ -120,15 +59,6 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 	os.MkdirAll(filepath.Join(rootDir, "etc"), 0777)
 	err = ioutil.WriteFile(rdsExporterConfigPath, []byte(`---`), 0666)
 	require.Nil(t, err)
-	createFakeBin(t, filepath.Join(rootDir, "bin/percona-qan-agent"))
-	createFakeBin(t, filepath.Join(rootDir, "bin/percona-qan-agent-installer"))
-	os.MkdirAll(filepath.Join(rootDir, "config"), 0777)
-	os.MkdirAll(filepath.Join(rootDir, "instance"), 0777)
-	err = ioutil.WriteFile(filepath.Join(rootDir, "config/agent.conf"), []byte(`{"UUID":"42","ApiHostname":"somehostname","ApiPath":"/qan-api","ServerUser":"pmm"}`), 0666)
-	require.Nil(t, err)
-	err = ioutil.WriteFile(filepath.Join(rootDir, "instance/13.json"), []byte(`{"UUID":"13"}`), 0666)
-	require.Nil(t, err)
-
 	ctx, p, before := prometheus.SetupTest(t)
 
 	sqlDB := tests.OpenTestDB(t)
@@ -136,13 +66,10 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 	portsRegistry := ports.NewRegistry(30000, 30999, nil)
 
 	supervisor := &mocks.Supervisor{}
-	qan, err := qan.NewService(ctx, rootDir, supervisor)
-	require.NoError(t, err)
 	svc, err := NewService(&ServiceConfig{
 		MySQLdExporterPath:    mySQLdExporterPath,
 		RDSExporterPath:       rdsExporterPath,
 		RDSExporterConfigPath: rdsExporterConfigPath,
-		QAN:                   qan,
 		Supervisor:            supervisor,
 
 		DB:            db,
@@ -150,13 +77,11 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 		PortsRegistry: portsRegistry,
 	})
 	require.NoError(t, err)
-	return ctx, svc, sqlDB, before, rootDir, supervisor, ts
+	return ctx, svc, sqlDB, before, rootDir, supervisor
 }
 
-func teardown(t *testing.T, svc *Service, sqlDB *sql.DB, before []byte, rootDir string, supervisor *mocks.Supervisor, ts *httptest.Server) {
+func teardown(t *testing.T, svc *Service, sqlDB *sql.DB, before []byte, rootDir string, supervisor *mocks.Supervisor) {
 	prometheus.TearDownTest(t, svc.Prometheus, before)
-
-	require.NoError(t, os.Unsetenv("PMM_QAN_API_URL"))
 
 	err := sqlDB.Close()
 	require.NoError(t, err)
@@ -164,15 +89,14 @@ func teardown(t *testing.T, svc *Service, sqlDB *sql.DB, before []byte, rootDir 
 		err := os.RemoveAll(rootDir)
 		assert.Nil(t, err)
 	}
-	ts.Close()
 	supervisor.AssertExpectations(t)
 }
 
 func TestDiscover(t *testing.T) {
 	t.Run("OK", func(t *testing.T) {
 		accessKey, secretKey := tests.GetAWSKeys(t)
-		ctx, svc, sqlDB, before, rootDir, supervisor, ts := setup(t)
-		defer teardown(t, svc, sqlDB, before, rootDir, supervisor, ts)
+		ctx, svc, sqlDB, before, rootDir, supervisor := setup(t)
+		defer teardown(t, svc, sqlDB, before, rootDir, supervisor)
 
 		actual, err := svc.Discover(ctx, accessKey, secretKey)
 		require.NoError(t, err)
@@ -236,8 +160,8 @@ func TestDiscover(t *testing.T) {
 
 	t.Run("WrongKeys", func(t *testing.T) {
 		accessKey, secretKey := "AKIAIOSFODNN7EXAMPLE", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-		ctx, svc, sqlDB, before, rootDir, supervisor, ts := setup(t)
-		defer teardown(t, svc, sqlDB, before, rootDir, supervisor, ts)
+		ctx, svc, sqlDB, before, rootDir, supervisor := setup(t)
+		defer teardown(t, svc, sqlDB, before, rootDir, supervisor)
 
 		res, err := svc.Discover(ctx, accessKey, secretKey)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `The security token included in the request is invalid.`), err)
@@ -247,8 +171,8 @@ func TestDiscover(t *testing.T) {
 
 func TestAddListRemove(t *testing.T) {
 	accessKey, secretKey := tests.GetAWSKeys(t)
-	ctx, svc, sqlDB, before, rootDir, supervisor, ts := setup(t)
-	defer teardown(t, svc, sqlDB, before, rootDir, supervisor, ts)
+	ctx, svc, sqlDB, before, rootDir, supervisor := setup(t)
+	defer teardown(t, svc, sqlDB, before, rootDir, supervisor)
 
 	actual, err := svc.List(ctx)
 	require.NoError(t, err)
@@ -262,7 +186,6 @@ func TestAddListRemove(t *testing.T) {
 
 	username, password := os.Getenv("AWS_RDS_USERNAME"), os.Getenv("AWS_RDS_PASSWORD")
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
-	supervisor.On("Status", mock.Anything, mock.Anything).Return(fmt.Errorf("not running"))
 	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil)
 	err = svc.Add(ctx, accessKey, secretKey, &InstanceID{"us-east-1", "rds-mysql57"}, username, password)
 	assert.NoError(t, err)
@@ -310,8 +233,8 @@ func TestAddListRemove(t *testing.T) {
 
 func TestRestore(t *testing.T) {
 	accessKey, secretKey := tests.GetAWSKeys(t)
-	ctx, svc, sqlDB, before, rootDir, supervisor, ts := setup(t)
-	defer teardown(t, svc, sqlDB, before, rootDir, supervisor, ts)
+	ctx, svc, sqlDB, before, rootDir, supervisor := setup(t)
+	defer teardown(t, svc, sqlDB, before, rootDir, supervisor)
 
 	// Fill some hidden dependencies.
 	actual, err := svc.List(ctx)
