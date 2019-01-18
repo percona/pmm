@@ -36,6 +36,14 @@ message RegisterResponse {
   string agent_id = 1;
 }
 
+// Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift.
+message Ping {}
+
+// Pong is an AgentMessage/ServerMessage with current time for measuring clock drift.
+message Pong {
+  google.protobuf.Timestamp current_time = 1;
+}
+
 // QANDataRequest is an AgentMessage for sending QAN data.
 message QANDataRequest {
   google.protobuf.Any data = 1; // agent.QANData
@@ -53,14 +61,6 @@ message StateChangedRequest {
 
 // StateChangedResponse is a ServerMessage for StateChangedRequest acceptance.
 message StateChangedResponse {}
-
-// PingRequest is a ServerMessage for checking connectivity, latency and clock drift.
-message PingRequest {}
-
-// PingResponse is an AgentMessage with current time for measuring clock drift.
-message PingResponse {
-  google.protobuf.Timestamp current_time = 1;
-}
 
 // SetStateRequest is a ServerMessage asking pmm-agent to run agents according to desired state.
 message SetStateRequest {
@@ -94,10 +94,11 @@ message AgentMessage {
   uint32 id = 1;
   oneof payload {
     // requests from agent
-    QANDataRequest qan_data = 2;
+    Ping ping = 2;
     StateChangedRequest state_changed = 3;
+    QANDataRequest qan_data = 4;
     // responses from agent
-    PingResponse ping = 8;
+    Pong pong = 8;
     SetStateResponse set_state = 9;
   }
 }
@@ -108,10 +109,11 @@ message ServerMessage {
   uint32 id = 1;
   oneof payload {
     // responses from server
-    QANDataResponse qan_data = 2;
+    Pong pong = 2;
     StateChangedResponse state_changed = 3;
+    QANDataResponse qan_data = 4;
     // requests from server
-    PingRequest ping = 8;
+    Ping ping = 8;
     SetStateRequest set_state = 9;
   }
 }
