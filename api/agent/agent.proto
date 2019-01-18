@@ -6,6 +6,7 @@ option go_package = "agent";
 
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
+import "inventory/host.proto";
 
 // Type represents Agent type.
 enum Type {
@@ -24,18 +25,16 @@ enum Status {
   DONE = 5;
 }
 
-//
-//message RegisterRequest {
-//  // FIXME We need node information there to create a new node or map new agent to the existing node.
-//  //       This is hard problem.
-//
-//  string hostname = 1;
-//}
-//
-//message RegisterResponse {
-//  string id = 1;
-//}
-//
+message RegisterRequest {
+  // TODO https://jira.percona.com/browse/PMM-3453
+
+  inventory.HostNodeInfo node = 1;
+  string hostname = 2;
+}
+
+message RegisterResponse {
+  string agent_id = 1;
+}
 
 // QANDataRequest is an AgentMessage for sending QAN data.
 message QANDataRequest {
@@ -99,7 +98,7 @@ message AgentMessage {
     StateChangedRequest state_changed = 3;
     // responses from agent
     PingResponse ping = 8;
-    SetStateResponse state = 9;
+    SetStateResponse set_state = 9;
   }
 }
 
@@ -113,17 +112,14 @@ message ServerMessage {
     StateChangedResponse state_changed = 3;
     // requests from server
     PingRequest ping = 8;
-    SetStateRequest state = 9;
+    SetStateRequest set_state = 9;
   }
 }
 
 // Agent service provides private methods for pmm-agent <-> pmm-managed interactions.
 service Agent {
-  //
-  // // Register adds pmm-agent to pmm-managed database and returns agent's ID.
-  // rpc Register(RegisterRequest) returns (RegisterResponse);
-  //
-
+  // Register TODO https://jira.percona.com/browse/PMM-3453
+  rpc Register(RegisterRequest) returns (RegisterResponse);
   // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
   rpc Connect(stream AgentMessage) returns (stream ServerMessage);
 }

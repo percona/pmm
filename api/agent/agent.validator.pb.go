@@ -9,12 +9,24 @@ import fmt "fmt"
 import math "math"
 import _ "github.com/golang/protobuf/ptypes/any"
 import _ "github.com/golang/protobuf/ptypes/timestamp"
+import _ "github.com/percona/pmm/api/inventory"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+func (this *RegisterRequest) Validate() error {
+	if this.Node != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Node); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Node", err)
+		}
+	}
+	return nil
+}
+func (this *RegisterResponse) Validate() error {
+	return nil
+}
 func (this *QANDataRequest) Validate() error {
 	if this.Data != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Data); err != nil {
@@ -76,10 +88,10 @@ func (this *AgentMessage) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetPayload().(*AgentMessage_State); ok {
-		if oneOfNester.State != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.State); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("State", err)
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_SetState); ok {
+		if oneOfNester.SetState != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.SetState); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("SetState", err)
 			}
 		}
 	}
@@ -107,10 +119,10 @@ func (this *ServerMessage) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetPayload().(*ServerMessage_State); ok {
-		if oneOfNester.State != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.State); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("State", err)
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_SetState); ok {
+		if oneOfNester.SetState != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.SetState); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("SetState", err)
 			}
 		}
 	}
