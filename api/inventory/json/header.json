@@ -3,5 +3,9 @@
   "info": {
     "title": "PMM Server Inventory API",
     "version": "version 0"
-  }
+  },
+  "schemes": [
+    "https",
+    "http"
+  ]
 }
