@@ -30,6 +30,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// assertStates checks expected statuses in the same order.
 func assertStates(t *testing.T, sa *process, expected ...agent.Status) {
 	t.Helper()
 

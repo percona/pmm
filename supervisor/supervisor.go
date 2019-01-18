@@ -214,6 +214,11 @@ func (s *Supervisor) start(agentID string, agentProcess *agent.SetStateRequest_A
 // _ as a first rune is kept for possible extensions
 var textFileRE = regexp.MustCompile(`^[A-Za-z][A-Za-z0-9_]*$`) //nolint:gochecknoglobals
 
+//nolint:golint
+const (
+	type_TEST_SLEEP agent.Type = 999
+)
+
 // processParams makes processParams from SetStateRequest parameters and other data.
 func (s *Supervisor) processParams(agentID string, agentProcess *agent.SetStateRequest_AgentProcess, port uint16) (*processParams, error) {
 	var processParams processParams
@@ -222,6 +227,8 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agent.SetStateR
 		processParams.path = s.paths.NodeExporter
 	case agent.Type_MYSQLD_EXPORTER:
 		processParams.path = s.paths.MySQLdExporter
+	case type_TEST_SLEEP:
+		processParams.path = "sleep"
 	default:
 		return nil, errors.Errorf("unhandled agent type %[1]s (%[1]d).", agentProcess.Type)
 	}
@@ -245,33 +252,36 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agent.SetStateR
 		"ListenPort": port,
 	}
 
-	dir := filepath.Join(s.paths.TempDir, fmt.Sprintf("%s-%s", strings.ToLower(agentProcess.Type.String()), agentID))
-	if err := os.RemoveAll(dir); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	if err := os.MkdirAll(dir, 0750); err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	textFiles := make(map[string]string, len(agentProcess.TextFiles)) // template name => full file path
-	for name, text := range agentProcess.TextFiles {
-		// avoid /, .., ., \, and other special symbols
-		if !textFileRE.MatchString(name) {
-			return nil, errors.Errorf("invalid text file name %q", name)
-		}
-
-		b, err := renderTemplate(name, text, templateParams)
-		if err != nil {
-			return nil, err
-		}
-
-		path := filepath.Join(dir, name)
-		if err = ioutil.WriteFile(path, b, 0640); err != nil {
+	// render files only if they are present to avoid creating temporary directory for every agent
+	if len(agentProcess.TextFiles) > 0 {
+		dir := filepath.Join(s.paths.TempDir, fmt.Sprintf("%s-%s", strings.ToLower(agentProcess.Type.String()), agentID))
+		if err := os.RemoveAll(dir); err != nil {
 			return nil, errors.WithStack(err)
 		}
-		textFiles[name] = path
+		if err := os.MkdirAll(dir, 0750); err != nil {
+			return nil, errors.WithStack(err)
+		}
+
+		textFiles := make(map[string]string, len(agentProcess.TextFiles)) // template name => full file path
+		for name, text := range agentProcess.TextFiles {
+			// avoid /, .., ., \, and other special symbols
+			if !textFileRE.MatchString(name) {
+				return nil, errors.Errorf("invalid text file name %q", name)
+			}
+
+			b, err := renderTemplate(name, text, templateParams)
+			if err != nil {
+				return nil, err
+			}
+
+			path := filepath.Join(dir, name)
+			if err = ioutil.WriteFile(path, b, 0640); err != nil {
+				return nil, errors.WithStack(err)
+			}
+			textFiles[name] = path
+		}
+		templateParams["TextFiles"] = textFiles
 	}
-	templateParams["TextFiles"] = textFiles
 
 	processParams.args = make([]string, len(agentProcess.Args))
 	for i, e := range agentProcess.Args {

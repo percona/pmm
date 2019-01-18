@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"testing"
 
 	"github.com/percona/pmm/api/agent"
@@ -30,10 +31,70 @@ import (
 	"github.com/percona/pmm-agent/config"
 )
 
+// assertChanges checks expected changes in any order.
+func assertChanges(t *testing.T, s *Supervisor, expected ...agent.StateChangedRequest) {
+	t.Helper()
+
+	actual := make([]agent.StateChangedRequest, len(expected))
+	for i := range expected {
+		actual[i] = <-s.Changes()
+	}
+
+	sort.Slice(expected, func(i, j int) bool { return expected[i].String() < expected[j].String() })
+	sort.Slice(actual, func(i, j int) bool { return actual[i].String() < actual[j].String() })
+	assert.Equal(t, expected, actual)
+}
+
+func TestSupervisor(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	s := NewSupervisor(ctx, nil, &config.Ports{Min: 10000, Max: 20000})
+
+	t.Run("Start1", func(t *testing.T) {
+		s.SetState(map[string]*agent.SetStateRequest_AgentProcess{
+			"sleep1": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+		})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_STARTING, ListenPort: 10000})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_RUNNING, ListenPort: 10000})
+	})
+
+	t.Run("Restart1Start2", func(t *testing.T) {
+		s.SetState(map[string]*agent.SetStateRequest_AgentProcess{
+			"sleep1": {Type: type_TEST_SLEEP, Args: []string{"20"}},
+			"sleep2": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+		})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_STOPPING, ListenPort: 10000})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_DONE, ListenPort: 10000})
+
+		// the order of those two is not defined
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_STARTING, ListenPort: 10000},
+			agent.StateChangedRequest{AgentId: "sleep2", Status: agent.Status_STARTING, ListenPort: 10001})
+
+		// the order of those two is not defined
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_RUNNING, ListenPort: 10000},
+			agent.StateChangedRequest{AgentId: "sleep2", Status: agent.Status_RUNNING, ListenPort: 10001},
+		)
+	})
+
+	t.Run("Stop1", func(t *testing.T) {
+		s.SetState(map[string]*agent.SetStateRequest_AgentProcess{
+			"sleep2": {Type: type_TEST_SLEEP, Args: []string{"10"}},
+		})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_STOPPING, ListenPort: 10000})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_DONE, ListenPort: 10000})
+	})
+
+	t.Run("Exit", func(t *testing.T) {
+		cancel()
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep2", Status: agent.Status_STOPPING, ListenPort: 10001})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep2", Status: agent.Status_DONE, ListenPort: 10001})
+		assertChanges(t, s, agent.StateChangedRequest{Status: agent.Status_STATUS_INVALID})
+	})
+}
+
 func TestSupervisorFilter(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	s := NewSupervisor(ctx, nil, new(config.Ports))
+	s := NewSupervisor(ctx, nil, &config.Ports{Min: 10000, Max: 20000})
 
 	t.Run("Normal", func(t *testing.T) {
 		s.agents = map[string]*agentInfo{
@@ -154,5 +215,19 @@ func TestSupervisorProcessParams(t *testing.T) {
 		_, err = s.processParams("ID", process, 0)
 		require.Error(t, err)
 		assert.Regexp(t, `map has no entry for key "baz"`, err.Error())
+	})
+
+	t.Run("InsecureName", func(t *testing.T) {
+		t.Parallel()
+		s, teardown := setup()
+		defer teardown()
+
+		process := &agent.SetStateRequest_AgentProcess{
+			Type:      agent.Type_MYSQLD_EXPORTER,
+			TextFiles: map[string]string{"../bar": "hax0r"},
+		}
+		_, err := s.processParams("ID", process, 0)
+		require.Error(t, err)
+		assert.Regexp(t, `invalid text file name "../bar"`, err.Error())
 	})
 }
