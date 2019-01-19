@@ -15,6 +15,10 @@ message GenericNode {
   string name = 2;
   // Hostname. Is not unique. May be empty.
   string hostname = 3;
+  // Linux distribution. May be empty.
+  string distro = 4;
+  // Linux distribution version. May be empty.
+  string distro_version = 5;
 }
 
 // RemoteNode represents a generic remote Node.
@@ -24,7 +28,12 @@ message RemoteNode {
   string id = 1;
   // Unique user-defined Node name.
   string name = 2;
-  reserved 3; // hostname
+  // Hostname. Is not unique. May be empty.
+  string hostname = 3;
+  // Linux distribution. May be empty.
+  string distro = 4;
+  // Linux distribution version. May be empty.
+  string distro_version = 5;
 }
 
 // AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.

@@ -956,6 +956,14 @@
                   "description": "GenericNode represents Node without more specialized type.",
                   "type": "object",
                   "properties": {
+                    "distro": {
+                      "description": "Linux distribution. May be empty.",
+                      "type": "string"
+                    },
+                    "distro_version": {
+                      "description": "Linux distribution version. May be empty.",
+                      "type": "string"
+                    },
                     "hostname": {
                       "description": "Hostname. Is not unique. May be empty.",
                       "type": "string"
@@ -1013,6 +1021,18 @@
                   "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
                   "type": "object",
                   "properties": {
+                    "distro": {
+                      "description": "Linux distribution. May be empty.",
+                      "type": "string"
+                    },
+                    "distro_version": {
+                      "description": "Linux distribution version. May be empty.",
+                      "type": "string"
+                    },
+                    "hostname": {
+                      "description": "Hostname. Is not unique. May be empty.",
+                      "type": "string"
+                    },
                     "id": {
                       "description": "Unique Node identifier.",
                       "type": "string"
@@ -1127,6 +1147,14 @@
                   "description": "GenericNode represents Node without more specialized type.",
                   "type": "object",
                   "properties": {
+                    "distro": {
+                      "description": "Linux distribution. May be empty.",
+                      "type": "string"
+                    },
+                    "distro_version": {
+                      "description": "Linux distribution version. May be empty.",
+                      "type": "string"
+                    },
                     "hostname": {
                       "description": "Hostname. Is not unique. May be empty.",
                       "type": "string"
@@ -1184,6 +1212,18 @@
                   "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
                   "type": "object",
                   "properties": {
+                    "distro": {
+                      "description": "Linux distribution. May be empty.",
+                      "type": "string"
+                    },
+                    "distro_version": {
+                      "description": "Linux distribution version. May be empty.",
+                      "type": "string"
+                    },
+                    "hostname": {
+                      "description": "Hostname. Is not unique. May be empty.",
+                      "type": "string"
+                    },
                     "id": {
                       "description": "Unique Node identifier.",
                       "type": "string"
@@ -1255,6 +1295,14 @@
                   "description": "GenericNode represents Node without more specialized type.",
                   "type": "object",
                   "properties": {
+                    "distro": {
+                      "description": "Linux distribution. May be empty.",
+                      "type": "string"
+                    },
+                    "distro_version": {
+                      "description": "Linux distribution version. May be empty.",
+                      "type": "string"
+                    },
                     "hostname": {
                       "description": "Hostname. Is not unique. May be empty.",
                       "type": "string"
@@ -1273,6 +1321,18 @@
                   "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
                   "type": "object",
                   "properties": {
+                    "distro": {
+                      "description": "Linux distribution. May be empty.",
+                      "type": "string"
+                    },
+                    "distro_version": {
+                      "description": "Linux distribution version. May be empty.",
+                      "type": "string"
+                    },
+                    "hostname": {
+                      "description": "Hostname. Is not unique. May be empty.",
+                      "type": "string"
+                    },
                     "id": {
                       "description": "Unique Node identifier.",
                       "type": "string"
@@ -1343,6 +1403,14 @@
                     "description": "GenericNode represents Node without more specialized type.",
                     "type": "object",
                     "properties": {
+                      "distro": {
+                        "description": "Linux distribution. May be empty.",
+                        "type": "string"
+                      },
+                      "distro_version": {
+                        "description": "Linux distribution version. May be empty.",
+                        "type": "string"
+                      },
                       "hostname": {
                         "description": "Hostname. Is not unique. May be empty.",
                         "type": "string"
@@ -1364,6 +1432,18 @@
                     "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
                     "type": "object",
                     "properties": {
+                      "distro": {
+                        "description": "Linux distribution. May be empty.",
+                        "type": "string"
+                      },
+                      "distro_version": {
+                        "description": "Linux distribution version. May be empty.",
+                        "type": "string"
+                      },
+                      "hostname": {
+                        "description": "Hostname. Is not unique. May be empty.",
+                        "type": "string"
+                      },
                       "id": {
                         "description": "Unique Node identifier.",
                         "type": "string"

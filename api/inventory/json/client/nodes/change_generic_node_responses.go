@@ -165,6 +165,12 @@ swagger:model ChangeGenericNodeOKBodyGeneric
 */
 type ChangeGenericNodeOKBodyGeneric struct {
 
+	// Linux distribution. May be empty.
+	Distro string `json:"distro,omitempty"`
+
+	// Linux distribution version. May be empty.
+	DistroVersion string `json:"distro_version,omitempty"`
+
 	// Hostname. Is not unique. May be empty.
 	Hostname string `json:"hostname,omitempty"`
 

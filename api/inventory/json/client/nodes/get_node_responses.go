@@ -253,6 +253,12 @@ swagger:model GetNodeOKBodyGeneric
 */
 type GetNodeOKBodyGeneric struct {
 
+	// Linux distribution. May be empty.
+	Distro string `json:"distro,omitempty"`
+
+	// Linux distribution version. May be empty.
+	DistroVersion string `json:"distro_version,omitempty"`
+
 	// Hostname. Is not unique. May be empty.
 	Hostname string `json:"hostname,omitempty"`
 
@@ -291,6 +297,15 @@ func (o *GetNodeOKBodyGeneric) UnmarshalBinary(b []byte) error {
 swagger:model GetNodeOKBodyRemote
 */
 type GetNodeOKBodyRemote struct {
+
+	// Linux distribution. May be empty.
+	Distro string `json:"distro,omitempty"`
+
+	// Linux distribution version. May be empty.
+	DistroVersion string `json:"distro_version,omitempty"`
+
+	// Hostname. Is not unique. May be empty.
+	Hostname string `json:"hostname,omitempty"`
 
 	// Unique Node identifier.
 	ID string `json:"id,omitempty"`

@@ -113,6 +113,12 @@ swagger:model GenericItems0
 */
 type GenericItems0 struct {
 
+	// Linux distribution. May be empty.
+	Distro string `json:"distro,omitempty"`
+
+	// Linux distribution version. May be empty.
+	DistroVersion string `json:"distro_version,omitempty"`
+
 	// Hostname. Is not unique. May be empty.
 	Hostname string `json:"hostname,omitempty"`
 
@@ -281,6 +287,15 @@ func (o *ListNodesOKBody) UnmarshalBinary(b []byte) error {
 swagger:model RemoteItems0
 */
 type RemoteItems0 struct {
+
+	// Linux distribution. May be empty.
+	Distro string `json:"distro,omitempty"`
+
+	// Linux distribution version. May be empty.
+	DistroVersion string `json:"distro_version,omitempty"`
+
+	// Hostname. Is not unique. May be empty.
+	Hostname string `json:"hostname,omitempty"`
 
 	// Unique Node identifier.
 	ID string `json:"id,omitempty"`
