@@ -236,17 +236,11 @@ swagger:model GetServiceOKBodyMysqlHostNodeInfo
 */
 type GetServiceOKBodyMysqlHostNodeInfo struct {
 
-	// Docker container ID.
-	ContainerID string `json:"container_id,omitempty"`
+	// Linux distribution used if any.
+	Distro string `json:"distro,omitempty"`
 
-	// Docker container name.
-	ContainerName string `json:"container_name,omitempty"`
-
-	// Kubernetes pod name.
-	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
-
-	// Kubernetes pod UID.
-	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
+	// Linux distribution version used if any.
+	DistroVersion string `json:"distro_version,omitempty"`
 
 	// Node identifier where Service or Agent runs.
 	NodeID string `json:"node_id,omitempty"`

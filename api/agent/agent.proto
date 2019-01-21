@@ -29,10 +29,6 @@ message RegisterRequest {
   // TODO https://jira.percona.com/browse/PMM-3453
 
   inventory.HostNodeInfo node = 1;
-  // part of GenericNode
-  string hostname = 3;
-  string distro = 4;
-  string distro_version = 5;
 }
 
 message RegisterResponse {

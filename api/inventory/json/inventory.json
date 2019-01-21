@@ -39,20 +39,12 @@
                   "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                   "type": "object",
                   "properties": {
-                    "container_id": {
-                      "description": "Docker container ID.",
+                    "distro": {
+                      "description": "Linux distribution used if any.",
                       "type": "string"
                     },
-                    "container_name": {
-                      "description": "Docker container name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_name": {
-                      "description": "Kubernetes pod name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_uid": {
-                      "description": "Kubernetes pod UID.",
+                    "distro_version": {
+                      "description": "Linux distribution version used if any.",
                       "type": "string"
                     },
                     "node_id": {
@@ -96,20 +88,12 @@
                       "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                       "type": "object",
                       "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
+                        "distro": {
+                          "description": "Linux distribution used if any.",
                           "type": "string"
                         },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
+                        "distro_version": {
+                          "description": "Linux distribution version used if any.",
                           "type": "string"
                         },
                         "node_id": {
@@ -172,20 +156,12 @@
                   "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                   "type": "object",
                   "properties": {
-                    "container_id": {
-                      "description": "Docker container ID.",
+                    "distro": {
+                      "description": "Linux distribution used if any.",
                       "type": "string"
                     },
-                    "container_name": {
-                      "description": "Docker container name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_name": {
-                      "description": "Kubernetes pod name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_uid": {
-                      "description": "Kubernetes pod UID.",
+                    "distro_version": {
+                      "description": "Linux distribution version used if any.",
                       "type": "string"
                     },
                     "node_id": {
@@ -217,20 +193,12 @@
                       "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                       "type": "object",
                       "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
+                        "distro": {
+                          "description": "Linux distribution used if any.",
                           "type": "string"
                         },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
+                        "distro_version": {
+                          "description": "Linux distribution version used if any.",
                           "type": "string"
                         },
                         "node_id": {
@@ -280,20 +248,12 @@
                   "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                   "type": "object",
                   "properties": {
-                    "container_id": {
-                      "description": "Docker container ID.",
+                    "distro": {
+                      "description": "Linux distribution used if any.",
                       "type": "string"
                     },
-                    "container_name": {
-                      "description": "Docker container name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_name": {
-                      "description": "Kubernetes pod name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_uid": {
-                      "description": "Kubernetes pod UID.",
+                    "distro_version": {
+                      "description": "Linux distribution version used if any.",
                       "type": "string"
                     },
                     "node_id": {
@@ -320,20 +280,12 @@
                       "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                       "type": "object",
                       "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
+                        "distro": {
+                          "description": "Linux distribution used if any.",
                           "type": "string"
                         },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
+                        "distro_version": {
+                          "description": "Linux distribution version used if any.",
                           "type": "string"
                         },
                         "node_id": {
@@ -467,20 +419,12 @@
                       "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                       "type": "object",
                       "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
+                        "distro": {
+                          "description": "Linux distribution used if any.",
                           "type": "string"
                         },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
+                        "distro_version": {
+                          "description": "Linux distribution version used if any.",
                           "type": "string"
                         },
                         "node_id": {
@@ -526,20 +470,12 @@
                       "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                       "type": "object",
                       "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
+                        "distro": {
+                          "description": "Linux distribution used if any.",
                           "type": "string"
                         },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
+                        "distro_version": {
+                          "description": "Linux distribution version used if any.",
                           "type": "string"
                         },
                         "node_id": {
@@ -572,20 +508,12 @@
                       "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                       "type": "object",
                       "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
+                        "distro": {
+                          "description": "Linux distribution used if any.",
                           "type": "string"
                         },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
+                        "distro_version": {
+                          "description": "Linux distribution version used if any.",
                           "type": "string"
                         },
                         "node_id": {
@@ -663,20 +591,12 @@
                         "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                         "type": "object",
                         "properties": {
-                          "container_id": {
-                            "description": "Docker container ID.",
+                          "distro": {
+                            "description": "Linux distribution used if any.",
                             "type": "string"
                           },
-                          "container_name": {
-                            "description": "Docker container name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_name": {
-                            "description": "Kubernetes pod name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_uid": {
-                            "description": "Kubernetes pod UID.",
+                          "distro_version": {
+                            "description": "Linux distribution version used if any.",
                             "type": "string"
                           },
                           "node_id": {
@@ -725,20 +645,12 @@
                         "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                         "type": "object",
                         "properties": {
-                          "container_id": {
-                            "description": "Docker container ID.",
+                          "distro": {
+                            "description": "Linux distribution used if any.",
                             "type": "string"
                           },
-                          "container_name": {
-                            "description": "Docker container name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_name": {
-                            "description": "Kubernetes pod name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_uid": {
-                            "description": "Kubernetes pod UID.",
+                          "distro_version": {
+                            "description": "Linux distribution version used if any.",
                             "type": "string"
                           },
                           "node_id": {
@@ -774,20 +686,12 @@
                         "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                         "type": "object",
                         "properties": {
-                          "container_id": {
-                            "description": "Docker container ID.",
+                          "distro": {
+                            "description": "Linux distribution used if any.",
                             "type": "string"
                           },
-                          "container_name": {
-                            "description": "Docker container name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_name": {
-                            "description": "Kubernetes pod name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_uid": {
-                            "description": "Kubernetes pod UID.",
+                          "distro_version": {
+                            "description": "Linux distribution version used if any.",
                             "type": "string"
                           },
                           "node_id": {
@@ -1517,20 +1421,12 @@
                   "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                   "type": "object",
                   "properties": {
-                    "container_id": {
-                      "description": "Docker container ID.",
+                    "distro": {
+                      "description": "Linux distribution used if any.",
                       "type": "string"
                     },
-                    "container_name": {
-                      "description": "Docker container name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_name": {
-                      "description": "Kubernetes pod name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_uid": {
-                      "description": "Kubernetes pod UID.",
+                    "distro_version": {
+                      "description": "Linux distribution version used if any.",
                       "type": "string"
                     },
                     "node_id": {
@@ -1574,20 +1470,12 @@
                       "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                       "type": "object",
                       "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
+                        "distro": {
+                          "description": "Linux distribution used if any.",
                           "type": "string"
                         },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
+                        "distro_version": {
+                          "description": "Linux distribution version used if any.",
                           "type": "string"
                         },
                         "node_id": {
@@ -1666,20 +1554,12 @@
                       "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                       "type": "object",
                       "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
+                        "distro": {
+                          "description": "Linux distribution used if any.",
                           "type": "string"
                         },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
+                        "distro_version": {
+                          "description": "Linux distribution version used if any.",
                           "type": "string"
                         },
                         "node_id": {
@@ -1754,20 +1634,12 @@
                       "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                       "type": "object",
                       "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
+                        "distro": {
+                          "description": "Linux distribution used if any.",
                           "type": "string"
                         },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
+                        "distro_version": {
+                          "description": "Linux distribution version used if any.",
                           "type": "string"
                         },
                         "node_id": {
@@ -1844,20 +1716,12 @@
                         "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
                         "type": "object",
                         "properties": {
-                          "container_id": {
-                            "description": "Docker container ID.",
+                          "distro": {
+                            "description": "Linux distribution used if any.",
                             "type": "string"
                           },
-                          "container_name": {
-                            "description": "Docker container name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_name": {
-                            "description": "Kubernetes pod name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_uid": {
-                            "description": "Kubernetes pod UID.",
+                          "distro_version": {
+                            "description": "Linux distribution version used if any.",
                             "type": "string"
                           },
                           "node_id": {

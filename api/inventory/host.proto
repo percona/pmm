@@ -14,12 +14,18 @@ message HostNodeInfo {
       string_not_empty: true
     }
   ];
-  // Docker container ID.
-  string container_id = 2;
-  // Docker container name.
-  string container_name = 3;
-  // Kubernetes pod UID.
-  string kubernetes_pod_uid = 4;
-  // Kubernetes pod name.
-  string kubernetes_pod_name = 5;
+  // Linux distribution used if any.
+  string distro = 2;
+  // Linux distribution version used if any.
+  string distro_version = 3;
+  // TODO
+  // // Docker container ID.
+  // string container_id = 4;
+  // // Docker container name.
+  // string container_name = 5;
+  // // Kubernetes pod UID.
+  // string kubernetes_pod_uid = 6;
+  // // Kubernetes pod name.
+  // string kubernetes_pod_name = 7;
+
 }
