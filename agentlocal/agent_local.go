@@ -19,7 +19,7 @@ package agentlocal
 import (
 	"context"
 
-	api "github.com/percona/pmm/api/agentlocal"
+	api "github.com/percona/pmm/api/agent_local"
 )
 
 type AgentLocalServer struct {

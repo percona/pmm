@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  branch = "develop"
+  digest = "1:15310eb747a3957085a05b6f4d446eb93af24db2b7e7b8ec24cbcff65d878e6a"
+  name = "github.com/AlekSi/pointer"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "d2bd5b449f293d7e250dc1ce5398845e0c7928e0"
+
+[[projects]]
   branch = "master"
   digest = "1:f3793f8a708522400cef1dba23385e901aede5519f68971fd69938ef330b07a1"
   name = "github.com/alecthomas/template"
@@ -35,6 +43,17 @@
   pruneopts = "NUT"
   revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
   version = "v1.1.1"
+
+[[projects]]
+  digest = "1:2f8f8ed66498a932736a00c85b0ac733c373609289ddef13d29e3ed0c86dc09e"
+  name = "github.com/gogo/protobuf"
+  packages = [
+    "proto",
+    "protoc-gen-gogo/descriptor",
+  ]
+  pruneopts = "NUT"
+  revision = "4cbf7e384e768b4e01799441fdf2a706a5635ae7"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:9b117ac202b9de210a7093bca0c29d0d2424e4c9235c9e025ae0d6ef6b121c82"
@@ -83,6 +102,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:90884d9c1b4d6a36068e5e665f06dd9ab7f18d6ef193eadbec9a1423554bb843"
+  name = "github.com/mwitkow/go-proto-validators"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "0950a79900071e9f3f5979b78078c599376422fd"
+
+[[projects]]
+  branch = "master"
   digest = "1:c706e6cf1803e8cbce88ad1159c8750ec0dacbeac7c3906e615af69c0c1d6281"
   name = "github.com/percona/exporter_shared"
   packages = ["helpers"]
@@ -91,14 +118,14 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:65cda07cb1304232142841a49d568d317d32f82b5930980fc305e3d345df195c"
+  digest = "1:d71f353a9c4cb6064d5d6d05d512f5906668b6f0e7ab83a9ec70025dce760d6c"
   name = "github.com/percona/pmm"
   packages = [
     "api/agent",
-    "api/agentlocal",
+    "api/agent_local",
   ]
   pruneopts = "NUT"
-  revision = "79c4985408f25b64cf4452dde7c91601fd5c8042"
+  revision = "8e39128e541c1ab1385d124537e2ff6107a32807"
 
 [[projects]]
   digest = "1:5cf3f025cbee5951a4ee961de067c8a89fc95a5adabead774f82822efabab121"
@@ -238,15 +265,14 @@
   version = "v0.3.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:ec1919b8b80839559effbe3eabcebf92238d12d3dd9182e51deb5da3ed12e5e9"
+  digest = "1:6c6b70cf6d2788d9f7dc6589bc88e0e1c7edc40612294431ebb7d09536d12240"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
     "googleapis/rpc/status",
   ]
   pruneopts = "NUT"
-  revision = "c830210a61dfaa790e1920f8d0470fc27bc2efbe"
+  revision = "383e8b2c3b9e36c4076b235b32537292176bae20"
 
 [[projects]]
   digest = "1:2f91d3e11b666570f8c923912f1cc8cf2f0c6b7371b2687ee67a8f73f08c6272"
@@ -295,15 +321,18 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/AlekSi/pointer",
+    "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/ptypes",
     "github.com/percona/exporter_shared/helpers",
     "github.com/percona/pmm/api/agent",
-    "github.com/percona/pmm/api/agentlocal",
+    "github.com/percona/pmm/api/agent_local",
     "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
+    "golang.org/x/sys/unix",
     "google.golang.org/grpc",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/credentials",

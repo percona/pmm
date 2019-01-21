@@ -19,13 +19,16 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"net"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agent"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
@@ -52,7 +55,7 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 
 	l.Info("Establishing two-way communication channel ...")
 	ctx = agent.AddAgentConnectMetadata(ctx, &agent.AgentConnectMetadata{
-		UUID:    cfg.UUID,
+		ID:      cfg.ID,
 		Version: Version,
 	})
 	stream, err := client.Connect(ctx)
@@ -63,6 +66,13 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 
 	channel := server.NewChannel(stream)
 	prometheus.MustRegister(channel)
+
+	svr := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports)
+	go func() {
+		for status := range svr.Changes() {
+			l.Debugf("Agent %s changed state to %s", status.AgentId, status.Status)
+		}
+	}()
 
 	for serverMessage := range channel.Requests() {
 		var agentMessage *agent.AgentMessage
@@ -78,17 +88,7 @@ func workLoop(ctx context.Context, cfg *config.Config, client agent.AgentClient)
 			}
 
 		case *agent.ServerMessage_State:
-			for _, p := range payload.State.AgentProcesses {
-				switch p.Type {
-				case agent.Type_MYSQLD_EXPORTER:
-					if err := supervisor.StartMySQLdExporter(p.Args, p.Env); err != nil {
-						l.Error(err)
-					}
-				default:
-					l.Warnf("Got unhandled agent process type %s (%d), ignoring.", p.Type, p.Type)
-				}
-				// l.Infof("Starting mysqld_exporter on 127.0.0.1:%d ...", exporter.ListenPort)
-			}
+			svr.SetState(payload.State.AgentProcesses)
 
 			agentMessage = &agent.AgentMessage{
 				Id: serverMessage.Id,
@@ -112,6 +112,7 @@ func main() {
 	app := config.Application(&cfg, Version)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
+	cfg.Paths.Lookup()
 	logrus.Infof("Loaded configuration: %+v.", cfg)
 
 	if cfg.Debug {
@@ -122,8 +123,17 @@ func main() {
 
 	_ = agentlocal.AgentLocalServer{}
 
-	// TODO add signal handling, etc
-	ctx := context.TODO()
+	ctx, cancel := context.WithCancel(context.Background())
+
+	// handle termination signals
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
+	go func() {
+		s := <-signals
+		signal.Stop(signals)
+		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
+		cancel()
+	}()
 
 	if cfg.Address == "" {
 		logrus.Error("PMM Server address is not provided, halting.")
@@ -131,17 +141,17 @@ func main() {
 		return
 	}
 
+	host, _, _ := net.SplitHostPort(cfg.Address)
+	tlsConfig := &tls.Config{
+		ServerName:         host,
+		InsecureSkipVerify: cfg.InsecureTLS, //nolint:gosec
+	}
 	opts := []grpc.DialOption{
 		grpc.WithBlock(),
 		grpc.WithWaitForHandshake(),
 		grpc.WithBackoffMaxDelay(backoffMaxDelay),
 		grpc.WithUserAgent("pmm-agent/" + Version),
-	}
-	if cfg.WithoutNginx {
-		opts = append(opts, grpc.WithInsecure())
-	} else {
-		creds := credentials.NewTLS(&tls.Config{})
-		opts = append(opts, grpc.WithTransportCredentials(creds))
+		grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
 	}
 
 	logrus.Infof("Connecting to %s ...", cfg.Address)
