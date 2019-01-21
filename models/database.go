@@ -91,7 +91,6 @@ var databaseSchema = [][]string{
 			service_username VARCHAR(255),
 			service_password VARCHAR(255),
 
-			qan_db_instance_uuid VARCHAR(255),
 			mysql_disable_tablestats TINYINT(1),
 
 			PRIMARY KEY (id),

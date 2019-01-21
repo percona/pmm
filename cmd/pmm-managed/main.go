@@ -58,7 +58,6 @@ import (
 	"github.com/percona/pmm-managed/services/mysql"
 	"github.com/percona/pmm-managed/services/postgresql"
 	"github.com/percona/pmm-managed/services/prometheus"
-	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/services/rds"
 	"github.com/percona/pmm-managed/services/remote"
 	"github.com/percona/pmm-managed/services/supervisor"
@@ -99,7 +98,6 @@ var (
 	agentPostgresExporterF  = flag.String("agent-postgres-exporter", "/usr/local/percona/pmm-client/postgres_exporter", "postgres_exporter path")
 	agentRDSExporterF       = flag.String("agent-rds-exporter", "/usr/sbin/rds_exporter", "rds_exporter path")
 	agentRDSExporterConfigF = flag.String("agent-rds-exporter-config", "/etc/percona-rds-exporter.yml", "rds_exporter configuration file path")
-	agentQANBaseF           = flag.String("agent-qan-base", "/usr/local/percona/qan-agent", "qan-agent installation base path")
 
 	debugF = flag.Bool("debug", false, "Enable debug logging")
 	traceF = flag.Bool("trace", false, "Enable trace logging")
@@ -164,7 +162,6 @@ type serviceDependencies struct {
 	supervisor    *supervisor.Supervisor
 	db            *reform.DB
 	portsRegistry *ports.Registry
-	qan           *qan.Service
 }
 
 func makeRDSService(ctx context.Context, deps *serviceDependencies) (*rds.Service, error) {
@@ -177,7 +174,6 @@ func makeRDSService(ctx context.Context, deps *serviceDependencies) (*rds.Servic
 		Supervisor:    deps.supervisor,
 		DB:            deps.db,
 		PortsRegistry: deps.portsRegistry,
-		QAN:           deps.qan,
 	}
 	rdsService, err := rds.NewService(&rdsConfig)
 	if err != nil {
@@ -208,7 +204,6 @@ func makeMySQLService(ctx context.Context, deps *serviceDependencies) (*mysql.Se
 		Supervisor:    deps.supervisor,
 		DB:            deps.db,
 		PortsRegistry: deps.portsRegistry,
-		QAN:           deps.qan,
 	}
 	mysqlService, err := mysql.NewService(&serviceConfig)
 	if err != nil {
@@ -555,11 +550,6 @@ func main() {
 
 	supervisor := supervisor.New(l)
 
-	qan, err := qan.NewService(ctx, *agentQANBaseF, supervisor)
-	if err != nil {
-		l.Panicf("QAN service problem: %+v", err)
-	}
-
 	sqlDB, err := models.OpenDB(*dbNameF, *dbUsernameF, *dbPasswordF, l.Debugf)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
@@ -575,7 +565,6 @@ func main() {
 	deps := &serviceDependencies{
 		prometheus:    prometheus,
 		supervisor:    supervisor,
-		qan:           qan,
 		db:            db,
 		portsRegistry: portsRegistry,
 	}

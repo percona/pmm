@@ -626,8 +626,16 @@
             "schema": {
               "type": "object",
               "properties": {
+                "host_node_id": {
+                  "description": "Return only Agents running on that Node.",
+                  "type": "string"
+                },
+                "node_id": {
+                  "description": "Return only Agents that provide insights for that Node.",
+                  "type": "string"
+                },
                 "service_id": {
-                  "description": "Return Agents only for that Service.",
+                  "description": "Return only Agents that provide insights for that Service.",
                   "type": "string"
                 }
               }
@@ -1726,7 +1734,13 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "type": "object",
+              "properties": {
+                "host_node_id": {
+                  "description": "Return only Services running on that Node.",
+                  "type": "string"
+                }
+              }
             }
           }
         ],

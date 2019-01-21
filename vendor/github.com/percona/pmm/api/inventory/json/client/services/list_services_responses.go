@@ -67,6 +67,38 @@ func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer 
 	return nil
 }
 
+/*ListServicesBody list services body
+swagger:model ListServicesBody
+*/
+type ListServicesBody struct {
+
+	// Return only Services running on that Node.
+	HostNodeID string `json:"host_node_id,omitempty"`
+}
+
+// Validate validates this list services body
+func (o *ListServicesBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListServicesBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListServicesBody) UnmarshalBinary(b []byte) error {
+	var res ListServicesBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListServicesOKBody list services o k body
 swagger:model ListServicesOKBody
 */

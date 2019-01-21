@@ -59,10 +59,11 @@ message MySQLdExporter {
 }
 
 message ListAgentsRequest {
-  // string node_id = 1;
-  // string runs_on_node_id = 2;
-
-  // Return Agents only for that Service.
+  // Return only Agents running on that Node.
+  string host_node_id = 1;
+  // Return only Agents that provide insights for that Node.
+  string node_id = 2;
+  // Return only Agents that provide insights for that Service.
   string service_id = 3;
 }
 

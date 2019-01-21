@@ -543,16 +543,14 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:8aec66b5786f17d1e1d2c39199b200f965f5b09df325211676842625c988c905"
+  digest = "1:413d7c4cb42b28a26cecfd0ccc9d96c39fcb00c182a9287fa359c789d32c2245"
   name = "github.com/percona/pmm"
   packages = [
     "api/agent",
     "api/inventory",
-    "proto",
-    "proto/config",
   ]
   pruneopts = "T"
-  revision = "0e6475c7ec29e2e6fde7e224e02844ed0d162310"
+  revision = "f208060497db2d0c6735db68968ba33839c6049a"
 
 [[projects]]
   digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
@@ -907,8 +905,6 @@
     "github.com/percona/kardianos-service",
     "github.com/percona/pmm/api/agent",
     "github.com/percona/pmm/api/inventory",
-    "github.com/percona/pmm/proto",
-    "github.com/percona/pmm/proto/config",
     "github.com/pkg/errors",
     "github.com/pmezard/go-difflib/difflib",
     "github.com/prometheus/client_golang/prometheus",
