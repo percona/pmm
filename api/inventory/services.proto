@@ -215,49 +215,49 @@ service Services {
   // ListServices returns a list of all Services.
   rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/List"
+      post: "/v1/inventory/Services/List"
       body: "*"
     };
   }
   // GetService returns a single Service by ID.
   rpc GetService(GetServiceRequest) returns (GetServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/Get"
+      post: "/v1/inventory/Services/Get"
       body: "*"
     };
   }
   // AddMySQLService adds MySQL Service.
   rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddMySQL"
+      post: "/v1/inventory/Services/AddMySQL"
       body: "*"
     };
   }
   // ChangeMySQLService changes MySQL Service.
   rpc ChangeMySQLService(ChangeMySQLServiceRequest) returns (ChangeMySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/ChangeMySQL"
+      post: "/v1/inventory/Services/ChangeMySQL"
       body: "*"
     };
   }
   // AddAmazonRDSMySQLService adds AmazonRDSMySQL Service.
   rpc AddAmazonRDSMySQLService(AddAmazonRDSMySQLServiceRequest) returns (AddAmazonRDSMySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddAmazonRDSMySQL"
+      post: "/v1/inventory/Services/AddAmazonRDSMySQL"
       body: "*"
     };
   }
   // ChangeAmazonRDSMySQLService changes AmazonRDSMySQL Service.
   rpc ChangeAmazonRDSMySQLService(ChangeAmazonRDSMySQLServiceRequest) returns (ChangeAmazonRDSMySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/ChangeAmazonRDSMySQL"
+      post: "/v1/inventory/Services/ChangeAmazonRDSMySQL"
       body: "*"
     };
   }
   // RemoveService removes Service without any Agents.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/Remove"
+      post: "/v1/inventory/Services/Remove"
       body: "*"
     };
   }

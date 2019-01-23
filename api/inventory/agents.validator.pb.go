@@ -16,27 +16,18 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *PMMAgent) Validate() error {
-	if this.HostNodeInfo != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
-		}
-	}
 	return nil
 }
 func (this *NodeExporter) Validate() error {
-	if this.HostNodeInfo != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
-		}
-	}
 	return nil
 }
 func (this *MySQLdExporter) Validate() error {
-	if this.HostNodeInfo != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
-		}
-	}
+	return nil
+}
+func (this *RDSExporter) Validate() error {
+	return nil
+}
+func (this *ExternalAgent) Validate() error {
 	return nil
 }
 func (this *ListAgentsRequest) Validate() error {
@@ -64,11 +55,25 @@ func (this *ListAgentsResponse) Validate() error {
 			}
 		}
 	}
+	for _, item := range this.RdsExporter {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("RdsExporter", err)
+			}
+		}
+	}
+	for _, item := range this.ExternalAgent {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ExternalAgent", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *GetAgentRequest) Validate() error {
-	if this.Id == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+	if this.AgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
 	}
 	return nil
 }
@@ -94,16 +99,25 @@ func (this *GetAgentResponse) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_RdsExporter); ok {
+		if oneOfNester.RdsExporter != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RdsExporter); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("RdsExporter", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_ExternalAgent); ok {
+		if oneOfNester.ExternalAgent != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ExternalAgent); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ExternalAgent", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *AddPMMAgentRequest) Validate() error {
-	if nil == this.HostNodeInfo {
-		return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", fmt.Errorf("message must exist"))
-	}
-	if this.HostNodeInfo != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
-		}
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
 	return nil
 }
@@ -116,13 +130,8 @@ func (this *AddPMMAgentResponse) Validate() error {
 	return nil
 }
 func (this *AddNodeExporterRequest) Validate() error {
-	if nil == this.HostNodeInfo {
-		return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", fmt.Errorf("message must exist"))
-	}
-	if this.HostNodeInfo != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
-		}
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
 	return nil
 }
@@ -135,13 +144,14 @@ func (this *AddNodeExporterResponse) Validate() error {
 	return nil
 }
 func (this *AddMySQLdExporterRequest) Validate() error {
-	if nil == this.HostNodeInfo {
-		return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", fmt.Errorf("message must exist"))
+	if this.RunsOnNodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
 	}
-	if this.HostNodeInfo != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
-		}
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	if this.Username == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
 	}
 	return nil
 }
@@ -153,27 +163,34 @@ func (this *AddMySQLdExporterResponse) Validate() error {
 	}
 	return nil
 }
-func (this *EnableAgentRequest) Validate() error {
-	if this.Id == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+func (this *AddRDSExporterRequest) Validate() error {
+	if this.RunsOnNodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
 	}
 	return nil
 }
-func (this *EnableAgentResponse) Validate() error {
-	return nil
-}
-func (this *DisableAgentRequest) Validate() error {
-	if this.Id == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+func (this *AddRDSExporterResponse) Validate() error {
+	if this.RdsExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RdsExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RdsExporter", err)
+		}
 	}
 	return nil
 }
-func (this *DisableAgentResponse) Validate() error {
+func (this *AddExternalAgentRequest) Validate() error {
+	return nil
+}
+func (this *AddExternalAgentResponse) Validate() error {
+	if this.ExternalAgent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalAgent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ExternalAgent", err)
+		}
+	}
 	return nil
 }
 func (this *RemoveAgentRequest) Validate() error {
-	if this.Id == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+	if this.AgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
 	}
 	return nil
 }

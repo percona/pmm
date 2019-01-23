@@ -25,6 +25,34 @@ type Client struct {
 }
 
 /*
+AddExternalAgent adds external agent adds external agent
+*/
+func (a *Client) AddExternalAgent(params *AddExternalAgentParams) (*AddExternalAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddExternalAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddExternalAgent",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/AddExternalAgent",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddExternalAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddExternalAgentOK), nil
+
+}
+
+/*
 AddMySqldExporter adds my sqld exporter adds mysqld exporter agent
 */
 func (a *Client) AddMySqldExporter(params *AddMySqldExporterParams) (*AddMySqldExporterOK, error) {
@@ -36,7 +64,7 @@ func (a *Client) AddMySqldExporter(params *AddMySqldExporterParams) (*AddMySqldE
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddMySQLdExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddMySQLdExporter",
+		PathPattern:        "/v1/inventory/Agents/AddMySQLdExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -64,7 +92,7 @@ func (a *Client) AddNodeExporter(params *AddNodeExporterParams) (*AddNodeExporte
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddNodeExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddNodeExporter",
+		PathPattern:        "/v1/inventory/Agents/AddNodeExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -92,7 +120,7 @@ func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddPMMAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/AddPMMAgent",
+		PathPattern:        "/v1/inventory/Agents/AddPMMAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -109,58 +137,30 @@ func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) 
 }
 
 /*
-DisableAgent disables agent disables and stops agent
+AddRDSExporter adds RDS exporter adds rds exporter agent
 */
-func (a *Client) DisableAgent(params *DisableAgentParams) (*DisableAgentOK, error) {
+func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewDisableAgentParams()
+		params = NewAddRDSExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "DisableAgent",
+		ID:                 "AddRDSExporter",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/Disable",
+		PathPattern:        "/v1/inventory/Agents/AddRDSExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &DisableAgentReader{formats: a.formats},
+		Reader:             &AddRDSExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*DisableAgentOK), nil
-
-}
-
-/*
-EnableAgent enables agent enables and starts agent
-*/
-func (a *Client) EnableAgent(params *EnableAgentParams) (*EnableAgentOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewEnableAgentParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "EnableAgent",
-		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/Enable",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &EnableAgentReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*EnableAgentOK), nil
+	return result.(*AddRDSExporterOK), nil
 
 }
 
@@ -176,7 +176,7 @@ func (a *Client) GetAgent(params *GetAgentParams) (*GetAgentOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/Get",
+		PathPattern:        "/v1/inventory/Agents/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -204,7 +204,7 @@ func (a *Client) ListAgents(params *ListAgentsParams) (*ListAgentsOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ListAgents",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/List",
+		PathPattern:        "/v1/inventory/Agents/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -232,7 +232,7 @@ func (a *Client) RemoveAgent(params *RemoveAgentParams) (*RemoveAgentOK, error) 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RemoveAgent",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/Remove",
+		PathPattern:        "/v1/inventory/Agents/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

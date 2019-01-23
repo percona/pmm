@@ -6,7 +6,7 @@ option go_package = "agent";
 
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
-import "inventory/host.proto";
+import "inventory/agent_status.proto";
 
 // Type represents Agent type.
 enum Type {
@@ -15,20 +15,11 @@ enum Type {
   MYSQLD_EXPORTER = 2;
 }
 
-// Status represents Agent process status.
-enum Status {
-  STATUS_INVALID = 0;
-  STARTING = 1;
-  RUNNING = 2;
-  WAITING = 3;
-  STOPPING = 4;
-  DONE = 5;
-}
-
 message RegisterRequest {
   // TODO https://jira.percona.com/browse/PMM-3453
 
-  inventory.HostNodeInfo node = 1;
+  // inventory.HostNodeInfo node = 1;
+
 }
 
 message RegisterResponse {
@@ -54,7 +45,7 @@ message QANDataResponse {}
 // StateChangedRequest is an AgentMessage describing actual agent status.
 message StateChangedRequest {
   string agent_id = 1;
-  Status status = 2;
+  inventory.AgentStatus status = 2;
   uint32 listen_port = 3;
 }
 

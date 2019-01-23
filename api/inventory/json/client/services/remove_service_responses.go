@@ -50,7 +50,7 @@ type RemoveServiceOK struct {
 }
 
 func (o *RemoveServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/Remove][%d] removeServiceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/Remove][%d] removeServiceOK  %+v", 200, o.Payload)
 }
 
 func (o *RemoveServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -68,8 +68,8 @@ swagger:model RemoveServiceBody
 */
 type RemoveServiceBody struct {
 
-	// id
-	ID string `json:"id,omitempty"`
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
 }
 
 // Validate validates this remove service body
