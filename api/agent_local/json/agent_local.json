@@ -15,7 +15,7 @@
     "version": "version 0"
   },
   "paths": {
-    "/v0/local/Status": {
+    "/local/Status": {
       "post": {
         "tags": [
           "AgentLocal"

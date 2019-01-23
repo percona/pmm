@@ -50,7 +50,7 @@ type StatusOK struct {
 }
 
 func (o *StatusOK) Error() string {
-	return fmt.Sprintf("[POST /v0/local/Status][%d] statusOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /local/Status][%d] statusOK  %+v", 200, o.Payload)
 }
 
 func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -6,76 +6,134 @@ option go_package = "inventory";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "inventory/host.proto";
+import "inventory/agent_status.proto";
 
-// PMMAgent represent pmm-agent Agent configuration.
+// PMMAgent runs on Generic on Container Node.
 message PMMAgent {
-  // Unique Agent identifier.
-  string id = 1;
-  // Host Node information where this Agent runs.
-  HostNodeInfo host_node_info = 2;
-  reserved 3; // disabled
-  // Agent process status: running and connected to pmm-managed, or not.
-  bool running = 4;
-  reserved 5; // node_id, node_ids
-  reserved 6; // service_id, service_ids
-  reserved 7; // listen_port
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // Node identifier where this instance runs.
+  string node_id = 2;
+  //
+  // Status fields below.
+  //
+
+  // True if Agent is running and connected to pmm-managed.
+  bool connected = 3;
 }
 
-// NodeExporter represents node_exporter Agent configuration.
+// NodeExporter runs on Generic on Container Node and exposes its metrics.
 message NodeExporter {
-  // Unique Agent identifier.
-  string id = 1;
-  // Host Node information where Agent runs and for which insights are provided by that Agent.
-  HostNodeInfo host_node_info = 2;
-  // Agent desired status: enabled or disabled.
-  bool disabled = 3;
-  // Agent process status: running or not.
-  bool running = 4;
-  reserved 5; // node_id, node_ids
-  reserved 6; // service_id, service_ids
-  // HTTP listen port for exposing metrics.
-  uint32 listen_port = 7;
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // Node identifier where this instance runs.
+  string node_id = 2;
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled or disabled.
+  // TODO https://jira.percona.com/browse/PMM-3470
+  // bool enabled = 3;
+
+  // Actual Agent process status.
+  AgentStatus status = 4;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 5;
 }
 
-// MySQLdExporter represents mysqld_exporter Agent configuration.
+// MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
 message MySQLdExporter {
-  // Unique Agent identifier.
-  string id = 1;
-  // Host Node information where this Agent runs.
-  HostNodeInfo host_node_info = 2;
-  // Agent desired status: enabled or disabled.
-  bool disabled = 3;
-  // Agent process status: running or not.
-  bool running = 4;
-  reserved 5; // node_id, node_ids
-  // Service identifier for which insights are provided by that Agent.
-  string service_id = 6;
-  // HTTP listen port for exposing metrics.
-  uint32 listen_port = 7;
-  // MySQL username for extracting metrics.
-  string username = 8;
-  reserved 9; // password
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // Node identifier where this instance runs.
+  string runs_on_node_id = 2;
+  // Service identifier.
+  string service_id = 3;
+  // MySQL username for scraping metrics.
+  string username = 4;
+  // MySQL password for scraping metrics.
+  string password = 5;
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled or disabled.
+  // TODO https://jira.percona.com/browse/PMM-3470
+  // bool enabled = 6;
+
+  // Actual Agent process status.
+  AgentStatus status = 7;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8;
 }
+
+// RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
+message RDSExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // Node identifier where this instance runs.
+  string runs_on_node_id = 2;
+  // A list of Service identifiers (Node identifiers are extracted from Services).
+  repeated string service_ids = 3;
+  // TODO AWS credentials
+
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled or disabled.
+  // TODO https://jira.percona.com/browse/PMM-3470
+  // bool enabled = 4;
+
+  // Actual Agent process status.
+  AgentStatus status = 5;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 6;
+}
+
+// ExternalAgent does not run on any Inventory Node.
+message ExternalAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // URL for scraping metrics.
+  uint32 metrics_url = 2;
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled or disabled.
+  // TODO https://jira.percona.com/browse/PMM-3470
+  // bool enabled = 3;
+
+}
+
+// List
 
 message ListAgentsRequest {
-  // Return only Agents running on that Node.
-  string host_node_id = 1;
-  // Return only Agents that provide insights for that Node.
-  string node_id = 2;
-  // Return only Agents that provide insights for that Service.
-  string service_id = 3;
+  oneof filter {
+    // Return only Agents running on that Node.
+    string runs_on_node_id = 1;
+    // Return only Agents that provide insights for that Node.
+    string node_id = 2;
+    // Return only Agents that provide insights for that Service.
+    string service_id = 3;
+  }
 }
 
 message ListAgentsResponse {
   repeated PMMAgent pmm_agent = 1;
   repeated NodeExporter node_exporter = 2;
   repeated MySQLdExporter mysqld_exporter = 3;
+  repeated RDSExporter rds_exporter = 4;
+  repeated ExternalAgent external_agent = 5;
 }
 
+// Get
+
 message GetAgentRequest {
-  // Unique Agent identifier.
-  string id = 1 [
+  // Unique randomly generated instance identifier.
+  string agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -87,97 +145,128 @@ message GetAgentResponse {
     PMMAgent pmm_agent = 1;
     NodeExporter node_exporter = 2;
     MySQLdExporter mysqld_exporter = 3;
+    RDSExporter rds_exporter = 4;
+    ExternalAgent external_agent = 5;
   }
 }
 
+// Add/Change PMMAgent
+
 message AddPMMAgentRequest {
-  reserved 1; // id
-  // Host Node information where this Agent runs.
-  HostNodeInfo host_node_info = 2 [
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Node identifier where this instance runs.
+  string node_id = 2 [
     (validator.field) = {
-      msg_exists: true
+      string_not_empty: true
     }
   ];
-  reserved 3; // disabled
-  reserved 4; // running
-  reserved 5; // node_id, node_ids
-  reserved 6; // service_id, service_ids
-  reserved 7; // listen_port
 }
 
 message AddPMMAgentResponse {
   PMMAgent pmm_agent = 1;
 }
 
+// TODO ChangePMMAgentRequest https://jira.percona.com/browse/PMM-3470
+
+// Add/Change NodeExporter
+
 message AddNodeExporterRequest {
-  reserved 1; // id
-  // Host Node information where Agent runs and for which insights are provided by that Agent.
-  HostNodeInfo host_node_info = 2 [
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Node identifier where this instance runs.
+  string node_id = 2 [
     (validator.field) = {
-      msg_exists: true
+      string_not_empty: true
     }
   ];
-  // Agent desired status: enabled or disabled.
-  bool disabled = 3;
-  reserved 4; // node_id, node_ids
-  reserved 5; // service_id, service_ids
-  reserved 6; // running
-  reserved 7; // listen_port
 }
 
 message AddNodeExporterResponse {
   NodeExporter node_exporter = 1;
 }
 
+// TODO ChangeNodeExporterRequest https://jira.percona.com/browse/PMM-3470
+
+// Add/Change MySQLdExporter
+
 message AddMySQLdExporterRequest {
-  reserved 1; // id
-  // Host Node information where this Agent runs.
-  HostNodeInfo host_node_info = 2 [
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Node identifier where this instance runs.
+  string runs_on_node_id = 2 [
     (validator.field) = {
-      msg_exists: true
+      string_not_empty: true
     }
   ];
-  // Agent desired status: enabled or disabled.
-  bool disabled = 3;
-  reserved 4; // node_id, node_ids
-  // Service identifier for which insights are provided by that Agent.
-  string service_id = 5;
-  reserved 6; // running
-  reserved 7; // listen_port
-  // MySQL username for extracting metrics.
-  string username = 8;
-  // MySQL password for extracting metrics.
-  string password = 9;
+  // Service identifier.
+  string service_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // MySQL username for scraping metrics.
+  string username = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // MySQL password for scraping metrics.
+  string password = 5;
 }
 
 message AddMySQLdExporterResponse {
   MySQLdExporter mysqld_exporter = 1;
 }
 
-message EnableAgentRequest {
-  // Unique Agent identifier.
-  string id = 1 [
+// TODO ChangeMySQLdExporterRequest https://jira.percona.com/browse/PMM-3470
+
+// Add/Change RDSExporter
+
+message AddRDSExporterRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Node identifier where this instance runs.
+  string runs_on_node_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // A list of Service identifiers (Node identifiers are extracted from Services).
+  repeated string service_ids = 3;
+  // TODO AWS credentials
+
+}
+
+message AddRDSExporterResponse {
+  RDSExporter rds_exporter = 1;
+}
+
+// TODO ChangeRDSExporterRequest https://jira.percona.com/browse/PMM-3470
+
+// Add/Change ExternalAgent
+
+message AddExternalAgentRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // URL for scraping metrics.
+  uint32 metrics_url = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
 }
 
-message EnableAgentResponse {}
-
-message DisableAgentRequest {
-  // Unique Agent identifier.
-  string id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+message AddExternalAgentResponse {
+  ExternalAgent external_agent = 1;
 }
 
-message DisableAgentResponse {}
+// TODO ChangeExternalAgentRequest https://jira.percona.com/browse/PMM-3470
+
+// Remove
 
 message RemoveAgentRequest {
-  string id = 1 [
+  string agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -191,56 +280,56 @@ service Agents {
   // ListAgents returns a list of all Agents.
   rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/List"
+      post: "/v1/inventory/Agents/List"
       body: "*"
     };
   }
   // GetAgent returns a single Agent by ID.
   rpc GetAgent(GetAgentRequest) returns (GetAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/Get"
+      post: "/v1/inventory/Agents/Get"
       body: "*"
     };
   }
   // AddPMMAgent adds pmm-agent Agent.
   rpc AddPMMAgent(AddPMMAgentRequest) returns (AddPMMAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddPMMAgent"
+      post: "/v1/inventory/Agents/AddPMMAgent"
       body: "*"
     };
   }
   // AddNodeExporter adds node_exporter Agent.
   rpc AddNodeExporter(AddNodeExporterRequest) returns (AddNodeExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddNodeExporter"
+      post: "/v1/inventory/Agents/AddNodeExporter"
       body: "*"
     };
   }
   // AddMySQLdExporter adds mysqld_exporter Agent.
   rpc AddMySQLdExporter(AddMySQLdExporterRequest) returns (AddMySQLdExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/AddMySQLdExporter"
+      post: "/v1/inventory/Agents/AddMySQLdExporter"
       body: "*"
     };
   }
-  // EnableAgent enables and starts Agent.
-  rpc EnableAgent(EnableAgentRequest) returns (EnableAgentResponse) {
+  // AddRDSExporter adds rds_exporter Agent.
+  rpc AddRDSExporter(AddRDSExporterRequest) returns (AddRDSExporterResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/Enable"
+      post: "/v1/inventory/Agents/AddRDSExporter"
       body: "*"
     };
   }
-  // DisableAgent disables and stops Agent.
-  rpc DisableAgent(DisableAgentRequest) returns (DisableAgentResponse) {
+  // AddExternalAgent adds External Agent.
+  rpc AddExternalAgent(AddExternalAgentRequest) returns (AddExternalAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/Disable"
+      post: "/v1/inventory/Agents/AddExternalAgent"
       body: "*"
     };
   }
   // RemoveAgent removes Agent.
   rpc RemoveAgent(RemoveAgentRequest) returns (RemoveAgentResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Agents/Remove"
+      post: "/v1/inventory/Agents/Remove"
       body: "*"
     };
   }

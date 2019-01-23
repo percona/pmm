@@ -17,11 +17,6 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *RegisterRequest) Validate() error {
-	if this.Node != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Node); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Node", err)
-		}
-	}
 	return nil
 }
 func (this *RegisterResponse) Validate() error {

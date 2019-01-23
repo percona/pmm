@@ -25,6 +25,34 @@ type Client struct {
 }
 
 /*
+AddAmazonRDSMySQLService adds amazon RDS my SQL service adds amazon RDS my SQL service
+*/
+func (a *Client) AddAmazonRDSMySQLService(params *AddAmazonRDSMySQLServiceParams) (*AddAmazonRDSMySQLServiceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddAmazonRDSMySQLServiceParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddAmazonRDSMySQLService",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Services/AddAmazonRDSMySQL",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddAmazonRDSMySQLServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddAmazonRDSMySQLServiceOK), nil
+
+}
+
+/*
 AddMySQLService adds my SQL service adds my SQL service
 */
 func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServiceOK, error) {
@@ -36,7 +64,7 @@ func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServic
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddMySQLService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/AddMySQL",
+		PathPattern:        "/v1/inventory/Services/AddMySQL",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -53,6 +81,34 @@ func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServic
 }
 
 /*
+ChangeAmazonRDSMySQLService changes amazon RDS my SQL service changes amazon RDS my SQL service
+*/
+func (a *Client) ChangeAmazonRDSMySQLService(params *ChangeAmazonRDSMySQLServiceParams) (*ChangeAmazonRDSMySQLServiceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeAmazonRDSMySQLServiceParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeAmazonRDSMySQLService",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Services/ChangeAmazonRDSMySQL",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeAmazonRDSMySQLServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeAmazonRDSMySQLServiceOK), nil
+
+}
+
+/*
 ChangeMySQLService changes my SQL service changes my SQL service
 */
 func (a *Client) ChangeMySQLService(params *ChangeMySQLServiceParams) (*ChangeMySQLServiceOK, error) {
@@ -64,7 +120,7 @@ func (a *Client) ChangeMySQLService(params *ChangeMySQLServiceParams) (*ChangeMy
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeMySQLService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/ChangeMySQL",
+		PathPattern:        "/v1/inventory/Services/ChangeMySQL",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -92,7 +148,7 @@ func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/Get",
+		PathPattern:        "/v1/inventory/Services/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -120,7 +176,7 @@ func (a *Client) ListServices(params *ListServicesParams) (*ListServicesOK, erro
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ListServices",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/List",
+		PathPattern:        "/v1/inventory/Services/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -148,7 +204,7 @@ func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, e
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RemoveService",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Services/Remove",
+		PathPattern:        "/v1/inventory/Services/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

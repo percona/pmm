@@ -18,10 +18,13 @@ var _ = math.Inf
 func (this *GenericNode) Validate() error {
 	return nil
 }
+func (this *ContainerNode) Validate() error {
+	return nil
+}
 func (this *RemoteNode) Validate() error {
 	return nil
 }
-func (this *AmazonRDSRemoteNode) Validate() error {
+func (this *RemoteAmazonRDSNode) Validate() error {
 	return nil
 }
 func (this *ListNodesRequest) Validate() error {
@@ -35,6 +38,13 @@ func (this *ListNodesResponse) Validate() error {
 			}
 		}
 	}
+	for _, item := range this.Container {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Container", err)
+			}
+		}
+	}
 	for _, item := range this.Remote {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -42,18 +52,18 @@ func (this *ListNodesResponse) Validate() error {
 			}
 		}
 	}
-	for _, item := range this.AmazonRdsRemote {
+	for _, item := range this.RemoteAmazonRds {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsRemote", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("RemoteAmazonRds", err)
 			}
 		}
 	}
 	return nil
 }
 func (this *GetNodeRequest) Validate() error {
-	if this.Id == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
 	return nil
 }
@@ -65,6 +75,13 @@ func (this *GetNodeResponse) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetNode().(*GetNodeResponse_Container); ok {
+		if oneOfNester.Container != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Container); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Container", err)
+			}
+		}
+	}
 	if oneOfNester, ok := this.GetNode().(*GetNodeResponse_Remote); ok {
 		if oneOfNester.Remote != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Remote); err != nil {
@@ -72,18 +89,18 @@ func (this *GetNodeResponse) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetNode().(*GetNodeResponse_AmazonRdsRemote); ok {
-		if oneOfNester.AmazonRdsRemote != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.AmazonRdsRemote); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsRemote", err)
+	if oneOfNester, ok := this.GetNode().(*GetNodeResponse_RemoteAmazonRds); ok {
+		if oneOfNester.RemoteAmazonRds != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.RemoteAmazonRds); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("RemoteAmazonRds", err)
 			}
 		}
 	}
 	return nil
 }
 func (this *AddGenericNodeRequest) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	if this.NodeName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
 	}
 	return nil
 }
@@ -95,46 +112,12 @@ func (this *AddGenericNodeResponse) Validate() error {
 	}
 	return nil
 }
-func (this *AddRemoteNodeRequest) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
-	}
-	return nil
-}
-func (this *AddRemoteNodeResponse) Validate() error {
-	if this.Remote != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Remote); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Remote", err)
-		}
-	}
-	return nil
-}
-func (this *AddAmazonRDSRemoteNodeRequest) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
-	}
-	if this.Hostname == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Hostname", fmt.Errorf(`value '%v' must not be an empty string`, this.Hostname))
-	}
-	if this.Region == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Region", fmt.Errorf(`value '%v' must not be an empty string`, this.Region))
-	}
-	return nil
-}
-func (this *AddAmazonRDSRemoteNodeResponse) Validate() error {
-	if this.AmazonRdsRemote != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AmazonRdsRemote); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsRemote", err)
-		}
-	}
-	return nil
-}
 func (this *ChangeGenericNodeRequest) Validate() error {
-	if this.Id == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	if this.NodeName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
 	}
 	return nil
 }
@@ -146,12 +129,57 @@ func (this *ChangeGenericNodeResponse) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeRemoteNodeRequest) Validate() error {
-	if this.Id == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+func (this *AddContainerNodeRequest) Validate() error {
+	if this.NodeName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
 	}
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	return nil
+}
+func (this *AddContainerNodeResponse) Validate() error {
+	if this.Container != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Container); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Container", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeContainerNodeRequest) Validate() error {
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	}
+	if this.NodeName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
+	}
+	return nil
+}
+func (this *ChangeContainerNodeResponse) Validate() error {
+	if this.Container != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Container); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Container", err)
+		}
+	}
+	return nil
+}
+func (this *AddRemoteNodeRequest) Validate() error {
+	if this.NodeName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
+	}
+	return nil
+}
+func (this *AddRemoteNodeResponse) Validate() error {
+	if this.Remote != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Remote); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Remote", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeRemoteNodeRequest) Validate() error {
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	}
+	if this.NodeName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
 	}
 	return nil
 }
@@ -163,26 +191,49 @@ func (this *ChangeRemoteNodeResponse) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeAmazonRDSRemoteNodeRequest) Validate() error {
-	if this.Id == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+func (this *AddRemoteAmazonRDSNodeRequest) Validate() error {
+	if this.NodeName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
 	}
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	if this.Instance == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Instance", fmt.Errorf(`value '%v' must not be an empty string`, this.Instance))
+	}
+	if this.Region == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Region", fmt.Errorf(`value '%v' must not be an empty string`, this.Region))
 	}
 	return nil
 }
-func (this *ChangeAmazonRDSRemoteNodeResponse) Validate() error {
-	if this.AmazonRdsRemote != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AmazonRdsRemote); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsRemote", err)
+func (this *AddRemoteAmazonRDSNodeResponse) Validate() error {
+	if this.RemoteAmazonRds != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RemoteAmazonRds); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RemoteAmazonRds", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeRemoteAmazonRDSNodeRequest) Validate() error {
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	}
+	if this.NodeName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
+	}
+	if this.Instance == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Instance", fmt.Errorf(`value '%v' must not be an empty string`, this.Instance))
+	}
+	return nil
+}
+func (this *ChangeRemoteAmazonRDSNodeResponse) Validate() error {
+	if this.RemoteAmazonRds != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RemoteAmazonRds); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RemoteAmazonRds", err)
 		}
 	}
 	return nil
 }
 func (this *RemoveNodeRequest) Validate() error {
-	if this.Id == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
 	return nil
 }
