@@ -29,7 +29,7 @@ message ContainerNode {
   string node_name = 2;
   // Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.
   string machine_id = 3;
-  // If specified, must be a unique Docker container identifier. Can't be changed.
+  // Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.
   string docker_container_id = 4;
   // Container name. Can be changed.
   string docker_container_name = 5;
@@ -69,7 +69,7 @@ message ListNodesResponse {
 // Get
 
 message GetNodeRequest {
-  // Unique Node identifier.
+  // Unique randomly generated instance identifier.
   string node_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -89,7 +89,7 @@ message GetNodeResponse {
 // Add/Change Generic
 
 message AddGenericNodeRequest {
-  // Unique Node identifier.
+  // Unique randomly generated instance identifier.
   reserved 1;
   // Unique across all Nodes user-defined name.
   string node_name = 2 [
@@ -110,7 +110,7 @@ message AddGenericNodeResponse {
 }
 
 message ChangeGenericNodeRequest {
-  // Unique Node identifier.
+  // Unique randomly generated instance identifier.
   string node_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -137,7 +137,7 @@ message ChangeGenericNodeResponse {
 // Add/Change Container
 
 message AddContainerNodeRequest {
-  // Unique Node identifier.
+  // Unique randomly generated instance identifier.
   reserved 1;
   // Unique across all Nodes user-defined name.
   string node_name = 2 [
@@ -147,7 +147,7 @@ message AddContainerNodeRequest {
   ];
   // Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist.
   string machine_id = 3;
-  // If specified, must be a unique Docker container identifier.
+  // Docker container identifier. If specified, must be a unique Docker container identifier.
   string docker_container_id = 4;
   // Container name.
   string docker_container_name = 5;
@@ -158,7 +158,7 @@ message AddContainerNodeResponse {
 }
 
 message ChangeContainerNodeRequest {
-  // Unique Node identifier.
+  // Unique randomly generated instance identifier.
   string node_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -185,7 +185,7 @@ message ChangeContainerNodeResponse {
 // Add/Change Remote
 
 message AddRemoteNodeRequest {
-  // Unique Node identifier.
+  // Unique randomly generated instance identifier.
   reserved 1;
   // Unique across all Nodes user-defined name.
   string node_name = 2 [
@@ -200,7 +200,7 @@ message AddRemoteNodeResponse {
 }
 
 message ChangeRemoteNodeRequest {
-  // Unique Node identifier.
+  // Unique randomly generated instance identifier.
   string node_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -221,7 +221,7 @@ message ChangeRemoteNodeResponse {
 // Add/Change RemoteAmazonRDS
 
 message AddRemoteAmazonRDSNodeRequest {
-  // Unique Node identifier.
+  // Unique randomly generated instance identifier.
   reserved 1;
   // Unique across all Nodes user-defined name.
   string node_name = 2 [
@@ -248,7 +248,7 @@ message AddRemoteAmazonRDSNodeResponse {
 }
 
 message ChangeRemoteAmazonRDSNodeRequest {
-  // Unique Node identifier.
+  // Unique randomly generated instance identifier.
   string node_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -277,7 +277,7 @@ message ChangeRemoteAmazonRDSNodeResponse {
 // Remove
 
 message RemoveNodeRequest {
-  // Unique Node identifier.
+  // Unique randomly generated instance identifier.
   string node_id = 1 [
     (validator.field) = {
       string_not_empty: true

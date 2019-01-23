@@ -5,4 +5,5 @@ type Service interface {
 	service()
 }
 
-func (*MySQLService) service() {}
+func (*MySQLService) service()          {}
+func (*AmazonRDSMySQLService) service() {}
