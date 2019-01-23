@@ -22,6 +22,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	api "github.com/percona/pmm/api/inventory"
+	"github.com/pkg/errors"
 
 	"github.com/percona/pmm-managed/services/inventory"
 )
@@ -31,9 +32,17 @@ type AgentsServer struct {
 	Agents *inventory.AgentsService
 }
 
-// ListAgents returns a list of all Agents.
+// ListAgents returns a list of Agents for a given filters.
 func (s *AgentsServer) ListAgents(ctx context.Context, req *api.ListAgentsRequest) (*api.ListAgentsResponse, error) {
-	agents, err := s.Agents.List(ctx)
+	filters := inventory.AgentFilters{
+		ServiceID:    req.ServiceId,
+		RunsOnNodeID: req.HostNodeId,
+		NodeID:       req.NodeId,
+	}
+	if filtersCount(filters) > 1 {
+		return nil, errors.New("two or more filters are set")
+	}
+	agents, err := s.Agents.List(ctx, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -51,6 +60,19 @@ func (s *AgentsServer) ListAgents(ctx context.Context, req *api.ListAgentsReques
 	}
 	return res, nil
 
+}
+
+func filtersCount(filters inventory.AgentFilters) (count int) {
+	if filters.NodeID != "" {
+		count++
+	}
+	if filters.RunsOnNodeID != "" {
+		count++
+	}
+	if filters.ServiceID != "" {
+		count++
+	}
+	return
 }
 
 // GetAgent returns a single Agent by ID.

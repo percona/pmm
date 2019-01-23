@@ -19,6 +19,7 @@ package inventory
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventory"
@@ -114,17 +115,16 @@ func (as *AgentsService) get(ctx context.Context, id string) (*models.AgentRow, 
 	}
 }
 
-// List selects all Agents in a stable order.
-func (as *AgentsService) List(ctx context.Context) ([]inventory.Agent, error) {
-	structs, err := as.q.SelectAllFrom(models.AgentRowTable, "ORDER BY id")
+// List selects all Agents in a stable order for a given service.
+func (as *AgentsService) List(ctx context.Context, filters AgentFilters) ([]inventory.Agent, error) {
+	agentRows, err := as.agentsByFilters(filters)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	// TODO That loop makes len(structs) SELECTs, that can be slow. Optimize when needed.
-	res := make([]inventory.Agent, len(structs))
-	for i, str := range structs {
-		row := str.(*models.AgentRow)
+	// TODO That loop makes len(agentRows) SELECTs, that can be slow. Optimize when needed.
+	res := make([]inventory.Agent, len(agentRows))
+	for i, row := range agentRows {
 		agent, err := as.makeAgent(ctx, row)
 		if err != nil {
 			return nil, err
@@ -288,4 +288,61 @@ func (as *AgentsService) Remove(ctx context.Context, id string) error {
 		as.r.Kick(ctx, id)
 	}
 	return nil
+}
+
+// AgentFilters represents filters for agents list.
+type AgentFilters struct {
+	// Return only Agents running on that Node.
+	RunsOnNodeID string
+	// Return only Agents that provide insights for that Node.
+	NodeID string
+	// Return only Agents that provide insights for that Service.
+	ServiceID string
+}
+
+func (as *AgentsService) agentsByFilters(filters AgentFilters) ([]*models.AgentRow, error) {
+	var tail string
+	var args []interface{}
+	switch {
+	case filters.RunsOnNodeID != "":
+		tail = fmt.Sprintf("WHERE runs_on_node_id = %s", as.q.Placeholder(1))
+		args = []interface{}{filters.RunsOnNodeID}
+	case filters.NodeID != "":
+		agentNodes, err := as.q.SelectAllFrom(models.AgentNodeView, "WHERE node_id = ?", filters.NodeID)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		for _, str := range agentNodes {
+			args = append(args, str.(*models.AgentNode).AgentID)
+		}
+		if len(args) == 0 {
+			return []*models.AgentRow{}, nil
+		}
+		tail = fmt.Sprintf("WHERE id IN (%s)", strings.Join(as.q.Placeholders(1, len(args)), ", "))
+	case filters.ServiceID != "":
+		agentServices, err := as.q.SelectAllFrom(models.AgentServiceView, "WHERE service_id = ?", filters.ServiceID)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		for _, str := range agentServices {
+			args = append(args, str.(*models.AgentService).AgentID)
+		}
+		if len(args) == 0 {
+			return []*models.AgentRow{}, nil
+		}
+
+		tail = fmt.Sprintf("WHERE id IN (%s)", strings.Join(as.q.Placeholders(1, len(args)), ", "))
+	}
+
+	tail += " ORDER BY id"
+
+	structs, err := as.q.SelectAllFrom(models.AgentRowTable, tail, args...)
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	agentRows := make([]*models.AgentRow, len(structs))
+	for i, str := range structs {
+		agentRows[i] = str.(*models.AgentRow)
+	}
+	return agentRows, nil
 }

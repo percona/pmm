@@ -17,8 +17,9 @@
 package handlers
 
 import (
-	"github.com/percona/pmm-managed/services/agents"
 	api "github.com/percona/pmm/api/agent"
+
+	"github.com/percona/pmm-managed/services/agents"
 )
 
 type AgentServer struct {
