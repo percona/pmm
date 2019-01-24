@@ -5,6 +5,8 @@ type Agent interface {
 	agent()
 }
 
-func (*PMMAgent) agent()       {}
-func (*NodeExporter) agent()   {}
-func (*MySQLdExporter) agent() {}
+func (*PMMAgent) agent()         {}
+func (*NodeExporter) agent()     {}
+func (*MySQLdExporter) agent()   {}
+func (*RDSExporter) agent()      {}
+func (*ExternalExporter) agent() {}

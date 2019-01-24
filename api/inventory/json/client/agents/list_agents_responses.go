@@ -69,7 +69,7 @@ func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer ru
 	return nil
 }
 
-/*ExternalAgentItems0 ExternalAgent does not run on any Inventory Node.
+/*ExternalAgentItems0 ExternalExporter does not run on any Inventory Node.
 swagger:model ExternalAgentItems0
 */
 type ExternalAgentItems0 struct {

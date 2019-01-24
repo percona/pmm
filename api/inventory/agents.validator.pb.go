@@ -27,7 +27,7 @@ func (this *MySQLdExporter) Validate() error {
 func (this *RDSExporter) Validate() error {
 	return nil
 }
-func (this *ExternalAgent) Validate() error {
+func (this *ExternalExporter) Validate() error {
 	return nil
 }
 func (this *ListAgentsRequest) Validate() error {
@@ -177,10 +177,10 @@ func (this *AddRDSExporterResponse) Validate() error {
 	}
 	return nil
 }
-func (this *AddExternalAgentRequest) Validate() error {
+func (this *AddExternalExporterRequest) Validate() error {
 	return nil
 }
-func (this *AddExternalAgentResponse) Validate() error {
+func (this *AddExternalExporterResponse) Validate() error {
 	if this.ExternalAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalAgent); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ExternalAgent", err)

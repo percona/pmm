@@ -25,30 +25,30 @@ type Client struct {
 }
 
 /*
-AddExternalAgent adds external agent adds external agent
+AddExternalExporter adds external exporter adds external agent
 */
-func (a *Client) AddExternalAgent(params *AddExternalAgentParams) (*AddExternalAgentOK, error) {
+func (a *Client) AddExternalExporter(params *AddExternalExporterParams) (*AddExternalExporterOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddExternalAgentParams()
+		params = NewAddExternalExporterParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddExternalAgent",
+		ID:                 "AddExternalExporter",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/AddExternalAgent",
+		PathPattern:        "/v1/inventory/Agents/AddExternalExporter",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddExternalAgentReader{formats: a.formats},
+		Reader:             &AddExternalExporterReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddExternalAgentOK), nil
+	return result.(*AddExternalExporterOK), nil
 
 }
 

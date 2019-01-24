@@ -15,13 +15,13 @@
     "version": "version 0"
   },
   "paths": {
-    "/v1/inventory/Agents/AddExternalAgent": {
+    "/v1/inventory/Agents/AddExternalExporter": {
       "post": {
         "tags": [
           "Agents"
         ],
-        "summary": "AddExternalAgent adds External Agent.",
-        "operationId": "AddExternalAgent",
+        "summary": "AddExternalExporter adds External Agent.",
+        "operationId": "AddExternalExporter",
         "parameters": [
           {
             "name": "body",
@@ -46,7 +46,7 @@
               "type": "object",
               "properties": {
                 "external_agent": {
-                  "description": "ExternalAgent does not run on any Inventory Node.",
+                  "description": "ExternalExporter does not run on any Inventory Node.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -389,7 +389,7 @@
               "type": "object",
               "properties": {
                 "external_agent": {
-                  "description": "ExternalAgent does not run on any Inventory Node.",
+                  "description": "ExternalExporter does not run on any Inventory Node.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -583,7 +583,7 @@
                 "external_agent": {
                   "type": "array",
                   "items": {
-                    "description": "ExternalAgent does not run on any Inventory Node.",
+                    "description": "ExternalExporter does not run on any Inventory Node.",
                     "type": "object",
                     "properties": {
                       "agent_id": {

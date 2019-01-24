@@ -259,7 +259,7 @@ func (o *GetAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyExternalAgent ExternalAgent does not run on any Inventory Node.
+/*GetAgentOKBodyExternalAgent ExternalExporter does not run on any Inventory Node.
 swagger:model GetAgentOKBodyExternalAgent
 */
 type GetAgentOKBodyExternalAgent struct {

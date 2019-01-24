@@ -92,8 +92,8 @@ message RDSExporter {
   uint32 listen_port = 6;
 }
 
-// ExternalAgent does not run on any Inventory Node.
-message ExternalAgent {
+// ExternalExporter does not run on any Inventory Node.
+message ExternalExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // URL for scraping metrics.
@@ -126,7 +126,7 @@ message ListAgentsResponse {
   repeated NodeExporter node_exporter = 2;
   repeated MySQLdExporter mysqld_exporter = 3;
   repeated RDSExporter rds_exporter = 4;
-  repeated ExternalAgent external_agent = 5;
+  repeated ExternalExporter external_agent = 5;
 }
 
 // Get
@@ -146,7 +146,7 @@ message GetAgentResponse {
     NodeExporter node_exporter = 2;
     MySQLdExporter mysqld_exporter = 3;
     RDSExporter rds_exporter = 4;
-    ExternalAgent external_agent = 5;
+    ExternalExporter external_agent = 5;
   }
 }
 
@@ -244,9 +244,9 @@ message AddRDSExporterResponse {
 
 // TODO ChangeRDSExporterRequest https://jira.percona.com/browse/PMM-3470
 
-// Add/Change ExternalAgent
+// Add/Change ExternalExporter
 
-message AddExternalAgentRequest {
+message AddExternalExporterRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
   // URL for scraping metrics.
@@ -257,11 +257,11 @@ message AddExternalAgentRequest {
   ];
 }
 
-message AddExternalAgentResponse {
-  ExternalAgent external_agent = 1;
+message AddExternalExporterResponse {
+  ExternalExporter external_agent = 1;
 }
 
-// TODO ChangeExternalAgentRequest https://jira.percona.com/browse/PMM-3470
+// TODO ChangeExternalExporterRequest https://jira.percona.com/browse/PMM-3470
 
 // Remove
 
@@ -319,10 +319,10 @@ service Agents {
       body: "*"
     };
   }
-  // AddExternalAgent adds External Agent.
-  rpc AddExternalAgent(AddExternalAgentRequest) returns (AddExternalAgentResponse) {
+  // AddExternalExporter adds External Agent.
+  rpc AddExternalExporter(AddExternalExporterRequest) returns (AddExternalExporterResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddExternalAgent"
+      post: "/v1/inventory/Agents/AddExternalExporter"
       body: "*"
     };
   }
