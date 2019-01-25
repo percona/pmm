@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package profile;
+
+option go_package = "profile";
+
+// Profile of metrics by Query Class, Host etc.
+service Profile {
+  // GetDigestGroup returns list of metrics group by digest.
+  rpc GetDigestGroup(ProfileRequest) returns (ProfileReply);
+}
+
+message ProfileRequest {
+  string from = 1;
+  string to = 2;
+  string keyword = 3;
+  bool first_seen = 4;
+  string group_by = 5;
+  repeated MapFieldEntry labels = 6;
+  repeated string include = 7;
+}
+
+// MapFieldEntry
+message MapFieldEntry {
+  string key = 1;
+  repeated string value = 2;
+}
+
+message ProfileReply {
+  repeated ProfileRow rows = 1;
+}
+
+message ProfileRow {
+  uint32 rank = 1;
+  float percentage = 2;
+  string digest = 3;
+  string digest_text = 4;
+  string first_seen = 5;
+  float qps = 6;
+  float load = 7;
+  Stats stats = 8;
+}
+
+message Stats {
+  uint64 num_queries = 1;
+  float m_query_time_sum = 2;
+  float m_query_time_min = 3;
+  float m_query_time_max = 4;
+  float m_query_time_p99 = 5;
+}

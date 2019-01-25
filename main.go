@@ -21,14 +21,16 @@ import (
 	"net"
 	"os"
 
+	pbcollector "github.com/Percona-Lab/qan-api/api/collector"
+	pbmetrics "github.com/Percona-Lab/qan-api/api/metrics"
+	pbprofile "github.com/Percona-Lab/qan-api/api/profile"
+	pbversion "github.com/Percona-Lab/qan-api/api/version"
+	"github.com/Percona-Lab/qan-api/models"
+	aservice "github.com/Percona-Lab/qan-api/services/analitycs"
+	rservice "github.com/Percona-Lab/qan-api/services/receiver"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
-
-	pbcollector "github.com/Percona-Lab/qan-api/api/collector"
-	pbversion "github.com/Percona-Lab/qan-api/api/version"
-	"github.com/Percona-Lab/qan-api/models"
-	rservice "github.com/Percona-Lab/qan-api/services/receiver"
 )
 
 type server struct{}
@@ -50,7 +52,7 @@ func main() {
 	}
 	dsn, ok := os.LookupEnv("QANAPI_DSN")
 	if !ok {
-		dsn = "clickhouse://127.0.0.1:9000?database=pmm"
+		dsn = "clickhouse://127.0.0.1:9000?database=pmm&debug=true"
 	}
 
 	db, err := NewDB(dsn)
@@ -63,9 +65,13 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	qcm := models.NewQueryClass(db)
+	rm := models.NewReporter(db)
+	mm := models.NewMetrics(db)
 	grpcServer := grpc.NewServer()
 	pbversion.RegisterVersionServer(grpcServer, &server{})
 	pbcollector.RegisterAgentServer(grpcServer, rservice.NewService(qcm))
+	pbprofile.RegisterProfileServer(grpcServer, aservice.NewService(rm, mm))
+	pbmetrics.RegisterMetricsServer(grpcServer, aservice.NewService(rm, mm))
 	reflection.Register(grpcServer)
 	log.Printf("QAN-API serve: %v\n", bind)
 

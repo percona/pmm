@@ -24,20 +24,28 @@ import (
 	"path/filepath"
 	"time"
 
+	pb "github.com/Percona-Lab/qan-api/api/collector"
+	"github.com/percona/go-mysql/event"
 	slowlog "github.com/percona/go-mysql/log"
 	parser "github.com/percona/go-mysql/log/slow"
 	"github.com/percona/go-mysql/query"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-
-	pb "github.com/Percona-Lab/qan-api/api/collector"
 )
 
 const agentUUID = "dc889ca7be92a66f0a00f616f69ffa7b"
+const dbServer = "fb_db"
 
 type closedChannelError struct {
 	error
+}
+
+type QueryClassDimentions struct {
+	DbUsername  string
+	ClientHost  string
+	PeriodStart int64
+	PeriodEnd   int64
 }
 
 func main() {
@@ -61,7 +69,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		_ = conn.Close()
+	}()
 	client := pb.NewAgentClient(conn)
 
 	events := parseSlowLog(*slowLogPath, logOpt)
@@ -89,35 +99,252 @@ func main() {
 		start := time.Now()
 		err = bulkSend(stream, func(am *pb.AgentMessage) error {
 			i := 0
+			aggregator := event.NewAggregator(true, 0, 0) // add right params
+			qcDimentions := map[string]*QueryClassDimentions{}
 			for e := range events {
 				fingerprint := query.Fingerprint(e.Query)
 				digest := query.Id(fingerprint)
-				fmt.Printf("parsed QC: %v\n", digest)
-				qc := &pb.QueryClass{
-					Digest:           digest,
-					DigestText:       fingerprint,
-					DbSchema:         e.Db,
-					DbUsername:       e.User,
-					ClientHost:       e.Host,
-					AgentUuid:        agentUUID,
-					PeriodStart:      e.Ts.UnixNano(),
-					Example:          e.Query,
-					MQueryTimeSum:    float32(e.TimeMetrics["Query_time"]),
-					MLockTimeSum:     float32(e.TimeMetrics["Lock_time"]),
-					MRowsSentSum:     e.NumberMetrics["Rows_sent"],
-					MRowsExaminedSum: e.NumberMetrics["Rows_examined"],
-					MRowsAffectedSum: e.NumberMetrics["Rows_affected"],
-					MBytesSentSum:    e.NumberMetrics["Bytes_sent"],
-				}
-				am.QueryClass = append(am.QueryClass, qc)
+				aggregator.AddEvent(e, digest, fingerprint)
 				// Pass last offset to restart reader when reached out end of slowlog.
 				logOpt.StartOffset = e.OffsetEnd
 
+				qcd := &QueryClassDimentions{
+					DbUsername: e.User,
+					ClientHost: e.Host,
+					PeriodEnd:  e.Ts.UnixNano(),
+				}
+
+				qcDimentions[digest] = qcd
+				if qcDimentions[digest].PeriodStart != 0 {
+					qcDimentions[digest].PeriodStart = e.Ts.UnixNano()
+				}
+
 				i++
 				if i >= *maxQCtoSent || time.Since(start) > *maxTimeForSent {
-					return nil
+					break
 				}
 			}
+
+			r := aggregator.Finalize()
+
+			for k, v := range r.Class {
+				qc := &pb.QueryClass{
+					Digest:       k,
+					DigestText:   v.Fingerprint,
+					DbSchema:     v.Example.Db,
+					DbUsername:   qcDimentions[k].DbUsername,
+					ClientHost:   qcDimentions[k].ClientHost,
+					DbServer:     dbServer,
+					AgentUuid:    agentUUID,
+					PeriodStart:  qcDimentions[k].PeriodStart,
+					PeriodLength: uint32(qcDimentions[k].PeriodStart - qcDimentions[k].PeriodStart),
+					Example:      v.Example.Query,
+					NumQueries:   uint64(v.TotalQueries),
+				}
+
+				t, _ := time.Parse("2006-01-02 15:04:05", v.Example.Ts)
+				qc.PeriodStart = t.Unix()
+
+				// If key has suffix _time or _wait than field is TimeMetrics.
+				// For Boolean metrics exists only Sum.
+				// https://www.percona.com/doc/percona-server/5.7/diagnostics/slow_extended.html
+				// TimeMetrics: query_time, lock_time, rows_sent, innodb_io_r_wait, innodb_rec_lock_wait, innodb_queue_wait.
+				// NumberMetrics: rows_examined, rows_affected, rows_read, merge_passes, innodb_io_r_ops, innodb_io_r_bytes,
+				// innodb_pages_distinct, query_length, bytes_sent, tmp_tables, tmp_disk_tables, tmp_table_sizes.
+				// BooleanMetrics: qc_hit, full_scan, full_join, tmp_table, tmp_table_on_disk, filesort, filesort_on_disk,
+				// select_full_range_join, select_range, select_range_check, sort_range, sort_rows, sort_scan,
+				// no_index_used, no_good_index_used.
+
+				// query_time - Query_time
+				if m, ok := v.Metrics.TimeMetrics["Query_time"]; ok {
+					qc.MQueryTimeSum = float32(m.Sum)
+					qc.MQueryTimeMax = float32(*m.Max)
+					qc.MQueryTimeMin = float32(*m.Min)
+					qc.MQueryTimeP99 = float32(*m.P95)
+				}
+				// lock_time - Lock_time
+				if m, ok := v.Metrics.TimeMetrics["Lock_time"]; ok {
+					qc.MLockTimeSum = float32(m.Sum)
+					qc.MLockTimeMax = float32(*m.Max)
+					qc.MLockTimeMin = float32(*m.Min)
+					qc.MLockTimeP99 = float32(*m.P95)
+				}
+				// rows_sent - Rows_sent
+				if m, ok := v.Metrics.NumberMetrics["Rows_sent"]; ok {
+					qc.MRowsSentSum = m.Sum
+					qc.MRowsSentMax = *m.Max
+					qc.MRowsSentMin = *m.Min
+					qc.MRowsSentP99 = *m.P95
+				}
+				// rows_examined - Rows_examined
+				if m, ok := v.Metrics.NumberMetrics["Rows_examined"]; ok {
+					qc.MRowsExaminedSum = m.Sum
+					qc.MRowsExaminedMax = *m.Max
+					qc.MRowsExaminedMin = *m.Min
+					qc.MRowsExaminedP99 = *m.P95
+				}
+				// rows_affected - Rows_affected
+				if m, ok := v.Metrics.NumberMetrics["Rows_affected"]; ok {
+					qc.MRowsAffectedSum = m.Sum
+					qc.MRowsAffectedMax = *m.Max
+					qc.MRowsAffectedMin = *m.Min
+					qc.MRowsAffectedP99 = *m.P95
+				}
+				// rows_read - Rows_read
+				if m, ok := v.Metrics.NumberMetrics["Rows_read"]; ok {
+					qc.MRowsReadSum = m.Sum
+					qc.MRowsReadMax = *m.Max
+					qc.MRowsReadMin = *m.Min
+					qc.MRowsReadP99 = *m.P95
+				}
+				// merge_passes - Merge_passes
+				if m, ok := v.Metrics.NumberMetrics["Merge_passes"]; ok {
+					qc.MMergePassesSum = m.Sum
+					qc.MMergePassesMax = *m.Max
+					qc.MMergePassesMin = *m.Min
+					qc.MMergePassesP99 = *m.P95
+				}
+				// innodb_io_r_ops - InnoDB_IO_r_ops
+				if m, ok := v.Metrics.NumberMetrics["InnoDB_IO_r_ops"]; ok {
+					qc.MInnodbIoROpsSum = m.Sum
+					qc.MInnodbIoROpsMax = *m.Max
+					qc.MInnodbIoROpsMin = *m.Min
+					qc.MInnodbIoROpsP99 = *m.P95
+				}
+				// innodb_io_r_bytes - InnoDB_IO_r_bytes
+				if m, ok := v.Metrics.NumberMetrics["InnoDB_IO_r_bytes"]; ok {
+					qc.MInnodbIoRBytesSum = m.Sum
+					qc.MInnodbIoRBytesMax = *m.Max
+					qc.MInnodbIoRBytesMin = *m.Min
+					qc.MInnodbIoRBytesP99 = *m.P95
+				}
+				// innodb_io_r_wait - InnoDB_IO_r_wait
+				if m, ok := v.Metrics.TimeMetrics["InnoDB_IO_r_wait"]; ok {
+					qc.MInnodbIoRWaitSum = float32(m.Sum)
+					qc.MInnodbIoRWaitMax = float32(*m.Max)
+					qc.MInnodbIoRWaitMin = float32(*m.Min)
+					qc.MInnodbIoRWaitP99 = float32(*m.P95)
+				}
+				// innodb_rec_lock_wait - InnoDB_rec_lock_wait
+				if m, ok := v.Metrics.TimeMetrics["InnoDB_rec_lock_wait"]; ok {
+					qc.MInnodbRecLockWaitSum = float32(m.Sum)
+					qc.MInnodbRecLockWaitMax = float32(*m.Max)
+					qc.MInnodbRecLockWaitMin = float32(*m.Min)
+					qc.MInnodbRecLockWaitP99 = float32(*m.P95)
+				}
+				// innodb_queue_wait - InnoDB_queue_wait
+				if m, ok := v.Metrics.TimeMetrics["InnoDB_queue_wait"]; ok {
+					qc.MInnodbQueueWaitSum = float32(m.Sum)
+					qc.MInnodbQueueWaitMax = float32(*m.Max)
+					qc.MInnodbQueueWaitMin = float32(*m.Min)
+					qc.MInnodbQueueWaitP99 = float32(*m.P95)
+				}
+				// innodb_pages_distinct - InnoDB_pages_distinct
+				if m, ok := v.Metrics.NumberMetrics["InnoDB_pages_distinct"]; ok {
+					qc.MInnodbPagesDistinctSum = m.Sum
+					qc.MInnodbPagesDistinctMax = *m.Max
+					qc.MInnodbPagesDistinctMin = *m.Min
+					qc.MInnodbPagesDistinctP99 = *m.P95
+				}
+				// query_length - Query_length
+				if m, ok := v.Metrics.NumberMetrics["Query_length"]; ok {
+					qc.MQueryLengthSum = m.Sum
+					qc.MQueryLengthMax = *m.Max
+					qc.MQueryLengthMin = *m.Min
+					qc.MQueryLengthP99 = *m.P95
+				}
+				// bytes_sent - Bytes_sent
+				if m, ok := v.Metrics.NumberMetrics["Bytes_sent"]; ok {
+					qc.MBytesSentSum = m.Sum
+					qc.MBytesSentMax = *m.Max
+					qc.MBytesSentMin = *m.Min
+					qc.MBytesSentP99 = *m.P95
+				}
+				// tmp_tables - Tmp_tables
+				if m, ok := v.Metrics.NumberMetrics["Tmp_tables"]; ok {
+					qc.MTmpTablesSum = m.Sum
+					qc.MTmpTablesMax = *m.Max
+					qc.MTmpTablesMin = *m.Min
+					qc.MTmpTablesP99 = *m.P95
+				}
+				// tmp_disk_tables - Tmp_disk_tables
+				if m, ok := v.Metrics.NumberMetrics["Tmp_disk_tables"]; ok {
+					qc.MTmpDiskTablesSum = m.Sum
+					qc.MTmpDiskTablesMax = *m.Max
+					qc.MTmpDiskTablesMin = *m.Min
+					qc.MTmpDiskTablesP99 = *m.P95
+				}
+				// tmp_table_sizes - Tmp_table_sizes
+				if m, ok := v.Metrics.NumberMetrics["Tmp_table_sizes"]; ok {
+					qc.MTmpTableSizesSum = m.Sum
+					qc.MTmpTableSizesMax = *m.Max
+					qc.MTmpTableSizesMin = *m.Min
+					qc.MTmpTableSizesP99 = *m.P95
+				}
+				// qc_hit - QC_Hit
+				if m, ok := v.Metrics.BoolMetrics["QC_Hit"]; ok {
+					qc.MQcHitSum = m.Sum
+				}
+				// full_scan - Full_scan
+				if m, ok := v.Metrics.BoolMetrics["Full_scan"]; ok {
+					qc.MFullScanSum = m.Sum
+				}
+				// full_join - Full_join
+				if m, ok := v.Metrics.BoolMetrics["Full_join"]; ok {
+					qc.MFullJoinSum = m.Sum
+				}
+				// tmp_table - Tmp_table
+				if m, ok := v.Metrics.BoolMetrics["Tmp_table"]; ok {
+					qc.MTmpTableSum = m.Sum
+				}
+				// tmp_table_on_disk - Tmp_table_on_disk
+				if m, ok := v.Metrics.BoolMetrics["Tmp_table_on_disk"]; ok {
+					qc.MTmpTableOnDiskSum = m.Sum
+				}
+				// filesort - Filesort
+				if m, ok := v.Metrics.BoolMetrics["Filesort"]; ok {
+					qc.MFilesortSum = m.Sum
+				}
+				// filesort_on_disk - Filesort_on_disk
+				if m, ok := v.Metrics.BoolMetrics["Filesort_on_disk"]; ok {
+					qc.MFilesortOnDiskSum = m.Sum
+				}
+				// select_full_range_join - Select_full_range_join
+				if m, ok := v.Metrics.BoolMetrics["Select_full_range_join"]; ok {
+					qc.MSelectFullRangeJoinSum = m.Sum
+				}
+				// select_range - Select_range
+				if m, ok := v.Metrics.BoolMetrics["Select_range"]; ok {
+					qc.MSelectRangeSum = m.Sum
+				}
+				// select_range_check - Select_range_check
+				if m, ok := v.Metrics.BoolMetrics["Select_range_check"]; ok {
+					qc.MSelectRangeCheckSum = m.Sum
+				}
+				// sort_range - Sort_range
+				if m, ok := v.Metrics.BoolMetrics["Sort_range"]; ok {
+					qc.MSortRangeSum = m.Sum
+				}
+				// sort_rows - Sort_rows
+				if m, ok := v.Metrics.BoolMetrics["Sort_rows"]; ok {
+					qc.MSortRowsSum = m.Sum
+				}
+				// sort_scan - Sort_scan
+				if m, ok := v.Metrics.BoolMetrics["Sort_scan"]; ok {
+					qc.MSortScanSum = m.Sum
+				}
+				// no_index_used - No_index_used
+				if m, ok := v.Metrics.BoolMetrics["No_index_used"]; ok {
+					qc.MNoIndexUsedSum = m.Sum
+				}
+				// no_good_index_used - No_good_index_used
+				if m, ok := v.Metrics.BoolMetrics["No_good_index_used"]; ok {
+					qc.MNoGoodIndexUsedSum = m.Sum
+				}
+
+				am.QueryClass = append(am.QueryClass, qc)
+			}
+
 			// No new events in slowlog. Nothing to send to API.
 			if i == 0 {
 				return closedChannelError{errors.New("closed channel")}

@@ -21,11 +21,10 @@ import (
 	"strings"
 	"time"
 
+	collectorpb "github.com/Percona-Lab/qan-api/api/collector"
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/reflectx"
 	"github.com/pkg/errors"
-
-	collectorpb "github.com/Percona-Lab/qan-api/api/collector"
 )
 
 const insertSQL = `
@@ -390,8 +389,9 @@ func (qc *QueryClass) Save(agentMsg *collectorpb.AgentMessage) error {
 		wk, wv := MapToArrsStrInt(qc.Warnings)
 		ek, ev := MapToArrsStrInt(qc.Errors)
 		labintk, labintv := MapToArrsIntInt(qc.Labint)
+		fmt.Printf("Time: %v, %v \n", qc.GetPeriodStart(), time.Unix(qc.GetPeriodStart(), 0).UTC())
 		q := QueryClassExtended{
-			time.Unix(qc.GetPeriodStart(), 0),
+			time.Unix(qc.GetPeriodStart(), 0).UTC(),
 			qc.GetExampleType().String(),
 			qc.GetExampleFormat().String(),
 			lk,
