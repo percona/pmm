@@ -97,7 +97,7 @@ message ExternalExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // URL for scraping metrics.
-  uint32 metrics_url = 2;
+  string metrics_url = 2;
   //
   // Status fields below.
   //
@@ -126,7 +126,7 @@ message ListAgentsResponse {
   repeated NodeExporter node_exporter = 2;
   repeated MySQLdExporter mysqld_exporter = 3;
   repeated RDSExporter rds_exporter = 4;
-  repeated ExternalExporter external_agent = 5;
+  repeated ExternalExporter external_exporter = 5;
 }
 
 // Get
@@ -146,7 +146,7 @@ message GetAgentResponse {
     NodeExporter node_exporter = 2;
     MySQLdExporter mysqld_exporter = 3;
     RDSExporter rds_exporter = 4;
-    ExternalExporter external_agent = 5;
+    ExternalExporter external_exporter = 5;
   }
 }
 
@@ -250,7 +250,7 @@ message AddExternalExporterRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
   // URL for scraping metrics.
-  uint32 metrics_url = 2 [
+  string metrics_url = 2 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -258,7 +258,7 @@ message AddExternalExporterRequest {
 }
 
 message AddExternalExporterResponse {
-  ExternalExporter external_agent = 1;
+  ExternalExporter external_exporter = 1;
 }
 
 // TODO ChangeExternalExporterRequest https://jira.percona.com/browse/PMM-3470

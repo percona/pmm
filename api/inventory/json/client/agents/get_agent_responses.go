@@ -105,8 +105,8 @@ swagger:model GetAgentOKBody
 */
 type GetAgentOKBody struct {
 
-	// external agent
-	ExternalAgent *GetAgentOKBodyExternalAgent `json:"external_agent,omitempty"`
+	// external exporter
+	ExternalExporter *GetAgentOKBodyExternalExporter `json:"external_exporter,omitempty"`
 
 	// mysqld exporter
 	MysqldExporter *GetAgentOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
@@ -125,7 +125,7 @@ type GetAgentOKBody struct {
 func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateExternalAgent(formats); err != nil {
+	if err := o.validateExternalExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -151,16 +151,16 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetAgentOKBody) validateExternalAgent(formats strfmt.Registry) error {
+func (o *GetAgentOKBody) validateExternalExporter(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.ExternalAgent) { // not required
+	if swag.IsZero(o.ExternalExporter) { // not required
 		return nil
 	}
 
-	if o.ExternalAgent != nil {
-		if err := o.ExternalAgent.Validate(formats); err != nil {
+	if o.ExternalExporter != nil {
+		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOK" + "." + "external_agent")
+				return ve.ValidateName("getAgentOK" + "." + "external_exporter")
 			}
 			return err
 		}
@@ -259,25 +259,25 @@ func (o *GetAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyExternalAgent ExternalExporter does not run on any Inventory Node.
-swagger:model GetAgentOKBodyExternalAgent
+/*GetAgentOKBodyExternalExporter ExternalExporter does not run on any Inventory Node.
+swagger:model GetAgentOKBodyExternalExporter
 */
-type GetAgentOKBodyExternalAgent struct {
+type GetAgentOKBodyExternalExporter struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
 	// URL for scraping metrics.
-	MetricsURL int64 `json:"metrics_url,omitempty"`
+	MetricsURL string `json:"metrics_url,omitempty"`
 }
 
-// Validate validates this get agent o k body external agent
-func (o *GetAgentOKBodyExternalAgent) Validate(formats strfmt.Registry) error {
+// Validate validates this get agent o k body external exporter
+func (o *GetAgentOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetAgentOKBodyExternalAgent) MarshalBinary() ([]byte, error) {
+func (o *GetAgentOKBodyExternalExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -285,8 +285,8 @@ func (o *GetAgentOKBodyExternalAgent) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetAgentOKBodyExternalAgent) UnmarshalBinary(b []byte) error {
-	var res GetAgentOKBodyExternalAgent
+func (o *GetAgentOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyExternalExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

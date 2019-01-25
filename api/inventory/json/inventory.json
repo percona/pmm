@@ -32,8 +32,7 @@
               "properties": {
                 "metrics_url": {
                   "description": "URL for scraping metrics.",
-                  "type": "integer",
-                  "format": "int64"
+                  "type": "string"
                 }
               }
             }
@@ -45,7 +44,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "external_agent": {
+                "external_exporter": {
                   "description": "ExternalExporter does not run on any Inventory Node.",
                   "type": "object",
                   "properties": {
@@ -55,8 +54,7 @@
                     },
                     "metrics_url": {
                       "description": "URL for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64"
+                      "type": "string"
                     }
                   }
                 }
@@ -388,7 +386,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "external_agent": {
+                "external_exporter": {
                   "description": "ExternalExporter does not run on any Inventory Node.",
                   "type": "object",
                   "properties": {
@@ -398,8 +396,7 @@
                     },
                     "metrics_url": {
                       "description": "URL for scraping metrics.",
-                      "type": "integer",
-                      "format": "int64"
+                      "type": "string"
                     }
                   }
                 },
@@ -580,7 +577,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "external_agent": {
+                "external_exporter": {
                   "type": "array",
                   "items": {
                     "description": "ExternalExporter does not run on any Inventory Node.",
@@ -592,8 +589,7 @@
                       },
                       "metrics_url": {
                         "description": "URL for scraping metrics.",
-                        "type": "integer",
-                        "format": "int64"
+                        "type": "string"
                       }
                     }
                   }

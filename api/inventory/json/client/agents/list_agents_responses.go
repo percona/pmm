@@ -69,25 +69,25 @@ func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer ru
 	return nil
 }
 
-/*ExternalAgentItems0 ExternalExporter does not run on any Inventory Node.
-swagger:model ExternalAgentItems0
+/*ExternalExporterItems0 ExternalExporter does not run on any Inventory Node.
+swagger:model ExternalExporterItems0
 */
-type ExternalAgentItems0 struct {
+type ExternalExporterItems0 struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
 	// URL for scraping metrics.
-	MetricsURL int64 `json:"metrics_url,omitempty"`
+	MetricsURL string `json:"metrics_url,omitempty"`
 }
 
-// Validate validates this external agent items0
-func (o *ExternalAgentItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this external exporter items0
+func (o *ExternalExporterItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *ExternalAgentItems0) MarshalBinary() ([]byte, error) {
+func (o *ExternalExporterItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -95,8 +95,8 @@ func (o *ExternalAgentItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *ExternalAgentItems0) UnmarshalBinary(b []byte) error {
-	var res ExternalAgentItems0
+func (o *ExternalExporterItems0) UnmarshalBinary(b []byte) error {
+	var res ExternalExporterItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -147,8 +147,8 @@ swagger:model ListAgentsOKBody
 */
 type ListAgentsOKBody struct {
 
-	// external agent
-	ExternalAgent []*ExternalAgentItems0 `json:"external_agent"`
+	// external exporter
+	ExternalExporter []*ExternalExporterItems0 `json:"external_exporter"`
 
 	// mysqld exporter
 	MysqldExporter []*MysqldExporterItems0 `json:"mysqld_exporter"`
@@ -167,7 +167,7 @@ type ListAgentsOKBody struct {
 func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateExternalAgent(formats); err != nil {
+	if err := o.validateExternalExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -193,21 +193,21 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *ListAgentsOKBody) validateExternalAgent(formats strfmt.Registry) error {
+func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.ExternalAgent) { // not required
+	if swag.IsZero(o.ExternalExporter) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.ExternalAgent); i++ {
-		if swag.IsZero(o.ExternalAgent[i]) { // not required
+	for i := 0; i < len(o.ExternalExporter); i++ {
+		if swag.IsZero(o.ExternalExporter[i]) { // not required
 			continue
 		}
 
-		if o.ExternalAgent[i] != nil {
-			if err := o.ExternalAgent[i].Validate(formats); err != nil {
+		if o.ExternalExporter[i] != nil {
+			if err := o.ExternalExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "external_agent" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOK" + "." + "external_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
