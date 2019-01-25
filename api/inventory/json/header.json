@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM Server Inventory API",
-    "version": "version 0"
+    "version": "version 1.alpha"
   },
   "schemes": [
     "https",

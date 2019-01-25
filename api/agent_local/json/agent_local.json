@@ -12,7 +12,7 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM Agent Local API",
-    "version": "version 0"
+    "version": "version 1.alpha"
   },
   "paths": {
     "/local/Status": {
