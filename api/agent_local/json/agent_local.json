@@ -38,6 +38,9 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_id": {
+                  "type": "string"
+                },
                 "node_id": {
                   "type": "string"
                 }

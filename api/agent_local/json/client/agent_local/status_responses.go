@@ -70,6 +70,9 @@ swagger:model StatusOKBody
 */
 type StatusOKBody struct {
 
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
+
 	// node id
 	NodeID string `json:"node_id,omitempty"`
 }
