@@ -3,6 +3,14 @@ help:                           ## Display this help message.
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
+RUN_FLAGS = -swagger=json -debug \
+			-agent-mysqld-exporter=mysqld_exporter \
+			-agent-postgres-exporter=postgres_exporter \
+			-agent-rds-exporter=rds_exporter \
+			-agent-rds-exporter-config=testdata/rds_exporter/rds_exporter.yml \
+			-prometheus-config=testdata/prometheus/prometheus.yml \
+			-db-name=pmm-managed-dev
+
 init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
 	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
 
@@ -68,14 +76,15 @@ run: install _run               ## Run pmm-managed.
 
 run-race: install-race _run     ## Run pmm-managed with race detector.
 
+run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
+	go test -coverpkg="github.com/percona/pmm-managed/..." \
+			-tags maincover \
+			-race -c -o bin/pmm-managed.test \
+			github.com/percona/pmm-managed/cmd/pmm-managed
+	bin/pmm-managed.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
+
 _run:
-	pmm-managed -swagger=json -debug \
-		-agent-mysqld-exporter=mysqld_exporter \
-		-agent-postgres-exporter=postgres_exporter \
-		-agent-rds-exporter=rds_exporter \
-		-agent-rds-exporter-config=testdata/rds_exporter/rds_exporter.yml \
-		-prometheus-config=testdata/prometheus/prometheus.yml \
-		-db-name=pmm-managed-dev
+	pmm-managed $(RUN_FLAGS)
 
 env-up:                         ## Start development environment.
 	docker-compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
