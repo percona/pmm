@@ -1,0 +1,47 @@
+.. _1.8.1:
+
+================================================================================
+|pmm.name| |release|
+================================================================================
+
+:Date: March 06, 2018
+
+|percona| announces the release of |pmm.name| |release|.  |info.pmm.about|.
+
+|tip.bug-fix-release|
+|pmm.name|
+|prev-release|.
+
+Improvements
+================================================================================
+
+- :pmmbug:`2051`: The |proxysql| Overview dashboard enables selecting
+  more than one host group in the :guilabel:`Hostgroup` field.
+- :pmmbug:`2163`: Dashboards based on the rds_exporter now use the *node_cpu_average* metric instead of *node_cpu*
+
+Bug fixes
+================================================================================
+
+- :pmmbug:`854`: In some cases, databases and tables could be detected incorrectly
+- :pmmbug:`1745`: For some queries, :guilabel:`Query Abstract` showed incorrect database name in |qan|.
+- :pmmbug:`1928`: In some cases, |qan.name| added a wrong schema
+- :pmmbug:`2014`: |qan.name| could incorrectly include a schema from another server
+- :pmmbug:`2082`: The *PMM Query Analytics Settings* dashboard had minor user interface problems.
+- :pmmbug:`2122`: The time selector in |qan.name| showed time in the local
+  timezone while time values in the :guilabel:`Query Abstract`: were in
+  the UTC format.
+- :pmmbug:`2127`: There was a typo in the |qan| interface when there was no data
+- :pmmbug:`2129`: In some cases, |qan| could show an incorrect fingerprint if the query contained no table.
+- :pmmbug:`2171`: The JSON section in |qan.name| was displayed incorrectly
+- :pmmbug:`2172`: The *CPU Usage* metrics was not consistent in the *System Summary* dashboard
+- :pmmbug:`2173`: Summary values were inconsistent
+- :pmmbug:`2174`: |amazon-aurora| nodes were not shown in the System Overview dashboard
+- :pmmbug:`2176`: Lengthy queries were not displayed correctly in |qan.name|.
+- :pmmbug:`2177`: The *Incorrect Table name* error appeared on the first load of |qan.name|.
+- :pmmbug:`2184`: When port forwarding was used with |docker|, the permanent redirects would break
+  
+.. |release| replace:: 1.8.1
+.. |prev-release| replace:: 1.8.0
+		       
+.. include:: ../.res/replace.txt
+
