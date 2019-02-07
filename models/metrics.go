@@ -2,7 +2,6 @@ package models
 
 import (
 	"bytes"
-	"fmt"
 	"log"
 	"strings"
 	"text/template"
@@ -39,20 +38,14 @@ func (m *Metrics) Get(from, to, digest string, dbServers, dbSchemas, dbUsernames
 		log.Fatalln(err)
 	}
 
-	// TODO: find solution with better performance
-	m.db.Mapper = reflectx.NewMapperTagFunc("json", strings.ToLower, func(value string) string {
-		if strings.Contains(value, ",") {
-			return strings.Split(value, ",")[0]
-		}
-		return value
-	})
-
+	// set mapper to reuse json tags. Have to be unset
+	m.db.Mapper = reflectx.NewMapperFunc("json", strings.ToLower)
+	defer func() { m.db.Mapper = reflectx.NewMapperFunc("db", strings.ToLower) }()
 	res := metricspb.MetricsReply{}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	query, args, err = sqlx.In(query, args...)
 	query = m.db.Rebind(query)
 	err = m.db.Get(&res, query, args...)
-	fmt.Printf("Metrics res: %v, %v \n", res, err)
 	return &res, err
 }
 
@@ -204,7 +197,7 @@ WHERE period_start > :from AND period_start < :to AND digest = :digest
 		{{$i := 0}}
 		{{range $key, $val := index . "labels"}}
 			{{ $i = inc $i}} {{ if gt $i 1}} OR  {{ end }}
-			(label.key = ( :{{ $key }} ) AND labels.value IN ( :{{ $val }} ) )
+				labels.value[indexOf(labels.key, :{{ $key }})] = :{{ $val }}
 		{{ end }}
 	)
 {{ end }}

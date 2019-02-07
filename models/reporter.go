@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"strings"
 	"text/template"
 
 	"github.com/jmoiron/sqlx"
@@ -20,7 +21,8 @@ func NewReporter(db *sqlx.DB) Reporter {
 }
 
 var funcMap = template.FuncMap{
-	"inc": func(i int) int { return i + 1 },
+	"inc":         func(i int) int { return i + 1 },
+	"StringsJoin": strings.Join,
 }
 
 const queryReportTotalTmpl = `
@@ -38,13 +40,13 @@ WHERE period_start > :from AND period_start < :to
 {{ if index . "users" }} AND db_username IN ( :users ) {{ end }}
 {{ if index . "hosts" }} AND client_host IN ( :hosts ) {{ end }}
 {{ if index . "labels" }}
-	AND (
+AND (
 		{{$i := 0}}
 		{{range $key, $val := index . "labels"}}
 			{{ $i = inc $i}} {{ if gt $i 1}} OR  {{ end }}
-			(label.key = ( :{{ $key }} ) AND labels.value IN ( :{{ $val }} ) )
+			has(['{{ StringsJoin $val "','" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
 		{{ end }}
-	)
+)
 {{ end }}
 `
 
@@ -110,16 +112,15 @@ WHERE period_start > :from AND period_start < :to
 	AND (
 		{{$i := 0}}
 		{{range $key, $val := index . "labels"}}
-			{{ $i = inc $i}} {{ if gt $i 1}} OR  {{ end }}
-			(label.key = ( :{{ $key }} ) AND labels.value IN ( :{{ $val }} ) )
+			{{ $i = inc $i}} {{ if gt $i 1}} OR {{ end }}
+			has(['{{ StringsJoin $val "','" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
 		{{ end }}
 	)
 {{ end }}
 GROUP BY digest
-ORDER BY m_query_time_sum DESC
+ORDER BY ( :order ) DESC
+LIMIT :offset, :limit
 `
-
-// LIMIT :limit OFFSET :offset;
 
 type QueryClassReport struct {
 	Digest1       string  `db:"digest1"`
@@ -134,8 +135,16 @@ type QueryClassReport struct {
 	MQueryTimeP99 float32 `db:"m_query_time_p99"`
 }
 
-func (r *Reporter) Select(from, to, keyword string, firstSeen bool, dbServers, dbSchemas, dbUsernames, clientHosts []string, dbLabels map[string][]string) ([]*QueryClassReport, error) {
+func (r *Reporter) Select(from, to, keyword string, firstSeen bool, dbServers, dbSchemas, dbUsernames, clientHosts []string, dbLabels map[string][]string, order string, offset uint32, limit uint32) ([]*QueryClassReport, error) {
 
+	fmt.Printf("HHHHH: %v, %v, %v \n", order, offset, limit)
+	if order == "" {
+		order = "m_query_time_sum"
+	}
+
+	if limit == 0 {
+		limit = 10
+	}
 	arg := map[string]interface{}{
 		"from":          from,
 		"to":            to,
@@ -147,6 +156,9 @@ func (r *Reporter) Select(from, to, keyword string, firstSeen bool, dbServers, d
 		"users":         dbUsernames,
 		"hosts":         clientHosts,
 		"labels":        dbLabels,
+		"order":         order,
+		"offset":        offset,
+		"limit":         limit,
 	}
 	var queryBuffer bytes.Buffer
 	if tmpl, err := template.New("queryReport").Funcs(funcMap).Parse(queryReportTmpl); err != nil {

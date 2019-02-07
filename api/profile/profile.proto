@@ -18,6 +18,9 @@ message ProfileRequest {
   string group_by = 5;
   repeated MapFieldEntry labels = 6;
   repeated string include = 7;
+  string order = 8;
+  uint32 offset = 9;
+  uint32 limit = 10;
 }
 
 // MapFieldEntry

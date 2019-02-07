@@ -18,7 +18,6 @@ package analitycs
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	profilepb "github.com/Percona-Lab/qan-api/api/profile"
@@ -38,7 +37,7 @@ func NewService(rm models.Reporter, mm models.Metrics) *Service {
 
 // DataInterchange implements rpc to exchange data between API and agent.
 func (s *Service) GetDigestGroup(ctx context.Context, in *profilepb.ProfileRequest) (*profilepb.ProfileReply, error) {
-	fmt.Println("Call GetDigestGroup")
+	// TODO: add validator/sanitazer
 	labels := in.GetLabels()
 	dbServers := []string{}
 	dbSchemas := []string{}
@@ -46,7 +45,6 @@ func (s *Service) GetDigestGroup(ctx context.Context, in *profilepb.ProfileReque
 	clientHosts := []string{}
 	dbLabels := map[string][]string{}
 	for _, label := range labels {
-		fmt.Printf("label: %v, : %v \n", label.Key, label.Value)
 		switch label.Key {
 		case "db_server":
 			dbServers = label.Value
@@ -61,7 +59,7 @@ func (s *Service) GetDigestGroup(ctx context.Context, in *profilepb.ProfileReque
 		}
 	}
 	total, _ := s.rm.GetTotal(in.From, in.To, dbServers, dbSchemas, dbUsernames, clientHosts, dbLabels)
-	classes, _ := s.rm.Select(in.From, in.To, in.Keyword, in.FirstSeen, dbServers, dbSchemas, dbUsernames, clientHosts, dbLabels)
+	classes, _ := s.rm.Select(in.From, in.To, in.Keyword, in.FirstSeen, dbServers, dbSchemas, dbUsernames, clientHosts, dbLabels, in.Order, in.Offset, in.Limit)
 
 	fromDate, _ := time.Parse("2006-01-02 15:04:05", in.From)
 	toDate, _ := time.Parse("2006-01-02 15:04:05", in.To)
@@ -87,7 +85,7 @@ func (s *Service) GetDigestGroup(ctx context.Context, in *profilepb.ProfileReque
 
 	for i, class := range classes {
 		reply.Rows = append(reply.Rows, &profilepb.ProfileRow{
-			Rank:       uint32(i + 1),
+			Rank:       uint32(int(in.Offset) + i + 1),
 			Percentage: class.MQueryTimeSum / total.MQueryTimeSum,
 			Digest:     class.Digest1,
 			DigestText: class.DigestText1,
