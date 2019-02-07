@@ -43,7 +43,7 @@ func NewStatusOK() *StatusOK {
 
 /*StatusOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type StatusOK struct {
 	Payload *StatusOKBody

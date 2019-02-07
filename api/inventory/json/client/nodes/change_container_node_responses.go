@@ -44,7 +44,7 @@ func NewChangeContainerNodeOK() *ChangeContainerNodeOK {
 
 /*ChangeContainerNodeOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type ChangeContainerNodeOK struct {
 	Payload *ChangeContainerNodeOKBody

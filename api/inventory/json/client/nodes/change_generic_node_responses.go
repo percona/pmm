@@ -44,7 +44,7 @@ func NewChangeGenericNodeOK() *ChangeGenericNodeOK {
 
 /*ChangeGenericNodeOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type ChangeGenericNodeOK struct {
 	Payload *ChangeGenericNodeOKBody

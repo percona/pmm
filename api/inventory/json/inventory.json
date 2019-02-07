@@ -40,7 +40,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -101,7 +101,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -180,7 +180,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -247,7 +247,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -308,7 +308,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -382,7 +382,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -573,7 +573,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -770,7 +770,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object"
             }
@@ -815,7 +815,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -888,7 +888,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -949,7 +949,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1006,7 +1006,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1071,7 +1071,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1144,7 +1144,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1209,7 +1209,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1266,7 +1266,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1323,7 +1323,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1440,7 +1440,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1575,7 +1575,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object"
             }
@@ -1621,7 +1621,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1700,7 +1700,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1779,7 +1779,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1862,7 +1862,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -1928,7 +1928,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -2021,7 +2021,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
@@ -2120,7 +2120,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object"
             }

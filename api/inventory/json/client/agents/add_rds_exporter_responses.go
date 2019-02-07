@@ -46,7 +46,7 @@ func NewAddRDSExporterOK() *AddRDSExporterOK {
 
 /*AddRDSExporterOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type AddRDSExporterOK struct {
 	Payload *AddRDSExporterOKBody

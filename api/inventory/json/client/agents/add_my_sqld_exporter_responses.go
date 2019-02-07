@@ -46,7 +46,7 @@ func NewAddMySqldExporterOK() *AddMySqldExporterOK {
 
 /*AddMySqldExporterOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type AddMySqldExporterOK struct {
 	Payload *AddMySqldExporterOKBody

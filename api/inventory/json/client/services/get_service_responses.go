@@ -44,7 +44,7 @@ func NewGetServiceOK() *GetServiceOK {
 
 /*GetServiceOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type GetServiceOK struct {
 	Payload *GetServiceOKBody

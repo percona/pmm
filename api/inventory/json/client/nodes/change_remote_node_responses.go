@@ -44,7 +44,7 @@ func NewChangeRemoteNodeOK() *ChangeRemoteNodeOK {
 
 /*ChangeRemoteNodeOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type ChangeRemoteNodeOK struct {
 	Payload *ChangeRemoteNodeOKBody

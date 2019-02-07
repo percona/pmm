@@ -47,7 +47,7 @@ func NewListAgentsOK() *ListAgentsOK {
 
 /*ListAgentsOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type ListAgentsOK struct {
 	Payload *ListAgentsOKBody

@@ -44,7 +44,7 @@ func NewAddRemoteAmazonRDSNodeOK() *AddRemoteAmazonRDSNodeOK {
 
 /*AddRemoteAmazonRDSNodeOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type AddRemoteAmazonRDSNodeOK struct {
 	Payload *AddRemoteAmazonRDSNodeOKBody

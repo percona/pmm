@@ -44,7 +44,7 @@ func NewGetNodeOK() *GetNodeOK {
 
 /*GetNodeOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type GetNodeOK struct {
 	Payload *GetNodeOKBody

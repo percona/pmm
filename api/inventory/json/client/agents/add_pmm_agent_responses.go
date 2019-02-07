@@ -44,7 +44,7 @@ func NewAddPMMAgentOK() *AddPMMAgentOK {
 
 /*AddPMMAgentOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type AddPMMAgentOK struct {
 	Payload *AddPMMAgentOKBody

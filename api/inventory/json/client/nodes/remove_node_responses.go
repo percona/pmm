@@ -43,7 +43,7 @@ func NewRemoveNodeOK() *RemoveNodeOK {
 
 /*RemoveNodeOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type RemoveNodeOK struct {
 	Payload interface{}

@@ -43,7 +43,7 @@ func NewRemoveAgentOK() *RemoveAgentOK {
 
 /*RemoveAgentOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type RemoveAgentOK struct {
 	Payload interface{}

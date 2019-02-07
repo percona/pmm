@@ -45,7 +45,7 @@ func NewListServicesOK() *ListServicesOK {
 
 /*ListServicesOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type ListServicesOK struct {
 	Payload *ListServicesOKBody

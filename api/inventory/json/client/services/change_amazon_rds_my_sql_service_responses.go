@@ -44,7 +44,7 @@ func NewChangeAmazonRDSMySQLServiceOK() *ChangeAmazonRDSMySQLServiceOK {
 
 /*ChangeAmazonRDSMySQLServiceOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type ChangeAmazonRDSMySQLServiceOK struct {
 	Payload *ChangeAmazonRDSMySQLServiceOKBody

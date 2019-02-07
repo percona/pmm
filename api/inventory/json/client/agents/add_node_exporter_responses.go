@@ -46,7 +46,7 @@ func NewAddNodeExporterOK() *AddNodeExporterOK {
 
 /*AddNodeExporterOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type AddNodeExporterOK struct {
 	Payload *AddNodeExporterOKBody

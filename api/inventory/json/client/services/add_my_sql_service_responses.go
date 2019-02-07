@@ -44,7 +44,7 @@ func NewAddMySQLServiceOK() *AddMySQLServiceOK {
 
 /*AddMySQLServiceOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type AddMySQLServiceOK struct {
 	Payload *AddMySQLServiceOKBody

@@ -44,7 +44,7 @@ func NewAddExternalExporterOK() *AddExternalExporterOK {
 
 /*AddExternalExporterOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type AddExternalExporterOK struct {
 	Payload *AddExternalExporterOKBody
