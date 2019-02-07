@@ -17,7 +17,7 @@
 package commands
 
 import (
-	"github.com/percona/pmm/api/json/client"
+	"github.com/percona/pmm/api/inventory/json/client"
 )
 
 // FIXME Expand this interface to cover our use cases:

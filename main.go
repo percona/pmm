@@ -23,7 +23,7 @@ import (
 	"os"
 
 	httptransport "github.com/go-openapi/runtime/client"
-	"github.com/percona/pmm/api/json/client"
+	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 

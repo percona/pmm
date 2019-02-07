@@ -19,9 +19,8 @@ package commands
 import (
 	"context"
 
-	"github.com/percona/pmm/api/json/client"
-	"github.com/percona/pmm/api/json/client/agents"
-	"github.com/percona/pmm/api/json/models"
+	"github.com/percona/pmm/api/inventory/json/client"
+	"github.com/percona/pmm/api/inventory/json/client/agents"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,8 +36,8 @@ func (cmd *AddMySQLCmd) Run() {
 
 	// TODO get or create MySQL service for this Node via pmm-managed
 
-	params := &agents.AddMySqldExporterAgentParams{
-		Body: &models.InventoryAddMySqldExporterAgentRequest{
+	params := &agents.AddMySqldExporterParams{
+		Body: agents.AddMySqldExporterBody{
 			// TODO RunsOnNodeID
 			// TODO ServiceID
 			Username: cmd.Username,
@@ -48,7 +47,7 @@ func (cmd *AddMySQLCmd) Run() {
 		// FIXME remove this from every request
 		Context: context.Background(),
 	}
-	resp, err := client.Default.Agents.AddMySqldExporterAgent(params)
+	resp, err := client.Default.Agents.AddMySqldExporter(params)
 	if err != nil {
 		logrus.Error(err)
 		return
