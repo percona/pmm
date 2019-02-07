@@ -19,7 +19,7 @@ directory with essential sub folders and then run |docker| commands to copy
 
    .. include:: ../../.res/code/mkdir.pmm-data-backup.cd.txt
 
-#. Create the essential sub directories:
+#. Create the essential sub directory:
 
    .. include:: ../../.res/code/mkdir.opt-prometheus.var-lib.txt
 

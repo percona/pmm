@@ -13,38 +13,6 @@ directly. You use it to create a |docker| container for your |pmm-server|. When
 launched, the |docker| container gives access to the whole functionality of
 |pmm|.
 
-|pmm-server| deployment via |docker| can be done either automatically with a
-special installation script, or manually. Both variants are covered in the
-following sections.
-
-Simplified Automatic Installation
-================================================================================
-
-Automatic installation of the |pmm-server| is done with a special script,
-`get-pmm.sh <https://raw.githubusercontent.com/percona/pmm/master/get-pmm.sh>`_. This script should be downloaded and executed, for example with the
-following two commands::
-
-   curl -fsSL https://raw.githubusercontent.com/percona/pmm/master/get-pmm.sh  -o get-pmm.sh
-   sh get-pmm.sh
-
-This script should be executed under root user, or under non-root user either
-with rights to run docker containers, or with privileges to run ``sudo`` command.
-
-Being executed, ``get-pmm.sh`` performs following actions:
-
- - checking if |docker| is installed, and trying to install it if not,
- - running |docker| if necessary,
- - downloading the |pmm-server| image,
- - generating the necessary ``pmm-data`` container,
- - configuring and starting the |pmm-server| container.
-
-.. note: ``get-pmm.sh`` is able to install |docker| if needed on all officially
-   supported GNU/Linux distributions except CentOS 6. The latter needs |docker|
-   to be already installed for successful |pmm-server| installation.
-
-Manual Installation
-================================================================================
-
 The setup begins with pulling the required |docker| image. Then, you proceed by
 creating a special container for persistent |pmm| data. The last step is
 creating and launching the |pmm-server| container.
@@ -143,18 +111,15 @@ To install specific |pmm-server| version instead of the latest one, just put
 desired version number after the colon. Also in this scenario it may be useful
 to `prevent updating PMM Server via the web interface <https://www.percona.com/doc/percona-monitoring-and-management/glossary.option.html>`_ with the ``DISABLE_UPDATES`` docker option.
 
-For example, installing version 1.14.1 with disabled update button in the web
+For example, installing version 2.0.1 with disabled update button in the web
 interface would look as follows:
 
 .. code-block:: bash
 
    $ docker create \
-      -v /opt/prometheus/data \
-      -v /opt/consul-data \
-      -v /var/lib/mysql \
-      -v /var/lib/grafana \
+      -v /srv \
       --name pmm-data \
-      percona/pmm-server:1.14.1 /bin/true
+      percona/pmm-server:2.0.1 /bin/true
 
    $ docker run -d \
       -p 80:80 \
@@ -162,7 +127,7 @@ interface would look as follows:
       --name pmm-server \
       -e DISABLE_UPDATES=true \
       --restart always \
-      percona/pmm-server:1.14.1
+      percona/pmm-server:2.0.1
 
 
 
