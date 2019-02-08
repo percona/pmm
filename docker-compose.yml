@@ -37,10 +37,10 @@ services:
       - MYSQL_PASSWORD=pmm-managed
 
   postgres:
-    image: ${POSTGRES_IMAGE:-postgres:10.5}
-    restart: always
+    image: ${POSTGRES_IMAGE:-postgres:10}
     ports:
       - 127.0.0.1:5432:5432
     environment:
-      - POSTGRES_USER=username
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=pmm-managed-dev
+      - POSTGRES_USER=pmm-managed
+      - POSTGRES_PASSWORD=pmm-managed

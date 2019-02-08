@@ -97,7 +97,7 @@ func TestList(t *testing.T) {
 
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
 	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil)
-	id, err := postgreSQLService.Add(ctx, "", "localhost", 5432, "username", "password")
+	id, err := postgreSQLService.Add(ctx, "", "localhost", 5432, "pmm-managed", "pmm-managed")
 	assert.NoError(t, err)
 
 	actual, err = svc.List(ctx)
@@ -117,7 +117,7 @@ func TestList(t *testing.T) {
 			Address:       pointer.ToString("localhost"),
 			Port:          pointer.ToUint16(5432),
 			Engine:        pointer.ToString("PostgreSQL"),
-			EngineVersion: pointer.ToString("10.5"),
+			EngineVersion: pointer.ToString("10.6"),
 		},
 	}}
 	assert.Equal(t, expected, actual)

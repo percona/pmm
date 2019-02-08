@@ -92,18 +92,18 @@ func TestAddListRemove(t *testing.T) {
 	require.NoError(t, err)
 	assert.Empty(t, actual)
 
-	_, err = svc.Add(ctx, "", "", 0, "username", "password")
+	_, err = svc.Add(ctx, "", "", 0, "pmm-managed", "pmm-managed")
 	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `PostgreSQL instance host is not given.`), err)
 
-	_, err = svc.Add(ctx, "", " ", 0, "username", "password")
+	_, err = svc.Add(ctx, "", " ", 0, "pmm-managed", "pmm-managed")
 	tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `PostgreSQL instance host is not given.`), err)
 
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
 	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil)
-	id, err := svc.Add(ctx, "", "localhost", 0, "username", "password")
+	id, err := svc.Add(ctx, "", "localhost", 0, "pmm-managed", "pmm-managed")
 	assert.NoError(t, err)
 
-	_, err = svc.Add(ctx, "", "localhost", 5432, "username", "password")
+	_, err = svc.Add(ctx, "", "localhost", 5432, "pmm-managed", "pmm-managed")
 	tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `PostgreSQL instance "localhost" already exists.`), err)
 
 	actual, err = svc.List(ctx)
@@ -123,7 +123,7 @@ func TestAddListRemove(t *testing.T) {
 			Address:       pointer.ToString("localhost"),
 			Port:          pointer.ToUint16(5432),
 			Engine:        pointer.ToString("PostgreSQL"),
-			EngineVersion: pointer.ToString("10.5"),
+			EngineVersion: pointer.ToString("10.6"),
 		},
 	}}
 	assert.Equal(t, expected, actual)
@@ -159,7 +159,7 @@ func TestRestore(t *testing.T) {
 	supervisor.On("Start", mock.Anything, mock.Anything).Return(nil)
 	supervisor.On("Status", mock.Anything, mock.Anything).Return(nil)
 	supervisor.On("Stop", mock.Anything, mock.Anything).Return(nil)
-	_, err = svc.Add(ctx, "", "localhost", 5432, "username", "password")
+	_, err = svc.Add(ctx, "", "localhost", 5432, "pmm-managed", "pmm-managed")
 	assert.NoError(t, err)
 
 	// Restore should succeed.
@@ -170,7 +170,6 @@ func TestRestore(t *testing.T) {
 }
 
 func TestExtractFromVersion(t *testing.T) {
-
 	_, svc, sqlDB, before, rootDir, supervisor := setup(t)
 	defer teardown(t, svc, sqlDB, before, rootDir, supervisor)
 

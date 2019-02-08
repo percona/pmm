@@ -24,6 +24,10 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
+
+	"github.com/percona/pmm-managed/utils/tests"
 )
 
 func TestIntegration(t *testing.T) {
@@ -35,11 +39,29 @@ func TestIntegration(t *testing.T) {
 		t.Skipf("Environment variable %s is not set. Skipping integration test.", envURL)
 	}
 
-	uuid, err := GenerateUUID()
+	uuid, err := generateUUID()
 	require.NoError(t, err)
 	s := NewService(uuid, "1.3.1")
 	assert.True(t, s.init())
 	assert.NoError(t, s.sendOnce(context.Background()))
+}
+
+func TestGetTelemetryUUID(t *testing.T) {
+	sqlDB := tests.OpenTestPostgresDB(t)
+	defer func() {
+		require.NoError(t, sqlDB.Close())
+	}()
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
+	// generate and set new UUID
+	generatedUUID, err := GetTelemetryUUID(db)
+	require.NoError(t, err)
+	assert.NotEmpty(t, generatedUUID)
+
+	// get UUID
+	newUUID, err := GetTelemetryUUID(db)
+	require.NoError(t, err)
+	assert.Equal(t, generatedUUID, newUUID)
 }
 
 func TestMakePayload(t *testing.T) {

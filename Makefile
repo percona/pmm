@@ -9,7 +9,8 @@ RUN_FLAGS = -swagger=json -debug \
 			-agent-rds-exporter=rds_exporter \
 			-agent-rds-exporter-config=testdata/rds_exporter/rds_exporter.yml \
 			-prometheus-config=testdata/prometheus/prometheus.yml \
-			-db-name=pmm-managed-dev
+			-db-name=pmm-managed-dev \
+			-postgres-name=pmm-managed-dev
 
 init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
 	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin

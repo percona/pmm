@@ -32,6 +32,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/reform.v1"
+
+	"github.com/percona/pmm-managed/models"
 )
 
 const (
@@ -157,8 +160,7 @@ func (s *Service) sendRequest(ctx context.Context, data []byte) error {
 	return nil
 }
 
-// GenerateUUID generates new UUID version 4 (random).
-func GenerateUUID() (string, error) {
+func generateUUID() (string, error) {
 	uuid, err := uuid.NewRandom()
 	if err != nil {
 		return "", errors.Wrap(err, "can't generate UUID")
@@ -201,4 +203,26 @@ func getLinuxDistribution(procVersion string) string {
 		}
 	}
 	return "unknown"
+}
+
+// GetTelemetryUUID gets/sets telemetry UUID in DB.
+func GetTelemetryUUID(db *reform.DB) (string, error) {
+	var row models.TelemetryRow
+	err := db.SelectOneTo(&row, "")
+	if err != nil && err != reform.ErrNoRows {
+		return "", errors.Wrap(err, "cannot get telemetry data from DB")
+	}
+	if err == nil {
+		return row.UUID, nil
+	}
+
+	row.UUID, err = generateUUID()
+	if err != nil {
+		return "", err
+	}
+
+	if err := db.Insert(&row); err != nil {
+		return "", errors.WithStack(err)
+	}
+	return row.UUID, nil
 }

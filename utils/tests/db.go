@@ -45,3 +45,24 @@ func OpenTestDB(t testing.TB) *sql.DB {
 	require.NoError(t, err)
 	return db
 }
+
+// OpenTestPostgresDB recreates testing postgres database and returns an open connection to it.
+func OpenTestPostgresDB(t testing.TB) *sql.DB {
+	t.Helper()
+
+	db, err := models.OpenPostgresDB("", "pmm-managed", "pmm-managed", t.Logf)
+	require.NoError(t, err)
+
+	const testDatabase = "pmm-managed-dev"
+	_, err = db.Exec(`DROP DATABASE IF EXISTS "` + testDatabase + `"`)
+	require.NoError(t, err)
+	_, err = db.Exec(`CREATE DATABASE "` + testDatabase + `"`)
+	require.NoError(t, err)
+
+	err = db.Close()
+	require.NoError(t, err)
+
+	db, err = models.OpenPostgresDB(testDatabase, "pmm-managed", "pmm-managed", t.Logf)
+	require.NoError(t, err)
+	return db
+}

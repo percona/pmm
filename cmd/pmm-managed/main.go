@@ -46,6 +46,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"gopkg.in/reform.v1"
 	reformMySQL "gopkg.in/reform.v1/dialects/mysql"
+	reformPostgreSQL "gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/handlers"
@@ -93,6 +94,10 @@ var (
 	dbNameF     = flag.String("db-name", "", "Database name")
 	dbUsernameF = flag.String("db-username", "pmm-managed", "Database username")
 	dbPasswordF = flag.String("db-password", "pmm-managed", "Database password")
+
+	postgresDBNameF     = flag.String("postgres-name", "", "PostgreSQL database name")
+	postgresDBUsernameF = flag.String("postgres-username", "pmm-managed", "PostgreSQL database username")
+	postgresDBPasswordF = flag.String("postgres-password", "pmm-managed", "PostgreSQL database password")
 
 	agentMySQLdExporterF    = flag.String("agent-mysqld-exporter", "/usr/local/percona/pmm-client/mysqld_exporter", "mysqld_exporter path")
 	agentPostgresExporterF  = flag.String("agent-postgres-exporter", "/usr/local/percona/pmm-client/postgres_exporter", "postgres_exporter path")
@@ -463,35 +468,16 @@ func runDebugServer(ctx context.Context) {
 	cancel()
 }
 
-func runTelemetryService(ctx context.Context, consulClient *consul.Client) {
+func runTelemetryService(ctx context.Context, db *reform.DB) {
 	l := logrus.WithField("component", "telemetry")
 
-	uuid, err := getTelemetryUUID(consulClient)
+	uuid, err := telemetry.GetTelemetryUUID(db)
 	if err != nil {
-		l.Panicf("cannot get/set telemetry UUID in Consul: %s", err)
+		l.Panicf("cannot get/set telemetry UUID in DB: %+v", err)
 	}
 
 	svc := telemetry.NewService(uuid, Version)
 	svc.Run(ctx)
-}
-
-func getTelemetryUUID(consulClient *consul.Client) (string, error) {
-	b, err := consulClient.GetKV("telemetry/uuid")
-	if err != nil {
-		return "", err
-	}
-	if len(b) > 0 {
-		return string(b), nil
-	}
-
-	uuid, err := telemetry.GenerateUUID()
-	if err != nil {
-		return "", err
-	}
-	if err = consulClient.PutKV("telemetry/uuid", []byte(uuid)); err != nil {
-		return "", err
-	}
-	return uuid, nil
 }
 
 func main() {
@@ -502,6 +488,9 @@ func main() {
 
 	if *dbNameF == "" {
 		log.Fatal("-db-name flag must be given explicitly.")
+	}
+	if *postgresDBNameF == "" {
+		log.Fatal("-postgres-name flag must be given explicitly.")
 	}
 
 	if *debugF {
@@ -556,6 +545,13 @@ func main() {
 	}
 	defer sqlDB.Close()
 	db := reform.NewDB(sqlDB, reformMySQL.Dialect, nil)
+
+	postgresDB, err := models.OpenPostgresDB(*postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF, l.Debugf)
+	if err != nil {
+		l.Panicf("Failed to connect to database: %+v", err)
+	}
+	defer postgresDB.Close()
+	pdb := reform.NewDB(postgresDB, reformPostgreSQL.Dialect, nil)
 
 	portsRegistry, err := makePortsRegistry(db)
 	if err != nil {
@@ -623,7 +619,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runTelemetryService(ctx, consulClient)
+		runTelemetryService(ctx, pdb)
 	}()
 
 	wg.Wait()
