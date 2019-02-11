@@ -177,13 +177,14 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:0803d17eea18ed123b8cae9adca31071c12f27d34ea643f9609243999902f4cc"
+  digest = "1:b75c5d2b0cb8d9ea51cb9f452ae5999aefc5d805196b5b0be98c9224fe7cdbf6"
   name = "github.com/percona/pmm"
   packages = [
     "api/inventory/json/client",
     "api/inventory/json/client/agents",
     "api/inventory/json/client/nodes",
     "api/inventory/json/client/services",
+    "version",
   ]
   pruneopts = "NUT"
   revision = "7411b82815b56670f7452a0039787333f03485b5"
@@ -270,6 +271,7 @@
     "github.com/go-openapi/runtime/client",
     "github.com/percona/pmm/api/inventory/json/client",
     "github.com/percona/pmm/api/inventory/json/client/agents",
+    "github.com/percona/pmm/version",
     "github.com/sirupsen/logrus",
     "gopkg.in/alecthomas/kingpin.v2",
   ]

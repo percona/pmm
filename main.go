@@ -18,28 +18,24 @@ package main
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net/http"
 	"net/url"
 	"os"
 
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/percona/pmm/api/inventory/json/client"
+	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/Percona-Lab/pmm-admin/commands"
 )
 
-var (
-	// Version is an application version.
-	// TODO Set it during the build.
-	Version = "2.0.0-dev"
-)
-
 func main() {
-	app := kingpin.New("pmm-admin", "Version "+Version+".")
+	app := kingpin.New("pmm-admin", fmt.Sprintf("Version %s.", version.Version))
 	app.HelpFlag.Short('h')
-	app.Version(Version)
+	app.Version(version.FullInfo())
 	pmmServerAddressF := app.Flag("server-url", "PMM Server URL.").Envar("PMM_ADMIN_SERVER_URL").Required().String()
 	debugF := app.Flag("debug", "Enable debug output.").Envar("PMM_ADMIN_DEBUG").Bool()
 	kingpin.MustParse(app.Parse(os.Args[1:]))
