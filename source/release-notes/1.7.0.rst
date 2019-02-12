@@ -1,0 +1,53 @@
+.. _1.7.0:
+
+================================================================================
+|pmm.name| |release|
+================================================================================
+
+:Date: January 31, 2018
+
+|percona| announces the release of |pmm.name| |release|.  |info.pmm.about|.
+
+This release features improved support for external services, which enables a
+|pmm-server| to store and display metrics for any available |prometheus|
+exporter. For example, you could deploy the postgres_exporter and use |pmm|
+external services feature to store |postgresql| metrics in |pmm|.  Immediately,
+you will see these new metrics in the |dbd.advanced-data-exploration| dashboard. Then
+you could leverage many of the pre-developed |postgresql| dashboards available
+on Grafana.com, and with a minimal amount of edits have a working |postgresql|
+dashboard in |pmm|!  Watch for an upcoming blog post to demonstrate a
+walk-through of this unlocked functionality.
+
+New Features
+================================================================================
+
+- :pmmbug:`1949`: New dashboard: |dbd.mysql-amazon-aurora-metrics|.
+
+  .. image:: 1-7-0.1.png
+
+Improvements
+================================================================================
+
+- :pmmbug:`1712`: Improve external exporters to let you easily add data
+  monitoring from an arbitrary |prometheus| exporter you have running on your
+  host.
+- :pmmbug:`1510`: Rename *swap in* and *swap out* labels to be more specific and
+  help clearly see the direction of data flow for *Swap In* and *Swap Out*. The
+  new labels are *Swap In (Reads)* and *Swap Out (Writes)* accordingly.
+- :pmmbug:`1966`: Remove |grafana| from list of exporters on dashboard to
+  eliminate confusion with existing |grafana| in the list of exporters on the
+  current version of the dashboard.
+- :pmmbug:`1974`: Add the *mongodb_up* in the Exporter Status dashboard. The new
+  graph is added to maintain consistency of information about exporters. This is
+  done based on new metrics implemented in :pmmbug:`1586`.
+
+  
+Bug fixes
+================================================================================
+
+- :pmmbug:`1967`: Inconsistent formulas in |prometheus| dashboards.
+- :pmmbug:`1986`: Signing out with HTTP auth enabled leaves the browser *signed in*.
+  
+.. |release| replace:: 1.7.0
+		       
+.. include:: ../.res/replace.txt
