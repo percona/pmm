@@ -23,11 +23,13 @@ import (
 	"os/exec"
 	"strconv"
 	"testing"
+	"time"
 
 	"github.com/percona/pmm/api/agent"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/sys/unix"
 )
 
 // assertStates checks expected statuses in the same order.
@@ -39,6 +41,23 @@ func assertStates(t *testing.T, sa *process, expected ...agent.Status) {
 		actual[i] = <-sa.Changes()
 	}
 	assert.Equal(t, expected, actual)
+}
+
+// builds helper app.
+func build(t *testing.T, tag string, fileName string, outputFile string) *exec.Cmd {
+	t.Helper()
+
+	t.Logf("building to %s", outputFile)
+	args := []string{"build"}
+	if tag != "" {
+		args = append(args, "-tags", tag)
+	}
+	args = append(args, "-o", outputFile, fileName)
+	cmd := exec.Command("go", args...) //nolint:gosec
+	cmd.Stdout = os.Stderr
+	cmd.Stderr = os.Stderr
+	require.NoError(t, cmd.Run(), "failed to build %s", fileName)
+	return cmd
 }
 
 func setup(t *testing.T) (context.Context, context.CancelFunc, *logrus.Entry) {
@@ -106,6 +125,50 @@ func TestProcess(t *testing.T) {
 		assertStates(t, p, agent.Status_DONE, agent.Status_STATUS_INVALID)
 	})
 
+	t.Run("Kill child", func(t *testing.T) {
+		t.Parallel()
+
+		f, err := ioutil.TempFile("", "pmm-agent-process-test-child")
+		require.NoError(t, err)
+		require.NoError(t, f.Close())
+		defer func() {
+			require.NoError(t, os.Remove(f.Name()))
+		}()
+
+		build(t, "child", "process_child.go", f.Name())
+
+		ctx, cancel, l := setup(t)
+		defer cancel()
+
+		logger := newProcessLogger(l, 2)
+
+		pCmd := exec.CommandContext(ctx, f.Name()) //nolint:gosec
+		pCmd.Stdout = logger
+		err = pCmd.Start()
+		require.NoError(t, err)
+
+		var logs []string
+		for ; len(logs) == 0; logs = logger.Latest() {
+			time.Sleep(50 * time.Millisecond)
+		}
+		err = pCmd.Process.Kill()
+		require.NoError(t, err)
+		err = pCmd.Wait()
+		require.EqualError(t, err, "signal: killed")
+		time.Sleep(200 * time.Millisecond) // Waiting to be sure that child process is killed.
+
+		pid, err := strconv.Atoi(logs[0])
+		require.NoError(t, err)
+		proc, err := os.FindProcess(pid)
+		require.NoError(t, err)
+
+		err = pCmd.Process.Signal(unix.Signal(0))
+		require.EqualError(t, err, "os: process already finished", "process with pid %v is not killed", pCmd.Process.Pid)
+
+		err = proc.Signal(unix.Signal(0))
+		require.EqualError(t, err, "os: process already finished", "child process with pid %v is not killed", logs[0])
+	})
+
 	t.Run("Killed", func(t *testing.T) {
 		t.Parallel()
 
@@ -116,11 +179,7 @@ func TestProcess(t *testing.T) {
 			require.NoError(t, os.Remove(f.Name()))
 		}()
 
-		t.Logf("building to %s", f.Name())
-		cmd := exec.Command("go", "build", "-o", f.Name(), "process_noterm.go") //nolint:gosec
-		cmd.Stdout = os.Stderr
-		cmd.Stderr = os.Stderr
-		require.NoError(t, cmd.Run(), "failed to build process_noterm.go")
+		build(t, "", "process_noterm.go", f.Name())
 
 		ctx, cancel, l := setup(t)
 		p := newProcess(ctx, &processParams{path: f.Name()}, l)
