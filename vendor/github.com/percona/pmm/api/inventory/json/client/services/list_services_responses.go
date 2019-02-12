@@ -45,14 +45,14 @@ func NewListServicesOK() *ListServicesOK {
 
 /*ListServicesOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type ListServicesOK struct {
 	Payload *ListServicesOKBody
 }
 
 func (o *ListServicesOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/List][%d] listServicesOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] listServicesOK  %+v", 200, o.Payload)
 }
 
 func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -67,13 +67,57 @@ func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer 
 	return nil
 }
 
+/*AmazonRDSMysqlItems0 AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node
+swagger:model AmazonRDSMysqlItems0
+*/
+type AmazonRDSMysqlItems0 struct {
+
+	// Instance endpoint (full DNS name).
+	Address string `json:"address,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Instance port.
+	Port int64 `json:"port,omitempty"`
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+}
+
+// Validate validates this amazon RDS mysql items0
+func (o *AmazonRDSMysqlItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AmazonRDSMysqlItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AmazonRDSMysqlItems0) UnmarshalBinary(b []byte) error {
+	var res AmazonRDSMysqlItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ListServicesBody list services body
 swagger:model ListServicesBody
 */
 type ListServicesBody struct {
 
 	// Return only Services running on that Node.
-	HostNodeID string `json:"host_node_id,omitempty"`
+	NodeID string `json:"node_id,omitempty"`
 }
 
 // Validate validates this list services body
@@ -104,6 +148,9 @@ swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
 
+	// amazon rds mysql
+	AmazonRDSMysql []*AmazonRDSMysqlItems0 `json:"amazon_rds_mysql"`
+
 	// mysql
 	Mysql []*MysqlItems0 `json:"mysql"`
 }
@@ -112,6 +159,10 @@ type ListServicesOKBody struct {
 func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateAmazonRDSMysql(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateMysql(formats); err != nil {
 		res = append(res, err)
 	}
@@ -119,6 +170,31 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *ListServicesOKBody) validateAmazonRDSMysql(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AmazonRDSMysql) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.AmazonRDSMysql); i++ {
+		if swag.IsZero(o.AmazonRDSMysql[i]) { // not required
+			continue
+		}
+
+		if o.AmazonRDSMysql[i] != nil {
+			if err := o.AmazonRDSMysql[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOK" + "." + "amazon_rds_mysql" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -165,59 +241,32 @@ func (o *ListServicesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*MysqlItems0 MySQLService represents MySQL-compatible Service configuration.
+/*MysqlItems0 MySQLService represents a generic MySQL instance.
 swagger:model MysqlItems0
 */
 type MysqlItems0 struct {
 
-	// MySQL access address (DNS name or IP address).
+	// Access address (DNS name or IP). Required if unix_socket is absent.
 	Address string `json:"address,omitempty"`
 
-	// host node info
-	HostNodeInfo *MysqlItems0HostNodeInfo `json:"host_node_info,omitempty"`
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
 
-	// Unique Service identifier.
-	ID string `json:"id,omitempty"`
-
-	// Unique user-defined Service name.
-	Name string `json:"name,omitempty"`
-
-	// MySQL access port.
+	// Access port. Required if unix_socket is absent.
 	Port int64 `json:"port,omitempty"`
 
-	// MySQL access UNIX socket path.
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Access Unix socket. Required if address and port are absent.
 	UnixSocket string `json:"unix_socket,omitempty"`
 }
 
 // Validate validates this mysql items0
 func (o *MysqlItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateHostNodeInfo(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *MysqlItems0) validateHostNodeInfo(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.HostNodeInfo) { // not required
-		return nil
-	}
-
-	if o.HostNodeInfo != nil {
-		if err := o.HostNodeInfo.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("host_node_info")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -232,50 +281,6 @@ func (o *MysqlItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *MysqlItems0) UnmarshalBinary(b []byte) error {
 	var res MysqlItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*MysqlItems0HostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
-swagger:model MysqlItems0HostNodeInfo
-*/
-type MysqlItems0HostNodeInfo struct {
-
-	// Docker container ID.
-	ContainerID string `json:"container_id,omitempty"`
-
-	// Docker container name.
-	ContainerName string `json:"container_name,omitempty"`
-
-	// Kubernetes pod name.
-	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
-
-	// Kubernetes pod UID.
-	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
-
-	// Node identifier where Service or Agent runs.
-	NodeID string `json:"node_id,omitempty"`
-}
-
-// Validate validates this mysql items0 host node info
-func (o *MysqlItems0HostNodeInfo) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *MysqlItems0HostNodeInfo) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *MysqlItems0HostNodeInfo) UnmarshalBinary(b []byte) error {
-	var res MysqlItems0HostNodeInfo
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@ option go_package = "examplepb";
 package grpc.gateway.examples.examplepb;
 
 import "google/api/annotations.proto";
+import "google/protobuf/field_mask.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/duration.proto";
 import "examples/proto/pathenum/path_enum.proto";
@@ -19,6 +20,10 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 			name: "gRPC-Gateway project";
 			url: "https://github.com/grpc-ecosystem/grpc-gateway";
 			email: "none@example.com";
+		};
+		license: {
+			name: "BSD 3-Clause License";
+			url: "https://github.com/grpc-ecosystem/grpc-gateway/blob/master/LICENSE.txt";
 		};
 	};
 	// Overwriting host entry breaks tests, so this is not done here.
@@ -133,16 +138,20 @@ message ABitOfEverything {
 		json_schema: {
 			title: "A bit of everything"
 			description: "Intentionaly complicated message type to cover many features of Protobuf."
-			required: ["uuid"]
+			required: ["uuid", "int64_value", "double_value"]
 		}
 		external_docs: {
 			url: "https://github.com/grpc-ecosystem/grpc-gateway";
 			description: "Find out more about ABitOfEverything";
 		}
+		example: { value: '{ "uuid": "0cf361e1-4b44-483d-a159-54dabdf7e814" }' }
 	};
 
 	// Nested is nested type.
 	message Nested {
+		option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+			example: { value: '{ "ok": "TRUE" }' }
+		};
 		// name is nested field.
 		string name = 1;
 		uint32 amount = 2;
@@ -159,7 +168,7 @@ message ABitOfEverything {
 
 	string uuid = 1 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {pattern: "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}", min_length: 1}];
 	repeated Nested nested = 2;
-	float float_value = 3;
+	float float_value = 3 [(grpc.gateway.protoc_gen_swagger.options.openapiv2_field) = {description: "Float value field", default: "0.2", required: ['float_value']}];
 	double double_value = 4;
 	int64 int64_value = 5;
 	uint64 uint64_value = 6;
@@ -197,6 +206,9 @@ message ABitOfEverything {
 
 // ABitOfEverythingRepeated is used to validate repeated path parameter functionality
 message ABitOfEverythingRepeated {
+	option (grpc.gateway.protoc_gen_swagger.options.openapiv2_schema) = {
+		example: { value: '{ "path_repeated_bool_value": [true, true, false, true], "path_repeated_int32_value": [1, 2, 3] }' }
+	};
 
 	// repeated values. they are comma-separated in path
 	repeated float path_repeated_float_value = 1;
@@ -235,6 +247,12 @@ enum NumericEnum {
 	ONE = 1;
 }
 
+// UpdateV2Request request for update includes the message and the update mask
+message UpdateV2Request {
+	ABitOfEverything abe = 1;
+	google.protobuf.FieldMask update_mask = 2;
+}
+
 // ABitOfEverything service is used to validate that APIs with complicated
 // proto messages and URL templates are still processed correctly.
 service ABitOfEverythingService {
@@ -269,6 +287,22 @@ service ABitOfEverythingService {
 	rpc Update(ABitOfEverything) returns (google.protobuf.Empty) {
 		option (google.api.http) = {
 			put: "/v1/example/a_bit_of_everything/{uuid}"
+			body: "*"
+		};
+	}
+	rpc UpdateV2(UpdateV2Request) returns (google.protobuf.Empty) {
+		option (google.api.http) = {
+			put: "/v2/example/a_bit_of_everything/{abe.uuid}"
+			body: "abe"
+			additional_bindings {
+				patch: "/v2/example/a_bit_of_everything/{abe.uuid}"
+				body: "abe"
+			}
+		};
+	}
+	rpc PatchWithFieldMaskInBody(UpdateV2Request) returns (google.protobuf.Empty) {
+		option (google.api.http) = {
+			patch: "/v2a/example/a_bit_of_everything/{abe.uuid}"
 			body: "*"
 		};
 	}

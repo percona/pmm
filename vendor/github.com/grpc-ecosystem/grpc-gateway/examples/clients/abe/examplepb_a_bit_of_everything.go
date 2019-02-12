@@ -23,11 +23,12 @@ type ExamplepbABitOfEverything struct {
 
 	Nested []ABitOfEverythingNested `json:"nested,omitempty"`
 
+	// Float value field
 	FloatValue float32 `json:"float_value,omitempty"`
 
-	DoubleValue float64 `json:"double_value,omitempty"`
+	DoubleValue float64 `json:"double_value"`
 
-	Int64Value string `json:"int64_value,omitempty"`
+	Int64Value string `json:"int64_value"`
 
 	Uint64Value string `json:"uint64_value,omitempty"`
 
@@ -61,7 +62,7 @@ type ExamplepbABitOfEverything struct {
 
 	RepeatedStringValue []string `json:"repeated_string_value,omitempty"`
 
-	OneofEmpty ProtobufEmpty `json:"oneof_empty,omitempty"`
+	OneofEmpty interface{} `json:"oneof_empty,omitempty"`
 
 	OneofString string `json:"oneof_string,omitempty"`
 

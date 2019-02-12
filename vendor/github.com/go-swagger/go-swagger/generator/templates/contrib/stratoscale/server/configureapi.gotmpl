@@ -77,9 +77,17 @@ type Config struct {
 // Handler returns an http.Handler given the handler configuration
 // It mounts all the business logic implementers in the right routing.
 func Handler(c Config) (http.Handler, error) {
+	h, _, err := HandlerAPI(c)
+	return h, err
+}
+
+// HandlerAPI returns an http.Handler given the handler configuration
+// and the corresponding *{{ pascalize .Name }} instance.
+// It mounts all the business logic implementers in the right routing.
+func HandlerAPI(c Config) (http.Handler, *{{.Package}}.{{ pascalize .Name }}API, error) {
 	spec, err := loads.Analyzed(swaggerCopy(SwaggerJSON), "")
 	if err != nil {
-		return nil, fmt.Errorf("analyze swagger: %v", err)
+		return nil, nil, fmt.Errorf("analyze swagger: %v", err)
 	}
 	api := {{.Package}}.New{{ pascalize .Name }}API(spec)
 	api.ServeError = errors.ServeError
@@ -136,7 +144,7 @@ func Handler(c Config) (http.Handler, error) {
 	{{ end -}}
 
 	{{ range .Operations -}}
-	api.{{if ne .Package $package}}{{pascalize .Package}}{{end}}{{ pascalize .Name }}Handler = {{.Package}}.{{ pascalize .Name }}HandlerFunc(func({{ if .WithContext }}ctx context.Context, {{ end }}params {{.Package}}.{{ pascalize .Name }}Params{{if .Authorized}}, principal interface{}{{end}}) middleware.Responder {
+	api.{{if ne .Package $package}}{{pascalize .Package}}{{end}}{{ pascalize .Name }}Handler = {{.Package}}.{{ pascalize .Name }}HandlerFunc(func(params {{.Package}}.{{ pascalize .Name }}Params{{if .Authorized}}, principal interface{}{{end}}) middleware.Responder {
 		ctx := params.HTTPRequest.Context()
 		{{ if .Authorized -}}
 		ctx = storeAuth(ctx, principal)
@@ -146,7 +154,7 @@ func Handler(c Config) (http.Handler, error) {
 	{{ end -}}
 
 	api.ServerShutdown = func() {  }
-	return api.Serve(c.InnerMiddleware), nil
+	return api.Serve(c.InnerMiddleware), api, nil
 }
 
 // swaggerCopy copies the swagger json to prevent data races in runtime

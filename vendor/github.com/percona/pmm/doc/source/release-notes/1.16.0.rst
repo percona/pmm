@@ -8,32 +8,30 @@ Percona Monitoring and Management 1.16.0
 
 *PMM* (`Percona Monitoring and Management <https://www.percona.com/doc/percona-monitoring-and-management/index.html>`_) is a free and open-source platform for managing and monitoring |MySQL|, |MongoDB|, and |postgresql| performance. You can run *PMM* in your own environment for maximum security and reliability. It provides thorough time-based analysis for |MySQL| and |MongoDB| servers to ensure that your data works as efficiently as possible.
 
-While much of the team is working on longer-term projects, we were able to
-provide the following features:
+This release offers three new features for both the Community and Percona Customers:
 
-* MySQL and PostgreSQL support for all cloud DBaaS providers – Use PMM Server
-  to gather Metrics and Queries from remote instances!
-* Query Analytics + Metric Series – See Database activity alongside queries
-* Collect local metrics using node_exporter + textfile collector
+* Agentless PMM support - Use PMM Server to gather Database Metrics and Queries
+  from remote instances with no PMM Client installed!
+* Query Analytics + Metric Series – See Related Database activity alongside queries
+* Simplify metrics collections
 
 We addressed 11 new features and improvements, and fixed 21 bugs.
 
-MySQL and PostgreSQL support for all cloud DBaaS providers
+Agentless PMM support for MySQL and PostgreSQL
 ================================================================================
 
 You’re now able to connect |pmm-server| to your |MySQL| and |postgresql|
-instances, whether they run in a cloud DBaaS environment, or you simply want
-Database metrics without the OS metrics.  This can help you get up and running
-with |pmm| using minimal configuration and zero client installation, however be aware there are limitations – *there won’t be any host-level dashboards populated for these
-nodes* since we don’t attempt to connect to the provider’s API nor are we
-granted access to the instance in order to deploy an exporter.
+instances, whether they run in a cloud DBaaS environment, or under Operating
+Systems which are not natively supported by |pmm| (e.g. Windows), or when you
+do not have shell access to the server. This can help you get up and running
+with |pmm| using minimal configuration and zero client installation, however be
+aware there are limitations - *there won’t be any host-level dashboards
+populated for these nodes* since we don’t attempt to connect to the provider’s
+API nor are we granted access to the instance in order to deploy an exporter.
 
 How to use
 --------------------------------------------------------------------------------
 
-Using the |pmm-add-instance| screen, you can now add instances from any cloud
-provider (AWS RDS and Aurora, Google Cloud SQL for MySQL, Azure Database for
-MySQL) and benefit from the same dashboards that you are already accustomed to.
 You’ll be able to collect Metrics and Queries from |MySQL|, and Metrics from
 |postgresql|.  You can add remote instances by selecting the |pmm-add-instance|
 item in a |gui.pmm-dropdown| group of the system menu:
@@ -51,20 +49,22 @@ Password (and optional Port and Name):
 .. figure:: 1.16.0-3.png
 
 Also new as part of this release is the ability to display nodes you’ve added,
-on screen RDS and Remote Instances:
+on screen **RDS and Remote Instances**:
 
 .. figure:: 1.16.0-4.png
 
 Server activity metrics in the PMM Query Analytics dashboard
 --------------------------------------------------------------------------------
 
-The Query Analytics dashboard now shows a summary of the selected host and
-database activity metrics in addition to the top ten queries listed in a summary
-table. This brings a view of System Activity (CPU, Disk, and Network) and
-Database Server Activity (Connections, Queries per Second, and Threads Running)
-to help you better pinpoint query pileups and other bottlenecks:
+The Query Analytics dashboard now shows host and database activity graphs linked
+to the queries listed in a summary table.  This brings a view of System Activity
+(CPU, Disk, and Network) and Database Server Activity (Connections, Queries per
+Second, and Threads Running) to help you better pinpoint query pileups and other
+bottlenecks.
 
-.. image:: 1.16.0-5.png
+.. raw:: html
+
+   <img src="https://www.percona.com/blog/wp-content/uploads/2018/12/1.16.0-5-1.gif" alt="PMM Query Analytics dashboard"> 
 
 Extending metrics with node_exporter textfile collector
 --------------------------------------------------------------------------------
@@ -74,7 +74,7 @@ may have the need for a metric that’s not present in the list of
 ``node_exporter`` metrics out of the box. There is a simple method to extend the
 list of available metrics without modifying the ``node_exporter`` code. It is
 based on the textfile collector.  We’ve enabled this collector as on by default,
-and is deployed as part of ``linux:metrics`` in |pmm-client|.
+and it is deployed as part of ``linux:metrics`` in |pmm-client|.
 
 The default directory for reading text files with the metrics is
 ``/usr/local/percona/pmm-client/textfile-collector``, and the exporter reads
@@ -105,7 +105,8 @@ metric series named ``node_docker_containers_total`` and
 New Features and Improvements
 ================================================================================
 
-* :pmmbug:`3195`: Remove the light bulb
+* :pmmbug:`3195`: Remove Color scheme switch in favor of the UI Theme chooser in
+  Preferences
 * :pmmbug:`3194`: Change link for “Where do I get the security credentials for
   my Amazon RDS DB instance?”
 * :pmmbug:`3189`: Include Remote MySQL & PostgreSQL instance logs into PMM
@@ -120,8 +121,8 @@ New Features and Improvements
 * :pmmbug:`2888`: Enable Textfile Collector by Default in node_exporter
 * :pmmbug:`2880`: Use consistent favicon (Percona logo) across all distribution
   methods
-* :pmmbug:`2306`: Configure EBS disk resize utility to run from crontab in PMM
-  Server
+* :pmmbug:`2306`: Reconfigure instance automatically after the EBS volume size
+  increase
 * :pmmbug:`1358`: Improve Tooltips on Disk Space Dashboard – thanks, `Corrado Pandiani <https://www.percona.com/blog/author/corrado-pandiani/>`_ for texts
 
 Fixed Bugs

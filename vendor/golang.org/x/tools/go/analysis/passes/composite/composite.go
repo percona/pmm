@@ -16,12 +16,21 @@ import (
 	"golang.org/x/tools/go/ast/inspector"
 )
 
-const Doc = `checked for unkeyed composite literals
+const Doc = `check for unkeyed composite literals
 
 This analyzer reports a diagnostic for composite literals of struct
 types imported from another package that do not use the field-keyed
 syntax. Such literals are fragile because the addition of a new field
-(even if unexported) to the struct will cause compilation to fail.`
+(even if unexported) to the struct will cause compilation to fail.
+
+As an example,
+
+	err = &net.DNSConfigError{err}
+
+should be replaced by:
+
+	err = &net.DNSConfigError{Err: err}
+`
 
 var Analyzer = &analysis.Analyzer{
 	Name:             "composites",

@@ -57,6 +57,7 @@ type swaggerObject struct {
 	Produces            []string                            `json:"produces"`
 	Paths               swaggerPathsObject                  `json:"paths"`
 	Definitions         swaggerDefinitionsObject            `json:"definitions"`
+	StreamDefinitions   swaggerDefinitionsObject            `json:"x-stream-definitions,omitempty"`
 	SecurityDefinitions swaggerSecurityDefinitionsObject    `json:"securityDefinitions,omitempty"`
 	Security            []swaggerSecurityRequirementObject  `json:"security,omitempty"`
 	ExternalDocs        *swaggerExternalDocumentationObject `json:"externalDocs,omitempty"`
@@ -133,9 +134,10 @@ type swaggerParameterObject struct {
 // core part of schema, which is common to itemsObject and schemaObject.
 // http://swagger.io/specification/#itemsObject
 type schemaCore struct {
-	Type   string `json:"type,omitempty"`
-	Format string `json:"format,omitempty"`
-	Ref    string `json:"$ref,omitempty"`
+	Type    string          `json:"type,omitempty"`
+	Format  string          `json:"format,omitempty"`
+	Ref     string          `json:"$ref,omitempty"`
+	Example json.RawMessage `json:"example,omitempty"`
 
 	Items *swaggerItemsObject `json:"items,omitempty"`
 
@@ -199,8 +201,8 @@ func (op swaggerSchemaObjectProperties) MarshalJSON() ([]byte, error) {
 type swaggerSchemaObject struct {
 	schemaCore
 	// Properties can be recursively defined
-	Properties           swaggerSchemaObjectProperties `json:"properties,omitempty"`
-	AdditionalProperties *swaggerSchemaObject          `json:"additionalProperties,omitempty"`
+	Properties           *swaggerSchemaObjectProperties `json:"properties,omitempty"`
+	AdditionalProperties *swaggerSchemaObject           `json:"additionalProperties,omitempty"`
 
 	Description string `json:"description,omitempty"`
 	Title       string `json:"title,omitempty"`

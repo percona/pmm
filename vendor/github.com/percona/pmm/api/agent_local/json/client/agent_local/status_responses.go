@@ -43,14 +43,14 @@ func NewStatusOK() *StatusOK {
 
 /*StatusOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type StatusOK struct {
 	Payload *StatusOKBody
 }
 
 func (o *StatusOK) Error() string {
-	return fmt.Sprintf("[POST /v0/local/Status][%d] statusOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /local/Status][%d] statusOK  %+v", 200, o.Payload)
 }
 
 func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -69,6 +69,9 @@ func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtim
 swagger:model StatusOKBody
 */
 type StatusOKBody struct {
+
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
 
 	// node id
 	NodeID string `json:"node_id,omitempty"`

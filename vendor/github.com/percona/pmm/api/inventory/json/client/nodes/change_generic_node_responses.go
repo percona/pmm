@@ -44,14 +44,14 @@ func NewChangeGenericNodeOK() *ChangeGenericNodeOK {
 
 /*ChangeGenericNodeOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type ChangeGenericNodeOK struct {
 	Payload *ChangeGenericNodeOKBody
 }
 
 func (o *ChangeGenericNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/ChangeGeneric][%d] changeGenericNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/ChangeGeneric][%d] changeGenericNodeOK  %+v", 200, o.Payload)
 }
 
 func (o *ChangeGenericNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -71,11 +71,17 @@ swagger:model ChangeGenericNodeBody
 */
 type ChangeGenericNodeBody struct {
 
-	// Unique Node identifier.
-	ID string `json:"id,omitempty"`
+	// Linux distribution (if any).
+	Distro string `json:"distro,omitempty"`
 
-	// Unique user-defined Node name.
-	Name string `json:"name,omitempty"`
+	// Linux distribution version (if any).
+	DistroVersion string `json:"distro_version,omitempty"`
+
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
 }
 
 // Validate validates this change generic node body
@@ -160,19 +166,25 @@ func (o *ChangeGenericNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeGenericNodeOKBodyGeneric GenericNode represents Node without more specialized type.
+/*ChangeGenericNodeOKBodyGeneric GenericNode represents a bare metal server or virtual machine.
 swagger:model ChangeGenericNodeOKBodyGeneric
 */
 type ChangeGenericNodeOKBodyGeneric struct {
 
-	// Hostname. Is not unique. May be empty.
-	Hostname string `json:"hostname,omitempty"`
+	// Linux distribution (if any). Can be changed.
+	Distro string `json:"distro,omitempty"`
 
-	// Unique Node identifier.
-	ID string `json:"id,omitempty"`
+	// Linux distribution version (if any). Can be changed.
+	DistroVersion string `json:"distro_version,omitempty"`
 
-	// Unique user-defined Node name.
-	Name string `json:"name,omitempty"`
+	// Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.
+	MachineID string `json:"machine_id,omitempty"`
+
+	// Unique randomly generated instance identifier, can't be changed.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique across all Nodes user-defined name, can be changed.
+	NodeName string `json:"node_name,omitempty"`
 }
 
 // Validate validates this change generic node o k body generic

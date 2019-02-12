@@ -1,20 +1,37 @@
 workspace(name = "grpc_ecosystem_grpc_gateway")
 
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
 http_archive(
     name = "io_bazel_rules_go",
-    url = "https://github.com/bazelbuild/rules_go/releases/download/0.12.1/rules_go-0.12.1.tar.gz",
-    sha256 = "8b68d0630d63d95dacc0016c3bb4b76154fe34fca93efd65d1c366de3fcb4294",
+    sha256 = "7be7dc01f1e0afdba6c8eb2b43d2fa01c743be1b9273ab1eaf6c233df078d705",
+    urls = ["https://github.com/bazelbuild/rules_go/releases/download/0.16.5/rules_go-0.16.5.tar.gz"],
 )
 
 http_archive(
     name = "bazel_gazelle",
-    url = "https://github.com/bazelbuild/bazel-gazelle/releases/download/0.10.1/bazel-gazelle-0.10.1.tar.gz",
-    sha256 = "d03625db67e9fb0905bbd206fa97e32ae9da894fe234a493e7517fd25faec914",
+    sha256 = "7949fc6cc17b5b191103e97481cf8889217263acf52e00b560683413af204fcb",
+    urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/0.16.0/bazel-gazelle-0.16.0.tar.gz"],
 )
 
-load("@io_bazel_rules_go//go:def.bzl", "go_repository")
-load("//:repositories.bzl", "repositories")
-load("@io_bazel_rules_go//go:def.bzl", "go_rules_dependencies", "go_register_toolchains")
+load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
+
+go_rules_dependencies()
+
+go_register_toolchains()
+
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
+
+gazelle_dependencies()
+
+load("@io_bazel_rules_go//go:def.bzl", "go_register_toolchains", "go_rules_dependencies")
+
+go_rules_dependencies()
+
+go_register_toolchains()
+
+load("@bazel_gazelle//:deps.bzl", "go_repository")
 
 # Also define in Gopkg.toml
 go_repository(
@@ -39,24 +56,24 @@ go_repository(
 
 # Also define in Gopkg.toml
 go_repository(
-	name = "com_github_ghodss_yaml",
-	commit = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7",
-	importpath = "github.com/ghodss/yaml",
+    name = "com_github_ghodss_yaml",
+    commit = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7",
+    importpath = "github.com/ghodss/yaml",
 )
 
 # Also define in Gopkg.toml
 go_repository(
-	name = "in_gopkg_yaml_v2",
-	commit = "eb3733d160e74a9c7e442f435eb3bea458e1d19f",
-	importpath = "gopkg.in/yaml.v2",
+    name = "in_gopkg_yaml_v2",
+    commit = "eb3733d160e74a9c7e442f435eb3bea458e1d19f",
+    importpath = "gopkg.in/yaml.v2",
 )
 
-repositories()
+http_archive(
+    name = "com_github_bazelbuild_buildtools",
+    strip_prefix = "buildtools-bf564b4925ab5876a3f64d8b90fab7f769013d42",
+    url = "https://github.com/bazelbuild/buildtools/archive/bf564b4925ab5876a3f64d8b90fab7f769013d42.zip",
+)
 
-go_rules_dependencies()
+load("@com_github_bazelbuild_buildtools//buildifier:deps.bzl", "buildifier_dependencies")
 
-go_register_toolchains()
-
-load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies")
-
-gazelle_dependencies()
+buildifier_dependencies()

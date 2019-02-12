@@ -45,13 +45,13 @@ SWAGGER_PLUGIN_FLAGS?=
 GOOGLEAPIS_DIR=third_party/googleapis
 OUTPUT_DIR=_output
 
-RUNTIME_PROTO=runtime/internal/stream_chunk.proto
+RUNTIME_PROTO=internal/stream_chunk.proto
 RUNTIME_GO=$(RUNTIME_PROTO:.proto=.pb.go)
 
 OPENAPIV2_PROTO=protoc-gen-swagger/options/openapiv2.proto protoc-gen-swagger/options/annotations.proto
 OPENAPIV2_GO=$(OPENAPIV2_PROTO:.proto=.pb.go)
 
-PKGMAP=Mgoogle/protobuf/descriptor.proto=$(GO_PLUGIN_PKG)/descriptor,Mexamples/proto/sub/message.proto=$(PKG)/examples/proto/sub
+PKGMAP=Mgoogle/protobuf/field_mask.proto=google.golang.org/genproto/protobuf/field_mask,Mgoogle/protobuf/descriptor.proto=$(GO_PLUGIN_PKG)/descriptor,Mexamples/proto/sub/message.proto=$(PKG)/examples/proto/sub
 ADDITIONAL_GW_FLAGS=
 ifneq "$(GATEWAY_PLUGIN_FLAGS)" ""
 	ADDITIONAL_GW_FLAGS=,$(GATEWAY_PLUGIN_FLAGS)
@@ -63,6 +63,7 @@ endif
 SWAGGER_EXAMPLES=examples/proto/examplepb/echo_service.proto \
 	 examples/proto/examplepb/a_bit_of_everything.proto \
 	 examples/proto/examplepb/wrappers.proto \
+	 examples/proto/examplepb/stream.proto \
 	 examples/proto/examplepb/unannotated_echo_service.proto \
 	 examples/proto/examplepb/response_body_service.proto
 
@@ -101,7 +102,6 @@ ABE_EXAMPLE_SRCS=$(EXAMPLE_CLIENT_DIR)/abe/a_bit_of_everything_nested.go \
 		 $(EXAMPLE_CLIENT_DIR)/abe/examplepb_body.go \
 		 $(EXAMPLE_CLIENT_DIR)/abe/examplepb_numeric_enum.go \
 		 $(EXAMPLE_CLIENT_DIR)/abe/nested_deep_enum.go \
-		 $(EXAMPLE_CLIENT_DIR)/abe/protobuf_empty.go \
 		 $(EXAMPLE_CLIENT_DIR)/abe/sub_string_message.go
 UNANNOTATED_ECHO_EXAMPLE_SPEC=examples/proto/examplepb/unannotated_echo_service.swagger.json
 UNANNOTATED_ECHO_EXAMPLE_SRCS=$(EXAMPLE_CLIENT_DIR)/unannotatedecho/api_client.go \
@@ -127,8 +127,7 @@ generate: $(RUNTIME_GO)
 
 $(GO_PLUGIN):
 	dep ensure -vendor-only
-	go install ./vendor/$(GO_PLUGIN_PKG)
-	go build -o $@ $(GO_PLUGIN_PKG)
+	go build -o $@ ./vendor/$(GO_PLUGIN_PKG)
 
 $(RUNTIME_GO): $(RUNTIME_PROTO) $(GO_PLUGIN)
 	protoc -I $(PROTOC_INC_PATH) --plugin=$(GO_PLUGIN) -I $(GOPATH)/src/$(GO_PTYPES_ANY_PKG) -I. --go_out=$(PKGMAP):. $(RUNTIME_PROTO)
@@ -151,36 +150,32 @@ $(EXAMPLE_DEPSRCS): $(GO_PLUGIN) $(EXAMPLE_DEPS)
 
 $(EXAMPLE_GWSRCS): ADDITIONAL_GW_FLAGS:=$(ADDITIONAL_GW_FLAGS),grpc_api_configuration=examples/proto/examplepb/unannotated_echo_service.yaml
 $(EXAMPLE_GWSRCS): $(GATEWAY_PLUGIN) $(EXAMPLES)
-	protoc -I $(PROTOC_INC_PATH) -I. -I$(GOOGLEAPIS_DIR) --plugin=$(GATEWAY_PLUGIN) --grpc-gateway_out=logtostderr=true,$(PKGMAP)$(ADDITIONAL_GW_FLAGS):. $(EXAMPLES)
+	protoc -I $(PROTOC_INC_PATH) -I. -I$(GOOGLEAPIS_DIR) --plugin=$(GATEWAY_PLUGIN) --grpc-gateway_out=logtostderr=true,allow_repeated_fields_in_body=true,$(PKGMAP)$(ADDITIONAL_GW_FLAGS):. $(EXAMPLES)
 
 $(EXAMPLE_SWAGGERSRCS): ADDITIONAL_SWG_FLAGS:=$(ADDITIONAL_SWG_FLAGS),grpc_api_configuration=examples/proto/examplepb/unannotated_echo_service.yaml
 $(EXAMPLE_SWAGGERSRCS): $(SWAGGER_PLUGIN) $(SWAGGER_EXAMPLES)
-	protoc -I $(PROTOC_INC_PATH) -I. -I$(GOOGLEAPIS_DIR) --plugin=$(SWAGGER_PLUGIN) --swagger_out=logtostderr=true,$(PKGMAP)$(ADDITIONAL_SWG_FLAGS):. $(SWAGGER_EXAMPLES)
+	protoc -I $(PROTOC_INC_PATH) -I. -I$(GOOGLEAPIS_DIR) --plugin=$(SWAGGER_PLUGIN) --swagger_out=logtostderr=true,allow_repeated_fields_in_body=true,$(PKGMAP)$(ADDITIONAL_SWG_FLAGS):. $(SWAGGER_EXAMPLES)
 
 $(ECHO_EXAMPLE_SRCS): $(ECHO_EXAMPLE_SPEC)
 	$(SWAGGER_CODEGEN) generate -i $(ECHO_EXAMPLE_SPEC) \
 	    -l go -o examples/clients/echo --additional-properties packageName=echo
 	@rm -f $(EXAMPLE_CLIENT_DIR)/echo/README.md \
-		$(EXAMPLE_CLIENT_DIR)/echo/git_push.sh \
-		$(EXAMPLE_CLIENT_DIR)/echo/.travis.yml
+		$(EXAMPLE_CLIENT_DIR)/echo/git_push.sh
 $(ABE_EXAMPLE_SRCS): $(ABE_EXAMPLE_SPEC)
 	$(SWAGGER_CODEGEN) generate -i $(ABE_EXAMPLE_SPEC) \
 	    -l go -o examples/clients/abe --additional-properties packageName=abe
 	@rm -f $(EXAMPLE_CLIENT_DIR)/abe/README.md \
-		$(EXAMPLE_CLIENT_DIR)/abe/git_push.sh \
-		$(EXAMPLE_CLIENT_DIR)/abe/.travis.yml
+		$(EXAMPLE_CLIENT_DIR)/abe/git_push.sh
 $(UNANNOTATED_ECHO_EXAMPLE_SRCS): $(UNANNOTATED_ECHO_EXAMPLE_SPEC)
 	$(SWAGGER_CODEGEN) generate -i $(UNANNOTATED_ECHO_EXAMPLE_SPEC) \
 	    -l go -o examples/clients/unannotatedecho --additional-properties packageName=unannotatedecho
 	@rm -f $(EXAMPLE_CLIENT_DIR)/unannotatedecho/README.md \
-		$(EXAMPLE_CLIENT_DIR)/unannotatedecho/git_push.sh \
-		$(EXAMPLE_CLIENT_DIR)/unannotatedecho/.travis.yml
+		$(EXAMPLE_CLIENT_DIR)/unannotatedecho/git_push.sh
 $(RESPONSE_BODY_EXAMPLE_SRCS): $(RESPONSE_BODY_EXAMPLE_SPEC)
 	$(SWAGGER_CODEGEN) generate -i $(RESPONSE_BODY_EXAMPLE_SPEC) \
 	    -l go -o examples/clients/responsebody --additional-properties packageName=responsebody
 	@rm -f $(EXAMPLE_CLIENT_DIR)/responsebody/README.md \
-		$(EXAMPLE_CLIENT_DIR)/responsebody/git_push.sh \
-		$(EXAMPLE_CLIENT_DIR)/responsebody/.travis.yml
+		$(EXAMPLE_CLIENT_DIR)/responsebody/git_push.sh
 
 examples: $(EXAMPLE_DEPSRCS) $(EXAMPLE_SVCSRCS) $(EXAMPLE_GWSRCS) $(EXAMPLE_SWAGGERSRCS) $(EXAMPLE_CLIENT_SRCS)
 test: examples
@@ -197,9 +192,9 @@ changelog:
 				-p grpc-gateway \
 				--author \
 				--compare-link \
-				--github-site=https://grpc-ecosystem.github.io/grpc-gateway \
+				--github-site=https://github.com \
 				--unreleased-label "**Next release**" \
-				--future-release=v1.5.1
+				--future-release=v1.7.0
 lint:
 	golint --set_exit_status $(PKG)/runtime
 	golint --set_exit_status $(PKG)/utilities/...

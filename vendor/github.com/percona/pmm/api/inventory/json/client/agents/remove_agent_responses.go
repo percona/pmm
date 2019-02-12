@@ -43,14 +43,14 @@ func NewRemoveAgentOK() *RemoveAgentOK {
 
 /*RemoveAgentOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type RemoveAgentOK struct {
 	Payload interface{}
 }
 
 func (o *RemoveAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/Remove][%d] removeAgentOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] removeAgentOK  %+v", 200, o.Payload)
 }
 
 func (o *RemoveAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -68,8 +68,8 @@ swagger:model RemoveAgentBody
 */
 type RemoveAgentBody struct {
 
-	// id
-	ID string `json:"id,omitempty"`
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
 }
 
 // Validate validates this remove agent body

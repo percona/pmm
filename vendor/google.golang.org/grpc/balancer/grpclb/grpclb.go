@@ -25,6 +25,7 @@
 package grpclb
 
 import (
+	"context"
 	"errors"
 	"strconv"
 	"strings"
@@ -32,7 +33,6 @@ import (
 	"time"
 
 	durationpb "github.com/golang/protobuf/ptypes/duration"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer"
 	lbpb "google.golang.org/grpc/balancer/grpclb/grpc_lb_v1"
@@ -342,6 +342,7 @@ func (lb *lbBalancer) HandleResolvedAddrs(addrs []resolver.Address, err error) {
 	var remoteBalancerAddrs, backendAddrs []resolver.Address
 	for _, a := range addrs {
 		if a.Type == resolver.GRPCLB {
+			a.Type = resolver.Backend
 			remoteBalancerAddrs = append(remoteBalancerAddrs, a)
 		} else {
 			backendAddrs = append(backendAddrs, a)

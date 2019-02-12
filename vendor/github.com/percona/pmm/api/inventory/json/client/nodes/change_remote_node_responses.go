@@ -44,14 +44,14 @@ func NewChangeRemoteNodeOK() *ChangeRemoteNodeOK {
 
 /*ChangeRemoteNodeOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type ChangeRemoteNodeOK struct {
 	Payload *ChangeRemoteNodeOKBody
 }
 
 func (o *ChangeRemoteNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/ChangeRemote][%d] changeRemoteNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/ChangeRemote][%d] changeRemoteNodeOK  %+v", 200, o.Payload)
 }
 
 func (o *ChangeRemoteNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -71,11 +71,11 @@ swagger:model ChangeRemoteNodeBody
 */
 type ChangeRemoteNodeBody struct {
 
-	// Unique Node identifier.
-	ID string `json:"id,omitempty"`
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
 
-	// Unique user-defined Node name.
-	Name string `json:"name,omitempty"`
+	// Unique across all Nodes user-defined name.
+	NodeName string `json:"node_name,omitempty"`
 }
 
 // Validate validates this change remote node body
@@ -160,17 +160,16 @@ func (o *ChangeRemoteNodeOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeRemoteNodeOKBodyRemote RemoteNode represents a generic remote Node.
-// Agents can't be run on remote Nodes.
+/*ChangeRemoteNodeOKBodyRemote RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.
 swagger:model ChangeRemoteNodeOKBodyRemote
 */
 type ChangeRemoteNodeOKBodyRemote struct {
 
-	// Unique Node identifier.
-	ID string `json:"id,omitempty"`
+	// Unique randomly generated instance identifier, can't be changed.
+	NodeID string `json:"node_id,omitempty"`
 
-	// Unique user-defined Node name.
-	Name string `json:"name,omitempty"`
+	// Unique across all Nodes user-defined name, can be changed.
+	NodeName string `json:"node_name,omitempty"`
 }
 
 // Validate validates this change remote node o k body remote

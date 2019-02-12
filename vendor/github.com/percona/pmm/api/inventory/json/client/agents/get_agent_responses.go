@@ -6,12 +6,14 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -44,14 +46,14 @@ func NewGetAgentOK() *GetAgentOK {
 
 /*GetAgentOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type GetAgentOK struct {
 	Payload *GetAgentOKBody
 }
 
 func (o *GetAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/Get][%d] getAgentOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/Get][%d] getAgentOK  %+v", 200, o.Payload)
 }
 
 func (o *GetAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -71,8 +73,8 @@ swagger:model GetAgentBody
 */
 type GetAgentBody struct {
 
-	// Unique Agent identifier.
-	ID string `json:"id,omitempty"`
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
 }
 
 // Validate validates this get agent body
@@ -103,6 +105,9 @@ swagger:model GetAgentOKBody
 */
 type GetAgentOKBody struct {
 
+	// external exporter
+	ExternalExporter *GetAgentOKBodyExternalExporter `json:"external_exporter,omitempty"`
+
 	// mysqld exporter
 	MysqldExporter *GetAgentOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 
@@ -111,11 +116,18 @@ type GetAgentOKBody struct {
 
 	// pmm agent
 	PMMAgent *GetAgentOKBodyPMMAgent `json:"pmm_agent,omitempty"`
+
+	// rds exporter
+	RDSExporter *GetAgentOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
 
 // Validate validates this get agent o k body
 func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := o.validateExternalExporter(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := o.validateMysqldExporter(formats); err != nil {
 		res = append(res, err)
@@ -129,9 +141,31 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateRDSExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (o *GetAgentOKBody) validateExternalExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ExternalExporter) { // not required
+		return nil
+	}
+
+	if o.ExternalExporter != nil {
+		if err := o.ExternalExporter.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOK" + "." + "external_exporter")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -189,6 +223,24 @@ func (o *GetAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *GetAgentOKBody) validateRDSExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.RDSExporter) { // not required
+		return nil
+	}
+
+	if o.RDSExporter != nil {
+		if err := o.RDSExporter.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOK" + "." + "rds_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // MarshalBinary interface implementation
 func (o *GetAgentOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
@@ -207,30 +259,66 @@ func (o *GetAgentOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyMysqldExporter MySQLdExporter represents mysqld_exporter Agent configuration.
+/*GetAgentOKBodyExternalExporter ExternalExporter does not run on any Inventory Node.
+swagger:model GetAgentOKBodyExternalExporter
+*/
+type GetAgentOKBodyExternalExporter struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// URL for scraping metrics.
+	MetricsURL string `json:"metrics_url,omitempty"`
+}
+
+// Validate validates this get agent o k body external exporter
+func (o *GetAgentOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyExternalExporter) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyExternalExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
 swagger:model GetAgentOKBodyMysqldExporter
 */
 type GetAgentOKBodyMysqldExporter struct {
 
-	// Agent desired status: enabled or disabled.
-	Disabled bool `json:"disabled,omitempty"`
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
 
-	// host node info
-	HostNodeInfo *GetAgentOKBodyMysqldExporterHostNodeInfo `json:"host_node_info,omitempty"`
-
-	// Unique Agent identifier.
-	ID string `json:"id,omitempty"`
-
-	// HTTP listen port for exposing metrics.
+	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Agent process status: running or not.
-	Running bool `json:"running,omitempty"`
+	// MySQL password for scraping metrics.
+	Password string `json:"password,omitempty"`
 
-	// Service identifier for which insights are provided by that Agent.
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+
+	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// MySQL username for extracting metrics.
+	// AgentStatus represents actual Agent process status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// MySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
 }
 
@@ -238,7 +326,7 @@ type GetAgentOKBodyMysqldExporter struct {
 func (o *GetAgentOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateHostNodeInfo(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -248,19 +336,56 @@ func (o *GetAgentOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetAgentOKBodyMysqldExporter) validateHostNodeInfo(formats strfmt.Registry) error {
+var getAgentOKBodyMysqldExporterTypeStatusPropEnum []interface{}
 
-	if swag.IsZero(o.HostNodeInfo) { // not required
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOKBodyMysqldExporterTypeStatusPropEnum = append(getAgentOKBodyMysqldExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyMysqldExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyMysqldExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// GetAgentOKBodyMysqldExporterStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyMysqldExporterStatusSTARTING string = "STARTING"
+
+	// GetAgentOKBodyMysqldExporterStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyMysqldExporterStatusRUNNING string = "RUNNING"
+
+	// GetAgentOKBodyMysqldExporterStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyMysqldExporterStatusWAITING string = "WAITING"
+
+	// GetAgentOKBodyMysqldExporterStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyMysqldExporterStatusSTOPPING string = "STOPPING"
+
+	// GetAgentOKBodyMysqldExporterStatusDONE captures enum value "DONE"
+	GetAgentOKBodyMysqldExporterStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyMysqldExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getAgentOKBodyMysqldExporterTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
-	if o.HostNodeInfo != nil {
-		if err := o.HostNodeInfo.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOK" + "." + "mysqld_exporter" + "." + "host_node_info")
-			}
-			return err
-		}
+	// value enum
+	if err := o.validateStatusEnum("getAgentOK"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
 	}
 
 	return nil
@@ -284,76 +409,30 @@ func (o *GetAgentOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyMysqldExporterHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
-swagger:model GetAgentOKBodyMysqldExporterHostNodeInfo
-*/
-type GetAgentOKBodyMysqldExporterHostNodeInfo struct {
-
-	// Docker container ID.
-	ContainerID string `json:"container_id,omitempty"`
-
-	// Docker container name.
-	ContainerName string `json:"container_name,omitempty"`
-
-	// Kubernetes pod name.
-	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
-
-	// Kubernetes pod UID.
-	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
-
-	// Node identifier where Service or Agent runs.
-	NodeID string `json:"node_id,omitempty"`
-}
-
-// Validate validates this get agent o k body mysqld exporter host node info
-func (o *GetAgentOKBodyMysqldExporterHostNodeInfo) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetAgentOKBodyMysqldExporterHostNodeInfo) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetAgentOKBodyMysqldExporterHostNodeInfo) UnmarshalBinary(b []byte) error {
-	var res GetAgentOKBodyMysqldExporterHostNodeInfo
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetAgentOKBodyNodeExporter NodeExporter represents node_exporter Agent configuration.
+/*GetAgentOKBodyNodeExporter NodeExporter runs on Generic on Container Node and exposes its metrics.
 swagger:model GetAgentOKBodyNodeExporter
 */
 type GetAgentOKBodyNodeExporter struct {
 
-	// Agent desired status: enabled or disabled.
-	Disabled bool `json:"disabled,omitempty"`
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
 
-	// host node info
-	HostNodeInfo *GetAgentOKBodyNodeExporterHostNodeInfo `json:"host_node_info,omitempty"`
-
-	// Unique Agent identifier.
-	ID string `json:"id,omitempty"`
-
-	// HTTP listen port for exposing metrics.
+	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Agent process status: running or not.
-	Running bool `json:"running,omitempty"`
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// AgentStatus represents actual Agent process status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
 }
 
 // Validate validates this get agent o k body node exporter
 func (o *GetAgentOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateHostNodeInfo(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -363,19 +442,56 @@ func (o *GetAgentOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetAgentOKBodyNodeExporter) validateHostNodeInfo(formats strfmt.Registry) error {
+var getAgentOKBodyNodeExporterTypeStatusPropEnum []interface{}
 
-	if swag.IsZero(o.HostNodeInfo) { // not required
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOKBodyNodeExporterTypeStatusPropEnum = append(getAgentOKBodyNodeExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyNodeExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyNodeExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// GetAgentOKBodyNodeExporterStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyNodeExporterStatusSTARTING string = "STARTING"
+
+	// GetAgentOKBodyNodeExporterStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyNodeExporterStatusRUNNING string = "RUNNING"
+
+	// GetAgentOKBodyNodeExporterStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyNodeExporterStatusWAITING string = "WAITING"
+
+	// GetAgentOKBodyNodeExporterStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyNodeExporterStatusSTOPPING string = "STOPPING"
+
+	// GetAgentOKBodyNodeExporterStatusDONE captures enum value "DONE"
+	GetAgentOKBodyNodeExporterStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyNodeExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getAgentOKBodyNodeExporterTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyNodeExporter) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
-	if o.HostNodeInfo != nil {
-		if err := o.HostNodeInfo.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOK" + "." + "node_exporter" + "." + "host_node_info")
-			}
-			return err
-		}
+	// value enum
+	if err := o.validateStatusEnum("getAgentOK"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
 	}
 
 	return nil
@@ -399,94 +515,23 @@ func (o *GetAgentOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyNodeExporterHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
-swagger:model GetAgentOKBodyNodeExporterHostNodeInfo
-*/
-type GetAgentOKBodyNodeExporterHostNodeInfo struct {
-
-	// Docker container ID.
-	ContainerID string `json:"container_id,omitempty"`
-
-	// Docker container name.
-	ContainerName string `json:"container_name,omitempty"`
-
-	// Kubernetes pod name.
-	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
-
-	// Kubernetes pod UID.
-	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
-
-	// Node identifier where Service or Agent runs.
-	NodeID string `json:"node_id,omitempty"`
-}
-
-// Validate validates this get agent o k body node exporter host node info
-func (o *GetAgentOKBodyNodeExporterHostNodeInfo) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *GetAgentOKBodyNodeExporterHostNodeInfo) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *GetAgentOKBodyNodeExporterHostNodeInfo) UnmarshalBinary(b []byte) error {
-	var res GetAgentOKBodyNodeExporterHostNodeInfo
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*GetAgentOKBodyPMMAgent PMMAgent represent pmm-agent Agent configuration.
+/*GetAgentOKBodyPMMAgent PMMAgent runs on Generic on Container Node.
 swagger:model GetAgentOKBodyPMMAgent
 */
 type GetAgentOKBodyPMMAgent struct {
 
-	// host node info
-	HostNodeInfo *GetAgentOKBodyPMMAgentHostNodeInfo `json:"host_node_info,omitempty"`
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
 
-	// Unique Agent identifier.
-	ID string `json:"id,omitempty"`
+	// True if Agent is running and connected to pmm-managed.
+	Connected bool `json:"connected,omitempty"`
 
-	// Agent process status: running and connected to pmm-managed, or not.
-	Running bool `json:"running,omitempty"`
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
 }
 
 // Validate validates this get agent o k body PMM agent
 func (o *GetAgentOKBodyPMMAgent) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateHostNodeInfo(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetAgentOKBodyPMMAgent) validateHostNodeInfo(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.HostNodeInfo) { // not required
-		return nil
-	}
-
-	if o.HostNodeInfo != nil {
-		if err := o.HostNodeInfo.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOK" + "." + "pmm_agent" + "." + "host_node_info")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -508,34 +553,99 @@ func (o *GetAgentOKBodyPMMAgent) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyPMMAgentHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
-swagger:model GetAgentOKBodyPMMAgentHostNodeInfo
+/*GetAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
+swagger:model GetAgentOKBodyRDSExporter
 */
-type GetAgentOKBodyPMMAgentHostNodeInfo struct {
+type GetAgentOKBodyRDSExporter struct {
 
-	// Docker container ID.
-	ContainerID string `json:"container_id,omitempty"`
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
 
-	// Docker container name.
-	ContainerName string `json:"container_name,omitempty"`
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Kubernetes pod name.
-	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
-	// Kubernetes pod UID.
-	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
+	// A list of Service identifiers (Node identifiers are extracted from Services).
+	ServiceIds []string `json:"service_ids"`
 
-	// Node identifier where Service or Agent runs.
-	NodeID string `json:"node_id,omitempty"`
+	// AgentStatus represents actual Agent process status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
 }
 
-// Validate validates this get agent o k body PMM agent host node info
-func (o *GetAgentOKBodyPMMAgentHostNodeInfo) Validate(formats strfmt.Registry) error {
+// Validate validates this get agent o k body RDS exporter
+func (o *GetAgentOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOKBodyRdsExporterTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOKBodyRdsExporterTypeStatusPropEnum = append(getAgentOKBodyRdsExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyRDSExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyRDSExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// GetAgentOKBodyRDSExporterStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyRDSExporterStatusSTARTING string = "STARTING"
+
+	// GetAgentOKBodyRDSExporterStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyRDSExporterStatusRUNNING string = "RUNNING"
+
+	// GetAgentOKBodyRDSExporterStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyRDSExporterStatusWAITING string = "WAITING"
+
+	// GetAgentOKBodyRDSExporterStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyRDSExporterStatusSTOPPING string = "STOPPING"
+
+	// GetAgentOKBodyRDSExporterStatusDONE captures enum value "DONE"
+	GetAgentOKBodyRDSExporterStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyRDSExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getAgentOKBodyRdsExporterTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyRDSExporter) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOK"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *GetAgentOKBodyPMMAgentHostNodeInfo) MarshalBinary() ([]byte, error) {
+func (o *GetAgentOKBodyRDSExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -543,8 +653,8 @@ func (o *GetAgentOKBodyPMMAgentHostNodeInfo) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetAgentOKBodyPMMAgentHostNodeInfo) UnmarshalBinary(b []byte) error {
-	var res GetAgentOKBodyPMMAgentHostNodeInfo
+func (o *GetAgentOKBodyRDSExporter) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyRDSExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

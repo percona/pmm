@@ -12,10 +12,10 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM Agent Local API",
-    "version": "version 0"
+    "version": "version 1.alpha"
   },
   "paths": {
-    "/v0/local/Status": {
+    "/local/Status": {
       "post": {
         "tags": [
           "AgentLocal"
@@ -34,10 +34,13 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
+                "agent_id": {
+                  "type": "string"
+                },
                 "node_id": {
                   "type": "string"
                 }

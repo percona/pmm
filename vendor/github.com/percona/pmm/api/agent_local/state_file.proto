@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package agent_local;
+
+option go_package = "agent_local";
+
+// StateFile stores pmm-agent's local persistent state.
+message StateFile {
+  string agent_id = 1;
+  string node_id = 2;
+}

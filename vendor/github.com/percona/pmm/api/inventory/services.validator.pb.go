@@ -16,11 +16,9 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *MySQLService) Validate() error {
-	if this.HostNodeInfo != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
-		}
-	}
+	return nil
+}
+func (this *AmazonRDSMySQLService) Validate() error {
 	return nil
 }
 func (this *ListServicesRequest) Validate() error {
@@ -34,11 +32,18 @@ func (this *ListServicesResponse) Validate() error {
 			}
 		}
 	}
+	for _, item := range this.AmazonRdsMysql {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsMysql", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *GetServiceRequest) Validate() error {
-	if this.Id == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
 	}
 	return nil
 }
@@ -50,19 +55,21 @@ func (this *GetServiceResponse) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetService().(*GetServiceResponse_AmazonRdsMysql); ok {
+		if oneOfNester.AmazonRdsMysql != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.AmazonRdsMysql); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsMysql", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *AddMySQLServiceRequest) Validate() error {
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	if this.ServiceName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
 	}
-	if nil == this.HostNodeInfo {
-		return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", fmt.Errorf("message must exist"))
-	}
-	if this.HostNodeInfo != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.HostNodeInfo); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("HostNodeInfo", err)
-		}
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
 	return nil
 }
@@ -75,11 +82,14 @@ func (this *AddMySQLServiceResponse) Validate() error {
 	return nil
 }
 func (this *ChangeMySQLServiceRequest) Validate() error {
-	if this.Id == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
 	}
-	if this.Name == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Name", fmt.Errorf(`value '%v' must not be an empty string`, this.Name))
+	if this.ServiceName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
+	}
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
 	return nil
 }
@@ -91,9 +101,55 @@ func (this *ChangeMySQLServiceResponse) Validate() error {
 	}
 	return nil
 }
+func (this *AddAmazonRDSMySQLServiceRequest) Validate() error {
+	if this.ServiceName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
+	}
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	}
+	if this.Address == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
+	}
+	if !(this.Port > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Port", fmt.Errorf(`value '%v' must be greater than '0'`, this.Port))
+	}
+	return nil
+}
+func (this *AddAmazonRDSMySQLServiceResponse) Validate() error {
+	if this.AmazonRdsMysql != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AmazonRdsMysql); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsMysql", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeAmazonRDSMySQLServiceRequest) Validate() error {
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	if this.ServiceName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
+	}
+	if this.Address == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
+	}
+	if !(this.Port > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Port", fmt.Errorf(`value '%v' must be greater than '0'`, this.Port))
+	}
+	return nil
+}
+func (this *ChangeAmazonRDSMySQLServiceResponse) Validate() error {
+	if this.AmazonRdsMysql != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AmazonRdsMysql); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsMysql", err)
+		}
+	}
+	return nil
+}
 func (this *RemoveServiceRequest) Validate() error {
-	if this.Id == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Id", fmt.Errorf(`value '%v' must not be an empty string`, this.Id))
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
 	}
 	return nil
 }

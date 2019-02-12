@@ -42,12 +42,15 @@ func loadAPI(modelPath, baseImport string) (*API, error) {
 		BaseCrosslinkURL: "https://docs.aws.amazon.com",
 	}
 
-	err := attachModelFiles(modelPath,
-		modelLoader{"api-2.json", a.Attach, true},
-		modelLoader{"docs-2.json", a.AttachDocs, true},
+	modelFile := filepath.Base(modelPath)
+	modelDir := filepath.Dir(modelPath)
+	err := attachModelFiles(modelDir,
+		modelLoader{modelFile, a.Attach, true},
+		modelLoader{"docs-2.json", a.AttachDocs, false},
 		modelLoader{"paginators-1.json", a.AttachPaginators, false},
 		modelLoader{"waiters-2.json", a.AttachWaiters, false},
 		modelLoader{"examples-1.json", a.AttachExamples, false},
+		modelLoader{"smoke.json", a.AttachSmokeTests, false},
 	)
 	if err != nil {
 		return nil, err
@@ -81,12 +84,14 @@ func attachModelFiles(modelPath string, modelFiles ...modelLoader) error {
 }
 
 // ExpandModelGlobPath returns a slice of model paths expanded from the glob
-// pattern passed in. Returns the directory of the models to be loaded, not the
-// path of the model file. Only the most recent service model versions will be
-// returned.
+// pattern passed in. Returns the path of the model file to be loaded. Includes
+// all versions of a service model.
 //
 //   e.g:
 //   models/apis/*/*/api-2.json
+//
+//   Or with specific model file:
+//   models/apis/service/version/api-2.json
 func ExpandModelGlobPath(globs ...string) ([]string, error) {
 	modelPaths := []string{}
 
@@ -96,14 +101,21 @@ func ExpandModelGlobPath(globs ...string) ([]string, error) {
 			return nil, err
 		}
 		for _, p := range filepaths {
-			modelPaths = append(modelPaths, filepath.Dir(p))
+			modelPaths = append(modelPaths, p)
 		}
 	}
 
 	return modelPaths, nil
 }
 
-func trimModelServiceVersions(modelPaths []string) []string {
+// TrimModelServiceVersions sorts the model paths by service version then
+// returns recent model versions, and model version excluded.
+//
+// Uses the third from last path element to determine unique service. Only one
+// service version will be included.
+//
+//   models/apis/service/version/api-2.json
+func TrimModelServiceVersions(modelPaths []string) (include, exclude []string) {
 	sort.Strings(modelPaths)
 
 	// Remove old API versions from list
@@ -111,17 +123,18 @@ func trimModelServiceVersions(modelPaths []string) []string {
 	for i := len(modelPaths) - 1; i >= 0; i-- {
 		// service name is 2nd-to-last component
 		parts := strings.Split(modelPaths[i], string(filepath.Separator))
-		svc := parts[len(parts)-2]
+		svc := parts[len(parts)-3]
 
 		if _, ok := m[svc]; ok {
 			// Removed unused service version
-			modelPaths = append(modelPaths[:i], modelPaths[i+1:]...)
+			exclude = append(exclude, modelPaths[i])
 			continue
 		}
+		include = append(include, modelPaths[i])
 		m[svc] = struct{}{}
 	}
 
-	return modelPaths
+	return include, exclude
 }
 
 // Attach opens a file by name, and unmarshal its JSON data.
@@ -154,6 +167,11 @@ func (a *API) Setup() {
 	a.setMetadataEndpointsKey()
 	a.writeShapeNames()
 	a.resolveReferences()
+
+	if !a.NoRemoveUnusedShapes {
+		a.removeUnusedShapes()
+	}
+
 	a.fixStutterNames()
 	a.renameExportable()
 	a.applyShapeNameAliases()

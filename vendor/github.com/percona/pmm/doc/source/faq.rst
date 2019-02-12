@@ -91,9 +91,9 @@ You can control data retention by passing the :term:`METRICS_RETENTION
 <QUERIES_RETENTION>` environment variables when
 :ref:`creating and running the PMM Server container
 <server-container>`.  To set environment variables, use the ``-e``
-option.  The value is passed as a combination of hours, minutes, and
-seconds.  For example, the default value of 30 days for
-|opt.metrics-retention| is ``720h0m0s``.  You probably do not need to be
+option.  The value should be the number of hours, minutes, or
+seconds. For example, the default value of 30 days for
+|opt.metrics-retention| is ``720h``.  You probably do not need to be
 more precise than the number hours, so you can discard the minutes and
 seconds.  For example, to decrease the retention period for
 |prometheus| to 8 days::

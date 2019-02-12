@@ -13,27 +13,22 @@ required = [
   # non-go = true
   # unused-packages = true
 
-# we want all PMM components to use the same versions of key dependecies to avoid nasty suprises
-[[constraint]]
-  name = "github.com/golang/protobuf"
-  version = "=1.2.0"
+# We want all PMM components to use the same versions of key dependecies to avoid nasty suprises.
 # [[constraint]]
-#   name = "github.com/gogo/protobuf"
+#   https://github.com/grpc-ecosystem/grpc-gateway/issues/829
+#   name = "github.com/golang/protobuf"
 #   version = "=1.2.0"
 [[constraint]]
   name = "google.golang.org/grpc"
-  version = "=1.16.0"
+  version = "=1.18.0"
 [[constraint]]
   name = "github.com/grpc-ecosystem/grpc-gateway"
-  version = "=1.5.1"
+  version = "=1.7.0"
 [[constraint]]
   name = "github.com/go-swagger/go-swagger"
-  version = "=0.17.2"
+  version = "=0.18.0"
 [[constraint]]
-  name = "github.com/mwitkow/go-proto-validators"
-  revision = "0950a79900071e9f3f5979b78078c599376422fd"  # https://github.com/mwitkow/go-proto-validators/issues/29
-[[constraint]]
-  # https://github.com/grpc-ecosystem/grpc-gateway/blob/v1.5.1/Gopkg.toml#L28
-  # without that containts dep 0.5.0 can't resolve dependecies
+  # https://github.com/grpc-ecosystem/grpc-gateway/blob/v1.7.0/Gopkg.toml#L28
+  # Without that constraint dep 0.5.0 can't resolve dependecies.
   name = "google.golang.org/genproto"
   revision = "383e8b2c3b9e36c4076b235b32537292176bae20"

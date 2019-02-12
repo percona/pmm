@@ -44,14 +44,14 @@ func NewChangeMySQLServiceOK() *ChangeMySQLServiceOK {
 
 /*ChangeMySQLServiceOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type ChangeMySQLServiceOK struct {
 	Payload *ChangeMySQLServiceOKBody
 }
 
 func (o *ChangeMySQLServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Services/ChangeMySQL][%d] changeMySqlServiceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/ChangeMySQL][%d] changeMySqlServiceOK  %+v", 200, o.Payload)
 }
 
 func (o *ChangeMySQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -71,11 +71,23 @@ swagger:model ChangeMySQLServiceBody
 */
 type ChangeMySQLServiceBody struct {
 
-	// Unique Service identifier.
-	ID string `json:"id,omitempty"`
+	// Access address (DNS name or IP). Required if unix_socket is absent.
+	Address string `json:"address,omitempty"`
 
-	// Unique user-defined Service name.
-	Name string `json:"name,omitempty"`
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access port. Required if unix_socket is absent.
+	Port int64 `json:"port,omitempty"`
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Access Unix socket. Required if address and port are absent.
+	UnixSocket string `json:"unix_socket,omitempty"`
 }
 
 // Validate validates this change my SQL service body
@@ -160,59 +172,32 @@ func (o *ChangeMySQLServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeMySQLServiceOKBodyMysql MySQLService represents MySQL-compatible Service configuration.
+/*ChangeMySQLServiceOKBodyMysql MySQLService represents a generic MySQL instance.
 swagger:model ChangeMySQLServiceOKBodyMysql
 */
 type ChangeMySQLServiceOKBodyMysql struct {
 
-	// MySQL access address (DNS name or IP address).
+	// Access address (DNS name or IP). Required if unix_socket is absent.
 	Address string `json:"address,omitempty"`
 
-	// host node info
-	HostNodeInfo *ChangeMySQLServiceOKBodyMysqlHostNodeInfo `json:"host_node_info,omitempty"`
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
 
-	// Unique Service identifier.
-	ID string `json:"id,omitempty"`
-
-	// Unique user-defined Service name.
-	Name string `json:"name,omitempty"`
-
-	// MySQL access port.
+	// Access port. Required if unix_socket is absent.
 	Port int64 `json:"port,omitempty"`
 
-	// MySQL access UNIX socket path.
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+
+	// Access Unix socket. Required if address and port are absent.
 	UnixSocket string `json:"unix_socket,omitempty"`
 }
 
 // Validate validates this change my SQL service o k body mysql
 func (o *ChangeMySQLServiceOKBodyMysql) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateHostNodeInfo(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *ChangeMySQLServiceOKBodyMysql) validateHostNodeInfo(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.HostNodeInfo) { // not required
-		return nil
-	}
-
-	if o.HostNodeInfo != nil {
-		if err := o.HostNodeInfo.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeMySqlServiceOK" + "." + "mysql" + "." + "host_node_info")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -227,50 +212,6 @@ func (o *ChangeMySQLServiceOKBodyMysql) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeMySQLServiceOKBodyMysql) UnmarshalBinary(b []byte) error {
 	var res ChangeMySQLServiceOKBodyMysql
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*ChangeMySQLServiceOKBodyMysqlHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
-swagger:model ChangeMySQLServiceOKBodyMysqlHostNodeInfo
-*/
-type ChangeMySQLServiceOKBodyMysqlHostNodeInfo struct {
-
-	// Docker container ID.
-	ContainerID string `json:"container_id,omitempty"`
-
-	// Docker container name.
-	ContainerName string `json:"container_name,omitempty"`
-
-	// Kubernetes pod name.
-	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
-
-	// Kubernetes pod UID.
-	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
-
-	// Node identifier where Service or Agent runs.
-	NodeID string `json:"node_id,omitempty"`
-}
-
-// Validate validates this change my SQL service o k body mysql host node info
-func (o *ChangeMySQLServiceOKBodyMysqlHostNodeInfo) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *ChangeMySQLServiceOKBodyMysqlHostNodeInfo) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *ChangeMySQLServiceOKBodyMysqlHostNodeInfo) UnmarshalBinary(b []byte) error {
-	var res ChangeMySQLServiceOKBodyMysqlHostNodeInfo
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

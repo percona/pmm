@@ -4,7 +4,9 @@
 ================================================================================
 
 The |prometheus| Exporters Overview dashboard provides the summary of
-how exporters are used across the selected hosts.
+how exporters are used across the selected hosts. 
+
+.. note: An Exporter is a software library that provides metrics to PMM.
 
 .. seealso::
 
@@ -13,6 +15,9 @@ how exporters are used across the selected hosts.
       `Understand Your Prometheus Exporters with Percona Monitoring and Management (PMM)
       <https://www.percona.com/blog/2018/02/20/understand-prometheus-exporters-percona-monitoring-management-pmm/>`_
    
+   Prometheus documentation
+
+      `Exporters and integrations <https://prometheus.io/docs/instrumenting/exporters/>`_
 
 .. Metrics
 
@@ -30,10 +35,14 @@ hosts being monitored and the total number of running exporters.
 
 .. rubric:: Metrics in this section
 
-- Avg CPU Usage per Host
-- Avg Memory Usage per Host
-- Monitored Hosts
-- Exporters Running
+- **Avg CPU Usage per Host** shows the average CPU usage in percent per host for
+  all exporters.
+- **Avg Memory Usage per Host** shows the Exporters average Memory usage per
+  host.
+- **Monitored Hosts** shows the number of monitored hosts that are running
+  Exporters.
+- **Exporters Running** shows the total number of Exporters running with this
+  PMM Server instance.
 
 .. note::
 
@@ -50,8 +59,10 @@ exporters for the selected hosts.
 
 .. rubric:: Metrics in this section
 
-- CPU Usage
-- Memory Usage
+- **CPU Usage** plots the Exporters' CPU usage across each monitored host (by
+  default, All hosts).
+- **Memory Usage** plots the Exporters' Memory usage across each monitored host
+  (by default, All hosts).
 
 .. _dashboard.prometheus-exporters-overview.resource-usage-by-type:
 
@@ -63,18 +74,26 @@ exporters for host types: |mysql|, |mongodb|, |proxysql|, and the system.
 
 .. rubric:: Metrics in this section
 
-- CPU Cores Used
-- Memory Usage
+- **CPU Cores Used** shows the Exporters' CPU Cores used for each type of
+  Exporter. 
+- **Memory Usage** shows the Exporters' memory used for each type of Exporter.
 
 .. _dashboard.prometheus-exporters-overview.hosts:
 
 List of Hosts
 --------------------------------------------------------------------------------
 
-At the bottom, this dashboard shows details for each running host. You can click
-the value of the |gui.cpu-used|, |gui.memory-used|, or |gui.exporters-running|
-column to open the :ref:`dashboard.prometheus-exporter-status` for further
-analysis.
+At the bottom, this dashboard shows details for each running host. 
+
+- **CPU Used** show the CPU usage as a percentage for all Exporters.
+- **Mem Used** shows total Memory Used by Exporters.
+- **Exporters Running** shows the number of Exporters running.
+- **RAM** shows the total amount of RAM of the host.
+- **Virtual CPUs** shows the total number of virtual CPUs on the host.
+
+You can click the value of the |gui.cpu-used|, |gui.memory-used|, or
+|gui.exporters-running| column to open the
+:ref:`dashboard.prometheus-exporter-status` for further analysis.
 
 .. admonition:: Related information: |prometheus| Documentation
 

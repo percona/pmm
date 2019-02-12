@@ -86,13 +86,11 @@ Replication Error No
 --------------------------------------------------------------------------------
 
 This metric shows the number of the last error in the SQL Thread encountered
-that caused the stopping of the replication process.
+which caused replication to stop.
 
-One of the most frequent errors that can stop the replication is *Error: 1022
-Duplicate Key Entry*. In occurs if someone has previously inserted a record on
-the slave (erroneously) that is generating now a conflict on the primary key
-that is coming from the master. SQL Thread catches the error and stops
-replication in order to avoid data corruption.
+One of the more common errors is *Error: 1022 Duplicate Key Entry*. In such a
+case replication is attempting to update a row that already exists on the slave.
+The SQL Thread will stop replication in order to avoid data corruption.
 
 .. seealso::
 
@@ -107,7 +105,8 @@ replication in order to avoid data corruption.
 Read only
 --------------------------------------------------------------------------------
 
-This metric indicates if the host is configured to be a *read only* system or not.
+This metric indicates whether the host is configured to be in *Read Only*
+mode or not.
 
 .. rubric:: Possible values
 
@@ -122,7 +121,7 @@ Yes
 
 No
 
-   The slave host is not configured in *read only* mode.
+   The slave host is not configured in *Read Only* mode.
 
 .. seealso::
 
@@ -137,33 +136,33 @@ No
 MySQL Replication Delay
 --------------------------------------------------------------------------------
 
-This metric shows the number of seconds the slave host is late compared to the
-master host. It only applies to a slave host.
+This metric shows the number of seconds the slave host is delayed in replication
+applying events compared to when the Master host applied them, denoted by the
+``Seconds_Behind_Master`` value, and only applies to a slave host.
 
 Since the replication process applies the data modifications on the slave
 asyncronously, it could happen that the slave replicates events after some
 time. The main reasons are:
 
-- network latency
-- since replication can usually rely on a single thread, or a limited number of
-  threads, to apply data modifications, the slave host can’t have an elevated
-  grade of concurrency. If a query needs a lot of time to be applied because it
-  involves a huge number of records, all the following queries queued on the
-  same thread must wait for its completion prior to proceed.
+- **Network round trip time** - high latency links will lead to non-zero
+  replication lag values.
+- **Single threaded nature of replication channels** - master servers have the
+  advantage of applying changes in parallel, whereas slave ones are only able to
+  apply changes in serial, thus limiting their throughput. In some cases Group
+  Commit can help but is not always applicable.
+- **High number of changed rows or computationally expensive SQL** - depending
+  on the replication format (``ROW`` vs ``STATEMENT``), significant changes to
+  the database through high volume of rows modified, or expensive CPU will all
+  contribute to slave servers lagging behind the master.
 
-Generally it is not a big issue if sometimes the replication process lags a
-little, but it needs to be taken care of if the delay increases constantly.
+Generally adding more CPU or Disk resources can alleviate replication lag
+issues, up to a point.
 
-In case the latency is very high or increases constantly the slave host must be
-boosted or it needs to use the multi-threaded replication.
-
-Sharding your database or switching to a different replication topology could be
-a valid options in case it is impossible to reduce the latency even after the
-adoption of a powerful machine and the use of multi-threaded replication.
-
-The optimal value is 0 (zero). In this case we cannot consider the
-process to be perfectly *in sync* either - it simply means that the latency is
-negligible.
+Ideally a value of 0 is desired, but be aware that ``Seconds_Behind_Master`` is
+an integer value and thus rounding is a factor. If you desire greater precision,
+consider the Percona Toolkit tool ``pt-heartbeat``, as this graph will
+automatically take into account this tool and then show you greater resolution
+in the milliseconds.
 
 .. seealso::
 
@@ -186,14 +185,15 @@ negligible.
 Binlog Size
 --------------------------------------------------------------------------------
 
-This metric shows the overall dimension of the binary log files. The binary log
-(also known as the binlog) contains *events* that describe database changes:
-table creations, table alterations such as index creations, updates, inserts,
-deletes and other useful information to let the replicaton process work
-properly.
-
-The binlog is the file that is read by the slave hosts in order to replicate
-locally any modification on the data and on the table structures.
+This metric shows the overall size of the binary log files, which can exist on
+both master and slave servers. The binary log (also known as the binlog)
+contains events that describe database changes: ``CREATE TABLE``,
+``ALTER TABLE``, updates, inserts, deletes and other statements or database
+changes. The binlog is the file that is read by slaves via their IO Thread
+process in order to replicate database changes modification on the data and on
+the table structures. There can be more than one binlog file present depending
+on the binlog rotation policy adopted (for example using the configuration
+variables ``max_binlog_size`` and ``expire_logs_days``).
 
 .. include:: .res/contents/binlog-file.info.txt
 	     
@@ -222,7 +222,8 @@ application in terms of data writes (creation, modification, deletion).
 Binlog Count
 --------------------------------------------------------------------------------
 
-This metric shows the number of binlog files on the system.
+This metric shows the overall count of binary log files, on both
+master and slave servers.
 
 .. include:: .res/contents/binlog-file.info.txt
 
@@ -251,7 +252,7 @@ This metric shows the number of binlog files created hourly during the last 24 h
 Relay Log Space
 --------------------------------------------------------------------------------
 
-This metric shows the overall dimension of the relay log files. It only applies
+This metric shows the overall size of the relay log files. It only applies
 to a slave host.
 
 The relay log consists of a set of numbered files containing the events to be

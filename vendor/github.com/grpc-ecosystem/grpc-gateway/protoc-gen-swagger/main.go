@@ -23,11 +23,25 @@ var (
 	mergeFileName              = flag.String("merge_file_name", "apidocs", "target swagger file name prefix after merge")
 	useJSONNamesForFields      = flag.Bool("json_names_for_fields", false, "if it sets Field.GetJsonName() will be used for generating swagger definitions, otherwise Field.GetName() will be used")
 	repeatedPathParamSeparator = flag.String("repeated_path_param_separator", "csv", "configures how repeated fields should be split. Allowed values are `csv`, `pipes`, `ssv` and `tsv`.")
+	versionFlag                = flag.Bool("version", false, "print the current verison")
+	allowRepeatedFieldsInBody  = flag.Bool("allow_repeated_fields_in_body", false, "allows to use repeated field in `body` and `response_body` field of `google.api.http` annotation option")
+)
+
+// Variables set by goreleaser at build time
+var (
+	version = "dev"
+	commit  = "unknown"
+	date    = "unknown"
 )
 
 func main() {
 	flag.Parse()
 	defer glog.Flush()
+
+	if *versionFlag {
+		fmt.Printf("Version %v, commit %v, built at %v\n", version, commit, date)
+		os.Exit(0)
+	}
 
 	reg := descriptor.NewRegistry()
 
@@ -59,6 +73,7 @@ func main() {
 	reg.SetAllowMerge(*allowMerge)
 	reg.SetMergeFileName(*mergeFileName)
 	reg.SetUseJSONNamesForFields(*useJSONNamesForFields)
+	reg.SetAllowRepeatedFieldsInBody(*allowRepeatedFieldsInBody)
 	if err := reg.SetRepeatedPathParamSeparator(*repeatedPathParamSeparator); err != nil {
 		emitError(err)
 		return
@@ -75,6 +90,11 @@ func main() {
 	}
 
 	g := genswagger.New(reg)
+
+	if err := genswagger.AddStreamError(reg); err != nil {
+		emitError(err)
+		return
+	}
 
 	if err := reg.Load(req); err != nil {
 		emitError(err)
@@ -135,6 +155,13 @@ func parseReqParam(param string, f *flag.FlagSet, pkgMap map[string]string) erro
 				continue
 			}
 			if spec[0] == "allow_merge" {
+				err := f.Set(spec[0], "true")
+				if err != nil {
+					return fmt.Errorf("Cannot set flag %s: %v", p, err)
+				}
+				continue
+			}
+			if spec[0] == "allow_repeated_fields_in_body" {
 				err := f.Set(spec[0], "true")
 				if err != nil {
 					return fmt.Errorf("Cannot set flag %s: %v", p, err)

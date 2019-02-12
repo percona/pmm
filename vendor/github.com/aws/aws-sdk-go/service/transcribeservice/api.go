@@ -57,10 +57,7 @@ func (c *TranscribeService) CreateVocabularyRequest(input *CreateVocabularyInput
 // CreateVocabulary API operation for Amazon Transcribe Service.
 //
 // Creates a new custom vocabulary that you can use to change the way Amazon
-// Transcribe handles transcription of an audio file. Note that vocabularies
-// for en-AU, en-UK, and fr-CA languages that are in preview are not available.
-// In the console, the vocabulary section will be greyed-out and SDK will return
-// error message.
+// Transcribe handles transcription of an audio file.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -72,7 +69,7 @@ func (c *TranscribeService) CreateVocabularyRequest(input *CreateVocabularyInput
 // Returned Error Codes:
 //   * ErrCodeBadRequestException "BadRequestException"
 //   Your request didn't pass one or more validation tests. For example, if the
-//   transcription you're trying to delete doesn't exist of if it is in a non-terminal
+//   transcription you're trying to delete doesn't exist or if it is in a non-terminal
 //   state (for example, it's "in progress"). See the exception Message field
 //   for more information.
 //
@@ -153,14 +150,13 @@ func (c *TranscribeService) DeleteTranscriptionJobRequest(input *DeleteTranscrip
 
 	output = &DeleteTranscriptionJobOutput{}
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
 // DeleteTranscriptionJob API operation for Amazon Transcribe Service.
 //
-// Deletes a previously submitted transcription job as well as any other generated
+// Deletes a previously submitted transcription job along with any other generated
 // results such as the transcription, models, and so on.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
@@ -177,7 +173,7 @@ func (c *TranscribeService) DeleteTranscriptionJobRequest(input *DeleteTranscrip
 //
 //   * ErrCodeBadRequestException "BadRequestException"
 //   Your request didn't pass one or more validation tests. For example, if the
-//   transcription you're trying to delete doesn't exist of if it is in a non-terminal
+//   transcription you're trying to delete doesn't exist or if it is in a non-terminal
 //   state (for example, it's "in progress"). See the exception Message field
 //   for more information.
 //
@@ -246,8 +242,7 @@ func (c *TranscribeService) DeleteVocabularyRequest(input *DeleteVocabularyInput
 
 	output = &DeleteVocabularyOutput{}
 	req = c.newRequest(op, input, output)
-	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
-	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -273,7 +268,7 @@ func (c *TranscribeService) DeleteVocabularyRequest(input *DeleteVocabularyInput
 //
 //   * ErrCodeBadRequestException "BadRequestException"
 //   Your request didn't pass one or more validation tests. For example, if the
-//   transcription you're trying to delete doesn't exist of if it is in a non-terminal
+//   transcription you're trying to delete doesn't exist or if it is in a non-terminal
 //   state (for example, it's "in progress"). See the exception Message field
 //   for more information.
 //
@@ -362,7 +357,7 @@ func (c *TranscribeService) GetTranscriptionJobRequest(input *GetTranscriptionJo
 // Returned Error Codes:
 //   * ErrCodeBadRequestException "BadRequestException"
 //   Your request didn't pass one or more validation tests. For example, if the
-//   transcription you're trying to delete doesn't exist of if it is in a non-terminal
+//   transcription you're trying to delete doesn't exist or if it is in a non-terminal
 //   state (for example, it's "in progress"). See the exception Message field
 //   for more information.
 //
@@ -444,9 +439,7 @@ func (c *TranscribeService) GetVocabularyRequest(input *GetVocabularyInput) (req
 
 // GetVocabulary API operation for Amazon Transcribe Service.
 //
-// Gets information about a vocabulary. Note that vocabularies for en-AU, en-UK,
-// and fr-CA languages that are in preview are not available. In the console,
-// the vocabulary section will be greyed-out and SDK will return error message.
+// Gets information about a vocabulary.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -470,7 +463,7 @@ func (c *TranscribeService) GetVocabularyRequest(input *GetVocabularyInput) (req
 //
 //   * ErrCodeBadRequestException "BadRequestException"
 //   Your request didn't pass one or more validation tests. For example, if the
-//   transcription you're trying to delete doesn't exist of if it is in a non-terminal
+//   transcription you're trying to delete doesn't exist or if it is in a non-terminal
 //   state (for example, it's "in progress"). See the exception Message field
 //   for more information.
 //
@@ -558,7 +551,7 @@ func (c *TranscribeService) ListTranscriptionJobsRequest(input *ListTranscriptio
 // Returned Error Codes:
 //   * ErrCodeBadRequestException "BadRequestException"
 //   Your request didn't pass one or more validation tests. For example, if the
-//   transcription you're trying to delete doesn't exist of if it is in a non-terminal
+//   transcription you're trying to delete doesn't exist or if it is in a non-terminal
 //   state (for example, it's "in progress"). See the exception Message field
 //   for more information.
 //
@@ -705,7 +698,7 @@ func (c *TranscribeService) ListVocabulariesRequest(input *ListVocabulariesInput
 // Returned Error Codes:
 //   * ErrCodeBadRequestException "BadRequestException"
 //   Your request didn't pass one or more validation tests. For example, if the
-//   transcription you're trying to delete doesn't exist of if it is in a non-terminal
+//   transcription you're trying to delete doesn't exist or if it is in a non-terminal
 //   state (for example, it's "in progress"). See the exception Message field
 //   for more information.
 //
@@ -833,9 +826,7 @@ func (c *TranscribeService) StartTranscriptionJobRequest(input *StartTranscripti
 
 // StartTranscriptionJob API operation for Amazon Transcribe Service.
 //
-// Starts an asynchronous job to transcribe speech to text. Note that en-AU,
-// en-UK, and fr-CA languages are in preview and are only available to whitelisted
-// customers.
+// Starts an asynchronous job to transcribe speech to text.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -847,7 +838,7 @@ func (c *TranscribeService) StartTranscriptionJobRequest(input *StartTranscripti
 // Returned Error Codes:
 //   * ErrCodeBadRequestException "BadRequestException"
 //   Your request didn't pass one or more validation tests. For example, if the
-//   transcription you're trying to delete doesn't exist of if it is in a non-terminal
+//   transcription you're trying to delete doesn't exist or if it is in a non-terminal
 //   state (for example, it's "in progress"). See the exception Message field
 //   for more information.
 //
@@ -935,9 +926,7 @@ func (c *TranscribeService) UpdateVocabularyRequest(input *UpdateVocabularyInput
 //
 // Updates an existing vocabulary with new values. The UpdateVocabulary operation
 // overwrites all of the existing information with the values that you provide
-// in the request. Note that vocabularies for en-AU, en-UK, and fr-CA languages
-// that are in preview are not available. In the console, the vocabulary section
-// will be greyed-out and SDK will return error message.
+// in the request.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -949,7 +938,7 @@ func (c *TranscribeService) UpdateVocabularyRequest(input *UpdateVocabularyInput
 // Returned Error Codes:
 //   * ErrCodeBadRequestException "BadRequestException"
 //   Your request didn't pass one or more validation tests. For example, if the
-//   transcription you're trying to delete doesn't exist of if it is in a non-terminal
+//   transcription you're trying to delete doesn't exist or if it is in a non-terminal
 //   state (for example, it's "in progress"). See the exception Message field
 //   for more information.
 //
@@ -1427,6 +1416,9 @@ type ListTranscriptionJobsInput struct {
 	NextToken *string `type:"string"`
 
 	// When specified, returns only transcription jobs with the specified status.
+	// Jobs are ordered by creation date, with the newest jobs returned first. If
+	// you don’t specify a status, Amazon Transcribe returns all transcription jobs
+	// ordered by creation date.
 	Status *string `type:"string" enum:"TranscriptionJobStatus"`
 }
 
@@ -1650,7 +1642,7 @@ type Media struct {
 	// The S3 location of the input media file. The URI must be in the same region
 	// as the API endpoint that you are calling. The general form is:
 	//
-	// https://<aws-region>.amazonaws.com/<bucket-name>/<keyprefix>/<objectkey>
+	// https://s3-<aws-region>.amazonaws.com/<bucket-name>/<keyprefix>/<objectkey>
 	//
 	// For example:
 	//
@@ -1815,8 +1807,8 @@ type StartTranscriptionJobInput struct {
 	// A Settings object that provides optional settings for a transcription job.
 	Settings *Settings `type:"structure"`
 
-	// The name of the job. You can't use the strings "." or ".." in the job name.
-	// The name must be unique within an AWS account.
+	// The name of the job. Note that you can't use the strings "." or ".." by themselves
+	// as the job name. The name must also be unique within an AWS account.
 	//
 	// TranscriptionJobName is a required field
 	TranscriptionJobName *string `min:"1" type:"string" required:"true"`
@@ -1965,8 +1957,7 @@ func (s *Transcript) SetTranscriptFileUri(v string) *Transcript {
 }
 
 // Describes an asynchronous transcription job that was created with the StartTranscriptionJob
-// operation. Note that en-AU, en-UK, and fr-CA languages are in preview and
-// are only available to whitelisted customers.
+// operation.
 type TranscriptionJob struct {
 	_ struct{} `type:"structure"`
 
@@ -2084,9 +2075,7 @@ func (s *TranscriptionJob) SetTranscriptionJobStatus(v string) *TranscriptionJob
 	return s
 }
 
-// Provides a summary of information about a transcription job. Note that en-AU,
-// en-UK, and fr-CA languages are in preview and are only available to whitelisted
-// customers.
+// Provides a summary of information about a transcription job. .
 type TranscriptionJobSummary struct {
 	_ struct{} `type:"structure"`
 
@@ -2293,10 +2282,7 @@ func (s *UpdateVocabularyOutput) SetVocabularyState(v string) *UpdateVocabularyO
 	return s
 }
 
-// Provides information about a custom vocabulary. Note that vocabularies for
-// en-AU, en-UK, and fr-CA languages that are in preview are not available.
-// In the console, the vocabulary section will be greyed-out and SDK will return
-// error message.
+// Provides information about a custom vocabulary.
 type VocabularyInfo struct {
 	_ struct{} `type:"structure"`
 
@@ -2361,8 +2347,20 @@ const (
 	// LanguageCodeFrCa is a LanguageCode enum value
 	LanguageCodeFrCa = "fr-CA"
 
-	// LanguageCodeEnUk is a LanguageCode enum value
-	LanguageCodeEnUk = "en-UK"
+	// LanguageCodeEnGb is a LanguageCode enum value
+	LanguageCodeEnGb = "en-GB"
+
+	// LanguageCodeDeDe is a LanguageCode enum value
+	LanguageCodeDeDe = "de-DE"
+
+	// LanguageCodePtBr is a LanguageCode enum value
+	LanguageCodePtBr = "pt-BR"
+
+	// LanguageCodeFrFr is a LanguageCode enum value
+	LanguageCodeFrFr = "fr-FR"
+
+	// LanguageCodeItIt is a LanguageCode enum value
+	LanguageCodeItIt = "it-IT"
 )
 
 const (

@@ -114,7 +114,8 @@ func init() {
 			// library we cannot assume types.SizesFor is consistent with arches.
 			// For now, assume 64-bit norms and print a warning.
 			// But this warning should really be deferred until we attempt to use
-			// arch, which is very unlikely.
+			// arch, which is very unlikely. Better would be
+			// to defer size computation until we have Pass.TypesSizes.
 			arch.sizes = types.SizesFor("gc", "amd64")
 			log.Printf("unknown architecture %s", arch.name)
 		}
@@ -243,16 +244,17 @@ Files:
 						}
 					}
 					if arch == "" {
-						badf("%s: cannot determine architecture for assembly file")
+						log.Printf("%s: cannot determine architecture for assembly file", fname)
 						continue Files
 					}
 				}
 				fnName = m[2]
-				if pkgName := strings.TrimSpace(m[1]); pkgName != "" {
-					pathParts := strings.Split(pkgName, "∕")
-					pkgName = pathParts[len(pathParts)-1]
-					if pkgName != pass.Pkg.Path() {
-						badf("[%s] cannot check cross-package assembly function: %s is in package %s", arch, fnName, pkgName)
+				if pkgPath := strings.TrimSpace(m[1]); pkgPath != "" {
+					// The assembler uses Unicode division slash within
+					// identifiers to represent the directory separator.
+					pkgPath = strings.Replace(pkgPath, "∕", "/", -1)
+					if pkgPath != pass.Pkg.Path() {
+						log.Printf("%s:%d: [%s] cannot check cross-package assembly function: %s is in package %s", fname, lineno, arch, fnName, pkgPath)
 						fn = nil
 						fnName = ""
 						continue
@@ -489,7 +491,7 @@ func appendComponentsRecursive(arch *asmArch, t types.Type, cc []component, suff
 		offsets := arch.sizes.Offsetsof(fields)
 		elemoff := int(offsets[1])
 		for i := 0; i < int(tu.Len()); i++ {
-			cc = appendComponentsRecursive(arch, elem, cc, suffix+"_"+strconv.Itoa(i), i*elemoff)
+			cc = appendComponentsRecursive(arch, elem, cc, suffix+"_"+strconv.Itoa(i), off+i*elemoff)
 		}
 	}
 
@@ -513,7 +515,7 @@ func asmParseDecl(pass *analysis.Pass, decl *ast.FuncDecl) map[string]*asmFunc {
 		for _, fld := range list {
 			t := pass.TypesInfo.Types[fld.Type].Type
 
-			// Work around github.com/golang/go/issues/28277.
+			// Work around https://golang.org/issue/28277.
 			if t == nil {
 				if ell, ok := fld.Type.(*ast.Ellipsis); ok {
 					t = types.NewSlice(pass.TypesInfo.Types[ell.Elt].Type)
