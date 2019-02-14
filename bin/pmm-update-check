@@ -80,7 +80,7 @@ main() {
     local PLAYBOOK=$(get_latest_version $RPM_ROOT)/main.yml
     diff $PLAYBOOK $UPDATE_DIR/main.yml
 
-    yum update percona-release
+    yum -y update percona-release
     rpm --import /etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
     yum -y --enablerepo=pmm clean all || :
     yum -y --disablerepo='*' --enablerepo=pmm install pmm-update && EC=$? || EC=$?
