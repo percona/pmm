@@ -64,6 +64,9 @@
         job: "/var/lib/cloud/scripts/per-boot/resize-xfs"
         cron_file: resizeXfs
 
+    - name: PMM                        | PMM-3530 add new packaging key
+      command: sh -c "/usr/bin/rpm --import /etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY || :"
+
     - name: PMM                        | Update pmm-server RPM
       when: ansible_os_family == 'RedHat'
       yum: name={{ item }} state=present enablerepo=pmm
