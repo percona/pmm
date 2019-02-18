@@ -117,7 +117,7 @@ func TestList(t *testing.T) {
 			Address:       pointer.ToString("localhost"),
 			Port:          pointer.ToUint16(5432),
 			Engine:        pointer.ToString("PostgreSQL"),
-			EngineVersion: pointer.ToString("10.6"),
+			EngineVersion: pointer.ToString("10.7"),
 		},
 	}}
 	assert.Equal(t, expected, actual)
