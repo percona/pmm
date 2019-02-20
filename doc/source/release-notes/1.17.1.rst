@@ -23,20 +23,20 @@ In release 1.17.1 we have included 2 Improvements and fixed 9 bugs.
 Improvements
 ================================================================================
 
-* :pmmbug:`1339`: Improve Tooltips for Dashboard mysql-query-response-time
+* :pmmbug:`1339`: Improve tooltips for MySQL Query Response Time dashboard
 * :pmmbug:`3477`: Add Ubuntu 18.10 support
 
 
 Fixed Bugs
 ================================================================================
 
-* :pmmbug:`3471`: Fix global status metric names in `mysqld_exporter`
+* :pmmbug:`3471`: Fix global status metric names in `mysqld_exporter` for the MySQL 8.0 compatibility
 * :pmmbug:`3400`: Duplicate column in the Query Analytics dashboard Explain section
 * :pmmbug:`3353`: `postgres_exporter` does not work with PostgreSQL 11
-* :pmmbug:`3188`: Bug with memory usage for Amazon Aurora
+* :pmmbug:`3188`: Duplicate data on Amazon RDS / Aurora MySQL Metrics dashboard
 * :pmmbug:`2615`: PMM Managed QAN fails to start - wrong logging
 * :pmmbug:`2592`: MySQL Replication Dashboard shows error with multi-source replication
-* :pmmbug:`2327`: Member State Uptime and Max member Ping time charts return an error
+* :pmmbug:`2327`: Member State Uptime and Max Member Ping time charts on the MongoDB ReplSet dashboard return an error
 * :pmmbug:`955`: Fix format of User Time and CPU Time Graphs on MySQL User Statistics dashboard
 * :pmmbug:`3522`: CVE-2018-16492 and CVE-2018-16487
 
