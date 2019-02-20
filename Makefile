@@ -10,12 +10,12 @@ PMM_RELEASE_BRANCH = $(shell git describe --all --contains --dirty HEAD)
 
 release:                        ## Build bin/pmm-admin release binary.
 	go build -v -o bin/pmm-admin -ldflags " \
-		-X 'github.com/Percona-Lab/pmm-admin/vendor/github.com/percona/pmm/version.ProjectName=pmm-admin' \
-		-X 'github.com/Percona-Lab/pmm-admin/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
-		-X 'github.com/Percona-Lab/pmm-admin/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
-		-X 'github.com/Percona-Lab/pmm-admin/vendor/github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
-		-X 'github.com/Percona-Lab/pmm-admin/vendor/github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
-		-X 'github.com/Percona-Lab/pmm-admin/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
+		-X 'github.com/percona/pmm-admin/vendor/github.com/percona/pmm/version.ProjectName=pmm-admin' \
+		-X 'github.com/percona/pmm-admin/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+		-X 'github.com/percona/pmm-admin/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+		-X 'github.com/percona/pmm-admin/vendor/github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+		-X 'github.com/percona/pmm-admin/vendor/github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+		-X 'github.com/percona/pmm-admin/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 		"
 
 install:                        ## Install pmm-admin binary.
@@ -31,4 +31,4 @@ check: install check-license    ## Run checkers and linters.
 	golangci-lint run
 
 format:                         ## Run `goimports`.
-	goimports -local github.com/Percona-Lab/pmm-admin -l -w $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+	goimports -local github.com/percona/pmm-admin -l -w $(shell find . -type f -name '*.go' -not -path "./vendor/*")

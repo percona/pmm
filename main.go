@@ -29,7 +29,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"github.com/Percona-Lab/pmm-admin/commands"
+	"github.com/percona/pmm-admin/commands"
 )
 
 func main() {
