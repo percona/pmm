@@ -34,7 +34,7 @@ Fixed Bugs
 * :pmmbug:`3400`: Duplicate column in the Query Analytics dashboard Explain section
 * :pmmbug:`3353`: `postgres_exporter` does not work with PostgreSQL 11
 * :pmmbug:`3188`: Duplicate data on Amazon RDS / Aurora MySQL Metrics dashboard
-* :pmmbug:`2615`: PMM Managed QAN fails to start - wrong logging
+* :pmmbug:`2615`: Fix wrong formatting in log which appears if `pmm-qan-agent` process fails to start
 * :pmmbug:`2592`: MySQL Replication Dashboard shows error with multi-source replication
 * :pmmbug:`2327`: Member State Uptime and Max Member Ping time charts on the MongoDB ReplSet dashboard return an error
 * :pmmbug:`955`: Fix format of User Time and CPU Time Graphs on MySQL User Statistics dashboard
