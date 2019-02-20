@@ -74,8 +74,10 @@ version of |mysql|:
    log_slow_admin_statements=ON
    log_slow_slave_statements=ON
 
-`Creating a MySQL User Account to Be Used with PMM <pmm.conf-mysql.user-account.creating>`_
-===============================================================================================
+.. _pmm.conf-mysql.user-account.creating:
+
+`Creating a MySQL User Account to Be Used with PMM <conf-mysql.html#pmm-conf-mysql-user-account-creating>`_
+============================================================================================================
 
 When adding a |mysql| instance to monitoring, you can specify the |mysql| server
 superuser account credentials.  However, monitoring with the superuser account
@@ -118,8 +120,10 @@ For more information, run as root
 |opt.mysql|
 |opt.help|.
 
-`Configuring the slow query log in Percona Server <pmm.conf-mysql.slow-log-settings>`_
-==========================================================================================
+.. _pmm.conf-mysql.slow-log-settings:
+
+`Configuring the slow query log in Percona Server <conf-mysql.html#pmm-conf-mysql-slow-log-settings>`_
+=======================================================================================================
 
 If you are running |percona-server|, a properly configured slow query log will
 provide the most amount of information with the lowest overhead.  In other
@@ -181,8 +185,8 @@ connections, set the |slow_query_log_use_global_control|_ variable to ``all``.
 
 .. _perf-schema:
 
-`Configuring Performance Schema <perf-schema>`_
-===================================================
+`Configuring Performance Schema <conf-mysql.html#perf-schema>`_
+================================================================
 
 The default source of query data for |pmm| is the |slow-query-log|.  It is
 available in |mysql| 5.1 and later versions.  Starting from |mysql| 5.6
@@ -273,8 +277,10 @@ For more information, run
 |opt.mysql|
 |opt.help|.
 
-`Configuring MySQL 8.0 for PMM <pmm.conf-mysql.8-0>`_
-=========================================================
+.. _pmm.conf-mysql.8-0:
+
+`Configuring MySQL 8.0 for PMM <conf-mysql.html#pmm-conf-mysql-8-0>`_
+========================================================================
 
 |mysql| 8 (in version 8.0.4) changes the way clients are authenticated by
 default. The |opt.default-authentication-plugin| parameter is set to
@@ -333,8 +339,10 @@ change.
    |mysql| Documentation: Native Pluggable Authentication
       https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html
 
-`Settings for Dashboards <pmm.conf-mysql.settings.dashboard>`_
-==================================================================
+.. _pmm.conf-mysql.settings.dashboard:
+
+`Settings for Dashboards <conf-mysql.html#pmm-conf-mysql-settings-dashboard>`_
+===============================================================================
 
 Not all dashboards in |metrics-monitor| are available by default for all |mysql|
 variants and configurations: |oracle|'s |mysql|, |percona-server|. or |mariadb|.
@@ -350,7 +358,9 @@ high-overhead metrics only when troubleshooting problems.
    More information about |pmm| dashboards
       :ref:`pmm.metrics-monitor`
 
-`MySQL InnoDB Metrics <pmm.conf-mysql.mysql-innodb.metrics>`_
+.. _pmm.conf-mysql.mysql-innodb.metrics:
+
+`MySQL InnoDB Metrics <conf-mysql.html#pmm-conf-mysql-mysql-innodb-metrics>`_
 --------------------------------------------------------------------------------
 
 InnoDB metrics provide detailed insight about |innodb| operation.  Although you
@@ -367,7 +377,9 @@ global variable |opt.innodb-monitor-enable| to ``all``:
    |mysql| Documentation: |opt.innodb-monitor-enable| variable
       https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable
 
-`MySQL User Statistics <pmm.conf-mysql.user-statistics>`_
+.. _pmm.conf-mysql.user-statistics:
+
+`MySQL User Statistics <conf-mysql.html#pmm-conf-mysql-user-statistics>`_
 --------------------------------------------------------------------------------
 
 User statistics is a feature of |percona-server| and |mariadb|.  It provides
@@ -385,8 +397,10 @@ To enable user statistics, set the |opt.userstat| variable to ``1``.
    |mysql| Documentation
       `Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`_
 
-`Percona Server Query Response Time Distribution <pmm.conf-mysql.query-response-time>`_
--------------------------------------------------------------------------------------------
+.. _pmm.conf-mysql.query-response-time:
+
+`Percona Server Query Response Time Distribution <conf-mysql.html#pmm-conf-mysql-query-response-time>`_
+--------------------------------------------------------------------------------------------------------
 
 Query response time distribution is a feature available in |percona-server|.  It
 provides information about changes in query response time for different groups
@@ -415,8 +429,10 @@ To enable collection of query response time:
       - |opt.query-response-time-stats|: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#query_response_time_stats
       - Response time distribution: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#installing-the-plugins
 
-`Executing Custom Queries <pmm.conf-mysql.executing.custom.queries>`_
-================================================================================
+.. _pmm.conf-mysql.executing.custom.queries:
+
+`Executing Custom Queries <conf-mysql.html#pmm-conf-mysql-executing-custom-queries>`_
+======================================================================================
 
 Starting from the version 1.15.0, |pmm| provides user the ability to take a SQL
 ``SELECT`` statement and turn the result set into metric series in |pmm|. The
