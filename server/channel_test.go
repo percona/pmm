@@ -38,7 +38,7 @@ import (
 )
 
 type testServer struct {
-	connect func(api.Agent_ConnectServer) error
+	connectFunc func(api.Agent_ConnectServer) error
 }
 
 func (s *testServer) Register(context.Context, *api.RegisterRequest) (*api.RegisterResponse, error) {
@@ -46,7 +46,7 @@ func (s *testServer) Register(context.Context, *api.RegisterRequest) (*api.Regis
 }
 
 func (s *testServer) Connect(stream api.Agent_ConnectServer) error {
-	return s.connect(stream)
+	return s.connectFunc(stream)
 }
 
 var _ api.AgentServer = (*testServer)(nil)
@@ -61,7 +61,7 @@ func setup(t *testing.T, connect func(api.Agent_ConnectServer) error, expected .
 	require.NoError(t, err)
 	server := grpc.NewServer()
 	api.RegisterAgentServer(server, &testServer{
-		connect: connect,
+		connectFunc: connect,
 	})
 	go func() {
 		err = server.Serve(lis)
