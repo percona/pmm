@@ -249,7 +249,7 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agent.SetStateR
 	}
 
 	templateParams := map[string]interface{}{
-		"ListenPort": port,
+		"listen_port": port,
 	}
 
 	// render files only if they are present to avoid creating temporary directory for every agent

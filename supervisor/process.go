@@ -21,7 +21,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/inventory"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 )
@@ -48,7 +48,7 @@ type process struct {
 	params  *processParams
 	l       *logrus.Entry
 	pl      *processLogger
-	changes chan agent.Status
+	changes chan inventory.AgentStatus
 	backoff *backoff
 	ctxDone chan struct{}
 
@@ -72,7 +72,7 @@ func newProcess(ctx context.Context, params *processParams, l *logrus.Entry) *pr
 		params:  params,
 		l:       l,
 		pl:      newProcessLogger(l, keepLogLines),
-		changes: make(chan agent.Status, 1),
+		changes: make(chan inventory.AgentStatus, 1),
 		backoff: b,
 		ctxDone: make(chan struct{}),
 	}
@@ -92,7 +92,7 @@ func newProcess(ctx context.Context, params *processParams, l *logrus.Entry) *pr
 // STARTING -> WAITING
 func (p *process) toStarting() {
 	p.l.Infof("Process: starting.")
-	p.changes <- agent.Status_STARTING
+	p.changes <- inventory.AgentStatus_STARTING
 
 	p.cmd = exec.Command(p.params.path, p.params.args...) //nolint:gosec
 	p.cmd.Env = p.params.env
@@ -103,7 +103,7 @@ func (p *process) toStarting() {
 	p.cmdDone = make(chan struct{})
 
 	if err := p.cmd.Start(); err != nil {
-		p.l.Errorf("Process: failed to start: %s.", err)
+		p.l.Warnf("Process: failed to start: %s.", err)
 		go p.toWaiting()
 		return
 	}
@@ -120,7 +120,7 @@ func (p *process) toStarting() {
 	case <-t.C:
 		go p.toRunning()
 	case <-p.cmdDone:
-		p.l.Errorf("Process: exited early: %s.", p.cmd.ProcessState)
+		p.l.Warnf("Process: exited early: %s.", p.cmd.ProcessState)
 		go p.toWaiting()
 	}
 }
@@ -129,7 +129,7 @@ func (p *process) toStarting() {
 // RUNNING -> WAITING
 func (p *process) toRunning() {
 	p.l.Infof("Process: running.")
-	p.changes <- agent.Status_RUNNING
+	p.changes <- inventory.AgentStatus_RUNNING
 
 	p.backoff.Reset()
 
@@ -137,7 +137,7 @@ func (p *process) toRunning() {
 	case <-p.ctxDone:
 		go p.toStopping()
 	case <-p.cmdDone:
-		p.l.Errorf("Process: exited: %s.", p.cmd.ProcessState)
+		p.l.Warnf("Process: exited: %s.", p.cmd.ProcessState)
 		go p.toWaiting()
 	}
 }
@@ -148,7 +148,7 @@ func (p *process) toWaiting() {
 	delay := p.backoff.Delay()
 
 	p.l.Infof("Process: waiting %s.", delay)
-	p.changes <- agent.Status_WAITING
+	p.changes <- inventory.AgentStatus_WAITING
 
 	t := time.NewTimer(delay)
 	defer t.Stop()
@@ -163,7 +163,7 @@ func (p *process) toWaiting() {
 // STOPPING -> DONE
 func (p *process) toStopping() {
 	p.l.Infof("Process: stopping (sending SIGTERM)...")
-	p.changes <- agent.Status_STOPPING
+	p.changes <- inventory.AgentStatus_STOPPING
 
 	if err := p.cmd.Process.Signal(unix.SIGTERM); err != nil {
 		p.l.Errorf("Process: failed to send SIGTERM: %s.", err)
@@ -182,19 +182,19 @@ func (p *process) toStopping() {
 		<-p.cmdDone
 	}
 
-	p.l.Errorf("Process: exited: %s.", p.cmd.ProcessState)
+	p.l.Infof("Process: exited: %s.", p.cmd.ProcessState)
 	go p.toDone()
 }
 
 func (p *process) toDone() {
 	p.l.Info("Process: done.")
-	p.changes <- agent.Status_DONE
+	p.changes <- inventory.AgentStatus_DONE
 
 	close(p.changes)
 }
 
 // Changes returns channel that should be read until it is closed.
-func (p *process) Changes() <-chan agent.Status {
+func (p *process) Changes() <-chan inventory.AgentStatus {
 	return p.changes
 }
 

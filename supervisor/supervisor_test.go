@@ -25,6 +25,7 @@ import (
 	"testing"
 
 	"github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/inventory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -53,8 +54,8 @@ func TestSupervisor(t *testing.T) {
 		s.SetState(map[string]*agent.SetStateRequest_AgentProcess{
 			"sleep1": {Type: type_TEST_SLEEP, Args: []string{"10"}},
 		})
-		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_STARTING, ListenPort: 10000})
-		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_RUNNING, ListenPort: 10000})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_STARTING, ListenPort: 10000})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_RUNNING, ListenPort: 10000})
 	})
 
 	t.Run("Restart1Start2", func(t *testing.T) {
@@ -62,16 +63,16 @@ func TestSupervisor(t *testing.T) {
 			"sleep1": {Type: type_TEST_SLEEP, Args: []string{"20"}},
 			"sleep2": {Type: type_TEST_SLEEP, Args: []string{"10"}},
 		})
-		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_STOPPING, ListenPort: 10000})
-		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_DONE, ListenPort: 10000})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_STOPPING, ListenPort: 10000})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_DONE, ListenPort: 10000})
 
 		// the order of those two is not defined
-		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_STARTING, ListenPort: 10000},
-			agent.StateChangedRequest{AgentId: "sleep2", Status: agent.Status_STARTING, ListenPort: 10001})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_STARTING, ListenPort: 10000},
+			agent.StateChangedRequest{AgentId: "sleep2", Status: inventory.AgentStatus_STARTING, ListenPort: 10001})
 
 		// the order of those two is not defined
-		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_RUNNING, ListenPort: 10000},
-			agent.StateChangedRequest{AgentId: "sleep2", Status: agent.Status_RUNNING, ListenPort: 10001},
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_RUNNING, ListenPort: 10000},
+			agent.StateChangedRequest{AgentId: "sleep2", Status: inventory.AgentStatus_RUNNING, ListenPort: 10001},
 		)
 	})
 
@@ -79,15 +80,15 @@ func TestSupervisor(t *testing.T) {
 		s.SetState(map[string]*agent.SetStateRequest_AgentProcess{
 			"sleep2": {Type: type_TEST_SLEEP, Args: []string{"10"}},
 		})
-		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_STOPPING, ListenPort: 10000})
-		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: agent.Status_DONE, ListenPort: 10000})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_STOPPING, ListenPort: 10000})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_DONE, ListenPort: 10000})
 	})
 
 	t.Run("Exit", func(t *testing.T) {
 		cancel()
-		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep2", Status: agent.Status_STOPPING, ListenPort: 10001})
-		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep2", Status: agent.Status_DONE, ListenPort: 10001})
-		assertChanges(t, s, agent.StateChangedRequest{Status: agent.Status_STATUS_INVALID})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep2", Status: inventory.AgentStatus_STOPPING, ListenPort: 10001})
+		assertChanges(t, s, agent.StateChangedRequest{AgentId: "sleep2", Status: inventory.AgentStatus_DONE, ListenPort: 10001})
+		assertChanges(t, s, agent.StateChangedRequest{Status: inventory.AgentStatus_AGENT_STATUS_INVALID})
 	})
 }
 
@@ -157,16 +158,16 @@ func TestSupervisorProcessParams(t *testing.T) {
 		process := &agent.SetStateRequest_AgentProcess{
 			Type: agent.Type_MYSQLD_EXPORTER,
 			Args: []string{
-				"-web.listen-address=:{{ .ListenPort }}",
+				"-web.listen-address=:{{ .listen_port }}",
 				"-web.ssl-cert-file={{ .TextFiles.Cert }}",
 			},
 			Env: []string{
 				"HTTP_AUTH=pmm:secret",
-				"TEST=:{{ .ListenPort }}",
+				"TEST=:{{ .listen_port }}",
 			},
 			TextFiles: map[string]string{
 				"Cert":   "-----BEGIN CERTIFICATE-----\n...",
-				"Config": "test={{ .ListenPort }}",
+				"Config": "test={{ .listen_port }}",
 			},
 		}
 		actual, err := s.processParams("ID", process, 12345)
@@ -209,7 +210,7 @@ func TestSupervisorProcessParams(t *testing.T) {
 
 		process = &agent.SetStateRequest_AgentProcess{
 			Type:      agent.Type_MYSQLD_EXPORTER,
-			TextFiles: map[string]string{"bar": "{{ .ListenPort }}"},
+			TextFiles: map[string]string{"bar": "{{ .listen_port }}"},
 			Args:      []string{"-foo=:{{ .TextFiles.baz }}"},
 		}
 		_, err = s.processParams("ID", process, 0)

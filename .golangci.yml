@@ -18,7 +18,6 @@ linters-settings:
     check-exported: true
 
   unparam:
-    algo: rta
     check-exported: true
 
 linters:

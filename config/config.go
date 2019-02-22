@@ -18,9 +18,11 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 
+	"github.com/percona/pmm/version"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -55,10 +57,10 @@ type Config struct {
 	Ports Ports
 }
 
-func Application(cfg *Config, version string) *kingpin.Application {
-	app := kingpin.New("pmm-agent", "Version "+version+".")
+func Application(cfg *Config) *kingpin.Application {
+	app := kingpin.New("pmm-agent", fmt.Sprintf("Version %s.", version.Version))
 	app.HelpFlag.Short('h')
-	app.Version(version)
+	app.Version(version.FullInfo())
 
 	app.Flag("id", "ID of this pmm-agent.").Envar("PMM_AGENT_ID").StringVar(&cfg.ID)
 	app.Flag("address", "PMM Server address (host:port).").Envar("PMM_AGENT_ADDRESS").StringVar(&cfg.Address)
@@ -66,13 +68,18 @@ func Application(cfg *Config, version string) *kingpin.Application {
 	app.Flag("debug", "Enable debug output.").Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
 	app.Flag("insecure-tls", "Skip PMM Server TLS certificate validation.").Envar("PMM_AGENT_INSECURE_TLS").BoolVar(&cfg.InsecureTLS)
 
-	app.Flag("paths.node_exporter", "Path to node_exporter to use.").Envar("PMM_AGENT_PATHS_NODE_EXPORTER").Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)
-	app.Flag("paths.mysqld_exporter", "Path to mysqld_exporter to use.").Envar("PMM_AGENT_PATHS_MYSQLD_EXPORTER").Default("mysqld_exporter").StringVar(&cfg.Paths.MySQLdExporter)
-	app.Flag("paths.tempdir", "Temporary directory for exporters.").Envar("PMM_AGENT_PATHS_TEMPDIR").Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
+	app.Flag("paths.node_exporter", "Path to node_exporter to use.").Envar("PMM_AGENT_PATHS_NODE_EXPORTER").
+		Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)
+	app.Flag("paths.mysqld_exporter", "Path to mysqld_exporter to use.").Envar("PMM_AGENT_PATHS_MYSQLD_EXPORTER").
+		Default("mysqld_exporter").StringVar(&cfg.Paths.MySQLdExporter)
+	app.Flag("paths.tempdir", "Temporary directory for exporters.").Envar("PMM_AGENT_PATHS_TEMPDIR").
+		Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
 
 	// TODO read defaults from /proc/sys/net/ipv4/ip_local_port_range ?
-	app.Flag("ports.min", "Minimal allowed port number for listening sockets.").Envar("PMM_AGENT_PORTS_MIN").Default("32768").Uint16Var(&cfg.Ports.Min)
-	app.Flag("ports.max", "Maximal allowed port number for listening sockets.").Envar("PMM_AGENT_PORTS_MAX").Default("60999").Uint16Var(&cfg.Ports.Max)
+	app.Flag("ports.min", "Minimal allowed port number for listening sockets.").Envar("PMM_AGENT_PORTS_MIN").
+		Default("32768").Uint16Var(&cfg.Ports.Min)
+	app.Flag("ports.max", "Maximal allowed port number for listening sockets.").Envar("PMM_AGENT_PORTS_MAX").
+		Default("60999").Uint16Var(&cfg.Ports.Max)
 
 	// TODO load configuration from file with kingpin.ExpandArgsFromFile
 	// TODO show environment variables in help

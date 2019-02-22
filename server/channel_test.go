@@ -27,7 +27,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/exporter_shared/helpers"
-	"github.com/percona/pmm/api/agent"
+	api "github.com/percona/pmm/api/agent"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
@@ -38,16 +38,20 @@ import (
 )
 
 type testServer struct {
-	connect func(agent.Agent_ConnectServer) error
+	connect func(api.Agent_ConnectServer) error
 }
 
-func (s *testServer) Connect(stream agent.Agent_ConnectServer) error {
+func (s *testServer) Register(context.Context, *api.RegisterRequest) (*api.RegisterResponse, error) {
+	panic("not implemented")
+}
+
+func (s *testServer) Connect(stream api.Agent_ConnectServer) error {
 	return s.connect(stream)
 }
 
-var _ agent.AgentServer = (*testServer)(nil)
+var _ api.AgentServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expected ...error) (*Channel, *grpc.ClientConn, func(*testing.T)) {
+func setup(t *testing.T, connect func(api.Agent_ConnectServer) error, expected ...error) (*Channel, *grpc.ClientConn, func(*testing.T)) {
 	// logrus.SetLevel(logrus.DebugLevel)
 
 	t.Parallel()
@@ -56,7 +60,7 @@ func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expected
 	lis, err := net.Listen("tcp", "127.0.0.1:0")
 	require.NoError(t, err)
 	server := grpc.NewServer()
-	agent.RegisterAgentServer(server, &testServer{
+	api.RegisterAgentServer(server, &testServer{
 		connect: connect,
 	})
 	go func() {
@@ -74,7 +78,7 @@ func setup(t *testing.T, connect func(agent.Agent_ConnectServer) error, expected
 	}
 	cc, err := grpc.DialContext(ctx, lis.Addr().String(), opts...)
 	require.NoError(t, err, "failed to dial server")
-	stream, err := agent.NewAgentClient(cc).Connect(ctx)
+	stream, err := api.NewAgentClient(cc).Connect(ctx)
 	require.NoError(t, err, "failed to create stream")
 	channel := NewChannel(stream)
 
@@ -93,17 +97,17 @@ func TestAgentRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
 
-	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
+	connect := func(stream api.Agent_ConnectServer) error { //nolint:unparam
 		for i := uint32(1); i <= count; i++ {
 			msg, err := stream.Recv()
 			require.NoError(t, err)
 			assert.Equal(t, i, msg.Id)
 			require.NotNil(t, msg.GetQanData())
 
-			err = stream.Send(&agent.ServerMessage{
+			err = stream.Send(&api.ServerMessage{
 				Id: i,
-				Payload: &agent.ServerMessage_QanData{
-					QanData: new(agent.QANDataResponse),
+				Payload: &api.ServerMessage_QanData{
+					QanData: new(api.QANDataResponse),
 				},
 			})
 			assert.NoError(t, err)
@@ -116,8 +120,8 @@ func TestAgentRequest(t *testing.T) {
 	defer teardown(t)
 
 	for i := uint32(1); i <= count; i++ {
-		resp := channel.SendRequest(&agent.AgentMessage_QanData{
-			QanData: new(agent.QANDataRequest),
+		resp := channel.SendRequest(&api.AgentMessage_QanData{
+			QanData: new(api.QANDataRequest),
 		})
 		assert.NotNil(t, resp)
 	}
@@ -160,12 +164,12 @@ func TestServerRequest(t *testing.T) {
 	const count = 50
 	require.True(t, count > serverRequestsCap)
 
-	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
+	connect := func(stream api.Agent_ConnectServer) error { //nolint:unparam
 		for i := uint32(1); i <= count; i++ {
-			err := stream.Send(&agent.ServerMessage{
+			err := stream.Send(&api.ServerMessage{
 				Id: i,
-				Payload: &agent.ServerMessage_Ping{
-					Ping: new(agent.PingRequest),
+				Payload: &api.ServerMessage_Ping{
+					Ping: new(api.Ping),
 				},
 			})
 			assert.NoError(t, err)
@@ -175,9 +179,9 @@ func TestServerRequest(t *testing.T) {
 			msg, err := stream.Recv()
 			require.NoError(t, err)
 			assert.Equal(t, i, msg.Id)
-			pingResponse := msg.GetPing()
-			require.NotNil(t, pingResponse)
-			ts, err := ptypes.Timestamp(pingResponse.CurrentTime)
+			pong := msg.GetPong()
+			require.NotNil(t, pong)
+			ts, err := ptypes.Timestamp(pong.CurrentTime)
 			assert.NoError(t, err)
 			assert.InDelta(t, time.Now().Unix(), ts.Unix(), 1)
 		}
@@ -192,10 +196,10 @@ func TestServerRequest(t *testing.T) {
 		ping := req.GetPing()
 		require.NotNil(t, ping)
 
-		channel.SendResponse(&agent.AgentMessage{
+		channel.SendResponse(&api.AgentMessage{
 			Id: req.Id,
-			Payload: &agent.AgentMessage_Ping{
-				Ping: &agent.PingResponse{
+			Payload: &api.AgentMessage_Pong{
+				Pong: &api.Pong{
 					CurrentTime: ptypes.TimestampNow(),
 				},
 			},
@@ -205,7 +209,7 @@ func TestServerRequest(t *testing.T) {
 
 func TestServerExitsWithGRPCError(t *testing.T) {
 	errUnimplemented := status.Error(codes.Unimplemented, "Test error")
-	connect := func(stream agent.Agent_ConnectServer) error {
+	connect := func(stream api.Agent_ConnectServer) error {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
 		assert.EqualValues(t, 1, msg.Id)
@@ -217,14 +221,14 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	channel, _, teardown := setup(t, connect, errUnimplemented)
 	defer teardown(t)
 
-	resp := channel.SendRequest(&agent.AgentMessage_QanData{
-		QanData: new(agent.QANDataRequest),
+	resp := channel.SendRequest(&api.AgentMessage_QanData{
+		QanData: new(api.QANDataRequest),
 	})
 	assert.Nil(t, resp)
 }
 
 func TestServerExitsWithUnknownError(t *testing.T) {
-	connect := func(stream agent.Agent_ConnectServer) error {
+	connect := func(stream api.Agent_ConnectServer) error {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
 		assert.EqualValues(t, 1, msg.Id)
@@ -236,18 +240,18 @@ func TestServerExitsWithUnknownError(t *testing.T) {
 	channel, _, teardown := setup(t, connect, status.Error(codes.Unknown, "EOF"))
 	defer teardown(t)
 
-	resp := channel.SendRequest(&agent.AgentMessage_QanData{
-		QanData: new(agent.QANDataRequest),
+	resp := channel.SendRequest(&api.AgentMessage_QanData{
+		QanData: new(api.QANDataRequest),
 	})
 	assert.Nil(t, resp)
 }
 
 func TestAgentClosesStream(t *testing.T) {
-	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
-		err := stream.Send(&agent.ServerMessage{
+	connect := func(stream api.Agent_ConnectServer) error { //nolint:unparam
+		err := stream.Send(&api.ServerMessage{
 			Id: 1,
-			Payload: &agent.ServerMessage_Ping{
-				Ping: new(agent.PingRequest),
+			Payload: &api.ServerMessage_Ping{
+				Ping: new(api.Ping),
 			},
 		})
 		assert.NoError(t, err)
@@ -271,11 +275,11 @@ func TestAgentClosesStream(t *testing.T) {
 }
 
 func TestAgentClosesConnection(t *testing.T) {
-	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
-		err := stream.Send(&agent.ServerMessage{
+	connect := func(stream api.Agent_ConnectServer) error { //nolint:unparam
+		err := stream.Send(&api.ServerMessage{
 			Id: 1,
-			Payload: &agent.ServerMessage_Ping{
-				Ping: new(agent.PingRequest),
+			Payload: &api.ServerMessage_Ping{
+				Ping: new(api.Ping),
 			},
 		})
 		assert.NoError(t, err)
@@ -302,21 +306,21 @@ func TestAgentClosesConnection(t *testing.T) {
 }
 
 func TestUnexpectedResponseFromServer(t *testing.T) {
-	connect := func(stream agent.Agent_ConnectServer) error { //nolint:unparam
+	connect := func(stream api.Agent_ConnectServer) error { //nolint:unparam
 		// this message triggers "no subscriber for ID" error
-		err := stream.Send(&agent.ServerMessage{
+		err := stream.Send(&api.ServerMessage{
 			Id: 111,
-			Payload: &agent.ServerMessage_QanData{
-				QanData: new(agent.QANDataResponse),
+			Payload: &api.ServerMessage_QanData{
+				QanData: new(api.QANDataResponse),
 			},
 		})
 		assert.NoError(t, err)
 
 		// this message should not trigger new error
-		err = stream.Send(&agent.ServerMessage{
+		err = stream.Send(&api.ServerMessage{
 			Id: 222,
-			Payload: &agent.ServerMessage_QanData{
-				QanData: new(agent.QANDataResponse),
+			Payload: &api.ServerMessage_QanData{
+				QanData: new(api.QANDataResponse),
 			},
 		})
 		assert.NoError(t, err)
@@ -328,16 +332,16 @@ func TestUnexpectedResponseFromServer(t *testing.T) {
 	defer teardown(t)
 
 	// after receiving unexpected response, channel is closed
-	resp := channel.SendRequest(&agent.AgentMessage_QanData{
-		QanData: new(agent.QANDataRequest),
+	resp := channel.SendRequest(&api.AgentMessage_QanData{
+		QanData: new(api.QANDataRequest),
 	})
 	assert.Nil(t, resp)
 	msg := <-channel.Requests()
 	assert.Nil(t, msg)
 
 	// future requests are ignored
-	resp = channel.SendRequest(&agent.AgentMessage_QanData{
-		QanData: new(agent.QANDataRequest),
+	resp = channel.SendRequest(&api.AgentMessage_QanData{
+		QanData: new(api.QANDataRequest),
 	})
 	assert.Nil(t, resp)
 	msg = <-channel.Requests()
