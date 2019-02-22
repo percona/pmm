@@ -16,18 +16,23 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *PMMAgent) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *NodeExporter) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *MySQLdExporter) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *RDSExporter) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *ExternalExporter) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *ListAgentsRequest) Validate() error {
@@ -119,6 +124,7 @@ func (this *AddPMMAgentRequest) Validate() error {
 	if this.NodeId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *AddPMMAgentResponse) Validate() error {
@@ -133,6 +139,7 @@ func (this *AddNodeExporterRequest) Validate() error {
 	if this.NodeId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *AddNodeExporterResponse) Validate() error {
@@ -153,6 +160,7 @@ func (this *AddMySQLdExporterRequest) Validate() error {
 	if this.Username == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *AddMySQLdExporterResponse) Validate() error {
@@ -167,6 +175,7 @@ func (this *AddRDSExporterRequest) Validate() error {
 	if this.RunsOnNodeId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *AddRDSExporterResponse) Validate() error {
@@ -181,6 +190,7 @@ func (this *AddExternalExporterRequest) Validate() error {
 	if this.MetricsUrl == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("MetricsUrl", fmt.Errorf(`value '%v' must not be an empty string`, this.MetricsUrl))
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *AddExternalExporterResponse) Validate() error {

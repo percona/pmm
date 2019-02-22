@@ -73,6 +73,9 @@ swagger:model AddMySqldExporterBody
 */
 type AddMySqldExporterBody struct {
 
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// MySQL password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
@@ -175,6 +178,9 @@ type AddMySqldExporterOKBodyMysqldExporter struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
+
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`

@@ -71,6 +71,9 @@ swagger:model AddContainerNodeBody
 */
 type AddContainerNodeBody struct {
 
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// Docker container identifier. If specified, must be a unique Docker container identifier.
 	DockerContainerID string `json:"docker_container_id,omitempty"`
 
@@ -170,6 +173,9 @@ func (o *AddContainerNodeOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddContainerNodeOKBodyContainer
 */
 type AddContainerNodeOKBodyContainer struct {
+
+	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.
 	DockerContainerID string `json:"docker_container_id,omitempty"`

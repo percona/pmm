@@ -20,6 +20,8 @@ message PMMAgent {
 
   // True if Agent is running and connected to pmm-managed.
   bool connected = 3;
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 // NodeExporter runs on Generic on Container Node and exposes its metrics.
@@ -40,6 +42,8 @@ message NodeExporter {
   AgentStatus status = 4;
   // Listen port for scraping metrics.
   uint32 listen_port = 5;
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 // MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
@@ -66,6 +70,8 @@ message MySQLdExporter {
   AgentStatus status = 7;
   // Listen port for scraping metrics.
   uint32 listen_port = 8;
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 // RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
@@ -90,6 +96,8 @@ message RDSExporter {
   AgentStatus status = 5;
   // Listen port for scraping metrics.
   uint32 listen_port = 6;
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 // ExternalExporter does not run on any Inventory Node.
@@ -106,6 +114,8 @@ message ExternalExporter {
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 3;
 
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 // List
@@ -161,6 +171,8 @@ message AddPMMAgentRequest {
       string_not_empty: true
     }
   ];
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message AddPMMAgentResponse {
@@ -180,6 +192,8 @@ message AddNodeExporterRequest {
       string_not_empty: true
     }
   ];
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message AddNodeExporterResponse {
@@ -213,6 +227,8 @@ message AddMySQLdExporterRequest {
   ];
   // MySQL password for scraping metrics.
   string password = 5;
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message AddMySQLdExporterResponse {
@@ -234,8 +250,12 @@ message AddRDSExporterRequest {
   ];
   // A list of Service identifiers (Node identifiers are extracted from Services).
   repeated string service_ids = 3;
+  //
   // TODO AWS credentials
+  //
 
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message AddRDSExporterResponse {
@@ -255,6 +275,8 @@ message AddExternalExporterRequest {
       string_not_empty: true
     }
   ];
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message AddExternalExporterResponse {

@@ -71,6 +71,9 @@ swagger:model ChangeRemoteAmazonRDSNodeBody
 */
 type ChangeRemoteAmazonRDSNodeBody struct {
 
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.
 	Instance string `json:"instance,omitempty"`
 
@@ -167,6 +170,9 @@ func (o *ChangeRemoteAmazonRDSNodeOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS
 */
 type ChangeRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS struct {
+
+	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.
 	Instance string `json:"instance,omitempty"`

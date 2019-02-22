@@ -71,6 +71,9 @@ swagger:model AddGenericNodeBody
 */
 type AddGenericNodeBody struct {
 
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// Linux distribution (if any).
 	Distro string `json:"distro,omitempty"`
 
@@ -170,6 +173,9 @@ func (o *AddGenericNodeOKBody) UnmarshalBinary(b []byte) error {
 swagger:model AddGenericNodeOKBodyGeneric
 */
 type AddGenericNodeOKBodyGeneric struct {
+
+	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Linux distribution (if any). Can be changed.
 	Distro string `json:"distro,omitempty"`

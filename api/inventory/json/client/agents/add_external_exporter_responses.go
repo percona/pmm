@@ -71,6 +71,9 @@ swagger:model AddExternalExporterBody
 */
 type AddExternalExporterBody struct {
 
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// URL for scraping metrics.
 	MetricsURL string `json:"metrics_url,omitempty"`
 }
@@ -164,6 +167,9 @@ type AddExternalExporterOKBodyExternalExporter struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
+
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// URL for scraping metrics.
 	MetricsURL string `json:"metrics_url,omitempty"`

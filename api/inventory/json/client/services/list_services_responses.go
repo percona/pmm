@@ -75,6 +75,9 @@ type AmazonRDSMysqlItems0 struct {
 	// Instance endpoint (full DNS name).
 	Address string `json:"address,omitempty"`
 
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -248,6 +251,9 @@ type MysqlItems0 struct {
 
 	// Access address (DNS name or IP). Required if unix_socket is absent.
 	Address string `json:"address,omitempty"`
+
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`

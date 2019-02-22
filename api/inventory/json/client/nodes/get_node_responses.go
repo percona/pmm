@@ -237,6 +237,9 @@ swagger:model GetNodeOKBodyContainer
 */
 type GetNodeOKBodyContainer struct {
 
+	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.
 	DockerContainerID string `json:"docker_container_id,omitempty"`
 
@@ -280,6 +283,9 @@ func (o *GetNodeOKBodyContainer) UnmarshalBinary(b []byte) error {
 swagger:model GetNodeOKBodyGeneric
 */
 type GetNodeOKBodyGeneric struct {
+
+	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Linux distribution (if any). Can be changed.
 	Distro string `json:"distro,omitempty"`
@@ -325,6 +331,9 @@ swagger:model GetNodeOKBodyRemote
 */
 type GetNodeOKBodyRemote struct {
 
+	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// Unique randomly generated instance identifier, can't be changed.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -359,6 +368,9 @@ func (o *GetNodeOKBodyRemote) UnmarshalBinary(b []byte) error {
 swagger:model GetNodeOKBodyRemoteAmazonRDS
 */
 type GetNodeOKBodyRemoteAmazonRDS struct {
+
+	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.
 	Instance string `json:"instance,omitempty"`

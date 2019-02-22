@@ -21,6 +21,8 @@ message MySQLService {
   uint32 port = 5;
   // Access Unix socket. Required if address and port are absent.
   string unix_socket = 6;
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 // AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node
@@ -35,6 +37,8 @@ message AmazonRDSMySQLService {
   string address = 4;
   // Instance port.
   uint32 port = 5;
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 // List
@@ -92,6 +96,8 @@ message AddMySQLServiceRequest {
   uint32 port = 5;
   // Access Unix socket. Required if address and port are absent.
   string unix_socket = 6;
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message AddMySQLServiceResponse {
@@ -123,6 +129,8 @@ message ChangeMySQLServiceRequest {
   uint32 port = 5;
   // Access Unix socket. Required if address and port are absent.
   string unix_socket = 6;
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message ChangeMySQLServiceResponse {
@@ -158,6 +166,8 @@ message AddAmazonRDSMySQLServiceRequest {
       int_gt: 0
     }
   ];
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message AddAmazonRDSMySQLServiceResponse {
@@ -191,6 +201,8 @@ message ChangeAmazonRDSMySQLServiceRequest {
       int_gt: 0
     }
   ];
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message ChangeAmazonRDSMySQLServiceResponse {

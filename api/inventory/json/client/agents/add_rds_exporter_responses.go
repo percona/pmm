@@ -73,6 +73,9 @@ swagger:model AddRDSExporterBody
 */
 type AddRDSExporterBody struct {
 
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// Node identifier where this instance runs.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 
@@ -169,6 +172,9 @@ type AddRDSExporterOKBodyRDSExporter struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
+
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
