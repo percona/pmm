@@ -67,7 +67,6 @@ failover_update() {
 main() {
     local RPM_ROOT=$1
 
-    rpm --import /etc/pki/rpm-gpg/PERCONA-PACKAGING-KEY
     yum -y --enablerepo=pmm clean all || :
     yum -y --disablerepo='*' --enablerepo=pmm install pmm-update && EC=$? || EC=$?
     if [ "x$EC" != "x0" ]; then
