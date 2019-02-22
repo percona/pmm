@@ -21,6 +21,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"testing"
 	"time"
@@ -61,6 +62,9 @@ func build(t *testing.T, tag string, fileName string, outputFile string) *exec.C
 }
 
 func setup(t *testing.T) (context.Context, context.CancelFunc, *logrus.Entry) {
+	t.Helper()
+	t.Parallel()
+
 	ctx, cancel := context.WithCancel(context.Background())
 	l := logrus.WithField("test", t.Name())
 	return ctx, cancel, l
@@ -68,8 +72,6 @@ func setup(t *testing.T) (context.Context, context.CancelFunc, *logrus.Entry) {
 
 func TestProcess(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
-		t.Parallel()
-
 		ctx, cancel, l := setup(t)
 		p := newProcess(ctx, &processParams{path: "sleep", args: []string{"100500"}}, l)
 
@@ -79,8 +81,6 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("FailedToStart", func(t *testing.T) {
-		t.Parallel()
-
 		ctx, cancel, l := setup(t)
 		p := newProcess(ctx, &processParams{path: "no_such_command"}, l)
 
@@ -90,9 +90,7 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("ExitedEarly", func(t *testing.T) {
-		t.Parallel()
 		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
-
 		ctx, cancel, l := setup(t)
 		p := newProcess(ctx, &processParams{path: "sleep", args: []string{sleep}}, l)
 
@@ -102,10 +100,8 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("CancelStarting", func(t *testing.T) {
-		t.Parallel()
-
-		ctx, cancel, l := setup(t)
 		sleep := strconv.FormatFloat(runningT.Seconds()-0.5, 'f', -1, 64)
+		ctx, cancel, l := setup(t)
 		p := newProcess(ctx, &processParams{path: "sleep", args: []string{sleep}}, l)
 
 		assertStates(t, p, inventory.AgentStatus_STARTING, inventory.AgentStatus_WAITING, inventory.AgentStatus_STARTING)
@@ -114,10 +110,8 @@ func TestProcess(t *testing.T) {
 	})
 
 	t.Run("Exited", func(t *testing.T) {
-		t.Parallel()
-
-		ctx, cancel, l := setup(t)
 		sleep := strconv.FormatFloat(runningT.Seconds()+0.5, 'f', -1, 64)
+		ctx, cancel, l := setup(t)
 		p := newProcess(ctx, &processParams{path: "sleep", args: []string{sleep}}, l)
 
 		assertStates(t, p, inventory.AgentStatus_STARTING, inventory.AgentStatus_RUNNING, inventory.AgentStatus_WAITING)
@@ -125,8 +119,28 @@ func TestProcess(t *testing.T) {
 		assertStates(t, p, inventory.AgentStatus_DONE, inventory.AgentStatus_AGENT_STATUS_INVALID)
 	})
 
-	t.Run("Kill child", func(t *testing.T) {
-		t.Parallel()
+	t.Run("Killed", func(t *testing.T) {
+		f, err := ioutil.TempFile("", "pmm-agent-process-test-noterm")
+		require.NoError(t, err)
+		require.NoError(t, f.Close())
+		defer func() {
+			require.NoError(t, os.Remove(f.Name()))
+		}()
+
+		build(t, "", "process_noterm.go", f.Name())
+
+		ctx, cancel, l := setup(t)
+		p := newProcess(ctx, &processParams{path: f.Name()}, l)
+
+		assertStates(t, p, inventory.AgentStatus_STARTING, inventory.AgentStatus_RUNNING)
+		cancel()
+		assertStates(t, p, inventory.AgentStatus_STOPPING, inventory.AgentStatus_DONE, inventory.AgentStatus_AGENT_STATUS_INVALID)
+	})
+
+	t.Run("KillChild", func(t *testing.T) {
+		if runtime.GOOS != "linux" {
+			t.Skip("Pdeathsig is implemented only on Linux")
+		}
 
 		f, err := ioutil.TempFile("", "pmm-agent-process-test-child")
 		require.NoError(t, err)
@@ -151,14 +165,15 @@ func TestProcess(t *testing.T) {
 		for ; len(logs) == 0; logs = logger.Latest() {
 			time.Sleep(50 * time.Millisecond)
 		}
+		pid, err := strconv.Atoi(logs[0])
+		require.NoError(t, err)
+
 		err = pCmd.Process.Kill()
 		require.NoError(t, err)
 		err = pCmd.Wait()
 		require.EqualError(t, err, "signal: killed")
 		time.Sleep(200 * time.Millisecond) // Waiting to be sure that child process is killed.
 
-		pid, err := strconv.Atoi(logs[0])
-		require.NoError(t, err)
 		proc, err := os.FindProcess(pid)
 		require.NoError(t, err)
 
@@ -166,26 +181,6 @@ func TestProcess(t *testing.T) {
 		require.EqualError(t, err, "os: process already finished", "process with pid %v is not killed", pCmd.Process.Pid)
 
 		err = proc.Signal(unix.Signal(0))
-		require.EqualError(t, err, "os: process already finished", "child process with pid %v is not killed", logs[0])
-	})
-
-	t.Run("Killed", func(t *testing.T) {
-		t.Parallel()
-
-		f, err := ioutil.TempFile("", "pmm-agent-process-test-noterm")
-		require.NoError(t, err)
-		require.NoError(t, f.Close())
-		defer func() {
-			require.NoError(t, os.Remove(f.Name()))
-		}()
-
-		build(t, "", "process_noterm.go", f.Name())
-
-		ctx, cancel, l := setup(t)
-		p := newProcess(ctx, &processParams{path: f.Name()}, l)
-
-		assertStates(t, p, inventory.AgentStatus_STARTING, inventory.AgentStatus_RUNNING)
-		cancel()
-		assertStates(t, p, inventory.AgentStatus_STOPPING, inventory.AgentStatus_DONE, inventory.AgentStatus_AGENT_STATUS_INVALID)
+		require.EqualError(t, err, "os: process already finished", "child process with pid %v is not killed", pid)
 	})
 }

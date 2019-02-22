@@ -22,8 +22,6 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-// https://jira.percona.com/browse/PMM-3173
-// TODO test it
 func setSysProcAttr(cmd *exec.Cmd) {
 	cmd.SysProcAttr = &unix.SysProcAttr{
 		Pdeathsig: unix.SIGKILL,
