@@ -10,133 +10,6 @@ import (
 	"gopkg.in/reform.v1/parse"
 )
 
-type serviceRowTableType struct {
-	s parse.StructInfo
-	z []interface{}
-}
-
-// Schema returns a schema name in SQL database ("").
-func (v *serviceRowTableType) Schema() string {
-	return v.s.SQLSchema
-}
-
-// Name returns a view or table name in SQL database ("services").
-func (v *serviceRowTableType) Name() string {
-	return v.s.SQLName
-}
-
-// Columns returns a new slice of column names for that view or table in SQL database.
-func (v *serviceRowTableType) Columns() []string {
-	return []string{"id", "type", "name", "node_id", "address", "port", "unix_socket"}
-}
-
-// NewStruct makes a new struct for that view or table.
-func (v *serviceRowTableType) NewStruct() reform.Struct {
-	return new(ServiceRow)
-}
-
-// NewRecord makes a new record for that table.
-func (v *serviceRowTableType) NewRecord() reform.Record {
-	return new(ServiceRow)
-}
-
-// PKColumnIndex returns an index of primary key column for that table in SQL database.
-func (v *serviceRowTableType) PKColumnIndex() uint {
-	return uint(v.s.PKFieldIndex)
-}
-
-// ServiceRowTable represents services view or table in SQL database.
-var ServiceRowTable = &serviceRowTableType{
-	s: parse.StructInfo{Type: "ServiceRow", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "UnixSocket", Type: "*string", Column: "unix_socket"}}, PKFieldIndex: 0},
-	z: new(ServiceRow).Values(),
-}
-
-// String returns a string representation of this struct or record.
-func (s ServiceRow) String() string {
-	res := make([]string, 7)
-	res[0] = "ID: " + reform.Inspect(s.ID, true)
-	res[1] = "Type: " + reform.Inspect(s.Type, true)
-	res[2] = "Name: " + reform.Inspect(s.Name, true)
-	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[4] = "Address: " + reform.Inspect(s.Address, true)
-	res[5] = "Port: " + reform.Inspect(s.Port, true)
-	res[6] = "UnixSocket: " + reform.Inspect(s.UnixSocket, true)
-	return strings.Join(res, ", ")
-}
-
-// Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *ServiceRow) Values() []interface{} {
-	return []interface{}{
-		s.ID,
-		s.Type,
-		s.Name,
-		s.NodeID,
-		s.Address,
-		s.Port,
-		s.UnixSocket,
-	}
-}
-
-// Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *ServiceRow) Pointers() []interface{} {
-	return []interface{}{
-		&s.ID,
-		&s.Type,
-		&s.Name,
-		&s.NodeID,
-		&s.Address,
-		&s.Port,
-		&s.UnixSocket,
-	}
-}
-
-// View returns View object for that struct.
-func (s *ServiceRow) View() reform.View {
-	return ServiceRowTable
-}
-
-// Table returns Table object for that record.
-func (s *ServiceRow) Table() reform.Table {
-	return ServiceRowTable
-}
-
-// PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *ServiceRow) PKValue() interface{} {
-	return s.ID
-}
-
-// PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *ServiceRow) PKPointer() interface{} {
-	return &s.ID
-}
-
-// HasPK returns true if record has non-zero primary key set, false otherwise.
-func (s *ServiceRow) HasPK() bool {
-	return s.ID != ServiceRowTable.z[ServiceRowTable.s.PKFieldIndex]
-}
-
-// SetPK sets record primary key.
-func (s *ServiceRow) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = string(i64)
-	} else {
-		s.ID = pk.(string)
-	}
-}
-
-// check interfaces
-var (
-	_ reform.View   = ServiceRowTable
-	_ reform.Struct = (*ServiceRow)(nil)
-	_ reform.Table  = ServiceRowTable
-	_ reform.Record = (*ServiceRow)(nil)
-	_ fmt.Stringer  = (*ServiceRow)(nil)
-)
-
 type serviceTableType struct {
 	s parse.StructInfo
 	z []interface{}
@@ -154,7 +27,7 @@ func (v *serviceTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *serviceTableType) Columns() []string {
-	return []string{"id", "type", "node_id"}
+	return []string{"service_id", "service_type", "service_name", "node_id", "created_at", "address", "port", "unix_socket"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -174,16 +47,21 @@ func (v *serviceTableType) PKColumnIndex() uint {
 
 // ServiceTable represents services view or table in SQL database.
 var ServiceTable = &serviceTableType{
-	s: parse.StructInfo{Type: "Service", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "NodeID", Type: "string", Column: "node_id"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Service", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ServiceID", Type: "string", Column: "service_id"}, {Name: "ServiceType", Type: "ServiceType", Column: "service_type"}, {Name: "ServiceName", Type: "string", Column: "service_name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "UnixSocket", Type: "*string", Column: "unix_socket"}}, PKFieldIndex: 0},
 	z: new(Service).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s Service) String() string {
-	res := make([]string, 3)
-	res[0] = "ID: " + reform.Inspect(s.ID, true)
-	res[1] = "Type: " + reform.Inspect(s.Type, true)
-	res[2] = "NodeID: " + reform.Inspect(s.NodeID, true)
+	res := make([]string, 8)
+	res[0] = "ServiceID: " + reform.Inspect(s.ServiceID, true)
+	res[1] = "ServiceType: " + reform.Inspect(s.ServiceType, true)
+	res[2] = "ServiceName: " + reform.Inspect(s.ServiceName, true)
+	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
+	res[4] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[5] = "Address: " + reform.Inspect(s.Address, true)
+	res[6] = "Port: " + reform.Inspect(s.Port, true)
+	res[7] = "UnixSocket: " + reform.Inspect(s.UnixSocket, true)
 	return strings.Join(res, ", ")
 }
 
@@ -191,9 +69,14 @@ func (s Service) String() string {
 // Returned interface{} values are never untyped nils.
 func (s *Service) Values() []interface{} {
 	return []interface{}{
-		s.ID,
-		s.Type,
+		s.ServiceID,
+		s.ServiceType,
+		s.ServiceName,
 		s.NodeID,
+		s.CreatedAt,
+		s.Address,
+		s.Port,
+		s.UnixSocket,
 	}
 }
 
@@ -201,9 +84,14 @@ func (s *Service) Values() []interface{} {
 // Returned interface{} values are never untyped nils.
 func (s *Service) Pointers() []interface{} {
 	return []interface{}{
-		&s.ID,
-		&s.Type,
+		&s.ServiceID,
+		&s.ServiceType,
+		&s.ServiceName,
 		&s.NodeID,
+		&s.CreatedAt,
+		&s.Address,
+		&s.Port,
+		&s.UnixSocket,
 	}
 }
 
@@ -220,26 +108,26 @@ func (s *Service) Table() reform.Table {
 // PKValue returns a value of primary key for that record.
 // Returned interface{} value is never untyped nil.
 func (s *Service) PKValue() interface{} {
-	return s.ID
+	return s.ServiceID
 }
 
 // PKPointer returns a pointer to primary key field for that record.
 // Returned interface{} value is never untyped nil.
 func (s *Service) PKPointer() interface{} {
-	return &s.ID
+	return &s.ServiceID
 }
 
 // HasPK returns true if record has non-zero primary key set, false otherwise.
 func (s *Service) HasPK() bool {
-	return s.ID != ServiceTable.z[ServiceTable.s.PKFieldIndex]
+	return s.ServiceID != ServiceTable.z[ServiceTable.s.PKFieldIndex]
 }
 
 // SetPK sets record primary key.
 func (s *Service) SetPK(pk interface{}) {
 	if i64, ok := pk.(int64); ok {
-		s.ID = string(i64)
+		s.ServiceID = string(i64)
 	} else {
-		s.ID = pk.(string)
+		s.ServiceID = pk.(string)
 	}
 }
 
@@ -252,537 +140,6 @@ var (
 	_ fmt.Stringer  = (*Service)(nil)
 )
 
-type aWSRDSServiceTableType struct {
-	s parse.StructInfo
-	z []interface{}
-}
-
-// Schema returns a schema name in SQL database ("").
-func (v *aWSRDSServiceTableType) Schema() string {
-	return v.s.SQLSchema
-}
-
-// Name returns a view or table name in SQL database ("services").
-func (v *aWSRDSServiceTableType) Name() string {
-	return v.s.SQLName
-}
-
-// Columns returns a new slice of column names for that view or table in SQL database.
-func (v *aWSRDSServiceTableType) Columns() []string {
-	return []string{"id", "type", "name", "node_id", "aws_access_key", "aws_secret_key", "address", "port", "engine", "engine_version"}
-}
-
-// NewStruct makes a new struct for that view or table.
-func (v *aWSRDSServiceTableType) NewStruct() reform.Struct {
-	return new(AWSRDSService)
-}
-
-// NewRecord makes a new record for that table.
-func (v *aWSRDSServiceTableType) NewRecord() reform.Record {
-	return new(AWSRDSService)
-}
-
-// PKColumnIndex returns an index of primary key column for that table in SQL database.
-func (v *aWSRDSServiceTableType) PKColumnIndex() uint {
-	return uint(v.s.PKFieldIndex)
-}
-
-// AWSRDSServiceTable represents services view or table in SQL database.
-var AWSRDSServiceTable = &aWSRDSServiceTableType{
-	s: parse.StructInfo{Type: "AWSRDSService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "AWSAccessKey", Type: "*string", Column: "aws_access_key"}, {Name: "AWSSecretKey", Type: "*string", Column: "aws_secret_key"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
-	z: new(AWSRDSService).Values(),
-}
-
-// String returns a string representation of this struct or record.
-func (s AWSRDSService) String() string {
-	res := make([]string, 10)
-	res[0] = "ID: " + reform.Inspect(s.ID, true)
-	res[1] = "Type: " + reform.Inspect(s.Type, true)
-	res[2] = "Name: " + reform.Inspect(s.Name, true)
-	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[4] = "AWSAccessKey: " + reform.Inspect(s.AWSAccessKey, true)
-	res[5] = "AWSSecretKey: " + reform.Inspect(s.AWSSecretKey, true)
-	res[6] = "Address: " + reform.Inspect(s.Address, true)
-	res[7] = "Port: " + reform.Inspect(s.Port, true)
-	res[8] = "Engine: " + reform.Inspect(s.Engine, true)
-	res[9] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
-	return strings.Join(res, ", ")
-}
-
-// Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *AWSRDSService) Values() []interface{} {
-	return []interface{}{
-		s.ID,
-		s.Type,
-		s.Name,
-		s.NodeID,
-		s.AWSAccessKey,
-		s.AWSSecretKey,
-		s.Address,
-		s.Port,
-		s.Engine,
-		s.EngineVersion,
-	}
-}
-
-// Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *AWSRDSService) Pointers() []interface{} {
-	return []interface{}{
-		&s.ID,
-		&s.Type,
-		&s.Name,
-		&s.NodeID,
-		&s.AWSAccessKey,
-		&s.AWSSecretKey,
-		&s.Address,
-		&s.Port,
-		&s.Engine,
-		&s.EngineVersion,
-	}
-}
-
-// View returns View object for that struct.
-func (s *AWSRDSService) View() reform.View {
-	return AWSRDSServiceTable
-}
-
-// Table returns Table object for that record.
-func (s *AWSRDSService) Table() reform.Table {
-	return AWSRDSServiceTable
-}
-
-// PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *AWSRDSService) PKValue() interface{} {
-	return s.ID
-}
-
-// PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *AWSRDSService) PKPointer() interface{} {
-	return &s.ID
-}
-
-// HasPK returns true if record has non-zero primary key set, false otherwise.
-func (s *AWSRDSService) HasPK() bool {
-	return s.ID != AWSRDSServiceTable.z[AWSRDSServiceTable.s.PKFieldIndex]
-}
-
-// SetPK sets record primary key.
-func (s *AWSRDSService) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = string(i64)
-	} else {
-		s.ID = pk.(string)
-	}
-}
-
-// check interfaces
-var (
-	_ reform.View   = AWSRDSServiceTable
-	_ reform.Struct = (*AWSRDSService)(nil)
-	_ reform.Table  = AWSRDSServiceTable
-	_ reform.Record = (*AWSRDSService)(nil)
-	_ fmt.Stringer  = (*AWSRDSService)(nil)
-)
-
-type postgreSQLServiceTableType struct {
-	s parse.StructInfo
-	z []interface{}
-}
-
-// Schema returns a schema name in SQL database ("").
-func (v *postgreSQLServiceTableType) Schema() string {
-	return v.s.SQLSchema
-}
-
-// Name returns a view or table name in SQL database ("services").
-func (v *postgreSQLServiceTableType) Name() string {
-	return v.s.SQLName
-}
-
-// Columns returns a new slice of column names for that view or table in SQL database.
-func (v *postgreSQLServiceTableType) Columns() []string {
-	return []string{"id", "type", "name", "node_id", "address", "port", "engine", "engine_version"}
-}
-
-// NewStruct makes a new struct for that view or table.
-func (v *postgreSQLServiceTableType) NewStruct() reform.Struct {
-	return new(PostgreSQLService)
-}
-
-// NewRecord makes a new record for that table.
-func (v *postgreSQLServiceTableType) NewRecord() reform.Record {
-	return new(PostgreSQLService)
-}
-
-// PKColumnIndex returns an index of primary key column for that table in SQL database.
-func (v *postgreSQLServiceTableType) PKColumnIndex() uint {
-	return uint(v.s.PKFieldIndex)
-}
-
-// PostgreSQLServiceTable represents services view or table in SQL database.
-var PostgreSQLServiceTable = &postgreSQLServiceTableType{
-	s: parse.StructInfo{Type: "PostgreSQLService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
-	z: new(PostgreSQLService).Values(),
-}
-
-// String returns a string representation of this struct or record.
-func (s PostgreSQLService) String() string {
-	res := make([]string, 8)
-	res[0] = "ID: " + reform.Inspect(s.ID, true)
-	res[1] = "Type: " + reform.Inspect(s.Type, true)
-	res[2] = "Name: " + reform.Inspect(s.Name, true)
-	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[4] = "Address: " + reform.Inspect(s.Address, true)
-	res[5] = "Port: " + reform.Inspect(s.Port, true)
-	res[6] = "Engine: " + reform.Inspect(s.Engine, true)
-	res[7] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
-	return strings.Join(res, ", ")
-}
-
-// Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *PostgreSQLService) Values() []interface{} {
-	return []interface{}{
-		s.ID,
-		s.Type,
-		s.Name,
-		s.NodeID,
-		s.Address,
-		s.Port,
-		s.Engine,
-		s.EngineVersion,
-	}
-}
-
-// Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *PostgreSQLService) Pointers() []interface{} {
-	return []interface{}{
-		&s.ID,
-		&s.Type,
-		&s.Name,
-		&s.NodeID,
-		&s.Address,
-		&s.Port,
-		&s.Engine,
-		&s.EngineVersion,
-	}
-}
-
-// View returns View object for that struct.
-func (s *PostgreSQLService) View() reform.View {
-	return PostgreSQLServiceTable
-}
-
-// Table returns Table object for that record.
-func (s *PostgreSQLService) Table() reform.Table {
-	return PostgreSQLServiceTable
-}
-
-// PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *PostgreSQLService) PKValue() interface{} {
-	return s.ID
-}
-
-// PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *PostgreSQLService) PKPointer() interface{} {
-	return &s.ID
-}
-
-// HasPK returns true if record has non-zero primary key set, false otherwise.
-func (s *PostgreSQLService) HasPK() bool {
-	return s.ID != PostgreSQLServiceTable.z[PostgreSQLServiceTable.s.PKFieldIndex]
-}
-
-// SetPK sets record primary key.
-func (s *PostgreSQLService) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = string(i64)
-	} else {
-		s.ID = pk.(string)
-	}
-}
-
-// check interfaces
-var (
-	_ reform.View   = PostgreSQLServiceTable
-	_ reform.Struct = (*PostgreSQLService)(nil)
-	_ reform.Table  = PostgreSQLServiceTable
-	_ reform.Record = (*PostgreSQLService)(nil)
-	_ fmt.Stringer  = (*PostgreSQLService)(nil)
-)
-
-type mySQLServiceTableType struct {
-	s parse.StructInfo
-	z []interface{}
-}
-
-// Schema returns a schema name in SQL database ("").
-func (v *mySQLServiceTableType) Schema() string {
-	return v.s.SQLSchema
-}
-
-// Name returns a view or table name in SQL database ("services").
-func (v *mySQLServiceTableType) Name() string {
-	return v.s.SQLName
-}
-
-// Columns returns a new slice of column names for that view or table in SQL database.
-func (v *mySQLServiceTableType) Columns() []string {
-	return []string{"id", "type", "name", "node_id", "address", "port", "engine", "engine_version"}
-}
-
-// NewStruct makes a new struct for that view or table.
-func (v *mySQLServiceTableType) NewStruct() reform.Struct {
-	return new(MySQLService)
-}
-
-// NewRecord makes a new record for that table.
-func (v *mySQLServiceTableType) NewRecord() reform.Record {
-	return new(MySQLService)
-}
-
-// PKColumnIndex returns an index of primary key column for that table in SQL database.
-func (v *mySQLServiceTableType) PKColumnIndex() uint {
-	return uint(v.s.PKFieldIndex)
-}
-
-// MySQLServiceTable represents services view or table in SQL database.
-var MySQLServiceTable = &mySQLServiceTableType{
-	s: parse.StructInfo{Type: "MySQLService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
-	z: new(MySQLService).Values(),
-}
-
-// String returns a string representation of this struct or record.
-func (s MySQLService) String() string {
-	res := make([]string, 8)
-	res[0] = "ID: " + reform.Inspect(s.ID, true)
-	res[1] = "Type: " + reform.Inspect(s.Type, true)
-	res[2] = "Name: " + reform.Inspect(s.Name, true)
-	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[4] = "Address: " + reform.Inspect(s.Address, true)
-	res[5] = "Port: " + reform.Inspect(s.Port, true)
-	res[6] = "Engine: " + reform.Inspect(s.Engine, true)
-	res[7] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
-	return strings.Join(res, ", ")
-}
-
-// Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *MySQLService) Values() []interface{} {
-	return []interface{}{
-		s.ID,
-		s.Type,
-		s.Name,
-		s.NodeID,
-		s.Address,
-		s.Port,
-		s.Engine,
-		s.EngineVersion,
-	}
-}
-
-// Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *MySQLService) Pointers() []interface{} {
-	return []interface{}{
-		&s.ID,
-		&s.Type,
-		&s.Name,
-		&s.NodeID,
-		&s.Address,
-		&s.Port,
-		&s.Engine,
-		&s.EngineVersion,
-	}
-}
-
-// View returns View object for that struct.
-func (s *MySQLService) View() reform.View {
-	return MySQLServiceTable
-}
-
-// Table returns Table object for that record.
-func (s *MySQLService) Table() reform.Table {
-	return MySQLServiceTable
-}
-
-// PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *MySQLService) PKValue() interface{} {
-	return s.ID
-}
-
-// PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *MySQLService) PKPointer() interface{} {
-	return &s.ID
-}
-
-// HasPK returns true if record has non-zero primary key set, false otherwise.
-func (s *MySQLService) HasPK() bool {
-	return s.ID != MySQLServiceTable.z[MySQLServiceTable.s.PKFieldIndex]
-}
-
-// SetPK sets record primary key.
-func (s *MySQLService) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = string(i64)
-	} else {
-		s.ID = pk.(string)
-	}
-}
-
-// check interfaces
-var (
-	_ reform.View   = MySQLServiceTable
-	_ reform.Struct = (*MySQLService)(nil)
-	_ reform.Table  = MySQLServiceTable
-	_ reform.Record = (*MySQLService)(nil)
-	_ fmt.Stringer  = (*MySQLService)(nil)
-)
-
-type remoteServiceTableType struct {
-	s parse.StructInfo
-	z []interface{}
-}
-
-// Schema returns a schema name in SQL database ("").
-func (v *remoteServiceTableType) Schema() string {
-	return v.s.SQLSchema
-}
-
-// Name returns a view or table name in SQL database ("services").
-func (v *remoteServiceTableType) Name() string {
-	return v.s.SQLName
-}
-
-// Columns returns a new slice of column names for that view or table in SQL database.
-func (v *remoteServiceTableType) Columns() []string {
-	return []string{"id", "type", "name", "node_id", "address", "port", "engine", "engine_version"}
-}
-
-// NewStruct makes a new struct for that view or table.
-func (v *remoteServiceTableType) NewStruct() reform.Struct {
-	return new(RemoteService)
-}
-
-// NewRecord makes a new record for that table.
-func (v *remoteServiceTableType) NewRecord() reform.Record {
-	return new(RemoteService)
-}
-
-// PKColumnIndex returns an index of primary key column for that table in SQL database.
-func (v *remoteServiceTableType) PKColumnIndex() uint {
-	return uint(v.s.PKFieldIndex)
-}
-
-// RemoteServiceTable represents services view or table in SQL database.
-var RemoteServiceTable = &remoteServiceTableType{
-	s: parse.StructInfo{Type: "RemoteService", SQLSchema: "", SQLName: "services", Fields: []parse.FieldInfo{{Name: "ID", Type: "string", Column: "id"}, {Name: "Type", Type: "ServiceType", Column: "type"}, {Name: "Name", Type: "string", Column: "name"}, {Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "Port", Type: "*uint16", Column: "port"}, {Name: "Engine", Type: "*string", Column: "engine"}, {Name: "EngineVersion", Type: "*string", Column: "engine_version"}}, PKFieldIndex: 0},
-	z: new(RemoteService).Values(),
-}
-
-// String returns a string representation of this struct or record.
-func (s RemoteService) String() string {
-	res := make([]string, 8)
-	res[0] = "ID: " + reform.Inspect(s.ID, true)
-	res[1] = "Type: " + reform.Inspect(s.Type, true)
-	res[2] = "Name: " + reform.Inspect(s.Name, true)
-	res[3] = "NodeID: " + reform.Inspect(s.NodeID, true)
-	res[4] = "Address: " + reform.Inspect(s.Address, true)
-	res[5] = "Port: " + reform.Inspect(s.Port, true)
-	res[6] = "Engine: " + reform.Inspect(s.Engine, true)
-	res[7] = "EngineVersion: " + reform.Inspect(s.EngineVersion, true)
-	return strings.Join(res, ", ")
-}
-
-// Values returns a slice of struct or record field values.
-// Returned interface{} values are never untyped nils.
-func (s *RemoteService) Values() []interface{} {
-	return []interface{}{
-		s.ID,
-		s.Type,
-		s.Name,
-		s.NodeID,
-		s.Address,
-		s.Port,
-		s.Engine,
-		s.EngineVersion,
-	}
-}
-
-// Pointers returns a slice of pointers to struct or record fields.
-// Returned interface{} values are never untyped nils.
-func (s *RemoteService) Pointers() []interface{} {
-	return []interface{}{
-		&s.ID,
-		&s.Type,
-		&s.Name,
-		&s.NodeID,
-		&s.Address,
-		&s.Port,
-		&s.Engine,
-		&s.EngineVersion,
-	}
-}
-
-// View returns View object for that struct.
-func (s *RemoteService) View() reform.View {
-	return RemoteServiceTable
-}
-
-// Table returns Table object for that record.
-func (s *RemoteService) Table() reform.Table {
-	return RemoteServiceTable
-}
-
-// PKValue returns a value of primary key for that record.
-// Returned interface{} value is never untyped nil.
-func (s *RemoteService) PKValue() interface{} {
-	return s.ID
-}
-
-// PKPointer returns a pointer to primary key field for that record.
-// Returned interface{} value is never untyped nil.
-func (s *RemoteService) PKPointer() interface{} {
-	return &s.ID
-}
-
-// HasPK returns true if record has non-zero primary key set, false otherwise.
-func (s *RemoteService) HasPK() bool {
-	return s.ID != RemoteServiceTable.z[RemoteServiceTable.s.PKFieldIndex]
-}
-
-// SetPK sets record primary key.
-func (s *RemoteService) SetPK(pk interface{}) {
-	if i64, ok := pk.(int64); ok {
-		s.ID = string(i64)
-	} else {
-		s.ID = pk.(string)
-	}
-}
-
-// check interfaces
-var (
-	_ reform.View   = RemoteServiceTable
-	_ reform.Struct = (*RemoteService)(nil)
-	_ reform.Table  = RemoteServiceTable
-	_ reform.Record = (*RemoteService)(nil)
-	_ fmt.Stringer  = (*RemoteService)(nil)
-)
-
 func init() {
-	parse.AssertUpToDate(&ServiceRowTable.s, new(ServiceRow))
 	parse.AssertUpToDate(&ServiceTable.s, new(Service))
-	parse.AssertUpToDate(&AWSRDSServiceTable.s, new(AWSRDSService))
-	parse.AssertUpToDate(&PostgreSQLServiceTable.s, new(PostgreSQLService))
-	parse.AssertUpToDate(&MySQLServiceTable.s, new(MySQLService))
-	parse.AssertUpToDate(&RemoteServiceTable.s, new(RemoteService))
 }

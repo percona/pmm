@@ -19,7 +19,6 @@ package interceptors
 
 import (
 	"context"
-	"fmt"
 	"runtime/debug"
 	"runtime/pprof"
 	"time"
@@ -46,14 +45,14 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 			// Always log with %+v, even before re-panic - there can be inner stacktraces
 			// produced by panic(errors.WithStack(err)).
 			// Also always log debug.Stack() for all panics.
-			l.Errorf("Panic: %+v.\nStack: %s", p, debug.Stack())
+			l.Errorf("%s done in %s with panic: %+v\nStack: %s", prefix, dur, p, debug.Stack())
 
-			if l.Logger.GetLevel() < logrus.DebugLevel {
+			if l.Logger.GetLevel() == logrus.TraceLevel {
 				panic(p)
 			}
 
-			// replace with plain error without gRPC code or stacktrace - we already logged it
-			err = fmt.Errorf("Internal server error.")
+			err = status.Error(codes.Internal, "Internal server error.")
+			return
 		}
 
 		_, gRPCError := status.FromError(err)
@@ -70,7 +69,7 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 	}()
 
 	err = f()
-	return
+	return //nolint:nakedret
 }
 
 // Unary adds context logger and Prometheus metrics to unary server RPC.

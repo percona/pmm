@@ -20,7 +20,6 @@ import (
 	"archive/zip"
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -33,14 +32,9 @@ import (
 	"strings"
 	"time"
 
-	servicelib "github.com/percona/kardianos-service"
 	"github.com/pkg/errors"
-	"gopkg.in/reform.v1"
 	"gopkg.in/yaml.v2"
 
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/services/consul"
-	"github.com/percona/pmm-managed/services/rds"
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
@@ -66,7 +60,6 @@ const (
 var logsRootDir = "/var/log/"
 
 var defaultLogs = []Log{
-	{logsDataVolumeContainerDir + "consul.log", "consul", nil},
 	{logsDataVolumeContainerDir + "createdb.log", "", nil},
 	{logsDataVolumeContainerDir + "cron.log", "crond", nil},
 	{logsDataVolumeContainerDir + "dashboard-upgrade.log", "", nil},
@@ -95,17 +88,12 @@ var defaultLogs = []Log{
 	{"/etc/supervisord.d/pmm.ini", "", []string{"cat", ""}},
 	{"/etc/nginx/conf.d/pmm.conf", "", []string{"cat", ""}},
 	{"prometheus_targets.html", "", []string{"http", "http://localhost/prometheus/targets"}},
-	{"consul_nodes.json", "", []string{"consul"}},
-	{"managed_RDS-Aurora.json", "", []string{"rds"}},
 	{"pmm-version.txt", "", []string{"pmmVersion", ""}},
 }
 
 // Logs is responsible for interactions with logs.
 type Logs struct {
 	pmmVersion string
-	consul     *consul.Client
-	db         *reform.DB
-	rds        *rds.Service
 	logs       []Log
 
 	journalctlPath string
@@ -149,23 +137,19 @@ func getCredential() (string, error) {
 
 // New creates a new Logs service.
 // n is a number of last lines of log to read.
-func New(pmmVersion string, consul *consul.Client, db *reform.DB, rds *rds.Service, logs []Log) *Logs {
+func New(pmmVersion string, logs []Log) *Logs {
 	if logs == nil {
 		logs = defaultLogs
 	}
 
 	l := &Logs{
 		pmmVersion: pmmVersion,
-		consul:     consul,
-		db:         db,
-		rds:        rds,
 		logs:       logs,
 	}
 
-	// PMM Server Docker image contails journalctl, so we can't use exec.LookPath("journalctl") alone for detection.
-	// TODO Probably, that check should be moved to supervisor service.
-	//      Or the whole logs service should be merged with it.
-	if servicelib.Platform() == "linux-systemd" {
+	// PMM Server Docker image contails journalctl,
+	// so we can't use exec.LookPath("journalctl") alone for detection.
+	if _, err := os.Stat("/run/systemd/system"); err == nil {
 		l.journalctlPath, _ = exec.LookPath("journalctl")
 	}
 
@@ -177,40 +161,6 @@ func (l *Logs) Files(ctx context.Context) []File {
 	files := make([]File, 0, len(l.logs))
 
 	for _, log := range l.logs {
-		var f File
-		f.Name, f.Data, f.Err = l.readLog(ctx, &log)
-		files = append(files, f)
-	}
-
-	var agents []reform.Struct
-	err := l.db.InTransaction(func(tx *reform.TX) error {
-		var node models.Node
-		err := tx.FindOneTo(&node, "type", models.PMMServerNodeType)
-		if err != nil {
-			return errors.Wrap(err, "failed to get PMM Server node")
-		}
-
-		agents, err = tx.FindAllFrom(models.AgentTable, "runs_on_node_id", node.ID)
-		return errors.Wrap(err, "failed to get agents running in PMM Server")
-	})
-	if err != nil {
-		logger.Get(ctx).WithField("component", "logs").Errorf("Failed to get RDS agents: %s.", err)
-	}
-
-	// collect names in set, not in slice,
-	// in case a single agent does several jobs and is returned several times
-	names := make(map[string]struct{}, len(agents))
-	for _, a := range agents {
-		agent := a.(*models.Agent)
-		name := models.NameForSupervisor(agent.Type, *agent.ListenPort)
-		names[name] = struct{}{}
-	}
-
-	for name := range names {
-		log := Log{
-			FilePath: logsRootDir + name + ".log",
-			UnitName: name,
-		}
 		var f File
 		f.Name, f.Data, f.Err = l.readLog(ctx, &log)
 		files = append(files, f)
@@ -285,12 +235,6 @@ func (l *Logs) readWithExtractor(ctx context.Context, log *Log) (name string, da
 	case "pmmVersion":
 		data = []byte(l.pmmVersion)
 
-	case "consul":
-		data, err = l.getConsulNodes()
-
-	case "rds":
-		data, err = l.getRDSInstances(ctx)
-
 	case "http":
 		command := log.Extractor[1]
 		s := strings.Split(command, "//")
@@ -307,7 +251,7 @@ func (l *Logs) readWithExtractor(ctx context.Context, log *Log) (name string, da
 		data, err = ioutil.ReadFile(log.FilePath)
 
 	default:
-		panic("unhandled extractor")
+		panic("unhandled extractor: " + log.Extractor[0])
 	}
 
 	return
@@ -367,26 +311,4 @@ func (l *Logs) readURL(url string) ([]byte, error) {
 		return nil, err
 	}
 	return b, nil
-}
-
-// getConsulNodes gets list of nodes
-func (l *Logs) getConsulNodes() ([]byte, error) {
-	nodes, err := l.consul.GetNodes()
-	if err != nil {
-		return nil, err
-	}
-	return json.MarshalIndent(nodes, "", "  ")
-}
-
-// getRDSInstances gets list of monitored instances
-func (l *Logs) getRDSInstances(ctx context.Context) ([]byte, error) {
-	if l.rds == nil {
-		return nil, errors.New("RDS service not initialized")
-	}
-
-	instances, err := l.rds.List(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return json.MarshalIndent(instances, "", " ")
 }

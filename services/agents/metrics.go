@@ -17,7 +17,7 @@
 package agents
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
+	prom "github.com/prometheus/client_golang/prometheus"
 )
 
 const (
@@ -26,19 +26,19 @@ const (
 )
 
 type sharedChannelMetrics struct {
-	mRecv prometheus.Counter
-	mSend prometheus.Counter
+	mRecv prom.Counter
+	mSend prom.Counter
 }
 
 func newSharedMetrics() *sharedChannelMetrics {
 	return &sharedChannelMetrics{
-		mRecv: prometheus.NewCounter(prometheus.CounterOpts{
+		mRecv: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "messages_received_total",
 			Help:      "A total number of messages received from pmm-agents.",
 		}),
-		mSend: prometheus.NewCounter(prometheus.CounterOpts{
+		mSend: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
 			Name:      "messages_sent_total",
@@ -48,13 +48,13 @@ func newSharedMetrics() *sharedChannelMetrics {
 }
 
 // Describe implements prometheus.Collector.
-func (scm *sharedChannelMetrics) Describe(ch chan<- *prometheus.Desc) {
+func (scm *sharedChannelMetrics) Describe(ch chan<- *prom.Desc) {
 	scm.mRecv.Describe(ch)
 	scm.mSend.Describe(ch)
 }
 
 // Collect implement prometheus.Collector.
-func (scm *sharedChannelMetrics) Collect(ch chan<- prometheus.Metric) {
+func (scm *sharedChannelMetrics) Collect(ch chan<- prom.Metric) {
 	scm.mRecv.Collect(ch)
 	scm.mSend.Collect(ch)
 
@@ -63,5 +63,5 @@ func (scm *sharedChannelMetrics) Collect(ch chan<- prometheus.Metric) {
 
 // check interfaces
 var (
-	_ prometheus.Collector = (*sharedChannelMetrics)(nil)
+	_ prom.Collector = (*sharedChannelMetrics)(nil)
 )

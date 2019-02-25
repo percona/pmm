@@ -18,167 +18,146 @@ package models
 
 import (
 	"fmt"
-	"net"
-	"net/url"
-	"strconv"
+	"strings"
 	"time"
 
-	"github.com/go-sql-driver/mysql"
+	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
-//go:generate reform
+// AgentsForNode returns all Agents providing insights for given Node.
+func AgentsForNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
+	structs, err := q.FindAllFrom(AgentNodeView, "node_id", nodeID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select Agent IDs")
+	}
 
-const (
-	// maximum time for connecting to the database
-	sqlDialTimeout = 5 * time.Second
-)
+	agentIDs := make([]interface{}, len(structs))
+	for i, s := range structs {
+		agentIDs[i] = s.(*AgentNode).AgentID
+	}
+	if len(agentIDs) == 0 {
+		return []*Agent{}, nil
+	}
+
+	p := strings.Join(q.Placeholders(1, len(agentIDs)), ", ")
+	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p) //nolint:gosec
+	structs, err = q.SelectAllFrom(AgentTable, tail, agentIDs...)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select Agents")
+	}
+
+	res := make([]*Agent, len(structs))
+	for i, s := range structs {
+		res[i] = s.(*Agent)
+	}
+	return res, nil
+}
+
+// AgentsRunningOnNode returns all Agents running on Node.
+// TODO Remove after https://jira.percona.com/browse/PMM-3478.
+func AgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
+	tail := fmt.Sprintf("WHERE runs_on_node_id = %s ORDER BY agent_id", q.Placeholder(1)) //nolint:gosec
+	structs, err := q.SelectAllFrom(AgentTable, tail, nodeID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select Agents")
+	}
+
+	res := make([]*Agent, len(structs))
+	for i, s := range structs {
+		res[i] = s.(*Agent)
+	}
+	return res, nil
+}
+
+// AgentsForService returns all Agents providing insights for given Service.
+func AgentsForService(q *reform.Querier, serviceID string) ([]*Agent, error) {
+	structs, err := q.FindAllFrom(AgentServiceView, "service_id", serviceID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select Agent IDs")
+	}
+
+	agentIDs := make([]interface{}, len(structs))
+	for i, s := range structs {
+		agentIDs[i] = s.(*AgentService).AgentID
+	}
+	if len(agentIDs) == 0 {
+		return []*Agent{}, nil
+	}
+
+	p := strings.Join(q.Placeholders(1, len(agentIDs)), ", ")
+	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p) //nolint:gosec
+	structs, err = q.SelectAllFrom(AgentTable, tail, agentIDs...)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select Agents")
+	}
+
+	res := make([]*Agent, len(structs))
+	for i, s := range structs {
+		res[i] = s.(*Agent)
+	}
+	return res, nil
+}
+
+//go:generate reform
 
 // AgentType represents Agent type as stored in database.
 type AgentType string
 
 // Agent types.
 const (
-	PMMAgentType            AgentType = "pmm-agent"
-	NodeExporterAgentType   AgentType = "node_exporter"
-	MySQLdExporterAgentType AgentType = "mysqld_exporter"
-
-	PostgresExporterAgentType AgentType = "postgres_exporter"
-	RDSExporterAgentType      AgentType = "rds_exporter"
+	PMMAgentType       AgentType = "pmm-agent"
+	NodeExporterType   AgentType = "node_exporter"
+	MySQLdExporterType AgentType = "mysqld_exporter"
 )
 
-// AgentRow represents Agent as stored in database.
+// Agent represents Agent as stored in database.
 //reform:agents
-type AgentRow struct {
-	ID           string    `reform:"id,pk"`
-	Type         AgentType `reform:"type"`
+type Agent struct {
+	AgentID      string    `reform:"agent_id,pk"`
+	AgentType    AgentType `reform:"agent_type"`
 	RunsOnNodeID string    `reform:"runs_on_node_id"`
-	Disabled     bool      `reform:"disabled"`
-	// CreatedAt    time.Time `reform:"created_at"`
+	CreatedAt    time.Time `reform:"created_at"`
 	// UpdatedAt    time.Time `reform:"updated_at"`
 
-	Version         *string `reform:"version"`
-	ListenPort      *uint16 `reform:"listen_port"`
-	ServiceUsername *string `reform:"service_username"`
-	ServicePassword *string `reform:"service_password"`
+	Status     string  `reform:"status"`
+	ListenPort *uint16 `reform:"listen_port"`
+	Version    *string `reform:"version"`
+
+	Username *string `reform:"username"`
+	Password *string `reform:"password"`
+
+	MetricsURL *string `reform:"metrics_url"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
 //nolint:unparam
-func (ar *AgentRow) BeforeInsert() error {
-	// now := time.Now().Truncate(time.Microsecond).UTC()
-	// ar.CreatedAt = now
-	// ar.UpdatedAt = now
+func (s *Agent) BeforeInsert() error {
+	now := Now()
+	s.CreatedAt = now
+	// s.UpdatedAt = now
 	return nil
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
 //nolint:unparam
-func (ar *AgentRow) BeforeUpdate() error {
-	// now := time.Now().Truncate(time.Microsecond).UTC()
-	// ar.UpdatedAt = now
+func (s *Agent) BeforeUpdate() error {
+	// now := Now()
+	// s.UpdatedAt = now
 	return nil
 }
 
 // AfterFind implements reform.AfterFinder interface.
 //nolint:unparam
-func (ar *AgentRow) AfterFind() error {
-	// ar.CreatedAt = ar.CreatedAt.UTC()
-	// ar.UpdatedAt = ar.UpdatedAt.UTC()
+func (s *Agent) AfterFind() error {
+	s.CreatedAt = s.CreatedAt.UTC()
+	// s.UpdatedAt = s.UpdatedAt.UTC()
 	return nil
 }
 
 // check interfaces
 var (
-	_ reform.BeforeInserter = (*AgentRow)(nil)
-	_ reform.BeforeUpdater  = (*AgentRow)(nil)
-	_ reform.AfterFinder    = (*AgentRow)(nil)
+	_ reform.BeforeInserter = (*Agent)(nil)
+	_ reform.BeforeUpdater  = (*Agent)(nil)
+	_ reform.AfterFinder    = (*Agent)(nil)
 )
-
-// TODO remove code below
-
-//reform:agents
-type Agent struct {
-	ID           string    `reform:"id,pk"`
-	Type         AgentType `reform:"type"`
-	RunsOnNodeID string    `reform:"runs_on_node_id"`
-	Disabled     bool      `reform:"disabled"`
-
-	// TODO Does it really belong there? Remove when we have agent without one.
-	ListenPort *uint16 `reform:"listen_port"`
-}
-
-// NameForSupervisor returns a name of agent for supervisor.
-func NameForSupervisor(typ AgentType, listenPort uint16) string {
-	return fmt.Sprintf("pmm-%s-%d", typ, listenPort)
-}
-
-//reform:agents
-type MySQLdExporter struct {
-	ID           string    `reform:"id,pk"`
-	Type         AgentType `reform:"type"`
-	RunsOnNodeID string    `reform:"runs_on_node_id"`
-	Disabled     bool      `reform:"disabled"`
-
-	ServiceUsername        *string `reform:"service_username"`
-	ServicePassword        *string `reform:"service_password"`
-	ListenPort             *uint16 `reform:"listen_port"`
-	MySQLDisableTablestats *bool   `reform:"mysql_disable_tablestats"`
-}
-
-func (m *MySQLdExporter) DSN(service *MySQLService) string {
-	cfg := mysql.NewConfig()
-	cfg.User = *m.ServiceUsername
-	cfg.Passwd = *m.ServicePassword
-
-	cfg.Net = "tcp"
-	cfg.Addr = net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port)))
-
-	cfg.Timeout = sqlDialTimeout
-
-	// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
-	// TODO Other parameters?
-	return cfg.FormatDSN()
-}
-
-// binary name is postgres_exporter, that's why PostgresExporter below is not PostgreSQLExporter
-
-//reform:agents
-// PostgresExporter exports PostgreSQL metrics.
-type PostgresExporter struct {
-	ID           string    `reform:"id,pk"`
-	Type         AgentType `reform:"type"`
-	RunsOnNodeID string    `reform:"runs_on_node_id"`
-	Disabled     bool      `reform:"disabled"`
-
-	ServiceUsername *string `reform:"service_username"`
-	ServicePassword *string `reform:"service_password"`
-	ListenPort      *uint16 `reform:"listen_port"`
-}
-
-// DSN returns DSN for PostgreSQL service.
-func (p *PostgresExporter) DSN(service *PostgreSQLService) string {
-	q := make(url.Values)
-	q.Set("sslmode", "disable") // TODO https://jira.percona.com/browse/PMM-1727
-	q.Set("connect_timeout", strconv.Itoa(int(sqlDialTimeout.Seconds())))
-
-	address := net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port)))
-	uri := url.URL{
-		Scheme:   "postgres",
-		User:     url.UserPassword(*p.ServiceUsername, *p.ServicePassword),
-		Host:     address,
-		Path:     "postgres",
-		RawQuery: q.Encode(),
-	}
-	return uri.String()
-}
-
-//reform:agents
-type RDSExporter struct {
-	ID           string    `reform:"id,pk"`
-	Type         AgentType `reform:"type"`
-	RunsOnNodeID string    `reform:"runs_on_node_id"`
-	Disabled     bool      `reform:"disabled"`
-
-	ListenPort *uint16 `reform:"listen_port"`
-}

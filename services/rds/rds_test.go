@@ -16,6 +16,7 @@
 
 package rds
 
+/*
 import (
 	"context"
 	"database/sql"
@@ -284,3 +285,4 @@ func createFakeBin(t *testing.T, name string) {
 	err = os.Chmod(name, 0777)
 	assert.NoError(t, err)
 }
+*/

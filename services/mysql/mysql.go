@@ -17,6 +17,7 @@
 // Package mysql contains business logic of working with Remote MySQL instances.
 package mysql
 
+/*
 import (
 	"context"
 	"database/sql"
@@ -570,3 +571,4 @@ func normalizeEngineAndEngineVersion(engine string, engineVersion string) (strin
 		return "MySQL", engineVersion, nil
 	}
 }
+*/

@@ -14,26 +14,43 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package models
+package agents
 
 import (
-	"testing"
-
-	"github.com/AlekSi/pointer"
-	"github.com/stretchr/testify/assert"
+	"strings"
 )
 
-func TestDSN(t *testing.T) {
-	t.Run("PostgresExporter", func(t *testing.T) {
-		s := &PostgreSQLService{
-			Address: pointer.ToString("hostname"),
-			Port:    pointer.ToUint16(12345),
+type pair struct {
+	left  string
+	right string
+}
+
+var pairs = []pair{
+	{left: "{{", right: "}}"},
+	{left: "[[", right: "]]"},
+	{left: "((", right: "))"},
+	{left: "<<", right: ">>"},
+	{left: "<%", right: "%>"},
+}
+
+// templateDelimsPair returns a pair of safe template delimeters that are not present in any given string.
+func templateDelimsPair(str ...string) pair {
+	for _, p := range pairs {
+		var found bool
+		for _, s := range str {
+			if strings.Contains(s, p.left) {
+				found = true
+				break
+			}
+			if strings.Contains(s, p.right) {
+				found = true
+				break
+			}
 		}
-		a := &PostgresExporter{
-			ServiceUsername: pointer.ToString("username@1!"),
-			ServicePassword: pointer.ToString("password@1!"),
+		if !found {
+			return p
 		}
-		expected := "postgres://username%401%21:password%401%21@hostname:12345/postgres?connect_timeout=5&sslmode=disable"
-		assert.Equal(t, expected, a.DSN(s))
-	})
+	}
+
+	panic("failed to find a pair of safe template delimeters")
 }

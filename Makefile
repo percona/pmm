@@ -3,6 +3,21 @@ help:                           ## Display this help message.
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
+PMM_RELEASE_VERSION ?= 2.0.0-dev
+PMM_RELEASE_TIMESTAMP = $(shell date '+%s')
+PMM_RELEASE_FULLCOMMIT = $(shell git rev-parse HEAD)
+PMM_RELEASE_BRANCH = $(shell git describe --all --contains --dirty HEAD)
+
+release:                        ## Build bin/pmm-managed release binary.
+	go build -v -o bin/pmm-managed -ldflags " \
+		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.ProjectName=pmm-managed' \
+		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
+		"
+
 RUN_FLAGS = -swagger=json -debug \
 			-agent-mysqld-exporter=mysqld_exporter \
 			-agent-postgres-exporter=postgres_exporter \
@@ -70,8 +85,11 @@ check-license:                  ## Check that all files have the same license he
 check: install check-license    ## Run checkers and linters.
 	golangci-lint run
 
-format:                         ## Run `goimports`.
-	goimports -local github.com/percona/pmm-managed -l -w $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+
+format:                         ## Format source code.
+	gofmt -w -s $(FILES)
+	goimports -local github.com/percona/pmm-managed -l -w $(FILES)
 
 run: install _run               ## Run pmm-managed.
 
@@ -80,8 +98,7 @@ run-race: install-race _run     ## Run pmm-managed with race detector.
 run-race-cover: install-race    ## Run pmm-managed with race detector and collect coverage information.
 	go test -coverpkg="github.com/percona/pmm-managed/..." \
 			-tags maincover \
-			-race -c -o bin/pmm-managed.test \
-			github.com/percona/pmm-managed/cmd/pmm-managed
+			-race -c -o bin/pmm-managed.test
 	bin/pmm-managed.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
 
 _run:

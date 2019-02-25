@@ -18,15 +18,15 @@
 package inventory
 
 import (
-	"github.com/google/uuid"
+	"context"
 )
 
-// TODO Decide about transactions.
+//go:generate mockery -name=registry -inpkg -testonly
 
-// FIXME remove it when we remove old services (mysql, postgresql, remote)
-var MakeID = makeID
-
-// makeID generates new random ID for Node, Service, or Agent.
-func makeID() string {
-	return "gen:" + uuid.New().String()
+// registry is a subset of methods of agents.Registry used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type registry interface {
+	SendSetStateRequest(ctx context.Context, agentID string)
+	IsConnected(pmmAgentID string) bool
+	Kick(ctx context.Context, agentID string)
 }

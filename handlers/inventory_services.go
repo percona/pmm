@@ -52,7 +52,7 @@ func (s *ServicesServer) ListServices(ctx context.Context, req *api.ListServices
 
 // GetService returns a single Service by ID.
 func (s *ServicesServer) GetService(ctx context.Context, req *api.GetServiceRequest) (*api.GetServiceResponse, error) {
-	service, err := s.Services.Get(ctx, req.Id)
+	service, err := s.Services.Get(ctx, req.ServiceId)
 	if err != nil {
 		return nil, err
 	}
@@ -72,20 +72,25 @@ func (s *ServicesServer) AddMySQLService(ctx context.Context, req *api.AddMySQLS
 	address := pointer.ToStringOrNil(req.Address)
 	port := pointer.ToUint16OrNil(uint16(req.Port))
 	unixSocket := pointer.ToStringOrNil(req.UnixSocket)
-	service, err := s.Services.AddMySQL(ctx, req.Name, req.HostNodeInfo.NodeId, address, port, unixSocket)
+	service, err := s.Services.AddMySQL(ctx, req.ServiceName, req.NodeId, address, port, unixSocket)
 	if err != nil {
 		return nil, err
 	}
 
 	res := &api.AddMySQLServiceResponse{
-		Mysql: service.(*api.MySQLService),
+		Mysql: service,
 	}
 	return res, nil
 }
 
+// AddAmazonRDSMySQLService adds AmazonRDSMySQL Service.
+func (s *ServicesServer) AddAmazonRDSMySQLService(ctx context.Context, req *api.AddAmazonRDSMySQLServiceRequest) (*api.AddAmazonRDSMySQLServiceResponse, error) {
+	panic("not implemented yet")
+}
+
 // ChangeMySQLService changes MySQL Service.
 func (s *ServicesServer) ChangeMySQLService(ctx context.Context, req *api.ChangeMySQLServiceRequest) (*api.ChangeMySQLServiceResponse, error) {
-	service, err := s.Services.Change(ctx, req.Id, req.Name)
+	service, err := s.Services.Change(ctx, req.ServiceId, req.ServiceName)
 	if err != nil {
 		return nil, err
 	}
@@ -96,9 +101,14 @@ func (s *ServicesServer) ChangeMySQLService(ctx context.Context, req *api.Change
 	return res, nil
 }
 
+// ChangeAmazonRDSMySQLService changes AmazonRDSMySQL Service.
+func (s *ServicesServer) ChangeAmazonRDSMySQLService(ctx context.Context, req *api.ChangeAmazonRDSMySQLServiceRequest) (*api.ChangeAmazonRDSMySQLServiceResponse, error) {
+	panic("not implemented yet")
+}
+
 // RemoveService removes Service without any Agents.
 func (s *ServicesServer) RemoveService(ctx context.Context, req *api.RemoveServiceRequest) (*api.RemoveServiceResponse, error) {
-	if err := s.Services.Remove(ctx, req.Id); err != nil {
+	if err := s.Services.Remove(ctx, req.ServiceId); err != nil {
 		return nil, err
 	}
 

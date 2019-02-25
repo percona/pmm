@@ -39,7 +39,7 @@ func (t *TelemetryRow) BeforeInsert() error {
 		return errors.New("UUID should not be empty")
 	}
 
-	now := time.Now().Truncate(time.Microsecond).UTC()
+	now := Now()
 	t.CreatedAt = now
 	return nil
 }

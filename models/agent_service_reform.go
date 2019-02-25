@@ -27,7 +27,7 @@ func (v *agentServiceViewType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *agentServiceViewType) Columns() []string {
-	return []string{"agent_id", "service_id", "container_id", "container_name", "kubernetes_pod_uid", "kubernetes_pod_name"}
+	return []string{"agent_id", "service_id", "created_at"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -37,19 +37,16 @@ func (v *agentServiceViewType) NewStruct() reform.Struct {
 
 // AgentServiceView represents agent_services view or table in SQL database.
 var AgentServiceView = &agentServiceViewType{
-	s: parse.StructInfo{Type: "AgentService", SQLSchema: "", SQLName: "agent_services", Fields: []parse.FieldInfo{{Name: "AgentID", Type: "string", Column: "agent_id"}, {Name: "ServiceID", Type: "string", Column: "service_id"}, {Name: "ContainerID", Type: "*string", Column: "container_id"}, {Name: "ContainerName", Type: "*string", Column: "container_name"}, {Name: "KubernetesPodUID", Type: "*string", Column: "kubernetes_pod_uid"}, {Name: "KubernetesPodName", Type: "*string", Column: "kubernetes_pod_name"}}, PKFieldIndex: -1},
+	s: parse.StructInfo{Type: "AgentService", SQLSchema: "", SQLName: "agent_services", Fields: []parse.FieldInfo{{Name: "AgentID", Type: "string", Column: "agent_id"}, {Name: "ServiceID", Type: "string", Column: "service_id"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}}, PKFieldIndex: -1},
 	z: new(AgentService).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s AgentService) String() string {
-	res := make([]string, 6)
+	res := make([]string, 3)
 	res[0] = "AgentID: " + reform.Inspect(s.AgentID, true)
 	res[1] = "ServiceID: " + reform.Inspect(s.ServiceID, true)
-	res[2] = "ContainerID: " + reform.Inspect(s.ContainerID, true)
-	res[3] = "ContainerName: " + reform.Inspect(s.ContainerName, true)
-	res[4] = "KubernetesPodUID: " + reform.Inspect(s.KubernetesPodUID, true)
-	res[5] = "KubernetesPodName: " + reform.Inspect(s.KubernetesPodName, true)
+	res[2] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
 	return strings.Join(res, ", ")
 }
 
@@ -59,10 +56,7 @@ func (s *AgentService) Values() []interface{} {
 	return []interface{}{
 		s.AgentID,
 		s.ServiceID,
-		s.ContainerID,
-		s.ContainerName,
-		s.KubernetesPodUID,
-		s.KubernetesPodName,
+		s.CreatedAt,
 	}
 }
 
@@ -72,10 +66,7 @@ func (s *AgentService) Pointers() []interface{} {
 	return []interface{}{
 		&s.AgentID,
 		&s.ServiceID,
-		&s.ContainerID,
-		&s.ContainerName,
-		&s.KubernetesPodUID,
-		&s.KubernetesPodName,
+		&s.CreatedAt,
 	}
 }
 

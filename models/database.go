@@ -22,7 +22,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/go-sql-driver/mysql" // register SQL driver
+	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
@@ -42,95 +42,101 @@ var databaseSchema = [][]string{
 		)`,
 
 		`CREATE TABLE nodes (
-			id VARCHAR(255) NOT NULL,
-			type VARCHAR(255) NOT NULL,
-			name VARCHAR(255) NOT NULL,
-			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			-- common
+			node_id VARCHAR(255) NOT NULL,
+			node_type VARCHAR(255) NOT NULL,
+			node_name VARCHAR(255) NOT NULL,
+			machine_id VARCHAR(255),
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-			hostname VARCHAR(255),
+			-- Generic
+			distro VARCHAR(255),
+			distro_version VARCHAR(255),
+
+			-- Container
+			docker_container_id VARCHAR(255),
+			docker_container_name VARCHAR(255),
+
+			-- RemoteAmazonRDS
+			instance VARCHAR(255),
 			region VARCHAR(255),
 
-			PRIMARY KEY (id),
-			UNIQUE (name),
-			UNIQUE (hostname, region)
+			PRIMARY KEY (node_id),
+			UNIQUE (node_name),
+			UNIQUE (machine_id),
+			UNIQUE (docker_container_id),
+			UNIQUE (instance, region)
 		)`,
 
-		`INSERT INTO nodes (id, type, name) VALUES ('` + PMMServerNodeID + `', '` + string(PMMServerNodeType) + `', 'PMM Server')`,
+		`INSERT INTO nodes (node_type, node_id, node_name) VALUES ('` + string(PMMServerNodeType) + `', '` + PMMServerNodeID + `', 'PMM Server')`, //nolint:gosec
 
 		`CREATE TABLE services (
-			id VARCHAR(255) NOT NULL,
-			type VARCHAR(255) NOT NULL,
-			name VARCHAR(255) NOT NULL,
+			-- common
+			service_id VARCHAR(255) NOT NULL,
+			service_type VARCHAR(255) NOT NULL,
+			service_name VARCHAR(255) NOT NULL,
 			node_id VARCHAR(255) NOT NULL,
-			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
+			-- MySQL
 			address VARCHAR(255),
 			port SMALLINT UNSIGNED,
 			unix_socket VARCHAR(255),
 
-			aws_access_key VARCHAR(255),
-			aws_secret_key VARCHAR(255),
-			engine VARCHAR(255),
-			engine_version VARCHAR(255),
-
-			PRIMARY KEY (id),
-			UNIQUE (name),
-			FOREIGN KEY (node_id) REFERENCES nodes (id)
+			PRIMARY KEY (service_id),
+			UNIQUE (service_name),
+			FOREIGN KEY (node_id) REFERENCES nodes (node_id)
 		)`,
 
 		`CREATE TABLE agents (
-			id VARCHAR(255) NOT NULL,
-			type VARCHAR(255) NOT NULL,
+			-- common
+			agent_id VARCHAR(255) NOT NULL,
+			agent_type VARCHAR(255) NOT NULL,
 			runs_on_node_id VARCHAR(255) NOT NULL,
-			disabled BOOL NOT NULL,
-			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
-			version VARCHAR(255),
+			-- state
+			status VARCHAR(255) NOT NULL,
 			listen_port SMALLINT UNSIGNED,
-			service_username VARCHAR(255),
-			service_password VARCHAR(255),
+			version VARCHAR(255),
 
-			mysql_disable_tablestats TINYINT(1),
+			-- MySQLdExporter
+			username VARCHAR(255),
+			password VARCHAR(255),
 
-			PRIMARY KEY (id),
-			FOREIGN KEY (runs_on_node_id) REFERENCES nodes (id)
+			-- ExternalExporter
+			metrics_url VARCHAR(255),
+
+			PRIMARY KEY (agent_id),
+			FOREIGN KEY (runs_on_node_id) REFERENCES nodes (node_id)
 		)`,
 
 		`CREATE TABLE agent_nodes (
 			agent_id VARCHAR(255) NOT NULL,
 			node_id VARCHAR(255) NOT NULL,
-			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-			container_id VARCHAR(255),
-			container_name VARCHAR(255),
-			kubernetes_pod_uid VARCHAR(255),
-			kubernetes_pod_name VARCHAR(255),
-
-			FOREIGN KEY (agent_id) REFERENCES agents (id),
-			FOREIGN KEY (node_id) REFERENCES nodes (id),
+			FOREIGN KEY (agent_id) REFERENCES agents (agent_id),
+			FOREIGN KEY (node_id) REFERENCES nodes (node_id),
 			UNIQUE (agent_id, node_id)
 		)`,
 
 		`CREATE TABLE agent_services (
 			agent_id VARCHAR(255) NOT NULL,
 			service_id VARCHAR(255) NOT NULL,
-			-- created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-			container_id VARCHAR(255),
-			container_name VARCHAR(255),
-			kubernetes_pod_uid VARCHAR(255),
-			kubernetes_pod_name VARCHAR(255),
-
-			FOREIGN KEY (agent_id) REFERENCES agents (id),
-			FOREIGN KEY (service_id) REFERENCES services (id),
+			FOREIGN KEY (agent_id) REFERENCES agents (agent_id),
+			FOREIGN KEY (service_id) REFERENCES services (service_id),
 			UNIQUE (agent_id, service_id)
 		)`,
 	},
 }
 
+// OpenDB opens connection to MySQL database and runs migrations.
 func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error) {
 	cfg := mysql.NewConfig()
 	cfg.User = username

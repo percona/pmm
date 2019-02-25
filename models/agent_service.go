@@ -17,7 +17,8 @@
 package models
 
 import (
-	"github.com/pkg/errors"
+	"time"
+
 	"gopkg.in/reform.v1"
 )
 
@@ -26,34 +27,29 @@ import (
 // AgentService implements many-to-many relationship between Agents and Services.
 //reform:agent_services
 type AgentService struct {
-	AgentID   string `reform:"agent_id"`
-	ServiceID string `reform:"service_id"`
-	// CreatedAt time.Time `reform:"created_at"`
-
-	ContainerID       *string `reform:"container_id"`
-	ContainerName     *string `reform:"container_name"`
-	KubernetesPodUID  *string `reform:"kubernetes_pod_uid"`
-	KubernetesPodName *string `reform:"kubernetes_pod_name"`
+	AgentID   string    `reform:"agent_id"`
+	ServiceID string    `reform:"service_id"`
+	CreatedAt time.Time `reform:"created_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
 //nolint:unparam
-func (as *AgentService) BeforeInsert() error {
-	// now := time.Now().Truncate(time.Microsecond).UTC()
-	// as.CreatedAt = now
+func (s *AgentService) BeforeInsert() error {
+	now := Now()
+	s.CreatedAt = now
 	return nil
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
 //nolint:unparam
-func (as *AgentService) BeforeUpdate() error {
+func (s *AgentService) BeforeUpdate() error {
 	panic("AgentService should not be updated")
 }
 
 // AfterFind implements reform.AfterFinder interface.
 //nolint:unparam
-func (as *AgentService) AfterFind() error {
-	// as.CreatedAt = as.CreatedAt.UTC()
+func (s *AgentService) AfterFind() error {
+	s.CreatedAt = s.CreatedAt.UTC()
 	return nil
 }
 
@@ -63,29 +59,3 @@ var (
 	_ reform.BeforeUpdater  = (*AgentService)(nil)
 	_ reform.AfterFinder    = (*AgentService)(nil)
 )
-
-// AgentsForServiceID returns agents providing insights for a given service.
-func AgentsForServiceID(q *reform.Querier, serviceID string) ([]Agent, error) {
-	agentServices, err := q.SelectAllFrom(AgentServiceView, "WHERE service_id = ?", serviceID)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	agentIDs := make([]interface{}, len(agentServices))
-	for i, str := range agentServices {
-		agentIDs[i] = str.(*AgentService).AgentID
-	}
-
-	if len(agentIDs) == 0 {
-		return []Agent{}, nil
-	}
-
-	structs, err := q.FindAllFrom(AgentTable, "id", agentIDs...)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	agents := make([]Agent, len(structs))
-	for i, str := range structs {
-		agents[i] = *str.(*Agent)
-	}
-	return agents, nil
-}

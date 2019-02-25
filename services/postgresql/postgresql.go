@@ -17,6 +17,7 @@
 // Package postgresql contains business logic of working with Remote PostgreSQL instances.
 package postgresql
 
+/*
 import (
 	"context"
 	"database/sql"
@@ -533,3 +534,4 @@ func (svc *Service) postgresExporterCfg(agent *models.PostgresExporter, dsn stri
 		Environment: []string{fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn)},
 	}
 }
+*/

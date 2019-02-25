@@ -17,8 +17,42 @@
 package models
 
 import (
+	"fmt"
+	"strings"
+	"time"
+
+	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
+
+// NodesForAgent returns all Nodes for which Agent with given ID provides insights.
+func NodesForAgent(q *reform.Querier, agentID string) ([]*Node, error) {
+	structs, err := q.FindAllFrom(AgentNodeView, "agent_id", agentID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select Node IDs")
+	}
+
+	nodeIDs := make([]interface{}, len(structs))
+	for i, s := range structs {
+		nodeIDs[i] = s.(*AgentNode).NodeID
+	}
+	if len(nodeIDs) == 0 {
+		return []*Node{}, nil
+	}
+
+	p := strings.Join(q.Placeholders(1, len(nodeIDs)), ", ")
+	tail := fmt.Sprintf("WHERE node_id IN (%s) ORDER BY node_id", p) //nolint:gosec
+	structs, err = q.SelectAllFrom(NodeTable, tail, nodeIDs...)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select Nodes")
+	}
+
+	res := make([]*Node, len(structs))
+	for i, s := range structs {
+		res[i] = s.(*Node)
+	}
+	return res, nil
+}
 
 //go:generate reform
 
@@ -27,90 +61,64 @@ type NodeType string
 
 // Node types.
 const (
+	PMMServerNodeID string = "pmm-server" // FIXME remove
+
 	PMMServerNodeType NodeType = "pmm-server" // FIXME remove
 
 	GenericNodeType         NodeType = "generic"
+	ContainerNodeType       NodeType = "container"
 	RemoteNodeType          NodeType = "remote"
-	AmazonRDSRemoteNodeType NodeType = "remote-amazon-rds"
+	RemoteAmazonRDSNodeType NodeType = "remote-amazon-rds"
 )
 
-const (
-	// PMMServerNodeID is a fixed Node ID for PMM Server where pmm-managed runs.
-	PMMServerNodeID string = "pmm-server"
-
-	RemoteNodeRegion string = "remote"
-)
-
-// NodeRow represents Node as stored in database.
+// Node represents Node as stored in database.
 //reform:nodes
-type NodeRow struct {
-	ID   string   `reform:"id,pk"`
-	Type NodeType `reform:"type"`
-	Name string   `reform:"name"`
-	// CreatedAt time.Time `reform:"created_at"`
+type Node struct {
+	NodeID    string    `reform:"node_id,pk"`
+	NodeType  NodeType  `reform:"node_type"`
+	NodeName  string    `reform:"node_name"`
+	MachineID *string   `reform:"machine_id"`
+	CreatedAt time.Time `reform:"created_at"`
 	// UpdatedAt time.Time `reform:"updated_at"`
 
-	Hostname *string `reform:"hostname"`
+	Distro        *string `reform:"distro"`
+	DistroVersion *string `reform:"distro_version"`
+
+	DockerContainerID   *string `reform:"docker_container_id"`
+	DockerContainerName *string `reform:"docker_container_name"`
+
+	Instance *string `reform:"instance"`
 	Region   *string `reform:"region"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
 //nolint:unparam
-func (nr *NodeRow) BeforeInsert() error {
-	// now := time.Now().Truncate(time.Microsecond).UTC()
-	// nr.CreatedAt = now
-	// nr.UpdatedAt = now
+func (s *Node) BeforeInsert() error {
+	now := Now()
+	s.CreatedAt = now
+	// s.UpdatedAt = now
 	return nil
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
 //nolint:unparam
-func (nr *NodeRow) BeforeUpdate() error {
-	// now := time.Now().Truncate(time.Microsecond).UTC()
-	// nr.UpdatedAt = now
+func (s *Node) BeforeUpdate() error {
+	// now := Now()
+	// s.UpdatedAt = now
 	return nil
 }
 
 // AfterFind implements reform.AfterFinder interface.
 //nolint:unparam
-func (nr *NodeRow) AfterFind() error {
-	// nr.CreatedAt = nr.CreatedAt.UTC()
-	// nr.UpdatedAt = nr.UpdatedAt.UTC()
+func (s *Node) AfterFind() error {
+	s.CreatedAt = s.CreatedAt.UTC()
+	// s.UpdatedAt = s.UpdatedAt.UTC()
 	return nil
 }
 
 // check interfaces
 var (
-	_ reform.BeforeInserter = (*NodeRow)(nil)
-	_ reform.BeforeUpdater  = (*NodeRow)(nil)
-	_ reform.AfterFinder    = (*NodeRow)(nil)
+	_ reform.BeforeInserter = (*Node)(nil)
+	_ reform.BeforeUpdater  = (*Node)(nil)
+	_ reform.AfterFinder    = (*Node)(nil)
 )
-
-// TODO remove code below
-
-//reform:nodes
-type Node struct {
-	ID   string   `reform:"id,pk"`
-	Type NodeType `reform:"type"`
-	Name string   `reform:"name"`
-}
-
-//reform:nodes
-type AWSRDSNode struct {
-	ID   string   `reform:"id,pk"`
-	Type NodeType `reform:"type"`
-	Name string   `reform:"name"` // DBInstanceIdentifier
-
-	// Hostname *string `reform:"hostname"`
-	Region *string `reform:"region"`
-}
-
-//reform:nodes
-type RemoteNode struct {
-	ID   string   `reform:"id,pk"`
-	Type NodeType `reform:"type"`
-	Name string   `reform:"name"` // DBInstanceIdentifier
-
-	// Hostname *string `reform:"hostname"`
-	Region *string `reform:"region"`
-}

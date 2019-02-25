@@ -6,16 +6,65 @@
     "application/json"
   ],
   "schemes": [
-    "http",
-    "https"
+    "https",
+    "http"
   ],
   "swagger": "2.0",
   "info": {
     "title": "PMM Server Inventory API",
-    "version": "version 0"
+    "version": "version 1.alpha"
   },
   "paths": {
-    "/v0/inventory/Agents/AddMySQLdExporter": {
+    "/v1/inventory/Agents/AddExternalExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "AddExternalExporter adds External Agent.",
+        "operationId": "AddExternalExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "metrics_url": {
+                  "description": "URL for scraping metrics.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "external_exporter": {
+                  "description": "ExternalExporter does not run on any Inventory Node.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "metrics_url": {
+                      "description": "URL for scraping metrics.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/AddMySQLdExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -30,47 +79,20 @@
             "schema": {
               "type": "object",
               "properties": {
-                "disabled": {
-                  "description": "Agent desired status: enabled or disabled.",
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "host_node_info": {
-                  "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                  "type": "object",
-                  "properties": {
-                    "container_id": {
-                      "description": "Docker container ID.",
-                      "type": "string"
-                    },
-                    "container_name": {
-                      "description": "Docker container name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_name": {
-                      "description": "Kubernetes pod name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_uid": {
-                      "description": "Kubernetes pod UID.",
-                      "type": "string"
-                    },
-                    "node_id": {
-                      "description": "Node identifier where Service or Agent runs.",
-                      "type": "string"
-                    }
-                  }
-                },
                 "password": {
-                  "description": "MySQL password for extracting metrics.",
+                  "description": "MySQL password for scraping metrics.",
+                  "type": "string"
+                },
+                "runs_on_node_id": {
+                  "description": "Node identifier where this instance runs.",
                   "type": "string"
                 },
                 "service_id": {
-                  "description": "Service identifier for which insights are provided by that Agent.",
+                  "description": "Service identifier.",
                   "type": "string"
                 },
                 "username": {
-                  "description": "MySQL username for extracting metrics.",
+                  "description": "MySQL username for scraping metrics.",
                   "type": "string"
                 }
               }
@@ -79,65 +101,50 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
                 "mysqld_exporter": {
-                  "description": "MySQLdExporter represents mysqld_exporter Agent configuration.",
+                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
                   "type": "object",
                   "properties": {
-                    "disabled": {
-                      "description": "Agent desired status: enabled or disabled.",
-                      "type": "boolean",
-                      "format": "boolean"
-                    },
-                    "host_node_info": {
-                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                      "type": "object",
-                      "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
-                          "type": "string"
-                        },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
-                          "type": "string"
-                        },
-                        "node_id": {
-                          "description": "Node identifier where Service or Agent runs.",
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "id": {
-                      "description": "Unique Agent identifier.",
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
                     "listen_port": {
-                      "description": "HTTP listen port for exposing metrics.",
+                      "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64"
                     },
-                    "running": {
-                      "description": "Agent process status: running or not.",
-                      "type": "boolean",
-                      "format": "boolean"
-                    },
-                    "service_id": {
-                      "description": "Service identifier for which insights are provided by that Agent.",
+                    "password": {
+                      "description": "MySQL password for scraping metrics.",
                       "type": "string"
                     },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent process status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
                     "username": {
-                      "description": "MySQL username for extracting metrics.",
+                      "description": "MySQL username for scraping metrics.",
                       "type": "string"
                     }
                   }
@@ -148,7 +155,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddNodeExporter": {
+    "/v1/inventory/Agents/AddNodeExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -163,36 +170,9 @@
             "schema": {
               "type": "object",
               "properties": {
-                "disabled": {
-                  "description": "Agent desired status: enabled or disabled.",
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "host_node_info": {
-                  "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                  "type": "object",
-                  "properties": {
-                    "container_id": {
-                      "description": "Docker container ID.",
-                      "type": "string"
-                    },
-                    "container_name": {
-                      "description": "Docker container name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_name": {
-                      "description": "Kubernetes pod name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_uid": {
-                      "description": "Kubernetes pod UID.",
-                      "type": "string"
-                    },
-                    "node_id": {
-                      "description": "Node identifier where Service or Agent runs.",
-                      "type": "string"
-                    }
-                  }
+                "node_id": {
+                  "description": "Node identifier where this instance runs.",
+                  "type": "string"
                 }
               }
             }
@@ -200,58 +180,39 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
                 "node_exporter": {
-                  "description": "NodeExporter represents node_exporter Agent configuration.",
+                  "description": "NodeExporter runs on Generic on Container Node and exposes its metrics.",
                   "type": "object",
                   "properties": {
-                    "disabled": {
-                      "description": "Agent desired status: enabled or disabled.",
-                      "type": "boolean",
-                      "format": "boolean"
-                    },
-                    "host_node_info": {
-                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                      "type": "object",
-                      "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
-                          "type": "string"
-                        },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
-                          "type": "string"
-                        },
-                        "node_id": {
-                          "description": "Node identifier where Service or Agent runs.",
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "id": {
-                      "description": "Unique Agent identifier.",
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
                     "listen_port": {
-                      "description": "HTTP listen port for exposing metrics.",
+                      "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64"
                     },
-                    "running": {
-                      "description": "Agent process status: running or not.",
-                      "type": "boolean",
-                      "format": "boolean"
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent process status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
                     }
                   }
                 }
@@ -261,7 +222,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/AddPMMAgent": {
+    "/v1/inventory/Agents/AddPMMAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -276,31 +237,9 @@
             "schema": {
               "type": "object",
               "properties": {
-                "host_node_info": {
-                  "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                  "type": "object",
-                  "properties": {
-                    "container_id": {
-                      "description": "Docker container ID.",
-                      "type": "string"
-                    },
-                    "container_name": {
-                      "description": "Docker container name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_name": {
-                      "description": "Kubernetes pod name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_uid": {
-                      "description": "Kubernetes pod UID.",
-                      "type": "string"
-                    },
-                    "node_id": {
-                      "description": "Node identifier where Service or Agent runs.",
-                      "type": "string"
-                    }
-                  }
+                "node_id": {
+                  "description": "Node identifier where this instance runs.",
+                  "type": "string"
                 }
               }
             }
@@ -308,48 +247,26 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
                 "pmm_agent": {
-                  "description": "PMMAgent represent pmm-agent Agent configuration.",
+                  "description": "PMMAgent runs on Generic on Container Node.",
                   "type": "object",
                   "properties": {
-                    "host_node_info": {
-                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                      "type": "object",
-                      "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
-                          "type": "string"
-                        },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
-                          "type": "string"
-                        },
-                        "node_id": {
-                          "description": "Node identifier where Service or Agent runs.",
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "id": {
-                      "description": "Unique Agent identifier.",
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
-                    "running": {
-                      "description": "Agent process status: running and connected to pmm-managed, or not.",
+                    "connected": {
+                      "description": "True if Agent is running and connected to pmm-managed.",
                       "type": "boolean",
                       "format": "boolean"
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
                     }
                   }
                 }
@@ -359,13 +276,13 @@
         }
       }
     },
-    "/v0/inventory/Agents/Disable": {
+    "/v1/inventory/Agents/AddRDSExporter": {
       "post": {
         "tags": [
           "Agents"
         ],
-        "summary": "DisableAgent disables and stops Agent.",
-        "operationId": "DisableAgent",
+        "summary": "AddRDSExporter adds rds_exporter Agent.",
+        "operationId": "AddRDSExporter",
         "parameters": [
           {
             "name": "body",
@@ -374,9 +291,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
-                  "description": "Unique Agent identifier.",
+                "runs_on_node_id": {
+                  "description": "Node identifier where this instance runs.",
                   "type": "string"
+                },
+                "service_ids": {
+                  "description": "A list of Service identifiers (Node identifiers are extracted from Services).",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
                 }
               }
             }
@@ -384,48 +308,56 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
-            "schema": {
-              "type": "object"
-            }
-          }
-        }
-      }
-    },
-    "/v0/inventory/Agents/Enable": {
-      "post": {
-        "tags": [
-          "Agents"
-        ],
-        "summary": "EnableAgent enables and starts Agent.",
-        "operationId": "EnableAgent",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
-                  "description": "Unique Agent identifier.",
-                  "type": "string"
+                "rds_exporter": {
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_ids": {
+                      "description": "A list of Service identifiers (Node identifiers are extracted from Services).",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent process status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    }
+                  }
                 }
               }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "(empty)",
-            "schema": {
-              "type": "object"
             }
           }
         }
       }
     },
-    "/v0/inventory/Agents/Get": {
+    "/v1/inventory/Agents/Get": {
       "post": {
         "tags": [
           "Agents"
@@ -440,8 +372,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
-                  "description": "Unique Agent identifier.",
+                "agent_id": {
+                  "description": "Unique randomly generated instance identifier.",
                   "type": "string"
                 }
               }
@@ -450,158 +382,155 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
-                "mysqld_exporter": {
-                  "description": "MySQLdExporter represents mysqld_exporter Agent configuration.",
+                "external_exporter": {
+                  "description": "ExternalExporter does not run on any Inventory Node.",
                   "type": "object",
                   "properties": {
-                    "disabled": {
-                      "description": "Agent desired status: enabled or disabled.",
-                      "type": "boolean",
-                      "format": "boolean"
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
                     },
-                    "host_node_info": {
-                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                      "type": "object",
-                      "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
-                          "type": "string"
-                        },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
-                          "type": "string"
-                        },
-                        "node_id": {
-                          "description": "Node identifier where Service or Agent runs.",
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "id": {
-                      "description": "Unique Agent identifier.",
+                    "metrics_url": {
+                      "description": "URL for scraping metrics.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "mysqld_exporter": {
+                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
                     "listen_port": {
-                      "description": "HTTP listen port for exposing metrics.",
+                      "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64"
                     },
-                    "running": {
-                      "description": "Agent process status: running or not.",
-                      "type": "boolean",
-                      "format": "boolean"
-                    },
-                    "service_id": {
-                      "description": "Service identifier for which insights are provided by that Agent.",
+                    "password": {
+                      "description": "MySQL password for scraping metrics.",
                       "type": "string"
                     },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent process status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
                     "username": {
-                      "description": "MySQL username for extracting metrics.",
+                      "description": "MySQL username for scraping metrics.",
                       "type": "string"
                     }
                   }
                 },
                 "node_exporter": {
-                  "description": "NodeExporter represents node_exporter Agent configuration.",
+                  "description": "NodeExporter runs on Generic on Container Node and exposes its metrics.",
                   "type": "object",
                   "properties": {
-                    "disabled": {
-                      "description": "Agent desired status: enabled or disabled.",
-                      "type": "boolean",
-                      "format": "boolean"
-                    },
-                    "host_node_info": {
-                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                      "type": "object",
-                      "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
-                          "type": "string"
-                        },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
-                          "type": "string"
-                        },
-                        "node_id": {
-                          "description": "Node identifier where Service or Agent runs.",
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "id": {
-                      "description": "Unique Agent identifier.",
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
                     "listen_port": {
-                      "description": "HTTP listen port for exposing metrics.",
+                      "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64"
                     },
-                    "running": {
-                      "description": "Agent process status: running or not.",
-                      "type": "boolean",
-                      "format": "boolean"
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent process status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
                     }
                   }
                 },
                 "pmm_agent": {
-                  "description": "PMMAgent represent pmm-agent Agent configuration.",
+                  "description": "PMMAgent runs on Generic on Container Node.",
                   "type": "object",
                   "properties": {
-                    "host_node_info": {
-                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                      "type": "object",
-                      "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
-                          "type": "string"
-                        },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
-                          "type": "string"
-                        },
-                        "node_id": {
-                          "description": "Node identifier where Service or Agent runs.",
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "id": {
-                      "description": "Unique Agent identifier.",
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
-                    "running": {
-                      "description": "Agent process status: running and connected to pmm-managed, or not.",
+                    "connected": {
+                      "description": "True if Agent is running and connected to pmm-managed.",
                       "type": "boolean",
                       "format": "boolean"
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "rds_exporter": {
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_ids": {
+                      "description": "A list of Service identifiers (Node identifiers are extracted from Services).",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent process status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
                     }
                   }
                 }
@@ -611,7 +540,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/List": {
+    "/v1/inventory/Agents/List": {
       "post": {
         "tags": [
           "Agents"
@@ -626,12 +555,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "host_node_id": {
-                  "description": "Return only Agents running on that Node.",
-                  "type": "string"
-                },
                 "node_id": {
                   "description": "Return only Agents that provide insights for that Node.",
+                  "type": "string"
+                },
+                "runs_on_node_id": {
+                  "description": "Return only Agents running on that Node.",
                   "type": "string"
                 },
                 "service_id": {
@@ -644,67 +573,69 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
+                "external_exporter": {
+                  "type": "array",
+                  "items": {
+                    "description": "ExternalExporter does not run on any Inventory Node.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string"
+                      },
+                      "metrics_url": {
+                        "description": "URL for scraping metrics.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
                 "mysqld_exporter": {
                   "type": "array",
                   "items": {
-                    "description": "MySQLdExporter represents mysqld_exporter Agent configuration.",
+                    "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
                     "type": "object",
                     "properties": {
-                      "disabled": {
-                        "description": "Agent desired status: enabled or disabled.",
-                        "type": "boolean",
-                        "format": "boolean"
-                      },
-                      "host_node_info": {
-                        "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                        "type": "object",
-                        "properties": {
-                          "container_id": {
-                            "description": "Docker container ID.",
-                            "type": "string"
-                          },
-                          "container_name": {
-                            "description": "Docker container name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_name": {
-                            "description": "Kubernetes pod name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_uid": {
-                            "description": "Kubernetes pod UID.",
-                            "type": "string"
-                          },
-                          "node_id": {
-                            "description": "Node identifier where Service or Agent runs.",
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "id": {
-                        "description": "Unique Agent identifier.",
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
                         "type": "string"
                       },
                       "listen_port": {
-                        "description": "HTTP listen port for exposing metrics.",
+                        "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64"
                       },
-                      "running": {
-                        "description": "Agent process status: running or not.",
-                        "type": "boolean",
-                        "format": "boolean"
-                      },
-                      "service_id": {
-                        "description": "Service identifier for which insights are provided by that Agent.",
+                      "password": {
+                        "description": "MySQL password for scraping metrics.",
                         "type": "string"
                       },
+                      "runs_on_node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string"
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string"
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent process status.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ]
+                      },
                       "username": {
-                        "description": "MySQL username for extracting metrics.",
+                        "description": "MySQL username for scraping metrics.",
                         "type": "string"
                       }
                     }
@@ -713,53 +644,34 @@
                 "node_exporter": {
                   "type": "array",
                   "items": {
-                    "description": "NodeExporter represents node_exporter Agent configuration.",
+                    "description": "NodeExporter runs on Generic on Container Node and exposes its metrics.",
                     "type": "object",
                     "properties": {
-                      "disabled": {
-                        "description": "Agent desired status: enabled or disabled.",
-                        "type": "boolean",
-                        "format": "boolean"
-                      },
-                      "host_node_info": {
-                        "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                        "type": "object",
-                        "properties": {
-                          "container_id": {
-                            "description": "Docker container ID.",
-                            "type": "string"
-                          },
-                          "container_name": {
-                            "description": "Docker container name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_name": {
-                            "description": "Kubernetes pod name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_uid": {
-                            "description": "Kubernetes pod UID.",
-                            "type": "string"
-                          },
-                          "node_id": {
-                            "description": "Node identifier where Service or Agent runs.",
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "id": {
-                        "description": "Unique Agent identifier.",
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
                         "type": "string"
                       },
                       "listen_port": {
-                        "description": "HTTP listen port for exposing metrics.",
+                        "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64"
                       },
-                      "running": {
-                        "description": "Agent process status: running or not.",
-                        "type": "boolean",
-                        "format": "boolean"
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string"
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent process status.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ]
                       }
                     }
                   }
@@ -767,43 +679,63 @@
                 "pmm_agent": {
                   "type": "array",
                   "items": {
-                    "description": "PMMAgent represent pmm-agent Agent configuration.",
+                    "description": "PMMAgent runs on Generic on Container Node.",
                     "type": "object",
                     "properties": {
-                      "host_node_info": {
-                        "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                        "type": "object",
-                        "properties": {
-                          "container_id": {
-                            "description": "Docker container ID.",
-                            "type": "string"
-                          },
-                          "container_name": {
-                            "description": "Docker container name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_name": {
-                            "description": "Kubernetes pod name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_uid": {
-                            "description": "Kubernetes pod UID.",
-                            "type": "string"
-                          },
-                          "node_id": {
-                            "description": "Node identifier where Service or Agent runs.",
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "id": {
-                        "description": "Unique Agent identifier.",
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
                         "type": "string"
                       },
-                      "running": {
-                        "description": "Agent process status: running and connected to pmm-managed, or not.",
+                      "connected": {
+                        "description": "True if Agent is running and connected to pmm-managed.",
                         "type": "boolean",
                         "format": "boolean"
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "rds_exporter": {
+                  "type": "array",
+                  "items": {
+                    "description": "RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string"
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics.",
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "runs_on_node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string"
+                      },
+                      "service_ids": {
+                        "description": "A list of Service identifiers (Node identifiers are extracted from Services).",
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent process status.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ]
                       }
                     }
                   }
@@ -814,7 +746,7 @@
         }
       }
     },
-    "/v0/inventory/Agents/Remove": {
+    "/v1/inventory/Agents/Remove": {
       "post": {
         "tags": [
           "Agents"
@@ -829,7 +761,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
+                "agent_id": {
                   "type": "string"
                 }
               }
@@ -838,7 +770,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object"
             }
@@ -846,13 +778,13 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddAmazonRDSRemote": {
+    "/v1/inventory/Nodes/AddContainer": {
       "post": {
         "tags": [
           "Nodes"
         ],
-        "summary": "AddAmazonRDSRemoteNode adds Amazon (AWS) RDS remote Node.",
-        "operationId": "AddAmazonRDSRemoteNode",
+        "summary": "AddContainerNode adds Container Node.",
+        "operationId": "AddContainerNode",
         "parameters": [
           {
             "name": "body",
@@ -861,20 +793,20 @@
             "schema": {
               "type": "object",
               "properties": {
-                "hostname": {
-                  "description": "Hostname. Unique in combination with region.",
+                "docker_container_id": {
+                  "description": "Docker container identifier. If specified, must be a unique Docker container identifier.",
                   "type": "string"
                 },
-                "id": {
-                  "description": "Unique Node identifier. Will be generated if empty.",
+                "docker_container_name": {
+                  "description": "Container name.",
                   "type": "string"
                 },
-                "name": {
-                  "description": "Unique user-defined Node name.",
+                "machine_id": {
+                  "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist.",
                   "type": "string"
                 },
-                "region": {
-                  "description": "AWS region. Unique in combination with hostname.",
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name.",
                   "type": "string"
                 }
               }
@@ -883,28 +815,32 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
-                "amazon_rds_remote": {
-                  "description": "AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.",
+                "container": {
+                  "description": "ContainerNode represents a Docker container.",
                   "type": "object",
                   "properties": {
-                    "hostname": {
-                      "description": "Hostname. Unique in combination with region.",
+                    "docker_container_id": {
+                      "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
                       "type": "string"
                     },
-                    "id": {
-                      "description": "Unique Node identifier.",
+                    "docker_container_name": {
+                      "description": "Container name. Can be changed.",
                       "type": "string"
                     },
-                    "name": {
-                      "description": "Unique user-defined Node name.",
+                    "machine_id": {
+                      "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
                       "type": "string"
                     },
-                    "region": {
-                      "description": "AWS region. Unique in combination with hostname.",
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
                       "type": "string"
                     }
                   }
@@ -915,7 +851,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddGeneric": {
+    "/v1/inventory/Nodes/AddGeneric": {
       "post": {
         "tags": [
           "Nodes"
@@ -930,16 +866,20 @@
             "schema": {
               "type": "object",
               "properties": {
-                "hostname": {
-                  "description": "Hostname. Is not unique. May be empty.",
+                "distro": {
+                  "description": "Linux distribution (if any).",
                   "type": "string"
                 },
-                "id": {
-                  "description": "Unique Node identifier. Will be generated if empty.",
+                "distro_version": {
+                  "description": "Linux distribution version (if any).",
                   "type": "string"
                 },
-                "name": {
-                  "description": "Unique user-defined Node name.",
+                "machine_id": {
+                  "description": "Linux machine-id. Must be unique across all Generic Nodes if specified.",
+                  "type": "string"
+                },
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name.",
                   "type": "string"
                 }
               }
@@ -948,24 +888,32 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
                 "generic": {
-                  "description": "GenericNode represents Node without more specialized type.",
+                  "description": "GenericNode represents a bare metal server or virtual machine.",
                   "type": "object",
                   "properties": {
-                    "hostname": {
-                      "description": "Hostname. Is not unique. May be empty.",
+                    "distro": {
+                      "description": "Linux distribution (if any). Can be changed.",
                       "type": "string"
                     },
-                    "id": {
-                      "description": "Unique Node identifier.",
+                    "distro_version": {
+                      "description": "Linux distribution version (if any). Can be changed.",
                       "type": "string"
                     },
-                    "name": {
-                      "description": "Unique user-defined Node name.",
+                    "machine_id": {
+                      "description": "Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
                       "type": "string"
                     }
                   }
@@ -976,7 +924,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/AddRemote": {
+    "/v1/inventory/Nodes/AddRemote": {
       "post": {
         "tags": [
           "Nodes"
@@ -991,12 +939,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
-                  "description": "Unique Node identifier. Will be generated if empty.",
-                  "type": "string"
-                },
-                "name": {
-                  "description": "Unique user-defined Node name.",
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name.",
                   "type": "string"
                 }
               }
@@ -1005,20 +949,20 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
                 "remote": {
-                  "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
+                  "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
-                    "id": {
-                      "description": "Unique Node identifier.",
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
                       "type": "string"
                     },
-                    "name": {
-                      "description": "Unique user-defined Node name.",
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
                       "type": "string"
                     }
                   }
@@ -1029,13 +973,13 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeAmazonRDSRemote": {
+    "/v1/inventory/Nodes/AddRemoteAmazonRDS": {
       "post": {
         "tags": [
           "Nodes"
         ],
-        "summary": "ChangeAmazonRDSRemoteNode changes Amazon (AWS) RDS remote Node.",
-        "operationId": "ChangeAmazonRDSRemoteNode",
+        "summary": "AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.",
+        "operationId": "AddRemoteAmazonRDSNode",
         "parameters": [
           {
             "name": "body",
@@ -1044,12 +988,16 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
-                  "description": "Unique Node identifier.",
+                "instance": {
+                  "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.",
                   "type": "string"
                 },
-                "name": {
-                  "description": "Unique user-defined Node name.",
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name.",
+                  "type": "string"
+                },
+                "region": {
+                  "description": "Unique across all RemoteAmazonRDS Nodes in combination with instance.",
                   "type": "string"
                 }
               }
@@ -1058,28 +1006,28 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
-                "amazon_rds_remote": {
-                  "description": "AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.",
+                "remote_amazon_rds": {
+                  "description": "RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
-                    "hostname": {
-                      "description": "Hostname. Unique in combination with region.",
+                    "instance": {
+                      "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.",
                       "type": "string"
                     },
-                    "id": {
-                      "description": "Unique Node identifier.",
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
                       "type": "string"
                     },
-                    "name": {
-                      "description": "Unique user-defined Node name.",
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
                       "type": "string"
                     },
                     "region": {
-                      "description": "AWS region. Unique in combination with hostname.",
+                      "description": "Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.",
                       "type": "string"
                     }
                   }
@@ -1090,7 +1038,76 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeGeneric": {
+    "/v1/inventory/Nodes/ChangeContainer": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "ChangeContainerNode changes Container Node.",
+        "operationId": "ChangeContainerNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "docker_container_name": {
+                  "description": "Container name.",
+                  "type": "string"
+                },
+                "node_id": {
+                  "description": "Unique randomly generated instance identifier.",
+                  "type": "string"
+                },
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "container": {
+                  "description": "ContainerNode represents a Docker container.",
+                  "type": "object",
+                  "properties": {
+                    "docker_container_id": {
+                      "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
+                      "type": "string"
+                    },
+                    "docker_container_name": {
+                      "description": "Container name. Can be changed.",
+                      "type": "string"
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Nodes/ChangeGeneric": {
       "post": {
         "tags": [
           "Nodes"
@@ -1105,12 +1122,20 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
-                  "description": "Unique Node identifier.",
+                "distro": {
+                  "description": "Linux distribution (if any).",
                   "type": "string"
                 },
-                "name": {
-                  "description": "Unique user-defined Node name.",
+                "distro_version": {
+                  "description": "Linux distribution version (if any).",
+                  "type": "string"
+                },
+                "node_id": {
+                  "description": "Unique randomly generated instance identifier.",
+                  "type": "string"
+                },
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name.",
                   "type": "string"
                 }
               }
@@ -1119,24 +1144,32 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
                 "generic": {
-                  "description": "GenericNode represents Node without more specialized type.",
+                  "description": "GenericNode represents a bare metal server or virtual machine.",
                   "type": "object",
                   "properties": {
-                    "hostname": {
-                      "description": "Hostname. Is not unique. May be empty.",
+                    "distro": {
+                      "description": "Linux distribution (if any). Can be changed.",
                       "type": "string"
                     },
-                    "id": {
-                      "description": "Unique Node identifier.",
+                    "distro_version": {
+                      "description": "Linux distribution version (if any). Can be changed.",
                       "type": "string"
                     },
-                    "name": {
-                      "description": "Unique user-defined Node name.",
+                    "machine_id": {
+                      "description": "Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
                       "type": "string"
                     }
                   }
@@ -1147,7 +1180,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/ChangeRemote": {
+    "/v1/inventory/Nodes/ChangeRemote": {
       "post": {
         "tags": [
           "Nodes"
@@ -1162,12 +1195,12 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
-                  "description": "Unique Node identifier.",
+                "node_id": {
+                  "description": "Unique randomly generated instance identifier.",
                   "type": "string"
                 },
-                "name": {
-                  "description": "Unique user-defined Node name.",
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name.",
                   "type": "string"
                 }
               }
@@ -1176,20 +1209,20 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
                 "remote": {
-                  "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
+                  "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
-                    "id": {
-                      "description": "Unique Node identifier.",
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
                       "type": "string"
                     },
-                    "name": {
-                      "description": "Unique user-defined Node name.",
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
                       "type": "string"
                     }
                   }
@@ -1200,7 +1233,72 @@
         }
       }
     },
-    "/v0/inventory/Nodes/Get": {
+    "/v1/inventory/Nodes/ChangeRemoteAmazonRDS": {
+      "post": {
+        "tags": [
+          "Nodes"
+        ],
+        "summary": "ChangeRemoteAmazonRDSNode changes Amazon (AWS) RDS remote Node.",
+        "operationId": "ChangeRemoteAmazonRDSNode",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "instance": {
+                  "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.",
+                  "type": "string"
+                },
+                "node_id": {
+                  "description": "Unique randomly generated instance identifier.",
+                  "type": "string"
+                },
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "remote_amazon_rds": {
+                  "description": "RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "instance": {
+                      "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Nodes/Get": {
       "post": {
         "tags": [
           "Nodes"
@@ -1215,8 +1313,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
-                  "description": "Unique Node identifier.",
+                "node_id": {
+                  "description": "Unique randomly generated instance identifier.",
                   "type": "string"
                 }
               }
@@ -1225,60 +1323,94 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
-                "amazon_rds_remote": {
-                  "description": "AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.",
+                "container": {
+                  "description": "ContainerNode represents a Docker container.",
                   "type": "object",
                   "properties": {
-                    "hostname": {
-                      "description": "Hostname. Unique in combination with region.",
+                    "docker_container_id": {
+                      "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
                       "type": "string"
                     },
-                    "id": {
-                      "description": "Unique Node identifier.",
+                    "docker_container_name": {
+                      "description": "Container name. Can be changed.",
                       "type": "string"
                     },
-                    "name": {
-                      "description": "Unique user-defined Node name.",
+                    "machine_id": {
+                      "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
                       "type": "string"
                     },
-                    "region": {
-                      "description": "AWS region. Unique in combination with hostname.",
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
                       "type": "string"
                     }
                   }
                 },
                 "generic": {
-                  "description": "GenericNode represents Node without more specialized type.",
+                  "description": "GenericNode represents a bare metal server or virtual machine.",
                   "type": "object",
                   "properties": {
-                    "hostname": {
-                      "description": "Hostname. Is not unique. May be empty.",
+                    "distro": {
+                      "description": "Linux distribution (if any). Can be changed.",
                       "type": "string"
                     },
-                    "id": {
-                      "description": "Unique Node identifier.",
+                    "distro_version": {
+                      "description": "Linux distribution version (if any). Can be changed.",
                       "type": "string"
                     },
-                    "name": {
-                      "description": "Unique user-defined Node name.",
+                    "machine_id": {
+                      "description": "Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
                       "type": "string"
                     }
                   }
                 },
                 "remote": {
-                  "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
+                  "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
-                    "id": {
-                      "description": "Unique Node identifier.",
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
                       "type": "string"
                     },
-                    "name": {
-                      "description": "Unique user-defined Node name.",
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "remote_amazon_rds": {
+                  "description": "RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.",
+                  "type": "object",
+                  "properties": {
+                    "instance": {
+                      "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.",
                       "type": "string"
                     }
                   }
@@ -1289,7 +1421,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/List": {
+    "/v1/inventory/Nodes/List": {
       "post": {
         "tags": [
           "Nodes"
@@ -1308,30 +1440,34 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
-                "amazon_rds_remote": {
+                "container": {
                   "type": "array",
                   "items": {
-                    "description": "AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.",
+                    "description": "ContainerNode represents a Docker container.",
                     "type": "object",
                     "properties": {
-                      "hostname": {
-                        "description": "Hostname. Unique in combination with region.",
+                      "docker_container_id": {
+                        "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
                         "type": "string"
                       },
-                      "id": {
-                        "description": "Unique Node identifier.",
+                      "docker_container_name": {
+                        "description": "Container name. Can be changed.",
                         "type": "string"
                       },
-                      "name": {
-                        "description": "Unique user-defined Node name.",
+                      "machine_id": {
+                        "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
                         "type": "string"
                       },
-                      "region": {
-                        "description": "AWS region. Unique in combination with hostname.",
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier, can't be changed.",
+                        "type": "string"
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name, can be changed.",
                         "type": "string"
                       }
                     }
@@ -1340,19 +1476,27 @@
                 "generic": {
                   "type": "array",
                   "items": {
-                    "description": "GenericNode represents Node without more specialized type.",
+                    "description": "GenericNode represents a bare metal server or virtual machine.",
                     "type": "object",
                     "properties": {
-                      "hostname": {
-                        "description": "Hostname. Is not unique. May be empty.",
+                      "distro": {
+                        "description": "Linux distribution (if any). Can be changed.",
                         "type": "string"
                       },
-                      "id": {
-                        "description": "Unique Node identifier.",
+                      "distro_version": {
+                        "description": "Linux distribution version (if any). Can be changed.",
                         "type": "string"
                       },
-                      "name": {
-                        "description": "Unique user-defined Node name.",
+                      "machine_id": {
+                        "description": "Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.",
+                        "type": "string"
+                      },
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier, can't be changed.",
+                        "type": "string"
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name, can be changed.",
                         "type": "string"
                       }
                     }
@@ -1361,15 +1505,40 @@
                 "remote": {
                   "type": "array",
                   "items": {
-                    "description": "RemoteNode represents a generic remote Node.\nAgents can't be run on remote Nodes.",
+                    "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
                     "type": "object",
                     "properties": {
-                      "id": {
-                        "description": "Unique Node identifier.",
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier, can't be changed.",
                         "type": "string"
                       },
-                      "name": {
-                        "description": "Unique user-defined Node name.",
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name, can be changed.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "remote_amazon_rds": {
+                  "type": "array",
+                  "items": {
+                    "description": "RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.",
+                    "type": "object",
+                    "properties": {
+                      "instance": {
+                        "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.",
+                        "type": "string"
+                      },
+                      "node_id": {
+                        "description": "Unique randomly generated instance identifier, can't be changed.",
+                        "type": "string"
+                      },
+                      "node_name": {
+                        "description": "Unique across all Nodes user-defined name, can be changed.",
+                        "type": "string"
+                      },
+                      "region": {
+                        "description": "Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.",
                         "type": "string"
                       }
                     }
@@ -1381,7 +1550,7 @@
         }
       }
     },
-    "/v0/inventory/Nodes/Remove": {
+    "/v1/inventory/Nodes/Remove": {
       "post": {
         "tags": [
           "Nodes"
@@ -1396,8 +1565,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
-                  "description": "Unique Node identifier.",
+                "node_id": {
+                  "description": "Unique randomly generated instance identifier.",
                   "type": "string"
                 }
               }
@@ -1406,7 +1575,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object"
             }
@@ -1414,7 +1583,82 @@
         }
       }
     },
-    "/v0/inventory/Services/AddMySQL": {
+    "/v1/inventory/Services/AddAmazonRDSMySQL": {
+      "post": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "AddAmazonRDSMySQLService adds AmazonRDSMySQL Service.",
+        "operationId": "AddAmazonRDSMySQLService",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "description": "Instance endpoint (full DNS name).",
+                  "type": "string"
+                },
+                "node_id": {
+                  "description": "Node identifier where this instance runs.",
+                  "type": "string"
+                },
+                "port": {
+                  "description": "Instance port.",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "amazon_rds_mysql": {
+                  "type": "object",
+                  "title": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node",
+                  "properties": {
+                    "address": {
+                      "description": "Instance endpoint (full DNS name).",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "port": {
+                      "description": "Instance port.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Services/AddMySQL": {
       "post": {
         "tags": [
           "Services"
@@ -1430,46 +1674,24 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "MySQL access address (DNS name or IP address).",
+                  "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
                   "type": "string"
                 },
-                "host_node_info": {
-                  "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                  "type": "object",
-                  "properties": {
-                    "container_id": {
-                      "description": "Docker container ID.",
-                      "type": "string"
-                    },
-                    "container_name": {
-                      "description": "Docker container name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_name": {
-                      "description": "Kubernetes pod name.",
-                      "type": "string"
-                    },
-                    "kubernetes_pod_uid": {
-                      "description": "Kubernetes pod UID.",
-                      "type": "string"
-                    },
-                    "node_id": {
-                      "description": "Node identifier where Service or Agent runs.",
-                      "type": "string"
-                    }
-                  }
-                },
-                "name": {
-                  "description": "Unique user-defined Service name.",
+                "node_id": {
+                  "description": "Node identifier where this instance runs.",
                   "type": "string"
                 },
                 "port": {
-                  "description": "MySQL access port.",
+                  "description": "Access port. Required if unix_socket is absent.",
                   "type": "integer",
                   "format": "int64"
                 },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name.",
+                  "type": "string"
+                },
                 "unix_socket": {
-                  "description": "MySQL access UNIX socket path.",
+                  "description": "Access Unix socket. Required if address and port are absent.",
                   "type": "string"
                 }
               }
@@ -1478,59 +1700,37 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
                 "mysql": {
-                  "description": "MySQLService represents MySQL-compatible Service configuration.",
+                  "description": "MySQLService represents a generic MySQL instance.",
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "MySQL access address (DNS name or IP address).",
+                      "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
                       "type": "string"
                     },
-                    "host_node_info": {
-                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                      "type": "object",
-                      "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
-                          "type": "string"
-                        },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
-                          "type": "string"
-                        },
-                        "node_id": {
-                          "description": "Node identifier where Service or Agent runs.",
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "id": {
-                      "description": "Unique Service identifier.",
-                      "type": "string"
-                    },
-                    "name": {
-                      "description": "Unique user-defined Service name.",
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
                       "type": "string"
                     },
                     "port": {
-                      "description": "MySQL access port.",
+                      "description": "Access port. Required if unix_socket is absent.",
                       "type": "integer",
                       "format": "int64"
                     },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string"
+                    },
                     "unix_socket": {
-                      "description": "MySQL access UNIX socket path.",
+                      "description": "Access Unix socket. Required if address and port are absent.",
                       "type": "string"
                     }
                   }
@@ -1541,7 +1741,82 @@
         }
       }
     },
-    "/v0/inventory/Services/ChangeMySQL": {
+    "/v1/inventory/Services/ChangeAmazonRDSMySQL": {
+      "post": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "ChangeAmazonRDSMySQLService changes AmazonRDSMySQL Service.",
+        "operationId": "ChangeAmazonRDSMySQLService",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "description": "Instance endpoint (full DNS name).",
+                  "type": "string"
+                },
+                "port": {
+                  "description": "Instance port.",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "service_id": {
+                  "description": "Unique randomly generated instance identifier.",
+                  "type": "string"
+                },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "amazon_rds_mysql": {
+                  "type": "object",
+                  "title": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node",
+                  "properties": {
+                    "address": {
+                      "description": "Instance endpoint (full DNS name).",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "port": {
+                      "description": "Instance port.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Services/ChangeMySQL": {
       "post": {
         "tags": [
           "Services"
@@ -1556,12 +1831,29 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
-                  "description": "Unique Service identifier.",
+                "address": {
+                  "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
                   "type": "string"
                 },
-                "name": {
-                  "description": "Unique user-defined Service name.",
+                "node_id": {
+                  "description": "Node identifier where this instance runs.",
+                  "type": "string"
+                },
+                "port": {
+                  "description": "Access port. Required if unix_socket is absent.",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "service_id": {
+                  "description": "Unique randomly generated instance identifier.",
+                  "type": "string"
+                },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name.",
+                  "type": "string"
+                },
+                "unix_socket": {
+                  "description": "Access Unix socket. Required if address and port are absent.",
                   "type": "string"
                 }
               }
@@ -1570,59 +1862,37 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
                 "mysql": {
-                  "description": "MySQLService represents MySQL-compatible Service configuration.",
+                  "description": "MySQLService represents a generic MySQL instance.",
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "MySQL access address (DNS name or IP address).",
+                      "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
                       "type": "string"
                     },
-                    "host_node_info": {
-                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                      "type": "object",
-                      "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
-                          "type": "string"
-                        },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
-                          "type": "string"
-                        },
-                        "node_id": {
-                          "description": "Node identifier where Service or Agent runs.",
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "id": {
-                      "description": "Unique Service identifier.",
-                      "type": "string"
-                    },
-                    "name": {
-                      "description": "Unique user-defined Service name.",
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
                       "type": "string"
                     },
                     "port": {
-                      "description": "MySQL access port.",
+                      "description": "Access port. Required if unix_socket is absent.",
                       "type": "integer",
                       "format": "int64"
                     },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string"
+                    },
                     "unix_socket": {
-                      "description": "MySQL access UNIX socket path.",
+                      "description": "Access Unix socket. Required if address and port are absent.",
                       "type": "string"
                     }
                   }
@@ -1633,7 +1903,7 @@
         }
       }
     },
-    "/v0/inventory/Services/Get": {
+    "/v1/inventory/Services/Get": {
       "post": {
         "tags": [
           "Services"
@@ -1648,8 +1918,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
-                  "description": "Unique Service identifier.",
+                "service_id": {
+                  "description": "Unique randomly generated instance identifier.",
                   "type": "string"
                 }
               }
@@ -1658,59 +1928,64 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
-                "mysql": {
-                  "description": "MySQLService represents MySQL-compatible Service configuration.",
+                "amazon_rds_mysql": {
                   "type": "object",
+                  "title": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node",
                   "properties": {
                     "address": {
-                      "description": "MySQL access address (DNS name or IP address).",
+                      "description": "Instance endpoint (full DNS name).",
                       "type": "string"
                     },
-                    "host_node_info": {
-                      "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                      "type": "object",
-                      "properties": {
-                        "container_id": {
-                          "description": "Docker container ID.",
-                          "type": "string"
-                        },
-                        "container_name": {
-                          "description": "Docker container name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_name": {
-                          "description": "Kubernetes pod name.",
-                          "type": "string"
-                        },
-                        "kubernetes_pod_uid": {
-                          "description": "Kubernetes pod UID.",
-                          "type": "string"
-                        },
-                        "node_id": {
-                          "description": "Node identifier where Service or Agent runs.",
-                          "type": "string"
-                        }
-                      }
-                    },
-                    "id": {
-                      "description": "Unique Service identifier.",
-                      "type": "string"
-                    },
-                    "name": {
-                      "description": "Unique user-defined Service name.",
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
                       "type": "string"
                     },
                     "port": {
-                      "description": "MySQL access port.",
+                      "description": "Instance port.",
                       "type": "integer",
                       "format": "int64"
                     },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "mysql": {
+                  "description": "MySQLService represents a generic MySQL instance.",
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "port": {
+                      "description": "Access port. Required if unix_socket is absent.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string"
+                    },
                     "unix_socket": {
-                      "description": "MySQL access UNIX socket path.",
+                      "description": "Access Unix socket. Required if address and port are absent.",
                       "type": "string"
                     }
                   }
@@ -1721,7 +1996,7 @@
         }
       }
     },
-    "/v0/inventory/Services/List": {
+    "/v1/inventory/Services/List": {
       "post": {
         "tags": [
           "Services"
@@ -1736,7 +2011,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "host_node_id": {
+                "node_id": {
                   "description": "Return only Services running on that Node.",
                   "type": "string"
                 }
@@ -1746,61 +2021,69 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object",
               "properties": {
-                "mysql": {
+                "amazon_rds_mysql": {
                   "type": "array",
                   "items": {
-                    "description": "MySQLService represents MySQL-compatible Service configuration.",
                     "type": "object",
+                    "title": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node",
                     "properties": {
                       "address": {
-                        "description": "MySQL access address (DNS name or IP address).",
+                        "description": "Instance endpoint (full DNS name).",
                         "type": "string"
                       },
-                      "host_node_info": {
-                        "description": "HostNodeInfo describes the way Service or Agent runs on Node.",
-                        "type": "object",
-                        "properties": {
-                          "container_id": {
-                            "description": "Docker container ID.",
-                            "type": "string"
-                          },
-                          "container_name": {
-                            "description": "Docker container name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_name": {
-                            "description": "Kubernetes pod name.",
-                            "type": "string"
-                          },
-                          "kubernetes_pod_uid": {
-                            "description": "Kubernetes pod UID.",
-                            "type": "string"
-                          },
-                          "node_id": {
-                            "description": "Node identifier where Service or Agent runs.",
-                            "type": "string"
-                          }
-                        }
-                      },
-                      "id": {
-                        "description": "Unique Service identifier.",
-                        "type": "string"
-                      },
-                      "name": {
-                        "description": "Unique user-defined Service name.",
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
                         "type": "string"
                       },
                       "port": {
-                        "description": "MySQL access port.",
+                        "description": "Instance port.",
                         "type": "integer",
                         "format": "int64"
                       },
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string"
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "mysql": {
+                  "type": "array",
+                  "items": {
+                    "description": "MySQLService represents a generic MySQL instance.",
+                    "type": "object",
+                    "properties": {
+                      "address": {
+                        "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                        "type": "string"
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string"
+                      },
+                      "port": {
+                        "description": "Access port. Required if unix_socket is absent.",
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string"
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string"
+                      },
                       "unix_socket": {
-                        "description": "MySQL access UNIX socket path.",
+                        "description": "Access Unix socket. Required if address and port are absent.",
                         "type": "string"
                       }
                     }
@@ -1812,7 +2095,7 @@
         }
       }
     },
-    "/v0/inventory/Services/Remove": {
+    "/v1/inventory/Services/Remove": {
       "post": {
         "tags": [
           "Services"
@@ -1827,7 +2110,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
+                "service_id": {
+                  "description": "Unique randomly generated instance identifier.",
                   "type": "string"
                 }
               }
@@ -1836,7 +2120,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)",
+            "description": "A successful response.",
             "schema": {
               "type": "object"
             }
