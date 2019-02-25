@@ -19,6 +19,7 @@
 package grpclb
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net"
@@ -26,7 +27,6 @@ import (
 	"time"
 
 	timestamppb "github.com/golang/protobuf/ptypes/timestamp"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer"
 	lbpb "google.golang.org/grpc/balancer/grpclb/grpc_lb_v1"
@@ -192,7 +192,7 @@ func (lb *lbBalancer) callRemoteBalancer() (backoff bool, _ error) {
 	lbClient := &loadBalancerClient{cc: lb.ccRemoteLB}
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	stream, err := lbClient.BalanceLoad(ctx, grpc.FailFast(false))
+	stream, err := lbClient.BalanceLoad(ctx, grpc.WaitForReady(true))
 	if err != nil {
 		return true, fmt.Errorf("grpclb: failed to perform RPC to the remote balancer %v", err)
 	}
@@ -245,6 +245,8 @@ func (lb *lbBalancer) watchRemoteBalancer() {
 				}
 			}
 		}
+		// Trigger a re-resolve when the stream errors.
+		lb.cc.cc.ResolveNow(resolver.ResolveNowOption{})
 
 		if !doBackoff {
 			retryCount = 0

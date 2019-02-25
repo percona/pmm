@@ -60,11 +60,19 @@ func main() {
 		api.LogDebug(os.Stdout)
 	}
 
-	modelPaths, err := api.ExpandModelGlobPath(flag.Args()...)
+	// Make sure all paths are based on platform's pathing not Unix
+	globs := flag.Args()
+	for i, g := range globs {
+		globs[i] = filepath.FromSlash(g)
+	}
+	svcPath = filepath.FromSlash(svcPath)
+
+	modelPaths, err := api.ExpandModelGlobPath(globs...)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "failed to glob file pattern", err)
 		os.Exit(1)
 	}
+	modelPaths, _ = api.TrimModelServiceVersions(modelPaths)
 
 	apis, err := api.LoadAPIs(modelPaths, svcImportPath)
 	if err != nil {
@@ -158,6 +166,14 @@ func writeServiceFiles(g *generateInfo, pkgDir string) {
 
 	if g.API.HasEventStream {
 		Must(writeAPIEventStreamTestFile(g))
+	}
+
+	if g.API.PackageName() == "s3" {
+		Must(writeS3ManagerUploadInputFile(g))
+	}
+
+	if len(g.API.SmokeTests.TestCases) > 0 {
+		Must(writeAPISmokeTestsFile(g))
 	}
 }
 
@@ -270,5 +286,23 @@ func writeAPIEventStreamTestFile(g *generateInfo) error {
 		"// +build go1.6\n",
 		g.API.PackageName(),
 		g.API.APIEventStreamTestGoCode(),
+	)
+}
+
+func writeS3ManagerUploadInputFile(g *generateInfo) error {
+	return writeGoFile(filepath.Join(g.PackageDir, "s3manager", "upload_input.go"),
+		codeLayout,
+		"",
+		"s3manager",
+		api.S3ManagerUploadInputGoCode(g.API),
+	)
+}
+
+func writeAPISmokeTestsFile(g *generateInfo) error {
+	return writeGoFile(filepath.Join(g.PackageDir, "integ_test.go"),
+		codeLayout,
+		"// +build go1.10,integration\n",
+		g.API.PackageName()+"_test",
+		g.API.APISmokeTestsGoCode(),
 	)
 }

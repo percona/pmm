@@ -6,36 +6,56 @@ option go_package = "inventory";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "inventory/host.proto";
 
-// MySQLService represents MySQL-compatible Service configuration.
+// MySQLService represents a generic MySQL instance.
 message MySQLService {
-  // Unique Service identifier.
-  string id = 1;
-  // Unique user-defined Service name.
-  string name = 2;
-  // Host Node information where this Service runs.
-  HostNodeInfo host_node_info = 3;
-  // MySQL access address (DNS name or IP address).
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+  // Node identifier where this instance runs.
+  string node_id = 3;
+  // Access address (DNS name or IP). Required if unix_socket is absent.
   string address = 4;
-  // MySQL access port.
+  // Access port. Required if unix_socket is absent.
   uint32 port = 5;
-  // MySQL access UNIX socket path.
+  // Access Unix socket. Required if address and port are absent.
   string unix_socket = 6;
 }
 
+// AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node
+message AmazonRDSMySQLService {
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+  // Node identifier where this instance runs.
+  string node_id = 3;
+  // Instance endpoint (full DNS name).
+  string address = 4;
+  // Instance port.
+  uint32 port = 5;
+}
+
+// List
+
 message ListServicesRequest {
-  // Return only Services running on that Node.
-  string host_node_id = 1;
+  oneof filter {
+    // Return only Services running on that Node.
+    string node_id = 1;
+  }
 }
 
 message ListServicesResponse {
   repeated MySQLService mysql = 1;
+  repeated AmazonRDSMySQLService amazon_rds_mysql = 2;
 }
 
+// Get
+
 message GetServiceRequest {
-  // Unique Service identifier.
-  string id = 1 [
+  // Unique randomly generated instance identifier.
+  string service_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -45,28 +65,32 @@ message GetServiceRequest {
 message GetServiceResponse {
   oneof service {
     MySQLService mysql = 1;
+    AmazonRDSMySQLService amazon_rds_mysql = 2;
   }
 }
 
+// Add/Change MySQL
+
 message AddMySQLServiceRequest {
-  reserved 1; // id
-  // Unique user-defined Service name.
-  string name = 2 [
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Host Node information where this Service runs.
-  HostNodeInfo host_node_info = 3 [
+  // Node identifier where this instance runs.
+  string node_id = 3 [
     (validator.field) = {
-      msg_exists: true
+      string_not_empty: true
     }
   ];
-  // MySQL access address (DNS name or IP address).
+  // Access address (DNS name or IP). Required if unix_socket is absent.
   string address = 4;
-  // MySQL access port.
+  // Access port. Required if unix_socket is absent.
   uint32 port = 5;
-  // MySQL access UNIX socket path.
+  // Access Unix socket. Required if address and port are absent.
   string unix_socket = 6;
 }
 
@@ -75,26 +99,109 @@ message AddMySQLServiceResponse {
 }
 
 message ChangeMySQLServiceRequest {
-  // Unique Service identifier.
-  string id = 1 [
+  // Unique randomly generated instance identifier.
+  string service_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Unique user-defined Service name.
-  string name = 2 [
+  // Unique across all Services user-defined name.
+  string service_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
+  // Node identifier where this instance runs.
+  string node_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Access address (DNS name or IP). Required if unix_socket is absent.
+  string address = 4;
+  // Access port. Required if unix_socket is absent.
+  uint32 port = 5;
+  // Access Unix socket. Required if address and port are absent.
+  string unix_socket = 6;
 }
 
 message ChangeMySQLServiceResponse {
   MySQLService mysql = 1;
 }
 
+// Add/Change AmazonRDSMySQL
+
+message AddAmazonRDSMySQLServiceRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Node identifier where this instance runs.
+  string node_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Instance endpoint (full DNS name).
+  string address = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Instance port.
+  uint32 port = 5 [
+    (validator.field) = {
+      int_gt: 0
+    }
+  ];
+}
+
+message AddAmazonRDSMySQLServiceResponse {
+  AmazonRDSMySQLService amazon_rds_mysql = 1;
+}
+
+message ChangeAmazonRDSMySQLServiceRequest {
+  // Unique randomly generated instance identifier.
+  string service_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Unique across all Services user-defined name.
+  string service_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Node identifier where this instance runs. Can't be changed.
+  reserved 3;
+  // Instance endpoint (full DNS name).
+  string address = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Instance port.
+  uint32 port = 5 [
+    (validator.field) = {
+      int_gt: 0
+    }
+  ];
+}
+
+message ChangeAmazonRDSMySQLServiceResponse {
+  AmazonRDSMySQLService amazon_rds_mysql = 1;
+}
+
+// Remove
+
 message RemoveServiceRequest {
-  string id = 1 [
+  // Unique randomly generated instance identifier.
+  string service_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -108,35 +215,49 @@ service Services {
   // ListServices returns a list of all Services.
   rpc ListServices(ListServicesRequest) returns (ListServicesResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/List"
+      post: "/v1/inventory/Services/List"
       body: "*"
     };
   }
   // GetService returns a single Service by ID.
   rpc GetService(GetServiceRequest) returns (GetServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/Get"
+      post: "/v1/inventory/Services/Get"
       body: "*"
     };
   }
   // AddMySQLService adds MySQL Service.
   rpc AddMySQLService(AddMySQLServiceRequest) returns (AddMySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/AddMySQL"
+      post: "/v1/inventory/Services/AddMySQL"
       body: "*"
     };
   }
   // ChangeMySQLService changes MySQL Service.
   rpc ChangeMySQLService(ChangeMySQLServiceRequest) returns (ChangeMySQLServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/ChangeMySQL"
+      post: "/v1/inventory/Services/ChangeMySQL"
+      body: "*"
+    };
+  }
+  // AddAmazonRDSMySQLService adds AmazonRDSMySQL Service.
+  rpc AddAmazonRDSMySQLService(AddAmazonRDSMySQLServiceRequest) returns (AddAmazonRDSMySQLServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/AddAmazonRDSMySQL"
+      body: "*"
+    };
+  }
+  // ChangeAmazonRDSMySQLService changes AmazonRDSMySQL Service.
+  rpc ChangeAmazonRDSMySQLService(ChangeAmazonRDSMySQLServiceRequest) returns (ChangeAmazonRDSMySQLServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/ChangeAmazonRDSMySQL"
       body: "*"
     };
   }
   // RemoveService removes Service without any Agents.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Services/Remove"
+      post: "/v1/inventory/Services/Remove"
       body: "*"
     };
   }

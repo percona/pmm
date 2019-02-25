@@ -16,6 +16,7 @@
 
 package rds
 
+/*
 import (
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
@@ -49,3 +50,4 @@ func (config *rdsExporterConfig) Marshal() ([]byte, error) {
 	b = append([]byte("# Managed by pmm-managed. DO NOT EDIT.\n---\n"), b...)
 	return b, nil
 }
+*/

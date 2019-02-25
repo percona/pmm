@@ -20,12 +20,6 @@ required = [
   # non-go = true
   # unused-packages = true
 
-# https://jira.percona.com/browse/PMM-1710
-# https://jira.percona.com/browse/PMM-3209
-[[constraint]]
-  name = "github.com/percona/kardianos-service"
-  branch = "PMM-3209-supervisord-fixes-for-pmm-managed"
-
 # https://jira.percona.com/browse/PMM-1561
 [[constraint]]
   name = "github.com/hashicorp/consul"

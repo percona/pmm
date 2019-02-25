@@ -25,14 +25,18 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
-// GenericNode represents Node without more specialized type.
+// GenericNode represents a bare metal server or virtual machine.
 type GenericNode struct {
-	// Unique Node identifier.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Unique user-defined Node name.
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Hostname. Is not unique. May be empty.
-	Hostname             string   `protobuf:"bytes,3,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	// Unique randomly generated instance identifier, can't be changed.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Unique across all Nodes user-defined name, can be changed.
+	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.
+	MachineId string `protobuf:"bytes,3,opt,name=machine_id,json=machineId,proto3" json:"machine_id,omitempty"`
+	// Linux distribution (if any). Can be changed.
+	Distro string `protobuf:"bytes,4,opt,name=distro,proto3" json:"distro,omitempty"`
+	// Linux distribution version (if any). Can be changed.
+	DistroVersion        string   `protobuf:"bytes,5,opt,name=distro_version,json=distroVersion,proto3" json:"distro_version,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -42,7 +46,7 @@ func (m *GenericNode) Reset()         { *m = GenericNode{} }
 func (m *GenericNode) String() string { return proto.CompactTextString(m) }
 func (*GenericNode) ProtoMessage()    {}
 func (*GenericNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{0}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{0}
 }
 func (m *GenericNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GenericNode.Unmarshal(m, b)
@@ -62,34 +66,123 @@ func (m *GenericNode) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GenericNode proto.InternalMessageInfo
 
-func (m *GenericNode) GetId() string {
+func (m *GenericNode) GetNodeId() string {
 	if m != nil {
-		return m.Id
+		return m.NodeId
 	}
 	return ""
 }
 
-func (m *GenericNode) GetName() string {
+func (m *GenericNode) GetNodeName() string {
 	if m != nil {
-		return m.Name
+		return m.NodeName
 	}
 	return ""
 }
 
-func (m *GenericNode) GetHostname() string {
+func (m *GenericNode) GetMachineId() string {
 	if m != nil {
-		return m.Hostname
+		return m.MachineId
 	}
 	return ""
 }
 
-// RemoteNode represents a generic remote Node.
-// Agents can't be run on remote Nodes.
+func (m *GenericNode) GetDistro() string {
+	if m != nil {
+		return m.Distro
+	}
+	return ""
+}
+
+func (m *GenericNode) GetDistroVersion() string {
+	if m != nil {
+		return m.DistroVersion
+	}
+	return ""
+}
+
+// ContainerNode represents a Docker container.
+type ContainerNode struct {
+	// Unique randomly generated instance identifier, can't be changed.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Unique across all Nodes user-defined name, can be changed.
+	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.
+	MachineId string `protobuf:"bytes,3,opt,name=machine_id,json=machineId,proto3" json:"machine_id,omitempty"`
+	// Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.
+	DockerContainerId string `protobuf:"bytes,4,opt,name=docker_container_id,json=dockerContainerId,proto3" json:"docker_container_id,omitempty"`
+	// Container name. Can be changed.
+	DockerContainerName  string   `protobuf:"bytes,5,opt,name=docker_container_name,json=dockerContainerName,proto3" json:"docker_container_name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ContainerNode) Reset()         { *m = ContainerNode{} }
+func (m *ContainerNode) String() string { return proto.CompactTextString(m) }
+func (*ContainerNode) ProtoMessage()    {}
+func (*ContainerNode) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{1}
+}
+func (m *ContainerNode) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ContainerNode.Unmarshal(m, b)
+}
+func (m *ContainerNode) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ContainerNode.Marshal(b, m, deterministic)
+}
+func (dst *ContainerNode) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ContainerNode.Merge(dst, src)
+}
+func (m *ContainerNode) XXX_Size() int {
+	return xxx_messageInfo_ContainerNode.Size(m)
+}
+func (m *ContainerNode) XXX_DiscardUnknown() {
+	xxx_messageInfo_ContainerNode.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ContainerNode proto.InternalMessageInfo
+
+func (m *ContainerNode) GetNodeId() string {
+	if m != nil {
+		return m.NodeId
+	}
+	return ""
+}
+
+func (m *ContainerNode) GetNodeName() string {
+	if m != nil {
+		return m.NodeName
+	}
+	return ""
+}
+
+func (m *ContainerNode) GetMachineId() string {
+	if m != nil {
+		return m.MachineId
+	}
+	return ""
+}
+
+func (m *ContainerNode) GetDockerContainerId() string {
+	if m != nil {
+		return m.DockerContainerId
+	}
+	return ""
+}
+
+func (m *ContainerNode) GetDockerContainerName() string {
+	if m != nil {
+		return m.DockerContainerName
+	}
+	return ""
+}
+
+// RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.
 type RemoteNode struct {
-	// Unique Node identifier.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Unique user-defined Node name.
-	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Unique randomly generated instance identifier, can't be changed.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Unique across all Nodes user-defined name, can be changed.
+	NodeName             string   `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -99,7 +192,7 @@ func (m *RemoteNode) Reset()         { *m = RemoteNode{} }
 func (m *RemoteNode) String() string { return proto.CompactTextString(m) }
 func (*RemoteNode) ProtoMessage()    {}
 func (*RemoteNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{1}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{2}
 }
 func (m *RemoteNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoteNode.Unmarshal(m, b)
@@ -119,81 +212,81 @@ func (m *RemoteNode) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_RemoteNode proto.InternalMessageInfo
 
-func (m *RemoteNode) GetId() string {
+func (m *RemoteNode) GetNodeId() string {
 	if m != nil {
-		return m.Id
+		return m.NodeId
 	}
 	return ""
 }
 
-func (m *RemoteNode) GetName() string {
+func (m *RemoteNode) GetNodeName() string {
 	if m != nil {
-		return m.Name
+		return m.NodeName
 	}
 	return ""
 }
 
-// AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.
-type AmazonRDSRemoteNode struct {
-	// Unique Node identifier.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Unique user-defined Node name.
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Hostname. Unique in combination with region.
-	Hostname string `protobuf:"bytes,3,opt,name=hostname,proto3" json:"hostname,omitempty"`
-	// AWS region. Unique in combination with hostname.
+// RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.
+type RemoteAmazonRDSNode struct {
+	// Unique randomly generated instance identifier, can't be changed.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Unique across all Nodes user-defined name, can be changed.
+	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.
+	Instance string `protobuf:"bytes,3,opt,name=instance,proto3" json:"instance,omitempty"`
+	// Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
 	Region               string   `protobuf:"bytes,4,opt,name=region,proto3" json:"region,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *AmazonRDSRemoteNode) Reset()         { *m = AmazonRDSRemoteNode{} }
-func (m *AmazonRDSRemoteNode) String() string { return proto.CompactTextString(m) }
-func (*AmazonRDSRemoteNode) ProtoMessage()    {}
-func (*AmazonRDSRemoteNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{2}
+func (m *RemoteAmazonRDSNode) Reset()         { *m = RemoteAmazonRDSNode{} }
+func (m *RemoteAmazonRDSNode) String() string { return proto.CompactTextString(m) }
+func (*RemoteAmazonRDSNode) ProtoMessage()    {}
+func (*RemoteAmazonRDSNode) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{3}
 }
-func (m *AmazonRDSRemoteNode) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AmazonRDSRemoteNode.Unmarshal(m, b)
+func (m *RemoteAmazonRDSNode) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RemoteAmazonRDSNode.Unmarshal(m, b)
 }
-func (m *AmazonRDSRemoteNode) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AmazonRDSRemoteNode.Marshal(b, m, deterministic)
+func (m *RemoteAmazonRDSNode) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RemoteAmazonRDSNode.Marshal(b, m, deterministic)
 }
-func (dst *AmazonRDSRemoteNode) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AmazonRDSRemoteNode.Merge(dst, src)
+func (dst *RemoteAmazonRDSNode) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RemoteAmazonRDSNode.Merge(dst, src)
 }
-func (m *AmazonRDSRemoteNode) XXX_Size() int {
-	return xxx_messageInfo_AmazonRDSRemoteNode.Size(m)
+func (m *RemoteAmazonRDSNode) XXX_Size() int {
+	return xxx_messageInfo_RemoteAmazonRDSNode.Size(m)
 }
-func (m *AmazonRDSRemoteNode) XXX_DiscardUnknown() {
-	xxx_messageInfo_AmazonRDSRemoteNode.DiscardUnknown(m)
+func (m *RemoteAmazonRDSNode) XXX_DiscardUnknown() {
+	xxx_messageInfo_RemoteAmazonRDSNode.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_AmazonRDSRemoteNode proto.InternalMessageInfo
+var xxx_messageInfo_RemoteAmazonRDSNode proto.InternalMessageInfo
 
-func (m *AmazonRDSRemoteNode) GetId() string {
+func (m *RemoteAmazonRDSNode) GetNodeId() string {
 	if m != nil {
-		return m.Id
+		return m.NodeId
 	}
 	return ""
 }
 
-func (m *AmazonRDSRemoteNode) GetName() string {
+func (m *RemoteAmazonRDSNode) GetNodeName() string {
 	if m != nil {
-		return m.Name
+		return m.NodeName
 	}
 	return ""
 }
 
-func (m *AmazonRDSRemoteNode) GetHostname() string {
+func (m *RemoteAmazonRDSNode) GetInstance() string {
 	if m != nil {
-		return m.Hostname
+		return m.Instance
 	}
 	return ""
 }
 
-func (m *AmazonRDSRemoteNode) GetRegion() string {
+func (m *RemoteAmazonRDSNode) GetRegion() string {
 	if m != nil {
 		return m.Region
 	}
@@ -210,7 +303,7 @@ func (m *ListNodesRequest) Reset()         { *m = ListNodesRequest{} }
 func (m *ListNodesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNodesRequest) ProtoMessage()    {}
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{3}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{4}
 }
 func (m *ListNodesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesRequest.Unmarshal(m, b)
@@ -232,8 +325,9 @@ var xxx_messageInfo_ListNodesRequest proto.InternalMessageInfo
 
 type ListNodesResponse struct {
 	Generic              []*GenericNode         `protobuf:"bytes,1,rep,name=generic,proto3" json:"generic,omitempty"`
-	Remote               []*RemoteNode          `protobuf:"bytes,4,rep,name=remote,proto3" json:"remote,omitempty"`
-	AmazonRdsRemote      []*AmazonRDSRemoteNode `protobuf:"bytes,5,rep,name=amazon_rds_remote,json=amazonRdsRemote,proto3" json:"amazon_rds_remote,omitempty"`
+	Container            []*ContainerNode       `protobuf:"bytes,2,rep,name=container,proto3" json:"container,omitempty"`
+	Remote               []*RemoteNode          `protobuf:"bytes,3,rep,name=remote,proto3" json:"remote,omitempty"`
+	RemoteAmazonRds      []*RemoteAmazonRDSNode `protobuf:"bytes,4,rep,name=remote_amazon_rds,json=remoteAmazonRds,proto3" json:"remote_amazon_rds,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
 	XXX_unrecognized     []byte                 `json:"-"`
 	XXX_sizecache        int32                  `json:"-"`
@@ -243,7 +337,7 @@ func (m *ListNodesResponse) Reset()         { *m = ListNodesResponse{} }
 func (m *ListNodesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNodesResponse) ProtoMessage()    {}
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{4}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{5}
 }
 func (m *ListNodesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesResponse.Unmarshal(m, b)
@@ -270,6 +364,13 @@ func (m *ListNodesResponse) GetGeneric() []*GenericNode {
 	return nil
 }
 
+func (m *ListNodesResponse) GetContainer() []*ContainerNode {
+	if m != nil {
+		return m.Container
+	}
+	return nil
+}
+
 func (m *ListNodesResponse) GetRemote() []*RemoteNode {
 	if m != nil {
 		return m.Remote
@@ -277,16 +378,16 @@ func (m *ListNodesResponse) GetRemote() []*RemoteNode {
 	return nil
 }
 
-func (m *ListNodesResponse) GetAmazonRdsRemote() []*AmazonRDSRemoteNode {
+func (m *ListNodesResponse) GetRemoteAmazonRds() []*RemoteAmazonRDSNode {
 	if m != nil {
-		return m.AmazonRdsRemote
+		return m.RemoteAmazonRds
 	}
 	return nil
 }
 
 type GetNodeRequest struct {
-	// Unique Node identifier.
-	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Unique randomly generated instance identifier.
+	NodeId               string   `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -296,7 +397,7 @@ func (m *GetNodeRequest) Reset()         { *m = GetNodeRequest{} }
 func (m *GetNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetNodeRequest) ProtoMessage()    {}
 func (*GetNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{5}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{6}
 }
 func (m *GetNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeRequest.Unmarshal(m, b)
@@ -316,9 +417,9 @@ func (m *GetNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GetNodeRequest proto.InternalMessageInfo
 
-func (m *GetNodeRequest) GetId() string {
+func (m *GetNodeRequest) GetNodeId() string {
 	if m != nil {
-		return m.Id
+		return m.NodeId
 	}
 	return ""
 }
@@ -326,8 +427,9 @@ func (m *GetNodeRequest) GetId() string {
 type GetNodeResponse struct {
 	// Types that are valid to be assigned to Node:
 	//	*GetNodeResponse_Generic
+	//	*GetNodeResponse_Container
 	//	*GetNodeResponse_Remote
-	//	*GetNodeResponse_AmazonRdsRemote
+	//	*GetNodeResponse_RemoteAmazonRds
 	Node                 isGetNodeResponse_Node `protobuf_oneof:"node"`
 	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
 	XXX_unrecognized     []byte                 `json:"-"`
@@ -338,7 +440,7 @@ func (m *GetNodeResponse) Reset()         { *m = GetNodeResponse{} }
 func (m *GetNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*GetNodeResponse) ProtoMessage()    {}
 func (*GetNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{6}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{7}
 }
 func (m *GetNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeResponse.Unmarshal(m, b)
@@ -366,19 +468,25 @@ type GetNodeResponse_Generic struct {
 	Generic *GenericNode `protobuf:"bytes,1,opt,name=generic,proto3,oneof"`
 }
 
-type GetNodeResponse_Remote struct {
-	Remote *RemoteNode `protobuf:"bytes,4,opt,name=remote,proto3,oneof"`
+type GetNodeResponse_Container struct {
+	Container *ContainerNode `protobuf:"bytes,2,opt,name=container,proto3,oneof"`
 }
 
-type GetNodeResponse_AmazonRdsRemote struct {
-	AmazonRdsRemote *AmazonRDSRemoteNode `protobuf:"bytes,5,opt,name=amazon_rds_remote,json=amazonRdsRemote,proto3,oneof"`
+type GetNodeResponse_Remote struct {
+	Remote *RemoteNode `protobuf:"bytes,3,opt,name=remote,proto3,oneof"`
+}
+
+type GetNodeResponse_RemoteAmazonRds struct {
+	RemoteAmazonRds *RemoteAmazonRDSNode `protobuf:"bytes,4,opt,name=remote_amazon_rds,json=remoteAmazonRds,proto3,oneof"`
 }
 
 func (*GetNodeResponse_Generic) isGetNodeResponse_Node() {}
 
+func (*GetNodeResponse_Container) isGetNodeResponse_Node() {}
+
 func (*GetNodeResponse_Remote) isGetNodeResponse_Node() {}
 
-func (*GetNodeResponse_AmazonRdsRemote) isGetNodeResponse_Node() {}
+func (*GetNodeResponse_RemoteAmazonRds) isGetNodeResponse_Node() {}
 
 func (m *GetNodeResponse) GetNode() isGetNodeResponse_Node {
 	if m != nil {
@@ -394,6 +502,13 @@ func (m *GetNodeResponse) GetGeneric() *GenericNode {
 	return nil
 }
 
+func (m *GetNodeResponse) GetContainer() *ContainerNode {
+	if x, ok := m.GetNode().(*GetNodeResponse_Container); ok {
+		return x.Container
+	}
+	return nil
+}
+
 func (m *GetNodeResponse) GetRemote() *RemoteNode {
 	if x, ok := m.GetNode().(*GetNodeResponse_Remote); ok {
 		return x.Remote
@@ -401,9 +516,9 @@ func (m *GetNodeResponse) GetRemote() *RemoteNode {
 	return nil
 }
 
-func (m *GetNodeResponse) GetAmazonRdsRemote() *AmazonRDSRemoteNode {
-	if x, ok := m.GetNode().(*GetNodeResponse_AmazonRdsRemote); ok {
-		return x.AmazonRdsRemote
+func (m *GetNodeResponse) GetRemoteAmazonRds() *RemoteAmazonRDSNode {
+	if x, ok := m.GetNode().(*GetNodeResponse_RemoteAmazonRds); ok {
+		return x.RemoteAmazonRds
 	}
 	return nil
 }
@@ -412,8 +527,9 @@ func (m *GetNodeResponse) GetAmazonRdsRemote() *AmazonRDSRemoteNode {
 func (*GetNodeResponse) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
 	return _GetNodeResponse_OneofMarshaler, _GetNodeResponse_OneofUnmarshaler, _GetNodeResponse_OneofSizer, []interface{}{
 		(*GetNodeResponse_Generic)(nil),
+		(*GetNodeResponse_Container)(nil),
 		(*GetNodeResponse_Remote)(nil),
-		(*GetNodeResponse_AmazonRdsRemote)(nil),
+		(*GetNodeResponse_RemoteAmazonRds)(nil),
 	}
 }
 
@@ -426,14 +542,19 @@ func _GetNodeResponse_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 		if err := b.EncodeMessage(x.Generic); err != nil {
 			return err
 		}
+	case *GetNodeResponse_Container:
+		b.EncodeVarint(2<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.Container); err != nil {
+			return err
+		}
 	case *GetNodeResponse_Remote:
-		b.EncodeVarint(4<<3 | proto.WireBytes)
+		b.EncodeVarint(3<<3 | proto.WireBytes)
 		if err := b.EncodeMessage(x.Remote); err != nil {
 			return err
 		}
-	case *GetNodeResponse_AmazonRdsRemote:
-		b.EncodeVarint(5<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.AmazonRdsRemote); err != nil {
+	case *GetNodeResponse_RemoteAmazonRds:
+		b.EncodeVarint(4<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.RemoteAmazonRds); err != nil {
 			return err
 		}
 	case nil:
@@ -454,7 +575,15 @@ func _GetNodeResponse_OneofUnmarshaler(msg proto.Message, tag, wire int, b *prot
 		err := b.DecodeMessage(msg)
 		m.Node = &GetNodeResponse_Generic{msg}
 		return true, err
-	case 4: // node.remote
+	case 2: // node.container
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ContainerNode)
+		err := b.DecodeMessage(msg)
+		m.Node = &GetNodeResponse_Container{msg}
+		return true, err
+	case 3: // node.remote
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
@@ -462,13 +591,13 @@ func _GetNodeResponse_OneofUnmarshaler(msg proto.Message, tag, wire int, b *prot
 		err := b.DecodeMessage(msg)
 		m.Node = &GetNodeResponse_Remote{msg}
 		return true, err
-	case 5: // node.amazon_rds_remote
+	case 4: // node.remote_amazon_rds
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
-		msg := new(AmazonRDSRemoteNode)
+		msg := new(RemoteAmazonRDSNode)
 		err := b.DecodeMessage(msg)
-		m.Node = &GetNodeResponse_AmazonRdsRemote{msg}
+		m.Node = &GetNodeResponse_RemoteAmazonRds{msg}
 		return true, err
 	default:
 		return false, nil
@@ -484,13 +613,18 @@ func _GetNodeResponse_OneofSizer(msg proto.Message) (n int) {
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
+	case *GetNodeResponse_Container:
+		s := proto.Size(x.Container)
+		n += 1 // tag and wire
+		n += proto.SizeVarint(uint64(s))
+		n += s
 	case *GetNodeResponse_Remote:
 		s := proto.Size(x.Remote)
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
-	case *GetNodeResponse_AmazonRdsRemote:
-		s := proto.Size(x.AmazonRdsRemote)
+	case *GetNodeResponse_RemoteAmazonRds:
+		s := proto.Size(x.RemoteAmazonRds)
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
@@ -502,12 +636,14 @@ func _GetNodeResponse_OneofSizer(msg proto.Message) (n int) {
 }
 
 type AddGenericNodeRequest struct {
-	// Unique Node identifier. Will be generated if empty.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Unique user-defined Node name.
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Hostname. Is not unique. May be empty.
-	Hostname             string   `protobuf:"bytes,3,opt,name=hostname,proto3" json:"hostname,omitempty"`
+	// Unique across all Nodes user-defined name.
+	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// Linux machine-id. Must be unique across all Generic Nodes if specified.
+	MachineId string `protobuf:"bytes,3,opt,name=machine_id,json=machineId,proto3" json:"machine_id,omitempty"`
+	// Linux distribution (if any).
+	Distro string `protobuf:"bytes,4,opt,name=distro,proto3" json:"distro,omitempty"`
+	// Linux distribution version (if any).
+	DistroVersion        string   `protobuf:"bytes,5,opt,name=distro_version,json=distroVersion,proto3" json:"distro_version,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -517,7 +653,7 @@ func (m *AddGenericNodeRequest) Reset()         { *m = AddGenericNodeRequest{} }
 func (m *AddGenericNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddGenericNodeRequest) ProtoMessage()    {}
 func (*AddGenericNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{7}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{8}
 }
 func (m *AddGenericNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddGenericNodeRequest.Unmarshal(m, b)
@@ -537,23 +673,30 @@ func (m *AddGenericNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_AddGenericNodeRequest proto.InternalMessageInfo
 
-func (m *AddGenericNodeRequest) GetId() string {
+func (m *AddGenericNodeRequest) GetNodeName() string {
 	if m != nil {
-		return m.Id
+		return m.NodeName
 	}
 	return ""
 }
 
-func (m *AddGenericNodeRequest) GetName() string {
+func (m *AddGenericNodeRequest) GetMachineId() string {
 	if m != nil {
-		return m.Name
+		return m.MachineId
 	}
 	return ""
 }
 
-func (m *AddGenericNodeRequest) GetHostname() string {
+func (m *AddGenericNodeRequest) GetDistro() string {
 	if m != nil {
-		return m.Hostname
+		return m.Distro
+	}
+	return ""
+}
+
+func (m *AddGenericNodeRequest) GetDistroVersion() string {
+	if m != nil {
+		return m.DistroVersion
 	}
 	return ""
 }
@@ -569,7 +712,7 @@ func (m *AddGenericNodeResponse) Reset()         { *m = AddGenericNodeResponse{}
 func (m *AddGenericNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddGenericNodeResponse) ProtoMessage()    {}
 func (*AddGenericNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{8}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{9}
 }
 func (m *AddGenericNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddGenericNodeResponse.Unmarshal(m, b)
@@ -596,201 +739,15 @@ func (m *AddGenericNodeResponse) GetGeneric() *GenericNode {
 	return nil
 }
 
-type AddRemoteNodeRequest struct {
-	// Unique Node identifier. Will be generated if empty.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Unique user-defined Node name.
-	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *AddRemoteNodeRequest) Reset()         { *m = AddRemoteNodeRequest{} }
-func (m *AddRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
-func (*AddRemoteNodeRequest) ProtoMessage()    {}
-func (*AddRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{9}
-}
-func (m *AddRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AddRemoteNodeRequest.Unmarshal(m, b)
-}
-func (m *AddRemoteNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AddRemoteNodeRequest.Marshal(b, m, deterministic)
-}
-func (dst *AddRemoteNodeRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AddRemoteNodeRequest.Merge(dst, src)
-}
-func (m *AddRemoteNodeRequest) XXX_Size() int {
-	return xxx_messageInfo_AddRemoteNodeRequest.Size(m)
-}
-func (m *AddRemoteNodeRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_AddRemoteNodeRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AddRemoteNodeRequest proto.InternalMessageInfo
-
-func (m *AddRemoteNodeRequest) GetId() string {
-	if m != nil {
-		return m.Id
-	}
-	return ""
-}
-
-func (m *AddRemoteNodeRequest) GetName() string {
-	if m != nil {
-		return m.Name
-	}
-	return ""
-}
-
-type AddRemoteNodeResponse struct {
-	Remote               *RemoteNode `protobuf:"bytes,1,opt,name=remote,proto3" json:"remote,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
-	XXX_unrecognized     []byte      `json:"-"`
-	XXX_sizecache        int32       `json:"-"`
-}
-
-func (m *AddRemoteNodeResponse) Reset()         { *m = AddRemoteNodeResponse{} }
-func (m *AddRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
-func (*AddRemoteNodeResponse) ProtoMessage()    {}
-func (*AddRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{10}
-}
-func (m *AddRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AddRemoteNodeResponse.Unmarshal(m, b)
-}
-func (m *AddRemoteNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AddRemoteNodeResponse.Marshal(b, m, deterministic)
-}
-func (dst *AddRemoteNodeResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AddRemoteNodeResponse.Merge(dst, src)
-}
-func (m *AddRemoteNodeResponse) XXX_Size() int {
-	return xxx_messageInfo_AddRemoteNodeResponse.Size(m)
-}
-func (m *AddRemoteNodeResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_AddRemoteNodeResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AddRemoteNodeResponse proto.InternalMessageInfo
-
-func (m *AddRemoteNodeResponse) GetRemote() *RemoteNode {
-	if m != nil {
-		return m.Remote
-	}
-	return nil
-}
-
-type AddAmazonRDSRemoteNodeRequest struct {
-	// Unique Node identifier. Will be generated if empty.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Unique user-defined Node name.
-	Name string `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	// Hostname. Unique in combination with region.
-	Hostname string `protobuf:"bytes,3,opt,name=hostname,proto3" json:"hostname,omitempty"`
-	// AWS region. Unique in combination with hostname.
-	Region               string   `protobuf:"bytes,4,opt,name=region,proto3" json:"region,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *AddAmazonRDSRemoteNodeRequest) Reset()         { *m = AddAmazonRDSRemoteNodeRequest{} }
-func (m *AddAmazonRDSRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
-func (*AddAmazonRDSRemoteNodeRequest) ProtoMessage()    {}
-func (*AddAmazonRDSRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{11}
-}
-func (m *AddAmazonRDSRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AddAmazonRDSRemoteNodeRequest.Unmarshal(m, b)
-}
-func (m *AddAmazonRDSRemoteNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AddAmazonRDSRemoteNodeRequest.Marshal(b, m, deterministic)
-}
-func (dst *AddAmazonRDSRemoteNodeRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AddAmazonRDSRemoteNodeRequest.Merge(dst, src)
-}
-func (m *AddAmazonRDSRemoteNodeRequest) XXX_Size() int {
-	return xxx_messageInfo_AddAmazonRDSRemoteNodeRequest.Size(m)
-}
-func (m *AddAmazonRDSRemoteNodeRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_AddAmazonRDSRemoteNodeRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AddAmazonRDSRemoteNodeRequest proto.InternalMessageInfo
-
-func (m *AddAmazonRDSRemoteNodeRequest) GetId() string {
-	if m != nil {
-		return m.Id
-	}
-	return ""
-}
-
-func (m *AddAmazonRDSRemoteNodeRequest) GetName() string {
-	if m != nil {
-		return m.Name
-	}
-	return ""
-}
-
-func (m *AddAmazonRDSRemoteNodeRequest) GetHostname() string {
-	if m != nil {
-		return m.Hostname
-	}
-	return ""
-}
-
-func (m *AddAmazonRDSRemoteNodeRequest) GetRegion() string {
-	if m != nil {
-		return m.Region
-	}
-	return ""
-}
-
-type AddAmazonRDSRemoteNodeResponse struct {
-	AmazonRdsRemote      *AmazonRDSRemoteNode `protobuf:"bytes,1,opt,name=amazon_rds_remote,json=amazonRdsRemote,proto3" json:"amazon_rds_remote,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
-	XXX_unrecognized     []byte               `json:"-"`
-	XXX_sizecache        int32                `json:"-"`
-}
-
-func (m *AddAmazonRDSRemoteNodeResponse) Reset()         { *m = AddAmazonRDSRemoteNodeResponse{} }
-func (m *AddAmazonRDSRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
-func (*AddAmazonRDSRemoteNodeResponse) ProtoMessage()    {}
-func (*AddAmazonRDSRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{12}
-}
-func (m *AddAmazonRDSRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AddAmazonRDSRemoteNodeResponse.Unmarshal(m, b)
-}
-func (m *AddAmazonRDSRemoteNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AddAmazonRDSRemoteNodeResponse.Marshal(b, m, deterministic)
-}
-func (dst *AddAmazonRDSRemoteNodeResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AddAmazonRDSRemoteNodeResponse.Merge(dst, src)
-}
-func (m *AddAmazonRDSRemoteNodeResponse) XXX_Size() int {
-	return xxx_messageInfo_AddAmazonRDSRemoteNodeResponse.Size(m)
-}
-func (m *AddAmazonRDSRemoteNodeResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_AddAmazonRDSRemoteNodeResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AddAmazonRDSRemoteNodeResponse proto.InternalMessageInfo
-
-func (m *AddAmazonRDSRemoteNodeResponse) GetAmazonRdsRemote() *AmazonRDSRemoteNode {
-	if m != nil {
-		return m.AmazonRdsRemote
-	}
-	return nil
-}
-
 type ChangeGenericNodeRequest struct {
-	// Unique Node identifier.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Unique user-defined Node name.
-	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Unique randomly generated instance identifier.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Unique across all Nodes user-defined name.
+	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// Linux distribution (if any).
+	Distro string `protobuf:"bytes,4,opt,name=distro,proto3" json:"distro,omitempty"`
+	// Linux distribution version (if any).
+	DistroVersion        string   `protobuf:"bytes,5,opt,name=distro_version,json=distroVersion,proto3" json:"distro_version,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -800,7 +757,7 @@ func (m *ChangeGenericNodeRequest) Reset()         { *m = ChangeGenericNodeReque
 func (m *ChangeGenericNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeGenericNodeRequest) ProtoMessage()    {}
 func (*ChangeGenericNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{13}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{10}
 }
 func (m *ChangeGenericNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeGenericNodeRequest.Unmarshal(m, b)
@@ -820,16 +777,30 @@ func (m *ChangeGenericNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ChangeGenericNodeRequest proto.InternalMessageInfo
 
-func (m *ChangeGenericNodeRequest) GetId() string {
+func (m *ChangeGenericNodeRequest) GetNodeId() string {
 	if m != nil {
-		return m.Id
+		return m.NodeId
 	}
 	return ""
 }
 
-func (m *ChangeGenericNodeRequest) GetName() string {
+func (m *ChangeGenericNodeRequest) GetNodeName() string {
 	if m != nil {
-		return m.Name
+		return m.NodeName
+	}
+	return ""
+}
+
+func (m *ChangeGenericNodeRequest) GetDistro() string {
+	if m != nil {
+		return m.Distro
+	}
+	return ""
+}
+
+func (m *ChangeGenericNodeRequest) GetDistroVersion() string {
+	if m != nil {
+		return m.DistroVersion
 	}
 	return ""
 }
@@ -845,7 +816,7 @@ func (m *ChangeGenericNodeResponse) Reset()         { *m = ChangeGenericNodeResp
 func (m *ChangeGenericNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeGenericNodeResponse) ProtoMessage()    {}
 func (*ChangeGenericNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{14}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{11}
 }
 func (m *ChangeGenericNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeGenericNodeResponse.Unmarshal(m, b)
@@ -872,11 +843,287 @@ func (m *ChangeGenericNodeResponse) GetGeneric() *GenericNode {
 	return nil
 }
 
+type AddContainerNodeRequest struct {
+	// Unique across all Nodes user-defined name.
+	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist.
+	MachineId string `protobuf:"bytes,3,opt,name=machine_id,json=machineId,proto3" json:"machine_id,omitempty"`
+	// Docker container identifier. If specified, must be a unique Docker container identifier.
+	DockerContainerId string `protobuf:"bytes,4,opt,name=docker_container_id,json=dockerContainerId,proto3" json:"docker_container_id,omitempty"`
+	// Container name.
+	DockerContainerName  string   `protobuf:"bytes,5,opt,name=docker_container_name,json=dockerContainerName,proto3" json:"docker_container_name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *AddContainerNodeRequest) Reset()         { *m = AddContainerNodeRequest{} }
+func (m *AddContainerNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*AddContainerNodeRequest) ProtoMessage()    {}
+func (*AddContainerNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{12}
+}
+func (m *AddContainerNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddContainerNodeRequest.Unmarshal(m, b)
+}
+func (m *AddContainerNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddContainerNodeRequest.Marshal(b, m, deterministic)
+}
+func (dst *AddContainerNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddContainerNodeRequest.Merge(dst, src)
+}
+func (m *AddContainerNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_AddContainerNodeRequest.Size(m)
+}
+func (m *AddContainerNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddContainerNodeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddContainerNodeRequest proto.InternalMessageInfo
+
+func (m *AddContainerNodeRequest) GetNodeName() string {
+	if m != nil {
+		return m.NodeName
+	}
+	return ""
+}
+
+func (m *AddContainerNodeRequest) GetMachineId() string {
+	if m != nil {
+		return m.MachineId
+	}
+	return ""
+}
+
+func (m *AddContainerNodeRequest) GetDockerContainerId() string {
+	if m != nil {
+		return m.DockerContainerId
+	}
+	return ""
+}
+
+func (m *AddContainerNodeRequest) GetDockerContainerName() string {
+	if m != nil {
+		return m.DockerContainerName
+	}
+	return ""
+}
+
+type AddContainerNodeResponse struct {
+	Container            *ContainerNode `protobuf:"bytes,1,opt,name=container,proto3" json:"container,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
+}
+
+func (m *AddContainerNodeResponse) Reset()         { *m = AddContainerNodeResponse{} }
+func (m *AddContainerNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*AddContainerNodeResponse) ProtoMessage()    {}
+func (*AddContainerNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{13}
+}
+func (m *AddContainerNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddContainerNodeResponse.Unmarshal(m, b)
+}
+func (m *AddContainerNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddContainerNodeResponse.Marshal(b, m, deterministic)
+}
+func (dst *AddContainerNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddContainerNodeResponse.Merge(dst, src)
+}
+func (m *AddContainerNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_AddContainerNodeResponse.Size(m)
+}
+func (m *AddContainerNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddContainerNodeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddContainerNodeResponse proto.InternalMessageInfo
+
+func (m *AddContainerNodeResponse) GetContainer() *ContainerNode {
+	if m != nil {
+		return m.Container
+	}
+	return nil
+}
+
+type ChangeContainerNodeRequest struct {
+	// Unique randomly generated instance identifier.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Unique across all Nodes user-defined name.
+	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// Container name.
+	DockerContainerName  string   `protobuf:"bytes,5,opt,name=docker_container_name,json=dockerContainerName,proto3" json:"docker_container_name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeContainerNodeRequest) Reset()         { *m = ChangeContainerNodeRequest{} }
+func (m *ChangeContainerNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeContainerNodeRequest) ProtoMessage()    {}
+func (*ChangeContainerNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{14}
+}
+func (m *ChangeContainerNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeContainerNodeRequest.Unmarshal(m, b)
+}
+func (m *ChangeContainerNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeContainerNodeRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeContainerNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeContainerNodeRequest.Merge(dst, src)
+}
+func (m *ChangeContainerNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeContainerNodeRequest.Size(m)
+}
+func (m *ChangeContainerNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeContainerNodeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeContainerNodeRequest proto.InternalMessageInfo
+
+func (m *ChangeContainerNodeRequest) GetNodeId() string {
+	if m != nil {
+		return m.NodeId
+	}
+	return ""
+}
+
+func (m *ChangeContainerNodeRequest) GetNodeName() string {
+	if m != nil {
+		return m.NodeName
+	}
+	return ""
+}
+
+func (m *ChangeContainerNodeRequest) GetDockerContainerName() string {
+	if m != nil {
+		return m.DockerContainerName
+	}
+	return ""
+}
+
+type ChangeContainerNodeResponse struct {
+	Container            *ContainerNode `protobuf:"bytes,1,opt,name=container,proto3" json:"container,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
+	XXX_unrecognized     []byte         `json:"-"`
+	XXX_sizecache        int32          `json:"-"`
+}
+
+func (m *ChangeContainerNodeResponse) Reset()         { *m = ChangeContainerNodeResponse{} }
+func (m *ChangeContainerNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeContainerNodeResponse) ProtoMessage()    {}
+func (*ChangeContainerNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{15}
+}
+func (m *ChangeContainerNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeContainerNodeResponse.Unmarshal(m, b)
+}
+func (m *ChangeContainerNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeContainerNodeResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeContainerNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeContainerNodeResponse.Merge(dst, src)
+}
+func (m *ChangeContainerNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeContainerNodeResponse.Size(m)
+}
+func (m *ChangeContainerNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeContainerNodeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeContainerNodeResponse proto.InternalMessageInfo
+
+func (m *ChangeContainerNodeResponse) GetContainer() *ContainerNode {
+	if m != nil {
+		return m.Container
+	}
+	return nil
+}
+
+type AddRemoteNodeRequest struct {
+	// Unique across all Nodes user-defined name.
+	NodeName             string   `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *AddRemoteNodeRequest) Reset()         { *m = AddRemoteNodeRequest{} }
+func (m *AddRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*AddRemoteNodeRequest) ProtoMessage()    {}
+func (*AddRemoteNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{16}
+}
+func (m *AddRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddRemoteNodeRequest.Unmarshal(m, b)
+}
+func (m *AddRemoteNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddRemoteNodeRequest.Marshal(b, m, deterministic)
+}
+func (dst *AddRemoteNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddRemoteNodeRequest.Merge(dst, src)
+}
+func (m *AddRemoteNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_AddRemoteNodeRequest.Size(m)
+}
+func (m *AddRemoteNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddRemoteNodeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddRemoteNodeRequest proto.InternalMessageInfo
+
+func (m *AddRemoteNodeRequest) GetNodeName() string {
+	if m != nil {
+		return m.NodeName
+	}
+	return ""
+}
+
+type AddRemoteNodeResponse struct {
+	Remote               *RemoteNode `protobuf:"bytes,1,opt,name=remote,proto3" json:"remote,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_unrecognized     []byte      `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
+}
+
+func (m *AddRemoteNodeResponse) Reset()         { *m = AddRemoteNodeResponse{} }
+func (m *AddRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*AddRemoteNodeResponse) ProtoMessage()    {}
+func (*AddRemoteNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{17}
+}
+func (m *AddRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddRemoteNodeResponse.Unmarshal(m, b)
+}
+func (m *AddRemoteNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddRemoteNodeResponse.Marshal(b, m, deterministic)
+}
+func (dst *AddRemoteNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddRemoteNodeResponse.Merge(dst, src)
+}
+func (m *AddRemoteNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_AddRemoteNodeResponse.Size(m)
+}
+func (m *AddRemoteNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddRemoteNodeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddRemoteNodeResponse proto.InternalMessageInfo
+
+func (m *AddRemoteNodeResponse) GetRemote() *RemoteNode {
+	if m != nil {
+		return m.Remote
+	}
+	return nil
+}
+
 type ChangeRemoteNodeRequest struct {
-	// Unique Node identifier.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Unique user-defined Node name.
-	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	// Unique randomly generated instance identifier.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Unique across all Nodes user-defined name.
+	NodeName             string   `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -886,7 +1133,7 @@ func (m *ChangeRemoteNodeRequest) Reset()         { *m = ChangeRemoteNodeRequest
 func (m *ChangeRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeRemoteNodeRequest) ProtoMessage()    {}
 func (*ChangeRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{15}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{18}
 }
 func (m *ChangeRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeRemoteNodeRequest.Unmarshal(m, b)
@@ -906,16 +1153,16 @@ func (m *ChangeRemoteNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_ChangeRemoteNodeRequest proto.InternalMessageInfo
 
-func (m *ChangeRemoteNodeRequest) GetId() string {
+func (m *ChangeRemoteNodeRequest) GetNodeId() string {
 	if m != nil {
-		return m.Id
+		return m.NodeId
 	}
 	return ""
 }
 
-func (m *ChangeRemoteNodeRequest) GetName() string {
+func (m *ChangeRemoteNodeRequest) GetNodeName() string {
 	if m != nil {
-		return m.Name
+		return m.NodeName
 	}
 	return ""
 }
@@ -931,7 +1178,7 @@ func (m *ChangeRemoteNodeResponse) Reset()         { *m = ChangeRemoteNodeRespon
 func (m *ChangeRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeRemoteNodeResponse) ProtoMessage()    {}
 func (*ChangeRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{16}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{19}
 }
 func (m *ChangeRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeRemoteNodeResponse.Unmarshal(m, b)
@@ -958,95 +1205,199 @@ func (m *ChangeRemoteNodeResponse) GetRemote() *RemoteNode {
 	return nil
 }
 
-type ChangeAmazonRDSRemoteNodeRequest struct {
-	// Unique Node identifier.
-	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	// Unique user-defined Node name.
-	Name                 string   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+type AddRemoteAmazonRDSNodeRequest struct {
+	// Unique across all Nodes user-defined name.
+	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.
+	Instance string `protobuf:"bytes,3,opt,name=instance,proto3" json:"instance,omitempty"`
+	// Unique across all RemoteAmazonRDS Nodes in combination with instance.
+	Region               string   `protobuf:"bytes,4,opt,name=region,proto3" json:"region,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *ChangeAmazonRDSRemoteNodeRequest) Reset()         { *m = ChangeAmazonRDSRemoteNodeRequest{} }
-func (m *ChangeAmazonRDSRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
-func (*ChangeAmazonRDSRemoteNodeRequest) ProtoMessage()    {}
-func (*ChangeAmazonRDSRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{17}
+func (m *AddRemoteAmazonRDSNodeRequest) Reset()         { *m = AddRemoteAmazonRDSNodeRequest{} }
+func (m *AddRemoteAmazonRDSNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*AddRemoteAmazonRDSNodeRequest) ProtoMessage()    {}
+func (*AddRemoteAmazonRDSNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{20}
 }
-func (m *ChangeAmazonRDSRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ChangeAmazonRDSRemoteNodeRequest.Unmarshal(m, b)
+func (m *AddRemoteAmazonRDSNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddRemoteAmazonRDSNodeRequest.Unmarshal(m, b)
 }
-func (m *ChangeAmazonRDSRemoteNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ChangeAmazonRDSRemoteNodeRequest.Marshal(b, m, deterministic)
+func (m *AddRemoteAmazonRDSNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddRemoteAmazonRDSNodeRequest.Marshal(b, m, deterministic)
 }
-func (dst *ChangeAmazonRDSRemoteNodeRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ChangeAmazonRDSRemoteNodeRequest.Merge(dst, src)
+func (dst *AddRemoteAmazonRDSNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddRemoteAmazonRDSNodeRequest.Merge(dst, src)
 }
-func (m *ChangeAmazonRDSRemoteNodeRequest) XXX_Size() int {
-	return xxx_messageInfo_ChangeAmazonRDSRemoteNodeRequest.Size(m)
+func (m *AddRemoteAmazonRDSNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_AddRemoteAmazonRDSNodeRequest.Size(m)
 }
-func (m *ChangeAmazonRDSRemoteNodeRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_ChangeAmazonRDSRemoteNodeRequest.DiscardUnknown(m)
+func (m *AddRemoteAmazonRDSNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddRemoteAmazonRDSNodeRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ChangeAmazonRDSRemoteNodeRequest proto.InternalMessageInfo
+var xxx_messageInfo_AddRemoteAmazonRDSNodeRequest proto.InternalMessageInfo
 
-func (m *ChangeAmazonRDSRemoteNodeRequest) GetId() string {
+func (m *AddRemoteAmazonRDSNodeRequest) GetNodeName() string {
 	if m != nil {
-		return m.Id
+		return m.NodeName
 	}
 	return ""
 }
 
-func (m *ChangeAmazonRDSRemoteNodeRequest) GetName() string {
+func (m *AddRemoteAmazonRDSNodeRequest) GetInstance() string {
 	if m != nil {
-		return m.Name
+		return m.Instance
 	}
 	return ""
 }
 
-type ChangeAmazonRDSRemoteNodeResponse struct {
-	AmazonRdsRemote      *AmazonRDSRemoteNode `protobuf:"bytes,1,opt,name=amazon_rds_remote,json=amazonRdsRemote,proto3" json:"amazon_rds_remote,omitempty"`
+func (m *AddRemoteAmazonRDSNodeRequest) GetRegion() string {
+	if m != nil {
+		return m.Region
+	}
+	return ""
+}
+
+type AddRemoteAmazonRDSNodeResponse struct {
+	RemoteAmazonRds      *RemoteAmazonRDSNode `protobuf:"bytes,1,opt,name=remote_amazon_rds,json=remoteAmazonRds,proto3" json:"remote_amazon_rds,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
 	XXX_sizecache        int32                `json:"-"`
 }
 
-func (m *ChangeAmazonRDSRemoteNodeResponse) Reset()         { *m = ChangeAmazonRDSRemoteNodeResponse{} }
-func (m *ChangeAmazonRDSRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
-func (*ChangeAmazonRDSRemoteNodeResponse) ProtoMessage()    {}
-func (*ChangeAmazonRDSRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{18}
+func (m *AddRemoteAmazonRDSNodeResponse) Reset()         { *m = AddRemoteAmazonRDSNodeResponse{} }
+func (m *AddRemoteAmazonRDSNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*AddRemoteAmazonRDSNodeResponse) ProtoMessage()    {}
+func (*AddRemoteAmazonRDSNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{21}
 }
-func (m *ChangeAmazonRDSRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_ChangeAmazonRDSRemoteNodeResponse.Unmarshal(m, b)
+func (m *AddRemoteAmazonRDSNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddRemoteAmazonRDSNodeResponse.Unmarshal(m, b)
 }
-func (m *ChangeAmazonRDSRemoteNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_ChangeAmazonRDSRemoteNodeResponse.Marshal(b, m, deterministic)
+func (m *AddRemoteAmazonRDSNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddRemoteAmazonRDSNodeResponse.Marshal(b, m, deterministic)
 }
-func (dst *ChangeAmazonRDSRemoteNodeResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_ChangeAmazonRDSRemoteNodeResponse.Merge(dst, src)
+func (dst *AddRemoteAmazonRDSNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddRemoteAmazonRDSNodeResponse.Merge(dst, src)
 }
-func (m *ChangeAmazonRDSRemoteNodeResponse) XXX_Size() int {
-	return xxx_messageInfo_ChangeAmazonRDSRemoteNodeResponse.Size(m)
+func (m *AddRemoteAmazonRDSNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_AddRemoteAmazonRDSNodeResponse.Size(m)
 }
-func (m *ChangeAmazonRDSRemoteNodeResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_ChangeAmazonRDSRemoteNodeResponse.DiscardUnknown(m)
+func (m *AddRemoteAmazonRDSNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddRemoteAmazonRDSNodeResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_ChangeAmazonRDSRemoteNodeResponse proto.InternalMessageInfo
+var xxx_messageInfo_AddRemoteAmazonRDSNodeResponse proto.InternalMessageInfo
 
-func (m *ChangeAmazonRDSRemoteNodeResponse) GetAmazonRdsRemote() *AmazonRDSRemoteNode {
+func (m *AddRemoteAmazonRDSNodeResponse) GetRemoteAmazonRds() *RemoteAmazonRDSNode {
 	if m != nil {
-		return m.AmazonRdsRemote
+		return m.RemoteAmazonRds
+	}
+	return nil
+}
+
+type ChangeRemoteAmazonRDSNodeRequest struct {
+	// Unique randomly generated instance identifier.
+	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Unique across all Nodes user-defined name.
+	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
+	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.
+	Instance             string   `protobuf:"bytes,3,opt,name=instance,proto3" json:"instance,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeRemoteAmazonRDSNodeRequest) Reset()         { *m = ChangeRemoteAmazonRDSNodeRequest{} }
+func (m *ChangeRemoteAmazonRDSNodeRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeRemoteAmazonRDSNodeRequest) ProtoMessage()    {}
+func (*ChangeRemoteAmazonRDSNodeRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{22}
+}
+func (m *ChangeRemoteAmazonRDSNodeRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeRemoteAmazonRDSNodeRequest.Unmarshal(m, b)
+}
+func (m *ChangeRemoteAmazonRDSNodeRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeRemoteAmazonRDSNodeRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeRemoteAmazonRDSNodeRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeRemoteAmazonRDSNodeRequest.Merge(dst, src)
+}
+func (m *ChangeRemoteAmazonRDSNodeRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeRemoteAmazonRDSNodeRequest.Size(m)
+}
+func (m *ChangeRemoteAmazonRDSNodeRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeRemoteAmazonRDSNodeRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeRemoteAmazonRDSNodeRequest proto.InternalMessageInfo
+
+func (m *ChangeRemoteAmazonRDSNodeRequest) GetNodeId() string {
+	if m != nil {
+		return m.NodeId
+	}
+	return ""
+}
+
+func (m *ChangeRemoteAmazonRDSNodeRequest) GetNodeName() string {
+	if m != nil {
+		return m.NodeName
+	}
+	return ""
+}
+
+func (m *ChangeRemoteAmazonRDSNodeRequest) GetInstance() string {
+	if m != nil {
+		return m.Instance
+	}
+	return ""
+}
+
+type ChangeRemoteAmazonRDSNodeResponse struct {
+	RemoteAmazonRds      *RemoteAmazonRDSNode `protobuf:"bytes,1,opt,name=remote_amazon_rds,json=remoteAmazonRds,proto3" json:"remote_amazon_rds,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
+}
+
+func (m *ChangeRemoteAmazonRDSNodeResponse) Reset()         { *m = ChangeRemoteAmazonRDSNodeResponse{} }
+func (m *ChangeRemoteAmazonRDSNodeResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeRemoteAmazonRDSNodeResponse) ProtoMessage()    {}
+func (*ChangeRemoteAmazonRDSNodeResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{23}
+}
+func (m *ChangeRemoteAmazonRDSNodeResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeRemoteAmazonRDSNodeResponse.Unmarshal(m, b)
+}
+func (m *ChangeRemoteAmazonRDSNodeResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeRemoteAmazonRDSNodeResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeRemoteAmazonRDSNodeResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeRemoteAmazonRDSNodeResponse.Merge(dst, src)
+}
+func (m *ChangeRemoteAmazonRDSNodeResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeRemoteAmazonRDSNodeResponse.Size(m)
+}
+func (m *ChangeRemoteAmazonRDSNodeResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeRemoteAmazonRDSNodeResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeRemoteAmazonRDSNodeResponse proto.InternalMessageInfo
+
+func (m *ChangeRemoteAmazonRDSNodeResponse) GetRemoteAmazonRds() *RemoteAmazonRDSNode {
+	if m != nil {
+		return m.RemoteAmazonRds
 	}
 	return nil
 }
 
 type RemoveNodeRequest struct {
-	// Unique Node identifier.
-	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Unique randomly generated instance identifier.
+	NodeId               string   `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -1056,7 +1407,7 @@ func (m *RemoveNodeRequest) Reset()         { *m = RemoveNodeRequest{} }
 func (m *RemoveNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveNodeRequest) ProtoMessage()    {}
 func (*RemoveNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{19}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{24}
 }
 func (m *RemoveNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveNodeRequest.Unmarshal(m, b)
@@ -1076,9 +1427,9 @@ func (m *RemoveNodeRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_RemoveNodeRequest proto.InternalMessageInfo
 
-func (m *RemoveNodeRequest) GetId() string {
+func (m *RemoveNodeRequest) GetNodeId() string {
 	if m != nil {
-		return m.Id
+		return m.NodeId
 	}
 	return ""
 }
@@ -1093,7 +1444,7 @@ func (m *RemoveNodeResponse) Reset()         { *m = RemoveNodeResponse{} }
 func (m *RemoveNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveNodeResponse) ProtoMessage()    {}
 func (*RemoveNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_a108399da7217dd2, []int{20}
+	return fileDescriptor_nodes_8b13318b4f2f633d, []int{25}
 }
 func (m *RemoveNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveNodeResponse.Unmarshal(m, b)
@@ -1115,24 +1466,29 @@ var xxx_messageInfo_RemoveNodeResponse proto.InternalMessageInfo
 
 func init() {
 	proto.RegisterType((*GenericNode)(nil), "inventory.GenericNode")
+	proto.RegisterType((*ContainerNode)(nil), "inventory.ContainerNode")
 	proto.RegisterType((*RemoteNode)(nil), "inventory.RemoteNode")
-	proto.RegisterType((*AmazonRDSRemoteNode)(nil), "inventory.AmazonRDSRemoteNode")
+	proto.RegisterType((*RemoteAmazonRDSNode)(nil), "inventory.RemoteAmazonRDSNode")
 	proto.RegisterType((*ListNodesRequest)(nil), "inventory.ListNodesRequest")
 	proto.RegisterType((*ListNodesResponse)(nil), "inventory.ListNodesResponse")
 	proto.RegisterType((*GetNodeRequest)(nil), "inventory.GetNodeRequest")
 	proto.RegisterType((*GetNodeResponse)(nil), "inventory.GetNodeResponse")
 	proto.RegisterType((*AddGenericNodeRequest)(nil), "inventory.AddGenericNodeRequest")
 	proto.RegisterType((*AddGenericNodeResponse)(nil), "inventory.AddGenericNodeResponse")
-	proto.RegisterType((*AddRemoteNodeRequest)(nil), "inventory.AddRemoteNodeRequest")
-	proto.RegisterType((*AddRemoteNodeResponse)(nil), "inventory.AddRemoteNodeResponse")
-	proto.RegisterType((*AddAmazonRDSRemoteNodeRequest)(nil), "inventory.AddAmazonRDSRemoteNodeRequest")
-	proto.RegisterType((*AddAmazonRDSRemoteNodeResponse)(nil), "inventory.AddAmazonRDSRemoteNodeResponse")
 	proto.RegisterType((*ChangeGenericNodeRequest)(nil), "inventory.ChangeGenericNodeRequest")
 	proto.RegisterType((*ChangeGenericNodeResponse)(nil), "inventory.ChangeGenericNodeResponse")
+	proto.RegisterType((*AddContainerNodeRequest)(nil), "inventory.AddContainerNodeRequest")
+	proto.RegisterType((*AddContainerNodeResponse)(nil), "inventory.AddContainerNodeResponse")
+	proto.RegisterType((*ChangeContainerNodeRequest)(nil), "inventory.ChangeContainerNodeRequest")
+	proto.RegisterType((*ChangeContainerNodeResponse)(nil), "inventory.ChangeContainerNodeResponse")
+	proto.RegisterType((*AddRemoteNodeRequest)(nil), "inventory.AddRemoteNodeRequest")
+	proto.RegisterType((*AddRemoteNodeResponse)(nil), "inventory.AddRemoteNodeResponse")
 	proto.RegisterType((*ChangeRemoteNodeRequest)(nil), "inventory.ChangeRemoteNodeRequest")
 	proto.RegisterType((*ChangeRemoteNodeResponse)(nil), "inventory.ChangeRemoteNodeResponse")
-	proto.RegisterType((*ChangeAmazonRDSRemoteNodeRequest)(nil), "inventory.ChangeAmazonRDSRemoteNodeRequest")
-	proto.RegisterType((*ChangeAmazonRDSRemoteNodeResponse)(nil), "inventory.ChangeAmazonRDSRemoteNodeResponse")
+	proto.RegisterType((*AddRemoteAmazonRDSNodeRequest)(nil), "inventory.AddRemoteAmazonRDSNodeRequest")
+	proto.RegisterType((*AddRemoteAmazonRDSNodeResponse)(nil), "inventory.AddRemoteAmazonRDSNodeResponse")
+	proto.RegisterType((*ChangeRemoteAmazonRDSNodeRequest)(nil), "inventory.ChangeRemoteAmazonRDSNodeRequest")
+	proto.RegisterType((*ChangeRemoteAmazonRDSNodeResponse)(nil), "inventory.ChangeRemoteAmazonRDSNodeResponse")
 	proto.RegisterType((*RemoveNodeRequest)(nil), "inventory.RemoveNodeRequest")
 	proto.RegisterType((*RemoveNodeResponse)(nil), "inventory.RemoveNodeResponse")
 }
@@ -1155,16 +1511,20 @@ type NodesClient interface {
 	GetNode(ctx context.Context, in *GetNodeRequest, opts ...grpc.CallOption) (*GetNodeResponse, error)
 	// AddGenericNode adds generic Node.
 	AddGenericNode(ctx context.Context, in *AddGenericNodeRequest, opts ...grpc.CallOption) (*AddGenericNodeResponse, error)
-	// AddRemoteNode adds remote Node.
-	AddRemoteNode(ctx context.Context, in *AddRemoteNodeRequest, opts ...grpc.CallOption) (*AddRemoteNodeResponse, error)
-	// AddAmazonRDSRemoteNode adds Amazon (AWS) RDS remote Node.
-	AddAmazonRDSRemoteNode(ctx context.Context, in *AddAmazonRDSRemoteNodeRequest, opts ...grpc.CallOption) (*AddAmazonRDSRemoteNodeResponse, error)
 	// ChangeGenericNode changes generic Node.
 	ChangeGenericNode(ctx context.Context, in *ChangeGenericNodeRequest, opts ...grpc.CallOption) (*ChangeGenericNodeResponse, error)
+	// AddContainerNode adds Container Node.
+	AddContainerNode(ctx context.Context, in *AddContainerNodeRequest, opts ...grpc.CallOption) (*AddContainerNodeResponse, error)
+	// ChangeContainerNode changes Container Node.
+	ChangeContainerNode(ctx context.Context, in *ChangeContainerNodeRequest, opts ...grpc.CallOption) (*ChangeContainerNodeResponse, error)
+	// AddRemoteNode adds remote Node.
+	AddRemoteNode(ctx context.Context, in *AddRemoteNodeRequest, opts ...grpc.CallOption) (*AddRemoteNodeResponse, error)
 	// ChangeRemoteNode changes remote Node.
 	ChangeRemoteNode(ctx context.Context, in *ChangeRemoteNodeRequest, opts ...grpc.CallOption) (*ChangeRemoteNodeResponse, error)
-	// ChangeAmazonRDSRemoteNode changes Amazon (AWS) RDS remote Node.
-	ChangeAmazonRDSRemoteNode(ctx context.Context, in *ChangeAmazonRDSRemoteNodeRequest, opts ...grpc.CallOption) (*ChangeAmazonRDSRemoteNodeResponse, error)
+	// AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
+	AddRemoteAmazonRDSNode(ctx context.Context, in *AddRemoteAmazonRDSNodeRequest, opts ...grpc.CallOption) (*AddRemoteAmazonRDSNodeResponse, error)
+	// ChangeRemoteAmazonRDSNode changes Amazon (AWS) RDS remote Node.
+	ChangeRemoteAmazonRDSNode(ctx context.Context, in *ChangeRemoteAmazonRDSNodeRequest, opts ...grpc.CallOption) (*ChangeRemoteAmazonRDSNodeResponse, error)
 	// RemoveNode removes Node without any Agents and Services.
 	RemoveNode(ctx context.Context, in *RemoveNodeRequest, opts ...grpc.CallOption) (*RemoveNodeResponse, error)
 }
@@ -1204,27 +1564,36 @@ func (c *nodesClient) AddGenericNode(ctx context.Context, in *AddGenericNodeRequ
 	return out, nil
 }
 
-func (c *nodesClient) AddRemoteNode(ctx context.Context, in *AddRemoteNodeRequest, opts ...grpc.CallOption) (*AddRemoteNodeResponse, error) {
-	out := new(AddRemoteNodeResponse)
-	err := c.cc.Invoke(ctx, "/inventory.Nodes/AddRemoteNode", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *nodesClient) AddAmazonRDSRemoteNode(ctx context.Context, in *AddAmazonRDSRemoteNodeRequest, opts ...grpc.CallOption) (*AddAmazonRDSRemoteNodeResponse, error) {
-	out := new(AddAmazonRDSRemoteNodeResponse)
-	err := c.cc.Invoke(ctx, "/inventory.Nodes/AddAmazonRDSRemoteNode", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *nodesClient) ChangeGenericNode(ctx context.Context, in *ChangeGenericNodeRequest, opts ...grpc.CallOption) (*ChangeGenericNodeResponse, error) {
 	out := new(ChangeGenericNodeResponse)
 	err := c.cc.Invoke(ctx, "/inventory.Nodes/ChangeGenericNode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodesClient) AddContainerNode(ctx context.Context, in *AddContainerNodeRequest, opts ...grpc.CallOption) (*AddContainerNodeResponse, error) {
+	out := new(AddContainerNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/AddContainerNode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodesClient) ChangeContainerNode(ctx context.Context, in *ChangeContainerNodeRequest, opts ...grpc.CallOption) (*ChangeContainerNodeResponse, error) {
+	out := new(ChangeContainerNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/ChangeContainerNode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodesClient) AddRemoteNode(ctx context.Context, in *AddRemoteNodeRequest, opts ...grpc.CallOption) (*AddRemoteNodeResponse, error) {
+	out := new(AddRemoteNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/AddRemoteNode", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1240,9 +1609,18 @@ func (c *nodesClient) ChangeRemoteNode(ctx context.Context, in *ChangeRemoteNode
 	return out, nil
 }
 
-func (c *nodesClient) ChangeAmazonRDSRemoteNode(ctx context.Context, in *ChangeAmazonRDSRemoteNodeRequest, opts ...grpc.CallOption) (*ChangeAmazonRDSRemoteNodeResponse, error) {
-	out := new(ChangeAmazonRDSRemoteNodeResponse)
-	err := c.cc.Invoke(ctx, "/inventory.Nodes/ChangeAmazonRDSRemoteNode", in, out, opts...)
+func (c *nodesClient) AddRemoteAmazonRDSNode(ctx context.Context, in *AddRemoteAmazonRDSNodeRequest, opts ...grpc.CallOption) (*AddRemoteAmazonRDSNodeResponse, error) {
+	out := new(AddRemoteAmazonRDSNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/AddRemoteAmazonRDSNode", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *nodesClient) ChangeRemoteAmazonRDSNode(ctx context.Context, in *ChangeRemoteAmazonRDSNodeRequest, opts ...grpc.CallOption) (*ChangeRemoteAmazonRDSNodeResponse, error) {
+	out := new(ChangeRemoteAmazonRDSNodeResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Nodes/ChangeRemoteAmazonRDSNode", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -1266,16 +1644,20 @@ type NodesServer interface {
 	GetNode(context.Context, *GetNodeRequest) (*GetNodeResponse, error)
 	// AddGenericNode adds generic Node.
 	AddGenericNode(context.Context, *AddGenericNodeRequest) (*AddGenericNodeResponse, error)
-	// AddRemoteNode adds remote Node.
-	AddRemoteNode(context.Context, *AddRemoteNodeRequest) (*AddRemoteNodeResponse, error)
-	// AddAmazonRDSRemoteNode adds Amazon (AWS) RDS remote Node.
-	AddAmazonRDSRemoteNode(context.Context, *AddAmazonRDSRemoteNodeRequest) (*AddAmazonRDSRemoteNodeResponse, error)
 	// ChangeGenericNode changes generic Node.
 	ChangeGenericNode(context.Context, *ChangeGenericNodeRequest) (*ChangeGenericNodeResponse, error)
+	// AddContainerNode adds Container Node.
+	AddContainerNode(context.Context, *AddContainerNodeRequest) (*AddContainerNodeResponse, error)
+	// ChangeContainerNode changes Container Node.
+	ChangeContainerNode(context.Context, *ChangeContainerNodeRequest) (*ChangeContainerNodeResponse, error)
+	// AddRemoteNode adds remote Node.
+	AddRemoteNode(context.Context, *AddRemoteNodeRequest) (*AddRemoteNodeResponse, error)
 	// ChangeRemoteNode changes remote Node.
 	ChangeRemoteNode(context.Context, *ChangeRemoteNodeRequest) (*ChangeRemoteNodeResponse, error)
-	// ChangeAmazonRDSRemoteNode changes Amazon (AWS) RDS remote Node.
-	ChangeAmazonRDSRemoteNode(context.Context, *ChangeAmazonRDSRemoteNodeRequest) (*ChangeAmazonRDSRemoteNodeResponse, error)
+	// AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
+	AddRemoteAmazonRDSNode(context.Context, *AddRemoteAmazonRDSNodeRequest) (*AddRemoteAmazonRDSNodeResponse, error)
+	// ChangeRemoteAmazonRDSNode changes Amazon (AWS) RDS remote Node.
+	ChangeRemoteAmazonRDSNode(context.Context, *ChangeRemoteAmazonRDSNodeRequest) (*ChangeRemoteAmazonRDSNodeResponse, error)
 	// RemoveNode removes Node without any Agents and Services.
 	RemoveNode(context.Context, *RemoveNodeRequest) (*RemoveNodeResponse, error)
 }
@@ -1338,42 +1720,6 @@ func _Nodes_AddGenericNode_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Nodes_AddRemoteNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddRemoteNodeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(NodesServer).AddRemoteNode(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/inventory.Nodes/AddRemoteNode",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodesServer).AddRemoteNode(ctx, req.(*AddRemoteNodeRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Nodes_AddAmazonRDSRemoteNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AddAmazonRDSRemoteNodeRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(NodesServer).AddAmazonRDSRemoteNode(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/inventory.Nodes/AddAmazonRDSRemoteNode",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodesServer).AddAmazonRDSRemoteNode(ctx, req.(*AddAmazonRDSRemoteNodeRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Nodes_ChangeGenericNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ChangeGenericNodeRequest)
 	if err := dec(in); err != nil {
@@ -1388,6 +1734,60 @@ func _Nodes_ChangeGenericNode_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(NodesServer).ChangeGenericNode(ctx, req.(*ChangeGenericNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Nodes_AddContainerNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddContainerNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServer).AddContainerNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Nodes/AddContainerNode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServer).AddContainerNode(ctx, req.(*AddContainerNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Nodes_ChangeContainerNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeContainerNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServer).ChangeContainerNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Nodes/ChangeContainerNode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServer).ChangeContainerNode(ctx, req.(*ChangeContainerNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Nodes_AddRemoteNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddRemoteNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServer).AddRemoteNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Nodes/AddRemoteNode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServer).AddRemoteNode(ctx, req.(*AddRemoteNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1410,20 +1810,38 @@ func _Nodes_ChangeRemoteNode_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Nodes_ChangeAmazonRDSRemoteNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ChangeAmazonRDSRemoteNodeRequest)
+func _Nodes_AddRemoteAmazonRDSNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddRemoteAmazonRDSNodeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(NodesServer).ChangeAmazonRDSRemoteNode(ctx, in)
+		return srv.(NodesServer).AddRemoteAmazonRDSNode(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/inventory.Nodes/ChangeAmazonRDSRemoteNode",
+		FullMethod: "/inventory.Nodes/AddRemoteAmazonRDSNode",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(NodesServer).ChangeAmazonRDSRemoteNode(ctx, req.(*ChangeAmazonRDSRemoteNodeRequest))
+		return srv.(NodesServer).AddRemoteAmazonRDSNode(ctx, req.(*AddRemoteAmazonRDSNodeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Nodes_ChangeRemoteAmazonRDSNode_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeRemoteAmazonRDSNodeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(NodesServer).ChangeRemoteAmazonRDSNode(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Nodes/ChangeRemoteAmazonRDSNode",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(NodesServer).ChangeRemoteAmazonRDSNode(ctx, req.(*ChangeRemoteAmazonRDSNodeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1463,24 +1881,32 @@ var _Nodes_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Nodes_AddGenericNode_Handler,
 		},
 		{
-			MethodName: "AddRemoteNode",
-			Handler:    _Nodes_AddRemoteNode_Handler,
-		},
-		{
-			MethodName: "AddAmazonRDSRemoteNode",
-			Handler:    _Nodes_AddAmazonRDSRemoteNode_Handler,
-		},
-		{
 			MethodName: "ChangeGenericNode",
 			Handler:    _Nodes_ChangeGenericNode_Handler,
+		},
+		{
+			MethodName: "AddContainerNode",
+			Handler:    _Nodes_AddContainerNode_Handler,
+		},
+		{
+			MethodName: "ChangeContainerNode",
+			Handler:    _Nodes_ChangeContainerNode_Handler,
+		},
+		{
+			MethodName: "AddRemoteNode",
+			Handler:    _Nodes_AddRemoteNode_Handler,
 		},
 		{
 			MethodName: "ChangeRemoteNode",
 			Handler:    _Nodes_ChangeRemoteNode_Handler,
 		},
 		{
-			MethodName: "ChangeAmazonRDSRemoteNode",
-			Handler:    _Nodes_ChangeAmazonRDSRemoteNode_Handler,
+			MethodName: "AddRemoteAmazonRDSNode",
+			Handler:    _Nodes_AddRemoteAmazonRDSNode_Handler,
+		},
+		{
+			MethodName: "ChangeRemoteAmazonRDSNode",
+			Handler:    _Nodes_ChangeRemoteAmazonRDSNode_Handler,
 		},
 		{
 			MethodName: "RemoveNode",
@@ -1491,64 +1917,80 @@ var _Nodes_serviceDesc = grpc.ServiceDesc{
 	Metadata: "inventory/nodes.proto",
 }
 
-func init() { proto.RegisterFile("inventory/nodes.proto", fileDescriptor_nodes_a108399da7217dd2) }
+func init() { proto.RegisterFile("inventory/nodes.proto", fileDescriptor_nodes_8b13318b4f2f633d) }
 
-var fileDescriptor_nodes_a108399da7217dd2 = []byte{
-	// 884 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xb4, 0x57, 0xcd, 0x6e, 0xeb, 0x44,
-	0x14, 0xee, 0xa4, 0x6e, 0x6e, 0x73, 0x2a, 0x7a, 0x93, 0xe1, 0x36, 0x37, 0xd7, 0x24, 0x69, 0x3a,
-	0xa1, 0x55, 0xda, 0xb4, 0x71, 0x29, 0xa8, 0x8b, 0xee, 0x52, 0x10, 0x0d, 0x51, 0xcb, 0xc2, 0x65,
-	0x81, 0xd8, 0x54, 0x6e, 0x3d, 0x4a, 0xad, 0x36, 0x9e, 0x10, 0xbb, 0xa9, 0x40, 0x2c, 0x10, 0x2b,
-	0x16, 0x48, 0x2c, 0x78, 0x01, 0x1e, 0x80, 0x17, 0x60, 0xc7, 0x03, 0xb0, 0xe3, 0x01, 0x90, 0x10,
-	0x0f, 0x82, 0x3c, 0x9e, 0xf8, 0x27, 0x1e, 0xbb, 0x69, 0xd0, 0xdd, 0x39, 0xe3, 0x73, 0xce, 0xf7,
-	0x7d, 0xe7, 0x6f, 0x1c, 0xd8, 0xb0, 0xec, 0x09, 0xb5, 0x5d, 0x36, 0xfe, 0x46, 0xb3, 0x99, 0x49,
-	0x9d, 0xce, 0x68, 0xcc, 0x5c, 0x86, 0x0b, 0xc1, 0xb1, 0x7a, 0x3c, 0xb0, 0xdc, 0xdb, 0x87, 0xeb,
-	0xce, 0x0d, 0x1b, 0x6a, 0xc3, 0x47, 0xcb, 0xbd, 0x63, 0x8f, 0xda, 0x80, 0x1d, 0x70, 0xbb, 0x83,
-	0x89, 0x71, 0x6f, 0x99, 0x86, 0xcb, 0xc6, 0x8e, 0x16, 0x3c, 0xfa, 0x21, 0xd4, 0xea, 0x80, 0xb1,
-	0xc1, 0x3d, 0xd5, 0x8c, 0x91, 0xa5, 0x19, 0xb6, 0xcd, 0x5c, 0xc3, 0xb5, 0x98, 0x2d, 0x00, 0xc8,
-	0x05, 0xac, 0x9d, 0x51, 0x9b, 0x8e, 0xad, 0x9b, 0xcf, 0x99, 0x49, 0xf1, 0x3a, 0xe4, 0x2c, 0xb3,
-	0x82, 0x1a, 0xa8, 0x55, 0xd0, 0x73, 0x96, 0x89, 0x31, 0x28, 0xb6, 0x31, 0xa4, 0x95, 0x1c, 0x3f,
-	0xe1, 0xcf, 0x58, 0x85, 0xd5, 0x5b, 0xe6, 0xb8, 0xfc, 0x7c, 0x99, 0x9f, 0x07, 0xbf, 0xc9, 0x31,
-	0x80, 0x4e, 0x87, 0xcc, 0xa5, 0xf3, 0x46, 0xeb, 0x2b, 0xab, 0xcb, 0x45, 0x85, 0x0c, 0xe1, 0xdd,
-	0xee, 0xd0, 0xf8, 0x96, 0xd9, 0xfa, 0x27, 0x97, 0xcf, 0x0b, 0x90, 0x45, 0x07, 0x97, 0x21, 0x3f,
-	0xa6, 0x03, 0x8b, 0xd9, 0x15, 0x85, 0xbf, 0x11, 0xbf, 0x08, 0x86, 0xe2, 0xb9, 0xe5, 0xb8, 0x1e,
-	0x86, 0xa3, 0xd3, 0xaf, 0x1f, 0xa8, 0xe3, 0x92, 0x3f, 0x10, 0x94, 0x22, 0x87, 0xce, 0x88, 0xd9,
-	0x0e, 0xc5, 0x87, 0xf0, 0x62, 0xe0, 0xe7, 0xa7, 0x82, 0x1a, 0xcb, 0xad, 0xb5, 0xa3, 0x72, 0x27,
-	0x28, 0x49, 0x27, 0x92, 0x39, 0x7d, 0x6a, 0x86, 0x0f, 0x3c, 0x4c, 0x4f, 0x41, 0x45, 0xe1, 0x0e,
-	0x1b, 0x11, 0x87, 0x50, 0x9a, 0x2e, 0x8c, 0x70, 0x1f, 0x4a, 0x06, 0x57, 0x7e, 0x35, 0x36, 0x9d,
-	0x2b, 0xe1, 0xb9, 0xc2, 0x3d, 0xeb, 0x11, 0x4f, 0x49, 0x76, 0xf4, 0x97, 0xbe, 0xa3, 0x6e, 0x3a,
-	0xfe, 0x21, 0x69, 0xc1, 0xfa, 0x19, 0xe5, 0x02, 0x84, 0x28, 0x5c, 0x0e, 0x13, 0x78, 0x9a, 0xff,
-	0xe7, 0xef, 0xcd, 0xdc, 0x97, 0xc8, 0x4b, 0x24, 0xf9, 0x13, 0xc1, 0xcb, 0xc0, 0x54, 0x48, 0x3d,
-	0x8a, 0x4a, 0x45, 0xe9, 0x52, 0x7b, 0x4b, 0xa1, 0x58, 0x2d, 0x22, 0x16, 0xa5, 0x8a, 0xed, 0x2d,
-	0x05, 0x72, 0xcf, 0xe5, 0x72, 0xd1, 0xd3, 0x72, 0x7b, 0x4b, 0x09, 0xc1, 0xa7, 0x79, 0x50, 0xbc,
-	0x69, 0x21, 0x57, 0xb0, 0xd1, 0x35, 0xcd, 0x68, 0x39, 0x84, 0xfe, 0xd9, 0x06, 0x52, 0xa3, 0x0d,
-	0x14, 0x64, 0xe4, 0xe9, 0xbe, 0xee, 0x43, 0x79, 0x16, 0x40, 0xd6, 0x20, 0x68, 0x8e, 0x06, 0x21,
-	0x3d, 0x78, 0xd5, 0x35, 0xcd, 0x48, 0x1d, 0x9f, 0xcf, 0x55, 0x4c, 0xcd, 0xa7, 0x5c, 0x76, 0x34,
-	0x92, 0x20, 0x15, 0xf6, 0x20, 0xca, 0x28, 0xcb, 0xb4, 0x28, 0xe4, 0x67, 0x04, 0xb5, 0xae, 0x69,
-	0xca, 0x7a, 0x6c, 0x81, 0x3c, 0x92, 0xd9, 0x3c, 0x06, 0xef, 0xc3, 0xc1, 0xac, 0xc7, 0x07, 0x33,
-	0xb0, 0x98, 0x0e, 0xe8, 0x3d, 0xd4, 0xd3, 0x08, 0x09, 0x89, 0xd2, 0xb9, 0x41, 0xf3, 0x34, 0x52,
-	0x72, 0x6e, 0xbe, 0x80, 0xca, 0xc7, 0xb7, 0x86, 0x3d, 0xa0, 0x92, 0x0e, 0x4a, 0x99, 0xa0, 0x39,
-	0xaa, 0x73, 0x01, 0x6f, 0x24, 0x51, 0x17, 0x6e, 0x9b, 0x4b, 0x78, 0xed, 0x87, 0x4b, 0x56, 0x67,
-	0x71, 0x8e, 0x9f, 0x4d, 0x95, 0xff, 0xff, 0x26, 0xba, 0x86, 0x86, 0x1f, 0x2a, 0xa3, 0x8d, 0x16,
-	0x26, 0xda, 0x57, 0x56, 0x95, 0xe2, 0x0a, 0x61, 0xb0, 0x95, 0x81, 0xf1, 0x16, 0x3a, 0xa3, 0x0d,
-	0x25, 0xef, 0x69, 0x32, 0x8f, 0x0a, 0xf2, 0x0a, 0x70, 0xd4, 0xd8, 0xa7, 0x73, 0xf4, 0x7b, 0x01,
-	0x56, 0xf8, 0x9d, 0x82, 0xef, 0xa0, 0x10, 0x5c, 0x30, 0xf8, 0xbd, 0x08, 0x95, 0xd9, 0xbb, 0x48,
-	0xad, 0xca, 0x5f, 0xfa, 0x11, 0x49, 0xf3, 0x87, 0xbf, 0xfe, 0xfd, 0x25, 0x57, 0x23, 0x15, 0x6d,
-	0x72, 0xa8, 0x85, 0xdf, 0x0d, 0xdc, 0x48, 0xf3, 0xcc, 0x4f, 0xd0, 0x1e, 0x36, 0xe1, 0x85, 0x58,
-	0xf0, 0xf8, 0x4d, 0xac, 0xb5, 0xa2, 0xf7, 0x83, 0xaa, 0xca, 0x5e, 0x09, 0x18, 0xc2, 0x61, 0xaa,
-	0xe4, 0xb5, 0x0c, 0xe6, 0x8c, 0x72, 0x94, 0xef, 0x11, 0xac, 0xc7, 0x17, 0x23, 0x6e, 0x44, 0x73,
-	0x2c, 0x5b, 0xca, 0xea, 0x56, 0x86, 0x85, 0xc0, 0xde, 0xe5, 0xd8, 0x4d, 0x52, 0x97, 0x61, 0x87,
-	0x3e, 0x1e, 0x85, 0xef, 0xe0, 0x9d, 0xd8, 0x12, 0xc4, 0x9b, 0xf1, 0xf0, 0x89, 0x2e, 0x54, 0x1b,
-	0xe9, 0x06, 0x02, 0xbe, 0xc5, 0xe1, 0x09, 0xa9, 0xa5, 0xc0, 0xfb, 0x2e, 0x1e, 0xfa, 0xaf, 0x88,
-	0xdf, 0x0c, 0xb2, 0x8f, 0x97, 0x56, 0x1c, 0x26, 0x7d, 0x2c, 0xd4, 0xdd, 0x39, 0x2c, 0x05, 0xb3,
-	0x0f, 0x38, 0xb3, 0x36, 0xd9, 0x49, 0x61, 0x36, 0xe3, 0xeb, 0x51, 0xfc, 0x09, 0x41, 0x29, 0xb1,
-	0x88, 0x70, 0x33, 0x82, 0x99, 0xb6, 0xfc, 0xd4, 0xf7, 0xb3, 0x8d, 0x04, 0xa7, 0x7d, 0xce, 0x69,
-	0x87, 0x6c, 0xc9, 0x38, 0xc5, 0xdc, 0x3c, 0x3a, 0x3f, 0x22, 0x28, 0xce, 0xee, 0x1c, 0x4c, 0x12,
-	0x40, 0xc9, 0x2c, 0x35, 0x33, 0x6d, 0x04, 0x97, 0x36, 0xe7, 0xb2, 0x4d, 0x1a, 0xe9, 0x5c, 0xc2,
-	0xcc, 0xfc, 0x86, 0xa6, 0x2b, 0x5a, 0x56, 0xbf, 0x76, 0x02, 0x2f, 0xa3, 0x84, 0xfb, 0xf3, 0x19,
-	0x0b, 0x96, 0x1f, 0x71, 0x96, 0x1d, 0xb2, 0x9b, 0xce, 0x52, 0x52, 0xc8, 0x91, 0xff, 0x71, 0xed,
-	0xef, 0x17, 0x5c, 0x9d, 0x59, 0xc7, 0xb1, 0x1d, 0xa5, 0xd6, 0x52, 0xde, 0x0a, 0x02, 0xdb, 0x9c,
-	0xc0, 0x26, 0x51, 0x65, 0x04, 0x7c, 0xfb, 0x13, 0xb4, 0x77, 0xba, 0xf6, 0x55, 0xf8, 0x07, 0xe4,
-	0x3a, 0xcf, 0xff, 0x31, 0x7c, 0xf8, 0x5f, 0x00, 0x00, 0x00, 0xff, 0xff, 0xf6, 0x76, 0x9d, 0x0e,
-	0xab, 0x0c, 0x00, 0x00,
+var fileDescriptor_nodes_8b13318b4f2f633d = []byte{
+	// 1149 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x58, 0x4f, 0x6f, 0xe3, 0x44,
+	0x14, 0xef, 0x24, 0x69, 0xda, 0xbc, 0xaa, 0xdd, 0x64, 0xba, 0x6d, 0xbd, 0x6e, 0xd3, 0xa6, 0x13,
+	0x5a, 0xa5, 0xdb, 0x6d, 0x4c, 0xcb, 0x6a, 0x85, 0xf6, 0x96, 0x2e, 0xa2, 0x7f, 0xb4, 0xec, 0x21,
+	0x08, 0x84, 0xb8, 0x44, 0xde, 0x78, 0x94, 0x5a, 0x6d, 0x3c, 0xc5, 0xf6, 0x66, 0x05, 0x42, 0x02,
+	0x71, 0x40, 0x1c, 0x10, 0x07, 0xe0, 0x03, 0x2c, 0x48, 0xdc, 0xf8, 0x1e, 0x70, 0xe7, 0xc8, 0x01,
+	0x09, 0xf1, 0x21, 0x38, 0xae, 0x3c, 0x33, 0x71, 0xec, 0x78, 0x9c, 0xa6, 0x7f, 0xb6, 0x37, 0x7b,
+	0xe6, 0xbd, 0x79, 0xbf, 0xf7, 0x7b, 0x6f, 0xde, 0x7b, 0x36, 0x2c, 0xd8, 0x4e, 0x8f, 0x3a, 0x3e,
+	0x73, 0x3f, 0x37, 0x1c, 0x66, 0x51, 0xaf, 0x7e, 0xee, 0x32, 0x9f, 0xe1, 0x42, 0xb8, 0xac, 0x3f,
+	0xea, 0xd8, 0xfe, 0xc9, 0x8b, 0xe7, 0xf5, 0x36, 0xeb, 0x1a, 0xdd, 0x97, 0xb6, 0x7f, 0xca, 0x5e,
+	0x1a, 0x1d, 0xb6, 0xc3, 0xe5, 0x76, 0x7a, 0xe6, 0x99, 0x6d, 0x99, 0x3e, 0x73, 0x3d, 0x23, 0x7c,
+	0x14, 0x47, 0xe8, 0x2b, 0x1d, 0xc6, 0x3a, 0x67, 0xd4, 0x30, 0xcf, 0x6d, 0xc3, 0x74, 0x1c, 0xe6,
+	0x9b, 0xbe, 0xcd, 0x1c, 0x69, 0x80, 0xfc, 0x82, 0x60, 0xe6, 0x80, 0x3a, 0xd4, 0xb5, 0xdb, 0xcf,
+	0x98, 0x45, 0xf1, 0x12, 0x4c, 0x05, 0xf6, 0x5b, 0xb6, 0xa5, 0xa1, 0x0a, 0xaa, 0x15, 0x9a, 0xf9,
+	0xe0, 0xf5, 0xc8, 0xc2, 0xcb, 0x50, 0xe0, 0x1b, 0x8e, 0xd9, 0xa5, 0x5a, 0x86, 0x6f, 0x4d, 0x07,
+	0x0b, 0xcf, 0xcc, 0x2e, 0xc5, 0x65, 0x80, 0xae, 0xd9, 0x3e, 0xb1, 0x1d, 0xae, 0x98, 0xe5, 0xbb,
+	0x05, 0xb9, 0x72, 0x64, 0xe1, 0x45, 0xc8, 0x5b, 0xb6, 0xe7, 0xbb, 0x4c, 0xcb, 0x89, 0x33, 0xc5,
+	0x1b, 0xde, 0x80, 0x39, 0xf1, 0xd4, 0xea, 0x51, 0xd7, 0xb3, 0x99, 0xa3, 0x4d, 0xf2, 0xfd, 0x59,
+	0xb1, 0xfa, 0xb1, 0x58, 0x24, 0x7f, 0x22, 0x98, 0x7d, 0xc2, 0x1c, 0xdf, 0xb4, 0x1d, 0xea, 0xbe,
+	0x39, 0x94, 0x75, 0x98, 0xb7, 0x58, 0xfb, 0x94, 0xba, 0xad, 0x76, 0xdf, 0x58, 0x20, 0x27, 0x20,
+	0x97, 0xc4, 0x56, 0x08, 0xe3, 0xc8, 0xc2, 0x7b, 0xb0, 0x90, 0x90, 0xe7, 0x76, 0x85, 0x13, 0xf3,
+	0x43, 0x1a, 0x01, 0x04, 0xb2, 0x0f, 0xd0, 0xa4, 0x5d, 0xe6, 0xd3, 0xab, 0xbb, 0x41, 0xbe, 0x82,
+	0x79, 0x71, 0x46, 0xa3, 0x6b, 0x7e, 0xc1, 0x9c, 0xe6, 0x7b, 0x1f, 0x5e, 0x83, 0x13, 0x1d, 0xa6,
+	0x6d, 0xc7, 0xf3, 0x4d, 0xa7, 0x4d, 0x25, 0x23, 0xe1, 0x7b, 0x10, 0x36, 0x97, 0x76, 0x82, 0xb0,
+	0xc8, 0xb0, 0x89, 0x37, 0x82, 0xa1, 0xf8, 0xd4, 0xf6, 0xfc, 0xc0, 0xaa, 0xd7, 0xa4, 0x9f, 0xbd,
+	0xa0, 0x9e, 0x4f, 0xfe, 0x47, 0x50, 0x8a, 0x2c, 0x7a, 0xe7, 0xcc, 0xf1, 0x28, 0x7e, 0x1b, 0xa6,
+	0x3a, 0x22, 0xb9, 0x34, 0x54, 0xc9, 0xd6, 0x66, 0xf6, 0x16, 0xeb, 0x61, 0x42, 0xd7, 0x23, 0x69,
+	0xd7, 0xec, 0x8b, 0xe1, 0x47, 0x50, 0x08, 0xd9, 0xd4, 0x32, 0x5c, 0x47, 0x8b, 0xe8, 0xc4, 0xd2,
+	0xa0, 0x39, 0x10, 0xc5, 0x3b, 0x01, 0xd6, 0x80, 0x14, 0x2d, 0xcb, 0x95, 0x16, 0x22, 0x4a, 0x03,
+	0xc6, 0x9b, 0x52, 0x08, 0x1f, 0x43, 0x49, 0x3c, 0xb5, 0x4c, 0x4e, 0x62, 0xcb, 0xb5, 0x3c, 0x2d,
+	0xc7, 0x35, 0x57, 0x13, 0x9a, 0x31, 0x9e, 0x9b, 0x77, 0xdc, 0xe8, 0xa2, 0xe5, 0x91, 0x5d, 0x98,
+	0x3b, 0xa0, 0xdc, 0x71, 0x49, 0x06, 0x5e, 0x1b, 0x0a, 0xc5, 0x7e, 0xfe, 0xdf, 0x7f, 0xd6, 0x32,
+	0x9f, 0xa0, 0x7e, 0x48, 0xc8, 0xb7, 0x19, 0xb8, 0x13, 0xea, 0x48, 0xae, 0xf6, 0xa2, 0x5c, 0xa1,
+	0x74, 0xae, 0x0e, 0x27, 0x06, 0x6c, 0xbd, 0x1b, 0x67, 0x0b, 0x8d, 0x62, 0xeb, 0x70, 0x22, 0xca,
+	0x97, 0x11, 0xe1, 0x0b, 0xa5, 0xf2, 0x75, 0x38, 0x11, 0x32, 0xf6, 0x54, 0xcd, 0x18, 0xba, 0x98,
+	0xb1, 0xc3, 0x89, 0x04, 0x67, 0xfb, 0x79, 0xc8, 0x05, 0x54, 0x90, 0x57, 0x08, 0x16, 0x1a, 0x96,
+	0x15, 0x4d, 0x05, 0xc9, 0x61, 0x35, 0x91, 0xb5, 0x21, 0x8b, 0xb7, 0x54, 0x77, 0x8e, 0x73, 0xd3,
+	0xa8, 0x98, 0x21, 0xc7, 0xb0, 0x38, 0x8c, 0x50, 0x95, 0xdd, 0x68, 0x8c, 0xec, 0x26, 0xbf, 0x21,
+	0xd0, 0x9e, 0x9c, 0x98, 0x4e, 0x87, 0x2a, 0x3c, 0xbe, 0x28, 0x6b, 0xc6, 0xa3, 0xe4, 0xda, 0x3e,
+	0x67, 0x8b, 0x39, 0xf2, 0x01, 0xdc, 0x53, 0xc0, 0xbc, 0xb2, 0xdb, 0x7f, 0x20, 0x58, 0x6a, 0x58,
+	0x56, 0xfc, 0xf2, 0xde, 0x60, 0x9c, 0x6f, 0xa1, 0x72, 0xcb, 0x64, 0x68, 0x82, 0x96, 0x74, 0x44,
+	0xf2, 0x12, 0x2b, 0x5d, 0x68, 0xf4, 0x65, 0x8c, 0x5c, 0x45, 0xf2, 0x2b, 0x02, 0x5d, 0xb0, 0xad,
+	0x24, 0xe8, 0x66, 0xd2, 0xe2, 0x6a, 0x2e, 0x67, 0x8b, 0xb9, 0xe3, 0xdc, 0x74, 0xae, 0x38, 0x49,
+	0x3e, 0x82, 0x65, 0x25, 0xc6, 0x6b, 0xfa, 0xde, 0x80, 0xbb, 0x0d, 0xcb, 0x8a, 0x14, 0xe8, 0x4b,
+	0x64, 0x85, 0x0c, 0xc9, 0xfb, 0xbc, 0x82, 0x44, 0x8f, 0x90, 0x98, 0x06, 0x2d, 0x01, 0x8d, 0x28,
+	0x71, 0xfd, 0x02, 0x47, 0x5a, 0xb0, 0x24, 0x3c, 0x4c, 0xa2, 0xb9, 0x91, 0x10, 0x90, 0xa3, 0xfe,
+	0xdd, 0xbf, 0x3e, 0xd6, 0x1f, 0x10, 0x94, 0x43, 0xa7, 0xe3, 0xed, 0xe9, 0x32, 0xd7, 0x8a, 0x0c,
+	0x37, 0xff, 0x81, 0x4c, 0x38, 0x04, 0xac, 0xc6, 0x87, 0x80, 0x81, 0xeb, 0x62, 0x55, 0x06, 0xe1,
+	0x0c, 0x56, 0xd3, 0xf0, 0x48, 0x0f, 0x95, 0x1d, 0x17, 0x8d, 0xd3, 0x3f, 0x92, 0x1d, 0xf7, 0x47,
+	0x04, 0x95, 0x28, 0x95, 0x4a, 0x06, 0x6e, 0xe6, 0xde, 0x8c, 0x41, 0x91, 0xbc, 0x21, 0x0c, 0xd6,
+	0x47, 0x60, 0x7a, 0x03, 0x2c, 0x3c, 0x84, 0x52, 0x20, 0xd7, 0xbb, 0x54, 0xaa, 0x92, 0xbb, 0x80,
+	0xa3, 0x5a, 0x02, 0xd7, 0xde, 0xdf, 0x33, 0x30, 0xc9, 0x47, 0x37, 0x7c, 0x0a, 0x85, 0x70, 0x8e,
+	0xc3, 0xcb, 0x11, 0x4c, 0xc3, 0x23, 0x9f, 0xbe, 0xa2, 0xde, 0x14, 0x27, 0x92, 0xea, 0x37, 0x7f,
+	0xfd, 0xf7, 0x53, 0xa6, 0x4c, 0x34, 0xa3, 0xb7, 0x6b, 0x0c, 0x3e, 0x6e, 0xb8, 0x90, 0x11, 0x88,
+	0x3f, 0x46, 0xf7, 0xb1, 0x05, 0x53, 0x72, 0x0c, 0xc2, 0xf7, 0x62, 0x4d, 0x24, 0x3a, 0x4e, 0xe9,
+	0xba, 0x6a, 0x4b, 0x9a, 0x21, 0xdc, 0xcc, 0x0a, 0x59, 0x52, 0x99, 0x39, 0xa0, 0xdc, 0xca, 0xd7,
+	0x08, 0xe6, 0xe2, 0x2d, 0x1c, 0x57, 0x22, 0x47, 0x2a, 0xe7, 0x0f, 0x7d, 0x7d, 0x84, 0x84, 0xb4,
+	0xbd, 0xc5, 0x6d, 0x57, 0xc9, 0xaa, 0xca, 0xf6, 0x40, 0x27, 0x80, 0xf0, 0x3d, 0x82, 0x52, 0xa2,
+	0xa3, 0xe2, 0x6a, 0xb4, 0x44, 0xa6, 0x8c, 0x05, 0xfa, 0x5b, 0xa3, 0x85, 0x24, 0x96, 0x07, 0x1c,
+	0xcb, 0x26, 0x59, 0x57, 0x61, 0x89, 0xa9, 0x05, 0x70, 0xbe, 0x43, 0x50, 0x1c, 0xee, 0x63, 0x98,
+	0xc4, 0x3d, 0x56, 0x35, 0x23, 0xbd, 0x3a, 0x52, 0x46, 0x62, 0xd9, 0xe6, 0x58, 0x36, 0x48, 0x25,
+	0x85, 0x97, 0x50, 0x2b, 0x80, 0xf2, 0x33, 0x82, 0x79, 0x45, 0x67, 0xc1, 0x1b, 0x09, 0xb7, 0x95,
+	0x80, 0x36, 0x2f, 0x12, 0x93, 0x98, 0xea, 0x1c, 0x53, 0x8d, 0x54, 0xd3, 0xf9, 0x89, 0xc1, 0xfa,
+	0x12, 0x66, 0x63, 0x5d, 0x05, 0xaf, 0xc5, 0x3d, 0x4f, 0x34, 0x09, 0xbd, 0x92, 0x2e, 0x20, 0x31,
+	0xd4, 0x38, 0x06, 0x42, 0xca, 0x29, 0xbc, 0x08, 0x95, 0x7e, 0x7c, 0x86, 0x7b, 0x45, 0x2c, 0x3e,
+	0x29, 0x9d, 0x4a, 0xaf, 0x8e, 0x94, 0x19, 0x27, 0x3e, 0x51, 0xad, 0x00, 0xca, 0x2b, 0xc4, 0xe7,
+	0x5f, 0xd5, 0x17, 0x67, 0x4d, 0xe5, 0xb1, 0xaa, 0x16, 0xeb, 0x5b, 0x63, 0x48, 0x4a, 0x70, 0xbb,
+	0x1c, 0xdc, 0x36, 0xd9, 0x1c, 0x49, 0x52, 0xa8, 0x1b, 0x40, 0xfc, 0x1d, 0xf5, 0xc7, 0x55, 0x15,
+	0xca, 0xed, 0x14, 0x4a, 0x94, 0x40, 0x1f, 0x8c, 0x27, 0x2c, 0xb1, 0x3e, 0xe4, 0x58, 0xeb, 0x64,
+	0xeb, 0x22, 0x22, 0x63, 0x70, 0xcf, 0xc5, 0x3f, 0x00, 0x51, 0x81, 0xf1, 0xca, 0x50, 0xd9, 0x8f,
+	0x95, 0x73, 0xbd, 0x9c, 0xb2, 0x2b, 0x01, 0x6c, 0x70, 0x00, 0x6b, 0x44, 0x57, 0x01, 0x10, 0xf2,
+	0x8f, 0xd1, 0xfd, 0xfd, 0x99, 0x4f, 0x07, 0xff, 0x91, 0x9e, 0xe7, 0xf9, 0x8f, 0x9f, 0x77, 0x5e,
+	0x07, 0x00, 0x00, 0xff, 0xff, 0x42, 0x8c, 0x76, 0x71, 0x72, 0x12, 0x00, 0x00,
 }

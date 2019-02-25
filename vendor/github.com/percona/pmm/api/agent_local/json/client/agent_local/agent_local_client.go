@@ -36,7 +36,7 @@ func (a *Client) Status(params *StatusParams) (*StatusOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "Status",
 		Method:             "POST",
-		PathPattern:        "/v0/local/Status",
+		PathPattern:        "/local/Status",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

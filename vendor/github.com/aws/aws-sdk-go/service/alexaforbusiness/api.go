@@ -9,6 +9,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/private/protocol"
+	"github.com/aws/aws-sdk-go/private/protocol/jsonrpc"
 )
 
 const opApproveSkill = "ApproveSkill"
@@ -50,6 +52,7 @@ func (c *AlexaForBusiness) ApproveSkillRequest(input *ApproveSkillInput) (req *r
 
 	output = &ApproveSkillOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -137,6 +140,7 @@ func (c *AlexaForBusiness) AssociateContactWithAddressBookRequest(input *Associa
 
 	output = &AssociateContactWithAddressBookOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -216,6 +220,7 @@ func (c *AlexaForBusiness) AssociateDeviceWithRoomRequest(input *AssociateDevice
 
 	output = &AssociateDeviceWithRoomOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -305,6 +310,7 @@ func (c *AlexaForBusiness) AssociateSkillGroupWithRoomRequest(input *AssociateSk
 
 	output = &AssociateSkillGroupWithRoomOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -385,6 +391,7 @@ func (c *AlexaForBusiness) AssociateSkillWithSkillGroupRequest(input *AssociateS
 
 	output = &AssociateSkillWithSkillGroupOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -406,6 +413,9 @@ func (c *AlexaForBusiness) AssociateSkillWithSkillGroupRequest(input *AssociateS
 //   * ErrCodeNotFoundException "NotFoundException"
 //   The resource is not found.
 //
+//   * ErrCodeSkillNotLinkedException "SkillNotLinkedException"
+//   The skill must be linked to a third-party account.
+//
 // See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/AssociateSkillWithSkillGroup
 func (c *AlexaForBusiness) AssociateSkillWithSkillGroup(input *AssociateSkillWithSkillGroupInput) (*AssociateSkillWithSkillGroupOutput, error) {
 	req, out := c.AssociateSkillWithSkillGroupRequest(input)
@@ -423,6 +433,86 @@ func (c *AlexaForBusiness) AssociateSkillWithSkillGroup(input *AssociateSkillWit
 // for more information on using Contexts.
 func (c *AlexaForBusiness) AssociateSkillWithSkillGroupWithContext(ctx aws.Context, input *AssociateSkillWithSkillGroupInput, opts ...request.Option) (*AssociateSkillWithSkillGroupOutput, error) {
 	req, out := c.AssociateSkillWithSkillGroupRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opAssociateSkillWithUsers = "AssociateSkillWithUsers"
+
+// AssociateSkillWithUsersRequest generates a "aws/request.Request" representing the
+// client's request for the AssociateSkillWithUsers operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See AssociateSkillWithUsers for more information on using the AssociateSkillWithUsers
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the AssociateSkillWithUsersRequest method.
+//    req, resp := client.AssociateSkillWithUsersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/AssociateSkillWithUsers
+func (c *AlexaForBusiness) AssociateSkillWithUsersRequest(input *AssociateSkillWithUsersInput) (req *request.Request, output *AssociateSkillWithUsersOutput) {
+	op := &request.Operation{
+		Name:       opAssociateSkillWithUsers,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &AssociateSkillWithUsersInput{}
+	}
+
+	output = &AssociateSkillWithUsersOutput{}
+	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	return
+}
+
+// AssociateSkillWithUsers API operation for Alexa For Business.
+//
+// Makes a private skill available for enrolled users to enable on their devices.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Alexa For Business's
+// API operation AssociateSkillWithUsers for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeConcurrentModificationException "ConcurrentModificationException"
+//   Concurrent modification of resources. HTTP Status Code: 400.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/AssociateSkillWithUsers
+func (c *AlexaForBusiness) AssociateSkillWithUsers(input *AssociateSkillWithUsersInput) (*AssociateSkillWithUsersOutput, error) {
+	req, out := c.AssociateSkillWithUsersRequest(input)
+	return out, req.Send()
+}
+
+// AssociateSkillWithUsersWithContext is the same as AssociateSkillWithUsers with the addition of
+// the ability to pass a context and additional request options.
+//
+// See AssociateSkillWithUsers for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AlexaForBusiness) AssociateSkillWithUsersWithContext(ctx aws.Context, input *AssociateSkillWithUsersInput, opts ...request.Option) (*AssociateSkillWithUsersOutput, error) {
+	req, out := c.AssociateSkillWithUsersRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -505,6 +595,86 @@ func (c *AlexaForBusiness) CreateAddressBook(input *CreateAddressBookInput) (*Cr
 // for more information on using Contexts.
 func (c *AlexaForBusiness) CreateAddressBookWithContext(ctx aws.Context, input *CreateAddressBookInput, opts ...request.Option) (*CreateAddressBookOutput, error) {
 	req, out := c.CreateAddressBookRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opCreateBusinessReportSchedule = "CreateBusinessReportSchedule"
+
+// CreateBusinessReportScheduleRequest generates a "aws/request.Request" representing the
+// client's request for the CreateBusinessReportSchedule operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See CreateBusinessReportSchedule for more information on using the CreateBusinessReportSchedule
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the CreateBusinessReportScheduleRequest method.
+//    req, resp := client.CreateBusinessReportScheduleRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/CreateBusinessReportSchedule
+func (c *AlexaForBusiness) CreateBusinessReportScheduleRequest(input *CreateBusinessReportScheduleInput) (req *request.Request, output *CreateBusinessReportScheduleOutput) {
+	op := &request.Operation{
+		Name:       opCreateBusinessReportSchedule,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &CreateBusinessReportScheduleInput{}
+	}
+
+	output = &CreateBusinessReportScheduleOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// CreateBusinessReportSchedule API operation for Alexa For Business.
+//
+// Creates a recurring schedule for usage reports to deliver to the specified
+// S3 location with a specified daily or weekly interval.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Alexa For Business's
+// API operation CreateBusinessReportSchedule for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeAlreadyExistsException "AlreadyExistsException"
+//   The resource being created already exists.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/CreateBusinessReportSchedule
+func (c *AlexaForBusiness) CreateBusinessReportSchedule(input *CreateBusinessReportScheduleInput) (*CreateBusinessReportScheduleOutput, error) {
+	req, out := c.CreateBusinessReportScheduleRequest(input)
+	return out, req.Send()
+}
+
+// CreateBusinessReportScheduleWithContext is the same as CreateBusinessReportSchedule with the addition of
+// the ability to pass a context and additional request options.
+//
+// See CreateBusinessReportSchedule for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AlexaForBusiness) CreateBusinessReportScheduleWithContext(ctx aws.Context, input *CreateBusinessReportScheduleInput, opts ...request.Option) (*CreateBusinessReportScheduleOutput, error) {
+	req, out := c.CreateBusinessReportScheduleRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -1047,6 +1217,7 @@ func (c *AlexaForBusiness) DeleteAddressBookRequest(input *DeleteAddressBookInpu
 
 	output = &DeleteAddressBookOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1085,6 +1256,90 @@ func (c *AlexaForBusiness) DeleteAddressBook(input *DeleteAddressBookInput) (*De
 // for more information on using Contexts.
 func (c *AlexaForBusiness) DeleteAddressBookWithContext(ctx aws.Context, input *DeleteAddressBookInput, opts ...request.Option) (*DeleteAddressBookOutput, error) {
 	req, out := c.DeleteAddressBookRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opDeleteBusinessReportSchedule = "DeleteBusinessReportSchedule"
+
+// DeleteBusinessReportScheduleRequest generates a "aws/request.Request" representing the
+// client's request for the DeleteBusinessReportSchedule operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DeleteBusinessReportSchedule for more information on using the DeleteBusinessReportSchedule
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DeleteBusinessReportScheduleRequest method.
+//    req, resp := client.DeleteBusinessReportScheduleRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/DeleteBusinessReportSchedule
+func (c *AlexaForBusiness) DeleteBusinessReportScheduleRequest(input *DeleteBusinessReportScheduleInput) (req *request.Request, output *DeleteBusinessReportScheduleOutput) {
+	op := &request.Operation{
+		Name:       opDeleteBusinessReportSchedule,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DeleteBusinessReportScheduleInput{}
+	}
+
+	output = &DeleteBusinessReportScheduleOutput{}
+	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	return
+}
+
+// DeleteBusinessReportSchedule API operation for Alexa For Business.
+//
+// Deletes the recurring report delivery schedule with the specified schedule
+// ARN.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Alexa For Business's
+// API operation DeleteBusinessReportSchedule for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeNotFoundException "NotFoundException"
+//   The resource is not found.
+//
+//   * ErrCodeConcurrentModificationException "ConcurrentModificationException"
+//   Concurrent modification of resources. HTTP Status Code: 400.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/DeleteBusinessReportSchedule
+func (c *AlexaForBusiness) DeleteBusinessReportSchedule(input *DeleteBusinessReportScheduleInput) (*DeleteBusinessReportScheduleOutput, error) {
+	req, out := c.DeleteBusinessReportScheduleRequest(input)
+	return out, req.Send()
+}
+
+// DeleteBusinessReportScheduleWithContext is the same as DeleteBusinessReportSchedule with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DeleteBusinessReportSchedule for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AlexaForBusiness) DeleteBusinessReportScheduleWithContext(ctx aws.Context, input *DeleteBusinessReportScheduleInput, opts ...request.Option) (*DeleteBusinessReportScheduleOutput, error) {
+	req, out := c.DeleteBusinessReportScheduleRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -1129,6 +1384,7 @@ func (c *AlexaForBusiness) DeleteConferenceProviderRequest(input *DeleteConferen
 
 	output = &DeleteConferenceProviderOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1208,6 +1464,7 @@ func (c *AlexaForBusiness) DeleteContactRequest(input *DeleteContactInput) (req 
 
 	output = &DeleteContactOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1290,6 +1547,7 @@ func (c *AlexaForBusiness) DeleteDeviceRequest(input *DeleteDeviceInput) (req *r
 
 	output = &DeleteDeviceOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1375,6 +1633,7 @@ func (c *AlexaForBusiness) DeleteProfileRequest(input *DeleteProfileInput) (req 
 
 	output = &DeleteProfileOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1457,6 +1716,7 @@ func (c *AlexaForBusiness) DeleteRoomRequest(input *DeleteRoomInput) (req *reque
 
 	output = &DeleteRoomOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1539,6 +1799,7 @@ func (c *AlexaForBusiness) DeleteRoomSkillParameterRequest(input *DeleteRoomSkil
 
 	output = &DeleteRoomSkillParameterOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1618,6 +1879,7 @@ func (c *AlexaForBusiness) DeleteSkillAuthorizationRequest(input *DeleteSkillAut
 
 	output = &DeleteSkillAuthorizationOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1700,6 +1962,7 @@ func (c *AlexaForBusiness) DeleteSkillGroupRequest(input *DeleteSkillGroupInput)
 
 	output = &DeleteSkillGroupOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1782,6 +2045,7 @@ func (c *AlexaForBusiness) DeleteUserRequest(input *DeleteUserInput) (req *reque
 
 	output = &DeleteUserOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1864,6 +2128,7 @@ func (c *AlexaForBusiness) DisassociateContactFromAddressBookRequest(input *Disa
 
 	output = &DisassociateContactFromAddressBookOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1938,6 +2203,7 @@ func (c *AlexaForBusiness) DisassociateDeviceFromRoomRequest(input *Disassociate
 
 	output = &DisassociateDeviceFromRoomOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -2023,6 +2289,7 @@ func (c *AlexaForBusiness) DisassociateSkillFromSkillGroupRequest(input *Disasso
 
 	output = &DisassociateSkillFromSkillGroupOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -2061,6 +2328,87 @@ func (c *AlexaForBusiness) DisassociateSkillFromSkillGroup(input *DisassociateSk
 // for more information on using Contexts.
 func (c *AlexaForBusiness) DisassociateSkillFromSkillGroupWithContext(ctx aws.Context, input *DisassociateSkillFromSkillGroupInput, opts ...request.Option) (*DisassociateSkillFromSkillGroupOutput, error) {
 	req, out := c.DisassociateSkillFromSkillGroupRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opDisassociateSkillFromUsers = "DisassociateSkillFromUsers"
+
+// DisassociateSkillFromUsersRequest generates a "aws/request.Request" representing the
+// client's request for the DisassociateSkillFromUsers operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DisassociateSkillFromUsers for more information on using the DisassociateSkillFromUsers
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DisassociateSkillFromUsersRequest method.
+//    req, resp := client.DisassociateSkillFromUsersRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/DisassociateSkillFromUsers
+func (c *AlexaForBusiness) DisassociateSkillFromUsersRequest(input *DisassociateSkillFromUsersInput) (req *request.Request, output *DisassociateSkillFromUsersOutput) {
+	op := &request.Operation{
+		Name:       opDisassociateSkillFromUsers,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DisassociateSkillFromUsersInput{}
+	}
+
+	output = &DisassociateSkillFromUsersOutput{}
+	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	return
+}
+
+// DisassociateSkillFromUsers API operation for Alexa For Business.
+//
+// Makes a private skill unavailable for enrolled users and prevents them from
+// enabling it on their devices.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Alexa For Business's
+// API operation DisassociateSkillFromUsers for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeConcurrentModificationException "ConcurrentModificationException"
+//   Concurrent modification of resources. HTTP Status Code: 400.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/DisassociateSkillFromUsers
+func (c *AlexaForBusiness) DisassociateSkillFromUsers(input *DisassociateSkillFromUsersInput) (*DisassociateSkillFromUsersOutput, error) {
+	req, out := c.DisassociateSkillFromUsersRequest(input)
+	return out, req.Send()
+}
+
+// DisassociateSkillFromUsersWithContext is the same as DisassociateSkillFromUsers with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DisassociateSkillFromUsers for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AlexaForBusiness) DisassociateSkillFromUsersWithContext(ctx aws.Context, input *DisassociateSkillFromUsersInput, opts ...request.Option) (*DisassociateSkillFromUsersOutput, error) {
+	req, out := c.DisassociateSkillFromUsersRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -2105,6 +2453,7 @@ func (c *AlexaForBusiness) DisassociateSkillGroupFromRoomRequest(input *Disassoc
 
 	output = &DisassociateSkillGroupFromRoomOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -2185,6 +2534,7 @@ func (c *AlexaForBusiness) ForgetSmartHomeAppliancesRequest(input *ForgetSmartHo
 
 	output = &ForgetSmartHomeAppliancesOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -2934,6 +3284,136 @@ func (c *AlexaForBusiness) GetSkillGroupWithContext(ctx aws.Context, input *GetS
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
+}
+
+const opListBusinessReportSchedules = "ListBusinessReportSchedules"
+
+// ListBusinessReportSchedulesRequest generates a "aws/request.Request" representing the
+// client's request for the ListBusinessReportSchedules operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See ListBusinessReportSchedules for more information on using the ListBusinessReportSchedules
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the ListBusinessReportSchedulesRequest method.
+//    req, resp := client.ListBusinessReportSchedulesRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/ListBusinessReportSchedules
+func (c *AlexaForBusiness) ListBusinessReportSchedulesRequest(input *ListBusinessReportSchedulesInput) (req *request.Request, output *ListBusinessReportSchedulesOutput) {
+	op := &request.Operation{
+		Name:       opListBusinessReportSchedules,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"NextToken"},
+			OutputTokens:    []string{"NextToken"},
+			LimitToken:      "MaxResults",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &ListBusinessReportSchedulesInput{}
+	}
+
+	output = &ListBusinessReportSchedulesOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// ListBusinessReportSchedules API operation for Alexa For Business.
+//
+// Lists the details of the schedules that a user configured.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Alexa For Business's
+// API operation ListBusinessReportSchedules for usage and error information.
+// See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/ListBusinessReportSchedules
+func (c *AlexaForBusiness) ListBusinessReportSchedules(input *ListBusinessReportSchedulesInput) (*ListBusinessReportSchedulesOutput, error) {
+	req, out := c.ListBusinessReportSchedulesRequest(input)
+	return out, req.Send()
+}
+
+// ListBusinessReportSchedulesWithContext is the same as ListBusinessReportSchedules with the addition of
+// the ability to pass a context and additional request options.
+//
+// See ListBusinessReportSchedules for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AlexaForBusiness) ListBusinessReportSchedulesWithContext(ctx aws.Context, input *ListBusinessReportSchedulesInput, opts ...request.Option) (*ListBusinessReportSchedulesOutput, error) {
+	req, out := c.ListBusinessReportSchedulesRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+// ListBusinessReportSchedulesPages iterates over the pages of a ListBusinessReportSchedules operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See ListBusinessReportSchedules method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a ListBusinessReportSchedules operation.
+//    pageNum := 0
+//    err := client.ListBusinessReportSchedulesPages(params,
+//        func(page *ListBusinessReportSchedulesOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
+func (c *AlexaForBusiness) ListBusinessReportSchedulesPages(input *ListBusinessReportSchedulesInput, fn func(*ListBusinessReportSchedulesOutput, bool) bool) error {
+	return c.ListBusinessReportSchedulesPagesWithContext(aws.BackgroundContext(), input, fn)
+}
+
+// ListBusinessReportSchedulesPagesWithContext same as ListBusinessReportSchedulesPages except
+// it takes a Context and allows setting request options on the pages.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AlexaForBusiness) ListBusinessReportSchedulesPagesWithContext(ctx aws.Context, input *ListBusinessReportSchedulesInput, fn func(*ListBusinessReportSchedulesOutput, bool) bool, opts ...request.Option) error {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			var inCpy *ListBusinessReportSchedulesInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.ListBusinessReportSchedulesRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	cont := true
+	for p.Next() && cont {
+		cont = fn(p.Page().(*ListBusinessReportSchedulesOutput), !p.HasNextPage())
+	}
+	return p.Err()
 }
 
 const opListConferenceProviders = "ListConferenceProviders"
@@ -3901,6 +4381,7 @@ func (c *AlexaForBusiness) PutConferencePreferenceRequest(input *PutConferencePr
 
 	output = &PutConferencePreferenceOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -3981,6 +4462,7 @@ func (c *AlexaForBusiness) PutRoomSkillParameterRequest(input *PutRoomSkillParam
 
 	output = &PutRoomSkillParameterOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -4061,6 +4543,7 @@ func (c *AlexaForBusiness) PutSkillAuthorizationRequest(input *PutSkillAuthoriza
 
 	output = &PutSkillAuthorizationOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -4233,6 +4716,7 @@ func (c *AlexaForBusiness) RejectSkillRequest(input *RejectSkillInput) (req *req
 
 	output = &RejectSkillOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -4398,6 +4882,7 @@ func (c *AlexaForBusiness) RevokeInvitationRequest(input *RevokeInvitationInput)
 
 	output = &RevokeInvitationOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -5392,6 +5877,7 @@ func (c *AlexaForBusiness) SendInvitationRequest(input *SendInvitationInput) (re
 
 	output = &SendInvitationOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -5478,6 +5964,7 @@ func (c *AlexaForBusiness) StartDeviceSyncRequest(input *StartDeviceSyncInput) (
 
 	output = &StartDeviceSyncOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -5559,6 +6046,7 @@ func (c *AlexaForBusiness) StartSmartHomeApplianceDiscoveryRequest(input *StartS
 
 	output = &StartSmartHomeApplianceDiscoveryOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -5639,6 +6127,7 @@ func (c *AlexaForBusiness) TagResourceRequest(input *TagResourceInput) (req *req
 
 	output = &TagResourceOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -5718,6 +6207,7 @@ func (c *AlexaForBusiness) UntagResourceRequest(input *UntagResourceInput) (req 
 
 	output = &UntagResourceOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -5797,6 +6287,7 @@ func (c *AlexaForBusiness) UpdateAddressBookRequest(input *UpdateAddressBookInpu
 
 	output = &UpdateAddressBookOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -5843,6 +6334,90 @@ func (c *AlexaForBusiness) UpdateAddressBookWithContext(ctx aws.Context, input *
 	return out, req.Send()
 }
 
+const opUpdateBusinessReportSchedule = "UpdateBusinessReportSchedule"
+
+// UpdateBusinessReportScheduleRequest generates a "aws/request.Request" representing the
+// client's request for the UpdateBusinessReportSchedule operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See UpdateBusinessReportSchedule for more information on using the UpdateBusinessReportSchedule
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the UpdateBusinessReportScheduleRequest method.
+//    req, resp := client.UpdateBusinessReportScheduleRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/UpdateBusinessReportSchedule
+func (c *AlexaForBusiness) UpdateBusinessReportScheduleRequest(input *UpdateBusinessReportScheduleInput) (req *request.Request, output *UpdateBusinessReportScheduleOutput) {
+	op := &request.Operation{
+		Name:       opUpdateBusinessReportSchedule,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &UpdateBusinessReportScheduleInput{}
+	}
+
+	output = &UpdateBusinessReportScheduleOutput{}
+	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
+	return
+}
+
+// UpdateBusinessReportSchedule API operation for Alexa For Business.
+//
+// Updates the configuration of the report delivery schedule with the specified
+// schedule ARN.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Alexa For Business's
+// API operation UpdateBusinessReportSchedule for usage and error information.
+//
+// Returned Error Codes:
+//   * ErrCodeNotFoundException "NotFoundException"
+//   The resource is not found.
+//
+//   * ErrCodeConcurrentModificationException "ConcurrentModificationException"
+//   Concurrent modification of resources. HTTP Status Code: 400.
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/alexaforbusiness-2017-11-09/UpdateBusinessReportSchedule
+func (c *AlexaForBusiness) UpdateBusinessReportSchedule(input *UpdateBusinessReportScheduleInput) (*UpdateBusinessReportScheduleOutput, error) {
+	req, out := c.UpdateBusinessReportScheduleRequest(input)
+	return out, req.Send()
+}
+
+// UpdateBusinessReportScheduleWithContext is the same as UpdateBusinessReportSchedule with the addition of
+// the ability to pass a context and additional request options.
+//
+// See UpdateBusinessReportSchedule for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *AlexaForBusiness) UpdateBusinessReportScheduleWithContext(ctx aws.Context, input *UpdateBusinessReportScheduleInput, opts ...request.Option) (*UpdateBusinessReportScheduleOutput, error) {
+	req, out := c.UpdateBusinessReportScheduleRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opUpdateConferenceProvider = "UpdateConferenceProvider"
 
 // UpdateConferenceProviderRequest generates a "aws/request.Request" representing the
@@ -5882,6 +6457,7 @@ func (c *AlexaForBusiness) UpdateConferenceProviderRequest(input *UpdateConferen
 
 	output = &UpdateConferenceProviderOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -5961,6 +6537,7 @@ func (c *AlexaForBusiness) UpdateContactRequest(input *UpdateContactInput) (req 
 
 	output = &UpdateContactOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -6043,6 +6620,7 @@ func (c *AlexaForBusiness) UpdateDeviceRequest(input *UpdateDeviceInput) (req *r
 
 	output = &UpdateDeviceOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -6129,6 +6707,7 @@ func (c *AlexaForBusiness) UpdateProfileRequest(input *UpdateProfileInput) (req 
 
 	output = &UpdateProfileOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -6214,6 +6793,7 @@ func (c *AlexaForBusiness) UpdateRoomRequest(input *UpdateRoomInput) (req *reque
 
 	output = &UpdateRoomOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -6296,6 +6876,7 @@ func (c *AlexaForBusiness) UpdateSkillGroupRequest(input *UpdateSkillGroupInput)
 
 	output = &UpdateSkillGroupOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(jsonrpc.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -6697,6 +7278,296 @@ func (s AssociateSkillWithSkillGroupOutput) GoString() string {
 	return s.String()
 }
 
+type AssociateSkillWithUsersInput struct {
+	_ struct{} `type:"structure"`
+
+	// The ARN of the organization.
+	OrganizationArn *string `type:"string"`
+
+	// The private skill ID you want to make available to enrolled users.>
+	//
+	// SkillId is a required field
+	SkillId *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s AssociateSkillWithUsersInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s AssociateSkillWithUsersInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *AssociateSkillWithUsersInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "AssociateSkillWithUsersInput"}
+	if s.SkillId == nil {
+		invalidParams.Add(request.NewErrParamRequired("SkillId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetOrganizationArn sets the OrganizationArn field's value.
+func (s *AssociateSkillWithUsersInput) SetOrganizationArn(v string) *AssociateSkillWithUsersInput {
+	s.OrganizationArn = &v
+	return s
+}
+
+// SetSkillId sets the SkillId field's value.
+func (s *AssociateSkillWithUsersInput) SetSkillId(v string) *AssociateSkillWithUsersInput {
+	s.SkillId = &v
+	return s
+}
+
+type AssociateSkillWithUsersOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s AssociateSkillWithUsersOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s AssociateSkillWithUsersOutput) GoString() string {
+	return s.String()
+}
+
+// Usage report with specified parameters.
+type BusinessReport struct {
+	_ struct{} `type:"structure"`
+
+	// The time of report delivery.
+	DeliveryTime *time.Time `type:"timestamp"`
+
+	// The download link where a user can download the report.
+	DownloadUrl *string `type:"string"`
+
+	// The failure code.
+	FailureCode *string `type:"string" enum:"BusinessReportFailureCode"`
+
+	// The S3 location of the output reports.
+	S3Location *BusinessReportS3Location `type:"structure"`
+
+	// The status of the report generation execution (RUNNING, SUCCEEDED, or FAILED).
+	Status *string `type:"string" enum:"BusinessReportStatus"`
+}
+
+// String returns the string representation
+func (s BusinessReport) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s BusinessReport) GoString() string {
+	return s.String()
+}
+
+// SetDeliveryTime sets the DeliveryTime field's value.
+func (s *BusinessReport) SetDeliveryTime(v time.Time) *BusinessReport {
+	s.DeliveryTime = &v
+	return s
+}
+
+// SetDownloadUrl sets the DownloadUrl field's value.
+func (s *BusinessReport) SetDownloadUrl(v string) *BusinessReport {
+	s.DownloadUrl = &v
+	return s
+}
+
+// SetFailureCode sets the FailureCode field's value.
+func (s *BusinessReport) SetFailureCode(v string) *BusinessReport {
+	s.FailureCode = &v
+	return s
+}
+
+// SetS3Location sets the S3Location field's value.
+func (s *BusinessReport) SetS3Location(v *BusinessReportS3Location) *BusinessReport {
+	s.S3Location = v
+	return s
+}
+
+// SetStatus sets the Status field's value.
+func (s *BusinessReport) SetStatus(v string) *BusinessReport {
+	s.Status = &v
+	return s
+}
+
+// The content range of the report.
+type BusinessReportContentRange struct {
+	_ struct{} `type:"structure"`
+
+	// The interval of the content range.
+	Interval *string `type:"string" enum:"BusinessReportInterval"`
+}
+
+// String returns the string representation
+func (s BusinessReportContentRange) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s BusinessReportContentRange) GoString() string {
+	return s.String()
+}
+
+// SetInterval sets the Interval field's value.
+func (s *BusinessReportContentRange) SetInterval(v string) *BusinessReportContentRange {
+	s.Interval = &v
+	return s
+}
+
+// The recurrence of the reports.
+type BusinessReportRecurrence struct {
+	_ struct{} `type:"structure"`
+
+	// The start date.
+	StartDate *string `type:"string"`
+}
+
+// String returns the string representation
+func (s BusinessReportRecurrence) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s BusinessReportRecurrence) GoString() string {
+	return s.String()
+}
+
+// SetStartDate sets the StartDate field's value.
+func (s *BusinessReportRecurrence) SetStartDate(v string) *BusinessReportRecurrence {
+	s.StartDate = &v
+	return s
+}
+
+// The S3 location of the output reports.
+type BusinessReportS3Location struct {
+	_ struct{} `type:"structure"`
+
+	// The S3 bucket name of the output reports.
+	BucketName *string `type:"string"`
+
+	// The path of the business report.
+	Path *string `type:"string"`
+}
+
+// String returns the string representation
+func (s BusinessReportS3Location) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s BusinessReportS3Location) GoString() string {
+	return s.String()
+}
+
+// SetBucketName sets the BucketName field's value.
+func (s *BusinessReportS3Location) SetBucketName(v string) *BusinessReportS3Location {
+	s.BucketName = &v
+	return s
+}
+
+// SetPath sets the Path field's value.
+func (s *BusinessReportS3Location) SetPath(v string) *BusinessReportS3Location {
+	s.Path = &v
+	return s
+}
+
+// The schedule of the usage report.
+type BusinessReportSchedule struct {
+	_ struct{} `type:"structure"`
+
+	// The content range of the reports.
+	ContentRange *BusinessReportContentRange `type:"structure"`
+
+	// The format of the generated report (individual CSV files or zipped files
+	// of individual files).
+	Format *string `type:"string" enum:"BusinessReportFormat"`
+
+	// The details of the last business report delivery for a specified time interval.
+	LastBusinessReport *BusinessReport `type:"structure"`
+
+	// The recurrence of the reports.
+	Recurrence *BusinessReportRecurrence `type:"structure"`
+
+	// The S3 bucket name of the output reports.
+	S3BucketName *string `type:"string"`
+
+	// The S3 key where the report is delivered.
+	S3KeyPrefix *string `type:"string"`
+
+	// The ARN of the business report schedule.
+	ScheduleArn *string `type:"string"`
+
+	// The name identifier of the schedule.
+	ScheduleName *string `type:"string"`
+}
+
+// String returns the string representation
+func (s BusinessReportSchedule) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s BusinessReportSchedule) GoString() string {
+	return s.String()
+}
+
+// SetContentRange sets the ContentRange field's value.
+func (s *BusinessReportSchedule) SetContentRange(v *BusinessReportContentRange) *BusinessReportSchedule {
+	s.ContentRange = v
+	return s
+}
+
+// SetFormat sets the Format field's value.
+func (s *BusinessReportSchedule) SetFormat(v string) *BusinessReportSchedule {
+	s.Format = &v
+	return s
+}
+
+// SetLastBusinessReport sets the LastBusinessReport field's value.
+func (s *BusinessReportSchedule) SetLastBusinessReport(v *BusinessReport) *BusinessReportSchedule {
+	s.LastBusinessReport = v
+	return s
+}
+
+// SetRecurrence sets the Recurrence field's value.
+func (s *BusinessReportSchedule) SetRecurrence(v *BusinessReportRecurrence) *BusinessReportSchedule {
+	s.Recurrence = v
+	return s
+}
+
+// SetS3BucketName sets the S3BucketName field's value.
+func (s *BusinessReportSchedule) SetS3BucketName(v string) *BusinessReportSchedule {
+	s.S3BucketName = &v
+	return s
+}
+
+// SetS3KeyPrefix sets the S3KeyPrefix field's value.
+func (s *BusinessReportSchedule) SetS3KeyPrefix(v string) *BusinessReportSchedule {
+	s.S3KeyPrefix = &v
+	return s
+}
+
+// SetScheduleArn sets the ScheduleArn field's value.
+func (s *BusinessReportSchedule) SetScheduleArn(v string) *BusinessReportSchedule {
+	s.ScheduleArn = &v
+	return s
+}
+
+// SetScheduleName sets the ScheduleName field's value.
+func (s *BusinessReportSchedule) SetScheduleName(v string) *BusinessReportSchedule {
+	s.ScheduleName = &v
+	return s
+}
+
 // The skill store category that is shown. Alexa skills are assigned a specific
 // skill category during creation, such as News, Social, and Sports.
 type Category struct {
@@ -6845,7 +7716,7 @@ type Contact struct {
 	LastName *string `min:"1" type:"string"`
 
 	// The phone number of the contact.
-	PhoneNumber *string `type:"string"`
+	PhoneNumber *string `type:"string" sensitive:"true"`
 }
 
 // String returns the string representation
@@ -6905,7 +7776,7 @@ type ContactData struct {
 	LastName *string `min:"1" type:"string"`
 
 	// The phone number of the contact.
-	PhoneNumber *string `type:"string"`
+	PhoneNumber *string `type:"string" sensitive:"true"`
 }
 
 // String returns the string representation
@@ -7033,6 +7904,130 @@ func (s CreateAddressBookOutput) GoString() string {
 // SetAddressBookArn sets the AddressBookArn field's value.
 func (s *CreateAddressBookOutput) SetAddressBookArn(v string) *CreateAddressBookOutput {
 	s.AddressBookArn = &v
+	return s
+}
+
+type CreateBusinessReportScheduleInput struct {
+	_ struct{} `type:"structure"`
+
+	// The client request token.
+	ClientRequestToken *string `min:"10" type:"string" idempotencyToken:"true"`
+
+	// The content range of the reports.
+	//
+	// ContentRange is a required field
+	ContentRange *BusinessReportContentRange `type:"structure" required:"true"`
+
+	// The format of the generated report (individual CSV files or zipped files
+	// of individual files).
+	//
+	// Format is a required field
+	Format *string `type:"string" required:"true" enum:"BusinessReportFormat"`
+
+	// The recurrence of the reports.
+	Recurrence *BusinessReportRecurrence `type:"structure"`
+
+	// The S3 bucket name of the output reports.
+	S3BucketName *string `type:"string"`
+
+	// The S3 key where the report is delivered.
+	S3KeyPrefix *string `type:"string"`
+
+	// The name identifier of the schedule.
+	ScheduleName *string `type:"string"`
+}
+
+// String returns the string representation
+func (s CreateBusinessReportScheduleInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateBusinessReportScheduleInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *CreateBusinessReportScheduleInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "CreateBusinessReportScheduleInput"}
+	if s.ClientRequestToken != nil && len(*s.ClientRequestToken) < 10 {
+		invalidParams.Add(request.NewErrParamMinLen("ClientRequestToken", 10))
+	}
+	if s.ContentRange == nil {
+		invalidParams.Add(request.NewErrParamRequired("ContentRange"))
+	}
+	if s.Format == nil {
+		invalidParams.Add(request.NewErrParamRequired("Format"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetClientRequestToken sets the ClientRequestToken field's value.
+func (s *CreateBusinessReportScheduleInput) SetClientRequestToken(v string) *CreateBusinessReportScheduleInput {
+	s.ClientRequestToken = &v
+	return s
+}
+
+// SetContentRange sets the ContentRange field's value.
+func (s *CreateBusinessReportScheduleInput) SetContentRange(v *BusinessReportContentRange) *CreateBusinessReportScheduleInput {
+	s.ContentRange = v
+	return s
+}
+
+// SetFormat sets the Format field's value.
+func (s *CreateBusinessReportScheduleInput) SetFormat(v string) *CreateBusinessReportScheduleInput {
+	s.Format = &v
+	return s
+}
+
+// SetRecurrence sets the Recurrence field's value.
+func (s *CreateBusinessReportScheduleInput) SetRecurrence(v *BusinessReportRecurrence) *CreateBusinessReportScheduleInput {
+	s.Recurrence = v
+	return s
+}
+
+// SetS3BucketName sets the S3BucketName field's value.
+func (s *CreateBusinessReportScheduleInput) SetS3BucketName(v string) *CreateBusinessReportScheduleInput {
+	s.S3BucketName = &v
+	return s
+}
+
+// SetS3KeyPrefix sets the S3KeyPrefix field's value.
+func (s *CreateBusinessReportScheduleInput) SetS3KeyPrefix(v string) *CreateBusinessReportScheduleInput {
+	s.S3KeyPrefix = &v
+	return s
+}
+
+// SetScheduleName sets the ScheduleName field's value.
+func (s *CreateBusinessReportScheduleInput) SetScheduleName(v string) *CreateBusinessReportScheduleInput {
+	s.ScheduleName = &v
+	return s
+}
+
+type CreateBusinessReportScheduleOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The ARN of the business report schedule.
+	ScheduleArn *string `type:"string"`
+}
+
+// String returns the string representation
+func (s CreateBusinessReportScheduleOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s CreateBusinessReportScheduleOutput) GoString() string {
+	return s.String()
+}
+
+// SetScheduleArn sets the ScheduleArn field's value.
+func (s *CreateBusinessReportScheduleOutput) SetScheduleArn(v string) *CreateBusinessReportScheduleOutput {
+	s.ScheduleArn = &v
 	return s
 }
 
@@ -7191,9 +8186,7 @@ type CreateContactInput struct {
 	LastName *string `min:"1" type:"string"`
 
 	// The phone number of the contact in E.164 format.
-	//
-	// PhoneNumber is a required field
-	PhoneNumber *string `type:"string" required:"true"`
+	PhoneNumber *string `type:"string" sensitive:"true"`
 }
 
 // String returns the string representation
@@ -7223,9 +8216,6 @@ func (s *CreateContactInput) Validate() error {
 	}
 	if s.LastName != nil && len(*s.LastName) < 1 {
 		invalidParams.Add(request.NewErrParamMinLen("LastName", 1))
-	}
-	if s.PhoneNumber == nil {
-		invalidParams.Add(request.NewErrParamRequired("PhoneNumber"))
 	}
 
 	if invalidParams.Len() > 0 {
@@ -7853,6 +8843,58 @@ func (s DeleteAddressBookOutput) String() string {
 
 // GoString returns the string representation
 func (s DeleteAddressBookOutput) GoString() string {
+	return s.String()
+}
+
+type DeleteBusinessReportScheduleInput struct {
+	_ struct{} `type:"structure"`
+
+	// The ARN of the business report schedule.
+	//
+	// ScheduleArn is a required field
+	ScheduleArn *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DeleteBusinessReportScheduleInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteBusinessReportScheduleInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DeleteBusinessReportScheduleInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DeleteBusinessReportScheduleInput"}
+	if s.ScheduleArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("ScheduleArn"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetScheduleArn sets the ScheduleArn field's value.
+func (s *DeleteBusinessReportScheduleInput) SetScheduleArn(v string) *DeleteBusinessReportScheduleInput {
+	s.ScheduleArn = &v
+	return s
+}
+
+type DeleteBusinessReportScheduleOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s DeleteBusinessReportScheduleOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DeleteBusinessReportScheduleOutput) GoString() string {
 	return s.String()
 }
 
@@ -8839,6 +9881,67 @@ func (s DisassociateSkillFromSkillGroupOutput) GoString() string {
 	return s.String()
 }
 
+type DisassociateSkillFromUsersInput struct {
+	_ struct{} `type:"structure"`
+
+	// The ARN of the organization.
+	OrganizationArn *string `type:"string"`
+
+	// The private skill ID you want to make unavailable for enrolled users.
+	//
+	// SkillId is a required field
+	SkillId *string `type:"string" required:"true"`
+}
+
+// String returns the string representation
+func (s DisassociateSkillFromUsersInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DisassociateSkillFromUsersInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DisassociateSkillFromUsersInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DisassociateSkillFromUsersInput"}
+	if s.SkillId == nil {
+		invalidParams.Add(request.NewErrParamRequired("SkillId"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetOrganizationArn sets the OrganizationArn field's value.
+func (s *DisassociateSkillFromUsersInput) SetOrganizationArn(v string) *DisassociateSkillFromUsersInput {
+	s.OrganizationArn = &v
+	return s
+}
+
+// SetSkillId sets the SkillId field's value.
+func (s *DisassociateSkillFromUsersInput) SetSkillId(v string) *DisassociateSkillFromUsersInput {
+	s.SkillId = &v
+	return s
+}
+
+type DisassociateSkillFromUsersOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s DisassociateSkillFromUsersOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DisassociateSkillFromUsersOutput) GoString() string {
+	return s.String()
+}
+
 type DisassociateSkillGroupFromRoomInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9542,6 +10645,86 @@ func (s *IPDialIn) SetEndpoint(v string) *IPDialIn {
 	return s
 }
 
+type ListBusinessReportSchedulesInput struct {
+	_ struct{} `type:"structure"`
+
+	// The maximum number of schedules listed in the call.
+	MaxResults *int64 `min:"1" type:"integer"`
+
+	// The token used to list the remaining schedules from the previous API call.
+	NextToken *string `min:"1" type:"string"`
+}
+
+// String returns the string representation
+func (s ListBusinessReportSchedulesInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListBusinessReportSchedulesInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *ListBusinessReportSchedulesInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "ListBusinessReportSchedulesInput"}
+	if s.MaxResults != nil && *s.MaxResults < 1 {
+		invalidParams.Add(request.NewErrParamMinValue("MaxResults", 1))
+	}
+	if s.NextToken != nil && len(*s.NextToken) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("NextToken", 1))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetMaxResults sets the MaxResults field's value.
+func (s *ListBusinessReportSchedulesInput) SetMaxResults(v int64) *ListBusinessReportSchedulesInput {
+	s.MaxResults = &v
+	return s
+}
+
+// SetNextToken sets the NextToken field's value.
+func (s *ListBusinessReportSchedulesInput) SetNextToken(v string) *ListBusinessReportSchedulesInput {
+	s.NextToken = &v
+	return s
+}
+
+type ListBusinessReportSchedulesOutput struct {
+	_ struct{} `type:"structure"`
+
+	// The schedule of the reports.
+	BusinessReportSchedules []*BusinessReportSchedule `type:"list"`
+
+	// The token used to list the remaining schedules from the previous API call.
+	NextToken *string `min:"1" type:"string"`
+}
+
+// String returns the string representation
+func (s ListBusinessReportSchedulesOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ListBusinessReportSchedulesOutput) GoString() string {
+	return s.String()
+}
+
+// SetBusinessReportSchedules sets the BusinessReportSchedules field's value.
+func (s *ListBusinessReportSchedulesOutput) SetBusinessReportSchedules(v []*BusinessReportSchedule) *ListBusinessReportSchedulesOutput {
+	s.BusinessReportSchedules = v
+	return s
+}
+
+// SetNextToken sets the NextToken field's value.
+func (s *ListBusinessReportSchedulesOutput) SetNextToken(v string) *ListBusinessReportSchedulesOutput {
+	s.NextToken = &v
+	return s
+}
+
 type ListConferenceProvidersInput struct {
 	_ struct{} `type:"structure"`
 
@@ -9743,16 +10926,15 @@ type ListSkillsInput struct {
 
 	// The maximum number of results to include in the response. If more results
 	// exist than the specified MaxResults value, a token is included in the response
-	// so that the remaining results can be retrieved. Required.
+	// so that the remaining results can be retrieved.
 	MaxResults *int64 `min:"1" type:"integer"`
 
 	// An optional token returned from a prior request. Use this token for pagination
 	// of results from this action. If this parameter is specified, the response
 	// includes only results beyond the token, up to the value specified by MaxResults.
-	// Required.
 	NextToken *string `min:"1" type:"string"`
 
-	// The ARN of the skill group for which to list enabled skills. Required.
+	// The ARN of the skill group for which to list enabled skills.
 	SkillGroupArn *string `type:"string"`
 
 	// Whether the skill is publicly available or is a private skill.
@@ -10703,7 +11885,7 @@ type PutSkillAuthorizationInput struct {
 	// be populated in the AuthorizationResult map to establish the authorization.
 	//
 	// AuthorizationResult is a required field
-	AuthorizationResult map[string]*string `type:"map" required:"true"`
+	AuthorizationResult map[string]*string `type:"map" required:"true" sensitive:"true"`
 
 	// The room that the skill is authorized for.
 	RoomArn *string `type:"string"`
@@ -13076,6 +14258,104 @@ func (s UpdateAddressBookOutput) GoString() string {
 	return s.String()
 }
 
+type UpdateBusinessReportScheduleInput struct {
+	_ struct{} `type:"structure"`
+
+	// The format of the generated report (individual CSV files or zipped files
+	// of individual files).
+	Format *string `type:"string" enum:"BusinessReportFormat"`
+
+	// The recurrence of the reports.
+	Recurrence *BusinessReportRecurrence `type:"structure"`
+
+	// The S3 location of the output reports.
+	S3BucketName *string `type:"string"`
+
+	// The S3 key where the report is delivered.
+	S3KeyPrefix *string `type:"string"`
+
+	// The ARN of the business report schedule.
+	//
+	// ScheduleArn is a required field
+	ScheduleArn *string `type:"string" required:"true"`
+
+	// The name identifier of the schedule.
+	ScheduleName *string `type:"string"`
+}
+
+// String returns the string representation
+func (s UpdateBusinessReportScheduleInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateBusinessReportScheduleInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *UpdateBusinessReportScheduleInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "UpdateBusinessReportScheduleInput"}
+	if s.ScheduleArn == nil {
+		invalidParams.Add(request.NewErrParamRequired("ScheduleArn"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetFormat sets the Format field's value.
+func (s *UpdateBusinessReportScheduleInput) SetFormat(v string) *UpdateBusinessReportScheduleInput {
+	s.Format = &v
+	return s
+}
+
+// SetRecurrence sets the Recurrence field's value.
+func (s *UpdateBusinessReportScheduleInput) SetRecurrence(v *BusinessReportRecurrence) *UpdateBusinessReportScheduleInput {
+	s.Recurrence = v
+	return s
+}
+
+// SetS3BucketName sets the S3BucketName field's value.
+func (s *UpdateBusinessReportScheduleInput) SetS3BucketName(v string) *UpdateBusinessReportScheduleInput {
+	s.S3BucketName = &v
+	return s
+}
+
+// SetS3KeyPrefix sets the S3KeyPrefix field's value.
+func (s *UpdateBusinessReportScheduleInput) SetS3KeyPrefix(v string) *UpdateBusinessReportScheduleInput {
+	s.S3KeyPrefix = &v
+	return s
+}
+
+// SetScheduleArn sets the ScheduleArn field's value.
+func (s *UpdateBusinessReportScheduleInput) SetScheduleArn(v string) *UpdateBusinessReportScheduleInput {
+	s.ScheduleArn = &v
+	return s
+}
+
+// SetScheduleName sets the ScheduleName field's value.
+func (s *UpdateBusinessReportScheduleInput) SetScheduleName(v string) *UpdateBusinessReportScheduleInput {
+	s.ScheduleName = &v
+	return s
+}
+
+type UpdateBusinessReportScheduleOutput struct {
+	_ struct{} `type:"structure"`
+}
+
+// String returns the string representation
+func (s UpdateBusinessReportScheduleOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s UpdateBusinessReportScheduleOutput) GoString() string {
+	return s.String()
+}
+
 type UpdateConferenceProviderInput struct {
 	_ struct{} `type:"structure"`
 
@@ -13207,7 +14487,7 @@ type UpdateContactInput struct {
 	LastName *string `min:"1" type:"string"`
 
 	// The updated phone number of the contact.
-	PhoneNumber *string `type:"string"`
+	PhoneNumber *string `type:"string" sensitive:"true"`
 }
 
 // String returns the string representation
@@ -13720,6 +15000,44 @@ func (s *UserData) SetUserArn(v string) *UserData {
 	s.UserArn = &v
 	return s
 }
+
+const (
+	// BusinessReportFailureCodeAccessDenied is a BusinessReportFailureCode enum value
+	BusinessReportFailureCodeAccessDenied = "ACCESS_DENIED"
+
+	// BusinessReportFailureCodeNoSuchBucket is a BusinessReportFailureCode enum value
+	BusinessReportFailureCodeNoSuchBucket = "NO_SUCH_BUCKET"
+
+	// BusinessReportFailureCodeInternalFailure is a BusinessReportFailureCode enum value
+	BusinessReportFailureCodeInternalFailure = "INTERNAL_FAILURE"
+)
+
+const (
+	// BusinessReportFormatCsv is a BusinessReportFormat enum value
+	BusinessReportFormatCsv = "CSV"
+
+	// BusinessReportFormatCsvZip is a BusinessReportFormat enum value
+	BusinessReportFormatCsvZip = "CSV_ZIP"
+)
+
+const (
+	// BusinessReportIntervalOneDay is a BusinessReportInterval enum value
+	BusinessReportIntervalOneDay = "ONE_DAY"
+
+	// BusinessReportIntervalOneWeek is a BusinessReportInterval enum value
+	BusinessReportIntervalOneWeek = "ONE_WEEK"
+)
+
+const (
+	// BusinessReportStatusRunning is a BusinessReportStatus enum value
+	BusinessReportStatusRunning = "RUNNING"
+
+	// BusinessReportStatusSucceeded is a BusinessReportStatus enum value
+	BusinessReportStatusSucceeded = "SUCCEEDED"
+
+	// BusinessReportStatusFailed is a BusinessReportStatus enum value
+	BusinessReportStatusFailed = "FAILED"
+)
 
 const (
 	// CommsProtocolSip is a CommsProtocol enum value

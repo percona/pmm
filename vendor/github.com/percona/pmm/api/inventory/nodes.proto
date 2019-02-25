@@ -7,49 +7,70 @@ option go_package = "inventory";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 
-// GenericNode represents Node without more specialized type.
+// GenericNode represents a bare metal server or virtual machine.
 message GenericNode {
-  // Unique Node identifier.
-  string id = 1;
-  // Unique user-defined Node name.
-  string name = 2;
-  // Hostname. Is not unique. May be empty.
-  string hostname = 3;
+  // Unique randomly generated instance identifier, can't be changed.
+  string node_id = 1;
+  // Unique across all Nodes user-defined name, can be changed.
+  string node_name = 2;
+  // Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.
+  string machine_id = 3;
+  // Linux distribution (if any). Can be changed.
+  string distro = 4;
+  // Linux distribution version (if any). Can be changed.
+  string distro_version = 5;
 }
 
-// RemoteNode represents a generic remote Node.
-// Agents can't be run on remote Nodes.
+// ContainerNode represents a Docker container.
+message ContainerNode {
+  // Unique randomly generated instance identifier, can't be changed.
+  string node_id = 1;
+  // Unique across all Nodes user-defined name, can be changed.
+  string node_name = 2;
+  // Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.
+  string machine_id = 3;
+  // Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.
+  string docker_container_id = 4;
+  // Container name. Can be changed.
+  string docker_container_name = 5;
+}
+
+// RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.
 message RemoteNode {
-  // Unique Node identifier.
-  string id = 1;
-  // Unique user-defined Node name.
-  string name = 2;
-  reserved 3; // hostname
+  // Unique randomly generated instance identifier, can't be changed.
+  string node_id = 1;
+  // Unique across all Nodes user-defined name, can be changed.
+  string node_name = 2;
 }
 
-// AmazonRDSRemoteNode represents Amazon (AWS) RDS remote Node.
-message AmazonRDSRemoteNode {
-  // Unique Node identifier.
-  string id = 1;
-  // Unique user-defined Node name.
-  string name = 2;
-  // Hostname. Unique in combination with region.
-  string hostname = 3;
-  // AWS region. Unique in combination with hostname.
+// RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.
+message RemoteAmazonRDSNode {
+  // Unique randomly generated instance identifier, can't be changed.
+  string node_id = 1;
+  // Unique across all Nodes user-defined name, can be changed.
+  string node_name = 2;
+  // DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.
+  string instance = 3;
+  // Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
   string region = 4;
 }
+
+// List
 
 message ListNodesRequest {}
 
 message ListNodesResponse {
   repeated GenericNode generic = 1;
-  repeated RemoteNode remote = 4;
-  repeated AmazonRDSRemoteNode amazon_rds_remote = 5;
+  repeated ContainerNode container = 2;
+  repeated RemoteNode remote = 3;
+  repeated RemoteAmazonRDSNode remote_amazon_rds = 4;
 }
 
+// Get
+
 message GetNodeRequest {
-  // Unique Node identifier.
-  string id = 1 [
+  // Unique randomly generated instance identifier.
+  string node_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -59,60 +80,162 @@ message GetNodeRequest {
 message GetNodeResponse {
   oneof node {
     GenericNode generic = 1;
-    RemoteNode remote = 4;
-    AmazonRDSRemoteNode amazon_rds_remote = 5;
+    ContainerNode container = 2;
+    RemoteNode remote = 3;
+    RemoteAmazonRDSNode remote_amazon_rds = 4;
   }
 }
 
+// Add/Change Generic
+
 message AddGenericNodeRequest {
-  // Unique Node identifier. Will be generated if empty.
-  string id = 1;
-  // Unique user-defined Node name.
-  string name = 2 [
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Unique across all Nodes user-defined name.
+  string node_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Hostname. Is not unique. May be empty.
-  string hostname = 3;
+  // Linux machine-id. Must be unique across all Generic Nodes if specified.
+  string machine_id = 3;
+  // Linux distribution (if any).
+  string distro = 4;
+  // Linux distribution version (if any).
+  string distro_version = 5;
 }
 
 message AddGenericNodeResponse {
   GenericNode generic = 1;
 }
 
-message AddRemoteNodeRequest {
-  // Unique Node identifier. Will be generated if empty.
-  string id = 1;
-  // Unique user-defined Node name.
-  string name = 2 [
+message ChangeGenericNodeRequest {
+  // Unique randomly generated instance identifier.
+  string node_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  reserved 3; // hostname
+  // Unique across all Nodes user-defined name.
+  string node_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Linux machine-id. Can't be changed.
+  reserved 3;
+  // Linux distribution (if any).
+  string distro = 4;
+  // Linux distribution version (if any).
+  string distro_version = 5;
+}
+
+message ChangeGenericNodeResponse {
+  GenericNode generic = 1;
+}
+
+// Add/Change Container
+
+message AddContainerNodeRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Unique across all Nodes user-defined name.
+  string node_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist.
+  string machine_id = 3;
+  // Docker container identifier. If specified, must be a unique Docker container identifier.
+  string docker_container_id = 4;
+  // Container name.
+  string docker_container_name = 5;
+}
+
+message AddContainerNodeResponse {
+  ContainerNode container = 1;
+}
+
+message ChangeContainerNodeRequest {
+  // Unique randomly generated instance identifier.
+  string node_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Unique across all Nodes user-defined name.
+  string node_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Linux machine-id of the Generic Node where this Container Node runs. Can't be changed.
+  reserved 3;
+  // Docker container identifier. Can't be changed.
+  reserved 4;
+  // Container name.
+  string docker_container_name = 5;
+}
+
+message ChangeContainerNodeResponse {
+  ContainerNode container = 1;
+}
+
+// Add/Change Remote
+
+message AddRemoteNodeRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Unique across all Nodes user-defined name.
+  string node_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message AddRemoteNodeResponse {
   RemoteNode remote = 1;
 }
 
-message AddAmazonRDSRemoteNodeRequest {
-  // Unique Node identifier. Will be generated if empty.
-  string id = 1;
-  // Unique user-defined Node name.
-  string name = 2 [
+message ChangeRemoteNodeRequest {
+  // Unique randomly generated instance identifier.
+  string node_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Hostname. Unique in combination with region.
-  string hostname = 3 [
+  // Unique across all Nodes user-defined name.
+  string node_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // AWS region. Unique in combination with hostname.
+}
+
+message ChangeRemoteNodeResponse {
+  RemoteNode remote = 1;
+}
+
+// Add/Change RemoteAmazonRDS
+
+message AddRemoteAmazonRDSNodeRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Unique across all Nodes user-defined name.
+  string node_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.
+  string instance = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Unique across all RemoteAmazonRDS Nodes in combination with instance.
   string region = 4 [
     (validator.field) = {
       string_not_empty: true
@@ -120,74 +243,42 @@ message AddAmazonRDSRemoteNodeRequest {
   ];
 }
 
-message AddAmazonRDSRemoteNodeResponse {
-  AmazonRDSRemoteNode amazon_rds_remote = 1;
+message AddRemoteAmazonRDSNodeResponse {
+  RemoteAmazonRDSNode remote_amazon_rds = 1;
 }
 
-message ChangeGenericNodeRequest {
-  // Unique Node identifier.
-  string id = 1 [
+message ChangeRemoteAmazonRDSNodeRequest {
+  // Unique randomly generated instance identifier.
+  string node_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Unique user-defined Node name.
-  string name = 2 [
+  // Unique across all Nodes user-defined name.
+  string node_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  reserved 3; // hostname
-}
-
-message ChangeGenericNodeResponse {
-  GenericNode generic = 1;
-}
-
-message ChangeRemoteNodeRequest {
-  // Unique Node identifier.
-  string id = 1 [
+  // DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.
+  string instance = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Unique user-defined Node name.
-  string name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  reserved 3; // hostname
+  // Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
+  reserved 4;
 }
 
-message ChangeRemoteNodeResponse {
-  RemoteNode remote = 1;
+message ChangeRemoteAmazonRDSNodeResponse {
+  RemoteAmazonRDSNode remote_amazon_rds = 1;
 }
 
-message ChangeAmazonRDSRemoteNodeRequest {
-  // Unique Node identifier.
-  string id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Unique user-defined Node name.
-  string name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  reserved 3; // hostname
-  reserved 4; // region
-}
-
-message ChangeAmazonRDSRemoteNodeResponse {
-  AmazonRDSRemoteNode amazon_rds_remote = 1;
-}
+// Remove
 
 message RemoveNodeRequest {
-  // Unique Node identifier.
-  string id = 1 [
+  // Unique randomly generated instance identifier.
+  string node_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -201,63 +292,77 @@ service Nodes {
   // ListNodes returns a list of all Nodes.
   rpc ListNodes(ListNodesRequest) returns (ListNodesResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/List"
+      post: "/v1/inventory/Nodes/List"
       body: "*"
     };
   }
   // GetNode returns a single Node by ID.
   rpc GetNode(GetNodeRequest) returns (GetNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/Get"
+      post: "/v1/inventory/Nodes/Get"
       body: "*"
     };
   }
   // AddGenericNode adds generic Node.
   rpc AddGenericNode(AddGenericNodeRequest) returns (AddGenericNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddGeneric"
-      body: "*"
-    };
-  }
-  // AddRemoteNode adds remote Node.
-  rpc AddRemoteNode(AddRemoteNodeRequest) returns (AddRemoteNodeResponse) {
-    option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddRemote"
-      body: "*"
-    };
-  }
-  // AddAmazonRDSRemoteNode adds Amazon (AWS) RDS remote Node.
-  rpc AddAmazonRDSRemoteNode(AddAmazonRDSRemoteNodeRequest) returns (AddAmazonRDSRemoteNodeResponse) {
-    option (google.api.http) = {
-      post: "/v0/inventory/Nodes/AddAmazonRDSRemote"
+      post: "/v1/inventory/Nodes/AddGeneric"
       body: "*"
     };
   }
   // ChangeGenericNode changes generic Node.
   rpc ChangeGenericNode(ChangeGenericNodeRequest) returns (ChangeGenericNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeGeneric"
+      post: "/v1/inventory/Nodes/ChangeGeneric"
+      body: "*"
+    };
+  }
+  // AddContainerNode adds Container Node.
+  rpc AddContainerNode(AddContainerNodeRequest) returns (AddContainerNodeResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Nodes/AddContainer"
+      body: "*"
+    };
+  }
+  // ChangeContainerNode changes Container Node.
+  rpc ChangeContainerNode(ChangeContainerNodeRequest) returns (ChangeContainerNodeResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Nodes/ChangeContainer"
+      body: "*"
+    };
+  }
+  // AddRemoteNode adds remote Node.
+  rpc AddRemoteNode(AddRemoteNodeRequest) returns (AddRemoteNodeResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Nodes/AddRemote"
       body: "*"
     };
   }
   // ChangeRemoteNode changes remote Node.
   rpc ChangeRemoteNode(ChangeRemoteNodeRequest) returns (ChangeRemoteNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeRemote"
+      post: "/v1/inventory/Nodes/ChangeRemote"
       body: "*"
     };
   }
-  // ChangeAmazonRDSRemoteNode changes Amazon (AWS) RDS remote Node.
-  rpc ChangeAmazonRDSRemoteNode(ChangeAmazonRDSRemoteNodeRequest) returns (ChangeAmazonRDSRemoteNodeResponse) {
+  // AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
+  rpc AddRemoteAmazonRDSNode(AddRemoteAmazonRDSNodeRequest) returns (AddRemoteAmazonRDSNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/ChangeAmazonRDSRemote"
+      post: "/v1/inventory/Nodes/AddRemoteAmazonRDS"
+      body: "*"
+    };
+  }
+  // ChangeRemoteAmazonRDSNode changes Amazon (AWS) RDS remote Node.
+  rpc ChangeRemoteAmazonRDSNode(ChangeRemoteAmazonRDSNodeRequest) returns (ChangeRemoteAmazonRDSNodeResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Nodes/ChangeRemoteAmazonRDS"
       body: "*"
     };
   }
   // RemoveNode removes Node without any Agents and Services.
   rpc RemoveNode(RemoveNodeRequest) returns (RemoveNodeResponse) {
     option (google.api.http) = {
-      post: "/v0/inventory/Nodes/Remove"
+      post: "/v1/inventory/Nodes/Remove"
       body: "*"
     };
   }

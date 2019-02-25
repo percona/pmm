@@ -30,10 +30,8 @@ CPU Usage
 
 This metric shows the comparison of the percentage of the CPU usage for the
 current selected range, the previous day and the previous week.
-
-Use this metric to see how the CPU load increases or decreases when deploying a
-new application or experiencing a different traffic on your site or to confirm
-that your CPUs are working the same for your scheduled tasks.
+This graph is useful to demonstrate how the CPU usage has changed over time by
+visually overlaying time periods.
  
 |view-all-metrics| |this-dashboard|
 
@@ -42,13 +40,10 @@ that your CPUs are working the same for your scheduled tasks.
 I/O Read Activity
 --------------------------------------------------------------------------------
 
-This metric shows the comparison of the I/O read activity in terms of byte read
-for the currently selected range, the previous day, and the previous week.
-
-Use this metric to see how the I/O read activity increases or decreases when
-deploying a new application or experiencing a different traffic on your site or
-to confirm that your I/O read activity is working the same for your scheduled
-tasks.
+This metric shows the comparison of I/O Read Activity in terms of bytes read for
+the current selected range versus the previous day and the previous week for the
+same time range. This graph is useful to demonstrate how I/O Read Activity has
+changed over time by visually overlaying time periods. 
 
 |view-all-metrics| |this-dashboard| 
 
@@ -57,13 +52,10 @@ tasks.
 I/O Write Activity
 --------------------------------------------------------------------------------
 
-Shows the comparison of the I/O write activity in terms of byte written for the
-current selected range, the previous day, and the previous week.
-
-Use this metric to see how the I/O write activity increases or decreases when
-deploying a new application or experiencing a different traffic on your site or
-to confirm that your I/O write activity is working the same for your scheduled
-tasks.
+Shows the comparison of I/O Write Activity in terms of byte written for the
+current selected range versus the previous day and the previous week for the
+same time range. This graph is useful to demonstrate how I/O Write Activity has
+changed over time by visually overlaying time periods.
 
 |view-all-metrics| |this-dashboard|
 
@@ -73,12 +65,9 @@ tasks.
 --------------------------------------------------------------------------------
 
 This metric shows the comparison of the |mysql| Questions for the current
-selected range, the previous day, and the previous week.
-
-Use this metric to see how the |mysql| questions increases or decreases when
-deploying a new application or experiencing a different traffic on your site or
-to confirm that your |mysql| questions are working the same for your scheduled
-tasks.
+selected range versus the previous day and the previous week for the same time
+range. This graph is useful to demonstrate how |mysql| Questions has changed
+over time by visually overlaying time periods.
 
 |view-all-metrics| |this-dashboard|
 
@@ -87,12 +76,10 @@ tasks.
 |innodb| Rows Read
 --------------------------------------------------------------------------------
 
-This metric shows the comparison of the |innodb| rows read for the current
-selected range, the previous day, and the previous week.
-
-Use this metric to see how the |innodb| rows read increases or decreases when
-deploying a new application or experiencing a different traffic on your site or
-to confirm that your |innodb| rows read are the same for your scheduled tasks.
+This metric shows the comparison of the |innodb| Rows Read for the current
+selected range versus the previous day and the previous week for the same time
+range. This graph is useful to demonstrate how |innodb| Rows Read has changed
+over time by visually overlaying time periods.
 
 |view-all-metrics| |this-dashboard|
 
@@ -101,12 +88,10 @@ to confirm that your |innodb| rows read are the same for your scheduled tasks.
 |innodb| Rows Changed
 --------------------------------------------------------------------------------
 
-This metric shows the comparison of the |innodb| Rows Change for the current
-selected range, the previous day and the previous week.
-
-Use this metric to see how the |innodb| rows changed increases or decreases when
-deploying a new application or experiencing a different traffic on your site or
-to confirm that your |innodb| rows changed are the same for your scheduled tasks.
+This metric shows the comparison of |innodb| Rows Changed for the current
+selected range versus the previous day and the previous week for the same time
+range. This graph is useful to demonstrate how the |innodb| Rows Changed has
+fluctuated over time by visually overlaying time periods.
 
 |view-all-metrics| |this-dashboard|
 

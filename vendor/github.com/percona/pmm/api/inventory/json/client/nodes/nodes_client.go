@@ -25,30 +25,30 @@ type Client struct {
 }
 
 /*
-AddAmazonRDSRemoteNode adds amazon RDS remote node adds amazon AWS RDS remote node
+AddContainerNode adds container node adds container node
 */
-func (a *Client) AddAmazonRDSRemoteNode(params *AddAmazonRDSRemoteNodeParams) (*AddAmazonRDSRemoteNodeOK, error) {
+func (a *Client) AddContainerNode(params *AddContainerNodeParams) (*AddContainerNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddAmazonRDSRemoteNodeParams()
+		params = NewAddContainerNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddAmazonRDSRemoteNode",
+		ID:                 "AddContainerNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddAmazonRDSRemote",
+		PathPattern:        "/v1/inventory/Nodes/AddContainer",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddAmazonRDSRemoteNodeReader{formats: a.formats},
+		Reader:             &AddContainerNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddAmazonRDSRemoteNodeOK), nil
+	return result.(*AddContainerNodeOK), nil
 
 }
 
@@ -64,7 +64,7 @@ func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddGenericNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddGeneric",
+		PathPattern:        "/v1/inventory/Nodes/AddGeneric",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -81,6 +81,34 @@ func (a *Client) AddGenericNode(params *AddGenericNodeParams) (*AddGenericNodeOK
 }
 
 /*
+AddRemoteAmazonRDSNode adds remote amazon RDS node adds amazon AWS RDS remote node
+*/
+func (a *Client) AddRemoteAmazonRDSNode(params *AddRemoteAmazonRDSNodeParams) (*AddRemoteAmazonRDSNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddRemoteAmazonRDSNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddRemoteAmazonRDSNode",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Nodes/AddRemoteAmazonRDS",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddRemoteAmazonRDSNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddRemoteAmazonRDSNodeOK), nil
+
+}
+
+/*
 AddRemoteNode adds remote node adds remote node
 */
 func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, error) {
@@ -92,7 +120,7 @@ func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, e
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddRemoteNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/AddRemote",
+		PathPattern:        "/v1/inventory/Nodes/AddRemote",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -109,30 +137,30 @@ func (a *Client) AddRemoteNode(params *AddRemoteNodeParams) (*AddRemoteNodeOK, e
 }
 
 /*
-ChangeAmazonRDSRemoteNode changes amazon RDS remote node changes amazon AWS RDS remote node
+ChangeContainerNode changes container node changes container node
 */
-func (a *Client) ChangeAmazonRDSRemoteNode(params *ChangeAmazonRDSRemoteNodeParams) (*ChangeAmazonRDSRemoteNodeOK, error) {
+func (a *Client) ChangeContainerNode(params *ChangeContainerNodeParams) (*ChangeContainerNodeOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChangeAmazonRDSRemoteNodeParams()
+		params = NewChangeContainerNodeParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeAmazonRDSRemoteNode",
+		ID:                 "ChangeContainerNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/ChangeAmazonRDSRemote",
+		PathPattern:        "/v1/inventory/Nodes/ChangeContainer",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChangeAmazonRDSRemoteNodeReader{formats: a.formats},
+		Reader:             &ChangeContainerNodeReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeAmazonRDSRemoteNodeOK), nil
+	return result.(*ChangeContainerNodeOK), nil
 
 }
 
@@ -148,7 +176,7 @@ func (a *Client) ChangeGenericNode(params *ChangeGenericNodeParams) (*ChangeGene
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeGenericNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/ChangeGeneric",
+		PathPattern:        "/v1/inventory/Nodes/ChangeGeneric",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -165,6 +193,34 @@ func (a *Client) ChangeGenericNode(params *ChangeGenericNodeParams) (*ChangeGene
 }
 
 /*
+ChangeRemoteAmazonRDSNode changes remote amazon RDS node changes amazon AWS RDS remote node
+*/
+func (a *Client) ChangeRemoteAmazonRDSNode(params *ChangeRemoteAmazonRDSNodeParams) (*ChangeRemoteAmazonRDSNodeOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeRemoteAmazonRDSNodeParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeRemoteAmazonRDSNode",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Nodes/ChangeRemoteAmazonRDS",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeRemoteAmazonRDSNodeReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeRemoteAmazonRDSNodeOK), nil
+
+}
+
+/*
 ChangeRemoteNode changes remote node changes remote node
 */
 func (a *Client) ChangeRemoteNode(params *ChangeRemoteNodeParams) (*ChangeRemoteNodeOK, error) {
@@ -176,7 +232,7 @@ func (a *Client) ChangeRemoteNode(params *ChangeRemoteNodeParams) (*ChangeRemote
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ChangeRemoteNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/ChangeRemote",
+		PathPattern:        "/v1/inventory/Nodes/ChangeRemote",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -204,7 +260,7 @@ func (a *Client) GetNode(params *GetNodeParams) (*GetNodeOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/Get",
+		PathPattern:        "/v1/inventory/Nodes/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -232,7 +288,7 @@ func (a *Client) ListNodes(params *ListNodesParams) (*ListNodesOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "ListNodes",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/List",
+		PathPattern:        "/v1/inventory/Nodes/List",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -260,7 +316,7 @@ func (a *Client) RemoveNode(params *RemoveNodeParams) (*RemoveNodeOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RemoveNode",
 		Method:             "POST",
-		PathPattern:        "/v0/inventory/Nodes/Remove",
+		PathPattern:        "/v1/inventory/Nodes/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

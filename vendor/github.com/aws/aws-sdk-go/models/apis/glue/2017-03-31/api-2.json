@@ -1784,6 +1784,14 @@
       "member":{"shape":"Connection"}
     },
     "ConnectionName":{"type":"string"},
+    "ConnectionPasswordEncryption":{
+      "type":"structure",
+      "required":["ReturnConnectionPasswordEncrypted"],
+      "members":{
+        "ReturnConnectionPasswordEncrypted":{"shape":"Boolean"},
+        "AwsKmsKeyId":{"shape":"NameString"}
+      }
+    },
     "ConnectionProperties":{
       "type":"map",
       "key":{"shape":"ConnectionPropertyKey"},
@@ -1798,6 +1806,7 @@
         "PORT",
         "USERNAME",
         "PASSWORD",
+        "ENCRYPTED_PASSWORD",
         "JDBC_DRIVER_JAR_URI",
         "JDBC_DRIVER_CLASS_NAME",
         "JDBC_ENGINE",
@@ -2049,8 +2058,13 @@
         "DefaultArguments":{"shape":"GenericMap"},
         "Connections":{"shape":"ConnectionsList"},
         "MaxRetries":{"shape":"MaxRetries"},
-        "AllocatedCapacity":{"shape":"IntegerValue"},
+        "AllocatedCapacity":{
+          "shape":"IntegerValue",
+          "deprecated":true,
+          "deprecatedMessage":"This property is deprecated, use MaxCapacity instead."
+        },
         "Timeout":{"shape":"Timeout"},
+        "MaxCapacity":{"shape":"NullableDouble"},
         "NotificationProperty":{"shape":"NotificationProperty"},
         "SecurityConfiguration":{"shape":"NameString"}
       }
@@ -2211,7 +2225,8 @@
     "DataCatalogEncryptionSettings":{
       "type":"structure",
       "members":{
-        "EncryptionAtRest":{"shape":"EncryptionAtRest"}
+        "EncryptionAtRest":{"shape":"EncryptionAtRest"},
+        "ConnectionPasswordEncryption":{"shape":"ConnectionPasswordEncryption"}
       }
     },
     "Database":{
@@ -2609,7 +2624,8 @@
       "required":["Name"],
       "members":{
         "CatalogId":{"shape":"CatalogIdString"},
-        "Name":{"shape":"NameString"}
+        "Name":{"shape":"NameString"},
+        "HidePassword":{"shape":"Boolean"}
       }
     },
     "GetConnectionResponse":{
@@ -2630,6 +2646,7 @@
       "members":{
         "CatalogId":{"shape":"CatalogIdString"},
         "Filter":{"shape":"GetConnectionsFilter"},
+        "HidePassword":{"shape":"Boolean"},
         "NextToken":{"shape":"Token"},
         "MaxResults":{"shape":"PageSize"}
       }
@@ -3202,8 +3219,13 @@
         "DefaultArguments":{"shape":"GenericMap"},
         "Connections":{"shape":"ConnectionsList"},
         "MaxRetries":{"shape":"MaxRetries"},
-        "AllocatedCapacity":{"shape":"IntegerValue"},
+        "AllocatedCapacity":{
+          "shape":"IntegerValue",
+          "deprecated":true,
+          "deprecatedMessage":"This property is deprecated, use MaxCapacity instead."
+        },
         "Timeout":{"shape":"Timeout"},
+        "MaxCapacity":{"shape":"NullableDouble"},
         "NotificationProperty":{"shape":"NotificationProperty"},
         "SecurityConfiguration":{"shape":"NameString"}
       }
@@ -3259,9 +3281,14 @@
         "Arguments":{"shape":"GenericMap"},
         "ErrorMessage":{"shape":"ErrorString"},
         "PredecessorRuns":{"shape":"PredecessorList"},
-        "AllocatedCapacity":{"shape":"IntegerValue"},
+        "AllocatedCapacity":{
+          "shape":"IntegerValue",
+          "deprecated":true,
+          "deprecatedMessage":"This property is deprecated, use MaxCapacity instead."
+        },
         "ExecutionTime":{"shape":"ExecutionTime"},
         "Timeout":{"shape":"Timeout"},
+        "MaxCapacity":{"shape":"NullableDouble"},
         "NotificationProperty":{"shape":"NotificationProperty"},
         "SecurityConfiguration":{"shape":"NameString"},
         "LogGroupName":{"shape":"GenericString"}
@@ -3294,8 +3321,13 @@
         "DefaultArguments":{"shape":"GenericMap"},
         "Connections":{"shape":"ConnectionsList"},
         "MaxRetries":{"shape":"MaxRetries"},
-        "AllocatedCapacity":{"shape":"IntegerValue"},
+        "AllocatedCapacity":{
+          "shape":"IntegerValue",
+          "deprecated":true,
+          "deprecatedMessage":"This property is deprecated, use MaxCapacity instead."
+        },
         "Timeout":{"shape":"Timeout"},
+        "MaxCapacity":{"shape":"NullableDouble"},
         "NotificationProperty":{"shape":"NotificationProperty"},
         "SecurityConfiguration":{"shape":"NameString"}
       }
@@ -3459,6 +3491,10 @@
       "type":"integer",
       "box":true,
       "min":1
+    },
+    "NullableDouble":{
+      "type":"double",
+      "box":true
     },
     "OperationTimeoutException":{
       "type":"structure",
@@ -3832,8 +3868,13 @@
         "JobName":{"shape":"NameString"},
         "JobRunId":{"shape":"IdString"},
         "Arguments":{"shape":"GenericMap"},
-        "AllocatedCapacity":{"shape":"IntegerValue"},
+        "AllocatedCapacity":{
+          "shape":"IntegerValue",
+          "deprecated":true,
+          "deprecatedMessage":"This property is deprecated, use MaxCapacity instead."
+        },
         "Timeout":{"shape":"Timeout"},
+        "MaxCapacity":{"shape":"NullableDouble"},
         "NotificationProperty":{"shape":"NotificationProperty"},
         "SecurityConfiguration":{"shape":"NameString"}
       }

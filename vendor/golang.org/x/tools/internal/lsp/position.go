@@ -5,17 +5,37 @@
 package lsp
 
 import (
+	"context"
 	"go/token"
+	"net/url"
 
+	"golang.org/x/tools/internal/lsp/cache"
 	"golang.org/x/tools/internal/lsp/protocol"
 	"golang.org/x/tools/internal/lsp/source"
 )
 
+// fromProtocolURI converts a protocol.DocumentURI to a source.URI.
+// TODO(rstambler): Add logic here to support Windows.
+func fromProtocolURI(uri protocol.DocumentURI) (source.URI, error) {
+	unescaped, err := url.PathUnescape(string(uri))
+	if err != nil {
+		return "", err
+	}
+	return source.URI(unescaped), nil
+}
+
 // fromProtocolLocation converts from a protocol location to a source range.
 // It will return an error if the file of the location was not valid.
 // It uses fromProtocolRange to convert the start and end positions.
-func fromProtocolLocation(v *source.View, loc protocol.Location) (source.Range, error) {
-	f := v.GetFile(source.URI(loc.URI))
+func fromProtocolLocation(ctx context.Context, v *cache.View, loc protocol.Location) (source.Range, error) {
+	sourceURI, err := fromProtocolURI(loc.URI)
+	if err != nil {
+		return source.Range{}, err
+	}
+	f, err := v.GetFile(ctx, sourceURI)
+	if err != nil {
+		return source.Range{}, err
+	}
 	tok, err := f.GetToken()
 	if err != nil {
 		return source.Range{}, err
@@ -24,15 +44,12 @@ func fromProtocolLocation(v *source.View, loc protocol.Location) (source.Range, 
 }
 
 // toProtocolLocation converts from a source range back to a protocol location.
-func toProtocolLocation(v *source.View, r source.Range) protocol.Location {
-	tokFile := v.Config.Fset.File(r.Start)
-	file := v.GetFile(source.ToURI(tokFile.Name()))
+func toProtocolLocation(fset *token.FileSet, r source.Range) protocol.Location {
+	tok := fset.File(r.Start)
+	uri := source.ToURI(tok.Name())
 	return protocol.Location{
-		URI: protocol.DocumentURI(file.URI),
-		Range: protocol.Range{
-			Start: toProtocolPosition(tokFile, r.Start),
-			End:   toProtocolPosition(tokFile, r.End),
-		},
+		URI:   protocol.DocumentURI(uri),
+		Range: toProtocolRange(tok, r),
 	}
 }
 
@@ -53,6 +70,14 @@ func fromProtocolRange(f *token.File, r protocol.Range) source.Range {
 	return source.Range{
 		Start: start,
 		End:   end,
+	}
+}
+
+// toProtocolRange converts from a source range back to a protocol range.
+func toProtocolRange(f *token.File, r source.Range) protocol.Range {
+	return protocol.Range{
+		Start: toProtocolPosition(f, r.Start),
+		End:   toProtocolPosition(f, r.End),
 	}
 }
 
@@ -78,11 +103,19 @@ func toProtocolPosition(f *token.File, pos token.Pos) protocol.Position {
 	}
 }
 
+// fromTokenPosition converts a token.Position (1-based line and column
+// number) to a token.Pos (byte offset value).
+// It requires the token file the pos belongs to in order to do this.
+func fromTokenPosition(f *token.File, pos token.Position) token.Pos {
+	line := lineStart(f, pos.Line)
+	return line + token.Pos(pos.Column-1) // TODO: this is wrong, bytes not characters
+}
+
 // this functionality was borrowed from the analysisutil package
 func lineStart(f *token.File, line int) token.Pos {
 	// Use binary search to find the start offset of this line.
 	//
-	// TODO(adonovan): eventually replace this function with the
+	// TODO(rstambler): eventually replace this function with the
 	// simpler and more efficient (*go/token.File).LineStart, added
 	// in go1.12.
 

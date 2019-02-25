@@ -6,8 +6,8 @@
     "CancelCommand": "<p>Attempts to cancel the command specified by the Command ID. There is no guarantee that the command will be terminated and the underlying process stopped.</p>",
     "CancelMaintenanceWindowExecution": "<p>Stops a Maintenance Window execution that is already in progress and cancels any tasks in the window that have not already starting running. (Tasks already in progress will continue to completion.)</p>",
     "CreateActivation": "<p>Registers your on-premises server or virtual machine with Amazon EC2 so that you can manage these resources using Run Command. An on-premises server or virtual machine that has been registered with EC2 is called a managed instance. For more information about activations, see <a href=\"http://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-managedinstances.html\">Setting Up Systems Manager in Hybrid Environments</a>.</p>",
-    "CreateAssociation": "<p>Associates the specified Systems Manager document with the specified instances or targets.</p> <p>When you associate a document with one or more instances using instance IDs or tags, SSM Agent running on the instance processes the document and configures the instance as specified.</p> <p>If you associate a document with an instance that already has an associated document, the system throws the AssociationAlreadyExists exception.</p>",
-    "CreateAssociationBatch": "<p>Associates the specified Systems Manager document with the specified instances or targets.</p> <p>When you associate a document with one or more instances using instance IDs or tags, SSM Agent running on the instance processes the document and configures the instance as specified.</p> <p>If you associate a document with an instance that already has an associated document, the system throws the AssociationAlreadyExists exception.</p>",
+    "CreateAssociation": "<p>Associates the specified Systems Manager document with the specified instances or targets.</p> <p>When you associate a document with one or more instances using instance IDs or tags, SSM Agent running on the instance processes the document and configures the instance as specified.</p> <p>If you associate a document with an instance that already has an associated document, the system returns the AssociationAlreadyExists exception.</p>",
+    "CreateAssociationBatch": "<p>Associates the specified Systems Manager document with the specified instances or targets.</p> <p>When you associate a document with one or more instances using instance IDs or tags, SSM Agent running on the instance processes the document and configures the instance as specified.</p> <p>If you associate a document with an instance that already has an associated document, the system returns the AssociationAlreadyExists exception.</p>",
     "CreateDocument": "<p>Creates a Systems Manager document.</p> <p>After you create a document, you can use CreateAssociation to associate it with one or more running instances.</p>",
     "CreateMaintenanceWindow": "<p>Creates a new Maintenance Window.</p>",
     "CreatePatchBaseline": "<p>Creates a patch baseline.</p> <note> <p>For information about valid key and value pairs in <code>PatchFilters</code> for each supported operating system type, see <a href=\"http://docs.aws.amazon.com/systems-manager/latest/APIReference/API_PatchFilter.html\">PatchFilter</a>.</p> </note>",
@@ -115,6 +115,12 @@
     "UpdatePatchBaseline": "<p>Modifies an existing patch baseline. Fields not specified in the request are left unchanged.</p> <note> <p>For information about valid key and value pairs in <code>PatchFilters</code> for each supported operating system type, see <a href=\"http://docs.aws.amazon.com/systems-manager/latest/APIReference/API_PatchFilter.html\">PatchFilter</a>.</p> </note>"
   },
   "shapes": {
+    "Account": {
+      "base": null,
+      "refs": {
+        "Accounts$member": null
+      }
+    },
     "AccountId": {
       "base": null,
       "refs": {
@@ -127,6 +133,12 @@
         "DescribeDocumentPermissionResponse$AccountIds": "<p>The account IDs that have permission to use this document. The ID can be either an AWS account or <i>All</i>.</p>",
         "ModifyDocumentPermissionRequest$AccountIdsToAdd": "<p>The AWS user accounts that should have access to the document. The account IDs can either be a group of account IDs or <i>All</i>.</p>",
         "ModifyDocumentPermissionRequest$AccountIdsToRemove": "<p>The AWS user accounts that should no longer have access to the document. The AWS user account can either be a group of account IDs or <i>All</i>. This action has a higher priority than <i>AccountIdsToAdd</i>. If you specify an account ID to add and the same ID to remove, the system removes access to the document.</p>"
+      }
+    },
+    "Accounts": {
+      "base": null,
+      "refs": {
+        "TargetLocation$Accounts": "<p>The AWS accounts targeted by the current Automation execution.</p>"
       }
     },
     "Activation": {
@@ -483,6 +495,86 @@
         "ListAssociationVersionsResult$AssociationVersions": "<p>Information about all versions of the association for the specified association ID.</p>"
       }
     },
+    "AttachmentContent": {
+      "base": "<p>A structure that includes attributes that describe a document attachment.</p>",
+      "refs": {
+        "AttachmentContentList$member": null
+      }
+    },
+    "AttachmentContentList": {
+      "base": null,
+      "refs": {
+        "GetDocumentResult$AttachmentsContent": "<p>A description of the document attachments, including names, locations, sizes, etc.</p>"
+      }
+    },
+    "AttachmentHash": {
+      "base": null,
+      "refs": {
+        "AttachmentContent$Hash": "<p>The cryptographic hash value of the document content.</p>"
+      }
+    },
+    "AttachmentHashType": {
+      "base": null,
+      "refs": {
+        "AttachmentContent$HashType": "<p>The hash algorithm used to calculate the hash value.</p>"
+      }
+    },
+    "AttachmentInformation": {
+      "base": "<p>An attribute of an attachment, such as the attachment name.</p>",
+      "refs": {
+        "AttachmentInformationList$member": null
+      }
+    },
+    "AttachmentInformationList": {
+      "base": null,
+      "refs": {
+        "DocumentDescription$AttachmentsInformation": "<p>Details about the document attachments, including names, locations, sizes, etc.</p>"
+      }
+    },
+    "AttachmentName": {
+      "base": null,
+      "refs": {
+        "AttachmentContent$Name": "<p>The name of an attachment.</p>",
+        "AttachmentInformation$Name": "<p>The name of the attachment.</p>"
+      }
+    },
+    "AttachmentUrl": {
+      "base": null,
+      "refs": {
+        "AttachmentContent$Url": "<p>The URL location of the attachment content.</p>"
+      }
+    },
+    "AttachmentsSource": {
+      "base": "<p>A key and value pair that identifies the location of an attachment to a document.</p>",
+      "refs": {
+        "AttachmentsSourceList$member": null
+      }
+    },
+    "AttachmentsSourceKey": {
+      "base": null,
+      "refs": {
+        "AttachmentsSource$Key": "<p>The key of a key and value pair that identifies the location of an attachment to a document.</p>"
+      }
+    },
+    "AttachmentsSourceList": {
+      "base": null,
+      "refs": {
+        "CreateDocumentRequest$Attachments": "<p>A list of key and value pairs that describe attachments to a version of a document.</p>",
+        "UpdateDocumentRequest$Attachments": "<p>A list of key and value pairs that describe attachments to a version of a document.</p>"
+      }
+    },
+    "AttachmentsSourceValue": {
+      "base": null,
+      "refs": {
+        "AttachmentsSourceValues$member": null
+      }
+    },
+    "AttachmentsSourceValues": {
+      "base": null,
+      "refs": {
+        "AttachmentsSource$Values": "<p>The URL of the location of a document attachment, such as the URL of an Amazon S3 bucket.</p>"
+      }
+    },
     "AttributeName": {
       "base": null,
       "refs": {
@@ -633,6 +725,21 @@
     "AutomationStepNotFoundException": {
       "base": "<p>The specified step name and execution ID don't exist. Verify the information and try again.</p>",
       "refs": {
+      }
+    },
+    "AutomationTargetParameterName": {
+      "base": null,
+      "refs": {
+        "AssociationDescription$AutomationTargetParameterName": "<p>Specify the target for the association. This target is required for associations that use an Automation document and target resources by using rate controls.</p>",
+        "CreateAssociationBatchRequestEntry$AutomationTargetParameterName": "<p>Specify the target for the association. This target is required for associations that use an Automation document and target resources by using rate controls.</p>",
+        "CreateAssociationRequest$AutomationTargetParameterName": "<p>Specify the target for the association. This target is required for associations that use an Automation document and target resources by using rate controls.</p>",
+        "UpdateAssociationRequest$AutomationTargetParameterName": "<p>Specify the target for the association. This target is required for associations that use an Automation document and target resources by using rate controls.</p>"
+      }
+    },
+    "AutomationType": {
+      "base": null,
+      "refs": {
+        "AutomationExecutionMetadata$AutomationType": "<p>Use this filter with <a>DescribeAutomationExecutions</a>. Specify either Local or CrossAccount. CrossAccount is an Automation that executes in multiple AWS Regions and accounts. For more information, see <a href=\"http://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-automation-multiple-accounts-and-regions.html\">Concurrently Executing Automations in Multiple AWS Regions and Accounts</a> in the <i>AWS Systems Manager User Guide</i>. </p>"
       }
     },
     "BaselineDescription": {
@@ -794,7 +901,7 @@
     "CommandFilterValue": {
       "base": null,
       "refs": {
-        "CommandFilter$value": "<p>The filter value. Valid values for each filter key are as follows:</p> <ul> <li> <p>InvokedAfter: A timestamp to limit your results. For example, specify <code>2018-07-07T00:00:00Z</code> to see results occurring July 7, 2018, and later.</p> </li> <li> <p>InvokedBefore: A timestamp to limit your results. For example, specify <code>2018-07-07T00:00:00Z</code> to see results before July 7, 2018.</p> </li> <li> <p>Status: Specify a valid command status to see a list of all command executions with that status. Status values you can specify include:</p> <ul> <li> <p>Pending</p> </li> <li> <p>InProgress</p> </li> <li> <p>Success</p> </li> <li> <p>Cancelled</p> </li> <li> <p>Failed</p> </li> <li> <p>TimedOut</p> </li> <li> <p>Cancelling </p> </li> </ul> </li> <li> <p>DocumentName: The name of the SSM document for which you want to see command results.</p> <p>For example, specify <code>AWS-RunPatchBaseline</code> to see command executions that used this SSM document to perform security patching operations on instances. </p> </li> <li> <p>ExecutionStage: An enum whose value can be either <code>Executing</code> or <code>Complete</code>.</p> <ul> <li> <p>Specify <code>Executing</code> to see a list of command executions that are currently still running.</p> </li> <li> <p>Specify <code>Complete</code> to see a list of command exeuctions that have already completed.</p> </li> </ul> </li> </ul>"
+        "CommandFilter$value": "<p>The filter value. Valid values for each filter key are as follows:</p> <ul> <li> <p> <b>InvokedAfter</b>: Specify a timestamp to limit your results. For example, specify <code>2018-07-07T00:00:00Z</code> to see a list of command executions occurring July 7, 2018, and later.</p> </li> <li> <p> <b>InvokedBefore</b>: Specify a timestamp to limit your results. For example, specify <code>2018-07-07T00:00:00Z</code> to see a list of command executions from before July 7, 2018.</p> </li> <li> <p> <b>Status</b>: Specify a valid command status to see a list of all command executions with that status. Status values you can specify include:</p> <ul> <li> <p> <code>Pending</code> </p> </li> <li> <p> <code>InProgress</code> </p> </li> <li> <p> <code>Success</code> </p> </li> <li> <p> <code>Cancelled</code> </p> </li> <li> <p> <code>Failed</code> </p> </li> <li> <p> <code>TimedOut</code> </p> </li> <li> <p> <code>Cancelling</code> </p> </li> </ul> </li> <li> <p> <b>DocumentName</b>: Specify name of the SSM document for which you want to see command execution results. For example, specify <code>AWS-RunPatchBaseline</code> to see command executions that used this SSM document to perform security patching operations on instances. </p> </li> <li> <p> <b>ExecutionStage</b>: Specify one of the following values:</p> <ul> <li> <p> <code>Executing</code>: Returns a list of command executions that are currently still running.</p> </li> <li> <p> <code>Complete</code>: Returns a list of command executions that have already completed. </p> </li> </ul> </li> </ul>"
       }
     },
     "CommandId": {
@@ -1108,6 +1215,12 @@
         "GetConnectionStatusResponse$Status": "<p>The status of the connection to the instance. For example, 'Connected' or 'Not Connected'.</p>"
       }
     },
+    "ContentLength": {
+      "base": null,
+      "refs": {
+        "AttachmentContent$Size": "<p>The size of an attachment in bytes.</p>"
+      }
+    },
     "CreateActivationRequest": {
       "base": null,
       "refs": {
@@ -1130,7 +1243,7 @@
       }
     },
     "CreateAssociationBatchRequestEntry": {
-      "base": "<p>Describes the association of a Systems Manager document and an instance.</p>",
+      "base": "<p>Describes the association of a Systems Manager SSM document and an instance.</p>",
       "refs": {
         "CreateAssociationBatchRequestEntries$member": null,
         "FailedCreateAssociation$Entry": "<p>The association.</p>"
@@ -1761,7 +1874,7 @@
         "CreateDocumentRequest$Content": "<p>A valid JSON or YAML string.</p>",
         "GetDocumentResult$Content": "<p>The contents of the Systems Manager document.</p>",
         "InstanceAssociation$Content": "<p>The content of the association document for the instance(s).</p>",
-        "UpdateDocumentRequest$Content": "<p>The content in a document that you want to update.</p>"
+        "UpdateDocumentRequest$Content": "<p>A valid JSON or YAML string.</p>"
       }
     },
     "DocumentDefaultVersionDescription": {
@@ -1825,7 +1938,7 @@
     "DocumentHashType": {
       "base": null,
       "refs": {
-        "DocumentDescription$HashType": "<p>Sha256 or Sha1.</p> <note> <p>Sha1 hashes have been deprecated.</p> </note>",
+        "DocumentDescription$HashType": "<p>The hash type of the document. Valid values include <code>Sha256</code> or <code>Sha1</code>.</p> <note> <p>Sha1 hashes have been deprecated.</p> </note>",
         "MaintenanceWindowRunCommandParameters$DocumentHashType": "<p>SHA-256 or SHA-1. SHA-1 hashes have been deprecated.</p>",
         "SendCommandRequest$DocumentHashType": "<p>Sha256 or Sha1.</p> <note> <p>Sha1 hashes have been deprecated.</p> </note>"
       }
@@ -1976,16 +2089,26 @@
       }
     },
     "DocumentStatus": {
+      "base": "<p>The status of a document.</p>",
+      "refs": {
+        "DocumentDescription$Status": "<p>The status of the Systems Manager document.</p>",
+        "DocumentVersionInfo$Status": "<p>The status of the Systems Manager document, such as <code>Creating</code>, <code>Active</code>, <code>Failed</code>, and <code>Deleting</code>.</p>",
+        "GetDocumentResult$Status": "<p>The status of the Systems Manager document, such as <code>Creating</code>, <code>Active</code>, <code>Updating</code>, <code>Failed</code>, and <code>Deleting</code>.</p>"
+      }
+    },
+    "DocumentStatusInformation": {
       "base": null,
       "refs": {
-        "DocumentDescription$Status": "<p>The status of the Systems Manager document.</p>"
+        "DocumentDescription$StatusInformation": "<p>A message returned by AWS Systems Manager that explains the <code>Status</code> value. For example, a <code>Failed</code> status might be explained by the <code>StatusInformation</code> message, \"The specified S3 bucket does not exist. Verify that the URL of the S3 bucket is correct.\"</p>",
+        "DocumentVersionInfo$StatusInformation": "<p>A message returned by AWS Systems Manager that explains the <code>Status</code> value. For example, a <code>Failed</code> status might be explained by the <code>StatusInformation</code> message, \"The specified S3 bucket does not exist. Verify that the URL of the S3 bucket is correct.\"</p>",
+        "GetDocumentResult$StatusInformation": "<p>A message returned by AWS Systems Manager that explains the <code>Status</code> value. For example, a <code>Failed</code> status might be explained by the <code>StatusInformation</code> message, \"The specified S3 bucket does not exist. Verify that the URL of the S3 bucket is correct.\"</p>"
       }
     },
     "DocumentType": {
       "base": null,
       "refs": {
-        "CreateDocumentRequest$DocumentType": "<p>The type of document to create. Valid document types include: Policy, Automation, and Command.</p>",
-        "DocumentDescription$DocumentType": "<p>The type of document. </p>",
+        "CreateDocumentRequest$DocumentType": "<p>The type of document to create. Valid document types include: <code>Command</code>, <code>Policy</code>, <code>Automation</code>, <code>Session</code>, and <code>Package</code>.</p>",
+        "DocumentDescription$DocumentType": "<p>The type of document.</p>",
         "DocumentIdentifier$DocumentType": "<p>The document type.</p>",
         "GetDocumentResult$DocumentType": "<p>The document type.</p>"
       }
@@ -2037,6 +2160,20 @@
         "ListDocumentVersionsResult$DocumentVersions": "<p>The document versions.</p>"
       }
     },
+    "DocumentVersionName": {
+      "base": null,
+      "refs": {
+        "CreateDocumentRequest$VersionName": "<p>An optional field specifying the version of the artifact you are creating with the document. For example, \"Release 12, Update 6\". This value is unique across all versions of a document, and cannot be changed.</p>",
+        "DescribeDocumentRequest$VersionName": "<p>An optional field specifying the version of the artifact associated with the document. For example, \"Release 12, Update 6\". This value is unique across all versions of a document, and cannot be changed.</p>",
+        "DocumentDefaultVersionDescription$DefaultVersionName": "<p>The default version of the artifact associated with the document.</p>",
+        "DocumentDescription$VersionName": "<p>The version of the artifact associated with the document.</p>",
+        "DocumentIdentifier$VersionName": "<p>An optional field specifying the version of the artifact associated with the document. For example, \"Release 12, Update 6\". This value is unique across all versions of a document, and cannot be changed.</p>",
+        "DocumentVersionInfo$VersionName": "<p>The version of the artifact associated with the document. For example, \"Release 12, Update 6\". This value is unique across all versions of a document, and cannot be changed.</p>",
+        "GetDocumentRequest$VersionName": "<p>An optional field specifying the version of the artifact associated with the document. For example, \"Release 12, Update 6\". This value is unique across all versions of a document, and cannot be changed.</p>",
+        "GetDocumentResult$VersionName": "<p>The version of the artifact associated with the document. For example, \"Release 12, Update 6\". This value is unique across all versions of a document, and cannot be changed.</p>",
+        "UpdateDocumentRequest$VersionName": "<p>An optional field specifying the version of the artifact you are updating with the document. For example, \"Release 12, Update 6\". This value is unique across all versions of a document, and cannot be changed.</p>"
+      }
+    },
     "DocumentVersionNumber": {
       "base": null,
       "refs": {
@@ -2056,6 +2193,11 @@
     },
     "DuplicateDocumentContent": {
       "base": "<p>The content of the association document matches another document. Change the content of the document and try again.</p>",
+      "refs": {
+      }
+    },
+    "DuplicateDocumentVersionName": {
+      "base": "<p>The version name has already been used in this document. Specify a different version name, and then try again.</p>",
       "refs": {
       }
     },
@@ -2094,6 +2236,12 @@
         "AutomationExecution$Mode": "<p>The automation execution mode.</p>",
         "AutomationExecutionMetadata$Mode": "<p>The Automation execution mode.</p>",
         "StartAutomationExecutionRequest$Mode": "<p>The execution mode of the automation. Valid modes include the following: Auto and Interactive. The default mode is Auto.</p>"
+      }
+    },
+    "ExecutionRoleName": {
+      "base": null,
+      "refs": {
+        "TargetLocation$ExecutionRoleName": "<p>The Automation execution role used by the currently executing Automation.</p>"
       }
     },
     "ExpirationDate": {
@@ -2617,6 +2765,11 @@
         "DescribePatchGroupStateResult$InstancesWithMissingPatches": "<p>The number of instances with missing patches from the patch baseline.</p>",
         "DescribePatchGroupStateResult$InstancesWithFailedPatches": "<p>The number of instances with patches from the patch baseline that failed to install.</p>",
         "DescribePatchGroupStateResult$InstancesWithNotApplicablePatches": "<p>The number of instances with patches that aren't applicable.</p>",
+        "ProgressCounters$TotalSteps": "<p>The total number of steps executed in all specified AWS Regions and accounts for the current Automation execution.</p>",
+        "ProgressCounters$SuccessSteps": "<p>The total number of steps that successfully completed in all specified AWS Regions and accounts for the current Automation execution.</p>",
+        "ProgressCounters$FailedSteps": "<p>The total number of steps that failed to execute in all specified AWS Regions and accounts for the current Automation execution.</p>",
+        "ProgressCounters$CancelledSteps": "<p>The total number of steps that the system cancelled in all specified AWS Regions and accounts for the current Automation execution.</p>",
+        "ProgressCounters$TimedOutSteps": "<p>The total number of steps that timed out in all specified AWS Regions and accounts for the current Automation execution.</p>",
         "StepExecution$MaxAttempts": "<p>The maximum number of tries to run the action of the step. The default value is 1.</p>"
       }
     },
@@ -3551,7 +3704,7 @@
         "DescribeMaintenanceWindowExecutionsRequest$Filters": "<p>Each entry in the array is a structure containing:</p> <p>Key (string, between 1 and 128 characters)</p> <p>Values (array of strings, each string is between 1 and 256 characters)</p> <p>The supported Keys are ExecutedBefore and ExecutedAfter with the value being a date/time string such as 2016-11-04T05:00:00Z.</p>",
         "DescribeMaintenanceWindowTargetsRequest$Filters": "<p>Optional filters that can be used to narrow down the scope of the returned window targets. The supported filter keys are Type, WindowTargetId and OwnerInformation.</p>",
         "DescribeMaintenanceWindowTasksRequest$Filters": "<p>Optional filters used to narrow down the scope of the returned tasks. The supported filter keys are WindowTaskId, TaskArn, Priority, and TaskType.</p>",
-        "DescribeMaintenanceWindowsRequest$Filters": "<p>Optional filters used to narrow down the scope of the returned Maintenance Windows. Supported filter keys are Name and Enabled.</p>"
+        "DescribeMaintenanceWindowsRequest$Filters": "<p>Optional filters used to narrow down the scope of the returned Maintenance Windows. Supported filter keys are <b>Name</b> and <b>Enabled</b>.</p>"
       }
     },
     "MaintenanceWindowFilterValue": {
@@ -3921,6 +4074,7 @@
         "RegisterTaskWithMaintenanceWindowRequest$MaxConcurrency": "<p>The maximum number of targets this task can be run for in parallel.</p>",
         "SendCommandRequest$MaxConcurrency": "<p>(Optional) The maximum number of instances that are allowed to execute the command at the same time. You can specify a number such as 10 or a percentage such as 10%. The default value is 50. For more information about how to use MaxConcurrency, see <a href=\"http://docs.aws.amazon.com/systems-manager/latest/userguide/send-commands-multiple.html#send-commands-velocity\">Using Concurrency Controls</a> in the <i>AWS Systems Manager User Guide</i>.</p>",
         "StartAutomationExecutionRequest$MaxConcurrency": "<p>The maximum number of targets allowed to run this task in parallel. You can specify a number, such as 10, or a percentage, such as 10%. The default value is 10.</p>",
+        "TargetLocation$TargetLocationMaxConcurrency": "<p>The maxium number of AWS accounts and AWS regions allowed to run the Automation concurrently </p>",
         "UpdateAssociationRequest$MaxConcurrency": "<p>The maximum number of targets allowed to run the association at the same time. You can specify a number, for example 10, or a percentage of the target set, for example 10%. The default value is 100%, which means all targets run the association at the same time.</p> <p>If a new instance starts and attempts to execute an association while Systems Manager is executing MaxConcurrency associations, the association is allowed to run. During the next association interval, the new instance will process its association within the limit specified for MaxConcurrency.</p>",
         "UpdateMaintenanceWindowTaskRequest$MaxConcurrency": "<p>The new <code>MaxConcurrency</code> value you want to specify. <code>MaxConcurrency</code> is the number of targets that are allowed to run this task in parallel.</p>",
         "UpdateMaintenanceWindowTaskResult$MaxConcurrency": "<p>The updated MaxConcurrency value.</p>"
@@ -3947,6 +4101,7 @@
         "RegisterTaskWithMaintenanceWindowRequest$MaxErrors": "<p>The maximum number of errors allowed before this task stops being scheduled.</p>",
         "SendCommandRequest$MaxErrors": "<p>The maximum number of errors allowed without the command failing. When the command fails one more time beyond the value of MaxErrors, the systems stops sending the command to additional targets. You can specify a number like 10 or a percentage like 10%. The default value is 0. For more information about how to use MaxErrors, see <a href=\"http://docs.aws.amazon.com/systems-manager/latest/userguide/send-commands-multiple.html#send-commands-maxerrors\">Using Error Controls</a> in the <i>AWS Systems Manager User Guide</i>.</p>",
         "StartAutomationExecutionRequest$MaxErrors": "<p>The number of errors that are allowed before the system stops running the automation on additional targets. You can specify either an absolute number of errors, for example 10, or a percentage of the target set, for example 10%. If you specify 3, for example, the system stops running the automation when the fourth error is received. If you specify 0, then the system stops running the automation on additional targets after the first error result is returned. If you run an automation on 50 resources and set max-errors to 10%, then the system stops running the automation on additional targets when the sixth error is received.</p> <p>Executions that are already running an automation when max-errors is reached are allowed to complete, but some of these executions may fail as well. If you need to ensure that there won't be more than max-errors failed executions, set max-concurrency to 1 so the executions proceed one at a time.</p>",
+        "TargetLocation$TargetLocationMaxErrors": "<p>The maxium number of errors allowed before the system stops queueing additional Automation executions for the currently executing Automation. </p>",
         "UpdateAssociationRequest$MaxErrors": "<p>The number of errors that are allowed before the system stops sending requests to run the association on additional targets. You can specify either an absolute number of errors, for example 10, or a percentage of the target set, for example 10%. If you specify 3, for example, the system stops sending requests when the fourth error is received. If you specify 0, then the system stops sending requests after the first error is returned. If you run an association on 50 instances and set MaxError to 10%, then the system stops sending the request when the sixth error is received.</p> <p>Executions that are already running an association when MaxErrors is reached are allowed to complete, but some of these executions may fail as well. If you need to ensure that there won't be more than max-errors failed executions, set MaxConcurrency to 1 so that executions proceed one at a time.</p>",
         "UpdateMaintenanceWindowTaskRequest$MaxErrors": "<p>The new <code>MaxErrors</code> value to specify. <code>MaxErrors</code> is the maximum number of errors that are allowed before the task stops being scheduled.</p>",
         "UpdateMaintenanceWindowTaskResult$MaxErrors": "<p>The updated MaxErrors value.</p>"
@@ -4777,7 +4932,7 @@
     "PatchSourceConfiguration": {
       "base": null,
       "refs": {
-        "PatchSource$Configuration": "<p>The value of the yum repo configuration. For example:</p> <p> <code>cachedir=/var/cache/yum/$basesearch</code> </p> <p> <code>$releasever</code> </p> <p> <code>keepcache=0</code> </p> <p> <code>debuglevel=2</code> </p>"
+        "PatchSource$Configuration": "<p>The value of the yum repo configuration. For example:</p> <p> <code>[main]</code> </p> <p> <code>cachedir=/var/cache/yum/$basesearch$releasever</code> </p> <p> <code>keepcache=0</code> </p> <p> <code>debuglevel=2</code> </p>"
       }
     },
     "PatchSourceList": {
@@ -4852,6 +5007,12 @@
         "GetDeployablePatchSnapshotForInstanceResult$Product": "<p>Returns the specific operating system (for example Windows Server 2012 or Amazon Linux 2015.09) on the instance for the specified patch snapshot.</p>"
       }
     },
+    "ProgressCounters": {
+      "base": "<p>An aggregate of step execution statuses displayed in the AWS Console for a multi-Region and multi-account Automation execution.</p>",
+      "refs": {
+        "AutomationExecution$ProgressCounters": "<p>An aggregate of step execution statuses displayed in the AWS Console for a multi-Region and multi-account Automation execution.</p>"
+      }
+    },
     "PutComplianceItemsRequest": {
       "base": null,
       "refs": {
@@ -4886,6 +5047,18 @@
     "PutParameterResult": {
       "base": null,
       "refs": {
+      }
+    },
+    "Region": {
+      "base": null,
+      "refs": {
+        "Regions$member": null
+      }
+    },
+    "Regions": {
+      "base": null,
+      "refs": {
+        "TargetLocation$Regions": "<p>The AWS Regions targeted by the current Automation execution.</p>"
       }
     },
     "RegisterDefaultPatchBaselineRequest": {
@@ -5574,6 +5747,7 @@
         "DocumentVersionLimitExceeded$Message": null,
         "DoesNotExistException$Message": null,
         "DuplicateDocumentContent$Message": null,
+        "DuplicateDocumentVersionName$Message": null,
         "FailureDetails$FailureStage": "<p>The stage of the Automation execution when the failure occurred. The stages include the following: InputValidation, PreVerification, Invocation, PostVerification.</p>",
         "FailureDetails$FailureType": "<p>The type of Automation failure. Failure types include the following: Action, Permission, Throttling, Verification, Internal.</p>",
         "FeatureNotAvailableException$Message": null,
@@ -5731,6 +5905,20 @@
         "Target$Key": "<p>User-defined criteria for sending commands that target instances that meet the criteria. Key can be tag:&lt;Amazon EC2 tag&gt; or InstanceIds. For more information about how to send commands that target instances using Key,Value parameters, see <a href=\"http://docs.aws.amazon.com/systems-manager/latest/userguide/send-commands-multiple.html#send-commands-targeting\">Targeting Multiple Instances</a> in the <i>AWS Systems Manager User Guide</i>.</p>"
       }
     },
+    "TargetLocation": {
+      "base": "<p>The combination of AWS Regions and accounts targeted by the current Automation execution.</p>",
+      "refs": {
+        "StepExecution$TargetLocation": "<p>The combination of AWS Regions and accounts targeted by the current Automation execution.</p>",
+        "TargetLocations$member": null
+      }
+    },
+    "TargetLocations": {
+      "base": null,
+      "refs": {
+        "AutomationExecution$TargetLocations": "<p>The combination of AWS Regions and/or AWS accounts where you want to execute the Automation.</p>",
+        "StartAutomationExecutionRequest$TargetLocations": "<p>A location is a combination of AWS Regions and/or AWS accounts where you want to execute the Automation. Use this action to start an Automation in multiple Regions and multiple accounts. For more information, see <a href=\"http://docs.aws.amazon.com/systems-manager/latest/userguide/systems-manager-automation-multiple-accounts-and-regions.html\">Concurrently Executing Automations in Multiple AWS Regions and Accounts</a> in the <i>AWS Systems Manager User Guide</i>. </p>"
+      }
+    },
     "TargetMap": {
       "base": null,
       "refs": {
@@ -5815,6 +6003,7 @@
         "RegisterTaskWithMaintenanceWindowRequest$Targets": "<p>The targets (either instances or Maintenance Window targets).</p> <p>Specify instances using the following format: </p> <p> <code>Key=InstanceIds,Values=&lt;instance-id-1&gt;,&lt;instance-id-2&gt;</code> </p> <p>Specify Maintenance Window targets using the following format:</p> <p> <code>Key=&lt;WindowTargetIds&gt;,Values=&lt;window-target-id-1&gt;,&lt;window-target-id-2&gt;</code> </p>",
         "SendCommandRequest$Targets": "<p>(Optional) An array of search criteria that targets instances using a Key,Value combination that you specify. Targets is required if you don't provide one or more instance IDs in the call. For more information about how to use targets, see <a href=\"http://docs.aws.amazon.com/systems-manager/latest/userguide/send-commands-multiple.html\">Sending Commands to a Fleet</a> in the <i>AWS Systems Manager User Guide</i>.</p>",
         "StartAutomationExecutionRequest$Targets": "<p>A key-value mapping to target resources. Required if you specify TargetParameterName.</p>",
+        "StepExecution$Targets": "<p>The targets for the step execution.</p>",
         "UpdateAssociationRequest$Targets": "<p>The targets of the association.</p>",
         "UpdateMaintenanceWindowTargetRequest$Targets": "<p>The targets to add or replace.</p>",
         "UpdateMaintenanceWindowTargetResult$Targets": "<p>The updated targets.</p>",
@@ -5835,7 +6024,7 @@
     "TimeoutSeconds": {
       "base": null,
       "refs": {
-        "MaintenanceWindowRunCommandParameters$TimeoutSeconds": "<p>If this time is reached and the command has not already started executing, it doesn not execute.</p>",
+        "MaintenanceWindowRunCommandParameters$TimeoutSeconds": "<p>If this time is reached and the command has not already started executing, it doesn't run.</p>",
         "SendCommandRequest$TimeoutSeconds": "<p>If this time is reached and the command has not already started executing, it will not run.</p>"
       }
     },

@@ -22,21 +22,21 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/percona/pmm/api/agent"
+	api "github.com/percona/pmm/api/agent"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
+
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
 const (
-	serverRequestsCap = 32
+	agentRequestsCap = 32
 )
 
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
 //
 // All exported methods are thread-safe.
 type Channel struct { //nolint:maligned
-	s       agent.Agent_ConnectServer
-	l       *logrus.Entry
+	s       api.Agent_ConnectServer
 	metrics *sharedChannelMetrics
 
 	lastSentRequestID uint32
@@ -44,8 +44,8 @@ type Channel struct { //nolint:maligned
 	sendM sync.Mutex
 
 	m         sync.Mutex
-	responses map[uint32]chan agent.AgentMessagePayload
-	requests  chan *agent.AgentMessage
+	responses map[uint32]chan api.AgentMessagePayload
+	requests  chan *api.AgentMessage
 
 	closeOnce sync.Once
 	closeWait chan struct{}
@@ -55,14 +55,13 @@ type Channel struct { //nolint:maligned
 // NewChannel creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
-func NewChannel(stream agent.Agent_ConnectServer, l *logrus.Entry, m *sharedChannelMetrics) *Channel {
+func NewChannel(stream api.Agent_ConnectServer, m *sharedChannelMetrics) *Channel {
 	s := &Channel{
 		s:       stream,
-		l:       l, // only for debug logging
 		metrics: m,
 
-		responses: make(map[uint32]chan agent.AgentMessagePayload),
-		requests:  make(chan *agent.AgentMessage, serverRequestsCap),
+		responses: make(map[uint32]chan api.AgentMessagePayload),
+		requests:  make(chan *api.AgentMessage, agentRequestsCap),
 
 		closeWait: make(chan struct{}),
 	}
@@ -74,7 +73,7 @@ func NewChannel(stream agent.Agent_ConnectServer, l *logrus.Entry, m *sharedChan
 // close marks channel as closed with given error - only once.
 func (c *Channel) close(err error) {
 	c.closeOnce.Do(func() {
-		c.l.Debugf("Closing with error: %+v", err)
+		logger.Get(c.s.Context()).Debugf("Closing with error: %+v", err)
 		c.closeErr = err
 
 		c.m.Lock()
@@ -97,23 +96,23 @@ func (c *Channel) Wait() error {
 }
 
 // Requests returns a channel for incoming requests. It must be read. It is closed on any error (see Wait).
-func (c *Channel) Requests() <-chan *agent.AgentMessage {
+func (c *Channel) Requests() <-chan *api.AgentMessage {
 	return c.requests
 }
 
 // SendResponse sends message to pmm-managed. It is no-op once channel is closed (see Wait).
-func (c *Channel) SendResponse(msg *agent.ServerMessage) {
+func (c *Channel) SendResponse(msg *api.ServerMessage) {
 	c.send(msg)
 }
 
 // SendRequest sends request to pmm-managed, blocks until response is available, and returns it.
-// Response will nil if channel is closed.
+// Response will be nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendRequest(payload agent.ServerMessagePayload) agent.AgentMessagePayload {
+func (c *Channel) SendRequest(payload api.ServerMessagePayload) api.AgentMessagePayload {
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 
-	c.send(&agent.ServerMessage{
+	c.send(&api.ServerMessage{
 		Id:      id,
 		Payload: payload,
 	})
@@ -121,7 +120,7 @@ func (c *Channel) SendRequest(payload agent.ServerMessagePayload) agent.AgentMes
 	return <-ch
 }
 
-func (c *Channel) send(msg *agent.ServerMessage) {
+func (c *Channel) send(msg *api.ServerMessage) {
 	c.sendM.Lock()
 	select {
 	case <-c.closeWait:
@@ -130,7 +129,7 @@ func (c *Channel) send(msg *agent.ServerMessage) {
 	default:
 	}
 
-	c.l.Debugf("Sending message: %s.", msg)
+	logger.Get(c.s.Context()).Debugf("Sending message: %s.", msg)
 	err := c.s.Send(msg)
 	c.sendM.Unlock()
 	if err != nil {
@@ -144,7 +143,7 @@ func (c *Channel) send(msg *agent.ServerMessage) {
 func (c *Channel) runReceiver() {
 	defer func() {
 		close(c.requests)
-		c.l.Debug("Exiting receiver goroutine.")
+		logger.Get(c.s.Context()).Debug("Exiting receiver goroutine.")
 	}()
 
 	for {
@@ -153,27 +152,27 @@ func (c *Channel) runReceiver() {
 			c.close(errors.Wrap(err, "failed to receive message"))
 			return
 		}
-		c.l.Debugf("Received message: %s.", msg)
+		logger.Get(c.s.Context()).Debugf("Received message: %s.", msg)
 		c.metrics.mRecv.Inc()
 
 		switch msg.Payload.(type) {
 		// requests
-		case *agent.AgentMessage_QanData:
+		case *api.AgentMessage_Ping, *api.AgentMessage_StateChanged, *api.AgentMessage_QanData:
 			c.requests <- msg
 
 		// responses
-		case *agent.AgentMessage_Ping, *agent.AgentMessage_State:
+		case *api.AgentMessage_Pong, *api.AgentMessage_SetState:
 			c.publish(msg.Id, msg.Payload)
 
 		default:
-			c.close(errors.Wrapf(err, "failed to handle received message %s", msg))
+			c.close(errors.Errorf("failed to handle received message %s", msg))
 			return
 		}
 	}
 }
 
-func (c *Channel) subscribe(id uint32) chan agent.AgentMessagePayload {
-	ch := make(chan agent.AgentMessagePayload, 1)
+func (c *Channel) subscribe(id uint32) chan api.AgentMessagePayload {
+	ch := make(chan api.AgentMessagePayload, 1)
 
 	c.m.Lock()
 	if c.responses == nil { // Channel is closed, no more subscriptions
@@ -185,7 +184,7 @@ func (c *Channel) subscribe(id uint32) chan agent.AgentMessagePayload {
 	_, ok := c.responses[id]
 	if ok {
 		// it is possible only on lastSentRequestID wrap around, and we can't recover from that
-		c.l.Panicf("Already have subscriber for ID %d.", id)
+		logger.Get(c.s.Context()).Panicf("Already have subscriber for ID %d.", id)
 	}
 
 	c.responses[id] = ch
@@ -193,7 +192,7 @@ func (c *Channel) subscribe(id uint32) chan agent.AgentMessagePayload {
 	return ch
 }
 
-func (c *Channel) publish(id uint32, payload agent.AgentMessagePayload) {
+func (c *Channel) publish(id uint32, payload api.AgentMessagePayload) {
 	c.m.Lock()
 	if c.responses == nil { // Channel is closed, no more publishing
 		c.m.Unlock()

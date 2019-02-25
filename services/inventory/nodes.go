@@ -21,7 +21,8 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
-	"github.com/percona/pmm/api/inventory"
+	"github.com/google/uuid"
+	api "github.com/percona/pmm/api/inventory"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -33,54 +34,52 @@ import (
 // NodesService works with inventory API Nodes.
 type NodesService struct {
 	q *reform.Querier
-	// r *agents.Registry
+	r registry
 }
 
-func NewNodesService(q *reform.Querier) *NodesService {
+func NewNodesService(q *reform.Querier, r registry) *NodesService {
 	return &NodesService{
 		q: q,
-		// r: r,
+		r: r,
 	}
 }
 
 // makeNode converts database row to Inventory API Node.
-func makeNode(row *models.NodeRow) inventory.Node {
-	switch row.Type {
+func makeNode(row *models.Node) api.Node {
+	switch row.NodeType {
 	case models.PMMServerNodeType: // FIXME remove this branch
 		fallthrough
 
 	case models.GenericNodeType:
-		return &inventory.GenericNode{
-			Id:       row.ID,
-			Name:     row.Name,
-			Hostname: pointer.GetString(row.Hostname),
+		return &api.GenericNode{
+			NodeId:   row.NodeID,
+			NodeName: row.NodeName,
 		}
 
 	case models.RemoteNodeType:
-		return &inventory.RemoteNode{
-			Id:   row.ID,
-			Name: row.Name,
+		return &api.RemoteNode{
+			NodeId:   row.NodeID,
+			NodeName: row.NodeName,
 		}
 
-	case models.AmazonRDSRemoteNodeType:
-		return &inventory.AmazonRDSRemoteNode{
-			Id:       row.ID,
-			Name:     row.Name,
-			Hostname: pointer.GetString(row.Hostname),
+	case models.RemoteAmazonRDSNodeType:
+		return &api.RemoteAmazonRDSNode{
+			NodeId:   row.NodeID,
+			NodeName: row.NodeName,
 			Region:   pointer.GetString(row.Region),
 		}
 
 	default:
-		panic(fmt.Errorf("unhandled NodeRow type %s", row.Type))
+		panic(fmt.Errorf("unhandled Node type %s", row.NodeType))
 	}
 }
 
-func (ns *NodesService) get(ctx context.Context, id string) (*models.NodeRow, error) {
+func (ns *NodesService) get(ctx context.Context, id string) (*models.Node, error) {
 	if id == "" {
 		return nil, status.Error(codes.InvalidArgument, "Empty Node ID.")
 	}
 
-	row := &models.NodeRow{ID: id}
+	row := &models.Node{NodeID: id}
 	switch err := ns.q.Reload(row); err {
 	case nil:
 		return row, nil
@@ -96,7 +95,7 @@ func (ns *NodesService) checkUniqueID(ctx context.Context, id string) error {
 		panic("empty Node ID")
 	}
 
-	row := &models.NodeRow{ID: id}
+	row := &models.Node{NodeID: id}
 	switch err := ns.q.Reload(row); err {
 	case nil:
 		return status.Errorf(codes.AlreadyExists, "Node with ID %q already exists.", id)
@@ -112,7 +111,7 @@ func (ns *NodesService) checkUniqueName(ctx context.Context, name string) error 
 		return status.Error(codes.InvalidArgument, "Empty Node name.")
 	}
 
-	_, err := ns.q.FindOneFrom(models.NodeRowTable, "name", name)
+	_, err := ns.q.FindOneFrom(models.NodeTable, "node_name", name)
 	switch err {
 	case nil:
 		return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", name)
@@ -123,19 +122,19 @@ func (ns *NodesService) checkUniqueName(ctx context.Context, name string) error 
 	}
 }
 
-func (ns *NodesService) checkUniqueHostnameRegion(ctx context.Context, hostname, region string) error {
-	if hostname == "" {
-		return status.Error(codes.InvalidArgument, "Empty Node hostname.")
+func (ns *NodesService) checkUniqueInstanceRegion(ctx context.Context, instance, region string) error {
+	if instance == "" {
+		return status.Error(codes.InvalidArgument, "Empty Node instance.")
 	}
 	if region == "" {
 		return status.Error(codes.InvalidArgument, "Empty Node region.")
 	}
 
-	tail := fmt.Sprintf("WHERE hostname = %s AND region = %s LIMIT 1", ns.q.Placeholder(1), ns.q.Placeholder(2))
-	_, err := ns.q.SelectOneFrom(models.NodeRowTable, tail, hostname, region)
+	tail := fmt.Sprintf("WHERE instance = %s AND region = %s LIMIT 1", ns.q.Placeholder(1), ns.q.Placeholder(2))
+	_, err := ns.q.SelectOneFrom(models.NodeTable, tail, instance, region)
 	switch err {
 	case nil:
-		return status.Errorf(codes.AlreadyExists, "Node with hostname %q and region %q already exists.", hostname, region)
+		return status.Errorf(codes.AlreadyExists, "Node with instance %q and region %q already exists.", instance, region)
 	case reform.ErrNoRows:
 		return nil
 	default:
@@ -144,22 +143,22 @@ func (ns *NodesService) checkUniqueHostnameRegion(ctx context.Context, hostname,
 }
 
 // List selects all Nodes in a stable order.
-func (ns *NodesService) List(ctx context.Context) ([]inventory.Node, error) {
-	structs, err := ns.q.SelectAllFrom(models.NodeRowTable, "ORDER BY id")
+func (ns *NodesService) List(ctx context.Context) ([]api.Node, error) {
+	structs, err := ns.q.SelectAllFrom(models.NodeTable, "ORDER BY node_id")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	res := make([]inventory.Node, len(structs))
+	res := make([]api.Node, len(structs))
 	for i, str := range structs {
-		row := str.(*models.NodeRow)
+		row := str.(*models.Node)
 		res[i] = makeNode(row)
 	}
 	return res, nil
 }
 
 // Get selects a single Node by ID.
-func (ns *NodesService) Get(ctx context.Context, id string) (inventory.Node, error) {
+func (ns *NodesService) Get(ctx context.Context, id string) (api.Node, error) {
 	row, err := ns.get(ctx, id)
 	if err != nil {
 		return nil, err
@@ -167,14 +166,12 @@ func (ns *NodesService) Get(ctx context.Context, id string) (inventory.Node, err
 	return makeNode(row), nil
 }
 
-// Add inserts Node with given parameters. ID will be generated if it is empty.
-func (ns *NodesService) Add(ctx context.Context, id string, nodeType models.NodeType, name string, hostname, region *string) (inventory.Node, error) {
+// Add inserts Node with given parameters. ID will be generated.
+func (ns *NodesService) Add(ctx context.Context, nodeType models.NodeType, name string, instance, region *string) (api.Node, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// No hostname for Container, etc.
 
-	if id == "" {
-		id = makeID()
-	}
+	id := "/node_id/" + uuid.New().String()
 	if err := ns.checkUniqueID(ctx, id); err != nil {
 		return nil, err
 	}
@@ -182,17 +179,17 @@ func (ns *NodesService) Add(ctx context.Context, id string, nodeType models.Node
 	if err := ns.checkUniqueName(ctx, name); err != nil {
 		return nil, err
 	}
-	if hostname != nil && region != nil {
-		if err := ns.checkUniqueHostnameRegion(ctx, *hostname, *region); err != nil {
+	if instance != nil && region != nil {
+		if err := ns.checkUniqueInstanceRegion(ctx, *instance, *region); err != nil {
 			return nil, err
 		}
 	}
 
-	row := &models.NodeRow{
-		ID:       id,
-		Type:     nodeType,
-		Name:     name,
-		Hostname: hostname,
+	row := &models.Node{
+		NodeID:   id,
+		NodeType: nodeType,
+		NodeName: name,
+		Instance: instance,
 		Region:   region,
 	}
 	if err := ns.q.Insert(row); err != nil {
@@ -202,7 +199,7 @@ func (ns *NodesService) Add(ctx context.Context, id string, nodeType models.Node
 }
 
 // Change updates Node by ID.
-func (ns *NodesService) Change(ctx context.Context, id string, name string) (inventory.Node, error) {
+func (ns *NodesService) Change(ctx context.Context, id string, name string) (api.Node, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// ID is not 0, name is not empty and valid.
 
@@ -215,7 +212,7 @@ func (ns *NodesService) Change(ctx context.Context, id string, name string) (inv
 		return nil, err
 	}
 
-	row.Name = name
+	row.NodeName = name
 	if err = ns.q.Update(row); err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -229,7 +226,7 @@ func (ns *NodesService) Remove(ctx context.Context, id string) error {
 
 	// TODO check absence of Services and Agents
 
-	err := ns.q.Delete(&models.NodeRow{ID: id})
+	err := ns.q.Delete(&models.Node{NodeID: id})
 	if err == reform.ErrNoRows {
 		return status.Errorf(codes.NotFound, "Node with ID %q not found.", id)
 	}

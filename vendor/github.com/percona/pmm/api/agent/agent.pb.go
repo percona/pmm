@@ -8,6 +8,7 @@ import fmt "fmt"
 import math "math"
 import any "github.com/golang/protobuf/ptypes/any"
 import timestamp "github.com/golang/protobuf/ptypes/timestamp"
+import inventory "github.com/percona/pmm/api/inventory"
 
 import (
 	context "golang.org/x/net/context"
@@ -49,43 +50,145 @@ func (x Type) String() string {
 	return proto.EnumName(Type_name, int32(x))
 }
 func (Type) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{0}
+	return fileDescriptor_agent_c5011a8882c333ae, []int{0}
 }
 
-// Status represents Agent process status.
-type Status int32
-
-const (
-	Status_STATUS_INVALID Status = 0
-	Status_STARTING       Status = 1
-	Status_RUNNING        Status = 2
-	Status_WAITING        Status = 3
-	Status_STOPPING       Status = 4
-	Status_DONE           Status = 5
-)
-
-var Status_name = map[int32]string{
-	0: "STATUS_INVALID",
-	1: "STARTING",
-	2: "RUNNING",
-	3: "WAITING",
-	4: "STOPPING",
-	5: "DONE",
-}
-var Status_value = map[string]int32{
-	"STATUS_INVALID": 0,
-	"STARTING":       1,
-	"RUNNING":        2,
-	"WAITING":        3,
-	"STOPPING":       4,
-	"DONE":           5,
+type RegisterRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
-func (x Status) String() string {
-	return proto.EnumName(Status_name, int32(x))
+func (m *RegisterRequest) Reset()         { *m = RegisterRequest{} }
+func (m *RegisterRequest) String() string { return proto.CompactTextString(m) }
+func (*RegisterRequest) ProtoMessage()    {}
+func (*RegisterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agent_c5011a8882c333ae, []int{0}
 }
-func (Status) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{1}
+func (m *RegisterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RegisterRequest.Unmarshal(m, b)
+}
+func (m *RegisterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RegisterRequest.Marshal(b, m, deterministic)
+}
+func (dst *RegisterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RegisterRequest.Merge(dst, src)
+}
+func (m *RegisterRequest) XXX_Size() int {
+	return xxx_messageInfo_RegisterRequest.Size(m)
+}
+func (m *RegisterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RegisterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RegisterRequest proto.InternalMessageInfo
+
+type RegisterResponse struct {
+	AgentId              string   `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RegisterResponse) Reset()         { *m = RegisterResponse{} }
+func (m *RegisterResponse) String() string { return proto.CompactTextString(m) }
+func (*RegisterResponse) ProtoMessage()    {}
+func (*RegisterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agent_c5011a8882c333ae, []int{1}
+}
+func (m *RegisterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RegisterResponse.Unmarshal(m, b)
+}
+func (m *RegisterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RegisterResponse.Marshal(b, m, deterministic)
+}
+func (dst *RegisterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RegisterResponse.Merge(dst, src)
+}
+func (m *RegisterResponse) XXX_Size() int {
+	return xxx_messageInfo_RegisterResponse.Size(m)
+}
+func (m *RegisterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RegisterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RegisterResponse proto.InternalMessageInfo
+
+func (m *RegisterResponse) GetAgentId() string {
+	if m != nil {
+		return m.AgentId
+	}
+	return ""
+}
+
+// Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift.
+type Ping struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Ping) Reset()         { *m = Ping{} }
+func (m *Ping) String() string { return proto.CompactTextString(m) }
+func (*Ping) ProtoMessage()    {}
+func (*Ping) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agent_c5011a8882c333ae, []int{2}
+}
+func (m *Ping) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Ping.Unmarshal(m, b)
+}
+func (m *Ping) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Ping.Marshal(b, m, deterministic)
+}
+func (dst *Ping) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ping.Merge(dst, src)
+}
+func (m *Ping) XXX_Size() int {
+	return xxx_messageInfo_Ping.Size(m)
+}
+func (m *Ping) XXX_DiscardUnknown() {
+	xxx_messageInfo_Ping.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Ping proto.InternalMessageInfo
+
+// Pong is an AgentMessage/ServerMessage with current time for measuring clock drift.
+type Pong struct {
+	CurrentTime          *timestamp.Timestamp `protobuf:"bytes,1,opt,name=current_time,json=currentTime,proto3" json:"current_time,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
+	XXX_unrecognized     []byte               `json:"-"`
+	XXX_sizecache        int32                `json:"-"`
+}
+
+func (m *Pong) Reset()         { *m = Pong{} }
+func (m *Pong) String() string { return proto.CompactTextString(m) }
+func (*Pong) ProtoMessage()    {}
+func (*Pong) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agent_c5011a8882c333ae, []int{3}
+}
+func (m *Pong) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Pong.Unmarshal(m, b)
+}
+func (m *Pong) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Pong.Marshal(b, m, deterministic)
+}
+func (dst *Pong) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Pong.Merge(dst, src)
+}
+func (m *Pong) XXX_Size() int {
+	return xxx_messageInfo_Pong.Size(m)
+}
+func (m *Pong) XXX_DiscardUnknown() {
+	xxx_messageInfo_Pong.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Pong proto.InternalMessageInfo
+
+func (m *Pong) GetCurrentTime() *timestamp.Timestamp {
+	if m != nil {
+		return m.CurrentTime
+	}
+	return nil
 }
 
 // QANDataRequest is an AgentMessage for sending QAN data.
@@ -100,7 +203,7 @@ func (m *QANDataRequest) Reset()         { *m = QANDataRequest{} }
 func (m *QANDataRequest) String() string { return proto.CompactTextString(m) }
 func (*QANDataRequest) ProtoMessage()    {}
 func (*QANDataRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{0}
+	return fileDescriptor_agent_c5011a8882c333ae, []int{4}
 }
 func (m *QANDataRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_QANDataRequest.Unmarshal(m, b)
@@ -138,7 +241,7 @@ func (m *QANDataResponse) Reset()         { *m = QANDataResponse{} }
 func (m *QANDataResponse) String() string { return proto.CompactTextString(m) }
 func (*QANDataResponse) ProtoMessage()    {}
 func (*QANDataResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{1}
+	return fileDescriptor_agent_c5011a8882c333ae, []int{5}
 }
 func (m *QANDataResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_QANDataResponse.Unmarshal(m, b)
@@ -160,19 +263,19 @@ var xxx_messageInfo_QANDataResponse proto.InternalMessageInfo
 
 // StateChangedRequest is an AgentMessage describing actual agent status.
 type StateChangedRequest struct {
-	AgentId              string   `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	Status               Status   `protobuf:"varint,2,opt,name=status,proto3,enum=agent.Status" json:"status,omitempty"`
-	ListenPort           uint32   `protobuf:"varint,3,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	AgentId              string                `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	Status               inventory.AgentStatus `protobuf:"varint,2,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
+	ListenPort           uint32                `protobuf:"varint,3,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}              `json:"-"`
+	XXX_unrecognized     []byte                `json:"-"`
+	XXX_sizecache        int32                 `json:"-"`
 }
 
 func (m *StateChangedRequest) Reset()         { *m = StateChangedRequest{} }
 func (m *StateChangedRequest) String() string { return proto.CompactTextString(m) }
 func (*StateChangedRequest) ProtoMessage()    {}
 func (*StateChangedRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{2}
+	return fileDescriptor_agent_c5011a8882c333ae, []int{6}
 }
 func (m *StateChangedRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StateChangedRequest.Unmarshal(m, b)
@@ -199,11 +302,11 @@ func (m *StateChangedRequest) GetAgentId() string {
 	return ""
 }
 
-func (m *StateChangedRequest) GetStatus() Status {
+func (m *StateChangedRequest) GetStatus() inventory.AgentStatus {
 	if m != nil {
 		return m.Status
 	}
-	return Status_STATUS_INVALID
+	return inventory.AgentStatus_AGENT_STATUS_INVALID
 }
 
 func (m *StateChangedRequest) GetListenPort() uint32 {
@@ -224,7 +327,7 @@ func (m *StateChangedResponse) Reset()         { *m = StateChangedResponse{} }
 func (m *StateChangedResponse) String() string { return proto.CompactTextString(m) }
 func (*StateChangedResponse) ProtoMessage()    {}
 func (*StateChangedResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{3}
+	return fileDescriptor_agent_c5011a8882c333ae, []int{7}
 }
 func (m *StateChangedResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StateChangedResponse.Unmarshal(m, b)
@@ -244,76 +347,6 @@ func (m *StateChangedResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_StateChangedResponse proto.InternalMessageInfo
 
-// PingRequest is a ServerMessage for checking connectivity, latency and clock drift.
-type PingRequest struct {
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *PingRequest) Reset()         { *m = PingRequest{} }
-func (m *PingRequest) String() string { return proto.CompactTextString(m) }
-func (*PingRequest) ProtoMessage()    {}
-func (*PingRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{4}
-}
-func (m *PingRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_PingRequest.Unmarshal(m, b)
-}
-func (m *PingRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_PingRequest.Marshal(b, m, deterministic)
-}
-func (dst *PingRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PingRequest.Merge(dst, src)
-}
-func (m *PingRequest) XXX_Size() int {
-	return xxx_messageInfo_PingRequest.Size(m)
-}
-func (m *PingRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_PingRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_PingRequest proto.InternalMessageInfo
-
-// PingResponse is an AgentMessage with current time for measuring clock drift.
-type PingResponse struct {
-	CurrentTime          *timestamp.Timestamp `protobuf:"bytes,1,opt,name=current_time,json=currentTime,proto3" json:"current_time,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
-	XXX_unrecognized     []byte               `json:"-"`
-	XXX_sizecache        int32                `json:"-"`
-}
-
-func (m *PingResponse) Reset()         { *m = PingResponse{} }
-func (m *PingResponse) String() string { return proto.CompactTextString(m) }
-func (*PingResponse) ProtoMessage()    {}
-func (*PingResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{5}
-}
-func (m *PingResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_PingResponse.Unmarshal(m, b)
-}
-func (m *PingResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_PingResponse.Marshal(b, m, deterministic)
-}
-func (dst *PingResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PingResponse.Merge(dst, src)
-}
-func (m *PingResponse) XXX_Size() int {
-	return xxx_messageInfo_PingResponse.Size(m)
-}
-func (m *PingResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_PingResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_PingResponse proto.InternalMessageInfo
-
-func (m *PingResponse) GetCurrentTime() *timestamp.Timestamp {
-	if m != nil {
-		return m.CurrentTime
-	}
-	return nil
-}
-
 // SetStateRequest is a ServerMessage asking pmm-agent to run agents according to desired state.
 type SetStateRequest struct {
 	AgentProcesses       map[string]*SetStateRequest_AgentProcess `protobuf:"bytes,1,rep,name=agent_processes,json=agentProcesses,proto3" json:"agent_processes,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
@@ -326,7 +359,7 @@ func (m *SetStateRequest) Reset()         { *m = SetStateRequest{} }
 func (m *SetStateRequest) String() string { return proto.CompactTextString(m) }
 func (*SetStateRequest) ProtoMessage()    {}
 func (*SetStateRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{6}
+	return fileDescriptor_agent_c5011a8882c333ae, []int{8}
 }
 func (m *SetStateRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SetStateRequest.Unmarshal(m, b)
@@ -370,7 +403,7 @@ func (m *SetStateRequest_AgentProcess) Reset()         { *m = SetStateRequest_Ag
 func (m *SetStateRequest_AgentProcess) String() string { return proto.CompactTextString(m) }
 func (*SetStateRequest_AgentProcess) ProtoMessage()    {}
 func (*SetStateRequest_AgentProcess) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{6, 0}
+	return fileDescriptor_agent_c5011a8882c333ae, []int{8, 0}
 }
 func (m *SetStateRequest_AgentProcess) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SetStateRequest_AgentProcess.Unmarshal(m, b)
@@ -443,7 +476,7 @@ func (m *SetStateResponse) Reset()         { *m = SetStateResponse{} }
 func (m *SetStateResponse) String() string { return proto.CompactTextString(m) }
 func (*SetStateResponse) ProtoMessage()    {}
 func (*SetStateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{7}
+	return fileDescriptor_agent_c5011a8882c333ae, []int{9}
 }
 func (m *SetStateResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SetStateResponse.Unmarshal(m, b)
@@ -466,10 +499,11 @@ var xxx_messageInfo_SetStateResponse proto.InternalMessageInfo
 type AgentMessage struct {
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Types that are valid to be assigned to Payload:
-	//	*AgentMessage_QanData
-	//	*AgentMessage_StateChanged
 	//	*AgentMessage_Ping
-	//	*AgentMessage_State
+	//	*AgentMessage_StateChanged
+	//	*AgentMessage_QanData
+	//	*AgentMessage_Pong
+	//	*AgentMessage_SetState
 	Payload              isAgentMessage_Payload `protobuf_oneof:"payload"`
 	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
 	XXX_unrecognized     []byte                 `json:"-"`
@@ -480,7 +514,7 @@ func (m *AgentMessage) Reset()         { *m = AgentMessage{} }
 func (m *AgentMessage) String() string { return proto.CompactTextString(m) }
 func (*AgentMessage) ProtoMessage()    {}
 func (*AgentMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{8}
+	return fileDescriptor_agent_c5011a8882c333ae, []int{10}
 }
 func (m *AgentMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AgentMessage.Unmarshal(m, b)
@@ -511,29 +545,35 @@ type isAgentMessage_Payload interface {
 	isAgentMessage_Payload()
 }
 
-type AgentMessage_QanData struct {
-	QanData *QANDataRequest `protobuf:"bytes,2,opt,name=qan_data,json=qanData,proto3,oneof"`
+type AgentMessage_Ping struct {
+	Ping *Ping `protobuf:"bytes,2,opt,name=ping,proto3,oneof"`
 }
 
 type AgentMessage_StateChanged struct {
 	StateChanged *StateChangedRequest `protobuf:"bytes,3,opt,name=state_changed,json=stateChanged,proto3,oneof"`
 }
 
-type AgentMessage_Ping struct {
-	Ping *PingResponse `protobuf:"bytes,8,opt,name=ping,proto3,oneof"`
+type AgentMessage_QanData struct {
+	QanData *QANDataRequest `protobuf:"bytes,4,opt,name=qan_data,json=qanData,proto3,oneof"`
 }
 
-type AgentMessage_State struct {
-	State *SetStateResponse `protobuf:"bytes,9,opt,name=state,proto3,oneof"`
+type AgentMessage_Pong struct {
+	Pong *Pong `protobuf:"bytes,8,opt,name=pong,proto3,oneof"`
 }
 
-func (*AgentMessage_QanData) isAgentMessage_Payload() {}
-
-func (*AgentMessage_StateChanged) isAgentMessage_Payload() {}
+type AgentMessage_SetState struct {
+	SetState *SetStateResponse `protobuf:"bytes,9,opt,name=set_state,json=setState,proto3,oneof"`
+}
 
 func (*AgentMessage_Ping) isAgentMessage_Payload() {}
 
-func (*AgentMessage_State) isAgentMessage_Payload() {}
+func (*AgentMessage_StateChanged) isAgentMessage_Payload() {}
+
+func (*AgentMessage_QanData) isAgentMessage_Payload() {}
+
+func (*AgentMessage_Pong) isAgentMessage_Payload() {}
+
+func (*AgentMessage_SetState) isAgentMessage_Payload() {}
 
 func (m *AgentMessage) GetPayload() isAgentMessage_Payload {
 	if m != nil {
@@ -542,9 +582,9 @@ func (m *AgentMessage) GetPayload() isAgentMessage_Payload {
 	return nil
 }
 
-func (m *AgentMessage) GetQanData() *QANDataRequest {
-	if x, ok := m.GetPayload().(*AgentMessage_QanData); ok {
-		return x.QanData
+func (m *AgentMessage) GetPing() *Ping {
+	if x, ok := m.GetPayload().(*AgentMessage_Ping); ok {
+		return x.Ping
 	}
 	return nil
 }
@@ -556,16 +596,23 @@ func (m *AgentMessage) GetStateChanged() *StateChangedRequest {
 	return nil
 }
 
-func (m *AgentMessage) GetPing() *PingResponse {
-	if x, ok := m.GetPayload().(*AgentMessage_Ping); ok {
-		return x.Ping
+func (m *AgentMessage) GetQanData() *QANDataRequest {
+	if x, ok := m.GetPayload().(*AgentMessage_QanData); ok {
+		return x.QanData
 	}
 	return nil
 }
 
-func (m *AgentMessage) GetState() *SetStateResponse {
-	if x, ok := m.GetPayload().(*AgentMessage_State); ok {
-		return x.State
+func (m *AgentMessage) GetPong() *Pong {
+	if x, ok := m.GetPayload().(*AgentMessage_Pong); ok {
+		return x.Pong
+	}
+	return nil
+}
+
+func (m *AgentMessage) GetSetState() *SetStateResponse {
+	if x, ok := m.GetPayload().(*AgentMessage_SetState); ok {
+		return x.SetState
 	}
 	return nil
 }
@@ -573,10 +620,11 @@ func (m *AgentMessage) GetState() *SetStateResponse {
 // XXX_OneofFuncs is for the internal use of the proto package.
 func (*AgentMessage) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
 	return _AgentMessage_OneofMarshaler, _AgentMessage_OneofUnmarshaler, _AgentMessage_OneofSizer, []interface{}{
-		(*AgentMessage_QanData)(nil),
-		(*AgentMessage_StateChanged)(nil),
 		(*AgentMessage_Ping)(nil),
-		(*AgentMessage_State)(nil),
+		(*AgentMessage_StateChanged)(nil),
+		(*AgentMessage_QanData)(nil),
+		(*AgentMessage_Pong)(nil),
+		(*AgentMessage_SetState)(nil),
 	}
 }
 
@@ -584,9 +632,9 @@ func _AgentMessage_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 	m := msg.(*AgentMessage)
 	// payload
 	switch x := m.Payload.(type) {
-	case *AgentMessage_QanData:
+	case *AgentMessage_Ping:
 		b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.QanData); err != nil {
+		if err := b.EncodeMessage(x.Ping); err != nil {
 			return err
 		}
 	case *AgentMessage_StateChanged:
@@ -594,14 +642,19 @@ func _AgentMessage_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 		if err := b.EncodeMessage(x.StateChanged); err != nil {
 			return err
 		}
-	case *AgentMessage_Ping:
-		b.EncodeVarint(8<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Ping); err != nil {
+	case *AgentMessage_QanData:
+		b.EncodeVarint(4<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.QanData); err != nil {
 			return err
 		}
-	case *AgentMessage_State:
+	case *AgentMessage_Pong:
+		b.EncodeVarint(8<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.Pong); err != nil {
+			return err
+		}
+	case *AgentMessage_SetState:
 		b.EncodeVarint(9<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.State); err != nil {
+		if err := b.EncodeMessage(x.SetState); err != nil {
 			return err
 		}
 	case nil:
@@ -614,13 +667,13 @@ func _AgentMessage_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 func _AgentMessage_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
 	m := msg.(*AgentMessage)
 	switch tag {
-	case 2: // payload.qan_data
+	case 2: // payload.ping
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
-		msg := new(QANDataRequest)
+		msg := new(Ping)
 		err := b.DecodeMessage(msg)
-		m.Payload = &AgentMessage_QanData{msg}
+		m.Payload = &AgentMessage_Ping{msg}
 		return true, err
 	case 3: // payload.state_changed
 		if wire != proto.WireBytes {
@@ -630,21 +683,29 @@ func _AgentMessage_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.B
 		err := b.DecodeMessage(msg)
 		m.Payload = &AgentMessage_StateChanged{msg}
 		return true, err
-	case 8: // payload.ping
+	case 4: // payload.qan_data
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
-		msg := new(PingResponse)
+		msg := new(QANDataRequest)
 		err := b.DecodeMessage(msg)
-		m.Payload = &AgentMessage_Ping{msg}
+		m.Payload = &AgentMessage_QanData{msg}
 		return true, err
-	case 9: // payload.state
+	case 8: // payload.pong
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(Pong)
+		err := b.DecodeMessage(msg)
+		m.Payload = &AgentMessage_Pong{msg}
+		return true, err
+	case 9: // payload.set_state
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
 		msg := new(SetStateResponse)
 		err := b.DecodeMessage(msg)
-		m.Payload = &AgentMessage_State{msg}
+		m.Payload = &AgentMessage_SetState{msg}
 		return true, err
 	default:
 		return false, nil
@@ -655,8 +716,8 @@ func _AgentMessage_OneofSizer(msg proto.Message) (n int) {
 	m := msg.(*AgentMessage)
 	// payload
 	switch x := m.Payload.(type) {
-	case *AgentMessage_QanData:
-		s := proto.Size(x.QanData)
+	case *AgentMessage_Ping:
+		s := proto.Size(x.Ping)
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
@@ -665,13 +726,18 @@ func _AgentMessage_OneofSizer(msg proto.Message) (n int) {
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
-	case *AgentMessage_Ping:
-		s := proto.Size(x.Ping)
+	case *AgentMessage_QanData:
+		s := proto.Size(x.QanData)
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
-	case *AgentMessage_State:
-		s := proto.Size(x.State)
+	case *AgentMessage_Pong:
+		s := proto.Size(x.Pong)
+		n += 1 // tag and wire
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *AgentMessage_SetState:
+		s := proto.Size(x.SetState)
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
@@ -685,10 +751,11 @@ func _AgentMessage_OneofSizer(msg proto.Message) (n int) {
 type ServerMessage struct {
 	Id uint32 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	// Types that are valid to be assigned to Payload:
-	//	*ServerMessage_QanData
+	//	*ServerMessage_Pong
 	//	*ServerMessage_StateChanged
+	//	*ServerMessage_QanData
 	//	*ServerMessage_Ping
-	//	*ServerMessage_State
+	//	*ServerMessage_SetState
 	Payload              isServerMessage_Payload `protobuf_oneof:"payload"`
 	XXX_NoUnkeyedLiteral struct{}                `json:"-"`
 	XXX_unrecognized     []byte                  `json:"-"`
@@ -699,7 +766,7 @@ func (m *ServerMessage) Reset()         { *m = ServerMessage{} }
 func (m *ServerMessage) String() string { return proto.CompactTextString(m) }
 func (*ServerMessage) ProtoMessage()    {}
 func (*ServerMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_53db0e36c769cd37, []int{9}
+	return fileDescriptor_agent_c5011a8882c333ae, []int{11}
 }
 func (m *ServerMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ServerMessage.Unmarshal(m, b)
@@ -730,29 +797,35 @@ type isServerMessage_Payload interface {
 	isServerMessage_Payload()
 }
 
-type ServerMessage_QanData struct {
-	QanData *QANDataResponse `protobuf:"bytes,2,opt,name=qan_data,json=qanData,proto3,oneof"`
+type ServerMessage_Pong struct {
+	Pong *Pong `protobuf:"bytes,2,opt,name=pong,proto3,oneof"`
 }
 
 type ServerMessage_StateChanged struct {
 	StateChanged *StateChangedResponse `protobuf:"bytes,3,opt,name=state_changed,json=stateChanged,proto3,oneof"`
 }
 
+type ServerMessage_QanData struct {
+	QanData *QANDataResponse `protobuf:"bytes,4,opt,name=qan_data,json=qanData,proto3,oneof"`
+}
+
 type ServerMessage_Ping struct {
-	Ping *PingRequest `protobuf:"bytes,8,opt,name=ping,proto3,oneof"`
+	Ping *Ping `protobuf:"bytes,8,opt,name=ping,proto3,oneof"`
 }
 
-type ServerMessage_State struct {
-	State *SetStateRequest `protobuf:"bytes,9,opt,name=state,proto3,oneof"`
+type ServerMessage_SetState struct {
+	SetState *SetStateRequest `protobuf:"bytes,9,opt,name=set_state,json=setState,proto3,oneof"`
 }
 
-func (*ServerMessage_QanData) isServerMessage_Payload() {}
+func (*ServerMessage_Pong) isServerMessage_Payload() {}
 
 func (*ServerMessage_StateChanged) isServerMessage_Payload() {}
 
+func (*ServerMessage_QanData) isServerMessage_Payload() {}
+
 func (*ServerMessage_Ping) isServerMessage_Payload() {}
 
-func (*ServerMessage_State) isServerMessage_Payload() {}
+func (*ServerMessage_SetState) isServerMessage_Payload() {}
 
 func (m *ServerMessage) GetPayload() isServerMessage_Payload {
 	if m != nil {
@@ -761,9 +834,9 @@ func (m *ServerMessage) GetPayload() isServerMessage_Payload {
 	return nil
 }
 
-func (m *ServerMessage) GetQanData() *QANDataResponse {
-	if x, ok := m.GetPayload().(*ServerMessage_QanData); ok {
-		return x.QanData
+func (m *ServerMessage) GetPong() *Pong {
+	if x, ok := m.GetPayload().(*ServerMessage_Pong); ok {
+		return x.Pong
 	}
 	return nil
 }
@@ -775,16 +848,23 @@ func (m *ServerMessage) GetStateChanged() *StateChangedResponse {
 	return nil
 }
 
-func (m *ServerMessage) GetPing() *PingRequest {
+func (m *ServerMessage) GetQanData() *QANDataResponse {
+	if x, ok := m.GetPayload().(*ServerMessage_QanData); ok {
+		return x.QanData
+	}
+	return nil
+}
+
+func (m *ServerMessage) GetPing() *Ping {
 	if x, ok := m.GetPayload().(*ServerMessage_Ping); ok {
 		return x.Ping
 	}
 	return nil
 }
 
-func (m *ServerMessage) GetState() *SetStateRequest {
-	if x, ok := m.GetPayload().(*ServerMessage_State); ok {
-		return x.State
+func (m *ServerMessage) GetSetState() *SetStateRequest {
+	if x, ok := m.GetPayload().(*ServerMessage_SetState); ok {
+		return x.SetState
 	}
 	return nil
 }
@@ -792,10 +872,11 @@ func (m *ServerMessage) GetState() *SetStateRequest {
 // XXX_OneofFuncs is for the internal use of the proto package.
 func (*ServerMessage) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
 	return _ServerMessage_OneofMarshaler, _ServerMessage_OneofUnmarshaler, _ServerMessage_OneofSizer, []interface{}{
-		(*ServerMessage_QanData)(nil),
+		(*ServerMessage_Pong)(nil),
 		(*ServerMessage_StateChanged)(nil),
+		(*ServerMessage_QanData)(nil),
 		(*ServerMessage_Ping)(nil),
-		(*ServerMessage_State)(nil),
+		(*ServerMessage_SetState)(nil),
 	}
 }
 
@@ -803,9 +884,9 @@ func _ServerMessage_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 	m := msg.(*ServerMessage)
 	// payload
 	switch x := m.Payload.(type) {
-	case *ServerMessage_QanData:
+	case *ServerMessage_Pong:
 		b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.QanData); err != nil {
+		if err := b.EncodeMessage(x.Pong); err != nil {
 			return err
 		}
 	case *ServerMessage_StateChanged:
@@ -813,14 +894,19 @@ func _ServerMessage_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 		if err := b.EncodeMessage(x.StateChanged); err != nil {
 			return err
 		}
+	case *ServerMessage_QanData:
+		b.EncodeVarint(4<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.QanData); err != nil {
+			return err
+		}
 	case *ServerMessage_Ping:
 		b.EncodeVarint(8<<3 | proto.WireBytes)
 		if err := b.EncodeMessage(x.Ping); err != nil {
 			return err
 		}
-	case *ServerMessage_State:
+	case *ServerMessage_SetState:
 		b.EncodeVarint(9<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.State); err != nil {
+		if err := b.EncodeMessage(x.SetState); err != nil {
 			return err
 		}
 	case nil:
@@ -833,13 +919,13 @@ func _ServerMessage_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 func _ServerMessage_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
 	m := msg.(*ServerMessage)
 	switch tag {
-	case 2: // payload.qan_data
+	case 2: // payload.pong
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
-		msg := new(QANDataResponse)
+		msg := new(Pong)
 		err := b.DecodeMessage(msg)
-		m.Payload = &ServerMessage_QanData{msg}
+		m.Payload = &ServerMessage_Pong{msg}
 		return true, err
 	case 3: // payload.state_changed
 		if wire != proto.WireBytes {
@@ -849,21 +935,29 @@ func _ServerMessage_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.
 		err := b.DecodeMessage(msg)
 		m.Payload = &ServerMessage_StateChanged{msg}
 		return true, err
+	case 4: // payload.qan_data
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(QANDataResponse)
+		err := b.DecodeMessage(msg)
+		m.Payload = &ServerMessage_QanData{msg}
+		return true, err
 	case 8: // payload.ping
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
-		msg := new(PingRequest)
+		msg := new(Ping)
 		err := b.DecodeMessage(msg)
 		m.Payload = &ServerMessage_Ping{msg}
 		return true, err
-	case 9: // payload.state
+	case 9: // payload.set_state
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
 		msg := new(SetStateRequest)
 		err := b.DecodeMessage(msg)
-		m.Payload = &ServerMessage_State{msg}
+		m.Payload = &ServerMessage_SetState{msg}
 		return true, err
 	default:
 		return false, nil
@@ -874,8 +968,8 @@ func _ServerMessage_OneofSizer(msg proto.Message) (n int) {
 	m := msg.(*ServerMessage)
 	// payload
 	switch x := m.Payload.(type) {
-	case *ServerMessage_QanData:
-		s := proto.Size(x.QanData)
+	case *ServerMessage_Pong:
+		s := proto.Size(x.Pong)
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
@@ -884,13 +978,18 @@ func _ServerMessage_OneofSizer(msg proto.Message) (n int) {
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
+	case *ServerMessage_QanData:
+		s := proto.Size(x.QanData)
+		n += 1 // tag and wire
+		n += proto.SizeVarint(uint64(s))
+		n += s
 	case *ServerMessage_Ping:
 		s := proto.Size(x.Ping)
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
-	case *ServerMessage_State:
-		s := proto.Size(x.State)
+	case *ServerMessage_SetState:
+		s := proto.Size(x.SetState)
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
@@ -902,12 +1001,14 @@ func _ServerMessage_OneofSizer(msg proto.Message) (n int) {
 }
 
 func init() {
+	proto.RegisterType((*RegisterRequest)(nil), "agent.RegisterRequest")
+	proto.RegisterType((*RegisterResponse)(nil), "agent.RegisterResponse")
+	proto.RegisterType((*Ping)(nil), "agent.Ping")
+	proto.RegisterType((*Pong)(nil), "agent.Pong")
 	proto.RegisterType((*QANDataRequest)(nil), "agent.QANDataRequest")
 	proto.RegisterType((*QANDataResponse)(nil), "agent.QANDataResponse")
 	proto.RegisterType((*StateChangedRequest)(nil), "agent.StateChangedRequest")
 	proto.RegisterType((*StateChangedResponse)(nil), "agent.StateChangedResponse")
-	proto.RegisterType((*PingRequest)(nil), "agent.PingRequest")
-	proto.RegisterType((*PingResponse)(nil), "agent.PingResponse")
 	proto.RegisterType((*SetStateRequest)(nil), "agent.SetStateRequest")
 	proto.RegisterMapType((map[string]*SetStateRequest_AgentProcess)(nil), "agent.SetStateRequest.AgentProcessesEntry")
 	proto.RegisterType((*SetStateRequest_AgentProcess)(nil), "agent.SetStateRequest.AgentProcess")
@@ -916,7 +1017,6 @@ func init() {
 	proto.RegisterType((*AgentMessage)(nil), "agent.AgentMessage")
 	proto.RegisterType((*ServerMessage)(nil), "agent.ServerMessage")
 	proto.RegisterEnum("agent.Type", Type_name, Type_value)
-	proto.RegisterEnum("agent.Status", Status_name, Status_value)
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -931,6 +1031,8 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type AgentClient interface {
+	// Register TODO https://jira.percona.com/browse/PMM-3453
+	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	// Connect establishes two-way communication channel between pmm-agent and pmm-managed.
 	Connect(ctx context.Context, opts ...grpc.CallOption) (Agent_ConnectClient, error)
 }
@@ -941,6 +1043,15 @@ type agentClient struct {
 
 func NewAgentClient(cc *grpc.ClientConn) AgentClient {
 	return &agentClient{cc}
+}
+
+func (c *agentClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
+	out := new(RegisterResponse)
+	err := c.cc.Invoke(ctx, "/agent.Agent/Register", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *agentClient) Connect(ctx context.Context, opts ...grpc.CallOption) (Agent_ConnectClient, error) {
@@ -976,12 +1087,32 @@ func (x *agentConnectClient) Recv() (*ServerMessage, error) {
 
 // AgentServer is the server API for Agent service.
 type AgentServer interface {
+	// Register TODO https://jira.percona.com/browse/PMM-3453
+	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	// Connect establishes two-way communication channel between pmm-agent and pmm-managed.
 	Connect(Agent_ConnectServer) error
 }
 
 func RegisterAgentServer(s *grpc.Server, srv AgentServer) {
 	s.RegisterService(&_Agent_serviceDesc, srv)
+}
+
+func _Agent_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentServer).Register(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/agent.Agent/Register",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentServer).Register(ctx, req.(*RegisterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Agent_Connect_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -1013,7 +1144,12 @@ func (x *agentConnectServer) Recv() (*AgentMessage, error) {
 var _Agent_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "agent.Agent",
 	HandlerType: (*AgentServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "Register",
+			Handler:    _Agent_Register_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Connect",
@@ -1025,60 +1161,61 @@ var _Agent_serviceDesc = grpc.ServiceDesc{
 	Metadata: "agent/agent.proto",
 }
 
-func init() { proto.RegisterFile("agent/agent.proto", fileDescriptor_agent_53db0e36c769cd37) }
+func init() { proto.RegisterFile("agent/agent.proto", fileDescriptor_agent_c5011a8882c333ae) }
 
-var fileDescriptor_agent_53db0e36c769cd37 = []byte{
-	// 824 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x55, 0x6d, 0x6f, 0xe2, 0x46,
-	0x10, 0x8e, 0xc1, 0x04, 0x18, 0x5e, 0x42, 0x16, 0x9a, 0xfa, 0xe8, 0x87, 0x20, 0xaa, 0x4a, 0x6e,
-	0x3e, 0x38, 0x27, 0xdf, 0x97, 0xeb, 0xa9, 0x95, 0xea, 0x1c, 0xb4, 0x41, 0x4a, 0x08, 0x59, 0xfb,
-	0xda, 0x5e, 0x55, 0xc9, 0xda, 0x0b, 0x8b, 0xcf, 0xaa, 0x63, 0x3b, 0xf6, 0x12, 0x85, 0x9f, 0xd2,
-	0x7f, 0xd4, 0x1f, 0xd5, 0x4a, 0xd5, 0xee, 0xda, 0xc4, 0x4e, 0xa8, 0x94, 0x2f, 0xc8, 0x33, 0xf3,
-	0xcc, 0xcb, 0xf3, 0x78, 0xc6, 0xc0, 0x21, 0xf1, 0x68, 0xc8, 0x4e, 0xc5, 0xaf, 0x11, 0x27, 0x11,
-	0x8b, 0x50, 0x4d, 0x18, 0xc3, 0x57, 0x5e, 0x14, 0x79, 0x01, 0x3d, 0x15, 0xce, 0x4f, 0xeb, 0xd5,
-	0x29, 0x09, 0x37, 0x12, 0x31, 0x3c, 0x7e, 0x1a, 0x62, 0xfe, 0x2d, 0x4d, 0x19, 0xb9, 0x8d, 0x25,
-	0x60, 0xfc, 0x0e, 0xba, 0xd7, 0xd6, 0x7c, 0x42, 0x18, 0xc1, 0xf4, 0x6e, 0x4d, 0x53, 0x86, 0x74,
-	0x50, 0x97, 0x84, 0x11, 0x4d, 0x19, 0x29, 0x7a, 0xcb, 0x1c, 0x18, 0xb2, 0x82, 0x91, 0x57, 0x30,
-	0xac, 0x70, 0x83, 0x05, 0x62, 0x7c, 0x08, 0x07, 0xdb, 0xdc, 0x34, 0x8e, 0xc2, 0x94, 0x8e, 0x1f,
-	0xa0, 0x6f, 0x33, 0xc2, 0xe8, 0xfb, 0xcf, 0x24, 0xf4, 0xe8, 0x32, 0xaf, 0xf9, 0x0a, 0x1a, 0x62,
-	0x54, 0xd7, 0x5f, 0x8a, 0xba, 0x4d, 0x5c, 0x17, 0xf6, 0x6c, 0x89, 0xbe, 0x81, 0xfd, 0x94, 0x11,
-	0xb6, 0x4e, 0xb5, 0xca, 0x48, 0xd1, 0xbb, 0x66, 0xc7, 0x90, 0x0c, 0x6d, 0xe1, 0xc4, 0x59, 0x10,
-	0x1d, 0x43, 0x2b, 0xf0, 0x53, 0x46, 0x43, 0x37, 0x8e, 0x12, 0xa6, 0x55, 0x47, 0x8a, 0xde, 0xc1,
-	0x20, 0x5d, 0x8b, 0x28, 0x61, 0xe3, 0x23, 0x18, 0x94, 0x3b, 0x67, 0x13, 0x75, 0xa0, 0xb5, 0xf0,
-	0x43, 0x2f, 0x9b, 0x64, 0x7c, 0x09, 0x6d, 0x69, 0xca, 0x30, 0xfa, 0x01, 0xda, 0x37, 0xeb, 0x24,
-	0xe1, 0xb3, 0x71, 0x69, 0x32, 0xd6, 0xc3, 0x67, 0xac, 0x9d, 0x5c, 0x37, 0xdc, 0xca, 0xf0, 0xdc,
-	0x33, 0xfe, 0x4b, 0x85, 0x03, 0x9b, 0x32, 0xd1, 0x39, 0x27, 0x6b, 0xc3, 0x81, 0x24, 0x1b, 0x27,
-	0xd1, 0x0d, 0x4d, 0x53, 0x9a, 0x6a, 0xca, 0xa8, 0xaa, 0xb7, 0xcc, 0x93, 0x9c, 0x5a, 0x39, 0xc1,
-	0xb0, 0xb8, 0x77, 0x91, 0x83, 0xa7, 0x21, 0x4b, 0x36, 0xb8, 0x4b, 0x4a, 0xce, 0xe1, 0xdf, 0x15,
-	0x68, 0x17, 0x71, 0xe8, 0x18, 0x54, 0xb6, 0x89, 0xe5, 0xc0, 0x5d, 0xb3, 0x95, 0x95, 0x76, 0x36,
-	0x31, 0xc5, 0x22, 0x80, 0x0c, 0xe8, 0x33, 0x7a, 0x1b, 0x07, 0x84, 0x51, 0x37, 0xa0, 0x2b, 0xe6,
-	0x2e, 0x69, 0xe0, 0xdf, 0x0a, 0x95, 0x9b, 0xf8, 0x30, 0x0f, 0x5d, 0xd0, 0x15, 0x9b, 0xf0, 0x00,
-	0x7a, 0x0d, 0x83, 0x2d, 0x3e, 0xf1, 0xbd, 0xcf, 0x79, 0x42, 0x55, 0x24, 0xa0, 0x3c, 0x86, 0x79,
-	0x48, 0x66, 0x20, 0x50, 0x49, 0xe2, 0xa5, 0x9a, 0x3a, 0xaa, 0xea, 0x4d, 0x2c, 0x9e, 0x51, 0x0f,
-	0xaa, 0x34, 0xbc, 0xd7, 0x6a, 0xc2, 0xc5, 0x1f, 0xd1, 0x35, 0x00, 0xa3, 0x0f, 0xcc, 0x5d, 0xf9,
-	0x01, 0x4d, 0xb5, 0x7d, 0xa1, 0x84, 0xf9, 0x02, 0x25, 0x0c, 0x87, 0x3e, 0xb0, 0x9f, 0x78, 0x92,
-	0x54, 0xa4, 0xc9, 0x72, 0x7b, 0xf8, 0x3d, 0x74, 0xcb, 0x41, 0xde, 0xf6, 0x4f, 0xba, 0xc9, 0x76,
-	0x8b, 0x3f, 0xa2, 0x01, 0xd4, 0xee, 0x49, 0xb0, 0xa6, 0x19, 0x61, 0x69, 0xbc, 0xab, 0xbc, 0x55,
-	0x86, 0x2b, 0xe8, 0xef, 0x50, 0x7c, 0x47, 0x89, 0xef, 0x8a, 0x25, 0x5a, 0xe6, 0xd7, 0x2f, 0x18,
-	0xba, 0xd0, 0x67, 0x8c, 0xa0, 0xf7, 0x08, 0xcd, 0xb6, 0xf1, 0x1f, 0x25, 0x7b, 0x8d, 0x97, 0x34,
-	0x4d, 0x89, 0x47, 0x51, 0x17, 0x2a, 0xd9, 0x4d, 0x74, 0x70, 0xc5, 0x5f, 0x22, 0x13, 0x1a, 0x77,
-	0x24, 0x74, 0xc5, 0x05, 0xca, 0xb6, 0x5f, 0x64, 0x6d, 0xcb, 0x67, 0x7a, 0xbe, 0x87, 0xeb, 0x77,
-	0x24, 0xe4, 0x1e, 0x64, 0x41, 0x87, 0x5f, 0x09, 0x75, 0x6f, 0xe4, 0xee, 0x8b, 0x57, 0xc6, 0x97,
-	0xf8, 0xf1, 0x92, 0x9e, 0x1c, 0xe4, 0xf9, 0x1e, 0x6e, 0xa7, 0x05, 0x37, 0xfa, 0x16, 0xd4, 0xd8,
-	0x0f, 0x3d, 0xad, 0x21, 0x32, 0xfb, 0x59, 0x66, 0xf1, 0x52, 0xce, 0xf7, 0xb0, 0x80, 0xa0, 0x53,
-	0xa8, 0x89, 0x54, 0xad, 0x29, 0xb0, 0x5f, 0x3e, 0x53, 0x65, 0x8b, 0x97, 0xb8, 0xb3, 0x26, 0xd4,
-	0x63, 0xb2, 0x09, 0x22, 0xb2, 0x1c, 0xff, 0xab, 0x40, 0xc7, 0xa6, 0xc9, 0x3d, 0x4d, 0xfe, 0x8f,
-	0xff, 0x9b, 0x67, 0xfc, 0x8f, 0x9e, 0xf2, 0xdf, 0xd6, 0xdf, 0x0a, 0x70, 0xb6, 0x5b, 0x80, 0xaf,
-	0x76, 0x0a, 0xb0, 0x4d, 0x2f, 0x2b, 0xa0, 0x97, 0x14, 0x40, 0x25, 0x05, 0x72, 0xcd, 0xa4, 0x00,
-	0x46, 0x59, 0x80, 0xa3, 0xdd, 0x6b, 0xb1, 0x8b, 0xff, 0xc9, 0x8f, 0xa0, 0xf2, 0x0b, 0x45, 0x3d,
-	0x68, 0x3b, 0x1f, 0x17, 0x53, 0x77, 0x36, 0xff, 0xc5, 0xba, 0x98, 0x4d, 0x7a, 0x7b, 0xe8, 0x10,
-	0x3a, 0xf3, 0xab, 0xc9, 0xd4, 0x9d, 0xfe, 0xb6, 0xb8, 0xc2, 0xce, 0x14, 0xf7, 0x14, 0xd4, 0x87,
-	0x83, 0xcb, 0x8f, 0xf6, 0xf5, 0xc5, 0xe4, 0xd1, 0x59, 0x39, 0xf9, 0x03, 0xf6, 0xe5, 0x97, 0x11,
-	0x21, 0xe8, 0xda, 0x8e, 0xe5, 0x7c, 0xb0, 0x0b, 0x55, 0xda, 0xd0, 0xb0, 0x1d, 0x0b, 0x3b, 0xb3,
-	0xf9, 0xcf, 0x3d, 0x05, 0xb5, 0xa0, 0x8e, 0x3f, 0xcc, 0xe7, 0xdc, 0xa8, 0x70, 0xe3, 0x57, 0x6b,
-	0x26, 0x22, 0x55, 0x89, 0xbb, 0x5a, 0x2c, 0xb8, 0xa5, 0xa2, 0x06, 0xa8, 0x93, 0xab, 0xf9, 0xb4,
-	0x57, 0x33, 0x2d, 0xa8, 0x89, 0xed, 0x44, 0x6f, 0xa1, 0xfe, 0x3e, 0x0a, 0x43, 0x7a, 0xc3, 0x50,
-	0xbe, 0x0c, 0xc5, 0xb5, 0x1d, 0x0e, 0xb6, 0xa4, 0x0b, 0x2f, 0x53, 0x57, 0x5e, 0x2b, 0x67, 0xf5,
-	0xdf, 0xe5, 0xbf, 0xd2, 0xa7, 0x7d, 0xf1, 0xed, 0x7c, 0xf3, 0x5f, 0x00, 0x00, 0x00, 0xff, 0xff,
-	0x01, 0x3a, 0x5d, 0x75, 0xb8, 0x06, 0x00, 0x00,
+var fileDescriptor_agent_c5011a8882c333ae = []byte{
+	// 838 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x55, 0x5f, 0x6f, 0x1a, 0x47,
+	0x10, 0xe7, 0xe0, 0x6c, 0x60, 0x30, 0x18, 0x2f, 0xd4, 0xb9, 0xd0, 0x4a, 0xa6, 0xd7, 0x17, 0x14,
+	0xa9, 0xe7, 0x88, 0xa8, 0x55, 0x9a, 0xb6, 0x52, 0x71, 0xa0, 0xb2, 0x25, 0xc7, 0xc1, 0x0b, 0xaa,
+	0x9a, 0xbe, 0x9c, 0x36, 0x66, 0xb8, 0x9c, 0x8a, 0xf7, 0xce, 0x77, 0x8b, 0x15, 0x5e, 0x2a, 0xf5,
+	0x63, 0xf4, 0xa5, 0xea, 0xc7, 0xe9, 0xc7, 0xaa, 0xf6, 0xcf, 0x61, 0xfe, 0xa5, 0xf2, 0xcb, 0x69,
+	0x77, 0xe6, 0x37, 0xb3, 0xbf, 0xfd, 0xcd, 0xcc, 0x2d, 0x1c, 0xb1, 0x00, 0xb9, 0x38, 0x55, 0x5f,
+	0x2f, 0x4e, 0x22, 0x11, 0x91, 0x3d, 0xb5, 0x69, 0x3d, 0x0d, 0xa2, 0x28, 0x98, 0xe1, 0xa9, 0x32,
+	0xbe, 0x9f, 0x4f, 0x4f, 0x19, 0x5f, 0x68, 0x44, 0xeb, 0x64, 0xd3, 0x25, 0xc2, 0x5b, 0x4c, 0x05,
+	0xbb, 0x8d, 0x0d, 0xe0, 0x8b, 0x90, 0xdf, 0x23, 0x17, 0x51, 0xb2, 0xd0, 0x99, 0xfd, 0x54, 0x30,
+	0x31, 0x4f, 0xb5, 0xd7, 0x3d, 0x82, 0x43, 0x8a, 0x41, 0x98, 0x0a, 0x4c, 0x28, 0xde, 0xcd, 0x31,
+	0x15, 0xee, 0xd7, 0x50, 0x7f, 0x30, 0xa5, 0x71, 0xc4, 0x53, 0x24, 0x4f, 0xa1, 0xa4, 0x83, 0xc3,
+	0x89, 0x63, 0xb5, 0xad, 0x4e, 0x99, 0x16, 0xd5, 0xfe, 0x62, 0xe2, 0xee, 0x83, 0x3d, 0x0c, 0x79,
+	0xe0, 0x0e, 0xc0, 0x1e, 0x46, 0x3c, 0x20, 0x3f, 0xc2, 0xc1, 0xcd, 0x3c, 0x49, 0x24, 0x58, 0x52,
+	0x51, 0xf0, 0x4a, 0xb7, 0xe5, 0x69, 0x9e, 0x5e, 0xc6, 0xd3, 0x1b, 0x67, 0x3c, 0x69, 0xc5, 0xe0,
+	0xa5, 0xc5, 0x7d, 0x05, 0xb5, 0xeb, 0xde, 0x55, 0x9f, 0x09, 0x66, 0xf8, 0x90, 0x0e, 0xd8, 0x13,
+	0x26, 0x98, 0x49, 0xd4, 0xdc, 0x4a, 0xd4, 0xe3, 0x0b, 0xaa, 0x10, 0xf2, 0x32, 0xcb, 0x58, 0x4d,
+	0xdc, 0xfd, 0xd3, 0x82, 0xc6, 0x48, 0x30, 0x81, 0xaf, 0x3f, 0x30, 0x1e, 0xe0, 0x24, 0x4b, 0xfa,
+	0xe9, 0x0b, 0x11, 0x0f, 0xf6, 0xb5, 0x44, 0x4e, 0xbe, 0x6d, 0x75, 0x6a, 0xdd, 0x63, 0x6f, 0xa9,
+	0xa0, 0xd7, 0x93, 0x98, 0x91, 0xf2, 0x52, 0x83, 0x22, 0x27, 0x50, 0x99, 0x49, 0xb5, 0xb8, 0x1f,
+	0x47, 0x89, 0x70, 0x0a, 0x6d, 0xab, 0x53, 0xa5, 0xa0, 0x4d, 0xc3, 0x28, 0x11, 0xee, 0x31, 0x34,
+	0xd7, 0x29, 0x18, 0x6e, 0x7f, 0xd9, 0x70, 0x38, 0x42, 0x95, 0x0e, 0x33, 0x5e, 0x23, 0x38, 0xd4,
+	0xbc, 0xe2, 0x24, 0xba, 0xc1, 0x34, 0xc5, 0xd4, 0xb1, 0xda, 0x85, 0x4e, 0xa5, 0xfb, 0xcc, 0xd3,
+	0x7d, 0xb1, 0x11, 0xa0, 0x19, 0x0d, 0x33, 0xf0, 0x80, 0x8b, 0x64, 0x41, 0x6b, 0x6c, 0xcd, 0xd8,
+	0xfa, 0x37, 0x0f, 0x07, 0xab, 0x38, 0x72, 0x02, 0xb6, 0x58, 0xc4, 0xba, 0x36, 0xb5, 0x6e, 0xc5,
+	0xa4, 0x1e, 0x2f, 0x62, 0xa4, 0xca, 0x41, 0x3c, 0x68, 0x08, 0xbc, 0x8d, 0x67, 0x4c, 0xa0, 0x3f,
+	0xc3, 0xa9, 0xf0, 0x27, 0x38, 0x0b, 0x6f, 0x95, 0x20, 0x65, 0x7a, 0x94, 0xb9, 0x2e, 0x71, 0x2a,
+	0xfa, 0xd2, 0x41, 0x9e, 0x43, 0x73, 0x89, 0x4f, 0xc2, 0xe0, 0x43, 0x16, 0x50, 0x50, 0x01, 0x24,
+	0xf3, 0x51, 0xe9, 0xd2, 0x11, 0x04, 0x6c, 0x96, 0x04, 0xa9, 0x63, 0xb7, 0x0b, 0x9d, 0x32, 0x55,
+	0x6b, 0x52, 0x87, 0x02, 0xf2, 0x7b, 0x67, 0x4f, 0x99, 0xe4, 0x92, 0x5c, 0x03, 0x08, 0xfc, 0x28,
+	0xfc, 0x69, 0x38, 0xc3, 0xd4, 0xd9, 0x57, 0x4a, 0x74, 0x1f, 0xa1, 0x84, 0x37, 0xc6, 0x8f, 0xe2,
+	0x67, 0x19, 0xa4, 0x15, 0x29, 0x8b, 0x6c, 0xdf, 0xfa, 0x01, 0x6a, 0xeb, 0x4e, 0x79, 0xec, 0xef,
+	0xb8, 0x30, 0x6d, 0x20, 0x97, 0xa4, 0x09, 0x7b, 0xf7, 0x6c, 0x36, 0x47, 0x73, 0x61, 0xbd, 0x79,
+	0x95, 0x7f, 0x69, 0xb5, 0xa6, 0xd0, 0xd8, 0xa1, 0xf8, 0x8e, 0x14, 0xdf, 0xad, 0xa6, 0xa8, 0x74,
+	0xbf, 0x7a, 0x04, 0xe9, 0x95, 0x73, 0x5c, 0x02, 0xf5, 0x07, 0xa8, 0xe9, 0x97, 0xbf, 0xb3, 0x32,
+	0xbe, 0xc1, 0x34, 0x65, 0x01, 0x92, 0x1a, 0xe4, 0x4d, 0xfb, 0x56, 0x69, 0x3e, 0x9c, 0x90, 0x2f,
+	0xc1, 0x8e, 0x43, 0x1e, 0x98, 0x23, 0xb3, 0xb2, 0xca, 0xe9, 0x3c, 0xcf, 0x51, 0xe5, 0x22, 0x3d,
+	0xa8, 0xca, 0xb6, 0x45, 0xff, 0x46, 0x37, 0xa3, 0xaa, 0x90, 0x1c, 0x4f, 0x43, 0x6f, 0x7b, 0x54,
+	0xce, 0x73, 0xf4, 0x20, 0x5d, 0x31, 0x93, 0x2e, 0x94, 0xee, 0x18, 0xf7, 0xd5, 0x4c, 0xda, 0x2a,
+	0xfa, 0x33, 0x13, 0xbd, 0x3e, 0xb8, 0xe7, 0x39, 0x5a, 0xbc, 0x63, 0x5c, 0x5a, 0x14, 0xb3, 0x88,
+	0x07, 0x4e, 0x69, 0x9d, 0x59, 0x64, 0x98, 0xc9, 0xff, 0xc6, 0xb7, 0x50, 0x4e, 0x51, 0xff, 0x9d,
+	0xd0, 0x29, 0x2b, 0xdc, 0x93, 0x2d, 0xd1, 0xb4, 0x12, 0xe7, 0x39, 0x5a, 0x4a, 0x8d, 0xed, 0xac,
+	0x0c, 0xc5, 0x98, 0x2d, 0x66, 0x11, 0x9b, 0xb8, 0xff, 0xe4, 0xa1, 0x3a, 0xc2, 0xe4, 0x1e, 0x93,
+	0xff, 0x53, 0x28, 0xda, 0x56, 0x68, 0x95, 0xc7, 0xd9, 0x6e, 0x85, 0x3e, 0xdf, 0xa9, 0xd0, 0x92,
+	0xcf, 0xba, 0x44, 0x2f, 0xb6, 0x24, 0x3a, 0xde, 0x94, 0x68, 0x19, 0xb9, 0xa6, 0x51, 0xb8, 0xad,
+	0xd1, 0x6a, 0xf5, 0xbe, 0xd9, 0xd6, 0xe8, 0x78, 0x77, 0x63, 0x7d, 0x42, 0xa2, 0x67, 0x3f, 0x81,
+	0x2d, 0xc7, 0x9c, 0xd4, 0xe1, 0x60, 0xfc, 0x6e, 0x38, 0xf0, 0x2f, 0xae, 0x7e, 0xe9, 0x5d, 0x5e,
+	0xf4, 0xeb, 0x39, 0x72, 0x04, 0xd5, 0xab, 0xb7, 0xfd, 0x81, 0x3f, 0xf8, 0x75, 0xf8, 0x96, 0x8e,
+	0x07, 0xb4, 0x6e, 0x91, 0x06, 0x1c, 0xbe, 0x79, 0x37, 0xba, 0xbe, 0xec, 0x3f, 0x18, 0xf3, 0xdd,
+	0x3f, 0x60, 0x4f, 0x35, 0x21, 0xf9, 0x1e, 0x4a, 0xd9, 0x3b, 0x41, 0x32, 0x16, 0x1b, 0x6f, 0x49,
+	0xeb, 0xc9, 0x96, 0xdd, 0x3c, 0x28, 0x2f, 0xa1, 0xf8, 0x3a, 0xe2, 0x1c, 0x6f, 0x04, 0x69, 0x18,
+	0xcc, 0x6a, 0x6b, 0xb7, 0x9a, 0xcb, 0x6b, 0xad, 0x94, 0xb3, 0x63, 0x3d, 0xb7, 0xce, 0x8a, 0xbf,
+	0xe9, 0x47, 0xf1, 0xfd, 0xbe, 0x7a, 0x01, 0x5e, 0xfc, 0x17, 0x00, 0x00, 0xff, 0xff, 0x95, 0xa5,
+	0x43, 0xbb, 0x37, 0x07, 0x00, 0x00,
 }

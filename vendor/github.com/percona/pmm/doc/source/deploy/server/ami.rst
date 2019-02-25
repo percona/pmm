@@ -27,6 +27,11 @@ later, and this table serves the information purposes, to plan costs.
    see its price. |pmm| comes for no cost, you may only need to pay for the
    infrastructure provided by |amazon|.
 
+.. note::
+
+   Disk space consumed by |pmm-server| depends on the number of hosts under
+   monitoring. Each environment will be unique, however consider modeling your data consumption based on `PMM Demo <https://pmmdemo.percona.com/>`_ web site, which consumes ~230MB/host/day, or ~6.9GB/host at the default 30 day retention period. See `this blog post <https://www.percona.com/blog/2017/05/04/how-much-disk-space-should-i-allocate-for-percona-monitoring-and-management/>`_ for more details.
+
 Clicking the |gui.continue-to-subscribe| button will proceed to the terms and
 conditions page. Clicking |gui.continue-to-configuration| there will bring a
 new page to start setting up your instance.
@@ -105,8 +110,8 @@ already set up EC2 key pair to limit access to your instance.
 
 .. important::
 
-   It is important that the security group allow communication via the following
-   ports: *22*, *80*, and *443*. |pmm| should also be able to access port *3306* on
+   It is important that the security group allow communication via the the :term:`following ports
+   <Ports>`: *22*, *80*, and *443*. |pmm| should also be able to access port *3306* on
    the RDS that uses the instance.
 
 .. _figure.run-server-ami.aws-marketplace.pmm-launch-on-ec2.1-click-launch.security-group.selecting:
@@ -314,63 +319,63 @@ for the corresponding image:
 
    * - Asia Pacific (Tokyo)
      - **ap-northeast-1**
-     - `ami-0735c70f807ceb02e <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0735c70f807ceb02e>`_
+     - `ami-081b63c019880c9d6 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-081b63c019880c9d6>`_
 
    * - Asia Pacific (Seoul)
      - **ap-northeast-2**
-     - `ami-02959dc86cbba1d9 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-02959dc86cbba1d9>`_
+     - `ami-0299fd006902387fb <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0299fd006902387fb>`_
 
    * - Asia Pacific (Mumbai)
      - **ap-south-1**
-     - `ami-088af60c6d7df26e5 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-088af60c6d7df26e5>`_
+     - `ami-0ae6d88793bfd1c25 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0ae6d88793bfd1c25>`_
 
    * - Asia Pacific (Singapore)
      - **ap-southeast-1**
-     - `ami-081859d2d05522d3f <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-081859d2d05522d3f>`_
+     - `ami-0b75d0daff534821b <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0b75d0daff534821b>`_
 
    * - Asia Pacific (Sydney)
      - **ap-southeast-2**
-     - `ami-0af5b9a2d707a23cd <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0af5b9a2d707a23cd>`_
+     - `ami-066240e0e538a2d5b <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-066240e0e538a2d5b>`_
 
    * - Canada (Central)
      - **ca-central-1**
-     - `ami-09b423106a44e9e09 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-09b423106a44e9e09>`_
+     - `ami-043636fe79bd57dcf <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-043636fe79bd57dcf>`_
 
    * - EU (Frankfurt)
      - **eu-central-1**
-     - `ami-0b0f987616de03121 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0b0f987616de03121>`_
+     - `ami-0f11e38faf1e13b95 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0f11e38faf1e13b95>`_
 
    * - EU (Ireland)
      - **eu-west-1**
-     - `ami-0ca00824577a73172 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0ca00824577a73172>`_
+     - `ami-01144c4acc8b6e1f2 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-01144c4acc8b6e1f2>`_
 
    * - EU (London)
      - **eu-west-2**
-     - `ami-0dbe0b464393605b9 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0dbe0b464393605b9>`_
+     - `ami-0f83e56754f334842 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0f83e56754f334842>`_
 
    * - EU (Paris)
      - **eu-west-3**
-     - `ami-08a8a2a837be41bdb <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-08a8a2a837be41bdb>`_
+     - `ami-0c969dd2dc2bd59da <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0c969dd2dc2bd59da>`_
 
    * - South America (São Paulo)
      - **sa-east-1**
-     - `ami-0ce04e6e4b319169e <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0ce04e6e4b319169e>`_
+     - `ami-0e4a9988906825cdf <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0e4a9988906825cdf>`_
 
    * - US East (N. Virginia)
      - **us-east-1**
-     - `ami-029b77d59a919a2f2 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-029b77d59a919a2f2>`_
+     - `ami-0c0b294064bea85d0 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0c0b294064bea85d0>`_
 
    * - US East (Ohio)
      - **us-east-2**
-     - `ami-0d217cedf5a341226 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0d217cedf5a341226>`_
+     - `ami-0125f42891b1de6e0 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0125f42891b1de6e0>`_
 
    * - US West (N. California)
      - **us-west-1**
-     - `ami-03b7810e7380b5e72 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-03b7810e7380b5e72>`_
+     - `ami-0284d9d12f7fe0959 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0284d9d12f7fe0959>`_
 
    * - US West (Oregon)
      - **us-west-2**
-     - `ami-0871ee9cdb4ed09ae <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0871ee9cdb4ed09ae>`_
+     - `ami-036f591241f108627 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-036f591241f108627>`_
 
 .. _run-server-ami.command-line:
 
@@ -396,5 +401,143 @@ for the corresponding image:
    For example:
 
    .. include:: ../../.res/code/aws.ec2.get-console-output.txt
+
+.. _upgrade-pmm-server:
+
+:ref:`Upgrading PMM Server <upgrade-pmm-server>`
+================================================================================
+
+.. _upgrade-ec2-instance-class:
+
+:ref:`Upgrading EC2 instance class <upgrade-ec2-instance-class>`
+--------------------------------------------------------------------------------
+
+Upgrading to a larger EC2 instance class is supported by PMM provided you follow
+the instructions from the `AWS manual <https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-resize.html>`_.
+The |pmm| AMI image uses a distinct EBS volume for the |pmm| data volume which
+permits independent resize of the EC2 instance without impacting the EBS volume.
+
+.. _expand-pmm-data-volume:
+
+:ref:`Expanding the PMM Data EBS Volume <expand-pmm-data-volume>`
+--------------------------------------------------------------------------------
+
+The |pmm| data volume is mounted as an XFS formatted volume on top of an LVM
+volume. There are two ways to increase this volume size:
+
+1. Add a new disk via EC2 console or API, and expand the LVM volume to include
+   the new disk volume.
+2. Expand existing EBS volume and grow the LVM volume.
+
+Expand existing EBS volume
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+To expand the existing EBS volume in order to increase capacity, the following
+steps should be followed.
+
+1. Expand the disk from AWS Console/CLI to the desired capacity.
+2. Login to the |pmm| EC2 instance and verify that the disk capacity has
+   increased. For example, if you have expanded disk from 16G to 32G, ``dmesg``
+   output should look like below::
+
+     [  535.994494] xvdb: detected capacity change from 17179869184 to 34359738368
+
+3. You can check information about volume groups and logical volumes with the
+   ``vgs`` and ``lvs`` commands::
+
+    [root@ip-10-1-2-70 ~]# vgs
+     VG     #PV #LV #SN Attr   VSize  VFree
+     DataVG   1   2   0 wz--n- <16.00g    0
+
+    [root@ip-10-1-2-70 ~]# lvs
+     LV       VG     Attr       LSize   Pool Origin Data%  Meta% Move Log Cpy%Sync Convert
+     DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.74
+     ThinPool DataVG twi-aotz--  15.96g 1.39  1.29
+
+4. Now we can use the ``lsblk`` command to see that our disk size has been
+   identified by the kernel correctly, but LVM2 is not yet aware of the new size.
+   We can use ``pvresize`` to make sure the PV device reflects the new size.
+   Once ``pvresize`` is executed, we can see that the VG has the new free space
+   available.
+
+   .. code-block:: bash
+
+      [root@ip-10-1-2-70 ~]# lsblk | grep xvdb
+       xvdb                      202:16 0 32G 0 disk
+
+      [root@ip-10-1-2-70 ~]# pvscan
+       PV /dev/xvdb   VG DataVG    lvm2 [<16.00 GiB / 0    free]
+       Total: 1 [<16.00 GiB] / in use: 1 [<16.00 GiB] / in no VG: 0 [0   ]
+
+      [root@ip-10-1-2-70 ~]# pvresize /dev/xvdb
+       Physical volume "/dev/xvdb" changed
+       1 physical volume(s) resized / 0 physical volume(s) not resized
+
+      [root@ip-10-1-2-70 ~]# pvs
+       PV         VG     Fmt  Attr PSize   PFree
+       /dev/xvdb  DataVG lvm2 a--  <32.00g 16.00g
+
+5. We then extend our logical volume. Since the PMM image uses thin
+   provisioning, we need to extend both the pool and the volume::
+
+      [root@ip-10-1-2-70 ~]# lvs
+       LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
+       DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
+       ThinPool DataVG twi-aotz--  15.96g                 1.42   1.32
+
+      [root@ip-10-1-2-70 ~]# lvextend /dev/mapper/DataVG-ThinPool -l 100%VG
+       Size of logical volume DataVG/ThinPool_tdata changed from 16.00 GiB (4096 extents) to 31.96 GiB (8183 extents).
+       Logical volume DataVG/ThinPool_tdata successfully resized.
+
+      [root@ip-10-1-2-70 ~]# lvs
+       LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
+       DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
+       ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
+
+6. Once the pool and volumes have been extended, we need to now extend the thin
+   volume to consume the newly available space. In this example we've grown
+   available space to almost 32GB, and already consumed 12GB, so we're extending
+   an additional 19GB:
+
+   .. code-block:: bash
+
+      [root@ip-10-1-2-70 ~]# lvs
+       LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
+       DataLV   DataVG Vwi-aotz-- <12.80g ThinPool        1.77
+       ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
+
+      [root@ip-10-1-2-70 ~]# lvextend /dev/mapper/DataVG-DataLV -L +19G
+       Size of logical volume DataVG/DataLV changed from <12.80 GiB (3276 extents) to <31.80 GiB (8140 extents).
+       Logical volume DataVG/DataLV successfully resized.
+
+      [root@ip-10-1-2-70 ~]# lvs
+       LV       VG     Attr       LSize   Pool    Origin Data%  Meta% Move Log Cpy%Sync Convert
+       DataLV   DataVG Vwi-aotz-- <31.80g ThinPool        0.71
+       ThinPool DataVG twi-aotz--  31.96g                 0.71   1.71
+
+7. We then expand the XFS filesystem to reflect the new size using
+   ``xfs_growfs``, and confirm the filesystem is accurate using the ``df``
+   command.
+
+   .. code-block:: bash
+
+      [root@ip-10-1-2-70 ~]# df -h /srv
+      Filesystem                  Size Used Avail Use% Mounted on
+      /dev/mapper/DataVG-DataLV    13G 249M   13G   2% /srv
+
+      [root@ip-10-1-2-70 ~]# xfs_growfs /srv
+      meta-data=/dev/mapper/DataVG-DataLV isize=512    agcount=103, agsize=32752 blks
+               =                          sectsz=512   attr=2, projid32bit=1
+               =                          crc=1        finobt=0 spinodes=0
+      data     =                          bsize=4096   blocks=3354624, imaxpct=25
+               =                          sunit=16     swidth=16 blks
+      naming   =version 2                 bsize=4096   ascii-ci=0 ftype=1
+      log      =internal                  bsize=4096   blocks=768, version=2
+               =                          sectsz=512   sunit=16 blks, lazy-count=1
+      realtime =none                      extsz=4096   blocks=0, rtextents=0
+      data blocks changed from 3354624 to 8335360
+
+      [root@ip-10-1-2-70 ~]# df -h /srv
+      Filesystem                 Size Used Avail Use% Mounted on
+      /dev/mapper/DataVG-DataLV   32G 254M   32G   1% /srv
 
 .. include:: ../../.res/replace.txt

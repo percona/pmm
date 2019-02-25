@@ -15,6 +15,7 @@
 package scan
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -307,6 +308,20 @@ func parseValueFromSchema(s string, schema *spec.SimpleSchema) (interface{}, err
 			return strconv.ParseBool(s)
 		case "number", "float64", "float32":
 			return strconv.ParseFloat(s, 64)
+		case "object":
+			var obj map[string]interface{}
+			if err := json.Unmarshal([]byte(s), &obj); err != nil {
+				// If we can't parse it, just return the string.
+				return s, nil
+			}
+			return obj, nil
+		case "array":
+			var slice []interface{}
+			if err := json.Unmarshal([]byte(s), &slice); err != nil {
+				// If we can't parse it, just return the string.
+				return s, nil
+			}
+			return slice, nil
 		default:
 			return s, nil
 		}
@@ -754,11 +769,10 @@ func (ss *setOpResponses) Parse(lines []string) error {
 				return err
 			}
 
-			var resp spec.Response
+			// description should used on anyway.
+			resp := spec.Response{ResponseProps: spec.ResponseProps{Description: description}}
 
-			if !isDefinitionRef {
-				resp.Ref = ref
-			} else {
+			if isDefinitionRef {
 				resp.Schema = new(spec.Schema)
 				resp.Description = description
 				if arrays == 0 {
@@ -773,6 +787,9 @@ func (ss *setOpResponses) Parse(lines []string) error {
 					}
 					cs.Ref = ref
 				}
+				// ref. could be empty while use description tag
+			} else if len(refTarget) > 0 {
+				resp.Ref = ref
 			}
 
 			if strings.EqualFold("default", key) {

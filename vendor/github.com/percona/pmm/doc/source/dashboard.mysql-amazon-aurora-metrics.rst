@@ -25,10 +25,17 @@ with number of commits performed and can quite high in certain situations.
 This graph shows what statements contribute most load on the system as well
 as what load corresponds to |amazon-aurora| transaction commit.
 
+- Write Transaction Commit Load: Load in Average Active Sessions per second for
+  COMMIT operations
 - UPDATE load: load in Average Active Sessions per second for UPDATE queries
 - SELECT load: load in Average Active Sessions per second for SELECT queries
 - DELETE load: load in Average Active Sessions per second for DELETE queries
 - INSERT load: load in Average Active Sessions per second for INSERT queries
+
+.. note: An *active session* is a connection that has submitted work to the
+   database engine and is waiting for a response from it. For example, if you
+   submit an SQL query to the database engine, the database session is active
+   while the database engine is processing that query.
 
 .. _dashboard.mysql-amazon-aurora-metrics.aurora-memory-used:
 
@@ -38,6 +45,14 @@ as what load corresponds to |amazon-aurora| transaction commit.
 This graph shows how much memory is used by |amazon-aurora| lock manager as well
 as amount of memory used by |amazon-aurora| to store Data Dictionary.
 
+- Aurora Lock Manager Memory: the amount of memory used by the Lock Manager,
+  the module responsible for handling row lock requests for concurrent
+  transactions.
+
+- Aurora Dictionary Memory: the amount of memory used by the Dictionary, the
+  space that contains metadata used to keep track of database objects, such as
+  tables and indexes.
+
 .. _dashboard.mysql-amazon-aurora-metrics.amazon-aurora-statement-latency:
 
 :ref:`Amazon Aurora Statement Latency <dashboard.mysql-amazon-aurora-metrics.amazon-aurora-statement-latency>`
@@ -46,10 +61,11 @@ as amount of memory used by |amazon-aurora| to store Data Dictionary.
 This graph shows average latency for most important types of statements. Latency
 spikes are often indicative of the instance overload.
 
-- DELETE Latency: average time in milliseconds to execute DELETE queries
-- UPDATE Latency: average time in milliseconds to execute UPDATE queries
-- SELECT Latency: average time in milliseconds to execute SELECT queries
-- INSERT Latency: average time in milliseconds to execute INSERT queries
+- DDL Latency: Average time to execute DDL queries
+- DELETE Latency: average time to execute DELETE queries
+- UPDATE Latency: average time to execute UPDATE queries
+- SELECT Latency: average time to execute SELECT queries
+- INSERT Latency: average time to execute INSERT queries
 
 .. _dashboard.mysql-amazon-aurora-metrics.amazon-aurora-special-command-counters:
 
@@ -86,9 +102,9 @@ alter_system
 This metric shows different kinds of internal |amazon-aurora| |mysql| problems
 which should be zero in case of normal operation.
 
-- Reserved mem Exceeded Incidents:
-- Missing History on Replica Incidents:
-- Thread deadlocks: number of deadlocks per second.
+- Reserved mem Exceeded Incidents
+- Missing History on Replica Incidents
+- Thread deadlocks: number of deadlocks per second
 
 .. include:: .res/replace.txt
 

@@ -3,9 +3,9 @@
 |mysql| |myisam| |aria| Metrics Dashboard
 ================================================================================
 
-The |mysql| |myisam| |aria| Metrics dashboard contains statistics
-about the performance of the |myisam| and |aria| storage engines. This
-dashboard contains the following metrics:
+The |mysql| |myisam| |aria| Metrics dashboard describes the specific features
+of |mariadb| MySQL server: `Aria storage engine <https://mariadb.com/kb/en/the-mariadb-library/aria-storage-engine/>`_, `Online DDL (online alter table) <https://mariadb.com/kb/en/the-mariadb-library/alter-table/>`_,
+ and `InnoDB defragmentation patch <https://mariadb.com/kb/en/the-mariadb-library/defragmenting-innodb-tablespaces/>`_. This dashboard contains the following metrics:
 
 .. contents::
    :local:

@@ -237,7 +237,7 @@ func PrintfTests() {
 	Printf("%T", someFunction) // ok: maybe someone wants to see the type
 	// Bug: used to recur forever.
 	Printf("%p %x", recursiveStructV, recursiveStructV.next)
-	Printf("%p %x", recursiveStruct1V, recursiveStruct1V.next)
+	Printf("%p %x", recursiveStruct1V, recursiveStruct1V.next) // want `Printf format %x has arg recursiveStruct1V\.next of wrong type \*a\.RecursiveStruct2`
 	Printf("%p %x", recursiveSliceV, recursiveSliceV)
 	Printf("%p %x", recursiveMapV, recursiveMapV)
 	// Special handling for Log.
@@ -514,6 +514,19 @@ func (p *recursivePtrStringer) String() string {
 	return fmt.Sprintln(p) // want "Sprintln arg p causes recursive call to String method"
 }
 
+type cons struct {
+	car int
+	cdr *cons
+}
+
+func (cons *cons) String() string {
+	if cons == nil {
+		return "nil"
+	}
+	_ = fmt.Sprint(cons.cdr)                            // don't want "recursive call" diagnostic
+	return fmt.Sprintf("(%d . %v)", cons.car, cons.cdr) // don't want "recursive call" diagnostic
+}
+
 type BoolFormatter bool
 
 func (*BoolFormatter) Format(fmt.State, rune) {
@@ -654,10 +667,111 @@ func dbg(format string, args ...interface{}) {
 	fmt.Printf(format, args...)
 }
 
+func PointersToCompoundTypes() {
+	stringSlice := []string{"a", "b"}
+	fmt.Printf("%s", &stringSlice) // not an error
+
+	intSlice := []int{3, 4}
+	fmt.Printf("%s", &intSlice) // want `Printf format %s has arg &intSlice of wrong type \*\[\]int`
+
+	stringArray := [2]string{"a", "b"}
+	fmt.Printf("%s", &stringArray) // not an error
+
+	intArray := [2]int{3, 4}
+	fmt.Printf("%s", &intArray) // want `Printf format %s has arg &intArray of wrong type \*\[2\]int`
+
+	stringStruct := struct{ F string }{"foo"}
+	fmt.Printf("%s", &stringStruct) // not an error
+
+	intStruct := struct{ F int }{3}
+	fmt.Printf("%s", &intStruct) // want `Printf format %s has arg &intStruct of wrong type \*struct{F int}`
+
+	stringMap := map[string]string{"foo": "bar"}
+	fmt.Printf("%s", &stringMap) // not an error
+
+	intMap := map[int]int{3: 4}
+	fmt.Printf("%s", &intMap) // want `Printf format %s has arg &intMap of wrong type \*map\[int\]int`
+
+	type T2 struct {
+		X string
+	}
+	type T1 struct {
+		X *T2
+	}
+	fmt.Printf("%s\n", T1{&T2{"x"}}) // want `Printf format %s has arg T1{&T2{.x.}} of wrong type a\.T1`
+}
+
 // Printf wrappers from external package
 func externalPackage() {
 	b.Wrapf("%s", 1) // want "Wrapf format %s has arg 1 of wrong type int"
 	b.Wrap("%s", 1)  // want "Wrap call has possible formatting directive %s"
 	b.NoWrap("%s", 1)
 	b.Wrapf2("%s", 1) // want "Wrapf2 format %s has arg 1 of wrong type int"
+}
+
+func PointerVerbs() {
+	// Use booleans, so that we don't just format the elements like in
+	// PointersToCompoundTypes. Bools can only be formatted with verbs like
+	// %t and %v, and none of the ones below.
+	ptr := new(bool)
+	slice := []bool{}
+	array := [3]bool{}
+	map_ := map[bool]bool{}
+	chan_ := make(chan bool)
+	func_ := func(bool) {}
+
+	// %p, %b, %d, %o, %x, and %X all support pointers.
+	fmt.Printf("%p", ptr)
+	fmt.Printf("%b", ptr)
+	fmt.Printf("%d", ptr)
+	fmt.Printf("%o", ptr)
+	fmt.Printf("%x", ptr)
+	fmt.Printf("%X", ptr)
+
+	// %p, %b, %d, %o, %x, and %X all support channels.
+	fmt.Printf("%p", chan_)
+	fmt.Printf("%b", chan_)
+	fmt.Printf("%d", chan_)
+	fmt.Printf("%o", chan_)
+	fmt.Printf("%x", chan_)
+	fmt.Printf("%X", chan_)
+
+	// %p is the only one that supports funcs.
+	fmt.Printf("%p", func_)
+	fmt.Printf("%b", func_) // want `Printf format %b arg func_ is a func value, not called`
+	fmt.Printf("%d", func_) // want `Printf format %d arg func_ is a func value, not called`
+	fmt.Printf("%o", func_) // want `Printf format %o arg func_ is a func value, not called`
+	fmt.Printf("%x", func_) // want `Printf format %x arg func_ is a func value, not called`
+	fmt.Printf("%X", func_) // want `Printf format %X arg func_ is a func value, not called`
+
+	// %p is the only one that supports all slices, by printing the address
+	// of the 0th element.
+	fmt.Printf("%p", slice) // supported; address of 0th element
+	fmt.Printf("%b", slice) // want `Printf format %b has arg slice of wrong type \[\]bool`
+
+	fmt.Printf("%d", slice) // want `Printf format %d has arg slice of wrong type \[\]bool`
+
+	fmt.Printf("%o", slice) // want `Printf format %o has arg slice of wrong type \[\]bool`
+
+	fmt.Printf("%x", slice) // want `Printf format %x has arg slice of wrong type \[\]bool`
+	fmt.Printf("%X", slice) // want `Printf format %X has arg slice of wrong type \[\]bool`
+
+	// None support arrays.
+	fmt.Printf("%p", array) // want `Printf format %p has arg array of wrong type \[3\]bool`
+	fmt.Printf("%b", array) // want `Printf format %b has arg array of wrong type \[3\]bool`
+	fmt.Printf("%d", array) // want `Printf format %d has arg array of wrong type \[3\]bool`
+	fmt.Printf("%o", array) // want `Printf format %o has arg array of wrong type \[3\]bool`
+	fmt.Printf("%x", array) // want `Printf format %x has arg array of wrong type \[3\]bool`
+	fmt.Printf("%X", array) // want `Printf format %X has arg array of wrong type \[3\]bool`
+
+	// %p is the only one that supports all maps.
+	fmt.Printf("%p", map_) // supported; address of 0th element
+	fmt.Printf("%b", map_) // want `Printf format %b has arg map_ of wrong type map\[bool\]bool`
+
+	fmt.Printf("%d", map_) // want `Printf format %d has arg map_ of wrong type map\[bool\]bool`
+
+	fmt.Printf("%o", map_) // want `Printf format %o has arg map_ of wrong type map\[bool\]bool`
+
+	fmt.Printf("%x", map_) // want `Printf format %x has arg map_ of wrong type map\[bool\]bool`
+	fmt.Printf("%X", map_) // want `Printf format %X has arg map_ of wrong type map\[bool\]bool`
 }

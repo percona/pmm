@@ -6,6 +6,7 @@ option go_package = "agent";
 
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
+import "inventory/agent_status.proto";
 
 // Type represents Agent type.
 enum Type {
@@ -14,28 +15,24 @@ enum Type {
   MYSQLD_EXPORTER = 2;
 }
 
-// Status represents Agent process status.
-enum Status {
-  STATUS_INVALID = 0;
-  STARTING = 1;
-  RUNNING = 2;
-  WAITING = 3;
-  STOPPING = 4;
-  DONE = 5;
+message RegisterRequest {
+  // TODO https://jira.percona.com/browse/PMM-3453
+
+  // inventory.HostNodeInfo node = 1;
+
 }
 
-//
-//message RegisterRequest {
-//  // FIXME We need node information there to create a new node or map new agent to the existing node.
-//  //       This is hard problem.
-//
-//  string hostname = 1;
-//}
-//
-//message RegisterResponse {
-//  string id = 1;
-//}
-//
+message RegisterResponse {
+  string agent_id = 1;
+}
+
+// Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift.
+message Ping {}
+
+// Pong is an AgentMessage/ServerMessage with current time for measuring clock drift.
+message Pong {
+  google.protobuf.Timestamp current_time = 1;
+}
 
 // QANDataRequest is an AgentMessage for sending QAN data.
 message QANDataRequest {
@@ -48,20 +45,12 @@ message QANDataResponse {}
 // StateChangedRequest is an AgentMessage describing actual agent status.
 message StateChangedRequest {
   string agent_id = 1;
-  Status status = 2;
+  inventory.AgentStatus status = 2;
   uint32 listen_port = 3;
 }
 
 // StateChangedResponse is a ServerMessage for StateChangedRequest acceptance.
 message StateChangedResponse {}
-
-// PingRequest is a ServerMessage for checking connectivity, latency and clock drift.
-message PingRequest {}
-
-// PingResponse is an AgentMessage with current time for measuring clock drift.
-message PingResponse {
-  google.protobuf.Timestamp current_time = 1;
-}
 
 // SetStateRequest is a ServerMessage asking pmm-agent to run agents according to desired state.
 message SetStateRequest {
@@ -95,11 +84,12 @@ message AgentMessage {
   uint32 id = 1;
   oneof payload {
     // requests from agent
-    QANDataRequest qan_data = 2;
+    Ping ping = 2;
     StateChangedRequest state_changed = 3;
+    QANDataRequest qan_data = 4;
     // responses from agent
-    PingResponse ping = 8;
-    SetStateResponse state = 9;
+    Pong pong = 8;
+    SetStateResponse set_state = 9;
   }
 }
 
@@ -109,21 +99,19 @@ message ServerMessage {
   uint32 id = 1;
   oneof payload {
     // responses from server
-    QANDataResponse qan_data = 2;
+    Pong pong = 2;
     StateChangedResponse state_changed = 3;
+    QANDataResponse qan_data = 4;
     // requests from server
-    PingRequest ping = 8;
-    SetStateRequest state = 9;
+    Ping ping = 8;
+    SetStateRequest set_state = 9;
   }
 }
 
 // Agent service provides private methods for pmm-agent <-> pmm-managed interactions.
 service Agent {
-  //
-  // // Register adds pmm-agent to pmm-managed database and returns agent's ID.
-  // rpc Register(RegisterRequest) returns (RegisterResponse);
-  //
-
+  // Register TODO https://jira.percona.com/browse/PMM-3453
+  rpc Register(RegisterRequest) returns (RegisterResponse);
   // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
   rpc Connect(stream AgentMessage) returns (stream ServerMessage);
 }

@@ -6,12 +6,14 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -44,14 +46,14 @@ func NewAddNodeExporterOK() *AddNodeExporterOK {
 
 /*AddNodeExporterOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type AddNodeExporterOK struct {
 	Payload *AddNodeExporterOKBody
 }
 
 func (o *AddNodeExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddNodeExporter][%d] addNodeExporterOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] addNodeExporterOK  %+v", 200, o.Payload)
 }
 
 func (o *AddNodeExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -71,42 +73,12 @@ swagger:model AddNodeExporterBody
 */
 type AddNodeExporterBody struct {
 
-	// Agent desired status: enabled or disabled.
-	Disabled bool `json:"disabled,omitempty"`
-
-	// host node info
-	HostNodeInfo *AddNodeExporterParamsBodyHostNodeInfo `json:"host_node_info,omitempty"`
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
 }
 
 // Validate validates this add node exporter body
 func (o *AddNodeExporterBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateHostNodeInfo(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *AddNodeExporterBody) validateHostNodeInfo(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.HostNodeInfo) { // not required
-		return nil
-	}
-
-	if o.HostNodeInfo != nil {
-		if err := o.HostNodeInfo.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "host_node_info")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -187,32 +159,30 @@ func (o *AddNodeExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddNodeExporterOKBodyNodeExporter NodeExporter represents node_exporter Agent configuration.
+/*AddNodeExporterOKBodyNodeExporter NodeExporter runs on Generic on Container Node and exposes its metrics.
 swagger:model AddNodeExporterOKBodyNodeExporter
 */
 type AddNodeExporterOKBodyNodeExporter struct {
 
-	// Agent desired status: enabled or disabled.
-	Disabled bool `json:"disabled,omitempty"`
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
 
-	// host node info
-	HostNodeInfo *AddNodeExporterOKBodyNodeExporterHostNodeInfo `json:"host_node_info,omitempty"`
-
-	// Unique Agent identifier.
-	ID string `json:"id,omitempty"`
-
-	// HTTP listen port for exposing metrics.
+	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Agent process status: running or not.
-	Running bool `json:"running,omitempty"`
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// AgentStatus represents actual Agent process status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
 }
 
 // Validate validates this add node exporter o k body node exporter
 func (o *AddNodeExporterOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateHostNodeInfo(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -222,19 +192,56 @@ func (o *AddNodeExporterOKBodyNodeExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-func (o *AddNodeExporterOKBodyNodeExporter) validateHostNodeInfo(formats strfmt.Registry) error {
+var addNodeExporterOKBodyNodeExporterTypeStatusPropEnum []interface{}
 
-	if swag.IsZero(o.HostNodeInfo) { // not required
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addNodeExporterOKBodyNodeExporterTypeStatusPropEnum = append(addNodeExporterOKBodyNodeExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddNodeExporterOKBodyNodeExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// AddNodeExporterOKBodyNodeExporterStatusSTARTING captures enum value "STARTING"
+	AddNodeExporterOKBodyNodeExporterStatusSTARTING string = "STARTING"
+
+	// AddNodeExporterOKBodyNodeExporterStatusRUNNING captures enum value "RUNNING"
+	AddNodeExporterOKBodyNodeExporterStatusRUNNING string = "RUNNING"
+
+	// AddNodeExporterOKBodyNodeExporterStatusWAITING captures enum value "WAITING"
+	AddNodeExporterOKBodyNodeExporterStatusWAITING string = "WAITING"
+
+	// AddNodeExporterOKBodyNodeExporterStatusSTOPPING captures enum value "STOPPING"
+	AddNodeExporterOKBodyNodeExporterStatusSTOPPING string = "STOPPING"
+
+	// AddNodeExporterOKBodyNodeExporterStatusDONE captures enum value "DONE"
+	AddNodeExporterOKBodyNodeExporterStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *AddNodeExporterOKBodyNodeExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addNodeExporterOKBodyNodeExporterTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddNodeExporterOKBodyNodeExporter) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
-	if o.HostNodeInfo != nil {
-		if err := o.HostNodeInfo.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addNodeExporterOK" + "." + "node_exporter" + "." + "host_node_info")
-			}
-			return err
-		}
+	// value enum
+	if err := o.validateStatusEnum("addNodeExporterOK"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
 	}
 
 	return nil
@@ -251,94 +258,6 @@ func (o *AddNodeExporterOKBodyNodeExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddNodeExporterOKBodyNodeExporter) UnmarshalBinary(b []byte) error {
 	var res AddNodeExporterOKBodyNodeExporter
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddNodeExporterOKBodyNodeExporterHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
-swagger:model AddNodeExporterOKBodyNodeExporterHostNodeInfo
-*/
-type AddNodeExporterOKBodyNodeExporterHostNodeInfo struct {
-
-	// Docker container ID.
-	ContainerID string `json:"container_id,omitempty"`
-
-	// Docker container name.
-	ContainerName string `json:"container_name,omitempty"`
-
-	// Kubernetes pod name.
-	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
-
-	// Kubernetes pod UID.
-	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
-
-	// Node identifier where Service or Agent runs.
-	NodeID string `json:"node_id,omitempty"`
-}
-
-// Validate validates this add node exporter o k body node exporter host node info
-func (o *AddNodeExporterOKBodyNodeExporterHostNodeInfo) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddNodeExporterOKBodyNodeExporterHostNodeInfo) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddNodeExporterOKBodyNodeExporterHostNodeInfo) UnmarshalBinary(b []byte) error {
-	var res AddNodeExporterOKBodyNodeExporterHostNodeInfo
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddNodeExporterParamsBodyHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
-swagger:model AddNodeExporterParamsBodyHostNodeInfo
-*/
-type AddNodeExporterParamsBodyHostNodeInfo struct {
-
-	// Docker container ID.
-	ContainerID string `json:"container_id,omitempty"`
-
-	// Docker container name.
-	ContainerName string `json:"container_name,omitempty"`
-
-	// Kubernetes pod name.
-	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
-
-	// Kubernetes pod UID.
-	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
-
-	// Node identifier where Service or Agent runs.
-	NodeID string `json:"node_id,omitempty"`
-}
-
-// Validate validates this add node exporter params body host node info
-func (o *AddNodeExporterParamsBodyHostNodeInfo) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddNodeExporterParamsBodyHostNodeInfo) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddNodeExporterParamsBodyHostNodeInfo) UnmarshalBinary(b []byte) error {
-	var res AddNodeExporterParamsBodyHostNodeInfo
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -16,6 +16,7 @@
 
 package postgresql
 
+/*
 import (
 	"context"
 	"database/sql"
@@ -179,3 +180,4 @@ func TestExtractFromVersion(t *testing.T) {
 	assert.Equal(t, "PostgreSQL", engine, "engine is not equal")
 	assert.Equal(t, "10.5", engineVersion, "engineVersion is not equal")
 }
+*/

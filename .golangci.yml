@@ -18,13 +18,13 @@ linters-settings:
     check-exported: true
 
   unparam:
-    algo: rta
     check-exported: true
 
 linters:
   enable-all: true
   disable:
-    - scopelint  # too many false positives
+    - scopelint         # too many false positives
+    - gochecknoglobals  # mostly useless
 
 issues:
   exclude-use-default: false

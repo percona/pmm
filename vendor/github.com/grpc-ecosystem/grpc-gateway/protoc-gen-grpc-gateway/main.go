@@ -10,6 +10,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"strings"
 
@@ -31,11 +32,25 @@ var (
 	pathType                   = flag.String("paths", "", "specifies how the paths of generated files are structured")
 	allowRepeatedFieldsInBody  = flag.Bool("allow_repeated_fields_in_body", false, "allows to use repeated field in `body` and `response_body` field of `google.api.http` annotation option")
 	repeatedPathParamSeparator = flag.String("repeated_path_param_separator", "csv", "configures how repeated fields should be split. Allowed values are `csv`, `pipes`, `ssv` and `tsv`.")
+	allowPatchFeature          = flag.Bool("allow_patch_feature", true, "determines whether to use PATCH feature involving update masks (using google.protobuf.FieldMask).")
+	versionFlag                = flag.Bool("version", false, "print the current verison")
+)
+
+// Variables set by goreleaser at build time
+var (
+	version = "dev"
+	commit  = "unknown"
+	date    = "unknown"
 )
 
 func main() {
 	flag.Parse()
 	defer glog.Flush()
+
+	if *versionFlag {
+		fmt.Printf("Version %v, commit %v, built at %v\n", version, commit, date)
+		os.Exit(0)
+	}
 
 	reg := descriptor.NewRegistry()
 
@@ -65,7 +80,7 @@ func main() {
 		}
 	}
 
-	g := gengateway.New(reg, *useRequestContext, *registerFuncSuffix, *pathType)
+	g := gengateway.New(reg, *useRequestContext, *registerFuncSuffix, *pathType, *allowPatchFeature)
 
 	if *grpcAPIConfiguration != "" {
 		if err := reg.LoadGrpcAPIServiceFromYAML(*grpcAPIConfiguration); err != nil {

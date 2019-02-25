@@ -257,6 +257,9 @@ query log is stored on the |abbr.aws| side, and |qan| agent is not able to
 read it.  Enable the ``performance_schema`` option under ``Parameter Groups``
 in |amazon-rds|.
 
+.. warning:: Enabling Performance Schema on T2 instances is not recommended
+   because it can easily run the T2 instance out of memory.
+
 .. seealso::
 
    More information about the performance schema
@@ -286,11 +289,6 @@ statement.
 
    |node-exporter|, used in versions of |pmm| prior to 1.8.0, was not able to
    monitor general system metrics remotely.
-
-The following example shows how to enable |qan| and |mysql| metrics monitoring
-on |amazon-rds|:
-
-.. include:: .res/code/pmm-admin.add.mysql-metrics.rds.txt
 
 .. seealso::
 

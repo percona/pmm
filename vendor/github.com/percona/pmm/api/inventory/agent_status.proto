@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package inventory;
+
+option go_package = "inventory";
+
+// AgentStatus represents actual Agent process status.
+enum AgentStatus {
+  AGENT_STATUS_INVALID = 0;
+  STARTING = 1;
+  RUNNING = 2;
+  WAITING = 3;
+  STOPPING = 4;
+  DONE = 5;
+}

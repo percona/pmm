@@ -8,6 +8,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/aws/aws-sdk-go/private/protocol"
+	"github.com/aws/aws-sdk-go/private/protocol/restjson"
 )
 
 const opCreateChannel = "CreateChannel"
@@ -225,6 +227,7 @@ func (c *MediaPackage) DeleteChannelRequest(input *DeleteChannelInput) (req *req
 
 	output = &DeleteChannelOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(restjson.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -313,6 +316,7 @@ func (c *MediaPackage) DeleteOriginEndpointRequest(input *DeleteOriginEndpointIn
 
 	output = &DeleteOriginEndpointOutput{}
 	req = c.newRequest(op, input, output)
+	req.Handlers.Unmarshal.Swap(restjson.UnmarshalHandler.Name, protocol.UnmarshalDiscardBodyHandler)
 	return
 }
 
@@ -1996,6 +2000,9 @@ func (s *DeleteChannelInput) Validate() error {
 	if s.Id == nil {
 		invalidParams.Add(request.NewErrParamRequired("Id"))
 	}
+	if s.Id != nil && len(*s.Id) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Id", 1))
+	}
 
 	if invalidParams.Len() > 0 {
 		return invalidParams
@@ -2046,6 +2053,9 @@ func (s *DeleteOriginEndpointInput) Validate() error {
 	if s.Id == nil {
 		invalidParams.Add(request.NewErrParamRequired("Id"))
 	}
+	if s.Id != nil && len(*s.Id) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Id", 1))
+	}
 
 	if invalidParams.Len() > 0 {
 		return invalidParams
@@ -2095,6 +2105,9 @@ func (s *DescribeChannelInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "DescribeChannelInput"}
 	if s.Id == nil {
 		invalidParams.Add(request.NewErrParamRequired("Id"))
+	}
+	if s.Id != nil && len(*s.Id) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Id", 1))
 	}
 
 	if invalidParams.Len() > 0 {
@@ -2178,6 +2191,9 @@ func (s *DescribeOriginEndpointInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "DescribeOriginEndpointInput"}
 	if s.Id == nil {
 		invalidParams.Add(request.NewErrParamRequired("Id"))
+	}
+	if s.Id != nil && len(*s.Id) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Id", 1))
 	}
 
 	if invalidParams.Len() > 0 {
@@ -3231,6 +3247,9 @@ func (s *RotateChannelCredentialsInput) Validate() error {
 	if s.Id == nil {
 		invalidParams.Add(request.NewErrParamRequired("Id"))
 	}
+	if s.Id != nil && len(*s.Id) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Id", 1))
+	}
 
 	if invalidParams.Len() > 0 {
 		return invalidParams
@@ -3318,8 +3337,14 @@ func (s *RotateIngestEndpointCredentialsInput) Validate() error {
 	if s.Id == nil {
 		invalidParams.Add(request.NewErrParamRequired("Id"))
 	}
+	if s.Id != nil && len(*s.Id) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Id", 1))
+	}
 	if s.IngestEndpointId == nil {
 		invalidParams.Add(request.NewErrParamRequired("IngestEndpointId"))
+	}
+	if s.IngestEndpointId != nil && len(*s.IngestEndpointId) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("IngestEndpointId", 1))
 	}
 
 	if invalidParams.Len() > 0 {
@@ -3392,6 +3417,11 @@ func (s *RotateIngestEndpointCredentialsOutput) SetId(v string) *RotateIngestEnd
 type SpekeKeyProvider struct {
 	_ struct{} `type:"structure"`
 
+	// An Amazon Resource Name (ARN) of a Certificate Manager certificatethat MediaPackage
+	// will use for enforcing secure end-to-end datatransfer with the key provider
+	// service.
+	CertificateArn *string `locationName:"certificateArn" type:"string"`
+
 	// The resource ID to include in key requests.
 	//
 	// ResourceId is a required field
@@ -3444,6 +3474,12 @@ func (s *SpekeKeyProvider) Validate() error {
 		return invalidParams
 	}
 	return nil
+}
+
+// SetCertificateArn sets the CertificateArn field's value.
+func (s *SpekeKeyProvider) SetCertificateArn(v string) *SpekeKeyProvider {
+	s.CertificateArn = &v
+	return s
 }
 
 // SetResourceId sets the ResourceId field's value.
@@ -3536,6 +3572,9 @@ func (s *UpdateChannelInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "UpdateChannelInput"}
 	if s.Id == nil {
 		invalidParams.Add(request.NewErrParamRequired("Id"))
+	}
+	if s.Id != nil && len(*s.Id) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Id", 1))
 	}
 
 	if invalidParams.Len() > 0 {
@@ -3647,6 +3686,9 @@ func (s *UpdateOriginEndpointInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "UpdateOriginEndpointInput"}
 	if s.Id == nil {
 		invalidParams.Add(request.NewErrParamRequired("Id"))
+	}
+	if s.Id != nil && len(*s.Id) < 1 {
+		invalidParams.Add(request.NewErrParamMinLen("Id", 1))
 	}
 	if s.CmafPackage != nil {
 		if err := s.CmafPackage.Validate(); err != nil {

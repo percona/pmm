@@ -6,12 +6,14 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -44,14 +46,14 @@ func NewAddMySqldExporterOK() *AddMySqldExporterOK {
 
 /*AddMySqldExporterOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type AddMySqldExporterOK struct {
 	Payload *AddMySqldExporterOKBody
 }
 
 func (o *AddMySqldExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Agents/AddMySQLdExporter][%d] addMySqldExporterOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMySQLdExporter][%d] addMySqldExporterOK  %+v", 200, o.Payload)
 }
 
 func (o *AddMySqldExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -71,51 +73,21 @@ swagger:model AddMySqldExporterBody
 */
 type AddMySqldExporterBody struct {
 
-	// Agent desired status: enabled or disabled.
-	Disabled bool `json:"disabled,omitempty"`
-
-	// host node info
-	HostNodeInfo *AddMySqldExporterParamsBodyHostNodeInfo `json:"host_node_info,omitempty"`
-
-	// MySQL password for extracting metrics.
+	// MySQL password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
-	// Service identifier for which insights are provided by that Agent.
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+
+	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// MySQL username for extracting metrics.
+	// MySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this add my sqld exporter body
 func (o *AddMySqldExporterBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateHostNodeInfo(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *AddMySqldExporterBody) validateHostNodeInfo(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.HostNodeInfo) { // not required
-		return nil
-	}
-
-	if o.HostNodeInfo != nil {
-		if err := o.HostNodeInfo.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("body" + "." + "host_node_info")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -196,30 +168,31 @@ func (o *AddMySqldExporterOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySqldExporterOKBodyMysqldExporter MySQLdExporter represents mysqld_exporter Agent configuration.
+/*AddMySqldExporterOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
 swagger:model AddMySqldExporterOKBodyMysqldExporter
 */
 type AddMySqldExporterOKBodyMysqldExporter struct {
 
-	// Agent desired status: enabled or disabled.
-	Disabled bool `json:"disabled,omitempty"`
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
 
-	// host node info
-	HostNodeInfo *AddMySqldExporterOKBodyMysqldExporterHostNodeInfo `json:"host_node_info,omitempty"`
-
-	// Unique Agent identifier.
-	ID string `json:"id,omitempty"`
-
-	// HTTP listen port for exposing metrics.
+	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Agent process status: running or not.
-	Running bool `json:"running,omitempty"`
+	// MySQL password for scraping metrics.
+	Password string `json:"password,omitempty"`
 
-	// Service identifier for which insights are provided by that Agent.
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+
+	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// MySQL username for extracting metrics.
+	// AgentStatus represents actual Agent process status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// MySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
 }
 
@@ -227,7 +200,7 @@ type AddMySqldExporterOKBodyMysqldExporter struct {
 func (o *AddMySqldExporterOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateHostNodeInfo(formats); err != nil {
+	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -237,19 +210,56 @@ func (o *AddMySqldExporterOKBodyMysqldExporter) Validate(formats strfmt.Registry
 	return nil
 }
 
-func (o *AddMySqldExporterOKBodyMysqldExporter) validateHostNodeInfo(formats strfmt.Registry) error {
+var addMySqldExporterOKBodyMysqldExporterTypeStatusPropEnum []interface{}
 
-	if swag.IsZero(o.HostNodeInfo) { // not required
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addMySqldExporterOKBodyMysqldExporterTypeStatusPropEnum = append(addMySqldExporterOKBodyMysqldExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddMySqldExporterOKBodyMysqldExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddMySqldExporterOKBodyMysqldExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// AddMySqldExporterOKBodyMysqldExporterStatusSTARTING captures enum value "STARTING"
+	AddMySqldExporterOKBodyMysqldExporterStatusSTARTING string = "STARTING"
+
+	// AddMySqldExporterOKBodyMysqldExporterStatusRUNNING captures enum value "RUNNING"
+	AddMySqldExporterOKBodyMysqldExporterStatusRUNNING string = "RUNNING"
+
+	// AddMySqldExporterOKBodyMysqldExporterStatusWAITING captures enum value "WAITING"
+	AddMySqldExporterOKBodyMysqldExporterStatusWAITING string = "WAITING"
+
+	// AddMySqldExporterOKBodyMysqldExporterStatusSTOPPING captures enum value "STOPPING"
+	AddMySqldExporterOKBodyMysqldExporterStatusSTOPPING string = "STOPPING"
+
+	// AddMySqldExporterOKBodyMysqldExporterStatusDONE captures enum value "DONE"
+	AddMySqldExporterOKBodyMysqldExporterStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *AddMySqldExporterOKBodyMysqldExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addMySqldExporterOKBodyMysqldExporterTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddMySqldExporterOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
-	if o.HostNodeInfo != nil {
-		if err := o.HostNodeInfo.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMySqldExporterOK" + "." + "mysqld_exporter" + "." + "host_node_info")
-			}
-			return err
-		}
+	// value enum
+	if err := o.validateStatusEnum("addMySqldExporterOK"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
 	}
 
 	return nil
@@ -266,94 +276,6 @@ func (o *AddMySqldExporterOKBodyMysqldExporter) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *AddMySqldExporterOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	var res AddMySqldExporterOKBodyMysqldExporter
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddMySqldExporterOKBodyMysqldExporterHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
-swagger:model AddMySqldExporterOKBodyMysqldExporterHostNodeInfo
-*/
-type AddMySqldExporterOKBodyMysqldExporterHostNodeInfo struct {
-
-	// Docker container ID.
-	ContainerID string `json:"container_id,omitempty"`
-
-	// Docker container name.
-	ContainerName string `json:"container_name,omitempty"`
-
-	// Kubernetes pod name.
-	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
-
-	// Kubernetes pod UID.
-	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
-
-	// Node identifier where Service or Agent runs.
-	NodeID string `json:"node_id,omitempty"`
-}
-
-// Validate validates this add my sqld exporter o k body mysqld exporter host node info
-func (o *AddMySqldExporterOKBodyMysqldExporterHostNodeInfo) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddMySqldExporterOKBodyMysqldExporterHostNodeInfo) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddMySqldExporterOKBodyMysqldExporterHostNodeInfo) UnmarshalBinary(b []byte) error {
-	var res AddMySqldExporterOKBodyMysqldExporterHostNodeInfo
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddMySqldExporterParamsBodyHostNodeInfo HostNodeInfo describes the way Service or Agent runs on Node.
-swagger:model AddMySqldExporterParamsBodyHostNodeInfo
-*/
-type AddMySqldExporterParamsBodyHostNodeInfo struct {
-
-	// Docker container ID.
-	ContainerID string `json:"container_id,omitempty"`
-
-	// Docker container name.
-	ContainerName string `json:"container_name,omitempty"`
-
-	// Kubernetes pod name.
-	KubernetesPodName string `json:"kubernetes_pod_name,omitempty"`
-
-	// Kubernetes pod UID.
-	KubernetesPodUID string `json:"kubernetes_pod_uid,omitempty"`
-
-	// Node identifier where Service or Agent runs.
-	NodeID string `json:"node_id,omitempty"`
-}
-
-// Validate validates this add my sqld exporter params body host node info
-func (o *AddMySqldExporterParamsBodyHostNodeInfo) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddMySqldExporterParamsBodyHostNodeInfo) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddMySqldExporterParamsBodyHostNodeInfo) UnmarshalBinary(b []byte) error {
-	var res AddMySqldExporterParamsBodyHostNodeInfo
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -17,7 +17,8 @@
 package models
 
 import (
-	"github.com/pkg/errors"
+	"time"
+
 	"gopkg.in/reform.v1"
 )
 
@@ -26,34 +27,29 @@ import (
 // AgentNode implements many-to-many relationship between Agents and Nodes.
 //reform:agent_nodes
 type AgentNode struct {
-	AgentID string `reform:"agent_id"`
-	NodeID  string `reform:"node_id"`
-	// CreatedAt time.Time `reform:"created_at"`
-
-	ContainerID       *string `reform:"container_id"`
-	ContainerName     *string `reform:"container_name"`
-	KubernetesPodUID  *string `reform:"kubernetes_pod_uid"`
-	KubernetesPodName *string `reform:"kubernetes_pod_name"`
+	AgentID   string    `reform:"agent_id"`
+	NodeID    string    `reform:"node_id"`
+	CreatedAt time.Time `reform:"created_at"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
 //nolint:unparam
-func (an *AgentNode) BeforeInsert() error {
-	// now := time.Now().Truncate(time.Microsecond).UTC()
-	// an.CreatedAt = now
+func (s *AgentNode) BeforeInsert() error {
+	now := Now()
+	s.CreatedAt = now
 	return nil
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
 //nolint:unparam
-func (an *AgentNode) BeforeUpdate() error {
+func (s *AgentNode) BeforeUpdate() error {
 	panic("AgentNode should not be updated")
 }
 
 // AfterFind implements reform.AfterFinder interface.
 //nolint:unparam
-func (an *AgentNode) AfterFind() error {
-	// an.CreatedAt = an.CreatedAt.UTC()
+func (s *AgentNode) AfterFind() error {
+	s.CreatedAt = s.CreatedAt.UTC()
 	return nil
 }
 
@@ -63,29 +59,3 @@ var (
 	_ reform.BeforeUpdater  = (*AgentNode)(nil)
 	_ reform.AfterFinder    = (*AgentNode)(nil)
 )
-
-// AgentsForNodeID returns agents providing insights for a given node.
-func AgentsForNodeID(q *reform.Querier, nodeID string) ([]Agent, error) {
-	agentNodes, err := q.SelectAllFrom(AgentNodeView, "WHERE node_id = ?", nodeID)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	agentIDs := make([]interface{}, len(agentNodes))
-	for i, str := range agentNodes {
-		agentIDs[i] = str.(*AgentNode).AgentID
-	}
-
-	if len(agentIDs) == 0 {
-		return []Agent{}, nil
-	}
-
-	structs, err := q.FindAllFrom(AgentTable, "id", agentIDs...)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	agents := make([]Agent, len(structs))
-	for i, str := range structs {
-		agents[i] = *str.(*Agent)
-	}
-	return agents, nil
-}

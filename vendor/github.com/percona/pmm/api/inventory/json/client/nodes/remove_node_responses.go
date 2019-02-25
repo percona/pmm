@@ -43,14 +43,14 @@ func NewRemoveNodeOK() *RemoveNodeOK {
 
 /*RemoveNodeOK handles this case with default header values.
 
-(empty)
+A successful response.
 */
 type RemoveNodeOK struct {
 	Payload interface{}
 }
 
 func (o *RemoveNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v0/inventory/Nodes/Remove][%d] removeNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/Remove][%d] removeNodeOK  %+v", 200, o.Payload)
 }
 
 func (o *RemoveNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -68,8 +68,8 @@ swagger:model RemoveNodeBody
 */
 type RemoveNodeBody struct {
 
-	// Unique Node identifier.
-	ID string `json:"id,omitempty"`
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
 }
 
 // Validate validates this remove node body

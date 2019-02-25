@@ -1,6 +1,7 @@
 package genswagger
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"reflect"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
 	pbdescriptor "github.com/golang/protobuf/protoc-gen-go/descriptor"
 	"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway/descriptor"
@@ -58,6 +60,7 @@ var wktSchemas = map[string]schemaCore{
 		Type:   "boolean",
 		Format: "boolean",
 	},
+	".google.protobuf.Empty": schemaCore{},
 }
 
 func listEnumNames(enum *descriptor.Enum) (names []string) {
@@ -88,7 +91,7 @@ func messageToQueryParameters(message *descriptor.Message, reg *descriptor.Regis
 	return params, nil
 }
 
-// queryParams converts a field to a list of swagger query parameters recuresively.
+// queryParams converts a field to a list of swagger query parameters recursively.
 func queryParams(message *descriptor.Message, field *descriptor.Field, prefix string, reg *descriptor.Registry, pathParams []descriptor.Parameter) (params []swaggerParameterObject, err error) {
 	// make sure the parameter is not already listed as a path parameter
 	for _, pathParam := range pathParams {
@@ -118,14 +121,27 @@ func queryParams(message *descriptor.Message, field *descriptor.Field, prefix st
 		if schema.Title != "" { // merge title because title of parameter object will be ignored
 			desc = strings.TrimSpace(schema.Title + ". " + schema.Description)
 		}
+
+		// verify if the field is required
+		required := false
+		for _, fieldName := range schema.Required {
+			if fieldName == field.GetName() {
+				required = true
+				break
+			}
+		}
+
 		param := swaggerParameterObject{
 			Name:        prefix + field.GetName(),
 			Description: desc,
 			In:          "query",
+			Default:     schema.Default,
 			Type:        schema.Type,
 			Items:       schema.Items,
 			Format:      schema.Format,
+			Required:    required,
 		}
+
 		if isEnum {
 			enum, err := reg.LookupEnum("", fieldType)
 			if err != nil {
@@ -165,16 +181,34 @@ func queryParams(message *descriptor.Message, field *descriptor.Field, prefix st
 }
 
 // findServicesMessagesAndEnumerations discovers all messages and enums defined in the RPC methods of the service.
-func findServicesMessagesAndEnumerations(s []*descriptor.Service, reg *descriptor.Registry, m messageMap, e enumMap, refs refMap) {
+func findServicesMessagesAndEnumerations(s []*descriptor.Service, reg *descriptor.Registry, m messageMap, ms messageMap, e enumMap, refs refMap) {
 	for _, svc := range s {
 		for _, meth := range svc.Methods {
 			// Request may be fully included in query
 			if _, ok := refs[fmt.Sprintf("#/definitions/%s", fullyQualifiedNameToSwaggerName(meth.RequestType.FQMN(), reg))]; ok {
-				m[fullyQualifiedNameToSwaggerName(meth.RequestType.FQMN(), reg)] = meth.RequestType
+				if !skipRenderingRef(meth.RequestType.FQMN()) {
+					m[fullyQualifiedNameToSwaggerName(meth.RequestType.FQMN(), reg)] = meth.RequestType
+				}
 			}
 			findNestedMessagesAndEnumerations(meth.RequestType, reg, m, e)
 
-			m[fullyQualifiedNameToSwaggerName(meth.ResponseType.FQMN(), reg)] = meth.ResponseType
+			if !skipRenderingRef(meth.ResponseType.FQMN()) {
+				m[fullyQualifiedNameToSwaggerName(meth.ResponseType.FQMN(), reg)] = meth.ResponseType
+				if meth.GetServerStreaming() {
+					runtimeStreamError := fullyQualifiedNameToSwaggerName(".grpc.gateway.runtime.StreamError", reg)
+					glog.V(1).Infof("StreamError FQMN: %s", runtimeStreamError)
+					streamError, err := reg.LookupMsg(".grpc.gateway.runtime", "StreamError")
+					if err == nil {
+						glog.V(1).Infof("StreamError: %v", streamError)
+						m[runtimeStreamError] = streamError
+						findNestedMessagesAndEnumerations(streamError, reg, m, e)
+					} else {
+						//just in case there is an error looking up StreamError
+						glog.Error(err)
+					}
+					ms[fullyQualifiedNameToSwaggerName(meth.ResponseType.FQMN(), reg)] = meth.ResponseType
+				}
+			}
 			findNestedMessagesAndEnumerations(meth.ResponseType, reg, m, e)
 		}
 	}
@@ -204,32 +238,17 @@ func findNestedMessagesAndEnumerations(message *descriptor.Message, reg *descrip
 	}
 }
 
+func skipRenderingRef(refName string) bool {
+	_, ok := wktSchemas[refName]
+	return ok
+}
+
 func renderMessagesAsDefinition(messages messageMap, d swaggerDefinitionsObject, reg *descriptor.Registry, customRefs refMap) {
 	for name, msg := range messages {
-		switch name {
-		case ".google.protobuf.Timestamp":
-			continue
-		case ".google.protobuf.Duration":
-			continue
-		case ".google.protobuf.StringValue":
-			continue
-		case ".google.protobuf.BytesValue":
-			continue
-		case ".google.protobuf.Int32Value":
-			continue
-		case ".google.protobuf.UInt32Value":
-			continue
-		case ".google.protobuf.Int64Value":
-			continue
-		case ".google.protobuf.UInt64Value":
-			continue
-		case ".google.protobuf.FloatValue":
-			continue
-		case ".google.protobuf.DoubleValue":
-			continue
-		case ".google.protobuf.BoolValue":
+		if skipRenderingRef(name) {
 			continue
 		}
+
 		if opt := msg.GetOptions(); opt != nil && opt.MapEntry != nil && *opt.MapEntry {
 			continue
 		}
@@ -259,6 +278,7 @@ func renderMessagesAsDefinition(messages messageMap, d swaggerDefinitionsObject,
 			schema.MaxLength = protoSchema.MaxLength
 			schema.MinLength = protoSchema.MinLength
 			schema.Pattern = protoSchema.Pattern
+			schema.Default = protoSchema.Default
 			schema.MaxItems = protoSchema.MaxItems
 			schema.MinItems = protoSchema.MinItems
 			schema.UniqueItems = protoSchema.UniqueItems
@@ -273,6 +293,9 @@ func renderMessagesAsDefinition(messages messageMap, d swaggerDefinitionsObject,
 			}
 			if protoSchema.Description != "" {
 				schema.Description = protoSchema.Description
+			}
+			if protoSchema.Example != nil {
+				schema.Example = protoSchema.Example
 			}
 		}
 
@@ -289,9 +312,48 @@ func renderMessagesAsDefinition(messages messageMap, d swaggerDefinitionsObject,
 			} else {
 				kv.Key = f.GetName()
 			}
-			schema.Properties = append(schema.Properties, kv)
+			if schema.Properties == nil {
+				schema.Properties = &swaggerSchemaObjectProperties{}
+			}
+			*schema.Properties = append(*schema.Properties, kv)
 		}
 		d[fullyQualifiedNameToSwaggerName(msg.FQMN(), reg)] = schema
+	}
+}
+
+func renderMessagesAsStreamDefinition(messages messageMap, d swaggerDefinitionsObject, reg *descriptor.Registry) {
+	for name, msg := range messages {
+		if skipRenderingRef(name) {
+			continue
+		}
+
+		if opt := msg.GetOptions(); opt != nil && opt.MapEntry != nil && *opt.MapEntry {
+			continue
+		}
+		d[fullyQualifiedNameToSwaggerName(msg.FQMN(), reg)] = swaggerSchemaObject{
+			schemaCore: schemaCore{
+				Type: "object",
+			},
+			Title: fmt.Sprintf("Stream result of %s", fullyQualifiedNameToSwaggerName(msg.FQMN(), reg)),
+			Properties: &swaggerSchemaObjectProperties{
+				keyVal{
+					Key: "result",
+					Value: swaggerSchemaObject{
+						schemaCore: schemaCore{
+							Ref: fmt.Sprintf("#/definitions/%s", fullyQualifiedNameToSwaggerName(msg.FQMN(), reg)),
+						},
+					},
+				},
+				keyVal{
+					Key: "error",
+					Value: swaggerSchemaObject{
+						schemaCore: schemaCore{
+							Ref: fmt.Sprintf("#/definitions/%s", fullyQualifiedNameToSwaggerName(".grpc.gateway.runtime.StreamError", reg)),
+						},
+					},
+				},
+			},
+		}
 	}
 }
 
@@ -318,16 +380,23 @@ func schemaOfField(f *descriptor.Field, reg *descriptor.Registry, refs refMap) s
 		aggregate = array
 	}
 
+	var props *swaggerSchemaObjectProperties
+
 	switch ft := fd.GetType(); ft {
 	case pbdescriptor.FieldDescriptorProto_TYPE_ENUM, pbdescriptor.FieldDescriptorProto_TYPE_MESSAGE, pbdescriptor.FieldDescriptorProto_TYPE_GROUP:
 		if wktSchema, ok := wktSchemas[fd.GetTypeName()]; ok {
 			core = wktSchema
+
+			if fd.GetTypeName() == ".google.protobuf.Empty" {
+				props = &swaggerSchemaObjectProperties{}
+			}
 		} else {
 			core = schemaCore{
 				Ref: "#/definitions/" + fullyQualifiedNameToSwaggerName(fd.GetTypeName(), reg),
 			}
 			if refs != nil {
 				refs[fd.GetTypeName()] = struct{}{}
+
 			}
 		}
 	default:
@@ -352,11 +421,12 @@ func schemaOfField(f *descriptor.Field, reg *descriptor.Registry, refs refMap) s
 			schemaCore: schemaCore{
 				Type: "object",
 			},
-			AdditionalProperties: &swaggerSchemaObject{schemaCore: core},
+			AdditionalProperties: &swaggerSchemaObject{Properties: props, schemaCore: core},
 		}
 	default:
 		ret := swaggerSchemaObject{
 			schemaCore: core,
+			Properties: props,
 		}
 		if j, err := extractJSONSchemaFromFieldDescriptor(fd); err == nil {
 			updateSwaggerObjectFromJSONSchema(&ret, j)
@@ -570,6 +640,8 @@ func isResourceName(prefix string) bool {
 	words := strings.Split(prefix, ".")
 	l := len(words)
 	field := words[l-1]
+	words = strings.Split(field, ":")
+	field = words[0]
 	return field == "parent" || field == "name"
 }
 
@@ -582,7 +654,7 @@ func renderServices(services []*descriptor.Service, paths swaggerPathsObject, re
 				parameters := swaggerParametersObject{}
 				for _, parameter := range b.PathParams {
 
-					var paramType, paramFormat, desc, collectionFormat string
+					var paramType, paramFormat, desc, collectionFormat, defaultValue string
 					var enumNames []string
 					var items *swaggerItemsObject
 					var minItems *int
@@ -596,6 +668,7 @@ func renderServices(services []*descriptor.Service, paths swaggerPathsObject, re
 							paramType = schema.Type
 							paramFormat = schema.Format
 							desc = schema.Description
+							defaultValue = schema.Default
 						} else {
 							return fmt.Errorf("only primitive and well-known types are allowed in path parameters")
 						}
@@ -613,6 +686,10 @@ func renderServices(services []*descriptor.Service, paths swaggerPathsObject, re
 						if !ok {
 							return fmt.Errorf("unknown field type %v", pt)
 						}
+
+						schema := schemaOfField(parameter.Target, reg, customRefs)
+						desc = schema.Description
+						defaultValue = schema.Default
 					}
 
 					if parameter.IsRepeated() {
@@ -639,6 +716,7 @@ func renderServices(services []*descriptor.Service, paths swaggerPathsObject, re
 						Description: desc,
 						In:          "path",
 						Required:    true,
+						Default:     defaultValue,
 						// Parameters in gRPC-Gateway can only be strings?
 						Type:             paramType,
 						Format:           paramFormat,
@@ -655,9 +733,19 @@ func renderServices(services []*descriptor.Service, paths swaggerPathsObject, re
 
 					if len(b.Body.FieldPath) == 0 {
 						schema = swaggerSchemaObject{
-							schemaCore: schemaCore{
-								Ref: fmt.Sprintf("#/definitions/%s", fullyQualifiedNameToSwaggerName(meth.RequestType.FQMN(), reg)),
-							},
+							schemaCore: schemaCore{},
+						}
+
+						wknSchemaCore, isWkn := wktSchemas[meth.RequestType.FQMN()]
+						if !isWkn {
+							schema.Ref = fmt.Sprintf("#/definitions/%s", fullyQualifiedNameToSwaggerName(meth.RequestType.FQMN(), reg))
+						} else {
+							schema.schemaCore = wknSchemaCore
+
+							// Special workaround for Empty: it's well-known type but wknSchemas only returns schema.schemaCore; but we need to set schema.Properties which is a level higher.
+							if meth.RequestType.FQMN() == ".google.protobuf.Empty" {
+								schema.Properties = &swaggerSchemaObjectProperties{}
+							}
 						}
 					} else {
 						lastField := b.Body.FieldPath[len(b.Body.FieldPath)-1]
@@ -694,14 +782,28 @@ func renderServices(services []*descriptor.Service, paths swaggerPathsObject, re
 				}
 
 				methProtoPath := protoPathIndex(reflect.TypeOf((*pbdescriptor.ServiceDescriptorProto)(nil)), "Method")
-				desc := ""
+				desc := "A successful response."
 				var responseSchema swaggerSchemaObject
 
 				if b.ResponseBody == nil || len(b.ResponseBody.FieldPath) == 0 {
 					responseSchema = swaggerSchemaObject{
-						schemaCore: schemaCore{
-							Ref: fmt.Sprintf("#/definitions/%s", fullyQualifiedNameToSwaggerName(meth.ResponseType.FQMN(), reg)),
-						},
+						schemaCore: schemaCore{},
+					}
+
+					// Don't link to a full definition for
+					// empty; it's overly verbose.
+					// schema.Properties{} renders it as
+					// well, without a definition
+					wknSchemaCore, isWkn := wktSchemas[meth.ResponseType.FQMN()]
+					if !isWkn {
+						responseSchema.Ref = fmt.Sprintf("#/definitions/%s", fullyQualifiedNameToSwaggerName(meth.ResponseType.FQMN(), reg))
+					} else {
+						responseSchema.schemaCore = wknSchemaCore
+
+						// Special workaround for Empty: it's well-known type but wknSchemas only returns schema.schemaCore; but we need to set schema.Properties which is a level higher.
+						if meth.ResponseType.FQMN() == ".google.protobuf.Empty" {
+							responseSchema.Properties = &swaggerSchemaObjectProperties{}
+						}
 					}
 				} else {
 					// This is resolving the value of response_body in the google.api.HttpRule
@@ -715,6 +817,8 @@ func renderServices(services []*descriptor.Service, paths swaggerPathsObject, re
 				}
 				if meth.GetServerStreaming() {
 					desc += "(streaming responses)"
+					// Use the streamdefinition which wraps the message in a "result"
+					responseSchema.Ref = strings.Replace(responseSchema.Ref, `#/definitions/`, `#/x-stream-definitions/`, 1)
 				}
 				operationObject := &swaggerOperationObject{
 					Tags:       []string{svc.GetName()},
@@ -831,12 +935,13 @@ func applyTemplate(p param) (*swaggerObject, error) {
 	// defined off of.
 	s := swaggerObject{
 		// Swagger 2.0 is the version of this document
-		Swagger:     "2.0",
-		Schemes:     []string{"http", "https"},
-		Consumes:    []string{"application/json"},
-		Produces:    []string{"application/json"},
-		Paths:       make(swaggerPathsObject),
-		Definitions: make(swaggerDefinitionsObject),
+		Swagger:           "2.0",
+		Schemes:           []string{"http", "https"},
+		Consumes:          []string{"application/json"},
+		Produces:          []string{"application/json"},
+		Paths:             make(swaggerPathsObject),
+		Definitions:       make(swaggerDefinitionsObject),
+		StreamDefinitions: make(swaggerDefinitionsObject),
 		Info: swaggerInfoObject{
 			Title:   *p.File.Name,
 			Version: "version not set",
@@ -854,9 +959,11 @@ func applyTemplate(p param) (*swaggerObject, error) {
 	// Find all the service's messages and enumerations that are defined (recursively)
 	// and write request, response and other custom (but referenced) types out as definition objects.
 	m := messageMap{}
+	ms := messageMap{}
 	e := enumMap{}
-	findServicesMessagesAndEnumerations(p.Services, p.reg, m, e, requestResponseRefs)
+	findServicesMessagesAndEnumerations(p.Services, p.reg, m, ms, e, requestResponseRefs)
 	renderMessagesAsDefinition(m, s.Definitions, p.reg, customRefs)
+	renderMessagesAsStreamDefinition(ms, s.StreamDefinitions, p.reg)
 	renderEnumerationsAsDefinition(e, s.Definitions, p.reg)
 
 	// File itself might have some comments and metadata.
@@ -900,6 +1007,17 @@ func applyTemplate(p param) (*swaggerObject, error) {
 				}
 				if spb.Info.Contact.Email != "" {
 					s.Info.Contact.Email = spb.Info.Contact.Email
+				}
+			}
+			if spb.Info.License != nil {
+				if s.Info.License == nil {
+					s.Info.License = &swaggerLicenseObject{}
+				}
+				if spb.Info.License.Name != "" {
+					s.Info.License.Name = spb.Info.License.Name
+				}
+				if spb.Info.License.Url != "" {
+					s.Info.License.URL = spb.Info.License.Url
 				}
 			}
 		}
@@ -1205,7 +1323,7 @@ func isProtoPathMatches(paths []int32, outerPaths []int32, typeName string, type
 	}
 
 	if typeName == "Method" {
-		if paths[0] != serviceProtoPath || paths[2] != methodProtoPath {
+		if paths[0] != serviceProtoPath || paths[1] != typeIndex || paths[2] != methodProtoPath {
 			return false
 		}
 		paths = paths[2:]
@@ -1398,6 +1516,7 @@ func updateSwaggerObjectFromJSONSchema(s *swaggerSchemaObject, j *swagger_option
 	s.MaxLength = j.GetMaxLength()
 	s.MinLength = j.GetMinLength()
 	s.Pattern = j.GetPattern()
+	s.Default = j.GetDefault()
 	s.MaxItems = j.GetMaxItems()
 	s.MinItems = j.GetMinItems()
 	s.UniqueItems = j.GetUniqueItems()
@@ -1413,6 +1532,10 @@ func swaggerSchemaFromProtoSchema(s *swagger_options.Schema, reg *descriptor.Reg
 
 	ret.schemaCore = protoJSONSchemaToSwaggerSchemaCore(s.GetJsonSchema(), reg, refs)
 	updateSwaggerObjectFromJSONSchema(&ret, s.GetJsonSchema())
+
+	if s != nil && s.Example != nil {
+		ret.Example = json.RawMessage(s.Example.Value)
+	}
 
 	return ret
 }
@@ -1485,6 +1608,7 @@ func addCustomRefs(d swaggerDefinitionsObject, reg *descriptor.Registry, refs re
 			enumMap[fullyQualifiedNameToSwaggerName(ref, reg)] = enum
 			continue
 		}
+
 		// ?? Should be either enum or msg
 	}
 	renderMessagesAsDefinition(msgMap, d, reg, refs)
