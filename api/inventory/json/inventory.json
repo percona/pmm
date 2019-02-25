@@ -1996,7 +1996,7 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                  "description": "Access address (DNS name or IP). Required.",
                   "type": "string"
                 },
                 "custom_labels": {
@@ -2011,16 +2011,12 @@
                   "type": "string"
                 },
                 "port": {
-                  "description": "Access port. Required if unix_socket is absent.",
+                  "description": "Access port. Required.",
                   "type": "integer",
                   "format": "int64"
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name.",
-                  "type": "string"
-                },
-                "unix_socket": {
-                  "description": "Access Unix socket. Required if address and port are absent.",
                   "type": "string"
                 }
               }
@@ -2038,7 +2034,7 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                      "description": "Access address (DNS name or IP). Required.",
                       "type": "string"
                     },
                     "custom_labels": {
@@ -2053,7 +2049,7 @@
                       "type": "string"
                     },
                     "port": {
-                      "description": "Access port. Required if unix_socket is absent.",
+                      "description": "Access port. Required.",
                       "type": "integer",
                       "format": "int64"
                     },
@@ -2063,10 +2059,6 @@
                     },
                     "service_name": {
                       "description": "Unique across all Services user-defined name.",
-                      "type": "string"
-                    },
-                    "unix_socket": {
-                      "description": "Access Unix socket. Required if address and port are absent.",
                       "type": "string"
                     }
                   }
@@ -2182,7 +2174,7 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                  "description": "Access address (DNS name or IP). Required.",
                   "type": "string"
                 },
                 "custom_labels": {
@@ -2197,7 +2189,7 @@
                   "type": "string"
                 },
                 "port": {
-                  "description": "Access port. Required if unix_socket is absent.",
+                  "description": "Access port. Required.",
                   "type": "integer",
                   "format": "int64"
                 },
@@ -2207,10 +2199,6 @@
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name.",
-                  "type": "string"
-                },
-                "unix_socket": {
-                  "description": "Access Unix socket. Required if address and port are absent.",
                   "type": "string"
                 }
               }
@@ -2228,7 +2216,7 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                      "description": "Access address (DNS name or IP). Required.",
                       "type": "string"
                     },
                     "custom_labels": {
@@ -2243,7 +2231,7 @@
                       "type": "string"
                     },
                     "port": {
-                      "description": "Access port. Required if unix_socket is absent.",
+                      "description": "Access port. Required.",
                       "type": "integer",
                       "format": "int64"
                     },
@@ -2253,10 +2241,6 @@
                     },
                     "service_name": {
                       "description": "Unique across all Services user-defined name.",
-                      "type": "string"
-                    },
-                    "unix_socket": {
-                      "description": "Access Unix socket. Required if address and port are absent.",
                       "type": "string"
                     }
                   }
@@ -2335,7 +2319,7 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                      "description": "Access address (DNS name or IP). Required.",
                       "type": "string"
                     },
                     "custom_labels": {
@@ -2350,7 +2334,7 @@
                       "type": "string"
                     },
                     "port": {
-                      "description": "Access port. Required if unix_socket is absent.",
+                      "description": "Access port. Required.",
                       "type": "integer",
                       "format": "int64"
                     },
@@ -2360,10 +2344,6 @@
                     },
                     "service_name": {
                       "description": "Unique across all Services user-defined name.",
-                      "type": "string"
-                    },
-                    "unix_socket": {
-                      "description": "Access Unix socket. Required if address and port are absent.",
                       "type": "string"
                     }
                   }
@@ -2447,7 +2427,7 @@
                     "type": "object",
                     "properties": {
                       "address": {
-                        "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                        "description": "Access address (DNS name or IP). Required.",
                         "type": "string"
                       },
                       "custom_labels": {
@@ -2462,7 +2442,7 @@
                         "type": "string"
                       },
                       "port": {
-                        "description": "Access port. Required if unix_socket is absent.",
+                        "description": "Access port. Required.",
                         "type": "integer",
                         "format": "int64"
                       },
@@ -2472,10 +2452,6 @@
                       },
                       "service_name": {
                         "description": "Unique across all Services user-defined name.",
-                        "type": "string"
-                      },
-                      "unix_socket": {
-                        "description": "Access Unix socket. Required if address and port are absent.",
                         "type": "string"
                       }
                     }
