@@ -77,16 +77,13 @@ type ChangeMySQLServiceBody struct {
 	// Custom user-assigned labels. Keys must start with "_".
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
-
 	// Access port. Required.
 	Port int64 `json:"port,omitempty"`
 
-	// Unique randomly generated instance identifier.
+	// Unique randomly generated instance identifier. Required.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Unique across all Services user-defined name.
+	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 }
 
@@ -177,16 +174,16 @@ swagger:model ChangeMySQLServiceOKBodyMysql
 */
 type ChangeMySQLServiceOKBodyMysql struct {
 
-	// Access address (DNS name or IP). Required.
+	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels. Keys starts with "_".
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Access port. Required.
+	// Access port.
 	Port int64 `json:"port,omitempty"`
 
 	// Unique randomly generated instance identifier.

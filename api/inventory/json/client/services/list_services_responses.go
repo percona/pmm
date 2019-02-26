@@ -75,7 +75,7 @@ type AmazonRDSMysqlItems0 struct {
 	// Instance endpoint (full DNS name).
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels. Keys starts with "_".
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
@@ -249,16 +249,16 @@ swagger:model MysqlItems0
 */
 type MysqlItems0 struct {
 
-	// Access address (DNS name or IP). Required.
+	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels. Keys starts with "_".
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Access port. Required.
+	// Access port.
 	Port int64 `json:"port,omitempty"`
 
 	// Unique randomly generated instance identifier.

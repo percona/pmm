@@ -119,6 +119,9 @@ swagger:model GenericItems0
 */
 type GenericItems0 struct {
 
+	// Address FIXME.
+	Address string `json:"address,omitempty"`
+
 	// Custom user-assigned labels. Keys must start with "_". Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 

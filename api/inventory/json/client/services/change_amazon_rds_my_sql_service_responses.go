@@ -71,19 +71,19 @@ swagger:model ChangeAmazonRDSMySQLServiceBody
 */
 type ChangeAmazonRDSMySQLServiceBody struct {
 
-	// Instance endpoint (full DNS name).
+	// Instance endpoint (full DNS name). Required.
 	Address string `json:"address,omitempty"`
 
 	// Custom user-assigned labels. Keys must start with "_".
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Instance port.
+	// Instance port. Required.
 	Port int64 `json:"port,omitempty"`
 
-	// Unique randomly generated instance identifier.
+	// Unique randomly generated instance identifier. Required.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Unique across all Services user-defined name.
+	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 }
 
@@ -177,7 +177,7 @@ type ChangeAmazonRDSMySQLServiceOKBodyAmazonRDSMysql struct {
 	// Instance endpoint (full DNS name).
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels. Keys starts with "_".
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.

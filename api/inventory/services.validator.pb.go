@@ -97,9 +97,6 @@ func (this *ChangeMySQLServiceRequest) Validate() error {
 	if this.ServiceName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
 	}
-	if this.NodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
-	}
 	if this.Address == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
 	}

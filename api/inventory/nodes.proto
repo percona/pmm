@@ -21,6 +21,8 @@ message GenericNode {
   string distro_version = 5;
   // Custom user-assigned labels. Keys must start with "_". Can be changed.
   map<string, string> custom_labels = 10;
+  // Address FIXME.
+  string address = 42;
 }
 
 // ContainerNode represents a Docker container.
@@ -113,6 +115,8 @@ message AddGenericNodeRequest {
   string distro_version = 5;
   // Custom user-assigned labels. Keys must start with "_".
   map<string, string> custom_labels = 10;
+  // Address FIXME.
+  string address = 42;
 }
 
 message AddGenericNodeResponse {
@@ -140,6 +144,8 @@ message ChangeGenericNodeRequest {
   string distro_version = 5;
   // Custom user-assigned labels. Keys must start with "_".
   map<string, string> custom_labels = 10;
+  // Address FIXME.
+  string address = 42;
 }
 
 message ChangeGenericNodeResponse {

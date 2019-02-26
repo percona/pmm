@@ -1020,6 +1020,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "address": {
+                  "description": "Address FIXME.",
+                  "type": "string"
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels. Keys must start with \"_\".",
                   "type": "object",
@@ -1057,6 +1061,10 @@
                   "description": "GenericNode represents a bare metal server or virtual machine.",
                   "type": "object",
                   "properties": {
+                    "address": {
+                      "description": "Address FIXME.",
+                      "type": "string"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
                       "type": "object",
@@ -1332,6 +1340,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "address": {
+                  "description": "Address FIXME.",
+                  "type": "string"
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels. Keys must start with \"_\".",
                   "type": "object",
@@ -1369,6 +1381,10 @@
                   "description": "GenericNode represents a bare metal server or virtual machine.",
                   "type": "object",
                   "properties": {
+                    "address": {
+                      "description": "Address FIXME.",
+                      "type": "string"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
                       "type": "object",
@@ -1616,6 +1632,10 @@
                   "description": "GenericNode represents a bare metal server or virtual machine.",
                   "type": "object",
                   "properties": {
+                    "address": {
+                      "description": "Address FIXME.",
+                      "type": "string"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
                       "type": "object",
@@ -1766,6 +1786,10 @@
                     "description": "GenericNode represents a bare metal server or virtual machine.",
                     "type": "object",
                     "properties": {
+                      "address": {
+                        "description": "Address FIXME.",
+                        "type": "string"
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
                         "type": "object",
@@ -1907,7 +1931,7 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "Instance endpoint (full DNS name).",
+                  "description": "Instance endpoint (full DNS name). Required.",
                   "type": "string"
                 },
                 "custom_labels": {
@@ -1918,16 +1942,16 @@
                   }
                 },
                 "node_id": {
-                  "description": "Node identifier where this instance runs.",
+                  "description": "Node identifier where this instance runs. Required.",
                   "type": "string"
                 },
                 "port": {
-                  "description": "Instance port.",
+                  "description": "Instance port. Required.",
                   "type": "integer",
                   "format": "int64"
                 },
                 "service_name": {
-                  "description": "Unique across all Services user-defined name.",
+                  "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
                 }
               }
@@ -1949,7 +1973,7 @@
                       "type": "string"
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -2007,7 +2031,7 @@
                   }
                 },
                 "node_id": {
-                  "description": "Node identifier where this instance runs.",
+                  "description": "Node identifier where this instance runs. Required.",
                   "type": "string"
                 },
                 "port": {
@@ -2016,7 +2040,7 @@
                   "format": "int64"
                 },
                 "service_name": {
-                  "description": "Unique across all Services user-defined name.",
+                  "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
                 }
               }
@@ -2034,11 +2058,11 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP). Required.",
+                      "description": "Access address (DNS name or IP).",
                       "type": "string"
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -2049,7 +2073,7 @@
                       "type": "string"
                     },
                     "port": {
-                      "description": "Access port. Required.",
+                      "description": "Access port.",
                       "type": "integer",
                       "format": "int64"
                     },
@@ -2085,7 +2109,7 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "Instance endpoint (full DNS name).",
+                  "description": "Instance endpoint (full DNS name). Required.",
                   "type": "string"
                 },
                 "custom_labels": {
@@ -2096,16 +2120,16 @@
                   }
                 },
                 "port": {
-                  "description": "Instance port.",
+                  "description": "Instance port. Required.",
                   "type": "integer",
                   "format": "int64"
                 },
                 "service_id": {
-                  "description": "Unique randomly generated instance identifier.",
+                  "description": "Unique randomly generated instance identifier. Required.",
                   "type": "string"
                 },
                 "service_name": {
-                  "description": "Unique across all Services user-defined name.",
+                  "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
                 }
               }
@@ -2127,7 +2151,7 @@
                       "type": "string"
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -2184,21 +2208,17 @@
                     "type": "string"
                   }
                 },
-                "node_id": {
-                  "description": "Node identifier where this instance runs.",
-                  "type": "string"
-                },
                 "port": {
                   "description": "Access port. Required.",
                   "type": "integer",
                   "format": "int64"
                 },
                 "service_id": {
-                  "description": "Unique randomly generated instance identifier.",
+                  "description": "Unique randomly generated instance identifier. Required.",
                   "type": "string"
                 },
                 "service_name": {
-                  "description": "Unique across all Services user-defined name.",
+                  "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
                 }
               }
@@ -2216,11 +2236,11 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP). Required.",
+                      "description": "Access address (DNS name or IP).",
                       "type": "string"
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -2231,7 +2251,7 @@
                       "type": "string"
                     },
                     "port": {
-                      "description": "Access port. Required.",
+                      "description": "Access port.",
                       "type": "integer",
                       "format": "int64"
                     },
@@ -2289,7 +2309,7 @@
                       "type": "string"
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -2319,11 +2339,11 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP). Required.",
+                      "description": "Access address (DNS name or IP).",
                       "type": "string"
                     },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
@@ -2334,7 +2354,7 @@
                       "type": "string"
                     },
                     "port": {
-                      "description": "Access port. Required.",
+                      "description": "Access port.",
                       "type": "integer",
                       "format": "int64"
                     },
@@ -2394,7 +2414,7 @@
                         "type": "string"
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                        "description": "Custom user-assigned labels. Keys starts with \"_\".",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -2427,11 +2447,11 @@
                     "type": "object",
                     "properties": {
                       "address": {
-                        "description": "Access address (DNS name or IP). Required.",
+                        "description": "Access address (DNS name or IP).",
                         "type": "string"
                       },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                        "description": "Custom user-assigned labels. Keys starts with \"_\".",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
@@ -2442,7 +2462,7 @@
                         "type": "string"
                       },
                       "port": {
-                        "description": "Access port. Required.",
+                        "description": "Access port.",
                         "type": "integer",
                         "format": "int64"
                       },
@@ -2479,7 +2499,7 @@
               "type": "object",
               "properties": {
                 "service_id": {
-                  "description": "Unique randomly generated instance identifier.",
+                  "description": "Unique randomly generated instance identifier. Required.",
                   "type": "string"
                 }
               }

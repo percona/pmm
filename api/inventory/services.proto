@@ -15,11 +15,11 @@ message MySQLService {
   string service_name = 2;
   // Node identifier where this instance runs.
   string node_id = 3;
-  // Access address (DNS name or IP). Required.
+  // Access address (DNS name or IP).
   string address = 4;
-  // Access port. Required.
+  // Access port.
   uint32 port = 5;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels. Keys starts with "_".
   map<string, string> custom_labels = 10;
 }
 
@@ -35,7 +35,7 @@ message AmazonRDSMySQLService {
   string address = 4;
   // Instance port.
   uint32 port = 5;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels. Keys starts with "_".
   map<string, string> custom_labels = 10;
 }
 
@@ -76,13 +76,13 @@ message GetServiceResponse {
 message AddMySQLServiceRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
-  // Unique across all Services user-defined name.
+  // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Node identifier where this instance runs.
+  // Node identifier where this instance runs. Required.
   string node_id = 3 [
     (validator.field) = {
       string_not_empty: true
@@ -109,24 +109,20 @@ message AddMySQLServiceResponse {
 }
 
 message ChangeMySQLServiceRequest {
-  // Unique randomly generated instance identifier.
+  // Unique randomly generated instance identifier. Required.
   string service_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Unique across all Services user-defined name.
+  // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Node identifier where this instance runs.
-  string node_id = 3 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  // Node identifier where this instance runs. Can't be changed.
+  reserved 3;
   // Access address (DNS name or IP). Required.
   string address = 4 [
     (validator.field) = {
@@ -152,25 +148,25 @@ message ChangeMySQLServiceResponse {
 message AddAmazonRDSMySQLServiceRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
-  // Unique across all Services user-defined name.
+  // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Node identifier where this instance runs.
+  // Node identifier where this instance runs. Required.
   string node_id = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Instance endpoint (full DNS name).
+  // Instance endpoint (full DNS name). Required.
   string address = 4 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Instance port.
+  // Instance port. Required.
   uint32 port = 5 [
     (validator.field) = {
       int_gt: 0
@@ -185,13 +181,13 @@ message AddAmazonRDSMySQLServiceResponse {
 }
 
 message ChangeAmazonRDSMySQLServiceRequest {
-  // Unique randomly generated instance identifier.
+  // Unique randomly generated instance identifier. Required.
   string service_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Unique across all Services user-defined name.
+  // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
       string_not_empty: true
@@ -199,13 +195,13 @@ message ChangeAmazonRDSMySQLServiceRequest {
   ];
   // Node identifier where this instance runs. Can't be changed.
   reserved 3;
-  // Instance endpoint (full DNS name).
+  // Instance endpoint (full DNS name). Required.
   string address = 4 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Instance port.
+  // Instance port. Required.
   uint32 port = 5 [
     (validator.field) = {
       int_gt: 0
@@ -222,7 +218,7 @@ message ChangeAmazonRDSMySQLServiceResponse {
 // Remove
 
 message RemoveServiceRequest {
-  // Unique randomly generated instance identifier.
+  // Unique randomly generated instance identifier. Required.
   string service_id = 1 [
     (validator.field) = {
       string_not_empty: true

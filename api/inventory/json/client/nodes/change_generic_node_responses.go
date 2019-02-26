@@ -71,6 +71,9 @@ swagger:model ChangeGenericNodeBody
 */
 type ChangeGenericNodeBody struct {
 
+	// Address FIXME.
+	Address string `json:"address,omitempty"`
+
 	// Custom user-assigned labels. Keys must start with "_".
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -173,6 +176,9 @@ func (o *ChangeGenericNodeOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeGenericNodeOKBodyGeneric
 */
 type ChangeGenericNodeOKBodyGeneric struct {
+
+	// Address FIXME.
+	Address string `json:"address,omitempty"`
 
 	// Custom user-assigned labels. Keys must start with "_". Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
