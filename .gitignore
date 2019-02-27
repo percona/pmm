@@ -1,3 +1,4 @@
 /api/vendor/
 /api/prototool
 /api/nginx/*.pem
+/.idea
