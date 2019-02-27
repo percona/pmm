@@ -29,3 +29,7 @@ required = [
   name = "github.com/percona/pmm"
   # branch = "PMM-2.0"
   branch = "PMM-3399-qan-api"
+
+[[constraint]]
+  branch = "PMM-3514-group-by-digest-user-host-db-server"
+  name = "github.com/percona/go-mysql"

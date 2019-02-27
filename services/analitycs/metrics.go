@@ -24,7 +24,7 @@ import (
 )
 
 // GetMetricsByDigest implements rpc to exchange data between API and agent.
-func (s *Service) GetMetricsByDigest(ctx context.Context, in *pbqan.MetricsRequest) (*pbqan.MetricsReply, error) {
+func (s *Service) GetMetrics(ctx context.Context, in *pbqan.MetricsRequest) (*pbqan.MetricsReply, error) {
 	fmt.Println("Call GetMetricsByDigest")
 	labels := in.GetLabels()
 	dbServers := []string{}
@@ -47,6 +47,6 @@ func (s *Service) GetMetricsByDigest(ctx context.Context, in *pbqan.MetricsReque
 			dbLabels[label.Key] = label.Value
 		}
 	}
-	metrics, err := s.mm.Get(in.From, in.To, in.Digest, dbServers, dbSchemas, dbUsernames, clientHosts, dbLabels)
+	metrics, err := s.mm.Get(in.PeriodStartFrom, in.PeriodStartTo, in.FilterBy, dbServers, dbSchemas, dbUsernames, clientHosts, dbLabels)
 	return metrics, err
 }

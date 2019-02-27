@@ -122,8 +122,8 @@
   revision = "1f388280e944c97cc59c75d8c84a704097d1f1d6"
 
 [[projects]]
-  branch = "master"
-  digest = "1:e69c2453406f1a1d90354b04178e1a82ecacbcf6d3660a2ebea4c0fb840efdf9"
+  branch = "PMM-3514-group-by-digest-user-host-db-server"
+  digest = "1:9a66d2b98a7649b0905b570480a66b06645315ed91f1f0a96711b042ede66ec4"
   name = "github.com/percona/go-mysql"
   packages = [
     "event",
@@ -132,15 +132,15 @@
     "query",
   ]
   pruneopts = "NUT"
-  revision = "f61a5a3aa84fb219753e51d83c3a8f8e9c425028"
+  revision = "b9f78430ec7937d23152e7e8717193e36188e8a9"
 
 [[projects]]
   branch = "PMM-3399-qan-api"
-  digest = "1:093cea0f8113b340d8d6a3c25f2e37c833d752326316a88125eb9d2020c6cf1c"
+  digest = "1:a9a581c3a22c1b6f5ecf874ecc927caaed1f5bd0fc1796042e695aabd97ac236"
   name = "github.com/percona/pmm"
   packages = ["api/qan"]
   pruneopts = "NUT"
-  revision = "a3e3ac4f8d36c5da42f2db5160d7cdd922a376f1"
+  revision = "a2c649353f6eb4622ecfda7b4c2f96286e576556"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"

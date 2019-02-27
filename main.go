@@ -33,7 +33,7 @@ import (
 type server struct{}
 
 //nolint
-var version string // will be set by pkg tool.
+var version string = "dev" // will be set by pkg tool.
 
 // HandleVersion implements version.VersionServer
 func (s *server) HandleVersion(ctx context.Context, in *pbqan.VersionRequest) (*pbqan.VersionReply, error) {

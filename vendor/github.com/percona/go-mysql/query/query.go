@@ -406,7 +406,6 @@ func Fingerprint(q string) string {
 				if Debug {
 					fmt.Println("Multi-line comment")
 				}
-                pr = r
 				s = inMLC
 				continue
 			} else {

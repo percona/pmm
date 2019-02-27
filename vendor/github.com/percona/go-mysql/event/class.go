@@ -33,7 +33,13 @@ const (
 // This is only enforced by convention, so be careful not to mix events from
 // different classes.
 type Class struct {
-	Id            string   // 32-character hex checksum of fingerprint
+	Id            string // 32-character hex checksum of fingerprint
+	User          string
+	Host          string
+	Db            string
+	Server        string
+	LabelsKey     []string
+	LabelsValue   []string
 	Fingerprint   string   // canonical form of query: values replaced with "?"
 	Metrics       *Metrics // statistics for each metric, e.g. max Query_time
 	TotalQueries  uint     // total number of queries in class
@@ -58,9 +64,15 @@ type Example struct {
 
 // NewClass returns a new Class for the class ID and fingerprint.
 // If sample is true, the query with the greatest Query_time is saved.
-func NewClass(id, fingerprint string, sample bool) *Class {
+func NewClass(id, user, host, db, server, fingerprint string, sample bool) *Class {
 	class := &Class{
 		Id:           id,
+		User:         user,
+		Host:         host,
+		Db:           db,
+		Server:       server,
+		LabelsKey:    []string{},
+		LabelsValue:  []string{},
 		Fingerprint:  fingerprint,
 		Metrics:      NewMetrics(),
 		TotalQueries: 0,
@@ -79,6 +91,10 @@ func (c *Class) AddEvent(e *log.Event, outlier bool) {
 	}
 
 	c.Metrics.AddEvent(e, outlier)
+
+	// Add labels
+	c.LabelsKey = append(c.LabelsKey, e.LabelsKey...)
+	c.LabelsValue = append(c.LabelsValue, e.LabelsValue...)
 
 	// Save last db seen for this query. This helps ensure the sample query
 	// has a db.
@@ -122,8 +138,8 @@ func (c *Class) AddClass(newClass *Class) {
 			m := *newStats
 			c.Metrics.TimeMetrics[newMetric] = &m
 		} else {
+			stats.Cnt++
 			stats.Sum += newStats.Sum
-			stats.Avg = Float64(stats.Sum / float64(c.TotalQueries))
 			if Float64Value(newStats.Min) < Float64Value(stats.Min) || stats.Min == nil {
 				stats.Min = newStats.Min
 			}
@@ -139,8 +155,8 @@ func (c *Class) AddClass(newClass *Class) {
 			m := *newStats
 			c.Metrics.NumberMetrics[newMetric] = &m
 		} else {
+			stats.Cnt++
 			stats.Sum += newStats.Sum
-			stats.Avg = Uint64(stats.Sum / uint64(c.TotalQueries))
 			if Uint64Value(newStats.Min) < Uint64Value(stats.Min) || stats.Min == nil {
 				stats.Min = newStats.Min
 			}
@@ -156,6 +172,7 @@ func (c *Class) AddClass(newClass *Class) {
 			m := *newStats
 			c.Metrics.BoolMetrics[newMetric] = &m
 		} else {
+			stats.Cnt++
 			stats.Sum += newStats.Sum
 		}
 	}

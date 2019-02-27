@@ -25,11 +25,11 @@ import (
 	"path/filepath"
 	"time"
 
-	pb "github.com/Percona-Lab/qan-api/api/collector"
 	"github.com/percona/go-mysql/event"
 	slowlog "github.com/percona/go-mysql/log"
 	parser "github.com/percona/go-mysql/log/slow"
 	"github.com/percona/go-mysql/query"
+	pbqan "github.com/percona/pmm/api/qan"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -76,7 +76,7 @@ func main() {
 	defer func() {
 		_ = conn.Close()
 	}()
-	client := pb.NewAgentClient(conn)
+	client := pbqan.NewAgentClient(conn)
 
 	events := parseSlowLog(*slowLogPath, logOpt)
 
@@ -101,14 +101,14 @@ func main() {
 
 	for {
 		start := time.Now()
-		err = bulkSend(stream, func(am *pb.AgentMessage) error {
+		err = bulkSend(stream, func(am *pbqan.AgentMessage) error {
 			i := 0
 			aggregator := event.NewAggregator(true, 0, 1) // add right params
 			qcDimentions := map[string]*QueryClassDimentions{}
 			for e := range events {
 				fingerprint := query.Fingerprint(e.Query)
 				digest := query.Id(fingerprint)
-				aggregator.AddEvent(e, digest, fingerprint)
+				aggregator.AddEvent(e, digest, fingerprint, "", "", "", "")
 				// Pass last offset to restart reader when reached out end of slowlog.
 				logOpt.StartOffset = e.OffsetEnd
 
@@ -140,14 +140,15 @@ func main() {
 					labels[fmt.Sprintf("key%v", rand.Intn(9))] = fmt.Sprintf("label%v", rand.Intn(9))
 				}
 
-				qc := &pb.QueryClass{
-					Digest:     k,
-					DigestText: v.Fingerprint,
-					DbSchema:   dbs[rand.Intn(9)], // fake data
-					DbUsername: qcDimentions[k].DbUsername,
-					ClientHost: fmt.Sprintf("192.168.1.%v", rand.Intn(99)), // fake data
+				qc := &pbqan.QueryClass{
+					Queryid:     k,
+					Fingerprint: v.Fingerprint,
+					DDatabase:   "",                // fake data
+					DSchema:     dbs[rand.Intn(9)], // fake data
+					DUsername:   qcDimentions[k].DbUsername,
+					DClientHost: fmt.Sprintf("192.168.1.%v", rand.Intn(99)), // fake data
 					// ClientHost:   qcDimentions[k].ClientHost,
-					DbServer:     fmt.Sprintf("hostname_%v", rand.Intn(99)), // fake data
+					DServer:      fmt.Sprintf("hostname_%v", rand.Intn(99)), // fake data
 					Labels:       labels,
 					AgentUuid:    agentUUID,
 					PeriodStart:  qcDimentions[k].PeriodStart,
@@ -174,186 +175,201 @@ func main() {
 					qc.MQueryTimeSum = float32(m.Sum)
 					qc.MQueryTimeMax = float32(*m.Max)
 					qc.MQueryTimeMin = float32(*m.Min)
-					qc.MQueryTimeP99 = float32(*m.P95)
+					qc.MQueryTimeP99 = float32(*m.P99)
 				}
 				// lock_time - Lock_time
 				if m, ok := v.Metrics.TimeMetrics["Lock_time"]; ok {
 					qc.MLockTimeSum = float32(m.Sum)
 					qc.MLockTimeMax = float32(*m.Max)
 					qc.MLockTimeMin = float32(*m.Min)
-					qc.MLockTimeP99 = float32(*m.P95)
+					qc.MLockTimeP99 = float32(*m.P99)
 				}
 				// rows_sent - Rows_sent
 				if m, ok := v.Metrics.NumberMetrics["Rows_sent"]; ok {
-					qc.MRowsSentSum = m.Sum
-					qc.MRowsSentMax = *m.Max
-					qc.MRowsSentMin = *m.Min
-					qc.MRowsSentP99 = *m.P95
+					qc.MRowsSentSum = float32(m.Sum)
+					qc.MRowsSentMax = float32(*m.Max)
+					qc.MRowsSentMin = float32(*m.Min)
+					qc.MRowsSentP99 = float32(*m.P99)
 				}
 				// rows_examined - Rows_examined
 				if m, ok := v.Metrics.NumberMetrics["Rows_examined"]; ok {
-					qc.MRowsExaminedSum = m.Sum
-					qc.MRowsExaminedMax = *m.Max
-					qc.MRowsExaminedMin = *m.Min
-					qc.MRowsExaminedP99 = *m.P95
+					qc.MRowsExaminedSum = float32(m.Sum)
+					qc.MRowsExaminedMax = float32(*m.Max)
+					qc.MRowsExaminedMin = float32(*m.Min)
+					qc.MRowsExaminedP99 = float32(*m.P99)
 				}
 				// rows_affected - Rows_affected
 				if m, ok := v.Metrics.NumberMetrics["Rows_affected"]; ok {
-					qc.MRowsAffectedSum = m.Sum
-					qc.MRowsAffectedMax = *m.Max
-					qc.MRowsAffectedMin = *m.Min
-					qc.MRowsAffectedP99 = *m.P95
+					qc.MRowsAffectedSum = float32(m.Sum)
+					qc.MRowsAffectedMax = float32(*m.Max)
+					qc.MRowsAffectedMin = float32(*m.Min)
+					qc.MRowsAffectedP99 = float32(*m.P99)
 				}
 				// rows_read - Rows_read
 				if m, ok := v.Metrics.NumberMetrics["Rows_read"]; ok {
-					qc.MRowsReadSum = m.Sum
-					qc.MRowsReadMax = *m.Max
-					qc.MRowsReadMin = *m.Min
-					qc.MRowsReadP99 = *m.P95
+					qc.MRowsReadSum = float32(m.Sum)
+					qc.MRowsReadMax = float32(*m.Max)
+					qc.MRowsReadMin = float32(*m.Min)
+					qc.MRowsReadP99 = float32(*m.P99)
 				}
 				// merge_passes - Merge_passes
 				if m, ok := v.Metrics.NumberMetrics["Merge_passes"]; ok {
-					qc.MMergePassesSum = m.Sum
-					qc.MMergePassesMax = *m.Max
-					qc.MMergePassesMin = *m.Min
-					qc.MMergePassesP99 = *m.P95
+					qc.MMergePassesSum = float32(m.Sum)
+					qc.MMergePassesMax = float32(*m.Max)
+					qc.MMergePassesMin = float32(*m.Min)
+					qc.MMergePassesP99 = float32(*m.P99)
 				}
 				// innodb_io_r_ops - InnoDB_IO_r_ops
 				if m, ok := v.Metrics.NumberMetrics["InnoDB_IO_r_ops"]; ok {
-					qc.MInnodbIoROpsSum = m.Sum
-					qc.MInnodbIoROpsMax = *m.Max
-					qc.MInnodbIoROpsMin = *m.Min
-					qc.MInnodbIoROpsP99 = *m.P95
+					qc.MInnodbIoROpsSum = float32(m.Sum)
+					qc.MInnodbIoROpsMax = float32(*m.Max)
+					qc.MInnodbIoROpsMin = float32(*m.Min)
+					qc.MInnodbIoROpsP99 = float32(*m.P99)
 				}
 				// innodb_io_r_bytes - InnoDB_IO_r_bytes
 				if m, ok := v.Metrics.NumberMetrics["InnoDB_IO_r_bytes"]; ok {
-					qc.MInnodbIoRBytesSum = m.Sum
-					qc.MInnodbIoRBytesMax = *m.Max
-					qc.MInnodbIoRBytesMin = *m.Min
-					qc.MInnodbIoRBytesP99 = *m.P95
+					qc.MInnodbIoRBytesSum = float32(m.Sum)
+					qc.MInnodbIoRBytesMax = float32(*m.Max)
+					qc.MInnodbIoRBytesMin = float32(*m.Min)
+					qc.MInnodbIoRBytesP99 = float32(*m.P99)
 				}
 				// innodb_io_r_wait - InnoDB_IO_r_wait
 				if m, ok := v.Metrics.TimeMetrics["InnoDB_IO_r_wait"]; ok {
 					qc.MInnodbIoRWaitSum = float32(m.Sum)
 					qc.MInnodbIoRWaitMax = float32(*m.Max)
 					qc.MInnodbIoRWaitMin = float32(*m.Min)
-					qc.MInnodbIoRWaitP99 = float32(*m.P95)
+					qc.MInnodbIoRWaitP99 = float32(*m.P99)
 				}
 				// innodb_rec_lock_wait - InnoDB_rec_lock_wait
 				if m, ok := v.Metrics.TimeMetrics["InnoDB_rec_lock_wait"]; ok {
 					qc.MInnodbRecLockWaitSum = float32(m.Sum)
 					qc.MInnodbRecLockWaitMax = float32(*m.Max)
 					qc.MInnodbRecLockWaitMin = float32(*m.Min)
-					qc.MInnodbRecLockWaitP99 = float32(*m.P95)
+					qc.MInnodbRecLockWaitP99 = float32(*m.P99)
 				}
 				// innodb_queue_wait - InnoDB_queue_wait
 				if m, ok := v.Metrics.TimeMetrics["InnoDB_queue_wait"]; ok {
 					qc.MInnodbQueueWaitSum = float32(m.Sum)
 					qc.MInnodbQueueWaitMax = float32(*m.Max)
 					qc.MInnodbQueueWaitMin = float32(*m.Min)
-					qc.MInnodbQueueWaitP99 = float32(*m.P95)
+					qc.MInnodbQueueWaitP99 = float32(*m.P99)
 				}
 				// innodb_pages_distinct - InnoDB_pages_distinct
 				if m, ok := v.Metrics.NumberMetrics["InnoDB_pages_distinct"]; ok {
-					qc.MInnodbPagesDistinctSum = m.Sum
-					qc.MInnodbPagesDistinctMax = *m.Max
-					qc.MInnodbPagesDistinctMin = *m.Min
-					qc.MInnodbPagesDistinctP99 = *m.P95
+					qc.MInnodbPagesDistinctSum = float32(m.Sum)
+					qc.MInnodbPagesDistinctMax = float32(*m.Max)
+					qc.MInnodbPagesDistinctMin = float32(*m.Min)
+					qc.MInnodbPagesDistinctP99 = float32(*m.P99)
 				}
 				// query_length - Query_length
 				if m, ok := v.Metrics.NumberMetrics["Query_length"]; ok {
-					qc.MQueryLengthSum = m.Sum
-					qc.MQueryLengthMax = *m.Max
-					qc.MQueryLengthMin = *m.Min
-					qc.MQueryLengthP99 = *m.P95
+					qc.MQueryLengthSum = float32(m.Sum)
+					qc.MQueryLengthMax = float32(*m.Max)
+					qc.MQueryLengthMin = float32(*m.Min)
+					qc.MQueryLengthP99 = float32(*m.P99)
 				}
 				// bytes_sent - Bytes_sent
 				if m, ok := v.Metrics.NumberMetrics["Bytes_sent"]; ok {
-					qc.MBytesSentSum = m.Sum
-					qc.MBytesSentMax = *m.Max
-					qc.MBytesSentMin = *m.Min
-					qc.MBytesSentP99 = *m.P95
+					qc.MBytesSentSum = float32(m.Sum)
+					qc.MBytesSentMax = float32(*m.Max)
+					qc.MBytesSentMin = float32(*m.Min)
+					qc.MBytesSentP99 = float32(*m.P99)
 				}
 				// tmp_tables - Tmp_tables
 				if m, ok := v.Metrics.NumberMetrics["Tmp_tables"]; ok {
-					qc.MTmpTablesSum = m.Sum
-					qc.MTmpTablesMax = *m.Max
-					qc.MTmpTablesMin = *m.Min
-					qc.MTmpTablesP99 = *m.P95
+					qc.MTmpTablesSum = float32(m.Sum)
+					qc.MTmpTablesMax = float32(*m.Max)
+					qc.MTmpTablesMin = float32(*m.Min)
+					qc.MTmpTablesP99 = float32(*m.P99)
 				}
 				// tmp_disk_tables - Tmp_disk_tables
 				if m, ok := v.Metrics.NumberMetrics["Tmp_disk_tables"]; ok {
-					qc.MTmpDiskTablesSum = m.Sum
-					qc.MTmpDiskTablesMax = *m.Max
-					qc.MTmpDiskTablesMin = *m.Min
-					qc.MTmpDiskTablesP99 = *m.P95
+					qc.MTmpDiskTablesSum = float32(m.Sum)
+					qc.MTmpDiskTablesMax = float32(*m.Max)
+					qc.MTmpDiskTablesMin = float32(*m.Min)
+					qc.MTmpDiskTablesP99 = float32(*m.P99)
 				}
 				// tmp_table_sizes - Tmp_table_sizes
 				if m, ok := v.Metrics.NumberMetrics["Tmp_table_sizes"]; ok {
-					qc.MTmpTableSizesSum = m.Sum
-					qc.MTmpTableSizesMax = *m.Max
-					qc.MTmpTableSizesMin = *m.Min
-					qc.MTmpTableSizesP99 = *m.P95
+					qc.MTmpTableSizesSum = float32(m.Sum)
+					qc.MTmpTableSizesMax = float32(*m.Max)
+					qc.MTmpTableSizesMin = float32(*m.Min)
+					qc.MTmpTableSizesP99 = float32(*m.P99)
 				}
 				// qc_hit - QC_Hit
 				if m, ok := v.Metrics.BoolMetrics["QC_Hit"]; ok {
-					qc.MQcHitSum = m.Sum
+					qc.MQcHitCnt = float32(m.Cnt)
+					qc.MQcHitSum = float32(m.Sum)
 				}
 				// full_scan - Full_scan
 				if m, ok := v.Metrics.BoolMetrics["Full_scan"]; ok {
-					qc.MFullScanSum = m.Sum
+					qc.MFullScanCnt = float32(m.Cnt)
+					qc.MFullScanSum = float32(m.Sum)
 				}
 				// full_join - Full_join
 				if m, ok := v.Metrics.BoolMetrics["Full_join"]; ok {
-					qc.MFullJoinSum = m.Sum
+					qc.MFullJoinCnt = float32(m.Cnt)
+					qc.MFullJoinSum = float32(m.Sum)
 				}
 				// tmp_table - Tmp_table
 				if m, ok := v.Metrics.BoolMetrics["Tmp_table"]; ok {
-					qc.MTmpTableSum = m.Sum
+					qc.MTmpTableCnt = float32(m.Cnt)
+					qc.MTmpTableSum = float32(m.Sum)
 				}
 				// tmp_table_on_disk - Tmp_table_on_disk
 				if m, ok := v.Metrics.BoolMetrics["Tmp_table_on_disk"]; ok {
-					qc.MTmpTableOnDiskSum = m.Sum
+					qc.MTmpTableOnDiskCnt = float32(m.Cnt)
+					qc.MTmpTableOnDiskSum = float32(m.Sum)
 				}
 				// filesort - Filesort
 				if m, ok := v.Metrics.BoolMetrics["Filesort"]; ok {
-					qc.MFilesortSum = m.Sum
+					qc.MFilesortCnt = float32(m.Cnt)
+					qc.MFilesortSum = float32(m.Sum)
 				}
 				// filesort_on_disk - Filesort_on_disk
 				if m, ok := v.Metrics.BoolMetrics["Filesort_on_disk"]; ok {
-					qc.MFilesortOnDiskSum = m.Sum
+					qc.MFilesortOnDiskCnt = float32(m.Cnt)
+					qc.MFilesortOnDiskSum = float32(m.Sum)
 				}
 				// select_full_range_join - Select_full_range_join
 				if m, ok := v.Metrics.BoolMetrics["Select_full_range_join"]; ok {
-					qc.MSelectFullRangeJoinSum = m.Sum
+					qc.MSelectFullRangeJoinCnt = float32(m.Cnt)
+					qc.MSelectFullRangeJoinSum = float32(m.Sum)
 				}
 				// select_range - Select_range
 				if m, ok := v.Metrics.BoolMetrics["Select_range"]; ok {
-					qc.MSelectRangeSum = m.Sum
+					qc.MSelectRangeCnt = float32(m.Cnt)
+					qc.MSelectRangeSum = float32(m.Sum)
 				}
 				// select_range_check - Select_range_check
 				if m, ok := v.Metrics.BoolMetrics["Select_range_check"]; ok {
-					qc.MSelectRangeCheckSum = m.Sum
+					qc.MSelectRangeCheckCnt = float32(m.Cnt)
+					qc.MSelectRangeCheckSum = float32(m.Sum)
 				}
 				// sort_range - Sort_range
 				if m, ok := v.Metrics.BoolMetrics["Sort_range"]; ok {
-					qc.MSortRangeSum = m.Sum
+					qc.MSortRangeCnt = float32(m.Cnt)
+					qc.MSortRangeSum = float32(m.Sum)
 				}
 				// sort_rows - Sort_rows
 				if m, ok := v.Metrics.BoolMetrics["Sort_rows"]; ok {
-					qc.MSortRowsSum = m.Sum
+					qc.MSortRowsCnt = float32(m.Cnt)
+					qc.MSortRowsSum = float32(m.Sum)
 				}
 				// sort_scan - Sort_scan
 				if m, ok := v.Metrics.BoolMetrics["Sort_scan"]; ok {
-					qc.MSortScanSum = m.Sum
+					qc.MSortScanCnt = float32(m.Cnt)
+					qc.MSortScanSum = float32(m.Sum)
 				}
 				// no_index_used - No_index_used
 				if m, ok := v.Metrics.BoolMetrics["No_index_used"]; ok {
-					qc.MNoIndexUsedSum = m.Sum
+					qc.MNoIndexUsedCnt = float32(m.Cnt)
+					qc.MNoIndexUsedSum = float32(m.Sum)
 				}
 				// no_good_index_used - No_good_index_used
 				if m, ok := v.Metrics.BoolMetrics["No_good_index_used"]; ok {
-					qc.MNoGoodIndexUsedSum = m.Sum
+					qc.MNoGoodIndexUsedCnt = float32(m.Cnt)
+					qc.MNoGoodIndexUsedSum = float32(m.Sum)
 				}
 
 				am.QueryClass = append(am.QueryClass, qc)
@@ -379,8 +395,8 @@ func main() {
 	}
 }
 
-func bulkSend(stream pb.Agent_DataInterchangeClient, fn func(*pb.AgentMessage) error) error {
-	am := &pb.AgentMessage{}
+func bulkSend(stream pbqan.Agent_DataInterchangeClient, fn func(*pbqan.AgentMessage) error) error {
+	am := &pbqan.AgentMessage{}
 	err := fn(am)
 	if err != nil {
 		return err

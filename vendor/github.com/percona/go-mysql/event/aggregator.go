@@ -18,6 +18,7 @@
 package event
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/percona/go-mysql/log"
@@ -52,7 +53,7 @@ func NewAggregator(samples bool, utcOffset time.Duration, outlierTime float64) *
 		utcOffset:   utcOffset,
 		outlierTime: outlierTime,
 		// --
-		global:  NewClass("", "", false),
+		global:  NewClass("", "", "", "", "", "", false),
 		classes: make(map[string]*Class),
 	}
 	return a
@@ -60,7 +61,7 @@ func NewAggregator(samples bool, utcOffset time.Duration, outlierTime float64) *
 
 // AddEvent adds the event to the aggregator, automatically creating new classes
 // as needed.
-func (a *Aggregator) AddEvent(event *log.Event, id, fingerprint string) {
+func (a *Aggregator) AddEvent(event *log.Event, id, user, host, db, server, fingerprint string) {
 	if a.rateLimit != event.RateLimit {
 		a.rateLimit = event.RateLimit
 	}
@@ -72,10 +73,12 @@ func (a *Aggregator) AddEvent(event *log.Event, id, fingerprint string) {
 
 	a.global.AddEvent(event, outlier)
 
-	class, ok := a.classes[id]
+	// Group events by all dimentions.
+	ident := fmt.Sprintf("%s;%s;%s;%s;%s", id, user, host, db, server)
+	class, ok := a.classes[ident]
 	if !ok {
-		class = NewClass(id, fingerprint, a.samples)
-		a.classes[id] = class
+		class = NewClass(id, user, host, db, server, fingerprint, a.samples)
+		a.classes[ident] = class
 	}
 	class.AddEvent(event, outlier)
 }

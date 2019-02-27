@@ -47,6 +47,13 @@ go-run:                         ## Run qan-api with envs.
 	@echo "  > Runing with envs..."
 	GRPC_VERBOSITY=DEBUG GRPC_TRACE=all go run *.go
 
+
+go-generate:                    ## Pack ClickHouse migrations into go file.
+	@echo "  >  Generating dependency files..."
+
+	go install -v ./vendor/github.com/kevinburke/go-bindata/go-bindata
+	go-bindata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql
+
 linux-go-build: go-generate
 	@echo "  >  Building binary..."
 	GOOS=linux go build -o percona-qan-api2 *.go

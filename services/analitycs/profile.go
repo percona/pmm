@@ -36,7 +36,7 @@ func NewService(rm models.Reporter, mm models.Metrics) *Service {
 }
 
 // DataInterchange implements rpc to exchange data between API and agent.
-func (s *Service) GetDigestGroup(ctx context.Context, in *pbqan.ProfileRequest) (*pbqan.ProfileReply, error) {
+func (s *Service) GetReport(ctx context.Context, in *pbqan.ReportRequest) (*pbqan.ReportReply, error) {
 	// TODO: add validator/sanitazer
 	labels := in.GetLabels()
 	dbServers := []string{}
@@ -58,14 +58,14 @@ func (s *Service) GetDigestGroup(ctx context.Context, in *pbqan.ProfileRequest) 
 			dbLabels[label.Key] = label.Value
 		}
 	}
-	total, _ := s.rm.GetTotal(in.From, in.To, dbServers, dbSchemas, dbUsernames, clientHosts, dbLabels)
-	classes, _ := s.rm.Select(in.From, in.To, in.Keyword, in.FirstSeen, dbServers, dbSchemas, dbUsernames, clientHosts, dbLabels, in.Order, in.Offset, in.Limit)
+	total, _ := s.rm.GetTotal(in.PeriodStartFrom, in.PeriodStartTo, dbServers, dbSchemas, dbUsernames, clientHosts, dbLabels)
+	classes, _ := s.rm.Select(in.PeriodStartFrom, in.PeriodStartTo, in.Keyword, in.FirstSeen, dbServers, dbSchemas, dbUsernames, clientHosts, dbLabels, in.OrderBy, in.Offset, in.Limit)
 
-	fromDate, _ := time.Parse("2006-01-02 15:04:05", in.From)
-	toDate, _ := time.Parse("2006-01-02 15:04:05", in.To)
+	fromDate, _ := time.Parse("2006-01-02 15:04:05", in.PeriodStartFrom)
+	toDate, _ := time.Parse("2006-01-02 15:04:05", in.PeriodStartTo)
 	timeInterval := float32(toDate.Unix() - fromDate.Unix())
 
-	reply := &pbqan.ProfileReply{}
+	reply := &pbqan.ReportReply{}
 	reply.Rows = append(reply.Rows, &pbqan.ProfileRow{
 		Rank:       0,
 		Percentage: 1, // 100%
@@ -102,5 +102,5 @@ func (s *Service) GetDigestGroup(ctx context.Context, in *pbqan.ProfileRequest) 
 		})
 	}
 
-	return &pbqan.ProfileReply{Rows: reply.Rows}, nil
+	return &pbqan.ReportReply{Rows: reply.Rows}, nil
 }

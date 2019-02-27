@@ -33,11 +33,10 @@ type Metrics struct {
 // TimeStats are microsecond-based metrics like Query_time and Lock_time.
 type TimeStats struct {
 	vals       []float64 `json:"-"`
+	Cnt        uint64
 	Sum        float64
 	Min        *float64 `json:",omitempty"`
-	Avg        *float64 `json:",omitempty"`
-	Med        *float64 `json:",omitempty"` // median
-	P95        *float64 `json:",omitempty"` // 95th percentile
+	P99        *float64 `json:",omitempty"` // 99th percentile
 	Max        *float64 `json:",omitempty"`
 	outlierSum float64
 }
@@ -45,17 +44,18 @@ type TimeStats struct {
 // NumberStats are integer-based metrics like Rows_sent and Merge_passes.
 type NumberStats struct {
 	vals       []uint64 `json:"-"`
+	Cnt        uint64
 	Sum        uint64
 	Min        *uint64 `json:",omitempty"`
-	Avg        *uint64 `json:",omitempty"`
-	Med        *uint64 `json:",omitempty"` // median
-	P95        *uint64 `json:",omitempty"` // 95th percentile
+	P99        *uint64 `json:",omitempty"` // 99th percentile
 	Max        *uint64 `json:",omitempty"`
 	outlierSum uint64
 }
 
 // BoolStats are boolean-based metrics like QC_Hit and Filesort.
 type BoolStats struct {
+	vals       []bool `json:"-"`
+	Cnt        uint64
 	Sum        uint64 // %true = Sum/Cnt
 	outlierSum uint64
 }
@@ -118,6 +118,7 @@ func (m *Metrics) AddEvent(e *log.Event, outlier bool) {
 				stats.Sum += 1
 			}
 		}
+		stats.vals = append(stats.vals, val)
 	}
 }
 
@@ -140,27 +141,27 @@ func (m *Metrics) Finalize(rateLimit uint, totalQueries uint) {
 		sort.Float64s(s.vals)
 		cnt := len(s.vals)
 
+		s.Cnt = uint64(cnt)
 		s.Min = Float64(s.vals[0])
-		s.Med = Float64(s.vals[(50*cnt)/100]) // median = 50th percentile
-		s.P95 = Float64(s.vals[(95*cnt)/100])
+		s.P99 = Float64(s.vals[(99*cnt)/100])
 		s.Max = Float64(s.vals[cnt-1])
 		s.Sum = (s.Sum * float64(rateLimit)) + s.outlierSum
-		s.Avg = Float64(s.Sum / float64(totalQueries))
 	}
 
 	for _, s := range m.NumberMetrics {
 		sort.Sort(byUint64(s.vals))
 		cnt := len(s.vals)
 
+		s.Cnt = uint64(cnt)
 		s.Min = Uint64(s.vals[0])
-		s.Med = Uint64(s.vals[(50*cnt)/100]) // median = 50th percentile
-		s.P95 = Uint64(s.vals[(95*cnt)/100])
+		s.P99 = Uint64(s.vals[(99*cnt)/100])
 		s.Max = Uint64(s.vals[cnt-1])
 		s.Sum = (s.Sum * uint64(rateLimit)) + s.outlierSum
-		s.Avg = Uint64(s.Sum / uint64(totalQueries))
 	}
 
 	for _, s := range m.BoolMetrics {
+		cnt := len(s.vals)
+		s.Cnt = uint64(cnt)
 		s.Sum = (s.Sum * uint64(rateLimit)) + s.outlierSum
 	}
 }

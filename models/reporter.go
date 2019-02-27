@@ -51,7 +51,7 @@ AND (
 `
 
 type Total struct {
-	NumQueries    uint64  `db:"num_queries"`
+	NumQueries    float32 `db:"num_queries"`
 	MQueryTimeCtn float32 `db:"m_query_time_cnt"`
 	MQueryTimeSum float32 `db:"m_query_time_sum"`
 	MQueryTimeMin float32 `db:"m_query_time_min"`
@@ -127,7 +127,7 @@ type QueryClassReport struct {
 	DigestText1   string  `db:"digest_text1"`
 	FirstSeen     string  `db:"first_seen"`
 	LastSeen      string  `db:"last_seen"`
-	NumQueries    uint64  `db:"num_queries"`
+	NumQueries    float32 `db:"num_queries"`
 	MQueryTimeCtn float32 `db:"m_query_time_cnt"`
 	MQueryTimeSum float32 `db:"m_query_time_sum"`
 	MQueryTimeMin float32 `db:"m_query_time_min"`
