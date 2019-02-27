@@ -18,16 +18,11 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:aade009b6b70f6d8b90c09d21eed732affc2996e87e40fdd3966744e5ccb6387"
+  digest = "1:f43126206c5180eca476f6d5c1f452f929703af8cc28c15127046021fb17d708"
   name = "github.com/gogo/protobuf"
   packages = [
-    "gogoproto",
     "proto",
     "protoc-gen-gogo/descriptor",
-    "protoc-gen-gogo/generator",
-    "protoc-gen-gogo/generator/internal/remap",
-    "protoc-gen-gogo/plugin",
-    "vanity",
   ]
   pruneopts = "NUT"
   revision = "ba06b47c162d49f2af050fb4c75bcbc86a159d5c"
@@ -48,38 +43,37 @@
   version = "v3.5.4"
 
 [[projects]]
-  branch = "master"
-  digest = "1:55995dab2914af9d34fe16e302ba85191df4813ebb8b74cc461299c6f17b0a7d"
+  digest = "1:7630adf447f0aa6a9fce272e8c0077b6894d6091065389265e32bd8c53cbc58c"
   name = "github.com/golang/protobuf"
   packages = [
     "jsonpb",
     "proto",
-    "protoc-gen-go",
     "protoc-gen-go/descriptor",
     "protoc-gen-go/generator",
     "protoc-gen-go/generator/internal/remap",
-    "protoc-gen-go/grpc",
     "protoc-gen-go/plugin",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
     "ptypes/struct",
     "ptypes/timestamp",
+    "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "c823c79ea1570fb5ff454033735a8e68575d1d0f"
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
+  version = "v1.2.0"
 
 [[projects]]
-  digest = "1:5c3363169fc963321cd0789dda2ddff90562817d277e78011b0e1bbf51a6b473"
+  digest = "1:69b5bdc0545fa057e73e7704cb9f7e8c48b9bb6f7cbe2b25686c0a67bba52276"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
+    "internal",
     "runtime",
-    "runtime/internal",
     "utilities",
   ]
   pruneopts = "NUT"
-  revision = "92583770e3f01b09a0d3e9bdf64321d8bebd48f2"
-  version = "v1.4.1"
+  revision = "b7a5640779183161e8d6c3e51f60f0859b5559ba"
+  version = "v1.7.0"
 
 [[projects]]
   digest = "1:0c11e987235e8f37af4e9f24cca02754827d009e8b66cf24483b0006504f6045"
@@ -121,13 +115,9 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:78fee18b8b62fe80afc50bebed3ad966053cf5c5c2aa2bdcef03c7c6a2874b3a"
+  digest = "1:a643872ee8f7077f6d8393590da1d364e3647bdc9bb3f6ac8427c30812c9f6cc"
   name = "github.com/mwitkow/go-proto-validators"
-  packages = [
-    ".",
-    "plugin",
-    "protoc-gen-govalidators",
-  ]
+  packages = ["."]
   pruneopts = "NUT"
   revision = "1f388280e944c97cc59c75d8c84a704097d1f1d6"
 
@@ -224,18 +214,18 @@
   version = "v0.3.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:48cd63b152af9cc0010714d881a3d29a68c19a265fbb914d884dfde42fe9337a"
+  digest = "1:0ff5d79ff7df5c47800f11c139615b2e485efd0014b74257c1f46cb6cb3bb84d"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
     "googleapis/rpc/status",
+    "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "fc2db5cae922db113989ef87b5b859cc8a179f59"
+  revision = "383e8b2c3b9e36c4076b235b32537292176bae20"
 
 [[projects]]
-  digest = "1:d88b6a00529e21d2c0d3b764271a206f1ac300f6103da2d2d86d8373d4e520c4"
+  digest = "1:120df1dbaadf4e87ba0a839b0dbb476f88f047d0ef8a1aa6daf2eb017ef6de96"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -273,8 +263,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "2fdaae294f38ed9a121193c51ec99fecd3b13eb7"
-  version = "v1.19.0"
+  revision = "a02b0774206b209466313a0b525d2c738fe407eb"
+  version = "v1.18.0"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -284,14 +274,12 @@
     "github.com/golang-migrate/migrate",
     "github.com/golang-migrate/migrate/database/clickhouse",
     "github.com/golang-migrate/migrate/source/go_bindata",
-    "github.com/golang/protobuf/protoc-gen-go",
     "github.com/jmoiron/sqlx",
     "github.com/jmoiron/sqlx/reflectx",
     "github.com/kevinburke/go-bindata/go-bindata",
     "github.com/kshvakov/clickhouse",
     "github.com/kshvakov/clickhouse/lib/column",
     "github.com/kshvakov/clickhouse/lib/types",
-    "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators",
     "github.com/percona/go-mysql/event",
     "github.com/percona/go-mysql/log",
     "github.com/percona/go-mysql/log/slow",
