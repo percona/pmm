@@ -1,0 +1,3 @@
+.. note::
+
+   |pmm| does not support passing SSL/TLS related parameters to |opt.mongodb-queries|.

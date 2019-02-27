@@ -12,19 +12,19 @@ backed up information into the |opt.pmm-data| container.
 
 #. Stop the running |opt.pmm-server| container.
 
-   .. include:: ../../.res/code/docker.stop.pmm-server.txt
+   .. include:: ../.res/code/docker.stop.pmm-server.txt
 
 #. Rename the |opt.pmm-server| container to |opt.pmm-server-backup|.
 
-   .. include:: ../../.res/code/docker.rename.pmm-server.pmm-server-backup.txt
+   .. include:: ../.res/code/docker.rename.pmm-server.pmm-server-backup.txt
 
 #. Rename the |opt.pmm-data| to |opt.pmm-data-backup|
 
-   .. include:: ../../.res/code/docker.rename.pmm-data.pmm-data-backup.txt
+   .. include:: ../.res/code/docker.rename.pmm-data.pmm-data-backup.txt
 
 #. Create a new |opt.pmm-data| container
 
-   .. include:: ../../.res/code/docker.create.percona-pmm-server-latest.txt
+   .. include:: ../.res/code/docker.create.percona-pmm-server-latest.txt
    
 .. important:: The last step creates a new |opt.pmm-data| container based on the
 	       |opt.pmm-server.latest| image. If you do not intend to use the
@@ -39,27 +39,27 @@ restore your data as follows:
 #. Change the working directory to the directory that contains your
    |opt.pmm-data| backup files.
 
-   .. include:: ../../.res/code/cd.pmm-data-backup.txt
+   .. include:: ../.res/code/cd.pmm-data-backup.txt
 
    .. note:: This example assumes that the backup directory is found in your
              home directory.
 	     
 #. Copy data from your backup directory to the |opt.pmm-data| container.
 
-   .. include:: ../../.res/code/docker.cp.txt
+   .. include:: ../.res/code/docker.cp.txt
  
 #. Apply correct ownership to |opt.pmm-data| files:
 
-   .. include:: ../../.res/code/docker.run.rm.it.chown.txt
+   .. include:: ../.res/code/docker.run.rm.it.chown.txt
  
 #. Run (create and launch) a new |opt.pmm-server| container:
 
-   .. include:: ../../.res/code/docker.run.latest.txt
+   .. include:: ../.res/code/docker.run.latest.txt
 
 To make sure that the new server is available run the |pmm-admin.check-network|
 command from the computer where |pmm-client| is installed. |tip.run-this.root|.
 
-.. include:: ../../.res/code/pmm-admin.check-network.txt
+.. include:: ../.res/code/pmm-admin.check-network.txt
 
 .. seealso::
 
@@ -74,4 +74,4 @@ command from the computer where |pmm-client| is installed. |tip.run-this.root|.
 
 .. _`percona/pmm-server`: https://hub.docker.com/r/percona/pmm-server/tags/
 
-.. include:: ../../.res/replace.txt
+.. include:: ../.res/replace.txt

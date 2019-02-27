@@ -24,7 +24,7 @@ down), |pmm-admin.rm|_ will not work.  In this case, you can use
 
 .. _code.pmm-admin.uninstall.options:
 
-.. include:: .res/code/pmm-admin.uninstall.options.txt
+.. include:: ../.res/code/pmm-admin.uninstall.options.txt
 
 .. _pmm-admin.uninstall.options:
 
@@ -37,4 +37,4 @@ For more information, run
 |pmm-admin.uninstall|
 |opt.help|.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

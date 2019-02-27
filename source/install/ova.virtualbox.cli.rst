@@ -16,7 +16,7 @@ appliance in headless (without the console) mode.
 To get the IP address for accessing PMM, the script waits for 1 minute until the
 appliance boots up and returns the lines with the IP address from the log file.
 
-.. include:: ../../.res/code/vboxmanage.txt
+.. include:: ../.res/code/vboxmanage.txt
 
 In this script, :code:`[VERSION NUMBER]` is the placeholder of the version of
 |pmm-server| that you are installing. By convention **OVA** files start with
@@ -39,4 +39,4 @@ the downloaded image file.
 
 .. _`download percona monitoring and management`: https://www.percona.com/downloads/pmm
 
-.. include:: ../../.res/replace.txt
+.. include:: ../.res/replace.txt

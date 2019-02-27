@@ -47,4 +47,4 @@ Auto Increment Usage
 The current value of an ``auto_increment`` column from ``information_schema``,
 shown for the top 10 tables.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

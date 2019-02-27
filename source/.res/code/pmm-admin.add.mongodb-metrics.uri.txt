@@ -1,0 +1,3 @@
+.. code=block:: bash
+
+   $ pmm-admin add mongodb-metrics --uri mongodb://mongodb_exporter:s3cR#tpa$$worD@localhost:27017

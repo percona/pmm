@@ -14,7 +14,7 @@ how |pmm-client| communicates with |pmm-server|.
 
 .. _code.pmm-admin.config.options:
 
-.. include:: .res/code/pmm-admin.config.options.txt
+.. include:: ../.res/code/pmm-admin.config.options.txt
 		
 .. _pmm-admin.config.options:
 
@@ -67,4 +67,4 @@ You can also use
 
 For more information, run |pmm-admin.config| --help.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

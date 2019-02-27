@@ -10,6 +10,6 @@ The following aliases are used to designate PMM services that you want to
 
 .. _code.pmm-admin.uninstall.alias-services:
 
-.. include:: .res/table/alias.services.txt
+.. include:: ../.res/table/alias.services.txt
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

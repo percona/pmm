@@ -86,4 +86,4 @@ PMM is available for installation using three methods:
 * `AWS Marketplace <https://aws.amazon.com/marketplace/pp/B077J7FYGX>`_ – `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/ami.html>`_
 * `Open Virtualization Format (OVF) <https://www.percona.com/downloads/pmm/>`_ – `Documentation <https://www.percona.com/doc/percona-monitoring-and-management/deploy/server/virtual-appliance.html>`_
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

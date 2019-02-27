@@ -141,4 +141,4 @@ This metric can show a correlation with the replication lag value.
 
 .. |this-dashboard| replace:: :ref:`dashboard.mongodb-replset`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

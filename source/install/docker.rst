@@ -35,4 +35,4 @@ For more information about using |docker|, see the `Docker Docs`_.
 .. _`percona/pmm-server`: https://hub.docker.com/r/percona/pmm-server/tags/
 .. _`Docker Docs`: https://docs.docker.com
 
-.. include:: ../../.res/replace.txt
+.. include:: ../.res/replace.txt

@@ -12,7 +12,7 @@ selected |mysql| host. This dashboard contains the following metrics:
    If you do not see any metric, try running the following command in the
    |mysql| client:
 
-   .. include:: .res/code/set.global.innodb-monitor-enable.txt
+   .. include:: ../.res/code/set.global.innodb-monitor-enable.txt
 
 .. rubric:: Metrics of |this-dashboard|
    
@@ -269,4 +269,4 @@ command.  To enable this feature, the variable innodb-defragment must be set to
 
 .. |this-dashboard| replace:: :ref:`dashboard.mysql-innodb-metrics-advanced`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

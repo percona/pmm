@@ -114,6 +114,6 @@ unused CPU, a single core may be saturated.
 
 .. |this-dashboard| replace:: :ref:`dashboard.cpu-utilization-details-cores`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt
 
 	     

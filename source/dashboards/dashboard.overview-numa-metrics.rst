@@ -155,4 +155,4 @@ SUnreclaim
 
 .. |this-dashboard| replace:: :ref:`dashboard.overview-numa-metrics`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

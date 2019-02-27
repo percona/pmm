@@ -11,7 +11,7 @@ Use the |opt.mongodb-metrics| alias to enable MongoDB metrics monitoring.
 
 .. _code.pmm-admin.add.mongodb-metrics:
 
-.. include:: .res/code/pmm-admin.add.mongodb-metrics.txt
+.. include:: ../.res/code/pmm-admin.add.mongodb-metrics.txt
 
 This creates the ``pmm-mongodb-metrics-42003`` service
 that collects local |mongodb| metrics for this particular |mongodb| instance.
@@ -73,4 +73,4 @@ provide its URI via the |opt.uri| option.
       :ref:`pmm.qan.mongodb.conf`
    
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

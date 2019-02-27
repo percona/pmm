@@ -13,7 +13,7 @@ Use the |pmm-admin.list| command to list all enabled services with details.
 
 .. _code.pmm-admin.list.options:
 
-.. include:: .res/code/pmm-admin.list.options.txt
+.. include:: ../.res/code/pmm-admin.list.options.txt
 
 .. _pmm-admin.list.options:
 
@@ -71,7 +71,7 @@ should be similar to the following:
 
 .. _code.pmm-admin.list:
 
-.. include:: .res/code/pmm-admin.list.txt
+.. include:: ../.res/code/pmm-admin.list.txt
 
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

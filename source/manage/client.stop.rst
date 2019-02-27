@@ -14,7 +14,7 @@ managed by this |pmm-client|.
 
 .. _code.pmm-admin.stop.service-name.options:
 
-.. include:: .res/code/pmm-admin.stop.service.name.options.txt
+.. include:: ../.res/code/pmm-admin.stop.service.name.options.txt
 
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
@@ -46,18 +46,18 @@ To see which services are available, run |pmm-admin.list|_.
 
 * To stop all available services for this |pmm-client|:
 
-  .. include:: .res/code/pmm-admin.stop.all.txt
+  .. include:: ../.res/code/pmm-admin.stop.all.txt
 		
 * To stop all services related to |mysql|:
 
-  .. include:: .res/code/pmm-admin.stop.mysql.txt
+  .. include:: ../.res/code/pmm-admin.stop.mysql.txt
 		   
 * To stop only the |opt.mongodb-metrics| service:
 
-  .. include:: .res/code/pmm-admin.stop.mongodb-metrics.txt
+  .. include:: ../.res/code/pmm-admin.stop.mongodb-metrics.txt
 		   
 For more information, run
 |pmm-admin.stop|
 |opt.help|.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

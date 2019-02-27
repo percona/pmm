@@ -106,5 +106,5 @@ which should be zero in case of normal operation.
 - Missing History on Replica Incidents
 - Thread deadlocks: number of deadlocks per second
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt
 

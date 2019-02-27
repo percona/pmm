@@ -34,4 +34,4 @@ metrics.
 Finally, *Network* section shows *Network Traffic*, and *Network Utilization
 Hourly* metrics.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

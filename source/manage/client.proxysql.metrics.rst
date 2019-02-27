@@ -12,7 +12,7 @@ to enable |proxysql| performance metrics monitoring.
 
 .. _code.pmm-admin.add-proxysql-metrics:
 
-.. include:: .res/code/pmm-admin.add.proxysql-metrics.txt
+.. include:: ../.res/code/pmm-admin.add.proxysql-metrics.txt
 
 This creates the ``pmm-proxysql-metrics-42004`` service
 that collects local |proxysql| performance metrics.
@@ -48,4 +48,4 @@ For more information, run
       :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
 
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

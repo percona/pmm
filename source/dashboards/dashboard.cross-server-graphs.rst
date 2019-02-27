@@ -56,4 +56,4 @@ This metric shows the network traffic used by the |mysql| process.
 
 .. |this-dashboard| replace:: :ref:`dashboard.cross-server-graphs`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

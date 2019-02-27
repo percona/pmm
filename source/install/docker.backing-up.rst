@@ -17,25 +17,25 @@ directory with essential sub folders and then run |docker| commands to copy
 #. Create a backup directory and make it the current working directory. In this
    example, we use *pmm-data-backup* as the directory name.
 
-   .. include:: ../../.res/code/mkdir.pmm-data-backup.cd.txt
+   .. include:: ../.res/code/mkdir.pmm-data-backup.cd.txt
 
 #. Create the essential sub directories:
 
-   .. include:: ../../.res/code/mkdir.opt-prometheus.var-lib.txt
+   .. include:: ../.res/code/mkdir.opt-prometheus.var-lib.txt
 
 |tip.run-all.root|
 
 #. Stop the docker container:
 
-   .. include:: ../../.res/code/docker.stop.pmm-server.txt
+   .. include:: ../.res/code/docker.stop.pmm-server.txt
 
 #. Copy data from the |opt.pmm-data| container:
 
-   .. include:: ../../.res/code/docker.cp.pmm-data.txt
+   .. include:: ../.res/code/docker.cp.pmm-data.txt
 
 Now, your |pmm| data are backed up and you can start |pmm-server| again:
 
-.. include:: ../../.res/code/docker.start.pmm-server.txt
+.. include:: ../.res/code/docker.start.pmm-server.txt
 
 .. seealso::
 
@@ -45,4 +45,4 @@ Now, your |pmm| data are backed up and you can start |pmm-server| again:
    Updating |pmm-server| run via |docker|
       :ref:`update-server.docker`
 
-.. include:: ../../.res/replace.txt
+.. include:: ../.res/replace.txt

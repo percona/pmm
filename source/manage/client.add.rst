@@ -27,7 +27,7 @@ task, you need to remove all SSL related options.
    monitoring service that you need to change, such as
    |pmm-mysql-metrics.service|.
 
-   .. include:: .res/code/cat.etc-systemd-system-pmm-mysql-metrics.txt
+   .. include:: ../.res/code/cat.etc-systemd-system-pmm-mysql-metrics.txt
    
 #. Remove the SSL related configuration options (key, cert) from the
    |systemd| unit file or `init.d` startup
@@ -38,15 +38,15 @@ task, you need to remove all SSL related options.
    using the |sed| command. (If you need more information about how
    |sed| works, see the documentation of your system).
    
-   .. include:: .res/code/sed.e.web-ssl.pmm-mysql-metrics-service.txt
+   .. include:: ../.res/code/sed.e.web-ssl.pmm-mysql-metrics-service.txt
    
 #. Reload |systemd|:
 
-   .. include:: .res/code/systemctl.daemon-reload.txt
+   .. include:: ../.res/code/systemctl.daemon-reload.txt
 
 #. Restart the monitoring service by using |pmm-admin.restart|:
 
-   .. include:: .res/code/pmm-admin.restart.mysql-metrics.txt
+   .. include:: ../.res/code/pmm-admin.restart.mysql-metrics.txt
 
 .. _pmm-admin.add-options:
 
@@ -82,4 +82,4 @@ For more information, run
 |opt.help|.
 
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

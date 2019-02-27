@@ -26,4 +26,4 @@ contains the following metrics:
    - Page faults
 
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

@@ -56,7 +56,7 @@ creating and launching the |pmm-server| container.
 
 To pull the latest version from Docker Hub:
 
-.. include:: ../../.res/code/docker.pull.percona-pmm-server-latest.txt
+.. include:: ../.res/code/docker.pull.percona-pmm-server-latest.txt
 
 This step is not required if you are running |pmm-server| for the first time.
 However, it ensures that if there is an older version of the image tagged with
@@ -70,7 +70,7 @@ version.
 
 To create a container for persistent |pmm| data, run the following command:
 
-.. include:: ../../.res/code/docker.create.percona-pmm-server-latest.txt
+.. include:: ../.res/code/docker.create.percona-pmm-server-latest.txt
 	     
 .. note:: This container does not run, it simply exists to make sure you retain
 	  all |pmm| data when you upgrade to a newer |pmm-server| image.  Do not remove
@@ -106,7 +106,7 @@ The previous command does the following:
 
 To create and launch |pmm-server| in one command, use |docker.run|:
 
-.. include:: ../../.res/code/docker.run.latest.txt
+.. include:: ../.res/code/docker.run.latest.txt
 
 This command does the following:
 
@@ -189,4 +189,4 @@ supported additional options.
    Restoring |opt.pmm-data|
       :ref:`pmm.server.docker.restoring`
 
-.. include:: ../../.res/replace.txt
+.. include:: ../.res/replace.txt

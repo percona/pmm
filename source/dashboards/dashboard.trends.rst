@@ -97,4 +97,4 @@ fluctuated over time by visually overlaying time periods.
 
 .. |this-dashboard| replace:: :ref:`dashboard.trends`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

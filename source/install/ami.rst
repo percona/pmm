@@ -7,7 +7,7 @@ You can run an instance of |pmm-server| hosted at AWS Marketplace. This
 method replaces the outdated method where you would have to accessing
 an AMI (Amazon Machine Image) by using its ID, different for each region.
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.home-page.1.png
+.. figure:: ../.res/graphics/png/aws-marketplace.pmm.home-page.1.png
 
    The home page of PMM in AWS Marketplace.
 
@@ -21,7 +21,7 @@ infrastructure hosted in the region you have selected (the recommended
 EC2 instance type is preselected for you). Note that actual choice will be done
 later, and this table serves the information purposes, to plan costs.
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.home-page.2.png
+.. figure:: ../.res/graphics/png/aws-marketplace.pmm.home-page.2.png
 
    As soon as you select your region, you can choose the EC2 instance in it and
    see its price. |pmm| comes for no cost, you may only need to pay for the
@@ -36,7 +36,7 @@ Clicking the |gui.continue-to-subscribe| button will proceed to the terms and
 conditions page. Clicking |gui.continue-to-configuration| there will bring a
 new page to start setting up your instance.
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.0.png
+.. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.0.png
 
    Percona Monitoring and Management on AWS Marketplace - launch options.
 
@@ -74,7 +74,7 @@ discussed here.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch.vpc.ec2-instance-type:
   
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png
+.. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.1.png
 
    Select VPC in the VPC Settings section.
 
@@ -104,7 +104,7 @@ already set up EC2 key pair to limit access to your instance.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch.key-pair.selecting:
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
+.. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
 
    Select an already existing key pair (use the EC2 console to create one if necessary)
 
@@ -116,10 +116,10 @@ already set up EC2 key pair to limit access to your instance.
 
 .. _figure.run-server-ami.aws-marketplace.pmm-launch-on-ec2.1-click-launch.security-group.selecting:
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png
+.. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.2.png
 
    Select a security group which manages firewall settings.
-   
+
 .. seealso::
 
    |amazon| Documentation: Security groups
@@ -140,7 +140,7 @@ the :program:`EC2 console`.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.launch-on-ec2.1-click-launch:
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
+.. figure:: ../.res/graphics/png/aws-marketplace.pmm.launch-on-ec2.1-click-launch.3.png
 	    
    Your instance settings are summarized in a special area. Click
    the Launch with 1 click button to continue.
@@ -165,7 +165,7 @@ managed via the :program:`EC2 console`.
 
 .. _figure.run-server-ami.aws-marketplace.ec2-console.pmm:
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.ec2-console.pmm.1.png
+.. figure:: ../.res/graphics/png/aws-marketplace.ec2-console.pmm.1.png
 
    The newly created instance selected.
 
@@ -194,7 +194,7 @@ address appears in the :guilabel:`IPv4 Public IP` column or as value of the
 
 .. _figure.run-server-ami.aws-marketplace.pmm.ec2.properties:
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.ec2.properties.png
+.. figure:: ../.res/graphics/png/aws-marketplace.pmm.ec2.properties.png
 
    The public IP address of the instance
 
@@ -203,7 +203,7 @@ your browser. In the |pmm.name| welcome page that opens, enter the instance ID.
 
 .. _figure.run-server-ami.installation-wizard.ami.instance-id-verification:
 
-.. figure:: ../../.res/graphics/png/installation-wizard.ami.instance-id-verification.png
+.. figure:: ../.res/graphics/png/installation-wizard.ami.instance-id-verification.png
 
    Entering the instance ID when installing |pmm-server|
 
@@ -215,7 +215,7 @@ over the ID.
 
 .. _figure.run-server-ami.aws-marketplace.pmm.ec2.properties.instance-id:
 
-.. figure:: ../../.res/graphics/png/aws-marketplace.pmm.ec2.properties.instance-id.png
+.. figure:: ../.res/graphics/png/aws-marketplace.pmm.ec2.properties.instance-id.png
 
    Hover the cursor over the instance ID for the Copy button to appear.
 
@@ -227,7 +227,7 @@ that pops up. The |pmm-server| is now ready and the home page opens.
 
 .. _figure.run-server-ami.installation-wizard.ami.account-credentials:
 
-.. figure:: ../../.res/graphics/png/installation-wizard.ami.account-credentials.png
+.. figure:: ../.res/graphics/png/installation-wizard.ami.account-credentials.png
 
    Create credentials for your instance.
 
@@ -236,7 +236,7 @@ that pops up. The |pmm-server| is now ready and the home page opens.
 
 .. _figure.run-server-ami.pmm-server.home-page:
 
-.. figure:: ../../.res/graphics/png/pmm.home-page.png
+.. figure:: ../.res/graphics/png/pmm.home-page.png
 
    |pmm-server| home page
 
@@ -386,7 +386,7 @@ for the corresponding image:
    for the corresponding region and image.
    For example:
 
-   .. include:: ../../.res/code/aws.ec2.run-instances.txt
+   .. include:: ../.res/code/aws.ec2.run-instances.txt
 
    .. note:: Providing the public SSH key is optional.
       Specify it if you want SSH access to |pmm-server|.
@@ -394,13 +394,13 @@ for the corresponding image:
 #. Set a name for the instance using the ``create-tags`` command.
    For example:
 
-   .. include:: ../../.res/code/aws.ec2.create-tags.txt
+   .. include:: ../.res/code/aws.ec2.create-tags.txt
 
 #. Get the IP address for accessing |pmm-server| from console output
    using the ``get-console-output`` command.
    For example:
 
-   .. include:: ../../.res/code/aws.ec2.get-console-output.txt
+   .. include:: ../.res/code/aws.ec2.get-console-output.txt
 
 .. _upgrade-pmm-server:
 
@@ -540,4 +540,4 @@ steps should be followed.
       Filesystem                 Size Used Avail Use% Mounted on
       /dev/mapper/DataVG-DataLV   32G 254M   32G   1% /srv
 
-.. include:: ../../.res/replace.txt
+.. include:: ../.res/replace.txt

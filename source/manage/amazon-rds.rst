@@ -15,7 +15,7 @@ instance to |pmm|. This method supports |amazon-rds| DB instances that use
 
 .. _figure.pmm.amazon-rds.pmm-server.add-instance.access-key-id:
 
-.. figure:: .res/graphics/png/metrics-monitor.add-instance.png
+.. figure:: ../.res/graphics/png/metrics-monitor.add-instance.png
    
    Enter the access key ID and the secret access key of your |iam| user to view
    |amazon-rds| DB instances.
@@ -28,7 +28,7 @@ instance to |pmm|. This method supports |amazon-rds| DB instances that use
 
 .. _figure.pmm.amazon-rds.pmm-server.add-instance.displaying:
 
-.. figure:: .res/graphics/png/metrics-monitor.add-instance.1.png
+.. figure:: ../.res/graphics/png/metrics-monitor.add-instance.1.png
 
    |pmm| displays the available |amazon-rds| instances
 
@@ -39,7 +39,7 @@ instances in the |dbd.amazon-rds-aurora-mysql-metrics|.
 
 .. _figure.pmm.amazon-rds.pmm-server.add-instance.rds-instances.db-user-credentials:
 
-.. figure:: .res/graphics/png/metrics-monitor.add-instance.rds-instances.1.png
+.. figure:: ../.res/graphics/png/metrics-monitor.add-instance.rds-instances.1.png
 
    Enter the DB user name and password to connect to the selected |rds| or
    |amazon-aurora| instance.
@@ -74,7 +74,7 @@ instances you intend to monitor.
 
 .. _figure.pmm.amazon-rds.amazon-rds.modify-db-instance:
 
-.. figure:: .res/graphics/png/amazon-rds.modify-db-instance.2.png
+.. figure:: ../.res/graphics/png/amazon-rds.modify-db-instance.2.png
 
    Set the |gui.enable-enhanced-monitoring| option in the settings of your
    |amazon-rds| DB instance.
@@ -132,7 +132,7 @@ To define a new policy use the |iam| page at |aws|.
 
 .. _figure.pmm.amazon-rds.aws.iam:
 
-.. figure:: .res/graphics/png/aws.iam.png
+.. figure:: ../.res/graphics/png/aws.iam.png
 
    The |iam| page at |aws|
 
@@ -141,14 +141,14 @@ To define a new policy use the |iam| page at |aws|.
 #. On the |gui.create-policy| page, select the |json| tab and replace the
    existing contents with the following |json| document.
 
-   .. include:: .res/code/aws.iam-user.permission.txt
+   .. include:: ../.res/code/aws.iam-user.permission.txt
    
 #. Click |gui.review-policy| and set a name to your policy, such as
    |policy-name|. Then, click the |gui.create-policy| button.
 
 .. _figure.pmm.amazon-rds.aws.iam.create-policy:
 
-.. figure:: .res/graphics/png/aws.iam.create-policy.png
+.. figure:: ../.res/graphics/png/aws.iam.create-policy.png
 
    A new policy is ready to be created.
    
@@ -168,7 +168,7 @@ user, select |gui.users| on the |identity-access-management| page at |aws|. Then
 
 .. _figure.pmm.amazon-rds.aws.iam-users:
 
-.. figure:: .res/graphics/png/aws.iam-users.1.png
+.. figure:: ../.res/graphics/png/aws.iam-users.1.png
 
    Navigate to |gui.users| on the IAM console
 
@@ -238,7 +238,7 @@ The |policy-name| is now added to your |iam| user.
    
 .. _figure.pmm.amazon-rds.aws.iam.add-permissions:
 
-.. figure:: .res/graphics/png/aws.iam.add-permissions.png
+.. figure:: ../.res/graphics/png/aws.iam.add-permissions.png
 
    To attach, find the policy on the list and place a check mark to select it
 	      
@@ -297,4 +297,4 @@ statement.
       
 .. |policy-name| replace:: *AmazonRDSforPMMPolicy*
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

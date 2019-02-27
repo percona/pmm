@@ -24,4 +24,4 @@ Usage*, *Disk IO Latency*, and *Disk IO Load* metrics.
 In the *Network* section, you can find the *Network Traffic*, *Network
 Utilization Hourly*, Local Network Errors*, and *TCP Retransmission* metrics.
   
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

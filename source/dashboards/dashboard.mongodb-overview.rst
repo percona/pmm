@@ -97,4 +97,4 @@ increasing memory or sharding out.
 
 .. |this-dashboard| replace:: :ref:`dashboard.mongodb-overview`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

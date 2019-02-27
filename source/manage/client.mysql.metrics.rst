@@ -9,7 +9,7 @@ Use the |opt.mysql-metrics| alias to enable |mysql| metrics monitoring.
 
 .. rubric:: USAGE
 
-.. include:: .res/code/pmm-adin.add.mysql-metrics.txt
+.. include:: ../.res/code/pmm-adin.add.mysql-metrics.txt
 
 This creates the ``pmm-mysql-metrics-42002`` service
 that collects |mysql| instance metrics.
@@ -102,7 +102,7 @@ at 192.168.200.3, use a command similar to the following:
 
 .. _code.pmm-admin.add-mysql-metrics.user.password.host.create-user:
 
-.. include:: .res/code/pmm-admin.add.mysql-metrics.user.password.host.create-user.txt
+.. include:: ../.res/code/pmm-admin.add.mysql-metrics.user.password.host.create-user.txt
 
 For more information, run
 |pmm-admin.add|
@@ -115,4 +115,4 @@ For more information, run
       :ref:`conf-mysql`
 
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

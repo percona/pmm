@@ -154,4 +154,4 @@ high value of read_next is an indication of index scans.
 
 .. |this-dashboard| replace:: :ref:`dashboard.system`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

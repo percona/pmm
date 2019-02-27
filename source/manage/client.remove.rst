@@ -12,7 +12,7 @@ Use the |pmm-admin.rm| command to remove monitoring services.
 
 .. _pmm-admin.remove.options.service:
 
-.. include:: .res/code/pmm-admin.rm.options.service.txt
+.. include:: ../.res/code/pmm-admin.rm.options.service.txt
 		
 When you remove a service,
 collected data remains in |metrics-monitor| on |pmm-server|.
@@ -44,16 +44,16 @@ To see which services are enabled, run |pmm-admin.list|_.
 
 * To remove all services enabled for this |pmm-client|:
 
-  .. include:: .res/code/pmm-admin.rm.all.txt
+  .. include:: ../.res/code/pmm-admin.rm.all.txt
 		   
 * To remove all services related to |mysql|:
 
-  .. include:: .res/code/pmm-admin.rm.mysql.txt
+  .. include:: ../.res/code/pmm-admin.rm.mysql.txt
 
 * To remove only |opt.mongodb-metrics| service:
 
-  .. include:: .res/code/pmm-admin.rm.mongodb-metrics.txt
+  .. include:: ../.res/code/pmm-admin.rm.mongodb-metrics.txt
 		
 For more information, run |pmm-admin.rm| --help.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

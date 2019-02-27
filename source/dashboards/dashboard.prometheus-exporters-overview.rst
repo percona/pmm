@@ -100,4 +100,4 @@ You can click the value of the |gui.cpu-used|, |gui.memory-used|, or
       Exporters and integrations
          https://prometheus.io/docs/instrumenting/exporters
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

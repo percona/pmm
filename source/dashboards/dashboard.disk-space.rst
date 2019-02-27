@@ -48,5 +48,5 @@ space allocated to the mountpoint.
 
 .. |this-dashboard| replace:: :ref:`dashboard.disk-space`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt
 

@@ -20,4 +20,4 @@ handler respectively.
    |mysql| Documentation: Server Status Variables
       https://dev.mysql.com/doc/refman/8.0/en/server-status-variables.html
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

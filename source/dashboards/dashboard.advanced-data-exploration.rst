@@ -14,7 +14,7 @@ the progress of a single |prometheus| metric across one or more hosts.
    metrics related to NUMA. The names of all these metrics start with
    *node_memory_numa*.
 
-   .. image:: .res/graphics/png/metrics-monitor.advanced-data-exploration.node-memory-numa.png
+   .. image:: ../.res/graphics/png/metrics-monitor.advanced-data-exploration.node-memory-numa.png
 
 ..  contents::
     :local:
@@ -47,4 +47,4 @@ This section presents the values of the selected metric in the tabular form.
    |prometheus| Documentation: Metric types
        https://prometheus.io/docs/concepts/metric_types/
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

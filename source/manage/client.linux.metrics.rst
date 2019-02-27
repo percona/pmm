@@ -11,7 +11,7 @@ Use the |opt.linux-metrics| alias to enable general system metrics monitoring.
 
 .. _code.pmm-admin.add.linux-metrics:
 
-.. include:: .res/code/pmm-admin.add.linux-metrics.txt
+.. include:: ../.res/code/pmm-admin.add.linux-metrics.txt
 
 This creates the ``pmm-linux-metrics-42000`` service
 that collects local system metrics for this particular OS instance.
@@ -47,4 +47,4 @@ For more information, run
       :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
 
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

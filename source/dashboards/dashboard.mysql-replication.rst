@@ -14,7 +14,7 @@ IO Thread Running
 This metric shows if the IO Thread is runnig or not. It only applies to a slave
 host.
 
-.. include:: .res/contents/io-thread.what-is.txt
+.. include:: ../.res/contents/io-thread.what-is.txt
 
 .. rubric:: Possible values
 
@@ -56,7 +56,7 @@ SQL Thread Running
 This metric shows if the SQL thread is running or not. It only applies to a
 slave host.
 
-.. include:: .res/contents/io-thread.what-is.txt
+.. include:: ../.res/contents/io-thread.what-is.txt
    
 .. rubric:: Possibile values
 
@@ -195,7 +195,7 @@ the table structures. There can be more than one binlog file present depending
 on the binlog rotation policy adopted (for example using the configuration
 variables ``max_binlog_size`` and ``expire_logs_days``).
 
-.. include:: .res/contents/binlog-file.info.txt
+.. include:: ../.res/contents/binlog-file.info.txt
 	     
 .. seealso::
 
@@ -225,7 +225,7 @@ Binlog Count
 This metric shows the overall count of binary log files, on both
 master and slave servers.
 
-.. include:: .res/contents/binlog-file.info.txt
+.. include:: ../.res/contents/binlog-file.info.txt
 
 .. seealso::
 
@@ -243,7 +243,7 @@ Binlogs Created Hourly
 
 This metric shows the number of binlog files created hourly during the last 24 hours.
 
-.. include:: .res/contents/binlog-file.info.txt
+.. include:: ../.res/contents/binlog-file.info.txt
 
 |view-all-metrics| |this-dashboard|
 
@@ -293,4 +293,4 @@ the last 24 hours.
 
 .. |this-dashboard| replace:: :ref:`dashboard.mysql-replication`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

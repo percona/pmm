@@ -1,0 +1,3 @@
+.. code-block:: bash
+
+   yum install pmm-client

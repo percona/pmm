@@ -15,7 +15,7 @@ This is the same as running |pmm-admin.stop|_ and |pmm-admin.start|_.
 
 .. _code.pmm-admin.restart.service.name.options:
 
-.. include:: .res/code/pmm-admin.restart.service.name.options.txt
+.. include:: ../.res/code/pmm-admin.restart.service.name.options.txt
 
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
@@ -47,16 +47,16 @@ To see which services are available, run |pmm-admin.list|_.
 
 * To restart all available services for this |pmm-client|:
 
-  .. include:: .res/code/pmm-admin.restart.all.txt
+  .. include:: ../.res/code/pmm-admin.restart.all.txt
 		
 * To restart all services related to |mysql|:
 
-  .. include:: .res/code/pmm-admin.restart.mysql.txt
+  .. include:: ../.res/code/pmm-admin.restart.mysql.txt
 
 * To restart only the |opt.mongodb-metrics| service:
 
-  .. include:: .res/code/pmm-admin.restart.mongodb-metrics.txt
+  .. include:: ../.res/code/pmm-admin.restart.mongodb-metrics.txt
 		
 For more information, run |pmm-admin.restart| :option:`--help`.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

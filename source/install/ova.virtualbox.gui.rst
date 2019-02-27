@@ -36,4 +36,4 @@ using the graphical user interface of VirtualBox:
 
 .. _`download percona monitoring and management`: https://www.percona.com/downloads/pmm
 
-.. include:: ../../.res/replace.txt
+.. include:: ../.res/replace.txt

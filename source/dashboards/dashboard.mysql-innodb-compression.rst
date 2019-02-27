@@ -80,4 +80,4 @@ Buffer Pool All
    - Used Pages (Buffer Pool 0)
    - Pages Free (Buffer Pool 0)
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

@@ -19,4 +19,4 @@ reveals the following information:
    Summary information about the usage of |prometheus| exporters
       :ref:`dashboard.prometheus-exporters-overview`
 	   
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

@@ -14,7 +14,7 @@ configuration file (by default: :file:`/usr/local/percona/pmm-client/pmm.yml`).
 
 .. _code.pmm-admin.show-passwords.options:
 
-.. include:: .res/code/pmm-admin.show-passwords.options.txt
+.. include:: ../.res/code/pmm-admin.show-passwords.options.txt
 
 .. _pmm-admin.show-passwords.options:
 
@@ -36,8 +36,8 @@ This command prints HTTP authentication credentials and the password for the
 
 .. _code.pmm-admin.show-passwords:
 
-.. include:: .res/code/pmm-admin.show-passwords.txt
+.. include:: ../.res/code/pmm-admin.show-passwords.txt
 
 For more information, run |pmm-admin.show-passwords|  |opt.help|.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

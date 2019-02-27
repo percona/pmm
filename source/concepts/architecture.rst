@@ -31,7 +31,7 @@ developed by |percona| and some are third-party open-source tools.
 
 The following diagram illustrates how |pmm| is currently structured:
 
-.. image:: .res/graphics/png/diagram.pmm-architecture.png
+.. image:: ../.res/graphics/png/diagram.pmm-architecture.png
 
 .. _pmm-client:
 
@@ -148,7 +148,7 @@ page.
 
 To use it, create a |mysql| user for |orchestrator| on all managed instances:
 
-.. include:: .res/code/grant.orc-client-user.txt
+.. include:: ../.res/code/grant.orc-client-user.txt
 
 .. note:: The credentials in the previous example are default.
    If you use a different user name or password,
@@ -159,7 +159,7 @@ To use it, create a |mysql| user for |orchestrator| on all managed instances:
    and
    :term:`ORCHESTRATOR_USER  <ORCHESTRATOR_USER>` options.
 
-   .. include:: .res/code/docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password.txt
+   .. include:: ../.res/code/docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password.txt
 
 Then you can use the |gui.discover| page in the |orchestrator| web interface
 to add the instances to the topology.
@@ -180,4 +180,4 @@ to add the instances to the topology.
 .. _`Grafana Docs`: http://docs.grafana.org/
 .. _`Orchestrator Manual`: https://github.com/outbrain/orchestrator/wiki/Orchestrator-Manual
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

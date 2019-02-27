@@ -9,7 +9,7 @@ Use the |opt.mysql-queries| alias to enable |mysql| query analytics.
 
 .. rubric:: USAGE
 
-.. include:: .res/code/pmm-admin.add.mysql-queries.txt
+.. include:: ../.res/code/pmm-admin.add.mysql-queries.txt
 		 
 This creates the ``pmm-mysql-queries-0`` service
 that is able to collect |qan| data for multiple remote |mysql| server instances.
@@ -25,7 +25,7 @@ name, but you can also specify it explicitly as an argument.
 
    You may alter your PMM user and pass the authentication plugin as a parameter:
 
-   .. include:: .res/code/alter.user.identified.with.by.txt
+   .. include:: ../.res/code/alter.user.identified.with.by.txt
    
    .. seealso::
 
@@ -138,7 +138,7 @@ located at 192.168.200.2, use a command similar to the following:
 
 .. _code.pmm-admin.add-mysql-queries.user.password.host.create-user:
 
-.. include:: .res/code/pmm-admin.add.mysql-queries.user.password.host.create-user.txt
+.. include:: ../.res/code/pmm-admin.add.mysql-queries.user.password.host.create-user.txt
 		
 |qan| can use either the |slow-query-log| or |perf-schema| as the source.
 By default, it chooses the |slow-query-log| for a local |mysql| instance
@@ -159,4 +159,4 @@ For more information, run
       :ref:`conf-mysql`
 
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

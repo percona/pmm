@@ -32,4 +32,4 @@ Top Users by CPU Time
    The cumulative CPU time elapsed, in seconds, while servicing connections of
    the user.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

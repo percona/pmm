@@ -17,7 +17,7 @@ for example, using the |pmm-admin.uninstall|_ command.
 
 .. _code.pmm-admin.repair.options:
 
-.. include:: .res/code/pmm-admin.repair.options.txt
+.. include:: ../.res/code/pmm-admin.repair.options.txt
 
 .. _pmm-admin.repair.options:
 
@@ -30,4 +30,4 @@ but you can use :ref:`global options that apply to any other command
 For more information, run |pmm-admin.repair| --help.
 
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

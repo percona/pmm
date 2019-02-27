@@ -16,7 +16,7 @@ and do not want its metrics data to show up on graphs.
 
 .. _pmm-admin.purge.service.name.options:
 
-.. include:: .res/code/pmm-admin.purge.service.name.options.txt
+.. include:: ../.res/code/pmm-admin.purge.service.name.options.txt
 		
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
@@ -40,4 +40,4 @@ For more infomation, run
 |pmm-admin.purge|
 |opt.help|.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

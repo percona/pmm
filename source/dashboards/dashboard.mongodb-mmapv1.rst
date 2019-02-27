@@ -29,4 +29,4 @@ following metrics:
    - |mmapv1| memory usage
    - |mmapv1| memory dirty pages
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

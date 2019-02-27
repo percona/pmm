@@ -11,7 +11,7 @@ Use the |opt.mongodb-queries| alias to enable |mongodb| query analytics.
 
 .. _code.pmm-admin.add-mongodb-queries:
 
-.. include:: .res/code/pmm-admin.add.mongodb-queries.txt
+.. include:: ../.res/code/pmm-admin.add.mongodb-queries.txt
 		 
 This creates the ``pmm-mongodb-queries-0`` service
 that is able to collect |qan| data for multiple remote |mongodb| server instances.
@@ -58,7 +58,7 @@ You can also use
 as well as
 :ref:`options that apply to adding services in general <pmm-admin.add-options>`.
 
-.. include:: .res/contents/note.option.mongodb-queries.txt
+.. include:: ../.res/contents/note.option.mongodb-queries.txt
 
 For more information, run
 |pmm-admin.add|
@@ -71,4 +71,4 @@ For more information, run
       :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
 
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

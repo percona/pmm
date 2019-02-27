@@ -299,5 +299,5 @@ Network Traffic.
 
 .. |this-dashboard| replace:: :ref:`dashboard.postgres-overview`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt
 

@@ -118,5 +118,5 @@ This section contains a link to download the logs collected from your
 |pmm-server| and further analyze possible problems. The exported logs are
 requested when you submit a bug report.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt
 	

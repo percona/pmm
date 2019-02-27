@@ -14,7 +14,7 @@ Use the |pmm-admin.start| command to start services managed by this
 
 .. _code.pmm-admin.start.service-name.options:
 
-.. include:: .res/code/pmm-admin.start.service.name.options.txt
+.. include:: ../.res/code/pmm-admin.start.service.name.options.txt
 
 .. note:: It should be able to detect the local |pmm-client| name,
    but you can also specify it explicitly as an argument.
@@ -46,18 +46,18 @@ To see which services are available, run |pmm-admin.list|_.
 
 * To start all available services for this |pmm-client|:
 
-  .. include:: .res/code/pmm-admin.start.all.txt
+  .. include:: ../.res/code/pmm-admin.start.all.txt
 
 * To start all services related to |mysql|:
 
-  .. include:: .res/code/pmm-admin.start.mysql.txt
+  .. include:: ../.res/code/pmm-admin.start.mysql.txt
 		   
 * To start only the |opt.mongodb-metrics| service:
 
-  .. include:: .res/code/pmm-admin.start.mongodb-metrics.txt
+  .. include:: ../.res/code/pmm-admin.start.mongodb-metrics.txt
 		
 For more information, run
 |pmm-admin.start|
 |opt.help|.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

@@ -168,4 +168,4 @@ OutTimestamps
 
 .. |this-dashboard| replace:: :ref:`dashboard.network-overview`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

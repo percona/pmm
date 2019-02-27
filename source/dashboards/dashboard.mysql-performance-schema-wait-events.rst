@@ -17,4 +17,4 @@ following metrics for the chosen (one or more) wait events:
 
       https://dev.mysql.com/doc/refman/5.7/en/performance-schema.html
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

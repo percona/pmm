@@ -401,5 +401,5 @@ they are autosized |mysql| 5.6 and above (do not set them to any value).
    |mysql| Server System Variables: table_open_cache
       http://dev.mysql.com/doc/refman/5.6/en/server-system-variables.html#sysvar_table_open_cache
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt
 

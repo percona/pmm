@@ -7,7 +7,7 @@ To check the version of |pmm-server|, run |docker.ps| on the host.
 
 |tip.run-all.root|
 
-.. include:: ../../.res/code/docker.ps.1-4-0.txt
+.. include:: ../.res/code/docker.ps.1-4-0.txt
 
 The version number is visible in the |gui.image| column. For a |docker|
 container created from the image tagged |opt.latest|, the |gui.image| column
@@ -17,7 +17,7 @@ The information about the currently installed version of |pmm-server| is
 available from the |srv.update.main.yml| file. You may extract the version
 number by using the |docker.exec| command:
 
-.. include:: ../../.res/code/docker.exec.it.pmm-server.head.txt
+.. include:: ../.res/code/docker.exec.it.pmm-server.head.txt
 
 To check if there exists a newer version of |pmm-server|,
 visit `percona/pmm-server`_.
@@ -33,12 +33,12 @@ upgrade your |pmm-server| after trying the new version.
 
 The |docker.stop| command stops the currently running |opt.pmm-server| container:
 
-.. include:: ../../.res/code/docker.stop.pmm-server.txt
+.. include:: ../.res/code/docker.stop.pmm-server.txt
 
 The following command simply renames the current |opt.pmm-server| container to
 avoid name conflicts during the update procedure:
 
-.. include:: ../../.res/code/docker.rename.pmm-server.pmm-server-backup.txt
+.. include:: ../.res/code/docker.rename.pmm-server.pmm-server-backup.txt
 
 .. _pmm.deploying.docker-image.pulling:
 
@@ -55,11 +55,11 @@ number.
 
 This example shows how to pull a specific version:
 
-.. include:: ../../.res/code/docker.pull.percona-pmm-server.1-5-0.txt
+.. include:: ../.res/code/docker.pull.percona-pmm-server.1-5-0.txt
 
 This example shows how to pull the |opt.latest| version:
    
-.. include:: ../../.res/code/docker.pull.percona-pmm-server-latest.txt
+.. include:: ../.res/code/docker.pull.percona-pmm-server-latest.txt
    
 .. _pmm.deploying.docker-container.creating:
 
@@ -69,7 +69,7 @@ This example shows how to pull the |opt.latest| version:
 After you have pulled a new version of |pmm| from the |docker| repository, you can
 use |docker.run| to create a |opt.pmm-server| container using the new image.
 
-.. include:: ../../.res/code/docker.run.latest.txt
+.. include:: ../.res/code/docker.run.latest.txt
 
 .. important::
 
@@ -88,7 +88,7 @@ existing data.
 
 Check if the new container is running using |docker.ps|.
 
-.. include:: ../../.res/code/docker.ps.1-5-0.txt
+.. include:: ../.res/code/docker.ps.1-5-0.txt
 
 Then, make sure that the |pmm| version has been updated (see :term:`PMM
 Version`) by checking the |pmm-server| web interface.
@@ -105,7 +105,7 @@ case.
 
 To remove this backup container, you need the |docker.rm| command:
 
-.. include:: ../../.res/code/docker.rm.pmm-server-backup.txt
+.. include:: ../.res/code/docker.rm.pmm-server-backup.txt
 
 As the parameter to |docker.rm|, supply the tag name of your backup container.
 
@@ -116,12 +116,12 @@ As the parameter to |docker.rm|, supply the tag name of your backup container.
 If, for whatever reason, you decide to keep using the old version, you just need
 to stop and remove the new |opt.pmm-server| container.
 
-.. include:: ../../.res/code/docker.stop.pmm-server.rm.txt
+.. include:: ../.res/code/docker.stop.pmm-server.rm.txt
 
 Now, rename the |opt.pmm-server-backup| to |opt.pmm-server|
 (see :ref:`pmm.deploying.server.docker-container.renaming`) and start it.
 
-.. include:: ../../.res/code/docker.start.pmm-server.txt
+.. include:: ../.res/code/docker.start.pmm-server.txt
 
 .. warning::
 
@@ -143,5 +143,5 @@ Now, rename the |opt.pmm-server-backup| to |opt.pmm-server|
 
 .. _`percona/pmm-server`: https://hub.docker.com/r/percona/pmm-server/tags/
    
-.. include:: ../../.res/replace.txt
+.. include:: ../.res/replace.txt
 

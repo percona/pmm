@@ -14,7 +14,7 @@ to print basic information about |pmm-client|.
 
 .. _code.pmm-admin.info.options:
 
-.. include:: .res/code/pmm-admin.info.options.txt
+.. include:: ../.res/code/pmm-admin.info.options.txt
 	
 .. _pmm-admin.info.options:
 	
@@ -40,10 +40,10 @@ For example:
 
 .. _code.pmm-admin.info:
 
-.. include:: .res/code/pmm-admin.info.txt
+.. include:: ../.res/code/pmm-admin.info.txt
 
 For more information, run
 |pmm-admin.info|
 |opt.help|.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

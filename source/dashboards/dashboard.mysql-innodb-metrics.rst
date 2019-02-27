@@ -195,4 +195,4 @@ Other Metrics
 
 .. |this-dashboard| replace:: :ref:`dashboard.mysql-innodb-metrics`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

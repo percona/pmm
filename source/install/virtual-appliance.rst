@@ -67,7 +67,7 @@ acces the web interface of |pmm-server|.
 
 .. _figure.pmm/deploying/server/virtual-appliance.pmm-server.ip-address.identifying.above-login-prompt:
 
-.. figure:: ../../.res/graphics/png/command-line.login.1.png
+.. figure:: ../.res/graphics/png/command-line.login.1.png
 
    The IP address appears above the login prompt.
 
@@ -88,7 +88,7 @@ virtual machine.
 
 .. _figure.9a96a76.command-line-login:
 
-.. figure:: ../../.res/graphics/png/command-line.login.1.png
+.. figure:: ../.res/graphics/png/command-line.login.1.png
 
    The URL to open in the browser appears at the top of the terminal when
    running the virtual machine.
@@ -99,14 +99,14 @@ public key.
 
 .. _figure.9a96a76.pmm-server.password-change:
 
-.. figure:: ../../.res/graphics/png/pmm.server.password-change.png
+.. figure:: ../.res/graphics/png/pmm.server.password-change.png
 
    Set the user and password to access the |pmm-server| web interface.
 
 Click |gui.submit| and enter your user name and password in the dialog window
 that pops up. The |pmm-server| is now ready and the home page opens.
 
-.. figure:: ../../.res/graphics/png/pmm.home-page.png
+.. figure:: ../.res/graphics/png/pmm.home-page.png
 
    |pmm-server| home page
 
@@ -161,4 +161,4 @@ on all database hosts that you want to monitor.
 .. _`XenServer`: https://www.xenserver.org/
 .. _`Microsoft System Center Virtual Machine Manager`: https://www.microsoft.com/en-us/cloud-platform/system-center
 
-.. include:: ../../.res/replace.txt
+.. include:: ../.res/replace.txt

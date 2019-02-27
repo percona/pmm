@@ -101,4 +101,4 @@ time counts (operations) grouped into three buckets:
 
 .. |this-dashboard| replace:: :ref:`dashboard.mysql-query-response-time`
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt
