@@ -1,0 +1,203 @@
+syntax = "proto3";
+
+package qan;
+
+option go_package = "qan";
+
+// Agent service contains RPCs to implement communication mechanism with qan-agent.
+// Namely query metrics, query explain etc.
+service Agent {
+  // DataInterchange defines duplex communication between Query analytics API and Agent.
+  rpc DataInterchange(stream AgentMessage) returns (stream ApiMessage);
+}
+
+// AgentMessage contains several Query Classes for one or more periods of time.
+message AgentMessage {
+  repeated QueryClass query_class = 1;
+}
+
+// QueryClass is aggregated message created by qan-agent.
+// Contains information about one query selected in defined way from query class in specific period of time.
+message QueryClass {
+  string queryid = 1; // md5 of digest_text/fingerprint.
+  string fingerprint = 2; // digest_text - query signature. Query without values.
+  // Dimension Group.
+  string d_server = 3;
+  string d_database = 4; // postgress database.
+  string d_schema = 5; // mysql database; postgress schema; mongo collection.
+  string d_username = 6; // client user name.
+  string d_client_host = 7; // client IP or hostname.
+  map<string, string> labels = 8; // Custom labels names:values.
+  string agent_uuid = 9; // Identifier of agent that collect and send metrics.
+  int64 period_start = 10; // Time when collection of bucket started.
+  uint32 period_length = 11; // Duration of bucket.
+  string metrics_source = 12; // Ex.: slowlog, perf schema, Mongo DB, Percona Server, etc.
+  string example = 13; // One of query example from set found in bucket.
+  // ExampleFormat is formant of query example: real or query without values.
+  enum ExampleFormat {
+    QUERY_CLASS_EXAMPLE_FORMAT_INVALID = 0;
+    EXAMPLE = 1;
+    DIGEST = 2;
+  }
+  ExampleFormat example_format = 14;
+  uint32 is_truncated = 15; // Indicates if query examples is too long and was truncated.
+  // ExampleType is a type of query example selected for this query class in given period of time.
+  enum ExampleType {
+    QUERY_CLASS_EXAMPLE_TYPE_INVALID = 0;
+    RANDOM = 1;
+    SLOWEST = 2;
+    FASTEST = 3;
+    WITH_ERROR = 4;
+  }
+  ExampleType example_type = 16;
+  string example_metrics = 17; // JSON raw metrics for given query example.
+  // Metrics.
+  uint64 num_query_with_warnings = 18; // How many queries was with warnings in bucket.
+  // {code: count }
+  map<uint64, uint64> warnings = 19; // List of warnings.
+  uint64 num_query_with_errors = 20; // How many queries was with error in bucket.
+  // {code: count }
+  map<uint64, uint64> errors = 21; // List of errors.
+  uint64 num_queries = 22; // Amount queries in this bucket.
+  float m_query_time_cnt = 23; // How many times query_time was found.
+  float m_query_time_sum = 24; // Sum of all values query_time in bucket.
+  float m_query_time_min = 25; // Smallest value of query_time in bucket.
+  float m_query_time_max = 26; // Biggest value of query_time in bucket.
+  float m_query_time_p99 = 27; // 99 percentile of value of query_time in bucket.
+  float m_lock_time_cnt = 28;
+  float m_lock_time_sum = 29;
+  float m_lock_time_min = 30;
+  float m_lock_time_max = 31;
+  float m_lock_time_p99 = 32;
+  float m_rows_sent_cnt = 33;
+  float m_rows_sent_sum = 34;
+  float m_rows_sent_min = 35;
+  float m_rows_sent_max = 36;
+  float m_rows_sent_p99 = 37;
+  float m_rows_examined_cnt = 38;
+  float m_rows_examined_sum = 39;
+  float m_rows_examined_min = 40;
+  float m_rows_examined_max = 41;
+  float m_rows_examined_p99 = 42;
+  float m_rows_affected_cnt = 43;
+  float m_rows_affected_sum = 44;
+  float m_rows_affected_min = 45;
+  float m_rows_affected_max = 46;
+  float m_rows_affected_p99 = 47;
+  float m_rows_read_cnt = 48;
+  float m_rows_read_sum = 49;
+  float m_rows_read_min = 50;
+  float m_rows_read_max = 51;
+  float m_rows_read_p99 = 52;
+  float m_merge_passes_cnt = 53;
+  float m_merge_passes_sum = 54;
+  float m_merge_passes_min = 55;
+  float m_merge_passes_max = 56;
+  float m_merge_passes_p99 = 57;
+  float m_innodb_io_r_ops_cnt = 58;
+  float m_innodb_io_r_ops_sum = 59;
+  float m_innodb_io_r_ops_min = 60;
+  float m_innodb_io_r_ops_max = 61;
+  float m_innodb_io_r_ops_p99 = 62;
+  float m_innodb_io_r_bytes_cnt = 63;
+  float m_innodb_io_r_bytes_sum = 64;
+  float m_innodb_io_r_bytes_min = 65;
+  float m_innodb_io_r_bytes_max = 66;
+  float m_innodb_io_r_bytes_p99 = 67;
+  float m_innodb_io_r_wait_cnt = 68;
+  float m_innodb_io_r_wait_sum = 69;
+  float m_innodb_io_r_wait_min = 70;
+  float m_innodb_io_r_wait_max = 71;
+  float m_innodb_io_r_wait_p99 = 72;
+  float m_innodb_rec_lock_wait_cnt = 73;
+  float m_innodb_rec_lock_wait_sum = 74;
+  float m_innodb_rec_lock_wait_min = 75;
+  float m_innodb_rec_lock_wait_max = 76;
+  float m_innodb_rec_lock_wait_p99 = 77;
+  float m_innodb_queue_wait_cnt = 78;
+  float m_innodb_queue_wait_sum = 79;
+  float m_innodb_queue_wait_min = 80;
+  float m_innodb_queue_wait_max = 81;
+  float m_innodb_queue_wait_p99 = 82;
+  float m_innodb_pages_distinct_cnt = 83;
+  float m_innodb_pages_distinct_sum = 84;
+  float m_innodb_pages_distinct_min = 85;
+  float m_innodb_pages_distinct_max = 86;
+  float m_innodb_pages_distinct_p99 = 87;
+  float m_query_length_cnt = 88;
+  float m_query_length_sum = 89;
+  float m_query_length_min = 90;
+  float m_query_length_max = 91;
+  float m_query_length_p99 = 92;
+  float m_bytes_sent_cnt = 93;
+  float m_bytes_sent_sum = 94;
+  float m_bytes_sent_min = 95;
+  float m_bytes_sent_max = 96;
+  float m_bytes_sent_p99 = 97;
+  float m_tmp_tables_cnt = 98;
+  float m_tmp_tables_sum = 99;
+  float m_tmp_tables_min = 100;
+  float m_tmp_tables_max = 101;
+  float m_tmp_tables_p99 = 102;
+  float m_tmp_disk_tables_cnt = 103;
+  float m_tmp_disk_tables_sum = 104;
+  float m_tmp_disk_tables_min = 105;
+  float m_tmp_disk_tables_max = 106;
+  float m_tmp_disk_tables_p99 = 107;
+  float m_tmp_table_sizes_cnt = 108;
+  float m_tmp_table_sizes_sum = 109;
+  float m_tmp_table_sizes_min = 110;
+  float m_tmp_table_sizes_max = 111;
+  float m_tmp_table_sizes_p99 = 112;
+  // boolean metrics
+  float m_qc_hit_cnt = 113;
+  float m_qc_hit_sum = 114; // %true = sum/cnt
+  float m_full_scan_cnt = 115;
+  float m_full_scan_sum = 116;
+  float m_full_join_cnt = 117;
+  float m_full_join_sum = 118;
+  float m_tmp_table_cnt = 119;
+  float m_tmp_table_sum = 120;
+  float m_tmp_table_on_disk_cnt = 121;
+  float m_tmp_table_on_disk_sum = 122;
+  float m_filesort_cnt = 123;
+  float m_filesort_sum = 124;
+  float m_filesort_on_disk_cnt = 125;
+  float m_filesort_on_disk_sum = 126;
+  float m_select_full_range_join_cnt = 127;
+  float m_select_full_range_join_sum = 128;
+  float m_select_range_cnt = 129;
+  float m_select_range_sum = 130;
+  float m_select_range_check_cnt = 131;
+  float m_select_range_check_sum = 132;
+  float m_sort_range_cnt = 133;
+  float m_sort_range_sum = 134;
+  float m_sort_rows_cnt = 135;
+  float m_sort_rows_sum = 136;
+  float m_sort_scan_cnt = 137;
+  float m_sort_scan_sum = 138;
+  float m_no_index_used_cnt = 139;
+  float m_no_index_used_sum = 140;
+  float m_no_good_index_used_cnt = 141;
+  float m_no_good_index_used_sum = 142;
+  // mongo metrics
+  float m_docs_returned_cnt = 143;
+  float m_docs_returned_sum = 144;
+  float m_docs_returned_min = 145;
+  float m_docs_returned_max = 146;
+  float m_docs_returned_p99 = 147;
+  float m_response_length_cnt = 148;
+  float m_response_length_sum = 149;
+  float m_response_length_min = 150;
+  float m_response_length_max = 151;
+  float m_response_length_p99 = 152;
+  float m_docs_scanned_cnt = 153;
+  float m_docs_scanned_sum = 154;
+  float m_docs_scanned_min = 155;
+  float m_docs_scanned_max = 156;
+  float m_docs_scanned_p99 = 157;
+}
+
+message ApiMessage {
+  uint32 saved_amount = 1; // how many query classes were saved.
+}

@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package qan;
+
+option go_package = "qan";
+
+import "google/api/annotations.proto";
+
+// Profile of metrics by QueryID, Host etc.
+service Profile {
+  // GetReport returns list of metrics group by queryid or other dimentions.
+  rpc GetReport(ReportRequest) returns (ReportReply) {
+    option (google.api.http) = {
+      post: "/v1/qan/GetReport"
+      body: "*"
+    };
+  }
+}
+
+// ReportRequest defines filtering of metrics report for db server or other dimentions.
+message ReportRequest {
+  string period_start_from = 1;
+  string period_start_to = 2;
+  string keyword = 3;
+  bool first_seen = 4;
+  string group_by = 5;
+  repeated ReportMapFieldEntry labels = 6;
+  repeated string include_only_fields = 7;
+  string order_by = 8;
+  uint32 offset = 9;
+  uint32 limit = 10;
+}
+
+// ReportMapFieldEntry allows to pass labels/dimentions in form like {"d_server": ["db1", "db2"...]}.
+message ReportMapFieldEntry {
+  string key = 1;
+  repeated string value = 2;
+}
+
+// ReportReply is list of reports per quieryids, hosts etc.
+message ReportReply {
+  repeated ProfileRow rows = 1;
+}
+
+// ProfileRow define metrics for selected dimention.
+message ProfileRow {
+  uint32 rank = 1;
+  float percentage = 2;
+  string digest = 3;
+  string digest_text = 4;
+  string d_servers = 5;
+  string d_databases = 6;
+  string d_schemas = 7;
+  string d_usernames = 8;
+  string d_client_hosts = 9;
+  string first_seen = 10;
+  float qps = 11;
+  float load = 12;
+  Stats stats = 13;
+}
+
+// Stats metrics.
+message Stats {
+  float num_queries = 1;
+  float m_query_time_sum = 2;
+  float m_query_time_min = 3;
+  float m_query_time_max = 4;
+  float m_query_time_p99 = 5;
+}

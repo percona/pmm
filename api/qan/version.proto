@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package qan;
+
+option go_package = "qan";
+
+import "google/api/annotations.proto";
+
+// Version service to check version of QAN-API.
+service Version {
+  // HandleVersion return build version of QAN-API.
+  rpc HandleVersion(VersionRequest) returns (VersionReply) {
+    option (google.api.http) = {
+      post: "/v1/qan/GetReport"
+      body: "*"
+    };
+  }
+}
+
+// The request message containing the requestor name.
+message VersionRequest {
+  string name = 1;
+}
+
+// The response message containing the version of QAN-API
+message VersionReply {
+  string version = 1;
+}
