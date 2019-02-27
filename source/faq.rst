@@ -54,27 +54,6 @@ collected data that it is not able to send over immediately, so
 additional storage may be required if connection is unstable or
 throughput is too low.
 
-.. _metrics_memory:
-
-How to control memory consumption for PMM? (relevant to versions lower than 1.13 of |pmm|)
-============================================================================================
-
-|prometheus| 1.x.x, shipped with |pmm| up to version
-1.13.0, used by default 768 MB of memory for storing the most recently used
-data chunks.
-
-If you haven't upgraded to a version 1.13.0 or higher, you may require
-a higher limit, depending on the amount of data coming into
-|prometheus|, to avoid throttling data ingestion, or to allow less
-memory consumption by |prometheus|.
-
-.. include:: .res/contents/important.option.metrics-memory.txt
-
-For compatibility reasons |pmm| 1.13.0 and above is still supporting
-|prometheus| 1.x, but with substantially decreased resources: now it uses only
-15% of available memory and its connections amount limit is managed by the
-``MAX_CONNECTIONS`` environment variable, set to 15 by default.
-
 .. _data-retention:
 
 How to control data retention for PMM?
