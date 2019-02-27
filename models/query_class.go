@@ -21,9 +21,9 @@ import (
 	"strings"
 	"time"
 
-	collectorpb "github.com/Percona-Lab/qan-api/api/collector"
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/reflectx"
+	pbqan "github.com/percona/pmm/api/qan"
 	"github.com/pkg/errors"
 )
 
@@ -358,11 +358,11 @@ type QueryClassExtended struct {
 	ErrorsCount   []uint64  `json:"errors_count"`
 	LabintKey     []uint32  `json:"labint_key"`
 	LabintValue   []uint32  `json:"labint_value"`
-	*collectorpb.QueryClass
+	*pbqan.QueryClass
 }
 
 // Save store cquery classes received from agent into db.
-func (qc *QueryClass) Save(agentMsg *collectorpb.AgentMessage) error {
+func (qc *QueryClass) Save(agentMsg *pbqan.AgentMessage) error {
 
 	if len(agentMsg.QueryClass) == 0 {
 		return errors.New("Nothing to save - no query classes")

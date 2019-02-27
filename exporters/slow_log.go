@@ -20,6 +20,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"time"
@@ -49,6 +50,9 @@ type QueryClassDimentions struct {
 }
 
 func main() {
+	dbs := []string{"db0", "db1", "db2", "db3", "db4", "db5", "db6", "db7", "db8", "db9"}
+	rand.Seed(time.Now().UnixNano())
+
 	logOpt := slowlog.Options{}
 	slowLogPath := flag.String("slow-log", "logs/mysql-slow.log", "Path to MySQL slow log file")
 	serverURL := flag.String("server-url", "127.0.0.1:80", "ULR of QAN-API Server")
@@ -99,7 +103,7 @@ func main() {
 		start := time.Now()
 		err = bulkSend(stream, func(am *pb.AgentMessage) error {
 			i := 0
-			aggregator := event.NewAggregator(true, 0, 0) // add right params
+			aggregator := event.NewAggregator(true, 0, 1) // add right params
 			qcDimentions := map[string]*QueryClassDimentions{}
 			for e := range events {
 				fingerprint := query.Fingerprint(e.Query)
@@ -121,6 +125,8 @@ func main() {
 
 				i++
 				if i >= *maxQCtoSent || time.Since(start) > *maxTimeForSent {
+
+					fmt.Printf("offset: %v\n", logOpt.StartOffset)
 					break
 				}
 			}
@@ -128,13 +134,21 @@ func main() {
 			r := aggregator.Finalize()
 
 			for k, v := range r.Class {
+				n := rand.Intn(9)
+				labels := map[string]string{}
+				for i := 1; i <= n; i++ {
+					labels[fmt.Sprintf("key%v", rand.Intn(9))] = fmt.Sprintf("label%v", rand.Intn(9))
+				}
+
 				qc := &pb.QueryClass{
-					Digest:       k,
-					DigestText:   v.Fingerprint,
-					DbSchema:     v.Example.Db,
-					DbUsername:   qcDimentions[k].DbUsername,
-					ClientHost:   qcDimentions[k].ClientHost,
-					DbServer:     dbServer,
+					Digest:     k,
+					DigestText: v.Fingerprint,
+					DbSchema:   dbs[rand.Intn(9)], // fake data
+					DbUsername: qcDimentions[k].DbUsername,
+					ClientHost: fmt.Sprintf("192.168.1.%v", rand.Intn(99)), // fake data
+					// ClientHost:   qcDimentions[k].ClientHost,
+					DbServer:     fmt.Sprintf("hostname_%v", rand.Intn(99)), // fake data
+					Labels:       labels,
 					AgentUuid:    agentUUID,
 					PeriodStart:  qcDimentions[k].PeriodStart,
 					PeriodLength: uint32(qcDimentions[k].PeriodStart - qcDimentions[k].PeriodStart),

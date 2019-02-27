@@ -20,8 +20,8 @@ import (
 	"context"
 	"time"
 
-	profilepb "github.com/Percona-Lab/qan-api/api/profile"
 	"github.com/Percona-Lab/qan-api/models"
+	pbqan "github.com/percona/pmm/api/qan"
 )
 
 // Service implements gRPC service to communicate with QAN-APP.
@@ -36,7 +36,7 @@ func NewService(rm models.Reporter, mm models.Metrics) *Service {
 }
 
 // DataInterchange implements rpc to exchange data between API and agent.
-func (s *Service) GetDigestGroup(ctx context.Context, in *profilepb.ProfileRequest) (*profilepb.ProfileReply, error) {
+func (s *Service) GetDigestGroup(ctx context.Context, in *pbqan.ProfileRequest) (*pbqan.ProfileReply, error) {
 	// TODO: add validator/sanitazer
 	labels := in.GetLabels()
 	dbServers := []string{}
@@ -65,8 +65,8 @@ func (s *Service) GetDigestGroup(ctx context.Context, in *profilepb.ProfileReque
 	toDate, _ := time.Parse("2006-01-02 15:04:05", in.To)
 	timeInterval := float32(toDate.Unix() - fromDate.Unix())
 
-	reply := &profilepb.ProfileReply{}
-	reply.Rows = append(reply.Rows, &profilepb.ProfileRow{
+	reply := &pbqan.ProfileReply{}
+	reply.Rows = append(reply.Rows, &pbqan.ProfileRow{
 		Rank:       0,
 		Percentage: 1, // 100%
 		Digest:     "TOTAL",
@@ -74,7 +74,7 @@ func (s *Service) GetDigestGroup(ctx context.Context, in *profilepb.ProfileReque
 		FirstSeen:  "",
 		Qps:        float32(total.NumQueries) / timeInterval,
 		Load:       total.MQueryTimeSum / timeInterval,
-		Stats: &profilepb.Stats{
+		Stats: &pbqan.Stats{
 			NumQueries:    total.NumQueries,
 			MQueryTimeSum: total.MQueryTimeSum,
 			MQueryTimeMin: total.MQueryTimeMin,
@@ -84,7 +84,7 @@ func (s *Service) GetDigestGroup(ctx context.Context, in *profilepb.ProfileReque
 	})
 
 	for i, class := range classes {
-		reply.Rows = append(reply.Rows, &profilepb.ProfileRow{
+		reply.Rows = append(reply.Rows, &pbqan.ProfileRow{
 			Rank:       uint32(int(in.Offset) + i + 1),
 			Percentage: class.MQueryTimeSum / total.MQueryTimeSum,
 			Digest:     class.Digest1,
@@ -92,7 +92,7 @@ func (s *Service) GetDigestGroup(ctx context.Context, in *profilepb.ProfileReque
 			FirstSeen:  class.FirstSeen,
 			Qps:        float32(class.NumQueries) / timeInterval,
 			Load:       class.MQueryTimeSum / timeInterval,
-			Stats: &profilepb.Stats{
+			Stats: &pbqan.Stats{
 				NumQueries:    class.NumQueries,
 				MQueryTimeSum: class.MQueryTimeSum,
 				MQueryTimeMin: class.MQueryTimeMin,
@@ -102,5 +102,5 @@ func (s *Service) GetDigestGroup(ctx context.Context, in *profilepb.ProfileReque
 		})
 	}
 
-	return &profilepb.ProfileReply{Rows: reply.Rows}, nil
+	return &pbqan.ProfileReply{Rows: reply.Rows}, nil
 }

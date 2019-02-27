@@ -2,12 +2,12 @@
 
 
 [[projects]]
-  branch = "master"
-  digest = "1:5db47eb566171f54b04df3e547f1f93ae7511a4752a0136436e3e091d9432884"
+  digest = "1:df28176ae6eed6b64b667963455f4b60c17ecb2594e6ffa72f149b911ea15fa4"
   name = "github.com/DATA-DOG/go-sqlmock"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "2a5889fc86505da3080d80031b68d4ba8804f82a"
+  revision = "472e287dbafe67e526a3797165b64cb14f34705a"
+  version = "v1.3.2"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -18,7 +18,7 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:d45ea9473e9212fafbcc960fa543ae1989a1ae1ba4db887304f4b1195a082d21"
+  digest = "1:aade009b6b70f6d8b90c09d21eed732affc2996e87e40fdd3966744e5ccb6387"
   name = "github.com/gogo/protobuf"
   packages = [
     "gogoproto",
@@ -30,8 +30,8 @@
     "vanity",
   ]
   pruneopts = "NUT"
-  revision = "4cbf7e384e768b4e01799441fdf2a706a5635ae7"
-  version = "v1.2.0"
+  revision = "ba06b47c162d49f2af050fb4c75bcbc86a159d5c"
+  version = "v1.2.1"
 
 [[projects]]
   digest = "1:b44a81715866dcfbdc52b1431feb0e984585b6f568b91f778b25744e02a9a94a"
@@ -48,9 +48,11 @@
   version = "v3.5.4"
 
 [[projects]]
-  digest = "1:5b2f26f078977356e5d72eb6a1c89576f6ef6019ebc0eef7449a6ae56024f379"
+  branch = "master"
+  digest = "1:55995dab2914af9d34fe16e302ba85191df4813ebb8b74cc461299c6f17b0a7d"
   name = "github.com/golang/protobuf"
   packages = [
+    "jsonpb",
     "proto",
     "protoc-gen-go",
     "protoc-gen-go/descriptor",
@@ -61,11 +63,23 @@
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
+    "ptypes/struct",
     "ptypes/timestamp",
   ]
   pruneopts = "NUT"
-  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
-  version = "v1.2.0"
+  revision = "c823c79ea1570fb5ff454033735a8e68575d1d0f"
+
+[[projects]]
+  digest = "1:5c3363169fc963321cd0789dda2ddff90562817d277e78011b0e1bbf51a6b473"
+  name = "github.com/grpc-ecosystem/grpc-gateway"
+  packages = [
+    "runtime",
+    "runtime/internal",
+    "utilities",
+  ]
+  pruneopts = "NUT"
+  revision = "92583770e3f01b09a0d3e9bdf64321d8bebd48f2"
+  version = "v1.4.1"
 
 [[projects]]
   digest = "1:0c11e987235e8f37af4e9f24cca02754827d009e8b66cf24483b0006504f6045"
@@ -107,7 +121,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b7a8e9197a9a19c44805562186f7df9fb3ceac29adc90a9fc642e24b33a27a93"
+  digest = "1:78fee18b8b62fe80afc50bebed3ad966053cf5c5c2aa2bdcef03c7c6a2874b3a"
   name = "github.com/mwitkow/go-proto-validators"
   packages = [
     ".",
@@ -115,11 +129,11 @@
     "protoc-gen-govalidators",
   ]
   pruneopts = "NUT"
-  revision = "0950a79900071e9f3f5979b78078c599376422fd"
+  revision = "1f388280e944c97cc59c75d8c84a704097d1f1d6"
 
 [[projects]]
   branch = "master"
-  digest = "1:37e7d147e1ff52e3e305a39ba486f96fdf01ad53382ef7852c321b84838ec8b2"
+  digest = "1:e69c2453406f1a1d90354b04178e1a82ecacbcf6d3660a2ebea4c0fb840efdf9"
   name = "github.com/percona/go-mysql"
   packages = [
     "event",
@@ -128,7 +142,15 @@
     "query",
   ]
   pruneopts = "NUT"
-  revision = "fcc02662957597587e907ae09d5f61957de9cee9"
+  revision = "f61a5a3aa84fb219753e51d83c3a8f8e9c425028"
+
+[[projects]]
+  branch = "PMM-3399-qan-api"
+  digest = "1:093cea0f8113b340d8d6a3c25f2e37c833d752326316a88125eb9d2020c6cf1c"
+  name = "github.com/percona/pmm"
+  packages = ["api/qan"]
+  pruneopts = "NUT"
+  revision = "a3e3ac4f8d36c5da42f2db5160d7cdd922a376f1"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -156,7 +178,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e947d55d941f561ff2ecd75221e9befa27dffbdaa4507925e57c1e452ff9f096"
+  digest = "1:ce6a5f390bc8c645cfdae8f5d8c2ce668da9c69170ba2c13e9d5ba03fe57d0f9"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -168,15 +190,15 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "be1c187aa6c66b9daa1d9461c228d17e9dd2cab7"
+  revision = "312bce6e941fc7e152b630a8643ea239afc12ddd"
 
 [[projects]]
   branch = "master"
-  digest = "1:8f8e2026a1f1bd38f0f2cfb93e5eac44d11a512d0f1c4d463894a72ddc8cf7a3"
+  digest = "1:653c52d8527e8d76b16fed98f2c3f8914476c1168976c82e55919ced2eedf576"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "48ac38b7c8cbedd50b1613c0fccacfc7d88dfcdf"
+  revision = "775f8194d0f9e65c46913c7be783d3d95a29333c"
 
 [[projects]]
   digest = "1:e7071ed636b5422cc51c0e3a6cebc229d6c9fffc528814b519a980641422d619"
@@ -203,14 +225,17 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:077c1c599507b3b3e9156d17d36e1e61928ee9b53a5b420f10f28ebd4a0b275c"
+  digest = "1:48cd63b152af9cc0010714d881a3d29a68c19a265fbb914d884dfde42fe9337a"
   name = "google.golang.org/genproto"
-  packages = ["googleapis/rpc/status"]
+  packages = [
+    "googleapis/api/annotations",
+    "googleapis/rpc/status",
+  ]
   pruneopts = "NUT"
-  revision = "ae2f86662275e140f395167f1dab7081a5bd5fa8"
+  revision = "fc2db5cae922db113989ef87b5b859cc8a179f59"
 
 [[projects]]
-  digest = "1:2f9394e986f9bc396e819f48ba3d30ca57f64b6ca5999ef50d5281a9f2cd65d0"
+  digest = "1:d88b6a00529e21d2c0d3b764271a206f1ac300f6103da2d2d86d8373d4e520c4"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -248,8 +273,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "df014850f6dee74ba2fc94874043a9f3f75fbfd8"
-  version = "v1.17.0"
+  revision = "2fdaae294f38ed9a121193c51ec99fecd3b13eb7"
+  version = "v1.19.0"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -259,7 +284,6 @@
     "github.com/golang-migrate/migrate",
     "github.com/golang-migrate/migrate/database/clickhouse",
     "github.com/golang-migrate/migrate/source/go_bindata",
-    "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/protoc-gen-go",
     "github.com/jmoiron/sqlx",
     "github.com/jmoiron/sqlx/reflectx",
@@ -267,12 +291,12 @@
     "github.com/kshvakov/clickhouse",
     "github.com/kshvakov/clickhouse/lib/column",
     "github.com/kshvakov/clickhouse/lib/types",
-    "github.com/mwitkow/go-proto-validators",
     "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators",
     "github.com/percona/go-mysql/event",
     "github.com/percona/go-mysql/log",
     "github.com/percona/go-mysql/log/slow",
     "github.com/percona/go-mysql/query",
+    "github.com/percona/pmm/api/qan",
     "github.com/pkg/errors",
     "github.com/stretchr/testify/assert",
     "golang.org/x/net/context",

@@ -202,6 +202,8 @@ func (p *plugin) generateProto2Message(file *generator.FileDescriptor, message *
 			p.generateStringValidator(variableName, ccTypeName, fieldName, fieldValidator)
 		} else if p.isSupportedInt(field) {
 			p.generateIntValidator(variableName, ccTypeName, fieldName, fieldValidator)
+		} else if field.IsEnum() {
+			p.generateEnumValidator(field, variableName, ccTypeName, fieldName, fieldValidator)
 		} else if p.isSupportedFloat(field) {
 			p.generateFloatValidator(variableName, ccTypeName, fieldName, fieldValidator)
 		} else if field.IsBytes() {
@@ -280,6 +282,8 @@ func (p *plugin) generateProto3Message(file *generator.FileDescriptor, message *
 			p.generateStringValidator(variableName, ccTypeName, fieldName, fieldValidator)
 		} else if p.isSupportedInt(field) {
 			p.generateIntValidator(variableName, ccTypeName, fieldName, fieldValidator)
+		} else if field.IsEnum() {
+			p.generateEnumValidator(field, variableName, ccTypeName, fieldName, fieldValidator)
 		} else if p.isSupportedFloat(field) {
 			p.generateFloatValidator(variableName, ccTypeName, fieldName, fieldValidator)
 		} else if field.IsBytes() {
@@ -345,6 +349,20 @@ func (p *plugin) generateIntValidator(variableName string, ccTypeName string, fi
 		p.In()
 		errorStr := fmt.Sprintf(`be less than '%d'`, fv.GetIntLt())
 		p.generateErrorString(variableName, fieldName, errorStr, fv)
+		p.Out()
+		p.P(`}`)
+	}
+}
+
+func (p *plugin) generateEnumValidator(
+	field *descriptor.FieldDescriptorProto,
+	variableName, ccTypeName, fieldName string,
+	fv *validator.FieldValidator) {
+	if fv.GetIsInEnum() {
+		enum := p.ObjectNamed(field.GetTypeName()).(*generator.EnumDescriptor)
+		p.P(`if _, ok := `, enum.GetName(), "_name[int32(", variableName, ")]; !ok {")
+		p.In()
+		p.generateErrorString(variableName, fieldName, fmt.Sprintf("be a valid %s field", enum.GetName()), fv)
 		p.Out()
 		p.P(`}`)
 	}

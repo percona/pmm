@@ -21,13 +21,10 @@ import (
 	"net"
 	"os"
 
-	pbcollector "github.com/Percona-Lab/qan-api/api/collector"
-	pbmetrics "github.com/Percona-Lab/qan-api/api/metrics"
-	pbprofile "github.com/Percona-Lab/qan-api/api/profile"
-	pbversion "github.com/Percona-Lab/qan-api/api/version"
 	"github.com/Percona-Lab/qan-api/models"
 	aservice "github.com/Percona-Lab/qan-api/services/analitycs"
 	rservice "github.com/Percona-Lab/qan-api/services/receiver"
+	pbqan "github.com/percona/pmm/api/qan"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -39,9 +36,9 @@ type server struct{}
 var version string // will be set by pkg tool.
 
 // HandleVersion implements version.VersionServer
-func (s *server) HandleVersion(ctx context.Context, in *pbversion.VersionRequest) (*pbversion.VersionReply, error) {
+func (s *server) HandleVersion(ctx context.Context, in *pbqan.VersionRequest) (*pbqan.VersionReply, error) {
 	log.Println("Version is requested by:", in.Name)
-	return &pbversion.VersionReply{Version: version}, nil
+	return &pbqan.VersionReply{Version: version}, nil
 }
 
 func main() {
@@ -68,10 +65,10 @@ func main() {
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
 	grpcServer := grpc.NewServer()
-	pbversion.RegisterVersionServer(grpcServer, &server{})
-	pbcollector.RegisterAgentServer(grpcServer, rservice.NewService(qcm))
-	pbprofile.RegisterProfileServer(grpcServer, aservice.NewService(rm, mm))
-	pbmetrics.RegisterMetricsServer(grpcServer, aservice.NewService(rm, mm))
+	pbqan.RegisterVersionServer(grpcServer, &server{})
+	pbqan.RegisterAgentServer(grpcServer, rservice.NewService(qcm))
+	pbqan.RegisterProfileServer(grpcServer, aservice.NewService(rm, mm))
+	pbqan.RegisterMetricsServer(grpcServer, aservice.NewService(rm, mm))
 	reflection.Register(grpcServer)
 	log.Printf("QAN-API serve: %v\n", bind)
 

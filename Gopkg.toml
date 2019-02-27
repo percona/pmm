@@ -9,3 +9,9 @@ required = [
   go-tests = true
   non-go = true
   unused-packages = true
+
+# TODO switch to tags before PMM 2.0 release
+[[constraint]]
+  name = "github.com/percona/pmm"
+  # branch = "PMM-2.0"
+  branch = "PMM-3399-qan-api"

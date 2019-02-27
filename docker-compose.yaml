@@ -90,6 +90,25 @@ services:
                 run
         "
 
+  sysbench-pstpcc:
+    image: "perconalab/sysbench"
+    depends_on:
+     - "ps"
+    command: >
+        bash -c "
+            set -o xtrace
+            sleep 200
+            mysql \
+                --host=ps \
+                --port=3306 \
+                --user=root \
+                --password=secret \
+                -e 'CREATE DATABASE IF NOT EXISTS sbtest; SET GLOBAL slow_query_log_file = \"/var/log/mysql/mysql-slow.log\"; SET GLOBAL slow_query_log = \"ON\";  SET GLOBAL slow_query_log_always_write_time = 0;'
+            cd /sysbench/sysbench-tpcc
+           ./tpcc.lua --mysql-host=ps --mysql-port=3306 --mysql-user=root --mysql-password=secret --mysql-db=sbtest --time=300 --threads=64 --report-interval=1 --tables=10 --scale=100 --db-driver=mysql prepare
+           ./tpcc.lua --mysql-host=ps --mysql-port=3306 --mysql-user=root --mysql-password=secret --mysql-db=sbtest --time=300 --threads=64 --report-interval=1 --tables=10 --scale=100 --db-driver=mysql run
+        "
+
 volumes:
   logs-directory:
     driver_opts:
