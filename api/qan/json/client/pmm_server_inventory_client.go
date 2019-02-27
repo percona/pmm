@@ -13,6 +13,7 @@ import (
 
 	"github.com/percona/pmm/api/qan/json/client/metrics"
 	"github.com/percona/pmm/api/qan/json/client/profile"
+	"github.com/percona/pmm/api/qan/json/client/version"
 )
 
 // Default PMM server inventory HTTP client.
@@ -62,6 +63,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMServerI
 
 	cli.Profile = profile.New(transport, formats)
 
+	cli.Version = version.New(transport, formats)
+
 	return cli
 }
 
@@ -110,6 +113,8 @@ type PMMServerInventory struct {
 
 	Profile *profile.Client
 
+	Version *version.Client
+
 	Transport runtime.ClientTransport
 }
 
@@ -120,5 +125,7 @@ func (c *PMMServerInventory) SetTransport(transport runtime.ClientTransport) {
 	c.Metrics.SetTransport(transport)
 
 	c.Profile.SetTransport(transport)
+
+	c.Version.SetTransport(transport)
 
 }

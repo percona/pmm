@@ -905,6 +905,45 @@
           }
         }
       }
+    },
+    "/v1/qan/HandleVersion": {
+      "post": {
+        "tags": [
+          "Version"
+        ],
+        "summary": "HandleVersion return build version of QAN-API.",
+        "operationId": "HandleVersion",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "The request message containing the requestor name.",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "title": "The response message containing the version of QAN-API",
+              "properties": {
+                "version": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

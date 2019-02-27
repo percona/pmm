@@ -11,7 +11,7 @@ service Version {
   // HandleVersion return build version of QAN-API.
   rpc HandleVersion(VersionRequest) returns (VersionReply) {
     option (google.api.http) = {
-      post: "/v1/qan/GetReport"
+      post: "/v1/qan/HandleVersion"
       body: "*"
     };
   }
