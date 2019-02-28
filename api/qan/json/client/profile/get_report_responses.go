@@ -281,11 +281,8 @@ type RowsItems0 struct {
 	// d usernames
 	DUsernames string `json:"d_usernames,omitempty"`
 
-	// digest
-	Digest string `json:"digest,omitempty"`
-
-	// digest text
-	DigestText string `json:"digest_text,omitempty"`
+	// fingerprint
+	Fingerprint string `json:"fingerprint,omitempty"`
 
 	// first seen
 	FirstSeen string `json:"first_seen,omitempty"`
@@ -298,6 +295,9 @@ type RowsItems0 struct {
 
 	// qps
 	QPS float32 `json:"qps,omitempty"`
+
+	// queryid
+	Queryid string `json:"queryid,omitempty"`
 
 	// rank
 	Rank int64 `json:"rank,omitempty"`

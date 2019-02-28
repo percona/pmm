@@ -46,8 +46,8 @@ message ReportReply {
 message ProfileRow {
   uint32 rank = 1;
   float percentage = 2;
-  string digest = 3;
-  string digest_text = 4;
+  string queryid = 3;
+  string fingerprint = 4;
   string d_servers = 5;
   string d_databases = 6;
   string d_schemas = 7;

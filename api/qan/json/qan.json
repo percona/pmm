@@ -846,10 +846,7 @@
                       "d_usernames": {
                         "type": "string"
                       },
-                      "digest": {
-                        "type": "string"
-                      },
-                      "digest_text": {
+                      "fingerprint": {
                         "type": "string"
                       },
                       "first_seen": {
@@ -866,6 +863,9 @@
                       "qps": {
                         "type": "number",
                         "format": "float"
+                      },
+                      "queryid": {
+                        "type": "string"
                       },
                       "rank": {
                         "type": "integer",
