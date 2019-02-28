@@ -75,7 +75,7 @@ message MetricsReply {
   float num_query_with_errors = 21;
   // {code: count }
   map<uint32, float> errors = 22;
-  uint64 num_queries = 23;
+  float num_queries = 23;
   float m_query_time_cnt = 24;
   float m_query_time_sum = 25;
   float m_query_time_min = 26;

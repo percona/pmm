@@ -611,7 +611,7 @@ type GetMetricsOKBody struct {
 	MTmpTablesSum float32 `json:"m_tmp_tables_sum,omitempty"`
 
 	// num queries
-	NumQueries string `json:"num_queries,omitempty"`
+	NumQueries float32 `json:"num_queries,omitempty"`
 
 	// num query with errors
 	NumQueryWithErrors float32 `json:"num_query_with_errors,omitempty"`

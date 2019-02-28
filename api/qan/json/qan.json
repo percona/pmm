@@ -710,8 +710,8 @@
                   "format": "float"
                 },
                 "num_queries": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "num_query_with_errors": {
                   "type": "number",

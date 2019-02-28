@@ -58,7 +58,7 @@ message QueryClass {
   uint64 num_query_with_errors = 20; // How many queries was with error in bucket.
   // {code: count }
   map<uint64, uint64> errors = 21; // List of errors.
-  uint64 num_queries = 22; // Amount queries in this bucket.
+  float num_queries = 22; // Amount queries in this bucket.
   float m_query_time_cnt = 23; // How many times query_time was found.
   float m_query_time_sum = 24; // Sum of all values query_time in bucket.
   float m_query_time_min = 25; // Smallest value of query_time in bucket.
