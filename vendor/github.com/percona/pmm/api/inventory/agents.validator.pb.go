@@ -35,6 +35,10 @@ func (this *ExternalExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *MongoDBExporter) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *ListAgentsRequest) Validate() error {
 	return nil
 }
@@ -71,6 +75,13 @@ func (this *ListAgentsResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
+			}
+		}
+	}
+	for _, item := range this.MongodbExporter {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MongodbExporter", err)
 			}
 		}
 	}
@@ -115,6 +126,13 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.ExternalExporter != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ExternalExporter); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_MongodbExporter); ok {
+		if oneOfNester.MongodbExporter != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbExporter); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MongodbExporter", err)
 			}
 		}
 	}
@@ -197,6 +215,27 @@ func (this *AddExternalExporterResponse) Validate() error {
 	if this.ExternalExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
+		}
+	}
+	return nil
+}
+func (this *AddMongoDBExporterRequest) Validate() error {
+	if this.RunsOnNodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
+	}
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	if this.ConnectionString == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ConnectionString", fmt.Errorf(`value '%v' must not be an empty string`, this.ConnectionString))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *AddMongoDBExporterResponse) Validate() error {
+	if this.MongodbExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongodbExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("MongodbExporter", err)
 		}
 	}
 	return nil
