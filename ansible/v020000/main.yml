@@ -13,9 +13,6 @@
       command: /usr/bin/yum --enablerepo=pmm clean all
       changed_when: False
 
-    - name: PMM                        | Backup configuration
-      command: /usr/share/pmm-update/helpers/backup-password
-
     - name: PMM                        | Remove RPMs
       when: ansible_os_family == 'RedHat'
       yum: name={{ item }} state=absent
