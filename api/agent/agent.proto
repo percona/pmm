@@ -13,6 +13,7 @@ enum Type {
   TYPE_INVALID = 0;
   NODE_EXPORTER = 1;
   MYSQLD_EXPORTER = 2;
+  MONGODB_EXPORTER = 3;
 }
 
 message RegisterRequest {
