@@ -2213,10 +2213,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "address": {
-                  "description": "Access address (DNS name or IP). Required.",
-                  "type": "string"
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels. Keys must start with \"_\".",
                   "type": "object",
@@ -2227,11 +2223,6 @@
                 "node_id": {
                   "description": "Node identifier where this instance runs. Required.",
                   "type": "string"
-                },
-                "port": {
-                  "description": "Access port. Required.",
-                  "type": "integer",
-                  "format": "int64"
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
@@ -2251,10 +2242,6 @@
                   "description": "MongoDBService represents a generic MongoDB instance.",
                   "type": "object",
                   "properties": {
-                    "address": {
-                      "description": "Access address (DNS name or IP).",
-                      "type": "string"
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Keys starts with \"_\".",
                       "type": "object",
@@ -2265,11 +2252,6 @@
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
-                    },
-                    "port": {
-                      "description": "Access port.",
-                      "type": "integer",
-                      "format": "int64"
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
@@ -2621,10 +2603,6 @@
                   "description": "MongoDBService represents a generic MongoDB instance.",
                   "type": "object",
                   "properties": {
-                    "address": {
-                      "description": "Access address (DNS name or IP).",
-                      "type": "string"
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Keys starts with \"_\".",
                       "type": "object",
@@ -2635,11 +2613,6 @@
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
-                    },
-                    "port": {
-                      "description": "Access port.",
-                      "type": "integer",
-                      "format": "int64"
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
@@ -2763,10 +2736,6 @@
                     "description": "MongoDBService represents a generic MongoDB instance.",
                     "type": "object",
                     "properties": {
-                      "address": {
-                        "description": "Access address (DNS name or IP).",
-                        "type": "string"
-                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels. Keys starts with \"_\".",
                         "type": "object",
@@ -2777,11 +2746,6 @@
                       "node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string"
-                      },
-                      "port": {
-                        "description": "Access port.",
-                        "type": "integer",
-                        "format": "int64"
                       },
                       "service_id": {
                         "description": "Unique randomly generated instance identifier.",

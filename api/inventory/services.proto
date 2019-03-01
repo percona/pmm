@@ -47,10 +47,6 @@ message MongoDBService {
   string service_name = 2;
   // Node identifier where this instance runs.
   string node_id = 3;
-  // Access address (DNS name or IP).
-  string address = 4;
-  // Access port.
-  uint32 port = 5;
   // Custom user-assigned labels. Keys starts with "_".
   map<string, string> custom_labels = 10;
 }
@@ -248,18 +244,6 @@ message AddMongoDBServiceRequest {
   string node_id = 3 [
     (validator.field) = {
       string_not_empty: true
-    }
-  ];
-  // Access address (DNS name or IP). Required.
-  string address = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Access port. Required.
-  uint32 port = 5 [
-    (validator.field) = {
-      int_gt: 0
     }
   ];
   // Custom user-assigned labels. Keys must start with "_".
