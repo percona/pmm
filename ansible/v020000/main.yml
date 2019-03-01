@@ -105,7 +105,6 @@
         - percona-qan-app-2.0.0
         - pmm-manage-2.0.0
         - pmm-managed-2.0.0
-        - percona-consul-0.8.5
         - rds_exporter-2.0.0
 
     - name: PMM                        | Restore unmanaged configs
@@ -267,7 +266,6 @@
         - node_exporter
         - qan-api
         - grafana
-        - consul
         - pmm-managed
 
     - name: PMM                        | Restart services (systemd)
@@ -278,7 +276,6 @@
         - node_exporter
         - percona-qan-api
         - grafana-server
-        - consul
         - pmm-managed
         - sshd
 
