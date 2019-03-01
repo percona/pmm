@@ -379,14 +379,14 @@ type MongodbExporterItems0 struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
+	// MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)
+	ConnectionString string `json:"connection_string,omitempty"`
+
 	// Custom user-assigned labels. Keys must start with "_".
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// MongoDB password for scraping metrics.
-	Password string `json:"password,omitempty"`
 
 	// Node identifier where this instance runs.
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
@@ -397,9 +397,6 @@ type MongodbExporterItems0 struct {
 	// AgentStatus represents actual Agent process status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
-
-	// MongoDB username for scraping metrics.
-	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this mongodb exporter items0

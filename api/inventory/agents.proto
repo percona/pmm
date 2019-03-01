@@ -126,10 +126,8 @@ message MongoDBExporter {
   string runs_on_node_id = 2;
   // Service identifier.
   string service_id = 3;
-  // MongoDB username for scraping metrics.
-  string username = 4;
-  // MongoDB password for scraping metrics.
-  string password = 5;
+  // MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)
+  string connection_string = 4;
   //
   // Status fields below.
   //
@@ -332,14 +330,12 @@ message AddMongoDBExporterRequest {
       string_not_empty: true
     }
   ];
-  // MongoDB username for scraping metrics.
-  string username = 4 [
+  // MongoDB URI for scraping metrics. (See: https://docs.mongodb.com/manual/reference/connection-string/)
+  string connection_string = 4 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // MongoDB password for scraping metrics.
-  string password = 5;
   // Custom user-assigned labels. Keys must start with "_".
   map<string, string> custom_labels = 10;
 }

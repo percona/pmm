@@ -93,6 +93,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "connection_string": {
+                  "type": "string",
+                  "title": "MongoDB URI for scraping metrics. (See: https://docs.mongodb.com/manual/reference/connection-string/)"
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels. Keys must start with \"_\".",
                   "type": "object",
@@ -100,20 +104,12 @@
                     "type": "string"
                   }
                 },
-                "password": {
-                  "description": "MongoDB password for scraping metrics.",
-                  "type": "string"
-                },
                 "runs_on_node_id": {
                   "description": "Node identifier where this instance runs.",
                   "type": "string"
                 },
                 "service_id": {
                   "description": "Service identifier.",
-                  "type": "string"
-                },
-                "username": {
-                  "description": "MongoDB username for scraping metrics.",
                   "type": "string"
                 }
               }
@@ -134,6 +130,10 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
+                    "connection_string": {
+                      "type": "string",
+                      "title": "MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Keys must start with \"_\".",
                       "type": "object",
@@ -145,10 +145,6 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64"
-                    },
-                    "password": {
-                      "description": "MongoDB password for scraping metrics.",
-                      "type": "string"
                     },
                     "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
@@ -170,10 +166,6 @@
                         "STOPPING",
                         "DONE"
                       ]
-                    },
-                    "username": {
-                      "description": "MongoDB username for scraping metrics.",
-                      "type": "string"
                     }
                   }
                 }
@@ -590,6 +582,10 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
+                    "connection_string": {
+                      "type": "string",
+                      "title": "MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Keys must start with \"_\".",
                       "type": "object",
@@ -601,10 +597,6 @@
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
                       "format": "int64"
-                    },
-                    "password": {
-                      "description": "MongoDB password for scraping metrics.",
-                      "type": "string"
                     },
                     "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
@@ -626,10 +618,6 @@
                         "STOPPING",
                         "DONE"
                       ]
-                    },
-                    "username": {
-                      "description": "MongoDB username for scraping metrics.",
-                      "type": "string"
                     }
                   }
                 },
@@ -872,6 +860,10 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string"
                       },
+                      "connection_string": {
+                        "type": "string",
+                        "title": "MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)"
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels. Keys must start with \"_\".",
                         "type": "object",
@@ -883,10 +875,6 @@
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
                         "format": "int64"
-                      },
-                      "password": {
-                        "description": "MongoDB password for scraping metrics.",
-                        "type": "string"
                       },
                       "runs_on_node_id": {
                         "description": "Node identifier where this instance runs.",
@@ -908,10 +896,6 @@
                           "STOPPING",
                           "DONE"
                         ]
-                      },
-                      "username": {
-                        "description": "MongoDB username for scraping metrics.",
-                        "type": "string"
                       }
                     }
                   }
