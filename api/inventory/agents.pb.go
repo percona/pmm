@@ -33,7 +33,7 @@ type PMMAgent struct {
 	NodeId string `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// True if Agent is running and connected to pmm-managed.
 	Connected bool `protobuf:"varint,3,opt,name=connected,proto3" json:"connected,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -44,7 +44,7 @@ func (m *PMMAgent) Reset()         { *m = PMMAgent{} }
 func (m *PMMAgent) String() string { return proto.CompactTextString(m) }
 func (*PMMAgent) ProtoMessage()    {}
 func (*PMMAgent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{0}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{0}
 }
 func (m *PMMAgent) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PMMAgent.Unmarshal(m, b)
@@ -102,7 +102,7 @@ type NodeExporter struct {
 	Status AgentStatus `protobuf:"varint,4,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics.
 	ListenPort uint32 `protobuf:"varint,5,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -113,7 +113,7 @@ func (m *NodeExporter) Reset()         { *m = NodeExporter{} }
 func (m *NodeExporter) String() string { return proto.CompactTextString(m) }
 func (*NodeExporter) ProtoMessage()    {}
 func (*NodeExporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{1}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{1}
 }
 func (m *NodeExporter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NodeExporter.Unmarshal(m, b)
@@ -184,7 +184,7 @@ type MySQLdExporter struct {
 	Status AgentStatus `protobuf:"varint,7,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics.
 	ListenPort uint32 `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -195,7 +195,7 @@ func (m *MySQLdExporter) Reset()         { *m = MySQLdExporter{} }
 func (m *MySQLdExporter) String() string { return proto.CompactTextString(m) }
 func (*MySQLdExporter) ProtoMessage()    {}
 func (*MySQLdExporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{2}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{2}
 }
 func (m *MySQLdExporter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLdExporter.Unmarshal(m, b)
@@ -283,7 +283,7 @@ type RDSExporter struct {
 	Status AgentStatus `protobuf:"varint,5,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics.
 	ListenPort uint32 `protobuf:"varint,6,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -294,7 +294,7 @@ func (m *RDSExporter) Reset()         { *m = RDSExporter{} }
 func (m *RDSExporter) String() string { return proto.CompactTextString(m) }
 func (*RDSExporter) ProtoMessage()    {}
 func (*RDSExporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{3}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{3}
 }
 func (m *RDSExporter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RDSExporter.Unmarshal(m, b)
@@ -362,7 +362,7 @@ type ExternalExporter struct {
 	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
 	// URL for scraping metrics.
 	MetricsUrl string `protobuf:"bytes,2,opt,name=metrics_url,json=metricsUrl,proto3" json:"metrics_url,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -373,7 +373,7 @@ func (m *ExternalExporter) Reset()         { *m = ExternalExporter{} }
 func (m *ExternalExporter) String() string { return proto.CompactTextString(m) }
 func (*ExternalExporter) ProtoMessage()    {}
 func (*ExternalExporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{4}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{4}
 }
 func (m *ExternalExporter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ExternalExporter.Unmarshal(m, b)
@@ -428,7 +428,7 @@ type MongoDBExporter struct {
 	Status AgentStatus `protobuf:"varint,7,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics.
 	ListenPort uint32 `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -439,7 +439,7 @@ func (m *MongoDBExporter) Reset()         { *m = MongoDBExporter{} }
 func (m *MongoDBExporter) String() string { return proto.CompactTextString(m) }
 func (*MongoDBExporter) ProtoMessage()    {}
 func (*MongoDBExporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{5}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{5}
 }
 func (m *MongoDBExporter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MongoDBExporter.Unmarshal(m, b)
@@ -523,7 +523,7 @@ func (m *ListAgentsRequest) Reset()         { *m = ListAgentsRequest{} }
 func (m *ListAgentsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListAgentsRequest) ProtoMessage()    {}
 func (*ListAgentsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{6}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{6}
 }
 func (m *ListAgentsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListAgentsRequest.Unmarshal(m, b)
@@ -690,7 +690,7 @@ func (m *ListAgentsResponse) Reset()         { *m = ListAgentsResponse{} }
 func (m *ListAgentsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListAgentsResponse) ProtoMessage()    {}
 func (*ListAgentsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{7}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{7}
 }
 func (m *ListAgentsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListAgentsResponse.Unmarshal(m, b)
@@ -764,7 +764,7 @@ func (m *GetAgentRequest) Reset()         { *m = GetAgentRequest{} }
 func (m *GetAgentRequest) String() string { return proto.CompactTextString(m) }
 func (*GetAgentRequest) ProtoMessage()    {}
 func (*GetAgentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{8}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{8}
 }
 func (m *GetAgentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetAgentRequest.Unmarshal(m, b)
@@ -809,7 +809,7 @@ func (m *GetAgentResponse) Reset()         { *m = GetAgentResponse{} }
 func (m *GetAgentResponse) String() string { return proto.CompactTextString(m) }
 func (*GetAgentResponse) ProtoMessage()    {}
 func (*GetAgentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{9}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{9}
 }
 func (m *GetAgentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetAgentResponse.Unmarshal(m, b)
@@ -1071,7 +1071,7 @@ func _GetAgentResponse_OneofSizer(msg proto.Message) (n int) {
 type AddPMMAgentRequest struct {
 	// Node identifier where this instance runs.
 	NodeId string `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -1082,7 +1082,7 @@ func (m *AddPMMAgentRequest) Reset()         { *m = AddPMMAgentRequest{} }
 func (m *AddPMMAgentRequest) String() string { return proto.CompactTextString(m) }
 func (*AddPMMAgentRequest) ProtoMessage()    {}
 func (*AddPMMAgentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{10}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{10}
 }
 func (m *AddPMMAgentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddPMMAgentRequest.Unmarshal(m, b)
@@ -1127,7 +1127,7 @@ func (m *AddPMMAgentResponse) Reset()         { *m = AddPMMAgentResponse{} }
 func (m *AddPMMAgentResponse) String() string { return proto.CompactTextString(m) }
 func (*AddPMMAgentResponse) ProtoMessage()    {}
 func (*AddPMMAgentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{11}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{11}
 }
 func (m *AddPMMAgentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddPMMAgentResponse.Unmarshal(m, b)
@@ -1157,7 +1157,7 @@ func (m *AddPMMAgentResponse) GetPmmAgent() *PMMAgent {
 type AddNodeExporterRequest struct {
 	// Node identifier where this instance runs.
 	NodeId string `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -1168,7 +1168,7 @@ func (m *AddNodeExporterRequest) Reset()         { *m = AddNodeExporterRequest{}
 func (m *AddNodeExporterRequest) String() string { return proto.CompactTextString(m) }
 func (*AddNodeExporterRequest) ProtoMessage()    {}
 func (*AddNodeExporterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{12}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{12}
 }
 func (m *AddNodeExporterRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddNodeExporterRequest.Unmarshal(m, b)
@@ -1213,7 +1213,7 @@ func (m *AddNodeExporterResponse) Reset()         { *m = AddNodeExporterResponse
 func (m *AddNodeExporterResponse) String() string { return proto.CompactTextString(m) }
 func (*AddNodeExporterResponse) ProtoMessage()    {}
 func (*AddNodeExporterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{13}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{13}
 }
 func (m *AddNodeExporterResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddNodeExporterResponse.Unmarshal(m, b)
@@ -1249,7 +1249,7 @@ type AddMySQLdExporterRequest struct {
 	Username string `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
 	// MySQL password for scraping metrics.
 	Password string `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -1260,7 +1260,7 @@ func (m *AddMySQLdExporterRequest) Reset()         { *m = AddMySQLdExporterReque
 func (m *AddMySQLdExporterRequest) String() string { return proto.CompactTextString(m) }
 func (*AddMySQLdExporterRequest) ProtoMessage()    {}
 func (*AddMySQLdExporterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{14}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{14}
 }
 func (m *AddMySQLdExporterRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMySQLdExporterRequest.Unmarshal(m, b)
@@ -1326,7 +1326,7 @@ func (m *AddMySQLdExporterResponse) Reset()         { *m = AddMySQLdExporterResp
 func (m *AddMySQLdExporterResponse) String() string { return proto.CompactTextString(m) }
 func (*AddMySQLdExporterResponse) ProtoMessage()    {}
 func (*AddMySQLdExporterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{15}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{15}
 }
 func (m *AddMySQLdExporterResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMySQLdExporterResponse.Unmarshal(m, b)
@@ -1358,7 +1358,7 @@ type AddRDSExporterRequest struct {
 	RunsOnNodeId string `protobuf:"bytes,2,opt,name=runs_on_node_id,json=runsOnNodeId,proto3" json:"runs_on_node_id,omitempty"`
 	// A list of Service identifiers (Node identifiers are extracted from Services).
 	ServiceIds []string `protobuf:"bytes,3,rep,name=service_ids,json=serviceIds,proto3" json:"service_ids,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -1369,7 +1369,7 @@ func (m *AddRDSExporterRequest) Reset()         { *m = AddRDSExporterRequest{} }
 func (m *AddRDSExporterRequest) String() string { return proto.CompactTextString(m) }
 func (*AddRDSExporterRequest) ProtoMessage()    {}
 func (*AddRDSExporterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{16}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{16}
 }
 func (m *AddRDSExporterRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRDSExporterRequest.Unmarshal(m, b)
@@ -1421,7 +1421,7 @@ func (m *AddRDSExporterResponse) Reset()         { *m = AddRDSExporterResponse{}
 func (m *AddRDSExporterResponse) String() string { return proto.CompactTextString(m) }
 func (*AddRDSExporterResponse) ProtoMessage()    {}
 func (*AddRDSExporterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{17}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{17}
 }
 func (m *AddRDSExporterResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRDSExporterResponse.Unmarshal(m, b)
@@ -1451,7 +1451,7 @@ func (m *AddRDSExporterResponse) GetRdsExporter() *RDSExporter {
 type AddExternalExporterRequest struct {
 	// URL for scraping metrics.
 	MetricsUrl string `protobuf:"bytes,2,opt,name=metrics_url,json=metricsUrl,proto3" json:"metrics_url,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -1462,7 +1462,7 @@ func (m *AddExternalExporterRequest) Reset()         { *m = AddExternalExporterR
 func (m *AddExternalExporterRequest) String() string { return proto.CompactTextString(m) }
 func (*AddExternalExporterRequest) ProtoMessage()    {}
 func (*AddExternalExporterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{18}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{18}
 }
 func (m *AddExternalExporterRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddExternalExporterRequest.Unmarshal(m, b)
@@ -1507,7 +1507,7 @@ func (m *AddExternalExporterResponse) Reset()         { *m = AddExternalExporter
 func (m *AddExternalExporterResponse) String() string { return proto.CompactTextString(m) }
 func (*AddExternalExporterResponse) ProtoMessage()    {}
 func (*AddExternalExporterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{19}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{19}
 }
 func (m *AddExternalExporterResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddExternalExporterResponse.Unmarshal(m, b)
@@ -1541,7 +1541,7 @@ type AddMongoDBExporterRequest struct {
 	ServiceId string `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// MongoDB URI for scraping metrics. (See: https://docs.mongodb.com/manual/reference/connection-string/)
 	ConnectionString string `protobuf:"bytes,4,opt,name=connection_string,json=connectionString,proto3" json:"connection_string,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -1552,7 +1552,7 @@ func (m *AddMongoDBExporterRequest) Reset()         { *m = AddMongoDBExporterReq
 func (m *AddMongoDBExporterRequest) String() string { return proto.CompactTextString(m) }
 func (*AddMongoDBExporterRequest) ProtoMessage()    {}
 func (*AddMongoDBExporterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{20}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{20}
 }
 func (m *AddMongoDBExporterRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMongoDBExporterRequest.Unmarshal(m, b)
@@ -1611,7 +1611,7 @@ func (m *AddMongoDBExporterResponse) Reset()         { *m = AddMongoDBExporterRe
 func (m *AddMongoDBExporterResponse) String() string { return proto.CompactTextString(m) }
 func (*AddMongoDBExporterResponse) ProtoMessage()    {}
 func (*AddMongoDBExporterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{21}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{21}
 }
 func (m *AddMongoDBExporterResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMongoDBExporterResponse.Unmarshal(m, b)
@@ -1649,7 +1649,7 @@ func (m *RemoveAgentRequest) Reset()         { *m = RemoveAgentRequest{} }
 func (m *RemoveAgentRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveAgentRequest) ProtoMessage()    {}
 func (*RemoveAgentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{22}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{22}
 }
 func (m *RemoveAgentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveAgentRequest.Unmarshal(m, b)
@@ -1686,7 +1686,7 @@ func (m *RemoveAgentResponse) Reset()         { *m = RemoveAgentResponse{} }
 func (m *RemoveAgentResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveAgentResponse) ProtoMessage()    {}
 func (*RemoveAgentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_935dfd414f0c6d8d, []int{23}
+	return fileDescriptor_agents_f461fc622a4a693c, []int{23}
 }
 func (m *RemoveAgentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveAgentResponse.Unmarshal(m, b)
@@ -2099,9 +2099,9 @@ var _Agents_serviceDesc = grpc.ServiceDesc{
 	Metadata: "inventory/agents.proto",
 }
 
-func init() { proto.RegisterFile("inventory/agents.proto", fileDescriptor_agents_935dfd414f0c6d8d) }
+func init() { proto.RegisterFile("inventory/agents.proto", fileDescriptor_agents_f461fc622a4a693c) }
 
-var fileDescriptor_agents_935dfd414f0c6d8d = []byte{
+var fileDescriptor_agents_f461fc622a4a693c = []byte{
 	// 1487 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x59, 0xcf, 0x6f, 0x1b, 0x45,
 	0x14, 0xf6, 0xd8, 0x8d, 0x63, 0x3f, 0xa7, 0x89, 0xb3, 0xa5, 0xa9, 0xb3, 0x69, 0x1a, 0x77, 0x9a,

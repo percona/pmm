@@ -19,7 +19,7 @@ message MySQLService {
   string address = 4;
   // Access port.
   uint32 port = 5;
-  // Custom user-assigned labels. Keys starts with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -35,7 +35,7 @@ message AmazonRDSMySQLService {
   string address = 4;
   // Instance port.
   uint32 port = 5;
-  // Custom user-assigned labels. Keys starts with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -47,7 +47,7 @@ message MongoDBService {
   string service_name = 2;
   // Node identifier where this instance runs.
   string node_id = 3;
-  // Custom user-assigned labels. Keys starts with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -114,7 +114,7 @@ message AddMySQLServiceRequest {
       int_gt: 0
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -149,7 +149,7 @@ message ChangeMySQLServiceRequest {
       int_gt: 0
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -186,7 +186,7 @@ message AddAmazonRDSMySQLServiceRequest {
       int_gt: 0
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -221,7 +221,7 @@ message ChangeAmazonRDSMySQLServiceRequest {
       int_gt: 0
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -246,7 +246,7 @@ message AddMongoDBServiceRequest {
       string_not_empty: true
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 

@@ -37,7 +37,7 @@ type GenericNode struct {
 	Distro string `protobuf:"bytes,4,opt,name=distro,proto3" json:"distro,omitempty"`
 	// Linux distribution version (if any). Can be changed.
 	DistroVersion string `protobuf:"bytes,5,opt,name=distro_version,json=distroVersion,proto3" json:"distro_version,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Address FIXME.
 	Address              string   `protobuf:"bytes,42,opt,name=address,proto3" json:"address,omitempty"`
@@ -50,7 +50,7 @@ func (m *GenericNode) Reset()         { *m = GenericNode{} }
 func (m *GenericNode) String() string { return proto.CompactTextString(m) }
 func (*GenericNode) ProtoMessage()    {}
 func (*GenericNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{0}
+	return fileDescriptor_nodes_401872641acef480, []int{0}
 }
 func (m *GenericNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GenericNode.Unmarshal(m, b)
@@ -131,7 +131,7 @@ type ContainerNode struct {
 	DockerContainerId string `protobuf:"bytes,4,opt,name=docker_container_id,json=dockerContainerId,proto3" json:"docker_container_id,omitempty"`
 	// Container name. Can be changed.
 	DockerContainerName string `protobuf:"bytes,5,opt,name=docker_container_name,json=dockerContainerName,proto3" json:"docker_container_name,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	// Custom user-assigned labels. Can be changed.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -142,7 +142,7 @@ func (m *ContainerNode) Reset()         { *m = ContainerNode{} }
 func (m *ContainerNode) String() string { return proto.CompactTextString(m) }
 func (*ContainerNode) ProtoMessage()    {}
 func (*ContainerNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{1}
+	return fileDescriptor_nodes_401872641acef480, []int{1}
 }
 func (m *ContainerNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ContainerNode.Unmarshal(m, b)
@@ -210,7 +210,7 @@ type RemoteNode struct {
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Unique across all Nodes user-defined name, can be changed.
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	// Custom user-assigned labels. Can be changed.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -221,7 +221,7 @@ func (m *RemoteNode) Reset()         { *m = RemoteNode{} }
 func (m *RemoteNode) String() string { return proto.CompactTextString(m) }
 func (*RemoteNode) ProtoMessage()    {}
 func (*RemoteNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{2}
+	return fileDescriptor_nodes_401872641acef480, []int{2}
 }
 func (m *RemoteNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoteNode.Unmarshal(m, b)
@@ -272,7 +272,7 @@ type RemoteAmazonRDSNode struct {
 	Instance string `protobuf:"bytes,3,opt,name=instance,proto3" json:"instance,omitempty"`
 	// Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
 	Region string `protobuf:"bytes,4,opt,name=region,proto3" json:"region,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	// Custom user-assigned labels. Can be changed.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -283,7 +283,7 @@ func (m *RemoteAmazonRDSNode) Reset()         { *m = RemoteAmazonRDSNode{} }
 func (m *RemoteAmazonRDSNode) String() string { return proto.CompactTextString(m) }
 func (*RemoteAmazonRDSNode) ProtoMessage()    {}
 func (*RemoteAmazonRDSNode) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{3}
+	return fileDescriptor_nodes_401872641acef480, []int{3}
 }
 func (m *RemoteAmazonRDSNode) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoteAmazonRDSNode.Unmarshal(m, b)
@@ -348,7 +348,7 @@ func (m *ListNodesRequest) Reset()         { *m = ListNodesRequest{} }
 func (m *ListNodesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNodesRequest) ProtoMessage()    {}
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{4}
+	return fileDescriptor_nodes_401872641acef480, []int{4}
 }
 func (m *ListNodesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesRequest.Unmarshal(m, b)
@@ -382,7 +382,7 @@ func (m *ListNodesResponse) Reset()         { *m = ListNodesResponse{} }
 func (m *ListNodesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNodesResponse) ProtoMessage()    {}
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{5}
+	return fileDescriptor_nodes_401872641acef480, []int{5}
 }
 func (m *ListNodesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesResponse.Unmarshal(m, b)
@@ -442,7 +442,7 @@ func (m *GetNodeRequest) Reset()         { *m = GetNodeRequest{} }
 func (m *GetNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetNodeRequest) ProtoMessage()    {}
 func (*GetNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{6}
+	return fileDescriptor_nodes_401872641acef480, []int{6}
 }
 func (m *GetNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeRequest.Unmarshal(m, b)
@@ -485,7 +485,7 @@ func (m *GetNodeResponse) Reset()         { *m = GetNodeResponse{} }
 func (m *GetNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*GetNodeResponse) ProtoMessage()    {}
 func (*GetNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{7}
+	return fileDescriptor_nodes_401872641acef480, []int{7}
 }
 func (m *GetNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeResponse.Unmarshal(m, b)
@@ -689,7 +689,7 @@ type AddGenericNodeRequest struct {
 	Distro string `protobuf:"bytes,4,opt,name=distro,proto3" json:"distro,omitempty"`
 	// Linux distribution version (if any).
 	DistroVersion string `protobuf:"bytes,5,opt,name=distro_version,json=distroVersion,proto3" json:"distro_version,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Address FIXME.
 	Address              string   `protobuf:"bytes,42,opt,name=address,proto3" json:"address,omitempty"`
@@ -702,7 +702,7 @@ func (m *AddGenericNodeRequest) Reset()         { *m = AddGenericNodeRequest{} }
 func (m *AddGenericNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddGenericNodeRequest) ProtoMessage()    {}
 func (*AddGenericNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{8}
+	return fileDescriptor_nodes_401872641acef480, []int{8}
 }
 func (m *AddGenericNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddGenericNodeRequest.Unmarshal(m, b)
@@ -775,7 +775,7 @@ func (m *AddGenericNodeResponse) Reset()         { *m = AddGenericNodeResponse{}
 func (m *AddGenericNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddGenericNodeResponse) ProtoMessage()    {}
 func (*AddGenericNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{9}
+	return fileDescriptor_nodes_401872641acef480, []int{9}
 }
 func (m *AddGenericNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddGenericNodeResponse.Unmarshal(m, b)
@@ -811,7 +811,7 @@ type ChangeGenericNodeRequest struct {
 	Distro string `protobuf:"bytes,4,opt,name=distro,proto3" json:"distro,omitempty"`
 	// Linux distribution version (if any).
 	DistroVersion string `protobuf:"bytes,5,opt,name=distro_version,json=distroVersion,proto3" json:"distro_version,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	// Address FIXME.
 	Address              string   `protobuf:"bytes,42,opt,name=address,proto3" json:"address,omitempty"`
@@ -824,7 +824,7 @@ func (m *ChangeGenericNodeRequest) Reset()         { *m = ChangeGenericNodeReque
 func (m *ChangeGenericNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeGenericNodeRequest) ProtoMessage()    {}
 func (*ChangeGenericNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{10}
+	return fileDescriptor_nodes_401872641acef480, []int{10}
 }
 func (m *ChangeGenericNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeGenericNodeRequest.Unmarshal(m, b)
@@ -897,7 +897,7 @@ func (m *ChangeGenericNodeResponse) Reset()         { *m = ChangeGenericNodeResp
 func (m *ChangeGenericNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeGenericNodeResponse) ProtoMessage()    {}
 func (*ChangeGenericNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{11}
+	return fileDescriptor_nodes_401872641acef480, []int{11}
 }
 func (m *ChangeGenericNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeGenericNodeResponse.Unmarshal(m, b)
@@ -933,7 +933,7 @@ type AddContainerNodeRequest struct {
 	DockerContainerId string `protobuf:"bytes,4,opt,name=docker_container_id,json=dockerContainerId,proto3" json:"docker_container_id,omitempty"`
 	// Container name.
 	DockerContainerName string `protobuf:"bytes,5,opt,name=docker_container_name,json=dockerContainerName,proto3" json:"docker_container_name,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -944,7 +944,7 @@ func (m *AddContainerNodeRequest) Reset()         { *m = AddContainerNodeRequest
 func (m *AddContainerNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddContainerNodeRequest) ProtoMessage()    {}
 func (*AddContainerNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{12}
+	return fileDescriptor_nodes_401872641acef480, []int{12}
 }
 func (m *AddContainerNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddContainerNodeRequest.Unmarshal(m, b)
@@ -1010,7 +1010,7 @@ func (m *AddContainerNodeResponse) Reset()         { *m = AddContainerNodeRespon
 func (m *AddContainerNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddContainerNodeResponse) ProtoMessage()    {}
 func (*AddContainerNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{13}
+	return fileDescriptor_nodes_401872641acef480, []int{13}
 }
 func (m *AddContainerNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddContainerNodeResponse.Unmarshal(m, b)
@@ -1044,7 +1044,7 @@ type ChangeContainerNodeRequest struct {
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	// Container name.
 	DockerContainerName string `protobuf:"bytes,5,opt,name=docker_container_name,json=dockerContainerName,proto3" json:"docker_container_name,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -1055,7 +1055,7 @@ func (m *ChangeContainerNodeRequest) Reset()         { *m = ChangeContainerNodeR
 func (m *ChangeContainerNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeContainerNodeRequest) ProtoMessage()    {}
 func (*ChangeContainerNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{14}
+	return fileDescriptor_nodes_401872641acef480, []int{14}
 }
 func (m *ChangeContainerNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeContainerNodeRequest.Unmarshal(m, b)
@@ -1114,7 +1114,7 @@ func (m *ChangeContainerNodeResponse) Reset()         { *m = ChangeContainerNode
 func (m *ChangeContainerNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeContainerNodeResponse) ProtoMessage()    {}
 func (*ChangeContainerNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{15}
+	return fileDescriptor_nodes_401872641acef480, []int{15}
 }
 func (m *ChangeContainerNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeContainerNodeResponse.Unmarshal(m, b)
@@ -1144,7 +1144,7 @@ func (m *ChangeContainerNodeResponse) GetContainer() *ContainerNode {
 type AddRemoteNodeRequest struct {
 	// Unique across all Nodes user-defined name.
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -1155,7 +1155,7 @@ func (m *AddRemoteNodeRequest) Reset()         { *m = AddRemoteNodeRequest{} }
 func (m *AddRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddRemoteNodeRequest) ProtoMessage()    {}
 func (*AddRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{16}
+	return fileDescriptor_nodes_401872641acef480, []int{16}
 }
 func (m *AddRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRemoteNodeRequest.Unmarshal(m, b)
@@ -1200,7 +1200,7 @@ func (m *AddRemoteNodeResponse) Reset()         { *m = AddRemoteNodeResponse{} }
 func (m *AddRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddRemoteNodeResponse) ProtoMessage()    {}
 func (*AddRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{17}
+	return fileDescriptor_nodes_401872641acef480, []int{17}
 }
 func (m *AddRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRemoteNodeResponse.Unmarshal(m, b)
@@ -1232,7 +1232,7 @@ type ChangeRemoteNodeRequest struct {
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Unique across all Nodes user-defined name.
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -1243,7 +1243,7 @@ func (m *ChangeRemoteNodeRequest) Reset()         { *m = ChangeRemoteNodeRequest
 func (m *ChangeRemoteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeRemoteNodeRequest) ProtoMessage()    {}
 func (*ChangeRemoteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{18}
+	return fileDescriptor_nodes_401872641acef480, []int{18}
 }
 func (m *ChangeRemoteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeRemoteNodeRequest.Unmarshal(m, b)
@@ -1295,7 +1295,7 @@ func (m *ChangeRemoteNodeResponse) Reset()         { *m = ChangeRemoteNodeRespon
 func (m *ChangeRemoteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeRemoteNodeResponse) ProtoMessage()    {}
 func (*ChangeRemoteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{19}
+	return fileDescriptor_nodes_401872641acef480, []int{19}
 }
 func (m *ChangeRemoteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeRemoteNodeResponse.Unmarshal(m, b)
@@ -1329,7 +1329,7 @@ type AddRemoteAmazonRDSNodeRequest struct {
 	Instance string `protobuf:"bytes,3,opt,name=instance,proto3" json:"instance,omitempty"`
 	// Unique across all RemoteAmazonRDS Nodes in combination with instance.
 	Region string `protobuf:"bytes,4,opt,name=region,proto3" json:"region,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -1340,7 +1340,7 @@ func (m *AddRemoteAmazonRDSNodeRequest) Reset()         { *m = AddRemoteAmazonRD
 func (m *AddRemoteAmazonRDSNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*AddRemoteAmazonRDSNodeRequest) ProtoMessage()    {}
 func (*AddRemoteAmazonRDSNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{20}
+	return fileDescriptor_nodes_401872641acef480, []int{20}
 }
 func (m *AddRemoteAmazonRDSNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRemoteAmazonRDSNodeRequest.Unmarshal(m, b)
@@ -1399,7 +1399,7 @@ func (m *AddRemoteAmazonRDSNodeResponse) Reset()         { *m = AddRemoteAmazonR
 func (m *AddRemoteAmazonRDSNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*AddRemoteAmazonRDSNodeResponse) ProtoMessage()    {}
 func (*AddRemoteAmazonRDSNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{21}
+	return fileDescriptor_nodes_401872641acef480, []int{21}
 }
 func (m *AddRemoteAmazonRDSNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRemoteAmazonRDSNodeResponse.Unmarshal(m, b)
@@ -1433,7 +1433,7 @@ type ChangeRemoteAmazonRDSNodeRequest struct {
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
 	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.
 	Instance string `protobuf:"bytes,3,opt,name=instance,proto3" json:"instance,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -1444,7 +1444,7 @@ func (m *ChangeRemoteAmazonRDSNodeRequest) Reset()         { *m = ChangeRemoteAm
 func (m *ChangeRemoteAmazonRDSNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeRemoteAmazonRDSNodeRequest) ProtoMessage()    {}
 func (*ChangeRemoteAmazonRDSNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{22}
+	return fileDescriptor_nodes_401872641acef480, []int{22}
 }
 func (m *ChangeRemoteAmazonRDSNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeRemoteAmazonRDSNodeRequest.Unmarshal(m, b)
@@ -1503,7 +1503,7 @@ func (m *ChangeRemoteAmazonRDSNodeResponse) Reset()         { *m = ChangeRemoteA
 func (m *ChangeRemoteAmazonRDSNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeRemoteAmazonRDSNodeResponse) ProtoMessage()    {}
 func (*ChangeRemoteAmazonRDSNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{23}
+	return fileDescriptor_nodes_401872641acef480, []int{23}
 }
 func (m *ChangeRemoteAmazonRDSNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeRemoteAmazonRDSNodeResponse.Unmarshal(m, b)
@@ -1542,7 +1542,7 @@ func (m *RemoveNodeRequest) Reset()         { *m = RemoveNodeRequest{} }
 func (m *RemoveNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveNodeRequest) ProtoMessage()    {}
 func (*RemoveNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{24}
+	return fileDescriptor_nodes_401872641acef480, []int{24}
 }
 func (m *RemoveNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveNodeRequest.Unmarshal(m, b)
@@ -1579,7 +1579,7 @@ func (m *RemoveNodeResponse) Reset()         { *m = RemoveNodeResponse{} }
 func (m *RemoveNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveNodeResponse) ProtoMessage()    {}
 func (*RemoveNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_nodes_b1e644d7866770f1, []int{25}
+	return fileDescriptor_nodes_401872641acef480, []int{25}
 }
 func (m *RemoveNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveNodeResponse.Unmarshal(m, b)
@@ -2064,9 +2064,9 @@ var _Nodes_serviceDesc = grpc.ServiceDesc{
 	Metadata: "inventory/nodes.proto",
 }
 
-func init() { proto.RegisterFile("inventory/nodes.proto", fileDescriptor_nodes_b1e644d7866770f1) }
+func init() { proto.RegisterFile("inventory/nodes.proto", fileDescriptor_nodes_401872641acef480) }
 
-var fileDescriptor_nodes_b1e644d7866770f1 = []byte{
+var fileDescriptor_nodes_401872641acef480 = []byte{
 	// 1353 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x59, 0xcd, 0x6f, 0xe3, 0x44,
 	0x14, 0xef, 0x38, 0xe9, 0x47, 0x5e, 0xe9, 0x6e, 0x32, 0xdd, 0x6e, 0xbd, 0xee, 0x57, 0x3a, 0xa1,

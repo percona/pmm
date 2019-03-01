@@ -20,7 +20,7 @@ message PMMAgent {
 
   // True if Agent is running and connected to pmm-managed.
   bool connected = 3;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -42,7 +42,7 @@ message NodeExporter {
   AgentStatus status = 4;
   // Listen port for scraping metrics.
   uint32 listen_port = 5;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -70,7 +70,7 @@ message MySQLdExporter {
   AgentStatus status = 7;
   // Listen port for scraping metrics.
   uint32 listen_port = 8;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -96,7 +96,7 @@ message RDSExporter {
   AgentStatus status = 5;
   // Listen port for scraping metrics.
   uint32 listen_port = 6;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -114,7 +114,7 @@ message ExternalExporter {
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 3;
 
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -140,7 +140,7 @@ message MongoDBExporter {
   AgentStatus status = 7;
   // Listen port for scraping metrics.
   uint32 listen_port = 8;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -199,7 +199,7 @@ message AddPMMAgentRequest {
       string_not_empty: true
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -220,7 +220,7 @@ message AddNodeExporterRequest {
       string_not_empty: true
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -255,7 +255,7 @@ message AddMySQLdExporterRequest {
   ];
   // MySQL password for scraping metrics.
   string password = 5;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -282,7 +282,7 @@ message AddRDSExporterRequest {
   // TODO AWS credentials
   //
 
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -303,7 +303,7 @@ message AddExternalExporterRequest {
       string_not_empty: true
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -336,7 +336,7 @@ message AddMongoDBExporterRequest {
       string_not_empty: true
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
