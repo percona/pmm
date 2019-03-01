@@ -74,7 +74,7 @@ type AddAmazonRDSMySQLServiceBody struct {
 	// Instance endpoint (full DNS name). Required.
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs. Required.
@@ -177,7 +177,7 @@ type AddAmazonRDSMySQLServiceOKBodyAmazonRDSMysql struct {
 	// Instance endpoint (full DNS name).
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels. Keys starts with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.

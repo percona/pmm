@@ -71,7 +71,7 @@ swagger:model AddMongoDBServiceBody
 */
 type AddMongoDBServiceBody struct {
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs. Required.
@@ -168,7 +168,7 @@ swagger:model AddMongoDBServiceOKBodyMongodb
 */
 type AddMongoDBServiceOKBodyMongodb struct {
 
-	// Custom user-assigned labels. Keys starts with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.

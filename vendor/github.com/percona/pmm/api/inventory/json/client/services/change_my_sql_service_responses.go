@@ -74,7 +74,7 @@ type ChangeMySQLServiceBody struct {
 	// Access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Access port. Required.
@@ -177,7 +177,7 @@ type ChangeMySQLServiceOKBodyMysql struct {
 	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels. Keys starts with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.

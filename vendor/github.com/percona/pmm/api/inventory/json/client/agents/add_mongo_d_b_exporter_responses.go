@@ -76,7 +76,7 @@ type AddMongoDBExporterBody struct {
 	// MongoDB URI for scraping metrics. (See: https://docs.mongodb.com/manual/reference/connection-string/)
 	ConnectionString string `json:"connection_string,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
@@ -179,7 +179,7 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 	// MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)
 	ConnectionString string `json:"connection_string,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.

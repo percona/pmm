@@ -19,7 +19,7 @@ message GenericNode {
   string distro = 4;
   // Linux distribution version (if any). Can be changed.
   string distro_version = 5;
-  // Custom user-assigned labels. Keys must start with "_". Can be changed.
+  // Custom user-assigned labels. Can be changed.
   map<string, string> custom_labels = 10;
   // Address FIXME.
   string address = 42;
@@ -37,7 +37,7 @@ message ContainerNode {
   string docker_container_id = 4;
   // Container name. Can be changed.
   string docker_container_name = 5;
-  // Custom user-assigned labels. Keys must start with "_". Can be changed.
+  // Custom user-assigned labels. Can be changed.
   map<string, string> custom_labels = 10;
 }
 
@@ -47,7 +47,7 @@ message RemoteNode {
   string node_id = 1;
   // Unique across all Nodes user-defined name, can be changed.
   string node_name = 2;
-  // Custom user-assigned labels. Keys must start with "_". Can be changed.
+  // Custom user-assigned labels. Can be changed.
   map<string, string> custom_labels = 10;
 }
 
@@ -61,7 +61,7 @@ message RemoteAmazonRDSNode {
   string instance = 3;
   // Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
   string region = 4;
-  // Custom user-assigned labels. Keys must start with "_". Can be changed.
+  // Custom user-assigned labels. Can be changed.
   map<string, string> custom_labels = 10;
 }
 
@@ -113,7 +113,7 @@ message AddGenericNodeRequest {
   string distro = 4;
   // Linux distribution version (if any).
   string distro_version = 5;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
   // Address FIXME.
   string address = 42;
@@ -142,7 +142,7 @@ message ChangeGenericNodeRequest {
   string distro = 4;
   // Linux distribution version (if any).
   string distro_version = 5;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
   // Address FIXME.
   string address = 42;
@@ -169,7 +169,7 @@ message AddContainerNodeRequest {
   string docker_container_id = 4;
   // Container name.
   string docker_container_name = 5;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -196,7 +196,7 @@ message ChangeContainerNodeRequest {
   reserved 4;
   // Container name.
   string docker_container_name = 5;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -215,7 +215,7 @@ message AddRemoteNodeRequest {
       string_not_empty: true
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -236,7 +236,7 @@ message ChangeRemoteNodeRequest {
       string_not_empty: true
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -267,7 +267,7 @@ message AddRemoteAmazonRDSNodeRequest {
       string_not_empty: true
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -296,7 +296,7 @@ message ChangeRemoteAmazonRDSNodeRequest {
   ];
   // Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
   reserved 4;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
