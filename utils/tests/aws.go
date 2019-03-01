@@ -22,12 +22,12 @@ import (
 )
 
 // GetAWSKeys returns testing AWS keys.
-func GetAWSKeys(t testing.TB) (accessKey, secretKey string) {
-	t.Helper()
+func GetAWSKeys(tb testing.TB) (accessKey, secretKey string) {
+	tb.Helper()
 
 	accessKey, secretKey = os.Getenv("AWS_ACCESS_KEY_ID"), os.Getenv("AWS_SECRET_ACCESS_KEY")
 	if accessKey == "" || secretKey == "" {
-		t.Skip("Environment variables AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY are not defined, skipping test")
+		tb.Skip("Environment variables AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY are not defined, skipping test")
 	}
 	return
 }

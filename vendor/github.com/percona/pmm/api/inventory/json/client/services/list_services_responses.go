@@ -75,6 +75,9 @@ type AmazonRDSMysqlItems0 struct {
 	// Instance endpoint (full DNS name).
 	Address string `json:"address,omitempty"`
 
+	// Custom user-assigned labels. Keys starts with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -151,6 +154,9 @@ type ListServicesOKBody struct {
 	// amazon rds mysql
 	AmazonRDSMysql []*AmazonRDSMysqlItems0 `json:"amazon_rds_mysql"`
 
+	// mongodb
+	Mongodb []*MongodbItems0 `json:"mongodb"`
+
 	// mysql
 	Mysql []*MysqlItems0 `json:"mysql"`
 }
@@ -160,6 +166,10 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateAmazonRDSMysql(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMongodb(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -188,6 +198,31 @@ func (o *ListServicesOKBody) validateAmazonRDSMysql(formats strfmt.Registry) err
 			if err := o.AmazonRDSMysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOK" + "." + "amazon_rds_mysql" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) validateMongodb(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Mongodb) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Mongodb); i++ {
+		if swag.IsZero(o.Mongodb[i]) { // not required
+			continue
+		}
+
+		if o.Mongodb[i] != nil {
+			if err := o.Mongodb[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOK" + "." + "mongodb" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -241,18 +276,62 @@ func (o *ListServicesOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*MongodbItems0 MongoDBService represents a generic MongoDB instance.
+swagger:model MongodbItems0
+*/
+type MongodbItems0 struct {
+
+	// Custom user-assigned labels. Keys starts with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+}
+
+// Validate validates this mongodb items0
+func (o *MongodbItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *MongodbItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *MongodbItems0) UnmarshalBinary(b []byte) error {
+	var res MongodbItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*MysqlItems0 MySQLService represents a generic MySQL instance.
 swagger:model MysqlItems0
 */
 type MysqlItems0 struct {
 
-	// Access address (DNS name or IP). Required if unix_socket is absent.
+	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
+
+	// Custom user-assigned labels. Keys starts with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Access port. Required if unix_socket is absent.
+	// Access port.
 	Port int64 `json:"port,omitempty"`
 
 	// Unique randomly generated instance identifier.
@@ -260,9 +339,6 @@ type MysqlItems0 struct {
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
-
-	// Access Unix socket. Required if address and port are absent.
-	UnixSocket string `json:"unix_socket,omitempty"`
 }
 
 // Validate validates this mysql items0

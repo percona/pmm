@@ -68,7 +68,7 @@ swagger:model RemoveServiceBody
 */
 type RemoveServiceBody struct {
 
-	// Unique randomly generated instance identifier.
+	// Unique randomly generated instance identifier. Required.
 	ServiceID string `json:"service_id,omitempty"`
 }
 

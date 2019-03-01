@@ -26,14 +26,20 @@ import (
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
-// ServicesServer handles Inventory API requests to manage Services.
-type ServicesServer struct {
-	Services *inventory.ServicesService
+type servicesServer struct {
+	s *inventory.ServicesService
+}
+
+// NewServicesServer returns Inventory API handler for managing Services.
+func NewServicesServer(s *inventory.ServicesService) api.ServicesServer {
+	return &servicesServer{
+		s: s,
+	}
 }
 
 // ListServices returns a list of all Services.
-func (s *ServicesServer) ListServices(ctx context.Context, req *api.ListServicesRequest) (*api.ListServicesResponse, error) {
-	services, err := s.Services.List(ctx)
+func (s *servicesServer) ListServices(ctx context.Context, req *api.ListServicesRequest) (*api.ListServicesResponse, error) {
+	services, err := s.s.List(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -43,6 +49,8 @@ func (s *ServicesServer) ListServices(ctx context.Context, req *api.ListServices
 		switch service := service.(type) {
 		case *api.MySQLService:
 			res.Mysql = append(res.Mysql, service)
+		case *api.AmazonRDSMySQLService:
+			res.AmazonRdsMysql = append(res.AmazonRdsMysql, service)
 		default:
 			panic(fmt.Errorf("unhandled inventory Service type %T", service))
 		}
@@ -51,8 +59,8 @@ func (s *ServicesServer) ListServices(ctx context.Context, req *api.ListServices
 }
 
 // GetService returns a single Service by ID.
-func (s *ServicesServer) GetService(ctx context.Context, req *api.GetServiceRequest) (*api.GetServiceResponse, error) {
-	service, err := s.Services.Get(ctx, req.ServiceId)
+func (s *servicesServer) GetService(ctx context.Context, req *api.GetServiceRequest) (*api.GetServiceResponse, error) {
+	service, err := s.s.Get(ctx, req.ServiceId)
 	if err != nil {
 		return nil, err
 	}
@@ -61,6 +69,8 @@ func (s *ServicesServer) GetService(ctx context.Context, req *api.GetServiceRequ
 	switch service := service.(type) {
 	case *api.MySQLService:
 		res.Service = &api.GetServiceResponse_Mysql{Mysql: service}
+	case *api.AmazonRDSMySQLService:
+		res.Service = &api.GetServiceResponse_AmazonRdsMysql{AmazonRdsMysql: service}
 	default:
 		panic(fmt.Errorf("unhandled inventory Service type %T", service))
 	}
@@ -68,11 +78,10 @@ func (s *ServicesServer) GetService(ctx context.Context, req *api.GetServiceRequ
 }
 
 // AddMySQLService adds MySQL Service.
-func (s *ServicesServer) AddMySQLService(ctx context.Context, req *api.AddMySQLServiceRequest) (*api.AddMySQLServiceResponse, error) {
+func (s *servicesServer) AddMySQLService(ctx context.Context, req *api.AddMySQLServiceRequest) (*api.AddMySQLServiceResponse, error) {
 	address := pointer.ToStringOrNil(req.Address)
 	port := pointer.ToUint16OrNil(uint16(req.Port))
-	unixSocket := pointer.ToStringOrNil(req.UnixSocket)
-	service, err := s.Services.AddMySQL(ctx, req.ServiceName, req.NodeId, address, port, unixSocket)
+	service, err := s.s.AddMySQL(ctx, req.ServiceName, req.NodeId, address, port)
 	if err != nil {
 		return nil, err
 	}
@@ -83,14 +92,19 @@ func (s *ServicesServer) AddMySQLService(ctx context.Context, req *api.AddMySQLS
 	return res, nil
 }
 
+// AddMongoDBService adds MongoDB Service.
+func (s *servicesServer) AddMongoDBService(ctx context.Context, req *api.AddMongoDBServiceRequest) (*api.AddMongoDBServiceResponse, error) {
+	panic("not implemented yet")
+}
+
 // AddAmazonRDSMySQLService adds AmazonRDSMySQL Service.
-func (s *ServicesServer) AddAmazonRDSMySQLService(ctx context.Context, req *api.AddAmazonRDSMySQLServiceRequest) (*api.AddAmazonRDSMySQLServiceResponse, error) {
+func (s *servicesServer) AddAmazonRDSMySQLService(ctx context.Context, req *api.AddAmazonRDSMySQLServiceRequest) (*api.AddAmazonRDSMySQLServiceResponse, error) {
 	panic("not implemented yet")
 }
 
 // ChangeMySQLService changes MySQL Service.
-func (s *ServicesServer) ChangeMySQLService(ctx context.Context, req *api.ChangeMySQLServiceRequest) (*api.ChangeMySQLServiceResponse, error) {
-	service, err := s.Services.Change(ctx, req.ServiceId, req.ServiceName)
+func (s *servicesServer) ChangeMySQLService(ctx context.Context, req *api.ChangeMySQLServiceRequest) (*api.ChangeMySQLServiceResponse, error) {
+	service, err := s.s.Change(ctx, req.ServiceId, req.ServiceName)
 	if err != nil {
 		return nil, err
 	}
@@ -102,20 +116,15 @@ func (s *ServicesServer) ChangeMySQLService(ctx context.Context, req *api.Change
 }
 
 // ChangeAmazonRDSMySQLService changes AmazonRDSMySQL Service.
-func (s *ServicesServer) ChangeAmazonRDSMySQLService(ctx context.Context, req *api.ChangeAmazonRDSMySQLServiceRequest) (*api.ChangeAmazonRDSMySQLServiceResponse, error) {
+func (s *servicesServer) ChangeAmazonRDSMySQLService(ctx context.Context, req *api.ChangeAmazonRDSMySQLServiceRequest) (*api.ChangeAmazonRDSMySQLServiceResponse, error) {
 	panic("not implemented yet")
 }
 
 // RemoveService removes Service without any Agents.
-func (s *ServicesServer) RemoveService(ctx context.Context, req *api.RemoveServiceRequest) (*api.RemoveServiceResponse, error) {
-	if err := s.Services.Remove(ctx, req.ServiceId); err != nil {
+func (s *servicesServer) RemoveService(ctx context.Context, req *api.RemoveServiceRequest) (*api.RemoveServiceResponse, error) {
+	if err := s.s.Remove(ctx, req.ServiceId); err != nil {
 		return nil, err
 	}
 
 	return new(api.RemoveServiceResponse), nil
 }
-
-// check interfaces
-var (
-	_ api.ServicesServer = (*ServicesServer)(nil)
-)

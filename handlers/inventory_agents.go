@@ -20,25 +20,33 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/AlekSi/pointer"
 	api "github.com/percona/pmm/api/inventory"
+	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
-// AgentsServer handles Inventory API requests to manage Agents.
-type AgentsServer struct {
-	Agents *inventory.AgentsService
+type agentsServer struct {
+	s  *inventory.AgentsService
+	db *reform.DB
+}
+
+// NewAgentsServer returns Inventory API handler for managing Agents.
+func NewAgentsServer(s *inventory.AgentsService, db *reform.DB) api.AgentsServer {
+	return &agentsServer{
+		s:  s,
+		db: db,
+	}
 }
 
 // ListAgents returns a list of Agents for a given filters.
-func (s *AgentsServer) ListAgents(ctx context.Context, req *api.ListAgentsRequest) (*api.ListAgentsResponse, error) {
+func (s *agentsServer) ListAgents(ctx context.Context, req *api.ListAgentsRequest) (*api.ListAgentsResponse, error) {
 	filters := inventory.AgentFilters{
 		RunsOnNodeID: req.GetRunsOnNodeId(),
 		NodeID:       req.GetNodeId(),
 		ServiceID:    req.GetServiceId(),
 	}
-	agents, err := s.Agents.List(ctx, filters)
+	agents, err := s.s.List(ctx, s.db, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +72,8 @@ func (s *AgentsServer) ListAgents(ctx context.Context, req *api.ListAgentsReques
 }
 
 // GetAgent returns a single Agent by ID.
-func (s *AgentsServer) GetAgent(ctx context.Context, req *api.GetAgentRequest) (*api.GetAgentResponse, error) {
-	agent, err := s.Agents.Get(ctx, req.AgentId)
+func (s *agentsServer) GetAgent(ctx context.Context, req *api.GetAgentRequest) (*api.GetAgentResponse, error) {
+	agent, err := s.s.Get(ctx, s.db, req.AgentId)
 	if err != nil {
 		return nil, err
 	}
@@ -90,8 +98,8 @@ func (s *AgentsServer) GetAgent(ctx context.Context, req *api.GetAgentRequest) (
 }
 
 // AddPMMAgent adds pmm-agent Agent.
-func (s *AgentsServer) AddPMMAgent(ctx context.Context, req *api.AddPMMAgentRequest) (*api.AddPMMAgentResponse, error) {
-	agent, err := s.Agents.AddPMMAgent(ctx, req.NodeId)
+func (s *agentsServer) AddPMMAgent(ctx context.Context, req *api.AddPMMAgentRequest) (*api.AddPMMAgentResponse, error) {
+	agent, err := s.s.AddPMMAgent(ctx, s.db, req.NodeId)
 	if err != nil {
 		return nil, err
 	}
@@ -103,8 +111,8 @@ func (s *AgentsServer) AddPMMAgent(ctx context.Context, req *api.AddPMMAgentRequ
 }
 
 // AddNodeExporter adds node_exporter Agent.
-func (s *AgentsServer) AddNodeExporter(ctx context.Context, req *api.AddNodeExporterRequest) (*api.AddNodeExporterResponse, error) {
-	agent, err := s.Agents.AddNodeExporter(ctx, req.NodeId)
+func (s *agentsServer) AddNodeExporter(ctx context.Context, req *api.AddNodeExporterRequest) (*api.AddNodeExporterResponse, error) {
+	agent, err := s.s.AddNodeExporter(ctx, s.db, req)
 	if err != nil {
 		return nil, err
 	}
@@ -116,10 +124,8 @@ func (s *AgentsServer) AddNodeExporter(ctx context.Context, req *api.AddNodeExpo
 }
 
 // AddMySQLdExporter adds mysqld_exporter Agent.
-func (s *AgentsServer) AddMySQLdExporter(ctx context.Context, req *api.AddMySQLdExporterRequest) (*api.AddMySQLdExporterResponse, error) {
-	username := pointer.ToStringOrNil(req.Username)
-	password := pointer.ToStringOrNil(req.Password)
-	agent, err := s.Agents.AddMySQLdExporter(ctx, req.RunsOnNodeId, req.ServiceId, username, password)
+func (s *agentsServer) AddMySQLdExporter(ctx context.Context, req *api.AddMySQLdExporterRequest) (*api.AddMySQLdExporterResponse, error) {
+	agent, err := s.s.AddMySQLdExporter(ctx, s.db, req)
 	if err != nil {
 		return nil, err
 	}
@@ -130,26 +136,26 @@ func (s *AgentsServer) AddMySQLdExporter(ctx context.Context, req *api.AddMySQLd
 	return res, nil
 }
 
+// AddMongoDBExporter adds mongodb_exporter Agent.
+func (s *agentsServer) AddMongoDBExporter(ctx context.Context, req *api.AddMongoDBExporterRequest) (*api.AddMongoDBExporterResponse, error) {
+	panic("not implemented yet")
+}
+
 // AddRDSExporter adds rds_exporter Agent.
-func (s *AgentsServer) AddRDSExporter(ctx context.Context, req *api.AddRDSExporterRequest) (*api.AddRDSExporterResponse, error) {
+func (s *agentsServer) AddRDSExporter(ctx context.Context, req *api.AddRDSExporterRequest) (*api.AddRDSExporterResponse, error) {
 	panic("not implemented yet")
 }
 
 // AddExternalExporter adds external Agent.
-func (s *AgentsServer) AddExternalExporter(ctx context.Context, req *api.AddExternalExporterRequest) (*api.AddExternalExporterResponse, error) {
+func (s *agentsServer) AddExternalExporter(ctx context.Context, req *api.AddExternalExporterRequest) (*api.AddExternalExporterResponse, error) {
 	panic("not implemented yet")
 }
 
 // RemoveAgent removes Agent.
-func (s *AgentsServer) RemoveAgent(ctx context.Context, req *api.RemoveAgentRequest) (*api.RemoveAgentResponse, error) {
-	if err := s.Agents.Remove(ctx, req.AgentId); err != nil {
+func (s *agentsServer) RemoveAgent(ctx context.Context, req *api.RemoveAgentRequest) (*api.RemoveAgentResponse, error) {
+	if err := s.s.Remove(ctx, s.db, req.AgentId); err != nil {
 		return nil, err
 	}
 
 	return new(api.RemoveAgentResponse), nil
 }
-
-// check interfaces
-var (
-	_ api.AgentsServer = (*AgentsServer)(nil)
-)

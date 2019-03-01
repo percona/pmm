@@ -71,6 +71,9 @@ swagger:model ChangeRemoteNodeBody
 */
 type ChangeRemoteNodeBody struct {
 
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// Unique randomly generated instance identifier.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -164,6 +167,9 @@ func (o *ChangeRemoteNodeOKBody) UnmarshalBinary(b []byte) error {
 swagger:model ChangeRemoteNodeOKBodyRemote
 */
 type ChangeRemoteNodeOKBodyRemote struct {
+
+	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Unique randomly generated instance identifier, can't be changed.
 	NodeID string `json:"node_id,omitempty"`

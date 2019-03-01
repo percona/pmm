@@ -47,6 +47,8 @@ var databaseSchema = [][]string{
 			node_type VARCHAR(255) NOT NULL,
 			node_name VARCHAR(255) NOT NULL,
 			machine_id VARCHAR(255),
+			custom_labels TEXT,
+			address VARCHAR(255), -- also RDS instance
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -59,14 +61,14 @@ var databaseSchema = [][]string{
 			docker_container_name VARCHAR(255),
 
 			-- RemoteAmazonRDS
-			instance VARCHAR(255),
+			-- instance is address
 			region VARCHAR(255),
 
 			PRIMARY KEY (node_id),
 			UNIQUE (node_name),
 			UNIQUE (machine_id),
 			UNIQUE (docker_container_id),
-			UNIQUE (instance, region)
+			UNIQUE (address, region)
 		)`,
 
 		`INSERT INTO nodes (node_type, node_id, node_name) VALUES ('` + string(PMMServerNodeType) + `', '` + PMMServerNodeID + `', 'PMM Server')`, //nolint:gosec
@@ -77,13 +79,13 @@ var databaseSchema = [][]string{
 			service_type VARCHAR(255) NOT NULL,
 			service_name VARCHAR(255) NOT NULL,
 			node_id VARCHAR(255) NOT NULL,
+			custom_labels TEXT,
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 			-- MySQL
 			address VARCHAR(255),
 			port SMALLINT UNSIGNED,
-			unix_socket VARCHAR(255),
 
 			PRIMARY KEY (service_id),
 			UNIQUE (service_name),
@@ -95,6 +97,7 @@ var databaseSchema = [][]string{
 			agent_id VARCHAR(255) NOT NULL,
 			agent_type VARCHAR(255) NOT NULL,
 			runs_on_node_id VARCHAR(255) NOT NULL,
+			custom_labels TEXT,
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 

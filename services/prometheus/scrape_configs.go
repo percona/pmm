@@ -17,569 +17,173 @@
 package prometheus
 
 import (
-	"context"
-	"crypto/tls"
-	"encoding/json"
-	"fmt"
 	"net"
-	"net/http"
-	"net/url"
-	"path"
-	"sort"
-	"sync"
+	"strconv"
+	"strings"
 	"time"
 
-	"github.com/Percona-Lab/promconfig/config"
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"github.com/prometheus/common/model"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+
+	"github.com/percona/pmm-managed/models"
+	config_util "github.com/percona/pmm-managed/services/prometheus/internal/common/config"
+	"github.com/percona/pmm-managed/services/prometheus/internal/prometheus/config"
+	sd_config "github.com/percona/pmm-managed/services/prometheus/internal/prometheus/discovery/config"
+	"github.com/percona/pmm-managed/services/prometheus/internal/prometheus/discovery/targetgroup"
 )
 
-const (
-	// store scrape configs in Consul under that key
-	ConsulKey = "prometheus/scrape_configs"
-)
+const addressLabel = model.LabelName(model.AddressLabel)
 
-type LabelPair struct {
-	Name  string
-	Value string
+func scrapeConfigForPrometheus() *config.ScrapeConfig {
+	return &config.ScrapeConfig{
+		JobName:        "prometheus",
+		ScrapeInterval: model.Duration(time.Second),
+		ScrapeTimeout:  model.Duration(time.Second),
+		MetricsPath:    "/metrics",
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
+				Targets: []model.LabelSet{{addressLabel: "127.0.0.1:9090"}},
+				Labels:  model.LabelSet{"instance": "pmm-server"},
+			}},
+		},
+	}
 }
 
-type StaticConfig struct {
-	Targets []string
-	Labels  []LabelPair
+func scrapeConfigForGrafana() *config.ScrapeConfig {
+	return &config.ScrapeConfig{
+		JobName:        "grafana",
+		ScrapeInterval: model.Duration(5 * time.Second),
+		ScrapeTimeout:  model.Duration(4 * time.Second),
+		MetricsPath:    "/metrics",
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
+				Targets: []model.LabelSet{{addressLabel: "127.0.0.1:3000"}},
+				Labels:  model.LabelSet{"instance": "pmm-server"},
+			}},
+		},
+	}
 }
 
-type RelabelConfig struct {
-	TargetLabel string
-	Replacement string
+func scrapeConfigForPMMManaged() *config.ScrapeConfig {
+	return &config.ScrapeConfig{
+		JobName:        "pmm-managed",
+		ScrapeInterval: model.Duration(10 * time.Second),
+		ScrapeTimeout:  model.Duration(5 * time.Second),
+		MetricsPath:    "/debug/metrics",
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
+				Targets: []model.LabelSet{{addressLabel: "127.0.0.1:7773"}},
+				Labels:  model.LabelSet{"instance": "pmm-server"},
+			}},
+		},
+	}
 }
 
-type BasicAuth struct {
-	Username string
-	Password string
-}
-
-type TLSConfig struct {
-	InsecureSkipVerify bool
-}
-
-type ScrapeConfig struct {
-	JobName        string
-	ScrapeInterval string
-	ScrapeTimeout  string
-	MetricsPath    string
-	HonorLabels    bool
-	Scheme         string
-	BasicAuth      *BasicAuth
-	TLSConfig      TLSConfig
-	StaticConfigs  []StaticConfig
-	RelabelConfigs []RelabelConfig
-}
-
-// Health of the target.
-type Health string
-
-const (
-	// HealthUnknown represents unknown health state of target.
-	HealthUnknown Health = "unknown"
-	// HealthDown represents target that is down.
-	HealthDown Health = "down"
-	// HealthUp represents target that is up and healthy.
-	HealthUp Health = "up"
-)
-
-// ScrapeTargetHealth represents Prometheus scrape target health: unknown, down, or up.
-type ScrapeTargetHealth struct {
-	JobName  string
-	Job      string
-	Target   string
-	Instance string
-	Health   Health
-}
-
-// ScrapeTargetReachability represents a single reachability check result.
-type ScrapeTargetReachability struct {
-	Target string
-	Error  string
-}
-
-type consulData struct {
-	ScrapeConfigs []ScrapeConfig
-}
-
-func (svc *Service) getFromConsul() ([]ScrapeConfig, error) {
-	b, err := svc.consul.GetKV(ConsulKey)
+func mergeLabels(labels model.LabelSet, node *models.Node, service *models.Service, agent *models.Agent) error {
+	nLabels, err := node.GetCustomLabels()
 	if err != nil {
+		return err
+	}
+	sLabels, err := service.GetCustomLabels()
+	if err != nil {
+		return err
+	}
+	aLabels, err := agent.GetCustomLabels()
+	if err != nil {
+		return err
+	}
+
+	for k, v := range nLabels {
+		labels[model.LabelName(k)] = model.LabelValue(v)
+	}
+	for k, v := range sLabels {
+		labels[model.LabelName(k)] = model.LabelValue(v)
+	}
+	for k, v := range aLabels {
+		labels[model.LabelName(k)] = model.LabelValue(v)
+	}
+
+	var toDelete []model.LabelName
+	for k, v := range labels {
+		if v == "" {
+			toDelete = append(toDelete, k)
+		}
+	}
+	for _, k := range toDelete {
+		delete(labels, k)
+	}
+
+	return errors.Wrap(labels.Validate(), "failed to merge labels")
+}
+
+func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
+	labels := model.LabelSet{
+		model.LabelName("node_id"):               model.LabelValue(node.NodeID),
+		model.LabelName("node_name"):             model.LabelValue(node.NodeName),
+		model.LabelName("machine_id"):            model.LabelValue(pointer.GetString(node.MachineID)),
+		model.LabelName("docker_container_id"):   model.LabelValue(pointer.GetString(node.DockerContainerID)),
+		model.LabelName("docker_container_name"): model.LabelValue(pointer.GetString(node.DockerContainerName)),
+
+		model.LabelName("service_id"):   model.LabelValue(service.ServiceID),
+		model.LabelName("service_name"): model.LabelValue(service.ServiceName),
+
+		model.LabelName("instance"): model.LabelValue(agent.AgentID),
+	}
+	if err := mergeLabels(labels, node, service, agent); err != nil {
 		return nil, err
 	}
-	if len(b) == 0 {
-		return nil, nil
-	}
-	var cd consulData
-	if err = json.Unmarshal(b, &cd); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return cd.ScrapeConfigs, nil
-}
 
-func (svc *Service) putToConsul(scs []ScrapeConfig) error {
-	cd := consulData{
-		ScrapeConfigs: scs,
+	hr := &config.ScrapeConfig{
+		JobName:        strings.Replace(agent.AgentID, "/", "_", -1) + "_hr",
+		ScrapeInterval: model.Duration(time.Second),
+		ScrapeTimeout:  model.Duration(time.Second),
+		MetricsPath:    "/metrics-hr",
 	}
-	b, err := json.Marshal(cd)
-	if err != nil {
-		return errors.WithStack(err)
+	mr := &config.ScrapeConfig{
+		JobName:        strings.Replace(agent.AgentID, "/", "_", -1) + "_mr",
+		ScrapeInterval: model.Duration(10 * time.Second),
+		ScrapeTimeout:  model.Duration(5 * time.Second),
+		MetricsPath:    "/metrics-mr",
 	}
-	return svc.consul.PutKV(ConsulKey, b)
-}
+	lr := &config.ScrapeConfig{
+		JobName:        strings.Replace(agent.AgentID, "/", "_", -1) + "_lr",
+		ScrapeInterval: model.Duration(60 * time.Second),
+		ScrapeTimeout:  model.Duration(10 * time.Second),
+		MetricsPath:    "/metrics-lr",
+	}
+	res := []*config.ScrapeConfig{hr, mr, lr}
 
-// getTargetsHealth gets all targets from Prometheus and converts response to job -> instance -> health map.
-func (svc *Service) getTargetsHealth(ctx context.Context) (map[string]map[string]Health, error) {
-	u := *svc.baseURL
-	u.Path = path.Join(u.Path, "api/v1/targets")
-	resp, err := svc.client.Get(u.String())
-	if err != nil {
-		return nil, errors.WithStack(err)
+	port := pointer.GetUint16(agent.ListenPort)
+	if port == 0 {
+		return nil, errors.New("listen port is not known")
 	}
-	defer resp.Body.Close()
-
-	// copied from https://github.com/prometheus/prometheus/blob/v2.2.1/web/api/v1/api.go to avoid a ton of dependencies
-	type target struct {
-		DiscoveredLabels model.LabelSet `json:"discoveredLabels"`
-		Labels           model.LabelSet `json:"labels"`
-		ScrapeURL        string         `json:"scrapeUrl"`
-		LastError        string         `json:"lastError"`
-		LastScrape       time.Time      `json:"lastScrape"`
-		Health           Health         `json:"health"`
-	}
-	type result struct {
-		Status string `json:"status"`
-		Data   struct {
-			ActiveTargets []target `json:"activeTargets"`
-		} `json:"data"`
-	}
-	var res result
-	if err = json.NewDecoder(resp.Body).Decode(&res); err != nil {
-		return nil, errors.WithStack(err)
+	hostport := net.JoinHostPort(pointer.GetString(node.Address), strconv.Itoa(int(port)))
+	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
+	if err := target.Validate(); err != nil {
+		return nil, errors.Wrap(err, "failed to set targets")
 	}
 
-	health := make(map[string]map[string]Health)
-	for _, target := range res.Data.ActiveTargets {
-		job := string(target.Labels["job"])
-		instance := string(target.Labels["instance"])
-		if health[job] == nil {
-			health[job] = make(map[string]Health)
-		}
-		health[job][instance] = target.Health
-	}
-	return health, nil
-}
-
-// checkReachability checks that given targets can be reached from PMM Server.
-// reachabilityCh is closed when this method returns.
-func (svc *Service) checkReachability(ctx context.Context, cfg *ScrapeConfig, targets []string, reachabilityCh chan<- ScrapeTargetReachability) {
-	// use ephemeral transport with small timeouts and disabled HTTP keep-alive
-	transport := &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
-		DialContext: (&net.Dialer{
-			Timeout:   5 * time.Second,
-			DualStack: true,
-		}).DialContext,
-		TLSHandshakeTimeout: 5 * time.Second,
-		DisableKeepAlives:   true,
-		MaxIdleConns:        1,
-		MaxIdleConnsPerHost: 1,
-		IdleConnTimeout:     time.Second,
-
-		// Prometheus does not uses HTTP/2, so we disable it too
-		TLSNextProto: map[string]func(string, *tls.Conn) http.RoundTripper{},
-	}
-	if cfg.TLSConfig.InsecureSkipVerify {
-		transport.TLSClientConfig = &tls.Config{
-			InsecureSkipVerify: true,
-		}
-	}
-	defer transport.CloseIdleConnections()
-
-	defer close(reachabilityCh)
-
-	// create client with specified scrape timeout
-	var scrapeTimeout model.Duration
-	var err error
-	if cfg.ScrapeTimeout == "" {
-		scrapeTimeout = config.DefaultGlobalConfig.ScrapeTimeout
-	} else {
-		scrapeTimeout, err = model.ParseDuration(cfg.ScrapeTimeout)
-		if err != nil {
-			reachabilityCh <- ScrapeTargetReachability{"", err.Error()}
-			return
-		}
-	}
-	client := &http.Client{
-		Transport: transport,
-		Timeout:   time.Duration(scrapeTimeout),
-	}
-
-	var wg sync.WaitGroup
-	for _, target := range targets {
-		wg.Add(1)
-		go func(target string) {
-			defer wg.Done()
-
-			// fill request default values
-			u := &url.URL{
-				Scheme: cfg.Scheme,
-				Host:   target,
-				Path:   cfg.MetricsPath,
-			}
-			if cfg.Scheme == "" {
-				u.Scheme = config.DefaultScrapeConfig.Scheme
-			}
-			if cfg.MetricsPath == "" {
-				u.Path = config.DefaultScrapeConfig.MetricsPath
-			}
-			if cfg.BasicAuth != nil {
-				u.User = url.UserPassword(cfg.BasicAuth.Username, cfg.BasicAuth.Password)
-			}
-			req, err := http.NewRequest("GET", u.String(), nil)
-			if err != nil {
-				reachabilityCh <- ScrapeTargetReachability{target, err.Error()}
-				return
-			}
-			req = req.WithContext(ctx)
-
-			// only HTTP 200 is ok
-			resp, err := client.Do(req)
-			if err != nil {
-				reachabilityCh <- ScrapeTargetReachability{target, err.Error()}
-				return
-			}
-			defer resp.Body.Close()
-			if resp.StatusCode != 200 {
-				reachabilityCh <- ScrapeTargetReachability{target, fmt.Sprintf("unexpected response status code %d", resp.StatusCode)}
-				return
-			}
-			reachabilityCh <- ScrapeTargetReachability{target, ""}
-		}(target)
-	}
-	wg.Wait()
-}
-
-// jobInstanceValues returns "job" and "instance" label values for given ScrapeConfig and static target.
-// Relabeling is considered.
-func jobInstanceValues(cfg *ScrapeConfig, target string) (job string, instance string) {
-	job = cfg.JobName
-	instance = target
-
-	for _, rl := range cfg.RelabelConfigs {
-		if rl.TargetLabel == "job" {
-			job = rl.Replacement
-		}
-		if rl.TargetLabel == "instance" {
-			instance = rl.Replacement
-		}
-	}
-
-	for _, sc := range cfg.StaticConfigs {
-		for _, t := range sc.Targets {
-			if t == target {
-				for _, lp := range sc.Labels {
-					if lp.Name == "job" {
-						job = lp.Value
-					}
-					if lp.Name == "instance" {
-						instance = lp.Value
-					}
-				}
-				return
-			}
-		}
-	}
-	return
-}
-
-// ListScrapeConfigs returns all scrape configs.
-func (svc *Service) ListScrapeConfigs(ctx context.Context) ([]ScrapeConfig, []ScrapeTargetHealth, error) {
-	svc.lock.RLock()
-	defer svc.lock.RUnlock()
-
-	// start getting targets health from Prometheus early
-	type targetsHealth struct {
-		data map[string]map[string]Health
-		err  error
-	}
-	targetsHealthCh := make(chan targetsHealth)
-	go func() {
-		d, e := svc.getTargetsHealth(ctx)
-		targetsHealthCh <- targetsHealth{d, e}
-	}()
-
-	consulData, err := svc.getFromConsul()
-	if err != nil {
-		return nil, nil, err
-	}
-	config, err := svc.loadConfig()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	// return data from Prometheus config to fill default values
-	res := make([]ScrapeConfig, len(consulData))
-	for i, consulCfg := range consulData {
-		var found bool
-		for _, configCfg := range config.ScrapeConfigs {
-			if consulCfg.JobName == configCfg.JobName {
-				res[i] = *convertInternalScrapeConfig(configCfg)
-				found = true
-				break
-			}
-		}
-		if !found {
-			err = status.Errorf(codes.FailedPrecondition, "scrape config with job name %q not found in configuration file", consulCfg.JobName)
-			return nil, nil, err
-		}
-	}
-
-	health := <-targetsHealthCh
-	if health.err != nil {
-		return nil, nil, health.err
-	}
-
-	// return only health of managed scrape targets, not all of them
-	var healthRes []ScrapeTargetHealth
 	for _, cfg := range res {
-		for _, sc := range cfg.StaticConfigs {
-			for _, t := range sc.Targets {
-				// default health is unknown
-				jobValue, instanceValue := jobInstanceValues(&cfg, t)
-				st := ScrapeTargetHealth{
-					JobName:  cfg.JobName,
-					Job:      jobValue,
-					Target:   t,
-					Instance: instanceValue,
-					Health:   HealthUnknown,
-				}
+		cfg.ServiceDiscoveryConfig = sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
+				Targets: []model.LabelSet{target},
+				Labels:  labels,
+			}},
+		}
+	}
 
-				// check we know real health from Prometheus
-				for job, instances := range health.data {
-					if jobValue != job {
-						continue
-					}
-					for instance, h := range instances {
-						if instanceValue != instance {
-							continue
-						}
-						st.Health = h
-					}
-				}
-
-				healthRes = append(healthRes, st)
+	username, password := pointer.GetString(agent.Username), pointer.GetString(agent.Password)
+	if username != "" {
+		for _, cfg := range res {
+			cfg.HTTPClientConfig = config_util.HTTPClientConfig{
+				BasicAuth: &config_util.BasicAuth{
+					Username: username,
+					Password: password,
+				},
 			}
 		}
 	}
 
-	sort.Slice(healthRes, func(i, j int) bool {
-		ri, rj := healthRes[i], healthRes[j]
-		if ri.JobName != rj.JobName {
-			return ri.JobName < rj.JobName
-		}
-		return ri.Instance < rj.Instance
-	})
-
-	return res, healthRes, nil
-}
-
-// GetScrapeConfig returns a scrape config by job name.
-// Errors: NotFound(5) if no such scrape config is present.
-func (svc *Service) GetScrapeConfig(ctx context.Context, jobName string) (*ScrapeConfig, []ScrapeTargetHealth, error) {
-	// lock is held by ListScrapeConfigs
-	cfgs, health, err := svc.ListScrapeConfigs(ctx)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	for _, cfg := range cfgs {
-		if cfg.JobName == jobName {
-			var healthRes []ScrapeTargetHealth
-			for _, h := range health {
-				if h.JobName == jobName {
-					healthRes = append(healthRes, h)
-				}
-			}
-			return &cfg, healthRes, nil
-		}
-	}
-	return nil, nil, status.Errorf(codes.NotFound, "scrape config with job name %q not found", jobName)
-}
-
-// CreateScrapeConfig creates a new scrape config.
-// Errors: InvalidArgument(3) if some argument is not valid,
-// AlreadyExists(6) if scrape config with that job name is already present,
-// FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
-func (svc *Service) CreateScrapeConfig(ctx context.Context, cfg *ScrapeConfig, checkReachability bool) error {
-	svc.lock.Lock()
-	defer svc.lock.Unlock()
-
-	// start scraping targets early
-	var reachabilityCh chan ScrapeTargetReachability
-	if checkReachability {
-		var targets []string
-		for _, sc := range cfg.StaticConfigs {
-			targets = append(targets, sc.Targets...)
-		}
-		reachabilityCh = make(chan ScrapeTargetReachability, len(targets)) // set cap so checkReachability always exits
-		svc.checkReachability(ctx, cfg, targets, reachabilityCh)
-	}
-
-	consulData, err := svc.getFromConsul()
-	if err != nil {
-		return err
-	}
-	config, err := svc.loadConfig()
-	if err != nil {
-		return err
-	}
-
-	updater := &configUpdater{consulData, config.ScrapeConfigs}
-	if err = updater.addScrapeConfig(cfg); err != nil {
-		return err
-	}
-
-	if checkReachability {
-		for r := range reachabilityCh {
-			if msg := r.Error; msg != "" {
-				if r.Target != "" {
-					msg = fmt.Sprintf("%s: %s", r.Target, msg)
-				}
-				return status.Error(codes.FailedPrecondition, msg)
-			}
-		}
-	}
-
-	config.ScrapeConfigs = updater.fileData
-	if err = svc.saveConfigAndReload(ctx, config); err != nil {
-		return err
-	}
-	return svc.putToConsul(updater.consulData)
-}
-
-// UpdateScrapeConfig updates existing scrape config by job name.
-// Errors: InvalidArgument(3) if some argument is not valid,
-// NotFound(5) if no such scrape config is present,
-// FailedPrecondition(9) if reachability check was requested and some scrape target can't be reached.
-func (svc *Service) UpdateScrapeConfig(ctx context.Context, cfg *ScrapeConfig, checkReachability bool) error {
-	svc.lock.Lock()
-	defer svc.lock.Unlock()
-
-	// start scraping targets early
-	var reachabilityCh chan ScrapeTargetReachability
-	if checkReachability {
-		var targets []string
-		for _, sc := range cfg.StaticConfigs {
-			targets = append(targets, sc.Targets...)
-		}
-		reachabilityCh = make(chan ScrapeTargetReachability, len(targets)) // set cap so checkReachability always exits
-		svc.checkReachability(ctx, cfg, targets, reachabilityCh)
-	}
-
-	consulData, err := svc.getFromConsul()
-	if err != nil {
-		return err
-	}
-	config, err := svc.loadConfig()
-	if err != nil {
-		return err
-	}
-
-	updater := &configUpdater{consulData, config.ScrapeConfigs}
-	if err = updater.setScrapeConfig(cfg); err != nil {
-		return err
-	}
-
-	if checkReachability {
-		for r := range reachabilityCh {
-			if msg := r.Error; msg != "" {
-				if r.Target != "" {
-					msg = fmt.Sprintf("%s: %s", r.Target, msg)
-				}
-				return status.Error(codes.FailedPrecondition, msg)
-			}
-		}
-	}
-
-	config.ScrapeConfigs = updater.fileData
-	if err = svc.saveConfigAndReload(ctx, config); err != nil {
-		return err
-	}
-	return svc.putToConsul(updater.consulData)
-}
-
-// DeleteScrapeConfig removes existing scrape config by job name.
-// Errors: NotFound(5) if no such scrape config is present.
-func (svc *Service) DeleteScrapeConfig(ctx context.Context, jobName string) error {
-	svc.lock.Lock()
-	defer svc.lock.Unlock()
-
-	consulData, err := svc.getFromConsul()
-	if err != nil {
-		return err
-	}
-	config, err := svc.loadConfig()
-	if err != nil {
-		return err
-	}
-
-	updater := &configUpdater{consulData, config.ScrapeConfigs}
-	if err = updater.removeScrapeConfig(jobName); err != nil {
-		return err
-	}
-
-	config.ScrapeConfigs = updater.fileData
-	if err = svc.saveConfigAndReload(ctx, config); err != nil {
-		return err
-	}
-	return svc.putToConsul(updater.consulData)
-}
-
-// SetScrapeConfigs creates new or completely replaces existing scrape configs with a given names.
-// Errors: InvalidArgument(3) if some argument is not valid.
-func (svc *Service) SetScrapeConfigs(ctx context.Context, useConsul bool, configs ...*ScrapeConfig) error {
-	// That method is implemented for RDS and Inventory API. It does not uses Consul.
-	// The only reason for useConsul argument existence is to draw attention to that fact, to make it harder to misuse.
-	if useConsul {
-		panic("Consul is not used")
-	}
-
-	svc.lock.Lock()
-	defer svc.lock.Unlock()
-
-	// do not check that targets are reachable - we do that only for external exporters
-
-	config, err := svc.loadConfig()
-	if err != nil {
-		return err
-	}
-
-	for _, cfg := range configs {
-		scrapeConfig, err := convertScrapeConfig(cfg)
-		if err != nil {
-			return err
-		}
-
-		var found bool
-		for i, sc := range config.ScrapeConfigs {
-			if sc.JobName == cfg.JobName {
-				config.ScrapeConfigs[i] = scrapeConfig
-				found = true
-				break
-			}
-		}
-		if !found {
-			config.ScrapeConfigs = append(config.ScrapeConfigs, scrapeConfig)
-		}
-	}
-
-	return svc.saveConfigAndReload(ctx, config)
+	return res, nil
 }

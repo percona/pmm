@@ -10,31 +10,6 @@
   revision = "d2bd5b449f293d7e250dc1ce5398845e0c7928e0"
 
 [[projects]]
-  digest = "1:4362374738ba28a25378bcf08dc29d7e720ca214b2674b641dcaaa3320b2be19"
-  name = "github.com/Percona-Lab/promconfig"
-  packages = [
-    "common/config",
-    "config",
-    "discovery/azure",
-    "discovery/config",
-    "discovery/consul",
-    "discovery/dns",
-    "discovery/ec2",
-    "discovery/file",
-    "discovery/gce",
-    "discovery/kubernetes",
-    "discovery/marathon",
-    "discovery/openstack",
-    "discovery/targetgroup",
-    "discovery/triton",
-    "discovery/zookeeper",
-    "util/yaml",
-  ]
-  pruneopts = "T"
-  revision = "c318f5f07e0904391b8b58335fd4c12a7e0381a1"
-  version = "v2.2.1"
-
-[[projects]]
   digest = "1:352fc094dbd1438593b64251de6788bffdf30f9925cf763c7f62e1fd27142b76"
   name = "github.com/PuerkitoBio/purell"
   packages = ["."]
@@ -359,30 +334,6 @@
   version = "v1.7.0"
 
 [[projects]]
-  digest = "1:83a7165dd9d59cb0949543675bdf9f227198c547b198ab63245f324c6774be5e"
-  name = "github.com/hashicorp/consul"
-  packages = ["api"]
-  pruneopts = "T"
-  revision = "2c7715154d8d4568524b76d2d4deb7ca6fd1b285"
-  version = "v0.8.5"
-
-[[projects]]
-  digest = "1:f47d6109c2034cb16bd62b220e18afd5aa9d5a1630fe5d937ad96a4fb7cbb277"
-  name = "github.com/hashicorp/go-cleanhttp"
-  packages = ["."]
-  pruneopts = "T"
-  revision = "e8ab9daed8d1ddd2d3c4efba338fe2eeae2e4f18"
-  version = "v0.5.0"
-
-[[projects]]
-  digest = "1:d0a89b60b5f3953efe63c87dd34a5fc47eee5ef61d89819425efd900020eed6d"
-  name = "github.com/hashicorp/go-rootcerts"
-  packages = ["."]
-  pruneopts = "T"
-  revision = "63503fb4e1eca22f9ae0f90b49c5d5538a0e87eb"
-  version = "v1.0.0"
-
-[[projects]]
   digest = "1:071bcbf82c289fba4d3f63c876bf4f0ba7eda625cd60795e0a03ccbf949e517a"
   name = "github.com/hashicorp/hcl"
   packages = [
@@ -400,14 +351,6 @@
   pruneopts = "T"
   revision = "8cb6e5b959231cc1119e43259c4a608f9c51a241"
   version = "v1.0.0"
-
-[[projects]]
-  digest = "1:11e2954742a78dc77b43bb339a755cd787f10c69047056e0a884a48e64d25af9"
-  name = "github.com/hashicorp/serf"
-  packages = ["coordinate"]
-  pruneopts = "T"
-  revision = ""
-  version = "v0.8.1"
 
 [[projects]]
   digest = "1:3f222a291d2810bdeccb8ba10af58fd087269863c8196f7754cfa0de098a2b56"
@@ -488,20 +431,20 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:5d231480e1c64a726869bc4142d270184c419749d34f167646baa21008eb0a79"
-  name = "github.com/mitchellh/go-homedir"
-  packages = ["."]
-  pruneopts = "T"
-  revision = "af06845cf3004701891bf4fdb884bfe4920b3727"
-  version = "v1.1.0"
-
-[[projects]]
   digest = "1:53bc4cd4914cd7cd52139990d5170d6dc99067ae31c56530621b18b35fc30318"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
   pruneopts = "T"
   revision = "3536a929edddb9a5b34bd6861dc4a9647cb459fe"
   version = "v1.1.2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:218c27ececb95f61b292339afc39b66eac79808cfbf586559e45df7c92445dfd"
+  name = "github.com/mwitkow/go-conntrack"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "cc309e4a22231782e8893f3c35ced0967807a33e"
 
 [[projects]]
   branch = "master"
@@ -529,7 +472,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:2dc574cf7914cced153ebba1607be7de4969d286894535046276325ab7a477f3"
+  digest = "1:cec9e5a39e58916753b59b28f49fa1a8f17c5f873d74ee22d71d613eb3a42ae3"
   name = "github.com/percona/pmm"
   packages = [
     "api/agent",
@@ -537,7 +480,7 @@
     "version",
   ]
   pruneopts = "T"
-  revision = "7411b82815b56670f7452a0039787333f03485b5"
+  revision = "69a929e5b4296f140b0eb00e2795d043aa75c423"
 
 [[projects]]
   digest = "1:cf31692c14422fa27c83a05292eb5cbe0fb2775972e8f1f8446a71549bd8980b"
@@ -873,10 +816,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/AlekSi/pointer",
-    "github.com/Percona-Lab/promconfig/common/config",
-    "github.com/Percona-Lab/promconfig/config",
-    "github.com/Percona-Lab/promconfig/discovery/config",
-    "github.com/Percona-Lab/promconfig/discovery/targetgroup",
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/awserr",
     "github.com/aws/aws-sdk-go/aws/credentials",
@@ -895,8 +834,8 @@
     "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
     "github.com/grpc-ecosystem/grpc-gateway/utilities",
-    "github.com/hashicorp/consul/api",
     "github.com/lib/pq",
+    "github.com/mwitkow/go-conntrack",
     "github.com/percona/exporter_shared/helpers",
     "github.com/percona/pmm/api/agent",
     "github.com/percona/pmm/api/inventory",

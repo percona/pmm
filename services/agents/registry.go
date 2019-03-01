@@ -42,7 +42,8 @@ type agentInfo struct {
 
 // Registry keeps track of all connected pmm-agents.
 type Registry struct {
-	db *reform.DB
+	db         *reform.DB
+	prometheus prometheus
 
 	rw     sync.RWMutex
 	agents map[string]*agentInfo // id -> info
@@ -55,10 +56,13 @@ type Registry struct {
 }
 
 // NewRegistry creates a new registry with given database connection.
-func NewRegistry(db *reform.DB) *Registry {
+func NewRegistry(db *reform.DB, prometheus prometheus) *Registry {
 	r := &Registry{
-		db:            db,
-		agents:        make(map[string]*agentInfo),
+		db:         db,
+		prometheus: prometheus,
+
+		agents: make(map[string]*agentInfo),
+
 		sharedMetrics: newSharedMetrics(),
 		mConnects: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
@@ -155,7 +159,7 @@ func (r *Registry) Run(stream api.Agent_ConnectServer) error {
 				})
 
 			case *api.AgentMessage_StateChanged:
-				if err := r.stateChanged(req.StateChanged); err != nil {
+				if err := r.stateChanged(ctx, req.StateChanged); err != nil {
 					l.Errorf("%+v", err)
 				}
 
@@ -279,7 +283,7 @@ func (r *Registry) ping(ctx context.Context, agent *agentInfo) {
 	r.mClockDrift.Observe(clockDrift.Seconds())
 }
 
-func (r *Registry) stateChanged(s *api.StateChangedRequest) error {
+func (r *Registry) stateChanged(ctx context.Context, s *api.StateChangedRequest) error {
 	err := r.db.InTransaction(func(tx *reform.TX) error {
 		agent := &models.Agent{AgentID: s.AgentId}
 		if err := tx.Reload(agent); err != nil {
@@ -294,9 +298,7 @@ func (r *Registry) stateChanged(s *api.StateChangedRequest) error {
 		return err
 	}
 
-	// TODO notify Prometheus
-
-	return nil
+	return r.prometheus.UpdateConfiguration(ctx)
 }
 
 // SendSetStateRequest sends SetStateRequest to pmm-agent with given ID.

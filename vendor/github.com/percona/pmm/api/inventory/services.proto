@@ -15,12 +15,12 @@ message MySQLService {
   string service_name = 2;
   // Node identifier where this instance runs.
   string node_id = 3;
-  // Access address (DNS name or IP). Required if unix_socket is absent.
+  // Access address (DNS name or IP).
   string address = 4;
-  // Access port. Required if unix_socket is absent.
+  // Access port.
   uint32 port = 5;
-  // Access Unix socket. Required if address and port are absent.
-  string unix_socket = 6;
+  // Custom user-assigned labels. Keys starts with "_".
+  map<string, string> custom_labels = 10;
 }
 
 // AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node
@@ -35,6 +35,20 @@ message AmazonRDSMySQLService {
   string address = 4;
   // Instance port.
   uint32 port = 5;
+  // Custom user-assigned labels. Keys starts with "_".
+  map<string, string> custom_labels = 10;
+}
+
+// MongoDBService represents a generic MongoDB instance.
+message MongoDBService {
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+  // Node identifier where this instance runs.
+  string node_id = 3;
+  // Custom user-assigned labels. Keys starts with "_".
+  map<string, string> custom_labels = 10;
 }
 
 // List
@@ -49,6 +63,7 @@ message ListServicesRequest {
 message ListServicesResponse {
   repeated MySQLService mysql = 1;
   repeated AmazonRDSMySQLService amazon_rds_mysql = 2;
+  repeated MongoDBService mongodb = 3;
 }
 
 // Get
@@ -66,6 +81,7 @@ message GetServiceResponse {
   oneof service {
     MySQLService mysql = 1;
     AmazonRDSMySQLService amazon_rds_mysql = 2;
+    MongoDBService mongodb = 3;
   }
 }
 
@@ -74,24 +90,32 @@ message GetServiceResponse {
 message AddMySQLServiceRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
-  // Unique across all Services user-defined name.
+  // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Node identifier where this instance runs.
+  // Node identifier where this instance runs. Required.
   string node_id = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Access address (DNS name or IP). Required if unix_socket is absent.
-  string address = 4;
-  // Access port. Required if unix_socket is absent.
-  uint32 port = 5;
-  // Access Unix socket. Required if address and port are absent.
-  string unix_socket = 6;
+  // Access address (DNS name or IP). Required.
+  string address = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Access port. Required.
+  uint32 port = 5 [
+    (validator.field) = {
+      int_gt: 0
+    }
+  ];
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message AddMySQLServiceResponse {
@@ -99,30 +123,34 @@ message AddMySQLServiceResponse {
 }
 
 message ChangeMySQLServiceRequest {
-  // Unique randomly generated instance identifier.
+  // Unique randomly generated instance identifier. Required.
   string service_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Unique across all Services user-defined name.
+  // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Node identifier where this instance runs.
-  string node_id = 3 [
+  // Node identifier where this instance runs. Can't be changed.
+  reserved 3;
+  // Access address (DNS name or IP). Required.
+  string address = 4 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Access address (DNS name or IP). Required if unix_socket is absent.
-  string address = 4;
-  // Access port. Required if unix_socket is absent.
-  uint32 port = 5;
-  // Access Unix socket. Required if address and port are absent.
-  string unix_socket = 6;
+  // Access port. Required.
+  uint32 port = 5 [
+    (validator.field) = {
+      int_gt: 0
+    }
+  ];
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message ChangeMySQLServiceResponse {
@@ -134,30 +162,32 @@ message ChangeMySQLServiceResponse {
 message AddAmazonRDSMySQLServiceRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
-  // Unique across all Services user-defined name.
+  // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Node identifier where this instance runs.
+  // Node identifier where this instance runs. Required.
   string node_id = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Instance endpoint (full DNS name).
+  // Instance endpoint (full DNS name). Required.
   string address = 4 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Instance port.
+  // Instance port. Required.
   uint32 port = 5 [
     (validator.field) = {
       int_gt: 0
     }
   ];
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message AddAmazonRDSMySQLServiceResponse {
@@ -165,13 +195,13 @@ message AddAmazonRDSMySQLServiceResponse {
 }
 
 message ChangeAmazonRDSMySQLServiceRequest {
-  // Unique randomly generated instance identifier.
+  // Unique randomly generated instance identifier. Required.
   string service_id = 1 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Unique across all Services user-defined name.
+  // Unique across all Services user-defined name. Required.
   string service_name = 2 [
     (validator.field) = {
       string_not_empty: true
@@ -179,28 +209,55 @@ message ChangeAmazonRDSMySQLServiceRequest {
   ];
   // Node identifier where this instance runs. Can't be changed.
   reserved 3;
-  // Instance endpoint (full DNS name).
+  // Instance endpoint (full DNS name). Required.
   string address = 4 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Instance port.
+  // Instance port. Required.
   uint32 port = 5 [
     (validator.field) = {
       int_gt: 0
     }
   ];
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
 }
 
 message ChangeAmazonRDSMySQLServiceResponse {
   AmazonRDSMySQLService amazon_rds_mysql = 1;
 }
 
+// Add MongoDB
+
+message AddMongoDBServiceRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Unique across all Services user-defined name. Required.
+  string service_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Node identifier where this instance runs. Required.
+  string node_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
+}
+
+message AddMongoDBServiceResponse {
+  MongoDBService mongodb = 1;
+}
+
 // Remove
 
 message RemoveServiceRequest {
-  // Unique randomly generated instance identifier.
+  // Unique randomly generated instance identifier. Required.
   string service_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -251,6 +308,13 @@ service Services {
   rpc ChangeAmazonRDSMySQLService(ChangeAmazonRDSMySQLServiceRequest) returns (ChangeAmazonRDSMySQLServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/ChangeAmazonRDSMySQL"
+      body: "*"
+    };
+  }
+  // AddMongoDBService adds MongoDB Service.
+  rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/AddMongoDB"
       body: "*"
     };
   }

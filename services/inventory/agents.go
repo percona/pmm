@@ -33,41 +33,42 @@ import (
 
 // AgentsService works with inventory API Agents.
 type AgentsService struct {
-	q *reform.Querier
 	r registry
 }
 
-func NewAgentsService(q *reform.Querier, r registry) *AgentsService {
+func NewAgentsService(r registry) *AgentsService {
 	return &AgentsService{
-		q: q,
 		r: r,
 	}
 }
 
 // makeAgent converts database row to Inventory API Agent.
-func (as *AgentsService) makeAgent(ctx context.Context, row *models.Agent) (api.Agent, error) {
-	if ctx.Err() != nil {
-		return nil, ctx.Err()
+func (as *AgentsService) makeAgent(q *reform.Querier, row *models.Agent) (api.Agent, error) {
+	labels, err := row.GetCustomLabels()
+	if err != nil {
+		return nil, err
 	}
 
 	switch row.AgentType {
 	case models.PMMAgentType:
 		return &api.PMMAgent{
-			AgentId:   row.AgentID,
-			NodeId:    row.RunsOnNodeID,
-			Connected: as.r.IsConnected(row.AgentID),
+			AgentId:      row.AgentID,
+			NodeId:       row.RunsOnNodeID,
+			Connected:    as.r.IsConnected(row.AgentID),
+			CustomLabels: labels,
 		}, nil
 
 	case models.NodeExporterType:
 		return &api.NodeExporter{
-			AgentId:    row.AgentID,
-			NodeId:     row.RunsOnNodeID,
-			Status:     api.AgentStatus(api.AgentStatus_value[row.Status]),
-			ListenPort: uint32(pointer.GetUint16(row.ListenPort)),
+			AgentId:      row.AgentID,
+			NodeId:       row.RunsOnNodeID,
+			Status:       api.AgentStatus(api.AgentStatus_value[row.Status]),
+			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
+			CustomLabels: labels,
 		}, nil
 
 	case models.MySQLdExporterType:
-		services, err := models.ServicesForAgent(as.q, row.AgentID)
+		services, err := models.ServicesForAgent(q, row.AgentID)
 		if err != nil {
 			return nil, err
 		}
@@ -83,6 +84,7 @@ func (as *AgentsService) makeAgent(ctx context.Context, row *models.Agent) (api.
 			Password:     pointer.GetString(row.Password),
 			Status:       api.AgentStatus(api.AgentStatus_value[row.Status]),
 			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
+			CustomLabels: labels,
 		}, nil
 
 	default:
@@ -90,16 +92,13 @@ func (as *AgentsService) makeAgent(ctx context.Context, row *models.Agent) (api.
 	}
 }
 
-func (as *AgentsService) get(ctx context.Context, id string) (*models.Agent, error) {
-	if ctx.Err() != nil {
-		return nil, ctx.Err()
-	}
+func get(q *reform.Querier, id string) (*models.Agent, error) {
 	if id == "" {
 		return nil, status.Error(codes.InvalidArgument, "Empty Agent ID.")
 	}
 
 	row := &models.Agent{AgentID: id}
-	switch err := as.q.Reload(row); err {
+	switch err := q.Reload(row); err {
 	case nil:
 		return row, nil
 	case reform.ErrNoRows:
@@ -109,16 +108,13 @@ func (as *AgentsService) get(ctx context.Context, id string) (*models.Agent, err
 	}
 }
 
-func (as *AgentsService) checkUniqueID(ctx context.Context, id string) error {
-	if ctx.Err() != nil {
-		return ctx.Err()
-	}
+func checkUniqueID(q *reform.Querier, id string) error {
 	if id == "" {
 		panic("empty Agent ID")
 	}
 
 	row := &models.Agent{AgentID: id}
-	switch err := as.q.Reload(row); err {
+	switch err := q.Reload(row); err {
 	case nil:
 		return status.Errorf(codes.AlreadyExists, "Agent with ID %q already exists.", id)
 	case reform.ErrNoRows:
@@ -139,203 +135,235 @@ type AgentFilters struct {
 }
 
 // List selects all Agents in a stable order for a given service.
-func (as *AgentsService) List(ctx context.Context, filters AgentFilters) ([]api.Agent, error) {
-	var agents []*models.Agent
-	var err error
-	switch {
-	case filters.RunsOnNodeID != "":
-		agents, err = models.AgentsRunningOnNode(as.q, filters.RunsOnNodeID)
-	case filters.NodeID != "":
-		agents, err = models.AgentsForNode(as.q, filters.NodeID)
-	case filters.ServiceID != "":
-		agents, err = models.AgentsForService(as.q, filters.ServiceID)
-	default:
-		var structs []reform.Struct
-		structs, err = as.q.SelectAllFrom(models.AgentTable, "ORDER BY agent_id")
-		err = errors.Wrap(err, "failed to select Agents")
-		agents = make([]*models.Agent, len(structs))
-		for i, s := range structs {
-			agents[i] = s.(*models.Agent)
+func (as *AgentsService) List(ctx context.Context, db *reform.DB, filters AgentFilters) ([]api.Agent, error) {
+	var res []api.Agent
+	e := db.InTransaction(func(tx *reform.TX) error {
+		var agents []*models.Agent
+		var err error
+		switch {
+		case filters.RunsOnNodeID != "":
+			agents, err = models.AgentsRunningOnNode(tx.Querier, filters.RunsOnNodeID)
+		case filters.NodeID != "":
+			agents, err = models.AgentsForNode(tx.Querier, filters.NodeID)
+		case filters.ServiceID != "":
+			agents, err = models.AgentsForService(tx.Querier, filters.ServiceID)
+		default:
+			var structs []reform.Struct
+			structs, err = tx.Querier.SelectAllFrom(models.AgentTable, "ORDER BY agent_id")
+			err = errors.Wrap(err, "failed to select Agents")
+			agents = make([]*models.Agent, len(structs))
+			for i, s := range structs {
+				agents[i] = s.(*models.Agent)
+			}
 		}
-	}
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return err
+		}
+
+		// TODO That loop makes len(agents) SELECTs, that can be slow. Optimize when needed.
+		res = make([]api.Agent, len(agents))
+		for i, row := range agents {
+			agent, err := as.makeAgent(tx.Querier, row)
+			if err != nil {
+				return err
+			}
+			res[i] = agent
+		}
+		return nil
+	})
+	return res, e
+}
+
+// Get selects a single Agent by ID.
+func (as *AgentsService) Get(ctx context.Context, db *reform.DB, id string) (api.Agent, error) {
+	var res api.Agent
+	e := db.InTransaction(func(tx *reform.TX) error {
+		row, err := get(tx.Querier, id)
+		if err != nil {
+			return err
+		}
+		res, err = as.makeAgent(tx.Querier, row)
+		return err
+	})
+	return res, e
+}
+
+// AddPMMAgent inserts pmm-agent Agent with given parameters.
+func (as *AgentsService) AddPMMAgent(ctx context.Context, db *reform.DB, nodeID string) (*api.PMMAgent, error) {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
+
+	var res *api.PMMAgent
+	e := db.InTransaction(func(tx *reform.TX) error {
+		id := "/agent_id/" + uuid.New().String()
+		if err := checkUniqueID(tx.Querier, id); err != nil {
+			return err
+		}
+
+		ns := NewNodesService(tx.Querier, as.r)
+		if _, err := ns.get(ctx, nodeID); err != nil {
+			return err
+		}
+
+		row := &models.Agent{
+			AgentID:      id,
+			AgentType:    models.PMMAgentType,
+			RunsOnNodeID: nodeID,
+		}
+		if err := tx.Insert(row); err != nil {
+			return errors.WithStack(err)
+		}
+
+		err := tx.Insert(&models.AgentNode{
+			AgentID: row.AgentID,
+			NodeID:  nodeID,
+		})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		agent, err := as.makeAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		res = agent.(*api.PMMAgent)
+		return nil
+	})
+	return res, e
+}
+
+// AddNodeExporter inserts node_exporter Agent with given parameters.
+func (as *AgentsService) AddNodeExporter(ctx context.Context, db *reform.DB, req *api.AddNodeExporterRequest) (*api.NodeExporter, error) {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
+
+	var res *api.NodeExporter
+	var pmmAgentID string
+	e := db.InTransaction(func(tx *reform.TX) error {
+		id := "/agent_id/" + uuid.New().String()
+		if err := checkUniqueID(tx.Querier, id); err != nil {
+			return err
+		}
+
+		ns := NewNodesService(tx.Querier, as.r)
+		if _, err := ns.get(ctx, req.NodeId); err != nil {
+			return err
+		}
+
+		row := &models.Agent{
+			AgentID:      id,
+			AgentType:    models.NodeExporterType,
+			RunsOnNodeID: req.NodeId,
+		}
+		if err := row.SetCustomLabels(req.CustomLabels); err != nil {
+			return err
+		}
+		if err := tx.Insert(row); err != nil {
+			return errors.WithStack(err)
+		}
+
+		err := tx.Insert(&models.AgentNode{
+			AgentID: row.AgentID,
+			NodeID:  req.NodeId,
+		})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		pmmAgentID, err = models.PMMAgentForAgent(tx.Querier, row.AgentID)
+		if err != nil {
+			return err
+		}
+
+		agent, err := as.makeAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		res = agent.(*api.NodeExporter)
+		return nil
+	})
+	if e != nil {
+		return nil, e
 	}
 
-	// TODO That loop makes len(agents) SELECTs, that can be slow. Optimize when needed.
-	res := make([]api.Agent, len(agents))
-	for i, row := range agents {
-		agent, err := as.makeAgent(ctx, row)
-		if err != nil {
-			return nil, err
-		}
-		res[i] = agent
+	if pmmAgentID != "" {
+		as.r.SendSetStateRequest(ctx, pmmAgentID)
 	}
 	return res, nil
 }
 
-// Get selects a single Agent by ID.
-func (as *AgentsService) Get(ctx context.Context, id string) (api.Agent, error) {
-	row, err := as.get(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-	return as.makeAgent(ctx, row)
-}
-
-// AddPMMAgent inserts pmm-agent Agent with given parameters.
-func (as *AgentsService) AddPMMAgent(ctx context.Context, nodeID string) (*api.PMMAgent, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
-
-	id := "/agent_id/" + uuid.New().String()
-	if err := as.checkUniqueID(ctx, id); err != nil {
-		return nil, err
-	}
-
-	ns := NewNodesService(as.q, as.r)
-	if _, err := ns.get(ctx, nodeID); err != nil {
-		return nil, err
-	}
-
-	row := &models.Agent{
-		AgentID:      id,
-		AgentType:    models.PMMAgentType,
-		RunsOnNodeID: nodeID,
-	}
-	if err := as.q.Insert(row); err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	err := as.q.Insert(&models.AgentNode{
-		AgentID: row.AgentID,
-		NodeID:  nodeID,
-	})
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	agent, err := as.makeAgent(ctx, row)
-	if err != nil {
-		return nil, err
-	}
-	return agent.(*api.PMMAgent), nil
-}
-
-// AddNodeExporter inserts node_exporter Agent with given parameters.
-func (as *AgentsService) AddNodeExporter(ctx context.Context, nodeID string) (*api.NodeExporter, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
-
-	id := "/agent_id/" + uuid.New().String()
-	if err := as.checkUniqueID(ctx, id); err != nil {
-		return nil, err
-	}
-
-	ns := NewNodesService(as.q, as.r)
-	if _, err := ns.get(ctx, nodeID); err != nil {
-		return nil, err
-	}
-
-	row := &models.Agent{
-		AgentID:      id,
-		AgentType:    models.NodeExporterType,
-		RunsOnNodeID: nodeID,
-	}
-	if err := as.q.Insert(row); err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	err := as.q.Insert(&models.AgentNode{
-		AgentID: row.AgentID,
-		NodeID:  nodeID,
-	})
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	// send new state to pmm-agents
-	agents, err := models.AgentsRunningOnNode(as.q, nodeID)
-	if err != nil {
-		return nil, err
-	}
-	for _, agent := range agents {
-		if agent.AgentType != models.PMMAgentType {
-			continue
-		}
-		as.r.SendSetStateRequest(ctx, agent.AgentID)
-	}
-
-	agent, err := as.makeAgent(ctx, row)
-	if err != nil {
-		return nil, err
-	}
-	return agent.(*api.NodeExporter), nil
-}
-
 // AddMySQLdExporter inserts mysqld_exporter Agent with given parameters.
-func (as *AgentsService) AddMySQLdExporter(ctx context.Context, nodeID string, serviceID string, username, password *string) (*api.MySQLdExporter, error) {
+func (as *AgentsService) AddMySQLdExporter(ctx context.Context, db *reform.DB, req *api.AddMySQLdExporterRequest) (*api.MySQLdExporter, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
 
-	id := "/agent_id/" + uuid.New().String()
-	if err := as.checkUniqueID(ctx, id); err != nil {
-		return nil, err
-	}
-
-	ns := NewNodesService(as.q, as.r)
-	if _, err := ns.get(ctx, nodeID); err != nil {
-		return nil, err
-	}
-
-	ss := NewServicesService(as.q, as.r)
-	if _, err := ss.get(ctx, serviceID); err != nil {
-		return nil, err
-	}
-
-	row := &models.Agent{
-		AgentID:      id,
-		AgentType:    models.MySQLdExporterType,
-		RunsOnNodeID: nodeID,
-		Username:     username,
-		Password:     password,
-	}
-	if err := as.q.Insert(row); err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	err := as.q.Insert(&models.AgentNode{
-		AgentID: row.AgentID,
-		NodeID:  nodeID,
-	})
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	err = as.q.Insert(&models.AgentService{
-		AgentID:   row.AgentID,
-		ServiceID: serviceID,
-	})
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-
-	// send new state to pmm-agents
-	agents, err := models.AgentsRunningOnNode(as.q, nodeID)
-	if err != nil {
-		return nil, err
-	}
-	for _, agent := range agents {
-		if agent.AgentType != models.PMMAgentType {
-			continue
+	var res *api.MySQLdExporter
+	var pmmAgentID string
+	e := db.InTransaction(func(tx *reform.TX) error {
+		id := "/agent_id/" + uuid.New().String()
+		if err := checkUniqueID(tx.Querier, id); err != nil {
+			return err
 		}
-		as.r.SendSetStateRequest(ctx, agent.AgentID)
+
+		ns := NewNodesService(tx.Querier, as.r)
+		if _, err := ns.get(ctx, req.RunsOnNodeId); err != nil {
+			return err
+		}
+
+		ss := NewServicesService(tx.Querier, as.r)
+		if _, err := ss.get(ctx, req.ServiceId); err != nil {
+			return err
+		}
+
+		row := &models.Agent{
+			AgentID:      id,
+			AgentType:    models.MySQLdExporterType,
+			RunsOnNodeID: req.RunsOnNodeId,
+			Username:     pointer.ToStringOrNil(req.Username),
+			Password:     pointer.ToStringOrNil(req.Password),
+		}
+		if err := row.SetCustomLabels(req.CustomLabels); err != nil {
+			return err
+		}
+		if err := tx.Insert(row); err != nil {
+			return errors.WithStack(err)
+		}
+
+		err := tx.Insert(&models.AgentNode{
+			AgentID: row.AgentID,
+			NodeID:  req.RunsOnNodeId,
+		})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		err = tx.Insert(&models.AgentService{
+			AgentID:   row.AgentID,
+			ServiceID: req.ServiceId,
+		})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		pmmAgentID, err = models.PMMAgentForAgent(tx.Querier, row.AgentID)
+		if err != nil {
+			return err
+		}
+
+		agent, err := as.makeAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		res = agent.(*api.MySQLdExporter)
+		return nil
+	})
+	if e != nil {
+		return nil, e
 	}
 
-	agent, err := as.makeAgent(ctx, row)
-	if err != nil {
-		return nil, err
+	if pmmAgentID != "" {
+		as.r.SendSetStateRequest(ctx, pmmAgentID)
 	}
-	return agent.(*api.MySQLdExporter), nil
+	return res, nil
 }
 
 /*
@@ -353,31 +381,40 @@ func (as *AgentsService) SetDisabled(ctx context.Context, id string, disabled bo
 */
 
 // Remove deletes Agent by ID.
-func (as *AgentsService) Remove(ctx context.Context, id string) error {
+func (as *AgentsService) Remove(ctx context.Context, db *reform.DB, id string) error {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// ID is not 0.
 
-	row, err := as.get(ctx, id)
-	if err != nil {
-		return err
-	}
+	return db.InTransaction(func(tx *reform.TX) error {
+		row, err := get(tx.Querier, id)
+		if err != nil {
+			return err
+		}
 
-	if _, err = as.q.DeleteFrom(models.AgentServiceView, "WHERE agent_id = "+as.q.Placeholder(1), id); err != nil { //nolint:gosec
-		return errors.WithStack(err)
-	}
-	if _, err = as.q.DeleteFrom(models.AgentNodeView, "WHERE agent_id = "+as.q.Placeholder(1), id); err != nil { //nolint:gosec
-		return errors.WithStack(err)
-	}
+		pmmAgentID, err := models.PMMAgentForAgent(tx.Querier, row.AgentID)
+		if err != nil {
+			return err
+		}
 
-	if err = as.q.Delete(row); err != nil {
-		return errors.WithStack(err)
-	}
+		if _, err = tx.DeleteFrom(models.AgentServiceView, "WHERE agent_id = "+tx.Placeholder(1), id); err != nil { //nolint:gosec
+			return errors.WithStack(err)
+		}
+		if _, err = tx.DeleteFrom(models.AgentNodeView, "WHERE agent_id = "+tx.Placeholder(1), id); err != nil { //nolint:gosec
+			return errors.WithStack(err)
+		}
 
-	// TODO as.r.SendSetStateRequest(ctx, proper ID)
+		if err = tx.Delete(row); err != nil {
+			return errors.WithStack(err)
+		}
 
-	if row.AgentType == models.PMMAgentType {
-		as.r.Kick(ctx, id)
-	}
+		if pmmAgentID != "" {
+			as.r.SendSetStateRequest(ctx, pmmAgentID)
+		}
 
-	return nil
+		if row.AgentType == models.PMMAgentType {
+			as.r.Kick(ctx, id)
+		}
+
+		return nil
+	})
 }

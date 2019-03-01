@@ -24,12 +24,12 @@ func (_m *mockRegistry) IsConnected(pmmAgentID string) bool {
 	return r0
 }
 
-// Kick provides a mock function with given fields: ctx, agentID
-func (_m *mockRegistry) Kick(ctx context.Context, agentID string) {
-	_m.Called(ctx, agentID)
+// Kick provides a mock function with given fields: ctx, pmmAgentID
+func (_m *mockRegistry) Kick(ctx context.Context, pmmAgentID string) {
+	_m.Called(ctx, pmmAgentID)
 }
 
-// SendSetStateRequest provides a mock function with given fields: ctx, agentID
-func (_m *mockRegistry) SendSetStateRequest(ctx context.Context, agentID string) {
-	_m.Called(ctx, agentID)
+// SendSetStateRequest provides a mock function with given fields: ctx, pmmAgentID
+func (_m *mockRegistry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
+	_m.Called(ctx, pmmAgentID)
 }

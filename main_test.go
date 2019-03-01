@@ -47,10 +47,11 @@ func TestImports(t *testing.T) {
 			blacklist: []string{
 				"github.com/percona/pmm-managed/services/agents",
 				"github.com/percona/pmm-managed/services/inventory",
+				"github.com/percona/pmm-managed/services/prometheus",
 			},
 		},
 
-		// agents and inventory services should be independent
+		// agents, inventory, and prometheus services should be independent
 		"github.com/percona/pmm-managed/services/agents": {
 			blacklist: []string{
 				"github.com/percona/pmm-managed/services/inventory",
@@ -61,6 +62,12 @@ func TestImports(t *testing.T) {
 			blacklist: []string{
 				"github.com/percona/pmm-managed/services/agents",
 				"github.com/percona/pmm-managed/services/prometheus",
+			},
+		},
+		"github.com/percona/pmm-managed/services/prometheus": {
+			blacklist: []string{
+				"github.com/percona/pmm-managed/services/agents",
+				"github.com/percona/pmm-managed/services/inventory",
 			},
 		},
 	} {

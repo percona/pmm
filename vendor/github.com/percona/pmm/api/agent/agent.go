@@ -13,6 +13,19 @@ type (
 	AgentMessagePayload  = isAgentMessage_Payload
 )
 
+type RequestPayload interface{ request() }
+type ResponsePayload interface{ response() }
+
+func (*Ping) request()                {}
+func (*QANDataRequest) request()      {}
+func (*StateChangedRequest) request() {}
+func (*SetStateRequest) request()     {}
+
+func (*Pong) response()                 {}
+func (*QANDataResponse) response()      {}
+func (*StateChangedResponse) response() {}
+func (*SetStateResponse) response()     {}
+
 const (
 	mdID      = "pmm-agent-id"
 	mdVersion = "pmm-agent-version"

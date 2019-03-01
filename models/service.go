@@ -17,6 +17,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -67,16 +68,16 @@ const (
 // Service represents Service as stored in database.
 //reform:services
 type Service struct {
-	ServiceID   string      `reform:"service_id,pk"`
-	ServiceType ServiceType `reform:"service_type"`
-	ServiceName string      `reform:"service_name"`
-	NodeID      string      `reform:"node_id"`
-	CreatedAt   time.Time   `reform:"created_at"`
+	ServiceID    string      `reform:"service_id,pk"`
+	ServiceType  ServiceType `reform:"service_type"`
+	ServiceName  string      `reform:"service_name"`
+	NodeID       string      `reform:"node_id"`
+	CustomLabels []byte      `reform:"custom_labels"`
+	CreatedAt    time.Time   `reform:"created_at"`
 	// UpdatedAt time.Time   `reform:"updated_at"`
 
-	Address    *string `reform:"address"`
-	Port       *uint16 `reform:"port"`
-	UnixSocket *string `reform:"unix_socket"`
+	Address *string `reform:"address"`
+	Port    *uint16 `reform:"port"`
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
@@ -101,6 +102,32 @@ func (s *Service) BeforeUpdate() error {
 func (s *Service) AfterFind() error {
 	s.CreatedAt = s.CreatedAt.UTC()
 	// s.UpdatedAt = s.UpdatedAt.UTC()
+	return nil
+}
+
+// GetCustomLabels decodes custom labels.
+func (s *Service) GetCustomLabels() (map[string]string, error) {
+	if len(s.CustomLabels) == 0 {
+		return nil, nil
+	}
+	m := make(map[string]string)
+	if err := json.Unmarshal(s.CustomLabels, &m); err != nil {
+		return nil, errors.Wrap(err, "failed to decode custom labels")
+	}
+	return m, nil
+}
+
+// SetCustomLabels encodes custom labels.
+func (s *Service) SetCustomLabels(m map[string]string) error {
+	if len(m) == 0 {
+		s.CustomLabels = nil
+		return nil
+	}
+	b, err := json.Marshal(m)
+	if err != nil {
+		return errors.Wrap(err, "failed to encode custom labels")
+	}
+	s.CustomLabels = b
 	return nil
 }
 

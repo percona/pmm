@@ -72,6 +72,9 @@ swagger:model ContainerItems0
 */
 type ContainerItems0 struct {
 
+	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.
 	DockerContainerID string `json:"docker_container_id,omitempty"`
 
@@ -115,6 +118,12 @@ func (o *ContainerItems0) UnmarshalBinary(b []byte) error {
 swagger:model GenericItems0
 */
 type GenericItems0 struct {
+
+	// Address FIXME.
+	Address string `json:"address,omitempty"`
+
+	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Linux distribution (if any). Can be changed.
 	Distro string `json:"distro,omitempty"`
@@ -322,6 +331,9 @@ swagger:model RemoteAmazonRDSItems0
 */
 type RemoteAmazonRDSItems0 struct {
 
+	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.
 	Instance string `json:"instance,omitempty"`
 
@@ -362,6 +374,9 @@ func (o *RemoteAmazonRDSItems0) UnmarshalBinary(b []byte) error {
 swagger:model RemoteItems0
 */
 type RemoteItems0 struct {
+
+	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Unique randomly generated instance identifier, can't be changed.
 	NodeID string `json:"node_id,omitempty"`

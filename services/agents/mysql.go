@@ -33,7 +33,6 @@ import (
 func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *api.SetStateRequest_AgentProcess {
 	tdp := templateDelimsPair(
 		pointer.GetString(service.Address),
-		pointer.GetString(service.UnixSocket),
 		pointer.GetString(exporter.Username),
 		pointer.GetString(exporter.Password),
 		pointer.GetString(exporter.MetricsURL),
@@ -72,15 +71,10 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *api.
 	cfg := mysql.NewConfig()
 	cfg.User = pointer.GetString(exporter.Username)
 	cfg.Passwd = pointer.GetString(exporter.Password)
-	if socket := pointer.GetString(service.UnixSocket); socket != "" {
-		cfg.Net = "unix"
-		cfg.Addr = socket
-	} else {
-		cfg.Net = "tcp"
-		host := pointer.GetString(service.Address)
-		port := pointer.GetUint16(service.Port)
-		cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
-	}
+	cfg.Net = "tcp"
+	host := pointer.GetString(service.Address)
+	port := pointer.GetUint16(service.Port)
+	cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
 	cfg.Timeout = 5 * time.Second
 	dsn := cfg.FormatDSN()
 

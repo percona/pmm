@@ -30,6 +30,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "metrics_url": {
                   "description": "URL for scraping metrics.",
                   "type": "string"
@@ -52,9 +59,113 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "metrics_url": {
                       "description": "URL for scraping metrics.",
                       "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/AddMongoDBExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "AddMongoDBExporter adds mongodb_exporter Agent.",
+        "operationId": "AddMongoDBExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "connection_string": {
+                  "type": "string",
+                  "title": "MongoDB URI for scraping metrics. (See: https://docs.mongodb.com/manual/reference/connection-string/)"
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "runs_on_node_id": {
+                  "description": "Node identifier where this instance runs.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service identifier.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mongodb_exporter": {
+                  "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "connection_string": {
+                      "type": "string",
+                      "title": "MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent process status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
                     }
                   }
                 }
@@ -79,6 +190,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "password": {
                   "description": "MySQL password for scraping metrics.",
                   "type": "string"
@@ -112,6 +230,13 @@
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -170,6 +295,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "node_id": {
                   "description": "Node identifier where this instance runs.",
                   "type": "string"
@@ -191,6 +323,13 @@
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -237,6 +376,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "node_id": {
                   "description": "Node identifier where this instance runs.",
                   "type": "string"
@@ -263,6 +409,13 @@
                       "description": "True if Agent is running and connected to pmm-managed.",
                       "type": "boolean",
                       "format": "boolean"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
@@ -291,6 +444,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "runs_on_node_id": {
                   "description": "Node identifier where this instance runs.",
                   "type": "string"
@@ -319,6 +479,13 @@
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -394,9 +561,63 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "metrics_url": {
                       "description": "URL for scraping metrics.",
                       "type": "string"
+                    }
+                  }
+                },
+                "mongodb_exporter": {
+                  "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "connection_string": {
+                      "type": "string",
+                      "title": "MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent process status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
                     }
                   }
                 },
@@ -407,6 +628,13 @@
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -452,6 +680,13 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -489,6 +724,13 @@
                       "type": "boolean",
                       "format": "boolean"
                     },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
@@ -502,6 +744,13 @@
                     "agent_id": {
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
@@ -587,9 +836,66 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string"
                       },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
                       "metrics_url": {
                         "description": "URL for scraping metrics.",
                         "type": "string"
+                      }
+                    }
+                  }
+                },
+                "mongodb_exporter": {
+                  "type": "array",
+                  "items": {
+                    "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string"
+                      },
+                      "connection_string": {
+                        "type": "string",
+                        "title": "MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)"
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics.",
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "runs_on_node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string"
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string"
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent process status.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ]
                       }
                     }
                   }
@@ -603,6 +909,13 @@
                       "agent_id": {
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string"
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
@@ -651,6 +964,13 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string"
                       },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
@@ -691,6 +1011,13 @@
                         "type": "boolean",
                         "format": "boolean"
                       },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
                       "node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string"
@@ -707,6 +1034,13 @@
                       "agent_id": {
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string"
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
@@ -793,6 +1127,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "docker_container_id": {
                   "description": "Docker container identifier. If specified, must be a unique Docker container identifier.",
                   "type": "string"
@@ -823,6 +1164,13 @@
                   "description": "ContainerNode represents a Docker container.",
                   "type": "object",
                   "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "docker_container_id": {
                       "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
                       "type": "string"
@@ -866,6 +1214,17 @@
             "schema": {
               "type": "object",
               "properties": {
+                "address": {
+                  "description": "Address FIXME.",
+                  "type": "string"
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "distro": {
                   "description": "Linux distribution (if any).",
                   "type": "string"
@@ -896,6 +1255,17 @@
                   "description": "GenericNode represents a bare metal server or virtual machine.",
                   "type": "object",
                   "properties": {
+                    "address": {
+                      "description": "Address FIXME.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "distro": {
                       "description": "Linux distribution (if any). Can be changed.",
                       "type": "string"
@@ -939,6 +1309,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "node_name": {
                   "description": "Unique across all Nodes user-defined name.",
                   "type": "string"
@@ -957,6 +1334,13 @@
                   "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "node_id": {
                       "description": "Unique randomly generated instance identifier, can't be changed.",
                       "type": "string"
@@ -988,6 +1372,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "instance": {
                   "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.",
                   "type": "string"
@@ -1014,6 +1405,13 @@
                   "description": "RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "instance": {
                       "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.",
                       "type": "string"
@@ -1053,6 +1451,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "docker_container_name": {
                   "description": "Container name.",
                   "type": "string"
@@ -1079,6 +1484,13 @@
                   "description": "ContainerNode represents a Docker container.",
                   "type": "object",
                   "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "docker_container_id": {
                       "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
                       "type": "string"
@@ -1122,6 +1534,17 @@
             "schema": {
               "type": "object",
               "properties": {
+                "address": {
+                  "description": "Address FIXME.",
+                  "type": "string"
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "distro": {
                   "description": "Linux distribution (if any).",
                   "type": "string"
@@ -1152,6 +1575,17 @@
                   "description": "GenericNode represents a bare metal server or virtual machine.",
                   "type": "object",
                   "properties": {
+                    "address": {
+                      "description": "Address FIXME.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "distro": {
                       "description": "Linux distribution (if any). Can be changed.",
                       "type": "string"
@@ -1195,6 +1629,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "node_id": {
                   "description": "Unique randomly generated instance identifier.",
                   "type": "string"
@@ -1217,6 +1658,13 @@
                   "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "node_id": {
                       "description": "Unique randomly generated instance identifier, can't be changed.",
                       "type": "string"
@@ -1248,6 +1696,13 @@
             "schema": {
               "type": "object",
               "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "instance": {
                   "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.",
                   "type": "string"
@@ -1274,6 +1729,13 @@
                   "description": "RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "instance": {
                       "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.",
                       "type": "string"
@@ -1331,6 +1793,13 @@
                   "description": "ContainerNode represents a Docker container.",
                   "type": "object",
                   "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "docker_container_id": {
                       "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
                       "type": "string"
@@ -1357,6 +1826,17 @@
                   "description": "GenericNode represents a bare metal server or virtual machine.",
                   "type": "object",
                   "properties": {
+                    "address": {
+                      "description": "Address FIXME.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "distro": {
                       "description": "Linux distribution (if any). Can be changed.",
                       "type": "string"
@@ -1383,6 +1863,13 @@
                   "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "node_id": {
                       "description": "Unique randomly generated instance identifier, can't be changed.",
                       "type": "string"
@@ -1397,6 +1884,13 @@
                   "description": "RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.",
                   "type": "object",
                   "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "instance": {
                       "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.",
                       "type": "string"
@@ -1450,6 +1944,13 @@
                     "description": "ContainerNode represents a Docker container.",
                     "type": "object",
                     "properties": {
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
                       "docker_container_id": {
                         "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
                         "type": "string"
@@ -1479,6 +1980,17 @@
                     "description": "GenericNode represents a bare metal server or virtual machine.",
                     "type": "object",
                     "properties": {
+                      "address": {
+                        "description": "Address FIXME.",
+                        "type": "string"
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
                       "distro": {
                         "description": "Linux distribution (if any). Can be changed.",
                         "type": "string"
@@ -1508,6 +2020,13 @@
                     "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
                     "type": "object",
                     "properties": {
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
                       "node_id": {
                         "description": "Unique randomly generated instance identifier, can't be changed.",
                         "type": "string"
@@ -1525,6 +2044,13 @@
                     "description": "RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.",
                     "type": "object",
                     "properties": {
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys must start with \"_\". Can be changed.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
                       "instance": {
                         "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.",
                         "type": "string"
@@ -1599,20 +2125,27 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "Instance endpoint (full DNS name).",
+                  "description": "Instance endpoint (full DNS name). Required.",
                   "type": "string"
                 },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "node_id": {
-                  "description": "Node identifier where this instance runs.",
+                  "description": "Node identifier where this instance runs. Required.",
                   "type": "string"
                 },
                 "port": {
-                  "description": "Instance port.",
+                  "description": "Instance port. Required.",
                   "type": "integer",
                   "format": "int64"
                 },
                 "service_name": {
-                  "description": "Unique across all Services user-defined name.",
+                  "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
                 }
               }
@@ -1633,6 +2166,13 @@
                       "description": "Instance endpoint (full DNS name).",
                       "type": "string"
                     },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
@@ -1641,6 +2181,77 @@
                       "description": "Instance port.",
                       "type": "integer",
                       "format": "int64"
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Services/AddMongoDB": {
+      "post": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "AddMongoDBService adds MongoDB Service.",
+        "operationId": "AddMongoDBService",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "node_id": {
+                  "description": "Node identifier where this instance runs. Required.",
+                  "type": "string"
+                },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name. Required.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mongodb": {
+                  "description": "MongoDBService represents a generic MongoDB instance.",
+                  "type": "object",
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
@@ -1674,24 +2285,27 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                  "description": "Access address (DNS name or IP). Required.",
                   "type": "string"
                 },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "node_id": {
-                  "description": "Node identifier where this instance runs.",
+                  "description": "Node identifier where this instance runs. Required.",
                   "type": "string"
                 },
                 "port": {
-                  "description": "Access port. Required if unix_socket is absent.",
+                  "description": "Access port. Required.",
                   "type": "integer",
                   "format": "int64"
                 },
                 "service_name": {
-                  "description": "Unique across all Services user-defined name.",
-                  "type": "string"
-                },
-                "unix_socket": {
-                  "description": "Access Unix socket. Required if address and port are absent.",
+                  "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
                 }
               }
@@ -1709,15 +2323,22 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                      "description": "Access address (DNS name or IP).",
                       "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     },
                     "port": {
-                      "description": "Access port. Required if unix_socket is absent.",
+                      "description": "Access port.",
                       "type": "integer",
                       "format": "int64"
                     },
@@ -1727,10 +2348,6 @@
                     },
                     "service_name": {
                       "description": "Unique across all Services user-defined name.",
-                      "type": "string"
-                    },
-                    "unix_socket": {
-                      "description": "Access Unix socket. Required if address and port are absent.",
                       "type": "string"
                     }
                   }
@@ -1757,20 +2374,27 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "Instance endpoint (full DNS name).",
+                  "description": "Instance endpoint (full DNS name). Required.",
                   "type": "string"
                 },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "port": {
-                  "description": "Instance port.",
+                  "description": "Instance port. Required.",
                   "type": "integer",
                   "format": "int64"
                 },
                 "service_id": {
-                  "description": "Unique randomly generated instance identifier.",
+                  "description": "Unique randomly generated instance identifier. Required.",
                   "type": "string"
                 },
                 "service_name": {
-                  "description": "Unique across all Services user-defined name.",
+                  "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
                 }
               }
@@ -1790,6 +2414,13 @@
                     "address": {
                       "description": "Instance endpoint (full DNS name).",
                       "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
@@ -1832,28 +2463,27 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                  "description": "Access address (DNS name or IP). Required.",
                   "type": "string"
                 },
-                "node_id": {
-                  "description": "Node identifier where this instance runs.",
-                  "type": "string"
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
                 },
                 "port": {
-                  "description": "Access port. Required if unix_socket is absent.",
+                  "description": "Access port. Required.",
                   "type": "integer",
                   "format": "int64"
                 },
                 "service_id": {
-                  "description": "Unique randomly generated instance identifier.",
+                  "description": "Unique randomly generated instance identifier. Required.",
                   "type": "string"
                 },
                 "service_name": {
-                  "description": "Unique across all Services user-defined name.",
-                  "type": "string"
-                },
-                "unix_socket": {
-                  "description": "Access Unix socket. Required if address and port are absent.",
+                  "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
                 }
               }
@@ -1871,15 +2501,22 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                      "description": "Access address (DNS name or IP).",
                       "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     },
                     "port": {
-                      "description": "Access port. Required if unix_socket is absent.",
+                      "description": "Access port.",
                       "type": "integer",
                       "format": "int64"
                     },
@@ -1889,10 +2526,6 @@
                     },
                     "service_name": {
                       "description": "Unique across all Services user-defined name.",
-                      "type": "string"
-                    },
-                    "unix_socket": {
-                      "description": "Access Unix socket. Required if address and port are absent.",
                       "type": "string"
                     }
                   }
@@ -1940,6 +2573,13 @@
                       "description": "Instance endpoint (full DNS name).",
                       "type": "string"
                     },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
@@ -1959,20 +2599,52 @@
                     }
                   }
                 },
+                "mongodb": {
+                  "description": "MongoDBService represents a generic MongoDB instance.",
+                  "type": "object",
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string"
+                    }
+                  }
+                },
                 "mysql": {
                   "description": "MySQLService represents a generic MySQL instance.",
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                      "description": "Access address (DNS name or IP).",
                       "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     },
                     "port": {
-                      "description": "Access port. Required if unix_socket is absent.",
+                      "description": "Access port.",
                       "type": "integer",
                       "format": "int64"
                     },
@@ -1982,10 +2654,6 @@
                     },
                     "service_name": {
                       "description": "Unique across all Services user-defined name.",
-                      "type": "string"
-                    },
-                    "unix_socket": {
-                      "description": "Access Unix socket. Required if address and port are absent.",
                       "type": "string"
                     }
                   }
@@ -2035,6 +2703,13 @@
                         "description": "Instance endpoint (full DNS name).",
                         "type": "string"
                       },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
                       "node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string"
@@ -2055,6 +2730,34 @@
                     }
                   }
                 },
+                "mongodb": {
+                  "type": "array",
+                  "items": {
+                    "description": "MongoDBService represents a generic MongoDB instance.",
+                    "type": "object",
+                    "properties": {
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string"
+                      },
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string"
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
                 "mysql": {
                   "type": "array",
                   "items": {
@@ -2062,15 +2765,22 @@
                     "type": "object",
                     "properties": {
                       "address": {
-                        "description": "Access address (DNS name or IP). Required if unix_socket is absent.",
+                        "description": "Access address (DNS name or IP).",
                         "type": "string"
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
                       },
                       "node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string"
                       },
                       "port": {
-                        "description": "Access port. Required if unix_socket is absent.",
+                        "description": "Access port.",
                         "type": "integer",
                         "format": "int64"
                       },
@@ -2080,10 +2790,6 @@
                       },
                       "service_name": {
                         "description": "Unique across all Services user-defined name.",
-                        "type": "string"
-                      },
-                      "unix_socket": {
-                        "description": "Access Unix socket. Required if address and port are absent.",
                         "type": "string"
                       }
                     }
@@ -2111,7 +2817,7 @@
               "type": "object",
               "properties": {
                 "service_id": {
-                  "description": "Unique randomly generated instance identifier.",
+                  "description": "Unique randomly generated instance identifier. Required.",
                   "type": "string"
                 }
               }

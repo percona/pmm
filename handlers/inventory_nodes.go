@@ -20,20 +20,27 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/AlekSi/pointer"
 	api "github.com/percona/pmm/api/inventory"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
-// NodesServer handles Inventory API requests to manage Nodes.
-type NodesServer struct {
-	Nodes *inventory.NodesService
+type nodesServer struct {
+	s *inventory.NodesService
+}
+
+// NewNodesServer returns Inventory API handler for managing Nodes.
+func NewNodesServer(s *inventory.NodesService) api.NodesServer {
+	return &nodesServer{
+		s: s,
+	}
 }
 
 // ListNodes returns a list of all Nodes.
-func (s *NodesServer) ListNodes(ctx context.Context, req *api.ListNodesRequest) (*api.ListNodesResponse, error) {
-	nodes, err := s.Nodes.List(ctx)
+func (s *nodesServer) ListNodes(ctx context.Context, req *api.ListNodesRequest) (*api.ListNodesResponse, error) {
+	nodes, err := s.s.List(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -43,6 +50,8 @@ func (s *NodesServer) ListNodes(ctx context.Context, req *api.ListNodesRequest) 
 		switch node := node.(type) {
 		case *api.GenericNode:
 			res.Generic = append(res.Generic, node)
+		case *api.ContainerNode:
+			res.Container = append(res.Container, node)
 		case *api.RemoteNode:
 			res.Remote = append(res.Remote, node)
 		case *api.RemoteAmazonRDSNode:
@@ -55,8 +64,8 @@ func (s *NodesServer) ListNodes(ctx context.Context, req *api.ListNodesRequest) 
 }
 
 // GetNode returns a single Node by ID.
-func (s *NodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*api.GetNodeResponse, error) {
-	node, err := s.Nodes.Get(ctx, req.NodeId)
+func (s *nodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*api.GetNodeResponse, error) {
+	node, err := s.s.Get(ctx, req.NodeId)
 	if err != nil {
 		return nil, err
 	}
@@ -65,6 +74,8 @@ func (s *NodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*ap
 	switch node := node.(type) {
 	case *api.GenericNode:
 		res.Node = &api.GetNodeResponse_Generic{Generic: node}
+	case *api.ContainerNode:
+		res.Node = &api.GetNodeResponse_Container{Container: node}
 	case *api.RemoteNode:
 		res.Node = &api.GetNodeResponse_Remote{Remote: node}
 	case *api.RemoteAmazonRDSNode:
@@ -76,8 +87,8 @@ func (s *NodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*ap
 }
 
 // AddGenericNode adds Generic Node.
-func (s *NodesServer) AddGenericNode(ctx context.Context, req *api.AddGenericNodeRequest) (*api.AddGenericNodeResponse, error) {
-	node, err := s.Nodes.Add(ctx, models.GenericNodeType, req.NodeName, nil, nil)
+func (s *nodesServer) AddGenericNode(ctx context.Context, req *api.AddGenericNodeRequest) (*api.AddGenericNodeResponse, error) {
+	node, err := s.s.Add(ctx, models.GenericNodeType, req.NodeName, pointer.ToStringOrNil(req.Address), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -89,8 +100,8 @@ func (s *NodesServer) AddGenericNode(ctx context.Context, req *api.AddGenericNod
 }
 
 // AddContainerNode adds Container Node.
-func (s *NodesServer) AddContainerNode(ctx context.Context, req *api.AddContainerNodeRequest) (*api.AddContainerNodeResponse, error) {
-	node, err := s.Nodes.Add(ctx, models.ContainerNodeType, req.NodeName, nil, nil)
+func (s *nodesServer) AddContainerNode(ctx context.Context, req *api.AddContainerNodeRequest) (*api.AddContainerNodeResponse, error) {
+	node, err := s.s.Add(ctx, models.ContainerNodeType, req.NodeName, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -102,8 +113,8 @@ func (s *NodesServer) AddContainerNode(ctx context.Context, req *api.AddContaine
 }
 
 // AddRemoteNode adds Remote Node.
-func (s *NodesServer) AddRemoteNode(ctx context.Context, req *api.AddRemoteNodeRequest) (*api.AddRemoteNodeResponse, error) {
-	node, err := s.Nodes.Add(ctx, models.RemoteNodeType, req.NodeName, nil, nil)
+func (s *nodesServer) AddRemoteNode(ctx context.Context, req *api.AddRemoteNodeRequest) (*api.AddRemoteNodeResponse, error) {
+	node, err := s.s.Add(ctx, models.RemoteNodeType, req.NodeName, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -115,8 +126,8 @@ func (s *NodesServer) AddRemoteNode(ctx context.Context, req *api.AddRemoteNodeR
 }
 
 // AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
-func (s *NodesServer) AddRemoteAmazonRDSNode(ctx context.Context, req *api.AddRemoteAmazonRDSNodeRequest) (*api.AddRemoteAmazonRDSNodeResponse, error) {
-	node, err := s.Nodes.Add(ctx, models.RemoteAmazonRDSNodeType, req.NodeName, &req.Instance, &req.Region)
+func (s *nodesServer) AddRemoteAmazonRDSNode(ctx context.Context, req *api.AddRemoteAmazonRDSNodeRequest) (*api.AddRemoteAmazonRDSNodeResponse, error) {
+	node, err := s.s.Add(ctx, models.RemoteAmazonRDSNodeType, req.NodeName, &req.Instance, &req.Region)
 	if err != nil {
 		return nil, err
 	}
@@ -128,8 +139,8 @@ func (s *NodesServer) AddRemoteAmazonRDSNode(ctx context.Context, req *api.AddRe
 }
 
 // ChangeGenericNode changes Generic Node.
-func (s *NodesServer) ChangeGenericNode(ctx context.Context, req *api.ChangeGenericNodeRequest) (*api.ChangeGenericNodeResponse, error) {
-	node, err := s.Nodes.Change(ctx, req.NodeId, req.NodeName)
+func (s *nodesServer) ChangeGenericNode(ctx context.Context, req *api.ChangeGenericNodeRequest) (*api.ChangeGenericNodeResponse, error) {
+	node, err := s.s.Change(ctx, req.NodeId, req.NodeName)
 	if err != nil {
 		return nil, err
 	}
@@ -141,8 +152,8 @@ func (s *NodesServer) ChangeGenericNode(ctx context.Context, req *api.ChangeGene
 }
 
 // ChangeContainerNode changes Container Node.
-func (s *NodesServer) ChangeContainerNode(ctx context.Context, req *api.ChangeContainerNodeRequest) (*api.ChangeContainerNodeResponse, error) {
-	node, err := s.Nodes.Change(ctx, req.NodeId, req.NodeName)
+func (s *nodesServer) ChangeContainerNode(ctx context.Context, req *api.ChangeContainerNodeRequest) (*api.ChangeContainerNodeResponse, error) {
+	node, err := s.s.Change(ctx, req.NodeId, req.NodeName)
 	if err != nil {
 		return nil, err
 	}
@@ -154,8 +165,8 @@ func (s *NodesServer) ChangeContainerNode(ctx context.Context, req *api.ChangeCo
 }
 
 // ChangeRemoteNode changes Remote Node.
-func (s *NodesServer) ChangeRemoteNode(ctx context.Context, req *api.ChangeRemoteNodeRequest) (*api.ChangeRemoteNodeResponse, error) {
-	node, err := s.Nodes.Change(ctx, req.NodeId, req.NodeName)
+func (s *nodesServer) ChangeRemoteNode(ctx context.Context, req *api.ChangeRemoteNodeRequest) (*api.ChangeRemoteNodeResponse, error) {
+	node, err := s.s.Change(ctx, req.NodeId, req.NodeName)
 	if err != nil {
 		return nil, err
 	}
@@ -167,8 +178,8 @@ func (s *NodesServer) ChangeRemoteNode(ctx context.Context, req *api.ChangeRemot
 }
 
 // ChangeRemoteAmazonRDSNode changes Amazon (AWS) RDS remote Node.
-func (s *NodesServer) ChangeRemoteAmazonRDSNode(ctx context.Context, req *api.ChangeRemoteAmazonRDSNodeRequest) (*api.ChangeRemoteAmazonRDSNodeResponse, error) {
-	node, err := s.Nodes.Change(ctx, req.NodeId, req.NodeName)
+func (s *nodesServer) ChangeRemoteAmazonRDSNode(ctx context.Context, req *api.ChangeRemoteAmazonRDSNodeRequest) (*api.ChangeRemoteAmazonRDSNodeResponse, error) {
+	node, err := s.s.Change(ctx, req.NodeId, req.NodeName)
 	if err != nil {
 		return nil, err
 	}
@@ -180,15 +191,10 @@ func (s *NodesServer) ChangeRemoteAmazonRDSNode(ctx context.Context, req *api.Ch
 }
 
 // RemoveNode removes Node without any Agents and Services.
-func (s *NodesServer) RemoveNode(ctx context.Context, req *api.RemoveNodeRequest) (*api.RemoveNodeResponse, error) {
-	if err := s.Nodes.Remove(ctx, req.NodeId); err != nil {
+func (s *nodesServer) RemoveNode(ctx context.Context, req *api.RemoveNodeRequest) (*api.RemoveNodeResponse, error) {
+	if err := s.s.Remove(ctx, req.NodeId); err != nil {
 		return nil, err
 	}
 
 	return new(api.RemoveNodeResponse), nil
 }
-
-// check interfaces
-var (
-	_ api.NodesServer = (*NodesServer)(nil)
-)

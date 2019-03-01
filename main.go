@@ -33,7 +33,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/grpc-ecosystem/go-grpc-prometheus"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	agentAPI "github.com/percona/pmm/api/agent"
 	inventoryAPI "github.com/percona/pmm/api/inventory"
@@ -53,7 +53,6 @@ import (
 	"github.com/percona/pmm-managed/handlers"
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/agents"
-	"github.com/percona/pmm-managed/services/consul"
 	"github.com/percona/pmm-managed/services/grafana"
 	"github.com/percona/pmm-managed/services/inventory"
 	"github.com/percona/pmm-managed/services/logs"
@@ -81,7 +80,6 @@ var (
 	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/", "Prometheus base URL")
 	promtoolF         = flag.String("promtool", "promtool", "promtool path")
 
-	consulAddrF  = flag.String("consul-addr", "127.0.0.1:8500", "Consul HTTP API address")
 	grafanaAddrF = flag.String("grafana-addr", "127.0.0.1:3000", "Grafana HTTP API address")
 
 	dbNameF     = flag.String("db-name", "", "Database name")
@@ -153,9 +151,6 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 	)
 	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{PMMVersion: version.Version})
 	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
-	api.RegisterScrapeConfigsServer(gRPCServer, &handlers.ScrapeConfigsServer{
-		Prometheus: deps.prometheus,
-	})
 	api.RegisterLogsServer(gRPCServer, &handlers.LogsServer{
 		Logs: deps.logs,
 	})
@@ -167,15 +162,16 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 	agentAPI.RegisterAgentServer(gRPCServer, &handlers.AgentServer{
 		Registry: deps.agentsRegistry,
 	})
-	inventoryAPI.RegisterNodesServer(gRPCServer, &handlers.NodesServer{
-		Nodes: inventory.NewNodesService(deps.db.Querier, deps.agentsRegistry),
-	})
-	inventoryAPI.RegisterServicesServer(gRPCServer, &handlers.ServicesServer{
-		Services: inventory.NewServicesService(deps.db.Querier, deps.agentsRegistry),
-	})
-	inventoryAPI.RegisterAgentsServer(gRPCServer, &handlers.AgentsServer{
-		Agents: inventory.NewAgentsService(deps.db.Querier, deps.agentsRegistry),
-	})
+	inventoryAPI.RegisterNodesServer(gRPCServer, handlers.NewNodesServer(
+		inventory.NewNodesService(deps.db.Querier, deps.agentsRegistry),
+	))
+	inventoryAPI.RegisterServicesServer(gRPCServer, handlers.NewServicesServer(
+		inventory.NewServicesService(deps.db.Querier, deps.agentsRegistry),
+	))
+	inventoryAPI.RegisterAgentsServer(gRPCServer, handlers.NewAgentsServer(
+		inventory.NewAgentsService(deps.agentsRegistry),
+		deps.db,
+	))
 
 	if *debugF {
 		l.Debug("Reflection enabled.")
@@ -222,11 +218,6 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 	for _, r := range []registrar{
 		api.RegisterBaseHandlerFromEndpoint,
 		api.RegisterDemoHandlerFromEndpoint,
-		api.RegisterScrapeConfigsHandlerFromEndpoint,
-		api.RegisterRDSHandlerFromEndpoint,
-		api.RegisterMySQLHandlerFromEndpoint,
-		api.RegisterPostgreSQLHandlerFromEndpoint,
-		api.RegisterRemoteHandlerFromEndpoint,
 		api.RegisterLogsHandlerFromEndpoint,
 		api.RegisterAnnotationsHandlerFromEndpoint,
 
@@ -385,19 +376,6 @@ func main() {
 		cancel()
 	}()
 
-	consulClient, err := consul.NewClient(*consulAddrF)
-	if err != nil {
-		l.Panic(err)
-	}
-
-	prometheus, err := prometheus.NewService(*prometheusConfigF, *prometheusURLF, *promtoolF, consulClient)
-	if err == nil {
-		err = prometheus.Check(ctx)
-	}
-	if err != nil {
-		l.Panicf("Prometheus service problem: %+v", err)
-	}
-
 	sqlDB, err := models.OpenDB(*dbNameF, *dbUsernameF, *dbPasswordF, l.Debugf)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
@@ -412,7 +390,15 @@ func main() {
 	defer postgresDB.Close()
 	pdb := reform.NewDB(postgresDB, reformPostgreSQL.Dialect, nil)
 
-	agentsRegistry := agents.NewRegistry(db)
+	prometheus, err := prometheus.NewService(*prometheusConfigF, *promtoolF, db, *prometheusURLF)
+	if err == nil {
+		err = prometheus.Check(ctx)
+	}
+	if err != nil {
+		l.Panicf("Prometheus service problem: %+v", err)
+	}
+
+	agentsRegistry := agents.NewRegistry(db, prometheus)
 	logs := logs.New(version.Version, nil)
 
 	deps := &serviceDependencies{

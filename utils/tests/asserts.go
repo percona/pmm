@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package tests contains test helpers.
 package tests
 
 import (
@@ -25,24 +24,27 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func AssertGRPCError(t testing.TB, expected *status.Status, actual error) {
-	t.Helper()
+// AssertGRPCError checks that actual error has the same gRPC error code and message as actual error.
+func AssertGRPCError(tb testing.TB, expected *status.Status, actual error) {
+	tb.Helper()
 
 	s, ok := status.FromError(actual)
-	if !assert.True(t, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
+	if !assert.True(tb, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
 		return
 	}
-	assert.Equal(t, expected.Code(), s.Code(), "gRPC status codes are not equal")
-	assert.Equal(t, expected.Message(), s.Message(), "gRPC status messages are not equal")
+	assert.Equal(tb, expected.Code(), s.Code(), "gRPC status codes are not equal")
+	assert.Equal(tb, expected.Message(), s.Message(), "gRPC status messages are not equal")
 }
 
-func AssertGRPCErrorRE(t testing.TB, expectedCode codes.Code, expectedMessageRE string, actual error) {
-	t.Helper()
+// AssertGRPCErrorRE checks that actual error has expected gRPC error code, and error messages
+// matches expected regular expression.
+func AssertGRPCErrorRE(tb testing.TB, expectedCode codes.Code, expectedMessageRE string, actual error) {
+	tb.Helper()
 
 	s, ok := status.FromError(actual)
-	if !assert.True(t, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
+	if !assert.True(tb, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
 		return
 	}
-	assert.Equal(t, expectedCode, s.Code(), "gRPC status codes are not equal")
-	assert.Regexp(t, expectedMessageRE, s.Message(), "gRPC status message does not match")
+	assert.Equal(tb, expectedCode, s.Code(), "gRPC status codes are not equal")
+	assert.Regexp(tb, expectedMessageRE, s.Message(), "gRPC status message does not match")
 }
