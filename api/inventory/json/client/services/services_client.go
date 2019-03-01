@@ -137,34 +137,6 @@ func (a *Client) ChangeAmazonRDSMySQLService(params *ChangeAmazonRDSMySQLService
 }
 
 /*
-ChangeMongoDBService changes mongo d b service changes mongo d b service
-*/
-func (a *Client) ChangeMongoDBService(params *ChangeMongoDBServiceParams) (*ChangeMongoDBServiceOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewChangeMongoDBServiceParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeMongoDBService",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/ChangeMongoDB",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ChangeMongoDBServiceReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*ChangeMongoDBServiceOK), nil
-
-}
-
-/*
 ChangeMySQLService changes my SQL service changes my SQL service
 */
 func (a *Client) ChangeMySQLService(params *ChangeMySQLServiceParams) (*ChangeMySQLServiceOK, error) {
