@@ -23,6 +23,8 @@ import (
 	"net"
 	"reflect"
 
+	_ "github.com/DATA-DOG/go-sqlmock"
+	_ "github.com/stretchr/testify/assert"
 	_ "github.com/kshvakov/clickhouse"
 	"github.com/kshvakov/clickhouse/lib/column"
 	"github.com/kshvakov/clickhouse/lib/types"
