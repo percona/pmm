@@ -281,8 +281,11 @@ type RowsItems0 struct {
 	// d usernames
 	DUsernames string `json:"d_usernames,omitempty"`
 
+	// dimension
+	Dimension string `json:"dimension,omitempty"`
+
 	// fingerprint
-	Fingerprint string `json:"fingerprint,omitempty"`
+	Fingerprint float32 `json:"fingerprint,omitempty"`
 
 	// first seen
 	FirstSeen string `json:"first_seen,omitempty"`
@@ -296,11 +299,11 @@ type RowsItems0 struct {
 	// qps
 	QPS float32 `json:"qps,omitempty"`
 
-	// queryid
-	Queryid string `json:"queryid,omitempty"`
-
 	// rank
 	Rank int64 `json:"rank,omitempty"`
+
+	// row number
+	RowNumber string `json:"row_number,omitempty"`
 
 	// stats
 	Stats *RowsItems0Stats `json:"stats,omitempty"`

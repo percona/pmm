@@ -46,8 +46,8 @@ message ReportReply {
 message ProfileRow {
   uint32 rank = 1;
   float percentage = 2;
-  string queryid = 3;
-  string fingerprint = 4;
+  string dimension = 3;
+  string row_number = 4;
   string d_servers = 5;
   string d_databases = 6;
   string d_schemas = 7;
@@ -56,7 +56,8 @@ message ProfileRow {
   string first_seen = 10;
   float qps = 11;
   float load = 12;
-  Stats stats = 13;
+  float fingerprint = 13;
+  Stats stats = 14;
 }
 
 // Stats metrics.

@@ -846,8 +846,12 @@
                       "d_usernames": {
                         "type": "string"
                       },
-                      "fingerprint": {
+                      "dimension": {
                         "type": "string"
+                      },
+                      "fingerprint": {
+                        "type": "number",
+                        "format": "float"
                       },
                       "first_seen": {
                         "type": "string"
@@ -864,12 +868,12 @@
                         "type": "number",
                         "format": "float"
                       },
-                      "queryid": {
-                        "type": "string"
-                      },
                       "rank": {
                         "type": "integer",
                         "format": "int64"
+                      },
+                      "row_number": {
+                        "type": "string"
                       },
                       "stats": {
                         "description": "Stats metrics.",
