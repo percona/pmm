@@ -33,7 +33,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
 
 	"github.com/percona/pmm-managed/utils/logger"
 )
@@ -104,35 +103,6 @@ type manageConfig struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
 	} `yaml:"users"`
-}
-
-// getCredential fetchs PMM credential
-func getCredential() (string, error) {
-	var u string
-	f, err := os.Open("/srv/update/pmm-manage.yml")
-	if err != nil {
-		return u, err
-	}
-
-	b, err := ioutil.ReadAll(f)
-	if err != nil {
-		return u, err
-	}
-
-	var config manageConfig
-	if err = yaml.Unmarshal(b, &config); err != nil {
-		return u, err
-	}
-
-	if len(config.Users) > 0 && config.Users[0].Username != "" {
-		u = strings.Join([]string{config.Users[0].Username, config.Users[0].Password}, ":")
-	}
-
-	err = f.Close()
-	if err != nil {
-		return u, err
-	}
-	return u, err
 }
 
 // New creates a new Logs service.
@@ -236,16 +206,7 @@ func (l *Logs) readWithExtractor(ctx context.Context, log *Log) (name string, da
 		data = []byte(l.pmmVersion)
 
 	case "http":
-		command := log.Extractor[1]
-		s := strings.Split(command, "//")
-		credential, err1 := getCredential()
-		if len(s) > 1 && len(credential) > 1 {
-			command = fmt.Sprintf("%s//%s@%s", s[0], credential, s[1])
-		}
-		data, err = l.readURL(command)
-		if err1 != nil {
-			err = fmt.Errorf("%v; %v", err1, err)
-		}
+		data, err = l.readURL(log.Extractor[1])
 
 	case "cat":
 		data, err = ioutil.ReadFile(log.FilePath)
