@@ -39,6 +39,18 @@ message AmazonRDSMySQLService {
   map<string, string> custom_labels = 10;
 }
 
+// MongoDBService represents a generic MongoDB instance.
+message MongoDBService {
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+  // Node identifier where this instance runs.
+  string node_id = 3;
+  // Custom user-assigned labels. Keys starts with "_".
+  map<string, string> custom_labels = 10;
+}
+
 // List
 
 message ListServicesRequest {
@@ -51,6 +63,7 @@ message ListServicesRequest {
 message ListServicesResponse {
   repeated MySQLService mysql = 1;
   repeated AmazonRDSMySQLService amazon_rds_mysql = 2;
+  repeated MongoDBService mongodb = 3;
 }
 
 // Get
@@ -68,6 +81,7 @@ message GetServiceResponse {
   oneof service {
     MySQLService mysql = 1;
     AmazonRDSMySQLService amazon_rds_mysql = 2;
+    MongoDBService mongodb = 3;
   }
 }
 
@@ -215,6 +229,31 @@ message ChangeAmazonRDSMySQLServiceResponse {
   AmazonRDSMySQLService amazon_rds_mysql = 1;
 }
 
+// Add MongoDB
+
+message AddMongoDBServiceRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Unique across all Services user-defined name. Required.
+  string service_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Node identifier where this instance runs. Required.
+  string node_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
+}
+
+message AddMongoDBServiceResponse {
+  MongoDBService mongodb = 1;
+}
+
 // Remove
 
 message RemoveServiceRequest {
@@ -269,6 +308,13 @@ service Services {
   rpc ChangeAmazonRDSMySQLService(ChangeAmazonRDSMySQLServiceRequest) returns (ChangeAmazonRDSMySQLServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/ChangeAmazonRDSMySQL"
+      body: "*"
+    };
+  }
+  // AddMongoDBService adds MongoDB Service.
+  rpc AddMongoDBService(AddMongoDBServiceRequest) returns (AddMongoDBServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Services/AddMongoDB"
       body: "*"
     };
   }

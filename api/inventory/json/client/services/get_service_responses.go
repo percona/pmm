@@ -106,6 +106,9 @@ type GetServiceOKBody struct {
 	// amazon rds mysql
 	AmazonRDSMysql *GetServiceOKBodyAmazonRDSMysql `json:"amazon_rds_mysql,omitempty"`
 
+	// mongodb
+	Mongodb *GetServiceOKBodyMongodb `json:"mongodb,omitempty"`
+
 	// mysql
 	Mysql *GetServiceOKBodyMysql `json:"mysql,omitempty"`
 }
@@ -115,6 +118,10 @@ func (o *GetServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateAmazonRDSMysql(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMongodb(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -138,6 +145,24 @@ func (o *GetServiceOKBody) validateAmazonRDSMysql(formats strfmt.Registry) error
 		if err := o.AmazonRDSMysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getServiceOK" + "." + "amazon_rds_mysql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetServiceOKBody) validateMongodb(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Mongodb) { // not required
+		return nil
+	}
+
+	if o.Mongodb != nil {
+		if err := o.Mongodb.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getServiceOK" + "." + "mongodb")
 			}
 			return err
 		}
@@ -222,6 +247,47 @@ func (o *GetServiceOKBodyAmazonRDSMysql) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetServiceOKBodyAmazonRDSMysql) UnmarshalBinary(b []byte) error {
 	var res GetServiceOKBodyAmazonRDSMysql
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetServiceOKBodyMongodb MongoDBService represents a generic MongoDB instance.
+swagger:model GetServiceOKBodyMongodb
+*/
+type GetServiceOKBodyMongodb struct {
+
+	// Custom user-assigned labels. Keys starts with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+}
+
+// Validate validates this get service o k body mongodb
+func (o *GetServiceOKBodyMongodb) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetServiceOKBodyMongodb) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetServiceOKBodyMongodb) UnmarshalBinary(b []byte) error {
+	var res GetServiceOKBodyMongodb
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

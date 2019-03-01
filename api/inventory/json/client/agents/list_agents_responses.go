@@ -153,6 +153,9 @@ type ListAgentsOKBody struct {
 	// external exporter
 	ExternalExporter []*ExternalExporterItems0 `json:"external_exporter"`
 
+	// mongodb exporter
+	MongodbExporter []*MongodbExporterItems0 `json:"mongodb_exporter"`
+
 	// mysqld exporter
 	MysqldExporter []*MysqldExporterItems0 `json:"mysqld_exporter"`
 
@@ -171,6 +174,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateExternalExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateMongodbExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -211,6 +218,31 @@ func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) err
 			if err := o.ExternalExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOK" + "." + "external_exporter" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateMongodbExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.MongodbExporter) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.MongodbExporter); i++ {
+		if swag.IsZero(o.MongodbExporter[i]) { // not required
+			continue
+		}
+
+		if o.MongodbExporter[i] != nil {
+			if err := o.MongodbExporter[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOK" + "." + "mongodb_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -332,6 +364,121 @@ func (o *ListAgentsOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ListAgentsOKBody) UnmarshalBinary(b []byte) error {
 	var res ListAgentsOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*MongodbExporterItems0 MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+swagger:model MongodbExporterItems0
+*/
+type MongodbExporterItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)
+	ConnectionString string `json:"connection_string,omitempty"`
+
+	// Custom user-assigned labels. Keys must start with "_".
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent process status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this mongodb exporter items0
+func (o *MongodbExporterItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var mongodbExporterItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mongodbExporterItems0TypeStatusPropEnum = append(mongodbExporterItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// MongodbExporterItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	MongodbExporterItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// MongodbExporterItems0StatusSTARTING captures enum value "STARTING"
+	MongodbExporterItems0StatusSTARTING string = "STARTING"
+
+	// MongodbExporterItems0StatusRUNNING captures enum value "RUNNING"
+	MongodbExporterItems0StatusRUNNING string = "RUNNING"
+
+	// MongodbExporterItems0StatusWAITING captures enum value "WAITING"
+	MongodbExporterItems0StatusWAITING string = "WAITING"
+
+	// MongodbExporterItems0StatusSTOPPING captures enum value "STOPPING"
+	MongodbExporterItems0StatusSTOPPING string = "STOPPING"
+
+	// MongodbExporterItems0StatusDONE captures enum value "DONE"
+	MongodbExporterItems0StatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *MongodbExporterItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, mongodbExporterItems0TypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *MongodbExporterItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *MongodbExporterItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *MongodbExporterItems0) UnmarshalBinary(b []byte) error {
+	var res MongodbExporterItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -78,6 +78,103 @@
         }
       }
     },
+    "/v1/inventory/Agents/AddMongoDBExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "AddMongoDBExporter adds mongodb_exporter Agent.",
+        "operationId": "AddMongoDBExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "connection_string": {
+                  "type": "string",
+                  "title": "MongoDB URI for scraping metrics. (See: https://docs.mongodb.com/manual/reference/connection-string/)"
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "runs_on_node_id": {
+                  "description": "Node identifier where this instance runs.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service identifier.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mongodb_exporter": {
+                  "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "connection_string": {
+                      "type": "string",
+                      "title": "MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent process status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Agents/AddMySQLdExporter": {
       "post": {
         "tags": [
@@ -477,6 +574,53 @@
                     }
                   }
                 },
+                "mongodb_exporter": {
+                  "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "connection_string": {
+                      "type": "string",
+                      "title": "MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent process status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    }
+                  }
+                },
                 "mysqld_exporter": {
                   "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
                   "type": "object",
@@ -702,6 +846,56 @@
                       "metrics_url": {
                         "description": "URL for scraping metrics.",
                         "type": "string"
+                      }
+                    }
+                  }
+                },
+                "mongodb_exporter": {
+                  "type": "array",
+                  "items": {
+                    "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string"
+                      },
+                      "connection_string": {
+                        "type": "string",
+                        "title": "MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)"
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics.",
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "runs_on_node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string"
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string"
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent process status.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ]
                       }
                     }
                   }
@@ -2004,6 +2198,77 @@
         }
       }
     },
+    "/v1/inventory/Services/AddMongoDB": {
+      "post": {
+        "tags": [
+          "Services"
+        ],
+        "summary": "AddMongoDBService adds MongoDB Service.",
+        "operationId": "AddMongoDBService",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels. Keys must start with \"_\".",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "node_id": {
+                  "description": "Node identifier where this instance runs. Required.",
+                  "type": "string"
+                },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name. Required.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mongodb": {
+                  "description": "MongoDBService represents a generic MongoDB instance.",
+                  "type": "object",
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Services/AddMySQL": {
       "post": {
         "tags": [
@@ -2334,6 +2599,31 @@
                     }
                   }
                 },
+                "mongodb": {
+                  "description": "MongoDBService represents a generic MongoDB instance.",
+                  "type": "object",
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string"
+                    }
+                  }
+                },
                 "mysql": {
                   "description": "MySQLService represents a generic MySQL instance.",
                   "type": "object",
@@ -2428,6 +2718,34 @@
                         "description": "Instance port.",
                         "type": "integer",
                         "format": "int64"
+                      },
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string"
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "mongodb": {
+                  "type": "array",
+                  "items": {
+                    "description": "MongoDBService represents a generic MongoDB instance.",
+                    "type": "object",
+                    "properties": {
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels. Keys starts with \"_\".",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string"
                       },
                       "service_id": {
                         "description": "Unique randomly generated instance identifier.",

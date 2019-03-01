@@ -118,6 +118,32 @@ message ExternalExporter {
   map<string, string> custom_labels = 10;
 }
 
+// MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+message MongoDBExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // Node identifier where this instance runs.
+  string runs_on_node_id = 2;
+  // Service identifier.
+  string service_id = 3;
+  // MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)
+  string connection_string = 4;
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled or disabled.
+  // TODO https://jira.percona.com/browse/PMM-3470
+  // bool enabled = 6;
+
+  // Actual Agent process status.
+  AgentStatus status = 7;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8;
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
+}
+
 // List
 
 message ListAgentsRequest {
@@ -137,6 +163,7 @@ message ListAgentsResponse {
   repeated MySQLdExporter mysqld_exporter = 3;
   repeated RDSExporter rds_exporter = 4;
   repeated ExternalExporter external_exporter = 5;
+  repeated MongoDBExporter mongodb_exporter = 6;
 }
 
 // Get
@@ -157,6 +184,7 @@ message GetAgentResponse {
     MySQLdExporter mysqld_exporter = 3;
     RDSExporter rds_exporter = 4;
     ExternalExporter external_exporter = 5;
+    MongoDBExporter mongodb_exporter = 6;
   }
 }
 
@@ -285,6 +313,39 @@ message AddExternalExporterResponse {
 
 // TODO ChangeExternalExporterRequest https://jira.percona.com/browse/PMM-3470
 
+// Add/Change MongoDBExporter
+
+message AddMongoDBExporterRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Node identifier where this instance runs.
+  string runs_on_node_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // MongoDB URI for scraping metrics. (See: https://docs.mongodb.com/manual/reference/connection-string/)
+  string connection_string = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Custom user-assigned labels. Keys must start with "_".
+  map<string, string> custom_labels = 10;
+}
+
+message AddMongoDBExporterResponse {
+  MongoDBExporter mongodb_exporter = 1;
+}
+
+// TODO ChangeMongoDBExporterResponse https://jira.percona.com/browse/PMM-3470
+
 // Remove
 
 message RemoveAgentRequest {
@@ -345,6 +406,13 @@ service Agents {
   rpc AddExternalExporter(AddExternalExporterRequest) returns (AddExternalExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddExternalExporter"
+      body: "*"
+    };
+  }
+  // AddMongoDBExporter adds mongodb_exporter Agent.
+  rpc AddMongoDBExporter(AddMongoDBExporterRequest) returns (AddMongoDBExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddMongoDBExporter"
       body: "*"
     };
   }
