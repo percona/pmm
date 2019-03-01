@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"io"
 
-	collectorpb "github.com/Percona-Lab/qan-api/api/collector"
 	"github.com/Percona-Lab/qan-api/models"
+	pbqan "github.com/percona/pmm/api/qan"
 )
 
 // Service implements gRPC service to communicate with agent.
@@ -35,7 +35,7 @@ func NewService(qcm models.QueryClass) *Service {
 }
 
 // DataInterchange implements rpc to exchange data between API and agent.
-func (s *Service) DataInterchange(stream collectorpb.Agent_DataInterchangeServer) error {
+func (s *Service) DataInterchange(stream pbqan.Agent_DataInterchangeServer) error {
 	fmt.Println("Start...")
 	for {
 		agentMsg, err := stream.Recv()
@@ -53,7 +53,7 @@ func (s *Service) DataInterchange(stream collectorpb.Agent_DataInterchangeServer
 		savedAmount := len(agentMsg.QueryClass)
 		fmt.Printf("Rcvd and saved %v QC\n", savedAmount)
 		// look for msgs to be sent to client
-		msg := collectorpb.ApiMessage{SavedAmount: uint32(savedAmount)}
+		msg := pbqan.ApiMessage{SavedAmount: uint32(savedAmount)}
 		if err := stream.Send(&msg); err != nil {
 			return err
 		}

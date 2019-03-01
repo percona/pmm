@@ -16,6 +16,7 @@ install:                        ## Install qan-api binary.
 env-up:                         ## Run ClickHouse, MySQL Server and sysbench containers. Create pmm DB in ClickHouse.
 	mkdir -p logs
 	docker-compose up $(DCFLAGS) ch sysbench-ps
+	#docker-compose up $(DCFLAGS) ch sysbench-pstpcc
 	sleep 60
 	docker exec ch-server clickhouse client -h 127.0.0.1 --query="CREATE DATABASE IF NOT EXISTS pmm;"
 
@@ -35,6 +36,10 @@ deploy:
 ch-client:                      ## Connect to pmm DB.
 	docker exec -ti ch-server clickhouse client -d pmm
 
+ch-dump:                      ## Connect to pmm DB.
+	docker exec -ti ch-server clickhouse client -d pmm --query="SELECT * FROM queries FORMAT Native" > queries.native
+	#docker exec -ti ch-server clickhouse client -d pmm --query="INSERT INTO queries FORMAT Native" < queries.native
+
 ps-client:
 	docker exec -ti ps-server mysql -uroot -psecret
 
@@ -42,21 +47,18 @@ go-run:                         ## Run qan-api with envs.
 	@echo "  > Runing with envs..."
 	GRPC_VERBOSITY=DEBUG GRPC_TRACE=all go run *.go
 
+
 go-generate:                    ## Pack ClickHouse migrations into go file.
 	@echo "  >  Generating dependency files..."
 
 	go install -v ./vendor/github.com/kevinburke/go-bindata/go-bindata
 	go-bindata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql
 
-	go install -v ./vendor/github.com/golang/protobuf/protoc-gen-go \
-					./vendor/github.com/mwitkow/go-proto-validators/protoc-gen-govalidators
-	./prototool all
-
 linux-go-build: go-generate
 	@echo "  >  Building binary..."
 	GOOS=linux go build -o percona-qan-api2 *.go
 
-go-build: go-generate
+go-build:
 	@echo "  >  Building binary..."
 	go build -o percona-qan-api2 *.go
 
