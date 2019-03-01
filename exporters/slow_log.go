@@ -154,7 +154,7 @@ func main() {
 					PeriodStart:  qcDimentions[k].PeriodStart,
 					PeriodLength: uint32(qcDimentions[k].PeriodStart - qcDimentions[k].PeriodStart),
 					Example:      v.Example.Query,
-					NumQueries:   uint64(v.TotalQueries),
+					NumQueries:   float32(v.TotalQueries),
 				}
 
 				t, _ := time.Parse("2006-01-02 15:04:05", v.Example.Ts)
