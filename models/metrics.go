@@ -51,12 +51,13 @@ func (m *Metrics) Get(from, to, digest string, dbServers, dbSchemas, dbUsernames
 
 const queryMetricsTmpl = `
 SELECT
-digest,
-any(digest_text) AS digest_text,
-groupUniqArray(db_server) AS db_servers,
-groupUniqArray(db_schema) AS db_schemas,
-groupUniqArray(db_username) AS db_usernames,
-groupUniqArray(client_host) AS client_hosts,
+queryid,
+any(fingerprint) AS fingerprint,
+groupUniqArray(d_server) AS d_servers,
+groupUniqArray(d_database) AS d_databases,
+groupUniqArray(d_schema) AS d_schemas,
+groupUniqArray(d_username) AS d_usernames,
+groupUniqArray(d_client_host) AS d_client_hosts,
 
 MIN(period_start) AS first_seen,
 MAX(period_start) AS last_seen,
@@ -187,7 +188,7 @@ SUM(m_sort_scan_sum) AS m_sort_scan_sum,
 SUM(m_no_index_used_sum) AS m_no_index_used_sum,
 SUM(m_no_good_index_used_sum) AS m_no_good_index_used_sum
 FROM queries
-WHERE period_start > :from AND period_start < :to AND digest = :digest
+WHERE period_start > :from AND period_start < :to AND queryid = :digest
 {{ if index . "servers" }} AND db_server IN ( :servers ) {{ end }}
 {{ if index . "schemas" }} AND db_schema IN ( :schemas ) {{ end }}
 {{ if index . "users" }} AND db_username IN ( :users ) {{ end }}
@@ -201,5 +202,5 @@ WHERE period_start > :from AND period_start < :to AND digest = :digest
 		{{ end }}
 	)
 {{ end }}
-GROUP BY digest;
+GROUP BY queryid;
 `

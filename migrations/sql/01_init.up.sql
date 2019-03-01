@@ -2,8 +2,8 @@ CREATE TABLE IF NOT EXISTS queries
 (
     queryid String COMMENT 'hash of query fingerprint',
     d_server String COMMENT 'domention: IP or hostname of DB server',
-    d_database String COMMENT 'database or collection name',
-    d_schema String COMMENT 'named collection of tables in PostgreSQL',
+    d_database String COMMENT 'PostgreSQL: database',
+    d_schema String COMMENT 'MySQL: database; PostgreSQL: schema',
     d_username String COMMENT 'client user name',
     d_client_host String COMMENT 'client IP or hostname',
     `labels.key` Array(String) COMMENT 'Custom labels names',

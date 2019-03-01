@@ -61,7 +61,6 @@
   ]
   pruneopts = "NUT"
   revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
-  version = "v1.2.0"
 
 [[projects]]
   digest = "1:69b5bdc0545fa057e73e7704cb9f7e8c48b9bb6f7cbe2b25686c0a67bba52276"
@@ -136,11 +135,11 @@
 
 [[projects]]
   branch = "PMM-3399-qan-api"
-  digest = "1:a9a581c3a22c1b6f5ecf874ecc927caaed1f5bd0fc1796042e695aabd97ac236"
+  digest = "1:7dfbc4cf82ee91fa2ee3f1ef75b6b609c6fc98c2326c628adc0dd8b2b82c148d"
   name = "github.com/percona/pmm"
   packages = ["api/qan"]
   pruneopts = "NUT"
-  revision = "a2c649353f6eb4622ecfda7b4c2f96286e576556"
+  revision = "a3221cba8e49030b7a1e8464e9262403d87390e5"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -274,6 +273,7 @@
     "github.com/golang-migrate/migrate",
     "github.com/golang-migrate/migrate/database/clickhouse",
     "github.com/golang-migrate/migrate/source/go_bindata",
+    "github.com/grpc-ecosystem/grpc-gateway/runtime",
     "github.com/jmoiron/sqlx",
     "github.com/jmoiron/sqlx/reflectx",
     "github.com/kevinburke/go-bindata/go-bindata",
@@ -288,6 +288,7 @@
     "github.com/pkg/errors",
     "github.com/stretchr/testify/assert",
     "golang.org/x/net/context",
+    "golang.org/x/sys/unix",
     "google.golang.org/grpc",
     "google.golang.org/grpc/reflection",
   ]

@@ -39,65 +39,74 @@ func NewService(rm models.Reporter, mm models.Metrics) *Service {
 func (s *Service) GetReport(ctx context.Context, in *pbqan.ReportRequest) (*pbqan.ReportReply, error) {
 	// TODO: add validator/sanitazer
 	labels := in.GetLabels()
-	dbServers := []string{}
-	dbSchemas := []string{}
-	dbUsernames := []string{}
-	clientHosts := []string{}
+	dQueryids := []string{}
+	dServers := []string{}
+	dDatabases := []string{}
+	dSchemas := []string{}
+	dUsernames := []string{}
+	dClientHosts := []string{}
 	dbLabels := map[string][]string{}
 	for _, label := range labels {
 		switch label.Key {
-		case "db_server":
-			dbServers = label.Value
-		case "db_schema":
-			dbSchemas = label.Value
-		case "db_username":
-			dbUsernames = label.Value
-		case "client_host":
-			clientHosts = label.Value
+		case "queryid":
+			dQueryids = label.Value
+		case "d_server":
+			dServers = label.Value
+		case "d_database":
+			dDatabases = label.Value
+		case "d_schema":
+			dSchemas = label.Value
+		case "d_username":
+			dUsernames = label.Value
+		case "d_client_host":
+			dClientHosts = label.Value
 		default:
 			dbLabels[label.Key] = label.Value
 		}
 	}
-	total, _ := s.rm.GetTotal(in.PeriodStartFrom, in.PeriodStartTo, dbServers, dbSchemas, dbUsernames, clientHosts, dbLabels)
-	classes, _ := s.rm.Select(in.PeriodStartFrom, in.PeriodStartTo, in.Keyword, in.FirstSeen, dbServers, dbSchemas, dbUsernames, clientHosts, dbLabels, in.OrderBy, in.Offset, in.Limit)
+	results, _ := s.rm.Select(in.PeriodStartFrom, in.PeriodStartTo, in.Keyword, in.FirstSeen, dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts, dbLabels, in.GroupBy, in.OrderBy, in.Offset, in.Limit)
 
 	fromDate, _ := time.Parse("2006-01-02 15:04:05", in.PeriodStartFrom)
 	toDate, _ := time.Parse("2006-01-02 15:04:05", in.PeriodStartTo)
 	timeInterval := float32(toDate.Unix() - fromDate.Unix())
 
 	reply := &pbqan.ReportReply{}
-	reply.Rows = append(reply.Rows, &pbqan.ProfileRow{
-		Rank:       0,
-		Percentage: 1, // 100%
-		Digest:     "TOTAL",
-		DigestText: "",
-		FirstSeen:  "",
-		Qps:        float32(total.NumQueries) / timeInterval,
-		Load:       total.MQueryTimeSum / timeInterval,
-		Stats: &pbqan.Stats{
-			NumQueries:    total.NumQueries,
-			MQueryTimeSum: total.MQueryTimeSum,
-			MQueryTimeMin: total.MQueryTimeMin,
-			MQueryTimeMax: total.MQueryTimeMax,
-			MQueryTimeP99: total.MQueryTimeP99,
-		},
-	})
 
-	for i, class := range classes {
+	var total models.DimensionReport
+	for i, result := range results {
+		if i == 0 {
+			total = result
+			reply.Rows = append(reply.Rows, &pbqan.ProfileRow{
+				Rank:       0,
+				Percentage: 1, // 100%
+				Dimension:  total.Dimension,
+				RowNumber:  total.RowNumber,
+				Qps:        float32(total.NumQueries) / timeInterval,
+				Load:       total.MQueryTimeSum / timeInterval,
+				Stats: &pbqan.Stats{
+					NumQueries:    total.NumQueries,
+					MQueryTimeSum: total.MQueryTimeSum,
+					MQueryTimeMin: total.MQueryTimeMin,
+					MQueryTimeMax: total.MQueryTimeMax,
+					MQueryTimeP99: total.MQueryTimeP99,
+				},
+			})
+			continue
+		}
+
 		reply.Rows = append(reply.Rows, &pbqan.ProfileRow{
-			Rank:       uint32(int(in.Offset) + i + 1),
-			Percentage: class.MQueryTimeSum / total.MQueryTimeSum,
-			Digest:     class.Digest1,
-			DigestText: class.DigestText1,
-			FirstSeen:  class.FirstSeen,
-			Qps:        float32(class.NumQueries) / timeInterval,
-			Load:       class.MQueryTimeSum / timeInterval,
+			Rank:        uint32(int(in.Offset) + i),
+			Percentage:  result.MQueryTimeSum / total.MQueryTimeSum,
+			Dimension:   result.Dimension,
+			Fingerprint: result.Fingerprint,
+			Qps:         float32(result.NumQueries) / timeInterval,
+			Load:        result.MQueryTimeSum / timeInterval,
 			Stats: &pbqan.Stats{
-				NumQueries:    class.NumQueries,
-				MQueryTimeSum: class.MQueryTimeSum,
-				MQueryTimeMin: class.MQueryTimeMin,
-				MQueryTimeMax: class.MQueryTimeMax,
-				MQueryTimeP99: class.MQueryTimeP99,
+				NumQueries:    result.NumQueries,
+				MQueryTimeSum: result.MQueryTimeSum,
+				MQueryTimeMin: result.MQueryTimeMin,
+				MQueryTimeMax: result.MQueryTimeMax,
+				MQueryTimeP99: result.MQueryTimeP99,
 			},
 		})
 	}
