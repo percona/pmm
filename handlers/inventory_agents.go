@@ -64,6 +64,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *api.ListAgentsReques
 			res.RdsExporter = append(res.RdsExporter, agent)
 		case *api.ExternalExporter:
 			res.ExternalExporter = append(res.ExternalExporter, agent)
+		case *api.MongoDBExporter:
+			res.MongodbExporter = append(res.MongodbExporter, agent)
 		default:
 			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 		}
@@ -90,6 +92,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *api.GetAgentRequest) (
 		res.Agent = &api.GetAgentResponse_RdsExporter{RdsExporter: agent}
 	case *api.ExternalExporter:
 		res.Agent = &api.GetAgentResponse_ExternalExporter{ExternalExporter: agent}
+	case *api.MongoDBExporter:
+		res.Agent = &api.GetAgentResponse_MongodbExporter{MongodbExporter: agent}
 	default:
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}
@@ -136,11 +140,6 @@ func (s *agentsServer) AddMySQLdExporter(ctx context.Context, req *api.AddMySQLd
 	return res, nil
 }
 
-// AddMongoDBExporter adds mongodb_exporter Agent.
-func (s *agentsServer) AddMongoDBExporter(ctx context.Context, req *api.AddMongoDBExporterRequest) (*api.AddMongoDBExporterResponse, error) {
-	panic("not implemented yet")
-}
-
 // AddRDSExporter adds rds_exporter Agent.
 func (s *agentsServer) AddRDSExporter(ctx context.Context, req *api.AddRDSExporterRequest) (*api.AddRDSExporterResponse, error) {
 	panic("not implemented yet")
@@ -149,6 +148,19 @@ func (s *agentsServer) AddRDSExporter(ctx context.Context, req *api.AddRDSExport
 // AddExternalExporter adds external Agent.
 func (s *agentsServer) AddExternalExporter(ctx context.Context, req *api.AddExternalExporterRequest) (*api.AddExternalExporterResponse, error) {
 	panic("not implemented yet")
+}
+
+// AddMongoDBExporter adds mongodb_exporter Agent.
+func (s *agentsServer) AddMongoDBExporter(ctx context.Context, req *api.AddMongoDBExporterRequest) (*api.AddMongoDBExporterResponse, error) {
+	agent, err := s.s.AddMongoDBExporter(ctx, s.db, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddMongoDBExporterResponse{
+		MongodbExporter: agent,
+	}
+	return res, nil
 }
 
 // RemoveAgent removes Agent.

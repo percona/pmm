@@ -62,7 +62,8 @@ type ServiceType string
 
 // Service types.
 const (
-	MySQLServiceType ServiceType = "mysql"
+	MySQLServiceType   ServiceType = "mysql"
+	MongoDBServiceType ServiceType = "mongodb"
 )
 
 // Service represents Service as stored in database.

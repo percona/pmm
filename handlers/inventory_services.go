@@ -51,6 +51,8 @@ func (s *servicesServer) ListServices(ctx context.Context, req *api.ListServices
 			res.Mysql = append(res.Mysql, service)
 		case *api.AmazonRDSMySQLService:
 			res.AmazonRdsMysql = append(res.AmazonRdsMysql, service)
+		case *api.MongoDBService:
+			res.Mongodb = append(res.Mongodb, service)
 		default:
 			panic(fmt.Errorf("unhandled inventory Service type %T", service))
 		}
@@ -71,6 +73,8 @@ func (s *servicesServer) GetService(ctx context.Context, req *api.GetServiceRequ
 		res.Service = &api.GetServiceResponse_Mysql{Mysql: service}
 	case *api.AmazonRDSMySQLService:
 		res.Service = &api.GetServiceResponse_AmazonRdsMysql{AmazonRdsMysql: service}
+	case *api.MongoDBService:
+		res.Service = &api.GetServiceResponse_Mongodb{Mongodb: service}
 	default:
 		panic(fmt.Errorf("unhandled inventory Service type %T", service))
 	}
@@ -90,11 +94,6 @@ func (s *servicesServer) AddMySQLService(ctx context.Context, req *api.AddMySQLS
 		Mysql: service,
 	}
 	return res, nil
-}
-
-// AddMongoDBService adds MongoDB Service.
-func (s *servicesServer) AddMongoDBService(ctx context.Context, req *api.AddMongoDBServiceRequest) (*api.AddMongoDBServiceResponse, error) {
-	panic("not implemented yet")
 }
 
 // AddAmazonRDSMySQLService adds AmazonRDSMySQL Service.
@@ -118,6 +117,18 @@ func (s *servicesServer) ChangeMySQLService(ctx context.Context, req *api.Change
 // ChangeAmazonRDSMySQLService changes AmazonRDSMySQL Service.
 func (s *servicesServer) ChangeAmazonRDSMySQLService(ctx context.Context, req *api.ChangeAmazonRDSMySQLServiceRequest) (*api.ChangeAmazonRDSMySQLServiceResponse, error) {
 	panic("not implemented yet")
+}
+
+func (s *servicesServer) AddMongoDBService(ctx context.Context, req *api.AddMongoDBServiceRequest) (*api.AddMongoDBServiceResponse, error) {
+	service, err := s.s.AddMongoDB(ctx, req.ServiceName, req.NodeId)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &api.AddMongoDBServiceResponse{
+		Mongodb: service,
+	}
+	return res, nil
 }
 
 // RemoveService removes Service without any Agents.

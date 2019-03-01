@@ -137,6 +137,12 @@ var databaseSchema = [][]string{
 			UNIQUE (agent_id, service_id)
 		)`,
 	},
+	2: {
+		`
+		-- MongoDBExporter
+		ALTER TABLE agents ADD connection_string VARCHAR(255) AFTER password
+		`,
+	},
 }
 
 // OpenDB opens connection to MySQL database and runs migrations.

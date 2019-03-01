@@ -250,6 +250,30 @@ func TestServices(t *testing.T) {
 		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000001")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000001" not found.`), err)
 		assert.Nil(t, actualService)
+
+		actualService, err = ss.AddMongoDB(ctx, "test-mongo", models.PMMServerNodeID)
+		require.NoError(t, err)
+		expectedMdbService := &api.MongoDBService{
+			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000002",
+			ServiceName: "test-mongo",
+			NodeId:      models.PMMServerNodeID,
+		}
+		assert.Equal(t, expectedMdbService, actualService)
+
+		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000002")
+		require.NoError(t, err)
+		assert.Equal(t, expectedMdbService, actualService)
+
+		actualServices, err = ss.List(ctx)
+		require.NoError(t, err)
+		require.Len(t, actualServices, 1)
+		assert.Equal(t, expectedMdbService, actualServices[0])
+
+		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000002")
+		require.NoError(t, err)
+		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000002")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000002" not found.`), err)
+		assert.Nil(t, actualService)
 	})
 
 	t.Run("GetEmptyID", func(t *testing.T) {
@@ -385,6 +409,30 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedMySQLdExporter, actualAgent)
 
+		mn, err := ns.Add(ctx, models.GenericNodeType, "new node name for mongo", nil, nil)
+		require.NoError(t, err)
+
+		ms, err := ss.AddMongoDB(ctx, "test-mongo", models.PMMServerNodeID)
+		require.NoError(t, err)
+
+		actualAgent, err = as.AddMongoDBExporter(ctx, db, &api.AddMongoDBExporterRequest{
+			RunsOnNodeId:     mn.ID(),
+			ServiceId:        ms.ID(),
+			ConnectionString: "mongodb://127.0.0.1:12007",
+		})
+		require.NoError(t, err)
+		expectedMongoDBExporter := &api.MongoDBExporter{
+			AgentId:          "/agent_id/00000000-0000-4000-8000-000000000007",
+			RunsOnNodeId:     mn.ID(),
+			ServiceId:        ms.ID(),
+			ConnectionString: "mongodb://127.0.0.1:12007",
+		}
+		assert.Equal(t, expectedMongoDBExporter, actualAgent)
+
+		actualAgent, err = as.Get(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000007")
+		require.NoError(t, err)
+		assert.Equal(t, expectedMongoDBExporter, actualAgent)
+
 		// err = as.SetDisabled(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000001", true)
 		// require.NoError(t, err)
 		// expectedMySQLdExporter.Disabled = true
@@ -394,9 +442,10 @@ func TestAgents(t *testing.T) {
 
 		actualAgents, err = as.List(ctx, db, AgentFilters{})
 		require.NoError(t, err)
-		require.Len(t, actualAgents, 2)
+		require.Len(t, actualAgents, 3)
 		assert.Equal(t, expectedNodeExporter, actualAgents[0])
 		assert.Equal(t, expectedMySQLdExporter, actualAgents[1])
+		assert.Equal(t, expectedMongoDBExporter, actualAgents[2])
 
 		actualAgents, err = as.List(ctx, db, AgentFilters{ServiceID: s.ID()})
 		require.NoError(t, err)
@@ -407,6 +456,11 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualAgents, 1)
 		assert.Equal(t, expectedMySQLdExporter, actualAgents[0])
+
+		actualAgents, err = as.List(ctx, db, AgentFilters{RunsOnNodeID: mn.ID(), NodeID: models.PMMServerNodeID})
+		require.NoError(t, err)
+		require.Len(t, actualAgents, 1)
+		assert.Equal(t, expectedMongoDBExporter, actualAgents[0])
 
 		actualAgents, err = as.List(ctx, db, AgentFilters{NodeID: models.PMMServerNodeID})
 		require.NoError(t, err)
@@ -423,6 +477,12 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		actualAgent, err = as.Get(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000004")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000004" not found.`), err)
+		assert.Nil(t, actualAgent)
+
+		err = as.Remove(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000007")
+		require.NoError(t, err)
+		actualAgent, err = as.Get(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000007")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000007" not found.`), err)
 		assert.Nil(t, actualAgent)
 
 		actualAgents, err = as.List(ctx, db, AgentFilters{})

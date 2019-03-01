@@ -107,9 +107,10 @@ type AgentType string
 
 // Agent types.
 const (
-	PMMAgentType       AgentType = "pmm-agent"
-	NodeExporterType   AgentType = "node_exporter"
-	MySQLdExporterType AgentType = "mysqld_exporter"
+	PMMAgentType        AgentType = "pmm-agent"
+	NodeExporterType    AgentType = "node_exporter"
+	MySQLdExporterType  AgentType = "mysqld_exporter"
+	MongoDBExporterType AgentType = "mongodb_exporter"
 )
 
 // Agent represents Agent as stored in database.
@@ -128,6 +129,8 @@ type Agent struct {
 
 	Username *string `reform:"username"`
 	Password *string `reform:"password"`
+
+	ConnectionString *string `reform:"connection_string"`
 
 	MetricsURL *string `reform:"metrics_url"`
 }

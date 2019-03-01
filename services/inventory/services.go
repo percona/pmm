@@ -61,6 +61,13 @@ func makeService(row *models.Service) (api.Service, error) {
 			Port:         uint32(pointer.GetUint16(row.Port)),
 			CustomLabels: labels,
 		}, nil
+	case models.MongoDBServiceType:
+		return &api.MongoDBService{
+			ServiceId:    row.ServiceID,
+			ServiceName:  row.ServiceName,
+			NodeId:       row.NodeID,
+			CustomLabels: labels,
+		}, nil
 
 	default:
 		panic(fmt.Errorf("unhandled Service type %s", row.ServiceType))
@@ -172,6 +179,38 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, name string, nodeID str
 		return nil, err
 	}
 	return res.(*api.MySQLService), nil
+}
+
+// AddMongoDB inserts MongoDB Service with given parameters.
+func (ss *ServicesService) AddMongoDB(ctx context.Context, name, nodeID string) (*api.MongoDBService, error) {
+
+	id := "/service_id/" + uuid.New().String()
+	if err := ss.checkUniqueID(ctx, id); err != nil {
+		return nil, err
+	}
+	if err := ss.checkUniqueName(ctx, name); err != nil {
+		return nil, err
+	}
+
+	ns := NewNodesService(ss.q, ss.r)
+	if _, err := ns.get(ctx, nodeID); err != nil {
+		return nil, err
+	}
+
+	row := &models.Service{
+		ServiceID:   id,
+		ServiceType: models.MongoDBServiceType,
+		ServiceName: name,
+		NodeID:      nodeID,
+	}
+	if err := ss.q.Insert(row); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	res, err := makeService(row)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*api.MongoDBService), nil
 }
 
 // Change updates Service by ID.

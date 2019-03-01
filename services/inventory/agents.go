@@ -87,6 +87,24 @@ func (as *AgentsService) makeAgent(q *reform.Querier, row *models.Agent) (api.Ag
 			CustomLabels: labels,
 		}, nil
 
+	case models.MongoDBExporterType:
+		services, err := models.ServicesForAgent(q, row.AgentID)
+		if err != nil {
+			return nil, err
+		}
+		if len(services) != 1 {
+			return nil, errors.Errorf("expected exactly one Services, got %d", len(services))
+		}
+
+		return &api.MongoDBExporter{
+			AgentId:          row.AgentID,
+			RunsOnNodeId:     row.RunsOnNodeID,
+			ServiceId:        services[0].ServiceID,
+			ConnectionString: pointer.GetString(row.ConnectionString),
+			Status:           api.AgentStatus(api.AgentStatus_value[row.Status]),
+			ListenPort:       uint32(pointer.GetUint16(row.ListenPort)),
+		}, nil
+
 	default:
 		panic(fmt.Errorf("unhandled Agent type %s", row.AgentType))
 	}
@@ -379,6 +397,79 @@ func (as *AgentsService) SetDisabled(ctx context.Context, id string, disabled bo
 	return errors.WithStack(err)
 }
 */
+
+// AddMongoDBExporter inserts mongodb_exporter Agent with given parameters.
+func (as *AgentsService) AddMongoDBExporter(ctx context.Context, db *reform.DB, req *api.AddMongoDBExporterRequest) (*api.MongoDBExporter, error) {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
+
+	var res *api.MongoDBExporter
+	var pmmAgentID string
+	e := db.InTransaction(func(tx *reform.TX) error {
+		id := "/agent_id/" + uuid.New().String()
+		if err := checkUniqueID(tx.Querier, id); err != nil {
+			return err
+		}
+
+		ns := NewNodesService(tx.Querier, as.r)
+		if _, err := ns.get(ctx, req.RunsOnNodeId); err != nil {
+			return err
+		}
+
+		ss := NewServicesService(tx.Querier, as.r)
+		if _, err := ss.get(ctx, req.ServiceId); err != nil {
+			return err
+		}
+
+		row := &models.Agent{
+			AgentID:          id,
+			AgentType:        models.MongoDBExporterType,
+			RunsOnNodeID:     req.RunsOnNodeId,
+			ConnectionString: pointer.ToStringOrNil(req.ConnectionString),
+		}
+		if err := row.SetCustomLabels(req.CustomLabels); err != nil {
+			return err
+		}
+		if err := tx.Insert(row); err != nil {
+			return errors.WithStack(err)
+		}
+
+		err := tx.Insert(&models.AgentNode{
+			AgentID: row.AgentID,
+			NodeID:  req.RunsOnNodeId,
+		})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+		err = tx.Insert(&models.AgentService{
+			AgentID:   row.AgentID,
+			ServiceID: req.ServiceId,
+		})
+		if err != nil {
+			return errors.WithStack(err)
+		}
+
+		pmmAgentID, err = models.PMMAgentForAgent(tx.Querier, row.AgentID)
+		if err != nil {
+			return err
+		}
+
+		agent, err := as.makeAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		res = agent.(*api.MongoDBExporter)
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	if pmmAgentID != "" {
+		as.r.SendSetStateRequest(ctx, pmmAgentID)
+	}
+	return res, nil
+}
 
 // Remove deletes Agent by ID.
 func (as *AgentsService) Remove(ctx context.Context, db *reform.DB, id string) error {
