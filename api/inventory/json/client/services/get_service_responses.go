@@ -215,7 +215,7 @@ type GetServiceOKBodyAmazonRDSMysql struct {
 	// Instance endpoint (full DNS name).
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels. Keys starts with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
@@ -259,7 +259,7 @@ swagger:model GetServiceOKBodyMongodb
 */
 type GetServiceOKBodyMongodb struct {
 
-	// Custom user-assigned labels. Keys starts with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
@@ -303,7 +303,7 @@ type GetServiceOKBodyMysql struct {
 	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels. Keys starts with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
