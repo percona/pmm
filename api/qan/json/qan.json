@@ -872,7 +872,8 @@
                         "format": "int64"
                       },
                       "row_number": {
-                        "type": "string"
+                        "type": "number",
+                        "format": "float"
                       },
                       "stats": {
                         "description": "Stats metrics.",

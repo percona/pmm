@@ -47,7 +47,7 @@ message ProfileRow {
   uint32 rank = 1;
   float percentage = 2;
   string dimension = 3;
-  string row_number = 4;
+  float row_number = 4;
   string d_servers = 5;
   string d_databases = 6;
   string d_schemas = 7;

@@ -303,7 +303,7 @@ type RowsItems0 struct {
 	Rank int64 `json:"rank,omitempty"`
 
 	// row number
-	RowNumber string `json:"row_number,omitempty"`
+	RowNumber float32 `json:"row_number,omitempty"`
 
 	// stats
 	Stats *RowsItems0Stats `json:"stats,omitempty"`
