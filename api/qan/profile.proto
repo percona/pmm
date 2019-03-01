@@ -56,7 +56,7 @@ message ProfileRow {
   string first_seen = 10;
   float qps = 11;
   float load = 12;
-  float fingerprint = 13;
+  string fingerprint = 13;
   Stats stats = 14;
 }
 

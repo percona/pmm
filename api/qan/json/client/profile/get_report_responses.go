@@ -285,7 +285,7 @@ type RowsItems0 struct {
 	Dimension string `json:"dimension,omitempty"`
 
 	// fingerprint
-	Fingerprint float32 `json:"fingerprint,omitempty"`
+	Fingerprint string `json:"fingerprint,omitempty"`
 
 	// first seen
 	FirstSeen string `json:"first_seen,omitempty"`

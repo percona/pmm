@@ -850,8 +850,7 @@
                         "type": "string"
                       },
                       "fingerprint": {
-                        "type": "number",
-                        "format": "float"
+                        "type": "string"
                       },
                       "first_seen": {
                         "type": "string"
