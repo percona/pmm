@@ -69,10 +69,10 @@ message MetricsReply {
   ExampleType example_type = 17;
   string example_metrics = 18;
   // Metrics.
-  float num_query_with_warnings = 19;
+  float num_queries_with_warnings = 19;
   // {code: count }
   map<uint32, float> warnings = 20;
-  float num_query_with_errors = 21;
+  float num_queries_with_errors = 21;
   // {code: count }
   map<uint32, float> errors = 22;
   float num_queries = 23;

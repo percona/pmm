@@ -713,11 +713,11 @@
                   "type": "number",
                   "format": "float"
                 },
-                "num_query_with_errors": {
+                "num_queries_with_errors": {
                   "type": "number",
                   "format": "float"
                 },
-                "num_query_with_warnings": {
+                "num_queries_with_warnings": {
                   "description": "Metrics.",
                   "type": "number",
                   "format": "float"

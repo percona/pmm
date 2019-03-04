@@ -52,10 +52,10 @@ message QueryClass {
   ExampleType example_type = 16;
   string example_metrics = 17; // JSON raw metrics for given query example.
   // Metrics.
-  uint64 num_query_with_warnings = 18; // How many queries was with warnings in bucket.
+  uint64 num_queries_with_warnings = 18; // How many queries was with warnings in bucket.
   // {code: count }
   map<uint64, uint64> warnings = 19; // List of warnings.
-  uint64 num_query_with_errors = 20; // How many queries was with error in bucket.
+  uint64 num_queries_with_errors = 20; // How many queries was with error in bucket.
   // {code: count }
   map<uint64, uint64> errors = 21; // List of errors.
   float num_queries = 22; // Amount queries in this bucket.

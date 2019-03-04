@@ -613,11 +613,11 @@ type GetMetricsOKBody struct {
 	// num queries
 	NumQueries float32 `json:"num_queries,omitempty"`
 
-	// num query with errors
-	NumQueryWithErrors float32 `json:"num_query_with_errors,omitempty"`
+	// num queries with errors
+	NumQueriesWithErrors float32 `json:"num_queries_with_errors,omitempty"`
 
 	// Metrics.
-	NumQueryWithWarnings float32 `json:"num_query_with_warnings,omitempty"`
+	NumQueriesWithWarnings float32 `json:"num_queries_with_warnings,omitempty"`
 
 	// period length
 	PeriodLength int64 `json:"period_length,omitempty"`
