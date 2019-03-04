@@ -104,6 +104,9 @@ func (svc *Service) marshalConfig(ctx context.Context) ([]byte, error) {
 			ScrapeTimeout:      model.Duration(10 * time.Second),
 			EvaluationInterval: model.Duration(time.Minute),
 		},
+		RuleFiles: []string{
+			"/etc/prometheus.d/*.rules.yml",
+		},
 		ScrapeConfigs: []*config.ScrapeConfig{
 			scrapeConfigForPrometheus(),
 			scrapeConfigForGrafana(),
