@@ -227,6 +227,8 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agent.SetStateR
 		processParams.path = s.paths.NodeExporter
 	case agent.Type_MYSQLD_EXPORTER:
 		processParams.path = s.paths.MySQLdExporter
+	case agent.Type_MONGODB_EXPORTER:
+		processParams.path = s.paths.MongoDBExporter
 	case type_TEST_SLEEP:
 		processParams.path = "sleep"
 	default:

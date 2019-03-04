@@ -28,15 +28,17 @@ import (
 
 // Paths represents binaries paths configuration.
 type Paths struct {
-	NodeExporter   string
-	MySQLdExporter string
-	TempDir        string
+	NodeExporter    string
+	MySQLdExporter  string
+	MongoDBExporter string
+	TempDir         string
 }
 
 // Lookup replaces paths with absolute paths.
 func (p *Paths) Lookup() {
 	p.NodeExporter, _ = exec.LookPath(p.NodeExporter)
 	p.MySQLdExporter, _ = exec.LookPath(p.MySQLdExporter)
+	p.MongoDBExporter, _ = exec.LookPath(p.MongoDBExporter)
 }
 
 // Ports represents ports configuration.
@@ -72,6 +74,8 @@ func Application(cfg *Config) *kingpin.Application {
 		Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)
 	app.Flag("paths.mysqld_exporter", "Path to mysqld_exporter to use.").Envar("PMM_AGENT_PATHS_MYSQLD_EXPORTER").
 		Default("mysqld_exporter").StringVar(&cfg.Paths.MySQLdExporter)
+	app.Flag("paths.mongodb_exporter", "Path to mongodb_exporter to use.").Envar("PMM_AGENT_PATHS_MONGODB_EXPORTER").
+		Default("mongodb_exporter").StringVar(&cfg.Paths.MongoDBExporter)
 	app.Flag("paths.tempdir", "Temporary directory for exporters.").Envar("PMM_AGENT_PATHS_TEMPDIR").
 		Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
 
