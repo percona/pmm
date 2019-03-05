@@ -117,9 +117,7 @@ func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
 		ctx, cancel := context.WithTimeout(req.Context(), 10*time.Second)
 		defer cancel()
 
-		t := time.Now().UTC()
-		filename := fmt.Sprintf("pmm-server_%4d-%02d-%02d-%02d-%02d.zip", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute())
-
+		filename := fmt.Sprintf("pmm-server_%s", time.Now().UTC().Format("2006-01-02_15-04"))
 		rw.Header().Set(`Access-Control-Allow-Origin`, `*`)
 		rw.Header().Set(`Content-Type`, `application/zip`)
 		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
