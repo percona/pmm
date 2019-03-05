@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package qan;
+
+option go_package = "server";
+
+import "google/api/annotations.proto";
+
+message VersionRequest {}
+
+message VersionResponse {
+  string version = 1;
+}
+
+// Server service provides generic PMM Server public APIs.
+service Server {
+  // Version returns PMM Server version.
+  rpc Version(VersionRequest) returns (VersionResponse) {
+    option (google.api.http) = {
+      get: "/v1/version"
+    };
+  }
+}

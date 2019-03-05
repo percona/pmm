@@ -24,7 +24,7 @@ gen: clean            ## Generate files.
 
 	find . -name '*.swagger.json' -not -path './vendor/*' -print -exec swagger flatten --with-flatten=expand --with-flatten=remove-unused '{}' --output='{}' \;
 
-	for API in agent_local inventory qan ; do \
+	for API in agent_local inventory qan server ; do \
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json ; \
 		swagger validate $$API/json/$$API.json ; \
 		swagger generate client --spec=$$API/json/$$API.json --target=$$API/json \
@@ -44,7 +44,7 @@ clean: clean_swagger  ## Remove generated files.
 	find . -name '*.pb.go' -not -path './vendor/*' -print -delete
 	find . -name '*.pb.gw.go' -not -path './vendor/*' -print -delete
 
-	for API in agent_local inventory qan ; do \
+	for API in agent_local inventory qan server ; do \
 		rm -fr $$API/json/client $$API/json/$$API.json ; \
 	done
 
