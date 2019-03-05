@@ -110,9 +110,6 @@ var databaseSchema = [][]string{
 			username VARCHAR(255),
 			password VARCHAR(255),
 
-			-- MongoDBExporter
-			connection_string VARCHAR(255),
-
 			-- ExternalExporter
 			metrics_url VARCHAR(255),
 
@@ -139,6 +136,13 @@ var databaseSchema = [][]string{
 			FOREIGN KEY (service_id) REFERENCES services (service_id),
 			UNIQUE (agent_id, service_id)
 		)`,
+	},
+
+	2: {
+		`
+		-- MongoDBExporter
+		ALTER TABLE agents ADD connection_string VARCHAR(255) AFTER password
+		`,
 	},
 }
 

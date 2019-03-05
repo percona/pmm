@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/AlekSi/pointer"
 	api "github.com/percona/pmm/api/inventory"
 
 	"github.com/percona/pmm-managed/models"
@@ -87,7 +88,7 @@ func (s *nodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*ap
 
 // AddGenericNode adds Generic Node.
 func (s *nodesServer) AddGenericNode(ctx context.Context, req *api.AddGenericNodeRequest) (*api.AddGenericNodeResponse, error) {
-	node, err := s.s.Add(ctx, models.GenericNodeType, req.NodeName, &req.Address, nil)
+	node, err := s.s.Add(ctx, models.GenericNodeType, req.NodeName, pointer.ToStringOrNil(req.Address), nil)
 	if err != nil {
 		return nil, err
 	}

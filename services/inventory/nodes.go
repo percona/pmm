@@ -202,7 +202,7 @@ func (ns *NodesService) Add(ctx context.Context, nodeType models.NodeType, name 
 	if err := ns.checkUniqueName(ctx, name); err != nil {
 		return nil, err
 	}
-	if region != nil {
+	if address != nil && region != nil {
 		if err := ns.checkUniqueInstanceRegion(ctx, *address, *region); err != nil {
 			return nil, err
 		}
