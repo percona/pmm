@@ -137,7 +137,6 @@ var databaseSchema = [][]string{
 			UNIQUE (agent_id, service_id)
 		)`,
 	},
-
 	2: {
 		`
 		-- MongoDBExporter

@@ -56,67 +56,67 @@ func TestDatabaseUniqueIndexes(t *testing.T) {
 	t.Run("Nodes", func(t *testing.T) {
 		// node_id
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, distro_version, docker_container_name) " +
-				"VALUES ('1', '', 'name', '', '', '', '')",
+			"INSERT INTO nodes (node_id, node_type, node_name) " +
+				"VALUES ('1', '', 'name')",
 		)
 		require.NoError(t, err)
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, distro_version, docker_container_name) " +
-				"VALUES ('1', '', 'other name', '', '', '', '')",
+			"INSERT INTO nodes (node_id, node_type, node_name) " +
+				"VALUES ('1', '', 'other name')",
 		)
 		assertDuplicate(t, err, "1", "PRIMARY")
 
 		// node_name
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, distro_version, docker_container_name) " +
-				"VALUES ('2', '', 'name', '', '', '', '')",
+			"INSERT INTO nodes (node_id, node_type, node_name) " +
+				"VALUES ('2', '', 'name')",
 		)
 		assertDuplicate(t, err, "name", "node_name")
 
 		// machine_id
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, distro_version, docker_container_name, machine_id) " +
-				"VALUES ('31', '', 'name31', '', '', '', '', 'machine-id')",
+			"INSERT INTO nodes (node_id, node_type, node_name, machine_id) " +
+				"VALUES ('31', '', 'name31', 'machine-id')",
 		)
 		require.NoError(t, err)
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, distro_version, docker_container_name, machine_id) " +
-				"VALUES ('32', '', 'name32', '', '', '', '', 'machine-id')",
+			"INSERT INTO nodes (node_id, node_type, node_name, machine_id) " +
+				"VALUES ('32', '', 'name32', 'machine-id')",
 		)
 		assertDuplicate(t, err, "machine-id", "machine_id")
 
 		// docker_container_id
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, distro_version, docker_container_name, docker_container_id) " +
-				"VALUES ('41', '', 'name41', '', '', '', '', 'docker-container-id')",
+			"INSERT INTO nodes (node_id, node_type, node_name, docker_container_id) " +
+				"VALUES ('41', '', 'name41', 'docker-container-id')",
 		)
 		require.NoError(t, err)
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, distro_version, docker_container_name, docker_container_id) " +
-				"VALUES ('42', '', 'name42', '', '', '', '', 'docker-container-id')",
+			"INSERT INTO nodes (node_id, node_type, node_name, docker_container_id) " +
+				"VALUES ('42', '', 'name42', 'docker-container-id')",
 		)
 		assertDuplicate(t, err, "docker-container-id", "docker_container_id")
 
 		// (address, region)
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, distro_version, docker_container_name, region) " +
-				"VALUES ('51', '', 'name51', 'instance1', '', '', '', 'region1')",
+			"INSERT INTO nodes (node_id, node_type, node_name, address, region) " +
+				"VALUES ('51', '', 'name51', 'instance1', 'region1')",
 		)
 		require.NoError(t, err)
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, distro_version, docker_container_name, region) " +
-				"VALUES ('52', '', 'name52', 'instance1', '', '', '', 'region1')",
+			"INSERT INTO nodes (node_id, node_type, node_name, address, region) " +
+				"VALUES ('52', '', 'name52', 'instance1', 'region1')",
 		)
 		assertDuplicate(t, err, "instance1-region1", "address")
 		// same address, NULL region is fine
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, distro_version, docker_container_name) " +
-				"VALUES ('53', '', 'name53', 'instance1', '', '', '')",
+			"INSERT INTO nodes (node_id, node_type, node_name, address) " +
+				"VALUES ('53', '', 'name53', 'instance1')",
 		)
 		require.NoError(t, err)
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, distro, distro_version, docker_container_name) " +
-				"VALUES ('54', '', 'name54', 'instance1', '', '', '')",
+			"INSERT INTO nodes (node_id, node_type, node_name, address) " +
+				"VALUES ('54', '', 'name54', 'instance1')",
 		)
 		require.NoError(t, err)
 	})
