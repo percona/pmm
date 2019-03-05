@@ -18,18 +18,15 @@ package logs
 
 import (
 	"archive/zip"
-	"bytes"
 	"context"
 	"fmt"
 	"io"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"sort"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -37,84 +34,68 @@ import (
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
-// File represents log file content.
-type File struct {
+// logInfo represents log file information, or the way to read log.
+type logInfo struct {
+	FilePath    string
+	SystemdUnit string
+}
+
+// fileContent represents log or configuration file content.
+type fileContent struct {
 	Name string
 	Data []byte
 	Err  error
 }
 
-type Log struct {
-	FilePath  string
-	UnitName  string
-	Extractor []string
-}
-
 const (
-	lastLines                  = 1000
-	logsDataVolumeContainerDir = "/srv/logs/"
+	lastLines = 1000
 )
 
-// overridden in tests
-var logsRootDir = "/var/log/"
+var defaultLogs = map[string]logInfo{
+	// system
+	"cron.log":        {"/srv/logs/cron.log", "crond"},
+	"supervisord.log": {"/var/log/supervisor/supervisord.log", ""},
 
-var defaultLogs = []Log{
-	{logsDataVolumeContainerDir + "createdb.log", "", nil},
-	{logsDataVolumeContainerDir + "cron.log", "crond", nil},
-	{logsDataVolumeContainerDir + "dashboard-upgrade.log", "", nil},
-	{logsRootDir + "grafana/grafana.log", "", nil},
-	{logsRootDir + "mysql.log", "", nil},
-	{logsRootDir + "mysqld.log", "mysqld", nil},
-	{logsDataVolumeContainerDir + "nginx.log", "nginx", nil},
-	{logsRootDir + "nginx/access.log", "", nil},
-	{logsRootDir + "nginx/error.log", "", nil},
-	{logsDataVolumeContainerDir + "node_exporter.log", "node_exporter", nil},
-	{logsRootDir + "orchestrator.log", "orchestrator", nil},
-	{logsDataVolumeContainerDir + "pmm-manage.log", "pmm-manage", nil},
-	{logsDataVolumeContainerDir + "pmm-managed.log", "pmm-managed", nil},
-	{logsDataVolumeContainerDir + "prometheus.log", "prometheus", nil},
-	{logsRootDir + "supervisor/supervisord.log", "", nil},
+	// storages
+	"clickhouse-server.log":     {"/srv/logs/clickhouse-server.log", ""},
+	"clickhouse-server.err.log": {"/srv/logs/clickhouse-server.err.log", ""},
+	"postgres.log":              {"/srv/logs/postgres.log", ""},
+	"createdb.log":              {"/srv/logs/createdb.log", ""},
+	"createdb2.log":             {"/srv/logs/createdb2.log", ""},
+	"createdb3.log":             {"/srv/logs/createdb3.log", ""},
 
-	// logs
-	// TODO handle separately
-	{"supervisorctl_status.log", "", []string{"exec", "supervisorctl status"}},
-	{"systemctl_status.log", "", []string{"exec", "systemctl -l status"}},
-	{"pt-summary.log", "", []string{"exec", "pt-summary"}},
+	// nginx
+	"nginx.log":        {"/srv/logs/nginx.log", "nginx"},
+	"nginx_access.log": {"/var/log/nginx/access.log", ""},
+	"nginx_error.log":  {"/var/log/nginx/error.log", ""},
 
-	// configs
-	// TODO handle separately
-	{"/etc/prometheus.yml", "", []string{"cat", ""}},
-	{"/etc/supervisord.d/pmm.ini", "", []string{"cat", ""}},
-	{"/etc/nginx/conf.d/pmm.conf", "", []string{"cat", ""}},
-	{"prometheus_targets.html", "", []string{"http", "http://localhost/prometheus/targets"}},
-	{"pmm-version.txt", "", []string{"pmmVersion", ""}},
+	// metrics
+	"prometheus.log": {"/srv/logs/prometheus.log", "prometheus"},
+	"grafana.log":    {"/var/log/grafana/grafana.log", ""},
+
+	// core PMM components
+	"pmm-managed.log": {"/srv/logs/pmm-managed.log", "pmm-managed"},
+	"qan-api.log":     {"/srv/logs/qan-api.log", ""},
+	"qan-api2.log":    {"/var/log/qan-api2.log", ""},
+
+	// upgrades
+	"dashboard-upgrade.log": {"/srv/logs/dashboard-upgrade.log", ""},
 }
 
 // Logs is responsible for interactions with logs.
 type Logs struct {
 	pmmVersion string
-	logs       []Log
+	logs       map[string]logInfo // for testing
 
 	journalctlPath string
 }
 
-type manageConfig struct {
-	Users []struct {
-		Username string `yaml:"username"`
-		Password string `yaml:"password"`
-	} `yaml:"users"`
-}
-
 // New creates a new Logs service.
 // n is a number of last lines of log to read.
-func New(pmmVersion string, logs []Log) *Logs {
-	if logs == nil {
-		logs = defaultLogs
-	}
-
+func New(pmmVersion string) *Logs {
 	l := &Logs{
 		pmmVersion: pmmVersion,
-		logs:       logs,
+		logs:       defaultLogs,
 	}
 
 	// PMM Server Docker image contails journalctl,
@@ -126,37 +107,19 @@ func New(pmmVersion string, logs []Log) *Logs {
 	return l
 }
 
-// Files returns list of logs and their content.
-func (l *Logs) Files(ctx context.Context) []File {
-	files := make([]File, 0, len(l.logs))
-
-	for _, log := range l.logs {
-		var f File
-		f.Name, f.Data, f.Err = l.readLog(ctx, &log)
-		files = append(files, f)
-	}
-
-	sort.Slice(files, func(i, j int) bool { return files[i].Name < files[j].Name })
-	return files
-}
-
 // Zip creates .zip archive with all logs.
 func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 	zw := zip.NewWriter(w)
 	now := time.Now().UTC()
-	for _, file := range l.Files(ctx) {
-		if file.Name == "" {
-			continue
-		}
-
+	for _, file := range l.files(ctx) {
 		if file.Err != nil {
-			logger.Get(ctx).WithField("component", "logs").Error(file.Err)
+			logger.Get(ctx).WithField("component", "logs").Errorf("%s: %s", file.Name, file.Err)
 
 			// do not let a single error break the whole archive
 			if len(file.Data) > 0 {
 				file.Data = append(file.Data, "\n\n"...)
 			}
-			file.Data = append(file.Data, []byte(file.Err.Error())...)
+			file.Data = append(file.Data, file.Err.Error()...)
 		}
 
 		f, err := zw.CreateHeader(&zip.FileHeader{
@@ -174,102 +137,69 @@ func (l *Logs) Zip(ctx context.Context, w io.Writer) error {
 	return errors.Wrap(zw.Close(), "failed to close zip file")
 }
 
-// readLog reads last lines from defined Log configuration.
-func (l *Logs) readLog(ctx context.Context, log *Log) (name string, data []byte, err error) {
-	if log.Extractor != nil {
-		return l.readWithExtractor(ctx, log)
+// files reads log/config files and returns content.
+func (l *Logs) files(ctx context.Context) []fileContent {
+	files := make([]fileContent, 0, len(l.logs))
+
+	for name, log := range l.logs {
+		f := fileContent{
+			Name: name,
+		}
+		f.Data, f.Err = l.readLog(ctx, &log)
+		files = append(files, f)
 	}
 
-	if log.UnitName != "" && l.journalctlPath != "" {
-		name = log.UnitName
-		data, err = l.journalctlN(ctx, log.UnitName)
-		return
+	// add PMM version
+	files = append(files, fileContent{
+		Name: "pmm-version.txt",
+		Data: []byte(l.pmmVersion + "\n"),
+	})
+
+	// add configs
+	for _, f := range []string{
+		"/etc/prometheus.yml",
+		"/etc/supervisord.d/pmm.ini",
+		"/etc/nginx/conf.d/pmm.conf",
+	} {
+		b, err := ioutil.ReadFile(f) //nolint:gosec
+		files = append(files, fileContent{
+			Name: filepath.Base(f),
+			Data: b,
+			Err:  err,
+		})
+	}
+
+	// add supervisord status
+	b, err := exec.CommandContext(ctx, "supervisorctl", "status").CombinedOutput()
+	files = append(files, fileContent{
+		Name: "supervisorctl_status.log",
+		Data: b,
+		Err:  err,
+	})
+
+	// add systemd status
+	b, err = exec.CommandContext(ctx, "systemctl", "-l", "status").CombinedOutput()
+	files = append(files, fileContent{
+		Name: "systemctl_status.log",
+		Data: b,
+		Err:  err,
+	})
+
+	sort.Slice(files, func(i, j int) bool { return files[i].Name < files[j].Name })
+	return files
+}
+
+// readLog reads last lines from given log.
+func (l *Logs) readLog(ctx context.Context, log *logInfo) ([]byte, error) {
+	if log.SystemdUnit != "" && l.journalctlPath != "" {
+		cmd := exec.CommandContext(ctx, l.journalctlPath, "-n", strconv.Itoa(lastLines), "-u", log.SystemdUnit)
+		return cmd.CombinedOutput()
 	}
 
 	if log.FilePath != "" {
-		name = filepath.Base(log.FilePath)
-		data, err = l.tailN(ctx, log.FilePath)
-		return
+		cmd := exec.CommandContext(ctx, "/usr/bin/tail", "-n", strconv.Itoa(lastLines), log.FilePath)
+		return cmd.CombinedOutput()
 	}
 
-	return
-}
-
-func (l *Logs) readWithExtractor(ctx context.Context, log *Log) (name string, data []byte, err error) {
-	name = filepath.Base(log.FilePath)
-
-	switch log.Extractor[0] {
-	case "exec":
-		data, err = l.collectExec(ctx, log.FilePath, log.Extractor[1])
-
-	case "pmmVersion":
-		data = []byte(l.pmmVersion)
-
-	case "http":
-		data, err = l.readURL(log.Extractor[1])
-
-	case "cat":
-		data, err = ioutil.ReadFile(log.FilePath)
-
-	default:
-		panic("unhandled extractor: " + log.Extractor[0])
-	}
-
-	return
-}
-
-// journalctlN reads last lines from systemd unit u using `journalctl` command.
-func (l *Logs) journalctlN(ctx context.Context, u string) ([]byte, error) {
-	cmd := exec.CommandContext(ctx, l.journalctlPath, "-n", strconv.Itoa(lastLines), "-u", u)
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	b, err := cmd.Output()
-	if err != nil {
-		return b, fmt.Errorf("%s: %s: %s", strings.Join(cmd.Args, " "), err, stderr.String())
-	}
-	return b, nil
-}
-
-// tailN reads last lines from log file at given path using `tail` command.
-func (l *Logs) tailN(ctx context.Context, path string) ([]byte, error) {
-	cmd := exec.CommandContext(ctx, "/usr/bin/tail", "-n", strconv.Itoa(lastLines), path)
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	b, err := cmd.Output()
-	if err != nil {
-		return b, fmt.Errorf("%s: %s: %s", strings.Join(cmd.Args, " "), err, stderr.String())
-	}
-	return b, nil
-}
-
-// collectExec collects output from various commands
-func (l *Logs) collectExec(ctx context.Context, path string, command string) ([]byte, error) {
-	var cmd *exec.Cmd
-	if filepath.Dir(path) != "." {
-		cmd = exec.CommandContext(ctx, command, path)
-	} else {
-		command := strings.Split(command, " ")
-		cmd = exec.CommandContext(ctx, command[0], command[1:]...)
-	}
-	var stderr bytes.Buffer
-	cmd.Stderr = new(bytes.Buffer)
-	b, err := cmd.Output()
-	if err != nil {
-		return b, fmt.Errorf("%s: %s: %s", strings.Join(cmd.Args, " "), err, stderr.String())
-	}
-	return b, nil
-}
-
-// readUrl reads content of a page
-func (l *Logs) readURL(url string) ([]byte, error) {
-	u, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer u.Body.Close()
-	b, err := ioutil.ReadAll(u.Body)
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
+	return nil, fmt.Errorf("no reader for %+v", log)
 }

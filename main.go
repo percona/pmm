@@ -151,9 +151,6 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 	)
 	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{PMMVersion: version.Version})
 	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
-	api.RegisterLogsServer(gRPCServer, &handlers.LogsServer{
-		Logs: deps.logs,
-	})
 	api.RegisterAnnotationsServer(gRPCServer, &handlers.AnnotationsServer{
 		Grafana: grafana,
 	})
@@ -218,7 +215,6 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 	for _, r := range []registrar{
 		api.RegisterBaseHandlerFromEndpoint,
 		api.RegisterDemoHandlerFromEndpoint,
-		api.RegisterLogsHandlerFromEndpoint,
 		api.RegisterAnnotationsHandlerFromEndpoint,
 
 		// PMM 2.0 APIs
@@ -399,7 +395,7 @@ func main() {
 	}
 
 	agentsRegistry := agents.NewRegistry(db, prometheus)
-	logs := logs.New(version.Version, nil)
+	logs := logs.New(version.Version)
 
 	deps := &serviceDependencies{
 		prometheus:     prometheus,
