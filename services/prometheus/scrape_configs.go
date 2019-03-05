@@ -27,7 +27,6 @@ import (
 	"github.com/prometheus/common/model"
 
 	"github.com/percona/pmm-managed/models"
-	config_util "github.com/percona/pmm-managed/services/prometheus/internal/common/config"
 	"github.com/percona/pmm-managed/services/prometheus/internal/prometheus/config"
 	sd_config "github.com/percona/pmm-managed/services/prometheus/internal/prometheus/discovery/config"
 	"github.com/percona/pmm-managed/services/prometheus/internal/prometheus/discovery/targetgroup"
@@ -118,18 +117,7 @@ func mergeLabels(labels model.LabelSet, node *models.Node, service *models.Servi
 }
 
 func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
-	labels := model.LabelSet{
-		model.LabelName("node_id"):               model.LabelValue(node.NodeID),
-		model.LabelName("node_name"):             model.LabelValue(node.NodeName),
-		model.LabelName("machine_id"):            model.LabelValue(pointer.GetString(node.MachineID)),
-		model.LabelName("docker_container_id"):   model.LabelValue(pointer.GetString(node.DockerContainerID)),
-		model.LabelName("docker_container_name"): model.LabelValue(pointer.GetString(node.DockerContainerName)),
-
-		model.LabelName("service_id"):   model.LabelValue(service.ServiceID),
-		model.LabelName("service_name"): model.LabelValue(service.ServiceName),
-
-		model.LabelName("instance"): model.LabelValue(agent.AgentID),
-	}
+	labels := commonExporterLabelSet(node, service, agent)
 	if err := mergeLabels(labels, node, service, agent); err != nil {
 		return nil, err
 	}
@@ -173,17 +161,52 @@ func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, 
 		}
 	}
 
-	username, password := pointer.GetString(agent.Username), pointer.GetString(agent.Password)
-	if username != "" {
-		for _, cfg := range res {
-			cfg.HTTPClientConfig = config_util.HTTPClientConfig{
-				BasicAuth: &config_util.BasicAuth{
-					Username: username,
-					Password: password,
-				},
-			}
-		}
+	return res, nil
+}
+
+func scrapeConfigsForMongoDBExporter(node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
+	labels := commonExporterLabelSet(node, service, agent)
+	if err := mergeLabels(labels, node, service, agent); err != nil {
+		return nil, err
+	}
+
+	port := pointer.GetUint16(agent.ListenPort)
+	if port == 0 {
+		return nil, errors.New("listen port is not known")
+	}
+	hostport := net.JoinHostPort(pointer.GetString(node.Address), strconv.Itoa(int(port)))
+	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
+	if err := target.Validate(); err != nil {
+		return nil, errors.Wrap(err, "failed to set targets")
+	}
+
+	res := &config.ScrapeConfig{
+		JobName:        strings.Replace(agent.AgentID, "/", "_", -1),
+		ScrapeInterval: model.Duration(time.Second),
+		ScrapeTimeout:  model.Duration(time.Second),
+		MetricsPath:    "/metrics",
+		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+			StaticConfigs: []*targetgroup.Group{{
+				Targets: []model.LabelSet{target},
+				Labels:  labels,
+			}},
+		},
 	}
 
 	return res, nil
+}
+
+func commonExporterLabelSet(node *models.Node, service *models.Service, agent *models.Agent) model.LabelSet {
+	return model.LabelSet{
+		model.LabelName("node_id"):               model.LabelValue(node.NodeID),
+		model.LabelName("node_name"):             model.LabelValue(node.NodeName),
+		model.LabelName("machine_id"):            model.LabelValue(pointer.GetString(node.MachineID)),
+		model.LabelName("docker_container_id"):   model.LabelValue(pointer.GetString(node.DockerContainerID)),
+		model.LabelName("docker_container_name"): model.LabelValue(pointer.GetString(node.DockerContainerName)),
+
+		model.LabelName("service_id"):   model.LabelValue(service.ServiceID),
+		model.LabelName("service_name"): model.LabelValue(service.ServiceName),
+
+		model.LabelName("instance"): model.LabelValue(agent.AgentID),
+	}
 }

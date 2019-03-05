@@ -126,21 +126,29 @@ func (svc *Service) marshalConfig(ctx context.Context) ([]byte, error) {
 				return errors.WithStack(err)
 			}
 			for _, service := range services {
-				if service.ServiceType != models.MySQLServiceType {
-					l.Warnf("Skipping scrape config for %s.", service)
-					continue
-				}
 
 				node := &models.Node{NodeID: service.NodeID}
 				if err = tx.Reload(node); err != nil {
 					return errors.WithStack(err)
 				}
 
-				scfgs, err := scrapeConfigsForMySQLdExporter(node, service, agent)
-				if err != nil {
-					return err
+				switch service.ServiceType {
+				case models.MySQLServiceType:
+					scfgs, err := scrapeConfigsForMySQLdExporter(node, service, agent)
+					if err != nil {
+						return err
+					}
+					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
+				case models.MongoDBServiceType:
+					scfg, err := scrapeConfigsForMongoDBExporter(node, service, agent)
+					if err != nil {
+						return err
+					}
+					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+				default:
+					l.Warnf("Skipping scrape config for %s.", service)
+					continue
 				}
-				cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
 			}
 		}
 		return nil
