@@ -52,9 +52,6 @@ func makeNode(row *models.Node) (api.Node, error) {
 	}
 
 	switch row.NodeType {
-	case models.PMMServerNodeType: // FIXME remove this branch
-		fallthrough
-
 	case models.GenericNodeType:
 		return &api.GenericNode{
 			NodeId:        row.NodeID,

@@ -71,7 +71,7 @@ var databaseSchema = [][]string{
 			UNIQUE (address, region)
 		)`,
 
-		`INSERT INTO nodes (node_type, node_id, node_name) VALUES ('` + string(PMMServerNodeType) + `', '` + PMMServerNodeID + `', 'PMM Server')`, //nolint:gosec
+		`INSERT INTO nodes (node_type, node_id, node_name) VALUES ('` + string(GenericNodeType) + `', '` + PMMServerNodeID + `', 'PMM Server')`, //nolint:gosec
 
 		`CREATE TABLE services (
 			-- common

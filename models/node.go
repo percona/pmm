@@ -62,15 +62,14 @@ type NodeType string
 
 // Node types.
 const (
-	PMMServerNodeID string = "pmm-server" // FIXME remove
-
-	PMMServerNodeType NodeType = "pmm-server" // FIXME remove
-
 	GenericNodeType         NodeType = "generic"
 	ContainerNodeType       NodeType = "container"
 	RemoteNodeType          NodeType = "remote"
 	RemoteAmazonRDSNodeType NodeType = "remote-amazon-rds"
 )
+
+// PMMServerNodeID is a special Node ID representing PMM Server Node.
+const PMMServerNodeID string = "pmm-server"
 
 // Node represents Node as stored in database.
 //reform:nodes
