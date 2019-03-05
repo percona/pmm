@@ -57,10 +57,10 @@ func makeNode(row *models.Node) (api.Node, error) {
 			NodeId:        row.NodeID,
 			NodeName:      row.NodeName,
 			MachineId:     pointer.GetString(row.MachineID),
-			Distro:        row.Distro,
-			DistroVersion: row.DistroVersion,
+			Distro:        pointer.GetString(row.Distro),
+			DistroVersion: pointer.GetString(row.DistroVersion),
 			CustomLabels:  labels,
-			Address:       row.Address,
+			Address:       pointer.GetString(row.Address),
 		}, nil
 
 	case models.ContainerNodeType:
@@ -69,7 +69,7 @@ func makeNode(row *models.Node) (api.Node, error) {
 			NodeName:            row.NodeName,
 			MachineId:           pointer.GetString(row.MachineID),
 			DockerContainerId:   pointer.GetString(row.DockerContainerID),
-			DockerContainerName: row.DockerContainerName,
+			DockerContainerName: pointer.GetString(row.DockerContainerName),
 			CustomLabels:        labels,
 		}, nil
 
@@ -84,7 +84,7 @@ func makeNode(row *models.Node) (api.Node, error) {
 		return &api.RemoteAmazonRDSNode{
 			NodeId:       row.NodeID,
 			NodeName:     row.NodeName,
-			Instance:     row.Address,
+			Instance:     pointer.GetString(row.Address),
 			Region:       pointer.GetString(row.Region),
 			CustomLabels: labels,
 		}, nil
@@ -190,7 +190,7 @@ func (ns *NodesService) Get(ctx context.Context, id string) (api.Node, error) {
 }
 
 // Add inserts Node with given parameters. ID will be generated.
-func (ns *NodesService) Add(ctx context.Context, nodeType models.NodeType, name, address string, region *string) (api.Node, error) {
+func (ns *NodesService) Add(ctx context.Context, nodeType models.NodeType, name string, address, region *string) (api.Node, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// No hostname for Container, etc.
 
@@ -203,7 +203,7 @@ func (ns *NodesService) Add(ctx context.Context, nodeType models.NodeType, name,
 		return nil, err
 	}
 	if region != nil {
-		if err := ns.checkUniqueInstanceRegion(ctx, address, *region); err != nil {
+		if err := ns.checkUniqueInstanceRegion(ctx, *address, *region); err != nil {
 			return nil, err
 		}
 	}

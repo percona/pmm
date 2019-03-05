@@ -146,7 +146,7 @@ func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, 
 	if port == 0 {
 		return nil, errors.New("listen port is not known")
 	}
-	hostport := net.JoinHostPort(node.Address, strconv.Itoa(int(port)))
+	hostport := net.JoinHostPort(pointer.GetString(node.Address), strconv.Itoa(int(port)))
 	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
 	if err := target.Validate(); err != nil {
 		return nil, errors.Wrap(err, "failed to set targets")
@@ -174,7 +174,7 @@ func scrapeConfigsForMongoDBExporter(node *models.Node, service *models.Service,
 	if port == 0 {
 		return nil, errors.New("listen port is not known")
 	}
-	hostport := net.JoinHostPort(node.Address, strconv.Itoa(int(port)))
+	hostport := net.JoinHostPort(pointer.GetString(node.Address), strconv.Itoa(int(port)))
 	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
 	if err := target.Validate(); err != nil {
 		return nil, errors.Wrap(err, "failed to set targets")
@@ -202,7 +202,7 @@ func commonExporterLabelSet(node *models.Node, service *models.Service, agent *m
 		model.LabelName("node_name"):             model.LabelValue(node.NodeName),
 		model.LabelName("machine_id"):            model.LabelValue(pointer.GetString(node.MachineID)),
 		model.LabelName("docker_container_id"):   model.LabelValue(pointer.GetString(node.DockerContainerID)),
-		model.LabelName("docker_container_name"): model.LabelValue(node.DockerContainerName),
+		model.LabelName("docker_container_name"): model.LabelValue(pointer.GetString(node.DockerContainerName)),
 
 		model.LabelName("service_id"):   model.LabelValue(service.ServiceID),
 		model.LabelName("service_name"): model.LabelValue(service.ServiceName),

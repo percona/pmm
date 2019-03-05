@@ -39,7 +39,7 @@ func TestScrapeConfig(t *testing.T) {
 			// Setup models
 			node := &models.Node{
 				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address: "1.2.3.4",
+				Address: pointer.ToString("1.2.3.4"),
 			}
 			service := &models.Service{
 				ServiceID: "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
@@ -137,7 +137,7 @@ func TestScrapeConfig(t *testing.T) {
 			// Setup models
 			node := &models.Node{
 				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address: "1.2.3.4",
+				Address: pointer.ToString("1.2.3.4"),
 			}
 			service := &models.Service{
 				ServiceID: "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
@@ -200,10 +200,10 @@ func TestScrapeConfig(t *testing.T) {
 		node := &models.Node{
 			NodeID:              "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			NodeName:            "test-node",
-			Address:             "1.2.3.4",
+			Address:             pointer.ToString("1.2.3.4"),
 			MachineID:           pointer.ToString("test-machine-id"),
 			DockerContainerID:   pointer.ToString("cc663f36-0000-1111-2222-c6310bb4738d"),
-			DockerContainerName: "test-container-name",
+			DockerContainerName: pointer.ToString("test-container-name"),
 		}
 		service := &models.Service{
 			ServiceID:   "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",

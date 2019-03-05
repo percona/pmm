@@ -46,23 +46,23 @@ var databaseSchema = [][]string{
 			node_id VARCHAR(255) NOT NULL,
 			node_type VARCHAR(255) NOT NULL,
 			node_name VARCHAR(255) NOT NULL,
-			machine_id VARCHAR(255), -- NULL means "unknown"; non-NULL value must be unique
-			custom_labels TEXT, -- NULL for nil []byte
-			address VARCHAR(255) NOT NULL, -- also Remote instance
+			machine_id VARCHAR(255),
+			custom_labels TEXT,
+			address VARCHAR(255),
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 			-- Generic
-			distro VARCHAR(255) NOT NULL,
-			distro_version VARCHAR(255) NOT NULL,
+			distro VARCHAR(255),
+			distro_version VARCHAR(255),
 
 			-- Container
-			docker_container_id VARCHAR(255), -- NULL means "unknown"; non-NULL value must be unique
-			docker_container_name VARCHAR(255) NOT NULL,
+			docker_container_id VARCHAR(255),
+			docker_container_name VARCHAR(255),
 
 			-- RemoteAmazonRDS
 			-- RDS instance is stored in address
-			region VARCHAR(255), -- NULL means "not Remote"; non-NULL value must be unique in combination with instance/address
+			region VARCHAR(255),
 
 			PRIMARY KEY (node_id),
 			UNIQUE (node_name),
@@ -71,22 +71,7 @@ var databaseSchema = [][]string{
 			UNIQUE (address, region)
 		)`,
 
-		//nolint:gosec
-		`INSERT INTO nodes (
-			node_type,
-			node_id,
-			node_name,
-			address,
-			distro, distro_version,
-			docker_container_name
-		) VALUES (
-			'` + string(GenericNodeType) + `',
-			'` + PMMServerNodeID + `',
-			'PMM Server',
-			'',
-			'', '',
-			''
-		)`,
+		fmt.Sprintf(`INSERT INTO nodes (node_id, node_type,	node_name) VALUES ('%s', '%s', 'PMM Server')`, PMMServerNodeID, GenericNodeType), //nolint:gosec
 
 		`CREATE TABLE services (
 			-- common
