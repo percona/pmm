@@ -20,7 +20,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/AlekSi/pointer"
 	api "github.com/percona/pmm/api/inventory"
 
 	"github.com/percona/pmm-managed/models"
@@ -88,7 +87,7 @@ func (s *nodesServer) GetNode(ctx context.Context, req *api.GetNodeRequest) (*ap
 
 // AddGenericNode adds Generic Node.
 func (s *nodesServer) AddGenericNode(ctx context.Context, req *api.AddGenericNodeRequest) (*api.AddGenericNodeResponse, error) {
-	node, err := s.s.Add(ctx, models.GenericNodeType, req.NodeName, pointer.ToStringOrNil(req.Address), nil)
+	node, err := s.s.Add(ctx, models.GenericNodeType, req.NodeName, req.Address, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +100,7 @@ func (s *nodesServer) AddGenericNode(ctx context.Context, req *api.AddGenericNod
 
 // AddContainerNode adds Container Node.
 func (s *nodesServer) AddContainerNode(ctx context.Context, req *api.AddContainerNodeRequest) (*api.AddContainerNodeResponse, error) {
-	node, err := s.s.Add(ctx, models.ContainerNodeType, req.NodeName, nil, nil)
+	node, err := s.s.Add(ctx, models.ContainerNodeType, req.NodeName, "", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +113,7 @@ func (s *nodesServer) AddContainerNode(ctx context.Context, req *api.AddContaine
 
 // AddRemoteNode adds Remote Node.
 func (s *nodesServer) AddRemoteNode(ctx context.Context, req *api.AddRemoteNodeRequest) (*api.AddRemoteNodeResponse, error) {
-	node, err := s.s.Add(ctx, models.RemoteNodeType, req.NodeName, nil, nil)
+	node, err := s.s.Add(ctx, models.RemoteNodeType, req.NodeName, "", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +126,7 @@ func (s *nodesServer) AddRemoteNode(ctx context.Context, req *api.AddRemoteNodeR
 
 // AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
 func (s *nodesServer) AddRemoteAmazonRDSNode(ctx context.Context, req *api.AddRemoteAmazonRDSNodeRequest) (*api.AddRemoteAmazonRDSNodeResponse, error) {
-	node, err := s.s.Add(ctx, models.RemoteAmazonRDSNodeType, req.NodeName, &req.Instance, &req.Region)
+	node, err := s.s.Add(ctx, models.RemoteAmazonRDSNodeType, req.NodeName, req.Instance, &req.Region)
 	if err != nil {
 		return nil, err
 	}

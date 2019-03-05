@@ -46,7 +46,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *api.SetState
 	}
 
 	// useful for development
-	if pointer.GetString(node.Distro) != "darwin" {
+	if node.Distro != "darwin" {
 		args = append(args,
 			"--collector.buddyinfo",
 		)

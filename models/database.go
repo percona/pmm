@@ -46,23 +46,23 @@ var databaseSchema = [][]string{
 			node_id VARCHAR(255) NOT NULL,
 			node_type VARCHAR(255) NOT NULL,
 			node_name VARCHAR(255) NOT NULL,
-			machine_id VARCHAR(255),
-			custom_labels TEXT,
-			address VARCHAR(255), -- also RDS instance
+			machine_id VARCHAR(255), -- NULL means "unknown"; non-NULL value must be unique
+			custom_labels TEXT, -- NULL for nil []byte
+			address VARCHAR(255) NOT NULL, -- also Remote instance
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
 			-- Generic
-			distro VARCHAR(255),
-			distro_version VARCHAR(255),
+			distro VARCHAR(255) NOT NULL,
+			distro_version VARCHAR(255) NOT NULL,
 
 			-- Container
-			docker_container_id VARCHAR(255),
-			docker_container_name VARCHAR(255),
+			docker_container_id VARCHAR(255), -- NULL means "unknown"; non-NULL value must be unique
+			docker_container_name VARCHAR(255) NOT NULL,
 
 			-- RemoteAmazonRDS
-			-- instance is address
-			region VARCHAR(255),
+			-- RDS instance is stored in address
+			region VARCHAR(255), -- NULL means "not Remote"; non-NULL value must be unique in combination with instance/address
 
 			PRIMARY KEY (node_id),
 			UNIQUE (node_name),
@@ -71,7 +71,22 @@ var databaseSchema = [][]string{
 			UNIQUE (address, region)
 		)`,
 
-		`INSERT INTO nodes (node_type, node_id, node_name) VALUES ('` + string(GenericNodeType) + `', '` + PMMServerNodeID + `', 'PMM Server')`, //nolint:gosec
+		//nolint:gosec
+		`INSERT INTO nodes (
+			node_type,
+			node_id,
+			node_name,
+			address,
+			distro, distro_version,
+			docker_container_name
+		) VALUES (
+			'` + string(GenericNodeType) + `',
+			'` + PMMServerNodeID + `',
+			'PMM Server',
+			'',
+			'', '',
+			''
+		)`,
 
 		`CREATE TABLE services (
 			-- common
@@ -110,6 +125,9 @@ var databaseSchema = [][]string{
 			username VARCHAR(255),
 			password VARCHAR(255),
 
+			-- MongoDBExporter
+			connection_string VARCHAR(255),
+
 			-- ExternalExporter
 			metrics_url VARCHAR(255),
 
@@ -136,12 +154,6 @@ var databaseSchema = [][]string{
 			FOREIGN KEY (service_id) REFERENCES services (service_id),
 			UNIQUE (agent_id, service_id)
 		)`,
-	},
-	2: {
-		`
-		-- MongoDBExporter
-		ALTER TABLE agents ADD connection_string VARCHAR(255) AFTER password
-		`,
 	},
 }
 

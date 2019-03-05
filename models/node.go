@@ -77,19 +77,19 @@ type Node struct {
 	NodeID       string    `reform:"node_id,pk"`
 	NodeType     NodeType  `reform:"node_type"`
 	NodeName     string    `reform:"node_name"`
-	MachineID    *string   `reform:"machine_id"`
+	MachineID    *string   `reform:"machine_id"` // nil means "unknown"; non-nil value must be unique
 	CustomLabels []byte    `reform:"custom_labels"`
-	Address      *string   `reform:"address"`
+	Address      string    `reform:"address"` // also Remote instance
 	CreatedAt    time.Time `reform:"created_at"`
 	// UpdatedAt time.Time `reform:"updated_at"`
 
-	Distro        *string `reform:"distro"`
-	DistroVersion *string `reform:"distro_version"`
+	Distro        string `reform:"distro"`
+	DistroVersion string `reform:"distro_version"`
 
-	DockerContainerID   *string `reform:"docker_container_id"`
-	DockerContainerName *string `reform:"docker_container_name"`
+	DockerContainerID   *string `reform:"docker_container_id"` // nil means "unknown"; non-nil value must be unique
+	DockerContainerName string  `reform:"docker_container_name"`
 
-	Region *string `reform:"region"`
+	Region *string `reform:"region"` // nil means "not Remote"; non-nil value must be unique in combination with instance/address
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
