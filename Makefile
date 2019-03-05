@@ -3,13 +3,14 @@ help:                           ## Display this help message.
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
+PMM_RELEASE_PATH ?= bin
 PMM_RELEASE_VERSION ?= 2.0.0-dev
-PMM_RELEASE_TIMESTAMP = $(shell date '+%s')
-PMM_RELEASE_FULLCOMMIT = $(shell git rev-parse HEAD)
-PMM_RELEASE_BRANCH = $(shell git describe --all --contains --dirty HEAD)
+PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
+PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
+PMM_RELEASE_BRANCH ?= $(shell git describe --all --contains --dirty HEAD)
 
 release:                        ## Build bin/pmm-managed release binary.
-	go build -v -o bin/pmm-managed -ldflags " \
+	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH) -ldflags " \
 		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.ProjectName=pmm-managed' \
 		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
 		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
