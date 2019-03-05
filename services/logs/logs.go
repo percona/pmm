@@ -170,7 +170,7 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 	}
 
 	// add supervisord status
-	b, err := exec.CommandContext(ctx, "supervisorctl", "status").CombinedOutput()
+	b, err := exec.CommandContext(ctx, "supervisorctl", "status").CombinedOutput() //nolint:gosec
 	files = append(files, fileContent{
 		Name: "supervisorctl_status.log",
 		Data: b,
@@ -178,7 +178,7 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 	})
 
 	// add systemd status
-	b, err = exec.CommandContext(ctx, "systemctl", "-l", "status").CombinedOutput()
+	b, err = exec.CommandContext(ctx, "systemctl", "-l", "status").CombinedOutput() //nolint:gosec
 	files = append(files, fileContent{
 		Name: "systemctl_status.log",
 		Data: b,
@@ -192,12 +192,12 @@ func (l *Logs) files(ctx context.Context) []fileContent {
 // readLog reads last lines from given log.
 func (l *Logs) readLog(ctx context.Context, log *logInfo) ([]byte, error) {
 	if log.SystemdUnit != "" && l.journalctlPath != "" {
-		cmd := exec.CommandContext(ctx, l.journalctlPath, "-n", strconv.Itoa(lastLines), "-u", log.SystemdUnit)
+		cmd := exec.CommandContext(ctx, l.journalctlPath, "-n", strconv.Itoa(lastLines), "-u", log.SystemdUnit) //nolint:gosec
 		return cmd.CombinedOutput()
 	}
 
 	if log.FilePath != "" {
-		cmd := exec.CommandContext(ctx, "/usr/bin/tail", "-n", strconv.Itoa(lastLines), log.FilePath)
+		cmd := exec.CommandContext(ctx, "/usr/bin/tail", "-n", strconv.Itoa(lastLines), log.FilePath) //nolint:gosec
 		return cmd.CombinedOutput()
 	}
 
