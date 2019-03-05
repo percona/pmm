@@ -5,9 +5,9 @@ help:                           ## Display this help message.
 
 PMM_RELEASE_PATH ?= bin
 PMM_RELEASE_VERSION ?= 2.0.0-dev
-PMM_RELEASE_TIMESTAMP = $(shell date '+%s')
-PMM_RELEASE_FULLCOMMIT = $(shell git rev-parse HEAD)
-PMM_RELEASE_BRANCH = $(shell git describe --all --contains --dirty HEAD)
+PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
+PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
+PMM_RELEASE_BRANCH ?= $(shell git describe --all --contains --dirty HEAD)
 
 release:                        ## Build pmm-admin release binary.
 	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH)/pmm-admin -ldflags " \
