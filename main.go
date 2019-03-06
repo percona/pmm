@@ -37,6 +37,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	agentAPI "github.com/percona/pmm/api/agent"
 	inventoryAPI "github.com/percona/pmm/api/inventory"
+	serverAPI "github.com/percona/pmm/api/server"
 	"github.com/percona/pmm/version"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -147,13 +148,7 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 		grpc.UnaryInterceptor(interceptors.Unary),
 		grpc.StreamInterceptor(interceptors.Stream),
 	)
-	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{PMMVersion: version.Version})
-	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
-	api.RegisterAnnotationsServer(gRPCServer, &handlers.AnnotationsServer{
-		Grafana: grafana,
-	})
-
-	// PMM 2.0 APIs
+	serverAPI.RegisterServerServer(gRPCServer, handlers.NewServerServer(version.Version))
 	agentAPI.RegisterAgentServer(gRPCServer, &handlers.AgentServer{
 		Registry: deps.agentsRegistry,
 	})
@@ -211,11 +206,7 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 
 	type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
-		api.RegisterBaseHandlerFromEndpoint,
-		api.RegisterDemoHandlerFromEndpoint,
-		api.RegisterAnnotationsHandlerFromEndpoint,
-
-		// PMM 2.0 APIs
+		serverAPI.RegisterServerHandlerFromEndpoint,
 		inventoryAPI.RegisterNodesHandlerFromEndpoint,
 		inventoryAPI.RegisterServicesHandlerFromEndpoint,
 		inventoryAPI.RegisterAgentsHandlerFromEndpoint,
