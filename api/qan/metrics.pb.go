@@ -48,7 +48,7 @@ func (x MetricsReply_ExampleFormat) String() string {
 	return proto.EnumName(MetricsReply_ExampleFormat_name, int32(x))
 }
 func (MetricsReply_ExampleFormat) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_ee013915d667c4aa, []int{2, 0}
+	return fileDescriptor_metrics_3723049088ec2db1, []int{2, 0}
 }
 
 // ExampleType is a type of query example selected for this query class in given period of time.
@@ -81,7 +81,7 @@ func (x MetricsReply_ExampleType) String() string {
 	return proto.EnumName(MetricsReply_ExampleType_name, int32(x))
 }
 func (MetricsReply_ExampleType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_ee013915d667c4aa, []int{2, 1}
+	return fileDescriptor_metrics_3723049088ec2db1, []int{2, 1}
 }
 
 type MetricsRequest struct {
@@ -99,7 +99,7 @@ func (m *MetricsRequest) Reset()         { *m = MetricsRequest{} }
 func (m *MetricsRequest) String() string { return proto.CompactTextString(m) }
 func (*MetricsRequest) ProtoMessage()    {}
 func (*MetricsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_ee013915d667c4aa, []int{0}
+	return fileDescriptor_metrics_3723049088ec2db1, []int{0}
 }
 func (m *MetricsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MetricsRequest.Unmarshal(m, b)
@@ -167,7 +167,7 @@ func (m *MapFieldEntry) Reset()         { *m = MapFieldEntry{} }
 func (m *MapFieldEntry) String() string { return proto.CompactTextString(m) }
 func (*MapFieldEntry) ProtoMessage()    {}
 func (*MapFieldEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_ee013915d667c4aa, []int{1}
+	return fileDescriptor_metrics_3723049088ec2db1, []int{1}
 }
 func (m *MapFieldEntry) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MapFieldEntry.Unmarshal(m, b)
@@ -363,7 +363,7 @@ func (m *MetricsReply) Reset()         { *m = MetricsReply{} }
 func (m *MetricsReply) String() string { return proto.CompactTextString(m) }
 func (*MetricsReply) ProtoMessage()    {}
 func (*MetricsReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_ee013915d667c4aa, []int{2}
+	return fileDescriptor_metrics_3723049088ec2db1, []int{2}
 }
 func (m *MetricsReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MetricsReply.Unmarshal(m, b)
@@ -1505,9 +1505,9 @@ var _Metrics_serviceDesc = grpc.ServiceDesc{
 	Metadata: "qan/metrics.proto",
 }
 
-func init() { proto.RegisterFile("qan/metrics.proto", fileDescriptor_metrics_ee013915d667c4aa) }
+func init() { proto.RegisterFile("qan/metrics.proto", fileDescriptor_metrics_3723049088ec2db1) }
 
-var fileDescriptor_metrics_ee013915d667c4aa = []byte{
+var fileDescriptor_metrics_3723049088ec2db1 = []byte{
 	// 2438 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x99, 0xeb, 0x5e, 0xdc, 0x36,
 	0xfe, 0xc6, 0xff, 0x06, 0x4a, 0x82, 0x06, 0xc8, 0xe0, 0x90, 0x44, 0xa5, 0x49, 0x33, 0x25, 0x4d,

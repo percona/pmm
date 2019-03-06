@@ -24,7 +24,7 @@ gen: clean            ## Generate files.
 
 	find . -name '*.swagger.json' -not -path './vendor/*' -print -exec swagger flatten --with-flatten=expand --with-flatten=remove-unused '{}' --output='{}' \;
 
-	for API in agent_local inventory qan ; do \
+	for API in agent_local server inventory qan ; do \
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json ; \
 		swagger validate $$API/json/$$API.json ; \
 		swagger generate client --spec=$$API/json/$$API.json --target=$$API/json \
@@ -33,6 +33,9 @@ gen: clean            ## Generate files.
 			--additional-initialism=qan \
 			--additional-initialism=rds ; \
 	done
+
+	swagger mixin server/json/server.json inventory/json/inventory.json qan/json/qan.json --output=swagger/swagger.json
+	swagger validate swagger/swagger.json
 
 	make clean_swagger
 	go install -v ./...
@@ -44,9 +47,10 @@ clean: clean_swagger  ## Remove generated files.
 	find . -name '*.pb.go' -not -path './vendor/*' -print -delete
 	find . -name '*.pb.gw.go' -not -path './vendor/*' -print -delete
 
-	for API in agent_local inventory qan ; do \
+	for API in agent_local server inventory qan ; do \
 		rm -fr $$API/json/client $$API/json/$$API.json ; \
 	done
+	rm -f swagger/swagger.json
 
 serve:                ## Serve API documentation with nginx.
 	# https://127.0.0.1:8443/

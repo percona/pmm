@@ -34,7 +34,7 @@ func (m *StatusRequest) Reset()         { *m = StatusRequest{} }
 func (m *StatusRequest) String() string { return proto.CompactTextString(m) }
 func (*StatusRequest) ProtoMessage()    {}
 func (*StatusRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_local_42c000fe3ef8e127, []int{0}
+	return fileDescriptor_agent_local_100d610cdcf11e95, []int{0}
 }
 func (m *StatusRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StatusRequest.Unmarshal(m, b)
@@ -66,7 +66,7 @@ func (m *StatusResponse) Reset()         { *m = StatusResponse{} }
 func (m *StatusResponse) String() string { return proto.CompactTextString(m) }
 func (*StatusResponse) ProtoMessage()    {}
 func (*StatusResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_local_42c000fe3ef8e127, []int{1}
+	return fileDescriptor_agent_local_100d610cdcf11e95, []int{1}
 }
 func (m *StatusResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StatusResponse.Unmarshal(m, b)
@@ -180,10 +180,10 @@ var _AgentLocal_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("agent_local/agent_local.proto", fileDescriptor_agent_local_42c000fe3ef8e127)
+	proto.RegisterFile("agent_local/agent_local.proto", fileDescriptor_agent_local_100d610cdcf11e95)
 }
 
-var fileDescriptor_agent_local_42c000fe3ef8e127 = []byte{
+var fileDescriptor_agent_local_100d610cdcf11e95 = []byte{
 	// 202 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x4d, 0x4c, 0x4f, 0xcd,
 	0x2b, 0x89, 0xcf, 0xc9, 0x4f, 0x4e, 0xcc, 0xd1, 0x47, 0x62, 0xeb, 0x15, 0x14, 0xe5, 0x97, 0xe4,

@@ -1,0 +1,41 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "https",
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM Server APIs",
+    "version": "version 1.alpha"
+  },
+  "paths": {
+    "/v1/version": {
+      "get": {
+        "tags": [
+          "Server"
+        ],
+        "summary": "Version returns PMM Server version.",
+        "operationId": "Version",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "version": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

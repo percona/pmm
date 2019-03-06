@@ -51,7 +51,7 @@ func (x AgentStatus) String() string {
 	return proto.EnumName(AgentStatus_name, int32(x))
 }
 func (AgentStatus) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_agent_status_982e237426e4cffb, []int{0}
+	return fileDescriptor_agent_status_9fd7501cf47d91f9, []int{0}
 }
 
 func init() {
@@ -59,10 +59,10 @@ func init() {
 }
 
 func init() {
-	proto.RegisterFile("inventory/agent_status.proto", fileDescriptor_agent_status_982e237426e4cffb)
+	proto.RegisterFile("inventory/agent_status.proto", fileDescriptor_agent_status_9fd7501cf47d91f9)
 }
 
-var fileDescriptor_agent_status_982e237426e4cffb = []byte{
+var fileDescriptor_agent_status_9fd7501cf47d91f9 = []byte{
 	// 154 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0xc9, 0xcc, 0x2b, 0x4b,
 	0xcd, 0x2b, 0xc9, 0x2f, 0xaa, 0xd4, 0x4f, 0x4c, 0x4f, 0xcd, 0x2b, 0x89, 0x2f, 0x2e, 0x49, 0x2c,
