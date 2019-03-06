@@ -52,7 +52,7 @@ For more control, use the Manual Launch through EC2 option.
 	    
 .. _run-server-ami.pmm-instance.1-click-launch-option.setting-up:
 
-:ref:`Setting Up a PMM Instance Using the website GUI <run-server-ami.pmm-instance.1-click-launch-option.setting-up>`
+`Setting Up a PMM Instance Using the website GUI <ami.html#run-server-ami-pmm-instance-1-click-launch-option-setting-up>`_
 ===============================================================================================================================
 
 Choose *Launch from Website* option, your region, and the EC2 instance type on
@@ -65,8 +65,8 @@ When all choices are done, click the |gui.continue-to-launch| button to proceed.
 
 .. _run-server-ami.pmm-instance.1-click-launch-option.vpc.ec2-instance-type:
 
-:ref:`Setting up a VPC and an EC2 Instance Type <run-server-ami.pmm-instance.1-click-launch-option.vpc.ec2-instance-type>`
---------------------------------------------------------------------------------------------------------------------------
+`Setting up a VPC and an EC2 Instance Type <ami.html#run-server-ami-pmm-instance-1-click-launch-option-vpc-ec2-instance-type>`_
+---------------------------------------------------------------------------------------------------------------------------------
 
  In this demonstration, we use the VPC (virtual private cloud) named
 :option:`vpc-484bb12f`. The exact name of VPC may be different from the example
@@ -94,8 +94,8 @@ Note that the cost estimation is automatically updated based on your choice.
    
 .. _run-server-ami.security-group.key-pair:
 
-:ref:`Limiting Access to the instance: security group and a key pair <run-server-ami.security-group.key-pair>`
---------------------------------------------------------------------------------------------------------------
+`Limiting Access to the instance: security group and a key pair <ami.html#run-server-ami-security-group-key-pair>`_
+--------------------------------------------------------------------------------------------------------------------
 
 In the |gui.security-group| section, which acts like a firewall, you may use the
 preselected option :option:`Create new based on seller settings` to create a
@@ -131,7 +131,7 @@ already set up EC2 key pair to limit access to your instance.
       
 .. _run-server-ami.setting.applying:
 
-:ref:`Applying settings <run-server-ami.setting.applying>`
+`Applying settings <ami.html#run-server-ami-setting-applying>`_
 --------------------------------------------------------------------------------
 
 Scroll up to the top of the page to view your settings. Then, click the
@@ -148,10 +148,10 @@ the :program:`EC2 console`.
 .. note:: The :guilabel:`Launch with 1 click` button may alternatively be titled
           as :guilabel:`Accept Software Terms & Launch with 1-Click`.
 
-.. _pmm/ami/instance-setting/ec2-console.adjusting:
+.. _pmm.ami.instance-setting.ec2-console.adjusting:
 
-:ref:`Adjusting instance settings in the EC2 Console <pmm/ami/instance-setting/ec2-console.adjusting>`
-------------------------------------------------------------------------------------------------------
+`Adjusting instance settings in the EC2 Console <ami.html#pmm-ami-instance-setting-ec2-console-adjusting>`_
+------------------------------------------------------------------------------------------------------------
 
 Your clicking the :guilabel:`Launch with 1 click` button, deploys your
 instance. To continue setting up your instance, run the :program:`EC2
@@ -171,7 +171,7 @@ managed via the :program:`EC2 console`.
 
 .. _pmm.server.ami.running-instance:
 
-:ref:`Running the instance <pmm.server.ami.running-instance>`
+`Running the instance <ami.html#pmm-server-ami-running-instance>`_
 --------------------------------------------------------------------------------
 
 After you add your new instance it will take some time to initialize it. When
@@ -273,7 +273,7 @@ You are creating a username and password that will be used for two purposes:
 
 .. _run-server-ami.ebs-volume.resizing:
 
-:ref:`Resizing the EBS Volume <run-server-ami.ebs-volume.resizing>`
+`Resizing the EBS Volume <ami.html#run-server-ami-ebs-volume-resizing>`_
 --------------------------------------------------------------------------------
 
 Your instance comes with a predefined size which can become a limitation. To
@@ -302,8 +302,8 @@ conditions.
 
 .. _run-server-ami.amazon-machine-image:
 
-:ref:`Running PMM Server Using Amazon Machine Images <run-server-ami.amazon-machine-image>`
-===========================================================================================
+`Running PMM Server Using Amazon Machine Images <ami.html#run-server-ami-amazon-machine-image>`_
+=================================================================================================
 
 |percona| provides public |amazon| Machine Images (AMI) with |pmm-server|
 in all regions where Amazon Web Services (AWS) is available.
@@ -319,67 +319,71 @@ for the corresponding image:
 
    * - Asia Pacific (Tokyo)
      - **ap-northeast-1**
-     - `ami-081b63c019880c9d6 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-081b63c019880c9d6>`_
+     - `ami-0d7cd5d91dba7a337 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0d7cd5d91dba7a337>`_
 
    * - Asia Pacific (Seoul)
      - **ap-northeast-2**
-     - `ami-0299fd006902387fb <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0299fd006902387fb>`_
+     - `ami-0606a76833698d66b <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0606a76833698d66b>`_
 
    * - Asia Pacific (Mumbai)
      - **ap-south-1**
-     - `ami-0ae6d88793bfd1c25 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0ae6d88793bfd1c25>`_
+     - `ami-0a4b0afc6926b8625 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0a4b0afc6926b8625>`_
 
    * - Asia Pacific (Singapore)
      - **ap-southeast-1**
-     - `ami-0b75d0daff534821b <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0b75d0daff534821b>`_
+     - `ami-004ded7fa924ce4ec <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-004ded7fa924ce4ec>`_
 
    * - Asia Pacific (Sydney)
      - **ap-southeast-2**
-     - `ami-066240e0e538a2d5b <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-066240e0e538a2d5b>`_
+     - `ami-0a3f98b8b6c34a2e2 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0a3f98b8b6c34a2e2>`_
 
    * - Canada (Central)
      - **ca-central-1**
-     - `ami-043636fe79bd57dcf <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-043636fe79bd57dcf>`_
+     - `ami-00b46791100d4c097 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-00b46791100d4c097>`_
 
    * - EU (Frankfurt)
      - **eu-central-1**
-     - `ami-0f11e38faf1e13b95 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0f11e38faf1e13b95>`_
+     - `ami-0669bea2272632747 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0669bea2272632747>`_
+
+   * - EU (Stockholm)
+     - **eu-north-1**
+     - `ami-01ae93772f26921ec <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-01ae93772f26921ec>`_
 
    * - EU (Ireland)
      - **eu-west-1**
-     - `ami-01144c4acc8b6e1f2 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-01144c4acc8b6e1f2>`_
+     - `ami-0ecd45316fe33441c <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0ecd45316fe33441c>`_
 
    * - EU (London)
      - **eu-west-2**
-     - `ami-0f83e56754f334842 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0f83e56754f334842>`_
+     - `ami-0edcc115190b77ed8 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0edcc115190b77ed8>`_
 
    * - EU (Paris)
      - **eu-west-3**
-     - `ami-0c969dd2dc2bd59da <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0c969dd2dc2bd59da>`_
+     - `ami-0640656f6400a870b <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0640656f6400a870b>`_
 
    * - South America (São Paulo)
      - **sa-east-1**
-     - `ami-0e4a9988906825cdf <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0e4a9988906825cdf>`_
+     - `ami-07934243233049aa6 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-07934243233049aa6>`_
 
    * - US East (N. Virginia)
      - **us-east-1**
-     - `ami-0c0b294064bea85d0 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0c0b294064bea85d0>`_
+     - `ami-05d0d72221501bdff <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-05d0d72221501bdff>`_
 
    * - US East (Ohio)
      - **us-east-2**
-     - `ami-0125f42891b1de6e0 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0125f42891b1de6e0>`_
+     - `ami-0b8eb1cbcb6dfe2f2 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0b8eb1cbcb6dfe2f2>`_
 
    * - US West (N. California)
      - **us-west-1**
-     - `ami-0284d9d12f7fe0959 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0284d9d12f7fe0959>`_
+     - `ami-0178d5a07344e01e4 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0178d5a07344e01e4>`_
 
    * - US West (Oregon)
      - **us-west-2**
-     - `ami-036f591241f108627 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-036f591241f108627>`_
+     - `ami-0b2b7fcd5341e75a9 <https://console.aws.amazon.com/ec2/v2/home?region=us-east-1#Images:visibility=public-images;imageId=ami-0b2b7fcd5341e75a9>`_
 
 .. _run-server-ami.command-line:
 
-:ref:`Running from Command Line <run-server-ami.command-line>`
+`Running from Command Line <ami.html#run-server-ami-command-line>`_
 --------------------------------------------------------------------------------
 
 1. Launch the |pmm-server| instance using the ``run-instances`` command
@@ -404,7 +408,7 @@ for the corresponding image:
 
 .. _upgrade-pmm-server:
 
-:ref:`Upgrading PMM Server <upgrade-pmm-server>`
+`Upgrading PMM Server <ami.html#upgrade-pmm-server>`_
 ================================================================================
 
 .. _upgrade-ec2-instance-class:
@@ -419,7 +423,7 @@ permits independent resize of the EC2 instance without impacting the EBS volume.
 
 .. _expand-pmm-data-volume:
 
-:ref:`Expanding the PMM Data EBS Volume <expand-pmm-data-volume>`
+`Expanding the PMM Data EBS Volume <ami.html#expand-pmm-data-volume>`_
 --------------------------------------------------------------------------------
 
 The |pmm| data volume is mounted as an XFS formatted volume on top of an LVM
