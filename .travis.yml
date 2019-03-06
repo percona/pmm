@@ -1,3 +1,5 @@
+dist: trusty
+sudo: required
 language: go
 
 go:
@@ -9,6 +11,14 @@ go:
 matrix:
   allow_failures:
     - go: master
+
+before_cache:
+  - go clean -testcache
+
+cache:
+  directories:
+    - /home/travis/.cache/go-build
+    - /home/travis/gopath/pkg
 
 install:
   # ensure that Gopkg.lock is up-to-date
