@@ -33,11 +33,11 @@ type MySQLService struct {
 	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
 	// Node identifier where this instance runs.
 	NodeId string `protobuf:"bytes,3,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	// Access address (DNS name or IP). Required.
+	// Access address (DNS name or IP).
 	Address string `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
-	// Access port. Required.
+	// Access port.
 	Port uint32 `protobuf:"varint,5,opt,name=port,proto3" json:"port,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -48,7 +48,7 @@ func (m *MySQLService) Reset()         { *m = MySQLService{} }
 func (m *MySQLService) String() string { return proto.CompactTextString(m) }
 func (*MySQLService) ProtoMessage()    {}
 func (*MySQLService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{0}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{0}
 }
 func (m *MySQLService) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLService.Unmarshal(m, b)
@@ -122,7 +122,7 @@ type AmazonRDSMySQLService struct {
 	Address string `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
 	// Instance port.
 	Port uint32 `protobuf:"varint,5,opt,name=port,proto3" json:"port,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -133,7 +133,7 @@ func (m *AmazonRDSMySQLService) Reset()         { *m = AmazonRDSMySQLService{} }
 func (m *AmazonRDSMySQLService) String() string { return proto.CompactTextString(m) }
 func (*AmazonRDSMySQLService) ProtoMessage()    {}
 func (*AmazonRDSMySQLService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{1}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{1}
 }
 func (m *AmazonRDSMySQLService) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AmazonRDSMySQLService.Unmarshal(m, b)
@@ -195,6 +195,73 @@ func (m *AmazonRDSMySQLService) GetCustomLabels() map[string]string {
 	return nil
 }
 
+// MongoDBService represents a generic MongoDB instance.
+type MongoDBService struct {
+	// Unique randomly generated instance identifier.
+	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// Unique across all Services user-defined name.
+	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	// Node identifier where this instance runs.
+	NodeId string `protobuf:"bytes,3,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_unrecognized     []byte            `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
+}
+
+func (m *MongoDBService) Reset()         { *m = MongoDBService{} }
+func (m *MongoDBService) String() string { return proto.CompactTextString(m) }
+func (*MongoDBService) ProtoMessage()    {}
+func (*MongoDBService) Descriptor() ([]byte, []int) {
+	return fileDescriptor_services_b8f70bed784cc03e, []int{2}
+}
+func (m *MongoDBService) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_MongoDBService.Unmarshal(m, b)
+}
+func (m *MongoDBService) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_MongoDBService.Marshal(b, m, deterministic)
+}
+func (dst *MongoDBService) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MongoDBService.Merge(dst, src)
+}
+func (m *MongoDBService) XXX_Size() int {
+	return xxx_messageInfo_MongoDBService.Size(m)
+}
+func (m *MongoDBService) XXX_DiscardUnknown() {
+	xxx_messageInfo_MongoDBService.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MongoDBService proto.InternalMessageInfo
+
+func (m *MongoDBService) GetServiceId() string {
+	if m != nil {
+		return m.ServiceId
+	}
+	return ""
+}
+
+func (m *MongoDBService) GetServiceName() string {
+	if m != nil {
+		return m.ServiceName
+	}
+	return ""
+}
+
+func (m *MongoDBService) GetNodeId() string {
+	if m != nil {
+		return m.NodeId
+	}
+	return ""
+}
+
+func (m *MongoDBService) GetCustomLabels() map[string]string {
+	if m != nil {
+		return m.CustomLabels
+	}
+	return nil
+}
+
 type ListServicesRequest struct {
 	// Types that are valid to be assigned to Filter:
 	//	*ListServicesRequest_NodeId
@@ -208,7 +275,7 @@ func (m *ListServicesRequest) Reset()         { *m = ListServicesRequest{} }
 func (m *ListServicesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListServicesRequest) ProtoMessage()    {}
 func (*ListServicesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{2}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{3}
 }
 func (m *ListServicesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServicesRequest.Unmarshal(m, b)
@@ -306,6 +373,7 @@ func _ListServicesRequest_OneofSizer(msg proto.Message) (n int) {
 type ListServicesResponse struct {
 	Mysql                []*MySQLService          `protobuf:"bytes,1,rep,name=mysql,proto3" json:"mysql,omitempty"`
 	AmazonRdsMysql       []*AmazonRDSMySQLService `protobuf:"bytes,2,rep,name=amazon_rds_mysql,json=amazonRdsMysql,proto3" json:"amazon_rds_mysql,omitempty"`
+	Mongodb              []*MongoDBService        `protobuf:"bytes,3,rep,name=mongodb,proto3" json:"mongodb,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
 	XXX_unrecognized     []byte                   `json:"-"`
 	XXX_sizecache        int32                    `json:"-"`
@@ -315,7 +383,7 @@ func (m *ListServicesResponse) Reset()         { *m = ListServicesResponse{} }
 func (m *ListServicesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListServicesResponse) ProtoMessage()    {}
 func (*ListServicesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{3}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{4}
 }
 func (m *ListServicesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServicesResponse.Unmarshal(m, b)
@@ -349,6 +417,13 @@ func (m *ListServicesResponse) GetAmazonRdsMysql() []*AmazonRDSMySQLService {
 	return nil
 }
 
+func (m *ListServicesResponse) GetMongodb() []*MongoDBService {
+	if m != nil {
+		return m.Mongodb
+	}
+	return nil
+}
+
 type GetServiceRequest struct {
 	// Unique randomly generated instance identifier.
 	ServiceId            string   `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
@@ -361,7 +436,7 @@ func (m *GetServiceRequest) Reset()         { *m = GetServiceRequest{} }
 func (m *GetServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*GetServiceRequest) ProtoMessage()    {}
 func (*GetServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{4}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{5}
 }
 func (m *GetServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetServiceRequest.Unmarshal(m, b)
@@ -392,6 +467,7 @@ type GetServiceResponse struct {
 	// Types that are valid to be assigned to Service:
 	//	*GetServiceResponse_Mysql
 	//	*GetServiceResponse_AmazonRdsMysql
+	//	*GetServiceResponse_Mongodb
 	Service              isGetServiceResponse_Service `protobuf_oneof:"service"`
 	XXX_NoUnkeyedLiteral struct{}                     `json:"-"`
 	XXX_unrecognized     []byte                       `json:"-"`
@@ -402,7 +478,7 @@ func (m *GetServiceResponse) Reset()         { *m = GetServiceResponse{} }
 func (m *GetServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*GetServiceResponse) ProtoMessage()    {}
 func (*GetServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{5}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{6}
 }
 func (m *GetServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetServiceResponse.Unmarshal(m, b)
@@ -434,9 +510,15 @@ type GetServiceResponse_AmazonRdsMysql struct {
 	AmazonRdsMysql *AmazonRDSMySQLService `protobuf:"bytes,2,opt,name=amazon_rds_mysql,json=amazonRdsMysql,proto3,oneof"`
 }
 
+type GetServiceResponse_Mongodb struct {
+	Mongodb *MongoDBService `protobuf:"bytes,3,opt,name=mongodb,proto3,oneof"`
+}
+
 func (*GetServiceResponse_Mysql) isGetServiceResponse_Service() {}
 
 func (*GetServiceResponse_AmazonRdsMysql) isGetServiceResponse_Service() {}
+
+func (*GetServiceResponse_Mongodb) isGetServiceResponse_Service() {}
 
 func (m *GetServiceResponse) GetService() isGetServiceResponse_Service {
 	if m != nil {
@@ -459,11 +541,19 @@ func (m *GetServiceResponse) GetAmazonRdsMysql() *AmazonRDSMySQLService {
 	return nil
 }
 
+func (m *GetServiceResponse) GetMongodb() *MongoDBService {
+	if x, ok := m.GetService().(*GetServiceResponse_Mongodb); ok {
+		return x.Mongodb
+	}
+	return nil
+}
+
 // XXX_OneofFuncs is for the internal use of the proto package.
 func (*GetServiceResponse) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
 	return _GetServiceResponse_OneofMarshaler, _GetServiceResponse_OneofUnmarshaler, _GetServiceResponse_OneofSizer, []interface{}{
 		(*GetServiceResponse_Mysql)(nil),
 		(*GetServiceResponse_AmazonRdsMysql)(nil),
+		(*GetServiceResponse_Mongodb)(nil),
 	}
 }
 
@@ -479,6 +569,11 @@ func _GetServiceResponse_OneofMarshaler(msg proto.Message, b *proto.Buffer) erro
 	case *GetServiceResponse_AmazonRdsMysql:
 		b.EncodeVarint(2<<3 | proto.WireBytes)
 		if err := b.EncodeMessage(x.AmazonRdsMysql); err != nil {
+			return err
+		}
+	case *GetServiceResponse_Mongodb:
+		b.EncodeVarint(3<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.Mongodb); err != nil {
 			return err
 		}
 	case nil:
@@ -507,6 +602,14 @@ func _GetServiceResponse_OneofUnmarshaler(msg proto.Message, tag, wire int, b *p
 		err := b.DecodeMessage(msg)
 		m.Service = &GetServiceResponse_AmazonRdsMysql{msg}
 		return true, err
+	case 3: // service.mongodb
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(MongoDBService)
+		err := b.DecodeMessage(msg)
+		m.Service = &GetServiceResponse_Mongodb{msg}
+		return true, err
 	default:
 		return false, nil
 	}
@@ -526,6 +629,11 @@ func _GetServiceResponse_OneofSizer(msg proto.Message) (n int) {
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
+	case *GetServiceResponse_Mongodb:
+		s := proto.Size(x.Mongodb)
+		n += 1 // tag and wire
+		n += proto.SizeVarint(uint64(s))
+		n += s
 	case nil:
 	default:
 		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
@@ -534,15 +642,15 @@ func _GetServiceResponse_OneofSizer(msg proto.Message) (n int) {
 }
 
 type AddMySQLServiceRequest struct {
-	// Unique across all Services user-defined name.
+	// Unique across all Services user-defined name. Required.
 	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
-	// Node identifier where this instance runs.
+	// Node identifier where this instance runs. Required.
 	NodeId string `protobuf:"bytes,3,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Access address (DNS name or IP). Required.
 	Address string `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
 	// Access port. Required.
 	Port uint32 `protobuf:"varint,5,opt,name=port,proto3" json:"port,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -553,7 +661,7 @@ func (m *AddMySQLServiceRequest) Reset()         { *m = AddMySQLServiceRequest{}
 func (m *AddMySQLServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*AddMySQLServiceRequest) ProtoMessage()    {}
 func (*AddMySQLServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{6}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{7}
 }
 func (m *AddMySQLServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMySQLServiceRequest.Unmarshal(m, b)
@@ -619,7 +727,7 @@ func (m *AddMySQLServiceResponse) Reset()         { *m = AddMySQLServiceResponse
 func (m *AddMySQLServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*AddMySQLServiceResponse) ProtoMessage()    {}
 func (*AddMySQLServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{7}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{8}
 }
 func (m *AddMySQLServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMySQLServiceResponse.Unmarshal(m, b)
@@ -647,17 +755,15 @@ func (m *AddMySQLServiceResponse) GetMysql() *MySQLService {
 }
 
 type ChangeMySQLServiceRequest struct {
-	// Unique randomly generated instance identifier.
+	// Unique randomly generated instance identifier. Required.
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// Unique across all Services user-defined name.
+	// Unique across all Services user-defined name. Required.
 	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
-	// Node identifier where this instance runs.
-	NodeId string `protobuf:"bytes,3,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Access address (DNS name or IP). Required.
 	Address string `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
 	// Access port. Required.
 	Port uint32 `protobuf:"varint,5,opt,name=port,proto3" json:"port,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -668,7 +774,7 @@ func (m *ChangeMySQLServiceRequest) Reset()         { *m = ChangeMySQLServiceReq
 func (m *ChangeMySQLServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeMySQLServiceRequest) ProtoMessage()    {}
 func (*ChangeMySQLServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{8}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{9}
 }
 func (m *ChangeMySQLServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeMySQLServiceRequest.Unmarshal(m, b)
@@ -698,13 +804,6 @@ func (m *ChangeMySQLServiceRequest) GetServiceId() string {
 func (m *ChangeMySQLServiceRequest) GetServiceName() string {
 	if m != nil {
 		return m.ServiceName
-	}
-	return ""
-}
-
-func (m *ChangeMySQLServiceRequest) GetNodeId() string {
-	if m != nil {
-		return m.NodeId
 	}
 	return ""
 }
@@ -741,7 +840,7 @@ func (m *ChangeMySQLServiceResponse) Reset()         { *m = ChangeMySQLServiceRe
 func (m *ChangeMySQLServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeMySQLServiceResponse) ProtoMessage()    {}
 func (*ChangeMySQLServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{9}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{10}
 }
 func (m *ChangeMySQLServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeMySQLServiceResponse.Unmarshal(m, b)
@@ -769,15 +868,15 @@ func (m *ChangeMySQLServiceResponse) GetMysql() *MySQLService {
 }
 
 type AddAmazonRDSMySQLServiceRequest struct {
-	// Unique across all Services user-defined name.
+	// Unique across all Services user-defined name. Required.
 	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
-	// Node identifier where this instance runs.
+	// Node identifier where this instance runs. Required.
 	NodeId string `protobuf:"bytes,3,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	// Instance endpoint (full DNS name).
+	// Instance endpoint (full DNS name). Required.
 	Address string `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
-	// Instance port.
+	// Instance port. Required.
 	Port uint32 `protobuf:"varint,5,opt,name=port,proto3" json:"port,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -788,7 +887,7 @@ func (m *AddAmazonRDSMySQLServiceRequest) Reset()         { *m = AddAmazonRDSMyS
 func (m *AddAmazonRDSMySQLServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*AddAmazonRDSMySQLServiceRequest) ProtoMessage()    {}
 func (*AddAmazonRDSMySQLServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{10}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{11}
 }
 func (m *AddAmazonRDSMySQLServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddAmazonRDSMySQLServiceRequest.Unmarshal(m, b)
@@ -854,7 +953,7 @@ func (m *AddAmazonRDSMySQLServiceResponse) Reset()         { *m = AddAmazonRDSMy
 func (m *AddAmazonRDSMySQLServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*AddAmazonRDSMySQLServiceResponse) ProtoMessage()    {}
 func (*AddAmazonRDSMySQLServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{11}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{12}
 }
 func (m *AddAmazonRDSMySQLServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddAmazonRDSMySQLServiceResponse.Unmarshal(m, b)
@@ -882,15 +981,15 @@ func (m *AddAmazonRDSMySQLServiceResponse) GetAmazonRdsMysql() *AmazonRDSMySQLSe
 }
 
 type ChangeAmazonRDSMySQLServiceRequest struct {
-	// Unique randomly generated instance identifier.
+	// Unique randomly generated instance identifier. Required.
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// Unique across all Services user-defined name.
+	// Unique across all Services user-defined name. Required.
 	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
-	// Instance endpoint (full DNS name).
+	// Instance endpoint (full DNS name). Required.
 	Address string `protobuf:"bytes,4,opt,name=address,proto3" json:"address,omitempty"`
-	// Instance port.
+	// Instance port. Required.
 	Port uint32 `protobuf:"varint,5,opt,name=port,proto3" json:"port,omitempty"`
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
@@ -901,7 +1000,7 @@ func (m *ChangeAmazonRDSMySQLServiceRequest) Reset()         { *m = ChangeAmazon
 func (m *ChangeAmazonRDSMySQLServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeAmazonRDSMySQLServiceRequest) ProtoMessage()    {}
 func (*ChangeAmazonRDSMySQLServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{12}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{13}
 }
 func (m *ChangeAmazonRDSMySQLServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeAmazonRDSMySQLServiceRequest.Unmarshal(m, b)
@@ -967,7 +1066,7 @@ func (m *ChangeAmazonRDSMySQLServiceResponse) Reset()         { *m = ChangeAmazo
 func (m *ChangeAmazonRDSMySQLServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeAmazonRDSMySQLServiceResponse) ProtoMessage()    {}
 func (*ChangeAmazonRDSMySQLServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{13}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{14}
 }
 func (m *ChangeAmazonRDSMySQLServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeAmazonRDSMySQLServiceResponse.Unmarshal(m, b)
@@ -994,8 +1093,103 @@ func (m *ChangeAmazonRDSMySQLServiceResponse) GetAmazonRdsMysql() *AmazonRDSMySQ
 	return nil
 }
 
+type AddMongoDBServiceRequest struct {
+	// Unique across all Services user-defined name. Required.
+	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
+	// Node identifier where this instance runs. Required.
+	NodeId string `protobuf:"bytes,3,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_unrecognized     []byte            `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
+}
+
+func (m *AddMongoDBServiceRequest) Reset()         { *m = AddMongoDBServiceRequest{} }
+func (m *AddMongoDBServiceRequest) String() string { return proto.CompactTextString(m) }
+func (*AddMongoDBServiceRequest) ProtoMessage()    {}
+func (*AddMongoDBServiceRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_services_b8f70bed784cc03e, []int{15}
+}
+func (m *AddMongoDBServiceRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddMongoDBServiceRequest.Unmarshal(m, b)
+}
+func (m *AddMongoDBServiceRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddMongoDBServiceRequest.Marshal(b, m, deterministic)
+}
+func (dst *AddMongoDBServiceRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddMongoDBServiceRequest.Merge(dst, src)
+}
+func (m *AddMongoDBServiceRequest) XXX_Size() int {
+	return xxx_messageInfo_AddMongoDBServiceRequest.Size(m)
+}
+func (m *AddMongoDBServiceRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddMongoDBServiceRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddMongoDBServiceRequest proto.InternalMessageInfo
+
+func (m *AddMongoDBServiceRequest) GetServiceName() string {
+	if m != nil {
+		return m.ServiceName
+	}
+	return ""
+}
+
+func (m *AddMongoDBServiceRequest) GetNodeId() string {
+	if m != nil {
+		return m.NodeId
+	}
+	return ""
+}
+
+func (m *AddMongoDBServiceRequest) GetCustomLabels() map[string]string {
+	if m != nil {
+		return m.CustomLabels
+	}
+	return nil
+}
+
+type AddMongoDBServiceResponse struct {
+	Mongodb              *MongoDBService `protobuf:"bytes,1,opt,name=mongodb,proto3" json:"mongodb,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_unrecognized     []byte          `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
+}
+
+func (m *AddMongoDBServiceResponse) Reset()         { *m = AddMongoDBServiceResponse{} }
+func (m *AddMongoDBServiceResponse) String() string { return proto.CompactTextString(m) }
+func (*AddMongoDBServiceResponse) ProtoMessage()    {}
+func (*AddMongoDBServiceResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_services_b8f70bed784cc03e, []int{16}
+}
+func (m *AddMongoDBServiceResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddMongoDBServiceResponse.Unmarshal(m, b)
+}
+func (m *AddMongoDBServiceResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddMongoDBServiceResponse.Marshal(b, m, deterministic)
+}
+func (dst *AddMongoDBServiceResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddMongoDBServiceResponse.Merge(dst, src)
+}
+func (m *AddMongoDBServiceResponse) XXX_Size() int {
+	return xxx_messageInfo_AddMongoDBServiceResponse.Size(m)
+}
+func (m *AddMongoDBServiceResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddMongoDBServiceResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddMongoDBServiceResponse proto.InternalMessageInfo
+
+func (m *AddMongoDBServiceResponse) GetMongodb() *MongoDBService {
+	if m != nil {
+		return m.Mongodb
+	}
+	return nil
+}
+
 type RemoveServiceRequest struct {
-	// Unique randomly generated instance identifier.
+	// Unique randomly generated instance identifier. Required.
 	ServiceId            string   `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -1006,7 +1200,7 @@ func (m *RemoveServiceRequest) Reset()         { *m = RemoveServiceRequest{} }
 func (m *RemoveServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveServiceRequest) ProtoMessage()    {}
 func (*RemoveServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{14}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{17}
 }
 func (m *RemoveServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveServiceRequest.Unmarshal(m, b)
@@ -1043,7 +1237,7 @@ func (m *RemoveServiceResponse) Reset()         { *m = RemoveServiceResponse{} }
 func (m *RemoveServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveServiceResponse) ProtoMessage()    {}
 func (*RemoveServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_91dc7d9f69222ef3, []int{15}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{18}
 }
 func (m *RemoveServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveServiceResponse.Unmarshal(m, b)
@@ -1068,6 +1262,8 @@ func init() {
 	proto.RegisterMapType((map[string]string)(nil), "inventory.MySQLService.CustomLabelsEntry")
 	proto.RegisterType((*AmazonRDSMySQLService)(nil), "inventory.AmazonRDSMySQLService")
 	proto.RegisterMapType((map[string]string)(nil), "inventory.AmazonRDSMySQLService.CustomLabelsEntry")
+	proto.RegisterType((*MongoDBService)(nil), "inventory.MongoDBService")
+	proto.RegisterMapType((map[string]string)(nil), "inventory.MongoDBService.CustomLabelsEntry")
 	proto.RegisterType((*ListServicesRequest)(nil), "inventory.ListServicesRequest")
 	proto.RegisterType((*ListServicesResponse)(nil), "inventory.ListServicesResponse")
 	proto.RegisterType((*GetServiceRequest)(nil), "inventory.GetServiceRequest")
@@ -1084,6 +1280,9 @@ func init() {
 	proto.RegisterType((*ChangeAmazonRDSMySQLServiceRequest)(nil), "inventory.ChangeAmazonRDSMySQLServiceRequest")
 	proto.RegisterMapType((map[string]string)(nil), "inventory.ChangeAmazonRDSMySQLServiceRequest.CustomLabelsEntry")
 	proto.RegisterType((*ChangeAmazonRDSMySQLServiceResponse)(nil), "inventory.ChangeAmazonRDSMySQLServiceResponse")
+	proto.RegisterType((*AddMongoDBServiceRequest)(nil), "inventory.AddMongoDBServiceRequest")
+	proto.RegisterMapType((map[string]string)(nil), "inventory.AddMongoDBServiceRequest.CustomLabelsEntry")
+	proto.RegisterType((*AddMongoDBServiceResponse)(nil), "inventory.AddMongoDBServiceResponse")
 	proto.RegisterType((*RemoveServiceRequest)(nil), "inventory.RemoveServiceRequest")
 	proto.RegisterType((*RemoveServiceResponse)(nil), "inventory.RemoveServiceResponse")
 }
@@ -1112,6 +1311,8 @@ type ServicesClient interface {
 	AddAmazonRDSMySQLService(ctx context.Context, in *AddAmazonRDSMySQLServiceRequest, opts ...grpc.CallOption) (*AddAmazonRDSMySQLServiceResponse, error)
 	// ChangeAmazonRDSMySQLService changes AmazonRDSMySQL Service.
 	ChangeAmazonRDSMySQLService(ctx context.Context, in *ChangeAmazonRDSMySQLServiceRequest, opts ...grpc.CallOption) (*ChangeAmazonRDSMySQLServiceResponse, error)
+	// AddMongoDBService adds MongoDB Service.
+	AddMongoDBService(ctx context.Context, in *AddMongoDBServiceRequest, opts ...grpc.CallOption) (*AddMongoDBServiceResponse, error)
 	// RemoveService removes Service without any Agents.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
 }
@@ -1178,6 +1379,15 @@ func (c *servicesClient) ChangeAmazonRDSMySQLService(ctx context.Context, in *Ch
 	return out, nil
 }
 
+func (c *servicesClient) AddMongoDBService(ctx context.Context, in *AddMongoDBServiceRequest, opts ...grpc.CallOption) (*AddMongoDBServiceResponse, error) {
+	out := new(AddMongoDBServiceResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Services/AddMongoDBService", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *servicesClient) RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error) {
 	out := new(RemoveServiceResponse)
 	err := c.cc.Invoke(ctx, "/inventory.Services/RemoveService", in, out, opts...)
@@ -1201,6 +1411,8 @@ type ServicesServer interface {
 	AddAmazonRDSMySQLService(context.Context, *AddAmazonRDSMySQLServiceRequest) (*AddAmazonRDSMySQLServiceResponse, error)
 	// ChangeAmazonRDSMySQLService changes AmazonRDSMySQL Service.
 	ChangeAmazonRDSMySQLService(context.Context, *ChangeAmazonRDSMySQLServiceRequest) (*ChangeAmazonRDSMySQLServiceResponse, error)
+	// AddMongoDBService adds MongoDB Service.
+	AddMongoDBService(context.Context, *AddMongoDBServiceRequest) (*AddMongoDBServiceResponse, error)
 	// RemoveService removes Service without any Agents.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
 }
@@ -1317,6 +1529,24 @@ func _Services_ChangeAmazonRDSMySQLService_Handler(srv interface{}, ctx context.
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Services_AddMongoDBService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddMongoDBServiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServicesServer).AddMongoDBService(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Services/AddMongoDBService",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServicesServer).AddMongoDBService(ctx, req.(*AddMongoDBServiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Services_RemoveService_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RemoveServiceRequest)
 	if err := dec(in); err != nil {
@@ -1364,6 +1594,10 @@ var _Services_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Services_ChangeAmazonRDSMySQLService_Handler,
 		},
 		{
+			MethodName: "AddMongoDBService",
+			Handler:    _Services_AddMongoDBService_Handler,
+		},
+		{
 			MethodName: "RemoveService",
 			Handler:    _Services_RemoveService_Handler,
 		},
@@ -1372,67 +1606,75 @@ var _Services_serviceDesc = grpc.ServiceDesc{
 	Metadata: "inventory/services.proto",
 }
 
-func init() { proto.RegisterFile("inventory/services.proto", fileDescriptor_services_91dc7d9f69222ef3) }
+func init() { proto.RegisterFile("inventory/services.proto", fileDescriptor_services_b8f70bed784cc03e) }
 
-var fileDescriptor_services_91dc7d9f69222ef3 = []byte{
-	// 936 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x57, 0x4f, 0x8f, 0xdb, 0x44,
-	0x14, 0xdf, 0xf1, 0xfe, 0xc9, 0xe6, 0x6d, 0x16, 0xd2, 0x61, 0x4b, 0x5c, 0xb7, 0x4b, 0xdc, 0xa1,
-	0x0b, 0x69, 0xaa, 0xc4, 0xb0, 0x2b, 0xad, 0x50, 0x04, 0xaa, 0x36, 0x05, 0x35, 0x2d, 0x69, 0x25,
-	0xbc, 0x07, 0x2a, 0x38, 0x44, 0xde, 0x78, 0x48, 0xad, 0xc6, 0x9e, 0xac, 0xed, 0x64, 0x15, 0xc4,
-	0x09, 0xf1, 0x01, 0x40, 0xdc, 0x39, 0xf7, 0x03, 0x70, 0xe2, 0xca, 0x47, 0x40, 0x9c, 0x11, 0x88,
-	0x13, 0x17, 0xbe, 0x02, 0xca, 0x78, 0x9c, 0x38, 0xb1, 0x9d, 0x84, 0x42, 0x60, 0x6f, 0xb6, 0xe7,
-	0xbd, 0x79, 0xbf, 0xdf, 0x7b, 0xbf, 0xf7, 0x66, 0x0c, 0xb2, 0xe5, 0x0c, 0xa8, 0xe3, 0x33, 0x77,
-	0xa8, 0x79, 0xd4, 0x1d, 0x58, 0x6d, 0xea, 0x55, 0x7b, 0x2e, 0xf3, 0x19, 0xce, 0x8e, 0x57, 0x94,
-	0xe3, 0x8e, 0xe5, 0x3f, 0xed, 0x9f, 0x55, 0xdb, 0xcc, 0xd6, 0xec, 0x0b, 0xcb, 0x7f, 0xc6, 0x2e,
-	0xb4, 0x0e, 0xab, 0x70, 0xbb, 0xca, 0xc0, 0xe8, 0x5a, 0xa6, 0xe1, 0x33, 0xd7, 0xd3, 0xc6, 0x8f,
-	0xc1, 0x16, 0xca, 0x8d, 0x0e, 0x63, 0x9d, 0x2e, 0xd5, 0x8c, 0x9e, 0xa5, 0x19, 0x8e, 0xc3, 0x7c,
-	0xc3, 0xb7, 0x98, 0x23, 0x02, 0x90, 0xe7, 0x12, 0xe4, 0x1e, 0x0d, 0x4f, 0x3f, 0x6a, 0x9e, 0x06,
-	0x81, 0xf1, 0x3e, 0x80, 0xc0, 0xd0, 0xb2, 0x4c, 0x19, 0xa9, 0xa8, 0x94, 0xd5, 0xb3, 0xe2, 0xcb,
-	0x03, 0x13, 0xdf, 0x84, 0x5c, 0xb8, 0xec, 0x18, 0x36, 0x95, 0x25, 0x6e, 0xb0, 0x23, 0xbe, 0x3d,
-	0x36, 0x6c, 0x8a, 0x0b, 0x90, 0x71, 0x98, 0xc9, 0xdd, 0xd7, 0xf9, 0xea, 0xd6, 0xe8, 0xf5, 0x81,
-	0x89, 0x65, 0xc8, 0x18, 0xa6, 0xe9, 0x52, 0xcf, 0x93, 0x37, 0xf8, 0x42, 0xf8, 0x8a, 0x31, 0x6c,
-	0xf4, 0x98, 0xeb, 0xcb, 0x9b, 0x2a, 0x2a, 0xed, 0xea, 0xfc, 0x19, 0x3f, 0x86, 0xdd, 0x76, 0xdf,
-	0xf3, 0x99, 0xdd, 0xea, 0x1a, 0x67, 0xb4, 0xeb, 0xc9, 0xa0, 0xae, 0x97, 0x76, 0x0e, 0x6f, 0x57,
-	0xc7, 0x29, 0xa9, 0x46, 0x81, 0x57, 0xef, 0x71, 0xe3, 0x26, 0xb7, 0xfd, 0xc0, 0xf1, 0xdd, 0xa1,
-	0x9e, 0x6b, 0x47, 0x3e, 0x29, 0x77, 0xe1, 0x4a, 0xcc, 0x04, 0xe7, 0x61, 0xfd, 0x19, 0x1d, 0x0a,
-	0x9a, 0xa3, 0x47, 0xbc, 0x07, 0x9b, 0x03, 0xa3, 0xdb, 0x0f, 0x99, 0x05, 0x2f, 0x35, 0xe9, 0x1d,
-	0x44, 0x7e, 0x90, 0xe0, 0xea, 0x89, 0x6d, 0x7c, 0xce, 0x1c, 0xfd, 0xfd, 0xd3, 0xcb, 0x99, 0xb3,
-	0x8f, 0x93, 0x73, 0x76, 0x18, 0xc9, 0x59, 0x22, 0x83, 0xd5, 0x27, 0xaf, 0x06, 0xaf, 0x34, 0x2d,
-	0xcf, 0x17, 0xf1, 0x3c, 0x9d, 0x9e, 0xf7, 0xa9, 0xe7, 0xe3, 0x6b, 0x13, 0xde, 0x7c, 0x9b, 0xc6,
-	0x5a, 0xc8, 0xbc, 0xbe, 0x0d, 0x5b, 0x9f, 0x59, 0x5d, 0x9f, 0xba, 0xe4, 0x1b, 0x04, 0x7b, 0xd3,
-	0xce, 0x5e, 0x8f, 0x39, 0x1e, 0xc5, 0x15, 0xd8, 0xb4, 0x87, 0xde, 0x79, 0x57, 0x46, 0x9c, 0x66,
-	0x21, 0x45, 0x1a, 0x7a, 0x60, 0x85, 0x1f, 0x42, 0xde, 0xe0, 0xec, 0x5b, 0xae, 0xe9, 0xb5, 0x02,
-	0x4f, 0x89, 0x7b, 0xaa, 0x8b, 0x12, 0xa4, 0xbf, 0x14, 0x78, 0xea, 0xa6, 0xf7, 0x68, 0xe4, 0x47,
-	0x6a, 0x70, 0xe5, 0x3e, 0x0d, 0x11, 0x85, 0x6c, 0x0e, 0xe2, 0x3a, 0xa8, 0x6f, 0xfd, 0xf6, 0x4b,
-	0x51, 0x7a, 0x82, 0x22, 0x7a, 0x20, 0xdf, 0x21, 0xc0, 0x51, 0x67, 0xc1, 0x46, 0x9b, 0xb0, 0x41,
-	0x73, 0xd8, 0x34, 0xd6, 0x42, 0x3e, 0xcd, 0x44, 0x3e, 0x68, 0x19, 0x3e, 0x8d, 0xb5, 0x59, 0x46,
-	0xf5, 0x2c, 0x64, 0x04, 0x44, 0xf2, 0xa3, 0x04, 0xaf, 0x9e, 0x98, 0xe6, 0x54, 0x02, 0x04, 0xc5,
-	0xdb, 0x49, 0x5a, 0x1e, 0x93, 0x9c, 0xd2, 0x74, 0x71, 0x46, 0xd3, 0x63, 0xab, 0x50, 0xdb, 0xea,
-	0x8c, 0xb6, 0xc7, 0x06, 0x63, 0x8d, 0x2b, 0x51, 0x8d, 0x07, 0xcb, 0xf9, 0x35, 0xa1, 0xf5, 0x27,
-	0xc9, 0x5a, 0x3f, 0x8a, 0x52, 0x4f, 0xe4, 0xb0, 0x72, 0xb1, 0x3f, 0xdc, 0xd8, 0x46, 0x79, 0x89,
-	0x34, 0xa0, 0x10, 0x03, 0x10, 0x17, 0x2e, 0x5a, 0x2c, 0x5c, 0xf2, 0x87, 0x04, 0xd7, 0xee, 0x3d,
-	0x35, 0x9c, 0x0e, 0x4d, 0x2a, 0xc9, 0x72, 0xaa, 0xbb, 0x44, 0x95, 0xfb, 0x34, 0xb9, 0x72, 0xc7,
-	0x91, 0x2c, 0xa4, 0xb2, 0x5d, 0xfd, 0xa4, 0xfa, 0x10, 0x94, 0xa4, 0xe8, 0x2f, 0x56, 0xb9, 0x9f,
-	0x25, 0x28, 0x9e, 0x98, 0x66, 0xf2, 0x4c, 0xb9, 0x74, 0x2d, 0x65, 0x24, 0x17, 0xe6, 0xdd, 0xe9,
-	0x96, 0x9a, 0x47, 0xe6, 0xbf, 0xea, 0x2d, 0x07, 0xd4, 0x74, 0x24, 0xa2, 0x54, 0x49, 0xe3, 0x1e,
-	0x2d, 0x37, 0x1e, 0x63, 0xe3, 0xfe, 0x57, 0x09, 0x48, 0xa0, 0x8a, 0xb9, 0xa5, 0xfc, 0xf7, 0x5b,
-	0xf1, 0x9f, 0x15, 0xd4, 0x4c, 0x2e, 0xe8, 0xdd, 0x58, 0xa7, 0xfd, 0xdf, 0x35, 0x5d, 0xcf, 0x6f,
-	0x90, 0x73, 0x78, 0x7d, 0x2e, 0x98, 0x15, 0x94, 0xf5, 0x3d, 0xd8, 0xd3, 0xa9, 0xcd, 0x06, 0xf4,
-	0xc5, 0x0e, 0xf2, 0x02, 0x5c, 0x9d, 0x71, 0x0f, 0x30, 0x1e, 0xfe, 0x99, 0x81, 0xed, 0xf0, 0xb6,
-	0x82, 0x2f, 0x20, 0x17, 0xbd, 0xbd, 0xe0, 0xd7, 0x22, 0x30, 0x13, 0xee, 0x44, 0x4a, 0x31, 0x75,
-	0x3d, 0xd8, 0x9d, 0xbc, 0xf1, 0xe5, 0x4f, 0xbf, 0x7f, 0x2b, 0xa9, 0xe4, 0xba, 0x36, 0x78, 0x5b,
-	0x9b, 0xfc, 0x3a, 0x84, 0x76, 0xda, 0xc8, 0xa9, 0x86, 0xca, 0xb8, 0x07, 0x30, 0xb9, 0x66, 0xe0,
-	0x1b, 0x91, 0x6d, 0x63, 0x57, 0x17, 0x65, 0x3f, 0x65, 0x55, 0x84, 0x3c, 0xe0, 0x21, 0x8b, 0x44,
-	0x49, 0x09, 0x79, 0x9f, 0xf2, 0x88, 0x5f, 0x21, 0x78, 0x79, 0xe6, 0xcc, 0xc3, 0x37, 0x17, 0x1e,
-	0xc8, 0x0a, 0x99, 0x67, 0x22, 0x10, 0x94, 0x39, 0x82, 0x5b, 0xa4, 0x98, 0x82, 0x20, 0xf4, 0x1b,
-	0xc1, 0xf8, 0x1a, 0x01, 0x8e, 0xcf, 0x70, 0x7c, 0x6b, 0x99, 0x03, 0x46, 0x39, 0x58, 0x60, 0x25,
-	0xf0, 0x54, 0x38, 0x9e, 0x37, 0x09, 0x49, 0xc1, 0x13, 0x71, 0x1d, 0x41, 0x7a, 0x8e, 0x40, 0x4e,
-	0x9b, 0x58, 0xb8, 0xbc, 0xfc, 0x80, 0x55, 0xee, 0x2c, 0x65, 0x2b, 0x40, 0x1e, 0x71, 0x90, 0x15,
-	0x52, 0x4a, 0x4f, 0xda, 0xf4, 0x06, 0x23, 0xa8, 0xdf, 0x23, 0xb8, 0x3e, 0xa7, 0x11, 0x71, 0xe5,
-	0x6f, 0x4d, 0x0f, 0xa5, 0xba, 0xac, 0xb9, 0xc0, 0x7c, 0xcc, 0x31, 0xbf, 0x45, 0xee, 0xcc, 0x4d,
-	0x6c, 0x1c, 0xf6, 0x17, 0xb0, 0x3b, 0xd5, 0x8c, 0x38, 0xda, 0x47, 0x49, 0x5d, 0xae, 0xa8, 0xe9,
-	0x06, 0x02, 0x4b, 0x89, 0x63, 0x21, 0x64, 0x3f, 0x05, 0x4b, 0xe0, 0x55, 0x43, 0xe5, 0xfa, 0xce,
-	0x27, 0x93, 0x5f, 0xf5, 0xb3, 0x2d, 0xfe, 0x6f, 0x7d, 0xf4, 0x57, 0x00, 0x00, 0x00, 0xff, 0xff,
-	0xce, 0x0d, 0x94, 0x0a, 0xd8, 0x0f, 0x00, 0x00,
+var fileDescriptor_services_b8f70bed784cc03e = []byte{
+	// 1063 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x58, 0x5f, 0x6f, 0xdb, 0x54,
+	0x14, 0xcf, 0x75, 0xfa, 0xf7, 0xb4, 0x1d, 0xe9, 0xa5, 0xa3, 0xae, 0xb7, 0x92, 0xf4, 0xae, 0x1d,
+	0x59, 0x4b, 0x62, 0x68, 0xb5, 0x0a, 0x45, 0xa0, 0xa9, 0xd9, 0xd0, 0xb2, 0xd1, 0x4e, 0xc3, 0x7d,
+	0x60, 0x1a, 0x0f, 0x95, 0x5b, 0x9b, 0xcc, 0x5a, 0xe2, 0x9b, 0xda, 0x6e, 0xaa, 0x20, 0x9e, 0x10,
+	0x2f, 0x48, 0x3c, 0x20, 0xf1, 0x25, 0xf6, 0x01, 0x78, 0xe2, 0x15, 0x89, 0x57, 0x1e, 0xd0, 0x9e,
+	0x11, 0x88, 0xcf, 0x31, 0x21, 0x5f, 0x5f, 0x27, 0x4e, 0x7c, 0xed, 0x64, 0x43, 0x29, 0x7d, 0xb3,
+	0x7d, 0xcf, 0xb9, 0xf7, 0x77, 0x7e, 0xe7, 0xfc, 0xce, 0x3d, 0x09, 0xc8, 0x96, 0xdd, 0x36, 0x6d,
+	0x8f, 0x3a, 0x1d, 0xd5, 0x35, 0x9d, 0xb6, 0x75, 0x62, 0xba, 0xe5, 0x96, 0x43, 0x3d, 0x8a, 0x67,
+	0xbb, 0x2b, 0xca, 0x6e, 0xdd, 0xf2, 0x9e, 0x9d, 0x1d, 0x97, 0x4f, 0x68, 0x53, 0x6d, 0x9e, 0x5b,
+	0xde, 0x73, 0x7a, 0xae, 0xd6, 0x69, 0x89, 0xd9, 0x95, 0xda, 0x7a, 0xc3, 0x32, 0x74, 0x8f, 0x3a,
+	0xae, 0xda, 0x7d, 0x0c, 0xb6, 0x50, 0xae, 0xd7, 0x29, 0xad, 0x37, 0x4c, 0x55, 0x6f, 0x59, 0xaa,
+	0x6e, 0xdb, 0xd4, 0xd3, 0x3d, 0x8b, 0xda, 0xfc, 0x00, 0xf2, 0x42, 0x82, 0xf9, 0x83, 0xce, 0xe1,
+	0xe7, 0xfb, 0x87, 0xc1, 0xc1, 0x78, 0x15, 0x80, 0x63, 0x38, 0xb2, 0x0c, 0x19, 0x15, 0x50, 0x71,
+	0x56, 0x9b, 0xe5, 0x5f, 0x1e, 0x18, 0x78, 0x0d, 0xe6, 0xc3, 0x65, 0x5b, 0x6f, 0x9a, 0xb2, 0xc4,
+	0x0c, 0xe6, 0xf8, 0xb7, 0x47, 0x7a, 0xd3, 0xc4, 0xcb, 0x30, 0x6d, 0x53, 0x83, 0xb9, 0x67, 0xd9,
+	0xea, 0x94, 0xff, 0xfa, 0xc0, 0xc0, 0x32, 0x4c, 0xeb, 0x86, 0xe1, 0x98, 0xae, 0x2b, 0x4f, 0xb0,
+	0x85, 0xf0, 0x15, 0x63, 0x98, 0x68, 0x51, 0xc7, 0x93, 0x27, 0x0b, 0xa8, 0xb8, 0xa0, 0xb1, 0x67,
+	0xfc, 0x08, 0x16, 0x4e, 0xce, 0x5c, 0x8f, 0x36, 0x8f, 0x1a, 0xfa, 0xb1, 0xd9, 0x70, 0x65, 0x28,
+	0x64, 0x8b, 0x73, 0xdb, 0xb7, 0xca, 0x5d, 0x4a, 0xca, 0x51, 0xe0, 0xe5, 0xbb, 0xcc, 0x78, 0x9f,
+	0xd9, 0x7e, 0x6a, 0x7b, 0x4e, 0x47, 0x9b, 0x3f, 0x89, 0x7c, 0x52, 0xee, 0xc0, 0x62, 0xcc, 0x04,
+	0xe7, 0x20, 0xfb, 0xdc, 0xec, 0xf0, 0x30, 0xfd, 0x47, 0xbc, 0x04, 0x93, 0x6d, 0xbd, 0x71, 0x16,
+	0x46, 0x16, 0xbc, 0x54, 0xa4, 0x8f, 0x10, 0xf9, 0x45, 0x82, 0xab, 0x7b, 0x4d, 0xfd, 0x6b, 0x6a,
+	0x6b, 0xf7, 0x0e, 0x2f, 0x27, 0x67, 0x5f, 0x88, 0x39, 0xdb, 0x8e, 0x70, 0x26, 0x8c, 0x60, 0xfc,
+	0xe4, 0xbd, 0x42, 0x70, 0xe5, 0x80, 0xda, 0x75, 0x7a, 0xaf, 0x7a, 0x01, 0xac, 0x3d, 0x16, 0xf3,
+	0xb0, 0x15, 0xad, 0x9d, 0x3e, 0x30, 0xe3, 0x27, 0xa0, 0x02, 0x6f, 0xef, 0x5b, 0xae, 0xc7, 0xcf,
+	0x73, 0x35, 0xf3, 0xf4, 0xcc, 0x74, 0x3d, 0xbc, 0xd2, 0x0b, 0x81, 0x6d, 0x53, 0xcb, 0x84, 0x41,
+	0x54, 0x67, 0x60, 0xea, 0x2b, 0xab, 0xe1, 0x99, 0x0e, 0xf9, 0x0d, 0xc1, 0x52, 0xbf, 0xb3, 0xdb,
+	0xa2, 0xb6, 0x6b, 0xe2, 0x12, 0x4c, 0x36, 0x3b, 0xee, 0x69, 0x43, 0x46, 0x2c, 0xbe, 0xe5, 0x04,
+	0x6d, 0x68, 0x81, 0x15, 0x7e, 0x08, 0x39, 0x9d, 0xa5, 0xff, 0xc8, 0x31, 0xdc, 0xa3, 0xc0, 0x53,
+	0x62, 0x9e, 0x85, 0x61, 0x15, 0xa2, 0x5d, 0x09, 0x3c, 0x35, 0xc3, 0x3d, 0x60, 0x7b, 0xed, 0xc0,
+	0x74, 0xd3, 0xa7, 0xd0, 0x38, 0x96, 0xb3, 0x6c, 0x8b, 0x95, 0x44, 0x72, 0xb5, 0xd0, 0x92, 0x54,
+	0x60, 0xf1, 0xbe, 0x19, 0x86, 0x11, 0x52, 0xb0, 0x11, 0xaf, 0x83, 0xea, 0xd4, 0xdf, 0x7f, 0xe6,
+	0xa5, 0x27, 0x28, 0x52, 0x0f, 0xe4, 0x25, 0x02, 0x1c, 0x75, 0xe6, 0x14, 0xa8, 0x3d, 0x0a, 0x50,
+	0x0a, 0x05, 0xb5, 0x4c, 0x48, 0xc2, 0xbe, 0x90, 0x04, 0x34, 0x0a, 0x09, 0xb5, 0x4c, 0x8c, 0x86,
+	0xdb, 0x51, 0x1a, 0x50, 0x2a, 0x0d, 0xb5, 0x4c, 0x97, 0x88, 0xea, 0x2c, 0x4c, 0xf3, 0xc8, 0xc8,
+	0xaf, 0x12, 0xbc, 0xb3, 0x67, 0x18, 0x7d, 0x64, 0x73, 0x66, 0x6e, 0x89, 0x24, 0xd0, 0xe5, 0xa6,
+	0x4f, 0x0a, 0xf9, 0x01, 0x29, 0x74, 0xad, 0x42, 0x49, 0x14, 0x06, 0x1a, 0x49, 0xd7, 0xa0, 0xdb,
+	0x50, 0x94, 0x68, 0x43, 0x09, 0x96, 0x73, 0x19, 0xde, 0x58, 0x9e, 0x88, 0x05, 0xb5, 0x13, 0x65,
+	0x4c, 0x18, 0xc3, 0xd8, 0x85, 0xf5, 0x70, 0x62, 0x06, 0xe5, 0x24, 0x52, 0x83, 0xe5, 0x18, 0x80,
+	0xb8, 0x48, 0xd0, 0x70, 0x91, 0x90, 0xdf, 0x25, 0x58, 0xb9, 0xfb, 0x4c, 0xb7, 0xeb, 0xa6, 0x28,
+	0x25, 0xa3, 0x15, 0xeb, 0xeb, 0x64, 0xee, 0xbf, 0x25, 0xe6, 0x4b, 0x71, 0x62, 0x76, 0x23, 0x41,
+	0x26, 0x06, 0x73, 0x11, 0xb9, 0xc9, 0xe6, 0x26, 0xc8, 0x67, 0xa0, 0x88, 0x30, 0xbc, 0x59, 0x7a,
+	0x5e, 0x4a, 0x90, 0xdf, 0x33, 0x0c, 0x71, 0x93, 0xba, 0x74, 0xba, 0xd1, 0xc5, 0xe9, 0xf9, 0xb8,
+	0x5f, 0x37, 0x69, 0xc1, 0x5c, 0x94, 0x80, 0x6c, 0x28, 0x24, 0x23, 0xe1, 0xa9, 0x12, 0xdd, 0x1f,
+	0x68, 0xb4, 0xd6, 0x39, 0xd8, 0x38, 0xc9, 0x5f, 0x12, 0x90, 0xa0, 0x2a, 0x52, 0x53, 0x79, 0xd9,
+	0xf4, 0x66, 0x88, 0x13, 0x7a, 0x27, 0xa6, 0xb7, 0xff, 0x3b, 0xa7, 0xbe, 0xf0, 0x4e, 0xe1, 0x46,
+	0x2a, 0x98, 0x31, 0xa4, 0xf5, 0x7b, 0x09, 0x64, 0xbf, 0x11, 0xf7, 0x0f, 0x00, 0x63, 0xd0, 0xe5,
+	0x53, 0x71, 0x22, 0x6e, 0x0f, 0xdc, 0x48, 0x22, 0x1c, 0x17, 0x25, 0xa9, 0xc7, 0xb0, 0x22, 0x80,
+	0xc0, 0x49, 0x8f, 0xcc, 0x4f, 0x68, 0xc8, 0xe0, 0xd0, 0x9b, 0x9f, 0x3e, 0x81, 0x25, 0xcd, 0x6c,
+	0xd2, 0xb6, 0xf9, 0x66, 0x23, 0xd4, 0x32, 0x5c, 0x1d, 0x70, 0x0f, 0xc0, 0x6c, 0xbf, 0x9a, 0x81,
+	0x99, 0x70, 0xb8, 0xc4, 0xe7, 0x30, 0x1f, 0x1d, 0x36, 0xf1, 0xbb, 0x11, 0x60, 0x82, 0x11, 0x56,
+	0xc9, 0x27, 0xae, 0x07, 0xbb, 0x93, 0x9b, 0xdf, 0xfe, 0xf1, 0xcf, 0x4f, 0x52, 0x81, 0x5c, 0x53,
+	0xdb, 0x1f, 0xaa, 0xbd, 0x9f, 0xba, 0xa1, 0x9d, 0xea, 0x3b, 0x55, 0xd0, 0x26, 0x6e, 0x01, 0xf4,
+	0x06, 0x3c, 0x7c, 0x3d, 0xb2, 0x6d, 0x6c, 0x68, 0x54, 0x56, 0x13, 0x56, 0xf9, 0x91, 0x1b, 0xec,
+	0xc8, 0x3c, 0x51, 0x12, 0x8e, 0xbc, 0x6f, 0xb2, 0x13, 0xbf, 0x43, 0xf0, 0xd6, 0xc0, 0xd8, 0x80,
+	0xd7, 0x86, 0xce, 0x34, 0x0a, 0x49, 0x33, 0xe1, 0x08, 0x36, 0x19, 0x82, 0x75, 0x92, 0x4f, 0x40,
+	0x10, 0xfa, 0xf9, 0x30, 0x7e, 0x44, 0x80, 0xe3, 0x37, 0x24, 0x5e, 0x1f, 0xe5, 0x12, 0x57, 0x36,
+	0x86, 0x58, 0x71, 0x3c, 0x25, 0x86, 0xe7, 0x3d, 0x42, 0x12, 0xf0, 0x44, 0x5c, 0x7d, 0x48, 0x2f,
+	0x10, 0xd3, 0xb1, 0xf8, 0xf7, 0xee, 0xe6, 0xe8, 0xd7, 0x97, 0xb2, 0x35, 0x92, 0x2d, 0x07, 0xb9,
+	0xc3, 0x40, 0x96, 0x48, 0x31, 0x99, 0xb4, 0xfe, 0x0d, 0x7c, 0xa8, 0x3f, 0x23, 0xb8, 0x96, 0xd2,
+	0xe6, 0x70, 0xe9, 0xb5, 0x7a, 0xb3, 0x52, 0x1e, 0xd5, 0x9c, 0x63, 0xde, 0x65, 0x98, 0x3f, 0x20,
+	0x5b, 0xa9, 0xc4, 0xc6, 0x61, 0xff, 0x80, 0x60, 0x31, 0xd6, 0x1e, 0xf0, 0x8d, 0x11, 0xfa, 0x97,
+	0xb2, 0x9e, 0x6e, 0xc4, 0x81, 0xbd, 0xcf, 0x80, 0xdd, 0x24, 0x6b, 0x29, 0x15, 0x18, 0x78, 0xfa,
+	0x70, 0xbe, 0x81, 0x85, 0xbe, 0xde, 0x80, 0xa3, 0xb2, 0x16, 0x35, 0x1d, 0xa5, 0x90, 0x6c, 0xc0,
+	0x11, 0x14, 0x19, 0x02, 0x42, 0x56, 0x13, 0x10, 0x04, 0x5e, 0x15, 0xb4, 0x59, 0x9d, 0x7b, 0xda,
+	0xfb, 0xa7, 0xeb, 0x78, 0x8a, 0xfd, 0x35, 0xb5, 0xf3, 0x6f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x8f,
+	0xc3, 0xd9, 0x1f, 0x17, 0x13, 0x00, 0x00,
 }

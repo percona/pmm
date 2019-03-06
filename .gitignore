@@ -1,3 +1,6 @@
+/.idea/
+/.vscode/
+
 /api/vendor/
 /api/prototool
 /api/nginx/*.pem

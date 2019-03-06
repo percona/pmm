@@ -20,7 +20,7 @@ message PMMAgent {
 
   // True if Agent is running and connected to pmm-managed.
   bool connected = 3;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -38,11 +38,11 @@ message NodeExporter {
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 3;
 
-  // Actual Agent process status.
+  // Actual Agent status.
   AgentStatus status = 4;
   // Listen port for scraping metrics.
   uint32 listen_port = 5;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -66,11 +66,11 @@ message MySQLdExporter {
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 6;
 
-  // Actual Agent process status.
+  // Actual Agent status.
   AgentStatus status = 7;
   // Listen port for scraping metrics.
   uint32 listen_port = 8;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -92,11 +92,11 @@ message RDSExporter {
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 4;
 
-  // Actual Agent process status.
+  // Actual Agent status.
   AgentStatus status = 5;
   // Listen port for scraping metrics.
   uint32 listen_port = 6;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -114,8 +114,44 @@ message ExternalExporter {
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 3;
 
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+}
+
+// MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+message MongoDBExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // Node identifier where this instance runs.
+  string runs_on_node_id = 2;
+  // Service identifier.
+  string service_id = 3;
+  // MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)
+  string connection_string = 4;
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled or disabled.
+  // TODO https://jira.percona.com/browse/PMM-3470
+  // bool enabled = 6;
+
+  // Actual Agent status.
+  AgentStatus status = 7;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+// QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+message QANMySQLPerfSchemaAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // pmm-agent identifier where this instance runs.
+  string pmm_agent_id = 2;
+  // Service identifier.
+  string service_id = 3;
 }
 
 // List
@@ -137,6 +173,8 @@ message ListAgentsResponse {
   repeated MySQLdExporter mysqld_exporter = 3;
   repeated RDSExporter rds_exporter = 4;
   repeated ExternalExporter external_exporter = 5;
+  repeated MongoDBExporter mongodb_exporter = 6;
+  repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
 }
 
 // Get
@@ -157,6 +195,8 @@ message GetAgentResponse {
     MySQLdExporter mysqld_exporter = 3;
     RDSExporter rds_exporter = 4;
     ExternalExporter external_exporter = 5;
+    MongoDBExporter mongodb_exporter = 6;
+    QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
   }
 }
 
@@ -171,7 +211,7 @@ message AddPMMAgentRequest {
       string_not_empty: true
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -192,7 +232,7 @@ message AddNodeExporterRequest {
       string_not_empty: true
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -227,7 +267,7 @@ message AddMySQLdExporterRequest {
   ];
   // MySQL password for scraping metrics.
   string password = 5;
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -254,7 +294,7 @@ message AddRDSExporterRequest {
   // TODO AWS credentials
   //
 
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -275,7 +315,7 @@ message AddExternalExporterRequest {
       string_not_empty: true
     }
   ];
-  // Custom user-assigned labels. Keys must start with "_".
+  // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
@@ -284,6 +324,64 @@ message AddExternalExporterResponse {
 }
 
 // TODO ChangeExternalExporterRequest https://jira.percona.com/browse/PMM-3470
+
+// Add/Change MongoDBExporter
+
+message AddMongoDBExporterRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // Node identifier where this instance runs.
+  string runs_on_node_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // MongoDB URI for scraping metrics. (See: https://docs.mongodb.com/manual/reference/connection-string/)
+  string connection_string = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+message AddMongoDBExporterResponse {
+  MongoDBExporter mongodb_exporter = 1;
+}
+
+// TODO ChangeMongoDBExporterResponse https://jira.percona.com/browse/PMM-3470
+
+// Add/Change QANMySQLPerfSchemaAgent
+
+message AddQANMySQLPerfSchemaAgentRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // pmm-agent identifier where this instance runs.
+  string pmm_agent_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message AddQANMySQLPerfSchemaAgentResponse {
+  QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 1;
+}
+
+// TODO ChangeQANMySQLPerfSchemaAgentResponse https://jira.percona.com/browse/PMM-3470
 
 // Remove
 
@@ -345,6 +443,20 @@ service Agents {
   rpc AddExternalExporter(AddExternalExporterRequest) returns (AddExternalExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddExternalExporter"
+      body: "*"
+    };
+  }
+  // AddMongoDBExporter adds mongodb_exporter Agent.
+  rpc AddMongoDBExporter(AddMongoDBExporterRequest) returns (AddMongoDBExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddMongoDBExporter"
+      body: "*"
+    };
+  }
+  // AddQANMySQLPerfSchemaAgent adds mongodb_exporter Agent.
+  rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"
       body: "*"
     };
   }

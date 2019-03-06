@@ -23,6 +23,10 @@ func (this *AmazonRDSMySQLService) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *MongoDBService) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *ListServicesRequest) Validate() error {
 	return nil
 }
@@ -38,6 +42,13 @@ func (this *ListServicesResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsMysql", err)
+			}
+		}
+	}
+	for _, item := range this.Mongodb {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Mongodb", err)
 			}
 		}
 	}
@@ -61,6 +72,13 @@ func (this *GetServiceResponse) Validate() error {
 		if oneOfNester.AmazonRdsMysql != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.AmazonRdsMysql); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsMysql", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetService().(*GetServiceResponse_Mongodb); ok {
+		if oneOfNester.Mongodb != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Mongodb); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Mongodb", err)
 			}
 		}
 	}
@@ -96,9 +114,6 @@ func (this *ChangeMySQLServiceRequest) Validate() error {
 	}
 	if this.ServiceName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
-	}
-	if this.NodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
 	}
 	if this.Address == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
@@ -161,6 +176,24 @@ func (this *ChangeAmazonRDSMySQLServiceResponse) Validate() error {
 	if this.AmazonRdsMysql != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AmazonRdsMysql); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsMysql", err)
+		}
+	}
+	return nil
+}
+func (this *AddMongoDBServiceRequest) Validate() error {
+	if this.ServiceName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
+	}
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *AddMongoDBServiceResponse) Validate() error {
+	if this.Mongodb != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Mongodb); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Mongodb", err)
 		}
 	}
 	return nil

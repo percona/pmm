@@ -73,7 +73,7 @@ swagger:model AddNodeExporterBody
 */
 type AddNodeExporterBody struct {
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
@@ -170,7 +170,7 @@ type AddNodeExporterOKBodyNodeExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -179,7 +179,7 @@ type AddNodeExporterOKBodyNodeExporter struct {
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
-	// AgentStatus represents actual Agent process status.
+	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 }

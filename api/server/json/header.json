@@ -1,0 +1,11 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "PMM Server APIs",
+    "version": "version 1.alpha"
+  },
+  "schemes": [
+    "https",
+    "http"
+  ]
+}

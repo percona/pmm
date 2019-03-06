@@ -41,7 +41,7 @@ func (m *MetricsRequest) Reset()         { *m = MetricsRequest{} }
 func (m *MetricsRequest) String() string { return proto.CompactTextString(m) }
 func (*MetricsRequest) ProtoMessage()    {}
 func (*MetricsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_cfa815e068473430, []int{0}
+	return fileDescriptor_metrics_4280556877089a15, []int{0}
 }
 func (m *MetricsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MetricsRequest.Unmarshal(m, b)
@@ -116,7 +116,7 @@ func (m *MapFieldEntry) Reset()         { *m = MapFieldEntry{} }
 func (m *MapFieldEntry) String() string { return proto.CompactTextString(m) }
 func (*MapFieldEntry) ProtoMessage()    {}
 func (*MapFieldEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_cfa815e068473430, []int{1}
+	return fileDescriptor_metrics_4280556877089a15, []int{1}
 }
 func (m *MapFieldEntry) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MapFieldEntry.Unmarshal(m, b)
@@ -325,7 +325,7 @@ func (m *MetricsReply) Reset()         { *m = MetricsReply{} }
 func (m *MetricsReply) String() string { return proto.CompactTextString(m) }
 func (*MetricsReply) ProtoMessage()    {}
 func (*MetricsReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_cfa815e068473430, []int{2}
+	return fileDescriptor_metrics_4280556877089a15, []int{2}
 }
 func (m *MetricsReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MetricsReply.Unmarshal(m, b)
@@ -1534,9 +1534,9 @@ var _Metrics_serviceDesc = grpc.ServiceDesc{
 	Metadata: "qan/metrics.proto",
 }
 
-func init() { proto.RegisterFile("qan/metrics.proto", fileDescriptor_metrics_cfa815e068473430) }
+func init() { proto.RegisterFile("qan/metrics.proto", fileDescriptor_metrics_4280556877089a15) }
 
-var fileDescriptor_metrics_cfa815e068473430 = []byte{
+var fileDescriptor_metrics_4280556877089a15 = []byte{
 	// 2355 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x99, 0xe9, 0x76, 0xdc, 0xb6,
 	0x19, 0x86, 0xcf, 0x48, 0xf1, 0x22, 0x68, 0xb3, 0xe8, 0x0d, 0x96, 0xed, 0x5a, 0x51, 0x1c, 0x5b,

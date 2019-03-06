@@ -71,7 +71,7 @@ swagger:model AddRemoteAmazonRDSNodeBody
 */
 type AddRemoteAmazonRDSNodeBody struct {
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.
@@ -171,7 +171,7 @@ swagger:model AddRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS
 */
 type AddRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS struct {
 
-	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.

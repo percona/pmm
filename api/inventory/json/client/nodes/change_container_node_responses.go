@@ -71,7 +71,7 @@ swagger:model ChangeContainerNodeBody
 */
 type ChangeContainerNodeBody struct {
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Container name.
@@ -171,7 +171,7 @@ swagger:model ChangeContainerNodeOKBodyContainer
 */
 type ChangeContainerNodeOKBodyContainer struct {
 
-	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.

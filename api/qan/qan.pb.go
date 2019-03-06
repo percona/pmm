@@ -42,7 +42,7 @@ func (x ExampleFormat) String() string {
 	return proto.EnumName(ExampleFormat_name, int32(x))
 }
 func (ExampleFormat) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_qan_003f246fde44cd4b, []int{0}
+	return fileDescriptor_qan_7f2cd2afe801816b, []int{0}
 }
 
 // ExampleType is a type of query example selected for this query class in given period of time.
@@ -75,7 +75,7 @@ func (x ExampleType) String() string {
 	return proto.EnumName(ExampleType_name, int32(x))
 }
 func (ExampleType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_qan_003f246fde44cd4b, []int{1}
+	return fileDescriptor_qan_7f2cd2afe801816b, []int{1}
 }
 
 func init() {
@@ -83,9 +83,9 @@ func init() {
 	proto.RegisterEnum("qan.ExampleType", ExampleType_name, ExampleType_value)
 }
 
-func init() { proto.RegisterFile("qan/qan.proto", fileDescriptor_qan_003f246fde44cd4b) }
+func init() { proto.RegisterFile("qan/qan.proto", fileDescriptor_qan_7f2cd2afe801816b) }
 
-var fileDescriptor_qan_003f246fde44cd4b = []byte{
+var fileDescriptor_qan_7f2cd2afe801816b = []byte{
 	// 193 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x4c, 0xce, 0xcd, 0x8a, 0xc2, 0x30,
 	0x18, 0x85, 0xe1, 0x69, 0x3b, 0xd3, 0x81, 0xaf, 0x74, 0x26, 0x04, 0x11, 0xf1, 0x12, 0xba, 0xd0,

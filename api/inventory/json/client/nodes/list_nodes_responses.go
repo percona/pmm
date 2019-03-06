@@ -72,7 +72,7 @@ swagger:model ContainerItems0
 */
 type ContainerItems0 struct {
 
-	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.
@@ -119,7 +119,10 @@ swagger:model GenericItems0
 */
 type GenericItems0 struct {
 
-	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	// Address FIXME.
+	Address string `json:"address,omitempty"`
+
+	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Linux distribution (if any). Can be changed.
@@ -328,7 +331,7 @@ swagger:model RemoteAmazonRDSItems0
 */
 type RemoteAmazonRDSItems0 struct {
 
-	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.
@@ -372,7 +375,7 @@ swagger:model RemoteItems0
 */
 type RemoteItems0 struct {
 
-	// Custom user-assigned labels. Keys must start with "_". Can be changed.
+	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Unique randomly generated instance identifier, can't be changed.

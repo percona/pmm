@@ -53,6 +53,34 @@ func (a *Client) AddAmazonRDSMySQLService(params *AddAmazonRDSMySQLServiceParams
 }
 
 /*
+AddMongoDBService adds mongo d b service adds mongo d b service
+*/
+func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDBServiceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddMongoDBServiceParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddMongoDBService",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Services/AddMongoDB",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddMongoDBServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddMongoDBServiceOK), nil
+
+}
+
+/*
 AddMySQLService adds my SQL service adds my SQL service
 */
 func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServiceOK, error) {

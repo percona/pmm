@@ -108,6 +108,9 @@ type GetAgentOKBody struct {
 	// external exporter
 	ExternalExporter *GetAgentOKBodyExternalExporter `json:"external_exporter,omitempty"`
 
+	// mongodb exporter
+	MongodbExporter *GetAgentOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
+
 	// mysqld exporter
 	MysqldExporter *GetAgentOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 
@@ -116,6 +119,9 @@ type GetAgentOKBody struct {
 
 	// pmm agent
 	PMMAgent *GetAgentOKBodyPMMAgent `json:"pmm_agent,omitempty"`
+
+	// qan mysql perfschema agent
+	QANMysqlPerfschemaAgent *GetAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
 
 	// rds exporter
 	RDSExporter *GetAgentOKBodyRDSExporter `json:"rds_exporter,omitempty"`
@@ -129,6 +135,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := o.validateMongodbExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateMysqldExporter(formats); err != nil {
 		res = append(res, err)
 	}
@@ -138,6 +148,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validatePMMAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANMysqlPerfschemaAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -161,6 +175,24 @@ func (o *GetAgentOKBody) validateExternalExporter(formats strfmt.Registry) error
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOK" + "." + "external_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) validateMongodbExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.MongodbExporter) { // not required
+		return nil
+	}
+
+	if o.MongodbExporter != nil {
+		if err := o.MongodbExporter.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOK" + "." + "mongodb_exporter")
 			}
 			return err
 		}
@@ -223,6 +255,24 @@ func (o *GetAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *GetAgentOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QANMysqlPerfschemaAgent) { // not required
+		return nil
+	}
+
+	if o.QANMysqlPerfschemaAgent != nil {
+		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOK" + "." + "qan_mysql_perfschema_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (o *GetAgentOKBody) validateRDSExporter(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.RDSExporter) { // not required
@@ -267,7 +317,7 @@ type GetAgentOKBodyExternalExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// URL for scraping metrics.
@@ -297,6 +347,121 @@ func (o *GetAgentOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetAgentOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+swagger:model GetAgentOKBodyMongodbExporter
+*/
+type GetAgentOKBodyMongodbExporter struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)
+	ConnectionString string `json:"connection_string,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this get agent o k body mongodb exporter
+func (o *GetAgentOKBodyMongodbExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOKBodyMongodbExporterTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOKBodyMongodbExporterTypeStatusPropEnum = append(getAgentOKBodyMongodbExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyMongodbExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyMongodbExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// GetAgentOKBodyMongodbExporterStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyMongodbExporterStatusSTARTING string = "STARTING"
+
+	// GetAgentOKBodyMongodbExporterStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyMongodbExporterStatusRUNNING string = "RUNNING"
+
+	// GetAgentOKBodyMongodbExporterStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyMongodbExporterStatusWAITING string = "WAITING"
+
+	// GetAgentOKBodyMongodbExporterStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyMongodbExporterStatusSTOPPING string = "STOPPING"
+
+	// GetAgentOKBodyMongodbExporterStatusDONE captures enum value "DONE"
+	GetAgentOKBodyMongodbExporterStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyMongodbExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getAgentOKBodyMongodbExporterTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOK"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyMongodbExporter) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyMongodbExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetAgentOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
 swagger:model GetAgentOKBodyMysqldExporter
 */
@@ -305,7 +470,7 @@ type GetAgentOKBodyMysqldExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -320,7 +485,7 @@ type GetAgentOKBodyMysqldExporter struct {
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// AgentStatus represents actual Agent process status.
+	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -423,7 +588,7 @@ type GetAgentOKBodyNodeExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -432,7 +597,7 @@ type GetAgentOKBodyNodeExporter struct {
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
-	// AgentStatus represents actual Agent process status.
+	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 }
@@ -535,7 +700,7 @@ type GetAgentOKBodyPMMAgent struct {
 	// True if Agent is running and connected to pmm-managed.
 	Connected bool `json:"connected,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
@@ -565,6 +730,44 @@ func (o *GetAgentOKBodyPMMAgent) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+swagger:model GetAgentOKBodyQANMysqlPerfschemaAgent
+*/
+type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// pmm-agent identifier where this instance runs.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+}
+
+// Validate validates this get agent o k body QAN mysql perfschema agent
+func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyQANMysqlPerfschemaAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
 swagger:model GetAgentOKBodyRDSExporter
 */
@@ -573,7 +776,7 @@ type GetAgentOKBodyRDSExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Custom user-assigned labels. Keys must start with "_".
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.
@@ -585,7 +788,7 @@ type GetAgentOKBodyRDSExporter struct {
 	// A list of Service identifiers (Node identifiers are extracted from Services).
 	ServiceIds []string `json:"service_ids"`
 
-	// AgentStatus represents actual Agent process status.
+	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 }

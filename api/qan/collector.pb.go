@@ -35,7 +35,7 @@ func (m *AgentMessage) Reset()         { *m = AgentMessage{} }
 func (m *AgentMessage) String() string { return proto.CompactTextString(m) }
 func (*AgentMessage) ProtoMessage()    {}
 func (*AgentMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_collector_4b318bfb20c2a44c, []int{0}
+	return fileDescriptor_collector_ca7222d889c95008, []int{0}
 }
 func (m *AgentMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AgentMessage.Unmarshal(m, b)
@@ -237,7 +237,7 @@ func (m *MetricsBucket) Reset()         { *m = MetricsBucket{} }
 func (m *MetricsBucket) String() string { return proto.CompactTextString(m) }
 func (*MetricsBucket) ProtoMessage()    {}
 func (*MetricsBucket) Descriptor() ([]byte, []int) {
-	return fileDescriptor_collector_4b318bfb20c2a44c, []int{1}
+	return fileDescriptor_collector_ca7222d889c95008, []int{1}
 }
 func (m *MetricsBucket) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MetricsBucket.Unmarshal(m, b)
@@ -1367,7 +1367,7 @@ func (m *ApiMessage) Reset()         { *m = ApiMessage{} }
 func (m *ApiMessage) String() string { return proto.CompactTextString(m) }
 func (*ApiMessage) ProtoMessage()    {}
 func (*ApiMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_collector_4b318bfb20c2a44c, []int{2}
+	return fileDescriptor_collector_ca7222d889c95008, []int{2}
 }
 func (m *ApiMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ApiMessage.Unmarshal(m, b)
@@ -1509,9 +1509,9 @@ var _Agent_serviceDesc = grpc.ServiceDesc{
 	Metadata: "qan/collector.proto",
 }
 
-func init() { proto.RegisterFile("qan/collector.proto", fileDescriptor_collector_4b318bfb20c2a44c) }
+func init() { proto.RegisterFile("qan/collector.proto", fileDescriptor_collector_ca7222d889c95008) }
 
-var fileDescriptor_collector_4b318bfb20c2a44c = []byte{
+var fileDescriptor_collector_ca7222d889c95008 = []byte{
 	// 2229 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x99, 0xf9, 0x7b, 0xd4, 0x36,
 	0x1e, 0xc6, 0x9f, 0x21, 0x40, 0x41, 0x93, 0x49, 0x82, 0xb9, 0x44, 0x7a, 0x10, 0xd2, 0x52, 0xb2,
