@@ -48,7 +48,7 @@ func (m *MySQLService) Reset()         { *m = MySQLService{} }
 func (m *MySQLService) String() string { return proto.CompactTextString(m) }
 func (*MySQLService) ProtoMessage()    {}
 func (*MySQLService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{0}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{0}
 }
 func (m *MySQLService) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLService.Unmarshal(m, b)
@@ -133,7 +133,7 @@ func (m *AmazonRDSMySQLService) Reset()         { *m = AmazonRDSMySQLService{} }
 func (m *AmazonRDSMySQLService) String() string { return proto.CompactTextString(m) }
 func (*AmazonRDSMySQLService) ProtoMessage()    {}
 func (*AmazonRDSMySQLService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{1}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{1}
 }
 func (m *AmazonRDSMySQLService) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AmazonRDSMySQLService.Unmarshal(m, b)
@@ -214,7 +214,7 @@ func (m *MongoDBService) Reset()         { *m = MongoDBService{} }
 func (m *MongoDBService) String() string { return proto.CompactTextString(m) }
 func (*MongoDBService) ProtoMessage()    {}
 func (*MongoDBService) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{2}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{2}
 }
 func (m *MongoDBService) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MongoDBService.Unmarshal(m, b)
@@ -275,7 +275,7 @@ func (m *ListServicesRequest) Reset()         { *m = ListServicesRequest{} }
 func (m *ListServicesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListServicesRequest) ProtoMessage()    {}
 func (*ListServicesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{3}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{3}
 }
 func (m *ListServicesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServicesRequest.Unmarshal(m, b)
@@ -383,7 +383,7 @@ func (m *ListServicesResponse) Reset()         { *m = ListServicesResponse{} }
 func (m *ListServicesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListServicesResponse) ProtoMessage()    {}
 func (*ListServicesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{4}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{4}
 }
 func (m *ListServicesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListServicesResponse.Unmarshal(m, b)
@@ -436,7 +436,7 @@ func (m *GetServiceRequest) Reset()         { *m = GetServiceRequest{} }
 func (m *GetServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*GetServiceRequest) ProtoMessage()    {}
 func (*GetServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{5}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{5}
 }
 func (m *GetServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetServiceRequest.Unmarshal(m, b)
@@ -478,7 +478,7 @@ func (m *GetServiceResponse) Reset()         { *m = GetServiceResponse{} }
 func (m *GetServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*GetServiceResponse) ProtoMessage()    {}
 func (*GetServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{6}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{6}
 }
 func (m *GetServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetServiceResponse.Unmarshal(m, b)
@@ -661,7 +661,7 @@ func (m *AddMySQLServiceRequest) Reset()         { *m = AddMySQLServiceRequest{}
 func (m *AddMySQLServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*AddMySQLServiceRequest) ProtoMessage()    {}
 func (*AddMySQLServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{7}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{7}
 }
 func (m *AddMySQLServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMySQLServiceRequest.Unmarshal(m, b)
@@ -727,7 +727,7 @@ func (m *AddMySQLServiceResponse) Reset()         { *m = AddMySQLServiceResponse
 func (m *AddMySQLServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*AddMySQLServiceResponse) ProtoMessage()    {}
 func (*AddMySQLServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{8}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{8}
 }
 func (m *AddMySQLServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMySQLServiceResponse.Unmarshal(m, b)
@@ -774,7 +774,7 @@ func (m *ChangeMySQLServiceRequest) Reset()         { *m = ChangeMySQLServiceReq
 func (m *ChangeMySQLServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeMySQLServiceRequest) ProtoMessage()    {}
 func (*ChangeMySQLServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{9}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{9}
 }
 func (m *ChangeMySQLServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeMySQLServiceRequest.Unmarshal(m, b)
@@ -840,7 +840,7 @@ func (m *ChangeMySQLServiceResponse) Reset()         { *m = ChangeMySQLServiceRe
 func (m *ChangeMySQLServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeMySQLServiceResponse) ProtoMessage()    {}
 func (*ChangeMySQLServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{10}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{10}
 }
 func (m *ChangeMySQLServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeMySQLServiceResponse.Unmarshal(m, b)
@@ -887,7 +887,7 @@ func (m *AddAmazonRDSMySQLServiceRequest) Reset()         { *m = AddAmazonRDSMyS
 func (m *AddAmazonRDSMySQLServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*AddAmazonRDSMySQLServiceRequest) ProtoMessage()    {}
 func (*AddAmazonRDSMySQLServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{11}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{11}
 }
 func (m *AddAmazonRDSMySQLServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddAmazonRDSMySQLServiceRequest.Unmarshal(m, b)
@@ -953,7 +953,7 @@ func (m *AddAmazonRDSMySQLServiceResponse) Reset()         { *m = AddAmazonRDSMy
 func (m *AddAmazonRDSMySQLServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*AddAmazonRDSMySQLServiceResponse) ProtoMessage()    {}
 func (*AddAmazonRDSMySQLServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{12}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{12}
 }
 func (m *AddAmazonRDSMySQLServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddAmazonRDSMySQLServiceResponse.Unmarshal(m, b)
@@ -1000,7 +1000,7 @@ func (m *ChangeAmazonRDSMySQLServiceRequest) Reset()         { *m = ChangeAmazon
 func (m *ChangeAmazonRDSMySQLServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*ChangeAmazonRDSMySQLServiceRequest) ProtoMessage()    {}
 func (*ChangeAmazonRDSMySQLServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{13}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{13}
 }
 func (m *ChangeAmazonRDSMySQLServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeAmazonRDSMySQLServiceRequest.Unmarshal(m, b)
@@ -1066,7 +1066,7 @@ func (m *ChangeAmazonRDSMySQLServiceResponse) Reset()         { *m = ChangeAmazo
 func (m *ChangeAmazonRDSMySQLServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*ChangeAmazonRDSMySQLServiceResponse) ProtoMessage()    {}
 func (*ChangeAmazonRDSMySQLServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{14}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{14}
 }
 func (m *ChangeAmazonRDSMySQLServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ChangeAmazonRDSMySQLServiceResponse.Unmarshal(m, b)
@@ -1109,7 +1109,7 @@ func (m *AddMongoDBServiceRequest) Reset()         { *m = AddMongoDBServiceReque
 func (m *AddMongoDBServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*AddMongoDBServiceRequest) ProtoMessage()    {}
 func (*AddMongoDBServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{15}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{15}
 }
 func (m *AddMongoDBServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMongoDBServiceRequest.Unmarshal(m, b)
@@ -1161,7 +1161,7 @@ func (m *AddMongoDBServiceResponse) Reset()         { *m = AddMongoDBServiceResp
 func (m *AddMongoDBServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*AddMongoDBServiceResponse) ProtoMessage()    {}
 func (*AddMongoDBServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{16}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{16}
 }
 func (m *AddMongoDBServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMongoDBServiceResponse.Unmarshal(m, b)
@@ -1200,7 +1200,7 @@ func (m *RemoveServiceRequest) Reset()         { *m = RemoveServiceRequest{} }
 func (m *RemoveServiceRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveServiceRequest) ProtoMessage()    {}
 func (*RemoveServiceRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{17}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{17}
 }
 func (m *RemoveServiceRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveServiceRequest.Unmarshal(m, b)
@@ -1237,7 +1237,7 @@ func (m *RemoveServiceResponse) Reset()         { *m = RemoveServiceResponse{} }
 func (m *RemoveServiceResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveServiceResponse) ProtoMessage()    {}
 func (*RemoveServiceResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_services_f6770cd6730005f6, []int{18}
+	return fileDescriptor_services_b8f70bed784cc03e, []int{18}
 }
 func (m *RemoveServiceResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveServiceResponse.Unmarshal(m, b)
@@ -1606,9 +1606,9 @@ var _Services_serviceDesc = grpc.ServiceDesc{
 	Metadata: "inventory/services.proto",
 }
 
-func init() { proto.RegisterFile("inventory/services.proto", fileDescriptor_services_f6770cd6730005f6) }
+func init() { proto.RegisterFile("inventory/services.proto", fileDescriptor_services_b8f70bed784cc03e) }
 
-var fileDescriptor_services_f6770cd6730005f6 = []byte{
+var fileDescriptor_services_b8f70bed784cc03e = []byte{
 	// 1063 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xcc, 0x58, 0x5f, 0x6f, 0xdb, 0x54,
 	0x14, 0xcf, 0x75, 0xfa, 0xf7, 0xb4, 0x1d, 0xe9, 0xa5, 0xa3, 0xae, 0xb7, 0x92, 0xf4, 0xae, 0x1d,
