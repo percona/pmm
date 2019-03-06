@@ -30,7 +30,7 @@ func (m *QANData) Reset()         { *m = QANData{} }
 func (m *QANData) String() string { return proto.CompactTextString(m) }
 func (*QANData) ProtoMessage()    {}
 func (*QANData) Descriptor() ([]byte, []int) {
-	return fileDescriptor_qan_29cfa5a333a3cd11, []int{0}
+	return fileDescriptor_qan_1e0dec76014b1355, []int{0}
 }
 func (m *QANData) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_QANData.Unmarshal(m, b)
@@ -71,7 +71,7 @@ func (m *QANData_Row) Reset()         { *m = QANData_Row{} }
 func (m *QANData_Row) String() string { return proto.CompactTextString(m) }
 func (*QANData_Row) ProtoMessage()    {}
 func (*QANData_Row) Descriptor() ([]byte, []int) {
-	return fileDescriptor_qan_29cfa5a333a3cd11, []int{0, 0}
+	return fileDescriptor_qan_1e0dec76014b1355, []int{0, 0}
 }
 func (m *QANData_Row) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_QANData_Row.Unmarshal(m, b)
@@ -110,9 +110,9 @@ func init() {
 	proto.RegisterType((*QANData_Row)(nil), "agent.QANData.Row")
 }
 
-func init() { proto.RegisterFile("agent/qan.proto", fileDescriptor_qan_29cfa5a333a3cd11) }
+func init() { proto.RegisterFile("agent/qan.proto", fileDescriptor_qan_1e0dec76014b1355) }
 
-var fileDescriptor_qan_29cfa5a333a3cd11 = []byte{
+var fileDescriptor_qan_1e0dec76014b1355 = []byte{
 	// 142 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4f, 0x4c, 0x4f, 0xcd,
 	0x2b, 0xd1, 0x2f, 0x4c, 0xcc, 0xd3, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x05, 0x0b, 0x28,

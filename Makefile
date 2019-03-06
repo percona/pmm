@@ -3,13 +3,13 @@ help:                           ## Display this help message.
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
-PMM_RELEASE_VERSION ?= 2.0.0-dev
 PMM_RELEASE_PATH ?= bin
+PMM_RELEASE_VERSION ?= 2.0.0-dev
 PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --all --contains --dirty HEAD)
 
-release:                        ## Build bin/pmm-agent release binary.
+release:                        ## Build pmm-agent release binary.
 	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH)/pmm-agent -ldflags " \
 		-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.ProjectName=pmm-agent' \
 		-X 'github.com/percona/pmm-agent/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
