@@ -8,9 +8,9 @@
 |mysqld-exporter| is the |prometheus| exporter for |mysql| metrics. This
 exporter has three resolutions to group the metrics:
 
-- metrics-hr (metrics with a high resolution) uses the default |prometheus| scrape interval
+- metrics-lr (metrics with a low resolution) uses the default |prometheus| scrape interval
 - metrics-mr (metrics with a medium resolution) scrapes every 5 seconds
-- metrics-lr (metrics with a low resolution) scrapes every 60 seconds
+- metrics-hr (metrics with a high resolution) scrapes every 60 seconds
 
 For example, *metrics-hr* contains very frequently changing values, such as
 |mysql-global-status-commands-total|.

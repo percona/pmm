@@ -13,6 +13,38 @@ directly. You use it to create a |docker| container for your |pmm-server|. When
 launched, the |docker| container gives access to the whole functionality of
 |pmm|.
 
+|pmm-server| deployment via |docker| can be done either automatically with a
+special installation script, or manually. Both variants are covered in the
+following sections.
+
+Simplified Automatic Installation
+================================================================================
+
+Automatic installation of the |pmm-server| is done with a special script,
+`get-pmm.sh <https://raw.githubusercontent.com/percona/pmm/master/get-pmm.sh>`_. This script should be downloaded and executed, for example with the
+following two commands::
+
+   curl -fsSL https://raw.githubusercontent.com/percona/pmm/master/get-pmm.sh  -o get-pmm.sh
+   sh get-pmm.sh
+
+This script should be executed under root user, or under non-root user either
+with rights to run docker containers, or with privileges to run ``sudo`` command.
+
+Being executed, ``get-pmm.sh`` performs following actions:
+
+ - checking if |docker| is installed, and trying to install it if not,
+ - running |docker| if necessary,
+ - downloading the |pmm-server| image,
+ - generating the necessary ``pmm-data`` container,
+ - configuring and starting the |pmm-server| container.
+
+.. note: ``get-pmm.sh`` is able to install |docker| if needed on all officially
+   supported GNU/Linux distributions except CentOS 6. The latter needs |docker|
+   to be already installed for successful |pmm-server| installation.
+
+Manual Installation
+================================================================================
+
 The setup begins with pulling the required |docker| image. Then, you proceed by
 creating a special container for persistent |pmm| data. The last step is
 creating and launching the |pmm-server| container.

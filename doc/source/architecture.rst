@@ -35,7 +35,7 @@ The following diagram illustrates how |pmm| is currently structured:
 
 .. _pmm-client:
 
-`PMM Client <architecture.html#pmm-client>`_
+:ref:`PMM Client <pmm-client>`
 ================================================================================
 
 Each |pmm-client| collects various data about general system and database
@@ -75,7 +75,7 @@ The |pmm-client| package consist of the following:
 
 .. _pmm-server:
 
-`PMM Server <architecture.html#pmm-server>`_
+:ref:`PMM Server <pmm-server>`
 ================================================================================
 
 |pmm-server| runs on the machine that will be your central monitoring host.
@@ -137,7 +137,7 @@ For more information, see :ref:`using`.
 
 .. _pmm.using.orchestrator:
 
-`Orchestrator <architecture.html#pmm-using-orchestrator>`_
+:ref:`Orchestrator <pmm.using.orchestrator>`
 ================================================================================
 
 |orchestrator| is a |mysql| replication topology management and visualization

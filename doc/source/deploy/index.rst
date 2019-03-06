@@ -20,7 +20,7 @@ this scenario, the |abbr.pmm| server is set up on a dedicated monitoring host.
 
 .. _deploy-pmm.server.installing:
 
-`Installing PMM Server <index.html#deploy-pmm-server-installing>`_
+:ref:`Installing PMM Server <deploy-pmm.server.installing>`
 ================================================================================
 
 To install and set up the |pmm-server|, use one of the following options:
@@ -40,7 +40,7 @@ To install and set up the |pmm-server|, use one of the following options:
 
 .. _deploy-pmm.server.verifying:
 
-`Verifying PMM Server <index.html#deploy-pmm-server-verifying>`_
+:ref:`Verifying PMM Server <deploy-pmm.server.verifying>`
 --------------------------------------------------------------------------------
 
 In your browser, go to the server by its IP address. If you run your server as a
@@ -74,7 +74,7 @@ URL as in the following example:
 
 .. _deploy-pmm.client.installing:
 
-`Installing Clients <index.html#deploy-pmm-client-installing>`_
+:ref:`Installing Clients <deploy-pmm.client.installing>`
 ================================================================================
 
 |pmm-client| is a package of agents and exporters installed on a database host
@@ -127,8 +127,8 @@ connection is unstable or throughput is too low.
    
 .. _deploy-pmm.client_server.connecting:
 
-`Connecting PMM Clients to the PMM Server <index.html#deploy-pmm-client_server-connecting>`_
-=============================================================================================
+:ref:`Connecting PMM Clients to the PMM Server <deploy-pmm.client_server.connecting>`
+=====================================================================================
 
 With your server and clients set up, you must configure each |pmm-client| and
 specify which |pmm-server| it should send its data to.
@@ -161,8 +161,8 @@ address of |pmm-server|. For example:
 
 .. _deploy-pmm.data-collecting:
 
-`Collecting Data from PMM Clients on PMM Server <index.html#deploy-pmm-data-collecting>`_
-==========================================================================================
+:ref:`Collecting Data from PMM Clients on PMM Server <deploy-pmm.data-collecting>`
+==================================================================================
 
 To start collecting data on each |pmm-client| connected to a |abbr.pmm|
 server, run the |pmm-admin.add| command along with the name of the selected
@@ -192,8 +192,8 @@ following:
 
 .. _deploy-pmm.diagnostics-for-support:
 
-`Obtaining Diagnostics Data for Support <index.html#deploy-pmm.diagnostics-for-support>`_
-==========================================================================================
+:ref:`Obtaining Diagnostics Data for Support <deploy-pmm.diagnostics-for-support>`
+==================================================================================
 
 |pmm-server| is able to generate a set of files for enhanced diagnostics, which
 can be examined and/or shared with Percona Support to solve an issue faster.
@@ -215,7 +215,7 @@ using this URL::
 
 .. _deploy-pmm.updating:
 
-`Updating <index.html#deploy-pmm-updating>`_
+:ref:`Updating <deploy-pmm.updating>`
 ================================================================================
 
 When changing to a new version of |pmm|, you update the |pmm-server| and each
@@ -257,7 +257,7 @@ If you installed your |abbr.pmm| client manually, :ref:`remove it
 
 .. _deploy-pmm.removing:
 
-`Uninstalling PMM Components <index.html#deploy-pmm-removing>`_
+:ref:`Uninstalling PMM Components <deploy-pmm.removing>`
 ================================================================================
 
 Each |pmm-client| and the |pmm-server| are removed separately. First, remove all
@@ -267,7 +267,7 @@ monitored services by using the |pmm-admin.remove| command (see
 
 .. _deploy.pmm-client.removing:
 
-`Removing the PMM Client <index.html#deploy-pmm-client-removing>`_
+:ref:`Removing the PMM Client <deploy.pmm-client.removing>`
 --------------------------------------------------------------------------------
 
 Remove all monitored instances as described in :ref:`pmm-admin.rm`. Then,
@@ -296,7 +296,7 @@ Using the generic |pmm-client| tarball.
 
 .. _deploy.pmm-server.removing:
 
-`Removing the PMM Server <index.html#deploy-pmm-server-removing>`_
+:ref:`Removing the PMM Server <deploy.pmm-server.removing>`
 --------------------------------------------------------------------------------
 
 If you run your |pmm-server| using |docker|, stop the container as follows:
