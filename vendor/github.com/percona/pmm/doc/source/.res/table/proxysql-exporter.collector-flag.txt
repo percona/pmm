@@ -1,6 +1,0 @@
-==============================  ==========================================================
-Name                            Description
-==============================  ==========================================================
-collect.mysql_connection_pool   Collect from stats_mysql_connection_pool.
-collect.mysql_status            Collect from stats_mysql_global (SHOW MYSQL STATUS).
-==============================  ==========================================================

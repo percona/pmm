@@ -1,1 +1,0 @@
--- no MS SQL specific data

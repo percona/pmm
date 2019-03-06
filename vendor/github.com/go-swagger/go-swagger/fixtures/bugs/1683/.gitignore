@@ -1,4 +1,0 @@
-gen-*
-target*
-!gen-fixtures.sh
-*.log

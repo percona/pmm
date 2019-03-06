@@ -1,1 +1,0 @@
-DROP DATABASE [reform-database];

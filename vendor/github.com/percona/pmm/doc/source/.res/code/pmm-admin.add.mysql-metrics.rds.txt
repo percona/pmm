@@ -1,4 +1,0 @@
-.. code-block:: bash
-
-   $ pmm-admin add mysql:metrics --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57
-   $ pmm-admin add mysql:queries --host rds-mysql57.vb81uqbc7tbe.us-west-2.rds.amazonaws.com --user pmm --password pass rds-mysql57

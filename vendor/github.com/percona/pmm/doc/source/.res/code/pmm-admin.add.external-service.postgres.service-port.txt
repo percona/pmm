@@ -1,3 +1,0 @@
-.. code-block:: bash
-   
-   $ pmm-admin add external:service postgres --service-port=9187 postgres_rds01
