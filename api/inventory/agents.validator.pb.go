@@ -186,8 +186,8 @@ func (this *AddNodeExporterResponse) Validate() error {
 	return nil
 }
 func (this *AddMySQLdExporterRequest) Validate() error {
-	if this.RunsOnNodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
+	if this.PmmAgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
 	}
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
@@ -207,8 +207,8 @@ func (this *AddMySQLdExporterResponse) Validate() error {
 	return nil
 }
 func (this *AddRDSExporterRequest) Validate() error {
-	if this.RunsOnNodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
+	if this.PmmAgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
 	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
@@ -237,8 +237,8 @@ func (this *AddExternalExporterResponse) Validate() error {
 	return nil
 }
 func (this *AddMongoDBExporterRequest) Validate() error {
-	if this.RunsOnNodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("RunsOnNodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.RunsOnNodeId))
+	if this.PmmAgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
 	}
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))

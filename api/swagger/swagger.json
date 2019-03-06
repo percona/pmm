@@ -104,7 +104,7 @@
                     "type": "string"
                   }
                 },
-                "runs_on_node_id": {
+                "pmm_agent_id": {
                   "description": "Node identifier where this instance runs.",
                   "type": "string"
                 },
@@ -146,7 +146,7 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "runs_on_node_id": {
+                    "pmm_agent_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     },
@@ -201,7 +201,7 @@
                   "description": "MySQL password for scraping metrics.",
                   "type": "string"
                 },
-                "runs_on_node_id": {
+                "pmm_agent_id": {
                   "description": "Node identifier where this instance runs.",
                   "type": "string"
                 },
@@ -247,7 +247,7 @@
                       "description": "MySQL password for scraping metrics.",
                       "type": "string"
                     },
-                    "runs_on_node_id": {
+                    "pmm_agent_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     },
@@ -508,7 +508,7 @@
                     "type": "string"
                   }
                 },
-                "runs_on_node_id": {
+                "pmm_agent_id": {
                   "description": "Node identifier where this instance runs.",
                   "type": "string"
                 },
@@ -549,7 +549,7 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "runs_on_node_id": {
+                    "pmm_agent_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     },
@@ -655,7 +655,7 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "runs_on_node_id": {
+                    "pmm_agent_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     },
@@ -702,7 +702,7 @@
                       "description": "MySQL password for scraping metrics.",
                       "type": "string"
                     },
-                    "runs_on_node_id": {
+                    "pmm_agent_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     },
@@ -832,7 +832,7 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "runs_on_node_id": {
+                    "pmm_agent_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     },
@@ -883,8 +883,8 @@
                   "description": "Return only Agents that provide insights for that Node.",
                   "type": "string"
                 },
-                "runs_on_node_id": {
-                  "description": "Return only Agents running on that Node.",
+                "pmm_agent_id": {
+                  "description": "Return only Agents running near concrete PMMAgent.",
                   "type": "string"
                 },
                 "service_id": {
@@ -951,7 +951,7 @@
                         "type": "integer",
                         "format": "int64"
                       },
-                      "runs_on_node_id": {
+                      "pmm_agent_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string"
                       },
@@ -1001,7 +1001,7 @@
                         "description": "MySQL password for scraping metrics.",
                         "type": "string"
                       },
-                      "runs_on_node_id": {
+                      "pmm_agent_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string"
                       },
@@ -1143,7 +1143,7 @@
                         "type": "integer",
                         "format": "int64"
                       },
-                      "runs_on_node_id": {
+                      "pmm_agent_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string"
                       },

@@ -77,7 +77,7 @@ type AddRDSExporterBody struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// A list of Service identifiers (Node identifiers are extracted from Services).
 	ServiceIds []string `json:"service_ids"`
@@ -180,7 +180,7 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// A list of Service identifiers (Node identifiers are extracted from Services).
 	ServiceIds []string `json:"service_ids"`

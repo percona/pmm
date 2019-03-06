@@ -115,8 +115,8 @@ type ListAgentsBody struct {
 	// Return only Agents that provide insights for that Node.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Return only Agents running on that Node.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// Return only Agents running near concrete PMMAgent.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Return only Agents that provide insights for that Service.
 	ServiceID string `json:"service_id,omitempty"`
@@ -421,7 +421,7 @@ type MongodbExporterItems0 struct {
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -536,7 +536,7 @@ type MysqldExporterItems0 struct {
 	Password string `json:"password,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -839,7 +839,7 @@ type RDSExporterItems0 struct {
 	ListenPort int64 `json:"listen_port,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// A list of Service identifiers (Node identifiers are extracted from Services).
 	ServiceIds []string `json:"service_ids"`

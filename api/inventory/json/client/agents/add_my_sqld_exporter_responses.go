@@ -80,7 +80,7 @@ type AddMySqldExporterBody struct {
 	Password string `json:"password,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -189,7 +189,7 @@ type AddMySqldExporterOKBodyMysqldExporter struct {
 	Password string `json:"password,omitempty"`
 
 	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`

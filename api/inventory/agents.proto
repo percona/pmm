@@ -51,7 +51,7 @@ message MySQLdExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // Node identifier where this instance runs.
-  string runs_on_node_id = 2;
+  string pmm_agent_id = 2;
   // Service identifier.
   string service_id = 3;
   // MySQL username for scraping metrics.
@@ -79,7 +79,7 @@ message RDSExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // Node identifier where this instance runs.
-  string runs_on_node_id = 2;
+  string pmm_agent_id = 2;
   // A list of Service identifiers (Node identifiers are extracted from Services).
   repeated string service_ids = 3;
   // TODO AWS credentials
@@ -123,7 +123,7 @@ message MongoDBExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // Node identifier where this instance runs.
-  string runs_on_node_id = 2;
+  string pmm_agent_id = 2;
   // Service identifier.
   string service_id = 3;
   // MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)
@@ -158,8 +158,8 @@ message QANMySQLPerfSchemaAgent {
 
 message ListAgentsRequest {
   oneof filter {
-    // Return only Agents running on that Node.
-    string runs_on_node_id = 1;
+    // Return only Agents running near concrete PMMAgent.
+    string pmm_agent_id = 1;
     // Return only Agents that provide insights for that Node.
     string node_id = 2;
     // Return only Agents that provide insights for that Service.
@@ -248,7 +248,7 @@ message AddMySQLdExporterRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
   // Node identifier where this instance runs.
-  string runs_on_node_id = 2 [
+  string pmm_agent_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -283,7 +283,7 @@ message AddRDSExporterRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
   // Node identifier where this instance runs.
-  string runs_on_node_id = 2 [
+  string pmm_agent_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -331,7 +331,7 @@ message AddMongoDBExporterRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
   // Node identifier where this instance runs.
-  string runs_on_node_id = 2 [
+  string pmm_agent_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
