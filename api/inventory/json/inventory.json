@@ -434,7 +434,7 @@
         "tags": [
           "Agents"
         ],
-        "summary": "AddQANMySQLPerfSchemaAgent adds mongodb_exporter Agent.",
+        "summary": "AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.",
         "operationId": "AddQANMySQLPerfSchemaAgent",
         "parameters": [
           {
