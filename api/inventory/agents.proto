@@ -38,7 +38,7 @@ message NodeExporter {
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 3;
 
-  // Actual Agent process status.
+  // Actual Agent status.
   AgentStatus status = 4;
   // Listen port for scraping metrics.
   uint32 listen_port = 5;
@@ -66,7 +66,7 @@ message MySQLdExporter {
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 6;
 
-  // Actual Agent process status.
+  // Actual Agent status.
   AgentStatus status = 7;
   // Listen port for scraping metrics.
   uint32 listen_port = 8;
@@ -92,7 +92,7 @@ message RDSExporter {
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 4;
 
-  // Actual Agent process status.
+  // Actual Agent status.
   AgentStatus status = 5;
   // Listen port for scraping metrics.
   uint32 listen_port = 6;
@@ -136,12 +136,22 @@ message MongoDBExporter {
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 6;
 
-  // Actual Agent process status.
+  // Actual Agent status.
   AgentStatus status = 7;
   // Listen port for scraping metrics.
   uint32 listen_port = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+}
+
+// QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+message QANMySQLPerfSchemaAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // pmm-agent identifier where this instance runs.
+  string pmm_agent_id = 2;
+  // Service identifier.
+  string service_id = 3;
 }
 
 // List
@@ -164,6 +174,7 @@ message ListAgentsResponse {
   repeated RDSExporter rds_exporter = 4;
   repeated ExternalExporter external_exporter = 5;
   repeated MongoDBExporter mongodb_exporter = 6;
+  repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
 }
 
 // Get
@@ -185,6 +196,7 @@ message GetAgentResponse {
     RDSExporter rds_exporter = 4;
     ExternalExporter external_exporter = 5;
     MongoDBExporter mongodb_exporter = 6;
+    QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
   }
 }
 
@@ -346,6 +358,31 @@ message AddMongoDBExporterResponse {
 
 // TODO ChangeMongoDBExporterResponse https://jira.percona.com/browse/PMM-3470
 
+// Add/Change QANMySQLPerfSchemaAgent
+
+message AddQANMySQLPerfSchemaAgentRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // pmm-agent identifier where this instance runs.
+  string pmm_agent_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+}
+
+message AddQANMySQLPerfSchemaAgentResponse {
+  QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 1;
+}
+
+// TODO ChangeQANMySQLPerfSchemaAgentResponse https://jira.percona.com/browse/PMM-3470
+
 // Remove
 
 message RemoveAgentRequest {
@@ -413,6 +450,13 @@ service Agents {
   rpc AddMongoDBExporter(AddMongoDBExporterRequest) returns (AddMongoDBExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddMongoDBExporter"
+      body: "*"
+    };
+  }
+  // AddQANMySQLPerfSchemaAgent adds mongodb_exporter Agent.
+  rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"
       body: "*"
     };
   }

@@ -155,7 +155,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent process status.",
+                      "description": "AgentStatus represents actual Agent status.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -256,7 +256,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent process status.",
+                      "description": "AgentStatus represents actual Agent status.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -341,7 +341,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent process status.",
+                      "description": "AgentStatus represents actual Agent status.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -429,6 +429,63 @@
         }
       }
     },
+    "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "AddQANMySQLPerfSchemaAgent adds mongodb_exporter Agent.",
+        "operationId": "AddQANMySQLPerfSchemaAgent",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pmm_agent_id": {
+                  "description": "pmm-agent identifier where this instance runs.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service identifier.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "qan_mysql_perfschema_agent": {
+                  "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/inventory/Agents/AddRDSExporter": {
       "post": {
         "tags": [
@@ -504,7 +561,7 @@
                       }
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent process status.",
+                      "description": "AgentStatus represents actual Agent status.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -607,7 +664,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent process status.",
+                      "description": "AgentStatus represents actual Agent status.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -654,7 +711,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent process status.",
+                      "description": "AgentStatus represents actual Agent status.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -697,7 +754,7 @@
                       "type": "string"
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent process status.",
+                      "description": "AgentStatus represents actual Agent status.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -737,6 +794,24 @@
                     }
                   }
                 },
+                "qan_mysql_perfschema_agent": {
+                  "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "pmm-agent identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    }
+                  }
+                },
                 "rds_exporter": {
                   "description": "RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.",
                   "type": "object",
@@ -769,7 +844,7 @@
                       }
                     },
                     "status": {
-                      "description": "AgentStatus represents actual Agent process status.",
+                      "description": "AgentStatus represents actual Agent status.",
                       "type": "string",
                       "default": "AGENT_STATUS_INVALID",
                       "enum": [
@@ -885,7 +960,7 @@
                         "type": "string"
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent process status.",
+                        "description": "AgentStatus represents actual Agent status.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -935,7 +1010,7 @@
                         "type": "string"
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent process status.",
+                        "description": "AgentStatus represents actual Agent status.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -981,7 +1056,7 @@
                         "type": "string"
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent process status.",
+                        "description": "AgentStatus represents actual Agent status.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [
@@ -1025,6 +1100,27 @@
                     }
                   }
                 },
+                "qan_mysql_perfschema_agent": {
+                  "type": "array",
+                  "items": {
+                    "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string"
+                      },
+                      "pmm_agent_id": {
+                        "description": "pmm-agent identifier where this instance runs.",
+                        "type": "string"
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
                 "rds_exporter": {
                   "type": "array",
                   "items": {
@@ -1059,7 +1155,7 @@
                         }
                       },
                       "status": {
-                        "description": "AgentStatus represents actual Agent process status.",
+                        "description": "AgentStatus represents actual Agent status.",
                         "type": "string",
                         "default": "AGENT_STATUS_INVALID",
                         "enum": [

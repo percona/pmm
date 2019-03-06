@@ -4,7 +4,7 @@ package inventory;
 
 option go_package = "inventory";
 
-// AgentStatus represents actual Agent process status.
+// AgentStatus represents actual Agent status.
 enum AgentStatus {
   AGENT_STATUS_INVALID = 0;
   STARTING = 1;

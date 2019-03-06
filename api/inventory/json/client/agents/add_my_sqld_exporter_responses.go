@@ -194,7 +194,7 @@ type AddMySqldExporterOKBodyMysqldExporter struct {
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// AgentStatus represents actual Agent process status.
+	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
