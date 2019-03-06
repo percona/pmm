@@ -13,9 +13,9 @@ service Agent {
   rpc DataInterchange(stream AgentMessage) returns (stream ApiMessage);
 }
 
-// AgentMessage contains several Query Classes for one or more periods of time.
+// AgentMessage contains several Metrics Bucket for one or more periods of time.
 message AgentMessage {
-  repeated MetricsBucket query_class = 1;
+  repeated MetricsBucket metrics_bucket = 1;
 }
 
 // MetricsBucket is aggregated message created by qan-agent.
