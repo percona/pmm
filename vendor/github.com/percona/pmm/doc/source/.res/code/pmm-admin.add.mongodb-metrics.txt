@@ -1,3 +1,0 @@
-.. code-block:: text
-
-   $ pmm-admin add mongodb:metrics [NAME] [OPTIONS]

@@ -37,6 +37,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	agentAPI "github.com/percona/pmm/api/agent"
 	inventoryAPI "github.com/percona/pmm/api/inventory"
+	serverAPI "github.com/percona/pmm/api/server"
 	"github.com/percona/pmm/version"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -49,11 +50,9 @@ import (
 	reformMySQL "gopkg.in/reform.v1/dialects/mysql"
 	reformPostgreSQL "gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-managed/api"
 	"github.com/percona/pmm-managed/handlers"
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/agents"
-	"github.com/percona/pmm-managed/services/grafana"
 	"github.com/percona/pmm-managed/services/inventory"
 	"github.com/percona/pmm-managed/services/logs"
 	"github.com/percona/pmm-managed/services/prometheus"
@@ -73,8 +72,6 @@ var (
 	gRPCAddrF  = flag.String("listen-grpc-addr", "127.0.0.1:7771", "gRPC APIs server listen address")
 	jsonAddrF  = flag.String("listen-json-addr", "127.0.0.1:7772", "JSON APIs server listen address")
 	debugAddrF = flag.String("listen-debug-addr", "127.0.0.1:7773", "Debug server listen address")
-
-	swaggerF = flag.String("swagger", "off", "Server to serve Swagger spec and documentation: json, debug, or off")
 
 	prometheusConfigF = flag.String("prometheus-config", "", "Prometheus configuration file path")
 	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/", "Prometheus base URL")
@@ -98,16 +95,6 @@ var (
 	debugF = flag.Bool("debug", false, "Enable debug logging")
 	traceF = flag.Bool("trace", false, "Enable trace logging")
 )
-
-func addSwaggerHandler(mux *http.ServeMux) {
-	// TODO embed swagger resources?
-	pattern := "/swagger/"
-	fileServer := http.StripPrefix(pattern, http.FileServer(http.Dir("api/swagger")))
-	mux.HandleFunc(pattern, func(rw http.ResponseWriter, req *http.Request) {
-		rw.Header().Set("Access-Control-Allow-Origin", "*")
-		fileServer.ServeHTTP(rw, req)
-	})
-}
 
 func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
 	l := logrus.WithField("component", "logs.zip")
@@ -141,19 +128,11 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
 
-	grafana := grafana.NewClient(*grafanaAddrF)
-
 	gRPCServer := grpc.NewServer(
 		grpc.UnaryInterceptor(interceptors.Unary),
 		grpc.StreamInterceptor(interceptors.Stream),
 	)
-	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{PMMVersion: version.Version})
-	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
-	api.RegisterAnnotationsServer(gRPCServer, &handlers.AnnotationsServer{
-		Grafana: grafana,
-	})
-
-	// PMM 2.0 APIs
+	serverAPI.RegisterServerServer(gRPCServer, handlers.NewServerServer(version.Version))
 	agentAPI.RegisterAgentServer(gRPCServer, &handlers.AgentServer{
 		Registry: deps.agentsRegistry,
 	})
@@ -211,11 +190,7 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 
 	type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
-		api.RegisterBaseHandlerFromEndpoint,
-		api.RegisterDemoHandlerFromEndpoint,
-		api.RegisterAnnotationsHandlerFromEndpoint,
-
-		// PMM 2.0 APIs
+		serverAPI.RegisterServerHandlerFromEndpoint,
 		inventoryAPI.RegisterNodesHandlerFromEndpoint,
 		inventoryAPI.RegisterServicesHandlerFromEndpoint,
 		inventoryAPI.RegisterAgentsHandlerFromEndpoint,
@@ -226,10 +201,6 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 	}
 
 	mux := http.NewServeMux()
-	if *swaggerF == "json" {
-		l.Printf("Swagger enabled. http://%s/swagger/", *jsonAddrF)
-		addSwaggerHandler(mux)
-	}
 	addLogsHandler(mux, logs)
 	mux.Handle("/", proxyMux)
 
@@ -265,12 +236,6 @@ func runDebugServer(ctx context.Context, collectors ...prom.Collector) {
 	l := logrus.WithField("component", "debug")
 
 	handlers := []string{"/debug/metrics", "/debug/vars", "/debug/requests", "/debug/events", "/debug/pprof"}
-	if *swaggerF == "debug" {
-		handlers = append(handlers, "/swagger")
-		l.Printf("Swagger enabled. http://%s/swagger/", *debugAddrF)
-		addSwaggerHandler(http.DefaultServeMux)
-	}
-
 	for i, h := range handlers {
 		handlers[i] = "http://" + *debugAddrF + h
 	}
@@ -346,11 +311,6 @@ func main() {
 		logrus.SetLevel(logrus.TraceLevel)
 		logrus.SetReportCaller(true)
 		grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
-	}
-
-	if *swaggerF != "json" && *swaggerF != "debug" && *swaggerF != "off" {
-		flag.Usage()
-		log.Fatalf("Unexpected value %q for -swagger flag.", *swaggerF)
 	}
 
 	logrus.Infof("Log level: %s.", logrus.GetLevel())

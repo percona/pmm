@@ -1,8 +1,0 @@
-.. code-block:: text
-
-   $ pmm-admin ping
-   OK, PMM server is alive.
-
-   PMM Server      | 192.168.100.1 (insecure SSL, password-protected)
-   Client Name     | centos7.vm
-   Client Address  | 192.168.200.1

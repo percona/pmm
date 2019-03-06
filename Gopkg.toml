@@ -5,20 +5,13 @@ required = [
   "github.com/vektra/mockery/cmd/mockery",
 
   # We do not vendor promtool. See https://jira.percona.com/browse/PMM-2182
-  # "github.com/prometheus/prometheus/cmd/promtool",
-
-  "github.com/golang/protobuf/protoc-gen-go",
-  "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
-  "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
-  "github.com/go-swagger/go-swagger/cmd/swagger"
+  # "github.com/prometheus/prometheus/cmd/promtool"
 ]
 
 [prune]
   go-tests = true
-
-  # to keep google/api/annotations.proto
-  # non-go = true
-  # unused-packages = true
+  non-go = true
+  unused-packages = true
 
 # TODO switch to tags before PMM 2.0 release
 [[constraint]]

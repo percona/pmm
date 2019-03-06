@@ -52,10 +52,14 @@ func (this *StateChangedResponse) Validate() error {
 }
 func (this *SetStateRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *SetStateRequest_AgentProcess) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *SetStateRequest_InternalAgent) Validate() error {
 	return nil
 }
 func (this *SetStateResponse) Validate() error {

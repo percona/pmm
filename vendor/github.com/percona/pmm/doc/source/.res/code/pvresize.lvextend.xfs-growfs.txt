@@ -1,6 +1,0 @@
-.. code-block:: bash
-
-   $ pvresize /dev/xvdb
-   $ lvextend -l '100%VG' /dev/DataVG/ThinPool
-   $ lvextend -l '80%VG' /dev/DataVG/DataLV
-   $ xfs_growfs -d /srv

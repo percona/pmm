@@ -19,7 +19,7 @@ release:                        ## Build bin/pmm-managed release binary.
 		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 		"
 
-RUN_FLAGS = -swagger=json -debug \
+RUN_FLAGS = -debug \
 			-agent-mysqld-exporter=mysqld_exporter \
 			-agent-postgres-exporter=postgres_exporter \
 			-agent-rds-exporter=rds_exporter \
@@ -35,35 +35,12 @@ init:                           ## Installs tools to $GOPATH/bin (which is expec
 	go install -v ./vendor/github.com/vektra/mockery/cmd/mockery
 	go get -u github.com/prometheus/prometheus/cmd/promtool
 
-	go install -v ./vendor/github.com/golang/protobuf/protoc-gen-go
-	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway
-	go install -v ./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger
-	go install -v ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
-
 	go test -v -i ./...
 	go test -v -race -i ./...
 
 gen:                            ## Generate files.
 	rm -f models/*_reform.go
-
 	go generate ./...
-
-	rm -fr api/*.pb.* api/swagger/*.json api/swagger/client api/swagger/models
-
-	protoc -Iapi -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-		api/*.proto --go_out=plugins=grpc:api
-	protoc -Iapi -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-		api/*.proto --grpc-gateway_out=logtostderr=true,request_context=true,allow_delete_body=true:api
-	# protoc -Iapi -Ivendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis \
-		# api/*.proto --swagger_out=logtostderr=true,allow_delete_body=true:api/swagger
-
-	# swagger mixin api/swagger/*.swagger.json > api/swagger/swagger.json
-	# swagger validate api/swagger/swagger.json
-	# swagger generate client -f api/swagger/swagger.json -t api/swagger -A pmm-managed
-
-	# go install -v github.com/percona/pmm-managed/api github.com/percona/pmm-managed/api/swagger/client
-
-	cp ./vendor/github.com/percona/pmm/api/inventory/json/inventory.json api/swagger/swagger.json
 
 install:                        ## Install pmm-managed binary.
 	go install -v ./...
