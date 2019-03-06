@@ -79,7 +79,7 @@ type AddMySqldExporterBody struct {
 	// MySQL password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
-	// Node identifier where this instance runs.
+	// pmm-agent identifier where this instance runs.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
@@ -188,7 +188,7 @@ type AddMySqldExporterOKBodyMysqldExporter struct {
 	// MySQL password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
-	// Node identifier where this instance runs.
+	// pmm-agent identifier where this instance runs.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.

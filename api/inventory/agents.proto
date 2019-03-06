@@ -13,7 +13,7 @@ message PMMAgent {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // Node identifier where this instance runs.
-  string node_id = 2;
+  string runs_on_node_id = 2;
   //
   // Status fields below.
   //
@@ -28,8 +28,8 @@ message PMMAgent {
 message NodeExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
-  // Node identifier where this instance runs.
-  string node_id = 2;
+  // pmm-agent identifier where this instance runs.
+  string pmm_agent_id = 2;
   //
   // Status fields below.
   //
@@ -50,7 +50,7 @@ message NodeExporter {
 message MySQLdExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
-  // Node identifier where this instance runs.
+  // pmm-agent identifier where this instance runs.
   string pmm_agent_id = 2;
   // Service identifier.
   string service_id = 3;
@@ -78,7 +78,7 @@ message MySQLdExporter {
 message RDSExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
-  // Node identifier where this instance runs.
+  // pmm-agent identifier where this instance runs.
   string pmm_agent_id = 2;
   // A list of Service identifiers (Node identifiers are extracted from Services).
   repeated string service_ids = 3;
@@ -122,7 +122,7 @@ message ExternalExporter {
 message MongoDBExporter {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
-  // Node identifier where this instance runs.
+  // pmm-agent identifier where this instance runs.
   string pmm_agent_id = 2;
   // Service identifier.
   string service_id = 3;
@@ -158,7 +158,7 @@ message QANMySQLPerfSchemaAgent {
 
 message ListAgentsRequest {
   oneof filter {
-    // Return only Agents running near concrete PMMAgent.
+    // Return only Agents started by this pmm-agent.
     string pmm_agent_id = 1;
     // Return only Agents that provide insights for that Node.
     string node_id = 2;
@@ -206,7 +206,7 @@ message AddPMMAgentRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
   // Node identifier where this instance runs.
-  string node_id = 2 [
+  string runs_on_node_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -226,8 +226,8 @@ message AddPMMAgentResponse {
 message AddNodeExporterRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
-  // Node identifier where this instance runs.
-  string node_id = 2 [
+  // pmm-agent identifier where this instance runs.
+  string pmm_agent_id = 2 [
     (validator.field) = {
       string_not_empty: true
     }
@@ -247,7 +247,7 @@ message AddNodeExporterResponse {
 message AddMySQLdExporterRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
-  // Node identifier where this instance runs.
+  // pmm-agent identifier where this instance runs.
   string pmm_agent_id = 2 [
     (validator.field) = {
       string_not_empty: true
@@ -282,7 +282,7 @@ message AddMySQLdExporterResponse {
 message AddRDSExporterRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
-  // Node identifier where this instance runs.
+  // pmm-agent identifier where this instance runs.
   string pmm_agent_id = 2 [
     (validator.field) = {
       string_not_empty: true
@@ -330,7 +330,7 @@ message AddExternalExporterResponse {
 message AddMongoDBExporterRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
-  // Node identifier where this instance runs.
+  // pmm-agent identifier where this instance runs.
   string pmm_agent_id = 2 [
     (validator.field) = {
       string_not_empty: true

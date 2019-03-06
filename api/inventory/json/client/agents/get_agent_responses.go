@@ -364,7 +364,7 @@ type GetAgentOKBodyMongodbExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
+	// pmm-agent identifier where this instance runs.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
@@ -479,7 +479,7 @@ type GetAgentOKBodyMysqldExporter struct {
 	// MySQL password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
-	// Node identifier where this instance runs.
+	// pmm-agent identifier where this instance runs.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
@@ -594,8 +594,8 @@ type GetAgentOKBodyNodeExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	// pmm-agent identifier where this instance runs.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
@@ -704,7 +704,7 @@ type GetAgentOKBodyPMMAgent struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this get agent o k body PMM agent
@@ -782,7 +782,7 @@ type GetAgentOKBodyRDSExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
+	// pmm-agent identifier where this instance runs.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// A list of Service identifiers (Node identifiers are extracted from Services).

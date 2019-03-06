@@ -79,7 +79,7 @@ type AddMongoDBExporterBody struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Node identifier where this instance runs.
+	// pmm-agent identifier where this instance runs.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
@@ -185,7 +185,7 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
+	// pmm-agent identifier where this instance runs.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.

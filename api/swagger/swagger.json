@@ -105,7 +105,7 @@
                   }
                 },
                 "pmm_agent_id": {
-                  "description": "Node identifier where this instance runs.",
+                  "description": "pmm-agent identifier where this instance runs.",
                   "type": "string"
                 },
                 "service_id": {
@@ -147,7 +147,7 @@
                       "format": "int64"
                     },
                     "pmm_agent_id": {
-                      "description": "Node identifier where this instance runs.",
+                      "description": "pmm-agent identifier where this instance runs.",
                       "type": "string"
                     },
                     "service_id": {
@@ -202,7 +202,7 @@
                   "type": "string"
                 },
                 "pmm_agent_id": {
-                  "description": "Node identifier where this instance runs.",
+                  "description": "pmm-agent identifier where this instance runs.",
                   "type": "string"
                 },
                 "service_id": {
@@ -248,7 +248,7 @@
                       "type": "string"
                     },
                     "pmm_agent_id": {
-                      "description": "Node identifier where this instance runs.",
+                      "description": "pmm-agent identifier where this instance runs.",
                       "type": "string"
                     },
                     "service_id": {
@@ -302,8 +302,8 @@
                     "type": "string"
                   }
                 },
-                "node_id": {
-                  "description": "Node identifier where this instance runs.",
+                "pmm_agent_id": {
+                  "description": "pmm-agent identifier where this instance runs.",
                   "type": "string"
                 }
               }
@@ -336,8 +336,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "pmm-agent identifier where this instance runs.",
                       "type": "string"
                     },
                     "status": {
@@ -383,7 +383,7 @@
                     "type": "string"
                   }
                 },
-                "node_id": {
+                "runs_on_node_id": {
                   "description": "Node identifier where this instance runs.",
                   "type": "string"
                 }
@@ -417,7 +417,7 @@
                         "type": "string"
                       }
                     },
-                    "node_id": {
+                    "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     }
@@ -509,7 +509,7 @@
                   }
                 },
                 "pmm_agent_id": {
-                  "description": "Node identifier where this instance runs.",
+                  "description": "pmm-agent identifier where this instance runs.",
                   "type": "string"
                 },
                 "service_ids": {
@@ -550,7 +550,7 @@
                       "format": "int64"
                     },
                     "pmm_agent_id": {
-                      "description": "Node identifier where this instance runs.",
+                      "description": "pmm-agent identifier where this instance runs.",
                       "type": "string"
                     },
                     "service_ids": {
@@ -656,7 +656,7 @@
                       "format": "int64"
                     },
                     "pmm_agent_id": {
-                      "description": "Node identifier where this instance runs.",
+                      "description": "pmm-agent identifier where this instance runs.",
                       "type": "string"
                     },
                     "service_id": {
@@ -703,7 +703,7 @@
                       "type": "string"
                     },
                     "pmm_agent_id": {
-                      "description": "Node identifier where this instance runs.",
+                      "description": "pmm-agent identifier where this instance runs.",
                       "type": "string"
                     },
                     "service_id": {
@@ -749,8 +749,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "pmm-agent identifier where this instance runs.",
                       "type": "string"
                     },
                     "status": {
@@ -788,7 +788,7 @@
                         "type": "string"
                       }
                     },
-                    "node_id": {
+                    "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     }
@@ -833,7 +833,7 @@
                       "format": "int64"
                     },
                     "pmm_agent_id": {
-                      "description": "Node identifier where this instance runs.",
+                      "description": "pmm-agent identifier where this instance runs.",
                       "type": "string"
                     },
                     "service_ids": {
@@ -884,7 +884,7 @@
                   "type": "string"
                 },
                 "pmm_agent_id": {
-                  "description": "Return only Agents running near concrete PMMAgent.",
+                  "description": "Return only Agents started by this pmm-agent.",
                   "type": "string"
                 },
                 "service_id": {
@@ -952,7 +952,7 @@
                         "format": "int64"
                       },
                       "pmm_agent_id": {
-                        "description": "Node identifier where this instance runs.",
+                        "description": "pmm-agent identifier where this instance runs.",
                         "type": "string"
                       },
                       "service_id": {
@@ -1002,7 +1002,7 @@
                         "type": "string"
                       },
                       "pmm_agent_id": {
-                        "description": "Node identifier where this instance runs.",
+                        "description": "pmm-agent identifier where this instance runs.",
                         "type": "string"
                       },
                       "service_id": {
@@ -1051,8 +1051,8 @@
                         "type": "integer",
                         "format": "int64"
                       },
-                      "node_id": {
-                        "description": "Node identifier where this instance runs.",
+                      "pmm_agent_id": {
+                        "description": "pmm-agent identifier where this instance runs.",
                         "type": "string"
                       },
                       "status": {
@@ -1093,7 +1093,7 @@
                           "type": "string"
                         }
                       },
-                      "node_id": {
+                      "runs_on_node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string"
                       }
@@ -1144,7 +1144,7 @@
                         "format": "int64"
                       },
                       "pmm_agent_id": {
-                        "description": "Node identifier where this instance runs.",
+                        "description": "pmm-agent identifier where this instance runs.",
                         "type": "string"
                       },
                       "service_ids": {

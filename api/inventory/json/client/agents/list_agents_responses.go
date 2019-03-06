@@ -115,7 +115,7 @@ type ListAgentsBody struct {
 	// Return only Agents that provide insights for that Node.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Return only Agents running near concrete PMMAgent.
+	// Return only Agents started by this pmm-agent.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Return only Agents that provide insights for that Service.
@@ -420,7 +420,7 @@ type MongodbExporterItems0 struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
+	// pmm-agent identifier where this instance runs.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
@@ -535,7 +535,7 @@ type MysqldExporterItems0 struct {
 	// MySQL password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
-	// Node identifier where this instance runs.
+	// pmm-agent identifier where this instance runs.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
@@ -650,8 +650,8 @@ type NodeExporterItems0 struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	// pmm-agent identifier where this instance runs.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
@@ -760,7 +760,7 @@ type PMMAgentItems0 struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this PMM agent items0
@@ -838,7 +838,7 @@ type RDSExporterItems0 struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
+	// pmm-agent identifier where this instance runs.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// A list of Service identifiers (Node identifiers are extracted from Services).
