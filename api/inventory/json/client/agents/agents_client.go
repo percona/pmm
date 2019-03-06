@@ -165,7 +165,7 @@ func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) 
 }
 
 /*
-AddQANMySQLPerfSchemaAgent adds QAN my SQL perf schema agent adds mongodb exporter agent
+AddQANMySQLPerfSchemaAgent adds QAN my SQL perf schema agent adds my SQL perf schema QAN agent
 */
 func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentParams) (*AddQANMySQLPerfSchemaAgentOK, error) {
 	// TODO: Validate the params before sending

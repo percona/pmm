@@ -453,7 +453,7 @@ service Agents {
       body: "*"
     };
   }
-  // AddQANMySQLPerfSchemaAgent adds mongodb_exporter Agent.
+  // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
   rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"
