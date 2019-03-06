@@ -14,6 +14,7 @@ enum Type {
   NODE_EXPORTER = 1;
   MYSQLD_EXPORTER = 2;
   MONGODB_EXPORTER = 3;
+  QAN_MYSQL_PERFSCHEMA_AGENT = 4;
 }
 
 message RegisterRequest {
@@ -55,7 +56,7 @@ message StateChangedResponse {}
 
 // SetStateRequest is a ServerMessage asking pmm-agent to run agents according to desired state.
 message SetStateRequest {
-  // AgentProcess describes desired configuration of a single agent.
+  // AgentProcess describes desired configuration of a single agent process started by pmm-agent.
   message AgentProcess {
     Type type = 1;
     string template_left_delim = 2;
@@ -65,6 +66,11 @@ message SetStateRequest {
     map<string, string> text_files = 6;
   }
   map<string, AgentProcess> agent_processes = 1;
+  // InternalAgent describes desired configuration of a single agent internal for pmm-agent.
+  message InternalAgent {
+    Type type = 1;
+  }
+  map<string, InternalAgent> internal_agents = 2;
 }
 
 // SetStateResponse is an AgentMessage for SetStateRequest acceptance.

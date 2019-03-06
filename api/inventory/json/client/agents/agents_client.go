@@ -165,6 +165,34 @@ func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) 
 }
 
 /*
+AddQANMySQLPerfSchemaAgent adds QAN my SQL perf schema agent adds mongodb exporter agent
+*/
+func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentParams) (*AddQANMySQLPerfSchemaAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddQANMySQLPerfSchemaAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddQANMySQLPerfSchemaAgent",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddQANMySQLPerfSchemaAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddQANMySQLPerfSchemaAgentOK), nil
+
+}
+
+/*
 AddRDSExporter adds RDS exporter adds rds exporter agent
 */
 func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error) {

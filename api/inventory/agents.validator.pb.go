@@ -39,6 +39,9 @@ func (this *MongoDBExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *QANMySQLPerfSchemaAgent) Validate() error {
+	return nil
+}
 func (this *ListAgentsRequest) Validate() error {
 	return nil
 }
@@ -82,6 +85,13 @@ func (this *ListAgentsResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("MongodbExporter", err)
+			}
+		}
+	}
+	for _, item := range this.QanMysqlPerfschemaAgent {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschemaAgent", err)
 			}
 		}
 	}
@@ -133,6 +143,13 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.MongodbExporter != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MongodbExporter); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("MongodbExporter", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_QanMysqlPerfschemaAgent); ok {
+		if oneOfNester.QanMysqlPerfschemaAgent != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanMysqlPerfschemaAgent); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschemaAgent", err)
 			}
 		}
 	}
@@ -236,6 +253,23 @@ func (this *AddMongoDBExporterResponse) Validate() error {
 	if this.MongodbExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongodbExporter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("MongodbExporter", err)
+		}
+	}
+	return nil
+}
+func (this *AddQANMySQLPerfSchemaAgentRequest) Validate() error {
+	if this.PmmAgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
+	}
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	return nil
+}
+func (this *AddQANMySQLPerfSchemaAgentResponse) Validate() error {
+	if this.QanMysqlPerfschemaAgent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMysqlPerfschemaAgent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschemaAgent", err)
 		}
 	}
 	return nil

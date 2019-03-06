@@ -120,6 +120,9 @@ type GetAgentOKBody struct {
 	// pmm agent
 	PMMAgent *GetAgentOKBodyPMMAgent `json:"pmm_agent,omitempty"`
 
+	// qan mysql perfschema agent
+	QANMysqlPerfschemaAgent *GetAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
+
 	// rds exporter
 	RDSExporter *GetAgentOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
@@ -145,6 +148,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validatePMMAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANMysqlPerfschemaAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -240,6 +247,24 @@ func (o *GetAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 		if err := o.PMMAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOK" + "." + "pmm_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QANMysqlPerfschemaAgent) { // not required
+		return nil
+	}
+
+	if o.QANMysqlPerfschemaAgent != nil {
+		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOK" + "." + "qan_mysql_perfschema_agent")
 			}
 			return err
 		}
@@ -345,7 +370,7 @@ type GetAgentOKBodyMongodbExporter struct {
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// AgentStatus represents actual Agent process status.
+	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 }
@@ -460,7 +485,7 @@ type GetAgentOKBodyMysqldExporter struct {
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// AgentStatus represents actual Agent process status.
+	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
@@ -572,7 +597,7 @@ type GetAgentOKBodyNodeExporter struct {
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
-	// AgentStatus represents actual Agent process status.
+	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 }
@@ -705,6 +730,44 @@ func (o *GetAgentOKBodyPMMAgent) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetAgentOKBodyQANMysqlPerfschemaAgent QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+swagger:model GetAgentOKBodyQANMysqlPerfschemaAgent
+*/
+type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// pmm-agent identifier where this instance runs.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+}
+
+// Validate validates this get agent o k body QAN mysql perfschema agent
+func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyQANMysqlPerfschemaAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetAgentOKBodyRDSExporter RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
 swagger:model GetAgentOKBodyRDSExporter
 */
@@ -725,7 +788,7 @@ type GetAgentOKBodyRDSExporter struct {
 	// A list of Service identifiers (Node identifiers are extracted from Services).
 	ServiceIds []string `json:"service_ids"`
 
-	// AgentStatus represents actual Agent process status.
+	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 }
