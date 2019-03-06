@@ -2930,28 +2930,29 @@
         }
       }
     },
-    "/v1/qan/GetMetricsByDigest": {
+    "/v1/qan/GetMetrics": {
       "post": {
         "tags": [
           "Metrics"
         ],
-        "summary": "GetMetricsByDigest TODO.",
-        "operationId": "GetMetricsByDigest",
+        "summary": "GetMetrics gets map of metrics for specific filtering.",
+        "operationId": "GetMetrics",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
+              "description": "MetricsRequest defines filtering of metrics for specific value of dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
-                "digest": {
+                "filter_by": {
                   "type": "string"
                 },
-                "from": {
+                "group_by": {
                   "type": "string"
                 },
-                "include": {
+                "include_only_fields": {
                   "type": "array",
                   "items": {
                     "type": "string"
@@ -2960,7 +2961,7 @@
                 "labels": {
                   "type": "array",
                   "items": {
-                    "description": "MapFieldEntry TODO.",
+                    "description": "MapFieldEntry allows to pass labels/dimentions in form like {\"d_server\": [\"db1\", \"db2\"...]}.",
                     "type": "object",
                     "properties": {
                       "key": {
@@ -2975,7 +2976,10 @@
                     }
                   }
                 },
-                "to": {
+                "period_start_from": {
+                  "type": "string"
+                },
+                "period_start_to": {
                   "type": "string"
                 }
               }
@@ -2986,48 +2990,49 @@
           "200": {
             "description": "A successful response.",
             "schema": {
+              "description": "MetricsReply defines metrics for specific value of dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
                 "agent_uuid": {
                   "type": "string"
                 },
-                "client_hosts": {
+                "d_client_hosts": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
                 },
-                "db_schemas": {
+                "d_databases": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
                 },
-                "db_servers": {
+                "d_schemas": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "d_servers": {
                   "description": "Dimension Group.",
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
                 },
-                "db_usernames": {
+                "d_usernames": {
                   "type": "array",
                   "items": {
                     "type": "string"
                   }
                 },
-                "digest": {
-                  "type": "string"
-                },
-                "digest_text": {
-                  "type": "string"
-                },
                 "errors": {
                   "type": "object",
                   "title": "{code: count }",
                   "additionalProperties": {
-                    "type": "string",
-                    "format": "uint64"
+                    "type": "number",
+                    "format": "float"
                   }
                 },
                 "example": {
@@ -3036,11 +3041,11 @@
                 "example_format": {
                   "type": "string",
                   "title": "ExampleFormat is formant of query example: real or query without values",
-                  "default": "METRICS_REPLY_EXAMPLE_FORMAT_INVALID",
+                  "default": "EXAMPLE_FORMAT_INVALID",
                   "enum": [
-                    "METRICS_REPLY_EXAMPLE_FORMAT_INVALID",
+                    "EXAMPLE_FORMAT_INVALID",
                     "EXAMPLE",
-                    "DIGEST"
+                    "FINGERPRINT"
                   ]
                 },
                 "example_metrics": {
@@ -3049,23 +3054,19 @@
                 "example_type": {
                   "description": "ExampleType is a type of query example selected for this query class in given period of time.",
                   "type": "string",
-                  "default": "METRICS_REPLY_EXAMPLE_TYPE_INVALID",
+                  "default": "EXAMPLE_TYPE_INVALID",
                   "enum": [
-                    "METRICS_REPLY_EXAMPLE_TYPE_INVALID",
+                    "EXAMPLE_TYPE_INVALID",
                     "RANDOM",
                     "SLOWEST",
                     "FASTEST",
                     "WITH_ERROR"
                   ]
                 },
-                "first_seen": {
+                "fingerprint": {
                   "type": "string"
                 },
-                "grpint": {
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "grpstr": {
+                "first_seen": {
                   "type": "string"
                 },
                 "is_truncated": {
@@ -3078,123 +3079,145 @@
                     "type": "string"
                   }
                 },
-                "labint": {
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "integer",
-                    "format": "int64"
-                  }
-                },
                 "last_seen": {
                   "type": "string"
                 },
                 "m_bytes_sent_cnt": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "m_bytes_sent_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_bytes_sent_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_bytes_sent_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_bytes_sent_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_bytes_sent_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_docs_returned_cnt": {
+                  "type": "number",
+                  "format": "float",
+                  "title": "mongo metrics"
+                },
+                "m_docs_returned_max": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_docs_returned_min": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_docs_returned_p99": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_docs_returned_sum": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_docs_scanned_cnt": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_docs_scanned_max": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_docs_scanned_min": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_docs_scanned_p99": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_docs_scanned_sum": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_filesort_cnt": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_filesort_on_disk_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_filesort_on_disk_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_filesort_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_full_join_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_full_join_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_full_scan_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_full_scan_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_io_r_bytes_cnt": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "m_innodb_io_r_bytes_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_io_r_bytes_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_io_r_bytes_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_io_r_bytes_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_io_r_bytes_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_io_r_ops_cnt": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "m_innodb_io_r_ops_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_io_r_ops_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_io_r_ops_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_io_r_ops_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_io_r_ops_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_io_r_wait_cnt": {
                   "type": "number",
                   "format": "float"
-                },
-                "m_innodb_io_r_wait_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "number",
-                    "format": "float"
-                  }
                 },
                 "m_innodb_io_r_wait_max": {
                   "type": "number",
@@ -3213,42 +3236,28 @@
                   "format": "float"
                 },
                 "m_innodb_pages_distinct_cnt": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "m_innodb_pages_distinct_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_pages_distinct_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_pages_distinct_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_pages_distinct_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_pages_distinct_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_innodb_queue_wait_cnt": {
                   "type": "number",
                   "format": "float"
-                },
-                "m_innodb_queue_wait_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "number",
-                    "format": "float"
-                  }
                 },
                 "m_innodb_queue_wait_max": {
                   "type": "number",
@@ -3270,13 +3279,6 @@
                   "type": "number",
                   "format": "float"
                 },
-                "m_innodb_rec_lock_wait_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "number",
-                    "format": "float"
-                  }
-                },
                 "m_innodb_rec_lock_wait_max": {
                   "type": "number",
                   "format": "float"
@@ -3294,15 +3296,8 @@
                   "format": "float"
                 },
                 "m_lock_time_cnt": {
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "m_lock_time_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "number",
-                    "format": "float"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_lock_time_max": {
                   "type": "number",
@@ -3321,81 +3316,73 @@
                   "format": "float"
                 },
                 "m_merge_passes_cnt": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "m_merge_passes_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_merge_passes_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_merge_passes_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_merge_passes_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_merge_passes_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_no_good_index_used_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_no_good_index_used_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_no_index_used_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_no_index_used_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_qc_hit_cnt": {
+                  "type": "number",
+                  "format": "float",
+                  "title": "boolean metrics"
                 },
                 "m_qc_hit_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_query_length_cnt": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "m_query_length_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_query_length_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_query_length_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_query_length_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_query_length_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_query_time_cnt": {
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "m_query_time_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "integer",
-                    "format": "int64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_query_time_max": {
                   "type": "number",
@@ -3413,239 +3400,242 @@
                   "type": "number",
                   "format": "float"
                 },
-                "m_rows_affected_cnt": {
-                  "type": "string",
-                  "format": "uint64"
+                "m_response_length_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
-                "m_rows_affected_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                "m_response_length_max": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_response_length_min": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_response_length_p99": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_response_length_sum": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_rows_affected_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_affected_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_affected_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_affected_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_affected_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_examined_cnt": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "m_rows_examined_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_examined_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_examined_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_examined_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_examined_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_read_cnt": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "m_rows_read_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_read_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_read_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_read_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_read_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_sent_cnt": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "m_rows_sent_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_sent_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_sent_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_sent_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_rows_sent_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_select_full_range_join_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_select_full_range_join_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_select_range_check_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_select_range_check_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_select_range_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_select_range_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_sort_range_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_sort_range_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_sort_rows_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_sort_rows_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_sort_scan_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_sort_scan_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_disk_tables_cnt": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "m_tmp_disk_tables_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_disk_tables_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_disk_tables_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_disk_tables_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_disk_tables_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_tmp_table_cnt": {
+                  "type": "number",
+                  "format": "float"
+                },
+                "m_tmp_table_on_disk_cnt": {
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_table_on_disk_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_table_sizes_cnt": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "m_tmp_table_sizes_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_table_sizes_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_table_sizes_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_table_sizes_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_table_sizes_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_table_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_tables_cnt": {
-                  "type": "string",
-                  "format": "uint64"
-                },
-                "m_tmp_tables_hg": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "format": "uint64"
-                  }
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_tables_max": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_tables_min": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_tables_p99": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "m_tmp_tables_sum": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "num_queries": {
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
-                "num_query_with_errors": {
-                  "type": "string",
-                  "format": "uint64"
+                "num_queries_with_errors": {
+                  "type": "number",
+                  "format": "float"
                 },
-                "num_query_with_warnings": {
+                "num_queries_with_warnings": {
                   "description": "Metrics.",
-                  "type": "string",
-                  "format": "uint64"
+                  "type": "number",
+                  "format": "float"
                 },
                 "period_length": {
                   "type": "integer",
@@ -3655,12 +3645,178 @@
                   "type": "string",
                   "format": "int64"
                 },
+                "queryid": {
+                  "type": "string"
+                },
                 "warnings": {
                   "type": "object",
                   "title": "{code: count }",
                   "additionalProperties": {
-                    "type": "string",
-                    "format": "uint64"
+                    "type": "number",
+                    "format": "float"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/qan/GetReport": {
+      "post": {
+        "tags": [
+          "Profile"
+        ],
+        "summary": "GetReport returns list of metrics group by queryid or other dimentions.",
+        "operationId": "GetReport",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "ReportRequest defines filtering of metrics report for db server or other dimentions.",
+              "type": "object",
+              "properties": {
+                "first_seen": {
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "group_by": {
+                  "type": "string"
+                },
+                "include_only_fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "keyword": {
+                  "type": "string"
+                },
+                "labels": {
+                  "type": "array",
+                  "items": {
+                    "description": "ReportMapFieldEntry allows to pass labels/dimentions in form like {\"d_server\": [\"db1\", \"db2\"...]}.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "offset": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "order_by": {
+                  "type": "string"
+                },
+                "period_start_from": {
+                  "type": "string"
+                },
+                "period_start_to": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ReportReply is list of reports per quieryids, hosts etc.",
+              "type": "object",
+              "properties": {
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "description": "ProfileRow define metrics for selected dimention.",
+                    "type": "object",
+                    "properties": {
+                      "d_client_hosts": {
+                        "type": "string"
+                      },
+                      "d_databases": {
+                        "type": "string"
+                      },
+                      "d_schemas": {
+                        "type": "string"
+                      },
+                      "d_servers": {
+                        "type": "string"
+                      },
+                      "d_usernames": {
+                        "type": "string"
+                      },
+                      "dimension": {
+                        "type": "string"
+                      },
+                      "fingerprint": {
+                        "type": "string"
+                      },
+                      "first_seen": {
+                        "type": "string"
+                      },
+                      "load": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "percentage": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "qps": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "rank": {
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "row_number": {
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "stats": {
+                        "description": "Stats metrics.",
+                        "type": "object",
+                        "properties": {
+                          "m_query_time_max": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "m_query_time_min": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "m_query_time_p99": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "m_query_time_sum": {
+                            "type": "number",
+                            "format": "float"
+                          },
+                          "num_queries": {
+                            "type": "number",
+                            "format": "float"
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
