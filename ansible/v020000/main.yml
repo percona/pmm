@@ -99,13 +99,14 @@
         - pmm-server-2.0.0
         - pmm-client-2.0.0
         - percona-orchestrator-3.0.6
-        - percona-prometheus-2.3.2
+        - percona-prometheus-2.7.1
         - percona-qan-api2-2.0.0
-        - percona-grafana-5.1.3
+        - percona-grafana-6.0.0
         - percona-qan-app-2.0.0
         - pmm-manage-2.0.0
         - pmm-managed-2.0.0
         - rds_exporter-2.0.0
+        - percona-clickhouse-server-19.1.10
 
     - name: PMM                        | Restore unmanaged configs
       copy: src={{ item.src }} dest={{ item.dest }}
@@ -267,6 +268,7 @@
         - qan-api
         - grafana
         - pmm-managed
+        - clickhouse
 
     - name: PMM                        | Restart services (systemd)
       when: not supervisorctl.stat.exists
@@ -278,6 +280,7 @@
         - grafana-server
         - pmm-managed
         - sshd
+        - clickhouse
 
     - name: PMM                        | Import dashboards
       command: bash -c "/usr/share/percona-dashboards/import-dashboards.py $(dirname $(ls /srv/grafana/grafana.db /var/lib/grafana/grafana.db 2>/dev/null))"
