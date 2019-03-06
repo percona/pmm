@@ -180,14 +180,14 @@ type GetMetricsOKBody struct {
 	Example string `json:"example,omitempty"`
 
 	// ExampleFormat is formant of query example: real or query without values
-	// Enum: [METRICS_REPLY_EXAMPLE_FORMAT_INVALID EXAMPLE DIGEST]
+	// Enum: [EXAMPLE_FORMAT_INVALID EXAMPLE FINGERPRINT]
 	ExampleFormat *string `json:"example_format,omitempty"`
 
 	// example metrics
 	ExampleMetrics string `json:"example_metrics,omitempty"`
 
 	// ExampleType is a type of query example selected for this query class in given period of time.
-	// Enum: [METRICS_REPLY_EXAMPLE_TYPE_INVALID RANDOM SLOWEST FASTEST WITH_ERROR]
+	// Enum: [EXAMPLE_TYPE_INVALID RANDOM SLOWEST FASTEST WITH_ERROR]
 	ExampleType *string `json:"example_type,omitempty"`
 
 	// fingerprint
@@ -654,7 +654,7 @@ var getMetricsOKBodyTypeExampleFormatPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["METRICS_REPLY_EXAMPLE_FORMAT_INVALID","EXAMPLE","DIGEST"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["EXAMPLE_FORMAT_INVALID","EXAMPLE","FINGERPRINT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -664,14 +664,14 @@ func init() {
 
 const (
 
-	// GetMetricsOKBodyExampleFormatMETRICSREPLYEXAMPLEFORMATINVALID captures enum value "METRICS_REPLY_EXAMPLE_FORMAT_INVALID"
-	GetMetricsOKBodyExampleFormatMETRICSREPLYEXAMPLEFORMATINVALID string = "METRICS_REPLY_EXAMPLE_FORMAT_INVALID"
+	// GetMetricsOKBodyExampleFormatEXAMPLEFORMATINVALID captures enum value "EXAMPLE_FORMAT_INVALID"
+	GetMetricsOKBodyExampleFormatEXAMPLEFORMATINVALID string = "EXAMPLE_FORMAT_INVALID"
 
 	// GetMetricsOKBodyExampleFormatEXAMPLE captures enum value "EXAMPLE"
 	GetMetricsOKBodyExampleFormatEXAMPLE string = "EXAMPLE"
 
-	// GetMetricsOKBodyExampleFormatDIGEST captures enum value "DIGEST"
-	GetMetricsOKBodyExampleFormatDIGEST string = "DIGEST"
+	// GetMetricsOKBodyExampleFormatFINGERPRINT captures enum value "FINGERPRINT"
+	GetMetricsOKBodyExampleFormatFINGERPRINT string = "FINGERPRINT"
 )
 
 // prop value enum
@@ -700,7 +700,7 @@ var getMetricsOKBodyTypeExampleTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["METRICS_REPLY_EXAMPLE_TYPE_INVALID","RANDOM","SLOWEST","FASTEST","WITH_ERROR"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["EXAMPLE_TYPE_INVALID","RANDOM","SLOWEST","FASTEST","WITH_ERROR"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -710,8 +710,8 @@ func init() {
 
 const (
 
-	// GetMetricsOKBodyExampleTypeMETRICSREPLYEXAMPLETYPEINVALID captures enum value "METRICS_REPLY_EXAMPLE_TYPE_INVALID"
-	GetMetricsOKBodyExampleTypeMETRICSREPLYEXAMPLETYPEINVALID string = "METRICS_REPLY_EXAMPLE_TYPE_INVALID"
+	// GetMetricsOKBodyExampleTypeEXAMPLETYPEINVALID captures enum value "EXAMPLE_TYPE_INVALID"
+	GetMetricsOKBodyExampleTypeEXAMPLETYPEINVALID string = "EXAMPLE_TYPE_INVALID"
 
 	// GetMetricsOKBodyExampleTypeRANDOM captures enum value "RANDOM"
 	GetMetricsOKBodyExampleTypeRANDOM string = "RANDOM"

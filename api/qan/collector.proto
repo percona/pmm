@@ -4,6 +4,8 @@ package qan;
 
 option go_package = "qan";
 
+import "qan/qan.proto";
+
 // Agent service contains RPCs to implement communication mechanism with qan-agent.
 // Namely query metrics, query explain etc.
 service Agent {
@@ -13,12 +15,12 @@ service Agent {
 
 // AgentMessage contains several Query Classes for one or more periods of time.
 message AgentMessage {
-  repeated QueryClass query_class = 1;
+  repeated MetricsBucket query_class = 1;
 }
 
-// QueryClass is aggregated message created by qan-agent.
+// MetricsBucket is aggregated message created by qan-agent.
 // Contains information about one query selected in defined way from query class in specific period of time.
-message QueryClass {
+message MetricsBucket {
   string queryid = 1; // md5 of digest_text/fingerprint.
   string fingerprint = 2; // digest_text - query signature. Query without values.
   // Dimension Group.
@@ -33,22 +35,8 @@ message QueryClass {
   uint32 period_length = 11; // Duration of bucket.
   string metrics_source = 12; // Ex.: slowlog, perf schema, Mongo DB, Percona Server, etc.
   string example = 13; // One of query example from set found in bucket.
-  // ExampleFormat is formant of query example: real or query without values.
-  enum ExampleFormat {
-    QUERY_CLASS_EXAMPLE_FORMAT_INVALID = 0;
-    EXAMPLE = 1;
-    DIGEST = 2;
-  }
   ExampleFormat example_format = 14;
   uint32 is_truncated = 15; // Indicates if query examples is too long and was truncated.
-  // ExampleType is a type of query example selected for this query class in given period of time.
-  enum ExampleType {
-    QUERY_CLASS_EXAMPLE_TYPE_INVALID = 0;
-    RANDOM = 1;
-    SLOWEST = 2;
-    FASTEST = 3;
-    WITH_ERROR = 4;
-  }
   ExampleType example_type = 16;
   string example_metrics = 17; // JSON raw metrics for given query example.
   // Metrics.

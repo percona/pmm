@@ -126,11 +126,11 @@
                 "example_format": {
                   "type": "string",
                   "title": "ExampleFormat is formant of query example: real or query without values",
-                  "default": "METRICS_REPLY_EXAMPLE_FORMAT_INVALID",
+                  "default": "EXAMPLE_FORMAT_INVALID",
                   "enum": [
-                    "METRICS_REPLY_EXAMPLE_FORMAT_INVALID",
+                    "EXAMPLE_FORMAT_INVALID",
                     "EXAMPLE",
-                    "DIGEST"
+                    "FINGERPRINT"
                   ]
                 },
                 "example_metrics": {
@@ -139,9 +139,9 @@
                 "example_type": {
                   "description": "ExampleType is a type of query example selected for this query class in given period of time.",
                   "type": "string",
-                  "default": "METRICS_REPLY_EXAMPLE_TYPE_INVALID",
+                  "default": "EXAMPLE_TYPE_INVALID",
                   "enum": [
-                    "METRICS_REPLY_EXAMPLE_TYPE_INVALID",
+                    "EXAMPLE_TYPE_INVALID",
                     "RANDOM",
                     "SLOWEST",
                     "FASTEST",
@@ -903,45 +903,6 @@
                       }
                     }
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/qan/HandleVersion": {
-      "post": {
-        "tags": [
-          "Version"
-        ],
-        "summary": "HandleVersion return build version of QAN-API.",
-        "operationId": "HandleVersion",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "The request message containing the requestor name.",
-              "type": "object",
-              "properties": {
-                "name": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "title": "The response message containing the version of QAN-API",
-              "properties": {
-                "version": {
-                  "type": "string"
                 }
               }
             }

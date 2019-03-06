@@ -23,7 +23,7 @@ func (this *AgentMessage) Validate() error {
 	}
 	return nil
 }
-func (this *QueryClass) Validate() error {
+func (this *MetricsBucket) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	// Validation of proto3 map<> fields is unsupported.
 	// Validation of proto3 map<> fields is unsupported.

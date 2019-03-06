@@ -5,6 +5,7 @@ package qan;
 option go_package = "qan";
 
 import "google/api/annotations.proto";
+import "qan/qan.proto";
 
 // Metrics serves agregated metrics filtered by given dimention value and period.
 service Metrics {
@@ -50,22 +51,8 @@ message MetricsReply {
   int64 period_start = 12;
   uint32 period_length = 13;
   string example = 14;
-  // ExampleFormat is formant of query example: real or query without values
-  enum ExampleFormat {
-    METRICS_REPLY_EXAMPLE_FORMAT_INVALID = 0;
-    EXAMPLE = 1;
-    DIGEST = 2;
-  }
   ExampleFormat example_format = 15;
   uint32 is_truncated = 16;
-  // ExampleType is a type of query example selected for this query class in given period of time.
-  enum ExampleType {
-    METRICS_REPLY_EXAMPLE_TYPE_INVALID = 0;
-    RANDOM = 1;
-    SLOWEST = 2;
-    FASTEST = 3;
-    WITH_ERROR = 4;
-  }
   ExampleType example_type = 17;
   string example_metrics = 18;
   // Metrics.
