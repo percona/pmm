@@ -48,7 +48,7 @@ var databaseSchema = [][]string{
 			node_name VARCHAR(255) NOT NULL,
 			machine_id VARCHAR(255),
 			custom_labels TEXT,
-			address VARCHAR(255), -- also RDS instance
+			address VARCHAR(255),
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
@@ -61,7 +61,7 @@ var databaseSchema = [][]string{
 			docker_container_name VARCHAR(255),
 
 			-- RemoteAmazonRDS
-			-- instance is address
+			-- RDS instance is stored in address
 			region VARCHAR(255),
 
 			PRIMARY KEY (node_id),
@@ -71,7 +71,7 @@ var databaseSchema = [][]string{
 			UNIQUE (address, region)
 		)`,
 
-		`INSERT INTO nodes (node_type, node_id, node_name) VALUES ('` + string(GenericNodeType) + `', '` + PMMServerNodeID + `', 'PMM Server')`, //nolint:gosec
+		fmt.Sprintf(`INSERT INTO nodes (node_id, node_type,	node_name) VALUES ('%s', '%s', 'PMM Server')`, PMMServerNodeID, GenericNodeType), //nolint:gosec
 
 		`CREATE TABLE services (
 			-- common
