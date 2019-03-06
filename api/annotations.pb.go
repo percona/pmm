@@ -36,7 +36,7 @@ func (m *AnnotationsCreateRequest) Reset()         { *m = AnnotationsCreateReque
 func (m *AnnotationsCreateRequest) String() string { return proto.CompactTextString(m) }
 func (*AnnotationsCreateRequest) ProtoMessage()    {}
 func (*AnnotationsCreateRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_annotations_b308d9a339e5faed, []int{0}
+	return fileDescriptor_annotations_3f1e5a0129e473bc, []int{0}
 }
 func (m *AnnotationsCreateRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AnnotationsCreateRequest.Unmarshal(m, b)
@@ -81,7 +81,7 @@ func (m *AnnotationsCreateResponse) Reset()         { *m = AnnotationsCreateResp
 func (m *AnnotationsCreateResponse) String() string { return proto.CompactTextString(m) }
 func (*AnnotationsCreateResponse) ProtoMessage()    {}
 func (*AnnotationsCreateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_annotations_b308d9a339e5faed, []int{1}
+	return fileDescriptor_annotations_3f1e5a0129e473bc, []int{1}
 }
 func (m *AnnotationsCreateResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AnnotationsCreateResponse.Unmarshal(m, b)
@@ -185,9 +185,9 @@ var _Annotations_serviceDesc = grpc.ServiceDesc{
 	Metadata: "annotations.proto",
 }
 
-func init() { proto.RegisterFile("annotations.proto", fileDescriptor_annotations_b308d9a339e5faed) }
+func init() { proto.RegisterFile("annotations.proto", fileDescriptor_annotations_3f1e5a0129e473bc) }
 
-var fileDescriptor_annotations_b308d9a339e5faed = []byte{
+var fileDescriptor_annotations_3f1e5a0129e473bc = []byte{
 	// 195 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x12, 0x4c, 0xcc, 0xcb, 0xcb,
 	0x2f, 0x49, 0x2c, 0xc9, 0xcc, 0xcf, 0x2b, 0xd6, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4e,

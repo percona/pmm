@@ -32,65 +32,56 @@ import (
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
-// TODO add RDS service
-func setup(t *testing.T) (context.Context, string) {
+func TestCustomLogs(t *testing.T) {
 	ctx := logger.Set(context.Background(), t.Name())
-
-	tmpDir, err := ioutil.TempDir("", t.Name())
+	dir, err := ioutil.TempDir("", t.Name())
 	require.NoError(t, err)
-	logsRootDir = tmpDir + "/"
 
-	for _, name := range []string{"test-1.log", "pmm-test-agent-12345.log"} {
-		err = ioutil.WriteFile(filepath.Join(tmpDir, name), []byte(fmt.Sprintf("%s: test\n", name)), 0600)
+	defer func() {
+		err := os.RemoveAll(dir)
+		require.NoError(t, err)
+	}()
+
+	logs := map[string]logInfo{
+		"test1.log": {FilePath: filepath.Join(dir, "test1.log")},
+	}
+	for name := range logs {
+		err = ioutil.WriteFile(filepath.Join(dir, name), []byte(fmt.Sprintf("%s: test\n", name)), 0600)
 		require.NoError(t, err)
 	}
 
-	return ctx, filepath.Join(tmpDir, "test-1.log")
-}
-
-func teardown(t *testing.T, logFileName string) {
-	err := os.RemoveAll(filepath.Dir(logFileName))
+	l := New("1.2.3")
+	l.logs = logs
+	buf := new(bytes.Buffer)
+	err = l.Zip(ctx, buf)
 	require.NoError(t, err)
+
+	zr, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
+	require.NoError(t, err)
+	assert.Len(t, zr.File, len(logs)+6)
+
+	for _, zf := range zr.File {
+		if _, ok := logs[zf.Name]; !ok {
+			continue
+		}
+		r, err := zf.Open()
+		require.NoError(t, err)
+		b, err := ioutil.ReadAll(r)
+		require.NoError(t, err)
+		require.NoError(t, r.Close())
+		assert.Equal(t, fmt.Sprintf("%s: test\n", zf.Name), string(b))
+	}
 }
 
-func TestZip(t *testing.T) {
-	ctx, logFileName := setup(t)
-	defer teardown(t, logFileName)
+func TestDefaultLogs(t *testing.T) {
+	ctx := logger.Set(context.Background(), t.Name())
 
-	logs := []Log{
-		{logFileName, "", nil},
-	}
-	l := New("1.2.3", logs)
-
+	l := New("1.2.3")
 	buf := new(bytes.Buffer)
 	err := l.Zip(ctx, buf)
 	require.NoError(t, err)
 
 	zr, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
 	require.NoError(t, err)
-	assert.Len(t, zr.File, len(logs))
-
-	for i := range zr.File {
-		f, err := zr.File[i].Open()
-		assert.NoError(t, err)
-		b, err := ioutil.ReadAll(f)
-		assert.NoError(t, err)
-		f.Close()
-		fName := filepath.Base(zr.File[i].Name)
-		assert.Equal(t, fmt.Sprintf("%s: test\n", fName), string(b))
-	}
-}
-
-func TestZipDefaultLogs(t *testing.T) {
-	ctx, logFileName := setup(t)
-	defer teardown(t, logFileName)
-
-	l := New("1.2.3", nil)
-	buf := new(bytes.Buffer)
-	err := l.Zip(ctx, buf)
-	require.NoError(t, err)
-
-	zr, err := zip.NewReader(bytes.NewReader(buf.Bytes()), int64(buf.Len()))
-	require.NoError(t, err)
-	assert.Len(t, zr.File, len(defaultLogs))
+	assert.Len(t, zr.File, len(defaultLogs)+6)
 }

@@ -37,7 +37,7 @@ func (m *DemoErrorRequest) Reset()         { *m = DemoErrorRequest{} }
 func (m *DemoErrorRequest) String() string { return proto.CompactTextString(m) }
 func (*DemoErrorRequest) ProtoMessage()    {}
 func (*DemoErrorRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_demo_70ffe8b6a430dfcc, []int{0}
+	return fileDescriptor_demo_ba237937f81b2f33, []int{0}
 }
 func (m *DemoErrorRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DemoErrorRequest.Unmarshal(m, b)
@@ -88,7 +88,7 @@ func (m *DemoErrorResponse) Reset()         { *m = DemoErrorResponse{} }
 func (m *DemoErrorResponse) String() string { return proto.CompactTextString(m) }
 func (*DemoErrorResponse) ProtoMessage()    {}
 func (*DemoErrorResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_demo_70ffe8b6a430dfcc, []int{1}
+	return fileDescriptor_demo_ba237937f81b2f33, []int{1}
 }
 func (m *DemoErrorResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DemoErrorResponse.Unmarshal(m, b)
@@ -185,9 +185,9 @@ var _Demo_serviceDesc = grpc.ServiceDesc{
 	Metadata: "demo.proto",
 }
 
-func init() { proto.RegisterFile("demo.proto", fileDescriptor_demo_70ffe8b6a430dfcc) }
+func init() { proto.RegisterFile("demo.proto", fileDescriptor_demo_ba237937f81b2f33) }
 
-var fileDescriptor_demo_70ffe8b6a430dfcc = []byte{
+var fileDescriptor_demo_ba237937f81b2f33 = []byte{
 	// 196 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x4a, 0x49, 0xcd, 0xcd,
 	0xd7, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x4e, 0x2c, 0xc8, 0x94, 0x92, 0x49, 0xcf, 0xcf,

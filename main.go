@@ -117,9 +117,7 @@ func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
 		ctx, cancel := context.WithTimeout(req.Context(), 10*time.Second)
 		defer cancel()
 
-		t := time.Now().UTC()
-		filename := fmt.Sprintf("pmm-server_%4d-%02d-%02d-%02d-%02d.zip", t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute())
-
+		filename := fmt.Sprintf("pmm-server_%s", time.Now().UTC().Format("2006-01-02_15-04"))
 		rw.Header().Set(`Access-Control-Allow-Origin`, `*`)
 		rw.Header().Set(`Content-Type`, `application/zip`)
 		rw.Header().Set(`Content-Disposition`, `attachment; filename="`+filename+`"`)
@@ -151,9 +149,6 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 	)
 	api.RegisterBaseServer(gRPCServer, &handlers.BaseServer{PMMVersion: version.Version})
 	api.RegisterDemoServer(gRPCServer, &handlers.DemoServer{})
-	api.RegisterLogsServer(gRPCServer, &handlers.LogsServer{
-		Logs: deps.logs,
-	})
 	api.RegisterAnnotationsServer(gRPCServer, &handlers.AnnotationsServer{
 		Grafana: grafana,
 	})
@@ -218,7 +213,6 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 	for _, r := range []registrar{
 		api.RegisterBaseHandlerFromEndpoint,
 		api.RegisterDemoHandlerFromEndpoint,
-		api.RegisterLogsHandlerFromEndpoint,
 		api.RegisterAnnotationsHandlerFromEndpoint,
 
 		// PMM 2.0 APIs
@@ -399,7 +393,7 @@ func main() {
 	}
 
 	agentsRegistry := agents.NewRegistry(db, prometheus)
-	logs := logs.New(version.Version, nil)
+	logs := logs.New(version.Version)
 
 	deps := &serviceDependencies{
 		prometheus:     prometheus,

@@ -82,7 +82,7 @@ func (svc *Service) reload() error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	defer resp.Body.Close() // nolint:errcheck
+	defer resp.Body.Close() //nolint:errcheck
 
 	if resp.StatusCode == 200 {
 		return nil
