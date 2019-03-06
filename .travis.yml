@@ -10,16 +10,6 @@ matrix:
   allow_failures:
     - go: master
 
-before_install:
-  # install binary protoc release
-  - curl -L https://github.com/google/protobuf/releases/download/v3.7.0/protoc-3.7.0-linux-x86_64.zip -o ~/protoc.zip
-  - unzip -q ~/protoc.zip -d ~
-  - sudo install -d /usr/local/include/google/protobuf/compiler
-  - sudo install -m 755 ~/bin/protoc /usr/local/bin/
-  - sudo install -m 644 ~/include/google/protobuf/*.proto /usr/local/include/google/protobuf/
-  - sudo install -m 644 ~/include/google/protobuf/compiler/*.proto /usr/local/include/google/protobuf/compiler/
-  - protoc --version
-
 install:
   # ensure that Gopkg.lock is up-to-date
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
