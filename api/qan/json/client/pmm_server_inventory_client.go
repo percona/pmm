@@ -12,6 +12,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/qan/json/client/metrics"
+	"github.com/percona/pmm/api/qan/json/client/profile"
 )
 
 // Default PMM server inventory HTTP client.
@@ -59,6 +60,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMServerI
 
 	cli.Metrics = metrics.New(transport, formats)
 
+	cli.Profile = profile.New(transport, formats)
+
 	return cli
 }
 
@@ -105,6 +108,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type PMMServerInventory struct {
 	Metrics *metrics.Client
 
+	Profile *profile.Client
+
 	Transport runtime.ClientTransport
 }
 
@@ -113,5 +118,7 @@ func (c *PMMServerInventory) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 
 	c.Metrics.SetTransport(transport)
+
+	c.Profile.SetTransport(transport)
 
 }
