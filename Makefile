@@ -5,10 +5,8 @@ help:                           ## Display this help message.
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
 	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
-init:                           ## Install prototool.
-	# https://github.com/uber/prototool#installation
-	curl -L https://github.com/uber/prototool/releases/download/v1.3.0/prototool-$(shell uname -s)-$(shell uname -m) -o ./prototool
-	chmod +x ./prototool
+init:                           ## Install tools.
+	true
 
 install:                        ## Install qan-api binary.
 	go install -v ./...
@@ -61,9 +59,6 @@ linux-go-build: go-generate
 go-build:
 	@echo "  >  Building binary..."
 	go build -o percona-qan-api2 *.go
-
-api-version:                    ## Request API version.
-	./prototool grpc api/version --address 0.0.0.0:9911 --method version.Version/HandleVersion --data '{"name": "john"}'
 
 test: install                   ## Run tests
 	go test -v -p 1 -race ./...
