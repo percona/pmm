@@ -355,14 +355,14 @@ type GetAgentOKBodyMongodbExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)
-	ConnectionString string `json:"connection_string,omitempty"`
-
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// MongoDB password for scraping metrics.
+	Password string `json:"password,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
@@ -373,6 +373,9 @@ type GetAgentOKBodyMongodbExporter struct {
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// MongoDB username for scraping metrics.
+	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this get agent o k body mongodb exporter
