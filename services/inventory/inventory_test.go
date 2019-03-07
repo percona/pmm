@@ -251,12 +251,14 @@ func TestServices(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000001" not found.`), err)
 		assert.Nil(t, actualService)
 
-		actualService, err = ss.AddMongoDB(ctx, "test-mongo", models.PMMServerNodeID)
+		actualService, err = ss.AddMongoDB(ctx, "test-mongo", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(27017))
 		require.NoError(t, err)
 		expectedMdbService := &api.MongoDBService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000002",
 			ServiceName: "test-mongo",
 			NodeId:      models.PMMServerNodeID,
+			Address:     "127.0.0.1",
+			Port:        27017,
 		}
 		assert.Equal(t, expectedMdbService, actualService)
 
@@ -410,20 +412,20 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedMySQLdExporter, actualAgent)
 
-		ms, err := ss.AddMongoDB(ctx, "test-mongo", models.PMMServerNodeID)
+		ms, err := ss.AddMongoDB(ctx, "test-mongo", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(27017))
 		require.NoError(t, err)
 
 		actualAgent, err = as.AddMongoDBExporter(ctx, db, &api.AddMongoDBExporterRequest{
-			PmmAgentId:       pmmAgent.AgentId,
-			ServiceId:        ms.ID(),
-			ConnectionString: "mongodb://127.0.0.1:12007",
+			PmmAgentId: pmmAgent.AgentId,
+			ServiceId:  ms.ID(),
+			Username:   "username",
 		})
 		require.NoError(t, err)
 		expectedMongoDBExporter := &api.MongoDBExporter{
-			AgentId:          "/agent_id/00000000-0000-4000-8000-000000000006",
-			PmmAgentId:       pmmAgent.AgentId,
-			ServiceId:        ms.ID(),
-			ConnectionString: "mongodb://127.0.0.1:12007",
+			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000006",
+			PmmAgentId: pmmAgent.AgentId,
+			ServiceId:  ms.ID(),
+			Username:   "username",
 		}
 		assert.Equal(t, expectedMongoDBExporter, actualAgent)
 

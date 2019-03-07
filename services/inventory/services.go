@@ -66,6 +66,8 @@ func makeService(row *models.Service) (api.Service, error) {
 			ServiceId:    row.ServiceID,
 			ServiceName:  row.ServiceName,
 			NodeId:       row.NodeID,
+			Address:      pointer.GetString(row.Address),
+			Port:         uint32(pointer.GetUint16(row.Port)),
 			CustomLabels: labels,
 		}, nil
 
@@ -182,7 +184,7 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, name string, nodeID str
 }
 
 // AddMongoDB inserts MongoDB Service with given parameters.
-func (ss *ServicesService) AddMongoDB(ctx context.Context, name, nodeID string) (*api.MongoDBService, error) {
+func (ss *ServicesService) AddMongoDB(ctx context.Context, name, nodeID string, address *string, port *uint16) (*api.MongoDBService, error) {
 
 	id := "/service_id/" + uuid.New().String()
 	if err := ss.checkUniqueID(ctx, id); err != nil {
@@ -202,6 +204,8 @@ func (ss *ServicesService) AddMongoDB(ctx context.Context, name, nodeID string) 
 		ServiceType: models.MongoDBServiceType,
 		ServiceName: name,
 		NodeID:      nodeID,
+		Address:     address,
+		Port:        port,
 	}
 	if err := ss.q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)

@@ -120,7 +120,9 @@ func (s *servicesServer) ChangeAmazonRDSMySQLService(ctx context.Context, req *a
 }
 
 func (s *servicesServer) AddMongoDBService(ctx context.Context, req *api.AddMongoDBServiceRequest) (*api.AddMongoDBServiceResponse, error) {
-	service, err := s.s.AddMongoDB(ctx, req.ServiceName, req.NodeId)
+	address := pointer.ToStringOrNil(req.Address)
+	port := pointer.ToUint16OrNil(uint16(req.Port))
+	service, err := s.s.AddMongoDB(ctx, req.ServiceName, req.NodeId, address, port)
 	if err != nil {
 		return nil, err
 	}

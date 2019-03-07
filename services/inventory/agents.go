@@ -97,12 +97,13 @@ func (as *AgentsService) makeAgent(q *reform.Querier, row *models.Agent) (api.Ag
 		}
 
 		return &api.MongoDBExporter{
-			AgentId:          row.AgentID,
-			PmmAgentId:       pointer.GetString(row.PMMAgentID),
-			ServiceId:        services[0].ServiceID,
-			ConnectionString: pointer.GetString(row.ConnectionString),
-			Status:           api.AgentStatus(api.AgentStatus_value[row.Status]),
-			ListenPort:       uint32(pointer.GetUint16(row.ListenPort)),
+			AgentId:    row.AgentID,
+			PmmAgentId: pointer.GetString(row.PMMAgentID),
+			ServiceId:  services[0].ServiceID,
+			Username:   pointer.GetString(row.Username),
+			Password:   pointer.GetString(row.Password),
+			Status:     api.AgentStatus(api.AgentStatus_value[row.Status]),
+			ListenPort: uint32(pointer.GetUint16(row.ListenPort)),
 		}, nil
 
 	default:
@@ -229,7 +230,6 @@ func (as *AgentsService) AddPMMAgent(ctx context.Context, db *reform.DB, nodeID 
 			RunsOnNodeID: pointer.ToStringOrNil(nodeID),
 			PMMAgentID:   nil,
 		}
-
 		if err := tx.Insert(row); err != nil {
 			return errors.WithStack(err)
 		}
@@ -388,11 +388,12 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, db *reform.DB, 
 		}
 
 		row := &models.Agent{
-			AgentID:          id,
-			AgentType:        models.MongoDBExporterType,
-			PMMAgentID:       pointer.ToStringOrNil(req.PmmAgentId),
-			RunsOnNodeID:     nil,
-			ConnectionString: pointer.ToStringOrNil(req.ConnectionString),
+			AgentID:      id,
+			AgentType:    models.MongoDBExporterType,
+			PMMAgentID:   pointer.ToStringOrNil(req.PmmAgentId),
+			RunsOnNodeID: nil,
+			Username:     pointer.ToStringOrNil(req.Username),
+			Password:     pointer.ToStringOrNil(req.Password),
 		}
 		if err := row.SetCustomLabels(req.CustomLabels); err != nil {
 			return err
