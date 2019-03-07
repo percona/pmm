@@ -31,6 +31,7 @@ import (
 	rservice "github.com/Percona-Lab/qan-api/services/receiver"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	pbqan "github.com/percona/pmm/api/qan"
+	"github.com/percona/pmm/version"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -40,7 +41,6 @@ const shutdownTimeout = 3 * time.Second
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 func runGRPCServer(ctx context.Context, dsn, bind string) {
-
 	db, err := NewDB(dsn)
 	if err != nil {
 		log.Fatal("DB error", err)
@@ -92,7 +92,6 @@ func addSwaggerHandler(mux *http.ServeMux) {
 
 // runJSONServer runs gRPC-gateway until context is canceled, then gracefully stops it.
 func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
-
 	log.Printf("Starting server on http://%s/ ...", jsonBind)
 
 	proxyMux := runtime.NewServeMux()
@@ -138,6 +137,8 @@ func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
 }
 
 func main() {
+	log.Printf("%s.", version.ShortInfo())
+
 	grpcBind, ok := os.LookupEnv("QANAPI_BIND")
 	if !ok {
 		grpcBind = "127.0.0.1:9911"
@@ -175,5 +176,4 @@ func main() {
 		runJSONServer(ctx, grpcBind, jsonBind)
 	}()
 	wg.Wait()
-
 }
