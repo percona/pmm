@@ -139,7 +139,7 @@
   name = "github.com/percona/pmm"
   packages = ["api/qan"]
   pruneopts = "NUT"
-  revision = "8eb136e7cb79d65ec9b457d3a24289308f49247f"
+  revision = "05036f9df1fadbdad5a7ecf0ec66d0a6766c7fea"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
