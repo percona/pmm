@@ -26,7 +26,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// Reporter implements models to select query classes by params.
+// Reporter implements models to select metrics bucket by params.
 type Reporter struct {
 	db *sqlx.DB
 }

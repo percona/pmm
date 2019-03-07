@@ -1,1 +1,1 @@
-DROP table queries;
+DROP table metrics;

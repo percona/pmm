@@ -24,11 +24,9 @@ required = [
   name = "google.golang.org/genproto"
   revision = "383e8b2c3b9e36c4076b235b32537292176bae20"
 
-# TODO switch to tags before PMM 2.0 release
 [[constraint]]
   name = "github.com/percona/pmm"
-  # branch = "PMM-2.0"
-  branch = "PMM-3399-qan-api"
+  branch = "PMM-2.0"
 
 [[constraint]]
   branch = "PMM-3514-group-by-digest-user-host-db-server"

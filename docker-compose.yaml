@@ -3,7 +3,7 @@ services:
 
   pmm-data:
     container_name: pmm-data
-    image: "perconalab/pmm-server-fb:PR-129-f83d0a9"
+    image: "perconalab/pmm-server-fb:v2.0.0-pre-0301"
     volumes:
       - "/opt/prometheus/data"
       - "/opt/consul-data"
@@ -12,7 +12,7 @@ services:
 
   pmm-server:
     container_name: pmm-server
-    image: "perconalab/pmm-server-fb:PR-129-f83d0a9"
+    image: "perconalab/pmm-server-fb:v2.0.0-pre-0301"
     volumes:
       - "/opt/prometheus/data"
       - "/opt/consul-data"

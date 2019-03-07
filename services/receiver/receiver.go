@@ -26,12 +26,12 @@ import (
 
 // Service implements gRPC service to communicate with agent.
 type Service struct {
-	qcm models.QueryClass
+	mbm models.MetricsBucket
 }
 
 // NewService create new insstance of Service.
-func NewService(qcm models.QueryClass) *Service {
-	return &Service{qcm}
+func NewService(mbm models.MetricsBucket) *Service {
+	return &Service{mbm}
 }
 
 // DataInterchange implements rpc to exchange data between API and agent.
@@ -45,13 +45,13 @@ func (s *Service) DataInterchange(stream pbqan.Agent_DataInterchangeServer) erro
 		if err != nil {
 			return fmt.Errorf("recved from agent: %+v", agentMsg)
 		}
-		err = s.qcm.Save(agentMsg)
+		err = s.mbm.Save(agentMsg)
 		if err != nil {
 			fmt.Printf("save error: %v \n", err)
 			return fmt.Errorf("save error: %v", err)
 		}
-		savedAmount := len(agentMsg.QueryClass)
-		fmt.Printf("Rcvd and saved %v QC\n", savedAmount)
+		savedAmount := len(agentMsg.MetricsBucket)
+		fmt.Printf("Rcvd and saved %v Metrics Buckets\n", savedAmount)
 		// look for msgs to be sent to client
 		msg := pbqan.ApiMessage{SavedAmount: uint32(savedAmount)}
 		if err := stream.Send(&msg); err != nil {

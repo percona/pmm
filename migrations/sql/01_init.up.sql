@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS queries
+CREATE TABLE IF NOT EXISTS metrics
 (
     queryid String COMMENT 'hash of query fingerprint',
     d_server String COMMENT 'domention: IP or hostname of DB server',

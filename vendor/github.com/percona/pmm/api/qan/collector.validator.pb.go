@@ -14,16 +14,16 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *AgentMessage) Validate() error {
-	for _, item := range this.QueryClass {
+	for _, item := range this.MetricsBucket {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("QueryClass", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("MetricsBucket", err)
 			}
 		}
 	}
 	return nil
 }
-func (this *QueryClass) Validate() error {
+func (this *MetricsBucket) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	// Validation of proto3 map<> fields is unsupported.
 	// Validation of proto3 map<> fields is unsupported.
