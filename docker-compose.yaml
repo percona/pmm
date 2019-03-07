@@ -1,54 +1,39 @@
+---
 version: "3"
 services:
-
-  pmm-data:
-    container_name: pmm-data
-    image: "perconalab/pmm-server-fb:v2.0.0-pre-0301"
-    volumes:
-      - "/opt/prometheus/data"
-      - "/opt/consul-data"
-      - "/var/lib/mysql"
-      - "/var/lib/grafana"
-
   pmm-server:
     container_name: pmm-server
-    image: "perconalab/pmm-server-fb:v2.0.0-pre-0301"
-    volumes:
-      - "/opt/prometheus/data"
-      - "/opt/consul-data"
-      - "/var/lib/mysql"
-      - "/var/lib/grafana"
+    image: perconalab/pmm-server-fb:v2.0.0-pre-0301
     ports:
-      - "80:80"
-      - "9911:9911"
+      - 80:80
+      - 443-443
+      - 9911:9911
     restart: always
-    depends_on:
-      - pmm-data
 
   ch:
-    image: "yandex/clickhouse-server"
-    container_name: "ch-server"
+    image: yandex/clickhouse-server
+    container_name: ch-server
     ulimits:
       nofile:
         soft: 262144
         hard: 262144
     ports:
-      - "9000:9000/tcp"
+      - 9000:9000
 
   ps:
-    image: "percona/percona-server:latest"
-    container_name: "ps-server"
+    image: percona/percona-server:latest
+    container_name: ps-server
     environment:
      - MYSQL_ROOT_PASSWORD=secret
     ports:
-     - "3306:3306"
+     - 3306:3306
     volumes:
       - logs-directory:/var/log/mysql
 
   sysbench-ps:
-    image: "perconalab/sysbench"
+    image: perconalab/sysbench
     depends_on:
-     - "ps"
+     - ps
     command: >
         bash -c "
             set -o xtrace
@@ -91,9 +76,9 @@ services:
         "
 
   sysbench-pstpcc:
-    image: "perconalab/sysbench"
+    image: perconalab/sysbench
     depends_on:
-     - "ps"
+     - ps
     command: >
         bash -c "
             set -o xtrace
