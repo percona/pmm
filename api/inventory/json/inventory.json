@@ -104,8 +104,8 @@
                     "type": "string"
                   }
                 },
-                "runs_on_node_id": {
-                  "description": "Node identifier where this instance runs.",
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string"
                 },
                 "service_id": {
@@ -146,8 +146,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
@@ -201,8 +201,8 @@
                   "description": "MySQL password for scraping metrics.",
                   "type": "string"
                 },
-                "runs_on_node_id": {
-                  "description": "Node identifier where this instance runs.",
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string"
                 },
                 "service_id": {
@@ -247,8 +247,8 @@
                       "description": "MySQL password for scraping metrics.",
                       "type": "string"
                     },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
@@ -302,8 +302,8 @@
                     "type": "string"
                   }
                 },
-                "node_id": {
-                  "description": "Node identifier where this instance runs.",
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string"
                 }
               }
@@ -336,8 +336,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "status": {
@@ -383,7 +383,7 @@
                     "type": "string"
                   }
                 },
-                "node_id": {
+                "runs_on_node_id": {
                   "description": "Node identifier where this instance runs.",
                   "type": "string"
                 }
@@ -417,7 +417,7 @@
                         "type": "string"
                       }
                     },
-                    "node_id": {
+                    "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     }
@@ -445,7 +445,7 @@
               "type": "object",
               "properties": {
                 "pmm_agent_id": {
-                  "description": "pmm-agent identifier where this instance runs.",
+                  "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string"
                 },
                 "service_id": {
@@ -471,7 +471,7 @@
                       "type": "string"
                     },
                     "pmm_agent_id": {
-                      "description": "pmm-agent identifier where this instance runs.",
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
@@ -508,8 +508,8 @@
                     "type": "string"
                   }
                 },
-                "runs_on_node_id": {
-                  "description": "Node identifier where this instance runs.",
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string"
                 },
                 "service_ids": {
@@ -549,8 +549,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_ids": {
@@ -655,8 +655,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
@@ -702,8 +702,8 @@
                       "description": "MySQL password for scraping metrics.",
                       "type": "string"
                     },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
@@ -749,8 +749,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "status": {
@@ -788,7 +788,7 @@
                         "type": "string"
                       }
                     },
-                    "node_id": {
+                    "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     }
@@ -803,7 +803,7 @@
                       "type": "string"
                     },
                     "pmm_agent_id": {
-                      "description": "pmm-agent identifier where this instance runs.",
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
@@ -832,8 +832,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_ids": {
@@ -883,8 +883,8 @@
                   "description": "Return only Agents that provide insights for that Node.",
                   "type": "string"
                 },
-                "runs_on_node_id": {
-                  "description": "Return only Agents running on that Node.",
+                "pmm_agent_id": {
+                  "description": "Return only Agents started by this pmm-agent.",
                   "type": "string"
                 },
                 "service_id": {
@@ -951,8 +951,8 @@
                         "type": "integer",
                         "format": "int64"
                       },
-                      "runs_on_node_id": {
-                        "description": "Node identifier where this instance runs.",
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
                       },
                       "service_id": {
@@ -1001,8 +1001,8 @@
                         "description": "MySQL password for scraping metrics.",
                         "type": "string"
                       },
-                      "runs_on_node_id": {
-                        "description": "Node identifier where this instance runs.",
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
                       },
                       "service_id": {
@@ -1051,8 +1051,8 @@
                         "type": "integer",
                         "format": "int64"
                       },
-                      "node_id": {
-                        "description": "Node identifier where this instance runs.",
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
                       },
                       "status": {
@@ -1093,7 +1093,7 @@
                           "type": "string"
                         }
                       },
-                      "node_id": {
+                      "runs_on_node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string"
                       }
@@ -1111,7 +1111,7 @@
                         "type": "string"
                       },
                       "pmm_agent_id": {
-                        "description": "pmm-agent identifier where this instance runs.",
+                        "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
                       },
                       "service_id": {
@@ -1143,8 +1143,8 @@
                         "type": "integer",
                         "format": "int64"
                       },
-                      "runs_on_node_id": {
-                        "description": "Node identifier where this instance runs.",
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
                       },
                       "service_ids": {
