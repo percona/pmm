@@ -93,6 +93,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "connection_string": {
+                  "type": "string",
+                  "title": "MongoDB URI for scraping metrics. (See: https://docs.mongodb.com/manual/reference/connection-string/)"
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -100,20 +104,12 @@
                     "type": "string"
                   }
                 },
-                "password": {
-                  "description": "MongoDB password for scraping metrics.",
-                  "type": "string"
-                },
-                "runs_on_node_id": {
-                  "description": "Node identifier where this instance runs.",
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string"
                 },
                 "service_id": {
                   "description": "Service identifier.",
-                  "type": "string"
-                },
-                "username": {
-                  "description": "MongoDB username for scraping metrics.",
                   "type": "string"
                 }
               }
@@ -134,6 +130,10 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
+                    "connection_string": {
+                      "type": "string",
+                      "title": "MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -146,12 +146,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "MongoDB password for scraping metrics.",
-                      "type": "string"
-                    },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
@@ -170,10 +166,6 @@
                         "STOPPING",
                         "DONE"
                       ]
-                    },
-                    "username": {
-                      "description": "MongoDB username for scraping metrics.",
-                      "type": "string"
                     }
                   }
                 }
@@ -209,8 +201,8 @@
                   "description": "MySQL password for scraping metrics.",
                   "type": "string"
                 },
-                "runs_on_node_id": {
-                  "description": "Node identifier where this instance runs.",
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string"
                 },
                 "service_id": {
@@ -255,8 +247,8 @@
                       "description": "MySQL password for scraping metrics.",
                       "type": "string"
                     },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
@@ -310,8 +302,8 @@
                     "type": "string"
                   }
                 },
-                "node_id": {
-                  "description": "Node identifier where this instance runs.",
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string"
                 }
               }
@@ -344,8 +336,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "status": {
@@ -391,7 +383,7 @@
                     "type": "string"
                   }
                 },
-                "node_id": {
+                "runs_on_node_id": {
                   "description": "Node identifier where this instance runs.",
                   "type": "string"
                 }
@@ -425,7 +417,7 @@
                         "type": "string"
                       }
                     },
-                    "node_id": {
+                    "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     }
@@ -453,7 +445,7 @@
               "type": "object",
               "properties": {
                 "pmm_agent_id": {
-                  "description": "pmm-agent identifier where this instance runs.",
+                  "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string"
                 },
                 "service_id": {
@@ -479,7 +471,7 @@
                       "type": "string"
                     },
                     "pmm_agent_id": {
-                      "description": "pmm-agent identifier where this instance runs.",
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
@@ -516,8 +508,8 @@
                     "type": "string"
                   }
                 },
-                "runs_on_node_id": {
-                  "description": "Node identifier where this instance runs.",
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string"
                 },
                 "service_ids": {
@@ -557,8 +549,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_ids": {
@@ -647,6 +639,10 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
+                    "connection_string": {
+                      "type": "string",
+                      "title": "MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -659,12 +655,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "password": {
-                      "description": "MongoDB password for scraping metrics.",
-                      "type": "string"
-                    },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
@@ -683,10 +675,6 @@
                         "STOPPING",
                         "DONE"
                       ]
-                    },
-                    "username": {
-                      "description": "MongoDB username for scraping metrics.",
-                      "type": "string"
                     }
                   }
                 },
@@ -714,8 +702,8 @@
                       "description": "MySQL password for scraping metrics.",
                       "type": "string"
                     },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
@@ -761,8 +749,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "status": {
@@ -800,7 +788,7 @@
                         "type": "string"
                       }
                     },
-                    "node_id": {
+                    "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
                     }
@@ -815,7 +803,7 @@
                       "type": "string"
                     },
                     "pmm_agent_id": {
-                      "description": "pmm-agent identifier where this instance runs.",
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
@@ -844,8 +832,8 @@
                       "type": "integer",
                       "format": "int64"
                     },
-                    "runs_on_node_id": {
-                      "description": "Node identifier where this instance runs.",
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_ids": {
@@ -895,8 +883,8 @@
                   "description": "Return only Agents that provide insights for that Node.",
                   "type": "string"
                 },
-                "runs_on_node_id": {
-                  "description": "Return only Agents running on that Node.",
+                "pmm_agent_id": {
+                  "description": "Return only Agents started by this pmm-agent.",
                   "type": "string"
                 },
                 "service_id": {
@@ -947,6 +935,10 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string"
                       },
+                      "connection_string": {
+                        "type": "string",
+                        "title": "MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)"
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
@@ -959,12 +951,8 @@
                         "type": "integer",
                         "format": "int64"
                       },
-                      "password": {
-                        "description": "MongoDB password for scraping metrics.",
-                        "type": "string"
-                      },
-                      "runs_on_node_id": {
-                        "description": "Node identifier where this instance runs.",
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
                       },
                       "service_id": {
@@ -983,10 +971,6 @@
                           "STOPPING",
                           "DONE"
                         ]
-                      },
-                      "username": {
-                        "description": "MongoDB username for scraping metrics.",
-                        "type": "string"
                       }
                     }
                   }
@@ -1017,8 +1001,8 @@
                         "description": "MySQL password for scraping metrics.",
                         "type": "string"
                       },
-                      "runs_on_node_id": {
-                        "description": "Node identifier where this instance runs.",
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
                       },
                       "service_id": {
@@ -1067,8 +1051,8 @@
                         "type": "integer",
                         "format": "int64"
                       },
-                      "node_id": {
-                        "description": "Node identifier where this instance runs.",
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
                       },
                       "status": {
@@ -1109,7 +1093,7 @@
                           "type": "string"
                         }
                       },
-                      "node_id": {
+                      "runs_on_node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string"
                       }
@@ -1127,7 +1111,7 @@
                         "type": "string"
                       },
                       "pmm_agent_id": {
-                        "description": "pmm-agent identifier where this instance runs.",
+                        "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
                       },
                       "service_id": {
@@ -1159,8 +1143,8 @@
                         "type": "integer",
                         "format": "int64"
                       },
-                      "runs_on_node_id": {
-                        "description": "Node identifier where this instance runs.",
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
                       },
                       "service_ids": {
@@ -2325,10 +2309,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "address": {
-                  "description": "Access address (DNS name or IP). Required.",
-                  "type": "string"
-                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -2339,11 +2319,6 @@
                 "node_id": {
                   "description": "Node identifier where this instance runs. Required.",
                   "type": "string"
-                },
-                "port": {
-                  "description": "Access port. Required.",
-                  "type": "integer",
-                  "format": "int64"
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
@@ -2363,10 +2338,6 @@
                   "description": "MongoDBService represents a generic MongoDB instance.",
                   "type": "object",
                   "properties": {
-                    "address": {
-                      "description": "Access address (DNS name or IP).",
-                      "type": "string"
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -2377,11 +2348,6 @@
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
-                    },
-                    "port": {
-                      "description": "Access port.",
-                      "type": "integer",
-                      "format": "int64"
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
@@ -2733,10 +2699,6 @@
                   "description": "MongoDBService represents a generic MongoDB instance.",
                   "type": "object",
                   "properties": {
-                    "address": {
-                      "description": "Access address (DNS name or IP).",
-                      "type": "string"
-                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -2747,11 +2709,6 @@
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
                       "type": "string"
-                    },
-                    "port": {
-                      "description": "Access port.",
-                      "type": "integer",
-                      "format": "int64"
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
@@ -2875,10 +2832,6 @@
                     "description": "MongoDBService represents a generic MongoDB instance.",
                     "type": "object",
                     "properties": {
-                      "address": {
-                        "description": "Access address (DNS name or IP).",
-                        "type": "string"
-                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels.",
                         "type": "object",
@@ -2889,11 +2842,6 @@
                       "node_id": {
                         "description": "Node identifier where this instance runs.",
                         "type": "string"
-                      },
-                      "port": {
-                        "description": "Access port.",
-                        "type": "integer",
-                        "format": "int64"
                       },
                       "service_id": {
                         "description": "Unique randomly generated instance identifier.",
