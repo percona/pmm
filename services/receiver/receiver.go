@@ -20,8 +20,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/Percona-Lab/qan-api/models"
 	pbqan "github.com/percona/pmm/api/qan"
+
+	"github.com/Percona-Lab/qan-api/models"
 )
 
 // Service implements gRPC service to communicate with agent.

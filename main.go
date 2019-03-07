@@ -26,15 +26,16 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Percona-Lab/qan-api/models"
-	aservice "github.com/Percona-Lab/qan-api/services/analytics"
-	rservice "github.com/Percona-Lab/qan-api/services/receiver"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	pbqan "github.com/percona/pmm/api/qan"
 	"github.com/percona/pmm/version"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	"github.com/Percona-Lab/qan-api/models"
+	aservice "github.com/Percona-Lab/qan-api/services/analytics"
+	rservice "github.com/Percona-Lab/qan-api/services/receiver"
 )
 
 const shutdownTimeout = 3 * time.Second
