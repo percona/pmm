@@ -797,15 +797,89 @@ type QANMysqlPerfschemaAgentItems0 struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
+	// MySQL password for getting performance data.
+	Password string `json:"password,omitempty"`
+
 	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// MySQL username for getting performance data.
+	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this QAN mysql perfschema agent items0
 func (o *QANMysqlPerfschemaAgentItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var qanMysqlPerfschemaAgentItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		qanMysqlPerfschemaAgentItems0TypeStatusPropEnum = append(qanMysqlPerfschemaAgentItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// QANMysqlPerfschemaAgentItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	QANMysqlPerfschemaAgentItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// QANMysqlPerfschemaAgentItems0StatusSTARTING captures enum value "STARTING"
+	QANMysqlPerfschemaAgentItems0StatusSTARTING string = "STARTING"
+
+	// QANMysqlPerfschemaAgentItems0StatusRUNNING captures enum value "RUNNING"
+	QANMysqlPerfschemaAgentItems0StatusRUNNING string = "RUNNING"
+
+	// QANMysqlPerfschemaAgentItems0StatusWAITING captures enum value "WAITING"
+	QANMysqlPerfschemaAgentItems0StatusWAITING string = "WAITING"
+
+	// QANMysqlPerfschemaAgentItems0StatusSTOPPING captures enum value "STOPPING"
+	QANMysqlPerfschemaAgentItems0StatusSTOPPING string = "STOPPING"
+
+	// QANMysqlPerfschemaAgentItems0StatusDONE captures enum value "DONE"
+	QANMysqlPerfschemaAgentItems0StatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *QANMysqlPerfschemaAgentItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, qanMysqlPerfschemaAgentItems0TypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *QANMysqlPerfschemaAgentItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
 	return nil
 }
 

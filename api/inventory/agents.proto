@@ -154,6 +154,20 @@ message QANMySQLPerfSchemaAgent {
   string pmm_agent_id = 2;
   // Service identifier.
   string service_id = 3;
+  // MySQL username for getting performance data.
+  string username = 4;
+  // MySQL password for getting performance data.
+  string password = 5;
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled or disabled.
+  // TODO https://jira.percona.com/browse/PMM-3470
+  // bool enabled = 6;
+
+  // Actual Agent status.
+  AgentStatus status = 7;
 }
 
 // List
@@ -379,6 +393,14 @@ message AddQANMySQLPerfSchemaAgentRequest {
       string_not_empty: true
     }
   ];
+  // MySQL username for getting performance data.
+  string username = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // MySQL password for getting performance data.
+  string password = 5;
 }
 
 message AddQANMySQLPerfSchemaAgentResponse {
