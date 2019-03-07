@@ -19,11 +19,55 @@ release:                        ## Build qan-api release binary.
 		-X 'github.com/Percona-Lab/qan-api/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 		"
 
-init:                           ## Install tools.
-	true
+init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
+	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
+
+	go install -v ./vendor/github.com/kevinburke/go-bindata/go-bindata
+
+gen:                            ## Generate files.
+	go-bindata -nometadata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql
 
 install:                        ## Install qan-api binary.
 	go install -v ./...
+
+install-race:                   ## Install qan-api binary with race detector.
+	go install -v -race ./...
+
+test:                           ## Run tests.
+	go test -v ./...
+
+test-race:                      ## Run tests with race detector.
+	go test -v -race ./...
+
+test-cover:                     ## Run tests and collect coverage information.
+	go test -v -coverprofile=cover.out -covermode=count ./...
+
+check-license:                  ## Check that all files have the same license header.
+	go run .github/check-license.go
+
+check: install check-license    ## Run checkers and linters.
+	golangci-lint run
+
+FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+
+format:                         ## Format source code.
+	gofmt -w -s $(FILES)
+	goimports -local github.com/Percona-Lab/qan-api -l -w $(FILES)
+
+RUN_FLAGS = -todo-use-kingpin-for-flags
+
+run: install _run               ## Run qan-api.
+
+run-race: install-race _run     ## Run qan-api with race detector.
+
+run-race-cover: install-race    ## Run qan-api with race detector and collect coverage information.
+	go test -coverpkg="github.com/Percona-Lab/qan-api/..." \
+			-tags maincover \
+			-race -c -o bin/qan-api.test
+	bin/qan-api.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
+
+_run:
+	qan-api $(RUN_FLAGS)
 
 env-up:                         ## Run ClickHouse, MySQL Server and sysbench containers. Create pmm DB in ClickHouse.
 	mkdir -p logs
@@ -48,40 +92,9 @@ deploy:
 ch-client:                      ## Connect to pmm DB.
 	docker exec -ti ch-server clickhouse client -d pmm
 
-ch-dump:                      ## Connect to pmm DB.
+ch-dump:                        ## Connect to pmm DB.
 	docker exec -ti ch-server clickhouse client -d pmm --query="SELECT * FROM queries FORMAT Native" > queries.native
 	#docker exec -ti ch-server clickhouse client -d pmm --query="INSERT INTO queries FORMAT Native" < queries.native
 
 ps-client:
 	docker exec -ti ps-server mysql -uroot -psecret
-
-go-run:                         ## Run qan-api with envs.
-	@echo "  > Runing with envs..."
-	GRPC_VERBOSITY=DEBUG GRPC_TRACE=all go run *.go
-
-
-go-generate:                    ## Pack ClickHouse migrations into go file.
-	@echo "  >  Generating dependency files..."
-
-	go install -v ./vendor/github.com/kevinburke/go-bindata/go-bindata
-	go-bindata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql
-
-linux-go-build: go-generate
-	@echo "  >  Building binary..."
-	GOOS=linux go build -o percona-qan-api2 *.go
-
-go-build:
-	@echo "  >  Building binary..."
-	go build -o percona-qan-api2 *.go
-
-test: install                   ## Run tests
-	go test -v -p 1 -race ./...
-
-check-license:                  ## Check that all files have the same license header.
-	go run .github/check-license.go
-
-check: install check-license    ## Run checkers and linters.
-	golangci-lint run
-
-format:                         ## Run `goimports`.
-	goimports -local github.com/Percona-Lab/qan-api -l -w $(shell find . -type f -name '*.go' -not -path "./vendor/*")
