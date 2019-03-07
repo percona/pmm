@@ -452,12 +452,20 @@
             "schema": {
               "type": "object",
               "properties": {
+                "password": {
+                  "description": "MySQL password for getting performance data.",
+                  "type": "string"
+                },
                 "pmm_agent_id": {
                   "description": "The pmm-agent identifier which runs this instance.",
                   "type": "string"
                 },
                 "service_id": {
                   "description": "Service identifier.",
+                  "type": "string"
+                },
+                "username": {
+                  "description": "MySQL username for getting performance data.",
                   "type": "string"
                 }
               }
@@ -478,12 +486,33 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
+                    "password": {
+                      "description": "MySQL password for getting performance data.",
+                      "type": "string"
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
                       "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "MySQL username for getting performance data.",
                       "type": "string"
                     }
                   }
@@ -814,12 +843,33 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
+                    "password": {
+                      "description": "MySQL password for getting performance data.",
+                      "type": "string"
+                    },
                     "pmm_agent_id": {
                       "description": "The pmm-agent identifier which runs this instance.",
                       "type": "string"
                     },
                     "service_id": {
                       "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "MySQL username for getting performance data.",
                       "type": "string"
                     }
                   }
@@ -1126,12 +1176,33 @@
                         "description": "Unique randomly generated instance identifier.",
                         "type": "string"
                       },
+                      "password": {
+                        "description": "MySQL password for getting performance data.",
+                        "type": "string"
+                      },
                       "pmm_agent_id": {
                         "description": "The pmm-agent identifier which runs this instance.",
                         "type": "string"
                       },
                       "service_id": {
                         "description": "Service identifier.",
+                        "type": "string"
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ]
+                      },
+                      "username": {
+                        "description": "MySQL username for getting performance data.",
                         "type": "string"
                       }
                     }

@@ -264,6 +264,9 @@ func (this *AddQANMySQLPerfSchemaAgentRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
 	}
+	if this.Username == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
+	}
 	return nil
 }
 func (this *AddQANMySQLPerfSchemaAgentResponse) Validate() error {
