@@ -49,7 +49,7 @@ func TestScrapeConfig(t *testing.T) {
 			agent := &models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.MySQLdExporterType,
-				RunsOnNodeID: "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				RunsOnNodeID: nil,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			}
@@ -147,7 +147,7 @@ func TestScrapeConfig(t *testing.T) {
 			agent := &models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.MongoDBExporterType,
-				RunsOnNodeID: "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				RunsOnNodeID: nil,
 				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			}
@@ -214,7 +214,7 @@ func TestScrapeConfig(t *testing.T) {
 		agent := &models.Agent{
 			AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 			AgentType:    models.MongoDBExporterType,
-			RunsOnNodeID: "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+			RunsOnNodeID: nil,
 			CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
 			ListenPort:   pointer.ToUint16(12345),
 		}

@@ -78,31 +78,3 @@ func PMMAgentsForChangedService(q *reform.Querier, serviceID string) ([]string, 
 	}
 	return res, nil
 }
-
-// PMMAgentForAgent returns pmm-agent ID that runs Agent with given ID.
-// It may return ("", nil) if such pmm-agent is not found.
-// It returns wrapped reform.ErrNoRows if Agent with given ID is not found.
-func PMMAgentForAgent(q *reform.Querier, agentID string) (string, error) {
-	// We assume that all Agents running on the same Node as Agent with given ID are subagents
-	// of a single pmm-agent. That is just plain wrong.
-	// FIXME https://jira.percona.com/browse/PMM-3478
-
-	agent := &Agent{AgentID: agentID}
-	if err := q.Reload(agent); err != nil {
-		return "", errors.Wrap(err, "failed to select Agent")
-	}
-	if agent.AgentType == PMMAgentType {
-		return agent.AgentID, nil
-	}
-
-	agents, err := AgentsRunningOnNode(q, agent.RunsOnNodeID)
-	if err != nil {
-		return "", errors.Wrap(err, "failed to select Agents")
-	}
-	for _, agent = range agents {
-		if agent.AgentType == PMMAgentType {
-			return agent.AgentID, nil
-		}
-	}
-	return "", nil
-}

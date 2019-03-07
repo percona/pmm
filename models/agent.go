@@ -55,11 +55,10 @@ func AgentsForNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
 	return res, nil
 }
 
-// AgentsRunningOnNode returns all Agents running on Node.
-// TODO Remove after https://jira.percona.com/browse/PMM-3478.
-func AgentsRunningOnNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
-	tail := fmt.Sprintf("WHERE runs_on_node_id = %s ORDER BY agent_id", q.Placeholder(1)) //nolint:gosec
-	structs, err := q.SelectAllFrom(AgentTable, tail, nodeID)
+// AgentsRunningByPMMAgent returns all Agents running by PMMAgent.
+func AgentsRunningByPMMAgent(q *reform.Querier, pmmAgentID string) ([]*Agent, error) {
+	tail := fmt.Sprintf("WHERE pmm_agent_id = %s ORDER BY agent_id", q.Placeholder(1)) //nolint:gosec
+	structs, err := q.SelectAllFrom(AgentTable, tail, pmmAgentID)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select Agents")
 	}
@@ -118,7 +117,8 @@ const (
 type Agent struct {
 	AgentID      string    `reform:"agent_id,pk"`
 	AgentType    AgentType `reform:"agent_type"`
-	RunsOnNodeID string    `reform:"runs_on_node_id"`
+	RunsOnNodeID *string   `reform:"runs_on_node_id"`
+	PMMAgentID   *string   `reform:"pmm_agent_id"`
 	CustomLabels []byte    `reform:"custom_labels"`
 	CreatedAt    time.Time `reform:"created_at"`
 	// UpdatedAt    time.Time `reform:"updated_at"`

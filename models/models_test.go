@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
@@ -64,17 +65,19 @@ func TestModels(t *testing.T) {
 		require.NoError(t, q.Insert(&models.Agent{
 			AgentID:      "A1",
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: "N1",
+			RunsOnNodeID: pointer.ToStringOrNil("N1"),
 		}))
 		require.NoError(t, q.Insert(&models.Agent{
 			AgentID:      "A2",
 			AgentType:    models.MySQLdExporterType,
-			RunsOnNodeID: "N1",
+			PMMAgentID:   pointer.ToStringOrNil("A1"),
+			RunsOnNodeID: nil,
 		}))
 		require.NoError(t, q.Insert(&models.Agent{
 			AgentID:      "A3",
 			AgentType:    models.NodeExporterType,
-			RunsOnNodeID: "N1",
+			PMMAgentID:   pointer.ToStringOrNil("A1"),
+			RunsOnNodeID: nil,
 		}))
 
 		require.NoError(t, q.Insert(&models.AgentNode{
@@ -140,36 +143,33 @@ func TestModels(t *testing.T) {
 			{
 				AgentID:      "A3",
 				AgentType:    models.NodeExporterType,
-				RunsOnNodeID: "N1",
+				PMMAgentID:   pointer.ToStringOrNil("A1"),
+				RunsOnNodeID: nil,
 				CreatedAt:    now,
 			},
 		}
 		assert.Equal(t, expected, agents)
 	})
 
-	t.Run("AgentsRunningOnNode", func(t *testing.T) {
+	t.Run("AgentsRunningByPMMAgent", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agents, err := models.AgentsRunningOnNode(q, "N1")
+		agents, err := models.AgentsRunningByPMMAgent(q, "A1")
 		require.NoError(t, err)
 		expected := []*models.Agent{
 			{
-				AgentID:      "A1",
-				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: "N1",
-				CreatedAt:    now,
-			},
-			{
 				AgentID:      "A2",
 				AgentType:    models.MySQLdExporterType,
-				RunsOnNodeID: "N1",
+				PMMAgentID:   pointer.ToStringOrNil("A1"),
+				RunsOnNodeID: nil,
 				CreatedAt:    now,
 			},
 			{
 				AgentID:      "A3",
 				AgentType:    models.NodeExporterType,
-				RunsOnNodeID: "N1",
+				PMMAgentID:   pointer.ToStringOrNil("A1"),
+				RunsOnNodeID: nil,
 				CreatedAt:    now,
 			},
 		}
@@ -186,7 +186,8 @@ func TestModels(t *testing.T) {
 			{
 				AgentID:      "A2",
 				AgentType:    models.MySQLdExporterType,
-				RunsOnNodeID: "N1",
+				PMMAgentID:   pointer.ToStringOrNil("A1"),
+				RunsOnNodeID: nil,
 				CreatedAt:    now,
 			},
 		}
@@ -209,18 +210,5 @@ func TestModels(t *testing.T) {
 		ids, err := models.PMMAgentsForChangedService(q, "S1")
 		require.NoError(t, err)
 		assert.Equal(t, []string{"A1"}, ids)
-	})
-
-	t.Run("PMMAgentForAgent", func(t *testing.T) {
-		q, teardown := setup(t)
-		defer teardown(t)
-
-		id, err := models.PMMAgentForAgent(q, "A1")
-		require.NoError(t, err)
-		assert.Equal(t, "A1", id)
-
-		id, err = models.PMMAgentForAgent(q, "A2")
-		require.NoError(t, err)
-		assert.Equal(t, "A1", id)
 	})
 }
