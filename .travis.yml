@@ -47,21 +47,6 @@ env:
       GRAFANA_IMAGE=grafana/grafana:master
       POSTGRES_IMAGE=postgres:latest
 
-before_install:
-  # install binary protoc release
-  - wget https://github.com/google/protobuf/releases/download/v3.6.1/protoc-3.6.1-linux-x86_64.zip
-  - unzip -q protoc-3.6.1-linux-x86_64.zip
-  - sudo install -d /usr/local/include/google/protobuf/compiler
-  - sudo install -m 755 bin/protoc /usr/local/bin/
-  - sudo install -m 644 include/google/protobuf/*.proto /usr/local/include/google/protobuf/
-  - sudo install -m 644 include/google/protobuf/compiler/*.proto /usr/local/include/google/protobuf/compiler/
-
-  - protoc --version
-
-  - go get -u github.com/percona/mysqld_exporter
-  - go get -u github.com/percona/rds_exporter
-  - go get -u github.com/percona/postgres_exporter/...
-
 script:
   - sudo service mysql stop
   - sudo service postgresql stop
