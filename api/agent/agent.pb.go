@@ -56,7 +56,7 @@ func (x Type) String() string {
 	return proto.EnumName(Type_name, int32(x))
 }
 func (Type) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{0}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{0}
 }
 
 type RegisterRequest struct {
@@ -69,7 +69,7 @@ func (m *RegisterRequest) Reset()         { *m = RegisterRequest{} }
 func (m *RegisterRequest) String() string { return proto.CompactTextString(m) }
 func (*RegisterRequest) ProtoMessage()    {}
 func (*RegisterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{0}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{0}
 }
 func (m *RegisterRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RegisterRequest.Unmarshal(m, b)
@@ -100,7 +100,7 @@ func (m *RegisterResponse) Reset()         { *m = RegisterResponse{} }
 func (m *RegisterResponse) String() string { return proto.CompactTextString(m) }
 func (*RegisterResponse) ProtoMessage()    {}
 func (*RegisterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{1}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{1}
 }
 func (m *RegisterResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RegisterResponse.Unmarshal(m, b)
@@ -138,7 +138,7 @@ func (m *Ping) Reset()         { *m = Ping{} }
 func (m *Ping) String() string { return proto.CompactTextString(m) }
 func (*Ping) ProtoMessage()    {}
 func (*Ping) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{2}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{2}
 }
 func (m *Ping) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Ping.Unmarshal(m, b)
@@ -170,7 +170,7 @@ func (m *Pong) Reset()         { *m = Pong{} }
 func (m *Pong) String() string { return proto.CompactTextString(m) }
 func (*Pong) ProtoMessage()    {}
 func (*Pong) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{3}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{3}
 }
 func (m *Pong) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Pong.Unmarshal(m, b)
@@ -209,7 +209,7 @@ func (m *QANDataRequest) Reset()         { *m = QANDataRequest{} }
 func (m *QANDataRequest) String() string { return proto.CompactTextString(m) }
 func (*QANDataRequest) ProtoMessage()    {}
 func (*QANDataRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{4}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{4}
 }
 func (m *QANDataRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_QANDataRequest.Unmarshal(m, b)
@@ -247,7 +247,7 @@ func (m *QANDataResponse) Reset()         { *m = QANDataResponse{} }
 func (m *QANDataResponse) String() string { return proto.CompactTextString(m) }
 func (*QANDataResponse) ProtoMessage()    {}
 func (*QANDataResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{5}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{5}
 }
 func (m *QANDataResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_QANDataResponse.Unmarshal(m, b)
@@ -281,7 +281,7 @@ func (m *StateChangedRequest) Reset()         { *m = StateChangedRequest{} }
 func (m *StateChangedRequest) String() string { return proto.CompactTextString(m) }
 func (*StateChangedRequest) ProtoMessage()    {}
 func (*StateChangedRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{6}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{6}
 }
 func (m *StateChangedRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StateChangedRequest.Unmarshal(m, b)
@@ -333,7 +333,7 @@ func (m *StateChangedResponse) Reset()         { *m = StateChangedResponse{} }
 func (m *StateChangedResponse) String() string { return proto.CompactTextString(m) }
 func (*StateChangedResponse) ProtoMessage()    {}
 func (*StateChangedResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{7}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{7}
 }
 func (m *StateChangedResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StateChangedResponse.Unmarshal(m, b)
@@ -366,7 +366,7 @@ func (m *SetStateRequest) Reset()         { *m = SetStateRequest{} }
 func (m *SetStateRequest) String() string { return proto.CompactTextString(m) }
 func (*SetStateRequest) ProtoMessage()    {}
 func (*SetStateRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{8}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{8}
 }
 func (m *SetStateRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SetStateRequest.Unmarshal(m, b)
@@ -417,7 +417,7 @@ func (m *SetStateRequest_AgentProcess) Reset()         { *m = SetStateRequest_Ag
 func (m *SetStateRequest_AgentProcess) String() string { return proto.CompactTextString(m) }
 func (*SetStateRequest_AgentProcess) ProtoMessage()    {}
 func (*SetStateRequest_AgentProcess) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{8, 0}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{8, 0}
 }
 func (m *SetStateRequest_AgentProcess) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SetStateRequest_AgentProcess.Unmarshal(m, b)
@@ -491,7 +491,7 @@ func (m *SetStateRequest_InternalAgent) Reset()         { *m = SetStateRequest_I
 func (m *SetStateRequest_InternalAgent) String() string { return proto.CompactTextString(m) }
 func (*SetStateRequest_InternalAgent) ProtoMessage()    {}
 func (*SetStateRequest_InternalAgent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{8, 2}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{8, 2}
 }
 func (m *SetStateRequest_InternalAgent) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SetStateRequest_InternalAgent.Unmarshal(m, b)
@@ -529,7 +529,7 @@ func (m *SetStateResponse) Reset()         { *m = SetStateResponse{} }
 func (m *SetStateResponse) String() string { return proto.CompactTextString(m) }
 func (*SetStateResponse) ProtoMessage()    {}
 func (*SetStateResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{9}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{9}
 }
 func (m *SetStateResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_SetStateResponse.Unmarshal(m, b)
@@ -567,7 +567,7 @@ func (m *AgentMessage) Reset()         { *m = AgentMessage{} }
 func (m *AgentMessage) String() string { return proto.CompactTextString(m) }
 func (*AgentMessage) ProtoMessage()    {}
 func (*AgentMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{10}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{10}
 }
 func (m *AgentMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AgentMessage.Unmarshal(m, b)
@@ -819,7 +819,7 @@ func (m *ServerMessage) Reset()         { *m = ServerMessage{} }
 func (m *ServerMessage) String() string { return proto.CompactTextString(m) }
 func (*ServerMessage) ProtoMessage()    {}
 func (*ServerMessage) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agent_620db92db220532f, []int{11}
+	return fileDescriptor_agent_7d58a61ed13277dc, []int{11}
 }
 func (m *ServerMessage) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ServerMessage.Unmarshal(m, b)
@@ -1216,9 +1216,9 @@ var _Agent_serviceDesc = grpc.ServiceDesc{
 	Metadata: "agent/agent.proto",
 }
 
-func init() { proto.RegisterFile("agent/agent.proto", fileDescriptor_agent_620db92db220532f) }
+func init() { proto.RegisterFile("agent/agent.proto", fileDescriptor_agent_7d58a61ed13277dc) }
 
-var fileDescriptor_agent_620db92db220532f = []byte{
+var fileDescriptor_agent_7d58a61ed13277dc = []byte{
 	// 925 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x56, 0x5d, 0x6f, 0xe2, 0x46,
 	0x14, 0x8d, 0xc1, 0xe1, 0xe3, 0x12, 0x08, 0x19, 0x68, 0x96, 0x75, 0xab, 0x86, 0xd2, 0x3e, 0xa0,

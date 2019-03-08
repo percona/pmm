@@ -38,7 +38,7 @@ message Pong {
 
 // QANDataRequest is an AgentMessage for sending QAN data.
 message QANDataRequest {
-  google.protobuf.Any data = 1; // agent.QANData
+  google.protobuf.Any data = 1; // qan.AgentMessage
 }
 
 // QANDataResponse is a ServerMessage for QAN data acceptance.
