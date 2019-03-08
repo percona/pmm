@@ -127,11 +127,8 @@ type Agent struct {
 	ListenPort *uint16 `reform:"listen_port"`
 	Version    *string `reform:"version"`
 
-	Username *string `reform:"username"`
-	Password *string `reform:"password"`
-
-	ConnectionString *string `reform:"connection_string"`
-
+	Username   *string `reform:"username"`
+	Password   *string `reform:"password"`
 	MetricsURL *string `reform:"metrics_url"`
 }
 

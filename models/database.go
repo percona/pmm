@@ -107,11 +107,9 @@ var databaseSchema = [][]string{
 			listen_port SMALLINT UNSIGNED,
 			version VARCHAR(255),
 
-			-- MySQLdExporter
+			-- Credentials to access service
 			username VARCHAR(255),
 			password VARCHAR(255),
-
-			-- ExternalExporter
 			metrics_url VARCHAR(255),
 
 			PRIMARY KEY (agent_id),

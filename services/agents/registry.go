@@ -345,6 +345,18 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 			}
 			processes[row.AgentID] = mysqldExporterConfig(services[0], row)
 
+		case models.MongoDBExporterType:
+			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
+			if err != nil {
+				l.Error(err)
+				return
+			}
+			if len(services) != 1 {
+				l.Errorf("Expected exactly one Services, got %d.", len(services))
+				return
+			}
+			processes[row.AgentID] = mongodbExporterConfig(services[0], row)
+
 		default:
 			l.Panicf("unhandled Agent type %s", row.AgentType)
 		}
