@@ -1,7 +1,11 @@
+--------------------------------------------------------------------------------
+Adding a ProxySQL host
+--------------------------------------------------------------------------------
+
 .. _pmm-admin.add-proxysql-metrics:
 
-:ref:`Adding ProxySQL metrics service <pmm-admin.add-proxysql-metrics>`
---------------------------------------------------------------------------------
+`Adding ProxySQL metrics service <pmm-admin.add-proxysql-metrics>`_
+================================================================================
 
 Use the |opt.proxysql-metrics| alias
 to enable |proxysql| performance metrics monitoring.
@@ -45,7 +49,7 @@ For more information, run
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
 
 
 .. include:: ../.res/replace.txt

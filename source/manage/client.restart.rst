@@ -1,7 +1,7 @@
 .. _pmm-admin.restart:
 
-:ref:`Restarting monitoring services <pmm-admin.restart>`
-=========================================================
+`Restarting monitoring services with pmm-admin restart <pmm-admin.restart>`_
+================================================================================
 
 Use the |pmm-admin.restart| command to restart services
 managed by this |pmm-client|.

@@ -1,7 +1,8 @@
 .. _pmm-admin.config:
 
-:ref:`Configuring PMM Client <pmm-admin.config>`
-================================================================================
+--------------------------------------------------------------------------------
+`Configuring PMM Client with pmm-admin config <pmm-admin.config>`_
+--------------------------------------------------------------------------------
 
 Use the |pmm-admin.config| command to configure
 how |pmm-client| communicates with |pmm-server|.

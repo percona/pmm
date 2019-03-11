@@ -1,7 +1,7 @@
 .. _pmm-admin.add-mysql-metrics:
 
-:ref:`Adding MySQL metrics service <pmm-admin.add-mysql-metrics>`
---------------------------------------------------------------------------------
+`Understanding MySQL metrics service <pmm-admin.add-mysql-metrics>`_
+================================================================================
 
 Use the |opt.mysql-metrics| alias to enable |mysql| metrics monitoring.
 
@@ -78,7 +78,7 @@ as well as
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
 
    More information about |qan.name|
       :ref:`pmm.qan`

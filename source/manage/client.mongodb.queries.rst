@@ -1,7 +1,7 @@
 .. _pmm-admin.add-mongodb-queries:
 
-:ref:`Adding MongoDB query analytics service <pmm-admin.add-mongodb-queries>`
---------------------------------------------------------------------------------
+`Understanding MongoDB query analytics service <pmm-admin.add-mongodb-queries>`_
+================================================================================
 
 Use the |opt.mongodb-queries| alias to enable |mongodb| query analytics.
 
@@ -68,7 +68,7 @@ For more information, run
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
 
 
 .. include:: ../.res/replace.txt

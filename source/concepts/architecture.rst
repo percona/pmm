@@ -1,7 +1,8 @@
 .. _pmm.architecture:
 
-Overview of |percona-monitoring-management| Architecture
-********************************************************************************
+--------------------------------------------------------------------------------
+Client/Server Architecture - an Overview
+--------------------------------------------------------------------------------
 
 The |pmm| platform is based on a client-server model that enables scalability.
 It includes the following modules:
@@ -35,7 +36,7 @@ The following diagram illustrates how |pmm| is currently structured:
 
 .. _pmm-client:
 
-:ref:`PMM Client <pmm-client>`
+`PMM Client <pmm-client>`_
 ================================================================================
 
 Each |pmm-client| collects various data about general system and database
@@ -75,7 +76,7 @@ The |pmm-client| package consist of the following:
 
 .. _pmm-server:
 
-:ref:`PMM Server <pmm-server>`
+`PMM Server <pmm-server>`_
 ================================================================================
 
 |pmm-server| runs on the machine that will be your central monitoring host.
@@ -131,13 +132,13 @@ For more information, see :ref:`using`.
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
    Enabling orchestrator
-      :term:`Orchestrator` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Orchestrator <Orchestrator>` in :ref:`pmm.glossary.terminology-reference`
 
 .. _pmm.using.orchestrator:
 
-:ref:`Orchestrator <pmm.using.orchestrator>`
+`Orchestrator <pmm.using.orchestrator>`_
 ================================================================================
 
 |orchestrator| is a |mysql| replication topology management and visualization
@@ -155,9 +156,9 @@ To use it, create a |mysql| user for |orchestrator| on all managed instances:
    you have to pass them when
    :ref:`running PMM Server <deploy-pmm.server.installing>`
    using the
-   :term:`ORCHESTRATOR_PASSWORD <ORCHESTRATOR_PASSWORD>`
+   :option:`ORCHESTRATOR_PASSWORD`
    and
-   :term:`ORCHESTRATOR_USER  <ORCHESTRATOR_USER>` options.
+   :option:`ORCHESTRATOR_USER` options.
 
    .. include:: ../.res/code/docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password.txt
 

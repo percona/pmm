@@ -1,7 +1,7 @@
 .. _pmm-admin.remove:
 .. _pmm-admin.rm:
 
-:ref:`Removing monitoring services <pmm-admin.remove>`
+`Removing monitoring services with pmm-admin rm <pmm-admin.remove>`_
 ================================================================================
 
 Use the |pmm-admin.rm| command to remove monitoring services.

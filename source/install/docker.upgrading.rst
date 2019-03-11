@@ -90,8 +90,8 @@ Check if the new container is running using |docker.ps|.
 
 .. include:: ../.res/code/docker.ps.1-5-0.txt
 
-Then, make sure that the |pmm| version has been updated (see :term:`PMM
-Version`) by checking the |pmm-server| web interface.
+Then, make sure that the |pmm| version has been updated (see :ref:`PMM
+Version <PMM-Version>`) by checking the |pmm-server| web interface.
 
 .. _pmm/docker/backup-container.removing:
 

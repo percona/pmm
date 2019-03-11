@@ -1,7 +1,7 @@
 .. _pmm-admin.add-mysql-queries:
 
-:ref:`Adding MySQL query analytics service <pmm-admin.add-mysql-queries>`
---------------------------------------------------------------------------------
+`Understanding MySQL query analytics service <pmm-admin.add-mysql-queries>`_
+================================================================================
 
 Use the |opt.mysql-queries| alias to enable |mysql| query analytics.
 
@@ -112,7 +112,7 @@ as well as
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
 
 .. _pmm-admin.add-mysql-queries.detailed-description:
 

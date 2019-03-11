@@ -1,7 +1,10 @@
+--------------------------------------------------------------------------------
+Adding a PostgreSQL host
+--------------------------------------------------------------------------------
+
 .. _pmm.qan.postgres.conf:
 
-===============================================================================
-Configuring |postgresql| for Monitoring
+Understanding PostgreSQL metrics service
 ===============================================================================
 
 Monitoring |postgresql| metrics with the `postgres_exporter <https://github.com/wrouesnel/postgres_exporter>`_ is enabled by ``pmm-admin add postgresql`` command. The ``postgresql`` alias will set up
@@ -38,7 +41,7 @@ Supported versions of PostgreSQL
 .. _pmm.qan.postgres.conf.essential-permission.setting-up:
 
 Setting Up the Required Permissions
-================================================================================
+--------------------------------------------------------------------------------
 
 Percona recommends that a |postgresql| user be configured for ``SUPERUSER``
 level access, in order to gather the maximum amount of data with a minimum

@@ -4,8 +4,7 @@
 Percona Monitoring and Management Release Notes
 ===============================================
 
-.. toctree::
-   :maxdepth: 1
+.. contents:: :local:
 
    PMM 1.17.0 <1.17.0>
    PMM 1.16.0 <1.16.0>

@@ -132,7 +132,7 @@
 .. |sudo| replace:: :program:`sudo` 
 .. |summary| replace:: *Summary*
 .. |systemd| replace:: :program:`systemd`
-.. |term.metrics-resolution| replace:: :term:`METRICS_RESOLUTION <METRICS_RESOLUTION>`
+.. |term.metrics-resolution| replace:: :option:`METRICS_RESOLUTION`
 .. |tmp.pmm-server-console.log| replace:: :file:`/tmp/pmm-server-console.log`
 .. |tokudb| replace:: TokuDB
 .. |ubuntu| replace:: Ubuntu

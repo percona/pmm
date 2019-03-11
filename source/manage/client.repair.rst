@@ -1,6 +1,6 @@
 .. _pmm-admin.repair:
 
-:ref:`Removing orphaned services <pmm-admin.repair>`
+`Repairing orphaned services with pmm-admin repair  <pmm-admin.repair>`_
 ================================================================================
 
 Use the |pmm-admin.repair| command

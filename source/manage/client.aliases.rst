@@ -1,7 +1,8 @@
 .. _pmm-admin.service-aliases:
 
-:ref:`Monitoring Service Aliases <pmm-admin.service-aliases>`
-================================================================================
+--------------------------------------------------------------------------------
+`Understanding Monitoring Service Aliases <pmm-admin.service-aliases>`_
+--------------------------------------------------------------------------------
 
 The following aliases are used to designate PMM services that you want to
 :ref:`add <pmm-admin.add>`, :ref:`remove <pmm-admin.rm>`, :ref:`restart

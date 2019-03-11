@@ -1,6 +1,6 @@
 .. _pmm-admin.stop:
 
-:ref:`Stopping monitoring services <pmm-admin.stop>`
+`Stopping monitoring services with pmm-admin stop <pmm-admin.stop>`_
 ================================================================================
 
 Use the |pmm-admin.stop| command to stop services

@@ -149,7 +149,7 @@ supported additional options.
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
    Updating PMM
       :ref:`Updating PMM <deploy-pmm.updating>`
    Backing Up the |pmm-server| |docker| container

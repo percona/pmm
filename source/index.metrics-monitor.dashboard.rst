@@ -1,14 +1,15 @@
 .. _pmm.dashboard.list:
 
+================================================================================
 Metrics Monitor Dashboards
-********************************************************************************
+================================================================================
 
 This section contains a reference of dashboards available in |metrics-monitor|.
 
 .. _pmm.dashboard.insight.list:
 .. _pmm.dashboard.general.list:
 
-:ref:`Insight <pmm.dashboard.general.list>`
+`Insight <pmm.dashboard.general.list>`_
 ================================================================================
 
 .. toctree::
@@ -24,7 +25,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
 
 .. _pmm.dashboard.os.list:
 
-:ref:`OS Dashboards <pmm.dashboard.os.list>`
+`OS Dashboards <pmm.dashboard.os.list>`_
 ================================================================================
 
 .. toctree::
@@ -38,7 +39,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
 
 .. _pmm.dashboard.prometheus.list:
 
-:ref:`Prometheus Dashboards <pmm.dashboard.prometheus.list>`
+`Prometheus Dashboards <pmm.dashboard.prometheus.list>`_
 ================================================================================
 
 .. toctree::
@@ -49,7 +50,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
 
 .. _pmm.dashboard.mysql.list:
 
-:ref:`MySQL Dashboards <pmm.dashboard.mysql.list>`
+`MySQL Dashboards <pmm.dashboard.mysql.list>`_
 ================================================================================
 
 .. toctree::
@@ -60,7 +61,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
 
 .. _pmm.dashboard.mongodb.list:
 
-:ref:`MongoDB Dashboards <pmm.dashboard.mongodb.list>`
+`MongoDB Dashboards <pmm.dashboard.mongodb.list>`_
 ================================================================================
 
 .. toctree::
@@ -71,7 +72,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
 
 .. _pmm.dashboard.postgres.list:
 
-:ref:`PostgreSQL Dashboards <pmm.dashboard.postgres.list>`
+`PostgreSQL Dashboards <pmm.dashboard.postgres.list>`_
 ================================================================================
 
 .. toctree::
@@ -82,7 +83,7 @@ This section contains a reference of dashboards available in |metrics-monitor|.
 
 .. _pmm.dashboard.ha.list:
 
-:ref:`HA Dashboards <pmm.dashboard.ha.list>`
+`HA Dashboards <pmm.dashboard.ha.list>`_
 ================================================================================
 
 .. toctree::

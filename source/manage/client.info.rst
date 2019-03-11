@@ -1,6 +1,6 @@
 .. _pmm-admin.info:
 
-:ref:`Getting information about PMM Client <pmm-admin.info>`
+`Getting information about  pmm-client with pmm-admin info <pmm-admin.info>`_
 ================================================================================
 
 Use the |pmm-admin.info| command

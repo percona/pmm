@@ -1,6 +1,6 @@
 .. _pmm-admin.show-passwords:
 
-:ref:`Getting passwords used by PMM Client <pmm-admin.show-passwords>`
+`Displaying passwords with pmm-admin show-passwords <pmm-admin.show-passwords>`_
 ================================================================================
 
 Use the |pmm-admin.show-passwords| command to print credentials stored in the

@@ -1,21 +1,3 @@
-.. _pmm.security:
-
-Security Features in |pmm.name|
-********************************************************************************
-
-You can protect |pmm| from unauthorized access using the following security
-features:
-
-- SSL encryption secures traffic between |pmm-client| and |pmm-server|
-- HTTP password protection adds authentication when accessing the |pmm-server|
-  web interface
-
-|chapter.toc|
-
-.. contents::
-   :local:
-   :depth: 2
-
 .. _pmm.security.ssl-encryption.enabling:
 
 :ref:`Enabling SSL Encryption <pmm.security.ssl-encryption.enabling>`
@@ -81,54 +63,4 @@ If you generated a self-signed certificate:
 
 .. include:: ../.res/code/pmm-admin.config.server.server-insecure-ssl.txt
 
-.. _pmm.security.password-protection.enabling:
-
-:ref:`Enabling Password Protection <pmm.security.password-protection.enabling>`
-================================================================================
-
-You can set the password for accessing the |pmm-server| web interface by passing
-the :term:`SERVER_PASSWORD <SERVER_PASSWORD>` environment variable when
-:ref:`creating and running the PMM Server container <server-container>`.
-
-To set the environment variable, use the ``-e`` option.
-
-By default, the user name is ``pmm``. You can change it by passing the
-:term:`SERVER_USER <SERVER_USER>` environment variable. Note that the
-following example uses an insecure port 80 which is typically used for HTTP
-connections.
-
-|tip.run-all.root|.
-
-.. include:: ../.res/code/docker.run.server-user.example.txt
-
-|pmm-client| uses the same credentials to communicate with |pmm-server|.  If you
-set the user name and password as described, specify them when :ref:`connecting
-a PMM Client to a PMM Server <deploy-pmm.client_server.connecting>`:
-
-.. include:: ../.res/code/pmm-admin.config.server.server-user.server-password.txt
-
-.. _pmm.security.combining:
-		
-:ref:`Combining Security Features <pmm.security.combining>`
-================================================================================
-
-You can enable both HTTP password protection and SSL encryption by combining the
-corresponding options.
-
-The following example shows how you might :ref:`run the PMM Server container
-<server-container>`:
-
-.. include:: ../.res/code/docker.run.example.txt
-		 
-The following example shows how you might :ref:`connect to PMM Server
-<deploy-pmm.client_server.connecting>`:
-
-.. include:: ../.res/code/pmm-admin.config.example.txt
-
-To see which security features are enabled, run either |pmm-admin.ping|,
-|pmm-admin.config|, |pmm-admin.info|, or |pmm-admin.list| and look at the server
-address field. For example:
-
-.. include:: ../.res/code/pmm-admin.ping.txt
-	     
 .. include:: ../.res/replace.txt

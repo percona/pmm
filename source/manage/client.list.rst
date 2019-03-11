@@ -1,6 +1,6 @@
 .. _pmm-admin.list:
 
-:ref:`Listing monitoring services <pmm-admin.list>`
+`View state of exporters with pmm-admin list <pmm-admin.list>`_
 ================================================================================
 
 Use the |pmm-admin.list| command to list all enabled services with details.

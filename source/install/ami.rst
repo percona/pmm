@@ -110,7 +110,7 @@ already set up EC2 key pair to limit access to your instance.
 
 .. important::
 
-   It is important that the security group allow communication via the the :term:`following ports
+   It is important that the security group allow communication via the the :ref:`following ports
    <Ports>`: *22*, *80*, and *443*. |pmm| should also be able to access port *3306* on
    the RDS that uses the instance.
 

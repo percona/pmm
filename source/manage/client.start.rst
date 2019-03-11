@@ -1,6 +1,6 @@
 .. _pmm-admin.start:
 
-:ref:`Starting monitoring services <pmm-admin.start>`
+`Starting monitoring services with pmm-admin start <pmm-admin.start>`_
 ================================================================================
 
 Use the |pmm-admin.start| command to start services managed by this

@@ -1,7 +1,7 @@
 .. _pmm-admin.uninstall:
 
-:ref:`Cleaning Up Before Uninstall <pmm-admin.uninstall>`
-================================================================================
+`Uninstalling monitoring services with pmm-admin uninstall <pmm-admin.uninstall>`_
+==================================================================================
 
 Use the |pmm-admin.uninstall| command to remove all services even if
 |pmm-server| is not available.  To uninstall |pmm| correctly, you first need to

@@ -1,6 +1,6 @@
 .. _deploy-pmm.client_server.connecting:
 
-:ref:`Connecting PMM Clients to the PMM Server <deploy-pmm.client_server.connecting>`
+`Connecting PMM Clients to the PMM Server <deploy-pmm.client_server.connecting>`_
 =====================================================================================
 
 With your server and clients set up, you must configure each |pmm-client| and

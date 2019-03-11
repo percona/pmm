@@ -1,7 +1,7 @@
 .. _run-server-docker:
-
+--------------------------------------------------------------------------------
 Running |pmm-server| via |docker|
-********************************************************************************
+--------------------------------------------------------------------------------
 
 |docker| images of |pmm-server| are stored at the `percona/pmm-server`_ public
 repository. The host must be able to run |docker| 1.12.6 or later, and have
@@ -25,6 +25,7 @@ For more information about using |docker|, see the `Docker Docs`_.
    decrease |prometheus| database size.
 
 .. toctree::
+   :name: dockertoc
    :maxdepth: 1
 
    docker.setting-up

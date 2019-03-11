@@ -1,6 +1,6 @@
 .. _pmm-admin.purge:
 
-:ref:`Purging metrics data <pmm-admin.purge>`
+`Purging metrics data with pmm-admin purge <pmm-admin.purge>`_
 ================================================================================
 
 Use the |pmm-admin.purge| command to purge metrics data

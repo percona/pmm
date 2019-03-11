@@ -1,7 +1,11 @@
+--------------------------------------------------------------------------------
+Adding Linux metrics
+--------------------------------------------------------------------------------
+
 .. _pmm-admin-add-linux-metrics:
 
-:ref:`Adding general system metrics service <pmm-admin-add-linux-metrics>`
---------------------------------------------------------------------------------
+`Adding general system metrics service <pmm-admin-add-linux-metrics>`_
+================================================================================
 
 Use the |opt.linux-metrics| alias to enable general system metrics monitoring.
 
@@ -44,7 +48,7 @@ For more information, run
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
 
 
 .. include:: ../.res/replace.txt

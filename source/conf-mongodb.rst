@@ -52,7 +52,7 @@ service in the |pmm-admin.add| command:
 
 .. _pmm.qan.mongodb.configuring.profiling.enabling:
 
-:ref:`Enabling Profiling <pmm.qan.mongodb.configuring.profiling.enabling>`
+`Enabling Profiling <pmm.qan.mongodb.configuring.profiling.enabling>`_
 ================================================================================
 
 For `MongoDB`_ to work correctly with |abbr.qan|, you need to enable profiling
@@ -68,7 +68,7 @@ displays the following warning:
 
 .. _pmm.qan.mongodb.conf.profiling.command_line.enable:
 
-:ref:`Enabling Profiling on Command Line <pmm.qan.mongodb.conf.profiling.command_line.enable>`
+`Enabling Profiling on Command Line <pmm.qan.mongodb.conf.profiling.command_line.enable>`_
 ----------------------------------------------------------------------------------------------
 
 You can enable profiling from command line when you start the :program:`mongod`
@@ -102,7 +102,7 @@ the accuracy of the collected information decreases as well.
 
 .. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling:
 
-:ref:`Enabling Profiling in the Configuration File <pmm.qan.mongodb.configuring.configuration-file.profiling.enabling>`
+`Enabling Profiling in the Configuration File <pmm.qan.mongodb.configuring.configuration-file.profiling.enabling>`_
 -----------------------------------------------------------------------------------------------------------------------
 
 If you run ``mongod`` as a service, you need to use the configuration file which

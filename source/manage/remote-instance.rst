@@ -1,7 +1,8 @@
 .. _pmm.amazon-rds-agentless:
 
-Adding a MySQL or PostgreSQL Remote DB instance to |pmm|
-********************************************************************************
+--------------------------------------------------------------------------------
+Agentless PMM support for MySQL or PostgreSQL Remote instance
+--------------------------------------------------------------------------------
 
 There is a quick method for users to add DBaaS instances to |pmm| without having
 to hook into the Cloud Provider's API, and with no need to have |pmm-client|
@@ -25,7 +26,7 @@ Two database servers are currently supported by this method: |postgresql| and
 
 
 Adding a Remote PostgreSQL Instance
-================================================================================
+--------------------------------------------------------------------------------
 
 To add a remote PostgreSQL DB instance, you will need to fill in three fields:
 Hostname, Username, and Password, and optionally override the default Port and Name fields:
@@ -34,7 +35,7 @@ Hostname, Username, and Password, and optionally override the default Port and N
 
 
 Adding a Remote MySQL Instance
-================================================================================
+--------------------------------------------------------------------------------
 
 To add a remote MySQL DB instance, you will need to fill in three fields:
 Hostname, Username, and Password, and optionally override the default Port and Name fields:
@@ -42,7 +43,7 @@ Hostname, Username, and Password, and optionally override the default Port and N
 .. figure:: ../.res/graphics/png/metrics-monitor.add-remote-mysql-instance.png
 
 Viewing Remote MySQL and PostgreSQL Instances
-================================================================================
+--------------------------------------------------------------------------------
 
 |amazon-rds| and remote instances can be seen in the RDS and
 Remote Instances list, which can be accessed in the |metrics-monitor| navigation
