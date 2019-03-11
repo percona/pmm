@@ -36,13 +36,18 @@ func main() {
 	app := kingpin.New("pmm-admin", fmt.Sprintf("Version %s.", version.Version))
 	app.HelpFlag.Short('h')
 	app.Version(version.FullInfo())
-	pmmServerAddressF := app.Flag("server-url", "PMM Server URL.").Envar("PMM_ADMIN_SERVER_URL").Required().String()
-	debugF := app.Flag("debug", "Enable debug output.").Envar("PMM_ADMIN_DEBUG").Bool()
+	app.DefaultEnvars()
+	pmmServerAddressF := app.Flag("server-url", "PMM Server URL.").Required().String()
+	debugF := app.Flag("debug", "Enable debug logging.").Bool()
+	traceF := app.Flag("trace", "Enable trace logging.").Bool()
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
-		logrus.Debug("Debug logging enabled.")
+	}
+	if *traceF {
+		logrus.SetLevel(logrus.TraceLevel)
+		logrus.SetReportCaller(true)
 	}
 
 	u, err := url.Parse(*pmmServerAddressF)
@@ -60,7 +65,7 @@ func main() {
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(u.Host, u.Path, []string{u.Scheme})
 	transport.SetLogger(logrus.WithField("component", "client"))
-	transport.Debug = *debugF
+	transport.Debug = *debugF || *traceF
 	// disable HTTP/2
 	transport.Transport.(*http.Transport).TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 	client.Default = client.New(transport, nil)
