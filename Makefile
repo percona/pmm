@@ -10,7 +10,7 @@ PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --all --contains --dirty HEAD)
 
 release:                        ## Build bin/pmm-managed release binary.
-	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH) -ldflags " \
+	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH)/pmm-managed -ldflags " \
 		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.ProjectName=pmm-managed' \
 		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
 		-X 'github.com/percona/pmm-managed/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
