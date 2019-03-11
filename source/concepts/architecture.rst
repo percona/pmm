@@ -1,7 +1,7 @@
 .. _pmm.architecture:
 
 --------------------------------------------------------------------------------
-Client/Server Architecture - an Overview
+Client/Server architecture - an overview
 --------------------------------------------------------------------------------
 
 The |pmm| platform is based on a client-server model that enables scalability.
