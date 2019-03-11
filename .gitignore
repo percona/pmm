@@ -1,10 +1,7 @@
-# Binaries for programs and plugins
-qan-api
-prototool
+/.vscode/
 
-# Test binary, build with `go test -c`
-*.test
+/bin/
 
-# Output of the go coverage tool, specifically when used with LiteIDE
-*.out
-logs/
+cover.out
+
+/logs/

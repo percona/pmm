@@ -135,11 +135,14 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:1493bd6cdd47745075f65633af4a42d9531a4f7d3da8b2c175314b8d5678e0b8"
+  digest = "1:ac59722af16542eb92dd7b0d5ca205a7eda83489091773ce2a34b18c673be614"
   name = "github.com/percona/pmm"
-  packages = ["api/qan"]
+  packages = [
+    "api/qan",
+    "version",
+  ]
   pruneopts = "NUT"
-  revision = "8eb136e7cb79d65ec9b457d3a24289308f49247f"
+  revision = "05036f9df1fadbdad5a7ecf0ec66d0a6766c7fea"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -285,6 +288,7 @@
     "github.com/percona/go-mysql/log/slow",
     "github.com/percona/go-mysql/query",
     "github.com/percona/pmm/api/qan",
+    "github.com/percona/pmm/version",
     "github.com/pkg/errors",
     "github.com/stretchr/testify/assert",
     "golang.org/x/net/context",
