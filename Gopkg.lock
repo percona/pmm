@@ -420,7 +420,7 @@
   revision = "c21a8b77f9f040598af1c8c5c0870568f1959df3"
 
 [[projects]]
-  digest = "1:e691ee34c8956964e61221103fdb1371683a19f3f315119d0a0ea67064338de5"
+  digest = "1:d88b6a00529e21d2c0d3b764271a206f1ac300f6103da2d2d86d8373d4e520c4"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -428,8 +428,6 @@
     "balancer/base",
     "balancer/roundrobin",
     "binarylog/grpc_binarylog_v1",
-    "channelz/grpc_channelz_v1",
-    "channelz/service",
     "codes",
     "connectivity",
     "credentials",
@@ -527,7 +525,6 @@
     "golang.org/x/sync/errgroup",
     "golang.org/x/sys/unix",
     "google.golang.org/grpc",
-    "google.golang.org/grpc/channelz/service",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/grpclog",
     "google.golang.org/grpc/reflection",
