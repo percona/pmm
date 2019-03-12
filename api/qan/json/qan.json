@@ -825,84 +825,89 @@
               "description": "ReportReply is list of reports per quieryids, hosts etc.",
               "type": "object",
               "properties": {
+                "limit": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "offset": {
+                  "type": "integer",
+                  "format": "int64"
+                },
                 "rows": {
                   "type": "array",
                   "items": {
-                    "description": "ProfileRow define metrics for selected dimention.",
+                    "description": "Row define metrics for selected dimention.",
                     "type": "object",
                     "properties": {
-                      "d_client_hosts": {
-                        "type": "string"
-                      },
-                      "d_databases": {
-                        "type": "string"
-                      },
-                      "d_schemas": {
-                        "type": "string"
-                      },
-                      "d_servers": {
-                        "type": "string"
-                      },
-                      "d_usernames": {
-                        "type": "string"
-                      },
                       "dimension": {
                         "type": "string"
                       },
-                      "fingerprint": {
-                        "type": "string"
-                      },
-                      "first_seen": {
-                        "type": "string"
-                      },
-                      "load": {
-                        "type": "number",
-                        "format": "float"
-                      },
-                      "percentage": {
-                        "type": "number",
-                        "format": "float"
-                      },
-                      "qps": {
-                        "type": "number",
-                        "format": "float"
+                      "metrics": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "description": "Metric cell.",
+                          "type": "object",
+                          "properties": {
+                            "sparkline": {
+                              "type": "array",
+                              "items": {
+                                "description": "Point is sparkline point: x -\u003e ts, y -\u003e val.",
+                                "type": "object",
+                                "properties": {
+                                  "ts": {
+                                    "type": "string",
+                                    "format": "int64"
+                                  },
+                                  "val": {
+                                    "type": "number",
+                                    "format": "float"
+                                  }
+                                }
+                              }
+                            },
+                            "stats": {
+                              "description": "Stat is statistics of specific metric.",
+                              "type": "object",
+                              "properties": {
+                                "cnt": {
+                                  "type": "number",
+                                  "format": "float"
+                                },
+                                "max": {
+                                  "type": "number",
+                                  "format": "float"
+                                },
+                                "min": {
+                                  "type": "number",
+                                  "format": "float"
+                                },
+                                "p99": {
+                                  "type": "number",
+                                  "format": "float"
+                                },
+                                "rate": {
+                                  "type": "number",
+                                  "format": "float"
+                                },
+                                "sum": {
+                                  "type": "number",
+                                  "format": "float"
+                                }
+                              }
+                            }
+                          }
+                        }
                       },
                       "rank": {
                         "type": "integer",
                         "format": "int64"
-                      },
-                      "row_number": {
-                        "type": "number",
-                        "format": "float"
-                      },
-                      "stats": {
-                        "description": "Stats metrics.",
-                        "type": "object",
-                        "properties": {
-                          "m_query_time_max": {
-                            "type": "number",
-                            "format": "float"
-                          },
-                          "m_query_time_min": {
-                            "type": "number",
-                            "format": "float"
-                          },
-                          "m_query_time_p99": {
-                            "type": "number",
-                            "format": "float"
-                          },
-                          "m_query_time_sum": {
-                            "type": "number",
-                            "format": "float"
-                          },
-                          "num_queries": {
-                            "type": "number",
-                            "format": "float"
-                          }
-                        }
                       }
                     }
                   }
+                },
+                "total_rows": {
+                  "type": "integer",
+                  "format": "int64"
                 }
               }
             }
