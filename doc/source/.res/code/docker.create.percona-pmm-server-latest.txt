@@ -6,4 +6,4 @@
       -v /var/lib/mysql \
       -v /var/lib/grafana \
       --name pmm-data \
-      percona/pmm-server:latest /bin/true
+      percona/pmm-server:1 /bin/true

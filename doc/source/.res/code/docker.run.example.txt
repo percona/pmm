@@ -7,4 +7,4 @@
      -e SERVER_PASSWORD=SomeR4ndom-Pa$$w0rd \
      -v /etc/pmm-certs:/srv/nginx \
      --restart always \
-     percona/pmm-server:latest
+     percona/pmm-server:1
