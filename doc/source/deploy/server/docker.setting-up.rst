@@ -56,7 +56,7 @@ The previous command does the following:
   that you can use to reference the container within a |docker| network.
   In this case: ``pmm-data``.
 
-* ``percona/pmm-server:latest`` is the name and version tag of the image
+* ``percona/pmm-server:1`` is the name and version tag of the image
   to derive the container from.
 
 * ``/bin/true`` is the command that the container runs.
