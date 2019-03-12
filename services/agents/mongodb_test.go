@@ -52,5 +52,6 @@ func TestMongodbExporterConfig(t *testing.T) {
 		},
 	}
 	assert.Equal(t, expected.Args, actual.Args)
+	assert.Equal(t, expected.Env, actual.Env)
 	assert.Equal(t, expected, actual)
 }

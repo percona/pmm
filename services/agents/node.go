@@ -31,24 +31,33 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *api.SetState
 	)
 
 	args := []string{
-		"--collector.boottime",
-		"--collector.diskstats",
-		"--collector.filesystem",
-		"--collector.loadavg",
-		"--collector.meminfo",
-		"--collector.netdev",
-		// TODO "--collector.ntp",
-		// TODO "--collector.textfile",
-		// TODO --collector.textfile.directory=""
-		"--collector.time",
-		"--collector.cpu",
+		// "--collector.ntp", disabled for now
+		"--collector.runit",
+		"--collector.supervisord",
+		// "--collector.tcpstat", disabled for now
+
+		// TODO
+		// "--collector.textfile",
+		// "--collector.textfile.directory",
+
 		"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
 	}
 
-	// useful for development
+	// do not enable Linux-specific collectors on macOS, that's useful for our development
 	if pointer.GetString(node.Distro) != "darwin" {
 		args = append(args,
+			// enable disabled by default
 			"--collector.buddyinfo",
+			"--collector.drbd",
+			"--collector.interrupts",
+			"--collector.ksmd",
+			"--collector.logind",
+			"--collector.meminfo_numa",
+			"--collector.mountstats",
+			"--collector.processes",
+			"--collector.qdisc",
+			"--collector.systemd",
+			"--collector.wifi",
 		)
 	}
 

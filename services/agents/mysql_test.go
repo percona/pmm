@@ -33,7 +33,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	}
 	exporter := &models.Agent{
 		Username: pointer.ToString("username"),
-		Password: pointer.ToString("password"),
+		Password: pointer.ToString("s3cur3 p@$$w0r4."),
 	}
 	actual := mysqldExporterConfig(mysql, exporter)
 	expected := &api.SetStateRequest_AgentProcess{
@@ -60,9 +60,10 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			"-web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=username:password@tcp(1.2.3.4:3306)/?timeout=5s",
+			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=5s",
 		},
 	}
 	assert.Equal(t, expected.Args, actual.Args)
+	assert.Equal(t, expected.Env, actual.Env)
 	assert.Equal(t, expected, actual)
 }
