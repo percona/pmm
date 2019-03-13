@@ -35,7 +35,14 @@ func (o *AddNodeExporterReader) ReadResponse(response runtime.ClientResponse, co
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddNodeExporterDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -59,6 +66,44 @@ func (o *AddNodeExporterOK) Error() string {
 func (o *AddNodeExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddNodeExporterOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddNodeExporterDefault creates a AddNodeExporterDefault with default headers values
+func NewAddNodeExporterDefault(code int) *AddNodeExporterDefault {
+	return &AddNodeExporterDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddNodeExporterDefault handles this case with default header values.
+
+An error response.
+*/
+type AddNodeExporterDefault struct {
+	_statusCode int
+
+	Payload *AddNodeExporterDefaultBody
+}
+
+// Code gets the status code for the add node exporter default response
+func (o *AddNodeExporterDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddNodeExporterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] AddNodeExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddNodeExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddNodeExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -96,6 +141,44 @@ func (o *AddNodeExporterBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddNodeExporterBody) UnmarshalBinary(b []byte) error {
 	var res AddNodeExporterBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddNodeExporterDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddNodeExporterDefaultBody
+*/
+type AddNodeExporterDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add node exporter default body
+func (o *AddNodeExporterDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddNodeExporterDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddNodeExporterDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddNodeExporterDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

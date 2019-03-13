@@ -35,7 +35,14 @@ func (o *AddQANMySQLPerfSchemaAgentReader) ReadResponse(response runtime.ClientR
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddQANMySQLPerfSchemaAgentDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -59,6 +66,44 @@ func (o *AddQANMySQLPerfSchemaAgentOK) Error() string {
 func (o *AddQANMySQLPerfSchemaAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddQANMySQLPerfSchemaAgentOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddQANMySQLPerfSchemaAgentDefault creates a AddQANMySQLPerfSchemaAgentDefault with default headers values
+func NewAddQANMySQLPerfSchemaAgentDefault(code int) *AddQANMySQLPerfSchemaAgentDefault {
+	return &AddQANMySQLPerfSchemaAgentDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddQANMySQLPerfSchemaAgentDefault handles this case with default header values.
+
+An error response.
+*/
+type AddQANMySQLPerfSchemaAgentDefault struct {
+	_statusCode int
+
+	Payload *AddQANMySQLPerfSchemaAgentDefaultBody
+}
+
+// Code gets the status code for the add QAN my SQL perf schema agent default response
+func (o *AddQANMySQLPerfSchemaAgentDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddQANMySQLPerfSchemaAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] AddQANMySQLPerfSchemaAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddQANMySQLPerfSchemaAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddQANMySQLPerfSchemaAgentDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -105,6 +150,44 @@ func (o *AddQANMySQLPerfSchemaAgentBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddQANMySQLPerfSchemaAgentBody) UnmarshalBinary(b []byte) error {
 	var res AddQANMySQLPerfSchemaAgentBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddQANMySQLPerfSchemaAgentDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddQANMySQLPerfSchemaAgentDefaultBody
+*/
+type AddQANMySQLPerfSchemaAgentDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add QAN my SQL perf schema agent default body
+func (o *AddQANMySQLPerfSchemaAgentDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddQANMySQLPerfSchemaAgentDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddQANMySQLPerfSchemaAgentDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddQANMySQLPerfSchemaAgentDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -35,7 +35,14 @@ func (o *AddMySqldExporterReader) ReadResponse(response runtime.ClientResponse, 
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddMySqldExporterDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -59,6 +66,44 @@ func (o *AddMySqldExporterOK) Error() string {
 func (o *AddMySqldExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddMySqldExporterOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddMySqldExporterDefault creates a AddMySqldExporterDefault with default headers values
+func NewAddMySqldExporterDefault(code int) *AddMySqldExporterDefault {
+	return &AddMySqldExporterDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddMySqldExporterDefault handles this case with default header values.
+
+An error response.
+*/
+type AddMySqldExporterDefault struct {
+	_statusCode int
+
+	Payload *AddMySqldExporterDefaultBody
+}
+
+// Code gets the status code for the add my sqld exporter default response
+func (o *AddMySqldExporterDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddMySqldExporterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMySQLdExporter][%d] AddMySQLdExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddMySqldExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddMySqldExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -105,6 +150,44 @@ func (o *AddMySqldExporterBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddMySqldExporterBody) UnmarshalBinary(b []byte) error {
 	var res AddMySqldExporterBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddMySqldExporterDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddMySqldExporterDefaultBody
+*/
+type AddMySqldExporterDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add my sqld exporter default body
+func (o *AddMySqldExporterDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddMySqldExporterDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddMySqldExporterDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddMySqldExporterDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

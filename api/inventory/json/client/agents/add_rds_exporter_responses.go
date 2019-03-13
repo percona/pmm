@@ -35,7 +35,14 @@ func (o *AddRDSExporterReader) ReadResponse(response runtime.ClientResponse, con
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddRDSExporterDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -59,6 +66,44 @@ func (o *AddRDSExporterOK) Error() string {
 func (o *AddRDSExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddRDSExporterOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddRDSExporterDefault creates a AddRDSExporterDefault with default headers values
+func NewAddRDSExporterDefault(code int) *AddRDSExporterDefault {
+	return &AddRDSExporterDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddRDSExporterDefault handles this case with default header values.
+
+An error response.
+*/
+type AddRDSExporterDefault struct {
+	_statusCode int
+
+	Payload *AddRDSExporterDefaultBody
+}
+
+// Code gets the status code for the add RDS exporter default response
+func (o *AddRDSExporterDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddRDSExporterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] AddRDSExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddRDSExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddRDSExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -99,6 +144,44 @@ func (o *AddRDSExporterBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRDSExporterBody) UnmarshalBinary(b []byte) error {
 	var res AddRDSExporterBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddRDSExporterDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddRDSExporterDefaultBody
+*/
+type AddRDSExporterDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add RDS exporter default body
+func (o *AddRDSExporterDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSExporterDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSExporterDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddRDSExporterDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

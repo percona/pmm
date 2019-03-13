@@ -35,7 +35,14 @@ func (o *GetAgentReader) ReadResponse(response runtime.ClientResponse, consumer 
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewGetAgentDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -59,6 +66,44 @@ func (o *GetAgentOK) Error() string {
 func (o *GetAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(GetAgentOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewGetAgentDefault creates a GetAgentDefault with default headers values
+func NewGetAgentDefault(code int) *GetAgentDefault {
+	return &GetAgentDefault{
+		_statusCode: code,
+	}
+}
+
+/*GetAgentDefault handles this case with default header values.
+
+An error response.
+*/
+type GetAgentDefault struct {
+	_statusCode int
+
+	Payload *GetAgentDefaultBody
+}
+
+// Code gets the status code for the get agent default response
+func (o *GetAgentDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *GetAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/Get][%d] GetAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(GetAgentDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -93,6 +138,44 @@ func (o *GetAgentBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetAgentBody) UnmarshalBinary(b []byte) error {
 	var res GetAgentBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model GetAgentDefaultBody
+*/
+type GetAgentDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this get agent default body
+func (o *GetAgentDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentDefaultBody) UnmarshalBinary(b []byte) error {
+	var res GetAgentDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
