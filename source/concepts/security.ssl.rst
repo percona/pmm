@@ -4,7 +4,11 @@
 ================================================================================
 
 You can encrypt traffic between |pmm-client| and |pmm-server| using SSL
-certificates.
+certificates. TLS protocol versions compatibility is as follows:
+
+* TLS v1.0 - deprecated,
+* TLS v1.1 - deprecated,
+* TLS v1.2 - supported.
 
 .. _pmm.security.valid-certificate:
 
