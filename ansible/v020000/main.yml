@@ -182,29 +182,6 @@
         state: absent
         remove: yes
 
-    - name: pmm-managed                | Create MySQL pmm-managed database
-      mysql_db:
-        name: pmm-managed
-        state: present
-
-    - name: pmm-managed                | Create MySQL pmm-managed user
-      mysql_user:
-        name: pmm-managed
-        host: localhost
-        password: '*816FFB19BC44AC2749D546E48FA0DF957EDB2C5A'
-        priv: 'pmm-managed.*:ALL'
-        encrypted: yes
-        state: present
-
-    - name: qan-api                    | Create MySQL user for Grafana
-      mysql_user:
-        name: grafana
-        host: localhost
-        password: '*58324E2D77A9BBFD9DD1E904649697615FE74649'
-        priv: 'pmm.*:SELECT'
-        encrypted: yes
-        state: present
-
     - name: Hotfix                     | PMM-1232 Fix prometheus memory
       when: supervisorctl.stat.exists
       replace:
