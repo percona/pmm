@@ -24,7 +24,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/reform.v1"
-	"gopkg.in/reform.v1/dialects/mysql"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/tests"
@@ -44,7 +44,7 @@ func TestModels(t *testing.T) {
 			return now
 		}
 
-		db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
 		q = tx.Querier
@@ -110,6 +110,7 @@ func TestModels(t *testing.T) {
 				NodeType:  models.GenericNodeType,
 				NodeName:  "N1 name",
 				CreatedAt: now,
+				UpdatedAt: now,
 			},
 		}
 		assert.Equal(t, expected, nodes)
@@ -128,6 +129,7 @@ func TestModels(t *testing.T) {
 				ServiceName: "S1 name",
 				NodeID:      "N1",
 				CreatedAt:   now,
+				UpdatedAt:   now,
 			},
 		}
 		assert.Equal(t, expected, services)
@@ -146,6 +148,7 @@ func TestModels(t *testing.T) {
 				PMMAgentID:   pointer.ToStringOrNil("A1"),
 				RunsOnNodeID: nil,
 				CreatedAt:    now,
+				UpdatedAt:    now,
 			},
 		}
 		assert.Equal(t, expected, agents)
@@ -164,6 +167,7 @@ func TestModels(t *testing.T) {
 				PMMAgentID:   pointer.ToStringOrNil("A1"),
 				RunsOnNodeID: nil,
 				CreatedAt:    now,
+				UpdatedAt:    now,
 			},
 			{
 				AgentID:      "A3",
@@ -171,6 +175,7 @@ func TestModels(t *testing.T) {
 				PMMAgentID:   pointer.ToStringOrNil("A1"),
 				RunsOnNodeID: nil,
 				CreatedAt:    now,
+				UpdatedAt:    now,
 			},
 		}
 		assert.Equal(t, expected, agents)
@@ -189,6 +194,7 @@ func TestModels(t *testing.T) {
 				PMMAgentID:   pointer.ToStringOrNil("A1"),
 				RunsOnNodeID: nil,
 				CreatedAt:    now,
+				UpdatedAt:    now,
 			},
 		}
 		assert.Equal(t, expected, agents)

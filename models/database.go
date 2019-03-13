@@ -21,19 +21,16 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
+	"time"
 
-	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
-// FIXME Re-add created_at/updated_at: https://jira.percona.com/browse/PMM-3350
+var initialCurrentTime = Now().Format(time.RFC3339)
 
 // databaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
-//
-// Initial AUTO_INCREMENT values are spaced to prevent programming errors, or at least make them more visible.
-// It does not imply that one can have at most 1000 nodes, etc.
 var databaseSchema = [][]string{
 	1: {
 		`CREATE TABLE schema_migrations (
@@ -43,26 +40,26 @@ var databaseSchema = [][]string{
 
 		`CREATE TABLE nodes (
 			-- common
-			node_id VARCHAR(255) NOT NULL,
-			node_type VARCHAR(255) NOT NULL,
-			node_name VARCHAR(255) NOT NULL,
-			machine_id VARCHAR(255),
+			node_id VARCHAR NOT NULL,
+			node_type VARCHAR NOT NULL,
+			node_name VARCHAR NOT NULL,
+			machine_id VARCHAR,
 			custom_labels TEXT,
-			address VARCHAR(255),
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			address VARCHAR,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
 
 			-- Generic
-			distro VARCHAR(255),
-			distro_version VARCHAR(255),
+			distro VARCHAR,
+			distro_version VARCHAR,
 
 			-- Container
-			docker_container_id VARCHAR(255),
-			docker_container_name VARCHAR(255),
+			docker_container_id VARCHAR,
+			docker_container_name VARCHAR,
 
 			-- RemoteAmazonRDS
 			-- RDS instance is stored in address
-			region VARCHAR(255),
+			region VARCHAR,
 
 			PRIMARY KEY (node_id),
 			UNIQUE (node_name),
@@ -71,21 +68,22 @@ var databaseSchema = [][]string{
 			UNIQUE (address, region)
 		)`,
 
-		fmt.Sprintf(`INSERT INTO nodes (node_id, node_type,	node_name) VALUES ('%s', '%s', 'PMM Server')`, PMMServerNodeID, GenericNodeType), //nolint:gosec
+		fmt.Sprintf(`INSERT INTO nodes (node_id, node_type,	node_name, created_at, updated_at) VALUES ('%s', '%s', 'PMM Server', '%s', '%s')`, //nolint:gosec
+			PMMServerNodeID, GenericNodeType, initialCurrentTime, initialCurrentTime), //nolint:gosec
 
 		`CREATE TABLE services (
 			-- common
-			service_id VARCHAR(255) NOT NULL,
-			service_type VARCHAR(255) NOT NULL,
-			service_name VARCHAR(255) NOT NULL,
-			node_id VARCHAR(255) NOT NULL,
+			service_id VARCHAR NOT NULL,
+			service_type VARCHAR NOT NULL,
+			service_name VARCHAR NOT NULL,
+			node_id VARCHAR NOT NULL,
 			custom_labels TEXT,
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
 
 			-- MySQL
 			address VARCHAR(255),
-			port SMALLINT UNSIGNED,
+			port INTEGER,
 
 			PRIMARY KEY (service_id),
 			UNIQUE (service_name),
@@ -94,32 +92,32 @@ var databaseSchema = [][]string{
 
 		`CREATE TABLE agents (
 			-- common
-			agent_id VARCHAR(255) NOT NULL,
-			agent_type VARCHAR(255) NOT NULL,
-			runs_on_node_id VARCHAR(255),
-			pmm_agent_id VARCHAR(255),
+			agent_id VARCHAR NOT NULL,
+			agent_type VARCHAR NOT NULL,
+			runs_on_node_id VARCHAR,
+			pmm_agent_id VARCHAR,
 			custom_labels TEXT,
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			-- updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+			created_at TIMESTAMP NOT NULL,
+			updated_at TIMESTAMP NOT NULL,
 
 			-- state
-			status VARCHAR(255) NOT NULL,
-			listen_port SMALLINT UNSIGNED,
-			version VARCHAR(255),
+			status VARCHAR NOT NULL,
+			listen_port INTEGER,
+			version VARCHAR,
 
 			-- Credentials to access service
-			username VARCHAR(255),
-			password VARCHAR(255),
-			metrics_url VARCHAR(255),
+			username VARCHAR,
+			password VARCHAR,
+			metrics_url VARCHAR,
 
 			PRIMARY KEY (agent_id),
 			FOREIGN KEY (runs_on_node_id) REFERENCES nodes (node_id)
 		)`,
 
 		`CREATE TABLE agent_nodes (
-			agent_id VARCHAR(255) NOT NULL,
-			node_id VARCHAR(255) NOT NULL,
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			agent_id VARCHAR NOT NULL,
+			node_id VARCHAR NOT NULL,
+			created_at TIMESTAMP NOT NULL,
 
 			FOREIGN KEY (agent_id) REFERENCES agents (agent_id),
 			FOREIGN KEY (node_id) REFERENCES nodes (node_id),
@@ -127,85 +125,13 @@ var databaseSchema = [][]string{
 		)`,
 
 		`CREATE TABLE agent_services (
-			agent_id VARCHAR(255) NOT NULL,
-			service_id VARCHAR(255) NOT NULL,
-			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			agent_id VARCHAR NOT NULL,
+			service_id VARCHAR NOT NULL,
+			created_at TIMESTAMP NOT NULL,
 
 			FOREIGN KEY (agent_id) REFERENCES agents (agent_id),
 			FOREIGN KEY (service_id) REFERENCES services (service_id),
 			UNIQUE (agent_id, service_id)
-		)`,
-	},
-	2: {
-		`
-		-- MongoDBExporter
-		ALTER TABLE agents ADD connection_string VARCHAR(255) AFTER password
-		`,
-	},
-}
-
-// OpenDB opens connection to MySQL database and runs migrations.
-func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error) {
-	cfg := mysql.NewConfig()
-	cfg.User = username
-	cfg.Passwd = password
-	cfg.DBName = name
-
-	cfg.Net = "tcp"
-	cfg.Addr = "127.0.0.1:3306"
-
-	// required for reform
-	cfg.ClientFoundRows = true
-	cfg.ParseTime = true
-
-	dsn := cfg.FormatDSN()
-	db, err := sql.Open("mysql", dsn)
-	if err == nil {
-		db.SetMaxIdleConns(10)
-		db.SetMaxOpenConns(10)
-		db.SetConnMaxLifetime(0)
-		err = db.Ping()
-	}
-	if err != nil {
-		return nil, errors.Wrap(err, "Failed to connect to MySQL.")
-	}
-
-	if name == "" {
-		return db, nil
-	}
-
-	latestVersion := len(databaseSchema) - 1 // skip item 0
-	var currentVersion int
-	err = db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
-	if myErr, ok := err.(*mysql.MySQLError); ok && myErr.Number == 0x47a { // 1046 table doesn't exist
-		err = nil
-	}
-	if err != nil {
-		return nil, errors.Wrap(err, "Failed to get current version.")
-	}
-	logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
-
-	for version := currentVersion + 1; version <= latestVersion; version++ {
-		logf("Migrating database to schema version %d ...", version)
-		queries := databaseSchema[version]
-		queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
-		for _, q := range queries {
-			q = strings.TrimSpace(q)
-			logf("\n%s\n", q)
-			if _, err = db.Exec(q); err != nil {
-				return nil, errors.Wrapf(err, "Failed to execute statement:\n%s.", q)
-			}
-		}
-	}
-
-	return db, nil
-}
-
-// postgresDatabaseSchema maps schema version from schema_migrations table (id column) to a slice of DDL queries.
-var postgresDatabaseSchema = [][]string{
-	1: {
-		`CREATE TABLE schema_migrations (
-			id INT PRIMARY KEY
 		)`,
 
 		`CREATE TABLE telemetry (
@@ -215,8 +141,8 @@ var postgresDatabaseSchema = [][]string{
 	},
 }
 
-// OpenPostgresDB opens connection to PostgreSQL database and runs migrations.
-func OpenPostgresDB(name, username, password string, logf reform.Printf) (*sql.DB, error) {
+// OpenDB opens connection to PostgreSQL database and runs migrations.
+func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error) {
 	q := make(url.Values)
 	q.Set("sslmode", "disable")
 
@@ -248,7 +174,7 @@ func OpenPostgresDB(name, username, password string, logf reform.Printf) (*sql.D
 		return db, nil
 	}
 
-	latestVersion := len(postgresDatabaseSchema) - 1 // skip item 0
+	latestVersion := len(databaseSchema) - 1 // skip item 0
 	var currentVersion int
 	err = db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	if pErr, ok := err.(*pq.Error); ok && pErr.Code == "42P01" { // undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
@@ -261,7 +187,7 @@ func OpenPostgresDB(name, username, password string, logf reform.Printf) (*sql.D
 
 	for version := currentVersion + 1; version <= latestVersion; version++ {
 		logf("Migrating database to schema version %d ...", version)
-		queries := postgresDatabaseSchema[version]
+		queries := databaseSchema[version]
 		queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
 		for _, q := range queries {
 			q = strings.TrimSpace(q)

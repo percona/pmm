@@ -121,7 +121,7 @@ type Agent struct {
 	PMMAgentID   *string   `reform:"pmm_agent_id"`
 	CustomLabels []byte    `reform:"custom_labels"`
 	CreatedAt    time.Time `reform:"created_at"`
-	// UpdatedAt    time.Time `reform:"updated_at"`
+	UpdatedAt    time.Time `reform:"updated_at"`
 
 	Status     string  `reform:"status"`
 	ListenPort *uint16 `reform:"listen_port"`
@@ -137,15 +137,20 @@ type Agent struct {
 func (s *Agent) BeforeInsert() error {
 	now := Now()
 	s.CreatedAt = now
-	// s.UpdatedAt = now
+	s.UpdatedAt = now
+	if len(s.CustomLabels) == 0 {
+		s.CustomLabels = nil
+	}
 	return nil
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
 //nolint:unparam
 func (s *Agent) BeforeUpdate() error {
-	// now := Now()
-	// s.UpdatedAt = now
+	s.UpdatedAt = Now()
+	if len(s.CustomLabels) == 0 {
+		s.CustomLabels = nil
+	}
 	return nil
 }
 
@@ -153,7 +158,10 @@ func (s *Agent) BeforeUpdate() error {
 //nolint:unparam
 func (s *Agent) AfterFind() error {
 	s.CreatedAt = s.CreatedAt.UTC()
-	// s.UpdatedAt = s.UpdatedAt.UTC()
+	s.UpdatedAt = s.UpdatedAt.UTC()
+	if len(s.CustomLabels) == 0 {
+		s.CustomLabels = nil
+	}
 	return nil
 }
 

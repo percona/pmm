@@ -26,7 +26,7 @@ import (
 
 // Now returns current time with database precision.
 var Now = func() time.Time {
-	return time.Now().Truncate(time.Second).UTC()
+	return time.Now().Truncate(time.Microsecond).UTC()
 }
 
 // PMMAgentsForChangedNode returns pmm-agents IDs that are affected

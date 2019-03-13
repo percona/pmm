@@ -20,29 +20,32 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/go-sql-driver/mysql"
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
 func assertCantBeNull(t *testing.T, err error, column string) {
 	t.Helper()
 
-	require.IsType(t, &mysql.MySQLError{}, err)
-	mysqlErr := err.(*mysql.MySQLError)
-	assert.EqualValues(t, 1048, mysqlErr.Number)
-	assert.Equal(t, fmt.Sprintf("Column '%s' cannot be null", column), mysqlErr.Message)
+	require.IsType(t, &pq.Error{}, err)
+	pgErr := err.(*pq.Error)
+	// see: https://www.postgresql.org/docs/10/errcodes-appendix.html
+	assert.EqualValues(t, pq.ErrorCode("23502"), pgErr.Code)
+	assert.Equal(t, fmt.Sprintf("null value in column \"%s\" violates not-null constraint", column), pgErr.Message)
 }
 
-func assertDuplicate(t *testing.T, err error, entry, key string) {
+func assertDuplicate(t *testing.T, err error, constraint string) {
 	t.Helper()
 
-	require.IsType(t, &mysql.MySQLError{}, err)
-	mysqlErr := err.(*mysql.MySQLError)
-	assert.EqualValues(t, 1062, mysqlErr.Number)
-	assert.Equal(t, fmt.Sprintf("Duplicate entry '%s' for key '%s'", entry, key), mysqlErr.Message)
+	require.IsType(t, &pq.Error{}, err)
+	pgErr := err.(*pq.Error)
+	// see: https://www.postgresql.org/docs/10/errcodes-appendix.html
+	assert.EqualValues(t, pq.ErrorCode("23505"), pgErr.Code)
+	assert.Equal(t, fmt.Sprintf("duplicate key value violates unique constraint \"%s\"", constraint), pgErr.Message)
 }
 
 func TestDatabaseUniqueIndexes(t *testing.T) {
@@ -54,69 +57,70 @@ func TestDatabaseUniqueIndexes(t *testing.T) {
 	var err error
 
 	t.Run("Nodes", func(t *testing.T) {
+		now := models.Now()
 		// node_id
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name) " +
-				"VALUES ('1', '', 'name')",
+			"INSERT INTO nodes (node_id, node_type, node_name, created_at, updated_at) "+
+				"VALUES ('1', '', 'name', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name) " +
-				"VALUES ('1', '', 'other name')",
+			"INSERT INTO nodes (node_id, node_type, node_name, created_at, updated_at) "+
+				"VALUES ('1', '', 'other name', $1, $2)", now, now,
 		)
-		assertDuplicate(t, err, "1", "PRIMARY")
+		assertDuplicate(t, err, "nodes_pkey")
 
 		// node_name
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name) " +
-				"VALUES ('2', '', 'name')",
+			"INSERT INTO nodes (node_id, node_type, node_name, created_at, updated_at) "+
+				"VALUES ('2', '', 'name', $1, $2)", now, now,
 		)
-		assertDuplicate(t, err, "name", "node_name")
+		assertDuplicate(t, err, "nodes_node_name_key")
 
 		// machine_id
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, machine_id) " +
-				"VALUES ('31', '', 'name31', 'machine-id')",
+			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, created_at, updated_at) "+
+				"VALUES ('31', '', 'name31', 'machine-id', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, machine_id) " +
-				"VALUES ('32', '', 'name32', 'machine-id')",
+			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, created_at, updated_at) "+
+				"VALUES ('32', '', 'name32', 'machine-id', $1, $2)", now, now,
 		)
-		assertDuplicate(t, err, "machine-id", "machine_id")
+		assertDuplicate(t, err, "nodes_machine_id_key")
 
 		// docker_container_id
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, docker_container_id) " +
-				"VALUES ('41', '', 'name41', 'docker-container-id')",
+			"INSERT INTO nodes (node_id, node_type, node_name, docker_container_id, created_at, updated_at) "+
+				"VALUES ('41', '', 'name41', 'docker-container-id', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, docker_container_id) " +
-				"VALUES ('42', '', 'name42', 'docker-container-id')",
+			"INSERT INTO nodes (node_id, node_type, node_name, docker_container_id, created_at, updated_at) "+
+				"VALUES ('42', '', 'name42', 'docker-container-id', $1, $2)", now, now,
 		)
-		assertDuplicate(t, err, "docker-container-id", "docker_container_id")
+		assertDuplicate(t, err, "nodes_docker_container_id_key")
 
 		// (address, region)
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, region) " +
-				"VALUES ('51', '', 'name51', 'instance1', 'region1')",
+			"INSERT INTO nodes (node_id, node_type, node_name, address, region, created_at, updated_at) "+
+				"VALUES ('51', '', 'name51', 'instance1', 'region1', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address, region) " +
-				"VALUES ('52', '', 'name52', 'instance1', 'region1')",
+			"INSERT INTO nodes (node_id, node_type, node_name, address, region, created_at, updated_at) "+
+				"VALUES ('52', '', 'name52', 'instance1', 'region1', $1, $2)", now, now,
 		)
-		assertDuplicate(t, err, "instance1-region1", "address")
+		assertDuplicate(t, err, "nodes_address_region_key")
 		// same address, NULL region is fine
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address) " +
-				"VALUES ('53', '', 'name53', 'instance1')",
+			"INSERT INTO nodes (node_id, node_type, node_name, address, created_at, updated_at) "+
+				"VALUES ('53', '', 'name53', 'instance1', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 		_, err = db.Exec(
-			"INSERT INTO nodes (node_id, node_type, node_name, address) " +
-				"VALUES ('54', '', 'name54', 'instance1')",
+			"INSERT INTO nodes (node_id, node_type, node_name, address, created_at, updated_at) "+
+				"VALUES ('54', '', 'name54', 'instance1', $1, $2)", now, now,
 		)
 		require.NoError(t, err)
 	})

@@ -75,7 +75,7 @@ type Service struct {
 	NodeID       string      `reform:"node_id"`
 	CustomLabels []byte      `reform:"custom_labels"`
 	CreatedAt    time.Time   `reform:"created_at"`
-	// UpdatedAt time.Time   `reform:"updated_at"`
+	UpdatedAt    time.Time   `reform:"updated_at"`
 
 	Address *string `reform:"address"`
 	Port    *uint16 `reform:"port"`
@@ -86,15 +86,20 @@ type Service struct {
 func (s *Service) BeforeInsert() error {
 	now := Now()
 	s.CreatedAt = now
-	// s.UpdatedAt = now
+	s.UpdatedAt = now
+	if len(s.CustomLabels) == 0 {
+		s.CustomLabels = nil
+	}
 	return nil
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
 //nolint:unparam
 func (s *Service) BeforeUpdate() error {
-	// now := Now()
-	// s.UpdatedAt = now
+	s.UpdatedAt = Now()
+	if len(s.CustomLabels) == 0 {
+		s.CustomLabels = nil
+	}
 	return nil
 }
 
@@ -102,7 +107,10 @@ func (s *Service) BeforeUpdate() error {
 //nolint:unparam
 func (s *Service) AfterFind() error {
 	s.CreatedAt = s.CreatedAt.UTC()
-	// s.UpdatedAt = s.UpdatedAt.UTC()
+	s.UpdatedAt = s.UpdatedAt.UTC()
+	if len(s.CustomLabels) == 0 {
+		s.CustomLabels = nil
+	}
 	return nil
 }
 

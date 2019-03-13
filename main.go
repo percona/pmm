@@ -48,8 +48,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"gopkg.in/reform.v1"
-	reformMySQL "gopkg.in/reform.v1/dialects/mysql"
-	reformPostgreSQL "gopkg.in/reform.v1/dialects/postgresql"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-managed/handlers"
 	"github.com/percona/pmm-managed/models"
@@ -343,19 +342,12 @@ func main() {
 		cancel()
 	}()
 
-	sqlDB, err := models.OpenDB(*dbNameF, *dbUsernameF, *dbPasswordF, l.Debugf)
+	sqlDB, err := models.OpenDB(*postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF, l.Debugf)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
 	}
 	defer sqlDB.Close()
-	db := reform.NewDB(sqlDB, reformMySQL.Dialect, nil)
-
-	postgresDB, err := models.OpenPostgresDB(*postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF, l.Debugf)
-	if err != nil {
-		l.Panicf("Failed to connect to database: %+v", err)
-	}
-	defer postgresDB.Close()
-	pdb := reform.NewDB(postgresDB, reformPostgreSQL.Dialect, nil)
+	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	prometheus, err := prometheus.NewService(*prometheusConfigF, *promtoolF, db, *prometheusURLF)
 	if err == nil {
@@ -399,7 +391,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		runTelemetryService(ctx, pdb)
+		runTelemetryService(ctx, db)
 	}()
 
 	wg.Wait()

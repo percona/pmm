@@ -20,17 +20,6 @@ services:
     volumes:
       - ./testdata/grafana:/etc/grafana
 
-  mysql:
-    # We use 5.5 inside pmm-server Docker container, but there is no percona/percona-server:5.5
-    image: ${MYSQL_IMAGE:-percona/percona-server:5.7}
-    ports:
-      - 127.0.0.1:3306:3306
-    environment:
-      - MYSQL_ROOT_PASSWORD=root-password
-      - MYSQL_DATABASE=pmm-managed-dev
-      - MYSQL_USER=pmm-managed
-      - MYSQL_PASSWORD=pmm-managed
-
   postgres:
     image: ${POSTGRES_IMAGE:-postgres:10}
     ports:

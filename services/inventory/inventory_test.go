@@ -29,7 +29,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
-	"gopkg.in/reform.v1/dialects/mysql"
+	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/logger"
@@ -46,7 +46,7 @@ func TestNodes(t *testing.T) {
 	setup := func(t *testing.T) (ns *NodesService, teardown func(t *testing.T)) {
 		uuid.SetRand(new(tests.IDReader))
 
-		db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
 
@@ -192,7 +192,7 @@ func TestServices(t *testing.T) {
 	setup := func(t *testing.T) (ss *ServicesService, teardown func(t *testing.T)) {
 		uuid.SetRand(new(tests.IDReader))
 
-		db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 		tx, err := db.Begin()
 		require.NoError(t, err)
 
@@ -349,7 +349,7 @@ func TestAgents(t *testing.T) {
 
 		uuid.SetRand(new(tests.IDReader))
 
-		db = reform.NewDB(tests.OpenTestDB(t), mysql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db = reform.NewDB(tests.OpenTestDB(t), postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 		r := new(mockRegistry)
 		r.Test(t)

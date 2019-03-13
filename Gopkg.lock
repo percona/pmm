@@ -533,7 +533,6 @@
     "google.golang.org/grpc/reflection",
     "google.golang.org/grpc/status",
     "gopkg.in/reform.v1",
-    "gopkg.in/reform.v1/dialects/mysql",
     "gopkg.in/reform.v1/dialects/postgresql",
     "gopkg.in/reform.v1/parse",
     "gopkg.in/reform.v1/reform",

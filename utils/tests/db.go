@@ -25,32 +25,11 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
-// OpenTestDB recreates testing database and returns an open connection to it.
+// OpenTestDB recreates testing postgres database and returns an open connection to it.
 func OpenTestDB(tb testing.TB) *sql.DB {
 	tb.Helper()
 
 	db, err := models.OpenDB("", "pmm-managed", "pmm-managed", tb.Logf)
-	require.NoError(tb, err)
-
-	const testDatabase = "pmm-managed-dev"
-	_, err = db.Exec("DROP DATABASE `" + testDatabase + "`")
-	require.NoError(tb, err)
-	_, err = db.Exec("CREATE DATABASE `" + testDatabase + "`")
-	require.NoError(tb, err)
-
-	err = db.Close()
-	require.NoError(tb, err)
-
-	db, err = models.OpenDB(testDatabase, "pmm-managed", "pmm-managed", tb.Logf)
-	require.NoError(tb, err)
-	return db
-}
-
-// OpenTestPostgresDB recreates testing postgres database and returns an open connection to it.
-func OpenTestPostgresDB(tb testing.TB) *sql.DB {
-	tb.Helper()
-
-	db, err := models.OpenPostgresDB("", "pmm-managed", "pmm-managed", tb.Logf)
 	require.NoError(tb, err)
 
 	const testDatabase = "pmm-managed-dev"
@@ -62,7 +41,7 @@ func OpenTestPostgresDB(tb testing.TB) *sql.DB {
 	err = db.Close()
 	require.NoError(tb, err)
 
-	db, err = models.OpenPostgresDB(testDatabase, "pmm-managed", "pmm-managed", tb.Logf)
+	db, err = models.OpenDB(testDatabase, "pmm-managed", "pmm-managed", tb.Logf)
 	require.NoError(tb, err)
 	return db
 }
