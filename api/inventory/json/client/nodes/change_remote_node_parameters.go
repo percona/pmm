@@ -15,6 +15,8 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewChangeRemoteNodeParams creates a new ChangeRemoteNodeParams object
@@ -62,7 +64,7 @@ for the change remote node operation typically these are written to a http.Reque
 type ChangeRemoteNodeParams struct {
 
 	/*Body*/
-	Body ChangeRemoteNodeBody
+	Body *models.InventoryChangeRemoteNodeRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +105,13 @@ func (o *ChangeRemoteNodeParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the change remote node params
-func (o *ChangeRemoteNodeParams) WithBody(body ChangeRemoteNodeBody) *ChangeRemoteNodeParams {
+func (o *ChangeRemoteNodeParams) WithBody(body *models.InventoryChangeRemoteNodeRequest) *ChangeRemoteNodeParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the change remote node params
-func (o *ChangeRemoteNodeParams) SetBody(body ChangeRemoteNodeBody) {
+func (o *ChangeRemoteNodeParams) SetBody(body *models.InventoryChangeRemoteNodeRequest) {
 	o.Body = body
 }
 
@@ -121,8 +123,10 @@ func (o *ChangeRemoteNodeParams) WriteToRequest(r runtime.ClientRequest, reg str
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

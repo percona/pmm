@@ -66,10 +66,10 @@ generate:
       # flags: gogoimport=true
       output: .
 
-    - name: grpc-gateway
-      type: go
-      flags: logtostderr=true
-      output: .
+#    - name: grpc-gateway
+#      type: go
+#      flags: logtostderr=true
+#      output: .
 
     - name: swagger
       type: go

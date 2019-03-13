@@ -10,9 +10,10 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/server/json/models"
 )
 
 // VersionReader is a Reader for the Version structure.
@@ -46,7 +47,7 @@ func NewVersionOK() *VersionOK {
 A successful response.
 */
 type VersionOK struct {
-	Payload *VersionOKBody
+	Payload *models.ServerVersionResponse
 }
 
 func (o *VersionOK) Error() string {
@@ -55,44 +56,12 @@ func (o *VersionOK) Error() string {
 
 func (o *VersionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(VersionOKBody)
+	o.Payload = new(models.ServerVersionResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
-	return nil
-}
-
-/*VersionOKBody version o k body
-swagger:model VersionOKBody
-*/
-type VersionOKBody struct {
-
-	// version
-	Version string `json:"version,omitempty"`
-}
-
-// Validate validates this version o k body
-func (o *VersionOKBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *VersionOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *VersionOKBody) UnmarshalBinary(b []byte) error {
-	var res VersionOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

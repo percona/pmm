@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // AddExternalExporterReader is a Reader for the AddExternalExporter structure.
@@ -54,7 +54,7 @@ func NewAddExternalExporterOK() *AddExternalExporterOK {
 A successful response.
 */
 type AddExternalExporterOK struct {
-	Payload *AddExternalExporterOKBody
+	Payload *models.InventoryAddExternalExporterResponse
 }
 
 func (o *AddExternalExporterOK) Error() string {
@@ -63,7 +63,7 @@ func (o *AddExternalExporterOK) Error() string {
 
 func (o *AddExternalExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(AddExternalExporterOKBody)
+	o.Payload = new(models.InventoryAddExternalExporterResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -87,7 +87,7 @@ An error response.
 type AddExternalExporterDefault struct {
 	_statusCode int
 
-	Payload *AddExternalExporterDefaultBody
+	Payload *models.ServerErrorResponse
 }
 
 // Code gets the status code for the add external exporter default response
@@ -101,182 +101,12 @@ func (o *AddExternalExporterDefault) Error() string {
 
 func (o *AddExternalExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(AddExternalExporterDefaultBody)
+	o.Payload = new(models.ServerErrorResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
-	return nil
-}
-
-/*AddExternalExporterBody add external exporter body
-swagger:model AddExternalExporterBody
-*/
-type AddExternalExporterBody struct {
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// URL for scraping metrics.
-	MetricsURL string `json:"metrics_url,omitempty"`
-}
-
-// Validate validates this add external exporter body
-func (o *AddExternalExporterBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddExternalExporterBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddExternalExporterBody) UnmarshalBinary(b []byte) error {
-	var res AddExternalExporterBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddExternalExporterDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddExternalExporterDefaultBody
-*/
-type AddExternalExporterDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this add external exporter default body
-func (o *AddExternalExporterDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddExternalExporterDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddExternalExporterDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddExternalExporterDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddExternalExporterOKBody add external exporter o k body
-swagger:model AddExternalExporterOKBody
-*/
-type AddExternalExporterOKBody struct {
-
-	// external exporter
-	ExternalExporter *AddExternalExporterOKBodyExternalExporter `json:"external_exporter,omitempty"`
-}
-
-// Validate validates this add external exporter o k body
-func (o *AddExternalExporterOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateExternalExporter(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *AddExternalExporterOKBody) validateExternalExporter(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ExternalExporter) { // not required
-		return nil
-	}
-
-	if o.ExternalExporter != nil {
-		if err := o.ExternalExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExternalExporterOK" + "." + "external_exporter")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddExternalExporterOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddExternalExporterOKBody) UnmarshalBinary(b []byte) error {
-	var res AddExternalExporterOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddExternalExporterOKBodyExternalExporter ExternalExporter does not run on any Inventory Node.
-swagger:model AddExternalExporterOKBodyExternalExporter
-*/
-type AddExternalExporterOKBodyExternalExporter struct {
-
-	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// URL for scraping metrics.
-	MetricsURL string `json:"metrics_url,omitempty"`
-}
-
-// Validate validates this add external exporter o k body external exporter
-func (o *AddExternalExporterOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddExternalExporterOKBodyExternalExporter) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddExternalExporterOKBodyExternalExporter) UnmarshalBinary(b []byte) error {
-	var res AddExternalExporterOKBodyExternalExporter
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

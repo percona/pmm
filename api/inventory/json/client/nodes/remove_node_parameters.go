@@ -15,6 +15,8 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewRemoveNodeParams creates a new RemoveNodeParams object
@@ -62,7 +64,7 @@ for the remove node operation typically these are written to a http.Request
 type RemoveNodeParams struct {
 
 	/*Body*/
-	Body RemoveNodeBody
+	Body *models.InventoryRemoveNodeRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +105,13 @@ func (o *RemoveNodeParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the remove node params
-func (o *RemoveNodeParams) WithBody(body RemoveNodeBody) *RemoveNodeParams {
+func (o *RemoveNodeParams) WithBody(body *models.InventoryRemoveNodeRequest) *RemoveNodeParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the remove node params
-func (o *RemoveNodeParams) SetBody(body RemoveNodeBody) {
+func (o *RemoveNodeParams) SetBody(body *models.InventoryRemoveNodeRequest) {
 	o.Body = body
 }
 
@@ -121,8 +123,10 @@ func (o *RemoveNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

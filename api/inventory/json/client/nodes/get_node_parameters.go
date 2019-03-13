@@ -15,6 +15,8 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewGetNodeParams creates a new GetNodeParams object
@@ -62,7 +64,7 @@ for the get node operation typically these are written to a http.Request
 type GetNodeParams struct {
 
 	/*Body*/
-	Body GetNodeBody
+	Body *models.InventoryGetNodeRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +105,13 @@ func (o *GetNodeParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the get node params
-func (o *GetNodeParams) WithBody(body GetNodeBody) *GetNodeParams {
+func (o *GetNodeParams) WithBody(body *models.InventoryGetNodeRequest) *GetNodeParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the get node params
-func (o *GetNodeParams) SetBody(body GetNodeBody) {
+func (o *GetNodeParams) SetBody(body *models.InventoryGetNodeRequest) {
 	o.Body = body
 }
 
@@ -121,8 +123,10 @@ func (o *GetNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regis
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // AddRemoteNodeReader is a Reader for the AddRemoteNode structure.
@@ -47,7 +47,7 @@ func NewAddRemoteNodeOK() *AddRemoteNodeOK {
 A successful response.
 */
 type AddRemoteNodeOK struct {
-	Payload *AddRemoteNodeOKBody
+	Payload *models.InventoryAddRemoteNodeResponse
 }
 
 func (o *AddRemoteNodeOK) Error() string {
@@ -56,144 +56,12 @@ func (o *AddRemoteNodeOK) Error() string {
 
 func (o *AddRemoteNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(AddRemoteNodeOKBody)
+	o.Payload = new(models.InventoryAddRemoteNodeResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
-	return nil
-}
-
-/*AddRemoteNodeBody add remote node body
-swagger:model AddRemoteNodeBody
-*/
-type AddRemoteNodeBody struct {
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Unique across all Nodes user-defined name.
-	NodeName string `json:"node_name,omitempty"`
-}
-
-// Validate validates this add remote node body
-func (o *AddRemoteNodeBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddRemoteNodeBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddRemoteNodeBody) UnmarshalBinary(b []byte) error {
-	var res AddRemoteNodeBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddRemoteNodeOKBody add remote node o k body
-swagger:model AddRemoteNodeOKBody
-*/
-type AddRemoteNodeOKBody struct {
-
-	// remote
-	Remote *AddRemoteNodeOKBodyRemote `json:"remote,omitempty"`
-}
-
-// Validate validates this add remote node o k body
-func (o *AddRemoteNodeOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateRemote(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *AddRemoteNodeOKBody) validateRemote(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Remote) { // not required
-		return nil
-	}
-
-	if o.Remote != nil {
-		if err := o.Remote.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRemoteNodeOK" + "." + "remote")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddRemoteNodeOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddRemoteNodeOKBody) UnmarshalBinary(b []byte) error {
-	var res AddRemoteNodeOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddRemoteNodeOKBodyRemote RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.
-swagger:model AddRemoteNodeOKBodyRemote
-*/
-type AddRemoteNodeOKBodyRemote struct {
-
-	// Custom user-assigned labels. Can be changed.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Unique randomly generated instance identifier, can't be changed.
-	NodeID string `json:"node_id,omitempty"`
-
-	// Unique across all Nodes user-defined name, can be changed.
-	NodeName string `json:"node_name,omitempty"`
-}
-
-// Validate validates this add remote node o k body remote
-func (o *AddRemoteNodeOKBodyRemote) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddRemoteNodeOKBodyRemote) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddRemoteNodeOKBodyRemote) UnmarshalBinary(b []byte) error {
-	var res AddRemoteNodeOKBodyRemote
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

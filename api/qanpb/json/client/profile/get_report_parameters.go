@@ -15,6 +15,8 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/qan/json/models"
 )
 
 // NewGetReportParams creates a new GetReportParams object
@@ -62,7 +64,7 @@ for the get report operation typically these are written to a http.Request
 type GetReportParams struct {
 
 	/*Body*/
-	Body GetReportBody
+	Body *models.QANReportRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +105,13 @@ func (o *GetReportParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the get report params
-func (o *GetReportParams) WithBody(body GetReportBody) *GetReportParams {
+func (o *GetReportParams) WithBody(body *models.QANReportRequest) *GetReportParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the get report params
-func (o *GetReportParams) SetBody(body GetReportBody) {
+func (o *GetReportParams) SetBody(body *models.QANReportRequest) {
 	o.Body = body
 }
 
@@ -121,8 +123,10 @@ func (o *GetReportParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Reg
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

@@ -15,6 +15,8 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewAddExternalExporterParams creates a new AddExternalExporterParams object
@@ -62,7 +64,7 @@ for the add external exporter operation typically these are written to a http.Re
 type AddExternalExporterParams struct {
 
 	/*Body*/
-	Body AddExternalExporterBody
+	Body *models.InventoryAddExternalExporterRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +105,13 @@ func (o *AddExternalExporterParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add external exporter params
-func (o *AddExternalExporterParams) WithBody(body AddExternalExporterBody) *AddExternalExporterParams {
+func (o *AddExternalExporterParams) WithBody(body *models.InventoryAddExternalExporterRequest) *AddExternalExporterParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add external exporter params
-func (o *AddExternalExporterParams) SetBody(body AddExternalExporterBody) {
+func (o *AddExternalExporterParams) SetBody(body *models.InventoryAddExternalExporterRequest) {
 	o.Body = body
 }
 
@@ -121,8 +123,10 @@ func (o *AddExternalExporterParams) WriteToRequest(r runtime.ClientRequest, reg 
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

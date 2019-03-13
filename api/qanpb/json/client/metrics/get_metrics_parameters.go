@@ -15,6 +15,8 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/qan/json/models"
 )
 
 // NewGetMetricsParams creates a new GetMetricsParams object
@@ -62,7 +64,7 @@ for the get metrics operation typically these are written to a http.Request
 type GetMetricsParams struct {
 
 	/*Body*/
-	Body GetMetricsBody
+	Body *models.QANMetricsRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +105,13 @@ func (o *GetMetricsParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the get metrics params
-func (o *GetMetricsParams) WithBody(body GetMetricsBody) *GetMetricsParams {
+func (o *GetMetricsParams) WithBody(body *models.QANMetricsRequest) *GetMetricsParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the get metrics params
-func (o *GetMetricsParams) SetBody(body GetMetricsBody) {
+func (o *GetMetricsParams) SetBody(body *models.QANMetricsRequest) {
 	o.Body = body
 }
 
@@ -121,8 +123,10 @@ func (o *GetMetricsParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Re
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

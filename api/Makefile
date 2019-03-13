@@ -22,7 +22,7 @@ gen: clean            ## Generate files.
 
 	./prototool all
 
-	find . -name '*.swagger.json' -not -path './vendor/*' -print -exec swagger flatten --with-flatten=expand --with-flatten=remove-unused '{}' --output='{}' \;
+	find . -name '*.swagger.json' -not -path './vendor/*' -print -exec swagger flatten --output='{}' \;
 
 	for API in agent_local server inventory managementpb qanpb ; do \
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json ; \

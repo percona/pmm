@@ -15,6 +15,8 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewAddRemoteAmazonRDSNodeParams creates a new AddRemoteAmazonRDSNodeParams object
@@ -62,7 +64,7 @@ for the add remote amazon RDS node operation typically these are written to a ht
 type AddRemoteAmazonRDSNodeParams struct {
 
 	/*Body*/
-	Body AddRemoteAmazonRDSNodeBody
+	Body *models.InventoryAddRemoteAmazonRDSNodeRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +105,13 @@ func (o *AddRemoteAmazonRDSNodeParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add remote amazon RDS node params
-func (o *AddRemoteAmazonRDSNodeParams) WithBody(body AddRemoteAmazonRDSNodeBody) *AddRemoteAmazonRDSNodeParams {
+func (o *AddRemoteAmazonRDSNodeParams) WithBody(body *models.InventoryAddRemoteAmazonRDSNodeRequest) *AddRemoteAmazonRDSNodeParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add remote amazon RDS node params
-func (o *AddRemoteAmazonRDSNodeParams) SetBody(body AddRemoteAmazonRDSNodeBody) {
+func (o *AddRemoteAmazonRDSNodeParams) SetBody(body *models.InventoryAddRemoteAmazonRDSNodeRequest) {
 	o.Body = body
 }
 
@@ -121,8 +123,10 @@ func (o *AddRemoteAmazonRDSNodeParams) WriteToRequest(r runtime.ClientRequest, r
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

@@ -15,6 +15,8 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewChangeAmazonRDSMySQLServiceParams creates a new ChangeAmazonRDSMySQLServiceParams object
@@ -62,7 +64,7 @@ for the change amazon RDS my SQL service operation typically these are written t
 type ChangeAmazonRDSMySQLServiceParams struct {
 
 	/*Body*/
-	Body ChangeAmazonRDSMySQLServiceBody
+	Body *models.InventoryChangeAmazonRDSMySQLServiceRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +105,13 @@ func (o *ChangeAmazonRDSMySQLServiceParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the change amazon RDS my SQL service params
-func (o *ChangeAmazonRDSMySQLServiceParams) WithBody(body ChangeAmazonRDSMySQLServiceBody) *ChangeAmazonRDSMySQLServiceParams {
+func (o *ChangeAmazonRDSMySQLServiceParams) WithBody(body *models.InventoryChangeAmazonRDSMySQLServiceRequest) *ChangeAmazonRDSMySQLServiceParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the change amazon RDS my SQL service params
-func (o *ChangeAmazonRDSMySQLServiceParams) SetBody(body ChangeAmazonRDSMySQLServiceBody) {
+func (o *ChangeAmazonRDSMySQLServiceParams) SetBody(body *models.InventoryChangeAmazonRDSMySQLServiceRequest) {
 	o.Body = body
 }
 
@@ -121,8 +123,10 @@ func (o *ChangeAmazonRDSMySQLServiceParams) WriteToRequest(r runtime.ClientReque
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

@@ -6,16 +6,14 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
-	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // AddMongoDBExporterReader is a Reader for the AddMongoDBExporter structure.
@@ -56,7 +54,7 @@ func NewAddMongoDBExporterOK() *AddMongoDBExporterOK {
 A successful response.
 */
 type AddMongoDBExporterOK struct {
-	Payload *AddMongoDBExporterOKBody
+	Payload *models.InventoryAddMongoDBExporterResponse
 }
 
 func (o *AddMongoDBExporterOK) Error() string {
@@ -65,7 +63,7 @@ func (o *AddMongoDBExporterOK) Error() string {
 
 func (o *AddMongoDBExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(AddMongoDBExporterOKBody)
+	o.Payload = new(models.InventoryAddMongoDBExporterResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -89,7 +87,7 @@ An error response.
 type AddMongoDBExporterDefault struct {
 	_statusCode int
 
-	Payload *AddMongoDBExporterDefaultBody
+	Payload *models.ServerErrorResponse
 }
 
 // Code gets the status code for the add mongo d b exporter default response
@@ -103,271 +101,12 @@ func (o *AddMongoDBExporterDefault) Error() string {
 
 func (o *AddMongoDBExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(AddMongoDBExporterDefaultBody)
+	o.Payload = new(models.ServerErrorResponse)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
-	return nil
-}
-
-/*AddMongoDBExporterBody add mongo d b exporter body
-swagger:model AddMongoDBExporterBody
-*/
-type AddMongoDBExporterBody struct {
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// MongoDB password for scraping metrics.
-	Password string `json:"password,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// MongoDB username for scraping metrics.
-	Username string `json:"username,omitempty"`
-}
-
-// Validate validates this add mongo d b exporter body
-func (o *AddMongoDBExporterBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddMongoDBExporterBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddMongoDBExporterBody) UnmarshalBinary(b []byte) error {
-	var res AddMongoDBExporterBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddMongoDBExporterDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddMongoDBExporterDefaultBody
-*/
-type AddMongoDBExporterDefaultBody struct {
-
-	// code
-	Code int32 `json:"code,omitempty"`
-
-	// error
-	Error string `json:"error,omitempty"`
-
-	// message
-	Message string `json:"message,omitempty"`
-}
-
-// Validate validates this add mongo d b exporter default body
-func (o *AddMongoDBExporterDefaultBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddMongoDBExporterDefaultBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddMongoDBExporterDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddMongoDBExporterDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddMongoDBExporterOKBody add mongo d b exporter o k body
-swagger:model AddMongoDBExporterOKBody
-*/
-type AddMongoDBExporterOKBody struct {
-
-	// mongodb exporter
-	MongodbExporter *AddMongoDBExporterOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
-}
-
-// Validate validates this add mongo d b exporter o k body
-func (o *AddMongoDBExporterOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateMongodbExporter(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *AddMongoDBExporterOKBody) validateMongodbExporter(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.MongodbExporter) { // not required
-		return nil
-	}
-
-	if o.MongodbExporter != nil {
-		if err := o.MongodbExporter.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMongoDBExporterOK" + "." + "mongodb_exporter")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddMongoDBExporterOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddMongoDBExporterOKBody) UnmarshalBinary(b []byte) error {
-	var res AddMongoDBExporterOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*AddMongoDBExporterOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
-swagger:model AddMongoDBExporterOKBodyMongodbExporter
-*/
-type AddMongoDBExporterOKBodyMongodbExporter struct {
-
-	// Unique randomly generated instance identifier.
-	AgentID string `json:"agent_id,omitempty"`
-
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Listen port for scraping metrics.
-	ListenPort int64 `json:"listen_port,omitempty"`
-
-	// MongoDB password for scraping metrics.
-	Password string `json:"password,omitempty"`
-
-	// The pmm-agent identifier which runs this instance.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
-	// Service identifier.
-	ServiceID string `json:"service_id,omitempty"`
-
-	// AgentStatus represents actual Agent status.
-	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
-	Status *string `json:"status,omitempty"`
-
-	// MongoDB username for scraping metrics.
-	Username string `json:"username,omitempty"`
-}
-
-// Validate validates this add mongo d b exporter o k body mongodb exporter
-func (o *AddMongoDBExporterOKBodyMongodbExporter) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-var addMongoDBExporterOKBodyMongodbExporterTypeStatusPropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		addMongoDBExporterOKBodyMongodbExporterTypeStatusPropEnum = append(addMongoDBExporterOKBodyMongodbExporterTypeStatusPropEnum, v)
-	}
-}
-
-const (
-
-	// AddMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	AddMongoDBExporterOKBodyMongodbExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
-
-	// AddMongoDBExporterOKBodyMongodbExporterStatusSTARTING captures enum value "STARTING"
-	AddMongoDBExporterOKBodyMongodbExporterStatusSTARTING string = "STARTING"
-
-	// AddMongoDBExporterOKBodyMongodbExporterStatusRUNNING captures enum value "RUNNING"
-	AddMongoDBExporterOKBodyMongodbExporterStatusRUNNING string = "RUNNING"
-
-	// AddMongoDBExporterOKBodyMongodbExporterStatusWAITING captures enum value "WAITING"
-	AddMongoDBExporterOKBodyMongodbExporterStatusWAITING string = "WAITING"
-
-	// AddMongoDBExporterOKBodyMongodbExporterStatusSTOPPING captures enum value "STOPPING"
-	AddMongoDBExporterOKBodyMongodbExporterStatusSTOPPING string = "STOPPING"
-
-	// AddMongoDBExporterOKBodyMongodbExporterStatusDONE captures enum value "DONE"
-	AddMongoDBExporterOKBodyMongodbExporterStatusDONE string = "DONE"
-)
-
-// prop value enum
-func (o *AddMongoDBExporterOKBodyMongodbExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMongoDBExporterOKBodyMongodbExporterTypeStatusPropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *AddMongoDBExporterOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Status) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateStatusEnum("addMongoDBExporterOK"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *AddMongoDBExporterOKBodyMongodbExporter) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *AddMongoDBExporterOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
-	var res AddMongoDBExporterOKBodyMongodbExporter
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
 	return nil
 }

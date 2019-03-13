@@ -15,6 +15,8 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewGetAgentParams creates a new GetAgentParams object
@@ -62,7 +64,7 @@ for the get agent operation typically these are written to a http.Request
 type GetAgentParams struct {
 
 	/*Body*/
-	Body GetAgentBody
+	Body *models.InventoryGetAgentRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +105,13 @@ func (o *GetAgentParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the get agent params
-func (o *GetAgentParams) WithBody(body GetAgentBody) *GetAgentParams {
+func (o *GetAgentParams) WithBody(body *models.InventoryGetAgentRequest) *GetAgentParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the get agent params
-func (o *GetAgentParams) SetBody(body GetAgentBody) {
+func (o *GetAgentParams) SetBody(body *models.InventoryGetAgentRequest) {
 	o.Body = body
 }
 
@@ -121,8 +123,10 @@ func (o *GetAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regi
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {

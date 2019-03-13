@@ -15,6 +15,8 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewAddRDSExporterParams creates a new AddRDSExporterParams object
@@ -62,7 +64,7 @@ for the add RDS exporter operation typically these are written to a http.Request
 type AddRDSExporterParams struct {
 
 	/*Body*/
-	Body AddRDSExporterBody
+	Body *models.InventoryAddRDSExporterRequest
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +105,13 @@ func (o *AddRDSExporterParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add RDS exporter params
-func (o *AddRDSExporterParams) WithBody(body AddRDSExporterBody) *AddRDSExporterParams {
+func (o *AddRDSExporterParams) WithBody(body *models.InventoryAddRDSExporterRequest) *AddRDSExporterParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add RDS exporter params
-func (o *AddRDSExporterParams) SetBody(body AddRDSExporterBody) {
+func (o *AddRDSExporterParams) SetBody(body *models.InventoryAddRDSExporterRequest) {
 	o.Body = body
 }
 
@@ -121,8 +123,10 @@ func (o *AddRDSExporterParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 	}
 	var res []error
 
-	if err := r.SetBodyParam(o.Body); err != nil {
-		return err
+	if o.Body != nil {
+		if err := r.SetBodyParam(o.Body); err != nil {
+			return err
+		}
 	}
 
 	if len(res) > 0 {
