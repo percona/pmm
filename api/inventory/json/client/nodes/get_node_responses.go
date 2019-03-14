@@ -33,7 +33,14 @@ func (o *GetNodeReader) ReadResponse(response runtime.ClientResponse, consumer r
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewGetNodeDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -57,6 +64,44 @@ func (o *GetNodeOK) Error() string {
 func (o *GetNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(GetNodeOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewGetNodeDefault creates a GetNodeDefault with default headers values
+func NewGetNodeDefault(code int) *GetNodeDefault {
+	return &GetNodeDefault{
+		_statusCode: code,
+	}
+}
+
+/*GetNodeDefault handles this case with default header values.
+
+An error response.
+*/
+type GetNodeDefault struct {
+	_statusCode int
+
+	Payload *GetNodeDefaultBody
+}
+
+// Code gets the status code for the get node default response
+func (o *GetNodeDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *GetNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] GetNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(GetNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -91,6 +136,44 @@ func (o *GetNodeBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetNodeBody) UnmarshalBinary(b []byte) error {
 	var res GetNodeBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetNodeDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model GetNodeDefaultBody
+*/
+type GetNodeDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this get node default body
+func (o *GetNodeDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetNodeDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetNodeDefaultBody) UnmarshalBinary(b []byte) error {
+	var res GetNodeDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -33,7 +33,14 @@ func (o *ChangeAmazonRDSMySQLServiceReader) ReadResponse(response runtime.Client
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewChangeAmazonRDSMySQLServiceDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -57,6 +64,44 @@ func (o *ChangeAmazonRDSMySQLServiceOK) Error() string {
 func (o *ChangeAmazonRDSMySQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ChangeAmazonRDSMySQLServiceOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewChangeAmazonRDSMySQLServiceDefault creates a ChangeAmazonRDSMySQLServiceDefault with default headers values
+func NewChangeAmazonRDSMySQLServiceDefault(code int) *ChangeAmazonRDSMySQLServiceDefault {
+	return &ChangeAmazonRDSMySQLServiceDefault{
+		_statusCode: code,
+	}
+}
+
+/*ChangeAmazonRDSMySQLServiceDefault handles this case with default header values.
+
+An error response.
+*/
+type ChangeAmazonRDSMySQLServiceDefault struct {
+	_statusCode int
+
+	Payload *ChangeAmazonRDSMySQLServiceDefaultBody
+}
+
+// Code gets the status code for the change amazon RDS my SQL service default response
+func (o *ChangeAmazonRDSMySQLServiceDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *ChangeAmazonRDSMySQLServiceDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/ChangeAmazonRDSMySQL][%d] ChangeAmazonRDSMySQLService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangeAmazonRDSMySQLServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(ChangeAmazonRDSMySQLServiceDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -103,6 +148,44 @@ func (o *ChangeAmazonRDSMySQLServiceBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeAmazonRDSMySQLServiceBody) UnmarshalBinary(b []byte) error {
 	var res ChangeAmazonRDSMySQLServiceBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeAmazonRDSMySQLServiceDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model ChangeAmazonRDSMySQLServiceDefaultBody
+*/
+type ChangeAmazonRDSMySQLServiceDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this change amazon RDS my SQL service default body
+func (o *ChangeAmazonRDSMySQLServiceDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAmazonRDSMySQLServiceDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAmazonRDSMySQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ChangeAmazonRDSMySQLServiceDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

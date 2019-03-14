@@ -33,7 +33,14 @@ func (o *GetServiceReader) ReadResponse(response runtime.ClientResponse, consume
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewGetServiceDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -57,6 +64,44 @@ func (o *GetServiceOK) Error() string {
 func (o *GetServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(GetServiceOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewGetServiceDefault creates a GetServiceDefault with default headers values
+func NewGetServiceDefault(code int) *GetServiceDefault {
+	return &GetServiceDefault{
+		_statusCode: code,
+	}
+}
+
+/*GetServiceDefault handles this case with default header values.
+
+An error response.
+*/
+type GetServiceDefault struct {
+	_statusCode int
+
+	Payload *GetServiceDefaultBody
+}
+
+// Code gets the status code for the get service default response
+func (o *GetServiceDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *GetServiceDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] GetService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(GetServiceDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -91,6 +136,44 @@ func (o *GetServiceBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetServiceBody) UnmarshalBinary(b []byte) error {
 	var res GetServiceBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetServiceDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model GetServiceDefaultBody
+*/
+type GetServiceDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this get service default body
+func (o *GetServiceDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetServiceDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetServiceDefaultBody) UnmarshalBinary(b []byte) error {
+	var res GetServiceDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

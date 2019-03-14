@@ -2,10 +2,24 @@ syntax = "proto3";
 
 package inventory;
 
+option (server.errors_swagger) = {
+  responses: {
+    key: "default"
+    value: {
+      description: "An error response."
+      schema: {
+        json_schema: {
+          ref: ".server.ErrorResponse"
+        }
+      }
+    }
+  }
+};
 option go_package = "inventory";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "server/annotations.proto";
 
 // GenericNode represents a bare metal server or virtual machine.
 message GenericNode {

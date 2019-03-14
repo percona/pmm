@@ -33,7 +33,14 @@ func (o *AddRemoteNodeReader) ReadResponse(response runtime.ClientResponse, cons
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddRemoteNodeDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -57,6 +64,44 @@ func (o *AddRemoteNodeOK) Error() string {
 func (o *AddRemoteNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddRemoteNodeOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddRemoteNodeDefault creates a AddRemoteNodeDefault with default headers values
+func NewAddRemoteNodeDefault(code int) *AddRemoteNodeDefault {
+	return &AddRemoteNodeDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddRemoteNodeDefault handles this case with default header values.
+
+An error response.
+*/
+type AddRemoteNodeDefault struct {
+	_statusCode int
+
+	Payload *AddRemoteNodeDefaultBody
+}
+
+// Code gets the status code for the add remote node default response
+func (o *AddRemoteNodeDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddRemoteNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] AddRemoteNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddRemoteNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddRemoteNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -94,6 +139,44 @@ func (o *AddRemoteNodeBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddRemoteNodeBody) UnmarshalBinary(b []byte) error {
 	var res AddRemoteNodeBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddRemoteNodeDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddRemoteNodeDefaultBody
+*/
+type AddRemoteNodeDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add remote node default body
+func (o *AddRemoteNodeDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRemoteNodeDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRemoteNodeDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddRemoteNodeDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -33,7 +33,14 @@ func (o *AddContainerNodeReader) ReadResponse(response runtime.ClientResponse, c
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddContainerNodeDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -57,6 +64,44 @@ func (o *AddContainerNodeOK) Error() string {
 func (o *AddContainerNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddContainerNodeOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddContainerNodeDefault creates a AddContainerNodeDefault with default headers values
+func NewAddContainerNodeDefault(code int) *AddContainerNodeDefault {
+	return &AddContainerNodeDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddContainerNodeDefault handles this case with default header values.
+
+An error response.
+*/
+type AddContainerNodeDefault struct {
+	_statusCode int
+
+	Payload *AddContainerNodeDefaultBody
+}
+
+// Code gets the status code for the add container node default response
+func (o *AddContainerNodeDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddContainerNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddContainer][%d] AddContainerNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddContainerNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddContainerNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -103,6 +148,44 @@ func (o *AddContainerNodeBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddContainerNodeBody) UnmarshalBinary(b []byte) error {
 	var res AddContainerNodeBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddContainerNodeDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddContainerNodeDefaultBody
+*/
+type AddContainerNodeDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add container node default body
+func (o *AddContainerNodeDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddContainerNodeDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddContainerNodeDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddContainerNodeDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

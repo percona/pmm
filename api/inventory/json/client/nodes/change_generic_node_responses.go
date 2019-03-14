@@ -33,7 +33,14 @@ func (o *ChangeGenericNodeReader) ReadResponse(response runtime.ClientResponse, 
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewChangeGenericNodeDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -57,6 +64,44 @@ func (o *ChangeGenericNodeOK) Error() string {
 func (o *ChangeGenericNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ChangeGenericNodeOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewChangeGenericNodeDefault creates a ChangeGenericNodeDefault with default headers values
+func NewChangeGenericNodeDefault(code int) *ChangeGenericNodeDefault {
+	return &ChangeGenericNodeDefault{
+		_statusCode: code,
+	}
+}
+
+/*ChangeGenericNodeDefault handles this case with default header values.
+
+An error response.
+*/
+type ChangeGenericNodeDefault struct {
+	_statusCode int
+
+	Payload *ChangeGenericNodeDefaultBody
+}
+
+// Code gets the status code for the change generic node default response
+func (o *ChangeGenericNodeDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *ChangeGenericNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/ChangeGeneric][%d] ChangeGenericNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangeGenericNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(ChangeGenericNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -106,6 +151,44 @@ func (o *ChangeGenericNodeBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *ChangeGenericNodeBody) UnmarshalBinary(b []byte) error {
 	var res ChangeGenericNodeBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeGenericNodeDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model ChangeGenericNodeDefaultBody
+*/
+type ChangeGenericNodeDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this change generic node default body
+func (o *ChangeGenericNodeDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeGenericNodeDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeGenericNodeDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ChangeGenericNodeDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
