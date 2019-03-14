@@ -2,56 +2,91 @@ syntax = "proto3";
 
 package qan;
 
-option go_package = "qan";
+option go_package = "qanpb";
 
 import "qan/qan.proto";
 
-// Agent service contains RPCs to implement communication mechanism with qan-agent.
-// Namely query metrics, query explain etc.
-service Agent {
-  // DataInterchange defines duplex communication between Query analytics API and Agent.
-  rpc DataInterchange(stream AgentMessage) returns (stream ApiMessage);
+// MetricsSource defines collected metrics source.
+enum MetricsSource {
+  METRICS_SOURCE_INVALID = 0;
+  MYSQL_SLOWLOG = 1;
+  MYSQL_PERFSCHEMA = 2;
 }
 
-// AgentMessage contains several Metrics Bucket for one or more periods of time.
-message AgentMessage {
+// Collector service accepts data from pmm-agent (via pmm-managed).
+service Collector {
+  // Collect accepts data from pmm-agent (via pmm-managed).
+  rpc Collect(CollectRequest) returns (CollectResponse);
+}
+
+message CollectRequest {
   repeated MetricsBucket metrics_bucket = 1;
 }
 
-// MetricsBucket is aggregated message created by qan-agent.
+// MetricsBucket is aggregated message created by pmm-agent.
 // Contains information about one query selected in defined way from query class in specific period of time.
 message MetricsBucket {
-  string queryid = 1; // md5 of digest_text/fingerprint.
-  string fingerprint = 2; // digest_text - query signature. Query without values.
+  // md5 of digest_text/fingerprint.
+  string queryid = 1;
+  // digest_text - query signature. Query without values.
+  string fingerprint = 2;
+  //
   // Dimension Group.
+  //
+
+  // Server.
   string d_server = 3;
-  string d_database = 4; // postgress database.
-  string d_schema = 5; // mysql database; postgress schema; mongo collection.
-  string d_username = 6; // client user name.
-  string d_client_host = 7; // client IP or hostname.
-  map<string, string> labels = 8; // Custom labels names:values.
-  string agent_uuid = 9; // Identifier of agent that collect and send metrics.
-  int64 period_start = 10; // Time when collection of bucket started.
-  uint32 period_length = 11; // Duration of bucket.
-  string metrics_source = 12; // Ex.: slowlog, perf schema, Mongo DB, Percona Server, etc.
-  string example = 13; // One of query example from set found in bucket.
+  // PostgreSQL database.
+  string d_database = 4;
+  // MySQL database or PostgreSQL schema.
+  string d_schema = 5;
+  // client user name.
+  string d_username = 6;
+  // client IP or hostname.
+  string d_client_host = 7;
+  // Custom labels names:values.
+  map<string, string> labels = 8;
+  // Identifier of agent that collect and send metrics.
+  string agent_uuid = 9;
+  // Time when collection of bucket started.
+  uint32 period_start_unix_secs = 10;
+  // Duration of bucket.
+  uint32 period_length_secs = 11;
+  // Metrics source.
+  MetricsSource metrics_source = 12;
+  // One of query example from set found in bucket.
+  string example = 13;
   ExampleFormat example_format = 14;
-  uint32 is_truncated = 15; // Indicates if query examples is too long and was truncated.
+  // Indicates if query examples is too long and was truncated.
+  bool is_truncated = 15;
   ExampleType example_type = 16;
-  string example_metrics = 17; // JSON raw metrics for given query example.
+  // JSON raw metrics for given query example.
+  // FIXME(askomorokhov) wat?
+  string example_metrics = 17;
+  //
   // Metrics.
-  float num_queries_with_warnings = 18; // How many queries was with warnings in bucket.
-  // {code: count }
-  map<uint64, uint64> warnings = 19; // List of warnings.
-  float num_queries_with_errors = 20; // How many queries was with error in bucket.
-  // {code: count }
-  map<uint64, uint64> errors = 21; // List of errors.
-  float num_queries = 22; // Amount queries in this bucket.
-  float m_query_time_cnt = 23; // How many times query_time was found.
-  float m_query_time_sum = 24; // Sum of all values query_time in bucket.
-  float m_query_time_min = 25; // Smallest value of query_time in bucket.
-  float m_query_time_max = 26; // Biggest value of query_time in bucket.
-  float m_query_time_p99 = 27; // 99 percentile of value of query_time in bucket.
+  //
+
+  // How many queries was with warnings in bucket.
+  float num_queries_with_warnings = 18;
+  // List of warnings: {code: count}.
+  map<uint64, uint64> warnings = 19;
+  // How many queries was with error in bucket.
+  float num_queries_with_errors = 20;
+  // List of errors: {code: count}.
+  map<uint64, uint64> errors = 21;
+  // Amount queries in this bucket.
+  float num_queries = 22;
+  // How many times query_time was found.
+  float m_query_time_cnt = 23;
+  // Sum of all values query_time in bucket.
+  float m_query_time_sum = 24;
+  // Smallest value of query_time in bucket.
+  float m_query_time_min = 25;
+  // Biggest value of query_time in bucket.
+  float m_query_time_max = 26;
+  // 99 percentile of value of query_time in bucket.
+  float m_query_time_p99 = 27;
   float m_lock_time_cnt = 28;
   float m_lock_time_sum = 29;
   float m_lock_time_min = 30;
@@ -137,9 +172,15 @@ message MetricsBucket {
   float m_tmp_table_sizes_min = 110;
   float m_tmp_table_sizes_max = 111;
   float m_tmp_table_sizes_p99 = 112;
+  //
   // boolean metrics
+  //
+  // FIXME(askomorokhov) why they are float then?
+  //
+
   float m_qc_hit_cnt = 113;
-  float m_qc_hit_sum = 114; // %true = sum/cnt
+  // %true = sum/cnt
+  float m_qc_hit_sum = 114;
   float m_full_scan_cnt = 115;
   float m_full_scan_sum = 116;
   float m_full_join_cnt = 117;
@@ -168,7 +209,10 @@ message MetricsBucket {
   float m_no_index_used_sum = 140;
   float m_no_good_index_used_cnt = 141;
   float m_no_good_index_used_sum = 142;
-  // mongo metrics
+  //
+  // MongoDB metrics.
+  //
+
   float m_docs_returned_cnt = 143;
   float m_docs_returned_sum = 144;
   float m_docs_returned_min = 145;
@@ -186,6 +230,4 @@ message MetricsBucket {
   float m_docs_scanned_p99 = 157;
 }
 
-message ApiMessage {
-  uint32 saved_amount = 1; // how many query classes were saved.
-}
+message CollectResponse {}

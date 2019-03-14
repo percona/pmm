@@ -124,8 +124,8 @@
                   "type": "string"
                 },
                 "example_format": {
+                  "description": "ExampleFormat is format of query example: real or query without values.",
                   "type": "string",
-                  "title": "ExampleFormat is formant of query example: real or query without values",
                   "default": "EXAMPLE_FORMAT_INVALID",
                   "enum": [
                     "EXAMPLE_FORMAT_INVALID",

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package qan;
 
-option go_package = "qan";
+option go_package = "qanpb";
 
 import "google/api/annotations.proto";
 

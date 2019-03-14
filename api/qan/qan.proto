@@ -2,9 +2,9 @@ syntax = "proto3";
 
 package qan;
 
-option go_package = "qan";
+option go_package = "qanpb";
 
-// ExampleFormat is formant of query example: real or query without values
+// ExampleFormat is format of query example: real or query without values.
 enum ExampleFormat {
   EXAMPLE_FORMAT_INVALID = 0;
   EXAMPLE = 1;

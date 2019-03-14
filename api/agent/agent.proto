@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package agent;
 
-option go_package = "agent";
+option go_package = "agentpb";
 
-import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
 import "inventory/agent_status.proto";
+import "qan/collector.proto";
 
 // Type represents Agent type.
 enum Type {
@@ -36,13 +36,13 @@ message Pong {
   google.protobuf.Timestamp current_time = 1;
 }
 
-// QANDataRequest is an AgentMessage for sending QAN data.
-message QANDataRequest {
-  google.protobuf.Any data = 1; // qan.AgentMessage
+// QANCollectRequest is an AgentMessage for sending QAN data for qan-api.
+message QANCollectRequest {
+  qan.CollectRequest message = 1;
 }
 
-// QANDataResponse is a ServerMessage for QAN data acceptance.
-message QANDataResponse {}
+// QANCollectResponse is a ServerMessage for QAN data acceptance.
+message QANCollectResponse {}
 
 // StateChangedRequest is an AgentMessage describing actual agent status.
 message StateChangedRequest {
@@ -66,11 +66,12 @@ message SetStateRequest {
     map<string, string> text_files = 6;
   }
   map<string, AgentProcess> agent_processes = 1;
-  // InternalAgent describes desired configuration of a single agent internal for pmm-agent.
-  message InternalAgent {
+  // BuiltinAgent describes desired configuration of a single built-in agent for pmm-agent.
+  message BuiltinAgent {
     Type type = 1;
+    string dsn = 2;
   }
-  map<string, InternalAgent> internal_agents = 2;
+  map<string, BuiltinAgent> builtin_agents = 2;
 }
 
 // SetStateResponse is an AgentMessage for SetStateRequest acceptance.
@@ -93,7 +94,7 @@ message AgentMessage {
     // requests from agent
     Ping ping = 2;
     StateChangedRequest state_changed = 3;
-    QANDataRequest qan_data = 4;
+    QANCollectRequest qan_collect = 4;
     // responses from agent
     Pong pong = 8;
     SetStateResponse set_state = 9;
@@ -108,7 +109,7 @@ message ServerMessage {
     // responses from server
     Pong pong = 2;
     StateChangedResponse state_changed = 3;
-    QANDataResponse qan_data = 4;
+    QANCollectResponse qan_collect = 4;
     // requests from server
     Ping ping = 8;
     SetStateRequest set_state = 9;
