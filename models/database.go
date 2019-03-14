@@ -41,25 +41,25 @@ var databaseSchema = [][]string{
 		`CREATE TABLE nodes (
 			-- common
 			node_id VARCHAR NOT NULL,
-			node_type VARCHAR NOT NULL,
-			node_name VARCHAR NOT NULL,
-			machine_id VARCHAR,
+			node_type VARCHAR NOT NULL CHECK (node_type <> ''),
+			node_name VARCHAR NOT NULL CHECK (node_name <> ''),
+			machine_id VARCHAR CHECK (machine_id <> ''),
 			custom_labels TEXT,
-			address VARCHAR,
+			address VARCHAR CHECK (address <> ''),
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL,
 
 			-- Generic
-			distro VARCHAR,
-			distro_version VARCHAR,
+			distro VARCHAR CHECK (distro <> ''),
+			distro_version VARCHAR CHECK (distro_version <> ''),
 
 			-- Container
-			docker_container_id VARCHAR,
-			docker_container_name VARCHAR,
+			docker_container_id VARCHAR CHECK (docker_container_id <> ''),
+			docker_container_name VARCHAR CHECK (docker_container_name <> ''),
 
 			-- RemoteAmazonRDS
 			-- RDS instance is stored in address
-			region VARCHAR,
+			region VARCHAR CHECK (region <> ''),
 
 			PRIMARY KEY (node_id),
 			UNIQUE (node_name),
@@ -74,15 +74,14 @@ var databaseSchema = [][]string{
 		`CREATE TABLE services (
 			-- common
 			service_id VARCHAR NOT NULL,
-			service_type VARCHAR NOT NULL,
-			service_name VARCHAR NOT NULL,
-			node_id VARCHAR NOT NULL,
+			service_type VARCHAR NOT NULL CHECK (service_type <> ''),
+			service_name VARCHAR NOT NULL CHECK (service_name <> ''),
+			node_id VARCHAR NOT NULL CHECK (node_id <> ''),
 			custom_labels TEXT,
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL,
 
-			-- MySQL
-			address VARCHAR(255),
+			address VARCHAR(255) CHECK (address <> ''),
 			port INTEGER,
 
 			PRIMARY KEY (service_id),
@@ -92,10 +91,10 @@ var databaseSchema = [][]string{
 
 		`CREATE TABLE agents (
 			-- common
-			agent_id VARCHAR NOT NULL,
+			agent_id VARCHAR NOT NULL CHECK (agent_type <> ''),
 			agent_type VARCHAR NOT NULL,
-			runs_on_node_id VARCHAR,
-			pmm_agent_id VARCHAR,
+			runs_on_node_id VARCHAR CHECK (runs_on_node_id <> ''),
+			pmm_agent_id VARCHAR CHECK (pmm_agent_id <> ''),
 			custom_labels TEXT,
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL,
@@ -103,15 +102,16 @@ var databaseSchema = [][]string{
 			-- state
 			status VARCHAR NOT NULL,
 			listen_port INTEGER,
-			version VARCHAR,
+			version VARCHAR CHECK (version <> ''),
 
 			-- Credentials to access service
-			username VARCHAR,
-			password VARCHAR,
-			metrics_url VARCHAR,
+			username VARCHAR CHECK (username <> ''),
+			password VARCHAR CHECK (password <> ''),
+			metrics_url VARCHAR CHECK (metrics_url <> ''),
 
 			PRIMARY KEY (agent_id),
-			FOREIGN KEY (runs_on_node_id) REFERENCES nodes (node_id)
+			FOREIGN KEY (runs_on_node_id) REFERENCES nodes (node_id),
+			FOREIGN KEY (pmm_agent_id) REFERENCES agents (agent_id)
 		)`,
 
 		`CREATE TABLE agent_nodes (

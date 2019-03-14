@@ -472,13 +472,6 @@ func TestAgents(t *testing.T) {
 		require.Len(t, actualAgents, 1)
 		assert.Equal(t, expectedNodeExporter, actualAgents[0])
 
-		as.r.(*mockRegistry).On("Kick", ctx, "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
-		err = as.Remove(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000001")
-		require.NoError(t, err)
-		actualAgent, err = as.Get(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000001")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000001" not found.`), err)
-		assert.Nil(t, actualAgent)
-
 		err = as.Remove(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000002")
 		require.NoError(t, err)
 		actualAgent, err = as.Get(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000002")
@@ -495,6 +488,13 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		actualAgent, err = as.Get(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000006")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000006" not found.`), err)
+		assert.Nil(t, actualAgent)
+
+		as.r.(*mockRegistry).On("Kick", ctx, "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
+		err = as.Remove(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000001")
+		require.NoError(t, err)
+		actualAgent, err = as.Get(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000001")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000001" not found.`), err)
 		assert.Nil(t, actualAgent)
 
 		actualAgents, err = as.List(ctx, db, AgentFilters{})
