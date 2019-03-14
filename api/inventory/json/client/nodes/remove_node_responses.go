@@ -10,10 +10,9 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // RemoveNodeReader is a Reader for the RemoveNode structure.
@@ -47,7 +46,7 @@ func NewRemoveNodeOK() *RemoveNodeOK {
 A successful response.
 */
 type RemoveNodeOK struct {
-	Payload models.InventoryRemoveNodeResponse
+	Payload interface{}
 }
 
 func (o *RemoveNodeOK) Error() string {
@@ -61,5 +60,37 @@ func (o *RemoveNodeOK) readResponse(response runtime.ClientResponse, consumer ru
 		return err
 	}
 
+	return nil
+}
+
+/*RemoveNodeBody remove node body
+swagger:model RemoveNodeBody
+*/
+type RemoveNodeBody struct {
+
+	// Unique randomly generated instance identifier.
+	NodeID string `json:"node_id,omitempty"`
+}
+
+// Validate validates this remove node body
+func (o *RemoveNodeBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RemoveNodeBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RemoveNodeBody) UnmarshalBinary(b []byte) error {
+	var res RemoveNodeBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }

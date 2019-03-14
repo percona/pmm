@@ -15,8 +15,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewListNodesParams creates a new ListNodesParams object
@@ -64,7 +62,7 @@ for the list nodes operation typically these are written to a http.Request
 type ListNodesParams struct {
 
 	/*Body*/
-	Body models.InventoryListNodesRequest
+	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +103,13 @@ func (o *ListNodesParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the list nodes params
-func (o *ListNodesParams) WithBody(body models.InventoryListNodesRequest) *ListNodesParams {
+func (o *ListNodesParams) WithBody(body interface{}) *ListNodesParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the list nodes params
-func (o *ListNodesParams) SetBody(body models.InventoryListNodesRequest) {
+func (o *ListNodesParams) SetBody(body interface{}) {
 	o.Body = body
 }
 

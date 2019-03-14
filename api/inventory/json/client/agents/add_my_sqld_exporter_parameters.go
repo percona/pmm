@@ -15,8 +15,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewAddMySqldExporterParams creates a new AddMySqldExporterParams object
@@ -64,7 +62,7 @@ for the add my sqld exporter operation typically these are written to a http.Req
 type AddMySqldExporterParams struct {
 
 	/*Body*/
-	Body *models.InventoryAddMySqldExporterRequest
+	Body AddMySqldExporterBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +103,13 @@ func (o *AddMySqldExporterParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add my sqld exporter params
-func (o *AddMySqldExporterParams) WithBody(body *models.InventoryAddMySqldExporterRequest) *AddMySqldExporterParams {
+func (o *AddMySqldExporterParams) WithBody(body AddMySqldExporterBody) *AddMySqldExporterParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add my sqld exporter params
-func (o *AddMySqldExporterParams) SetBody(body *models.InventoryAddMySqldExporterRequest) {
+func (o *AddMySqldExporterParams) SetBody(body AddMySqldExporterBody) {
 	o.Body = body
 }
 
@@ -123,10 +121,8 @@ func (o *AddMySqldExporterParams) WriteToRequest(r runtime.ClientRequest, reg st
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

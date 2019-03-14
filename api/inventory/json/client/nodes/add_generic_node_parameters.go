@@ -15,8 +15,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewAddGenericNodeParams creates a new AddGenericNodeParams object
@@ -64,7 +62,7 @@ for the add generic node operation typically these are written to a http.Request
 type AddGenericNodeParams struct {
 
 	/*Body*/
-	Body *models.InventoryAddGenericNodeRequest
+	Body AddGenericNodeBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +103,13 @@ func (o *AddGenericNodeParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add generic node params
-func (o *AddGenericNodeParams) WithBody(body *models.InventoryAddGenericNodeRequest) *AddGenericNodeParams {
+func (o *AddGenericNodeParams) WithBody(body AddGenericNodeBody) *AddGenericNodeParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add generic node params
-func (o *AddGenericNodeParams) SetBody(body *models.InventoryAddGenericNodeRequest) {
+func (o *AddGenericNodeParams) SetBody(body AddGenericNodeBody) {
 	o.Body = body
 }
 
@@ -123,10 +121,8 @@ func (o *AddGenericNodeParams) WriteToRequest(r runtime.ClientRequest, reg strfm
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

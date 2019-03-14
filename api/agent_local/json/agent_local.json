@@ -28,7 +28,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/agent_localStatusRequest"
+              "type": "object"
             }
           }
         ],
@@ -36,25 +36,17 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/agent_localStatusResponse"
+              "type": "object",
+              "properties": {
+                "agent_id": {
+                  "type": "string"
+                },
+                "node_id": {
+                  "type": "string"
+                }
+              }
             }
           }
-        }
-      }
-    }
-  },
-  "definitions": {
-    "agent_localStatusRequest": {
-      "type": "object"
-    },
-    "agent_localStatusResponse": {
-      "type": "object",
-      "properties": {
-        "agent_id": {
-          "type": "string"
-        },
-        "node_id": {
-          "type": "string"
         }
       }
     }

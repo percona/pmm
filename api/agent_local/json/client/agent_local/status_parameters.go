@@ -15,8 +15,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/agent_local/json/models"
 )
 
 // NewStatusParams creates a new StatusParams object
@@ -64,7 +62,7 @@ for the status operation typically these are written to a http.Request
 type StatusParams struct {
 
 	/*Body*/
-	Body models.AgentLocalStatusRequest
+	Body interface{}
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +103,13 @@ func (o *StatusParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the status params
-func (o *StatusParams) WithBody(body models.AgentLocalStatusRequest) *StatusParams {
+func (o *StatusParams) WithBody(body interface{}) *StatusParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the status params
-func (o *StatusParams) SetBody(body models.AgentLocalStatusRequest) {
+func (o *StatusParams) SetBody(body interface{}) {
 	o.Body = body
 }
 

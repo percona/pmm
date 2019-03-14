@@ -15,8 +15,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewChangeMySQLServiceParams creates a new ChangeMySQLServiceParams object
@@ -64,7 +62,7 @@ for the change my SQL service operation typically these are written to a http.Re
 type ChangeMySQLServiceParams struct {
 
 	/*Body*/
-	Body *models.InventoryChangeMySQLServiceRequest
+	Body ChangeMySQLServiceBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +103,13 @@ func (o *ChangeMySQLServiceParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the change my SQL service params
-func (o *ChangeMySQLServiceParams) WithBody(body *models.InventoryChangeMySQLServiceRequest) *ChangeMySQLServiceParams {
+func (o *ChangeMySQLServiceParams) WithBody(body ChangeMySQLServiceBody) *ChangeMySQLServiceParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the change my SQL service params
-func (o *ChangeMySQLServiceParams) SetBody(body *models.InventoryChangeMySQLServiceRequest) {
+func (o *ChangeMySQLServiceParams) SetBody(body ChangeMySQLServiceBody) {
 	o.Body = body
 }
 
@@ -123,10 +121,8 @@ func (o *ChangeMySQLServiceParams) WriteToRequest(r runtime.ClientRequest, reg s
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

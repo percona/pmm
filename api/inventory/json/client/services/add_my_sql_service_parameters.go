@@ -15,8 +15,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewAddMySQLServiceParams creates a new AddMySQLServiceParams object
@@ -64,7 +62,7 @@ for the add my SQL service operation typically these are written to a http.Reque
 type AddMySQLServiceParams struct {
 
 	/*Body*/
-	Body *models.InventoryAddMySQLServiceRequest
+	Body AddMySQLServiceBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +103,13 @@ func (o *AddMySQLServiceParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add my SQL service params
-func (o *AddMySQLServiceParams) WithBody(body *models.InventoryAddMySQLServiceRequest) *AddMySQLServiceParams {
+func (o *AddMySQLServiceParams) WithBody(body AddMySQLServiceBody) *AddMySQLServiceParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add my SQL service params
-func (o *AddMySQLServiceParams) SetBody(body *models.InventoryAddMySQLServiceRequest) {
+func (o *AddMySQLServiceParams) SetBody(body AddMySQLServiceBody) {
 	o.Body = body
 }
 
@@ -123,10 +121,8 @@ func (o *AddMySQLServiceParams) WriteToRequest(r runtime.ClientRequest, reg strf
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

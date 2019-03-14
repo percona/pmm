@@ -15,8 +15,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewAddQANMySQLPerfSchemaAgentParams creates a new AddQANMySQLPerfSchemaAgentParams object
@@ -64,7 +62,7 @@ for the add QAN my SQL perf schema agent operation typically these are written t
 type AddQANMySQLPerfSchemaAgentParams struct {
 
 	/*Body*/
-	Body *models.InventoryAddQANMySQLPerfSchemaAgentRequest
+	Body AddQANMySQLPerfSchemaAgentBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +103,13 @@ func (o *AddQANMySQLPerfSchemaAgentParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add QAN my SQL perf schema agent params
-func (o *AddQANMySQLPerfSchemaAgentParams) WithBody(body *models.InventoryAddQANMySQLPerfSchemaAgentRequest) *AddQANMySQLPerfSchemaAgentParams {
+func (o *AddQANMySQLPerfSchemaAgentParams) WithBody(body AddQANMySQLPerfSchemaAgentBody) *AddQANMySQLPerfSchemaAgentParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add QAN my SQL perf schema agent params
-func (o *AddQANMySQLPerfSchemaAgentParams) SetBody(body *models.InventoryAddQANMySQLPerfSchemaAgentRequest) {
+func (o *AddQANMySQLPerfSchemaAgentParams) SetBody(body AddQANMySQLPerfSchemaAgentBody) {
 	o.Body = body
 }
 
@@ -123,10 +121,8 @@ func (o *AddQANMySQLPerfSchemaAgentParams) WriteToRequest(r runtime.ClientReques
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

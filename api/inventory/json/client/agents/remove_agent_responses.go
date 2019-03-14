@@ -10,10 +10,9 @@ import (
 	"io"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // RemoveAgentReader is a Reader for the RemoveAgent structure.
@@ -54,7 +53,7 @@ func NewRemoveAgentOK() *RemoveAgentOK {
 A successful response.
 */
 type RemoveAgentOK struct {
-	Payload models.InventoryRemoveAgentResponse
+	Payload interface{}
 }
 
 func (o *RemoveAgentOK) Error() string {
@@ -85,7 +84,7 @@ An error response.
 type RemoveAgentDefault struct {
 	_statusCode int
 
-	Payload *models.ServerErrorResponse
+	Payload *RemoveAgentDefaultBody
 }
 
 // Code gets the status code for the remove agent default response
@@ -99,12 +98,82 @@ func (o *RemoveAgentDefault) Error() string {
 
 func (o *RemoveAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.ServerErrorResponse)
+	o.Payload = new(RemoveAgentDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
+	return nil
+}
+
+/*RemoveAgentBody remove agent body
+swagger:model RemoveAgentBody
+*/
+type RemoveAgentBody struct {
+
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
+}
+
+// Validate validates this remove agent body
+func (o *RemoveAgentBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RemoveAgentBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RemoveAgentBody) UnmarshalBinary(b []byte) error {
+	var res RemoveAgentBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RemoveAgentDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model RemoveAgentDefaultBody
+*/
+type RemoveAgentDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this remove agent default body
+func (o *RemoveAgentDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RemoveAgentDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RemoveAgentDefaultBody) UnmarshalBinary(b []byte) error {
+	var res RemoveAgentDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }

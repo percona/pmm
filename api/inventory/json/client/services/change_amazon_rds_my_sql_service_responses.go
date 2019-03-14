@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/swag"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // ChangeAmazonRDSMySQLServiceReader is a Reader for the ChangeAmazonRDSMySQLService structure.
@@ -47,7 +47,7 @@ func NewChangeAmazonRDSMySQLServiceOK() *ChangeAmazonRDSMySQLServiceOK {
 A successful response.
 */
 type ChangeAmazonRDSMySQLServiceOK struct {
-	Payload *models.InventoryChangeAmazonRDSMySQLServiceResponse
+	Payload *ChangeAmazonRDSMySQLServiceOKBody
 }
 
 func (o *ChangeAmazonRDSMySQLServiceOK) Error() string {
@@ -56,12 +56,162 @@ func (o *ChangeAmazonRDSMySQLServiceOK) Error() string {
 
 func (o *ChangeAmazonRDSMySQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(models.InventoryChangeAmazonRDSMySQLServiceResponse)
+	o.Payload = new(ChangeAmazonRDSMySQLServiceOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
+	return nil
+}
+
+/*ChangeAmazonRDSMySQLServiceBody change amazon RDS my SQL service body
+swagger:model ChangeAmazonRDSMySQLServiceBody
+*/
+type ChangeAmazonRDSMySQLServiceBody struct {
+
+	// Instance endpoint (full DNS name). Required.
+	Address string `json:"address,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Instance port. Required.
+	Port int64 `json:"port,omitempty"`
+
+	// Unique randomly generated instance identifier. Required.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name. Required.
+	ServiceName string `json:"service_name,omitempty"`
+}
+
+// Validate validates this change amazon RDS my SQL service body
+func (o *ChangeAmazonRDSMySQLServiceBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAmazonRDSMySQLServiceBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAmazonRDSMySQLServiceBody) UnmarshalBinary(b []byte) error {
+	var res ChangeAmazonRDSMySQLServiceBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeAmazonRDSMySQLServiceOKBody change amazon RDS my SQL service o k body
+swagger:model ChangeAmazonRDSMySQLServiceOKBody
+*/
+type ChangeAmazonRDSMySQLServiceOKBody struct {
+
+	// amazon rds mysql
+	AmazonRDSMysql *ChangeAmazonRDSMySQLServiceOKBodyAmazonRDSMysql `json:"amazon_rds_mysql,omitempty"`
+}
+
+// Validate validates this change amazon RDS my SQL service o k body
+func (o *ChangeAmazonRDSMySQLServiceOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateAmazonRDSMysql(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeAmazonRDSMySQLServiceOKBody) validateAmazonRDSMysql(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AmazonRDSMysql) { // not required
+		return nil
+	}
+
+	if o.AmazonRDSMysql != nil {
+		if err := o.AmazonRDSMysql.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("changeAmazonRdsMySqlServiceOK" + "." + "amazon_rds_mysql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAmazonRDSMySQLServiceOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAmazonRDSMySQLServiceOKBody) UnmarshalBinary(b []byte) error {
+	var res ChangeAmazonRDSMySQLServiceOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeAmazonRDSMySQLServiceOKBodyAmazonRDSMysql AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node
+swagger:model ChangeAmazonRDSMySQLServiceOKBodyAmazonRDSMysql
+*/
+type ChangeAmazonRDSMySQLServiceOKBodyAmazonRDSMysql struct {
+
+	// Instance endpoint (full DNS name).
+	Address string `json:"address,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Instance port.
+	Port int64 `json:"port,omitempty"`
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+}
+
+// Validate validates this change amazon RDS my SQL service o k body amazon RDS mysql
+func (o *ChangeAmazonRDSMySQLServiceOKBodyAmazonRDSMysql) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeAmazonRDSMySQLServiceOKBodyAmazonRDSMysql) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeAmazonRDSMySQLServiceOKBodyAmazonRDSMysql) UnmarshalBinary(b []byte) error {
+	var res ChangeAmazonRDSMySQLServiceOKBodyAmazonRDSMysql
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }

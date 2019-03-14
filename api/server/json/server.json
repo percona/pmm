@@ -26,19 +26,14 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/serverVersionResponse"
+              "type": "object",
+              "properties": {
+                "version": {
+                  "type": "string"
+                }
+              }
             }
           }
-        }
-      }
-    }
-  },
-  "definitions": {
-    "serverVersionResponse": {
-      "type": "object",
-      "properties": {
-        "version": {
-          "type": "string"
         }
       }
     }

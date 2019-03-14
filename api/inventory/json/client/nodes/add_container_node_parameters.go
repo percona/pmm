@@ -15,8 +15,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewAddContainerNodeParams creates a new AddContainerNodeParams object
@@ -64,7 +62,7 @@ for the add container node operation typically these are written to a http.Reque
 type AddContainerNodeParams struct {
 
 	/*Body*/
-	Body *models.InventoryAddContainerNodeRequest
+	Body AddContainerNodeBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +103,13 @@ func (o *AddContainerNodeParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add container node params
-func (o *AddContainerNodeParams) WithBody(body *models.InventoryAddContainerNodeRequest) *AddContainerNodeParams {
+func (o *AddContainerNodeParams) WithBody(body AddContainerNodeBody) *AddContainerNodeParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add container node params
-func (o *AddContainerNodeParams) SetBody(body *models.InventoryAddContainerNodeRequest) {
+func (o *AddContainerNodeParams) SetBody(body AddContainerNodeBody) {
 	o.Body = body
 }
 
@@ -123,10 +121,8 @@ func (o *AddContainerNodeParams) WriteToRequest(r runtime.ClientRequest, reg str
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

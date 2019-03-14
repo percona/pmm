@@ -15,8 +15,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewAddMongoDBServiceParams creates a new AddMongoDBServiceParams object
@@ -64,7 +62,7 @@ for the add mongo d b service operation typically these are written to a http.Re
 type AddMongoDBServiceParams struct {
 
 	/*Body*/
-	Body *models.InventoryAddMongoDBServiceRequest
+	Body AddMongoDBServiceBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +103,13 @@ func (o *AddMongoDBServiceParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add mongo d b service params
-func (o *AddMongoDBServiceParams) WithBody(body *models.InventoryAddMongoDBServiceRequest) *AddMongoDBServiceParams {
+func (o *AddMongoDBServiceParams) WithBody(body AddMongoDBServiceBody) *AddMongoDBServiceParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add mongo d b service params
-func (o *AddMongoDBServiceParams) SetBody(body *models.InventoryAddMongoDBServiceRequest) {
+func (o *AddMongoDBServiceParams) SetBody(body AddMongoDBServiceBody) {
 	o.Body = body
 }
 
@@ -123,10 +121,8 @@ func (o *AddMongoDBServiceParams) WriteToRequest(r runtime.ClientRequest, reg st
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

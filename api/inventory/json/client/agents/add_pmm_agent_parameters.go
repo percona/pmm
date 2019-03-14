@@ -15,8 +15,6 @@ import (
 	cr "github.com/go-openapi/runtime/client"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/inventory/json/models"
 )
 
 // NewAddPMMAgentParams creates a new AddPMMAgentParams object
@@ -64,7 +62,7 @@ for the add PMM agent operation typically these are written to a http.Request
 type AddPMMAgentParams struct {
 
 	/*Body*/
-	Body *models.InventoryAddPMMAgentRequest
+	Body AddPMMAgentBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -105,13 +103,13 @@ func (o *AddPMMAgentParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the add PMM agent params
-func (o *AddPMMAgentParams) WithBody(body *models.InventoryAddPMMAgentRequest) *AddPMMAgentParams {
+func (o *AddPMMAgentParams) WithBody(body AddPMMAgentBody) *AddPMMAgentParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the add PMM agent params
-func (o *AddPMMAgentParams) SetBody(body *models.InventoryAddPMMAgentRequest) {
+func (o *AddPMMAgentParams) SetBody(body AddPMMAgentBody) {
 	o.Body = body
 }
 
@@ -123,10 +121,8 @@ func (o *AddPMMAgentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.R
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
