@@ -3053,6 +3053,208 @@
         }
       }
     },
+    "/v1/management/MySQL/Add": {
+      "post": {
+        "tags": [
+          "MySQL"
+        ],
+        "summary": "Add MySQL adds MySQL Service and starts several Agents.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents\nwith provided \"pmm_agent_id\" and other parameters.",
+        "operationId": "Add",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "address": {
+                  "description": "Service Access address (DNS name or IP). Required.",
+                  "type": "string"
+                },
+                "mysqld_exporter": {
+                  "description": "If true, adds \"mysqld_exporter\" agent for provided service.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "node_id": {
+                  "description": "Node identifier on which a service is been running. Required.",
+                  "type": "string"
+                },
+                "password": {
+                  "description": "MySQL password for scraping metrics.",
+                  "type": "string"
+                },
+                "pmm_agent_id": {
+                  "description": "The \"pmm-agent\" identifier which should run agents. Required.",
+                  "type": "string"
+                },
+                "port": {
+                  "description": "Service Access port. Required.",
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "qan_mysql_perfschema": {
+                  "description": "If true, adds \"qan_mysql_perfschema\" agent for provided service.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "qan_password": {
+                  "description": "MySQL password for getting performance data.",
+                  "type": "string"
+                },
+                "qan_username": {
+                  "description": "MySQL username for getting performance data.",
+                  "type": "string"
+                },
+                "service_name": {
+                  "description": "Unique across all Services user-defined name. Required.",
+                  "type": "string"
+                },
+                "username": {
+                  "description": "MySQL username for scraping metrics.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mysqld_exporter": {
+                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "password": {
+                      "description": "MySQL password for scraping metrics.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "MySQL username for scraping metrics.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "qan_mysql_perfschema": {
+                  "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "password": {
+                      "description": "MySQL password for getting performance data.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "MySQL username for getting performance data.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "service": {
+                  "description": "MySQLService represents a generic MySQL instance.",
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "description": "Access address (DNS name or IP).",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "port": {
+                      "description": "Access port.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/qan/GetMetrics": {
       "post": {
         "tags": [
