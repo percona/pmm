@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package management;
+
+option go_package = "managementpb";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "inventory/agents.proto";
+import "inventory/services.proto";
+
+// Add MySQL
+
+message AddMySQLRequest {
+  // Node identifier where this instance runs. Required.
+  string node_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Unique across all Services user-defined name. Required.
+  string service_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service Access address (DNS name or IP). Required.
+  string address = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service Access port. Required.
+  uint32 port = 4 [
+    (validator.field) = {
+      int_gt: 0
+    }
+  ];
+  // MySQL username for scraping metrics.
+  string username = 5 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // MySQL password for scraping metrics.
+  string password = 6;
+  // MySQL username for getting performance data.
+  string qan_username = 7 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // MySQL password for getting performance data.
+  string qan_password = 8;
+}
+
+message AddMySQLResponse {
+  inventory.MySQLService service = 1;
+  inventory.MySQLdExporter agent = 2;
+  inventory.QANMySQLPerfSchemaAgent qan_agent = 3;
+}
+
+// Management service provides public methods for Management API.
+service Management {
+  // AddMySQL adds MySQL.
+  rpc AddMySQL(AddMySQLRequest) returns (AddMySQLResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Management/AddMySQL"
+      body: "*"
+    };
+  }
+}
