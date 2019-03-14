@@ -12,7 +12,7 @@ import "inventory/services.proto";
 // Add MySQL
 
 message AddMySQLRequest {
-  // Node identifier where this instance runs. Required.
+  // Node identifier on which a service is been running. Required.
   string node_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -36,36 +36,45 @@ message AddMySQLRequest {
       int_gt: 0
     }
   ];
+  // The "pmm-agent" identifier which should run agents. Required.
+  string pmm_agent_id = 5 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // MySQL username for scraping metrics.
-  string username = 5 [
+  string username = 6 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // MySQL password for scraping metrics.
-  string password = 6;
+  string password = 7;
   // MySQL username for getting performance data.
-  string qan_username = 7 [
+  string qan_username = 8 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
   // MySQL password for getting performance data.
-  string qan_password = 8;
+  string qan_password = 9;
 }
 
 message AddMySQLResponse {
   inventory.MySQLService service = 1;
-  inventory.MySQLdExporter agent = 2;
-  inventory.QANMySQLPerfSchemaAgent qan_agent = 3;
+  inventory.MySQLdExporter mysqld_exporter = 2;
+  inventory.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 3;
 }
 
-// Management service provides public methods for Management API.
-service Management {
-  // AddMySQL adds MySQL.
-  rpc AddMySQL(AddMySQLRequest) returns (AddMySQLResponse) {
+// MySQL service provides public Management API methods for MySQL Service.
+service MySQL {
+  // Add MySQL adds MySQL Service and starts several Agents.
+  // It automatically adds to inventory a service, which is running on provided "node_id",
+  // then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
+  // with provided "pmm_agent_id" and other parameters.
+  rpc Add(AddMySQLRequest) returns (AddMySQLResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Management/AddMySQL"
+      post: "/v1/management/MySQL/Add"
       body: "*"
     };
   }

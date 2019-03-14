@@ -28,7 +28,7 @@ var _ status.Status
 var _ = runtime.String
 var _ = utilities.NewDoubleArray
 
-func request_Management_AddMySQL_0(ctx context.Context, marshaler runtime.Marshaler, client ManagementClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_MySQL_Add_0(ctx context.Context, marshaler runtime.Marshaler, client MySQLClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddMySQLRequest
 	var metadata runtime.ServerMetadata
 
@@ -40,14 +40,14 @@ func request_Management_AddMySQL_0(ctx context.Context, marshaler runtime.Marsha
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.AddMySQL(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.Add(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-// RegisterManagementHandlerFromEndpoint is same as RegisterManagementHandler but
+// RegisterMySQLHandlerFromEndpoint is same as RegisterMySQLHandler but
 // automatically dials to "endpoint" and closes the connection when "ctx" gets done.
-func RegisterManagementHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
+func RegisterMySQLHandlerFromEndpoint(ctx context.Context, mux *runtime.ServeMux, endpoint string, opts []grpc.DialOption) (err error) {
 	conn, err := grpc.Dial(endpoint, opts...)
 	if err != nil {
 		return err
@@ -67,23 +67,23 @@ func RegisterManagementHandlerFromEndpoint(ctx context.Context, mux *runtime.Ser
 		}()
 	}()
 
-	return RegisterManagementHandler(ctx, mux, conn)
+	return RegisterMySQLHandler(ctx, mux, conn)
 }
 
-// RegisterManagementHandler registers the http handlers for service Management to "mux".
+// RegisterMySQLHandler registers the http handlers for service MySQL to "mux".
 // The handlers forward requests to the grpc endpoint over "conn".
-func RegisterManagementHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
-	return RegisterManagementHandlerClient(ctx, mux, NewManagementClient(conn))
+func RegisterMySQLHandler(ctx context.Context, mux *runtime.ServeMux, conn *grpc.ClientConn) error {
+	return RegisterMySQLHandlerClient(ctx, mux, NewMySQLClient(conn))
 }
 
-// RegisterManagementHandlerClient registers the http handlers for service Management
-// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "ManagementClient".
-// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "ManagementClient"
+// RegisterMySQLHandlerClient registers the http handlers for service MySQL
+// to "mux". The handlers forward requests to the grpc endpoint over the given implementation of "MySQLClient".
+// Note: the gRPC framework executes interceptors within the gRPC handler. If the passed in "MySQLClient"
 // doesn't go through the normal gRPC flow (creating a gRPC client etc.) then it will be up to the passed in
-// "ManagementClient" to call the correct interceptors.
-func RegisterManagementHandlerClient(ctx context.Context, mux *runtime.ServeMux, client ManagementClient) error {
+// "MySQLClient" to call the correct interceptors.
+func RegisterMySQLHandlerClient(ctx context.Context, mux *runtime.ServeMux, client MySQLClient) error {
 
-	mux.Handle("POST", pattern_Management_AddMySQL_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_MySQL_Add_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -92,14 +92,14 @@ func RegisterManagementHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Management_AddMySQL_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_MySQL_Add_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Management_AddMySQL_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_MySQL_Add_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -107,9 +107,9 @@ func RegisterManagementHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 }
 
 var (
-	pattern_Management_AddMySQL_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "Management", "AddMySQL"}, ""))
+	pattern_MySQL_Add_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "management", "MySQL", "Add"}, ""))
 )
 
 var (
-	forward_Management_AddMySQL_0 = runtime.ForwardResponseMessage
+	forward_MySQL_Add_0 = runtime.ForwardResponseMessage
 )

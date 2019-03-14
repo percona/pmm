@@ -29,6 +29,9 @@ func (this *AddMySQLRequest) Validate() error {
 	if !(this.Port > 0) {
 		return github_com_mwitkow_go_proto_validators.FieldError("Port", fmt.Errorf(`value '%v' must be greater than '0'`, this.Port))
 	}
+	if this.PmmAgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
+	}
 	if this.Username == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
 	}
@@ -43,14 +46,14 @@ func (this *AddMySQLResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Service", err)
 		}
 	}
-	if this.Agent != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Agent); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Agent", err)
+	if this.MysqldExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MysqldExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("MysqldExporter", err)
 		}
 	}
-	if this.QanAgent != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanAgent); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("QanAgent", err)
+	if this.QanMysqlPerfschema != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMysqlPerfschema); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschema", err)
 		}
 	}
 	return nil
