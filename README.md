@@ -15,6 +15,8 @@ See the [PMM docs](https://www.percona.com/doc/percona-monitoring-and-management
   * [pmm-managed](https://github.com/percona/pmm-managed)
   * [pmm-update](https://github.com/percona/pmm-update)
   * [pmm-server-packaging](https://github.com/percona/pmm-server-packaging)
+  * [percona-images](https://github.com/Percona-Lab/percona-images/)
+  * [jenkins-pipelines](https://github.com/Percona-Lab/jenkins-pipelines)
 * [pmm-client](https://github.com/percona/pmm-client)
   * [qan-agent](https://github.com/percona/qan-agent)
   * [node_exporter](https://github.com/percona/node_exporter) - based on `github.com/prometheus/node_exporter`
