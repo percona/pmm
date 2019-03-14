@@ -3,6 +3,7 @@ package agentpb
 import (
 	"context"
 
+	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -27,7 +28,10 @@ func (*StateChangedResponse) response() {}
 func (*SetStateResponse) response()     {}
 
 // AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
-type AgentParams interface{ agentParams() }
+type AgentParams interface {
+	proto.Message
+	agentParams()
+}
 
 func (*SetStateRequest_AgentProcess) agentParams() {}
 func (*SetStateRequest_BuiltinAgent) agentParams() {}
