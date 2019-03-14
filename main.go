@@ -79,9 +79,9 @@ var (
 
 	grafanaAddrF = flag.String("grafana-addr", "127.0.0.1:3000", "Grafana HTTP API address")
 
-	dbNameF     = flag.String("db-name", "", "Database name")
-	dbUsernameF = flag.String("db-username", "pmm-managed", "Database username")
-	dbPasswordF = flag.String("db-password", "pmm-managed", "Database password")
+	_ = flag.String("db-name", "", "IGNORED REMOVE ME AFTER PMM-3466")
+	_ = flag.String("db-username", "", "IGNORED REMOVE ME AFTER PMM-3466")
+	_ = flag.String("db-password", "", "IGNORED REMOVE ME AFTER PMM-3466")
 
 	postgresDBNameF     = flag.String("postgres-name", "", "PostgreSQL database name")
 	postgresDBUsernameF = flag.String("postgres-username", "pmm-managed", "PostgreSQL database username")
@@ -309,9 +309,6 @@ func main() {
 	log.SetPrefix("stdlog: ")
 	flag.Parse()
 
-	if *dbNameF == "" {
-		log.Fatal("-db-name flag must be given explicitly.")
-	}
 	if *postgresDBNameF == "" {
 		log.Fatal("-postgres-name flag must be given explicitly.")
 	}
