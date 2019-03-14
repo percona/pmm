@@ -58,6 +58,12 @@ message AddMySQLRequest {
   ];
   // MySQL password for getting performance data.
   string qan_password = 9;
+
+  // If true, adds "mysqld_exporter" agent for provided service.
+  bool mysqld_exporter = 10;
+
+  // If true, adds "qan_mysql_perfschema" agent for provided service.
+  bool qan_mysql_perfschema = 11;
 }
 
 message AddMySQLResponse {
@@ -69,7 +75,7 @@ message AddMySQLResponse {
 // MySQL service provides public Management API methods for MySQL Service.
 service MySQL {
   // Add MySQL adds MySQL Service and starts several Agents.
-  // It automatically adds to inventory a service, which is running on provided "node_id",
+  // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
   // with provided "pmm_agent_id" and other parameters.
   rpc Add(AddMySQLRequest) returns (AddMySQLResponse) {
