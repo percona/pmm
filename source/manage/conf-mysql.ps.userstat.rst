@@ -1,11 +1,3 @@
-`Percona Server specific settings <pmm.conf-mysql.settings.ps>`_
-==================================================================
-
-Not all dashboards in |metrics-monitor| are available by default for all |mysql|
-variants and configurations: |oracle|'s |mysql|, |percona-server|. or |mariadb|.
-Some graphs require |percona-server|, and specialized plugins, or additional
-configuration.
-
 `MySQL User Statistics (userstat) <pmm.conf-mysql.user-statistics>`_
 --------------------------------------------------------------------------------
 
@@ -24,4 +16,4 @@ To enable user statistics, set the |opt.userstat| variable to ``1``.
    |mysql| Documentation
       `Setting variables <https://dev.mysql.com/doc/refman/5.7/en/set-variable.html>`_
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt
