@@ -24,7 +24,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/reflectx"
-	pbqan "github.com/percona/pmm/api/qan"
+	"github.com/percona/pmm/api/qanpb"
 )
 
 type Metrics struct {
@@ -36,7 +36,7 @@ func NewMetrics(db *sqlx.DB) Metrics {
 	return Metrics{db: db}
 }
 
-func (m *Metrics) Get(from, to, digest string, dbServers, dbSchemas, dbUsernames, clientHosts []string, dbLabels map[string][]string) (*pbqan.MetricsReply, error) {
+func (m *Metrics) Get(from, to, digest string, dbServers, dbSchemas, dbUsernames, clientHosts []string, dbLabels map[string][]string) (*qanpb.MetricsReply, error) {
 	arg := map[string]interface{}{
 		"from":    from,
 		"to":      to,
@@ -57,7 +57,7 @@ func (m *Metrics) Get(from, to, digest string, dbServers, dbSchemas, dbUsernames
 	// set mapper to reuse json tags. Have to be unset
 	m.db.Mapper = reflectx.NewMapperFunc("json", strings.ToLower)
 	defer func() { m.db.Mapper = reflectx.NewMapperFunc("db", strings.ToLower) }()
-	res := pbqan.MetricsReply{}
+	res := qanpb.MetricsReply{}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	query, args, err = sqlx.In(query, args...)
 	query = m.db.Rebind(query)

@@ -20,7 +20,7 @@ import (
 	"context"
 	"time"
 
-	pbqan "github.com/percona/pmm/api/qan"
+	"github.com/percona/pmm/api/qanpb"
 
 	"github.com/Percona-Lab/qan-api/models"
 )
@@ -37,7 +37,7 @@ func NewService(rm models.Reporter, mm models.Metrics) *Service {
 }
 
 // DataInterchange implements rpc to exchange data between API and agent.
-func (s *Service) GetReport(ctx context.Context, in *pbqan.ReportRequest) (*pbqan.ReportReply, error) {
+func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanpb.ReportReply, error) {
 	// TODO: add validator/sanitazer
 	labels := in.GetLabels()
 	dQueryids := []string{}
@@ -71,20 +71,20 @@ func (s *Service) GetReport(ctx context.Context, in *pbqan.ReportRequest) (*pbqa
 	toDate, _ := time.Parse("2006-01-02 15:04:05", in.PeriodStartTo)
 	timeInterval := float32(toDate.Unix() - fromDate.Unix())
 
-	reply := &pbqan.ReportReply{}
+	reply := &qanpb.ReportReply{}
 
 	var total models.DimensionReport
 	for i, result := range results {
 		if i == 0 {
 			total = result
-			reply.Rows = append(reply.Rows, &pbqan.ProfileRow{
+			reply.Rows = append(reply.Rows, &qanpb.ProfileRow{
 				Rank:       0,
 				Percentage: 1, // 100%
 				Dimension:  total.Dimension,
 				RowNumber:  total.RowNumber,
 				Qps:        float32(total.NumQueries) / timeInterval,
 				Load:       total.MQueryTimeSum / timeInterval,
-				Stats: &pbqan.Stats{
+				Stats: &qanpb.Stats{
 					NumQueries:    total.NumQueries,
 					MQueryTimeSum: total.MQueryTimeSum,
 					MQueryTimeMin: total.MQueryTimeMin,
@@ -95,14 +95,14 @@ func (s *Service) GetReport(ctx context.Context, in *pbqan.ReportRequest) (*pbqa
 			continue
 		}
 
-		reply.Rows = append(reply.Rows, &pbqan.ProfileRow{
+		reply.Rows = append(reply.Rows, &qanpb.ProfileRow{
 			Rank:        uint32(int(in.Offset) + i),
 			Percentage:  result.MQueryTimeSum / total.MQueryTimeSum,
 			Dimension:   result.Dimension,
 			Fingerprint: result.Fingerprint,
 			Qps:         float32(result.NumQueries) / timeInterval,
 			Load:        result.MQueryTimeSum / timeInterval,
-			Stats: &pbqan.Stats{
+			Stats: &qanpb.Stats{
 				NumQueries:    result.NumQueries,
 				MQueryTimeSum: result.MQueryTimeSum,
 				MQueryTimeMin: result.MQueryTimeMin,
@@ -112,5 +112,5 @@ func (s *Service) GetReport(ctx context.Context, in *pbqan.ReportRequest) (*pbqa
 		})
 	}
 
-	return &pbqan.ReportReply{Rows: reply.Rows}, nil
+	return &qanpb.ReportReply{Rows: reply.Rows}, nil
 }

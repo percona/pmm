@@ -29,7 +29,7 @@ import (
 	_ "github.com/kshvakov/clickhouse"
 	"github.com/kshvakov/clickhouse/lib/column"
 	"github.com/kshvakov/clickhouse/lib/types"
-	pbqan "github.com/percona/pmm/api/qan"
+	"github.com/percona/pmm/api/qanpb"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -122,8 +122,8 @@ func (c *converter) ConvertValue(v interface{}) (driver.Value, error) {
 }
 
 func TestSave(t *testing.T) {
-	agentMsg := pbqan.AgentMessage{
-		MetricsBucket: []*pbqan.MetricsBucket{
+	agentMsg := qanpb.CollectRequest{
+		MetricsBucket: []*qanpb.MetricsBucket{
 			{
 				Queryid:  "Queryid1",
 				Labels:   map[string]string{"label1": "aaa1"},
@@ -174,8 +174,8 @@ func TestSave(t *testing.T) {
 }
 
 func TestSaveEpmtyMaps(t *testing.T) {
-	agentMsg := pbqan.AgentMessage{
-		MetricsBucket: []*pbqan.MetricsBucket{
+	agentMsg := qanpb.CollectRequest{
+		MetricsBucket: []*qanpb.MetricsBucket{
 			{
 				Queryid: "Queryid1",
 			},
@@ -216,8 +216,8 @@ func TestSaveEpmtyMaps(t *testing.T) {
 }
 
 func TestSaveEpmtyMetricsBucket(t *testing.T) {
-	agentMsg := pbqan.AgentMessage{
-		MetricsBucket: []*pbqan.MetricsBucket{},
+	agentMsg := qanpb.CollectRequest{
+		MetricsBucket: []*qanpb.MetricsBucket{},
 	}
 	var _converter = &converter{}
 	db, _, err := sqlmock.New(sqlmock.ValueConverterOption(_converter))

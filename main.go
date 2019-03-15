@@ -27,7 +27,7 @@ import (
 	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
-	pbqan "github.com/percona/pmm/api/qan"
+	"github.com/percona/pmm/api/qanpb"
 	"github.com/percona/pmm/version"
 	"golang.org/x/sys/unix"
 	"google.golang.org/grpc"
@@ -55,9 +55,9 @@ func runGRPCServer(ctx context.Context, dsn, bind string) {
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
 	grpcServer := grpc.NewServer()
-	pbqan.RegisterAgentServer(grpcServer, rservice.NewService(mbm))
-	pbqan.RegisterProfileServer(grpcServer, aservice.NewService(rm, mm))
-	pbqan.RegisterMetricsServer(grpcServer, aservice.NewService(rm, mm))
+	qanpb.RegisterCollectorServer(grpcServer, rservice.NewService(mbm))
+	qanpb.RegisterProfileServer(grpcServer, aservice.NewService(rm, mm))
+	qanpb.RegisterMetricsServer(grpcServer, aservice.NewService(rm, mm))
 	reflection.Register(grpcServer)
 	log.Printf("QAN-API gRPC serve: %v\n", bind)
 
@@ -100,8 +100,8 @@ func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
 
 	type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
-		pbqan.RegisterMetricsHandlerFromEndpoint,
-		pbqan.RegisterProfileHandlerFromEndpoint,
+		qanpb.RegisterMetricsHandlerFromEndpoint,
+		qanpb.RegisterProfileHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, grpcBind, opts); err != nil {
 			log.Panic(err)

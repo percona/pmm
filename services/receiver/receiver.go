@@ -17,10 +17,10 @@
 package receiver
 
 import (
-	"fmt"
-	"io"
+	"context"
 
-	pbqan "github.com/percona/pmm/api/qan"
+	"github.com/percona/pmm/api/qanpb"
+	"github.com/sirupsen/logrus"
 
 	"github.com/Percona-Lab/qan-api/models"
 )
@@ -28,35 +28,21 @@ import (
 // Service implements gRPC service to communicate with agent.
 type Service struct {
 	mbm models.MetricsBucket
+	l   *logrus.Entry
 }
 
 // NewService create new insstance of Service.
 func NewService(mbm models.MetricsBucket) *Service {
-	return &Service{mbm}
+	return &Service{
+		mbm: mbm,
+		l:   logrus.WithField("component", "receiver"),
+	}
 }
 
-// DataInterchange implements rpc to exchange data between API and agent.
-func (s *Service) DataInterchange(stream pbqan.Agent_DataInterchangeServer) error {
-	fmt.Println("Start...")
-	for {
-		agentMsg, err := stream.Recv()
-		if err == io.EOF {
-			return nil
-		}
-		if err != nil {
-			return fmt.Errorf("recved from agent: %+v", agentMsg)
-		}
-		err = s.mbm.Save(agentMsg)
-		if err != nil {
-			fmt.Printf("save error: %v \n", err)
-			return fmt.Errorf("save error: %v", err)
-		}
-		savedAmount := len(agentMsg.MetricsBucket)
-		fmt.Printf("Rcvd and saved %v Metrics Buckets\n", savedAmount)
-		// look for msgs to be sent to client
-		msg := pbqan.ApiMessage{SavedAmount: uint32(savedAmount)}
-		if err := stream.Send(&msg); err != nil {
-			return err
-		}
+func (s *Service) Collect(ctx context.Context, req *qanpb.CollectRequest) (*qanpb.CollectResponse, error) {
+	if err := s.mbm.Save(req); err != nil {
+		s.l.Error(err)
+		return nil, err
 	}
+	return new(qanpb.CollectResponse), nil
 }
