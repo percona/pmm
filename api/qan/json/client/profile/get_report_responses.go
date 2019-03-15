@@ -72,6 +72,9 @@ swagger:model GetReportBody
 */
 type GetReportBody struct {
 
+	// columns
+	Columns []string `json:"columns"`
+
 	// first seen
 	FirstSeen bool `json:"first_seen,omitempty"`
 

@@ -763,6 +763,12 @@
               "description": "ReportRequest defines filtering of metrics report for db server or other dimentions.",
               "type": "object",
               "properties": {
+                "columns": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
                 "first_seen": {
                   "type": "boolean",
                   "format": "boolean"

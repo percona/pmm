@@ -29,6 +29,7 @@ message ReportRequest {
   string order_by = 8;
   uint32 offset = 9;
   uint32 limit = 10;
+  repeated string columns = 11;
 }
 
 // ReportMapFieldEntry allows to pass labels/dimentions in form like {"d_server": ["db1", "db2"...]}.
