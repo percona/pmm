@@ -283,6 +283,9 @@ type RowsItems0 struct {
 
 	// rank
 	Rank int64 `json:"rank,omitempty"`
+
+	// sparkline
+	Sparkline []*RowsItems0SparklineItems0 `json:"sparkline"`
 }
 
 // Validate validates this rows items0
@@ -290,6 +293,10 @@ func (o *RowsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetrics(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSparkline(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -312,6 +319,31 @@ func (o *RowsItems0) validateMetrics(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Metrics[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *RowsItems0) validateSparkline(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Sparkline) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Sparkline); i++ {
+		if swag.IsZero(o.Sparkline[i]) { // not required
+			continue
+		}
+
+		if o.Sparkline[i] != nil {
+			if err := o.Sparkline[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("sparkline" + "." + strconv.Itoa(i))
+				}
 				return err
 			}
 		}
@@ -344,9 +376,6 @@ swagger:model RowsItems0MetricsAnon
 */
 type RowsItems0MetricsAnon struct {
 
-	// sparkline
-	Sparkline []*RowsItems0MetricsAnonSparklineItems0 `json:"sparkline"`
-
 	// stats
 	Stats *RowsItems0MetricsAnonStats `json:"stats,omitempty"`
 }
@@ -355,10 +384,6 @@ type RowsItems0MetricsAnon struct {
 func (o *RowsItems0MetricsAnon) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateSparkline(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := o.validateStats(formats); err != nil {
 		res = append(res, err)
 	}
@@ -366,31 +391,6 @@ func (o *RowsItems0MetricsAnon) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (o *RowsItems0MetricsAnon) validateSparkline(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Sparkline) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Sparkline); i++ {
-		if swag.IsZero(o.Sparkline[i]) { // not required
-			continue
-		}
-
-		if o.Sparkline[i] != nil {
-			if err := o.Sparkline[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("sparkline" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
@@ -423,41 +423,6 @@ func (o *RowsItems0MetricsAnon) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RowsItems0MetricsAnon) UnmarshalBinary(b []byte) error {
 	var res RowsItems0MetricsAnon
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*RowsItems0MetricsAnonSparklineItems0 Point is sparkline point: x -> ts, y -> val.
-swagger:model RowsItems0MetricsAnonSparklineItems0
-*/
-type RowsItems0MetricsAnonSparklineItems0 struct {
-
-	// ts
-	Ts string `json:"ts,omitempty"`
-
-	// val
-	Val float32 `json:"val,omitempty"`
-}
-
-// Validate validates this rows items0 metrics anon sparkline items0
-func (o *RowsItems0MetricsAnonSparklineItems0) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RowsItems0MetricsAnonSparklineItems0) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RowsItems0MetricsAnonSparklineItems0) UnmarshalBinary(b []byte) error {
-	var res RowsItems0MetricsAnonSparklineItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -505,6 +470,39 @@ func (o *RowsItems0MetricsAnonStats) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RowsItems0MetricsAnonStats) UnmarshalBinary(b []byte) error {
 	var res RowsItems0MetricsAnonStats
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RowsItems0SparklineItems0 Point is a values of all selected metrics for one point of sparkline.
+// points: x -> timestamp or point, y -> values of any metric.
+swagger:model RowsItems0SparklineItems0
+*/
+type RowsItems0SparklineItems0 struct {
+
+	// values
+	Values map[string]float32 `json:"values,omitempty"`
+}
+
+// Validate validates this rows items0 sparkline items0
+func (o *RowsItems0SparklineItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RowsItems0SparklineItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RowsItems0SparklineItems0) UnmarshalBinary(b []byte) error {
+	var res RowsItems0SparklineItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

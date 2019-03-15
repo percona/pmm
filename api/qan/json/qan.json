@@ -848,23 +848,6 @@
                           "description": "Metric cell.",
                           "type": "object",
                           "properties": {
-                            "sparkline": {
-                              "type": "array",
-                              "items": {
-                                "description": "Point is sparkline point: x -\u003e ts, y -\u003e val.",
-                                "type": "object",
-                                "properties": {
-                                  "ts": {
-                                    "type": "string",
-                                    "format": "int64"
-                                  },
-                                  "val": {
-                                    "type": "number",
-                                    "format": "float"
-                                  }
-                                }
-                              }
-                            },
                             "stats": {
                               "description": "Stat is statistics of specific metric.",
                               "type": "object",
@@ -901,6 +884,22 @@
                       "rank": {
                         "type": "integer",
                         "format": "int64"
+                      },
+                      "sparkline": {
+                        "type": "array",
+                        "items": {
+                          "description": "Point is a values of all selected metrics for one point of sparkline.\npoints: x -\u003e timestamp or point, y -\u003e values of any metric.",
+                          "type": "object",
+                          "properties": {
+                            "values": {
+                              "type": "object",
+                              "additionalProperties": {
+                                "type": "number",
+                                "format": "float"
+                              }
+                            }
+                          }
+                        }
                       }
                     }
                   }

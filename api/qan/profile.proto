@@ -50,12 +50,12 @@ message Row {
   uint32 rank = 1;
   string dimension = 2;
   map<string, Metric> metrics = 3;
+  repeated Point sparkline = 4;
 }
 
 // Metric cell.
 message Metric {
   Stat stats = 1;
-  repeated Point sparkline = 2;
 }
 
 // Stat is statistics of specific metric.
@@ -68,8 +68,8 @@ message Stat {
   float p99 = 6;
 }
 
-// Point is sparkline point: x -> ts, y -> val.
+// Point is a values of all selected metrics for one point of sparkline.
+// points: x -> timestamp or point, y -> values of any metric.
 message Point {
-  int64 ts = 1;
-  float val = 2;
+  map<string, float> values = 1;
 }
