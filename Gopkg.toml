@@ -16,13 +16,13 @@ required = [
 # TODO switch to tags before PMM 2.0 release
 [[constraint]]
   name = "github.com/percona/pmm"
-  branch = "PMM-2.0"
+  branch = "PMM-3595-qan-mysql-perfschema"  # FIXME
 
 [[constraint]]
   # Stick to 0.9.x for now.
   # https://github.com/prometheus/client_golang#important-note-about-releases-versioning-tagging-and-stability
   name = "github.com/prometheus/client_golang"
-  version = "0.9.1"
+  version = "0.9.2"
 
 # TODO Remove when v1.1.0 is released.
 # https://github.com/AlekSi/pointer/milestone/1
