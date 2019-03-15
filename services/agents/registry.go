@@ -23,7 +23,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/golang/protobuf/ptypes"
-	api "github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"google.golang.org/grpc/codes"
@@ -44,6 +44,7 @@ type agentInfo struct {
 type Registry struct {
 	db         *reform.DB
 	prometheus prometheus
+	qanClient  qanClient
 
 	rw     sync.RWMutex
 	agents map[string]*agentInfo // id -> info
@@ -56,10 +57,11 @@ type Registry struct {
 }
 
 // NewRegistry creates a new registry with given database connection.
-func NewRegistry(db *reform.DB, prometheus prometheus) *Registry {
+func NewRegistry(db *reform.DB, prometheus prometheus, qanClient qanClient) *Registry {
 	r := &Registry{
 		db:         db,
 		prometheus: prometheus,
+		qanClient:  qanClient,
 
 		agents: make(map[string]*agentInfo),
 
@@ -107,7 +109,7 @@ func (r *Registry) IsConnected(pmmAgentID string) bool {
 }
 
 // Run takes over pmm-agent gRPC stream and runs it until completion.
-func (r *Registry) Run(stream api.Agent_ConnectServer) error {
+func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 	r.mConnects.Inc()
 	disconnectReason := "unknown"
 	defer func() {
@@ -148,35 +150,37 @@ func (r *Registry) Run(stream api.Agent_ConnectServer) error {
 			}
 
 			switch req := msg.Payload.(type) {
-			case *api.AgentMessage_Ping:
-				agent.channel.SendResponse(&api.ServerMessage{
+			case *agentpb.AgentMessage_Ping:
+				agent.channel.SendResponse(&agentpb.ServerMessage{
 					Id: msg.Id,
-					Payload: &api.ServerMessage_Pong{
-						Pong: &api.Pong{
+					Payload: &agentpb.ServerMessage_Pong{
+						Pong: &agentpb.Pong{
 							CurrentTime: ptypes.TimestampNow(),
 						},
 					},
 				})
 
-			case *api.AgentMessage_StateChanged:
+			case *agentpb.AgentMessage_StateChanged:
 				if err := r.stateChanged(ctx, req.StateChanged); err != nil {
 					l.Errorf("%+v", err)
 				}
 
-				agent.channel.SendResponse(&api.ServerMessage{
+				agent.channel.SendResponse(&agentpb.ServerMessage{
 					Id: msg.Id,
-					Payload: &api.ServerMessage_StateChanged{
-						StateChanged: new(api.StateChangedResponse),
+					Payload: &agentpb.ServerMessage_StateChanged{
+						StateChanged: new(agentpb.StateChangedResponse),
 					},
 				})
 
-			case *api.AgentMessage_QanData:
-				// TODO pass it to QAN
+			case *agentpb.AgentMessage_QanCollect:
+				if err := r.qanCollect(ctx, req.QanCollect, agent.id); err != nil {
+					l.Errorf("%+v", err)
+				}
 
-				agent.channel.SendResponse(&api.ServerMessage{
+				agent.channel.SendResponse(&agentpb.ServerMessage{
 					Id: msg.Id,
-					Payload: &api.ServerMessage_QanData{
-						QanData: new(api.QANDataResponse),
+					Payload: &agentpb.ServerMessage_QanCollect{
+						QanCollect: new(agentpb.QANCollectResponse),
 					},
 				})
 
@@ -189,10 +193,10 @@ func (r *Registry) Run(stream api.Agent_ConnectServer) error {
 	}
 }
 
-func (r *Registry) register(stream api.Agent_ConnectServer) (*agentInfo, error) {
+func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*agentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
-	md := api.GetAgentConnectMetadata(ctx)
+	md := agentpb.GetAgentConnectMetadata(ctx)
 	if err := authenticate(&md, r.db.Querier); err != nil {
 		l.Warnf("Failed to authenticate connected pmm-agent %+v.", md)
 		return nil, err
@@ -215,7 +219,7 @@ func (r *Registry) register(stream api.Agent_ConnectServer) (*agentInfo, error) 
 	return agent, nil
 }
 
-func authenticate(md *api.AgentConnectMetadata, q *reform.Querier) error {
+func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) error {
 	if md.ID == "" {
 		return status.Error(codes.Unauthenticated, "Empty Agent ID.")
 	}
@@ -262,14 +266,14 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 func (r *Registry) ping(ctx context.Context, agent *agentInfo) {
 	l := logger.Get(ctx)
 	start := time.Now()
-	res := agent.channel.SendRequest(&api.ServerMessage_Ping{
-		Ping: new(api.Ping),
+	res := agent.channel.SendRequest(&agentpb.ServerMessage_Ping{
+		Ping: new(agentpb.Ping),
 	})
 	if res == nil {
 		return
 	}
 	roundtrip := time.Since(start)
-	agentTime, err := ptypes.Timestamp(res.(*api.AgentMessage_Pong).Pong.CurrentTime)
+	agentTime, err := ptypes.Timestamp(res.(*agentpb.AgentMessage_Pong).Pong.CurrentTime)
 	if err != nil {
 		l.Errorf("Failed to decode Pong.current_time: %s.", err)
 		return
@@ -283,15 +287,15 @@ func (r *Registry) ping(ctx context.Context, agent *agentInfo) {
 	r.mClockDrift.Observe(clockDrift.Seconds())
 }
 
-func (r *Registry) stateChanged(ctx context.Context, s *api.StateChangedRequest) error {
+func (r *Registry) stateChanged(ctx context.Context, req *agentpb.StateChangedRequest) error {
 	err := r.db.InTransaction(func(tx *reform.TX) error {
-		agent := &models.Agent{AgentID: s.AgentId}
+		agent := &models.Agent{AgentID: req.AgentId}
 		if err := tx.Reload(agent); err != nil {
 			return errors.Wrap(err, "failed to select Agent by ID")
 		}
 
-		agent.Status = s.Status.String()
-		agent.ListenPort = pointer.ToUint16(uint16(s.ListenPort))
+		agent.Status = req.Status.String()
+		agent.ListenPort = pointer.ToUint16(uint16(req.ListenPort))
 		return tx.Update(agent)
 	})
 	if err != nil {
@@ -299,6 +303,16 @@ func (r *Registry) stateChanged(ctx context.Context, s *api.StateChangedRequest)
 	}
 
 	return r.prometheus.UpdateConfiguration(ctx)
+}
+
+func (r *Registry) qanCollect(ctx context.Context, req *agentpb.QANCollectRequest, agentID string) error {
+	// TODO we probably should not do that for every message
+	agent := &models.Agent{AgentID: agentID}
+	if err := r.db.Reload(agent); err != nil {
+		return errors.Wrap(err, "failed to select Agent by ID")
+	}
+
+	return r.qanClient.Collect(ctx, req.Message, agent)
 }
 
 // SendSetStateRequest sends SetStateRequest to pmm-agent with given ID.
@@ -319,7 +333,8 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 		return
 	}
 
-	processes := make(map[string]*api.SetStateRequest_AgentProcess, len(agents))
+	agentProcesses := make(map[string]*agentpb.SetStateRequest_AgentProcess)
+	builtinAgents := make(map[string]*agentpb.SetStateRequest_BuiltinAgent)
 	for _, row := range agents {
 		switch row.AgentType {
 		case models.PMMAgentType:
@@ -335,7 +350,7 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 				l.Errorf("Expected exactly one Node, got %d.", len(nodes))
 				return
 			}
-			processes[row.AgentID] = nodeExporterConfig(nodes[0], row)
+			agentProcesses[row.AgentID] = nodeExporterConfig(nodes[0], row)
 
 		case models.MySQLdExporterType:
 			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
@@ -347,7 +362,19 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 				l.Errorf("Expected exactly one Service, got %d.", len(services))
 				return
 			}
-			processes[row.AgentID] = mysqldExporterConfig(services[0], row)
+			agentProcesses[row.AgentID] = mysqldExporterConfig(services[0], row)
+
+		case models.QANMySQLPerfSchemaAgentType:
+			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
+			if err != nil {
+				l.Error(err)
+				return
+			}
+			if len(services) != 1 {
+				l.Errorf("Expected exactly one Services, got %d.", len(services))
+				return
+			}
+			builtinAgents[row.AgentID] = qanMySQLPerfSchemaAgentConfig(services[0], row)
 
 		case models.MongoDBExporterType:
 			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
@@ -359,18 +386,20 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 				l.Errorf("Expected exactly one Services, got %d.", len(services))
 				return
 			}
-			processes[row.AgentID] = mongodbExporterConfig(services[0], row)
+			agentProcesses[row.AgentID] = mongodbExporterConfig(services[0], row)
 
 		default:
 			l.Panicf("unhandled Agent type %s", row.AgentType)
 		}
 	}
 
-	l.Infof("SendSetStateRequest: %+v.", processes)
-	res := agent.channel.SendRequest(&api.ServerMessage_SetState{
-		SetState: &api.SetStateRequest{
-			AgentProcesses: processes,
-		},
+	state := &agentpb.SetStateRequest{
+		AgentProcesses: agentProcesses,
+		BuiltinAgents:  builtinAgents,
+	}
+	l.Infof("SendSetStateRequest: %+v.", state)
+	res := agent.channel.SendRequest(&agentpb.ServerMessage_SetState{
+		SetState: state,
 	})
 	l.Infof("SetState response: %+v.", res)
 }

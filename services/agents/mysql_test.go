@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	api "github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/pmm-managed/models"
@@ -36,8 +36,8 @@ func TestMySQLdExporterConfig(t *testing.T) {
 		Password: pointer.ToString("s3cur3 p@$$w0r4."),
 	}
 	actual := mysqldExporterConfig(mysql, exporter)
-	expected := &api.SetStateRequest_AgentProcess{
-		Type:               api.Type_MYSQLD_EXPORTER,
+	expected := &agentpb.SetStateRequest_AgentProcess{
+		Type:               agentpb.Type_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  "{{",
 		TemplateRightDelim: "}}",
 		Args: []string{
@@ -60,7 +60,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			"-web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?timeout=5s",
+			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?clientFoundRows=true&parseTime=true&timeout=5s",
 		},
 	}
 	assert.Equal(t, expected.Args, actual.Args)

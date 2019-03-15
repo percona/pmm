@@ -20,7 +20,7 @@ package handlers
 import (
 	"context"
 
-	api "github.com/percona/pmm/api/server"
+	serverpb "github.com/percona/pmm/api/server"
 )
 
 type serverServer struct {
@@ -28,14 +28,14 @@ type serverServer struct {
 }
 
 // NewServerServer returns Inventory API handler for managing Server.
-func NewServerServer(version string) api.ServerServer {
+func NewServerServer(version string) serverpb.ServerServer {
 	return &serverServer{
 		version: version,
 	}
 }
 
-func (s *serverServer) Version(ctx context.Context, req *api.VersionRequest) (*api.VersionResponse, error) {
-	return &api.VersionResponse{
+func (s *serverServer) Version(ctx context.Context, req *serverpb.VersionRequest) (*serverpb.VersionResponse, error) {
+	return &serverpb.VersionResponse{
 		Version: s.version,
 	}, nil
 }

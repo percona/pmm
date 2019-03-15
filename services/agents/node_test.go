@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	api "github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/pmm-managed/models"
@@ -31,8 +31,8 @@ func TestNodeExporterConfig(t *testing.T) {
 		node := &models.Node{}
 		exporter := &models.Agent{}
 		actual := nodeExporterConfig(node, exporter)
-		expected := &api.SetStateRequest_AgentProcess{
-			Type:               api.Type_NODE_EXPORTER,
+		expected := &agentpb.SetStateRequest_AgentProcess{
+			Type:               agentpb.Type_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
@@ -63,8 +63,8 @@ func TestNodeExporterConfig(t *testing.T) {
 		}
 		exporter := &models.Agent{}
 		actual := nodeExporterConfig(node, exporter)
-		expected := &api.SetStateRequest_AgentProcess{
-			Type:               api.Type_NODE_EXPORTER,
+		expected := &agentpb.SetStateRequest_AgentProcess{
+			Type:               agentpb.Type_NODE_EXPORTER,
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{

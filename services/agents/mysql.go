@@ -25,12 +25,33 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/go-sql-driver/mysql"
-	api "github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/agentpb"
 
 	"github.com/percona/pmm-managed/models"
 )
 
-func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *api.SetStateRequest_AgentProcess {
+func mysqlDSN(service *models.Service, exporter *models.Agent) string {
+	// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
+	// TODO Other parameters?
+
+	cfg := mysql.NewConfig()
+	cfg.User = pointer.GetString(exporter.Username)
+	cfg.Passwd = pointer.GetString(exporter.Password)
+	cfg.Net = "tcp"
+	host := pointer.GetString(service.Address)
+	port := pointer.GetUint16(service.Port)
+	cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
+	cfg.Timeout = 5 * time.Second
+
+	// QAN code in pmm-agent uses reform which requires those fields
+	cfg.ClientFoundRows = true
+	cfg.ParseTime = true
+
+	return cfg.FormatDSN()
+}
+
+// mysqldExporterConfig returns desired configuration of mysqld_exporter process.
+func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agentpb.SetStateRequest_AgentProcess {
 	tdp := templateDelimsPair(
 		pointer.GetString(service.Address),
 		pointer.GetString(exporter.Username),
@@ -66,25 +87,21 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *api.
 
 	sort.Strings(args)
 
-	// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
-	// TODO Other parameters?
-	cfg := mysql.NewConfig()
-	cfg.User = pointer.GetString(exporter.Username)
-	cfg.Passwd = pointer.GetString(exporter.Password)
-	cfg.Net = "tcp"
-	host := pointer.GetString(service.Address)
-	port := pointer.GetUint16(service.Port)
-	cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
-	cfg.Timeout = 5 * time.Second
-	dsn := cfg.FormatDSN()
-
-	return &api.SetStateRequest_AgentProcess{
-		Type:               api.Type_MYSQLD_EXPORTER,
+	return &agentpb.SetStateRequest_AgentProcess{
+		Type:               agentpb.Type_MYSQLD_EXPORTER,
 		TemplateLeftDelim:  tdp.left,
 		TemplateRightDelim: tdp.right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", dsn),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", mysqlDSN(service, exporter)),
 		},
+	}
+}
+
+// qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema internal agent.
+func qanMySQLPerfSchemaAgentConfig(service *models.Service, exporter *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+	return &agentpb.SetStateRequest_BuiltinAgent{
+		Type: agentpb.Type_QAN_MYSQL_PERFSCHEMA_AGENT,
+		Dsn:  mysqlDSN(service, exporter),
 	}
 }

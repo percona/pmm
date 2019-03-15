@@ -22,7 +22,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	api "github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm-managed/utils/logger"
@@ -36,7 +36,7 @@ const (
 //
 // All exported methods are thread-safe.
 type Channel struct { //nolint:maligned
-	s       api.Agent_ConnectServer
+	s       agentpb.Agent_ConnectServer
 	metrics *sharedChannelMetrics
 
 	lastSentRequestID uint32
@@ -44,8 +44,8 @@ type Channel struct { //nolint:maligned
 	sendM sync.Mutex
 
 	m         sync.Mutex
-	responses map[uint32]chan api.AgentMessagePayload
-	requests  chan *api.AgentMessage
+	responses map[uint32]chan agentpb.AgentMessagePayload
+	requests  chan *agentpb.AgentMessage
 
 	closeOnce sync.Once
 	closeWait chan struct{}
@@ -55,13 +55,13 @@ type Channel struct { //nolint:maligned
 // NewChannel creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
-func NewChannel(stream api.Agent_ConnectServer, m *sharedChannelMetrics) *Channel {
+func NewChannel(stream agentpb.Agent_ConnectServer, m *sharedChannelMetrics) *Channel {
 	s := &Channel{
 		s:       stream,
 		metrics: m,
 
-		responses: make(map[uint32]chan api.AgentMessagePayload),
-		requests:  make(chan *api.AgentMessage, agentRequestsCap),
+		responses: make(map[uint32]chan agentpb.AgentMessagePayload),
+		requests:  make(chan *agentpb.AgentMessage, agentRequestsCap),
 
 		closeWait: make(chan struct{}),
 	}
@@ -96,23 +96,23 @@ func (c *Channel) Wait() error {
 }
 
 // Requests returns a channel for incoming requests. It must be read. It is closed on any error (see Wait).
-func (c *Channel) Requests() <-chan *api.AgentMessage {
+func (c *Channel) Requests() <-chan *agentpb.AgentMessage {
 	return c.requests
 }
 
 // SendResponse sends message to pmm-managed. It is no-op once channel is closed (see Wait).
-func (c *Channel) SendResponse(msg *api.ServerMessage) {
+func (c *Channel) SendResponse(msg *agentpb.ServerMessage) {
 	c.send(msg)
 }
 
 // SendRequest sends request to pmm-managed, blocks until response is available, and returns it.
 // Response will be nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendRequest(payload api.ServerMessagePayload) api.AgentMessagePayload {
+func (c *Channel) SendRequest(payload agentpb.ServerMessagePayload) agentpb.AgentMessagePayload {
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 
-	c.send(&api.ServerMessage{
+	c.send(&agentpb.ServerMessage{
 		Id:      id,
 		Payload: payload,
 	})
@@ -120,7 +120,7 @@ func (c *Channel) SendRequest(payload api.ServerMessagePayload) api.AgentMessage
 	return <-ch
 }
 
-func (c *Channel) send(msg *api.ServerMessage) {
+func (c *Channel) send(msg *agentpb.ServerMessage) {
 	c.sendM.Lock()
 	select {
 	case <-c.closeWait:
@@ -157,11 +157,11 @@ func (c *Channel) runReceiver() {
 
 		switch msg.Payload.(type) {
 		// requests
-		case *api.AgentMessage_Ping, *api.AgentMessage_StateChanged, *api.AgentMessage_QanData:
+		case *agentpb.AgentMessage_Ping, *agentpb.AgentMessage_StateChanged, *agentpb.AgentMessage_QanCollect:
 			c.requests <- msg
 
 		// responses
-		case *api.AgentMessage_Pong, *api.AgentMessage_SetState:
+		case *agentpb.AgentMessage_Pong, *agentpb.AgentMessage_SetState:
 			c.publish(msg.Id, msg.Payload)
 
 		default:
@@ -171,8 +171,8 @@ func (c *Channel) runReceiver() {
 	}
 }
 
-func (c *Channel) subscribe(id uint32) chan api.AgentMessagePayload {
-	ch := make(chan api.AgentMessagePayload, 1)
+func (c *Channel) subscribe(id uint32) chan agentpb.AgentMessagePayload {
+	ch := make(chan agentpb.AgentMessagePayload, 1)
 
 	c.m.Lock()
 	if c.responses == nil { // Channel is closed, no more subscriptions
@@ -192,7 +192,7 @@ func (c *Channel) subscribe(id uint32) chan api.AgentMessagePayload {
 	return ch
 }
 
-func (c *Channel) publish(id uint32, payload api.AgentMessagePayload) {
+func (c *Channel) publish(id uint32, payload agentpb.AgentMessagePayload) {
 	c.m.Lock()
 	if c.responses == nil { // Channel is closed, no more publishing
 		c.m.Unlock()

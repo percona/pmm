@@ -106,10 +106,11 @@ type AgentType string
 
 // Agent types.
 const (
-	PMMAgentType        AgentType = "pmm-agent"
-	NodeExporterType    AgentType = "node_exporter"
-	MySQLdExporterType  AgentType = "mysqld_exporter"
-	MongoDBExporterType AgentType = "mongodb_exporter"
+	PMMAgentType                AgentType = "pmm-agent"
+	NodeExporterType            AgentType = "node_exporter"
+	MySQLdExporterType          AgentType = "mysqld_exporter"
+	MongoDBExporterType         AgentType = "mongodb_exporter"
+	QANMySQLPerfSchemaAgentType AgentType = "qan-mysql-perfschema-agent"
 )
 
 // Agent represents Agent as stored in database.
