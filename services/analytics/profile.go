@@ -18,7 +18,6 @@ package analitycs
 
 import (
 	"context"
-	"time"
 
 	"github.com/percona/pmm/api/qanpb"
 
@@ -36,7 +35,7 @@ func NewService(rm models.Reporter, mm models.Metrics) *Service {
 	return &Service{rm, mm}
 }
 
-// DataInterchange implements rpc to exchange data between API and agent.
+// GetReport implements rpc to get report for given filtering.
 func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanpb.ReportReply, error) {
 	// TODO: add validator/sanitazer
 	labels := in.GetLabels()
@@ -47,6 +46,10 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	dUsernames := []string{}
 	dClientHosts := []string{}
 	dbLabels := map[string][]string{}
+	columns := in.Columns
+	if len(columns) == 0 {
+		columns = append(columns, "lock_time")
+	}
 	for _, label := range labels {
 		switch label.Key {
 		case "queryid":
@@ -65,52 +68,94 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			dbLabels[label.Key] = label.Value
 		}
 	}
-	results, _ := s.rm.Select(in.PeriodStartFrom, in.PeriodStartTo, in.Keyword, in.FirstSeen, dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts, dbLabels, in.GroupBy, in.OrderBy, in.Offset, in.Limit)
 
-	fromDate, _ := time.Parse("2006-01-02 15:04:05", in.PeriodStartFrom)
-	toDate, _ := time.Parse("2006-01-02 15:04:05", in.PeriodStartTo)
-	timeInterval := float32(toDate.Unix() - fromDate.Unix())
+	resp := &qanpb.ReportReply{}
+	results, err := s.rm.Select(
+		in.PeriodStartFrom,
+		in.PeriodStartTo,
+		in.Keyword,
+		in.FirstSeen,
+		dQueryids,
+		dServers,
+		dDatabases,
+		dSchemas,
+		dUsernames,
+		dClientHosts,
+		dbLabels,
+		in.GroupBy,
+		in.OrderBy,
+		in.Offset,
+		in.Limit,
+		columns,
+	)
 
-	reply := &qanpb.ReportReply{}
-
-	var total models.DimensionReport
-	for i, result := range results {
-		if i == 0 {
-			total = result
-			reply.Rows = append(reply.Rows, &qanpb.ProfileRow{
-				Rank:       0,
-				Percentage: 1, // 100%
-				Dimension:  total.Dimension,
-				RowNumber:  total.RowNumber,
-				Qps:        float32(total.NumQueries) / timeInterval,
-				Load:       total.MQueryTimeSum / timeInterval,
-				Stats: &qanpb.Stats{
-					NumQueries:    total.NumQueries,
-					MQueryTimeSum: total.MQueryTimeSum,
-					MQueryTimeMin: total.MQueryTimeMin,
-					MQueryTimeMax: total.MQueryTimeMax,
-					MQueryTimeP99: total.MQueryTimeP99,
-				},
-			})
-			continue
-		}
-
-		reply.Rows = append(reply.Rows, &qanpb.ProfileRow{
-			Rank:        uint32(int(in.Offset) + i),
-			Percentage:  result.MQueryTimeSum / total.MQueryTimeSum,
-			Dimension:   result.Dimension,
-			Fingerprint: result.Fingerprint,
-			Qps:         float32(result.NumQueries) / timeInterval,
-			Load:        result.MQueryTimeSum / timeInterval,
-			Stats: &qanpb.Stats{
-				NumQueries:    result.NumQueries,
-				MQueryTimeSum: result.MQueryTimeSum,
-				MQueryTimeMin: result.MQueryTimeMin,
-				MQueryTimeMax: result.MQueryTimeMax,
-				MQueryTimeP99: result.MQueryTimeP99,
-			},
-		})
+	if err != nil {
+		return resp, err
 	}
 
-	return &qanpb.ReportReply{Rows: reply.Rows}, nil
+	total := results[0]
+	resp.TotalRows = uint32(total["total_rows"].(uint64))
+	resp.Offset = in.Offset
+	resp.Limit = in.Limit
+
+	for i, res := range results {
+		row := &qanpb.Row{
+			Rank:      uint32(i) + in.Offset,
+			Dimension: res["dimension"].(string),
+			Metrics:   make(map[string]*qanpb.Metric),
+		}
+
+		sparklines, err := s.rm.SelectSparklines(
+			row.Dimension,
+			in.PeriodStartFrom,
+			in.PeriodStartTo,
+			in.Keyword,
+			in.FirstSeen,
+			dQueryids,
+			dServers,
+			dDatabases,
+			dSchemas,
+			dUsernames,
+			dClientHosts,
+			dbLabels,
+			in.GroupBy,
+			columns,
+		)
+		if err != nil {
+			return resp, err
+		}
+		row.Sparkline = sparklines
+		for _, c := range columns {
+			rate := float32(0)
+			divider := interfaceToFloat32(total["m_"+c+"_sum"])
+			if divider != 0 {
+				rate = interfaceToFloat32(res["m_"+c+"_sum"]) / divider
+			}
+			row.Metrics[c] = &qanpb.Metric{
+				Stats: &qanpb.Stat{
+					Rate: rate,
+					Cnt:  interfaceToFloat32(res["m_"+c+"_cnt"]),
+					Sum:  interfaceToFloat32(res["m_"+c+"_sum"]),
+					Min:  interfaceToFloat32(res["m_"+c+"_min"]),
+					Max:  interfaceToFloat32(res["m_"+c+"_max"]),
+					P99:  interfaceToFloat32(res["m_"+c+"_p99"]),
+				},
+			}
+		}
+		resp.Rows = append(resp.Rows, row)
+	}
+	return resp, nil
+}
+
+func interfaceToFloat32(unk interface{}) float32 {
+	switch i := unk.(type) {
+	case float64:
+		return float32(i)
+	case float32:
+		return i
+	case int64:
+		return float32(i)
+	default:
+		return float32(0)
+	}
 }

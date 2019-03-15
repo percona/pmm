@@ -93,7 +93,7 @@ ch-client:                      ## Connect to pmm DB.
 	docker exec -ti ch-server clickhouse client -d pmm
 
 ch-dump:                        ## Connect to pmm DB.
-	docker exec -ti ch-server clickhouse client -d pmm --query="SELECT * FROM queries FORMAT Native" > queries.native
+	docker exec -ti ch-server clickhouse client -d pmm --query="SELECT * FROM metrics FORMAT Native" > queries.native
 	#docker exec -ti ch-server clickhouse client -d pmm --query="INSERT INTO queries FORMAT Native" < queries.native
 
 ps-client:
