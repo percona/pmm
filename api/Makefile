@@ -28,10 +28,10 @@ gen: clean            ## Generate files.
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json ; \
 		swagger validate $$API/json/$$API.json ; \
 		swagger generate client --spec=$$API/json/$$API.json --target=$$API/json \
-		    --additional-initialism=ok \
-		    --additional-initialism=db \
-			--additional-initialism=pmm \
 			--additional-initialism=aws \
+			--additional-initialism=db \
+			--additional-initialism=ok \
+			--additional-initialism=pmm \
 			--additional-initialism=qan \
 			--additional-initialism=rds ; \
 	done
