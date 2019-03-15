@@ -37,7 +37,18 @@ func (this *ReportReply) Validate() error {
 	}
 	return nil
 }
-func (this *ProfileRow) Validate() error {
+func (this *Row) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	for _, item := range this.Sparkline {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Sparkline", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *Metric) Validate() error {
 	if this.Stats != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Stats); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Stats", err)
@@ -45,6 +56,10 @@ func (this *ProfileRow) Validate() error {
 	}
 	return nil
 }
-func (this *Stats) Validate() error {
+func (this *Stat) Validate() error {
+	return nil
+}
+func (this *Point) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }

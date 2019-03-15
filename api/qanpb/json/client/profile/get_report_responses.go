@@ -72,6 +72,9 @@ swagger:model GetReportBody
 */
 type GetReportBody struct {
 
+	// columns
+	Columns []string `json:"columns"`
+
 	// first seen
 	FirstSeen bool `json:"first_seen,omitempty"`
 
@@ -165,8 +168,17 @@ swagger:model GetReportOKBody
 */
 type GetReportOKBody struct {
 
+	// limit
+	Limit int64 `json:"limit,omitempty"`
+
+	// offset
+	Offset int64 `json:"offset,omitempty"`
+
 	// rows
 	Rows []*RowsItems0 `json:"rows"`
+
+	// total rows
+	TotalRows int64 `json:"total_rows,omitempty"`
 }
 
 // Validate validates this get report o k body
@@ -261,59 +273,33 @@ func (o *LabelsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RowsItems0 ProfileRow define metrics for selected dimention.
+/*RowsItems0 Row define metrics for selected dimention.
 swagger:model RowsItems0
 */
 type RowsItems0 struct {
 
-	// d client hosts
-	DClientHosts string `json:"d_client_hosts,omitempty"`
-
-	// d databases
-	DDatabases string `json:"d_databases,omitempty"`
-
-	// d schemas
-	DSchemas string `json:"d_schemas,omitempty"`
-
-	// d servers
-	DServers string `json:"d_servers,omitempty"`
-
-	// d usernames
-	DUsernames string `json:"d_usernames,omitempty"`
-
 	// dimension
 	Dimension string `json:"dimension,omitempty"`
 
-	// fingerprint
-	Fingerprint string `json:"fingerprint,omitempty"`
-
-	// first seen
-	FirstSeen string `json:"first_seen,omitempty"`
-
-	// load
-	Load float32 `json:"load,omitempty"`
-
-	// percentage
-	Percentage float32 `json:"percentage,omitempty"`
-
-	// qps
-	QPS float32 `json:"qps,omitempty"`
+	// metrics
+	Metrics map[string]RowsItems0MetricsAnon `json:"metrics,omitempty"`
 
 	// rank
 	Rank int64 `json:"rank,omitempty"`
 
-	// row number
-	RowNumber float32 `json:"row_number,omitempty"`
-
-	// stats
-	Stats *RowsItems0Stats `json:"stats,omitempty"`
+	// sparkline
+	Sparkline []*RowsItems0SparklineItems0 `json:"sparkline"`
 }
 
 // Validate validates this rows items0
 func (o *RowsItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateStats(formats); err != nil {
+	if err := o.validateMetrics(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSparkline(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -323,19 +309,48 @@ func (o *RowsItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *RowsItems0) validateStats(formats strfmt.Registry) error {
+func (o *RowsItems0) validateMetrics(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Stats) { // not required
+	if swag.IsZero(o.Metrics) { // not required
 		return nil
 	}
 
-	if o.Stats != nil {
-		if err := o.Stats.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("stats")
-			}
-			return err
+	for k := range o.Metrics {
+
+		if swag.IsZero(o.Metrics[k]) { // not required
+			continue
 		}
+		if val, ok := o.Metrics[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *RowsItems0) validateSparkline(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Sparkline) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Sparkline); i++ {
+		if swag.IsZero(o.Sparkline[i]) { // not required
+			continue
+		}
+
+		if o.Sparkline[i] != nil {
+			if err := o.Sparkline[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("sparkline" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -359,34 +374,49 @@ func (o *RowsItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RowsItems0Stats Stats metrics.
-swagger:model RowsItems0Stats
+/*RowsItems0MetricsAnon Metric cell.
+swagger:model RowsItems0MetricsAnon
 */
-type RowsItems0Stats struct {
+type RowsItems0MetricsAnon struct {
 
-	// m query time max
-	MQueryTimeMax float32 `json:"m_query_time_max,omitempty"`
-
-	// m query time min
-	MQueryTimeMin float32 `json:"m_query_time_min,omitempty"`
-
-	// m query time p99
-	MQueryTimeP99 float32 `json:"m_query_time_p99,omitempty"`
-
-	// m query time sum
-	MQueryTimeSum float32 `json:"m_query_time_sum,omitempty"`
-
-	// num queries
-	NumQueries float32 `json:"num_queries,omitempty"`
+	// stats
+	Stats *RowsItems0MetricsAnonStats `json:"stats,omitempty"`
 }
 
-// Validate validates this rows items0 stats
-func (o *RowsItems0Stats) Validate(formats strfmt.Registry) error {
+// Validate validates this rows items0 metrics anon
+func (o *RowsItems0MetricsAnon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStats(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RowsItems0MetricsAnon) validateStats(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Stats) { // not required
+		return nil
+	}
+
+	if o.Stats != nil {
+		if err := o.Stats.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("stats")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *RowsItems0Stats) MarshalBinary() ([]byte, error) {
+func (o *RowsItems0MetricsAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -394,8 +424,88 @@ func (o *RowsItems0Stats) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *RowsItems0Stats) UnmarshalBinary(b []byte) error {
-	var res RowsItems0Stats
+func (o *RowsItems0MetricsAnon) UnmarshalBinary(b []byte) error {
+	var res RowsItems0MetricsAnon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RowsItems0MetricsAnonStats Stat is statistics of specific metric.
+swagger:model RowsItems0MetricsAnonStats
+*/
+type RowsItems0MetricsAnonStats struct {
+
+	// cnt
+	Cnt float32 `json:"cnt,omitempty"`
+
+	// max
+	Max float32 `json:"max,omitempty"`
+
+	// min
+	Min float32 `json:"min,omitempty"`
+
+	// p99
+	P99 float32 `json:"p99,omitempty"`
+
+	// rate
+	Rate float32 `json:"rate,omitempty"`
+
+	// sum
+	Sum float32 `json:"sum,omitempty"`
+}
+
+// Validate validates this rows items0 metrics anon stats
+func (o *RowsItems0MetricsAnonStats) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RowsItems0MetricsAnonStats) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RowsItems0MetricsAnonStats) UnmarshalBinary(b []byte) error {
+	var res RowsItems0MetricsAnonStats
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RowsItems0SparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
+// of every point in a coordinate system of Sparklines.
+swagger:model RowsItems0SparklineItems0
+*/
+type RowsItems0SparklineItems0 struct {
+
+	// values
+	Values map[string]float32 `json:"values,omitempty"`
+}
+
+// Validate validates this rows items0 sparkline items0
+func (o *RowsItems0SparklineItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RowsItems0SparklineItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RowsItems0SparklineItems0) UnmarshalBinary(b []byte) error {
+	var res RowsItems0SparklineItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
