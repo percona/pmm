@@ -11,11 +11,11 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/qan/json/client/metrics"
-	"github.com/percona/pmm/api/qan/json/client/profile"
+	"github.com/percona/pmm/api/qanpb/json/client/metrics"
+	"github.com/percona/pmm/api/qanpb/json/client/profile"
 )
 
-// Default PMM server inventory HTTP client.
+// Default PMM server QAN HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -30,14 +30,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM server inventory HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMServerInventory {
+// NewHTTPClient creates a new PMM server QAN HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMServerQAN {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM server inventory HTTP client,
+// NewHTTPClientWithConfig creates a new PMM server QAN HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMServerInventory {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMServerQAN {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -48,14 +48,14 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM server inventory client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMServerInventory {
+// New creates a new PMM server QAN client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMServerQAN {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMServerInventory)
+	cli := new(PMMServerQAN)
 	cli.Transport = transport
 
 	cli.Metrics = metrics.New(transport, formats)
@@ -104,8 +104,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMServerInventory is a client for PMM server inventory
-type PMMServerInventory struct {
+// PMMServerQAN is a client for PMM server QAN
+type PMMServerQAN struct {
 	Metrics *metrics.Client
 
 	Profile *profile.Client
@@ -114,7 +114,7 @@ type PMMServerInventory struct {
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMServerInventory) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMServerQAN) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 
 	c.Metrics.SetTransport(transport)

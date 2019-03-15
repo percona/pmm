@@ -179,7 +179,7 @@ type GetMetricsOKBody struct {
 	// example
 	Example string `json:"example,omitempty"`
 
-	// ExampleFormat is formant of query example: real or query without values
+	// ExampleFormat is format of query example: real or query without values.
 	// Enum: [EXAMPLE_FORMAT_INVALID EXAMPLE FINGERPRINT]
 	ExampleFormat *string `json:"example_format,omitempty"`
 
