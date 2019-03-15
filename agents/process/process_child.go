@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/api/inventory"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm-agent/supervisor"
+	"github.com/percona/pmm-agent/agents/process"
 )
 
 func main() {
@@ -40,20 +40,19 @@ func main() {
 	logger.SetOutput(ioutil.Discard)
 	l := logrus.NewEntry(logger)
 
-	process := supervisor.NewProcess(context.Background(), supervisor.NewProcessParams("sleep", []string{"100500"}), l)
+	p := process.New(&process.Params{Path: "sleep", Args: []string{"100500"}}, l)
+	go p.Run(context.Background())
 
 	// Wait until the process is running.
-	state := <-process.Changes()
+	state := <-p.Changes()
 	if state != inventory.AgentStatus_STARTING {
 		panic("process isn't moved to starting state.")
 	}
-	state = <-process.Changes()
+	state = <-p.Changes()
 	if state != inventory.AgentStatus_RUNNING {
 		panic("process isn't moved to running state.")
 	}
 
-	cmd := supervisor.GetCmd(process)
-
-	fmt.Println(cmd.Process.Pid) // Printing PID of the child process to let test check if the child process is dead or not.
-	time.Sleep(30 * time.Second) // Waiting until test kills this process.
+	fmt.Println(process.GetPID(p)) // Printing PID of the child process to let test check if the child process is dead or not.
+	time.Sleep(30 * time.Second)   // Waiting until test kills this process.
 }

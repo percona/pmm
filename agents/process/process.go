@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package supervisor
+// Package process runs Agent processes.
+package process
 
 import (
 	"context"
@@ -24,6 +25,8 @@ import (
 	"github.com/percona/pmm/api/inventory"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
+
+	"github.com/percona/pmm-agent/agents/backoff"
 )
 
 const (
@@ -33,23 +36,23 @@ const (
 	keepLogLines = 100
 )
 
-// process represents sub-agent process.
+// Process represents Agent process started by pmm-agent.
 //
-// Process object should be created with newProcess. It then handles process starting, restarting with backoff,
-// reading its output. Process is gracefully stopped when context passed to newProcess is canceled.
+// Process object should be created with New and started with Run (typically in a separate goroutine).
+// It then handles process starting, restarting with backoff, reading its output.
+// Process is gracefully stopped when context passed to New is canceled.
 // Changes of process status are reported via Changes channel which must be read until it is closed.
 //
 // Process status is changed by finite state machine (see agent_status.dot).
 // Each state logic is encapsulated in toXXX methods. Each method sends a new status to the changes channel,
 // implements its own logic, and then switches to then next state via "go toXXX()". "go" statement is used
 // only to avoid stack overflow; there are no extra goroutines for states.
-type process struct {
-	ctx     context.Context
-	params  *processParams
+type Process struct {
+	params  *Params
 	l       *logrus.Entry
 	pl      *processLogger
 	changes chan inventory.AgentStatus
-	backoff *backoff
+	backoff *backoff.Backoff
 	ctxDone chan struct{}
 
 	// recreated on each restart
@@ -57,45 +60,42 @@ type process struct {
 	cmdDone chan struct{}
 }
 
-type processParams struct {
-	path string
-	args []string
-	env  []string
+// Params represent Agent process parameters: command path, command-line arguments/flags, and process environment.
+type Params struct {
+	Path string
+	Args []string
+	Env  []string
 }
 
-func newProcess(ctx context.Context, params *processParams, l *logrus.Entry) *process {
-	b := new(backoff)
-	b.Reset()
-
-	p := &process{
-		ctx:     ctx,
+// New creates new process.
+func New(params *Params, l *logrus.Entry) *Process {
+	return &Process{
 		params:  params,
 		l:       l,
 		pl:      newProcessLogger(l, keepLogLines),
-		changes: make(chan inventory.AgentStatus, 1),
-		backoff: b,
+		changes: make(chan inventory.AgentStatus, 10),
+		backoff: backoff.New(),
 		ctxDone: make(chan struct{}),
 	}
+}
 
-	go func() {
-		<-ctx.Done()
-		p.l.Infof("Process: context canceled.")
-		close(p.ctxDone)
-	}()
-
+// Run starts process and runs until ctx is canceled.
+func (p *Process) Run(ctx context.Context) {
 	go p.toStarting()
 
-	return p
+	<-ctx.Done()
+	p.l.Infof("Process: context canceled.")
+	close(p.ctxDone)
 }
 
 // STARTING -> RUNNING
 // STARTING -> WAITING
-func (p *process) toStarting() {
+func (p *Process) toStarting() {
 	p.l.Infof("Process: starting.")
 	p.changes <- inventory.AgentStatus_STARTING
 
-	p.cmd = exec.Command(p.params.path, p.params.args...) //nolint:gosec
-	p.cmd.Env = p.params.env
+	p.cmd = exec.Command(p.params.Path, p.params.Args...) //nolint:gosec
+	p.cmd.Env = p.params.Env
 	p.cmd.Stdout = p.pl
 	p.cmd.Stderr = p.pl
 	setSysProcAttr(p.cmd)
@@ -127,7 +127,7 @@ func (p *process) toStarting() {
 
 // RUNNING -> STOPPING
 // RUNNING -> WAITING
-func (p *process) toRunning() {
+func (p *Process) toRunning() {
 	p.l.Infof("Process: running.")
 	p.changes <- inventory.AgentStatus_RUNNING
 
@@ -144,7 +144,7 @@ func (p *process) toRunning() {
 
 // WAITING -> STARTING
 // WAITING -> DONE
-func (p *process) toWaiting() {
+func (p *Process) toWaiting() {
 	delay := p.backoff.Delay()
 
 	p.l.Infof("Process: waiting %s.", delay)
@@ -161,7 +161,7 @@ func (p *process) toWaiting() {
 }
 
 // STOPPING -> DONE
-func (p *process) toStopping() {
+func (p *Process) toStopping() {
 	p.l.Infof("Process: stopping (sending SIGTERM)...")
 	p.changes <- inventory.AgentStatus_STOPPING
 
@@ -186,7 +186,7 @@ func (p *process) toStopping() {
 	go p.toDone()
 }
 
-func (p *process) toDone() {
+func (p *Process) toDone() {
 	p.l.Info("Process: done.")
 	p.changes <- inventory.AgentStatus_DONE
 
@@ -194,11 +194,11 @@ func (p *process) toDone() {
 }
 
 // Changes returns channel that should be read until it is closed.
-func (p *process) Changes() <-chan inventory.AgentStatus {
+func (p *Process) Changes() <-chan inventory.AgentStatus {
 	return p.changes
 }
 
 // Logs returns latest process logs.
-func (p *process) Logs() []string {
+func (p *Process) Logs() []string {
 	return p.pl.Latest()
 }

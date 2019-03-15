@@ -14,23 +14,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// +build child
+// +build !linux
 
-// Export some identifiers just for process_child.go.
+package process
 
-package supervisor
+import (
+	"os/exec"
+)
 
-import "os/exec"
-
-func NewProcessParams(path string, args []string) *processParams {
-	return &processParams{
-		path: path,
-		args: args,
-	}
-}
-
-var NewProcess = newProcess
-
-func GetCmd(p *process) *exec.Cmd {
-	return p.cmd
+func setSysProcAttr(cmd *exec.Cmd) {
+	// nothing, see process_sys_linux.go
 }

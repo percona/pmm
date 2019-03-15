@@ -18,8 +18,6 @@
 
 // Export some identifiers just for backoff_draw.go.
 
-package supervisor
-
-type Backoff = backoff
+package backoff
 
 const DelayBaseMax = delayBaseMax

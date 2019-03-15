@@ -14,7 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package supervisor
+// Package backoff implement the backoff strategy for restarting Agents.
+package backoff
 
 import (
 	"math/rand"
@@ -28,15 +29,25 @@ const (
 	delayJitter   = 0.25 // ±25%
 )
 
-type backoff struct {
+// Backoff encapsulates delay manipulation.
+type Backoff struct {
 	delayBaseNext time.Duration
 }
 
-func (b *backoff) Reset() {
+// New returns new reset backoff.
+func New() *Backoff {
+	b := new(Backoff)
+	b.Reset()
+	return b
+}
+
+// Reset sets next delay to the default minimum.
+func (b *Backoff) Reset() {
 	b.delayBaseNext = delayBaseMin
 }
 
-func (b *backoff) Delay() time.Duration {
+// Delay returns next delay.
+func (b *Backoff) Delay() time.Duration {
 	delay := b.delayBaseNext
 
 	b.delayBaseNext += time.Duration(float64(b.delayBaseNext) * delayIncrease)
