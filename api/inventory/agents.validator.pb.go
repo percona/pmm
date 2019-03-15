@@ -40,6 +40,7 @@ func (this *MongoDBExporter) Validate() error {
 	return nil
 }
 func (this *QANMySQLPerfSchemaAgent) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *ListAgentsRequest) Validate() error {
@@ -267,6 +268,7 @@ func (this *AddQANMySQLPerfSchemaAgentRequest) Validate() error {
 	if this.Username == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
 	}
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
 func (this *AddQANMySQLPerfSchemaAgentResponse) Validate() error {

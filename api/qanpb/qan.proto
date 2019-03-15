@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package qan;
+
+option go_package = "qanpb";
+
+// ExampleFormat is format of query example: real or query without values.
+enum ExampleFormat {
+  EXAMPLE_FORMAT_INVALID = 0;
+  EXAMPLE = 1;
+  FINGERPRINT = 2;
+}
+
+// ExampleType is a type of query example selected for this query class in given period of time.
+enum ExampleType {
+  EXAMPLE_TYPE_INVALID = 0;
+  RANDOM = 1;
+  SLOWEST = 2;
+  FASTEST = 3;
+  WITH_ERROR = 4;
+}

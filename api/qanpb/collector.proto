@@ -1,0 +1,233 @@
+syntax = "proto3";
+
+package qan;
+
+option go_package = "qanpb";
+
+import "qanpb/qan.proto";
+
+// MetricsSource defines collected metrics source.
+enum MetricsSource {
+  METRICS_SOURCE_INVALID = 0;
+  MYSQL_SLOWLOG = 1;
+  MYSQL_PERFSCHEMA = 2;
+}
+
+// Collector service accepts data from pmm-agent (via pmm-managed).
+service Collector {
+  // Collect accepts data from pmm-agent (via pmm-managed).
+  rpc Collect(CollectRequest) returns (CollectResponse);
+}
+
+message CollectRequest {
+  repeated MetricsBucket metrics_bucket = 1;
+}
+
+// MetricsBucket is aggregated message created by pmm-agent.
+// Contains information about one query selected in defined way from query class in specific period of time.
+message MetricsBucket {
+  // md5 of digest_text/fingerprint.
+  string queryid = 1;
+  // digest_text - query signature. Query without values.
+  string fingerprint = 2;
+  //
+  // Dimension Group.
+  //
+
+  // Server.
+  string d_server = 3;
+  // PostgreSQL database.
+  string d_database = 4;
+  // MySQL database or PostgreSQL schema.
+  string d_schema = 5;
+  // client user name.
+  string d_username = 6;
+  // client IP or hostname.
+  string d_client_host = 7;
+  // Custom labels names:values.
+  map<string, string> labels = 8;
+  // Identifier of agent that collect and send metrics.
+  string agent_uuid = 9;
+  // Time when collection of bucket started.
+  uint32 period_start_unix_secs = 10;
+  // Duration of bucket.
+  uint32 period_length_secs = 11;
+  // Metrics source.
+  MetricsSource metrics_source = 12;
+  // One of query example from set found in bucket.
+  string example = 13;
+  ExampleFormat example_format = 14;
+  // Indicates if query examples is too long and was truncated.
+  bool is_truncated = 15;
+  ExampleType example_type = 16;
+  // JSON raw metrics for given query example.
+  // FIXME(askomorokhov) wat?
+  string example_metrics = 17;
+  //
+  // Metrics.
+  //
+
+  // How many queries was with warnings in bucket.
+  float num_queries_with_warnings = 18;
+  // List of warnings: {code: count}.
+  map<uint64, uint64> warnings = 19;
+  // How many queries was with error in bucket.
+  float num_queries_with_errors = 20;
+  // List of errors: {code: count}.
+  map<uint64, uint64> errors = 21;
+  // Amount queries in this bucket.
+  float num_queries = 22;
+  // How many times query_time was found.
+  float m_query_time_cnt = 23;
+  // Sum of all values query_time in bucket.
+  float m_query_time_sum = 24;
+  // Smallest value of query_time in bucket.
+  float m_query_time_min = 25;
+  // Biggest value of query_time in bucket.
+  float m_query_time_max = 26;
+  // 99 percentile of value of query_time in bucket.
+  float m_query_time_p99 = 27;
+  float m_lock_time_cnt = 28;
+  float m_lock_time_sum = 29;
+  float m_lock_time_min = 30;
+  float m_lock_time_max = 31;
+  float m_lock_time_p99 = 32;
+  float m_rows_sent_cnt = 33;
+  float m_rows_sent_sum = 34;
+  float m_rows_sent_min = 35;
+  float m_rows_sent_max = 36;
+  float m_rows_sent_p99 = 37;
+  float m_rows_examined_cnt = 38;
+  float m_rows_examined_sum = 39;
+  float m_rows_examined_min = 40;
+  float m_rows_examined_max = 41;
+  float m_rows_examined_p99 = 42;
+  float m_rows_affected_cnt = 43;
+  float m_rows_affected_sum = 44;
+  float m_rows_affected_min = 45;
+  float m_rows_affected_max = 46;
+  float m_rows_affected_p99 = 47;
+  float m_rows_read_cnt = 48;
+  float m_rows_read_sum = 49;
+  float m_rows_read_min = 50;
+  float m_rows_read_max = 51;
+  float m_rows_read_p99 = 52;
+  float m_merge_passes_cnt = 53;
+  float m_merge_passes_sum = 54;
+  float m_merge_passes_min = 55;
+  float m_merge_passes_max = 56;
+  float m_merge_passes_p99 = 57;
+  float m_innodb_io_r_ops_cnt = 58;
+  float m_innodb_io_r_ops_sum = 59;
+  float m_innodb_io_r_ops_min = 60;
+  float m_innodb_io_r_ops_max = 61;
+  float m_innodb_io_r_ops_p99 = 62;
+  float m_innodb_io_r_bytes_cnt = 63;
+  float m_innodb_io_r_bytes_sum = 64;
+  float m_innodb_io_r_bytes_min = 65;
+  float m_innodb_io_r_bytes_max = 66;
+  float m_innodb_io_r_bytes_p99 = 67;
+  float m_innodb_io_r_wait_cnt = 68;
+  float m_innodb_io_r_wait_sum = 69;
+  float m_innodb_io_r_wait_min = 70;
+  float m_innodb_io_r_wait_max = 71;
+  float m_innodb_io_r_wait_p99 = 72;
+  float m_innodb_rec_lock_wait_cnt = 73;
+  float m_innodb_rec_lock_wait_sum = 74;
+  float m_innodb_rec_lock_wait_min = 75;
+  float m_innodb_rec_lock_wait_max = 76;
+  float m_innodb_rec_lock_wait_p99 = 77;
+  float m_innodb_queue_wait_cnt = 78;
+  float m_innodb_queue_wait_sum = 79;
+  float m_innodb_queue_wait_min = 80;
+  float m_innodb_queue_wait_max = 81;
+  float m_innodb_queue_wait_p99 = 82;
+  float m_innodb_pages_distinct_cnt = 83;
+  float m_innodb_pages_distinct_sum = 84;
+  float m_innodb_pages_distinct_min = 85;
+  float m_innodb_pages_distinct_max = 86;
+  float m_innodb_pages_distinct_p99 = 87;
+  float m_query_length_cnt = 88;
+  float m_query_length_sum = 89;
+  float m_query_length_min = 90;
+  float m_query_length_max = 91;
+  float m_query_length_p99 = 92;
+  float m_bytes_sent_cnt = 93;
+  float m_bytes_sent_sum = 94;
+  float m_bytes_sent_min = 95;
+  float m_bytes_sent_max = 96;
+  float m_bytes_sent_p99 = 97;
+  float m_tmp_tables_cnt = 98;
+  float m_tmp_tables_sum = 99;
+  float m_tmp_tables_min = 100;
+  float m_tmp_tables_max = 101;
+  float m_tmp_tables_p99 = 102;
+  float m_tmp_disk_tables_cnt = 103;
+  float m_tmp_disk_tables_sum = 104;
+  float m_tmp_disk_tables_min = 105;
+  float m_tmp_disk_tables_max = 106;
+  float m_tmp_disk_tables_p99 = 107;
+  float m_tmp_table_sizes_cnt = 108;
+  float m_tmp_table_sizes_sum = 109;
+  float m_tmp_table_sizes_min = 110;
+  float m_tmp_table_sizes_max = 111;
+  float m_tmp_table_sizes_p99 = 112;
+  //
+  // boolean metrics
+  //
+  // FIXME(askomorokhov) why they are float then?
+  //
+
+  float m_qc_hit_cnt = 113;
+  // %true = sum/cnt
+  float m_qc_hit_sum = 114;
+  float m_full_scan_cnt = 115;
+  float m_full_scan_sum = 116;
+  float m_full_join_cnt = 117;
+  float m_full_join_sum = 118;
+  float m_tmp_table_cnt = 119;
+  float m_tmp_table_sum = 120;
+  float m_tmp_table_on_disk_cnt = 121;
+  float m_tmp_table_on_disk_sum = 122;
+  float m_filesort_cnt = 123;
+  float m_filesort_sum = 124;
+  float m_filesort_on_disk_cnt = 125;
+  float m_filesort_on_disk_sum = 126;
+  float m_select_full_range_join_cnt = 127;
+  float m_select_full_range_join_sum = 128;
+  float m_select_range_cnt = 129;
+  float m_select_range_sum = 130;
+  float m_select_range_check_cnt = 131;
+  float m_select_range_check_sum = 132;
+  float m_sort_range_cnt = 133;
+  float m_sort_range_sum = 134;
+  float m_sort_rows_cnt = 135;
+  float m_sort_rows_sum = 136;
+  float m_sort_scan_cnt = 137;
+  float m_sort_scan_sum = 138;
+  float m_no_index_used_cnt = 139;
+  float m_no_index_used_sum = 140;
+  float m_no_good_index_used_cnt = 141;
+  float m_no_good_index_used_sum = 142;
+  //
+  // MongoDB metrics.
+  //
+
+  float m_docs_returned_cnt = 143;
+  float m_docs_returned_sum = 144;
+  float m_docs_returned_min = 145;
+  float m_docs_returned_max = 146;
+  float m_docs_returned_p99 = 147;
+  float m_response_length_cnt = 148;
+  float m_response_length_sum = 149;
+  float m_response_length_min = 150;
+  float m_response_length_max = 151;
+  float m_response_length_p99 = 152;
+  float m_docs_scanned_cnt = 153;
+  float m_docs_scanned_sum = 154;
+  float m_docs_scanned_min = 155;
+  float m_docs_scanned_max = 156;
+  float m_docs_scanned_p99 = 157;
+}
+
+message CollectResponse {}
