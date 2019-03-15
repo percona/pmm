@@ -36,7 +36,8 @@ gen: clean            ## Generate files.
 			--additional-initialism=rds ; \
 	done
 
-	swagger mixin server/json/server.json inventory/json/inventory.json qanpb/json/qanpb.json managementpb/json/managementpb.json --output=swagger/swagger.json
+	# generate server API spec, omit agent_local
+	swagger mixin server/json/server.json inventory/json/inventory.json managementpb/json/managementpb.json qanpb/json/qanpb.json --output=swagger/swagger.json
 	swagger validate swagger/swagger.json
 
 	make clean_swagger
