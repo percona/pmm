@@ -28,6 +28,8 @@ gen: clean            ## Generate files.
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json ; \
 		swagger validate $$API/json/$$API.json ; \
 		swagger generate client --spec=$$API/json/$$API.json --target=$$API/json \
+		    --additional-initialism=ok \
+		    --additional-initialism=db \
 			--additional-initialism=pmm \
 			--additional-initialism=aws \
 			--additional-initialism=qan \
@@ -48,7 +50,7 @@ clean: clean_swagger  ## Remove generated files.
 	find . -name '*.pb.gw.go' -not -path './vendor/*' -print -delete
 
 	for API in agent_local server inventory managementpb qanpb ; do \
-		rm -fr $$API/json/client $$API/json/$$API.json ; \
+		rm -fr $$API/json/client $$API/json/models $$API/json/$$API.json ; \
 	done
 	rm -f swagger/swagger.json
 
