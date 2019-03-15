@@ -365,6 +365,9 @@ type AddOKBodyQANMysqlPerfschema struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// MySQL password for getting performance data.
 	Password string `json:"password,omitempty"`
 

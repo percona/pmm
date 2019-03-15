@@ -146,6 +146,13 @@
                       "description": "Unique randomly generated instance identifier.",
                       "type": "string"
                     },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
                     "password": {
                       "description": "MySQL password for getting performance data.",
                       "type": "string"
