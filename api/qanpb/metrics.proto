@@ -5,7 +5,7 @@ package qan;
 option go_package = "qanpb";
 
 import "google/api/annotations.proto";
-import "qan/qan.proto";
+import "qanpb/qan.proto";
 
 // Metrics serves agregated metrics filtered by given dimention value and period.
 service Metrics {

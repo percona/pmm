@@ -11,8 +11,8 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/qan/json/client/metrics"
-	"github.com/percona/pmm/api/qan/json/client/profile"
+	"github.com/percona/pmm/api/qanpb/json/client/metrics"
+	"github.com/percona/pmm/api/qanpb/json/client/profile"
 )
 
 // Default PMM server inventory HTTP client.

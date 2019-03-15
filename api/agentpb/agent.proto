@@ -6,7 +6,7 @@ option go_package = "agentpb";
 
 import "google/protobuf/timestamp.proto";
 import "inventory/agent_status.proto";
-import "qan/collector.proto";
+import "qanpb/collector.proto";
 
 // Type represents Agent type.
 enum Type {

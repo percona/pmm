@@ -4,7 +4,7 @@ package qan;
 
 option go_package = "qanpb";
 
-import "qan/qan.proto";
+import "qanpb/qan.proto";
 
 // MetricsSource defines collected metrics source.
 enum MetricsSource {
