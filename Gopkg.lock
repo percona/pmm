@@ -45,6 +45,14 @@
   version = "v1.1.1"
 
 [[projects]]
+  digest = "1:13e9a236e56e18fecb73f5b2f2eb7f60060a1a9bc27e5a7328ab22e275ecb63e"
+  name = "github.com/go-sql-driver/mysql"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "72cd26f257d44c1114970e19afddcd812016007e"
+  version = "v1.4.1"
+
+[[projects]]
   digest = "1:2f8f8ed66498a932736a00c85b0ac733c373609289ddef13d29e3ed0c86dc09e"
   name = "github.com/gogo/protobuf"
   packages = [
@@ -121,17 +129,18 @@
   revision = "16b0da83255720371d18b2304257e073491ed63c"
 
 [[projects]]
-  branch = "PMM-2.0"
-  digest = "1:8aed2da63d2207f383b4848b0d5ab74812fc21ba35a317a28e27793aa797a6a7"
+  branch = "PMM-3595-qan-mysql-perfschema"
+  digest = "1:25b4786e8af9ed08bd0af137c53da3503b8a8a4d3156b5efe258a0837749574e"
   name = "github.com/percona/pmm"
   packages = [
-    "api/agent",
     "api/agent_local",
+    "api/agentpb",
     "api/inventory",
+    "api/qanpb",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "f52595aaf357c858ea8726e98c2a0ab63cb49ac1"
+  revision = "75b3499cc296f46d963a117054a0bfa1960410a3"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -271,6 +280,14 @@
   version = "v0.3.0"
 
 [[projects]]
+  digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
+  name = "google.golang.org/appengine"
+  packages = ["cloudsql"]
+  pruneopts = "NUT"
+  revision = "e9657d882bb81064595ca3b56cbe2546bbabf7b1"
+  version = "v1.4.0"
+
+[[projects]]
   digest = "1:0ff5d79ff7df5c47800f11c139615b2e485efd0014b74257c1f46cb6cb3bb84d"
   name = "google.golang.org/genproto"
   packages = [
@@ -329,17 +346,38 @@
   revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
   version = "v2.2.6"
 
+[[projects]]
+  digest = "1:2ed325d52993ed3487ff72c036bb5826a4cd0e0d8d145956c746bf32eb7afafb"
+  name = "gopkg.in/reform.v1"
+  packages = [
+    ".",
+    "dialects",
+    "dialects/mssql",
+    "dialects/mysql",
+    "dialects/postgresql",
+    "dialects/sqlite3",
+    "dialects/sqlserver",
+    "internal",
+    "parse",
+    "reform",
+  ]
+  pruneopts = "NUT"
+  revision = "8e91a79b08247ed62e99edf920d8d426defbfa81"
+  version = "v1.3.3"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/AlekSi/pointer",
+    "github.com/go-sql-driver/mysql",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/ptypes",
     "github.com/percona/exporter_shared/helpers",
-    "github.com/percona/pmm/api/agent",
     "github.com/percona/pmm/api/agent_local",
+    "github.com/percona/pmm/api/agentpb",
     "github.com/percona/pmm/api/inventory",
+    "github.com/percona/pmm/api/qanpb",
     "github.com/percona/pmm/version",
     "github.com/pkg/errors",
     "github.com/prometheus/client_golang/prometheus",
@@ -353,6 +391,10 @@
     "google.golang.org/grpc/grpclog",
     "google.golang.org/grpc/status",
     "gopkg.in/alecthomas/kingpin.v2",
+    "gopkg.in/reform.v1",
+    "gopkg.in/reform.v1/dialects/mysql",
+    "gopkg.in/reform.v1/parse",
+    "gopkg.in/reform.v1/reform",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
