@@ -355,17 +355,17 @@ type GetAgentOKBodyMongodbExporter struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)
-	ConnectionString string `json:"connection_string,omitempty"`
-
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// MongoDB password for scraping metrics.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -373,6 +373,9 @@ type GetAgentOKBodyMongodbExporter struct {
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// MongoDB username for scraping metrics.
+	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this get agent o k body mongodb exporter
@@ -479,8 +482,8 @@ type GetAgentOKBodyMysqldExporter struct {
 	// MySQL password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
-	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -594,8 +597,8 @@ type GetAgentOKBodyNodeExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
@@ -704,7 +707,7 @@ type GetAgentOKBodyPMMAgent struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this get agent o k body PMM agent
@@ -738,15 +741,92 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// pmm-agent identifier where this instance runs.
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// MySQL password for getting performance data.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// MySQL username for getting performance data.
+	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this get agent o k body QAN mysql perfschema agent
 func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum = append(getAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyQANMysqlPerfschemaAgentStatusSTARTING string = "STARTING"
+
+	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyQANMysqlPerfschemaAgentStatusRUNNING string = "RUNNING"
+
+	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyQANMysqlPerfschemaAgentStatusWAITING string = "WAITING"
+
+	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyQANMysqlPerfschemaAgentStatusSTOPPING string = "STOPPING"
+
+	// GetAgentOKBodyQANMysqlPerfschemaAgentStatusDONE captures enum value "DONE"
+	GetAgentOKBodyQANMysqlPerfschemaAgentStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOK"+"."+"qan_mysql_perfschema_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -782,8 +862,8 @@ type GetAgentOKBodyRDSExporter struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// A list of Service identifiers (Node identifiers are extracted from Services).
 	ServiceIds []string `json:"service_ids"`

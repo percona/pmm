@@ -6,12 +6,14 @@ package agents
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -71,11 +73,20 @@ swagger:model AddQANMySQLPerfSchemaAgentBody
 */
 type AddQANMySQLPerfSchemaAgentBody struct {
 
-	// pmm-agent identifier where this instance runs.
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// MySQL password for getting performance data.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// MySQL username for getting performance data.
+	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this add QAN my SQL perf schema agent body
@@ -168,15 +179,92 @@ type AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// pmm-agent identifier where this instance runs.
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// MySQL password for getting performance data.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// MySQL username for getting performance data.
+	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this add QAN my SQL perf schema agent o k body QAN mysql perfschema agent
 func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addQanMySqlPerfSchemaAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addQanMySqlPerfSchemaAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum = append(addQanMySqlPerfSchemaAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusSTARTING captures enum value "STARTING"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusSTARTING string = "STARTING"
+
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusRUNNING captures enum value "RUNNING"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusRUNNING string = "RUNNING"
+
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusWAITING captures enum value "WAITING"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusWAITING string = "WAITING"
+
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusSTOPPING captures enum value "STOPPING"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusSTOPPING string = "STOPPING"
+
+	// AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusDONE captures enum value "DONE"
+	AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgentStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addQanMySqlPerfSchemaAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addQanMySqlPerfSchemaAgentOK"+"."+"qan_mysql_perfschema_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
 	return nil
 }
 

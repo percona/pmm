@@ -115,8 +115,8 @@ type ListAgentsBody struct {
 	// Return only Agents that provide insights for that Node.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Return only Agents running on that Node.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// Return only Agents started by this pmm-agent.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Return only Agents that provide insights for that Service.
 	ServiceID string `json:"service_id,omitempty"`
@@ -411,17 +411,17 @@ type MongodbExporterItems0 struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// MongoDB URI for scraping metrics. (See https://docs.mongodb.com/manual/reference/connection-string/)
-	ConnectionString string `json:"connection_string,omitempty"`
-
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// MongoDB password for scraping metrics.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -429,6 +429,9 @@ type MongodbExporterItems0 struct {
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
+
+	// MongoDB username for scraping metrics.
+	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this mongodb exporter items0
@@ -535,8 +538,8 @@ type MysqldExporterItems0 struct {
 	// MySQL password for scraping metrics.
 	Password string `json:"password,omitempty"`
 
-	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -650,8 +653,8 @@ type NodeExporterItems0 struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
@@ -760,7 +763,7 @@ type PMMAgentItems0 struct {
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Node identifier where this instance runs.
-	NodeID string `json:"node_id,omitempty"`
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
 // Validate validates this PMM agent items0
@@ -794,15 +797,92 @@ type QANMysqlPerfschemaAgentItems0 struct {
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
 
-	// pmm-agent identifier where this instance runs.
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// MySQL password for getting performance data.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// MySQL username for getting performance data.
+	Username string `json:"username,omitempty"`
 }
 
 // Validate validates this QAN mysql perfschema agent items0
 func (o *QANMysqlPerfschemaAgentItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var qanMysqlPerfschemaAgentItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		qanMysqlPerfschemaAgentItems0TypeStatusPropEnum = append(qanMysqlPerfschemaAgentItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// QANMysqlPerfschemaAgentItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	QANMysqlPerfschemaAgentItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// QANMysqlPerfschemaAgentItems0StatusSTARTING captures enum value "STARTING"
+	QANMysqlPerfschemaAgentItems0StatusSTARTING string = "STARTING"
+
+	// QANMysqlPerfschemaAgentItems0StatusRUNNING captures enum value "RUNNING"
+	QANMysqlPerfschemaAgentItems0StatusRUNNING string = "RUNNING"
+
+	// QANMysqlPerfschemaAgentItems0StatusWAITING captures enum value "WAITING"
+	QANMysqlPerfschemaAgentItems0StatusWAITING string = "WAITING"
+
+	// QANMysqlPerfschemaAgentItems0StatusSTOPPING captures enum value "STOPPING"
+	QANMysqlPerfschemaAgentItems0StatusSTOPPING string = "STOPPING"
+
+	// QANMysqlPerfschemaAgentItems0StatusDONE captures enum value "DONE"
+	QANMysqlPerfschemaAgentItems0StatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *QANMysqlPerfschemaAgentItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, qanMysqlPerfschemaAgentItems0TypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *QANMysqlPerfschemaAgentItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -838,8 +918,8 @@ type RDSExporterItems0 struct {
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
-	// Node identifier where this instance runs.
-	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
 	// A list of Service identifiers (Node identifiers are extracted from Services).
 	ServiceIds []string `json:"service_ids"`
