@@ -2,6 +2,11 @@ ignored = [
   "gonum.org/v1/plot*"  # backoff_draw.go
 ]
 
+# tools
+required = [
+  "gopkg.in/reform.v1/reform"
+]
+
 [prune]
   non-go = true
   go-tests = true
@@ -16,7 +21,7 @@ ignored = [
   # Stick to 0.9.x for now.
   # https://github.com/prometheus/client_golang#important-note-about-releases-versioning-tagging-and-stability
   name = "github.com/prometheus/client_golang"
-  version = "0.9.1"
+  version = "0.9.2"
 
 # TODO Remove when v1.1.0 is released.
 # https://github.com/AlekSi/pointer/milestone/1

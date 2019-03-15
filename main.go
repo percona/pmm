@@ -22,10 +22,11 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"sync"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
-	api "github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/version"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -36,9 +37,9 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-agent/agentlocal"
+	"github.com/percona/pmm-agent/agents/supervisor"
 	"github.com/percona/pmm-agent/config"
 	"github.com/percona/pmm-agent/server"
-	"github.com/percona/pmm-agent/supervisor"
 	"github.com/percona/pmm-agent/utils/logger"
 )
 
@@ -48,10 +49,77 @@ const (
 	clockDriftWarning = 5 * time.Second
 )
 
-func workLoop(ctx context.Context, cfg *config.Config, l *logrus.Entry, client api.AgentClient) {
+func handleChanges(cancel context.CancelFunc, s *supervisor.Supervisor, channel *server.Channel, l *logrus.Entry) {
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for state := range s.Changes() {
+			res := channel.SendRequest(&agentpb.AgentMessage_StateChanged{
+				StateChanged: &state,
+			})
+			if res == nil {
+				l.Warn("Failed to send StateChanged request.")
+			}
+		}
+		l.Info("Supervisor changes done.")
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for collect := range s.QANRequests() {
+			res := channel.SendRequest(&agentpb.AgentMessage_QanCollect{
+				QanCollect: &collect,
+			})
+			if res == nil {
+				l.Warn("Failed to send QanCollect request.")
+			}
+		}
+		l.Info("Supervisor QAN requests done.")
+	}()
+
+	wg.Wait()
+	cancel()
+}
+
+func handleRequests(s *supervisor.Supervisor, channel *server.Channel, l *logrus.Entry) {
+	for serverMessage := range channel.Requests() {
+		var agentMessage *agentpb.AgentMessage
+		switch payload := serverMessage.Payload.(type) {
+		case *agentpb.ServerMessage_Ping:
+			agentMessage = &agentpb.AgentMessage{
+				Id: serverMessage.Id,
+				Payload: &agentpb.AgentMessage_Pong{
+					Pong: &agentpb.Pong{
+						CurrentTime: ptypes.TimestampNow(),
+					},
+				},
+			}
+
+		case *agentpb.ServerMessage_SetState:
+			s.SetState(payload.SetState)
+
+			agentMessage = &agentpb.AgentMessage{
+				Id: serverMessage.Id,
+				Payload: &agentpb.AgentMessage_SetState{
+					SetState: new(agentpb.SetStateResponse),
+				},
+			}
+
+		default:
+			l.Panicf("Unhandled server message payload: %s.", payload)
+		}
+
+		channel.SendResponse(agentMessage)
+	}
+}
+
+func workLoop(ctx context.Context, cfg *config.Config, l *logrus.Entry, client agentpb.AgentClient) {
 	// use separate context for stream to cancel it after supervisor is done sending last changes
 	streamCtx, streamCancel := context.WithCancel(context.Background())
-	streamCtx = api.AddAgentConnectMetadata(streamCtx, &api.AgentConnectMetadata{
+	streamCtx = agentpb.AddAgentConnectMetadata(streamCtx, &agentpb.AgentConnectMetadata{
 		ID:      cfg.ID,
 		Version: version.Version,
 	})
@@ -79,8 +147,8 @@ func workLoop(ctx context.Context, cfg *config.Config, l *logrus.Entry, client a
 	// So far nginx can handle all that itself without pmm-managed.
 	// We need to send ping to ensure that pmm-managed is alive and that Agent ID is valid.
 	start := time.Now()
-	res := channel.SendRequest(&api.AgentMessage_Ping{
-		Ping: new(api.Ping),
+	res := channel.SendRequest(&agentpb.AgentMessage_Ping{
+		Ping: new(agentpb.Ping),
 	})
 	if res == nil {
 		// error will be logged by channel code
@@ -88,7 +156,7 @@ func workLoop(ctx context.Context, cfg *config.Config, l *logrus.Entry, client a
 		return
 	}
 	roundtrip := time.Since(start)
-	serverTime, err := ptypes.Timestamp(res.(*api.ServerMessage_Pong).Pong.CurrentTime)
+	serverTime, err := ptypes.Timestamp(res.(*agentpb.ServerMessage_Pong).Pong.CurrentTime)
 	if err != nil {
 		l.Errorf("Failed to decode Pong.current_time: %s.", err)
 		streamCancel()
@@ -101,51 +169,16 @@ func workLoop(ctx context.Context, cfg *config.Config, l *logrus.Entry, client a
 	}
 
 	s := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports)
-	go func() {
-		for state := range s.Changes() {
-			res := channel.SendRequest(&api.AgentMessage_StateChanged{
-				StateChanged: &state,
-			})
-			if res == nil {
-				l.Warn("Failed to send StateChanged request.")
-			}
-		}
-		l.Info("Supervisor done.")
-		streamCancel()
-	}()
-
-	for serverMessage := range channel.Requests() {
-		var agentMessage *api.AgentMessage
-		switch payload := serverMessage.Payload.(type) {
-		case *api.ServerMessage_Ping:
-			agentMessage = &api.AgentMessage{
-				Id: serverMessage.Id,
-				Payload: &api.AgentMessage_Pong{
-					Pong: &api.Pong{
-						CurrentTime: ptypes.TimestampNow(),
-					},
-				},
-			}
-
-		case *api.ServerMessage_SetState:
-			s.SetState(payload.SetState.AgentProcesses)
-
-			agentMessage = &api.AgentMessage{
-				Id: serverMessage.Id,
-				Payload: &api.AgentMessage_SetState{
-					SetState: &api.SetStateResponse{},
-				},
-			}
-
-		default:
-			l.Panicf("Unhandled server message payload: %s.", payload)
-		}
-
-		channel.SendResponse(agentMessage)
-	}
+	go handleChanges(streamCancel, s, channel, l)
+	handleRequests(s, channel, l)
 }
 
 func main() {
+	// empty version breaks much of pmm-managed logic
+	if version.Version == "" {
+		panic("pmm-agent version is not set during build.")
+	}
+
 	var cfg config.Config
 	app := config.Application(&cfg)
 	kingpin.MustParse(app.Parse(os.Args[1:]))
@@ -187,7 +220,6 @@ func main() {
 	}
 	opts := []grpc.DialOption{
 		grpc.WithBlock(),
-		grpc.WithWaitForHandshake(),
 		grpc.WithBackoffMaxDelay(backoffMaxDelay),
 		grpc.WithUserAgent("pmm-agent/" + version.Version),
 		grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
@@ -212,7 +244,7 @@ func main() {
 	}()
 
 	l.Infof("Connected to %s.", cfg.Address)
-	client := api.NewAgentClient(conn)
+	client := agentpb.NewAgentClient(conn)
 
 	// TODO
 	// if cfg.UUID == "" {
