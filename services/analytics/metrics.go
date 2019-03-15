@@ -20,11 +20,11 @@ import (
 	"context"
 	"fmt"
 
-	pbqan "github.com/percona/pmm/api/qan"
+	"github.com/percona/pmm/api/qanpb"
 )
 
 // GetMetricsByDigest implements rpc to exchange data between API and agent.
-func (s *Service) GetMetrics(ctx context.Context, in *pbqan.MetricsRequest) (*pbqan.MetricsReply, error) {
+func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qanpb.MetricsReply, error) {
 	fmt.Println("Call GetMetricsByDigest")
 	labels := in.GetLabels()
 	dbServers := []string{}

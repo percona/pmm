@@ -23,7 +23,7 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/reflectx"
-	pbqan "github.com/percona/pmm/api/qan"
+	"github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 )
 
@@ -202,7 +202,7 @@ const insertSQL = `
     :agent_uuid,
     :metrics_source,
     :period_start_ts,
-    :period_length,
+    :period_length_secs,
     :example,
     CAST( :example_format_s AS Enum8('EXAMPLE' = 0, 'DIGEST' = 1)) AS example_format,
     :is_query_truncated,
@@ -375,12 +375,11 @@ type MetricsBucketExtended struct {
 	ErrorsCode       []uint64  `json:"errors_code"`
 	ErrorsCount      []uint64  `json:"errors_count"`
 	IsQueryTruncated uint8     `json:"is_query_truncated"` // uint32 -> uint8
-	*pbqan.MetricsBucket
+	*qanpb.MetricsBucket
 }
 
 // Save store metrics bucket received from agent into db.
-func (mb *MetricsBucket) Save(agentMsg *pbqan.AgentMessage) error {
-
+func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error {
 	if len(agentMsg.MetricsBucket) == 0 {
 		return errors.New("Nothing to save - no metrics buckets")
 	}
@@ -406,8 +405,12 @@ func (mb *MetricsBucket) Save(agentMsg *pbqan.AgentMessage) error {
 		wk, wv := MapToArrsIntInt(mb.Warnings)
 		ek, ev := MapToArrsIntInt(mb.Errors)
 
+		var truncated uint8
+		if mb.IsTruncated {
+			truncated = 1
+		}
 		q := MetricsBucketExtended{
-			time.Unix(mb.GetPeriodStart(), 0).UTC(),
+			time.Unix(int64(mb.GetPeriodStartUnixSecs()), 0).UTC(),
 			mb.GetExampleType().String(),
 			mb.GetExampleFormat().String(),
 			lk,
@@ -416,7 +419,7 @@ func (mb *MetricsBucket) Save(agentMsg *pbqan.AgentMessage) error {
 			wv,
 			ek,
 			ev,
-			uint8(mb.IsTruncated), // uint32 -> uint8
+			truncated,
 			mb,
 		}
 
