@@ -39,6 +39,7 @@ func NewService(mbm models.MetricsBucket) *Service {
 	}
 }
 
+// Collect implements rpc to store data collected from slowlog/perf schema etc.
 func (s *Service) Collect(ctx context.Context, req *qanpb.CollectRequest) (*qanpb.CollectResponse, error) {
 	if err := s.mbm.Save(req); err != nil {
 		s.l.Error(err)

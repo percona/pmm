@@ -23,7 +23,7 @@ import (
 	"github.com/percona/pmm/api/qanpb"
 )
 
-// GetMetricsByDigest implements rpc to exchange data between API and agent.
+// GetMetrics implements rpc to get metrics for specific filtering.
 func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qanpb.MetricsReply, error) {
 	fmt.Println("Call GetMetricsByDigest")
 	labels := in.GetLabels()

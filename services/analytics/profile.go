@@ -35,7 +35,7 @@ func NewService(rm models.Reporter, mm models.Metrics) *Service {
 	return &Service{rm, mm}
 }
 
-// DataInterchange implements rpc to exchange data between API and agent.
+// GetReport implements rpc to get report for given filtering.
 func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanpb.ReportReply, error) {
 	// TODO: add validator/sanitazer
 	labels := in.GetLabels()
@@ -105,7 +105,22 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			Metrics:   make(map[string]*qanpb.Metric),
 		}
 
-		sparklines, err := s.rm.SelectSparklines(row.Dimension, in.PeriodStartFrom, in.PeriodStartTo, in.Keyword, in.FirstSeen, dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts, dbLabels, in.GroupBy, columns)
+		sparklines, err := s.rm.SelectSparklines(
+			row.Dimension,
+			in.PeriodStartFrom,
+			in.PeriodStartTo,
+			in.Keyword,
+			in.FirstSeen,
+			dQueryids,
+			dServers,
+			dDatabases,
+			dSchemas,
+			dUsernames,
+			dClientHosts,
+			dbLabels,
+			in.GroupBy,
+			columns,
+		)
 		if err != nil {
 			return resp, err
 		}

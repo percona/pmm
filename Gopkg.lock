@@ -142,15 +142,15 @@
   revision = "b9f78430ec7937d23152e7e8717193e36188e8a9"
 
 [[projects]]
-  branch = "PMM-2.0"
-  digest = "1:9d02e12a4f50ff40c27fdd3fe4002ba90629a1f202582ac9c194a94843225671"
+  branch = "PMM-3576-sparklines"
+  digest = "1:4030e67a7e4afd189b0a4443421f4c9452385ad9afc1465ea99278b924ad7f93"
   name = "github.com/percona/pmm"
   packages = [
     "api/qanpb",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "4ebf620263b318f98906a4da36c17679a91989b1"
+  revision = "561524f10cc91a281f6153e2ba5d3844ec1e84eb"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"

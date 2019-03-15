@@ -18,6 +18,7 @@ package models
 
 import (
 	"bytes"
+	"fmt"
 	"log"
 	"strings"
 	"text/template"
@@ -27,16 +28,19 @@ import (
 	"github.com/percona/pmm/api/qanpb"
 )
 
+// Metrics represents methods to work with metrics.
 type Metrics struct {
 	db *sqlx.DB
 }
 
-// NewReporter initialize Metrics with db instance.
+// NewMetrics initialize Metrics with db instance.
 func NewMetrics(db *sqlx.DB) Metrics {
 	return Metrics{db: db}
 }
 
-func (m *Metrics) Get(from, to, digest string, dbServers, dbSchemas, dbUsernames, clientHosts []string, dbLabels map[string][]string) (*qanpb.MetricsReply, error) {
+// Get select metrics for specific queryid, hostname, etc.
+func (m *Metrics) Get(from, to, digest string, dbServers, dbSchemas, dbUsernames,
+	clientHosts []string, dbLabels map[string][]string) (*qanpb.MetricsReply, error) {
 	arg := map[string]interface{}{
 		"from":    from,
 		"to":      to,
@@ -59,7 +63,13 @@ func (m *Metrics) Get(from, to, digest string, dbServers, dbSchemas, dbUsernames
 	defer func() { m.db.Mapper = reflectx.NewMapperFunc("db", strings.ToLower) }()
 	res := qanpb.MetricsReply{}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return &res, fmt.Errorf("prepare named:%v", err)
+	}
 	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return &res, fmt.Errorf("populate agruments in IN clause:%v", err)
+	}
 	query = m.db.Rebind(query)
 	err = m.db.Get(&res, query, args...)
 	return &res, err
@@ -203,7 +213,7 @@ SUM(m_sort_rows_sum) AS m_sort_rows_sum,
 SUM(m_sort_scan_sum) AS m_sort_scan_sum,
 SUM(m_no_index_used_sum) AS m_no_index_used_sum,
 SUM(m_no_good_index_used_sum) AS m_no_good_index_used_sum
-FROM queries
+FROM metrics
 WHERE period_start > :from AND period_start < :to AND queryid = :digest
 {{ if index . "servers" }} AND db_server IN ( :servers ) {{ end }}
 {{ if index . "schemas" }} AND db_schema IN ( :schemas ) {{ end }}

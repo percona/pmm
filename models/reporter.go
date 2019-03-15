@@ -24,7 +24,7 @@ import (
 	"text/template"
 
 	"github.com/jmoiron/sqlx"
-	qanpb "github.com/percona/pmm/api/qan"
+	"github.com/percona/pmm/api/qanpb"
 )
 
 // Reporter implements models to select metrics bucket by params.
@@ -65,7 +65,7 @@ AVG(m_query_time_p99) AS m_query_time_p99,
 
 rowNumberInAllBlocks() AS total_rows
 
-FROM queries
+FROM metrics
 WHERE period_start > :period_start_from AND period_start < :period_start_to
 {{ if index . "first_seen" }} AND first_seen >= :period_start_from {{ end }}
 {{ if index . "keyword" }} AND (queryid = :keyword OR fingerprint LIKE :start_keyword ) {{ end }}
@@ -93,7 +93,11 @@ LIMIT :offset, :limit
 // M is map for interfaces.
 type M map[string]interface{}
 
-func (r *Reporter) Select(period_start_from, period_start_to, keyword string, firstSeen bool, dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string, dbLabels map[string][]string, group, order string, offset uint32, limit uint32, columns []string) ([]M, error) {
+// Select select metrics for report.
+func (r *Reporter) Select(periodStartFrom, periodStartTo, keyword string,
+	firstSeen bool, dQueryids, dServers, dDatabases, dSchemas, dUsernames,
+	dClientHosts []string, dbLabels map[string][]string, group, order string,
+	offset uint32, limit uint32, columns []string) ([]M, error) {
 
 	if group == "" {
 		group = "queryid"
@@ -107,8 +111,8 @@ func (r *Reporter) Select(period_start_from, period_start_to, keyword string, fi
 	}
 
 	arg := map[string]interface{}{
-		"period_start_from": period_start_from,
-		"period_start_to":   period_start_to,
+		"period_start_from": periodStartFrom,
+		"period_start_to":   periodStartTo,
 		"keyword":           keyword,
 		"start_keyword":     "%" + keyword,
 		"first_seen":        firstSeen,
@@ -131,11 +135,17 @@ func (r *Reporter) Select(period_start_from, period_start_to, keyword string, fi
 	} else if err = tmpl.Execute(&queryBuffer, arg); err != nil {
 		log.Fatalln(err)
 	}
+	var results []M
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return results, fmt.Errorf("prepare named:%v", err)
+	}
 	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return results, fmt.Errorf("populate agruments in IN clause:%v", err)
+	}
 	query = r.db.Rebind(query)
 
-	var results []M
 	rows, err := r.db.Queryx(query, args...)
 	fmt.Printf("queryx error: %v", err)
 	for rows.Next() {
@@ -170,7 +180,7 @@ m_query_time_sum / time_frame AS m_query_load,
 	SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
 {{ end }}
 m_query_time_sum / num_queries_sum AS m_query_time_avg
-FROM queries
+FROM metrics
 WHERE period_start > :period_start_from AND period_start < :period_start_to
 {{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}
 {{ if index . "keyword" }} AND (queryid = :keyword OR fingerprint LIKE :start_keyword ) {{ end }}
@@ -193,15 +203,19 @@ GROUP BY point
 ORDER BY point ASC;
 `
 
-func (r *Reporter) SelectSparklines(dimensionVal, period_start_from, period_start_to, keyword string, firstSeen bool, dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string, dbLabels map[string][]string, group string, columns []string) ([]*qanpb.Point, error) {
+// SelectSparklines selects datapoint for sparklines.
+func (r *Reporter) SelectSparklines(dimensionVal, periodStartFrom, periodStartTo,
+	keyword string, firstSeen bool, dQueryids, dServers, dDatabases, dSchemas,
+	dUsernames, dClientHosts []string, dbLabels map[string][]string, group string,
+	columns []string) ([]*qanpb.Point, error) {
 	if group == "" {
 		group = "queryid"
 	}
 
 	arg := map[string]interface{}{
 		"dimension_val":     dimensionVal,
-		"period_start_from": period_start_from,
-		"period_start_to":   period_start_to,
+		"period_start_from": periodStartFrom,
+		"period_start_to":   periodStartTo,
 		"keyword":           keyword,
 		"start_keyword":     "%" + keyword,
 		"first_seen":        firstSeen,
@@ -215,6 +229,7 @@ func (r *Reporter) SelectSparklines(dimensionVal, period_start_from, period_star
 		"group":             group,
 		"columns":           columns,
 	}
+	var results []*qanpb.Point
 	var queryBuffer bytes.Buffer
 	if tmpl, err := template.New("queryReportSparklines").Funcs(funcMap).Parse(queryReportSparklinesTmpl); err != nil {
 		log.Fatalln(err)
@@ -222,10 +237,15 @@ func (r *Reporter) SelectSparklines(dimensionVal, period_start_from, period_star
 		log.Fatalln(err)
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return results, fmt.Errorf("prepare named:%v", err)
+	}
 	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return results, fmt.Errorf("populate agruments in IN clause:%v", err)
+	}
 	query = r.db.Rebind(query)
 
-	var results []*qanpb.Point
 	rows, err := r.db.Queryx(query, args...)
 	fmt.Printf("sparklines queryx error: %v", err)
 	for rows.Next() {
