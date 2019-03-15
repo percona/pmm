@@ -58,7 +58,7 @@ type AddRemoteNodeOK struct {
 }
 
 func (o *AddRemoteNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] addRemoteNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] addRemoteNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *AddRemoteNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -184,7 +184,7 @@ func (o *AddRemoteNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteNodeOKBody add remote node o k body
+/*AddRemoteNodeOKBody add remote node OK body
 swagger:model AddRemoteNodeOKBody
 */
 type AddRemoteNodeOKBody struct {
@@ -193,7 +193,7 @@ type AddRemoteNodeOKBody struct {
 	Remote *AddRemoteNodeOKBodyRemote `json:"remote,omitempty"`
 }
 
-// Validate validates this add remote node o k body
+// Validate validates this add remote node OK body
 func (o *AddRemoteNodeOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -216,7 +216,7 @@ func (o *AddRemoteNodeOKBody) validateRemote(formats strfmt.Registry) error {
 	if o.Remote != nil {
 		if err := o.Remote.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRemoteNodeOK" + "." + "remote")
+				return ve.ValidateName("addRemoteNodeOk" + "." + "remote")
 			}
 			return err
 		}
@@ -258,7 +258,7 @@ type AddRemoteNodeOKBodyRemote struct {
 	NodeName string `json:"node_name,omitempty"`
 }
 
-// Validate validates this add remote node o k body remote
+// Validate validates this add remote node OK body remote
 func (o *AddRemoteNodeOKBodyRemote) Validate(formats strfmt.Registry) error {
 	return nil
 }

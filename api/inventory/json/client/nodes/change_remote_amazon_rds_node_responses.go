@@ -58,7 +58,7 @@ type ChangeRemoteAmazonRDSNodeOK struct {
 }
 
 func (o *ChangeRemoteAmazonRDSNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/ChangeRemoteAmazonRDS][%d] changeRemoteAmazonRdsNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/ChangeRemoteAmazonRDS][%d] changeRemoteAmazonRdsNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeRemoteAmazonRDSNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -190,7 +190,7 @@ func (o *ChangeRemoteAmazonRDSNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeRemoteAmazonRDSNodeOKBody change remote amazon RDS node o k body
+/*ChangeRemoteAmazonRDSNodeOKBody change remote amazon RDS node OK body
 swagger:model ChangeRemoteAmazonRDSNodeOKBody
 */
 type ChangeRemoteAmazonRDSNodeOKBody struct {
@@ -199,7 +199,7 @@ type ChangeRemoteAmazonRDSNodeOKBody struct {
 	RemoteAmazonRDS *ChangeRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS `json:"remote_amazon_rds,omitempty"`
 }
 
-// Validate validates this change remote amazon RDS node o k body
+// Validate validates this change remote amazon RDS node OK body
 func (o *ChangeRemoteAmazonRDSNodeOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -222,7 +222,7 @@ func (o *ChangeRemoteAmazonRDSNodeOKBody) validateRemoteAmazonRDS(formats strfmt
 	if o.RemoteAmazonRDS != nil {
 		if err := o.RemoteAmazonRDS.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeRemoteAmazonRdsNodeOK" + "." + "remote_amazon_rds")
+				return ve.ValidateName("changeRemoteAmazonRdsNodeOk" + "." + "remote_amazon_rds")
 			}
 			return err
 		}
@@ -270,7 +270,7 @@ type ChangeRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS struct {
 	Region string `json:"region,omitempty"`
 }
 
-// Validate validates this change remote amazon RDS node o k body remote amazon RDS
+// Validate validates this change remote amazon RDS node OK body remote amazon RDS
 func (o *ChangeRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS) Validate(formats strfmt.Registry) error {
 	return nil
 }

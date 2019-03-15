@@ -60,7 +60,7 @@ type AddRDSExporterOK struct {
 }
 
 func (o *AddRDSExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] addRdsExporterOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] addRdsExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *AddRDSExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -189,7 +189,7 @@ func (o *AddRDSExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRDSExporterOKBody add RDS exporter o k body
+/*AddRDSExporterOKBody add RDS exporter OK body
 swagger:model AddRDSExporterOKBody
 */
 type AddRDSExporterOKBody struct {
@@ -198,7 +198,7 @@ type AddRDSExporterOKBody struct {
 	RDSExporter *AddRDSExporterOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
 
-// Validate validates this add RDS exporter o k body
+// Validate validates this add RDS exporter OK body
 func (o *AddRDSExporterOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -221,7 +221,7 @@ func (o *AddRDSExporterOKBody) validateRDSExporter(formats strfmt.Registry) erro
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRdsExporterOK" + "." + "rds_exporter")
+				return ve.ValidateName("addRdsExporterOk" + "." + "rds_exporter")
 			}
 			return err
 		}
@@ -273,7 +273,7 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	Status *string `json:"status,omitempty"`
 }
 
-// Validate validates this add RDS exporter o k body RDS exporter
+// Validate validates this add RDS exporter OK body RDS exporter
 func (o *AddRDSExporterOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -287,7 +287,7 @@ func (o *AddRDSExporterOKBodyRDSExporter) Validate(formats strfmt.Registry) erro
 	return nil
 }
 
-var addRdsExporterOKBodyRdsExporterTypeStatusPropEnum []interface{}
+var addRdsExporterOkBodyRdsExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -295,7 +295,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addRdsExporterOKBodyRdsExporterTypeStatusPropEnum = append(addRdsExporterOKBodyRdsExporterTypeStatusPropEnum, v)
+		addRdsExporterOkBodyRdsExporterTypeStatusPropEnum = append(addRdsExporterOkBodyRdsExporterTypeStatusPropEnum, v)
 	}
 }
 
@@ -322,7 +322,7 @@ const (
 
 // prop value enum
 func (o *AddRDSExporterOKBodyRDSExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addRdsExporterOKBodyRdsExporterTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, addRdsExporterOkBodyRdsExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -335,7 +335,7 @@ func (o *AddRDSExporterOKBodyRDSExporter) validateStatus(formats strfmt.Registry
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addRdsExporterOK"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addRdsExporterOk"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

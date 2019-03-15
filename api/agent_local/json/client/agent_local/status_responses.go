@@ -50,7 +50,7 @@ type StatusOK struct {
 }
 
 func (o *StatusOK) Error() string {
-	return fmt.Sprintf("[POST /local/Status][%d] statusOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /local/Status][%d] statusOk  %+v", 200, o.Payload)
 }
 
 func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -65,7 +65,7 @@ func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtim
 	return nil
 }
 
-/*StatusOKBody status o k body
+/*StatusOKBody status OK body
 swagger:model StatusOKBody
 */
 type StatusOKBody struct {
@@ -77,7 +77,7 @@ type StatusOKBody struct {
 	NodeID string `json:"node_id,omitempty"`
 }
 
-// Validate validates this status o k body
+// Validate validates this status OK body
 func (o *StatusOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }

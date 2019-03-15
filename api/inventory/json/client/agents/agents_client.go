@@ -53,7 +53,7 @@ func (a *Client) AddExternalExporter(params *AddExternalExporterParams) (*AddExt
 }
 
 /*
-AddMongoDBExporter adds mongo d b exporter adds mongodb exporter agent
+AddMongoDBExporter adds mongo DB exporter adds mongodb exporter agent
 */
 func (a *Client) AddMongoDBExporter(params *AddMongoDBExporterParams) (*AddMongoDBExporterOK, error) {
 	// TODO: Validate the params before sending

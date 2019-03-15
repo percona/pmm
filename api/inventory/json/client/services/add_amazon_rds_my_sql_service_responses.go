@@ -58,7 +58,7 @@ type AddAmazonRDSMySQLServiceOK struct {
 }
 
 func (o *AddAmazonRDSMySQLServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/AddAmazonRDSMySQL][%d] addAmazonRdsMySqlServiceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddAmazonRDSMySQL][%d] addAmazonRdsMySqlServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *AddAmazonRDSMySQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -193,7 +193,7 @@ func (o *AddAmazonRDSMySQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddAmazonRDSMySQLServiceOKBody add amazon RDS my SQL service o k body
+/*AddAmazonRDSMySQLServiceOKBody add amazon RDS my SQL service OK body
 swagger:model AddAmazonRDSMySQLServiceOKBody
 */
 type AddAmazonRDSMySQLServiceOKBody struct {
@@ -202,7 +202,7 @@ type AddAmazonRDSMySQLServiceOKBody struct {
 	AmazonRDSMysql *AddAmazonRDSMySQLServiceOKBodyAmazonRDSMysql `json:"amazon_rds_mysql,omitempty"`
 }
 
-// Validate validates this add amazon RDS my SQL service o k body
+// Validate validates this add amazon RDS my SQL service OK body
 func (o *AddAmazonRDSMySQLServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -225,7 +225,7 @@ func (o *AddAmazonRDSMySQLServiceOKBody) validateAmazonRDSMysql(formats strfmt.R
 	if o.AmazonRDSMysql != nil {
 		if err := o.AmazonRDSMysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addAmazonRdsMySqlServiceOK" + "." + "amazon_rds_mysql")
+				return ve.ValidateName("addAmazonRdsMySqlServiceOk" + "." + "amazon_rds_mysql")
 			}
 			return err
 		}
@@ -276,7 +276,7 @@ type AddAmazonRDSMySQLServiceOKBodyAmazonRDSMysql struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this add amazon RDS my SQL service o k body amazon RDS mysql
+// Validate validates this add amazon RDS my SQL service OK body amazon RDS mysql
 func (o *AddAmazonRDSMySQLServiceOKBodyAmazonRDSMysql) Validate(formats strfmt.Registry) error {
 	return nil
 }

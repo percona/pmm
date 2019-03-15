@@ -60,7 +60,7 @@ type AddQANMySQLPerfSchemaAgentOK struct {
 }
 
 func (o *AddQANMySQLPerfSchemaAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] addQanMySqlPerfSchemaAgentOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddQANMySQLPerfSchemaAgent][%d] addQanMySqlPerfSchemaAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *AddQANMySQLPerfSchemaAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -195,7 +195,7 @@ func (o *AddQANMySQLPerfSchemaAgentDefaultBody) UnmarshalBinary(b []byte) error 
 	return nil
 }
 
-/*AddQANMySQLPerfSchemaAgentOKBody add QAN my SQL perf schema agent o k body
+/*AddQANMySQLPerfSchemaAgentOKBody add QAN my SQL perf schema agent OK body
 swagger:model AddQANMySQLPerfSchemaAgentOKBody
 */
 type AddQANMySQLPerfSchemaAgentOKBody struct {
@@ -204,7 +204,7 @@ type AddQANMySQLPerfSchemaAgentOKBody struct {
 	QANMysqlPerfschemaAgent *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
 }
 
-// Validate validates this add QAN my SQL perf schema agent o k body
+// Validate validates this add QAN my SQL perf schema agent OK body
 func (o *AddQANMySQLPerfSchemaAgentOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -227,7 +227,7 @@ func (o *AddQANMySQLPerfSchemaAgentOKBody) validateQANMysqlPerfschemaAgent(forma
 	if o.QANMysqlPerfschemaAgent != nil {
 		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addQanMySqlPerfSchemaAgentOK" + "." + "qan_mysql_perfschema_agent")
+				return ve.ValidateName("addQanMySqlPerfSchemaAgentOk" + "." + "qan_mysql_perfschema_agent")
 			}
 			return err
 		}
@@ -282,7 +282,7 @@ type AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add QAN my SQL perf schema agent o k body QAN mysql perfschema agent
+// Validate validates this add QAN my SQL perf schema agent OK body QAN mysql perfschema agent
 func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -296,7 +296,7 @@ func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) Validate(forma
 	return nil
 }
 
-var addQanMySqlPerfSchemaAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []interface{}
+var addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -304,7 +304,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addQanMySqlPerfSchemaAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum = append(addQanMySqlPerfSchemaAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum, v)
+		addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum = append(addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum, v)
 	}
 }
 
@@ -331,7 +331,7 @@ const (
 
 // prop value enum
 func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addQanMySqlPerfSchemaAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, addQanMySqlPerfSchemaAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -344,7 +344,7 @@ func (o *AddQANMySQLPerfSchemaAgentOKBodyQANMysqlPerfschemaAgent) validateStatus
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addQanMySqlPerfSchemaAgentOK"+"."+"qan_mysql_perfschema_agent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addQanMySqlPerfSchemaAgentOk"+"."+"qan_mysql_perfschema_agent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

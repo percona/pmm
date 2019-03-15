@@ -60,7 +60,7 @@ type AddNodeExporterOK struct {
 }
 
 func (o *AddNodeExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] addNodeExporterOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] addNodeExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *AddNodeExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -186,7 +186,7 @@ func (o *AddNodeExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddNodeExporterOKBody add node exporter o k body
+/*AddNodeExporterOKBody add node exporter OK body
 swagger:model AddNodeExporterOKBody
 */
 type AddNodeExporterOKBody struct {
@@ -195,7 +195,7 @@ type AddNodeExporterOKBody struct {
 	NodeExporter *AddNodeExporterOKBodyNodeExporter `json:"node_exporter,omitempty"`
 }
 
-// Validate validates this add node exporter o k body
+// Validate validates this add node exporter OK body
 func (o *AddNodeExporterOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -218,7 +218,7 @@ func (o *AddNodeExporterOKBody) validateNodeExporter(formats strfmt.Registry) er
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addNodeExporterOK" + "." + "node_exporter")
+				return ve.ValidateName("addNodeExporterOk" + "." + "node_exporter")
 			}
 			return err
 		}
@@ -267,7 +267,7 @@ type AddNodeExporterOKBodyNodeExporter struct {
 	Status *string `json:"status,omitempty"`
 }
 
-// Validate validates this add node exporter o k body node exporter
+// Validate validates this add node exporter OK body node exporter
 func (o *AddNodeExporterOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -281,7 +281,7 @@ func (o *AddNodeExporterOKBodyNodeExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addNodeExporterOKBodyNodeExporterTypeStatusPropEnum []interface{}
+var addNodeExporterOkBodyNodeExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -289,7 +289,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addNodeExporterOKBodyNodeExporterTypeStatusPropEnum = append(addNodeExporterOKBodyNodeExporterTypeStatusPropEnum, v)
+		addNodeExporterOkBodyNodeExporterTypeStatusPropEnum = append(addNodeExporterOkBodyNodeExporterTypeStatusPropEnum, v)
 	}
 }
 
@@ -316,7 +316,7 @@ const (
 
 // prop value enum
 func (o *AddNodeExporterOKBodyNodeExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addNodeExporterOKBodyNodeExporterTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, addNodeExporterOkBodyNodeExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -329,7 +329,7 @@ func (o *AddNodeExporterOKBodyNodeExporter) validateStatus(formats strfmt.Regist
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addNodeExporterOK"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addNodeExporterOk"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

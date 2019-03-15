@@ -57,7 +57,7 @@ type RemoveAgentOK struct {
 }
 
 func (o *RemoveAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] removeAgentOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] removeAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

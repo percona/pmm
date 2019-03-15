@@ -60,7 +60,7 @@ type AddMongoDBExporterOK struct {
 }
 
 func (o *AddMongoDBExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMongoDBExporter][%d] addMongoDBExporterOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMongoDBExporter][%d] addMongoDbExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *AddMongoDBExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -92,7 +92,7 @@ type AddMongoDBExporterDefault struct {
 	Payload *AddMongoDBExporterDefaultBody
 }
 
-// Code gets the status code for the add mongo d b exporter default response
+// Code gets the status code for the add mongo DB exporter default response
 func (o *AddMongoDBExporterDefault) Code() int {
 	return o._statusCode
 }
@@ -113,7 +113,7 @@ func (o *AddMongoDBExporterDefault) readResponse(response runtime.ClientResponse
 	return nil
 }
 
-/*AddMongoDBExporterBody add mongo d b exporter body
+/*AddMongoDBExporterBody add mongo DB exporter body
 swagger:model AddMongoDBExporterBody
 */
 type AddMongoDBExporterBody struct {
@@ -134,7 +134,7 @@ type AddMongoDBExporterBody struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add mongo d b exporter body
+// Validate validates this add mongo DB exporter body
 func (o *AddMongoDBExporterBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -172,7 +172,7 @@ type AddMongoDBExporterDefaultBody struct {
 	Message string `json:"message,omitempty"`
 }
 
-// Validate validates this add mongo d b exporter default body
+// Validate validates this add mongo DB exporter default body
 func (o *AddMongoDBExporterDefaultBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -195,7 +195,7 @@ func (o *AddMongoDBExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMongoDBExporterOKBody add mongo d b exporter o k body
+/*AddMongoDBExporterOKBody add mongo DB exporter OK body
 swagger:model AddMongoDBExporterOKBody
 */
 type AddMongoDBExporterOKBody struct {
@@ -204,7 +204,7 @@ type AddMongoDBExporterOKBody struct {
 	MongodbExporter *AddMongoDBExporterOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 }
 
-// Validate validates this add mongo d b exporter o k body
+// Validate validates this add mongo DB exporter OK body
 func (o *AddMongoDBExporterOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -227,7 +227,7 @@ func (o *AddMongoDBExporterOKBody) validateMongodbExporter(formats strfmt.Regist
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMongoDBExporterOK" + "." + "mongodb_exporter")
+				return ve.ValidateName("addMongoDbExporterOk" + "." + "mongodb_exporter")
 			}
 			return err
 		}
@@ -285,7 +285,7 @@ type AddMongoDBExporterOKBodyMongodbExporter struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add mongo d b exporter o k body mongodb exporter
+// Validate validates this add mongo DB exporter OK body mongodb exporter
 func (o *AddMongoDBExporterOKBodyMongodbExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -299,7 +299,7 @@ func (o *AddMongoDBExporterOKBodyMongodbExporter) Validate(formats strfmt.Regist
 	return nil
 }
 
-var addMongoDBExporterOKBodyMongodbExporterTypeStatusPropEnum []interface{}
+var addMongoDbExporterOkBodyMongodbExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -307,7 +307,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addMongoDBExporterOKBodyMongodbExporterTypeStatusPropEnum = append(addMongoDBExporterOKBodyMongodbExporterTypeStatusPropEnum, v)
+		addMongoDbExporterOkBodyMongodbExporterTypeStatusPropEnum = append(addMongoDbExporterOkBodyMongodbExporterTypeStatusPropEnum, v)
 	}
 }
 
@@ -334,7 +334,7 @@ const (
 
 // prop value enum
 func (o *AddMongoDBExporterOKBodyMongodbExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMongoDBExporterOKBodyMongodbExporterTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, addMongoDbExporterOkBodyMongodbExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -347,7 +347,7 @@ func (o *AddMongoDBExporterOKBodyMongodbExporter) validateStatus(formats strfmt.
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addMongoDBExporterOK"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addMongoDbExporterOk"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

@@ -59,7 +59,7 @@ type ListServicesOK struct {
 }
 
 func (o *ListServicesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] listServicesOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] listServicesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -229,7 +229,7 @@ func (o *ListServicesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesOKBody list services o k body
+/*ListServicesOKBody list services OK body
 swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
@@ -244,7 +244,7 @@ type ListServicesOKBody struct {
 	Mysql []*MysqlItems0 `json:"mysql"`
 }
 
-// Validate validates this list services o k body
+// Validate validates this list services OK body
 func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -280,7 +280,7 @@ func (o *ListServicesOKBody) validateAmazonRDSMysql(formats strfmt.Registry) err
 		if o.AmazonRDSMysql[i] != nil {
 			if err := o.AmazonRDSMysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesOK" + "." + "amazon_rds_mysql" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listServicesOk" + "." + "amazon_rds_mysql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -305,7 +305,7 @@ func (o *ListServicesOKBody) validateMongodb(formats strfmt.Registry) error {
 		if o.Mongodb[i] != nil {
 			if err := o.Mongodb[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesOK" + "." + "mongodb" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -330,7 +330,7 @@ func (o *ListServicesOKBody) validateMysql(formats strfmt.Registry) error {
 		if o.Mysql[i] != nil {
 			if err := o.Mysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesOK" + "." + "mysql" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

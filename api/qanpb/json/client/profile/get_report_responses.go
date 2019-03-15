@@ -52,7 +52,7 @@ type GetReportOK struct {
 }
 
 func (o *GetReportOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/GetReport][%d] getReportOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/GetReport][%d] getReportOk  %+v", 200, o.Payload)
 }
 
 func (o *GetReportOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -169,7 +169,7 @@ type GetReportOKBody struct {
 	Rows []*RowsItems0 `json:"rows"`
 }
 
-// Validate validates this get report o k body
+// Validate validates this get report OK body
 func (o *GetReportOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -197,7 +197,7 @@ func (o *GetReportOKBody) validateRows(formats strfmt.Registry) error {
 		if o.Rows[i] != nil {
 			if err := o.Rows[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("getReportOK" + "." + "rows" + "." + strconv.Itoa(i))
+					return ve.ValidateName("getReportOk" + "." + "rows" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

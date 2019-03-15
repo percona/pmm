@@ -58,7 +58,7 @@ type GetNodeOK struct {
 }
 
 func (o *GetNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] getNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/Get][%d] getNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *GetNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -181,7 +181,7 @@ func (o *GetNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetNodeOKBody get node o k body
+/*GetNodeOKBody get node OK body
 swagger:model GetNodeOKBody
 */
 type GetNodeOKBody struct {
@@ -199,7 +199,7 @@ type GetNodeOKBody struct {
 	RemoteAmazonRDS *GetNodeOKBodyRemoteAmazonRDS `json:"remote_amazon_rds,omitempty"`
 }
 
-// Validate validates this get node o k body
+// Validate validates this get node OK body
 func (o *GetNodeOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -234,7 +234,7 @@ func (o *GetNodeOKBody) validateContainer(formats strfmt.Registry) error {
 	if o.Container != nil {
 		if err := o.Container.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getNodeOK" + "." + "container")
+				return ve.ValidateName("getNodeOk" + "." + "container")
 			}
 			return err
 		}
@@ -252,7 +252,7 @@ func (o *GetNodeOKBody) validateGeneric(formats strfmt.Registry) error {
 	if o.Generic != nil {
 		if err := o.Generic.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getNodeOK" + "." + "generic")
+				return ve.ValidateName("getNodeOk" + "." + "generic")
 			}
 			return err
 		}
@@ -270,7 +270,7 @@ func (o *GetNodeOKBody) validateRemote(formats strfmt.Registry) error {
 	if o.Remote != nil {
 		if err := o.Remote.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getNodeOK" + "." + "remote")
+				return ve.ValidateName("getNodeOk" + "." + "remote")
 			}
 			return err
 		}
@@ -288,7 +288,7 @@ func (o *GetNodeOKBody) validateRemoteAmazonRDS(formats strfmt.Registry) error {
 	if o.RemoteAmazonRDS != nil {
 		if err := o.RemoteAmazonRDS.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getNodeOK" + "." + "remote_amazon_rds")
+				return ve.ValidateName("getNodeOk" + "." + "remote_amazon_rds")
 			}
 			return err
 		}
@@ -339,7 +339,7 @@ type GetNodeOKBodyContainer struct {
 	NodeName string `json:"node_name,omitempty"`
 }
 
-// Validate validates this get node o k body container
+// Validate validates this get node OK body container
 func (o *GetNodeOKBodyContainer) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -389,7 +389,7 @@ type GetNodeOKBodyGeneric struct {
 	NodeName string `json:"node_name,omitempty"`
 }
 
-// Validate validates this get node o k body generic
+// Validate validates this get node OK body generic
 func (o *GetNodeOKBodyGeneric) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -427,7 +427,7 @@ type GetNodeOKBodyRemote struct {
 	NodeName string `json:"node_name,omitempty"`
 }
 
-// Validate validates this get node o k body remote
+// Validate validates this get node OK body remote
 func (o *GetNodeOKBodyRemote) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -471,7 +471,7 @@ type GetNodeOKBodyRemoteAmazonRDS struct {
 	Region string `json:"region,omitempty"`
 }
 
-// Validate validates this get node o k body remote amazon RDS
+// Validate validates this get node OK body remote amazon RDS
 func (o *GetNodeOKBodyRemoteAmazonRDS) Validate(formats strfmt.Registry) error {
 	return nil
 }

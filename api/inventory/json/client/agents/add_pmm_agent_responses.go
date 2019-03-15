@@ -58,7 +58,7 @@ type AddPMMAgentOK struct {
 }
 
 func (o *AddPMMAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] addPmmAgentOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *AddPMMAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -184,7 +184,7 @@ func (o *AddPMMAgentDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPMMAgentOKBody add PMM agent o k body
+/*AddPMMAgentOKBody add PMM agent OK body
 swagger:model AddPMMAgentOKBody
 */
 type AddPMMAgentOKBody struct {
@@ -193,7 +193,7 @@ type AddPMMAgentOKBody struct {
 	PMMAgent *AddPMMAgentOKBodyPMMAgent `json:"pmm_agent,omitempty"`
 }
 
-// Validate validates this add PMM agent o k body
+// Validate validates this add PMM agent OK body
 func (o *AddPMMAgentOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -216,7 +216,7 @@ func (o *AddPMMAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addPmmAgentOK" + "." + "pmm_agent")
+				return ve.ValidateName("addPmmAgentOk" + "." + "pmm_agent")
 			}
 			return err
 		}
@@ -261,7 +261,7 @@ type AddPMMAgentOKBodyPMMAgent struct {
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
-// Validate validates this add PMM agent o k body PMM agent
+// Validate validates this add PMM agent OK body PMM agent
 func (o *AddPMMAgentOKBodyPMMAgent) Validate(formats strfmt.Registry) error {
 	return nil
 }

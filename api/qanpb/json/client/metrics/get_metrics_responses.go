@@ -54,7 +54,7 @@ type GetMetricsOK struct {
 }
 
 func (o *GetMetricsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/GetMetrics][%d] getMetricsOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/GetMetrics][%d] getMetricsOk  %+v", 200, o.Payload)
 }
 
 func (o *GetMetricsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -632,7 +632,7 @@ type GetMetricsOKBody struct {
 	Warnings map[string]float32 `json:"warnings,omitempty"`
 }
 
-// Validate validates this get metrics o k body
+// Validate validates this get metrics OK body
 func (o *GetMetricsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -650,7 +650,7 @@ func (o *GetMetricsOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var getMetricsOKBodyTypeExampleFormatPropEnum []interface{}
+var getMetricsOkBodyTypeExampleFormatPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -658,7 +658,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		getMetricsOKBodyTypeExampleFormatPropEnum = append(getMetricsOKBodyTypeExampleFormatPropEnum, v)
+		getMetricsOkBodyTypeExampleFormatPropEnum = append(getMetricsOkBodyTypeExampleFormatPropEnum, v)
 	}
 }
 
@@ -676,7 +676,7 @@ const (
 
 // prop value enum
 func (o *GetMetricsOKBody) validateExampleFormatEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getMetricsOKBodyTypeExampleFormatPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, getMetricsOkBodyTypeExampleFormatPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -689,14 +689,14 @@ func (o *GetMetricsOKBody) validateExampleFormat(formats strfmt.Registry) error 
 	}
 
 	// value enum
-	if err := o.validateExampleFormatEnum("getMetricsOK"+"."+"example_format", "body", *o.ExampleFormat); err != nil {
+	if err := o.validateExampleFormatEnum("getMetricsOk"+"."+"example_format", "body", *o.ExampleFormat); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-var getMetricsOKBodyTypeExampleTypePropEnum []interface{}
+var getMetricsOkBodyTypeExampleTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -704,7 +704,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		getMetricsOKBodyTypeExampleTypePropEnum = append(getMetricsOKBodyTypeExampleTypePropEnum, v)
+		getMetricsOkBodyTypeExampleTypePropEnum = append(getMetricsOkBodyTypeExampleTypePropEnum, v)
 	}
 }
 
@@ -728,7 +728,7 @@ const (
 
 // prop value enum
 func (o *GetMetricsOKBody) validateExampleTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getMetricsOKBodyTypeExampleTypePropEnum); err != nil {
+	if err := validate.Enum(path, location, value, getMetricsOkBodyTypeExampleTypePropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -741,7 +741,7 @@ func (o *GetMetricsOKBody) validateExampleType(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateExampleTypeEnum("getMetricsOK"+"."+"example_type", "body", *o.ExampleType); err != nil {
+	if err := o.validateExampleTypeEnum("getMetricsOk"+"."+"example_type", "body", *o.ExampleType); err != nil {
 		return err
 	}
 

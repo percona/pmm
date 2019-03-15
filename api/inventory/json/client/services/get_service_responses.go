@@ -58,7 +58,7 @@ type GetServiceOK struct {
 }
 
 func (o *GetServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] getServiceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] getServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *GetServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -181,7 +181,7 @@ func (o *GetServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetServiceOKBody get service o k body
+/*GetServiceOKBody get service OK body
 swagger:model GetServiceOKBody
 */
 type GetServiceOKBody struct {
@@ -196,7 +196,7 @@ type GetServiceOKBody struct {
 	Mysql *GetServiceOKBodyMysql `json:"mysql,omitempty"`
 }
 
-// Validate validates this get service o k body
+// Validate validates this get service OK body
 func (o *GetServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -227,7 +227,7 @@ func (o *GetServiceOKBody) validateAmazonRDSMysql(formats strfmt.Registry) error
 	if o.AmazonRDSMysql != nil {
 		if err := o.AmazonRDSMysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getServiceOK" + "." + "amazon_rds_mysql")
+				return ve.ValidateName("getServiceOk" + "." + "amazon_rds_mysql")
 			}
 			return err
 		}
@@ -245,7 +245,7 @@ func (o *GetServiceOKBody) validateMongodb(formats strfmt.Registry) error {
 	if o.Mongodb != nil {
 		if err := o.Mongodb.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getServiceOK" + "." + "mongodb")
+				return ve.ValidateName("getServiceOk" + "." + "mongodb")
 			}
 			return err
 		}
@@ -263,7 +263,7 @@ func (o *GetServiceOKBody) validateMysql(formats strfmt.Registry) error {
 	if o.Mysql != nil {
 		if err := o.Mysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getServiceOK" + "." + "mysql")
+				return ve.ValidateName("getServiceOk" + "." + "mysql")
 			}
 			return err
 		}
@@ -314,7 +314,7 @@ type GetServiceOKBodyAmazonRDSMysql struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this get service o k body amazon RDS mysql
+// Validate validates this get service OK body amazon RDS mysql
 func (o *GetServiceOKBodyAmazonRDSMysql) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -361,7 +361,7 @@ type GetServiceOKBodyMongodb struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this get service o k body mongodb
+// Validate validates this get service OK body mongodb
 func (o *GetServiceOKBodyMongodb) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -408,7 +408,7 @@ type GetServiceOKBodyMysql struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this get service o k body mysql
+// Validate validates this get service OK body mysql
 func (o *GetServiceOKBodyMysql) Validate(formats strfmt.Registry) error {
 	return nil
 }

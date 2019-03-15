@@ -58,7 +58,7 @@ type AddRemoteAmazonRDSNodeOK struct {
 }
 
 func (o *AddRemoteAmazonRDSNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteAmazonRDS][%d] addRemoteAmazonRdsNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteAmazonRDS][%d] addRemoteAmazonRdsNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *AddRemoteAmazonRDSNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -190,7 +190,7 @@ func (o *AddRemoteAmazonRDSNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteAmazonRDSNodeOKBody add remote amazon RDS node o k body
+/*AddRemoteAmazonRDSNodeOKBody add remote amazon RDS node OK body
 swagger:model AddRemoteAmazonRDSNodeOKBody
 */
 type AddRemoteAmazonRDSNodeOKBody struct {
@@ -199,7 +199,7 @@ type AddRemoteAmazonRDSNodeOKBody struct {
 	RemoteAmazonRDS *AddRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS `json:"remote_amazon_rds,omitempty"`
 }
 
-// Validate validates this add remote amazon RDS node o k body
+// Validate validates this add remote amazon RDS node OK body
 func (o *AddRemoteAmazonRDSNodeOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -222,7 +222,7 @@ func (o *AddRemoteAmazonRDSNodeOKBody) validateRemoteAmazonRDS(formats strfmt.Re
 	if o.RemoteAmazonRDS != nil {
 		if err := o.RemoteAmazonRDS.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRemoteAmazonRdsNodeOK" + "." + "remote_amazon_rds")
+				return ve.ValidateName("addRemoteAmazonRdsNodeOk" + "." + "remote_amazon_rds")
 			}
 			return err
 		}
@@ -270,7 +270,7 @@ type AddRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS struct {
 	Region string `json:"region,omitempty"`
 }
 
-// Validate validates this add remote amazon RDS node o k body remote amazon RDS
+// Validate validates this add remote amazon RDS node OK body remote amazon RDS
 func (o *AddRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS) Validate(formats strfmt.Registry) error {
 	return nil
 }

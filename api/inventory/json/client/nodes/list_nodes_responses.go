@@ -59,7 +59,7 @@ type ListNodesOK struct {
 }
 
 func (o *ListNodesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] listNodesOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] listNodesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListNodesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -247,7 +247,7 @@ func (o *ListNodesDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListNodesOKBody list nodes o k body
+/*ListNodesOKBody list nodes OK body
 swagger:model ListNodesOKBody
 */
 type ListNodesOKBody struct {
@@ -265,7 +265,7 @@ type ListNodesOKBody struct {
 	RemoteAmazonRDS []*RemoteAmazonRDSItems0 `json:"remote_amazon_rds"`
 }
 
-// Validate validates this list nodes o k body
+// Validate validates this list nodes OK body
 func (o *ListNodesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -305,7 +305,7 @@ func (o *ListNodesOKBody) validateContainer(formats strfmt.Registry) error {
 		if o.Container[i] != nil {
 			if err := o.Container[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listNodesOK" + "." + "container" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listNodesOk" + "." + "container" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -330,7 +330,7 @@ func (o *ListNodesOKBody) validateGeneric(formats strfmt.Registry) error {
 		if o.Generic[i] != nil {
 			if err := o.Generic[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listNodesOK" + "." + "generic" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listNodesOk" + "." + "generic" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -355,7 +355,7 @@ func (o *ListNodesOKBody) validateRemote(formats strfmt.Registry) error {
 		if o.Remote[i] != nil {
 			if err := o.Remote[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listNodesOK" + "." + "remote" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listNodesOk" + "." + "remote" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -380,7 +380,7 @@ func (o *ListNodesOKBody) validateRemoteAmazonRDS(formats strfmt.Registry) error
 		if o.RemoteAmazonRDS[i] != nil {
 			if err := o.RemoteAmazonRDS[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listNodesOK" + "." + "remote_amazon_rds" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listNodesOk" + "." + "remote_amazon_rds" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

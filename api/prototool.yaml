@@ -7,6 +7,9 @@ protoc:
     # for annotations.proto
     - ./vendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
 
+    # for openapiv2.proto
+    - ./vendor/github.com/grpc-ecosystem/grpc-gateway
+
     # for go-proto-validators
     - ./vendor
 

@@ -58,7 +58,7 @@ type ChangeMySQLServiceOK struct {
 }
 
 func (o *ChangeMySQLServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/ChangeMySQL][%d] changeMySqlServiceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/ChangeMySQL][%d] changeMySqlServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeMySQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -193,7 +193,7 @@ func (o *ChangeMySQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeMySQLServiceOKBody change my SQL service o k body
+/*ChangeMySQLServiceOKBody change my SQL service OK body
 swagger:model ChangeMySQLServiceOKBody
 */
 type ChangeMySQLServiceOKBody struct {
@@ -202,7 +202,7 @@ type ChangeMySQLServiceOKBody struct {
 	Mysql *ChangeMySQLServiceOKBodyMysql `json:"mysql,omitempty"`
 }
 
-// Validate validates this change my SQL service o k body
+// Validate validates this change my SQL service OK body
 func (o *ChangeMySQLServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -225,7 +225,7 @@ func (o *ChangeMySQLServiceOKBody) validateMysql(formats strfmt.Registry) error 
 	if o.Mysql != nil {
 		if err := o.Mysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeMySqlServiceOK" + "." + "mysql")
+				return ve.ValidateName("changeMySqlServiceOk" + "." + "mysql")
 			}
 			return err
 		}
@@ -276,7 +276,7 @@ type ChangeMySQLServiceOKBodyMysql struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this change my SQL service o k body mysql
+// Validate validates this change my SQL service OK body mysql
 func (o *ChangeMySQLServiceOKBodyMysql) Validate(formats strfmt.Registry) error {
 	return nil
 }

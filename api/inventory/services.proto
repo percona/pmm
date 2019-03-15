@@ -2,14 +2,18 @@ syntax = "proto3";
 
 package inventory;
 
-option (server.errors_swagger) = {
+// It's used to handle error responses for all services in this file.
+// So this option adds default response into generated swagger file.
+// Then go-swagger generates reader for default response.
+// As default response server returns ErrorResponse.
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
   responses: {
     key: "default"
     value: {
       description: "An error response."
       schema: {
         json_schema: {
-          ref: ".server.ErrorResponse"
+          ref: ".inventory.ErrorResponse"
         }
       }
     }
@@ -19,7 +23,7 @@ option go_package = "inventory";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "server/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
 
 // MySQLService represents a generic MySQL instance.
 message MySQLService {

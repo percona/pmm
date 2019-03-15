@@ -60,7 +60,7 @@ type AddMySqldExporterOK struct {
 }
 
 func (o *AddMySqldExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMySQLdExporter][%d] addMySqldExporterOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddMySQLdExporter][%d] addMySqldExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *AddMySqldExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -195,7 +195,7 @@ func (o *AddMySqldExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySqldExporterOKBody add my sqld exporter o k body
+/*AddMySqldExporterOKBody add my sqld exporter OK body
 swagger:model AddMySqldExporterOKBody
 */
 type AddMySqldExporterOKBody struct {
@@ -204,7 +204,7 @@ type AddMySqldExporterOKBody struct {
 	MysqldExporter *AddMySqldExporterOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 }
 
-// Validate validates this add my sqld exporter o k body
+// Validate validates this add my sqld exporter OK body
 func (o *AddMySqldExporterOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -227,7 +227,7 @@ func (o *AddMySqldExporterOKBody) validateMysqldExporter(formats strfmt.Registry
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMySqldExporterOK" + "." + "mysqld_exporter")
+				return ve.ValidateName("addMySqldExporterOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -285,7 +285,7 @@ type AddMySqldExporterOKBodyMysqldExporter struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add my sqld exporter o k body mysqld exporter
+// Validate validates this add my sqld exporter OK body mysqld exporter
 func (o *AddMySqldExporterOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -299,7 +299,7 @@ func (o *AddMySqldExporterOKBodyMysqldExporter) Validate(formats strfmt.Registry
 	return nil
 }
 
-var addMySqldExporterOKBodyMysqldExporterTypeStatusPropEnum []interface{}
+var addMySqldExporterOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -307,7 +307,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addMySqldExporterOKBodyMysqldExporterTypeStatusPropEnum = append(addMySqldExporterOKBodyMysqldExporterTypeStatusPropEnum, v)
+		addMySqldExporterOkBodyMysqldExporterTypeStatusPropEnum = append(addMySqldExporterOkBodyMysqldExporterTypeStatusPropEnum, v)
 	}
 }
 
@@ -334,7 +334,7 @@ const (
 
 // prop value enum
 func (o *AddMySqldExporterOKBodyMysqldExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMySqldExporterOKBodyMysqldExporterTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, addMySqldExporterOkBodyMysqldExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -347,7 +347,7 @@ func (o *AddMySqldExporterOKBodyMysqldExporter) validateStatus(formats strfmt.Re
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addMySqldExporterOK"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addMySqldExporterOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

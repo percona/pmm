@@ -58,7 +58,7 @@ type ChangeContainerNodeOK struct {
 }
 
 func (o *ChangeContainerNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/ChangeContainer][%d] changeContainerNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/ChangeContainer][%d] changeContainerNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeContainerNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -190,7 +190,7 @@ func (o *ChangeContainerNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeContainerNodeOKBody change container node o k body
+/*ChangeContainerNodeOKBody change container node OK body
 swagger:model ChangeContainerNodeOKBody
 */
 type ChangeContainerNodeOKBody struct {
@@ -199,7 +199,7 @@ type ChangeContainerNodeOKBody struct {
 	Container *ChangeContainerNodeOKBodyContainer `json:"container,omitempty"`
 }
 
-// Validate validates this change container node o k body
+// Validate validates this change container node OK body
 func (o *ChangeContainerNodeOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -222,7 +222,7 @@ func (o *ChangeContainerNodeOKBody) validateContainer(formats strfmt.Registry) e
 	if o.Container != nil {
 		if err := o.Container.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeContainerNodeOK" + "." + "container")
+				return ve.ValidateName("changeContainerNodeOk" + "." + "container")
 			}
 			return err
 		}
@@ -273,7 +273,7 @@ type ChangeContainerNodeOKBodyContainer struct {
 	NodeName string `json:"node_name,omitempty"`
 }
 
-// Validate validates this change container node o k body container
+// Validate validates this change container node OK body container
 func (o *ChangeContainerNodeOKBodyContainer) Validate(formats strfmt.Registry) error {
 	return nil
 }

@@ -57,7 +57,7 @@ func NewAddMongoDBExporterParamsWithHTTPClient(client *http.Client) *AddMongoDBE
 }
 
 /*AddMongoDBExporterParams contains all the parameters to send to the API endpoint
-for the add mongo d b exporter operation typically these are written to a http.Request
+for the add mongo DB exporter operation typically these are written to a http.Request
 */
 type AddMongoDBExporterParams struct {
 
@@ -69,46 +69,46 @@ type AddMongoDBExporterParams struct {
 	HTTPClient *http.Client
 }
 
-// WithTimeout adds the timeout to the add mongo d b exporter params
+// WithTimeout adds the timeout to the add mongo DB exporter params
 func (o *AddMongoDBExporterParams) WithTimeout(timeout time.Duration) *AddMongoDBExporterParams {
 	o.SetTimeout(timeout)
 	return o
 }
 
-// SetTimeout adds the timeout to the add mongo d b exporter params
+// SetTimeout adds the timeout to the add mongo DB exporter params
 func (o *AddMongoDBExporterParams) SetTimeout(timeout time.Duration) {
 	o.timeout = timeout
 }
 
-// WithContext adds the context to the add mongo d b exporter params
+// WithContext adds the context to the add mongo DB exporter params
 func (o *AddMongoDBExporterParams) WithContext(ctx context.Context) *AddMongoDBExporterParams {
 	o.SetContext(ctx)
 	return o
 }
 
-// SetContext adds the context to the add mongo d b exporter params
+// SetContext adds the context to the add mongo DB exporter params
 func (o *AddMongoDBExporterParams) SetContext(ctx context.Context) {
 	o.Context = ctx
 }
 
-// WithHTTPClient adds the HTTPClient to the add mongo d b exporter params
+// WithHTTPClient adds the HTTPClient to the add mongo DB exporter params
 func (o *AddMongoDBExporterParams) WithHTTPClient(client *http.Client) *AddMongoDBExporterParams {
 	o.SetHTTPClient(client)
 	return o
 }
 
-// SetHTTPClient adds the HTTPClient to the add mongo d b exporter params
+// SetHTTPClient adds the HTTPClient to the add mongo DB exporter params
 func (o *AddMongoDBExporterParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the add mongo d b exporter params
+// WithBody adds the body to the add mongo DB exporter params
 func (o *AddMongoDBExporterParams) WithBody(body AddMongoDBExporterBody) *AddMongoDBExporterParams {
 	o.SetBody(body)
 	return o
 }
 
-// SetBody adds the body to the add mongo d b exporter params
+// SetBody adds the body to the add mongo DB exporter params
 func (o *AddMongoDBExporterParams) SetBody(body AddMongoDBExporterBody) {
 	o.Body = body
 }

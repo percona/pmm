@@ -58,7 +58,7 @@ type AddMongoDBServiceOK struct {
 }
 
 func (o *AddMongoDBServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] addMongoDBServiceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMongoDB][%d] addMongoDbServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *AddMongoDBServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -90,7 +90,7 @@ type AddMongoDBServiceDefault struct {
 	Payload *AddMongoDBServiceDefaultBody
 }
 
-// Code gets the status code for the add mongo d b service default response
+// Code gets the status code for the add mongo DB service default response
 func (o *AddMongoDBServiceDefault) Code() int {
 	return o._statusCode
 }
@@ -111,7 +111,7 @@ func (o *AddMongoDBServiceDefault) readResponse(response runtime.ClientResponse,
 	return nil
 }
 
-/*AddMongoDBServiceBody add mongo d b service body
+/*AddMongoDBServiceBody add mongo DB service body
 swagger:model AddMongoDBServiceBody
 */
 type AddMongoDBServiceBody struct {
@@ -132,7 +132,7 @@ type AddMongoDBServiceBody struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this add mongo d b service body
+// Validate validates this add mongo DB service body
 func (o *AddMongoDBServiceBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -170,7 +170,7 @@ type AddMongoDBServiceDefaultBody struct {
 	Message string `json:"message,omitempty"`
 }
 
-// Validate validates this add mongo d b service default body
+// Validate validates this add mongo DB service default body
 func (o *AddMongoDBServiceDefaultBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -193,7 +193,7 @@ func (o *AddMongoDBServiceDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMongoDBServiceOKBody add mongo d b service o k body
+/*AddMongoDBServiceOKBody add mongo DB service OK body
 swagger:model AddMongoDBServiceOKBody
 */
 type AddMongoDBServiceOKBody struct {
@@ -202,7 +202,7 @@ type AddMongoDBServiceOKBody struct {
 	Mongodb *AddMongoDBServiceOKBodyMongodb `json:"mongodb,omitempty"`
 }
 
-// Validate validates this add mongo d b service o k body
+// Validate validates this add mongo DB service OK body
 func (o *AddMongoDBServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -225,7 +225,7 @@ func (o *AddMongoDBServiceOKBody) validateMongodb(formats strfmt.Registry) error
 	if o.Mongodb != nil {
 		if err := o.Mongodb.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMongoDBServiceOK" + "." + "mongodb")
+				return ve.ValidateName("addMongoDbServiceOk" + "." + "mongodb")
 			}
 			return err
 		}
@@ -276,7 +276,7 @@ type AddMongoDBServiceOKBodyMongodb struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this add mongo d b service o k body mongodb
+// Validate validates this add mongo DB service OK body mongodb
 func (o *AddMongoDBServiceOKBodyMongodb) Validate(formats strfmt.Registry) error {
 	return nil
 }

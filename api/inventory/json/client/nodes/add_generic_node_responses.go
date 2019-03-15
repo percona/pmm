@@ -58,7 +58,7 @@ type AddGenericNodeOK struct {
 }
 
 func (o *AddGenericNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] addGenericNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] addGenericNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *AddGenericNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -196,7 +196,7 @@ func (o *AddGenericNodeDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddGenericNodeOKBody add generic node o k body
+/*AddGenericNodeOKBody add generic node OK body
 swagger:model AddGenericNodeOKBody
 */
 type AddGenericNodeOKBody struct {
@@ -205,7 +205,7 @@ type AddGenericNodeOKBody struct {
 	Generic *AddGenericNodeOKBodyGeneric `json:"generic,omitempty"`
 }
 
-// Validate validates this add generic node o k body
+// Validate validates this add generic node OK body
 func (o *AddGenericNodeOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -228,7 +228,7 @@ func (o *AddGenericNodeOKBody) validateGeneric(formats strfmt.Registry) error {
 	if o.Generic != nil {
 		if err := o.Generic.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addGenericNodeOK" + "." + "generic")
+				return ve.ValidateName("addGenericNodeOk" + "." + "generic")
 			}
 			return err
 		}
@@ -282,7 +282,7 @@ type AddGenericNodeOKBodyGeneric struct {
 	NodeName string `json:"node_name,omitempty"`
 }
 
-// Validate validates this add generic node o k body generic
+// Validate validates this add generic node OK body generic
 func (o *AddGenericNodeOKBodyGeneric) Validate(formats strfmt.Registry) error {
 	return nil
 }

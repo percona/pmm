@@ -50,7 +50,7 @@ type VersionOK struct {
 }
 
 func (o *VersionOK) Error() string {
-	return fmt.Sprintf("[GET /v1/version][%d] versionOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[GET /v1/version][%d] versionOk  %+v", 200, o.Payload)
 }
 
 func (o *VersionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -65,7 +65,7 @@ func (o *VersionOK) readResponse(response runtime.ClientResponse, consumer runti
 	return nil
 }
 
-/*VersionOKBody version o k body
+/*VersionOKBody version OK body
 swagger:model VersionOKBody
 */
 type VersionOKBody struct {
@@ -74,7 +74,7 @@ type VersionOKBody struct {
 	Version string `json:"version,omitempty"`
 }
 
-// Validate validates this version o k body
+// Validate validates this version OK body
 func (o *VersionOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }

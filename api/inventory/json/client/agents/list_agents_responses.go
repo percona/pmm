@@ -61,7 +61,7 @@ type ListAgentsOK struct {
 }
 
 func (o *ListAgentsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] listAgentsOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] listAgentsOk  %+v", 200, o.Payload)
 }
 
 func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -228,7 +228,7 @@ func (o *ListAgentsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListAgentsOKBody list agents o k body
+/*ListAgentsOKBody list agents OK body
 swagger:model ListAgentsOKBody
 */
 type ListAgentsOKBody struct {
@@ -255,7 +255,7 @@ type ListAgentsOKBody struct {
 	RDSExporter []*RDSExporterItems0 `json:"rds_exporter"`
 }
 
-// Validate validates this list agents o k body
+// Validate validates this list agents OK body
 func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -307,7 +307,7 @@ func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) err
 		if o.ExternalExporter[i] != nil {
 			if err := o.ExternalExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "external_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -332,7 +332,7 @@ func (o *ListAgentsOKBody) validateMongodbExporter(formats strfmt.Registry) erro
 		if o.MongodbExporter[i] != nil {
 			if err := o.MongodbExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "mongodb_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "mongodb_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -357,7 +357,7 @@ func (o *ListAgentsOKBody) validateMysqldExporter(formats strfmt.Registry) error
 		if o.MysqldExporter[i] != nil {
 			if err := o.MysqldExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "mysqld_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "mysqld_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -382,7 +382,7 @@ func (o *ListAgentsOKBody) validateNodeExporter(formats strfmt.Registry) error {
 		if o.NodeExporter[i] != nil {
 			if err := o.NodeExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "node_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "node_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -407,7 +407,7 @@ func (o *ListAgentsOKBody) validatePMMAgent(formats strfmt.Registry) error {
 		if o.PMMAgent[i] != nil {
 			if err := o.PMMAgent[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "pmm_agent" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "pmm_agent" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -432,7 +432,7 @@ func (o *ListAgentsOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Regist
 		if o.QANMysqlPerfschemaAgent[i] != nil {
 			if err := o.QANMysqlPerfschemaAgent[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "qan_mysql_perfschema_agent" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "qan_mysql_perfschema_agent" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -457,7 +457,7 @@ func (o *ListAgentsOKBody) validateRDSExporter(formats strfmt.Registry) error {
 		if o.RDSExporter[i] != nil {
 			if err := o.RDSExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "rds_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

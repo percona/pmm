@@ -58,7 +58,7 @@ type AddExternalExporterOK struct {
 }
 
 func (o *AddExternalExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddExternalExporter][%d] addExternalExporterOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddExternalExporter][%d] addExternalExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *AddExternalExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -184,7 +184,7 @@ func (o *AddExternalExporterDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddExternalExporterOKBody add external exporter o k body
+/*AddExternalExporterOKBody add external exporter OK body
 swagger:model AddExternalExporterOKBody
 */
 type AddExternalExporterOKBody struct {
@@ -193,7 +193,7 @@ type AddExternalExporterOKBody struct {
 	ExternalExporter *AddExternalExporterOKBodyExternalExporter `json:"external_exporter,omitempty"`
 }
 
-// Validate validates this add external exporter o k body
+// Validate validates this add external exporter OK body
 func (o *AddExternalExporterOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -216,7 +216,7 @@ func (o *AddExternalExporterOKBody) validateExternalExporter(formats strfmt.Regi
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addExternalExporterOK" + "." + "external_exporter")
+				return ve.ValidateName("addExternalExporterOk" + "." + "external_exporter")
 			}
 			return err
 		}
@@ -258,7 +258,7 @@ type AddExternalExporterOKBodyExternalExporter struct {
 	MetricsURL string `json:"metrics_url,omitempty"`
 }
 
-// Validate validates this add external exporter o k body external exporter
+// Validate validates this add external exporter OK body external exporter
 func (o *AddExternalExporterOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
