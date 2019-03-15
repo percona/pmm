@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package qan contains business logic of working with QAN.
 package qan
 
 import (
@@ -27,11 +28,13 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
+// Client represents qan-api client for data collection.
 type Client struct {
 	c qanpb.CollectorClient
 	l *logrus.Entry
 }
 
+// NewClient returns new client for given gRPC connection.
 func NewClient(cc *grpc.ClientConn) *Client {
 	return &Client{
 		c: qanpb.NewCollectorClient(cc),
@@ -39,6 +42,7 @@ func NewClient(cc *grpc.ClientConn) *Client {
 	}
 }
 
+// Collect adds custom labels to the data from pmm-agent and sends it to qan-api.
 func (c *Client) Collect(ctx context.Context, req *qanpb.CollectRequest, agent *models.Agent) error {
 	labels, err := agent.GetCustomLabels()
 	if err != nil {
