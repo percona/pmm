@@ -23,7 +23,7 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/google/uuid"
-	api "github.com/percona/pmm/api/inventory"
+	inventorypb "github.com/percona/pmm/api/inventory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/codes"
@@ -70,7 +70,7 @@ func TestNodes(t *testing.T) {
 
 		actualNode, err := ns.Add(ctx, models.GenericNodeType, "test-bm", nil, nil)
 		require.NoError(t, err)
-		expectedNode := &api.GenericNode{
+		expectedNode := &inventorypb.GenericNode{
 			NodeId:   "/node_id/00000000-0000-4000-8000-000000000001",
 			NodeName: "test-bm",
 		}
@@ -82,7 +82,7 @@ func TestNodes(t *testing.T) {
 
 		actualNode, err = ns.Change(ctx, "/node_id/00000000-0000-4000-8000-000000000001", "test-bm-new")
 		require.NoError(t, err)
-		expectedNode = &api.GenericNode{
+		expectedNode = &inventorypb.GenericNode{
 			NodeId:   "/node_id/00000000-0000-4000-8000-000000000001",
 			NodeName: "test-bm-new",
 		}
@@ -216,7 +216,7 @@ func TestServices(t *testing.T) {
 
 		actualMySQLService, err := ss.AddMySQL(ctx, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
 		require.NoError(t, err)
-		expectedService := &api.MySQLService{
+		expectedService := &inventorypb.MySQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000001",
 			ServiceName: "test-mysql",
 			NodeId:      models.PMMServerNodeID,
@@ -231,7 +231,7 @@ func TestServices(t *testing.T) {
 
 		actualService, err = ss.Change(ctx, "/service_id/00000000-0000-4000-8000-000000000001", "test-mysql-new")
 		require.NoError(t, err)
-		expectedService = &api.MySQLService{
+		expectedService = &inventorypb.MySQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000001",
 			ServiceName: "test-mysql-new",
 			NodeId:      models.PMMServerNodeID,
@@ -253,7 +253,7 @@ func TestServices(t *testing.T) {
 
 		actualService, err = ss.AddMongoDB(ctx, "test-mongo", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(27017))
 		require.NoError(t, err)
-		expectedMdbService := &api.MongoDBService{
+		expectedMdbService := &inventorypb.MongoDBService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000002",
 			ServiceName: "test-mongo",
 			NodeId:      models.PMMServerNodeID,
@@ -376,12 +376,12 @@ func TestAgents(t *testing.T) {
 		pmmAgent, err := as.AddPMMAgent(ctx, db, models.PMMServerNodeID)
 		require.NoError(t, err)
 
-		actualNodeExporter, err := as.AddNodeExporter(ctx, db, &api.AddNodeExporterRequest{
+		actualNodeExporter, err := as.AddNodeExporter(ctx, db, &inventorypb.AddNodeExporterRequest{
 			PmmAgentId: pmmAgent.AgentId,
 		})
 
 		require.NoError(t, err)
-		expectedNodeExporter := &api.NodeExporter{
+		expectedNodeExporter := &inventorypb.NodeExporter{
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000002",
 			PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000001",
 		}
@@ -394,13 +394,13 @@ func TestAgents(t *testing.T) {
 		s, err := ss.AddMySQL(ctx, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
 		require.NoError(t, err)
 
-		actualAgent, err = as.AddMySQLdExporter(ctx, db, &api.AddMySQLdExporterRequest{
+		actualAgent, err = as.AddMySQLdExporter(ctx, db, &inventorypb.AddMySQLdExporterRequest{
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  s.ID(),
 			Username:   "username",
 		})
 		require.NoError(t, err)
-		expectedMySQLdExporter := &api.MySQLdExporter{
+		expectedMySQLdExporter := &inventorypb.MySQLdExporter{
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000004",
 			PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000001",
 			ServiceId:  s.ID(),
@@ -415,13 +415,13 @@ func TestAgents(t *testing.T) {
 		ms, err := ss.AddMongoDB(ctx, "test-mongo", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(27017))
 		require.NoError(t, err)
 
-		actualAgent, err = as.AddMongoDBExporter(ctx, db, &api.AddMongoDBExporterRequest{
+		actualAgent, err = as.AddMongoDBExporter(ctx, db, &inventorypb.AddMongoDBExporterRequest{
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  ms.ID(),
 			Username:   "username",
 		})
 		require.NoError(t, err)
-		expectedMongoDBExporter := &api.MongoDBExporter{
+		expectedMongoDBExporter := &inventorypb.MongoDBExporter{
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000006",
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  ms.ID(),
@@ -518,7 +518,7 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(false)
 		actualAgent, err := as.AddPMMAgent(ctx, db, models.PMMServerNodeID)
 		require.NoError(t, err)
-		expectedPMMAgent := &api.PMMAgent{
+		expectedPMMAgent := &inventorypb.PMMAgent{
 			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000001",
 			RunsOnNodeId: models.PMMServerNodeID,
 			Connected:    false,
@@ -528,7 +528,7 @@ func TestAgents(t *testing.T) {
 		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000002").Return(true)
 		actualAgent, err = as.AddPMMAgent(ctx, db, models.PMMServerNodeID)
 		require.NoError(t, err)
-		expectedPMMAgent = &api.PMMAgent{
+		expectedPMMAgent = &inventorypb.PMMAgent{
 			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000002",
 			RunsOnNodeId: models.PMMServerNodeID,
 			Connected:    true,
@@ -540,7 +540,7 @@ func TestAgents(t *testing.T) {
 		setup(t)
 		defer teardown(t)
 
-		_, err := as.AddNodeExporter(ctx, db, &api.AddNodeExporterRequest{
+		_, err := as.AddNodeExporter(ctx, db, &inventorypb.AddNodeExporterRequest{
 			PmmAgentId: "no-such-id",
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "no-such-id" not found.`), err)
@@ -554,7 +554,7 @@ func TestAgents(t *testing.T) {
 		pmmAgent, err := as.AddPMMAgent(ctx, db, models.PMMServerNodeID)
 		require.NoError(t, err)
 
-		_, err = as.AddMySQLdExporter(ctx, db, &api.AddMySQLdExporterRequest{
+		_, err = as.AddMySQLdExporter(ctx, db, &inventorypb.AddMySQLdExporterRequest{
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  "no-such-id",
 		})

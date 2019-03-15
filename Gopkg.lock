@@ -200,16 +200,17 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:91cb6f95437ed95be7eb739a1a3b72d4b5a3833a371f655cc38472362bc7f357"
+  digest = "1:af4510b7681a585b0215f95b4a6e9d43ef2250cde0883f320bd0bca8dd0a1ade"
   name = "github.com/percona/pmm"
   packages = [
-    "api/agent",
+    "api/agentpb",
     "api/inventory",
+    "api/qanpb",
     "api/server",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "f52595aaf357c858ea8726e98c2a0ab63cb49ac1"
+  revision = "4ebf620263b318f98906a4da36c17679a91989b1"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -510,8 +511,9 @@
     "github.com/lib/pq",
     "github.com/mwitkow/go-conntrack",
     "github.com/percona/exporter_shared/helpers",
-    "github.com/percona/pmm/api/agent",
+    "github.com/percona/pmm/api/agentpb",
     "github.com/percona/pmm/api/inventory",
+    "github.com/percona/pmm/api/qanpb",
     "github.com/percona/pmm/api/server",
     "github.com/percona/pmm/version",
     "github.com/pkg/errors",

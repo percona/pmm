@@ -20,12 +20,12 @@ import (
 	"sort"
 
 	"github.com/AlekSi/pointer"
-	api "github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/agentpb"
 
 	"github.com/percona/pmm-managed/models"
 )
 
-func nodeExporterConfig(node *models.Node, exporter *models.Agent) *api.SetStateRequest_AgentProcess {
+func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetStateRequest_AgentProcess {
 	tdp := templateDelimsPair(
 		pointer.GetString(exporter.MetricsURL),
 	)
@@ -67,8 +67,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *api.SetState
 
 	sort.Strings(args)
 
-	return &api.SetStateRequest_AgentProcess{
-		Type:               api.Type_NODE_EXPORTER,
+	return &agentpb.SetStateRequest_AgentProcess{
+		Type:               agentpb.Type_NODE_EXPORTER,
 		TemplateLeftDelim:  tdp.left,
 		TemplateRightDelim: tdp.right,
 		Args:               args,

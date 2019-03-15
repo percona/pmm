@@ -14,19 +14,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package inventory contains inventory business logic: Nodes, Services, Agents.
-package inventory
+package agents
 
 import (
 	"context"
+
+	"github.com/percona/pmm/api/qanpb"
+
+	"github.com/percona/pmm-managed/models"
 )
 
-//go:generate mockery -name=registry -inpkg -testonly
+//go:generate mockery -name=prometheus -case=snake -inpkg -testonly
+//go:generate mockery -name=qanClient  -case=snake -inpkg -testonly
 
-// registry is a subset of methods of agents.Registry used by this package.
+// prometheus is a subset of methods of prometheus.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type registry interface {
-	SendSetStateRequest(ctx context.Context, pmmAgentID string)
-	IsConnected(pmmAgentID string) bool
-	Kick(ctx context.Context, pmmAgentID string)
+type prometheus interface {
+	UpdateConfiguration(ctx context.Context) error
+}
+
+// qanClient is a subset of methods of qan.Client used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type qanClient interface {
+	Collect(ctx context.Context, req *qanpb.CollectRequest, agent *models.Agent) error
 }

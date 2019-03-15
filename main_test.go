@@ -48,26 +48,37 @@ func TestImports(t *testing.T) {
 				"github.com/percona/pmm-managed/services/agents",
 				"github.com/percona/pmm-managed/services/inventory",
 				"github.com/percona/pmm-managed/services/prometheus",
+				"github.com/percona/pmm-managed/services/qan",
 			},
 		},
 
-		// agents, inventory, and prometheus services should be independent
+		// services should be independent: agent, inventory, prometheus, qan
 		"github.com/percona/pmm-managed/services/agents": {
 			blacklist: []string{
 				"github.com/percona/pmm-managed/services/inventory",
 				"github.com/percona/pmm-managed/services/prometheus",
+				"github.com/percona/pmm-managed/services/qan",
 			},
 		},
 		"github.com/percona/pmm-managed/services/inventory": {
 			blacklist: []string{
 				"github.com/percona/pmm-managed/services/agents",
 				"github.com/percona/pmm-managed/services/prometheus",
+				"github.com/percona/pmm-managed/services/qan",
 			},
 		},
 		"github.com/percona/pmm-managed/services/prometheus": {
 			blacklist: []string{
 				"github.com/percona/pmm-managed/services/agents",
 				"github.com/percona/pmm-managed/services/inventory",
+				"github.com/percona/pmm-managed/services/qan",
+			},
+		},
+		"github.com/percona/pmm-managed/services/qan": {
+			blacklist: []string{
+				"github.com/percona/pmm-managed/services/agents",
+				"github.com/percona/pmm-managed/services/inventory",
+				"github.com/percona/pmm-managed/services/prometheus",
 			},
 		},
 	} {

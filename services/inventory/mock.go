@@ -14,16 +14,19 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package agents
+// Package inventory contains inventory business logic: Nodes, Services, Agents.
+package inventory
 
 import (
 	"context"
 )
 
-//go:generate mockery -name=prometheus -inpkg -testonly
+//go:generate mockery -name=registry -case=snake -inpkg -testonly
 
-// prometheus is a subset of methods of prometheus.Service used by this package.
+// registry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type prometheus interface {
-	UpdateConfiguration(ctx context.Context) error
+type registry interface {
+	SendSetStateRequest(ctx context.Context, pmmAgentID string)
+	IsConnected(pmmAgentID string) bool
+	Kick(ctx context.Context, pmmAgentID string)
 }

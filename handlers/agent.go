@@ -19,7 +19,7 @@ package handlers
 import (
 	"context"
 
-	api "github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/agentpb"
 
 	"github.com/percona/pmm-managed/services/agents"
 )
@@ -30,16 +30,16 @@ type AgentServer struct {
 }
 
 // Register TODO https://jira.percona.com/browse/PMM-3453
-func (s *AgentServer) Register(context.Context, *api.RegisterRequest) (*api.RegisterResponse, error) {
+func (s *AgentServer) Register(context.Context, *agentpb.RegisterRequest) (*agentpb.RegisterResponse, error) {
 	panic("not implemented yet")
 }
 
 // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
-func (s *AgentServer) Connect(stream api.Agent_ConnectServer) error {
+func (s *AgentServer) Connect(stream agentpb.Agent_ConnectServer) error {
 	return s.Registry.Run(stream)
 }
 
 // check interfaces
 var (
-	_ api.AgentServer = (*AgentServer)(nil)
+	_ agentpb.AgentServer = (*AgentServer)(nil)
 )

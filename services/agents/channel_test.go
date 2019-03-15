@@ -27,7 +27,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/exporter_shared/helpers"
-	api "github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
@@ -40,20 +40,20 @@ import (
 )
 
 type testServer struct {
-	connectFunc func(api.Agent_ConnectServer) error
+	connectFunc func(agentpb.Agent_ConnectServer) error
 }
 
-func (s *testServer) Register(context.Context, *api.RegisterRequest) (*api.RegisterResponse, error) {
+func (s *testServer) Register(context.Context, *agentpb.RegisterRequest) (*agentpb.RegisterResponse, error) {
 	panic("not implemented")
 }
 
-func (s *testServer) Connect(stream api.Agent_ConnectServer) error {
+func (s *testServer) Connect(stream agentpb.Agent_ConnectServer) error {
 	return s.connectFunc(stream)
 }
 
-var _ api.AgentServer = (*testServer)(nil)
+var _ agentpb.AgentServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(*Channel) error, expected ...error) (api.Agent_ConnectClient, *grpc.ClientConn, func(*testing.T)) {
+func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agentpb.Agent_ConnectClient, *grpc.ClientConn, func(*testing.T)) {
 	// logrus.SetLevel(logrus.DebugLevel)
 
 	t.Parallel()
@@ -67,8 +67,8 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (api.A
 		grpc.UnaryInterceptor(interceptors.Unary),
 		grpc.StreamInterceptor(interceptors.Stream),
 	)
-	api.RegisterAgentServer(server, &testServer{
-		connectFunc: func(stream api.Agent_ConnectServer) error {
+	agentpb.RegisterAgentServer(server, &testServer{
+		connectFunc: func(stream agentpb.Agent_ConnectServer) error {
 			channel = NewChannel(stream, newSharedMetrics())
 			return connect(channel)
 		},
@@ -83,12 +83,11 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (api.A
 	// make client and channel
 	opts := []grpc.DialOption{
 		grpc.WithBlock(),
-		grpc.WithWaitForHandshake(),
 		grpc.WithInsecure(),
 	}
 	cc, err := grpc.DialContext(ctx, lis.Addr().String(), opts...)
 	require.NoError(t, err, "failed to dial server")
-	stream, err := api.NewAgentClient(cc).Connect(ctx)
+	stream, err := agentpb.NewAgentClient(cc).Connect(ctx)
 	require.NoError(t, err, "failed to create stream")
 
 	teardown := func(t *testing.T) {
@@ -116,12 +115,12 @@ func TestAgentRequest(t *testing.T) {
 			msg := <-ch.Requests()
 			require.NotNil(t, msg)
 			assert.Equal(t, i, msg.Id)
-			assert.NotNil(t, msg.GetQanData())
+			assert.NotNil(t, msg.GetQanCollect())
 
-			ch.SendResponse(&api.ServerMessage{
+			ch.SendResponse(&agentpb.ServerMessage{
 				Id: i,
-				Payload: &api.ServerMessage_QanData{
-					QanData: new(api.QANDataResponse),
+				Payload: &agentpb.ServerMessage_QanCollect{
+					QanCollect: new(agentpb.QANCollectResponse),
 				},
 			})
 		}
@@ -134,10 +133,10 @@ func TestAgentRequest(t *testing.T) {
 	defer teardown(t)
 
 	for i := uint32(1); i <= count; i++ {
-		err := stream.Send(&api.AgentMessage{
+		err := stream.Send(&agentpb.AgentMessage{
 			Id: i,
-			Payload: &api.AgentMessage_QanData{
-				QanData: new(api.QANDataRequest),
+			Payload: &agentpb.AgentMessage_QanCollect{
+				QanCollect: new(agentpb.QANCollectRequest),
 			},
 		})
 		require.NoError(t, err)
@@ -145,7 +144,7 @@ func TestAgentRequest(t *testing.T) {
 		msg, err := stream.Recv()
 		require.NoError(t, err)
 		assert.Equal(t, i, msg.Id)
-		assert.NotNil(t, msg.GetQanData())
+		assert.NotNil(t, msg.GetQanCollect())
 	}
 
 	err := stream.CloseSend()
@@ -191,10 +190,10 @@ func TestServerRequest(t *testing.T) {
 
 	connect := func(ch *Channel) error { //nolint:unparam
 		for i := uint32(1); i <= count; i++ {
-			msg := ch.SendRequest(&api.ServerMessage_Ping{
-				Ping: new(api.Ping),
+			msg := ch.SendRequest(&agentpb.ServerMessage_Ping{
+				Ping: new(agentpb.Ping),
 			})
-			pong := msg.(*api.AgentMessage_Pong)
+			pong := msg.(*agentpb.AgentMessage_Pong)
 			ts, err := ptypes.Timestamp(pong.Pong.CurrentTime)
 			assert.NoError(t, err)
 			assert.InDelta(t, time.Now().Unix(), ts.Unix(), 1)
@@ -213,10 +212,10 @@ func TestServerRequest(t *testing.T) {
 		assert.Equal(t, i, msg.Id)
 		assert.NotNil(t, msg.GetPing())
 
-		err = stream.Send(&api.AgentMessage{
+		err = stream.Send(&agentpb.AgentMessage{
 			Id: i,
-			Payload: &api.AgentMessage_Pong{
-				Pong: &api.Pong{
+			Payload: &agentpb.AgentMessage_Pong{
+				Pong: &agentpb.Pong{
 					CurrentTime: ptypes.TimestampNow(),
 				},
 			},
@@ -234,7 +233,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 		msg := <-ch.Requests()
 		require.NotNil(t, msg)
 		assert.EqualValues(t, 1, msg.Id)
-		assert.NotNil(t, msg.GetQanData())
+		assert.NotNil(t, msg.GetQanCollect())
 
 		return errUnimplemented
 	}
@@ -242,10 +241,10 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
 	defer teardown(t)
 
-	err := stream.Send(&api.AgentMessage{
+	err := stream.Send(&agentpb.AgentMessage{
 		Id: 1,
-		Payload: &api.AgentMessage_QanData{
-			QanData: new(api.QANDataRequest),
+		Payload: &agentpb.AgentMessage_QanCollect{
+			QanCollect: new(agentpb.QANCollectRequest),
 		},
 	})
 	assert.NoError(t, err)
@@ -259,7 +258,7 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 		msg := <-ch.Requests()
 		require.NotNil(t, msg)
 		assert.EqualValues(t, 1, msg.Id)
-		assert.NotNil(t, msg.GetQanData())
+		assert.NotNil(t, msg.GetQanCollect())
 
 		return io.EOF // any error without GRPCStatus() method
 	}
@@ -267,10 +266,10 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 	stream, _, teardown := setup(t, connect, status.Error(codes.Canceled, context.Canceled.Error()))
 	defer teardown(t)
 
-	err := stream.Send(&api.AgentMessage{
+	err := stream.Send(&agentpb.AgentMessage{
 		Id: 1,
-		Payload: &api.AgentMessage_QanData{
-			QanData: new(api.QANDataRequest),
+		Payload: &agentpb.AgentMessage_QanCollect{
+			QanCollect: new(agentpb.QANCollectRequest),
 		},
 	})
 	assert.NoError(t, err)
@@ -281,8 +280,8 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 
 func TestAgentClosesStream(t *testing.T) {
 	connect := func(ch *Channel) error { //nolint:unparam
-		msg := ch.SendRequest(&api.ServerMessage_Ping{
-			Ping: new(api.Ping),
+		msg := ch.SendRequest(&agentpb.ServerMessage_Ping{
+			Ping: new(agentpb.Ping),
 		})
 		assert.Nil(t, msg)
 
@@ -303,8 +302,8 @@ func TestAgentClosesStream(t *testing.T) {
 
 func TestAgentClosesConnection(t *testing.T) {
 	connect := func(ch *Channel) error { //nolint:unparam
-		msg := ch.SendRequest(&api.ServerMessage_Ping{
-			Ping: new(api.Ping),
+		msg := ch.SendRequest(&agentpb.ServerMessage_Ping{
+			Ping: new(agentpb.Ping),
 		})
 		assert.Nil(t, msg)
 
@@ -326,14 +325,14 @@ func TestAgentClosesConnection(t *testing.T) {
 func TestUnexpectedResponseFromAgent(t *testing.T) {
 	connect := func(ch *Channel) error { //nolint:unparam
 		// after receiving unexpected response, channel is closed
-		msg := ch.SendRequest(&api.ServerMessage_Ping{
-			Ping: new(api.Ping),
+		msg := ch.SendRequest(&agentpb.ServerMessage_Ping{
+			Ping: new(agentpb.Ping),
 		})
 		assert.Nil(t, msg)
 
 		// future requests are ignored
-		msg = ch.SendRequest(&api.ServerMessage_Ping{
-			Ping: new(api.Ping),
+		msg = ch.SendRequest(&agentpb.ServerMessage_Ping{
+			Ping: new(agentpb.Ping),
 		})
 		assert.Nil(t, msg)
 
@@ -344,19 +343,19 @@ func TestUnexpectedResponseFromAgent(t *testing.T) {
 	defer teardown(t)
 
 	// this message triggers "no subscriber for ID" error
-	err := stream.Send(&api.AgentMessage{
+	err := stream.Send(&agentpb.AgentMessage{
 		Id: 111,
-		Payload: &api.AgentMessage_Pong{
-			Pong: new(api.Pong),
+		Payload: &agentpb.AgentMessage_Pong{
+			Pong: new(agentpb.Pong),
 		},
 	})
 	assert.NoError(t, err)
 
 	// this message should not trigger new error
-	err = stream.Send(&api.AgentMessage{
+	err = stream.Send(&agentpb.AgentMessage{
 		Id: 222,
-		Payload: &api.AgentMessage_Pong{
-			Pong: new(api.Pong),
+		Payload: &agentpb.AgentMessage_Pong{
+			Pong: new(agentpb.Pong),
 		},
 	})
 	assert.NoError(t, err)

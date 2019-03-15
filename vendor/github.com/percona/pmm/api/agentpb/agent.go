@@ -1,8 +1,9 @@
-package agent
+package agentpb
 
 import (
 	"context"
 
+	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc/metadata"
 )
 
@@ -17,14 +18,23 @@ type RequestPayload interface{ request() }
 type ResponsePayload interface{ response() }
 
 func (*Ping) request()                {}
-func (*QANDataRequest) request()      {}
+func (*QANCollectRequest) request()   {}
 func (*StateChangedRequest) request() {}
 func (*SetStateRequest) request()     {}
 
 func (*Pong) response()                 {}
-func (*QANDataResponse) response()      {}
+func (*QANCollectResponse) response()   {}
 func (*StateChangedResponse) response() {}
 func (*SetStateResponse) response()     {}
+
+// AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
+type AgentParams interface {
+	proto.Message
+	agentParams()
+}
+
+func (*SetStateRequest_AgentProcess) agentParams() {}
+func (*SetStateRequest_BuiltinAgent) agentParams() {}
 
 const (
 	mdID      = "pmm-agent-id"
