@@ -22,7 +22,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	api "github.com/percona/pmm/api/agent"
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/sirupsen/logrus"
@@ -39,7 +39,7 @@ const (
 //
 // All exported methods are thread-safe.
 type Channel struct { //nolint:maligned
-	s api.Agent_ConnectClient
+	s agentpb.Agent_ConnectClient
 	l *logrus.Entry
 
 	mRecv, mSend prometheus.Counter
@@ -49,8 +49,8 @@ type Channel struct { //nolint:maligned
 	sendM sync.Mutex
 
 	m         sync.Mutex
-	responses map[uint32]chan api.ServerMessagePayload
-	requests  chan *api.ServerMessage
+	responses map[uint32]chan agentpb.ServerMessagePayload
+	requests  chan *agentpb.ServerMessage
 
 	closeOnce sync.Once
 	closeWait chan struct{}
@@ -60,7 +60,7 @@ type Channel struct { //nolint:maligned
 // NewChannel creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
-func NewChannel(stream api.Agent_ConnectClient) *Channel {
+func NewChannel(stream agentpb.Agent_ConnectClient) *Channel {
 	s := &Channel{
 		s: stream,
 		l: logrus.WithField("component", "channel"), // only for debug logging
@@ -78,8 +78,8 @@ func NewChannel(stream api.Agent_ConnectClient) *Channel {
 			Help:      "A total number of sent messages to pmm-managed.",
 		}),
 
-		responses: make(map[uint32]chan api.ServerMessagePayload),
-		requests:  make(chan *api.ServerMessage, serverRequestsCap),
+		responses: make(map[uint32]chan agentpb.ServerMessagePayload),
+		requests:  make(chan *agentpb.ServerMessage, serverRequestsCap),
 
 		closeWait: make(chan struct{}),
 	}
@@ -117,23 +117,23 @@ func (c *Channel) Wait() error {
 }
 
 // Requests returns a channel for incoming requests. It must be read. It is closed on any error (see Wait).
-func (c *Channel) Requests() <-chan *api.ServerMessage {
+func (c *Channel) Requests() <-chan *agentpb.ServerMessage {
 	return c.requests
 }
 
 // SendResponse sends message to pmm-managed. It is no-op once channel is closed (see Wait).
-func (c *Channel) SendResponse(msg *api.AgentMessage) {
+func (c *Channel) SendResponse(msg *agentpb.AgentMessage) {
 	c.send(msg)
 }
 
 // SendRequest sends request to pmm-managed, blocks until response is available, and returns it.
 // Response will be nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendRequest(payload api.AgentMessagePayload) api.ServerMessagePayload {
+func (c *Channel) SendRequest(payload agentpb.AgentMessagePayload) agentpb.ServerMessagePayload {
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 
-	c.send(&api.AgentMessage{
+	c.send(&agentpb.AgentMessage{
 		Id:      id,
 		Payload: payload,
 	})
@@ -141,7 +141,7 @@ func (c *Channel) SendRequest(payload api.AgentMessagePayload) api.ServerMessage
 	return <-ch
 }
 
-func (c *Channel) send(msg *api.AgentMessage) {
+func (c *Channel) send(msg *agentpb.AgentMessage) {
 	c.sendM.Lock()
 	select {
 	case <-c.closeWait:
@@ -178,11 +178,11 @@ func (c *Channel) runReceiver() {
 
 		switch msg.Payload.(type) {
 		// requests
-		case *api.ServerMessage_Ping, *api.ServerMessage_SetState:
+		case *agentpb.ServerMessage_Ping, *agentpb.ServerMessage_SetState:
 			c.requests <- msg
 
 		// responses
-		case *api.ServerMessage_Pong, *api.ServerMessage_StateChanged, *api.ServerMessage_QanData:
+		case *agentpb.ServerMessage_Pong, *agentpb.ServerMessage_StateChanged, *agentpb.ServerMessage_QanCollect:
 			c.publish(msg.Id, msg.Payload)
 
 		default:
@@ -192,8 +192,8 @@ func (c *Channel) runReceiver() {
 	}
 }
 
-func (c *Channel) subscribe(id uint32) chan api.ServerMessagePayload {
-	ch := make(chan api.ServerMessagePayload, 1)
+func (c *Channel) subscribe(id uint32) chan agentpb.ServerMessagePayload {
+	ch := make(chan agentpb.ServerMessagePayload, 1)
 
 	c.m.Lock()
 	if c.responses == nil { // Channel is closed, no more subscriptions
@@ -213,7 +213,7 @@ func (c *Channel) subscribe(id uint32) chan api.ServerMessagePayload {
 	return ch
 }
 
-func (c *Channel) publish(id uint32, payload api.ServerMessagePayload) {
+func (c *Channel) publish(id uint32, payload agentpb.ServerMessagePayload) {
 	c.m.Lock()
 	if c.responses == nil { // Channel is closed, no more publishing
 		c.m.Unlock()
