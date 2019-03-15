@@ -144,7 +144,6 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		}
 		resp.Rows = append(resp.Rows, row)
 	}
-
 	return resp, nil
 }
 

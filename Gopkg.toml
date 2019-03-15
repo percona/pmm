@@ -11,8 +11,7 @@ required = [
 # TODO switch to tags before PMM 2.0 release
 [[constraint]]
   name = "github.com/percona/pmm"
-  # branch = "PMM-2.0"
-  branch = "PMM-3576-sparklines"
+  branch = "PMM-2.0"
 
 [[constraint]]
   branch = "PMM-3514-group-by-digest-user-host-db-server"

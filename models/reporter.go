@@ -247,7 +247,9 @@ func (r *Reporter) SelectSparklines(dimensionVal, periodStartFrom, periodStartTo
 	query = r.db.Rebind(query)
 
 	rows, err := r.db.Queryx(query, args...)
-	fmt.Printf("sparklines queryx error: %v", err)
+	if err != nil {
+		return results, fmt.Errorf("report query:%v", err)
+	}
 	for rows.Next() {
 		res := make(map[string]interface{})
 		err = rows.MapScan(res)
