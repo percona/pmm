@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// +build ignore
+
 package main
 
 import (
@@ -29,7 +31,7 @@ import (
 	slowlog "github.com/percona/go-mysql/log"
 	parser "github.com/percona/go-mysql/log/slow"
 	"github.com/percona/go-mysql/query"
-	pbqan "github.com/percona/pmm/api/qan"
+	"github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -64,7 +66,7 @@ func main() {
 	defer func() {
 		_ = conn.Close()
 	}()
-	client := pbqan.NewAgentClient(conn)
+	client := qanpb.NewAgentClient(conn)
 
 	events := parseSlowLog(*slowLogPath, logOpt)
 
@@ -98,7 +100,7 @@ func main() {
 	for {
 		// start := time.Now()
 		var prewTs time.Time
-		err = bulkSend(stream, func(am *pbqan.AgentMessage) error {
+		err = bulkSend(stream, func(am *qanpb.AgentMessage) error {
 			i := 0
 			aggregator := event.NewAggregator(true, 0, 1) // add right params
 			for e := range events {
@@ -142,7 +144,7 @@ func main() {
 
 			for _, v := range res.Class {
 
-				mb := &pbqan.MetricsBucket{
+				mb := &qanpb.MetricsBucket{
 					Queryid:       v.Id,
 					Fingerprint:   v.Fingerprint,
 					DDatabase:     "",
@@ -395,8 +397,8 @@ func main() {
 	}
 }
 
-func bulkSend(stream pbqan.Agent_DataInterchangeClient, fn func(*pbqan.AgentMessage) error) error {
-	am := &pbqan.AgentMessage{}
+func bulkSend(stream qanpb.Agent_DataInterchangeClient, fn func(*qanpb.AgentMessage) error) error {
+	am := &qanpb.AgentMessage{}
 	err := fn(am)
 	if err != nil {
 		return err

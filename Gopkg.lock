@@ -97,6 +97,14 @@
   version = "v3.13.0"
 
 [[projects]]
+  digest = "1:58999a98719fddbac6303cb17e8d85b945f60b72f48e3a2df6b950b97fa926f1"
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "f55edac94c9bbba5d6182a4be46d86a2c9b5b50e"
+  version = "v1.0.2"
+
+[[projects]]
   digest = "1:32c45107d229b1cf9129e56fe1fabc14c5cac0fc7ce1b0d51bf53bbfde7e84c3"
   name = "github.com/kshvakov/clickhouse"
   packages = [
@@ -135,14 +143,14 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:ac59722af16542eb92dd7b0d5ca205a7eda83489091773ce2a34b18c673be614"
+  digest = "1:9d02e12a4f50ff40c27fdd3fe4002ba90629a1f202582ac9c194a94843225671"
   name = "github.com/percona/pmm"
   packages = [
-    "api/qan",
+    "api/qanpb",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "05036f9df1fadbdad5a7ecf0ec66d0a6766c7fea"
+  revision = "4ebf620263b318f98906a4da36c17679a91989b1"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -161,12 +169,28 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:e256b859ab89f005f2f639f5ed9807d0873d9135e27c6382f419b840ff9abe71"
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "e1e72e9de974bd926e5c56f83753fba2df402ce5"
+  version = "v1.3.0"
+
+[[projects]]
   digest = "1:42e8c2456d7ec0f31e182c20022e74324c4da2cb3bd9069ff9b131fe33466308"
   name = "github.com/stretchr/testify"
   packages = ["assert"]
   pruneopts = "NUT"
   revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
   version = "v1.3.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:058e9504b9a79bfe86092974d05bb3298d2aa0c312d266d43148de289a5065d9"
+  name = "golang.org/x/crypto"
+  packages = ["ssh/terminal"]
+  pruneopts = "NUT"
+  revision = "8dd112bcdc25174059e45e07517d9fc663123347"
 
 [[projects]]
   branch = "master"
@@ -186,9 +210,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:653c52d8527e8d76b16fed98f2c3f8914476c1168976c82e55919ced2eedf576"
+  digest = "1:5a319b3daa32a7134d8797d73c7ad887282e57bdd8791043ec540e5c17360f5e"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows",
+  ]
   pruneopts = "NUT"
   revision = "775f8194d0f9e65c46913c7be783d3d95a29333c"
 
@@ -287,9 +314,10 @@
     "github.com/percona/go-mysql/log",
     "github.com/percona/go-mysql/log/slow",
     "github.com/percona/go-mysql/query",
-    "github.com/percona/pmm/api/qan",
+    "github.com/percona/pmm/api/qanpb",
     "github.com/percona/pmm/version",
     "github.com/pkg/errors",
+    "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "golang.org/x/net/context",
     "golang.org/x/sys/unix",

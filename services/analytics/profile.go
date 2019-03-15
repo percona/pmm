@@ -19,8 +19,9 @@ package analitycs
 import (
 	"context"
 
+	"github.com/percona/pmm/api/qanpb"
+
 	"github.com/Percona-Lab/qan-api/models"
-	qanpb "github.com/percona/pmm/api/qan"
 )
 
 // Service implements gRPC service to communicate with QAN-APP.
@@ -91,10 +92,6 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	if err != nil {
 		return resp, err
 	}
-
-	// fromDate, _ := time.Parse("2006-01-02 15:04:05", in.PeriodStartFrom)
-	// toDate, _ := time.Parse("2006-01-02 15:04:05", in.PeriodStartTo)
-	// timeInterval := float32(toDate.Unix() - fromDate.Unix())
 
 	total := results[0]
 	resp.TotalRows = uint32(total["total_rows"].(uint64))
