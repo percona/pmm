@@ -480,8 +480,8 @@ func (o *RowsItems0MetricsAnonStats) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*RowsItems0SparklineItems0 Point is a values of all selected metrics for one point of sparkline.
-// points: x -> timestamp or point, y -> values of any metric.
+/*RowsItems0SparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
+// of every point in a coordinate system of Sparklines.
 swagger:model RowsItems0SparklineItems0
 */
 type RowsItems0SparklineItems0 struct {

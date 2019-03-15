@@ -69,8 +69,8 @@ message Stat {
   float p99 = 6;
 }
 
-// Point is a values of all selected metrics for one point of sparkline.
-// points: x -> timestamp or point, y -> values of any metric.
+// Point contains values that represents abscissa (time) and ordinate (volume etc.)
+// of every point in a coordinate system of Sparklines.
 message Point {
   map<string, float> values = 1;
 }

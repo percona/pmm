@@ -46,7 +46,7 @@ func (m *ReportRequest) Reset()         { *m = ReportRequest{} }
 func (m *ReportRequest) String() string { return proto.CompactTextString(m) }
 func (*ReportRequest) ProtoMessage()    {}
 func (*ReportRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_profile_8b8386466857fd44, []int{0}
+	return fileDescriptor_profile_81f0c47aba38eb59, []int{0}
 }
 func (m *ReportRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReportRequest.Unmarshal(m, b)
@@ -156,7 +156,7 @@ func (m *ReportMapFieldEntry) Reset()         { *m = ReportMapFieldEntry{} }
 func (m *ReportMapFieldEntry) String() string { return proto.CompactTextString(m) }
 func (*ReportMapFieldEntry) ProtoMessage()    {}
 func (*ReportMapFieldEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor_profile_8b8386466857fd44, []int{1}
+	return fileDescriptor_profile_81f0c47aba38eb59, []int{1}
 }
 func (m *ReportMapFieldEntry) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReportMapFieldEntry.Unmarshal(m, b)
@@ -205,7 +205,7 @@ func (m *ReportReply) Reset()         { *m = ReportReply{} }
 func (m *ReportReply) String() string { return proto.CompactTextString(m) }
 func (*ReportReply) ProtoMessage()    {}
 func (*ReportReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_profile_8b8386466857fd44, []int{2}
+	return fileDescriptor_profile_81f0c47aba38eb59, []int{2}
 }
 func (m *ReportReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ReportReply.Unmarshal(m, b)
@@ -268,7 +268,7 @@ func (m *Row) Reset()         { *m = Row{} }
 func (m *Row) String() string { return proto.CompactTextString(m) }
 func (*Row) ProtoMessage()    {}
 func (*Row) Descriptor() ([]byte, []int) {
-	return fileDescriptor_profile_8b8386466857fd44, []int{3}
+	return fileDescriptor_profile_81f0c47aba38eb59, []int{3}
 }
 func (m *Row) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Row.Unmarshal(m, b)
@@ -328,7 +328,7 @@ func (m *Metric) Reset()         { *m = Metric{} }
 func (m *Metric) String() string { return proto.CompactTextString(m) }
 func (*Metric) ProtoMessage()    {}
 func (*Metric) Descriptor() ([]byte, []int) {
-	return fileDescriptor_profile_8b8386466857fd44, []int{4}
+	return fileDescriptor_profile_81f0c47aba38eb59, []int{4}
 }
 func (m *Metric) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Metric.Unmarshal(m, b)
@@ -372,7 +372,7 @@ func (m *Stat) Reset()         { *m = Stat{} }
 func (m *Stat) String() string { return proto.CompactTextString(m) }
 func (*Stat) ProtoMessage()    {}
 func (*Stat) Descriptor() ([]byte, []int) {
-	return fileDescriptor_profile_8b8386466857fd44, []int{5}
+	return fileDescriptor_profile_81f0c47aba38eb59, []int{5}
 }
 func (m *Stat) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Stat.Unmarshal(m, b)
@@ -434,8 +434,8 @@ func (m *Stat) GetP99() float32 {
 	return 0
 }
 
-// Point is a values of all selected metrics for one point of sparkline.
-// points: x -> timestamp or point, y -> values of any metric.
+// Point contains values that represents abscissa (time) and ordinate (volume etc.)
+// of every point in a coordinate system of Sparklines.
 type Point struct {
 	Values               map[string]float32 `protobuf:"bytes,1,rep,name=values,proto3" json:"values,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"fixed32,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
@@ -447,7 +447,7 @@ func (m *Point) Reset()         { *m = Point{} }
 func (m *Point) String() string { return proto.CompactTextString(m) }
 func (*Point) ProtoMessage()    {}
 func (*Point) Descriptor() ([]byte, []int) {
-	return fileDescriptor_profile_8b8386466857fd44, []int{6}
+	return fileDescriptor_profile_81f0c47aba38eb59, []int{6}
 }
 func (m *Point) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Point.Unmarshal(m, b)
@@ -560,9 +560,9 @@ var _Profile_serviceDesc = grpc.ServiceDesc{
 	Metadata: "qanpb/profile.proto",
 }
 
-func init() { proto.RegisterFile("qanpb/profile.proto", fileDescriptor_profile_8b8386466857fd44) }
+func init() { proto.RegisterFile("qanpb/profile.proto", fileDescriptor_profile_81f0c47aba38eb59) }
 
-var fileDescriptor_profile_8b8386466857fd44 = []byte{
+var fileDescriptor_profile_81f0c47aba38eb59 = []byte{
 	// 679 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x54, 0xbd, 0x6e, 0x1b, 0x39,
 	0x10, 0xc6, 0xee, 0xea, 0x6f, 0x47, 0x27, 0xd8, 0xa6, 0xef, 0x0c, 0x9e, 0xa0, 0xc3, 0xe9, 0xb6,

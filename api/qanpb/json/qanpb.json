@@ -894,7 +894,7 @@
                       "sparkline": {
                         "type": "array",
                         "items": {
-                          "description": "Point is a values of all selected metrics for one point of sparkline.\npoints: x -\u003e timestamp or point, y -\u003e values of any metric.",
+                          "description": "Point contains values that represents abscissa (time) and ordinate (volume etc.)\nof every point in a coordinate system of Sparklines.",
                           "type": "object",
                           "properties": {
                             "values": {
