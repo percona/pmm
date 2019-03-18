@@ -46,7 +46,7 @@ func TestService_GetMetricsNames(t *testing.T) {
 			name:    "success",
 			fields:  fields{},
 			args:    args{},
-			want:    &qanpb.MetricsNamesReply{Data: MetricsNames},
+			want:    &qanpb.MetricsNamesReply{Data: metricsNames},
 			wantErr: false,
 		},
 	}

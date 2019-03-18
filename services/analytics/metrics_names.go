@@ -22,8 +22,8 @@ import (
 	"github.com/percona/pmm/api/qanpb"
 )
 
-// MetricsNames is a map of metrics names and keys.
-var MetricsNames = map[string]string{
+// metricsNames is a map of metrics names and keys.
+var metricsNames = map[string]string{
 	"load":                   "Load",
 	"count":                  "Count",
 	"latancy":                "Latancy",
@@ -65,7 +65,7 @@ var MetricsNames = map[string]string{
 	"docs_scanned":           "Docs Scanned",
 }
 
-// GetReport implements rpc to get report for given filtering.
-func (s *Service) GetMetricsNames(ctx context.Context, in *qanpb.MetricsNamesRequest) (*qanpb.MetricsNamesReply, error) {
-	return &qanpb.MetricsNamesReply{Data: MetricsNames}, nil
+// GetMetricsNames implements rpc to get list of availible metrics.
+func (s *Service) GetMetricsNames(_ context.Context, in *qanpb.MetricsNamesRequest) (*qanpb.MetricsNamesReply, error) {
+	return &qanpb.MetricsNamesReply{Data: metricsNames}, nil
 }
