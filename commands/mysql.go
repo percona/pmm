@@ -17,8 +17,6 @@
 package commands
 
 import (
-	"context"
-
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/percona/pmm/api/inventory/json/client/agents"
 	"github.com/sirupsen/logrus"
@@ -43,9 +41,6 @@ func (cmd *AddMySQLCmd) Run() {
 			Username: cmd.Username,
 			Password: cmd.Password,
 		},
-
-		// FIXME remove this from every request
-		Context: context.Background(),
 	}
 	resp, err := client.Default.Agents.AddMySqldExporter(params)
 	if err != nil {

@@ -17,29 +17,31 @@
 package main
 
 import (
+	"context"
 	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-admin/commands"
 )
 
 func main() {
-	app := kingpin.New("pmm-admin", fmt.Sprintf("Version %s.", version.Version))
+	app := kingpin.New("pmm-agent", fmt.Sprintf("Version %s.", version.Version))
 	app.HelpFlag.Short('h')
 	app.Version(version.FullInfo())
-	app.DefaultEnvars()
 	pmmServerAddressF := app.Flag("server-url", "PMM Server URL.").Required().String()
 	debugF := app.Flag("debug", "Enable debug logging.").Bool()
-	traceF := app.Flag("trace", "Enable trace logging.").Bool()
+	traceF := app.Flag("trace", "Enable trace logging (implies debug).").Bool()
 	kingpin.MustParse(app.Parse(os.Args[1:]))
 
 	if *debugF {
@@ -62,9 +64,22 @@ func main() {
 		logrus.Fatal("Invalid PMM Server URL.")
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+
+	// handle termination signals
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, unix.SIGTERM, unix.SIGINT)
+	go func() {
+		s := <-signals
+		signal.Stop(signals)
+		logrus.Warnf("Got %s, shutting down...", unix.SignalName(s.(unix.Signal)))
+		cancel()
+	}()
+
 	// use JSON APIs over HTTP/1.1
 	transport := httptransport.New(u.Host, u.Path, []string{u.Scheme})
 	transport.SetLogger(logrus.WithField("component", "client"))
+	transport.Context = ctx
 	transport.Debug = *debugF || *traceF
 	// disable HTTP/2
 	transport.Transport.(*http.Transport).TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
