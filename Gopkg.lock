@@ -273,6 +273,7 @@
     "github.com/percona/pmm/api/inventory/json/client/agents",
     "github.com/percona/pmm/version",
     "github.com/sirupsen/logrus",
+    "golang.org/x/sys/unix",
     "gopkg.in/alecthomas/kingpin.v2",
   ]
   solver-name = "gps-cdcl"
