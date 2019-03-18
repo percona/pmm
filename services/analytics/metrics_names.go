@@ -1,0 +1,71 @@
+// qan-api
+// Copyright (C) 2019 Percona LLC
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+package analitycs
+
+import (
+	"context"
+
+	"github.com/percona/pmm/api/qanpb"
+)
+
+// MetricsNames is a map of metrics names and keys.
+var MetricsNames = map[string]string{
+	"load":                   "Load",
+	"count":                  "Count",
+	"latancy":                "Latancy",
+	"query_time":             "Query Time",
+	"lock_time":              "Lock Time",
+	"rows_sent":              "Rows Sent",
+	"rows_examined":          "Rows Examined",
+	"rows_affected":          "Rows Affected",
+	"rows_read":              "Rows Read",
+	"merge_passes":           "Merge Passes",
+	"innodb_io_r_ops":        "Innodb IO R Ops",
+	"innodb_io_r_bytes":      "Innodb IO R Bytes",
+	"innodb_io_r_wait":       "Innodb IO R Wait",
+	"innodb_rec_lock_wait":   "Innodb Rec Lock Wait",
+	"innodb_queue_wait":      "Innodb Queue Wait",
+	"innodb_pages_distinct":  "Innodb Pages Distinct",
+	"query_length":           "Query Length",
+	"bytes_sent":             "Bytes Sent",
+	"tmp_tables":             "Tmp Tables",
+	"tmp_disk_tables":        "Tmp Disk Tables",
+	"tmp_table_sizes":        "Tmp Table Sizes",
+	"qc_hit":                 "Query Cache Hit",
+	"full_scan":              "Full Scan",
+	"full_join":              "Full Join",
+	"tmp_table":              "Tmp Table",
+	"tmp_table_on_disk":      "Tmp Table on Disk",
+	"filesort":               "Filesort",
+	"filesort_on_disk":       "Filesort on Disk",
+	"select_full_range_join": "Select Full Range Join",
+	"select_range":           "Select Range",
+	"select_range_check":     "Select Range Check",
+	"sort_range":             "Sort Range",
+	"sort_rows":              "Sort Rows",
+	"sort_scan":              "Sort Scan",
+	"no_index_used":          "No Index Used",
+	"no_good_index_used":     "No Good Index Used",
+	"docs_returned":          "Docs Returned",
+	"response_length":        "Response Length",
+	"docs_scanned":           "Docs Scanned",
+}
+
+// GetReport implements rpc to get report for given filtering.
+func (s *Service) GetMetricsNames(ctx context.Context, in *qanpb.MetricsNamesRequest) (*qanpb.MetricsNamesReply, error) {
+	return &qanpb.MetricsNamesReply{Data: MetricsNames}, nil
+}
