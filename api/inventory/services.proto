@@ -13,7 +13,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
       description: "An error response."
       schema: {
         json_schema: {
-          ref: ".inventory.ErrorResponse"
+          ref: "#/definitions/inventoryErrorResponse"
         }
       }
     }
