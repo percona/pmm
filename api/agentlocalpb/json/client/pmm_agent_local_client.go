@@ -11,7 +11,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/agent_local/json/client/agent_local"
+	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 )
 
 // Default PMM agent local HTTP client.
