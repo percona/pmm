@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package qan;
+
+option go_package = "qanpb";
+
+import "google/api/annotations.proto";
+
+// MetricsNames serves list of names of metrics.
+service MetricsNames {
+  // GetMetricsNames gets map of metrics names.
+  rpc GetMetricsNames(MetricsNamesRequest) returns (MetricsNamesReply) {
+    option (google.api.http) = {
+      post: "/v1/qan/GetMetricsNames"
+      body: "*"
+    };
+  }
+}
+
+message MetricsNamesRequest {}
+
+message MetricsNamesReply {
+  map<string, string> data = 1;
+}

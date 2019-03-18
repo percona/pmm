@@ -4022,6 +4022,41 @@
         }
       }
     },
+    "/v1/qan/GetMetricsNames": {
+      "post": {
+        "tags": [
+          "MetricsNames"
+        ],
+        "summary": "GetMetricsNames gets map of metrics names.",
+        "operationId": "GetMetricsNames",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/qan/GetReport": {
       "post": {
         "tags": [
