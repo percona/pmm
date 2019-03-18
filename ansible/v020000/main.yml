@@ -28,7 +28,6 @@
       when: not purge_qan_data_backup.stat.exists
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
-        - { src: '/etc/orchestrator.conf.json',    dest: '/srv/update/orchestrator.conf.json-backup' }
         - { src: '/etc/cron.daily/purge-qan-data', dest: '/srv/update/purge-qan-data-backup' }
         - { src: '/etc/grafana/grafana.ini',       dest: '/srv/update/grafana-backup' }
 
@@ -98,7 +97,6 @@
         - percona-dashboards-2.0.0
         - pmm-server-2.0.0
         - pmm2-client-2.0.0
-        - percona-orchestrator-3.0.6
         - percona-prometheus-2.7.1
         - percona-qan-api2-2.0.0
         - percona-grafana-6.0.0
@@ -111,12 +109,11 @@
     - name: PMM                        | Restore unmanaged configs
       copy: src={{ item.src }} dest={{ item.dest }}
       with_items:
-        - { src: '/srv/update/orchestrator.conf.json-backup', dest: '/etc/orchestrator.conf.json' }
         - { src: '/srv/update/purge-qan-data-backup',         dest: '/etc/cron.daily/purge-qan-data' }
         - { src: '/srv/update/grafana-backup',                dest: '/etc/grafana/grafana.ini' }
 
     - name: PMM                        | Remove temporary files
-      command: /usr/bin/shred --remove /srv/update/orchestrator.conf.json-backup /srv/update/purge-qan-data-backup /srv/update/grafana-backup
+      command: /usr/bin/shred --remove /srv/update/purge-qan-data-backup /srv/update/grafana-backup
 
     - name: PMM                        | Update entrypoint.sh
       when: supervisorctl.stat.exists
@@ -227,14 +224,6 @@
     - name: PMM                        | Reload config (supervisord)
       when: supervisorctl.stat.exists
       command: /usr/bin/supervisorctl update
-
-    - name: PMM                        | Restart orchestrator if needed
-      when: supervisorctl.stat.exists
-      command: sh -c '[[ "${ORCHESTRATOR_ENABLED}" = "true" ]] && /usr/bin/supervisorctl restart orchestrator || :'
-
-    - name: PMM                        | Restart orchestrator if needed
-      when: not supervisorctl.stat.exists
-      command: /bin/systemctl condrestart orchestrator
 
     - name: PMM                        | Restart services (supervisord)
       when: supervisorctl.stat.exists
