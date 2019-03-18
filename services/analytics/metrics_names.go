@@ -65,7 +65,7 @@ var metricsNames = map[string]string{
 	"docs_scanned":           "Docs Scanned",
 }
 
-// GetMetricsNames implements rpc to get list of availible metrics.
+// GetMetricsNames implements rpc to get list of available metrics.
 func (s *Service) GetMetricsNames(_ context.Context, in *qanpb.MetricsNamesRequest) (*qanpb.MetricsNamesReply, error) {
 	return &qanpb.MetricsNamesReply{Data: metricsNames}, nil
 }
