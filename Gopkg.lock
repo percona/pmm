@@ -142,7 +142,7 @@
   revision = "b9f78430ec7937d23152e7e8717193e36188e8a9"
 
 [[projects]]
-  branch = "PMM-3630-metrics-dimensions-list"
+  branch = "PMM-2.0"
   digest = "1:cae3774bf81838462d3875af5e696ed46a66df73229d04c27eb293c254cfb9d0"
   name = "github.com/percona/pmm"
   packages = [
@@ -150,7 +150,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "6c880fd59e0ab541352812754b92298e95c2d0c9"
+  revision = "bf67e087420ae51b04c1d9728c928a5bfdec5503"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"

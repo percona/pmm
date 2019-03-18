@@ -21,8 +21,9 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/Percona-Lab/qan-api/models"
 	"github.com/percona/pmm/api/qanpb"
+
+	"github.com/Percona-Lab/qan-api/models"
 )
 
 func TestService_GetMetricsNames(t *testing.T) {
