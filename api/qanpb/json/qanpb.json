@@ -760,6 +760,7 @@
             "in": "body",
             "required": true,
             "schema": {
+              "description": "MetricsNamesRequest is emty.",
               "type": "object"
             }
           }
@@ -768,6 +769,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
+              "description": "MetricsNamesReply is map of stored metrics:\nkey is root of metric name in db (Ex:. [m_]query_time[_sum]);\nvalue - Human readable name of metrics.",
               "type": "object",
               "properties": {
                 "data": {

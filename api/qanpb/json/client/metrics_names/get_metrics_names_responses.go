@@ -65,7 +65,9 @@ func (o *GetMetricsNamesOK) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*GetMetricsNamesOKBody get metrics names o k body
+/*GetMetricsNamesOKBody MetricsNamesReply is map of stored metrics:
+// key is root of metric name in db (Ex:. [m_]query_time[_sum]);
+// value - Human readable name of metrics.
 swagger:model GetMetricsNamesOKBody
 */
 type GetMetricsNamesOKBody struct {

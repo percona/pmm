@@ -24,6 +24,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+// MetricsNamesRequest is emty.
 type MetricsNamesRequest struct {
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -34,7 +35,7 @@ func (m *MetricsNamesRequest) Reset()         { *m = MetricsNamesRequest{} }
 func (m *MetricsNamesRequest) String() string { return proto.CompactTextString(m) }
 func (*MetricsNamesRequest) ProtoMessage()    {}
 func (*MetricsNamesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_names_f0d8a8f9801b3231, []int{0}
+	return fileDescriptor_metrics_names_c8fccbf381e163d6, []int{0}
 }
 func (m *MetricsNamesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MetricsNamesRequest.Unmarshal(m, b)
@@ -54,6 +55,9 @@ func (m *MetricsNamesRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_MetricsNamesRequest proto.InternalMessageInfo
 
+// MetricsNamesReply is map of stored metrics:
+// key is root of metric name in db (Ex:. [m_]query_time[_sum]);
+// value - Human readable name of metrics.
 type MetricsNamesReply struct {
 	Data                 map[string]string `protobuf:"bytes,1,rep,name=data,proto3" json:"data,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
@@ -65,7 +69,7 @@ func (m *MetricsNamesReply) Reset()         { *m = MetricsNamesReply{} }
 func (m *MetricsNamesReply) String() string { return proto.CompactTextString(m) }
 func (*MetricsNamesReply) ProtoMessage()    {}
 func (*MetricsNamesReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_names_f0d8a8f9801b3231, []int{1}
+	return fileDescriptor_metrics_names_c8fccbf381e163d6, []int{1}
 }
 func (m *MetricsNamesReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MetricsNamesReply.Unmarshal(m, b)
@@ -173,10 +177,10 @@ var _MetricsNames_serviceDesc = grpc.ServiceDesc{
 }
 
 func init() {
-	proto.RegisterFile("qanpb/metrics_names.proto", fileDescriptor_metrics_names_f0d8a8f9801b3231)
+	proto.RegisterFile("qanpb/metrics_names.proto", fileDescriptor_metrics_names_c8fccbf381e163d6)
 }
 
-var fileDescriptor_metrics_names_f0d8a8f9801b3231 = []byte{
+var fileDescriptor_metrics_names_c8fccbf381e163d6 = []byte{
 	// 245 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0x2c, 0x4c, 0xcc, 0x2b,
 	0x48, 0xd2, 0xcf, 0x4d, 0x2d, 0x29, 0xca, 0x4c, 0x2e, 0x8e, 0xcf, 0x4b, 0xcc, 0x4d, 0x2d, 0xd6,
