@@ -33,6 +33,8 @@ import (
 	"sync"
 	"time"
 
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/percona/pmm/api/agentpb"
@@ -131,8 +133,14 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
 
 	gRPCServer := grpc.NewServer(
-		grpc.UnaryInterceptor(interceptors.Unary),
-		grpc.StreamInterceptor(interceptors.Stream),
+		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			interceptors.Unary,
+			grpc_validator.UnaryServerInterceptor(),
+		)),
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			interceptors.Stream,
+			grpc_validator.StreamServerInterceptor(),
+		)),
 	)
 	serverpb.RegisterServerServer(gRPCServer, handlers.NewServerServer(
 		version.Version,

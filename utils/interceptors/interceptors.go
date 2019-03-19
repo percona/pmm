@@ -23,7 +23,7 @@ import (
 	"runtime/pprof"
 	"time"
 
-	middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/sirupsen/logrus"
@@ -112,7 +112,7 @@ func Stream(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, 
 	ctx = logger.SetEntry(ctx, l)
 
 	err := logRequest(l, "Stream "+info.FullMethod, func() error {
-		wrapped := middleware.WrapServerStream(ss)
+		wrapped := grpc_middleware.WrapServerStream(ss)
 		wrapped.WrappedContext = ctx
 		return grpc_prometheus.StreamServerInterceptor(srv, wrapped, info, handler)
 	})

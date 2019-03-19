@@ -113,9 +113,12 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:1b497700cbc61544430babb4e4fd4313758bb9fec7144ca50c625fa6ce8266c7"
+  digest = "1:d9cf802f97049c2b61debfae0bbedf645663730d16fe09d65584498bdd59690a"
   name = "github.com/grpc-ecosystem/go-grpc-middleware"
-  packages = ["."]
+  packages = [
+    ".",
+    "validator",
+  ]
   pruneopts = "NUT"
   revision = "c250d6563d4d4c20252cd865923440e829844f4e"
   version = "v1.0.0"
@@ -506,6 +509,7 @@
     "github.com/golang/protobuf/ptypes",
     "github.com/google/uuid",
     "github.com/grpc-ecosystem/go-grpc-middleware",
+    "github.com/grpc-ecosystem/go-grpc-middleware/validator",
     "github.com/grpc-ecosystem/go-grpc-prometheus",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
     "github.com/lib/pq",
