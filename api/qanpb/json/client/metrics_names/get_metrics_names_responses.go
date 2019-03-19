@@ -50,7 +50,7 @@ type GetMetricsNamesOK struct {
 }
 
 func (o *GetMetricsNamesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/GetMetricsNames][%d] getMetricsNamesOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/GetMetricsNames][%d] getMetricsNamesOk  %+v", 200, o.Payload)
 }
 
 func (o *GetMetricsNamesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -76,7 +76,7 @@ type GetMetricsNamesOKBody struct {
 	Data map[string]string `json:"data,omitempty"`
 }
 
-// Validate validates this get metrics names o k body
+// Validate validates this get metrics names OK body
 func (o *GetMetricsNamesOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
