@@ -242,6 +242,9 @@ type ListServicesOKBody struct {
 
 	// mysql
 	Mysql []*MysqlItems0 `json:"mysql"`
+
+	// postgresql
+	Postgresql []*PostgresqlItems0 `json:"postgresql"`
 }
 
 // Validate validates this list services OK body
@@ -257,6 +260,10 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateMysql(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePostgresql(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -331,6 +338,31 @@ func (o *ListServicesOKBody) validateMysql(formats strfmt.Registry) error {
 			if err := o.Mysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) validatePostgresql(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Postgresql) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Postgresql); i++ {
+		if swag.IsZero(o.Postgresql[i]) { // not required
+			continue
+		}
+
+		if o.Postgresql[i] != nil {
+			if err := o.Postgresql[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -446,6 +478,53 @@ func (o *MysqlItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *MysqlItems0) UnmarshalBinary(b []byte) error {
 	var res MysqlItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*PostgresqlItems0 PostgreSQLService represents a generic PostgreSQL instance.
+swagger:model PostgresqlItems0
+*/
+type PostgresqlItems0 struct {
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+}
+
+// Validate validates this postgresql items0
+func (o *PostgresqlItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *PostgresqlItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *PostgresqlItems0) UnmarshalBinary(b []byte) error {
+	var res PostgresqlItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

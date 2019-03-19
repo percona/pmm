@@ -203,6 +203,9 @@ type GetAgentOKBody struct {
 	// pmm agent
 	PMMAgent *GetAgentOKBodyPMMAgent `json:"pmm_agent,omitempty"`
 
+	// postgres exporter
+	PostgresExporter *GetAgentOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
+
 	// qan mysql perfschema agent
 	QANMysqlPerfschemaAgent *GetAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
 
@@ -231,6 +234,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validatePMMAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePostgresExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -330,6 +337,24 @@ func (o *GetAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 		if err := o.PMMAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "pmm_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) validatePostgresExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PostgresExporter) { // not required
+		return nil
+	}
+
+	if o.PostgresExporter != nil {
+		if err := o.PostgresExporter.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "postgres_exporter")
 			}
 			return err
 		}
@@ -809,6 +834,124 @@ func (o *GetAgentOKBodyPMMAgent) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetAgentOKBodyPMMAgent) UnmarshalBinary(b []byte) error {
 	var res GetAgentOKBodyPMMAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+swagger:model GetAgentOKBodyPostgresExporter
+*/
+type GetAgentOKBodyPostgresExporter struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// PostgreSQL password for scraping metrics.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// PostgreSQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+}
+
+// Validate validates this get agent OK body postgres exporter
+func (o *GetAgentOKBodyPostgresExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOkBodyPostgresExporterTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyPostgresExporterTypeStatusPropEnum = append(getAgentOkBodyPostgresExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyPostgresExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyPostgresExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// GetAgentOKBodyPostgresExporterStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyPostgresExporterStatusSTARTING string = "STARTING"
+
+	// GetAgentOKBodyPostgresExporterStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyPostgresExporterStatusRUNNING string = "RUNNING"
+
+	// GetAgentOKBodyPostgresExporterStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyPostgresExporterStatusWAITING string = "WAITING"
+
+	// GetAgentOKBodyPostgresExporterStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyPostgresExporterStatusSTOPPING string = "STOPPING"
+
+	// GetAgentOKBodyPostgresExporterStatusDONE captures enum value "DONE"
+	GetAgentOKBodyPostgresExporterStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyPostgresExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getAgentOkBodyPostgresExporterTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyPostgresExporter) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyPostgresExporter) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyPostgresExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

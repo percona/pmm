@@ -109,6 +109,34 @@ func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServic
 }
 
 /*
+AddPostgreSQLService adds postgre SQL service adds postgre SQL service
+*/
+func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddPostgreSQLServiceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddPostgreSQLServiceParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddPostgreSQLService",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Services/AddPostgreSQL",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddPostgreSQLServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddPostgreSQLServiceOK), nil
+
+}
+
+/*
 ChangeAmazonRDSMySQLService changes amazon RDS my SQL service changes amazon RDS my SQL service
 */
 func (a *Client) ChangeAmazonRDSMySQLService(params *ChangeAmazonRDSMySQLServiceParams) (*ChangeAmazonRDSMySQLServiceOK, error) {

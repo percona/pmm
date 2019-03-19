@@ -194,6 +194,9 @@ type GetServiceOKBody struct {
 
 	// mysql
 	Mysql *GetServiceOKBodyMysql `json:"mysql,omitempty"`
+
+	// postgresql
+	Postgresql *GetServiceOKBodyPostgresql `json:"postgresql,omitempty"`
 }
 
 // Validate validates this get service OK body
@@ -209,6 +212,10 @@ func (o *GetServiceOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateMysql(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePostgresql(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -264,6 +271,24 @@ func (o *GetServiceOKBody) validateMysql(formats strfmt.Registry) error {
 		if err := o.Mysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getServiceOk" + "." + "mysql")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetServiceOKBody) validatePostgresql(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Postgresql) { // not required
+		return nil
+	}
+
+	if o.Postgresql != nil {
+		if err := o.Postgresql.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getServiceOk" + "." + "postgresql")
 			}
 			return err
 		}
@@ -424,6 +449,53 @@ func (o *GetServiceOKBodyMysql) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetServiceOKBodyMysql) UnmarshalBinary(b []byte) error {
 	var res GetServiceOKBodyMysql
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetServiceOKBodyPostgresql PostgreSQLService represents a generic PostgreSQL instance.
+swagger:model GetServiceOKBodyPostgresql
+*/
+type GetServiceOKBodyPostgresql struct {
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+}
+
+// Validate validates this get service OK body postgresql
+func (o *GetServiceOKBodyPostgresql) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetServiceOKBodyPostgresql) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetServiceOKBodyPostgresql) UnmarshalBinary(b []byte) error {
+	var res GetServiceOKBodyPostgresql
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
