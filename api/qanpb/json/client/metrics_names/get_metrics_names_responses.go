@@ -32,7 +32,14 @@ func (o *GetMetricsNamesReader) ReadResponse(response runtime.ClientResponse, co
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewGetMetricsNamesDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -62,6 +69,82 @@ func (o *GetMetricsNamesOK) readResponse(response runtime.ClientResponse, consum
 		return err
 	}
 
+	return nil
+}
+
+// NewGetMetricsNamesDefault creates a GetMetricsNamesDefault with default headers values
+func NewGetMetricsNamesDefault(code int) *GetMetricsNamesDefault {
+	return &GetMetricsNamesDefault{
+		_statusCode: code,
+	}
+}
+
+/*GetMetricsNamesDefault handles this case with default header values.
+
+An error response.
+*/
+type GetMetricsNamesDefault struct {
+	_statusCode int
+
+	Payload *GetMetricsNamesDefaultBody
+}
+
+// Code gets the status code for the get metrics names default response
+func (o *GetMetricsNamesDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *GetMetricsNamesDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/qan/GetMetricsNames][%d] GetMetricsNames default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetMetricsNamesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(GetMetricsNamesDefaultBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+/*GetMetricsNamesDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model GetMetricsNamesDefaultBody
+*/
+type GetMetricsNamesDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this get metrics names default body
+func (o *GetMetricsNamesDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetMetricsNamesDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetMetricsNamesDefaultBody) UnmarshalBinary(b []byte) error {
+	var res GetMetricsNamesDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
 	return nil
 }
 

@@ -9,7 +9,7 @@
     "http"
   ],
   "definitions": {
-    "inventoryErrorResponse": {
+    "inventorypbErrorResponse": {
       "description": "ErrorResponse is a message returned on HTTP error.",
       "type": "object",
       "properties": {

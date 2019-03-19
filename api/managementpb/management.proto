@@ -2,12 +2,29 @@ syntax = "proto3";
 
 package management;
 
+// This option is used to set the default error response for all Swagger APIs generated from this file.
+// See also header.json.
+// It has to be copy&pasted into each file.
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  responses: {
+    key: "default"
+    value: {
+      description: "An error response."
+      schema: {
+        json_schema: {
+          ref: "#/definitions/managementpbErrorResponse"
+        }
+      }
+    }
+  }
+};
 option go_package = "managementpb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventory/agents.proto";
 import "inventory/services.proto";
+import "protoc-gen-swagger/options/annotations.proto";
 
 // Add MySQL
 
