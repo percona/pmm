@@ -4,10 +4,14 @@ excludes:
 protoc:
   version: 3.7.0
   includes:
-    # for annotations.proto
+    # for importing "google/api/annotations.proto"
     - ./vendor/github.com/grpc-ecosystem/grpc-gateway/third_party/googleapis
 
-    # for go-proto-validators
+    # for importing "protoc-gen-swagger/options/annotations.proto"
+    - ./vendor/github.com/grpc-ecosystem/grpc-gateway
+    # "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
+
+    # for importing "github.com/mwitkow/go-proto-validators/validator.proto"
     - ./vendor
 
 lint:

@@ -36,7 +36,14 @@ func (o *GetMetricsReader) ReadResponse(response runtime.ClientResponse, consume
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewGetMetricsDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -54,12 +61,50 @@ type GetMetricsOK struct {
 }
 
 func (o *GetMetricsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/GetMetrics][%d] getMetricsOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/GetMetrics][%d] getMetricsOk  %+v", 200, o.Payload)
 }
 
 func (o *GetMetricsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(GetMetricsOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewGetMetricsDefault creates a GetMetricsDefault with default headers values
+func NewGetMetricsDefault(code int) *GetMetricsDefault {
+	return &GetMetricsDefault{
+		_statusCode: code,
+	}
+}
+
+/*GetMetricsDefault handles this case with default header values.
+
+An error response.
+*/
+type GetMetricsDefault struct {
+	_statusCode int
+
+	Payload *GetMetricsDefaultBody
+}
+
+// Code gets the status code for the get metrics default response
+func (o *GetMetricsDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *GetMetricsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/qan/GetMetrics][%d] GetMetrics default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetMetricsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(GetMetricsDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -143,6 +188,44 @@ func (o *GetMetricsBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetMetricsBody) UnmarshalBinary(b []byte) error {
 	var res GetMetricsBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetMetricsDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model GetMetricsDefaultBody
+*/
+type GetMetricsDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this get metrics default body
+func (o *GetMetricsDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetMetricsDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetMetricsDefaultBody) UnmarshalBinary(b []byte) error {
+	var res GetMetricsDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -632,7 +715,7 @@ type GetMetricsOKBody struct {
 	Warnings map[string]float32 `json:"warnings,omitempty"`
 }
 
-// Validate validates this get metrics o k body
+// Validate validates this get metrics OK body
 func (o *GetMetricsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -650,7 +733,7 @@ func (o *GetMetricsOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var getMetricsOKBodyTypeExampleFormatPropEnum []interface{}
+var getMetricsOkBodyTypeExampleFormatPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -658,7 +741,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		getMetricsOKBodyTypeExampleFormatPropEnum = append(getMetricsOKBodyTypeExampleFormatPropEnum, v)
+		getMetricsOkBodyTypeExampleFormatPropEnum = append(getMetricsOkBodyTypeExampleFormatPropEnum, v)
 	}
 }
 
@@ -676,7 +759,7 @@ const (
 
 // prop value enum
 func (o *GetMetricsOKBody) validateExampleFormatEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getMetricsOKBodyTypeExampleFormatPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, getMetricsOkBodyTypeExampleFormatPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -689,14 +772,14 @@ func (o *GetMetricsOKBody) validateExampleFormat(formats strfmt.Registry) error 
 	}
 
 	// value enum
-	if err := o.validateExampleFormatEnum("getMetricsOK"+"."+"example_format", "body", *o.ExampleFormat); err != nil {
+	if err := o.validateExampleFormatEnum("getMetricsOk"+"."+"example_format", "body", *o.ExampleFormat); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-var getMetricsOKBodyTypeExampleTypePropEnum []interface{}
+var getMetricsOkBodyTypeExampleTypePropEnum []interface{}
 
 func init() {
 	var res []string
@@ -704,7 +787,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		getMetricsOKBodyTypeExampleTypePropEnum = append(getMetricsOKBodyTypeExampleTypePropEnum, v)
+		getMetricsOkBodyTypeExampleTypePropEnum = append(getMetricsOkBodyTypeExampleTypePropEnum, v)
 	}
 }
 
@@ -728,7 +811,7 @@ const (
 
 // prop value enum
 func (o *GetMetricsOKBody) validateExampleTypeEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getMetricsOKBodyTypeExampleTypePropEnum); err != nil {
+	if err := validate.Enum(path, location, value, getMetricsOkBodyTypeExampleTypePropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -741,7 +824,7 @@ func (o *GetMetricsOKBody) validateExampleType(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := o.validateExampleTypeEnum("getMetricsOK"+"."+"example_type", "body", *o.ExampleType); err != nil {
+	if err := o.validateExampleTypeEnum("getMetricsOk"+"."+"example_type", "body", *o.ExampleType); err != nil {
 		return err
 	}
 

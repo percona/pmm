@@ -53,7 +53,7 @@ func (a *Client) AddAmazonRDSMySQLService(params *AddAmazonRDSMySQLServiceParams
 }
 
 /*
-AddMongoDBService adds mongo d b service adds mongo d b service
+AddMongoDBService adds mongo DB service adds mongo DB service
 */
 func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDBServiceOK, error) {
 	// TODO: Validate the params before sending

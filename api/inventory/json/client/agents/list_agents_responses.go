@@ -36,7 +36,14 @@ func (o *ListAgentsReader) ReadResponse(response runtime.ClientResponse, consume
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewListAgentsDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -54,12 +61,50 @@ type ListAgentsOK struct {
 }
 
 func (o *ListAgentsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] listAgentsOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] listAgentsOk  %+v", 200, o.Payload)
 }
 
 func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ListAgentsOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewListAgentsDefault creates a ListAgentsDefault with default headers values
+func NewListAgentsDefault(code int) *ListAgentsDefault {
+	return &ListAgentsDefault{
+		_statusCode: code,
+	}
+}
+
+/*ListAgentsDefault handles this case with default header values.
+
+An error response.
+*/
+type ListAgentsDefault struct {
+	_statusCode int
+
+	Payload *ListAgentsDefaultBody
+}
+
+// Code gets the status code for the list agents default response
+func (o *ListAgentsDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *ListAgentsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] ListAgents default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(ListAgentsDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -145,7 +190,45 @@ func (o *ListAgentsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListAgentsOKBody list agents o k body
+/*ListAgentsDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model ListAgentsDefaultBody
+*/
+type ListAgentsDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this list agents default body
+func (o *ListAgentsDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ListAgentsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListAgentsOKBody list agents OK body
 swagger:model ListAgentsOKBody
 */
 type ListAgentsOKBody struct {
@@ -172,7 +255,7 @@ type ListAgentsOKBody struct {
 	RDSExporter []*RDSExporterItems0 `json:"rds_exporter"`
 }
 
-// Validate validates this list agents o k body
+// Validate validates this list agents OK body
 func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -224,7 +307,7 @@ func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) err
 		if o.ExternalExporter[i] != nil {
 			if err := o.ExternalExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "external_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -249,7 +332,7 @@ func (o *ListAgentsOKBody) validateMongodbExporter(formats strfmt.Registry) erro
 		if o.MongodbExporter[i] != nil {
 			if err := o.MongodbExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "mongodb_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "mongodb_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -274,7 +357,7 @@ func (o *ListAgentsOKBody) validateMysqldExporter(formats strfmt.Registry) error
 		if o.MysqldExporter[i] != nil {
 			if err := o.MysqldExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "mysqld_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "mysqld_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -299,7 +382,7 @@ func (o *ListAgentsOKBody) validateNodeExporter(formats strfmt.Registry) error {
 		if o.NodeExporter[i] != nil {
 			if err := o.NodeExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "node_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "node_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -324,7 +407,7 @@ func (o *ListAgentsOKBody) validatePMMAgent(formats strfmt.Registry) error {
 		if o.PMMAgent[i] != nil {
 			if err := o.PMMAgent[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "pmm_agent" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "pmm_agent" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -349,7 +432,7 @@ func (o *ListAgentsOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Regist
 		if o.QANMysqlPerfschemaAgent[i] != nil {
 			if err := o.QANMysqlPerfschemaAgent[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "qan_mysql_perfschema_agent" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "qan_mysql_perfschema_agent" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -374,7 +457,7 @@ func (o *ListAgentsOKBody) validateRDSExporter(formats strfmt.Registry) error {
 		if o.RDSExporter[i] != nil {
 			if err := o.RDSExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "rds_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

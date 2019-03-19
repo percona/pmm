@@ -34,7 +34,14 @@ func (o *ListServicesReader) ReadResponse(response runtime.ClientResponse, consu
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewListServicesDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -52,12 +59,50 @@ type ListServicesOK struct {
 }
 
 func (o *ListServicesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] listServicesOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] listServicesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListServicesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ListServicesOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewListServicesDefault creates a ListServicesDefault with default headers values
+func NewListServicesDefault(code int) *ListServicesDefault {
+	return &ListServicesDefault{
+		_statusCode: code,
+	}
+}
+
+/*ListServicesDefault handles this case with default header values.
+
+An error response.
+*/
+type ListServicesDefault struct {
+	_statusCode int
+
+	Payload *ListServicesDefaultBody
+}
+
+// Code gets the status code for the list services default response
+func (o *ListServicesDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *ListServicesDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/List][%d] ListServices default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(ListServicesDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -146,7 +191,45 @@ func (o *ListServicesBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListServicesOKBody list services o k body
+/*ListServicesDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model ListServicesDefaultBody
+*/
+type ListServicesDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this list services default body
+func (o *ListServicesDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListServicesDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListServicesDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ListServicesDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListServicesOKBody list services OK body
 swagger:model ListServicesOKBody
 */
 type ListServicesOKBody struct {
@@ -161,7 +244,7 @@ type ListServicesOKBody struct {
 	Mysql []*MysqlItems0 `json:"mysql"`
 }
 
-// Validate validates this list services o k body
+// Validate validates this list services OK body
 func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -197,7 +280,7 @@ func (o *ListServicesOKBody) validateAmazonRDSMysql(formats strfmt.Registry) err
 		if o.AmazonRDSMysql[i] != nil {
 			if err := o.AmazonRDSMysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesOK" + "." + "amazon_rds_mysql" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listServicesOk" + "." + "amazon_rds_mysql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -222,7 +305,7 @@ func (o *ListServicesOKBody) validateMongodb(formats strfmt.Registry) error {
 		if o.Mongodb[i] != nil {
 			if err := o.Mongodb[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesOK" + "." + "mongodb" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listServicesOk" + "." + "mongodb" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -247,7 +330,7 @@ func (o *ListServicesOKBody) validateMysql(formats strfmt.Registry) error {
 		if o.Mysql[i] != nil {
 			if err := o.Mysql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listServicesOK" + "." + "mysql" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listServicesOk" + "." + "mysql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

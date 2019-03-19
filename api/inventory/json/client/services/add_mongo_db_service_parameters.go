@@ -57,7 +57,7 @@ func NewAddMongoDBServiceParamsWithHTTPClient(client *http.Client) *AddMongoDBSe
 }
 
 /*AddMongoDBServiceParams contains all the parameters to send to the API endpoint
-for the add mongo d b service operation typically these are written to a http.Request
+for the add mongo DB service operation typically these are written to a http.Request
 */
 type AddMongoDBServiceParams struct {
 
@@ -69,46 +69,46 @@ type AddMongoDBServiceParams struct {
 	HTTPClient *http.Client
 }
 
-// WithTimeout adds the timeout to the add mongo d b service params
+// WithTimeout adds the timeout to the add mongo DB service params
 func (o *AddMongoDBServiceParams) WithTimeout(timeout time.Duration) *AddMongoDBServiceParams {
 	o.SetTimeout(timeout)
 	return o
 }
 
-// SetTimeout adds the timeout to the add mongo d b service params
+// SetTimeout adds the timeout to the add mongo DB service params
 func (o *AddMongoDBServiceParams) SetTimeout(timeout time.Duration) {
 	o.timeout = timeout
 }
 
-// WithContext adds the context to the add mongo d b service params
+// WithContext adds the context to the add mongo DB service params
 func (o *AddMongoDBServiceParams) WithContext(ctx context.Context) *AddMongoDBServiceParams {
 	o.SetContext(ctx)
 	return o
 }
 
-// SetContext adds the context to the add mongo d b service params
+// SetContext adds the context to the add mongo DB service params
 func (o *AddMongoDBServiceParams) SetContext(ctx context.Context) {
 	o.Context = ctx
 }
 
-// WithHTTPClient adds the HTTPClient to the add mongo d b service params
+// WithHTTPClient adds the HTTPClient to the add mongo DB service params
 func (o *AddMongoDBServiceParams) WithHTTPClient(client *http.Client) *AddMongoDBServiceParams {
 	o.SetHTTPClient(client)
 	return o
 }
 
-// SetHTTPClient adds the HTTPClient to the add mongo d b service params
+// SetHTTPClient adds the HTTPClient to the add mongo DB service params
 func (o *AddMongoDBServiceParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the add mongo d b service params
+// WithBody adds the body to the add mongo DB service params
 func (o *AddMongoDBServiceParams) WithBody(body AddMongoDBServiceBody) *AddMongoDBServiceParams {
 	o.SetBody(body)
 	return o
 }
 
-// SetBody adds the body to the add mongo d b service params
+// SetBody adds the body to the add mongo DB service params
 func (o *AddMongoDBServiceParams) SetBody(body AddMongoDBServiceBody) {
 	o.Body = body
 }

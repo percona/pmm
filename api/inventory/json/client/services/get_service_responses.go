@@ -33,7 +33,14 @@ func (o *GetServiceReader) ReadResponse(response runtime.ClientResponse, consume
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewGetServiceDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -51,12 +58,50 @@ type GetServiceOK struct {
 }
 
 func (o *GetServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] getServiceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] getServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *GetServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(GetServiceOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewGetServiceDefault creates a GetServiceDefault with default headers values
+func NewGetServiceDefault(code int) *GetServiceDefault {
+	return &GetServiceDefault{
+		_statusCode: code,
+	}
+}
+
+/*GetServiceDefault handles this case with default header values.
+
+An error response.
+*/
+type GetServiceDefault struct {
+	_statusCode int
+
+	Payload *GetServiceDefaultBody
+}
+
+// Code gets the status code for the get service default response
+func (o *GetServiceDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *GetServiceDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/Get][%d] GetService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(GetServiceDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -98,7 +143,45 @@ func (o *GetServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetServiceOKBody get service o k body
+/*GetServiceDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model GetServiceDefaultBody
+*/
+type GetServiceDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this get service default body
+func (o *GetServiceDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetServiceDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetServiceDefaultBody) UnmarshalBinary(b []byte) error {
+	var res GetServiceDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetServiceOKBody get service OK body
 swagger:model GetServiceOKBody
 */
 type GetServiceOKBody struct {
@@ -113,7 +196,7 @@ type GetServiceOKBody struct {
 	Mysql *GetServiceOKBodyMysql `json:"mysql,omitempty"`
 }
 
-// Validate validates this get service o k body
+// Validate validates this get service OK body
 func (o *GetServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -144,7 +227,7 @@ func (o *GetServiceOKBody) validateAmazonRDSMysql(formats strfmt.Registry) error
 	if o.AmazonRDSMysql != nil {
 		if err := o.AmazonRDSMysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getServiceOK" + "." + "amazon_rds_mysql")
+				return ve.ValidateName("getServiceOk" + "." + "amazon_rds_mysql")
 			}
 			return err
 		}
@@ -162,7 +245,7 @@ func (o *GetServiceOKBody) validateMongodb(formats strfmt.Registry) error {
 	if o.Mongodb != nil {
 		if err := o.Mongodb.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getServiceOK" + "." + "mongodb")
+				return ve.ValidateName("getServiceOk" + "." + "mongodb")
 			}
 			return err
 		}
@@ -180,7 +263,7 @@ func (o *GetServiceOKBody) validateMysql(formats strfmt.Registry) error {
 	if o.Mysql != nil {
 		if err := o.Mysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getServiceOK" + "." + "mysql")
+				return ve.ValidateName("getServiceOk" + "." + "mysql")
 			}
 			return err
 		}
@@ -231,7 +314,7 @@ type GetServiceOKBodyAmazonRDSMysql struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this get service o k body amazon RDS mysql
+// Validate validates this get service OK body amazon RDS mysql
 func (o *GetServiceOKBodyAmazonRDSMysql) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -278,7 +361,7 @@ type GetServiceOKBodyMongodb struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this get service o k body mongodb
+// Validate validates this get service OK body mongodb
 func (o *GetServiceOKBodyMongodb) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -325,7 +408,7 @@ type GetServiceOKBodyMysql struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this get service o k body mysql
+// Validate validates this get service OK body mysql
 func (o *GetServiceOKBodyMysql) Validate(formats strfmt.Registry) error {
 	return nil
 }

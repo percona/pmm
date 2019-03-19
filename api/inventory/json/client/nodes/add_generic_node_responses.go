@@ -33,7 +33,14 @@ func (o *AddGenericNodeReader) ReadResponse(response runtime.ClientResponse, con
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddGenericNodeDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -51,12 +58,50 @@ type AddGenericNodeOK struct {
 }
 
 func (o *AddGenericNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] addGenericNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] addGenericNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *AddGenericNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddGenericNodeOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddGenericNodeDefault creates a AddGenericNodeDefault with default headers values
+func NewAddGenericNodeDefault(code int) *AddGenericNodeDefault {
+	return &AddGenericNodeDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddGenericNodeDefault handles this case with default header values.
+
+An error response.
+*/
+type AddGenericNodeDefault struct {
+	_statusCode int
+
+	Payload *AddGenericNodeDefaultBody
+}
+
+// Code gets the status code for the add generic node default response
+func (o *AddGenericNodeDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddGenericNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddGeneric][%d] AddGenericNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddGenericNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddGenericNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -113,7 +158,45 @@ func (o *AddGenericNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddGenericNodeOKBody add generic node o k body
+/*AddGenericNodeDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddGenericNodeDefaultBody
+*/
+type AddGenericNodeDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add generic node default body
+func (o *AddGenericNodeDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddGenericNodeDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddGenericNodeDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddGenericNodeDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddGenericNodeOKBody add generic node OK body
 swagger:model AddGenericNodeOKBody
 */
 type AddGenericNodeOKBody struct {
@@ -122,7 +205,7 @@ type AddGenericNodeOKBody struct {
 	Generic *AddGenericNodeOKBodyGeneric `json:"generic,omitempty"`
 }
 
-// Validate validates this add generic node o k body
+// Validate validates this add generic node OK body
 func (o *AddGenericNodeOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -145,7 +228,7 @@ func (o *AddGenericNodeOKBody) validateGeneric(formats strfmt.Registry) error {
 	if o.Generic != nil {
 		if err := o.Generic.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addGenericNodeOK" + "." + "generic")
+				return ve.ValidateName("addGenericNodeOk" + "." + "generic")
 			}
 			return err
 		}
@@ -199,7 +282,7 @@ type AddGenericNodeOKBodyGeneric struct {
 	NodeName string `json:"node_name,omitempty"`
 }
 
-// Validate validates this add generic node o k body generic
+// Validate validates this add generic node OK body generic
 func (o *AddGenericNodeOKBodyGeneric) Validate(formats strfmt.Registry) error {
 	return nil
 }

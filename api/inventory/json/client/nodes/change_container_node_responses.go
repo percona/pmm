@@ -33,7 +33,14 @@ func (o *ChangeContainerNodeReader) ReadResponse(response runtime.ClientResponse
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewChangeContainerNodeDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -51,12 +58,50 @@ type ChangeContainerNodeOK struct {
 }
 
 func (o *ChangeContainerNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/ChangeContainer][%d] changeContainerNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/ChangeContainer][%d] changeContainerNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeContainerNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ChangeContainerNodeOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewChangeContainerNodeDefault creates a ChangeContainerNodeDefault with default headers values
+func NewChangeContainerNodeDefault(code int) *ChangeContainerNodeDefault {
+	return &ChangeContainerNodeDefault{
+		_statusCode: code,
+	}
+}
+
+/*ChangeContainerNodeDefault handles this case with default header values.
+
+An error response.
+*/
+type ChangeContainerNodeDefault struct {
+	_statusCode int
+
+	Payload *ChangeContainerNodeDefaultBody
+}
+
+// Code gets the status code for the change container node default response
+func (o *ChangeContainerNodeDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *ChangeContainerNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/ChangeContainer][%d] ChangeContainerNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ChangeContainerNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(ChangeContainerNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -107,7 +152,45 @@ func (o *ChangeContainerNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ChangeContainerNodeOKBody change container node o k body
+/*ChangeContainerNodeDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model ChangeContainerNodeDefaultBody
+*/
+type ChangeContainerNodeDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this change container node default body
+func (o *ChangeContainerNodeDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeContainerNodeDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeContainerNodeDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ChangeContainerNodeDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeContainerNodeOKBody change container node OK body
 swagger:model ChangeContainerNodeOKBody
 */
 type ChangeContainerNodeOKBody struct {
@@ -116,7 +199,7 @@ type ChangeContainerNodeOKBody struct {
 	Container *ChangeContainerNodeOKBodyContainer `json:"container,omitempty"`
 }
 
-// Validate validates this change container node o k body
+// Validate validates this change container node OK body
 func (o *ChangeContainerNodeOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -139,7 +222,7 @@ func (o *ChangeContainerNodeOKBody) validateContainer(formats strfmt.Registry) e
 	if o.Container != nil {
 		if err := o.Container.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("changeContainerNodeOK" + "." + "container")
+				return ve.ValidateName("changeContainerNodeOk" + "." + "container")
 			}
 			return err
 		}
@@ -190,7 +273,7 @@ type ChangeContainerNodeOKBodyContainer struct {
 	NodeName string `json:"node_name,omitempty"`
 }
 
-// Validate validates this change container node o k body container
+// Validate validates this change container node OK body container
 func (o *ChangeContainerNodeOKBodyContainer) Validate(formats strfmt.Registry) error {
 	return nil
 }

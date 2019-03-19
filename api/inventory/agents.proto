@@ -2,11 +2,28 @@ syntax = "proto3";
 
 package inventory;
 
+// This option is used to set the default error response for all Swagger APIs generated from this file.
+// See also header.json.
+// It has to be copy&pasted into each file.
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  responses: {
+    key: "default"
+    value: {
+      description: "An error response."
+      schema: {
+        json_schema: {
+          ref: "#/definitions/inventorypbErrorResponse"
+        }
+      }
+    }
+  }
+};
 option go_package = "inventory";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventory/agent_status.proto";
+import "protoc-gen-swagger/options/annotations.proto";
 
 // PMMAgent runs on Generic on Container Node.
 message PMMAgent {
