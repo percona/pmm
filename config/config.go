@@ -19,19 +19,22 @@ package config
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"os/exec"
 
 	"github.com/percona/pmm/version"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
+	"gopkg.in/yaml.v2"
 )
 
 // Paths represents binaries paths configuration.
 type Paths struct {
-	NodeExporter    string
-	MySQLdExporter  string
-	MongoDBExporter string
-	TempDir         string
+	NodeExporter    string `yaml:"node_exporter"`
+	MySQLdExporter  string `yaml:"mysqld_exporter"`
+	MongoDBExporter string `yaml:"mongodb_exporter"`
+	TempDir         string `yaml:"tempdir"`
 }
 
 // Lookup replaces paths with absolute paths.
@@ -43,50 +46,97 @@ func (p *Paths) Lookup() {
 
 // Ports represents ports configuration.
 type Ports struct {
-	Min uint16
-	Max uint16
+	Min uint16 `yaml:"min"`
+	Max uint16 `yaml:"max"`
 }
 
 // Config represents pmm-agent's static configuration.
+//nolint:maligned
 type Config struct {
-	ID      string
-	Address string
+	ID      string `yaml:"id"`
+	Address string `yaml:"address"`
 
-	Debug       bool
-	InsecureTLS bool
+	Debug       bool `yaml:"debug"`
+	Trace       bool `yaml:"trace"`
+	InsecureTLS bool `yaml:"insecure-tls"`
 
-	Paths Paths
-	Ports Ports
+	Paths Paths `yaml:"paths"`
+	Ports Ports `yaml:"ports"`
 }
 
-func Application(cfg *Config) *kingpin.Application {
+// application returns kingpin application that parses all flags and environemtn variables into cfg
+// except --config-file that is returned separately.
+func application(cfg *Config) (*kingpin.Application, *string) {
 	app := kingpin.New("pmm-agent", fmt.Sprintf("Version %s.", version.Version))
 	app.HelpFlag.Short('h')
 	app.Version(version.FullInfo())
 
-	app.Flag("id", "ID of this pmm-agent.").Envar("PMM_AGENT_ID").StringVar(&cfg.ID)
-	app.Flag("address", "PMM Server address (host:port).").Envar("PMM_AGENT_ADDRESS").StringVar(&cfg.Address)
+	configFileF := app.Flag("config-file", "Configuration file path. [PMM_AGENT_CONFIG_FILE]").
+		Envar("PMM_AGENT_CONFIG_FILE").PlaceHolder("</path/to/pmm-agent.yaml>").String()
 
-	app.Flag("debug", "Enable debug output.").Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
-	app.Flag("insecure-tls", "Skip PMM Server TLS certificate validation.").Envar("PMM_AGENT_INSECURE_TLS").BoolVar(&cfg.InsecureTLS)
+	app.Flag("id", "ID of this pmm-agent. [PMM_AGENT_ID]").
+		Envar("PMM_AGENT_ID").PlaceHolder("</agent_id/...>").StringVar(&cfg.ID)
+	app.Flag("address", "PMM Server address. [PMM_AGENT_ADDRESS]").
+		Envar("PMM_AGENT_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Address)
 
-	app.Flag("paths.node_exporter", "Path to node_exporter to use.").Envar("PMM_AGENT_PATHS_NODE_EXPORTER").
-		Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)
-	app.Flag("paths.mysqld_exporter", "Path to mysqld_exporter to use.").Envar("PMM_AGENT_PATHS_MYSQLD_EXPORTER").
-		Default("mysqld_exporter").StringVar(&cfg.Paths.MySQLdExporter)
-	app.Flag("paths.mongodb_exporter", "Path to mongodb_exporter to use.").Envar("PMM_AGENT_PATHS_MONGODB_EXPORTER").
-		Default("mongodb_exporter").StringVar(&cfg.Paths.MongoDBExporter)
-	app.Flag("paths.tempdir", "Temporary directory for exporters.").Envar("PMM_AGENT_PATHS_TEMPDIR").
-		Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
+	app.Flag("debug", "Enable debug output. [PMM_AGENT_DEBUG]").
+		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
+	app.Flag("trace", "Enable trace output (implies debug). [PMM_AGENT_TRACE]").
+		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
+	app.Flag("insecure-tls", "Skip PMM Server TLS certificate validation. [PMM_AGENT_INSECURE_TLS]").
+		Envar("PMM_AGENT_INSECURE_TLS").BoolVar(&cfg.InsecureTLS)
+
+	app.Flag("paths.node_exporter", "Path to node_exporter to use. [PMM_AGENT_PATHS_NODE_EXPORTER]").
+		Envar("PMM_AGENT_PATHS_NODE_EXPORTER").Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)
+	app.Flag("paths.mysqld_exporter", "Path to mysqld_exporter to use. [PMM_AGENT_PATHS_MYSQLD_EXPORTER]").
+		Envar("PMM_AGENT_PATHS_MYSQLD_EXPORTER").Default("mysqld_exporter").StringVar(&cfg.Paths.MySQLdExporter)
+	app.Flag("paths.mongodb_exporter", "Path to mongodb_exporter to use. [PMM_AGENT_PATHS_MONGODB_EXPORTER]").
+		Envar("PMM_AGENT_PATHS_MONGODB_EXPORTER").Default("mongodb_exporter").StringVar(&cfg.Paths.MongoDBExporter)
+	app.Flag("paths.tempdir", "Temporary directory for exporters. [PMM_AGENT_PATHS_TEMPDIR]").
+		Envar("PMM_AGENT_PATHS_TEMPDIR").Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
 
 	// TODO read defaults from /proc/sys/net/ipv4/ip_local_port_range ?
-	app.Flag("ports.min", "Minimal allowed port number for listening sockets.").Envar("PMM_AGENT_PORTS_MIN").
-		Default("32768").Uint16Var(&cfg.Ports.Min)
-	app.Flag("ports.max", "Maximal allowed port number for listening sockets.").Envar("PMM_AGENT_PORTS_MAX").
-		Default("60999").Uint16Var(&cfg.Ports.Max)
+	app.Flag("ports.min", "Minimal allowed port number for listening sockets. [PMM_AGENT_PORTS_MIN]").
+		Envar("PMM_AGENT_PORTS_MIN").Default("32768").Uint16Var(&cfg.Ports.Min)
+	app.Flag("ports.max", "Maximal allowed port number for listening sockets. [PMM_AGENT_PORTS_MAX]").
+		Envar("PMM_AGENT_PORTS_MAX").Default("60999").Uint16Var(&cfg.Ports.Max)
 
-	// TODO load configuration from file with kingpin.ExpandArgsFromFile
-	// TODO show environment variables in help
+	return app, configFileF
+}
 
-	return app
+func readConfigFile(path string) (*Config, error) {
+	b, err := ioutil.ReadFile(path) //nolint:gosec
+	if err != nil {
+		return nil, err
+	}
+
+	var cfg Config
+	err = yaml.Unmarshal(b, &cfg)
+	return &cfg, err
+}
+
+// Get parses given command-line arguments and returns configuration.
+func Get(args []string, l *logrus.Entry) (*Config, error) {
+	// parse flags and environment variables
+	cfg := new(Config)
+	app, configFileF := application(cfg)
+	_, err := app.Parse(args)
+	if err != nil {
+		return nil, err
+	}
+
+	// if config file is given, read and parse it, then re-parse flags into this configuration
+	if *configFileF != "" {
+		l.Infof("Loading configuration file %s.", *configFileF)
+		if cfg, err = readConfigFile(*configFileF); err != nil {
+			return nil, err
+		}
+		app, _ = application(cfg)
+		if _, err = app.Parse(args); err != nil {
+			return nil, err
+		}
+	}
+
+	cfg.Paths.Lookup()
+	return cfg, nil
 }

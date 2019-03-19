@@ -34,7 +34,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
-	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-agent/agentlocal"
 	"github.com/percona/pmm-agent/agents/supervisor"
@@ -179,17 +178,19 @@ func main() {
 		panic("pmm-agent version is not set during build.")
 	}
 
-	var cfg config.Config
-	app := config.Application(&cfg)
-	kingpin.MustParse(app.Parse(os.Args[1:]))
-
-	cfg.Paths.Lookup()
-	logrus.Infof("Loaded configuration: %+v.", cfg)
+	cfg, err := config.Get(os.Args[1:], logrus.WithField("component", "config"))
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	logrus.Debugf("Loaded configuration: %+v", cfg)
 
 	if cfg.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
-		grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "gRPC")})
-		logrus.Debug("Debug logging enabled.")
+	}
+	if cfg.Trace {
+		logrus.SetLevel(logrus.TraceLevel)
+		logrus.SetReportCaller(true)
+		grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 	}
 
 	// TODO
@@ -257,5 +258,5 @@ func main() {
 	// 	logrus.Infof("pmm-agent registered: %s.", cfg.UUID)
 	// }
 
-	workLoop(ctx, &cfg, l, client)
+	workLoop(ctx, cfg, l, client)
 }

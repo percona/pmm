@@ -19,17 +19,17 @@ package agentlocal
 import (
 	"context"
 
-	api "github.com/percona/pmm/api/agent_local"
+	"github.com/percona/pmm/api/agentlocalpb"
 )
 
 type AgentLocalServer struct {
 }
 
-func (als *AgentLocalServer) Status(ctx context.Context, req *api.StatusRequest) (*api.StatusResponse, error) {
+func (als *AgentLocalServer) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*agentlocalpb.StatusResponse, error) {
 	panic("not implemented")
 }
 
 // check interfaces
 var (
-	_ api.AgentLocalServer = (*AgentLocalServer)(nil)
+	_ agentlocalpb.AgentLocalServer = (*AgentLocalServer)(nil)
 )
