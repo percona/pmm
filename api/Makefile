@@ -1,7 +1,7 @@
 help:                 ## Display this help message.
 	@echo "Please use \`make <target>\` where <target> is one of:"
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
-	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
 cert:                 ## Generate TLS certificate for nginx for local testing with mkcert.
 	mkcert -cert-file=nginx/cert.pem -key-file=nginx/key.pem pmm-api pmm-api.localhost 127.0.0.1
@@ -24,7 +24,7 @@ gen: clean            ## Generate files.
 
 	for API in agentlocalpb server inventory managementpb qanpb ; do \
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json ; \
-	    swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$API.json --output=$$API/json/$$API.json ; \
+		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$API.json --output=$$API/json/$$API.json ; \
 		swagger validate $$API/json/$$API.json ; \
 		swagger generate client --spec=$$API/json/$$API.json --target=$$API/json \
 			--additional-initialism=aws \
