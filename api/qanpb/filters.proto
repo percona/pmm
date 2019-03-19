@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package qan;
+
+option go_package = "qanpb";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+// Filters serves list of names of metrics.
+service Filters {
+  // GetFilters gets map of metrics names.
+  rpc GetFilters(FiltersRequest) returns (FiltersReply) {
+    option (google.api.http) = {
+      post: "/v1/qan/GetFilters"
+      body: "*"
+    };
+  }
+}
+
+// FiltersRequest contains period for which we need filters.
+message FiltersRequest {
+  google.protobuf.Timestamp from = 1;
+  google.protobuf.Timestamp to = 2;
+}
+
+// FiltersReply is map of labels and values for given period.
+message FiltersReply {
+  repeated LabelsValues labels = 1;
+}
+
+// LabelsValues is label name as a key and values as a list.
+message LabelsValues {
+  string key = 1;
+  repeated string value = 2;
+}

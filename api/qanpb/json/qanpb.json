@@ -15,6 +15,65 @@
     "version": "version 1.alpha"
   },
   "paths": {
+    "/v1/qan/GetFilters": {
+      "post": {
+        "tags": [
+          "Filters"
+        ],
+        "summary": "GetFilters gets map of metrics names.",
+        "operationId": "GetFilters",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "FiltersRequest contains period for which we need filters.",
+              "type": "object",
+              "properties": {
+                "from": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "to": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "FiltersReply is map of labels and values for given period.",
+              "type": "object",
+              "properties": {
+                "labels": {
+                  "type": "array",
+                  "items": {
+                    "description": "LabelsValues is label name as a key and values as a list.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/qan/GetMetrics": {
       "post": {
         "tags": [
