@@ -189,6 +189,34 @@ message QANMySQLPerfSchemaAgent {
   map<string, string> custom_labels = 10;
 }
 
+// PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+message PostgresExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Service identifier.
+  string service_id = 3;
+  // PostgreSQL username for scraping metrics.
+  string username = 4;
+  // PostgreSQL password for scraping metrics.
+  string password = 5;
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled or disabled.
+  // TODO https://jira.percona.com/browse/PMM-3470
+  // bool enabled = 6;
+
+  // Actual Agent status.
+  AgentStatus status = 7;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
 // List
 
 message ListAgentsRequest {
@@ -210,6 +238,7 @@ message ListAgentsResponse {
   repeated ExternalExporter external_exporter = 5;
   repeated MongoDBExporter mongodb_exporter = 6;
   repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
+  repeated PostgresExporter postgres_exporter = 8;
 }
 
 // Get
@@ -232,6 +261,7 @@ message GetAgentResponse {
     ExternalExporter external_exporter = 5;
     MongoDBExporter mongodb_exporter = 6;
     QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
+    PostgresExporter postgres_exporter = 8;
   }
 }
 
@@ -430,6 +460,41 @@ message AddQANMySQLPerfSchemaAgentResponse {
 
 // TODO ChangeQANMySQLPerfSchemaAgentResponse https://jira.percona.com/browse/PMM-3470
 
+// Add/Change PostgresExporter
+
+message AddPostgresExporterRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PostgreSQL username for scraping metrics.
+  string username = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PostgreSQL password for scraping metrics.
+  string password = 5;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+message AddPostgresExporterResponse {
+  PostgresExporter postgres_exporter = 1;
+}
+
+// TODO ChangePostgresExporterResponse https://jira.percona.com/browse/PMM-3470
+
 // Remove
 
 message RemoveAgentRequest {
@@ -504,6 +569,13 @@ service Agents {
   rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"
+      body: "*"
+    };
+  }
+  // AddPostgresExporter adds postgres_exporter Agent.
+  rpc AddPostgresExporter(AddPostgresExporterRequest) returns (AddPostgresExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddPostgresExporter"
       body: "*"
     };
   }

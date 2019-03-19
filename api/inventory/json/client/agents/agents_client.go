@@ -165,6 +165,34 @@ func (a *Client) AddPMMAgent(params *AddPMMAgentParams) (*AddPMMAgentOK, error) 
 }
 
 /*
+AddPostgresExporter adds postgres exporter adds postgres exporter agent
+*/
+func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams) (*AddPostgresExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddPostgresExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddPostgresExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/AddPostgresExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddPostgresExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddPostgresExporterOK), nil
+
+}
+
+/*
 AddQANMySQLPerfSchemaAgent adds QAN my SQL perf schema agent adds my SQL perf schema QAN agent
 */
 func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentParams) (*AddQANMySQLPerfSchemaAgentOK, error) {
