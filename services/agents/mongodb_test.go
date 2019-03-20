@@ -54,4 +54,14 @@ func TestMongodbExporterConfig(t *testing.T) {
 	assert.Equal(t, expected.Args, actual.Args)
 	assert.Equal(t, expected.Env, actual.Env)
 	assert.Equal(t, expected, actual)
+
+	t.Run("CheckEmptyUsername", func(t *testing.T) {
+		mongo := &models.Service{
+			Address: pointer.ToString("1.2.3.4"),
+			Port:    pointer.ToUint16(27017),
+		}
+		exporter := &models.Agent{Password: pointer.ToString("test")}
+		actual := mongodbExporterConfig(mongo, exporter)
+		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017", actual.Env[0])
+	})
 }

@@ -53,10 +53,16 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent) *age
 
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
+
 	connURL := url.URL{
 		Scheme: "mongodb",
-		User:   url.UserPassword(pointer.GetString(exporter.Username), pointer.GetString(exporter.Password)),
 		Host:   net.JoinHostPort(host, strconv.Itoa(int(port))),
+	}
+
+	username := pointer.GetString(exporter.Username)
+	password := pointer.GetString(exporter.Password)
+	if username != "" {
+		connURL.User = url.UserPassword(username, password)
 	}
 
 	return &agentpb.SetStateRequest_AgentProcess{
