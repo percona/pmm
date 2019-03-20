@@ -1,7 +1,7 @@
 # qan-api2
 
-[![Build Status](https://travis-ci.org/Percona-Lab/qan-api.svg?branch=master)](https://travis-ci.org/Percona-Lab/qan-api)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Percona-Lab/qan-api)](https://goreportcard.com/report/github.com/Percona-Lab/qan-api)
+[![Build Status](https://travis-ci.org/percona/qan-api2.svg?branch=master)](https://travis-ci.org/percona/qan-api2)
+[![Go Report Card](https://goreportcard.com/badge/github.com/percona/qan-api2)](https://goreportcard.com/report/github.com/percona/qan-api2)
 [![pullreminders](https://pullreminders.com/badge.svg)](https://pullreminders.com?ref=badge)
 
 qan-api for PMM 2.x.

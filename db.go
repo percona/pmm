@@ -1,4 +1,4 @@
-// qan-api
+// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -21,7 +21,7 @@ import (
 
 	_ "github.com/kshvakov/clickhouse"
 
-	"github.com/Percona-Lab/qan-api/migrations"
+	"github.com/percona/qan-api2/migrations"
 	// TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/database/clickhouse"

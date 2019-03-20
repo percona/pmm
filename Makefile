@@ -9,14 +9,14 @@ PMM_RELEASE_TIMESTAMP ?= $(shell date '+%s')
 PMM_RELEASE_FULLCOMMIT ?= $(shell git rev-parse HEAD)
 PMM_RELEASE_BRANCH ?= $(shell git describe --all --contains --dirty HEAD)
 
-release:                        ## Build qan-api release binary.
-	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH)/qan-api -ldflags " \
-		-X 'github.com/Percona-Lab/qan-api/vendor/github.com/percona/pmm/version.ProjectName=qan-api' \
-		-X 'github.com/Percona-Lab/qan-api/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
-		-X 'github.com/Percona-Lab/qan-api/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
-		-X 'github.com/Percona-Lab/qan-api/vendor/github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
-		-X 'github.com/Percona-Lab/qan-api/vendor/github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
-		-X 'github.com/Percona-Lab/qan-api/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
+release:                        ## Build qan-api2 release binary.
+	env CGO_ENABLED=0 go build -v -o $(PMM_RELEASE_PATH)/qan-api2 -ldflags " \
+		-X 'github.com/percona/qan-api2/vendor/github.com/percona/pmm/version.ProjectName=qan-api2' \
+		-X 'github.com/percona/qan-api2/vendor/github.com/percona/pmm/version.Version=$(PMM_RELEASE_VERSION)' \
+		-X 'github.com/percona/qan-api2/vendor/github.com/percona/pmm/version.PMMVersion=$(PMM_RELEASE_VERSION)' \
+		-X 'github.com/percona/qan-api2/vendor/github.com/percona/pmm/version.Timestamp=$(PMM_RELEASE_TIMESTAMP)' \
+		-X 'github.com/percona/qan-api2/vendor/github.com/percona/pmm/version.FullCommit=$(PMM_RELEASE_FULLCOMMIT)' \
+		-X 'github.com/percona/qan-api2/vendor/github.com/percona/pmm/version.Branch=$(PMM_RELEASE_BRANCH)' \
 		"
 
 init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
@@ -27,10 +27,10 @@ init:                           ## Installs tools to $GOPATH/bin (which is expec
 gen:                            ## Generate files.
 	go-bindata -nometadata -pkg migrations -o migrations/bindata.go -prefix migrations/sql migrations/sql
 
-install:                        ## Install qan-api binary.
+install:                        ## Install qan-api2 binary.
 	go install -v ./...
 
-install-race:                   ## Install qan-api binary with race detector.
+install-race:                   ## Install qan-api2 binary with race detector.
 	go install -v -race ./...
 
 test:                           ## Run tests.
@@ -52,22 +52,22 @@ FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 format:                         ## Format source code.
 	gofmt -w -s $(FILES)
-	goimports -local github.com/Percona-Lab/qan-api -l -w $(FILES)
+	goimports -local github.com/percona/qan-api2 -l -w $(FILES)
 
 RUN_FLAGS = -todo-use-kingpin-for-flags
 
-run: install _run               ## Run qan-api.
+run: install _run               ## Run qan-api2.
 
-run-race: install-race _run     ## Run qan-api with race detector.
+run-race: install-race _run     ## Run qan-api2 with race detector.
 
-run-race-cover: install-race    ## Run qan-api with race detector and collect coverage information.
-	go test -coverpkg="github.com/Percona-Lab/qan-api/..." \
+run-race-cover: install-race    ## Run qan-api2 with race detector and collect coverage information.
+	go test -coverpkg="github.com/percona/qan-api2/..." \
 			-tags maincover \
-			-race -c -o bin/qan-api.test
-	bin/qan-api.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
+			-race -c -o bin/qan-api2.test
+	bin/qan-api2.test -test.coverprofile=cover.out -test.run=TestMainCover $(RUN_FLAGS)
 
 _run:
-	qan-api $(RUN_FLAGS)
+	qan-api2 $(RUN_FLAGS)
 
 env-up:                         ## Run ClickHouse, MySQL Server and sysbench containers. Create pmm DB in ClickHouse.
 	mkdir -p logs
@@ -82,19 +82,3 @@ env-down:                       ## Remove docker containers.
 
 pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench containers.
 	docker-compose up pmm-server sysbench-ps
-
-deploy:
-	# docker exec pmm-server supervisorctl reload
-	docker exec pmm-server supervisorctl stop qan-api2
-	docker cp percona-qan-api2 pmm-server:/usr/sbin/percona-qan-api2
-	docker exec pmm-server supervisorctl start qan-api2
-
-ch-client:                      ## Connect to pmm DB.
-	docker exec -ti ch-server clickhouse client -d pmm
-
-ch-dump:                        ## Connect to pmm DB.
-	docker exec -ti ch-server clickhouse client -d pmm --query="SELECT * FROM metrics FORMAT Native" > queries.native
-	#docker exec -ti ch-server clickhouse client -d pmm --query="INSERT INTO queries FORMAT Native" < queries.native
-
-ps-client:
-	docker exec -ti ps-server mysql -uroot -psecret

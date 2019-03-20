@@ -1,4 +1,4 @@
-// qan-api
+// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -33,9 +33,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	"github.com/Percona-Lab/qan-api/models"
-	aservice "github.com/Percona-Lab/qan-api/services/analytics"
-	rservice "github.com/Percona-Lab/qan-api/services/receiver"
+	"github.com/percona/qan-api2/models"
+	aservice "github.com/percona/qan-api2/services/analytics"
+	rservice "github.com/percona/qan-api2/services/receiver"
 )
 
 const shutdownTimeout = 3 * time.Second

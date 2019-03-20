@@ -1,4 +1,4 @@
-// qan-api
+// qan-api2
 // Copyright (C) 2019 Percona LLC
 //
 // This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@ import (
 
 	"github.com/percona/pmm/api/qanpb"
 
-	"github.com/Percona-Lab/qan-api/models"
+	"github.com/percona/qan-api2/models"
 )
 
 func TestService_GetMetricsNames(t *testing.T) {
