@@ -22,25 +22,28 @@ import (
 
 	"github.com/AlekSi/pointer"
 	inventorypb "github.com/percona/pmm/api/inventory"
+	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
 type nodesServer struct {
-	s *inventory.NodesService
+	db *reform.DB
+	s  *inventory.NodesService
 }
 
 // NewNodesServer returns Inventory API handler for managing Nodes.
-func NewNodesServer(s *inventory.NodesService) inventorypb.NodesServer {
+func NewNodesServer(db *reform.DB, s *inventory.NodesService) inventorypb.NodesServer {
 	return &nodesServer{
-		s: s,
+		db: db,
+		s:  s,
 	}
 }
 
 // ListNodes returns a list of all Nodes.
 func (s *nodesServer) ListNodes(ctx context.Context, req *inventorypb.ListNodesRequest) (*inventorypb.ListNodesResponse, error) {
-	nodes, err := s.s.List(ctx)
+	nodes, err := s.s.List(ctx, s.db.Querier)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +68,7 @@ func (s *nodesServer) ListNodes(ctx context.Context, req *inventorypb.ListNodesR
 
 // GetNode returns a single Node by ID.
 func (s *nodesServer) GetNode(ctx context.Context, req *inventorypb.GetNodeRequest) (*inventorypb.GetNodeResponse, error) {
-	node, err := s.s.Get(ctx, req.NodeId)
+	node, err := s.s.Get(ctx, s.db.Querier, req.NodeId)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +91,7 @@ func (s *nodesServer) GetNode(ctx context.Context, req *inventorypb.GetNodeReque
 
 // AddGenericNode adds Generic Node.
 func (s *nodesServer) AddGenericNode(ctx context.Context, req *inventorypb.AddGenericNodeRequest) (*inventorypb.AddGenericNodeResponse, error) {
-	node, err := s.s.Add(ctx, models.GenericNodeType, req.NodeName, pointer.ToStringOrNil(req.Address), nil)
+	node, err := s.s.Add(ctx, s.db.Querier, models.GenericNodeType, req.NodeName, pointer.ToStringOrNil(req.Address), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +104,7 @@ func (s *nodesServer) AddGenericNode(ctx context.Context, req *inventorypb.AddGe
 
 // AddContainerNode adds Container Node.
 func (s *nodesServer) AddContainerNode(ctx context.Context, req *inventorypb.AddContainerNodeRequest) (*inventorypb.AddContainerNodeResponse, error) {
-	node, err := s.s.Add(ctx, models.ContainerNodeType, req.NodeName, nil, nil)
+	node, err := s.s.Add(ctx, s.db.Querier, models.ContainerNodeType, req.NodeName, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +117,7 @@ func (s *nodesServer) AddContainerNode(ctx context.Context, req *inventorypb.Add
 
 // AddRemoteNode adds Remote Node.
 func (s *nodesServer) AddRemoteNode(ctx context.Context, req *inventorypb.AddRemoteNodeRequest) (*inventorypb.AddRemoteNodeResponse, error) {
-	node, err := s.s.Add(ctx, models.RemoteNodeType, req.NodeName, nil, nil)
+	node, err := s.s.Add(ctx, s.db.Querier, models.RemoteNodeType, req.NodeName, nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +130,7 @@ func (s *nodesServer) AddRemoteNode(ctx context.Context, req *inventorypb.AddRem
 
 // AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
 func (s *nodesServer) AddRemoteAmazonRDSNode(ctx context.Context, req *inventorypb.AddRemoteAmazonRDSNodeRequest) (*inventorypb.AddRemoteAmazonRDSNodeResponse, error) {
-	node, err := s.s.Add(ctx, models.RemoteAmazonRDSNodeType, req.NodeName, &req.Instance, &req.Region)
+	node, err := s.s.Add(ctx, s.db.Querier, models.RemoteAmazonRDSNodeType, req.NodeName, &req.Instance, &req.Region)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +143,7 @@ func (s *nodesServer) AddRemoteAmazonRDSNode(ctx context.Context, req *inventory
 
 // ChangeGenericNode changes Generic Node.
 func (s *nodesServer) ChangeGenericNode(ctx context.Context, req *inventorypb.ChangeGenericNodeRequest) (*inventorypb.ChangeGenericNodeResponse, error) {
-	node, err := s.s.Change(ctx, req.NodeId, req.NodeName)
+	node, err := s.s.Change(ctx, s.db.Querier, req.NodeId, req.NodeName)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +156,7 @@ func (s *nodesServer) ChangeGenericNode(ctx context.Context, req *inventorypb.Ch
 
 // ChangeContainerNode changes Container Node.
 func (s *nodesServer) ChangeContainerNode(ctx context.Context, req *inventorypb.ChangeContainerNodeRequest) (*inventorypb.ChangeContainerNodeResponse, error) {
-	node, err := s.s.Change(ctx, req.NodeId, req.NodeName)
+	node, err := s.s.Change(ctx, s.db.Querier, req.NodeId, req.NodeName)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +169,7 @@ func (s *nodesServer) ChangeContainerNode(ctx context.Context, req *inventorypb.
 
 // ChangeRemoteNode changes Remote Node.
 func (s *nodesServer) ChangeRemoteNode(ctx context.Context, req *inventorypb.ChangeRemoteNodeRequest) (*inventorypb.ChangeRemoteNodeResponse, error) {
-	node, err := s.s.Change(ctx, req.NodeId, req.NodeName)
+	node, err := s.s.Change(ctx, s.db.Querier, req.NodeId, req.NodeName)
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +182,7 @@ func (s *nodesServer) ChangeRemoteNode(ctx context.Context, req *inventorypb.Cha
 
 // ChangeRemoteAmazonRDSNode changes Amazon (AWS) RDS remote Node.
 func (s *nodesServer) ChangeRemoteAmazonRDSNode(ctx context.Context, req *inventorypb.ChangeRemoteAmazonRDSNodeRequest) (*inventorypb.ChangeRemoteAmazonRDSNodeResponse, error) {
-	node, err := s.s.Change(ctx, req.NodeId, req.NodeName)
+	node, err := s.s.Change(ctx, s.db.Querier, req.NodeId, req.NodeName)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +195,7 @@ func (s *nodesServer) ChangeRemoteAmazonRDSNode(ctx context.Context, req *invent
 
 // RemoveNode removes Node without any Agents and Services.
 func (s *nodesServer) RemoveNode(ctx context.Context, req *inventorypb.RemoveNodeRequest) (*inventorypb.RemoveNodeResponse, error) {
-	if err := s.s.Remove(ctx, req.NodeId); err != nil {
+	if err := s.s.Remove(ctx, s.db.Querier, req.NodeId); err != nil {
 		return nil, err
 	}
 

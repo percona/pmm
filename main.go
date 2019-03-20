@@ -39,6 +39,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/percona/pmm/api/agentpb"
 	inventorypb "github.com/percona/pmm/api/inventory"
+	"github.com/percona/pmm/api/managementpb"
 	serverpb "github.com/percona/pmm/api/server"
 	"github.com/percona/pmm/version"
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -57,6 +58,7 @@ import (
 	"github.com/percona/pmm-managed/services/agents"
 	"github.com/percona/pmm-managed/services/inventory"
 	"github.com/percona/pmm-managed/services/logs"
+	"github.com/percona/pmm-managed/services/management"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
 	"github.com/percona/pmm-managed/services/telemetry"
@@ -132,6 +134,10 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
 
+	nodesSvc := inventory.NewNodesService(deps.agentsRegistry)
+	servicesSvc := inventory.NewServicesService(deps.agentsRegistry, nodesSvc)
+	agentsSvc := inventory.NewAgentsService(deps.db, deps.agentsRegistry)
+
 	gRPCServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.Unary,
@@ -149,14 +155,19 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 		Registry: deps.agentsRegistry,
 	})
 	inventorypb.RegisterNodesServer(gRPCServer, handlers.NewNodesServer(
-		inventory.NewNodesService(deps.db.Querier, deps.agentsRegistry),
+		deps.db,
+		nodesSvc,
 	))
 	inventorypb.RegisterServicesServer(gRPCServer, handlers.NewServicesServer(
-		inventory.NewServicesService(deps.db.Querier, deps.agentsRegistry),
+		deps.db,
+		servicesSvc,
 	))
 	inventorypb.RegisterAgentsServer(gRPCServer, handlers.NewAgentsServer(
-		inventory.NewAgentsService(deps.agentsRegistry),
+		agentsSvc,
 		deps.db,
+	))
+	managementpb.RegisterMySQLServer(gRPCServer, handlers.NewManagementMysqlServer(
+		management.NewMySQLService(deps.db, servicesSvc, agentsSvc),
 	))
 
 	if *debugF {
@@ -210,6 +221,7 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 		inventorypb.RegisterNodesHandlerFromEndpoint,
 		inventorypb.RegisterServicesHandlerFromEndpoint,
 		inventorypb.RegisterAgentsHandlerFromEndpoint,
+		managementpb.RegisterMySQLHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, *gRPCAddrF, opts); err != nil {
 			l.Panic(err)

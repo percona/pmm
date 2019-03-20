@@ -203,11 +203,12 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:af4510b7681a585b0215f95b4a6e9d43ef2250cde0883f320bd0bca8dd0a1ade"
+  digest = "1:deae2c007525597e0a381b617452cce69d259bc453c18ae1eb763ecb18dddb46"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
     "api/inventory",
+    "api/managementpb",
     "api/qanpb",
     "api/server",
     "version",
@@ -517,6 +518,7 @@
     "github.com/percona/exporter_shared/helpers",
     "github.com/percona/pmm/api/agentpb",
     "github.com/percona/pmm/api/inventory",
+    "github.com/percona/pmm/api/managementpb",
     "github.com/percona/pmm/api/qanpb",
     "github.com/percona/pmm/api/server",
     "github.com/percona/pmm/version",

@@ -46,7 +46,7 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgen
 		NodeID:     req.GetNodeId(),
 		ServiceID:  req.GetServiceId(),
 	}
-	agents, err := s.s.List(ctx, s.db, filters)
+	agents, err := s.s.List(ctx, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgen
 
 // GetAgent returns a single Agent by ID.
 func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRequest) (*inventorypb.GetAgentResponse, error) {
-	agent, err := s.s.Get(ctx, s.db, req.AgentId)
+	agent, err := s.s.Get(ctx, req.AgentId)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 
 // AddPMMAgent adds pmm-agent Agent.
 func (s *agentsServer) AddPMMAgent(ctx context.Context, req *inventorypb.AddPMMAgentRequest) (*inventorypb.AddPMMAgentResponse, error) {
-	agent, err := s.s.AddPMMAgent(ctx, s.db, req.RunsOnNodeId)
+	agent, err := s.s.AddPMMAgent(ctx, req.RunsOnNodeId)
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +116,7 @@ func (s *agentsServer) AddPMMAgent(ctx context.Context, req *inventorypb.AddPMMA
 
 // AddNodeExporter adds node_exporter Agent.
 func (s *agentsServer) AddNodeExporter(ctx context.Context, req *inventorypb.AddNodeExporterRequest) (*inventorypb.AddNodeExporterResponse, error) {
-	agent, err := s.s.AddNodeExporter(ctx, s.db, req)
+	agent, err := s.s.AddNodeExporter(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +129,7 @@ func (s *agentsServer) AddNodeExporter(ctx context.Context, req *inventorypb.Add
 
 // AddMySQLdExporter adds mysqld_exporter Agent.
 func (s *agentsServer) AddMySQLdExporter(ctx context.Context, req *inventorypb.AddMySQLdExporterRequest) (*inventorypb.AddMySQLdExporterResponse, error) {
-	agent, err := s.s.AddMySQLdExporter(ctx, s.db, req)
+	agent, err := s.s.AddMySQLdExporter(ctx, s.db.Querier, req)
 	if err != nil {
 		return nil, err
 	}
@@ -152,7 +152,7 @@ func (s *agentsServer) AddExternalExporter(ctx context.Context, req *inventorypb
 
 // AddMongoDBExporter adds mongodb_exporter Agent.
 func (s *agentsServer) AddMongoDBExporter(ctx context.Context, req *inventorypb.AddMongoDBExporterRequest) (*inventorypb.AddMongoDBExporterResponse, error) {
-	agent, err := s.s.AddMongoDBExporter(ctx, s.db, req)
+	agent, err := s.s.AddMongoDBExporter(ctx, s.db.Querier, req)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +165,7 @@ func (s *agentsServer) AddMongoDBExporter(ctx context.Context, req *inventorypb.
 
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 func (s *agentsServer) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *inventorypb.AddQANMySQLPerfSchemaAgentRequest) (*inventorypb.AddQANMySQLPerfSchemaAgentResponse, error) {
-	agent, err := s.s.AddQANMySQLPerfSchemaAgent(ctx, s.db, req)
+	agent, err := s.s.AddQANMySQLPerfSchemaAgent(ctx, s.db.Querier, req)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +178,7 @@ func (s *agentsServer) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *inve
 
 // RemoveAgent removes Agent.
 func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventorypb.RemoveAgentRequest) (*inventorypb.RemoveAgentResponse, error) {
-	if err := s.s.Remove(ctx, s.db, req.AgentId); err != nil {
+	if err := s.s.Remove(ctx, req.AgentId); err != nil {
 		return nil, err
 	}
 
