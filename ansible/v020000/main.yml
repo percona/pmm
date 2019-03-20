@@ -128,20 +128,6 @@
     - name: PMM                        | Restore configuration
       command: bash -c "/usr/bin/pmm-configure -grafana-db-path $(ls /srv/grafana/grafana.db /var/lib/grafana/grafana.db 2>/dev/null)"
 
-    - name: qan-api                    | Fix QAN API DSN
-      when: supervisorctl.stat.exists
-      replace:
-        dest: /etc/percona-qan-api.conf
-        regexp: 'percona:percona'
-        replace: 'qan-api:5goldenfipar'
-
-    - name: qan-api                    | Fix QAN API DSN
-      when: not supervisorctl.stat.exists
-      replace:
-        dest: /etc/percona-qan-api.conf
-        regexp: 'qan-api:5goldenfipar'
-        replace: 'percona:percona'
-
     - name: NGINX                      | Disable daemon
       when: supervisorctl.stat.exists
       lineinfile:
@@ -231,7 +217,7 @@
       with_items:
         - prometheus
         - node_exporter
-        - qan-api
+        - qan-api2
         - grafana
         - pmm-managed
         - clickhouse
@@ -242,7 +228,7 @@
       with_items:
         - prometheus
         - node_exporter
-        - percona-qan-api
+        - percona-qan-api2
         - grafana-server
         - pmm-managed
         - sshd
