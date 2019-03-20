@@ -14,6 +14,7 @@ func (*RDSExporter) agent()             {}
 func (*ExternalExporter) agent()        {}
 func (*MongoDBExporter) agent()         {}
 func (*QANMySQLPerfSchemaAgent) agent() {}
+func (*PostgresExporter) agent()        {}
 
 func (a *PMMAgent) ID() string                { return a.AgentId }
 func (a *NodeExporter) ID() string            { return a.AgentId }
@@ -22,3 +23,4 @@ func (a *RDSExporter) ID() string             { return a.AgentId }
 func (a *ExternalExporter) ID() string        { return a.AgentId }
 func (a *MongoDBExporter) ID() string         { return a.AgentId }
 func (a *QANMySQLPerfSchemaAgent) ID() string { return a.AgentId }
+func (a *PostgresExporter) ID() string        { return a.AgentId }
