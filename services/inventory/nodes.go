@@ -221,27 +221,6 @@ func (ns *NodesService) Add(ctx context.Context, q *reform.Querier, nodeType mod
 	return makeNode(row)
 }
 
-// Change updates Node by ID.
-func (ns *NodesService) Change(ctx context.Context, q *reform.Querier, id string, name string) (inventorypb.Node, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-	// ID is not 0, name is not empty and valid.
-
-	if err := ns.checkUniqueName(q, name); err != nil {
-		return nil, err
-	}
-
-	row, err := ns.get(ctx, q, id)
-	if err != nil {
-		return nil, err
-	}
-
-	row.NodeName = name
-	if err = q.Update(row); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return makeNode(row)
-}
-
 // Remove deletes Node by ID.
 //nolint:unparam
 func (ns *NodesService) Remove(ctx context.Context, q *reform.Querier, id string) error { //nolint:unparam

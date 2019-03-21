@@ -7,6 +7,7 @@ import github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-valid
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
+import _ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 import _ "google.golang.org/genproto/googleapis/api/annotations"
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -37,7 +38,18 @@ func (this *ReportReply) Validate() error {
 	}
 	return nil
 }
-func (this *ProfileRow) Validate() error {
+func (this *Row) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	for _, item := range this.Sparkline {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Sparkline", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *Metric) Validate() error {
 	if this.Stats != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Stats); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Stats", err)
@@ -45,6 +57,10 @@ func (this *ProfileRow) Validate() error {
 	}
 	return nil
 }
-func (this *Stats) Validate() error {
+func (this *Stat) Validate() error {
+	return nil
+}
+func (this *Point) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }

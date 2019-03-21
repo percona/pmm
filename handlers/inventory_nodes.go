@@ -141,58 +141,6 @@ func (s *nodesServer) AddRemoteAmazonRDSNode(ctx context.Context, req *inventory
 	return res, nil
 }
 
-// ChangeGenericNode changes Generic Node.
-func (s *nodesServer) ChangeGenericNode(ctx context.Context, req *inventorypb.ChangeGenericNodeRequest) (*inventorypb.ChangeGenericNodeResponse, error) {
-	node, err := s.s.Change(ctx, s.db.Querier, req.NodeId, req.NodeName)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &inventorypb.ChangeGenericNodeResponse{
-		Generic: node.(*inventorypb.GenericNode),
-	}
-	return res, nil
-}
-
-// ChangeContainerNode changes Container Node.
-func (s *nodesServer) ChangeContainerNode(ctx context.Context, req *inventorypb.ChangeContainerNodeRequest) (*inventorypb.ChangeContainerNodeResponse, error) {
-	node, err := s.s.Change(ctx, s.db.Querier, req.NodeId, req.NodeName)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &inventorypb.ChangeContainerNodeResponse{
-		Container: node.(*inventorypb.ContainerNode),
-	}
-	return res, nil
-}
-
-// ChangeRemoteNode changes Remote Node.
-func (s *nodesServer) ChangeRemoteNode(ctx context.Context, req *inventorypb.ChangeRemoteNodeRequest) (*inventorypb.ChangeRemoteNodeResponse, error) {
-	node, err := s.s.Change(ctx, s.db.Querier, req.NodeId, req.NodeName)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &inventorypb.ChangeRemoteNodeResponse{
-		Remote: node.(*inventorypb.RemoteNode),
-	}
-	return res, nil
-}
-
-// ChangeRemoteAmazonRDSNode changes Amazon (AWS) RDS remote Node.
-func (s *nodesServer) ChangeRemoteAmazonRDSNode(ctx context.Context, req *inventorypb.ChangeRemoteAmazonRDSNodeRequest) (*inventorypb.ChangeRemoteAmazonRDSNodeResponse, error) {
-	node, err := s.s.Change(ctx, s.db.Querier, req.NodeId, req.NodeName)
-	if err != nil {
-		return nil, err
-	}
-
-	res := &inventorypb.ChangeRemoteAmazonRDSNodeResponse{
-		RemoteAmazonRds: node.(*inventorypb.RemoteAmazonRDSNode),
-	}
-	return res, nil
-}
-
 // RemoveNode removes Node without any Agents and Services.
 func (s *nodesServer) RemoveNode(ctx context.Context, req *inventorypb.RemoveNodeRequest) (*inventorypb.RemoveNodeResponse, error) {
 	if err := s.s.Remove(ctx, s.db.Querier, req.NodeId); err != nil {

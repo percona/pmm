@@ -81,14 +81,6 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedNode, actualNode)
 
-		actualNode, err = ns.Change(ctx, q, "/node_id/00000000-0000-4000-8000-000000000001", "test-bm-new")
-		require.NoError(t, err)
-		expectedNode = &inventorypb.GenericNode{
-			NodeId:   "/node_id/00000000-0000-4000-8000-000000000001",
-			NodeName: "test-bm-new",
-		}
-		assert.Equal(t, expectedNode, actualNode)
-
 		actualNodes, err = ns.List(ctx, q)
 		require.NoError(t, err)
 		require.Len(t, actualNodes, 2)
@@ -152,28 +144,6 @@ func TestNodes(t *testing.T) {
 		tests.AssertGRPCError(t, expected, err)
 	})
 
-	t.Run("ChangeNotFound", func(t *testing.T) {
-		q, ns, teardown := setup(t)
-		defer teardown(t)
-
-		_, err := ns.Change(ctx, q, "no-such-id", "test-bm-new")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
-	})
-
-	t.Run("ChangeNameNotUnique", func(t *testing.T) {
-		q, ns, teardown := setup(t)
-		defer teardown(t)
-
-		_, err := ns.Add(ctx, q, models.RemoteNodeType, "test-remote", nil, nil)
-		require.NoError(t, err)
-
-		rdsNode, err := ns.Add(ctx, q, models.RemoteAmazonRDSNodeType, "test-rds", nil, nil)
-		require.NoError(t, err)
-
-		_, err = ns.Change(ctx, q, rdsNode.ID(), "test-remote")
-		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test-remote" already exists.`), err)
-	})
-
 	t.Run("RemoveNotFound", func(t *testing.T) {
 		q, ns, teardown := setup(t)
 		defer teardown(t)
@@ -230,17 +200,6 @@ func TestServices(t *testing.T) {
 
 		actualService, err := ss.Get(ctx, q, "/service_id/00000000-0000-4000-8000-000000000001")
 		require.NoError(t, err)
-		assert.Equal(t, expectedService, actualService)
-
-		actualService, err = ss.Change(ctx, q, "/service_id/00000000-0000-4000-8000-000000000001", "test-mysql-new")
-		require.NoError(t, err)
-		expectedService = &inventorypb.MySQLService{
-			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000001",
-			ServiceName: "test-mysql-new",
-			NodeId:      models.PMMServerNodeID,
-			Address:     "127.0.0.1",
-			Port:        3306,
-		}
 		assert.Equal(t, expectedService, actualService)
 
 		actualServices, err = ss.List(ctx, q)
@@ -307,28 +266,6 @@ func TestServices(t *testing.T) {
 
 		_, err := ss.AddMySQL(ctx, q, "test-mysql", "no-such-id", pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
-	})
-
-	t.Run("ChangeNotFound", func(t *testing.T) {
-		q, ss, teardown := setup(t)
-		defer teardown(t)
-
-		_, err := ss.Change(ctx, q, "no-such-id", "test-mysql-new")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "no-such-id" not found.`), err)
-	})
-
-	t.Run("ChangeNameNotUnique", func(t *testing.T) {
-		q, ss, teardown := setup(t)
-		defer teardown(t)
-
-		_, err := ss.AddMySQL(ctx, q, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
-		require.NoError(t, err)
-
-		s, err := ss.AddMySQL(ctx, q, "test-mysql-2", models.PMMServerNodeID, pointer.ToString("127.0.0.2"), pointer.ToUint16(3306))
-		require.NoError(t, err)
-
-		_, err = ss.Change(ctx, q, s.ID(), "test-mysql")
-		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Service with name "test-mysql" already exists.`), err)
 	})
 
 	t.Run("RemoveNotFound", func(t *testing.T) {

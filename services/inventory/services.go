@@ -223,27 +223,6 @@ func (ss *ServicesService) AddMongoDB(ctx context.Context, q *reform.Querier, na
 	return res.(*inventorypb.MongoDBService), nil
 }
 
-// Change updates Service by ID.
-func (ss *ServicesService) Change(ctx context.Context, q *reform.Querier, id string, name string) (inventorypb.Service, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-	// ID is not 0, name is not empty and valid.
-
-	if err := ss.checkUniqueName(ctx, q, name); err != nil {
-		return nil, err
-	}
-
-	row, err := ss.get(ctx, q, id)
-	if err != nil {
-		return nil, err
-	}
-
-	row.ServiceName = name
-	if err = q.Update(row); err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return makeService(row)
-}
-
 // Remove deletes Service by ID.
 //nolint:unparam
 func (ss *ServicesService) Remove(ctx context.Context, q *reform.Querier, id string) error {
