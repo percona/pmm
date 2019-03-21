@@ -79,7 +79,7 @@ var (
 	debugAddrF = flag.String("listen-debug-addr", "127.0.0.1:7773", "Debug server listen address")
 
 	prometheusConfigF = flag.String("prometheus-config", "", "Prometheus configuration file path")
-	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/", "Prometheus base URL")
+	prometheusURLF    = flag.String("prometheus-url", "http://127.0.0.1:9090/prometheus/", "Prometheus base URL")
 	promtoolF         = flag.String("promtool", "promtool", "promtool path")
 
 	grafanaAddrF = flag.String("grafana-addr", "127.0.0.1:3000", "Grafana HTTP API address")

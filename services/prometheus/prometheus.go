@@ -115,40 +115,67 @@ func (svc *Service) marshalConfig(ctx context.Context) ([]byte, error) {
 	}
 
 	e := svc.db.InTransaction(func(tx *reform.TX) error {
-		agents, err := tx.SelectAllFrom(models.AgentTable, "ORDER BY agent_id")
+		agents, err := tx.SelectAllFrom(models.AgentTable, "ORDER BY agent_type, agent_id")
 		if err != nil {
 			return errors.WithStack(err)
 		}
 		for _, str := range agents {
 			agent := str.(*models.Agent)
+			nodes, err := models.NodesForAgent(tx.Querier, agent.AgentID)
+			if err != nil {
+				return err
+			}
 			services, err := models.ServicesForAgent(tx.Querier, agent.AgentID)
 			if err != nil {
-				return errors.WithStack(err)
+				return err
 			}
-			for _, service := range services {
 
-				node := &models.Node{NodeID: service.NodeID}
-				if err = tx.Reload(node); err != nil {
-					return errors.WithStack(err)
+			switch agent.AgentType {
+			case models.PMMAgentType:
+				continue
+
+			case models.NodeExporterType:
+				for _, node := range nodes {
+					scfg, err := scrapeConfigForNodeExporter(node, agent)
+					if err != nil {
+						return err
+					}
+					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
 				}
 
-				switch service.ServiceType {
-				case models.MySQLServiceType:
+			case models.MySQLdExporterType:
+				for _, service := range services {
+					node := &models.Node{NodeID: service.NodeID}
+					if err = tx.Reload(node); err != nil {
+						return errors.WithStack(err)
+					}
+
 					scfgs, err := scrapeConfigsForMySQLdExporter(node, service, agent)
 					if err != nil {
 						return err
 					}
 					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
-				case models.MongoDBServiceType:
-					scfg, err := scrapeConfigsForMongoDBExporter(node, service, agent)
+				}
+
+			case models.MongoDBExporterType:
+				for _, service := range services {
+					node := &models.Node{NodeID: service.NodeID}
+					if err = tx.Reload(node); err != nil {
+						return errors.WithStack(err)
+					}
+
+					scfg, err := scrapeConfigForMongoDBExporter(node, service, agent)
 					if err != nil {
 						return err
 					}
 					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
-				default:
-					l.Warnf("Skipping scrape config for %s.", service)
-					continue
 				}
+
+			case models.QANMySQLPerfSchemaAgentType:
+				continue
+
+			default:
+				l.Warnf("Skipping scrape config for %s.", agent)
 			}
 		}
 		return nil
@@ -266,7 +293,7 @@ func (svc *Service) Check(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer resp.Body.Close() //nolint:errcheck
 	b, err := ioutil.ReadAll(resp.Body)
 	l.Debugf("Prometheus: %s", b)
 	if err != nil {

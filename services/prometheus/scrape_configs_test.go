@@ -34,9 +34,45 @@ import (
 )
 
 func TestScrapeConfig(t *testing.T) {
+	t.Run("scrapeConfigForNodeExporter", func(t *testing.T) {
+		t.Run("Normal", func(t *testing.T) {
+			node := &models.Node{
+				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address: pointer.ToString("1.2.3.4"),
+			}
+			agent := &models.Agent{
+				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+				AgentType:    models.NodeExporterType,
+				RunsOnNodeID: nil,
+				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:   pointer.ToUint16(12345),
+			}
+
+			expected := &config.ScrapeConfig{
+				JobName:        "node_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd",
+				ScrapeInterval: model.Duration(time.Second),
+				ScrapeTimeout:  model.Duration(time.Second),
+				MetricsPath:    "/metrics",
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+						Labels: model.LabelSet{
+							"_some_agent_label": "baz",
+							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+						},
+					}},
+				},
+			}
+
+			actual, err := scrapeConfigForNodeExporter(node, agent)
+			require.NoError(t, err)
+			assertScrappedConfigsEqual(t, expected, actual)
+		})
+	})
+
 	t.Run("scrapeConfigsForMySQLdExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
-			// Setup models
 			node := &models.Node{
 				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				Address: pointer.ToString("1.2.3.4"),
@@ -55,7 +91,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := []*config.ScrapeConfig{{
-				JobName:        "_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_hr",
 				ScrapeInterval: model.Duration(time.Second),
 				ScrapeTimeout:  model.Duration(time.Second),
 				MetricsPath:    "/metrics-hr",
@@ -71,7 +107,7 @@ func TestScrapeConfig(t *testing.T) {
 					}},
 				},
 			}, {
-				JobName:        "_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
 				ScrapeInterval: model.Duration(10 * time.Second),
 				ScrapeTimeout:  model.Duration(5 * time.Second),
 				MetricsPath:    "/metrics-mr",
@@ -87,7 +123,7 @@ func TestScrapeConfig(t *testing.T) {
 					}},
 				},
 			}, {
-				JobName:        "_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
+				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr",
 				ScrapeInterval: model.Duration(60 * time.Second),
 				ScrapeTimeout:  model.Duration(10 * time.Second),
 				MetricsPath:    "/metrics-lr",
@@ -104,10 +140,7 @@ func TestScrapeConfig(t *testing.T) {
 				},
 			}}
 
-			// Exercise scrapeConfigsForMySQLdExporter
 			actual, err := scrapeConfigsForMySQLdExporter(node, service, agent)
-
-			// Verify Results
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
 			for i := 0; i < len(expected); i++ {
@@ -116,7 +149,6 @@ func TestScrapeConfig(t *testing.T) {
 		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
-			// Setup models
 			node := &models.Node{}
 			service := &models.Service{}
 			agent := &models.Agent{
@@ -124,17 +156,13 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			// Exercise scrapeConfigsForMySQLdExporter
 			_, err := scrapeConfigsForMySQLdExporter(node, service, agent)
-
-			// Verify Results
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
 
-	t.Run("scrapeConfigsForMongoDBExporter", func(t *testing.T) {
+	t.Run("scrapeConfigForMongoDBExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
-			// Setup models
 			node := &models.Node{
 				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				Address: pointer.ToString("1.2.3.4"),
@@ -153,7 +181,7 @@ func TestScrapeConfig(t *testing.T) {
 			}
 
 			expected := &config.ScrapeConfig{
-				JobName:        "_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd",
+				JobName:        "mongodb_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd",
 				ScrapeInterval: model.Duration(time.Second),
 				ScrapeTimeout:  model.Duration(time.Second),
 				MetricsPath:    "/metrics",
@@ -170,16 +198,12 @@ func TestScrapeConfig(t *testing.T) {
 				},
 			}
 
-			// Exercise scrapeConfigsForMongoDBExporter
-			actual, err := scrapeConfigsForMongoDBExporter(node, service, agent)
-
-			// Verify Results
+			actual, err := scrapeConfigForMongoDBExporter(node, service, agent)
 			require.NoError(t, err)
 			assertScrappedConfigsEqual(t, expected, actual)
 		})
 
 		t.Run("BadCustomLabels", func(t *testing.T) {
-			// Setup models
 			node := &models.Node{}
 			service := &models.Service{}
 			agent := &models.Agent{
@@ -187,16 +211,12 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			// Exercise scrapeConfigsForMongoDBExporter
-			_, err := scrapeConfigsForMongoDBExporter(node, service, agent)
-
-			// Verify Results
+			_, err := scrapeConfigForMongoDBExporter(node, service, agent)
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
 
 	t.Run("commonExporterLabelSet", func(t *testing.T) {
-		// Setup models
 		node := &models.Node{
 			NodeID:              "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			NodeName:            "test-node",
@@ -231,10 +251,7 @@ func TestScrapeConfig(t *testing.T) {
 			model.LabelName("instance"): model.LabelValue("/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd"),
 		}
 
-		// Exercise commonExporterLabelSet
 		actual := commonExporterLabelSet(node, service, agent)
-
-		// Verify Results
 		assert.Equal(t, expected, actual, "Common labels is not Equal")
 	})
 }
