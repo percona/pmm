@@ -24,13 +24,18 @@ message FiltersRequest {
   google.protobuf.Timestamp to = 2;
 }
 
-// FiltersReply is map of labels for given period.
+// FiltersReply is map of labels for given period by key.
 message FiltersReply {
-  map<string, LabelsValues> labels = 1;
+  map<string, ListLabels> labels = 1;
 }
 
-// LabelsValues is label values and how many times this value occur.
-message LabelsValues {
+// ListLabels is list of label values.
+message ListLabels {
+  repeated NameAndCount values = 1;
+}
+
+// NameAndCount is label values and how many times this value occur.
+message NameAndCount {
   repeated string value = 1;
   repeated int64 count = 2;
 }

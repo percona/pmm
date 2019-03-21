@@ -32,6 +32,16 @@ func (this *FiltersReply) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *LabelsValues) Validate() error {
+func (this *ListLabels) Validate() error {
+	for _, item := range this.Values {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Values", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *NameAndCount) Validate() error {
 	return nil
 }

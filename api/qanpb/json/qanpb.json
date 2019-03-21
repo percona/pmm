@@ -47,26 +47,35 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "FiltersReply is map of labels for given period.",
+              "description": "FiltersReply is map of labels for given period by key.",
               "type": "object",
               "properties": {
                 "labels": {
                   "type": "object",
                   "additionalProperties": {
-                    "description": "LabelsValues is label values and how many times this value occur.",
+                    "description": "ListLabels is list of label values.",
                     "type": "object",
                     "properties": {
-                      "count": {
+                      "values": {
                         "type": "array",
                         "items": {
-                          "type": "string",
-                          "format": "int64"
-                        }
-                      },
-                      "value": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
+                          "description": "NameAndCount is label values and how many times this value occur.",
+                          "type": "object",
+                          "properties": {
+                            "count": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "format": "int64"
+                              }
+                            },
+                            "value": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
                         }
                       }
                     }

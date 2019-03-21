@@ -8,6 +8,7 @@ package filters
 import (
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -143,7 +144,7 @@ func (o *GetFiltersBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetFiltersOKBody FiltersReply is map of labels for given period.
+/*GetFiltersOKBody FiltersReply is map of labels for given period by key.
 swagger:model GetFiltersOKBody
 */
 type GetFiltersOKBody struct {
@@ -206,20 +207,51 @@ func (o *GetFiltersOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LabelsAnon LabelsValues is label values and how many times this value occur.
+/*LabelsAnon ListLabels is list of label values.
 swagger:model LabelsAnon
 */
 type LabelsAnon struct {
 
-	// count
-	Count []string `json:"count"`
-
-	// value
-	Value []string `json:"value"`
+	// values
+	Values []*LabelsAnonValuesItems0 `json:"values"`
 }
 
 // Validate validates this labels anon
 func (o *LabelsAnon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateValues(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *LabelsAnon) validateValues(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Values) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Values); i++ {
+		if swag.IsZero(o.Values[i]) { // not required
+			continue
+		}
+
+		if o.Values[i] != nil {
+			if err := o.Values[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("values" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -234,6 +266,41 @@ func (o *LabelsAnon) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *LabelsAnon) UnmarshalBinary(b []byte) error {
 	var res LabelsAnon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*LabelsAnonValuesItems0 NameAndCount is label values and how many times this value occur.
+swagger:model LabelsAnonValuesItems0
+*/
+type LabelsAnonValuesItems0 struct {
+
+	// count
+	Count []string `json:"count"`
+
+	// value
+	Value []string `json:"value"`
+}
+
+// Validate validates this labels anon values items0
+func (o *LabelsAnonValuesItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *LabelsAnonValuesItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *LabelsAnonValuesItems0) UnmarshalBinary(b []byte) error {
+	var res LabelsAnonValuesItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
