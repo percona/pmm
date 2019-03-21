@@ -3322,13 +3322,13 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "FiltersReply is map of labels and values for given period.",
+              "description": "FiltersReply is map of labels for given period.",
               "type": "object",
               "properties": {
                 "labels": {
-                  "type": "array",
-                  "items": {
-                    "description": "LabelsValues is label name as a key and values as a list.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "description": "LabelsValues is label values and how many times this value occur.",
                     "type": "object",
                     "properties": {
                       "count": {
@@ -3337,9 +3337,6 @@
                           "type": "string",
                           "format": "int64"
                         }
-                      },
-                      "key": {
-                        "type": "string"
                       },
                       "value": {
                         "type": "array",

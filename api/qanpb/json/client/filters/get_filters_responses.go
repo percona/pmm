@@ -8,7 +8,6 @@ package filters
 import (
 	"fmt"
 	"io"
-	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -144,13 +143,13 @@ func (o *GetFiltersBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetFiltersOKBody FiltersReply is map of labels and values for given period.
+/*GetFiltersOKBody FiltersReply is map of labels for given period.
 swagger:model GetFiltersOKBody
 */
 type GetFiltersOKBody struct {
 
 	// labels
-	Labels []*LabelsItems0 `json:"labels"`
+	Labels map[string]LabelsAnon `json:"labels,omitempty"`
 }
 
 // Validate validates this get filters o k body
@@ -173,16 +172,13 @@ func (o *GetFiltersOKBody) validateLabels(formats strfmt.Registry) error {
 		return nil
 	}
 
-	for i := 0; i < len(o.Labels); i++ {
-		if swag.IsZero(o.Labels[i]) { // not required
+	for k := range o.Labels {
+
+		if swag.IsZero(o.Labels[k]) { // not required
 			continue
 		}
-
-		if o.Labels[i] != nil {
-			if err := o.Labels[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("getFiltersOK" + "." + "labels" + "." + strconv.Itoa(i))
-				}
+		if val, ok := o.Labels[k]; ok {
+			if err := val.Validate(formats); err != nil {
 				return err
 			}
 		}
@@ -210,28 +206,25 @@ func (o *GetFiltersOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LabelsItems0 LabelsValues is label name as a key and values as a list.
-swagger:model LabelsItems0
+/*LabelsAnon LabelsValues is label values and how many times this value occur.
+swagger:model LabelsAnon
 */
-type LabelsItems0 struct {
+type LabelsAnon struct {
 
 	// count
 	Count []string `json:"count"`
-
-	// key
-	Key string `json:"key,omitempty"`
 
 	// value
 	Value []string `json:"value"`
 }
 
-// Validate validates this labels items0
-func (o *LabelsItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this labels anon
+func (o *LabelsAnon) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *LabelsItems0) MarshalBinary() ([]byte, error) {
+func (o *LabelsAnon) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -239,8 +232,8 @@ func (o *LabelsItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LabelsItems0) UnmarshalBinary(b []byte) error {
-	var res LabelsItems0
+func (o *LabelsAnon) UnmarshalBinary(b []byte) error {
+	var res LabelsAnon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
