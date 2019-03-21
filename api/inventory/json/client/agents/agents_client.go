@@ -249,6 +249,230 @@ func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK
 }
 
 /*
+ChangeExternalExporter changes external exporter changes external agent
+*/
+func (a *Client) ChangeExternalExporter(params *ChangeExternalExporterParams) (*ChangeExternalExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeExternalExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeExternalExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangeExternalExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeExternalExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeExternalExporterOK), nil
+
+}
+
+/*
+ChangeMongoDBExporter changes mongo DB exporter changes mongodb exporter agent
+*/
+func (a *Client) ChangeMongoDBExporter(params *ChangeMongoDBExporterParams) (*ChangeMongoDBExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeMongoDBExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeMongoDBExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangeMongoDBExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeMongoDBExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeMongoDBExporterOK), nil
+
+}
+
+/*
+ChangeMySqldExporter changes my sqld exporter changes mysqld exporter agent
+*/
+func (a *Client) ChangeMySqldExporter(params *ChangeMySqldExporterParams) (*ChangeMySqldExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeMySqldExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeMySQLdExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangeMySQLdExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeMySqldExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeMySqldExporterOK), nil
+
+}
+
+/*
+ChangeNodeExporter changes node exporter changes node exporter agent
+*/
+func (a *Client) ChangeNodeExporter(params *ChangeNodeExporterParams) (*ChangeNodeExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeNodeExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeNodeExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangeNodeExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeNodeExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeNodeExporterOK), nil
+
+}
+
+/*
+ChangePMMAgent changes PMM agent changes pmm agent agent
+*/
+func (a *Client) ChangePMMAgent(params *ChangePMMAgentParams) (*ChangePMMAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangePMMAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangePMMAgent",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangePMMAgent",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangePMMAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangePMMAgentOK), nil
+
+}
+
+/*
+ChangePostgresExporter changes postgres exporter changes postgres exporter agent
+*/
+func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*ChangePostgresExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangePostgresExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangePostgresExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangePostgresExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangePostgresExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangePostgresExporterOK), nil
+
+}
+
+/*
+ChangeQANMySQLPerfSchemaAgent changes QAN my SQL perf schema agent changes my SQL perf schema QAN agent
+*/
+func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaAgentParams) (*ChangeQANMySQLPerfSchemaAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeQANMySQLPerfSchemaAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeQANMySQLPerfSchemaAgent",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeQANMySQLPerfSchemaAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeQANMySQLPerfSchemaAgentOK), nil
+
+}
+
+/*
+ChangeRDSExporter changes RDS exporter changes rds exporter agent
+*/
+func (a *Client) ChangeRDSExporter(params *ChangeRDSExporterParams) (*ChangeRDSExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeRDSExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeRDSExporter",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangeRDSExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeRDSExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeRDSExporterOK), nil
+
+}
+
+/*
 GetAgent gets agent returns a single agent by ID
 */
 func (a *Client) GetAgent(params *GetAgentParams) (*GetAgentOK, error) {

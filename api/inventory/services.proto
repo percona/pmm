@@ -124,7 +124,7 @@ message GetServiceResponse {
   }
 }
 
-// Add/Change MySQL
+// Add MySQL
 
 message AddMySQLServiceRequest {
   // Unique randomly generated instance identifier.
@@ -161,42 +161,7 @@ message AddMySQLServiceResponse {
   MySQLService mysql = 1;
 }
 
-message ChangeMySQLServiceRequest {
-  // Unique randomly generated instance identifier. Required.
-  string service_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Unique across all Services user-defined name. Required.
-  string service_name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Node identifier where this instance runs. Can't be changed.
-  reserved 3;
-  // Access address (DNS name or IP). Required.
-  string address = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Access port. Required.
-  uint32 port = 5 [
-    (validator.field) = {
-      int_gt: 0
-    }
-  ];
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message ChangeMySQLServiceResponse {
-  MySQLService mysql = 1;
-}
-
-// Add/Change AmazonRDSMySQL
+// Add AmazonRDSMySQL
 
 message AddAmazonRDSMySQLServiceRequest {
   // Unique randomly generated instance identifier.
@@ -230,41 +195,6 @@ message AddAmazonRDSMySQLServiceRequest {
 }
 
 message AddAmazonRDSMySQLServiceResponse {
-  AmazonRDSMySQLService amazon_rds_mysql = 1;
-}
-
-message ChangeAmazonRDSMySQLServiceRequest {
-  // Unique randomly generated instance identifier. Required.
-  string service_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Unique across all Services user-defined name. Required.
-  string service_name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Node identifier where this instance runs. Can't be changed.
-  reserved 3;
-  // Instance endpoint (full DNS name). Required.
-  string address = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Instance port. Required.
-  uint32 port = 5 [
-    (validator.field) = {
-      int_gt: 0
-    }
-  ];
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message ChangeAmazonRDSMySQLServiceResponse {
   AmazonRDSMySQLService amazon_rds_mysql = 1;
 }
 
@@ -378,24 +308,10 @@ service Services {
       body: "*"
     };
   }
-  // ChangeMySQLService changes MySQL Service.
-  rpc ChangeMySQLService(ChangeMySQLServiceRequest) returns (ChangeMySQLServiceResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/ChangeMySQL"
-      body: "*"
-    };
-  }
   // AddAmazonRDSMySQLService adds AmazonRDSMySQL Service.
   rpc AddAmazonRDSMySQLService(AddAmazonRDSMySQLServiceRequest) returns (AddAmazonRDSMySQLServiceResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Services/AddAmazonRDSMySQL"
-      body: "*"
-    };
-  }
-  // ChangeAmazonRDSMySQLService changes AmazonRDSMySQL Service.
-  rpc ChangeAmazonRDSMySQLService(ChangeAmazonRDSMySQLServiceRequest) returns (ChangeAmazonRDSMySQLServiceResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Services/ChangeAmazonRDSMySQL"
       body: "*"
     };
   }
