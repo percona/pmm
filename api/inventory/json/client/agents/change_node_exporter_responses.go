@@ -121,11 +121,11 @@ type ChangeNodeExporterBody struct {
 	// custom labels
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// disable
-	Disable bool `json:"disable,omitempty"`
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
 
-	// enable
-	Enable bool `json:"enable,omitempty"`
+	// enabled
+	Enabled bool `json:"enabled,omitempty"`
 
 	// remove all custom labels
 	RemoveAllCustomLabels bool `json:"remove_all_custom_labels,omitempty"`
@@ -262,8 +262,8 @@ type ChangeNodeExporterOKBodyNodeExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Desired Agent status: enabled or disabled.
-	Enabled bool `json:"enabled,omitempty"`
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`

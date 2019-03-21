@@ -396,8 +396,8 @@
                         "type": "string"
                       }
                     },
-                    "enabled": {
-                      "description": "Desired Agent status: enabled or disabled.",
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -1182,11 +1182,11 @@
                     "type": "string"
                   }
                 },
-                "disable": {
+                "disabled": {
                   "type": "boolean",
                   "format": "boolean"
                 },
-                "enable": {
+                "enabled": {
                   "type": "boolean",
                   "format": "boolean"
                 },
@@ -1219,8 +1219,8 @@
                         "type": "string"
                       }
                     },
-                    "enabled": {
-                      "description": "Desired Agent status: enabled or disabled.",
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -1801,8 +1801,8 @@
                         "type": "string"
                       }
                     },
-                    "enabled": {
-                      "description": "Desired Agent status: enabled or disabled.",
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
                       "type": "boolean",
                       "format": "boolean"
                     },
@@ -2210,8 +2210,8 @@
                           "type": "string"
                         }
                       },
-                      "enabled": {
-                        "description": "Desired Agent status: enabled or disabled.",
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
                         "type": "boolean",
                         "format": "boolean"
                       },
