@@ -279,10 +279,10 @@ swagger:model LabelsAnonValuesItems0
 type LabelsAnonValuesItems0 struct {
 
 	// count
-	Count []string `json:"count"`
+	Count string `json:"count,omitempty"`
 
 	// value
-	Value []string `json:"value"`
+	Value string `json:"value,omitempty"`
 }
 
 // Validate validates this labels anon values items0

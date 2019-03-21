@@ -3338,17 +3338,11 @@
                           "type": "object",
                           "properties": {
                             "count": {
-                              "type": "array",
-                              "items": {
-                                "type": "string",
-                                "format": "int64"
-                              }
+                              "type": "string",
+                              "format": "int64"
                             },
                             "value": {
-                              "type": "array",
-                              "items": {
-                                "type": "string"
-                              }
+                              "type": "string"
                             }
                           }
                         }

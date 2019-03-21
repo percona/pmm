@@ -36,6 +36,6 @@ message ListLabels {
 
 // NameAndCount is label values and how many times this value occur.
 message NameAndCount {
-  repeated string value = 1;
-  repeated int64 count = 2;
+  string value = 1;
+  int64 count = 2;
 }
