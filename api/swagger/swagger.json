@@ -3331,6 +3331,13 @@
                     "description": "LabelsValues is label name as a key and values as a list.",
                     "type": "object",
                     "properties": {
+                      "count": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "format": "int64"
+                        }
+                      },
                       "key": {
                         "type": "string"
                       },

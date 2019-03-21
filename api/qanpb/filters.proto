@@ -33,4 +33,5 @@ message FiltersReply {
 message LabelsValues {
   string key = 1;
   repeated string value = 2;
+  repeated int64 count = 3;
 }

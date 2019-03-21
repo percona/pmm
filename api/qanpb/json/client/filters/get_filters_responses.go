@@ -215,6 +215,9 @@ swagger:model LabelsItems0
 */
 type LabelsItems0 struct {
 
+	// count
+	Count []string `json:"count"`
+
 	// key
 	Key string `json:"key,omitempty"`
 
