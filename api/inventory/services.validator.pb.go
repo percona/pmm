@@ -127,30 +127,6 @@ func (this *AddMySQLServiceResponse) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeMySQLServiceRequest) Validate() error {
-	if this.ServiceId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
-	}
-	if this.ServiceName == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
-	}
-	if this.Address == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
-	}
-	if !(this.Port > 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("Port", fmt.Errorf(`value '%v' must be greater than '0'`, this.Port))
-	}
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *ChangeMySQLServiceResponse) Validate() error {
-	if this.Mysql != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Mysql); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Mysql", err)
-		}
-	}
-	return nil
-}
 func (this *AddAmazonRDSMySQLServiceRequest) Validate() error {
 	if this.ServiceName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
@@ -168,30 +144,6 @@ func (this *AddAmazonRDSMySQLServiceRequest) Validate() error {
 	return nil
 }
 func (this *AddAmazonRDSMySQLServiceResponse) Validate() error {
-	if this.AmazonRdsMysql != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AmazonRdsMysql); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsMysql", err)
-		}
-	}
-	return nil
-}
-func (this *ChangeAmazonRDSMySQLServiceRequest) Validate() error {
-	if this.ServiceId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
-	}
-	if this.ServiceName == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
-	}
-	if this.Address == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
-	}
-	if !(this.Port > 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("Port", fmt.Errorf(`value '%v' must be greater than '0'`, this.Port))
-	}
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *ChangeAmazonRDSMySQLServiceResponse) Validate() error {
 	if this.AmazonRdsMysql != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.AmazonRdsMysql); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("AmazonRdsMysql", err)

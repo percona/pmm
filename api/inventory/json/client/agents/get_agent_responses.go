@@ -702,6 +702,9 @@ type GetAgentOKBodyNodeExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Desired Agent status: enabled or disabled.
+	Enabled bool `json:"enabled,omitempty"`
+
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 

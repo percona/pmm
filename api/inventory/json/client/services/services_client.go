@@ -137,62 +137,6 @@ func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddP
 }
 
 /*
-ChangeAmazonRDSMySQLService changes amazon RDS my SQL service changes amazon RDS my SQL service
-*/
-func (a *Client) ChangeAmazonRDSMySQLService(params *ChangeAmazonRDSMySQLServiceParams) (*ChangeAmazonRDSMySQLServiceOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewChangeAmazonRDSMySQLServiceParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeAmazonRDSMySQLService",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/ChangeAmazonRDSMySQL",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ChangeAmazonRDSMySQLServiceReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*ChangeAmazonRDSMySQLServiceOK), nil
-
-}
-
-/*
-ChangeMySQLService changes my SQL service changes my SQL service
-*/
-func (a *Client) ChangeMySQLService(params *ChangeMySQLServiceParams) (*ChangeMySQLServiceOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewChangeMySQLServiceParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeMySQLService",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/ChangeMySQL",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ChangeMySQLServiceReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*ChangeMySQLServiceOK), nil
-
-}
-
-/*
 GetService gets service returns a single service by ID
 */
 func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
