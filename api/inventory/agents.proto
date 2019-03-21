@@ -51,8 +51,8 @@ message NodeExporter {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
-  bool enabled = 3;
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
   // Actual Agent status.
   AgentStatus status = 4;
   // Listen port for scraping metrics.
@@ -77,7 +77,7 @@ message MySQLdExporter {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
+  // Desired Agent status: enabled (false) or disabled (true).
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 6;
 
@@ -103,7 +103,7 @@ message RDSExporter {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
+  // Desired Agent status: enabled (false) or disabled (true).
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 4;
 
@@ -125,9 +125,9 @@ message ExternalExporter {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
+  // Desired Agent status: enabled (false) or disabled (true).
   // TODO https://jira.percona.com/browse/PMM-3470
-  // bool enabled = 3;
+  // bool disabled = 3;
 
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
@@ -149,7 +149,7 @@ message MongoDBExporter {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
+  // Desired Agent status: enabled (false) or disabled (true).
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 6;
 
@@ -177,7 +177,7 @@ message QANMySQLPerfSchemaAgent {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
+  // Desired Agent status: enabled (false) or disabled (true).
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 6;
 
@@ -203,7 +203,7 @@ message PostgresExporter {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
+  // Desired Agent status: enabled (false) or disabled (true).
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 6;
 
@@ -308,9 +308,9 @@ message AddNodeExporterResponse {
 }
 
 message ChangeNodeExporterRequest {
-  oneof change_enabled {
-    bool enable = 1;
-    bool disable = 2;
+  oneof change_disabled {
+    bool enabled = 1;
+    bool disabled = 2;
   }
   map<string, string> custom_labels = 3;
   bool remove_all_custom_labels = 4;
