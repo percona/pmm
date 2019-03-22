@@ -111,6 +111,7 @@ const (
 	MySQLdExporterType          AgentType = "mysqld_exporter"
 	MongoDBExporterType         AgentType = "mongodb_exporter"
 	QANMySQLPerfSchemaAgentType AgentType = "qan-mysql-perfschema-agent"
+	PostgresExporterType        AgentType = "postgres_exporter"
 )
 
 // Agent represents Agent as stored in database.
