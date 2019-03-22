@@ -1176,7 +1176,11 @@
             "schema": {
               "type": "object",
               "properties": {
+                "agent_id": {
+                  "type": "string"
+                },
                 "custom_labels": {
+                  "description": "Replace all custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
@@ -1190,7 +1194,8 @@
                   "type": "boolean",
                   "format": "boolean"
                 },
-                "remove_all_custom_labels": {
+                "remove_custom_labels": {
+                  "description": "Remove all custom user-assigned labels.",
                   "type": "boolean",
                   "format": "boolean"
                 }

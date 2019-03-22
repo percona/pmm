@@ -217,6 +217,9 @@ func (this *AddNodeExporterResponse) Validate() error {
 	return nil
 }
 func (this *ChangeNodeExporterRequest) Validate() error {
+	if this.AgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
+	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }

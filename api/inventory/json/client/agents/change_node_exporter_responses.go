@@ -118,7 +118,10 @@ swagger:model ChangeNodeExporterBody
 */
 type ChangeNodeExporterBody struct {
 
-	// custom labels
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Replace all custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// disabled
@@ -127,8 +130,8 @@ type ChangeNodeExporterBody struct {
 	// enabled
 	Enabled bool `json:"enabled,omitempty"`
 
-	// remove all custom labels
-	RemoveAllCustomLabels bool `json:"remove_all_custom_labels,omitempty"`
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
 }
 
 // Validate validates this change node exporter body
