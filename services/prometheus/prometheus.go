@@ -121,6 +121,10 @@ func (svc *Service) marshalConfig(ctx context.Context) ([]byte, error) {
 		}
 		for _, str := range agents {
 			agent := str.(*models.Agent)
+			if agent.Disabled {
+				continue
+			}
+
 			nodes, err := models.NodesForAgent(tx.Querier, agent.AgentID)
 			if err != nil {
 				return err

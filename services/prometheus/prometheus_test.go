@@ -87,6 +87,7 @@ func TestPrometheus(t *testing.T) {
 				Address:      pointer.ToString("1.2.3.4"),
 				CustomLabels: []byte(`{"_node_label": "foo"}`),
 			},
+
 			&models.Service{
 				ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 				ServiceType:  models.MySQLServiceType,
@@ -95,6 +96,7 @@ func TestPrometheus(t *testing.T) {
 				Address:      pointer.ToString("5.6.7.8"),
 				CustomLabels: []byte(`{"_service_label": "bar"}`),
 			},
+
 			&models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.MySQLdExporterType,
@@ -104,6 +106,18 @@ func TestPrometheus(t *testing.T) {
 			&models.AgentService{
 				AgentID:   "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				ServiceID: "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+			},
+
+			// disabled
+			&models.Agent{
+				AgentID:    "/agent_id/4226ddb5-8197-443c-9891-7772b38324a7",
+				AgentType:  models.NodeExporterType,
+				Disabled:   true,
+				ListenPort: pointer.ToUint16(12345),
+			},
+			&models.AgentNode{
+				AgentID: "/agent_id/4226ddb5-8197-443c-9891-7772b38324a7",
+				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			},
 		} {
 			require.NoError(t, db.Insert(str))

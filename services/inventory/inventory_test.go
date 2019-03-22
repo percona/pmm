@@ -346,9 +346,21 @@ func TestAgents(t *testing.T) {
 		actualNodeExporter, err := as.AddNodeExporter(ctx, &inventorypb.AddNodeExporterRequest{
 			PmmAgentId: pmmAgent.AgentId,
 		})
-
 		require.NoError(t, err)
 		expectedNodeExporter := &inventorypb.NodeExporter{
+			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000002",
+			PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000001",
+		}
+		assert.Equal(t, expectedNodeExporter, actualNodeExporter)
+
+		actualNodeExporter, err = as.ChangeNodeExporter(ctx, &inventorypb.ChangeNodeExporterRequest{
+			AgentId: "/agent_id/00000000-0000-4000-8000-000000000002",
+			ChangeDisabled: &inventorypb.ChangeNodeExporterRequest_Disabled{
+				Disabled: true,
+			},
+		})
+		require.NoError(t, err)
+		expectedNodeExporter = &inventorypb.NodeExporter{
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000002",
 			PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000001",
 		}

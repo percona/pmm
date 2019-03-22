@@ -100,6 +100,7 @@ var databaseSchema = [][]string{
 			updated_at TIMESTAMP NOT NULL,
 
 			-- state
+			disabled BOOLEAN NOT NULL,
 			status VARCHAR NOT NULL,
 			listen_port INTEGER,
 			version VARCHAR CHECK (version <> ''),

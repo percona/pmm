@@ -131,8 +131,16 @@ func (s *agentsServer) AddNodeExporter(ctx context.Context, req *inventorypb.Add
 	return res, nil
 }
 
-func (s *agentsServer) ChangeNodeExporter(context.Context, *inventorypb.ChangeNodeExporterRequest) (*inventorypb.ChangeNodeExporterResponse, error) {
-	panic("not implemented")
+func (s *agentsServer) ChangeNodeExporter(ctx context.Context, req *inventorypb.ChangeNodeExporterRequest) (*inventorypb.ChangeNodeExporterResponse, error) {
+	agent, err := s.s.ChangeNodeExporter(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.ChangeNodeExporterResponse{
+		NodeExporter: agent,
+	}
+	return res, nil
 }
 
 // AddMySQLdExporter adds mysqld_exporter Agent.

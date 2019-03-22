@@ -336,6 +336,10 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 	agentProcesses := make(map[string]*agentpb.SetStateRequest_AgentProcess)
 	builtinAgents := make(map[string]*agentpb.SetStateRequest_BuiltinAgent)
 	for _, row := range agents {
+		if row.Disabled {
+			continue
+		}
+
 		switch row.AgentType {
 		case models.PMMAgentType:
 			continue
