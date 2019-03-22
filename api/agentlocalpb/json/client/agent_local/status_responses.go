@@ -6,11 +6,15 @@ package agent_local
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -110,6 +114,141 @@ func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer r
 	return nil
 }
 
+/*AgentsInfoItems0 AgentInfo returns information about agent which was runned by pmm-agent.
+swagger:model AgentsInfoItems0
+*/
+type AgentsInfoItems0 struct {
+
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
+
+	// logs
+	Logs string `json:"logs,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+}
+
+// Validate validates this agents info items0
+func (o *AgentsInfoItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var agentsInfoItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		agentsInfoItems0TypeStatusPropEnum = append(agentsInfoItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AgentsInfoItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AgentsInfoItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// AgentsInfoItems0StatusSTARTING captures enum value "STARTING"
+	AgentsInfoItems0StatusSTARTING string = "STARTING"
+
+	// AgentsInfoItems0StatusRUNNING captures enum value "RUNNING"
+	AgentsInfoItems0StatusRUNNING string = "RUNNING"
+
+	// AgentsInfoItems0StatusWAITING captures enum value "WAITING"
+	AgentsInfoItems0StatusWAITING string = "WAITING"
+
+	// AgentsInfoItems0StatusSTOPPING captures enum value "STOPPING"
+	AgentsInfoItems0StatusSTOPPING string = "STOPPING"
+
+	// AgentsInfoItems0StatusDONE captures enum value "DONE"
+	AgentsInfoItems0StatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *AgentsInfoItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, agentsInfoItems0TypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AgentsInfoItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AgentsInfoItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AgentsInfoItems0) UnmarshalBinary(b []byte) error {
+	var res AgentsInfoItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*StatusBody StatusRequest describes request to get local pmm-agent info.
+swagger:model StatusBody
+*/
+type StatusBody struct {
+
+	// show agent logs
+	ShowAgentLogs bool `json:"show_agent_logs,omitempty"`
+}
+
+// Validate validates this status body
+func (o *StatusBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StatusBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StatusBody) UnmarshalBinary(b []byte) error {
+	var res StatusBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*StatusDefaultBody ErrorResponse is a message returned on HTTP error.
 swagger:model StatusDefaultBody
 */
@@ -148,7 +287,7 @@ func (o *StatusDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StatusOKBody status OK body
+/*StatusOKBody StatusResponse return information about pmm-agent from local api.
 swagger:model StatusOKBody
 */
 type StatusOKBody struct {
@@ -156,12 +295,74 @@ type StatusOKBody struct {
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
-	// node id
-	NodeID string `json:"node_id,omitempty"`
+	// agents info
+	AgentsInfo []*AgentsInfoItems0 `json:"agents_info"`
+
+	// runs on node id
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+
+	// server info
+	ServerInfo *StatusOKBodyServerInfo `json:"server_info,omitempty"`
 }
 
 // Validate validates this status OK body
 func (o *StatusOKBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateAgentsInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateServerInfo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StatusOKBody) validateAgentsInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AgentsInfo) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.AgentsInfo); i++ {
+		if swag.IsZero(o.AgentsInfo[i]) { // not required
+			continue
+		}
+
+		if o.AgentsInfo[i] != nil {
+			if err := o.AgentsInfo[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("statusOk" + "." + "agents_info" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *StatusOKBody) validateServerInfo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ServerInfo) { // not required
+		return nil
+	}
+
+	if o.ServerInfo != nil {
+		if err := o.ServerInfo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("statusOk" + "." + "server_info")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -176,6 +377,47 @@ func (o *StatusOKBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *StatusOKBody) UnmarshalBinary(b []byte) error {
 	var res StatusOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*StatusOKBodyServerInfo ServerInfo returns information about server which agent was connected.
+swagger:model StatusOKBodyServerInfo
+*/
+type StatusOKBodyServerInfo struct {
+
+	// address
+	Address string `json:"address,omitempty"`
+
+	// last ping time
+	LastPingTime string `json:"last_ping_time,omitempty"`
+
+	// latency
+	Latency float32 `json:"latency,omitempty"`
+
+	// port
+	Port int64 `json:"port,omitempty"`
+}
+
+// Validate validates this status OK body server info
+func (o *StatusOKBodyServerInfo) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StatusOKBodyServerInfo) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StatusOKBodyServerInfo) UnmarshalBinary(b []byte) error {
+	var res StatusOKBodyServerInfo
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -62,7 +62,7 @@ for the status operation typically these are written to a http.Request
 type StatusParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body StatusBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +103,13 @@ func (o *StatusParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the status params
-func (o *StatusParams) WithBody(body interface{}) *StatusParams {
+func (o *StatusParams) WithBody(body StatusBody) *StatusParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the status params
-func (o *StatusParams) SetBody(body interface{}) {
+func (o *StatusParams) SetBody(body StatusBody) {
 	o.Body = body
 }
 
@@ -121,10 +121,8 @@ func (o *StatusParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Regist
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
