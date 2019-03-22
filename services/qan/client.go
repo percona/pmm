@@ -49,13 +49,18 @@ func (c *Client) Collect(ctx context.Context, req *qanpb.CollectRequest, agent *
 		c.l.Error(err)
 	}
 
-	for _, m := range req.MetricsBucket {
+	for i, m := range req.MetricsBucket {
 		if m.Labels == nil {
 			m.Labels = make(map[string]string)
 		}
 		for k, v := range labels {
 			m.Labels[k] = v
 		}
+		if m.AgentUuid == "" {
+			m.AgentUuid = agent.AgentID
+		}
+
+		req.MetricsBucket[i] = m
 	}
 
 	c.l.Debugf("%+v", req)
