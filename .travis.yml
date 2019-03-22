@@ -4,7 +4,7 @@ language: go
 
 go:
   - 1.12.x
-  - master
+  # - TODO master
 
 matrix:
   allow_failures:
@@ -20,7 +20,15 @@ script:
   - dep check
 
   - make check-license
+
+  # for main_test.go
   - make install
+
+  - make test-cover
+  - make test-race
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -X fix
 
 notifications:
   slack:

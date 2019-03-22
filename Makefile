@@ -27,6 +27,17 @@ install:                        ## Install pmm-admin binary.
 install-race:                   ## Install pmm-admin binary with race detector.
 	go install -v $(LD_FLAGS) -race ./...
 
+TEST_FLAGS ?=
+
+test:                           ## Run tests.
+	go test $(TEST_FLAGS) ./...
+
+test-race:                      ## Run tests with race detector.
+	go test $(TEST_FLAGS) -race ./...
+
+test-cover:                     ## Run tests and collect coverage information.
+	go test $(TEST_FLAGS) -coverprofile=cover.out -covermode=count ./...
+
 check-license:                  ## Check that all files have the same license header.
 	go run .github/check-license.go
 
