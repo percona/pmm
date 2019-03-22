@@ -33,7 +33,14 @@ func (o *AddRemoteNodeReader) ReadResponse(response runtime.ClientResponse, cons
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddRemoteNodeDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -51,12 +58,50 @@ type AddRemoteNodeOK struct {
 }
 
 func (o *AddRemoteNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] addRemoteNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] addRemoteNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *AddRemoteNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddRemoteNodeOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddRemoteNodeDefault creates a AddRemoteNodeDefault with default headers values
+func NewAddRemoteNodeDefault(code int) *AddRemoteNodeDefault {
+	return &AddRemoteNodeDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddRemoteNodeDefault handles this case with default header values.
+
+An error response.
+*/
+type AddRemoteNodeDefault struct {
+	_statusCode int
+
+	Payload *AddRemoteNodeDefaultBody
+}
+
+// Code gets the status code for the add remote node default response
+func (o *AddRemoteNodeDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddRemoteNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemote][%d] AddRemoteNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddRemoteNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddRemoteNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -101,7 +146,45 @@ func (o *AddRemoteNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteNodeOKBody add remote node o k body
+/*AddRemoteNodeDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddRemoteNodeDefaultBody
+*/
+type AddRemoteNodeDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add remote node default body
+func (o *AddRemoteNodeDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRemoteNodeDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRemoteNodeDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddRemoteNodeDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddRemoteNodeOKBody add remote node OK body
 swagger:model AddRemoteNodeOKBody
 */
 type AddRemoteNodeOKBody struct {
@@ -110,7 +193,7 @@ type AddRemoteNodeOKBody struct {
 	Remote *AddRemoteNodeOKBodyRemote `json:"remote,omitempty"`
 }
 
-// Validate validates this add remote node o k body
+// Validate validates this add remote node OK body
 func (o *AddRemoteNodeOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -133,7 +216,7 @@ func (o *AddRemoteNodeOKBody) validateRemote(formats strfmt.Registry) error {
 	if o.Remote != nil {
 		if err := o.Remote.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRemoteNodeOK" + "." + "remote")
+				return ve.ValidateName("addRemoteNodeOk" + "." + "remote")
 			}
 			return err
 		}
@@ -175,7 +258,7 @@ type AddRemoteNodeOKBodyRemote struct {
 	NodeName string `json:"node_name,omitempty"`
 }
 
-// Validate validates this add remote node o k body remote
+// Validate validates this add remote node OK body remote
 func (o *AddRemoteNodeOKBodyRemote) Validate(formats strfmt.Registry) error {
 	return nil
 }

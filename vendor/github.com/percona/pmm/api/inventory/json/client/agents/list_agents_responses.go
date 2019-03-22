@@ -36,7 +36,14 @@ func (o *ListAgentsReader) ReadResponse(response runtime.ClientResponse, consume
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewListAgentsDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -54,12 +61,50 @@ type ListAgentsOK struct {
 }
 
 func (o *ListAgentsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] listAgentsOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] listAgentsOk  %+v", 200, o.Payload)
 }
 
 func (o *ListAgentsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ListAgentsOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewListAgentsDefault creates a ListAgentsDefault with default headers values
+func NewListAgentsDefault(code int) *ListAgentsDefault {
+	return &ListAgentsDefault{
+		_statusCode: code,
+	}
+}
+
+/*ListAgentsDefault handles this case with default header values.
+
+An error response.
+*/
+type ListAgentsDefault struct {
+	_statusCode int
+
+	Payload *ListAgentsDefaultBody
+}
+
+// Code gets the status code for the list agents default response
+func (o *ListAgentsDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *ListAgentsDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/List][%d] ListAgents default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListAgentsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(ListAgentsDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -145,7 +190,45 @@ func (o *ListAgentsBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListAgentsOKBody list agents o k body
+/*ListAgentsDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model ListAgentsDefaultBody
+*/
+type ListAgentsDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this list agents default body
+func (o *ListAgentsDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListAgentsDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListAgentsDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ListAgentsDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListAgentsOKBody list agents OK body
 swagger:model ListAgentsOKBody
 */
 type ListAgentsOKBody struct {
@@ -165,6 +248,9 @@ type ListAgentsOKBody struct {
 	// pmm agent
 	PMMAgent []*PMMAgentItems0 `json:"pmm_agent"`
 
+	// postgres exporter
+	PostgresExporter []*PostgresExporterItems0 `json:"postgres_exporter"`
+
 	// qan mysql perfschema agent
 	QANMysqlPerfschemaAgent []*QANMysqlPerfschemaAgentItems0 `json:"qan_mysql_perfschema_agent"`
 
@@ -172,7 +258,7 @@ type ListAgentsOKBody struct {
 	RDSExporter []*RDSExporterItems0 `json:"rds_exporter"`
 }
 
-// Validate validates this list agents o k body
+// Validate validates this list agents OK body
 func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -193,6 +279,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validatePMMAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePostgresExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -224,7 +314,7 @@ func (o *ListAgentsOKBody) validateExternalExporter(formats strfmt.Registry) err
 		if o.ExternalExporter[i] != nil {
 			if err := o.ExternalExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "external_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "external_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -249,7 +339,7 @@ func (o *ListAgentsOKBody) validateMongodbExporter(formats strfmt.Registry) erro
 		if o.MongodbExporter[i] != nil {
 			if err := o.MongodbExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "mongodb_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "mongodb_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -274,7 +364,7 @@ func (o *ListAgentsOKBody) validateMysqldExporter(formats strfmt.Registry) error
 		if o.MysqldExporter[i] != nil {
 			if err := o.MysqldExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "mysqld_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "mysqld_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -299,7 +389,7 @@ func (o *ListAgentsOKBody) validateNodeExporter(formats strfmt.Registry) error {
 		if o.NodeExporter[i] != nil {
 			if err := o.NodeExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "node_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "node_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -324,7 +414,32 @@ func (o *ListAgentsOKBody) validatePMMAgent(formats strfmt.Registry) error {
 		if o.PMMAgent[i] != nil {
 			if err := o.PMMAgent[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "pmm_agent" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "pmm_agent" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validatePostgresExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PostgresExporter) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.PostgresExporter); i++ {
+		if swag.IsZero(o.PostgresExporter[i]) { // not required
+			continue
+		}
+
+		if o.PostgresExporter[i] != nil {
+			if err := o.PostgresExporter[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOk" + "." + "postgres_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -349,7 +464,7 @@ func (o *ListAgentsOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Regist
 		if o.QANMysqlPerfschemaAgent[i] != nil {
 			if err := o.QANMysqlPerfschemaAgent[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "qan_mysql_perfschema_agent" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "qan_mysql_perfschema_agent" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -374,7 +489,7 @@ func (o *ListAgentsOKBody) validateRDSExporter(formats strfmt.Registry) error {
 		if o.RDSExporter[i] != nil {
 			if err := o.RDSExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listAgentsOK" + "." + "rds_exporter" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listAgentsOk" + "." + "rds_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -650,6 +765,9 @@ type NodeExporterItems0 struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
@@ -782,6 +900,124 @@ func (o *PMMAgentItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *PMMAgentItems0) UnmarshalBinary(b []byte) error {
 	var res PMMAgentItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*PostgresExporterItems0 PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+swagger:model PostgresExporterItems0
+*/
+type PostgresExporterItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// PostgreSQL password for scraping metrics.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// PostgreSQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+}
+
+// Validate validates this postgres exporter items0
+func (o *PostgresExporterItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var postgresExporterItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		postgresExporterItems0TypeStatusPropEnum = append(postgresExporterItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// PostgresExporterItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	PostgresExporterItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// PostgresExporterItems0StatusSTARTING captures enum value "STARTING"
+	PostgresExporterItems0StatusSTARTING string = "STARTING"
+
+	// PostgresExporterItems0StatusRUNNING captures enum value "RUNNING"
+	PostgresExporterItems0StatusRUNNING string = "RUNNING"
+
+	// PostgresExporterItems0StatusWAITING captures enum value "WAITING"
+	PostgresExporterItems0StatusWAITING string = "WAITING"
+
+	// PostgresExporterItems0StatusSTOPPING captures enum value "STOPPING"
+	PostgresExporterItems0StatusSTOPPING string = "STOPPING"
+
+	// PostgresExporterItems0StatusDONE captures enum value "DONE"
+	PostgresExporterItems0StatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *PostgresExporterItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, postgresExporterItems0TypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *PostgresExporterItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *PostgresExporterItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *PostgresExporterItems0) UnmarshalBinary(b []byte) error {
+	var res PostgresExporterItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

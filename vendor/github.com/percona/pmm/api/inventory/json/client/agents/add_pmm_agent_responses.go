@@ -33,7 +33,14 @@ func (o *AddPMMAgentReader) ReadResponse(response runtime.ClientResponse, consum
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddPMMAgentDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -51,12 +58,50 @@ type AddPMMAgentOK struct {
 }
 
 func (o *AddPMMAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] addPmmAgentOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] addPmmAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *AddPMMAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddPMMAgentOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddPMMAgentDefault creates a AddPMMAgentDefault with default headers values
+func NewAddPMMAgentDefault(code int) *AddPMMAgentDefault {
+	return &AddPMMAgentDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddPMMAgentDefault handles this case with default header values.
+
+An error response.
+*/
+type AddPMMAgentDefault struct {
+	_statusCode int
+
+	Payload *AddPMMAgentDefaultBody
+}
+
+// Code gets the status code for the add PMM agent default response
+func (o *AddPMMAgentDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddPMMAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddPMMAgent][%d] AddPMMAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddPMMAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddPMMAgentDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -101,7 +146,45 @@ func (o *AddPMMAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddPMMAgentOKBody add PMM agent o k body
+/*AddPMMAgentDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddPMMAgentDefaultBody
+*/
+type AddPMMAgentDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add PMM agent default body
+func (o *AddPMMAgentDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddPMMAgentDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddPMMAgentDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddPMMAgentDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddPMMAgentOKBody add PMM agent OK body
 swagger:model AddPMMAgentOKBody
 */
 type AddPMMAgentOKBody struct {
@@ -110,7 +193,7 @@ type AddPMMAgentOKBody struct {
 	PMMAgent *AddPMMAgentOKBodyPMMAgent `json:"pmm_agent,omitempty"`
 }
 
-// Validate validates this add PMM agent o k body
+// Validate validates this add PMM agent OK body
 func (o *AddPMMAgentOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -133,7 +216,7 @@ func (o *AddPMMAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addPmmAgentOK" + "." + "pmm_agent")
+				return ve.ValidateName("addPmmAgentOk" + "." + "pmm_agent")
 			}
 			return err
 		}
@@ -178,7 +261,7 @@ type AddPMMAgentOKBodyPMMAgent struct {
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
-// Validate validates this add PMM agent o k body PMM agent
+// Validate validates this add PMM agent OK body PMM agent
 func (o *AddPMMAgentOKBodyPMMAgent) Validate(formats strfmt.Registry) error {
 	return nil
 }

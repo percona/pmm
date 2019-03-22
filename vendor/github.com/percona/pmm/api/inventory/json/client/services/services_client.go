@@ -53,7 +53,7 @@ func (a *Client) AddAmazonRDSMySQLService(params *AddAmazonRDSMySQLServiceParams
 }
 
 /*
-AddMongoDBService adds mongo d b service adds mongo d b service
+AddMongoDBService adds mongo DB service adds mongo DB service
 */
 func (a *Client) AddMongoDBService(params *AddMongoDBServiceParams) (*AddMongoDBServiceOK, error) {
 	// TODO: Validate the params before sending
@@ -109,58 +109,30 @@ func (a *Client) AddMySQLService(params *AddMySQLServiceParams) (*AddMySQLServic
 }
 
 /*
-ChangeAmazonRDSMySQLService changes amazon RDS my SQL service changes amazon RDS my SQL service
+AddPostgreSQLService adds postgre SQL service adds postgre SQL service
 */
-func (a *Client) ChangeAmazonRDSMySQLService(params *ChangeAmazonRDSMySQLServiceParams) (*ChangeAmazonRDSMySQLServiceOK, error) {
+func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddPostgreSQLServiceOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChangeAmazonRDSMySQLServiceParams()
+		params = NewAddPostgreSQLServiceParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeAmazonRDSMySQLService",
+		ID:                 "AddPostgreSQLService",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/ChangeAmazonRDSMySQL",
+		PathPattern:        "/v1/inventory/Services/AddPostgreSQL",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChangeAmazonRDSMySQLServiceReader{formats: a.formats},
+		Reader:             &AddPostgreSQLServiceReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeAmazonRDSMySQLServiceOK), nil
-
-}
-
-/*
-ChangeMySQLService changes my SQL service changes my SQL service
-*/
-func (a *Client) ChangeMySQLService(params *ChangeMySQLServiceParams) (*ChangeMySQLServiceOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewChangeMySQLServiceParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeMySQLService",
-		Method:             "POST",
-		PathPattern:        "/v1/inventory/Services/ChangeMySQL",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ChangeMySQLServiceReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*ChangeMySQLServiceOK), nil
+	return result.(*AddPostgreSQLServiceOK), nil
 
 }
 

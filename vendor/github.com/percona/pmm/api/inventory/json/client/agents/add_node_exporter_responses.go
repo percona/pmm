@@ -35,7 +35,14 @@ func (o *AddNodeExporterReader) ReadResponse(response runtime.ClientResponse, co
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddNodeExporterDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -53,12 +60,50 @@ type AddNodeExporterOK struct {
 }
 
 func (o *AddNodeExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] addNodeExporterOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] addNodeExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *AddNodeExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddNodeExporterOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddNodeExporterDefault creates a AddNodeExporterDefault with default headers values
+func NewAddNodeExporterDefault(code int) *AddNodeExporterDefault {
+	return &AddNodeExporterDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddNodeExporterDefault handles this case with default header values.
+
+An error response.
+*/
+type AddNodeExporterDefault struct {
+	_statusCode int
+
+	Payload *AddNodeExporterDefaultBody
+}
+
+// Code gets the status code for the add node exporter default response
+func (o *AddNodeExporterDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddNodeExporterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddNodeExporter][%d] AddNodeExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddNodeExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddNodeExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -103,7 +148,45 @@ func (o *AddNodeExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddNodeExporterOKBody add node exporter o k body
+/*AddNodeExporterDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddNodeExporterDefaultBody
+*/
+type AddNodeExporterDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add node exporter default body
+func (o *AddNodeExporterDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddNodeExporterDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddNodeExporterDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddNodeExporterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddNodeExporterOKBody add node exporter OK body
 swagger:model AddNodeExporterOKBody
 */
 type AddNodeExporterOKBody struct {
@@ -112,7 +195,7 @@ type AddNodeExporterOKBody struct {
 	NodeExporter *AddNodeExporterOKBodyNodeExporter `json:"node_exporter,omitempty"`
 }
 
-// Validate validates this add node exporter o k body
+// Validate validates this add node exporter OK body
 func (o *AddNodeExporterOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -135,7 +218,7 @@ func (o *AddNodeExporterOKBody) validateNodeExporter(formats strfmt.Registry) er
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addNodeExporterOK" + "." + "node_exporter")
+				return ve.ValidateName("addNodeExporterOk" + "." + "node_exporter")
 			}
 			return err
 		}
@@ -173,6 +256,9 @@ type AddNodeExporterOKBodyNodeExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
@@ -184,7 +270,7 @@ type AddNodeExporterOKBodyNodeExporter struct {
 	Status *string `json:"status,omitempty"`
 }
 
-// Validate validates this add node exporter o k body node exporter
+// Validate validates this add node exporter OK body node exporter
 func (o *AddNodeExporterOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -198,7 +284,7 @@ func (o *AddNodeExporterOKBodyNodeExporter) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addNodeExporterOKBodyNodeExporterTypeStatusPropEnum []interface{}
+var addNodeExporterOkBodyNodeExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -206,7 +292,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addNodeExporterOKBodyNodeExporterTypeStatusPropEnum = append(addNodeExporterOKBodyNodeExporterTypeStatusPropEnum, v)
+		addNodeExporterOkBodyNodeExporterTypeStatusPropEnum = append(addNodeExporterOkBodyNodeExporterTypeStatusPropEnum, v)
 	}
 }
 
@@ -233,7 +319,7 @@ const (
 
 // prop value enum
 func (o *AddNodeExporterOKBodyNodeExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addNodeExporterOKBodyNodeExporterTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, addNodeExporterOkBodyNodeExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -246,7 +332,7 @@ func (o *AddNodeExporterOKBodyNodeExporter) validateStatus(formats strfmt.Regist
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addNodeExporterOK"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addNodeExporterOk"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

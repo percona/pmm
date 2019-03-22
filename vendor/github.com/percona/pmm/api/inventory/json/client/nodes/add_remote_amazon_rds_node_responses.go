@@ -33,7 +33,14 @@ func (o *AddRemoteAmazonRDSNodeReader) ReadResponse(response runtime.ClientRespo
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddRemoteAmazonRDSNodeDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -51,12 +58,50 @@ type AddRemoteAmazonRDSNodeOK struct {
 }
 
 func (o *AddRemoteAmazonRDSNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteAmazonRDS][%d] addRemoteAmazonRdsNodeOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteAmazonRDS][%d] addRemoteAmazonRdsNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *AddRemoteAmazonRDSNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddRemoteAmazonRDSNodeOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddRemoteAmazonRDSNodeDefault creates a AddRemoteAmazonRDSNodeDefault with default headers values
+func NewAddRemoteAmazonRDSNodeDefault(code int) *AddRemoteAmazonRDSNodeDefault {
+	return &AddRemoteAmazonRDSNodeDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddRemoteAmazonRDSNodeDefault handles this case with default header values.
+
+An error response.
+*/
+type AddRemoteAmazonRDSNodeDefault struct {
+	_statusCode int
+
+	Payload *AddRemoteAmazonRDSNodeDefaultBody
+}
+
+// Code gets the status code for the add remote amazon RDS node default response
+func (o *AddRemoteAmazonRDSNodeDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddRemoteAmazonRDSNodeDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/AddRemoteAmazonRDS][%d] AddRemoteAmazonRDSNode default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddRemoteAmazonRDSNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddRemoteAmazonRDSNodeDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -107,7 +152,45 @@ func (o *AddRemoteAmazonRDSNodeBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRemoteAmazonRDSNodeOKBody add remote amazon RDS node o k body
+/*AddRemoteAmazonRDSNodeDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddRemoteAmazonRDSNodeDefaultBody
+*/
+type AddRemoteAmazonRDSNodeDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add remote amazon RDS node default body
+func (o *AddRemoteAmazonRDSNodeDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRemoteAmazonRDSNodeDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRemoteAmazonRDSNodeDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddRemoteAmazonRDSNodeDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddRemoteAmazonRDSNodeOKBody add remote amazon RDS node OK body
 swagger:model AddRemoteAmazonRDSNodeOKBody
 */
 type AddRemoteAmazonRDSNodeOKBody struct {
@@ -116,7 +199,7 @@ type AddRemoteAmazonRDSNodeOKBody struct {
 	RemoteAmazonRDS *AddRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS `json:"remote_amazon_rds,omitempty"`
 }
 
-// Validate validates this add remote amazon RDS node o k body
+// Validate validates this add remote amazon RDS node OK body
 func (o *AddRemoteAmazonRDSNodeOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -139,7 +222,7 @@ func (o *AddRemoteAmazonRDSNodeOKBody) validateRemoteAmazonRDS(formats strfmt.Re
 	if o.RemoteAmazonRDS != nil {
 		if err := o.RemoteAmazonRDS.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRemoteAmazonRdsNodeOK" + "." + "remote_amazon_rds")
+				return ve.ValidateName("addRemoteAmazonRdsNodeOk" + "." + "remote_amazon_rds")
 			}
 			return err
 		}
@@ -187,7 +270,7 @@ type AddRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS struct {
 	Region string `json:"region,omitempty"`
 }
 
-// Validate validates this add remote amazon RDS node o k body remote amazon RDS
+// Validate validates this add remote amazon RDS node OK body remote amazon RDS
 func (o *AddRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS) Validate(formats strfmt.Registry) error {
 	return nil
 }

@@ -33,7 +33,14 @@ func (o *AddMySQLServiceReader) ReadResponse(response runtime.ClientResponse, co
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddMySQLServiceDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -51,12 +58,50 @@ type AddMySQLServiceOK struct {
 }
 
 func (o *AddMySQLServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/AddMySQL][%d] addMySqlServiceOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMySQL][%d] addMySqlServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *AddMySQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddMySQLServiceOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddMySQLServiceDefault creates a AddMySQLServiceDefault with default headers values
+func NewAddMySQLServiceDefault(code int) *AddMySQLServiceDefault {
+	return &AddMySQLServiceDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddMySQLServiceDefault handles this case with default header values.
+
+An error response.
+*/
+type AddMySQLServiceDefault struct {
+	_statusCode int
+
+	Payload *AddMySQLServiceDefaultBody
+}
+
+// Code gets the status code for the add my SQL service default response
+func (o *AddMySQLServiceDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddMySQLServiceDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Services/AddMySQL][%d] AddMySQLService default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddMySQLServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddMySQLServiceDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -110,7 +155,45 @@ func (o *AddMySQLServiceBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMySQLServiceOKBody add my SQL service o k body
+/*AddMySQLServiceDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddMySQLServiceDefaultBody
+*/
+type AddMySQLServiceDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add my SQL service default body
+func (o *AddMySQLServiceDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddMySQLServiceDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddMySQLServiceDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddMySQLServiceDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddMySQLServiceOKBody add my SQL service OK body
 swagger:model AddMySQLServiceOKBody
 */
 type AddMySQLServiceOKBody struct {
@@ -119,7 +202,7 @@ type AddMySQLServiceOKBody struct {
 	Mysql *AddMySQLServiceOKBodyMysql `json:"mysql,omitempty"`
 }
 
-// Validate validates this add my SQL service o k body
+// Validate validates this add my SQL service OK body
 func (o *AddMySQLServiceOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -142,7 +225,7 @@ func (o *AddMySQLServiceOKBody) validateMysql(formats strfmt.Registry) error {
 	if o.Mysql != nil {
 		if err := o.Mysql.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMySqlServiceOK" + "." + "mysql")
+				return ve.ValidateName("addMySqlServiceOk" + "." + "mysql")
 			}
 			return err
 		}
@@ -193,7 +276,7 @@ type AddMySQLServiceOKBodyMysql struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this add my SQL service o k body mysql
+// Validate validates this add my SQL service OK body mysql
 func (o *AddMySQLServiceOKBodyMysql) Validate(formats strfmt.Registry) error {
 	return nil
 }
