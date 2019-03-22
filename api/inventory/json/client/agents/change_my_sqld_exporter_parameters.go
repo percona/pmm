@@ -62,7 +62,7 @@ for the change my sqld exporter operation typically these are written to a http.
 type ChangeMySqldExporterParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body ChangeMySqldExporterBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +103,13 @@ func (o *ChangeMySqldExporterParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the change my sqld exporter params
-func (o *ChangeMySqldExporterParams) WithBody(body interface{}) *ChangeMySqldExporterParams {
+func (o *ChangeMySqldExporterParams) WithBody(body ChangeMySqldExporterBody) *ChangeMySqldExporterParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the change my sqld exporter params
-func (o *ChangeMySqldExporterParams) SetBody(body interface{}) {
+func (o *ChangeMySqldExporterParams) SetBody(body ChangeMySqldExporterBody) {
 	o.Body = body
 }
 
@@ -121,10 +121,8 @@ func (o *ChangeMySqldExporterParams) WriteToRequest(r runtime.ClientRequest, reg
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {

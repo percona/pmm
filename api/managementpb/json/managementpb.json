@@ -102,6 +102,11 @@
                         "type": "string"
                       }
                     },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -152,6 +157,11 @@
                       "additionalProperties": {
                         "type": "string"
                       }
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
                     },
                     "password": {
                       "description": "MySQL password for getting performance data.",
