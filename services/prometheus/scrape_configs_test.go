@@ -239,11 +239,11 @@ func TestScrapeConfig(t *testing.T) {
 			ListenPort:   pointer.ToUint16(12345),
 		}
 		expected := model.LabelSet{
-			model.LabelName("node_id"):               model.LabelValue("/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d"),
-			model.LabelName("node_name"):             model.LabelValue("test-node"),
-			model.LabelName("machine_id"):            model.LabelValue("test-machine-id"),
-			model.LabelName("docker_container_id"):   model.LabelValue("cc663f36-0000-1111-2222-c6310bb4738d"),
-			model.LabelName("docker_container_name"): model.LabelValue("test-container-name"),
+			model.LabelName("node_id"):        model.LabelValue("/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d"),
+			model.LabelName("node_name"):      model.LabelValue("test-node"),
+			model.LabelName("machine_id"):     model.LabelValue("test-machine-id"),
+			model.LabelName("container_id"):   model.LabelValue("cc663f36-0000-1111-2222-c6310bb4738d"),
+			model.LabelName("container_name"): model.LabelValue("test-container-name"),
 
 			model.LabelName("service_id"):   model.LabelValue("/service_id/014647c3-b2f5-44eb-94f4-d943260a968c"),
 			model.LabelName("service_name"): model.LabelValue("test-service-name"),
