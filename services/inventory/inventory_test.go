@@ -71,7 +71,7 @@ func TestNodes(t *testing.T) {
 
 		actualNode, err := ns.Add(ctx, q, &AddNodeParams{
 			NodeType: models.GenericNodeType,
-			Name:     "test-bm",
+			NodeName: "test-bm",
 		})
 		require.NoError(t, err)
 		expectedNode := &inventorypb.GenericNode{
@@ -121,14 +121,14 @@ func TestNodes(t *testing.T) {
 
 		_, err := ns.Add(ctx, q, &AddNodeParams{
 			NodeType: models.GenericNodeType,
-			Name:     "test",
+			NodeName: "test",
 			Address:  pointer.ToString("test"),
 		})
 		require.NoError(t, err)
 
 		_, err = ns.Add(ctx, q, &AddNodeParams{
 			NodeType: models.RemoteNodeType,
-			Name:     "test",
+			NodeName: "test",
 		})
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test" already exists.`), err)
 	})
@@ -139,14 +139,14 @@ func TestNodes(t *testing.T) {
 
 		_, err := ns.Add(ctx, q, &AddNodeParams{
 			NodeType: models.GenericNodeType,
-			Name:     "test1",
+			NodeName: "test1",
 			Address:  pointer.ToString("test"),
 		})
 		require.NoError(t, err)
 
 		_, err = ns.Add(ctx, q, &AddNodeParams{
 			NodeType: models.GenericNodeType,
-			Name:     "test2",
+			NodeName: "test2",
 			Address:  pointer.ToString("test"),
 		})
 		require.NoError(t, err)
@@ -158,7 +158,7 @@ func TestNodes(t *testing.T) {
 
 		_, err := ns.Add(ctx, q, &AddNodeParams{
 			NodeType: models.RemoteAmazonRDSNodeType,
-			Name:     "test1",
+			NodeName: "test1",
 			Address:  pointer.ToString("test-instance"),
 			Region:   pointer.ToString("test-region"),
 		})
@@ -166,7 +166,7 @@ func TestNodes(t *testing.T) {
 
 		_, err = ns.Add(ctx, q, &AddNodeParams{
 			NodeType: models.RemoteAmazonRDSNodeType,
-			Name:     "test2",
+			NodeName: "test2",
 			Address:  pointer.ToString("test-instance"),
 			Region:   pointer.ToString("test-region"),
 		})

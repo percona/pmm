@@ -191,10 +191,16 @@ func (ns *NodesService) Get(ctx context.Context, q *reform.Querier, id string) (
 
 // AddNodeParams contains parameters for NodesService.Add method.
 type AddNodeParams struct {
-	NodeType models.NodeType
-	Name     string
-	Address  *string
-	Region   *string
+	NodeType            models.NodeType
+	NodeName            string
+	MachineID           *string
+	Distro              *string
+	DistroVersion       *string
+	DockerContainerID   *string
+	DockerContainerName *string
+	CustomLabels        map[string]string
+	Address             *string
+	Region              *string
 }
 
 // Add inserts Node with given parameters. ID will be generated.
@@ -207,7 +213,7 @@ func (ns *NodesService) Add(ctx context.Context, q *reform.Querier, params *AddN
 		return nil, err
 	}
 
-	if err := ns.checkUniqueName(q, params.Name); err != nil {
+	if err := ns.checkUniqueName(q, params.NodeName); err != nil {
 		return nil, err
 	}
 	if params.Address != nil && params.Region != nil {
@@ -217,11 +223,19 @@ func (ns *NodesService) Add(ctx context.Context, q *reform.Querier, params *AddN
 	}
 
 	row := &models.Node{
-		NodeID:   id,
-		NodeType: params.NodeType,
-		NodeName: params.Name,
-		Address:  params.Address,
-		Region:   params.Region,
+		NodeID:              id,
+		NodeType:            params.NodeType,
+		NodeName:            params.NodeName,
+		MachineID:           params.MachineID,
+		Distro:              params.Distro,
+		DistroVersion:       params.DistroVersion,
+		DockerContainerID:   params.DockerContainerID,
+		DockerContainerName: params.DockerContainerName,
+		Address:             params.Address,
+		Region:              params.Region,
+	}
+	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+		return nil, err
 	}
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
