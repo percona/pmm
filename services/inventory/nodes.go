@@ -189,7 +189,7 @@ func (ns *NodesService) Get(ctx context.Context, q *reform.Querier, id string) (
 	return makeNode(row)
 }
 
-// AddNodeParams contains parameters for NodesService.Add method.
+// AddNodeParams contains parameters for adding Nodes.
 type AddNodeParams struct {
 	NodeType            models.NodeType
 	NodeName            string

@@ -217,7 +217,12 @@ func TestServices(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualServices, 0)
 
-		actualMySQLService, err := ss.AddMySQL(ctx, q, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
+		actualMySQLService, err := ss.AddMySQL(ctx, q, &AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
 		require.NoError(t, err)
 		expectedService := &inventorypb.MySQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000001",
@@ -309,10 +314,20 @@ func TestServices(t *testing.T) {
 		q, ss, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ss.AddMySQL(ctx, q, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
+		_, err := ss.AddMySQL(ctx, q, &AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
 		require.NoError(t, err)
 
-		_, err = ss.AddMySQL(ctx, q, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
+		_, err = ss.AddMySQL(ctx, q, &AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Service with name "test-mysql" already exists.`), err)
 	})
 
@@ -320,7 +335,12 @@ func TestServices(t *testing.T) {
 		q, ss, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ss.AddMySQL(ctx, q, "test-mysql", "no-such-id", pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
+		_, err := ss.AddMySQL(ctx, q, &AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      "no-such-id",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
 	})
 
@@ -400,7 +420,12 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedNodeExporter, actualAgent)
 
-		s, err := ss.AddMySQL(ctx, db.Querier, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
+		s, err := ss.AddMySQL(ctx, db.Querier, &AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
 		require.NoError(t, err)
 
 		actualAgent, err = as.AddMySQLdExporter(ctx, db.Querier, &inventorypb.AddMySQLdExporterRequest{
