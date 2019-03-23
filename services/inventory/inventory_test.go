@@ -248,7 +248,12 @@ func TestServices(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000001" not found.`), err)
 		assert.Nil(t, actualService)
 
-		actualService, err = ss.AddMongoDB(ctx, q, "test-mongo", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(27017))
+		actualService, err = ss.AddMongoDB(ctx, q, &AddDBMSServiceParams{
+			ServiceName: "test-mongo",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(27017),
+		})
 		require.NoError(t, err)
 		expectedMdbService := &inventorypb.MongoDBService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000002",
@@ -274,7 +279,12 @@ func TestServices(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000002" not found.`), err)
 		assert.Nil(t, actualService)
 
-		actualService, err = ss.AddPostgreSQL(ctx, q, "test-postgres", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(5432))
+		actualService, err = ss.AddPostgreSQL(ctx, q, &AddDBMSServiceParams{
+			ServiceName: "test-postgres",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(5432),
+		})
 		require.NoError(t, err)
 		expectedPostgreSQLService := &inventorypb.PostgreSQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000003",
@@ -446,7 +456,12 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedMySQLdExporter, actualAgent)
 
-		ms, err := ss.AddMongoDB(ctx, db.Querier, "test-mongo", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(27017))
+		ms, err := ss.AddMongoDB(ctx, db.Querier, &AddDBMSServiceParams{
+			ServiceName: "test-mongo",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(27017),
+		})
 		require.NoError(t, err)
 
 		actualAgent, err = as.AddMongoDBExporter(ctx, db.Querier, &inventorypb.AddMongoDBExporterRequest{
@@ -467,7 +482,12 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedMongoDBExporter, actualAgent)
 
-		ps, err := ss.AddPostgreSQL(ctx, db.Querier, "test-postgres", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(5432))
+		ps, err := ss.AddPostgreSQL(ctx, db.Querier, &AddDBMSServiceParams{
+			ServiceName: "test-postgres",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(5432),
+		})
 		require.NoError(t, err)
 
 		actualAgent, err = as.AddPostgresExporter(ctx, db.Querier, &inventorypb.AddPostgresExporterRequest{
