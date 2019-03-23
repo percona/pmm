@@ -69,7 +69,10 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualNodes, 1) // PMMServerNodeType
 
-		actualNode, err := ns.Add(ctx, q, models.GenericNodeType, "test-bm", nil, nil)
+		actualNode, err := ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.GenericNodeType,
+			Name:     "test-bm",
+		})
 		require.NoError(t, err)
 		expectedNode := &inventorypb.GenericNode{
 			NodeId:   "/node_id/00000000-0000-4000-8000-000000000001",
@@ -106,7 +109,9 @@ func TestNodes(t *testing.T) {
 		q, ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, q, models.GenericNodeType, "", nil, nil)
+		_, err := ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.GenericNodeType,
+		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Node name.`), err)
 	})
 
@@ -114,10 +119,17 @@ func TestNodes(t *testing.T) {
 		q, ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, q, models.GenericNodeType, "test", pointer.ToString("test"), nil)
+		_, err := ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.GenericNodeType,
+			Name:     "test",
+			Address:  pointer.ToString("test"),
+		})
 		require.NoError(t, err)
 
-		_, err = ns.Add(ctx, q, models.RemoteNodeType, "test", nil, nil)
+		_, err = ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.RemoteNodeType,
+			Name:     "test",
+		})
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test" already exists.`), err)
 	})
 
@@ -125,10 +137,18 @@ func TestNodes(t *testing.T) {
 		q, ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, q, models.GenericNodeType, "test1", pointer.ToString("test"), nil)
+		_, err := ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.GenericNodeType,
+			Name:     "test1",
+			Address:  pointer.ToString("test"),
+		})
 		require.NoError(t, err)
 
-		_, err = ns.Add(ctx, q, models.GenericNodeType, "test2", pointer.ToString("test"), nil)
+		_, err = ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.GenericNodeType,
+			Name:     "test2",
+			Address:  pointer.ToString("test"),
+		})
 		require.NoError(t, err)
 	})
 
@@ -136,10 +156,20 @@ func TestNodes(t *testing.T) {
 		q, ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, q, models.RemoteAmazonRDSNodeType, "test1", pointer.ToString("test-instance"), pointer.ToString("test-region"))
+		_, err := ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.RemoteAmazonRDSNodeType,
+			Name:     "test1",
+			Address:  pointer.ToString("test-instance"),
+			Region:   pointer.ToString("test-region"),
+		})
 		require.NoError(t, err)
 
-		_, err = ns.Add(ctx, q, models.RemoteAmazonRDSNodeType, "test2", pointer.ToString("test-instance"), pointer.ToString("test-region"))
+		_, err = ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.RemoteAmazonRDSNodeType,
+			Name:     "test2",
+			Address:  pointer.ToString("test-instance"),
+			Region:   pointer.ToString("test-region"),
+		})
 		expected := status.New(codes.AlreadyExists, `Node with instance "test-instance" and region "test-region" already exists.`)
 		tests.AssertGRPCError(t, expected, err)
 	})

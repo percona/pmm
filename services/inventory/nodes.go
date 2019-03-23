@@ -189,8 +189,16 @@ func (ns *NodesService) Get(ctx context.Context, q *reform.Querier, id string) (
 	return makeNode(row)
 }
 
+// AddNodeParams contains parameters for NodesService.Add method.
+type AddNodeParams struct {
+	NodeType models.NodeType
+	Name     string
+	Address  *string
+	Region   *string
+}
+
 // Add inserts Node with given parameters. ID will be generated.
-func (ns *NodesService) Add(ctx context.Context, q *reform.Querier, nodeType models.NodeType, name string, address, region *string) (inventorypb.Node, error) { //nolint:unparam,lll
+func (ns *NodesService) Add(ctx context.Context, q *reform.Querier, params *AddNodeParams) (inventorypb.Node, error) { //nolint:unparam
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// No hostname for Container, etc.
 
@@ -199,21 +207,21 @@ func (ns *NodesService) Add(ctx context.Context, q *reform.Querier, nodeType mod
 		return nil, err
 	}
 
-	if err := ns.checkUniqueName(q, name); err != nil {
+	if err := ns.checkUniqueName(q, params.Name); err != nil {
 		return nil, err
 	}
-	if address != nil && region != nil {
-		if err := ns.checkUniqueInstanceRegion(q, *address, *region); err != nil {
+	if params.Address != nil && params.Region != nil {
+		if err := ns.checkUniqueInstanceRegion(q, *params.Address, *params.Region); err != nil {
 			return nil, err
 		}
 	}
 
 	row := &models.Node{
 		NodeID:   id,
-		NodeType: nodeType,
-		NodeName: name,
-		Address:  address,
-		Region:   region,
+		NodeType: params.NodeType,
+		NodeName: params.Name,
+		Address:  params.Address,
+		Region:   params.Region,
 	}
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)

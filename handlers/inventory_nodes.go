@@ -91,7 +91,12 @@ func (s *nodesServer) GetNode(ctx context.Context, req *inventorypb.GetNodeReque
 
 // AddGenericNode adds Generic Node.
 func (s *nodesServer) AddGenericNode(ctx context.Context, req *inventorypb.AddGenericNodeRequest) (*inventorypb.AddGenericNodeResponse, error) {
-	node, err := s.s.Add(ctx, s.db.Querier, models.GenericNodeType, req.NodeName, pointer.ToStringOrNil(req.Address), nil)
+	params := &inventory.AddNodeParams{
+		NodeType: models.GenericNodeType,
+		Name:     req.NodeName,
+		Address:  pointer.ToStringOrNil(req.Address),
+	}
+	node, err := s.s.Add(ctx, s.db.Querier, params)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +109,11 @@ func (s *nodesServer) AddGenericNode(ctx context.Context, req *inventorypb.AddGe
 
 // AddContainerNode adds Container Node.
 func (s *nodesServer) AddContainerNode(ctx context.Context, req *inventorypb.AddContainerNodeRequest) (*inventorypb.AddContainerNodeResponse, error) {
-	node, err := s.s.Add(ctx, s.db.Querier, models.ContainerNodeType, req.NodeName, nil, nil)
+	params := &inventory.AddNodeParams{
+		NodeType: models.ContainerNodeType,
+		Name:     req.NodeName,
+	}
+	node, err := s.s.Add(ctx, s.db.Querier, params)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +126,11 @@ func (s *nodesServer) AddContainerNode(ctx context.Context, req *inventorypb.Add
 
 // AddRemoteNode adds Remote Node.
 func (s *nodesServer) AddRemoteNode(ctx context.Context, req *inventorypb.AddRemoteNodeRequest) (*inventorypb.AddRemoteNodeResponse, error) {
-	node, err := s.s.Add(ctx, s.db.Querier, models.RemoteNodeType, req.NodeName, nil, nil)
+	params := &inventory.AddNodeParams{
+		NodeType: models.RemoteNodeType,
+		Name:     req.NodeName,
+	}
+	node, err := s.s.Add(ctx, s.db.Querier, params)
 	if err != nil {
 		return nil, err
 	}
@@ -130,7 +143,13 @@ func (s *nodesServer) AddRemoteNode(ctx context.Context, req *inventorypb.AddRem
 
 // AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
 func (s *nodesServer) AddRemoteAmazonRDSNode(ctx context.Context, req *inventorypb.AddRemoteAmazonRDSNodeRequest) (*inventorypb.AddRemoteAmazonRDSNodeResponse, error) {
-	node, err := s.s.Add(ctx, s.db.Querier, models.RemoteAmazonRDSNodeType, req.NodeName, &req.Instance, &req.Region)
+	params := &inventory.AddNodeParams{
+		NodeType: models.RemoteAmazonRDSNodeType,
+		Name:     req.NodeName,
+		Address:  &req.Instance,
+		Region:   &req.Region,
+	}
+	node, err := s.s.Add(ctx, s.db.Querier, params)
 	if err != nil {
 		return nil, err
 	}
