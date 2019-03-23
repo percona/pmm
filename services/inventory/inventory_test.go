@@ -400,7 +400,9 @@ func TestAgents(t *testing.T) {
 
 		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
 		as.r.(*mockRegistry).On("SendSetStateRequest", ctx, "/agent_id/00000000-0000-4000-8000-000000000001")
-		pmmAgent, err := as.AddPMMAgent(ctx, models.PMMServerNodeID)
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
 		require.NoError(t, err)
 
 		actualNodeExporter, err := as.AddNodeExporter(ctx, &inventorypb.AddNodeExporterRequest{
@@ -600,7 +602,9 @@ func TestAgents(t *testing.T) {
 		defer teardown(t)
 
 		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(false)
-		actualAgent, err := as.AddPMMAgent(ctx, models.PMMServerNodeID)
+		actualAgent, err := as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
 		require.NoError(t, err)
 		expectedPMMAgent := &inventorypb.PMMAgent{
 			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000001",
@@ -610,7 +614,9 @@ func TestAgents(t *testing.T) {
 		assert.Equal(t, expectedPMMAgent, actualAgent)
 
 		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000002").Return(true)
-		actualAgent, err = as.AddPMMAgent(ctx, models.PMMServerNodeID)
+		actualAgent, err = as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
 		require.NoError(t, err)
 		expectedPMMAgent = &inventorypb.PMMAgent{
 			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000002",
@@ -635,7 +641,9 @@ func TestAgents(t *testing.T) {
 		defer teardown(t)
 
 		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
-		pmmAgent, err := as.AddPMMAgent(ctx, models.PMMServerNodeID)
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
 		require.NoError(t, err)
 
 		_, err = as.AddMySQLdExporter(ctx, db.Querier, &inventorypb.AddMySQLdExporterRequest{
