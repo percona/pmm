@@ -59,7 +59,10 @@
                         "type": "string"
                       },
                       "logs": {
-                        "type": "string"
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
                       },
                       "status": {
                         "description": "AgentStatus represents actual Agent status.",
@@ -84,19 +87,19 @@
                   "description": "ServerInfo returns information about server which agent was connected.",
                   "type": "object",
                   "properties": {
-                    "address": {
-                      "type": "string"
+                    "insecure_tls": {
+                      "type": "boolean",
+                      "format": "boolean"
                     },
                     "last_ping_time": {
                       "type": "string"
                     },
                     "latency": {
-                      "type": "number",
-                      "format": "float"
+                      "type": "string",
+                      "format": "date-time"
                     },
-                    "port": {
-                      "type": "integer",
-                      "format": "int64"
+                    "url": {
+                      "type": "string"
                     }
                   }
                 }

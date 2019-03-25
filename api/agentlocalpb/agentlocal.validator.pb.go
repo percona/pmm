@@ -7,6 +7,7 @@ import github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-valid
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
+import _ "github.com/golang/protobuf/ptypes/timestamp"
 import _ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 import _ "github.com/percona/pmm/api/inventory"
 import _ "google.golang.org/genproto/googleapis/api/annotations"
@@ -17,6 +18,11 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *ServerInfo) Validate() error {
+	if this.Latency != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Latency); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Latency", err)
+		}
+	}
 	return nil
 }
 func (this *AgentInfo) Validate() error {

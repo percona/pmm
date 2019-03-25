@@ -123,7 +123,7 @@ type AgentsInfoItems0 struct {
 	AgentID string `json:"agent_id,omitempty"`
 
 	// logs
-	Logs string `json:"logs,omitempty"`
+	Logs []string `json:"logs"`
 
 	// AgentStatus represents actual Agent status.
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
@@ -389,21 +389,44 @@ swagger:model StatusOKBodyServerInfo
 */
 type StatusOKBodyServerInfo struct {
 
-	// address
-	Address string `json:"address,omitempty"`
+	// insecure tls
+	InsecureTLS bool `json:"insecure_tls,omitempty"`
 
 	// last ping time
 	LastPingTime string `json:"last_ping_time,omitempty"`
 
 	// latency
-	Latency float32 `json:"latency,omitempty"`
+	// Format: date-time
+	Latency strfmt.DateTime `json:"latency,omitempty"`
 
-	// port
-	Port int64 `json:"port,omitempty"`
+	// url
+	URL string `json:"url,omitempty"`
 }
 
 // Validate validates this status OK body server info
 func (o *StatusOKBodyServerInfo) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateLatency(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *StatusOKBodyServerInfo) validateLatency(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Latency) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("statusOk"+"."+"server_info"+"."+"latency", "body", "date-time", o.Latency.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
