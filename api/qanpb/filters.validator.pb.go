@@ -16,14 +16,14 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *FiltersRequest) Validate() error {
-	if this.From != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.From); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("From", err)
+	if this.PeriodStartFrom != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PeriodStartFrom); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PeriodStartFrom", err)
 		}
 	}
-	if this.To != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.To); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("To", err)
+	if this.PeriodStartTo != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PeriodStartTo); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PeriodStartTo", err)
 		}
 	}
 	return nil

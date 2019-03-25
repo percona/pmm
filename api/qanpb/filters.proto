@@ -20,8 +20,8 @@ service Filters {
 
 // FiltersRequest contains period for which we need filters.
 message FiltersRequest {
-  google.protobuf.Timestamp from = 1;
-  google.protobuf.Timestamp to = 2;
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
 }
 
 // FiltersReply is map of labels for given period by key.

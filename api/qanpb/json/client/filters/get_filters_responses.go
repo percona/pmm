@@ -73,24 +73,24 @@ swagger:model GetFiltersBody
 */
 type GetFiltersBody struct {
 
-	// from
+	// period start from
 	// Format: date-time
-	From strfmt.DateTime `json:"from,omitempty"`
+	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
 
-	// to
+	// period start to
 	// Format: date-time
-	To strfmt.DateTime `json:"to,omitempty"`
+	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
 }
 
 // Validate validates this get filters body
 func (o *GetFiltersBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateFrom(formats); err != nil {
+	if err := o.validatePeriodStartFrom(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := o.validateTo(formats); err != nil {
+	if err := o.validatePeriodStartTo(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -100,26 +100,26 @@ func (o *GetFiltersBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetFiltersBody) validateFrom(formats strfmt.Registry) error {
+func (o *GetFiltersBody) validatePeriodStartFrom(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.From) { // not required
+	if swag.IsZero(o.PeriodStartFrom) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"from", "body", "date-time", o.From.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"period_start_from", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (o *GetFiltersBody) validateTo(formats strfmt.Registry) error {
+func (o *GetFiltersBody) validatePeriodStartTo(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.To) { // not required
+	if swag.IsZero(o.PeriodStartTo) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("body"+"."+"to", "body", "date-time", o.To.String(), formats); err != nil {
+	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
 		return err
 	}
 

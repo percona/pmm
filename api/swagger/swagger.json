@@ -3306,11 +3306,11 @@
               "description": "FiltersRequest contains period for which we need filters.",
               "type": "object",
               "properties": {
-                "from": {
+                "period_start_from": {
                   "type": "string",
                   "format": "date-time"
                 },
-                "to": {
+                "period_start_to": {
                   "type": "string",
                   "format": "date-time"
                 }
@@ -4147,20 +4147,7 @@
                     "type": "string"
                   }
                 },
-                "first_seen": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
                 "group_by": {
-                  "type": "string"
-                },
-                "include_only_fields": {
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "keyword": {
                   "type": "string"
                 },
                 "labels": {
@@ -4193,10 +4180,12 @@
                   "type": "string"
                 },
                 "period_start_from": {
-                  "type": "string"
+                  "type": "string",
+                  "format": "date-time"
                 },
                 "period_start_to": {
-                  "type": "string"
+                  "type": "string",
+                  "format": "date-time"
                 }
               }
             }

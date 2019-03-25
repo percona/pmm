@@ -5,6 +5,7 @@ package qan;
 option go_package = "qanpb";
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 // Profile of metrics by QueryID, Host etc.
 service Profile {
@@ -19,17 +20,14 @@ service Profile {
 
 // ReportRequest defines filtering of metrics report for db server or other dimentions.
 message ReportRequest {
-  string period_start_from = 1;
-  string period_start_to = 2;
-  string keyword = 3;
-  bool first_seen = 4;
-  string group_by = 5;
-  repeated ReportMapFieldEntry labels = 6;
-  repeated string include_only_fields = 7;
-  string order_by = 8;
-  uint32 offset = 9;
-  uint32 limit = 10;
-  repeated string columns = 11;
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
+  string group_by = 3;
+  repeated ReportMapFieldEntry labels = 4;
+  repeated string columns = 5;
+  string order_by = 6;
+  uint32 offset = 7;
+  uint32 limit = 8;
 }
 
 // ReportMapFieldEntry allows to pass labels/dimentions in form like {"d_server": ["db1", "db2"...]}.
