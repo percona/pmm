@@ -69,7 +69,10 @@ func TestNodes(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualNodes, 1) // PMMServerNodeType
 
-		actualNode, err := ns.Add(ctx, q, models.GenericNodeType, "test-bm", nil, nil)
+		actualNode, err := ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.GenericNodeType,
+			NodeName: "test-bm",
+		})
 		require.NoError(t, err)
 		expectedNode := &inventorypb.GenericNode{
 			NodeId:   "/node_id/00000000-0000-4000-8000-000000000001",
@@ -106,7 +109,9 @@ func TestNodes(t *testing.T) {
 		q, ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, q, models.GenericNodeType, "", nil, nil)
+		_, err := ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.GenericNodeType,
+		})
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Node name.`), err)
 	})
 
@@ -114,10 +119,17 @@ func TestNodes(t *testing.T) {
 		q, ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, q, models.GenericNodeType, "test", pointer.ToString("test"), nil)
+		_, err := ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.GenericNodeType,
+			NodeName: "test",
+			Address:  pointer.ToString("test"),
+		})
 		require.NoError(t, err)
 
-		_, err = ns.Add(ctx, q, models.RemoteNodeType, "test", nil, nil)
+		_, err = ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.RemoteNodeType,
+			NodeName: "test",
+		})
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Node with name "test" already exists.`), err)
 	})
 
@@ -125,10 +137,18 @@ func TestNodes(t *testing.T) {
 		q, ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, q, models.GenericNodeType, "test1", pointer.ToString("test"), nil)
+		_, err := ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.GenericNodeType,
+			NodeName: "test1",
+			Address:  pointer.ToString("test"),
+		})
 		require.NoError(t, err)
 
-		_, err = ns.Add(ctx, q, models.GenericNodeType, "test2", pointer.ToString("test"), nil)
+		_, err = ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.GenericNodeType,
+			NodeName: "test2",
+			Address:  pointer.ToString("test"),
+		})
 		require.NoError(t, err)
 	})
 
@@ -136,10 +156,20 @@ func TestNodes(t *testing.T) {
 		q, ns, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ns.Add(ctx, q, models.RemoteAmazonRDSNodeType, "test1", pointer.ToString("test-instance"), pointer.ToString("test-region"))
+		_, err := ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.RemoteAmazonRDSNodeType,
+			NodeName: "test1",
+			Address:  pointer.ToString("test-instance"),
+			Region:   pointer.ToString("test-region"),
+		})
 		require.NoError(t, err)
 
-		_, err = ns.Add(ctx, q, models.RemoteAmazonRDSNodeType, "test2", pointer.ToString("test-instance"), pointer.ToString("test-region"))
+		_, err = ns.Add(ctx, q, &AddNodeParams{
+			NodeType: models.RemoteAmazonRDSNodeType,
+			NodeName: "test2",
+			Address:  pointer.ToString("test-instance"),
+			Region:   pointer.ToString("test-region"),
+		})
 		expected := status.New(codes.AlreadyExists, `Node with instance "test-instance" and region "test-region" already exists.`)
 		tests.AssertGRPCError(t, expected, err)
 	})
@@ -187,7 +217,12 @@ func TestServices(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualServices, 0)
 
-		actualMySQLService, err := ss.AddMySQL(ctx, q, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
+		actualMySQLService, err := ss.AddMySQL(ctx, q, &AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
 		require.NoError(t, err)
 		expectedService := &inventorypb.MySQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000001",
@@ -213,7 +248,12 @@ func TestServices(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000001" not found.`), err)
 		assert.Nil(t, actualService)
 
-		actualService, err = ss.AddMongoDB(ctx, q, "test-mongo", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(27017))
+		actualService, err = ss.AddMongoDB(ctx, q, &AddDBMSServiceParams{
+			ServiceName: "test-mongo",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(27017),
+		})
 		require.NoError(t, err)
 		expectedMdbService := &inventorypb.MongoDBService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000002",
@@ -239,7 +279,12 @@ func TestServices(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000002" not found.`), err)
 		assert.Nil(t, actualService)
 
-		actualService, err = ss.AddPostgreSQL(ctx, q, "test-postgres", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(5432))
+		actualService, err = ss.AddPostgreSQL(ctx, q, &AddDBMSServiceParams{
+			ServiceName: "test-postgres",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(5432),
+		})
 		require.NoError(t, err)
 		expectedPostgreSQLService := &inventorypb.PostgreSQLService{
 			ServiceId:   "/service_id/00000000-0000-4000-8000-000000000003",
@@ -279,10 +324,20 @@ func TestServices(t *testing.T) {
 		q, ss, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ss.AddMySQL(ctx, q, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
+		_, err := ss.AddMySQL(ctx, q, &AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
 		require.NoError(t, err)
 
-		_, err = ss.AddMySQL(ctx, q, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
+		_, err = ss.AddMySQL(ctx, q, &AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
 		tests.AssertGRPCError(t, status.New(codes.AlreadyExists, `Service with name "test-mysql" already exists.`), err)
 	})
 
@@ -290,7 +345,12 @@ func TestServices(t *testing.T) {
 		q, ss, teardown := setup(t)
 		defer teardown(t)
 
-		_, err := ss.AddMySQL(ctx, q, "test-mysql", "no-such-id", pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
+		_, err := ss.AddMySQL(ctx, q, &AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      "no-such-id",
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
 	})
 
@@ -340,7 +400,9 @@ func TestAgents(t *testing.T) {
 
 		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
 		as.r.(*mockRegistry).On("SendSetStateRequest", ctx, "/agent_id/00000000-0000-4000-8000-000000000001")
-		pmmAgent, err := as.AddPMMAgent(ctx, models.PMMServerNodeID)
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
 		require.NoError(t, err)
 
 		actualNodeExporter, err := as.AddNodeExporter(ctx, &inventorypb.AddNodeExporterRequest{
@@ -370,7 +432,12 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedNodeExporter, actualAgent)
 
-		s, err := ss.AddMySQL(ctx, db.Querier, "test-mysql", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(3306))
+		s, err := ss.AddMySQL(ctx, db.Querier, &AddDBMSServiceParams{
+			ServiceName: "test-mysql",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(3306),
+		})
 		require.NoError(t, err)
 
 		actualAgent, err = as.AddMySQLdExporter(ctx, db.Querier, &inventorypb.AddMySQLdExporterRequest{
@@ -391,7 +458,12 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedMySQLdExporter, actualAgent)
 
-		ms, err := ss.AddMongoDB(ctx, db.Querier, "test-mongo", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(27017))
+		ms, err := ss.AddMongoDB(ctx, db.Querier, &AddDBMSServiceParams{
+			ServiceName: "test-mongo",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(27017),
+		})
 		require.NoError(t, err)
 
 		actualAgent, err = as.AddMongoDBExporter(ctx, db.Querier, &inventorypb.AddMongoDBExporterRequest{
@@ -412,7 +484,12 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedMongoDBExporter, actualAgent)
 
-		ps, err := ss.AddPostgreSQL(ctx, db.Querier, "test-postgres", models.PMMServerNodeID, pointer.ToString("127.0.0.1"), pointer.ToUint16(5432))
+		ps, err := ss.AddPostgreSQL(ctx, db.Querier, &AddDBMSServiceParams{
+			ServiceName: "test-postgres",
+			NodeID:      models.PMMServerNodeID,
+			Address:     pointer.ToString("127.0.0.1"),
+			Port:        pointer.ToUint16(5432),
+		})
 		require.NoError(t, err)
 
 		actualAgent, err = as.AddPostgresExporter(ctx, db.Querier, &inventorypb.AddPostgresExporterRequest{
@@ -525,7 +602,9 @@ func TestAgents(t *testing.T) {
 		defer teardown(t)
 
 		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(false)
-		actualAgent, err := as.AddPMMAgent(ctx, models.PMMServerNodeID)
+		actualAgent, err := as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
 		require.NoError(t, err)
 		expectedPMMAgent := &inventorypb.PMMAgent{
 			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000001",
@@ -535,7 +614,9 @@ func TestAgents(t *testing.T) {
 		assert.Equal(t, expectedPMMAgent, actualAgent)
 
 		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000002").Return(true)
-		actualAgent, err = as.AddPMMAgent(ctx, models.PMMServerNodeID)
+		actualAgent, err = as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
 		require.NoError(t, err)
 		expectedPMMAgent = &inventorypb.PMMAgent{
 			AgentId:      "/agent_id/00000000-0000-4000-8000-000000000002",
@@ -560,7 +641,9 @@ func TestAgents(t *testing.T) {
 		defer teardown(t)
 
 		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
-		pmmAgent, err := as.AddPMMAgent(ctx, models.PMMServerNodeID)
+		pmmAgent, err := as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
+			RunsOnNodeId: models.PMMServerNodeID,
+		})
 		require.NoError(t, err)
 
 		_, err = as.AddMySQLdExporter(ctx, db.Querier, &inventorypb.AddMySQLdExporterRequest{

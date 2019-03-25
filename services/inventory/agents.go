@@ -251,7 +251,7 @@ func (as *AgentsService) Get(ctx context.Context, id string) (inventorypb.Agent,
 }
 
 // AddPMMAgent inserts pmm-agent Agent with given parameters.
-func (as *AgentsService) AddPMMAgent(ctx context.Context, nodeID string) (*inventorypb.PMMAgent, error) {
+func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventorypb.AddPMMAgentRequest) (*inventorypb.PMMAgent, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// TODO Check runs-on Node: it must be BM, VM, DC (i.e. not remote, AWS RDS, etc.)
 
@@ -263,14 +263,17 @@ func (as *AgentsService) AddPMMAgent(ctx context.Context, nodeID string) (*inven
 		}
 
 		ns := NewNodesService(as.r)
-		if _, err := ns.Get(ctx, as.db.Querier, nodeID); err != nil {
+		if _, err := ns.Get(ctx, as.db.Querier, req.RunsOnNodeId); err != nil {
 			return err
 		}
 
 		row := &models.Agent{
 			AgentID:      id,
 			AgentType:    models.PMMAgentType,
-			RunsOnNodeID: pointer.ToStringOrNil(nodeID),
+			RunsOnNodeID: &req.RunsOnNodeId,
+		}
+		if err := row.SetCustomLabels(req.CustomLabels); err != nil {
+			return err
 		}
 		if err := tx.Insert(row); err != nil {
 			return errors.WithStack(err)

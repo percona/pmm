@@ -162,9 +162,18 @@ func (ss *ServicesService) Get(ctx context.Context, q *reform.Querier, id string
 	return makeService(row)
 }
 
+// AddDBMSServiceParams contains parameters for adding DBMS (MySQL, PostgreSQL, MongoDB) Services.
+type AddDBMSServiceParams struct {
+	ServiceName  string
+	NodeID       string
+	CustomLabels map[string]string
+	Address      *string
+	Port         *uint16
+}
+
 // AddMySQL inserts MySQL Service with given parameters.
 //nolint:dupl
-func (ss *ServicesService) AddMySQL(ctx context.Context, q *reform.Querier, name, nodeID string, address *string, port *uint16) (*inventorypb.MySQLService, error) {
+func (ss *ServicesService) AddMySQL(ctx context.Context, q *reform.Querier, params *AddDBMSServiceParams) (*inventorypb.MySQLService, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// Both address and socket can't be empty, etc.
 
@@ -172,21 +181,24 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, q *reform.Querier, name
 	if err := ss.checkUniqueID(ctx, q, id); err != nil {
 		return nil, err
 	}
-	if err := ss.checkUniqueName(ctx, q, name); err != nil {
+	if err := ss.checkUniqueName(ctx, q, params.ServiceName); err != nil {
 		return nil, err
 	}
 
-	if _, err := ss.ns.Get(ctx, q, nodeID); err != nil {
+	if _, err := ss.ns.Get(ctx, q, params.NodeID); err != nil {
 		return nil, err
 	}
 
 	row := &models.Service{
 		ServiceID:   id,
 		ServiceType: models.MySQLServiceType,
-		ServiceName: name,
-		NodeID:      nodeID,
-		Address:     address,
-		Port:        port,
+		ServiceName: params.ServiceName,
+		NodeID:      params.NodeID,
+		Address:     params.Address,
+		Port:        params.Port,
+	}
+	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+		return nil, err
 	}
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
@@ -200,27 +212,31 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, q *reform.Querier, name
 
 // AddMongoDB inserts MongoDB Service with given parameters.
 //nolint:dupl
-func (ss *ServicesService) AddMongoDB(ctx context.Context, q *reform.Querier, name, nodeID string, address *string, port *uint16) (*inventorypb.MongoDBService, error) {
+func (ss *ServicesService) AddMongoDB(ctx context.Context, q *reform.Querier, params *AddDBMSServiceParams) (*inventorypb.MongoDBService, error) {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 
 	id := "/service_id/" + uuid.New().String()
 	if err := ss.checkUniqueID(ctx, q, id); err != nil {
 		return nil, err
 	}
-	if err := ss.checkUniqueName(ctx, q, name); err != nil {
+	if err := ss.checkUniqueName(ctx, q, params.ServiceName); err != nil {
 		return nil, err
 	}
 
-	if _, err := ss.ns.Get(ctx, q, nodeID); err != nil {
+	if _, err := ss.ns.Get(ctx, q, params.NodeID); err != nil {
 		return nil, err
 	}
 
 	row := &models.Service{
 		ServiceID:   id,
 		ServiceType: models.MongoDBServiceType,
-		ServiceName: name,
-		NodeID:      nodeID,
-		Address:     address,
-		Port:        port,
+		ServiceName: params.ServiceName,
+		NodeID:      params.NodeID,
+		Address:     params.Address,
+		Port:        params.Port,
+	}
+	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+		return nil, err
 	}
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)
@@ -233,7 +249,7 @@ func (ss *ServicesService) AddMongoDB(ctx context.Context, q *reform.Querier, na
 }
 
 // AddPostgreSQL inserts PostgreSQL Service with given parameters.
-func (ss *ServicesService) AddPostgreSQL(ctx context.Context, q *reform.Querier, name, nodeID string, address *string, port *uint16) (*inventorypb.PostgreSQLService, error) {
+func (ss *ServicesService) AddPostgreSQL(ctx context.Context, q *reform.Querier, params *AddDBMSServiceParams) (*inventorypb.PostgreSQLService, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// Both address and socket can't be empty, etc.
 
@@ -241,21 +257,24 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, q *reform.Querier,
 	if err := ss.checkUniqueID(ctx, q, id); err != nil {
 		return nil, err
 	}
-	if err := ss.checkUniqueName(ctx, q, name); err != nil {
+	if err := ss.checkUniqueName(ctx, q, params.ServiceName); err != nil {
 		return nil, err
 	}
 
-	if _, err := ss.ns.Get(ctx, q, nodeID); err != nil {
+	if _, err := ss.ns.Get(ctx, q, params.NodeID); err != nil {
 		return nil, err
 	}
 
 	row := &models.Service{
 		ServiceID:   id,
 		ServiceType: models.PostgreSQLServiceType,
-		ServiceName: name,
-		NodeID:      nodeID,
-		Address:     address,
-		Port:        port,
+		ServiceName: params.ServiceName,
+		NodeID:      params.NodeID,
+		Address:     params.Address,
+		Port:        params.Port,
+	}
+	if err := row.SetCustomLabels(params.CustomLabels); err != nil {
+		return nil, err
 	}
 	if err := q.Insert(row); err != nil {
 		return nil, errors.WithStack(err)

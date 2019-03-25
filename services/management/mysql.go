@@ -44,9 +44,12 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 	res = &managementpb.AddMySQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
-		address := pointer.ToStringOrNil(req.Address)
-		port := pointer.ToUint16OrNil(uint16(req.Port))
-		service, err := s.servicesSvc.AddMySQL(ctx, tx.Querier, req.ServiceName, req.NodeId, address, port)
+		service, err := s.servicesSvc.AddMySQL(ctx, tx.Querier, &inventory.AddDBMSServiceParams{
+			ServiceName: req.ServiceName,
+			NodeID:      req.NodeId,
+			Address:     pointer.ToStringOrNil(req.Address),
+			Port:        pointer.ToUint16OrNil(uint16(req.Port)),
+		})
 		if err != nil {
 			return err
 		}

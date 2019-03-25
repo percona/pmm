@@ -81,11 +81,11 @@ func scrapeConfigForPMMManaged() *config.ScrapeConfig {
 
 func commonExporterLabelSet(node *models.Node, service *models.Service, agent *models.Agent) model.LabelSet {
 	res := model.LabelSet{
-		model.LabelName("node_id"):               model.LabelValue(node.NodeID),
-		model.LabelName("node_name"):             model.LabelValue(node.NodeName),
-		model.LabelName("machine_id"):            model.LabelValue(pointer.GetString(node.MachineID)),
-		model.LabelName("docker_container_id"):   model.LabelValue(pointer.GetString(node.DockerContainerID)),
-		model.LabelName("docker_container_name"): model.LabelValue(pointer.GetString(node.DockerContainerName)),
+		model.LabelName("node_id"):        model.LabelValue(node.NodeID),
+		model.LabelName("node_name"):      model.LabelValue(node.NodeName),
+		model.LabelName("machine_id"):     model.LabelValue(pointer.GetString(node.MachineID)),
+		model.LabelName("container_id"):   model.LabelValue(pointer.GetString(node.DockerContainerID)),
+		model.LabelName("container_name"): model.LabelValue(pointer.GetString(node.DockerContainerName)),
 
 		model.LabelName("instance"): model.LabelValue(agent.AgentID),
 	}

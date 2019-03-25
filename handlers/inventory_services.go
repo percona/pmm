@@ -86,9 +86,13 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetSer
 
 // AddMySQLService adds MySQL Service.
 func (s *servicesServer) AddMySQLService(ctx context.Context, req *inventorypb.AddMySQLServiceRequest) (*inventorypb.AddMySQLServiceResponse, error) {
-	address := pointer.ToStringOrNil(req.Address)
-	port := pointer.ToUint16OrNil(uint16(req.Port))
-	service, err := s.s.AddMySQL(ctx, s.db.Querier, req.ServiceName, req.NodeId, address, port)
+	service, err := s.s.AddMySQL(ctx, s.db.Querier, &inventory.AddDBMSServiceParams{
+		ServiceName:  req.ServiceName,
+		NodeID:       req.NodeId,
+		Address:      pointer.ToStringOrNil(req.Address),
+		Port:         pointer.ToUint16OrNil(uint16(req.Port)),
+		CustomLabels: req.CustomLabels,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -105,9 +109,13 @@ func (s *servicesServer) AddAmazonRDSMySQLService(ctx context.Context, req *inve
 }
 
 func (s *servicesServer) AddMongoDBService(ctx context.Context, req *inventorypb.AddMongoDBServiceRequest) (*inventorypb.AddMongoDBServiceResponse, error) {
-	address := pointer.ToStringOrNil(req.Address)
-	port := pointer.ToUint16OrNil(uint16(req.Port))
-	service, err := s.s.AddMongoDB(ctx, s.db.Querier, req.ServiceName, req.NodeId, address, port)
+	service, err := s.s.AddMongoDB(ctx, s.db.Querier, &inventory.AddDBMSServiceParams{
+		ServiceName:  req.ServiceName,
+		NodeID:       req.NodeId,
+		Address:      pointer.ToStringOrNil(req.Address),
+		Port:         pointer.ToUint16OrNil(uint16(req.Port)),
+		CustomLabels: req.CustomLabels,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +127,21 @@ func (s *servicesServer) AddMongoDBService(ctx context.Context, req *inventorypb
 }
 
 func (s *servicesServer) AddPostgreSQLService(ctx context.Context, req *inventorypb.AddPostgreSQLServiceRequest) (*inventorypb.AddPostgreSQLServiceResponse, error) {
-	panic("not implemented yet")
+	service, err := s.s.AddPostgreSQL(ctx, s.db.Querier, &inventory.AddDBMSServiceParams{
+		ServiceName:  req.ServiceName,
+		NodeID:       req.NodeId,
+		Address:      pointer.ToStringOrNil(req.Address),
+		Port:         pointer.ToUint16OrNil(uint16(req.Port)),
+		CustomLabels: req.CustomLabels,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.AddPostgreSQLServiceResponse{
+		Postgresql: service,
+	}
+	return res, nil
 }
 
 // RemoveService removes Service without any Agents.
