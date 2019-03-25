@@ -20,6 +20,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 option go_package = "agentlocalpb";
 
+import "agentpb/agent.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
@@ -37,13 +38,14 @@ message ServerInfo {
 // AgentInfo returns information about agent which was runned by pmm-agent.
 message AgentInfo {
   string agent_id = 1;
-  inventory.AgentStatus status = 2;
-  repeated string logs = 3;
+  agent.Type agent_type = 2;
+  inventory.AgentStatus status = 3;
+  repeated string logs = 4;
 }
 
 // StatusRequest describes request to get local pmm-agent info.
 message StatusRequest {
-  bool show_agent_logs = 1;
+  bool get_logs = 1;
 }
 
 // StatusResponse return information about pmm-agent from local api.

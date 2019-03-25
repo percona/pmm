@@ -122,6 +122,10 @@ type AgentsInfoItems0 struct {
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
+	// Type represents Agent type.
+	// Enum: [TYPE_INVALID NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT]
+	AgentType *string `json:"agent_type,omitempty"`
+
 	// logs
 	Logs []string `json:"logs"`
 
@@ -134,6 +138,10 @@ type AgentsInfoItems0 struct {
 func (o *AgentsInfoItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := o.validateAgentType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := o.validateStatus(formats); err != nil {
 		res = append(res, err)
 	}
@@ -141,6 +149,58 @@ func (o *AgentsInfoItems0) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+var agentsInfoItems0TypeAgentTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["TYPE_INVALID","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		agentsInfoItems0TypeAgentTypePropEnum = append(agentsInfoItems0TypeAgentTypePropEnum, v)
+	}
+}
+
+const (
+
+	// AgentsInfoItems0AgentTypeTYPEINVALID captures enum value "TYPE_INVALID"
+	AgentsInfoItems0AgentTypeTYPEINVALID string = "TYPE_INVALID"
+
+	// AgentsInfoItems0AgentTypeNODEEXPORTER captures enum value "NODE_EXPORTER"
+	AgentsInfoItems0AgentTypeNODEEXPORTER string = "NODE_EXPORTER"
+
+	// AgentsInfoItems0AgentTypeMYSQLDEXPORTER captures enum value "MYSQLD_EXPORTER"
+	AgentsInfoItems0AgentTypeMYSQLDEXPORTER string = "MYSQLD_EXPORTER"
+
+	// AgentsInfoItems0AgentTypeMONGODBEXPORTER captures enum value "MONGODB_EXPORTER"
+	AgentsInfoItems0AgentTypeMONGODBEXPORTER string = "MONGODB_EXPORTER"
+
+	// AgentsInfoItems0AgentTypeQANMYSQLPERFSCHEMAAGENT captures enum value "QAN_MYSQL_PERFSCHEMA_AGENT"
+	AgentsInfoItems0AgentTypeQANMYSQLPERFSCHEMAAGENT string = "QAN_MYSQL_PERFSCHEMA_AGENT"
+)
+
+// prop value enum
+func (o *AgentsInfoItems0) validateAgentTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, agentsInfoItems0TypeAgentTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AgentsInfoItems0) validateAgentType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.AgentType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateAgentTypeEnum("agent_type", "body", *o.AgentType); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -222,8 +282,8 @@ swagger:model StatusBody
 */
 type StatusBody struct {
 
-	// show agent logs
-	ShowAgentLogs bool `json:"show_agent_logs,omitempty"`
+	// get logs
+	GetLogs bool `json:"get_logs,omitempty"`
 }
 
 // Validate validates this status body

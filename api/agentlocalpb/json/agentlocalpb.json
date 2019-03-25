@@ -31,7 +31,7 @@
               "description": "StatusRequest describes request to get local pmm-agent info.",
               "type": "object",
               "properties": {
-                "show_agent_logs": {
+                "get_logs": {
                   "type": "boolean",
                   "format": "boolean"
                 }
@@ -57,6 +57,18 @@
                     "properties": {
                       "agent_id": {
                         "type": "string"
+                      },
+                      "agent_type": {
+                        "description": "Type represents Agent type.",
+                        "type": "string",
+                        "default": "TYPE_INVALID",
+                        "enum": [
+                          "TYPE_INVALID",
+                          "NODE_EXPORTER",
+                          "MYSQLD_EXPORTER",
+                          "MONGODB_EXPORTER",
+                          "QAN_MYSQL_PERFSCHEMA_AGENT"
+                        ]
                       },
                       "logs": {
                         "type": "array",
