@@ -31,8 +31,9 @@ import "protoc-gen-swagger/options/annotations.proto";
 message ServerInfo {
   string url = 1;
   bool insecure_tls = 2;
-  google.protobuf.Timestamp last_ping_time = 3;
-  google.protobuf.Duration latency = 4;
+  string version = 3;
+  google.protobuf.Timestamp last_ping_time = 4;
+  google.protobuf.Duration latency = 5;
 }
 
 // AgentInfo returns information about agent which was runned by pmm-agent.

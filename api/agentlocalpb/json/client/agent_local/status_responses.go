@@ -461,6 +461,9 @@ type StatusOKBodyServerInfo struct {
 
 	// url
 	URL string `json:"url,omitempty"`
+
+	// version
+	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this status OK body server info

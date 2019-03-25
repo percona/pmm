@@ -112,6 +112,9 @@
                     },
                     "url": {
                       "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
                     }
                   }
                 }
