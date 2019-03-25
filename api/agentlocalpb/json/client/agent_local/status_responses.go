@@ -393,11 +393,11 @@ type StatusOKBodyServerInfo struct {
 	InsecureTLS bool `json:"insecure_tls,omitempty"`
 
 	// last ping time
-	LastPingTime string `json:"last_ping_time,omitempty"`
+	// Format: date-time
+	LastPingTime strfmt.DateTime `json:"last_ping_time,omitempty"`
 
 	// latency
-	// Format: date-time
-	Latency strfmt.DateTime `json:"latency,omitempty"`
+	Latency string `json:"latency,omitempty"`
 
 	// url
 	URL string `json:"url,omitempty"`
@@ -407,7 +407,7 @@ type StatusOKBodyServerInfo struct {
 func (o *StatusOKBodyServerInfo) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateLatency(formats); err != nil {
+	if err := o.validateLastPingTime(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -417,13 +417,13 @@ func (o *StatusOKBodyServerInfo) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *StatusOKBodyServerInfo) validateLatency(formats strfmt.Registry) error {
+func (o *StatusOKBodyServerInfo) validateLastPingTime(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Latency) { // not required
+	if swag.IsZero(o.LastPingTime) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("statusOk"+"."+"server_info"+"."+"latency", "body", "date-time", o.Latency.String(), formats); err != nil {
+	if err := validate.FormatOf("statusOk"+"."+"server_info"+"."+"last_ping_time", "body", "date-time", o.LastPingTime.String(), formats); err != nil {
 		return err
 	}
 

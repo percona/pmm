@@ -92,11 +92,11 @@
                       "format": "boolean"
                     },
                     "last_ping_time": {
-                      "type": "string"
-                    },
-                    "latency": {
                       "type": "string",
                       "format": "date-time"
+                    },
+                    "latency": {
+                      "type": "string"
                     },
                     "url": {
                       "type": "string"
