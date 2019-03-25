@@ -53,7 +53,7 @@ type GetFiltersOK struct {
 }
 
 func (o *GetFiltersOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/GetFilters][%d] getFiltersOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/GetFilters][%d] getFiltersOk  %+v", 200, o.Payload)
 }
 
 func (o *GetFiltersOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -153,7 +153,7 @@ type GetFiltersOKBody struct {
 	Labels map[string]LabelsAnon `json:"labels,omitempty"`
 }
 
-// Validate validates this get filters o k body
+// Validate validates this get filters OK body
 func (o *GetFiltersOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 

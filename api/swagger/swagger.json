@@ -74,6 +74,25 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -176,6 +195,25 @@
                       "type": "string"
                     }
                   }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -284,6 +322,25 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -339,6 +396,11 @@
                         "type": "string"
                       }
                     },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -362,6 +424,25 @@
                       ]
                     }
                   }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -430,6 +511,149 @@
                       "type": "string"
                     }
                   }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/AddPostgresExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "AddPostgresExporter adds postgres_exporter Agent.",
+        "operationId": "AddPostgresExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "password": {
+                  "description": "PostgreSQL password for scraping metrics.",
+                  "type": "string"
+                },
+                "pmm_agent_id": {
+                  "description": "The pmm-agent identifier which runs this instance.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service identifier.",
+                  "type": "string"
+                },
+                "username": {
+                  "description": "PostgreSQL username for scraping metrics.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "postgres_exporter": {
+                  "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for scraping metrics.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for scraping metrics.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -533,6 +757,25 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -625,6 +868,770 @@
                       ]
                     }
                   }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/ChangeExternalExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "ChangeExternalExporter changes External Agent.",
+        "operationId": "ChangeExternalExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "external_exporter": {
+                  "description": "ExternalExporter does not run on any Inventory Node.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "metrics_url": {
+                      "description": "URL for scraping metrics.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/ChangeMongoDBExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "ChangeMongoDBExporter changes mongodb_exporter Agent.",
+        "operationId": "ChangeMongoDBExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mongodb_exporter": {
+                  "description": "MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "password": {
+                      "description": "MongoDB password for scraping metrics.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "MongoDB username for scraping metrics.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/ChangeMySQLdExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "ChangeMySQLdExporter changes mysqld_exporter Agent.",
+        "operationId": "ChangeMySQLdExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "mysqld_exporter": {
+                  "description": "MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "password": {
+                      "description": "MySQL password for scraping metrics.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "MySQL username for scraping metrics.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/ChangeNodeExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "ChangeNodeExporter changes node_exporter Agent.",
+        "operationId": "ChangeNodeExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "agent_id": {
+                  "type": "string"
+                },
+                "custom_labels": {
+                  "description": "Replace all custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "disabled": {
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "format": "boolean"
+                },
+                "remove_custom_labels": {
+                  "description": "Remove all custom user-assigned labels.",
+                  "type": "boolean",
+                  "format": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_exporter": {
+                  "description": "NodeExporter runs on Generic on Container Node and exposes its metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/ChangePMMAgent": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "ChangePMMAgent changes pmm-agent Agent.",
+        "operationId": "ChangePMMAgent",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pmm_agent": {
+                  "description": "PMMAgent runs on Generic on Container Node.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "connected": {
+                      "description": "True if Agent is running and connected to pmm-managed.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/ChangePostgresExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "ChangePostgresExporter changes postgres_exporter Agent.",
+        "operationId": "ChangePostgresExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "postgres_exporter": {
+                  "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for scraping metrics.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for scraping metrics.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "ChangeQANMySQLPerfSchemaAgent changes MySQL PerfSchema QAN Agent.",
+        "operationId": "ChangeQANMySQLPerfSchemaAgent",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "qan_mysql_perfschema_agent": {
+                  "description": "QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "password": {
+                      "description": "MySQL password for getting performance data.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "MySQL username for getting performance data.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/inventory/Agents/ChangeRDSExporter": {
+      "post": {
+        "tags": [
+          "Agents"
+        ],
+        "summary": "ChangeRDSExporter changes rds_exporter Agent.",
+        "operationId": "ChangeRDSExporter",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "rds_exporter": {
+                  "description": "RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_ids": {
+                      "description": "A list of Service identifiers (Node identifiers are extracted from Services).",
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -799,6 +1806,11 @@
                         "type": "string"
                       }
                     },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -845,6 +1857,57 @@
                     },
                     "runs_on_node_id": {
                       "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "postgres_exporter": {
+                  "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "listen_port": {
+                      "description": "Listen port for scraping metrics.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for scraping metrics.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for scraping metrics.",
                       "type": "string"
                     }
                   }
@@ -940,6 +2003,25 @@
                       ]
                     }
                   }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -1133,6 +2215,11 @@
                           "type": "string"
                         }
                       },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "format": "boolean"
+                      },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
                         "type": "integer",
@@ -1182,6 +2269,60 @@
                       },
                       "runs_on_node_id": {
                         "description": "Node identifier where this instance runs.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "postgres_exporter": {
+                  "type": "array",
+                  "items": {
+                    "description": "PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string"
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      "listen_port": {
+                        "description": "Listen port for scraping metrics.",
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "password": {
+                        "description": "PostgreSQL password for scraping metrics.",
+                        "type": "string"
+                      },
+                      "pmm_agent_id": {
+                        "description": "The pmm-agent identifier which runs this instance.",
+                        "type": "string"
+                      },
+                      "service_id": {
+                        "description": "Service identifier.",
+                        "type": "string"
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ]
+                      },
+                      "username": {
+                        "description": "PostgreSQL username for scraping metrics.",
                         "type": "string"
                       }
                     }
@@ -1287,6 +2428,25 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -1318,6 +2478,25 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
@@ -1403,6 +2582,25 @@
                       "type": "string"
                     }
                   }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -1501,6 +2699,25 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -1561,6 +2778,25 @@
                       "type": "string"
                     }
                   }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -1643,327 +2879,22 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Nodes/ChangeContainer": {
-      "post": {
-        "tags": [
-          "Nodes"
-        ],
-        "summary": "ChangeContainerNode changes Container Node.",
-        "operationId": "ChangeContainerNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
+          },
+          "default": {
+            "description": "An error response.",
             "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
               "type": "object",
               "properties": {
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
                 },
-                "docker_container_name": {
-                  "description": "Container name.",
+                "error": {
                   "type": "string"
                 },
-                "node_id": {
-                  "description": "Unique randomly generated instance identifier.",
+                "message": {
                   "type": "string"
-                },
-                "node_name": {
-                  "description": "Unique across all Nodes user-defined name.",
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "container": {
-                  "description": "ContainerNode represents a Docker container.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels. Can be changed.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "docker_container_id": {
-                      "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
-                      "type": "string"
-                    },
-                    "docker_container_name": {
-                      "description": "Container name. Can be changed.",
-                      "type": "string"
-                    },
-                    "machine_id": {
-                      "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
-                      "type": "string"
-                    },
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier, can't be changed.",
-                      "type": "string"
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name, can be changed.",
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Nodes/ChangeGeneric": {
-      "post": {
-        "tags": [
-          "Nodes"
-        ],
-        "summary": "ChangeGenericNode changes generic Node.",
-        "operationId": "ChangeGenericNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "address": {
-                  "description": "Address FIXME.",
-                  "type": "string"
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                },
-                "distro": {
-                  "description": "Linux distribution (if any).",
-                  "type": "string"
-                },
-                "distro_version": {
-                  "description": "Linux distribution version (if any).",
-                  "type": "string"
-                },
-                "node_id": {
-                  "description": "Unique randomly generated instance identifier.",
-                  "type": "string"
-                },
-                "node_name": {
-                  "description": "Unique across all Nodes user-defined name.",
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "generic": {
-                  "description": "GenericNode represents a bare metal server or virtual machine.",
-                  "type": "object",
-                  "properties": {
-                    "address": {
-                      "description": "Address FIXME.",
-                      "type": "string"
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels. Can be changed.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "distro": {
-                      "description": "Linux distribution (if any). Can be changed.",
-                      "type": "string"
-                    },
-                    "distro_version": {
-                      "description": "Linux distribution version (if any). Can be changed.",
-                      "type": "string"
-                    },
-                    "machine_id": {
-                      "description": "Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.",
-                      "type": "string"
-                    },
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier, can't be changed.",
-                      "type": "string"
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name, can be changed.",
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Nodes/ChangeRemote": {
-      "post": {
-        "tags": [
-          "Nodes"
-        ],
-        "summary": "ChangeRemoteNode changes remote Node.",
-        "operationId": "ChangeRemoteNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                },
-                "node_id": {
-                  "description": "Unique randomly generated instance identifier.",
-                  "type": "string"
-                },
-                "node_name": {
-                  "description": "Unique across all Nodes user-defined name.",
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "remote": {
-                  "description": "RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels. Can be changed.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier, can't be changed.",
-                      "type": "string"
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name, can be changed.",
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Nodes/ChangeRemoteAmazonRDS": {
-      "post": {
-        "tags": [
-          "Nodes"
-        ],
-        "summary": "ChangeRemoteAmazonRDSNode changes Amazon (AWS) RDS remote Node.",
-        "operationId": "ChangeRemoteAmazonRDSNode",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                },
-                "instance": {
-                  "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.",
-                  "type": "string"
-                },
-                "node_id": {
-                  "description": "Unique randomly generated instance identifier.",
-                  "type": "string"
-                },
-                "node_name": {
-                  "description": "Unique across all Nodes user-defined name.",
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "remote_amazon_rds": {
-                  "description": "RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.",
-                  "type": "object",
-                  "properties": {
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels. Can be changed.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "instance": {
-                      "description": "DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.",
-                      "type": "string"
-                    },
-                    "node_id": {
-                      "description": "Unique randomly generated instance identifier, can't be changed.",
-                      "type": "string"
-                    },
-                    "node_name": {
-                      "description": "Unique across all Nodes user-defined name, can be changed.",
-                      "type": "string"
-                    },
-                    "region": {
-                      "description": "Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.",
-                      "type": "string"
-                    }
-                  }
                 }
               }
             }
@@ -2119,6 +3050,25 @@
                       "type": "string"
                     }
                   }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -2283,6 +3233,25 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -2315,6 +3284,25 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
@@ -2402,6 +3390,25 @@
                       "type": "string"
                     }
                   }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -2494,6 +3501,25 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -2583,92 +3609,22 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/v1/inventory/Services/ChangeAmazonRDSMySQL": {
-      "post": {
-        "tags": [
-          "Services"
-        ],
-        "summary": "ChangeAmazonRDSMySQLService changes AmazonRDSMySQL Service.",
-        "operationId": "ChangeAmazonRDSMySQLService",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
+          },
+          "default": {
+            "description": "An error response.",
             "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
               "type": "object",
               "properties": {
-                "address": {
-                  "description": "Instance endpoint (full DNS name). Required.",
-                  "type": "string"
-                },
-                "custom_labels": {
-                  "description": "Custom user-assigned labels.",
-                  "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
-                  }
-                },
-                "port": {
-                  "description": "Instance port. Required.",
+                "code": {
                   "type": "integer",
-                  "format": "int64"
+                  "format": "int32"
                 },
-                "service_id": {
-                  "description": "Unique randomly generated instance identifier. Required.",
+                "error": {
                   "type": "string"
                 },
-                "service_name": {
-                  "description": "Unique across all Services user-defined name. Required.",
+                "message": {
                   "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "amazon_rds_mysql": {
-                  "type": "object",
-                  "title": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node",
-                  "properties": {
-                    "address": {
-                      "description": "Instance endpoint (full DNS name).",
-                      "type": "string"
-                    },
-                    "custom_labels": {
-                      "description": "Custom user-assigned labels.",
-                      "type": "object",
-                      "additionalProperties": {
-                        "type": "string"
-                      }
-                    },
-                    "node_id": {
-                      "description": "Node identifier where this instance runs.",
-                      "type": "string"
-                    },
-                    "port": {
-                      "description": "Instance port.",
-                      "type": "integer",
-                      "format": "int64"
-                    },
-                    "service_id": {
-                      "description": "Unique randomly generated instance identifier.",
-                      "type": "string"
-                    },
-                    "service_name": {
-                      "description": "Unique across all Services user-defined name.",
-                      "type": "string"
-                    }
-                  }
                 }
               }
             }
@@ -2676,13 +3632,13 @@
         }
       }
     },
-    "/v1/inventory/Services/ChangeMySQL": {
+    "/v1/inventory/Services/AddPostgreSQL": {
       "post": {
         "tags": [
           "Services"
         ],
-        "summary": "ChangeMySQLService changes MySQL Service.",
-        "operationId": "ChangeMySQLService",
+        "summary": "AddPostgreSQLService adds PostgreSQL Service.",
+        "operationId": "AddPostgreSQLService",
         "parameters": [
           {
             "name": "body",
@@ -2702,14 +3658,14 @@
                     "type": "string"
                   }
                 },
+                "node_id": {
+                  "description": "Node identifier where this instance runs. Required.",
+                  "type": "string"
+                },
                 "port": {
                   "description": "Access port. Required.",
                   "type": "integer",
                   "format": "int64"
-                },
-                "service_id": {
-                  "description": "Unique randomly generated instance identifier. Required.",
-                  "type": "string"
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
@@ -2725,8 +3681,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "mysql": {
-                  "description": "MySQLService represents a generic MySQL instance.",
+                "postgresql": {
+                  "description": "PostgreSQLService represents a generic PostgreSQL instance.",
                   "type": "object",
                   "properties": {
                     "address": {
@@ -2758,6 +3714,25 @@
                       "type": "string"
                     }
                   }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -2895,6 +3870,59 @@
                       "type": "string"
                     }
                   }
+                },
+                "postgresql": {
+                  "description": "PostgreSQLService represents a generic PostgreSQL instance.",
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "description": "Access address (DNS name or IP).",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "node_id": {
+                      "description": "Node identifier where this instance runs.",
+                      "type": "string"
+                    },
+                    "port": {
+                      "description": "Access port.",
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "service_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "service_name": {
+                      "description": "Unique across all Services user-defined name.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -3041,6 +4069,62 @@
                       }
                     }
                   }
+                },
+                "postgresql": {
+                  "type": "array",
+                  "items": {
+                    "description": "PostgreSQLService represents a generic PostgreSQL instance.",
+                    "type": "object",
+                    "properties": {
+                      "address": {
+                        "description": "Access address (DNS name or IP).",
+                        "type": "string"
+                      },
+                      "custom_labels": {
+                        "description": "Custom user-assigned labels.",
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "string"
+                        }
+                      },
+                      "node_id": {
+                        "description": "Node identifier where this instance runs.",
+                        "type": "string"
+                      },
+                      "port": {
+                        "description": "Access port.",
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "service_id": {
+                        "description": "Unique randomly generated instance identifier.",
+                        "type": "string"
+                      },
+                      "service_name": {
+                        "description": "Unique across all Services user-defined name.",
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -3076,6 +4160,25 @@
             "description": "A successful response.",
             "schema": {
               "type": "object"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
             }
           }
         }
@@ -3283,6 +4386,25 @@
                       "type": "string"
                     }
                   }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -4084,6 +5206,25 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -4118,6 +5259,25 @@
                   "additionalProperties": {
                     "type": "string"
                   }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
                 }
               }
             }
@@ -4283,6 +5443,25 @@
                 }
               }
             }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       }
@@ -4301,6 +5480,25 @@
               "type": "object",
               "properties": {
                 "version": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
                   "type": "string"
                 }
               }

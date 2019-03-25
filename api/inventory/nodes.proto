@@ -2,10 +2,27 @@ syntax = "proto3";
 
 package inventory;
 
+// This option is used to set the default error response for all Swagger APIs generated from this file.
+// See also header.json.
+// It has to be copy&pasted into each file.
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  responses: {
+    key: "default"
+    value: {
+      description: "An error response."
+      schema: {
+        json_schema: {
+          ref: "#/definitions/inventorypbErrorResponse"
+        }
+      }
+    }
+  }
+};
 option go_package = "inventory";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
 
 // GenericNode represents a bare metal server or virtual machine.
 message GenericNode {
@@ -96,7 +113,7 @@ message GetNodeResponse {
   }
 }
 
-// Add/Change Generic
+// Add Generic
 
 message AddGenericNodeRequest {
   // Unique randomly generated instance identifier.
@@ -123,36 +140,7 @@ message AddGenericNodeResponse {
   GenericNode generic = 1;
 }
 
-message ChangeGenericNodeRequest {
-  // Unique randomly generated instance identifier.
-  string node_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Unique across all Nodes user-defined name.
-  string node_name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Linux machine-id. Can't be changed.
-  reserved 3;
-  // Linux distribution (if any).
-  string distro = 4;
-  // Linux distribution version (if any).
-  string distro_version = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Address FIXME.
-  string address = 42;
-}
-
-message ChangeGenericNodeResponse {
-  GenericNode generic = 1;
-}
-
-// Add/Change Container
+// Add Container
 
 message AddContainerNodeRequest {
   // Unique randomly generated instance identifier.
@@ -177,34 +165,7 @@ message AddContainerNodeResponse {
   ContainerNode container = 1;
 }
 
-message ChangeContainerNodeRequest {
-  // Unique randomly generated instance identifier.
-  string node_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Unique across all Nodes user-defined name.
-  string node_name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Linux machine-id of the Generic Node where this Container Node runs. Can't be changed.
-  reserved 3;
-  // Docker container identifier. Can't be changed.
-  reserved 4;
-  // Container name.
-  string docker_container_name = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message ChangeContainerNodeResponse {
-  ContainerNode container = 1;
-}
-
-// Add/Change Remote
+// Add Remote
 
 message AddRemoteNodeRequest {
   // Unique randomly generated instance identifier.
@@ -223,28 +184,7 @@ message AddRemoteNodeResponse {
   RemoteNode remote = 1;
 }
 
-message ChangeRemoteNodeRequest {
-  // Unique randomly generated instance identifier.
-  string node_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Unique across all Nodes user-defined name.
-  string node_name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message ChangeRemoteNodeResponse {
-  RemoteNode remote = 1;
-}
-
-// Add/Change RemoteAmazonRDS
+// Add RemoteAmazonRDS
 
 message AddRemoteAmazonRDSNodeRequest {
   // Unique randomly generated instance identifier.
@@ -272,35 +212,6 @@ message AddRemoteAmazonRDSNodeRequest {
 }
 
 message AddRemoteAmazonRDSNodeResponse {
-  RemoteAmazonRDSNode remote_amazon_rds = 1;
-}
-
-message ChangeRemoteAmazonRDSNodeRequest {
-  // Unique randomly generated instance identifier.
-  string node_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Unique across all Nodes user-defined name.
-  string node_name = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.
-  string instance = 3 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.
-  reserved 4;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message ChangeRemoteAmazonRDSNodeResponse {
   RemoteAmazonRDSNode remote_amazon_rds = 1;
 }
 
@@ -340,24 +251,10 @@ service Nodes {
       body: "*"
     };
   }
-  // ChangeGenericNode changes generic Node.
-  rpc ChangeGenericNode(ChangeGenericNodeRequest) returns (ChangeGenericNodeResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Nodes/ChangeGeneric"
-      body: "*"
-    };
-  }
   // AddContainerNode adds Container Node.
   rpc AddContainerNode(AddContainerNodeRequest) returns (AddContainerNodeResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/AddContainer"
-      body: "*"
-    };
-  }
-  // ChangeContainerNode changes Container Node.
-  rpc ChangeContainerNode(ChangeContainerNodeRequest) returns (ChangeContainerNodeResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Nodes/ChangeContainer"
       body: "*"
     };
   }
@@ -368,24 +265,10 @@ service Nodes {
       body: "*"
     };
   }
-  // ChangeRemoteNode changes remote Node.
-  rpc ChangeRemoteNode(ChangeRemoteNodeRequest) returns (ChangeRemoteNodeResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Nodes/ChangeRemote"
-      body: "*"
-    };
-  }
   // AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
   rpc AddRemoteAmazonRDSNode(AddRemoteAmazonRDSNodeRequest) returns (AddRemoteAmazonRDSNodeResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Nodes/AddRemoteAmazonRDS"
-      body: "*"
-    };
-  }
-  // ChangeRemoteAmazonRDSNode changes Amazon (AWS) RDS remote Node.
-  rpc ChangeRemoteAmazonRDSNode(ChangeRemoteAmazonRDSNodeRequest) returns (ChangeRemoteAmazonRDSNodeResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Nodes/ChangeRemoteAmazonRDS"
       body: "*"
     };
   }

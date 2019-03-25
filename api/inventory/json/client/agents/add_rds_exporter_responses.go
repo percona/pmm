@@ -35,7 +35,14 @@ func (o *AddRDSExporterReader) ReadResponse(response runtime.ClientResponse, con
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddRDSExporterDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -53,12 +60,50 @@ type AddRDSExporterOK struct {
 }
 
 func (o *AddRDSExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] addRdsExporterOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] addRdsExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *AddRDSExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddRDSExporterOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddRDSExporterDefault creates a AddRDSExporterDefault with default headers values
+func NewAddRDSExporterDefault(code int) *AddRDSExporterDefault {
+	return &AddRDSExporterDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddRDSExporterDefault handles this case with default header values.
+
+An error response.
+*/
+type AddRDSExporterDefault struct {
+	_statusCode int
+
+	Payload *AddRDSExporterDefaultBody
+}
+
+// Code gets the status code for the add RDS exporter default response
+func (o *AddRDSExporterDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddRDSExporterDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/AddRDSExporter][%d] AddRDSExporter default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddRDSExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddRDSExporterDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -106,7 +151,45 @@ func (o *AddRDSExporterBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddRDSExporterOKBody add RDS exporter o k body
+/*AddRDSExporterDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddRDSExporterDefaultBody
+*/
+type AddRDSExporterDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add RDS exporter default body
+func (o *AddRDSExporterDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddRDSExporterDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddRDSExporterDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddRDSExporterDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddRDSExporterOKBody add RDS exporter OK body
 swagger:model AddRDSExporterOKBody
 */
 type AddRDSExporterOKBody struct {
@@ -115,7 +198,7 @@ type AddRDSExporterOKBody struct {
 	RDSExporter *AddRDSExporterOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
 
-// Validate validates this add RDS exporter o k body
+// Validate validates this add RDS exporter OK body
 func (o *AddRDSExporterOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -138,7 +221,7 @@ func (o *AddRDSExporterOKBody) validateRDSExporter(formats strfmt.Registry) erro
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addRdsExporterOK" + "." + "rds_exporter")
+				return ve.ValidateName("addRdsExporterOk" + "." + "rds_exporter")
 			}
 			return err
 		}
@@ -190,7 +273,7 @@ type AddRDSExporterOKBodyRDSExporter struct {
 	Status *string `json:"status,omitempty"`
 }
 
-// Validate validates this add RDS exporter o k body RDS exporter
+// Validate validates this add RDS exporter OK body RDS exporter
 func (o *AddRDSExporterOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -204,7 +287,7 @@ func (o *AddRDSExporterOKBodyRDSExporter) Validate(formats strfmt.Registry) erro
 	return nil
 }
 
-var addRdsExporterOKBodyRdsExporterTypeStatusPropEnum []interface{}
+var addRdsExporterOkBodyRdsExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -212,7 +295,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addRdsExporterOKBodyRdsExporterTypeStatusPropEnum = append(addRdsExporterOKBodyRdsExporterTypeStatusPropEnum, v)
+		addRdsExporterOkBodyRdsExporterTypeStatusPropEnum = append(addRdsExporterOkBodyRdsExporterTypeStatusPropEnum, v)
 	}
 }
 
@@ -239,7 +322,7 @@ const (
 
 // prop value enum
 func (o *AddRDSExporterOKBodyRDSExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addRdsExporterOKBodyRdsExporterTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, addRdsExporterOkBodyRdsExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -252,7 +335,7 @@ func (o *AddRDSExporterOKBodyRDSExporter) validateStatus(formats strfmt.Registry
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addRdsExporterOK"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addRdsExporterOk"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

@@ -34,7 +34,14 @@ func (o *ListNodesReader) ReadResponse(response runtime.ClientResponse, consumer
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewListNodesDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -52,12 +59,50 @@ type ListNodesOK struct {
 }
 
 func (o *ListNodesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] listNodesOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] listNodesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListNodesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(ListNodesOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewListNodesDefault creates a ListNodesDefault with default headers values
+func NewListNodesDefault(code int) *ListNodesDefault {
+	return &ListNodesDefault{
+		_statusCode: code,
+	}
+}
+
+/*ListNodesDefault handles this case with default header values.
+
+An error response.
+*/
+type ListNodesDefault struct {
+	_statusCode int
+
+	Payload *ListNodesDefaultBody
+}
+
+// Code gets the status code for the list nodes default response
+func (o *ListNodesDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *ListNodesDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] ListNodes default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(ListNodesDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -164,7 +209,45 @@ func (o *GenericItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*ListNodesOKBody list nodes o k body
+/*ListNodesDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model ListNodesDefaultBody
+*/
+type ListNodesDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this list nodes default body
+func (o *ListNodesDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ListNodesDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ListNodesDefaultBody) UnmarshalBinary(b []byte) error {
+	var res ListNodesDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ListNodesOKBody list nodes OK body
 swagger:model ListNodesOKBody
 */
 type ListNodesOKBody struct {
@@ -182,7 +265,7 @@ type ListNodesOKBody struct {
 	RemoteAmazonRDS []*RemoteAmazonRDSItems0 `json:"remote_amazon_rds"`
 }
 
-// Validate validates this list nodes o k body
+// Validate validates this list nodes OK body
 func (o *ListNodesOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -222,7 +305,7 @@ func (o *ListNodesOKBody) validateContainer(formats strfmt.Registry) error {
 		if o.Container[i] != nil {
 			if err := o.Container[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listNodesOK" + "." + "container" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listNodesOk" + "." + "container" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -247,7 +330,7 @@ func (o *ListNodesOKBody) validateGeneric(formats strfmt.Registry) error {
 		if o.Generic[i] != nil {
 			if err := o.Generic[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listNodesOK" + "." + "generic" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listNodesOk" + "." + "generic" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -272,7 +355,7 @@ func (o *ListNodesOKBody) validateRemote(formats strfmt.Registry) error {
 		if o.Remote[i] != nil {
 			if err := o.Remote[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listNodesOK" + "." + "remote" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listNodesOk" + "." + "remote" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -297,7 +380,7 @@ func (o *ListNodesOKBody) validateRemoteAmazonRDS(formats strfmt.Registry) error
 		if o.RemoteAmazonRDS[i] != nil {
 			if err := o.RemoteAmazonRDS[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("listNodesOK" + "." + "remote_amazon_rds" + "." + strconv.Itoa(i))
+					return ve.ValidateName("listNodesOk" + "." + "remote_amazon_rds" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

@@ -1,7 +1,7 @@
 help:                 ## Display this help message.
 	@echo "Please use \`make <target>\` where <target> is one of:"
 	@grep '^[a-zA-Z]' $(MAKEFILE_LIST) | \
-	    awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
+		awk -F ':.*?## ' 'NF==2 {printf "  %-26s%s\n", $$1, $$2}'
 
 cert:                 ## Generate TLS certificate for nginx for local testing with mkcert.
 	mkcert -cert-file=nginx/cert.pem -key-file=nginx/key.pem pmm-api pmm-api.localhost 127.0.0.1
@@ -22,19 +22,21 @@ gen: clean            ## Generate files.
 
 	./prototool all
 
-	find . -name '*.swagger.json' -not -path './vendor/*' -print -exec swagger flatten --with-flatten=expand --with-flatten=remove-unused '{}' --output='{}' \;
-
 	for API in agentlocalpb server inventory managementpb qanpb ; do \
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json ; \
+		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$API.json --output=$$API/json/$$API.json ; \
 		swagger validate $$API/json/$$API.json ; \
 		swagger generate client --spec=$$API/json/$$API.json --target=$$API/json \
-			--additional-initialism=pmm \
 			--additional-initialism=aws \
+			--additional-initialism=db \
+			--additional-initialism=ok \
+			--additional-initialism=pmm \
 			--additional-initialism=qan \
 			--additional-initialism=rds ; \
 	done
 
-	swagger mixin server/json/server.json inventory/json/inventory.json qanpb/json/qanpb.json managementpb/json/managementpb.json --output=swagger/swagger.json
+	# generate server API spec, omit agentlocalpb
+	swagger mixin server/json/server.json inventory/json/inventory.json managementpb/json/managementpb.json qanpb/json/qanpb.json --output=swagger/swagger.json
 	swagger validate swagger/swagger.json
 
 	make clean_swagger
@@ -48,7 +50,7 @@ clean: clean_swagger  ## Remove generated files.
 	find . -name '*.pb.gw.go' -not -path './vendor/*' -print -delete
 
 	for API in agentlocalpb server inventory managementpb qanpb ; do \
-		rm -fr $$API/json/client $$API/json/$$API.json ; \
+		rm -fr $$API/json/client $$API/json/models $$API/json/$$API.json ; \
 	done
 	rm -f swagger/swagger.json
 

@@ -7,6 +7,7 @@ import fmt "fmt"
 import github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 import proto "github.com/golang/protobuf/proto"
 import math "math"
+import _ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 import _ "github.com/mwitkow/go-proto-validators"
 import _ "google.golang.org/genproto/googleapis/api/annotations"
 
@@ -117,24 +118,6 @@ func (this *AddGenericNodeResponse) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeGenericNodeRequest) Validate() error {
-	if this.NodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
-	}
-	if this.NodeName == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
-	}
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *ChangeGenericNodeResponse) Validate() error {
-	if this.Generic != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Generic); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Generic", err)
-		}
-	}
-	return nil
-}
 func (this *AddContainerNodeRequest) Validate() error {
 	if this.NodeName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
@@ -143,24 +126,6 @@ func (this *AddContainerNodeRequest) Validate() error {
 	return nil
 }
 func (this *AddContainerNodeResponse) Validate() error {
-	if this.Container != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Container); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Container", err)
-		}
-	}
-	return nil
-}
-func (this *ChangeContainerNodeRequest) Validate() error {
-	if this.NodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
-	}
-	if this.NodeName == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
-	}
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *ChangeContainerNodeResponse) Validate() error {
 	if this.Container != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Container); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Container", err)
@@ -183,24 +148,6 @@ func (this *AddRemoteNodeResponse) Validate() error {
 	}
 	return nil
 }
-func (this *ChangeRemoteNodeRequest) Validate() error {
-	if this.NodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
-	}
-	if this.NodeName == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
-	}
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *ChangeRemoteNodeResponse) Validate() error {
-	if this.Remote != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Remote); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Remote", err)
-		}
-	}
-	return nil
-}
 func (this *AddRemoteAmazonRDSNodeRequest) Validate() error {
 	if this.NodeName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
@@ -215,27 +162,6 @@ func (this *AddRemoteAmazonRDSNodeRequest) Validate() error {
 	return nil
 }
 func (this *AddRemoteAmazonRDSNodeResponse) Validate() error {
-	if this.RemoteAmazonRds != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RemoteAmazonRds); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("RemoteAmazonRds", err)
-		}
-	}
-	return nil
-}
-func (this *ChangeRemoteAmazonRDSNodeRequest) Validate() error {
-	if this.NodeId == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
-	}
-	if this.NodeName == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
-	}
-	if this.Instance == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Instance", fmt.Errorf(`value '%v' must not be an empty string`, this.Instance))
-	}
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}
-func (this *ChangeRemoteAmazonRDSNodeResponse) Validate() error {
 	if this.RemoteAmazonRds != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RemoteAmazonRds); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("RemoteAmazonRds", err)

@@ -35,7 +35,14 @@ func (o *AddReader) ReadResponse(response runtime.ClientResponse, consumer runti
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewAddDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -53,12 +60,50 @@ type AddOK struct {
 }
 
 func (o *AddOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] addOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] addOk  %+v", 200, o.Payload)
 }
 
 func (o *AddOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(AddOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewAddDefault creates a AddDefault with default headers values
+func NewAddDefault(code int) *AddDefault {
+	return &AddDefault{
+		_statusCode: code,
+	}
+}
+
+/*AddDefault handles this case with default header values.
+
+An error response.
+*/
+type AddDefault struct {
+	_statusCode int
+
+	Payload *AddDefaultBody
+}
+
+// Code gets the status code for the add default response
+func (o *AddDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *AddDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] Add default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *AddDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(AddDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -130,7 +175,45 @@ func (o *AddBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddOKBody add o k body
+/*AddDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddDefaultBody
+*/
+type AddDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this add default body
+func (o *AddDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddOKBody add OK body
 swagger:model AddOKBody
 */
 type AddOKBody struct {
@@ -145,7 +228,7 @@ type AddOKBody struct {
 	Service *AddOKBodyService `json:"service,omitempty"`
 }
 
-// Validate validates this add o k body
+// Validate validates this add OK body
 func (o *AddOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -176,7 +259,7 @@ func (o *AddOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addOK" + "." + "mysqld_exporter")
+				return ve.ValidateName("addOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -194,7 +277,7 @@ func (o *AddOKBody) validateQANMysqlPerfschema(formats strfmt.Registry) error {
 	if o.QANMysqlPerfschema != nil {
 		if err := o.QANMysqlPerfschema.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addOK" + "." + "qan_mysql_perfschema")
+				return ve.ValidateName("addOk" + "." + "qan_mysql_perfschema")
 			}
 			return err
 		}
@@ -212,7 +295,7 @@ func (o *AddOKBody) validateService(formats strfmt.Registry) error {
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addOK" + "." + "service")
+				return ve.ValidateName("addOk" + "." + "service")
 			}
 			return err
 		}
@@ -270,7 +353,7 @@ type AddOKBodyMysqldExporter struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add o k body mysqld exporter
+// Validate validates this add OK body mysqld exporter
 func (o *AddOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -284,7 +367,7 @@ func (o *AddOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addOKBodyMysqldExporterTypeStatusPropEnum []interface{}
+var addOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -292,7 +375,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addOKBodyMysqldExporterTypeStatusPropEnum = append(addOKBodyMysqldExporterTypeStatusPropEnum, v)
+		addOkBodyMysqldExporterTypeStatusPropEnum = append(addOkBodyMysqldExporterTypeStatusPropEnum, v)
 	}
 }
 
@@ -319,7 +402,7 @@ const (
 
 // prop value enum
 func (o *AddOKBodyMysqldExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addOKBodyMysqldExporterTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, addOkBodyMysqldExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -332,7 +415,7 @@ func (o *AddOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) error 
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addOK"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -385,7 +468,7 @@ type AddOKBodyQANMysqlPerfschema struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add o k body QAN mysql perfschema
+// Validate validates this add OK body QAN mysql perfschema
 func (o *AddOKBodyQANMysqlPerfschema) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -399,7 +482,7 @@ func (o *AddOKBodyQANMysqlPerfschema) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addOKBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
+var addOkBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -407,7 +490,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addOKBodyQanMysqlPerfschemaTypeStatusPropEnum = append(addOKBodyQanMysqlPerfschemaTypeStatusPropEnum, v)
+		addOkBodyQanMysqlPerfschemaTypeStatusPropEnum = append(addOkBodyQanMysqlPerfschemaTypeStatusPropEnum, v)
 	}
 }
 
@@ -434,7 +517,7 @@ const (
 
 // prop value enum
 func (o *AddOKBodyQANMysqlPerfschema) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addOKBodyQanMysqlPerfschemaTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, addOkBodyQanMysqlPerfschemaTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -447,7 +530,7 @@ func (o *AddOKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registry) er
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addOK"+"."+"qan_mysql_perfschema"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addOk"+"."+"qan_mysql_perfschema"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -496,7 +579,7 @@ type AddOKBodyService struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this add o k body service
+// Validate validates this add OK body service
 func (o *AddOKBodyService) Validate(formats strfmt.Registry) error {
 	return nil
 }

@@ -7,6 +7,7 @@ import fmt "fmt"
 import github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 import proto "github.com/golang/protobuf/proto"
 import math "math"
+import _ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 import _ "github.com/mwitkow/go-proto-validators"
 import _ "google.golang.org/genproto/googleapis/api/annotations"
 
@@ -40,6 +41,10 @@ func (this *MongoDBExporter) Validate() error {
 	return nil
 }
 func (this *QANMySQLPerfSchemaAgent) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *PostgresExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
@@ -93,6 +98,13 @@ func (this *ListAgentsResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschemaAgent", err)
+			}
+		}
+	}
+	for _, item := range this.PostgresExporter {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PostgresExporter", err)
 			}
 		}
 	}
@@ -154,6 +166,13 @@ func (this *GetAgentResponse) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_PostgresExporter); ok {
+		if oneOfNester.PostgresExporter != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PostgresExporter); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PostgresExporter", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *AddPMMAgentRequest) Validate() error {
@@ -171,6 +190,17 @@ func (this *AddPMMAgentResponse) Validate() error {
 	}
 	return nil
 }
+func (this *ChangePMMAgentRequest) Validate() error {
+	return nil
+}
+func (this *ChangePMMAgentResponse) Validate() error {
+	if this.PmmAgent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmAgent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PmmAgent", err)
+		}
+	}
+	return nil
+}
 func (this *AddNodeExporterRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -179,6 +209,21 @@ func (this *AddNodeExporterRequest) Validate() error {
 	return nil
 }
 func (this *AddNodeExporterResponse) Validate() error {
+	if this.NodeExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.NodeExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("NodeExporter", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeNodeExporterRequest) Validate() error {
+	if this.AgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *ChangeNodeExporterResponse) Validate() error {
 	if this.NodeExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.NodeExporter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("NodeExporter", err)
@@ -207,6 +252,17 @@ func (this *AddMySQLdExporterResponse) Validate() error {
 	}
 	return nil
 }
+func (this *ChangeMySQLdExporterRequest) Validate() error {
+	return nil
+}
+func (this *ChangeMySQLdExporterResponse) Validate() error {
+	if this.MysqldExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MysqldExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("MysqldExporter", err)
+		}
+	}
+	return nil
+}
 func (this *AddRDSExporterRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -222,6 +278,17 @@ func (this *AddRDSExporterResponse) Validate() error {
 	}
 	return nil
 }
+func (this *ChangeRDSExporterRequest) Validate() error {
+	return nil
+}
+func (this *ChangeRDSExporterResponse) Validate() error {
+	if this.RdsExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.RdsExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("RdsExporter", err)
+		}
+	}
+	return nil
+}
 func (this *AddExternalExporterRequest) Validate() error {
 	if this.MetricsUrl == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("MetricsUrl", fmt.Errorf(`value '%v' must not be an empty string`, this.MetricsUrl))
@@ -230,6 +297,17 @@ func (this *AddExternalExporterRequest) Validate() error {
 	return nil
 }
 func (this *AddExternalExporterResponse) Validate() error {
+	if this.ExternalExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeExternalExporterRequest) Validate() error {
+	return nil
+}
+func (this *ChangeExternalExporterResponse) Validate() error {
 	if this.ExternalExporter != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ExternalExporter); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ExternalExporter", err)
@@ -258,6 +336,17 @@ func (this *AddMongoDBExporterResponse) Validate() error {
 	}
 	return nil
 }
+func (this *ChangeMongoDBExporterRequest) Validate() error {
+	return nil
+}
+func (this *ChangeMongoDBExporterResponse) Validate() error {
+	if this.MongodbExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.MongodbExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("MongodbExporter", err)
+		}
+	}
+	return nil
+}
 func (this *AddQANMySQLPerfSchemaAgentRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
@@ -275,6 +364,49 @@ func (this *AddQANMySQLPerfSchemaAgentResponse) Validate() error {
 	if this.QanMysqlPerfschemaAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMysqlPerfschemaAgent); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschemaAgent", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeQANMySQLPerfSchemaAgentRequest) Validate() error {
+	return nil
+}
+func (this *ChangeQANMySQLPerfSchemaAgentResponse) Validate() error {
+	if this.QanMysqlPerfschemaAgent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMysqlPerfschemaAgent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschemaAgent", err)
+		}
+	}
+	return nil
+}
+func (this *AddPostgresExporterRequest) Validate() error {
+	if this.PmmAgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
+	}
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	if this.Username == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *AddPostgresExporterResponse) Validate() error {
+	if this.PostgresExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PostgresExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PostgresExporter", err)
+		}
+	}
+	return nil
+}
+func (this *ChangePostgresExporterRequest) Validate() error {
+	return nil
+}
+func (this *ChangePostgresExporterResponse) Validate() error {
+	if this.PostgresExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PostgresExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PostgresExporter", err)
 		}
 	}
 	return nil

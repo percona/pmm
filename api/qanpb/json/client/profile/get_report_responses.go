@@ -35,7 +35,14 @@ func (o *GetReportReader) ReadResponse(response runtime.ClientResponse, consumer
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewGetReportDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -53,12 +60,50 @@ type GetReportOK struct {
 }
 
 func (o *GetReportOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/GetReport][%d] getReportOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/qan/GetReport][%d] getReportOk  %+v", 200, o.Payload)
 }
 
 func (o *GetReportOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(GetReportOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewGetReportDefault creates a GetReportDefault with default headers values
+func NewGetReportDefault(code int) *GetReportDefault {
+	return &GetReportDefault{
+		_statusCode: code,
+	}
+}
+
+/*GetReportDefault handles this case with default header values.
+
+An error response.
+*/
+type GetReportDefault struct {
+	_statusCode int
+
+	Payload *GetReportDefaultBody
+}
+
+// Code gets the status code for the get report default response
+func (o *GetReportDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *GetReportDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/qan/GetReport][%d] GetReport default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetReportDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(GetReportDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -191,6 +236,44 @@ func (o *GetReportBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+/*GetReportDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model GetReportDefaultBody
+*/
+type GetReportDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this get report default body
+func (o *GetReportDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetReportDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetReportDefaultBody) UnmarshalBinary(b []byte) error {
+	var res GetReportDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*GetReportOKBody ReportReply is list of reports per quieryids, hosts etc.
 swagger:model GetReportOKBody
 */
@@ -209,7 +292,7 @@ type GetReportOKBody struct {
 	TotalRows int64 `json:"total_rows,omitempty"`
 }
 
-// Validate validates this get report o k body
+// Validate validates this get report OK body
 func (o *GetReportOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -237,7 +320,7 @@ func (o *GetReportOKBody) validateRows(formats strfmt.Registry) error {
 		if o.Rows[i] != nil {
 			if err := o.Rows[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("getReportOK" + "." + "rows" + "." + strconv.Itoa(i))
+					return ve.ValidateName("getReportOk" + "." + "rows" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

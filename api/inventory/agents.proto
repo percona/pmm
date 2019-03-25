@@ -2,11 +2,28 @@ syntax = "proto3";
 
 package inventory;
 
+// This option is used to set the default error response for all Swagger APIs generated from this file.
+// See also header.json.
+// It has to be copy&pasted into each file.
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  responses: {
+    key: "default"
+    value: {
+      description: "An error response."
+      schema: {
+        json_schema: {
+          ref: "#/definitions/inventorypbErrorResponse"
+        }
+      }
+    }
+  }
+};
 option go_package = "inventory";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventory/agent_status.proto";
+import "protoc-gen-swagger/options/annotations.proto";
 
 // PMMAgent runs on Generic on Container Node.
 message PMMAgent {
@@ -34,10 +51,8 @@ message NodeExporter {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
-  // TODO https://jira.percona.com/browse/PMM-3470
-  // bool enabled = 3;
-
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 3;
   // Actual Agent status.
   AgentStatus status = 4;
   // Listen port for scraping metrics.
@@ -62,7 +77,7 @@ message MySQLdExporter {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
+  // Desired Agent status: enabled (false) or disabled (true).
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 6;
 
@@ -88,7 +103,7 @@ message RDSExporter {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
+  // Desired Agent status: enabled (false) or disabled (true).
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 4;
 
@@ -110,9 +125,9 @@ message ExternalExporter {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
+  // Desired Agent status: enabled (false) or disabled (true).
   // TODO https://jira.percona.com/browse/PMM-3470
-  // bool enabled = 3;
+  // bool disabled = 3;
 
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
@@ -134,7 +149,7 @@ message MongoDBExporter {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
+  // Desired Agent status: enabled (false) or disabled (true).
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 6;
 
@@ -162,12 +177,40 @@ message QANMySQLPerfSchemaAgent {
   // Status fields below.
   //
 
-  // Desired Agent status: enabled or disabled.
+  // Desired Agent status: enabled (false) or disabled (true).
   // TODO https://jira.percona.com/browse/PMM-3470
   // bool enabled = 6;
 
   // Actual Agent status.
   AgentStatus status = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+// PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+message PostgresExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Service identifier.
+  string service_id = 3;
+  // PostgreSQL username for scraping metrics.
+  string username = 4;
+  // PostgreSQL password for scraping metrics.
+  string password = 5;
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled (false) or disabled (true).
+  // TODO https://jira.percona.com/browse/PMM-3470
+  // bool enabled = 6;
+
+  // Actual Agent status.
+  AgentStatus status = 7;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
@@ -193,6 +236,7 @@ message ListAgentsResponse {
   repeated ExternalExporter external_exporter = 5;
   repeated MongoDBExporter mongodb_exporter = 6;
   repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
+  repeated PostgresExporter postgres_exporter = 8;
 }
 
 // Get
@@ -215,6 +259,7 @@ message GetAgentResponse {
     ExternalExporter external_exporter = 5;
     MongoDBExporter mongodb_exporter = 6;
     QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
+    PostgresExporter postgres_exporter = 8;
   }
 }
 
@@ -237,7 +282,11 @@ message AddPMMAgentResponse {
   PMMAgent pmm_agent = 1;
 }
 
-// TODO ChangePMMAgentRequest https://jira.percona.com/browse/PMM-3470
+message ChangePMMAgentRequest {}
+
+message ChangePMMAgentResponse {
+  PMMAgent pmm_agent = 1;
+}
 
 // Add/Change NodeExporter
 
@@ -258,7 +307,26 @@ message AddNodeExporterResponse {
   NodeExporter node_exporter = 1;
 }
 
-// TODO ChangeNodeExporterRequest https://jira.percona.com/browse/PMM-3470
+message ChangeNodeExporterRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Enable or disable this Agent.
+  oneof change_disabled {
+    bool enabled = 2;
+    bool disabled = 3;
+  }
+  // Replace all custom user-assigned labels.
+  map<string, string> custom_labels = 4;
+  // Remove all custom user-assigned labels.
+  bool remove_custom_labels = 5;
+}
+
+message ChangeNodeExporterResponse {
+  NodeExporter node_exporter = 1;
+}
 
 // Add/Change MySQLdExporter
 
@@ -293,7 +361,11 @@ message AddMySQLdExporterResponse {
   MySQLdExporter mysqld_exporter = 1;
 }
 
-// TODO ChangeMySQLdExporterRequest https://jira.percona.com/browse/PMM-3470
+message ChangeMySQLdExporterRequest {}
+
+message ChangeMySQLdExporterResponse {
+  MySQLdExporter mysqld_exporter = 1;
+}
 
 // Add/Change RDSExporter
 
@@ -320,7 +392,11 @@ message AddRDSExporterResponse {
   RDSExporter rds_exporter = 1;
 }
 
-// TODO ChangeRDSExporterRequest https://jira.percona.com/browse/PMM-3470
+message ChangeRDSExporterRequest {}
+
+message ChangeRDSExporterResponse {
+  RDSExporter rds_exporter = 1;
+}
 
 // Add/Change ExternalExporter
 
@@ -341,7 +417,11 @@ message AddExternalExporterResponse {
   ExternalExporter external_exporter = 1;
 }
 
-// TODO ChangeExternalExporterRequest https://jira.percona.com/browse/PMM-3470
+message ChangeExternalExporterRequest {}
+
+message ChangeExternalExporterResponse {
+  ExternalExporter external_exporter = 1;
+}
 
 // Add/Change MongoDBExporter
 
@@ -376,7 +456,11 @@ message AddMongoDBExporterResponse {
   MongoDBExporter mongodb_exporter = 1;
 }
 
-// TODO ChangeMongoDBExporterResponse https://jira.percona.com/browse/PMM-3470
+message ChangeMongoDBExporterRequest {}
+
+message ChangeMongoDBExporterResponse {
+  MongoDBExporter mongodb_exporter = 1;
+}
 
 // Add/Change QANMySQLPerfSchemaAgent
 
@@ -411,7 +495,50 @@ message AddQANMySQLPerfSchemaAgentResponse {
   QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 1;
 }
 
-// TODO ChangeQANMySQLPerfSchemaAgentResponse https://jira.percona.com/browse/PMM-3470
+message ChangeQANMySQLPerfSchemaAgentRequest {}
+
+message ChangeQANMySQLPerfSchemaAgentResponse {
+  QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 1;
+}
+
+// Add/Change PostgresExporter
+
+message AddPostgresExporterRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PostgreSQL username for scraping metrics.
+  string username = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PostgreSQL password for scraping metrics.
+  string password = 5;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+message AddPostgresExporterResponse {
+  PostgresExporter postgres_exporter = 1;
+}
+
+message ChangePostgresExporterRequest {}
+
+message ChangePostgresExporterResponse {
+  PostgresExporter postgres_exporter = 1;
+}
 
 // Remove
 
@@ -448,10 +575,24 @@ service Agents {
       body: "*"
     };
   }
+  // ChangePMMAgent changes pmm-agent Agent.
+  rpc ChangePMMAgent(ChangePMMAgentRequest) returns (ChangePMMAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangePMMAgent"
+      body: "*"
+    };
+  }
   // AddNodeExporter adds node_exporter Agent.
   rpc AddNodeExporter(AddNodeExporterRequest) returns (AddNodeExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddNodeExporter"
+      body: "*"
+    };
+  }
+  // ChangeNodeExporter changes node_exporter Agent.
+  rpc ChangeNodeExporter(ChangeNodeExporterRequest) returns (ChangeNodeExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeNodeExporter"
       body: "*"
     };
   }
@@ -462,10 +603,24 @@ service Agents {
       body: "*"
     };
   }
+  // ChangeMySQLdExporter changes mysqld_exporter Agent.
+  rpc ChangeMySQLdExporter(ChangeMySQLdExporterRequest) returns (ChangeMySQLdExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeMySQLdExporter"
+      body: "*"
+    };
+  }
   // AddRDSExporter adds rds_exporter Agent.
   rpc AddRDSExporter(AddRDSExporterRequest) returns (AddRDSExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddRDSExporter"
+      body: "*"
+    };
+  }
+  // ChangeRDSExporter changes rds_exporter Agent.
+  rpc ChangeRDSExporter(ChangeRDSExporterRequest) returns (ChangeRDSExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeRDSExporter"
       body: "*"
     };
   }
@@ -476,6 +631,13 @@ service Agents {
       body: "*"
     };
   }
+  // ChangeExternalExporter changes External Agent.
+  rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeExternalExporter"
+      body: "*"
+    };
+  }
   // AddMongoDBExporter adds mongodb_exporter Agent.
   rpc AddMongoDBExporter(AddMongoDBExporterRequest) returns (AddMongoDBExporterResponse) {
     option (google.api.http) = {
@@ -483,10 +645,38 @@ service Agents {
       body: "*"
     };
   }
+  // ChangeMongoDBExporter changes mongodb_exporter Agent.
+  rpc ChangeMongoDBExporter(ChangeMongoDBExporterRequest) returns (ChangeMongoDBExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeMongoDBExporter"
+      body: "*"
+    };
+  }
   // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
   rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"
+      body: "*"
+    };
+  }
+  // ChangeQANMySQLPerfSchemaAgent changes MySQL PerfSchema QAN Agent.
+  rpc ChangeQANMySQLPerfSchemaAgent(ChangeQANMySQLPerfSchemaAgentRequest) returns (ChangeQANMySQLPerfSchemaAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"
+      body: "*"
+    };
+  }
+  // AddPostgresExporter adds postgres_exporter Agent.
+  rpc AddPostgresExporter(AddPostgresExporterRequest) returns (AddPostgresExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddPostgresExporter"
+      body: "*"
+    };
+  }
+  // ChangePostgresExporter changes postgres_exporter Agent.
+  rpc ChangePostgresExporter(ChangePostgresExporterRequest) returns (ChangePostgresExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangePostgresExporter"
       body: "*"
     };
   }

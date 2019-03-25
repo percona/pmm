@@ -35,7 +35,14 @@ func (o *GetAgentReader) ReadResponse(response runtime.ClientResponse, consumer 
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewGetAgentDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -53,12 +60,50 @@ type GetAgentOK struct {
 }
 
 func (o *GetAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Get][%d] getAgentOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v1/inventory/Agents/Get][%d] getAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *GetAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
 	o.Payload = new(GetAgentOKBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+// NewGetAgentDefault creates a GetAgentDefault with default headers values
+func NewGetAgentDefault(code int) *GetAgentDefault {
+	return &GetAgentDefault{
+		_statusCode: code,
+	}
+}
+
+/*GetAgentDefault handles this case with default header values.
+
+An error response.
+*/
+type GetAgentDefault struct {
+	_statusCode int
+
+	Payload *GetAgentDefaultBody
+}
+
+// Code gets the status code for the get agent default response
+func (o *GetAgentDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *GetAgentDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/inventory/Agents/Get][%d] GetAgent default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *GetAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(GetAgentDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -100,7 +145,45 @@ func (o *GetAgentBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBody get agent o k body
+/*GetAgentDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model GetAgentDefaultBody
+*/
+type GetAgentDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this get agent default body
+func (o *GetAgentDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentDefaultBody) UnmarshalBinary(b []byte) error {
+	var res GetAgentDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentOKBody get agent OK body
 swagger:model GetAgentOKBody
 */
 type GetAgentOKBody struct {
@@ -120,6 +203,9 @@ type GetAgentOKBody struct {
 	// pmm agent
 	PMMAgent *GetAgentOKBodyPMMAgent `json:"pmm_agent,omitempty"`
 
+	// postgres exporter
+	PostgresExporter *GetAgentOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
+
 	// qan mysql perfschema agent
 	QANMysqlPerfschemaAgent *GetAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
 
@@ -127,7 +213,7 @@ type GetAgentOKBody struct {
 	RDSExporter *GetAgentOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
 
-// Validate validates this get agent o k body
+// Validate validates this get agent OK body
 func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -148,6 +234,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validatePMMAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePostgresExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -174,7 +264,7 @@ func (o *GetAgentOKBody) validateExternalExporter(formats strfmt.Registry) error
 	if o.ExternalExporter != nil {
 		if err := o.ExternalExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOK" + "." + "external_exporter")
+				return ve.ValidateName("getAgentOk" + "." + "external_exporter")
 			}
 			return err
 		}
@@ -192,7 +282,7 @@ func (o *GetAgentOKBody) validateMongodbExporter(formats strfmt.Registry) error 
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOK" + "." + "mongodb_exporter")
+				return ve.ValidateName("getAgentOk" + "." + "mongodb_exporter")
 			}
 			return err
 		}
@@ -210,7 +300,7 @@ func (o *GetAgentOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOK" + "." + "mysqld_exporter")
+				return ve.ValidateName("getAgentOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -228,7 +318,7 @@ func (o *GetAgentOKBody) validateNodeExporter(formats strfmt.Registry) error {
 	if o.NodeExporter != nil {
 		if err := o.NodeExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOK" + "." + "node_exporter")
+				return ve.ValidateName("getAgentOk" + "." + "node_exporter")
 			}
 			return err
 		}
@@ -246,7 +336,25 @@ func (o *GetAgentOKBody) validatePMMAgent(formats strfmt.Registry) error {
 	if o.PMMAgent != nil {
 		if err := o.PMMAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOK" + "." + "pmm_agent")
+				return ve.ValidateName("getAgentOk" + "." + "pmm_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) validatePostgresExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PostgresExporter) { // not required
+		return nil
+	}
+
+	if o.PostgresExporter != nil {
+		if err := o.PostgresExporter.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "postgres_exporter")
 			}
 			return err
 		}
@@ -264,7 +372,7 @@ func (o *GetAgentOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registry
 	if o.QANMysqlPerfschemaAgent != nil {
 		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOK" + "." + "qan_mysql_perfschema_agent")
+				return ve.ValidateName("getAgentOk" + "." + "qan_mysql_perfschema_agent")
 			}
 			return err
 		}
@@ -282,7 +390,7 @@ func (o *GetAgentOKBody) validateRDSExporter(formats strfmt.Registry) error {
 	if o.RDSExporter != nil {
 		if err := o.RDSExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOK" + "." + "rds_exporter")
+				return ve.ValidateName("getAgentOk" + "." + "rds_exporter")
 			}
 			return err
 		}
@@ -324,7 +432,7 @@ type GetAgentOKBodyExternalExporter struct {
 	MetricsURL string `json:"metrics_url,omitempty"`
 }
 
-// Validate validates this get agent o k body external exporter
+// Validate validates this get agent OK body external exporter
 func (o *GetAgentOKBodyExternalExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -378,7 +486,7 @@ type GetAgentOKBodyMongodbExporter struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this get agent o k body mongodb exporter
+// Validate validates this get agent OK body mongodb exporter
 func (o *GetAgentOKBodyMongodbExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -392,7 +500,7 @@ func (o *GetAgentOKBodyMongodbExporter) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var getAgentOKBodyMongodbExporterTypeStatusPropEnum []interface{}
+var getAgentOkBodyMongodbExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -400,7 +508,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		getAgentOKBodyMongodbExporterTypeStatusPropEnum = append(getAgentOKBodyMongodbExporterTypeStatusPropEnum, v)
+		getAgentOkBodyMongodbExporterTypeStatusPropEnum = append(getAgentOkBodyMongodbExporterTypeStatusPropEnum, v)
 	}
 }
 
@@ -427,7 +535,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyMongodbExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOKBodyMongodbExporterTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, getAgentOkBodyMongodbExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -440,7 +548,7 @@ func (o *GetAgentOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) 
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("getAgentOK"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("getAgentOk"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -496,7 +604,7 @@ type GetAgentOKBodyMysqldExporter struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this get agent o k body mysqld exporter
+// Validate validates this get agent OK body mysqld exporter
 func (o *GetAgentOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -510,7 +618,7 @@ func (o *GetAgentOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var getAgentOKBodyMysqldExporterTypeStatusPropEnum []interface{}
+var getAgentOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -518,7 +626,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		getAgentOKBodyMysqldExporterTypeStatusPropEnum = append(getAgentOKBodyMysqldExporterTypeStatusPropEnum, v)
+		getAgentOkBodyMysqldExporterTypeStatusPropEnum = append(getAgentOkBodyMysqldExporterTypeStatusPropEnum, v)
 	}
 }
 
@@ -545,7 +653,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyMysqldExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOKBodyMysqldExporterTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, getAgentOkBodyMysqldExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -558,7 +666,7 @@ func (o *GetAgentOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) e
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("getAgentOK"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("getAgentOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -594,6 +702,9 @@ type GetAgentOKBodyNodeExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
 
@@ -605,7 +716,7 @@ type GetAgentOKBodyNodeExporter struct {
 	Status *string `json:"status,omitempty"`
 }
 
-// Validate validates this get agent o k body node exporter
+// Validate validates this get agent OK body node exporter
 func (o *GetAgentOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -619,7 +730,7 @@ func (o *GetAgentOKBodyNodeExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var getAgentOKBodyNodeExporterTypeStatusPropEnum []interface{}
+var getAgentOkBodyNodeExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -627,7 +738,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		getAgentOKBodyNodeExporterTypeStatusPropEnum = append(getAgentOKBodyNodeExporterTypeStatusPropEnum, v)
+		getAgentOkBodyNodeExporterTypeStatusPropEnum = append(getAgentOkBodyNodeExporterTypeStatusPropEnum, v)
 	}
 }
 
@@ -654,7 +765,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyNodeExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOKBodyNodeExporterTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, getAgentOkBodyNodeExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -667,7 +778,7 @@ func (o *GetAgentOKBodyNodeExporter) validateStatus(formats strfmt.Registry) err
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("getAgentOK"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("getAgentOk"+"."+"node_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -710,7 +821,7 @@ type GetAgentOKBodyPMMAgent struct {
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
 }
 
-// Validate validates this get agent o k body PMM agent
+// Validate validates this get agent OK body PMM agent
 func (o *GetAgentOKBodyPMMAgent) Validate(formats strfmt.Registry) error {
 	return nil
 }
@@ -726,6 +837,124 @@ func (o *GetAgentOKBodyPMMAgent) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetAgentOKBodyPMMAgent) UnmarshalBinary(b []byte) error {
 	var res GetAgentOKBodyPMMAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+swagger:model GetAgentOKBodyPostgresExporter
+*/
+type GetAgentOKBodyPostgresExporter struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// PostgreSQL password for scraping metrics.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// PostgreSQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+}
+
+// Validate validates this get agent OK body postgres exporter
+func (o *GetAgentOKBodyPostgresExporter) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOkBodyPostgresExporterTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyPostgresExporterTypeStatusPropEnum = append(getAgentOkBodyPostgresExporterTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyPostgresExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyPostgresExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// GetAgentOKBodyPostgresExporterStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyPostgresExporterStatusSTARTING string = "STARTING"
+
+	// GetAgentOKBodyPostgresExporterStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyPostgresExporterStatusRUNNING string = "RUNNING"
+
+	// GetAgentOKBodyPostgresExporterStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyPostgresExporterStatusWAITING string = "WAITING"
+
+	// GetAgentOKBodyPostgresExporterStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyPostgresExporterStatusSTOPPING string = "STOPPING"
+
+	// GetAgentOKBodyPostgresExporterStatusDONE captures enum value "DONE"
+	GetAgentOKBodyPostgresExporterStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyPostgresExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getAgentOkBodyPostgresExporterTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyPostgresExporter) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyPostgresExporter) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyPostgresExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -761,7 +990,7 @@ type GetAgentOKBodyQANMysqlPerfschemaAgent struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this get agent o k body QAN mysql perfschema agent
+// Validate validates this get agent OK body QAN mysql perfschema agent
 func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -775,7 +1004,7 @@ func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) Validate(formats strfmt.Registry
 	return nil
 }
 
-var getAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []interface{}
+var getAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -783,7 +1012,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		getAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum = append(getAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum, v)
+		getAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum = append(getAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum, v)
 	}
 }
 
@@ -810,7 +1039,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOKBodyQanMysqlPerfschemaAgentTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, getAgentOkBodyQanMysqlPerfschemaAgentTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -823,7 +1052,7 @@ func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) validateStatus(formats strfmt.Re
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("getAgentOK"+"."+"qan_mysql_perfschema_agent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_mysql_perfschema_agent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -873,7 +1102,7 @@ type GetAgentOKBodyRDSExporter struct {
 	Status *string `json:"status,omitempty"`
 }
 
-// Validate validates this get agent o k body RDS exporter
+// Validate validates this get agent OK body RDS exporter
 func (o *GetAgentOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
@@ -887,7 +1116,7 @@ func (o *GetAgentOKBodyRDSExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var getAgentOKBodyRdsExporterTypeStatusPropEnum []interface{}
+var getAgentOkBodyRdsExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -895,7 +1124,7 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		getAgentOKBodyRdsExporterTypeStatusPropEnum = append(getAgentOKBodyRdsExporterTypeStatusPropEnum, v)
+		getAgentOkBodyRdsExporterTypeStatusPropEnum = append(getAgentOkBodyRdsExporterTypeStatusPropEnum, v)
 	}
 }
 
@@ -922,7 +1151,7 @@ const (
 
 // prop value enum
 func (o *GetAgentOKBodyRDSExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOKBodyRdsExporterTypeStatusPropEnum); err != nil {
+	if err := validate.Enum(path, location, value, getAgentOkBodyRdsExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
@@ -935,7 +1164,7 @@ func (o *GetAgentOKBodyRDSExporter) validateStatus(formats strfmt.Registry) erro
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("getAgentOK"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("getAgentOk"+"."+"rds_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 

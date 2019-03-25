@@ -32,7 +32,14 @@ func (o *StatusReader) ReadResponse(response runtime.ClientResponse, consumer ru
 		return result, nil
 
 	default:
-		return nil, runtime.NewAPIError("unknown error", response, response.Code())
+		result := NewStatusDefault(response.Code())
+		if err := result.readResponse(response, consumer, o.formats); err != nil {
+			return nil, err
+		}
+		if response.Code()/100 == 2 {
+			return result, nil
+		}
+		return nil, result
 	}
 }
 
@@ -50,7 +57,7 @@ type StatusOK struct {
 }
 
 func (o *StatusOK) Error() string {
-	return fmt.Sprintf("[POST /local/Status][%d] statusOK  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /local/Status][%d] statusOk  %+v", 200, o.Payload)
 }
 
 func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -65,7 +72,83 @@ func (o *StatusOK) readResponse(response runtime.ClientResponse, consumer runtim
 	return nil
 }
 
-/*StatusOKBody status o k body
+// NewStatusDefault creates a StatusDefault with default headers values
+func NewStatusDefault(code int) *StatusDefault {
+	return &StatusDefault{
+		_statusCode: code,
+	}
+}
+
+/*StatusDefault handles this case with default header values.
+
+An error response.
+*/
+type StatusDefault struct {
+	_statusCode int
+
+	Payload *StatusDefaultBody
+}
+
+// Code gets the status code for the status default response
+func (o *StatusDefault) Code() int {
+	return o._statusCode
+}
+
+func (o *StatusDefault) Error() string {
+	return fmt.Sprintf("[POST /local/Status][%d] Status default  %+v", o._statusCode, o.Payload)
+}
+
+func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+
+	o.Payload = new(StatusDefaultBody)
+
+	// response payload
+	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+		return err
+	}
+
+	return nil
+}
+
+/*StatusDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model StatusDefaultBody
+*/
+type StatusDefaultBody struct {
+
+	// code
+	Code int32 `json:"code,omitempty"`
+
+	// error
+	Error string `json:"error,omitempty"`
+
+	// message
+	Message string `json:"message,omitempty"`
+}
+
+// Validate validates this status default body
+func (o *StatusDefaultBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *StatusDefaultBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *StatusDefaultBody) UnmarshalBinary(b []byte) error {
+	var res StatusDefaultBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*StatusOKBody status OK body
 swagger:model StatusOKBody
 */
 type StatusOKBody struct {
@@ -77,7 +160,7 @@ type StatusOKBody struct {
 	NodeID string `json:"node_id,omitempty"`
 }
 
-// Validate validates this status o k body
+// Validate validates this status OK body
 func (o *StatusOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
