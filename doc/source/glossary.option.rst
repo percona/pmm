@@ -42,7 +42,7 @@ with different properties,  you should run a new container instead.
       cause unpredictable results. This could include data loss.
 
 4. Start the container with the new settings. For example, changing
-   :term:`METRICS_RETENTION <METRICS_RETENTION>` would look as follows::
+   :option:`METRICS_RETENTION` would look as follows::
 
       docker run -d \
         -p 80:80 \
@@ -60,7 +60,7 @@ with different properties,  you should run a new container instead.
 List of |pmm-server| Parameters
 ================================================================================
 
-.. term:: DISABLE_TELEMETRY
+.. option:: DISABLE_TELEMETRY
 
    With :term:`telemetry` enabled, your |pmm-server| sends some statistics to
    `v.percona.com`_ every 24 hours. This statistics includes the following
@@ -95,7 +95,7 @@ List of |pmm-server| Parameters
       Data retention in PMM
        :term:`Data retention`
       Queries retention
-       :term:`QUERIES_RETENTION <QUERIES_RETENTION>`
+       :option:`QUERIES_RETENTION`
 
 .. option:: QUERIES_RETENTION
 
@@ -106,7 +106,7 @@ List of |pmm-server| Parameters
    .. seealso::
 
       Metrics retention
-       :term:`METRICS_RETENTION <METRICS_RETENTION>`
+       :option:`METRICS_RETENTION`
       Data retention in PMM
        :term:`Data retention`
 
@@ -123,19 +123,18 @@ List of |pmm-server| Parameters
       Orchestrator
         :term:`Orchestrator`
       Orchestrator Credentials
-        - :term:`ORCHESTRATOR_USER <ORCHESTRATOR_USER>`
-        - :term:`ORCHESTRATOR_PASSWORD <ORCHESTRATOR_PASSWORD>`
+        - :option:`ORCHESTRATOR_USER`
+        - :option:`ORCHESTRATOR_PASSWORD`
 
 .. option:: ORCHESTRATOR_USER
 
    Pass this option, when running your :term:`PMM Server` via
    |docker| to set the orchestrator user. You only need this
-   parameter (along with :term:`ORCHESTRATOR_PASSWORD
-   <ORCHESTRATOR_PASSWORD>` if you have set up a custom
+   parameter (along with :option:`ORCHESTRATOR_PASSWORD` if you have set up a custom
    |orchestrator| user.
 
    This option has no effect if the
-   :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED>` option is
+   :option:`ORCHESTRATOR_ENABLED` option is
    set to **false**.
 
    .. include:: .res/code/docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password.txt
@@ -146,12 +145,12 @@ List of |pmm-server| Parameters
    the orchestrator password.
 
    This option has no effect if the
-   :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED>`
+   :option:`ORCHESTRATOR_ENABLED`
    option is set to **false**.
 
    .. include:: .res/code/docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password.txt
 
-   .. seealso:: :term:`ORCHESTRATOR_ENABLED <ORCHESTRATOR_ENABLED>`
+   .. seealso:: :option:`ORCHESTRATOR_ENABLED`
 
 .. option:: SERVER_USER
 
@@ -171,7 +170,7 @@ List of |pmm-server| Parameters
    .. include:: .res/code/docker.run.server-password.txt
 
    By default, the user name is ``pmm``. You can change it by passing the
-   :term:`SERVER_USER <SERVER_USER>` variable.
+   :option:`SERVER_USER` variable.
 
 .. option:: METRICS_RESOLUTION
 

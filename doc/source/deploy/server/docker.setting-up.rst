@@ -109,7 +109,7 @@ This command does the following:
 
 To install specific |pmm-server| version instead of the latest one, just put
 desired version number after the colon. Also in this scenario it may be useful
-to `prevent updating PMM Server via the web interface <https://www.percona.com/doc/percona-monitoring-and-management/glossary.option.html>`_ with the ``DISABLE_UPDATES`` docker option.
+to `prevent updating PMM Server via the web interface <https://www.percona.com/doc/percona-monitoring-and-management/glossary.option.html>`_ with the :option:`DISABLE_UPDATES` docker option.
 
 For example, installing version 1.14.1 with disabled update button in the web
 interface would look as follows:

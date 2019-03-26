@@ -1029,13 +1029,13 @@ The following options can be used with the |pmm-admin.config| command:
 |opt.server-insecure-ssl|
   Enable insecure SSL (self-signed certificate).
 
-|opt.server-password|
+``--SERVER_PASSWORD``
   Specify the HTTP password configured on |pmm-server|.
 
 |opt.server-ssl|
   Enable SSL encryption for connection to |pmm-server|.
 
-|opt.server-user|
+``--SERVER_USER``
   Specify the HTTP user configured on |pmm-server| (default is ``pmm``).
 
 You can also use

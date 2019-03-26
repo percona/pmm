@@ -42,17 +42,16 @@ Terminology Reference
       Depending on available disk space and your requirements, you may
       need to adjust data retention time.
 
-      You can control data retention by passing the :term:`METRICS_RETENTION
-      <METRICS_RETENTION>` and :term:`QUERIES_RETENTION
-      <QUERIES_RETENTION>` environment variables when :ref:`creating
+      You can control data retention by passing the :option:`METRICS_RETENTION`
+      and :option:`QUERIES_RETENTION` environment variables when :ref:`creating
       and running the PMM Server container <server-container>`.
 
       .. seealso::
 
 	 Metrics retention
-	    :term:`METRICS_RETENTION <METRICS_RETENTION>`
+	    :option:`METRICS_RETENTION`
 	 Queries retention
-	    :term:`QUERIES_RETENTION <QUERIES_RETENTION>`
+	    :option:`QUERIES_RETENTION`
 
    Default ports
 
@@ -120,7 +119,7 @@ Terminology Reference
       .. seealso::
 
 	 Docker container: Enabling orchestrator
-	    :term:`ORCHESTRATOR_ENABLED`
+	    :option:`ORCHESTRATOR_ENABLED`
 
    Data Source Name
 
