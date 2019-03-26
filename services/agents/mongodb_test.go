@@ -43,7 +43,6 @@ func TestMongodbExporterConfig(t *testing.T) {
 		Args: []string{
 			"--collect.collection",
 			"--collect.database",
-			"--collect.indexusage",
 			"--collect.topmetrics",
 			"--web.listen-address=:{{ .listen_port }}",
 		},

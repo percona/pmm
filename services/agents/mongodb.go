@@ -41,7 +41,6 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent) *age
 		"--collect.database",
 		"--collect.collection",
 		"--collect.topmetrics",
-		"--collect.indexusage",
 		"--web.listen-address=:" + tdp.left + " .listen_port " + tdp.right,
 	}
 
