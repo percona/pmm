@@ -20,14 +20,41 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 option go_package = "agentlocalpb";
 
+import "agentpb/agent.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+import "inventory/agent_status.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
-message StatusRequest {}
+// ServerInfo returns information about server which agent was connected.
+message ServerInfo {
+  string url = 1;
+  bool insecure_tls = 2;
+  string version = 3;
+  google.protobuf.Timestamp last_ping_time = 4;
+  google.protobuf.Duration latency = 5;
+}
 
+// AgentInfo returns information about agent which was runned by pmm-agent.
+message AgentInfo {
+  string agent_id = 1;
+  agent.Type agent_type = 2;
+  inventory.AgentStatus status = 3;
+  repeated string logs = 4;
+}
+
+// StatusRequest describes request to get local pmm-agent info.
+message StatusRequest {
+  bool get_logs = 1;
+}
+
+// StatusResponse return information about pmm-agent from local api.
 message StatusResponse {
   string agent_id = 1;
-  string node_id = 2;
+  string runs_on_node_id = 2;
+  ServerInfo server_info = 3;
+  repeated AgentInfo agents_info = 4;
 }
 
 // AgentLocal service provides public methods for checking pmm-agent status locally.
