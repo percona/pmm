@@ -65,13 +65,10 @@ Terminology Reference
 
       |pmm-server| should keep ports 80 or 443 ports open for
       computers where |pmm-client| is installed to access the |pmm|
-      web interface.
+      web interface and the |qan| agent.
 
       42000
          For |pmm| to collect genenal system metrics.
-      42001
-         This port is used by a service which collects query performance data
-         and makes it available to |qan|.
       42002
          For |pmm| to collect |mysql| server metrics.
       42003
