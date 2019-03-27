@@ -81,10 +81,13 @@ func GetAgentConnectMetadata(ctx context.Context) AgentConnectMetadata {
 	return res
 }
 
-// AddAgentServerMetadata adds metadata to pmm-managed's Connect RPC call.
+// AddAgentServerMetadata adds metadata to pmm-managed's Connect RPC call and returns it for sending.
 // Used by pmm-managed.
-func AddAgentServerMetadata(ctx context.Context, md *AgentServerMetadata) context.Context {
-	return metadata.AppendToOutgoingContext(ctx, mdNodeID, md.RunsOnNodeID, mdServerVersion, md.PmmManagedVersion)
+func AddAgentServerMetadata(md *AgentServerMetadata) metadata.MD {
+	return metadata.Pairs(
+		mdNodeID, md.RunsOnNodeID,
+		mdServerVersion, md.PmmManagedVersion,
+	)
 }
 
 // GetAgentServerMetadata returns pmm-managed's metadata.
