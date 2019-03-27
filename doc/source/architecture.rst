@@ -131,9 +131,9 @@ For more information, see :ref:`using`.
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
    Enabling orchestrator
-      :term:`Orchestrator` in :ref:`pmm.glossary.terminology-reference`
+      ref:`Orchestrator <Orchestrator>` in :ref:`pmm.glossary.terminology-reference`
 
 .. _pmm.using.orchestrator:
 

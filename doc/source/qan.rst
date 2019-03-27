@@ -50,7 +50,7 @@ host where the |pmm-client| is installed from the list of database instances.
 
 The |qan| dashboard will show a summary of the selected host and database
 activity metrics followed by the list of queries in a summary table. By
-default, |qan| shows the top *ten* queries ranked by :term:`%GTT` (Grand total
+default, |qan| shows the top *ten* queries ranked by :ref:`%GTT <GTT>` (Grand total
 time). Each query displays three essential metrics: *Load*, *Count*, and
 *Latency*. Also queries which are newly seen within the the time range selected
 are highlighted with a blue color for quicker identification.
@@ -179,10 +179,10 @@ the plotted line to watch how the value is changing.
 ================================================================================
 
 Click one of the queries to zoom it in. QAN displays detailed information about
-the query in the :term:`query metrics summary table` below the :term:`query
-summary table`. The detailed information includes the query type specific
-metrics. It also contains details about the database and tables which are used
-in the query.
+the query in the :ref:`Query Metrics Summary Table <Query-Metrics-Summary-Table>`
+below the :ref:`Query Summary Table <Query-Summary-Table>`. The detailed
+information includes the query type specific metrics. It also contains details
+about the database and tables which are used in the query.
 
 .. figure:: .res/graphics/png/qan.query-metrics.1.png
 
@@ -193,9 +193,9 @@ in the query.
 :ref:`Query Section <pmm.qan.query.selecting>`
 --------------------------------------------------------------------------------
    
-In addition to the metrics in the :term:`query metrics summary table`,
+In addition to the metrics in the :ref:`Query Metrics Summary Table <Query-Metrics-Summary-Table>`,
 :program:`QAN` displays more information about the query itself. The ``Query``
-section contains the :term:`fingerprint <Query Fingerprint>` and an example of
+section contains the :ref:`fingerprint <Query-Fingerprint>` and an example of
 the query.
 
 .. figure:: .res/graphics/png/qan.query.1.png
@@ -279,7 +279,7 @@ dashboard. To open this dashboard, use the |pmm| menu group.
 
 The |gui.settings| tab displays the essential configuration settings of
 the database server selected from the |gui.databases| list. From this tab
-you can see which :term:`DSN` is being used as well as the :term:`database
+you can see which :ref:`DSN` is being used as well as the :ref:`database
 server version <Version>`.
 
 This tab contains several settings which influence how the monitored data are
@@ -352,7 +352,7 @@ complex object is stored together.
 |qan| supports monitoring |mongodb| queries. Although |mongodb| is not a relational
 database management system, you analyze its databases and collections in the
 same interface using the same tools. By using the familiar and intuitive
-interface of :term:`QAN` you can analyze the efficiency of your application
+interface of :ref:`QAN <QAN>` you can analyze the efficiency of your application
 reading and writing data in the collections of your |mongodb| databases.
 
 .. seealso:: 

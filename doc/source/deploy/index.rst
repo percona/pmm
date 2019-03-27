@@ -60,8 +60,8 @@ the site will not show any data.
    ==================================== ======================================
    Component                            URL
    ==================================== ======================================
-   :term:`PMM Home Page`                ``http://192.168.100.1``
-   :term:`Metrics Monitor (MM)`         | ``http://192.168.100.1/graph/``
+   :ref:`PMM Home Page <PMM-Home-Page>  ``http://192.168.100.1``
+   :ref:`Metrics Monitor (MM) <Metrics-Monitor>`| ``http://192.168.100.1/graph/``
                                         | User name: ``admin``
                                         | Password: ``admin``
    Orchestrator                         ``http://192.168.100.1/orchestrator``
@@ -228,7 +228,7 @@ selected for installing it.
 
 If you are running |pmm-server| as a :ref:`virtual appliance <pmm.deploying.server.virtual-appliance>` or using an :ref:`Amazon Machine Image
 <run-server-ami>`, use the |gui.check-for-updates-manually| button on the Home
-dashboard (see :term:`PMM Home Page`).
+dashboard (see :ref:`PMM Home Page <PMM-Home-Page>`).
 
 .. figure:: ../.res/graphics/png/pmm.home-page.1.png
 

@@ -62,7 +62,7 @@ List of |pmm-server| Parameters
 
 .. option:: DISABLE_TELEMETRY
 
-   With :term:`telemetry` enabled, your |pmm-server| sends some statistics to
+   With :ref:`telemetry <Telemetry>` enabled, your |pmm-server| sends some statistics to
    `v.percona.com`_ every 24 hours. This statistics includes the following
    details:
 
@@ -79,8 +79,8 @@ List of |pmm-server| Parameters
 
 .. option:: METRICS_RETENTION
 
-   This option determines how long metrics are stored at :term:`PMM
-   Server`. The value is passed as a combination of hours, minutes, and
+   This option determines how long metrics are stored at :ref:`PMM
+   Server <PMM-Server>`. The value is passed as a combination of hours, minutes, and
    seconds, such as **720h0m0s**. The minutes (a number followed by *m*) and
    seconds (a number followed by *s*) are optional.
 
@@ -93,13 +93,13 @@ List of |pmm-server| Parameters
    .. seealso::
 
       Data retention in PMM
-       :term:`Data retention`
+       :ref:`Data retention <Data-retention>`
       Queries retention
        :option:`QUERIES_RETENTION`
 
 .. option:: QUERIES_RETENTION
 
-   This option determines how many days queries are stored at :term:`PMM Server`.
+   This option determines how many days queries are stored at :ref:`PMM Server <PMM-Server>`.
 
    .. include:: .res/code/docker.run.e.queries-retention.txt
 
@@ -108,7 +108,7 @@ List of |pmm-server| Parameters
       Metrics retention
        :option:`METRICS_RETENTION`
       Data retention in PMM
-       :term:`Data retention`
+       :ref:`Data retention <Data-retention>`
 
 .. option:: ORCHESTRATOR_ENABLED
 
@@ -121,14 +121,14 @@ List of |pmm-server| Parameters
    .. seealso::
 
       Orchestrator
-        :term:`Orchestrator`
+        :ref:`Orchestrator <Orchestrator>`
       Orchestrator Credentials
         - :option:`ORCHESTRATOR_USER`
         - :option:`ORCHESTRATOR_PASSWORD`
 
 .. option:: ORCHESTRATOR_USER
 
-   Pass this option, when running your :term:`PMM Server` via
+   Pass this option, when running your :ref:`PMM Server <PMM-Server>` via
    |docker| to set the orchestrator user. You only need this
    parameter (along with :option:`ORCHESTRATOR_PASSWORD` if you have set up a custom
    |orchestrator| user.
@@ -141,8 +141,8 @@ List of |pmm-server| Parameters
 
 .. option:: ORCHESTRATOR_PASSWORD
 
-   Pass this option, when running your :term:`PMM Server` via |docker| to set
-   the orchestrator password.
+   Pass this option, when running your :ref:`PMM Server <PMM-Server>` via
+   |docker| to set the orchestrator password.
 
    This option has no effect if the
    :option:`ORCHESTRATOR_ENABLED`
