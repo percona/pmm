@@ -24,8 +24,10 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -197,7 +199,8 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*agentInfo, err
 	ctx := stream.Context()
 	l := logger.Get(ctx)
 	md := agentpb.GetAgentConnectMetadata(ctx)
-	if err := authenticate(&md, r.db.Querier); err != nil {
+	runsOnNodeID, err := authenticate(&md, r.db.Querier)
+	if err != nil {
 		l.Warnf("Failed to authenticate connected pmm-agent %+v.", md)
 		return nil, err
 	}
@@ -210,6 +213,11 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*agentInfo, err
 		close(agent.kick)
 	}
 
+	if err := r.sendAgentMetadata(stream, runsOnNodeID); err != nil {
+		l.Warnf("Failed to send pmm-agent metadata")
+		return nil, err
+	}
+
 	agent := &agentInfo{
 		channel: NewChannel(stream, r.sharedMetrics),
 		id:      md.ID,
@@ -219,28 +227,33 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*agentInfo, err
 	return agent, nil
 }
 
-func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) error {
+func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (string, error) { //nolint:unused
 	if md.ID == "" {
-		return status.Error(codes.Unauthenticated, "Empty Agent ID.")
+		return "", status.Error(codes.Unauthenticated, "Empty Agent ID.")
 	}
 
 	row := &models.Agent{AgentID: md.ID}
 	if err := q.Reload(row); err != nil {
 		if err == reform.ErrNoRows {
-			return status.Errorf(codes.Unauthenticated, "No Agent with ID %q.", md.ID)
+			return "", status.Errorf(codes.Unauthenticated, "No Agent with ID %q.", md.ID)
 		}
-		return errors.Wrap(err, "failed to find agent")
+		return "", errors.Wrap(err, "failed to find agent")
 	}
 
 	if row.AgentType != models.PMMAgentType {
-		return status.Errorf(codes.Unauthenticated, "No pmm-agent with ID %q.", md.ID)
+		return "", status.Errorf(codes.Unauthenticated, "No pmm-agent with ID %q.", md.ID)
+	}
+
+	if pointer.GetString(row.RunsOnNodeID) == "" {
+		return "", status.Errorf(codes.Unauthenticated, "Can't get 'runs_on_node_id' for pmm-agent with ID %q.", md.ID)
 	}
 
 	row.Version = &md.Version
 	if err := q.Update(row); err != nil {
-		return errors.Wrap(err, "failed to update agent")
+		return "", errors.Wrap(err, "failed to update agent")
 	}
-	return nil
+
+	return pointer.GetString(row.RunsOnNodeID), nil
 }
 
 // Kick disconnects pmm-agent with given ID.
@@ -406,6 +419,22 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 		SetState: state,
 	})
 	l.Infof("SetState response: %+v.", res)
+}
+
+func (r *Registry) sendAgentMetadata(stream grpc.ServerStream, runsOnNodeID string) error { //nolint:unused
+	ctx := stream.Context()
+	l := logger.Get(ctx)
+
+	md := agentpb.AgentServerMetadata{
+		AgentRunsOnNodeID: runsOnNodeID,
+		ServerVersion:     version.Version,
+	}
+	l.Infof("Sending metadata: %v", md)
+	if err := agentpb.SendAgentServerMetadata(stream, md); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Describe implements prometheus.Collector.
