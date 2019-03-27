@@ -4,7 +4,10 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/proto"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 // Workaround for https://github.com/golang/protobuf/issues/261.
@@ -37,10 +40,10 @@ func (*SetStateRequest_AgentProcess) agentParams() {}
 func (*SetStateRequest_BuiltinAgent) agentParams() {}
 
 const (
-	mdID            = "pmm-agent-id"
-	mdVersion       = "pmm-agent-version"
-	mdNodeID        = "pmm-agent-node-id"
-	mdServerVersion = "pmm-managed-version"
+	mdAgentID       = "pmm-agent-id"
+	mdAgentVersion  = "pmm-agent-version"
+	mdAgentNodeID   = "pmm-agent-node-id"
+	mdServerVersion = "pmm-server-version"
 )
 
 // AgentConnectMetadata represents metadata sent by pmm-agent with Connect RPC method.
@@ -51,8 +54,8 @@ type AgentConnectMetadata struct {
 
 // AgentServerMetadata represents metadata sent by pmm-managed to pmm-agent.
 type AgentServerMetadata struct {
-	RunsOnNodeID      string
-	PmmManagedVersion string
+	AgentRunsOnNodeID string
+	ServerVersion     string
 }
 
 func getValue(md metadata.MD, key string) string {
@@ -66,7 +69,7 @@ func getValue(md metadata.MD, key string) string {
 // AddAgentConnectMetadata adds metadata to pmm-agent's Connect RPC call.
 // Used by pmm-agent.
 func AddAgentConnectMetadata(ctx context.Context, md *AgentConnectMetadata) context.Context {
-	return metadata.AppendToOutgoingContext(ctx, mdID, md.ID, mdVersion, md.Version)
+	return metadata.AppendToOutgoingContext(ctx, mdAgentID, md.ID, mdAgentVersion, md.Version)
 }
 
 // GetAgentConnectMetadata returns pmm-agent's metadata.
@@ -75,29 +78,36 @@ func GetAgentConnectMetadata(ctx context.Context) AgentConnectMetadata {
 	var res AgentConnectMetadata
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		res.ID = getValue(md, mdID)
-		res.Version = getValue(md, mdVersion)
+		res.ID = getValue(md, mdAgentID)
+		res.Version = getValue(md, mdAgentVersion)
 	}
 	return res
 }
 
-// AddAgentServerMetadata adds metadata to pmm-managed's Connect RPC call and returns it for sending.
+// SendAgentServerMetadata sends metadata to pmm-agent.
 // Used by pmm-managed.
-func AddAgentServerMetadata(md *AgentServerMetadata) metadata.MD {
-	return metadata.Pairs(
-		mdNodeID, md.RunsOnNodeID,
-		mdServerVersion, md.PmmManagedVersion,
+func SendAgentServerMetadata(stream grpc.ServerStream, md AgentServerMetadata) error {
+	header := metadata.Pairs(
+		mdAgentNodeID, md.AgentRunsOnNodeID,
+		mdServerVersion, md.ServerVersion,
 	)
+	if err := stream.SendHeader(header); err != nil {
+		return status.Errorf(codes.Internal, "Can't send server metadata to client.")
+	}
+
+	return nil
 }
 
-// GetAgentServerMetadata returns pmm-managed's metadata.
+// GetAgentServerMetadata receives metadata from pmm-managed.
 // Used by pmm-agent.
-func GetAgentServerMetadata(ctx context.Context) AgentServerMetadata {
+func GetAgentServerMetadata(stream grpc.ClientStream) (AgentServerMetadata, error) {
 	var res AgentServerMetadata
-	md, ok := metadata.FromIncomingContext(ctx)
-	if ok {
-		res.RunsOnNodeID = getValue(md, mdNodeID)
-		res.PmmManagedVersion = getValue(md, mdServerVersion)
+	md, err := stream.Header()
+	if err != nil {
+		return res, err
 	}
-	return res
+
+	res.AgentRunsOnNodeID = getValue(md, mdAgentNodeID)
+	res.ServerVersion = getValue(md, mdServerVersion)
+	return res, nil
 }
