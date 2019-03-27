@@ -97,14 +97,14 @@ func SendAgentServerMetadata(stream grpc.ServerStream, md *AgentServerMetadata) 
 
 // GetAgentServerMetadata receives metadata from pmm-managed.
 // Used by pmm-agent.
-func GetAgentServerMetadata(stream grpc.ClientStream) (*AgentServerMetadata, error) {
+func GetAgentServerMetadata(stream grpc.ClientStream) (AgentServerMetadata, error) {
+	var res AgentServerMetadata
 	md, err := stream.Header()
 	if err != nil {
-		return nil, err
+		return res, err
 	}
 
-	var res AgentServerMetadata
 	res.AgentRunsOnNodeID = getValue(md, mdAgentNodeID)
 	res.ServerVersion = getValue(md, mdServerVersion)
-	return &res, nil
+	return res, nil
 }
