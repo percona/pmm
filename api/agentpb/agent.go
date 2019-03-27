@@ -103,8 +103,8 @@ func GetAgentServerMetadata(stream grpc.ClientStream) (*AgentServerMetadata, err
 		return nil, err
 	}
 
-	res := &AgentServerMetadata{}
+	var res AgentServerMetadata
 	res.AgentRunsOnNodeID = getValue(md, mdAgentNodeID)
 	res.ServerVersion = getValue(md, mdServerVersion)
-	return res, nil
+	return &res, nil
 }
