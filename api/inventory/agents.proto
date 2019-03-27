@@ -78,9 +78,7 @@ message MySQLdExporter {
   //
 
   // Desired Agent status: enabled (false) or disabled (true).
-  // TODO https://jira.percona.com/browse/PMM-3470
-  // bool enabled = 6;
-
+  bool disabled = 6;
   // Actual Agent status.
   AgentStatus status = 7;
   // Listen port for scraping metrics.
@@ -150,9 +148,7 @@ message MongoDBExporter {
   //
 
   // Desired Agent status: enabled (false) or disabled (true).
-  // TODO https://jira.percona.com/browse/PMM-3470
-  // bool enabled = 6;
-
+  bool disabled = 6;
   // Actual Agent status.
   AgentStatus status = 7;
   // Listen port for scraping metrics.
@@ -178,9 +174,7 @@ message QANMySQLPerfSchemaAgent {
   //
 
   // Desired Agent status: enabled (false) or disabled (true).
-  // TODO https://jira.percona.com/browse/PMM-3470
-  // bool enabled = 6;
-
+  bool disabled = 6;
   // Actual Agent status.
   AgentStatus status = 7;
   // Custom user-assigned labels.
@@ -204,9 +198,7 @@ message PostgresExporter {
   //
 
   // Desired Agent status: enabled (false) or disabled (true).
-  // TODO https://jira.percona.com/browse/PMM-3470
-  // bool enabled = 6;
-
+  bool disabled = 6;
   // Actual Agent status.
   AgentStatus status = 7;
   // Listen port for scraping metrics.
@@ -361,7 +353,22 @@ message AddMySQLdExporterResponse {
   MySQLdExporter mysqld_exporter = 1;
 }
 
-message ChangeMySQLdExporterRequest {}
+message ChangeMySQLdExporterRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Enable or disable this Agent.
+  oneof change_disabled {
+    bool enabled = 2;
+    bool disabled = 3;
+  }
+  // Replace all custom user-assigned labels.
+  map<string, string> custom_labels = 4;
+  // Remove all custom user-assigned labels.
+  bool remove_custom_labels = 5;
+}
 
 message ChangeMySQLdExporterResponse {
   MySQLdExporter mysqld_exporter = 1;
@@ -456,7 +463,22 @@ message AddMongoDBExporterResponse {
   MongoDBExporter mongodb_exporter = 1;
 }
 
-message ChangeMongoDBExporterRequest {}
+message ChangeMongoDBExporterRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Enable or disable this Agent.
+  oneof change_disabled {
+    bool enabled = 2;
+    bool disabled = 3;
+  }
+  // Replace all custom user-assigned labels.
+  map<string, string> custom_labels = 4;
+  // Remove all custom user-assigned labels.
+  bool remove_custom_labels = 5;
+}
 
 message ChangeMongoDBExporterResponse {
   MongoDBExporter mongodb_exporter = 1;
@@ -495,7 +517,22 @@ message AddQANMySQLPerfSchemaAgentResponse {
   QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 1;
 }
 
-message ChangeQANMySQLPerfSchemaAgentRequest {}
+message ChangeQANMySQLPerfSchemaAgentRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Enable or disable this Agent.
+  oneof change_disabled {
+    bool enabled = 2;
+    bool disabled = 3;
+  }
+  // Replace all custom user-assigned labels.
+  map<string, string> custom_labels = 4;
+  // Remove all custom user-assigned labels.
+  bool remove_custom_labels = 5;
+}
 
 message ChangeQANMySQLPerfSchemaAgentResponse {
   QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 1;
@@ -534,7 +571,22 @@ message AddPostgresExporterResponse {
   PostgresExporter postgres_exporter = 1;
 }
 
-message ChangePostgresExporterRequest {}
+message ChangePostgresExporterRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Enable or disable this Agent.
+  oneof change_disabled {
+    bool enabled = 2;
+    bool disabled = 3;
+  }
+  // Replace all custom user-assigned labels.
+  map<string, string> custom_labels = 4;
+  // Remove all custom user-assigned labels.
+  bool remove_custom_labels = 5;
+}
 
 message ChangePostgresExporterResponse {
   PostgresExporter postgres_exporter = 1;

@@ -62,7 +62,7 @@ for the change postgres exporter operation typically these are written to a http
 type ChangePostgresExporterParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body ChangePostgresExporterBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +103,13 @@ func (o *ChangePostgresExporterParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the change postgres exporter params
-func (o *ChangePostgresExporterParams) WithBody(body interface{}) *ChangePostgresExporterParams {
+func (o *ChangePostgresExporterParams) WithBody(body ChangePostgresExporterBody) *ChangePostgresExporterParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the change postgres exporter params
-func (o *ChangePostgresExporterParams) SetBody(body interface{}) {
+func (o *ChangePostgresExporterParams) SetBody(body ChangePostgresExporterBody) {
 	o.Body = body
 }
 
@@ -121,10 +121,8 @@ func (o *ChangePostgresExporterParams) WriteToRequest(r runtime.ClientRequest, r
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
