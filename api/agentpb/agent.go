@@ -49,6 +49,12 @@ type AgentConnectMetadata struct {
 	Version string
 }
 
+// AgentServerMetadata represents metadata sent by pmm-managed to pmm-agent.
+type AgentServerMetadata struct {
+	RunsOnNodeID      string
+	PmmManagedVersion string
+}
+
 func getValue(md metadata.MD, key string) string {
 	vs := md.Get(key)
 	if len(vs) == 1 {
@@ -71,6 +77,24 @@ func GetAgentConnectMetadata(ctx context.Context) AgentConnectMetadata {
 	if ok {
 		res.ID = getValue(md, mdID)
 		res.Version = getValue(md, mdVersion)
+	}
+	return res
+}
+
+// AddAgentServerMetadata adds metadata to pmm-managed's Connect RPC call.
+// Used by pmm-managed.
+func AddAgentServerMetadata(ctx context.Context, md *AgentServerMetadata) context.Context {
+	return metadata.AppendToOutgoingContext(ctx, mdNodeID, md.RunsOnNodeID, mdServerVersion, md.PmmManagedVersion)
+}
+
+// GetAgentServerMetadata returns pmm-managed's metadata.
+// Used by pmm-agent.
+func GetAgentServerMetadata(ctx context.Context) AgentServerMetadata {
+	var res AgentServerMetadata
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		res.RunsOnNodeID = getValue(md, mdNodeID)
+		res.PmmManagedVersion = getValue(md, mdServerVersion)
 	}
 	return res
 }
