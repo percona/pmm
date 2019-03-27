@@ -113,6 +113,50 @@ func (o *ChangePostgresExporterDefault) readResponse(response runtime.ClientResp
 	return nil
 }
 
+/*ChangePostgresExporterBody change postgres exporter body
+swagger:model ChangePostgresExporterBody
+*/
+type ChangePostgresExporterBody struct {
+
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
+
+	// enabled
+	Enabled bool `json:"enabled,omitempty"`
+
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+}
+
+// Validate validates this change postgres exporter body
+func (o *ChangePostgresExporterBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangePostgresExporterBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangePostgresExporterBody) UnmarshalBinary(b []byte) error {
+	var res ChangePostgresExporterBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ChangePostgresExporterDefaultBody ErrorResponse is a message returned on HTTP error.
 swagger:model ChangePostgresExporterDefaultBody
 */
@@ -220,6 +264,9 @@ type ChangePostgresExporterOKBodyPostgresExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`
