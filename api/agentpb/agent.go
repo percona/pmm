@@ -37,8 +37,10 @@ func (*SetStateRequest_AgentProcess) agentParams() {}
 func (*SetStateRequest_BuiltinAgent) agentParams() {}
 
 const (
-	mdID      = "pmm-agent-id"
-	mdVersion = "pmm-agent-version"
+	mdID            = "pmm-agent-id"
+	mdVersion       = "pmm-agent-version"
+	mdNodeID        = "pmm-agent-node-id"
+	mdServerVersion = "pmm-managed-version"
 )
 
 // AgentConnectMetadata represents metadata sent by pmm-agent with Connect RPC method.
