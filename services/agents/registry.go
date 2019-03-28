@@ -27,7 +27,6 @@ import (
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -198,32 +197,36 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*agentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
-	md := agentpb.GetAgentConnectMetadata(ctx)
-	runsOnNodeID, err := authenticate(&md, r.db.Querier)
+	agentMD := agentpb.GetAgentConnectMetadata(ctx)
+	runsOnNodeID, err := authenticate(&agentMD, r.db.Querier)
 	if err != nil {
-		l.Warnf("Failed to authenticate connected pmm-agent %+v.", md)
+		l.Warnf("Failed to authenticate connected pmm-agent %+v.", agentMD)
 		return nil, err
 	}
-	l.Infof("Connected pmm-agent: %+v.", md)
+	l.Infof("Connected pmm-agent: %+v.", agentMD)
+
+	serverMD := agentpb.AgentServerMetadata{
+		AgentRunsOnNodeID: runsOnNodeID,
+		ServerVersion:     version.Version,
+	}
+	l.Debugf("Sending metadata: %+v.", serverMD)
+	if err = agentpb.SendAgentServerMetadata(stream, &serverMD); err != nil {
+		return nil, errors.Wrap(err, "failed to send server metadata")
+	}
 
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
-	if agent := r.agents[md.ID]; agent != nil {
+	if agent := r.agents[agentMD.ID]; agent != nil {
 		close(agent.kick)
-	}
-
-	if err := r.sendAgentMetadata(stream, runsOnNodeID); err != nil {
-		l.Warnf("Failed to send pmm-agent metadata")
-		return nil, err
 	}
 
 	agent := &agentInfo{
 		channel: NewChannel(stream, r.sharedMetrics),
-		id:      md.ID,
+		id:      agentMD.ID,
 		kick:    make(chan struct{}),
 	}
-	r.agents[md.ID] = agent
+	r.agents[agentMD.ID] = agent
 	return agent, nil
 }
 
@@ -419,22 +422,6 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 		SetState: state,
 	})
 	l.Infof("SetState response: %+v.", res)
-}
-
-func (r *Registry) sendAgentMetadata(stream grpc.ServerStream, runsOnNodeID string) error { //nolint:unused
-	ctx := stream.Context()
-	l := logger.Get(ctx)
-
-	md := agentpb.AgentServerMetadata{
-		AgentRunsOnNodeID: runsOnNodeID,
-		ServerVersion:     version.Version,
-	}
-	l.Infof("Sending metadata: %v", md)
-	if err := agentpb.SendAgentServerMetadata(stream, md); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 // Describe implements prometheus.Collector.
