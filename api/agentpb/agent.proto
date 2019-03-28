@@ -29,7 +29,9 @@ message RegisterResponse {
 }
 
 // Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift.
-message Ping {}
+message Ping {
+  google.protobuf.Timestamp current_time = 1;
+}
 
 // Pong is an AgentMessage/ServerMessage with current time for measuring clock drift.
 message Pong {

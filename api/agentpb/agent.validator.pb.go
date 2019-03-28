@@ -23,6 +23,11 @@ func (this *RegisterResponse) Validate() error {
 	return nil
 }
 func (this *Ping) Validate() error {
+	if this.CurrentTime != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.CurrentTime); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("CurrentTime", err)
+		}
+	}
 	return nil
 }
 func (this *Pong) Validate() error {
