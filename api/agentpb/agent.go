@@ -5,9 +5,7 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 )
 
 // Workaround for https://github.com/golang/protobuf/issues/261.
@@ -86,15 +84,14 @@ func GetAgentConnectMetadata(ctx context.Context) AgentConnectMetadata {
 
 // SendAgentServerMetadata sends metadata to pmm-agent.
 // Used by pmm-managed.
-func SendAgentServerMetadata(stream grpc.ServerStream, md AgentServerMetadata) error {
+func SendAgentServerMetadata(stream grpc.ServerStream, md *AgentServerMetadata) error {
 	header := metadata.Pairs(
 		mdAgentNodeID, md.AgentRunsOnNodeID,
 		mdServerVersion, md.ServerVersion,
 	)
 	if err := stream.SendHeader(header); err != nil {
-		return status.Errorf(codes.Internal, "Can't send server metadata to client.")
+		return err
 	}
-
 	return nil
 }
 
