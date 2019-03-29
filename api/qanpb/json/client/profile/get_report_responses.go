@@ -392,8 +392,20 @@ type RowsItems0 struct {
 	// dimension
 	Dimension string `json:"dimension,omitempty"`
 
+	// fingerprint
+	Fingerprint string `json:"fingerprint,omitempty"`
+
+	// load
+	Load float32 `json:"load,omitempty"`
+
 	// metrics
 	Metrics map[string]RowsItems0MetricsAnon `json:"metrics,omitempty"`
+
+	// num queries
+	NumQueries int64 `json:"num_queries,omitempty"`
+
+	// qps
+	QPS float32 `json:"qps,omitempty"`
 
 	// rank
 	Rank int64 `json:"rank,omitempty"`

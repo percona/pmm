@@ -48,7 +48,7 @@ func (x MetricsSource) String() string {
 	return proto.EnumName(MetricsSource_name, int32(x))
 }
 func (MetricsSource) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_collector_1d68a519eb2df4ad, []int{0}
+	return fileDescriptor_collector_f7e0203ae97a5739, []int{0}
 }
 
 type CollectRequest struct {
@@ -62,7 +62,7 @@ func (m *CollectRequest) Reset()         { *m = CollectRequest{} }
 func (m *CollectRequest) String() string { return proto.CompactTextString(m) }
 func (*CollectRequest) ProtoMessage()    {}
 func (*CollectRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_collector_1d68a519eb2df4ad, []int{0}
+	return fileDescriptor_collector_f7e0203ae97a5739, []int{0}
 }
 func (m *CollectRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CollectRequest.Unmarshal(m, b)
@@ -137,155 +137,194 @@ type MetricsBucket struct {
 	NumQueries float32 `protobuf:"fixed32,22,opt,name=num_queries,json=numQueries,proto3" json:"num_queries,omitempty"`
 	// How many times query_time was found.
 	MQueryTimeCnt float32 `protobuf:"fixed32,23,opt,name=m_query_time_cnt,json=mQueryTimeCnt,proto3" json:"m_query_time_cnt,omitempty"`
-	// Sum of all values query_time in bucket.
+	// The statement execution time in seconds.
 	MQueryTimeSum float32 `protobuf:"fixed32,24,opt,name=m_query_time_sum,json=mQueryTimeSum,proto3" json:"m_query_time_sum,omitempty"`
 	// Smallest value of query_time in bucket.
 	MQueryTimeMin float32 `protobuf:"fixed32,25,opt,name=m_query_time_min,json=mQueryTimeMin,proto3" json:"m_query_time_min,omitempty"`
 	// Biggest value of query_time in bucket.
 	MQueryTimeMax float32 `protobuf:"fixed32,26,opt,name=m_query_time_max,json=mQueryTimeMax,proto3" json:"m_query_time_max,omitempty"`
 	// 99 percentile of value of query_time in bucket.
-	MQueryTimeP99           float32 `protobuf:"fixed32,27,opt,name=m_query_time_p99,json=mQueryTimeP99,proto3" json:"m_query_time_p99,omitempty"`
-	MLockTimeCnt            float32 `protobuf:"fixed32,28,opt,name=m_lock_time_cnt,json=mLockTimeCnt,proto3" json:"m_lock_time_cnt,omitempty"`
-	MLockTimeSum            float32 `protobuf:"fixed32,29,opt,name=m_lock_time_sum,json=mLockTimeSum,proto3" json:"m_lock_time_sum,omitempty"`
-	MLockTimeMin            float32 `protobuf:"fixed32,30,opt,name=m_lock_time_min,json=mLockTimeMin,proto3" json:"m_lock_time_min,omitempty"`
-	MLockTimeMax            float32 `protobuf:"fixed32,31,opt,name=m_lock_time_max,json=mLockTimeMax,proto3" json:"m_lock_time_max,omitempty"`
-	MLockTimeP99            float32 `protobuf:"fixed32,32,opt,name=m_lock_time_p99,json=mLockTimeP99,proto3" json:"m_lock_time_p99,omitempty"`
-	MRowsSentCnt            float32 `protobuf:"fixed32,33,opt,name=m_rows_sent_cnt,json=mRowsSentCnt,proto3" json:"m_rows_sent_cnt,omitempty"`
-	MRowsSentSum            float32 `protobuf:"fixed32,34,opt,name=m_rows_sent_sum,json=mRowsSentSum,proto3" json:"m_rows_sent_sum,omitempty"`
-	MRowsSentMin            float32 `protobuf:"fixed32,35,opt,name=m_rows_sent_min,json=mRowsSentMin,proto3" json:"m_rows_sent_min,omitempty"`
-	MRowsSentMax            float32 `protobuf:"fixed32,36,opt,name=m_rows_sent_max,json=mRowsSentMax,proto3" json:"m_rows_sent_max,omitempty"`
-	MRowsSentP99            float32 `protobuf:"fixed32,37,opt,name=m_rows_sent_p99,json=mRowsSentP99,proto3" json:"m_rows_sent_p99,omitempty"`
-	MRowsExaminedCnt        float32 `protobuf:"fixed32,38,opt,name=m_rows_examined_cnt,json=mRowsExaminedCnt,proto3" json:"m_rows_examined_cnt,omitempty"`
-	MRowsExaminedSum        float32 `protobuf:"fixed32,39,opt,name=m_rows_examined_sum,json=mRowsExaminedSum,proto3" json:"m_rows_examined_sum,omitempty"`
-	MRowsExaminedMin        float32 `protobuf:"fixed32,40,opt,name=m_rows_examined_min,json=mRowsExaminedMin,proto3" json:"m_rows_examined_min,omitempty"`
-	MRowsExaminedMax        float32 `protobuf:"fixed32,41,opt,name=m_rows_examined_max,json=mRowsExaminedMax,proto3" json:"m_rows_examined_max,omitempty"`
-	MRowsExaminedP99        float32 `protobuf:"fixed32,42,opt,name=m_rows_examined_p99,json=mRowsExaminedP99,proto3" json:"m_rows_examined_p99,omitempty"`
-	MRowsAffectedCnt        float32 `protobuf:"fixed32,43,opt,name=m_rows_affected_cnt,json=mRowsAffectedCnt,proto3" json:"m_rows_affected_cnt,omitempty"`
-	MRowsAffectedSum        float32 `protobuf:"fixed32,44,opt,name=m_rows_affected_sum,json=mRowsAffectedSum,proto3" json:"m_rows_affected_sum,omitempty"`
-	MRowsAffectedMin        float32 `protobuf:"fixed32,45,opt,name=m_rows_affected_min,json=mRowsAffectedMin,proto3" json:"m_rows_affected_min,omitempty"`
-	MRowsAffectedMax        float32 `protobuf:"fixed32,46,opt,name=m_rows_affected_max,json=mRowsAffectedMax,proto3" json:"m_rows_affected_max,omitempty"`
-	MRowsAffectedP99        float32 `protobuf:"fixed32,47,opt,name=m_rows_affected_p99,json=mRowsAffectedP99,proto3" json:"m_rows_affected_p99,omitempty"`
-	MRowsReadCnt            float32 `protobuf:"fixed32,48,opt,name=m_rows_read_cnt,json=mRowsReadCnt,proto3" json:"m_rows_read_cnt,omitempty"`
-	MRowsReadSum            float32 `protobuf:"fixed32,49,opt,name=m_rows_read_sum,json=mRowsReadSum,proto3" json:"m_rows_read_sum,omitempty"`
-	MRowsReadMin            float32 `protobuf:"fixed32,50,opt,name=m_rows_read_min,json=mRowsReadMin,proto3" json:"m_rows_read_min,omitempty"`
-	MRowsReadMax            float32 `protobuf:"fixed32,51,opt,name=m_rows_read_max,json=mRowsReadMax,proto3" json:"m_rows_read_max,omitempty"`
-	MRowsReadP99            float32 `protobuf:"fixed32,52,opt,name=m_rows_read_p99,json=mRowsReadP99,proto3" json:"m_rows_read_p99,omitempty"`
-	MMergePassesCnt         float32 `protobuf:"fixed32,53,opt,name=m_merge_passes_cnt,json=mMergePassesCnt,proto3" json:"m_merge_passes_cnt,omitempty"`
-	MMergePassesSum         float32 `protobuf:"fixed32,54,opt,name=m_merge_passes_sum,json=mMergePassesSum,proto3" json:"m_merge_passes_sum,omitempty"`
-	MMergePassesMin         float32 `protobuf:"fixed32,55,opt,name=m_merge_passes_min,json=mMergePassesMin,proto3" json:"m_merge_passes_min,omitempty"`
-	MMergePassesMax         float32 `protobuf:"fixed32,56,opt,name=m_merge_passes_max,json=mMergePassesMax,proto3" json:"m_merge_passes_max,omitempty"`
-	MMergePassesP99         float32 `protobuf:"fixed32,57,opt,name=m_merge_passes_p99,json=mMergePassesP99,proto3" json:"m_merge_passes_p99,omitempty"`
-	MInnodbIoROpsCnt        float32 `protobuf:"fixed32,58,opt,name=m_innodb_io_r_ops_cnt,json=mInnodbIoROpsCnt,proto3" json:"m_innodb_io_r_ops_cnt,omitempty"`
-	MInnodbIoROpsSum        float32 `protobuf:"fixed32,59,opt,name=m_innodb_io_r_ops_sum,json=mInnodbIoROpsSum,proto3" json:"m_innodb_io_r_ops_sum,omitempty"`
-	MInnodbIoROpsMin        float32 `protobuf:"fixed32,60,opt,name=m_innodb_io_r_ops_min,json=mInnodbIoROpsMin,proto3" json:"m_innodb_io_r_ops_min,omitempty"`
-	MInnodbIoROpsMax        float32 `protobuf:"fixed32,61,opt,name=m_innodb_io_r_ops_max,json=mInnodbIoROpsMax,proto3" json:"m_innodb_io_r_ops_max,omitempty"`
-	MInnodbIoROpsP99        float32 `protobuf:"fixed32,62,opt,name=m_innodb_io_r_ops_p99,json=mInnodbIoROpsP99,proto3" json:"m_innodb_io_r_ops_p99,omitempty"`
-	MInnodbIoRBytesCnt      float32 `protobuf:"fixed32,63,opt,name=m_innodb_io_r_bytes_cnt,json=mInnodbIoRBytesCnt,proto3" json:"m_innodb_io_r_bytes_cnt,omitempty"`
-	MInnodbIoRBytesSum      float32 `protobuf:"fixed32,64,opt,name=m_innodb_io_r_bytes_sum,json=mInnodbIoRBytesSum,proto3" json:"m_innodb_io_r_bytes_sum,omitempty"`
-	MInnodbIoRBytesMin      float32 `protobuf:"fixed32,65,opt,name=m_innodb_io_r_bytes_min,json=mInnodbIoRBytesMin,proto3" json:"m_innodb_io_r_bytes_min,omitempty"`
-	MInnodbIoRBytesMax      float32 `protobuf:"fixed32,66,opt,name=m_innodb_io_r_bytes_max,json=mInnodbIoRBytesMax,proto3" json:"m_innodb_io_r_bytes_max,omitempty"`
-	MInnodbIoRBytesP99      float32 `protobuf:"fixed32,67,opt,name=m_innodb_io_r_bytes_p99,json=mInnodbIoRBytesP99,proto3" json:"m_innodb_io_r_bytes_p99,omitempty"`
-	MInnodbIoRWaitCnt       float32 `protobuf:"fixed32,68,opt,name=m_innodb_io_r_wait_cnt,json=mInnodbIoRWaitCnt,proto3" json:"m_innodb_io_r_wait_cnt,omitempty"`
-	MInnodbIoRWaitSum       float32 `protobuf:"fixed32,69,opt,name=m_innodb_io_r_wait_sum,json=mInnodbIoRWaitSum,proto3" json:"m_innodb_io_r_wait_sum,omitempty"`
-	MInnodbIoRWaitMin       float32 `protobuf:"fixed32,70,opt,name=m_innodb_io_r_wait_min,json=mInnodbIoRWaitMin,proto3" json:"m_innodb_io_r_wait_min,omitempty"`
-	MInnodbIoRWaitMax       float32 `protobuf:"fixed32,71,opt,name=m_innodb_io_r_wait_max,json=mInnodbIoRWaitMax,proto3" json:"m_innodb_io_r_wait_max,omitempty"`
-	MInnodbIoRWaitP99       float32 `protobuf:"fixed32,72,opt,name=m_innodb_io_r_wait_p99,json=mInnodbIoRWaitP99,proto3" json:"m_innodb_io_r_wait_p99,omitempty"`
-	MInnodbRecLockWaitCnt   float32 `protobuf:"fixed32,73,opt,name=m_innodb_rec_lock_wait_cnt,json=mInnodbRecLockWaitCnt,proto3" json:"m_innodb_rec_lock_wait_cnt,omitempty"`
-	MInnodbRecLockWaitSum   float32 `protobuf:"fixed32,74,opt,name=m_innodb_rec_lock_wait_sum,json=mInnodbRecLockWaitSum,proto3" json:"m_innodb_rec_lock_wait_sum,omitempty"`
-	MInnodbRecLockWaitMin   float32 `protobuf:"fixed32,75,opt,name=m_innodb_rec_lock_wait_min,json=mInnodbRecLockWaitMin,proto3" json:"m_innodb_rec_lock_wait_min,omitempty"`
-	MInnodbRecLockWaitMax   float32 `protobuf:"fixed32,76,opt,name=m_innodb_rec_lock_wait_max,json=mInnodbRecLockWaitMax,proto3" json:"m_innodb_rec_lock_wait_max,omitempty"`
-	MInnodbRecLockWaitP99   float32 `protobuf:"fixed32,77,opt,name=m_innodb_rec_lock_wait_p99,json=mInnodbRecLockWaitP99,proto3" json:"m_innodb_rec_lock_wait_p99,omitempty"`
-	MInnodbQueueWaitCnt     float32 `protobuf:"fixed32,78,opt,name=m_innodb_queue_wait_cnt,json=mInnodbQueueWaitCnt,proto3" json:"m_innodb_queue_wait_cnt,omitempty"`
+	MQueryTimeP99 float32 `protobuf:"fixed32,27,opt,name=m_query_time_p99,json=mQueryTimeP99,proto3" json:"m_query_time_p99,omitempty"`
+	MLockTimeCnt  float32 `protobuf:"fixed32,28,opt,name=m_lock_time_cnt,json=mLockTimeCnt,proto3" json:"m_lock_time_cnt,omitempty"`
+	// The time to acquire locks in seconds.
+	MLockTimeSum float32 `protobuf:"fixed32,29,opt,name=m_lock_time_sum,json=mLockTimeSum,proto3" json:"m_lock_time_sum,omitempty"`
+	MLockTimeMin float32 `protobuf:"fixed32,30,opt,name=m_lock_time_min,json=mLockTimeMin,proto3" json:"m_lock_time_min,omitempty"`
+	MLockTimeMax float32 `protobuf:"fixed32,31,opt,name=m_lock_time_max,json=mLockTimeMax,proto3" json:"m_lock_time_max,omitempty"`
+	MLockTimeP99 float32 `protobuf:"fixed32,32,opt,name=m_lock_time_p99,json=mLockTimeP99,proto3" json:"m_lock_time_p99,omitempty"`
+	MRowsSentCnt float32 `protobuf:"fixed32,33,opt,name=m_rows_sent_cnt,json=mRowsSentCnt,proto3" json:"m_rows_sent_cnt,omitempty"`
+	// The number of rows sent to the client.
+	MRowsSentSum     float32 `protobuf:"fixed32,34,opt,name=m_rows_sent_sum,json=mRowsSentSum,proto3" json:"m_rows_sent_sum,omitempty"`
+	MRowsSentMin     float32 `protobuf:"fixed32,35,opt,name=m_rows_sent_min,json=mRowsSentMin,proto3" json:"m_rows_sent_min,omitempty"`
+	MRowsSentMax     float32 `protobuf:"fixed32,36,opt,name=m_rows_sent_max,json=mRowsSentMax,proto3" json:"m_rows_sent_max,omitempty"`
+	MRowsSentP99     float32 `protobuf:"fixed32,37,opt,name=m_rows_sent_p99,json=mRowsSentP99,proto3" json:"m_rows_sent_p99,omitempty"`
+	MRowsExaminedCnt float32 `protobuf:"fixed32,38,opt,name=m_rows_examined_cnt,json=mRowsExaminedCnt,proto3" json:"m_rows_examined_cnt,omitempty"`
+	// Number of rows scanned - SELECT.
+	MRowsExaminedSum float32 `protobuf:"fixed32,39,opt,name=m_rows_examined_sum,json=mRowsExaminedSum,proto3" json:"m_rows_examined_sum,omitempty"`
+	MRowsExaminedMin float32 `protobuf:"fixed32,40,opt,name=m_rows_examined_min,json=mRowsExaminedMin,proto3" json:"m_rows_examined_min,omitempty"`
+	MRowsExaminedMax float32 `protobuf:"fixed32,41,opt,name=m_rows_examined_max,json=mRowsExaminedMax,proto3" json:"m_rows_examined_max,omitempty"`
+	MRowsExaminedP99 float32 `protobuf:"fixed32,42,opt,name=m_rows_examined_p99,json=mRowsExaminedP99,proto3" json:"m_rows_examined_p99,omitempty"`
+	MRowsAffectedCnt float32 `protobuf:"fixed32,43,opt,name=m_rows_affected_cnt,json=mRowsAffectedCnt,proto3" json:"m_rows_affected_cnt,omitempty"`
+	// Number of rows changed - UPDATE, DELETE, INSERT.
+	MRowsAffectedSum float32 `protobuf:"fixed32,44,opt,name=m_rows_affected_sum,json=mRowsAffectedSum,proto3" json:"m_rows_affected_sum,omitempty"`
+	MRowsAffectedMin float32 `protobuf:"fixed32,45,opt,name=m_rows_affected_min,json=mRowsAffectedMin,proto3" json:"m_rows_affected_min,omitempty"`
+	MRowsAffectedMax float32 `protobuf:"fixed32,46,opt,name=m_rows_affected_max,json=mRowsAffectedMax,proto3" json:"m_rows_affected_max,omitempty"`
+	MRowsAffectedP99 float32 `protobuf:"fixed32,47,opt,name=m_rows_affected_p99,json=mRowsAffectedP99,proto3" json:"m_rows_affected_p99,omitempty"`
+	MRowsReadCnt     float32 `protobuf:"fixed32,48,opt,name=m_rows_read_cnt,json=mRowsReadCnt,proto3" json:"m_rows_read_cnt,omitempty"`
+	// The number of rows read from tables.
+	MRowsReadSum    float32 `protobuf:"fixed32,49,opt,name=m_rows_read_sum,json=mRowsReadSum,proto3" json:"m_rows_read_sum,omitempty"`
+	MRowsReadMin    float32 `protobuf:"fixed32,50,opt,name=m_rows_read_min,json=mRowsReadMin,proto3" json:"m_rows_read_min,omitempty"`
+	MRowsReadMax    float32 `protobuf:"fixed32,51,opt,name=m_rows_read_max,json=mRowsReadMax,proto3" json:"m_rows_read_max,omitempty"`
+	MRowsReadP99    float32 `protobuf:"fixed32,52,opt,name=m_rows_read_p99,json=mRowsReadP99,proto3" json:"m_rows_read_p99,omitempty"`
+	MMergePassesCnt float32 `protobuf:"fixed32,53,opt,name=m_merge_passes_cnt,json=mMergePassesCnt,proto3" json:"m_merge_passes_cnt,omitempty"`
+	// The number of merge passes that the sort algorithm has had to do.
+	MMergePassesSum  float32 `protobuf:"fixed32,54,opt,name=m_merge_passes_sum,json=mMergePassesSum,proto3" json:"m_merge_passes_sum,omitempty"`
+	MMergePassesMin  float32 `protobuf:"fixed32,55,opt,name=m_merge_passes_min,json=mMergePassesMin,proto3" json:"m_merge_passes_min,omitempty"`
+	MMergePassesMax  float32 `protobuf:"fixed32,56,opt,name=m_merge_passes_max,json=mMergePassesMax,proto3" json:"m_merge_passes_max,omitempty"`
+	MMergePassesP99  float32 `protobuf:"fixed32,57,opt,name=m_merge_passes_p99,json=mMergePassesP99,proto3" json:"m_merge_passes_p99,omitempty"`
+	MInnodbIoROpsCnt float32 `protobuf:"fixed32,58,opt,name=m_innodb_io_r_ops_cnt,json=mInnodbIoROpsCnt,proto3" json:"m_innodb_io_r_ops_cnt,omitempty"`
+	// Counts the number of page read operations scheduled.
+	MInnodbIoROpsSum   float32 `protobuf:"fixed32,59,opt,name=m_innodb_io_r_ops_sum,json=mInnodbIoROpsSum,proto3" json:"m_innodb_io_r_ops_sum,omitempty"`
+	MInnodbIoROpsMin   float32 `protobuf:"fixed32,60,opt,name=m_innodb_io_r_ops_min,json=mInnodbIoROpsMin,proto3" json:"m_innodb_io_r_ops_min,omitempty"`
+	MInnodbIoROpsMax   float32 `protobuf:"fixed32,61,opt,name=m_innodb_io_r_ops_max,json=mInnodbIoROpsMax,proto3" json:"m_innodb_io_r_ops_max,omitempty"`
+	MInnodbIoROpsP99   float32 `protobuf:"fixed32,62,opt,name=m_innodb_io_r_ops_p99,json=mInnodbIoROpsP99,proto3" json:"m_innodb_io_r_ops_p99,omitempty"`
+	MInnodbIoRBytesCnt float32 `protobuf:"fixed32,63,opt,name=m_innodb_io_r_bytes_cnt,json=mInnodbIoRBytesCnt,proto3" json:"m_innodb_io_r_bytes_cnt,omitempty"`
+	// Similar to innodb_IO_r_ops, but the unit is bytes.
+	MInnodbIoRBytesSum float32 `protobuf:"fixed32,64,opt,name=m_innodb_io_r_bytes_sum,json=mInnodbIoRBytesSum,proto3" json:"m_innodb_io_r_bytes_sum,omitempty"`
+	MInnodbIoRBytesMin float32 `protobuf:"fixed32,65,opt,name=m_innodb_io_r_bytes_min,json=mInnodbIoRBytesMin,proto3" json:"m_innodb_io_r_bytes_min,omitempty"`
+	MInnodbIoRBytesMax float32 `protobuf:"fixed32,66,opt,name=m_innodb_io_r_bytes_max,json=mInnodbIoRBytesMax,proto3" json:"m_innodb_io_r_bytes_max,omitempty"`
+	MInnodbIoRBytesP99 float32 `protobuf:"fixed32,67,opt,name=m_innodb_io_r_bytes_p99,json=mInnodbIoRBytesP99,proto3" json:"m_innodb_io_r_bytes_p99,omitempty"`
+	MInnodbIoRWaitCnt  float32 `protobuf:"fixed32,68,opt,name=m_innodb_io_r_wait_cnt,json=mInnodbIoRWaitCnt,proto3" json:"m_innodb_io_r_wait_cnt,omitempty"`
+	// Shows how long (in seconds) it took InnoDB to actually read the data from storage.
+	MInnodbIoRWaitSum     float32 `protobuf:"fixed32,69,opt,name=m_innodb_io_r_wait_sum,json=mInnodbIoRWaitSum,proto3" json:"m_innodb_io_r_wait_sum,omitempty"`
+	MInnodbIoRWaitMin     float32 `protobuf:"fixed32,70,opt,name=m_innodb_io_r_wait_min,json=mInnodbIoRWaitMin,proto3" json:"m_innodb_io_r_wait_min,omitempty"`
+	MInnodbIoRWaitMax     float32 `protobuf:"fixed32,71,opt,name=m_innodb_io_r_wait_max,json=mInnodbIoRWaitMax,proto3" json:"m_innodb_io_r_wait_max,omitempty"`
+	MInnodbIoRWaitP99     float32 `protobuf:"fixed32,72,opt,name=m_innodb_io_r_wait_p99,json=mInnodbIoRWaitP99,proto3" json:"m_innodb_io_r_wait_p99,omitempty"`
+	MInnodbRecLockWaitCnt float32 `protobuf:"fixed32,73,opt,name=m_innodb_rec_lock_wait_cnt,json=mInnodbRecLockWaitCnt,proto3" json:"m_innodb_rec_lock_wait_cnt,omitempty"`
+	// Shows how long (in seconds) the query waited for row locks.
+	MInnodbRecLockWaitSum float32 `protobuf:"fixed32,74,opt,name=m_innodb_rec_lock_wait_sum,json=mInnodbRecLockWaitSum,proto3" json:"m_innodb_rec_lock_wait_sum,omitempty"`
+	MInnodbRecLockWaitMin float32 `protobuf:"fixed32,75,opt,name=m_innodb_rec_lock_wait_min,json=mInnodbRecLockWaitMin,proto3" json:"m_innodb_rec_lock_wait_min,omitempty"`
+	MInnodbRecLockWaitMax float32 `protobuf:"fixed32,76,opt,name=m_innodb_rec_lock_wait_max,json=mInnodbRecLockWaitMax,proto3" json:"m_innodb_rec_lock_wait_max,omitempty"`
+	MInnodbRecLockWaitP99 float32 `protobuf:"fixed32,77,opt,name=m_innodb_rec_lock_wait_p99,json=mInnodbRecLockWaitP99,proto3" json:"m_innodb_rec_lock_wait_p99,omitempty"`
+	MInnodbQueueWaitCnt   float32 `protobuf:"fixed32,78,opt,name=m_innodb_queue_wait_cnt,json=mInnodbQueueWaitCnt,proto3" json:"m_innodb_queue_wait_cnt,omitempty"`
+	// Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution.
 	MInnodbQueueWaitSum     float32 `protobuf:"fixed32,79,opt,name=m_innodb_queue_wait_sum,json=mInnodbQueueWaitSum,proto3" json:"m_innodb_queue_wait_sum,omitempty"`
 	MInnodbQueueWaitMin     float32 `protobuf:"fixed32,80,opt,name=m_innodb_queue_wait_min,json=mInnodbQueueWaitMin,proto3" json:"m_innodb_queue_wait_min,omitempty"`
 	MInnodbQueueWaitMax     float32 `protobuf:"fixed32,81,opt,name=m_innodb_queue_wait_max,json=mInnodbQueueWaitMax,proto3" json:"m_innodb_queue_wait_max,omitempty"`
 	MInnodbQueueWaitP99     float32 `protobuf:"fixed32,82,opt,name=m_innodb_queue_wait_p99,json=mInnodbQueueWaitP99,proto3" json:"m_innodb_queue_wait_p99,omitempty"`
 	MInnodbPagesDistinctCnt float32 `protobuf:"fixed32,83,opt,name=m_innodb_pages_distinct_cnt,json=mInnodbPagesDistinctCnt,proto3" json:"m_innodb_pages_distinct_cnt,omitempty"`
+	// Counts approximately the number of unique pages the query accessed.
 	MInnodbPagesDistinctSum float32 `protobuf:"fixed32,84,opt,name=m_innodb_pages_distinct_sum,json=mInnodbPagesDistinctSum,proto3" json:"m_innodb_pages_distinct_sum,omitempty"`
 	MInnodbPagesDistinctMin float32 `protobuf:"fixed32,85,opt,name=m_innodb_pages_distinct_min,json=mInnodbPagesDistinctMin,proto3" json:"m_innodb_pages_distinct_min,omitempty"`
 	MInnodbPagesDistinctMax float32 `protobuf:"fixed32,86,opt,name=m_innodb_pages_distinct_max,json=mInnodbPagesDistinctMax,proto3" json:"m_innodb_pages_distinct_max,omitempty"`
 	MInnodbPagesDistinctP99 float32 `protobuf:"fixed32,87,opt,name=m_innodb_pages_distinct_p99,json=mInnodbPagesDistinctP99,proto3" json:"m_innodb_pages_distinct_p99,omitempty"`
 	MQueryLengthCnt         float32 `protobuf:"fixed32,88,opt,name=m_query_length_cnt,json=mQueryLengthCnt,proto3" json:"m_query_length_cnt,omitempty"`
-	MQueryLengthSum         float32 `protobuf:"fixed32,89,opt,name=m_query_length_sum,json=mQueryLengthSum,proto3" json:"m_query_length_sum,omitempty"`
-	MQueryLengthMin         float32 `protobuf:"fixed32,90,opt,name=m_query_length_min,json=mQueryLengthMin,proto3" json:"m_query_length_min,omitempty"`
-	MQueryLengthMax         float32 `protobuf:"fixed32,91,opt,name=m_query_length_max,json=mQueryLengthMax,proto3" json:"m_query_length_max,omitempty"`
-	MQueryLengthP99         float32 `protobuf:"fixed32,92,opt,name=m_query_length_p99,json=mQueryLengthP99,proto3" json:"m_query_length_p99,omitempty"`
-	MBytesSentCnt           float32 `protobuf:"fixed32,93,opt,name=m_bytes_sent_cnt,json=mBytesSentCnt,proto3" json:"m_bytes_sent_cnt,omitempty"`
-	MBytesSentSum           float32 `protobuf:"fixed32,94,opt,name=m_bytes_sent_sum,json=mBytesSentSum,proto3" json:"m_bytes_sent_sum,omitempty"`
-	MBytesSentMin           float32 `protobuf:"fixed32,95,opt,name=m_bytes_sent_min,json=mBytesSentMin,proto3" json:"m_bytes_sent_min,omitempty"`
-	MBytesSentMax           float32 `protobuf:"fixed32,96,opt,name=m_bytes_sent_max,json=mBytesSentMax,proto3" json:"m_bytes_sent_max,omitempty"`
-	MBytesSentP99           float32 `protobuf:"fixed32,97,opt,name=m_bytes_sent_p99,json=mBytesSentP99,proto3" json:"m_bytes_sent_p99,omitempty"`
-	MTmpTablesCnt           float32 `protobuf:"fixed32,98,opt,name=m_tmp_tables_cnt,json=mTmpTablesCnt,proto3" json:"m_tmp_tables_cnt,omitempty"`
-	MTmpTablesSum           float32 `protobuf:"fixed32,99,opt,name=m_tmp_tables_sum,json=mTmpTablesSum,proto3" json:"m_tmp_tables_sum,omitempty"`
-	MTmpTablesMin           float32 `protobuf:"fixed32,100,opt,name=m_tmp_tables_min,json=mTmpTablesMin,proto3" json:"m_tmp_tables_min,omitempty"`
-	MTmpTablesMax           float32 `protobuf:"fixed32,101,opt,name=m_tmp_tables_max,json=mTmpTablesMax,proto3" json:"m_tmp_tables_max,omitempty"`
-	MTmpTablesP99           float32 `protobuf:"fixed32,102,opt,name=m_tmp_tables_p99,json=mTmpTablesP99,proto3" json:"m_tmp_tables_p99,omitempty"`
-	MTmpDiskTablesCnt       float32 `protobuf:"fixed32,103,opt,name=m_tmp_disk_tables_cnt,json=mTmpDiskTablesCnt,proto3" json:"m_tmp_disk_tables_cnt,omitempty"`
-	MTmpDiskTablesSum       float32 `protobuf:"fixed32,104,opt,name=m_tmp_disk_tables_sum,json=mTmpDiskTablesSum,proto3" json:"m_tmp_disk_tables_sum,omitempty"`
-	MTmpDiskTablesMin       float32 `protobuf:"fixed32,105,opt,name=m_tmp_disk_tables_min,json=mTmpDiskTablesMin,proto3" json:"m_tmp_disk_tables_min,omitempty"`
-	MTmpDiskTablesMax       float32 `protobuf:"fixed32,106,opt,name=m_tmp_disk_tables_max,json=mTmpDiskTablesMax,proto3" json:"m_tmp_disk_tables_max,omitempty"`
-	MTmpDiskTablesP99       float32 `protobuf:"fixed32,107,opt,name=m_tmp_disk_tables_p99,json=mTmpDiskTablesP99,proto3" json:"m_tmp_disk_tables_p99,omitempty"`
-	MTmpTableSizesCnt       float32 `protobuf:"fixed32,108,opt,name=m_tmp_table_sizes_cnt,json=mTmpTableSizesCnt,proto3" json:"m_tmp_table_sizes_cnt,omitempty"`
-	MTmpTableSizesSum       float32 `protobuf:"fixed32,109,opt,name=m_tmp_table_sizes_sum,json=mTmpTableSizesSum,proto3" json:"m_tmp_table_sizes_sum,omitempty"`
-	MTmpTableSizesMin       float32 `protobuf:"fixed32,110,opt,name=m_tmp_table_sizes_min,json=mTmpTableSizesMin,proto3" json:"m_tmp_table_sizes_min,omitempty"`
-	MTmpTableSizesMax       float32 `protobuf:"fixed32,111,opt,name=m_tmp_table_sizes_max,json=mTmpTableSizesMax,proto3" json:"m_tmp_table_sizes_max,omitempty"`
-	MTmpTableSizesP99       float32 `protobuf:"fixed32,112,opt,name=m_tmp_table_sizes_p99,json=mTmpTableSizesP99,proto3" json:"m_tmp_table_sizes_p99,omitempty"`
-	MQcHitCnt               float32 `protobuf:"fixed32,113,opt,name=m_qc_hit_cnt,json=mQcHitCnt,proto3" json:"m_qc_hit_cnt,omitempty"`
-	// %true = sum/cnt
-	MQcHitSum               float32  `protobuf:"fixed32,114,opt,name=m_qc_hit_sum,json=mQcHitSum,proto3" json:"m_qc_hit_sum,omitempty"`
-	MFullScanCnt            float32  `protobuf:"fixed32,115,opt,name=m_full_scan_cnt,json=mFullScanCnt,proto3" json:"m_full_scan_cnt,omitempty"`
-	MFullScanSum            float32  `protobuf:"fixed32,116,opt,name=m_full_scan_sum,json=mFullScanSum,proto3" json:"m_full_scan_sum,omitempty"`
-	MFullJoinCnt            float32  `protobuf:"fixed32,117,opt,name=m_full_join_cnt,json=mFullJoinCnt,proto3" json:"m_full_join_cnt,omitempty"`
-	MFullJoinSum            float32  `protobuf:"fixed32,118,opt,name=m_full_join_sum,json=mFullJoinSum,proto3" json:"m_full_join_sum,omitempty"`
-	MTmpTableCnt            float32  `protobuf:"fixed32,119,opt,name=m_tmp_table_cnt,json=mTmpTableCnt,proto3" json:"m_tmp_table_cnt,omitempty"`
-	MTmpTableSum            float32  `protobuf:"fixed32,120,opt,name=m_tmp_table_sum,json=mTmpTableSum,proto3" json:"m_tmp_table_sum,omitempty"`
-	MTmpTableOnDiskCnt      float32  `protobuf:"fixed32,121,opt,name=m_tmp_table_on_disk_cnt,json=mTmpTableOnDiskCnt,proto3" json:"m_tmp_table_on_disk_cnt,omitempty"`
-	MTmpTableOnDiskSum      float32  `protobuf:"fixed32,122,opt,name=m_tmp_table_on_disk_sum,json=mTmpTableOnDiskSum,proto3" json:"m_tmp_table_on_disk_sum,omitempty"`
-	MFilesortCnt            float32  `protobuf:"fixed32,123,opt,name=m_filesort_cnt,json=mFilesortCnt,proto3" json:"m_filesort_cnt,omitempty"`
-	MFilesortSum            float32  `protobuf:"fixed32,124,opt,name=m_filesort_sum,json=mFilesortSum,proto3" json:"m_filesort_sum,omitempty"`
-	MFilesortOnDiskCnt      float32  `protobuf:"fixed32,125,opt,name=m_filesort_on_disk_cnt,json=mFilesortOnDiskCnt,proto3" json:"m_filesort_on_disk_cnt,omitempty"`
-	MFilesortOnDiskSum      float32  `protobuf:"fixed32,126,opt,name=m_filesort_on_disk_sum,json=mFilesortOnDiskSum,proto3" json:"m_filesort_on_disk_sum,omitempty"`
-	MSelectFullRangeJoinCnt float32  `protobuf:"fixed32,127,opt,name=m_select_full_range_join_cnt,json=mSelectFullRangeJoinCnt,proto3" json:"m_select_full_range_join_cnt,omitempty"`
-	MSelectFullRangeJoinSum float32  `protobuf:"fixed32,128,opt,name=m_select_full_range_join_sum,json=mSelectFullRangeJoinSum,proto3" json:"m_select_full_range_join_sum,omitempty"`
-	MSelectRangeCnt         float32  `protobuf:"fixed32,129,opt,name=m_select_range_cnt,json=mSelectRangeCnt,proto3" json:"m_select_range_cnt,omitempty"`
-	MSelectRangeSum         float32  `protobuf:"fixed32,130,opt,name=m_select_range_sum,json=mSelectRangeSum,proto3" json:"m_select_range_sum,omitempty"`
-	MSelectRangeCheckCnt    float32  `protobuf:"fixed32,131,opt,name=m_select_range_check_cnt,json=mSelectRangeCheckCnt,proto3" json:"m_select_range_check_cnt,omitempty"`
-	MSelectRangeCheckSum    float32  `protobuf:"fixed32,132,opt,name=m_select_range_check_sum,json=mSelectRangeCheckSum,proto3" json:"m_select_range_check_sum,omitempty"`
-	MSortRangeCnt           float32  `protobuf:"fixed32,133,opt,name=m_sort_range_cnt,json=mSortRangeCnt,proto3" json:"m_sort_range_cnt,omitempty"`
-	MSortRangeSum           float32  `protobuf:"fixed32,134,opt,name=m_sort_range_sum,json=mSortRangeSum,proto3" json:"m_sort_range_sum,omitempty"`
-	MSortRowsCnt            float32  `protobuf:"fixed32,135,opt,name=m_sort_rows_cnt,json=mSortRowsCnt,proto3" json:"m_sort_rows_cnt,omitempty"`
-	MSortRowsSum            float32  `protobuf:"fixed32,136,opt,name=m_sort_rows_sum,json=mSortRowsSum,proto3" json:"m_sort_rows_sum,omitempty"`
-	MSortScanCnt            float32  `protobuf:"fixed32,137,opt,name=m_sort_scan_cnt,json=mSortScanCnt,proto3" json:"m_sort_scan_cnt,omitempty"`
-	MSortScanSum            float32  `protobuf:"fixed32,138,opt,name=m_sort_scan_sum,json=mSortScanSum,proto3" json:"m_sort_scan_sum,omitempty"`
-	MNoIndexUsedCnt         float32  `protobuf:"fixed32,139,opt,name=m_no_index_used_cnt,json=mNoIndexUsedCnt,proto3" json:"m_no_index_used_cnt,omitempty"`
-	MNoIndexUsedSum         float32  `protobuf:"fixed32,140,opt,name=m_no_index_used_sum,json=mNoIndexUsedSum,proto3" json:"m_no_index_used_sum,omitempty"`
-	MNoGoodIndexUsedCnt     float32  `protobuf:"fixed32,141,opt,name=m_no_good_index_used_cnt,json=mNoGoodIndexUsedCnt,proto3" json:"m_no_good_index_used_cnt,omitempty"`
-	MNoGoodIndexUsedSum     float32  `protobuf:"fixed32,142,opt,name=m_no_good_index_used_sum,json=mNoGoodIndexUsedSum,proto3" json:"m_no_good_index_used_sum,omitempty"`
-	MDocsReturnedCnt        float32  `protobuf:"fixed32,143,opt,name=m_docs_returned_cnt,json=mDocsReturnedCnt,proto3" json:"m_docs_returned_cnt,omitempty"`
-	MDocsReturnedSum        float32  `protobuf:"fixed32,144,opt,name=m_docs_returned_sum,json=mDocsReturnedSum,proto3" json:"m_docs_returned_sum,omitempty"`
-	MDocsReturnedMin        float32  `protobuf:"fixed32,145,opt,name=m_docs_returned_min,json=mDocsReturnedMin,proto3" json:"m_docs_returned_min,omitempty"`
-	MDocsReturnedMax        float32  `protobuf:"fixed32,146,opt,name=m_docs_returned_max,json=mDocsReturnedMax,proto3" json:"m_docs_returned_max,omitempty"`
-	MDocsReturnedP99        float32  `protobuf:"fixed32,147,opt,name=m_docs_returned_p99,json=mDocsReturnedP99,proto3" json:"m_docs_returned_p99,omitempty"`
-	MResponseLengthCnt      float32  `protobuf:"fixed32,148,opt,name=m_response_length_cnt,json=mResponseLengthCnt,proto3" json:"m_response_length_cnt,omitempty"`
-	MResponseLengthSum      float32  `protobuf:"fixed32,149,opt,name=m_response_length_sum,json=mResponseLengthSum,proto3" json:"m_response_length_sum,omitempty"`
-	MResponseLengthMin      float32  `protobuf:"fixed32,150,opt,name=m_response_length_min,json=mResponseLengthMin,proto3" json:"m_response_length_min,omitempty"`
-	MResponseLengthMax      float32  `protobuf:"fixed32,151,opt,name=m_response_length_max,json=mResponseLengthMax,proto3" json:"m_response_length_max,omitempty"`
-	MResponseLengthP99      float32  `protobuf:"fixed32,152,opt,name=m_response_length_p99,json=mResponseLengthP99,proto3" json:"m_response_length_p99,omitempty"`
-	MDocsScannedCnt         float32  `protobuf:"fixed32,153,opt,name=m_docs_scanned_cnt,json=mDocsScannedCnt,proto3" json:"m_docs_scanned_cnt,omitempty"`
-	MDocsScannedSum         float32  `protobuf:"fixed32,154,opt,name=m_docs_scanned_sum,json=mDocsScannedSum,proto3" json:"m_docs_scanned_sum,omitempty"`
-	MDocsScannedMin         float32  `protobuf:"fixed32,155,opt,name=m_docs_scanned_min,json=mDocsScannedMin,proto3" json:"m_docs_scanned_min,omitempty"`
-	MDocsScannedMax         float32  `protobuf:"fixed32,156,opt,name=m_docs_scanned_max,json=mDocsScannedMax,proto3" json:"m_docs_scanned_max,omitempty"`
-	MDocsScannedP99         float32  `protobuf:"fixed32,157,opt,name=m_docs_scanned_p99,json=mDocsScannedP99,proto3" json:"m_docs_scanned_p99,omitempty"`
-	XXX_NoUnkeyedLiteral    struct{} `json:"-"`
-	XXX_unrecognized        []byte   `json:"-"`
-	XXX_sizecache           int32    `json:"-"`
+	// Shows how long the query is.
+	MQueryLengthSum float32 `protobuf:"fixed32,89,opt,name=m_query_length_sum,json=mQueryLengthSum,proto3" json:"m_query_length_sum,omitempty"`
+	MQueryLengthMin float32 `protobuf:"fixed32,90,opt,name=m_query_length_min,json=mQueryLengthMin,proto3" json:"m_query_length_min,omitempty"`
+	MQueryLengthMax float32 `protobuf:"fixed32,91,opt,name=m_query_length_max,json=mQueryLengthMax,proto3" json:"m_query_length_max,omitempty"`
+	MQueryLengthP99 float32 `protobuf:"fixed32,92,opt,name=m_query_length_p99,json=mQueryLengthP99,proto3" json:"m_query_length_p99,omitempty"`
+	MBytesSentCnt   float32 `protobuf:"fixed32,93,opt,name=m_bytes_sent_cnt,json=mBytesSentCnt,proto3" json:"m_bytes_sent_cnt,omitempty"`
+	// The number of bytes sent to all clients.
+	MBytesSentSum float32 `protobuf:"fixed32,94,opt,name=m_bytes_sent_sum,json=mBytesSentSum,proto3" json:"m_bytes_sent_sum,omitempty"`
+	MBytesSentMin float32 `protobuf:"fixed32,95,opt,name=m_bytes_sent_min,json=mBytesSentMin,proto3" json:"m_bytes_sent_min,omitempty"`
+	MBytesSentMax float32 `protobuf:"fixed32,96,opt,name=m_bytes_sent_max,json=mBytesSentMax,proto3" json:"m_bytes_sent_max,omitempty"`
+	MBytesSentP99 float32 `protobuf:"fixed32,97,opt,name=m_bytes_sent_p99,json=mBytesSentP99,proto3" json:"m_bytes_sent_p99,omitempty"`
+	MTmpTablesCnt float32 `protobuf:"fixed32,98,opt,name=m_tmp_tables_cnt,json=mTmpTablesCnt,proto3" json:"m_tmp_tables_cnt,omitempty"`
+	// Number of temporary tables created on memory for the query.
+	MTmpTablesSum     float32 `protobuf:"fixed32,99,opt,name=m_tmp_tables_sum,json=mTmpTablesSum,proto3" json:"m_tmp_tables_sum,omitempty"`
+	MTmpTablesMin     float32 `protobuf:"fixed32,100,opt,name=m_tmp_tables_min,json=mTmpTablesMin,proto3" json:"m_tmp_tables_min,omitempty"`
+	MTmpTablesMax     float32 `protobuf:"fixed32,101,opt,name=m_tmp_tables_max,json=mTmpTablesMax,proto3" json:"m_tmp_tables_max,omitempty"`
+	MTmpTablesP99     float32 `protobuf:"fixed32,102,opt,name=m_tmp_tables_p99,json=mTmpTablesP99,proto3" json:"m_tmp_tables_p99,omitempty"`
+	MTmpDiskTablesCnt float32 `protobuf:"fixed32,103,opt,name=m_tmp_disk_tables_cnt,json=mTmpDiskTablesCnt,proto3" json:"m_tmp_disk_tables_cnt,omitempty"`
+	// Number of temporary tables created on disk for the query.
+	MTmpDiskTablesSum float32 `protobuf:"fixed32,104,opt,name=m_tmp_disk_tables_sum,json=mTmpDiskTablesSum,proto3" json:"m_tmp_disk_tables_sum,omitempty"`
+	MTmpDiskTablesMin float32 `protobuf:"fixed32,105,opt,name=m_tmp_disk_tables_min,json=mTmpDiskTablesMin,proto3" json:"m_tmp_disk_tables_min,omitempty"`
+	MTmpDiskTablesMax float32 `protobuf:"fixed32,106,opt,name=m_tmp_disk_tables_max,json=mTmpDiskTablesMax,proto3" json:"m_tmp_disk_tables_max,omitempty"`
+	MTmpDiskTablesP99 float32 `protobuf:"fixed32,107,opt,name=m_tmp_disk_tables_p99,json=mTmpDiskTablesP99,proto3" json:"m_tmp_disk_tables_p99,omitempty"`
+	MTmpTableSizesCnt float32 `protobuf:"fixed32,108,opt,name=m_tmp_table_sizes_cnt,json=mTmpTableSizesCnt,proto3" json:"m_tmp_table_sizes_cnt,omitempty"`
+	// Total Size in bytes for all temporary tables used in the query.
+	MTmpTableSizesSum float32 `protobuf:"fixed32,109,opt,name=m_tmp_table_sizes_sum,json=mTmpTableSizesSum,proto3" json:"m_tmp_table_sizes_sum,omitempty"`
+	MTmpTableSizesMin float32 `protobuf:"fixed32,110,opt,name=m_tmp_table_sizes_min,json=mTmpTableSizesMin,proto3" json:"m_tmp_table_sizes_min,omitempty"`
+	MTmpTableSizesMax float32 `protobuf:"fixed32,111,opt,name=m_tmp_table_sizes_max,json=mTmpTableSizesMax,proto3" json:"m_tmp_table_sizes_max,omitempty"`
+	MTmpTableSizesP99 float32 `protobuf:"fixed32,112,opt,name=m_tmp_table_sizes_p99,json=mTmpTableSizesP99,proto3" json:"m_tmp_table_sizes_p99,omitempty"`
+	//
+	// Boolean metrics:
+	// - *_cnt - how many times this matric was met.
+	// - *_sum - how many times this matric was true.
+	//
+	MQcHitCnt float32 `protobuf:"fixed32,113,opt,name=m_qc_hit_cnt,json=mQcHitCnt,proto3" json:"m_qc_hit_cnt,omitempty"`
+	// Query Cache hits.
+	MQcHitSum    float32 `protobuf:"fixed32,114,opt,name=m_qc_hit_sum,json=mQcHitSum,proto3" json:"m_qc_hit_sum,omitempty"`
+	MFullScanCnt float32 `protobuf:"fixed32,115,opt,name=m_full_scan_cnt,json=mFullScanCnt,proto3" json:"m_full_scan_cnt,omitempty"`
+	// The query performed a full table scan.
+	MFullScanSum float32 `protobuf:"fixed32,116,opt,name=m_full_scan_sum,json=mFullScanSum,proto3" json:"m_full_scan_sum,omitempty"`
+	MFullJoinCnt float32 `protobuf:"fixed32,117,opt,name=m_full_join_cnt,json=mFullJoinCnt,proto3" json:"m_full_join_cnt,omitempty"`
+	// The query performed a full join (a join without indexes).
+	MFullJoinSum float32 `protobuf:"fixed32,118,opt,name=m_full_join_sum,json=mFullJoinSum,proto3" json:"m_full_join_sum,omitempty"`
+	MTmpTableCnt float32 `protobuf:"fixed32,119,opt,name=m_tmp_table_cnt,json=mTmpTableCnt,proto3" json:"m_tmp_table_cnt,omitempty"`
+	// The query created an implicit internal temporary table.
+	MTmpTableSum       float32 `protobuf:"fixed32,120,opt,name=m_tmp_table_sum,json=mTmpTableSum,proto3" json:"m_tmp_table_sum,omitempty"`
+	MTmpTableOnDiskCnt float32 `protobuf:"fixed32,121,opt,name=m_tmp_table_on_disk_cnt,json=mTmpTableOnDiskCnt,proto3" json:"m_tmp_table_on_disk_cnt,omitempty"`
+	// The querys temporary table was stored on disk.
+	MTmpTableOnDiskSum float32 `protobuf:"fixed32,122,opt,name=m_tmp_table_on_disk_sum,json=mTmpTableOnDiskSum,proto3" json:"m_tmp_table_on_disk_sum,omitempty"`
+	MFilesortCnt       float32 `protobuf:"fixed32,123,opt,name=m_filesort_cnt,json=mFilesortCnt,proto3" json:"m_filesort_cnt,omitempty"`
+	// The query used a filesort.
+	MFilesortSum       float32 `protobuf:"fixed32,124,opt,name=m_filesort_sum,json=mFilesortSum,proto3" json:"m_filesort_sum,omitempty"`
+	MFilesortOnDiskCnt float32 `protobuf:"fixed32,125,opt,name=m_filesort_on_disk_cnt,json=mFilesortOnDiskCnt,proto3" json:"m_filesort_on_disk_cnt,omitempty"`
+	// The filesort was performed on disk.
+	MFilesortOnDiskSum      float32 `protobuf:"fixed32,126,opt,name=m_filesort_on_disk_sum,json=mFilesortOnDiskSum,proto3" json:"m_filesort_on_disk_sum,omitempty"`
+	MSelectFullRangeJoinCnt float32 `protobuf:"fixed32,127,opt,name=m_select_full_range_join_cnt,json=mSelectFullRangeJoinCnt,proto3" json:"m_select_full_range_join_cnt,omitempty"`
+	// The number of joins that used a range search on a reference table.
+	MSelectFullRangeJoinSum float32 `protobuf:"fixed32,128,opt,name=m_select_full_range_join_sum,json=mSelectFullRangeJoinSum,proto3" json:"m_select_full_range_join_sum,omitempty"`
+	MSelectRangeCnt         float32 `protobuf:"fixed32,129,opt,name=m_select_range_cnt,json=mSelectRangeCnt,proto3" json:"m_select_range_cnt,omitempty"`
+	// The number of joins that used ranges on the first table.
+	MSelectRangeSum      float32 `protobuf:"fixed32,130,opt,name=m_select_range_sum,json=mSelectRangeSum,proto3" json:"m_select_range_sum,omitempty"`
+	MSelectRangeCheckCnt float32 `protobuf:"fixed32,131,opt,name=m_select_range_check_cnt,json=mSelectRangeCheckCnt,proto3" json:"m_select_range_check_cnt,omitempty"`
+	// The number of joins without keys that check for key usage after each row.
+	MSelectRangeCheckSum float32 `protobuf:"fixed32,132,opt,name=m_select_range_check_sum,json=mSelectRangeCheckSum,proto3" json:"m_select_range_check_sum,omitempty"`
+	MSortRangeCnt        float32 `protobuf:"fixed32,133,opt,name=m_sort_range_cnt,json=mSortRangeCnt,proto3" json:"m_sort_range_cnt,omitempty"`
+	// The number of sorts that were done using ranges.
+	MSortRangeSum float32 `protobuf:"fixed32,134,opt,name=m_sort_range_sum,json=mSortRangeSum,proto3" json:"m_sort_range_sum,omitempty"`
+	MSortRowsCnt  float32 `protobuf:"fixed32,135,opt,name=m_sort_rows_cnt,json=mSortRowsCnt,proto3" json:"m_sort_rows_cnt,omitempty"`
+	// The number of sorted rows.
+	MSortRowsSum float32 `protobuf:"fixed32,136,opt,name=m_sort_rows_sum,json=mSortRowsSum,proto3" json:"m_sort_rows_sum,omitempty"`
+	MSortScanCnt float32 `protobuf:"fixed32,137,opt,name=m_sort_scan_cnt,json=mSortScanCnt,proto3" json:"m_sort_scan_cnt,omitempty"`
+	// The number of sorts that were done by scanning the table.
+	MSortScanSum    float32 `protobuf:"fixed32,138,opt,name=m_sort_scan_sum,json=mSortScanSum,proto3" json:"m_sort_scan_sum,omitempty"`
+	MNoIndexUsedCnt float32 `protobuf:"fixed32,139,opt,name=m_no_index_used_cnt,json=mNoIndexUsedCnt,proto3" json:"m_no_index_used_cnt,omitempty"`
+	// The number of queries without index.
+	MNoIndexUsedSum     float32 `protobuf:"fixed32,140,opt,name=m_no_index_used_sum,json=mNoIndexUsedSum,proto3" json:"m_no_index_used_sum,omitempty"`
+	MNoGoodIndexUsedCnt float32 `protobuf:"fixed32,141,opt,name=m_no_good_index_used_cnt,json=mNoGoodIndexUsedCnt,proto3" json:"m_no_good_index_used_cnt,omitempty"`
+	// The number of queries without good index.
+	MNoGoodIndexUsedSum float32 `protobuf:"fixed32,142,opt,name=m_no_good_index_used_sum,json=mNoGoodIndexUsedSum,proto3" json:"m_no_good_index_used_sum,omitempty"`
+	MDocsReturnedCnt    float32 `protobuf:"fixed32,143,opt,name=m_docs_returned_cnt,json=mDocsReturnedCnt,proto3" json:"m_docs_returned_cnt,omitempty"`
+	// The number of returned documents.
+	MDocsReturnedSum   float32 `protobuf:"fixed32,144,opt,name=m_docs_returned_sum,json=mDocsReturnedSum,proto3" json:"m_docs_returned_sum,omitempty"`
+	MDocsReturnedMin   float32 `protobuf:"fixed32,145,opt,name=m_docs_returned_min,json=mDocsReturnedMin,proto3" json:"m_docs_returned_min,omitempty"`
+	MDocsReturnedMax   float32 `protobuf:"fixed32,146,opt,name=m_docs_returned_max,json=mDocsReturnedMax,proto3" json:"m_docs_returned_max,omitempty"`
+	MDocsReturnedP99   float32 `protobuf:"fixed32,147,opt,name=m_docs_returned_p99,json=mDocsReturnedP99,proto3" json:"m_docs_returned_p99,omitempty"`
+	MResponseLengthCnt float32 `protobuf:"fixed32,148,opt,name=m_response_length_cnt,json=mResponseLengthCnt,proto3" json:"m_response_length_cnt,omitempty"`
+	// The response length of the query result in bytes.
+	MResponseLengthSum float32 `protobuf:"fixed32,149,opt,name=m_response_length_sum,json=mResponseLengthSum,proto3" json:"m_response_length_sum,omitempty"`
+	MResponseLengthMin float32 `protobuf:"fixed32,150,opt,name=m_response_length_min,json=mResponseLengthMin,proto3" json:"m_response_length_min,omitempty"`
+	MResponseLengthMax float32 `protobuf:"fixed32,151,opt,name=m_response_length_max,json=mResponseLengthMax,proto3" json:"m_response_length_max,omitempty"`
+	MResponseLengthP99 float32 `protobuf:"fixed32,152,opt,name=m_response_length_p99,json=mResponseLengthP99,proto3" json:"m_response_length_p99,omitempty"`
+	MDocsScannedCnt    float32 `protobuf:"fixed32,153,opt,name=m_docs_scanned_cnt,json=mDocsScannedCnt,proto3" json:"m_docs_scanned_cnt,omitempty"`
+	// The number of scanned documents.
+	MDocsScannedSum      float32  `protobuf:"fixed32,154,opt,name=m_docs_scanned_sum,json=mDocsScannedSum,proto3" json:"m_docs_scanned_sum,omitempty"`
+	MDocsScannedMin      float32  `protobuf:"fixed32,155,opt,name=m_docs_scanned_min,json=mDocsScannedMin,proto3" json:"m_docs_scanned_min,omitempty"`
+	MDocsScannedMax      float32  `protobuf:"fixed32,156,opt,name=m_docs_scanned_max,json=mDocsScannedMax,proto3" json:"m_docs_scanned_max,omitempty"`
+	MDocsScannedP99      float32  `protobuf:"fixed32,157,opt,name=m_docs_scanned_p99,json=mDocsScannedP99,proto3" json:"m_docs_scanned_p99,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
 }
 
 func (m *MetricsBucket) Reset()         { *m = MetricsBucket{} }
 func (m *MetricsBucket) String() string { return proto.CompactTextString(m) }
 func (*MetricsBucket) ProtoMessage()    {}
 func (*MetricsBucket) Descriptor() ([]byte, []int) {
-	return fileDescriptor_collector_1d68a519eb2df4ad, []int{1}
+	return fileDescriptor_collector_f7e0203ae97a5739, []int{1}
 }
 func (m *MetricsBucket) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MetricsBucket.Unmarshal(m, b)
@@ -1414,7 +1453,7 @@ func (m *CollectResponse) Reset()         { *m = CollectResponse{} }
 func (m *CollectResponse) String() string { return proto.CompactTextString(m) }
 func (*CollectResponse) ProtoMessage()    {}
 func (*CollectResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_collector_1d68a519eb2df4ad, []int{2}
+	return fileDescriptor_collector_f7e0203ae97a5739, []int{2}
 }
 func (m *CollectResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CollectResponse.Unmarshal(m, b)
@@ -1518,9 +1557,9 @@ var _Collector_serviceDesc = grpc.ServiceDesc{
 	Metadata: "qanpb/collector.proto",
 }
 
-func init() { proto.RegisterFile("qanpb/collector.proto", fileDescriptor_collector_1d68a519eb2df4ad) }
+func init() { proto.RegisterFile("qanpb/collector.proto", fileDescriptor_collector_f7e0203ae97a5739) }
 
-var fileDescriptor_collector_1d68a519eb2df4ad = []byte{
+var fileDescriptor_collector_f7e0203ae97a5739 = []byte{
 	// 2361 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x99, 0x79, 0x5b, 0xdb, 0x46,
 	0x1e, 0xc7, 0xd7, 0xb9, 0x33, 0x84, 0x40, 0x14, 0x92, 0x4c, 0xe8, 0x11, 0x97, 0xa6, 0x0d, 0xdb,

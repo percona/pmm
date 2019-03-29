@@ -67,6 +67,10 @@ message Row {
   string dimension = 2;
   map<string, Metric> metrics = 3;
   repeated Point sparkline = 4;
+  string fingerprint = 5;
+  uint32 num_queries = 6;
+  float qps = 7;
+  float load = 8;
 }
 
 // Metric cell.

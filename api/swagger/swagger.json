@@ -5565,6 +5565,13 @@
                       "dimension": {
                         "type": "string"
                       },
+                      "fingerprint": {
+                        "type": "string"
+                      },
+                      "load": {
+                        "type": "number",
+                        "format": "float"
+                      },
                       "metrics": {
                         "type": "object",
                         "additionalProperties": {
@@ -5603,6 +5610,14 @@
                             }
                           }
                         }
+                      },
+                      "num_queries": {
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "qps": {
+                        "type": "number",
+                        "format": "float"
                       },
                       "rank": {
                         "type": "integer",
