@@ -13,6 +13,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -120,17 +121,8 @@ type GetReportBody struct {
 	// columns
 	Columns []string `json:"columns"`
 
-	// first seen
-	FirstSeen bool `json:"first_seen,omitempty"`
-
 	// group by
 	GroupBy string `json:"group_by,omitempty"`
-
-	// include only fields
-	IncludeOnlyFields []string `json:"include_only_fields"`
-
-	// keyword
-	Keyword string `json:"keyword,omitempty"`
 
 	// labels
 	Labels []*LabelsItems0 `json:"labels"`
@@ -145,10 +137,12 @@ type GetReportBody struct {
 	OrderBy string `json:"order_by,omitempty"`
 
 	// period start from
-	PeriodStartFrom string `json:"period_start_from,omitempty"`
+	// Format: date-time
+	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
 
 	// period start to
-	PeriodStartTo string `json:"period_start_to,omitempty"`
+	// Format: date-time
+	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
 }
 
 // Validate validates this get report body
@@ -156,6 +150,14 @@ func (o *GetReportBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateLabels(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePeriodStartFrom(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePeriodStartTo(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -185,6 +187,32 @@ func (o *GetReportBody) validateLabels(formats strfmt.Registry) error {
 			}
 		}
 
+	}
+
+	return nil
+}
+
+func (o *GetReportBody) validatePeriodStartFrom(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PeriodStartFrom) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("body"+"."+"period_start_from", "body", "date-time", o.PeriodStartFrom.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *GetReportBody) validatePeriodStartTo(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PeriodStartTo) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("body"+"."+"period_start_to", "body", "date-time", o.PeriodStartTo.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -364,8 +392,20 @@ type RowsItems0 struct {
 	// dimension
 	Dimension string `json:"dimension,omitempty"`
 
+	// fingerprint
+	Fingerprint string `json:"fingerprint,omitempty"`
+
+	// load
+	Load float32 `json:"load,omitempty"`
+
 	// metrics
 	Metrics map[string]RowsItems0MetricsAnon `json:"metrics,omitempty"`
+
+	// num queries
+	NumQueries int64 `json:"num_queries,omitempty"`
+
+	// qps
+	QPS float32 `json:"qps,omitempty"`
 
 	// rank
 	Rank int64 `json:"rank,omitempty"`

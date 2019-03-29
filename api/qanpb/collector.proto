@@ -77,8 +77,7 @@ message MetricsBucket {
   // Indicates if query examples is too long and was truncated.
   bool is_truncated = 15;
   ExampleType example_type = 16;
-  // JSON raw metrics for given query example.
-  // FIXME(askomorokhov) wat?
+  // Metrics of query example in JSON format.
   string example_metrics = 17;
   //
   // Metrics.
@@ -96,7 +95,7 @@ message MetricsBucket {
   float num_queries = 22;
   // How many times query_time was found.
   float m_query_time_cnt = 23;
-  // Sum of all values query_time in bucket.
+  // The statement execution time in seconds.
   float m_query_time_sum = 24;
   // Smallest value of query_time in bucket.
   float m_query_time_min = 25;
@@ -105,142 +104,175 @@ message MetricsBucket {
   // 99 percentile of value of query_time in bucket.
   float m_query_time_p99 = 27;
   float m_lock_time_cnt = 28;
+  // The time to acquire locks in seconds.
   float m_lock_time_sum = 29;
   float m_lock_time_min = 30;
   float m_lock_time_max = 31;
   float m_lock_time_p99 = 32;
   float m_rows_sent_cnt = 33;
+  // The number of rows sent to the client.
   float m_rows_sent_sum = 34;
   float m_rows_sent_min = 35;
   float m_rows_sent_max = 36;
   float m_rows_sent_p99 = 37;
   float m_rows_examined_cnt = 38;
+  // Number of rows scanned - SELECT.
   float m_rows_examined_sum = 39;
   float m_rows_examined_min = 40;
   float m_rows_examined_max = 41;
   float m_rows_examined_p99 = 42;
   float m_rows_affected_cnt = 43;
+  // Number of rows changed - UPDATE, DELETE, INSERT.
   float m_rows_affected_sum = 44;
   float m_rows_affected_min = 45;
   float m_rows_affected_max = 46;
   float m_rows_affected_p99 = 47;
   float m_rows_read_cnt = 48;
+  // The number of rows read from tables.
   float m_rows_read_sum = 49;
   float m_rows_read_min = 50;
   float m_rows_read_max = 51;
   float m_rows_read_p99 = 52;
   float m_merge_passes_cnt = 53;
+  // The number of merge passes that the sort algorithm has had to do.
   float m_merge_passes_sum = 54;
   float m_merge_passes_min = 55;
   float m_merge_passes_max = 56;
   float m_merge_passes_p99 = 57;
   float m_innodb_io_r_ops_cnt = 58;
+  // Counts the number of page read operations scheduled.
   float m_innodb_io_r_ops_sum = 59;
   float m_innodb_io_r_ops_min = 60;
   float m_innodb_io_r_ops_max = 61;
   float m_innodb_io_r_ops_p99 = 62;
   float m_innodb_io_r_bytes_cnt = 63;
+  // Similar to innodb_IO_r_ops, but the unit is bytes.
   float m_innodb_io_r_bytes_sum = 64;
   float m_innodb_io_r_bytes_min = 65;
   float m_innodb_io_r_bytes_max = 66;
   float m_innodb_io_r_bytes_p99 = 67;
   float m_innodb_io_r_wait_cnt = 68;
+  // Shows how long (in seconds) it took InnoDB to actually read the data from storage.
   float m_innodb_io_r_wait_sum = 69;
   float m_innodb_io_r_wait_min = 70;
   float m_innodb_io_r_wait_max = 71;
   float m_innodb_io_r_wait_p99 = 72;
   float m_innodb_rec_lock_wait_cnt = 73;
+  // Shows how long (in seconds) the query waited for row locks.
   float m_innodb_rec_lock_wait_sum = 74;
   float m_innodb_rec_lock_wait_min = 75;
   float m_innodb_rec_lock_wait_max = 76;
   float m_innodb_rec_lock_wait_p99 = 77;
   float m_innodb_queue_wait_cnt = 78;
+  // Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution.
   float m_innodb_queue_wait_sum = 79;
   float m_innodb_queue_wait_min = 80;
   float m_innodb_queue_wait_max = 81;
   float m_innodb_queue_wait_p99 = 82;
   float m_innodb_pages_distinct_cnt = 83;
+  // Counts approximately the number of unique pages the query accessed.
   float m_innodb_pages_distinct_sum = 84;
   float m_innodb_pages_distinct_min = 85;
   float m_innodb_pages_distinct_max = 86;
   float m_innodb_pages_distinct_p99 = 87;
   float m_query_length_cnt = 88;
+  // Shows how long the query is.
   float m_query_length_sum = 89;
   float m_query_length_min = 90;
   float m_query_length_max = 91;
   float m_query_length_p99 = 92;
   float m_bytes_sent_cnt = 93;
+  // The number of bytes sent to all clients.
   float m_bytes_sent_sum = 94;
   float m_bytes_sent_min = 95;
   float m_bytes_sent_max = 96;
   float m_bytes_sent_p99 = 97;
   float m_tmp_tables_cnt = 98;
+  // Number of temporary tables created on memory for the query.
   float m_tmp_tables_sum = 99;
   float m_tmp_tables_min = 100;
   float m_tmp_tables_max = 101;
   float m_tmp_tables_p99 = 102;
   float m_tmp_disk_tables_cnt = 103;
+  // Number of temporary tables created on disk for the query.
   float m_tmp_disk_tables_sum = 104;
   float m_tmp_disk_tables_min = 105;
   float m_tmp_disk_tables_max = 106;
   float m_tmp_disk_tables_p99 = 107;
   float m_tmp_table_sizes_cnt = 108;
+  // Total Size in bytes for all temporary tables used in the query.
   float m_tmp_table_sizes_sum = 109;
   float m_tmp_table_sizes_min = 110;
   float m_tmp_table_sizes_max = 111;
   float m_tmp_table_sizes_p99 = 112;
   //
-  // boolean metrics
+  // Boolean metrics:
+  // - *_cnt - how many times this matric was met.
+  // - *_sum - how many times this matric was true.
   //
-  // FIXME(askomorokhov) why they are float then?
-  //
-
   float m_qc_hit_cnt = 113;
-  // %true = sum/cnt
+  // Query Cache hits.
   float m_qc_hit_sum = 114;
   float m_full_scan_cnt = 115;
+  // The query performed a full table scan.
   float m_full_scan_sum = 116;
   float m_full_join_cnt = 117;
+  // The query performed a full join (a join without indexes).
   float m_full_join_sum = 118;
   float m_tmp_table_cnt = 119;
+  // The query created an implicit internal temporary table.
   float m_tmp_table_sum = 120;
   float m_tmp_table_on_disk_cnt = 121;
+  // The querys temporary table was stored on disk.
   float m_tmp_table_on_disk_sum = 122;
   float m_filesort_cnt = 123;
+  // The query used a filesort.
   float m_filesort_sum = 124;
   float m_filesort_on_disk_cnt = 125;
+  // The filesort was performed on disk.
   float m_filesort_on_disk_sum = 126;
   float m_select_full_range_join_cnt = 127;
+  // The number of joins that used a range search on a reference table.
   float m_select_full_range_join_sum = 128;
   float m_select_range_cnt = 129;
+  // The number of joins that used ranges on the first table.
   float m_select_range_sum = 130;
   float m_select_range_check_cnt = 131;
+  // The number of joins without keys that check for key usage after each row.
   float m_select_range_check_sum = 132;
   float m_sort_range_cnt = 133;
+  // The number of sorts that were done using ranges.
   float m_sort_range_sum = 134;
   float m_sort_rows_cnt = 135;
+  // The number of sorted rows.
   float m_sort_rows_sum = 136;
   float m_sort_scan_cnt = 137;
+  // The number of sorts that were done by scanning the table.
   float m_sort_scan_sum = 138;
   float m_no_index_used_cnt = 139;
+  // The number of queries without index.
   float m_no_index_used_sum = 140;
   float m_no_good_index_used_cnt = 141;
+  // The number of queries without good index.
   float m_no_good_index_used_sum = 142;
   //
   // MongoDB metrics.
   //
 
   float m_docs_returned_cnt = 143;
+  // The number of returned documents.
   float m_docs_returned_sum = 144;
   float m_docs_returned_min = 145;
   float m_docs_returned_max = 146;
   float m_docs_returned_p99 = 147;
   float m_response_length_cnt = 148;
+  // The response length of the query result in bytes.
   float m_response_length_sum = 149;
   float m_response_length_min = 150;
   float m_response_length_max = 151;
   float m_response_length_p99 = 152;
   float m_docs_scanned_cnt = 153;
+  // The number of scanned documents.
   float m_docs_scanned_sum = 154;
   float m_docs_scanned_min = 155;
   float m_docs_scanned_max = 156;
