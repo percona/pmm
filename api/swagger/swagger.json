@@ -4602,6 +4602,169 @@
         }
       }
     },
+    "/v1/management/Node/Register": {
+      "post": {
+        "tags": [
+          "Node"
+        ],
+        "summary": "Register do node registration.",
+        "operationId": "Register",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "custom_labels": {
+                  "description": "Custom user-assigned labels for node (optional).",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "distro": {
+                  "description": "Linux distribution. For Generic nodes (optional).",
+                  "type": "string"
+                },
+                "distro_version": {
+                  "description": "Linux distribution version. For Generic nodes (optional).",
+                  "type": "string"
+                },
+                "docker_container_id": {
+                  "description": "Docker container identifier. Only for Container Nodes (optional).",
+                  "type": "string"
+                },
+                "docker_container_name": {
+                  "description": "Docker container name. Only for Container Nodes (optional).",
+                  "type": "string"
+                },
+                "machine_id": {
+                  "description": "Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified (optional).",
+                  "type": "string"
+                },
+                "node_name": {
+                  "description": "Unique across all Nodes user-defined name, can be changed.",
+                  "type": "string"
+                },
+                "node_type": {
+                  "description": "NodeType describes supported node types.",
+                  "type": "string",
+                  "default": "NODE_TYPE_INVALID",
+                  "enum": [
+                    "NODE_TYPE_INVALID",
+                    "GENERIC_NODE",
+                    "CONTAINER_NODE",
+                    "REMOTE_NODE",
+                    "REMOTE_AMAZON_RDS_NODE"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "container_node": {
+                  "description": "ContainerNode represents a Docker container.",
+                  "type": "object",
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "docker_container_id": {
+                      "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
+                      "type": "string"
+                    },
+                    "docker_container_name": {
+                      "description": "Container name. Can be changed.",
+                      "type": "string"
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "generic_node": {
+                  "description": "GenericNode represents a bare metal server or virtual machine.",
+                  "type": "object",
+                  "properties": {
+                    "address": {
+                      "description": "Address FIXME.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels. Can be changed.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "distro": {
+                      "description": "Linux distribution (if any). Can be changed.",
+                      "type": "string"
+                    },
+                    "distro_version": {
+                      "description": "Linux distribution version (if any). Can be changed.",
+                      "type": "string"
+                    },
+                    "machine_id": {
+                      "description": "Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.",
+                      "type": "string"
+                    },
+                    "node_id": {
+                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "type": "string"
+                    },
+                    "node_name": {
+                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/qan/Filters/Get": {
       "post": {
         "tags": [

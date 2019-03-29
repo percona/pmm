@@ -12,6 +12,7 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 
 	"github.com/percona/pmm/api/managementpb/json/client/my_sql"
+	"github.com/percona/pmm/api/managementpb/json/client/node"
 )
 
 // Default PMM management HTTP client.
@@ -59,6 +60,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 
 	cli.MySQL = my_sql.New(transport, formats)
 
+	cli.Node = node.New(transport, formats)
+
 	return cli
 }
 
@@ -105,6 +108,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 type PMMManagement struct {
 	MySQL *my_sql.Client
 
+	Node *node.Client
+
 	Transport runtime.ClientTransport
 }
 
@@ -113,5 +118,7 @@ func (c *PMMManagement) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 
 	c.MySQL.SetTransport(transport)
+
+	c.Node.SetTransport(transport)
 
 }

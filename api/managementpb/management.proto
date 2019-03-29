@@ -23,6 +23,7 @@ option go_package = "managementpb";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "inventory/agents.proto";
+import "inventory/nodes.proto";
 import "inventory/services.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
@@ -96,6 +97,47 @@ service MySQL {
   rpc Add(AddMySQLRequest) returns (AddMySQLResponse) {
     option (google.api.http) = {
       post: "/v1/management/MySQL/Add"
+      body: "*"
+    };
+  }
+}
+
+// Nodes Management
+
+message RegisterNodeRequest {
+  // Type of node which will be registered.
+  inventory.NodeType node_type = 1;
+  // Unique across all Nodes user-defined name, can be changed.
+  string node_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified (optional).
+  string machine_id = 3;
+  // Linux distribution. For Generic nodes (optional).
+  string distro = 4;
+  // Linux distribution version. For Generic nodes (optional).
+  string distro_version = 5;
+  // Docker container identifier. Only for Container Nodes (optional).
+  string docker_container_id = 6;
+  // Docker container name. Only for Container Nodes (optional).
+  string docker_container_name = 7;
+  // Custom user-assigned labels for node (optional).
+  map<string, string> custom_labels = 10;
+}
+
+message RegisterNodeResponse {
+  inventory.GenericNode generic_node = 1;
+  inventory.ContainerNode container_node = 2;
+}
+
+// Node service provides public Management API methods for operating with nodes.
+service Node {
+  // Register do node registration.
+  rpc Register(RegisterNodeRequest) returns (RegisterNodeResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Node/Register"
       body: "*"
     };
   }

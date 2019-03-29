@@ -24,6 +24,15 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
+// NodeType describes supported node types.
+enum NodeType {
+  NODE_TYPE_INVALID = 0;
+  GENERIC_NODE = 1;
+  CONTAINER_NODE = 2;
+  REMOTE_NODE = 3;
+  REMOTE_AMAZON_RDS_NODE = 4;
+}
+
 // GenericNode represents a bare metal server or virtual machine.
 message GenericNode {
   // Unique randomly generated instance identifier, can't be changed.
