@@ -25,30 +25,30 @@ type Client struct {
 }
 
 /*
-GetFilters gets filters gets map of metrics names
+Get gets gets map of metrics names
 */
-func (a *Client) GetFilters(params *GetFiltersParams) (*GetFiltersOK, error) {
+func (a *Client) Get(params *GetParams) (*GetOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetFiltersParams()
+		params = NewGetParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetFilters",
+		ID:                 "Get",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/GetFilters",
+		PathPattern:        "/v1/qan/Filters/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetFiltersReader{formats: a.formats},
+		Reader:             &GetReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetFiltersOK), nil
+	return result.(*GetOK), nil
 
 }
 

@@ -28,7 +28,7 @@ var _ status.Status
 var _ = runtime.String
 var _ = utilities.NewDoubleArray
 
-func request_Filters_GetFilters_0(ctx context.Context, marshaler runtime.Marshaler, client FiltersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_Filters_Get_0(ctx context.Context, marshaler runtime.Marshaler, client FiltersClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq FiltersRequest
 	var metadata runtime.ServerMetadata
 
@@ -40,7 +40,7 @@ func request_Filters_GetFilters_0(ctx context.Context, marshaler runtime.Marshal
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.GetFilters(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.Get(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
@@ -83,7 +83,7 @@ func RegisterFiltersHandler(ctx context.Context, mux *runtime.ServeMux, conn *gr
 // "FiltersClient" to call the correct interceptors.
 func RegisterFiltersHandlerClient(ctx context.Context, mux *runtime.ServeMux, client FiltersClient) error {
 
-	mux.Handle("POST", pattern_Filters_GetFilters_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Filters_Get_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -92,14 +92,14 @@ func RegisterFiltersHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Filters_GetFilters_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Filters_Get_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Filters_GetFilters_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Filters_Get_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -107,9 +107,9 @@ func RegisterFiltersHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 }
 
 var (
-	pattern_Filters_GetFilters_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "GetFilters"}, ""))
+	pattern_Filters_Get_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "qan", "Filters", "Get"}, ""))
 )
 
 var (
-	forward_Filters_GetFilters_0 = runtime.ForwardResponseMessage
+	forward_Filters_Get_0 = runtime.ForwardResponseMessage
 )

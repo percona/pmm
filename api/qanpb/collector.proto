@@ -77,8 +77,7 @@ message MetricsBucket {
   // Indicates if query examples is too long and was truncated.
   bool is_truncated = 15;
   ExampleType example_type = 16;
-  // JSON raw metrics for given query example.
-  // FIXME(askomorokhov) wat?
+  // Metrics of query example in JSON format.
   string example_metrics = 17;
   //
   // Metrics.

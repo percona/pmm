@@ -18,17 +18,17 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// GetFiltersReader is a Reader for the GetFilters structure.
-type GetFiltersReader struct {
+// GetReader is a Reader for the Get structure.
+type GetReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *GetFiltersReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *GetReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
 	case 200:
-		result := NewGetFiltersOK()
+		result := NewGetOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -39,26 +39,26 @@ func (o *GetFiltersReader) ReadResponse(response runtime.ClientResponse, consume
 	}
 }
 
-// NewGetFiltersOK creates a GetFiltersOK with default headers values
-func NewGetFiltersOK() *GetFiltersOK {
-	return &GetFiltersOK{}
+// NewGetOK creates a GetOK with default headers values
+func NewGetOK() *GetOK {
+	return &GetOK{}
 }
 
-/*GetFiltersOK handles this case with default header values.
+/*GetOK handles this case with default header values.
 
 A successful response.
 */
-type GetFiltersOK struct {
-	Payload *GetFiltersOKBody
+type GetOK struct {
+	Payload *GetOKBody
 }
 
-func (o *GetFiltersOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/GetFilters][%d] getFiltersOk  %+v", 200, o.Payload)
+func (o *GetOK) Error() string {
+	return fmt.Sprintf("[POST /v1/qan/Filters/Get][%d] getOk  %+v", 200, o.Payload)
 }
 
-func (o *GetFiltersOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *GetOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(GetFiltersOKBody)
+	o.Payload = new(GetOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -68,10 +68,10 @@ func (o *GetFiltersOK) readResponse(response runtime.ClientResponse, consumer ru
 	return nil
 }
 
-/*GetFiltersBody FiltersRequest contains period for which we need filters.
-swagger:model GetFiltersBody
+/*GetBody FiltersRequest contains period for which we need filters.
+swagger:model GetBody
 */
-type GetFiltersBody struct {
+type GetBody struct {
 
 	// period start from
 	// Format: date-time
@@ -82,8 +82,8 @@ type GetFiltersBody struct {
 	PeriodStartTo strfmt.DateTime `json:"period_start_to,omitempty"`
 }
 
-// Validate validates this get filters body
-func (o *GetFiltersBody) Validate(formats strfmt.Registry) error {
+// Validate validates this get body
+func (o *GetBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validatePeriodStartFrom(formats); err != nil {
@@ -100,7 +100,7 @@ func (o *GetFiltersBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetFiltersBody) validatePeriodStartFrom(formats strfmt.Registry) error {
+func (o *GetBody) validatePeriodStartFrom(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.PeriodStartFrom) { // not required
 		return nil
@@ -113,7 +113,7 @@ func (o *GetFiltersBody) validatePeriodStartFrom(formats strfmt.Registry) error 
 	return nil
 }
 
-func (o *GetFiltersBody) validatePeriodStartTo(formats strfmt.Registry) error {
+func (o *GetBody) validatePeriodStartTo(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.PeriodStartTo) { // not required
 		return nil
@@ -127,7 +127,7 @@ func (o *GetFiltersBody) validatePeriodStartTo(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *GetFiltersBody) MarshalBinary() ([]byte, error) {
+func (o *GetBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -135,8 +135,8 @@ func (o *GetFiltersBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetFiltersBody) UnmarshalBinary(b []byte) error {
-	var res GetFiltersBody
+func (o *GetBody) UnmarshalBinary(b []byte) error {
+	var res GetBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -144,17 +144,18 @@ func (o *GetFiltersBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetFiltersOKBody FiltersReply is map of labels for given period by key.
-swagger:model GetFiltersOKBody
+/*GetOKBody FiltersReply is map of labels for given period by key.
+// Key is label's name and value is label's value and how many times it occur.
+swagger:model GetOKBody
 */
-type GetFiltersOKBody struct {
+type GetOKBody struct {
 
 	// labels
 	Labels map[string]LabelsAnon `json:"labels,omitempty"`
 }
 
-// Validate validates this get filters OK body
-func (o *GetFiltersOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this get OK body
+func (o *GetOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateLabels(formats); err != nil {
@@ -167,7 +168,7 @@ func (o *GetFiltersOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *GetFiltersOKBody) validateLabels(formats strfmt.Registry) error {
+func (o *GetOKBody) validateLabels(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Labels) { // not required
 		return nil
@@ -190,7 +191,7 @@ func (o *GetFiltersOKBody) validateLabels(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *GetFiltersOKBody) MarshalBinary() ([]byte, error) {
+func (o *GetOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -198,8 +199,8 @@ func (o *GetFiltersOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetFiltersOKBody) UnmarshalBinary(b []byte) error {
-	var res GetFiltersOKBody
+func (o *GetOKBody) UnmarshalBinary(b []byte) error {
+	var res GetOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -207,20 +208,20 @@ func (o *GetFiltersOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LabelsAnon ListLabels is list of label values.
+/*LabelsAnon ListLabels is list of label's values: duplicates are impossible.
 swagger:model LabelsAnon
 */
 type LabelsAnon struct {
 
-	// values
-	Values []*LabelsAnonValuesItems0 `json:"values"`
+	// name
+	Name []*LabelsAnonNameItems0 `json:"name"`
 }
 
 // Validate validates this labels anon
 func (o *LabelsAnon) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateValues(formats); err != nil {
+	if err := o.validateName(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -230,21 +231,21 @@ func (o *LabelsAnon) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *LabelsAnon) validateValues(formats strfmt.Registry) error {
+func (o *LabelsAnon) validateName(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Values) { // not required
+	if swag.IsZero(o.Name) { // not required
 		return nil
 	}
 
-	for i := 0; i < len(o.Values); i++ {
-		if swag.IsZero(o.Values[i]) { // not required
+	for i := 0; i < len(o.Name); i++ {
+		if swag.IsZero(o.Name[i]) { // not required
 			continue
 		}
 
-		if o.Values[i] != nil {
-			if err := o.Values[i].Validate(formats); err != nil {
+		if o.Name[i] != nil {
+			if err := o.Name[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("values" + "." + strconv.Itoa(i))
+					return ve.ValidateName("name" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -273,10 +274,10 @@ func (o *LabelsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LabelsAnonValuesItems0 NameAndCount is label values and how many times this value occur.
-swagger:model LabelsAnonValuesItems0
+/*LabelsAnonNameItems0 ValueAndCount is label values and how many times this value occur.
+swagger:model LabelsAnonNameItems0
 */
-type LabelsAnonValuesItems0 struct {
+type LabelsAnonNameItems0 struct {
 
 	// count
 	Count string `json:"count,omitempty"`
@@ -285,13 +286,13 @@ type LabelsAnonValuesItems0 struct {
 	Value string `json:"value,omitempty"`
 }
 
-// Validate validates this labels anon values items0
-func (o *LabelsAnonValuesItems0) Validate(formats strfmt.Registry) error {
+// Validate validates this labels anon name items0
+func (o *LabelsAnonNameItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *LabelsAnonValuesItems0) MarshalBinary() ([]byte, error) {
+func (o *LabelsAnonNameItems0) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -299,8 +300,8 @@ func (o *LabelsAnonValuesItems0) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *LabelsAnonValuesItems0) UnmarshalBinary(b []byte) error {
-	var res LabelsAnonValuesItems0
+func (o *LabelsAnonNameItems0) UnmarshalBinary(b []byte) error {
+	var res LabelsAnonNameItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

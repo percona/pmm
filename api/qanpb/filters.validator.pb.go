@@ -33,15 +33,15 @@ func (this *FiltersReply) Validate() error {
 	return nil
 }
 func (this *ListLabels) Validate() error {
-	for _, item := range this.Values {
+	for _, item := range this.Name {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Values", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("Name", err)
 			}
 		}
 	}
 	return nil
 }
-func (this *NameAndCount) Validate() error {
+func (this *ValueAndCount) Validate() error {
 	return nil
 }

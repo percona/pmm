@@ -15,13 +15,13 @@
     "version": "version 1.alpha"
   },
   "paths": {
-    "/v1/qan/GetFilters": {
+    "/v1/qan/Filters/Get": {
       "post": {
         "tags": [
           "Filters"
         ],
-        "summary": "GetFilters gets map of metrics names.",
-        "operationId": "GetFilters",
+        "summary": "Get gets map of metrics names.",
+        "operationId": "Get",
         "parameters": [
           {
             "name": "body",
@@ -47,19 +47,19 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "FiltersReply is map of labels for given period by key.",
+              "description": "FiltersReply is map of labels for given period by key.\nKey is label's name and value is label's value and how many times it occur.",
               "type": "object",
               "properties": {
                 "labels": {
                   "type": "object",
                   "additionalProperties": {
-                    "description": "ListLabels is list of label values.",
+                    "description": "ListLabels is list of label's values: duplicates are impossible.",
                     "type": "object",
                     "properties": {
-                      "values": {
+                      "name": {
                         "type": "array",
                         "items": {
-                          "description": "NameAndCount is label values and how many times this value occur.",
+                          "description": "ValueAndCount is label values and how many times this value occur.",
                           "type": "object",
                           "properties": {
                             "count": {

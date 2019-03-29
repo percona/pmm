@@ -48,7 +48,7 @@ func (x MetricsSource) String() string {
 	return proto.EnumName(MetricsSource_name, int32(x))
 }
 func (MetricsSource) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_collector_f7e0203ae97a5739, []int{0}
+	return fileDescriptor_collector_223a30d209ecba28, []int{0}
 }
 
 type CollectRequest struct {
@@ -62,7 +62,7 @@ func (m *CollectRequest) Reset()         { *m = CollectRequest{} }
 func (m *CollectRequest) String() string { return proto.CompactTextString(m) }
 func (*CollectRequest) ProtoMessage()    {}
 func (*CollectRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_collector_f7e0203ae97a5739, []int{0}
+	return fileDescriptor_collector_223a30d209ecba28, []int{0}
 }
 func (m *CollectRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CollectRequest.Unmarshal(m, b)
@@ -122,8 +122,7 @@ type MetricsBucket struct {
 	// Indicates if query examples is too long and was truncated.
 	IsTruncated bool        `protobuf:"varint,15,opt,name=is_truncated,json=isTruncated,proto3" json:"is_truncated,omitempty"`
 	ExampleType ExampleType `protobuf:"varint,16,opt,name=example_type,json=exampleType,proto3,enum=qan.ExampleType" json:"example_type,omitempty"`
-	// JSON raw metrics for given query example.
-	// FIXME(askomorokhov) wat?
+	// Metrics of query example in JSON format.
 	ExampleMetrics string `protobuf:"bytes,17,opt,name=example_metrics,json=exampleMetrics,proto3" json:"example_metrics,omitempty"`
 	// How many queries was with warnings in bucket.
 	NumQueriesWithWarnings float32 `protobuf:"fixed32,18,opt,name=num_queries_with_warnings,json=numQueriesWithWarnings,proto3" json:"num_queries_with_warnings,omitempty"`
@@ -324,7 +323,7 @@ func (m *MetricsBucket) Reset()         { *m = MetricsBucket{} }
 func (m *MetricsBucket) String() string { return proto.CompactTextString(m) }
 func (*MetricsBucket) ProtoMessage()    {}
 func (*MetricsBucket) Descriptor() ([]byte, []int) {
-	return fileDescriptor_collector_f7e0203ae97a5739, []int{1}
+	return fileDescriptor_collector_223a30d209ecba28, []int{1}
 }
 func (m *MetricsBucket) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MetricsBucket.Unmarshal(m, b)
@@ -1453,7 +1452,7 @@ func (m *CollectResponse) Reset()         { *m = CollectResponse{} }
 func (m *CollectResponse) String() string { return proto.CompactTextString(m) }
 func (*CollectResponse) ProtoMessage()    {}
 func (*CollectResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_collector_f7e0203ae97a5739, []int{2}
+	return fileDescriptor_collector_223a30d209ecba28, []int{2}
 }
 func (m *CollectResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CollectResponse.Unmarshal(m, b)
@@ -1557,9 +1556,9 @@ var _Collector_serviceDesc = grpc.ServiceDesc{
 	Metadata: "qanpb/collector.proto",
 }
 
-func init() { proto.RegisterFile("qanpb/collector.proto", fileDescriptor_collector_f7e0203ae97a5739) }
+func init() { proto.RegisterFile("qanpb/collector.proto", fileDescriptor_collector_223a30d209ecba28) }
 
-var fileDescriptor_collector_f7e0203ae97a5739 = []byte{
+var fileDescriptor_collector_223a30d209ecba28 = []byte{
 	// 2361 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x99, 0x79, 0x5b, 0xdb, 0x46,
 	0x1e, 0xc7, 0xd7, 0xb9, 0x33, 0x84, 0x40, 0x14, 0x92, 0x4c, 0xe8, 0x11, 0x97, 0xa6, 0x0d, 0xdb,
