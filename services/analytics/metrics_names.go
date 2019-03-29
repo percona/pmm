@@ -66,6 +66,6 @@ var metricsNames = map[string]string{
 }
 
 // GetMetricsNames implements rpc to get list of available metrics.
-func (s *Service) GetMetricsNames(_ context.Context, in *qanpb.MetricsNamesRequest) (*qanpb.MetricsNamesReply, error) {
+func (s *Service) GetMetricsNames(_ context.Context, _ *qanpb.MetricsNamesRequest) (*qanpb.MetricsNamesReply, error) {
 	return &qanpb.MetricsNamesReply{Data: metricsNames}, nil
 }

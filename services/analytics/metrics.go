@@ -47,6 +47,16 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 			dbLabels[label.Key] = label.Value
 		}
 	}
-	metrics, err := s.mm.Get(in.PeriodStartFrom, in.PeriodStartTo, in.FilterBy, dbServers, dbSchemas, dbUsernames, clientHosts, dbLabels)
+	metrics, err := s.mm.Get(
+		ctx,
+		in.PeriodStartFrom,
+		in.PeriodStartTo,
+		in.FilterBy,
+		dbServers,
+		dbSchemas,
+		dbUsernames,
+		clientHosts,
+		dbLabels,
+	)
 	return metrics, err
 }

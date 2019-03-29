@@ -8,7 +8,7 @@ linters-settings:
       - errors
 
   goimports:
-    local-prefixes: github.com/Percona-Lab/qan-api
+    local-prefixes: github.com/percona/qan-api2
 
   lll:
     line-length: 140
@@ -21,16 +21,22 @@ linters-settings:
     algo: rta
     check-exported: true
 
+
 linters:
   enable-all: true
+  disable:
+    - varcheck
 
 # options for analysis running
 run:
+  tests: false
+
   skip-dirs:
     - migrations
 
 issues:
   exclude-use-default: false
+
   exclude:
     # gas: Duplicated errcheck checks
     - 'G104: Errors unhandled'

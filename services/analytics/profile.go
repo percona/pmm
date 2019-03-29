@@ -18,6 +18,8 @@ package analitycs
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/percona/pmm/api/qanpb"
 
@@ -37,7 +39,19 @@ func NewService(rm models.Reporter, mm models.Metrics) *Service {
 
 // GetReport implements rpc to get report for given filtering.
 func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanpb.ReportReply, error) {
-	// TODO: add validator/sanitazer
+
+	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
+		err := fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
+		return &qanpb.ReportReply{}, err
+	}
+
+	from := time.Unix(in.PeriodStartFrom.Seconds, 0)
+	to := time.Unix(in.PeriodStartTo.Seconds, 0)
+	if from.After(to) {
+		err := fmt.Errorf("from-date %s cannot be bigger then to-date %s", from.UTC(), to.UTC())
+		return &qanpb.ReportReply{}, err
+	}
+
 	labels := in.GetLabels()
 	dQueryids := []string{}
 	dServers := []string{}
@@ -47,9 +61,6 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	dClientHosts := []string{}
 	dbLabels := map[string][]string{}
 	columns := in.Columns
-	if len(columns) == 0 {
-		columns = append(columns, "lock_time")
-	}
 	for _, label := range labels {
 		switch label.Key {
 		case "queryid":
@@ -69,12 +80,39 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		}
 	}
 
+	boolColumnNames := map[string]struct{}{
+		"qc_hit":                 {},
+		"full_scan":              {},
+		"full_join":              {},
+		"tmp_table":              {},
+		"tmp_table_on_disk":      {},
+		"filesort":               {},
+		"filesort_on_disk":       {},
+		"select_full_range_join": {},
+		"select_range":           {},
+		"select_range_check":     {},
+		"sort_range":             {},
+		"sort_rows":              {},
+		"sort_scan":              {},
+		"no_index_used":          {},
+		"no_good_index_used":     {},
+	}
+
+	boolColumns := []string{}
+	commonColumns := []string{}
+	for _, col := range columns {
+		if _, ok := boolColumnNames[col]; ok {
+			boolColumns = append(boolColumns, col)
+			continue
+		}
+		commonColumns = append(commonColumns, col)
+	}
+
 	resp := &qanpb.ReportReply{}
 	results, err := s.rm.Select(
-		in.PeriodStartFrom,
-		in.PeriodStartTo,
-		in.Keyword,
-		in.FirstSeen,
+		ctx,
+		from,
+		to,
 		dQueryids,
 		dServers,
 		dDatabases,
@@ -86,7 +124,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		in.OrderBy,
 		in.Offset,
 		in.Limit,
-		columns,
+		commonColumns,
+		boolColumns,
 	)
 
 	if err != nil {
@@ -98,19 +137,25 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	resp.Offset = in.Offset
 	resp.Limit = in.Limit
 
+	intervalTime := in.PeriodStartTo.Seconds - in.PeriodStartFrom.Seconds
+
 	for i, res := range results {
+		numQueries := interfaceToFloat32(res["num_queries"])
 		row := &qanpb.Row{
-			Rank:      uint32(i) + in.Offset,
-			Dimension: res["dimension"].(string),
-			Metrics:   make(map[string]*qanpb.Metric),
+			Rank:        uint32(i) + in.Offset,
+			Dimension:   res["dimension"].(string),
+			Fingerprint: res["fingerprint"].(string),
+			NumQueries:  uint32(numQueries),
+			Qps:         float32(int64(numQueries) / intervalTime),
+			Load:        interfaceToFloat32(total["m_query_time_sum"]) / float32(intervalTime),
+			Metrics:     make(map[string]*qanpb.Metric),
 		}
 
 		sparklines, err := s.rm.SelectSparklines(
+			ctx,
 			row.Dimension,
-			in.PeriodStartFrom,
-			in.PeriodStartTo,
-			in.Keyword,
-			in.FirstSeen,
+			from,
+			to,
 			dQueryids,
 			dServers,
 			dDatabases,
@@ -131,15 +176,22 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			if divider != 0 {
 				rate = interfaceToFloat32(res["m_"+c+"_sum"]) / divider
 			}
+			stats := &qanpb.Stat{
+				Rate: rate,
+				Cnt:  interfaceToFloat32(res["m_"+c+"_cnt"]),
+				Sum:  interfaceToFloat32(res["m_"+c+"_sum"]),
+			}
+			if val, ok := res["m_"+c+"_min"]; ok {
+				stats.Min = interfaceToFloat32(val)
+			}
+			if val, ok := res["m_"+c+"_max"]; ok {
+				stats.Max = interfaceToFloat32(val)
+			}
+			if val, ok := res["m_"+c+"_p99"]; ok {
+				stats.P99 = interfaceToFloat32(val)
+			}
 			row.Metrics[c] = &qanpb.Metric{
-				Stats: &qanpb.Stat{
-					Rate: rate,
-					Cnt:  interfaceToFloat32(res["m_"+c+"_cnt"]),
-					Sum:  interfaceToFloat32(res["m_"+c+"_sum"]),
-					Min:  interfaceToFloat32(res["m_"+c+"_min"]),
-					Max:  interfaceToFloat32(res["m_"+c+"_max"]),
-					P99:  interfaceToFloat32(res["m_"+c+"_p99"]),
-				},
+				Stats: stats,
 			}
 		}
 		resp.Rows = append(resp.Rows, row)

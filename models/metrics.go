@@ -18,6 +18,7 @@ package models
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"strings"
@@ -39,7 +40,7 @@ func NewMetrics(db *sqlx.DB) Metrics {
 }
 
 // Get select metrics for specific queryid, hostname, etc.
-func (m *Metrics) Get(from, to, digest string, dbServers, dbSchemas, dbUsernames,
+func (m *Metrics) Get(ctx context.Context, from, to, digest string, dbServers, dbSchemas, dbUsernames,
 	clientHosts []string, dbLabels map[string][]string) (*qanpb.MetricsReply, error) {
 	arg := map[string]interface{}{
 		"from":    from,
@@ -71,7 +72,7 @@ func (m *Metrics) Get(from, to, digest string, dbServers, dbSchemas, dbUsernames
 		return &res, fmt.Errorf("populate agruments in IN clause:%v", err)
 	}
 	query = m.db.Rebind(query)
-	err = m.db.Get(&res, query, args...)
+	err = m.db.GetContext(ctx, &res, query, args...)
 	return &res, err
 }
 

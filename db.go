@@ -25,12 +25,12 @@ import (
 	// TODO: research alternatives. Ex.: https://github.com/go-reform/reform
 	"github.com/golang-migrate/migrate"
 	_ "github.com/golang-migrate/migrate/database/clickhouse"
-	"github.com/golang-migrate/migrate/source/go_bindata"
+	bindata "github.com/golang-migrate/migrate/source/go_bindata"
 	"github.com/jmoiron/sqlx"
 )
 
 // NewDB return updated db.
-func NewDB(dsn string) (*sqlx.DB, error) {
+func NewDB(dsn string) *sqlx.DB {
 	db, err := sqlx.Connect("clickhouse", dsn)
 	if err != nil {
 		log.Fatal("Connection: ", err)
@@ -40,14 +40,11 @@ func NewDB(dsn string) (*sqlx.DB, error) {
 		log.Fatal("Migrations: ", err)
 	}
 	log.Println("Migrations applied.")
-	return db, nil
+	return db
 }
 
 func runMigrations(dsn string) error {
-	s := bindata.Resource(migrations.AssetNames(),
-		func(name string) ([]byte, error) {
-			return migrations.Asset(name)
-		})
+	s := bindata.Resource(migrations.AssetNames(), migrations.Asset)
 
 	d, err := bindata.WithInstance(s)
 	if err != nil {

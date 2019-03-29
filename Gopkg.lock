@@ -63,10 +63,11 @@
   revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
 
 [[projects]]
-  digest = "1:69b5bdc0545fa057e73e7704cb9f7e8c48b9bb6f7cbe2b25686c0a67bba52276"
+  digest = "1:49c6e6f1a17423b3a1a5c31956362a6f9e0aeb3ac9c1d37b5180b0cd6d75f6d7"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "internal",
+    "protoc-gen-swagger/options",
     "runtime",
     "utilities",
   ]
@@ -143,14 +144,14 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:cae3774bf81838462d3875af5e696ed46a66df73229d04c27eb293c254cfb9d0"
+  digest = "1:bb19adec296e34bffbd4f245f405fd80ec0c306c9d92d1ab6223af23dc4f9f31"
   name = "github.com/percona/pmm"
   packages = [
     "api/qanpb",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "bf67e087420ae51b04c1d9728c928a5bfdec5503"
+  revision = "5bdb86ed3fa101ac58331d1b3a9e7dbe907c5d03"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -303,6 +304,7 @@
     "github.com/golang-migrate/migrate",
     "github.com/golang-migrate/migrate/database/clickhouse",
     "github.com/golang-migrate/migrate/source/go_bindata",
+    "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
     "github.com/jmoiron/sqlx",
     "github.com/jmoiron/sqlx/reflectx",

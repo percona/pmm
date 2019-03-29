@@ -42,11 +42,7 @@ const shutdownTimeout = 3 * time.Second
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 func runGRPCServer(ctx context.Context, dsn, bind string) {
-	db, err := NewDB(dsn)
-	if err != nil {
-		log.Fatal("DB error", err)
-	}
-
+	db := NewDB(dsn)
 	lis, err := net.Listen("tcp", bind)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -55,10 +51,12 @@ func runGRPCServer(ctx context.Context, dsn, bind string) {
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
 	grpcServer := grpc.NewServer()
+	aserv := aservice.NewService(rm, mm)
 	qanpb.RegisterCollectorServer(grpcServer, rservice.NewService(mbm))
-	qanpb.RegisterProfileServer(grpcServer, aservice.NewService(rm, mm))
-	qanpb.RegisterMetricsServer(grpcServer, aservice.NewService(rm, mm))
-	qanpb.RegisterMetricsNamesServer(grpcServer, aservice.NewService(rm, mm))
+	qanpb.RegisterProfileServer(grpcServer, aserv)
+	qanpb.RegisterMetricsServer(grpcServer, aserv)
+	qanpb.RegisterMetricsNamesServer(grpcServer, aserv)
+	qanpb.RegisterFiltersServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
 	log.Printf("QAN-API gRPC serve: %v\n", bind)
 
@@ -104,6 +102,7 @@ func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
 		qanpb.RegisterMetricsHandlerFromEndpoint,
 		qanpb.RegisterProfileHandlerFromEndpoint,
 		qanpb.RegisterMetricsNamesHandlerFromEndpoint,
+		qanpb.RegisterFiltersHandlerFromEndpoint,
 	} {
 		if err := r(ctx, proxyMux, grpcBind, opts); err != nil {
 			log.Panic(err)
