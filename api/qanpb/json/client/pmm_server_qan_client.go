@@ -11,6 +11,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
+	"github.com/percona/pmm/api/qanpb/json/client/filters"
 	"github.com/percona/pmm/api/qanpb/json/client/metrics"
 	"github.com/percona/pmm/api/qanpb/json/client/metrics_names"
 	"github.com/percona/pmm/api/qanpb/json/client/profile"
@@ -58,6 +59,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMServerQ
 
 	cli := new(PMMServerQAN)
 	cli.Transport = transport
+
+	cli.Filters = filters.New(transport, formats)
 
 	cli.Metrics = metrics.New(transport, formats)
 
@@ -109,6 +112,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMServerQAN is a client for PMM server QAN
 type PMMServerQAN struct {
+	Filters *filters.Client
+
 	Metrics *metrics.Client
 
 	MetricsNames *metrics_names.Client
@@ -121,6 +126,8 @@ type PMMServerQAN struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMServerQAN) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
+
+	c.Filters.SetTransport(transport)
 
 	c.Metrics.SetTransport(transport)
 
