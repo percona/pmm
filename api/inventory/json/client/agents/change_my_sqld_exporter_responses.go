@@ -113,6 +113,50 @@ func (o *ChangeMySqldExporterDefault) readResponse(response runtime.ClientRespon
 	return nil
 }
 
+/*ChangeMySqldExporterBody change my sqld exporter body
+swagger:model ChangeMySqldExporterBody
+*/
+type ChangeMySqldExporterBody struct {
+
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
+
+	// enabled
+	Enabled bool `json:"enabled,omitempty"`
+
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+}
+
+// Validate validates this change my sqld exporter body
+func (o *ChangeMySqldExporterBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeMySqldExporterBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeMySqldExporterBody) UnmarshalBinary(b []byte) error {
+	var res ChangeMySqldExporterBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ChangeMySqldExporterDefaultBody ErrorResponse is a message returned on HTTP error.
 swagger:model ChangeMySqldExporterDefaultBody
 */
@@ -220,6 +264,9 @@ type ChangeMySqldExporterOKBodyMysqldExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`

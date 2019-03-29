@@ -28,7 +28,14 @@
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object"
+              "description": "StatusRequest describes request to get local pmm-agent info.",
+              "type": "object",
+              "properties": {
+                "get_logs": {
+                  "type": "boolean",
+                  "format": "boolean"
+                }
+              }
             }
           }
         ],
@@ -36,13 +43,80 @@
           "200": {
             "description": "A successful response.",
             "schema": {
+              "description": "StatusResponse return information about pmm-agent from local api.",
               "type": "object",
               "properties": {
                 "agent_id": {
                   "type": "string"
                 },
-                "node_id": {
+                "agents_info": {
+                  "type": "array",
+                  "items": {
+                    "description": "AgentInfo returns information about agent which was runned by pmm-agent.",
+                    "type": "object",
+                    "properties": {
+                      "agent_id": {
+                        "type": "string"
+                      },
+                      "agent_type": {
+                        "description": "Type represents Agent type.",
+                        "type": "string",
+                        "default": "TYPE_INVALID",
+                        "enum": [
+                          "TYPE_INVALID",
+                          "NODE_EXPORTER",
+                          "MYSQLD_EXPORTER",
+                          "MONGODB_EXPORTER",
+                          "QAN_MYSQL_PERFSCHEMA_AGENT"
+                        ]
+                      },
+                      "logs": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "status": {
+                        "description": "AgentStatus represents actual Agent status.",
+                        "type": "string",
+                        "default": "AGENT_STATUS_INVALID",
+                        "enum": [
+                          "AGENT_STATUS_INVALID",
+                          "STARTING",
+                          "RUNNING",
+                          "WAITING",
+                          "STOPPING",
+                          "DONE"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "runs_on_node_id": {
                   "type": "string"
+                },
+                "server_info": {
+                  "description": "ServerInfo returns information about server which agent was connected.",
+                  "type": "object",
+                  "properties": {
+                    "insecure_tls": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "last_ping_time": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "latency": {
+                      "type": "string"
+                    },
+                    "url": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }

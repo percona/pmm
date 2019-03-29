@@ -62,7 +62,7 @@ for the change QAN my SQL perf schema agent operation typically these are writte
 type ChangeQANMySQLPerfSchemaAgentParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body ChangeQANMySQLPerfSchemaAgentBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +103,13 @@ func (o *ChangeQANMySQLPerfSchemaAgentParams) SetHTTPClient(client *http.Client)
 }
 
 // WithBody adds the body to the change QAN my SQL perf schema agent params
-func (o *ChangeQANMySQLPerfSchemaAgentParams) WithBody(body interface{}) *ChangeQANMySQLPerfSchemaAgentParams {
+func (o *ChangeQANMySQLPerfSchemaAgentParams) WithBody(body ChangeQANMySQLPerfSchemaAgentBody) *ChangeQANMySQLPerfSchemaAgentParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the change QAN my SQL perf schema agent params
-func (o *ChangeQANMySQLPerfSchemaAgentParams) SetBody(body interface{}) {
+func (o *ChangeQANMySQLPerfSchemaAgentParams) SetBody(body ChangeQANMySQLPerfSchemaAgentBody) {
 	o.Body = body
 }
 
@@ -121,10 +121,8 @@ func (o *ChangeQANMySQLPerfSchemaAgentParams) WriteToRequest(r runtime.ClientReq
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
