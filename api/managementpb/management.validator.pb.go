@@ -59,3 +59,23 @@ func (this *AddMySQLResponse) Validate() error {
 	}
 	return nil
 }
+func (this *RegisterNodeRequest) Validate() error {
+	if this.NodeName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *RegisterNodeResponse) Validate() error {
+	if this.GenericNode != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.GenericNode); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("GenericNode", err)
+		}
+	}
+	if this.ContainerNode != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ContainerNode); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ContainerNode", err)
+		}
+	}
+	return nil
+}
