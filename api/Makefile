@@ -40,6 +40,7 @@ gen: clean            ## Generate files.
 	swagger validate swagger/swagger.json
 
 	make clean_swagger
+	go fmt ./...
 	go install -v ./...
 
 clean_swagger:

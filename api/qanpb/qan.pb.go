@@ -3,9 +3,11 @@
 
 package qanpb
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -16,7 +18,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // ExampleFormat is format of query example: real or query without values.
 type ExampleFormat int32
@@ -32,6 +34,7 @@ var ExampleFormat_name = map[int32]string{
 	1: "EXAMPLE",
 	2: "FINGERPRINT",
 }
+
 var ExampleFormat_value = map[string]int32{
 	"EXAMPLE_FORMAT_INVALID": 0,
 	"EXAMPLE":                1,
@@ -41,8 +44,9 @@ var ExampleFormat_value = map[string]int32{
 func (x ExampleFormat) String() string {
 	return proto.EnumName(ExampleFormat_name, int32(x))
 }
+
 func (ExampleFormat) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_qan_e89a73fadcb06599, []int{0}
+	return fileDescriptor_6cc2ea5e264b89be, []int{0}
 }
 
 // ExampleType is a type of query example selected for this query class in given period of time.
@@ -63,6 +67,7 @@ var ExampleType_name = map[int32]string{
 	3: "FASTEST",
 	4: "WITH_ERROR",
 }
+
 var ExampleType_value = map[string]int32{
 	"EXAMPLE_TYPE_INVALID": 0,
 	"RANDOM":               1,
@@ -74,8 +79,9 @@ var ExampleType_value = map[string]int32{
 func (x ExampleType) String() string {
 	return proto.EnumName(ExampleType_name, int32(x))
 }
+
 func (ExampleType) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_qan_e89a73fadcb06599, []int{1}
+	return fileDescriptor_6cc2ea5e264b89be, []int{1}
 }
 
 func init() {
@@ -83,9 +89,9 @@ func init() {
 	proto.RegisterEnum("qan.ExampleType", ExampleType_name, ExampleType_value)
 }
 
-func init() { proto.RegisterFile("qanpb/qan.proto", fileDescriptor_qan_e89a73fadcb06599) }
+func init() { proto.RegisterFile("qanpb/qan.proto", fileDescriptor_6cc2ea5e264b89be) }
 
-var fileDescriptor_qan_e89a73fadcb06599 = []byte{
+var fileDescriptor_6cc2ea5e264b89be = []byte{
 	// 197 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x2f, 0x4c, 0xcc, 0x2b,
 	0x48, 0xd2, 0x2f, 0x4c, 0xcc, 0xd3, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x2e, 0x4c, 0xcc,

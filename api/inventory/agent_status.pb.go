@@ -3,9 +3,11 @@
 
 package inventory
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
+import (
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	math "math"
+)
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal
@@ -16,7 +18,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // AgentStatus represents actual Agent status.
 type AgentStatus int32
@@ -38,6 +40,7 @@ var AgentStatus_name = map[int32]string{
 	4: "STOPPING",
 	5: "DONE",
 }
+
 var AgentStatus_value = map[string]int32{
 	"AGENT_STATUS_INVALID": 0,
 	"STARTING":             1,
@@ -50,19 +53,18 @@ var AgentStatus_value = map[string]int32{
 func (x AgentStatus) String() string {
 	return proto.EnumName(AgentStatus_name, int32(x))
 }
+
 func (AgentStatus) EnumDescriptor() ([]byte, []int) {
-	return fileDescriptor_agent_status_5a2514df16de03bd, []int{0}
+	return fileDescriptor_f5a1f7af655ab3aa, []int{0}
 }
 
 func init() {
 	proto.RegisterEnum("inventory.AgentStatus", AgentStatus_name, AgentStatus_value)
 }
 
-func init() {
-	proto.RegisterFile("inventory/agent_status.proto", fileDescriptor_agent_status_5a2514df16de03bd)
-}
+func init() { proto.RegisterFile("inventory/agent_status.proto", fileDescriptor_f5a1f7af655ab3aa) }
 
-var fileDescriptor_agent_status_5a2514df16de03bd = []byte{
+var fileDescriptor_f5a1f7af655ab3aa = []byte{
 	// 154 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0x92, 0xc9, 0xcc, 0x2b, 0x4b,
 	0xcd, 0x2b, 0xc9, 0x2f, 0xaa, 0xd4, 0x4f, 0x4c, 0x4f, 0xcd, 0x2b, 0x89, 0x2f, 0x2e, 0x49, 0x2c,
