@@ -36,7 +36,7 @@ lint:
       - FILE_NAMES_LOWER_SNAKE_CASE                           # Verifies that the file name is lower_snake_case.proto.
       - FILE_OPTIONS_CSHARP_NAMESPACE_SAME_IN_DIR             # Verifies that the file option "csharp_namespace" of all files in a directory are the same.
       - FILE_OPTIONS_EQUAL_CSHARP_NAMESPACE_CAPITALIZED       # Verifies that the file option "csharp_namespace" is the capitalized version of the package.
-      # - FILE_OPTIONS_EQUAL_GO_PACKAGE_PB_SUFFIX               # Verifies that the file option "go_package" is equal to $(basename PACKAGE)pb.
+      - FILE_OPTIONS_EQUAL_GO_PACKAGE_PB_SUFFIX               # Verifies that the file option "go_package" is equal to $(basename PACKAGE)pb.
       # - FILE_OPTIONS_EQUAL_GO_PACKAGE_V2_SUFFIX               # Verifies that the file option "go_package" is equal to the last two values of the package separated by "."s, or just the package name if there are no "."s.
       - FILE_OPTIONS_EQUAL_OBJC_CLASS_PREFIX_ABBR             # Verifies that the file option "objc_class_prefix" is the abbreviated version of the package.
       - FILE_OPTIONS_EQUAL_PHP_NAMESPACE_CAPITALIZED          # Verifies that the file option "php_namespace" is the capitalized version of the package.

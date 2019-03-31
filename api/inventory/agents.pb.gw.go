@@ -2,11 +2,11 @@
 // source: inventory/agents.proto
 
 /*
-Package inventory is a reverse proxy.
+Package inventorypb is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package inventory
+package inventorypb
 
 import (
 	"context"
