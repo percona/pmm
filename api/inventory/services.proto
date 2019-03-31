@@ -40,7 +40,7 @@ message MySQLService {
   map<string, string> custom_labels = 10;
 }
 
-// AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node
+// AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.
 message AmazonRDSMySQLService {
   // Unique randomly generated instance identifier.
   string service_id = 1;

@@ -394,7 +394,6 @@
   digest = "1:f11f30470240883f9f803d25dd90e3c6f3fd979519548c071a7723acb9a7af79"
   name = "golang.org/x/net"
   packages = [
-    "context",
     "http/httpguts",
     "http2",
     "http2/hpack",
@@ -534,6 +533,7 @@
     "github.com/go-swagger/go-swagger/cmd/swagger",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/protoc-gen-go",
+    "github.com/golang/protobuf/ptypes/duration",
     "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
     "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
@@ -542,7 +542,6 @@
     "github.com/grpc-ecosystem/grpc-gateway/utilities",
     "github.com/mwitkow/go-proto-validators",
     "github.com/mwitkow/go-proto-validators/protoc-gen-govalidators",
-    "golang.org/x/net/context",
     "google.golang.org/genproto/googleapis/api/annotations",
     "google.golang.org/grpc",
     "google.golang.org/grpc/codes",

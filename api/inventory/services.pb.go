@@ -111,7 +111,7 @@ func (m *MySQLService) GetCustomLabels() map[string]string {
 	return nil
 }
 
-// AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node
+// AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.
 type AmazonRDSMySQLService struct {
 	// Unique randomly generated instance identifier.
 	ServiceId string `protobuf:"bytes,1,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`

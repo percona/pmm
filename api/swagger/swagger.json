@@ -3538,8 +3538,8 @@
               "type": "object",
               "properties": {
                 "amazon_rds_mysql": {
+                  "description": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.",
                   "type": "object",
-                  "title": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node",
                   "properties": {
                     "address": {
                       "description": "Instance endpoint (full DNS name).",
@@ -3950,8 +3950,8 @@
               "type": "object",
               "properties": {
                 "amazon_rds_mysql": {
+                  "description": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.",
                   "type": "object",
-                  "title": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node",
                   "properties": {
                     "address": {
                       "description": "Instance endpoint (full DNS name).",
@@ -4142,8 +4142,8 @@
                 "amazon_rds_mysql": {
                   "type": "array",
                   "items": {
+                    "description": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.",
                     "type": "object",
-                    "title": "AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node",
                     "properties": {
                       "address": {
                         "description": "Instance endpoint (full DNS name).",
