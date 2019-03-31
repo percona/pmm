@@ -22,7 +22,7 @@ gen: clean            ## Generate files.
 
 	./prototool all
 
-	for API in agentlocalpb server inventory managementpb qanpb ; do \
+	for API in agentlocalpb serverpb inventory managementpb qanpb ; do \
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json ; \
 		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$API.json --output=$$API/json/$$API.json ; \
 		swagger validate $$API/json/$$API.json ; \
@@ -35,8 +35,8 @@ gen: clean            ## Generate files.
 			--additional-initialism=rds ; \
 	done
 
-	# generate server API spec, omit agentlocalpb
-	swagger mixin server/json/server.json inventory/json/inventory.json managementpb/json/managementpb.json qanpb/json/qanpb.json --output=swagger/swagger.json
+	# generate PMM Server API spec, omit agentlocalpb
+	swagger mixin --output=swagger/swagger.json serverpb/json/serverpb.json inventory/json/inventory.json managementpb/json/managementpb.json qanpb/json/qanpb.json
 	swagger validate swagger/swagger.json
 
 	make clean_swagger
@@ -50,7 +50,7 @@ clean: clean_swagger  ## Remove generated files.
 	find . -name '*.pb.go' -not -path './vendor/*' -print -delete
 	find . -name '*.pb.gw.go' -not -path './vendor/*' -print -delete
 
-	for API in agentlocalpb server inventory managementpb qanpb ; do \
+	for API in agentlocalpb serverpb inventory managementpb qanpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$API.json ; \
 	done
 	rm -f swagger/swagger.json

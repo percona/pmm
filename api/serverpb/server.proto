@@ -18,7 +18,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
     }
   }
 };
-option go_package = "server";
+option go_package = "serverpb";
 
 import "google/api/annotations.proto";
 import "protoc-gen-swagger/options/annotations.proto";

@@ -11,7 +11,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/server/json/client/server"
+	"github.com/percona/pmm/api/serverpb/json/client/server"
 )
 
 // Default PMM server apis HTTP client.
