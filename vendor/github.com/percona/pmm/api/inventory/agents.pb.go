@@ -6,6 +6,7 @@ package inventory
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
+import _ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 import _ "github.com/mwitkow/go-proto-validators"
 import _ "google.golang.org/genproto/googleapis/api/annotations"
 
@@ -44,7 +45,7 @@ func (m *PMMAgent) Reset()         { *m = PMMAgent{} }
 func (m *PMMAgent) String() string { return proto.CompactTextString(m) }
 func (*PMMAgent) ProtoMessage()    {}
 func (*PMMAgent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{0}
+	return fileDescriptor_agents_b2219fb094362663, []int{0}
 }
 func (m *PMMAgent) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PMMAgent.Unmarshal(m, b)
@@ -98,6 +99,8 @@ type NodeExporter struct {
 	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
 	// The pmm-agent identifier which runs this instance.
 	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `protobuf:"varint,3,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,4,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics.
@@ -113,7 +116,7 @@ func (m *NodeExporter) Reset()         { *m = NodeExporter{} }
 func (m *NodeExporter) String() string { return proto.CompactTextString(m) }
 func (*NodeExporter) ProtoMessage()    {}
 func (*NodeExporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{1}
+	return fileDescriptor_agents_b2219fb094362663, []int{1}
 }
 func (m *NodeExporter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_NodeExporter.Unmarshal(m, b)
@@ -145,6 +148,13 @@ func (m *NodeExporter) GetPmmAgentId() string {
 		return m.PmmAgentId
 	}
 	return ""
+}
+
+func (m *NodeExporter) GetDisabled() bool {
+	if m != nil {
+		return m.Disabled
+	}
+	return false
 }
 
 func (m *NodeExporter) GetStatus() AgentStatus {
@@ -180,6 +190,8 @@ type MySQLdExporter struct {
 	Username string `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
 	// MySQL password for scraping metrics.
 	Password string `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `protobuf:"varint,6,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,7,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics.
@@ -195,7 +207,7 @@ func (m *MySQLdExporter) Reset()         { *m = MySQLdExporter{} }
 func (m *MySQLdExporter) String() string { return proto.CompactTextString(m) }
 func (*MySQLdExporter) ProtoMessage()    {}
 func (*MySQLdExporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{2}
+	return fileDescriptor_agents_b2219fb094362663, []int{2}
 }
 func (m *MySQLdExporter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MySQLdExporter.Unmarshal(m, b)
@@ -250,6 +262,13 @@ func (m *MySQLdExporter) GetPassword() string {
 	return ""
 }
 
+func (m *MySQLdExporter) GetDisabled() bool {
+	if m != nil {
+		return m.Disabled
+	}
+	return false
+}
+
 func (m *MySQLdExporter) GetStatus() AgentStatus {
 	if m != nil {
 		return m.Status
@@ -294,7 +313,7 @@ func (m *RDSExporter) Reset()         { *m = RDSExporter{} }
 func (m *RDSExporter) String() string { return proto.CompactTextString(m) }
 func (*RDSExporter) ProtoMessage()    {}
 func (*RDSExporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{3}
+	return fileDescriptor_agents_b2219fb094362663, []int{3}
 }
 func (m *RDSExporter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RDSExporter.Unmarshal(m, b)
@@ -373,7 +392,7 @@ func (m *ExternalExporter) Reset()         { *m = ExternalExporter{} }
 func (m *ExternalExporter) String() string { return proto.CompactTextString(m) }
 func (*ExternalExporter) ProtoMessage()    {}
 func (*ExternalExporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{4}
+	return fileDescriptor_agents_b2219fb094362663, []int{4}
 }
 func (m *ExternalExporter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ExternalExporter.Unmarshal(m, b)
@@ -426,6 +445,8 @@ type MongoDBExporter struct {
 	Username string `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
 	// MongoDB password for scraping metrics.
 	Password string `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `protobuf:"varint,6,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,7,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// Listen port for scraping metrics.
@@ -441,7 +462,7 @@ func (m *MongoDBExporter) Reset()         { *m = MongoDBExporter{} }
 func (m *MongoDBExporter) String() string { return proto.CompactTextString(m) }
 func (*MongoDBExporter) ProtoMessage()    {}
 func (*MongoDBExporter) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{5}
+	return fileDescriptor_agents_b2219fb094362663, []int{5}
 }
 func (m *MongoDBExporter) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MongoDBExporter.Unmarshal(m, b)
@@ -496,6 +517,13 @@ func (m *MongoDBExporter) GetPassword() string {
 	return ""
 }
 
+func (m *MongoDBExporter) GetDisabled() bool {
+	if m != nil {
+		return m.Disabled
+	}
+	return false
+}
+
 func (m *MongoDBExporter) GetStatus() AgentStatus {
 	if m != nil {
 		return m.Status
@@ -529,6 +557,8 @@ type QANMySQLPerfSchemaAgent struct {
 	Username string `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
 	// MySQL password for getting performance data.
 	Password string `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `protobuf:"varint,6,opt,name=disabled,proto3" json:"disabled,omitempty"`
 	// Actual Agent status.
 	Status AgentStatus `protobuf:"varint,7,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
 	// Custom user-assigned labels.
@@ -542,7 +572,7 @@ func (m *QANMySQLPerfSchemaAgent) Reset()         { *m = QANMySQLPerfSchemaAgent
 func (m *QANMySQLPerfSchemaAgent) String() string { return proto.CompactTextString(m) }
 func (*QANMySQLPerfSchemaAgent) ProtoMessage()    {}
 func (*QANMySQLPerfSchemaAgent) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{6}
+	return fileDescriptor_agents_b2219fb094362663, []int{6}
 }
 func (m *QANMySQLPerfSchemaAgent) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_QANMySQLPerfSchemaAgent.Unmarshal(m, b)
@@ -597,6 +627,13 @@ func (m *QANMySQLPerfSchemaAgent) GetPassword() string {
 	return ""
 }
 
+func (m *QANMySQLPerfSchemaAgent) GetDisabled() bool {
+	if m != nil {
+		return m.Disabled
+	}
+	return false
+}
+
 func (m *QANMySQLPerfSchemaAgent) GetStatus() AgentStatus {
 	if m != nil {
 		return m.Status
@@ -605,6 +642,118 @@ func (m *QANMySQLPerfSchemaAgent) GetStatus() AgentStatus {
 }
 
 func (m *QANMySQLPerfSchemaAgent) GetCustomLabels() map[string]string {
+	if m != nil {
+		return m.CustomLabels
+	}
+	return nil
+}
+
+// PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+type PostgresExporter struct {
+	// Unique randomly generated instance identifier.
+	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	// The pmm-agent identifier which runs this instance.
+	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	// Service identifier.
+	ServiceId string `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// PostgreSQL username for scraping metrics.
+	Username string `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
+	// PostgreSQL password for scraping metrics.
+	Password string `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `protobuf:"varint,6,opt,name=disabled,proto3" json:"disabled,omitempty"`
+	// Actual Agent status.
+	Status AgentStatus `protobuf:"varint,7,opt,name=status,proto3,enum=inventory.AgentStatus" json:"status,omitempty"`
+	// Listen port for scraping metrics.
+	ListenPort uint32 `protobuf:"varint,8,opt,name=listen_port,json=listenPort,proto3" json:"listen_port,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_unrecognized     []byte            `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
+}
+
+func (m *PostgresExporter) Reset()         { *m = PostgresExporter{} }
+func (m *PostgresExporter) String() string { return proto.CompactTextString(m) }
+func (*PostgresExporter) ProtoMessage()    {}
+func (*PostgresExporter) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{7}
+}
+func (m *PostgresExporter) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_PostgresExporter.Unmarshal(m, b)
+}
+func (m *PostgresExporter) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_PostgresExporter.Marshal(b, m, deterministic)
+}
+func (dst *PostgresExporter) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_PostgresExporter.Merge(dst, src)
+}
+func (m *PostgresExporter) XXX_Size() int {
+	return xxx_messageInfo_PostgresExporter.Size(m)
+}
+func (m *PostgresExporter) XXX_DiscardUnknown() {
+	xxx_messageInfo_PostgresExporter.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_PostgresExporter proto.InternalMessageInfo
+
+func (m *PostgresExporter) GetAgentId() string {
+	if m != nil {
+		return m.AgentId
+	}
+	return ""
+}
+
+func (m *PostgresExporter) GetPmmAgentId() string {
+	if m != nil {
+		return m.PmmAgentId
+	}
+	return ""
+}
+
+func (m *PostgresExporter) GetServiceId() string {
+	if m != nil {
+		return m.ServiceId
+	}
+	return ""
+}
+
+func (m *PostgresExporter) GetUsername() string {
+	if m != nil {
+		return m.Username
+	}
+	return ""
+}
+
+func (m *PostgresExporter) GetPassword() string {
+	if m != nil {
+		return m.Password
+	}
+	return ""
+}
+
+func (m *PostgresExporter) GetDisabled() bool {
+	if m != nil {
+		return m.Disabled
+	}
+	return false
+}
+
+func (m *PostgresExporter) GetStatus() AgentStatus {
+	if m != nil {
+		return m.Status
+	}
+	return AgentStatus_AGENT_STATUS_INVALID
+}
+
+func (m *PostgresExporter) GetListenPort() uint32 {
+	if m != nil {
+		return m.ListenPort
+	}
+	return 0
+}
+
+func (m *PostgresExporter) GetCustomLabels() map[string]string {
 	if m != nil {
 		return m.CustomLabels
 	}
@@ -626,7 +775,7 @@ func (m *ListAgentsRequest) Reset()         { *m = ListAgentsRequest{} }
 func (m *ListAgentsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListAgentsRequest) ProtoMessage()    {}
 func (*ListAgentsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{7}
+	return fileDescriptor_agents_b2219fb094362663, []int{8}
 }
 func (m *ListAgentsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListAgentsRequest.Unmarshal(m, b)
@@ -785,6 +934,7 @@ type ListAgentsResponse struct {
 	ExternalExporter        []*ExternalExporter        `protobuf:"bytes,5,rep,name=external_exporter,json=externalExporter,proto3" json:"external_exporter,omitempty"`
 	MongodbExporter         []*MongoDBExporter         `protobuf:"bytes,6,rep,name=mongodb_exporter,json=mongodbExporter,proto3" json:"mongodb_exporter,omitempty"`
 	QanMysqlPerfschemaAgent []*QANMySQLPerfSchemaAgent `protobuf:"bytes,7,rep,name=qan_mysql_perfschema_agent,json=qanMysqlPerfschemaAgent,proto3" json:"qan_mysql_perfschema_agent,omitempty"`
+	PostgresExporter        []*PostgresExporter        `protobuf:"bytes,8,rep,name=postgres_exporter,json=postgresExporter,proto3" json:"postgres_exporter,omitempty"`
 	XXX_NoUnkeyedLiteral    struct{}                   `json:"-"`
 	XXX_unrecognized        []byte                     `json:"-"`
 	XXX_sizecache           int32                      `json:"-"`
@@ -794,7 +944,7 @@ func (m *ListAgentsResponse) Reset()         { *m = ListAgentsResponse{} }
 func (m *ListAgentsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListAgentsResponse) ProtoMessage()    {}
 func (*ListAgentsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{8}
+	return fileDescriptor_agents_b2219fb094362663, []int{9}
 }
 func (m *ListAgentsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListAgentsResponse.Unmarshal(m, b)
@@ -863,6 +1013,13 @@ func (m *ListAgentsResponse) GetQanMysqlPerfschemaAgent() []*QANMySQLPerfSchemaA
 	return nil
 }
 
+func (m *ListAgentsResponse) GetPostgresExporter() []*PostgresExporter {
+	if m != nil {
+		return m.PostgresExporter
+	}
+	return nil
+}
+
 type GetAgentRequest struct {
 	// Unique randomly generated instance identifier.
 	AgentId              string   `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
@@ -875,7 +1032,7 @@ func (m *GetAgentRequest) Reset()         { *m = GetAgentRequest{} }
 func (m *GetAgentRequest) String() string { return proto.CompactTextString(m) }
 func (*GetAgentRequest) ProtoMessage()    {}
 func (*GetAgentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{9}
+	return fileDescriptor_agents_b2219fb094362663, []int{10}
 }
 func (m *GetAgentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetAgentRequest.Unmarshal(m, b)
@@ -911,6 +1068,7 @@ type GetAgentResponse struct {
 	//	*GetAgentResponse_ExternalExporter
 	//	*GetAgentResponse_MongodbExporter
 	//	*GetAgentResponse_QanMysqlPerfschemaAgent
+	//	*GetAgentResponse_PostgresExporter
 	Agent                isGetAgentResponse_Agent `protobuf_oneof:"agent"`
 	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
 	XXX_unrecognized     []byte                   `json:"-"`
@@ -921,7 +1079,7 @@ func (m *GetAgentResponse) Reset()         { *m = GetAgentResponse{} }
 func (m *GetAgentResponse) String() string { return proto.CompactTextString(m) }
 func (*GetAgentResponse) ProtoMessage()    {}
 func (*GetAgentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{10}
+	return fileDescriptor_agents_b2219fb094362663, []int{11}
 }
 func (m *GetAgentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetAgentResponse.Unmarshal(m, b)
@@ -973,6 +1131,10 @@ type GetAgentResponse_QanMysqlPerfschemaAgent struct {
 	QanMysqlPerfschemaAgent *QANMySQLPerfSchemaAgent `protobuf:"bytes,7,opt,name=qan_mysql_perfschema_agent,json=qanMysqlPerfschemaAgent,proto3,oneof"`
 }
 
+type GetAgentResponse_PostgresExporter struct {
+	PostgresExporter *PostgresExporter `protobuf:"bytes,8,opt,name=postgres_exporter,json=postgresExporter,proto3,oneof"`
+}
+
 func (*GetAgentResponse_PmmAgent) isGetAgentResponse_Agent() {}
 
 func (*GetAgentResponse_NodeExporter) isGetAgentResponse_Agent() {}
@@ -986,6 +1148,8 @@ func (*GetAgentResponse_ExternalExporter) isGetAgentResponse_Agent() {}
 func (*GetAgentResponse_MongodbExporter) isGetAgentResponse_Agent() {}
 
 func (*GetAgentResponse_QanMysqlPerfschemaAgent) isGetAgentResponse_Agent() {}
+
+func (*GetAgentResponse_PostgresExporter) isGetAgentResponse_Agent() {}
 
 func (m *GetAgentResponse) GetAgent() isGetAgentResponse_Agent {
 	if m != nil {
@@ -1043,6 +1207,13 @@ func (m *GetAgentResponse) GetQanMysqlPerfschemaAgent() *QANMySQLPerfSchemaAgent
 	return nil
 }
 
+func (m *GetAgentResponse) GetPostgresExporter() *PostgresExporter {
+	if x, ok := m.GetAgent().(*GetAgentResponse_PostgresExporter); ok {
+		return x.PostgresExporter
+	}
+	return nil
+}
+
 // XXX_OneofFuncs is for the internal use of the proto package.
 func (*GetAgentResponse) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
 	return _GetAgentResponse_OneofMarshaler, _GetAgentResponse_OneofUnmarshaler, _GetAgentResponse_OneofSizer, []interface{}{
@@ -1053,6 +1224,7 @@ func (*GetAgentResponse) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buff
 		(*GetAgentResponse_ExternalExporter)(nil),
 		(*GetAgentResponse_MongodbExporter)(nil),
 		(*GetAgentResponse_QanMysqlPerfschemaAgent)(nil),
+		(*GetAgentResponse_PostgresExporter)(nil),
 	}
 }
 
@@ -1093,6 +1265,11 @@ func _GetAgentResponse_OneofMarshaler(msg proto.Message, b *proto.Buffer) error 
 	case *GetAgentResponse_QanMysqlPerfschemaAgent:
 		b.EncodeVarint(7<<3 | proto.WireBytes)
 		if err := b.EncodeMessage(x.QanMysqlPerfschemaAgent); err != nil {
+			return err
+		}
+	case *GetAgentResponse_PostgresExporter:
+		b.EncodeVarint(8<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.PostgresExporter); err != nil {
 			return err
 		}
 	case nil:
@@ -1161,6 +1338,14 @@ func _GetAgentResponse_OneofUnmarshaler(msg proto.Message, tag, wire int, b *pro
 		err := b.DecodeMessage(msg)
 		m.Agent = &GetAgentResponse_QanMysqlPerfschemaAgent{msg}
 		return true, err
+	case 8: // agent.postgres_exporter
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(PostgresExporter)
+		err := b.DecodeMessage(msg)
+		m.Agent = &GetAgentResponse_PostgresExporter{msg}
+		return true, err
 	default:
 		return false, nil
 	}
@@ -1205,6 +1390,11 @@ func _GetAgentResponse_OneofSizer(msg proto.Message) (n int) {
 		n += 1 // tag and wire
 		n += proto.SizeVarint(uint64(s))
 		n += s
+	case *GetAgentResponse_PostgresExporter:
+		s := proto.Size(x.PostgresExporter)
+		n += 1 // tag and wire
+		n += proto.SizeVarint(uint64(s))
+		n += s
 	case nil:
 	default:
 		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
@@ -1226,7 +1416,7 @@ func (m *AddPMMAgentRequest) Reset()         { *m = AddPMMAgentRequest{} }
 func (m *AddPMMAgentRequest) String() string { return proto.CompactTextString(m) }
 func (*AddPMMAgentRequest) ProtoMessage()    {}
 func (*AddPMMAgentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{11}
+	return fileDescriptor_agents_b2219fb094362663, []int{12}
 }
 func (m *AddPMMAgentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddPMMAgentRequest.Unmarshal(m, b)
@@ -1271,7 +1461,7 @@ func (m *AddPMMAgentResponse) Reset()         { *m = AddPMMAgentResponse{} }
 func (m *AddPMMAgentResponse) String() string { return proto.CompactTextString(m) }
 func (*AddPMMAgentResponse) ProtoMessage()    {}
 func (*AddPMMAgentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{12}
+	return fileDescriptor_agents_b2219fb094362663, []int{13}
 }
 func (m *AddPMMAgentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddPMMAgentResponse.Unmarshal(m, b)
@@ -1298,6 +1488,74 @@ func (m *AddPMMAgentResponse) GetPmmAgent() *PMMAgent {
 	return nil
 }
 
+type ChangePMMAgentRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangePMMAgentRequest) Reset()         { *m = ChangePMMAgentRequest{} }
+func (m *ChangePMMAgentRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangePMMAgentRequest) ProtoMessage()    {}
+func (*ChangePMMAgentRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{14}
+}
+func (m *ChangePMMAgentRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangePMMAgentRequest.Unmarshal(m, b)
+}
+func (m *ChangePMMAgentRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangePMMAgentRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangePMMAgentRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangePMMAgentRequest.Merge(dst, src)
+}
+func (m *ChangePMMAgentRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangePMMAgentRequest.Size(m)
+}
+func (m *ChangePMMAgentRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangePMMAgentRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangePMMAgentRequest proto.InternalMessageInfo
+
+type ChangePMMAgentResponse struct {
+	PmmAgent             *PMMAgent `protobuf:"bytes,1,opt,name=pmm_agent,json=pmmAgent,proto3" json:"pmm_agent,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_unrecognized     []byte    `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
+}
+
+func (m *ChangePMMAgentResponse) Reset()         { *m = ChangePMMAgentResponse{} }
+func (m *ChangePMMAgentResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangePMMAgentResponse) ProtoMessage()    {}
+func (*ChangePMMAgentResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{15}
+}
+func (m *ChangePMMAgentResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangePMMAgentResponse.Unmarshal(m, b)
+}
+func (m *ChangePMMAgentResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangePMMAgentResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangePMMAgentResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangePMMAgentResponse.Merge(dst, src)
+}
+func (m *ChangePMMAgentResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangePMMAgentResponse.Size(m)
+}
+func (m *ChangePMMAgentResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangePMMAgentResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangePMMAgentResponse proto.InternalMessageInfo
+
+func (m *ChangePMMAgentResponse) GetPmmAgent() *PMMAgent {
+	if m != nil {
+		return m.PmmAgent
+	}
+	return nil
+}
+
 type AddNodeExporterRequest struct {
 	// The pmm-agent identifier which runs this instance.
 	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
@@ -1312,7 +1570,7 @@ func (m *AddNodeExporterRequest) Reset()         { *m = AddNodeExporterRequest{}
 func (m *AddNodeExporterRequest) String() string { return proto.CompactTextString(m) }
 func (*AddNodeExporterRequest) ProtoMessage()    {}
 func (*AddNodeExporterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{13}
+	return fileDescriptor_agents_b2219fb094362663, []int{16}
 }
 func (m *AddNodeExporterRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddNodeExporterRequest.Unmarshal(m, b)
@@ -1357,7 +1615,7 @@ func (m *AddNodeExporterResponse) Reset()         { *m = AddNodeExporterResponse
 func (m *AddNodeExporterResponse) String() string { return proto.CompactTextString(m) }
 func (*AddNodeExporterResponse) ProtoMessage()    {}
 func (*AddNodeExporterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{14}
+	return fileDescriptor_agents_b2219fb094362663, []int{17}
 }
 func (m *AddNodeExporterResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddNodeExporterResponse.Unmarshal(m, b)
@@ -1384,6 +1642,215 @@ func (m *AddNodeExporterResponse) GetNodeExporter() *NodeExporter {
 	return nil
 }
 
+type ChangeNodeExporterRequest struct {
+	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	// Enable or disable this Agent.
+	//
+	// Types that are valid to be assigned to ChangeDisabled:
+	//	*ChangeNodeExporterRequest_Enabled
+	//	*ChangeNodeExporterRequest_Disabled
+	ChangeDisabled isChangeNodeExporterRequest_ChangeDisabled `protobuf_oneof:"change_disabled"`
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `protobuf:"bytes,4,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels   bool     `protobuf:"varint,5,opt,name=remove_custom_labels,json=removeCustomLabels,proto3" json:"remove_custom_labels,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeNodeExporterRequest) Reset()         { *m = ChangeNodeExporterRequest{} }
+func (m *ChangeNodeExporterRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeNodeExporterRequest) ProtoMessage()    {}
+func (*ChangeNodeExporterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{18}
+}
+func (m *ChangeNodeExporterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeNodeExporterRequest.Unmarshal(m, b)
+}
+func (m *ChangeNodeExporterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeNodeExporterRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeNodeExporterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeNodeExporterRequest.Merge(dst, src)
+}
+func (m *ChangeNodeExporterRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeNodeExporterRequest.Size(m)
+}
+func (m *ChangeNodeExporterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeNodeExporterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeNodeExporterRequest proto.InternalMessageInfo
+
+func (m *ChangeNodeExporterRequest) GetAgentId() string {
+	if m != nil {
+		return m.AgentId
+	}
+	return ""
+}
+
+type isChangeNodeExporterRequest_ChangeDisabled interface {
+	isChangeNodeExporterRequest_ChangeDisabled()
+}
+
+type ChangeNodeExporterRequest_Enabled struct {
+	Enabled bool `protobuf:"varint,2,opt,name=enabled,proto3,oneof"`
+}
+
+type ChangeNodeExporterRequest_Disabled struct {
+	Disabled bool `protobuf:"varint,3,opt,name=disabled,proto3,oneof"`
+}
+
+func (*ChangeNodeExporterRequest_Enabled) isChangeNodeExporterRequest_ChangeDisabled() {}
+
+func (*ChangeNodeExporterRequest_Disabled) isChangeNodeExporterRequest_ChangeDisabled() {}
+
+func (m *ChangeNodeExporterRequest) GetChangeDisabled() isChangeNodeExporterRequest_ChangeDisabled {
+	if m != nil {
+		return m.ChangeDisabled
+	}
+	return nil
+}
+
+func (m *ChangeNodeExporterRequest) GetEnabled() bool {
+	if x, ok := m.GetChangeDisabled().(*ChangeNodeExporterRequest_Enabled); ok {
+		return x.Enabled
+	}
+	return false
+}
+
+func (m *ChangeNodeExporterRequest) GetDisabled() bool {
+	if x, ok := m.GetChangeDisabled().(*ChangeNodeExporterRequest_Disabled); ok {
+		return x.Disabled
+	}
+	return false
+}
+
+func (m *ChangeNodeExporterRequest) GetCustomLabels() map[string]string {
+	if m != nil {
+		return m.CustomLabels
+	}
+	return nil
+}
+
+func (m *ChangeNodeExporterRequest) GetRemoveCustomLabels() bool {
+	if m != nil {
+		return m.RemoveCustomLabels
+	}
+	return false
+}
+
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*ChangeNodeExporterRequest) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _ChangeNodeExporterRequest_OneofMarshaler, _ChangeNodeExporterRequest_OneofUnmarshaler, _ChangeNodeExporterRequest_OneofSizer, []interface{}{
+		(*ChangeNodeExporterRequest_Enabled)(nil),
+		(*ChangeNodeExporterRequest_Disabled)(nil),
+	}
+}
+
+func _ChangeNodeExporterRequest_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*ChangeNodeExporterRequest)
+	// change_disabled
+	switch x := m.ChangeDisabled.(type) {
+	case *ChangeNodeExporterRequest_Enabled:
+		t := uint64(0)
+		if x.Enabled {
+			t = 1
+		}
+		b.EncodeVarint(2<<3 | proto.WireVarint)
+		b.EncodeVarint(t)
+	case *ChangeNodeExporterRequest_Disabled:
+		t := uint64(0)
+		if x.Disabled {
+			t = 1
+		}
+		b.EncodeVarint(3<<3 | proto.WireVarint)
+		b.EncodeVarint(t)
+	case nil:
+	default:
+		return fmt.Errorf("ChangeNodeExporterRequest.ChangeDisabled has unexpected type %T", x)
+	}
+	return nil
+}
+
+func _ChangeNodeExporterRequest_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*ChangeNodeExporterRequest)
+	switch tag {
+	case 2: // change_disabled.enabled
+		if wire != proto.WireVarint {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeVarint()
+		m.ChangeDisabled = &ChangeNodeExporterRequest_Enabled{x != 0}
+		return true, err
+	case 3: // change_disabled.disabled
+		if wire != proto.WireVarint {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeVarint()
+		m.ChangeDisabled = &ChangeNodeExporterRequest_Disabled{x != 0}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _ChangeNodeExporterRequest_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*ChangeNodeExporterRequest)
+	// change_disabled
+	switch x := m.ChangeDisabled.(type) {
+	case *ChangeNodeExporterRequest_Enabled:
+		n += 1 // tag and wire
+		n += 1
+	case *ChangeNodeExporterRequest_Disabled:
+		n += 1 // tag and wire
+		n += 1
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
+}
+
+type ChangeNodeExporterResponse struct {
+	NodeExporter         *NodeExporter `protobuf:"bytes,1,opt,name=node_exporter,json=nodeExporter,proto3" json:"node_exporter,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}      `json:"-"`
+	XXX_unrecognized     []byte        `json:"-"`
+	XXX_sizecache        int32         `json:"-"`
+}
+
+func (m *ChangeNodeExporterResponse) Reset()         { *m = ChangeNodeExporterResponse{} }
+func (m *ChangeNodeExporterResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeNodeExporterResponse) ProtoMessage()    {}
+func (*ChangeNodeExporterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{19}
+}
+func (m *ChangeNodeExporterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeNodeExporterResponse.Unmarshal(m, b)
+}
+func (m *ChangeNodeExporterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeNodeExporterResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeNodeExporterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeNodeExporterResponse.Merge(dst, src)
+}
+func (m *ChangeNodeExporterResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeNodeExporterResponse.Size(m)
+}
+func (m *ChangeNodeExporterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeNodeExporterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeNodeExporterResponse proto.InternalMessageInfo
+
+func (m *ChangeNodeExporterResponse) GetNodeExporter() *NodeExporter {
+	if m != nil {
+		return m.NodeExporter
+	}
+	return nil
+}
+
 type AddMySQLdExporterRequest struct {
 	// The pmm-agent identifier which runs this instance.
 	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
@@ -1404,7 +1871,7 @@ func (m *AddMySQLdExporterRequest) Reset()         { *m = AddMySQLdExporterReque
 func (m *AddMySQLdExporterRequest) String() string { return proto.CompactTextString(m) }
 func (*AddMySQLdExporterRequest) ProtoMessage()    {}
 func (*AddMySQLdExporterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{15}
+	return fileDescriptor_agents_b2219fb094362663, []int{20}
 }
 func (m *AddMySQLdExporterRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMySQLdExporterRequest.Unmarshal(m, b)
@@ -1470,7 +1937,7 @@ func (m *AddMySQLdExporterResponse) Reset()         { *m = AddMySQLdExporterResp
 func (m *AddMySQLdExporterResponse) String() string { return proto.CompactTextString(m) }
 func (*AddMySQLdExporterResponse) ProtoMessage()    {}
 func (*AddMySQLdExporterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{16}
+	return fileDescriptor_agents_b2219fb094362663, []int{21}
 }
 func (m *AddMySQLdExporterResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMySQLdExporterResponse.Unmarshal(m, b)
@@ -1497,6 +1964,215 @@ func (m *AddMySQLdExporterResponse) GetMysqldExporter() *MySQLdExporter {
 	return nil
 }
 
+type ChangeMySQLdExporterRequest struct {
+	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	// Enable or disable this Agent.
+	//
+	// Types that are valid to be assigned to ChangeDisabled:
+	//	*ChangeMySQLdExporterRequest_Enabled
+	//	*ChangeMySQLdExporterRequest_Disabled
+	ChangeDisabled isChangeMySQLdExporterRequest_ChangeDisabled `protobuf_oneof:"change_disabled"`
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `protobuf:"bytes,4,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels   bool     `protobuf:"varint,5,opt,name=remove_custom_labels,json=removeCustomLabels,proto3" json:"remove_custom_labels,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeMySQLdExporterRequest) Reset()         { *m = ChangeMySQLdExporterRequest{} }
+func (m *ChangeMySQLdExporterRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeMySQLdExporterRequest) ProtoMessage()    {}
+func (*ChangeMySQLdExporterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{22}
+}
+func (m *ChangeMySQLdExporterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeMySQLdExporterRequest.Unmarshal(m, b)
+}
+func (m *ChangeMySQLdExporterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeMySQLdExporterRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeMySQLdExporterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeMySQLdExporterRequest.Merge(dst, src)
+}
+func (m *ChangeMySQLdExporterRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeMySQLdExporterRequest.Size(m)
+}
+func (m *ChangeMySQLdExporterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeMySQLdExporterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeMySQLdExporterRequest proto.InternalMessageInfo
+
+func (m *ChangeMySQLdExporterRequest) GetAgentId() string {
+	if m != nil {
+		return m.AgentId
+	}
+	return ""
+}
+
+type isChangeMySQLdExporterRequest_ChangeDisabled interface {
+	isChangeMySQLdExporterRequest_ChangeDisabled()
+}
+
+type ChangeMySQLdExporterRequest_Enabled struct {
+	Enabled bool `protobuf:"varint,2,opt,name=enabled,proto3,oneof"`
+}
+
+type ChangeMySQLdExporterRequest_Disabled struct {
+	Disabled bool `protobuf:"varint,3,opt,name=disabled,proto3,oneof"`
+}
+
+func (*ChangeMySQLdExporterRequest_Enabled) isChangeMySQLdExporterRequest_ChangeDisabled() {}
+
+func (*ChangeMySQLdExporterRequest_Disabled) isChangeMySQLdExporterRequest_ChangeDisabled() {}
+
+func (m *ChangeMySQLdExporterRequest) GetChangeDisabled() isChangeMySQLdExporterRequest_ChangeDisabled {
+	if m != nil {
+		return m.ChangeDisabled
+	}
+	return nil
+}
+
+func (m *ChangeMySQLdExporterRequest) GetEnabled() bool {
+	if x, ok := m.GetChangeDisabled().(*ChangeMySQLdExporterRequest_Enabled); ok {
+		return x.Enabled
+	}
+	return false
+}
+
+func (m *ChangeMySQLdExporterRequest) GetDisabled() bool {
+	if x, ok := m.GetChangeDisabled().(*ChangeMySQLdExporterRequest_Disabled); ok {
+		return x.Disabled
+	}
+	return false
+}
+
+func (m *ChangeMySQLdExporterRequest) GetCustomLabels() map[string]string {
+	if m != nil {
+		return m.CustomLabels
+	}
+	return nil
+}
+
+func (m *ChangeMySQLdExporterRequest) GetRemoveCustomLabels() bool {
+	if m != nil {
+		return m.RemoveCustomLabels
+	}
+	return false
+}
+
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*ChangeMySQLdExporterRequest) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _ChangeMySQLdExporterRequest_OneofMarshaler, _ChangeMySQLdExporterRequest_OneofUnmarshaler, _ChangeMySQLdExporterRequest_OneofSizer, []interface{}{
+		(*ChangeMySQLdExporterRequest_Enabled)(nil),
+		(*ChangeMySQLdExporterRequest_Disabled)(nil),
+	}
+}
+
+func _ChangeMySQLdExporterRequest_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*ChangeMySQLdExporterRequest)
+	// change_disabled
+	switch x := m.ChangeDisabled.(type) {
+	case *ChangeMySQLdExporterRequest_Enabled:
+		t := uint64(0)
+		if x.Enabled {
+			t = 1
+		}
+		b.EncodeVarint(2<<3 | proto.WireVarint)
+		b.EncodeVarint(t)
+	case *ChangeMySQLdExporterRequest_Disabled:
+		t := uint64(0)
+		if x.Disabled {
+			t = 1
+		}
+		b.EncodeVarint(3<<3 | proto.WireVarint)
+		b.EncodeVarint(t)
+	case nil:
+	default:
+		return fmt.Errorf("ChangeMySQLdExporterRequest.ChangeDisabled has unexpected type %T", x)
+	}
+	return nil
+}
+
+func _ChangeMySQLdExporterRequest_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*ChangeMySQLdExporterRequest)
+	switch tag {
+	case 2: // change_disabled.enabled
+		if wire != proto.WireVarint {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeVarint()
+		m.ChangeDisabled = &ChangeMySQLdExporterRequest_Enabled{x != 0}
+		return true, err
+	case 3: // change_disabled.disabled
+		if wire != proto.WireVarint {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeVarint()
+		m.ChangeDisabled = &ChangeMySQLdExporterRequest_Disabled{x != 0}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _ChangeMySQLdExporterRequest_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*ChangeMySQLdExporterRequest)
+	// change_disabled
+	switch x := m.ChangeDisabled.(type) {
+	case *ChangeMySQLdExporterRequest_Enabled:
+		n += 1 // tag and wire
+		n += 1
+	case *ChangeMySQLdExporterRequest_Disabled:
+		n += 1 // tag and wire
+		n += 1
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
+}
+
+type ChangeMySQLdExporterResponse struct {
+	MysqldExporter       *MySQLdExporter `protobuf:"bytes,1,opt,name=mysqld_exporter,json=mysqldExporter,proto3" json:"mysqld_exporter,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}        `json:"-"`
+	XXX_unrecognized     []byte          `json:"-"`
+	XXX_sizecache        int32           `json:"-"`
+}
+
+func (m *ChangeMySQLdExporterResponse) Reset()         { *m = ChangeMySQLdExporterResponse{} }
+func (m *ChangeMySQLdExporterResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeMySQLdExporterResponse) ProtoMessage()    {}
+func (*ChangeMySQLdExporterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{23}
+}
+func (m *ChangeMySQLdExporterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeMySQLdExporterResponse.Unmarshal(m, b)
+}
+func (m *ChangeMySQLdExporterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeMySQLdExporterResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeMySQLdExporterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeMySQLdExporterResponse.Merge(dst, src)
+}
+func (m *ChangeMySQLdExporterResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeMySQLdExporterResponse.Size(m)
+}
+func (m *ChangeMySQLdExporterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeMySQLdExporterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeMySQLdExporterResponse proto.InternalMessageInfo
+
+func (m *ChangeMySQLdExporterResponse) GetMysqldExporter() *MySQLdExporter {
+	if m != nil {
+		return m.MysqldExporter
+	}
+	return nil
+}
+
 type AddRDSExporterRequest struct {
 	// The pmm-agent identifier which runs this instance.
 	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
@@ -1513,7 +2189,7 @@ func (m *AddRDSExporterRequest) Reset()         { *m = AddRDSExporterRequest{} }
 func (m *AddRDSExporterRequest) String() string { return proto.CompactTextString(m) }
 func (*AddRDSExporterRequest) ProtoMessage()    {}
 func (*AddRDSExporterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{17}
+	return fileDescriptor_agents_b2219fb094362663, []int{24}
 }
 func (m *AddRDSExporterRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRDSExporterRequest.Unmarshal(m, b)
@@ -1565,7 +2241,7 @@ func (m *AddRDSExporterResponse) Reset()         { *m = AddRDSExporterResponse{}
 func (m *AddRDSExporterResponse) String() string { return proto.CompactTextString(m) }
 func (*AddRDSExporterResponse) ProtoMessage()    {}
 func (*AddRDSExporterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{18}
+	return fileDescriptor_agents_b2219fb094362663, []int{25}
 }
 func (m *AddRDSExporterResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddRDSExporterResponse.Unmarshal(m, b)
@@ -1592,6 +2268,74 @@ func (m *AddRDSExporterResponse) GetRdsExporter() *RDSExporter {
 	return nil
 }
 
+type ChangeRDSExporterRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeRDSExporterRequest) Reset()         { *m = ChangeRDSExporterRequest{} }
+func (m *ChangeRDSExporterRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeRDSExporterRequest) ProtoMessage()    {}
+func (*ChangeRDSExporterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{26}
+}
+func (m *ChangeRDSExporterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeRDSExporterRequest.Unmarshal(m, b)
+}
+func (m *ChangeRDSExporterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeRDSExporterRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeRDSExporterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeRDSExporterRequest.Merge(dst, src)
+}
+func (m *ChangeRDSExporterRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeRDSExporterRequest.Size(m)
+}
+func (m *ChangeRDSExporterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeRDSExporterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeRDSExporterRequest proto.InternalMessageInfo
+
+type ChangeRDSExporterResponse struct {
+	RdsExporter          *RDSExporter `protobuf:"bytes,1,opt,name=rds_exporter,json=rdsExporter,proto3" json:"rds_exporter,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
+	XXX_unrecognized     []byte       `json:"-"`
+	XXX_sizecache        int32        `json:"-"`
+}
+
+func (m *ChangeRDSExporterResponse) Reset()         { *m = ChangeRDSExporterResponse{} }
+func (m *ChangeRDSExporterResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeRDSExporterResponse) ProtoMessage()    {}
+func (*ChangeRDSExporterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{27}
+}
+func (m *ChangeRDSExporterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeRDSExporterResponse.Unmarshal(m, b)
+}
+func (m *ChangeRDSExporterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeRDSExporterResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeRDSExporterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeRDSExporterResponse.Merge(dst, src)
+}
+func (m *ChangeRDSExporterResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeRDSExporterResponse.Size(m)
+}
+func (m *ChangeRDSExporterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeRDSExporterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeRDSExporterResponse proto.InternalMessageInfo
+
+func (m *ChangeRDSExporterResponse) GetRdsExporter() *RDSExporter {
+	if m != nil {
+		return m.RdsExporter
+	}
+	return nil
+}
+
 type AddExternalExporterRequest struct {
 	// URL for scraping metrics.
 	MetricsUrl string `protobuf:"bytes,2,opt,name=metrics_url,json=metricsUrl,proto3" json:"metrics_url,omitempty"`
@@ -1606,7 +2350,7 @@ func (m *AddExternalExporterRequest) Reset()         { *m = AddExternalExporterR
 func (m *AddExternalExporterRequest) String() string { return proto.CompactTextString(m) }
 func (*AddExternalExporterRequest) ProtoMessage()    {}
 func (*AddExternalExporterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{19}
+	return fileDescriptor_agents_b2219fb094362663, []int{28}
 }
 func (m *AddExternalExporterRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddExternalExporterRequest.Unmarshal(m, b)
@@ -1651,7 +2395,7 @@ func (m *AddExternalExporterResponse) Reset()         { *m = AddExternalExporter
 func (m *AddExternalExporterResponse) String() string { return proto.CompactTextString(m) }
 func (*AddExternalExporterResponse) ProtoMessage()    {}
 func (*AddExternalExporterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{20}
+	return fileDescriptor_agents_b2219fb094362663, []int{29}
 }
 func (m *AddExternalExporterResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddExternalExporterResponse.Unmarshal(m, b)
@@ -1678,6 +2422,74 @@ func (m *AddExternalExporterResponse) GetExternalExporter() *ExternalExporter {
 	return nil
 }
 
+type ChangeExternalExporterRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeExternalExporterRequest) Reset()         { *m = ChangeExternalExporterRequest{} }
+func (m *ChangeExternalExporterRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeExternalExporterRequest) ProtoMessage()    {}
+func (*ChangeExternalExporterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{30}
+}
+func (m *ChangeExternalExporterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeExternalExporterRequest.Unmarshal(m, b)
+}
+func (m *ChangeExternalExporterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeExternalExporterRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeExternalExporterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeExternalExporterRequest.Merge(dst, src)
+}
+func (m *ChangeExternalExporterRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeExternalExporterRequest.Size(m)
+}
+func (m *ChangeExternalExporterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeExternalExporterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeExternalExporterRequest proto.InternalMessageInfo
+
+type ChangeExternalExporterResponse struct {
+	ExternalExporter     *ExternalExporter `protobuf:"bytes,1,opt,name=external_exporter,json=externalExporter,proto3" json:"external_exporter,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_unrecognized     []byte            `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
+}
+
+func (m *ChangeExternalExporterResponse) Reset()         { *m = ChangeExternalExporterResponse{} }
+func (m *ChangeExternalExporterResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeExternalExporterResponse) ProtoMessage()    {}
+func (*ChangeExternalExporterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{31}
+}
+func (m *ChangeExternalExporterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeExternalExporterResponse.Unmarshal(m, b)
+}
+func (m *ChangeExternalExporterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeExternalExporterResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeExternalExporterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeExternalExporterResponse.Merge(dst, src)
+}
+func (m *ChangeExternalExporterResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeExternalExporterResponse.Size(m)
+}
+func (m *ChangeExternalExporterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeExternalExporterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeExternalExporterResponse proto.InternalMessageInfo
+
+func (m *ChangeExternalExporterResponse) GetExternalExporter() *ExternalExporter {
+	if m != nil {
+		return m.ExternalExporter
+	}
+	return nil
+}
+
 type AddMongoDBExporterRequest struct {
 	// The pmm-agent identifier which runs this instance.
 	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
@@ -1698,7 +2510,7 @@ func (m *AddMongoDBExporterRequest) Reset()         { *m = AddMongoDBExporterReq
 func (m *AddMongoDBExporterRequest) String() string { return proto.CompactTextString(m) }
 func (*AddMongoDBExporterRequest) ProtoMessage()    {}
 func (*AddMongoDBExporterRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{21}
+	return fileDescriptor_agents_b2219fb094362663, []int{32}
 }
 func (m *AddMongoDBExporterRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMongoDBExporterRequest.Unmarshal(m, b)
@@ -1764,7 +2576,7 @@ func (m *AddMongoDBExporterResponse) Reset()         { *m = AddMongoDBExporterRe
 func (m *AddMongoDBExporterResponse) String() string { return proto.CompactTextString(m) }
 func (*AddMongoDBExporterResponse) ProtoMessage()    {}
 func (*AddMongoDBExporterResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{22}
+	return fileDescriptor_agents_b2219fb094362663, []int{33}
 }
 func (m *AddMongoDBExporterResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddMongoDBExporterResponse.Unmarshal(m, b)
@@ -1791,6 +2603,215 @@ func (m *AddMongoDBExporterResponse) GetMongodbExporter() *MongoDBExporter {
 	return nil
 }
 
+type ChangeMongoDBExporterRequest struct {
+	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	// Enable or disable this Agent.
+	//
+	// Types that are valid to be assigned to ChangeDisabled:
+	//	*ChangeMongoDBExporterRequest_Enabled
+	//	*ChangeMongoDBExporterRequest_Disabled
+	ChangeDisabled isChangeMongoDBExporterRequest_ChangeDisabled `protobuf_oneof:"change_disabled"`
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `protobuf:"bytes,4,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels   bool     `protobuf:"varint,5,opt,name=remove_custom_labels,json=removeCustomLabels,proto3" json:"remove_custom_labels,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeMongoDBExporterRequest) Reset()         { *m = ChangeMongoDBExporterRequest{} }
+func (m *ChangeMongoDBExporterRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeMongoDBExporterRequest) ProtoMessage()    {}
+func (*ChangeMongoDBExporterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{34}
+}
+func (m *ChangeMongoDBExporterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeMongoDBExporterRequest.Unmarshal(m, b)
+}
+func (m *ChangeMongoDBExporterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeMongoDBExporterRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeMongoDBExporterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeMongoDBExporterRequest.Merge(dst, src)
+}
+func (m *ChangeMongoDBExporterRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeMongoDBExporterRequest.Size(m)
+}
+func (m *ChangeMongoDBExporterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeMongoDBExporterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeMongoDBExporterRequest proto.InternalMessageInfo
+
+func (m *ChangeMongoDBExporterRequest) GetAgentId() string {
+	if m != nil {
+		return m.AgentId
+	}
+	return ""
+}
+
+type isChangeMongoDBExporterRequest_ChangeDisabled interface {
+	isChangeMongoDBExporterRequest_ChangeDisabled()
+}
+
+type ChangeMongoDBExporterRequest_Enabled struct {
+	Enabled bool `protobuf:"varint,2,opt,name=enabled,proto3,oneof"`
+}
+
+type ChangeMongoDBExporterRequest_Disabled struct {
+	Disabled bool `protobuf:"varint,3,opt,name=disabled,proto3,oneof"`
+}
+
+func (*ChangeMongoDBExporterRequest_Enabled) isChangeMongoDBExporterRequest_ChangeDisabled() {}
+
+func (*ChangeMongoDBExporterRequest_Disabled) isChangeMongoDBExporterRequest_ChangeDisabled() {}
+
+func (m *ChangeMongoDBExporterRequest) GetChangeDisabled() isChangeMongoDBExporterRequest_ChangeDisabled {
+	if m != nil {
+		return m.ChangeDisabled
+	}
+	return nil
+}
+
+func (m *ChangeMongoDBExporterRequest) GetEnabled() bool {
+	if x, ok := m.GetChangeDisabled().(*ChangeMongoDBExporterRequest_Enabled); ok {
+		return x.Enabled
+	}
+	return false
+}
+
+func (m *ChangeMongoDBExporterRequest) GetDisabled() bool {
+	if x, ok := m.GetChangeDisabled().(*ChangeMongoDBExporterRequest_Disabled); ok {
+		return x.Disabled
+	}
+	return false
+}
+
+func (m *ChangeMongoDBExporterRequest) GetCustomLabels() map[string]string {
+	if m != nil {
+		return m.CustomLabels
+	}
+	return nil
+}
+
+func (m *ChangeMongoDBExporterRequest) GetRemoveCustomLabels() bool {
+	if m != nil {
+		return m.RemoveCustomLabels
+	}
+	return false
+}
+
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*ChangeMongoDBExporterRequest) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _ChangeMongoDBExporterRequest_OneofMarshaler, _ChangeMongoDBExporterRequest_OneofUnmarshaler, _ChangeMongoDBExporterRequest_OneofSizer, []interface{}{
+		(*ChangeMongoDBExporterRequest_Enabled)(nil),
+		(*ChangeMongoDBExporterRequest_Disabled)(nil),
+	}
+}
+
+func _ChangeMongoDBExporterRequest_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*ChangeMongoDBExporterRequest)
+	// change_disabled
+	switch x := m.ChangeDisabled.(type) {
+	case *ChangeMongoDBExporterRequest_Enabled:
+		t := uint64(0)
+		if x.Enabled {
+			t = 1
+		}
+		b.EncodeVarint(2<<3 | proto.WireVarint)
+		b.EncodeVarint(t)
+	case *ChangeMongoDBExporterRequest_Disabled:
+		t := uint64(0)
+		if x.Disabled {
+			t = 1
+		}
+		b.EncodeVarint(3<<3 | proto.WireVarint)
+		b.EncodeVarint(t)
+	case nil:
+	default:
+		return fmt.Errorf("ChangeMongoDBExporterRequest.ChangeDisabled has unexpected type %T", x)
+	}
+	return nil
+}
+
+func _ChangeMongoDBExporterRequest_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*ChangeMongoDBExporterRequest)
+	switch tag {
+	case 2: // change_disabled.enabled
+		if wire != proto.WireVarint {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeVarint()
+		m.ChangeDisabled = &ChangeMongoDBExporterRequest_Enabled{x != 0}
+		return true, err
+	case 3: // change_disabled.disabled
+		if wire != proto.WireVarint {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeVarint()
+		m.ChangeDisabled = &ChangeMongoDBExporterRequest_Disabled{x != 0}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _ChangeMongoDBExporterRequest_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*ChangeMongoDBExporterRequest)
+	// change_disabled
+	switch x := m.ChangeDisabled.(type) {
+	case *ChangeMongoDBExporterRequest_Enabled:
+		n += 1 // tag and wire
+		n += 1
+	case *ChangeMongoDBExporterRequest_Disabled:
+		n += 1 // tag and wire
+		n += 1
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
+}
+
+type ChangeMongoDBExporterResponse struct {
+	MongodbExporter      *MongoDBExporter `protobuf:"bytes,1,opt,name=mongodb_exporter,json=mongodbExporter,proto3" json:"mongodb_exporter,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
+}
+
+func (m *ChangeMongoDBExporterResponse) Reset()         { *m = ChangeMongoDBExporterResponse{} }
+func (m *ChangeMongoDBExporterResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeMongoDBExporterResponse) ProtoMessage()    {}
+func (*ChangeMongoDBExporterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{35}
+}
+func (m *ChangeMongoDBExporterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeMongoDBExporterResponse.Unmarshal(m, b)
+}
+func (m *ChangeMongoDBExporterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeMongoDBExporterResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeMongoDBExporterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeMongoDBExporterResponse.Merge(dst, src)
+}
+func (m *ChangeMongoDBExporterResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeMongoDBExporterResponse.Size(m)
+}
+func (m *ChangeMongoDBExporterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeMongoDBExporterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeMongoDBExporterResponse proto.InternalMessageInfo
+
+func (m *ChangeMongoDBExporterResponse) GetMongodbExporter() *MongoDBExporter {
+	if m != nil {
+		return m.MongodbExporter
+	}
+	return nil
+}
+
 type AddQANMySQLPerfSchemaAgentRequest struct {
 	// The pmm-agent identifier which runs this instance.
 	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
@@ -1811,7 +2832,7 @@ func (m *AddQANMySQLPerfSchemaAgentRequest) Reset()         { *m = AddQANMySQLPe
 func (m *AddQANMySQLPerfSchemaAgentRequest) String() string { return proto.CompactTextString(m) }
 func (*AddQANMySQLPerfSchemaAgentRequest) ProtoMessage()    {}
 func (*AddQANMySQLPerfSchemaAgentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{23}
+	return fileDescriptor_agents_b2219fb094362663, []int{36}
 }
 func (m *AddQANMySQLPerfSchemaAgentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddQANMySQLPerfSchemaAgentRequest.Unmarshal(m, b)
@@ -1877,7 +2898,7 @@ func (m *AddQANMySQLPerfSchemaAgentResponse) Reset()         { *m = AddQANMySQLP
 func (m *AddQANMySQLPerfSchemaAgentResponse) String() string { return proto.CompactTextString(m) }
 func (*AddQANMySQLPerfSchemaAgentResponse) ProtoMessage()    {}
 func (*AddQANMySQLPerfSchemaAgentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{24}
+	return fileDescriptor_agents_b2219fb094362663, []int{37}
 }
 func (m *AddQANMySQLPerfSchemaAgentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AddQANMySQLPerfSchemaAgentResponse.Unmarshal(m, b)
@@ -1904,6 +2925,539 @@ func (m *AddQANMySQLPerfSchemaAgentResponse) GetQanMysqlPerfschemaAgent() *QANMy
 	return nil
 }
 
+type ChangeQANMySQLPerfSchemaAgentRequest struct {
+	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	// Enable or disable this Agent.
+	//
+	// Types that are valid to be assigned to ChangeDisabled:
+	//	*ChangeQANMySQLPerfSchemaAgentRequest_Enabled
+	//	*ChangeQANMySQLPerfSchemaAgentRequest_Disabled
+	ChangeDisabled isChangeQANMySQLPerfSchemaAgentRequest_ChangeDisabled `protobuf_oneof:"change_disabled"`
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `protobuf:"bytes,4,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels   bool     `protobuf:"varint,5,opt,name=remove_custom_labels,json=removeCustomLabels,proto3" json:"remove_custom_labels,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangeQANMySQLPerfSchemaAgentRequest) Reset()         { *m = ChangeQANMySQLPerfSchemaAgentRequest{} }
+func (m *ChangeQANMySQLPerfSchemaAgentRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeQANMySQLPerfSchemaAgentRequest) ProtoMessage()    {}
+func (*ChangeQANMySQLPerfSchemaAgentRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{38}
+}
+func (m *ChangeQANMySQLPerfSchemaAgentRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeQANMySQLPerfSchemaAgentRequest.Unmarshal(m, b)
+}
+func (m *ChangeQANMySQLPerfSchemaAgentRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeQANMySQLPerfSchemaAgentRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangeQANMySQLPerfSchemaAgentRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeQANMySQLPerfSchemaAgentRequest.Merge(dst, src)
+}
+func (m *ChangeQANMySQLPerfSchemaAgentRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeQANMySQLPerfSchemaAgentRequest.Size(m)
+}
+func (m *ChangeQANMySQLPerfSchemaAgentRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeQANMySQLPerfSchemaAgentRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeQANMySQLPerfSchemaAgentRequest proto.InternalMessageInfo
+
+func (m *ChangeQANMySQLPerfSchemaAgentRequest) GetAgentId() string {
+	if m != nil {
+		return m.AgentId
+	}
+	return ""
+}
+
+type isChangeQANMySQLPerfSchemaAgentRequest_ChangeDisabled interface {
+	isChangeQANMySQLPerfSchemaAgentRequest_ChangeDisabled()
+}
+
+type ChangeQANMySQLPerfSchemaAgentRequest_Enabled struct {
+	Enabled bool `protobuf:"varint,2,opt,name=enabled,proto3,oneof"`
+}
+
+type ChangeQANMySQLPerfSchemaAgentRequest_Disabled struct {
+	Disabled bool `protobuf:"varint,3,opt,name=disabled,proto3,oneof"`
+}
+
+func (*ChangeQANMySQLPerfSchemaAgentRequest_Enabled) isChangeQANMySQLPerfSchemaAgentRequest_ChangeDisabled() {
+}
+
+func (*ChangeQANMySQLPerfSchemaAgentRequest_Disabled) isChangeQANMySQLPerfSchemaAgentRequest_ChangeDisabled() {
+}
+
+func (m *ChangeQANMySQLPerfSchemaAgentRequest) GetChangeDisabled() isChangeQANMySQLPerfSchemaAgentRequest_ChangeDisabled {
+	if m != nil {
+		return m.ChangeDisabled
+	}
+	return nil
+}
+
+func (m *ChangeQANMySQLPerfSchemaAgentRequest) GetEnabled() bool {
+	if x, ok := m.GetChangeDisabled().(*ChangeQANMySQLPerfSchemaAgentRequest_Enabled); ok {
+		return x.Enabled
+	}
+	return false
+}
+
+func (m *ChangeQANMySQLPerfSchemaAgentRequest) GetDisabled() bool {
+	if x, ok := m.GetChangeDisabled().(*ChangeQANMySQLPerfSchemaAgentRequest_Disabled); ok {
+		return x.Disabled
+	}
+	return false
+}
+
+func (m *ChangeQANMySQLPerfSchemaAgentRequest) GetCustomLabels() map[string]string {
+	if m != nil {
+		return m.CustomLabels
+	}
+	return nil
+}
+
+func (m *ChangeQANMySQLPerfSchemaAgentRequest) GetRemoveCustomLabels() bool {
+	if m != nil {
+		return m.RemoveCustomLabels
+	}
+	return false
+}
+
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*ChangeQANMySQLPerfSchemaAgentRequest) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _ChangeQANMySQLPerfSchemaAgentRequest_OneofMarshaler, _ChangeQANMySQLPerfSchemaAgentRequest_OneofUnmarshaler, _ChangeQANMySQLPerfSchemaAgentRequest_OneofSizer, []interface{}{
+		(*ChangeQANMySQLPerfSchemaAgentRequest_Enabled)(nil),
+		(*ChangeQANMySQLPerfSchemaAgentRequest_Disabled)(nil),
+	}
+}
+
+func _ChangeQANMySQLPerfSchemaAgentRequest_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*ChangeQANMySQLPerfSchemaAgentRequest)
+	// change_disabled
+	switch x := m.ChangeDisabled.(type) {
+	case *ChangeQANMySQLPerfSchemaAgentRequest_Enabled:
+		t := uint64(0)
+		if x.Enabled {
+			t = 1
+		}
+		b.EncodeVarint(2<<3 | proto.WireVarint)
+		b.EncodeVarint(t)
+	case *ChangeQANMySQLPerfSchemaAgentRequest_Disabled:
+		t := uint64(0)
+		if x.Disabled {
+			t = 1
+		}
+		b.EncodeVarint(3<<3 | proto.WireVarint)
+		b.EncodeVarint(t)
+	case nil:
+	default:
+		return fmt.Errorf("ChangeQANMySQLPerfSchemaAgentRequest.ChangeDisabled has unexpected type %T", x)
+	}
+	return nil
+}
+
+func _ChangeQANMySQLPerfSchemaAgentRequest_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*ChangeQANMySQLPerfSchemaAgentRequest)
+	switch tag {
+	case 2: // change_disabled.enabled
+		if wire != proto.WireVarint {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeVarint()
+		m.ChangeDisabled = &ChangeQANMySQLPerfSchemaAgentRequest_Enabled{x != 0}
+		return true, err
+	case 3: // change_disabled.disabled
+		if wire != proto.WireVarint {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeVarint()
+		m.ChangeDisabled = &ChangeQANMySQLPerfSchemaAgentRequest_Disabled{x != 0}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _ChangeQANMySQLPerfSchemaAgentRequest_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*ChangeQANMySQLPerfSchemaAgentRequest)
+	// change_disabled
+	switch x := m.ChangeDisabled.(type) {
+	case *ChangeQANMySQLPerfSchemaAgentRequest_Enabled:
+		n += 1 // tag and wire
+		n += 1
+	case *ChangeQANMySQLPerfSchemaAgentRequest_Disabled:
+		n += 1 // tag and wire
+		n += 1
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
+}
+
+type ChangeQANMySQLPerfSchemaAgentResponse struct {
+	QanMysqlPerfschemaAgent *QANMySQLPerfSchemaAgent `protobuf:"bytes,1,opt,name=qan_mysql_perfschema_agent,json=qanMysqlPerfschemaAgent,proto3" json:"qan_mysql_perfschema_agent,omitempty"`
+	XXX_NoUnkeyedLiteral    struct{}                 `json:"-"`
+	XXX_unrecognized        []byte                   `json:"-"`
+	XXX_sizecache           int32                    `json:"-"`
+}
+
+func (m *ChangeQANMySQLPerfSchemaAgentResponse) Reset()         { *m = ChangeQANMySQLPerfSchemaAgentResponse{} }
+func (m *ChangeQANMySQLPerfSchemaAgentResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeQANMySQLPerfSchemaAgentResponse) ProtoMessage()    {}
+func (*ChangeQANMySQLPerfSchemaAgentResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{39}
+}
+func (m *ChangeQANMySQLPerfSchemaAgentResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeQANMySQLPerfSchemaAgentResponse.Unmarshal(m, b)
+}
+func (m *ChangeQANMySQLPerfSchemaAgentResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeQANMySQLPerfSchemaAgentResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangeQANMySQLPerfSchemaAgentResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeQANMySQLPerfSchemaAgentResponse.Merge(dst, src)
+}
+func (m *ChangeQANMySQLPerfSchemaAgentResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeQANMySQLPerfSchemaAgentResponse.Size(m)
+}
+func (m *ChangeQANMySQLPerfSchemaAgentResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeQANMySQLPerfSchemaAgentResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeQANMySQLPerfSchemaAgentResponse proto.InternalMessageInfo
+
+func (m *ChangeQANMySQLPerfSchemaAgentResponse) GetQanMysqlPerfschemaAgent() *QANMySQLPerfSchemaAgent {
+	if m != nil {
+		return m.QanMysqlPerfschemaAgent
+	}
+	return nil
+}
+
+type AddPostgresExporterRequest struct {
+	// The pmm-agent identifier which runs this instance.
+	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	// Service identifier.
+	ServiceId string `protobuf:"bytes,3,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	// PostgreSQL username for scraping metrics.
+	Username string `protobuf:"bytes,4,opt,name=username,proto3" json:"username,omitempty"`
+	// PostgreSQL password for scraping metrics.
+	Password string `protobuf:"bytes,5,opt,name=password,proto3" json:"password,omitempty"`
+	// Custom user-assigned labels.
+	CustomLabels         map[string]string `protobuf:"bytes,10,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_unrecognized     []byte            `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
+}
+
+func (m *AddPostgresExporterRequest) Reset()         { *m = AddPostgresExporterRequest{} }
+func (m *AddPostgresExporterRequest) String() string { return proto.CompactTextString(m) }
+func (*AddPostgresExporterRequest) ProtoMessage()    {}
+func (*AddPostgresExporterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{40}
+}
+func (m *AddPostgresExporterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddPostgresExporterRequest.Unmarshal(m, b)
+}
+func (m *AddPostgresExporterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddPostgresExporterRequest.Marshal(b, m, deterministic)
+}
+func (dst *AddPostgresExporterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddPostgresExporterRequest.Merge(dst, src)
+}
+func (m *AddPostgresExporterRequest) XXX_Size() int {
+	return xxx_messageInfo_AddPostgresExporterRequest.Size(m)
+}
+func (m *AddPostgresExporterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddPostgresExporterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddPostgresExporterRequest proto.InternalMessageInfo
+
+func (m *AddPostgresExporterRequest) GetPmmAgentId() string {
+	if m != nil {
+		return m.PmmAgentId
+	}
+	return ""
+}
+
+func (m *AddPostgresExporterRequest) GetServiceId() string {
+	if m != nil {
+		return m.ServiceId
+	}
+	return ""
+}
+
+func (m *AddPostgresExporterRequest) GetUsername() string {
+	if m != nil {
+		return m.Username
+	}
+	return ""
+}
+
+func (m *AddPostgresExporterRequest) GetPassword() string {
+	if m != nil {
+		return m.Password
+	}
+	return ""
+}
+
+func (m *AddPostgresExporterRequest) GetCustomLabels() map[string]string {
+	if m != nil {
+		return m.CustomLabels
+	}
+	return nil
+}
+
+type AddPostgresExporterResponse struct {
+	PostgresExporter     *PostgresExporter `protobuf:"bytes,1,opt,name=postgres_exporter,json=postgresExporter,proto3" json:"postgres_exporter,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_unrecognized     []byte            `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
+}
+
+func (m *AddPostgresExporterResponse) Reset()         { *m = AddPostgresExporterResponse{} }
+func (m *AddPostgresExporterResponse) String() string { return proto.CompactTextString(m) }
+func (*AddPostgresExporterResponse) ProtoMessage()    {}
+func (*AddPostgresExporterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{41}
+}
+func (m *AddPostgresExporterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_AddPostgresExporterResponse.Unmarshal(m, b)
+}
+func (m *AddPostgresExporterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_AddPostgresExporterResponse.Marshal(b, m, deterministic)
+}
+func (dst *AddPostgresExporterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_AddPostgresExporterResponse.Merge(dst, src)
+}
+func (m *AddPostgresExporterResponse) XXX_Size() int {
+	return xxx_messageInfo_AddPostgresExporterResponse.Size(m)
+}
+func (m *AddPostgresExporterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_AddPostgresExporterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_AddPostgresExporterResponse proto.InternalMessageInfo
+
+func (m *AddPostgresExporterResponse) GetPostgresExporter() *PostgresExporter {
+	if m != nil {
+		return m.PostgresExporter
+	}
+	return nil
+}
+
+type ChangePostgresExporterRequest struct {
+	AgentId string `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	// Enable or disable this Agent.
+	//
+	// Types that are valid to be assigned to ChangeDisabled:
+	//	*ChangePostgresExporterRequest_Enabled
+	//	*ChangePostgresExporterRequest_Disabled
+	ChangeDisabled isChangePostgresExporterRequest_ChangeDisabled `protobuf_oneof:"change_disabled"`
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `protobuf:"bytes,4,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels   bool     `protobuf:"varint,5,opt,name=remove_custom_labels,json=removeCustomLabels,proto3" json:"remove_custom_labels,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ChangePostgresExporterRequest) Reset()         { *m = ChangePostgresExporterRequest{} }
+func (m *ChangePostgresExporterRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangePostgresExporterRequest) ProtoMessage()    {}
+func (*ChangePostgresExporterRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{42}
+}
+func (m *ChangePostgresExporterRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangePostgresExporterRequest.Unmarshal(m, b)
+}
+func (m *ChangePostgresExporterRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangePostgresExporterRequest.Marshal(b, m, deterministic)
+}
+func (dst *ChangePostgresExporterRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangePostgresExporterRequest.Merge(dst, src)
+}
+func (m *ChangePostgresExporterRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangePostgresExporterRequest.Size(m)
+}
+func (m *ChangePostgresExporterRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangePostgresExporterRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangePostgresExporterRequest proto.InternalMessageInfo
+
+func (m *ChangePostgresExporterRequest) GetAgentId() string {
+	if m != nil {
+		return m.AgentId
+	}
+	return ""
+}
+
+type isChangePostgresExporterRequest_ChangeDisabled interface {
+	isChangePostgresExporterRequest_ChangeDisabled()
+}
+
+type ChangePostgresExporterRequest_Enabled struct {
+	Enabled bool `protobuf:"varint,2,opt,name=enabled,proto3,oneof"`
+}
+
+type ChangePostgresExporterRequest_Disabled struct {
+	Disabled bool `protobuf:"varint,3,opt,name=disabled,proto3,oneof"`
+}
+
+func (*ChangePostgresExporterRequest_Enabled) isChangePostgresExporterRequest_ChangeDisabled() {}
+
+func (*ChangePostgresExporterRequest_Disabled) isChangePostgresExporterRequest_ChangeDisabled() {}
+
+func (m *ChangePostgresExporterRequest) GetChangeDisabled() isChangePostgresExporterRequest_ChangeDisabled {
+	if m != nil {
+		return m.ChangeDisabled
+	}
+	return nil
+}
+
+func (m *ChangePostgresExporterRequest) GetEnabled() bool {
+	if x, ok := m.GetChangeDisabled().(*ChangePostgresExporterRequest_Enabled); ok {
+		return x.Enabled
+	}
+	return false
+}
+
+func (m *ChangePostgresExporterRequest) GetDisabled() bool {
+	if x, ok := m.GetChangeDisabled().(*ChangePostgresExporterRequest_Disabled); ok {
+		return x.Disabled
+	}
+	return false
+}
+
+func (m *ChangePostgresExporterRequest) GetCustomLabels() map[string]string {
+	if m != nil {
+		return m.CustomLabels
+	}
+	return nil
+}
+
+func (m *ChangePostgresExporterRequest) GetRemoveCustomLabels() bool {
+	if m != nil {
+		return m.RemoveCustomLabels
+	}
+	return false
+}
+
+// XXX_OneofFuncs is for the internal use of the proto package.
+func (*ChangePostgresExporterRequest) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
+	return _ChangePostgresExporterRequest_OneofMarshaler, _ChangePostgresExporterRequest_OneofUnmarshaler, _ChangePostgresExporterRequest_OneofSizer, []interface{}{
+		(*ChangePostgresExporterRequest_Enabled)(nil),
+		(*ChangePostgresExporterRequest_Disabled)(nil),
+	}
+}
+
+func _ChangePostgresExporterRequest_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
+	m := msg.(*ChangePostgresExporterRequest)
+	// change_disabled
+	switch x := m.ChangeDisabled.(type) {
+	case *ChangePostgresExporterRequest_Enabled:
+		t := uint64(0)
+		if x.Enabled {
+			t = 1
+		}
+		b.EncodeVarint(2<<3 | proto.WireVarint)
+		b.EncodeVarint(t)
+	case *ChangePostgresExporterRequest_Disabled:
+		t := uint64(0)
+		if x.Disabled {
+			t = 1
+		}
+		b.EncodeVarint(3<<3 | proto.WireVarint)
+		b.EncodeVarint(t)
+	case nil:
+	default:
+		return fmt.Errorf("ChangePostgresExporterRequest.ChangeDisabled has unexpected type %T", x)
+	}
+	return nil
+}
+
+func _ChangePostgresExporterRequest_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
+	m := msg.(*ChangePostgresExporterRequest)
+	switch tag {
+	case 2: // change_disabled.enabled
+		if wire != proto.WireVarint {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeVarint()
+		m.ChangeDisabled = &ChangePostgresExporterRequest_Enabled{x != 0}
+		return true, err
+	case 3: // change_disabled.disabled
+		if wire != proto.WireVarint {
+			return true, proto.ErrInternalBadWireType
+		}
+		x, err := b.DecodeVarint()
+		m.ChangeDisabled = &ChangePostgresExporterRequest_Disabled{x != 0}
+		return true, err
+	default:
+		return false, nil
+	}
+}
+
+func _ChangePostgresExporterRequest_OneofSizer(msg proto.Message) (n int) {
+	m := msg.(*ChangePostgresExporterRequest)
+	// change_disabled
+	switch x := m.ChangeDisabled.(type) {
+	case *ChangePostgresExporterRequest_Enabled:
+		n += 1 // tag and wire
+		n += 1
+	case *ChangePostgresExporterRequest_Disabled:
+		n += 1 // tag and wire
+		n += 1
+	case nil:
+	default:
+		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
+	}
+	return n
+}
+
+type ChangePostgresExporterResponse struct {
+	PostgresExporter     *PostgresExporter `protobuf:"bytes,1,opt,name=postgres_exporter,json=postgresExporter,proto3" json:"postgres_exporter,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
+	XXX_unrecognized     []byte            `json:"-"`
+	XXX_sizecache        int32             `json:"-"`
+}
+
+func (m *ChangePostgresExporterResponse) Reset()         { *m = ChangePostgresExporterResponse{} }
+func (m *ChangePostgresExporterResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangePostgresExporterResponse) ProtoMessage()    {}
+func (*ChangePostgresExporterResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_agents_b2219fb094362663, []int{43}
+}
+func (m *ChangePostgresExporterResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangePostgresExporterResponse.Unmarshal(m, b)
+}
+func (m *ChangePostgresExporterResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangePostgresExporterResponse.Marshal(b, m, deterministic)
+}
+func (dst *ChangePostgresExporterResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangePostgresExporterResponse.Merge(dst, src)
+}
+func (m *ChangePostgresExporterResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangePostgresExporterResponse.Size(m)
+}
+func (m *ChangePostgresExporterResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangePostgresExporterResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangePostgresExporterResponse proto.InternalMessageInfo
+
+func (m *ChangePostgresExporterResponse) GetPostgresExporter() *PostgresExporter {
+	if m != nil {
+		return m.PostgresExporter
+	}
+	return nil
+}
+
 type RemoveAgentRequest struct {
 	AgentId              string   `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1915,7 +3469,7 @@ func (m *RemoveAgentRequest) Reset()         { *m = RemoveAgentRequest{} }
 func (m *RemoveAgentRequest) String() string { return proto.CompactTextString(m) }
 func (*RemoveAgentRequest) ProtoMessage()    {}
 func (*RemoveAgentRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{25}
+	return fileDescriptor_agents_b2219fb094362663, []int{44}
 }
 func (m *RemoveAgentRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveAgentRequest.Unmarshal(m, b)
@@ -1952,7 +3506,7 @@ func (m *RemoveAgentResponse) Reset()         { *m = RemoveAgentResponse{} }
 func (m *RemoveAgentResponse) String() string { return proto.CompactTextString(m) }
 func (*RemoveAgentResponse) ProtoMessage()    {}
 func (*RemoveAgentResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_agents_d0cdd9afca9926e3, []int{26}
+	return fileDescriptor_agents_b2219fb094362663, []int{45}
 }
 func (m *RemoveAgentResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_RemoveAgentResponse.Unmarshal(m, b)
@@ -1987,6 +3541,8 @@ func init() {
 	proto.RegisterMapType((map[string]string)(nil), "inventory.MongoDBExporter.CustomLabelsEntry")
 	proto.RegisterType((*QANMySQLPerfSchemaAgent)(nil), "inventory.QANMySQLPerfSchemaAgent")
 	proto.RegisterMapType((map[string]string)(nil), "inventory.QANMySQLPerfSchemaAgent.CustomLabelsEntry")
+	proto.RegisterType((*PostgresExporter)(nil), "inventory.PostgresExporter")
+	proto.RegisterMapType((map[string]string)(nil), "inventory.PostgresExporter.CustomLabelsEntry")
 	proto.RegisterType((*ListAgentsRequest)(nil), "inventory.ListAgentsRequest")
 	proto.RegisterType((*ListAgentsResponse)(nil), "inventory.ListAgentsResponse")
 	proto.RegisterType((*GetAgentRequest)(nil), "inventory.GetAgentRequest")
@@ -1994,24 +3550,48 @@ func init() {
 	proto.RegisterType((*AddPMMAgentRequest)(nil), "inventory.AddPMMAgentRequest")
 	proto.RegisterMapType((map[string]string)(nil), "inventory.AddPMMAgentRequest.CustomLabelsEntry")
 	proto.RegisterType((*AddPMMAgentResponse)(nil), "inventory.AddPMMAgentResponse")
+	proto.RegisterType((*ChangePMMAgentRequest)(nil), "inventory.ChangePMMAgentRequest")
+	proto.RegisterType((*ChangePMMAgentResponse)(nil), "inventory.ChangePMMAgentResponse")
 	proto.RegisterType((*AddNodeExporterRequest)(nil), "inventory.AddNodeExporterRequest")
 	proto.RegisterMapType((map[string]string)(nil), "inventory.AddNodeExporterRequest.CustomLabelsEntry")
 	proto.RegisterType((*AddNodeExporterResponse)(nil), "inventory.AddNodeExporterResponse")
+	proto.RegisterType((*ChangeNodeExporterRequest)(nil), "inventory.ChangeNodeExporterRequest")
+	proto.RegisterMapType((map[string]string)(nil), "inventory.ChangeNodeExporterRequest.CustomLabelsEntry")
+	proto.RegisterType((*ChangeNodeExporterResponse)(nil), "inventory.ChangeNodeExporterResponse")
 	proto.RegisterType((*AddMySQLdExporterRequest)(nil), "inventory.AddMySQLdExporterRequest")
 	proto.RegisterMapType((map[string]string)(nil), "inventory.AddMySQLdExporterRequest.CustomLabelsEntry")
 	proto.RegisterType((*AddMySQLdExporterResponse)(nil), "inventory.AddMySQLdExporterResponse")
+	proto.RegisterType((*ChangeMySQLdExporterRequest)(nil), "inventory.ChangeMySQLdExporterRequest")
+	proto.RegisterMapType((map[string]string)(nil), "inventory.ChangeMySQLdExporterRequest.CustomLabelsEntry")
+	proto.RegisterType((*ChangeMySQLdExporterResponse)(nil), "inventory.ChangeMySQLdExporterResponse")
 	proto.RegisterType((*AddRDSExporterRequest)(nil), "inventory.AddRDSExporterRequest")
 	proto.RegisterMapType((map[string]string)(nil), "inventory.AddRDSExporterRequest.CustomLabelsEntry")
 	proto.RegisterType((*AddRDSExporterResponse)(nil), "inventory.AddRDSExporterResponse")
+	proto.RegisterType((*ChangeRDSExporterRequest)(nil), "inventory.ChangeRDSExporterRequest")
+	proto.RegisterType((*ChangeRDSExporterResponse)(nil), "inventory.ChangeRDSExporterResponse")
 	proto.RegisterType((*AddExternalExporterRequest)(nil), "inventory.AddExternalExporterRequest")
 	proto.RegisterMapType((map[string]string)(nil), "inventory.AddExternalExporterRequest.CustomLabelsEntry")
 	proto.RegisterType((*AddExternalExporterResponse)(nil), "inventory.AddExternalExporterResponse")
+	proto.RegisterType((*ChangeExternalExporterRequest)(nil), "inventory.ChangeExternalExporterRequest")
+	proto.RegisterType((*ChangeExternalExporterResponse)(nil), "inventory.ChangeExternalExporterResponse")
 	proto.RegisterType((*AddMongoDBExporterRequest)(nil), "inventory.AddMongoDBExporterRequest")
 	proto.RegisterMapType((map[string]string)(nil), "inventory.AddMongoDBExporterRequest.CustomLabelsEntry")
 	proto.RegisterType((*AddMongoDBExporterResponse)(nil), "inventory.AddMongoDBExporterResponse")
+	proto.RegisterType((*ChangeMongoDBExporterRequest)(nil), "inventory.ChangeMongoDBExporterRequest")
+	proto.RegisterMapType((map[string]string)(nil), "inventory.ChangeMongoDBExporterRequest.CustomLabelsEntry")
+	proto.RegisterType((*ChangeMongoDBExporterResponse)(nil), "inventory.ChangeMongoDBExporterResponse")
 	proto.RegisterType((*AddQANMySQLPerfSchemaAgentRequest)(nil), "inventory.AddQANMySQLPerfSchemaAgentRequest")
 	proto.RegisterMapType((map[string]string)(nil), "inventory.AddQANMySQLPerfSchemaAgentRequest.CustomLabelsEntry")
 	proto.RegisterType((*AddQANMySQLPerfSchemaAgentResponse)(nil), "inventory.AddQANMySQLPerfSchemaAgentResponse")
+	proto.RegisterType((*ChangeQANMySQLPerfSchemaAgentRequest)(nil), "inventory.ChangeQANMySQLPerfSchemaAgentRequest")
+	proto.RegisterMapType((map[string]string)(nil), "inventory.ChangeQANMySQLPerfSchemaAgentRequest.CustomLabelsEntry")
+	proto.RegisterType((*ChangeQANMySQLPerfSchemaAgentResponse)(nil), "inventory.ChangeQANMySQLPerfSchemaAgentResponse")
+	proto.RegisterType((*AddPostgresExporterRequest)(nil), "inventory.AddPostgresExporterRequest")
+	proto.RegisterMapType((map[string]string)(nil), "inventory.AddPostgresExporterRequest.CustomLabelsEntry")
+	proto.RegisterType((*AddPostgresExporterResponse)(nil), "inventory.AddPostgresExporterResponse")
+	proto.RegisterType((*ChangePostgresExporterRequest)(nil), "inventory.ChangePostgresExporterRequest")
+	proto.RegisterMapType((map[string]string)(nil), "inventory.ChangePostgresExporterRequest.CustomLabelsEntry")
+	proto.RegisterType((*ChangePostgresExporterResponse)(nil), "inventory.ChangePostgresExporterResponse")
 	proto.RegisterType((*RemoveAgentRequest)(nil), "inventory.RemoveAgentRequest")
 	proto.RegisterType((*RemoveAgentResponse)(nil), "inventory.RemoveAgentResponse")
 }
@@ -2034,18 +3614,36 @@ type AgentsClient interface {
 	GetAgent(ctx context.Context, in *GetAgentRequest, opts ...grpc.CallOption) (*GetAgentResponse, error)
 	// AddPMMAgent adds pmm-agent Agent.
 	AddPMMAgent(ctx context.Context, in *AddPMMAgentRequest, opts ...grpc.CallOption) (*AddPMMAgentResponse, error)
+	// ChangePMMAgent changes pmm-agent Agent.
+	ChangePMMAgent(ctx context.Context, in *ChangePMMAgentRequest, opts ...grpc.CallOption) (*ChangePMMAgentResponse, error)
 	// AddNodeExporter adds node_exporter Agent.
 	AddNodeExporter(ctx context.Context, in *AddNodeExporterRequest, opts ...grpc.CallOption) (*AddNodeExporterResponse, error)
+	// ChangeNodeExporter changes node_exporter Agent.
+	ChangeNodeExporter(ctx context.Context, in *ChangeNodeExporterRequest, opts ...grpc.CallOption) (*ChangeNodeExporterResponse, error)
 	// AddMySQLdExporter adds mysqld_exporter Agent.
 	AddMySQLdExporter(ctx context.Context, in *AddMySQLdExporterRequest, opts ...grpc.CallOption) (*AddMySQLdExporterResponse, error)
+	// ChangeMySQLdExporter changes mysqld_exporter Agent.
+	ChangeMySQLdExporter(ctx context.Context, in *ChangeMySQLdExporterRequest, opts ...grpc.CallOption) (*ChangeMySQLdExporterResponse, error)
 	// AddRDSExporter adds rds_exporter Agent.
 	AddRDSExporter(ctx context.Context, in *AddRDSExporterRequest, opts ...grpc.CallOption) (*AddRDSExporterResponse, error)
+	// ChangeRDSExporter changes rds_exporter Agent.
+	ChangeRDSExporter(ctx context.Context, in *ChangeRDSExporterRequest, opts ...grpc.CallOption) (*ChangeRDSExporterResponse, error)
 	// AddExternalExporter adds External Agent.
 	AddExternalExporter(ctx context.Context, in *AddExternalExporterRequest, opts ...grpc.CallOption) (*AddExternalExporterResponse, error)
+	// ChangeExternalExporter changes External Agent.
+	ChangeExternalExporter(ctx context.Context, in *ChangeExternalExporterRequest, opts ...grpc.CallOption) (*ChangeExternalExporterResponse, error)
 	// AddMongoDBExporter adds mongodb_exporter Agent.
 	AddMongoDBExporter(ctx context.Context, in *AddMongoDBExporterRequest, opts ...grpc.CallOption) (*AddMongoDBExporterResponse, error)
+	// ChangeMongoDBExporter changes mongodb_exporter Agent.
+	ChangeMongoDBExporter(ctx context.Context, in *ChangeMongoDBExporterRequest, opts ...grpc.CallOption) (*ChangeMongoDBExporterResponse, error)
 	// AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 	AddQANMySQLPerfSchemaAgent(ctx context.Context, in *AddQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*AddQANMySQLPerfSchemaAgentResponse, error)
+	// ChangeQANMySQLPerfSchemaAgent changes MySQL PerfSchema QAN Agent.
+	ChangeQANMySQLPerfSchemaAgent(ctx context.Context, in *ChangeQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLPerfSchemaAgentResponse, error)
+	// AddPostgresExporter adds postgres_exporter Agent.
+	AddPostgresExporter(ctx context.Context, in *AddPostgresExporterRequest, opts ...grpc.CallOption) (*AddPostgresExporterResponse, error)
+	// ChangePostgresExporter changes postgres_exporter Agent.
+	ChangePostgresExporter(ctx context.Context, in *ChangePostgresExporterRequest, opts ...grpc.CallOption) (*ChangePostgresExporterResponse, error)
 	// RemoveAgent removes Agent.
 	RemoveAgent(ctx context.Context, in *RemoveAgentRequest, opts ...grpc.CallOption) (*RemoveAgentResponse, error)
 }
@@ -2085,9 +3683,27 @@ func (c *agentsClient) AddPMMAgent(ctx context.Context, in *AddPMMAgentRequest, 
 	return out, nil
 }
 
+func (c *agentsClient) ChangePMMAgent(ctx context.Context, in *ChangePMMAgentRequest, opts ...grpc.CallOption) (*ChangePMMAgentResponse, error) {
+	out := new(ChangePMMAgentResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Agents/ChangePMMAgent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *agentsClient) AddNodeExporter(ctx context.Context, in *AddNodeExporterRequest, opts ...grpc.CallOption) (*AddNodeExporterResponse, error) {
 	out := new(AddNodeExporterResponse)
 	err := c.cc.Invoke(ctx, "/inventory.Agents/AddNodeExporter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentsClient) ChangeNodeExporter(ctx context.Context, in *ChangeNodeExporterRequest, opts ...grpc.CallOption) (*ChangeNodeExporterResponse, error) {
+	out := new(ChangeNodeExporterResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Agents/ChangeNodeExporter", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -2103,9 +3719,27 @@ func (c *agentsClient) AddMySQLdExporter(ctx context.Context, in *AddMySQLdExpor
 	return out, nil
 }
 
+func (c *agentsClient) ChangeMySQLdExporter(ctx context.Context, in *ChangeMySQLdExporterRequest, opts ...grpc.CallOption) (*ChangeMySQLdExporterResponse, error) {
+	out := new(ChangeMySQLdExporterResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Agents/ChangeMySQLdExporter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *agentsClient) AddRDSExporter(ctx context.Context, in *AddRDSExporterRequest, opts ...grpc.CallOption) (*AddRDSExporterResponse, error) {
 	out := new(AddRDSExporterResponse)
 	err := c.cc.Invoke(ctx, "/inventory.Agents/AddRDSExporter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentsClient) ChangeRDSExporter(ctx context.Context, in *ChangeRDSExporterRequest, opts ...grpc.CallOption) (*ChangeRDSExporterResponse, error) {
+	out := new(ChangeRDSExporterResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Agents/ChangeRDSExporter", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -2121,6 +3755,15 @@ func (c *agentsClient) AddExternalExporter(ctx context.Context, in *AddExternalE
 	return out, nil
 }
 
+func (c *agentsClient) ChangeExternalExporter(ctx context.Context, in *ChangeExternalExporterRequest, opts ...grpc.CallOption) (*ChangeExternalExporterResponse, error) {
+	out := new(ChangeExternalExporterResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Agents/ChangeExternalExporter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *agentsClient) AddMongoDBExporter(ctx context.Context, in *AddMongoDBExporterRequest, opts ...grpc.CallOption) (*AddMongoDBExporterResponse, error) {
 	out := new(AddMongoDBExporterResponse)
 	err := c.cc.Invoke(ctx, "/inventory.Agents/AddMongoDBExporter", in, out, opts...)
@@ -2130,9 +3773,45 @@ func (c *agentsClient) AddMongoDBExporter(ctx context.Context, in *AddMongoDBExp
 	return out, nil
 }
 
+func (c *agentsClient) ChangeMongoDBExporter(ctx context.Context, in *ChangeMongoDBExporterRequest, opts ...grpc.CallOption) (*ChangeMongoDBExporterResponse, error) {
+	out := new(ChangeMongoDBExporterResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Agents/ChangeMongoDBExporter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *agentsClient) AddQANMySQLPerfSchemaAgent(ctx context.Context, in *AddQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*AddQANMySQLPerfSchemaAgentResponse, error) {
 	out := new(AddQANMySQLPerfSchemaAgentResponse)
 	err := c.cc.Invoke(ctx, "/inventory.Agents/AddQANMySQLPerfSchemaAgent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentsClient) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, in *ChangeQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLPerfSchemaAgentResponse, error) {
+	out := new(ChangeQANMySQLPerfSchemaAgentResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Agents/ChangeQANMySQLPerfSchemaAgent", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentsClient) AddPostgresExporter(ctx context.Context, in *AddPostgresExporterRequest, opts ...grpc.CallOption) (*AddPostgresExporterResponse, error) {
+	out := new(AddPostgresExporterResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Agents/AddPostgresExporter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *agentsClient) ChangePostgresExporter(ctx context.Context, in *ChangePostgresExporterRequest, opts ...grpc.CallOption) (*ChangePostgresExporterResponse, error) {
+	out := new(ChangePostgresExporterResponse)
+	err := c.cc.Invoke(ctx, "/inventory.Agents/ChangePostgresExporter", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -2156,18 +3835,36 @@ type AgentsServer interface {
 	GetAgent(context.Context, *GetAgentRequest) (*GetAgentResponse, error)
 	// AddPMMAgent adds pmm-agent Agent.
 	AddPMMAgent(context.Context, *AddPMMAgentRequest) (*AddPMMAgentResponse, error)
+	// ChangePMMAgent changes pmm-agent Agent.
+	ChangePMMAgent(context.Context, *ChangePMMAgentRequest) (*ChangePMMAgentResponse, error)
 	// AddNodeExporter adds node_exporter Agent.
 	AddNodeExporter(context.Context, *AddNodeExporterRequest) (*AddNodeExporterResponse, error)
+	// ChangeNodeExporter changes node_exporter Agent.
+	ChangeNodeExporter(context.Context, *ChangeNodeExporterRequest) (*ChangeNodeExporterResponse, error)
 	// AddMySQLdExporter adds mysqld_exporter Agent.
 	AddMySQLdExporter(context.Context, *AddMySQLdExporterRequest) (*AddMySQLdExporterResponse, error)
+	// ChangeMySQLdExporter changes mysqld_exporter Agent.
+	ChangeMySQLdExporter(context.Context, *ChangeMySQLdExporterRequest) (*ChangeMySQLdExporterResponse, error)
 	// AddRDSExporter adds rds_exporter Agent.
 	AddRDSExporter(context.Context, *AddRDSExporterRequest) (*AddRDSExporterResponse, error)
+	// ChangeRDSExporter changes rds_exporter Agent.
+	ChangeRDSExporter(context.Context, *ChangeRDSExporterRequest) (*ChangeRDSExporterResponse, error)
 	// AddExternalExporter adds External Agent.
 	AddExternalExporter(context.Context, *AddExternalExporterRequest) (*AddExternalExporterResponse, error)
+	// ChangeExternalExporter changes External Agent.
+	ChangeExternalExporter(context.Context, *ChangeExternalExporterRequest) (*ChangeExternalExporterResponse, error)
 	// AddMongoDBExporter adds mongodb_exporter Agent.
 	AddMongoDBExporter(context.Context, *AddMongoDBExporterRequest) (*AddMongoDBExporterResponse, error)
+	// ChangeMongoDBExporter changes mongodb_exporter Agent.
+	ChangeMongoDBExporter(context.Context, *ChangeMongoDBExporterRequest) (*ChangeMongoDBExporterResponse, error)
 	// AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
 	AddQANMySQLPerfSchemaAgent(context.Context, *AddQANMySQLPerfSchemaAgentRequest) (*AddQANMySQLPerfSchemaAgentResponse, error)
+	// ChangeQANMySQLPerfSchemaAgent changes MySQL PerfSchema QAN Agent.
+	ChangeQANMySQLPerfSchemaAgent(context.Context, *ChangeQANMySQLPerfSchemaAgentRequest) (*ChangeQANMySQLPerfSchemaAgentResponse, error)
+	// AddPostgresExporter adds postgres_exporter Agent.
+	AddPostgresExporter(context.Context, *AddPostgresExporterRequest) (*AddPostgresExporterResponse, error)
+	// ChangePostgresExporter changes postgres_exporter Agent.
+	ChangePostgresExporter(context.Context, *ChangePostgresExporterRequest) (*ChangePostgresExporterResponse, error)
 	// RemoveAgent removes Agent.
 	RemoveAgent(context.Context, *RemoveAgentRequest) (*RemoveAgentResponse, error)
 }
@@ -2230,6 +3927,24 @@ func _Agents_AddPMMAgent_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agents_ChangePMMAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangePMMAgentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentsServer).ChangePMMAgent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Agents/ChangePMMAgent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentsServer).ChangePMMAgent(ctx, req.(*ChangePMMAgentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Agents_AddNodeExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddNodeExporterRequest)
 	if err := dec(in); err != nil {
@@ -2244,6 +3959,24 @@ func _Agents_AddNodeExporter_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AgentsServer).AddNodeExporter(ctx, req.(*AddNodeExporterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agents_ChangeNodeExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeNodeExporterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentsServer).ChangeNodeExporter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Agents/ChangeNodeExporter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentsServer).ChangeNodeExporter(ctx, req.(*ChangeNodeExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2266,6 +3999,24 @@ func _Agents_AddMySQLdExporter_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agents_ChangeMySQLdExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeMySQLdExporterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentsServer).ChangeMySQLdExporter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Agents/ChangeMySQLdExporter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentsServer).ChangeMySQLdExporter(ctx, req.(*ChangeMySQLdExporterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Agents_AddRDSExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddRDSExporterRequest)
 	if err := dec(in); err != nil {
@@ -2280,6 +4031,24 @@ func _Agents_AddRDSExporter_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AgentsServer).AddRDSExporter(ctx, req.(*AddRDSExporterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agents_ChangeRDSExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeRDSExporterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentsServer).ChangeRDSExporter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Agents/ChangeRDSExporter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentsServer).ChangeRDSExporter(ctx, req.(*ChangeRDSExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2302,6 +4071,24 @@ func _Agents_AddExternalExporter_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agents_ChangeExternalExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeExternalExporterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentsServer).ChangeExternalExporter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Agents/ChangeExternalExporter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentsServer).ChangeExternalExporter(ctx, req.(*ChangeExternalExporterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Agents_AddMongoDBExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddMongoDBExporterRequest)
 	if err := dec(in); err != nil {
@@ -2320,6 +4107,24 @@ func _Agents_AddMongoDBExporter_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Agents_ChangeMongoDBExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeMongoDBExporterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentsServer).ChangeMongoDBExporter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Agents/ChangeMongoDBExporter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentsServer).ChangeMongoDBExporter(ctx, req.(*ChangeMongoDBExporterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Agents_AddQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(AddQANMySQLPerfSchemaAgentRequest)
 	if err := dec(in); err != nil {
@@ -2334,6 +4139,60 @@ func _Agents_AddQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Con
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(AgentsServer).AddQANMySQLPerfSchemaAgent(ctx, req.(*AddQANMySQLPerfSchemaAgentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agents_ChangeQANMySQLPerfSchemaAgent_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeQANMySQLPerfSchemaAgentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentsServer).ChangeQANMySQLPerfSchemaAgent(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Agents/ChangeQANMySQLPerfSchemaAgent",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentsServer).ChangeQANMySQLPerfSchemaAgent(ctx, req.(*ChangeQANMySQLPerfSchemaAgentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agents_AddPostgresExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AddPostgresExporterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentsServer).AddPostgresExporter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Agents/AddPostgresExporter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentsServer).AddPostgresExporter(ctx, req.(*AddPostgresExporterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Agents_ChangePostgresExporter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangePostgresExporterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AgentsServer).ChangePostgresExporter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/inventory.Agents/ChangePostgresExporter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AgentsServer).ChangePostgresExporter(ctx, req.(*ChangePostgresExporterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -2373,28 +4232,64 @@ var _Agents_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Agents_AddPMMAgent_Handler,
 		},
 		{
+			MethodName: "ChangePMMAgent",
+			Handler:    _Agents_ChangePMMAgent_Handler,
+		},
+		{
 			MethodName: "AddNodeExporter",
 			Handler:    _Agents_AddNodeExporter_Handler,
+		},
+		{
+			MethodName: "ChangeNodeExporter",
+			Handler:    _Agents_ChangeNodeExporter_Handler,
 		},
 		{
 			MethodName: "AddMySQLdExporter",
 			Handler:    _Agents_AddMySQLdExporter_Handler,
 		},
 		{
+			MethodName: "ChangeMySQLdExporter",
+			Handler:    _Agents_ChangeMySQLdExporter_Handler,
+		},
+		{
 			MethodName: "AddRDSExporter",
 			Handler:    _Agents_AddRDSExporter_Handler,
+		},
+		{
+			MethodName: "ChangeRDSExporter",
+			Handler:    _Agents_ChangeRDSExporter_Handler,
 		},
 		{
 			MethodName: "AddExternalExporter",
 			Handler:    _Agents_AddExternalExporter_Handler,
 		},
 		{
+			MethodName: "ChangeExternalExporter",
+			Handler:    _Agents_ChangeExternalExporter_Handler,
+		},
+		{
 			MethodName: "AddMongoDBExporter",
 			Handler:    _Agents_AddMongoDBExporter_Handler,
 		},
 		{
+			MethodName: "ChangeMongoDBExporter",
+			Handler:    _Agents_ChangeMongoDBExporter_Handler,
+		},
+		{
 			MethodName: "AddQANMySQLPerfSchemaAgent",
 			Handler:    _Agents_AddQANMySQLPerfSchemaAgent_Handler,
+		},
+		{
+			MethodName: "ChangeQANMySQLPerfSchemaAgent",
+			Handler:    _Agents_ChangeQANMySQLPerfSchemaAgent_Handler,
+		},
+		{
+			MethodName: "AddPostgresExporter",
+			Handler:    _Agents_AddPostgresExporter_Handler,
+		},
+		{
+			MethodName: "ChangePostgresExporter",
+			Handler:    _Agents_ChangePostgresExporter_Handler,
 		},
 		{
 			MethodName: "RemoveAgent",
@@ -2405,110 +4300,151 @@ var _Agents_serviceDesc = grpc.ServiceDesc{
 	Metadata: "inventory/agents.proto",
 }
 
-func init() { proto.RegisterFile("inventory/agents.proto", fileDescriptor_agents_d0cdd9afca9926e3) }
+func init() { proto.RegisterFile("inventory/agents.proto", fileDescriptor_agents_b2219fb094362663) }
 
-var fileDescriptor_agents_d0cdd9afca9926e3 = []byte{
-	// 1625 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe4, 0x59, 0x5d, 0x6f, 0x1b, 0x45,
-	0x17, 0xf6, 0xd8, 0x89, 0xe3, 0x1c, 0xa7, 0xf9, 0xd8, 0xbe, 0x4d, 0x9c, 0x4d, 0xd3, 0x38, 0xd3,
-	0xa4, 0x75, 0x3f, 0x12, 0xbf, 0x4d, 0xfb, 0xb6, 0x2f, 0x01, 0x15, 0x39, 0x34, 0x8a, 0x5b, 0x35,
-	0x25, 0xdd, 0x80, 0x5a, 0x0a, 0x92, 0xb5, 0xf1, 0x4e, 0x5d, 0xab, 0xf6, 0xae, 0xb3, 0xbb, 0x4e,
-	0x9b, 0x0b, 0x6e, 0x2a, 0x55, 0x82, 0xde, 0x21, 0xc4, 0x05, 0x3f, 0x82, 0x4b, 0xfe, 0x05, 0x42,
-	0x48, 0xfc, 0x00, 0x2a, 0xe0, 0x02, 0x71, 0x8f, 0x10, 0x77, 0x68, 0x67, 0x27, 0xeb, 0xd9, 0xdd,
-	0xd9, 0xb5, 0x53, 0xd5, 0x51, 0x11, 0x77, 0xf6, 0xce, 0xf9, 0x78, 0xe6, 0x39, 0xcf, 0x9e, 0x39,
-	0x63, 0xc3, 0x64, 0x5d, 0xdf, 0x23, 0xba, 0x6d, 0x98, 0xfb, 0x45, 0xb5, 0x46, 0x74, 0xdb, 0x5a,
-	0x6e, 0x99, 0x86, 0x6d, 0x48, 0xc3, 0xde, 0x73, 0xf9, 0x6a, 0xad, 0x6e, 0x3f, 0x6a, 0xef, 0x2c,
-	0x57, 0x8d, 0x66, 0xb1, 0xf9, 0xa4, 0x6e, 0x3f, 0x36, 0x9e, 0x14, 0x6b, 0xc6, 0x12, 0xb5, 0x5b,
-	0xda, 0x53, 0x1b, 0x75, 0x4d, 0xb5, 0x0d, 0xd3, 0x2a, 0x7a, 0x1f, 0xdd, 0x10, 0xf2, 0xc9, 0x9a,
-	0x61, 0xd4, 0x1a, 0xa4, 0xa8, 0xb6, 0xea, 0x45, 0x55, 0xd7, 0x0d, 0x5b, 0xb5, 0xeb, 0x86, 0x6e,
-	0x1d, 0xac, 0x06, 0x12, 0x57, 0x2c, 0x5b, 0xb5, 0xdb, 0x6c, 0x15, 0xff, 0x89, 0x20, 0xb3, 0xb5,
-	0xb9, 0x59, 0x72, 0x56, 0xa4, 0x69, 0xc8, 0xb8, 0x26, 0x75, 0x2d, 0x87, 0xf2, 0xa8, 0x30, 0xac,
-	0x0c, 0xd1, 0xef, 0x37, 0x35, 0x69, 0x11, 0xc6, 0xcc, 0xb6, 0x6e, 0x55, 0x0c, 0xbd, 0xa2, 0x1b,
-	0x1a, 0x71, 0x2c, 0x92, 0xd4, 0x62, 0xc4, 0x79, 0xfc, 0xbe, 0x7e, 0xc7, 0xd0, 0xc8, 0x4d, 0x4d,
-	0x3a, 0x09, 0xc3, 0x55, 0x43, 0xd7, 0x49, 0xd5, 0x26, 0x5a, 0x2e, 0x95, 0x47, 0x85, 0x8c, 0xd2,
-	0x79, 0x20, 0xdd, 0x82, 0x63, 0xd5, 0xb6, 0x65, 0x1b, 0xcd, 0x4a, 0x43, 0xdd, 0x21, 0x0d, 0x2b,
-	0x07, 0xf9, 0x54, 0x21, 0xbb, 0xb2, 0xb8, 0xec, 0x41, 0x5c, 0x3e, 0xc0, 0xb2, 0xfc, 0x1e, 0x35,
-	0xbc, 0x4d, 0xed, 0xd6, 0x75, 0xdb, 0xdc, 0x57, 0x46, 0xaa, 0xdc, 0x23, 0xf9, 0x5d, 0x98, 0x08,
-	0x99, 0x48, 0xe3, 0x90, 0x7a, 0x4c, 0xf6, 0x19, 0x76, 0xe7, 0xa3, 0xf4, 0x1f, 0x18, 0xdc, 0x53,
-	0x1b, 0x6d, 0xc2, 0xd0, 0xba, 0x5f, 0x56, 0x93, 0xff, 0x47, 0xf8, 0x9b, 0x24, 0x8c, 0x38, 0xa8,
-	0xd7, 0x9f, 0xb6, 0x0c, 0xd3, 0x26, 0x66, 0xdc, 0xee, 0xf3, 0x30, 0xd2, 0x6a, 0x36, 0x2b, 0xde,
-	0xb2, 0x1b, 0x0c, 0x5a, 0xcd, 0x66, 0x89, 0x59, 0x2c, 0x43, 0xda, 0xe5, 0x35, 0x37, 0x90, 0x47,
-	0x85, 0xd1, 0x95, 0x49, 0x6e, 0x4f, 0xd4, 0x66, 0x9b, 0xae, 0x2a, 0xcc, 0x4a, 0x9a, 0x83, 0x6c,
-	0xa3, 0x6e, 0xd9, 0x44, 0xaf, 0x38, 0xd9, 0x73, 0x83, 0x79, 0x54, 0x38, 0xa6, 0x80, 0xfb, 0x68,
-	0xcb, 0x30, 0x6d, 0xe9, 0x8e, 0x98, 0xab, 0x73, 0x5c, 0x5c, 0x1e, 0x7d, 0xff, 0xf9, 0xfa, 0x2c,
-	0x05, 0xa3, 0x9b, 0xfb, 0xdb, 0x77, 0x6f, 0x6b, 0xaf, 0x87, 0xb1, 0x59, 0x00, 0x8b, 0x98, 0x7b,
-	0xf5, 0x2a, 0x15, 0x53, 0x8a, 0xae, 0x0f, 0xb3, 0x27, 0x37, 0x35, 0x49, 0x86, 0x4c, 0xdb, 0x22,
-	0xa6, 0xae, 0x36, 0x09, 0xa5, 0x74, 0x58, 0xf1, 0xbe, 0x3b, 0x6b, 0x2d, 0xd5, 0xb2, 0x9e, 0x18,
-	0xa6, 0x46, 0x99, 0x1b, 0x56, 0xbc, 0xef, 0x5c, 0x21, 0x86, 0x5e, 0xa5, 0x10, 0x99, 0x50, 0x21,
-	0xb6, 0xc4, 0x85, 0xb8, 0xc0, 0xc5, 0xf5, 0xd3, 0xd2, 0xff, 0x52, 0x7c, 0x97, 0x84, 0xac, 0x72,
-	0x63, 0xfb, 0xf5, 0xd4, 0x61, 0x0e, 0xb2, 0x9d, 0x3a, 0x58, 0xb9, 0x54, 0x3e, 0xe5, 0x18, 0x78,
-	0x85, 0xb0, 0x38, 0x46, 0x07, 0x5f, 0x85, 0xd1, 0x74, 0x88, 0xd1, 0x4d, 0x31, 0xa3, 0x05, 0x2e,
-	0x2e, 0xb7, 0xbb, 0xfe, 0xd3, 0xf9, 0x0b, 0x82, 0xf1, 0xf5, 0xa7, 0xb6, 0x23, 0xae, 0x46, 0x2f,
-	0x9c, 0xce, 0x41, 0xb6, 0x49, 0x6c, 0xb3, 0x5e, 0xb5, 0x2a, 0x6d, 0xb3, 0x71, 0x40, 0x29, 0x7b,
-	0xf4, 0xa1, 0xd9, 0x90, 0x14, 0xf1, 0x06, 0x97, 0xb8, 0x0d, 0x06, 0xf3, 0xf5, 0x7f, 0x97, 0x2f,
-	0x52, 0x30, 0xb6, 0x69, 0xe8, 0x35, 0xe3, 0xc6, 0xda, 0xbf, 0xeb, 0x05, 0xbe, 0x2b, 0xae, 0xc6,
-	0x45, 0xfe, 0x05, 0xf6, 0xf3, 0xd2, 0xff, 0x62, 0xfc, 0x95, 0x84, 0xa9, 0xbb, 0xa5, 0x3b, 0xb4,
-	0x71, 0x6c, 0x11, 0xf3, 0xe1, 0x76, 0xf5, 0x11, 0x69, 0xaa, 0x5d, 0x4f, 0xe1, 0x7f, 0x4c, 0x51,
-	0x3e, 0x12, 0x73, 0x7e, 0x85, 0x73, 0x8b, 0xd8, 0x7e, 0xff, 0xb9, 0xff, 0x14, 0x26, 0x6e, 0xd7,
-	0x2d, 0x9b, 0x66, 0xb3, 0x14, 0xb2, 0xdb, 0x26, 0x96, 0x2d, 0xe1, 0x00, 0xb3, 0x34, 0x52, 0x39,
-	0xe1, 0xe3, 0x76, 0x1a, 0x86, 0x7c, 0xb3, 0x4f, 0x39, 0xa1, 0xa4, 0x75, 0x77, 0xee, 0x99, 0x0b,
-	0xd3, 0x5e, 0x4e, 0x70, 0xc4, 0xaf, 0x65, 0x20, 0xfd, 0xb0, 0xde, 0xb0, 0x89, 0x89, 0xff, 0x48,
-	0x81, 0xc4, 0xe7, 0xb7, 0x5a, 0x86, 0x6e, 0x11, 0xe9, 0xbf, 0x30, 0xec, 0x01, 0xc8, 0x21, 0xca,
-	0xd6, 0x71, 0xc1, 0x5c, 0xa4, 0x64, 0x0e, 0x00, 0x49, 0xef, 0xc0, 0x31, 0x0a, 0x87, 0x30, 0xd5,
-	0xe6, 0x92, 0xd4, 0x6b, 0x2a, 0x62, 0x42, 0x50, 0x46, 0x74, 0x7e, 0xda, 0x59, 0x83, 0xb1, 0xe6,
-	0xbe, 0xb5, 0xdb, 0xd0, 0x3a, 0xfe, 0x29, 0xea, 0x3f, 0x1d, 0x79, 0xb0, 0x29, 0xa3, 0xae, 0x87,
-	0x17, 0xe3, 0x2d, 0x18, 0x31, 0x35, 0xab, 0x13, 0x60, 0x80, 0x06, 0x98, 0x14, 0xf7, 0x71, 0x25,
-	0x6b, 0x6a, 0x96, 0xe7, 0x5a, 0x86, 0x09, 0xc2, 0x5a, 0x60, 0xc7, 0x7f, 0x90, 0xfa, 0xcf, 0xc4,
-	0xb4, 0x49, 0x65, 0x9c, 0x04, 0x1b, 0xf5, 0x3a, 0x8c, 0x37, 0x9d, 0xd7, 0x57, 0xdb, 0xe9, 0x04,
-	0x4a, 0xd3, 0x40, 0x72, 0xf4, 0x1b, 0xae, 0x8c, 0x31, 0x1f, 0x2f, 0x4c, 0x05, 0xe4, 0x5d, 0x55,
-	0xaf, 0xd0, 0x1d, 0x56, 0x5a, 0xc4, 0x7c, 0x68, 0x51, 0x4d, 0xb2, 0x82, 0x0c, 0xd1, 0x80, 0xb8,
-	0xbb, 0x7c, 0x95, 0xa9, 0x5d, 0x55, 0xdf, 0x74, 0x82, 0x6c, 0x79, 0x31, 0xe8, 0x02, 0xbe, 0x02,
-	0x63, 0x1b, 0xc4, 0xad, 0xfa, 0x81, 0xe8, 0xe6, 0x83, 0x6f, 0xfa, 0x5a, 0xfa, 0xe7, 0x9f, 0xe6,
-	0x92, 0xf7, 0x91, 0xf7, 0xc6, 0xe3, 0x17, 0x03, 0x30, 0xde, 0x71, 0x63, 0x5a, 0x59, 0xf1, 0x6b,
-	0x05, 0x45, 0x68, 0xa5, 0x9c, 0xe0, 0xd4, 0x72, 0x3d, 0xac, 0x16, 0x14, 0xa3, 0x96, 0x72, 0x22,
-	0xa0, 0x97, 0x1b, 0x22, 0xbd, 0xa0, 0x58, 0xbd, 0x94, 0x13, 0x21, 0xc5, 0xbc, 0x1d, 0x52, 0x0c,
-	0x8a, 0x56, 0x4c, 0x39, 0xe1, 0xd7, 0xcc, 0x2d, 0xb1, 0x66, 0x50, 0x17, 0xcd, 0x94, 0x13, 0x02,
-	0xd5, 0x6c, 0x08, 0x55, 0x83, 0xe2, 0x55, 0x53, 0x4e, 0x84, 0x75, 0xa3, 0x76, 0xd1, 0x0d, 0xea,
-	0x4d, 0x37, 0xe5, 0x44, 0xa4, 0x72, 0xd6, 0x86, 0x60, 0x90, 0x46, 0xc3, 0x2f, 0x11, 0x48, 0x25,
-	0x4d, 0xf3, 0x7a, 0x01, 0x93, 0xd1, 0x52, 0xc4, 0xdd, 0xcc, 0x53, 0x93, 0xff, 0x8e, 0xf6, 0x81,
-	0xb8, 0x37, 0x17, 0xf9, 0x96, 0x1e, 0x4a, 0xd2, 0xf7, 0xb6, 0x7c, 0x6b, 0x20, 0x83, 0xc6, 0x93,
-	0x78, 0x03, 0x8e, 0xfb, 0x92, 0x8b, 0xbb, 0x23, 0xea, 0xda, 0x1d, 0x9d, 0xa1, 0x6e, 0xb2, 0xa4,
-	0x69, 0xbe, 0x0e, 0xc8, 0xf8, 0x2a, 0x88, 0x4e, 0x51, 0x8f, 0x2c, 0xbe, 0xe3, 0xdf, 0x17, 0x53,
-	0x75, 0xd9, 0x4f, 0x95, 0x20, 0xc7, 0x51, 0xd1, 0x75, 0x0f, 0xa6, 0x42, 0x00, 0x18, 0x65, 0xa1,
-	0xe3, 0x01, 0xc5, 0xbe, 0xf0, 0xfe, 0xd7, 0x1d, 0x7f, 0x9f, 0x84, 0x5c, 0x49, 0xd3, 0x02, 0x07,
-	0xc0, 0xa1, 0x09, 0x5c, 0x0c, 0x9f, 0x8b, 0x9e, 0x1d, 0x37, 0x96, 0xe0, 0xe0, 0x58, 0xe2, 0x19,
-	0xf5, 0x36, 0x9e, 0x3c, 0x10, 0xd7, 0xe9, 0x7f, 0xfe, 0x3a, 0x09, 0x37, 0x73, 0x54, 0x95, 0xaa,
-	0xc0, 0xb4, 0x00, 0x02, 0xab, 0x95, 0xe0, 0x30, 0x46, 0x5d, 0x9a, 0x6b, 0xb0, 0xb5, 0xe2, 0x67,
-	0x49, 0x38, 0x51, 0xd2, 0x34, 0xfe, 0xc4, 0x3d, 0x74, 0xb9, 0xba, 0xde, 0x05, 0xef, 0x89, 0x89,
-	0x5e, 0xf1, 0x13, 0x1d, 0xc6, 0x70, 0x54, 0x2c, 0x6f, 0xd3, 0x97, 0xde, 0x97, 0x9f, 0x51, 0x1c,
-	0x9c, 0x55, 0x50, 0xdc, 0xc9, 0xe3, 0x3b, 0x77, 0xf0, 0xef, 0x08, 0xe4, 0x92, 0xa6, 0x85, 0x66,
-	0x11, 0x46, 0xef, 0x59, 0xc1, 0x75, 0xb0, 0xc3, 0x2e, 0x77, 0x2d, 0xfc, 0x44, 0x4c, 0xde, 0x35,
-	0x3f, 0x79, 0x11, 0x69, 0x8e, 0x8a, 0xc1, 0x1a, 0xcc, 0x08, 0x41, 0x30, 0x1a, 0x85, 0x73, 0x1b,
-	0xea, 0x7a, 0x06, 0x87, 0x4f, 0x60, 0xfc, 0x43, 0xd2, 0x7d, 0x23, 0x02, 0x83, 0xd9, 0x9b, 0xda,
-	0x62, 0x3e, 0x16, 0x17, 0xef, 0x6a, 0xa0, 0xc5, 0x08, 0x77, 0x73, 0x54, 0xb5, 0xab, 0x52, 0x9d,
-	0x86, 0x30, 0xb0, 0xd2, 0x89, 0x06, 0x65, 0xd4, 0x6d, 0xe4, 0x09, 0x0d, 0x3c, 0xf8, 0x65, 0x12,
-	0xe6, 0x4b, 0x9a, 0x16, 0x35, 0xff, 0xbe, 0xa9, 0xf5, 0xab, 0x8a, 0xeb, 0x77, 0xdd, 0x5f, 0xbf,
-	0xf8, 0x5d, 0x1d, 0x55, 0x1d, 0x9f, 0x23, 0xc0, 0x71, 0x60, 0x58, 0x41, 0xe3, 0xaf, 0x2c, 0xa8,
-	0xd7, 0xd1, 0x33, 0xfa, 0xca, 0x72, 0x0d, 0x24, 0x85, 0x34, 0x8d, 0x3d, 0x72, 0xd8, 0x5b, 0xcb,
-	0x09, 0x38, 0xee, 0x73, 0x74, 0x01, 0xaf, 0xfc, 0x06, 0x90, 0x76, 0xaf, 0xbd, 0x92, 0x01, 0xd0,
-	0xb9, 0x04, 0x4b, 0x27, 0x39, 0x94, 0xa1, 0xbb, 0xb9, 0x3c, 0x1b, 0xb1, 0xea, 0x46, 0xc5, 0x0b,
-	0xcf, 0x7e, 0xfc, 0xf5, 0xcb, 0xe4, 0x29, 0x3c, 0x5d, 0xdc, 0xbb, 0x54, 0xec, 0xfc, 0xd9, 0xe1,
-	0x5a, 0x15, 0x1d, 0x87, 0x55, 0x74, 0x5e, 0x7a, 0x04, 0x99, 0x83, 0x7b, 0x94, 0xc4, 0xeb, 0x3d,
-	0x70, 0x27, 0x93, 0x67, 0x84, 0x6b, 0x2c, 0xd5, 0x69, 0x9a, 0x6a, 0x16, 0xe7, 0x84, 0xa9, 0x36,
-	0x08, 0xcd, 0xb4, 0x0f, 0x59, 0x6e, 0x84, 0x95, 0x66, 0x63, 0xe7, 0x6a, 0xf9, 0x54, 0xd4, 0x32,
-	0x4b, 0x79, 0x81, 0xa6, 0x5c, 0xc4, 0x79, 0x61, 0x4a, 0xce, 0xc3, 0x49, 0xfd, 0x39, 0x82, 0xb1,
-	0xc0, 0x3c, 0x28, 0xcd, 0x77, 0x1d, 0x56, 0x65, 0x1c, 0x67, 0xc2, 0x70, 0x14, 0x29, 0x8e, 0x73,
-	0x78, 0x21, 0x0a, 0x07, 0xef, 0xe5, 0x60, 0xf9, 0x02, 0xc1, 0x44, 0x68, 0xe2, 0x91, 0x4e, 0xf7,
-	0x30, 0x92, 0xc9, 0x0b, 0xf1, 0x46, 0x0c, 0xd1, 0x25, 0x8a, 0xe8, 0x02, 0x3e, 0x13, 0x85, 0xc8,
-	0xef, 0xe7, 0x60, 0x7a, 0x8e, 0x60, 0xd4, 0x3f, 0x1f, 0x48, 0xf9, 0x6e, 0xa3, 0x8b, 0x3c, 0x1f,
-	0x63, 0xc1, 0xa0, 0x2c, 0x53, 0x28, 0x05, 0x7c, 0x3a, 0x0a, 0x0a, 0xe7, 0xe4, 0xe0, 0xf8, 0x1a,
-	0xd1, 0x6b, 0x4e, 0xe8, 0x47, 0xe7, 0xc5, 0x9e, 0x46, 0x01, 0xf9, 0x4c, 0x37, 0x33, 0x06, 0xeb,
-	0x32, 0x85, 0xb5, 0x84, 0x0b, 0x51, 0xb0, 0x82, 0x9e, 0x0e, 0xb6, 0xaf, 0xdc, 0x4b, 0x66, 0xf0,
-	0xa7, 0xe2, 0x85, 0x5e, 0x0e, 0x3a, 0x79, 0xb1, 0x8b, 0x15, 0x03, 0xb6, 0x42, 0x81, 0x5d, 0xc4,
-	0x67, 0x23, 0x4b, 0xe7, 0x77, 0x74, 0x70, 0x7d, 0xeb, 0x4e, 0x61, 0x51, 0xbf, 0x9a, 0x5e, 0x3c,
-	0x4c, 0x23, 0x97, 0x97, 0x7a, 0xb4, 0x66, 0x78, 0x57, 0x29, 0xde, 0x2b, 0xb8, 0x18, 0x85, 0x37,
-	0x22, 0x80, 0x83, 0xdb, 0x86, 0x2c, 0xd7, 0x0b, 0x7d, 0xed, 0x20, 0xdc, 0x5c, 0x7d, 0xed, 0x40,
-	0xd0, 0x42, 0xf1, 0x19, 0x8a, 0x24, 0x8f, 0x67, 0x84, 0x48, 0x5c, 0x8f, 0x55, 0x74, 0x7e, 0x2d,
-	0xfb, 0xa0, 0xf3, 0xc7, 0xf2, 0x4e, 0x9a, 0xfe, 0xd7, 0x7b, 0xf9, 0xef, 0x00, 0x00, 0x00, 0xff,
-	0xff, 0xae, 0x37, 0x0a, 0x59, 0x84, 0x1e, 0x00, 0x00,
+var fileDescriptor_agents_b2219fb094362663 = []byte{
+	// 2283 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xec, 0x5b, 0xcd, 0x73, 0x1b, 0x59,
+	0x11, 0xd7, 0x93, 0xfc, 0x21, 0xb7, 0x9d, 0xd8, 0x9e, 0x24, 0xb6, 0x3c, 0xb6, 0x63, 0xf9, 0xc5,
+	0x76, 0x94, 0x0f, 0x5b, 0x59, 0x27, 0x9b, 0xec, 0x1a, 0x58, 0x90, 0x13, 0x57, 0xb4, 0x26, 0x0e,
+	0xce, 0x18, 0xd8, 0x25, 0x01, 0x54, 0x63, 0xcd, 0xb3, 0x22, 0x56, 0x9a, 0x51, 0x66, 0xc6, 0xce,
+	0xfa, 0xc0, 0x65, 0xab, 0xb6, 0x0a, 0x6e, 0x7c, 0x54, 0x0e, 0x1c, 0x38, 0x50, 0x05, 0x14, 0xff,
+	0x00, 0x67, 0x8a, 0x23, 0x55, 0x14, 0x45, 0x41, 0x15, 0x17, 0x0e, 0xbb, 0x10, 0x4e, 0xdc, 0x38,
+	0x71, 0xa5, 0xe6, 0xcd, 0x87, 0x66, 0xe6, 0xbd, 0xf9, 0xb0, 0xb1, 0x5c, 0xae, 0xad, 0x3d, 0xd9,
+	0x9a, 0xe9, 0x7e, 0xef, 0xd7, 0xfd, 0xeb, 0x7e, 0xdd, 0xd3, 0x23, 0xc1, 0x44, 0x53, 0x3d, 0x20,
+	0xaa, 0xa9, 0xe9, 0x87, 0x65, 0xb9, 0x41, 0x54, 0xd3, 0x58, 0xe9, 0xe8, 0x9a, 0xa9, 0x09, 0x43,
+	0xde, 0x75, 0xf1, 0x6e, 0xa3, 0x69, 0x3e, 0xdf, 0xdf, 0x5d, 0xa9, 0x6b, 0xed, 0x72, 0xfb, 0x65,
+	0xd3, 0xfc, 0x40, 0x7b, 0x59, 0x6e, 0x68, 0xcb, 0x54, 0x6e, 0xf9, 0x40, 0x6e, 0x35, 0x15, 0xd9,
+	0xd4, 0x74, 0xa3, 0xec, 0xfd, 0x6b, 0x2f, 0x21, 0xce, 0x34, 0x34, 0xad, 0xd1, 0x22, 0x65, 0xb9,
+	0xd3, 0x2c, 0xcb, 0xaa, 0xaa, 0x99, 0xb2, 0xd9, 0xd4, 0x54, 0xc3, 0xbd, 0x1b, 0xda, 0xb8, 0x66,
+	0x98, 0xb2, 0xb9, 0xef, 0xde, 0xbd, 0x49, 0xff, 0xd4, 0x97, 0x1b, 0x44, 0x5d, 0x36, 0x5e, 0xca,
+	0x8d, 0x06, 0xd1, 0xcb, 0x5a, 0x87, 0xea, 0xb3, 0x6b, 0xe1, 0xff, 0x22, 0xc8, 0x6f, 0x6f, 0x6d,
+	0x55, 0xac, 0x75, 0x84, 0x29, 0xc8, 0xdb, 0x0b, 0x36, 0x95, 0x02, 0x2a, 0xa2, 0xd2, 0x90, 0x34,
+	0x48, 0x3f, 0xbf, 0xab, 0x08, 0x8b, 0x30, 0xaa, 0xef, 0xab, 0x46, 0x4d, 0x53, 0x6b, 0xaa, 0xa6,
+	0x10, 0x4b, 0x22, 0x4b, 0x25, 0x46, 0xac, 0xcb, 0x5f, 0x53, 0x1f, 0x6b, 0x0a, 0x79, 0x57, 0x11,
+	0x66, 0x60, 0xa8, 0xae, 0xa9, 0x2a, 0xa9, 0x9b, 0x44, 0x29, 0xe4, 0x8a, 0xa8, 0x94, 0x97, 0xba,
+	0x17, 0x84, 0x4d, 0x38, 0x57, 0xdf, 0x37, 0x4c, 0xad, 0x5d, 0x6b, 0xc9, 0xbb, 0xa4, 0x65, 0x14,
+	0xa0, 0x98, 0x2b, 0x0d, 0xaf, 0x2e, 0xae, 0x78, 0x06, 0xad, 0xb8, 0x58, 0x56, 0xee, 0x53, 0xc1,
+	0x47, 0x54, 0x6e, 0x43, 0x35, 0xf5, 0x43, 0x69, 0xa4, 0xee, 0xbb, 0x24, 0x7e, 0x19, 0xc6, 0x19,
+	0x11, 0x61, 0x0c, 0x72, 0x1f, 0x90, 0x43, 0x07, 0xbb, 0xf5, 0xaf, 0x70, 0x11, 0xfa, 0x0f, 0xe4,
+	0xd6, 0x3e, 0x71, 0xd0, 0xda, 0x1f, 0xd6, 0xb2, 0x6f, 0x21, 0xfc, 0x87, 0x2c, 0x8c, 0x58, 0xa8,
+	0x37, 0x3e, 0xec, 0x68, 0xba, 0x49, 0xf4, 0x38, 0xeb, 0x8b, 0x30, 0xd2, 0x69, 0xb7, 0x6b, 0xde,
+	0x6d, 0x7b, 0x31, 0xe8, 0xb4, 0xdb, 0x15, 0x47, 0x42, 0x84, 0xbc, 0xd2, 0x34, 0xe4, 0xdd, 0x96,
+	0x67, 0xb7, 0xf7, 0x59, 0x58, 0x81, 0x01, 0x9b, 0xa1, 0x42, 0x5f, 0x11, 0x95, 0xce, 0xaf, 0x4e,
+	0xf8, 0xec, 0xa5, 0xfa, 0x3b, 0xf4, 0xae, 0xe4, 0x48, 0x09, 0x73, 0x30, 0xdc, 0x6a, 0x1a, 0x26,
+	0x51, 0x6b, 0x16, 0xb2, 0x42, 0x7f, 0x11, 0x95, 0xce, 0x49, 0x60, 0x5f, 0xda, 0xd6, 0x74, 0x53,
+	0x78, 0xcc, 0xf7, 0xe3, 0x35, 0xdf, 0xba, 0x7e, 0xcb, 0x7a, 0xef, 0xcb, 0x5f, 0xe6, 0xe0, 0xfc,
+	0xd6, 0xe1, 0xce, 0x93, 0x47, 0xca, 0xc9, 0x78, 0x73, 0x16, 0xc0, 0x20, 0xfa, 0x41, 0xb3, 0x4e,
+	0x03, 0x2d, 0x47, 0xef, 0x0f, 0x39, 0x57, 0x6c, 0x67, 0xef, 0x1b, 0x44, 0x57, 0xe5, 0x36, 0xa1,
+	0x2e, 0x1d, 0x92, 0xbc, 0xcf, 0xd6, 0xbd, 0x8e, 0x6c, 0x18, 0x2f, 0x35, 0x5d, 0xa1, 0x9e, 0x1b,
+	0x92, 0xbc, 0xcf, 0x01, 0x92, 0x06, 0x22, 0x49, 0x1a, 0x3c, 0x0e, 0x49, 0x79, 0x86, 0xa4, 0x6d,
+	0x3e, 0x49, 0x37, 0x7c, 0xeb, 0x06, 0x5d, 0xd6, 0x7b, 0x9a, 0xfe, 0x98, 0x85, 0x61, 0xe9, 0xc1,
+	0xce, 0xc9, 0x70, 0x34, 0x07, 0xc3, 0x5d, 0x8e, 0x8c, 0x42, 0xae, 0x98, 0xb3, 0x04, 0x3c, 0x92,
+	0x0c, 0x9f, 0x47, 0xfb, 0x8f, 0xe3, 0xd1, 0x01, 0xc6, 0xa3, 0x5b, 0x7c, 0x8f, 0x96, 0x7c, 0xeb,
+	0xfa, 0xac, 0xeb, 0xbd, 0x3b, 0x5f, 0x23, 0x18, 0xdb, 0xf8, 0xd0, 0xb4, 0x02, 0xaf, 0x95, 0xc6,
+	0xa7, 0x73, 0x30, 0xdc, 0x26, 0xa6, 0xde, 0xac, 0x1b, 0xb5, 0x7d, 0xbd, 0xe5, 0xba, 0xd4, 0xb9,
+	0xf4, 0x0d, 0xbd, 0x25, 0x48, 0x7c, 0x03, 0x97, 0x7d, 0x06, 0x86, 0xf7, 0xeb, 0xbd, 0x95, 0xbf,
+	0xce, 0xc1, 0xe8, 0x96, 0xa6, 0x36, 0xb4, 0x07, 0xeb, 0x9f, 0x27, 0xb7, 0x1b, 0x8a, 0x4f, 0xf8,
+	0x4c, 0xdd, 0xf4, 0x27, 0x77, 0xd0, 0x67, 0xbd, 0x27, 0xea, 0x55, 0x0e, 0x26, 0x9f, 0x54, 0x1e,
+	0xd3, 0x43, 0x65, 0x9b, 0xe8, 0x7b, 0x3b, 0xf5, 0xe7, 0xa4, 0x2d, 0x27, 0x56, 0xf6, 0xcf, 0x04,
+	0x61, 0xdf, 0xe2, 0xf3, 0x71, 0xc7, 0xa7, 0x16, 0xe1, 0x9a, 0xde, 0xf3, 0xf2, 0x9b, 0x1c, 0x8c,
+	0x6d, 0x6b, 0x86, 0xd9, 0xd0, 0x89, 0xf1, 0x79, 0x06, 0xb9, 0x19, 0x94, 0xe2, 0xac, 0x0b, 0x3b,
+	0xad, 0xf7, 0x54, 0x7d, 0x1f, 0xc6, 0x1f, 0x35, 0x0d, 0x93, 0x1a, 0x64, 0x48, 0xe4, 0xc5, 0x3e,
+	0x31, 0x4c, 0x01, 0x87, 0xf8, 0xa0, 0x2b, 0x55, 0x33, 0x01, 0x46, 0xa6, 0x60, 0x30, 0xd0, 0x16,
+	0x57, 0x33, 0xd2, 0x80, 0x6a, 0xb7, 0xc4, 0x73, 0x2c, 0x59, 0xd5, 0x8c, 0x8f, 0xae, 0xf5, 0x3c,
+	0x0c, 0xec, 0x35, 0x5b, 0x26, 0xd1, 0xf1, 0xef, 0xfa, 0x40, 0xf0, 0xef, 0x6f, 0x74, 0x34, 0xd5,
+	0x20, 0xc2, 0x2d, 0x18, 0xf2, 0x00, 0x14, 0x10, 0x75, 0xd3, 0x05, 0x4e, 0xcb, 0x2c, 0xe5, 0x5d,
+	0x40, 0xc2, 0x17, 0xe1, 0x1c, 0x85, 0x43, 0x1c, 0xcf, 0x15, 0xb2, 0x54, 0x6b, 0x32, 0xa2, 0x41,
+	0x94, 0x46, 0x54, 0x7f, 0x23, 0xbc, 0x0e, 0xa3, 0xed, 0x43, 0xe3, 0x45, 0x4b, 0xe9, 0xea, 0xe7,
+	0xa8, 0xfe, 0x54, 0x64, 0xef, 0x22, 0x9d, 0xb7, 0x35, 0xbc, 0x35, 0xde, 0x86, 0x11, 0x5d, 0x31,
+	0xba, 0x0b, 0xf4, 0xd1, 0x05, 0x26, 0xf8, 0xa5, 0x5a, 0x1a, 0xd6, 0x95, 0x6e, 0x6a, 0x54, 0x61,
+	0x9c, 0x38, 0x55, 0xae, 0xab, 0xdf, 0x4f, 0xf5, 0xa7, 0x63, 0x2a, 0xa1, 0x34, 0x46, 0xc2, 0xb5,
+	0x78, 0x03, 0xc6, 0xda, 0xd6, 0x29, 0xac, 0xec, 0x76, 0x17, 0x1a, 0xa0, 0x0b, 0x89, 0xd1, 0x07,
+	0xb5, 0x34, 0xea, 0xe8, 0x78, 0xcb, 0xd4, 0x40, 0x7c, 0x21, 0xab, 0x35, 0x6a, 0x61, 0xad, 0x43,
+	0xf4, 0x3d, 0x83, 0x1e, 0x1f, 0x0e, 0x21, 0x83, 0x74, 0x41, 0x9c, 0x7c, 0xd2, 0x48, 0x93, 0x2f,
+	0x64, 0x75, 0xcb, 0x5a, 0x64, 0xdb, 0x5b, 0xc3, 0xa6, 0xab, 0x0a, 0xe3, 0x1d, 0x27, 0xd6, 0xbb,
+	0x40, 0xf3, 0x8c, 0xc5, 0xe1, 0x7c, 0x90, 0xc6, 0x3a, 0xa1, 0x2b, 0xf8, 0x0e, 0x8c, 0x3e, 0x24,
+	0x76, 0xfc, 0xb8, 0xe1, 0x3b, 0x1f, 0x3e, 0x69, 0xd6, 0x07, 0xfe, 0xf9, 0xc9, 0x5c, 0xf6, 0x7d,
+	0xe4, 0x9d, 0x38, 0xf8, 0x6f, 0x7d, 0x30, 0xd6, 0x55, 0x73, 0xa2, 0x6e, 0x35, 0x18, 0x75, 0x28,
+	0x22, 0xea, 0xaa, 0x19, 0x5f, 0xdc, 0xbd, 0xc3, 0xc6, 0x1d, 0x8a, 0x89, 0xbb, 0x6a, 0x26, 0x14,
+	0x79, 0x0f, 0x78, 0x91, 0x87, 0x62, 0x23, 0xaf, 0x9a, 0x61, 0x62, 0xef, 0x0b, 0x4c, 0xec, 0xa1,
+	0xe8, 0xd8, 0xab, 0x66, 0x82, 0xd1, 0xb7, 0xc9, 0x8f, 0x3e, 0x94, 0x10, 0x7d, 0xd5, 0x0c, 0x27,
+	0xfe, 0x1e, 0x72, 0xe3, 0x0f, 0xc5, 0xc7, 0x5f, 0x35, 0xc3, 0x46, 0xa0, 0x9c, 0x10, 0x81, 0x28,
+	0x5d, 0x04, 0x56, 0x33, 0xd1, 0x31, 0xb8, 0xc9, 0x8f, 0x41, 0x94, 0x10, 0x83, 0x96, 0xdd, 0xe1,
+	0x28, 0x5c, 0x1f, 0x84, 0x7e, 0x8a, 0x0c, 0x7f, 0x8a, 0x40, 0xa8, 0x28, 0x8a, 0x77, 0x42, 0x39,
+	0x21, 0xb9, 0x1c, 0x31, 0x4c, 0xf0, 0x22, 0x33, 0x38, 0x54, 0xf8, 0x3a, 0xbf, 0x54, 0x94, 0xfd,
+	0x25, 0x88, 0xd9, 0xa4, 0xe7, 0xc5, 0x62, 0xb3, 0x2f, 0x8f, 0xc6, 0xb2, 0xf8, 0x21, 0x5c, 0x08,
+	0x6c, 0xce, 0x3f, 0xb3, 0x51, 0xe2, 0x99, 0x8d, 0x27, 0xe1, 0xd2, 0xfd, 0xe7, 0xb2, 0xda, 0x20,
+	0x21, 0x43, 0xf0, 0x26, 0x4c, 0x84, 0x6f, 0x1c, 0x7b, 0x93, 0xd7, 0x08, 0x26, 0x2a, 0x8a, 0x12,
+	0x38, 0xfc, 0x1d, 0x52, 0x4a, 0xbc, 0xb6, 0xc3, 0x63, 0xc4, 0x5f, 0xec, 0xde, 0xe7, 0xf3, 0x71,
+	0x3b, 0xc8, 0x07, 0x67, 0x8f, 0xd3, 0xe2, 0xe4, 0x3d, 0x98, 0x64, 0x00, 0x38, 0x2e, 0x63, 0x2a,
+	0x23, 0x8a, 0x3d, 0xa1, 0x82, 0xe7, 0x13, 0xfe, 0x7b, 0x16, 0xa6, 0x6c, 0x2e, 0x78, 0x1e, 0x4c,
+	0x3e, 0x69, 0x05, 0x11, 0x06, 0x89, 0x6a, 0x77, 0x58, 0x16, 0xf6, 0x7c, 0x35, 0x23, 0xb9, 0x17,
+	0x84, 0x99, 0xf0, 0x08, 0xc9, 0x3a, 0x5a, 0xbd, 0x06, 0xec, 0x59, 0xd8, 0xe9, 0x76, 0x45, 0xbd,
+	0xeb, 0x03, 0x1e, 0x89, 0x2c, 0xc9, 0xef, 0xc2, 0x2d, 0xb8, 0xa8, 0x93, 0xb6, 0x76, 0x40, 0x6a,
+	0xc1, 0x3d, 0xfa, 0x69, 0x17, 0x28, 0xd8, 0xf7, 0xee, 0x9f, 0x24, 0x53, 0xeb, 0xe3, 0x30, 0x5a,
+	0xa7, 0x78, 0x6b, 0xae, 0x89, 0xf8, 0x29, 0x88, 0x3c, 0x13, 0x4e, 0x84, 0xb9, 0x3f, 0x65, 0xa1,
+	0x50, 0x51, 0x94, 0x50, 0xd7, 0x72, 0xe4, 0xd0, 0x5f, 0x64, 0x9b, 0x39, 0x4f, 0xce, 0xd7, 0x81,
+	0xe3, 0x70, 0x07, 0xee, 0x09, 0xa5, 0xeb, 0xc4, 0x9f, 0xf2, 0x33, 0xec, 0xcd, 0x60, 0x86, 0x71,
+	0x8d, 0x39, 0xad, 0x1c, 0xab, 0xc1, 0x14, 0x07, 0x82, 0xc3, 0x15, 0xa7, 0x83, 0x44, 0x09, 0x75,
+	0x3c, 0x5c, 0xc5, 0xf1, 0x27, 0x59, 0x98, 0xb6, 0xc3, 0x81, 0x4f, 0x5a, 0x4f, 0xb3, 0xed, 0x3b,
+	0xfc, 0x6c, 0x7b, 0x8b, 0xc9, 0xb6, 0x63, 0x71, 0x70, 0x46, 0xf2, 0x6d, 0x17, 0x66, 0xf8, 0x46,
+	0x9c, 0x20, 0x8b, 0x1f, 0x65, 0xe1, 0x52, 0x45, 0x51, 0xfc, 0xcd, 0xfe, 0x91, 0x93, 0x2e, 0x71,
+	0xd2, 0xf8, 0x1e, 0x3f, 0x5d, 0x56, 0x83, 0xe9, 0xc2, 0x62, 0x38, 0xad, 0x5c, 0xd9, 0xa1, 0x45,
+	0x37, 0xb0, 0xbf, 0xe3, 0xe2, 0xf0, 0x63, 0x12, 0x8a, 0x6b, 0x55, 0x03, 0x8d, 0x2a, 0x16, 0xa1,
+	0x60, 0xb3, 0xc7, 0xda, 0x85, 0xbf, 0xe9, 0x96, 0xa9, 0x13, 0xde, 0xf3, 0xdf, 0x08, 0xc4, 0x8a,
+	0xa2, 0x30, 0x8f, 0x5e, 0x0e, 0xa5, 0x57, 0x39, 0x03, 0xce, 0x2e, 0xa3, 0xbe, 0x41, 0xe7, 0xb7,
+	0xf9, 0x84, 0xdd, 0x0b, 0x12, 0x16, 0xb1, 0xcd, 0x69, 0xb1, 0xd6, 0x80, 0x69, 0x2e, 0x08, 0xc7,
+	0x8d, 0xdc, 0xc7, 0x54, 0x94, 0xf8, 0xa0, 0xc0, 0x3e, 0x26, 0xe0, 0x39, 0x98, 0xb5, 0xd9, 0x8a,
+	0x30, 0x18, 0x7f, 0x0f, 0x2e, 0x47, 0x09, 0x9c, 0x38, 0x98, 0x3f, 0x67, 0xed, 0x83, 0x3d, 0xf4,
+	0x50, 0x7c, 0x56, 0x2b, 0xe5, 0x33, 0x7e, 0x24, 0xdd, 0x0d, 0x55, 0x4a, 0xae, 0x35, 0xa7, 0x15,
+	0x48, 0x75, 0x9a, 0x34, 0x0c, 0x06, 0x87, 0x3a, 0xde, 0x90, 0x02, 0x25, 0x3d, 0x24, 0x32, 0x8f,
+	0x88, 0xf8, 0x1f, 0x59, 0xef, 0x34, 0xe7, 0x53, 0xd7, 0xd3, 0x7a, 0xf9, 0x5d, 0x7e, 0xbd, 0x7c,
+	0x9b, 0xad, 0x97, 0xc7, 0x62, 0xe2, 0x8c, 0x14, 0xcc, 0x3d, 0x37, 0x51, 0x7b, 0xcc, 0xe5, 0xa7,
+	0x59, 0x98, 0xaf, 0x28, 0x4a, 0xd4, 0x1c, 0xe9, 0xac, 0xe6, 0x62, 0x9d, 0x9f, 0x8b, 0xef, 0x04,
+	0x73, 0x31, 0xde, 0xaa, 0xd3, 0xca, 0xc9, 0x8f, 0x11, 0xe0, 0x38, 0x30, 0x0e, 0xa1, 0xf1, 0xa3,
+	0x3f, 0x94, 0x76, 0xf0, 0x12, 0x39, 0x76, 0xc1, 0xff, 0xc9, 0xc2, 0x82, 0x1d, 0x53, 0x09, 0x6c,
+	0xf7, 0x34, 0x7d, 0xf7, 0xf8, 0xe9, 0x5b, 0x61, 0xd2, 0xf7, 0xff, 0x23, 0xef, 0x8c, 0xa4, 0xf1,
+	0x0f, 0x10, 0x2c, 0x26, 0x98, 0x73, 0x5a, 0xf4, 0xff, 0x25, 0x4b, 0x6b, 0x03, 0x33, 0xd9, 0x3d,
+	0xab, 0x29, 0x9e, 0xae, 0x71, 0x8b, 0x30, 0xe7, 0x74, 0x1b, 0x37, 0x16, 0x44, 0xb7, 0x57, 0x62,
+	0x27, 0x9d, 0x28, 0x71, 0xd2, 0xc9, 0x99, 0xb6, 0xbf, 0xce, 0xba, 0x05, 0x21, 0x8a, 0xc0, 0x9e,
+	0x66, 0x6d, 0x8d, 0x9f, 0xb5, 0x6b, 0x4c, 0xd6, 0x1e, 0x93, 0x8f, 0x33, 0x92, 0xae, 0x5e, 0xf7,
+	0x7b, 0x0a, 0x8c, 0xde, 0x03, 0x41, 0xa2, 0x56, 0x1d, 0xf5, 0x15, 0xca, 0x25, 0xb8, 0x10, 0x50,
+	0xb4, 0x91, 0xad, 0xfe, 0x68, 0x02, 0x06, 0xec, 0xb7, 0x79, 0x82, 0x06, 0xd0, 0x7d, 0xb7, 0x27,
+	0xcc, 0xf8, 0x70, 0x31, 0xaf, 0x1c, 0xc5, 0xd9, 0x88, 0xbb, 0xf6, 0xaa, 0x78, 0xe1, 0xa3, 0xbf,
+	0xfe, 0xeb, 0xa7, 0xd9, 0xcb, 0x78, 0xaa, 0x7c, 0xf0, 0x46, 0xb9, 0xfb, 0x65, 0x40, 0x5b, 0xaa,
+	0x6c, 0x29, 0xac, 0xa1, 0xeb, 0xc2, 0x73, 0xc8, 0xbb, 0x2f, 0x75, 0x04, 0x7f, 0xfb, 0x11, 0x7a,
+	0x41, 0x24, 0x4e, 0x73, 0xef, 0x39, 0x5b, 0x5d, 0xa1, 0x5b, 0xcd, 0xe2, 0x02, 0x77, 0xab, 0x87,
+	0x84, 0xee, 0x74, 0x08, 0xc3, 0xbe, 0x19, 0xb8, 0x30, 0x1b, 0x3b, 0x98, 0x17, 0x2f, 0x47, 0xdd,
+	0x76, 0xb6, 0xbc, 0x41, 0xb7, 0x5c, 0xc4, 0x45, 0xee, 0x96, 0x3e, 0x0d, 0x6b, 0xeb, 0x8f, 0x11,
+	0x9c, 0x0f, 0x4e, 0xc7, 0x85, 0x22, 0x1b, 0xff, 0x21, 0x04, 0xf3, 0x31, 0x12, 0x0e, 0x88, 0x15,
+	0x0a, 0xa2, 0x84, 0xaf, 0x70, 0x41, 0x04, 0x95, 0x2c, 0x1c, 0x3f, 0x44, 0x30, 0x1a, 0x9a, 0x39,
+	0x0b, 0xf3, 0x89, 0x03, 0x71, 0x11, 0xc7, 0x89, 0x38, 0x50, 0xca, 0x14, 0xca, 0x35, 0xbc, 0x10,
+	0xe5, 0x0f, 0xbf, 0x96, 0x85, 0xe5, 0x15, 0x02, 0x81, 0x1d, 0xa4, 0x0a, 0x0b, 0x69, 0x46, 0xc5,
+	0xe2, 0x62, 0x82, 0x94, 0x03, 0x6a, 0x95, 0x82, 0xba, 0x89, 0xaf, 0xc6, 0xf8, 0x27, 0x8c, 0xeb,
+	0xc7, 0x08, 0xc6, 0x99, 0x99, 0xa1, 0x70, 0x25, 0xc5, 0x50, 0x53, 0x5c, 0x88, 0x17, 0x72, 0x40,
+	0xbd, 0x41, 0x41, 0xdd, 0xc0, 0x4b, 0x51, 0x9e, 0x0a, 0xea, 0x59, 0x98, 0x7e, 0x8e, 0xe0, 0x22,
+	0x6f, 0x08, 0x26, 0x2c, 0xa5, 0x1b, 0xf5, 0x89, 0x57, 0x13, 0xe5, 0x1c, 0x70, 0x77, 0x28, 0xb8,
+	0x15, 0x7c, 0x2d, 0xc6, 0x63, 0x2c, 0x3e, 0x2b, 0xbe, 0x83, 0xb3, 0xa3, 0x40, 0x7c, 0x73, 0xc7,
+	0x5a, 0xe2, 0x7c, 0x8c, 0x44, 0xaa, 0xf8, 0x0e, 0x2a, 0xb9, 0xdc, 0x31, 0x23, 0xa5, 0x00, 0x77,
+	0x51, 0xc3, 0x28, 0x71, 0x21, 0x5e, 0x28, 0x15, 0x77, 0x8c, 0x9e, 0x85, 0xe9, 0x67, 0x88, 0xbe,
+	0x7b, 0x63, 0xbe, 0x82, 0xb7, 0x98, 0x6a, 0x8c, 0x24, 0x2e, 0x25, 0x89, 0x39, 0xc8, 0x6e, 0x53,
+	0x64, 0xcb, 0xb8, 0x14, 0xe5, 0xaa, 0xb0, 0xa6, 0x85, 0xed, 0x57, 0xc8, 0x7d, 0x6b, 0xc7, 0xc0,
+	0x2b, 0x31, 0xfe, 0x88, 0x42, 0x78, 0x2d, 0x85, 0xa4, 0x03, 0xf2, 0x2e, 0x05, 0x79, 0x0b, 0xdf,
+	0x88, 0x71, 0x1f, 0x0f, 0xe7, 0x2b, 0xfb, 0x0d, 0x6d, 0xf8, 0x0b, 0x7e, 0x0b, 0x69, 0xe6, 0x27,
+	0xe2, 0x62, 0x82, 0x54, 0xaa, 0xb3, 0x82, 0x55, 0xb4, 0x70, 0xfd, 0x02, 0xb9, 0xaf, 0x43, 0xc3,
+	0xd0, 0xae, 0xa6, 0x9c, 0x29, 0x88, 0xa5, 0x64, 0x41, 0x07, 0xe0, 0x9b, 0x14, 0x60, 0x19, 0x5f,
+	0x8f, 0x4b, 0x4d, 0x16, 0xe3, 0x6f, 0xed, 0x69, 0x68, 0xd4, 0x77, 0xee, 0x6e, 0x1e, 0xe5, 0xb9,
+	0x57, 0x5c, 0x4e, 0x29, 0xed, 0x40, 0x5e, 0xa3, 0x90, 0xef, 0xe0, 0x72, 0x94, 0x4f, 0x23, 0x16,
+	0xb0, 0x70, 0xff, 0x1e, 0xb9, 0x6d, 0x6b, 0x14, 0xf4, 0xf2, 0x11, 0x1f, 0xfc, 0xc4, 0x5b, 0xe9,
+	0x15, 0x1c, 0x03, 0xbe, 0x44, 0x0d, 0xb8, 0x87, 0x57, 0x63, 0x7c, 0x1e, 0x63, 0x83, 0x93, 0xfb,
+	0xcc, 0xf7, 0xea, 0x16, 0x53, 0x3d, 0x89, 0x84, 0x73, 0x3f, 0xaa, 0xb3, 0x4c, 0xce, 0xfd, 0xb0,
+	0x66, 0x30, 0xf7, 0x19, 0x78, 0xa5, 0xb4, 0xbd, 0x39, 0x27, 0xf7, 0x23, 0x41, 0xa6, 0xc9, 0x7d,
+	0x1e, 0x4e, 0x13, 0x86, 0x7d, 0x3d, 0x6b, 0xa0, 0x6d, 0x63, 0x9b, 0xe0, 0x40, 0xdb, 0xc6, 0x69,
+	0x75, 0xf1, 0x12, 0x45, 0x51, 0xc4, 0xd3, 0x5c, 0x14, 0xb6, 0xc6, 0x1a, 0xba, 0xbe, 0xfe, 0xec,
+	0x27, 0x95, 0x2d, 0xe9, 0xab, 0x30, 0xa8, 0x90, 0x3d, 0x79, 0xbf, 0x65, 0x0a, 0x5f, 0x01, 0xa1,
+	0xa2, 0x16, 0x89, 0xae, 0x6b, 0x7a, 0x51, 0x77, 0x16, 0x5b, 0x11, 0xae, 0x43, 0x49, 0x5c, 0xba,
+	0x52, 0x56, 0xc8, 0x5e, 0x53, 0x6d, 0xda, 0x3f, 0x5e, 0xf1, 0xd6, 0xec, 0xec, 0x6e, 0x58, 0xd2,
+	0xee, 0xce, 0x4f, 0xbb, 0x3f, 0xb8, 0xd9, 0x1d, 0xa0, 0xbf, 0x6a, 0xb9, 0xfd, 0xbf, 0x00, 0x00,
+	0x00, 0xff, 0xff, 0x20, 0xe7, 0xef, 0x14, 0x9c, 0x33, 0x00, 0x00,
 }

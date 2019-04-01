@@ -51,8 +51,9 @@ func TestConfig(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:      "agent-id",
-			Address: "127.0.0.1:11111",
+			ID:         "agent-id",
+			Address:    "127.0.0.1:11111",
+			ListenPort: 7777,
 			Paths: Paths{
 				TempDir: os.TempDir(),
 			},
@@ -77,8 +78,9 @@ func TestConfig(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:      "agent-id",
-			Address: "127.0.0.1:11111",
+			ID:         "agent-id",
+			Address:    "127.0.0.1:11111",
+			ListenPort: 7777,
 			Paths: Paths{
 				TempDir: os.TempDir(),
 			},
@@ -105,9 +107,10 @@ func TestConfig(t *testing.T) {
 		require.NoError(t, err)
 
 		expected := &Config{
-			ID:      "flag-id",
-			Address: "127.0.0.1:11111",
-			Debug:   true,
+			ID:         "flag-id",
+			Address:    "127.0.0.1:11111",
+			ListenPort: 7777,
+			Debug:      true,
 			Paths: Paths{
 				TempDir: os.TempDir(),
 			},

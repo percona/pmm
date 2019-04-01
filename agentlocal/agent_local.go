@@ -18,15 +18,66 @@ package agentlocal
 
 import (
 	"context"
+	"sync"
 
 	"github.com/percona/pmm/api/agentlocalpb"
+	"github.com/percona/pmm/api/agentpb"
+
+	"github.com/percona/pmm-agent/config"
 )
 
+// AgentLocalServer represents local agent api server.
 type AgentLocalServer struct {
+	cfg *config.Config
+
+	rw             sync.RWMutex
+	serverMetadata *agentpb.AgentServerMetadata
 }
 
+// NewAgentLocalServer creates new local agent api server instance.
+func NewAgentLocalServer(cfg *config.Config) *AgentLocalServer {
+	return &AgentLocalServer{cfg: cfg}
+}
+
+// SetMetadata sets new values of ServerMetadata.
+func (als *AgentLocalServer) SetMetadata(md *agentpb.AgentServerMetadata) {
+	als.rw.Lock()
+	defer als.rw.Unlock()
+	als.serverMetadata = md
+}
+
+func (als *AgentLocalServer) getMetadata() agentpb.AgentServerMetadata {
+	als.rw.RLock()
+	defer als.rw.RUnlock()
+	return *als.serverMetadata
+}
+
+// Status returns local agent status.
 func (als *AgentLocalServer) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*agentlocalpb.StatusResponse, error) {
-	panic("not implemented")
+	md := als.getMetadata()
+
+	srvInfo := &agentlocalpb.ServerInfo{
+		Url:          als.cfg.Address,
+		InsecureTls:  als.cfg.InsecureTLS,
+		Version:      md.ServerVersion,
+		LastPingTime: nil, // TODO: Add LastPingTime
+		Latency:      nil, // TODO: Calculate and Add Latency
+	}
+
+	// TODO: Add real AgentsInfo
+	//agentsInfo := &agentlocalpb.AgentInfo{
+	//	AgentId:   "001",
+	//	AgentType: agentpb.Type_MYSQLD_EXPORTER,
+	//	Status:    inventory.AgentStatus_RUNNING,
+	//	Logs:      []string{},
+	//}
+
+	return &agentlocalpb.StatusResponse{
+		AgentId:      als.cfg.ID,
+		RunsOnNodeId: md.AgentRunsOnNodeID,
+		ServerInfo:   srvInfo,
+		AgentsInfo:   []*agentlocalpb.AgentInfo{}, // TODO: Add real AgentsInfo
+	}, nil
 }
 
 // check interfaces

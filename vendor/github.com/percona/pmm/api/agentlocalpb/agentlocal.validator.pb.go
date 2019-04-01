@@ -3,9 +3,15 @@
 
 package agentlocalpb
 
+import github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
+import _ "github.com/golang/protobuf/ptypes/duration"
+import _ "github.com/golang/protobuf/ptypes/timestamp"
+import _ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
+import _ "github.com/percona/pmm/api/agentpb"
+import _ "github.com/percona/pmm/api/inventory"
 import _ "google.golang.org/genproto/googleapis/api/annotations"
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -13,9 +19,37 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
+func (this *ServerInfo) Validate() error {
+	if this.LastPingTime != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LastPingTime); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("LastPingTime", err)
+		}
+	}
+	if this.Latency != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Latency); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Latency", err)
+		}
+	}
+	return nil
+}
+func (this *AgentInfo) Validate() error {
+	return nil
+}
 func (this *StatusRequest) Validate() error {
 	return nil
 }
 func (this *StatusResponse) Validate() error {
+	if this.ServerInfo != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ServerInfo); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ServerInfo", err)
+		}
+	}
+	for _, item := range this.AgentsInfo {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("AgentsInfo", err)
+			}
+		}
+	}
 	return nil
 }

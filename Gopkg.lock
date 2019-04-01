@@ -85,10 +85,11 @@
   version = "v1.3.1"
 
 [[projects]]
-  digest = "1:c9898be5ce1ec9e8c04a85d9b83c18835c9571e36e39b989c9d3c110ad7d1817"
+  digest = "1:d4a8371b45bcfb31c5437930fd26980405fb3b40e1b85abe17a899c72cdcc3a8"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "internal",
+    "protoc-gen-swagger/options",
     "runtime",
     "utilities",
   ]
@@ -130,7 +131,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:9179576b7ec68ac3879eca6820d2ee17b7719af34c903cd00422b3efb05252bf"
+  digest = "1:4dbd33a7a6af76cfffe3bce5f73db57af8085f39508ee2a294e8ee808b0300cc"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -140,7 +141,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "18d486f13f20860ba751b07b73a535d4b2949a6e"
+  revision = "06713600ef6fd15c2ea657abc963b3fa8bc36d4c"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -302,7 +303,7 @@
   revision = "5fe7a883aa19554f42890211544aa549836af7b7"
 
 [[projects]]
-  digest = "1:f2df7088cd31687fdce0f2eee853682416bf1e70baa487094913e3881f1f12f8"
+  digest = "1:e691ee34c8956964e61221103fdb1371683a19f3f315119d0a0ea67064338de5"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -310,6 +311,8 @@
     "balancer/base",
     "balancer/roundrobin",
     "binarylog/grpc_binarylog_v1",
+    "channelz/grpc_channelz_v1",
+    "channelz/service",
     "codes",
     "connectivity",
     "credentials",
@@ -330,6 +333,8 @@
     "metadata",
     "naming",
     "peer",
+    "reflection",
+    "reflection/grpc_reflection_v1alpha",
     "resolver",
     "resolver/dns",
     "resolver/passthrough",
@@ -384,6 +389,7 @@
     "github.com/go-sql-driver/mysql",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/ptypes",
+    "github.com/grpc-ecosystem/grpc-gateway/runtime",
     "github.com/percona/exporter_shared/helpers",
     "github.com/percona/pmm/api/agentlocalpb",
     "github.com/percona/pmm/api/agentpb",
@@ -397,9 +403,11 @@
     "github.com/stretchr/testify/require",
     "golang.org/x/sys/unix",
     "google.golang.org/grpc",
+    "google.golang.org/grpc/channelz/service",
     "google.golang.org/grpc/codes",
     "google.golang.org/grpc/credentials",
     "google.golang.org/grpc/grpclog",
+    "google.golang.org/grpc/reflection",
     "google.golang.org/grpc/status",
     "gopkg.in/alecthomas/kingpin.v2",
     "gopkg.in/reform.v1",

@@ -53,8 +53,11 @@ type Ports struct {
 // Config represents pmm-agent's static configuration.
 //nolint:maligned
 type Config struct {
-	ID      string `yaml:"id"`
-	Address string `yaml:"address"`
+	ID         string `yaml:"id"`
+	Address    string `yaml:"address"`
+	Username   string `yaml:"username"`
+	Password   string `yaml:"password"`
+	ListenPort uint16 `yaml:"listen-port"`
 
 	Debug       bool `yaml:"debug"`
 	Trace       bool `yaml:"trace"`
@@ -64,7 +67,7 @@ type Config struct {
 	Ports Ports `yaml:"ports"`
 }
 
-// application returns kingpin application that parses all flags and environemtn variables into cfg
+// application returns kingpin application that parses all flags and environment variables into cfg
 // except --config-file that is returned separately.
 func application(cfg *Config) (*kingpin.Application, *string) {
 	app := kingpin.New("pmm-agent", fmt.Sprintf("Version %s.", version.Version))
@@ -76,6 +79,8 @@ func application(cfg *Config) (*kingpin.Application, *string) {
 
 	app.Flag("id", "ID of this pmm-agent. [PMM_AGENT_ID]").
 		Envar("PMM_AGENT_ID").PlaceHolder("</agent_id/...>").StringVar(&cfg.ID)
+	app.Flag("listen-port", "Agent local API port. [PMM_AGENT_LISTEN_PORT]").
+		Envar("PMM_AGENT_LISTEN_PORT").Default("7777").Uint16Var(&cfg.ListenPort)
 	app.Flag("address", "PMM Server address. [PMM_AGENT_ADDRESS]").
 		Envar("PMM_AGENT_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Address)
 
@@ -85,6 +90,10 @@ func application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
 	app.Flag("insecure-tls", "Skip PMM Server TLS certificate validation. [PMM_AGENT_INSECURE_TLS]").
 		Envar("PMM_AGENT_INSECURE_TLS").BoolVar(&cfg.InsecureTLS)
+	app.Flag("username", "HTTP BasicAuth username to connect to PMM Server. [PMM_AGENT_USERNAME]").
+		Envar("PMM_AGENT_USERNAME").StringVar(&cfg.Username)
+	app.Flag("password", "HTTP BasicAuth password to connect to PMM Server. [PMM_AGENT_PASSWORD]").
+		Envar("PMM_AGENT_PASSWORD").StringVar(&cfg.Password)
 
 	app.Flag("paths.node_exporter", "Path to node_exporter to use. [PMM_AGENT_PATHS_NODE_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_NODE_EXPORTER").Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)
