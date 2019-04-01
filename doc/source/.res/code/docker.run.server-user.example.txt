@@ -6,4 +6,4 @@
      -e SERVER_USER=jsmith \
      -e SERVER_PASSWORD=SomeR4ndom-Pa$$w0rd \
      --restart always \
-     percona/pmm-server:latest
+     percona/pmm-server:1

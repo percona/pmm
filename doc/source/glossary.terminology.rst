@@ -260,24 +260,21 @@ Terminology Reference
 
       The following ports must be open to enable communication between
       the :ref:`PMM Server <PMM-Server>` and :ref:`PMM clients <PMM-Client>`.
-
-      |pmm-server| should keep ports 80 or 443 ports open for
-      computers where |pmm-client| is installed to access the |pmm|
-      web interface.
-
+      
       42000
          For |pmm| to collect genenal system metrics.
-      42001
-         This port is used by a service which collects query performance data
-         and makes it available to |qan|.
       42002
          For |pmm| to collect |mysql| server metrics.
       42003
          For |pmm| to collect |mongodb| server metrics.
       42004
-	 For |pmm| to collect |proxysql| server metrics.
+	       For |pmm| to collect |proxysql| server metrics.
       42005
-	 For |pmm| to collect |postgresql| server metrics.
+	       For |pmm| to collect |postgresql| server metrics.
+
+      Also |pmm-server| should keep ports 80 or 443 ports open for
+      computers where |pmm-client| is installed to access the |pmm|
+      web interface and the |qan| agent.
 
       .. seealso::
 
