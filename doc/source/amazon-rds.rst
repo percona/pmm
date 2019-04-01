@@ -91,7 +91,7 @@ instances you intend to monitor.
       - `What privileges are automatically granted to the master user of an Amazon RDS DB instance? 
 	<https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/UsingWithRDS.MasterAccounts.html>`_
    Which ports should be open?
-      See :term:`Ports` in glossary
+      See :ref:`Ports <Ports>` in glossary
 
 .. contents::
    :local:

@@ -19,8 +19,8 @@ creating and launching the |pmm-server| container.
 
 .. _pmm.server.docker-image.pulling:
 
-:ref:`Pulling the PMM Server Docker Image <pmm.server.docker-image.pulling>`
---------------------------------------------------------------------------------
+`Pulling the PMM Server Docker Image <docker.setting-up.html#pmm.server.docker-image.pulling>`_
+------------------------------------------------------------------------------------------------
 
 To pull the latest version from Docker Hub:
 
@@ -33,7 +33,7 @@ version.
 
 .. _data-container:
 
-:ref:`Creating the pmm-data Container <data-container>`
+`Creating the pmm-data Container <docker.setting-up.html#data-container>`_
 --------------------------------------------------------------------------------
 
 To create a container for persistent |pmm| data, run the following command:
@@ -69,8 +69,8 @@ The previous command does the following:
 
 .. _server-container:
 
-:ref:`Creating and Launching the PMM Server Container <server-container>`
---------------------------------------------------------------------------------
+`Creating and Launching the PMM Server Container <docker.setting-up.html#server-container>`_
+---------------------------------------------------------------------------------------------
 
 To create and launch |pmm-server| in one command, use |docker.run|:
 
@@ -104,12 +104,12 @@ This command does the following:
 
 .. _pmm.docker.specific-version:
 
-:ref:`Installing and using specific docker version <pmm.docker.specific-version>`
-----------------------------------------------------------------------------------
+`Installing and using specific docker version <docker.setting-up.html#pmm.docker.specific-version>`_
+-----------------------------------------------------------------------------------------------------
 
 To install specific |pmm-server| version instead of the latest one, just put
 desired version number after the colon. Also in this scenario it may be useful
-to `prevent updating PMM Server via the web interface <https://www.percona.com/doc/percona-monitoring-and-management/glossary.option.html>`_ with the ``DISABLE_UPDATES`` docker option.
+to `prevent updating PMM Server via the web interface <https://www.percona.com/doc/percona-monitoring-and-management/glossary.option.html>`_ with the :option:`DISABLE_UPDATES` docker option.
 
 For example, installing version 1.14.1 with disabled update button in the web
 interface would look as follows:
@@ -136,7 +136,7 @@ interface would look as follows:
 
 .. _pmm.docker.additional-option:
 
-:ref:`Additional options <pmm.docker.additional-option>`
+`Additional options <docker.setting-up.html#pmm.docker.additional-option>`_
 --------------------------------------------------------------------------------
 
 When running the |pmm-server|, you may pass additional parameters to the
@@ -149,7 +149,7 @@ supported additional options.
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
    Updating PMM
       :ref:`Updating PMM <deploy-pmm.updating>`
    Backing Up the |pmm-server| |docker| container

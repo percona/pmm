@@ -193,8 +193,8 @@ For more information, run
 `Adding external monitoring services <pmm-admin.html#pmm-pmm-admin-external-monitoring-service-adding>`_
 ----------------------------------------------------------------------------------------------------------
 
-The |pmm-admin.add| command is also used to add external :term:`monitoring
-services <External Monitoring Service>`. This command adds an external
+The |pmm-admin.add| command is also used to add :ref:`external monitoring
+services <External-Monitoring-Service>`. This command adds an external
 monitoring service assuming that the underlying |prometheus| exporter is already
 set up and accessible. The default scrape timeout is 10 seconds, and the
 interval equals to 1 minute.
@@ -338,7 +338,7 @@ For more information, run
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
 
 .. _pmm-admin-textfile-collector:
 
@@ -502,7 +502,7 @@ as well as
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
 
 .. _pmm-admin.add-mysql-queries.detailed-description:
 
@@ -628,7 +628,7 @@ as well as
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
 
    More information about |qan.name|
       :ref:`pmm.qan`
@@ -734,7 +734,7 @@ For more information, run
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
 
 .. _pmm-admin.add.mongodb-metrics:
 
@@ -806,7 +806,7 @@ provide its URI via the |opt.uri| option.
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
    Essential |mongodb| configuration 
       :ref:`pmm.qan.mongodb.conf`
    
@@ -857,7 +857,7 @@ For more information, run
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
 
 .. _pmm-admin.annotate:
 
@@ -1029,13 +1029,13 @@ The following options can be used with the |pmm-admin.config| command:
 |opt.server-insecure-ssl|
   Enable insecure SSL (self-signed certificate).
 
-|opt.server-password|
+``--SERVER_PASSWORD``
   Specify the HTTP password configured on |pmm-server|.
 
 |opt.server-ssl|
   Enable SSL encryption for connection to |pmm-server|.
 
-|opt.server-user|
+``--SERVER_USER``
   Specify the HTTP user configured on |pmm-server| (default is ``pmm``).
 
 You can also use

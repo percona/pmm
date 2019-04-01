@@ -131,9 +131,9 @@ For more information, see :ref:`using`.
 .. seealso::
 
    Default ports
-      :term:`Ports` in :ref:`pmm.glossary.terminology-reference`
+      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
    Enabling orchestrator
-      :term:`Orchestrator` in :ref:`pmm.glossary.terminology-reference`
+      ref:`Orchestrator <Orchestrator>` in :ref:`pmm.glossary.terminology-reference`
 
 .. _pmm.using.orchestrator:
 
@@ -155,9 +155,9 @@ To use it, create a |mysql| user for |orchestrator| on all managed instances:
    you have to pass them when
    :ref:`running PMM Server <deploy-pmm.server.installing>`
    using the
-   :term:`ORCHESTRATOR_PASSWORD <ORCHESTRATOR_PASSWORD>`
+   :option:`ORCHESTRATOR_PASSWORD`
    and
-   :term:`ORCHESTRATOR_USER  <ORCHESTRATOR_USER>` options.
+   :option:`ORCHESTRATOR_USER` options.
 
    .. include:: .res/code/docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password.txt
 

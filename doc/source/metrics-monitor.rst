@@ -1,3 +1,4 @@
+
 .. _pmm.metrics-monitor:
 
 |metrics-monitor|
@@ -25,8 +26,8 @@ graphs are separated into dashboards by themes: some are related to |mysql| or
 The credentials used to sign in to |grafana| depend on the options that
 you specified when :ref:`starting PMM Server <deploy-pmm.server.installing>`:
 
-* If you do not specify either :term:`SERVER_USER <SERVER_USER>` or
-  :term:`SERVER_PASSWORD <SERVER_PASSWORD>`, you will log in
+* If you do not specify either :option:`SERVER_USER` or
+  :option:`SERVER_PASSWORD`, you will log in
   as an anonymous user.  You can change to a different existing |grafana| user.
 
 * If you specify both |opt.server-user| and |opt.server-password|,
