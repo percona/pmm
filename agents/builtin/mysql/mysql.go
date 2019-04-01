@@ -20,9 +20,9 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	_ "github.com/go-sql-driver/mysql" // register SQL driver
 	inventorypb "github.com/percona/pmm/api/inventory"
 	"github.com/percona/pmm/api/qanpb"
@@ -33,12 +33,22 @@ import (
 	"github.com/percona/pmm-agent/agents/backoff"
 )
 
+const (
+	retainHistory  = 5 * time.Minute
+	refreshHistory = 5 * time.Second
+
+	retainSummaries = 25 * time.Hour // make it work for daily queries
+	querySummaries  = time.Minute
+)
+
 // MySQL QAN services connects to MySQL and extracts performance data.
 type MySQL struct {
-	params  *Params
-	l       *logrus.Entry
-	changes chan Change
-	backoff *backoff.Backoff
+	db           *reform.DB
+	l            *logrus.Entry
+	changes      chan Change
+	backoff      *backoff.Backoff
+	historyCache *historyCache
+	summaryCache *summaryCache
 }
 
 // Params represent Agent parameters.
@@ -49,42 +59,64 @@ type Params struct {
 // Change represents Agent status change _or_ QAN collect request.
 type Change struct {
 	Status  inventorypb.AgentStatus
-	Request qanpb.CollectRequest
+	Request *qanpb.CollectRequest
 }
 
 // New creates new MySQL QAN service.
-func New(params *Params, l *logrus.Entry) *MySQL {
+func New(params *Params, l *logrus.Entry) (*MySQL, error) {
+	sqlDB, err := sql.Open("mysql", params.DSN)
+	if err != nil {
+		return nil, err
+	}
+	sqlDB.SetMaxIdleConns(1)
+	sqlDB.SetMaxOpenConns(1)
+	sqlDB.SetConnMaxLifetime(0)
+	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(l.Tracef))
+
+	return newMySQL(db, l), nil
+}
+
+func newMySQL(db *reform.DB, l *logrus.Entry) *MySQL {
 	return &MySQL{
-		params:  params,
-		l:       l,
-		changes: make(chan Change, 10),
-		backoff: backoff.New(),
+		db:           db,
+		l:            l,
+		changes:      make(chan Change, 10),
+		backoff:      backoff.New(),
+		historyCache: newHistoryCache(retainHistory),
+		summaryCache: newSummaryCache(retainSummaries),
 	}
 }
 
 // Run extracts performance data and sends it to the channel until ctx is canceled.
 func (m *MySQL) Run(ctx context.Context) {
-	m.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
 	defer func() {
+		m.db.DBInterface().(*sql.DB).Close() //nolint:errcheck
 		m.changes <- Change{Status: inventorypb.AgentStatus_DONE}
 		close(m.changes)
 	}()
 
-	sqlDB, err := sql.Open("mysql", m.params.DSN)
-	if err != nil {
+	// add current summaries to cache so they are not send as new on first iteration with incorrect timestamps
+	var running bool
+	m.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
+	if s, err := getSummaries(m.db.Querier); err == nil {
+		m.summaryCache.refresh(s)
+		m.l.Debugf("Got %d initial summaries.", len(s))
+		running = true
+		m.changes <- Change{Status: inventorypb.AgentStatus_RUNNING}
+	} else {
 		m.l.Error(err)
-		return
+		m.changes <- Change{Status: inventorypb.AgentStatus_WAITING}
 	}
-	defer sqlDB.Close()
-	sqlDB.SetMaxIdleConns(1)
-	sqlDB.SetMaxOpenConns(1)
-	sqlDB.SetConnMaxLifetime(0)
 
-	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(m.l.Tracef))
-	t := time.NewTicker(time.Second)
+	go m.runHistoryCacheRefresher(ctx)
+
+	// query events_statements_summary_by_digest every minute at 00 seconds
+	start := time.Now().Truncate(0) // strip monotoning clock reading
+	wait := start.Truncate(querySummaries).Add(querySummaries).Sub(start)
+	m.l.Debugf("Scheduling next collection in %s at %s.", wait, start.Add(wait))
+	t := time.NewTimer(wait)
 	defer t.Stop()
 
-	var running bool
 	for {
 		select {
 		case <-ctx.Done():
@@ -93,78 +125,184 @@ func (m *MySQL) Run(ctx context.Context) {
 			return
 
 		case <-t.C:
-			request, err := m.get(db.Querier)
+			if !running {
+				m.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
+			}
+
+			buckets, err := m.getNewBuckets(start, wait)
+
+			start = time.Now().Truncate(0) // strip monotoning clock reading
+			wait = start.Truncate(querySummaries).Add(querySummaries).Sub(start)
+			m.l.Debugf("Scheduling next collection in %s at %s.", wait, start.Add(wait))
+			t.Reset(wait)
+
 			if err != nil {
 				m.l.Error(err)
 				running = false
 				m.changes <- Change{Status: inventorypb.AgentStatus_WAITING}
-				time.Sleep(time.Second)
-				m.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
 				continue
 			}
 
 			if !running {
-				m.changes <- Change{Status: inventorypb.AgentStatus_RUNNING}
 				running = true
+				m.changes <- Change{Status: inventorypb.AgentStatus_RUNNING}
 			}
 
-			select {
-			case <-ctx.Done():
-				t.Stop()
-				break
-			case m.changes <- Change{Request: request}:
-				// nothing
-			}
+			m.changes <- Change{Request: &qanpb.CollectRequest{MetricsBucket: buckets}}
 		}
 	}
 }
 
-func (m *MySQL) get(q *reform.Querier) (qanpb.CollectRequest, error) {
-	var res qanpb.CollectRequest
-	structs, err := q.SelectAllFrom(eventsStatementsSummaryByDigestView, "")
-	if err != nil {
-		return res, err
-	}
+func (m *MySQL) runHistoryCacheRefresher(ctx context.Context) {
+	t := time.NewTicker(refreshHistory)
+	defer t.Stop()
 
-	for _, str := range structs {
-		ess := str.(*eventsStatementsSummaryByDigest)
-
-		// skipping catch-all row
-		if ess.Digest == nil || ess.DigestText == nil {
-			m.l.Debugf("Skipping %s.", ess)
-			continue
+	for {
+		if err := m.refreshHistoryCache(); err != nil {
+			m.l.Error(err)
 		}
 
-		// From https://dev.mysql.com/doc/relnotes/mysql/8.0/en/news-8-0-11.html:
-		// > The Performance Schema could produce DIGEST_TEXT values with a trailing space.
-		// > This no longer occurs. (Bug #26908015)
-		*ess.DigestText = strings.TrimSpace(*ess.DigestText)
-
-		// TODO https://jira.percona.com/browse/PMM-3594
-		/*
-		   A ton of open questions. Should pmm-agent:
-		   * check that performance schema is enabled?
-		   * check that statement_digest consumer is enabled?
-		   * check/report the value of performance_schema_digests_size?
-		   * TRUNCATE events_statements_summary_by_digest before reading?
-		   * read events_statements_summary_by_digest every second? every 10 seconds? minute? other interval?
-		   * report rows with NULL digest?
-		   * get query by digest from events_statements_history_long?
-		   * check/report the value of performance_schema_events_statements_history_long_size?
-		   * set conditions for FIRST_SEEN / LAST_SEEN? what conditions?
-		   * group/aggregate results? how?
-		   * should github.com/percona/go-mysql/event be used?
-		*/
-
-		res.MetricsBucket = append(res.MetricsBucket, &qanpb.MetricsBucket{
-			Queryid:     *ess.Digest,
-			Fingerprint: *ess.DigestText,
-			DServer:     "TODO",
-			DDatabase:   "TODO",
-			DSchema:     "TODO",
-		})
+		select {
+		case <-ctx.Done():
+			return
+		case <-t.C:
+			// nothing, continue loop
+		}
 	}
-	return res, nil
+}
+
+func (m *MySQL) refreshHistoryCache() error {
+	current, err := getHistory(m.db.Querier)
+	if err != nil {
+		return err
+	}
+	m.historyCache.refresh(current)
+	return nil
+}
+
+func (m *MySQL) getNewBuckets(periodStart time.Time, periodLength time.Duration) ([]*qanpb.MetricsBucket, error) {
+	current, err := getSummaries(m.db.Querier)
+	if err != nil {
+		return nil, err
+	}
+	prev := m.summaryCache.get()
+
+	buckets := makeBuckets(current, prev, m.l)
+	m.l.Debugf("Made %d buckets out of %d summaries.", len(buckets), len(current))
+
+	// merge prev and current in cache
+	m.summaryCache.refresh(current)
+
+	// add timestamps and examples from history cache
+	startS := uint32(periodStart.Unix())
+	lengthS := uint32(periodLength.Seconds())
+	history := m.historyCache.get()
+	for i, b := range buckets {
+		b.PeriodStartUnixSecs = startS
+		b.PeriodLengthSecs = lengthS
+
+		if esh := history[b.Queryid]; esh != nil {
+			// TODO test if we really need that
+			if b.DSchema == "" {
+				b.DSchema = pointer.GetString(esh.CurrentSchema)
+			}
+
+			if esh.SQLText != nil {
+				b.Example = *esh.SQLText
+				b.ExampleFormat = qanpb.ExampleFormat_EXAMPLE
+				b.ExampleType = qanpb.ExampleType_RANDOM
+			}
+		}
+
+		buckets[i] = b
+	}
+
+	return buckets, nil
+}
+
+// makeBuckets uses current state of events_statements_summary_by_digest table and accumulated previous state
+// to make metrics buckets.
+//
+// makeBuckets is a pure function for easier testing.
+func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *logrus.Entry) []*qanpb.MetricsBucket {
+	res := make([]*qanpb.MetricsBucket, 0, len(current))
+
+	for digest, currentESS := range current {
+		prevESS := prev[digest]
+		if prevESS == nil {
+			prevESS = new(eventsStatementsSummaryByDigest)
+		}
+		count := float32(currentESS.CountStar - prevESS.CountStar)
+		switch {
+		case count == 0:
+			// TODO
+			// Another way how this is possible is if events_statements_summary_by_digest was truncated,
+			// and then the same number of queries were made.
+			// Currently, we can't differentiate between those situations.
+			// We probably could by using first_seen/last_seen columns.
+			l.Debugf("Skipped due to the same number of queries: %s.", currentESS)
+			continue
+		case count < 0:
+			l.Debugf("Truncate detected. Treating as a new query: %s.", currentESS)
+			prevESS = new(eventsStatementsSummaryByDigest)
+			count = float32(currentESS.CountStar)
+		case prevESS.CountStar == 0:
+			l.Debugf("New query: %s.", currentESS)
+		default:
+			l.Debugf("Normal query: %s.", currentESS)
+		}
+
+		mb := &qanpb.MetricsBucket{
+			DSchema:                pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?
+			Queryid:                *currentESS.Digest,
+			Fingerprint:            *currentESS.DigestText,
+			NumQueries:             count,
+			NumQueriesWithErrors:   float32(currentESS.SumErrors - prevESS.SumErrors),
+			NumQueriesWithWarnings: float32(currentESS.SumWarnings - prevESS.SumWarnings),
+			MetricsSource:          qanpb.MetricsSource_MYSQL_PERFSCHEMA,
+		}
+
+		for _, p := range []struct {
+			value float32  // result value: currentESS.SumXXX-prevESS.SumXXX
+			sum   *float32 // MetricsBucket.XXXSum field to write value
+			cnt   *float32 // MetricsBucket.XXXCnt field to write count
+		}{
+			// in order of events_statements_summary_by_digest columns
+
+			// convert picoseconds to seconds
+			{float32(currentESS.SumTimerWait-prevESS.SumTimerWait) / 1e12, &mb.MQueryTimeSum, &mb.MQueryTimeCnt},
+			{float32(currentESS.SumLockTime-prevESS.SumLockTime) / 1e12, &mb.MLockTimeSum, &mb.MLockTimeCnt},
+
+			{float32(currentESS.SumRowsAffected - prevESS.SumRowsAffected), &mb.MRowsAffectedSum, &mb.MRowsAffectedCnt},
+			{float32(currentESS.SumRowsSent - prevESS.SumRowsSent), &mb.MRowsSentSum, &mb.MRowsSentCnt},
+			{float32(currentESS.SumRowsExamined - prevESS.SumRowsExamined), &mb.MRowsExaminedSum, &mb.MRowsExaminedCnt},
+
+			{float32(currentESS.SumCreatedTmpDiskTables - prevESS.SumCreatedTmpDiskTables), &mb.MTmpDiskTablesSum, &mb.MTmpDiskTablesCnt},
+			{float32(currentESS.SumCreatedTmpTables - prevESS.SumCreatedTmpTables), &mb.MTmpTablesSum, &mb.MTmpTablesCnt},
+			{float32(currentESS.SumSelectFullJoin - prevESS.SumSelectFullJoin), &mb.MFullJoinSum, &mb.MFullJoinCnt},
+			{float32(currentESS.SumSelectFullRangeJoin - prevESS.SumSelectFullRangeJoin), &mb.MSelectFullRangeJoinSum, &mb.MSelectFullRangeJoinCnt},
+			{float32(currentESS.SumSelectRange - prevESS.SumSelectRange), &mb.MSelectRangeSum, &mb.MSelectRangeCnt},
+			{float32(currentESS.SumSelectRangeCheck - prevESS.SumSelectRangeCheck), &mb.MSelectRangeCheckSum, &mb.MSelectRangeCheckCnt},
+			{float32(currentESS.SumSelectScan - prevESS.SumSelectScan), &mb.MFullScanSum, &mb.MFullScanCnt},
+
+			{float32(currentESS.SumSortMergePasses - prevESS.SumSortMergePasses), &mb.MMergePassesSum, &mb.MMergePassesCnt},
+			{float32(currentESS.SumSortRange - prevESS.SumSortRange), &mb.MSortRangeSum, &mb.MSortRangeCnt},
+			{float32(currentESS.SumSortRows - prevESS.SumSortRows), &mb.MSortRowsSum, &mb.MSortRowsCnt},
+			{float32(currentESS.SumSortScan - prevESS.SumSortScan), &mb.MSortScanSum, &mb.MSortScanCnt},
+
+			{float32(currentESS.SumNoIndexUsed - prevESS.SumNoIndexUsed), &mb.MNoIndexUsedSum, &mb.MNoIndexUsedCnt},
+			{float32(currentESS.SumNoGoodIndexUsed - prevESS.SumNoGoodIndexUsed), &mb.MNoGoodIndexUsedSum, &mb.MNoGoodIndexUsedCnt},
+		} {
+			if p.value != 0 {
+				*p.sum = p.value
+				*p.cnt = count
+			}
+		}
+
+		res = append(res, mb)
+	}
+
+	return res
 }
 
 // Changes returns channel that should be read until it is closed.

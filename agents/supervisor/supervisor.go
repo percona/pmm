@@ -25,6 +25,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime/pprof"
 	"sort"
 	"strings"
 	"sync"
@@ -275,13 +276,14 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 	}
 
 	ctx, cancel := context.WithCancel(s.ctx)
+	agentType := strings.ToLower(agentProcess.Type.String())
 	l := logrus.WithFields(logrus.Fields{
 		"component": "agent-process",
 		"agentID":   agentID,
-		"type":      strings.ToLower(agentProcess.Type.String()),
+		"type":      agentType,
 	})
 	process := process.New(processParams, l)
-	go process.Run(ctx)
+	go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), process.Run)
 
 	done := make(chan struct{})
 	go func() {
@@ -306,10 +308,11 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 // startBuiltin starts builtin agent and returns its info.
 func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetStateRequest_BuiltinAgent) (*builtinAgentInfo, error) {
 	ctx, cancel := context.WithCancel(s.ctx)
+	agentType := strings.ToLower(builtinAgent.Type.String())
 	l := logrus.WithFields(logrus.Fields{
 		"component": "agent-builtin",
 		"agentID":   agentID,
-		"type":      strings.ToLower(builtinAgent.Type.String()),
+		"type":      agentType,
 	})
 
 	done := make(chan struct{})
@@ -318,8 +321,12 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		params := &mysql.Params{
 			DSN: builtinAgent.Dsn,
 		}
-		m := mysql.New(params, l)
-		go m.Run(ctx)
+		m, err := mysql.New(params, l)
+		if err != nil {
+			cancel()
+			return nil, err
+		}
+		go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), m.Run)
 
 		go func() {
 			for change := range m.Changes() {
@@ -330,7 +337,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 					}
 				} else {
 					s.qanRequests <- agentpb.QANCollectRequest{
-						Message: &change.Request,
+						Message: change.Request,
 					}
 				}
 			}
@@ -339,7 +346,7 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case type_TEST_NOOP:
 		n := noop.New()
-		go n.Run(ctx)
+		go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), n.Run)
 
 		go func() {
 			for status := range n.Changes() {

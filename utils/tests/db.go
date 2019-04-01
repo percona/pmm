@@ -29,11 +29,16 @@ import (
 func OpenTestMySQL(tb testing.TB) *sql.DB {
 	tb.Helper()
 
+	if testing.Short() {
+		tb.Skip("-short flag is passed, skipping test with real database.")
+	}
+
 	cfg := mysql.NewConfig()
 	cfg.User = "root"
 	cfg.Passwd = "root-password"
 	cfg.Net = "tcp"
 	cfg.Addr = "127.0.0.1:3306"
+	cfg.DBName = "world"
 
 	// required for reform
 	cfg.ClientFoundRows = true

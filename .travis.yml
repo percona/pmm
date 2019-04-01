@@ -20,13 +20,19 @@ cache:
 
 env:
   matrix:
-    - MYSQL_IMAGE=percona/percona-server:5.6
-    - MYSQL_IMAGE=percona/percona-server:5.7
-    - MYSQL_IMAGE=percona/percona-server:8.0
+    - MYSQL_IMAGE=percona:5.6
+    - MYSQL_IMAGE=percona:5.7
+    - MYSQL_IMAGE=percona:8.0
+
+    # TODO
+    # - MYSQL_IMAGE=mariadb:5.5
+    # - MYSQL_IMAGE=mariadb:10.1
+    # - MYSQL_IMAGE=mariadb:10.2
+    # - MYSQL_IMAGE=mariadb:10.3
+    # - MYSQL_IMAGE=mariadb:10.4
 
     # TODO
     # mysql or mysql/mysql-server ?
-    # mariadb
 
 script:
   - sudo service mysql stop

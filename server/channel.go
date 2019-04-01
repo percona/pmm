@@ -22,6 +22,7 @@ import (
 	"sync"
 	"sync/atomic"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -150,7 +151,13 @@ func (c *Channel) send(msg *agentpb.AgentMessage) {
 	default:
 	}
 
-	c.l.Debugf("Sending message: %s.", msg)
+	// do not use default compact representation for large/complex messages
+	if size := proto.Size(msg); size < 100 {
+		c.l.Debugf("Sending message (%d bytes): %s.", size, msg)
+	} else {
+		c.l.Debugf("Sending message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+	}
+
 	err := c.s.Send(msg)
 	c.sendM.Unlock()
 	if err != nil {
@@ -173,8 +180,14 @@ func (c *Channel) runReceiver() {
 			c.close(errors.Wrap(err, "failed to receive message"))
 			return
 		}
-		c.l.Debugf("Received message: %s.", msg)
 		c.mRecv.Inc()
+
+		// do not use default compact representation for large/complex messages
+		if size := proto.Size(msg); size < 100 {
+			c.l.Debugf("Received message (%d bytes): %s.", size, msg)
+		} else {
+			c.l.Debugf("Received message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
+		}
 
 		switch msg.Payload.(type) {
 		// requests

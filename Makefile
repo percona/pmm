@@ -32,6 +32,11 @@ init:                           ## Installs tools to $GOPATH/bin (which is expec
 gen:                            ## Generate files.
 	go generate ./...
 
+gen-init:
+	go install -v ./vendor/gopkg.in/reform.v1/reform-db
+	mkdir tmp-mysql
+	reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
+
 install:                        ## Install pmm-agent binary.
 	go install -v $(LD_FLAGS) ./...
 
@@ -59,7 +64,7 @@ format:                         ## Run `goimports`.
 	goimports -local github.com/percona/pmm-agent -l -w $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
 env-up:                         ## Start development environment.
-	docker-compose up --force-recreate --abort-on-container-exit --renew-anon-volumes --remove-orphans
+	docker-compose up --force-recreate --renew-anon-volumes --remove-orphans
 
 env-down:                       ## Stop development environment.
 	docker-compose down --volumes --remove-orphans

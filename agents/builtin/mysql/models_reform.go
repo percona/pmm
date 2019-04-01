@@ -27,7 +27,7 @@ func (v *eventsStatementsSummaryByDigestViewType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *eventsStatementsSummaryByDigestViewType) Columns() []string {
-	return []string{"SCHEMA_NAME", "DIGEST", "DIGEST_TEXT", "COUNT_STAR", "SUM_TIMER_WAIT", "MIN_TIMER_WAIT", "AVG_TIMER_WAIT", "MAX_TIMER_WAIT", "SUM_LOCK_TIME", "SUM_ERRORS", "SUM_WARNINGS", "SUM_ROWS_AFFECTED", "SUM_ROWS_SENT", "SUM_ROWS_EXAMINED", "SUM_CREATED_TMP_DISK_TABLES", "SUM_CREATED_TMP_TABLES", "SUM_SELECT_FULL_JOIN", "SUM_SELECT_FULL_RANGE_JOIN", "SUM_SELECT_RANGE", "SUM_SELECT_RANGE_CHECK", "SUM_SELECT_SCAN", "SUM_SORT_MERGE_PASSES", "SUM_SORT_RANGE", "SUM_SORT_ROWS", "SUM_SORT_SCAN", "SUM_NO_INDEX_USED", "SUM_NO_GOOD_INDEX_USED", "FIRST_SEEN", "LAST_SEEN"}
+	return []string{"SCHEMA_NAME", "DIGEST", "DIGEST_TEXT", "COUNT_STAR", "SUM_TIMER_WAIT", "MIN_TIMER_WAIT", "AVG_TIMER_WAIT", "MAX_TIMER_WAIT", "SUM_LOCK_TIME", "SUM_ERRORS", "SUM_WARNINGS", "SUM_ROWS_AFFECTED", "SUM_ROWS_SENT", "SUM_ROWS_EXAMINED", "SUM_CREATED_TMP_DISK_TABLES", "SUM_CREATED_TMP_TABLES", "SUM_SELECT_FULL_JOIN", "SUM_SELECT_FULL_RANGE_JOIN", "SUM_SELECT_RANGE", "SUM_SELECT_RANGE_CHECK", "SUM_SELECT_SCAN", "SUM_SORT_MERGE_PASSES", "SUM_SORT_RANGE", "SUM_SORT_ROWS", "SUM_SORT_SCAN", "SUM_NO_INDEX_USED", "SUM_NO_GOOD_INDEX_USED"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -37,13 +37,13 @@ func (v *eventsStatementsSummaryByDigestViewType) NewStruct() reform.Struct {
 
 // eventsStatementsSummaryByDigestView represents events_statements_summary_by_digest view or table in SQL database.
 var eventsStatementsSummaryByDigestView = &eventsStatementsSummaryByDigestViewType{
-	s: parse.StructInfo{Type: "eventsStatementsSummaryByDigest", SQLSchema: "performance_schema", SQLName: "events_statements_summary_by_digest", Fields: []parse.FieldInfo{{Name: "SchemaName", Type: "*string", Column: "SCHEMA_NAME"}, {Name: "Digest", Type: "*string", Column: "DIGEST"}, {Name: "DigestText", Type: "*string", Column: "DIGEST_TEXT"}, {Name: "CountStar", Type: "int64", Column: "COUNT_STAR"}, {Name: "SumTimerWait", Type: "int64", Column: "SUM_TIMER_WAIT"}, {Name: "MinTimerWait", Type: "int64", Column: "MIN_TIMER_WAIT"}, {Name: "AvgTimerWait", Type: "int64", Column: "AVG_TIMER_WAIT"}, {Name: "MaxTimerWait", Type: "int64", Column: "MAX_TIMER_WAIT"}, {Name: "SumLockTime", Type: "int64", Column: "SUM_LOCK_TIME"}, {Name: "SumErrors", Type: "int64", Column: "SUM_ERRORS"}, {Name: "SumWarnings", Type: "int64", Column: "SUM_WARNINGS"}, {Name: "SumRowsAffected", Type: "int64", Column: "SUM_ROWS_AFFECTED"}, {Name: "SumRowsSent", Type: "int64", Column: "SUM_ROWS_SENT"}, {Name: "SumRowsExamined", Type: "int64", Column: "SUM_ROWS_EXAMINED"}, {Name: "SumCreatedTmpDiskTables", Type: "int64", Column: "SUM_CREATED_TMP_DISK_TABLES"}, {Name: "SumCreatedTmpTables", Type: "int64", Column: "SUM_CREATED_TMP_TABLES"}, {Name: "SumSelectFullJoin", Type: "int64", Column: "SUM_SELECT_FULL_JOIN"}, {Name: "SumSelectFullRangeJoin", Type: "int64", Column: "SUM_SELECT_FULL_RANGE_JOIN"}, {Name: "SumSelectRange", Type: "int64", Column: "SUM_SELECT_RANGE"}, {Name: "SumSelectRangeCheck", Type: "int64", Column: "SUM_SELECT_RANGE_CHECK"}, {Name: "SumSelectScan", Type: "int64", Column: "SUM_SELECT_SCAN"}, {Name: "SumSortMergePasses", Type: "int64", Column: "SUM_SORT_MERGE_PASSES"}, {Name: "SumSortRange", Type: "int64", Column: "SUM_SORT_RANGE"}, {Name: "SumSortRows", Type: "int64", Column: "SUM_SORT_ROWS"}, {Name: "SumSortScan", Type: "int64", Column: "SUM_SORT_SCAN"}, {Name: "SumNoIndexUsed", Type: "int64", Column: "SUM_NO_INDEX_USED"}, {Name: "SumNoGoodIndexUsed", Type: "int64", Column: "SUM_NO_GOOD_INDEX_USED"}, {Name: "FirstSeen", Type: "time.Time", Column: "FIRST_SEEN"}, {Name: "LastSeen", Type: "time.Time", Column: "LAST_SEEN"}}, PKFieldIndex: -1},
+	s: parse.StructInfo{Type: "eventsStatementsSummaryByDigest", SQLSchema: "performance_schema", SQLName: "events_statements_summary_by_digest", Fields: []parse.FieldInfo{{Name: "SchemaName", Type: "*string", Column: "SCHEMA_NAME"}, {Name: "Digest", Type: "*string", Column: "DIGEST"}, {Name: "DigestText", Type: "*string", Column: "DIGEST_TEXT"}, {Name: "CountStar", Type: "int64", Column: "COUNT_STAR"}, {Name: "SumTimerWait", Type: "int64", Column: "SUM_TIMER_WAIT"}, {Name: "MinTimerWait", Type: "int64", Column: "MIN_TIMER_WAIT"}, {Name: "AvgTimerWait", Type: "int64", Column: "AVG_TIMER_WAIT"}, {Name: "MaxTimerWait", Type: "int64", Column: "MAX_TIMER_WAIT"}, {Name: "SumLockTime", Type: "int64", Column: "SUM_LOCK_TIME"}, {Name: "SumErrors", Type: "int64", Column: "SUM_ERRORS"}, {Name: "SumWarnings", Type: "int64", Column: "SUM_WARNINGS"}, {Name: "SumRowsAffected", Type: "int64", Column: "SUM_ROWS_AFFECTED"}, {Name: "SumRowsSent", Type: "int64", Column: "SUM_ROWS_SENT"}, {Name: "SumRowsExamined", Type: "int64", Column: "SUM_ROWS_EXAMINED"}, {Name: "SumCreatedTmpDiskTables", Type: "int64", Column: "SUM_CREATED_TMP_DISK_TABLES"}, {Name: "SumCreatedTmpTables", Type: "int64", Column: "SUM_CREATED_TMP_TABLES"}, {Name: "SumSelectFullJoin", Type: "int64", Column: "SUM_SELECT_FULL_JOIN"}, {Name: "SumSelectFullRangeJoin", Type: "int64", Column: "SUM_SELECT_FULL_RANGE_JOIN"}, {Name: "SumSelectRange", Type: "int64", Column: "SUM_SELECT_RANGE"}, {Name: "SumSelectRangeCheck", Type: "int64", Column: "SUM_SELECT_RANGE_CHECK"}, {Name: "SumSelectScan", Type: "int64", Column: "SUM_SELECT_SCAN"}, {Name: "SumSortMergePasses", Type: "int64", Column: "SUM_SORT_MERGE_PASSES"}, {Name: "SumSortRange", Type: "int64", Column: "SUM_SORT_RANGE"}, {Name: "SumSortRows", Type: "int64", Column: "SUM_SORT_ROWS"}, {Name: "SumSortScan", Type: "int64", Column: "SUM_SORT_SCAN"}, {Name: "SumNoIndexUsed", Type: "int64", Column: "SUM_NO_INDEX_USED"}, {Name: "SumNoGoodIndexUsed", Type: "int64", Column: "SUM_NO_GOOD_INDEX_USED"}}, PKFieldIndex: -1},
 	z: new(eventsStatementsSummaryByDigest).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s eventsStatementsSummaryByDigest) String() string {
-	res := make([]string, 29)
+	res := make([]string, 27)
 	res[0] = "SchemaName: " + reform.Inspect(s.SchemaName, true)
 	res[1] = "Digest: " + reform.Inspect(s.Digest, true)
 	res[2] = "DigestText: " + reform.Inspect(s.DigestText, true)
@@ -71,8 +71,6 @@ func (s eventsStatementsSummaryByDigest) String() string {
 	res[24] = "SumSortScan: " + reform.Inspect(s.SumSortScan, true)
 	res[25] = "SumNoIndexUsed: " + reform.Inspect(s.SumNoIndexUsed, true)
 	res[26] = "SumNoGoodIndexUsed: " + reform.Inspect(s.SumNoGoodIndexUsed, true)
-	res[27] = "FirstSeen: " + reform.Inspect(s.FirstSeen, true)
-	res[28] = "LastSeen: " + reform.Inspect(s.LastSeen, true)
 	return strings.Join(res, ", ")
 }
 
@@ -107,8 +105,6 @@ func (s *eventsStatementsSummaryByDigest) Values() []interface{} {
 		s.SumSortScan,
 		s.SumNoIndexUsed,
 		s.SumNoGoodIndexUsed,
-		s.FirstSeen,
-		s.LastSeen,
 	}
 }
 
@@ -143,8 +139,6 @@ func (s *eventsStatementsSummaryByDigest) Pointers() []interface{} {
 		&s.SumSortScan,
 		&s.SumNoIndexUsed,
 		&s.SumNoGoodIndexUsed,
-		&s.FirstSeen,
-		&s.LastSeen,
 	}
 }
 
@@ -177,176 +171,205 @@ func (v *eventsStatementsHistoryViewType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *eventsStatementsHistoryViewType) Columns() []string {
-	return []string{"THREAD_ID", "EVENT_ID", "END_EVENT_ID", "EVENT_NAME", "SOURCE", "TIMER_START", "TIMER_END", "TIMER_WAIT", "LOCK_TIME", "SQL_TEXT", "DIGEST", "DIGEST_TEXT", "CURRENT_SCHEMA", "OBJECT_TYPE", "OBJECT_SCHEMA", "OBJECT_NAME", "OBJECT_INSTANCE_BEGIN", "MYSQL_ERRNO", "RETURNED_SQLSTATE", "MESSAGE_TEXT", "ERRORS", "WARNINGS", "ROWS_AFFECTED", "ROWS_SENT", "ROWS_EXAMINED", "CREATED_TMP_DISK_TABLES", "CREATED_TMP_TABLES", "SELECT_FULL_JOIN", "SELECT_FULL_RANGE_JOIN", "SELECT_RANGE", "SELECT_RANGE_CHECK", "SELECT_SCAN", "SORT_MERGE_PASSES", "SORT_RANGE", "SORT_ROWS", "SORT_SCAN", "NO_INDEX_USED", "NO_GOOD_INDEX_USED", "NESTING_EVENT_ID", "NESTING_EVENT_TYPE", "NESTING_EVENT_LEVEL"}
+	return []string{"SQL_TEXT", "DIGEST", "CURRENT_SCHEMA"}
 }
 
 // NewStruct makes a new struct for that view or table.
 func (v *eventsStatementsHistoryViewType) NewStruct() reform.Struct {
-	return new(EventsStatementsHistory)
+	return new(eventsStatementsHistory)
 }
 
-// EventsStatementsHistoryView represents events_statements_history view or table in SQL database.
-var EventsStatementsHistoryView = &eventsStatementsHistoryViewType{
-	s: parse.StructInfo{Type: "EventsStatementsHistory", SQLSchema: "performance_schema", SQLName: "events_statements_history", Fields: []parse.FieldInfo{{Name: "ThreadID", Type: "int64", Column: "THREAD_ID"}, {Name: "EventID", Type: "int64", Column: "EVENT_ID"}, {Name: "EndEventID", Type: "*int64", Column: "END_EVENT_ID"}, {Name: "EventName", Type: "string", Column: "EVENT_NAME"}, {Name: "Source", Type: "*string", Column: "SOURCE"}, {Name: "TimerStart", Type: "*int64", Column: "TIMER_START"}, {Name: "TimerEnd", Type: "*int64", Column: "TIMER_END"}, {Name: "TimerWait", Type: "*int64", Column: "TIMER_WAIT"}, {Name: "LockTime", Type: "int64", Column: "LOCK_TIME"}, {Name: "SQLText", Type: "*string", Column: "SQL_TEXT"}, {Name: "Digest", Type: "*string", Column: "DIGEST"}, {Name: "DigestText", Type: "*string", Column: "DIGEST_TEXT"}, {Name: "CurrentSchema", Type: "*string", Column: "CURRENT_SCHEMA"}, {Name: "ObjectType", Type: "*string", Column: "OBJECT_TYPE"}, {Name: "ObjectSchema", Type: "*string", Column: "OBJECT_SCHEMA"}, {Name: "ObjectName", Type: "*string", Column: "OBJECT_NAME"}, {Name: "ObjectInstanceBegin", Type: "*int64", Column: "OBJECT_INSTANCE_BEGIN"}, {Name: "MySQLErrno", Type: "*int32", Column: "MYSQL_ERRNO"}, {Name: "ReturnedSqlstate", Type: "*string", Column: "RETURNED_SQLSTATE"}, {Name: "MessageText", Type: "*string", Column: "MESSAGE_TEXT"}, {Name: "Errors", Type: "int64", Column: "ERRORS"}, {Name: "Warnings", Type: "int64", Column: "WARNINGS"}, {Name: "RowsAffected", Type: "int64", Column: "ROWS_AFFECTED"}, {Name: "RowsSent", Type: "int64", Column: "ROWS_SENT"}, {Name: "RowsExamined", Type: "int64", Column: "ROWS_EXAMINED"}, {Name: "CreatedTmpDiskTables", Type: "int64", Column: "CREATED_TMP_DISK_TABLES"}, {Name: "CreatedTmpTables", Type: "int64", Column: "CREATED_TMP_TABLES"}, {Name: "SelectFullJoin", Type: "int64", Column: "SELECT_FULL_JOIN"}, {Name: "SelectFullRangeJoin", Type: "int64", Column: "SELECT_FULL_RANGE_JOIN"}, {Name: "SelectRange", Type: "int64", Column: "SELECT_RANGE"}, {Name: "SelectRangeCheck", Type: "int64", Column: "SELECT_RANGE_CHECK"}, {Name: "SelectScan", Type: "int64", Column: "SELECT_SCAN"}, {Name: "SortMergePasses", Type: "int64", Column: "SORT_MERGE_PASSES"}, {Name: "SortRange", Type: "int64", Column: "SORT_RANGE"}, {Name: "SortRows", Type: "int64", Column: "SORT_ROWS"}, {Name: "SortScan", Type: "int64", Column: "SORT_SCAN"}, {Name: "MoIndexUsed", Type: "int64", Column: "NO_INDEX_USED"}, {Name: "MoGoodIndexUsed", Type: "int64", Column: "NO_GOOD_INDEX_USED"}, {Name: "NestingEventID", Type: "*int64", Column: "NESTING_EVENT_ID"}, {Name: "NestingEventType", Type: "string", Column: "NESTING_EVENT_TYPE"}, {Name: "NestingEventLevel", Type: "*int32", Column: "NESTING_EVENT_LEVEL"}}, PKFieldIndex: -1},
-	z: new(EventsStatementsHistory).Values(),
+// eventsStatementsHistoryView represents events_statements_history view or table in SQL database.
+var eventsStatementsHistoryView = &eventsStatementsHistoryViewType{
+	s: parse.StructInfo{Type: "eventsStatementsHistory", SQLSchema: "performance_schema", SQLName: "events_statements_history", Fields: []parse.FieldInfo{{Name: "SQLText", Type: "*string", Column: "SQL_TEXT"}, {Name: "Digest", Type: "*string", Column: "DIGEST"}, {Name: "CurrentSchema", Type: "*string", Column: "CURRENT_SCHEMA"}}, PKFieldIndex: -1},
+	z: new(eventsStatementsHistory).Values(),
 }
 
 // String returns a string representation of this struct or record.
-func (s EventsStatementsHistory) String() string {
-	res := make([]string, 41)
-	res[0] = "ThreadID: " + reform.Inspect(s.ThreadID, true)
-	res[1] = "EventID: " + reform.Inspect(s.EventID, true)
-	res[2] = "EndEventID: " + reform.Inspect(s.EndEventID, true)
-	res[3] = "EventName: " + reform.Inspect(s.EventName, true)
-	res[4] = "Source: " + reform.Inspect(s.Source, true)
-	res[5] = "TimerStart: " + reform.Inspect(s.TimerStart, true)
-	res[6] = "TimerEnd: " + reform.Inspect(s.TimerEnd, true)
-	res[7] = "TimerWait: " + reform.Inspect(s.TimerWait, true)
-	res[8] = "LockTime: " + reform.Inspect(s.LockTime, true)
-	res[9] = "SQLText: " + reform.Inspect(s.SQLText, true)
-	res[10] = "Digest: " + reform.Inspect(s.Digest, true)
-	res[11] = "DigestText: " + reform.Inspect(s.DigestText, true)
-	res[12] = "CurrentSchema: " + reform.Inspect(s.CurrentSchema, true)
-	res[13] = "ObjectType: " + reform.Inspect(s.ObjectType, true)
-	res[14] = "ObjectSchema: " + reform.Inspect(s.ObjectSchema, true)
-	res[15] = "ObjectName: " + reform.Inspect(s.ObjectName, true)
-	res[16] = "ObjectInstanceBegin: " + reform.Inspect(s.ObjectInstanceBegin, true)
-	res[17] = "MySQLErrno: " + reform.Inspect(s.MySQLErrno, true)
-	res[18] = "ReturnedSqlstate: " + reform.Inspect(s.ReturnedSqlstate, true)
-	res[19] = "MessageText: " + reform.Inspect(s.MessageText, true)
-	res[20] = "Errors: " + reform.Inspect(s.Errors, true)
-	res[21] = "Warnings: " + reform.Inspect(s.Warnings, true)
-	res[22] = "RowsAffected: " + reform.Inspect(s.RowsAffected, true)
-	res[23] = "RowsSent: " + reform.Inspect(s.RowsSent, true)
-	res[24] = "RowsExamined: " + reform.Inspect(s.RowsExamined, true)
-	res[25] = "CreatedTmpDiskTables: " + reform.Inspect(s.CreatedTmpDiskTables, true)
-	res[26] = "CreatedTmpTables: " + reform.Inspect(s.CreatedTmpTables, true)
-	res[27] = "SelectFullJoin: " + reform.Inspect(s.SelectFullJoin, true)
-	res[28] = "SelectFullRangeJoin: " + reform.Inspect(s.SelectFullRangeJoin, true)
-	res[29] = "SelectRange: " + reform.Inspect(s.SelectRange, true)
-	res[30] = "SelectRangeCheck: " + reform.Inspect(s.SelectRangeCheck, true)
-	res[31] = "SelectScan: " + reform.Inspect(s.SelectScan, true)
-	res[32] = "SortMergePasses: " + reform.Inspect(s.SortMergePasses, true)
-	res[33] = "SortRange: " + reform.Inspect(s.SortRange, true)
-	res[34] = "SortRows: " + reform.Inspect(s.SortRows, true)
-	res[35] = "SortScan: " + reform.Inspect(s.SortScan, true)
-	res[36] = "MoIndexUsed: " + reform.Inspect(s.MoIndexUsed, true)
-	res[37] = "MoGoodIndexUsed: " + reform.Inspect(s.MoGoodIndexUsed, true)
-	res[38] = "NestingEventID: " + reform.Inspect(s.NestingEventID, true)
-	res[39] = "NestingEventType: " + reform.Inspect(s.NestingEventType, true)
-	res[40] = "NestingEventLevel: " + reform.Inspect(s.NestingEventLevel, true)
+func (s eventsStatementsHistory) String() string {
+	res := make([]string, 3)
+	res[0] = "SQLText: " + reform.Inspect(s.SQLText, true)
+	res[1] = "Digest: " + reform.Inspect(s.Digest, true)
+	res[2] = "CurrentSchema: " + reform.Inspect(s.CurrentSchema, true)
 	return strings.Join(res, ", ")
 }
 
 // Values returns a slice of struct or record field values.
 // Returned interface{} values are never untyped nils.
-func (s *EventsStatementsHistory) Values() []interface{} {
+func (s *eventsStatementsHistory) Values() []interface{} {
 	return []interface{}{
-		s.ThreadID,
-		s.EventID,
-		s.EndEventID,
-		s.EventName,
-		s.Source,
-		s.TimerStart,
-		s.TimerEnd,
-		s.TimerWait,
-		s.LockTime,
 		s.SQLText,
 		s.Digest,
-		s.DigestText,
 		s.CurrentSchema,
-		s.ObjectType,
-		s.ObjectSchema,
-		s.ObjectName,
-		s.ObjectInstanceBegin,
-		s.MySQLErrno,
-		s.ReturnedSqlstate,
-		s.MessageText,
-		s.Errors,
-		s.Warnings,
-		s.RowsAffected,
-		s.RowsSent,
-		s.RowsExamined,
-		s.CreatedTmpDiskTables,
-		s.CreatedTmpTables,
-		s.SelectFullJoin,
-		s.SelectFullRangeJoin,
-		s.SelectRange,
-		s.SelectRangeCheck,
-		s.SelectScan,
-		s.SortMergePasses,
-		s.SortRange,
-		s.SortRows,
-		s.SortScan,
-		s.MoIndexUsed,
-		s.MoGoodIndexUsed,
-		s.NestingEventID,
-		s.NestingEventType,
-		s.NestingEventLevel,
 	}
 }
 
 // Pointers returns a slice of pointers to struct or record fields.
 // Returned interface{} values are never untyped nils.
-func (s *EventsStatementsHistory) Pointers() []interface{} {
+func (s *eventsStatementsHistory) Pointers() []interface{} {
 	return []interface{}{
-		&s.ThreadID,
-		&s.EventID,
-		&s.EndEventID,
-		&s.EventName,
-		&s.Source,
-		&s.TimerStart,
-		&s.TimerEnd,
-		&s.TimerWait,
-		&s.LockTime,
 		&s.SQLText,
 		&s.Digest,
-		&s.DigestText,
 		&s.CurrentSchema,
-		&s.ObjectType,
-		&s.ObjectSchema,
-		&s.ObjectName,
-		&s.ObjectInstanceBegin,
-		&s.MySQLErrno,
-		&s.ReturnedSqlstate,
-		&s.MessageText,
-		&s.Errors,
-		&s.Warnings,
-		&s.RowsAffected,
-		&s.RowsSent,
-		&s.RowsExamined,
-		&s.CreatedTmpDiskTables,
-		&s.CreatedTmpTables,
-		&s.SelectFullJoin,
-		&s.SelectFullRangeJoin,
-		&s.SelectRange,
-		&s.SelectRangeCheck,
-		&s.SelectScan,
-		&s.SortMergePasses,
-		&s.SortRange,
-		&s.SortRows,
-		&s.SortScan,
-		&s.MoIndexUsed,
-		&s.MoGoodIndexUsed,
-		&s.NestingEventID,
-		&s.NestingEventType,
-		&s.NestingEventLevel,
 	}
 }
 
 // View returns View object for that struct.
-func (s *EventsStatementsHistory) View() reform.View {
-	return EventsStatementsHistoryView
+func (s *eventsStatementsHistory) View() reform.View {
+	return eventsStatementsHistoryView
 }
 
 // check interfaces
 var (
-	_ reform.View   = EventsStatementsHistoryView
-	_ reform.Struct = (*EventsStatementsHistory)(nil)
-	_ fmt.Stringer  = (*EventsStatementsHistory)(nil)
+	_ reform.View   = eventsStatementsHistoryView
+	_ reform.Struct = (*eventsStatementsHistory)(nil)
+	_ fmt.Stringer  = (*eventsStatementsHistory)(nil)
+)
+
+type setupConsumersViewType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("performance_schema").
+func (v *setupConsumersViewType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("setup_consumers").
+func (v *setupConsumersViewType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *setupConsumersViewType) Columns() []string {
+	return []string{"NAME", "ENABLED"}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *setupConsumersViewType) NewStruct() reform.Struct {
+	return new(setupConsumers)
+}
+
+// setupConsumersView represents setup_consumers view or table in SQL database.
+var setupConsumersView = &setupConsumersViewType{
+	s: parse.StructInfo{Type: "setupConsumers", SQLSchema: "performance_schema", SQLName: "setup_consumers", Fields: []parse.FieldInfo{{Name: "Name", Type: "string", Column: "NAME"}, {Name: "Enabled", Type: "string", Column: "ENABLED"}}, PKFieldIndex: -1},
+	z: new(setupConsumers).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s setupConsumers) String() string {
+	res := make([]string, 2)
+	res[0] = "Name: " + reform.Inspect(s.Name, true)
+	res[1] = "Enabled: " + reform.Inspect(s.Enabled, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *setupConsumers) Values() []interface{} {
+	return []interface{}{
+		s.Name,
+		s.Enabled,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *setupConsumers) Pointers() []interface{} {
+	return []interface{}{
+		&s.Name,
+		&s.Enabled,
+	}
+}
+
+// View returns View object for that struct.
+func (s *setupConsumers) View() reform.View {
+	return setupConsumersView
+}
+
+// check interfaces
+var (
+	_ reform.View   = setupConsumersView
+	_ reform.Struct = (*setupConsumers)(nil)
+	_ fmt.Stringer  = (*setupConsumers)(nil)
+)
+
+type setupInstrumentsViewType struct {
+	s parse.StructInfo
+	z []interface{}
+}
+
+// Schema returns a schema name in SQL database ("performance_schema").
+func (v *setupInstrumentsViewType) Schema() string {
+	return v.s.SQLSchema
+}
+
+// Name returns a view or table name in SQL database ("setup_instruments").
+func (v *setupInstrumentsViewType) Name() string {
+	return v.s.SQLName
+}
+
+// Columns returns a new slice of column names for that view or table in SQL database.
+func (v *setupInstrumentsViewType) Columns() []string {
+	return []string{"NAME", "ENABLED", "TIMED"}
+}
+
+// NewStruct makes a new struct for that view or table.
+func (v *setupInstrumentsViewType) NewStruct() reform.Struct {
+	return new(setupInstruments)
+}
+
+// setupInstrumentsView represents setup_instruments view or table in SQL database.
+var setupInstrumentsView = &setupInstrumentsViewType{
+	s: parse.StructInfo{Type: "setupInstruments", SQLSchema: "performance_schema", SQLName: "setup_instruments", Fields: []parse.FieldInfo{{Name: "Name", Type: "string", Column: "NAME"}, {Name: "Enabled", Type: "string", Column: "ENABLED"}, {Name: "Timed", Type: "*string", Column: "TIMED"}}, PKFieldIndex: -1},
+	z: new(setupInstruments).Values(),
+}
+
+// String returns a string representation of this struct or record.
+func (s setupInstruments) String() string {
+	res := make([]string, 3)
+	res[0] = "Name: " + reform.Inspect(s.Name, true)
+	res[1] = "Enabled: " + reform.Inspect(s.Enabled, true)
+	res[2] = "Timed: " + reform.Inspect(s.Timed, true)
+	return strings.Join(res, ", ")
+}
+
+// Values returns a slice of struct or record field values.
+// Returned interface{} values are never untyped nils.
+func (s *setupInstruments) Values() []interface{} {
+	return []interface{}{
+		s.Name,
+		s.Enabled,
+		s.Timed,
+	}
+}
+
+// Pointers returns a slice of pointers to struct or record fields.
+// Returned interface{} values are never untyped nils.
+func (s *setupInstruments) Pointers() []interface{} {
+	return []interface{}{
+		&s.Name,
+		&s.Enabled,
+		&s.Timed,
+	}
+}
+
+// View returns View object for that struct.
+func (s *setupInstruments) View() reform.View {
+	return setupInstrumentsView
+}
+
+// check interfaces
+var (
+	_ reform.View   = setupInstrumentsView
+	_ reform.Struct = (*setupInstruments)(nil)
+	_ fmt.Stringer  = (*setupInstruments)(nil)
 )
 
 func init() {
 	parse.AssertUpToDate(&eventsStatementsSummaryByDigestView.s, new(eventsStatementsSummaryByDigest))
-	parse.AssertUpToDate(&EventsStatementsHistoryView.s, new(EventsStatementsHistory))
+	parse.AssertUpToDate(&eventsStatementsHistoryView.s, new(eventsStatementsHistory))
+	parse.AssertUpToDate(&setupConsumersView.s, new(setupConsumers))
+	parse.AssertUpToDate(&setupInstrumentsView.s, new(setupInstruments))
 }

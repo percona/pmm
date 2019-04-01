@@ -4,6 +4,7 @@ ignored = [
 
 # tools
 required = [
+  # "gopkg.in/reform.v1/reform-db",
   "gopkg.in/reform.v1/reform"
 ]
 

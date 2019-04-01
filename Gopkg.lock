@@ -131,7 +131,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:4dbd33a7a6af76cfffe3bce5f73db57af8085f39508ee2a294e8ee808b0300cc"
+  digest = "1:1572759be1c4a5c9b8848c2168bc036a7777e4abadca2c6b77b4de6562c4bd03"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -141,7 +141,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "06713600ef6fd15c2ea657abc963b3fa8bc36d4c"
+  revision = "b94b26cc5b97926bea35683f7481963317060bd6"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -386,6 +386,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/AlekSi/pointer",
+    "github.com/davecgh/go-spew/spew",
     "github.com/go-sql-driver/mysql",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/ptypes",
