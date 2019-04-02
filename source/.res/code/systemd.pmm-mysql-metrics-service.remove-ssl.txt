@@ -4,14 +4,14 @@
 
    [Unit]
    Description=PMM Prometheus mysqld_exporter 42002
-   ConditionFileIsExecutable=/usr/local/percona/pmm-client/mysqld_exporter
+   ConditionFileIsExecutable=/usr/local/percona/pmm2-client/mysqld_exporter
    After=network.target
    After=syslog.target
    
    [Service]
    StartLimitInterval=5
    StartLimitBurst=10
-   ExecStart=/bin/sh -c '/usr/local/percona/pmm-client/mysqld_exporter \
+   ExecStart=/bin/sh -c '/usr/local/percona/pmm2-client/mysqld_exporter \
    -collect.auto_increment.columns=true \
    -collect.binlog_size=true \
    -collect.global_status=true \
@@ -29,7 +29,7 @@
    -collect.perf_schema.tablelocks=true \
    -collect.slave_status=true \
    -web.listen-address=172.17.0.1:42002 \
-   -web.auth-file=/usr/local/percona/pmm-client/pmm.yml \
+   -web.auth-file=/usr/local/percona/pmm2-client/pmm.yml \
    
    >> /var/log/pmm-mysql-metrics-42002.log 2>&1'
    

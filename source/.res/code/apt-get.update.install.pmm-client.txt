@@ -1,3 +1,3 @@
 .. code-block:: bash
 
-   $ sudo apt-get update && sudo apt-get install pmm-client
+   $ sudo apt-get update && sudo apt-get install pmm2-client

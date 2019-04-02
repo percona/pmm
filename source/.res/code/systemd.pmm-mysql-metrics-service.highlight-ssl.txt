@@ -4,14 +4,14 @@
 
    [Unit]
    Description=PMM Prometheus mysqld_exporter 42002
-   ConditionFileIsExecutable=/usr/local/percona/pmm-client/mysqld_exporter
+   ConditionFileIsExecutable=/usr/local/percona/pmm2-client/mysqld_exporter
    After=network.target
    After=syslog.target
    
    [Service]
    StartLimitInterval=5
    StartLimitBurst=10
-   ExecStart=/bin/sh -c '/usr/local/percona/pmm-client/mysqld_exporter \
+   ExecStart=/bin/sh -c '/usr/local/percona/pmm2-client/mysqld_exporter \
    -collect.auto_increment.columns=true \
    -collect.binlog_size=true \
    -collect.global_status=true \
@@ -29,9 +29,9 @@
    -collect.perf_schema.tablelocks=true \
    -collect.slave_status=true \
    -web.listen-address=172.17.0.1:42002 \
-   -web.auth-file=/usr/local/percona/pmm-client/pmm.yml \
-   -web.ssl-cert-file=/usr/local/percona/pmm-client/server.crt \
-   -web.ssl-key-file=/usr/local/percona/pmm-client/server.key >> /var/log/pmm-mysql-metrics-42002.log 2>&1'
+   -web.auth-file=/usr/local/percona/pmm2-client/pmm.yml \
+   -web.ssl-cert-file=/usr/local/percona/pmm2-client/server.crt \
+   -web.ssl-key-file=/usr/local/percona/pmm2-client/server.key >> /var/log/pmm-mysql-metrics-42002.log 2>&1'
    
    Environment="DATA_SOURCE_NAME=pmm:a7NB_9e14SO;,s-O5e,q@unix(/var/run/mysqld/mysqld.sock)/?parseTime=true&time_zone='%2b00%3a00'&loc=UTC"
    

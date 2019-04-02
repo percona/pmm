@@ -115,7 +115,7 @@ You are creating a username and password that will be used for two purposes:
 1. authentication as a user to PMM - this will be the credentials you need in order
    to log in to PMM.
 #. authentication between PMM Server and PMM Clients - you will
-   re-use these credentials when configuring pmm-client for the first time on a
+   re-use these credentials when configuring |pmm-client| for the first time on a
    server, for example:
 
    |tip.run-this.root|

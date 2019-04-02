@@ -96,7 +96,7 @@ to your environment (see users table example below), or to introduce support
 for a table that isn't part of |pmm| yet. This feature is on by default and only
 requires that you edit the configuration file and use vaild YAML syntax. The
 default configuration file location is
-``/usr/local/percona/pmm-client/queries-mysqld.yml``.
+``/usr/local/percona/pmm2-client/queries-mysqld.yml``.
 
 Example - Application users table
 --------------------------------------------------------------------------------
@@ -199,7 +199,7 @@ This custom query description should be placed in a YAML file
 
 In order to modify the location of the queries file, for example if you have multiple mysqld instances per server, you need to explicitly identify to the |pmm-server| |mysql| with the ``pmm-admin add`` command after the double dash::
 
-   pmm-admin add mysql:metrics ... -- --queries-file-name=/usr/local/percona/pmm-client/query.yml
+   pmm-admin add mysql:metrics ... -- --queries-file-name=/usr/local/percona/pmm2-client/query.yml
 
 .. note: |pmm| does not control custom queries safety. User has responsibility
    for any side effects caused by the executed query on the sever and/or the

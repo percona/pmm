@@ -4,7 +4,7 @@
 ================================================================================
 
 Use the |pmm-admin.show-passwords| command to print credentials stored in the
-configuration file (by default: :file:`/usr/local/percona/pmm-client/pmm.yml`).
+configuration file (by default: :file:`/usr/local/percona/pmm2-client/pmm.yml`).
 
 .. _pmm-admin.show-passwords.usage:
 
