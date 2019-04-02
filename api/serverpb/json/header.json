@@ -1,7 +1,7 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "PMM Server APIs",
+    "title": "PMM Server API",
     "version": "version 1.alpha"
   },
   "schemes": [
