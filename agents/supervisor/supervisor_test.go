@@ -25,7 +25,7 @@ import (
 	"testing"
 
 	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/inventory"
+	inventorypb "github.com/percona/pmm/api/inventory"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -60,13 +60,13 @@ func TestSupervisor(t *testing.T) {
 		})
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_STARTING, ListenPort: 10000},
-			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventory.AgentStatus_STARTING},
+			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 10000},
+			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STARTING},
 		)
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_RUNNING, ListenPort: 10000},
-			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventory.AgentStatus_RUNNING},
+			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 10000},
+			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
 		)
 	})
 
@@ -77,21 +77,21 @@ func TestSupervisor(t *testing.T) {
 		})
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_STOPPING, ListenPort: 10000},
+			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_STOPPING, ListenPort: 10000},
 		)
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_DONE, ListenPort: 10000},
+			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_DONE, ListenPort: 10000},
 		)
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_STARTING, ListenPort: 10000},
-			agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventory.AgentStatus_STARTING, ListenPort: 10001},
+			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_STARTING, ListenPort: 10000},
+			agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventorypb.AgentStatus_STARTING, ListenPort: 10001},
 		)
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_RUNNING, ListenPort: 10000},
-			agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventory.AgentStatus_RUNNING, ListenPort: 10001},
+			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 10000},
+			agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventorypb.AgentStatus_RUNNING, ListenPort: 10001},
 		)
 	})
 
@@ -102,21 +102,21 @@ func TestSupervisor(t *testing.T) {
 		})
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventory.AgentStatus_STOPPING},
+			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STOPPING},
 		)
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventory.AgentStatus_DONE},
+			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_DONE},
 		)
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventory.AgentStatus_STARTING},
-			agentpb.StateChangedRequest{AgentId: "noop4", Status: inventory.AgentStatus_STARTING},
+			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STARTING},
+			agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_STARTING},
 		)
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventory.AgentStatus_RUNNING},
-			agentpb.StateChangedRequest{AgentId: "noop4", Status: inventory.AgentStatus_RUNNING},
+			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_RUNNING},
+			agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_RUNNING},
 		)
 	})
 
@@ -126,11 +126,11 @@ func TestSupervisor(t *testing.T) {
 		})
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_STOPPING, ListenPort: 10000},
+			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_STOPPING, ListenPort: 10000},
 		)
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventory.AgentStatus_DONE, ListenPort: 10000},
+			agentpb.StateChangedRequest{AgentId: "sleep1", Status: inventorypb.AgentStatus_DONE, ListenPort: 10000},
 		)
 	})
 
@@ -138,16 +138,16 @@ func TestSupervisor(t *testing.T) {
 		cancel()
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventory.AgentStatus_STOPPING, ListenPort: 10001},
-			agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventory.AgentStatus_DONE, ListenPort: 10001},
-			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventory.AgentStatus_STOPPING},
-			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventory.AgentStatus_DONE},
-			agentpb.StateChangedRequest{AgentId: "noop4", Status: inventory.AgentStatus_STOPPING},
-			agentpb.StateChangedRequest{AgentId: "noop4", Status: inventory.AgentStatus_DONE},
+			agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventorypb.AgentStatus_STOPPING, ListenPort: 10001},
+			agentpb.StateChangedRequest{AgentId: "sleep2", Status: inventorypb.AgentStatus_DONE, ListenPort: 10001},
+			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_STOPPING},
+			agentpb.StateChangedRequest{AgentId: "noop3", Status: inventorypb.AgentStatus_DONE},
+			agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_STOPPING},
+			agentpb.StateChangedRequest{AgentId: "noop4", Status: inventorypb.AgentStatus_DONE},
 		)
 
 		assertChanges(t, s,
-			agentpb.StateChangedRequest{Status: inventory.AgentStatus_AGENT_STATUS_INVALID},
+			agentpb.StateChangedRequest{Status: inventorypb.AgentStatus_AGENT_STATUS_INVALID},
 		)
 	})
 }

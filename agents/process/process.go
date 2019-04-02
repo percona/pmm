@@ -22,7 +22,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/percona/pmm/api/inventory"
+	inventorypb "github.com/percona/pmm/api/inventory"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
@@ -51,7 +51,7 @@ type Process struct {
 	params  *Params
 	l       *logrus.Entry
 	pl      *processLogger
-	changes chan inventory.AgentStatus
+	changes chan inventorypb.AgentStatus
 	backoff *backoff.Backoff
 	ctxDone chan struct{}
 
@@ -73,7 +73,7 @@ func New(params *Params, l *logrus.Entry) *Process {
 		params:  params,
 		l:       l,
 		pl:      newProcessLogger(l, keepLogLines),
-		changes: make(chan inventory.AgentStatus, 10),
+		changes: make(chan inventorypb.AgentStatus, 10),
 		backoff: backoff.New(),
 		ctxDone: make(chan struct{}),
 	}
@@ -92,7 +92,7 @@ func (p *Process) Run(ctx context.Context) {
 // STARTING -> WAITING
 func (p *Process) toStarting() {
 	p.l.Infof("Process: starting.")
-	p.changes <- inventory.AgentStatus_STARTING
+	p.changes <- inventorypb.AgentStatus_STARTING
 
 	p.cmd = exec.Command(p.params.Path, p.params.Args...) //nolint:gosec
 	p.cmd.Env = p.params.Env
@@ -129,7 +129,7 @@ func (p *Process) toStarting() {
 // RUNNING -> WAITING
 func (p *Process) toRunning() {
 	p.l.Infof("Process: running.")
-	p.changes <- inventory.AgentStatus_RUNNING
+	p.changes <- inventorypb.AgentStatus_RUNNING
 
 	p.backoff.Reset()
 
@@ -148,7 +148,7 @@ func (p *Process) toWaiting() {
 	delay := p.backoff.Delay()
 
 	p.l.Infof("Process: waiting %s.", delay)
-	p.changes <- inventory.AgentStatus_WAITING
+	p.changes <- inventorypb.AgentStatus_WAITING
 
 	t := time.NewTimer(delay)
 	defer t.Stop()
@@ -163,7 +163,7 @@ func (p *Process) toWaiting() {
 // STOPPING -> DONE
 func (p *Process) toStopping() {
 	p.l.Infof("Process: stopping (sending SIGTERM)...")
-	p.changes <- inventory.AgentStatus_STOPPING
+	p.changes <- inventorypb.AgentStatus_STOPPING
 
 	if err := p.cmd.Process.Signal(unix.SIGTERM); err != nil {
 		p.l.Errorf("Process: failed to send SIGTERM: %s.", err)
@@ -188,13 +188,13 @@ func (p *Process) toStopping() {
 
 func (p *Process) toDone() {
 	p.l.Info("Process: done.")
-	p.changes <- inventory.AgentStatus_DONE
+	p.changes <- inventorypb.AgentStatus_DONE
 
 	close(p.changes)
 }
 
 // Changes returns channel that should be read until it is closed.
-func (p *Process) Changes() <-chan inventory.AgentStatus {
+func (p *Process) Changes() <-chan inventorypb.AgentStatus {
 	return p.changes
 }
 

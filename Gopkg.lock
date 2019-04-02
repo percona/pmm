@@ -131,7 +131,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:1572759be1c4a5c9b8848c2168bc036a7777e4abadca2c6b77b4de6562c4bd03"
+  digest = "1:2d109dc6f4529f88f84ec903096f9f65b73cb7427065711e2d375386b4390045"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -141,7 +141,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "b94b26cc5b97926bea35683f7481963317060bd6"
+  revision = "3293d77b958621e8aec236e731daae8195ec3ba4"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -192,17 +192,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0d4a98d6308ea4fc256a4f584494f1b4bf2768b4a1a73e0f984664537be8a2a0"
+  digest = "1:7813f698f171bd7132b123364433e1b0362f7fdb4ed7f4a20df595a4c2410f8a"
   name = "github.com/prometheus/procfs"
-  packages = [
-    ".",
-    "internal/util",
-    "iostats",
-    "nfs",
-    "xfs",
-  ]
+  packages = ["."]
   pruneopts = "NUT"
-  revision = "1ce7e0478fd3b3d90bedf551f7f8d4cab83e5c7f"
+  revision = "af7bedc223fba51343f25a6fa7aba84355d0357a"
 
 [[projects]]
   digest = "1:bb9033d47c116ea3b981ff159bdef73df8351b0b9700da2066339b97211b1bf0"
@@ -225,15 +219,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:058e9504b9a79bfe86092974d05bb3298d2aa0c312d266d43148de289a5065d9"
+  digest = "1:bbe51412d9915d64ffaa96b51d409e070665efc5194fcf145c4a27d4133107a4"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   pruneopts = "NUT"
-  revision = "a1f597ede03a7bef967a422b5b3a5bd08805a01e"
+  revision = "a5d413f7728c81fb97d96a2b722368945f651e78"
 
 [[projects]]
   branch = "master"
-  digest = "1:ce6a5f390bc8c645cfdae8f5d8c2ce668da9c69170ba2c13e9d5ba03fe57d0f9"
+  digest = "1:b749e029ef289fc2242b74ac82e8e7bcbd34109daf57b42d30c0804cd635bcc3"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -245,18 +239,18 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "d196dffd7c2beec1957382065df08bcc353b9706"
+  revision = "74de082e2cca95839e88aa0aeee5aadf6ce7710f"
 
 [[projects]]
   branch = "master"
-  digest = "1:240624e43a0897823c99c74d446ec6de88134e6920b759815189be1a619113e6"
+  digest = "1:af393301820919efc2288c08608a9aab90a3b293aa64e65a06739b7edbb7082f"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "NUT"
-  revision = "6c81ef8f67ca3f42fc9cd71dfbd5f35b0c4b5771"
+  revision = "9eb1bfa1ce65ae8a6ff3114b0aaf9a41a6cf3560"
 
 [[projects]]
   digest = "1:e7071ed636b5422cc51c0e3a6cebc229d6c9fffc528814b519a980641422d619"
@@ -286,12 +280,12 @@
   name = "google.golang.org/appengine"
   packages = ["cloudsql"]
   pruneopts = "NUT"
-  revision = "e9657d882bb81064595ca3b56cbe2546bbabf7b1"
-  version = "v1.4.0"
+  revision = "54a98f90d1c46b7731eb8fb305d2a321c30ef610"
+  version = "v1.5.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:6323af2277308b9ddced244cc284acf3579ef05bb9d199337d0b70d80efd1fa3"
+  digest = "1:51b95dc2db289865b71364c0da23ca6bcc0b199e0d827c9cfb053b32248b77ad"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
@@ -300,10 +294,10 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "5fe7a883aa19554f42890211544aa549836af7b7"
+  revision = "f467c93bbac2133ff463e1f93d18d8f9f3f04451"
 
 [[projects]]
-  digest = "1:e691ee34c8956964e61221103fdb1371683a19f3f315119d0a0ea67064338de5"
+  digest = "1:0d88a2e46743c065f3c8c48898826b8bd561b02e298411513541d30d9263e764"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -343,8 +337,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "2fdaae294f38ed9a121193c51ec99fecd3b13eb7"
-  version = "v1.19.0"
+  revision = "3507fb8e1a5ad030303c106fef3a47c9fdad16ad"
+  version = "v1.19.1"
 
 [[projects]]
   digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"

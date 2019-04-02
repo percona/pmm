@@ -28,7 +28,7 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/percona/pmm/api/inventory"
+	inventorypb "github.com/percona/pmm/api/inventory"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm-agent/agents/process"
@@ -45,11 +45,11 @@ func main() {
 
 	// Wait until the process is running.
 	state := <-p.Changes()
-	if state != inventory.AgentStatus_STARTING {
+	if state != inventorypb.AgentStatus_STARTING {
 		panic("process isn't moved to starting state.")
 	}
 	state = <-p.Changes()
-	if state != inventory.AgentStatus_RUNNING {
+	if state != inventorypb.AgentStatus_RUNNING {
 		panic("process isn't moved to running state.")
 	}
 
