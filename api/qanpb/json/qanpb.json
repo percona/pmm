@@ -11,7 +11,7 @@
   ],
   "swagger": "2.0",
   "info": {
-    "title": "PMM Server QAN API",
+    "title": "PMM QAN API",
     "version": "version 1.alpha"
   },
   "paths": {
