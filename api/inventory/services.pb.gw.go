@@ -2,20 +2,20 @@
 // source: inventory/services.proto
 
 /*
-Package inventory is a reverse proxy.
+Package inventorypb is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package inventory
+package inventorypb
 
 import (
+	"context"
 	"io"
 	"net/http"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/grpc-ecosystem/grpc-gateway/utilities"
-	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"

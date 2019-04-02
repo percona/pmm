@@ -3,15 +3,14 @@
 
 package qanpb
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-import _ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
-import _ "google.golang.org/genproto/googleapis/api/annotations"
-
 import (
-	context "golang.org/x/net/context"
+	context "context"
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
+	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -23,7 +22,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // MetricsRequest defines filtering of metrics for specific value of dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 type MetricsRequest struct {
@@ -42,16 +41,17 @@ func (m *MetricsRequest) Reset()         { *m = MetricsRequest{} }
 func (m *MetricsRequest) String() string { return proto.CompactTextString(m) }
 func (*MetricsRequest) ProtoMessage()    {}
 func (*MetricsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_3b72014debf50fef, []int{0}
+	return fileDescriptor_4d1582d9b086d4b7, []int{0}
 }
+
 func (m *MetricsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MetricsRequest.Unmarshal(m, b)
 }
 func (m *MetricsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_MetricsRequest.Marshal(b, m, deterministic)
 }
-func (dst *MetricsRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MetricsRequest.Merge(dst, src)
+func (m *MetricsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MetricsRequest.Merge(m, src)
 }
 func (m *MetricsRequest) XXX_Size() int {
 	return xxx_messageInfo_MetricsRequest.Size(m)
@@ -117,16 +117,17 @@ func (m *MapFieldEntry) Reset()         { *m = MapFieldEntry{} }
 func (m *MapFieldEntry) String() string { return proto.CompactTextString(m) }
 func (*MapFieldEntry) ProtoMessage()    {}
 func (*MapFieldEntry) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_3b72014debf50fef, []int{1}
+	return fileDescriptor_4d1582d9b086d4b7, []int{1}
 }
+
 func (m *MapFieldEntry) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MapFieldEntry.Unmarshal(m, b)
 }
 func (m *MapFieldEntry) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_MapFieldEntry.Marshal(b, m, deterministic)
 }
-func (dst *MapFieldEntry) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MapFieldEntry.Merge(dst, src)
+func (m *MapFieldEntry) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MapFieldEntry.Merge(m, src)
 }
 func (m *MapFieldEntry) XXX_Size() int {
 	return xxx_messageInfo_MapFieldEntry.Size(m)
@@ -326,16 +327,17 @@ func (m *MetricsReply) Reset()         { *m = MetricsReply{} }
 func (m *MetricsReply) String() string { return proto.CompactTextString(m) }
 func (*MetricsReply) ProtoMessage()    {}
 func (*MetricsReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_metrics_3b72014debf50fef, []int{2}
+	return fileDescriptor_4d1582d9b086d4b7, []int{2}
 }
+
 func (m *MetricsReply) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_MetricsReply.Unmarshal(m, b)
 }
 func (m *MetricsReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_MetricsReply.Marshal(b, m, deterministic)
 }
-func (dst *MetricsReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_MetricsReply.Merge(dst, src)
+func (m *MetricsReply) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MetricsReply.Merge(m, src)
 }
 func (m *MetricsReply) XXX_Size() int {
 	return xxx_messageInfo_MetricsReply.Size(m)
@@ -1461,83 +1463,9 @@ func init() {
 	proto.RegisterMapType((map[uint32]float32)(nil), "qan.MetricsReply.WarningsEntry")
 }
 
-// Reference imports to suppress errors if they are not otherwise used.
-var _ context.Context
-var _ grpc.ClientConn
+func init() { proto.RegisterFile("qanpb/metrics.proto", fileDescriptor_4d1582d9b086d4b7) }
 
-// This is a compile-time assertion to ensure that this generated file
-// is compatible with the grpc package it is being compiled against.
-const _ = grpc.SupportPackageIsVersion4
-
-// MetricsClient is the client API for Metrics service.
-//
-// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
-type MetricsClient interface {
-	// GetMetrics gets map of metrics for specific filtering.
-	GetMetrics(ctx context.Context, in *MetricsRequest, opts ...grpc.CallOption) (*MetricsReply, error)
-}
-
-type metricsClient struct {
-	cc *grpc.ClientConn
-}
-
-func NewMetricsClient(cc *grpc.ClientConn) MetricsClient {
-	return &metricsClient{cc}
-}
-
-func (c *metricsClient) GetMetrics(ctx context.Context, in *MetricsRequest, opts ...grpc.CallOption) (*MetricsReply, error) {
-	out := new(MetricsReply)
-	err := c.cc.Invoke(ctx, "/qan.Metrics/GetMetrics", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// MetricsServer is the server API for Metrics service.
-type MetricsServer interface {
-	// GetMetrics gets map of metrics for specific filtering.
-	GetMetrics(context.Context, *MetricsRequest) (*MetricsReply, error)
-}
-
-func RegisterMetricsServer(s *grpc.Server, srv MetricsServer) {
-	s.RegisterService(&_Metrics_serviceDesc, srv)
-}
-
-func _Metrics_GetMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MetricsRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MetricsServer).GetMetrics(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/qan.Metrics/GetMetrics",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MetricsServer).GetMetrics(ctx, req.(*MetricsRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-var _Metrics_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "qan.Metrics",
-	HandlerType: (*MetricsServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "GetMetrics",
-			Handler:    _Metrics_GetMetrics_Handler,
-		},
-	},
-	Streams:  []grpc.StreamDesc{},
-	Metadata: "qanpb/metrics.proto",
-}
-
-func init() { proto.RegisterFile("qanpb/metrics.proto", fileDescriptor_metrics_3b72014debf50fef) }
-
-var fileDescriptor_metrics_3b72014debf50fef = []byte{
+var fileDescriptor_4d1582d9b086d4b7 = []byte{
 	// 2426 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x99, 0xf9, 0x76, 0xd4, 0xc8,
 	0x15, 0xc6, 0x4f, 0xdb, 0xc3, 0xe2, 0xf2, 0x06, 0x32, 0x4b, 0x61, 0x20, 0xf4, 0x18, 0x06, 0x1c,
@@ -1691,4 +1619,78 @@ var fileDescriptor_metrics_3b72014debf50fef = []byte{
 	0xb1, 0x7d, 0x7a, 0xd5, 0xe6, 0x7d, 0x47, 0x38, 0xd9, 0x01, 0xb9, 0x3c, 0x0d, 0x97, 0xae, 0xf2,
 	0xd5, 0xf4, 0xfe, 0x1e, 0x39, 0xb6, 0xb1, 0x57, 0x1e, 0x8f, 0x5f, 0xf9, 0x5f, 0x00, 0x00, 0x00,
 	0xff, 0xff, 0x56, 0xb7, 0x4a, 0xa5, 0x97, 0x1f, 0x00, 0x00,
+}
+
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// MetricsClient is the client API for Metrics service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type MetricsClient interface {
+	// GetMetrics gets map of metrics for specific filtering.
+	GetMetrics(ctx context.Context, in *MetricsRequest, opts ...grpc.CallOption) (*MetricsReply, error)
+}
+
+type metricsClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewMetricsClient(cc *grpc.ClientConn) MetricsClient {
+	return &metricsClient{cc}
+}
+
+func (c *metricsClient) GetMetrics(ctx context.Context, in *MetricsRequest, opts ...grpc.CallOption) (*MetricsReply, error) {
+	out := new(MetricsReply)
+	err := c.cc.Invoke(ctx, "/qan.Metrics/GetMetrics", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// MetricsServer is the server API for Metrics service.
+type MetricsServer interface {
+	// GetMetrics gets map of metrics for specific filtering.
+	GetMetrics(context.Context, *MetricsRequest) (*MetricsReply, error)
+}
+
+func RegisterMetricsServer(s *grpc.Server, srv MetricsServer) {
+	s.RegisterService(&_Metrics_serviceDesc, srv)
+}
+
+func _Metrics_GetMetrics_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MetricsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MetricsServer).GetMetrics(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/qan.Metrics/GetMetrics",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MetricsServer).GetMetrics(ctx, req.(*MetricsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Metrics_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "qan.Metrics",
+	HandlerType: (*MetricsServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetMetrics",
+			Handler:    _Metrics_GetMetrics_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "qanpb/metrics.proto",
 }

@@ -112,7 +112,7 @@ func (o *ListServicesDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*AmazonRDSMysqlItems0 AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node
+/*AmazonRDSMysqlItems0 AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.
 swagger:model AmazonRDSMysqlItems0
 */
 type AmazonRDSMysqlItems0 struct {

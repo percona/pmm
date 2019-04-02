@@ -1,4 +1,4 @@
-package inventory
+package inventorypb
 
 // Agent is a common interface for all types of Agents.
 type Agent interface {

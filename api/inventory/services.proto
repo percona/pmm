@@ -18,7 +18,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
     }
   }
 };
-option go_package = "inventory";
+option go_package = "inventorypb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
@@ -40,7 +40,7 @@ message MySQLService {
   map<string, string> custom_labels = 10;
 }
 
-// AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node
+// AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.
 message AmazonRDSMySQLService {
   // Unique randomly generated instance identifier.
   string service_id = 1;

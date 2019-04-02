@@ -8,7 +8,7 @@ cert:                 ## Generate TLS certificate for nginx for local testing wi
 
 init:                 ## Install prototool and fill vendor/.
 	# https://github.com/uber/prototool#installation
-	curl -L https://github.com/uber/prototool/releases/download/v1.3.0/prototool-$(shell uname -s)-$(shell uname -m) -o ./prototool
+	curl -L https://github.com/uber/prototool/releases/download/v1.4.0/prototool-$(shell uname -s)-$(shell uname -m) -o ./prototool
 	chmod +x ./prototool
 
 	dep ensure -v
@@ -22,7 +22,7 @@ gen: clean            ## Generate files.
 
 	./prototool all
 
-	for API in agentlocalpb server inventory managementpb qanpb ; do \
+	for API in agentlocalpb serverpb inventory managementpb qanpb ; do \
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json ; \
 		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$API.json --output=$$API/json/$$API.json ; \
 		swagger validate $$API/json/$$API.json ; \
@@ -35,11 +35,12 @@ gen: clean            ## Generate files.
 			--additional-initialism=rds ; \
 	done
 
-	# generate server API spec, omit agentlocalpb
-	swagger mixin server/json/server.json inventory/json/inventory.json managementpb/json/managementpb.json qanpb/json/qanpb.json --output=swagger/swagger.json
+	# generate PMM Server API spec, omit agentlocalpb
+	swagger mixin --output=swagger/swagger.json serverpb/json/serverpb.json inventory/json/inventory.json managementpb/json/managementpb.json qanpb/json/qanpb.json
 	swagger validate swagger/swagger.json
 
 	make clean_swagger
+	go fmt ./...
 	go install -v ./...
 
 clean_swagger:
@@ -49,7 +50,7 @@ clean: clean_swagger  ## Remove generated files.
 	find . -name '*.pb.go' -not -path './vendor/*' -print -delete
 	find . -name '*.pb.gw.go' -not -path './vendor/*' -print -delete
 
-	for API in agentlocalpb server inventory managementpb qanpb ; do \
+	for API in agentlocalpb serverpb inventory managementpb qanpb ; do \
 		rm -fr $$API/json/client $$API/json/models $$API/json/$$API.json ; \
 	done
 	rm -f swagger/swagger.json
