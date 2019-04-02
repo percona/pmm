@@ -10,7 +10,7 @@
   revision = "d2bd5b449f293d7e250dc1ce5398845e0c7928e0"
 
 [[projects]]
-  digest = "1:c3991623e3b1f060d91d5b1fbac62e813eecdb8730e942143fe85210e75112b0"
+  digest = "1:1e9cf4057555bb3c52abeeefe5f51605de2ba8deda38bb7bd662f0014ad5eb9c"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -45,8 +45,8 @@
     "service/sts",
   ]
   pruneopts = "NUT"
-  revision = "754d07f5dfb0a42be29df8da4a5428a321377cb3"
-  version = "v1.17.11"
+  revision = "faec342d9a8d588e9d06be4516fe1bbefbae195d"
+  version = "v1.19.7"
 
 [[projects]]
   branch = "master"
@@ -101,8 +101,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = "NUT"
-  revision = "c823c79ea1570fb5ff454033735a8e68575d1d0f"
-  version = "v1.3.0"
+  revision = "b5d812f8a3706043e23a9cd5babf2e5423744d30"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:ab3ec1fe3e39bac4b3ab63390767766622be35b7cab03f47f787f9ec60522a53"
@@ -132,7 +132,7 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:25150403150754a84bb3a3f1d59c6b26162d2fd70cf368fb18d4c3ef113c1e35"
+  digest = "1:d4a8371b45bcfb31c5437930fd26980405fb3b40e1b85abe17a899c72cdcc3a8"
   name = "github.com/grpc-ecosystem/grpc-gateway"
   packages = [
     "internal",
@@ -141,8 +141,8 @@
     "utilities",
   ]
   pruneopts = "NUT"
-  revision = "7d1918f9e926dafd000b917eb2caccbcf64477df"
-  version = "v1.8.1"
+  revision = "20f268a412e5b342ebfb1a0eef7c3b7bd6c260ea"
+  version = "v1.8.5"
 
 [[projects]]
   digest = "1:1f2aebae7e7c856562355ec0198d8ca2fa222fb05e5b1b66632a1fce39631885"
@@ -204,18 +204,18 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:f6613b4a89ffa228e325d5c7a7dc1013523a75dda241c7e75ae40e91b241f43a"
+  digest = "1:3a884c2af1d9d4fcedb822f9d1695fceb4784a3de18968631e1ae626c478ee26"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
     "api/inventory",
     "api/managementpb",
     "api/qanpb",
-    "api/server",
+    "api/serverpb",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "06713600ef6fd15c2ea657abc963b3fa8bc36d4c"
+  revision = "3293d77b958621e8aec236e731daae8195ec3ba4"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -267,25 +267,19 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0a2e604afa3cbf53a1ddade2f240ee8472eded98856dd8c7cfbfea392ddbbfc7"
+  digest = "1:7813f698f171bd7132b123364433e1b0362f7fdb4ed7f4a20df595a4c2410f8a"
   name = "github.com/prometheus/procfs"
-  packages = [
-    ".",
-    "internal/util",
-    "iostats",
-    "nfs",
-    "xfs",
-  ]
+  packages = ["."]
   pruneopts = "NUT"
-  revision = "bbced9601137e764853b2fad7ec3e2dc4c504e02"
+  revision = "af7bedc223fba51343f25a6fa7aba84355d0357a"
 
 [[projects]]
-  digest = "1:e256b859ab89f005f2f639f5ed9807d0873d9135e27c6382f419b840ff9abe71"
+  digest = "1:bb9033d47c116ea3b981ff159bdef73df8351b0b9700da2066339b97211b1bf0"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "e1e72e9de974bd926e5c56f83753fba2df402ce5"
-  version = "v1.3.0"
+  revision = "dae0fa8d5b0c810a8ab733fbd5510c7cae84eca4"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:60a46e2410edbf02b419f833372dd1d24d7aa1b916a990a7370e792fada1eadd"
@@ -320,15 +314,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:058e9504b9a79bfe86092974d05bb3298d2aa0c312d266d43148de289a5065d9"
+  digest = "1:bbe51412d9915d64ffaa96b51d409e070665efc5194fcf145c4a27d4133107a4"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   pruneopts = "NUT"
-  revision = "8dd112bcdc25174059e45e07517d9fc663123347"
+  revision = "a5d413f7728c81fb97d96a2b722368945f651e78"
 
 [[projects]]
   branch = "master"
-  digest = "1:ce6a5f390bc8c645cfdae8f5d8c2ce668da9c69170ba2c13e9d5ba03fe57d0f9"
+  digest = "1:b749e029ef289fc2242b74ac82e8e7bcbd34109daf57b42d30c0804cd635bcc3"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -340,7 +334,7 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "16b79f2e4e95ea23b2bf9903c9809ff7b013ce85"
+  revision = "74de082e2cca95839e88aa0aeee5aadf6ce7710f"
 
 [[projects]]
   branch = "master"
@@ -352,14 +346,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:8bab790a3e2f0d8090c31cc2b333fd85a62edf937db9c7928ea85b3fd024bd27"
+  digest = "1:af393301820919efc2288c08608a9aab90a3b293aa64e65a06739b7edbb7082f"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "NUT"
-  revision = "3e9a981b8ddba4cb37815d4ebf2171df73c5255b"
+  revision = "9eb1bfa1ce65ae8a6ff3114b0aaf9a41a6cf3560"
 
 [[projects]]
   digest = "1:e7071ed636b5422cc51c0e3a6cebc229d6c9fffc528814b519a980641422d619"
@@ -386,12 +380,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e46d8e20161401a9cf8765dfa428494a3492a0b56fe114156b7da792bf41ba78"
+  digest = "1:91b2249fca41c0f2ac5f9179d6f93b24977a20c80f15f4b30b8ddb08ffb2aff4"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
     "go/gcexportdata",
-    "go/internal/cgo",
     "go/internal/gcimporter",
     "go/internal/packagesdriver",
     "go/packages",
@@ -403,30 +396,31 @@
     "internal/semver",
   ]
   pruneopts = "NUT"
-  revision = "69e0dcfa1121488c38c3c8f9624f7de769003896"
+  revision = "4c644d7e323d3b4a3883d4e238b908fe615f7586"
 
 [[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
   name = "google.golang.org/appengine"
   packages = ["cloudsql"]
   pruneopts = "NUT"
-  revision = "e9657d882bb81064595ca3b56cbe2546bbabf7b1"
-  version = "v1.4.0"
+  revision = "54a98f90d1c46b7731eb8fb305d2a321c30ef610"
+  version = "v1.5.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:79f8bb1b9d02fa61546fecfc467884a564c77c8791ff9c28dfe16b5f2c76d02f"
+  digest = "1:51b95dc2db289865b71364c0da23ca6bcc0b199e0d827c9cfb053b32248b77ad"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
+    "googleapis/api/httpbody",
     "googleapis/rpc/status",
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "c21a8b77f9f040598af1c8c5c0870568f1959df3"
+  revision = "f467c93bbac2133ff463e1f93d18d8f9f3f04451"
 
 [[projects]]
-  digest = "1:e691ee34c8956964e61221103fdb1371683a19f3f315119d0a0ea67064338de5"
+  digest = "1:0d88a2e46743c065f3c8c48898826b8bd561b02e298411513541d30d9263e764"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -466,8 +460,8 @@
     "tap",
   ]
   pruneopts = "NUT"
-  revision = "2fdaae294f38ed9a121193c51ec99fecd3b13eb7"
-  version = "v1.19.0"
+  revision = "3507fb8e1a5ad030303c106fef3a47c9fdad16ad"
+  version = "v1.19.1"
 
 [[projects]]
   digest = "1:2ed325d52993ed3487ff72c036bb5826a4cd0e0d8d145956c746bf32eb7afafb"
@@ -489,12 +483,12 @@
   version = "v1.3.3"
 
 [[projects]]
-  branch = "v2"
   digest = "1:18108594151654e9e696b27b181b953f9a90b16bf14d253dd1b397b025a1487f"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = "NUT"
   revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
+  version = "v2.2.2"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -521,7 +515,7 @@
     "github.com/percona/pmm/api/inventory",
     "github.com/percona/pmm/api/managementpb",
     "github.com/percona/pmm/api/qanpb",
-    "github.com/percona/pmm/api/server",
+    "github.com/percona/pmm/api/serverpb",
     "github.com/percona/pmm/version",
     "github.com/pkg/errors",
     "github.com/pmezard/go-difflib/difflib",

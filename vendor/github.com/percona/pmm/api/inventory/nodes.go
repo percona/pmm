@@ -1,4 +1,4 @@
-package inventory
+package inventorypb
 
 // Node is a common interface for all types of Nodes.
 type Node interface {

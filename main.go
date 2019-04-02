@@ -40,7 +40,7 @@ import (
 	"github.com/percona/pmm/api/agentpb"
 	inventorypb "github.com/percona/pmm/api/inventory"
 	"github.com/percona/pmm/api/managementpb"
-	serverpb "github.com/percona/pmm/api/server"
+	"github.com/percona/pmm/api/serverpb"
 	"github.com/percona/pmm/version"
 	prom "github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"

@@ -20,7 +20,7 @@ package handlers
 import (
 	"context"
 
-	serverpb "github.com/percona/pmm/api/server"
+	"github.com/percona/pmm/api/serverpb"
 )
 
 type serverServer struct {
