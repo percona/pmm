@@ -28,7 +28,7 @@ import (
 )
 
 const insertSQL = `
-  INSERT INTO queries
+  INSERT INTO metrics
   (
     queryid,
     d_server,

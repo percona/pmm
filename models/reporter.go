@@ -107,9 +107,6 @@ func (r *Reporter) Select(ctx context.Context, periodStartFrom, periodStartTo ti
 	if group == "" {
 		group = "queryid"
 	}
-	if order == "" {
-		order = "m_query_time_sum"
-	}
 
 	if limit == 0 {
 		limit = 10

@@ -26,7 +26,7 @@ import (
 var metricsNames = map[string]string{
 	"load":                   "Load",
 	"count":                  "Count",
-	"latancy":                "Latancy",
+	"latency":                "Latency",
 	"query_time":             "Query Time",
 	"lock_time":              "Lock Time",
 	"rows_sent":              "Rows Sent",

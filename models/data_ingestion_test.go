@@ -145,7 +145,7 @@ func TestSave(t *testing.T) {
 	}
 
 	mock.ExpectBegin()
-	a := mock.ExpectPrepare("^INSERT INTO queries .*")
+	a := mock.ExpectPrepare("^INSERT INTO metrics .*")
 	for _, mb := range agentMsg.MetricsBucket {
 		ret := make([]driver.Value, numFieldsInBucket)
 		for i := 0; i < numFieldsInBucket; i++ {
@@ -191,7 +191,7 @@ func TestSaveEpmtyMaps(t *testing.T) {
 	}
 
 	mock.ExpectBegin()
-	a := mock.ExpectPrepare("^INSERT INTO queries .*")
+	a := mock.ExpectPrepare("^INSERT INTO metrics .*")
 	for _, mb := range agentMsg.MetricsBucket {
 		ret := make([]driver.Value, numFieldsInBucket)
 		for i := 0; i < numFieldsInBucket; i++ {

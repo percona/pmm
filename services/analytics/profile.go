@@ -108,6 +108,28 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		commonColumns = append(commonColumns, col)
 	}
 
+	order := "m_query_time_sum"
+	if in.OrderBy != "" {
+		col := in.OrderBy
+		direction := "ASC"
+		if col[0] == '-' {
+			col = col[1:]
+			direction = "DESC"
+		}
+
+		if _, ok := boolColumnNames[col]; ok {
+			switch col {
+			case "load", "latency":
+				col = "m_query_time_sum"
+			case "count":
+				col = "num_queries"
+			default:
+				col = fmt.Sprintf("m_%s_sum", col)
+			}
+			order = fmt.Sprintf("%s %s", col, direction)
+		}
+	}
+
 	resp := &qanpb.ReportReply{}
 	results, err := s.rm.Select(
 		ctx,
@@ -121,7 +143,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		dClientHosts,
 		dbLabels,
 		in.GroupBy,
-		in.OrderBy,
+		order,
 		in.Offset,
 		in.Limit,
 		commonColumns,
