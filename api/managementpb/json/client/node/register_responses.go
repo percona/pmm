@@ -118,6 +118,12 @@ swagger:model RegisterBody
 */
 type RegisterBody struct {
 
+	// Сontainer identifier. Only for Container Nodes (optional).
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Сontainer name. Only for Container Nodes (optional).
+	ContainerName string `json:"container_name,omitempty"`
+
 	// Custom user-assigned labels for node (optional).
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -126,12 +132,6 @@ type RegisterBody struct {
 
 	// Linux distribution version. For Generic nodes (optional).
 	DistroVersion string `json:"distro_version,omitempty"`
-
-	// Docker container identifier. Only for Container Nodes (optional).
-	DockerContainerID string `json:"docker_container_id,omitempty"`
-
-	// Docker container name. Only for Container Nodes (optional).
-	DockerContainerName string `json:"docker_container_name,omitempty"`
 
 	// Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified (optional).
 	MachineID string `json:"machine_id,omitempty"`
@@ -276,6 +276,9 @@ type RegisterOKBody struct {
 
 	// generic node
 	GenericNode *RegisterOKBodyGenericNode `json:"generic_node,omitempty"`
+
+	// pmm agent
+	PMMAgent *RegisterOKBodyPMMAgent `json:"pmm_agent,omitempty"`
 }
 
 // Validate validates this register OK body
@@ -287,6 +290,10 @@ func (o *RegisterOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateGenericNode(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validatePMMAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -324,6 +331,24 @@ func (o *RegisterOKBody) validateGenericNode(formats strfmt.Registry) error {
 		if err := o.GenericNode.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("registerOk" + "." + "generic_node")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *RegisterOKBody) validatePMMAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.PMMAgent) { // not required
+		return nil
+	}
+
+	if o.PMMAgent != nil {
+		if err := o.PMMAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("registerOk" + "." + "pmm_agent")
 			}
 			return err
 		}
@@ -440,6 +465,47 @@ func (o *RegisterOKBodyGenericNode) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RegisterOKBodyGenericNode) UnmarshalBinary(b []byte) error {
 	var res RegisterOKBodyGenericNode
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RegisterOKBodyPMMAgent PMMAgent runs on Generic on Container Node.
+swagger:model RegisterOKBodyPMMAgent
+*/
+type RegisterOKBodyPMMAgent struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// True if Agent is running and connected to pmm-managed.
+	Connected bool `json:"connected,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Node identifier where this instance runs.
+	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
+}
+
+// Validate validates this register OK body PMM agent
+func (o *RegisterOKBodyPMMAgent) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RegisterOKBodyPMMAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RegisterOKBodyPMMAgent) UnmarshalBinary(b []byte) error {
+	var res RegisterOKBodyPMMAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
