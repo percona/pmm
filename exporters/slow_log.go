@@ -66,25 +66,11 @@ func main() {
 	defer func() {
 		_ = conn.Close()
 	}()
-	client := qanpb.NewAgentClient(conn)
+	client := qanpb.NewCollectorClient(conn)
 
 	events := parseSlowLog(*slowLogPath, logOpt)
 
 	ctx := context.TODO()
-	stream, err := client.DataInterchange(ctx)
-	if err != nil {
-		log.Fatalf("%v.DataInterchange(), %v", client, err)
-	}
-
-	go func() {
-		for {
-			in, err := stream.Recv()
-			if err != nil {
-				continue
-			}
-			log.Printf("Got message from Api. Saved %d metrics buckets", in.SavedAmount)
-		}
-	}()
 
 	events = parseSlowLog(*slowLogPath, logOpt)
 	fmt.Println("Parsing slowlog: ", *slowLogPath, "...")
@@ -100,7 +86,7 @@ func main() {
 	for {
 		// start := time.Now()
 		var prewTs time.Time
-		err = bulkSend(stream, func(am *qanpb.AgentMessage) error {
+		err = bulkSend(ctx, client, func(am *qanpb.CollectRequest) error {
 			i := 0
 			aggregator := event.NewAggregator(true, 0, 1) // add right params
 			for e := range events {
@@ -145,21 +131,22 @@ func main() {
 			for _, v := range res.Class {
 
 				mb := &qanpb.MetricsBucket{
-					Queryid:       v.Id,
-					Fingerprint:   v.Fingerprint,
-					DDatabase:     "",
-					DSchema:       v.Db,
-					DUsername:     v.User,
-					DClientHost:   v.Host,
-					DServer:       v.Server,
-					Labels:        listsToMap(v.LabelsKey, v.LabelsValue),
-					AgentUuid:     agentUUID,
-					PeriodStart:   periodStart.Truncate(1 * time.Minute).Unix(),
-					PeriodLength:  uint32(60),
-					Example:       v.Example.Query,
-					ExampleFormat: 1,
-					ExampleType:   1,
-					NumQueries:    float32(v.TotalQueries),
+					Queryid:             v.Id,
+					Fingerprint:         v.Fingerprint,
+					DDatabase:           "",
+					DSchema:             v.Db,
+					DUsername:           v.User,
+					DClientHost:         v.Host,
+					DServer:             v.Server,
+					Labels:              listsToMap(v.LabelsKey, v.LabelsValue),
+					AgentUuid:           agentUUID,
+					MetricsSource:       qanpb.MetricsSource_MYSQL_SLOWLOG,
+					PeriodStartUnixSecs: uint32(periodStart.Truncate(1 * time.Minute).Unix()),
+					PeriodLengthSecs:    uint32(60),
+					Example:             v.Example.Query,
+					ExampleFormat:       1,
+					ExampleType:         1,
+					NumQueries:          float32(v.TotalQueries),
 				}
 
 				// If key has suffix _time or _wait than field is TimeMetrics.
@@ -397,18 +384,19 @@ func main() {
 	}
 }
 
-func bulkSend(stream qanpb.Agent_DataInterchangeClient, fn func(*qanpb.AgentMessage) error) error {
-	am := &qanpb.AgentMessage{}
+func bulkSend(ctx context.Context, client qanpb.CollectorClient, fn func(*qanpb.CollectRequest) error) error {
+	am := &qanpb.CollectRequest{}
 	err := fn(am)
 	if err != nil {
 		return err
 	}
 	lenMB := len(am.MetricsBucket)
 	if lenMB > 0 {
-		if err := stream.Send(am); err != nil {
+		resp, err := client.Collect(ctx, am)
+		if err != nil {
 			return fmt.Errorf("sent error: %v", err)
 		}
-		fmt.Printf("Send to QAN API %v Metrics Buckets.\n", lenMB)
+		fmt.Printf("Send to QAN API %v Metrics Buckets.\n Response: %v\n", lenMB, resp)
 	}
 	return nil
 }

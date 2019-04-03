@@ -200,11 +200,11 @@ const insertSQL = `
     :labels_key,
     :labels_value,
     :agent_uuid,
-    :metrics_source,
+    CAST( :metrics_source_s AS Enum8('METRICS_SOURCE_INVALID' = 0, 'MYSQL_SLOWLOG' = 1, 'MYSQL_PERFSCHEMA' = 2)) AS metrics_source,
     :period_start_ts,
     :period_length_secs,
     :example,
-    CAST( :example_format_s AS Enum8('EXAMPLE' = 0, 'DIGEST' = 1)) AS example_format,
+    CAST( :example_format_s AS Enum8('EXAMPLE' = 0, 'FINGERPRINT' = 1)) AS example_format,
     :is_query_truncated,
     CAST( :example_type_s AS Enum8('RANDOM' = 0, 'SLOWEST' = 1, 'FASTEST' = 2, 'WITH_ERROR' = 3)) AS example_type,
     :example_metrics,
@@ -366,6 +366,7 @@ func NewMetricsBucket(db *sqlx.DB) MetricsBucket {
 // MetricsBucketExtended  extends proto MetricsBucket to store converted data into db.
 type MetricsBucketExtended struct {
 	PeriodStart      time.Time `json:"period_start_ts"`
+	MetricsSource    string    `json:"metrics_source_s"`
 	ExampleType      string    `json:"example_type_s"`
 	ExampleFormat    string    `json:"example_format_s"`
 	LabelsKey        []string  `json:"labels_key"`
@@ -411,6 +412,7 @@ func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error {
 		}
 		q := MetricsBucketExtended{
 			time.Unix(int64(mb.GetPeriodStartUnixSecs()), 0).UTC(),
+			mb.GetMetricsSource().String(),
 			mb.GetExampleType().String(),
 			mb.GetExampleFormat().String(),
 			lk,
