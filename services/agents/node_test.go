@@ -45,8 +45,6 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--collector.mountstats",
 				"--collector.processes",
 				"--collector.qdisc",
-				"--collector.runit",
-				"--collector.supervisord",
 				"--collector.systemd",
 				"--collector.wifi",
 				"--web.listen-address=:{{ .listen_port }}",
@@ -68,8 +66,6 @@ func TestNodeExporterConfig(t *testing.T) {
 			TemplateLeftDelim:  "{{",
 			TemplateRightDelim: "}}",
 			Args: []string{
-				"--collector.runit",
-				"--collector.supervisord",
 				"--web.listen-address=:{{ .listen_port }}",
 			},
 		}

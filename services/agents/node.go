@@ -32,8 +32,8 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 
 	args := []string{
 		// "--collector.ntp", disabled for now
-		"--collector.runit",
-		"--collector.supervisord",
+		//"--collector.runit", disabled for now
+		//"--collector.supervisord", disabled for now
 		// "--collector.tcpstat", disabled for now
 
 		// TODO
