@@ -383,6 +383,8 @@ func (s *Supervisor) processParams(agentID string, agentProcess *agentpb.SetStat
 		processParams.Path = s.paths.MySQLdExporter
 	case agentpb.Type_MONGODB_EXPORTER:
 		processParams.Path = s.paths.MongoDBExporter
+	case agentpb.Type_POSTGRES_EXPORTER:
+		processParams.Path = s.paths.PostgresExporter
 	case type_TEST_SLEEP:
 		processParams.Path = "sleep"
 	default:

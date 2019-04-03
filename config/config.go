@@ -31,10 +31,11 @@ import (
 
 // Paths represents binaries paths configuration.
 type Paths struct {
-	NodeExporter    string `yaml:"node_exporter"`
-	MySQLdExporter  string `yaml:"mysqld_exporter"`
-	MongoDBExporter string `yaml:"mongodb_exporter"`
-	TempDir         string `yaml:"tempdir"`
+	NodeExporter     string `yaml:"node_exporter"`
+	MySQLdExporter   string `yaml:"mysqld_exporter"`
+	MongoDBExporter  string `yaml:"mongodb_exporter"`
+	PostgresExporter string `yaml:"postgres_exporter"`
+	TempDir          string `yaml:"tempdir"`
 }
 
 // Lookup replaces paths with absolute paths.
@@ -42,6 +43,7 @@ func (p *Paths) Lookup() {
 	p.NodeExporter, _ = exec.LookPath(p.NodeExporter)
 	p.MySQLdExporter, _ = exec.LookPath(p.MySQLdExporter)
 	p.MongoDBExporter, _ = exec.LookPath(p.MongoDBExporter)
+	p.PostgresExporter, _ = exec.LookPath(p.PostgresExporter)
 }
 
 // Ports represents ports configuration.
@@ -101,6 +103,8 @@ func application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_MYSQLD_EXPORTER").Default("mysqld_exporter").StringVar(&cfg.Paths.MySQLdExporter)
 	app.Flag("paths.mongodb_exporter", "Path to mongodb_exporter to use. [PMM_AGENT_PATHS_MONGODB_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_MONGODB_EXPORTER").Default("mongodb_exporter").StringVar(&cfg.Paths.MongoDBExporter)
+	app.Flag("paths.postgres_exporter", "Path to postgres_exporter to use. [PMM_AGENT_PATHS_POSTGRES_EXPORTER]").
+		Envar("PMM_AGENT_PATHS_POSTGRES_EXPORTER").Default("postgres_exporter").StringVar(&cfg.Paths.PostgresExporter)
 	app.Flag("paths.tempdir", "Temporary directory for exporters. [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
 
