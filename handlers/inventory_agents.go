@@ -66,6 +66,10 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgen
 			res.ExternalExporter = append(res.ExternalExporter, agent)
 		case *inventorypb.MongoDBExporter:
 			res.MongodbExporter = append(res.MongodbExporter, agent)
+		case *inventorypb.QANMySQLPerfSchemaAgent:
+			res.QanMysqlPerfschemaAgent = append(res.QanMysqlPerfschemaAgent, agent)
+		case *inventorypb.PostgresExporter:
+			res.PostgresExporter = append(res.PostgresExporter, agent)
 		default:
 			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 		}
