@@ -46,7 +46,7 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgen
 		NodeID:     req.GetNodeId(),
 		ServiceID:  req.GetServiceId(),
 	}
-	agents, err := s.s.List(ctx, filters)
+	agents, err := s.s.List(ctx, s.db.Querier, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -111,15 +111,18 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 
 // AddPMMAgent adds pmm-agent Agent.
 func (s *agentsServer) AddPMMAgent(ctx context.Context, req *inventorypb.AddPMMAgentRequest) (*inventorypb.AddPMMAgentResponse, error) {
-	agent, err := s.s.AddPMMAgent(ctx, req)
-	if err != nil {
-		return nil, err
-	}
+	res := &inventorypb.AddPMMAgentResponse{}
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		agent, err := s.s.AddPMMAgent(ctx, tx.Querier, req)
+		if err != nil {
+			return err
+		}
 
-	res := &inventorypb.AddPMMAgentResponse{
-		PmmAgent: agent,
-	}
-	return res, nil
+		res.PmmAgent = agent
+		return nil
+	})
+
+	return res, e
 }
 
 func (s *agentsServer) ChangePMMAgent(context.Context, *inventorypb.ChangePMMAgentRequest) (*inventorypb.ChangePMMAgentResponse, error) {
@@ -128,15 +131,17 @@ func (s *agentsServer) ChangePMMAgent(context.Context, *inventorypb.ChangePMMAge
 
 // AddNodeExporter adds node_exporter Agent.
 func (s *agentsServer) AddNodeExporter(ctx context.Context, req *inventorypb.AddNodeExporterRequest) (*inventorypb.AddNodeExporterResponse, error) {
-	agent, err := s.s.AddNodeExporter(ctx, req)
-	if err != nil {
-		return nil, err
-	}
+	res := &inventorypb.AddNodeExporterResponse{}
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		agent, err := s.s.AddNodeExporter(ctx, tx.Querier, req)
+		if err != nil {
+			return err
+		}
+		res.NodeExporter = agent
+		return nil
+	})
 
-	res := &inventorypb.AddNodeExporterResponse{
-		NodeExporter: agent,
-	}
-	return res, nil
+	return res, e
 }
 
 // ChangeNodeExporter changes disabled flag and custom labels of node_exporter Agent.
