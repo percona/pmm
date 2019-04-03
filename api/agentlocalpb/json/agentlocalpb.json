@@ -67,7 +67,8 @@
                           "NODE_EXPORTER",
                           "MYSQLD_EXPORTER",
                           "MONGODB_EXPORTER",
-                          "QAN_MYSQL_PERFSCHEMA_AGENT"
+                          "QAN_MYSQL_PERFSCHEMA_AGENT",
+                          "POSTGRES_EXPORTER"
                         ]
                       },
                       "logs": {
