@@ -268,6 +268,14 @@
             "schema": {
               "type": "object",
               "properties": {
+                "container_id": {
+                  "description": "Сontainer identifier. Only for Container Nodes (optional).",
+                  "type": "string"
+                },
+                "container_name": {
+                  "description": "Сontainer name. Only for Container Nodes (optional).",
+                  "type": "string"
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels for node (optional).",
                   "type": "object",
@@ -281,14 +289,6 @@
                 },
                 "distro_version": {
                   "description": "Linux distribution version. For Generic nodes (optional).",
-                  "type": "string"
-                },
-                "docker_container_id": {
-                  "description": "Docker container identifier. Only for Container Nodes (optional).",
-                  "type": "string"
-                },
-                "docker_container_name": {
-                  "description": "Docker container name. Only for Container Nodes (optional).",
                   "type": "string"
                 },
                 "machine_id": {
@@ -387,6 +387,32 @@
                     },
                     "node_name": {
                       "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "pmm_agent": {
+                  "description": "PMMAgent runs on Generic on Container Node.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "connected": {
+                      "description": "True if Agent is running and connected to pmm-managed.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "runs_on_node_id": {
+                      "description": "Node identifier where this instance runs.",
                       "type": "string"
                     }
                   }

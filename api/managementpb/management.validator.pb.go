@@ -79,5 +79,10 @@ func (this *RegisterNodeResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("ContainerNode", err)
 		}
 	}
+	if this.PmmAgent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmAgent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PmmAgent", err)
+		}
+	}
 	return nil
 }

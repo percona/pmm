@@ -119,10 +119,10 @@ message RegisterNodeRequest {
   string distro = 4;
   // Linux distribution version. For Generic nodes (optional).
   string distro_version = 5;
-  // Docker container identifier. Only for Container Nodes (optional).
-  string docker_container_id = 6;
-  // Docker container name. Only for Container Nodes (optional).
-  string docker_container_name = 7;
+  // Сontainer identifier. Only for Container Nodes (optional).
+  string container_id = 6;
+  // Сontainer name. Only for Container Nodes (optional).
+  string container_name = 7;
   // Custom user-assigned labels for node (optional).
   map<string, string> custom_labels = 10;
 }
@@ -130,6 +130,7 @@ message RegisterNodeRequest {
 message RegisterNodeResponse {
   inventory.GenericNode generic_node = 1;
   inventory.ContainerNode container_node = 2;
+  inventory.PMMAgent pmm_agent = 3;
 }
 
 // Node service provides public Management API methods for operating with nodes.
