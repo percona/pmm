@@ -51,8 +51,8 @@ func OpenTestMySQL(tb testing.TB) *sql.DB {
 		db.SetMaxOpenConns(10)
 		db.SetConnMaxLifetime(0)
 
-		// Wait until MySQL is running up to 15 seconds.
-		for i := 0; i < 15; i++ {
+		// Wait until MySQL is running up to 30 seconds.
+		for i := 0; i < 30; i++ {
 			if err = db.Ping(); err == nil {
 				break
 			}
