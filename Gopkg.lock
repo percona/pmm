@@ -315,7 +315,7 @@
     "github.com/go-openapi/runtime/client",
     "github.com/percona/pmm/api/agentlocalpb/json/client",
     "github.com/percona/pmm/api/inventory/json/client",
-    "github.com/percona/pmm/api/inventory/json/client/agents",
+    "github.com/percona/pmm/api/inventory/json/client/services",
     "github.com/percona/pmm/api/managementpb/json/client",
     "github.com/percona/pmm/api/managementpb/json/client/my_sql",
     "github.com/percona/pmm/api/managementpb/json/client/node",
