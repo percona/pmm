@@ -17,21 +17,29 @@
 package commands
 
 import (
-	"strings"
-	"text/template"
+	"github.com/percona/pmm-admin/agentlocal"
 
 	"github.com/percona/pmm/api/inventory/json/client"
-	"github.com/percona/pmm/api/inventory/json/client/agents"
+	"github.com/percona/pmm/api/inventory/json/client/services"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var listResultT = template.Must(template.New("").Option("missingkey=error").Parse(strings.TrimSpace(`
-TODO
-{{ printf "%#v" .Agents }}
-`)))
+// TODO maybe it is better to use tabwriter there
+var listResultT = ParseTemplate(`
+Service type   Service name   Service ID
+{{ range .Services }}
+{{- printf "%-14s" .ServiceType }} {{ printf "%-14s" .ServiceName }} {{ .ServiceID }}
+{{ end }}
+`)
+
+type listResultService struct {
+	ServiceType string `json:"service_type"`
+	ServiceID   string `json:"service_id"`
+	ServiceName string `json:"service_name"`
+}
 
 type listResult struct {
-	Agents *agents.ListAgentsOKBody
+	Services []listResultService `json:"service"`
 }
 
 func (res *listResult) Result() {}
@@ -41,13 +49,24 @@ func (res *listResult) String() string {
 }
 
 type listCommand struct {
-	PMMAgentID string
+	NodeID string
 }
 
 func (cmd *listCommand) Run() (Result, error) {
-	agents, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
-		Body: agents.ListAgentsBody{
-			PMMAgentID: cmd.PMMAgentID,
+	// Unlike status, this command uses PMM Server APIs.
+	// It does not use local pmm-agent status API beyond getting a Node ID.
+
+	if cmd.NodeID == "" {
+		status, err := agentlocal.GetStatus()
+		if err != nil {
+			return nil, err
+		}
+		cmd.NodeID = status.NodeID
+	}
+
+	servicesRes, err := client.Default.Services.ListServices(&services.ListServicesParams{
+		Body: services.ListServicesBody{
+			NodeID: cmd.NodeID,
 		},
 		Context: Ctx,
 	})
@@ -55,8 +74,31 @@ func (cmd *listCommand) Run() (Result, error) {
 		return nil, err
 	}
 
+	var services []listResultService
+	for _, s := range servicesRes.Payload.Mysql {
+		services = append(services, listResultService{
+			ServiceType: "MySQL",
+			ServiceID:   s.ServiceID,
+			ServiceName: s.ServiceName,
+		})
+	}
+	for _, s := range servicesRes.Payload.Mongodb {
+		services = append(services, listResultService{
+			ServiceType: "MongoDB",
+			ServiceID:   s.ServiceID,
+			ServiceName: s.ServiceName,
+		})
+	}
+	for _, s := range servicesRes.Payload.Postgresql {
+		services = append(services, listResultService{
+			ServiceType: "PostgreSQL",
+			ServiceID:   s.ServiceID,
+			ServiceName: s.ServiceName,
+		})
+	}
+
 	return &listResult{
-		Agents: agents.Payload,
+		Services: services,
 	}, nil
 }
 
@@ -65,3 +107,7 @@ var (
 	List  = new(listCommand)
 	ListC = kingpin.Command("list", "Show Agents statuses.")
 )
+
+func init() {
+	ListC.Flag("node-id", "Default is autodetected.").StringVar(&List.NodeID)
+}

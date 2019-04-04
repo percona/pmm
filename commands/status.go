@@ -17,15 +17,12 @@
 package commands
 
 import (
-	"strings"
-	"text/template"
-
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-admin/agentlocal"
 )
 
-var statusResultT = template.Must(template.New("").Option("missingkey=error").Parse(strings.TrimSpace(`
+var statusResultT = ParseTemplate(`
 Agent ID: {{ .Status.AgentID }}
 Node ID : {{ .Status.NodeID }}
 
@@ -37,7 +34,7 @@ Agents:
 	{{ range .Status.Agents }}
 	{{ .AgentID .AgentType .Status }}
 	{{ end }}
-`)))
+`)
 
 type statusResult struct {
 	Status *agentlocal.Status `json:"status"`
@@ -53,7 +50,7 @@ type statusCommand struct {
 }
 
 func (cmd *statusCommand) Run() (Result, error) {
-	// This command uses only local pmm-agent status.
+	// Unlike list, this command uses only local pmm-agent status.
 	// It does not use PMM Server APIs.
 
 	status, err := agentlocal.GetStatus()

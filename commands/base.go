@@ -22,6 +22,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"strings"
 	"text/template"
 
 	"github.com/sirupsen/logrus"
@@ -69,6 +70,11 @@ func GetError(err ErrorResponse) Error {
 		Code:  err.Code(),
 		Error: e.String(),
 	}
+}
+
+func ParseTemplate(text string) *template.Template {
+	t := template.New("").Option("missingkey=error")
+	return template.Must(t.Parse(strings.TrimSpace(text)))
 }
 
 // RenderTemplate renders given template with given data and returns result as string.

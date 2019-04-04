@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"text/template"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/managementpb/json/client"
@@ -39,11 +38,11 @@ var (
 	nodeTypeKeys = []string{"generic", "container"}
 )
 
-var registerResultT = template.Must(template.New("").Parse(strings.TrimSpace(`
+var registerResultT = commands.ParseTemplate(`
 pmm-agent registered.
 pmm-agent ID: {{ .PMMAgent.AgentID }}
 Node ID     : {{ .PMMAgent.RunsOnNodeID }}
-`)))
+`)
 
 type registerResult struct {
 	GenericNode   *node.RegisterOKBodyGenericNode   `json:"generic_node"`

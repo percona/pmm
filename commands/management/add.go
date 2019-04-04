@@ -19,8 +19,6 @@ package management
 
 import (
 	"fmt"
-	"strings"
-	"text/template"
 
 	"github.com/percona/pmm/api/managementpb/json/client"
 	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql"
@@ -30,10 +28,10 @@ import (
 	"github.com/percona/pmm-admin/commands"
 )
 
-var addMySQLResultT = template.Must(template.New("").Parse(strings.TrimSpace(`
+var addMySQLResultT = commands.ParseTemplate(`
 TODO
 {{ . }}
-`)))
+`)
 
 type addResult struct {
 	Service *mysql.AddOKBodyService `json:"service"`
