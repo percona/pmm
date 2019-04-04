@@ -23,6 +23,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/AlekSi/pointer"
 	httptransport "github.com/go-openapi/runtime/client"
 	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client"
 	"github.com/sirupsen/logrus"
@@ -43,11 +44,21 @@ func SetTransport(ctx context.Context, debug bool) {
 
 // Status represents pmm-agent status.
 type Status struct {
-	AgentID string
-	NodeID  string
+	AgentID string `json:"agent_id"`
+	NodeID  string `json:"node_id"`
 
-	ServerURL         *url.URL
-	ServerInsecureTLS bool
+	ServerURL         *url.URL `json:"server_url"`
+	ServerInsecureTLS bool     `json:"server_insecure_tls"`
+	ServerVersion     string   `json:"server_version"`
+
+	Agents []AgentStatus `json:"agents"`
+	// TODO latency / last ping time / connection status
+}
+
+type AgentStatus struct {
+	AgentID   string `json:"agent_id"`
+	AgentType string `json:"agent_type"`
+	Status    string `json:"status"`
 }
 
 // GetStatus returns local pmm-agent status.
@@ -62,10 +73,23 @@ func GetStatus() (*Status, error) {
 		return nil, err
 	}
 
+	agents := make([]AgentStatus, len(res.Payload.AgentsInfo))
+	for i, a := range res.Payload.AgentsInfo {
+		agents[i] = AgentStatus{
+			AgentID:   a.AgentID,
+			AgentType: pointer.GetString(a.AgentType),
+			Status:    pointer.GetString(a.Status),
+		}
+	}
+
 	return &Status{
-		AgentID:           res.Payload.AgentID,
-		NodeID:            res.Payload.RunsOnNodeID,
+		AgentID: res.Payload.AgentID,
+		NodeID:  res.Payload.RunsOnNodeID,
+
 		ServerURL:         u,
 		ServerInsecureTLS: res.Payload.ServerInfo.InsecureTLS,
+		ServerVersion:     res.Payload.ServerInfo.Version,
+
+		Agents: agents,
 	}, nil
 }

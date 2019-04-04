@@ -89,7 +89,7 @@ func (cmd *registerCommand) Run() (commands.Result, error) {
 	}, nil
 }
 
-// register commands
+// register command
 var (
 	Register  = new(registerCommand)
 	RegisterC = kingpin.Command("register", "Register current Node at PMM Server.")

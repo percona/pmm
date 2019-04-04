@@ -81,7 +81,7 @@ func (cmd *addCommand) Run() (commands.Result, error) {
 	}
 }
 
-// register commands
+// register command
 var (
 	Add  = new(addCommand)
 	AddC = kingpin.Command("add", "TODO")

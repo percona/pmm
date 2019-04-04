@@ -25,9 +25,9 @@ import (
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-var listResultT = template.Must(template.New("").Parse(strings.TrimSpace(`
+var listResultT = template.Must(template.New("").Option("missingkey=error").Parse(strings.TrimSpace(`
 TODO
-{{ . }}
+{{ printf "%#v" .Agents }}
 `)))
 
 type listResult struct {
@@ -60,7 +60,7 @@ func (cmd *listCommand) Run() (Result, error) {
 	}, nil
 }
 
-// register commands
+// register command
 var (
 	List  = new(listCommand)
 	ListC = kingpin.Command("list", "Show Agents statuses.")

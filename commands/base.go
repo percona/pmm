@@ -75,7 +75,7 @@ func GetError(err ErrorResponse) Error {
 func RenderTemplate(t *template.Template, data interface{}) string {
 	var buf bytes.Buffer
 	if err := t.Execute(&buf, data); err != nil {
-		logrus.Fatal(err)
+		logrus.Fatalf("Failed to render response.\n%s.\nPlease report this bug.", err)
 	}
 	return buf.String()
 }

@@ -25,6 +25,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"strings"
 
 	httptransport "github.com/go-openapi/runtime/client"
 	inventorypb "github.com/percona/pmm/api/inventory/json/client"
@@ -84,7 +85,12 @@ func main() {
 	if *serverURLF == "" {
 		status, err := agentlocal.GetStatus()
 		if err != nil {
-			logrus.Fatal(err)
+			msg := []string{
+				"Failed to get PMM Server parameters from local pmm-agent.",
+				err.Error(),
+				"Please use --server-url flag to specify PMM Server URL.",
+			}
+			logrus.Fatal(strings.Join(msg, "\n"))
 		}
 		serverURL = status.ServerURL
 		serverInsecureTLS = status.ServerInsecureTLS
@@ -129,6 +135,9 @@ func main() {
 	case commands.ListC.FullCommand():
 		command = commands.List
 
+	case commands.StatusC.FullCommand():
+		command = commands.Status
+
 	default:
 		logrus.Panicf("Unhandled command %q.", cmd)
 	}
@@ -141,7 +150,7 @@ func main() {
 		if *jsonF {
 			b, err := json.Marshal(res)
 			if err != nil {
-				logrus.Fatal(err)
+				logrus.Fatalf("Failed to marshal result to JSON: %s.", err)
 			}
 			fmt.Printf("%s\n", b)
 		} else {
@@ -158,7 +167,7 @@ func main() {
 		if *jsonF {
 			b, err := json.Marshal(e)
 			if err != nil {
-				logrus.Fatal(err)
+				logrus.Fatalf("Failed to marshal result to JSON: %s.", err)
 			}
 			fmt.Printf("%s\n", b)
 		} else {
