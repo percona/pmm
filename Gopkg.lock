@@ -316,6 +316,7 @@
     "github.com/percona/pmm/api/inventory/json/client",
     "github.com/percona/pmm/api/inventory/json/client/agents",
     "github.com/percona/pmm/api/managementpb/json/client",
+    "github.com/percona/pmm/api/managementpb/json/client/my_sql",
     "github.com/percona/pmm/api/managementpb/json/client/node",
     "github.com/percona/pmm/api/serverpb/json/client",
     "github.com/percona/pmm/version",
