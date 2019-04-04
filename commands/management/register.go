@@ -36,6 +36,7 @@ var (
 		"generic":   node.RegisterBodyNodeTypeGENERICNODE,
 		"container": node.RegisterBodyNodeTypeCONTAINERNODE,
 	}
+	nodeTypeKeys = []string{"generic", "container"}
 )
 
 var registerResultT = template.Must(template.New("").Parse(strings.TrimSpace(`
@@ -96,10 +97,6 @@ var (
 )
 
 func init() {
-	nodeTypeKeys := make([]string, 0, len(nodeTypes))
-	for k := range nodeTypes {
-		nodeTypeKeys = append(nodeTypeKeys, k)
-	}
 	nodeTypeDefault := nodeTypeKeys[0]
 	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s. Default: %s.", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
 	RegisterC.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&Register.NodeType, nodeTypeKeys...)
