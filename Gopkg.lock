@@ -193,7 +193,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:1d005d74dfc42e63563978f78dea82e8501b49910b93e0ca16accd36e15fe55f"
+  digest = "1:8bf6a12219c031d80690c74c903bb3021fbe4af578bce22594b2c7b11d5d3853"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb/json/client",
@@ -207,10 +207,11 @@
     "api/managementpb/json/client/node",
     "api/serverpb/json/client",
     "api/serverpb/json/client/server",
+    "nodeinfo",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "090c3b021b9bb7ae702a020a40de265b053541ef"
+  revision = "70556f57bc2ee3a90d875eaa58a03ecb2b2c3d16"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -319,6 +320,7 @@
     "github.com/percona/pmm/api/managementpb/json/client/my_sql",
     "github.com/percona/pmm/api/managementpb/json/client/node",
     "github.com/percona/pmm/api/serverpb/json/client",
+    "github.com/percona/pmm/nodeinfo",
     "github.com/percona/pmm/version",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",

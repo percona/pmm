@@ -25,6 +25,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
+	"github.com/percona/pmm/nodeinfo"
 	"gopkg.in/alecthomas/kingpin.v2"
 
 	"github.com/percona/pmm-admin/commands"
@@ -58,6 +59,7 @@ func (res *registerResult) String() string {
 type registerCommand struct {
 	NodeType      string
 	NodeName      string
+	Distro        string
 	MachineID     string
 	ContainerID   string
 	ContainerName string
@@ -68,6 +70,7 @@ func (cmd *registerCommand) Run() (commands.Result, error) {
 		Body: node.RegisterBody{
 			NodeName:      cmd.NodeName,
 			NodeType:      pointer.ToString(nodeTypes[cmd.NodeType]),
+			Distro:        cmd.Distro,
 			MachineID:     cmd.MachineID,
 			ContainerID:   cmd.ContainerID,
 			ContainerName: cmd.ContainerName,
@@ -105,7 +108,9 @@ func init() {
 	nodeNameHelp := fmt.Sprintf("Node name. Default: %s.", hostname)
 	RegisterC.Arg("node-name", nodeNameHelp).Default(hostname).StringVar(&Register.NodeName)
 
-	RegisterC.Flag("machine-id", "Node machine-id.").StringVar(&Register.MachineID)
+	nodeinfo := nodeinfo.Get()
+	RegisterC.Flag("distro", "Node OS distribution. Default is autodetected.").Default(nodeinfo.Distro).StringVar(&Register.Distro)
+	RegisterC.Flag("machine-id", "Node machine-id. Default is autodetected.").Default(nodeinfo.MachineID).StringVar(&Register.MachineID)
 	RegisterC.Flag("container-id", "Container ID.").StringVar(&Register.ContainerID)
 	RegisterC.Flag("container-name", "Container name.").StringVar(&Register.ContainerName)
 }
