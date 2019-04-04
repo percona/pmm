@@ -21,6 +21,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/percona/pmm/api/inventory/json/client/agents"
 	"github.com/percona/pmm/api/inventory/json/client/services"
@@ -30,13 +31,13 @@ import (
 )
 
 var listResultT = ParseTemplate(`
-Service type   Service name   Address and port   Service ID
+Service type  Service name         Address and port  Service ID
 {{ range .Services }}
-{{- printf "%-14s" .ServiceType }} {{ printf "%-14s" .ServiceName }} {{ printf "%-18s" .AddressPort }} {{ .ServiceID }}
+{{- printf "%-13s" .ServiceType }} {{ printf "%-20s" .ServiceName }} {{ printf "%-17s" .AddressPort }} {{ .ServiceID }}
 {{ end }}
-Agent type        Status      Agent ID                                         Service ID
+Agent type                  Status     Agent ID                                        Service ID
 {{ range .Agents }}
-{{- printf "%-17s" .AgentType }} {{ printf "%-11s" .Status }} {{ .AgentID }}   {{ .ServiceID }}
+{{- printf "%-27s" .AgentType }} {{ printf "%-10s" .Status }} {{ .AgentID }}  {{ .ServiceID }}
 {{ end }}
 `)
 
@@ -124,6 +125,17 @@ func (cmd *listCommand) Run() (Result, error) {
 		return nil, err
 	}
 
+	getStatus := func(s *string, disabled bool) string {
+		res := strings.ToLower(pointer.GetString(s))
+		if res == "" {
+			res = "unknown"
+		}
+		if disabled {
+			res += " (disabled)"
+		}
+		return res
+	}
+
 	pmmAgentIDs := make(map[string]struct{})
 	var agents []listResultAgent
 	for _, a := range agentsRes.Payload.PMMAgent {
@@ -143,70 +155,50 @@ func (cmd *listCommand) Run() (Result, error) {
 	}
 	for _, a := range agentsRes.Payload.NodeExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
-			status := strings.ToLower(*a.Status)
-			if a.Disabled {
-				status += " (disabled)"
-			}
 			agents = append(agents, listResultAgent{
-				AgentType: "mysqld_exporter",
+				AgentType: "node_exporter",
 				AgentID:   a.AgentID,
-				Status:    status,
+				Status:    getStatus(a.Status, a.Disabled),
 			})
 		}
 	}
 	for _, a := range agentsRes.Payload.MysqldExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
-			status := strings.ToLower(*a.Status)
-			if a.Disabled {
-				status += " (disabled)"
-			}
 			agents = append(agents, listResultAgent{
 				AgentType: "mysqld_exporter",
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
-				Status:    status,
+				Status:    getStatus(a.Status, a.Disabled),
 			})
 		}
 	}
 	for _, a := range agentsRes.Payload.QANMysqlPerfschemaAgent {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
-			status := strings.ToLower(*a.Status)
-			if a.Disabled {
-				status += " (disabled)"
-			}
 			agents = append(agents, listResultAgent{
 				AgentType: "qan-mysql-perfschema-agent",
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
-				Status:    status,
+				Status:    getStatus(a.Status, a.Disabled),
 			})
 		}
 	}
 	for _, a := range agentsRes.Payload.MongodbExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
-			status := strings.ToLower(*a.Status)
-			if a.Disabled {
-				status += " (disabled)"
-			}
 			agents = append(agents, listResultAgent{
 				AgentType: "mongodb_exporter",
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
-				Status:    status,
+				Status:    getStatus(a.Status, a.Disabled),
 			})
 		}
 	}
 	for _, a := range agentsRes.Payload.PostgresExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
-			status := strings.ToLower(*a.Status)
-			if a.Disabled {
-				status += " (disabled)"
-			}
 			agents = append(agents, listResultAgent{
 				AgentType: "postgres_exporter",
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
-				Status:    status,
+				Status:    getStatus(a.Status, a.Disabled),
 			})
 		}
 	}

@@ -129,8 +129,8 @@ func main() {
 	case management.RegisterC.FullCommand():
 		command = management.Register
 
-	case management.AddC.FullCommand():
-		command = management.Add
+	case management.AddMySQLC.FullCommand():
+		command = management.AddMySQL
 
 	case commands.ListC.FullCommand():
 		command = commands.List
