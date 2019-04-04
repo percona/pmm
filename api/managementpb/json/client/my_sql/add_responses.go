@@ -121,7 +121,7 @@ type AddBody struct {
 	// Service Access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
 
-	// If true, adds "mysqld_exporter" agent for provided service.
+	// If true, adds mysqld_exporter for provided service.
 	MysqldExporter bool `json:"mysqld_exporter,omitempty"`
 
 	// Node identifier on which a service is been running. Required.
@@ -136,13 +136,13 @@ type AddBody struct {
 	// Service Access port. Required.
 	Port int64 `json:"port,omitempty"`
 
-	// If true, adds "qan_mysql_perfschema" agent for provided service.
+	// If true, adds qan-mysql-perfschema-agent for provided service.
 	QANMysqlPerfschema bool `json:"qan_mysql_perfschema,omitempty"`
 
-	// MySQL password for getting performance data.
+	// FIXME remove
 	QANPassword string `json:"qan_password,omitempty"`
 
-	// MySQL username for getting performance data.
+	// FIXME remove
 	QANUsername string `json:"qan_username,omitempty"`
 
 	// Unique across all Services user-defined name. Required.

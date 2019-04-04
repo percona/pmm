@@ -35,7 +35,7 @@
                   "type": "string"
                 },
                 "mysqld_exporter": {
-                  "description": "If true, adds \"mysqld_exporter\" agent for provided service.",
+                  "description": "If true, adds mysqld_exporter for provided service.",
                   "type": "boolean",
                   "format": "boolean"
                 },
@@ -57,17 +57,17 @@
                   "format": "int64"
                 },
                 "qan_mysql_perfschema": {
-                  "description": "If true, adds \"qan_mysql_perfschema\" agent for provided service.",
+                  "description": "If true, adds qan-mysql-perfschema-agent for provided service.",
                   "type": "boolean",
                   "format": "boolean"
                 },
                 "qan_password": {
-                  "description": "MySQL password for getting performance data.",
-                  "type": "string"
+                  "type": "string",
+                  "title": "FIXME remove"
                 },
                 "qan_username": {
-                  "description": "MySQL username for getting performance data.",
-                  "type": "string"
+                  "type": "string",
+                  "title": "FIXME remove"
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
