@@ -113,6 +113,50 @@ func (o *ChangeMongoDBExporterDefault) readResponse(response runtime.ClientRespo
 	return nil
 }
 
+/*ChangeMongoDBExporterBody change mongo DB exporter body
+swagger:model ChangeMongoDBExporterBody
+*/
+type ChangeMongoDBExporterBody struct {
+
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
+
+	// enabled
+	Enabled bool `json:"enabled,omitempty"`
+
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+}
+
+// Validate validates this change mongo DB exporter body
+func (o *ChangeMongoDBExporterBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeMongoDBExporterBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeMongoDBExporterBody) UnmarshalBinary(b []byte) error {
+	var res ChangeMongoDBExporterBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
 /*ChangeMongoDBExporterDefaultBody ErrorResponse is a message returned on HTTP error.
 swagger:model ChangeMongoDBExporterDefaultBody
 */
@@ -220,6 +264,9 @@ type ChangeMongoDBExporterOKBodyMongodbExporter struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
 
 	// Listen port for scraping metrics.
 	ListenPort int64 `json:"listen_port,omitempty"`

@@ -42,11 +42,11 @@ func TestImports(t *testing.T) {
 	}
 
 	for path, c := range map[string]constraint{
-		"github.com/percona/pmm-admin/commands": {
-			blacklist: []string{
-				"gopkg.in/alecthomas/kingpin.v2",
-			},
-		},
+		// "github.com/percona/pmm-admin/commands": {
+		// 	blacklist: []string{
+		// 		"gopkg.in/alecthomas/kingpin.v2",
+		// 	},
+		// },
 	} {
 		p, err := build.Import(path, ".", build.IgnoreVendor)
 		require.NoError(t, err)

@@ -252,7 +252,7 @@ func (o *AddAmazonRDSMySQLServiceOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddAmazonRDSMySQLServiceOKBodyAmazonRDSMysql AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node
+/*AddAmazonRDSMySQLServiceOKBodyAmazonRDSMysql AmazonRDSMySQLService represents a MySQL instance running on a single RemoteAmazonRDS Node.
 swagger:model AddAmazonRDSMySQLServiceOKBodyAmazonRDSMysql
 */
 type AddAmazonRDSMySQLServiceOKBodyAmazonRDSMysql struct {

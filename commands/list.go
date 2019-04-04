@@ -17,40 +17,51 @@
 package commands
 
 import (
+	"strings"
+	"text/template"
+
 	"github.com/percona/pmm/api/inventory/json/client"
 	"github.com/percona/pmm/api/inventory/json/client/agents"
-	"github.com/sirupsen/logrus"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-// AddMySQLCmd implements `pmm-admin add mysql` command.
-type AddMySQLCmd struct {
-	Username string
-	Password string
+var listResultT = template.Must(template.New("").Parse(strings.TrimSpace(`
+TODO
+{{ . }}
+`)))
+
+type listResult struct {
+	Agents *agents.ListAgentsOKBody
 }
 
-// Run implements Command interface.
-func (cmd *AddMySQLCmd) Run() {
-	// TODO get NodeID from local pmm-agent
+func (res *listResult) Result() {}
 
-	// TODO get or create MySQL service for this Node via pmm-managed
+func (res *listResult) String() string {
+	return RenderTemplate(listResultT, res)
+}
 
-	params := &agents.AddMySqldExporterParams{
-		Body: agents.AddMySqldExporterBody{
-			// TODO RunsOnNodeID
-			// TODO ServiceID
-			Username: cmd.Username,
-			Password: cmd.Password,
+type listCommand struct {
+	PMMAgentID string
+}
+
+func (cmd *listCommand) Run() (Result, error) {
+	agents, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
+		Body: agents.ListAgentsBody{
+			PMMAgentID: cmd.PMMAgentID,
 		},
-	}
-	resp, err := client.Default.Agents.AddMySqldExporter(params)
+		Context: Ctx,
+	})
 	if err != nil {
-		logrus.Error(err)
-		return
+		return nil, err
 	}
-	logrus.Infof("mysqld_exporter started on %d.", resp.Payload.MysqldExporter.ListenPort)
+
+	return &listResult{
+		Agents: agents.Payload,
+	}, nil
 }
 
-// check interfaces
+// register commands
 var (
-	_ Command = (*AddMySQLCmd)(nil)
+	List  = new(listCommand)
+	ListC = kingpin.Command("list", "Show Agents statuses.")
 )

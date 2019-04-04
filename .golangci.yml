@@ -19,6 +19,9 @@ linters-settings:
 
 linters:
   enable-all: true
+  disable:
+    - gochecknoglobals  # we need global variables for commands
+    - gochecknoinits    # we need inits for commands
 
 issues:
   exclude-use-default: false

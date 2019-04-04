@@ -19,6 +19,7 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -26,42 +27,42 @@ import (
 	"os/signal"
 
 	httptransport "github.com/go-openapi/runtime/client"
-	"github.com/percona/pmm/api/inventory/json/client"
+	inventorypb "github.com/percona/pmm/api/inventory/json/client"
+	managementpb "github.com/percona/pmm/api/managementpb/json/client"
+	serverpb "github.com/percona/pmm/api/serverpb/json/client"
 	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 	"gopkg.in/alecthomas/kingpin.v2"
 
+	"github.com/percona/pmm-admin/agentlocal"
 	"github.com/percona/pmm-admin/commands"
+	"github.com/percona/pmm-admin/commands/management"
 )
 
 func main() {
-	app := kingpin.New("pmm-agent", fmt.Sprintf("Version %s.", version.Version))
-	app.HelpFlag.Short('h')
-	app.Version(version.FullInfo())
-	pmmServerAddressF := app.Flag("server-url", "PMM Server URL.").Required().String()
-	debugF := app.Flag("debug", "Enable debug logging.").Bool()
-	traceF := app.Flag("trace", "Enable trace logging (implies debug).").Bool()
-	kingpin.MustParse(app.Parse(os.Args[1:]))
+	kingpin.CommandLine.Name = "pmm-admin"
+	kingpin.CommandLine.Help = fmt.Sprintf("Version %s.", version.Version)
+	kingpin.CommandLine.HelpFlag.Short('h')
+	kingpin.CommandLine.Version(version.FullInfo())
 
+	serverURLF := kingpin.Flag("server-url", "PMM Server URL.").String()
+	serverInsecureTLSF := kingpin.Flag("server-insecure-tls", "").Bool()
+	debugF := kingpin.Flag("debug", "Enable debug logging.").Bool()
+	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug).").Bool()
+	jsonF := kingpin.Flag("json", "Enable JSON output.").Bool()
+
+	cmd := kingpin.Parse()
+
+	logrus.SetFormatter(&logrus.TextFormatter{
+		DisableTimestamp: true,
+	})
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
 	if *traceF {
 		logrus.SetLevel(logrus.TraceLevel)
 		logrus.SetReportCaller(true)
-	}
-
-	u, err := url.Parse(*pmmServerAddressF)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-	logrus.Debugf("PMM Server URL: %#v.", u)
-	if u.Path == "" {
-		u.Path = "/"
-	}
-	if u.Host == "" || u.Scheme == "" {
-		logrus.Fatal("Invalid PMM Server URL.")
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -76,18 +77,98 @@ func main() {
 		cancel()
 	}()
 
-	// use JSON APIs over HTTP/1.1
-	transport := httptransport.New(u.Host, u.Path, []string{u.Scheme})
-	transport.SetLogger(logrus.WithField("component", "client"))
-	transport.Context = ctx
-	transport.Debug = *debugF || *traceF
-	// disable HTTP/2
-	transport.Transport.(*http.Transport).TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
-	client.Default = client.New(transport, nil)
+	agentlocal.SetTransport(ctx, *debugF || *traceF)
 
-	cmd := commands.AddMySQLCmd{
-		Username: "username",
-		Password: "password",
+	var serverURL *url.URL
+	var serverInsecureTLS bool
+	if *serverURLF == "" {
+		status, err := agentlocal.GetStatus()
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		serverURL = status.ServerURL
+		serverInsecureTLS = status.ServerInsecureTLS
+	} else {
+		var err error
+		serverURL, err = url.Parse(*serverURLF)
+		if err != nil {
+			logrus.Fatal(err)
+		}
+		if serverURL.Path == "" {
+			serverURL.Path = "/"
+		}
+		if serverURL.Host == "" || serverURL.Scheme == "" {
+			logrus.Fatal("Invalid PMM Server URL.")
+		}
+		serverInsecureTLS = *serverInsecureTLSF
 	}
-	cmd.Run()
+
+	// use JSON APIs over HTTP/1.1
+	transport := httptransport.New(serverURL.Host, serverURL.Path, []string{serverURL.Scheme})
+	transport.SetLogger(logrus.WithField("component", "server-transport"))
+	transport.SetDebug(*debugF || *traceF)
+	transport.Context = ctx
+	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{} // disable HTTP/2
+	if serverInsecureTLS {
+		httpTransport.TLSClientConfig.InsecureSkipVerify = true
+	}
+
+	inventorypb.Default.SetTransport(transport)
+	managementpb.Default.SetTransport(transport)
+	serverpb.Default.SetTransport(transport)
+
+	var command commands.Command
+	switch cmd {
+	case management.RegisterC.FullCommand():
+		command = management.Register
+
+	case management.AddC.FullCommand():
+		command = management.Add
+
+	case commands.ListC.FullCommand():
+		command = commands.List
+
+	default:
+		logrus.Panicf("Unhandled command %q.", cmd)
+	}
+
+	res, err := command.Run()
+	logrus.Debugf("Response: %#v", res)
+	logrus.Debugf("Error: %#v", err)
+
+	if err == nil {
+		if *jsonF {
+			b, err := json.Marshal(res)
+			if err != nil {
+				logrus.Fatal(err)
+			}
+			fmt.Printf("%s\n", b)
+		} else {
+			fmt.Println(res.String())
+		}
+
+		return
+	}
+
+	switch err := err.(type) {
+	case commands.ErrorResponse:
+		e := commands.GetError(err)
+
+		if *jsonF {
+			b, err := json.Marshal(e)
+			if err != nil {
+				logrus.Fatal(err)
+			}
+			fmt.Printf("%s\n", b)
+		} else {
+			fmt.Println(e.Error)
+		}
+
+		os.Exit(1)
+
+	default:
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

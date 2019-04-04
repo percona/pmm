@@ -11,12 +11,11 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/inventory/json/client/agents"
-	"github.com/percona/pmm/api/inventory/json/client/nodes"
-	"github.com/percona/pmm/api/inventory/json/client/services"
+	"github.com/percona/pmm/api/managementpb/json/client/my_sql"
+	"github.com/percona/pmm/api/managementpb/json/client/node"
 )
 
-// Default PMM server inventory HTTP client.
+// Default PMM management HTTP client.
 var Default = NewHTTPClient(nil)
 
 const (
@@ -31,14 +30,14 @@ const (
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file
 var DefaultSchemes = []string{"http", "https"}
 
-// NewHTTPClient creates a new PMM server inventory HTTP client.
-func NewHTTPClient(formats strfmt.Registry) *PMMServerInventory {
+// NewHTTPClient creates a new PMM management HTTP client.
+func NewHTTPClient(formats strfmt.Registry) *PMMManagement {
 	return NewHTTPClientWithConfig(formats, nil)
 }
 
-// NewHTTPClientWithConfig creates a new PMM server inventory HTTP client,
+// NewHTTPClientWithConfig creates a new PMM management HTTP client,
 // using a customizable transport config.
-func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMServerInventory {
+func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMMManagement {
 	// ensure nullable parameters have default
 	if cfg == nil {
 		cfg = DefaultTransportConfig()
@@ -49,21 +48,19 @@ func NewHTTPClientWithConfig(formats strfmt.Registry, cfg *TransportConfig) *PMM
 	return New(transport, formats)
 }
 
-// New creates a new PMM server inventory client
-func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMServerInventory {
+// New creates a new PMM management client
+func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagement {
 	// ensure nullable parameters have default
 	if formats == nil {
 		formats = strfmt.Default
 	}
 
-	cli := new(PMMServerInventory)
+	cli := new(PMMManagement)
 	cli.Transport = transport
 
-	cli.Agents = agents.New(transport, formats)
+	cli.MySQL = my_sql.New(transport, formats)
 
-	cli.Nodes = nodes.New(transport, formats)
-
-	cli.Services = services.New(transport, formats)
+	cli.Node = node.New(transport, formats)
 
 	return cli
 }
@@ -107,25 +104,21 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 	return cfg
 }
 
-// PMMServerInventory is a client for PMM server inventory
-type PMMServerInventory struct {
-	Agents *agents.Client
+// PMMManagement is a client for PMM management
+type PMMManagement struct {
+	MySQL *my_sql.Client
 
-	Nodes *nodes.Client
-
-	Services *services.Client
+	Node *node.Client
 
 	Transport runtime.ClientTransport
 }
 
 // SetTransport changes the transport on the client and all its subresources
-func (c *PMMServerInventory) SetTransport(transport runtime.ClientTransport) {
+func (c *PMMManagement) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
 
-	c.Agents.SetTransport(transport)
+	c.MySQL.SetTransport(transport)
 
-	c.Nodes.SetTransport(transport)
-
-	c.Services.SetTransport(transport)
+	c.Node.SetTransport(transport)
 
 }

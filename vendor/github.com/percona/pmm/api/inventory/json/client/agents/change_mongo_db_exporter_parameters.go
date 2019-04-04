@@ -62,7 +62,7 @@ for the change mongo DB exporter operation typically these are written to a http
 type ChangeMongoDBExporterParams struct {
 
 	/*Body*/
-	Body interface{}
+	Body ChangeMongoDBExporterBody
 
 	timeout    time.Duration
 	Context    context.Context
@@ -103,13 +103,13 @@ func (o *ChangeMongoDBExporterParams) SetHTTPClient(client *http.Client) {
 }
 
 // WithBody adds the body to the change mongo DB exporter params
-func (o *ChangeMongoDBExporterParams) WithBody(body interface{}) *ChangeMongoDBExporterParams {
+func (o *ChangeMongoDBExporterParams) WithBody(body ChangeMongoDBExporterBody) *ChangeMongoDBExporterParams {
 	o.SetBody(body)
 	return o
 }
 
 // SetBody adds the body to the change mongo DB exporter params
-func (o *ChangeMongoDBExporterParams) SetBody(body interface{}) {
+func (o *ChangeMongoDBExporterParams) SetBody(body ChangeMongoDBExporterBody) {
 	o.Body = body
 }
 
@@ -121,10 +121,8 @@ func (o *ChangeMongoDBExporterParams) WriteToRequest(r runtime.ClientRequest, re
 	}
 	var res []error
 
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
+	if err := r.SetBodyParam(o.Body); err != nil {
+		return err
 	}
 
 	if len(res) > 0 {
