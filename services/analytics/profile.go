@@ -22,20 +22,9 @@ import (
 	"time"
 
 	"github.com/percona/pmm/api/qanpb"
-
-	"github.com/percona/qan-api2/models"
 )
 
-// Service implements gRPC service to communicate with QAN-APP.
-type Service struct {
-	rm models.Reporter
-	mm models.Metrics
-}
-
-// NewService create new insstance of Service.
-func NewService(rm models.Reporter, mm models.Metrics) *Service {
-	return &Service{rm, mm}
-}
+const defaultOrder = "m_query_time_sum"
 
 // GetReport implements rpc to get report for given filtering.
 func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanpb.ReportReply, error) {
@@ -80,24 +69,6 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		}
 	}
 
-	boolColumnNames := map[string]struct{}{
-		"qc_hit":                 {},
-		"full_scan":              {},
-		"full_join":              {},
-		"tmp_table":              {},
-		"tmp_table_on_disk":      {},
-		"filesort":               {},
-		"filesort_on_disk":       {},
-		"select_full_range_join": {},
-		"select_range":           {},
-		"select_range_check":     {},
-		"sort_range":             {},
-		"sort_rows":              {},
-		"sort_scan":              {},
-		"no_index_used":          {},
-		"no_good_index_used":     {},
-	}
-
 	boolColumns := []string{}
 	commonColumns := []string{}
 	for _, col := range columns {
@@ -105,10 +76,13 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			boolColumns = append(boolColumns, col)
 			continue
 		}
-		commonColumns = append(commonColumns, col)
+		if _, ok := commonColumnNames[col]; ok {
+			commonColumns = append(commonColumns, col)
+			continue
+		}
 	}
 
-	order := "m_query_time_sum"
+	order := defaultOrder
 	if in.OrderBy != "" {
 		col := in.OrderBy
 		direction := "ASC"
@@ -117,17 +91,20 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			direction = "DESC"
 		}
 
-		if _, ok := boolColumnNames[col]; ok {
-			switch col {
-			case "load", "latency":
-				col = "m_query_time_sum"
-			case "count":
-				col = "num_queries"
-			default:
-				col = fmt.Sprintf("m_%s_sum", col)
-			}
-			order = fmt.Sprintf("%s %s", col, direction)
+		_, isBoolCol := boolColumnNames[col]
+		_, isCommonCol := commonColumnNames[col]
+
+		switch true {
+		case isBoolCol || isCommonCol:
+			col = fmt.Sprintf("m_%s_sum", col)
+		case col == "load" || col == "latency":
+			col = defaultOrder
+		case col == "count":
+			col = "num_queries"
+		default:
+			col = defaultOrder
 		}
+		order = fmt.Sprintf("%s %s", col, direction)
 	}
 
 	resp := &qanpb.ReportReply{}
@@ -219,17 +196,4 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		resp.Rows = append(resp.Rows, row)
 	}
 	return resp, nil
-}
-
-func interfaceToFloat32(unk interface{}) float32 {
-	switch i := unk.(type) {
-	case float64:
-		return float32(i)
-	case float32:
-		return i
-	case int64:
-		return float32(i)
-	default:
-		return float32(0)
-	}
 }

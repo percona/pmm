@@ -23,10 +23,10 @@ import (
 	"log"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/reflectx"
-	"github.com/percona/pmm/api/qanpb"
 )
 
 // Metrics represents methods to work with metrics.
@@ -40,12 +40,13 @@ func NewMetrics(db *sqlx.DB) Metrics {
 }
 
 // Get select metrics for specific queryid, hostname, etc.
-func (m *Metrics) Get(ctx context.Context, from, to, digest string, dbServers, dbSchemas, dbUsernames,
-	clientHosts []string, dbLabels map[string][]string) (*qanpb.MetricsReply, error) {
+func (m *Metrics) Get(ctx context.Context, from, to time.Time, filter, group string, dbServers, dbSchemas, dbUsernames,
+	clientHosts []string, dbLabels map[string][]string) ([]M, error) {
 	arg := map[string]interface{}{
 		"from":    from,
 		"to":      to,
-		"digest":  digest,
+		"filter":  filter,
+		"group":   group,
 		"servers": dbServers,
 		"schemas": dbSchemas,
 		"users":   dbUsernames,
@@ -58,36 +59,50 @@ func (m *Metrics) Get(ctx context.Context, from, to, digest string, dbServers, d
 	} else if err = tmpl.Execute(&queryBuffer, arg); err != nil {
 		log.Fatalln(err)
 	}
-
+	var results []M
 	// set mapper to reuse json tags. Have to be unset
 	m.db.Mapper = reflectx.NewMapperFunc("json", strings.ToLower)
 	defer func() { m.db.Mapper = reflectx.NewMapperFunc("db", strings.ToLower) }()
-	res := qanpb.MetricsReply{}
+	// res := qanpb.MetricsReply{}
+	// res := make(map[string]interface{})
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return &res, fmt.Errorf("prepare named:%v", err)
+		return results, fmt.Errorf("prepare named:%v", err)
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return &res, fmt.Errorf("populate agruments in IN clause:%v", err)
+		return results, fmt.Errorf("populate agruments in IN clause:%v", err)
 	}
 	query = m.db.Rebind(query)
-	err = m.db.GetContext(ctx, &res, query, args...)
-	return &res, err
+	// err = m.db.GetContext(ctx, &res, query, args...)
+
+	rows, err := m.db.QueryxContext(ctx, query, args...)
+	if err != nil {
+		return results, fmt.Errorf("QueryxContext error:%v", err)
+	}
+	for rows.Next() {
+		result := make(M)
+		err = rows.MapScan(result)
+		if err != nil {
+			fmt.Printf("DimensionMetrics Scan error: %v", err)
+		}
+		results = append(results, result)
+	}
+	rows.NextResultSet()
+	total := make(M)
+	for rows.Next() {
+		err = rows.MapScan(total)
+		if err != nil {
+			fmt.Printf("DimensionMetrics Scan TOTALS error: %v", err)
+		}
+		results = append(results, total)
+	}
+
+	return results, err
 }
 
 const queryMetricsTmpl = `
 SELECT
-queryid,
-any(fingerprint) AS fingerprint,
-groupUniqArray(d_server) AS d_servers,
-groupUniqArray(d_database) AS d_databases,
-groupUniqArray(d_schema) AS d_schemas,
-groupUniqArray(d_username) AS d_usernames,
-groupUniqArray(d_client_host) AS d_client_hosts,
-
-MIN(period_start) AS first_seen,
-MAX(period_start) AS last_seen,
 
 SUM(num_queries) AS num_queries,
 
@@ -213,9 +228,29 @@ SUM(m_sort_range_sum) AS m_sort_range_sum,
 SUM(m_sort_rows_sum) AS m_sort_rows_sum,
 SUM(m_sort_scan_sum) AS m_sort_scan_sum,
 SUM(m_no_index_used_sum) AS m_no_index_used_sum,
-SUM(m_no_good_index_used_sum) AS m_no_good_index_used_sum
+SUM(m_no_good_index_used_sum) AS m_no_good_index_used_sum,
+
+SUM(m_docs_returned_cnt) AS m_docs_returned_cnt,
+SUM(m_docs_returned_sum) AS m_docs_returned_sum,
+MIN(m_docs_returned_min) AS m_docs_returned_min,
+MAX(m_docs_returned_max) AS m_docs_returned_max,
+AVG(m_docs_returned_p99) AS m_docs_returned_p99,
+
+SUM(m_response_length_cnt) AS m_response_length_cnt,
+SUM(m_response_length_sum) AS m_response_length_sum,
+MIN(m_response_length_min) AS m_response_length_min,
+MAX(m_response_length_max) AS m_response_length_max,
+AVG(m_response_length_p99) AS m_response_length_p99,
+
+SUM(m_docs_scanned_cnt) AS m_docs_scanned_cnt,
+SUM(m_docs_scanned_sum) AS m_docs_scanned_sum,
+MIN(m_docs_scanned_min) AS m_docs_scanned_min,
+MAX(m_docs_scanned_max) AS m_docs_scanned_max,
+AVG(m_docs_scanned_p99) AS m_docs_scanned_p99
+
 FROM metrics
-WHERE period_start > :from AND period_start < :to AND queryid = :digest
+WHERE period_start > :from AND period_start < :to AND
+{{ index . "group" }} = :filter
 {{ if index . "servers" }} AND db_server IN ( :servers ) {{ end }}
 {{ if index . "schemas" }} AND db_schema IN ( :schemas ) {{ end }}
 {{ if index . "users" }} AND db_username IN ( :users ) {{ end }}
@@ -229,5 +264,6 @@ WHERE period_start > :from AND period_start < :to AND queryid = :digest
 		{{ end }}
 	)
 {{ end }}
-GROUP BY queryid;
+GROUP BY {{ index . "group" }}
+	WITH TOTALS;
 `

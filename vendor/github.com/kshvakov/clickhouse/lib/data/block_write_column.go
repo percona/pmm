@@ -1,19 +1,28 @@
 package data
 
 import (
+	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/kshvakov/clickhouse/lib/binary"
-	"github.com/kshvakov/clickhouse/lib/column"
-	"github.com/kshvakov/clickhouse/lib/types"
 )
 
 func (block *Block) WriteDate(c int, v time.Time) error {
-	return block.buffers[c].Column.UInt16(uint16(v.Unix() / 24 / 3600))
+	_, offset := v.Zone()
+	nday := (v.Unix() + int64(offset)) / 24 / 3600
+	return block.buffers[c].Column.UInt16(uint16(nday))
 }
 
 func (block *Block) WriteDateTime(c int, v time.Time) error {
 	return block.buffers[c].Column.UInt32(uint32(v.Unix()))
+}
+
+func (block *Block) WriteBool(c int, v bool) error {
+	if v {
+		return block.buffers[c].Column.UInt8(1)
+	}
+	return block.buffers[c].Column.UInt8(0)
 }
 
 func (block *Block) WriteInt8(c int, v int8) error {
@@ -80,11 +89,10 @@ func (block *Block) WriteFixedString(c int, v []byte) error {
 	return block.Columns[c].Write(block.buffers[c].Column, v)
 }
 
-func (block *Block) WriteArray(c int, v *types.Array) error {
-	ln, err := block.Columns[c].(*column.Array).WriteArray(block.buffers[c].Column, v)
-	if err != nil {
-		return err
+func (block *Block) WriteArray(c int, v interface{}) error {
+	value := reflect.ValueOf(v)
+	if value.Kind() != reflect.Slice {
+		return fmt.Errorf("unsupported Array(T) type [%T]", value.Interface())
 	}
-	block.offsets[c] += ln
-	return block.buffers[c].Offset.UInt64(block.offsets[c])
+	return block.writeArray(block.Columns[c], value, c, 1)
 }
