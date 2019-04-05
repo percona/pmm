@@ -117,6 +117,8 @@ message RegisterNodeRequest {
   string container_name = 7;
   // Custom user-assigned labels for node (optional).
   map<string, string> custom_labels = 10;
+  // Address FIXME https://jira.percona.com/browse/PMM-3786
+  string address = 42;
 }
 
 message RegisterNodeResponse {

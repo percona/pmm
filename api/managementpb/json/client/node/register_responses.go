@@ -118,6 +118,9 @@ swagger:model RegisterBody
 */
 type RegisterBody struct {
 
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	Address string `json:"address,omitempty"`
+
 	// Сontainer identifier. Only for Container Nodes (optional).
 	ContainerID string `json:"container_id,omitempty"`
 
@@ -380,6 +383,9 @@ swagger:model RegisterOKBodyContainerNode
 */
 type RegisterOKBodyContainerNode struct {
 
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	Address string `json:"address,omitempty"`
+
 	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -427,7 +433,7 @@ swagger:model RegisterOKBodyGenericNode
 */
 type RegisterOKBodyGenericNode struct {
 
-	// Address FIXME.
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
 	// Custom user-assigned labels. Can be changed.

@@ -2734,6 +2734,10 @@
                   "description": "ContainerNode represents a Docker container.",
                   "type": "object",
                   "properties": {
+                    "address": {
+                      "type": "string",
+                      "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",
                       "type": "object",
@@ -2845,8 +2849,8 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Address FIXME.",
-                      "type": "string"
+                      "type": "string",
+                      "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",
@@ -3115,6 +3119,10 @@
                   "description": "ContainerNode represents a Docker container.",
                   "type": "object",
                   "properties": {
+                    "address": {
+                      "type": "string",
+                      "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",
                       "type": "object",
@@ -3149,8 +3157,8 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Address FIXME.",
-                      "type": "string"
+                      "type": "string",
+                      "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",
@@ -3285,6 +3293,10 @@
                     "description": "ContainerNode represents a Docker container.",
                     "type": "object",
                     "properties": {
+                      "address": {
+                        "type": "string",
+                        "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels. Can be changed.",
                         "type": "object",
@@ -3322,8 +3334,8 @@
                     "type": "object",
                     "properties": {
                       "address": {
-                        "description": "Address FIXME.",
-                        "type": "string"
+                        "type": "string",
+                        "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                       },
                       "custom_labels": {
                         "description": "Custom user-assigned labels. Can be changed.",
@@ -4617,6 +4629,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "address": {
+                  "type": "string",
+                  "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                },
                 "container_id": {
                   "description": "Сontainer identifier. Only for Container Nodes (optional).",
                   "type": "string"
@@ -4674,6 +4690,10 @@
                   "description": "ContainerNode represents a Docker container.",
                   "type": "object",
                   "properties": {
+                    "address": {
+                      "type": "string",
+                      "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",
                       "type": "object",
@@ -4708,8 +4728,8 @@
                   "type": "object",
                   "properties": {
                     "address": {
-                      "description": "Address FIXME.",
-                      "type": "string"
+                      "type": "string",
+                      "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                     },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",

@@ -260,7 +260,7 @@ swagger:model AddGenericNodeOKBodyGeneric
 */
 type AddGenericNodeOKBodyGeneric struct {
 
-	// Address FIXME.
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
 	// Custom user-assigned labels. Can be changed.
