@@ -31,7 +31,7 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "Service Access address (DNS name or IP). Required.",
+                  "description": "Node and Service access address (DNS name or IP). Required.",
                   "type": "string"
                 },
                 "mysqld_exporter": {

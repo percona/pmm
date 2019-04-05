@@ -42,7 +42,7 @@ message AddMySQLRequest {
       string_not_empty: true
     }
   ];
-  // Service Access address (DNS name or IP). Required.
+  // Node and Service access address (DNS name or IP). Required.
   string address = 3 [
     (validator.field) = {
       string_not_empty: true

@@ -31,7 +31,7 @@ type AddMySQLRequest struct {
 	NodeId string `protobuf:"bytes,1,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `protobuf:"bytes,2,opt,name=service_name,json=serviceName,proto3" json:"service_name,omitempty"`
-	// Service Access address (DNS name or IP). Required.
+	// Node and Service access address (DNS name or IP). Required.
 	Address string `protobuf:"bytes,3,opt,name=address,proto3" json:"address,omitempty"`
 	// Service Access port. Required.
 	Port uint32 `protobuf:"varint,4,opt,name=port,proto3" json:"port,omitempty"`
