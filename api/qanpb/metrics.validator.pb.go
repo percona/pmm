@@ -6,6 +6,7 @@ package qanpb
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/ptypes/timestamp"
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -18,6 +19,16 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *MetricsRequest) Validate() error {
+	if this.PeriodStartFrom != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PeriodStartFrom); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PeriodStartFrom", err)
+		}
+	}
+	if this.PeriodStartTo != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PeriodStartTo); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PeriodStartTo", err)
+		}
+	}
 	for _, item := range this.Labels {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -32,7 +43,8 @@ func (this *MapFieldEntry) Validate() error {
 }
 func (this *MetricsReply) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
-	// Validation of proto3 map<> fields is unsupported.
-	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *MetricValues) Validate() error {
 	return nil
 }

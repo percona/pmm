@@ -36,7 +36,7 @@ func (a *Client) GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetMetrics",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/GetMetrics",
+		PathPattern:        "/v1/qan/Metrics/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
