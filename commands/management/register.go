@@ -57,6 +57,7 @@ func (res *registerResult) String() string {
 }
 
 type registerCommand struct {
+	Address       string
 	NodeType      string
 	NodeName      string
 	Distro        string
@@ -68,6 +69,7 @@ type registerCommand struct {
 func (cmd *registerCommand) Run() (commands.Result, error) {
 	params := &node.RegisterParams{
 		Body: node.RegisterBody{
+			Address:       cmd.Address,
 			NodeName:      cmd.NodeName,
 			NodeType:      pointer.ToString(nodeTypes[cmd.NodeType]),
 			Distro:        cmd.Distro,
@@ -96,6 +98,15 @@ var (
 )
 
 func init() {
+	nodeinfo := nodeinfo.Get()
+
+	if nodeinfo.PublicAddress == "" {
+		RegisterC.Arg("node-address", "Node address.").Required().StringVar(&Register.Address)
+	} else {
+		help := fmt.Sprintf("Node address. Default: %s (autodetected).", nodeinfo.PublicAddress)
+		RegisterC.Arg("node-address", help).Default(nodeinfo.PublicAddress).StringVar(&Register.Address)
+	}
+
 	nodeTypeDefault := nodeTypeKeys[0]
 	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s. Default: %s.", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
 	RegisterC.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&Register.NodeType, nodeTypeKeys...)
@@ -104,7 +115,6 @@ func init() {
 	nodeNameHelp := fmt.Sprintf("Node name. Default: %s.", hostname)
 	RegisterC.Arg("node-name", nodeNameHelp).Default(hostname).StringVar(&Register.NodeName)
 
-	nodeinfo := nodeinfo.Get()
 	RegisterC.Flag("distro", "Node OS distribution. Default is autodetected.").Default(nodeinfo.Distro).StringVar(&Register.Distro)
 	RegisterC.Flag("machine-id", "Node machine-id. Default is autodetected.").Default(nodeinfo.MachineID).StringVar(&Register.MachineID)
 	RegisterC.Flag("container-id", "Container ID.").StringVar(&Register.ContainerID)
