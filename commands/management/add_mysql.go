@@ -111,5 +111,5 @@ func init() {
 
 	// TODO remove Required() once https://github.com/percona/pmm/pull/320 is merged
 	AddMySQLC.Flag("username", "MySQL username.").Required().StringVar(&AddMySQL.Username)
-	AddMySQLC.Flag("password", "MySQL password.").StringVar(&AddMySQL.Username)
+	AddMySQLC.Flag("password", "MySQL password.").StringVar(&AddMySQL.Password)
 }
