@@ -109,7 +109,6 @@ func init() {
 	serviceNameHelp := fmt.Sprintf("Service name. Default: %s.", serviceName)
 	AddMySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMySQL.ServiceName)
 
-	// TODO remove Required() once https://github.com/percona/pmm/pull/320 is merged
-	AddMySQLC.Flag("username", "MySQL username.").Required().StringVar(&AddMySQL.Username)
+	AddMySQLC.Flag("username", "MySQL username.").StringVar(&AddMySQL.Username)
 	AddMySQLC.Flag("password", "MySQL password.").StringVar(&AddMySQL.Password)
 }
