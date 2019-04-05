@@ -117,6 +117,9 @@ swagger:model ContainerItems0
 */
 type ContainerItems0 struct {
 
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	Address string `json:"address,omitempty"`
+
 	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -164,7 +167,7 @@ swagger:model GenericItems0
 */
 type GenericItems0 struct {
 
-	// Address FIXME.
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
 	// Custom user-assigned labels. Can be changed.

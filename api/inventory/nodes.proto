@@ -47,7 +47,7 @@ message GenericNode {
   string distro_version = 5;
   // Custom user-assigned labels. Can be changed.
   map<string, string> custom_labels = 10;
-  // Address FIXME.
+  // Address FIXME https://jira.percona.com/browse/PMM-3786
   string address = 42;
 }
 
@@ -65,6 +65,8 @@ message ContainerNode {
   string docker_container_name = 5;
   // Custom user-assigned labels. Can be changed.
   map<string, string> custom_labels = 10;
+  // Address FIXME https://jira.percona.com/browse/PMM-3786
+  string address = 42;
 }
 
 // RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.

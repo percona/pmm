@@ -118,7 +118,7 @@ swagger:model AddBody
 */
 type AddBody struct {
 
-	// Service Access address (DNS name or IP). Required.
+	// Node and Service access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
 
 	// If true, adds mysqld_exporter for provided service.
