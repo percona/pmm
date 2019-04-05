@@ -60,7 +60,11 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 				return err
 			}
 		case nil:
-			params := &inventory.UpdateNodeParams{MachineID: req.MachineId, CustomLabels: req.CustomLabels}
+			params := &inventory.UpdateNodeParams{
+				Address:      req.Address,
+				MachineID:    req.MachineId,
+				CustomLabels: req.CustomLabels,
+			}
 			node, err = s.ns.Update(ctx, tx.Querier, node.ID(), params)
 			if err != nil {
 				return err
@@ -129,7 +133,7 @@ func (s *NodeService) createNewNode(ctx context.Context, q *reform.Querier, req 
 		DockerContainerID:   pointer.ToStringOrNil(req.ContainerId),
 		DockerContainerName: pointer.ToStringOrNil(req.ContainerName),
 		CustomLabels:        req.CustomLabels,
-		Address:             nil,
+		Address:             pointer.ToStringOrNil(req.Address),
 		Region:              nil,
 	}
 	node, err := s.ns.Add(ctx, q, params)

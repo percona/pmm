@@ -70,6 +70,7 @@ func makeNode(row *models.Node) (inventorypb.Node, error) {
 			DockerContainerId:   pointer.GetString(row.DockerContainerID),
 			DockerContainerName: pointer.GetString(row.DockerContainerName),
 			CustomLabels:        labels,
+			Address:             pointer.GetString(row.Address),
 		}, nil
 
 	case models.RemoteNodeType:
@@ -260,6 +261,7 @@ func (ns *NodesService) Remove(ctx context.Context, q *reform.Querier, id string
 
 // UpdateNodeParams describe editable node parameters.
 type UpdateNodeParams struct {
+	Address         string
 	MachineID       string
 	CustomLabels    map[string]string
 	RemoveLabels    bool
@@ -271,6 +273,10 @@ func (ns *NodesService) Update(ctx context.Context, q *reform.Querier, nodeID st
 	row, err := ns.get(ctx, q, nodeID)
 	if err != nil {
 		return nil, err
+	}
+
+	if params.Address != "" {
+		row.Address = &params.Address
 	}
 
 	if params.RemoveLabels {
