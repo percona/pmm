@@ -117,6 +117,9 @@ func main() {
 	httpTransport := transport.Transport.(*http.Transport)
 	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{} // disable HTTP/2
 	if serverInsecureTLS {
+		if httpTransport.TLSClientConfig == nil {
+			httpTransport.TLSClientConfig = new(tls.Config)
+		}
 		httpTransport.TLSClientConfig.InsecureSkipVerify = true
 	}
 
