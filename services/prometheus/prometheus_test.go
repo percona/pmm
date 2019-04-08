@@ -46,7 +46,6 @@ func setup(t *testing.T) (context.Context, *reform.DB, *Service, []byte) {
 
 	svc, err := NewService(configPath, "promtool", db, "http://127.0.0.1:9090/prometheus/")
 	require.NoError(t, err)
-	require.NoError(t, svc.Check(ctx))
 
 	original, err := ioutil.ReadFile(configPath) //nolint:gosec
 	require.NoError(t, err)
@@ -78,6 +77,8 @@ func TestPrometheus(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		ctx, db, svc, original := setup(t)
 		defer teardown(t, db, svc, original)
+
+		require.NoError(t, svc.Check(ctx))
 
 		for _, str := range []reform.Struct{
 			&models.Node{
