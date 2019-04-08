@@ -5,7 +5,7 @@ datasources:
   - name: Prometheus
     type: prometheus
     access: direct
-    url: http://127.0.0.1:9090
+    url: http://127.0.0.1:9090/prometheus/
     isDefault: true
     editable: true
     jsonData:

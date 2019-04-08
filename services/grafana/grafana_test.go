@@ -28,6 +28,8 @@ import (
 )
 
 func TestCreateAnnotation(t *testing.T) {
+	t.Skip("https://jira.percona.com/browse/PMM-3812")
+
 	from := time.Now()
 	ctx := logger.Set(context.Background(), t.Name())
 	c := NewClient("127.0.0.1:3000")

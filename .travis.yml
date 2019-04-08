@@ -33,7 +33,7 @@ env:
   matrix:
     # what we currently use in PMM
     - PROMETHEUS_IMAGE=prom/prometheus:v2.7.1
-      GRAFANA_IMAGE=grafana/grafana:5.1.3
+      GRAFANA_IMAGE=grafana/grafana:6.1.2
       POSTGRES_IMAGE=postgres:10
 
     # latest released version
