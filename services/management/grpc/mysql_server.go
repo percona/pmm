@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package handlers
+package grpc
 
 import (
 	"context"
@@ -24,16 +24,16 @@ import (
 	"github.com/percona/pmm-managed/services/management"
 )
 
-type nodeGrpcServer struct {
-	svc *management.NodeService
+type mysqlServer struct {
+	svc *management.MySQLService
 }
 
-// NewManagementNodeServer creates Management Node Server.
-func NewManagementNodeServer(s *management.NodeService) managementpb.NodeServer {
-	return &nodeGrpcServer{svc: s}
+// NewManagementMysqlServer creates Management MySQL Server.
+func NewManagementMysqlServer(s *management.MySQLService) managementpb.MySQLServer {
+	return &mysqlServer{svc: s}
 }
 
-// Register do registration of new Node.
-func (s *nodeGrpcServer) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (res *managementpb.RegisterNodeResponse, err error) {
-	return s.svc.Register(ctx, req)
+// Add adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
+func (s *mysqlServer) Add(ctx context.Context, req *managementpb.AddMySQLRequest) (*managementpb.AddMySQLResponse, error) {
+	return s.svc.Add(ctx, req)
 }

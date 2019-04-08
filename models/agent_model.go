@@ -18,86 +18,11 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
-
-// AgentsForNode returns all Agents providing insights for given Node.
-func AgentsForNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
-	structs, err := q.FindAllFrom(AgentNodeView, "node_id", nodeID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Agent IDs")
-	}
-
-	agentIDs := make([]interface{}, len(structs))
-	for i, s := range structs {
-		agentIDs[i] = s.(*AgentNode).AgentID
-	}
-	if len(agentIDs) == 0 {
-		return []*Agent{}, nil
-	}
-
-	p := strings.Join(q.Placeholders(1, len(agentIDs)), ", ")
-	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p) //nolint:gosec
-	structs, err = q.SelectAllFrom(AgentTable, tail, agentIDs...)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Agents")
-	}
-
-	res := make([]*Agent, len(structs))
-	for i, s := range structs {
-		res[i] = s.(*Agent)
-	}
-	return res, nil
-}
-
-// AgentsRunningByPMMAgent returns all Agents running by PMMAgent.
-func AgentsRunningByPMMAgent(q *reform.Querier, pmmAgentID string) ([]*Agent, error) {
-	tail := fmt.Sprintf("WHERE pmm_agent_id = %s ORDER BY agent_id", q.Placeholder(1)) //nolint:gosec
-	structs, err := q.SelectAllFrom(AgentTable, tail, pmmAgentID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Agents")
-	}
-
-	res := make([]*Agent, len(structs))
-	for i, s := range structs {
-		res[i] = s.(*Agent)
-	}
-	return res, nil
-}
-
-// AgentsForService returns all Agents providing insights for given Service.
-func AgentsForService(q *reform.Querier, serviceID string) ([]*Agent, error) {
-	structs, err := q.FindAllFrom(AgentServiceView, "service_id", serviceID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Agent IDs")
-	}
-
-	agentIDs := make([]interface{}, len(structs))
-	for i, s := range structs {
-		agentIDs[i] = s.(*AgentService).AgentID
-	}
-	if len(agentIDs) == 0 {
-		return []*Agent{}, nil
-	}
-
-	p := strings.Join(q.Placeholders(1, len(agentIDs)), ", ")
-	tail := fmt.Sprintf("WHERE agent_id IN (%s) ORDER BY agent_id", p) //nolint:gosec
-	structs, err = q.SelectAllFrom(AgentTable, tail, agentIDs...)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Agents")
-	}
-
-	res := make([]*Agent, len(structs))
-	for i, s := range structs {
-		res[i] = s.(*Agent)
-	}
-	return res, nil
-}
 
 //go:generate reform
 

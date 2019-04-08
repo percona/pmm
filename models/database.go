@@ -91,8 +91,8 @@ var databaseSchema = [][]string{
 
 		`CREATE TABLE agents (
 			-- common
-			agent_id VARCHAR NOT NULL CHECK (agent_type <> ''),
-			agent_type VARCHAR NOT NULL,
+			agent_id VARCHAR NOT NULL,
+			agent_type VARCHAR NOT NULL CHECK (agent_type <> ''),
 			runs_on_node_id VARCHAR CHECK (runs_on_node_id <> ''),
 			pmm_agent_id VARCHAR CHECK (pmm_agent_id <> ''),
 			custom_labels TEXT,

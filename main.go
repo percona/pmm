@@ -53,14 +53,17 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-managed/handlers"
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/agents"
+	agentgrpc "github.com/percona/pmm-managed/services/agents/grpc"
 	"github.com/percona/pmm-managed/services/inventory"
+	inventorygrpc "github.com/percona/pmm-managed/services/inventory/grpc"
 	"github.com/percona/pmm-managed/services/logs"
 	"github.com/percona/pmm-managed/services/management"
+	managementgrpc "github.com/percona/pmm-managed/services/management/grpc"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
+	servergrpc "github.com/percona/pmm-managed/services/server/grpc"
 	"github.com/percona/pmm-managed/services/telemetry"
 	"github.com/percona/pmm-managed/utils/interceptors"
 	"github.com/percona/pmm-managed/utils/logger"
@@ -134,10 +137,6 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 	l := logrus.WithField("component", "gRPC")
 	l.Infof("Starting server on http://%s/ ...", *gRPCAddrF)
 
-	nodesSvc := inventory.NewNodesService(deps.agentsRegistry)
-	servicesSvc := inventory.NewServicesService(deps.agentsRegistry, nodesSvc)
-	agentsSvc := inventory.NewAgentsService(deps.db, deps.agentsRegistry)
-
 	gRPCServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			interceptors.Unary,
@@ -148,30 +147,24 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 			grpc_validator.StreamServerInterceptor(),
 		)),
 	)
-	serverpb.RegisterServerServer(gRPCServer, handlers.NewServerServer(
-		version.Version,
-	))
-	agentpb.RegisterAgentServer(gRPCServer, &handlers.AgentServer{
-		Registry: deps.agentsRegistry,
-	})
-	inventorypb.RegisterNodesServer(gRPCServer, handlers.NewNodesServer(
-		deps.db,
-		nodesSvc,
-	))
-	inventorypb.RegisterServicesServer(gRPCServer, handlers.NewServicesServer(
-		deps.db,
-		servicesSvc,
-	))
-	inventorypb.RegisterAgentsServer(gRPCServer, handlers.NewAgentsServer(
-		agentsSvc,
-		deps.db,
-	))
-	managementpb.RegisterMySQLServer(gRPCServer, handlers.NewManagementMysqlServer(
-		management.NewMySQLService(deps.db, servicesSvc, agentsSvc),
-	))
-	managementpb.RegisterNodeServer(gRPCServer, handlers.NewManagementNodeServer(
-		management.NewNodeService(deps.db, nodesSvc, agentsSvc),
-	))
+
+	serverpb.RegisterServerServer(gRPCServer, servergrpc.NewServer(version.Version))
+
+	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentServer(deps.agentsRegistry))
+
+	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry)
+	agentsSvc := inventory.NewAgentsService(deps.db, deps.agentsRegistry)
+	nodesSvc := inventory.NewNodesService(deps.db)
+
+	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
+	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
+	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
+
+	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsRegistry)
+	nodeSvc := management.NewNodeService(deps.db, deps.agentsRegistry)
+
+	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMysqlServer(mysqlSvc))
+	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
 
 	if *debugF {
 		l.Debug("Reflection and channelz are enabled.")

@@ -235,28 +235,28 @@ func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (string, 
 		return "", status.Error(codes.Unauthenticated, "Empty Agent ID.")
 	}
 
-	row := &models.Agent{AgentID: md.ID}
-	if err := q.Reload(row); err != nil {
-		if err == reform.ErrNoRows {
+	agent, err := models.AgentFindByID(q, md.ID)
+	if err != nil {
+		if gRPCError := status.Convert(err); gRPCError != nil && gRPCError.Code() == codes.NotFound {
 			return "", status.Errorf(codes.Unauthenticated, "No Agent with ID %q.", md.ID)
 		}
 		return "", errors.Wrap(err, "failed to find agent")
 	}
 
-	if row.AgentType != models.PMMAgentType {
+	if agent.AgentType != models.PMMAgentType {
 		return "", status.Errorf(codes.Unauthenticated, "No pmm-agent with ID %q.", md.ID)
 	}
 
-	if pointer.GetString(row.RunsOnNodeID) == "" {
+	if pointer.GetString(agent.RunsOnNodeID) == "" {
 		return "", status.Errorf(codes.Unauthenticated, "Can't get 'runs_on_node_id' for pmm-agent with ID %q.", md.ID)
 	}
 
-	row.Version = &md.Version
-	if err := q.Update(row); err != nil {
+	agent.Version = &md.Version
+	if err := q.Update(agent); err != nil {
 		return "", errors.Wrap(err, "failed to update agent")
 	}
 
-	return pointer.GetString(row.RunsOnNodeID), nil
+	return pointer.GetString(agent.RunsOnNodeID), nil
 }
 
 // Kick disconnects pmm-agent with given ID.
@@ -361,7 +361,7 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 			continue
 
 		case models.NodeExporterType:
-			nodes, err := models.NodesForAgent(r.db.Querier, row.AgentID)
+			nodes, err := models.FindNodesForAgentID(r.db.Querier, row.AgentID)
 			if err != nil {
 				l.Error(err)
 				return

@@ -15,7 +15,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package handlers implements gRPC API of pmm-managed.
-package handlers
+package grpc
 
 import (
 	"context"
@@ -23,18 +23,18 @@ import (
 	"github.com/percona/pmm/api/serverpb"
 )
 
-type serverServer struct {
+type server struct {
 	version string
 }
 
-// NewServerServer returns Inventory API handler for managing Server.
-func NewServerServer(version string) serverpb.ServerServer {
-	return &serverServer{
+// NewServer returns Inventory API handler for managing Server.
+func NewServer(version string) serverpb.ServerServer {
+	return &server{
 		version: version,
 	}
 }
 
-func (s *serverServer) Version(ctx context.Context, req *serverpb.VersionRequest) (*serverpb.VersionResponse, error) {
+func (s *server) Version(ctx context.Context, req *serverpb.VersionRequest) (*serverpb.VersionResponse, error) {
 	return &serverpb.VersionResponse{
 		Version: s.version,
 	}, nil

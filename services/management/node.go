@@ -22,27 +22,35 @@ import (
 	"github.com/AlekSi/pointer"
 	inventorypb "github.com/percona/pmm/api/inventory"
 	"github.com/percona/pmm/api/managementpb"
+	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+
+	// FIXME Refactor, as service shouldn't depend on other service in one abstraction level.
+	// https://jira.percona.com/browse/PMM-3541
+	// See also main_test.go
 	"github.com/percona/pmm-managed/services/inventory"
+)
+
+var (
+	errNodeNotFound  = errors.New("node not found")
+	errAgentNotFound = errors.New("agent not found")
 )
 
 // NodeService represents service for working with nodes.
 type NodeService struct {
-	db *reform.DB
-	ns *inventory.NodesService
-	ag *inventory.AgentsService
+	db   *reform.DB
+	asrs agentStateRequestSender
 }
 
 // NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB, ns *inventory.NodesService, ag *inventory.AgentsService) *NodeService {
+func NewNodeService(db *reform.DB, asrs agentStateRequestSender) *NodeService {
 	return &NodeService{
-		db: db,
-		ns: ns,
-		ag: ag,
+		db:   db,
+		asrs: asrs,
 	}
 }
 
@@ -51,21 +59,20 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 	res = new(managementpb.RegisterNodeResponse)
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
-
-		node, err := s.findNodeByName(ctx, tx.Querier, req.NodeName)
-		switch err.(type) {
-		case nodeNotFoundErr:
-			node, err = s.createNewNode(ctx, tx.Querier, req)
-			if err != nil {
-				return err
-			}
+		node, err := s.findNodeByName(tx.Querier, req.NodeName)
+		switch err {
 		case nil:
-			params := &inventory.UpdateNodeParams{
+			params := &models.UpdateNodeParams{
 				Address:      req.Address,
 				MachineID:    req.MachineId,
 				CustomLabels: req.CustomLabels,
 			}
-			node, err = s.ns.Update(ctx, tx.Querier, node.ID(), params)
+			node, err = models.UpdateNode(tx.Querier, node.NodeID, params)
+			if err != nil {
+				return err
+			}
+		case errNodeNotFound:
+			node, err = s.createNewNode(tx.Querier, req)
 			if err != nil {
 				return err
 			}
@@ -73,13 +80,14 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			return err
 		}
 
-		s.addNodeToResponse(node, res)
+		if err := s.addNodeToResponse(node, res); err != nil {
+			return err
+		}
 
-		pmmAgent, err := s.findPmmAgentByNodeID(ctx, tx.Querier, node.ID())
-		switch err.(type) {
-		case agentNotFoundErr:
-			pmmParams := &inventorypb.AddPMMAgentRequest{RunsOnNodeId: node.ID()}
-			pmmAgent, err = s.ag.AddPMMAgent(ctx, tx.Querier, pmmParams)
+		pmmAgent, err := s.findPmmAgentByNodeID(tx.Querier, node.NodeID)
+		switch err {
+		case errAgentNotFound:
+			pmmAgent, err = models.AgentAddPmmAgent(tx.Querier, node.NodeID, nil)
 			if err != nil {
 				return err
 			}
@@ -89,13 +97,14 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			return err
 		}
 
-		res.PmmAgent = pmmAgent
+		if err := s.addPmmAgentToResponse(tx.Querier, pmmAgent, res); err != nil {
+			return err
+		}
 
-		_, err = s.findNodeExporterByPmmAgentID(ctx, tx.Querier, pmmAgent.ID())
-		switch err.(type) {
-		case agentNotFoundErr:
-			nExpParams := &inventorypb.AddNodeExporterRequest{PmmAgentId: pmmAgent.ID()}
-			_, err = s.ag.AddNodeExporter(ctx, tx.Querier, nExpParams)
+		_, err = s.findNodeExporterByPmmAgentID(tx.Querier, pmmAgent.AgentID)
+		switch err {
+		case errAgentNotFound:
+			_, err := models.AgentAddNodeExporter(tx.Querier, pmmAgent.AgentID, nil)
 			if err != nil {
 				return err
 			}
@@ -110,10 +119,12 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		return nil, e
 	}
 
+	s.asrs.SendSetStateRequest(ctx, res.PmmAgent.AgentId)
+
 	return res, nil
 }
 
-func (s *NodeService) createNewNode(ctx context.Context, q *reform.Querier, req *managementpb.RegisterNodeRequest) (inventorypb.Node, error) {
+func (s *NodeService) createNewNode(q *reform.Querier, req *managementpb.RegisterNodeRequest) (*models.Node, error) {
 	var nodeType models.NodeType
 	switch req.NodeType {
 	case inventorypb.NodeType_GENERIC_NODE:
@@ -124,8 +135,7 @@ func (s *NodeService) createNewNode(ctx context.Context, q *reform.Querier, req 
 		return nil, status.Error(codes.InvalidArgument, "unsupported node type")
 	}
 
-	params := &inventory.AddNodeParams{
-		NodeType:            nodeType,
+	params := &models.CreateNodeParams{
 		NodeName:            req.NodeName,
 		MachineID:           pointer.ToStringOrNil(req.MachineId),
 		Distro:              pointer.ToStringOrNil(req.Distro),
@@ -136,83 +146,85 @@ func (s *NodeService) createNewNode(ctx context.Context, q *reform.Querier, req 
 		Address:             pointer.ToStringOrNil(req.Address),
 		Region:              nil,
 	}
-	node, err := s.ns.Add(ctx, q, params)
+	node, err := models.CreateNode(q, nodeType, params)
 	if err != nil {
-		return node, err
+		return nil, err
 	}
 
 	return node, nil
 }
 
-func (s *NodeService) findNodeByName(ctx context.Context, q *reform.Querier, name string) (inventorypb.Node, error) {
-	nodes, err := s.ns.List(ctx, q)
+func (s *NodeService) findNodeByName(q *reform.Querier, name string) (*models.Node, error) {
+	nodes, err := models.FindAllNodes(q)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, n := range nodes {
-		if n.Name() == name {
+		if n.NodeName == name {
 			return n, nil
 		}
 	}
 
-	var nfErr nodeNotFoundErr = "node not found"
-	return nil, nfErr
+	return nil, errNodeNotFound
 }
 
-func (s *NodeService) findPmmAgentByNodeID(ctx context.Context, q *reform.Querier, nodeID string) (pmmAgent *inventorypb.PMMAgent, err error) {
-	agents, err := s.ag.List(ctx, q, inventory.AgentFilters{})
+func (s *NodeService) findPmmAgentByNodeID(q *reform.Querier, nodeID string) (pmmAgent *models.Agent, err error) {
+	agents, err := models.AgentFindAll(q)
 	if err != nil {
 		return nil, err
 	}
 
-	var ok bool
 	for _, a := range agents {
-		pmmAgent, ok = a.(*inventorypb.PMMAgent)
-		if ok && pmmAgent.RunsOnNodeId == nodeID {
-			return pmmAgent, nil
+		if pointer.GetString(a.RunsOnNodeID) == nodeID {
+			return a, nil
 		}
 	}
 
-	var anfErr agentNotFoundErr = "agent not found"
-	return pmmAgent, anfErr
+	return pmmAgent, errAgentNotFound
 }
 
-func (s *NodeService) findNodeExporterByPmmAgentID(ctx context.Context, q *reform.Querier, pmmAgentID string) (nodeExporter *inventorypb.NodeExporter, err error) {
-	agents, err := s.ag.List(ctx, q, inventory.AgentFilters{PMMAgentID: pmmAgentID})
+func (s *NodeService) findNodeExporterByPmmAgentID(q *reform.Querier, pmmAgentID string) (nodeExporter *inventorypb.NodeExporter, err error) {
+	agents, err := models.AgentsRunningByPMMAgent(q, pmmAgentID)
 	if err != nil {
 		return nil, err
 	}
 
-	var ok bool
 	for _, a := range agents {
-		nodeExporter, ok = a.(*inventorypb.NodeExporter)
-		if ok && nodeExporter.PmmAgentId == pmmAgentID {
+		if pointer.GetString(a.PMMAgentID) == pmmAgentID {
+			invAgent, err := inventory.ToInventoryAgent(q, a, s.asrs)
+			if err != nil {
+				return nodeExporter, err
+			}
+			nodeExporter = invAgent.(*inventorypb.NodeExporter)
 			return nodeExporter, nil
 		}
 	}
 
-	var anfErr agentNotFoundErr = "agent not found"
-	return nodeExporter, anfErr
+	return nodeExporter, errAgentNotFound
 }
 
-func (s *NodeService) addNodeToResponse(node inventorypb.Node, res *managementpb.RegisterNodeResponse) {
+func (s *NodeService) addNodeToResponse(model *models.Node, res *managementpb.RegisterNodeResponse) error {
+	node, err := inventory.ToInventoryNode(model)
+	if err != nil {
+		return err
+	}
+
 	switch n := node.(type) {
 	case *inventorypb.GenericNode:
 		res.GenericNode = n
 	case *inventorypb.ContainerNode:
 		res.ContainerNode = n
 	}
+
+	return nil
 }
 
-type nodeNotFoundErr string
-
-func (e nodeNotFoundErr) Error() string {
-	return string(e)
-}
-
-type agentNotFoundErr string
-
-func (e agentNotFoundErr) Error() string {
-	return string(e)
+func (s *NodeService) addPmmAgentToResponse(q *reform.Querier, model *models.Agent, res *managementpb.RegisterNodeResponse) error {
+	invAgent, err := inventory.ToInventoryAgent(q, model, s.asrs)
+	if err != nil {
+		return err
+	}
+	res.PmmAgent = invAgent.(*inventorypb.PMMAgent)
+	return nil
 }

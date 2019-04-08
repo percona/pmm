@@ -38,47 +38,43 @@ func TestPackages(t *testing.T) {
 
 func TestImports(t *testing.T) {
 	type constraint struct {
-		blacklist []string
+		blacklistPrefixes []string
 	}
 
 	for path, c := range map[string]constraint{
-		// models should not import services
+		// models should not import services or APIs.
 		"github.com/percona/pmm-managed/models": {
-			blacklist: []string{
-				"github.com/percona/pmm-managed/services/agents",
-				"github.com/percona/pmm-managed/services/inventory",
-				"github.com/percona/pmm-managed/services/prometheus",
-				"github.com/percona/pmm-managed/services/qan",
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm-managed/services",
+				"github.com/percona/pmm/api",
 			},
 		},
 
-		// services should be independent: agent, inventory, prometheus, qan
+		// Services should be independent: agents, inventory, management, prometheus, qan.
 		"github.com/percona/pmm-managed/services/agents": {
-			blacklist: []string{
-				"github.com/percona/pmm-managed/services/inventory",
-				"github.com/percona/pmm-managed/services/prometheus",
-				"github.com/percona/pmm-managed/services/qan",
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm-managed/services",
 			},
 		},
 		"github.com/percona/pmm-managed/services/inventory": {
-			blacklist: []string{
-				"github.com/percona/pmm-managed/services/agents",
-				"github.com/percona/pmm-managed/services/prometheus",
-				"github.com/percona/pmm-managed/services/qan",
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm-managed/services",
 			},
 		},
+		// FIXME https://jira.percona.com/browse/PMM-3541
+		// "github.com/percona/pmm-managed/services/management": {
+		// 	blacklistPrefixes: []string{
+		// 		"github.com/percona/pmm-managed/services",
+		// 	},
+		// },
 		"github.com/percona/pmm-managed/services/prometheus": {
-			blacklist: []string{
-				"github.com/percona/pmm-managed/services/agents",
-				"github.com/percona/pmm-managed/services/inventory",
-				"github.com/percona/pmm-managed/services/qan",
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm-managed/services",
 			},
 		},
 		"github.com/percona/pmm-managed/services/qan": {
-			blacklist: []string{
-				"github.com/percona/pmm-managed/services/agents",
-				"github.com/percona/pmm-managed/services/inventory",
-				"github.com/percona/pmm-managed/services/prometheus",
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm-managed/services",
 			},
 		},
 	} {
@@ -96,9 +92,17 @@ func TestImports(t *testing.T) {
 			allImports[i] = struct{}{}
 		}
 
-		for _, i := range c.blacklist {
-			if _, ok := allImports[i]; ok {
-				t.Errorf("Package %q should not import %q.", path, i)
+		for _, b := range c.blacklistPrefixes {
+			for i := range allImports {
+				// whitelist own subpackages
+				if strings.HasPrefix(i, path) {
+					continue
+				}
+
+				// check blacklist
+				if strings.HasPrefix(i, b) {
+					t.Errorf("Package %q should not import package %q (blacklisted by %q).", path, i, b)
+				}
 			}
 		}
 	}

@@ -14,29 +14,25 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package handlers
+package grpc
 
 import (
 	"context"
 	"fmt"
 
 	inventorypb "github.com/percona/pmm/api/inventory"
-	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
+//nolint:unused
 type agentsServer struct {
-	s  *inventory.AgentsService
-	db *reform.DB
+	s *inventory.AgentsService
 }
 
 // NewAgentsServer returns Inventory API handler for managing Agents.
-func NewAgentsServer(s *inventory.AgentsService, db *reform.DB) inventorypb.AgentsServer {
-	return &agentsServer{
-		s:  s,
-		db: db,
-	}
+func NewAgentsServer(s *inventory.AgentsService) inventorypb.AgentsServer {
+	return &agentsServer{s}
 }
 
 // ListAgents returns a list of Agents for a given filters.
@@ -46,7 +42,7 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgen
 		NodeID:     req.GetNodeId(),
 		ServiceID:  req.GetServiceId(),
 	}
-	agents, err := s.s.List(ctx, s.db.Querier, filters)
+	agents, err := s.s.List(ctx, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -111,18 +107,15 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 
 // AddPMMAgent adds pmm-agent Agent.
 func (s *agentsServer) AddPMMAgent(ctx context.Context, req *inventorypb.AddPMMAgentRequest) (*inventorypb.AddPMMAgentResponse, error) {
-	res := &inventorypb.AddPMMAgentResponse{}
-	e := s.db.InTransaction(func(tx *reform.TX) error {
-		agent, err := s.s.AddPMMAgent(ctx, tx.Querier, req)
-		if err != nil {
-			return err
-		}
+	agent, err := s.s.AddPMMAgent(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
-		res.PmmAgent = agent
-		return nil
-	})
-
-	return res, e
+	res := &inventorypb.AddPMMAgentResponse{
+		PmmAgent: agent,
+	}
+	return res, nil
 }
 
 func (s *agentsServer) ChangePMMAgent(context.Context, *inventorypb.ChangePMMAgentRequest) (*inventorypb.ChangePMMAgentResponse, error) {
@@ -131,17 +124,15 @@ func (s *agentsServer) ChangePMMAgent(context.Context, *inventorypb.ChangePMMAge
 
 // AddNodeExporter adds node_exporter Agent.
 func (s *agentsServer) AddNodeExporter(ctx context.Context, req *inventorypb.AddNodeExporterRequest) (*inventorypb.AddNodeExporterResponse, error) {
-	res := &inventorypb.AddNodeExporterResponse{}
-	e := s.db.InTransaction(func(tx *reform.TX) error {
-		agent, err := s.s.AddNodeExporter(ctx, tx.Querier, req)
-		if err != nil {
-			return err
-		}
-		res.NodeExporter = agent
-		return nil
-	})
+	agent, err := s.s.AddNodeExporter(ctx, req)
+	if err != nil {
+		return nil, err
+	}
 
-	return res, e
+	res := &inventorypb.AddNodeExporterResponse{
+		NodeExporter: agent,
+	}
+	return res, nil
 }
 
 // ChangeNodeExporter changes disabled flag and custom labels of node_exporter Agent.
@@ -159,7 +150,7 @@ func (s *agentsServer) ChangeNodeExporter(ctx context.Context, req *inventorypb.
 
 // AddMySQLdExporter adds mysqld_exporter Agent.
 func (s *agentsServer) AddMySQLdExporter(ctx context.Context, req *inventorypb.AddMySQLdExporterRequest) (*inventorypb.AddMySQLdExporterResponse, error) {
-	agent, err := s.s.AddMySQLdExporter(ctx, s.db.Querier, req)
+	agent, err := s.s.AddMySQLdExporter(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +194,7 @@ func (s *agentsServer) ChangeExternalExporter(context.Context, *inventorypb.Chan
 
 // AddMongoDBExporter adds mongodb_exporter Agent.
 func (s *agentsServer) AddMongoDBExporter(ctx context.Context, req *inventorypb.AddMongoDBExporterRequest) (*inventorypb.AddMongoDBExporterResponse, error) {
-	agent, err := s.s.AddMongoDBExporter(ctx, s.db.Querier, req)
+	agent, err := s.s.AddMongoDBExporter(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -228,8 +219,9 @@ func (s *agentsServer) ChangeMongoDBExporter(ctx context.Context, req *inventory
 }
 
 // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
+//nolint:lll
 func (s *agentsServer) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *inventorypb.AddQANMySQLPerfSchemaAgentRequest) (*inventorypb.AddQANMySQLPerfSchemaAgentResponse, error) {
-	agent, err := s.s.AddQANMySQLPerfSchemaAgent(ctx, s.db.Querier, req)
+	agent, err := s.s.AddQANMySQLPerfSchemaAgent(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -241,6 +233,7 @@ func (s *agentsServer) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *inve
 }
 
 // ChangeQANMySQLPerfSchemaAgent changes disabled flag and custom labels of MySQL PerfSchema QAN Agent.
+//nolint:lll
 func (s *agentsServer) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req *inventorypb.ChangeQANMySQLPerfSchemaAgentRequest) (*inventorypb.ChangeQANMySQLPerfSchemaAgentResponse, error) {
 	agent, err := s.s.ChangeQANMySQLPerfSchemaAgent(ctx, req)
 	if err != nil {
@@ -255,7 +248,7 @@ func (s *agentsServer) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req *i
 
 // AddPostgresExporter adds postgres_exporter Agent.
 func (s *agentsServer) AddPostgresExporter(ctx context.Context, req *inventorypb.AddPostgresExporterRequest) (*inventorypb.AddPostgresExporterResponse, error) {
-	agent, err := s.s.AddPostgresExporter(ctx, s.db.Querier, req)
+	agent, err := s.s.AddPostgresExporter(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -268,6 +261,7 @@ func (s *agentsServer) AddPostgresExporter(ctx context.Context, req *inventorypb
 }
 
 // ChangePostgresExporter changes disabled flag and custom labels of postgres_exporter Agent.
+//nolint:lll
 func (s *agentsServer) ChangePostgresExporter(ctx context.Context, req *inventorypb.ChangePostgresExporterRequest) (*inventorypb.ChangePostgresExporterResponse, error) {
 	agent, err := s.s.ChangePostgresExporter(ctx, req)
 	if err != nil {

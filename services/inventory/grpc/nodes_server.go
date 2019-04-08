@@ -14,36 +14,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package handlers
+package grpc
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/AlekSi/pointer"
 	inventorypb "github.com/percona/pmm/api/inventory"
-	"gopkg.in/reform.v1"
 
-	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
 type nodesServer struct {
-	db *reform.DB
-	s  *inventory.NodesService
+	svc *inventory.NodesService
 }
 
 // NewNodesServer returns Inventory API handler for managing Nodes.
-func NewNodesServer(db *reform.DB, s *inventory.NodesService) inventorypb.NodesServer {
-	return &nodesServer{
-		db: db,
-		s:  s,
-	}
+func NewNodesServer(svc *inventory.NodesService) inventorypb.NodesServer {
+	return &nodesServer{svc}
 }
 
 // ListNodes returns a list of all Nodes.
 func (s *nodesServer) ListNodes(ctx context.Context, req *inventorypb.ListNodesRequest) (*inventorypb.ListNodesResponse, error) {
-	nodes, err := s.s.List(ctx, s.db.Querier)
+	nodes, err := s.svc.List(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +61,7 @@ func (s *nodesServer) ListNodes(ctx context.Context, req *inventorypb.ListNodesR
 
 // GetNode returns a single Node by ID.
 func (s *nodesServer) GetNode(ctx context.Context, req *inventorypb.GetNodeRequest) (*inventorypb.GetNodeResponse, error) {
-	node, err := s.s.Get(ctx, s.db.Querier, req.NodeId)
+	node, err := s.svc.Get(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -91,90 +84,50 @@ func (s *nodesServer) GetNode(ctx context.Context, req *inventorypb.GetNodeReque
 
 // AddGenericNode adds Generic Node.
 func (s *nodesServer) AddGenericNode(ctx context.Context, req *inventorypb.AddGenericNodeRequest) (*inventorypb.AddGenericNodeResponse, error) {
-	params := &inventory.AddNodeParams{
-		NodeType:      models.GenericNodeType,
-		NodeName:      req.NodeName,
-		MachineID:     pointer.ToStringOrNil(req.MachineId),
-		Distro:        pointer.ToStringOrNil(req.Distro),
-		DistroVersion: pointer.ToStringOrNil(req.DistroVersion),
-		CustomLabels:  req.CustomLabels,
-		Address:       pointer.ToStringOrNil(req.Address),
-	}
-	node, err := s.s.Add(ctx, s.db.Querier, params)
+	node, err := s.svc.AddGenericNode(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddGenericNodeResponse{
-		Generic: node.(*inventorypb.GenericNode),
-	}
+	res := &inventorypb.AddGenericNodeResponse{Generic: node}
 	return res, nil
 }
 
 // AddContainerNode adds Container Node.
 func (s *nodesServer) AddContainerNode(ctx context.Context, req *inventorypb.AddContainerNodeRequest) (*inventorypb.AddContainerNodeResponse, error) {
-	params := &inventory.AddNodeParams{
-		NodeType:            models.ContainerNodeType,
-		NodeName:            req.NodeName,
-		MachineID:           pointer.ToStringOrNil(req.MachineId),
-		DockerContainerID:   pointer.ToStringOrNil(req.DockerContainerId),
-		DockerContainerName: pointer.ToStringOrNil(req.DockerContainerName),
-		CustomLabels:        req.CustomLabels,
-	}
-	node, err := s.s.Add(ctx, s.db.Querier, params)
+	node, err := s.svc.AddContainerNode(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddContainerNodeResponse{
-		Container: node.(*inventorypb.ContainerNode),
-	}
+	res := &inventorypb.AddContainerNodeResponse{Container: node}
 	return res, nil
 }
 
 // AddRemoteNode adds Remote Node.
 func (s *nodesServer) AddRemoteNode(ctx context.Context, req *inventorypb.AddRemoteNodeRequest) (*inventorypb.AddRemoteNodeResponse, error) {
-	params := &inventory.AddNodeParams{
-		NodeType:     models.RemoteNodeType,
-		NodeName:     req.NodeName,
-		CustomLabels: req.CustomLabels,
-	}
-	node, err := s.s.Add(ctx, s.db.Querier, params)
+	node, err := s.svc.AddRemoteNode(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddRemoteNodeResponse{
-		Remote: node.(*inventorypb.RemoteNode),
-	}
+	res := &inventorypb.AddRemoteNodeResponse{Remote: node}
 	return res, nil
 }
 
 // AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
+//nolint:lll
 func (s *nodesServer) AddRemoteAmazonRDSNode(ctx context.Context, req *inventorypb.AddRemoteAmazonRDSNodeRequest) (*inventorypb.AddRemoteAmazonRDSNodeResponse, error) {
-	params := &inventory.AddNodeParams{
-		NodeType:     models.RemoteAmazonRDSNodeType,
-		NodeName:     req.NodeName,
-		Address:      &req.Instance,
-		Region:       &req.Region,
-		CustomLabels: req.CustomLabels,
-	}
-	node, err := s.s.Add(ctx, s.db.Querier, params)
+	node, err := s.svc.AddRemoteAmazonRDSNode(ctx, req)
 	if err != nil {
 		return nil, err
 	}
 
-	res := &inventorypb.AddRemoteAmazonRDSNodeResponse{
-		RemoteAmazonRds: node.(*inventorypb.RemoteAmazonRDSNode),
-	}
+	res := &inventorypb.AddRemoteAmazonRDSNodeResponse{RemoteAmazonRds: node}
 	return res, nil
 }
 
 // RemoveNode removes Node without any Agents and Services.
 func (s *nodesServer) RemoveNode(ctx context.Context, req *inventorypb.RemoveNodeRequest) (*inventorypb.RemoveNodeResponse, error) {
-	if err := s.s.Remove(ctx, s.db.Querier, req.NodeId); err != nil {
-		return nil, err
-	}
-
-	return new(inventorypb.RemoveNodeResponse), nil
+	return s.svc.Remove(ctx, req)
 }

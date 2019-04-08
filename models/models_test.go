@@ -98,11 +98,11 @@ func TestModels(t *testing.T) {
 		return
 	}
 
-	t.Run("NodesForAgent", func(t *testing.T) {
+	t.Run("FindNodesForAgentID", func(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		nodes, err := models.NodesForAgent(q, "A3")
+		nodes, err := models.FindNodesForAgentID(q, "A3")
 		require.NoError(t, err)
 		expected := []*models.Node{
 			{

@@ -18,42 +18,11 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
-
-// NodesForAgent returns all Nodes for which Agent with given ID provides insights.
-func NodesForAgent(q *reform.Querier, agentID string) ([]*Node, error) {
-	structs, err := q.FindAllFrom(AgentNodeView, "agent_id", agentID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Node IDs")
-	}
-
-	nodeIDs := make([]interface{}, len(structs))
-	for i, s := range structs {
-		nodeIDs[i] = s.(*AgentNode).NodeID
-	}
-	if len(nodeIDs) == 0 {
-		return []*Node{}, nil
-	}
-
-	p := strings.Join(q.Placeholders(1, len(nodeIDs)), ", ")
-	tail := fmt.Sprintf("WHERE node_id IN (%s) ORDER BY node_id", p) //nolint:gosec
-	structs, err = q.SelectAllFrom(NodeTable, tail, nodeIDs...)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Nodes")
-	}
-
-	res := make([]*Node, len(structs))
-	for i, s := range structs {
-		res[i] = s.(*Node)
-	}
-	return res, nil
-}
 
 //go:generate reform
 

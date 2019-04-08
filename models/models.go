@@ -15,66 +15,22 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 // Package models contains generated Reform records and helpers.
+//
+// Common order of helpers:
+//  * unexported validators (checkXXX);
+//  * FindAllXXX;
+//  * FindXXXByID;
+//  * other finder (e.g. FindNodesForAgent);
+//  * CreateXXX;
+//  * UpdateXXX;
+//  * RemoveXXX.
 package models
 
 import (
 	"time"
-
-	"github.com/pkg/errors"
-	"gopkg.in/reform.v1"
 )
 
 // Now returns current time with database precision.
 var Now = func() time.Time {
 	return time.Now().Truncate(time.Microsecond).UTC()
-}
-
-// PMMAgentsForChangedNode returns pmm-agents IDs that are affected
-// by the change of the Node with given ID.
-// It may return (nil, nil) if no such pmm-agents are found.
-// It returns wrapped reform.ErrNoRows if Service with given ID is not found.
-func PMMAgentsForChangedNode(q *reform.Querier, nodeID string) ([]string, error) {
-	// TODO Real code.
-	// Returning all pmm-agents is currently safe, but not optimal for large number of Agents.
-	_ = nodeID
-
-	structs, err := q.SelectAllFrom(AgentTable, "ORDER BY agent_id")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Agents")
-	}
-
-	var res []string
-	for _, str := range structs {
-		row := str.(*Agent)
-		if row.AgentType == PMMAgentType {
-			res = append(res, row.AgentID)
-		}
-	}
-	return res, nil
-}
-
-// PMMAgentsForChangedService returns pmm-agents IDs that are affected
-// by the change of the Service with given ID.
-// It may return (nil, nil) if no such pmm-agents are found.
-// It returns wrapped reform.ErrNoRows if Service with given ID is not found.
-func PMMAgentsForChangedService(q *reform.Querier, serviceID string) ([]string, error) {
-	// TODO Real code. We need to returns IDs of pmm-agents that:
-	// * run Agents providing insights for this Service;
-	// * run Agents providing insights for Node that hosts this Service.
-	// Returning all pmm-agents is currently safe, but not optimal for large number of Agents.
-	_ = serviceID
-
-	structs, err := q.SelectAllFrom(AgentTable, "ORDER BY agent_id")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select Agents")
-	}
-
-	var res []string
-	for _, str := range structs {
-		row := str.(*Agent)
-		if row.AgentType == PMMAgentType {
-			res = append(res, row.AgentID)
-		}
-	}
-	return res, nil
 }

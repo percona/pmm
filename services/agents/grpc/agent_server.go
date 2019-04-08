@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package handlers
+package grpc
 
 import (
 	"context"
@@ -25,21 +25,28 @@ import (
 )
 
 // AgentServer provides methods for pmm-agent <-> pmm-managed interactions.
-type AgentServer struct {
-	Registry *agents.Registry
+type agentServer struct {
+	registry *agents.Registry
+}
+
+// NewAgentServer creates new agents server.
+func NewAgentServer(r *agents.Registry) agentpb.AgentServer {
+	return &agentServer{
+		registry: r,
+	}
 }
 
 // Register TODO https://jira.percona.com/browse/PMM-3453
-func (s *AgentServer) Register(context.Context, *agentpb.RegisterRequest) (*agentpb.RegisterResponse, error) {
+func (s *agentServer) Register(context.Context, *agentpb.RegisterRequest) (*agentpb.RegisterResponse, error) {
 	panic("not implemented yet")
 }
 
 // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
-func (s *AgentServer) Connect(stream agentpb.Agent_ConnectServer) error {
-	return s.Registry.Run(stream)
+func (s *agentServer) Connect(stream agentpb.Agent_ConnectServer) error {
+	return s.registry.Run(stream)
 }
 
 // check interfaces
 var (
-	_ agentpb.AgentServer = (*AgentServer)(nil)
+	_ agentpb.AgentServer = (*agentServer)(nil)
 )
