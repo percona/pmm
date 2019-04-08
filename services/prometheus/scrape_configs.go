@@ -220,6 +220,39 @@ func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, 
 	return res, nil
 }
 
+func scrapeConfigForPostgresExporter(node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
+	labels := commonExporterLabelSet(node, service, agent)
+	if err := mergeLabels(labels, node, service, agent); err != nil {
+		return nil, err
+	}
+
+	cfg := &config.ScrapeConfig{
+		JobName:        jobName(agent),
+		ScrapeInterval: model.Duration(time.Second),
+		ScrapeTimeout:  model.Duration(time.Second),
+		MetricsPath:    "/metrics",
+	}
+
+	port := pointer.GetUint16(agent.ListenPort)
+	if port == 0 {
+		return nil, errors.New("listen port is not known")
+	}
+	hostport := net.JoinHostPort(pointer.GetString(node.Address), strconv.Itoa(int(port)))
+	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
+	if err := target.Validate(); err != nil {
+		return nil, errors.Wrap(err, "failed to set targets")
+	}
+
+	cfg.ServiceDiscoveryConfig = sd_config.ServiceDiscoveryConfig{
+		StaticConfigs: []*targetgroup.Group{{
+			Targets: []model.LabelSet{target},
+			Labels:  labels,
+		}},
+	}
+
+	return cfg, nil
+}
+
 func scrapeConfigForMongoDBExporter(node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
 	labels := commonExporterLabelSet(node, service, agent)
 	if err := mergeLabels(labels, node, service, agent); err != nil {

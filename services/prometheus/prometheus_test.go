@@ -108,6 +108,26 @@ func TestPrometheus(t *testing.T) {
 				ServiceID: "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 			},
 
+			&models.Service{
+				ServiceID:    "/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
+				ServiceType:  models.PostgreSQLServiceType,
+				ServiceName:  "test-postgresql",
+				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address:      pointer.ToString("5.6.7.8"),
+				CustomLabels: []byte(`{"_service_label": "bar"}`),
+			},
+
+			&models.Agent{
+				AgentID:      "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
+				AgentType:    models.PostgresExporterType,
+				CustomLabels: []byte(`{"_agent_label": "postgres-baz"}`),
+				ListenPort:   pointer.ToUint16(12345),
+			},
+			&models.AgentService{
+				AgentID:   "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
+				ServiceID: "/service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1",
+			},
+
 			// disabled
 			&models.Agent{
 				AgentID:    "/agent_id/4226ddb5-8197-443c-9891-7772b38324a7",
@@ -209,6 +229,22 @@ scrape_configs:
       node_name: test-generic-node
       service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
       service_name: test-mysql
+- job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac
+  scrape_interval: 1s
+  scrape_timeout: 1s
+  metrics_path: /metrics
+  static_configs:
+  - targets:
+    - 1.2.3.4:12345
+    labels:
+      _agent_label: postgres-baz
+      _node_label: foo
+      _service_label: bar
+      instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
+      node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
+      node_name: test-generic-node
+      service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
+      service_name: test-postgresql
 `
 		actual, err := ioutil.ReadFile(configPath) //nolint:gosec
 		require.NoError(t, err)
