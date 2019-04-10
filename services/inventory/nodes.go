@@ -21,7 +21,7 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
-	inventorypb "github.com/percona/pmm/api/inventory"
+	"github.com/percona/pmm/api/inventorypb"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"

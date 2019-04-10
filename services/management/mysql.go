@@ -20,7 +20,7 @@ import (
 	"context"
 
 	"github.com/AlekSi/pointer"
-	inventorypb "github.com/percona/pmm/api/inventory"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
 	"gopkg.in/reform.v1"
 

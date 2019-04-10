@@ -21,7 +21,7 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
-	inventorypb "github.com/percona/pmm/api/inventory"
+	"github.com/percona/pmm/api/inventorypb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"

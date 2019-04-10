@@ -21,7 +21,7 @@ import (
 	"fmt"
 
 	"github.com/AlekSi/pointer"
-	inventorypb "github.com/percona/pmm/api/inventory"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
