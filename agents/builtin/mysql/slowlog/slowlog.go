@@ -29,8 +29,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/mysql"
-
-	"github.com/percona/pmm-agent/agents/backoff"
 )
 
 const (
@@ -42,7 +40,6 @@ type SlowLog struct {
 	db      *reform.DB
 	l       *logrus.Entry
 	changes chan Change
-	backoff *backoff.Backoff
 }
 
 // Params represent Agent parameters.
@@ -75,7 +72,6 @@ func newMySQL(db *reform.DB, l *logrus.Entry) *SlowLog {
 		db:      db,
 		l:       l,
 		changes: make(chan Change, 10),
-		backoff: backoff.New(),
 	}
 }
 
