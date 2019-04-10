@@ -193,11 +193,14 @@ scrape_configs:
       _agent_label: baz
       _node_label: foo
       _service_label: bar
+      agent_type: mysqld_exporter
       instance: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
       node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
       node_name: test-generic-node
+      node_type: generic
       service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
       service_name: test-mysql
+      service_type: mysql
 - job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr
   scrape_interval: 10s
   scrape_timeout: 5s
@@ -209,11 +212,14 @@ scrape_configs:
       _agent_label: baz
       _node_label: foo
       _service_label: bar
+      agent_type: mysqld_exporter
       instance: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
       node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
       node_name: test-generic-node
+      node_type: generic
       service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
       service_name: test-mysql
+      service_type: mysql
 - job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_lr
   scrape_interval: 1m
   scrape_timeout: 10s
@@ -225,11 +231,14 @@ scrape_configs:
       _agent_label: baz
       _node_label: foo
       _service_label: bar
+      agent_type: mysqld_exporter
       instance: /agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd
       node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
       node_name: test-generic-node
+      node_type: generic
       service_id: /service_id/014647c3-b2f5-44eb-94f4-d943260a968c
       service_name: test-mysql
+      service_type: mysql
 - job_name: postgres_exporter_agent_id_29e14468-d479-4b4d-bfb7-4ac2fb865bac
   scrape_interval: 1s
   scrape_timeout: 1s
@@ -241,11 +250,14 @@ scrape_configs:
       _agent_label: postgres-baz
       _node_label: foo
       _service_label: bar
+      agent_type: postgres_exporter
       instance: /agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac
       node_id: /node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d
       node_name: test-generic-node
+      node_type: generic
       service_id: /service_id/9cffbdd4-3cd2-47f8-a5f9-a749c3d5fee1
       service_name: test-postgresql
+      service_type: postgresql
 `
 		actual, err := ioutil.ReadFile(configPath) //nolint:gosec
 		require.NoError(t, err)

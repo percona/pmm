@@ -80,20 +80,25 @@ func scrapeConfigForPMMManaged() *config.ScrapeConfig {
 }
 
 func commonExporterLabelSet(node *models.Node, service *models.Service, agent *models.Agent) model.LabelSet {
-	res := model.LabelSet{
-		model.LabelName("node_id"):        model.LabelValue(node.NodeID),
-		model.LabelName("node_name"):      model.LabelValue(node.NodeName),
-		model.LabelName("machine_id"):     model.LabelValue(pointer.GetString(node.MachineID)),
-		model.LabelName("container_id"):   model.LabelValue(pointer.GetString(node.DockerContainerID)),
-		model.LabelName("container_name"): model.LabelValue(pointer.GetString(node.DockerContainerName)),
+	res := make(model.LabelSet)
 
-		model.LabelName("instance"): model.LabelValue(agent.AgentID),
-	}
+	res[model.LabelName("node_id")] = model.LabelValue(node.NodeID)
+	res[model.LabelName("node_type")] = model.LabelValue(node.NodeType)
+	res[model.LabelName("node_name")] = model.LabelValue(node.NodeName)
+	res[model.LabelName("machine_id")] = model.LabelValue(pointer.GetString(node.MachineID))
+	res[model.LabelName("container_id")] = model.LabelValue(pointer.GetString(node.DockerContainerID))
+	res[model.LabelName("container_name")] = model.LabelValue(pointer.GetString(node.DockerContainerName))
+	res[model.LabelName("region")] = model.LabelValue(pointer.GetString(node.Region)) // TODO https://jira.percona.com/browse/PMM-3786
+	// TODO node_model, az
 
 	if service != nil {
 		res[model.LabelName("service_id")] = model.LabelValue(service.ServiceID)
+		res[model.LabelName("service_type")] = model.LabelValue(service.ServiceType)
 		res[model.LabelName("service_name")] = model.LabelValue(service.ServiceName)
 	}
+
+	res[model.LabelName("instance")] = model.LabelValue(agent.AgentID)
+	res[model.LabelName("agent_type")] = model.LabelValue(agent.AgentType)
 
 	return res
 }

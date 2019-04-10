@@ -37,8 +37,9 @@ func TestScrapeConfig(t *testing.T) {
 	t.Run("scrapeConfigForNodeExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
-				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address: pointer.ToString("1.2.3.4"),
+				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address:      pointer.ToString("1.2.3.4"),
+				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			agent := &models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
@@ -58,6 +59,8 @@ func TestScrapeConfig(t *testing.T) {
 						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
 						Labels: model.LabelSet{
 							"_some_agent_label": "baz",
+							"_some_node_label":  "foo",
+							"agent_type":        "node_exporter",
 							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 						},
@@ -74,13 +77,15 @@ func TestScrapeConfig(t *testing.T) {
 	t.Run("scrapeConfigsForMySQLdExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
-				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address: pointer.ToString("1.2.3.4"),
+				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address:      pointer.ToString("1.2.3.4"),
+				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			service := &models.Service{
-				ServiceID: "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-				NodeID:    "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:   pointer.ToString("5.6.7.8"),
+				ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address:      pointer.ToString("5.6.7.8"),
+				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
@@ -99,10 +104,13 @@ func TestScrapeConfig(t *testing.T) {
 					StaticConfigs: []*targetgroup.Group{{
 						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
 						Labels: model.LabelSet{
-							"_some_agent_label": "baz",
-							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-							"service_id":        "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"_some_agent_label":   "baz",
+							"_some_node_label":    "foo",
+							"_some_service_label": "bar",
+							"agent_type":          "mysqld_exporter",
+							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -115,10 +123,13 @@ func TestScrapeConfig(t *testing.T) {
 					StaticConfigs: []*targetgroup.Group{{
 						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
 						Labels: model.LabelSet{
-							"_some_agent_label": "baz",
-							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-							"service_id":        "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"_some_agent_label":   "baz",
+							"_some_node_label":    "foo",
+							"_some_service_label": "bar",
+							"agent_type":          "mysqld_exporter",
+							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -131,10 +142,13 @@ func TestScrapeConfig(t *testing.T) {
 					StaticConfigs: []*targetgroup.Group{{
 						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
 						Labels: model.LabelSet{
-							"_some_agent_label": "baz",
-							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-							"service_id":        "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"_some_agent_label":   "baz",
+							"_some_node_label":    "foo",
+							"_some_service_label": "bar",
+							"agent_type":          "mysqld_exporter",
+							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -164,13 +178,15 @@ func TestScrapeConfig(t *testing.T) {
 	t.Run("scrapeConfigForMongoDBExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
-				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address: pointer.ToString("1.2.3.4"),
+				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address:      pointer.ToString("1.2.3.4"),
+				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			service := &models.Service{
-				ServiceID: "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-				NodeID:    "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:   pointer.ToString("5.6.7.8"),
+				ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address:      pointer.ToString("5.6.7.8"),
+				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
@@ -189,10 +205,13 @@ func TestScrapeConfig(t *testing.T) {
 					StaticConfigs: []*targetgroup.Group{{
 						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
 						Labels: model.LabelSet{
-							"_some_agent_label": "baz",
-							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-							"service_id":        "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"_some_agent_label":   "baz",
+							"_some_node_label":    "foo",
+							"_some_service_label": "bar",
+							"agent_type":          "mongodb_exporter",
+							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -219,13 +238,15 @@ func TestScrapeConfig(t *testing.T) {
 	t.Run("scrapeConfigForPostgresExporter", func(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
-				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address: pointer.ToString("1.2.3.4"),
+				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address:      pointer.ToString("1.2.3.4"),
+				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			service := &models.Service{
-				ServiceID: "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-				NodeID:    "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:   pointer.ToString("5.6.7.8"),
+				ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+				Address:      pointer.ToString("5.6.7.8"),
+				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
 			}
 			agent := &models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
@@ -244,10 +265,13 @@ func TestScrapeConfig(t *testing.T) {
 					StaticConfigs: []*targetgroup.Group{{
 						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
 						Labels: model.LabelSet{
-							"_some_agent_label": "baz",
-							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-							"service_id":        "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
+							"_some_agent_label":   "baz",
+							"_some_node_label":    "foo",
+							"_some_service_label": "bar",
+							"agent_type":          "postgres_exporter",
+							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
+							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
 				},
@@ -269,45 +293,6 @@ func TestScrapeConfig(t *testing.T) {
 			_, err := scrapeConfigForPostgresExporter(node, service, agent)
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
-	})
-
-	t.Run("commonExporterLabelSet", func(t *testing.T) {
-		node := &models.Node{
-			NodeID:              "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-			NodeName:            "test-node",
-			Address:             pointer.ToString("1.2.3.4"),
-			MachineID:           pointer.ToString("test-machine-id"),
-			DockerContainerID:   pointer.ToString("cc663f36-0000-1111-2222-c6310bb4738d"),
-			DockerContainerName: pointer.ToString("test-container-name"),
-		}
-		service := &models.Service{
-			ServiceID:   "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
-			ServiceName: "test-service-name",
-			NodeID:      "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-			Address:     pointer.ToString("5.6.7.8"),
-		}
-		agent := &models.Agent{
-			AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
-			AgentType:    models.MongoDBExporterType,
-			RunsOnNodeID: nil,
-			CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
-			ListenPort:   pointer.ToUint16(12345),
-		}
-		expected := model.LabelSet{
-			model.LabelName("node_id"):        model.LabelValue("/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d"),
-			model.LabelName("node_name"):      model.LabelValue("test-node"),
-			model.LabelName("machine_id"):     model.LabelValue("test-machine-id"),
-			model.LabelName("container_id"):   model.LabelValue("cc663f36-0000-1111-2222-c6310bb4738d"),
-			model.LabelName("container_name"): model.LabelValue("test-container-name"),
-
-			model.LabelName("service_id"):   model.LabelValue("/service_id/014647c3-b2f5-44eb-94f4-d943260a968c"),
-			model.LabelName("service_name"): model.LabelValue("test-service-name"),
-
-			model.LabelName("instance"): model.LabelValue("/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd"),
-		}
-
-		actual := commonExporterLabelSet(node, service, agent)
-		assert.Equal(t, expected, actual, "Common labels is not Equal")
 	})
 }
 
