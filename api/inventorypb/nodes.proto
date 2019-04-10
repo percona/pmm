@@ -170,6 +170,8 @@ message AddContainerNodeRequest {
   string docker_container_name = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // Address FIXME https://jira.percona.com/browse/PMM-3786
+  string address = 42;
 }
 
 message AddContainerNodeResponse {

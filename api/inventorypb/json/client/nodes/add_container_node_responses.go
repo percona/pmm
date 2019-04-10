@@ -116,6 +116,9 @@ swagger:model AddContainerNodeBody
 */
 type AddContainerNodeBody struct {
 
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
+	Address string `json:"address,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
