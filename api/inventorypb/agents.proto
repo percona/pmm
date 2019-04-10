@@ -22,7 +22,7 @@ option go_package = "inventorypb";
 
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
-import "inventory/agent_status.proto";
+import "inventorypb/agent_status.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 // PMMAgent runs on Generic on Container Node.

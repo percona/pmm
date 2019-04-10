@@ -24,7 +24,7 @@ import "agentpb/agent.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
-import "inventory/agent_status.proto";
+import "inventorypb/agent_status.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 // ServerInfo returns information about server which agent was connected.
