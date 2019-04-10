@@ -29,8 +29,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/mysql"
-
-	"github.com/percona/pmm-agent/agents/backoff"
 )
 
 const (
@@ -46,7 +44,6 @@ type MySQL struct {
 	db           *reform.DB
 	l            *logrus.Entry
 	changes      chan Change
-	backoff      *backoff.Backoff
 	historyCache *historyCache
 	summaryCache *summaryCache
 }
@@ -81,7 +78,6 @@ func newMySQL(db *reform.DB, l *logrus.Entry) *MySQL {
 		db:           db,
 		l:            l,
 		changes:      make(chan Change, 10),
-		backoff:      backoff.New(),
 		historyCache: newHistoryCache(retainHistory),
 		summaryCache: newSummaryCache(retainSummaries),
 	}
