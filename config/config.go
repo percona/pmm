@@ -76,10 +76,11 @@ func application(cfg *Config) (*kingpin.Application, *string) {
 	app.HelpFlag.Short('h')
 	app.Version(version.FullInfo())
 
-	// TODO
+	// TODO move this away
 	app.Command("setup", "Not implemented yet.").Action(func(context *kingpin.ParseContext) error {
 		return fmt.Errorf("not implemented yet")
 	})
+	app.Command("run", "Run agent.").Default()
 
 	configFileF := app.Flag("config-file", "Configuration file path. [PMM_AGENT_CONFIG_FILE]").
 		Envar("PMM_AGENT_CONFIG_FILE").PlaceHolder("</path/to/pmm-agent.yaml>").String()
