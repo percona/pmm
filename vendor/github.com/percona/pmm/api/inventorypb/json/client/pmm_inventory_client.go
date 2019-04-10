@@ -11,9 +11,9 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
-	"github.com/percona/pmm/api/inventory/json/client/agents"
-	"github.com/percona/pmm/api/inventory/json/client/nodes"
-	"github.com/percona/pmm/api/inventory/json/client/services"
+	"github.com/percona/pmm/api/inventorypb/json/client/agents"
+	"github.com/percona/pmm/api/inventorypb/json/client/nodes"
+	"github.com/percona/pmm/api/inventorypb/json/client/services"
 )
 
 // Default PMM inventory HTTP client.
