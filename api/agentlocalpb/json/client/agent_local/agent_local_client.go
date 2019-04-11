@@ -25,30 +25,30 @@ type Client struct {
 }
 
 /*
-Restart restarts restarts pmm agent and reload it configuration
+Reload reloads reloads pmm agent and it configuration
 */
-func (a *Client) Restart(params *RestartParams) (*RestartOK, error) {
+func (a *Client) Reload(params *ReloadParams) (*ReloadOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewRestartParams()
+		params = NewReloadParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Restart",
+		ID:                 "Reload",
 		Method:             "POST",
-		PathPattern:        "/local/Restart",
+		PathPattern:        "/local/Reload",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &RestartReader{formats: a.formats},
+		Reader:             &ReloadReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*RestartOK), nil
+	return result.(*ReloadOK), nil
 
 }
 

@@ -57,11 +57,11 @@ message StatusResponse {
   repeated AgentInfo agents_info = 4;
 }
 
-// RestartRequest describes request to restart pmm-agent.
-message RestartRequest {}
+// ReloadRequest describes request to reload pmm-agent.
+message ReloadRequest {}
 
-// RestartResponse describes response to restart pmm-agent.
-message RestartResponse {}
+// ReloadResponse describes response to reload pmm-agent.
+message ReloadResponse {}
 
 // AgentLocal service provides public methods for checking pmm-agent status locally.
 service AgentLocal {
@@ -72,10 +72,10 @@ service AgentLocal {
       body: "*"
     };
   }
-  // Restart restarts pmm-agent and reload it configuration.
-  rpc Restart(RestartRequest) returns (RestartResponse) {
+  // Reload reloads pmm-agent and it configuration.
+  rpc Reload(ReloadRequest) returns (ReloadResponse) {
     option (google.api.http) = {
-      post: "/local/Restart"
+      post: "/local/Reload"
       body: "*"
     };
   }

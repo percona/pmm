@@ -15,20 +15,20 @@
     "version": "version 1.alpha"
   },
   "paths": {
-    "/local/Restart": {
+    "/local/Reload": {
       "post": {
         "tags": [
           "AgentLocal"
         ],
-        "summary": "Restart restarts pmm-agent and reload it configuration.",
-        "operationId": "Restart",
+        "summary": "Reload reloads pmm-agent and it configuration.",
+        "operationId": "Reload",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "RestartRequest describes request to restart pmm-agent.",
+              "description": "ReloadRequest describes request to reload pmm-agent.",
               "type": "object"
             }
           }
@@ -37,7 +37,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "RestartResponse describes response to restart pmm-agent.",
+              "description": "ReloadResponse describes response to reload pmm-agent.",
               "type": "object"
             }
           },
