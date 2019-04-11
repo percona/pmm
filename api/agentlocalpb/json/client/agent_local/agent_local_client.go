@@ -25,6 +25,34 @@ type Client struct {
 }
 
 /*
+Restart restarts restarts pmm agent and reload it configuration
+*/
+func (a *Client) Restart(params *RestartParams) (*RestartOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewRestartParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "Restart",
+		Method:             "POST",
+		PathPattern:        "/local/Restart",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &RestartReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*RestartOK), nil
+
+}
+
+/*
 Status statuses returns current pmm agent status
 */
 func (a *Client) Status(params *StatusParams) (*StatusOK, error) {

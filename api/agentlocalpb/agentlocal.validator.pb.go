@@ -55,3 +55,9 @@ func (this *StatusResponse) Validate() error {
 	}
 	return nil
 }
+func (this *RestartRequest) Validate() error {
+	return nil
+}
+func (this *RestartResponse) Validate() error {
+	return nil
+}
