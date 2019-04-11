@@ -15,6 +15,54 @@
     "version": "version 1.alpha"
   },
   "paths": {
+    "/local/Reload": {
+      "post": {
+        "tags": [
+          "AgentLocal"
+        ],
+        "summary": "Reload reloads pmm-agent and it configuration.",
+        "operationId": "Reload",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "ReloadRequest describes request to reload pmm-agent.",
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "ReloadResponse describes response to reload pmm-agent.",
+              "type": "object"
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/local/Status": {
       "post": {
         "tags": [
