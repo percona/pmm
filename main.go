@@ -38,6 +38,7 @@ import (
 
 	"github.com/percona/pmm-admin/agentlocal"
 	"github.com/percona/pmm-admin/commands"
+	"github.com/percona/pmm-admin/commands/inventory"
 	"github.com/percona/pmm-admin/commands/management"
 )
 
@@ -134,6 +135,12 @@ func main() {
 
 	case management.AddMySQLC.FullCommand():
 		command = management.AddMySQL
+
+	case inventory.AddNodeGenericC.FullCommand():
+		command = inventory.AddNodeGeneric
+
+	case inventory.AddNodeContainerC.FullCommand():
+		command = inventory.AddNodeContainer
 
 	case commands.ListC.FullCommand():
 		command = commands.List

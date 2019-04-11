@@ -32,8 +32,8 @@ func TestPackages(t *testing.T) {
 	require.NoError(t, err)
 
 	out := string(b)
-	assert.False(t, strings.Contains(out, "-httptest.serve"), `pmm-admin should not import package "net/http/httptest"`)
-	assert.False(t, strings.Contains(out, "-test.run"), `pmm-admin should not import package "testing"`)
+	assert.False(t, strings.Contains(out, "httptest.serve"), `pmm-admin should not import package "net/http/httptest"`)
+	assert.False(t, strings.Contains(out, "test.run"), `pmm-admin should not import package "testing"`)
 }
 
 func TestImports(t *testing.T) {
