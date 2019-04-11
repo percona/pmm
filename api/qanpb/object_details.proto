@@ -20,16 +20,25 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 option go_package = "qanpb";
 
+import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
+import "qanpb/qan.proto";
 
-// Metrics serves agregated metrics filtered by given dimention value and period.
-service Metrics {
+// ObjectDetails serves agregated metrics filtered by given dimention value and period.
+service ObjectDetails {
   // GetMetrics gets map of metrics for specific filtering.
   rpc GetMetrics(MetricsRequest) returns (MetricsReply) {
     option (google.api.http) = {
-      post: "/v1/qan/Metrics/Get"
+      post: "/v1/qan/ObjectDetails/GetMetrics"
+      body: "*"
+    };
+  }
+  // GetQueryExample gets list of query examples.
+  rpc GetQueryExample(QueryExampleRequest) returns (QueryExampleReply) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetQueryExample"
       body: "*"
     };
   }
@@ -65,5 +74,35 @@ message MetricValues {
   float max = 5;
   float avg = 6;
   float p99 = 7;
-  float p_total = 8;
+  float percent_of_total = 8;
+}
+
+// Labels are list of labels or dimensions values.
+message Labels {
+  repeated string value = 1;
+}
+
+// QueryExampleRequest defines filtering of query examples for specific value of
+// dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+message QueryExampleRequest {
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
+  string filter_by = 3; // dimention: queryid | host ...
+  string group_by = 4; // one of dimention
+  repeated MapFieldEntry labels = 5;
+  uint32 limit = 6;
+}
+
+// QueryExampleReply list of query examples.
+message QueryExampleReply {
+  repeated QueryExample query_examples = 1;
+}
+
+// QueryExample shows query examples and their metrics.
+message QueryExample {
+  string example = 1;
+  ExampleFormat example_format = 2;
+  ExampleType example_type = 3;
+  uint32 is_truncated = 4;
+  string example_metrics = 5;
 }

@@ -333,10 +333,10 @@
         }
       }
     },
-    "/v1/qan/Metrics/Get": {
+    "/v1/qan/ObjectDetails/GetMetrics": {
       "post": {
         "tags": [
-          "Metrics"
+          "ObjectDetails"
         ],
         "summary": "GetMetrics gets map of metrics for specific filtering.",
         "operationId": "GetMetrics",
@@ -424,7 +424,7 @@
                         "type": "number",
                         "format": "float"
                       },
-                      "p_total": {
+                      "percent_of_total": {
                         "type": "number",
                         "format": "float"
                       },
@@ -435,6 +435,135 @@
                       "sum": {
                         "type": "number",
                         "format": "float"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/qan/ObjectDetails/GetQueryExample": {
+      "post": {
+        "tags": [
+          "ObjectDetails"
+        ],
+        "summary": "GetQueryExample gets list of query examples.",
+        "operationId": "GetQueryExample",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "QueryExampleRequest defines filtering of query examples for specific value of\ndimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+              "type": "object",
+              "properties": {
+                "filter_by": {
+                  "type": "string"
+                },
+                "group_by": {
+                  "type": "string"
+                },
+                "labels": {
+                  "type": "array",
+                  "items": {
+                    "description": "MapFieldEntry allows to pass labels/dimentions in form like {\"d_server\": [\"db1\", \"db2\"...]}.",
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string"
+                      },
+                      "value": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                },
+                "limit": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "period_start_from": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "period_start_to": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "QueryExampleReply list of query examples.",
+              "type": "object",
+              "properties": {
+                "query_examples": {
+                  "type": "array",
+                  "items": {
+                    "description": "QueryExample shows query examples and their metrics.",
+                    "type": "object",
+                    "properties": {
+                      "example": {
+                        "type": "string"
+                      },
+                      "example_format": {
+                        "description": "ExampleFormat is format of query example: real or query without values.",
+                        "type": "string",
+                        "default": "EXAMPLE_FORMAT_INVALID",
+                        "enum": [
+                          "EXAMPLE_FORMAT_INVALID",
+                          "EXAMPLE",
+                          "FINGERPRINT"
+                        ]
+                      },
+                      "example_metrics": {
+                        "type": "string"
+                      },
+                      "example_type": {
+                        "description": "ExampleType is a type of query example selected for this query class in given period of time.",
+                        "type": "string",
+                        "default": "EXAMPLE_TYPE_INVALID",
+                        "enum": [
+                          "EXAMPLE_TYPE_INVALID",
+                          "RANDOM",
+                          "SLOWEST",
+                          "FASTEST",
+                          "WITH_ERROR"
+                        ]
+                      },
+                      "is_truncated": {
+                        "type": "integer",
+                        "format": "int64"
                       }
                     }
                   }
