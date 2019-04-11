@@ -54,7 +54,7 @@ func runGRPCServer(ctx context.Context, dsn, bind string) {
 	aserv := aservice.NewService(rm, mm)
 	qanpb.RegisterCollectorServer(grpcServer, rservice.NewService(mbm))
 	qanpb.RegisterProfileServer(grpcServer, aserv)
-	qanpb.RegisterMetricsServer(grpcServer, aserv)
+	qanpb.RegisterObjectDetailsServer(grpcServer, aserv)
 	qanpb.RegisterMetricsNamesServer(grpcServer, aserv)
 	qanpb.RegisterFiltersServer(grpcServer, aserv)
 	reflection.Register(grpcServer)
@@ -99,7 +99,7 @@ func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
 
 	type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
-		qanpb.RegisterMetricsHandlerFromEndpoint,
+		qanpb.RegisterObjectDetailsHandlerFromEndpoint,
 		qanpb.RegisterProfileHandlerFromEndpoint,
 		qanpb.RegisterMetricsNamesHandlerFromEndpoint,
 		qanpb.RegisterFiltersHandlerFromEndpoint,

@@ -1,0 +1,102 @@
+{
+	"metrics": {
+		"bytes_sent": {
+			"rate": 213.955,
+			"cnt": 3748,
+			"sum": 7702380,
+			"min": 184,
+			"max": 249,
+			"avg": 2055.064,
+			"p99": 205.50641
+		},
+		"docs_returned": {},
+		"docs_scanned": {},
+		"filesort": {},
+		"filesort_on_disk": {},
+		"full_join": {},
+		"full_scan": {
+			"rate": 1.0411111,
+			"sum": 37480
+		},
+		"innodb_io_r_bytes": {},
+		"innodb_io_r_ops": {},
+		"innodb_io_r_wait": {},
+		"innodb_pages_distinct": {},
+		"innodb_queue_wait": {},
+		"innodb_rec_lock_wait": {},
+		"lock_time": {
+			"rate": 0.00010821167,
+			"cnt": 3748,
+			"sum": 3.89562,
+			"min": 0.000086,
+			"max": 0.00019,
+			"avg": 0.0010393864,
+			"p99": 0.00010393863
+		},
+		"merge_passes": {
+			"cnt": 3748
+		},
+		"no_good_index_used": {},
+		"no_index_used": {},
+		"qc_hit": {},
+		"query_length": {},
+		"query_time": {
+			"rate": 0.0016977498,
+			"cnt": 3748,
+			"sum": 61.11899,
+			"min": 0.001403,
+			"max": 0.024769,
+			"avg": 0.016307095,
+			"p99": 0.0016307094
+		},
+		"response_length": {},
+		"rows_affected": {
+			"cnt": 3748
+		},
+		"rows_examined": {
+			"rate": 1020.2889,
+			"cnt": 3748,
+			"sum": 36730400,
+			"min": 980,
+			"max": 980,
+			"avg": 9800,
+			"p99": 980
+		},
+		"rows_read": {},
+		"rows_sent": {
+			"rate": 1.0411111,
+			"cnt": 3748,
+			"sum": 37480,
+			"min": 1,
+			"max": 1,
+			"avg": 10,
+			"p99": 1
+		},
+		"select_full_range_join": {},
+		"select_range": {},
+		"select_range_check": {},
+		"sort_range": {},
+		"sort_rows": {},
+		"sort_scan": {},
+		"tmp_disk_tables": {
+			"cnt": 3748
+		},
+		"tmp_table": {
+			"rate": 1.0411111,
+			"sum": 37480
+		},
+		"tmp_table_on_disk": {},
+		"tmp_table_sizes": {
+			"cnt": 3748
+		},
+		"tmp_tables": {
+			"rate": 1.0411111,
+			"cnt": 3748,
+			"sum": 37480,
+			"min": 1,
+			"max": 1,
+			"avg": 10,
+			"p99": 1
+		}
+	}
+}

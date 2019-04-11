@@ -1,14 +1,17 @@
 ---
 version: "3"
 services:
+
   pmm-server:
     container_name: pmm-server
-    image: perconalab/pmm-server-fb:v2.0.0-pre-0301
+    image: perconalab/pmm-server-fb:latest
     ports:
       - 80:80
       - 443-443
       - 9911:9911
+      - 9000:9000
     restart: always
+
 
   ch:
     image: yandex/clickhouse-server

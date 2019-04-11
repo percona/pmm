@@ -25,6 +25,8 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/percona/pmm/api/qanpb"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/jmoiron/sqlx/reflectx"
 )
@@ -63,8 +65,6 @@ func (m *Metrics) Get(ctx context.Context, from, to time.Time, filter, group str
 	// set mapper to reuse json tags. Have to be unset
 	m.db.Mapper = reflectx.NewMapperFunc("json", strings.ToLower)
 	defer func() { m.db.Mapper = reflectx.NewMapperFunc("db", strings.ToLower) }()
-	// res := qanpb.MetricsReply{}
-	// res := make(map[string]interface{})
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
 		return results, fmt.Errorf("prepare named:%v", err)
@@ -74,7 +74,6 @@ func (m *Metrics) Get(ctx context.Context, from, to time.Time, filter, group str
 		return results, fmt.Errorf("populate agruments in IN clause:%v", err)
 	}
 	query = m.db.Rebind(query)
-	// err = m.db.GetContext(ctx, &res, query, args...)
 
 	rows, err := m.db.QueryxContext(ctx, query, args...)
 	if err != nil {
@@ -249,8 +248,8 @@ MAX(m_docs_scanned_max) AS m_docs_scanned_max,
 AVG(m_docs_scanned_p99) AS m_docs_scanned_p99
 
 FROM metrics
-WHERE period_start > :from AND period_start < :to AND
-{{ index . "group" }} = :filter
+WHERE period_start >= :from AND period_start <= :to
+{{ if index . "filter" }} AND {{ index . "group" }} = :filter {{ end }}
 {{ if index . "servers" }} AND db_server IN ( :servers ) {{ end }}
 {{ if index . "schemas" }} AND db_schema IN ( :schemas ) {{ end }}
 {{ if index . "users" }} AND db_username IN ( :users ) {{ end }}
@@ -267,3 +266,43 @@ WHERE period_start > :from AND period_start < :to AND
 GROUP BY {{ index . "group" }}
 	WITH TOTALS;
 `
+
+const queryExampleTmpl = `
+SELECT example, toUInt8(example_format) AS example_format,
+       is_truncated, toUInt8(example_type) AS example_type, example_metrics
+  FROM metrics
+ WHERE period_start >= :from AND period_start <= :to
+  	   {{ if index . "filter" }} AND {{ index . "group" }} = :filter {{ end }}
+ LIMIT :limit
+`
+
+// SelectQueryExamples selects query examples and related stuff for given time range.
+func (m *Metrics) SelectQueryExamples(ctx context.Context, from, to time.Time, filter,
+	group string, limit uint32) (*qanpb.QueryExampleReply, error) {
+	arg := map[string]interface{}{
+		"from":   from,
+		"to":     to,
+		"filter": filter,
+		"group":  group,
+		"limit":  limit,
+	}
+	var queryBuffer bytes.Buffer
+	if tmpl, err := template.New("queryExampleTmpl").Funcs(funcMap).Parse(queryExampleTmpl); err != nil {
+		log.Fatalln(err)
+	} else if err = tmpl.Execute(&queryBuffer, arg); err != nil {
+		log.Fatalln(err)
+	}
+	res := qanpb.QueryExampleReply{}
+	// set mapper to reuse json tags. Have to be unset
+	m.db.Mapper = reflectx.NewMapperFunc("json", strings.ToLower)
+	defer func() { m.db.Mapper = reflectx.NewMapperFunc("db", strings.ToLower) }()
+	nstmt, err := m.db.PrepareNamed(queryBuffer.String())
+	if err != nil {
+		return &res, fmt.Errorf("cannot prepare named statement of select query examples:%v", err)
+	}
+	err = nstmt.SelectContext(ctx, &res.QueryExamples, arg)
+	if err != nil {
+		return &res, fmt.Errorf("cannot select query examples:%v", err)
+	}
+	return &res, nil
+}

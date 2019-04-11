@@ -88,4 +88,7 @@ env-down:                       ## Remove docker containers.
 	rm -rf logs
 
 pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench containers.
-	docker-compose up pmm-server sysbench-ps
+	docker-compose up pmm-server
+	docker exec pmm-server sed -i 's|<!-- <listen_host>0.0.0.0</listen_host> -->|<listen_host>0.0.0.0</listen_host>|g' /etc/clickhouse-server/config.xml
+	docker exec pmm-server supervisorctl restart clickhouse
+	cat fixture/metrics.csv | docker exec -i pmm-server clickhouse client -d pmm --query="INSERT INTO metrics FORMAT CSV"
