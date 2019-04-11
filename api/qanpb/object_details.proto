@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package qan;
+
+// This option is used to set the default error response for all Swagger APIs generated from this file.
+// See also header.json.
+// It has to be copy&pasted into each file.
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  responses: {
+    key: "default"
+    value: {
+      description: "An error response."
+      schema: {
+        json_schema: {
+          ref: "#/definitions/qanpbErrorResponse"
+        }
+      }
+    }
+  }
+};
+option go_package = "qanpb";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+import "qanpb/qan.proto";
+
+// ObjectDetails serves agregated metrics filtered by given dimension value and period.
+service ObjectDetails {
+  // GetMetrics gets map of metrics for specific filtering.
+  rpc GetMetrics(MetricsRequest) returns (MetricsReply) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetMetrics"
+      body: "*"
+    };
+  }
+  // GetQueryExample gets list of query examples.
+  rpc GetQueryExample(QueryExampleRequest) returns (QueryExampleReply) {
+    option (google.api.http) = {
+      post: "/v1/qan/ObjectDetails/GetQueryExample"
+      body: "*"
+    };
+  }
+}
+
+// MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+message MetricsRequest {
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
+  // dimension value: ex: queryid - 1D410B4BE5060972.
+  string filter_by = 3;
+  // one of dimension: queryid | host ...
+  string group_by = 4;
+  repeated MapFieldEntry labels = 5;
+  repeated string include_only_fields = 6;
+}
+
+// MapFieldEntry allows to pass labels/dimensions in form like {"d_server": ["db1", "db2"...]}.
+message MapFieldEntry {
+  string key = 1;
+  repeated string value = 2;
+}
+
+// MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+message MetricsReply {
+  map<string, MetricValues> metrics = 3;
+}
+
+// MetricValues is statistics of specific metric.
+message MetricValues {
+  float rate = 1;
+  float cnt = 2;
+  float sum = 3;
+  float min = 4;
+  float max = 5;
+  float avg = 6;
+  float p99 = 7;
+  float percent_of_total = 8;
+}
+
+// Labels are list of labels or dimensions values.
+message Labels {
+  repeated string value = 1;
+}
+
+// QueryExampleRequest defines filtering of query examples for specific value of
+// dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+message QueryExampleRequest {
+  google.protobuf.Timestamp period_start_from = 1;
+  google.protobuf.Timestamp period_start_to = 2;
+  // dimension value: ex: queryid - 1D410B4BE5060972.
+  string filter_by = 3;
+  // one of dimension: queryid | host ...
+  string group_by = 4;
+  repeated MapFieldEntry labels = 5;
+  uint32 limit = 6;
+}
+
+// QueryExampleReply list of query examples.
+message QueryExampleReply {
+  repeated QueryExample query_examples = 1;
+}
+
+// QueryExample shows query examples and their metrics.
+message QueryExample {
+  string example = 1;
+  ExampleFormat example_format = 2;
+  ExampleType example_type = 3;
+  uint32 is_truncated = 4;
+  string example_metrics = 5;
+}
