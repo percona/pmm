@@ -2697,6 +2697,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "address": {
+                  "type": "string",
+                  "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",

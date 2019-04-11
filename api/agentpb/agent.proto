@@ -5,7 +5,7 @@ package agent;
 option go_package = "agentpb";
 
 import "google/protobuf/timestamp.proto";
-import "inventory/agent_status.proto";
+import "inventorypb/agent_status.proto";
 import "qanpb/collector.proto";
 
 // Type represents Agent type.
