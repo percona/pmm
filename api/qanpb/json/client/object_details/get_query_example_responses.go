@@ -115,15 +115,15 @@ func (o *GetQueryExampleDefault) readResponse(response runtime.ClientResponse, c
 }
 
 /*GetQueryExampleBody QueryExampleRequest defines filtering of query examples for specific value of
-// dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+// dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetQueryExampleBody
 */
 type GetQueryExampleBody struct {
 
-	// filter by
+	// dimension value: ex: queryid - 1D410B4BE5060972.
 	FilterBy string `json:"filter_by,omitempty"`
 
-	// group by
+	// one of dimension: queryid | host ...
 	GroupBy string `json:"group_by,omitempty"`
 
 	// labels

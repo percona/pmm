@@ -346,13 +346,15 @@
             "in": "body",
             "required": true,
             "schema": {
-              "description": "MetricsRequest defines filtering of metrics for specific value of dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+              "description": "MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
                 "filter_by": {
+                  "description": "dimension value: ex: queryid - 1D410B4BE5060972.",
                   "type": "string"
                 },
                 "group_by": {
+                  "description": "one of dimension: queryid | host ...",
                   "type": "string"
                 },
                 "include_only_fields": {
@@ -364,7 +366,7 @@
                 "labels": {
                   "type": "array",
                   "items": {
-                    "description": "MapFieldEntry allows to pass labels/dimentions in form like {\"d_server\": [\"db1\", \"db2\"...]}.",
+                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"d_server\": [\"db1\", \"db2\"...]}.",
                     "type": "object",
                     "properties": {
                       "key": {
@@ -395,7 +397,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "MetricsReply defines metrics for specific value of dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+              "description": "MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
                 "metrics": {
@@ -477,19 +479,21 @@
             "in": "body",
             "required": true,
             "schema": {
-              "description": "QueryExampleRequest defines filtering of query examples for specific value of\ndimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
+              "description": "QueryExampleRequest defines filtering of query examples for specific value of\ndimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.",
               "type": "object",
               "properties": {
                 "filter_by": {
+                  "description": "dimension value: ex: queryid - 1D410B4BE5060972.",
                   "type": "string"
                 },
                 "group_by": {
+                  "description": "one of dimension: queryid | host ...",
                   "type": "string"
                 },
                 "labels": {
                   "type": "array",
                   "items": {
-                    "description": "MapFieldEntry allows to pass labels/dimentions in form like {\"d_server\": [\"db1\", \"db2\"...]}.",
+                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"d_server\": [\"db1\", \"db2\"...]}.",
                     "type": "object",
                     "properties": {
                       "key": {

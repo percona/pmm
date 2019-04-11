@@ -113,15 +113,15 @@ func (o *GetMetricsDefault) readResponse(response runtime.ClientResponse, consum
 	return nil
 }
 
-/*GetMetricsBody MetricsRequest defines filtering of metrics for specific value of dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+/*GetMetricsBody MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetMetricsBody
 */
 type GetMetricsBody struct {
 
-	// filter by
+	// dimension value: ex: queryid - 1D410B4BE5060972.
 	FilterBy string `json:"filter_by,omitempty"`
 
-	// group by
+	// one of dimension: queryid | host ...
 	GroupBy string `json:"group_by,omitempty"`
 
 	// include only fields
@@ -268,7 +268,7 @@ func (o *GetMetricsDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetMetricsOKBody MetricsReply defines metrics for specific value of dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+/*GetMetricsOKBody MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 swagger:model GetMetricsOKBody
 */
 type GetMetricsOKBody struct {
@@ -331,7 +331,7 @@ func (o *GetMetricsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LabelsItems0 MapFieldEntry allows to pass labels/dimentions in form like {"d_server": ["db1", "db2"...]}.
+/*LabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"d_server": ["db1", "db2"...]}.
 swagger:model LabelsItems0
 */
 type LabelsItems0 struct {

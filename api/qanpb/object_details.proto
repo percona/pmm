@@ -26,7 +26,7 @@ import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 import "qanpb/qan.proto";
 
-// ObjectDetails serves agregated metrics filtered by given dimention value and period.
+// ObjectDetails serves agregated metrics filtered by given dimension value and period.
 service ObjectDetails {
   // GetMetrics gets map of metrics for specific filtering.
   rpc GetMetrics(MetricsRequest) returns (MetricsReply) {
@@ -44,23 +44,25 @@ service ObjectDetails {
   }
 }
 
-// MetricsRequest defines filtering of metrics for specific value of dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+// MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 message MetricsRequest {
   google.protobuf.Timestamp period_start_from = 1;
   google.protobuf.Timestamp period_start_to = 2;
-  string filter_by = 3; // dimention: queryid | host ...
-  string group_by = 4; // one of dimention
+  // dimension value: ex: queryid - 1D410B4BE5060972.
+  string filter_by = 3;
+  // one of dimension: queryid | host ...
+  string group_by = 4;
   repeated MapFieldEntry labels = 5;
   repeated string include_only_fields = 6;
 }
 
-// MapFieldEntry allows to pass labels/dimentions in form like {"d_server": ["db1", "db2"...]}.
+// MapFieldEntry allows to pass labels/dimensions in form like {"d_server": ["db1", "db2"...]}.
 message MapFieldEntry {
   string key = 1;
   repeated string value = 2;
 }
 
-// MetricsReply defines metrics for specific value of dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+// MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 message MetricsReply {
   map<string, MetricValues> metrics = 3;
 }
@@ -83,12 +85,14 @@ message Labels {
 }
 
 // QueryExampleRequest defines filtering of query examples for specific value of
-// dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+// dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 message QueryExampleRequest {
   google.protobuf.Timestamp period_start_from = 1;
   google.protobuf.Timestamp period_start_to = 2;
-  string filter_by = 3; // dimention: queryid | host ...
-  string group_by = 4; // one of dimention
+  // dimension value: ex: queryid - 1D410B4BE5060972.
+  string filter_by = 3;
+  // one of dimension: queryid | host ...
+  string group_by = 4;
   repeated MapFieldEntry labels = 5;
   uint32 limit = 6;
 }

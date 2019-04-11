@@ -26,17 +26,19 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-// MetricsRequest defines filtering of metrics for specific value of dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+// MetricsRequest defines filtering of metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 type MetricsRequest struct {
-	PeriodStartFrom      *timestamp.Timestamp `protobuf:"bytes,1,opt,name=period_start_from,json=periodStartFrom,proto3" json:"period_start_from,omitempty"`
-	PeriodStartTo        *timestamp.Timestamp `protobuf:"bytes,2,opt,name=period_start_to,json=periodStartTo,proto3" json:"period_start_to,omitempty"`
-	FilterBy             string               `protobuf:"bytes,3,opt,name=filter_by,json=filterBy,proto3" json:"filter_by,omitempty"`
-	GroupBy              string               `protobuf:"bytes,4,opt,name=group_by,json=groupBy,proto3" json:"group_by,omitempty"`
-	Labels               []*MapFieldEntry     `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
-	IncludeOnlyFields    []string             `protobuf:"bytes,6,rep,name=include_only_fields,json=includeOnlyFields,proto3" json:"include_only_fields,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
-	XXX_unrecognized     []byte               `json:"-"`
-	XXX_sizecache        int32                `json:"-"`
+	PeriodStartFrom *timestamp.Timestamp `protobuf:"bytes,1,opt,name=period_start_from,json=periodStartFrom,proto3" json:"period_start_from,omitempty"`
+	PeriodStartTo   *timestamp.Timestamp `protobuf:"bytes,2,opt,name=period_start_to,json=periodStartTo,proto3" json:"period_start_to,omitempty"`
+	// dimension value: ex: queryid - 1D410B4BE5060972.
+	FilterBy string `protobuf:"bytes,3,opt,name=filter_by,json=filterBy,proto3" json:"filter_by,omitempty"`
+	// one of dimension: queryid | host ...
+	GroupBy              string           `protobuf:"bytes,4,opt,name=group_by,json=groupBy,proto3" json:"group_by,omitempty"`
+	Labels               []*MapFieldEntry `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
+	IncludeOnlyFields    []string         `protobuf:"bytes,6,rep,name=include_only_fields,json=includeOnlyFields,proto3" json:"include_only_fields,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
 }
 
 func (m *MetricsRequest) Reset()         { *m = MetricsRequest{} }
@@ -106,7 +108,7 @@ func (m *MetricsRequest) GetIncludeOnlyFields() []string {
 	return nil
 }
 
-// MapFieldEntry allows to pass labels/dimentions in form like {"d_server": ["db1", "db2"...]}.
+// MapFieldEntry allows to pass labels/dimensions in form like {"d_server": ["db1", "db2"...]}.
 type MapFieldEntry struct {
 	Key                  string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	Value                []string `protobuf:"bytes,2,rep,name=value,proto3" json:"value,omitempty"`
@@ -154,7 +156,7 @@ func (m *MapFieldEntry) GetValue() []string {
 	return nil
 }
 
-// MetricsReply defines metrics for specific value of dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+// MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 type MetricsReply struct {
 	Metrics              map[string]*MetricValues `protobuf:"bytes,3,rep,name=metrics,proto3" json:"metrics,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
 	XXX_NoUnkeyedLiteral struct{}                 `json:"-"`
@@ -331,17 +333,19 @@ func (m *Labels) GetValue() []string {
 }
 
 // QueryExampleRequest defines filtering of query examples for specific value of
-// dimention (ex.: host=hostname1 or queryid=1D410B4BE5060972.
+// dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 type QueryExampleRequest struct {
-	PeriodStartFrom      *timestamp.Timestamp `protobuf:"bytes,1,opt,name=period_start_from,json=periodStartFrom,proto3" json:"period_start_from,omitempty"`
-	PeriodStartTo        *timestamp.Timestamp `protobuf:"bytes,2,opt,name=period_start_to,json=periodStartTo,proto3" json:"period_start_to,omitempty"`
-	FilterBy             string               `protobuf:"bytes,3,opt,name=filter_by,json=filterBy,proto3" json:"filter_by,omitempty"`
-	GroupBy              string               `protobuf:"bytes,4,opt,name=group_by,json=groupBy,proto3" json:"group_by,omitempty"`
-	Labels               []*MapFieldEntry     `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
-	Limit                uint32               `protobuf:"varint,6,opt,name=limit,proto3" json:"limit,omitempty"`
-	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
-	XXX_unrecognized     []byte               `json:"-"`
-	XXX_sizecache        int32                `json:"-"`
+	PeriodStartFrom *timestamp.Timestamp `protobuf:"bytes,1,opt,name=period_start_from,json=periodStartFrom,proto3" json:"period_start_from,omitempty"`
+	PeriodStartTo   *timestamp.Timestamp `protobuf:"bytes,2,opt,name=period_start_to,json=periodStartTo,proto3" json:"period_start_to,omitempty"`
+	// dimension value: ex: queryid - 1D410B4BE5060972.
+	FilterBy string `protobuf:"bytes,3,opt,name=filter_by,json=filterBy,proto3" json:"filter_by,omitempty"`
+	// one of dimension: queryid | host ...
+	GroupBy              string           `protobuf:"bytes,4,opt,name=group_by,json=groupBy,proto3" json:"group_by,omitempty"`
+	Labels               []*MapFieldEntry `protobuf:"bytes,5,rep,name=labels,proto3" json:"labels,omitempty"`
+	Limit                uint32           `protobuf:"varint,6,opt,name=limit,proto3" json:"limit,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}         `json:"-"`
+	XXX_unrecognized     []byte           `json:"-"`
+	XXX_sizecache        int32            `json:"-"`
 }
 
 func (m *QueryExampleRequest) Reset()         { *m = QueryExampleRequest{} }
