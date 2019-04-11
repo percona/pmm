@@ -23,6 +23,9 @@ import (
 )
 
 func parseCustomLabels(labels string) (map[string]string, error) {
+	if labels == "" {
+		return map[string]string{}, nil
+	}
 	regex := regexp.MustCompile(`(\w+)=(\w+)`)
 	result := make(map[string]string)
 	parts := strings.Split(labels, ",")

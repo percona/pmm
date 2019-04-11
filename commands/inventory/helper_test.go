@@ -36,6 +36,7 @@ func TestParseCustomLabel(t *testing.T) {
 		{"no value", "foo=", map[string]string(nil), errWrongFormat},
 		{"no key", "=foo", map[string]string(nil), errWrongFormat},
 		{"wrong format", "foo=bar,bar+foo", map[string]string(nil), errWrongFormat},
+		{"empty value", "", map[string]string{}, nil},
 	} {
 		t.Run(v.name, func(tt *testing.T) {
 			customLabels, err := parseCustomLabels(v.input)
