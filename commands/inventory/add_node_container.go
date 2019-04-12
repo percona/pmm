@@ -31,6 +31,7 @@ Node name: {{ .Node.NodeName }}
 MachineID          : {{ .Node.MachineID }}
 DockerContainerID  : {{ .Node.DockerContainerID }}
 DockerContainerName: {{ .Node.DockerContainerName }}
+Custom labels      : {{ .Node.CustomLabels }}
 `)
 
 type addNodeContainerResult struct {

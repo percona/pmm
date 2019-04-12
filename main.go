@@ -142,6 +142,15 @@ func main() {
 	case inventory.AddNodeContainerC.FullCommand():
 		command = inventory.AddNodeContainer
 
+	case inventory.AddServiceMySQLC.FullCommand():
+		command = inventory.AddServiceMySQL
+
+	case inventory.AddServiceMongoDBC.FullCommand():
+		command = inventory.AddServiceMongoDB
+
+	case inventory.AddServicePostgreSQLC.FullCommand():
+		command = inventory.AddServicePostgreSQL
+
 	case commands.ListC.FullCommand():
 		command = commands.List
 
