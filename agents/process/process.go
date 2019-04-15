@@ -22,7 +22,7 @@ import (
 	"os/exec"
 	"time"
 
-	inventorypb "github.com/percona/pmm/api/inventory"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 

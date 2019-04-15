@@ -26,7 +26,7 @@ import (
 	"testing"
 	"time"
 
-	inventorypb "github.com/percona/pmm/api/inventory"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -129,7 +129,7 @@ func handleRequests(s *supervisor.Supervisor, channel *server.Channel, l *logrus
 	}
 }
 
-func workLoop(ctx context.Context, cfg *config.Config, l *logrus.Entry, client agentpb.AgentClient, localSrv *agentlocal.AgentLocalServer) {
+func workLoop(cfg *config.Config, l *logrus.Entry, client agentpb.AgentClient, localSrv *agentlocal.AgentLocalServer, s *supervisor.Supervisor) {
 	// use separate context for stream to cancel it after supervisor is done sending last changes
 	streamCtx, streamCancel := context.WithCancel(context.Background())
 	streamCtx = agentpb.AddAgentConnectMetadata(streamCtx, &agentpb.AgentConnectMetadata{
@@ -186,8 +186,6 @@ func workLoop(ctx context.Context, cfg *config.Config, l *logrus.Entry, client a
 		l.Warnf("Can't get metadata from server: %v", err)
 	}
 	localSrv.SetMetadata(&md)
-
-	s := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports)
 	go handleChanges(streamCancel, s, channel, l)
 	handleRequests(s, channel, l)
 }
@@ -387,10 +385,11 @@ func main() {
 	// 	logrus.Infof("pmm-agent registered: %s.", cfg.UUID)
 	// }
 
-	localServer := agentlocal.NewAgentLocalServer(cfg)
+	s := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports)
+	localServer := agentlocal.NewAgentLocalServer(cfg, s)
 
 	go runGRPCServer(ctx, cfg, localServer, grpcAddr)
 	go runJSONServer(ctx, cfg, grpcAddr)
 
-	workLoop(ctx, cfg, l, client, localServer)
+	workLoop(cfg, l, client, localServer, s)
 }

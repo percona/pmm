@@ -28,7 +28,7 @@ import (
 	"io/ioutil"
 	"time"
 
-	inventorypb "github.com/percona/pmm/api/inventory"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/sirupsen/logrus"
 
 	"github.com/percona/pmm-agent/agents/process"

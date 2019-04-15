@@ -21,7 +21,7 @@ import (
 	"context"
 	"time"
 
-	inventorypb "github.com/percona/pmm/api/inventory"
+	"github.com/percona/pmm/api/inventorypb"
 )
 
 // NoOp is built-in Agent for testing.

@@ -24,7 +24,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql" // register SQL driver
-	inventorypb "github.com/percona/pmm/api/inventory"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"

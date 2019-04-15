@@ -8,7 +8,7 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/golang/protobuf/ptypes/timestamp"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
-	_ "github.com/percona/pmm/api/inventory"
+	_ "github.com/percona/pmm/api/inventorypb"
 	_ "github.com/percona/pmm/api/qanpb"
 	math "math"
 )
