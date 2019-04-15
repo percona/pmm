@@ -28,9 +28,9 @@ Generic Node added.
 Node ID  : {{ .Node.NodeID }}
 Node name: {{ .Node.NodeName }}
 
-MachineID     : {{ .Node.MachineID }}
+Machine ID    : {{ .Node.MachineID }}
 Distro        : {{ .Node.Distro }}
-DistroVersion : {{ .Node.DistroVersion }}
+Distro version: {{ .Node.DistroVersion }}
 Address       : {{ .Node.Address }}
 Custom labels : {{ .Node.CustomLabels }}
 `)

@@ -151,6 +151,9 @@ func main() {
 	case inventory.AddServicePostgreSQLC.FullCommand():
 		command = inventory.AddServicePostgreSQL
 
+	case inventory.RemoveServiceC.FullCommand():
+		command = inventory.RemoveService
+
 	case commands.ListC.FullCommand():
 		command = commands.List
 
