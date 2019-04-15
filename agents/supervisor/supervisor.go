@@ -77,6 +77,9 @@ type builtinAgentInfo struct {
 }
 
 // NewSupervisor creates new Supervisor object.
+//
+// Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
+// Changes of Agent statuses are reported via Changes channel which must be read until it is closed.
 func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports) *Supervisor {
 	supervisor := &Supervisor{
 		ctx:           ctx,
@@ -182,6 +185,10 @@ func (s *Supervisor) setAgentProcesses(agentProcesses map[string]*agentpb.SetSta
 		newParams[id] = p
 	}
 	toStart, toRestart, toStop := filter(existingParams, newParams)
+	if len(toStart)+len(toRestart)+len(toStop) == 0 {
+		return
+	}
+	s.l.Infof("Starting %d, restarting %d, and stopping %d agent processes.", len(toStart), len(toRestart), len(toStop))
 
 	// We have to wait for Agents to terminate before starting a new ones to send all state updates,
 	// and to reuse ports.
@@ -240,6 +247,10 @@ func (s *Supervisor) setBuiltinAgents(builtinAgents map[string]*agentpb.SetState
 		newParams[id] = agent
 	}
 	toStart, toRestart, toStop := filter(existingParams, newParams)
+	if len(toStart)+len(toRestart)+len(toStop) == 0 {
+		return
+	}
+	s.l.Infof("Starting %d, restarting %d, and stopping %d built-in agents.", len(toStart), len(toRestart), len(toStop))
 
 	// We have to wait for Agents to terminate before starting a new ones to send all state updates.
 	// If that place is slow, we can cancel them all in parallel, but then we still have to wait.
@@ -523,6 +534,7 @@ func (s *Supervisor) stopAll() {
 	s.setAgentProcesses(nil)
 	s.setBuiltinAgents(nil)
 
+	s.l.Infof("Done.")
 	close(s.qanRequests)
 	close(s.changes)
 }
