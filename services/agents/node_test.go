@@ -45,7 +45,6 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--collector.mountstats",
 				"--collector.processes",
 				"--collector.qdisc",
-				"--collector.systemd",
 				"--collector.wifi",
 				"--web.listen-address=:{{ .listen_port }}",
 			},

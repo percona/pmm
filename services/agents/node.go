@@ -56,7 +56,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 			"--collector.mountstats",
 			"--collector.processes",
 			"--collector.qdisc",
-			"--collector.systemd",
+			//"--collector.systemd", PMM-3843 disabled for now
 			"--collector.wifi",
 		)
 	}
