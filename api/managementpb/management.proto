@@ -137,3 +137,26 @@ service Node {
     };
   }
 }
+
+// Services Management
+
+message RemoveServiceRequest {
+  // Service ID or Service Name is required.
+  // Unique randomly generated instance identifier.
+  string service_id = 1;
+  // Unique across all Services user-defined name.
+  string service_name = 2;
+}
+
+message RemoveServiceResponse {}
+
+// Service service provides public methods for managing Services.
+service Service {
+  // RemoveService removes Service with Agents.
+  rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Service/Remove"
+      body: "*"
+    };
+  }
+}

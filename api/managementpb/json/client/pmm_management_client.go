@@ -13,6 +13,7 @@ import (
 
 	"github.com/percona/pmm/api/managementpb/json/client/my_sql"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
+	"github.com/percona/pmm/api/managementpb/json/client/service"
 )
 
 // Default PMM management HTTP client.
@@ -62,6 +63,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 
 	cli.Node = node.New(transport, formats)
 
+	cli.Service = service.New(transport, formats)
+
 	return cli
 }
 
@@ -110,6 +113,8 @@ type PMMManagement struct {
 
 	Node *node.Client
 
+	Service *service.Client
+
 	Transport runtime.ClientTransport
 }
 
@@ -120,5 +125,7 @@ func (c *PMMManagement) SetTransport(transport runtime.ClientTransport) {
 	c.MySQL.SetTransport(transport)
 
 	c.Node.SetTransport(transport)
+
+	c.Service.SetTransport(transport)
 
 }
