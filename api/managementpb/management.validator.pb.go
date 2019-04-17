@@ -80,3 +80,9 @@ func (this *RegisterNodeResponse) Validate() error {
 	}
 	return nil
 }
+func (this *RemoveServiceRequest) Validate() error {
+	return nil
+}
+func (this *RemoveServiceResponse) Validate() error {
+	return nil
+}
