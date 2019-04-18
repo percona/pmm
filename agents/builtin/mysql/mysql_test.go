@@ -289,7 +289,7 @@ func TestMySQL(t *testing.T) {
 		require.Len(t, buckets, 1)
 
 		actual := buckets[0]
-		assert.InDelta(t, 0.1, actual.MQueryTimeSum, 0.05)
+		assert.InDelta(t, 0.1, actual.MQueryTimeSum, 0.09)
 		expected := &qanpb.MetricsBucket{
 			Fingerprint:         "SELECT `sleep` (?)",
 			DSchema:             "world",
@@ -324,8 +324,8 @@ func TestMySQL(t *testing.T) {
 		require.Len(t, buckets, 1)
 
 		actual := buckets[0]
-		assert.InDelta(t, 0, actual.MQueryTimeSum, 0.05)
-		assert.InDelta(t, 0, actual.MLockTimeSum, 0.05)
+		assert.InDelta(t, 0, actual.MQueryTimeSum, 0.09)
+		assert.InDelta(t, 0, actual.MLockTimeSum, 0.09)
 		expected := &qanpb.MetricsBucket{
 			Fingerprint:         "SELECT * FROM `city`",
 			DSchema:             "world",
