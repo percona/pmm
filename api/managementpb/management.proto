@@ -141,11 +141,13 @@ service Node {
 // Services Management
 
 message RemoveServiceRequest {
+  // Service type.
+  inventory.ServiceType service_type = 1;
   // Service ID or Service Name is required.
   // Unique randomly generated instance identifier.
-  string service_id = 1;
+  string service_id = 2;
   // Unique across all Services user-defined name.
-  string service_name = 2;
+  string service_name = 3;
 }
 
 message RemoveServiceResponse {}

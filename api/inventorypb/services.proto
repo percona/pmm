@@ -24,6 +24,15 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
+// ServiceType describes supported service types.
+enum ServiceType {
+  SERVICE_TYPE_INVALID = 0;
+  MYSQL_SERVICE = 1;
+  AMAZON_RDS_MYSQL_SERVICE = 2;
+  MONGODB_SERVICE = 3;
+  POSTGRESQL_SERVICE = 4;
+}
+
 // MySQLService represents a generic MySQL instance.
 message MySQLService {
   // Unique randomly generated instance identifier.
