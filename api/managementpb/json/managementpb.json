@@ -472,6 +472,18 @@
                 "service_name": {
                   "description": "Unique across all Services user-defined name.",
                   "type": "string"
+                },
+                "service_type": {
+                  "description": "ServiceType describes supported service types.",
+                  "type": "string",
+                  "default": "SERVICE_TYPE_INVALID",
+                  "enum": [
+                    "SERVICE_TYPE_INVALID",
+                    "MYSQL_SERVICE",
+                    "AMAZON_RDS_MYSQL_SERVICE",
+                    "MONGODB_SERVICE",
+                    "POSTGRESQL_SERVICE"
+                  ]
                 }
               }
             }

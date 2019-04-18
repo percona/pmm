@@ -6,11 +6,14 @@ package service
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -119,10 +122,75 @@ type RemoveServiceBody struct {
 
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
+
+	// ServiceType describes supported service types.
+	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE AMAZON_RDS_MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE]
+	ServiceType *string `json:"service_type,omitempty"`
 }
 
 // Validate validates this remove service body
 func (o *RemoveServiceBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateServiceType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var removeServiceBodyTypeServiceTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["SERVICE_TYPE_INVALID","MYSQL_SERVICE","AMAZON_RDS_MYSQL_SERVICE","MONGODB_SERVICE","POSTGRESQL_SERVICE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		removeServiceBodyTypeServiceTypePropEnum = append(removeServiceBodyTypeServiceTypePropEnum, v)
+	}
+}
+
+const (
+
+	// RemoveServiceBodyServiceTypeSERVICETYPEINVALID captures enum value "SERVICE_TYPE_INVALID"
+	RemoveServiceBodyServiceTypeSERVICETYPEINVALID string = "SERVICE_TYPE_INVALID"
+
+	// RemoveServiceBodyServiceTypeMYSQLSERVICE captures enum value "MYSQL_SERVICE"
+	RemoveServiceBodyServiceTypeMYSQLSERVICE string = "MYSQL_SERVICE"
+
+	// RemoveServiceBodyServiceTypeAMAZONRDSMYSQLSERVICE captures enum value "AMAZON_RDS_MYSQL_SERVICE"
+	RemoveServiceBodyServiceTypeAMAZONRDSMYSQLSERVICE string = "AMAZON_RDS_MYSQL_SERVICE"
+
+	// RemoveServiceBodyServiceTypeMONGODBSERVICE captures enum value "MONGODB_SERVICE"
+	RemoveServiceBodyServiceTypeMONGODBSERVICE string = "MONGODB_SERVICE"
+
+	// RemoveServiceBodyServiceTypePOSTGRESQLSERVICE captures enum value "POSTGRESQL_SERVICE"
+	RemoveServiceBodyServiceTypePOSTGRESQLSERVICE string = "POSTGRESQL_SERVICE"
+)
+
+// prop value enum
+func (o *RemoveServiceBody) validateServiceTypeEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, removeServiceBodyTypeServiceTypePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *RemoveServiceBody) validateServiceType(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ServiceType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateServiceTypeEnum("body"+"."+"service_type", "body", *o.ServiceType); err != nil {
+		return err
+	}
+
 	return nil
 }
 
