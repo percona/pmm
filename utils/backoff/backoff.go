@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package backoff implement the backoff strategy for restarting Agents.
+// Package backoff implement the backoff strategy for reconnecting to server, or for restarting Agents.
 package backoff
 
 import (
@@ -23,27 +23,30 @@ import (
 )
 
 const (
-	delayBaseMin  = 1 * time.Second
-	delayBaseMax  = 30 * time.Second
 	delayIncrease = 0.5  // +50%
 	delayJitter   = 0.25 // ±25%
 )
 
 // Backoff encapsulates delay manipulation.
 type Backoff struct {
+	delayBaseMin  time.Duration
+	delayBaseMax  time.Duration
 	delayBaseNext time.Duration
 }
 
 // New returns new reset backoff.
-func New() *Backoff {
-	b := new(Backoff)
+func New(min, max time.Duration) *Backoff {
+	b := &Backoff{
+		delayBaseMin: min,
+		delayBaseMax: max,
+	}
 	b.Reset()
 	return b
 }
 
 // Reset sets next delay to the default minimum.
 func (b *Backoff) Reset() {
-	b.delayBaseNext = delayBaseMin
+	b.delayBaseNext = b.delayBaseMin
 }
 
 // Delay returns next delay.
@@ -51,8 +54,8 @@ func (b *Backoff) Delay() time.Duration {
 	delay := b.delayBaseNext
 
 	b.delayBaseNext += time.Duration(float64(b.delayBaseNext) * delayIncrease)
-	if b.delayBaseNext > delayBaseMax {
-		b.delayBaseNext = delayBaseMax
+	if b.delayBaseNext > b.delayBaseMax {
+		b.delayBaseNext = b.delayBaseMax
 	}
 
 	// We could use normal distribution for jitter:

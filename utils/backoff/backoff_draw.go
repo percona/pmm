@@ -26,12 +26,13 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"time"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 
-	. "github.com/percona/pmm-agent/supervisor"
+	. "github.com/percona/pmm-agent/utils/backoff"
 )
 
 func main() {
@@ -47,7 +48,9 @@ func main() {
 	const simulations = 250
 	const delays = 15
 
-	var b Backoff
+	delayBaseMin := 1 * time.Second
+	delayBaseMax := 30 * time.Second
+	b := New(delayBaseMin, delayBaseMax)
 	v := make(plotter.XYs, simulations*delays)
 	for s := 0; s < simulations; s++ {
 		b.Reset()
@@ -74,7 +77,7 @@ func main() {
 	p.Y.Max += 1.0
 
 	ticks := []plot.Tick{{Value: 1, Label: "1"}}
-	maxV := int(DelayBaseMax.Seconds()) * 2
+	maxV := int(delayBaseMax.Seconds()) * 2
 	for v := 2; v <= maxV; v++ {
 		tick := plot.Tick{Value: float64(v)}
 		if v%2 == 0 {

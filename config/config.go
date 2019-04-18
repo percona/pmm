@@ -55,15 +55,16 @@ type Ports struct {
 // Config represents pmm-agent's static configuration.
 //nolint:maligned
 type Config struct {
-	ID         string `yaml:"id"`
-	Address    string `yaml:"address"`
-	Username   string `yaml:"username"`
-	Password   string `yaml:"password"`
+	ID          string `yaml:"id"`
+	Address     string `yaml:"address"`
+	Username    string `yaml:"username"`
+	Password    string `yaml:"password"`
+	InsecureTLS bool   `yaml:"insecure-tls"`
+
 	ListenPort uint16 `yaml:"listen-port"`
 
-	Debug       bool `yaml:"debug"`
-	Trace       bool `yaml:"trace"`
-	InsecureTLS bool `yaml:"insecure-tls"`
+	Debug bool `yaml:"debug"`
+	Trace bool `yaml:"trace"`
 
 	Paths Paths `yaml:"paths"`
 	Ports Ports `yaml:"ports"`
@@ -87,21 +88,22 @@ func application(cfg *Config) (*kingpin.Application, *string) {
 
 	app.Flag("id", "ID of this pmm-agent. [PMM_AGENT_ID]").
 		Envar("PMM_AGENT_ID").PlaceHolder("</agent_id/...>").StringVar(&cfg.ID)
-	app.Flag("listen-port", "Agent local API port. [PMM_AGENT_LISTEN_PORT]").
-		Envar("PMM_AGENT_LISTEN_PORT").Default("7777").Uint16Var(&cfg.ListenPort)
 	app.Flag("address", "PMM Server address. [PMM_AGENT_ADDRESS]").
 		Envar("PMM_AGENT_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Address)
+	app.Flag("username", "HTTP BasicAuth username to connect to PMM Server. [PMM_AGENT_USERNAME]").
+		Envar("PMM_AGENT_USERNAME").StringVar(&cfg.Username)
+	app.Flag("password", "HTTP BasicAuth password to connect to PMM Server. [PMM_AGENT_PASSWORD]").
+		Envar("PMM_AGENT_PASSWORD").StringVar(&cfg.Password)
+	app.Flag("insecure-tls", "Skip PMM Server TLS certificate validation. [PMM_AGENT_INSECURE_TLS]").
+		Envar("PMM_AGENT_INSECURE_TLS").BoolVar(&cfg.InsecureTLS)
+
+	app.Flag("listen-port", "Agent local API port. [PMM_AGENT_LISTEN_PORT]").
+		Envar("PMM_AGENT_LISTEN_PORT").Default("7777").Uint16Var(&cfg.ListenPort)
 
 	app.Flag("debug", "Enable debug output. [PMM_AGENT_DEBUG]").
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
 	app.Flag("trace", "Enable trace output (implies debug). [PMM_AGENT_TRACE]").
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
-	app.Flag("insecure-tls", "Skip PMM Server TLS certificate validation. [PMM_AGENT_INSECURE_TLS]").
-		Envar("PMM_AGENT_INSECURE_TLS").BoolVar(&cfg.InsecureTLS)
-	app.Flag("username", "HTTP BasicAuth username to connect to PMM Server. [PMM_AGENT_USERNAME]").
-		Envar("PMM_AGENT_USERNAME").StringVar(&cfg.Username)
-	app.Flag("password", "HTTP BasicAuth password to connect to PMM Server. [PMM_AGENT_PASSWORD]").
-		Envar("PMM_AGENT_PASSWORD").StringVar(&cfg.Password)
 
 	app.Flag("paths.node_exporter", "Path to node_exporter to use. [PMM_AGENT_PATHS_NODE_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_NODE_EXPORTER").Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)
@@ -134,8 +136,12 @@ func readConfigFile(path string) (*Config, error) {
 	return &cfg, err
 }
 
-// Get parses given command-line arguments and returns configuration.
-func Get(args []string, l *logrus.Entry) (*Config, error) {
+// Parse parses given command-line arguments and returns configuration.
+func Parse(l *logrus.Entry) (*Config, error) {
+	return get(os.Args[1:], l)
+}
+
+func get(args []string, l *logrus.Entry) (*Config, error) {
 	// parse flags and environment variables
 	cfg := new(Config)
 	app, configFileF := application(cfg)

@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package server contains business logic of working with pmm-managed.
-package server
+// Package channel contains protocol details of two-way communication channel between pmm-managed and pmm-agent.
+package channel
 
 import (
 	"fmt"

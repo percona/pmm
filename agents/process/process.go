@@ -26,12 +26,15 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/unix"
 
-	"github.com/percona/pmm-agent/agents/backoff"
+	"github.com/percona/pmm-agent/utils/backoff"
 )
 
 const (
 	runningT = time.Second     // STARTING -> RUNNING delay
 	killT    = 5 * time.Second // SIGTERM -> SIGKILL delay
+
+	backoffMinDelay = 1 * time.Second
+	backoffMaxDelay = 30 * time.Second
 
 	keepLogLines = 100
 )
@@ -74,7 +77,7 @@ func New(params *Params, l *logrus.Entry) *Process {
 		l:       l,
 		pl:      newProcessLogger(l, keepLogLines),
 		changes: make(chan inventorypb.AgentStatus, 10),
-		backoff: backoff.New(),
+		backoff: backoff.New(backoffMinDelay, backoffMaxDelay),
 		ctxDone: make(chan struct{}),
 	}
 }

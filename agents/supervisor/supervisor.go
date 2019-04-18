@@ -63,23 +63,24 @@ type Supervisor struct {
 
 // agentProcessInfo describes Agent process.
 type agentProcessInfo struct {
-	cancel         func()          // to cancel Run(ctx)
-	done           <-chan struct{} // closes when Changes() channel closes
+	cancel         func()          // to cancel Process.Run(ctx)
+	done           <-chan struct{} // closes when Process.Changes() channel closes
 	requestedState *agentpb.SetStateRequest_AgentProcess
 	listenPort     uint16
 }
 
 // builtinAgentInfo describes built-in Agent.
 type builtinAgentInfo struct {
-	cancel         func()          // to cancel Run(ctx)
-	done           <-chan struct{} // closes when Changes() channel closes
+	cancel         func()          // to cancel AgentType.Run(ctx)
+	done           <-chan struct{} // closes when AgentType.Changes() channel closes
 	requestedState *agentpb.SetStateRequest_BuiltinAgent
 }
 
 // NewSupervisor creates new Supervisor object.
 //
 // Supervisor is gracefully stopped when context passed to NewSupervisor is canceled.
-// Changes of Agent statuses are reported via Changes channel which must be read until it is closed.
+// Changes of Agent statuses are reported via Changes() channel which must be read until it is closed.
+// QAN data is sent to QANRequests() channel which must be read until it is closed.
 func NewSupervisor(ctx context.Context, paths *config.Paths, ports *config.Ports) *Supervisor {
 	supervisor := &Supervisor{
 		ctx:           ctx,
