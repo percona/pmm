@@ -25,7 +25,7 @@ type Client struct {
 }
 
 /*
-Reload reloads reloads pmm agent and it configuration
+Reload reloads reloads pmm agent configuration
 */
 func (a *Client) Reload(params *ReloadParams) (*ReloadOK, error) {
 	// TODO: Validate the params before sending
