@@ -40,6 +40,7 @@ import (
 	"github.com/percona/pmm-admin/commands"
 	"github.com/percona/pmm-admin/commands/inventory"
 	"github.com/percona/pmm-admin/commands/management"
+	"github.com/percona/pmm-admin/logger"
 )
 
 func main() {
@@ -56,9 +57,10 @@ func main() {
 
 	cmd := kingpin.Parse()
 
-	logrus.SetFormatter(&logrus.TextFormatter{
-		DisableTimestamp: true,
-	})
+	logrus.SetFormatter(&logger.TextFormatter{})
+	if *jsonF {
+		logrus.SetFormatter(&logrus.JSONFormatter{}) // with level and timestamps
+	}
 	if *debugF {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
@@ -99,13 +101,16 @@ func main() {
 		var err error
 		serverURL, err = url.Parse(*serverURLF)
 		if err != nil {
-			logrus.Fatal(err)
+			logrus.Fatalf("Failed to parse PMM Server URL %q: %s.", *serverURLF, err)
 		}
 		if serverURL.Path == "" {
 			serverURL.Path = "/"
 		}
-		if serverURL.Host == "" || serverURL.Scheme == "" {
-			logrus.Fatal("Invalid PMM Server URL.")
+		if serverURL.Host == "" {
+			logrus.Fatalf("Invalid PMM Server URL %q: host is missing.", *serverURLF)
+		}
+		if serverURL.Scheme == "" {
+			logrus.Fatalf("Invalid PMM Server URL %q: scheme is missing.", *serverURLF)
 		}
 		serverInsecureTLS = *serverInsecureTLSF
 	}
@@ -161,35 +166,36 @@ func main() {
 		command = commands.Status
 
 	default:
-		logrus.Panicf("Unhandled command %q.", cmd)
+		logrus.Panicf("Unhandled command %q. Please report this bug.", cmd)
 	}
 
 	res, err := command.Run()
-	logrus.Debugf("Response: %#v", res)
+	logrus.Debugf("Result: %#v", res)
 	logrus.Debugf("Error: %#v", err)
 
-	if err == nil {
+	switch err := err.(type) {
+	case nil:
 		if *jsonF {
-			b, err := json.Marshal(res)
-			if err != nil {
-				logrus.Fatalf("Failed to marshal result to JSON: %s.", err)
+			b, jErr := json.Marshal(res)
+			if jErr != nil {
+				logrus.Infof("Result: %#v.", res)
+				logrus.Panicf("Failed to marshal result to JSON.\n%s.\nPlease report this bug.", jErr)
 			}
 			fmt.Printf("%s\n", b)
 		} else {
 			fmt.Println(res.String())
 		}
 
-		return
-	}
+		os.Exit(0)
 
-	switch err := err.(type) {
 	case commands.ErrorResponse:
 		e := commands.GetError(err)
 
 		if *jsonF {
-			b, err := json.Marshal(e)
-			if err != nil {
-				logrus.Fatalf("Failed to marshal result to JSON: %s.", err)
+			b, jErr := json.Marshal(e)
+			if jErr != nil {
+				logrus.Infof("Error response: %#v.", e)
+				logrus.Panicf("Failed to marshal error response to JSON.\n%s.\nPlease report this bug.", jErr)
 			}
 			fmt.Printf("%s\n", b)
 		} else {
@@ -199,7 +205,17 @@ func main() {
 		os.Exit(1)
 
 	default:
-		fmt.Println(err)
+		if *jsonF {
+			b, jErr := json.Marshal(err)
+			if jErr != nil {
+				logrus.Infof("Error: %#v.", err)
+				logrus.Panicf("Failed to marshal error to JSON.\n%s.\nPlease report this bug.", jErr)
+			}
+			fmt.Printf("%s\n", b)
+		} else {
+			fmt.Println(err)
+		}
+
 		os.Exit(1)
 	}
 }

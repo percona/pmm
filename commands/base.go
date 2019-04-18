@@ -42,12 +42,14 @@ type Result interface {
 // Command is a common interface for all commands.
 //
 // Command should:
-//  * use logrus.Debug/Trace functions for debug logging;
+//  * use logrus.Trace/Debug functions for debug logging;
 //  * return result on success;
 //  * return error on failure.
 //
 // Command should not:
-//  * exit with logrus.Fatal, os.Exit, etc.
+//  * return both result and error;
+//  * exit with logrus.Fatal, os.Exit, etc;
+//  * use logrus.Print, logrus.Info and higher levels.
 type Command interface {
 	Run() (Result, error)
 }
@@ -58,8 +60,8 @@ type ErrorResponse interface {
 }
 
 type Error struct {
-	Code  int
-	Error string
+	Code  int    `json:"code"`
+	Error string `json:"error"`
 }
 
 func GetError(err ErrorResponse) Error {
@@ -81,7 +83,7 @@ func ParseTemplate(text string) *template.Template {
 func RenderTemplate(t *template.Template, data interface{}) string {
 	var buf bytes.Buffer
 	if err := t.Execute(&buf, data); err != nil {
-		logrus.Fatalf("Failed to render response.\n%s.\nPlease report this bug.", err)
+		logrus.Panicf("Failed to render response.\n%s.\nPlease report this bug.", err)
 	}
 	return buf.String()
 }
