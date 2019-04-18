@@ -180,6 +180,9 @@ func main() {
 	case inventory.AddAgentQANMySQLPerfSchemaAgentC.FullCommand():
 		command = inventory.AddAgentQANMySQLPerfSchemaAgent
 
+	case inventory.RemoveAgentC.FullCommand():
+		command = inventory.RemoveAgent
+
 	case commands.ListC.FullCommand():
 		command = commands.List
 

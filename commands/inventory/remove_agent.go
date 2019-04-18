@@ -18,47 +18,47 @@ package inventory
 
 import (
 	"github.com/percona/pmm/api/inventorypb/json/client"
-	"github.com/percona/pmm/api/inventorypb/json/client/services"
+	"github.com/percona/pmm/api/inventorypb/json/client/agents"
 
 	"github.com/percona/pmm-admin/commands"
 )
 
-var removeServiceResultT = commands.ParseTemplate(`
-Service removed.
+var removeAgentResultT = commands.ParseTemplate(`
+Agent removed.
 `)
 
-type removeServiceResult struct{}
+type removeAgentResult struct{}
 
-func (res *removeServiceResult) Result() {}
+func (res *removeAgentResult) Result() {}
 
-func (res *removeServiceResult) String() string {
-	return commands.RenderTemplate(removeServiceResultT, res)
+func (res *removeAgentResult) String() string {
+	return commands.RenderTemplate(removeAgentResultT, res)
 }
 
-type removeServiceCommand struct {
-	ServiceID string
+type removeAgentCommand struct {
+	AgentID string
 }
 
-func (cmd *removeServiceCommand) Run() (commands.Result, error) {
-	params := &services.RemoveServiceParams{
-		Body: services.RemoveServiceBody{
-			ServiceID: cmd.ServiceID,
+func (cmd *removeAgentCommand) Run() (commands.Result, error) {
+	params := &agents.RemoveAgentParams{
+		Body: agents.RemoveAgentBody{
+			AgentID: cmd.AgentID,
 		},
 		Context: commands.Ctx,
 	}
-	_, err := client.Default.Services.RemoveService(params)
+	_, err := client.Default.Agents.RemoveAgent(params)
 	if err != nil {
 		return nil, err
 	}
-	return &removeServiceResult{}, nil
+	return &removeAgentResult{}, nil
 }
 
 // register command
 var (
-	RemoveService  = new(removeServiceCommand)
-	RemoveServiceC = inventoryRemoveC.Command("service", "Remove service from inventory.")
+	RemoveAgent  = new(removeAgentCommand)
+	RemoveAgentC = inventoryRemoveC.Command("agent", "Remove agent from inventory.")
 )
 
 func init() {
-	RemoveServiceC.Arg("service-id", "Service ID").StringVar(&RemoveService.ServiceID)
+	RemoveAgentC.Arg("agent-id", "Agent ID").StringVar(&RemoveAgent.AgentID)
 }
