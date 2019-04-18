@@ -162,6 +162,24 @@ func main() {
 	case inventory.RemoveServiceC.FullCommand():
 		command = inventory.RemoveService
 
+	case inventory.AddAgentPMMAgentC.FullCommand():
+		command = inventory.AddAgentPMMAgent
+
+	case inventory.AddAgentNodeExporterC.FullCommand():
+		command = inventory.AddAgentNodeExporter
+
+	case inventory.AddAgentMongodbExporterC.FullCommand():
+		command = inventory.AddAgentMongodbExporter
+
+	case inventory.AddAgentMysqldExporterC.FullCommand():
+		command = inventory.AddAgentMysqldExporter
+
+	case inventory.AddAgentPostgresExporterC.FullCommand():
+		command = inventory.AddAgentPostgresExporter
+
+	case inventory.AddAgentQANMySQLPerfSchemaAgentC.FullCommand():
+		command = inventory.AddAgentQANMySQLPerfSchemaAgent
+
 	case commands.ListC.FullCommand():
 		command = commands.List
 

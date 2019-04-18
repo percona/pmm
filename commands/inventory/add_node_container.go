@@ -93,5 +93,5 @@ func init() {
 		StringVar(&AddNodeContainer.DockerContainerID)
 	AddNodeContainerC.Flag("container-name", "Container name.").StringVar(&AddNodeContainer.DockerContainerName)
 	AddNodeContainerC.Flag("address", "Address.").StringVar(&AddNodeContainer.Address)
-	AddNodeContainerC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddNodeGeneric.CustomLabels)
+	AddNodeContainerC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddNodeContainer.CustomLabels)
 }
