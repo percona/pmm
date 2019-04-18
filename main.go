@@ -147,6 +147,9 @@ func main() {
 	case inventory.AddNodeContainerC.FullCommand():
 		command = inventory.AddNodeContainer
 
+	case inventory.RemoveNodeC.FullCommand():
+		command = inventory.RemoveNode
+
 	case inventory.AddServiceMySQLC.FullCommand():
 		command = inventory.AddServiceMySQL
 
