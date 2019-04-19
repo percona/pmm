@@ -72,12 +72,15 @@ message AddMySQLRequest {
   bool mysqld_exporter = 10;
   // If true, adds qan-mysql-perfschema-agent for provided service.
   bool qan_mysql_perfschema = 11;
+  // If true, adds qan-mysql-slowlog-agent for provided service.
+  bool qan_mysql_slowlog = 12;
 }
 
 message AddMySQLResponse {
   inventory.MySQLService service = 1;
   inventory.MySQLdExporter mysqld_exporter = 2;
   inventory.QANMySQLPerfSchemaAgent qan_mysql_perfschema = 3;
+  inventory.QANMySQLSlowlogAgent qan_mysql_slowlog = 4;
 }
 
 // MySQL service provides public Management API methods for MySQL Service.
