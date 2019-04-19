@@ -46,6 +46,10 @@ func (this *QANMySQLPerfSchemaAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *QANMySQLSlowlogAgent) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *PostgresExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
@@ -100,6 +104,13 @@ func (this *ListAgentsResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschemaAgent", err)
+			}
+		}
+	}
+	for _, item := range this.QanMysqlSlowlogAgent {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlSlowlogAgent", err)
 			}
 		}
 	}
@@ -165,6 +176,13 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.QanMysqlPerfschemaAgent != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanMysqlPerfschemaAgent); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschemaAgent", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_QanMysqlSlowlogAgent); ok {
+		if oneOfNester.QanMysqlSlowlogAgent != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanMysqlSlowlogAgent); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlSlowlogAgent", err)
 			}
 		}
 	}
@@ -389,6 +407,42 @@ func (this *ChangeQANMySQLPerfSchemaAgentResponse) Validate() error {
 	if this.QanMysqlPerfschemaAgent != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMysqlPerfschemaAgent); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschemaAgent", err)
+		}
+	}
+	return nil
+}
+func (this *AddQANMySQLSlowlogAgentRequest) Validate() error {
+	if this.PmmAgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
+	}
+	if this.ServiceId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
+	}
+	if this.Username == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *AddQANMySQLSlowlogAgentResponse) Validate() error {
+	if this.QanMysqlSlowlogAgent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMysqlSlowlogAgent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlSlowlogAgent", err)
+		}
+	}
+	return nil
+}
+func (this *ChangeQANMySQLSlowlogAgentRequest) Validate() error {
+	if this.AgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *ChangeQANMySQLSlowlogAgentResponse) Validate() error {
+	if this.QanMysqlSlowlogAgent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMysqlSlowlogAgent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlSlowlogAgent", err)
 		}
 	}
 	return nil
