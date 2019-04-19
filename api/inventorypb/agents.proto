@@ -252,6 +252,7 @@ message ListAgentsResponse {
   repeated ExternalExporter external_exporter = 5;
   repeated MongoDBExporter mongodb_exporter = 6;
   repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
+  repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
   repeated PostgresExporter postgres_exporter = 8;
 }
 
@@ -275,6 +276,7 @@ message GetAgentResponse {
     ExternalExporter external_exporter = 5;
     MongoDBExporter mongodb_exporter = 6;
     QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
+    QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
     PostgresExporter postgres_exporter = 8;
   }
 }

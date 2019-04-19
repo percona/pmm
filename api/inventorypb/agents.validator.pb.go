@@ -107,6 +107,13 @@ func (this *ListAgentsResponse) Validate() error {
 			}
 		}
 	}
+	for _, item := range this.QanMysqlSlowlogAgent {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlSlowlogAgent", err)
+			}
+		}
+	}
 	for _, item := range this.PostgresExporter {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -169,6 +176,13 @@ func (this *GetAgentResponse) Validate() error {
 		if oneOfNester.QanMysqlPerfschemaAgent != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanMysqlPerfschemaAgent); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschemaAgent", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_QanMysqlSlowlogAgent); ok {
+		if oneOfNester.QanMysqlSlowlogAgent != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanMysqlSlowlogAgent); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlSlowlogAgent", err)
 			}
 		}
 	}
