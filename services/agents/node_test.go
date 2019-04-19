@@ -40,7 +40,6 @@ func TestNodeExporterConfig(t *testing.T) {
 				"--collector.drbd",
 				"--collector.interrupts",
 				"--collector.ksmd",
-				"--collector.logind",
 				"--collector.meminfo_numa",
 				"--collector.mountstats",
 				"--collector.processes",

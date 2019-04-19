@@ -51,7 +51,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 			"--collector.drbd",
 			"--collector.interrupts",
 			"--collector.ksmd",
-			"--collector.logind",
+			//"--collector.logind", PMM-3843 disabled for now
 			"--collector.meminfo_numa",
 			"--collector.mountstats",
 			"--collector.processes",
