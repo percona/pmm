@@ -46,10 +46,12 @@ func (res *addMySQLResult) String() string {
 }
 
 type addMySQLCommand struct {
-	AddressPort string
-	ServiceName string
-	Username    string
-	Password    string
+	AddressPort   string
+	ServiceName   string
+	Username      string
+	Password      string
+	UsePerfschema bool
+	UseSlowLog    bool
 }
 
 func (cmd *addMySQLCommand) Run() (commands.Result, error) {
@@ -81,7 +83,8 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 
 			QANUsername:        cmd.Username,
 			QANPassword:        cmd.Password,
-			QANMysqlPerfschema: true,
+			QANMysqlPerfschema: cmd.UsePerfschema,
+			QANMysqlSlowlog:    cmd.UseSlowLog,
 		},
 		Context: commands.Ctx,
 	}
@@ -111,4 +114,6 @@ func init() {
 
 	AddMySQLC.Flag("username", "MySQL username.").StringVar(&AddMySQL.Username)
 	AddMySQLC.Flag("password", "MySQL password.").StringVar(&AddMySQL.Password)
+	AddMySQLC.Flag("use-perfschema", "Run QAN perf schema agent.").BoolVar(&AddMySQL.UsePerfschema)
+	AddMySQLC.Flag("use-slowlog", "Run QAN slow log agent.").BoolVar(&AddMySQL.UseSlowLog)
 }

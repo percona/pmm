@@ -114,7 +114,7 @@ func (o *StatusDefault) readResponse(response runtime.ClientResponse, consumer r
 	return nil
 }
 
-/*AgentsInfoItems0 AgentInfo returns information about agent which was runned by pmm-agent.
+/*AgentsInfoItems0 AgentInfo contains information about Agent managed by pmm-agent.
 swagger:model AgentsInfoItems0
 */
 type AgentsInfoItems0 struct {
@@ -123,10 +123,10 @@ type AgentsInfoItems0 struct {
 	AgentID string `json:"agent_id,omitempty"`
 
 	// Type represents Agent type.
-	// Enum: [TYPE_INVALID NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT POSTGRES_EXPORTER]
+	// Enum: [TYPE_INVALID NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT POSTGRES_EXPORTER QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT]
 	AgentType *string `json:"agent_type,omitempty"`
 
-	// logs
+	// TODO https://jira.percona.com/browse/PMM-3758
 	Logs []string `json:"logs"`
 
 	// AgentStatus represents actual Agent status.
@@ -156,7 +156,7 @@ var agentsInfoItems0TypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["TYPE_INVALID","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","POSTGRES_EXPORTER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["TYPE_INVALID","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","POSTGRES_EXPORTER","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -183,6 +183,12 @@ const (
 
 	// AgentsInfoItems0AgentTypePOSTGRESEXPORTER captures enum value "POSTGRES_EXPORTER"
 	AgentsInfoItems0AgentTypePOSTGRESEXPORTER string = "POSTGRES_EXPORTER"
+
+	// AgentsInfoItems0AgentTypeQANMYSQLSLOWLOGAGENT captures enum value "QAN_MYSQL_SLOWLOG_AGENT"
+	AgentsInfoItems0AgentTypeQANMYSQLSLOWLOGAGENT string = "QAN_MYSQL_SLOWLOG_AGENT"
+
+	// AgentsInfoItems0AgentTypeQANMONGODBPROFILERAGENT captures enum value "QAN_MONGODB_PROFILER_AGENT"
+	AgentsInfoItems0AgentTypeQANMONGODBPROFILERAGENT string = "QAN_MONGODB_PROFILER_AGENT"
 )
 
 // prop value enum
@@ -280,12 +286,12 @@ func (o *AgentsInfoItems0) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StatusBody StatusRequest describes request to get local pmm-agent info.
+/*StatusBody status body
 swagger:model StatusBody
 */
 type StatusBody struct {
 
-	// get logs
+	// TODO https://jira.percona.com/browse/PMM-3758
 	GetLogs bool `json:"get_logs,omitempty"`
 }
 
@@ -350,7 +356,7 @@ func (o *StatusDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StatusOKBody StatusResponse return information about pmm-agent from local api.
+/*StatusOKBody status OK body
 swagger:model StatusOKBody
 */
 type StatusOKBody struct {
@@ -360,6 +366,9 @@ type StatusOKBody struct {
 
 	// agents info
 	AgentsInfo []*AgentsInfoItems0 `json:"agents_info"`
+
+	// Config file path if pmm-agent was started with one.
+	ConfigFilePath string `json:"config_file_path,omitempty"`
 
 	// runs on node id
 	RunsOnNodeID string `json:"runs_on_node_id,omitempty"`
@@ -447,25 +456,28 @@ func (o *StatusOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*StatusOKBodyServerInfo ServerInfo returns information about server which agent was connected.
+/*StatusOKBodyServerInfo ServerInfo contains information about the PMM Server.
 swagger:model StatusOKBodyServerInfo
 */
 type StatusOKBodyServerInfo struct {
 
-	// insecure tls
+	// True if pmm-agent is currently connected to the server.
+	Connected bool `json:"connected,omitempty"`
+
+	// PMM Server's TLS certificate validation should be skipped if true.
 	InsecureTLS bool `json:"insecure_tls,omitempty"`
 
-	// last ping time
+	// TODO https://jira.percona.com/browse/PMM-3758
 	// Format: date-time
 	LastPingTime strfmt.DateTime `json:"last_ping_time,omitempty"`
 
-	// latency
+	// TODO https://jira.percona.com/browse/PMM-3758
 	Latency string `json:"latency,omitempty"`
 
-	// url
+	// PMM Server URL in a form https://HOST:PORT/.
 	URL string `json:"url,omitempty"`
 
-	// version
+	// PMM Server version; empty if pmm-agent is not connected to the server.
 	Version string `json:"version,omitempty"`
 }
 
