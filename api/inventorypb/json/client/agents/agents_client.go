@@ -473,7 +473,7 @@ func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*
 }
 
 /*
-ChangeQANMongoDBProfilerAgent changes QAN mongo DB profiler agent changes mongo profiler QAN agent
+ChangeQANMongoDBProfilerAgent changes QAN mongo DB profiler agent changes mongo DB profiler QAN agent
 */
 func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerAgentParams) (*ChangeQANMongoDBProfilerAgentOK, error) {
 	// TODO: Validate the params before sending

@@ -1814,7 +1814,7 @@
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeQANMongoDBProfilerAgent changes Mongo Profiler QAN Agent.",
+        "summary": "ChangeQANMongoDBProfilerAgent changes MongoDB Profiler QAN Agent.",
         "operationId": "ChangeQANMongoDBProfilerAgent",
         "parameters": [
           {

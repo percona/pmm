@@ -4089,7 +4089,7 @@ type AgentsClient interface {
 	ChangeQANMySQLPerfSchemaAgent(ctx context.Context, in *ChangeQANMySQLPerfSchemaAgentRequest, opts ...grpc.CallOption) (*ChangeQANMySQLPerfSchemaAgentResponse, error)
 	// AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
 	AddQANMongoDBProfilerAgent(ctx context.Context, in *AddQANMongoDBProfilerAgentRequest, opts ...grpc.CallOption) (*AddQANMongoDBProfilerAgentResponse, error)
-	// ChangeQANMongoDBProfilerAgent changes Mongo Profiler QAN Agent.
+	// ChangeQANMongoDBProfilerAgent changes MongoDB Profiler QAN Agent.
 	ChangeQANMongoDBProfilerAgent(ctx context.Context, in *ChangeQANMongoDBProfilerAgentRequest, opts ...grpc.CallOption) (*ChangeQANMongoDBProfilerAgentResponse, error)
 	// AddQANMySQLSlowlogAgent adds MySQL PerfSchema QAN Agent.
 	AddQANMySQLSlowlogAgent(ctx context.Context, in *AddQANMySQLSlowlogAgentRequest, opts ...grpc.CallOption) (*AddQANMySQLSlowlogAgentResponse, error)
@@ -4354,7 +4354,7 @@ type AgentsServer interface {
 	ChangeQANMySQLPerfSchemaAgent(context.Context, *ChangeQANMySQLPerfSchemaAgentRequest) (*ChangeQANMySQLPerfSchemaAgentResponse, error)
 	// AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
 	AddQANMongoDBProfilerAgent(context.Context, *AddQANMongoDBProfilerAgentRequest) (*AddQANMongoDBProfilerAgentResponse, error)
-	// ChangeQANMongoDBProfilerAgent changes Mongo Profiler QAN Agent.
+	// ChangeQANMongoDBProfilerAgent changes MongoDB Profiler QAN Agent.
 	ChangeQANMongoDBProfilerAgent(context.Context, *ChangeQANMongoDBProfilerAgentRequest) (*ChangeQANMongoDBProfilerAgentResponse, error)
 	// AddQANMySQLSlowlogAgent adds MySQL PerfSchema QAN Agent.
 	AddQANMySQLSlowlogAgent(context.Context, *AddQANMySQLSlowlogAgentRequest) (*AddQANMySQLSlowlogAgentResponse, error)
