@@ -28,6 +28,7 @@ enum MetricsSource {
   METRICS_SOURCE_INVALID = 0;
   MYSQL_SLOWLOG = 1;
   MYSQL_PERFSCHEMA = 2;
+  MONGO_PROFILER = 3;
 }
 
 // Collector service accepts data from pmm-agent (via pmm-managed).

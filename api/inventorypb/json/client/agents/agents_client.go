@@ -193,6 +193,34 @@ func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams) (*AddPos
 }
 
 /*
+AddQANMongoProfilerAgent adds QAN mongo profiler agent adds mongo DB profiler QAN agent
+*/
+func (a *Client) AddQANMongoProfilerAgent(params *AddQANMongoProfilerAgentParams) (*AddQANMongoProfilerAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddQANMongoProfilerAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddQANMongoProfilerAgent",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/AddQANMongoProfilerAgent",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddQANMongoProfilerAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddQANMongoProfilerAgentOK), nil
+
+}
+
+/*
 AddQANMySQLPerfSchemaAgent adds QAN my SQL perf schema agent adds my SQL perf schema QAN agent
 */
 func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentParams) (*AddQANMySQLPerfSchemaAgentOK, error) {
@@ -413,6 +441,34 @@ func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*
 		return nil, err
 	}
 	return result.(*ChangePostgresExporterOK), nil
+
+}
+
+/*
+ChangeQANMongoProfilerAgent changes QAN mongo profiler agent changes mongo profiler QAN agent
+*/
+func (a *Client) ChangeQANMongoProfilerAgent(params *ChangeQANMongoProfilerAgentParams) (*ChangeQANMongoProfilerAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeQANMongoProfilerAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeQANMongoProfilerAgent",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangeQANMongoProfilerAgent",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeQANMongoProfilerAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeQANMongoProfilerAgentOK), nil
 
 }
 
