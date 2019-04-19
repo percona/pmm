@@ -212,6 +212,9 @@ type GetAgentOKBody struct {
 	// qan mysql perfschema agent
 	QANMysqlPerfschemaAgent *GetAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
 
+	// qan mysql slowlog agent
+	QANMysqlSlowlogAgent *GetAgentOKBodyQANMysqlSlowlogAgent `json:"qan_mysql_slowlog_agent,omitempty"`
+
 	// rds exporter
 	RDSExporter *GetAgentOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
@@ -249,6 +252,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateQANMysqlPerfschemaAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANMysqlSlowlogAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -398,6 +405,24 @@ func (o *GetAgentOKBody) validateQANMysqlPerfschemaAgent(formats strfmt.Registry
 		if err := o.QANMysqlPerfschemaAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "qan_mysql_perfschema_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) validateQANMysqlSlowlogAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QANMysqlSlowlogAgent) { // not required
+		return nil
+	}
+
+	if o.QANMysqlSlowlogAgent != nil {
+		if err := o.QANMysqlSlowlogAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "qan_mysql_slowlog_agent")
 			}
 			return err
 		}
@@ -1225,6 +1250,124 @@ func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) MarshalBinary() ([]byte, error) 
 // UnmarshalBinary interface implementation
 func (o *GetAgentOKBodyQANMysqlPerfschemaAgent) UnmarshalBinary(b []byte) error {
 	var res GetAgentOKBodyQANMysqlPerfschemaAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentOKBodyQANMysqlSlowlogAgent QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+swagger:model GetAgentOKBodyQANMysqlSlowlogAgent
+*/
+type GetAgentOKBodyQANMysqlSlowlogAgent struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// MySQL password for getting performance data.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// MySQL username for getting performance data.
+	Username string `json:"username,omitempty"`
+}
+
+// Validate validates this get agent OK body QAN mysql slowlog agent
+func (o *GetAgentOKBodyQANMysqlSlowlogAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum = append(getAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyQANMysqlSlowlogAgentStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// GetAgentOKBodyQANMysqlSlowlogAgentStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyQANMysqlSlowlogAgentStatusSTARTING string = "STARTING"
+
+	// GetAgentOKBodyQANMysqlSlowlogAgentStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyQANMysqlSlowlogAgentStatusRUNNING string = "RUNNING"
+
+	// GetAgentOKBodyQANMysqlSlowlogAgentStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyQANMysqlSlowlogAgentStatusWAITING string = "WAITING"
+
+	// GetAgentOKBodyQANMysqlSlowlogAgentStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyQANMysqlSlowlogAgentStatusSTOPPING string = "STOPPING"
+
+	// GetAgentOKBodyQANMysqlSlowlogAgentStatusDONE captures enum value "DONE"
+	GetAgentOKBodyQANMysqlSlowlogAgentStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyQANMysqlSlowlogAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getAgentOkBodyQanMysqlSlowlogAgentTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyQANMysqlSlowlogAgent) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_mysql_slowlog_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyQANMysqlSlowlogAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyQANMysqlSlowlogAgent) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyQANMysqlSlowlogAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -249,6 +249,34 @@ func (a *Client) AddQANMySQLPerfSchemaAgent(params *AddQANMySQLPerfSchemaAgentPa
 }
 
 /*
+AddQANMySQLSlowlogAgent adds QAN my SQL slowlog agent adds my SQL perf schema QAN agent
+*/
+func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) (*AddQANMySQLSlowlogAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddQANMySQLSlowlogAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddQANMySQLSlowlogAgent",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/AddQANMySQLSlowlogAgent",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddQANMySQLSlowlogAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddQANMySQLSlowlogAgentOK), nil
+
+}
+
+/*
 AddRDSExporter adds RDS exporter adds rds exporter agent
 */
 func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error) {
@@ -497,6 +525,34 @@ func (a *Client) ChangeQANMySQLPerfSchemaAgent(params *ChangeQANMySQLPerfSchemaA
 		return nil, err
 	}
 	return result.(*ChangeQANMySQLPerfSchemaAgentOK), nil
+
+}
+
+/*
+ChangeQANMySQLSlowlogAgent changes QAN my SQL slowlog agent changes my SQL perf schema QAN agent
+*/
+func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentParams) (*ChangeQANMySQLSlowlogAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeQANMySQLSlowlogAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeQANMySQLSlowlogAgent",
+		Method:             "POST",
+		PathPattern:        "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeQANMySQLSlowlogAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeQANMySQLSlowlogAgentOK), nil
 
 }
 

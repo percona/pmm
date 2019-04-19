@@ -300,8 +300,8 @@ func request_Agents_ChangeQANMySQLPerfSchemaAgent_0(ctx context.Context, marshal
 
 }
 
-func request_Agents_AddQANMongoProfilerAgent_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq AddQANMongoProfilerAgentRequest
+func request_Agents_AddQANMySQLSlowlogAgent_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq AddQANMySQLSlowlogAgentRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -312,13 +312,13 @@ func request_Agents_AddQANMongoProfilerAgent_0(ctx context.Context, marshaler ru
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.AddQANMongoProfilerAgent(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.AddQANMySQLSlowlogAgent(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func request_Agents_ChangeQANMongoProfilerAgent_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ChangeQANMongoProfilerAgentRequest
+func request_Agents_ChangeQANMySQLSlowlogAgent_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq ChangeQANMySQLSlowlogAgentRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -329,7 +329,7 @@ func request_Agents_ChangeQANMongoProfilerAgent_0(ctx context.Context, marshaler
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ChangeQANMongoProfilerAgent(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ChangeQANMySQLSlowlogAgent(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
@@ -743,7 +743,7 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 
 	})
 
-	mux.Handle("POST", pattern_Agents_AddQANMongoProfilerAgent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Agents_AddQANMySQLSlowlogAgent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -752,18 +752,18 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_AddQANMongoProfilerAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_AddQANMySQLSlowlogAgent_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Agents_AddQANMongoProfilerAgent_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Agents_AddQANMySQLSlowlogAgent_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_Agents_ChangeQANMongoProfilerAgent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_Agents_ChangeQANMySQLSlowlogAgent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
@@ -772,14 +772,14 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_Agents_ChangeQANMongoProfilerAgent_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_Agents_ChangeQANMySQLSlowlogAgent_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_Agents_ChangeQANMongoProfilerAgent_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Agents_ChangeQANMySQLSlowlogAgent_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -879,9 +879,9 @@ var (
 
 	pattern_Agents_ChangeQANMySQLPerfSchemaAgent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangeQANMySQLPerfSchemaAgent"}, ""))
 
-	pattern_Agents_AddQANMongoProfilerAgent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddQANMongoProfilerAgent"}, ""))
+	pattern_Agents_AddQANMySQLSlowlogAgent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddQANMySQLSlowlogAgent"}, ""))
 
-	pattern_Agents_ChangeQANMongoProfilerAgent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangeQANMongoProfilerAgent"}, ""))
+	pattern_Agents_ChangeQANMySQLSlowlogAgent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "ChangeQANMySQLSlowlogAgent"}, ""))
 
 	pattern_Agents_AddPostgresExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v1", "inventory", "Agents", "AddPostgresExporter"}, ""))
 
@@ -923,9 +923,9 @@ var (
 
 	forward_Agents_ChangeQANMySQLPerfSchemaAgent_0 = runtime.ForwardResponseMessage
 
-	forward_Agents_AddQANMongoProfilerAgent_0 = runtime.ForwardResponseMessage
+	forward_Agents_AddQANMySQLSlowlogAgent_0 = runtime.ForwardResponseMessage
 
-	forward_Agents_ChangeQANMongoProfilerAgent_0 = runtime.ForwardResponseMessage
+	forward_Agents_ChangeQANMySQLSlowlogAgent_0 = runtime.ForwardResponseMessage
 
 	forward_Agents_AddPostgresExporter_0 = runtime.ForwardResponseMessage
 

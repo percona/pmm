@@ -53,6 +53,11 @@ func (this *AddMySQLResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlPerfschema", err)
 		}
 	}
+	if this.QanMysqlSlowlog != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMysqlSlowlog); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("QanMysqlSlowlog", err)
+		}
+	}
 	return nil
 }
 func (this *RegisterNodeRequest) Validate() error {

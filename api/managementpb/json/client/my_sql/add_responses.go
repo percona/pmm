@@ -139,6 +139,9 @@ type AddBody struct {
 	// If true, adds qan-mysql-perfschema-agent for provided service.
 	QANMysqlPerfschema bool `json:"qan_mysql_perfschema,omitempty"`
 
+	// If true, adds qan-mysql-slowlog-agent for provided service.
+	QANMysqlSlowlog bool `json:"qan_mysql_slowlog,omitempty"`
+
 	// FIXME remove
 	QANPassword string `json:"qan_password,omitempty"`
 
@@ -224,6 +227,9 @@ type AddOKBody struct {
 	// qan mysql perfschema
 	QANMysqlPerfschema *AddOKBodyQANMysqlPerfschema `json:"qan_mysql_perfschema,omitempty"`
 
+	// qan mysql slowlog
+	QANMysqlSlowlog *AddOKBodyQANMysqlSlowlog `json:"qan_mysql_slowlog,omitempty"`
+
 	// service
 	Service *AddOKBodyService `json:"service,omitempty"`
 }
@@ -237,6 +243,10 @@ func (o *AddOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateQANMysqlPerfschema(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANMysqlSlowlog(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -278,6 +288,24 @@ func (o *AddOKBody) validateQANMysqlPerfschema(formats strfmt.Registry) error {
 		if err := o.QANMysqlPerfschema.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addOk" + "." + "qan_mysql_perfschema")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddOKBody) validateQANMysqlSlowlog(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QANMysqlSlowlog) { // not required
+		return nil
+	}
+
+	if o.QANMysqlSlowlog != nil {
+		if err := o.QANMysqlSlowlog.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addOk" + "." + "qan_mysql_slowlog")
 			}
 			return err
 		}
@@ -554,6 +582,124 @@ func (o *AddOKBodyQANMysqlPerfschema) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddOKBodyQANMysqlPerfschema) UnmarshalBinary(b []byte) error {
 	var res AddOKBodyQANMysqlPerfschema
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddOKBodyQANMysqlSlowlog QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+swagger:model AddOKBodyQANMysqlSlowlog
+*/
+type AddOKBodyQANMysqlSlowlog struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// MySQL password for getting performance data.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// MySQL username for getting performance data.
+	Username string `json:"username,omitempty"`
+}
+
+// Validate validates this add OK body QAN mysql slowlog
+func (o *AddOKBodyQANMysqlSlowlog) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addOkBodyQanMysqlSlowlogTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addOkBodyQanMysqlSlowlogTypeStatusPropEnum = append(addOkBodyQanMysqlSlowlogTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddOKBodyQANMysqlSlowlogStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddOKBodyQANMysqlSlowlogStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// AddOKBodyQANMysqlSlowlogStatusSTARTING captures enum value "STARTING"
+	AddOKBodyQANMysqlSlowlogStatusSTARTING string = "STARTING"
+
+	// AddOKBodyQANMysqlSlowlogStatusRUNNING captures enum value "RUNNING"
+	AddOKBodyQANMysqlSlowlogStatusRUNNING string = "RUNNING"
+
+	// AddOKBodyQANMysqlSlowlogStatusWAITING captures enum value "WAITING"
+	AddOKBodyQANMysqlSlowlogStatusWAITING string = "WAITING"
+
+	// AddOKBodyQANMysqlSlowlogStatusSTOPPING captures enum value "STOPPING"
+	AddOKBodyQANMysqlSlowlogStatusSTOPPING string = "STOPPING"
+
+	// AddOKBodyQANMysqlSlowlogStatusDONE captures enum value "DONE"
+	AddOKBodyQANMysqlSlowlogStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *AddOKBodyQANMysqlSlowlog) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addOkBodyQanMysqlSlowlogTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddOKBodyQANMysqlSlowlog) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addOk"+"."+"qan_mysql_slowlog"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddOKBodyQANMysqlSlowlog) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddOKBodyQANMysqlSlowlog) UnmarshalBinary(b []byte) error {
+	var res AddOKBodyQANMysqlSlowlog
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
