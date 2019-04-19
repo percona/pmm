@@ -278,7 +278,7 @@ message ListAgentsResponse {
   repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
   repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
   repeated PostgresExporter postgres_exporter = 8;
-  repeated QANMongoProfilerAgent qan_mongo_profiler_agent = 9;
+  repeated QANMongoProfilerAgent qan_mongo_profiler_agent = 10;
 }
 
 // Get
@@ -303,7 +303,7 @@ message GetAgentResponse {
     QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
     PostgresExporter postgres_exporter = 8;
-    QANMongoProfilerAgent qan_mongo_profiler_agent = 9;
+    QANMongoProfilerAgent qan_mongo_profiler_agent = 10;
   }
 }
 
