@@ -251,6 +251,9 @@ type ListAgentsOKBody struct {
 	// postgres exporter
 	PostgresExporter []*PostgresExporterItems0 `json:"postgres_exporter"`
 
+	// qan mongodb profiler agent
+	QANMongodbProfilerAgent []*QANMongodbProfilerAgentItems0 `json:"qan_mongodb_profiler_agent"`
+
 	// qan mysql perfschema agent
 	QANMysqlPerfschemaAgent []*QANMysqlPerfschemaAgentItems0 `json:"qan_mysql_perfschema_agent"`
 
@@ -286,6 +289,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validatePostgresExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANMongodbProfilerAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -447,6 +454,31 @@ func (o *ListAgentsOKBody) validatePostgresExporter(formats strfmt.Registry) err
 			if err := o.PostgresExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "postgres_exporter" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateQANMongodbProfilerAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.QANMongodbProfilerAgent); i++ {
+		if swag.IsZero(o.QANMongodbProfilerAgent[i]) { // not required
+			continue
+		}
+
+		if o.QANMongodbProfilerAgent[i] != nil {
+			if err := o.QANMongodbProfilerAgent[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOk" + "." + "qan_mongodb_profiler_agent" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -1059,6 +1091,124 @@ func (o *PostgresExporterItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *PostgresExporterItems0) UnmarshalBinary(b []byte) error {
 	var res PostgresExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*QANMongodbProfilerAgentItems0 QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+swagger:model QANMongodbProfilerAgentItems0
+*/
+type QANMongodbProfilerAgentItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// MongoDB password for getting profiler data.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// MongoDB username for getting profiler data.
+	Username string `json:"username,omitempty"`
+}
+
+// Validate validates this QAN mongodb profiler agent items0
+func (o *QANMongodbProfilerAgentItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var qanMongodbProfilerAgentItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		qanMongodbProfilerAgentItems0TypeStatusPropEnum = append(qanMongodbProfilerAgentItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// QANMongodbProfilerAgentItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	QANMongodbProfilerAgentItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// QANMongodbProfilerAgentItems0StatusSTARTING captures enum value "STARTING"
+	QANMongodbProfilerAgentItems0StatusSTARTING string = "STARTING"
+
+	// QANMongodbProfilerAgentItems0StatusRUNNING captures enum value "RUNNING"
+	QANMongodbProfilerAgentItems0StatusRUNNING string = "RUNNING"
+
+	// QANMongodbProfilerAgentItems0StatusWAITING captures enum value "WAITING"
+	QANMongodbProfilerAgentItems0StatusWAITING string = "WAITING"
+
+	// QANMongodbProfilerAgentItems0StatusSTOPPING captures enum value "STOPPING"
+	QANMongodbProfilerAgentItems0StatusSTOPPING string = "STOPPING"
+
+	// QANMongodbProfilerAgentItems0StatusDONE captures enum value "DONE"
+	QANMongodbProfilerAgentItems0StatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *QANMongodbProfilerAgentItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, qanMongodbProfilerAgentItems0TypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *QANMongodbProfilerAgentItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *QANMongodbProfilerAgentItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *QANMongodbProfilerAgentItems0) UnmarshalBinary(b []byte) error {
+	var res QANMongodbProfilerAgentItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

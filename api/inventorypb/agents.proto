@@ -231,6 +231,30 @@ message PostgresExporter {
   map<string, string> custom_labels = 10;
 }
 
+// QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+message QANMongoDBProfilerAgent {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Service identifier.
+  string service_id = 3;
+  // MongoDB username for getting profiler data.
+  string username = 4;
+  // MongoDB password for getting profiler data.
+  string password = 5;
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 6;
+  // Actual Agent status.
+  AgentStatus status = 7;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
 // List
 
 message ListAgentsRequest {
@@ -254,6 +278,7 @@ message ListAgentsResponse {
   repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
   repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
   repeated PostgresExporter postgres_exporter = 8;
+  repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
 }
 
 // Get
@@ -278,6 +303,7 @@ message GetAgentResponse {
     QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
     PostgresExporter postgres_exporter = 8;
+    QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
   }
 }
 
@@ -564,6 +590,60 @@ message ChangeQANMySQLPerfSchemaAgentResponse {
   QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 1;
 }
 
+// Add/Change QANMongoDBProfilerAgent
+
+message AddQANMongoDBProfilerAgentRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // MongoDB username for getting profile data.
+  string username = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // MongoDB password for getting profile data.
+  string password = 5;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+message AddQANMongoDBProfilerAgentResponse {
+  QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 1;
+}
+
+message ChangeQANMongoDBProfilerAgentRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Enable or disable this Agent.
+  oneof change_disabled {
+    bool enabled = 2;
+    bool disabled = 3;
+  }
+  // Replace all custom user-assigned labels.
+  map<string, string> custom_labels = 4;
+  // Remove all custom user-assigned labels.
+  bool remove_custom_labels = 5;
+}
+
+message ChangeQANMongoDBProfilerAgentResponse {
+  QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 1;
+}
+
 // Add/Change QANMySQLSlowlogAgent
 
 message AddQANMySQLSlowlogAgentRequest {
@@ -795,6 +875,20 @@ service Agents {
   rpc ChangeQANMySQLPerfSchemaAgent(ChangeQANMySQLPerfSchemaAgentRequest) returns (ChangeQANMySQLPerfSchemaAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"
+      body: "*"
+    };
+  }
+  // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
+  rpc AddQANMongoDBProfilerAgent(AddQANMongoDBProfilerAgentRequest) returns (AddQANMongoDBProfilerAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddQANMongoDBProfilerAgent"
+      body: "*"
+    };
+  }
+  // ChangeQANMongoDBProfilerAgent changes MongoDB Profiler QAN Agent.
+  rpc ChangeQANMongoDBProfilerAgent(ChangeQANMongoDBProfilerAgentRequest) returns (ChangeQANMongoDBProfilerAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"
       body: "*"
     };
   }

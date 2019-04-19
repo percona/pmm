@@ -123,7 +123,7 @@ type AgentsInfoItems0 struct {
 	AgentID string `json:"agent_id,omitempty"`
 
 	// Type represents Agent type.
-	// Enum: [TYPE_INVALID NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT POSTGRES_EXPORTER]
+	// Enum: [TYPE_INVALID NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT POSTGRES_EXPORTER QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT]
 	AgentType *string `json:"agent_type,omitempty"`
 
 	// TODO https://jira.percona.com/browse/PMM-3758
@@ -156,7 +156,7 @@ var agentsInfoItems0TypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["TYPE_INVALID","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","POSTGRES_EXPORTER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["TYPE_INVALID","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","POSTGRES_EXPORTER","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -181,11 +181,14 @@ const (
 	// AgentsInfoItems0AgentTypeQANMYSQLPERFSCHEMAAGENT captures enum value "QAN_MYSQL_PERFSCHEMA_AGENT"
 	AgentsInfoItems0AgentTypeQANMYSQLPERFSCHEMAAGENT string = "QAN_MYSQL_PERFSCHEMA_AGENT"
 
+	// AgentsInfoItems0AgentTypePOSTGRESEXPORTER captures enum value "POSTGRES_EXPORTER"
+	AgentsInfoItems0AgentTypePOSTGRESEXPORTER string = "POSTGRES_EXPORTER"
+
 	// AgentsInfoItems0AgentTypeQANMYSQLSLOWLOGAGENT captures enum value "QAN_MYSQL_SLOWLOG_AGENT"
 	AgentsInfoItems0AgentTypeQANMYSQLSLOWLOGAGENT string = "QAN_MYSQL_SLOWLOG_AGENT"
 
-	// AgentsInfoItems0AgentTypePOSTGRESEXPORTER captures enum value "POSTGRES_EXPORTER"
-	AgentsInfoItems0AgentTypePOSTGRESEXPORTER string = "POSTGRES_EXPORTER"
+	// AgentsInfoItems0AgentTypeQANMONGODBPROFILERAGENT captures enum value "QAN_MONGODB_PROFILER_AGENT"
+	AgentsInfoItems0AgentTypeQANMONGODBPROFILERAGENT string = "QAN_MONGODB_PROFILER_AGENT"
 )
 
 // prop value enum
