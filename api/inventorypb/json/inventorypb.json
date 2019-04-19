@@ -676,13 +676,13 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddQANMongoProfilerAgent": {
+    "/v1/inventory/Agents/AddQANMongoDBProfilerAgent": {
       "post": {
         "tags": [
           "Agents"
         ],
-        "summary": "AddQANMongoProfilerAgent adds MongoDB Profiler QAN Agent.",
-        "operationId": "AddQANMongoProfilerAgent",
+        "summary": "AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.",
+        "operationId": "AddQANMongoDBProfilerAgent",
         "parameters": [
           {
             "name": "body",
@@ -724,8 +724,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "qan_mongo_profiler_agent": {
-                  "description": "QANMongoProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                "qan_mongodb_profiler_agent": {
+                  "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -745,7 +745,7 @@
                       "format": "boolean"
                     },
                     "password": {
-                      "description": "MySQL password for getting performance data.",
+                      "description": "MongoDB password for getting profiler data.",
                       "type": "string"
                     },
                     "pmm_agent_id": {
@@ -770,7 +770,7 @@
                       ]
                     },
                     "username": {
-                      "description": "MySQL username for getting performance data.",
+                      "description": "MongoDB username for getting profiler data.",
                       "type": "string"
                     }
                   }
@@ -1809,13 +1809,13 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeQANMongoProfilerAgent": {
+    "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent": {
       "post": {
         "tags": [
           "Agents"
         ],
-        "summary": "ChangeQANMongoProfilerAgent changes Mongo Profiler QAN Agent.",
-        "operationId": "ChangeQANMongoProfilerAgent",
+        "summary": "ChangeQANMongoDBProfilerAgent changes Mongo Profiler QAN Agent.",
+        "operationId": "ChangeQANMongoDBProfilerAgent",
         "parameters": [
           {
             "name": "body",
@@ -1857,8 +1857,8 @@
             "schema": {
               "type": "object",
               "properties": {
-                "qan_mongo_profiler_agent": {
-                  "description": "QANMongoProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                "qan_mongodb_profiler_agent": {
+                  "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -1878,7 +1878,7 @@
                       "format": "boolean"
                     },
                     "password": {
-                      "description": "MySQL password for getting performance data.",
+                      "description": "MongoDB password for getting profiler data.",
                       "type": "string"
                     },
                     "pmm_agent_id": {
@@ -1903,7 +1903,7 @@
                       ]
                     },
                     "username": {
-                      "description": "MySQL username for getting performance data.",
+                      "description": "MongoDB username for getting profiler data.",
                       "type": "string"
                     }
                   }
@@ -2563,8 +2563,8 @@
                     }
                   }
                 },
-                "qan_mongo_profiler_agent": {
-                  "description": "QANMongoProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                "qan_mongodb_profiler_agent": {
+                  "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
                   "type": "object",
                   "properties": {
                     "agent_id": {
@@ -2584,7 +2584,7 @@
                       "format": "boolean"
                     },
                     "password": {
-                      "description": "MySQL password for getting performance data.",
+                      "description": "MongoDB password for getting profiler data.",
                       "type": "string"
                     },
                     "pmm_agent_id": {
@@ -2609,7 +2609,7 @@
                       ]
                     },
                     "username": {
-                      "description": "MySQL username for getting performance data.",
+                      "description": "MongoDB username for getting profiler data.",
                       "type": "string"
                     }
                   }
@@ -3101,10 +3101,10 @@
                     }
                   }
                 },
-                "qan_mongo_profiler_agent": {
+                "qan_mongodb_profiler_agent": {
                   "type": "array",
                   "items": {
-                    "description": "QANMongoProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
+                    "description": "QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.",
                     "type": "object",
                     "properties": {
                       "agent_id": {
@@ -3124,7 +3124,7 @@
                         "format": "boolean"
                       },
                       "password": {
-                        "description": "MySQL password for getting performance data.",
+                        "description": "MongoDB password for getting profiler data.",
                         "type": "string"
                       },
                       "pmm_agent_id": {
@@ -3149,7 +3149,7 @@
                         ]
                       },
                       "username": {
-                        "description": "MySQL username for getting performance data.",
+                        "description": "MongoDB username for getting profiler data.",
                         "type": "string"
                       }
                     }

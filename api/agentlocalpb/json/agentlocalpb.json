@@ -116,7 +116,7 @@
                           "QAN_MYSQL_PERFSCHEMA_AGENT",
                           "POSTGRES_EXPORTER",
                           "QAN_MYSQL_SLOWLOG_AGENT",
-                          "QAN_MONGO_PROFILER_AGENT"
+                          "QAN_MONGODB_PROFILER_AGENT"
                         ]
                       },
                       "logs": {

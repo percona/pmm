@@ -206,8 +206,8 @@ type GetAgentOKBody struct {
 	// postgres exporter
 	PostgresExporter *GetAgentOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 
-	// qan mongo profiler agent
-	QANMongoProfilerAgent *GetAgentOKBodyQANMongoProfilerAgent `json:"qan_mongo_profiler_agent,omitempty"`
+	// qan mongodb profiler agent
+	QANMongodbProfilerAgent *GetAgentOKBodyQANMongodbProfilerAgent `json:"qan_mongodb_profiler_agent,omitempty"`
 
 	// qan mysql perfschema agent
 	QANMysqlPerfschemaAgent *GetAgentOKBodyQANMysqlPerfschemaAgent `json:"qan_mysql_perfschema_agent,omitempty"`
@@ -247,7 +247,7 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateQANMongoProfilerAgent(formats); err != nil {
+	if err := o.validateQANMongodbProfilerAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -377,16 +377,16 @@ func (o *GetAgentOKBody) validatePostgresExporter(formats strfmt.Registry) error
 	return nil
 }
 
-func (o *GetAgentOKBody) validateQANMongoProfilerAgent(formats strfmt.Registry) error {
+func (o *GetAgentOKBody) validateQANMongodbProfilerAgent(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.QANMongoProfilerAgent) { // not required
+	if swag.IsZero(o.QANMongodbProfilerAgent) { // not required
 		return nil
 	}
 
-	if o.QANMongoProfilerAgent != nil {
-		if err := o.QANMongoProfilerAgent.Validate(formats); err != nil {
+	if o.QANMongodbProfilerAgent != nil {
+		if err := o.QANMongodbProfilerAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("getAgentOk" + "." + "qan_mongo_profiler_agent")
+				return ve.ValidateName("getAgentOk" + "." + "qan_mongodb_profiler_agent")
 			}
 			return err
 		}
@@ -1021,10 +1021,10 @@ func (o *GetAgentOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*GetAgentOKBodyQANMongoProfilerAgent QANMongoProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
-swagger:model GetAgentOKBodyQANMongoProfilerAgent
+/*GetAgentOKBodyQANMongodbProfilerAgent QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+swagger:model GetAgentOKBodyQANMongodbProfilerAgent
 */
-type GetAgentOKBodyQANMongoProfilerAgent struct {
+type GetAgentOKBodyQANMongodbProfilerAgent struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
@@ -1035,7 +1035,7 @@ type GetAgentOKBodyQANMongoProfilerAgent struct {
 	// Desired Agent status: enabled (false) or disabled (true).
 	Disabled bool `json:"disabled,omitempty"`
 
-	// MySQL password for getting performance data.
+	// MongoDB password for getting profiler data.
 	Password string `json:"password,omitempty"`
 
 	// The pmm-agent identifier which runs this instance.
@@ -1048,12 +1048,12 @@ type GetAgentOKBodyQANMongoProfilerAgent struct {
 	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
 	Status *string `json:"status,omitempty"`
 
-	// MySQL username for getting performance data.
+	// MongoDB username for getting profiler data.
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this get agent OK body QAN mongo profiler agent
-func (o *GetAgentOKBodyQANMongoProfilerAgent) Validate(formats strfmt.Registry) error {
+// Validate validates this get agent OK body QAN mongodb profiler agent
+func (o *GetAgentOKBodyQANMongodbProfilerAgent) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -1066,7 +1066,7 @@ func (o *GetAgentOKBodyQANMongoProfilerAgent) Validate(formats strfmt.Registry) 
 	return nil
 }
 
-var getAgentOkBodyQanMongoProfilerAgentTypeStatusPropEnum []interface{}
+var getAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -1074,47 +1074,47 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		getAgentOkBodyQanMongoProfilerAgentTypeStatusPropEnum = append(getAgentOkBodyQanMongoProfilerAgentTypeStatusPropEnum, v)
+		getAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum = append(getAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// GetAgentOKBodyQANMongoProfilerAgentStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	GetAgentOKBodyQANMongoProfilerAgentStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+	// GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyQANMongodbProfilerAgentStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
 
-	// GetAgentOKBodyQANMongoProfilerAgentStatusSTARTING captures enum value "STARTING"
-	GetAgentOKBodyQANMongoProfilerAgentStatusSTARTING string = "STARTING"
+	// GetAgentOKBodyQANMongodbProfilerAgentStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyQANMongodbProfilerAgentStatusSTARTING string = "STARTING"
 
-	// GetAgentOKBodyQANMongoProfilerAgentStatusRUNNING captures enum value "RUNNING"
-	GetAgentOKBodyQANMongoProfilerAgentStatusRUNNING string = "RUNNING"
+	// GetAgentOKBodyQANMongodbProfilerAgentStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyQANMongodbProfilerAgentStatusRUNNING string = "RUNNING"
 
-	// GetAgentOKBodyQANMongoProfilerAgentStatusWAITING captures enum value "WAITING"
-	GetAgentOKBodyQANMongoProfilerAgentStatusWAITING string = "WAITING"
+	// GetAgentOKBodyQANMongodbProfilerAgentStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyQANMongodbProfilerAgentStatusWAITING string = "WAITING"
 
-	// GetAgentOKBodyQANMongoProfilerAgentStatusSTOPPING captures enum value "STOPPING"
-	GetAgentOKBodyQANMongoProfilerAgentStatusSTOPPING string = "STOPPING"
+	// GetAgentOKBodyQANMongodbProfilerAgentStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyQANMongodbProfilerAgentStatusSTOPPING string = "STOPPING"
 
-	// GetAgentOKBodyQANMongoProfilerAgentStatusDONE captures enum value "DONE"
-	GetAgentOKBodyQANMongoProfilerAgentStatusDONE string = "DONE"
+	// GetAgentOKBodyQANMongodbProfilerAgentStatusDONE captures enum value "DONE"
+	GetAgentOKBodyQANMongodbProfilerAgentStatusDONE string = "DONE"
 )
 
 // prop value enum
-func (o *GetAgentOKBodyQANMongoProfilerAgent) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, getAgentOkBodyQanMongoProfilerAgentTypeStatusPropEnum); err != nil {
+func (o *GetAgentOKBodyQANMongodbProfilerAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getAgentOkBodyQanMongodbProfilerAgentTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *GetAgentOKBodyQANMongoProfilerAgent) validateStatus(formats strfmt.Registry) error {
+func (o *GetAgentOKBodyQANMongodbProfilerAgent) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_mongo_profiler_agent"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_mongodb_profiler_agent"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -1122,7 +1122,7 @@ func (o *GetAgentOKBodyQANMongoProfilerAgent) validateStatus(formats strfmt.Regi
 }
 
 // MarshalBinary interface implementation
-func (o *GetAgentOKBodyQANMongoProfilerAgent) MarshalBinary() ([]byte, error) {
+func (o *GetAgentOKBodyQANMongodbProfilerAgent) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -1130,8 +1130,8 @@ func (o *GetAgentOKBodyQANMongoProfilerAgent) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *GetAgentOKBodyQANMongoProfilerAgent) UnmarshalBinary(b []byte) error {
-	var res GetAgentOKBodyQANMongoProfilerAgent
+func (o *GetAgentOKBodyQANMongodbProfilerAgent) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyQANMongodbProfilerAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

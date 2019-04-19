@@ -54,7 +54,7 @@ func (this *PostgresExporter) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *QANMongoProfilerAgent) Validate() error {
+func (this *QANMongoDBProfilerAgent) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
@@ -125,10 +125,10 @@ func (this *ListAgentsResponse) Validate() error {
 			}
 		}
 	}
-	for _, item := range this.QanMongoProfilerAgent {
+	for _, item := range this.QanMongodbProfilerAgent {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("QanMongoProfilerAgent", err)
+				return github_com_mwitkow_go_proto_validators.FieldError("QanMongodbProfilerAgent", err)
 			}
 		}
 	}
@@ -204,10 +204,10 @@ func (this *GetAgentResponse) Validate() error {
 			}
 		}
 	}
-	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_QanMongoProfilerAgent); ok {
-		if oneOfNester.QanMongoProfilerAgent != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanMongoProfilerAgent); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("QanMongoProfilerAgent", err)
+	if oneOfNester, ok := this.GetAgent().(*GetAgentResponse_QanMongodbProfilerAgent); ok {
+		if oneOfNester.QanMongodbProfilerAgent != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanMongodbProfilerAgent); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("QanMongodbProfilerAgent", err)
 			}
 		}
 	}
@@ -429,7 +429,7 @@ func (this *ChangeQANMySQLPerfSchemaAgentResponse) Validate() error {
 	}
 	return nil
 }
-func (this *AddQANMongoProfilerAgentRequest) Validate() error {
+func (this *AddQANMongoDBProfilerAgentRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
 	}
@@ -442,25 +442,25 @@ func (this *AddQANMongoProfilerAgentRequest) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *AddQANMongoProfilerAgentResponse) Validate() error {
-	if this.QanMongoProfilerAgent != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMongoProfilerAgent); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("QanMongoProfilerAgent", err)
+func (this *AddQANMongoDBProfilerAgentResponse) Validate() error {
+	if this.QanMongodbProfilerAgent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMongodbProfilerAgent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("QanMongodbProfilerAgent", err)
 		}
 	}
 	return nil
 }
-func (this *ChangeQANMongoProfilerAgentRequest) Validate() error {
+func (this *ChangeQANMongoDBProfilerAgentRequest) Validate() error {
 	if this.AgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("AgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.AgentId))
 	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
-func (this *ChangeQANMongoProfilerAgentResponse) Validate() error {
-	if this.QanMongoProfilerAgent != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMongoProfilerAgent); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("QanMongoProfilerAgent", err)
+func (this *ChangeQANMongoDBProfilerAgentResponse) Validate() error {
+	if this.QanMongodbProfilerAgent != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.QanMongodbProfilerAgent); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("QanMongodbProfilerAgent", err)
 		}
 	}
 	return nil

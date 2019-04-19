@@ -193,30 +193,30 @@ func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams) (*AddPos
 }
 
 /*
-AddQANMongoProfilerAgent adds QAN mongo profiler agent adds mongo DB profiler QAN agent
+AddQANMongoDBProfilerAgent adds QAN mongo DB profiler agent adds mongo DB profiler QAN agent
 */
-func (a *Client) AddQANMongoProfilerAgent(params *AddQANMongoProfilerAgentParams) (*AddQANMongoProfilerAgentOK, error) {
+func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentParams) (*AddQANMongoDBProfilerAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddQANMongoProfilerAgentParams()
+		params = NewAddQANMongoDBProfilerAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddQANMongoProfilerAgent",
+		ID:                 "AddQANMongoDBProfilerAgent",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/AddQANMongoProfilerAgent",
+		PathPattern:        "/v1/inventory/Agents/AddQANMongoDBProfilerAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddQANMongoProfilerAgentReader{formats: a.formats},
+		Reader:             &AddQANMongoDBProfilerAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddQANMongoProfilerAgentOK), nil
+	return result.(*AddQANMongoDBProfilerAgentOK), nil
 
 }
 
@@ -473,30 +473,30 @@ func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*
 }
 
 /*
-ChangeQANMongoProfilerAgent changes QAN mongo profiler agent changes mongo profiler QAN agent
+ChangeQANMongoDBProfilerAgent changes QAN mongo DB profiler agent changes mongo profiler QAN agent
 */
-func (a *Client) ChangeQANMongoProfilerAgent(params *ChangeQANMongoProfilerAgentParams) (*ChangeQANMongoProfilerAgentOK, error) {
+func (a *Client) ChangeQANMongoDBProfilerAgent(params *ChangeQANMongoDBProfilerAgentParams) (*ChangeQANMongoDBProfilerAgentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewChangeQANMongoProfilerAgentParams()
+		params = NewChangeQANMongoDBProfilerAgentParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangeQANMongoProfilerAgent",
+		ID:                 "ChangeQANMongoDBProfilerAgent",
 		Method:             "POST",
-		PathPattern:        "/v1/inventory/Agents/ChangeQANMongoProfilerAgent",
+		PathPattern:        "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &ChangeQANMongoProfilerAgentReader{formats: a.formats},
+		Reader:             &ChangeQANMongoDBProfilerAgentReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*ChangeQANMongoProfilerAgentOK), nil
+	return result.(*ChangeQANMongoDBProfilerAgentOK), nil
 
 }
 

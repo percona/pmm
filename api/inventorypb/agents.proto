@@ -231,8 +231,8 @@ message PostgresExporter {
   map<string, string> custom_labels = 10;
 }
 
-// QANMongoProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
-message QANMongoProfilerAgent {
+// QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+message QANMongoDBProfilerAgent {
   // Unique randomly generated instance identifier.
   string agent_id = 1;
   // The pmm-agent identifier which runs this instance.
@@ -278,7 +278,7 @@ message ListAgentsResponse {
   repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
   repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
   repeated PostgresExporter postgres_exporter = 8;
-  repeated QANMongoProfilerAgent qan_mongo_profiler_agent = 10;
+  repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
 }
 
 // Get
@@ -303,7 +303,7 @@ message GetAgentResponse {
     QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
     QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
     PostgresExporter postgres_exporter = 8;
-    QANMongoProfilerAgent qan_mongo_profiler_agent = 10;
+    QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
   }
 }
 
@@ -590,9 +590,9 @@ message ChangeQANMySQLPerfSchemaAgentResponse {
   QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 1;
 }
 
-// Add/Change QANMongoProfilerAgent
+// Add/Change QANMongoDBProfilerAgent
 
-message AddQANMongoProfilerAgentRequest {
+message AddQANMongoDBProfilerAgentRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
   // The pmm-agent identifier which runs this instance.
@@ -619,11 +619,11 @@ message AddQANMongoProfilerAgentRequest {
   map<string, string> custom_labels = 10;
 }
 
-message AddQANMongoProfilerAgentResponse {
-  QANMongoProfilerAgent qan_mongo_profiler_agent = 1;
+message AddQANMongoDBProfilerAgentResponse {
+  QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 1;
 }
 
-message ChangeQANMongoProfilerAgentRequest {
+message ChangeQANMongoDBProfilerAgentRequest {
   string agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -640,8 +640,8 @@ message ChangeQANMongoProfilerAgentRequest {
   bool remove_custom_labels = 5;
 }
 
-message ChangeQANMongoProfilerAgentResponse {
-  QANMongoProfilerAgent qan_mongo_profiler_agent = 1;
+message ChangeQANMongoDBProfilerAgentResponse {
+  QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 1;
 }
 
 // Add/Change QANMySQLSlowlogAgent
@@ -878,17 +878,17 @@ service Agents {
       body: "*"
     };
   }
-  // AddQANMongoProfilerAgent adds MongoDB Profiler QAN Agent.
-  rpc AddQANMongoProfilerAgent(AddQANMongoProfilerAgentRequest) returns (AddQANMongoProfilerAgentResponse) {
+  // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
+  rpc AddQANMongoDBProfilerAgent(AddQANMongoDBProfilerAgentRequest) returns (AddQANMongoDBProfilerAgentResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddQANMongoProfilerAgent"
+      post: "/v1/inventory/Agents/AddQANMongoDBProfilerAgent"
       body: "*"
     };
   }
-  // ChangeQANMongoProfilerAgent changes Mongo Profiler QAN Agent.
-  rpc ChangeQANMongoProfilerAgent(ChangeQANMongoProfilerAgentRequest) returns (ChangeQANMongoProfilerAgentResponse) {
+  // ChangeQANMongoDBProfilerAgent changes Mongo Profiler QAN Agent.
+  rpc ChangeQANMongoDBProfilerAgent(ChangeQANMongoDBProfilerAgentRequest) returns (ChangeQANMongoDBProfilerAgentResponse) {
     option (google.api.http) = {
-      post: "/v1/inventory/Agents/ChangeQANMongoProfilerAgent"
+      post: "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"
       body: "*"
     };
   }
