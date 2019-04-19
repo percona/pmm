@@ -885,7 +885,7 @@ service Agents {
       body: "*"
     };
   }
-  // ChangeQANMongoDBProfilerAgent changes Mongo Profiler QAN Agent.
+  // ChangeQANMongoDBProfilerAgent changes MongoDB Profiler QAN Agent.
   rpc ChangeQANMongoDBProfilerAgent(ChangeQANMongoDBProfilerAgentRequest) returns (ChangeQANMongoDBProfilerAgentResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"
