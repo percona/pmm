@@ -21,6 +21,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
@@ -50,7 +51,7 @@ func main() {
 	kingpin.CommandLine.Version(version.FullInfo())
 
 	serverURLF := kingpin.Flag("server-url", "PMM Server URL.").String()
-	serverInsecureTLSF := kingpin.Flag("server-insecure-tls", "").Bool()
+	serverInsecureTLSF := kingpin.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation.").Bool()
 	debugF := kingpin.Flag("debug", "Enable debug logging.").Bool()
 	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug).").Bool()
 	jsonF := kingpin.Flag("json", "Enable JSON output.").Bool()
@@ -122,11 +123,16 @@ func main() {
 	transport.Context = ctx
 	httpTransport := transport.Transport.(*http.Transport)
 	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{} // disable HTTP/2
-	if serverInsecureTLS {
+	if serverURL.Scheme == "https" {
 		if httpTransport.TLSClientConfig == nil {
 			httpTransport.TLSClientConfig = new(tls.Config)
 		}
-		httpTransport.TLSClientConfig.InsecureSkipVerify = true
+		if serverInsecureTLS {
+			httpTransport.TLSClientConfig.InsecureSkipVerify = true
+		} else {
+			host, _, _ := net.SplitHostPort(serverURL.Host)
+			httpTransport.TLSClientConfig.ServerName = host
+		}
 	}
 
 	inventorypb.Default.SetTransport(transport)
