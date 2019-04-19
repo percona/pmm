@@ -239,9 +239,9 @@ message QANMongoProfilerAgent {
   string pmm_agent_id = 2;
   // Service identifier.
   string service_id = 3;
-  // MySQL username for getting performance data.
+  // MongoDB username for getting profiler data.
   string username = 4;
-  // MySQL password for getting performance data.
+  // MongoDB password for getting profiler data.
   string password = 5;
   //
   // Status fields below.
