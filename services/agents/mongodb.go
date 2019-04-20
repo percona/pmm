@@ -29,6 +29,24 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
+func mongoDSN(service *models.Service, exporter *models.Agent) string {
+	host := pointer.GetString(service.Address)
+	port := pointer.GetUint16(service.Port)
+	username := pointer.GetString(exporter.Username)
+	password := pointer.GetString(exporter.Password)
+
+	u := &url.URL{
+		Scheme: "mongodb",
+		Host:   net.JoinHostPort(host, strconv.Itoa(int(port))),
+	}
+	if username != "" {
+		u.User = url.UserPassword(username, password)
+	}
+
+	return u.String()
+}
+
+// mongodbExporterConfig returns desired configuration of mongodb_exporter process.
 func mongodbExporterConfig(service *models.Service, exporter *models.Agent) *agentpb.SetStateRequest_AgentProcess {
 	tdp := templateDelimsPair(
 		pointer.GetString(service.Address),
@@ -50,41 +68,21 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent) *age
 
 	sort.Strings(args)
 
-	connString := mongoDSN(service, exporter)
-
 	return &agentpb.SetStateRequest_AgentProcess{
 		Type:               agentpb.Type_MONGODB_EXPORTER,
 		TemplateLeftDelim:  tdp.left,
 		TemplateRightDelim: tdp.right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("MONGODB_URI=%s", connString),
+			fmt.Sprintf("MONGODB_URI=%s", mongoDSN(service, exporter)),
 		},
 	}
 }
 
 // qanMongoDBProfilerAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
-func qanMongoDBProfilerAgentConfig(service *models.Service, exporter *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type: agentpb.Type_QAN_MONGODB_PROFILER_AGENT,
-		Dsn:  mongoDSN(service, exporter),
+		Dsn:  mongoDSN(service, agent),
 	}
-}
-
-func mongoDSN(service *models.Service, exporter *models.Agent) string {
-	host := pointer.GetString(service.Address)
-	port := pointer.GetUint16(service.Port)
-
-	connURL := url.URL{
-		Scheme: "mongodb",
-		Host:   net.JoinHostPort(host, strconv.Itoa(int(port))),
-	}
-
-	username := pointer.GetString(exporter.Username)
-	password := pointer.GetString(exporter.Password)
-	if username != "" {
-		connURL.User = url.UserPassword(username, password)
-	}
-
-	return connURL.String()
 }

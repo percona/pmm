@@ -157,6 +157,24 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedMongoDBExporter, actualAgent)
 
+		actualAgent, err = as.AddQANMySQLSlowlogAgent(ctx, &inventorypb.AddQANMySQLSlowlogAgentRequest{
+			PmmAgentId: pmmAgent.AgentId,
+			ServiceId:  s.ID(),
+			Username:   "username",
+		})
+		require.NoError(t, err)
+		expectedQANMySQLSlowlogAgent := &inventorypb.QANMySQLSlowlogAgent{
+			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000007",
+			PmmAgentId: pmmAgent.AgentId,
+			ServiceId:  s.ID(),
+			Username:   "username",
+		}
+		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgent)
+
+		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000007")
+		require.NoError(t, err)
+		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgent)
+
 		ps, err := ss.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
 			ServiceName: "test-postgres",
 			NodeID:      models.PMMServerNodeID,
@@ -172,14 +190,14 @@ func TestAgents(t *testing.T) {
 		})
 		require.NoError(t, err)
 		expectedPostgresExporter := &inventorypb.PostgresExporter{
-			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000008",
+			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000009",
 			PmmAgentId: pmmAgent.AgentId,
 			ServiceId:  ps.ID(),
 			Username:   "username",
 		}
 		assert.Equal(t, expectedPostgresExporter, actualAgent)
 
-		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000008")
+		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000009")
 		require.NoError(t, err)
 		assert.Equal(t, expectedPostgresExporter, actualAgent)
 
@@ -192,33 +210,38 @@ func TestAgents(t *testing.T) {
 
 		actualAgents, err = as.List(ctx, AgentFilters{})
 		require.NoError(t, err)
-		require.Len(t, actualAgents, 5)
+		require.Len(t, actualAgents, 6)
 		assert.Equal(t, pmmAgent, actualAgents[0])
 		assert.Equal(t, expectedNodeExporter, actualAgents[1])
 		assert.Equal(t, expectedMySQLdExporter, actualAgents[2])
 		assert.Equal(t, expectedMongoDBExporter, actualAgents[3])
-		assert.Equal(t, expectedPostgresExporter, actualAgents[4])
+		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgents[4])
+		assert.Equal(t, expectedPostgresExporter, actualAgents[5])
 
+		// filter by service ID
 		actualAgents, err = as.List(ctx, AgentFilters{ServiceID: s.ID()})
 		require.NoError(t, err)
-		require.Len(t, actualAgents, 1)
+		require.Len(t, actualAgents, 2)
 		assert.Equal(t, expectedMySQLdExporter, actualAgents[0])
+		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgents[1])
 
 		actualAgents, err = as.List(ctx, AgentFilters{PMMAgentID: pmmAgent.AgentId})
 		require.NoError(t, err)
-		require.Len(t, actualAgents, 4)
+		require.Len(t, actualAgents, 5)
 		assert.Equal(t, expectedNodeExporter, actualAgents[0])
 		assert.Equal(t, expectedMySQLdExporter, actualAgents[1])
 		assert.Equal(t, expectedMongoDBExporter, actualAgents[2])
-		assert.Equal(t, expectedPostgresExporter, actualAgents[3])
+		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgents[3])
+		assert.Equal(t, expectedPostgresExporter, actualAgents[4])
 
 		actualAgents, err = as.List(ctx, AgentFilters{PMMAgentID: pmmAgent.AgentId, NodeID: models.PMMServerNodeID})
 		require.NoError(t, err)
-		require.Len(t, actualAgents, 4)
+		require.Len(t, actualAgents, 5)
 		assert.Equal(t, expectedNodeExporter, actualAgents[0])
 		assert.Equal(t, expectedMySQLdExporter, actualAgents[1])
 		assert.Equal(t, expectedMongoDBExporter, actualAgents[2])
-		assert.Equal(t, expectedPostgresExporter, actualAgents[3])
+		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgents[3])
+		assert.Equal(t, expectedPostgresExporter, actualAgents[4])
 
 		actualAgents, err = as.List(ctx, AgentFilters{NodeID: models.PMMServerNodeID})
 		require.NoError(t, err)
@@ -243,10 +266,16 @@ func TestAgents(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000006" not found.`), err)
 		assert.Nil(t, actualAgent)
 
-		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000008")
+		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000007")
 		require.NoError(t, err)
-		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000008")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000008" not found.`), err)
+		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000007")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000007" not found.`), err)
+		assert.Nil(t, actualAgent)
+
+		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000009")
+		require.NoError(t, err)
+		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000009")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000009" not found.`), err)
 		assert.Nil(t, actualAgent)
 
 		as.r.(*mockRegistry).On("Kick", ctx, "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)

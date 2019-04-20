@@ -36,6 +36,7 @@ const (
 	MySQLdExporterType          AgentType = "mysqld_exporter"
 	MongoDBExporterType         AgentType = "mongodb_exporter"
 	QANMySQLPerfSchemaAgentType AgentType = "qan-mysql-perfschema-agent"
+	QANMySQLSlowlogAgentType    AgentType = "qan-mysql-slowlog-agent"
 	PostgresExporterType        AgentType = "postgres_exporter"
 	QANMongoDBProfilerAgentType AgentType = "qan-mongodb-profiler-agent"
 )

@@ -99,9 +99,17 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 }
 
 // qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema built-in agent.
-func qanMySQLPerfSchemaAgentConfig(service *models.Service, exporter *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type: agentpb.Type_QAN_MYSQL_PERFSCHEMA_AGENT,
-		Dsn:  mysqlDSN(service, exporter),
+		Dsn:  mysqlDSN(service, agent),
+	}
+}
+
+// qanMySQLSlowlogAgentConfig returns desired configuration of qan-mysql-slowlog built-in agent.
+func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+	return &agentpb.SetStateRequest_BuiltinAgent{
+		Type: agentpb.Type_QAN_MYSQL_SLOWLOG_AGENT,
+		Dsn:  mysqlDSN(service, agent),
 	}
 }

@@ -115,6 +115,27 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			res.QanMysqlPerfschema = qAgent.(*inventorypb.QANMySQLPerfSchemaAgent)
 		}
 
+		if req.QanMysqlSlowlog {
+			params := &models.AddExporterAgentParams{
+				PMMAgentID: req.PmmAgentId,
+				ServiceID:  invService.ID(),
+				Username:   req.QanUsername,
+				Password:   req.QanPassword,
+			}
+
+			row, err := models.AgentAddExporter(tx.Querier, models.QANMySQLSlowlogAgentType, params)
+			if err != nil {
+				return err
+			}
+
+			qAgent, err := inventory.ToInventoryAgent(tx.Querier, row, s.asrs)
+			if err != nil {
+				return err
+			}
+
+			res.QanMysqlSlowlog = qAgent.(*inventorypb.QANMySQLSlowlogAgent)
+		}
+
 		return nil
 	}); e != nil {
 		return nil, e

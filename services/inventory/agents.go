@@ -73,9 +73,14 @@ func (as *AgentsService) List(ctx context.Context, filters AgentFilters) ([]inve
 			return err
 		}
 
-		res, err = ToInventoryAgents(agents, tx.Querier, as.r)
-		if err != nil {
-			return err
+		// TODO That loop makes len(agents) SELECTs, that can be slow. Optimize when needed.
+		res = make([]inventorypb.Agent, len(agents))
+		for i, row := range agents {
+			agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+			if err != nil {
+				return err
+			}
+			res[i] = agent
 		}
 		return nil
 	})
@@ -401,6 +406,75 @@ func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req 
 	return res, nil
 }
 
+// AddQANMySQLSlowlogAgent adds MySQL Slowlog QAN Agent.
+//nolint:lll,unused
+func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inventorypb.AddQANMySQLSlowlogAgentRequest) (*inventorypb.QANMySQLSlowlogAgent, error) {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+
+	var res *inventorypb.QANMySQLSlowlogAgent
+	e := as.db.InTransaction(func(tx *reform.TX) error {
+		params := &models.AddExporterAgentParams{
+			PMMAgentID:   req.PmmAgentId,
+			ServiceID:    req.ServiceId,
+			Username:     req.Username,
+			Password:     req.Password,
+			CustomLabels: req.CustomLabels,
+		}
+		row, err := models.AgentAddExporter(tx.Querier, models.QANMySQLSlowlogAgentType, params)
+		if err != nil {
+			return err
+		}
+
+		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		if err != nil {
+			return err
+		}
+		res = agent.(*inventorypb.QANMySQLSlowlogAgent)
+		return nil
+	})
+	if e != nil {
+		return res, e
+	}
+
+	as.r.SendSetStateRequest(ctx, req.PmmAgentId)
+	return res, e
+}
+
+// ChangeQANMySQLSlowlogAgent updates MySQL Slowlog QAN Agent with given parameters.
+func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, req *inventorypb.ChangeQANMySQLSlowlogAgentRequest) (*inventorypb.QANMySQLSlowlogAgent, error) {
+	var res *inventorypb.QANMySQLSlowlogAgent
+	e := as.db.InTransaction(func(tx *reform.TX) error {
+		params := &models.ChangeCommonExporterParams{
+			AgentID:            req.AgentId,
+			CustomLabels:       req.CustomLabels,
+			RemoveCustomLabels: req.RemoveCustomLabels,
+		}
+		if req.GetEnabled() {
+			params.Disabled = false
+		}
+		if req.GetDisabled() {
+			params.Disabled = true
+		}
+		row, err := models.AgentChangeExporter(tx.Querier, params)
+		if err != nil {
+			return err
+		}
+
+		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		if err != nil {
+			return err
+		}
+		res = agent.(*inventorypb.QANMySQLSlowlogAgent)
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
+	return res, nil
+}
+
 // AddPostgresExporter inserts postgres_exporter Agent with given parameters.
 func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventorypb.AddPostgresExporterRequest) (*inventorypb.PostgresExporter, error) {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
@@ -658,6 +732,26 @@ func ToInventoryAgent(q *reform.Querier, row *models.Agent, connChecker AgentCon
 			CustomLabels: labels,
 		}, nil
 
+	case models.QANMySQLSlowlogAgentType:
+		services, err := models.ServicesForAgent(q, row.AgentID)
+		if err != nil {
+			return nil, err
+		}
+		if len(services) != 1 {
+			return nil, errors.Errorf("expected exactly one Service, got %d", len(services))
+		}
+
+		return &inventorypb.QANMySQLSlowlogAgent{
+			AgentId:      row.AgentID,
+			PmmAgentId:   pointer.GetString(row.PMMAgentID),
+			ServiceId:    services[0].ServiceID,
+			Username:     pointer.GetString(row.Username),
+			Password:     pointer.GetString(row.Password),
+			Disabled:     row.Disabled,
+			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
+			CustomLabels: labels,
+		}, nil
+
 	case models.QANMongoDBProfilerAgentType:
 		services, err := models.ServicesForAgent(q, row.AgentID)
 		if err != nil {
@@ -702,18 +796,4 @@ func ToInventoryAgent(q *reform.Querier, row *models.Agent, connChecker AgentCon
 	default:
 		panic(fmt.Errorf("unhandled Agent type %s", row.AgentType))
 	}
-}
-
-// ToInventoryAgents converts database rows to Inventory API Agents.
-func ToInventoryAgents(agents []*models.Agent, q *reform.Querier, connChecker AgentConnectionChecker) ([]inventorypb.Agent, error) {
-	// TODO That loop makes len(agents) SELECTs, that can be slow. Optimize when needed.
-	res := make([]inventorypb.Agent, len(agents))
-	for i, row := range agents {
-		agent, err := ToInventoryAgent(q, row, connChecker)
-		if err != nil {
-			return res, err
-		}
-		res[i] = agent
-	}
-	return res, nil
 }
