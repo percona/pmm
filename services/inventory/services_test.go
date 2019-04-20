@@ -59,7 +59,7 @@ func TestServices(t *testing.T) {
 		ss, teardown := setup(t)
 		defer teardown(t)
 
-		actualServices, err := ss.List(ctx)
+		actualServices, err := ss.List(ctx, ServiceFilters{})
 		require.NoError(t, err)
 		require.Len(t, actualServices, 0)
 
@@ -83,7 +83,7 @@ func TestServices(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedService, actualService)
 
-		actualServices, err = ss.List(ctx)
+		actualServices, err = ss.List(ctx, ServiceFilters{})
 		require.NoError(t, err)
 		require.Len(t, actualServices, 1)
 		assert.Equal(t, expectedService, actualServices[0])
@@ -114,7 +114,7 @@ func TestServices(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedMdbService, actualService)
 
-		actualServices, err = ss.List(ctx)
+		actualServices, err = ss.List(ctx, ServiceFilters{})
 		require.NoError(t, err)
 		require.Len(t, actualServices, 1)
 		assert.Equal(t, expectedMdbService, actualServices[0])
@@ -145,7 +145,7 @@ func TestServices(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, expectedPostgreSQLService, actualService)
 
-		actualServices, err = ss.List(ctx)
+		actualServices, err = ss.List(ctx, ServiceFilters{NodeID: models.PMMServerNodeID})
 		require.NoError(t, err)
 		require.Len(t, actualServices, 1)
 		assert.Equal(t, expectedPostgreSQLService, actualServices[0])

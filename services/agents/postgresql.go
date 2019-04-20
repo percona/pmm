@@ -34,7 +34,9 @@ func postgresqlDSN(service *models.Service, exporter *models.Agent) string {
 	q.Set("sslmode", "disable") // TODO: make it configurable
 	q.Set("connect_timeout", "5")
 
-	address := net.JoinHostPort(*service.Address, strconv.Itoa(int(*service.Port)))
+	host := pointer.GetString(service.Address)
+	port := pointer.GetUint16(service.Port)
+	address := net.JoinHostPort(host, strconv.Itoa(int(port)))
 	uri := url.URL{
 		Scheme:   "postgres",
 		User:     url.UserPassword(*exporter.Username, *exporter.Password),

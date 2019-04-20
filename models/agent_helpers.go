@@ -181,6 +181,10 @@ func AgentAddExporter(q *reform.Querier, agentType AgentType, params *AddExporte
 		return nil, err
 	}
 
+	if _, err := AgentFindByID(q, params.PMMAgentID); err != nil {
+		return nil, err
+	}
+
 	if _, err := FindServiceByID(q, params.ServiceID); err != nil {
 		return nil, err
 	}

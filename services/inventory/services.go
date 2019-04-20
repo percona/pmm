@@ -41,13 +41,24 @@ func NewServicesService(db *reform.DB, r registry) *ServicesService {
 	}
 }
 
+// ServiceFilters represents filters for services list.
+type ServiceFilters struct {
+	// Return only Services runs on that Node.
+	NodeID string
+}
+
 // List selects all Services in a stable order.
 //nolint:unparam
-func (ss *ServicesService) List(ctx context.Context) ([]inventorypb.Service, error) {
+func (ss *ServicesService) List(ctx context.Context, filters ServiceFilters) ([]inventorypb.Service, error) {
 	services := make([]*models.Service, 0)
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
-		services, err = models.FindAllServices(tx.Querier)
+		switch {
+		case filters.NodeID != "":
+			services, err = models.ServicesForNode(tx.Querier, filters.NodeID)
+		default:
+			services, err = models.FindAllServices(tx.Querier)
+		}
 		if err != nil {
 			return err
 		}

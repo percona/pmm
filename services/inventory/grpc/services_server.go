@@ -37,9 +37,12 @@ func NewServicesServer(s *inventory.ServicesService) inventorypb.ServicesServer 
 	return &servicesServer{s}
 }
 
-// ListServices returns a list of all Services.
+// ListServices returns a list of Services for a given filters.
 func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.ListServicesRequest) (*inventorypb.ListServicesResponse, error) {
-	services, err := s.s.List(ctx)
+	filters := inventory.ServiceFilters{
+		NodeID: req.GetNodeId(),
+	}
+	services, err := s.s.List(ctx, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -53,6 +56,8 @@ func (s *servicesServer) ListServices(ctx context.Context, req *inventorypb.List
 			res.AmazonRdsMysql = append(res.AmazonRdsMysql, service)
 		case *inventorypb.MongoDBService:
 			res.Mongodb = append(res.Mongodb, service)
+		case *inventorypb.PostgreSQLService:
+			res.Postgresql = append(res.Postgresql, service)
 		default:
 			panic(fmt.Errorf("unhandled inventory Service type %T", service))
 		}
@@ -75,6 +80,8 @@ func (s *servicesServer) GetService(ctx context.Context, req *inventorypb.GetSer
 		res.Service = &inventorypb.GetServiceResponse_AmazonRdsMysql{AmazonRdsMysql: service}
 	case *inventorypb.MongoDBService:
 		res.Service = &inventorypb.GetServiceResponse_Mongodb{Mongodb: service}
+	case *inventorypb.PostgreSQLService:
+		res.Service = &inventorypb.GetServiceResponse_Postgresql{Postgresql: service}
 	default:
 		panic(fmt.Errorf("unhandled inventory Service type %T", service))
 	}

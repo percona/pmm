@@ -88,6 +88,21 @@ func ServicesForAgent(q *reform.Querier, agentID string) ([]*Service, error) {
 	return res, nil
 }
 
+// ServicesForNode returns all Services for Node with given ID.
+func ServicesForNode(q *reform.Querier, nodeID string) ([]*Service, error) {
+	tail := fmt.Sprintf("WHERE node_id = %s ORDER BY service_id", q.Placeholder(1)) //nolint:gosec
+	structs, err := q.SelectAllFrom(ServiceTable, tail, nodeID)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select Services")
+	}
+
+	res := make([]*Service, len(structs))
+	for i, s := range structs {
+		res[i] = s.(*Service)
+	}
+	return res, nil
+}
+
 func checkServiceUniqueID(q *reform.Querier, id string) error {
 	if id == "" {
 		panic("empty Service ID")
