@@ -98,7 +98,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 	}
 }
 
-// qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema internal agent.
+// qanMySQLPerfSchemaAgentConfig returns desired configuration of qan-mysql-perfschema built-in agent.
 func qanMySQLPerfSchemaAgentConfig(service *models.Service, exporter *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type: agentpb.Type_QAN_MYSQL_PERFSCHEMA_AGENT,
