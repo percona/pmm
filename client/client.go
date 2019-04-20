@@ -56,12 +56,6 @@ type supervisor interface {
 	SetState(*agentpb.SetStateRequest)
 }
 
-// localServer is a subset of methods of agentlocal.Server used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type localServer interface {
-	SetAgentServerMetadata(agentpb.AgentServerMetadata)
-}
-
 // Client represents pmm-agent's connection to nginx/pmm-managed.
 type Client struct {
 	cfg        *config.Config
@@ -72,6 +66,7 @@ type Client struct {
 	done    chan struct{}
 
 	rw      sync.RWMutex
+	md      *agentpb.AgentServerMetadata
 	channel *channel.Channel
 }
 
@@ -95,7 +90,7 @@ func New(cfg *config.Config, supervisor supervisor) *Client {
 // That Client instance can't be reused after that.
 //
 // Returned error is already logged and should be ignored. It is returned only for unit tests.
-func (c *Client) Run(ctx context.Context, localServer localServer) error {
+func (c *Client) Run(ctx context.Context) error {
 	c.l.Info("Starting...")
 
 	// do nothing until ctx is canceled if config misses critical info
@@ -103,7 +98,7 @@ func (c *Client) Run(ctx context.Context, localServer localServer) error {
 	if c.cfg.ID == "" {
 		missing = "Agent ID"
 	}
-	if c.cfg.Address == "" {
+	if c.cfg.Server.Address == "" {
 		missing = "PMM Server address"
 	}
 	if missing != "" {
@@ -144,10 +139,9 @@ func (c *Client) Run(ctx context.Context, localServer localServer) error {
 	}()
 
 	c.rw.Lock()
+	c.md = &dialResult.md
 	c.channel = dialResult.channel
 	c.rw.Unlock()
-
-	localServer.SetAgentServerMetadata(dialResult.md)
 
 	// Once the client is connected, ctx cancellation is ignored.
 	// We start two goroutines, and terminate the gRPC connection and exit Run when any of them exits:
@@ -260,16 +254,16 @@ func (c *Client) processChannelRequests() {
 type dialResult struct {
 	conn         *grpc.ClientConn
 	streamCancel context.CancelFunc
-	md           agentpb.AgentServerMetadata
 	channel      *channel.Channel
+	md           agentpb.AgentServerMetadata
 }
 
 // dial tries to connect to the server once.
 func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) *dialResult {
-	host, _, _ := net.SplitHostPort(cfg.Address)
+	host, _, _ := net.SplitHostPort(cfg.Server.Address)
 	tlsConfig := &tls.Config{
 		ServerName:         host,
-		InsecureSkipVerify: cfg.InsecureTLS, //nolint:gosec
+		InsecureSkipVerify: cfg.Server.InsecureTLS, //nolint:gosec
 	}
 	opts := []grpc.DialOption{
 		grpc.WithBlock(),
@@ -277,8 +271,15 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) *dialRes
 		grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
 	}
 
-	l.Infof("Connecting to %s ...", cfg.Address)
-	conn, err := grpc.DialContext(dialCtx, cfg.Address, opts...)
+	// FIXME https://jira.percona.com/browse/PMM-3867
+	// https://github.com/grpc/grpc-go/issues/106#issuecomment-246978683
+	// https://jbrandhorst.com/post/grpc-auth/
+	if cfg.Server.Username != "" {
+		logrus.Panic("PMM Server authentication is not implemented yet.")
+	}
+
+	l.Infof("Connecting to %s ...", cfg.Server.Address)
+	conn, err := grpc.DialContext(dialCtx, cfg.Server.Address, opts...)
 	if err != nil {
 		msg := err.Error()
 
@@ -287,10 +288,10 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) *dialRes
 			msg = "connection timeout"
 		}
 
-		l.Errorf("Failed to connect to %s: %s.", cfg.Address, msg)
+		l.Errorf("Failed to connect to %s: %s.", cfg.Server.Address, msg)
 		return nil
 	}
-	l.Infof("Connected to %s.", cfg.Address)
+	l.Infof("Connected to %s.", cfg.Server.Address)
 
 	streamCtx, streamCancel := context.WithCancel(context.Background())
 	teardown := func() {
@@ -356,7 +357,15 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) *dialRes
 		l.Warnf("Estimated clock drift: %s.", clockDrift)
 	}
 
-	return &dialResult{conn, streamCancel, md, channel}
+	return &dialResult{conn, streamCancel, channel, md}
+}
+
+// GetAgentServerMetadata returns current server's metadata, or nil.
+func (c *Client) GetAgentServerMetadata() *agentpb.AgentServerMetadata {
+	c.rw.RLock()
+	md := c.md
+	c.rw.RUnlock()
+	return md
 }
 
 // Describe implements "unchecked" prometheus.Collector.

@@ -28,13 +28,10 @@ import (
 )
 
 func writeConfig(t *testing.T, cfg *Config) string {
-	b, err := yaml.Marshal(cfg)
-	require.NoError(t, err)
 	f, err := ioutil.TempFile("", "pmm-agent-test-")
 	require.NoError(t, err)
-	_, err = f.Write(b)
-	require.NoError(t, err)
 	require.NoError(t, f.Close())
+	require.NoError(t, SaveToFile(f.Name(), cfg))
 	return f.Name()
 }
 
@@ -42,20 +39,66 @@ func removeConfig(t *testing.T, name string) {
 	require.NoError(t, os.Remove(name))
 }
 
-func TestConfig(t *testing.T) {
+func TestLoadFromFile(t *testing.T) {
+	t.Run("Normal", func(t *testing.T) {
+		name := writeConfig(t, &Config{ID: "agent-id"})
+		defer removeConfig(t, name)
+
+		cfg, err := loadFromFile(name)
+		require.NoError(t, err)
+		assert.Equal(t, &Config{ID: "agent-id"}, cfg)
+	})
+
+	t.Run("NotExist", func(t *testing.T) {
+		cfg, err := loadFromFile("not-exist.yaml")
+		assert.Equal(t, ErrConfigFileDoesNotExist("not-exist.yaml"), err)
+		assert.Nil(t, cfg)
+	})
+
+	t.Run("PermissionDenied", func(t *testing.T) {
+		name := writeConfig(t, &Config{ID: "agent-id"})
+		require.NoError(t, os.Chmod(name, 0000))
+		defer removeConfig(t, name)
+
+		cfg, err := loadFromFile(name)
+		require.IsType(t, (*os.PathError)(nil), err)
+		assert.Equal(t, "open", err.(*os.PathError).Op)
+		assert.EqualError(t, err.(*os.PathError).Err, `permission denied`)
+		assert.Nil(t, cfg)
+	})
+
+	t.Run("NotYAML", func(t *testing.T) {
+		name := writeConfig(t, nil)
+		require.NoError(t, ioutil.WriteFile(name, []byte(`not YAML`), 0666))
+		defer removeConfig(t, name)
+
+		cfg, err := loadFromFile(name)
+		require.IsType(t, (*yaml.TypeError)(nil), err)
+		assert.EqualError(t, err, "yaml: unmarshal errors:\n  line 1: cannot unmarshal !!str `not YAML` into config.Config")
+		assert.Nil(t, cfg)
+	})
+}
+
+func TestGet(t *testing.T) {
 	t.Run("OnlyFlags", func(t *testing.T) {
-		actual, err := get([]string{
+		actual, configFilePath, err := get([]string{
 			"--id=agent-id",
-			"--address=127.0.0.1:11111",
+			"--server-address=127.0.0.1:11111",
 		}, logrus.WithField("test", t.Name))
 		require.NoError(t, err)
 
 		expected := &Config{
 			ID:         "agent-id",
-			Address:    "127.0.0.1:11111",
 			ListenPort: 7777,
+			Server: Server{
+				Address: "127.0.0.1:11111",
+			},
 			Paths: Paths{
-				TempDir: os.TempDir(),
+				NodeExporter:     "node_exporter",
+				MySQLdExporter:   "mysqld_exporter",
+				MongoDBExporter:  "mongodb_exporter",
+				PostgresExporter: "postgres_exporter",
+				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
 				Min: 32768,
@@ -63,26 +106,35 @@ func TestConfig(t *testing.T) {
 			},
 		}
 		assert.Equal(t, expected, actual)
+		assert.Empty(t, configFilePath)
 	})
 
 	t.Run("OnlyConfig", func(t *testing.T) {
 		name := writeConfig(t, &Config{
-			ID:      "agent-id",
-			Address: "127.0.0.1:11111",
+			ID: "agent-id",
+			Server: Server{
+				Address: "127.0.0.1:11111",
+			},
 		})
 		defer removeConfig(t, name)
 
-		actual, err := get([]string{
+		actual, configFilePath, err := get([]string{
 			"--config-file=" + name,
 		}, logrus.WithField("test", t.Name))
 		require.NoError(t, err)
 
 		expected := &Config{
 			ID:         "agent-id",
-			Address:    "127.0.0.1:11111",
 			ListenPort: 7777,
+			Server: Server{
+				Address: "127.0.0.1:11111",
+			},
 			Paths: Paths{
-				TempDir: os.TempDir(),
+				NodeExporter:     "node_exporter",
+				MySQLdExporter:   "mysqld_exporter",
+				MongoDBExporter:  "mongodb_exporter",
+				PostgresExporter: "postgres_exporter",
+				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
 				Min: 32768,
@@ -90,16 +142,19 @@ func TestConfig(t *testing.T) {
 			},
 		}
 		assert.Equal(t, expected, actual)
+		assert.Equal(t, name, configFilePath)
 	})
 
 	t.Run("Mix", func(t *testing.T) {
 		name := writeConfig(t, &Config{
-			ID:      "config-id",
-			Address: "127.0.0.1:11111",
+			ID: "config-id",
+			Server: Server{
+				Address: "127.0.0.1:11111",
+			},
 		})
 		defer removeConfig(t, name)
 
-		actual, err := get([]string{
+		actual, configFilePath, err := get([]string{
 			"--config-file=" + name,
 			"--id=flag-id",
 			"--debug",
@@ -108,17 +163,52 @@ func TestConfig(t *testing.T) {
 
 		expected := &Config{
 			ID:         "flag-id",
-			Address:    "127.0.0.1:11111",
 			ListenPort: 7777,
-			Debug:      true,
+			Server: Server{
+				Address: "127.0.0.1:11111",
+			},
 			Paths: Paths{
-				TempDir: os.TempDir(),
+				NodeExporter:     "node_exporter",
+				MySQLdExporter:   "mysqld_exporter",
+				MongoDBExporter:  "mongodb_exporter",
+				PostgresExporter: "postgres_exporter",
+				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
 				Min: 32768,
 				Max: 60999,
 			},
+			Debug: true,
 		}
 		assert.Equal(t, expected, actual)
+		assert.Equal(t, name, configFilePath)
+	})
+
+	t.Run("NoFile", func(t *testing.T) {
+		name := t.Name()
+		actual, configFilePath, err := get([]string{
+			"--config-file=" + name,
+			"--id=flag-id",
+			"--debug",
+		}, logrus.WithField("test", t.Name))
+		expected := &Config{
+			ID:         "flag-id",
+			ListenPort: 7777,
+			Paths: Paths{
+				NodeExporter:     "node_exporter",
+				MySQLdExporter:   "mysqld_exporter",
+				MongoDBExporter:  "mongodb_exporter",
+				PostgresExporter: "postgres_exporter",
+				TempDir:          os.TempDir(),
+			},
+			Ports: Ports{
+				Min: 32768,
+				Max: 60999,
+			},
+			Debug: true,
+		}
+		assert.Equal(t, expected, actual)
+		assert.Equal(t, name, configFilePath)
+		assert.Equal(t, ErrConfigFileDoesNotExist(name), err)
 	})
 }

@@ -20,14 +20,46 @@ package config
 import (
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"os/exec"
+	"strings"
 
+	"github.com/percona/pmm/nodeinfo"
 	"github.com/percona/pmm/version"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"gopkg.in/yaml.v2"
 )
+
+// Server represents PMM Server configuration.
+type Server struct {
+	Address     string `yaml:"address"`
+	Username    string `yaml:"username"`
+	Password    string `yaml:"password"`
+	InsecureTLS bool   `yaml:"insecure-tls"`
+}
+
+// URL returns base PMM Server URL for JSON APIs.
+func (s *Server) URL() *url.URL {
+	if s.Address == "" {
+		return nil
+	}
+
+	var user *url.Userinfo
+	switch {
+	case s.Password != "":
+		user = url.UserPassword(s.Username, s.Password)
+	case s.Username != "":
+		user = url.User(s.Username)
+	}
+	return &url.URL{
+		Scheme: "https",
+		User:   user,
+		Host:   s.Address,
+		Path:   "/",
+	}
+}
 
 // Paths represents binaries paths configuration.
 type Paths struct {
@@ -38,8 +70,8 @@ type Paths struct {
 	TempDir          string `yaml:"tempdir"`
 }
 
-// Lookup replaces paths with absolute paths.
-func (p *Paths) Lookup() {
+// lookup replaces paths with absolute paths.
+func (p *Paths) lookup() {
 	p.NodeExporter, _ = exec.LookPath(p.NodeExporter)
 	p.MySQLdExporter, _ = exec.LookPath(p.MySQLdExporter)
 	p.MongoDBExporter, _ = exec.LookPath(p.MongoDBExporter)
@@ -52,116 +84,192 @@ type Ports struct {
 	Max uint16 `yaml:"max"`
 }
 
-// Config represents pmm-agent's static configuration.
+// Setup contains `pmm-agent setup` flag values.
+// It is never stored in configuration file.
+type Setup struct {
+	Address       string
+	NodeType      string
+	NodeName      string
+	Distro        string
+	MachineID     string
+	ContainerID   string
+	ContainerName string
+}
+
+// Config represents pmm-agent's configuration.
 //nolint:maligned
 type Config struct {
-	ID          string `yaml:"id"`
-	Address     string `yaml:"address"`
-	Username    string `yaml:"username"`
-	Password    string `yaml:"password"`
-	InsecureTLS bool   `yaml:"insecure-tls"`
+	// no config file there
 
+	ID         string `yaml:"id"`
 	ListenPort uint16 `yaml:"listen-port"`
+
+	Server Server `yaml:"server"`
+	Paths  Paths  `yaml:"paths"`
+	Ports  Ports  `yaml:"ports"`
 
 	Debug bool `yaml:"debug"`
 	Trace bool `yaml:"trace"`
 
-	Paths Paths `yaml:"paths"`
-	Ports Ports `yaml:"ports"`
+	Setup Setup `yaml:"-"`
 }
 
-// application returns kingpin application that parses all flags and environment variables into cfg
-// except --config-file that is returned separately.
-func application(cfg *Config) (*kingpin.Application, *string) {
+// ErrConfigFileDoesNotExist error is returned from Get method if configuration file is expected,
+// but does not exist.
+type ErrConfigFileDoesNotExist string
+
+func (e ErrConfigFileDoesNotExist) Error() string {
+	return fmt.Sprintf("configuration file %s does not exist", string(e))
+}
+
+// Get parses command-line flags, environment variables and configuration file
+// (if --config-file/PMM_AGENT_CONFIG_FILE is defined).
+// It returns configuration, configuration file path (value of -config-file/PMM_AGENT_CONFIG_FILE, may be empty),
+// and any encountered error. That error may be ErrConfigFileDoesNotExist if configuration file path is not empty,
+// but file itself does not exist. Configuration from command-line flags and environment variables
+// is still returned in this case.
+func Get(l *logrus.Entry) (*Config, string, error) {
+	cfg, configFileF, err := get(os.Args[1:], l)
+	if cfg != nil {
+		cfg.Paths.lookup()
+	}
+	return cfg, configFileF, err
+}
+
+// get is Get for unit tests: parses args instead of command-line, and does not lookups paths.
+func get(args []string, l *logrus.Entry) (*Config, string, error) {
+	// parse command-line flags and environment variables
+	cfg := new(Config)
+	app, configFileF := Application(cfg)
+	if _, err := app.Parse(args); err != nil {
+		return nil, "", err
+	}
+	if *configFileF == "" {
+		return cfg, *configFileF, nil
+	}
+
+	l.Debugf("Loading configuration file %s.", *configFileF)
+	fileCfg, err := loadFromFile(*configFileF)
+	if _, ok := err.(ErrConfigFileDoesNotExist); ok {
+		return cfg, *configFileF, err
+	}
+	if err != nil {
+		return nil, "", err
+	}
+
+	// re-parse flags into configuration from file
+	app, _ = Application(fileCfg)
+	if _, err = app.Parse(args); err != nil {
+		return nil, "", err
+	}
+	return fileCfg, *configFileF, nil
+}
+
+// Application returns kingpin application that will parse command-line flags and environment variables
+// into cfg except --config-file/PMM_AGENT_CONFIG_FILE that is returned separately.
+func Application(cfg *Config) (*kingpin.Application, *string) {
 	app := kingpin.New("pmm-agent", fmt.Sprintf("Version %s.", version.Version))
 	app.HelpFlag.Short('h')
 	app.Version(version.FullInfo())
 
-	// TODO move this away
-	app.Command("setup", "Not implemented yet.").Action(func(context *kingpin.ParseContext) error {
-		return fmt.Errorf("not implemented yet")
-	})
-	app.Command("run", "Run agent.").Default()
+	app.Command("run", "Run pmm-agent. Default command.").Default()
 
+	// this flags has to be optional and has empty default value for `pmm-agent setup`
 	configFileF := app.Flag("config-file", "Configuration file path. [PMM_AGENT_CONFIG_FILE]").
 		Envar("PMM_AGENT_CONFIG_FILE").PlaceHolder("</path/to/pmm-agent.yaml>").String()
 
 	app.Flag("id", "ID of this pmm-agent. [PMM_AGENT_ID]").
 		Envar("PMM_AGENT_ID").PlaceHolder("</agent_id/...>").StringVar(&cfg.ID)
-	app.Flag("address", "PMM Server address. [PMM_AGENT_ADDRESS]").
-		Envar("PMM_AGENT_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Address)
-	app.Flag("username", "HTTP BasicAuth username to connect to PMM Server. [PMM_AGENT_USERNAME]").
-		Envar("PMM_AGENT_USERNAME").StringVar(&cfg.Username)
-	app.Flag("password", "HTTP BasicAuth password to connect to PMM Server. [PMM_AGENT_PASSWORD]").
-		Envar("PMM_AGENT_PASSWORD").StringVar(&cfg.Password)
-	app.Flag("insecure-tls", "Skip PMM Server TLS certificate validation. [PMM_AGENT_INSECURE_TLS]").
-		Envar("PMM_AGENT_INSECURE_TLS").BoolVar(&cfg.InsecureTLS)
-
 	app.Flag("listen-port", "Agent local API port. [PMM_AGENT_LISTEN_PORT]").
 		Envar("PMM_AGENT_LISTEN_PORT").Default("7777").Uint16Var(&cfg.ListenPort)
+
+	app.Flag("server-address", "PMM Server address. [PMM_AGENT_SERVER_ADDRESS]").
+		Envar("PMM_AGENT_SERVER_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Server.Address)
+	app.Flag("server-username", "HTTP BasicAuth username to connect to PMM Server. [PMM_AGENT_SERVER_USERNAME]").
+		Envar("PMM_AGENT_SERVER_USERNAME").StringVar(&cfg.Server.Username)
+	app.Flag("server-password", "HTTP BasicAuth password to connect to PMM Server. [PMM_AGENT_SERVER_PASSWORD]").
+		Envar("PMM_AGENT_SERVER_PASSWORD").StringVar(&cfg.Server.Password)
+	app.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation. [PMM_AGENT_SERVER_INSECURE_TLS]").
+		Envar("PMM_AGENT_SERVER_INSECURE_TLS").BoolVar(&cfg.Server.InsecureTLS)
+
+	app.Flag("paths-node_exporter", "Path to node_exporter to use. [PMM_AGENT_PATHS_NODE_EXPORTER]").
+		Envar("PMM_AGENT_PATHS_NODE_EXPORTER").Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)
+	app.Flag("paths-mysqld_exporter", "Path to mysqld_exporter to use. [PMM_AGENT_PATHS_MYSQLD_EXPORTER]").
+		Envar("PMM_AGENT_PATHS_MYSQLD_EXPORTER").Default("mysqld_exporter").StringVar(&cfg.Paths.MySQLdExporter)
+	app.Flag("paths-mongodb_exporter", "Path to mongodb_exporter to use. [PMM_AGENT_PATHS_MONGODB_EXPORTER]").
+		Envar("PMM_AGENT_PATHS_MONGODB_EXPORTER").Default("mongodb_exporter").StringVar(&cfg.Paths.MongoDBExporter)
+	app.Flag("paths-postgres_exporter", "Path to postgres_exporter to use. [PMM_AGENT_PATHS_POSTGRES_EXPORTER]").
+		Envar("PMM_AGENT_PATHS_POSTGRES_EXPORTER").Default("postgres_exporter").StringVar(&cfg.Paths.PostgresExporter)
+	app.Flag("paths-tempdir", "Temporary directory for exporters. [PMM_AGENT_PATHS_TEMPDIR]").
+		Envar("PMM_AGENT_PATHS_TEMPDIR").Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
+
+	// TODO read defaults from /proc/sys/net/ipv4/ip_local_port_range ?
+	app.Flag("ports-min", "Minimal allowed port number for listening sockets. [PMM_AGENT_PORTS_MIN]").
+		Envar("PMM_AGENT_PORTS_MIN").Default("32768").Uint16Var(&cfg.Ports.Min)
+	app.Flag("ports-max", "Maximal allowed port number for listening sockets. [PMM_AGENT_PORTS_MAX]").
+		Envar("PMM_AGENT_PORTS_MAX").Default("60999").Uint16Var(&cfg.Ports.Max)
 
 	app.Flag("debug", "Enable debug output. [PMM_AGENT_DEBUG]").
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
 	app.Flag("trace", "Enable trace output (implies debug). [PMM_AGENT_TRACE]").
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
 
-	app.Flag("paths.node_exporter", "Path to node_exporter to use. [PMM_AGENT_PATHS_NODE_EXPORTER]").
-		Envar("PMM_AGENT_PATHS_NODE_EXPORTER").Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)
-	app.Flag("paths.mysqld_exporter", "Path to mysqld_exporter to use. [PMM_AGENT_PATHS_MYSQLD_EXPORTER]").
-		Envar("PMM_AGENT_PATHS_MYSQLD_EXPORTER").Default("mysqld_exporter").StringVar(&cfg.Paths.MySQLdExporter)
-	app.Flag("paths.mongodb_exporter", "Path to mongodb_exporter to use. [PMM_AGENT_PATHS_MONGODB_EXPORTER]").
-		Envar("PMM_AGENT_PATHS_MONGODB_EXPORTER").Default("mongodb_exporter").StringVar(&cfg.Paths.MongoDBExporter)
-	app.Flag("paths.postgres_exporter", "Path to postgres_exporter to use. [PMM_AGENT_PATHS_POSTGRES_EXPORTER]").
-		Envar("PMM_AGENT_PATHS_POSTGRES_EXPORTER").Default("postgres_exporter").StringVar(&cfg.Paths.PostgresExporter)
-	app.Flag("paths.tempdir", "Temporary directory for exporters. [PMM_AGENT_PATHS_TEMPDIR]").
-		Envar("PMM_AGENT_PATHS_TEMPDIR").Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
+	setupCmd := app.Command("setup", "Configure local pmm-agent.")
+	nodeinfo := nodeinfo.Get()
+	hostname, _ := os.Hostname()
 
-	// TODO read defaults from /proc/sys/net/ipv4/ip_local_port_range ?
-	app.Flag("ports.min", "Minimal allowed port number for listening sockets. [PMM_AGENT_PORTS_MIN]").
-		Envar("PMM_AGENT_PORTS_MIN").Default("32768").Uint16Var(&cfg.Ports.Min)
-	app.Flag("ports.max", "Maximal allowed port number for listening sockets. [PMM_AGENT_PORTS_MAX]").
-		Envar("PMM_AGENT_PORTS_MAX").Default("60999").Uint16Var(&cfg.Ports.Max)
+	// setup args
+	if nodeinfo.PublicAddress == "" {
+		setupCmd.Arg("node-address", "Node address.").
+			Required().StringVar(&cfg.Setup.Address)
+	} else {
+		setupCmd.Arg("node-address", fmt.Sprintf("Node address. Default: %s (autodetected).", nodeinfo.PublicAddress)).
+			Default(nodeinfo.PublicAddress).StringVar(&cfg.Setup.Address)
+	}
+	nodeTypeKeys := []string{"generic", "container"}
+	nodeTypeDefault := nodeTypeKeys[0]
+	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s. Default: %s.", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
+	setupCmd.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&cfg.Setup.NodeType, nodeTypeKeys...)
+	setupCmd.Arg("node-name", fmt.Sprintf("Node name. Default: %s (autodetected).", hostname)).
+		Default(hostname).StringVar(&cfg.Setup.NodeName)
+
+	// setup flags
+	setupCmd.Flag("distro", fmt.Sprintf("Node OS distribution. Default: %s (autodetected).", nodeinfo.Distro)).
+		Default(nodeinfo.Distro).StringVar(&cfg.Setup.Distro)
+	setupCmd.Flag("machine-id", fmt.Sprintf("Node machine-id. Default: %s (autodetected).", nodeinfo.MachineID)).
+		Default(nodeinfo.MachineID).StringVar(&cfg.Setup.MachineID)
+	setupCmd.Flag("container-id", "Container ID.").StringVar(&cfg.Setup.ContainerID)
+	setupCmd.Flag("container-name", "Container name.").StringVar(&cfg.Setup.ContainerName)
 
 	return app, configFileF
 }
 
-func readConfigFile(path string) (*Config, error) {
+// loadFromFile loads configuration from file.
+// As a special case, if file does not exist, it returns ErrConfigFileDoesNotExist.
+// Other errors are returned if file exists, but configuration can't be loaded due to permission problems,
+// YAML parsing problems, etc.
+func loadFromFile(path string) (*Config, error) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return nil, ErrConfigFileDoesNotExist(path)
+	}
+
 	b, err := ioutil.ReadFile(path) //nolint:gosec
 	if err != nil {
 		return nil, err
 	}
-
-	var cfg Config
-	err = yaml.Unmarshal(b, &cfg)
-	return &cfg, err
-}
-
-// Parse parses given command-line arguments and returns configuration.
-func Parse(l *logrus.Entry) (*Config, error) {
-	return get(os.Args[1:], l)
-}
-
-func get(args []string, l *logrus.Entry) (*Config, error) {
-	// parse flags and environment variables
 	cfg := new(Config)
-	app, configFileF := application(cfg)
-	_, err := app.Parse(args)
-	if err != nil {
+	if err = yaml.Unmarshal(b, cfg); err != nil {
 		return nil, err
 	}
-
-	// if config file is given, read and parse it, then re-parse flags into this configuration
-	if *configFileF != "" {
-		l.Infof("Loading configuration file %s.", *configFileF)
-		if cfg, err = readConfigFile(*configFileF); err != nil {
-			return nil, err
-		}
-		app, _ = application(cfg)
-		if _, err = app.Parse(args); err != nil {
-			return nil, err
-		}
-	}
-
-	cfg.Paths.Lookup()
 	return cfg, nil
+}
+
+// SaveToFile saves configuration to file.
+// No special cases.
+func SaveToFile(path string, cfg *Config) error {
+	b, err := yaml.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(path, b, 0640)
 }

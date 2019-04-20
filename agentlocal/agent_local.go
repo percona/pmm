@@ -26,7 +26,6 @@ import (
 	"net"
 	"net/http"
 	_ "net/http/pprof" // register /debug/pprof
-	"net/url"
 	"os"
 	"strings"
 	"sync"
@@ -57,6 +56,7 @@ type supervisor interface {
 // client is a subset of methods of client.Client used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
 type client interface {
+	GetAgentServerMetadata() *agentpb.AgentServerMetadata
 	Describe(chan<- *prometheus.Desc)
 	Collect(chan<- prometheus.Metric)
 }
@@ -70,26 +70,27 @@ var ErrReload = errors.New("reload")
 
 // Server represents local pmm-agent API server.
 type Server struct {
-	cfg        *config.Config
-	supervisor supervisor
+	cfg            *config.Config
+	supervisor     supervisor
+	client         client
+	configFilePath string
 
 	l               *logrus.Entry
 	reload          chan struct{}
 	reloadCloseOnce sync.Once
-
-	rw                  sync.RWMutex
-	agentServerMetadata agentpb.AgentServerMetadata
 }
 
 // NewServer creates new server.
 //
 // Caller should call Run.
-func NewServer(cfg *config.Config, supervisor supervisor) *Server {
+func NewServer(cfg *config.Config, supervisor supervisor, client client, configFilePath string) *Server {
 	return &Server{
-		cfg:        cfg,
-		supervisor: supervisor,
-		l:          logrus.WithField("component", "local-server"),
-		reload:     make(chan struct{}),
+		cfg:            cfg,
+		supervisor:     supervisor,
+		client:         client,
+		configFilePath: configFilePath,
+		l:              logrus.WithField("component", "local-server"),
+		reload:         make(chan struct{}),
 	}
 }
 
@@ -97,7 +98,7 @@ func NewServer(cfg *config.Config, supervisor supervisor) *Server {
 //
 // Run exits when ctx is canceled, or when a request to reload configuration is received.
 // In the latter case, the returned error is ErrReload.
-func (s *Server) Run(ctx context.Context, client client) error {
+func (s *Server) Run(ctx context.Context) error {
 	defer s.l.Info("Done.")
 
 	serverCtx, serverCancel := context.WithCancel(ctx)
@@ -121,7 +122,7 @@ func (s *Server) Run(ctx context.Context, client client) error {
 	}()
 	go func() {
 		defer wg.Done()
-		s.runJSONServer(serverCtx, address, client)
+		s.runJSONServer(serverCtx, address)
 	}()
 
 	var res error
@@ -136,53 +137,43 @@ func (s *Server) Run(ctx context.Context, client client) error {
 	return res
 }
 
-// SetAgentServerMetadata is called by client.Client to set server's metadata.
-func (s *Server) SetAgentServerMetadata(md agentpb.AgentServerMetadata) {
-	s.rw.Lock()
-	s.agentServerMetadata = md
-	s.rw.Unlock()
-}
-
 // Status returns current pmm-agent status.
 func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*agentlocalpb.StatusResponse, error) {
-	s.rw.RLock()
-	md := s.agentServerMetadata
-	s.rw.RUnlock()
+	connected := true
+	md := s.client.GetAgentServerMetadata()
+	if md == nil {
+		connected = false
+		md = new(agentpb.AgentServerMetadata)
+	}
 
-	var user *url.Userinfo
-	switch {
-	case s.cfg.Password != "":
-		user = url.UserPassword(s.cfg.Username, s.cfg.Password)
-	case s.cfg.Username != "":
-		user = url.User(s.cfg.Username)
-	}
-	u := url.URL{
-		Scheme: "https",
-		User:   user,
-		Host:   s.cfg.Address,
-		Path:   "/",
-	}
-	srvInfo := &agentlocalpb.ServerInfo{
-		Url:          u.String(),
-		InsecureTls:  s.cfg.InsecureTLS,
-		Version:      md.ServerVersion,
-		LastPingTime: nil, // TODO https://jira.percona.com/browse/PMM-3758
-		Latency:      nil, // TODO https://jira.percona.com/browse/PMM-3758
+	var serverInfo *agentlocalpb.ServerInfo
+	if u := s.cfg.Server.URL(); u != nil {
+		serverInfo = &agentlocalpb.ServerInfo{
+			Url:          u.String(),
+			InsecureTls:  s.cfg.Server.InsecureTLS,
+			Version:      md.ServerVersion,
+			LastPingTime: nil, // TODO https://jira.percona.com/browse/PMM-3758
+			Latency:      nil, // TODO https://jira.percona.com/browse/PMM-3758
+			Connected:    connected,
+		}
 	}
 
 	agentsInfo := s.supervisor.AgentsList()
 
 	return &agentlocalpb.StatusResponse{
-		AgentId:      s.cfg.ID,
-		RunsOnNodeId: md.AgentRunsOnNodeID,
-		ServerInfo:   srvInfo,
-		AgentsInfo:   agentsInfo,
+		AgentId:        s.cfg.ID,
+		RunsOnNodeId:   md.AgentRunsOnNodeID,
+		ServerInfo:     serverInfo,
+		AgentsInfo:     agentsInfo,
+		ConfigFilePath: s.configFilePath,
 	}, nil
 }
 
 // Reload reloads pmm-agent and it configuration.
 func (s *Server) Reload(ctx context.Context, req *agentlocalpb.ReloadRequest) (*agentlocalpb.ReloadResponse, error) {
-	_, err := config.Parse(s.l)
+	// sync errors with setup command
+
+	_, _, err := config.Get(s.l)
 	if err != nil {
 		return nil, status.Error(codes.FailedPrecondition, "Failed to reload configuration: "+err.Error())
 	}
@@ -241,7 +232,7 @@ func (s *Server) runGRPCServer(ctx context.Context, address string) {
 }
 
 // runJSONServer runs JSON proxy server (grpc-gateway) until context is canceled, then gracefully stops it.
-func (s *Server) runJSONServer(ctx context.Context, grpcAddress string, client client) {
+func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	address := fmt.Sprintf("127.0.0.1:%d", s.cfg.ListenPort)
 	l := s.l.WithField("component", "local-server/JSON")
 	l.Infof("Starting local API server on http://%s/ ...", address)
@@ -277,7 +268,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string, client c
 	registry := prometheus.NewRegistry()
 	registry.MustRegister(prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}))
 	registry.MustRegister(prometheus.NewGoCollector())
-	registry.MustRegister(client)
+	registry.MustRegister(s.client)
 	metricsHandler := promhttp.InstrumentMetricHandler(registry, promhttp.HandlerFor(registry, promhttp.HandlerOpts{
 		ErrorLog:      l,
 		ErrorHandling: promhttp.ContinueOnError,
