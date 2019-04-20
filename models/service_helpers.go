@@ -44,6 +44,24 @@ func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 	}
 }
 
+// FindServiceByName finds Service by Name.
+func FindServiceByName(q *reform.Querier, name string) (*Service, error) {
+	if name == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Service Name.")
+	}
+
+	service := new(Service)
+	err := q.FindOneTo(service, "service_name", name)
+	switch err {
+	case nil:
+		return service, nil
+	case reform.ErrNoRows:
+		return nil, status.Errorf(codes.NotFound, "Service with name %q not found.", name)
+	default:
+		return nil, errors.WithStack(err)
+	}
+}
+
 // FindAllServices returns all Services.
 func FindAllServices(q *reform.Querier) ([]*Service, error) {
 	structs, err := q.SelectAllFrom(ServiceTable, "ORDER BY service_id")

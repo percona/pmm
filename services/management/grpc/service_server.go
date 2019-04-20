@@ -14,12 +14,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package management
+package grpc
 
 import (
-	"testing"
+	"context"
+
+	"github.com/percona/pmm/api/managementpb"
+
+	"github.com/percona/pmm-managed/services/management"
 )
 
-func TestManagement(t *testing.T) {
-	// we need at least one test per package to correctly calculate coverage
+//nolint:unused
+type serviceServer struct {
+	svc *management.ServiceService
+}
+
+// NewManagementServiceServer creates Management Service Server.
+func NewManagementServiceServer(s *management.ServiceService) managementpb.ServiceServer {
+	return &serviceServer{svc: s}
+}
+
+// RemoveService removes Service with Agents.
+func (s *serviceServer) RemoveService(ctx context.Context, req *managementpb.RemoveServiceRequest) (*managementpb.RemoveServiceResponse, error) {
+	return s.svc.RemoveService(ctx, req)
 }
