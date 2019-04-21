@@ -119,6 +119,9 @@ type AddContainerNodeBody struct {
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
+
 	// Container identifier. If specified, must be a unique Docker container identifier.
 	ContainerID string `json:"container_id,omitempty"`
 
@@ -128,11 +131,18 @@ type AddContainerNodeBody struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist.
+	// Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.
+	// If defined, Generic Node with that machine_id must exist.
 	MachineID string `json:"machine_id,omitempty"`
 
-	// Unique across all Nodes user-defined name.
+	// Node model. Auto-detected and auto-updated.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this add container node body
@@ -263,23 +273,34 @@ type AddContainerNodeOKBodyContainer struct {
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
-	// Container identifier. If specified, must be a unique Docker container identifier. Can't be changed.
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
+
+	// Container identifier. If specified, must be a unique Docker container identifier.
+	// Auto-detected and auto-updated.
 	ContainerID string `json:"container_id,omitempty"`
 
-	// Container name. Can be changed.
+	// Container name. Auto-detected and auto-updated.
 	ContainerName string `json:"container_name,omitempty"`
 
-	// Custom user-assigned labels. Can be changed.
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.
+	// Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.
+	// If defined, Generic Node with that machine_id must exist.
 	MachineID string `json:"machine_id,omitempty"`
 
-	// Unique randomly generated instance identifier, can't be changed.
+	// Unique randomly generated instance identifier. Can't be changed.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Unique across all Nodes user-defined name, can be changed.
+	// Node model. Auto-detected and auto-updated.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this add container node OK body container

@@ -122,7 +122,7 @@ type AddRemoteAmazonRDSNodeBody struct {
 	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region.
 	Instance string `json:"instance,omitempty"`
 
-	// Unique across all Nodes user-defined name.
+	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
 
 	// Unique across all RemoteAmazonRDS Nodes in combination with instance.
@@ -260,10 +260,10 @@ type AddRemoteAmazonRDSNodeOKBodyRemoteAmazonRDS struct {
 	// DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.
 	Instance string `json:"instance,omitempty"`
 
-	// Unique randomly generated instance identifier, can't be changed.
+	// Unique randomly generated instance identifier. Can't be changed.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Unique across all Nodes user-defined name, can be changed.
+	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
 
 	// Unique across all RemoteAmazonRDS Nodes in combination with instance. Can't be changed.

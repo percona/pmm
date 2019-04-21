@@ -35,43 +35,58 @@ enum NodeType {
 
 // GenericNode represents a bare metal server or virtual machine.
 message GenericNode {
-  // Unique randomly generated instance identifier, can't be changed.
+  // Unique randomly generated instance identifier. Can't be changed.
   string node_id = 1;
-  // Unique across all Nodes user-defined name, can be changed.
+  // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2;
-  // Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.
+  // Linux machine-id. Auto-detected and auto-updated.
+  // Must be unique across all Generic Nodes if specified.
   string machine_id = 3;
-  // Linux distribution (if any). Can be changed.
+  // Linux distribution name and version. Auto-detected and auto-updated.
   string distro = 4;
+  // Node model. Auto-detected and auto-updated.
+  string node_model = 5;
+  // Node region. Auto-detected and auto-updated.
+  string region = 6;
+  // Node availability zone. Auto-detected and auto-updated.
+  string az = 7;
   // Custom user-assigned labels. Can be changed.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 8;
   // Address FIXME https://jira.percona.com/browse/PMM-3786
   string address = 42;
 }
 
 // ContainerNode represents a Docker container.
 message ContainerNode {
-  // Unique randomly generated instance identifier, can't be changed.
+  // Unique randomly generated instance identifier. Can't be changed.
   string node_id = 1;
-  // Unique across all Nodes user-defined name, can be changed.
+  // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2;
-  // Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.
+  // Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.
+  // If defined, Generic Node with that machine_id must exist.
   string machine_id = 3;
-  // Container identifier. If specified, must be a unique Docker container identifier. Can't be changed.
+  // Container identifier. If specified, must be a unique Docker container identifier.
+  // Auto-detected and auto-updated.
   string container_id = 4;
-  // Container name. Can be changed.
+  // Container name. Auto-detected and auto-updated.
   string container_name = 5;
-  // Custom user-assigned labels. Can be changed.
-  map<string, string> custom_labels = 10;
+  // Node model. Auto-detected and auto-updated.
+  string node_model = 6;
+  // Node region. Auto-detected and auto-updated.
+  string region = 7;
+  // Node availability zone. Auto-detected and auto-updated.
+  string az = 8;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 9;
   // Address FIXME https://jira.percona.com/browse/PMM-3786
   string address = 42;
 }
 
 // RemoteNode represents generic remote Node. Agents can't run on Remote Nodes.
 message RemoteNode {
-  // Unique randomly generated instance identifier, can't be changed.
+  // Unique randomly generated instance identifier. Can't be changed.
   string node_id = 1;
-  // Unique across all Nodes user-defined name, can be changed.
+  // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2;
   // Custom user-assigned labels. Can be changed.
   map<string, string> custom_labels = 10;
@@ -79,9 +94,9 @@ message RemoteNode {
 
 // RemoteAmazonRDSNode represents a Remote Node for Amazon RDS. Agents can't run on Remote Nodes.
 message RemoteAmazonRDSNode {
-  // Unique randomly generated instance identifier, can't be changed.
+  // Unique randomly generated instance identifier. Can't be changed.
   string node_id = 1;
-  // Unique across all Nodes user-defined name, can be changed.
+  // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2;
   // DB instance identifier. Unique across all RemoteAmazonRDS Nodes in combination with region. Can be changed.
   string instance = 3;
@@ -125,22 +140,33 @@ message GetNodeResponse {
 // Add Generic
 
 message AddGenericNodeRequest {
-  // Unique randomly generated instance identifier.
+  // Unique randomly generated instance identifier. Can't be changed.
   reserved 1;
-  // Unique across all Nodes user-defined name.
+  // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Linux machine-id. Must be unique across all Generic Nodes if specified.
+  // Linux machine-id. Auto-detected and auto-updated.
+  // Must be unique across all Generic Nodes if specified.
   string machine_id = 3;
-  // Linux distribution (if any).
+  // Linux distribution name and version. Auto-detected and auto-updated.
   string distro = 4;
+  // Node model. Auto-detected and auto-updated.
+  string node_model = 5;
+  // Node region. Auto-detected and auto-updated.
+  string region = 6;
+  // Node availability zone. Auto-detected and auto-updated.
+  string az = 7;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-  // Address FIXME.
-  string address = 42;
+  map<string, string> custom_labels = 8;
+  // Address FIXME https://jira.percona.com/browse/PMM-3786
+  string address = 42 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message AddGenericNodeResponse {
@@ -152,22 +178,33 @@ message AddGenericNodeResponse {
 message AddContainerNodeRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
-  // Unique across all Nodes user-defined name.
+  // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist.
+  // Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.
+  // If defined, Generic Node with that machine_id must exist.
   string machine_id = 3;
   // Container identifier. If specified, must be a unique Docker container identifier.
   string container_id = 4;
   // Container name.
   string container_name = 5;
+  // Node model. Auto-detected and auto-updated.
+  string node_model = 6;
+  // Node region. Auto-detected and auto-updated.
+  string region = 7;
+  // Node availability zone. Auto-detected and auto-updated.
+  string az = 8;
   // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
+  map<string, string> custom_labels = 9;
   // Address FIXME https://jira.percona.com/browse/PMM-3786
-  string address = 42;
+  string address = 42 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message AddContainerNodeResponse {
@@ -179,7 +216,7 @@ message AddContainerNodeResponse {
 message AddRemoteNodeRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
-  // Unique across all Nodes user-defined name.
+  // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2 [
     (validator.field) = {
       string_not_empty: true
@@ -198,7 +235,7 @@ message AddRemoteNodeResponse {
 message AddRemoteAmazonRDSNodeRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
-  // Unique across all Nodes user-defined name.
+  // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2 [
     (validator.field) = {
       string_not_empty: true

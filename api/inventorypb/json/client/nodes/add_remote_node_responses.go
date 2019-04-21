@@ -119,7 +119,7 @@ type AddRemoteNodeBody struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Unique across all Nodes user-defined name.
+	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
 }
 
@@ -251,10 +251,10 @@ type AddRemoteNodeOKBodyRemote struct {
 	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Unique randomly generated instance identifier, can't be changed.
+	// Unique randomly generated instance identifier. Can't be changed.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Unique across all Nodes user-defined name, can be changed.
+	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
 }
 
