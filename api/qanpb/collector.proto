@@ -63,7 +63,7 @@ message MetricsBucket {
   // client IP or hostname.
   string d_client_host = 7;
   //
-  // Standard Labels Group.
+  // Unified Labels Group.
   //
 
   // Name of replication set
@@ -88,6 +88,10 @@ message MetricsBucket {
   MetricsSource metrics_source = 12;
   // Custom labels names:values.
   map<string, string> labels = 8;
+  //
+  // Period and Query Example Group.
+  //
+
   // Time when collection of bucket started.
   uint32 period_start_unix_secs = 10;
   // Duration of bucket.
