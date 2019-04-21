@@ -67,7 +67,7 @@ func main() {
 	}
 	if *traceF {
 		logrus.SetLevel(logrus.TraceLevel)
-		logrus.SetReportCaller(true)
+		logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
