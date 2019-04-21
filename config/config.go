@@ -266,10 +266,17 @@ func loadFromFile(path string) (*Config, error) {
 
 // SaveToFile saves configuration to file.
 // No special cases.
-func SaveToFile(path string, cfg *Config) error {
+func SaveToFile(path string, cfg *Config, comment string) error {
 	b, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(path, b, 0640)
+
+	var res []byte
+	if comment != "" {
+		res = []byte("# " + comment + "\n")
+	}
+	res = append(res, "---\n"...)
+	res = append(res, b...)
+	return ioutil.WriteFile(path, res, 0640)
 }

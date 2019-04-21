@@ -57,7 +57,7 @@ func Setup() {
 
 	register(cfg, l)
 
-	if err = config.SaveToFile(configFilePath, cfg); err != nil {
+	if err = config.SaveToFile(configFilePath, cfg, "Updated by `pmm-agent setup`."); err != nil {
 		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilePath, err)
 		os.Exit(1)
 	}
@@ -66,7 +66,7 @@ func Setup() {
 	if running {
 		reload(l)
 	} else {
-		fmt.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.", configFilePath)
+		fmt.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilePath)
 	}
 }
 

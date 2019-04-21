@@ -31,7 +31,7 @@ func writeConfig(t *testing.T, cfg *Config) string {
 	f, err := ioutil.TempFile("", "pmm-agent-test-")
 	require.NoError(t, err)
 	require.NoError(t, f.Close())
-	require.NoError(t, SaveToFile(f.Name(), cfg))
+	require.NoError(t, SaveToFile(f.Name(), cfg, t.Name()))
 	return f.Name()
 }
 
