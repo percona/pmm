@@ -379,7 +379,8 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 	switch builtinAgent.Type {
 	case agentpb.Type_QAN_MYSQL_PERFSCHEMA_AGENT:
 		params := &mysql.Params{
-			DSN: builtinAgent.Dsn,
+			DSN:     builtinAgent.Dsn,
+			AgentID: agentID,
 		}
 		m, err := mysql.New(params, l)
 		if err != nil {

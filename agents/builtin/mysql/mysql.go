@@ -42,6 +42,7 @@ const (
 // MySQL QAN services connects to MySQL and extracts performance data.
 type MySQL struct {
 	db           *reform.DB
+	agentID      string
 	l            *logrus.Entry
 	changes      chan Change
 	historyCache *historyCache
@@ -50,7 +51,8 @@ type MySQL struct {
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN string
+	DSN     string
+	AgentID string
 }
 
 // Change represents Agent status change _or_ QAN collect request.
@@ -70,12 +72,13 @@ func New(params *Params, l *logrus.Entry) (*MySQL, error) {
 	sqlDB.SetConnMaxLifetime(0)
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(l.Tracef))
 
-	return newMySQL(db, l), nil
+	return newMySQL(db, params.AgentID, l), nil
 }
 
-func newMySQL(db *reform.DB, l *logrus.Entry) *MySQL {
+func newMySQL(db *reform.DB, agentID string, l *logrus.Entry) *MySQL {
 	return &MySQL{
 		db:           db,
+		agentID:      agentID,
 		l:            l,
 		changes:      make(chan Change, 10),
 		historyCache: newHistoryCache(retainHistory),
@@ -189,11 +192,12 @@ func (m *MySQL) getNewBuckets(periodStart time.Time, periodLength time.Duration)
 	// merge prev and current in cache
 	m.summaryCache.refresh(current)
 
-	// add timestamps and examples from history cache
+	// add agent_id, timestamps, and examples from history cache
 	startS := uint32(periodStart.Unix())
 	lengthS := uint32(periodLength.Seconds())
 	history := m.historyCache.get()
 	for i, b := range buckets {
+		b.AgentId = m.agentID
 		b.PeriodStartUnixSecs = startS
 		b.PeriodLengthSecs = lengthS
 
@@ -255,7 +259,7 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 			NumQueries:             count,
 			NumQueriesWithErrors:   float32(currentESS.SumErrors - prevESS.SumErrors),
 			NumQueriesWithWarnings: float32(currentESS.SumWarnings - prevESS.SumWarnings),
-			MetricsSource:          qanpb.MetricsSource_MYSQL_PERFSCHEMA,
+			MetricsSource:          qanpb.MetricsSource_MYSQL_PERFSCHEMA, // TODO replace with agent_type
 		}
 
 		for _, p := range []struct {

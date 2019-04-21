@@ -38,13 +38,15 @@ const (
 // SlowLog extracts performance data from MySQL slow log.
 type SlowLog struct {
 	db      *reform.DB
+	agentID string
 	l       *logrus.Entry
 	changes chan Change
 }
 
 // Params represent Agent parameters.
 type Params struct {
-	DSN string
+	DSN     string
+	AgentID string
 }
 
 // Change represents Agent status change _or_ QAN collect request.
@@ -64,12 +66,13 @@ func New(params *Params, l *logrus.Entry) (*SlowLog, error) {
 	sqlDB.SetConnMaxLifetime(0)
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(l.Tracef))
 
-	return newMySQL(db, l), nil
+	return newMySQL(db, params.AgentID, l), nil
 }
 
-func newMySQL(db *reform.DB, l *logrus.Entry) *SlowLog {
+func newMySQL(db *reform.DB, agentID string, l *logrus.Entry) *SlowLog {
 	return &SlowLog{
 		db:      db,
+		agentID: agentID,
 		l:       l,
 		changes: make(chan Change, 10),
 	}
@@ -129,6 +132,7 @@ func (m *SlowLog) Run(ctx context.Context) {
 }
 
 func (m *SlowLog) getNewBuckets() ([]*qanpb.MetricsBucket, error) {
+	// TODO add AgentUUID to buckets
 	return makeBuckets()
 }
 
