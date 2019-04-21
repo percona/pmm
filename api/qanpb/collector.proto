@@ -62,6 +62,26 @@ message MetricsBucket {
   string d_username = 6;
   // client IP or hostname.
   string d_client_host = 7;
+  //
+  // Standard Labels Group.
+  //
+
+  // Name of replication set
+  string replication_set = 158;
+  // Cluster name
+  string cluster = 159;
+  // Type of service
+  string service_type = 160;
+  // Environment name
+  string environment = 161;
+  // Availability zone
+  string az = 162;
+  // Region name
+  string region = 163;
+  // Node model
+  string node_model = 164;
+  // Container name
+  string container_name = 165;
   // Custom labels names:values.
   map<string, string> labels = 8;
   // Identifier of agent that collect and send metrics.
