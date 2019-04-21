@@ -21,6 +21,8 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -28,6 +30,7 @@ import (
 	"os/signal"
 	"strings"
 
+	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	inventorypb "github.com/percona/pmm/api/inventorypb/json/client"
 	managementpb "github.com/percona/pmm/api/managementpb/json/client"
@@ -43,6 +46,16 @@ import (
 	"github.com/percona/pmm-admin/commands/management"
 	"github.com/percona/pmm-admin/logger"
 )
+
+type errFromNginx string
+
+func (e errFromNginx) Error() string {
+	return "response from nginx: " + string(e)
+}
+
+func (e errFromNginx) GoString() string {
+	return fmt.Sprintf("errFromNginx(%q)", string(e))
+}
 
 func main() {
 	kingpin.CommandLine.Name = "pmm-admin"
@@ -125,8 +138,22 @@ func main() {
 	transport.SetLogger(logrus.WithField("component", "server-transport"))
 	transport.SetDebug(*debugF || *traceF)
 	transport.Context = ctx
+
+	// set error handlers for nginx responses if pmm-managed is down
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
+		b, _ := ioutil.ReadAll(reader)
+		return errFromNginx(string(b))
+	})
+	transport.Consumers = map[string]runtime.Consumer{
+		runtime.JSONMime:    runtime.JSONConsumer(),
+		runtime.HTMLMime:    errorConsumer,
+		runtime.TextMime:    errorConsumer,
+		runtime.DefaultMime: errorConsumer,
+	}
+
+	// disable HTTP/2, set TLS config
 	httpTransport := transport.Transport.(*http.Transport)
-	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{} // disable HTTP/2
+	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 	if serverURL.Scheme == "https" {
 		if httpTransport.TLSClientConfig == nil {
 			httpTransport.TLSClientConfig = new(tls.Config)
@@ -259,3 +286,9 @@ func main() {
 		os.Exit(1)
 	}
 }
+
+// check interfaces
+var (
+	_ error          = errFromNginx("")
+	_ fmt.GoStringer = errFromNginx("")
+)

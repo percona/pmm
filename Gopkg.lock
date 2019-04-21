@@ -302,6 +302,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/AlekSi/pointer",
+    "github.com/go-openapi/runtime",
     "github.com/go-openapi/runtime/client",
     "github.com/percona/pmm/api/agentlocalpb/json/client",
     "github.com/percona/pmm/api/inventorypb/json/client",

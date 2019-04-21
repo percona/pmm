@@ -36,8 +36,10 @@ func SetTransport(ctx context.Context, debug bool) {
 	transport.SetLogger(logrus.WithField("component", "agentlocal-transport"))
 	transport.SetDebug(debug)
 	transport.Context = ctx
+
 	// disable HTTP/2
-	transport.Transport.(*http.Transport).TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
+	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 
 	agentlocal.Default.SetTransport(transport)
 }
