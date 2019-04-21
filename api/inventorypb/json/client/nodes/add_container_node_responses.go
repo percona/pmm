@@ -119,14 +119,14 @@ type AddContainerNodeBody struct {
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Docker container identifier. If specified, must be a unique Docker container identifier.
-	DockerContainerID string `json:"docker_container_id,omitempty"`
+	// Container identifier. If specified, must be a unique Docker container identifier.
+	ContainerID string `json:"container_id,omitempty"`
 
 	// Container name.
-	DockerContainerName string `json:"docker_container_name,omitempty"`
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist.
 	MachineID string `json:"machine_id,omitempty"`
@@ -263,14 +263,14 @@ type AddContainerNodeOKBodyContainer struct {
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels. Can be changed.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.
-	DockerContainerID string `json:"docker_container_id,omitempty"`
+	// Container identifier. If specified, must be a unique Docker container identifier. Can't be changed.
+	ContainerID string `json:"container_id,omitempty"`
 
 	// Container name. Can be changed.
-	DockerContainerName string `json:"docker_container_name,omitempty"`
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Custom user-assigned labels. Can be changed.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
 	// Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.
 	MachineID string `json:"machine_id,omitempty"`

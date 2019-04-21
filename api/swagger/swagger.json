@@ -3407,20 +3407,20 @@
                   "type": "string",
                   "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                 },
+                "container_id": {
+                  "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                  "type": "string"
+                },
+                "container_name": {
+                  "description": "Container name.",
+                  "type": "string"
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
                   "additionalProperties": {
                     "type": "string"
                   }
-                },
-                "docker_container_id": {
-                  "description": "Docker container identifier. If specified, must be a unique Docker container identifier.",
-                  "type": "string"
-                },
-                "docker_container_name": {
-                  "description": "Container name.",
-                  "type": "string"
                 },
                 "machine_id": {
                   "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist.",
@@ -3448,20 +3448,20 @@
                       "type": "string",
                       "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                     },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
+                      "type": "string"
+                    },
+                    "container_name": {
+                      "description": "Container name. Can be changed.",
+                      "type": "string"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       }
-                    },
-                    "docker_container_id": {
-                      "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
-                      "type": "string"
-                    },
-                    "docker_container_name": {
-                      "description": "Container name. Can be changed.",
-                      "type": "string"
                     },
                     "machine_id": {
                       "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
@@ -3825,20 +3825,20 @@
                       "type": "string",
                       "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                     },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
+                      "type": "string"
+                    },
+                    "container_name": {
+                      "description": "Container name. Can be changed.",
+                      "type": "string"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       }
-                    },
-                    "docker_container_id": {
-                      "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
-                      "type": "string"
-                    },
-                    "docker_container_name": {
-                      "description": "Container name. Can be changed.",
-                      "type": "string"
                     },
                     "machine_id": {
                       "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
@@ -3995,20 +3995,20 @@
                         "type": "string",
                         "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                       },
+                      "container_id": {
+                        "description": "Container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
+                        "type": "string"
+                      },
+                      "container_name": {
+                        "description": "Container name. Can be changed.",
+                        "type": "string"
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels. Can be changed.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         }
-                      },
-                      "docker_container_id": {
-                        "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
-                        "type": "string"
-                      },
-                      "docker_container_name": {
-                        "description": "Container name. Can be changed.",
-                        "type": "string"
                       },
                       "machine_id": {
                         "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
@@ -5440,20 +5440,20 @@
                       "type": "string",
                       "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                     },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
+                      "type": "string"
+                    },
+                    "container_name": {
+                      "description": "Container name. Can be changed.",
+                      "type": "string"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       }
-                    },
-                    "docker_container_id": {
-                      "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
-                      "type": "string"
-                    },
-                    "docker_container_name": {
-                      "description": "Container name. Can be changed.",
-                      "type": "string"
                     },
                     "machine_id": {
                       "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
