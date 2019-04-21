@@ -25,7 +25,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-// ServiceType describes supported service types.
+// ServiceType describes supported Service types.
 type ServiceType int32
 
 const (

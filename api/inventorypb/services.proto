@@ -24,7 +24,7 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
-// ServiceType describes supported service types.
+// ServiceType describes supported Service types.
 enum ServiceType {
   SERVICE_TYPE_INVALID = 0;
   MYSQL_SERVICE = 1;
