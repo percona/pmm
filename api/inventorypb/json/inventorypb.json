@@ -3407,6 +3407,18 @@
                   "type": "string",
                   "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                 },
+                "az": {
+                  "description": "Node availability zone. Auto-detected and auto-updated.",
+                  "type": "string"
+                },
+                "container_id": {
+                  "description": "Container identifier. If specified, must be a unique Docker container identifier.",
+                  "type": "string"
+                },
+                "container_name": {
+                  "description": "Container name.",
+                  "type": "string"
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -3414,20 +3426,20 @@
                     "type": "string"
                   }
                 },
-                "docker_container_id": {
-                  "description": "Docker container identifier. If specified, must be a unique Docker container identifier.",
-                  "type": "string"
-                },
-                "docker_container_name": {
-                  "description": "Container name.",
-                  "type": "string"
-                },
                 "machine_id": {
-                  "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist.",
+                  "description": "Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.\nIf defined, Generic Node with that machine_id must exist.",
+                  "type": "string"
+                },
+                "node_model": {
+                  "description": "Node model. Auto-detected and auto-updated.",
                   "type": "string"
                 },
                 "node_name": {
-                  "description": "Unique across all Nodes user-defined name.",
+                  "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                  "type": "string"
+                },
+                "region": {
+                  "description": "Node region. Auto-detected and auto-updated.",
                   "type": "string"
                 }
               }
@@ -3448,31 +3460,43 @@
                       "type": "string",
                       "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                     },
+                    "az": {
+                      "description": "Node availability zone. Auto-detected and auto-updated.",
+                      "type": "string"
+                    },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier.\nAuto-detected and auto-updated.",
+                      "type": "string"
+                    },
+                    "container_name": {
+                      "description": "Container name. Auto-detected and auto-updated.",
+                      "type": "string"
+                    },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels. Can be changed.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       }
                     },
-                    "docker_container_id": {
-                      "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
-                      "type": "string"
-                    },
-                    "docker_container_name": {
-                      "description": "Container name. Can be changed.",
-                      "type": "string"
-                    },
                     "machine_id": {
-                      "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
+                      "description": "Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.\nIf defined, Generic Node with that machine_id must exist.",
                       "type": "string"
                     },
                     "node_id": {
-                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "description": "Unique randomly generated instance identifier. Can't be changed.",
+                      "type": "string"
+                    },
+                    "node_model": {
+                      "description": "Node model. Auto-detected and auto-updated.",
                       "type": "string"
                     },
                     "node_name": {
-                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Node region. Auto-detected and auto-updated.",
                       "type": "string"
                     }
                   }
@@ -3518,7 +3542,11 @@
               "type": "object",
               "properties": {
                 "address": {
-                  "description": "Address FIXME.",
+                  "type": "string",
+                  "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
+                },
+                "az": {
+                  "description": "Node availability zone. Auto-detected and auto-updated.",
                   "type": "string"
                 },
                 "custom_labels": {
@@ -3529,19 +3557,23 @@
                   }
                 },
                 "distro": {
-                  "description": "Linux distribution (if any).",
-                  "type": "string"
-                },
-                "distro_version": {
-                  "description": "Linux distribution version (if any).",
+                  "description": "Linux distribution name and version. Auto-detected and auto-updated.",
                   "type": "string"
                 },
                 "machine_id": {
-                  "description": "Linux machine-id. Must be unique across all Generic Nodes if specified.",
+                  "description": "Linux machine-id. Auto-detected and auto-updated.\nMust be unique across all Generic Nodes if specified.",
+                  "type": "string"
+                },
+                "node_model": {
+                  "description": "Node model. Auto-detected and auto-updated.",
                   "type": "string"
                 },
                 "node_name": {
-                  "description": "Unique across all Nodes user-defined name.",
+                  "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                  "type": "string"
+                },
+                "region": {
+                  "description": "Node region. Auto-detected and auto-updated.",
                   "type": "string"
                 }
               }
@@ -3562,6 +3594,10 @@
                       "type": "string",
                       "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                     },
+                    "az": {
+                      "description": "Node availability zone. Auto-detected and auto-updated.",
+                      "type": "string"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",
                       "type": "object",
@@ -3570,23 +3606,27 @@
                       }
                     },
                     "distro": {
-                      "description": "Linux distribution (if any). Can be changed.",
-                      "type": "string"
-                    },
-                    "distro_version": {
-                      "description": "Linux distribution version (if any). Can be changed.",
+                      "description": "Linux distribution name and version. Auto-detected and auto-updated.",
                       "type": "string"
                     },
                     "machine_id": {
-                      "description": "Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.",
+                      "description": "Linux machine-id. Auto-detected and auto-updated.\nMust be unique across all Generic Nodes if specified.",
                       "type": "string"
                     },
                     "node_id": {
-                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "description": "Unique randomly generated instance identifier. Can't be changed.",
+                      "type": "string"
+                    },
+                    "node_model": {
+                      "description": "Node model. Auto-detected and auto-updated.",
                       "type": "string"
                     },
                     "node_name": {
-                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Node region. Auto-detected and auto-updated.",
                       "type": "string"
                     }
                   }
@@ -3639,7 +3679,7 @@
                   }
                 },
                 "node_name": {
-                  "description": "Unique across all Nodes user-defined name.",
+                  "description": "Unique across all Nodes user-defined name. Can't be changed.",
                   "type": "string"
                 }
               }
@@ -3664,11 +3704,11 @@
                       }
                     },
                     "node_id": {
-                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "description": "Unique randomly generated instance identifier. Can't be changed.",
                       "type": "string"
                     },
                     "node_name": {
-                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
                       "type": "string"
                     }
                   }
@@ -3725,7 +3765,7 @@
                   "type": "string"
                 },
                 "node_name": {
-                  "description": "Unique across all Nodes user-defined name.",
+                  "description": "Unique across all Nodes user-defined name. Can't be changed.",
                   "type": "string"
                 },
                 "region": {
@@ -3758,11 +3798,11 @@
                       "type": "string"
                     },
                     "node_id": {
-                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "description": "Unique randomly generated instance identifier. Can't be changed.",
                       "type": "string"
                     },
                     "node_name": {
-                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
                       "type": "string"
                     },
                     "region": {
@@ -3833,31 +3873,43 @@
                       "type": "string",
                       "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                     },
+                    "az": {
+                      "description": "Node availability zone. Auto-detected and auto-updated.",
+                      "type": "string"
+                    },
+                    "container_id": {
+                      "description": "Container identifier. If specified, must be a unique Docker container identifier.\nAuto-detected and auto-updated.",
+                      "type": "string"
+                    },
+                    "container_name": {
+                      "description": "Container name. Auto-detected and auto-updated.",
+                      "type": "string"
+                    },
                     "custom_labels": {
-                      "description": "Custom user-assigned labels. Can be changed.",
+                      "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       }
                     },
-                    "docker_container_id": {
-                      "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
-                      "type": "string"
-                    },
-                    "docker_container_name": {
-                      "description": "Container name. Can be changed.",
-                      "type": "string"
-                    },
                     "machine_id": {
-                      "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
+                      "description": "Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.\nIf defined, Generic Node with that machine_id must exist.",
                       "type": "string"
                     },
                     "node_id": {
-                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "description": "Unique randomly generated instance identifier. Can't be changed.",
+                      "type": "string"
+                    },
+                    "node_model": {
+                      "description": "Node model. Auto-detected and auto-updated.",
                       "type": "string"
                     },
                     "node_name": {
-                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Node region. Auto-detected and auto-updated.",
                       "type": "string"
                     }
                   }
@@ -3870,6 +3922,10 @@
                       "type": "string",
                       "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                     },
+                    "az": {
+                      "description": "Node availability zone. Auto-detected and auto-updated.",
+                      "type": "string"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels. Can be changed.",
                       "type": "object",
@@ -3878,23 +3934,27 @@
                       }
                     },
                     "distro": {
-                      "description": "Linux distribution (if any). Can be changed.",
-                      "type": "string"
-                    },
-                    "distro_version": {
-                      "description": "Linux distribution version (if any). Can be changed.",
+                      "description": "Linux distribution name and version. Auto-detected and auto-updated.",
                       "type": "string"
                     },
                     "machine_id": {
-                      "description": "Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.",
+                      "description": "Linux machine-id. Auto-detected and auto-updated.\nMust be unique across all Generic Nodes if specified.",
                       "type": "string"
                     },
                     "node_id": {
-                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "description": "Unique randomly generated instance identifier. Can't be changed.",
+                      "type": "string"
+                    },
+                    "node_model": {
+                      "description": "Node model. Auto-detected and auto-updated.",
                       "type": "string"
                     },
                     "node_name": {
-                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                      "type": "string"
+                    },
+                    "region": {
+                      "description": "Node region. Auto-detected and auto-updated.",
                       "type": "string"
                     }
                   }
@@ -3911,11 +3971,11 @@
                       }
                     },
                     "node_id": {
-                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "description": "Unique randomly generated instance identifier. Can't be changed.",
                       "type": "string"
                     },
                     "node_name": {
-                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
                       "type": "string"
                     }
                   }
@@ -3936,11 +3996,11 @@
                       "type": "string"
                     },
                     "node_id": {
-                      "description": "Unique randomly generated instance identifier, can't be changed.",
+                      "description": "Unique randomly generated instance identifier. Can't be changed.",
                       "type": "string"
                     },
                     "node_name": {
-                      "description": "Unique across all Nodes user-defined name, can be changed.",
+                      "description": "Unique across all Nodes user-defined name. Can't be changed.",
                       "type": "string"
                     },
                     "region": {
@@ -4007,31 +4067,43 @@
                         "type": "string",
                         "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                       },
+                      "az": {
+                        "description": "Node availability zone. Auto-detected and auto-updated.",
+                        "type": "string"
+                      },
+                      "container_id": {
+                        "description": "Container identifier. If specified, must be a unique Docker container identifier.\nAuto-detected and auto-updated.",
+                        "type": "string"
+                      },
+                      "container_name": {
+                        "description": "Container name. Auto-detected and auto-updated.",
+                        "type": "string"
+                      },
                       "custom_labels": {
-                        "description": "Custom user-assigned labels. Can be changed.",
+                        "description": "Custom user-assigned labels.",
                         "type": "object",
                         "additionalProperties": {
                           "type": "string"
                         }
                       },
-                      "docker_container_id": {
-                        "description": "Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.",
-                        "type": "string"
-                      },
-                      "docker_container_name": {
-                        "description": "Container name. Can be changed.",
-                        "type": "string"
-                      },
                       "machine_id": {
-                        "description": "Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.",
+                        "description": "Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.\nIf defined, Generic Node with that machine_id must exist.",
                         "type": "string"
                       },
                       "node_id": {
-                        "description": "Unique randomly generated instance identifier, can't be changed.",
+                        "description": "Unique randomly generated instance identifier. Can't be changed.",
+                        "type": "string"
+                      },
+                      "node_model": {
+                        "description": "Node model. Auto-detected and auto-updated.",
                         "type": "string"
                       },
                       "node_name": {
-                        "description": "Unique across all Nodes user-defined name, can be changed.",
+                        "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                        "type": "string"
+                      },
+                      "region": {
+                        "description": "Node region. Auto-detected and auto-updated.",
                         "type": "string"
                       }
                     }
@@ -4047,6 +4119,10 @@
                         "type": "string",
                         "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                       },
+                      "az": {
+                        "description": "Node availability zone. Auto-detected and auto-updated.",
+                        "type": "string"
+                      },
                       "custom_labels": {
                         "description": "Custom user-assigned labels. Can be changed.",
                         "type": "object",
@@ -4055,23 +4131,27 @@
                         }
                       },
                       "distro": {
-                        "description": "Linux distribution (if any). Can be changed.",
-                        "type": "string"
-                      },
-                      "distro_version": {
-                        "description": "Linux distribution version (if any). Can be changed.",
+                        "description": "Linux distribution name and version. Auto-detected and auto-updated.",
                         "type": "string"
                       },
                       "machine_id": {
-                        "description": "Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.",
+                        "description": "Linux machine-id. Auto-detected and auto-updated.\nMust be unique across all Generic Nodes if specified.",
                         "type": "string"
                       },
                       "node_id": {
-                        "description": "Unique randomly generated instance identifier, can't be changed.",
+                        "description": "Unique randomly generated instance identifier. Can't be changed.",
+                        "type": "string"
+                      },
+                      "node_model": {
+                        "description": "Node model. Auto-detected and auto-updated.",
                         "type": "string"
                       },
                       "node_name": {
-                        "description": "Unique across all Nodes user-defined name, can be changed.",
+                        "description": "Unique across all Nodes user-defined name. Can't be changed.",
+                        "type": "string"
+                      },
+                      "region": {
+                        "description": "Node region. Auto-detected and auto-updated.",
                         "type": "string"
                       }
                     }
@@ -4091,11 +4171,11 @@
                         }
                       },
                       "node_id": {
-                        "description": "Unique randomly generated instance identifier, can't be changed.",
+                        "description": "Unique randomly generated instance identifier. Can't be changed.",
                         "type": "string"
                       },
                       "node_name": {
-                        "description": "Unique across all Nodes user-defined name, can be changed.",
+                        "description": "Unique across all Nodes user-defined name. Can't be changed.",
                         "type": "string"
                       }
                     }
@@ -4119,11 +4199,11 @@
                         "type": "string"
                       },
                       "node_id": {
-                        "description": "Unique randomly generated instance identifier, can't be changed.",
+                        "description": "Unique randomly generated instance identifier. Can't be changed.",
                         "type": "string"
                       },
                       "node_name": {
-                        "description": "Unique across all Nodes user-defined name, can be changed.",
+                        "description": "Unique across all Nodes user-defined name. Can't be changed.",
                         "type": "string"
                       },
                       "region": {

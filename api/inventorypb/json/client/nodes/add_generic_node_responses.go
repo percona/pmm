@@ -116,23 +116,30 @@ swagger:model AddGenericNodeBody
 */
 type AddGenericNodeBody struct {
 
-	// Address FIXME.
+	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
+
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Linux distribution (if any).
+	// Linux distribution name and version. Auto-detected and auto-updated.
 	Distro string `json:"distro,omitempty"`
 
-	// Linux distribution version (if any).
-	DistroVersion string `json:"distro_version,omitempty"`
-
-	// Linux machine-id. Must be unique across all Generic Nodes if specified.
+	// Linux machine-id. Auto-detected and auto-updated.
+	// Must be unique across all Generic Nodes if specified.
 	MachineID string `json:"machine_id,omitempty"`
 
-	// Unique across all Nodes user-defined name.
+	// Node model. Auto-detected and auto-updated.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this add generic node body
@@ -263,23 +270,30 @@ type AddGenericNodeOKBodyGeneric struct {
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
+
 	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Linux distribution (if any). Can be changed.
+	// Linux distribution name and version. Auto-detected and auto-updated.
 	Distro string `json:"distro,omitempty"`
 
-	// Linux distribution version (if any). Can be changed.
-	DistroVersion string `json:"distro_version,omitempty"`
-
-	// Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.
+	// Linux machine-id. Auto-detected and auto-updated.
+	// Must be unique across all Generic Nodes if specified.
 	MachineID string `json:"machine_id,omitempty"`
 
-	// Unique randomly generated instance identifier, can't be changed.
+	// Unique randomly generated instance identifier. Can't be changed.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Unique across all Nodes user-defined name, can be changed.
+	// Node model. Auto-detected and auto-updated.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this add generic node OK body generic

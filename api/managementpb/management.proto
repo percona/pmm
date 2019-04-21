@@ -112,8 +112,6 @@ message RegisterNodeRequest {
   string machine_id = 3;
   // Linux distribution. For Generic nodes (optional).
   string distro = 4;
-  // Linux distribution version. For Generic nodes (optional).
-  string distro_version = 5;
   // Сontainer identifier. Only for Container Nodes (optional).
   string container_id = 6;
   // Сontainer name. Only for Container Nodes (optional).
