@@ -355,7 +355,7 @@ func main() {
 	}
 	if *traceF {
 		logrus.SetLevel(logrus.TraceLevel)
-		logrus.SetReportCaller(true)
+		logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
 		grpclog.SetLoggerV2(&logger.GRPC{Entry: logrus.WithField("component", "grpclog")})
 	}
 
