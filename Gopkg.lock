@@ -140,14 +140,14 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:4df6202cacfe1c1efdeaec7a6c9b3252bc6212a1d5dcd18a570b3543c494480f"
+  digest = "1:f3b11b0dd64a02673fe634f7ad0b6f0dac405f7398f1a9d56d07d13c3c563f2b"
   name = "github.com/percona/pmm"
   packages = [
     "api/qanpb",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "cfd74991cc7c03fb73e351154f734660b47f532d"
+  revision = "8687bb32ce0e42fb3040922e1c71b927da32a82b"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"

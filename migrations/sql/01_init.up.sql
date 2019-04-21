@@ -6,6 +6,16 @@ CREATE TABLE IF NOT EXISTS metrics
     d_schema String COMMENT 'MySQL: database; PostgreSQL: schema',
     d_username String COMMENT 'client user name',
     d_client_host String COMMENT 'client IP or hostname',
+    --  Standard labels
+    replication_set String COMMENT 'Name of replication set',
+    cluster String COMMENT 'Cluster name',
+    service_type String COMMENT 'Type of service',
+    environment String COMMENT 'Environment name',
+    az String COMMENT 'Availability zone',
+    region String COMMENT 'Region name',
+    node_model String COMMENT 'Node model',
+    container_name String COMMENT 'Container name',
+    -- Custom labels
     `labels.key` Array(String) COMMENT 'Custom labels names',
     `labels.value` Array(String) COMMENT 'Custom labels values',
     agent_uuid String COMMENT 'Identifier of agent that collect and send metrics',

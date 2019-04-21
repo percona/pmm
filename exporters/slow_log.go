@@ -37,7 +37,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-const agentUUID = "dc889ca7be92a66f0a00f616f69ffa7b"
+const agentID = "dc889ca7be92a66f0a00f616f69ffa7b"
 const dbServer = "fb_db"
 
 type closedChannelError struct {
@@ -137,9 +137,17 @@ func main() {
 					DSchema:             v.Db,
 					DUsername:           v.User,
 					DClientHost:         v.Host,
-					DServer:             v.Server,
+					ServiceName:         v.Server,
+					ReplicationSet:      "replication_set1",
+					Cluster:             "cluster1",
+					ServiceType:         "service_type1",
+					Environment:         "environmenti1",
+					Az:                  "az1",
+					Region:              "region1",
+					NodeModel:           "node_model1",
+					ContainerName:       "container_name1",
 					Labels:              listsToMap(v.LabelsKey, v.LabelsValue),
-					AgentUuid:           agentUUID,
+					AgentId:             agentID,
 					MetricsSource:       qanpb.MetricsSource_MYSQL_SLOWLOG,
 					PeriodStartUnixSecs: uint32(periodStart.Truncate(1 * time.Minute).Unix()),
 					PeriodLengthSecs:    uint32(60),
