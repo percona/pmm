@@ -139,7 +139,7 @@ type RegisterBody struct {
 	// Unique across all Nodes user-defined name, can be changed.
 	NodeName string `json:"node_name,omitempty"`
 
-	// NodeType describes supported node types.
+	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_AMAZON_RDS_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 }

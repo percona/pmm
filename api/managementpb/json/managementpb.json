@@ -356,7 +356,7 @@
                   "type": "string"
                 },
                 "node_type": {
-                  "description": "NodeType describes supported node types.",
+                  "description": "NodeType describes supported Node types.",
                   "type": "string",
                   "default": "NODE_TYPE_INVALID",
                   "enum": [
@@ -546,7 +546,7 @@
                   "type": "string"
                 },
                 "service_type": {
-                  "description": "ServiceType describes supported service types.",
+                  "description": "ServiceType describes supported Service types.",
                   "type": "string",
                   "default": "SERVICE_TYPE_INVALID",
                   "enum": [

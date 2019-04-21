@@ -123,7 +123,7 @@ type RemoveServiceBody struct {
 	// Unique across all Services user-defined name.
 	ServiceName string `json:"service_name,omitempty"`
 
-	// ServiceType describes supported service types.
+	// ServiceType describes supported Service types.
 	// Enum: [SERVICE_TYPE_INVALID MYSQL_SERVICE AMAZON_RDS_MYSQL_SERVICE MONGODB_SERVICE POSTGRESQL_SERVICE]
 	ServiceType *string `json:"service_type,omitempty"`
 }
