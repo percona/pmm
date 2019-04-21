@@ -44,7 +44,7 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 	}
 
 	// do not enable Linux-specific collectors on macOS, that's useful for our development
-	if pointer.GetString(node.Distro) != "darwin" {
+	if node.Distro != "darwin" {
 		args = append(args,
 			// enable disabled by default
 			"--collector.buddyinfo",

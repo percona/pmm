@@ -325,7 +325,7 @@ func runTelemetryService(ctx context.Context, db *reform.DB) {
 	svc.Run(ctx)
 }
 
-func getQANClient(ctx context.Context) *qan.Client {
+func getQANClient(ctx context.Context, db *reform.DB) *qan.Client {
 	// no grpc.WithBlock()
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
@@ -337,7 +337,7 @@ func getQANClient(ctx context.Context) *qan.Client {
 	if err != nil {
 		logrus.Fatalf("Failed to connect QAN API %s: %s.", *qanAPIAddrF, err)
 	}
-	return qan.NewClient(conn)
+	return qan.NewClient(conn, db)
 }
 
 func main() {
@@ -391,7 +391,8 @@ func main() {
 		l.Panicf("Prometheus service problem: %+v", err)
 	}
 
-	agentsRegistry := agents.NewRegistry(db, prometheus, getQANClient(ctx))
+	qanClient := getQANClient(ctx, db)
+	agentsRegistry := agents.NewRegistry(db, prometheus, qanClient)
 	logs := logs.New(version.Version)
 
 	deps := &serviceDependencies{

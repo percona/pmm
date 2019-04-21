@@ -24,41 +24,87 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
 )
 
 // Client represents qan-api client for data collection.
 type Client struct {
-	c qanpb.CollectorClient
-	l *logrus.Entry
+	c  qanpb.CollectorClient
+	db *reform.DB
+	l  *logrus.Entry
 }
 
 // NewClient returns new client for given gRPC connection.
-func NewClient(cc *grpc.ClientConn) *Client {
+func NewClient(cc *grpc.ClientConn, db *reform.DB) *Client {
 	return &Client{
-		c: qanpb.NewCollectorClient(cc),
-		l: logrus.WithField("component", "qan"),
+		c:  qanpb.NewCollectorClient(cc),
+		db: db,
+		l:  logrus.WithField("component", "qan"),
 	}
 }
 
+func cut(m map[string]string, k string) string {
+	v := m[k]
+	delete(m, k)
+	return v
+}
+
 // Collect adds custom labels to the data from pmm-agent and sends it to qan-api.
-func (c *Client) Collect(ctx context.Context, req *qanpb.CollectRequest, agent *models.Agent) error {
-	labels, err := agent.GetCustomLabels()
-	if err != nil {
-		c.l.Error(err)
-	}
+func (c *Client) Collect(ctx context.Context, req *qanpb.CollectRequest) error {
+	// TODO That code is simple, but performance will be very bad for any non-trivial load.
 
 	for i, m := range req.MetricsBucket {
-		if m.Labels == nil {
-			m.Labels = make(map[string]string)
+		if m.AgentId == "" {
+			c.l.Errorf("Empty agent_id for bucket with query_id %q, can't add labels.", m.Queryid)
+			continue
 		}
-		for k, v := range labels {
-			m.Labels[k] = v
+
+		// get service
+		services, err := models.ServicesForAgent(c.db.Querier, m.AgentId)
+		if err != nil {
+			c.l.Error(err)
+			continue
 		}
-		if m.AgentUuid == "" {
-			m.AgentUuid = agent.AgentID
+		if len(services) != 1 {
+			c.l.Errorf("Expected 1 Service, got %d.", len(services))
+			continue
 		}
+		service := services[0]
+
+		// get node for that service (not for that agent)
+		node, err := models.FindNodeByID(c.db.Querier, service.NodeID)
+		if err != nil {
+			c.l.Error(err)
+			continue
+		}
+
+		nodeLabels, err := node.UnifiedLabels()
+		if err != nil {
+			c.l.Error(err)
+			continue
+		}
+
+		labels := make(map[string]string)
+		for k, v := range nodeLabels {
+			labels[k] = v
+		}
+
+		if m.ServiceName != "" {
+			c.l.Errorf("service_name wasn't empty: %q.", m.ServiceName)
+		}
+		m.ServiceName = service.ServiceName
+
+		m.NodeModel = cut(labels, "node_model")
+		m.Az = cut(labels, "az")
+		m.ContainerName = cut(labels, "container_name")
+		m.Region = cut(labels, "region")
+
+		if m.Labels != nil {
+			c.l.Errorf("Labels were not empty: %+v.", m.Labels)
+		}
+		m.Labels = labels
 
 		req.MetricsBucket[i] = m
 	}

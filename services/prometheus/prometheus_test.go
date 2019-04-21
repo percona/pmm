@@ -85,7 +85,7 @@ func TestPrometheus(t *testing.T) {
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 				NodeType:     models.GenericNodeType,
 				NodeName:     "test-generic-node",
-				Address:      pointer.ToString("1.2.3.4"),
+				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_node_label": "foo"}`),
 			},
 

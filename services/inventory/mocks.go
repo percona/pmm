@@ -14,5 +14,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package inventory contains inventory business logic: Nodes, Services, Agents.
 package inventory
+
+import "context"
+
+//go:generate mockery -name=registry -case=snake -inpkg -testonly
+
+// registry is a subset of methods of agents.Registry used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type registry interface {
+	IsConnected(pmmAgentID string) bool
+	Kick(ctx context.Context, pmmAgentID string)
+	SendSetStateRequest(ctx context.Context, pmmAgentID string)
+}

@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
@@ -46,17 +47,17 @@ type Node struct {
 	NodeID       string    `reform:"node_id,pk"`
 	NodeType     NodeType  `reform:"node_type"`
 	NodeName     string    `reform:"node_name"`
-	MachineID    *string   `reform:"machine_id"` // nil means "unknown"; non-nil value must be unique
+	MachineID    *string   `reform:"machine_id"` // nil means "unknown"; non-nil value must be unique for Generic nodes
+	Distro       string    `reform:"distro"`
+	NodeModel    string    `reform:"node_model"`
+	AZ           string    `reform:"az"`
 	CustomLabels []byte    `reform:"custom_labels"`
-	Address      *string   `reform:"address"` // nil means "unknown"; also stores Remote instance
+	Address      string    `reform:"address"`
 	CreatedAt    time.Time `reform:"created_at"`
 	UpdatedAt    time.Time `reform:"updated_at"`
 
-	Distro        *string `reform:"distro"`
-	DistroVersion *string `reform:"distro_version"`
-
-	DockerContainerID   *string `reform:"docker_container_id"` // nil means "unknown"; non-nil value must be unique
-	DockerContainerName *string `reform:"docker_container_name"`
+	ContainerID   *string `reform:"container_id"` // nil means "unknown"; non-nil value must be unique
+	ContainerName *string `reform:"container_name"`
 
 	Region *string `reform:"region"` // nil means "not Remote"; non-nil value must be unique in combination with instance/address
 }
@@ -118,6 +119,35 @@ func (s *Node) SetCustomLabels(m map[string]string) error {
 	}
 	s.CustomLabels = b
 	return nil
+}
+
+// UnifiedLabels returns combined standard and custom labels.
+func (s *Node) UnifiedLabels() (map[string]string, error) {
+	custom, err := s.GetCustomLabels()
+	if err != nil {
+		return nil, err
+	}
+
+	res := map[string]string{
+		"node_id":        s.NodeID,
+		"node_name":      s.NodeName,
+		"node_type":      string(s.NodeType),
+		"machine_id":     pointer.GetString(s.MachineID),
+		"container_id":   pointer.GetString(s.ContainerID),
+		"container_name": pointer.GetString(s.ContainerName),
+		"node_model":     s.NodeModel,
+		"region":         pointer.GetString(s.Region),
+		"az":             s.AZ,
+	}
+	for k, v := range custom {
+		res[k] = v
+	}
+	for k, v := range res {
+		if v == "" {
+			delete(res, k)
+		}
+	}
+	return res, nil
 }
 
 // check interfaces

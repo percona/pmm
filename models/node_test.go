@@ -14,5 +14,30 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package inventory contains inventory business logic: Nodes, Services, Agents.
-package inventory
+package models
+
+import (
+	"testing"
+
+	"github.com/AlekSi/pointer"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestNode(t *testing.T) {
+	t.Run("UnifiedLabels", func(t *testing.T) {
+		node := &Node{
+			NodeID:       "node_id",
+			Region:       pointer.ToString("hidden"),
+			AZ:           "removed",
+			CustomLabels: []byte(`{"region": "region", "az": ""}`),
+		}
+		actual, err := node.UnifiedLabels()
+		require.NoError(t, err)
+		expected := map[string]string{
+			"node_id": "node_id",
+			"region":  "region",
+		}
+		assert.Equal(t, expected, actual)
+	})
+}

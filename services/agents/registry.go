@@ -174,7 +174,7 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 				})
 
 			case *agentpb.AgentMessage_QanCollect:
-				if err := r.qanCollect(ctx, req.QanCollect, agent.id); err != nil {
+				if err := r.qanClient.Collect(ctx, req.QanCollect.Message); err != nil {
 					l.Errorf("%+v", err)
 				}
 
@@ -319,16 +319,6 @@ func (r *Registry) stateChanged(ctx context.Context, req *agentpb.StateChangedRe
 	}
 
 	return r.prometheus.UpdateConfiguration(ctx)
-}
-
-func (r *Registry) qanCollect(ctx context.Context, req *agentpb.QANCollectRequest, agentID string) error {
-	// TODO we probably should not do that for every message
-	agent := &models.Agent{AgentID: agentID}
-	if err := r.db.Reload(agent); err != nil {
-		return errors.Wrap(err, "failed to select Agent by ID")
-	}
-
-	return r.qanClient.Collect(ctx, req.Message, agent)
 }
 
 // SendSetStateRequest sends SetStateRequest to pmm-agent with given ID.

@@ -42,15 +42,15 @@ var (
 
 // NodeService represents service for working with nodes.
 type NodeService struct {
-	db   *reform.DB
-	asrs agentStateRequestSender
+	db       *reform.DB
+	registry registry
 }
 
 // NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB, asrs agentStateRequestSender) *NodeService {
+func NewNodeService(db *reform.DB, registry registry) *NodeService {
 	return &NodeService{
-		db:   db,
-		asrs: asrs,
+		db:       db,
+		registry: registry,
 	}
 }
 
@@ -119,7 +119,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		return nil, e
 	}
 
-	s.asrs.SendSetStateRequest(ctx, res.PmmAgent.AgentId)
+	s.registry.SendSetStateRequest(ctx, res.PmmAgent.AgentId)
 
 	return res, nil
 }
@@ -136,15 +136,16 @@ func (s *NodeService) createNewNode(q *reform.Querier, req *managementpb.Registe
 	}
 
 	params := &models.CreateNodeParams{
-		NodeName:            req.NodeName,
-		MachineID:           pointer.ToStringOrNil(req.MachineId),
-		Distro:              pointer.ToStringOrNil(req.Distro),
-		DistroVersion:       pointer.ToStringOrNil(req.DistroVersion),
-		DockerContainerID:   pointer.ToStringOrNil(req.ContainerId),
-		DockerContainerName: pointer.ToStringOrNil(req.ContainerName),
-		CustomLabels:        req.CustomLabels,
-		Address:             pointer.ToStringOrNil(req.Address),
-		Region:              nil,
+		NodeName:      req.NodeName,
+		MachineID:     pointer.ToStringOrNil(req.MachineId),
+		Distro:        req.Distro,
+		NodeModel:     "", // TODO
+		AZ:            "", // TODO
+		ContainerID:   pointer.ToStringOrNil(req.ContainerId),
+		ContainerName: pointer.ToStringOrNil(req.ContainerName),
+		CustomLabels:  req.CustomLabels,
+		Address:       req.Address,
+		Region:        nil, // TODO
 	}
 	node, err := models.CreateNode(q, nodeType, params)
 	if err != nil {
@@ -192,7 +193,7 @@ func (s *NodeService) findNodeExporterByPmmAgentID(q *reform.Querier, pmmAgentID
 
 	for _, a := range agents {
 		if pointer.GetString(a.PMMAgentID) == pmmAgentID {
-			invAgent, err := inventory.ToInventoryAgent(q, a, s.asrs)
+			invAgent, err := inventory.ToInventoryAgent(q, a, s.registry)
 			if err != nil {
 				return nodeExporter, err
 			}
@@ -221,7 +222,7 @@ func (s *NodeService) addNodeToResponse(model *models.Node, res *managementpb.Re
 }
 
 func (s *NodeService) addPmmAgentToResponse(q *reform.Querier, model *models.Agent, res *managementpb.RegisterNodeResponse) error {
-	invAgent, err := inventory.ToInventoryAgent(q, model, s.asrs)
+	invAgent, err := inventory.ToInventoryAgent(q, model, s.registry)
 	if err != nil {
 		return err
 	}

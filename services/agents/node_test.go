@@ -19,7 +19,6 @@ package agents
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/stretchr/testify/assert"
 
@@ -55,7 +54,7 @@ func TestNodeExporterConfig(t *testing.T) {
 
 	t.Run("MacOS", func(t *testing.T) {
 		node := &models.Node{
-			Distro: pointer.ToString("darwin"),
+			Distro: "darwin",
 		}
 		exporter := &models.Agent{}
 		actual := nodeExporterConfig(node, exporter)

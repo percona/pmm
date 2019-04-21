@@ -27,7 +27,7 @@ func (v *nodeTableType) Name() string {
 
 // Columns returns a new slice of column names for that view or table in SQL database.
 func (v *nodeTableType) Columns() []string {
-	return []string{"node_id", "node_type", "node_name", "machine_id", "custom_labels", "address", "created_at", "updated_at", "distro", "distro_version", "docker_container_id", "docker_container_name", "region"}
+	return []string{"node_id", "node_type", "node_name", "machine_id", "distro", "node_model", "az", "custom_labels", "address", "created_at", "updated_at", "container_id", "container_name", "region"}
 }
 
 // NewStruct makes a new struct for that view or table.
@@ -47,26 +47,27 @@ func (v *nodeTableType) PKColumnIndex() uint {
 
 // NodeTable represents nodes view or table in SQL database.
 var NodeTable = &nodeTableType{
-	s: parse.StructInfo{Type: "Node", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "NodeType", Type: "NodeType", Column: "node_type"}, {Name: "NodeName", Type: "string", Column: "node_name"}, {Name: "MachineID", Type: "*string", Column: "machine_id"}, {Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"}, {Name: "Address", Type: "*string", Column: "address"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}, {Name: "Distro", Type: "*string", Column: "distro"}, {Name: "DistroVersion", Type: "*string", Column: "distro_version"}, {Name: "DockerContainerID", Type: "*string", Column: "docker_container_id"}, {Name: "DockerContainerName", Type: "*string", Column: "docker_container_name"}, {Name: "Region", Type: "*string", Column: "region"}}, PKFieldIndex: 0},
+	s: parse.StructInfo{Type: "Node", SQLSchema: "", SQLName: "nodes", Fields: []parse.FieldInfo{{Name: "NodeID", Type: "string", Column: "node_id"}, {Name: "NodeType", Type: "NodeType", Column: "node_type"}, {Name: "NodeName", Type: "string", Column: "node_name"}, {Name: "MachineID", Type: "*string", Column: "machine_id"}, {Name: "Distro", Type: "string", Column: "distro"}, {Name: "NodeModel", Type: "string", Column: "node_model"}, {Name: "AZ", Type: "string", Column: "az"}, {Name: "CustomLabels", Type: "[]uint8", Column: "custom_labels"}, {Name: "Address", Type: "string", Column: "address"}, {Name: "CreatedAt", Type: "time.Time", Column: "created_at"}, {Name: "UpdatedAt", Type: "time.Time", Column: "updated_at"}, {Name: "ContainerID", Type: "*string", Column: "container_id"}, {Name: "ContainerName", Type: "*string", Column: "container_name"}, {Name: "Region", Type: "*string", Column: "region"}}, PKFieldIndex: 0},
 	z: new(Node).Values(),
 }
 
 // String returns a string representation of this struct or record.
 func (s Node) String() string {
-	res := make([]string, 13)
+	res := make([]string, 14)
 	res[0] = "NodeID: " + reform.Inspect(s.NodeID, true)
 	res[1] = "NodeType: " + reform.Inspect(s.NodeType, true)
 	res[2] = "NodeName: " + reform.Inspect(s.NodeName, true)
 	res[3] = "MachineID: " + reform.Inspect(s.MachineID, true)
-	res[4] = "CustomLabels: " + reform.Inspect(s.CustomLabels, true)
-	res[5] = "Address: " + reform.Inspect(s.Address, true)
-	res[6] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
-	res[7] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
-	res[8] = "Distro: " + reform.Inspect(s.Distro, true)
-	res[9] = "DistroVersion: " + reform.Inspect(s.DistroVersion, true)
-	res[10] = "DockerContainerID: " + reform.Inspect(s.DockerContainerID, true)
-	res[11] = "DockerContainerName: " + reform.Inspect(s.DockerContainerName, true)
-	res[12] = "Region: " + reform.Inspect(s.Region, true)
+	res[4] = "Distro: " + reform.Inspect(s.Distro, true)
+	res[5] = "NodeModel: " + reform.Inspect(s.NodeModel, true)
+	res[6] = "AZ: " + reform.Inspect(s.AZ, true)
+	res[7] = "CustomLabels: " + reform.Inspect(s.CustomLabels, true)
+	res[8] = "Address: " + reform.Inspect(s.Address, true)
+	res[9] = "CreatedAt: " + reform.Inspect(s.CreatedAt, true)
+	res[10] = "UpdatedAt: " + reform.Inspect(s.UpdatedAt, true)
+	res[11] = "ContainerID: " + reform.Inspect(s.ContainerID, true)
+	res[12] = "ContainerName: " + reform.Inspect(s.ContainerName, true)
+	res[13] = "Region: " + reform.Inspect(s.Region, true)
 	return strings.Join(res, ", ")
 }
 
@@ -78,14 +79,15 @@ func (s *Node) Values() []interface{} {
 		s.NodeType,
 		s.NodeName,
 		s.MachineID,
+		s.Distro,
+		s.NodeModel,
+		s.AZ,
 		s.CustomLabels,
 		s.Address,
 		s.CreatedAt,
 		s.UpdatedAt,
-		s.Distro,
-		s.DistroVersion,
-		s.DockerContainerID,
-		s.DockerContainerName,
+		s.ContainerID,
+		s.ContainerName,
 		s.Region,
 	}
 }
@@ -98,14 +100,15 @@ func (s *Node) Pointers() []interface{} {
 		&s.NodeType,
 		&s.NodeName,
 		&s.MachineID,
+		&s.Distro,
+		&s.NodeModel,
+		&s.AZ,
 		&s.CustomLabels,
 		&s.Address,
 		&s.CreatedAt,
 		&s.UpdatedAt,
-		&s.Distro,
-		&s.DistroVersion,
-		&s.DockerContainerID,
-		&s.DockerContainerName,
+		&s.ContainerID,
+		&s.ContainerName,
 		&s.Region,
 	}
 }

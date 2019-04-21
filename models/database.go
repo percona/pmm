@@ -44,18 +44,17 @@ var databaseSchema = [][]string{
 			node_type VARCHAR NOT NULL CHECK (node_type <> ''),
 			node_name VARCHAR NOT NULL CHECK (node_name <> ''),
 			machine_id VARCHAR CHECK (machine_id <> ''),
+			distro VARCHAR NOT NULL,
+			node_model VARCHAR NOT NULL,
+			az VARCHAR NOT NULL,
 			custom_labels TEXT,
-			address VARCHAR CHECK (address <> ''),
+			address VARCHAR NOT NULL,
 			created_at TIMESTAMP NOT NULL,
 			updated_at TIMESTAMP NOT NULL,
 
-			-- Generic
-			distro VARCHAR CHECK (distro <> ''),
-			distro_version VARCHAR CHECK (distro_version <> ''),
-
 			-- Container
-			docker_container_id VARCHAR CHECK (docker_container_id <> ''),
-			docker_container_name VARCHAR CHECK (docker_container_name <> ''),
+			container_id VARCHAR CHECK (container_id <> ''),
+			container_name VARCHAR CHECK (container_name <> ''),
 
 			-- RemoteAmazonRDS
 			-- RDS instance is stored in address
@@ -63,12 +62,16 @@ var databaseSchema = [][]string{
 
 			PRIMARY KEY (node_id),
 			UNIQUE (node_name),
-			UNIQUE (machine_id),
-			UNIQUE (docker_container_id),
+			UNIQUE (container_id),
 			UNIQUE (address, region)
 		)`,
+		`CREATE UNIQUE INDEX nodes_machine_id_generic_key
+			ON nodes (machine_id)
+			WHERE node_type = 'generic'
+		`,
 
-		fmt.Sprintf(`INSERT INTO nodes (node_id, node_type,	node_name, created_at, updated_at) VALUES ('%s', '%s', 'PMM Server', '%s', '%s')`, //nolint:gosec
+		fmt.Sprintf(`INSERT INTO nodes (node_id, node_type,	node_name, distro, node_model, az, address, created_at, updated_at) `+ //nolint:gosec
+			`VALUES ('%s', '%s', 'PMM Server', 'Linux', '', '', '', '%s', '%s')`, //nolint:gosec
 			PMMServerNodeID, GenericNodeType, initialCurrentTime, initialCurrentTime), //nolint:gosec
 
 		`CREATE TABLE services (

@@ -79,17 +79,16 @@ func scrapeConfigForPMMManaged() *config.ScrapeConfig {
 	}
 }
 
-func commonExporterLabelSet(node *models.Node, service *models.Service, agent *models.Agent) model.LabelSet {
+func commonExporterLabelSet(node *models.Node, service *models.Service, agent *models.Agent) (model.LabelSet, error) {
 	res := make(model.LabelSet)
 
-	res[model.LabelName("node_id")] = model.LabelValue(node.NodeID)
-	res[model.LabelName("node_type")] = model.LabelValue(node.NodeType)
-	res[model.LabelName("node_name")] = model.LabelValue(node.NodeName)
-	res[model.LabelName("machine_id")] = model.LabelValue(pointer.GetString(node.MachineID))
-	res[model.LabelName("container_id")] = model.LabelValue(pointer.GetString(node.DockerContainerID))
-	res[model.LabelName("container_name")] = model.LabelValue(pointer.GetString(node.DockerContainerName))
-	res[model.LabelName("region")] = model.LabelValue(pointer.GetString(node.Region)) // TODO https://jira.percona.com/browse/PMM-3786
-	// TODO node_model, az
+	nodeLabels, err := node.UnifiedLabels()
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range nodeLabels {
+		res[model.LabelName(k)] = model.LabelValue(v)
+	}
 
 	if service != nil {
 		res[model.LabelName("service_id")] = model.LabelValue(service.ServiceID)
@@ -100,7 +99,7 @@ func commonExporterLabelSet(node *models.Node, service *models.Service, agent *m
 	res[model.LabelName("instance")] = model.LabelValue(agent.AgentID)
 	res[model.LabelName("agent_type")] = model.LabelValue(agent.AgentType)
 
-	return res
+	return res, nil
 }
 
 func mergeLabels(labels model.LabelSet, node *models.Node, service *models.Service, agent *models.Agent) error {
@@ -146,8 +145,11 @@ func jobName(agent *models.Agent) string {
 }
 
 func scrapeConfigForNodeExporter(node *models.Node, agent *models.Agent) (*config.ScrapeConfig, error) {
-	labels := commonExporterLabelSet(node, nil, agent)
-	if err := mergeLabels(labels, node, nil, agent); err != nil {
+	labels, err := commonExporterLabelSet(node, nil, agent)
+	if err != nil {
+		return nil, err
+	}
+	if err = mergeLabels(labels, node, nil, agent); err != nil {
 		return nil, err
 	}
 
@@ -155,9 +157,9 @@ func scrapeConfigForNodeExporter(node *models.Node, agent *models.Agent) (*confi
 	if port == 0 {
 		return nil, errors.New("listen port is not known")
 	}
-	hostport := net.JoinHostPort(pointer.GetString(node.Address), strconv.Itoa(int(port)))
+	hostport := net.JoinHostPort(node.Address, strconv.Itoa(int(port)))
 	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
-	if err := target.Validate(); err != nil {
+	if err = target.Validate(); err != nil {
 		return nil, errors.Wrap(err, "failed to set targets")
 	}
 
@@ -178,8 +180,11 @@ func scrapeConfigForNodeExporter(node *models.Node, agent *models.Agent) (*confi
 }
 
 func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
-	labels := commonExporterLabelSet(node, service, agent)
-	if err := mergeLabels(labels, node, service, agent); err != nil {
+	labels, err := commonExporterLabelSet(node, service, agent)
+	if err != nil {
+		return nil, err
+	}
+	if err = mergeLabels(labels, node, service, agent); err != nil {
 		return nil, err
 	}
 
@@ -207,9 +212,9 @@ func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, 
 	if port == 0 {
 		return nil, errors.New("listen port is not known")
 	}
-	hostport := net.JoinHostPort(pointer.GetString(node.Address), strconv.Itoa(int(port)))
+	hostport := net.JoinHostPort(node.Address, strconv.Itoa(int(port)))
 	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
-	if err := target.Validate(); err != nil {
+	if err = target.Validate(); err != nil {
 		return nil, errors.Wrap(err, "failed to set targets")
 	}
 
@@ -226,8 +231,11 @@ func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, 
 }
 
 func scrapeConfigForPostgresExporter(node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	labels := commonExporterLabelSet(node, service, agent)
-	if err := mergeLabels(labels, node, service, agent); err != nil {
+	labels, err := commonExporterLabelSet(node, service, agent)
+	if err != nil {
+		return nil, err
+	}
+	if err = mergeLabels(labels, node, service, agent); err != nil {
 		return nil, err
 	}
 
@@ -242,9 +250,9 @@ func scrapeConfigForPostgresExporter(node *models.Node, service *models.Service,
 	if port == 0 {
 		return nil, errors.New("listen port is not known")
 	}
-	hostport := net.JoinHostPort(pointer.GetString(node.Address), strconv.Itoa(int(port)))
+	hostport := net.JoinHostPort(node.Address, strconv.Itoa(int(port)))
 	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
-	if err := target.Validate(); err != nil {
+	if err = target.Validate(); err != nil {
 		return nil, errors.Wrap(err, "failed to set targets")
 	}
 
@@ -259,8 +267,11 @@ func scrapeConfigForPostgresExporter(node *models.Node, service *models.Service,
 }
 
 func scrapeConfigForMongoDBExporter(node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	labels := commonExporterLabelSet(node, service, agent)
-	if err := mergeLabels(labels, node, service, agent); err != nil {
+	labels, err := commonExporterLabelSet(node, service, agent)
+	if err != nil {
+		return nil, err
+	}
+	if err = mergeLabels(labels, node, service, agent); err != nil {
 		return nil, err
 	}
 
@@ -268,9 +279,9 @@ func scrapeConfigForMongoDBExporter(node *models.Node, service *models.Service, 
 	if port == 0 {
 		return nil, errors.New("listen port is not known")
 	}
-	hostport := net.JoinHostPort(pointer.GetString(node.Address), strconv.Itoa(int(port)))
+	hostport := net.JoinHostPort(node.Address, strconv.Itoa(int(port)))
 	target := model.LabelSet{addressLabel: model.LabelValue(hostport)}
-	if err := target.Validate(); err != nil {
+	if err = target.Validate(); err != nil {
 		return nil, errors.Wrap(err, "failed to set targets")
 	}
 

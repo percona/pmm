@@ -120,13 +120,13 @@ func TestRemoveService(t *testing.T) {
 			Username:   "username",
 		})
 		require.NoError(t, err)
-		ss.asrs.(*mockRegistry).On("SendSetStateRequest", ctx, pmmAgent.AgentID)
+		ss.registry.(*mockRegistry).On("SendSetStateRequest", ctx, pmmAgent.AgentID)
 
 		response, err := ss.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventorypb.ServiceType_MYSQL_SERVICE})
 		assert.NoError(t, err)
 		assert.NotNil(t, response)
 
-		ss.asrs.(*mockRegistry).AssertCalled(t, "SendSetStateRequest", ctx, pmmAgent.AgentID)
+		ss.registry.(*mockRegistry).AssertCalled(t, "SendSetStateRequest", ctx, pmmAgent.AgentID)
 
 		agent, err := models.AgentFindByID(ss.db.Querier, mysqldExporter.AgentID)
 		assert.EqualError(t, err, "rpc error: code = NotFound desc = Agent with ID \"/agent_id/00000000-0000-4000-8000-000000000003\" not found.")

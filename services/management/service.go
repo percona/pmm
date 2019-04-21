@@ -41,15 +41,15 @@ var (
 
 // ServiceService represents service for working with services.
 type ServiceService struct {
-	db   *reform.DB
-	asrs agentStateRequestSender
+	db       *reform.DB
+	registry registry
 }
 
 // NewServiceService creates ServiceService instance.
-func NewServiceService(db *reform.DB, asrs agentStateRequestSender) *ServiceService {
+func NewServiceService(db *reform.DB, registry registry) *ServiceService {
 	return &ServiceService{
-		db:   db,
-		asrs: asrs,
+		db:       db,
+		registry: registry,
 	}
 }
 
@@ -102,7 +102,7 @@ func (ss *ServiceService) RemoveService(ctx context.Context, req *managementpb.R
 		return nil, e
 	}
 	for agentID := range pmmAgentIDs {
-		ss.asrs.SendSetStateRequest(ctx, agentID)
+		ss.registry.SendSetStateRequest(ctx, agentID)
 	}
 	return &managementpb.RemoveServiceResponse{}, nil
 }

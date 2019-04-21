@@ -32,20 +32,15 @@ import (
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
-type agentStateRequestSender interface {
-	SendSetStateRequest(ctx context.Context, pmmAgentID string)
-	IsConnected(pmmAgentID string) bool
-}
-
 // MySQLService MySQL Management Service.
 type MySQLService struct {
-	db   *reform.DB
-	asrs agentStateRequestSender
+	db       *reform.DB
+	registry registry
 }
 
 // NewMySQLService creates new MySQL Management Service.
-func NewMySQLService(db *reform.DB, asrs agentStateRequestSender) *MySQLService {
-	return &MySQLService{db, asrs}
+func NewMySQLService(db *reform.DB, registry registry) *MySQLService {
+	return &MySQLService{db, registry}
 }
 
 // Add adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
@@ -53,7 +48,6 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 	res = &managementpb.AddMySQLResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
-
 		service, err := models.AddNewService(tx.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName: req.ServiceName,
 			NodeID:      req.NodeId,
@@ -85,7 +79,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				return err
 			}
 
-			agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.asrs)
+			agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
 			if err != nil {
 				return err
 			}
@@ -107,7 +101,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				return err
 			}
 
-			qAgent, err := inventory.ToInventoryAgent(tx.Querier, row, s.asrs)
+			qAgent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
 			if err != nil {
 				return err
 			}
@@ -128,7 +122,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				return err
 			}
 
-			qAgent, err := inventory.ToInventoryAgent(tx.Querier, row, s.asrs)
+			qAgent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
 			if err != nil {
 				return err
 			}
@@ -141,7 +135,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		return nil, e
 	}
 
-	s.asrs.SendSetStateRequest(ctx, req.PmmAgentId)
+	s.registry.SendSetStateRequest(ctx, req.PmmAgentId)
 
 	return res, nil
 }

@@ -106,7 +106,6 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}
 	return res, nil
-
 }
 
 // AddPMMAgent adds pmm-agent Agent.
@@ -289,7 +288,6 @@ func (s *agentsServer) AddPostgresExporter(ctx context.Context, req *inventorypb
 		PostgresExporter: agent,
 	}
 	return res, nil
-
 }
 
 // ChangePostgresExporter changes disabled flag and custom labels of postgres_exporter Agent.

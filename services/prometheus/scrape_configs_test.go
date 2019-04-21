@@ -38,7 +38,8 @@ func TestScrapeConfig(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("1.2.3.4"),
+				NodeName:     "node_name",
+				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			agent := &models.Agent{
@@ -63,6 +64,7 @@ func TestScrapeConfig(t *testing.T) {
 							"agent_type":        "node_exporter",
 							"instance":          "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"node_id":           "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":         "node_name",
 						},
 					}},
 				},
@@ -78,7 +80,8 @@ func TestScrapeConfig(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("1.2.3.4"),
+				NodeName:     "node_name",
+				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			service := &models.Service{
@@ -110,6 +113,7 @@ func TestScrapeConfig(t *testing.T) {
 							"agent_type":          "mysqld_exporter",
 							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":           "node_name",
 							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
@@ -129,6 +133,7 @@ func TestScrapeConfig(t *testing.T) {
 							"agent_type":          "mysqld_exporter",
 							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":           "node_name",
 							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
@@ -148,6 +153,7 @@ func TestScrapeConfig(t *testing.T) {
 							"agent_type":          "mysqld_exporter",
 							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":           "node_name",
 							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
@@ -179,7 +185,8 @@ func TestScrapeConfig(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("1.2.3.4"),
+				NodeName:     "node_name",
+				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			service := &models.Service{
@@ -211,6 +218,7 @@ func TestScrapeConfig(t *testing.T) {
 							"agent_type":          "mongodb_exporter",
 							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":           "node_name",
 							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},
@@ -239,7 +247,8 @@ func TestScrapeConfig(t *testing.T) {
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
-				Address:      pointer.ToString("1.2.3.4"),
+				NodeName:     "node_name",
+				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
 			}
 			service := &models.Service{
@@ -271,6 +280,7 @@ func TestScrapeConfig(t *testing.T) {
 							"agent_type":          "postgres_exporter",
 							"instance":            "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 							"node_id":             "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
+							"node_name":           "node_name",
 							"service_id":          "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
 						},
 					}},

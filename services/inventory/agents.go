@@ -639,13 +639,8 @@ func (as *AgentsService) Remove(ctx context.Context, id string) error {
 	return nil
 }
 
-// AgentConnectionChecker provides interface for check pmm agent connection status.
-type AgentConnectionChecker interface {
-	IsConnected(pmmAgentID string) bool
-}
-
 // ToInventoryAgent converts database row to Inventory API Agent.
-func ToInventoryAgent(q *reform.Querier, row *models.Agent, connChecker AgentConnectionChecker) (inventorypb.Agent, error) {
+func ToInventoryAgent(q *reform.Querier, row *models.Agent, registry registry) (inventorypb.Agent, error) {
 	labels, err := row.GetCustomLabels()
 	if err != nil {
 		return nil, err
@@ -656,7 +651,7 @@ func ToInventoryAgent(q *reform.Querier, row *models.Agent, connChecker AgentCon
 		return &inventorypb.PMMAgent{
 			AgentId:      row.AgentID,
 			RunsOnNodeId: pointer.GetString(row.RunsOnNodeID),
-			Connected:    connChecker.IsConnected(row.AgentID),
+			Connected:    registry.IsConnected(row.AgentID),
 			CustomLabels: labels,
 		}, nil
 
