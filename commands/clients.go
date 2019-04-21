@@ -53,7 +53,7 @@ type statusResult struct {
 	ConfigFilePath string
 }
 
-// status returns locally running pmm-agent status.
+// localStatus returns locally running pmm-agent status.
 // Error is returned if pmm-agent is not running.
 //
 // This method is not thread-safe.
@@ -68,6 +68,9 @@ func localStatus() (*statusResult, error) {
 	}, nil
 }
 
+// localReload reloads locally running pmm-agent.
+//
+// This method is not thread-safe.
 func localReload() error {
 	_, err := agentlocalpb.Default.AgentLocal.Reload(nil)
 	return err
@@ -103,6 +106,9 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	managementpb.Default.SetTransport(transport)
 }
 
+// serverRegister registers Node on PMM Server.
+//
+// This method is not thread-safe.
 func serverRegister(cfgSetup *config.Setup) (string, error) {
 	nodeTypes := map[string]string{
 		"generic":   node.RegisterBodyNodeTypeGENERICNODE,
