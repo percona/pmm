@@ -125,9 +125,6 @@ type AddGenericNodeBody struct {
 	// Linux distribution (if any).
 	Distro string `json:"distro,omitempty"`
 
-	// Linux distribution version (if any).
-	DistroVersion string `json:"distro_version,omitempty"`
-
 	// Linux machine-id. Must be unique across all Generic Nodes if specified.
 	MachineID string `json:"machine_id,omitempty"`
 
@@ -268,9 +265,6 @@ type AddGenericNodeOKBodyGeneric struct {
 
 	// Linux distribution (if any). Can be changed.
 	Distro string `json:"distro,omitempty"`
-
-	// Linux distribution version (if any). Can be changed.
-	DistroVersion string `json:"distro_version,omitempty"`
 
 	// Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.
 	MachineID string `json:"machine_id,omitempty"`

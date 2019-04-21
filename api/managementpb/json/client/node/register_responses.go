@@ -133,9 +133,6 @@ type RegisterBody struct {
 	// Linux distribution. For Generic nodes (optional).
 	Distro string `json:"distro,omitempty"`
 
-	// Linux distribution version. For Generic nodes (optional).
-	DistroVersion string `json:"distro_version,omitempty"`
-
 	// Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified (optional).
 	MachineID string `json:"machine_id,omitempty"`
 
@@ -441,9 +438,6 @@ type RegisterOKBodyGenericNode struct {
 
 	// Linux distribution (if any). Can be changed.
 	Distro string `json:"distro,omitempty"`
-
-	// Linux distribution version (if any). Can be changed.
-	DistroVersion string `json:"distro_version,omitempty"`
 
 	// Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.
 	MachineID string `json:"machine_id,omitempty"`

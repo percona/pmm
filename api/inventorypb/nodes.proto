@@ -43,8 +43,6 @@ message GenericNode {
   string machine_id = 3;
   // Linux distribution (if any). Can be changed.
   string distro = 4;
-  // Linux distribution version (if any). Can be changed.
-  string distro_version = 5;
   // Custom user-assigned labels. Can be changed.
   map<string, string> custom_labels = 10;
   // Address FIXME https://jira.percona.com/browse/PMM-3786
@@ -139,8 +137,6 @@ message AddGenericNodeRequest {
   string machine_id = 3;
   // Linux distribution (if any).
   string distro = 4;
-  // Linux distribution version (if any).
-  string distro_version = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
   // Address FIXME.
