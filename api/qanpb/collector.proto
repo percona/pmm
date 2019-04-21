@@ -52,8 +52,8 @@ message MetricsBucket {
   // Dimension Group.
   //
 
-  // Server.
-  string d_server = 3;
+  // Service Name (can be several Services on one Node).
+  string service_name = 3;
   // PostgreSQL database.
   string d_database = 4;
   // MySQL database or PostgreSQL schema.
@@ -62,16 +62,40 @@ message MetricsBucket {
   string d_username = 6;
   // client IP or hostname.
   string d_client_host = 7;
+  //
+  // Unified Labels Group.
+  //
+
+  // Name of replication set
+  string replication_set = 158;
+  // Cluster name
+  string cluster = 159;
+  // Type of service
+  string service_type = 160;
+  // Environment name
+  string environment = 161;
+  // Availability zone
+  string az = 162;
+  // Region name
+  string region = 163;
+  // Node model
+  string node_model = 164;
+  // Container name
+  string container_name = 165;
+  // Identifier of agent that collect and send metrics.
+  string agent_id = 9;
+  // Metrics source.
+  MetricsSource metrics_source = 12;
   // Custom labels names:values.
   map<string, string> labels = 8;
-  // Identifier of agent that collect and send metrics.
-  string agent_uuid = 9;
+  //
+  // Period and Query Example Group.
+  //
+
   // Time when collection of bucket started.
   uint32 period_start_unix_secs = 10;
   // Duration of bucket.
   uint32 period_length_secs = 11;
-  // Metrics source.
-  MetricsSource metrics_source = 12;
   // One of query example from set found in bucket.
   string example = 13;
   ExampleFormat example_format = 14;
