@@ -103,6 +103,7 @@ func checkStatus(configFilePath string, l *logrus.Entry) (string, bool) {
 			fmt.Printf("pmm-agent is not running. Please re-run `pmm-agent setup` with --config-file flag.\n")
 			os.Exit(1)
 		}
+		fmt.Printf("pmm-agent is not running.\n")
 		return configFilePath, false
 	}
 }
@@ -118,8 +119,12 @@ func register(cfg *config.Config, l *logrus.Entry) {
 
 	setServerTransport(u, cfg.Server.InsecureTLS, l)
 	agentID, err := serverRegister(&cfg.Setup)
+	l.Debugf("Register error: %#v", err)
 	if err != nil {
 		fmt.Printf("Failed to register pmm-agent on PMM Server: %s.\n", err)
+		if _, ok := err.(errFromNginx); ok {
+			fmt.Printf("Please check pmm-managed logs.\n")
+		}
 		os.Exit(1)
 	}
 

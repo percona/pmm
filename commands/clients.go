@@ -20,11 +20,14 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
 
 	"github.com/AlekSi/pointer"
+	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	agentlocalpb "github.com/percona/pmm/api/agentlocalpb/json/client"
 	managementpb "github.com/percona/pmm/api/managementpb/json/client"
@@ -43,8 +46,10 @@ func setLocalTransport(port uint16, l *logrus.Entry) {
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 	transport.Context = context.Background()
+
 	// disable HTTP/2
-	transport.Transport.(*http.Transport).TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
+	httpTransport := transport.Transport.(*http.Transport)
+	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 
 	agentlocalpb.Default.SetTransport(transport)
 }
@@ -76,6 +81,16 @@ func localReload() error {
 	return err
 }
 
+type errFromNginx string
+
+func (e errFromNginx) Error() string {
+	return "response from nginx: " + string(e)
+}
+
+func (e errFromNginx) GoString() string {
+	return fmt.Sprintf("errFromNginx(%q)", string(e))
+}
+
 // setServerTransport configures transport for accessing PMM Server API.
 //
 // This method is not thread-safe.
@@ -89,8 +104,22 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 	transport.SetLogger(l)
 	transport.SetDebug(l.Logger.GetLevel() >= logrus.DebugLevel)
 	transport.Context = context.Background()
+
+	// set error handlers for nginx responses if pmm-managed is down
+	errorConsumer := runtime.ConsumerFunc(func(reader io.Reader, data interface{}) error {
+		b, _ := ioutil.ReadAll(reader)
+		return errFromNginx(string(b))
+	})
+	transport.Consumers = map[string]runtime.Consumer{
+		runtime.JSONMime:    runtime.JSONConsumer(),
+		runtime.HTMLMime:    errorConsumer,
+		runtime.TextMime:    errorConsumer,
+		runtime.DefaultMime: errorConsumer,
+	}
+
+	// disable HTTP/2, set TLS config
 	httpTransport := transport.Transport.(*http.Transport)
-	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{} // disable HTTP/2
+	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 	if u.Scheme == "https" {
 		if httpTransport.TLSClientConfig == nil {
 			httpTransport.TLSClientConfig = new(tls.Config)
@@ -132,3 +161,9 @@ func serverRegister(cfgSetup *config.Setup) (string, error) {
 	}
 	return res.Payload.PMMAgent.AgentID, nil
 }
+
+// check interfaces
+var (
+	_ error          = errFromNginx("")
+	_ fmt.GoStringer = errFromNginx("")
+)
