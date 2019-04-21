@@ -133,7 +133,7 @@ func reload(l *logrus.Entry) {
 	// sync error handling with Reload API method
 	err := localReload()
 	l.Debugf("Reload error: %#v", err)
-	if err := err.(*agent_local.ReloadDefault); err != nil && err.Code() == int(codes.FailedPrecondition) {
+	if err, _ := err.(*agent_local.ReloadDefault); err != nil && err.Code() == int(codes.FailedPrecondition) {
 		fmt.Printf("Failed to reload configuration: %s.\n", err.Payload.Error)
 		os.Exit(1)
 	}
