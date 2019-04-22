@@ -25,7 +25,7 @@ type Client struct {
 }
 
 /*
-Register registers do node registration
+Register registers registers a new node or updates the existing one by name
 */
 func (a *Client) Register(params *RegisterParams) (*RegisterOK, error) {
 	// TODO: Validate the params before sending

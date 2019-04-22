@@ -27,24 +27,32 @@ import "inventorypb/nodes.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 message RegisterNodeRequest {
-  // Type of node which will be registered.
+  // Node type to be registered.
   inventory.NodeType node_type = 1;
-  // Unique across all Nodes user-defined name, can be changed.
+  // Unique across all Nodes user-defined name. Can't be changed.
   string node_name = 2 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified (optional).
+  // Linux machine-id. Auto-detected and auto-updated.
+  // Must be unique across all Generic Nodes if specified.
   string machine_id = 3;
-  // Linux distribution. For Generic nodes (optional).
+  // Linux distribution name and version. Auto-detected and auto-updated.
   string distro = 4;
-  // Сontainer identifier. Only for Container Nodes (optional).
+  // Container identifier. If specified, must be a unique Docker container identifier.
+  // Auto-detected and auto-updated.
   string container_id = 6;
-  // Сontainer name. Only for Container Nodes (optional).
+  // Container name. Auto-detected and auto-updated.
   string container_name = 7;
-  // Custom user-assigned labels for node (optional).
-  map<string, string> custom_labels = 10;
+  // Node model. Auto-detected and auto-updated.
+  string node_model = 8;
+  // Node region. Auto-detected and auto-updated.
+  string region = 9;
+  // Node availability zone. Auto-detected and auto-updated.
+  string az = 10;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 11;
   // Address FIXME https://jira.percona.com/browse/PMM-3786
   string address = 42;
 }
@@ -55,9 +63,9 @@ message RegisterNodeResponse {
   inventory.PMMAgent pmm_agent = 3;
 }
 
-// Node service provides public Management API methods for operating with nodes.
+// Node service provides public Management API methods for Nodes.
 service Node {
-  // Register do node registration.
+  // Register registers a new Node or updates the existing one by name.
   rpc Register(RegisterNodeRequest) returns (RegisterNodeResponse) {
     option (google.api.http) = {
       post: "/v1/management/Node/Register"
