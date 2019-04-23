@@ -38,8 +38,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm-agent/agents/builtin/mysql"
-	mysqlslowlog "github.com/percona/pmm-agent/agents/builtin/mysql/slowlog"
+	"github.com/percona/pmm-agent/agents/builtin/mysql/perfschema"
+	"github.com/percona/pmm-agent/agents/builtin/mysql/slowlog"
 	"github.com/percona/pmm-agent/agents/builtin/noop"
 	"github.com/percona/pmm-agent/agents/process"
 	"github.com/percona/pmm-agent/config"
@@ -376,23 +376,25 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		"type":      agentType,
 	})
 
+	// TODO use common interface for built-in Agents once MongoDB profiler is merged
+
 	done := make(chan struct{})
 	switch builtinAgent.Type {
 	case agentpb.Type_QAN_MYSQL_PERFSCHEMA_AGENT:
-		params := &mysql.Params{
+		params := &perfschema.Params{
 			DSN:     builtinAgent.Dsn,
 			AgentID: agentID,
 		}
-		m, err := mysql.New(params, l)
+		agent, err := perfschema.New(params, l)
 		if err != nil {
 			cancel()
 			return err
 		}
 
-		go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), m.Run)
+		go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
 
 		go func() {
-			for change := range m.Changes() {
+			for change := range agent.Changes() {
 				if change.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
 					s.changes <- agentpb.StateChangedRequest{
 						AgentId: agentID,
@@ -409,20 +411,20 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		}()
 
 	case agentpb.Type_QAN_MYSQL_SLOWLOG_AGENT:
-		params := &mysqlslowlog.Params{
+		params := &slowlog.Params{
 			DSN:     builtinAgent.Dsn,
 			AgentID: agentID,
 		}
-		m, err := mysqlslowlog.New(params, l)
+		agent, err := slowlog.New(params, l)
 		if err != nil {
 			cancel()
 			return err
 		}
 
-		go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), m.Run)
+		go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
 
 		go func() {
-			for change := range m.Changes() {
+			for change := range agent.Changes() {
 				if change.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
 					s.changes <- agentpb.StateChangedRequest{
 						AgentId: agentID,
@@ -439,17 +441,23 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		}()
 
 	case type_TEST_NOOP:
-		n := noop.New()
+		agent := noop.New()
 
-		go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), n.Run)
+		go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), agent.Run)
 
 		go func() {
-			for status := range n.Changes() {
-				s.changes <- agentpb.StateChangedRequest{
-					AgentId: agentID,
-					Status:  status,
+			for change := range agent.Changes() {
+				if change.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+					s.changes <- agentpb.StateChangedRequest{
+						AgentId: agentID,
+						Status:  change.Status,
+					}
+					s.storeLastStatus(agentID, change.Status)
+				} else {
+					s.qanRequests <- agentpb.QANCollectRequest{
+						Message: change.Request,
+					}
 				}
-				s.storeLastStatus(agentID, status)
 			}
 			close(done)
 		}()

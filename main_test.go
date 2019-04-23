@@ -47,14 +47,25 @@ func TestImports(t *testing.T) {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm/api/agentpb",
 				"github.com/percona/pmm-agent/agentlocal",
+				"github.com/percona/pmm-agent/agents/builtin",
 				"github.com/percona/pmm-agent/client",
 				"github.com/percona/pmm-agent/config",
 			},
 		},
-		"github.com/percona/pmm-agent/agents/builtin/mysql": {
+		"github.com/percona/pmm-agent/agents/builtin/mysql/perfschema": {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm/api/agentpb",
 				"github.com/percona/pmm-agent/agentlocal",
+				"github.com/percona/pmm-agent/agents/builtin",
+				"github.com/percona/pmm-agent/client",
+				"github.com/percona/pmm-agent/config",
+			},
+		},
+		"github.com/percona/pmm-agent/agents/builtin/mysql/slowlog": {
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm/api/agentpb",
+				"github.com/percona/pmm-agent/agentlocal",
+				"github.com/percona/pmm-agent/agents/builtin",
 				"github.com/percona/pmm-agent/client",
 				"github.com/percona/pmm-agent/config",
 			},
@@ -63,6 +74,7 @@ func TestImports(t *testing.T) {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm/api/agentpb",
 				"github.com/percona/pmm-agent/agentlocal",
+				"github.com/percona/pmm-agent/agents/builtin",
 				"github.com/percona/pmm-agent/client",
 				"github.com/percona/pmm-agent/config",
 			},

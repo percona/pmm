@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package mysql
+package perfschema
 
 import (
 	"bytes"
@@ -43,7 +43,7 @@ func assertBucketsEqual(t *testing.T, expected, actual *qanpb.MetricsBucket) boo
 	return assert.Equal(t, proto.MarshalTextString(expected), proto.MarshalTextString(actual))
 }
 
-func TestMySQLMakeBuckets(t *testing.T) {
+func TestPerfSchemaMakeBuckets(t *testing.T) {
 	t.Run("Normal", func(t *testing.T) {
 		prev := map[string]*eventsStatementsSummaryByDigest{
 			"Normal": {
@@ -194,7 +194,7 @@ func logTable(t *testing.T, structs []reform.Struct) {
 	t.Logf("%s:\n%s", structs[0].View().Name(), buf.Bytes())
 }
 
-func setup(t *testing.T, db *reform.DB) *MySQL {
+func setup(t *testing.T, db *reform.DB) *PerfSchema {
 	t.Helper()
 
 	_, err := db.Exec("TRUNCATE performance_schema.events_statements_history")
@@ -202,7 +202,7 @@ func setup(t *testing.T, db *reform.DB) *MySQL {
 	_, err = db.Exec("TRUNCATE performance_schema.events_statements_summary_by_digest")
 	require.NoError(t, err)
 
-	return newMySQL(db, "agent_id", logrus.WithField("test", t.Name()))
+	return newPerfSchema(db, "agent_id", logrus.WithField("test", t.Name()))
 }
 
 // filter removes buckets for queries that are not expected by tests.
@@ -225,7 +225,7 @@ func filter(mb []*qanpb.MetricsBucket) []*qanpb.MetricsBucket {
 	return res
 }
 
-func TestMySQL(t *testing.T) {
+func TestPerfSchema(t *testing.T) {
 	sqlDB := tests.OpenTestMySQL(t)
 	defer sqlDB.Close() //nolint:errcheck
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))

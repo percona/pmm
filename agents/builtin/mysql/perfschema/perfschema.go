@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package mysql runs built-in QAN Agent for MySQL.
-package mysql
+// Package perfschema runs built-in QAN Agent for MySQL performance schema.
+package perfschema
 
 import (
 	"context"
@@ -39,8 +39,8 @@ const (
 	querySummaries  = time.Minute
 )
 
-// MySQL QAN services connects to MySQL and extracts performance data.
-type MySQL struct {
+// PerfSchema QAN services connects to MySQL and extracts performance data.
+type PerfSchema struct {
 	db           *reform.DB
 	agentID      string
 	l            *logrus.Entry
@@ -61,8 +61,8 @@ type Change struct {
 	Request *qanpb.CollectRequest
 }
 
-// New creates new MySQL QAN service.
-func New(params *Params, l *logrus.Entry) (*MySQL, error) {
+// New creates new PerfSchema QAN service.
+func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {
 	sqlDB, err := sql.Open("mysql", params.DSN)
 	if err != nil {
 		return nil, err
@@ -72,11 +72,11 @@ func New(params *Params, l *logrus.Entry) (*MySQL, error) {
 	sqlDB.SetConnMaxLifetime(0)
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(l.Tracef))
 
-	return newMySQL(db, params.AgentID, l), nil
+	return newPerfSchema(db, params.AgentID, l), nil
 }
 
-func newMySQL(db *reform.DB, agentID string, l *logrus.Entry) *MySQL {
-	return &MySQL{
+func newPerfSchema(db *reform.DB, agentID string, l *logrus.Entry) *PerfSchema {
+	return &PerfSchema{
 		db:           db,
 		agentID:      agentID,
 		l:            l,
@@ -87,7 +87,7 @@ func newMySQL(db *reform.DB, agentID string, l *logrus.Entry) *MySQL {
 }
 
 // Run extracts performance data and sends it to the channel until ctx is canceled.
-func (m *MySQL) Run(ctx context.Context) {
+func (m *PerfSchema) Run(ctx context.Context) {
 	defer func() {
 		m.db.DBInterface().(*sql.DB).Close() //nolint:errcheck
 		m.changes <- Change{Status: inventorypb.AgentStatus_DONE}
@@ -152,7 +152,7 @@ func (m *MySQL) Run(ctx context.Context) {
 	}
 }
 
-func (m *MySQL) runHistoryCacheRefresher(ctx context.Context) {
+func (m *PerfSchema) runHistoryCacheRefresher(ctx context.Context) {
 	t := time.NewTicker(refreshHistory)
 	defer t.Stop()
 
@@ -170,7 +170,7 @@ func (m *MySQL) runHistoryCacheRefresher(ctx context.Context) {
 	}
 }
 
-func (m *MySQL) refreshHistoryCache() error {
+func (m *PerfSchema) refreshHistoryCache() error {
 	current, err := getHistory(m.db.Querier)
 	if err != nil {
 		return err
@@ -179,7 +179,7 @@ func (m *MySQL) refreshHistoryCache() error {
 	return nil
 }
 
-func (m *MySQL) getNewBuckets(periodStart time.Time, periodLength time.Duration) ([]*qanpb.MetricsBucket, error) {
+func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLength time.Duration) ([]*qanpb.MetricsBucket, error) {
 	current, err := getSummaries(m.db.Querier)
 	if err != nil {
 		return nil, err
@@ -306,6 +306,6 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 }
 
 // Changes returns channel that should be read until it is closed.
-func (m *MySQL) Changes() <-chan Change {
+func (m *PerfSchema) Changes() <-chan Change {
 	return m.changes
 }

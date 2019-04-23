@@ -22,35 +22,42 @@ import (
 	"time"
 
 	"github.com/percona/pmm/api/inventorypb"
+	"github.com/percona/pmm/api/qanpb"
 )
 
 // NoOp is built-in Agent for testing.
 type NoOp struct {
-	changes chan inventorypb.AgentStatus
+	changes chan Change
+}
+
+// Change represents Agent status change _or_ QAN collect request.
+type Change struct {
+	Status  inventorypb.AgentStatus
+	Request *qanpb.CollectRequest
 }
 
 // New creates new NoOp.
 func New() *NoOp {
 	return &NoOp{
-		changes: make(chan inventorypb.AgentStatus, 10),
+		changes: make(chan Change, 10),
 	}
 }
 
 // Run is doing nothing until ctx is canceled.
 func (n *NoOp) Run(ctx context.Context) {
-	n.changes <- inventorypb.AgentStatus_STARTING
+	n.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
 
 	time.Sleep(time.Second)
-	n.changes <- inventorypb.AgentStatus_RUNNING
+	n.changes <- Change{Status: inventorypb.AgentStatus_RUNNING}
 
 	<-ctx.Done()
 
-	n.changes <- inventorypb.AgentStatus_STOPPING
-	n.changes <- inventorypb.AgentStatus_DONE
+	n.changes <- Change{Status: inventorypb.AgentStatus_STOPPING}
+	n.changes <- Change{Status: inventorypb.AgentStatus_DONE}
 	close(n.changes)
 }
 
 // Changes returns channel that should be read until it is closed.
-func (n *NoOp) Changes() <-chan inventorypb.AgentStatus {
+func (n *NoOp) Changes() <-chan Change {
 	return n.changes
 }
