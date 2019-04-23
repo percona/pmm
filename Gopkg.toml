@@ -29,3 +29,7 @@ required = [
 [[constraint]]
   name = "github.com/AlekSi/pointer"
   branch = "develop"
+
+[[constraint]]
+  name = "github.com/percona/go-mysql"
+  branch = "PMM-2.0"
