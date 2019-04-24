@@ -14,5 +14,5 @@ required = [
   branch = "PMM-2.0"
 
 [[constraint]]
-  branch = "PMM-3514-group-by-digest-user-host-db-server"
   name = "github.com/percona/go-mysql"
+  branch = "PMM-2.0"
