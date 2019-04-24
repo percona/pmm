@@ -80,6 +80,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 	args = append(args, "-collect.perf_schema.indexiowaits")
 	args = append(args, "-collect.perf_schema.tableiowaits")
 	args = append(args, "-collect.perf_schema.tablelocks")
+	args = append(args, "-collect.custom_query=false")
 
 	if pointer.GetString(exporter.MetricsURL) != "" {
 		args = append(args, "-web.telemetry-path="+*exporter.MetricsURL)
