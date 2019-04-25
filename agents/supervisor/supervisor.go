@@ -38,6 +38,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm-agent/agents/builtin/mongodb"
 	"github.com/percona/pmm-agent/agents/builtin/mysql/perfschema"
 	"github.com/percona/pmm-agent/agents/builtin/mysql/slowlog"
 	"github.com/percona/pmm-agent/agents/builtin/noop"
@@ -395,6 +396,36 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 		go func() {
 			for change := range agent.Changes() {
+				if change.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+					s.changes <- agentpb.StateChangedRequest{
+						AgentId: agentID,
+						Status:  change.Status,
+					}
+					s.storeLastStatus(agentID, change.Status)
+				} else {
+					s.qanRequests <- agentpb.QANCollectRequest{
+						Message: change.Request,
+					}
+				}
+			}
+			close(done)
+		}()
+
+	case agentpb.Type_QAN_MONGODB_PROFILER_AGENT:
+		params := &mongodb.Params{
+			DSN:     builtinAgent.Dsn,
+			AgentID: agentID,
+		}
+		m, err := mongodb.New(params, l)
+		if err != nil {
+			cancel()
+			return err
+		}
+
+		go pprof.Do(ctx, pprof.Labels("agentID", agentID, "type", agentType), m.Run)
+
+		go func() {
+			for change := range m.Changes() {
 				if change.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
 					s.changes <- agentpb.StateChangedRequest{
 						AgentId: agentID,

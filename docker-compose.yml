@@ -19,5 +19,14 @@ services:
     volumes:
       - test_db:/docker-entrypoint-initdb.d/:ro
 
+  mongo:
+    image: ${MONGO_IMAGE:-mongo:4.0}
+    restart: always
+    ports:
+      - 127.0.0.1:27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: pmm-agent
+      MONGO_INITDB_ROOT_PASSWORD: root-password
+
 volumes:
   test_db:
