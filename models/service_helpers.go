@@ -149,6 +149,19 @@ func checkServiceUniqueName(q *reform.Querier, name string) error {
 	}
 }
 
+func checkServiceAbsenceOfAgents(q *reform.Querier, serviceID string) error {
+	structs, err := q.FindAllFrom(AgentServiceView, "service_id", serviceID)
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	switch len(structs) {
+	case 0:
+		return nil
+	default:
+		return status.Errorf(codes.FailedPrecondition, "Service with ID %q has agents.", serviceID)
+	}
+}
+
 // AddDBMSServiceParams contains parameters for adding DBMS (MySQL, PostgreSQL, MongoDB) Services.
 type AddDBMSServiceParams struct {
 	ServiceName  string
@@ -192,6 +205,9 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 
 // RemoveService removes single Service.
 func RemoveService(q *reform.Querier, id string) error {
+	if err := checkServiceAbsenceOfAgents(q, id); err != nil {
+		return err
+	}
 	err := q.Delete(&Service{ServiceID: id})
 	if err == reform.ErrNoRows {
 		return status.Errorf(codes.NotFound, "Service with ID %q not found.", id)

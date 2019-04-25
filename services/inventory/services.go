@@ -174,8 +174,6 @@ func (ss *ServicesService) Remove(ctx context.Context, id string) error {
 	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
 	// ID is not 0.
 
-	// TODO check absence of Agents
-
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		err := models.RemoveService(tx.Querier, id)
 		if err != nil {
