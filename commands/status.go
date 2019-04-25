@@ -31,9 +31,8 @@ PMM Server:
 	Version: {{ .Status.ServerVersion }}
 
 Agents:
-	{{ range .Status.Agents }}
-	{{ .AgentID .AgentType .Status }}
-	{{ end }}
+{{ range .Status.Agents }}	{{ .AgentID }} {{ .AgentType }} {{ .Status }} 
+{{ end }}
 `)
 
 type statusResult struct {
