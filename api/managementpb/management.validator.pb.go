@@ -60,6 +60,37 @@ func (this *AddMySQLResponse) Validate() error {
 	}
 	return nil
 }
+func (this *AddPostgreSQLRequest) Validate() error {
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	}
+	if this.ServiceName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
+	}
+	if this.Address == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
+	}
+	if !(this.Port > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Port", fmt.Errorf(`value '%v' must be greater than '0'`, this.Port))
+	}
+	if this.PmmAgentId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
+	}
+	return nil
+}
+func (this *AddPostgreSQLResponse) Validate() error {
+	if this.Service != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Service); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Service", err)
+		}
+	}
+	if this.PostgresExporter != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PostgresExporter); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("PostgresExporter", err)
+		}
+	}
+	return nil
+}
 func (this *RegisterNodeRequest) Validate() error {
 	if this.NodeName == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("NodeName", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeName))

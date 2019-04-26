@@ -13,6 +13,7 @@ import (
 
 	"github.com/percona/pmm/api/managementpb/json/client/my_sql"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
+	"github.com/percona/pmm/api/managementpb/json/client/postgre_sql"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
 )
 
@@ -62,6 +63,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 	cli.MySQL = my_sql.New(transport, formats)
 
 	cli.Node = node.New(transport, formats)
+
+	cli.PostgreSQL = postgre_sql.New(transport, formats)
 
 	cli.Service = service.New(transport, formats)
 
@@ -113,6 +116,8 @@ type PMMManagement struct {
 
 	Node *node.Client
 
+	PostgreSQL *postgre_sql.Client
+
 	Service *service.Client
 
 	Transport runtime.ClientTransport
@@ -125,6 +130,8 @@ func (c *PMMManagement) SetTransport(transport runtime.ClientTransport) {
 	c.MySQL.SetTransport(transport)
 
 	c.Node.SetTransport(transport)
+
+	c.PostgreSQL.SetTransport(transport)
 
 	c.Service.SetTransport(transport)
 
