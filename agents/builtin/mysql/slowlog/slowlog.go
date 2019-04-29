@@ -109,14 +109,14 @@ func (m *SlowLog) Run(ctx context.Context) {
 
 	opts := slowlog.Options{
 		StartOffset: fileSize,
-		Debug:       false,
 		FilterAdminCommand: map[string]bool{
 			"Binlog Dump":      true,
 			"Binlog Dump GTID": true,
 		},
 	}
-
-	running := true
+	if m.l.Logger.GetLevel() == logrus.TraceLevel {
+		opts.Debug = true
+	}
 
 	ticker := time.NewTicker(1 * querySummaries)
 
@@ -133,6 +133,7 @@ func (m *SlowLog) Run(ctx context.Context) {
 	logEvent := slowLogParser.EventChan()
 	aggregator := event.NewAggregator(true, 0, outlierTime)
 
+	var running bool
 	for {
 		select {
 		case <-ctx.Done():
@@ -140,24 +141,36 @@ func (m *SlowLog) Run(ctx context.Context) {
 			m.l.Infof("Context canceled.")
 			return
 
-		case e := <-logEvent:
-			if e == nil {
+		case e, ok := <-logEvent:
+			if !ok {
+				// That should not be possible according to SlowLogParser docs, but we see it.
+				// Disable that case until new logEvent is created in the other case.
+				// FIXME https://jira.percona.com/browse/PMM-3898
+				m.l.Infof("Events channel is closed.")
+				running = false
+				m.changes <- Change{Status: inventorypb.AgentStatus_WAITING}
+				logEvent = nil
 				continue
 			}
-			if !running {
-				m.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
+
+			m.l.Debugf("Parsed slowlog event: %+v.", e)
+			if e == nil {
+				// FIXME Is it possible?
+				// https://jira.percona.com/browse/PMM-3898
+				continue
 			}
-			m.l.Debugf("Parsed %v events in slowlog.", e)
+
+			if !running {
+				running = true
+				m.changes <- Change{Status: inventorypb.AgentStatus_RUNNING}
+			}
+
 			fingerprint := query.Fingerprint(e.Query)
 			digest := query.Id(fingerprint)
 			opts.StartOffset = e.OffsetEnd
 			aggregator.AddEvent(e, digest, e.User, e.Host, e.Db, e.Server, fingerprint)
 
 		case <-ticker.C:
-			if !running {
-				running = true
-				m.changes <- Change{Status: inventorypb.AgentStatus_RUNNING}
-			}
 			m.l.Debugln("Aggregating slowlog events.")
 			res := aggregator.Finalize()
 
@@ -170,6 +183,11 @@ func (m *SlowLog) Run(ctx context.Context) {
 			if !os.SameFile(stat, curStat) {
 				opts.StartOffset = uint64(curStat.Size())
 			}
+
+			if !running {
+				m.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
+			}
+
 			// Prepare fresh parser and aggregator for next iteration.
 			slowLogParser.Stop()
 			if err = slowLogFileDescriptor.Close(); err != nil {
@@ -189,10 +207,6 @@ func (m *SlowLog) Run(ctx context.Context) {
 			}
 			m.l.Debugf("Collected %d buckets.", lenBuckets)
 			m.changes <- Change{Request: &qanpb.CollectRequest{MetricsBucket: buckets}}
-
-		default:
-			running = false
-			m.changes <- Change{Status: inventorypb.AgentStatus_WAITING}
 		}
 	}
 }
