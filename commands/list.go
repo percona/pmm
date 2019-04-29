@@ -182,6 +182,16 @@ func (cmd *listCommand) Run() (Result, error) {
 			})
 		}
 	}
+	for _, a := range agentsRes.Payload.QANMysqlSlowlogAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agents = append(agents, listResultAgent{
+				AgentType: "qan-mysql-slowlog-agent",
+				AgentID:   a.AgentID,
+				ServiceID: a.ServiceID,
+				Status:    getStatus(a.Status, a.Disabled),
+			})
+		}
+	}
 	for _, a := range agentsRes.Payload.MongodbExporter {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agents = append(agents, listResultAgent{
