@@ -59,20 +59,26 @@ message AddMySQLRequest {
       string_not_empty: true
     }
   ];
+  // Environment name.
+  string environment = 6;
+  // Cluster name.
+  string cluster = 7;
+  // Replication set name.
+  string replication_set = 8;
   // MySQL username for scraping metrics.
-  string username = 6;
+  string username = 9;
   // MySQL password for scraping metrics.
-  string password = 7;
+  string password = 10;
   // FIXME remove
-  string qan_username = 8;
+  string qan_username = 11;
   // FIXME remove
-  string qan_password = 9;
+  string qan_password = 12;
   // If true, adds mysqld_exporter for provided service.
-  bool mysqld_exporter = 10;
+  bool mysqld_exporter = 13;
   // If true, adds qan-mysql-perfschema-agent for provided service.
-  bool qan_mysql_perfschema = 11;
+  bool qan_mysql_perfschema = 14;
   // If true, adds qan-mysql-slowlog-agent for provided service.
-  bool qan_mysql_slowlog = 12;
+  bool qan_mysql_slowlog = 15;
 }
 
 message AddMySQLResponse {

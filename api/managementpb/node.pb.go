@@ -277,7 +277,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type NodeClient interface {
-	// Register registers a new Node or updates the existing one by name.
+	// Register registers a new Node and pmm-agent, or updates the existing one by name.
 	Register(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
 }
 
@@ -300,7 +300,7 @@ func (c *nodeClient) Register(ctx context.Context, in *RegisterNodeRequest, opts
 
 // NodeServer is the server API for Node service.
 type NodeServer interface {
-	// Register registers a new Node or updates the existing one by name.
+	// Register registers a new Node and pmm-agent, or updates the existing one by name.
 	Register(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
 }
 

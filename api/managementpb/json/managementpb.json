@@ -34,6 +34,14 @@
                   "description": "Node and Service access address (DNS name or IP). Required.",
                   "type": "string"
                 },
+                "cluster": {
+                  "description": "Cluster name.",
+                  "type": "string"
+                },
+                "environment": {
+                  "description": "Environment name.",
+                  "type": "string"
+                },
                 "mysqld_exporter": {
                   "description": "If true, adds mysqld_exporter for provided service.",
                   "type": "boolean",
@@ -73,6 +81,10 @@
                 "qan_username": {
                   "type": "string",
                   "title": "FIXME remove"
+                },
+                "replication_set": {
+                  "description": "Replication set name.",
+                  "type": "string"
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
@@ -258,12 +270,20 @@
                       "description": "Access address (DNS name or IP).",
                       "type": "string"
                     },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
                       "additionalProperties": {
                         "type": "string"
                       }
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string"
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",
@@ -273,6 +293,10 @@
                       "description": "Access port.",
                       "type": "integer",
                       "format": "int64"
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string"
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
@@ -314,7 +338,7 @@
         "tags": [
           "Node"
         ],
-        "summary": "Register registers a new Node or updates the existing one by name.",
+        "summary": "Register registers a new Node and pmm-agent, or updates the existing one by name.",
         "operationId": "Register",
         "parameters": [
           {

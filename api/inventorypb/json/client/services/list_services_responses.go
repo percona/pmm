@@ -123,6 +123,9 @@ type AmazonRDSMysqlItems0 struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -399,14 +402,23 @@ type MongodbItems0 struct {
 	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
 	// Access port.
 	Port int64 `json:"port,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -446,14 +458,23 @@ type MysqlItems0 struct {
 	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
 	// Access port.
 	Port int64 `json:"port,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
@@ -495,6 +516,9 @@ type PostgresqlItems0 struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
