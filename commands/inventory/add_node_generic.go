@@ -30,7 +30,6 @@ Node name: {{ .Node.NodeName }}
 
 Machine ID    : {{ .Node.MachineID }}
 Distro        : {{ .Node.Distro }}
-Distro version: {{ .Node.DistroVersion }}
 Address       : {{ .Node.Address }}
 Custom labels : {{ .Node.CustomLabels }}
 `)
@@ -46,12 +45,11 @@ func (res *addNodeGenericResult) String() string {
 }
 
 type addNodeGenericCommand struct {
-	NodeName      string
-	MachineID     string
-	Distro        string
-	DistroVersion string
-	Address       string
-	CustomLabels  string
+	NodeName     string
+	MachineID    string
+	Distro       string
+	Address      string
+	CustomLabels string
 }
 
 func (cmd *addNodeGenericCommand) Run() (commands.Result, error) {
@@ -61,12 +59,11 @@ func (cmd *addNodeGenericCommand) Run() (commands.Result, error) {
 	}
 	params := &nodes.AddGenericNodeParams{
 		Body: nodes.AddGenericNodeBody{
-			NodeName:      cmd.NodeName,
-			MachineID:     cmd.MachineID,
-			Distro:        cmd.Distro,
-			DistroVersion: cmd.DistroVersion,
-			Address:       cmd.Address,
-			CustomLabels:  customLabels,
+			NodeName:     cmd.NodeName,
+			MachineID:    cmd.MachineID,
+			Distro:       cmd.Distro,
+			Address:      cmd.Address,
+			CustomLabels: customLabels,
 		},
 		Context: commands.Ctx,
 	}
@@ -91,7 +88,6 @@ func init() {
 
 	AddNodeGenericC.Flag("machine-id", "Linux machine-id.").StringVar(&AddNodeGeneric.MachineID)
 	AddNodeGenericC.Flag("distro", "Linux distribution (if any).").StringVar(&AddNodeGeneric.Distro)
-	AddNodeGenericC.Flag("distro-version", "Linux distribution version (if any).").StringVar(&AddNodeGeneric.DistroVersion)
 	AddNodeGenericC.Flag("address", "Address.").StringVar(&AddNodeGeneric.Address)
 	AddNodeGenericC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddNodeGeneric.CustomLabels)
 }

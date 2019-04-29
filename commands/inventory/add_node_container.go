@@ -28,10 +28,10 @@ Container Node added.
 Node ID  : {{ .Node.NodeID }}
 Node name: {{ .Node.NodeName }}
 
-Machine ID           : {{ .Node.MachineID }}
-Docker container ID  : {{ .Node.DockerContainerID }}
-Docker container name: {{ .Node.DockerContainerName }}
-Custom labels        : {{ .Node.CustomLabels }}
+Machine ID    : {{ .Node.MachineID }}
+Container ID  : {{ .Node.ContainerID }}
+Container name: {{ .Node.ContainerName }}
+Custom labels : {{ .Node.CustomLabels }}
 `)
 
 type addNodeContainerResult struct {
@@ -45,12 +45,12 @@ func (res *addNodeContainerResult) String() string {
 }
 
 type addNodeContainerCommand struct {
-	NodeName            string
-	MachineID           string
-	DockerContainerID   string
-	DockerContainerName string
-	Address             string
-	CustomLabels        string
+	NodeName      string
+	MachineID     string
+	ContainerID   string
+	ContainerName string
+	Address       string
+	CustomLabels  string
 }
 
 func (cmd *addNodeContainerCommand) Run() (commands.Result, error) {
@@ -60,12 +60,12 @@ func (cmd *addNodeContainerCommand) Run() (commands.Result, error) {
 	}
 	params := &nodes.AddContainerNodeParams{
 		Body: nodes.AddContainerNodeBody{
-			NodeName:            cmd.NodeName,
-			MachineID:           cmd.MachineID,
-			DockerContainerID:   cmd.DockerContainerID,
-			DockerContainerName: cmd.DockerContainerName,
-			Address:             cmd.Address,
-			CustomLabels:        customLabels,
+			NodeName:      cmd.NodeName,
+			MachineID:     cmd.MachineID,
+			ContainerID:   cmd.ContainerID,
+			ContainerName: cmd.ContainerName,
+			Address:       cmd.Address,
+			CustomLabels:  customLabels,
 		},
 		Context: commands.Ctx,
 	}
@@ -89,9 +89,9 @@ func init() {
 	AddNodeContainerC.Arg("name", "Node name").StringVar(&AddNodeContainer.NodeName)
 
 	AddNodeContainerC.Flag("machine-id", "Linux machine-id.").StringVar(&AddNodeContainer.MachineID)
-	AddNodeContainerC.Flag("container-id", "Docker container identifier. If specified, must be a unique Docker container identifier.").
-		StringVar(&AddNodeContainer.DockerContainerID)
-	AddNodeContainerC.Flag("container-name", "Container name.").StringVar(&AddNodeContainer.DockerContainerName)
+	AddNodeContainerC.Flag("container-id", "Container identifier. If specified, must be a unique Docker container identifier.").
+		StringVar(&AddNodeContainer.ContainerID)
+	AddNodeContainerC.Flag("container-name", "Container name.").StringVar(&AddNodeContainer.ContainerName)
 	AddNodeContainerC.Flag("address", "Address.").StringVar(&AddNodeContainer.Address)
 	AddNodeContainerC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddNodeContainer.CustomLabels)
 }

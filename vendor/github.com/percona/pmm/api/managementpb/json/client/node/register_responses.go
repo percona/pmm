@@ -121,30 +121,38 @@ type RegisterBody struct {
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
-	// Сontainer identifier. Only for Container Nodes (optional).
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
+
+	// Container identifier. If specified, must be a unique Docker container identifier.
+	// Auto-detected and auto-updated.
 	ContainerID string `json:"container_id,omitempty"`
 
-	// Сontainer name. Only for Container Nodes (optional).
+	// Container name. Auto-detected and auto-updated.
 	ContainerName string `json:"container_name,omitempty"`
 
-	// Custom user-assigned labels for node (optional).
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Linux distribution. For Generic nodes (optional).
+	// Linux distribution name and version. Auto-detected and auto-updated.
 	Distro string `json:"distro,omitempty"`
 
-	// Linux distribution version. For Generic nodes (optional).
-	DistroVersion string `json:"distro_version,omitempty"`
-
-	// Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified (optional).
+	// Linux machine-id. Auto-detected and auto-updated.
+	// Must be unique across all Generic Nodes if specified.
 	MachineID string `json:"machine_id,omitempty"`
 
-	// Unique across all Nodes user-defined name, can be changed.
+	// Node model. Auto-detected and auto-updated.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
 
-	// NodeType describes supported node types.
+	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_AMAZON_RDS_NODE]
 	NodeType *string `json:"node_type,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this register body
@@ -386,23 +394,34 @@ type RegisterOKBodyContainerNode struct {
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
-	// Custom user-assigned labels. Can be changed.
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
+
+	// Container identifier. If specified, must be a unique Docker container identifier.
+	// Auto-detected and auto-updated.
+	ContainerID string `json:"container_id,omitempty"`
+
+	// Container name. Auto-detected and auto-updated.
+	ContainerName string `json:"container_name,omitempty"`
+
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Docker container identifier. If specified, must be a unique Docker container identifier. Can't be changed.
-	DockerContainerID string `json:"docker_container_id,omitempty"`
-
-	// Container name. Can be changed.
-	DockerContainerName string `json:"docker_container_name,omitempty"`
-
-	// Linux machine-id of the Generic Node where this Container Node runs. If defined, Generic Node with that machine_id must exist. Can't be changed.
+	// Linux machine-id of the Generic Node where this Container Node runs. Auto-detected and auto-updated.
+	// If defined, Generic Node with that machine_id must exist.
 	MachineID string `json:"machine_id,omitempty"`
 
-	// Unique randomly generated instance identifier, can't be changed.
+	// Unique randomly generated instance identifier. Can't be changed.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Unique across all Nodes user-defined name, can be changed.
+	// Node model. Auto-detected and auto-updated.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this register OK body container node
@@ -436,23 +455,30 @@ type RegisterOKBodyGenericNode struct {
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
+
 	// Custom user-assigned labels. Can be changed.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Linux distribution (if any). Can be changed.
+	// Linux distribution name and version. Auto-detected and auto-updated.
 	Distro string `json:"distro,omitempty"`
 
-	// Linux distribution version (if any). Can be changed.
-	DistroVersion string `json:"distro_version,omitempty"`
-
-	// Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified.
+	// Linux machine-id. Auto-detected and auto-updated.
+	// Must be unique across all Generic Nodes if specified.
 	MachineID string `json:"machine_id,omitempty"`
 
-	// Unique randomly generated instance identifier, can't be changed.
+	// Unique randomly generated instance identifier. Can't be changed.
 	NodeID string `json:"node_id,omitempty"`
 
-	// Unique across all Nodes user-defined name, can be changed.
+	// Node model. Auto-detected and auto-updated.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this register OK body generic node

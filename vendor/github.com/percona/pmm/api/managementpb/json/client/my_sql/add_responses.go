@@ -121,6 +121,12 @@ type AddBody struct {
 	// Node and Service access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
 
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
 	// If true, adds mysqld_exporter for provided service.
 	MysqldExporter bool `json:"mysqld_exporter,omitempty"`
 
@@ -147,6 +153,9 @@ type AddBody struct {
 
 	// FIXME remove
 	QANUsername string `json:"qan_username,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
@@ -715,14 +724,23 @@ type AddOKBodyService struct {
 	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
 
 	// Access port.
 	Port int64 `json:"port,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`
