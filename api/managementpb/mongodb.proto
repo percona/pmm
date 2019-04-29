@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package management;
+
+// This option is used to set the default error response for all Swagger APIs generated from this file.
+// See also header.json.
+// It has to be copy&pasted into each file.
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  responses: {
+    key: "default"
+    value: {
+      description: "An error response."
+      schema: {
+        json_schema: {
+          ref: "#/definitions/managementpbErrorResponse"
+        }
+      }
+    }
+  }
+};
+option go_package = "managementpb";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "inventorypb/agents.proto";
+import "inventorypb/services.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+// Add MongoDB
+
+message AddMongoDBRequest {
+  // Node identifier on which a service is been running. Required.
+  string node_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Unique across all Services user-defined name. Required.
+  string service_name = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Node and Service access address (DNS name or IP). Required.
+  string address = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service Access port. Required.
+  uint32 port = 4 [
+    (validator.field) = {
+      int_gt: 0
+    }
+  ];
+  // The "pmm-agent" identifier which should run agents. Required.
+  string pmm_agent_id = 5 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Environment name.
+  string environment = 6;
+  // Cluster name.
+  string cluster = 7;
+  // Replication set name.
+  string replication_set = 8;
+  // MongoDB username for scraping metrics.
+  string username = 9;
+  // MongoDB password for scraping metrics.
+  string password = 10;
+  // FIXME remove
+  string qan_username = 11;
+  // FIXME remove
+  string qan_password = 12;
+  // If true, adds mongodb_exporter for provided service.
+  bool mongodb_exporter = 13;
+  // If true, adds qan-mongodb-profiler-agent for provided service.
+  bool qan_mongodb_profiler = 14;
+}
+
+message AddMongoDBResponse {
+  inventory.MongoDBService service = 1;
+  inventory.MongoDBExporter mongodb_exporter = 2;
+  inventory.QANMongoDBProfilerAgent qan_mongodb_profiler = 3;
+}
+
+// MongoDB service provides public Management API methods for MongoDB Service.
+service MongoDB {
+  // Add MongoDB adds MongoDB Service and starts several Agents.
+  // It automatically adds a service to inventory, which is running on provided "node_id",
+  // then adds "mongodb_exporter", and "qan_mongodb_profiler" agents
+  // with provided "pmm_agent_id" and other parameters.
+  rpc Add(AddMongoDBRequest) returns (AddMongoDBResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/MongoDB/Add"
+      body: "*"
+    };
+  }
+}
