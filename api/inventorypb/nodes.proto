@@ -24,7 +24,7 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
-// NodeType describes supported node types.
+// NodeType describes supported Node types.
 enum NodeType {
   NODE_TYPE_INVALID = 0;
   GENERIC_NODE = 1;
