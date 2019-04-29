@@ -17,8 +17,6 @@
 package grpc
 
 import (
-	"context"
-
 	"github.com/percona/pmm/api/agentpb"
 
 	"github.com/percona/pmm-managed/services/agents"
@@ -34,11 +32,6 @@ func NewAgentServer(r *agents.Registry) agentpb.AgentServer {
 	return &agentServer{
 		registry: r,
 	}
-}
-
-// Register TODO https://jira.percona.com/browse/PMM-3453
-func (s *agentServer) Register(context.Context, *agentpb.RegisterRequest) (*agentpb.RegisterResponse, error) {
-	panic("not implemented yet")
 }
 
 // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
