@@ -41,6 +41,16 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		return &qanpb.ReportReply{}, err
 	}
 
+	if _, ok := standartDimensions[in.GroupBy]; !ok {
+		return &qanpb.ReportReply{}, fmt.Errorf("unknown group dimension: %s", in.GroupBy)
+	}
+	group := in.GroupBy
+
+	limit := in.Limit
+	if limit == 0 {
+		limit = 10
+	}
+
 	labels := in.GetLabels()
 	dQueryids := []string{}
 	dServers := []string{}
@@ -119,10 +129,10 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		dUsernames,
 		dClientHosts,
 		dbLabels,
-		in.GroupBy,
+		group,
 		order,
 		in.Offset,
-		in.Limit,
+		limit,
 		commonColumns,
 		boolColumns,
 	)
@@ -135,7 +145,6 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	resp.TotalRows = uint32(total["total_rows"].(uint64))
 	resp.Offset = in.Offset
 	resp.Limit = in.Limit
-
 	intervalTime := in.PeriodStartTo.Seconds - in.PeriodStartFrom.Seconds
 
 	for i, res := range results {
@@ -146,8 +155,13 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			Fingerprint: res["fingerprint"].(string),
 			NumQueries:  uint32(numQueries),
 			Qps:         float32(int64(numQueries) / intervalTime),
-			Load:        interfaceToFloat32(total["m_query_time_sum"]) / float32(intervalTime),
+			Load:        interfaceToFloat32(res["m_query_time_sum"]) / float32(intervalTime),
 			Metrics:     make(map[string]*qanpb.Metric),
+		}
+		// set TOTAL for total values instead if "any" dimension.
+		if i == 0 {
+			row.Dimension = "TOTAL"
+			row.Fingerprint = "TOTAL"
 		}
 
 		sparklines, err := s.rm.SelectSparklines(
@@ -162,7 +176,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			dUsernames,
 			dClientHosts,
 			dbLabels,
-			in.GroupBy,
+			group,
 			columns,
 		)
 		if err != nil {

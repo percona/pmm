@@ -105,14 +105,6 @@ func (r *Reporter) Select(ctx context.Context, periodStartFrom, periodStartTo ti
 	dbLabels map[string][]string, group, order string, offset, limit uint32,
 	commonColumns, boolColumns []string) ([]M, error) {
 
-	if group == "" {
-		group = "queryid"
-	}
-
-	if limit == 0 {
-		limit = 10
-	}
-
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFrom,
 		"period_start_to":   periodStartTo,
@@ -223,9 +215,6 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		default:
 			return float32(0)
 		}
-	}
-	if group == "" {
-		group = "queryid"
 	}
 
 	arg := map[string]interface{}{
@@ -367,7 +356,7 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFrom, periodSta
 		return nil, fmt.Errorf("cannot select client hosts dimension:%v", err)
 	}
 
-	rows, err := r.db.Query(queryLabels, periodStartFrom, periodStartTo)
+	rows, err := r.db.QueryContext(ctx, queryLabels, periodStartFrom, periodStartTo)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to select labels dimensions")
 	}

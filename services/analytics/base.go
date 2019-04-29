@@ -31,6 +31,15 @@ func NewService(rm models.Reporter, mm models.Metrics) *Service {
 	return &Service{rm, mm}
 }
 
+var standartDimensions = map[string]struct{}{
+	"queryid":       {},
+	"d_server":      {},
+	"d_database":    {},
+	"d_schema":      {},
+	"d_username":    {},
+	"d_client_host": {},
+}
+
 var boolColumnNames = map[string]struct{}{
 	"qc_hit":                 {},
 	"full_scan":              {},

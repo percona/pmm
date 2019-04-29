@@ -19,6 +19,7 @@ package analitycs
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -174,7 +175,7 @@ func TestService_GetReport(t *testing.T) {
 	}
 }
 
-func TestService_GetReport_DescOrder(t *testing.T) {
+func TestService_GetReport_Mix(t *testing.T) {
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
@@ -201,7 +202,7 @@ func TestService_GetReport_DescOrder(t *testing.T) {
 		want    *qanpb.ReportReply
 		wantErr bool
 	}{
-		"reverce order",
+		"",
 		fields{rm: rm, mm: mm},
 		args{
 			context.TODO(),
@@ -228,7 +229,7 @@ func TestService_GetReport_DescOrder(t *testing.T) {
 		&want,
 		false,
 	}
-	t.Run(test.name, func(t *testing.T) {
+	t.Run("reverce order", func(t *testing.T) {
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -241,8 +242,177 @@ func TestService_GetReport_DescOrder(t *testing.T) {
 
 		for i, v := range got.Rows {
 			if v.NumQueries != test.want.Rows[i].NumQueries {
-				t.Errorf("got.Rows[0].NumQueries (%v) != *tt.want.Rows[0].NumQueries (%v)", v.Load, test.want.Rows[i].Load)
+				t.Errorf("got.Rows[%d].NumQueries (%v) != *tt.want.Rows[%d].NumQueries (%v)", i, v.NumQueries, i, test.want.Rows[i].NumQueries)
 			}
 		}
 	})
+
+	t.Run("Correct Load", func(t *testing.T) {
+		s := &Service{
+			rm: test.fields.rm,
+			mm: test.fields.mm,
+		}
+		got, err := s.GetReport(test.args.ctx, test.args.in)
+		if (err != nil) != test.wantErr {
+			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
+			return
+		}
+
+		for i, v := range got.Rows {
+			if v.Load != test.want.Rows[i].Load {
+				t.Errorf("got.Rows[%d].Load (%v) != *tt.want.Rows[%d].Load (%v)", i, v.NumQueries, i, test.want.Rows[i].NumQueries)
+			}
+		}
+	})
+
+	t.Run("no error on limit is 0", func(t *testing.T) {
+		s := &Service{
+			rm: test.fields.rm,
+			mm: test.fields.mm,
+		}
+
+		test.args.in.Limit = 0
+		_, err := s.GetReport(test.args.ctx, test.args.in)
+		if err != nil {
+			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
+			return
+		}
+	})
+
+	t.Run("Limit is 0", func(t *testing.T) {
+		s := &Service{
+			rm: test.fields.rm,
+			mm: test.fields.mm,
+		}
+
+		test.args.in.GroupBy = "unknown dimension"
+		expectedErr := fmt.Errorf("unknown group dimension: %s", "unknown dimension")
+		_, err := s.GetReport(test.args.ctx, test.args.in)
+		if err.Error() != expectedErr.Error() {
+			t.Errorf("Service.GetReport() unexpected error = %v, wantErr %v", err, expectedErr)
+			return
+		}
+	})
+}
+
+func TestService_GetReport_AllLabels(t *testing.T) {
+	db := setup()
+	rm := models.NewReporter(db)
+	mm := models.NewMetrics(db)
+	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
+	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
+	type fields struct {
+		rm models.Reporter
+		mm models.Metrics
+	}
+	type args struct {
+		ctx context.Context
+		in  *qanpb.ReportRequest
+	}
+
+	genDimensionvalues := func(dimKey string, amount int) []string {
+		arr := []string{}
+		for i := 0; i < amount; i++ {
+			arr = append(arr, fmt.Sprintf("%s%d", dimKey, i))
+		}
+		return arr
+	}
+	test := struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		"",
+		fields{rm: rm, mm: mm},
+		args{
+			context.TODO(),
+			&qanpb.ReportRequest{
+				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				GroupBy:         "queryid",
+				Columns:         []string{"lock_time", "sort_scan"},
+				OrderBy:         "-load",
+				Offset:          10,
+				Limit:           10,
+				Labels: []*qanpb.ReportMapFieldEntry{
+					{
+						Key:   "label1",
+						Value: genDimensionvalues("value", 100),
+					},
+					{
+						Key:   "label2",
+						Value: genDimensionvalues("value", 100),
+					},
+					{
+						Key:   "label3",
+						Value: genDimensionvalues("value", 100),
+					},
+					{
+						Key:   "label4",
+						Value: genDimensionvalues("value", 100),
+					},
+					{
+						Key:   "label5",
+						Value: genDimensionvalues("value", 100),
+					},
+					{
+						Key:   "label6",
+						Value: genDimensionvalues("value", 100),
+					},
+					{
+						Key:   "label7",
+						Value: genDimensionvalues("value", 100),
+					},
+					{
+						Key:   "label8",
+						Value: genDimensionvalues("value", 100),
+					},
+					{
+						Key:   "label9",
+						Value: genDimensionvalues("value", 100),
+					},
+					{
+						Key:   "d_server",
+						Value: genDimensionvalues("db", 10),
+					},
+					{
+						Key:   "d_database",
+						Value: genDimensionvalues("schema", 100),
+					},
+					{
+						Key:   "d_schema",
+						Value: []string{},
+					},
+					{
+						Key:   "d_username",
+						Value: genDimensionvalues("user", 100),
+					},
+					{
+						Key:   "d_client_host",
+						Value: genDimensionvalues("10.11.12.", 100),
+					},
+				},
+			},
+		},
+		false,
+	}
+	t.Run("Use all label keys", func(t *testing.T) {
+		s := &Service{
+			rm: test.fields.rm,
+			mm: test.fields.mm,
+		}
+		got, err := s.GetReport(test.args.ctx, test.args.in)
+		if (err != nil) != test.wantErr {
+			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
+			return
+		}
+
+		expectedRows := 1
+		gotRows := len(got.Rows)
+		if gotRows != expectedRows {
+			t.Errorf("Got rows count: %d - expected, %d", gotRows, expectedRows)
+		}
+	})
+
 }
