@@ -312,9 +312,6 @@ func (this *AddMongoDBExporterRequest) Validate() error {
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
 	}
-	if this.Username == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
-	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
@@ -455,9 +452,6 @@ func (this *AddQANMongoDBProfilerAgentRequest) Validate() error {
 	}
 	if this.ServiceId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("ServiceId", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceId))
-	}
-	if this.Username == "" {
-		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
 	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
