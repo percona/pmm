@@ -459,11 +459,7 @@ message AddMongoDBExporterRequest {
     }
   ];
   // MongoDB username for scraping metrics.
-  string username = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string username = 4;
   // MongoDB password for scraping metrics.
   string password = 5;
   // Custom user-assigned labels.
@@ -675,11 +671,7 @@ message AddQANMongoDBProfilerAgentRequest {
     }
   ];
   // MongoDB username for getting profile data.
-  string username = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string username = 4;
   // MongoDB password for getting profile data.
   string password = 5;
   // Custom user-assigned labels.
