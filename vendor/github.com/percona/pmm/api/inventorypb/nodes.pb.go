@@ -25,7 +25,7 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-// NodeType describes supported node types.
+// NodeType describes supported Node types.
 type NodeType int32
 
 const (

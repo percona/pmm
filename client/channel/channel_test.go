@@ -41,10 +41,6 @@ type testServer struct {
 	connectFunc func(agentpb.Agent_ConnectServer) error
 }
 
-func (s *testServer) Register(context.Context, *agentpb.RegisterRequest) (*agentpb.RegisterResponse, error) {
-	panic("not implemented")
-}
-
 func (s *testServer) Connect(stream agentpb.Agent_ConnectServer) error {
 	return s.connectFunc(stream)
 }
