@@ -165,9 +165,8 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		row.Metrics["latency"] = &qanpb.Metric{
 			Stats: stats,
 		}
-		// set TOTAL for total values instead if "any" dimension.
-		if i == 0 {
-			row.Dimension = ""
+		// set TOTAL for Fingerprint instead of "any" if result is not empty.
+		if i == 0 && row.Fingerprint != "" {
 			row.Fingerprint = "TOTAL"
 		}
 

@@ -253,6 +253,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	if err != nil {
 		return results, fmt.Errorf("report query:%v", err)
 	}
+	resultsWithGaps := map[float32]*qanpb.Point{}
 	for rows.Next() {
 		res := make(map[string]interface{})
 		err = rows.MapScan(res)
@@ -265,8 +266,26 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		for k, v := range res {
 			points.Values[k] = interfaceToFloat32(v)
 		}
-		results = append(results, &points)
+		resultsWithGaps[points.Values["point"]] = &points
 	}
+
+	timeFrame := (periodStartTo.Sub(periodStartFrom) / 60).Seconds()
+	// fill in gaps in time series.
+	for pointN := 0; pointN < 60; pointN++ {
+		point, ok := resultsWithGaps[float32(pointN)]
+		if !ok {
+			point = &qanpb.Point{
+				Values: make(map[string]float32),
+			}
+			timeShift := time.Duration(int(timeFrame) * pointN)
+			ts := periodStartTo.Add(-time.Second * timeShift).Unix()
+			point.Values["point"] = float32(pointN)
+			point.Values["time_frame"] = float32(timeFrame)
+			point.Values["timestamp"] = float32(ts)
+		}
+		results = append(results, point)
+	}
+
 	return results, err
 }
 
