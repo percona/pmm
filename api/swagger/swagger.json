@@ -5331,7 +5331,7 @@
                   "type": "string"
                 },
                 "password": {
-                  "description": "MongoDB password for scraping metrics.",
+                  "description": "MongoDB password for exporter and QAN agent access.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -5348,14 +5348,6 @@
                   "type": "boolean",
                   "format": "boolean"
                 },
-                "qan_password": {
-                  "type": "string",
-                  "title": "FIXME remove"
-                },
-                "qan_username": {
-                  "type": "string",
-                  "title": "FIXME remove"
-                },
                 "replication_set": {
                   "description": "Replication set name.",
                   "type": "string"
@@ -5365,7 +5357,7 @@
                   "type": "string"
                 },
                 "username": {
-                  "description": "MongoDB username for scraping metrics.",
+                  "description": "MongoDB username for exporter and QAN agent access.",
                   "type": "string"
                 }
               }

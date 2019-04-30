@@ -65,18 +65,14 @@ message AddMongoDBRequest {
   string cluster = 7;
   // Replication set name.
   string replication_set = 8;
-  // MongoDB username for scraping metrics.
+  // MongoDB username for exporter and QAN agent access.
   string username = 9;
-  // MongoDB password for scraping metrics.
+  // MongoDB password for exporter and QAN agent access.
   string password = 10;
-  // FIXME remove
-  string qan_username = 11;
-  // FIXME remove
-  string qan_password = 12;
   // If true, adds mongodb_exporter for provided service.
-  bool mongodb_exporter = 13;
+  bool mongodb_exporter = 11;
   // If true, adds qan-mongodb-profiler-agent for provided service.
-  bool qan_mongodb_profiler = 14;
+  bool qan_mongodb_profiler = 12;
 }
 
 message AddMongoDBResponse {
