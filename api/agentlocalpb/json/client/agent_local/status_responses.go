@@ -123,7 +123,8 @@ type AgentsInfoItems0 struct {
 	AgentID string `json:"agent_id,omitempty"`
 
 	// Type represents Agent type.
-	// Enum: [TYPE_INVALID NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT POSTGRES_EXPORTER QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT]
+	// TODO Replace with inventory.AgentType.
+	// Enum: [TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT RDS_EXPORTER]
 	AgentType *string `json:"agent_type,omitempty"`
 
 	// TODO https://jira.percona.com/browse/PMM-3758
@@ -156,7 +157,7 @@ var agentsInfoItems0TypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["TYPE_INVALID","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","POSTGRES_EXPORTER","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["TYPE_INVALID","PMM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","RDS_EXPORTER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -169,6 +170,9 @@ const (
 	// AgentsInfoItems0AgentTypeTYPEINVALID captures enum value "TYPE_INVALID"
 	AgentsInfoItems0AgentTypeTYPEINVALID string = "TYPE_INVALID"
 
+	// AgentsInfoItems0AgentTypePMMAGENT captures enum value "PMM_AGENT"
+	AgentsInfoItems0AgentTypePMMAGENT string = "PMM_AGENT"
+
 	// AgentsInfoItems0AgentTypeNODEEXPORTER captures enum value "NODE_EXPORTER"
 	AgentsInfoItems0AgentTypeNODEEXPORTER string = "NODE_EXPORTER"
 
@@ -178,17 +182,20 @@ const (
 	// AgentsInfoItems0AgentTypeMONGODBEXPORTER captures enum value "MONGODB_EXPORTER"
 	AgentsInfoItems0AgentTypeMONGODBEXPORTER string = "MONGODB_EXPORTER"
 
-	// AgentsInfoItems0AgentTypeQANMYSQLPERFSCHEMAAGENT captures enum value "QAN_MYSQL_PERFSCHEMA_AGENT"
-	AgentsInfoItems0AgentTypeQANMYSQLPERFSCHEMAAGENT string = "QAN_MYSQL_PERFSCHEMA_AGENT"
-
 	// AgentsInfoItems0AgentTypePOSTGRESEXPORTER captures enum value "POSTGRES_EXPORTER"
 	AgentsInfoItems0AgentTypePOSTGRESEXPORTER string = "POSTGRES_EXPORTER"
+
+	// AgentsInfoItems0AgentTypeQANMYSQLPERFSCHEMAAGENT captures enum value "QAN_MYSQL_PERFSCHEMA_AGENT"
+	AgentsInfoItems0AgentTypeQANMYSQLPERFSCHEMAAGENT string = "QAN_MYSQL_PERFSCHEMA_AGENT"
 
 	// AgentsInfoItems0AgentTypeQANMYSQLSLOWLOGAGENT captures enum value "QAN_MYSQL_SLOWLOG_AGENT"
 	AgentsInfoItems0AgentTypeQANMYSQLSLOWLOGAGENT string = "QAN_MYSQL_SLOWLOG_AGENT"
 
 	// AgentsInfoItems0AgentTypeQANMONGODBPROFILERAGENT captures enum value "QAN_MONGODB_PROFILER_AGENT"
 	AgentsInfoItems0AgentTypeQANMONGODBPROFILERAGENT string = "QAN_MONGODB_PROFILER_AGENT"
+
+	// AgentsInfoItems0AgentTypeRDSEXPORTER captures enum value "RDS_EXPORTER"
+	AgentsInfoItems0AgentTypeRDSEXPORTER string = "RDS_EXPORTER"
 )
 
 // prop value enum

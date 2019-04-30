@@ -122,6 +122,9 @@ type AddPostgreSQLServiceBody struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
 	// Node identifier where this instance runs. Required.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -262,6 +265,9 @@ type AddPostgreSQLServiceOKBodyPostgresql struct {
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`

@@ -24,7 +24,7 @@ import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
-// ServiceType describes supported service types.
+// ServiceType describes supported Service types.
 enum ServiceType {
   SERVICE_TYPE_INVALID = 0;
   MYSQL_SERVICE = 1;
@@ -45,6 +45,12 @@ message MySQLService {
   string address = 4;
   // Access port.
   uint32 port = 5;
+  // Environment name.
+  string environment = 6;
+  // Cluster name.
+  string cluster = 7;
+  // Replication set name.
+  string replication_set = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
@@ -61,6 +67,8 @@ message AmazonRDSMySQLService {
   string address = 4;
   // Instance port.
   uint32 port = 5;
+  // Environment name.
+  string environment = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
@@ -77,6 +85,12 @@ message MongoDBService {
   string address = 4;
   // Access port.
   uint32 port = 5;
+  // Environment name.
+  string environment = 6;
+  // Cluster name.
+  string cluster = 7;
+  // Replication set name.
+  string replication_set = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
@@ -93,6 +107,8 @@ message PostgreSQLService {
   string address = 4;
   // Access port.
   uint32 port = 5;
+  // Environment name.
+  string environment = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
@@ -162,6 +178,12 @@ message AddMySQLServiceRequest {
       int_gt: 0
     }
   ];
+  // Environment name.
+  string environment = 6;
+  // Cluster name.
+  string cluster = 7;
+  // Replication set name.
+  string replication_set = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
@@ -199,6 +221,8 @@ message AddAmazonRDSMySQLServiceRequest {
       int_gt: 0
     }
   ];
+  // Environment name.
+  string environment = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
@@ -236,6 +260,12 @@ message AddMongoDBServiceRequest {
       int_gt: 0
     }
   ];
+  // Environment name.
+  string environment = 6;
+  // Cluster name.
+  string cluster = 7;
+  // Replication set name.
+  string replication_set = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
@@ -273,6 +303,8 @@ message AddPostgreSQLServiceRequest {
       int_gt: 0
     }
   ];
+  // Environment name.
+  string environment = 6;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }

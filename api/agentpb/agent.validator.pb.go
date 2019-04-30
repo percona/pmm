@@ -18,12 +18,6 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *RegisterRequest) Validate() error {
-	return nil
-}
-func (this *RegisterResponse) Validate() error {
-	return nil
-}
 func (this *Ping) Validate() error {
 	return nil
 }

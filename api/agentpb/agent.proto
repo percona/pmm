@@ -9,26 +9,18 @@ import "inventorypb/agent_status.proto";
 import "qanpb/collector.proto";
 
 // Type represents Agent type.
+// TODO Replace with inventory.AgentType.
 enum Type {
   TYPE_INVALID = 0;
-  NODE_EXPORTER = 1;
-  MYSQLD_EXPORTER = 2;
-  MONGODB_EXPORTER = 3;
-  QAN_MYSQL_PERFSCHEMA_AGENT = 4;
+  PMM_AGENT = 1;
+  NODE_EXPORTER = 2;
+  MYSQLD_EXPORTER = 3;
+  MONGODB_EXPORTER = 4;
   POSTGRES_EXPORTER = 5;
-  QAN_MYSQL_SLOWLOG_AGENT = 6;
-  QAN_MONGODB_PROFILER_AGENT = 7;
-}
-
-message RegisterRequest {
-  // TODO https://jira.percona.com/browse/PMM-3453
-
-  // inventory.HostNodeInfo node = 1;
-
-}
-
-message RegisterResponse {
-  string agent_id = 1;
+  QAN_MYSQL_PERFSCHEMA_AGENT = 6;
+  QAN_MYSQL_SLOWLOG_AGENT = 7;
+  QAN_MONGODB_PROFILER_AGENT = 8;
+  RDS_EXPORTER = 9;
 }
 
 // Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift.
@@ -121,8 +113,6 @@ message ServerMessage {
 
 // Agent service provides private methods for pmm-agent <-> pmm-managed interactions.
 service Agent {
-  // Register TODO https://jira.percona.com/browse/PMM-3453
-  rpc Register(RegisterRequest) returns (RegisterResponse);
   // Connect establishes two-way communication channel between pmm-agent and pmm-managed.
   rpc Connect(stream AgentMessage) returns (stream ServerMessage);
 }

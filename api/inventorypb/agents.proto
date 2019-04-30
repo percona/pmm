@@ -25,6 +25,21 @@ import "google/api/annotations.proto";
 import "inventorypb/agent_status.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
+// AgentType describes supported Agent types.
+enum AgentType {
+  AGENT_TYPE_INVALID = 0;
+  PMM_AGENT = 1;
+  NODE_EXPORTER = 2;
+  MYSQLD_EXPORTER = 3;
+  MONGODB_EXPORTER = 4;
+  POSTGRES_EXPORTER = 5;
+  QAN_MYSQL_PERFSCHEMA_AGENT = 6;
+  QAN_MYSQL_SLOWLOG_AGENT = 7;
+  QAN_MONGODB_PROFILER_AGENT = 8;
+  RDS_EXPORTER = 9;
+  EXTERNAL_EXPORTER = 10;
+}
+
 // PMMAgent runs on Generic on Container Node.
 message PMMAgent {
   // Unique randomly generated instance identifier.
@@ -87,50 +102,6 @@ message MySQLdExporter {
   map<string, string> custom_labels = 10;
 }
 
-// RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
-message RDSExporter {
-  // Unique randomly generated instance identifier.
-  string agent_id = 1;
-  // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2;
-  // A list of Service identifiers (Node identifiers are extracted from Services).
-  repeated string service_ids = 3;
-  // TODO AWS credentials
-
-  //
-  // Status fields below.
-  //
-
-  // Desired Agent status: enabled (false) or disabled (true).
-  // TODO https://jira.percona.com/browse/PMM-3470
-  // bool enabled = 4;
-
-  // Actual Agent status.
-  AgentStatus status = 5;
-  // Listen port for scraping metrics.
-  uint32 listen_port = 6;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-// ExternalExporter does not run on any Inventory Node.
-message ExternalExporter {
-  // Unique randomly generated instance identifier.
-  string agent_id = 1;
-  // URL for scraping metrics.
-  string metrics_url = 2;
-  //
-  // Status fields below.
-  //
-
-  // Desired Agent status: enabled (false) or disabled (true).
-  // TODO https://jira.percona.com/browse/PMM-3470
-  // bool disabled = 3;
-
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
 // MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
 message MongoDBExporter {
   // Unique randomly generated instance identifier.
@@ -142,6 +113,32 @@ message MongoDBExporter {
   // MongoDB username for scraping metrics.
   string username = 4;
   // MongoDB password for scraping metrics.
+  string password = 5;
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled (false) or disabled (true).
+  bool disabled = 6;
+  // Actual Agent status.
+  AgentStatus status = 7;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 8;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+// PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+message PostgresExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // Service identifier.
+  string service_id = 3;
+  // PostgreSQL username for scraping metrics.
+  string username = 4;
+  // PostgreSQL password for scraping metrics.
   string password = 5;
   //
   // Status fields below.
@@ -205,32 +202,6 @@ message QANMySQLSlowlogAgent {
   map<string, string> custom_labels = 10;
 }
 
-// PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
-message PostgresExporter {
-  // Unique randomly generated instance identifier.
-  string agent_id = 1;
-  // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2;
-  // Service identifier.
-  string service_id = 3;
-  // PostgreSQL username for scraping metrics.
-  string username = 4;
-  // PostgreSQL password for scraping metrics.
-  string password = 5;
-  //
-  // Status fields below.
-  //
-
-  // Desired Agent status: enabled (false) or disabled (true).
-  bool disabled = 6;
-  // Actual Agent status.
-  AgentStatus status = 7;
-  // Listen port for scraping metrics.
-  uint32 listen_port = 8;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
 // QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
 message QANMongoDBProfilerAgent {
   // Unique randomly generated instance identifier.
@@ -255,6 +226,50 @@ message QANMongoDBProfilerAgent {
   map<string, string> custom_labels = 10;
 }
 
+// RDSExporter runs on Generic or Container Node and exposes RemoteAmazonRDS Node and AmazonRDSMySQL Service metrics.
+message RDSExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2;
+  // A list of Service identifiers (Node identifiers are extracted from Services).
+  repeated string service_ids = 3;
+  // TODO AWS credentials
+
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled (false) or disabled (true).
+  // TODO https://jira.percona.com/browse/PMM-3470
+  // bool enabled = 4;
+
+  // Actual Agent status.
+  AgentStatus status = 5;
+  // Listen port for scraping metrics.
+  uint32 listen_port = 6;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+// ExternalExporter does not run on any Inventory Node.
+message ExternalExporter {
+  // Unique randomly generated instance identifier.
+  string agent_id = 1;
+  // URL for scraping metrics.
+  string metrics_url = 2;
+  //
+  // Status fields below.
+  //
+
+  // Desired Agent status: enabled (false) or disabled (true).
+  // TODO https://jira.percona.com/browse/PMM-3470
+  // bool disabled = 3;
+
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
 // List
 
 message ListAgentsRequest {
@@ -272,13 +287,13 @@ message ListAgentsResponse {
   repeated PMMAgent pmm_agent = 1;
   repeated NodeExporter node_exporter = 2;
   repeated MySQLdExporter mysqld_exporter = 3;
-  repeated RDSExporter rds_exporter = 4;
-  repeated ExternalExporter external_exporter = 5;
-  repeated MongoDBExporter mongodb_exporter = 6;
-  repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
-  repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
-  repeated PostgresExporter postgres_exporter = 8;
-  repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
+  repeated MongoDBExporter mongodb_exporter = 4;
+  repeated PostgresExporter postgres_exporter = 5;
+  repeated QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 6;
+  repeated QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 7;
+  repeated QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 8;
+  repeated RDSExporter rds_exporter = 9;
+  repeated ExternalExporter external_exporter = 10;
 }
 
 // Get
@@ -297,13 +312,13 @@ message GetAgentResponse {
     PMMAgent pmm_agent = 1;
     NodeExporter node_exporter = 2;
     MySQLdExporter mysqld_exporter = 3;
-    RDSExporter rds_exporter = 4;
-    ExternalExporter external_exporter = 5;
-    MongoDBExporter mongodb_exporter = 6;
-    QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 7;
-    QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 9;
-    PostgresExporter postgres_exporter = 8;
-    QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 10;
+    MongoDBExporter mongodb_exporter = 4;
+    PostgresExporter postgres_exporter = 5;
+    QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 6;
+    QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 7;
+    QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 8;
+    RDSExporter rds_exporter = 9;
+    ExternalExporter external_exporter = 10;
   }
 }
 
@@ -426,62 +441,6 @@ message ChangeMySQLdExporterResponse {
   MySQLdExporter mysqld_exporter = 1;
 }
 
-// Add/Change RDSExporter
-
-message AddRDSExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
-  // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // A list of Service identifiers (Node identifiers are extracted from Services).
-  repeated string service_ids = 3;
-  //
-  // TODO AWS credentials
-  //
-
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message AddRDSExporterResponse {
-  RDSExporter rds_exporter = 1;
-}
-
-message ChangeRDSExporterRequest {}
-
-message ChangeRDSExporterResponse {
-  RDSExporter rds_exporter = 1;
-}
-
-// Add/Change ExternalExporter
-
-message AddExternalExporterRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
-  // URL for scraping metrics.
-  string metrics_url = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message AddExternalExporterResponse {
-  ExternalExporter external_exporter = 1;
-}
-
-message ChangeExternalExporterRequest {}
-
-message ChangeExternalExporterResponse {
-  ExternalExporter external_exporter = 1;
-}
-
 // Add/Change MongoDBExporter
 
 message AddMongoDBExporterRequest {
@@ -500,11 +459,7 @@ message AddMongoDBExporterRequest {
     }
   ];
   // MongoDB username for scraping metrics.
-  string username = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  string username = 4;
   // MongoDB password for scraping metrics.
   string password = 5;
   // Custom user-assigned labels.
@@ -534,6 +489,60 @@ message ChangeMongoDBExporterRequest {
 
 message ChangeMongoDBExporterResponse {
   MongoDBExporter mongodb_exporter = 1;
+}
+
+// Add/Change PostgresExporter
+
+message AddPostgresExporterRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Service identifier.
+  string service_id = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PostgreSQL username for scraping metrics.
+  string username = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // PostgreSQL password for scraping metrics.
+  string password = 5;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+message AddPostgresExporterResponse {
+  PostgresExporter postgres_exporter = 1;
+}
+
+message ChangePostgresExporterRequest {
+  string agent_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Enable or disable this Agent.
+  oneof change_disabled {
+    bool enabled = 2;
+    bool disabled = 3;
+  }
+  // Replace all custom user-assigned labels.
+  map<string, string> custom_labels = 4;
+  // Remove all custom user-assigned labels.
+  bool remove_custom_labels = 5;
+}
+
+message ChangePostgresExporterResponse {
+  PostgresExporter postgres_exporter = 1;
 }
 
 // Add/Change QANMySQLPerfSchemaAgent
@@ -590,60 +599,6 @@ message ChangeQANMySQLPerfSchemaAgentResponse {
   QANMySQLPerfSchemaAgent qan_mysql_perfschema_agent = 1;
 }
 
-// Add/Change QANMongoDBProfilerAgent
-
-message AddQANMongoDBProfilerAgentRequest {
-  // Unique randomly generated instance identifier.
-  reserved 1;
-  // The pmm-agent identifier which runs this instance.
-  string pmm_agent_id = 2 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Service identifier.
-  string service_id = 3 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // MongoDB username for getting profile data.
-  string username = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // MongoDB password for getting profile data.
-  string password = 5;
-  // Custom user-assigned labels.
-  map<string, string> custom_labels = 10;
-}
-
-message AddQANMongoDBProfilerAgentResponse {
-  QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 1;
-}
-
-message ChangeQANMongoDBProfilerAgentRequest {
-  string agent_id = 1 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // Enable or disable this Agent.
-  oneof change_disabled {
-    bool enabled = 2;
-    bool disabled = 3;
-  }
-  // Replace all custom user-assigned labels.
-  map<string, string> custom_labels = 4;
-  // Remove all custom user-assigned labels.
-  bool remove_custom_labels = 5;
-}
-
-message ChangeQANMongoDBProfilerAgentResponse {
-  QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 1;
-}
-
 // Add/Change QANMySQLSlowlogAgent
 
 message AddQANMySQLSlowlogAgentRequest {
@@ -698,9 +653,9 @@ message ChangeQANMySQLSlowlogAgentResponse {
   QANMySQLSlowlogAgent qan_mysql_slowlog_agent = 1;
 }
 
-// Add/Change PostgresExporter
+// Add/Change QANMongoDBProfilerAgent
 
-message AddPostgresExporterRequest {
+message AddQANMongoDBProfilerAgentRequest {
   // Unique randomly generated instance identifier.
   reserved 1;
   // The pmm-agent identifier which runs this instance.
@@ -715,23 +670,19 @@ message AddPostgresExporterRequest {
       string_not_empty: true
     }
   ];
-  // PostgreSQL username for scraping metrics.
-  string username = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
-  // PostgreSQL password for scraping metrics.
+  // MongoDB username for getting profile data.
+  string username = 4;
+  // MongoDB password for getting profile data.
   string password = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
 
-message AddPostgresExporterResponse {
-  PostgresExporter postgres_exporter = 1;
+message AddQANMongoDBProfilerAgentResponse {
+  QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 1;
 }
 
-message ChangePostgresExporterRequest {
+message ChangeQANMongoDBProfilerAgentRequest {
   string agent_id = 1 [
     (validator.field) = {
       string_not_empty: true
@@ -748,8 +699,64 @@ message ChangePostgresExporterRequest {
   bool remove_custom_labels = 5;
 }
 
-message ChangePostgresExporterResponse {
-  PostgresExporter postgres_exporter = 1;
+message ChangeQANMongoDBProfilerAgentResponse {
+  QANMongoDBProfilerAgent qan_mongodb_profiler_agent = 1;
+}
+
+// Add/Change RDSExporter
+
+message AddRDSExporterRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // The pmm-agent identifier which runs this instance.
+  string pmm_agent_id = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // A list of Service identifiers (Node identifiers are extracted from Services).
+  repeated string service_ids = 3;
+  //
+  // TODO AWS credentials
+  //
+
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+message AddRDSExporterResponse {
+  RDSExporter rds_exporter = 1;
+}
+
+message ChangeRDSExporterRequest {}
+
+message ChangeRDSExporterResponse {
+  RDSExporter rds_exporter = 1;
+}
+
+// Add/Change ExternalExporter
+
+message AddExternalExporterRequest {
+  // Unique randomly generated instance identifier.
+  reserved 1;
+  // URL for scraping metrics.
+  string metrics_url = 2 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 10;
+}
+
+message AddExternalExporterResponse {
+  ExternalExporter external_exporter = 1;
+}
+
+message ChangeExternalExporterRequest {}
+
+message ChangeExternalExporterResponse {
+  ExternalExporter external_exporter = 1;
 }
 
 // Remove
@@ -822,6 +829,76 @@ service Agents {
       body: "*"
     };
   }
+  // AddMongoDBExporter adds mongodb_exporter Agent.
+  rpc AddMongoDBExporter(AddMongoDBExporterRequest) returns (AddMongoDBExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddMongoDBExporter"
+      body: "*"
+    };
+  }
+  // ChangeMongoDBExporter changes mongodb_exporter Agent.
+  rpc ChangeMongoDBExporter(ChangeMongoDBExporterRequest) returns (ChangeMongoDBExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeMongoDBExporter"
+      body: "*"
+    };
+  }
+  // AddPostgresExporter adds postgres_exporter Agent.
+  rpc AddPostgresExporter(AddPostgresExporterRequest) returns (AddPostgresExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddPostgresExporter"
+      body: "*"
+    };
+  }
+  // ChangePostgresExporter changes postgres_exporter Agent.
+  rpc ChangePostgresExporter(ChangePostgresExporterRequest) returns (ChangePostgresExporterResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangePostgresExporter"
+      body: "*"
+    };
+  }
+  // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
+  rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"
+      body: "*"
+    };
+  }
+  // ChangeQANMySQLPerfSchemaAgent changes MySQL PerfSchema QAN Agent.
+  rpc ChangeQANMySQLPerfSchemaAgent(ChangeQANMySQLPerfSchemaAgentRequest) returns (ChangeQANMySQLPerfSchemaAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"
+      body: "*"
+    };
+  }
+  // AddQANMySQLSlowlogAgent adds MySQL PerfSchema QAN Agent.
+  rpc AddQANMySQLSlowlogAgent(AddQANMySQLSlowlogAgentRequest) returns (AddQANMySQLSlowlogAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddQANMySQLSlowlogAgent"
+      body: "*"
+    };
+  }
+  // ChangeQANMySQLSlowlogAgent changes MySQL PerfSchema QAN Agent.
+  rpc ChangeQANMySQLSlowlogAgent(ChangeQANMySQLSlowlogAgentRequest) returns (ChangeQANMySQLSlowlogAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent"
+      body: "*"
+    };
+  }
+  // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
+  rpc AddQANMongoDBProfilerAgent(AddQANMongoDBProfilerAgentRequest) returns (AddQANMongoDBProfilerAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/AddQANMongoDBProfilerAgent"
+      body: "*"
+    };
+  }
+  // ChangeQANMongoDBProfilerAgent changes MongoDB Profiler QAN Agent.
+  rpc ChangeQANMongoDBProfilerAgent(ChangeQANMongoDBProfilerAgentRequest) returns (ChangeQANMongoDBProfilerAgentResponse) {
+    option (google.api.http) = {
+      post: "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"
+      body: "*"
+    };
+  }
   // AddRDSExporter adds rds_exporter Agent.
   rpc AddRDSExporter(AddRDSExporterRequest) returns (AddRDSExporterResponse) {
     option (google.api.http) = {
@@ -847,76 +924,6 @@ service Agents {
   rpc ChangeExternalExporter(ChangeExternalExporterRequest) returns (ChangeExternalExporterResponse) {
     option (google.api.http) = {
       post: "/v1/inventory/Agents/ChangeExternalExporter"
-      body: "*"
-    };
-  }
-  // AddMongoDBExporter adds mongodb_exporter Agent.
-  rpc AddMongoDBExporter(AddMongoDBExporterRequest) returns (AddMongoDBExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddMongoDBExporter"
-      body: "*"
-    };
-  }
-  // ChangeMongoDBExporter changes mongodb_exporter Agent.
-  rpc ChangeMongoDBExporter(ChangeMongoDBExporterRequest) returns (ChangeMongoDBExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/ChangeMongoDBExporter"
-      body: "*"
-    };
-  }
-  // AddQANMySQLPerfSchemaAgent adds MySQL PerfSchema QAN Agent.
-  rpc AddQANMySQLPerfSchemaAgent(AddQANMySQLPerfSchemaAgentRequest) returns (AddQANMySQLPerfSchemaAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent"
-      body: "*"
-    };
-  }
-  // ChangeQANMySQLPerfSchemaAgent changes MySQL PerfSchema QAN Agent.
-  rpc ChangeQANMySQLPerfSchemaAgent(ChangeQANMySQLPerfSchemaAgentRequest) returns (ChangeQANMySQLPerfSchemaAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent"
-      body: "*"
-    };
-  }
-  // AddQANMongoDBProfilerAgent adds MongoDB Profiler QAN Agent.
-  rpc AddQANMongoDBProfilerAgent(AddQANMongoDBProfilerAgentRequest) returns (AddQANMongoDBProfilerAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddQANMongoDBProfilerAgent"
-      body: "*"
-    };
-  }
-  // ChangeQANMongoDBProfilerAgent changes MongoDB Profiler QAN Agent.
-  rpc ChangeQANMongoDBProfilerAgent(ChangeQANMongoDBProfilerAgentRequest) returns (ChangeQANMongoDBProfilerAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent"
-      body: "*"
-    };
-  }
-  // AddQANMySQLSlowlogAgent adds MySQL PerfSchema QAN Agent.
-  rpc AddQANMySQLSlowlogAgent(AddQANMySQLSlowlogAgentRequest) returns (AddQANMySQLSlowlogAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddQANMySQLSlowlogAgent"
-      body: "*"
-    };
-  }
-  // ChangeQANMySQLSlowlogAgent changes MySQL PerfSchema QAN Agent.
-  rpc ChangeQANMySQLSlowlogAgent(ChangeQANMySQLSlowlogAgentRequest) returns (ChangeQANMySQLSlowlogAgentResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent"
-      body: "*"
-    };
-  }
-  // AddPostgresExporter adds postgres_exporter Agent.
-  rpc AddPostgresExporter(AddPostgresExporterRequest) returns (AddPostgresExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/AddPostgresExporter"
-      body: "*"
-    };
-  }
-  // ChangePostgresExporter changes postgres_exporter Agent.
-  rpc ChangePostgresExporter(ChangePostgresExporterRequest) returns (ChangePostgresExporterResponse) {
-    option (google.api.http) = {
-      post: "/v1/inventory/Agents/ChangePostgresExporter"
       body: "*"
     };
   }

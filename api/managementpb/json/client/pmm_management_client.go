@@ -11,6 +11,7 @@ import (
 
 	strfmt "github.com/go-openapi/strfmt"
 
+	"github.com/percona/pmm/api/managementpb/json/client/mongo_db"
 	"github.com/percona/pmm/api/managementpb/json/client/my_sql"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
 	"github.com/percona/pmm/api/managementpb/json/client/postgre_sql"
@@ -59,6 +60,8 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *PMMManagem
 
 	cli := new(PMMManagement)
 	cli.Transport = transport
+
+	cli.MongoDB = mongo_db.New(transport, formats)
 
 	cli.MySQL = my_sql.New(transport, formats)
 
@@ -112,6 +115,8 @@ func (cfg *TransportConfig) WithSchemes(schemes []string) *TransportConfig {
 
 // PMMManagement is a client for PMM management
 type PMMManagement struct {
+	MongoDB *mongo_db.Client
+
 	MySQL *my_sql.Client
 
 	Node *node.Client
@@ -126,6 +131,8 @@ type PMMManagement struct {
 // SetTransport changes the transport on the client and all its subresources
 func (c *PMMManagement) SetTransport(transport runtime.ClientTransport) {
 	c.Transport = transport
+
+	c.MongoDB.SetTransport(transport)
 
 	c.MySQL.SetTransport(transport)
 

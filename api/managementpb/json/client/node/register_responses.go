@@ -121,27 +121,38 @@ type RegisterBody struct {
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
-	// Сontainer identifier. Only for Container Nodes (optional).
+	// Node availability zone. Auto-detected and auto-updated.
+	Az string `json:"az,omitempty"`
+
+	// Container identifier. If specified, must be a unique Docker container identifier.
+	// Auto-detected and auto-updated.
 	ContainerID string `json:"container_id,omitempty"`
 
-	// Сontainer name. Only for Container Nodes (optional).
+	// Container name. Auto-detected and auto-updated.
 	ContainerName string `json:"container_name,omitempty"`
 
-	// Custom user-assigned labels for node (optional).
+	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Linux distribution. For Generic nodes (optional).
+	// Linux distribution name and version. Auto-detected and auto-updated.
 	Distro string `json:"distro,omitempty"`
 
-	// Linux machine-id. Can't be changed. Must be unique across all Generic Nodes if specified (optional).
+	// Linux machine-id. Auto-detected and auto-updated.
+	// Must be unique across all Generic Nodes if specified.
 	MachineID string `json:"machine_id,omitempty"`
 
-	// Unique across all Nodes user-defined name, can be changed.
+	// Node model. Auto-detected and auto-updated.
+	NodeModel string `json:"node_model,omitempty"`
+
+	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `json:"node_name,omitempty"`
 
-	// NodeType describes supported node types.
+	// NodeType describes supported Node types.
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_AMAZON_RDS_NODE]
 	NodeType *string `json:"node_type,omitempty"`
+
+	// Node region. Auto-detected and auto-updated.
+	Region string `json:"region,omitempty"`
 }
 
 // Validate validates this register body
