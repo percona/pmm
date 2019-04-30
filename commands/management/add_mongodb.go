@@ -23,38 +23,38 @@ import (
 	"strconv"
 
 	"github.com/percona/pmm/api/managementpb/json/client"
-	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql"
+	mongodb "github.com/percona/pmm/api/managementpb/json/client/mongo_db"
 
 	"github.com/percona/pmm-admin/agentlocal"
 	"github.com/percona/pmm-admin/commands"
 )
 
-var addMySQLResultT = commands.ParseTemplate(`
-MySQL Service added.
+var addMongoDBResultT = commands.ParseTemplate(`
+MongoDB Service added.
 Service ID  : {{ .Service.ServiceID }}
 Service name: {{ .Service.ServiceName }}
 `)
 
-type addMySQLResult struct {
-	Service *mysql.AddMySQLOKBodyService `json:"service"`
+type addMongoDBResult struct {
+	Service *mongodb.AddMongoDBOKBodyService `json:"service"`
 }
 
-func (res *addMySQLResult) Result() {}
+func (res *addMongoDBResult) Result() {}
 
-func (res *addMySQLResult) String() string {
-	return commands.RenderTemplate(addMySQLResultT, res)
+func (res *addMongoDBResult) String() string {
+	return commands.RenderTemplate(addMongoDBResultT, res)
 }
 
-type addMySQLCommand struct {
-	AddressPort   string
-	ServiceName   string
-	Username      string
-	Password      string
-	UsePerfschema bool
-	UseSlowLog    bool
+type addMongoDBCommand struct {
+	AddressPort string
+	ServiceName string
+	Username    string
+	Password    string
+	UseExporter bool
+	UseProfiler bool
 }
 
-func (cmd *addMySQLCommand) Run() (commands.Result, error) {
+func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 	status, err := agentlocal.GetStatus()
 	if err != nil {
 		return nil, err
@@ -69,51 +69,48 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	params := &mysql.AddMySQLParams{
-		Body: mysql.AddMySQLBody{
+	params := &mongodb.AddMongoDBParams{
+		Body: mongodb.AddMongoDBBody{
 			PMMAgentID:  status.AgentID,
 			NodeID:      status.NodeID,
 			ServiceName: cmd.ServiceName,
 			Address:     host,
 			Port:        int64(port),
 
-			MysqldExporter: true,
-			Username:       cmd.Username,
-			Password:       cmd.Password,
+			MongodbExporter: cmd.UseExporter,
+			Username:        cmd.Username,
+			Password:        cmd.Password,
 
-			QANUsername:        cmd.Username,
-			QANPassword:        cmd.Password,
-			QANMysqlPerfschema: cmd.UsePerfschema,
-			QANMysqlSlowlog:    cmd.UseSlowLog,
+			QANMongodbProfiler: cmd.UseProfiler,
 		},
 		Context: commands.Ctx,
 	}
-	resp, err := client.Default.MySQL.AddMySQL(params)
+	resp, err := client.Default.MongoDB.AddMongoDB(params)
 	if err != nil {
 		return nil, err
 	}
 
-	return &addMySQLResult{
+	return &addMongoDBResult{
 		Service: resp.Payload.Service,
 	}, nil
 }
 
 // register command
 var (
-	AddMySQL  = new(addMySQLCommand)
-	AddMySQLC = AddC.Command("mysql", "Add MySQL to monitoring.")
+	AddMongoDB  = new(addMongoDBCommand)
+	AddMongoDBC = AddC.Command("mongodb", "Add MongoDB to monitoring.")
 )
 
 func init() {
-	AddMySQLC.Arg("address", "MySQL address and port. Default: 127.0.0.1:3306.").Default("127.0.0.1:3306").StringVar(&AddMySQL.AddressPort)
+	AddMongoDBC.Arg("address", "MongoDB address and port. Default: 127.0.0.1:27017.").Default("127.0.0.1:27017").StringVar(&AddMongoDB.AddressPort)
 
 	hostname, _ := os.Hostname()
-	serviceName := hostname + "-mysql"
+	serviceName := hostname + "-mongodb"
 	serviceNameHelp := fmt.Sprintf("Service name. Default: %s.", serviceName)
-	AddMySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMySQL.ServiceName)
+	AddMongoDBC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMongoDB.ServiceName)
 
-	AddMySQLC.Flag("username", "MySQL username.").StringVar(&AddMySQL.Username)
-	AddMySQLC.Flag("password", "MySQL password.").StringVar(&AddMySQL.Password)
-	AddMySQLC.Flag("use-perfschema", "Run QAN perf schema agent.").BoolVar(&AddMySQL.UsePerfschema)
-	AddMySQLC.Flag("use-slowlog", "Run QAN slow log agent.").BoolVar(&AddMySQL.UseSlowLog)
+	AddMongoDBC.Flag("username", "MongoDB username.").StringVar(&AddMongoDB.Username)
+	AddMongoDBC.Flag("password", "MongoDB password.").StringVar(&AddMongoDB.Password)
+	AddMongoDBC.Flag("use-profiler", "Run QAN profiler agent.").BoolVar(&AddMongoDB.UseProfiler)
+	AddMongoDBC.Flag("use-exporter", "Run mongodb_exporter.").BoolVar(&AddMongoDB.UseExporter)
 }

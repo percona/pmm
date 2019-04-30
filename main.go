@@ -175,6 +175,9 @@ func main() {
 	case management.RegisterC.FullCommand():
 		command = management.Register
 
+	case management.AddMongoDBC.FullCommand():
+		command = management.AddMongoDB
+
 	case management.AddMySQLC.FullCommand():
 		command = management.AddMySQL
 
