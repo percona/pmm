@@ -96,7 +96,7 @@ service MySQL {
   // with provided "pmm_agent_id" and other parameters.
   rpc AddMySQL(AddMySQLRequest) returns (AddMySQLResponse) {
     option (google.api.http) = {
-      post: "/v1/management/MySQL/Add"
+      post: "/v1/management/MySQL/AddMySQL"
       body: "*"
     };
   }
