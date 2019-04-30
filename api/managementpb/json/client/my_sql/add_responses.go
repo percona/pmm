@@ -18,24 +18,24 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// AddMixin0Reader is a Reader for the AddMixin0 structure.
-type AddMixin0Reader struct {
+// AddReader is a Reader for the Add structure.
+type AddReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddMixin0Reader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
 	case 200:
-		result := NewAddMixin0OK()
+		result := NewAddOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 
 	default:
-		result := NewAddMixin0Default(response.Code())
+		result := NewAddDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -46,26 +46,26 @@ func (o *AddMixin0Reader) ReadResponse(response runtime.ClientResponse, consumer
 	}
 }
 
-// NewAddMixin0OK creates a AddMixin0OK with default headers values
-func NewAddMixin0OK() *AddMixin0OK {
-	return &AddMixin0OK{}
+// NewAddOK creates a AddOK with default headers values
+func NewAddOK() *AddOK {
+	return &AddOK{}
 }
 
-/*AddMixin0OK handles this case with default header values.
+/*AddOK handles this case with default header values.
 
 A successful response.
 */
-type AddMixin0OK struct {
-	Payload *AddMixin0OKBody
+type AddOK struct {
+	Payload *AddOKBody
 }
 
-func (o *AddMixin0OK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] addMixin0Ok  %+v", 200, o.Payload)
+func (o *AddOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] addOk  %+v", 200, o.Payload)
 }
 
-func (o *AddMixin0OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *AddOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(AddMixin0OKBody)
+	o.Payload = new(AddOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -75,35 +75,35 @@ func (o *AddMixin0OK) readResponse(response runtime.ClientResponse, consumer run
 	return nil
 }
 
-// NewAddMixin0Default creates a AddMixin0Default with default headers values
-func NewAddMixin0Default(code int) *AddMixin0Default {
-	return &AddMixin0Default{
+// NewAddDefault creates a AddDefault with default headers values
+func NewAddDefault(code int) *AddDefault {
+	return &AddDefault{
 		_statusCode: code,
 	}
 }
 
-/*AddMixin0Default handles this case with default header values.
+/*AddDefault handles this case with default header values.
 
 An error response.
 */
-type AddMixin0Default struct {
+type AddDefault struct {
 	_statusCode int
 
-	Payload *AddMixin0DefaultBody
+	Payload *AddDefaultBody
 }
 
-// Code gets the status code for the add mixin0 default response
-func (o *AddMixin0Default) Code() int {
+// Code gets the status code for the add default response
+func (o *AddDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *AddMixin0Default) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] AddMixin0 default  %+v", o._statusCode, o.Payload)
+func (o *AddDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/MySQL/Add][%d] Add default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *AddMixin0Default) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *AddDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(AddMixin0DefaultBody)
+	o.Payload = new(AddDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -113,10 +113,10 @@ func (o *AddMixin0Default) readResponse(response runtime.ClientResponse, consume
 	return nil
 }
 
-/*AddMixin0Body add mixin0 body
-swagger:model AddMixin0Body
+/*AddBody add body
+swagger:model AddBody
 */
-type AddMixin0Body struct {
+type AddBody struct {
 
 	// Node and Service access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
@@ -155,13 +155,13 @@ type AddMixin0Body struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add mixin0 body
-func (o *AddMixin0Body) Validate(formats strfmt.Registry) error {
+// Validate validates this add body
+func (o *AddBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddMixin0Body) MarshalBinary() ([]byte, error) {
+func (o *AddBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -169,8 +169,8 @@ func (o *AddMixin0Body) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMixin0Body) UnmarshalBinary(b []byte) error {
-	var res AddMixin0Body
+func (o *AddBody) UnmarshalBinary(b []byte) error {
+	var res AddBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -178,10 +178,10 @@ func (o *AddMixin0Body) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMixin0DefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddMixin0DefaultBody
+/*AddDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddDefaultBody
 */
-type AddMixin0DefaultBody struct {
+type AddDefaultBody struct {
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -193,13 +193,13 @@ type AddMixin0DefaultBody struct {
 	Message string `json:"message,omitempty"`
 }
 
-// Validate validates this add mixin0 default body
-func (o *AddMixin0DefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this add default body
+func (o *AddDefaultBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddMixin0DefaultBody) MarshalBinary() ([]byte, error) {
+func (o *AddDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -207,8 +207,8 @@ func (o *AddMixin0DefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMixin0DefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddMixin0DefaultBody
+func (o *AddDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -216,26 +216,26 @@ func (o *AddMixin0DefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMixin0OKBody add mixin0 OK body
-swagger:model AddMixin0OKBody
+/*AddOKBody add OK body
+swagger:model AddOKBody
 */
-type AddMixin0OKBody struct {
+type AddOKBody struct {
 
 	// mysqld exporter
-	MysqldExporter *AddMixin0OKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
+	MysqldExporter *AddOKBodyMysqldExporter `json:"mysqld_exporter,omitempty"`
 
 	// qan mysql perfschema
-	QANMysqlPerfschema *AddMixin0OKBodyQANMysqlPerfschema `json:"qan_mysql_perfschema,omitempty"`
+	QANMysqlPerfschema *AddOKBodyQANMysqlPerfschema `json:"qan_mysql_perfschema,omitempty"`
 
 	// qan mysql slowlog
-	QANMysqlSlowlog *AddMixin0OKBodyQANMysqlSlowlog `json:"qan_mysql_slowlog,omitempty"`
+	QANMysqlSlowlog *AddOKBodyQANMysqlSlowlog `json:"qan_mysql_slowlog,omitempty"`
 
 	// service
-	Service *AddMixin0OKBodyService `json:"service,omitempty"`
+	Service *AddOKBodyService `json:"service,omitempty"`
 }
 
-// Validate validates this add mixin0 OK body
-func (o *AddMixin0OKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this add OK body
+func (o *AddOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMysqldExporter(formats); err != nil {
@@ -260,7 +260,7 @@ func (o *AddMixin0OKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddMixin0OKBody) validateMysqldExporter(formats strfmt.Registry) error {
+func (o *AddOKBody) validateMysqldExporter(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.MysqldExporter) { // not required
 		return nil
@@ -269,7 +269,7 @@ func (o *AddMixin0OKBody) validateMysqldExporter(formats strfmt.Registry) error 
 	if o.MysqldExporter != nil {
 		if err := o.MysqldExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMixin0Ok" + "." + "mysqld_exporter")
+				return ve.ValidateName("addOk" + "." + "mysqld_exporter")
 			}
 			return err
 		}
@@ -278,7 +278,7 @@ func (o *AddMixin0OKBody) validateMysqldExporter(formats strfmt.Registry) error 
 	return nil
 }
 
-func (o *AddMixin0OKBody) validateQANMysqlPerfschema(formats strfmt.Registry) error {
+func (o *AddOKBody) validateQANMysqlPerfschema(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.QANMysqlPerfschema) { // not required
 		return nil
@@ -287,7 +287,7 @@ func (o *AddMixin0OKBody) validateQANMysqlPerfschema(formats strfmt.Registry) er
 	if o.QANMysqlPerfschema != nil {
 		if err := o.QANMysqlPerfschema.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMixin0Ok" + "." + "qan_mysql_perfschema")
+				return ve.ValidateName("addOk" + "." + "qan_mysql_perfschema")
 			}
 			return err
 		}
@@ -296,7 +296,7 @@ func (o *AddMixin0OKBody) validateQANMysqlPerfschema(formats strfmt.Registry) er
 	return nil
 }
 
-func (o *AddMixin0OKBody) validateQANMysqlSlowlog(formats strfmt.Registry) error {
+func (o *AddOKBody) validateQANMysqlSlowlog(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.QANMysqlSlowlog) { // not required
 		return nil
@@ -305,7 +305,7 @@ func (o *AddMixin0OKBody) validateQANMysqlSlowlog(formats strfmt.Registry) error
 	if o.QANMysqlSlowlog != nil {
 		if err := o.QANMysqlSlowlog.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMixin0Ok" + "." + "qan_mysql_slowlog")
+				return ve.ValidateName("addOk" + "." + "qan_mysql_slowlog")
 			}
 			return err
 		}
@@ -314,7 +314,7 @@ func (o *AddMixin0OKBody) validateQANMysqlSlowlog(formats strfmt.Registry) error
 	return nil
 }
 
-func (o *AddMixin0OKBody) validateService(formats strfmt.Registry) error {
+func (o *AddOKBody) validateService(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Service) { // not required
 		return nil
@@ -323,7 +323,7 @@ func (o *AddMixin0OKBody) validateService(formats strfmt.Registry) error {
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMixin0Ok" + "." + "service")
+				return ve.ValidateName("addOk" + "." + "service")
 			}
 			return err
 		}
@@ -333,7 +333,7 @@ func (o *AddMixin0OKBody) validateService(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *AddMixin0OKBody) MarshalBinary() ([]byte, error) {
+func (o *AddOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -341,8 +341,8 @@ func (o *AddMixin0OKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMixin0OKBody) UnmarshalBinary(b []byte) error {
-	var res AddMixin0OKBody
+func (o *AddOKBody) UnmarshalBinary(b []byte) error {
+	var res AddOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -350,10 +350,10 @@ func (o *AddMixin0OKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMixin0OKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
-swagger:model AddMixin0OKBodyMysqldExporter
+/*AddOKBodyMysqldExporter MySQLdExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
+swagger:model AddOKBodyMysqldExporter
 */
-type AddMixin0OKBodyMysqldExporter struct {
+type AddOKBodyMysqldExporter struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
@@ -384,8 +384,8 @@ type AddMixin0OKBodyMysqldExporter struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add mixin0 OK body mysqld exporter
-func (o *AddMixin0OKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add OK body mysqld exporter
+func (o *AddOKBodyMysqldExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -398,7 +398,7 @@ func (o *AddMixin0OKBodyMysqldExporter) Validate(formats strfmt.Registry) error 
 	return nil
 }
 
-var addMixin0OkBodyMysqldExporterTypeStatusPropEnum []interface{}
+var addOkBodyMysqldExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -406,47 +406,47 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addMixin0OkBodyMysqldExporterTypeStatusPropEnum = append(addMixin0OkBodyMysqldExporterTypeStatusPropEnum, v)
+		addOkBodyMysqldExporterTypeStatusPropEnum = append(addOkBodyMysqldExporterTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddMixin0OKBodyMysqldExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	AddMixin0OKBodyMysqldExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+	// AddOKBodyMysqldExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddOKBodyMysqldExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
 
-	// AddMixin0OKBodyMysqldExporterStatusSTARTING captures enum value "STARTING"
-	AddMixin0OKBodyMysqldExporterStatusSTARTING string = "STARTING"
+	// AddOKBodyMysqldExporterStatusSTARTING captures enum value "STARTING"
+	AddOKBodyMysqldExporterStatusSTARTING string = "STARTING"
 
-	// AddMixin0OKBodyMysqldExporterStatusRUNNING captures enum value "RUNNING"
-	AddMixin0OKBodyMysqldExporterStatusRUNNING string = "RUNNING"
+	// AddOKBodyMysqldExporterStatusRUNNING captures enum value "RUNNING"
+	AddOKBodyMysqldExporterStatusRUNNING string = "RUNNING"
 
-	// AddMixin0OKBodyMysqldExporterStatusWAITING captures enum value "WAITING"
-	AddMixin0OKBodyMysqldExporterStatusWAITING string = "WAITING"
+	// AddOKBodyMysqldExporterStatusWAITING captures enum value "WAITING"
+	AddOKBodyMysqldExporterStatusWAITING string = "WAITING"
 
-	// AddMixin0OKBodyMysqldExporterStatusSTOPPING captures enum value "STOPPING"
-	AddMixin0OKBodyMysqldExporterStatusSTOPPING string = "STOPPING"
+	// AddOKBodyMysqldExporterStatusSTOPPING captures enum value "STOPPING"
+	AddOKBodyMysqldExporterStatusSTOPPING string = "STOPPING"
 
-	// AddMixin0OKBodyMysqldExporterStatusDONE captures enum value "DONE"
-	AddMixin0OKBodyMysqldExporterStatusDONE string = "DONE"
+	// AddOKBodyMysqldExporterStatusDONE captures enum value "DONE"
+	AddOKBodyMysqldExporterStatusDONE string = "DONE"
 )
 
 // prop value enum
-func (o *AddMixin0OKBodyMysqldExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMixin0OkBodyMysqldExporterTypeStatusPropEnum); err != nil {
+func (o *AddOKBodyMysqldExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addOkBodyMysqldExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddMixin0OKBodyMysqldExporter) validateStatus(formats strfmt.Registry) error {
+func (o *AddOKBodyMysqldExporter) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addMixin0Ok"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addOk"+"."+"mysqld_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -454,7 +454,7 @@ func (o *AddMixin0OKBodyMysqldExporter) validateStatus(formats strfmt.Registry) 
 }
 
 // MarshalBinary interface implementation
-func (o *AddMixin0OKBodyMysqldExporter) MarshalBinary() ([]byte, error) {
+func (o *AddOKBodyMysqldExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -462,8 +462,8 @@ func (o *AddMixin0OKBodyMysqldExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMixin0OKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
-	var res AddMixin0OKBodyMysqldExporter
+func (o *AddOKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
+	var res AddOKBodyMysqldExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -471,10 +471,10 @@ func (o *AddMixin0OKBodyMysqldExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMixin0OKBodyQANMysqlPerfschema QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
-swagger:model AddMixin0OKBodyQANMysqlPerfschema
+/*AddOKBodyQANMysqlPerfschema QANMySQLPerfSchemaAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+swagger:model AddOKBodyQANMysqlPerfschema
 */
-type AddMixin0OKBodyQANMysqlPerfschema struct {
+type AddOKBodyQANMysqlPerfschema struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
@@ -502,8 +502,8 @@ type AddMixin0OKBodyQANMysqlPerfschema struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add mixin0 OK body QAN mysql perfschema
-func (o *AddMixin0OKBodyQANMysqlPerfschema) Validate(formats strfmt.Registry) error {
+// Validate validates this add OK body QAN mysql perfschema
+func (o *AddOKBodyQANMysqlPerfschema) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -516,7 +516,7 @@ func (o *AddMixin0OKBodyQANMysqlPerfschema) Validate(formats strfmt.Registry) er
 	return nil
 }
 
-var addMixin0OkBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
+var addOkBodyQanMysqlPerfschemaTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -524,47 +524,47 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addMixin0OkBodyQanMysqlPerfschemaTypeStatusPropEnum = append(addMixin0OkBodyQanMysqlPerfschemaTypeStatusPropEnum, v)
+		addOkBodyQanMysqlPerfschemaTypeStatusPropEnum = append(addOkBodyQanMysqlPerfschemaTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddMixin0OKBodyQANMysqlPerfschemaStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	AddMixin0OKBodyQANMysqlPerfschemaStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+	// AddOKBodyQANMysqlPerfschemaStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddOKBodyQANMysqlPerfschemaStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
 
-	// AddMixin0OKBodyQANMysqlPerfschemaStatusSTARTING captures enum value "STARTING"
-	AddMixin0OKBodyQANMysqlPerfschemaStatusSTARTING string = "STARTING"
+	// AddOKBodyQANMysqlPerfschemaStatusSTARTING captures enum value "STARTING"
+	AddOKBodyQANMysqlPerfschemaStatusSTARTING string = "STARTING"
 
-	// AddMixin0OKBodyQANMysqlPerfschemaStatusRUNNING captures enum value "RUNNING"
-	AddMixin0OKBodyQANMysqlPerfschemaStatusRUNNING string = "RUNNING"
+	// AddOKBodyQANMysqlPerfschemaStatusRUNNING captures enum value "RUNNING"
+	AddOKBodyQANMysqlPerfschemaStatusRUNNING string = "RUNNING"
 
-	// AddMixin0OKBodyQANMysqlPerfschemaStatusWAITING captures enum value "WAITING"
-	AddMixin0OKBodyQANMysqlPerfschemaStatusWAITING string = "WAITING"
+	// AddOKBodyQANMysqlPerfschemaStatusWAITING captures enum value "WAITING"
+	AddOKBodyQANMysqlPerfschemaStatusWAITING string = "WAITING"
 
-	// AddMixin0OKBodyQANMysqlPerfschemaStatusSTOPPING captures enum value "STOPPING"
-	AddMixin0OKBodyQANMysqlPerfschemaStatusSTOPPING string = "STOPPING"
+	// AddOKBodyQANMysqlPerfschemaStatusSTOPPING captures enum value "STOPPING"
+	AddOKBodyQANMysqlPerfschemaStatusSTOPPING string = "STOPPING"
 
-	// AddMixin0OKBodyQANMysqlPerfschemaStatusDONE captures enum value "DONE"
-	AddMixin0OKBodyQANMysqlPerfschemaStatusDONE string = "DONE"
+	// AddOKBodyQANMysqlPerfschemaStatusDONE captures enum value "DONE"
+	AddOKBodyQANMysqlPerfschemaStatusDONE string = "DONE"
 )
 
 // prop value enum
-func (o *AddMixin0OKBodyQANMysqlPerfschema) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMixin0OkBodyQanMysqlPerfschemaTypeStatusPropEnum); err != nil {
+func (o *AddOKBodyQANMysqlPerfschema) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addOkBodyQanMysqlPerfschemaTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddMixin0OKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registry) error {
+func (o *AddOKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addMixin0Ok"+"."+"qan_mysql_perfschema"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addOk"+"."+"qan_mysql_perfschema"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -572,7 +572,7 @@ func (o *AddMixin0OKBodyQANMysqlPerfschema) validateStatus(formats strfmt.Regist
 }
 
 // MarshalBinary interface implementation
-func (o *AddMixin0OKBodyQANMysqlPerfschema) MarshalBinary() ([]byte, error) {
+func (o *AddOKBodyQANMysqlPerfschema) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -580,8 +580,8 @@ func (o *AddMixin0OKBodyQANMysqlPerfschema) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMixin0OKBodyQANMysqlPerfschema) UnmarshalBinary(b []byte) error {
-	var res AddMixin0OKBodyQANMysqlPerfschema
+func (o *AddOKBodyQANMysqlPerfschema) UnmarshalBinary(b []byte) error {
+	var res AddOKBodyQANMysqlPerfschema
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -589,10 +589,10 @@ func (o *AddMixin0OKBodyQANMysqlPerfschema) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMixin0OKBodyQANMysqlSlowlog QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
-swagger:model AddMixin0OKBodyQANMysqlSlowlog
+/*AddOKBodyQANMysqlSlowlog QANMySQLSlowlogAgent runs within pmm-agent and sends MySQL Query Analytics data to the PMM Server.
+swagger:model AddOKBodyQANMysqlSlowlog
 */
-type AddMixin0OKBodyQANMysqlSlowlog struct {
+type AddOKBodyQANMysqlSlowlog struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
@@ -620,8 +620,8 @@ type AddMixin0OKBodyQANMysqlSlowlog struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add mixin0 OK body QAN mysql slowlog
-func (o *AddMixin0OKBodyQANMysqlSlowlog) Validate(formats strfmt.Registry) error {
+// Validate validates this add OK body QAN mysql slowlog
+func (o *AddOKBodyQANMysqlSlowlog) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -634,7 +634,7 @@ func (o *AddMixin0OKBodyQANMysqlSlowlog) Validate(formats strfmt.Registry) error
 	return nil
 }
 
-var addMixin0OkBodyQanMysqlSlowlogTypeStatusPropEnum []interface{}
+var addOkBodyQanMysqlSlowlogTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -642,47 +642,47 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addMixin0OkBodyQanMysqlSlowlogTypeStatusPropEnum = append(addMixin0OkBodyQanMysqlSlowlogTypeStatusPropEnum, v)
+		addOkBodyQanMysqlSlowlogTypeStatusPropEnum = append(addOkBodyQanMysqlSlowlogTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddMixin0OKBodyQANMysqlSlowlogStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	AddMixin0OKBodyQANMysqlSlowlogStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+	// AddOKBodyQANMysqlSlowlogStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddOKBodyQANMysqlSlowlogStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
 
-	// AddMixin0OKBodyQANMysqlSlowlogStatusSTARTING captures enum value "STARTING"
-	AddMixin0OKBodyQANMysqlSlowlogStatusSTARTING string = "STARTING"
+	// AddOKBodyQANMysqlSlowlogStatusSTARTING captures enum value "STARTING"
+	AddOKBodyQANMysqlSlowlogStatusSTARTING string = "STARTING"
 
-	// AddMixin0OKBodyQANMysqlSlowlogStatusRUNNING captures enum value "RUNNING"
-	AddMixin0OKBodyQANMysqlSlowlogStatusRUNNING string = "RUNNING"
+	// AddOKBodyQANMysqlSlowlogStatusRUNNING captures enum value "RUNNING"
+	AddOKBodyQANMysqlSlowlogStatusRUNNING string = "RUNNING"
 
-	// AddMixin0OKBodyQANMysqlSlowlogStatusWAITING captures enum value "WAITING"
-	AddMixin0OKBodyQANMysqlSlowlogStatusWAITING string = "WAITING"
+	// AddOKBodyQANMysqlSlowlogStatusWAITING captures enum value "WAITING"
+	AddOKBodyQANMysqlSlowlogStatusWAITING string = "WAITING"
 
-	// AddMixin0OKBodyQANMysqlSlowlogStatusSTOPPING captures enum value "STOPPING"
-	AddMixin0OKBodyQANMysqlSlowlogStatusSTOPPING string = "STOPPING"
+	// AddOKBodyQANMysqlSlowlogStatusSTOPPING captures enum value "STOPPING"
+	AddOKBodyQANMysqlSlowlogStatusSTOPPING string = "STOPPING"
 
-	// AddMixin0OKBodyQANMysqlSlowlogStatusDONE captures enum value "DONE"
-	AddMixin0OKBodyQANMysqlSlowlogStatusDONE string = "DONE"
+	// AddOKBodyQANMysqlSlowlogStatusDONE captures enum value "DONE"
+	AddOKBodyQANMysqlSlowlogStatusDONE string = "DONE"
 )
 
 // prop value enum
-func (o *AddMixin0OKBodyQANMysqlSlowlog) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMixin0OkBodyQanMysqlSlowlogTypeStatusPropEnum); err != nil {
+func (o *AddOKBodyQANMysqlSlowlog) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addOkBodyQanMysqlSlowlogTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddMixin0OKBodyQANMysqlSlowlog) validateStatus(formats strfmt.Registry) error {
+func (o *AddOKBodyQANMysqlSlowlog) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addMixin0Ok"+"."+"qan_mysql_slowlog"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addOk"+"."+"qan_mysql_slowlog"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -690,7 +690,7 @@ func (o *AddMixin0OKBodyQANMysqlSlowlog) validateStatus(formats strfmt.Registry)
 }
 
 // MarshalBinary interface implementation
-func (o *AddMixin0OKBodyQANMysqlSlowlog) MarshalBinary() ([]byte, error) {
+func (o *AddOKBodyQANMysqlSlowlog) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -698,8 +698,8 @@ func (o *AddMixin0OKBodyQANMysqlSlowlog) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMixin0OKBodyQANMysqlSlowlog) UnmarshalBinary(b []byte) error {
-	var res AddMixin0OKBodyQANMysqlSlowlog
+func (o *AddOKBodyQANMysqlSlowlog) UnmarshalBinary(b []byte) error {
+	var res AddOKBodyQANMysqlSlowlog
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -707,10 +707,10 @@ func (o *AddMixin0OKBodyQANMysqlSlowlog) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMixin0OKBodyService MySQLService represents a generic MySQL instance.
-swagger:model AddMixin0OKBodyService
+/*AddOKBodyService MySQLService represents a generic MySQL instance.
+swagger:model AddOKBodyService
 */
-type AddMixin0OKBodyService struct {
+type AddOKBodyService struct {
 
 	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
@@ -731,13 +731,13 @@ type AddMixin0OKBodyService struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this add mixin0 OK body service
-func (o *AddMixin0OKBodyService) Validate(formats strfmt.Registry) error {
+// Validate validates this add OK body service
+func (o *AddOKBodyService) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddMixin0OKBodyService) MarshalBinary() ([]byte, error) {
+func (o *AddOKBodyService) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -745,8 +745,8 @@ func (o *AddMixin0OKBodyService) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMixin0OKBodyService) UnmarshalBinary(b []byte) error {
-	var res AddMixin0OKBodyService
+func (o *AddOKBodyService) UnmarshalBinary(b []byte) error {
+	var res AddOKBodyService
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

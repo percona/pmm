@@ -21,7 +21,7 @@
           "MySQL"
         ],
         "summary": "Add MySQL adds MySQL Service and starts several Agents.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents\nwith provided \"pmm_agent_id\" and other parameters.",
-        "operationId": "AddMixin0",
+        "operationId": "Add",
         "parameters": [
           {
             "name": "body",
@@ -528,7 +528,7 @@
           "PostgreSQL"
         ],
         "summary": "Add PostgreSQL adds PostgreSQL Service and starts postgres exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters.",
-        "operationId": "Add",
+        "operationId": "AddMixin0",
         "parameters": [
           {
             "name": "body",
