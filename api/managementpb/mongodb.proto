@@ -93,7 +93,7 @@ service MongoDB {
   // with provided "pmm_agent_id" and other parameters.
   rpc AddMongoDB(AddMongoDBRequest) returns (AddMongoDBResponse) {
     option (google.api.http) = {
-      post: "/v1/management/MongoDB/AddMongoDB"
+      post: "/v1/management/MongoDB/Add"
       body: "*"
     };
   }

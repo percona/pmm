@@ -5294,7 +5294,7 @@
         }
       }
     },
-    "/v1/management/MongoDB/AddMongoDB": {
+    "/v1/management/MongoDB/Add": {
       "post": {
         "tags": [
           "MongoDB"
@@ -5556,7 +5556,7 @@
         }
       }
     },
-    "/v1/management/MySQL/AddMySQL": {
+    "/v1/management/MySQL/Add": {
       "post": {
         "tags": [
           "MySQL"
