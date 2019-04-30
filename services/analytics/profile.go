@@ -22,6 +22,8 @@ import (
 	"time"
 
 	"github.com/percona/pmm/api/qanpb"
+
+	"github.com/percona/qan-api2/models"
 )
 
 const defaultOrder = "m_query_time_sum"
@@ -158,9 +160,14 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			Load:        interfaceToFloat32(res["m_query_time_sum"]) / float32(intervalTime),
 			Metrics:     make(map[string]*qanpb.Metric),
 		}
+		// Add latency as default column.
+		stats := makeStats("query_time", total, res)
+		row.Metrics["latency"] = &qanpb.Metric{
+			Stats: stats,
+		}
 		// set TOTAL for total values instead if "any" dimension.
 		if i == 0 {
-			row.Dimension = "TOTAL"
+			row.Dimension = ""
 			row.Fingerprint = "TOTAL"
 		}
 
@@ -184,25 +191,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		}
 		row.Sparkline = sparklines
 		for _, c := range columns {
-			rate := float32(0)
-			divider := interfaceToFloat32(total["m_"+c+"_sum"])
-			if divider != 0 {
-				rate = interfaceToFloat32(res["m_"+c+"_sum"]) / divider
-			}
-			stats := &qanpb.Stat{
-				Rate: rate,
-				Cnt:  interfaceToFloat32(res["m_"+c+"_cnt"]),
-				Sum:  interfaceToFloat32(res["m_"+c+"_sum"]),
-			}
-			if val, ok := res["m_"+c+"_min"]; ok {
-				stats.Min = interfaceToFloat32(val)
-			}
-			if val, ok := res["m_"+c+"_max"]; ok {
-				stats.Max = interfaceToFloat32(val)
-			}
-			if val, ok := res["m_"+c+"_p99"]; ok {
-				stats.P99 = interfaceToFloat32(val)
-			}
+			stats := makeStats(c, total, res)
 			row.Metrics[c] = &qanpb.Metric{
 				Stats: stats,
 			}
@@ -210,4 +199,28 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		resp.Rows = append(resp.Rows, row)
 	}
 	return resp, nil
+}
+
+func makeStats(metricNameRoot string, total, res models.M) *qanpb.Stat {
+	rate := float32(0)
+	divider := interfaceToFloat32(total["m_"+metricNameRoot+"_sum"])
+	if divider != 0 {
+		rate = interfaceToFloat32(res["m_"+metricNameRoot+"_sum"]) / divider
+	}
+	stat := &qanpb.Stat{
+		Rate: rate,
+		Cnt:  interfaceToFloat32(res["m_"+metricNameRoot+"_cnt"]),
+		Sum:  interfaceToFloat32(res["m_"+metricNameRoot+"_sum"]),
+	}
+	if val, ok := res["m_"+metricNameRoot+"_min"]; ok {
+		stat.Min = interfaceToFloat32(val)
+	}
+	if val, ok := res["m_"+metricNameRoot+"_max"]; ok {
+		stat.Max = interfaceToFloat32(val)
+	}
+	if val, ok := res["m_"+metricNameRoot+"_p99"]; ok {
+		stat.P99 = interfaceToFloat32(val)
+	}
+	return stat
+
 }

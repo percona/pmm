@@ -33,8 +33,6 @@ import (
 	"github.com/percona/qan-api2/models"
 )
 
-const expectedDataFile = "../../test_data/profile.json"
-
 func setup() *sqlx.DB {
 	dsn, ok := os.LookupEnv("QANAPI_DSN_TEST")
 	if !ok {
@@ -77,11 +75,6 @@ func TestService_GetReport(t *testing.T) {
 	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
 	var want qanpb.ReportReply
-	expectedData, err := ioutil.ReadFile(expectedDataFile)
-	err = json.Unmarshal(expectedData, &want)
-	if err != nil {
-		log.Fatal("cannot unmarshal expected result: ", err)
-	}
 	type fields struct {
 		rm models.Reporter
 		mm models.Metrics
@@ -107,26 +100,15 @@ func TestService_GetReport(t *testing.T) {
 					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 					GroupBy:         "queryid",
 					Columns:         []string{"lock_time", "sort_scan"},
-					OrderBy:         "load",
-					Offset:          10,
+					Offset:          0,
 					Limit:           10,
-					Labels: []*qanpb.ReportMapFieldEntry{
-						{
-							Key:   "label1",
-							Value: []string{"value1", "value2"},
-						},
-						{
-							Key:   "d_server",
-							Value: []string{"db1", "db2", "db3", "db4", "db5", "db6", "db7"},
-						},
-					},
 				},
 			},
 			&want,
 			false,
 		},
 		{
-			"wrong time range",
+			"wrong_time_range",
 			fields{rm: rm, mm: mm},
 			args{
 				context.TODO(),
@@ -139,7 +121,7 @@ func TestService_GetReport(t *testing.T) {
 			true,
 		},
 		{
-			"empty fail",
+			"empty_fail",
 			fields{rm: rm, mm: mm},
 			args{
 				context.TODO(),
@@ -161,6 +143,8 @@ func TestService_GetReport(t *testing.T) {
 				return
 			}
 
+			tt.want = nil
+			expectedData(t, got, &tt.want, "../../test_data/TestService_GetReport_"+tt.name+".json")
 			// TODO: why travis-ci return other values then expected?
 			if got.TotalRows != tt.want.TotalRows {
 				t.Errorf("got.TotalRows (%v) != *tt.want.TotalRows (%v)", got.TotalRows, tt.want.TotalRows)
@@ -182,11 +166,6 @@ func TestService_GetReport_Mix(t *testing.T) {
 	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
 	var want qanpb.ReportReply
-	expectedData, err := ioutil.ReadFile(expectedDataFile)
-	err = json.Unmarshal(expectedData, &want)
-	if err != nil {
-		log.Fatal("cannot unmarshal expected result: ", err)
-	}
 	type fields struct {
 		rm models.Reporter
 		mm models.Metrics
@@ -202,7 +181,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		want    *qanpb.ReportReply
 		wantErr bool
 	}{
-		"",
+		"reverce_order",
 		fields{rm: rm, mm: mm},
 		args{
 			context.TODO(),
@@ -229,7 +208,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 		&want,
 		false,
 	}
-	t.Run("reverce order", func(t *testing.T) {
+	t.Run(test.name, func(t *testing.T) {
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -239,6 +218,9 @@ func TestService_GetReport_Mix(t *testing.T) {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
 		}
+
+		test.want = nil
+		expectedData(t, got, &test.want, "../../test_data/TestService_GetReport_Mix_"+test.name+".json")
 
 		for i, v := range got.Rows {
 			if v.NumQueries != test.want.Rows[i].NumQueries {
@@ -247,7 +229,8 @@ func TestService_GetReport_Mix(t *testing.T) {
 		}
 	})
 
-	t.Run("Correct Load", func(t *testing.T) {
+	test.name = "correct_load"
+	t.Run(test.name, func(t *testing.T) {
 		s := &Service{
 			rm: test.fields.rm,
 			mm: test.fields.mm,
@@ -257,10 +240,39 @@ func TestService_GetReport_Mix(t *testing.T) {
 			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
 			return
 		}
+		test.want = nil
+		expectedData(t, got, &test.want, "../../test_data/TestService_GetReport_Mix_"+test.name+".json")
 
 		for i, v := range got.Rows {
 			if v.Load != test.want.Rows[i].Load {
 				t.Errorf("got.Rows[%d].Load (%v) != *tt.want.Rows[%d].Load (%v)", i, v.NumQueries, i, test.want.Rows[i].NumQueries)
+			}
+		}
+	})
+
+	test.name = "correct_latency"
+	t.Run(test.name, func(t *testing.T) {
+		s := &Service{
+			rm: test.fields.rm,
+			mm: test.fields.mm,
+		}
+		got, err := s.GetReport(test.args.ctx, test.args.in)
+		if (err != nil) != test.wantErr {
+			t.Errorf("Service.GetReport() error = %v, wantErr %v", err, test.wantErr)
+			return
+		}
+		test.want = nil
+		expectedData(t, got, &test.want, "../../test_data/TestService_GetReport_Mix_"+test.name+".json")
+
+		for i, v := range got.Rows {
+			if v.Metrics["latency"].Stats.Sum != test.want.Rows[i].Metrics["latency"].Stats.Sum {
+				t.Errorf(
+					"got.Rows[%d].Metrics[latency].Stats.Sum (%v) != *tt.want.Rows[%d].Metrics[latency].Stats.Sum (%v)",
+					i,
+					v.Metrics["latency"].Stats.Sum,
+					i,
+					test.want.Rows[i].Metrics["latency"].Stats.Sum,
+				)
 			}
 		}
 	})

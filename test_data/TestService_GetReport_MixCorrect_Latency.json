@@ -6,6 +6,16 @@
 		{
 			"rank": 10,
 			"metrics": {
+				"latency": {
+					"stats": {
+						"rate": 1,
+						"cnt": 66,
+						"sum": 0.45188,
+						"min": 0.000002,
+						"max": 0.001899,
+						"p99": 0.0006846667
+					}
+				},
 				"lock_time": {
 					"stats": {
 						"rate": 1,
@@ -541,7 +551,7 @@
 					}
 				}
 			],
-			"fingerprint": "show status like ?",
+			"fingerprint": "TOTAL",
 			"num_queries": 268264,
 			"qps": 7,
 			"load": 0.000012552223
