@@ -17,12 +17,12 @@
 package collector
 
 type stats struct {
-	In                     int64
-	Out                    int64
-	IteratorCreated        string
-	IteratorCounter        int64
-	IteratorRestartCounter int64
-	IteratorErrLast        string
-	IteratorErrCounter     int64
-	IteratorTimeout        int64
+	In                     int64  `name:"in"`
+	Out                    int64  `name:"out"`
+	IteratorCreated        string `name:"iterator-created"`
+	IteratorCounter        int64  `name:"iterator-counter"`
+	IteratorRestartCounter int64  `name:"iterator-restart-counter"`
+	IteratorErrLast        string `name:"iterator-err-last"`
+	IteratorErrCounter     int64  `name:"iterator-err-counter"`
+	IteratorTimeout        int64  `name:"iterator-timeout"`
 }

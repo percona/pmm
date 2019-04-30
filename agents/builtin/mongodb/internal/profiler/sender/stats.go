@@ -17,7 +17,7 @@
 package sender
 
 type stats struct {
-	In      int64
-	Out     int64
-	ErrIter int64
+	In      int64 `name:"in"`
+	Out     int64 `name:"out"`
+	ErrIter int64 `name:"err-iter"`
 }

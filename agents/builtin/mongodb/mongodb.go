@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package mongo runs built-in QAN Agent for Mongo profiler.
+// Package mongodb runs built-in QAN Agent for MongoDB profiler.
 package mongodb
 
 import (
@@ -37,8 +37,6 @@ type MongoDB struct {
 
 	dialInfo *pmgo.DialInfo
 	dialer   pmgo.Dialer
-
-	profiler Profiler
 }
 
 // Params represent Agent parameters.
@@ -77,17 +75,19 @@ func newMongo(dialInfo *pmgo.DialInfo, l *logrus.Entry, params *Params) *MongoDB
 
 // Run extracts performance data and sends it to the channel until ctx is canceled.
 func (m *MongoDB) Run(ctx context.Context) {
+	var prof Profiler
+
 	defer func() {
-		m.profiler.Stop() //nolint:errcheck
-		m.profiler = nil
+		prof.Stop() //nolint:errcheck
+		prof = nil
 		m.changes <- Change{Status: inventorypb.AgentStatus_DONE}
 		close(m.changes)
 	}()
 
 	m.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
 
-	m.profiler = profiler.New(m.dialInfo, m.dialer, m.l, m, m.agentID)
-	if err := m.profiler.Start(); err != nil {
+	prof = profiler.New(m.dialInfo, m.dialer, m.l, m, m.agentID)
+	if err := prof.Start(); err != nil {
 		m.changes <- Change{Status: inventorypb.AgentStatus_STOPPING}
 		return
 	}

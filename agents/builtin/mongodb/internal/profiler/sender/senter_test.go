@@ -15,3 +15,43 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package sender
+
+import (
+	"testing"
+	"time"
+
+	"github.com/percona/pmm/api/qanpb"
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/report"
+)
+
+type testWriter struct {
+	t              *testing.T
+	expectedReport *report.Report
+}
+
+func (w *testWriter) Write(actual *report.Report) error {
+	assert.NotNil(w.t, actual)
+	assert.Equal(w.t, w.expectedReport, actual)
+	return nil
+}
+
+func TestSender(t *testing.T) {
+	expected := &report.Report{
+		StartTs: time.Now(),
+		EndTs:   time.Now().Add(time.Second * 10),
+		Buckets: []*qanpb.MetricsBucket{{Queryid: "test"}},
+	}
+
+	repChan := make(chan *report.Report)
+	tw := &testWriter{t: t, expectedReport: expected}
+	snd := New(repChan, tw, logrus.WithField("component", "test-sender"))
+	err := snd.Start()
+	require.NoError(t, err)
+
+	repChan <- expected
+	snd.Stop()
+}

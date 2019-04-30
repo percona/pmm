@@ -35,10 +35,6 @@ required = [
   branch = "PMM-2.0"
 
 [[constraint]]
-  name = "github.com/percona/pmgo"
-  version = "^0.5.1" # We use exactly this version as it used by github.com/percona/percona-toolkit:3.0
-
-[[constraint]]
   branch = "3.0" # We use branch as of https://github.com/percona/percona-toolkit/pull/396. TODO: Replace to tag when it will be released.
   name = "github.com/percona/percona-toolkit"
 

@@ -29,6 +29,20 @@ type Report struct {
 	Buckets []*qanpb.MetricsBucket // per-class metrics
 }
 
+func MakeReport(startTime, endTime time.Time, result *Result) *Report {
+	// Sort classes by Query_time_sum, descending.
+	sort.Sort(ByQueryTime(result.Buckets))
+
+	// Make qan.Report from Result and other metadata (e.g. Interval).
+	report := &Report{
+		StartTs: startTime,
+		EndTs:   endTime,
+		Buckets: result.Buckets,
+	}
+
+	return report
+}
+
 // mongodb-profiler --> Result --> qan.Report --> data.Spooler
 
 // Data for an interval from slow log or performance schema (pfs) parser,
@@ -42,21 +56,9 @@ type ByQueryTime []*qanpb.MetricsBucket
 func (a ByQueryTime) Len() int      { return len(a) }
 func (a ByQueryTime) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
 func (a ByQueryTime) Less(i, j int) bool {
-	// todo: will panic if struct is incorrect
+	if a == nil || a[i] == nil || a[j] == nil {
+		return false
+	}
 	// descending order
 	return a[i].MQueryTimeSum > a[j].MQueryTimeSum
-}
-
-func MakeReport(startTime, endTime time.Time, result *Result) *Report {
-	// Sort classes by Query_time_sum, descending.
-	sort.Sort(ByQueryTime(result.Buckets))
-
-	// Make qan.Report from Result and other metadata (e.g. Interval).
-	report := &Report{
-		StartTs: startTime,
-		EndTs:   endTime,
-		Buckets: result.Buckets,
-	}
-
-	return report
 }

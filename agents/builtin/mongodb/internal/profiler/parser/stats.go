@@ -17,12 +17,12 @@
 package parser
 
 type stats struct {
-	InDocs         int64
-	OkDocs         int64
-	OutReports     int64
-	IntervalStart  string
-	IntervalEnd    string
-	ErrFingerprint int64
-	ErrParse       int64
-	SkippedDocs    int64
+	InDocs         int64  `name:"in-docs"`
+	OkDocs         int64  `name:"ok-docs"`
+	OutReports     int64  `name:"out-reports"`
+	IntervalStart  string `name:"interval-start"`
+	IntervalEnd    string `name:"interval-end"`
+	ErrFingerprint int64  `name:"err-fingerprint"`
+	ErrParse       int64  `name:"err-parse"`
+	SkippedDocs    int64  `name:"skipped-docs"`
 }

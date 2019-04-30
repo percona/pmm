@@ -21,6 +21,7 @@ services:
 
   mongo:
     image: ${MONGO_IMAGE:-mongo:4.0}
+    command: --profile 2
     restart: always
     ports:
       - 127.0.0.1:27017:27017

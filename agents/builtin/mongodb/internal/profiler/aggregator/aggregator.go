@@ -31,10 +31,9 @@ import (
 	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/status"
 )
 
-const (
-	DefaultInterval  = time.Duration(60 * time.Second)
-	ReportChanBuffer = 1000
-)
+var DefaultInterval = time.Duration(time.Minute)
+
+const reportChanBuffer = 1000
 
 // New returns configured *Aggregator
 func New(timeStart time.Time, agentID string) *Aggregator {
@@ -120,7 +119,7 @@ func (a *Aggregator) Start() <-chan *report.Report {
 
 	// create new channels over which we will communicate to...
 	// ... outside world by sending collected docs
-	a.reportChan = make(chan *report.Report, ReportChanBuffer)
+	a.reportChan = make(chan *report.Report, reportChanBuffer)
 	// ... inside goroutine to close it
 	a.doneChan = make(chan struct{})
 

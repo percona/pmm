@@ -15,3 +15,29 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package status
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+type testStats struct {
+	FieldOne   int64  `name:"field-one"`
+	FieldTwo   int64  `name:"field-two"`
+	FieldThree string `name:"field-three"`
+}
+
+func TestStatus(t *testing.T) {
+	// we need at least one test per package to correctly calculate coverage
+	s := &testStats{1, 2, "test"}
+	testState := New(s)
+
+	expected := map[string]string{
+		"field-one":   "1",
+		"field-two":   "2",
+		"field-three": "test",
+	}
+
+	assert.Equal(t, expected, testState.Map())
+}

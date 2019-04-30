@@ -17,9 +17,9 @@
 package aggregator
 
 type stats struct {
-	DocsIn         int64
-	DocsSkippedOld int64
-	ReportsOut     int64
-	IntervalStart  string
-	IntervalEnd    string
+	DocsIn         int64  `name:"docs-in"`
+	DocsSkippedOld int64  `name:"docs-skipped-old"`
+	ReportsOut     int64  `name:"reports-out"`
+	IntervalStart  string `name:"interval-start"`
+	IntervalEnd    string `name:"interval-end"`
 }
