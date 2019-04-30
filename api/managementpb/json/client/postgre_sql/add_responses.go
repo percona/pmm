@@ -18,24 +18,24 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// AddMixin0Reader is a Reader for the AddMixin0 structure.
-type AddMixin0Reader struct {
+// AddReader is a Reader for the Add structure.
+type AddReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddMixin0Reader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
 	case 200:
-		result := NewAddMixin0OK()
+		result := NewAddOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 
 	default:
-		result := NewAddMixin0Default(response.Code())
+		result := NewAddDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -46,26 +46,26 @@ func (o *AddMixin0Reader) ReadResponse(response runtime.ClientResponse, consumer
 	}
 }
 
-// NewAddMixin0OK creates a AddMixin0OK with default headers values
-func NewAddMixin0OK() *AddMixin0OK {
-	return &AddMixin0OK{}
+// NewAddOK creates a AddOK with default headers values
+func NewAddOK() *AddOK {
+	return &AddOK{}
 }
 
-/*AddMixin0OK handles this case with default header values.
+/*AddOK handles this case with default header values.
 
 A successful response.
 */
-type AddMixin0OK struct {
-	Payload *AddMixin0OKBody
+type AddOK struct {
+	Payload *AddOKBody
 }
 
-func (o *AddMixin0OK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] addMixin0Ok  %+v", 200, o.Payload)
+func (o *AddOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] addOk  %+v", 200, o.Payload)
 }
 
-func (o *AddMixin0OK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *AddOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(AddMixin0OKBody)
+	o.Payload = new(AddOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -75,35 +75,35 @@ func (o *AddMixin0OK) readResponse(response runtime.ClientResponse, consumer run
 	return nil
 }
 
-// NewAddMixin0Default creates a AddMixin0Default with default headers values
-func NewAddMixin0Default(code int) *AddMixin0Default {
-	return &AddMixin0Default{
+// NewAddDefault creates a AddDefault with default headers values
+func NewAddDefault(code int) *AddDefault {
+	return &AddDefault{
 		_statusCode: code,
 	}
 }
 
-/*AddMixin0Default handles this case with default header values.
+/*AddDefault handles this case with default header values.
 
 An error response.
 */
-type AddMixin0Default struct {
+type AddDefault struct {
 	_statusCode int
 
-	Payload *AddMixin0DefaultBody
+	Payload *AddDefaultBody
 }
 
-// Code gets the status code for the add mixin0 default response
-func (o *AddMixin0Default) Code() int {
+// Code gets the status code for the add default response
+func (o *AddDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *AddMixin0Default) Error() string {
-	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] AddMixin0 default  %+v", o._statusCode, o.Payload)
+func (o *AddDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] Add default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *AddMixin0Default) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *AddDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(AddMixin0DefaultBody)
+	o.Payload = new(AddDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -113,10 +113,10 @@ func (o *AddMixin0Default) readResponse(response runtime.ClientResponse, consume
 	return nil
 }
 
-/*AddMixin0Body add mixin0 body
-swagger:model AddMixin0Body
+/*AddBody add body
+swagger:model AddBody
 */
-type AddMixin0Body struct {
+type AddBody struct {
 
 	// Node and Service access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
@@ -136,12 +136,6 @@ type AddMixin0Body struct {
 	// If true, adds postgres_exporter for provided service.
 	PostgresExporter bool `json:"postgres_exporter,omitempty"`
 
-	// FIXME remove
-	QANPassword string `json:"qan_password,omitempty"`
-
-	// FIXME remove
-	QANUsername string `json:"qan_username,omitempty"`
-
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
@@ -149,13 +143,13 @@ type AddMixin0Body struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add mixin0 body
-func (o *AddMixin0Body) Validate(formats strfmt.Registry) error {
+// Validate validates this add body
+func (o *AddBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddMixin0Body) MarshalBinary() ([]byte, error) {
+func (o *AddBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -163,8 +157,8 @@ func (o *AddMixin0Body) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMixin0Body) UnmarshalBinary(b []byte) error {
-	var res AddMixin0Body
+func (o *AddBody) UnmarshalBinary(b []byte) error {
+	var res AddBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -172,10 +166,10 @@ func (o *AddMixin0Body) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMixin0DefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddMixin0DefaultBody
+/*AddDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddDefaultBody
 */
-type AddMixin0DefaultBody struct {
+type AddDefaultBody struct {
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -187,13 +181,13 @@ type AddMixin0DefaultBody struct {
 	Message string `json:"message,omitempty"`
 }
 
-// Validate validates this add mixin0 default body
-func (o *AddMixin0DefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this add default body
+func (o *AddDefaultBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddMixin0DefaultBody) MarshalBinary() ([]byte, error) {
+func (o *AddDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -201,8 +195,8 @@ func (o *AddMixin0DefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMixin0DefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddMixin0DefaultBody
+func (o *AddDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -210,20 +204,20 @@ func (o *AddMixin0DefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMixin0OKBody add mixin0 OK body
-swagger:model AddMixin0OKBody
+/*AddOKBody add OK body
+swagger:model AddOKBody
 */
-type AddMixin0OKBody struct {
+type AddOKBody struct {
 
 	// postgres exporter
-	PostgresExporter *AddMixin0OKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
+	PostgresExporter *AddOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 
 	// service
-	Service *AddMixin0OKBodyService `json:"service,omitempty"`
+	Service *AddOKBodyService `json:"service,omitempty"`
 }
 
-// Validate validates this add mixin0 OK body
-func (o *AddMixin0OKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this add OK body
+func (o *AddOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validatePostgresExporter(formats); err != nil {
@@ -240,7 +234,7 @@ func (o *AddMixin0OKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddMixin0OKBody) validatePostgresExporter(formats strfmt.Registry) error {
+func (o *AddOKBody) validatePostgresExporter(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.PostgresExporter) { // not required
 		return nil
@@ -249,7 +243,7 @@ func (o *AddMixin0OKBody) validatePostgresExporter(formats strfmt.Registry) erro
 	if o.PostgresExporter != nil {
 		if err := o.PostgresExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMixin0Ok" + "." + "postgres_exporter")
+				return ve.ValidateName("addOk" + "." + "postgres_exporter")
 			}
 			return err
 		}
@@ -258,7 +252,7 @@ func (o *AddMixin0OKBody) validatePostgresExporter(formats strfmt.Registry) erro
 	return nil
 }
 
-func (o *AddMixin0OKBody) validateService(formats strfmt.Registry) error {
+func (o *AddOKBody) validateService(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Service) { // not required
 		return nil
@@ -267,7 +261,7 @@ func (o *AddMixin0OKBody) validateService(formats strfmt.Registry) error {
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addMixin0Ok" + "." + "service")
+				return ve.ValidateName("addOk" + "." + "service")
 			}
 			return err
 		}
@@ -277,7 +271,7 @@ func (o *AddMixin0OKBody) validateService(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *AddMixin0OKBody) MarshalBinary() ([]byte, error) {
+func (o *AddOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -285,8 +279,8 @@ func (o *AddMixin0OKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMixin0OKBody) UnmarshalBinary(b []byte) error {
-	var res AddMixin0OKBody
+func (o *AddOKBody) UnmarshalBinary(b []byte) error {
+	var res AddOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -294,10 +288,10 @@ func (o *AddMixin0OKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMixin0OKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
-swagger:model AddMixin0OKBodyPostgresExporter
+/*AddOKBodyPostgresExporter PostgresExporter runs on Generic or Container Node and exposes PostgreSQL Service metrics.
+swagger:model AddOKBodyPostgresExporter
 */
-type AddMixin0OKBodyPostgresExporter struct {
+type AddOKBodyPostgresExporter struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
@@ -328,8 +322,8 @@ type AddMixin0OKBodyPostgresExporter struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add mixin0 OK body postgres exporter
-func (o *AddMixin0OKBodyPostgresExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add OK body postgres exporter
+func (o *AddOKBodyPostgresExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -342,7 +336,7 @@ func (o *AddMixin0OKBodyPostgresExporter) Validate(formats strfmt.Registry) erro
 	return nil
 }
 
-var addMixin0OkBodyPostgresExporterTypeStatusPropEnum []interface{}
+var addOkBodyPostgresExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -350,47 +344,47 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addMixin0OkBodyPostgresExporterTypeStatusPropEnum = append(addMixin0OkBodyPostgresExporterTypeStatusPropEnum, v)
+		addOkBodyPostgresExporterTypeStatusPropEnum = append(addOkBodyPostgresExporterTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddMixin0OKBodyPostgresExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	AddMixin0OKBodyPostgresExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+	// AddOKBodyPostgresExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddOKBodyPostgresExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
 
-	// AddMixin0OKBodyPostgresExporterStatusSTARTING captures enum value "STARTING"
-	AddMixin0OKBodyPostgresExporterStatusSTARTING string = "STARTING"
+	// AddOKBodyPostgresExporterStatusSTARTING captures enum value "STARTING"
+	AddOKBodyPostgresExporterStatusSTARTING string = "STARTING"
 
-	// AddMixin0OKBodyPostgresExporterStatusRUNNING captures enum value "RUNNING"
-	AddMixin0OKBodyPostgresExporterStatusRUNNING string = "RUNNING"
+	// AddOKBodyPostgresExporterStatusRUNNING captures enum value "RUNNING"
+	AddOKBodyPostgresExporterStatusRUNNING string = "RUNNING"
 
-	// AddMixin0OKBodyPostgresExporterStatusWAITING captures enum value "WAITING"
-	AddMixin0OKBodyPostgresExporterStatusWAITING string = "WAITING"
+	// AddOKBodyPostgresExporterStatusWAITING captures enum value "WAITING"
+	AddOKBodyPostgresExporterStatusWAITING string = "WAITING"
 
-	// AddMixin0OKBodyPostgresExporterStatusSTOPPING captures enum value "STOPPING"
-	AddMixin0OKBodyPostgresExporterStatusSTOPPING string = "STOPPING"
+	// AddOKBodyPostgresExporterStatusSTOPPING captures enum value "STOPPING"
+	AddOKBodyPostgresExporterStatusSTOPPING string = "STOPPING"
 
-	// AddMixin0OKBodyPostgresExporterStatusDONE captures enum value "DONE"
-	AddMixin0OKBodyPostgresExporterStatusDONE string = "DONE"
+	// AddOKBodyPostgresExporterStatusDONE captures enum value "DONE"
+	AddOKBodyPostgresExporterStatusDONE string = "DONE"
 )
 
 // prop value enum
-func (o *AddMixin0OKBodyPostgresExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addMixin0OkBodyPostgresExporterTypeStatusPropEnum); err != nil {
+func (o *AddOKBodyPostgresExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addOkBodyPostgresExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddMixin0OKBodyPostgresExporter) validateStatus(formats strfmt.Registry) error {
+func (o *AddOKBodyPostgresExporter) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addMixin0Ok"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addOk"+"."+"postgres_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -398,7 +392,7 @@ func (o *AddMixin0OKBodyPostgresExporter) validateStatus(formats strfmt.Registry
 }
 
 // MarshalBinary interface implementation
-func (o *AddMixin0OKBodyPostgresExporter) MarshalBinary() ([]byte, error) {
+func (o *AddOKBodyPostgresExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -406,8 +400,8 @@ func (o *AddMixin0OKBodyPostgresExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMixin0OKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
-	var res AddMixin0OKBodyPostgresExporter
+func (o *AddOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
+	var res AddOKBodyPostgresExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -415,16 +409,19 @@ func (o *AddMixin0OKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddMixin0OKBodyService PostgreSQLService represents a generic PostgreSQL instance.
-swagger:model AddMixin0OKBodyService
+/*AddOKBodyService PostgreSQLService represents a generic PostgreSQL instance.
+swagger:model AddOKBodyService
 */
-type AddMixin0OKBodyService struct {
+type AddOKBodyService struct {
 
 	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
 
 	// Node identifier where this instance runs.
 	NodeID string `json:"node_id,omitempty"`
@@ -439,13 +436,13 @@ type AddMixin0OKBodyService struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this add mixin0 OK body service
-func (o *AddMixin0OKBodyService) Validate(formats strfmt.Registry) error {
+// Validate validates this add OK body service
+func (o *AddOKBodyService) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddMixin0OKBodyService) MarshalBinary() ([]byte, error) {
+func (o *AddOKBodyService) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -453,8 +450,8 @@ func (o *AddMixin0OKBodyService) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddMixin0OKBodyService) UnmarshalBinary(b []byte) error {
-	var res AddMixin0OKBodyService
+func (o *AddOKBodyService) UnmarshalBinary(b []byte) error {
+	var res AddOKBodyService
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -6097,7 +6097,7 @@
           "PostgreSQL"
         ],
         "summary": "Add PostgreSQL adds PostgreSQL Service and starts postgres exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters.",
-        "operationId": "AddMixin0",
+        "operationId": "Add",
         "parameters": [
           {
             "name": "body",
@@ -6131,14 +6131,6 @@
                   "description": "If true, adds postgres_exporter for provided service.",
                   "type": "boolean",
                   "format": "boolean"
-                },
-                "qan_password": {
-                  "type": "string",
-                  "title": "FIXME remove"
-                },
-                "qan_username": {
-                  "type": "string",
-                  "title": "FIXME remove"
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
@@ -6228,6 +6220,10 @@
                       "additionalProperties": {
                         "type": "string"
                       }
+                    },
+                    "environment": {
+                      "description": "Environment name.",
+                      "type": "string"
                     },
                     "node_id": {
                       "description": "Node identifier where this instance runs.",

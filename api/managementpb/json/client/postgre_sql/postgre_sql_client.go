@@ -25,30 +25,30 @@ type Client struct {
 }
 
 /*
-AddMixin0 adds postgre SQL adds postgre SQL service and starts postgres exporter it automatically adds a service to inventory which is running on provided node id then adds postgres exporter with provided pmm agent id and other parameters
+Add adds postgre SQL adds postgre SQL service and starts postgres exporter it automatically adds a service to inventory which is running on provided node id then adds postgres exporter with provided pmm agent id and other parameters
 */
-func (a *Client) AddMixin0(params *AddMixin0Params) (*AddMixin0OK, error) {
+func (a *Client) Add(params *AddParams) (*AddOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddMixin0Params()
+		params = NewAddParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddMixin0",
+		ID:                 "Add",
 		Method:             "POST",
 		PathPattern:        "/v1/management/PostgreSQL/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddMixin0Reader{formats: a.formats},
+		Reader:             &AddReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddMixin0OK), nil
+	return result.(*AddOK), nil
 
 }
 
