@@ -25,30 +25,30 @@ type Client struct {
 }
 
 /*
-Add adds postgre SQL adds postgre SQL service and starts postgres exporter it automatically adds a service to inventory which is running on provided node id then adds postgres exporter with provided pmm agent id and other parameters
+AddPostgreSQL adds postgre SQL adds postgre SQL service and starts postgres exporter it automatically adds a service to inventory which is running on provided node id then adds postgres exporter with provided pmm agent id and other parameters
 */
-func (a *Client) Add(params *AddParams) (*AddOK, error) {
+func (a *Client) AddPostgreSQL(params *AddPostgreSQLParams) (*AddPostgreSQLOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddParams()
+		params = NewAddPostgreSQLParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Add",
+		ID:                 "AddPostgreSQL",
 		Method:             "POST",
 		PathPattern:        "/v1/management/PostgreSQL/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddReader{formats: a.formats},
+		Reader:             &AddPostgreSQLReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddOK), nil
+	return result.(*AddPostgreSQLOK), nil
 
 }
 

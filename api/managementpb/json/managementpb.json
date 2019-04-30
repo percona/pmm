@@ -817,8 +817,8 @@
         "tags": [
           "PostgreSQL"
         ],
-        "summary": "Add PostgreSQL adds PostgreSQL Service and starts postgres exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters.",
-        "operationId": "Add",
+        "summary": "AddPostgreSQL adds PostgreSQL Service and starts postgres exporter.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"postgres_exporter\" with provided \"pmm_agent_id\" and other parameters.",
+        "operationId": "AddPostgreSQL",
         "parameters": [
           {
             "name": "body",
@@ -829,6 +829,10 @@
               "properties": {
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
+                  "type": "string"
+                },
+                "environment": {
+                  "description": "Environment name.",
                   "type": "string"
                 },
                 "node_id": {
