@@ -5299,8 +5299,8 @@
         "tags": [
           "MongoDB"
         ],
-        "summary": "Add MongoDB adds MongoDB Service and starts several Agents.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"mongodb_exporter\", and \"qan_mongodb_profiler\" agents\nwith provided \"pmm_agent_id\" and other parameters.",
-        "operationId": "Add",
+        "summary": "AddMongoDB adds MongoDB Service and starts several Agents.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"mongodb_exporter\", and \"qan_mongodb_profiler\" agents\nwith provided \"pmm_agent_id\" and other parameters.",
+        "operationId": "AddMongoDB",
         "parameters": [
           {
             "name": "body",
@@ -5561,8 +5561,8 @@
         "tags": [
           "MySQL"
         ],
-        "summary": "Add MySQL adds MySQL Service and starts several Agents.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents\nwith provided \"pmm_agent_id\" and other parameters.",
-        "operationId": "AddMixin1",
+        "summary": "AddMySQL adds MySQL Service and starts several Agents.\nIt automatically adds a service to inventory, which is running on provided \"node_id\",\nthen adds \"mysqld_exporter\", and \"qan_mysql_perfschema\" agents\nwith provided \"pmm_agent_id\" and other parameters.",
+        "operationId": "AddMySQL",
         "parameters": [
           {
             "name": "body",

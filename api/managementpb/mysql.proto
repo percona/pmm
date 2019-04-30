@@ -90,11 +90,11 @@ message AddMySQLResponse {
 
 // MySQL service provides public Management API methods for MySQL Service.
 service MySQL {
-  // Add MySQL adds MySQL Service and starts several Agents.
+  // AddMySQL adds MySQL Service and starts several Agents.
   // It automatically adds a service to inventory, which is running on provided "node_id",
   // then adds "mysqld_exporter", and "qan_mysql_perfschema" agents
   // with provided "pmm_agent_id" and other parameters.
-  rpc Add(AddMySQLRequest) returns (AddMySQLResponse) {
+  rpc AddMySQL(AddMySQLRequest) returns (AddMySQLResponse) {
     option (google.api.http) = {
       post: "/v1/management/MySQL/Add"
       body: "*"

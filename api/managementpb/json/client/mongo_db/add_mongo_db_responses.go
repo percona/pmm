@@ -18,24 +18,24 @@ import (
 	strfmt "github.com/go-openapi/strfmt"
 )
 
-// AddReader is a Reader for the Add structure.
-type AddReader struct {
+// AddMongoDBReader is a Reader for the AddMongoDB structure.
+type AddMongoDBReader struct {
 	formats strfmt.Registry
 }
 
 // ReadResponse reads a server response into the received o.
-func (o *AddReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
+func (o *AddMongoDBReader) ReadResponse(response runtime.ClientResponse, consumer runtime.Consumer) (interface{}, error) {
 	switch response.Code() {
 
 	case 200:
-		result := NewAddOK()
+		result := NewAddMongoDBOK()
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
 		return result, nil
 
 	default:
-		result := NewAddDefault(response.Code())
+		result := NewAddMongoDBDefault(response.Code())
 		if err := result.readResponse(response, consumer, o.formats); err != nil {
 			return nil, err
 		}
@@ -46,26 +46,26 @@ func (o *AddReader) ReadResponse(response runtime.ClientResponse, consumer runti
 	}
 }
 
-// NewAddOK creates a AddOK with default headers values
-func NewAddOK() *AddOK {
-	return &AddOK{}
+// NewAddMongoDBOK creates a AddMongoDBOK with default headers values
+func NewAddMongoDBOK() *AddMongoDBOK {
+	return &AddMongoDBOK{}
 }
 
-/*AddOK handles this case with default header values.
+/*AddMongoDBOK handles this case with default header values.
 
 A successful response.
 */
-type AddOK struct {
-	Payload *AddOKBody
+type AddMongoDBOK struct {
+	Payload *AddMongoDBOKBody
 }
 
-func (o *AddOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] addOk  %+v", 200, o.Payload)
+func (o *AddMongoDBOK) Error() string {
+	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] addMongoDbOk  %+v", 200, o.Payload)
 }
 
-func (o *AddOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *AddMongoDBOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(AddOKBody)
+	o.Payload = new(AddMongoDBOKBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -75,35 +75,35 @@ func (o *AddOK) readResponse(response runtime.ClientResponse, consumer runtime.C
 	return nil
 }
 
-// NewAddDefault creates a AddDefault with default headers values
-func NewAddDefault(code int) *AddDefault {
-	return &AddDefault{
+// NewAddMongoDBDefault creates a AddMongoDBDefault with default headers values
+func NewAddMongoDBDefault(code int) *AddMongoDBDefault {
+	return &AddMongoDBDefault{
 		_statusCode: code,
 	}
 }
 
-/*AddDefault handles this case with default header values.
+/*AddMongoDBDefault handles this case with default header values.
 
 An error response.
 */
-type AddDefault struct {
+type AddMongoDBDefault struct {
 	_statusCode int
 
-	Payload *AddDefaultBody
+	Payload *AddMongoDBDefaultBody
 }
 
-// Code gets the status code for the add default response
-func (o *AddDefault) Code() int {
+// Code gets the status code for the add mongo DB default response
+func (o *AddMongoDBDefault) Code() int {
 	return o._statusCode
 }
 
-func (o *AddDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] Add default  %+v", o._statusCode, o.Payload)
+func (o *AddMongoDBDefault) Error() string {
+	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] AddMongoDB default  %+v", o._statusCode, o.Payload)
 }
 
-func (o *AddDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
+func (o *AddMongoDBDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(AddDefaultBody)
+	o.Payload = new(AddMongoDBDefaultBody)
 
 	// response payload
 	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
@@ -113,10 +113,10 @@ func (o *AddDefault) readResponse(response runtime.ClientResponse, consumer runt
 	return nil
 }
 
-/*AddBody add body
-swagger:model AddBody
+/*AddMongoDBBody add mongo DB body
+swagger:model AddMongoDBBody
 */
-type AddBody struct {
+type AddMongoDBBody struct {
 
 	// Node and Service access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
@@ -161,13 +161,13 @@ type AddBody struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add body
-func (o *AddBody) Validate(formats strfmt.Registry) error {
+// Validate validates this add mongo DB body
+func (o *AddMongoDBBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddBody) MarshalBinary() ([]byte, error) {
+func (o *AddMongoDBBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -175,8 +175,8 @@ func (o *AddBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddBody) UnmarshalBinary(b []byte) error {
-	var res AddBody
+func (o *AddMongoDBBody) UnmarshalBinary(b []byte) error {
+	var res AddMongoDBBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -184,10 +184,10 @@ func (o *AddBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddDefaultBody ErrorResponse is a message returned on HTTP error.
-swagger:model AddDefaultBody
+/*AddMongoDBDefaultBody ErrorResponse is a message returned on HTTP error.
+swagger:model AddMongoDBDefaultBody
 */
-type AddDefaultBody struct {
+type AddMongoDBDefaultBody struct {
 
 	// code
 	Code int32 `json:"code,omitempty"`
@@ -199,13 +199,13 @@ type AddDefaultBody struct {
 	Message string `json:"message,omitempty"`
 }
 
-// Validate validates this add default body
-func (o *AddDefaultBody) Validate(formats strfmt.Registry) error {
+// Validate validates this add mongo DB default body
+func (o *AddMongoDBDefaultBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddDefaultBody) MarshalBinary() ([]byte, error) {
+func (o *AddMongoDBDefaultBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -213,8 +213,8 @@ func (o *AddDefaultBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddDefaultBody) UnmarshalBinary(b []byte) error {
-	var res AddDefaultBody
+func (o *AddMongoDBDefaultBody) UnmarshalBinary(b []byte) error {
+	var res AddMongoDBDefaultBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -222,23 +222,23 @@ func (o *AddDefaultBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddOKBody add OK body
-swagger:model AddOKBody
+/*AddMongoDBOKBody add mongo DB OK body
+swagger:model AddMongoDBOKBody
 */
-type AddOKBody struct {
+type AddMongoDBOKBody struct {
 
 	// mongodb exporter
-	MongodbExporter *AddOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
+	MongodbExporter *AddMongoDBOKBodyMongodbExporter `json:"mongodb_exporter,omitempty"`
 
 	// qan mongodb profiler
-	QANMongodbProfiler *AddOKBodyQANMongodbProfiler `json:"qan_mongodb_profiler,omitempty"`
+	QANMongodbProfiler *AddMongoDBOKBodyQANMongodbProfiler `json:"qan_mongodb_profiler,omitempty"`
 
 	// service
-	Service *AddOKBodyService `json:"service,omitempty"`
+	Service *AddMongoDBOKBodyService `json:"service,omitempty"`
 }
 
-// Validate validates this add OK body
-func (o *AddOKBody) Validate(formats strfmt.Registry) error {
+// Validate validates this add mongo DB OK body
+func (o *AddMongoDBOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMongodbExporter(formats); err != nil {
@@ -259,7 +259,7 @@ func (o *AddOKBody) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddOKBody) validateMongodbExporter(formats strfmt.Registry) error {
+func (o *AddMongoDBOKBody) validateMongodbExporter(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.MongodbExporter) { // not required
 		return nil
@@ -268,7 +268,7 @@ func (o *AddOKBody) validateMongodbExporter(formats strfmt.Registry) error {
 	if o.MongodbExporter != nil {
 		if err := o.MongodbExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addOk" + "." + "mongodb_exporter")
+				return ve.ValidateName("addMongoDbOk" + "." + "mongodb_exporter")
 			}
 			return err
 		}
@@ -277,7 +277,7 @@ func (o *AddOKBody) validateMongodbExporter(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddOKBody) validateQANMongodbProfiler(formats strfmt.Registry) error {
+func (o *AddMongoDBOKBody) validateQANMongodbProfiler(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.QANMongodbProfiler) { // not required
 		return nil
@@ -286,7 +286,7 @@ func (o *AddOKBody) validateQANMongodbProfiler(formats strfmt.Registry) error {
 	if o.QANMongodbProfiler != nil {
 		if err := o.QANMongodbProfiler.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addOk" + "." + "qan_mongodb_profiler")
+				return ve.ValidateName("addMongoDbOk" + "." + "qan_mongodb_profiler")
 			}
 			return err
 		}
@@ -295,7 +295,7 @@ func (o *AddOKBody) validateQANMongodbProfiler(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *AddOKBody) validateService(formats strfmt.Registry) error {
+func (o *AddMongoDBOKBody) validateService(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Service) { // not required
 		return nil
@@ -304,7 +304,7 @@ func (o *AddOKBody) validateService(formats strfmt.Registry) error {
 	if o.Service != nil {
 		if err := o.Service.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("addOk" + "." + "service")
+				return ve.ValidateName("addMongoDbOk" + "." + "service")
 			}
 			return err
 		}
@@ -314,7 +314,7 @@ func (o *AddOKBody) validateService(formats strfmt.Registry) error {
 }
 
 // MarshalBinary interface implementation
-func (o *AddOKBody) MarshalBinary() ([]byte, error) {
+func (o *AddMongoDBOKBody) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -322,8 +322,8 @@ func (o *AddOKBody) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddOKBody) UnmarshalBinary(b []byte) error {
-	var res AddOKBody
+func (o *AddMongoDBOKBody) UnmarshalBinary(b []byte) error {
+	var res AddMongoDBOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -331,10 +331,10 @@ func (o *AddOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
-swagger:model AddOKBodyMongodbExporter
+/*AddMongoDBOKBodyMongodbExporter MongoDBExporter runs on Generic or Container Node and exposes MongoDB Service metrics.
+swagger:model AddMongoDBOKBodyMongodbExporter
 */
-type AddOKBodyMongodbExporter struct {
+type AddMongoDBOKBodyMongodbExporter struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
@@ -365,8 +365,8 @@ type AddOKBodyMongodbExporter struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add OK body mongodb exporter
-func (o *AddOKBodyMongodbExporter) Validate(formats strfmt.Registry) error {
+// Validate validates this add mongo DB OK body mongodb exporter
+func (o *AddMongoDBOKBodyMongodbExporter) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -379,7 +379,7 @@ func (o *AddOKBodyMongodbExporter) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addOkBodyMongodbExporterTypeStatusPropEnum []interface{}
+var addMongoDbOkBodyMongodbExporterTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -387,47 +387,47 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addOkBodyMongodbExporterTypeStatusPropEnum = append(addOkBodyMongodbExporterTypeStatusPropEnum, v)
+		addMongoDbOkBodyMongodbExporterTypeStatusPropEnum = append(addMongoDbOkBodyMongodbExporterTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddOKBodyMongodbExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	AddOKBodyMongodbExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+	// AddMongoDBOKBodyMongodbExporterStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddMongoDBOKBodyMongodbExporterStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
 
-	// AddOKBodyMongodbExporterStatusSTARTING captures enum value "STARTING"
-	AddOKBodyMongodbExporterStatusSTARTING string = "STARTING"
+	// AddMongoDBOKBodyMongodbExporterStatusSTARTING captures enum value "STARTING"
+	AddMongoDBOKBodyMongodbExporterStatusSTARTING string = "STARTING"
 
-	// AddOKBodyMongodbExporterStatusRUNNING captures enum value "RUNNING"
-	AddOKBodyMongodbExporterStatusRUNNING string = "RUNNING"
+	// AddMongoDBOKBodyMongodbExporterStatusRUNNING captures enum value "RUNNING"
+	AddMongoDBOKBodyMongodbExporterStatusRUNNING string = "RUNNING"
 
-	// AddOKBodyMongodbExporterStatusWAITING captures enum value "WAITING"
-	AddOKBodyMongodbExporterStatusWAITING string = "WAITING"
+	// AddMongoDBOKBodyMongodbExporterStatusWAITING captures enum value "WAITING"
+	AddMongoDBOKBodyMongodbExporterStatusWAITING string = "WAITING"
 
-	// AddOKBodyMongodbExporterStatusSTOPPING captures enum value "STOPPING"
-	AddOKBodyMongodbExporterStatusSTOPPING string = "STOPPING"
+	// AddMongoDBOKBodyMongodbExporterStatusSTOPPING captures enum value "STOPPING"
+	AddMongoDBOKBodyMongodbExporterStatusSTOPPING string = "STOPPING"
 
-	// AddOKBodyMongodbExporterStatusDONE captures enum value "DONE"
-	AddOKBodyMongodbExporterStatusDONE string = "DONE"
+	// AddMongoDBOKBodyMongodbExporterStatusDONE captures enum value "DONE"
+	AddMongoDBOKBodyMongodbExporterStatusDONE string = "DONE"
 )
 
 // prop value enum
-func (o *AddOKBodyMongodbExporter) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addOkBodyMongodbExporterTypeStatusPropEnum); err != nil {
+func (o *AddMongoDBOKBodyMongodbExporter) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addMongoDbOkBodyMongodbExporterTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) error {
+func (o *AddMongoDBOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addOk"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addMongoDbOk"+"."+"mongodb_exporter"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -435,7 +435,7 @@ func (o *AddOKBodyMongodbExporter) validateStatus(formats strfmt.Registry) error
 }
 
 // MarshalBinary interface implementation
-func (o *AddOKBodyMongodbExporter) MarshalBinary() ([]byte, error) {
+func (o *AddMongoDBOKBodyMongodbExporter) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -443,8 +443,8 @@ func (o *AddOKBodyMongodbExporter) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
-	var res AddOKBodyMongodbExporter
+func (o *AddMongoDBOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
+	var res AddMongoDBOKBodyMongodbExporter
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -452,10 +452,10 @@ func (o *AddOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddOKBodyQANMongodbProfiler QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
-swagger:model AddOKBodyQANMongodbProfiler
+/*AddMongoDBOKBodyQANMongodbProfiler QANMongoDBProfilerAgent runs within pmm-agent and sends MongoDB Query Analytics data to the PMM Server.
+swagger:model AddMongoDBOKBodyQANMongodbProfiler
 */
-type AddOKBodyQANMongodbProfiler struct {
+type AddMongoDBOKBodyQANMongodbProfiler struct {
 
 	// Unique randomly generated instance identifier.
 	AgentID string `json:"agent_id,omitempty"`
@@ -483,8 +483,8 @@ type AddOKBodyQANMongodbProfiler struct {
 	Username string `json:"username,omitempty"`
 }
 
-// Validate validates this add OK body QAN mongodb profiler
-func (o *AddOKBodyQANMongodbProfiler) Validate(formats strfmt.Registry) error {
+// Validate validates this add mongo DB OK body QAN mongodb profiler
+func (o *AddMongoDBOKBodyQANMongodbProfiler) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateStatus(formats); err != nil {
@@ -497,7 +497,7 @@ func (o *AddOKBodyQANMongodbProfiler) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-var addOkBodyQanMongodbProfilerTypeStatusPropEnum []interface{}
+var addMongoDbOkBodyQanMongodbProfilerTypeStatusPropEnum []interface{}
 
 func init() {
 	var res []string
@@ -505,47 +505,47 @@ func init() {
 		panic(err)
 	}
 	for _, v := range res {
-		addOkBodyQanMongodbProfilerTypeStatusPropEnum = append(addOkBodyQanMongodbProfilerTypeStatusPropEnum, v)
+		addMongoDbOkBodyQanMongodbProfilerTypeStatusPropEnum = append(addMongoDbOkBodyQanMongodbProfilerTypeStatusPropEnum, v)
 	}
 }
 
 const (
 
-	// AddOKBodyQANMongodbProfilerStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
-	AddOKBodyQANMongodbProfilerStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+	// AddMongoDBOKBodyQANMongodbProfilerStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddMongoDBOKBodyQANMongodbProfilerStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
 
-	// AddOKBodyQANMongodbProfilerStatusSTARTING captures enum value "STARTING"
-	AddOKBodyQANMongodbProfilerStatusSTARTING string = "STARTING"
+	// AddMongoDBOKBodyQANMongodbProfilerStatusSTARTING captures enum value "STARTING"
+	AddMongoDBOKBodyQANMongodbProfilerStatusSTARTING string = "STARTING"
 
-	// AddOKBodyQANMongodbProfilerStatusRUNNING captures enum value "RUNNING"
-	AddOKBodyQANMongodbProfilerStatusRUNNING string = "RUNNING"
+	// AddMongoDBOKBodyQANMongodbProfilerStatusRUNNING captures enum value "RUNNING"
+	AddMongoDBOKBodyQANMongodbProfilerStatusRUNNING string = "RUNNING"
 
-	// AddOKBodyQANMongodbProfilerStatusWAITING captures enum value "WAITING"
-	AddOKBodyQANMongodbProfilerStatusWAITING string = "WAITING"
+	// AddMongoDBOKBodyQANMongodbProfilerStatusWAITING captures enum value "WAITING"
+	AddMongoDBOKBodyQANMongodbProfilerStatusWAITING string = "WAITING"
 
-	// AddOKBodyQANMongodbProfilerStatusSTOPPING captures enum value "STOPPING"
-	AddOKBodyQANMongodbProfilerStatusSTOPPING string = "STOPPING"
+	// AddMongoDBOKBodyQANMongodbProfilerStatusSTOPPING captures enum value "STOPPING"
+	AddMongoDBOKBodyQANMongodbProfilerStatusSTOPPING string = "STOPPING"
 
-	// AddOKBodyQANMongodbProfilerStatusDONE captures enum value "DONE"
-	AddOKBodyQANMongodbProfilerStatusDONE string = "DONE"
+	// AddMongoDBOKBodyQANMongodbProfilerStatusDONE captures enum value "DONE"
+	AddMongoDBOKBodyQANMongodbProfilerStatusDONE string = "DONE"
 )
 
 // prop value enum
-func (o *AddOKBodyQANMongodbProfiler) validateStatusEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, addOkBodyQanMongodbProfilerTypeStatusPropEnum); err != nil {
+func (o *AddMongoDBOKBodyQANMongodbProfiler) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addMongoDbOkBodyQanMongodbProfilerTypeStatusPropEnum); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (o *AddOKBodyQANMongodbProfiler) validateStatus(formats strfmt.Registry) error {
+func (o *AddMongoDBOKBodyQANMongodbProfiler) validateStatus(formats strfmt.Registry) error {
 
 	if swag.IsZero(o.Status) { // not required
 		return nil
 	}
 
 	// value enum
-	if err := o.validateStatusEnum("addOk"+"."+"qan_mongodb_profiler"+"."+"status", "body", *o.Status); err != nil {
+	if err := o.validateStatusEnum("addMongoDbOk"+"."+"qan_mongodb_profiler"+"."+"status", "body", *o.Status); err != nil {
 		return err
 	}
 
@@ -553,7 +553,7 @@ func (o *AddOKBodyQANMongodbProfiler) validateStatus(formats strfmt.Registry) er
 }
 
 // MarshalBinary interface implementation
-func (o *AddOKBodyQANMongodbProfiler) MarshalBinary() ([]byte, error) {
+func (o *AddMongoDBOKBodyQANMongodbProfiler) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -561,8 +561,8 @@ func (o *AddOKBodyQANMongodbProfiler) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddOKBodyQANMongodbProfiler) UnmarshalBinary(b []byte) error {
-	var res AddOKBodyQANMongodbProfiler
+func (o *AddMongoDBOKBodyQANMongodbProfiler) UnmarshalBinary(b []byte) error {
+	var res AddMongoDBOKBodyQANMongodbProfiler
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
@@ -570,10 +570,10 @@ func (o *AddOKBodyQANMongodbProfiler) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*AddOKBodyService MongoDBService represents a generic MongoDB instance.
-swagger:model AddOKBodyService
+/*AddMongoDBOKBodyService MongoDBService represents a generic MongoDB instance.
+swagger:model AddMongoDBOKBodyService
 */
-type AddOKBodyService struct {
+type AddMongoDBOKBodyService struct {
 
 	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
@@ -603,13 +603,13 @@ type AddOKBodyService struct {
 	ServiceName string `json:"service_name,omitempty"`
 }
 
-// Validate validates this add OK body service
-func (o *AddOKBodyService) Validate(formats strfmt.Registry) error {
+// Validate validates this add mongo DB OK body service
+func (o *AddMongoDBOKBodyService) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
 // MarshalBinary interface implementation
-func (o *AddOKBodyService) MarshalBinary() ([]byte, error) {
+func (o *AddMongoDBOKBodyService) MarshalBinary() ([]byte, error) {
 	if o == nil {
 		return nil, nil
 	}
@@ -617,8 +617,8 @@ func (o *AddOKBodyService) MarshalBinary() ([]byte, error) {
 }
 
 // UnmarshalBinary interface implementation
-func (o *AddOKBodyService) UnmarshalBinary(b []byte) error {
-	var res AddOKBodyService
+func (o *AddMongoDBOKBodyService) UnmarshalBinary(b []byte) error {
+	var res AddMongoDBOKBodyService
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

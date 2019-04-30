@@ -25,30 +25,30 @@ type Client struct {
 }
 
 /*
-Add adds mongo DB adds mongo DB service and starts several agents it automatically adds a service to inventory which is running on provided node id then adds mongodb exporter and qan mongodb profiler agents with provided pmm agent id and other parameters
+AddMongoDB adds mongo DB adds mongo DB service and starts several agents it automatically adds a service to inventory which is running on provided node id then adds mongodb exporter and qan mongodb profiler agents with provided pmm agent id and other parameters
 */
-func (a *Client) Add(params *AddParams) (*AddOK, error) {
+func (a *Client) AddMongoDB(params *AddMongoDBParams) (*AddMongoDBOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddParams()
+		params = NewAddMongoDBParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "Add",
+		ID:                 "AddMongoDB",
 		Method:             "POST",
 		PathPattern:        "/v1/management/MongoDB/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddReader{formats: a.formats},
+		Reader:             &AddMongoDBReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddOK), nil
+	return result.(*AddMongoDBOK), nil
 
 }
 

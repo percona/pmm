@@ -25,30 +25,30 @@ type Client struct {
 }
 
 /*
-AddMixin1 adds my SQL adds my SQL service and starts several agents it automatically adds a service to inventory which is running on provided node id then adds mysqld exporter and qan mysql perfschema agents with provided pmm agent id and other parameters
+AddMySQL adds my SQL adds my SQL service and starts several agents it automatically adds a service to inventory which is running on provided node id then adds mysqld exporter and qan mysql perfschema agents with provided pmm agent id and other parameters
 */
-func (a *Client) AddMixin1(params *AddMixin1Params) (*AddMixin1OK, error) {
+func (a *Client) AddMySQL(params *AddMySQLParams) (*AddMySQLOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewAddMixin1Params()
+		params = NewAddMySQLParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "AddMixin1",
+		ID:                 "AddMySQL",
 		Method:             "POST",
 		PathPattern:        "/v1/management/MySQL/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &AddMixin1Reader{formats: a.formats},
+		Reader:             &AddMySQLReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*AddMixin1OK), nil
+	return result.(*AddMySQLOK), nil
 
 }
 
