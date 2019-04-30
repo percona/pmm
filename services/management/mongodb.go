@@ -32,23 +32,24 @@ import (
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
-// MySQLService MySQL Management Service.
-type MySQLService struct {
+// MongoDBService MongoDB Management Service.
+//nolint:unused
+type MongoDBService struct {
 	db       *reform.DB
 	registry registry
 }
 
-// NewMySQLService creates new MySQL Management Service.
-func NewMySQLService(db *reform.DB, registry registry) *MySQLService {
-	return &MySQLService{db, registry}
+// NewMongoDBService creates new MySQL Management Service.
+func NewMongoDBService(db *reform.DB, registry registry) *MongoDBService {
+	return &MongoDBService{db, registry}
 }
 
-// Add adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
-func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLRequest) (res *managementpb.AddMySQLResponse, err error) {
-	res = &managementpb.AddMySQLResponse{}
+// Add adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
+func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRequest) (res *managementpb.AddMongoDBResponse, err error) {
+	res = &managementpb.AddMongoDBResponse{}
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
-		service, err := models.AddNewService(tx.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
+		service, err := models.AddNewService(tx.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
 			ServiceName: req.ServiceName,
 			NodeID:      req.NodeId,
 			Address:     pointer.ToStringOrNil(req.Address),
@@ -64,16 +65,16 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			return err
 		}
 
-		res.Service = invService.(*inventorypb.MySQLService)
+		res.Service = invService.(*inventorypb.MongoDBService)
 
-		if req.MysqldExporter {
+		if req.MongodbExporter {
 			params := &models.AddExporterAgentParams{
 				PMMAgentID: req.PmmAgentId,
 				ServiceID:  invService.ID(),
 				Username:   req.Username,
 				Password:   req.Password,
 			}
-			row, err := models.AgentAddExporter(tx.Querier, models.MySQLdExporterType, params)
+			row, err := models.AgentAddExporter(tx.Querier, models.MongoDBExporterType, params)
 			if err != nil {
 				return err
 			}
@@ -83,18 +84,18 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				return err
 			}
 
-			res.MysqldExporter = agent.(*inventorypb.MySQLdExporter)
+			res.MongodbExporter = agent.(*inventorypb.MongoDBExporter)
 		}
 
-		if req.QanMysqlPerfschema {
+		if req.QanMongodbProfiler {
 			params := &models.AddExporterAgentParams{
 				PMMAgentID: req.PmmAgentId,
 				ServiceID:  invService.ID(),
-				Username:   req.QanUsername,
-				Password:   req.QanPassword,
+				Username:   req.Username,
+				Password:   req.Password,
 			}
 
-			row, err := models.AgentAddExporter(tx.Querier, models.QANMySQLPerfSchemaAgentType, params)
+			row, err := models.AgentAddExporter(tx.Querier, models.QANMongoDBProfilerAgentType, params)
 			if err != nil {
 				return err
 			}
@@ -104,28 +105,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 				return err
 			}
 
-			res.QanMysqlPerfschema = qAgent.(*inventorypb.QANMySQLPerfSchemaAgent)
-		}
-
-		if req.QanMysqlSlowlog {
-			params := &models.AddExporterAgentParams{
-				PMMAgentID: req.PmmAgentId,
-				ServiceID:  invService.ID(),
-				Username:   req.QanUsername,
-				Password:   req.QanPassword,
-			}
-
-			row, err := models.AgentAddExporter(tx.Querier, models.QANMySQLSlowlogAgentType, params)
-			if err != nil {
-				return err
-			}
-
-			qAgent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
-			if err != nil {
-				return err
-			}
-
-			res.QanMysqlSlowlog = qAgent.(*inventorypb.QANMySQLSlowlogAgent)
+			res.QanMongodbProfiler = qAgent.(*inventorypb.QANMongoDBProfilerAgent)
 		}
 
 		return nil
