@@ -20,6 +20,7 @@ package agentlocal
 import (
 	"context"
 	"crypto/tls"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -44,6 +45,9 @@ func SetTransport(ctx context.Context, debug bool) {
 	agentlocal.Default.SetTransport(transport)
 }
 
+// ErrNotSetUp is returned by GetStatus when pmm-agent is running, but not set up.
+var ErrNotSetUp = fmt.Errorf("pmm-agent is running, but not set up")
+
 // Status represents pmm-agent status.
 type Status struct {
 	AgentID string `json:"agent_id"`
@@ -64,19 +68,25 @@ type AgentStatus struct {
 }
 
 // GetStatus returns local pmm-agent status.
+// As a special case, if pmm-agent is running, but not set up, ErrNotSetUp is returned.
 func GetStatus() (*Status, error) {
 	res, err := agentlocal.Default.AgentLocal.Status(nil)
 	if err != nil {
 		return nil, err
 	}
 
-	u, err := url.Parse(res.Payload.ServerInfo.URL)
+	p := res.Payload
+	if p.AgentID == "" || p.RunsOnNodeID == "" || p.ServerInfo == nil {
+		return nil, ErrNotSetUp
+	}
+
+	u, err := url.Parse(p.ServerInfo.URL)
 	if err != nil {
 		return nil, err
 	}
 
-	agents := make([]AgentStatus, len(res.Payload.AgentsInfo))
-	for i, a := range res.Payload.AgentsInfo {
+	agents := make([]AgentStatus, len(p.AgentsInfo))
+	for i, a := range p.AgentsInfo {
 		agents[i] = AgentStatus{
 			AgentID:   a.AgentID,
 			AgentType: pointer.GetString(a.AgentType),
@@ -85,12 +95,12 @@ func GetStatus() (*Status, error) {
 	}
 
 	return &Status{
-		AgentID: res.Payload.AgentID,
-		NodeID:  res.Payload.RunsOnNodeID,
+		AgentID: p.AgentID,
+		NodeID:  p.RunsOnNodeID,
 
 		ServerURL:         u,
-		ServerInsecureTLS: res.Payload.ServerInfo.InsecureTLS,
-		ServerVersion:     res.Payload.ServerInfo.Version,
+		ServerInsecureTLS: p.ServerInfo.InsecureTLS,
+		ServerVersion:     p.ServerInfo.Version,
 
 		Agents: agents,
 	}, nil

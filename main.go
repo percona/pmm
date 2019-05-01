@@ -28,7 +28,6 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"strings"
 
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
@@ -102,12 +101,12 @@ func main() {
 	if *serverURLF == "" {
 		status, err := agentlocal.GetStatus()
 		if err != nil {
-			msg := []string{
-				"Failed to get PMM Server parameters from local pmm-agent.",
-				err.Error(),
-				"Please use --server-url flag to specify PMM Server URL.",
+			if err == agentlocal.ErrNotSetUp {
+				logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+
+					"Please run `pmm-agent setup`.", err)
 			}
-			logrus.Fatal(strings.Join(msg, "\n"))
+			logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+
+				"Please use --server-url flag to specify PMM Server URL.", err)
 		}
 		serverURL = status.ServerURL
 		serverInsecureTLS = status.ServerInsecureTLS
