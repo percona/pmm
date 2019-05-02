@@ -303,8 +303,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	go func() {
 		l.Info("Started.")
 		if err := server.ListenAndServe(); err != http.ErrServerClosed {
-			l.Errorf("Stopped: %s.", err)
-			return
+			l.Panic(err)
 		}
 		l.Info("Stopped.")
 	}()
@@ -313,6 +312,7 @@ func (s *Server) runJSONServer(ctx context.Context, grpcAddress string) {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	if err := server.Shutdown(ctx); err != nil {
 		l.Errorf("Failed to shutdown gracefully: %s", err)
+		_ = server.Close()
 	}
 	cancel()
 }
