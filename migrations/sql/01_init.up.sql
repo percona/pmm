@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS metrics
     `labels.key` Array(String) COMMENT 'Custom labels names',
     `labels.value` Array(String) COMMENT 'Custom labels values',
     agent_uuid String COMMENT 'Identifier of agent that collect and send metrics',
-    metrics_source Enum8('METRICS_SOURCE_INVALID' = 0, 'MYSQL_SLOWLOG' = 1, 'MYSQL_PERFSCHEMA' = 2) COMMENT 'Source of metrics: slowlog, perf schema, etc.',
+    metrics_source Enum8('METRICS_SOURCE_INVALID' = 0, 'MYSQL_SLOWLOG' = 1, 'MYSQL_PERFSCHEMA' = 2, 'MONGODB_PROFILER' = 3) COMMENT 'Source of metrics: slowlog, perf schema, etc.',
     period_start DateTime COMMENT 'Time when collection of bucket started',
     period_length UInt32 COMMENT 'Duration of collection bucket',
     fingerprint String COMMENT 'mysql digest_text; query without data',
