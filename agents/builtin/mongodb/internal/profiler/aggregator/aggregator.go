@@ -283,6 +283,12 @@ func (a *Aggregator) createResult() *report.Result {
 			NumQueries:          float32(v.Count),
 		}
 
+		bucket.MQueryTimeCnt = float32(v.Count) // TODO: Check is it right value
+		bucket.MQueryTimeMax = float32(v.QueryTime.Max)
+		bucket.MQueryTimeMin = float32(v.QueryTime.Min)
+		bucket.MQueryTimeP99 = float32(v.QueryTime.Pct99)
+		bucket.MQueryTimeSum = float32(v.QueryTime.Total)
+
 		bucket.MDocsReturnedCnt = float32(v.Count) // TODO: Check is it right value
 		bucket.MDocsReturnedMax = float32(v.Returned.Max)
 		bucket.MDocsReturnedMin = float32(v.Returned.Min)
