@@ -1,6 +1,6 @@
 .. _pmm.security.ssl-encryption.enabling:
 
-:ref:`Enabling SSL Encryption <pmm.security.ssl-encryption.enabling>`
+`Enabling SSL Encryption <security.html#pmm-security-ssl-encryption-enabling>`_
 ================================================================================
 
 You can encrypt traffic between |pmm-client| and |pmm-server| using SSL
@@ -12,7 +12,7 @@ certificates. TLS protocol versions compatibility is as follows:
 
 .. _pmm.security.valid-certificate:
 
-:ref:`Valid certificates <pmm.security.valid-certificate>`
+`Valid certificates <security.html#pmm-security-valid-certificate>`_
 --------------------------------------------------------------------------------
 
 To use a valid SSL certificate, mount the directory with the certificate
@@ -42,8 +42,8 @@ certificate files.
 
 .. _pmm.security.certificate.self-signed:
 
-:ref:`Self-signed certificates <pmm.security.certificate.self-signed>`
---------------------------------------------------------------------------------
+`Self-signed certificates <security.html#pmm-security-certificate-self-signed>`_
+---------------------------------------------------------------------------------
 
 The |pmm-server| images (|docker|, OVF, and AMI) already include self-signed
 certificates. To be able to use them in your |docker| container, make sure to
@@ -54,8 +54,8 @@ publish the container's port *443* to the host's port *443* when running the
 
 .. _pmm.security.pmm-client.pmm-server.ssl.enabling:
 
-:ref:`Enabling SSL when connecting PMM Client to PMM Server <pmm.security.pmm-client.pmm-server.ssl.enabling>`
---------------------------------------------------------------------------------------------------------------
+`Enabling SSL when connecting PMM Client to PMM Server <security.html#pmm-security-pmm-client-pmm-server-ssl-enabling>`_
+-------------------------------------------------------------------------------------------------------------------------
 
 Then, you need to enable SSL when :ref:`connecting a PMM Client to a PMM Server
 <deploy-pmm.client_server.connecting>`.  If you purchased the certificate from a

@@ -19,7 +19,7 @@ creating and launching the |pmm-server| container.
 
 .. _pmm.server.docker-image.pulling:
 
-:ref:`Pulling the PMM Server Docker Image <pmm.server.docker-image.pulling>`
+`Pulling the PMM Server Docker Image <docker.setting-up.html#image-pulling>`_
 --------------------------------------------------------------------------------
 
 To pull the latest version from Docker Hub:
@@ -33,7 +33,7 @@ version.
 
 .. _data-container:
 
-:ref:`Creating the pmm-data Container <data-container>`
+`Creating the pmm-data Container <docker.setting-up.html#data-container>`_
 --------------------------------------------------------------------------------
 
 To create a container for persistent |pmm| data, run the following command:
@@ -69,8 +69,8 @@ The previous command does the following:
 
 .. _server-container:
 
-:ref:`Creating and Launching the PMM Server Container <server-container>`
---------------------------------------------------------------------------------
+`Creating and Launching the PMM Server Container <docker.setting-up.html#server-container>`_
+---------------------------------------------------------------------------------------------
 
 To create and launch |pmm-server| in one command, use |docker.run|:
 
@@ -104,8 +104,8 @@ This command does the following:
 
 .. _pmm.docker.specific-version:
 
-:ref:`Installing and using specific docker version <pmm.docker.specific-version>`
-----------------------------------------------------------------------------------
+`Installing and using specific docker version <docker.setting-up.html#specific-version>`_
+-----------------------------------------------------------------------------------------
 
 To install specific |pmm-server| version instead of the latest one, just put
 desired version number after the colon. Also in this scenario it may be useful
@@ -136,7 +136,7 @@ interface would look as follows:
 
 .. _pmm.docker.additional-option:
 
-:ref:`Additional options <pmm.docker.additional-option>`
+`Additional options <docker.setting-up.html#additional-option>`_
 --------------------------------------------------------------------------------
 
 When running the |pmm-server|, you may pass additional parameters to the

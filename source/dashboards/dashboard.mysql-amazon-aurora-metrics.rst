@@ -10,8 +10,8 @@ This dashboard provides metrics for analyzing |amazon-aurora| instances.
 
 .. _dashboard.mysql-amazon-aurora-metrics.amazon-aurora-transaction-commits:
 
-:ref:`Amazon Aurora Transaction Commits <dashboard.mysql-amazon-aurora-metrics.amazon-aurora-transaction-commits>`
-------------------------------------------------------------------------------------------------------------------
+`Amazon Aurora Transaction Commits <dashboard.mysql-amazon-aurora-metrics.html#amazon-aurora-transaction-commits>`_
+-------------------------------------------------------------------------------------------------------------------
 
 This graph shows number of commits which the |amazon-aurora| engine performed as
 well as the average commit latency. Graph Latency does not always correlates
@@ -19,8 +19,8 @@ with number of commits performed and can quite high in certain situations.
 
 .. _dashboard.mysql-amazon-aurora-metrics.amazon-aurora-load:
 
-:ref:`Amazon Aurora Load <dashboard.mysql-amazon-aurora-metrics.amazon-aurora-transaction-commits>`
----------------------------------------------------------------------------------------------------
+`Amazon Aurora Load <dashboard.mysql-amazon-aurora-metrics.html#amazon-aurora-transaction-commits>`_
+----------------------------------------------------------------------------------------------------
 
 This graph shows what statements contribute most load on the system as well
 as what load corresponds to |amazon-aurora| transaction commit.
@@ -39,8 +39,8 @@ as what load corresponds to |amazon-aurora| transaction commit.
 
 .. _dashboard.mysql-amazon-aurora-metrics.aurora-memory-used:
 
-:ref:`Aurora Memory Used <dashboard.mysql-amazon-aurora-metrics.aurora-memory-used>`
-------------------------------------------------------------------------------------
+`Aurora Memory Used <dashboard.mysql-amazon-aurora-metrics.html#aurora-memory-used>`_
+-------------------------------------------------------------------------------------
 
 This graph shows how much memory is used by |amazon-aurora| lock manager as well
 as amount of memory used by |amazon-aurora| to store Data Dictionary.
@@ -55,8 +55,8 @@ as amount of memory used by |amazon-aurora| to store Data Dictionary.
 
 .. _dashboard.mysql-amazon-aurora-metrics.amazon-aurora-statement-latency:
 
-:ref:`Amazon Aurora Statement Latency <dashboard.mysql-amazon-aurora-metrics.amazon-aurora-statement-latency>`
---------------------------------------------------------------------------------------------------------------
+`Amazon Aurora Statement Latency <dashboard.mysql-amazon-aurora-metrics.html#amazon-aurora-statement-latency>`_
+---------------------------------------------------------------------------------------------------------------
 
 This graph shows average latency for most important types of statements. Latency
 spikes are often indicative of the instance overload.
@@ -69,8 +69,8 @@ spikes are often indicative of the instance overload.
 
 .. _dashboard.mysql-amazon-aurora-metrics.amazon-aurora-special-command-counters:
 
-:ref:`Amazon Aurora Special Command Counters <dashboard.mysql-amazon-aurora-metrics.amazon-aurora-special-command-counters>`
-----------------------------------------------------------------------------------------------------------------------------
+`Amazon Aurora Special Command Counters <dashboard.mysql-amazon-aurora-metrics.html#amazon-aurora-special-command-counters>`_
+-----------------------------------------------------------------------------------------------------------------------------
 
 |amazon-aurora| |mysql| allows a number of commands which are not available from
 standard |mysql|. This graph shows usage of such commands. Regular
@@ -96,8 +96,8 @@ alter_system
 
 .. _dashboard.mysql-amazon-aurora-metrics.amazon-aurora-problems:
 
-:ref:`Amazon Aurora Problems <dashboard.mysql-amazon-aurora-metrics.amazon-aurora-problems>`
---------------------------------------------------------------------------------------------
+`Amazon Aurora Problems <dashboard.mysql-amazon-aurora-metrics.html#amazon-aurora-problems>`_
+---------------------------------------------------------------------------------------------
 
 This metric shows different kinds of internal |amazon-aurora| |mysql| problems
 which should be zero in case of normal operation.

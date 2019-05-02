@@ -52,8 +52,8 @@ service in the |pmm-admin.add| command:
 
 .. _pmm.qan.mongodb.configuring.profiling.enabling:
 
-`Enabling Profiling <pmm.qan.mongodb.configuring.profiling.enabling>`_
-================================================================================
+`Enabling Profiling <conf-mongodb.html#pmm-qan-mongodb-configuring-profiling-enabling>`_
+========================================================================================
 
 For `MongoDB`_ to work correctly with |abbr.qan|, you need to enable profiling
 in your |mongod| configuration. When started without profiling enabled, |qan|
@@ -68,8 +68,8 @@ displays the following warning:
 
 .. _pmm.qan.mongodb.conf.profiling.command_line.enable:
 
-`Enabling Profiling on Command Line <pmm.qan.mongodb.conf.profiling.command_line.enable>`_
-----------------------------------------------------------------------------------------------
+`Enabling Profiling on Command Line <conf-mongodb.html#pmm-qan-mongodb-conf-profiling-command-line-enable>`_
+-------------------------------------------------------------------------------------------------------------
 
 You can enable profiling from command line when you start the :program:`mongod`
 server. This command is useful if you start :program:`mongod` manually.
@@ -102,8 +102,8 @@ the accuracy of the collected information decreases as well.
 
 .. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling:
 
-`Enabling Profiling in the Configuration File <pmm.qan.mongodb.configuring.configuration-file.profiling.enabling>`_
------------------------------------------------------------------------------------------------------------------------
+`Enabling Profiling in the Configuration File <conf-mongodb.html#pmm-qan-mongodb-configuring-configuration-file-profiling-enabling>`_
+-------------------------------------------------------------------------------------------------------------------------------------
 
 If you run ``mongod`` as a service, you need to use the configuration file which
 by default is |etc.mongod.conf|.

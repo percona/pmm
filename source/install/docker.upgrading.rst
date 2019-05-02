@@ -24,7 +24,7 @@ visit `percona/pmm-server`_.
 
 .. _pmm.deploying.server.docker-container.renaming:
 
-:ref:`Creating a backup version of the current pmm-server Docker container <pmm.deploying.server.docker-container.renaming>`
+`Creating a backup version of the current pmm-server Docker container <docker.upgrading.html#container-renaming>`_
 ----------------------------------------------------------------------------------------------------------------------------
 
 You need to create a backup version of the current |opt.pmm-server| container if
@@ -42,7 +42,7 @@ avoid name conflicts during the update procedure:
 
 .. _pmm.deploying.docker-image.pulling:
 
-:ref:`Pulling a new Docker Image <pmm.deploying.docker-image.pulling>`
+`Pulling a new Docker Image <docker.upgrading.html#image-pulling>`_
 --------------------------------------------------------------------------------
 
 |docker| images for all versions of |pmm| are available from
@@ -63,7 +63,7 @@ This example shows how to pull the |opt.latest| version:
    
 .. _pmm.deploying.docker-container.creating:
 
-:ref:`Creating a new Docker container based on the new image <pmm.deploying.docker-container.creating>`
+`Creating a new Docker container based on the new image <docker.upgrading.html#container-creating>`_
 -------------------------------------------------------------------------------------------------------
 
 After you have pulled a new version of |pmm| from the |docker| repository, you can
@@ -95,8 +95,8 @@ Version <PMM-Version>`) by checking the |pmm-server| web interface.
 
 .. _pmm/docker/backup-container.removing:
 
-:ref:`Removing the backup container <pmm/docker/backup-container.removing>`
---------------------------------------------------------------------------------
+`Removing the backup container <docker.upgrading.html#backup-container-removing>`_
+----------------------------------------------------------------------------------
 
 After you have tried the features of the new version, you may decide to
 continupe using it. The backup container that you have stored

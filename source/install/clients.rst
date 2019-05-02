@@ -1,6 +1,6 @@
 .. _deploy-pmm.client.installing:
 
-:ref:`Installing Clients <deploy-pmm.client.installing>`
+`Installing Clients <clients.html#installing>`_
 ================================================================================
 
 |pmm-client| is a package of agents and exporters installed on a database host

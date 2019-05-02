@@ -1,7 +1,7 @@
 .. _deploy-pmm.server.verifying:
 
 --------------------------------------------------------------------------------
-Verifying PMM Server installation
+`Verifying PMM Server <index.html#deploy-pmm-server-verifying>`_
 --------------------------------------------------------------------------------
 
 In your browser, go to the server by its IP address. If you run your server as a

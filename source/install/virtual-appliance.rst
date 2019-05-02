@@ -23,8 +23,8 @@ platforms, including:
 
 .. _pmm.deploying.server.virtual-appliance.supported-platform.virtual-appliance:
 
-:ref:`Supported Platforms for Running the PMM Server Virtual Appliance <pmm.deploying.server.virtual-appliance.supported-platform.virtual-appliance>`
-=====================================================================================================================================================
+`Supported Platforms for Running the PMM Server Virtual Appliance <virtual-appliance.html#pmm-deploying-server-virtual-appliance-supported-platform-virtual-appliance>`_
+=========================================================================================================================================================================
 
 The virtual appliance is ideal for running |pmm-server| on an enterprise
 virtualization platform of your choice. This page explains how to run the
@@ -58,8 +58,8 @@ The virtual machine used for the appliance runs |centos| 7.
 
 .. _pmm.deploying.server.virtual-appliance.pmm-server.ip-address.identifying:
 
-:ref:`Identifying PMM Server IP Address <pmm.deploying.server.virtual-appliance.pmm-server.ip-address.identifying>`
-===================================================================================================================
+`Identifying PMM Server IP Address <virtual-appliance.html#pmm-deploying-server-virtual-appliance-pmm-server-ip-address-identifying>`_
+=======================================================================================================================================
 
 When run |pmm-server| as virtual appliance, The IP address of your |pmm-server|
 appears at the top of the screen above the login prompt. Use this address to
@@ -79,8 +79,8 @@ of a static IP address, see
 .. id 9a96a76
 .. _deploying.pmm-server.web-interface.opening:
 
-:ref:`Accessing PMM Server <deploying.pmm-server.web-interface.opening>`
-================================================================================
+`Accessing PMM Server <virtual-appliance.html#deploying-pmm-server-web-interface-opening>`_
+============================================================================================
 
 To run the |pmm-server|, start the virtual machine and open in your browser the
 URL that appears at the top of the terminal when you are logging in to the
@@ -126,8 +126,8 @@ You are creating a username and password that will be used for two purposes:
 
 .. _pmm.deploying.server.virtual-appliance.accessing:
 
-:ref:`Accessing the Virtual Machine <pmm.deploying.server.virtual-appliance.accessing>`
-=======================================================================================
+`Accessing the Virtual Machine <virtual-appliance.html#pmm-deploying-server-virtual-appliance-accessing>`_
+==========================================================================================================
 
 To access the VM with the *PMM Server* appliance via SSH,
 provide your public key:

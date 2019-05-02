@@ -1,7 +1,7 @@
 .. _pmm.security.password-protection.enabling:
 
-:ref:`Enabling Password Protection <pmm.security.password-protection.enabling>`
-================================================================================
+`Enabling Password Protection <security.html#pmm-security-password-protection-enabling>`_
+=========================================================================================
 
 You can set the password for accessing the |pmm-server| web interface by passing
 the :option:`SERVER_PASSWORD` environment variable when

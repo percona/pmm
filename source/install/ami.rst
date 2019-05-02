@@ -52,7 +52,7 @@ For more control, use the Manual Launch through EC2 option.
 	    
 .. _run-server-ami.pmm-instance.1-click-launch-option.setting-up:
 
-:ref:`Setting Up a PMM Instance Using the website GUI <run-server-ami.pmm-instance.1-click-launch-option.setting-up>`
+`Setting Up a PMM Instance Using the website GUI <ami.html#run-server-ami-pmm-instance-1-click-launch-option-setting-up>`_
 ===============================================================================================================================
 
 Choose *Launch from Website* option, your region, and the EC2 instance type on
@@ -65,8 +65,8 @@ When all choices are done, click the |gui.continue-to-launch| button to proceed.
 
 .. _run-server-ami.pmm-instance.1-click-launch-option.vpc.ec2-instance-type:
 
-:ref:`Setting up a VPC and an EC2 Instance Type <run-server-ami.pmm-instance.1-click-launch-option.vpc.ec2-instance-type>`
---------------------------------------------------------------------------------------------------------------------------
+`Setting up a VPC and an EC2 Instance Type <ami.html#run-server-ami-pmm-instance-1-click-launch-option-vpc-ec2-instance-type>`_
+--------------------------------------------------------------------------------------------------------------------------------
 
  In this demonstration, we use the VPC (virtual private cloud) named
 :option:`vpc-484bb12f`. The exact name of VPC may be different from the example
@@ -94,8 +94,8 @@ Note that the cost estimation is automatically updated based on your choice.
    
 .. _run-server-ami.security-group.key-pair:
 
-:ref:`Limiting Access to the instance: security group and a key pair <run-server-ami.security-group.key-pair>`
---------------------------------------------------------------------------------------------------------------
+`Limiting Access to the instance: security group and a key pair <ami.html#run-server-ami-security-group-key-pair>`_
+--------------------------------------------------------------------------------------------------------------------
 
 In the |gui.security-group| section, which acts like a firewall, you may use the
 preselected option :option:`Create new based on seller settings` to create a
@@ -131,7 +131,7 @@ already set up EC2 key pair to limit access to your instance.
       
 .. _run-server-ami.setting.applying:
 
-:ref:`Applying settings <run-server-ami.setting.applying>`
+`Applying settings <ami.html#run-server-ami-setting-applying>`_
 --------------------------------------------------------------------------------
 
 Scroll up to the top of the page to view your settings. Then, click the
@@ -148,10 +148,10 @@ the :program:`EC2 console`.
 .. note:: The :guilabel:`Launch with 1 click` button may alternatively be titled
           as :guilabel:`Accept Software Terms & Launch with 1-Click`.
 
-.. _pmm/ami/instance-setting/ec2-console.adjusting:
+.. _pmm/ami/instance-setting.ec2-console.adjusting:
 
-:ref:`Adjusting instance settings in the EC2 Console <pmm/ami/instance-setting/ec2-console.adjusting>`
-------------------------------------------------------------------------------------------------------
+`Adjusting instance settings in the EC2 Console <ami.html#pmm-ami-instance-setting-ec2-console-adjusting>`_
+------------------------------------------------------------------------------------------------------------
 
 Your clicking the :guilabel:`Launch with 1 click` button, deploys your
 instance. To continue setting up your instance, run the :program:`EC2
@@ -171,7 +171,7 @@ managed via the :program:`EC2 console`.
 
 .. _pmm.server.ami.running-instance:
 
-:ref:`Running the instance <pmm.server.ami.running-instance>`
+`Running the instance <ami.html#pmm-server-ami-running-instance>`_
 --------------------------------------------------------------------------------
 
 After you add your new instance it will take some time to initialize it. When
@@ -273,7 +273,7 @@ You are creating a username and password that will be used for two purposes:
 
 .. _run-server-ami.ebs-volume.resizing:
 
-:ref:`Resizing the EBS Volume <run-server-ami.ebs-volume.resizing>`
+`Resizing the EBS Volume <ami.html#run-server-ami-ebs-volume-resizing>`_
 --------------------------------------------------------------------------------
 
 Your instance comes with a predefined size which can become a limitation. To
@@ -302,12 +302,12 @@ conditions.
 
 .. _upgrade-pmm-server:
 
-:ref:`Upgrading PMM Server <upgrade-pmm-server>`
+`Upgrading PMM Server <ami.html#upgrade-pmm-server>`_
 ================================================================================
 
 .. _upgrade-ec2-instance-class:
 
-:ref:`Upgrading EC2 instance class <upgrade-ec2-instance-class>`
+`Upgrading EC2 instance class <ami.html#upgrade-ec2-instance-class>`_
 --------------------------------------------------------------------------------
 
 Upgrading to a larger EC2 instance class is supported by PMM provided you follow
@@ -317,7 +317,7 @@ permits independent resize of the EC2 instance without impacting the EBS volume.
 
 .. _expand-pmm-data-volume:
 
-:ref:`Expanding the PMM Data EBS Volume <expand-pmm-data-volume>`
+`Expanding the PMM Data EBS Volume <ami.html#expand-pmm-data-volume>`_
 --------------------------------------------------------------------------------
 
 The |pmm| data volume is mounted as an XFS formatted volume on top of an LVM

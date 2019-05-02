@@ -18,7 +18,7 @@ access (NUMA).
 
 .. _dashboard.overview-numa-metrics.memory-usage:
 
-:ref:`Memory Usage <dashboard.overview-numa-metrics.memory-usage>`
+`Memory Usage <dashboard.overview-numa-metrics.html#memory-usage>`_
 --------------------------------------------------------------------------------
 
 Remotes over time the total, used, and free memory.
@@ -27,8 +27,8 @@ Remotes over time the total, used, and free memory.
 
 .. _dashboard.overview-numa-metrics.free-memory-percent:
 
-:ref:`Free Memory Percent <dashboard.overview-numa-metrics.free-memory-percent>`
---------------------------------------------------------------------------------
+`Free Memory Percent <dashboard.overview-numa-metrics.html#free-memory-percent>`_
+---------------------------------------------------------------------------------
 
 Shows the free memory as the ratio to the total available memory.
 
@@ -36,8 +36,8 @@ Shows the free memory as the ratio to the total available memory.
 
 .. _dashboard.overview-numa-metrics.numa-memory-usage-types:
 
-:ref:`NUMA Memory Usage Types <dashboard.overview-numa-metrics.numa-memory-usage-types>`
-----------------------------------------------------------------------------------------
+`NUMA Memory Usage Types <dashboard.overview-numa-metrics.html#numa-memory-usage-types>`_
+-----------------------------------------------------------------------------------------
 
 Dirty
    Memory waiting to be written back to disk
@@ -52,7 +52,7 @@ KernelStack The memory the kernel stack uses. This is not reclaimable.
 
 .. _dashboard.overview-numa-metrics.numa-allocation-hits:
 
-:ref:`NUMA Allocation Hits <dashboard.overview-numa-metrics.numa-allocation-hits>`
+`NUMA Allocation Hits <dashboard.overview-numa-metrics.html#numa-allocation-hits>`_
 ----------------------------------------------------------------------------------
 
 Memory successfully allocated on this node as intended.
@@ -61,8 +61,8 @@ Memory successfully allocated on this node as intended.
 
 .. _dashboard.overview-numa-metrics.numa-allocation-missed:
 
-:ref:`NUMA Allocation Missed <dashboard.overview-numa-metrics.numa-allocation-missed>`
---------------------------------------------------------------------------------------
+`NUMA Allocation Missed <dashboard.overview-numa-metrics.html#numa-allocation-missed>`_
+---------------------------------------------------------------------------------------
 
 Memory missed is allocated on a node despite the process preferring some different node.
 
@@ -72,7 +72,7 @@ Memory foreign is intended for a node, but actually allocated on some different 
 
 .. _dashboard.overview-numa-metrics.anonymous-memory:
 
-:ref:`Anonymous Memory <dashboard.overview-numa-metrics.anonymous-memory>`
+`Anonymous Memory <dashboard.overview-numa-metrics.html#anonymous-memory>`_
 --------------------------------------------------------------------------------
 
 Active
@@ -84,8 +84,8 @@ Inactive
 
 .. _dashboard.overview-numa-metrics.numa-file-page-cache:
 
-:ref:`NUMA File (PageCache) <dashboard.overview-numa-metrics.numa-file-page-cache>`
------------------------------------------------------------------------------------
+`NUMA File (PageCache) <dashboard.overview-numa-metrics.html#numa-file-page-cache>`_
+------------------------------------------------------------------------------------
 
 Active(file) Pagecache memory that has been used more recently and usually not
 reclaimed until needed.
@@ -97,7 +97,7 @@ impact.
 
 .. _dashboard.overview-numa-metrics.shared-memory:
 
-:ref:`Shared Memory <dashboard.overview-numa-metrics.shared-memory>`
+`Shared Memory <dashboard.overview-numa-metrics.html#shared-memory>`_
 --------------------------------------------------------------------------------
 
 Shmem Total used shared memory (shared between several processes, thus including
@@ -107,8 +107,8 @@ RAM disks, SYS-V-IPC and BSD like SHMEM)
 
 .. _dashboard.overview-numa-metrics.hugepages-statistics:
 
-:ref:`HugePages Statistics <dashboard.overview-numa-metrics.hugepages-statistics>`
-----------------------------------------------------------------------------------
+`HugePages Statistics <dashboard.overview-numa-metrics.html#hugepages-statistics>`_
+-----------------------------------------------------------------------------------
 
 Total
    Number of hugepages being allocated by the kernel (Defined with vm.nr_hugepages).
@@ -123,7 +123,7 @@ Surp
 
 .. _dashboard.overview-numa-metrics.local-processes:
 
-:ref:`Local Processes <dashboard.overview-numa-metrics.local-processes>`
+`Local Processes <dashboard.overview-numa-metrics.html#local-processes>`_
 --------------------------------------------------------------------------------
 
 Memory allocated on a node while a process was running on it.
@@ -132,7 +132,7 @@ Memory allocated on a node while a process was running on it.
 
 .. _dashboard.overview-numa-metrics.remote-processes:
 
-:ref:`Remote Processes <dashboard.overview-numa-metrics.remote-processes>`
+`Remote Processes <dashboard.overview-numa-metrics.html#remote-processes>`_
 --------------------------------------------------------------------------------
 
 Memory allocated on a node while a process was running on some other node.
@@ -141,7 +141,7 @@ Memory allocated on a node while a process was running on some other node.
 
 .. _dashboard.overview-numa-metrics.slab-memory:
 
-:ref:`Slab Memory <dashboard.overview-numa-metrics.slab-memory>`
+`Slab Memory <dashboard.overview-numa-metrics.html#slab-memory>`_
 --------------------------------------------------------------------------------
 
 Slab

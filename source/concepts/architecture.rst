@@ -36,7 +36,7 @@ The following diagram illustrates how |pmm| is currently structured:
 
 .. _pmm-client:
 
-`PMM Client <pmm-client>`_
+`PMM Client <architecture.html#pmm-client>`_
 ================================================================================
 
 Each |pmm-client| collects various data about general system and database
@@ -76,7 +76,7 @@ The |pmm-client| package consist of the following:
 
 .. _pmm-server:
 
-`PMM Server <pmm-server>`_
+`PMM Server <architecture.html#pmm-server>`_
 ================================================================================
 
 |pmm-server| runs on the machine that will be your central monitoring host.
@@ -135,50 +135,5 @@ For more information, see :ref:`using`.
       :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
    Enabling orchestrator
       :ref:`Orchestrator <Orchestrator>` in :ref:`pmm.glossary.terminology-reference`
-
-.. _pmm.using.orchestrator:
-
-`Orchestrator <pmm.using.orchestrator>`_
-================================================================================
-
-|orchestrator| is a |mysql| replication topology management and visualization
-tool.  If it is enabled, you can access it using the ``/orchestrator`` URL after
-|pmm-server| address.  Alternatively, you can click the
-|gui.mysql-replication-topology-manager| button on the |pmm-server| landing
-page.
-
-To use it, create a |mysql| user for |orchestrator| on all managed instances:
-
-.. include:: ../.res/code/grant.orc-client-user.txt
-
-.. note:: The credentials in the previous example are default.
-   If you use a different user name or password,
-   you have to pass them when
-   :ref:`running PMM Server <deploy-pmm.server.installing>`
-   using the
-   :option:`ORCHESTRATOR_PASSWORD`
-   and
-   :option:`ORCHESTRATOR_USER` options.
-
-   .. include:: ../.res/code/docker.run.orchestrator-enabled.orchestrator-user.orchestrator-password.txt
-
-Then you can use the |gui.discover| page in the |orchestrator| web interface
-to add the instances to the topology.
-
-.. note:: **Orchestrator is not enabled by default starting with PMM 1.3.0**
-
-   |orchestrator| was included into |pmm| for experimental purposes.  It is a
-   standalone tool, not integrated with |pmm| other than that you can access it
-   from the landing page.
-
-   In version 1.3.0 and later, |orchestrator| is not enabled
-   by default. To enable it, see
-   :ref:`pmm.docker.additional-option` in the
-   :ref:`run-server-docker` section.
-
-.. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
-.. _`Consul Docs`: https://www.consul.io/docs/
-.. _`Grafana Docs`: http://docs.grafana.org/
-.. _`Orchestrator Manual`: https://github.com/outbrain/orchestrator/wiki/Orchestrator-Manual
 
 .. include:: ../.res/replace.txt

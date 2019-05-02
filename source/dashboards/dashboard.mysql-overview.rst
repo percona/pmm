@@ -10,7 +10,7 @@ This dashboard provides basic information about |mysql| hosts.
 
 .. _dashboard.mysql-overview.uptime:
 
-:ref:`MySQL Uptime <dashboard.mysql-overview.uptime>`
+`MySQL Uptime <dashboard.mysql-overview.html#uptime>`_
 --------------------------------------------------------------------------------
 
 The amount of time since the |mysql| server process was started.
@@ -19,7 +19,7 @@ The amount of time since the |mysql| server process was started.
 
 .. _dashboard.mysql-overview.current-qps:
 
-:ref:`Current QPS <dashboard.mysql-overview.current-qps>`
+`Current QPS <dashboard.mysql-overview.html#current-qps>`_
 --------------------------------------------------------------------------------
 
 Based on the queries reported by |mysql|'s |sql.show-status| command,
@@ -41,8 +41,8 @@ This variable does not include the following commands:
           
 .. _dashboard.mysql-overview.innodb-buffer-pool-size:
 
-:ref:`InnoDB Buffer Pool Size <dashboard.mysql-overview.innodb-buffer-pool-size>`
----------------------------------------------------------------------------------
+`InnoDB Buffer Pool Size <dashboard.mysql-overview.html#innodb-buffer-pool-size>`_
+----------------------------------------------------------------------------------
 
 Absolute value of the InnoDB buffer pool used for caching data and indexes in
 memory.
@@ -55,8 +55,8 @@ many factors.
 
 .. _dashboard.mysql-overview.buffer-poolsize-percentage-of-total-ram:
 
-:ref:`Buffer Pool Size % of Total RAM <dashboard.mysql-overview.buffer-poolsize-percentage-of-total-ram>`
----------------------------------------------------------------------------------------------------------
+`Buffer Pool Size % of Total RAM <dashboard.mysql-overview.html#buffer-poolsize-percentage-of-total-ram>`_
+----------------------------------------------------------------------------------------------------------
 
 The ratio between |innodb| buffer pool size and total memory.  In most cases, the
 InnoDB buffer pool should be between 60% and 90% of available memory on a
@@ -66,7 +66,7 @@ dedicated database host, but it depends on many factors.
 
 .. _dashboard.mysql-overview.connections:
 
-:ref:`MySQL Connections <dashboard.mysql-overview.connections>`
+`MySQL Connections <dashboard.mysql-overview.html#connections>`_
 --------------------------------------------------------------------------------
 
 Max Connections
@@ -89,7 +89,7 @@ Connections
 
 .. _dashboard.mysql-overview.active-threads:
 
-:ref:`MySQL Active Threads <dashboard.mysql-overview.active-threads>`
+`MySQL Active Threads <dashboard.mysql-overview.html#active-threads>`_
 --------------------------------------------------------------------------------
 
 Threads Connected
@@ -102,7 +102,7 @@ Threads Running
 
 .. _dashboard.mysql-overview.questions:
 
-:ref:`MySQL Questions <dashboard.mysql-overview.questions>`
+`MySQL Questions <dashboard.mysql-overview.html#questions>`_
 --------------------------------------------------------------------------------
 
 The number of queries sent to the server by clients, *excluding those executed
@@ -122,7 +122,7 @@ This variable does not count the following commands:
 
 .. _dashboard.mysql-overview.thread-cache:
 
-:ref:`MySQL Thread Cache <dashboard.mysql-overview.thread-cache>`
+`MySQL Thread Cache <dashboard.mysql-overview.html#thread-cache>`_
 --------------------------------------------------------------------------------
 
 The thread_cache_size metric informs how many threads the server should cache to
@@ -145,7 +145,7 @@ possible, and only when the cache is empty is a new thread created.
 
 .. _dashboard.mysql-overview.select-types:
 
-:ref:`MySQL Select Types <dashboard.mysql-overview.select-types>`
+`MySQL Select Types <dashboard.mysql-overview.html#select-types>`_
 --------------------------------------------------------------------------------
 
 As with most relational databases, selecting based on indexes is more efficient
@@ -163,7 +163,7 @@ not done with indexes.
 
 .. _dashboard.mysql-overview.sorts:
 
-:ref:`MySQL Sorts <dashboard.mysql-overview.sorts>`
+`MySQL Sorts <dashboard.mysql-overview.html#sorts>`_
 --------------------------------------------------------------------------------
 
 Due to a query's structure, order, or other requirements, |mysql| sorts the rows
@@ -178,7 +178,7 @@ index.
 
 .. _dashboard.mysql-overview.slow-queries:
 
-:ref:`MySQL Slow Queries <dashboard.mysql-overview.slow-queries>`
+`MySQL Slow Queries <dashboard.mysql-overview.html#slow-queries>`_
 --------------------------------------------------------------------------------
 
 Slow queries are defined as queries being slower than the |opt.long-query-time|
@@ -189,7 +189,7 @@ queries that take longer than **3** seconds to complete will show on this graph.
 
 .. _dashboard.mysql-overview.aborted-connections:
 
-:ref:`Aborted Connections <dashboard.mysql-overview.aborted-connections>`
+`Aborted Connections <dashboard.mysql-overview.html#aborted-connections>`_
 --------------------------------------------------------------------------------
 
 When a given host connects to |mysql| and the connection is interrupted in the
@@ -207,7 +207,7 @@ To allow connections from that host again, you need to issue the
 
 .. _dashboard.mysql-overview.table-locks:
 
-:ref:`Table Locks <dashboard.mysql-overview.table-locks>`
+`Table Locks <dashboard.mysql-overview.html#table-locks>`_
 --------------------------------------------------------------------------------
 
 |mysql| takes a number of different locks for varying reasons. In this graph we
@@ -223,7 +223,7 @@ It is most useful to compare |locks-immediate| and |locks-waited|. If
 
 .. _dashboard.mysql-overview.network-traffic:
 
-:ref:`MySQL Network Traffic <dashboard.mysql-overview.network-traffic>`
+`MySQL Network Traffic <dashboard.mysql-overview.html#network-traffic>`_
 --------------------------------------------------------------------------------
 
 This metric shows how much network traffic is generated by |mysql|. *Outbound*
@@ -234,8 +234,8 @@ is network traffic sent from |mysql| and *Inbound* is the network traffic that
 
 .. _dashboard.mysql-overview.network-usage-hourly:
 
-:ref:`MySQL Network Usage Hourly <dashboard.mysql-overview.network-usage-hourly>`
----------------------------------------------------------------------------------
+`MySQL Network Usage Hourly <dashboard.mysql-overview.html#network-usage-hourly>`_
+----------------------------------------------------------------------------------
 
 This metric shows how much network traffic is generated by |mysql| per
 hour. You can use the bar graph to compare data sent by |mysql| and data
@@ -245,8 +245,8 @@ received by |mysql|.
 
 .. _dashboard.mysql-overview.internal-memory-overview:
 
-:ref:`MySQL Internal Memory Overview <dashboard.mysql-overview.internal-memory-overview>`
------------------------------------------------------------------------------------------
+`MySQL Internal Memory Overview <dashboard.mysql-overview.html#internal-memory-overview>`_
+------------------------------------------------------------------------------------------
 
 This metric shows the various uses of memory within |mysql|.
 
@@ -309,8 +309,8 @@ Query Cache Size
 
 .. _dashboard.mysql-overview.top-command-counters.top-command-counters-hourly:
 
-:ref:`Top Command Counters and Top Command Counters Hourly <dashboard.mysql-overview.top-command-counters.top-command-counters-hourly>`
----------------------------------------------------------------------------------------------------------------------------------------
+`Top Command Counters and Top Command Counters Hourly <dashboard.mysql-overview.html#top-command-counters.top-command-counters-hourly>`_
+----------------------------------------------------------------------------------------------------------------------------------------
 
 See https://dev.mysql.com/doc/refman/5.7/en/server-status-variables.html#statvar_Com_xxx
 	 
@@ -318,7 +318,7 @@ See https://dev.mysql.com/doc/refman/5.7/en/server-status-variables.html#statvar
 
 .. _dashboard.mysql-overview.handlers:
 
-:ref:`MySQL Handlers <dashboard.mysql-overview.handlers>`
+`MySQL Handlers <dashboard.mysql-overview.html#handlers>`_
 --------------------------------------------------------------------------------
 
 Handler statistics are internal statistics on how |mysql| is selecting,
@@ -336,8 +336,8 @@ This is in fact the layer between the Storage Engine and |mysql|.
 
 .. _dashboard.mysql-overview.query-cache-memory.query-cache-activity:
 
-:ref:`MySQL Query Cache Memory and MySQL Query Cache Activity <dashboard.mysql-overview.query-cache-memory.query-cache-activity>`
----------------------------------------------------------------------------------------------------------------------------------
+`MySQL Query Cache Memory and MySQL Query Cache Activity <dashboard.mysql-overview.html#query-cache-memory.query-cache-activity>`_
+----------------------------------------------------------------------------------------------------------------------------------
 
 The query cache has huge scalability problems in that only one thread can do an
 operation in the query cache at the same time. This serialization is true not
@@ -367,7 +367,7 @@ The recommended settings for most environments is to set:
 
 .. _metric.mysql-table-definition-cache.mysql-open-cache-status.mysql-open-table:
 
-:ref:`MySQL Open Tables, MySQL Table Open Cache Status, and MySQL Table Definition Cache <metric.mysql-table-definition-cache.mysql-open-cache-status.mysql-open-table>`
+`MySQL Open Tables, MySQL Table Open Cache Status, and MySQL Table Definition Cache <metric.mysql-table-definition-cache.mysql-open-cache-status.mysql-open-table>`_
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 The recommendation is to set the `table_open_cache_instances` to a loose

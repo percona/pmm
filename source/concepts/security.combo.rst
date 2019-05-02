@@ -1,6 +1,6 @@
 .. _pmm.security.combining:
 		
-:ref:`Combining Security Features <pmm.security.combining>`
+`Combining Security Features <security.html#pmm-security-combining>`_
 ================================================================================
 
 You can enable both HTTP password protection and SSL encryption by combining the

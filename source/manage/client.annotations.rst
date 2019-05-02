@@ -4,7 +4,9 @@
 Annotating important Application Events
 --------------------------------------------------------------------------------
 
-`Adding annotations <pmm-admin.html#pmm-admin-annotate>`_
+.. _pmm-admin.annotate.adding:
+
+`Adding annotations <client.annotations.html#adding-annotations>`_
 --------------------------------------------------------------------------------
 
 Use the |pmm-admin.annotate| command to set notifications about important
@@ -36,7 +38,7 @@ You can also use
 
 .. _pmm.metrics-monitor.annotation.application-event.marking:
 
-:ref:`Marking Important Events with Annotations <pmm.metrics-monitor.annotation.application-event.marking>`
+`Marking Important Events with Annotations <client.annotations.html#application-event-marking>`_
 ------------------------------------------------------------------------------------------------------------
 
 Some events in your application may impact your database. Annotations

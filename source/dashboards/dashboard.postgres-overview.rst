@@ -10,8 +10,8 @@ This dashboard provides basic information about |postgresql| hosts.
 
 .. _dashboard.postgres-overview.connected:
 
-:ref:`Connected <dashboard.postgres-overview.connected>`
---------------------------------------------------------------------------------
+`Connected <dashboard.postgres-overview.html#connected>`_
+----------------------------------------------------------------------------------------------
 
 Reports whether PMM Server can connect to the |postgresql| instance.
 
@@ -19,8 +19,8 @@ Reports whether PMM Server can connect to the |postgresql| instance.
 
 .. _dashboard.postgres-overview.version:
 
-:ref:`Version <dashboard.postgres-overview.version>`
---------------------------------------------------------------------------------
+`Version <dashboard.postgres-overview.html#version>`_
+----------------------------------------------------------------------------------
 
 The version of the |postgresql| instance.
 
@@ -29,7 +29,7 @@ The version of the |postgresql| instance.
 
 .. _dashboard.postgres-overview.shared-buffers:
 
-:ref:`Shared Buffers <dashboard.postgres-overview.shared-buffers>`
+`Shared Buffers <dashboard.postgres-overview.html#shared-buffers>`_
 ---------------------------------------------------------------------------------------------------------
 
 Defines the amount of memory the database server uses for shared memory
@@ -45,8 +45,8 @@ generally doesn't exceed ``40%``.
 
 .. _dashboard.postgres-overview.disk-page-buffers:
 
-:ref:`Disk-Page Buffers <dashboard.postgres-overview.disk-page-buffers>`
---------------------------------------------------------------------------------
+`Disk-Page Buffers <dashboard.postgres-overview.html#disk-page-buffers>`_
+-----------------------------------------------------------------------------------------------------
 
 The setting ``wal_buffers`` defines how much memory is used for caching the
 write-ahead log entries. Generally this value is small (``3%`` of 
@@ -65,8 +65,8 @@ servers.
 
 .. _dashboard.postgres-overview.memory-size-for-each-sort:
 
-:ref:`Memory Size for each Sort <dashboard.postgres-overview-memory-size-for-each-sort>`
---------------------------------------------------------------------------------
+`Memory Size for each Sort <dashboard.postgres-overview.html#memory-size-for-each-sort>`_
+-----------------------------------------------------------------------------------------------------------------------
 
 The parameter work_mem defines the amount of memory assigned for internal sort
 operations and hash tables before writing to temporary disk files. The default
@@ -81,8 +81,8 @@ is ``4MB``.
 
 .. _dashboard.postgres-overview.disk-cache-size:
 
-:ref:`Disk Cache Size <dashboard.postgres-overview.disk-cache-size>`
---------------------------------------------------------------------------------
+`Disk Cache Size <dashboard.postgres-overview.html#disk-cache-size>`_
+--------------------------------------------------------------------------------------------------
 
 |postgresql|'s ``effective_cache_size`` variable tunes how much RAM you expect
 to be available for disk caching. Generally adding Linux free+cached will give
@@ -99,8 +99,8 @@ indexes.
 
 .. _dashboard.postgres-overview.autovacuum:
 
-:ref:`Autovacuum <dashboard.postgres-overview.autovacuum>`
---------------------------------------------------------------------------------
+`Autovacuum <dashboard.postgres-overview.html#autovacuum>`_
+----------------------------------------------------------------------------------------
 
 Whether autovacuum process is enabled or not. Generally the solution is to
 vacuum more often, not less.
@@ -114,8 +114,8 @@ vacuum more often, not less.
 
 .. _dashboard.postgres-overview.connections:
 
-:ref:`PostgreSQL Connections <dashboard.postgres-overview.connections>`
---------------------------------------------------------------------------------
+`PostgreSQL Connections <dashboard.postgres-overview.html#connections>`_
+-----------------------------------------------------------------------------------------------------
 
 Max Connections
    The maximum number of client connections allowed. Change this value with
@@ -139,8 +139,8 @@ Active Connections
 
 .. _dashboard.postgres-overview.tuples:
 
-:ref:`PostgreSQL Tuples <dashboard.postgres-overview.tuples>`
---------------------------------------------------------------------------------
+`PostgreSQL Tuples <dashboard.postgres-overview.html#tuples>`_
+-------------------------------------------------------------------------------------------
 
 Tuples
    The total number of rows processed by |postgresql| server: fetched, returned,
@@ -157,8 +157,8 @@ Tuples Changed per 5min
 
 .. _dashboard.postgres-overview.transactions:
 
-:ref:`PostgreSQL Transactions <dashboard.postgres-overview.transactions>`
---------------------------------------------------------------------------------
+`PostgreSQL Transactions <dashboard.postgres-overview.html#transactions>`_
+------------------------------------------------------------------------------------------------------
 
 Transactions
    The total number of transactions that have been either been committed or
@@ -171,8 +171,8 @@ Duration of Transactions
 
 .. _dashboard.postgres-overview.temp.files:
 
-:ref:`Temp Files <dashboard.postgres-overview.temp.files>`
---------------------------------------------------------------------------------
+`Temp Files <dashboard.postgres-overview.html#temp-files>`_
+----------------------------------------------------------------------------------------
 
 Number of Temp Files
    The number of temporary files created by queries.
@@ -188,8 +188,8 @@ Size of Temp files
 
 .. _dashboard.postgres-overview.conflicts.and.locks:
 
-:ref:`Conflicts and Locks <dashboard.postgres-overview.conflicts.and.locks>`
---------------------------------------------------------------------------------
+`Conflicts and Locks <dashboard.postgres-overview.html#conflicts-and-locks>`_
+----------------------------------------------------------------------------------------------------------
 
 Conflicts/Deadlocks
    The number of queries canceled due to conflicts with recovery in the database
@@ -203,8 +203,8 @@ Number of Locks
 
 .. _dashboard.postgres-overview.buffers.and.blocks.operations:
 
-:ref:`Buffers and Blocks Operations <dashboard.postgres-overview.buffers.and.blocks.operations>`
-------------------------------------------------------------------------------------------------
+`Buffers and Blocks Operations <dashboard.postgres-overview.html#buffers-and-blocks-operations>`_
+------------------------------------------------------------------------------------------------------------------------------
 
 Operations with Blocks
    The time spent reading and writing data file blocks by backends, in
@@ -225,8 +225,8 @@ Buffers
 
 .. _dashboard.postgres-overview.canceled.queries:
 
-:ref:`Canceled Queries <dashboard.postgres-overview.canceled.queries>`
------------------------------------------------------------------------------------
+`Canceled Queries <dashboard.postgres-overview.html#canceled-queries>`_
+-----------------------------------------------------------------------------------------------------
 
 The number of queries that have been canceled due to dropped tablespaces, lock
 timeouts, old snapshots, pinned buffers, and deadlocks.
@@ -238,8 +238,8 @@ timeouts, old snapshots, pinned buffers, and deadlocks.
 
 .. _dashboard.postgres-overview.cache.hit.ratio:
 
-:ref:`Cache Hit Ratio <dashboard.postgres-overview.cache.hit.ratio>`
------------------------------------------------------------------------------------
+`Cache Hit Ratio <dashboard.postgres-overview.html#cache-hit-ratio>`_
+--------------------------------------------------------------------------------------------------
 
 The number of times disk blocks were found already in the buffer cache, so that
 a read was not necessary.
@@ -251,8 +251,8 @@ a read was not necessary.
 
 .. _dashboard.postgres-overview.checkpoint.stats:
 
-:ref:`Checkpoint Stats <dashboard.postgres-overview.checkpoint.stats>`
------------------------------------------------------------------------------------
+`Checkpoint Stats <dashboard.postgres-overview.html#checkpoint-stats>`_
+----------------------------------------------------------------------------------------------------
 
 The total amount of time that has been spent in the portion of checkpoint
 processing where files are either written or synchronized to disk,
@@ -262,8 +262,8 @@ in milliseconds.
 
 .. _dashboard.postgres-overview.postgresql.settings:
 
-:ref:`PostgreSQL Settings <dashboard.postgres-overview.postgresql.settings>`
------------------------------------------------------------------------------------
+`PostgreSQL Settings <dashboard.postgres-overview.html#postgresql-settings>`_
+----------------------------------------------------------------------------------------------------------
 
 The list of all settings of the |postgresql| server.
 
@@ -271,8 +271,8 @@ The list of all settings of the |postgresql| server.
 
 .. _dashboard.postgres-overview.system.summary:
 
-:ref:`System Summary <dashboard.postgres-overview.system.summary>`
------------------------------------------------------------------------------------
+`System Summary <dashboard.postgres-overview.html#system-summary>`_
+-------------------------------------------------------------------------------------------------
 
 This section contains the following system parameters of the |postgresql|
 server: CPU Usage, CPU Saturation and Max Core Usage, Disk I/O Activity, and
