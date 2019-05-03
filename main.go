@@ -344,6 +344,11 @@ func getQANClient(ctx context.Context, db *reform.DB) *qan.Client {
 }
 
 func main() {
+	// Temporary hack due to https://jira.percona.com/browse/PMM-3705.
+	// TODO(aleksi) Remove after May 5 2019.
+	version.Version = "2.0.0-alpha2"
+	version.PMMVersion = "2.0.0-alpha2"
+
 	log.SetFlags(0)
 	log.Printf("%s.", version.ShortInfo())
 	log.SetPrefix("stdlog: ")
