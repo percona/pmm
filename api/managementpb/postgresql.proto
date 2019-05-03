@@ -67,6 +67,8 @@ message AddPostgreSQLRequest {
   string password = 8;
   // If true, adds postgres_exporter for provided service.
   bool postgres_exporter = 10;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 20;
 }
 
 message AddPostgreSQLResponse {

@@ -79,6 +79,8 @@ message AddMySQLRequest {
   bool qan_mysql_perfschema = 14;
   // If true, adds qan-mysql-slowlog-agent for provided service.
   bool qan_mysql_slowlog = 15;
+  // Custom user-assigned labels.
+  map<string, string> custom_labels = 20;
 }
 
 message AddMySQLResponse {

@@ -38,6 +38,13 @@
                   "description": "Cluster name.",
                   "type": "string"
                 },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
                 "environment": {
                   "description": "Environment name.",
                   "type": "string"
@@ -291,6 +298,13 @@
                 "cluster": {
                   "description": "Cluster name.",
                   "type": "string"
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
                 },
                 "environment": {
                   "description": "Environment name.",
@@ -830,6 +844,13 @@
                 "address": {
                   "description": "Node and Service access address (DNS name or IP). Required.",
                   "type": "string"
+                },
+                "custom_labels": {
+                  "description": "Custom user-assigned labels.",
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
                 },
                 "environment": {
                   "description": "Environment name.",
