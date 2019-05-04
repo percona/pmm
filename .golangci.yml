@@ -1,0 +1,38 @@
+---
+linters-settings:
+  # prevent import of "errors" instead of "github.com/pkg/errors"
+  depguard:
+    list-type: blacklist
+    include-go-root: true
+    packages:
+      - errors
+
+  goimports:
+    local-prefixes: github.com/percona/pmm
+
+  lll:
+    line-length: 170
+    tab-width: 4
+
+  unused:
+    check-exported: false
+
+  unparam:
+    check-exported: true
+
+linters:
+  enable-all: true
+  disable:
+    - scopelint         # too many false positives
+    - gochecknoglobals  # mostly useless
+
+issues:
+  exclude-use-default: false
+  exclude:
+    # gas: Duplicated errcheck checks
+    - 'G104: Errors unhandled'
+    # golint: Methods for implementing interfaces are not documented
+    - 'exported method `.+` should have comment or be unexported'
+    - 'comment on exported method `.+` should be of the form `.+ ...`'
+    # golint: We have to return unexported types due to oneof implementation
+    - 'exported method .+ returns unexported type .+, which can be annoying to use'

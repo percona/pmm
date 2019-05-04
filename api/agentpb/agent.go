@@ -11,8 +11,8 @@ import (
 
 // Workaround for https://github.com/golang/protobuf/issues/261.
 // Useful for helper functions.
-// TODO Refactor code to use
-// AgentRequestPayload, AgentResponsePayload, ServerResponsePayload, ServerRequestPayload instead.
+// TODO Remove it.
+// Deprecated: use AgentRequestPayload, AgentResponsePayload, ServerResponsePayload, ServerRequestPayload instead.
 type (
 	AgentMessagePayload  = isAgentMessage_Payload
 	ServerMessagePayload = isServerMessage_Payload
@@ -25,21 +25,25 @@ type (
 //go-sumtype:decl ServerResponsePayload
 //go-sumtype:decl ServerRequestPayload
 
+// AgentRequestPayload represents agent's request payload.
 type AgentRequestPayload interface {
 	AgentMessageRequestPayload() isAgentMessage_Payload
 	sealed()
 }
 
+// AgentResponsePayload represents agent's response payload.
 type AgentResponsePayload interface {
 	AgentMessageResponsePayload() isAgentMessage_Payload
 	sealed()
 }
 
+// ServerResponsePayload represents server's response payload.
 type ServerResponsePayload interface {
 	ServerMessageResponsePayload() isServerMessage_Payload
 	sealed()
 }
 
+// ServerRequestPayload represents server's request payload.
 type ServerRequestPayload interface {
 	ServerMessageRequestPayload() isServerMessage_Payload
 	sealed()
@@ -118,8 +122,8 @@ var (
 // AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
 type AgentParams interface {
 	proto.Message
-	agentParams()
+	sealedAgentParams() //nolint:unused
 }
 
-func (*SetStateRequest_AgentProcess) agentParams() {}
-func (*SetStateRequest_BuiltinAgent) agentParams() {}
+func (*SetStateRequest_AgentProcess) sealedAgentParams() {}
+func (*SetStateRequest_BuiltinAgent) sealedAgentParams() {}
