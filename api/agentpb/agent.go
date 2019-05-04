@@ -8,12 +8,20 @@ import (
 	"google.golang.org/grpc/metadata"
 )
 
+//go-sumtype:decl isServerMessage_Payload
+//go-sumtype:decl isAgentMessage_Payload
+//go-sumtype:decl ServerMessagePayload
+//go-sumtype:decl AgentMessagePayload
+
 // Workaround for https://github.com/golang/protobuf/issues/261.
 // Useful for helper functions.
 type (
 	ServerMessagePayload = isServerMessage_Payload
 	AgentMessagePayload  = isAgentMessage_Payload
 )
+
+//go-sumtype:decl RequestPayload
+//go-sumtype:decl ResponsePayload
 
 type RequestPayload interface{ request() }
 type ResponsePayload interface{ response() }
@@ -27,6 +35,8 @@ func (*Pong) response()                 {}
 func (*QANCollectResponse) response()   {}
 func (*StateChangedResponse) response() {}
 func (*SetStateResponse) response()     {}
+
+//go-sumtype:decl AgentParams
 
 // AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
 type AgentParams interface {

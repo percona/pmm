@@ -18,7 +18,8 @@ gen: clean            ## Generate files.
 					./vendor/github.com/mwitkow/go-proto-validators/protoc-gen-govalidators \
 					./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway \
 					./vendor/github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger \
-					./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+					./vendor/github.com/go-swagger/go-swagger/cmd/swagger \
+					./vendor/github.com/BurntSushi/go-sumtype
 
 	./prototool all
 
@@ -41,6 +42,7 @@ gen: clean            ## Generate files.
 
 	make clean_swagger
 	go fmt ./...
+	go-sumtype ./...
 	go install -v ./...
 
 clean_swagger:
