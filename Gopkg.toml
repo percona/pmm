@@ -18,9 +18,9 @@ required = [
   name = "github.com/percona/pmm"
   branch = "PMM-2.0"
 
+# Stick to 0.9.x for now.
+# https://github.com/prometheus/client_golang#important-note-about-releases-versioning-tagging-and-stability
 [[constraint]]
-  # Stick to 0.9.x for now.
-  # https://github.com/prometheus/client_golang#important-note-about-releases-versioning-tagging-and-stability
   name = "github.com/prometheus/client_golang"
   version = "0.9.2"
 
@@ -34,7 +34,8 @@ required = [
   name = "github.com/percona/go-mysql"
   branch = "PMM-2.0"
 
+# TODO Remove when 3.0.14 is released.
+# We need https://github.com/percona/percona-toolkit/pull/396.
 [[constraint]]
-  branch = "3.0" # We use branch as of https://github.com/percona/percona-toolkit/pull/396. TODO: Replace to tag when it will be released.
   name = "github.com/percona/percona-toolkit"
-
+  branch = "3.0"

@@ -328,7 +328,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:2d7edc0e2332992ef5bca1dbe6f606d79a783ad1de77d875c227afc4d0d672bb"
+  digest = "1:5aa20cb880ab3d6da2a88b13b1a7afbf4040d643cf752827ce7e71819a3405a0"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -347,7 +347,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "8fadcfb359ec6980446bd0f3f80d33347cb9be38"
+  revision = "df7446abd5c68f8a1e54593c86dd15313d0480c5"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -399,11 +399,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7813f698f171bd7132b123364433e1b0362f7fdb4ed7f4a20df595a4c2410f8a"
+  digest = "1:9b4097bdc74d7fd5387493679dba70d2b1c2159af409b31fa72ea97b9f9947a4"
   name = "github.com/prometheus/procfs"
-  packages = ["."]
+  packages = [
+    ".",
+    "internal/fs",
+  ]
   pruneopts = "NUT"
-  revision = "8368d24ba045f26503eb745b624d930cbe214c79"
+  revision = "740c0778500738e56e1877d52904c431a3fdc573"
 
 [[projects]]
   digest = "1:998e4640c25e00ccb7b2569bf94562283937b8afb3485c0e1a0a05a15330240d"
@@ -426,7 +429,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0691891596aed53deec3856d0d16ddaf565fed63445c173c3299613494800030"
+  digest = "1:a9797a1d94741a5d84146db61034f610da81c4a03ac0809b87b1e459416760ae"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -438,24 +441,26 @@
     "trace",
   ]
   pruneopts = "NUT"
-  revision = "afa5a82059c6356159f699d81beff22a81842231"
+  revision = "f4e77d36d62c17c2336347bb2670ddbd02d092b7"
 
 [[projects]]
   branch = "master"
-  digest = "1:f632c225ef300cb47bb7363bc1006ca57601af35f03b8fe41d03ed67b581c4fc"
+  digest = "1:4b90c07c5ae97866c3c318a1aed0d356c4b3333afa0b427561d93611a6ab9b83"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "NUT"
-  revision = "e8e3143a4f4a00f1fafef0dd82ba78223281b01b"
+  revision = "a43fa875dd822b81eb6d2ad538bc1f4caba169bd"
 
 [[projects]]
-  digest = "1:e33513a825fcd765e97b5de639a2f7547542d1a8245df0cef18e1fd390b778a9"
+  digest = "1:66a2f252a58b4fbbad0e4e180e1d85a83c222b6bce09c3dcdef3dc87c72eda7c"
   name = "golang.org/x/text"
   packages = [
     "collate",
     "collate/build",
     "internal/colltab",
     "internal/gen",
+    "internal/language",
+    "internal/language/compact",
     "internal/tag",
     "internal/triegen",
     "internal/ucd",
@@ -469,8 +474,8 @@
     "width",
   ]
   pruneopts = "NUT"
-  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
-  version = "v0.3.0"
+  revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
+  version = "v0.3.2"
 
 [[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
@@ -482,7 +487,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:51b95dc2db289865b71364c0da23ca6bcc0b199e0d827c9cfb053b32248b77ad"
+  digest = "1:940323a8956ce46e7d1b445aa44de7451440801d9d9d452597a05547609d60c0"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
@@ -491,7 +496,7 @@
     "protobuf/field_mask",
   ]
   pruneopts = "NUT"
-  revision = "e7d98fc518a78c9f8b5ee77be7b0b317475d89e1"
+  revision = "54afdca5d873f7b529e2ce3def1a99df16feda90"
 
 [[projects]]
   digest = "1:1b8aa4536bdaa407eb67608be643900a731c8c1ac01205a9e2f6fb38e5a56204"
