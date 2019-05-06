@@ -22,11 +22,16 @@ func (*Ping) request()                {}
 func (*QANCollectRequest) request()   {}
 func (*StateChangedRequest) request() {}
 func (*SetStateRequest) request()     {}
+func (*ActionRunRequest) request()    {}
+func (*ActionCancelRequest) request() {}
 
 func (*Pong) response()                 {}
 func (*QANCollectResponse) response()   {}
 func (*StateChangedResponse) response() {}
 func (*SetStateResponse) response()     {}
+func (*ActionRunResponse) response()    {}
+func (*ActionCancelResponse) response() {}
+func (*ActionResult) response()         {}
 
 // AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
 type AgentParams interface {
