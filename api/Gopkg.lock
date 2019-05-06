@@ -65,11 +65,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d05bc299b5455ede1c64fa3ad9ef84499b7d3c7b2eae92b9fc4cfa25e7bcb91c"
+  digest = "1:c4b8980647fafbf2781882c3d8745803c13e3131c559c35c319933dcdac6e7eb"
   name = "github.com/go-openapi/errors"
   packages = ["."]
   pruneopts = "T"
-  revision = "7a7ff1b7b8020f22574411a32f28b4d168d69237"
+  revision = "df3fda67a4c851b789d9b34a92cb0edef5734e2c"
 
 [[projects]]
   branch = "master"
@@ -108,7 +108,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:fb513faca838e42b790d9337f9073a8748de5431f3b24c65872215847399db46"
+  digest = "1:09fb52711bf50621b3c99409bd5dec16a0bf0cbaa04d4fffb080611fe6e0903d"
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
@@ -121,7 +121,7 @@
     "security",
   ]
   pruneopts = "T"
-  revision = "3d6572c5a80826d5e7f6362d4c681875207c3ef6"
+  revision = "a790424692bbda30f61bc3b21754972de1803b91"
 
 [[projects]]
   branch = "master"
@@ -331,12 +331,12 @@
   revision = "1f388280e944c97cc59c75d8c84a704097d1f1d6"
 
 [[projects]]
-  digest = "1:f689427eab05cdd474917f646ecddb579e2ca4de67bc5b3ea1dc9cdabbcd4288"
+  digest = "1:abc5966f690dedc4943d8bed4cdddb0c4fb6e4490ff7702fa4ce2a7c35efbaf7"
   name = "github.com/pelletier/go-toml"
   packages = ["."]
   pruneopts = "T"
-  revision = "63909f0a90ab0f36909e8e044e46ace10cf13ba2"
-  version = "v1.3.0"
+  revision = "728039f679cbcd4f6a54e080d2219a4c4928c546"
+  version = "v1.4.0"
 
 [[projects]]
   digest = "1:dee0cc3252ce6fcc3334c9529abd32925f2aaf072c90336a5a38254953564aa5"
@@ -391,7 +391,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:af8cb38961a8c0b02a80df19f2b2def479e379d23b386c3a6b2d7e303e2270df"
+  digest = "1:781c99982e2ea11f187879185810a49ebe38cfb2396e0fa893c2c0f45bee1fc3"
   name = "golang.org/x/net"
   packages = [
     "http/httpguts",
@@ -402,24 +402,26 @@
     "trace",
   ]
   pruneopts = "T"
-  revision = "1da14a5a36f220ea3f03470682b737b1dfd5de22"
+  revision = "f4e77d36d62c17c2336347bb2670ddbd02d092b7"
 
 [[projects]]
   branch = "master"
-  digest = "1:93f087ecf1ff08bd26b73ae0f71a8c4253895afb749c70d8cdf1781731284e85"
+  digest = "1:75e089008f69cf645a8882eef3cadc274963367d6ee5bdd60f8dc3a36b1ec6a4"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "T"
-  revision = "12500544f89f9420afe9529ba8940bf72d294972"
+  revision = "a43fa875dd822b81eb6d2ad538bc1f4caba169bd"
 
 [[projects]]
-  digest = "1:6164911cb5e94e8d8d5131d646613ff82c14f5a8ce869de2f6d80d9889df8c5a"
+  digest = "1:0a6103b1dc59b52f7e64a491b398b854c0fcaacde43c25ce468610a64311b72d"
   name = "golang.org/x/text"
   packages = [
     "collate",
     "collate/build",
     "internal/colltab",
     "internal/gen",
+    "internal/language",
+    "internal/language/compact",
     "internal/tag",
     "internal/triegen",
     "internal/ucd",
@@ -433,12 +435,12 @@
     "width",
   ]
   pruneopts = "T"
-  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
-  version = "v0.3.0"
+  revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
+  version = "v0.3.2"
 
 [[projects]]
   branch = "master"
-  digest = "1:597138b090164f0963ac8ec5ea0c2dce4549e81e8fd4bef5eda3a5094ee8378a"
+  digest = "1:6a2d7e4e3489859fc64c9a7b5a103d3e4e0f2cd29bb19aca7b344372464642da"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -457,11 +459,11 @@
     "internal/semver",
   ]
   pruneopts = "T"
-  revision = "a5870b40385977769b3e1d711864fcd2d82bb9fd"
+  revision = "3b6f9c0030f769fa3ded8a7f0d9420c71ac20caf"
 
 [[projects]]
   branch = "master"
-  digest = "1:5eba71baa7efc80aa2c73b94290c85b06b5c35297f7172a83d57011b7e21e347"
+  digest = "1:55a5e2ce90501a44c6076cd3cbc7a0bb2d147152827dffc38d1da4700c3a150a"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api/annotations",
@@ -470,10 +472,10 @@
     "protobuf/field_mask",
   ]
   pruneopts = "T"
-  revision = "d1146b9035b912113a38af3b138eb2af567b2c67"
+  revision = "54afdca5d873f7b529e2ce3def1a99df16feda90"
 
 [[projects]]
-  digest = "1:1d0bbb36a1999ee14484970ed3ccb272bc9454e74c12320db160e23846ff5c3a"
+  digest = "1:dbb3ac0403bd9f4036537d4aa3a518d049fff68759d40db2ed22eeb83d9892d8"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -510,8 +512,8 @@
     "tap",
   ]
   pruneopts = "T"
-  revision = "236199dd5f8031d698fb64091194aecd1c3895b2"
-  version = "v1.20.0"
+  revision = "25c4f928eaa6d96443009bd842389fb4fa48664e"
+  version = "v1.20.1"
 
 [[projects]]
   branch = "v2"
