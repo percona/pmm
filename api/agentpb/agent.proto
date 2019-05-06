@@ -119,11 +119,12 @@ message AgentMessage {
     Ping ping = 2;
     StateChangedRequest state_changed = 3;
     QANCollectRequest qan_collect = 4;
-    ActionRunRequest action_run_request = 5;
-    ActionCancelRequest action_cancel_request = 6;
     // responses from agent
     Pong pong = 8;
     SetStateResponse set_state = 9;
+    ActionRunResponse action_run_response = 10;
+    ActionCancelResponse action_cancel_response = 11;
+    ActionResult action_result = 12;
   }
 }
 
@@ -136,12 +137,11 @@ message ServerMessage {
     Pong pong = 2;
     StateChangedResponse state_changed = 3;
     QANCollectResponse qan_collect = 4;
-    ActionRunResponse action_run_response = 5;
-    ActionCancelResponse action_cancel_response = 6;
-    ActionResult action_result = 7;
     // requests from server
     Ping ping = 8;
     SetStateRequest set_state = 9;
+    ActionRunRequest action_run_request = 10;
+    ActionCancelRequest action_cancel_request = 11;
   }
 }
 
