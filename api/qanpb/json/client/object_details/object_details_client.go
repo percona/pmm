@@ -25,6 +25,34 @@ type Client struct {
 }
 
 /*
+GetLabels gets labels gets list of labels for object details
+*/
+func (a *Client) GetLabels(params *GetLabelsParams) (*GetLabelsOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetLabelsParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetLabels",
+		Method:             "POST",
+		PathPattern:        "/v1/qan/ObjectDetails/GetLabels",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetLabelsReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*GetLabelsOK), nil
+
+}
+
+/*
 GetMetrics gets metrics gets map of metrics for specific filtering
 */
 func (a *Client) GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error) {
