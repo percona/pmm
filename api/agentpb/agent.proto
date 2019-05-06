@@ -81,6 +81,35 @@ message SetStateResponse {
 
 }
 
+// ActionRunRequest represents request to run an action by name.
+message ActionRunRequest {
+  string name = 1;
+  map<string, string> parameters = 2;
+}
+
+// ActionRunResponse represents response to action_run_request.
+message ActionRunResponse {
+  string id = 1;
+}
+
+// ActionCancelRequest represents request to stop action with given id.
+message ActionCancelRequest {
+  string id = 1;
+}
+
+// ActionCancelResponse represents response to stop action request.
+message ActionCancelResponse {
+  bool success = 1;
+}
+
+// ActionResult represents message with action results which agent send to server when action is ready.
+message ActionResult {
+  string id = 1;
+  string name = 2;
+  string error = 3;
+  bytes combined_output = 4;
+}
+
 message AgentMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
 
@@ -90,6 +119,8 @@ message AgentMessage {
     Ping ping = 2;
     StateChangedRequest state_changed = 3;
     QANCollectRequest qan_collect = 4;
+    ActionRunRequest action_run_request = 5;
+    ActionCancelRequest action_cancel_request = 6;
     // responses from agent
     Pong pong = 8;
     SetStateResponse set_state = 9;
@@ -105,6 +136,9 @@ message ServerMessage {
     Pong pong = 2;
     StateChangedResponse state_changed = 3;
     QANCollectResponse qan_collect = 4;
+    ActionRunResponse action_run_response = 5;
+    ActionCancelResponse action_cancel_response = 6;
+    ActionResult action_result = 7;
     // requests from server
     Ping ping = 8;
     SetStateRequest set_state = 9;
