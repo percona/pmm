@@ -134,6 +134,7 @@ func runJSONServer(ctx context.Context, grpcBind, jsonBind string) {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeout)
 	if err := server.Shutdown(ctx); err != nil {
 		log.Printf("Failed to shutdown gracefully: %v \n", err)
+		server.Close()
 	}
 	cancel()
 }
