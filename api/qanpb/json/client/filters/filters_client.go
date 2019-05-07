@@ -36,7 +36,7 @@ func (a *Client) Get(params *GetParams) (*GetOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "Get",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/Filters/Get",
+		PathPattern:        "/v0/qan/Filters/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

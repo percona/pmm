@@ -12,10 +12,10 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM Management API",
-    "version": "version 1.alpha"
+    "version": "beta"
   },
   "paths": {
-    "/v1/management/MongoDB/Add": {
+    "/v0/management/MongoDB/Add": {
       "post": {
         "tags": [
           "MongoDB"
@@ -276,7 +276,7 @@
         }
       }
     },
-    "/v1/management/MySQL/Add": {
+    "/v0/management/MySQL/Add": {
       "post": {
         "tags": [
           "MySQL"
@@ -601,7 +601,7 @@
         }
       }
     },
-    "/v1/management/Node/Register": {
+    "/v0/management/Node/Register": {
       "post": {
         "tags": [
           "Node"
@@ -826,7 +826,7 @@
         }
       }
     },
-    "/v1/management/PostgreSQL/Add": {
+    "/v0/management/PostgreSQL/Add": {
       "post": {
         "tags": [
           "PostgreSQL"
@@ -1015,7 +1015,7 @@
         }
       }
     },
-    "/v1/management/Service/Remove": {
+    "/v0/management/Service/Remove": {
       "post": {
         "tags": [
           "Service"

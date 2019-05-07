@@ -60,7 +60,7 @@ type GetMetricsOK struct {
 }
 
 func (o *GetMetricsOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/GetMetrics][%d] getMetricsOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetMetrics][%d] getMetricsOk  %+v", 200, o.Payload)
 }
 
 func (o *GetMetricsOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,7 +98,7 @@ func (o *GetMetricsDefault) Code() int {
 }
 
 func (o *GetMetricsDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/GetMetrics][%d] GetMetrics default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetMetrics][%d] GetMetrics default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetMetricsDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

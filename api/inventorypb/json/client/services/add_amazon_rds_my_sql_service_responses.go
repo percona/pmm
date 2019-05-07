@@ -58,7 +58,7 @@ type AddAmazonRDSMySQLServiceOK struct {
 }
 
 func (o *AddAmazonRDSMySQLServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/AddAmazonRDSMySQL][%d] addAmazonRdsMySqlServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Services/AddAmazonRDSMySQL][%d] addAmazonRdsMySqlServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *AddAmazonRDSMySQLServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -96,7 +96,7 @@ func (o *AddAmazonRDSMySQLServiceDefault) Code() int {
 }
 
 func (o *AddAmazonRDSMySQLServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Services/AddAmazonRDSMySQL][%d] AddAmazonRDSMySQLService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Services/AddAmazonRDSMySQL][%d] AddAmazonRDSMySQLService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddAmazonRDSMySQLServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

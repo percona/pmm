@@ -61,7 +61,7 @@ type GetQueryExampleOK struct {
 }
 
 func (o *GetQueryExampleOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/GetQueryExample][%d] getQueryExampleOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] getQueryExampleOk  %+v", 200, o.Payload)
 }
 
 func (o *GetQueryExampleOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -99,7 +99,7 @@ func (o *GetQueryExampleDefault) Code() int {
 }
 
 func (o *GetQueryExampleDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/ObjectDetails/GetQueryExample][%d] GetQueryExample default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/qan/ObjectDetails/GetQueryExample][%d] GetQueryExample default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *GetQueryExampleDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
