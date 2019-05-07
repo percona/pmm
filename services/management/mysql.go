@@ -49,10 +49,11 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		service, err := models.AddNewService(tx.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
-			ServiceName: req.ServiceName,
-			NodeID:      req.NodeId,
-			Address:     pointer.ToStringOrNil(req.Address),
-			Port:        pointer.ToUint16OrNil(uint16(req.Port)),
+			ServiceName:  req.ServiceName,
+			NodeID:       req.NodeId,
+			Address:      pointer.ToStringOrNil(req.Address),
+			Port:         pointer.ToUint16OrNil(uint16(req.Port)),
+			CustomLabels: req.CustomLabels,
 		})
 
 		if err != nil {
