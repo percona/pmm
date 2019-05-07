@@ -21,13 +21,19 @@ LD_FLAGS = -ldflags " \
 release:                        ## Build pmm-admin release binary.
 	env CGO_ENABLED=0 go build -v $(LD_FLAGS) -o $(PMM_RELEASE_PATH)/pmm-admin
 
+init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
+	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
+
+	go test -v -i ./...
+	go test -v -race -i ./...
+
 install:                        ## Install pmm-admin binary.
 	go install -v $(LD_FLAGS) ./...
 
 install-race:                   ## Install pmm-admin binary with race detector.
 	go install -v $(LD_FLAGS) -race ./...
 
-TEST_FLAGS ?=
+TEST_FLAGS ?= -timeout=20s
 
 test:                           ## Run tests.
 	go test $(TEST_FLAGS) ./...
@@ -38,11 +44,11 @@ test-race:                      ## Run tests with race detector.
 test-cover:                     ## Run tests and collect coverage information.
 	go test $(TEST_FLAGS) -coverprofile=cover.out -covermode=count ./...
 
-check-license:                  ## Check that all files have the same license header.
+check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
 
-check: install check-license    ## Run checkers and linters.
-	golangci-lint run
+FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
-format:                         ## Run `goimports`.
-	goimports -local github.com/percona/pmm-admin -l -w $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+format:                         ## Format source code.
+	gofmt -w -s $(FILES)
+	goimports -local github.com/percona/pmm-admin -l -w $(FILES)
