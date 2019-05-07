@@ -107,7 +107,7 @@ func RegisterMetricsNamesHandlerClient(ctx context.Context, mux *runtime.ServeMu
 }
 
 var (
-	pattern_MetricsNames_GetMetricsNames_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v1", "qan", "GetMetricsNames"}, ""))
+	pattern_MetricsNames_GetMetricsNames_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"v0", "qan", "GetMetricsNames"}, ""))
 )
 
 var (
