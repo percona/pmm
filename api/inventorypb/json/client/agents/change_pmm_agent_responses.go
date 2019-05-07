@@ -58,7 +58,7 @@ type ChangePMMAgentOK struct {
 }
 
 func (o *ChangePMMAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangePMMAgent][%d] changePmmAgentOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangePMMAgent][%d] changePmmAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangePMMAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -96,7 +96,7 @@ func (o *ChangePMMAgentDefault) Code() int {
 }
 
 func (o *ChangePMMAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangePMMAgent][%d] ChangePMMAgent default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangePMMAgent][%d] ChangePMMAgent default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangePMMAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

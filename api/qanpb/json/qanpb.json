@@ -12,10 +12,10 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM QAN API",
-    "version": "version 1.alpha"
+    "version": "beta"
   },
   "paths": {
-    "/v1/qan/Filters/Get": {
+    "/v0/qan/Filters/Get": {
       "post": {
         "tags": [
           "Filters"
@@ -81,7 +81,7 @@
         }
       }
     },
-    "/v1/qan/GetMetricsNames": {
+    "/v0/qan/GetMetricsNames": {
       "post": {
         "tags": [
           "MetricsNames"
@@ -137,7 +137,7 @@
         }
       }
     },
-    "/v1/qan/GetReport": {
+    "/v0/qan/GetReport": {
       "post": {
         "tags": [
           "Profile"
@@ -333,7 +333,7 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetLabels": {
+    "/v0/qan/ObjectDetails/GetLabels": {
       "post": {
         "tags": [
           "ObjectDetails"
@@ -416,7 +416,7 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetMetrics": {
+    "/v0/qan/ObjectDetails/GetMetrics": {
       "post": {
         "tags": [
           "ObjectDetails"
@@ -549,7 +549,7 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetQueryExample": {
+    "/v0/qan/ObjectDetails/GetQueryExample": {
       "post": {
         "tags": [
           "ObjectDetails"

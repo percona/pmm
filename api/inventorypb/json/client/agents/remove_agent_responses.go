@@ -57,7 +57,7 @@ type RemoveAgentOK struct {
 }
 
 func (o *RemoveAgentOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] removeAgentOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Agents/Remove][%d] removeAgentOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveAgentOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -93,7 +93,7 @@ func (o *RemoveAgentDefault) Code() int {
 }
 
 func (o *RemoveAgentDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/Remove][%d] RemoveAgent default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Agents/Remove][%d] RemoveAgent default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveAgentDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

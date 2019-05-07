@@ -59,7 +59,7 @@ type ListNodesOK struct {
 }
 
 func (o *ListNodesOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] listNodesOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Nodes/List][%d] listNodesOk  %+v", 200, o.Payload)
 }
 
 func (o *ListNodesOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -97,7 +97,7 @@ func (o *ListNodesDefault) Code() int {
 }
 
 func (o *ListNodesDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/List][%d] ListNodes default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Nodes/List][%d] ListNodes default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ListNodesDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

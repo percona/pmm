@@ -53,7 +53,7 @@ type GetOK struct {
 }
 
 func (o *GetOK) Error() string {
-	return fmt.Sprintf("[POST /v1/qan/Filters/Get][%d] getOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/qan/Filters/Get][%d] getOk  %+v", 200, o.Payload)
 }
 
 func (o *GetOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
