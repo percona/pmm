@@ -60,7 +60,7 @@ type RegisterOK struct {
 }
 
 func (o *RegisterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Node/Register][%d] registerOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/management/Node/Register][%d] registerOk  %+v", 200, o.Payload)
 }
 
 func (o *RegisterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,7 +98,7 @@ func (o *RegisterDefault) Code() int {
 }
 
 func (o *RegisterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Node/Register][%d] Register default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/management/Node/Register][%d] Register default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RegisterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -60,7 +60,7 @@ type AddPostgreSQLOK struct {
 }
 
 func (o *AddPostgreSQLOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] addPostgreSqlOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/management/PostgreSQL/Add][%d] addPostgreSqlOk  %+v", 200, o.Payload)
 }
 
 func (o *AddPostgreSQLOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,7 +98,7 @@ func (o *AddPostgreSQLDefault) Code() int {
 }
 
 func (o *AddPostgreSQLDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/PostgreSQL/Add][%d] AddPostgreSQL default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/management/PostgreSQL/Add][%d] AddPostgreSQL default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddPostgreSQLDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
