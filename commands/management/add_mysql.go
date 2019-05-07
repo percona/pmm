@@ -46,12 +46,15 @@ func (res *addMySQLResult) String() string {
 }
 
 type addMySQLCommand struct {
-	AddressPort   string
-	ServiceName   string
-	Username      string
-	Password      string
-	UsePerfschema bool
-	UseSlowLog    bool
+	AddressPort    string
+	ServiceName    string
+	Username       string
+	Password       string
+	UsePerfschema  bool
+	UseSlowLog     bool
+	ReplicationSet string
+	Cluster        string
+	Environment    string
 }
 
 func (cmd *addMySQLCommand) Run() (commands.Result, error) {
@@ -85,6 +88,10 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			QANPassword:        cmd.Password,
 			QANMysqlPerfschema: cmd.UsePerfschema,
 			QANMysqlSlowlog:    cmd.UseSlowLog,
+
+			ReplicationSet: cmd.ReplicationSet,
+			Cluster:        cmd.Cluster,
+			Environment:    cmd.Environment,
 		},
 		Context: commands.Ctx,
 	}
@@ -116,4 +123,8 @@ func init() {
 	AddMySQLC.Flag("password", "MySQL password.").StringVar(&AddMySQL.Password)
 	AddMySQLC.Flag("use-perfschema", "Run QAN perf schema agent.").BoolVar(&AddMySQL.UsePerfschema)
 	AddMySQLC.Flag("use-slowlog", "Run QAN slow log agent.").BoolVar(&AddMySQL.UseSlowLog)
+
+	AddMySQLC.Flag("replication-set", "Replication set name.").StringVar(&AddMySQL.ReplicationSet)
+	AddMySQLC.Flag("cluster", "Cluster name.").StringVar(&AddMySQL.Cluster)
+	AddMySQLC.Flag("environment", "Environment name.").StringVar(&AddMySQL.Environment)
 }

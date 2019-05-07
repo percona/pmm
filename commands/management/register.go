@@ -64,9 +64,18 @@ type registerCommand struct {
 	MachineID     string
 	ContainerID   string
 	ContainerName string
+
+	CustomLabels string
+	Region       string
+	Az           string
+	NodeModel    string
 }
 
 func (cmd *registerCommand) Run() (commands.Result, error) {
+	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
+	if err != nil {
+		return nil, err
+	}
 	params := &node.RegisterParams{
 		Body: node.RegisterBody{
 			Address:       cmd.Address,
@@ -76,6 +85,11 @@ func (cmd *registerCommand) Run() (commands.Result, error) {
 			MachineID:     cmd.MachineID,
 			ContainerID:   cmd.ContainerID,
 			ContainerName: cmd.ContainerName,
+
+			CustomLabels: customLabels,
+			Region:       cmd.Region,
+			Az:           cmd.Az,
+			NodeModel:    cmd.NodeModel,
 		},
 		Context: commands.Ctx,
 	}
@@ -119,4 +133,9 @@ func init() {
 	RegisterC.Flag("machine-id", "Node machine-id. Default is autodetected.").Default(nodeinfo.MachineID).StringVar(&Register.MachineID)
 	RegisterC.Flag("container-id", "Container ID.").StringVar(&Register.ContainerID)
 	RegisterC.Flag("container-name", "Container name.").StringVar(&Register.ContainerName)
+
+	RegisterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&Register.CustomLabels)
+	RegisterC.Flag("region", "Node region.").StringVar(&Register.Region)
+	RegisterC.Flag("az", "Node availability zone.").StringVar(&Register.Az)
+	RegisterC.Flag("node-model", "Node model.").StringVar(&Register.NodeModel)
 }

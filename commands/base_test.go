@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package inventory
+package commands
 
 import (
 	"fmt"
@@ -39,7 +39,7 @@ func TestParseCustomLabel(t *testing.T) {
 		{"empty value", "", map[string]string{}, nil},
 	} {
 		t.Run(v.name, func(tt *testing.T) {
-			customLabels, err := parseCustomLabels(v.input)
+			customLabels, err := ParseCustomLabels(v.input)
 			assert.Equal(t, v.expected, customLabels)
 			assert.Equal(t, v.expErr, err)
 		})

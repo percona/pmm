@@ -56,7 +56,7 @@ type addAgentMongodbExporterCommand struct {
 }
 
 func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
-	customLabels, err := parseCustomLabels(cmd.CustomLabels)
+	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
 	}

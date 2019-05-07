@@ -31,6 +31,8 @@ Node ID      : {{ .Service.NodeID }}
 Address      : {{ .Service.Address }}
 Port         : {{ .Service.Port }}
 Custom labels: {{ .Service.CustomLabels }}
+
+Environment    : {{ .Service.Environment }}
 `)
 
 type addServicePostgreSQLResult struct {
@@ -49,10 +51,11 @@ type addServicePostgreSQLCommand struct {
 	Address      string
 	Port         int64
 	CustomLabels string
+	Environment  string
 }
 
 func (cmd *addServicePostgreSQLCommand) Run() (commands.Result, error) {
-	customLabels, err := parseCustomLabels(cmd.CustomLabels)
+	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
 	}
@@ -63,6 +66,7 @@ func (cmd *addServicePostgreSQLCommand) Run() (commands.Result, error) {
 			Address:      cmd.Address,
 			Port:         cmd.Port,
 			CustomLabels: customLabels,
+			Environment:  cmd.Environment,
 		},
 		Context: commands.Ctx,
 	}
@@ -89,4 +93,5 @@ func init() {
 	AddServicePostgreSQLC.Arg("port", "Port.").Int64Var(&AddServicePostgreSQL.Port)
 
 	AddServicePostgreSQLC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddServicePostgreSQL.CustomLabels)
+	AddServicePostgreSQLC.Flag("environment", "Environment name.").StringVar(&AddServicePostgreSQL.Environment)
 }

@@ -31,6 +31,10 @@ Node ID      : {{ .Service.NodeID }}
 Address      : {{ .Service.Address }}
 Port         : {{ .Service.Port }}
 Custom labels: {{ .Service.CustomLabels }}
+
+Replication set: {{ .Service.ReplicationSet }}
+Cluster name   : {{ .Service.Cluster }}
+Environment    : {{ .Service.Environment }}
 `)
 
 type addServiceMongoDBResult struct {
@@ -49,10 +53,14 @@ type addServiceMongoDBCommand struct {
 	Address      string
 	Port         int64
 	CustomLabels string
+
+	ReplicationSet string
+	Cluster        string
+	Environment    string
 }
 
 func (cmd *addServiceMongoDBCommand) Run() (commands.Result, error) {
-	customLabels, err := parseCustomLabels(cmd.CustomLabels)
+	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
 	}
@@ -63,6 +71,10 @@ func (cmd *addServiceMongoDBCommand) Run() (commands.Result, error) {
 			Address:      cmd.Address,
 			Port:         cmd.Port,
 			CustomLabels: customLabels,
+
+			ReplicationSet: cmd.ReplicationSet,
+			Cluster:        cmd.Cluster,
+			Environment:    cmd.Environment,
 		},
 		Context: commands.Ctx,
 	}
@@ -89,4 +101,8 @@ func init() {
 	AddServiceMongoDBC.Arg("port", "Port.").Int64Var(&AddServiceMongoDB.Port)
 
 	AddServiceMongoDBC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddServiceMongoDB.CustomLabels)
+
+	AddServiceMongoDBC.Flag("replication-set", "Replication set name.").StringVar(&AddServiceMongoDB.ReplicationSet)
+	AddServiceMongoDBC.Flag("cluster", "Cluster name.").StringVar(&AddServiceMongoDB.Cluster)
+	AddServiceMongoDBC.Flag("environment", "Environment name.").StringVar(&AddServiceMongoDB.Environment)
 }

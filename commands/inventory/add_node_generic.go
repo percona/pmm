@@ -32,6 +32,10 @@ Machine ID    : {{ .Node.MachineID }}
 Distro        : {{ .Node.Distro }}
 Address       : {{ .Node.Address }}
 Custom labels : {{ .Node.CustomLabels }}
+
+Region    : {{ .Node.Region }}
+Az        : {{ .Node.Az }}
+Node model: {{ .Node.NodeModel }}
 `)
 
 type addNodeGenericResult struct {
@@ -50,10 +54,13 @@ type addNodeGenericCommand struct {
 	Distro       string
 	Address      string
 	CustomLabels string
+	Region       string
+	Az           string
+	NodeModel    string
 }
 
 func (cmd *addNodeGenericCommand) Run() (commands.Result, error) {
-	customLabels, err := parseCustomLabels(cmd.CustomLabels)
+	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +71,10 @@ func (cmd *addNodeGenericCommand) Run() (commands.Result, error) {
 			Distro:       cmd.Distro,
 			Address:      cmd.Address,
 			CustomLabels: customLabels,
+
+			Region:    cmd.Region,
+			Az:        cmd.Az,
+			NodeModel: cmd.NodeModel,
 		},
 		Context: commands.Ctx,
 	}
@@ -90,4 +101,8 @@ func init() {
 	AddNodeGenericC.Flag("distro", "Linux distribution (if any).").StringVar(&AddNodeGeneric.Distro)
 	AddNodeGenericC.Flag("address", "Address.").StringVar(&AddNodeGeneric.Address)
 	AddNodeGenericC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddNodeGeneric.CustomLabels)
+
+	AddNodeGenericC.Flag("region", "Node region.").StringVar(&AddNodeGeneric.Region)
+	AddNodeGenericC.Flag("az", "Node availability zone.").StringVar(&AddNodeGeneric.Az)
+	AddNodeGenericC.Flag("node-model", "Node model.").StringVar(&AddNodeGeneric.NodeModel)
 }

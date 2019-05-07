@@ -55,7 +55,7 @@ type addAgentQANMongoDBProfilerAgentCommand struct {
 }
 
 func (cmd *addAgentQANMongoDBProfilerAgentCommand) Run() (commands.Result, error) {
-	customLabels, err := parseCustomLabels(cmd.CustomLabels)
+	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
 	}

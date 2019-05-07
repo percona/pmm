@@ -50,6 +50,7 @@ type addPostgreSQLCommand struct {
 	ServiceName string
 	Username    string
 	Password    string
+	Environment string
 }
 
 func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
@@ -78,6 +79,8 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 			PostgresExporter: true,
 			Username:         cmd.Username,
 			Password:         cmd.Password,
+
+			Environment: cmd.Environment,
 		},
 		Context: commands.Ctx,
 	}
@@ -107,4 +110,6 @@ func init() {
 
 	AddPostgreSQLC.Flag("username", "PostgreSQL username.").StringVar(&AddPostgreSQL.Username)
 	AddPostgreSQLC.Flag("password", "PostgreSQL password.").StringVar(&AddPostgreSQL.Password)
+
+	AddPostgreSQLC.Flag("environment", "Environment name.").StringVar(&AddPostgreSQL.Environment)
 }

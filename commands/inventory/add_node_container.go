@@ -32,6 +32,10 @@ Machine ID    : {{ .Node.MachineID }}
 Container ID  : {{ .Node.ContainerID }}
 Container name: {{ .Node.ContainerName }}
 Custom labels : {{ .Node.CustomLabels }}
+
+Region    : {{ .Node.Region }}
+Az        : {{ .Node.Az }}
+Node model: {{ .Node.NodeModel }}
 `)
 
 type addNodeContainerResult struct {
@@ -51,10 +55,13 @@ type addNodeContainerCommand struct {
 	ContainerName string
 	Address       string
 	CustomLabels  string
+	Region        string
+	Az            string
+	NodeModel     string
 }
 
 func (cmd *addNodeContainerCommand) Run() (commands.Result, error) {
-	customLabels, err := parseCustomLabels(cmd.CustomLabels)
+	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +73,10 @@ func (cmd *addNodeContainerCommand) Run() (commands.Result, error) {
 			ContainerName: cmd.ContainerName,
 			Address:       cmd.Address,
 			CustomLabels:  customLabels,
+
+			Region:    cmd.Region,
+			Az:        cmd.Az,
+			NodeModel: cmd.NodeModel,
 		},
 		Context: commands.Ctx,
 	}
@@ -94,4 +105,8 @@ func init() {
 	AddNodeContainerC.Flag("container-name", "Container name.").StringVar(&AddNodeContainer.ContainerName)
 	AddNodeContainerC.Flag("address", "Address.").StringVar(&AddNodeContainer.Address)
 	AddNodeContainerC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddNodeContainer.CustomLabels)
+
+	AddNodeContainerC.Flag("region", "Node region.").StringVar(&AddNodeContainer.Region)
+	AddNodeContainerC.Flag("az", "Node availability zone.").StringVar(&AddNodeContainer.Az)
+	AddNodeContainerC.Flag("node-model", "Node model.").StringVar(&AddNodeContainer.NodeModel)
 }
