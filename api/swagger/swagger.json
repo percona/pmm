@@ -12,10 +12,10 @@
   "swagger": "2.0",
   "info": {
     "title": "PMM Server API",
-    "version": "version 1.alpha"
+    "version": "beta"
   },
   "paths": {
-    "/v1/inventory/Agents/AddExternalExporter": {
+    "/v0/inventory/Agents/AddExternalExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -97,7 +97,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddMongoDBExporter": {
+    "/v0/inventory/Agents/AddMongoDBExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -226,7 +226,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddMySQLdExporter": {
+    "/v0/inventory/Agents/AddMySQLdExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -355,7 +355,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddNodeExporter": {
+    "/v0/inventory/Agents/AddNodeExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -460,7 +460,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddPMMAgent": {
+    "/v0/inventory/Agents/AddPMMAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -547,7 +547,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddPostgresExporter": {
+    "/v0/inventory/Agents/AddPostgresExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -676,7 +676,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddQANMongoDBProfilerAgent": {
+    "/v0/inventory/Agents/AddQANMongoDBProfilerAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -800,7 +800,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddQANMySQLPerfSchemaAgent": {
+    "/v0/inventory/Agents/AddQANMySQLPerfSchemaAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -924,7 +924,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddQANMySQLSlowlogAgent": {
+    "/v0/inventory/Agents/AddQANMySQLSlowlogAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -1048,7 +1048,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/AddRDSExporter": {
+    "/v0/inventory/Agents/AddRDSExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -1162,7 +1162,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeExternalExporter": {
+    "/v0/inventory/Agents/ChangeExternalExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -1231,7 +1231,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeMongoDBExporter": {
+    "/v0/inventory/Agents/ChangeMongoDBExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -1360,7 +1360,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeMySQLdExporter": {
+    "/v0/inventory/Agents/ChangeMySQLdExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -1489,7 +1489,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeNodeExporter": {
+    "/v0/inventory/Agents/ChangeNodeExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -1606,7 +1606,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangePMMAgent": {
+    "/v0/inventory/Agents/ChangePMMAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -1680,7 +1680,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangePostgresExporter": {
+    "/v0/inventory/Agents/ChangePostgresExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -1809,7 +1809,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeQANMongoDBProfilerAgent": {
+    "/v0/inventory/Agents/ChangeQANMongoDBProfilerAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -1933,7 +1933,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeQANMySQLPerfSchemaAgent": {
+    "/v0/inventory/Agents/ChangeQANMySQLPerfSchemaAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -2057,7 +2057,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeQANMySQLSlowlogAgent": {
+    "/v0/inventory/Agents/ChangeQANMySQLSlowlogAgent": {
       "post": {
         "tags": [
           "Agents"
@@ -2181,7 +2181,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/ChangeRDSExporter": {
+    "/v0/inventory/Agents/ChangeRDSExporter": {
       "post": {
         "tags": [
           "Agents"
@@ -2275,7 +2275,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/Get": {
+    "/v0/inventory/Agents/Get": {
       "post": {
         "tags": [
           "Agents"
@@ -2787,7 +2787,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/List": {
+    "/v0/inventory/Agents/List": {
       "post": {
         "tags": [
           "Agents"
@@ -3337,7 +3337,7 @@
         }
       }
     },
-    "/v1/inventory/Agents/Remove": {
+    "/v0/inventory/Agents/Remove": {
       "post": {
         "tags": [
           "Agents"
@@ -3388,7 +3388,7 @@
         }
       }
     },
-    "/v1/inventory/Nodes/AddContainer": {
+    "/v0/inventory/Nodes/AddContainer": {
       "post": {
         "tags": [
           "Nodes"
@@ -3526,7 +3526,7 @@
         }
       }
     },
-    "/v1/inventory/Nodes/AddGeneric": {
+    "/v0/inventory/Nodes/AddGeneric": {
       "post": {
         "tags": [
           "Nodes"
@@ -3656,7 +3656,7 @@
         }
       }
     },
-    "/v1/inventory/Nodes/AddRemote": {
+    "/v0/inventory/Nodes/AddRemote": {
       "post": {
         "tags": [
           "Nodes"
@@ -3738,7 +3738,7 @@
         }
       }
     },
-    "/v1/inventory/Nodes/AddRemoteAmazonRDS": {
+    "/v0/inventory/Nodes/AddRemoteAmazonRDS": {
       "post": {
         "tags": [
           "Nodes"
@@ -3836,7 +3836,7 @@
         }
       }
     },
-    "/v1/inventory/Nodes/Get": {
+    "/v0/inventory/Nodes/Get": {
       "post": {
         "tags": [
           "Nodes"
@@ -4034,7 +4034,7 @@
         }
       }
     },
-    "/v1/inventory/Nodes/List": {
+    "/v0/inventory/Nodes/List": {
       "post": {
         "tags": [
           "Nodes"
@@ -4238,7 +4238,7 @@
         }
       }
     },
-    "/v1/inventory/Nodes/Remove": {
+    "/v0/inventory/Nodes/Remove": {
       "post": {
         "tags": [
           "Nodes"
@@ -4290,7 +4290,7 @@
         }
       }
     },
-    "/v1/inventory/Services/AddAmazonRDSMySQL": {
+    "/v0/inventory/Services/AddAmazonRDSMySQL": {
       "post": {
         "tags": [
           "Services"
@@ -4406,7 +4406,7 @@
         }
       }
     },
-    "/v1/inventory/Services/AddMongoDB": {
+    "/v0/inventory/Services/AddMongoDB": {
       "post": {
         "tags": [
           "Services"
@@ -4538,7 +4538,7 @@
         }
       }
     },
-    "/v1/inventory/Services/AddMySQL": {
+    "/v0/inventory/Services/AddMySQL": {
       "post": {
         "tags": [
           "Services"
@@ -4670,7 +4670,7 @@
         }
       }
     },
-    "/v1/inventory/Services/AddPostgreSQL": {
+    "/v0/inventory/Services/AddPostgreSQL": {
       "post": {
         "tags": [
           "Services"
@@ -4786,7 +4786,7 @@
         }
       }
     },
-    "/v1/inventory/Services/Get": {
+    "/v0/inventory/Services/Get": {
       "post": {
         "tags": [
           "Services"
@@ -5008,7 +5008,7 @@
         }
       }
     },
-    "/v1/inventory/Services/List": {
+    "/v0/inventory/Services/List": {
       "post": {
         "tags": [
           "Services"
@@ -5242,7 +5242,7 @@
         }
       }
     },
-    "/v1/inventory/Services/Remove": {
+    "/v0/inventory/Services/Remove": {
       "post": {
         "tags": [
           "Services"
@@ -5294,148 +5294,7 @@
         }
       }
     },
-    "/v1/management/Actions/CancelAction": {
-      "post": {
-        "tags": [
-          "Actions"
-        ],
-        "summary": "CancelAction stops an Action.",
-        "operationId": "CancelAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "CancelActionRequest describes request to cancel an action.",
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Action name.",
-                  "type": "string"
-                },
-                "pmm_agent_id": {
-                  "description": "PMM agent instance identifier.",
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "description": "CancelActionResponse describes response when an action was canceled.",
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Action name.",
-                  "type": "string"
-                },
-                "pmm_agent_id": {
-                  "description": "PMM agent instance identifier.",
-                  "type": "string"
-                },
-                "success": {
-                  "type": "boolean",
-                  "format": "boolean",
-                  "title": "Is action successfully canceled"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/Actions/RunAction": {
-      "post": {
-        "tags": [
-          "Actions"
-        ],
-        "summary": "RunAction runs an Action.",
-        "operationId": "RunAction",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "description": "RunActionRequest describes request to run an action.",
-              "type": "object",
-              "properties": {
-                "action_name": {
-                  "description": "Action name to run.",
-                  "type": "string"
-                },
-                "pmm_agent_id": {
-                  "description": "PMM agent instance identifier.",
-                  "type": "string"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "description": "RunActionResponse describes response while running an action.",
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Action ID returned by pmm-agent.",
-                  "type": "string"
-                },
-                "pmm_agent_id": {
-                  "description": "PMM agent instance identifier.",
-                  "type": "string"
-                }
-              }
-            }
-          },
-          "default": {
-            "description": "An error response.",
-            "schema": {
-              "description": "ErrorResponse is a message returned on HTTP error.",
-              "type": "object",
-              "properties": {
-                "code": {
-                  "type": "integer",
-                  "format": "int32"
-                },
-                "error": {
-                  "type": "string"
-                },
-                "message": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/v1/management/MongoDB/Add": {
+    "/v0/management/MongoDB/Add": {
       "post": {
         "tags": [
           "MongoDB"
@@ -5696,7 +5555,7 @@
         }
       }
     },
-    "/v1/management/MySQL/Add": {
+    "/v0/management/MySQL/Add": {
       "post": {
         "tags": [
           "MySQL"
@@ -6021,7 +5880,7 @@
         }
       }
     },
-    "/v1/management/Node/Register": {
+    "/v0/management/Node/Register": {
       "post": {
         "tags": [
           "Node"
@@ -6246,7 +6105,7 @@
         }
       }
     },
-    "/v1/management/PostgreSQL/Add": {
+    "/v0/management/PostgreSQL/Add": {
       "post": {
         "tags": [
           "PostgreSQL"
@@ -6435,7 +6294,7 @@
         }
       }
     },
-    "/v1/management/Service/Remove": {
+    "/v0/management/Service/Remove": {
       "post": {
         "tags": [
           "Service"
@@ -6503,7 +6362,7 @@
         }
       }
     },
-    "/v1/qan/Filters/Get": {
+    "/v0/qan/Filters/Get": {
       "post": {
         "tags": [
           "Filters"
@@ -6569,7 +6428,7 @@
         }
       }
     },
-    "/v1/qan/GetMetricsNames": {
+    "/v0/qan/GetMetricsNames": {
       "post": {
         "tags": [
           "MetricsNames"
@@ -6625,7 +6484,7 @@
         }
       }
     },
-    "/v1/qan/GetReport": {
+    "/v0/qan/GetReport": {
       "post": {
         "tags": [
           "Profile"
@@ -6821,7 +6680,7 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetLabels": {
+    "/v0/qan/ObjectDetails/GetLabels": {
       "post": {
         "tags": [
           "ObjectDetails"
@@ -6904,7 +6763,7 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetMetrics": {
+    "/v0/qan/ObjectDetails/GetMetrics": {
       "post": {
         "tags": [
           "ObjectDetails"
@@ -7037,7 +6896,7 @@
         }
       }
     },
-    "/v1/qan/ObjectDetails/GetQueryExample": {
+    "/v0/qan/ObjectDetails/GetQueryExample": {
       "post": {
         "tags": [
           "ObjectDetails"

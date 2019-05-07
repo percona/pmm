@@ -57,7 +57,7 @@ type RemoveNodeOK struct {
 }
 
 func (o *RemoveNodeOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Remove][%d] removeNodeOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Nodes/Remove][%d] removeNodeOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveNodeOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -93,7 +93,7 @@ func (o *RemoveNodeDefault) Code() int {
 }
 
 func (o *RemoveNodeDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Nodes/Remove][%d] RemoveNode default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Nodes/Remove][%d] RemoveNode default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveNodeDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

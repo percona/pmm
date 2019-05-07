@@ -36,7 +36,7 @@ func (a *Client) GetLabels(params *GetLabelsParams) (*GetLabelsOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetLabels",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/ObjectDetails/GetLabels",
+		PathPattern:        "/v0/qan/ObjectDetails/GetLabels",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -64,7 +64,7 @@ func (a *Client) GetMetrics(params *GetMetricsParams) (*GetMetricsOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetMetrics",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/ObjectDetails/GetMetrics",
+		PathPattern:        "/v0/qan/ObjectDetails/GetMetrics",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -92,7 +92,7 @@ func (a *Client) GetQueryExample(params *GetQueryExampleParams) (*GetQueryExampl
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "GetQueryExample",
 		Method:             "POST",
-		PathPattern:        "/v1/qan/ObjectDetails/GetQueryExample",
+		PathPattern:        "/v0/qan/ObjectDetails/GetQueryExample",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

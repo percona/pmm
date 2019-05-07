@@ -36,7 +36,7 @@ func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, e
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RemoveService",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Service/Remove",
+		PathPattern:        "/v0/management/Service/Remove",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
