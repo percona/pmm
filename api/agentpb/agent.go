@@ -48,6 +48,9 @@ func (m *StateChangedRequest) AgentMessageRequestPayload() isAgentMessage_Payloa
 func (m *QANCollectRequest) AgentMessageRequestPayload() isAgentMessage_Payload {
 	return &AgentMessage_QanCollect{QanCollect: m}
 }
+func (m *ActionResult) AgentMessageRequestPayload() isAgentMessage_Payload {
+	return &AgentMessage_ActionResult{ActionResult: m}
+}
 
 // AgentMessage response payloads
 func (m *Pong) AgentMessageResponsePayload() isAgentMessage_Payload {
@@ -61,9 +64,6 @@ func (m *ActionRunResponse) AgentMessageResponsePayload() isAgentMessage_Payload
 }
 func (m *ActionCancelResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_ActionCancelResponse{ActionCancelResponse: m}
-}
-func (m *ActionResult) AgentMessageResponsePayload() isAgentMessage_Payload {
-	return &AgentMessage_ActionResult{ActionResult: m}
 }
 
 // ServerMessage response payloads
@@ -111,13 +111,13 @@ var (
 	_ AgentRequestPayload = (*Ping)(nil)
 	_ AgentRequestPayload = (*StateChangedRequest)(nil)
 	_ AgentRequestPayload = (*QANCollectRequest)(nil)
+	_ AgentRequestPayload = (*ActionResult)(nil)
 
 	// AgentMessage response payloads
 	_ AgentResponsePayload = (*Pong)(nil)
 	_ AgentResponsePayload = (*SetStateResponse)(nil)
 	_ AgentResponsePayload = (*ActionRunResponse)(nil)
 	_ AgentResponsePayload = (*ActionRunResponse)(nil)
-	_ AgentResponsePayload = (*ActionResult)(nil)
 
 	// ServerMessage response payloads
 	_ ServerResponsePayload = (*Pong)(nil)
