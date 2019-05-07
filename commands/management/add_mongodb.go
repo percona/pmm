@@ -55,9 +55,15 @@ type addMongoDBCommand struct {
 	ReplicationSet string
 	Cluster        string
 	Environment    string
+	CustomLabels   string
 }
 
 func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
+	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
+	if err != nil {
+		return nil, err
+	}
+
 	status, err := agentlocal.GetStatus()
 	if err != nil {
 		return nil, err
@@ -89,6 +95,7 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 			ReplicationSet: cmd.ReplicationSet,
 			Cluster:        cmd.Cluster,
 			Environment:    cmd.Environment,
+			CustomLabels:   customLabels,
 		},
 		Context: commands.Ctx,
 	}
@@ -124,4 +131,5 @@ func init() {
 	AddMongoDBC.Flag("replication-set", "Replication set name.").StringVar(&AddMongoDB.ReplicationSet)
 	AddMongoDBC.Flag("cluster", "Cluster name.").StringVar(&AddMongoDB.Cluster)
 	AddMongoDBC.Flag("environment", "Environment name.").StringVar(&AddMongoDB.Environment)
+	AddMongoDBC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddMongoDB.CustomLabels)
 }

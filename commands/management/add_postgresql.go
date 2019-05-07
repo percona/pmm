@@ -46,14 +46,20 @@ func (res *addPostgreSQLResult) String() string {
 }
 
 type addPostgreSQLCommand struct {
-	AddressPort string
-	ServiceName string
-	Username    string
-	Password    string
-	Environment string
+	AddressPort  string
+	ServiceName  string
+	Username     string
+	Password     string
+	Environment  string
+	CustomLabels string
 }
 
 func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
+	customLabels, err := commands.ParseCustomLabels(cmd.CustomLabels)
+	if err != nil {
+		return nil, err
+	}
+
 	status, err := agentlocal.GetStatus()
 	if err != nil {
 		return nil, err
@@ -80,7 +86,8 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 			Username:         cmd.Username,
 			Password:         cmd.Password,
 
-			Environment: cmd.Environment,
+			Environment:  cmd.Environment,
+			CustomLabels: customLabels,
 		},
 		Context: commands.Ctx,
 	}
@@ -112,4 +119,5 @@ func init() {
 	AddPostgreSQLC.Flag("password", "PostgreSQL password.").StringVar(&AddPostgreSQL.Password)
 
 	AddPostgreSQLC.Flag("environment", "Environment name.").StringVar(&AddPostgreSQL.Environment)
+	AddPostgreSQLC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddPostgreSQL.CustomLabels)
 }
