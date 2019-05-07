@@ -36,7 +36,7 @@ func (a *Client) AddMongoDB(params *AddMongoDBParams) (*AddMongoDBOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "AddMongoDB",
 		Method:             "POST",
-		PathPattern:        "/v1/management/MongoDB/Add",
+		PathPattern:        "/v0/management/MongoDB/Add",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},

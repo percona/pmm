@@ -60,7 +60,7 @@ type AddMongoDBOK struct {
 }
 
 func (o *AddMongoDBOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] addMongoDbOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/management/MongoDB/Add][%d] addMongoDbOk  %+v", 200, o.Payload)
 }
 
 func (o *AddMongoDBOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,7 +98,7 @@ func (o *AddMongoDBDefault) Code() int {
 }
 
 func (o *AddMongoDBDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/MongoDB/Add][%d] AddMongoDB default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/management/MongoDB/Add][%d] AddMongoDB default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *AddMongoDBDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

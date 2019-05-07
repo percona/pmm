@@ -60,7 +60,7 @@ type RemoveServiceOK struct {
 }
 
 func (o *RemoveServiceOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Service/Remove][%d] removeServiceOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/management/Service/Remove][%d] removeServiceOk  %+v", 200, o.Payload)
 }
 
 func (o *RemoveServiceOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -96,7 +96,7 @@ func (o *RemoveServiceDefault) Code() int {
 }
 
 func (o *RemoveServiceDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Service/Remove][%d] RemoveService default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/management/Service/Remove][%d] RemoveService default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RemoveServiceDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

@@ -60,7 +60,7 @@ type ChangeMySqldExporterOK struct {
 }
 
 func (o *ChangeMySqldExporterOK) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] changeMySqldExporterOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeMySQLdExporter][%d] changeMySqldExporterOk  %+v", 200, o.Payload)
 }
 
 func (o *ChangeMySqldExporterOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -98,7 +98,7 @@ func (o *ChangeMySqldExporterDefault) Code() int {
 }
 
 func (o *ChangeMySqldExporterDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/inventory/Agents/ChangeMySQLdExporter][%d] ChangeMySQLdExporter default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/inventory/Agents/ChangeMySQLdExporter][%d] ChangeMySQLdExporter default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *ChangeMySqldExporterDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
