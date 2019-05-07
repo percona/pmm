@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package management;
+
+// This option is used to set the default error response for all Swagger APIs generated from this file.
+// See also header.json.
+// It has to be copy&pasted into each file.
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+  responses: {
+    key: "default"
+    value: {
+      description: "An error response."
+      schema: {
+        json_schema: {
+          ref: "#/definitions/managementpbErrorResponse"
+        }
+      }
+    }
+  }
+};
+option go_package = "managementpb";
+
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
+// RunActionRequest describes request to run an action.
+message RunActionRequest {
+  // PMM agent instance identifier.
+  string pmm_agent_id = 1;
+  // Action name to run.
+  string action_name = 2;
+}
+
+// RunActionResponse describes response while running an action.
+message RunActionResponse {
+  // PMM agent instance identifier.
+  string pmm_agent_id = 1;
+  // Action ID returned by pmm-agent.
+  string action_id = 2;
+}
+
+// CancelActionRequest describes request to cancel an action.
+message CancelActionRequest {
+  // PMM agent instance identifier.
+  string pmm_agent_id = 1;
+  // Action name.
+  string action_id = 2;
+}
+
+// CancelActionResponse describes response when an action was canceled.
+message CancelActionResponse {
+  // PMM agent instance identifier.
+  string pmm_agent_id = 1;
+  // Action name.
+  string action_id = 2;
+  // Is action successfully canceled
+  bool success = 3;
+}
+
+// Actions service provides API for PMM Actions.
+service Actions {
+  // RunAction runs an Action.
+  rpc RunAction(RunActionRequest) returns (RunActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Actions/RunAction"
+      body: "*"
+    };
+  }
+  // CancelAction stops an Action.
+  rpc CancelAction(CancelActionRequest) returns (CancelActionResponse) {
+    option (google.api.http) = {
+      post: "/v1/management/Actions/CancelAction"
+      body: "*"
+    };
+  }
+}
