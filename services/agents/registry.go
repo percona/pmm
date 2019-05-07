@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package agents contains business logic of working with pmm-agent.
 package agents
 
 import (
@@ -32,11 +33,17 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services/agents/channel"
 	"github.com/percona/pmm-managed/utils/logger"
 )
 
+const (
+	prometheusNamespace = "pmm_managed"
+	prometheusSubsystem = "agents"
+)
+
 type agentInfo struct {
-	channel *Channel
+	channel *channel.Channel
 	id      string
 	kick    chan struct{}
 }
@@ -50,7 +57,7 @@ type Registry struct {
 	rw     sync.RWMutex
 	agents map[string]*agentInfo // id -> info
 
-	sharedMetrics *sharedChannelMetrics
+	sharedMetrics *channel.SharedChannelMetrics
 	mConnects     prom.Counter
 	mDisconnects  *prom.CounterVec
 	mRoundTrip    prom.Summary
@@ -66,7 +73,7 @@ func NewRegistry(db *reform.DB, prometheus prometheus, qanClient qanClient) *Reg
 
 		agents: make(map[string]*agentInfo),
 
-		sharedMetrics: newSharedMetrics(),
+		sharedMetrics: channel.NewSharedMetrics(),
 		mConnects: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
@@ -144,49 +151,43 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 			err = status.Errorf(codes.Aborted, "Another pmm-agent with ID %q connected to the server.", agent.id)
 			return err
 
-		case msg := <-agent.channel.Requests():
-			if msg == nil {
+		case req := <-agent.channel.Requests():
+			if req == nil {
 				disconnectReason = "done"
 				return agent.channel.Wait()
 			}
 
-			switch req := msg.Payload.(type) {
-			case *agentpb.AgentMessage_Ping:
-				agent.channel.SendResponse(&agentpb.ServerMessage{
-					Id: msg.Id,
-					Payload: &agentpb.ServerMessage_Pong{
-						Pong: &agentpb.Pong{
-							CurrentTime: ptypes.TimestampNow(),
-						},
+			switch p := req.Payload.(type) {
+			case *agentpb.Ping:
+				agent.channel.SendResponse(&channel.ServerResponse{
+					ID: req.ID,
+					Payload: &agentpb.Pong{
+						CurrentTime: ptypes.TimestampNow(),
 					},
 				})
 
-			case *agentpb.AgentMessage_StateChanged:
-				if err := r.stateChanged(ctx, req.StateChanged); err != nil {
+			case *agentpb.StateChangedRequest:
+				if err := r.stateChanged(ctx, p); err != nil {
 					l.Errorf("%+v", err)
 				}
 
-				agent.channel.SendResponse(&agentpb.ServerMessage{
-					Id: msg.Id,
-					Payload: &agentpb.ServerMessage_StateChanged{
-						StateChanged: new(agentpb.StateChangedResponse),
-					},
+				agent.channel.SendResponse(&channel.ServerResponse{
+					ID:      req.ID,
+					Payload: new(agentpb.StateChangedResponse),
 				})
 
-			case *agentpb.AgentMessage_QanCollect:
-				if err := r.qanClient.Collect(ctx, req.QanCollect.Message); err != nil {
+			case *agentpb.QANCollectRequest:
+				if err := r.qanClient.Collect(ctx, p.Message); err != nil {
 					l.Errorf("%+v", err)
 				}
 
-				agent.channel.SendResponse(&agentpb.ServerMessage{
-					Id: msg.Id,
-					Payload: &agentpb.ServerMessage_QanCollect{
-						QanCollect: new(agentpb.QANCollectResponse),
-					},
+				agent.channel.SendResponse(&channel.ServerResponse{
+					ID:      req.ID,
+					Payload: new(agentpb.QANCollectResponse),
 				})
 
-			default:
-				l.Warnf("Unexpected request payload: %s.", msg)
+			case nil:
+				l.Warnf("Unexpected request: %v.", req)
 				disconnectReason = "unimplemented"
 				return status.Error(codes.Unimplemented, "Unexpected request payload.")
 			}
@@ -222,7 +223,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*agentInfo, err
 	}
 
 	agent := &agentInfo{
-		channel: NewChannel(stream, r.sharedMetrics),
+		channel: channel.New(stream, r.sharedMetrics),
 		id:      agentMD.ID,
 		kick:    make(chan struct{}),
 	}
@@ -282,14 +283,12 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 func (r *Registry) ping(ctx context.Context, agent *agentInfo) {
 	l := logger.Get(ctx)
 	start := time.Now()
-	res := agent.channel.SendRequest(&agentpb.ServerMessage_Ping{
-		Ping: new(agentpb.Ping),
-	})
-	if res == nil {
+	resp := agent.channel.SendRequest(new(agentpb.Ping))
+	if resp == nil {
 		return
 	}
 	roundtrip := time.Since(start)
-	agentTime, err := ptypes.Timestamp(res.(*agentpb.AgentMessage_Pong).Pong.CurrentTime)
+	agentTime, err := ptypes.Timestamp(resp.(*agentpb.Pong).CurrentTime)
 	if err != nil {
 		l.Errorf("Failed to decode Pong.current_time: %s.", err)
 		return
@@ -444,10 +443,8 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 		BuiltinAgents:  builtinAgents,
 	}
 	l.Infof("SendSetStateRequest: %+v.", state)
-	res := agent.channel.SendRequest(&agentpb.ServerMessage_SetState{
-		SetState: state,
-	})
-	l.Infof("SetState response: %+v.", res)
+	resp := agent.channel.SendRequest(state)
+	l.Infof("SetState response: %+v.", resp)
 }
 
 // Describe implements prometheus.Collector.

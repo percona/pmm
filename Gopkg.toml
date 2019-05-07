@@ -1,7 +1,7 @@
 # tools
 required = [
   "gopkg.in/reform.v1/reform",
-
+  "github.com/BurntSushi/go-sumtype",
   "github.com/vektra/mockery/cmd/mockery",
 
   # We do not vendor promtool. See https://jira.percona.com/browse/PMM-2182

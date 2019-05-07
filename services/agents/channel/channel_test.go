@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package agents
+package channel
 
 import (
 	"context"
@@ -65,7 +65,7 @@ func setup(t *testing.T, connect func(*Channel) error, expected ...error) (agent
 	)
 	agentpb.RegisterAgentServer(server, &testServer{
 		connectFunc: func(stream agentpb.Agent_ConnectServer) error {
-			channel = NewChannel(stream, newSharedMetrics())
+			channel = New(stream, NewSharedMetrics())
 			return connect(channel)
 		},
 	})
@@ -108,16 +108,14 @@ func TestAgentRequest(t *testing.T) {
 		channel = ch // store to check metrics below
 
 		for i := uint32(1); i <= count; i++ {
-			msg := <-ch.Requests()
-			require.NotNil(t, msg)
-			assert.Equal(t, i, msg.Id)
-			assert.NotNil(t, msg.GetQanCollect())
+			req := <-ch.Requests()
+			require.NotNil(t, req)
+			assert.Equal(t, i, req.ID)
+			assert.IsType(t, new(agentpb.QANCollectRequest), req.Payload)
 
-			ch.SendResponse(&agentpb.ServerMessage{
-				Id: i,
-				Payload: &agentpb.ServerMessage_QanCollect{
-					QanCollect: new(agentpb.QANCollectResponse),
-				},
+			ch.SendResponse(&ServerResponse{
+				ID:      i,
+				Payload: new(agentpb.QANCollectResponse),
 			})
 		}
 
@@ -130,10 +128,8 @@ func TestAgentRequest(t *testing.T) {
 
 	for i := uint32(1); i <= count; i++ {
 		err := stream.Send(&agentpb.AgentMessage{
-			Id: i,
-			Payload: &agentpb.AgentMessage_QanCollect{
-				QanCollect: new(agentpb.QANCollectRequest),
-			},
+			Id:      i,
+			Payload: new(agentpb.QANCollectRequest).AgentMessageRequestPayload(),
 		})
 		require.NoError(t, err)
 
@@ -157,12 +153,12 @@ func TestAgentRequest(t *testing.T) {
 		metrics = append(metrics, m)
 	}
 	expectedMetrics := strings.Split(strings.TrimSpace(`
-# HELP pmm_managed_agents_messages_received_total A total number of messages received from pmm-agents.
-# TYPE pmm_managed_agents_messages_received_total counter
-pmm_managed_agents_messages_received_total 50
-# HELP pmm_managed_agents_messages_sent_total A total number of messages sent to pmm-agents.
-# TYPE pmm_managed_agents_messages_sent_total counter
-pmm_managed_agents_messages_sent_total 50
+# HELP pmm_managed_channel_messages_received_total A total number of messages received from pmm-agents.
+# TYPE pmm_managed_channel_messages_received_total counter
+pmm_managed_channel_messages_received_total 50
+# HELP pmm_managed_channel_messages_sent_total A total number of messages sent to pmm-agents.
+# TYPE pmm_managed_channel_messages_sent_total counter
+pmm_managed_channel_messages_sent_total 50
 `), "\n")
 	assert.Equal(t, expectedMetrics, helpers.Format(metrics))
 
@@ -186,11 +182,9 @@ func TestServerRequest(t *testing.T) {
 
 	connect := func(ch *Channel) error { //nolint:unparam
 		for i := uint32(1); i <= count; i++ {
-			msg := ch.SendRequest(&agentpb.ServerMessage_Ping{
-				Ping: new(agentpb.Ping),
-			})
-			pong := msg.(*agentpb.AgentMessage_Pong)
-			ts, err := ptypes.Timestamp(pong.Pong.CurrentTime)
+			resp := ch.SendRequest(new(agentpb.Ping))
+			pong := resp.(*agentpb.Pong)
+			ts, err := ptypes.Timestamp(pong.CurrentTime)
 			assert.NoError(t, err)
 			assert.InDelta(t, time.Now().Unix(), ts.Unix(), 1)
 		}
@@ -210,11 +204,9 @@ func TestServerRequest(t *testing.T) {
 
 		err = stream.Send(&agentpb.AgentMessage{
 			Id: i,
-			Payload: &agentpb.AgentMessage_Pong{
-				Pong: &agentpb.Pong{
-					CurrentTime: ptypes.TimestampNow(),
-				},
-			},
+			Payload: (&agentpb.Pong{
+				CurrentTime: ptypes.TimestampNow(),
+			}).AgentMessageResponsePayload(),
 		})
 		assert.NoError(t, err)
 	}
@@ -226,10 +218,10 @@ func TestServerRequest(t *testing.T) {
 func TestServerExitsWithGRPCError(t *testing.T) {
 	errUnimplemented := status.Error(codes.Unimplemented, "Test error")
 	connect := func(ch *Channel) error { //nolint:unparam
-		msg := <-ch.Requests()
-		require.NotNil(t, msg)
-		assert.EqualValues(t, 1, msg.Id)
-		assert.NotNil(t, msg.GetQanCollect())
+		req := <-ch.Requests()
+		require.NotNil(t, req)
+		assert.EqualValues(t, 1, req.ID)
+		assert.IsType(t, new(agentpb.QANCollectRequest), req.Payload)
 
 		return errUnimplemented
 	}
@@ -238,10 +230,8 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	defer teardown(t)
 
 	err := stream.Send(&agentpb.AgentMessage{
-		Id: 1,
-		Payload: &agentpb.AgentMessage_QanCollect{
-			QanCollect: new(agentpb.QANCollectRequest),
-		},
+		Id:      1,
+		Payload: new(agentpb.QANCollectRequest).AgentMessageRequestPayload(),
 	})
 	assert.NoError(t, err)
 
@@ -251,10 +241,10 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 
 func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 	connect := func(ch *Channel) error { //nolint:unparam
-		msg := <-ch.Requests()
-		require.NotNil(t, msg)
-		assert.EqualValues(t, 1, msg.Id)
-		assert.NotNil(t, msg.GetQanCollect())
+		req := <-ch.Requests()
+		require.NotNil(t, req)
+		assert.EqualValues(t, 1, req.ID)
+		assert.IsType(t, new(agentpb.QANCollectRequest), req.Payload)
 
 		return io.EOF // any error without GRPCStatus() method
 	}
@@ -263,10 +253,8 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 	defer teardown(t)
 
 	err := stream.Send(&agentpb.AgentMessage{
-		Id: 1,
-		Payload: &agentpb.AgentMessage_QanCollect{
-			QanCollect: new(agentpb.QANCollectRequest),
-		},
+		Id:      1,
+		Payload: new(agentpb.QANCollectRequest).AgentMessageRequestPayload(),
 	})
 	assert.NoError(t, err)
 
@@ -276,10 +264,8 @@ func TestServerExitsWithUnknownErrorIntercepted(t *testing.T) {
 
 func TestAgentClosesStream(t *testing.T) {
 	connect := func(ch *Channel) error { //nolint:unparam
-		msg := ch.SendRequest(&agentpb.ServerMessage_Ping{
-			Ping: new(agentpb.Ping),
-		})
-		assert.Nil(t, msg)
+		resp := ch.SendRequest(new(agentpb.Ping))
+		assert.Nil(t, resp)
 
 		assert.Nil(t, <-ch.Requests())
 		return nil
@@ -298,10 +284,8 @@ func TestAgentClosesStream(t *testing.T) {
 
 func TestAgentClosesConnection(t *testing.T) {
 	connect := func(ch *Channel) error { //nolint:unparam
-		msg := ch.SendRequest(&agentpb.ServerMessage_Ping{
-			Ping: new(agentpb.Ping),
-		})
-		assert.Nil(t, msg)
+		resp := ch.SendRequest(new(agentpb.Ping))
+		assert.Nil(t, resp)
 
 		assert.Nil(t, <-ch.Requests())
 		return nil
@@ -321,16 +305,12 @@ func TestAgentClosesConnection(t *testing.T) {
 func TestUnexpectedResponseFromAgent(t *testing.T) {
 	connect := func(ch *Channel) error { //nolint:unparam
 		// after receiving unexpected response, channel is closed
-		msg := ch.SendRequest(&agentpb.ServerMessage_Ping{
-			Ping: new(agentpb.Ping),
-		})
-		assert.Nil(t, msg)
+		resp := ch.SendRequest(new(agentpb.Ping))
+		assert.Nil(t, resp)
 
 		// future requests are ignored
-		msg = ch.SendRequest(&agentpb.ServerMessage_Ping{
-			Ping: new(agentpb.Ping),
-		})
-		assert.Nil(t, msg)
+		resp = ch.SendRequest(new(agentpb.Ping))
+		assert.Nil(t, resp)
 
 		return nil
 	}
@@ -340,19 +320,15 @@ func TestUnexpectedResponseFromAgent(t *testing.T) {
 
 	// this message triggers "no subscriber for ID" error
 	err := stream.Send(&agentpb.AgentMessage{
-		Id: 111,
-		Payload: &agentpb.AgentMessage_Pong{
-			Pong: new(agentpb.Pong),
-		},
+		Id:      111,
+		Payload: new(agentpb.Pong).AgentMessageResponsePayload(),
 	})
 	assert.NoError(t, err)
 
 	// this message should not trigger new error
 	err = stream.Send(&agentpb.AgentMessage{
-		Id: 222,
-		Payload: &agentpb.AgentMessage_Pong{
-			Pong: new(agentpb.Pong),
-		},
+		Id:      222,
+		Payload: new(agentpb.Pong).AgentMessageResponsePayload(),
 	})
 	assert.NoError(t, err)
 

@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package agents contains business logic of working with pmm-agent.
-package agents
+// Package channel contains protocol details of two-way communication channel between pmm-managed and pmm-agent.
+package channel
 
 import (
 	"fmt"
@@ -32,36 +32,52 @@ const (
 	agentRequestsCap = 32
 )
 
+// AgentRequest represents an request from agent.
+// It is similar to agentpb.AgentMessage except it can contain only requests,
+// and the payload is already unwrapped (XXX instead of AgentMessage_XXX).
+type AgentRequest struct {
+	ID      uint32
+	Payload agentpb.AgentRequestPayload
+}
+
+// ServerResponse represents server's response.
+// It is similar to agentpb.ServerMessage except it can contain only responses,
+// and the payload is already unwrapped (XXX instead of ServerMessage_XXX).
+type ServerResponse struct {
+	ID      uint32
+	Payload agentpb.ServerResponsePayload
+}
+
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
 //
 // All exported methods are thread-safe.
 type Channel struct { //nolint:maligned
 	s       agentpb.Agent_ConnectServer
-	metrics *sharedChannelMetrics
+	metrics *SharedChannelMetrics
 
 	lastSentRequestID uint32
 
 	sendM sync.Mutex
 
 	m         sync.Mutex
-	responses map[uint32]chan agentpb.AgentMessagePayload
-	requests  chan *agentpb.AgentMessage
+	responses map[uint32]chan agentpb.AgentResponsePayload
+	requests  chan *AgentRequest
 
 	closeOnce sync.Once
 	closeWait chan struct{}
 	closeErr  error
 }
 
-// NewChannel creates new two-way communication channel with given stream.
+// New creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
-func NewChannel(stream agentpb.Agent_ConnectServer, m *sharedChannelMetrics) *Channel {
+func New(stream agentpb.Agent_ConnectServer, m *SharedChannelMetrics) *Channel {
 	s := &Channel{
 		s:       stream,
 		metrics: m,
 
-		responses: make(map[uint32]chan agentpb.AgentMessagePayload),
-		requests:  make(chan *agentpb.AgentMessage, agentRequestsCap),
+		responses: make(map[uint32]chan agentpb.AgentResponsePayload),
+		requests:  make(chan *AgentRequest, agentRequestsCap),
 
 		closeWait: make(chan struct{}),
 	}
@@ -96,25 +112,29 @@ func (c *Channel) Wait() error {
 }
 
 // Requests returns a channel for incoming requests. It must be read. It is closed on any error (see Wait).
-func (c *Channel) Requests() <-chan *agentpb.AgentMessage {
+func (c *Channel) Requests() <-chan *AgentRequest {
 	return c.requests
 }
 
 // SendResponse sends message to pmm-managed. It is no-op once channel is closed (see Wait).
-func (c *Channel) SendResponse(msg *agentpb.ServerMessage) {
+func (c *Channel) SendResponse(resp *ServerResponse) {
+	msg := &agentpb.ServerMessage{
+		Id:      resp.ID,
+		Payload: resp.Payload.ServerMessageResponsePayload(),
+	}
 	c.send(msg)
 }
 
 // SendRequest sends request to pmm-managed, blocks until response is available, and returns it.
 // Response will be nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendRequest(payload agentpb.ServerMessagePayload) agentpb.AgentMessagePayload {
+func (c *Channel) SendRequest(payload agentpb.ServerRequestPayload) agentpb.AgentResponsePayload {
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 
 	c.send(&agentpb.ServerMessage{
 		Id:      id,
-		Payload: payload,
+		Payload: payload.ServerMessageRequestPayload(),
 	})
 
 	return <-ch
@@ -155,24 +175,39 @@ func (c *Channel) runReceiver() {
 		logger.Get(c.s.Context()).Debugf("Received message: %s.", msg)
 		c.metrics.mRecv.Inc()
 
-		switch msg.Payload.(type) {
+		switch p := msg.Payload.(type) {
 		// requests
-		case *agentpb.AgentMessage_Ping, *agentpb.AgentMessage_StateChanged, *agentpb.AgentMessage_QanCollect:
-			c.requests <- msg
+		case *agentpb.AgentMessage_Ping:
+			c.requests <- &AgentRequest{
+				ID:      msg.Id,
+				Payload: p.Ping,
+			}
+		case *agentpb.AgentMessage_StateChanged:
+			c.requests <- &AgentRequest{
+				ID:      msg.Id,
+				Payload: p.StateChanged,
+			}
+		case *agentpb.AgentMessage_QanCollect:
+			c.requests <- &AgentRequest{
+				ID:      msg.Id,
+				Payload: p.QanCollect,
+			}
 
 		// responses
-		case *agentpb.AgentMessage_Pong, *agentpb.AgentMessage_SetState:
-			c.publish(msg.Id, msg.Payload)
+		case *agentpb.AgentMessage_Pong:
+			c.publish(msg.Id, p.Pong)
+		case *agentpb.AgentMessage_SetState:
+			c.publish(msg.Id, p.SetState)
 
-		default:
+		case nil:
 			c.close(errors.Errorf("failed to handle received message %s", msg))
 			return
 		}
 	}
 }
 
-func (c *Channel) subscribe(id uint32) chan agentpb.AgentMessagePayload {
-	ch := make(chan agentpb.AgentMessagePayload, 1)
+func (c *Channel) subscribe(id uint32) chan agentpb.AgentResponsePayload {
+	ch := make(chan agentpb.AgentResponsePayload, 1)
 
 	c.m.Lock()
 	if c.responses == nil { // Channel is closed, no more subscriptions
@@ -192,7 +227,7 @@ func (c *Channel) subscribe(id uint32) chan agentpb.AgentMessagePayload {
 	return ch
 }
 
-func (c *Channel) publish(id uint32, payload agentpb.AgentMessagePayload) {
+func (c *Channel) publish(id uint32, resp agentpb.AgentResponsePayload) {
 	c.m.Lock()
 	if c.responses == nil { // Channel is closed, no more publishing
 		c.m.Unlock()
@@ -208,5 +243,5 @@ func (c *Channel) publish(id uint32, payload agentpb.AgentMessagePayload) {
 
 	delete(c.responses, id)
 	c.m.Unlock()
-	ch <- payload
+	ch <- resp
 }

@@ -216,6 +216,8 @@ func (s *NodeService) addNodeToResponse(model *models.Node, res *managementpb.Re
 		res.GenericNode = n
 	case *inventorypb.ContainerNode:
 		res.ContainerNode = n
+	default:
+		return status.Error(codes.InvalidArgument, "unsupported node type")
 	}
 
 	return nil

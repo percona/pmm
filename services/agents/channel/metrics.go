@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package agents
+package channel
 
 import (
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -22,16 +22,18 @@ import (
 
 const (
 	prometheusNamespace = "pmm_managed"
-	prometheusSubsystem = "agents"
+	prometheusSubsystem = "channel"
 )
 
-type sharedChannelMetrics struct {
+// SharedChannelMetrics represents channel metrics shared between all channels.
+type SharedChannelMetrics struct {
 	mRecv prom.Counter
 	mSend prom.Counter
 }
 
-func newSharedMetrics() *sharedChannelMetrics {
-	return &sharedChannelMetrics{
+// NewSharedMetrics creates new SharedChannelMetrics.
+func NewSharedMetrics() *SharedChannelMetrics {
+	return &SharedChannelMetrics{
 		mRecv: prom.NewCounter(prom.CounterOpts{
 			Namespace: prometheusNamespace,
 			Subsystem: prometheusSubsystem,
@@ -48,13 +50,13 @@ func newSharedMetrics() *sharedChannelMetrics {
 }
 
 // Describe implements prometheus.Collector.
-func (scm *sharedChannelMetrics) Describe(ch chan<- *prom.Desc) {
+func (scm *SharedChannelMetrics) Describe(ch chan<- *prom.Desc) {
 	scm.mRecv.Describe(ch)
 	scm.mSend.Describe(ch)
 }
 
 // Collect implement prometheus.Collector.
-func (scm *sharedChannelMetrics) Collect(ch chan<- prom.Metric) {
+func (scm *SharedChannelMetrics) Collect(ch chan<- prom.Metric) {
 	scm.mRecv.Collect(ch)
 	scm.mSend.Collect(ch)
 
@@ -63,5 +65,5 @@ func (scm *sharedChannelMetrics) Collect(ch chan<- prom.Metric) {
 
 // check interfaces
 var (
-	_ prom.Collector = (*sharedChannelMetrics)(nil)
+	_ prom.Collector = (*SharedChannelMetrics)(nil)
 )

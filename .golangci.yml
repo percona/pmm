@@ -26,6 +26,11 @@ linters:
     - scopelint         # too many false positives
     - gochecknoglobals  # mostly useless
 
+run:
+  skip-dirs:
+    # skip files copied from Prometheus
+    - services/prometheus/internal
+
 issues:
   exclude-use-default: false
   exclude:
