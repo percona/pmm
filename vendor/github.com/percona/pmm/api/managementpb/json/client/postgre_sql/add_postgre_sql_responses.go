@@ -121,6 +121,9 @@ type AddPostgreSQLBody struct {
 	// Node and Service access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
 
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
 
