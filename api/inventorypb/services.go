@@ -1,24 +1,24 @@
 package inventorypb
 
+//go-sumtype:decl Service
+
 // Service is a common interface for all types of Services.
 type Service interface {
-	service()
+	sealedService() //nolint:unused
 
+	// TODO Remove it.
+	// Deprecated: use ServiceId field instead.
 	ID() string
-	Name() string
 }
 
-func (*MySQLService) service()          {}
-func (*AmazonRDSMySQLService) service() {}
-func (*MongoDBService) service()        {}
-func (*PostgreSQLService) service()     {}
+// in order of ServiceType enum
 
-func (s *MySQLService) ID() string          { return s.ServiceId }
-func (s *AmazonRDSMySQLService) ID() string { return s.ServiceId }
-func (s *MongoDBService) ID() string        { return s.ServiceId }
-func (s *PostgreSQLService) ID() string     { return s.ServiceId }
+func (*MySQLService) sealedService()          {}
+func (*AmazonRDSMySQLService) sealedService() {}
+func (*MongoDBService) sealedService()        {}
+func (*PostgreSQLService) sealedService()     {}
 
-func (s *MySQLService) Name() string          { return s.ServiceName }
-func (s *AmazonRDSMySQLService) Name() string { return s.ServiceName }
-func (s *MongoDBService) Name() string        { return s.ServiceName }
-func (s *PostgreSQLService) Name() string     { return s.ServiceName }
+func (m *MySQLService) ID() string          { return m.ServiceId }
+func (m *AmazonRDSMySQLService) ID() string { return m.ServiceId }
+func (m *MongoDBService) ID() string        { return m.ServiceId }
+func (m *PostgreSQLService) ID() string     { return m.ServiceId }

@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  branch = "master"
+  digest = "1:168cba3de63a4b749755aa9407c36dcffd348167023ed37ba6e350a932a9c57b"
+  name = "github.com/BurntSushi/go-sumtype"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "fcb4a6205bdc6ce526f359ae5eae5fb6ded53916"
+
+[[projects]]
   digest = "1:bd3632deea7c224314b504dc51fbd244a59163e89c0cb730877d51bb13f5f74a"
   name = "github.com/PuerkitoBio/purell"
   packages = ["."]
@@ -527,6 +535,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/BurntSushi/go-sumtype",
     "github.com/go-openapi/errors",
     "github.com/go-openapi/runtime",
     "github.com/go-openapi/runtime/client",
