@@ -63,14 +63,14 @@ service Actions {
   // RunAction runs an Action.
   rpc RunAction(RunActionRequest) returns (RunActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/RunAction"
+      post: "/v0/management/Actions/RunAction"
       body: "*"
     };
   }
   // CancelAction stops an Action.
   rpc CancelAction(CancelActionRequest) returns (CancelActionResponse) {
     option (google.api.http) = {
-      post: "/v1/management/Actions/CancelAction"
+      post: "/v0/management/Actions/CancelAction"
       body: "*"
     };
   }

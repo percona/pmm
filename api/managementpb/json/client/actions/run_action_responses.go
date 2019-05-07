@@ -57,7 +57,7 @@ type RunActionOK struct {
 }
 
 func (o *RunActionOK) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/RunAction][%d] runActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/management/Actions/RunAction][%d] runActionOk  %+v", 200, o.Payload)
 }
 
 func (o *RunActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -95,7 +95,7 @@ func (o *RunActionDefault) Code() int {
 }
 
 func (o *RunActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v1/management/Actions/RunAction][%d] RunAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/management/Actions/RunAction][%d] RunAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *RunActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {

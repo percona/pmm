@@ -36,7 +36,7 @@ func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, erro
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "CancelAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/CancelAction",
+		PathPattern:        "/v0/management/Actions/CancelAction",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -64,7 +64,7 @@ func (a *Client) RunAction(params *RunActionParams) (*RunActionOK, error) {
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "RunAction",
 		Method:             "POST",
-		PathPattern:        "/v1/management/Actions/RunAction",
+		PathPattern:        "/v0/management/Actions/RunAction",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
