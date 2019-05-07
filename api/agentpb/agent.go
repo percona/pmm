@@ -6,17 +6,6 @@ import (
 
 //go-sumtype:decl isAgentMessage_Payload
 //go-sumtype:decl isServerMessage_Payload
-//go-sumtype:decl AgentMessagePayload
-//go-sumtype:decl ServerMessagePayload
-
-// Workaround for https://github.com/golang/protobuf/issues/261.
-// Useful for helper functions.
-// TODO Remove it.
-// Deprecated: use AgentRequestPayload, AgentResponsePayload, ServerResponsePayload, ServerRequestPayload instead.
-type (
-	AgentMessagePayload  = isAgentMessage_Payload
-	ServerMessagePayload = isServerMessage_Payload
-)
 
 // code below uses the same order as definitions in agent.proto
 
