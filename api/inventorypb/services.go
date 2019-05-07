@@ -11,6 +11,8 @@ type Service interface {
 	ID() string
 }
 
+// in order of ServiceType enum
+
 func (*MySQLService) sealedService()          {}
 func (*AmazonRDSMySQLService) sealedService() {}
 func (*MongoDBService) sealedService()        {}
