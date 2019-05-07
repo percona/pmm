@@ -10,19 +10,23 @@ matrix:
   allow_failures:
     - go: master
 
-matrix:
-  allow_failures:
-    - go: master
+before_cache:
+  - go clean -testcache
+
+cache:
+  directories:
+    - /home/travis/.cache/go-build
+    - /home/travis/gopath/pkg
 
 script:
   # ensure that vendor/ is in sync with code and Gopkg.toml/lock
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - dep check
 
-  - make check-license
-
   # for main_test.go
   - make install
+
+  - make check
 
   - make test-cover
   - make test-race
