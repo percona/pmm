@@ -1035,6 +1035,13 @@
 				},
 				{
 					"values": {
+						"point": 15,
+						"time_frame": 600,
+						"timestamp": 1546327800
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 8.333333e-8,
 						"m_query_time_avg": 6.499415e-9,
@@ -1334,6 +1341,13 @@
 				},
 				{
 					"values": {
+						"point": 39,
+						"time_frame": 600,
+						"timestamp": 1546313300
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 7.666667e-7,
 						"m_query_time_avg": 1.5678255e-7,
@@ -1343,6 +1357,13 @@
 						"point": 40,
 						"time_frame": 600,
 						"timestamp": 1546312800
+					}
+				},
+				{
+					"values": {
+						"point": 41,
+						"time_frame": 600,
+						"timestamp": 1546312200
 					}
 				},
 				{
@@ -1373,6 +1394,13 @@
 				},
 				{
 					"values": {
+						"point": 44,
+						"time_frame": 600,
+						"timestamp": 1546310400
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 4e-7,
 						"m_query_time_avg": 1.27775115e-8,
@@ -1395,6 +1423,13 @@
 						"point": 46,
 						"time_frame": 600,
 						"timestamp": 1546309200
+					}
+				},
+				{
+					"values": {
+						"point": 47,
+						"time_frame": 600,
+						"timestamp": 1546308600
 					}
 				},
 				{
@@ -1585,6 +1620,13 @@
 			"sparkline": [
 				{
 					"values": {
+						"point": 0,
+						"time_frame": 600,
+						"timestamp": 1546336800
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 5.1666666e-7,
 						"m_query_time_avg": 1.9670051e-7,
@@ -1637,6 +1679,20 @@
 				},
 				{
 					"values": {
+						"point": 5,
+						"time_frame": 600,
+						"timestamp": 1546333800
+					}
+				},
+				{
+					"values": {
+						"point": 6,
+						"time_frame": 600,
+						"timestamp": 1546333200
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 4.8333334e-7,
 						"m_query_time_avg": 4.537631e-8,
@@ -1676,6 +1732,13 @@
 				},
 				{
 					"values": {
+						"point": 10,
+						"time_frame": 600,
+						"timestamp": 1546330800
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 0.0000011833333,
 						"m_query_time_avg": 6.358589e-8,
@@ -1698,6 +1761,13 @@
 						"point": 12,
 						"time_frame": 600,
 						"timestamp": 1546329600
+					}
+				},
+				{
+					"values": {
+						"point": 13,
+						"time_frame": 600,
+						"timestamp": 1546329000
 					}
 				},
 				{
@@ -1741,6 +1811,13 @@
 				},
 				{
 					"values": {
+						"point": 17,
+						"time_frame": 600,
+						"timestamp": 1546326700
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 5.333333e-7,
 						"m_query_time_avg": 3.047619e-7,
@@ -1763,6 +1840,13 @@
 						"point": 19,
 						"time_frame": 600,
 						"timestamp": 1546325400
+					}
+				},
+				{
+					"values": {
+						"point": 20,
+						"time_frame": 600,
+						"timestamp": 1546324700
 					}
 				},
 				{
@@ -1832,6 +1916,13 @@
 				},
 				{
 					"values": {
+						"point": 26,
+						"time_frame": 600,
+						"timestamp": 1546321200
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 5.333333e-7,
 						"m_query_time_avg": 4.8817697e-8,
@@ -1871,6 +1962,13 @@
 				},
 				{
 					"values": {
+						"point": 30,
+						"time_frame": 600,
+						"timestamp": 1546318800
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 5.1666666e-7,
 						"m_query_time_avg": 5.5715315e-8,
@@ -1880,6 +1978,13 @@
 						"point": 31,
 						"time_frame": 600,
 						"timestamp": 1546318200
+					}
+				},
+				{
+					"values": {
+						"point": 32,
+						"time_frame": 600,
+						"timestamp": 1546317600
 					}
 				},
 				{
@@ -1936,6 +2041,20 @@
 				},
 				{
 					"values": {
+						"point": 37,
+						"time_frame": 600,
+						"timestamp": 1546314600
+					}
+				},
+				{
+					"values": {
+						"point": 38,
+						"time_frame": 600,
+						"timestamp": 1546314000
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 5.833333e-7,
 						"m_query_time_avg": 1.0612492e-7,
@@ -1958,6 +2077,13 @@
 						"point": 40,
 						"time_frame": 600,
 						"timestamp": 1546312800
+					}
+				},
+				{
+					"values": {
+						"point": 41,
+						"time_frame": 600,
+						"timestamp": 1546312200
 					}
 				},
 				{
@@ -2014,6 +2140,20 @@
 				},
 				{
 					"values": {
+						"point": 46,
+						"time_frame": 600,
+						"timestamp": 1546309200
+					}
+				},
+				{
+					"values": {
+						"point": 47,
+						"time_frame": 600,
+						"timestamp": 1546308600
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 0.0000010666666,
 						"m_query_time_avg": 4.172915e-8,
@@ -2062,6 +2202,13 @@
 						"point": 51,
 						"time_frame": 600,
 						"timestamp": 1546306200
+					}
+				},
+				{
+					"values": {
+						"point": 52,
+						"time_frame": 600,
+						"timestamp": 1546305500
 					}
 				},
 				{
@@ -2200,6 +2347,13 @@
 				},
 				{
 					"values": {
+						"point": 1,
+						"time_frame": 600,
+						"timestamp": 1546336300
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 0.0000011666666,
 						"m_query_time_avg": 5.766062e-7,
@@ -2209,6 +2363,20 @@
 						"point": 2,
 						"time_frame": 600,
 						"timestamp": 1546335600
+					}
+				},
+				{
+					"values": {
+						"point": 3,
+						"time_frame": 600,
+						"timestamp": 1546335000
+					}
+				},
+				{
+					"values": {
+						"point": 4,
+						"time_frame": 600,
+						"timestamp": 1546334500
 					}
 				},
 				{
@@ -2235,6 +2403,13 @@
 						"point": 6,
 						"time_frame": 600,
 						"timestamp": 1546333200
+					}
+				},
+				{
+					"values": {
+						"point": 7,
+						"time_frame": 600,
+						"timestamp": 1546332500
 					}
 				},
 				{
@@ -2304,6 +2479,27 @@
 				},
 				{
 					"values": {
+						"point": 13,
+						"time_frame": 600,
+						"timestamp": 1546329000
+					}
+				},
+				{
+					"values": {
+						"point": 14,
+						"time_frame": 600,
+						"timestamp": 1546328400
+					}
+				},
+				{
+					"values": {
+						"point": 15,
+						"time_frame": 600,
+						"timestamp": 1546327800
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 0.0000010666666,
 						"m_query_time_avg": 8.4756984e-8,
@@ -2313,6 +2509,13 @@
 						"point": 16,
 						"time_frame": 600,
 						"timestamp": 1546327200
+					}
+				},
+				{
+					"values": {
+						"point": 17,
+						"time_frame": 600,
+						"timestamp": 1546326700
 					}
 				},
 				{
@@ -2330,6 +2533,13 @@
 				},
 				{
 					"values": {
+						"point": 19,
+						"time_frame": 600,
+						"timestamp": 1546325400
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 9.1666664e-7,
 						"m_query_time_avg": 9.1165255e-8,
@@ -2339,6 +2549,13 @@
 						"point": 20,
 						"time_frame": 600,
 						"timestamp": 1546324700
+					}
+				},
+				{
+					"values": {
+						"point": 21,
+						"time_frame": 600,
+						"timestamp": 1546324200
 					}
 				},
 				{
@@ -2408,6 +2625,13 @@
 				},
 				{
 					"values": {
+						"point": 27,
+						"time_frame": 600,
+						"timestamp": 1546320600
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 0.0000020833334,
 						"m_query_time_avg": 8.984403e-8,
@@ -2447,6 +2671,20 @@
 				},
 				{
 					"values": {
+						"point": 31,
+						"time_frame": 600,
+						"timestamp": 1546318200
+					}
+				},
+				{
+					"values": {
+						"point": 32,
+						"time_frame": 600,
+						"timestamp": 1546317600
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 0.0000010666666,
 						"m_query_time_avg": 2.449292e-7,
@@ -2456,6 +2694,20 @@
 						"point": 33,
 						"time_frame": 600,
 						"timestamp": 1546317000
+					}
+				},
+				{
+					"values": {
+						"point": 34,
+						"time_frame": 600,
+						"timestamp": 1546316400
+					}
+				},
+				{
+					"values": {
+						"point": 35,
+						"time_frame": 600,
+						"timestamp": 1546315800
 					}
 				},
 				{
@@ -2512,6 +2764,13 @@
 				},
 				{
 					"values": {
+						"point": 40,
+						"time_frame": 600,
+						"timestamp": 1546312800
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 0.0000020166667,
 						"m_query_time_avg": 1.0659854e-7,
@@ -2525,6 +2784,20 @@
 				},
 				{
 					"values": {
+						"point": 42,
+						"time_frame": 600,
+						"timestamp": 1546311600
+					}
+				},
+				{
+					"values": {
+						"point": 43,
+						"time_frame": 600,
+						"timestamp": 1546311000
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 0.000005616667,
 						"m_query_time_avg": 1.3581044e-7,
@@ -2534,6 +2807,27 @@
 						"point": 44,
 						"time_frame": 600,
 						"timestamp": 1546310400
+					}
+				},
+				{
+					"values": {
+						"point": 45,
+						"time_frame": 600,
+						"timestamp": 1546309800
+					}
+				},
+				{
+					"values": {
+						"point": 46,
+						"time_frame": 600,
+						"timestamp": 1546309200
+					}
+				},
+				{
+					"values": {
+						"point": 47,
+						"time_frame": 600,
+						"timestamp": 1546308600
 					}
 				},
 				{
@@ -2655,6 +2949,20 @@
 				},
 				{
 					"values": {
+						"point": 57,
+						"time_frame": 600,
+						"timestamp": 1546302600
+					}
+				},
+				{
+					"values": {
+						"point": 58,
+						"time_frame": 600,
+						"timestamp": 1546302000
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 0.0000029999999,
 						"m_query_time_avg": 1.1785504e-7,
@@ -2772,6 +3080,13 @@
 						"point": 5,
 						"time_frame": 600,
 						"timestamp": 1546333800
+					}
+				},
+				{
+					"values": {
+						"point": 6,
+						"time_frame": 600,
+						"timestamp": 1546333200
 					}
 				},
 				{
@@ -2954,6 +3269,13 @@
 						"point": 20,
 						"time_frame": 600,
 						"timestamp": 1546324700
+					}
+				},
+				{
+					"values": {
+						"point": 21,
+						"time_frame": 600,
+						"timestamp": 1546324200
 					}
 				},
 				{
@@ -3149,6 +3471,13 @@
 						"point": 36,
 						"time_frame": 600,
 						"timestamp": 1546315300
+					}
+				},
+				{
+					"values": {
+						"point": 37,
+						"time_frame": 600,
+						"timestamp": 1546314600
 					}
 				},
 				{

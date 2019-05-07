@@ -18,13 +18,18 @@ package analitycs
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/percona/pmm/api/qanpb"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
+	"github.com/percona/pmm/api/qanpb"
 	"github.com/percona/qan-api2/models"
 )
 
@@ -149,15 +154,11 @@ func TestService_GetQueryExample(t *testing.T) {
 			}
 			got, err := s.GetQueryExample(tt.args.ctx, tt.args.in)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Service.GetQueryExample() error = %v, wantErr %v", err, tt.wantErr)
-				return
+				assert.Errorf(t, err, "Service.GetQueryExample() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			tt.want = nil
 			expectedData(t, got, &tt.want, "../../test_data/GetQueryExample_"+tt.name+".json")
-
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Service.GetQueryExample() = %v, want %v", got, tt.want)
-			}
+			assert.Equal(t, proto.MarshalTextString(got), proto.MarshalTextString(tt.want))
 		})
 	}
 }
@@ -282,8 +283,7 @@ func TestService_GetMetrics(t *testing.T) {
 			}
 			got, err := s.GetMetrics(tt.args.ctx, tt.args.in)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Service.GetMetrics() error = %v, wantErr %v", err, tt.wantErr)
-				return
+				assert.Errorf(t, err, "Service.GetMetrics() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			tt.want = nil
 			expectedData(t, got, &tt.want, "../../test_data/GetMetrics_"+tt.name+".json")
@@ -292,4 +292,219 @@ func TestService_GetMetrics(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestService_GetLabels(t *testing.T) {
+	db := setup()
+	rm := models.NewReporter(db)
+	mm := models.NewMetrics(db)
+	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
+	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
+	want := qanpb.ObjectDetailsLabelsReply{}
+
+	type fields struct {
+		rm models.Reporter
+		mm models.Metrics
+	}
+	type args struct {
+		ctx context.Context
+		in  *qanpb.ObjectDetailsLabelsRequest
+	}
+	type testCase struct {
+		name    string
+		fields  fields
+		args    args
+		want    *qanpb.ObjectDetailsLabelsReply
+		wantErr error
+	}
+
+	tt := testCase{
+		"success",
+		fields{rm: rm, mm: mm},
+		args{
+			context.TODO(),
+			&qanpb.ObjectDetailsLabelsRequest{
+				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				GroupBy:         "queryid",
+				FilterBy:        "1D410B4BE5060972",
+			},
+		},
+		&want,
+		nil,
+	}
+
+	t.Run(tt.name, func(t *testing.T) {
+		s := &Service{
+			rm: tt.fields.rm,
+			mm: tt.fields.mm,
+		}
+		got, err := s.GetLabels(tt.args.ctx, tt.args.in)
+		require.Equal(t, err, tt.wantErr)
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetLabels"+tt.name+".json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		require.Equal(t, expectedJSON, gotJSON)
+	})
+
+	tt = testCase{
+		"required from",
+		fields{rm: rm, mm: mm},
+		args{
+			context.TODO(),
+			&qanpb.ObjectDetailsLabelsRequest{
+				PeriodStartFrom: nil,
+				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+				GroupBy:         "queryid",
+				FilterBy:        "1D410B4BE5060972",
+			},
+		},
+		nil,
+		fmt.Errorf("period_start_from is required:%v", nil),
+	}
+
+	t.Run(tt.name, func(t *testing.T) {
+		s := &Service{
+			rm: tt.fields.rm,
+			mm: tt.fields.mm,
+		}
+		_, err := s.GetLabels(tt.args.ctx, tt.args.in)
+		require.EqualError(t, err, tt.wantErr.Error())
+	})
+
+	tt = testCase{
+		"required to",
+		fields{rm: rm, mm: mm},
+		args{
+			context.TODO(),
+			&qanpb.ObjectDetailsLabelsRequest{
+				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+				PeriodStartTo:   nil,
+				GroupBy:         "queryid",
+				FilterBy:        "1D410B4BE5060972",
+			},
+		},
+		nil,
+		fmt.Errorf("period_start_to is required:%v", nil),
+	}
+
+	t.Run(tt.name, func(t *testing.T) {
+		s := &Service{
+			rm: tt.fields.rm,
+			mm: tt.fields.mm,
+		}
+		_, err := s.GetLabels(tt.args.ctx, tt.args.in)
+		require.EqualError(t, err, tt.wantErr.Error())
+	})
+
+	request := &qanpb.ObjectDetailsLabelsRequest{
+		PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+		PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		GroupBy:         "",
+		FilterBy:        "1D410B4BE5060972",
+	}
+	tt = testCase{
+		"required group_by",
+		fields{rm: rm, mm: mm},
+		args{
+			context.TODO(),
+			request,
+		},
+		nil,
+		fmt.Errorf("group_by is required:%v", request.GroupBy),
+	}
+
+	t.Run(tt.name, func(t *testing.T) {
+		s := &Service{
+			rm: tt.fields.rm,
+			mm: tt.fields.mm,
+		}
+		_, err := s.GetLabels(tt.args.ctx, tt.args.in)
+		require.EqualError(t, err, tt.wantErr.Error())
+	})
+
+	request = &qanpb.ObjectDetailsLabelsRequest{
+		PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+		PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		GroupBy:         "queryid",
+		FilterBy:        "",
+	}
+	tt = testCase{
+		"required filter_by",
+		fields{rm: rm, mm: mm},
+		args{
+			context.TODO(),
+			request,
+		},
+		nil,
+		fmt.Errorf("filter_by is required:%v", request.FilterBy),
+	}
+
+	t.Run(tt.name, func(t *testing.T) {
+		s := &Service{
+			rm: tt.fields.rm,
+			mm: tt.fields.mm,
+		}
+		_, err := s.GetLabels(tt.args.ctx, tt.args.in)
+		require.EqualError(t, err, tt.wantErr.Error())
+	})
+
+	request = &qanpb.ObjectDetailsLabelsRequest{
+		PeriodStartFrom: &timestamp.Timestamp{Seconds: t2.Unix()},
+		PeriodStartTo:   &timestamp.Timestamp{Seconds: t1.Unix()},
+		GroupBy:         "queryid",
+		FilterBy:        "1D410B4BE5060972",
+	}
+	tt = testCase{
+		"invalid time range",
+		fields{rm: rm, mm: mm},
+		args{
+			context.TODO(),
+			request,
+		},
+		nil,
+		fmt.Errorf("from time (%s) cannot be after to (%s)", request.PeriodStartFrom, request.PeriodStartTo),
+	}
+
+	t.Run(tt.name, func(t *testing.T) {
+		s := &Service{
+			rm: tt.fields.rm,
+			mm: tt.fields.mm,
+		}
+		_, err := s.GetLabels(tt.args.ctx, tt.args.in)
+		require.EqualError(t, err, tt.wantErr.Error())
+	})
+
+	const selectError = `cannot select object details labels`
+
+	request = &qanpb.ObjectDetailsLabelsRequest{
+		PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+		PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+		GroupBy:         "invalid group",
+		FilterBy:        "1D410B4BE5060972",
+	}
+	tt = testCase{
+		"select error",
+		fields{rm: rm, mm: mm},
+		args{
+			context.TODO(),
+			request,
+		},
+		nil,
+		fmt.Errorf("error in selecting object details labels:cannot select object details labels"),
+	}
+
+	t.Run(tt.name, func(t *testing.T) {
+		s := &Service{
+			rm: tt.fields.rm,
+			mm: tt.fields.mm,
+		}
+		_, err := s.GetLabels(tt.args.ctx, tt.args.in)
+		// errors start with same text.
+		require.Regexp(t, "^error in selecting object details labels:cannot select object details labels.*", err.Error())
+
+	})
 }

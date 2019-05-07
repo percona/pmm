@@ -58,6 +58,13 @@
 				},
 				{
 					"values": {
+						"point": 2,
+						"time_frame": 600,
+						"timestamp": 1546335600
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 4.9999997e-8,
 						"m_query_time_avg": 7.639419e-9,
@@ -110,6 +117,13 @@
 				},
 				{
 					"values": {
+						"point": 7,
+						"time_frame": 600,
+						"timestamp": 1546332500
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 4.9999997e-8,
 						"m_query_time_avg": 1.6304348e-7,
@@ -136,6 +150,13 @@
 				},
 				{
 					"values": {
+						"point": 10,
+						"time_frame": 600,
+						"timestamp": 1546330800
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0.00095,
 						"m_query_load": 0.000028566665,
 						"m_query_time_avg": 0.000001914442,
@@ -158,6 +179,20 @@
 						"point": 12,
 						"time_frame": 600,
 						"timestamp": 1546329600
+					}
+				},
+				{
+					"values": {
+						"point": 13,
+						"time_frame": 600,
+						"timestamp": 1546329000
+					}
+				},
+				{
+					"values": {
+						"point": 14,
+						"time_frame": 600,
+						"timestamp": 1546328400
 					}
 				},
 				{
@@ -227,6 +262,13 @@
 				},
 				{
 					"values": {
+						"point": 20,
+						"time_frame": 600,
+						"timestamp": 1546324700
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0.00062,
 						"m_query_load": 0.000027700002,
 						"m_query_time_avg": 0.0000024655096,
@@ -249,6 +291,13 @@
 						"point": 22,
 						"time_frame": 600,
 						"timestamp": 1546323600
+					}
+				},
+				{
+					"values": {
+						"point": 23,
+						"time_frame": 600,
+						"timestamp": 1546323000
 					}
 				},
 				{
@@ -279,6 +328,13 @@
 				},
 				{
 					"values": {
+						"point": 26,
+						"time_frame": 600,
+						"timestamp": 1546321200
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 6.6666665e-8,
 						"m_query_time_avg": 1.3995801e-8,
@@ -288,6 +344,13 @@
 						"point": 27,
 						"time_frame": 600,
 						"timestamp": 1546320600
+					}
+				},
+				{
+					"values": {
+						"point": 28,
+						"time_frame": 600,
+						"timestamp": 1546320000
 					}
 				},
 				{
@@ -318,6 +381,13 @@
 				},
 				{
 					"values": {
+						"point": 31,
+						"time_frame": 600,
+						"timestamp": 1546318200
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0.00103,
 						"m_query_load": 0.000028816667,
 						"m_query_time_avg": 0.0000045464108,
@@ -340,6 +410,27 @@
 						"point": 33,
 						"time_frame": 600,
 						"timestamp": 1546317000
+					}
+				},
+				{
+					"values": {
+						"point": 34,
+						"time_frame": 600,
+						"timestamp": 1546316400
+					}
+				},
+				{
+					"values": {
+						"point": 35,
+						"time_frame": 600,
+						"timestamp": 1546315800
+					}
+				},
+				{
+					"values": {
+						"point": 36,
+						"time_frame": 600,
+						"timestamp": 1546315300
 					}
 				},
 				{
@@ -422,6 +513,20 @@
 				},
 				{
 					"values": {
+						"point": 43,
+						"time_frame": 600,
+						"timestamp": 1546311000
+					}
+				},
+				{
+					"values": {
+						"point": 44,
+						"time_frame": 600,
+						"timestamp": 1546310400
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 0.0000020833334,
 						"m_query_time_avg": 0.0000011870845,
@@ -487,6 +592,20 @@
 				},
 				{
 					"values": {
+						"point": 50,
+						"time_frame": 600,
+						"timestamp": 1546306800
+					}
+				},
+				{
+					"values": {
+						"point": 51,
+						"time_frame": 600,
+						"timestamp": 1546306200
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0.00217,
 						"m_query_load": 0.0000888,
 						"m_query_time_avg": 0.0000035149758,
@@ -513,6 +632,13 @@
 				},
 				{
 					"values": {
+						"point": 54,
+						"time_frame": 600,
+						"timestamp": 1546304400
+					}
+				},
+				{
+					"values": {
 						"m_lock_time_sum": 0,
 						"m_query_load": 0.0000015333334,
 						"m_query_time_avg": 1.5166502e-7,
@@ -522,6 +648,13 @@
 						"point": 55,
 						"time_frame": 600,
 						"timestamp": 1546303700
+					}
+				},
+				{
+					"values": {
+						"point": 56,
+						"time_frame": 600,
+						"timestamp": 1546303200
 					}
 				},
 				{
@@ -548,6 +681,13 @@
 						"point": 58,
 						"time_frame": 600,
 						"timestamp": 1546302000
+					}
+				},
+				{
+					"values": {
+						"point": 59,
+						"time_frame": 600,
+						"timestamp": 1546301400
 					}
 				}
 			],

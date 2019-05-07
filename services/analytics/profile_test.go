@@ -68,6 +68,24 @@ func expectedData(t *testing.T, got, want interface{}, filename string) {
 	}
 }
 
+func getExpectedJSON(t *testing.T, got interface{}, filename string) []byte {
+	if os.Getenv("REFRESH_TEST_DATA") != "" {
+		json, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		err = ioutil.WriteFile(filename, json, 0644)
+		if err != nil {
+			t.Errorf("cannot write:%v", err)
+		}
+	}
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		t.Errorf("cannot read data from file:%v", err)
+	}
+	return data
+}
+
 func TestService_GetReport(t *testing.T) {
 	db := setup()
 	rm := models.NewReporter(db)

@@ -159,3 +159,37 @@ func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.QueryExampleReq
 	}
 	return resp, nil
 }
+
+// GetLabels gets labels in given time range for object.
+func (s *Service) GetLabels(ctx context.Context, in *qanpb.ObjectDetailsLabelsRequest) (*qanpb.ObjectDetailsLabelsReply, error) {
+	if in.PeriodStartFrom == nil {
+		return nil, fmt.Errorf("period_start_from is required:%v", in.PeriodStartFrom)
+	}
+	if in.PeriodStartTo == nil {
+		return nil, fmt.Errorf("period_start_to is required:%v", in.PeriodStartTo)
+	}
+	if in.GroupBy == "" {
+		return nil, fmt.Errorf("group_by is required:%v", in.GroupBy)
+	}
+	if in.FilterBy == "" {
+		return nil, fmt.Errorf("filter_by is required:%v", in.FilterBy)
+	}
+
+	from := time.Unix(in.PeriodStartFrom.Seconds, 0)
+	to := time.Unix(in.PeriodStartTo.Seconds, 0)
+	if from.After(to) {
+		return nil, fmt.Errorf("from time (%s) cannot be after to (%s)", in.PeriodStartFrom, in.PeriodStartTo)
+	}
+
+	resp, err := s.mm.SelectObjectDetailsLabels(
+		ctx,
+		from,
+		to,
+		in.FilterBy,
+		in.GroupBy,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("error in selecting object details labels:%v", err)
+	}
+	return resp, nil
+}
