@@ -1,110 +1,118 @@
 package agentpb
 
 import (
-	"context"
-
 	"github.com/golang/protobuf/proto"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
-// Workaround for https://github.com/golang/protobuf/issues/261.
-// Useful for helper functions.
-type (
-	ServerMessagePayload = isServerMessage_Payload
-	AgentMessagePayload  = isAgentMessage_Payload
+//go-sumtype:decl isAgentMessage_Payload
+//go-sumtype:decl isServerMessage_Payload
+
+// code below uses the same order as definitions in agent.proto
+
+//go-sumtype:decl AgentRequestPayload
+//go-sumtype:decl AgentResponsePayload
+//go-sumtype:decl ServerResponsePayload
+//go-sumtype:decl ServerRequestPayload
+
+// AgentRequestPayload represents agent's request payload.
+type AgentRequestPayload interface {
+	AgentMessageRequestPayload() isAgentMessage_Payload
+	sealed()
+}
+
+// AgentResponsePayload represents agent's response payload.
+type AgentResponsePayload interface {
+	AgentMessageResponsePayload() isAgentMessage_Payload
+	sealed()
+}
+
+// ServerResponsePayload represents server's response payload.
+type ServerResponsePayload interface {
+	ServerMessageResponsePayload() isServerMessage_Payload
+	sealed()
+}
+
+// ServerRequestPayload represents server's request payload.
+type ServerRequestPayload interface {
+	ServerMessageRequestPayload() isServerMessage_Payload
+	sealed()
+}
+
+// AgentMessage request payloads
+func (m *Ping) AgentMessageRequestPayload() isAgentMessage_Payload {
+	return &AgentMessage_Ping{Ping: m}
+}
+func (m *StateChangedRequest) AgentMessageRequestPayload() isAgentMessage_Payload {
+	return &AgentMessage_StateChanged{StateChanged: m}
+}
+func (m *QANCollectRequest) AgentMessageRequestPayload() isAgentMessage_Payload {
+	return &AgentMessage_QanCollect{QanCollect: m}
+}
+
+// AgentMessage response payloads
+func (m *Pong) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_Pong{Pong: m}
+}
+func (m *SetStateResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
+	return &AgentMessage_SetState{SetState: m}
+}
+
+// ServerMessage response payloads
+func (m *Pong) ServerMessageResponsePayload() isServerMessage_Payload {
+	return &ServerMessage_Pong{Pong: m}
+}
+func (m *StateChangedResponse) ServerMessageResponsePayload() isServerMessage_Payload {
+	return &ServerMessage_StateChanged{StateChanged: m}
+}
+func (m *QANCollectResponse) ServerMessageResponsePayload() isServerMessage_Payload {
+	return &ServerMessage_QanCollect{QanCollect: m}
+}
+
+// ServerMessage request payloads
+func (m *Ping) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_Ping{Ping: m}
+}
+func (m *SetStateRequest) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_SetState{SetState: m}
+}
+
+func (*Ping) sealed()                   {}
+func (m *StateChangedRequest) sealed()  {}
+func (m *QANCollectRequest) sealed()    {}
+func (*Pong) sealed()                   {}
+func (m *SetStateResponse) sealed()     {}
+func (m *StateChangedResponse) sealed() {}
+func (m *QANCollectResponse) sealed()   {}
+func (m *SetStateRequest) sealed()      {}
+
+// check interfaces
+var (
+	// AgentMessage request payloads
+	_ AgentRequestPayload = (*Ping)(nil)
+	_ AgentRequestPayload = (*StateChangedRequest)(nil)
+	_ AgentRequestPayload = (*QANCollectRequest)(nil)
+
+	// AgentMessage response payloads
+	_ AgentResponsePayload = (*Pong)(nil)
+	_ AgentResponsePayload = (*SetStateResponse)(nil)
+
+	// ServerMessage response payloads
+	_ ServerResponsePayload = (*Pong)(nil)
+	_ ServerResponsePayload = (*StateChangedResponse)(nil)
+	_ ServerResponsePayload = (*QANCollectResponse)(nil)
+
+	// ServerMessage request payloads
+	_ ServerRequestPayload = (*Ping)(nil)
+	_ ServerRequestPayload = (*SetStateRequest)(nil)
 )
 
-type RequestPayload interface{ request() }
-type ResponsePayload interface{ response() }
-
-func (*Ping) request()                {}
-func (*QANCollectRequest) request()   {}
-func (*StateChangedRequest) request() {}
-func (*SetStateRequest) request()     {}
-
-func (*Pong) response()                 {}
-func (*QANCollectResponse) response()   {}
-func (*StateChangedResponse) response() {}
-func (*SetStateResponse) response()     {}
+//go-sumtype:decl AgentParams
 
 // AgentParams is a common interface for AgentProcess and BuiltinAgent parameters.
 type AgentParams interface {
 	proto.Message
-	agentParams()
+	sealedAgentParams() //nolint:unused
 }
 
-func (*SetStateRequest_AgentProcess) agentParams() {}
-func (*SetStateRequest_BuiltinAgent) agentParams() {}
-
-const (
-	mdAgentID       = "pmm-agent-id"
-	mdAgentVersion  = "pmm-agent-version"
-	mdAgentNodeID   = "pmm-agent-node-id"
-	mdServerVersion = "pmm-server-version"
-)
-
-// AgentConnectMetadata represents metadata sent by pmm-agent with Connect RPC method.
-type AgentConnectMetadata struct {
-	ID      string
-	Version string
-}
-
-// AgentServerMetadata represents metadata sent by pmm-managed to pmm-agent.
-type AgentServerMetadata struct {
-	AgentRunsOnNodeID string
-	ServerVersion     string
-}
-
-func getValue(md metadata.MD, key string) string {
-	vs := md.Get(key)
-	if len(vs) == 1 {
-		return vs[0]
-	}
-	return ""
-}
-
-// AddAgentConnectMetadata adds metadata to pmm-agent's Connect RPC call.
-// Used by pmm-agent.
-func AddAgentConnectMetadata(ctx context.Context, md *AgentConnectMetadata) context.Context {
-	return metadata.AppendToOutgoingContext(ctx, mdAgentID, md.ID, mdAgentVersion, md.Version)
-}
-
-// GetAgentConnectMetadata returns pmm-agent's metadata.
-// Used by pmm-managed.
-func GetAgentConnectMetadata(ctx context.Context) AgentConnectMetadata {
-	var res AgentConnectMetadata
-	md, ok := metadata.FromIncomingContext(ctx)
-	if ok {
-		res.ID = getValue(md, mdAgentID)
-		res.Version = getValue(md, mdAgentVersion)
-	}
-	return res
-}
-
-// SendAgentServerMetadata sends metadata to pmm-agent.
-// Used by pmm-managed.
-func SendAgentServerMetadata(stream grpc.ServerStream, md *AgentServerMetadata) error {
-	header := metadata.Pairs(
-		mdAgentNodeID, md.AgentRunsOnNodeID,
-		mdServerVersion, md.ServerVersion,
-	)
-	if err := stream.SendHeader(header); err != nil {
-		return err
-	}
-	return nil
-}
-
-// GetAgentServerMetadata receives metadata from pmm-managed.
-// Used by pmm-agent.
-func GetAgentServerMetadata(stream grpc.ClientStream) (AgentServerMetadata, error) {
-	var res AgentServerMetadata
-	md, err := stream.Header()
-	if err != nil {
-		return res, err
-	}
-
-	res.AgentRunsOnNodeID = getValue(md, mdAgentNodeID)
-	res.ServerVersion = getValue(md, mdServerVersion)
-	return res, nil
-}
+func (*SetStateRequest_AgentProcess) sealedAgentParams() {}
+func (*SetStateRequest_BuiltinAgent) sealedAgentParams() {}

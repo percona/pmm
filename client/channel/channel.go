@@ -36,6 +36,22 @@ const (
 	prometheusSubsystem = "channel"
 )
 
+// ServerRequest represents an request from server.
+// It is similar to agentpb.ServerMessage except it can contain only requests,
+// and the payload is already unwrapped (XXX instead of ServerMessage_XXX).
+type ServerRequest struct {
+	ID      uint32
+	Payload agentpb.ServerRequestPayload
+}
+
+// AgentResponse represents agent's response.
+// It is similar to agentpb.AgentMessage except it can contain only responses,
+// and the payload is already unwrapped (XXX instead of AgentMessage_XXX).
+type AgentResponse struct {
+	ID      uint32
+	Payload agentpb.AgentResponsePayload
+}
+
 // Channel encapsulates two-way communication channel between pmm-managed and pmm-agent.
 //
 // All exported methods are thread-safe.
@@ -50,18 +66,18 @@ type Channel struct { //nolint:maligned
 	sendM sync.Mutex
 
 	m         sync.Mutex
-	responses map[uint32]chan agentpb.ServerMessagePayload
-	requests  chan *agentpb.ServerMessage
+	responses map[uint32]chan agentpb.ServerResponsePayload
+	requests  chan *ServerRequest
 
 	closeOnce sync.Once
 	closeWait chan struct{}
 	closeErr  error
 }
 
-// NewChannel creates new two-way communication channel with given stream.
+// New creates new two-way communication channel with given stream.
 //
 // Stream should not be used by the caller after channel is created.
-func NewChannel(stream agentpb.Agent_ConnectClient) *Channel {
+func New(stream agentpb.Agent_ConnectClient) *Channel {
 	s := &Channel{
 		s: stream,
 		l: logrus.WithField("component", "channel"), // only for debug logging
@@ -79,8 +95,8 @@ func NewChannel(stream agentpb.Agent_ConnectClient) *Channel {
 			Help:      "A total number of sent messages to pmm-managed.",
 		}),
 
-		responses: make(map[uint32]chan agentpb.ServerMessagePayload),
-		requests:  make(chan *agentpb.ServerMessage, serverRequestsCap),
+		responses: make(map[uint32]chan agentpb.ServerResponsePayload),
+		requests:  make(chan *ServerRequest, serverRequestsCap),
 
 		closeWait: make(chan struct{}),
 	}
@@ -118,25 +134,29 @@ func (c *Channel) Wait() error {
 }
 
 // Requests returns a channel for incoming requests. It must be read. It is closed on any error (see Wait).
-func (c *Channel) Requests() <-chan *agentpb.ServerMessage {
+func (c *Channel) Requests() <-chan *ServerRequest {
 	return c.requests
 }
 
 // SendResponse sends message to pmm-managed. It is no-op once channel is closed (see Wait).
-func (c *Channel) SendResponse(msg *agentpb.AgentMessage) {
+func (c *Channel) SendResponse(resp *AgentResponse) {
+	msg := &agentpb.AgentMessage{
+		Id:      resp.ID,
+		Payload: resp.Payload.AgentMessageResponsePayload(),
+	}
 	c.send(msg)
 }
 
 // SendRequest sends request to pmm-managed, blocks until response is available, and returns it.
 // Response will be nil if channel is closed.
 // It is no-op once channel is closed (see Wait).
-func (c *Channel) SendRequest(payload agentpb.AgentMessagePayload) agentpb.ServerMessagePayload {
+func (c *Channel) SendRequest(payload agentpb.AgentRequestPayload) agentpb.ServerResponsePayload {
 	id := atomic.AddUint32(&c.lastSentRequestID, 1)
 	ch := c.subscribe(id)
 
 	c.send(&agentpb.AgentMessage{
 		Id:      id,
-		Payload: payload,
+		Payload: payload.AgentMessageRequestPayload(),
 	})
 
 	return <-ch
@@ -189,24 +209,36 @@ func (c *Channel) runReceiver() {
 			c.l.Debugf("Received message (%d bytes):\n%s\n", size, proto.MarshalTextString(msg))
 		}
 
-		switch msg.Payload.(type) {
+		switch p := msg.Payload.(type) {
 		// requests
-		case *agentpb.ServerMessage_Ping, *agentpb.ServerMessage_SetState:
-			c.requests <- msg
+		case *agentpb.ServerMessage_Ping:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.Ping,
+			}
+		case *agentpb.ServerMessage_SetState:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.SetState,
+			}
 
 		// responses
-		case *agentpb.ServerMessage_Pong, *agentpb.ServerMessage_StateChanged, *agentpb.ServerMessage_QanCollect:
-			c.publish(msg.Id, msg.Payload)
+		case *agentpb.ServerMessage_Pong:
+			c.publish(msg.Id, p.Pong)
+		case *agentpb.ServerMessage_StateChanged:
+			c.publish(msg.Id, p.StateChanged)
+		case *agentpb.ServerMessage_QanCollect:
+			c.publish(msg.Id, p.QanCollect)
 
-		default:
+		case nil:
 			c.close(errors.Errorf("failed to handle received message %s", msg))
 			return
 		}
 	}
 }
 
-func (c *Channel) subscribe(id uint32) chan agentpb.ServerMessagePayload {
-	ch := make(chan agentpb.ServerMessagePayload, 1)
+func (c *Channel) subscribe(id uint32) chan agentpb.ServerResponsePayload {
+	ch := make(chan agentpb.ServerResponsePayload, 1)
 
 	c.m.Lock()
 	if c.responses == nil { // Channel is closed, no more subscriptions
@@ -226,7 +258,7 @@ func (c *Channel) subscribe(id uint32) chan agentpb.ServerMessagePayload {
 	return ch
 }
 
-func (c *Channel) publish(id uint32, payload agentpb.ServerMessagePayload) {
+func (c *Channel) publish(id uint32, resp agentpb.ServerResponsePayload) {
 	c.m.Lock()
 	if c.responses == nil { // Channel is closed, no more publishing
 		c.m.Unlock()
@@ -242,7 +274,7 @@ func (c *Channel) publish(id uint32, payload agentpb.ServerMessagePayload) {
 
 	delete(c.responses, id)
 	c.m.Unlock()
-	ch <- payload
+	ch <- resp
 }
 
 // Describe implements prometheus.Collector.

@@ -48,10 +48,10 @@ script:
   - git status
   - git diff --exit-code
 
-  - make check-license
-
   # for main_test.go
   - make install
+
+  - make check
 
   - make test-cover
   - make test-race

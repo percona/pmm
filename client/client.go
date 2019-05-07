@@ -183,10 +183,8 @@ func (c *Client) processSupervisorRequests() {
 		defer wg.Done()
 
 		for state := range c.supervisor.Changes() {
-			res := c.channel.SendRequest(&agentpb.AgentMessage_StateChanged{
-				StateChanged: &state,
-			})
-			if res == nil {
+			resp := c.channel.SendRequest(&state)
+			if resp == nil {
 				c.l.Warn("Failed to send StateChanged request.")
 			}
 		}
@@ -198,10 +196,8 @@ func (c *Client) processSupervisorRequests() {
 		defer wg.Done()
 
 		for collect := range c.supervisor.QANRequests() {
-			res := c.channel.SendRequest(&agentpb.AgentMessage_QanCollect{
-				QanCollect: &collect,
-			})
-			if res == nil {
+			resp := c.channel.SendRequest(&collect)
+			if resp == nil {
 				c.l.Warn("Failed to send QanCollect request.")
 			}
 		}
@@ -212,36 +208,28 @@ func (c *Client) processSupervisorRequests() {
 }
 
 func (c *Client) processChannelRequests() {
-	for serverMessage := range c.channel.Requests() {
-		var agentMessage *agentpb.AgentMessage
-		switch payload := serverMessage.Payload.(type) {
-		case *agentpb.ServerMessage_Ping:
-			agentMessage = &agentpb.AgentMessage{
-				Id: serverMessage.Id,
-				Payload: &agentpb.AgentMessage_Pong{
-					Pong: &agentpb.Pong{
-						CurrentTime: ptypes.TimestampNow(),
-					},
-				},
+	for req := range c.channel.Requests() {
+		var responsePayload agentpb.AgentResponsePayload
+		switch p := req.Payload.(type) {
+		case *agentpb.Ping:
+			responsePayload = &agentpb.Pong{
+				CurrentTime: ptypes.TimestampNow(),
 			}
 
-		case *agentpb.ServerMessage_SetState:
-			c.supervisor.SetState(payload.SetState)
+		case *agentpb.SetStateRequest:
+			c.supervisor.SetState(p)
+			responsePayload = new(agentpb.SetStateResponse)
 
-			agentMessage = &agentpb.AgentMessage{
-				Id: serverMessage.Id,
-				Payload: &agentpb.AgentMessage_SetState{
-					SetState: new(agentpb.SetStateResponse),
-				},
-			}
-
-		default:
+		case nil:
 			// Requests() is not closed, so exit early to break channel
-			c.l.Errorf("Unhandled server message payload: %s.", payload)
+			c.l.Errorf("Unhandled server request: %v.", req)
 			return
 		}
 
-		c.channel.SendResponse(agentMessage)
+		c.channel.SendResponse(&channel.AgentResponse{
+			ID:      req.ID,
+			Payload: responsePayload,
+		})
 	}
 
 	if err := c.channel.Wait(); err != nil {
@@ -317,18 +305,17 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) *dialRes
 
 	md, err := agentpb.GetAgentServerMetadata(stream)
 	if err != nil {
-		// TODO make it a hard error
-		l.Warnf("Can't get server metadata: %s.", err)
+		l.Errorf("Can't get server metadata: %s.", err)
+		teardown()
+		return nil
 	}
 
 	// So far nginx can handle all that itself without pmm-managed.
 	// We need to send ping to ensure that pmm-managed is alive and that Agent ID is valid.
 	start := time.Now()
-	channel := channel.NewChannel(stream)
-	res := channel.SendRequest(&agentpb.AgentMessage_Ping{
-		Ping: new(agentpb.Ping),
-	})
-	if res == nil {
+	channel := channel.New(stream)
+	resp := channel.SendRequest(new(agentpb.Ping))
+	if resp == nil {
 		err = channel.Wait()
 		msg := err.Error()
 
@@ -344,7 +331,7 @@ func dial(dialCtx context.Context, cfg *config.Config, l *logrus.Entry) *dialRes
 	}
 
 	roundtrip := time.Since(start)
-	serverTime, err := ptypes.Timestamp(res.(*agentpb.ServerMessage_Pong).Pong.CurrentTime)
+	serverTime, err := ptypes.Timestamp(resp.(*agentpb.Pong).CurrentTime)
 	if err != nil {
 		l.Errorf("Failed to decode Pong.current_time: %s.", err)
 		teardown()

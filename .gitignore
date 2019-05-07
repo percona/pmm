@@ -1,4 +1,7 @@
+/.idea/
 /.vscode/
-/cover.out
 /bin/
+cover.out
+
 backoff.png
+pmm-agent-dev.yaml

@@ -10,6 +10,14 @@
   revision = "d2bd5b449f293d7e250dc1ce5398845e0c7928e0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:42d4dcc25a908bb5a54ac91cd204c7d15651367f5751c569ccab8097b2f61204"
+  name = "github.com/BurntSushi/go-sumtype"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "fcb4a6205bdc6ce526f359ae5eae5fb6ded53916"
+
+[[projects]]
   digest = "1:0a111edd8693fd977f42a0c4f199a0efb13c20aec9da99ad8830c7bb6a87e8d6"
   name = "github.com/PuerkitoBio/purell"
   packages = ["."]
@@ -328,7 +336,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:5aa20cb880ab3d6da2a88b13b1a7afbf4040d643cf752827ce7e71819a3405a0"
+  digest = "1:904eeb4fb514ba90020f77988908926d8ed3325200df87569d6995021b806a88"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -347,7 +355,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "df7446abd5c68f8a1e54593c86dd15313d0480c5"
+  revision = "041b19374b72a489aea09cb5b0c7329dea78c833"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -429,6 +437,17 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:5ed88c68e8ff11e085ec406c214dbbd94ca2dd52143e00c8e86c78d880576188"
+  name = "github.com/vektra/mockery"
+  packages = [
+    "cmd/mockery",
+    "mockery",
+  ]
+  pruneopts = "NUT"
+  revision = "e78b021dcbb558a8e7ac1fc5bc757ad7c277bb81"
+
+[[projects]]
+  branch = "master"
   digest = "1:a9797a1d94741a5d84146db61034f610da81c4a03ac0809b87b1e459416760ae"
   name = "golang.org/x/net"
   packages = [
@@ -476,6 +495,29 @@
   pruneopts = "NUT"
   revision = "342b2e1fbaa52c93f31447ad2c6abc048c63e475"
   version = "v0.3.2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:b0a93dc5abc427a2f5a495f0142ee3d98cf87f8b31ccfec92c0db77684a499df"
+  name = "golang.org/x/tools"
+  packages = [
+    "go/ast/astutil",
+    "go/buildutil",
+    "go/gcexportdata",
+    "go/internal/cgo",
+    "go/internal/gcimporter",
+    "go/internal/packagesdriver",
+    "go/loader",
+    "go/packages",
+    "go/types/typeutil",
+    "imports",
+    "internal/fastwalk",
+    "internal/gopathwalk",
+    "internal/module",
+    "internal/semver",
+  ]
+  pruneopts = "NUT"
+  revision = "3b6f9c0030f769fa3ded8a7f0d9420c71ac20caf"
 
 [[projects]]
   digest = "1:c25289f43ac4a68d88b02245742347c94f1e108c534dda442188015ff80669b3"
@@ -606,6 +648,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/AlekSi/pointer",
+    "github.com/BurntSushi/go-sumtype",
     "github.com/davecgh/go-spew/spew",
     "github.com/fatih/structs",
     "github.com/go-openapi/runtime",
@@ -639,6 +682,7 @@
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",
+    "github.com/vektra/mockery/cmd/mockery",
     "golang.org/x/sys/unix",
     "google.golang.org/grpc",
     "google.golang.org/grpc/channelz/service",

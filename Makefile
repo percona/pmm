@@ -24,7 +24,9 @@ release:                        ## Build pmm-agent release binary.
 init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
 	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
 
-	go install -v ./vendor/gopkg.in/reform.v1/reform
+	go install -v ./vendor/gopkg.in/reform.v1/reform \
+					./vendor/github.com/BurntSushi/go-sumtype \
+					./vendor/github.com/vektra/mockery/cmd/mockery
 
 	go test -v -i ./...
 	go test -v -race -i ./...
@@ -43,7 +45,7 @@ install:                        ## Install pmm-agent binary.
 install-race:                   ## Install pmm-agent binary with race detector.
 	go install -v $(LD_FLAGS) -race ./...
 
-TEST_FLAGS ?=
+TEST_FLAGS ?= -timeout=20s
 
 test:                           ## Run tests.
 	go test $(TEST_FLAGS) ./...
@@ -54,14 +56,31 @@ test-race:                      ## Run tests with race detector.
 test-cover:                     ## Run tests and collect coverage information.
 	go test $(TEST_FLAGS) -coverprofile=cover.out -covermode=count ./...
 
-check-license:                  ## Check that all files have the same license header.
+check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
+	go-sumtype ./vendor/... ./...
 
-check: install check-license    ## Run checkers and linters.
-	golangci-lint run
+FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
-format:                         ## Run `goimports`.
-	goimports -local github.com/percona/pmm-agent -l -w $(shell find . -type f -name '*.go' -not -path "./vendor/*")
+format:                         ## Format source code.
+	gofmt -w -s $(FILES)
+	goimports -local github.com/percona/pmm-agent -l -w $(FILES)
+
+RUN_FLAGS = --config-file=pmm-agent-dev.yaml
+
+run: install _run               ## Run pmm-agent.
+
+run-race: install-race _run     ## Run pmm-agent with race detector.
+
+run-race-cover: install-race    ## Run pmm-agent with race detector and collect coverage information.
+	go test -coverpkg="github.com/percona/pmm-agent/..." \
+			-tags maincover \
+			-v $(LD_FLAGS) \
+			-race -c -o bin/pmm-agent.test
+	bin/pmm-agent.test -test.coverprofile=cover.out -test.run=TestMainCover -- $(RUN_FLAGS)
+
+_run:
+	pmm-agent $(RUN_FLAGS)
 
 env-up:                         ## Start development environment.
 	docker-compose up --force-recreate --renew-anon-volumes --remove-orphans
