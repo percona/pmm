@@ -180,6 +180,9 @@ func main() {
 	case management.AddMySQLC.FullCommand():
 		command = management.AddMySQL
 
+	case management.AddPostgreSQLC.FullCommand():
+		command = management.AddPostgreSQL
+
 	case management.RemoveC.FullCommand():
 		command = management.Remove
 
