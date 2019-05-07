@@ -1,0 +1,492 @@
+{
+	"Class": {
+		"1D410B4BE5060972;root;;;": {
+			"Id": "1D410B4BE5060972",
+			"User": "root",
+			"Host": "",
+			"Db": "",
+			"Server": "",
+			"LabelsKey": [],
+			"LabelsValue": [],
+			"Fingerprint": "ping",
+			"Metrics": {
+				"TimeMetrics": {
+					"Lock_time": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Query_time": {
+						"Cnt": 1,
+						"Sum": 0.000078,
+						"Min": 0.000078,
+						"P99": 0.000078,
+						"Max": 0.000078
+					}
+				},
+				"NumberMetrics": {
+					"Bytes_sent": {
+						"Cnt": 1,
+						"Sum": 11,
+						"Min": 11,
+						"P99": 11,
+						"Max": 11
+					},
+					"Killed": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Last_errno": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_affected": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_examined": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_sent": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					}
+				}
+			},
+			"TotalQueries": 1,
+			"UniqueQueries": 1,
+			"Example": {
+				"QueryTime": 0.000078,
+				"Db": "",
+				"Query": "Ping",
+				"Size": 4,
+				"Ts": "2019-05-06 10:06:20"
+			}
+		},
+		"28FC5B5D583E2DA6;root;;;": {
+			"Id": "28FC5B5D583E2DA6",
+			"User": "root",
+			"Host": "",
+			"Db": "",
+			"Server": "",
+			"LabelsKey": [],
+			"LabelsValue": [],
+			"Fingerprint": "show global status",
+			"Metrics": {
+				"TimeMetrics": {
+					"Lock_time": {
+						"Cnt": 1,
+						"Sum": 0.000359,
+						"Min": 0.000359,
+						"P99": 0.000359,
+						"Max": 0.000359
+					},
+					"Query_time": {
+						"Cnt": 1,
+						"Sum": 0.001908,
+						"Min": 0.001908,
+						"P99": 0.001908,
+						"Max": 0.001908
+					}
+				},
+				"NumberMetrics": {
+					"Bytes_sent": {
+						"Cnt": 1,
+						"Sum": 15657,
+						"Min": 15657,
+						"P99": 15657,
+						"Max": 15657
+					},
+					"Killed": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Last_errno": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_affected": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_examined": {
+						"Cnt": 1,
+						"Sum": 980,
+						"Min": 980,
+						"P99": 980,
+						"Max": 980
+					},
+					"Rows_sent": {
+						"Cnt": 1,
+						"Sum": 490,
+						"Min": 490,
+						"P99": 490,
+						"Max": 490
+					}
+				}
+			},
+			"TotalQueries": 1,
+			"UniqueQueries": 1,
+			"Example": {
+				"QueryTime": 0.001908,
+				"Db": "",
+				"Query": "SHOW GLOBAL STATUS",
+				"Size": 18,
+				"Ts": "2019-05-06 10:06:20"
+			}
+		},
+		"328AAB9660C2879E;root;;;": {
+			"Id": "328AAB9660C2879E",
+			"User": "root",
+			"Host": "",
+			"Db": "",
+			"Server": "",
+			"LabelsKey": [],
+			"LabelsValue": [],
+			"Fingerprint": "set lock_wait_timeout=?",
+			"Metrics": {
+				"TimeMetrics": {
+					"Lock_time": {
+						"Cnt": 2,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Query_time": {
+						"Cnt": 2,
+						"Sum": 0.000536,
+						"Min": 0.0002,
+						"P99": 0.000336,
+						"Max": 0.000336
+					}
+				},
+				"NumberMetrics": {
+					"Bytes_sent": {
+						"Cnt": 2,
+						"Sum": 22,
+						"Min": 11,
+						"P99": 11,
+						"Max": 11
+					},
+					"Killed": {
+						"Cnt": 2,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Last_errno": {
+						"Cnt": 2,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_affected": {
+						"Cnt": 2,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_examined": {
+						"Cnt": 2,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_sent": {
+						"Cnt": 2,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					}
+				}
+			},
+			"TotalQueries": 2,
+			"UniqueQueries": 1,
+			"Example": {
+				"QueryTime": 0.000336,
+				"Db": "",
+				"Query": "SET lock_wait_timeout=2",
+				"Size": 23,
+				"Ts": "2019-05-06 10:06:20"
+			}
+		},
+		"A212AD93263CF26F;root;;;": {
+			"Id": "A212AD93263CF26F",
+			"User": "root",
+			"Host": "",
+			"Db": "",
+			"Server": "",
+			"LabelsKey": [],
+			"LabelsValue": [],
+			"Fingerprint": "select @@version",
+			"Metrics": {
+				"TimeMetrics": {
+					"Lock_time": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Query_time": {
+						"Cnt": 1,
+						"Sum": 0.000274,
+						"Min": 0.000274,
+						"P99": 0.000274,
+						"Max": 0.000274
+					}
+				},
+				"NumberMetrics": {
+					"Bytes_sent": {
+						"Cnt": 1,
+						"Sum": 71,
+						"Min": 71,
+						"P99": 71,
+						"Max": 71
+					},
+					"Killed": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Last_errno": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_affected": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_examined": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_sent": {
+						"Cnt": 1,
+						"Sum": 1,
+						"Min": 1,
+						"P99": 1,
+						"Max": 1
+					}
+				}
+			},
+			"TotalQueries": 1,
+			"UniqueQueries": 1,
+			"Example": {
+				"QueryTime": 0.000274,
+				"Db": "",
+				"Query": "SELECT @@version",
+				"Size": 16,
+				"Ts": "2019-05-06 10:06:20"
+			}
+		},
+		"C684EA1D78348D23;root;;;": {
+			"Id": "C684EA1D78348D23",
+			"User": "root",
+			"Host": "",
+			"Db": "",
+			"Server": "",
+			"LabelsKey": [],
+			"LabelsValue": [],
+			"Fingerprint": "select name, subsystem, type, comment, count from information_schema.innodb_metrics where status = ?",
+			"Metrics": {
+				"TimeMetrics": {
+					"Lock_time": {
+						"Cnt": 1,
+						"Sum": 0.000372,
+						"Min": 0.000372,
+						"P99": 0.000372,
+						"Max": 0.000372
+					},
+					"Query_time": {
+						"Cnt": 1,
+						"Sum": 0.002619,
+						"Min": 0.002619,
+						"P99": 0.002619,
+						"Max": 0.002619
+					}
+				},
+				"NumberMetrics": {
+					"Bytes_sent": {
+						"Cnt": 1,
+						"Sum": 7204,
+						"Min": 7204,
+						"P99": 7204,
+						"Max": 7204
+					},
+					"Killed": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Last_errno": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_affected": {
+						"Cnt": 1,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_examined": {
+						"Cnt": 1,
+						"Sum": 288,
+						"Min": 288,
+						"P99": 288,
+						"Max": 288
+					},
+					"Rows_sent": {
+						"Cnt": 1,
+						"Sum": 65,
+						"Min": 65,
+						"P99": 65,
+						"Max": 65
+					}
+				}
+			},
+			"TotalQueries": 1,
+			"UniqueQueries": 1,
+			"Example": {
+				"QueryTime": 0.002619,
+				"Db": "",
+				"Query": "SELECT\n\t\t  name, subsystem, type, comment,\n\t\t  count\n\t\t  FROM information_schema.innodb_metrics\n\t\t  WHERE status = 'enabled'",
+				"Size": 124,
+				"Ts": "2019-05-06 10:06:20"
+			}
+		},
+		"FA521F3C42DC5272;root;;sbtest;": {
+			"Id": "FA521F3C42DC5272",
+			"User": "root",
+			"Host": "",
+			"Db": "sbtest",
+			"Server": "",
+			"LabelsKey": [],
+			"LabelsValue": [],
+			"Fingerprint": "select pad from sbtest1 where id=?",
+			"Metrics": {
+				"TimeMetrics": {
+					"Lock_time": {
+						"Cnt": 27,
+						"Sum": 0.003961000000000001,
+						"Min": 0.000108,
+						"P99": 0.000204,
+						"Max": 0.000204
+					},
+					"Query_time": {
+						"Cnt": 27,
+						"Sum": 0.010366,
+						"Min": 0.000256,
+						"P99": 0.000522,
+						"Max": 0.000522
+					}
+				},
+				"NumberMetrics": {
+					"Bytes_sent": {
+						"Cnt": 27,
+						"Sum": 3564,
+						"Min": 132,
+						"P99": 132,
+						"Max": 132
+					},
+					"Killed": {
+						"Cnt": 27,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Last_errno": {
+						"Cnt": 27,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_affected": {
+						"Cnt": 27,
+						"Sum": 0,
+						"Min": 0,
+						"P99": 0,
+						"Max": 0
+					},
+					"Rows_examined": {
+						"Cnt": 27,
+						"Sum": 27,
+						"Min": 1,
+						"P99": 1,
+						"Max": 1
+					},
+					"Rows_sent": {
+						"Cnt": 27,
+						"Sum": 27,
+						"Min": 1,
+						"P99": 1,
+						"Max": 1
+					}
+				}
+			},
+			"TotalQueries": 27,
+			"UniqueQueries": 1,
+			"Example": {
+				"QueryTime": 0.000522,
+				"Db": "sbtest",
+				"Query": "SELECT pad FROM sbtest1 WHERE id=775815",
+				"Size": 39,
+				"Ts": "2019-05-06 10:06:20"
+			}
+		}
+	},
+	"RateLimit": 0,
+	"Error": ""
+}

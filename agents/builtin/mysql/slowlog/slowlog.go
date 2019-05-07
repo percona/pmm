@@ -26,15 +26,16 @@ import (
 
 	_ "github.com/go-sql-driver/mysql" // register SQL driver
 	"github.com/percona/go-mysql/event"
+	"github.com/pkg/errors"
+	"github.com/sirupsen/logrus"
+	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/mysql"
+
 	slowlog "github.com/percona/go-mysql/log"
 	parser "github.com/percona/go-mysql/log/slow"
 	"github.com/percona/go-mysql/query"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
-	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
-	"gopkg.in/reform.v1"
-	"gopkg.in/reform.v1/dialects/mysql"
 )
 
 const (
@@ -175,13 +176,18 @@ func (m *SlowLog) Run(ctx context.Context) {
 			res := aggregator.Finalize()
 
 			// Check if MySQL SlowLog config is changed and slowlog rotated.
-			curStat, err := os.Stat(slowLogFilePath)
+			newStat, err := os.Stat(slowLogFilePath)
 			if err != nil {
 				m.l.Errorf("cannot get stat of slowlog (%s): %s", slowLogFilePath, err)
 				return
 			}
-			if !os.SameFile(stat, curStat) {
-				opts.StartOffset = uint64(curStat.Size())
+			// In case of rotatation a slowlog file, set a new offset to parse the new slow log file.
+			if !os.SameFile(stat, newStat) {
+				// Start from beginning of new file.
+				opts.StartOffset = uint64(0)
+				m.l.Infof("File changed. Start from beginning of new file %s.", slowLogFilePath)
+				// use new slowlog stat as current.
+				stat = newStat
 			}
 
 			if !running {
