@@ -275,6 +275,9 @@ type GetMetricsOKBody struct {
 
 	// metrics
 	Metrics map[string]MetricsAnon `json:"metrics,omitempty"`
+
+	// sparkline
+	Sparkline []*SparklineItems0 `json:"sparkline"`
 }
 
 // Validate validates this get metrics OK body
@@ -282,6 +285,10 @@ func (o *GetMetricsOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateMetrics(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateSparkline(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -304,6 +311,31 @@ func (o *GetMetricsOKBody) validateMetrics(formats strfmt.Registry) error {
 		}
 		if val, ok := o.Metrics[k]; ok {
 			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *GetMetricsOKBody) validateSparkline(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Sparkline) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Sparkline); i++ {
+		if swag.IsZero(o.Sparkline[i]) { // not required
+			continue
+		}
+
+		if o.Sparkline[i] != nil {
+			if err := o.Sparkline[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("getMetricsOk" + "." + "sparkline" + "." + strconv.Itoa(i))
+				}
 				return err
 			}
 		}
@@ -412,6 +444,39 @@ func (o *MetricsAnon) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *MetricsAnon) UnmarshalBinary(b []byte) error {
 	var res MetricsAnon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*SparklineItems0 Point contains values that represents abscissa (time) and ordinate (volume etc.)
+// of every point in a coordinate system of Sparklines.
+swagger:model SparklineItems0
+*/
+type SparklineItems0 struct {
+
+	// values
+	Values map[string]float32 `json:"values,omitempty"`
+}
+
+// Validate validates this sparkline items0
+func (o *SparklineItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *SparklineItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *SparklineItems0) UnmarshalBinary(b []byte) error {
+	var res SparklineItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

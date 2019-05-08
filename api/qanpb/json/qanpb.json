@@ -523,6 +523,22 @@
                       }
                     }
                   }
+                },
+                "sparkline": {
+                  "type": "array",
+                  "items": {
+                    "description": "Point contains values that represents abscissa (time) and ordinate (volume etc.)\nof every point in a coordinate system of Sparklines.",
+                    "type": "object",
+                    "properties": {
+                      "values": {
+                        "type": "object",
+                        "additionalProperties": {
+                          "type": "number",
+                          "format": "float"
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
