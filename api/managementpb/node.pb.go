@@ -31,21 +31,20 @@ type RegisterNodeRequest struct {
 	NodeType inventorypb.NodeType `protobuf:"varint,1,opt,name=node_type,json=nodeType,proto3,enum=inventory.NodeType" json:"node_type,omitempty"`
 	// Unique across all Nodes user-defined name. Can't be changed.
 	NodeName string `protobuf:"bytes,2,opt,name=node_name,json=nodeName,proto3" json:"node_name,omitempty"`
-	// Linux machine-id. Auto-detected and auto-updated.
+	// Linux machine-id.
 	// Must be unique across all Generic Nodes if specified.
 	MachineId string `protobuf:"bytes,3,opt,name=machine_id,json=machineId,proto3" json:"machine_id,omitempty"`
-	// Linux distribution name and version. Auto-detected and auto-updated.
+	// Linux distribution name and version.
 	Distro string `protobuf:"bytes,4,opt,name=distro,proto3" json:"distro,omitempty"`
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	// Auto-detected and auto-updated.
 	ContainerId string `protobuf:"bytes,6,opt,name=container_id,json=containerId,proto3" json:"container_id,omitempty"`
-	// Container name. Auto-detected and auto-updated.
+	// Container name.
 	ContainerName string `protobuf:"bytes,7,opt,name=container_name,json=containerName,proto3" json:"container_name,omitempty"`
-	// Node model. Auto-detected and auto-updated.
+	// Node model.
 	NodeModel string `protobuf:"bytes,8,opt,name=node_model,json=nodeModel,proto3" json:"node_model,omitempty"`
-	// Node region. Auto-detected and auto-updated.
+	// Node region.
 	Region string `protobuf:"bytes,9,opt,name=region,proto3" json:"region,omitempty"`
-	// Node availability zone. Auto-detected and auto-updated.
+	// Node availability zone.
 	Az string `protobuf:"bytes,10,opt,name=az,proto3" json:"az,omitempty"`
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `protobuf:"bytes,11,rep,name=custom_labels,json=customLabels,proto3" json:"custom_labels,omitempty" protobuf_key:"bytes,1,opt,name=key,proto3" protobuf_val:"bytes,2,opt,name=value,proto3"`
@@ -277,7 +276,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type NodeClient interface {
-	// Register registers a new Node and pmm-agent, or updates the existing one by name.
+	// Register registers a new Node and pmm-agent.
 	Register(ctx context.Context, in *RegisterNodeRequest, opts ...grpc.CallOption) (*RegisterNodeResponse, error)
 }
 
@@ -300,7 +299,7 @@ func (c *nodeClient) Register(ctx context.Context, in *RegisterNodeRequest, opts
 
 // NodeServer is the server API for Node service.
 type NodeServer interface {
-	// Register registers a new Node and pmm-agent, or updates the existing one by name.
+	// Register registers a new Node and pmm-agent.
 	Register(context.Context, *RegisterNodeRequest) (*RegisterNodeResponse, error)
 }
 
