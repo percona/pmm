@@ -228,17 +228,6 @@ func (this *AddPMMAgentResponse) Validate() error {
 	}
 	return nil
 }
-func (this *ChangePMMAgentRequest) Validate() error {
-	return nil
-}
-func (this *ChangePMMAgentResponse) Validate() error {
-	if this.PmmAgent != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.PmmAgent); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("PmmAgent", err)
-		}
-	}
-	return nil
-}
 func (this *AddNodeExporterRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))

@@ -322,7 +322,7 @@ message GetAgentResponse {
   }
 }
 
-// Add/Change PMMAgent
+// Add PMMAgent
 
 message AddPMMAgentRequest {
   // Unique randomly generated instance identifier.
@@ -338,12 +338,6 @@ message AddPMMAgentRequest {
 }
 
 message AddPMMAgentResponse {
-  PMMAgent pmm_agent = 1;
-}
-
-message ChangePMMAgentRequest {}
-
-message ChangePMMAgentResponse {
   PMMAgent pmm_agent = 1;
 }
 
@@ -791,13 +785,6 @@ service Agents {
   rpc AddPMMAgent(AddPMMAgentRequest) returns (AddPMMAgentResponse) {
     option (google.api.http) = {
       post: "/v0/inventory/Agents/AddPMMAgent"
-      body: "*"
-    };
-  }
-  // ChangePMMAgent changes pmm-agent Agent.
-  rpc ChangePMMAgent(ChangePMMAgentRequest) returns (ChangePMMAgentResponse) {
-    option (google.api.http) = {
-      post: "/v0/inventory/Agents/ChangePMMAgent"
       body: "*"
     };
   }

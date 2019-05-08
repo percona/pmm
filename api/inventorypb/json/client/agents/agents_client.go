@@ -417,34 +417,6 @@ func (a *Client) ChangeNodeExporter(params *ChangeNodeExporterParams) (*ChangeNo
 }
 
 /*
-ChangePMMAgent changes PMM agent changes pmm agent agent
-*/
-func (a *Client) ChangePMMAgent(params *ChangePMMAgentParams) (*ChangePMMAgentOK, error) {
-	// TODO: Validate the params before sending
-	if params == nil {
-		params = NewChangePMMAgentParams()
-	}
-
-	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "ChangePMMAgent",
-		Method:             "POST",
-		PathPattern:        "/v0/inventory/Agents/ChangePMMAgent",
-		ProducesMediaTypes: []string{"application/json"},
-		ConsumesMediaTypes: []string{"application/json"},
-		Schemes:            []string{"http", "https"},
-		Params:             params,
-		Reader:             &ChangePMMAgentReader{formats: a.formats},
-		Context:            params.Context,
-		Client:             params.HTTPClient,
-	})
-	if err != nil {
-		return nil, err
-	}
-	return result.(*ChangePMMAgentOK), nil
-
-}
-
-/*
 ChangePostgresExporter changes postgres exporter changes postgres exporter agent
 */
 func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*ChangePostgresExporterOK, error) {
