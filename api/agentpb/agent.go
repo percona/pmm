@@ -77,7 +77,7 @@ func (m *StateChangedResponse) ServerMessageResponsePayload() isServerMessage_Pa
 func (m *QANCollectResponse) ServerMessageResponsePayload() isServerMessage_Payload {
 	return &ServerMessage_QanCollect{QanCollect: m}
 }
-func (m *ActionResultResponse) ServerMessageRequestPayload() isServerMessage_Payload {
+func (m *ActionResultResponse) ServerMessageResponsePayload() isServerMessage_Payload {
 	return &ServerMessage_ActionResult{ActionResult: m}
 }
 
@@ -117,6 +117,7 @@ var (
 	_ AgentRequestPayload = (*Ping)(nil)
 	_ AgentRequestPayload = (*StateChangedRequest)(nil)
 	_ AgentRequestPayload = (*QANCollectRequest)(nil)
+	_ AgentRequestPayload = (*ActionResultRequest)(nil)
 
 	// AgentMessage response payloads
 	_ AgentResponsePayload = (*Pong)(nil)
@@ -128,6 +129,7 @@ var (
 	_ ServerResponsePayload = (*Pong)(nil)
 	_ ServerResponsePayload = (*StateChangedResponse)(nil)
 	_ ServerResponsePayload = (*QANCollectResponse)(nil)
+	_ ServerResponsePayload = (*ActionResultResponse)(nil)
 
 	// ServerMessage request payloads
 	_ ServerRequestPayload = (*Ping)(nil)
