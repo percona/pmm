@@ -20,7 +20,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"testing"
 	"time"
 
@@ -30,6 +29,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm/api/qanpb"
+
 	"github.com/percona/qan-api2/models"
 )
 
@@ -163,13 +163,12 @@ func TestService_GetQueryExample(t *testing.T) {
 	}
 }
 
-func TestService_GetMetrics(t *testing.T) {
+func TestService_GetMetricsError(t *testing.T) {
 	db := setup()
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
 	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
-	var want qanpb.MetricsReply
 
 	type fields struct {
 		rm models.Reporter
@@ -186,36 +185,6 @@ func TestService_GetMetrics(t *testing.T) {
 		want    *qanpb.MetricsReply
 		wantErr bool
 	}{
-		{
-			"group_by_queryid",
-			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.MetricsRequest{
-					PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-					GroupBy:         "queryid",
-					FilterBy:        "B305F6354FA21F2A",
-				},
-			},
-			&want,
-			false,
-		},
-		{
-			"group_by_queryid_total",
-			fields{rm: rm, mm: mm},
-			args{
-				context.TODO(),
-				&qanpb.MetricsRequest{
-					PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
-					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-					GroupBy:         "queryid",
-					FilterBy:        "",
-				},
-			},
-			&want,
-			false,
-		},
 		{
 			"not_found",
 			fields{rm: rm, mm: mm},
@@ -274,6 +243,51 @@ func TestService_GetMetrics(t *testing.T) {
 			nil,
 			true,
 		},
+		{
+			"not_found_labels",
+			fields{rm: rm, mm: mm},
+			args{
+				context.TODO(),
+				&qanpb.MetricsRequest{
+					PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+					GroupBy:         "no_group_name",
+					FilterBy:        "B305F6354FA21F2A",
+					Labels: []*qanpb.MapFieldEntry{
+						{
+							Key:   "label1",
+							Value: []string{"value1", "value2"},
+						},
+						{
+							Key:   "d_server",
+							Value: []string{"db1", "db2", "db3", "db4", "db5", "db6", "db7"},
+						},
+						{
+							Key:   "d_client_host",
+							Value: []string{"localhost"},
+						},
+						{
+							Key:   "d_username",
+							Value: []string{"john"},
+						},
+						{
+							Key:   "d_schema",
+							Value: []string{"my_schema"},
+						},
+						{
+							Key:   "d_database",
+							Value: []string{"test_database"},
+						},
+						{
+							Key:   "queryid",
+							Value: []string{"some_query_id"},
+						},
+					},
+				},
+			},
+			nil,
+			true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -281,17 +295,64 @@ func TestService_GetMetrics(t *testing.T) {
 				rm: tt.fields.rm,
 				mm: tt.fields.mm,
 			}
-			got, err := s.GetMetrics(tt.args.ctx, tt.args.in)
+			_, err := s.GetMetrics(tt.args.ctx, tt.args.in)
 			if (err != nil) != tt.wantErr {
 				assert.Errorf(t, err, "Service.GetMetrics() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			tt.want = nil
-			expectedData(t, got, &tt.want, "../../test_data/GetMetrics_"+tt.name+".json")
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Service.GetMetrics() = %v, want %v", got, tt.want)
-			}
 		})
 	}
+}
+
+func TestService_GetMetrics(t *testing.T) {
+	db := setup()
+	rm := models.NewReporter(db)
+	mm := models.NewMetrics(db)
+	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
+	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
+
+	t.Run("group_by_queryid", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+		in := &qanpb.MetricsRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "queryid",
+			FilterBy:        "B305F6354FA21F2A",
+		}
+		got, err := s.GetMetrics(context.TODO(), in)
+		assert.NoError(t, err, "Unexpected error in Service.GetMetrics()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetMetrics_group_by_queryid.json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		require.JSONEq(t, string(expectedJSON), string(gotJSON))
+	})
+
+	t.Run("total", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+		in := &qanpb.MetricsRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "queryid",
+			FilterBy:        "", // Empty filter get all queries.
+		}
+		got, err := s.GetMetrics(context.TODO(), in)
+		assert.NoError(t, err, "Unexpected error in Service.GetMetrics()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetMetrics_total.json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+	})
 }
 
 func TestService_GetLabels(t *testing.T) {

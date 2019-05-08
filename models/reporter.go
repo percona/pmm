@@ -21,6 +21,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math"
 	"strings"
 	"text/template"
 	"time"
@@ -166,7 +167,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFrom, periodStartTo ti
 
 const queryReportSparklinesTmpl = `
 	SELECT
-		(toUnixTimestamp( :period_start_to ) - toUnixTimestamp( :period_start_from )) / 60 AS time_frame,
+		(toUnixTimestamp( :period_start_to ) - toUnixTimestamp( :period_start_from )) / {{ index . "amount_of_points" }} AS time_frame,
 		intDivOrZero(toUnixTimestamp( :period_start_to ) - toRelativeSecondNum(period_start), time_frame) AS point,
 		toUnixTimestamp( :period_start_to ) - (point * time_frame) AS timestamp,
 		SUM(num_queries) AS num_queries_sum,
@@ -217,6 +218,14 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		}
 	}
 
+	// If time range is bigger then an hour - amount of sparklines points = 60 to avoid huge data in response.
+	// Otherwise amount of sparklines points is equal to minutes in in time range to not mess up calculation.
+	amountOfPoints := 60
+	timePeriod := periodStartTo.Sub(periodStartFrom)
+	if timePeriod < 1*time.Hour {
+		amountOfPoints = int(math.Round(timePeriod.Minutes()))
+	}
+
 	arg := map[string]interface{}{
 		"dimension_val":     dimensionVal,
 		"period_start_from": periodStartFrom,
@@ -230,6 +239,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		"labels":            dbLabels,
 		"group":             group,
 		"columns":           columns,
+		"amount_of_points":  amountOfPoints,
 	}
 
 	var results []*qanpb.Point
@@ -269,9 +279,9 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		resultsWithGaps[points.Values["point"]] = &points
 	}
 
-	timeFrame := (periodStartTo.Sub(periodStartFrom) / 60).Seconds()
+	timeFrame := periodStartTo.Sub(periodStartFrom).Seconds() / float64(amountOfPoints)
 	// fill in gaps in time series.
-	for pointN := 0; pointN < 60; pointN++ {
+	for pointN := 0; pointN < amountOfPoints; pointN++ {
 		point, ok := resultsWithGaps[float32(pointN)]
 		if !ok {
 			point = &qanpb.Point{

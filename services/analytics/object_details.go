@@ -27,21 +27,27 @@ import (
 // GetMetrics implements rpc to get metrics for specific filtering.
 func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qanpb.MetricsReply, error) {
 	labels := in.GetLabels()
-	dbServers := []string{}
-	dbSchemas := []string{}
-	dbUsernames := []string{}
-	clientHosts := []string{}
+	dQueryids := []string{}
+	dServers := []string{}
+	dDatabases := []string{}
+	dSchemas := []string{}
+	dUsernames := []string{}
+	dClientHosts := []string{}
 	dbLabels := map[string][]string{}
 	for _, label := range labels {
 		switch label.Key {
-		case "db_server":
-			dbServers = label.Value
-		case "db_schema":
-			dbSchemas = label.Value
-		case "db_username":
-			dbUsernames = label.Value
-		case "client_host":
-			clientHosts = label.Value
+		case "queryid":
+			dQueryids = label.Value
+		case "d_server":
+			dServers = label.Value
+		case "d_database":
+			dDatabases = label.Value
+		case "d_schema":
+			dSchemas = label.Value
+		case "d_username":
+			dUsernames = label.Value
+		case "d_client_host":
+			dClientHosts = label.Value
 		default:
 			dbLabels[label.Key] = label.Value
 		}
@@ -49,25 +55,27 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 	if in.PeriodStartFrom == nil {
 		return nil, fmt.Errorf("period_start_from is required:%v", in.PeriodStartFrom)
 	}
-	from := time.Unix(in.PeriodStartFrom.Seconds, 0)
+	periodStartFromSec := in.PeriodStartFrom.Seconds
 	if in.PeriodStartTo == nil {
 		return nil, fmt.Errorf("period_start_to is required:%v", in.PeriodStartTo)
 	}
-	to := time.Unix(in.PeriodStartTo.Seconds, 0)
+	periodStartToSec := in.PeriodStartTo.Seconds
 	m := make(map[string]*qanpb.MetricValues)
 	resp := &qanpb.MetricsReply{
 		Metrics: m,
 	}
 	metrics, err := s.mm.Get(
 		ctx,
-		from,
-		to,
+		periodStartFromSec,
+		periodStartToSec,
 		in.FilterBy,
 		in.GroupBy,
-		dbServers,
-		dbSchemas,
-		dbUsernames,
-		clientHosts,
+		dQueryids,
+		dServers,
+		dDatabases,
+		dSchemas,
+		dUsernames,
+		dClientHosts,
 		dbLabels,
 	)
 	if err != nil {
@@ -78,7 +86,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		return nil, fmt.Errorf("not found for filter: %s and group: %s in given time range", in.FilterBy, in.GroupBy)
 	}
 
-	durationSec := to.Sub(from).Seconds()
+	durationSec := periodStartToSec - periodStartFromSec
 
 	for k := range commonColumnNames {
 		cnt := interfaceToFloat32(metrics[0]["m_"+k+"_cnt"])
@@ -122,6 +130,14 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		}
 		resp.Metrics[k] = &mv
 	}
+
+	sparklines, err := s.mm.SelectSparklines(ctx, periodStartFromSec, periodStartToSec, in.FilterBy, in.GroupBy,
+		dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts,
+		dbLabels)
+	if err != nil {
+		return resp, err
+	}
+	resp.Sparkline = sparklines
 
 	return resp, err
 }

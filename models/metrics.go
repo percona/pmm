@@ -44,18 +44,21 @@ func NewMetrics(db *sqlx.DB) Metrics {
 }
 
 // Get select metrics for specific queryid, hostname, etc.
-func (m *Metrics) Get(ctx context.Context, from, to time.Time, filter, group string, dbServers, dbSchemas, dbUsernames,
-	clientHosts []string, dbLabels map[string][]string) ([]M, error) {
+func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec int64, filter, group string,
+	dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string,
+	dbLabels map[string][]string) ([]M, error) {
 	arg := map[string]interface{}{
-		"from":    from,
-		"to":      to,
-		"filter":  filter,
-		"group":   group,
-		"servers": dbServers,
-		"schemas": dbSchemas,
-		"users":   dbUsernames,
-		"hosts":   clientHosts,
-		"labels":  dbLabels,
+		"period_start_from": periodStartFromSec,
+		"period_start_to":   periodStartToSec,
+		"queryids":          dQueryids,
+		"servers":           dServers,
+		"databases":         dDatabases,
+		"schemas":           dSchemas,
+		"users":             dUsernames,
+		"hosts":             dClientHosts,
+		"labels":            dbLabels,
+		"group":             group,
+		"dimension_val":     filter,
 	}
 	var queryBuffer bytes.Buffer
 	if tmpl, err := template.New("queryMetricsTmpl").Funcs(funcMap).Parse(queryMetricsTmpl); err != nil {
@@ -250,24 +253,191 @@ MAX(m_docs_scanned_max) AS m_docs_scanned_max,
 AVG(m_docs_scanned_p99) AS m_docs_scanned_p99
 
 FROM metrics
-WHERE period_start >= :from AND period_start <= :to
-{{ if index . "filter" }} AND {{ index . "group" }} = :filter {{ end }}
-{{ if index . "servers" }} AND db_server IN ( :servers ) {{ end }}
-{{ if index . "schemas" }} AND db_schema IN ( :schemas ) {{ end }}
-{{ if index . "users" }} AND db_username IN ( :users ) {{ end }}
-{{ if index . "hosts" }} AND client_host IN ( :hosts ) {{ end }}
+WHERE period_start >= :period_start_from AND period_start <= :period_start_to
+{{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}
+{{ if index . "queryids" }} AND queryid IN ( :queryids ) {{ end }}
+{{ if index . "servers" }} AND d_server IN ( :servers ) {{ end }}
+{{ if index . "databases" }} AND d_database IN ( :databases ) {{ end }}
+{{ if index . "schemas" }} AND d_schema IN ( :schemas ) {{ end }}
+{{ if index . "users" }} AND d_username IN ( :users ) {{ end }}
+{{ if index . "hosts" }} AND d_client_host IN ( :hosts ) {{ end }}
 {{ if index . "labels" }}
 	AND (
 		{{$i := 0}}
 		{{range $key, $val := index . "labels"}}
-			{{ $i = inc $i}} {{ if gt $i 1}} OR  {{ end }}
-				labels.value[indexOf(labels.key, :{{ $key }})] = :{{ $val }}
+			{{ $i = inc $i}} {{ if gt $i 1}} OR {{ end }}
+			has(['{{ StringsJoin $val "','" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
 		{{ end }}
 	)
 {{ end }}
 GROUP BY {{ index . "group" }}
 	WITH TOTALS;
 `
+
+const queryMetricsSparklinesTmpl = `
+SELECT
+		(toUnixTimestamp( :period_start_to ) - toUnixTimestamp( :period_start_from )) / {{ index . "amount_of_points" }} AS time_frame,
+		intDivOrZero(toUnixTimestamp( :period_start_to ) - toRelativeSecondNum(period_start), time_frame) AS point,
+		toUnixTimestamp( :period_start_to ) - (point * time_frame) AS timestamp,
+
+SUM(num_queries) / time_frame AS num_queries_per_sec,
+if(SUM(m_query_time_cnt) == 0, NULL, SUM(m_query_time_sum) / time_frame) AS m_query_time_per_sec,
+if(SUM(m_lock_time_cnt) == 0, NULL, SUM(m_lock_time_sum) / time_frame) AS m_lock_time_sum,
+if(SUM(m_rows_sent_cnt) == 0, NULL, SUM(m_rows_sent_sum) / time_frame) AS m_rows_sent_sum_per_sec,
+if(SUM(m_rows_examined_cnt) == 0, NULL, SUM(m_rows_examined_sum) / time_frame) AS m_rows_examined_sum_per_sec,
+if(SUM(m_rows_affected_cnt) == 0, NULL, SUM(m_rows_affected_sum) / time_frame) AS m_rows_affected_sum_per_sec,
+if(SUM(m_rows_read_cnt) == 0, NULL, SUM(m_rows_read_sum) / time_frame) AS m_rows_read_sum_per_sec,
+if(SUM(m_merge_passes_cnt) == 0, NULL, SUM(m_merge_passes_sum) / time_frame) AS m_merge_passes_sum_per_sec,
+if(SUM(m_innodb_io_r_ops_cnt) == 0, NULL, SUM(m_innodb_io_r_ops_sum) / time_frame) AS m_innodb_io_r_ops_sum_per_sec,
+if(SUM(m_innodb_io_r_bytes_cnt) == 0, NULL, SUM(m_innodb_io_r_bytes_sum) / time_frame) AS m_innodb_io_r_bytes_sum_per_sec,
+if(SUM(m_innodb_io_r_wait_cnt) == 0, NULL, SUM(m_innodb_io_r_wait_sum) / time_frame) AS m_innodb_io_r_wait_sum_per_sec,
+if(SUM(m_innodb_rec_lock_wait_cnt) == 0, NULL, SUM(m_innodb_rec_lock_wait_sum) / time_frame) AS m_innodb_rec_lock_wait_sum_per_sec,
+if(SUM(m_innodb_queue_wait_cnt) == 0, NULL, SUM(m_innodb_queue_wait_sum) / time_frame) AS m_innodb_queue_wait_sum_per_sec,
+if(SUM(m_innodb_pages_distinct_cnt) == 0, NULL, SUM(m_innodb_pages_distinct_sum) / time_frame) AS m_innodb_pages_distinct_sum_per_sec,
+if(SUM(m_query_length_cnt) == 0, NULL, SUM(m_query_length_sum) / time_frame) AS m_query_length_sum_per_sec,
+if(SUM(m_bytes_sent_cnt) == 0, NULL, SUM(m_bytes_sent_sum) / time_frame) AS m_bytes_sent_sum_per_sec,
+if(SUM(m_tmp_tables_cnt) == 0, NULL, SUM(m_tmp_tables_sum) / time_frame) AS m_tmp_tables_sum_per_sec,
+if(SUM(m_tmp_disk_tables_cnt) == 0, NULL, SUM(m_tmp_disk_tables_sum) / time_frame) AS m_tmp_disk_tables_sum_per_sec,
+if(SUM(m_tmp_table_sizes_cnt) == 0, NULL, SUM(m_tmp_table_sizes_sum) / time_frame) AS m_tmp_table_sizes_sum_per_sec,
+if(SUM(m_qc_hit_cnt) == 0, NULL, SUM(m_qc_hit_sum) / time_frame) AS m_qc_hit_sum_per_sec,
+if(SUM(m_full_scan_cnt) == 0, NULL, SUM(m_full_scan_sum) / time_frame) AS m_full_scan_sum_per_sec,
+if(SUM(m_full_join_cnt) == 0, NULL, SUM(m_full_join_sum) / time_frame) AS m_full_join_sum_per_sec,
+if(SUM(m_tmp_table_cnt) == 0, NULL, SUM(m_tmp_table_sum) / time_frame) AS m_tmp_table_sum_per_sec,
+if(SUM(m_tmp_table_on_disk_cnt) == 0 , NULL, SUM(m_tmp_table_on_disk_sum) / time_frame) AS m_tmp_table_on_disk_sum_per_sec,
+if(SUM(m_filesort_cnt) == 0 , NULL, SUM(m_filesort_sum) / time_frame) AS m_filesort_sum_per_sec,
+if(SUM(m_filesort_on_disk_cnt) == 0 , NULL, SUM(m_filesort_on_disk_sum) / time_frame) AS m_filesort_on_disk_sum_per_sec,
+if(SUM(m_select_full_range_join_cnt) == 0 , NULL, SUM(m_select_full_range_join_sum) / time_frame) AS m_select_full_range_join_sum_per_sec,
+if(SUM(m_select_range_cnt) == 0 , NULL, SUM(m_select_range_sum) / time_frame) AS m_select_range_sum_per_sec,
+if(SUM(m_select_range_check_cnt) == 0 , NULL, SUM(m_select_range_check_sum) / time_frame) AS m_select_range_check_sum_per_sec,
+if(SUM(m_sort_range_cnt) == 0 , NULL, SUM(m_sort_range_sum) / time_frame) AS m_sort_range_sum_per_sec,
+if(SUM(m_sort_rows_cnt) == 0 , NULL, SUM(m_sort_rows_sum) / time_frame) AS m_sort_rows_sum_per_sec,
+if(SUM(m_sort_scan_cnt) == 0 , NULL, SUM(m_sort_scan_sum) / time_frame) AS m_sort_scan_sum_per_sec,
+if(SUM(m_no_index_used_cnt) == 0 , NULL, SUM(m_no_index_used_sum) / time_frame) AS m_no_index_used_sum_per_sec,
+if(SUM(m_no_good_index_used_cnt) == 0 , NULL, SUM(m_no_good_index_used_sum) / time_frame) AS m_no_good_index_used_sum_per_sec,
+if(SUM(m_docs_returned_cnt) == 0 , NULL, SUM(m_docs_returned_sum) / time_frame) AS m_docs_returned_sum_per_sec,
+if(SUM(m_response_length_cnt) == 0 , NULL, SUM(m_response_length_sum) / time_frame) AS m_response_length_sum_per_sec,
+if(SUM(m_docs_scanned_cnt) == 0 , NULL, SUM(m_docs_scanned_sum) / time_frame) AS m_docs_scanned_sum_per_sec
+FROM metrics
+WHERE period_start >= :period_start_from AND period_start <= :period_start_to
+{{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}
+{{ if index . "queryids" }} AND queryid IN ( :queryids ) {{ end }}
+{{ if index . "servers" }} AND d_server IN ( :servers ) {{ end }}
+{{ if index . "databases" }} AND d_database IN ( :databases ) {{ end }}
+{{ if index . "schemas" }} AND d_schema IN ( :schemas ) {{ end }}
+{{ if index . "users" }} AND d_username IN ( :users ) {{ end }}
+{{ if index . "hosts" }} AND d_client_host IN ( :hosts ) {{ end }}
+{{ if index . "labels" }}
+	AND (
+		{{$i := 0}}
+		{{range $key, $val := index . "labels"}}
+			{{ $i = inc $i}} {{ if gt $i 1}} OR {{ end }}
+			has(['{{ StringsJoin $val "','" }}'], labels.value[indexOf(labels.key, '{{ $key }}')])
+		{{ end }}
+	)
+{{ end }}
+GROUP BY point
+	ORDER BY point ASC;
+`
+
+//nolint
+var tmplMetricsSparklines = template.Must(template.New("queryMetricsSparklines").Funcs(funcMap).Parse(queryMetricsSparklinesTmpl))
+
+// SelectSparklines selects datapoint for sparklines.
+func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, periodStartToSec int64,
+	filter, group string,
+	dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string,
+	dbLabels map[string][]string) ([]*qanpb.Point, error) {
+
+	interfaceToFloat32 := func(unk interface{}) float32 {
+		switch i := unk.(type) {
+		case float64:
+			return float32(i)
+		case float32:
+			return i
+		case int64:
+			return float32(i)
+		default:
+			return float32(0)
+		}
+	}
+
+	// If time range is bigger then an hour - amount of sparklines points = 60 to avoid huge data in response.
+	// Otherwise amount of sparklines points is equal to minutes in in time range to not mess up calculation.
+	amountOfPoints := int64(60)
+	timePeriod := periodStartToSec - periodStartFromSec
+	if timePeriod < int64((1 * time.Hour).Seconds()) {
+		amountOfPoints = timePeriod / 60 // minimum point is 1 minute
+	}
+
+	arg := map[string]interface{}{
+		"period_start_from": periodStartFromSec,
+		"period_start_to":   periodStartToSec,
+		"queryids":          dQueryids,
+		"servers":           dServers,
+		"databases":         dDatabases,
+		"schemas":           dSchemas,
+		"users":             dUsernames,
+		"hosts":             dClientHosts,
+		"labels":            dbLabels,
+		"group":             group,
+		"dimension_val":     filter,
+		"amount_of_points":  amountOfPoints,
+	}
+
+	var results []*qanpb.Point
+	var queryBuffer bytes.Buffer
+	if err := tmplMetricsSparklines.Execute(&queryBuffer, arg); err != nil {
+		return nil, errors.Wrap(err, "cannot execute tmplMetricsSparklines")
+	}
+	query, args, err := sqlx.Named(queryBuffer.String(), arg)
+	if err != nil {
+		return results, fmt.Errorf("prepare named:%v", err)
+	}
+	query, args, err = sqlx.In(query, args...)
+	if err != nil {
+		return nil, errors.Wrap(err, "populate agruments in IN clause")
+	}
+	query = m.db.Rebind(query)
+
+	rows, err := m.db.QueryxContext(ctx, query, args...)
+	if err != nil {
+		return nil, errors.Wrap(err, "metrics sparklines query")
+	}
+	resultsWithGaps := map[float32]*qanpb.Point{}
+	for rows.Next() {
+		res := make(map[string]interface{})
+		err = rows.MapScan(res)
+		if err != nil {
+			return nil, errors.Wrap(err, "metrics sparkilnes scan error")
+		}
+		points := qanpb.Point{
+			Values: make(map[string]float32),
+		}
+		for k, v := range res {
+			points.Values[k] = interfaceToFloat32(v)
+		}
+		resultsWithGaps[points.Values["point"]] = &points
+	}
+
+	timeFrame := (periodStartToSec - periodStartFromSec) / amountOfPoints
+	// fill in gaps in time series.
+	for pointN := int64(0); pointN < amountOfPoints; pointN++ {
+		point, ok := resultsWithGaps[float32(pointN)]
+		if !ok {
+			point = &qanpb.Point{
+				Values: make(map[string]float32),
+			}
+			timeShift := timeFrame * pointN
+			ts := periodStartToSec - timeShift
+			point.Values["point"] = float32(pointN)
+			point.Values["time_frame"] = float32(timeFrame)
+			point.Values["timestamp"] = float32(ts)
+		}
+		results = append(results, point)
+	}
+
+	return results, err
+}
 
 const queryExampleTmpl = `
 SELECT example, toUInt8(example_format) AS example_format,
@@ -331,7 +501,7 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, from, to time.T
 	}
 	var queryBuffer bytes.Buffer
 	if err := tmplObjectDetailsLabels.Execute(&queryBuffer, arg); err != nil {
-		log.Fatalln(err)
+		return nil, errors.Wrap(err, "cannot execute tmplObjectDetailsLabels")
 	}
 	res := qanpb.ObjectDetailsLabelsReply{}
 	nstmt, err := m.db.PrepareNamed(queryBuffer.String())
