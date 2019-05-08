@@ -85,7 +85,7 @@ func (ss *ServiceService) RemoveService(ctx context.Context, req *managementpb.R
 			return err
 		}
 		for _, agent := range agents {
-			_, err := models.AgentRemove(ss.db.Querier, agent.AgentID)
+			_, err := models.RemoveAgent(ss.db.Querier, agent.AgentID)
 			if err != nil {
 				return err
 			}

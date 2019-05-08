@@ -27,6 +27,49 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+func checkServiceUniqueID(q *reform.Querier, id string) error {
+	if id == "" {
+		panic("empty Service ID")
+	}
+
+	row := &Service{ServiceID: id}
+	switch err := q.Reload(row); err {
+	case nil:
+		return status.Errorf(codes.AlreadyExists, "Service with ID %q already exists.", id)
+	case reform.ErrNoRows:
+		return nil
+	default:
+		return errors.WithStack(err)
+	}
+}
+
+func checkServiceUniqueName(q *reform.Querier, name string) error {
+	_, err := q.FindOneFrom(ServiceTable, "service_name", name)
+	switch err {
+	case nil:
+		return status.Errorf(codes.AlreadyExists, "Service with name %q already exists.", name)
+	case reform.ErrNoRows:
+		return nil
+	default:
+		return errors.WithStack(err)
+	}
+}
+
+// FindAllServices returns all Services.
+func FindAllServices(q *reform.Querier) ([]*Service, error) {
+	structs, err := q.SelectAllFrom(ServiceTable, "ORDER BY service_id")
+	if err != nil {
+		return nil, err
+	}
+
+	services := make([]*Service, len(structs))
+	for i, s := range structs {
+		services[i] = s.(*Service)
+	}
+
+	return services, nil
+}
+
 // FindServiceByID finds Service by ID.
 func FindServiceByID(q *reform.Querier, id string) (*Service, error) {
 	if id == "" {
@@ -60,21 +103,6 @@ func FindServiceByName(q *reform.Querier, name string) (*Service, error) {
 	default:
 		return nil, errors.WithStack(err)
 	}
-}
-
-// FindAllServices returns all Services.
-func FindAllServices(q *reform.Querier) ([]*Service, error) {
-	structs, err := q.SelectAllFrom(ServiceTable, "ORDER BY service_id")
-	if err != nil {
-		return nil, err
-	}
-
-	services := make([]*Service, len(structs))
-	for i, s := range structs {
-		services[i] = s.(*Service)
-	}
-
-	return services, nil
 }
 
 // ServicesForAgent returns all Services for which Agent with given ID provides insights.
@@ -121,47 +149,6 @@ func ServicesForNode(q *reform.Querier, nodeID string) ([]*Service, error) {
 	return res, nil
 }
 
-func checkServiceUniqueID(q *reform.Querier, id string) error {
-	if id == "" {
-		panic("empty Service ID")
-	}
-
-	row := &Service{ServiceID: id}
-	switch err := q.Reload(row); err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Service with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return nil
-	default:
-		return errors.WithStack(err)
-	}
-}
-
-func checkServiceUniqueName(q *reform.Querier, name string) error {
-	_, err := q.FindOneFrom(ServiceTable, "service_name", name)
-	switch err {
-	case nil:
-		return status.Errorf(codes.AlreadyExists, "Service with name %q already exists.", name)
-	case reform.ErrNoRows:
-		return nil
-	default:
-		return errors.WithStack(err)
-	}
-}
-
-func checkServiceAbsenceOfAgents(q *reform.Querier, serviceID string) error {
-	structs, err := q.FindAllFrom(AgentServiceView, "service_id", serviceID)
-	if err != nil {
-		return errors.WithStack(err)
-	}
-	switch len(structs) {
-	case 0:
-		return nil
-	default:
-		return status.Errorf(codes.FailedPrecondition, "Service with ID %q has agents.", serviceID)
-	}
-}
-
 // AddDBMSServiceParams contains parameters for adding DBMS (MySQL, PostgreSQL, MongoDB) Services.
 type AddDBMSServiceParams struct {
 	ServiceName  string
@@ -205,12 +192,18 @@ func AddNewService(q *reform.Querier, serviceType ServiceType, params *AddDBMSSe
 
 // RemoveService removes single Service.
 func RemoveService(q *reform.Querier, id string) error {
-	if err := checkServiceAbsenceOfAgents(q, id); err != nil {
+	s, err := FindServiceByID(q, id)
+	if err != nil {
 		return err
 	}
-	err := q.Delete(&Service{ServiceID: id})
-	if err == reform.ErrNoRows {
-		return status.Errorf(codes.NotFound, "Service with ID %q not found.", id)
+
+	agents, err := q.FindAllFrom(AgentServiceView, "service_id", id)
+	if err != nil {
+		return errors.Wrap(err, "failed to select Agent IDs")
 	}
-	return nil
+	if len(agents) != 0 {
+		return status.Errorf(codes.FailedPrecondition, "Service with ID %q has agents.", id)
+	}
+
+	return errors.Wrap(q.Delete(s), "failed to delete Service")
 }

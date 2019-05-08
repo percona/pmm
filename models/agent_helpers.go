@@ -337,23 +337,31 @@ func PMMAgentsForChangedService(q *reform.Querier, serviceID string) ([]string, 
 	return res, nil
 }
 
-// AgentRemove removes Agent by ID.
-func AgentRemove(q *reform.Querier, id string) (*Agent, error) {
-	row, err := AgentFindByID(q, id)
+// RemoveAgent removes Agent by ID.
+func RemoveAgent(q *reform.Querier, id string) (*Agent, error) {
+	a, err := AgentFindByID(q, id)
 	if err != nil {
 		return nil, err
 	}
 
-	if _, err = q.DeleteFrom(AgentServiceView, "WHERE agent_id = "+q.Placeholder(1), id); err != nil { //nolint:gosec
-		return nil, errors.WithStack(err)
+	agents, err := q.SelectAllFrom(AgentTable, "WHERE pmm_agent_id = $1", id)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to select Agents")
 	}
-	if _, err = q.DeleteFrom(AgentNodeView, "WHERE agent_id = "+q.Placeholder(1), id); err != nil { //nolint:gosec
-		return nil, errors.WithStack(err)
-	}
-
-	if err = q.Delete(row); err != nil {
-		return nil, errors.WithStack(err)
+	if len(agents) != 0 {
+		return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %q has agents.", id)
 	}
 
-	return row, nil
+	if _, err = q.DeleteFrom(AgentServiceView, "WHERE agent_id = $1", id); err != nil {
+		return nil, errors.Wrap(err, "failed to delete from agent_services")
+	}
+	if _, err = q.DeleteFrom(AgentNodeView, "WHERE agent_id = $1", id); err != nil {
+		return nil, errors.Wrap(err, "failed to delete from agent_nodes")
+	}
+
+	if err = q.Delete(a); err != nil {
+		return nil, errors.Wrap(q.Delete(a), "failed to delete Agent")
+	}
+
+	return a, nil
 }

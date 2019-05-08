@@ -281,22 +281,8 @@ func (s *NodesService) AddRemoteAmazonRDSNode(ctx context.Context, req *inventor
 
 // Remove removes Node without any Agents and Services.
 //nolint:unparam
-func (s *NodesService) Remove(ctx context.Context, req *inventorypb.RemoveNodeRequest) (*inventorypb.RemoveNodeResponse, error) {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-	// ID is not 0.
-
-	// TODO check absence of Services and Agents
-
-	e := s.db.InTransaction(func(tx *reform.TX) error {
-		err := models.RemoveNode(tx.Querier, req.NodeId)
-		if err != nil {
-			return err
-		}
-		return nil
+func (s *NodesService) Remove(ctx context.Context, id string) error {
+	return s.db.InTransaction(func(tx *reform.TX) error {
+		return models.RemoveNode(tx.Querier, id)
 	})
-	if e != nil {
-		return nil, e
-	}
-
-	return new(inventorypb.RemoveNodeResponse), nil
 }

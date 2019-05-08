@@ -240,11 +240,36 @@ func UpdateNode(q *reform.Querier, nodeID string, params *UpdateNodeParams) (*No
 	return node, nil
 }
 
-// RemoveNode removes a Node.
+// RemoveNode removes single Node.
 func RemoveNode(q *reform.Querier, id string) error {
-	err := q.Delete(&Node{NodeID: id})
-	if err == reform.ErrNoRows {
-		return status.Errorf(codes.NotFound, "Node with ID %q not found.", id)
+	n, err := FindNodeByID(q, id)
+	if err != nil {
+		return err
 	}
-	return nil
+
+	agents, err := q.FindAllFrom(AgentNodeView, "node_id", id)
+	if err != nil {
+		return errors.Wrap(err, "failed to select Agent IDs")
+	}
+	if len(agents) != 0 {
+		return status.Errorf(codes.FailedPrecondition, "Node with ID %q has agents.", id)
+	}
+
+	agents, err = q.FindAllFrom(AgentTable, "runs_on_node_id", id)
+	if err != nil {
+		return errors.Wrap(err, "failed to select Agents")
+	}
+	if len(agents) != 0 {
+		return status.Errorf(codes.FailedPrecondition, "Node with ID %q has pmm-agent.", id)
+	}
+
+	services, err := q.FindAllFrom(ServiceTable, "node_id", id)
+	if err != nil {
+		return errors.Wrap(err, "failed to select Service IDs")
+	}
+	if len(services) != 0 {
+		return status.Errorf(codes.FailedPrecondition, "Node with ID %q has services.", id)
+	}
+
+	return errors.Wrap(q.Delete(n), "failed to delete Node")
 }

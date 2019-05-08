@@ -88,6 +88,11 @@ func TestPrometheus(t *testing.T) {
 				Address:      "1.2.3.4",
 				CustomLabels: []byte(`{"_node_label": "foo"}`),
 			},
+			&models.Agent{
+				AgentID:      "/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853",
+				AgentType:    models.PMMAgentType,
+				RunsOnNodeID: pointer.ToString("/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d"),
+			},
 
 			&models.Service{
 				ServiceID:    "/service_id/014647c3-b2f5-44eb-94f4-d943260a968c",
@@ -101,6 +106,7 @@ func TestPrometheus(t *testing.T) {
 			&models.Agent{
 				AgentID:      "/agent_id/75bb30d3-ef4a-4147-97a8-621a996611dd",
 				AgentType:    models.MySQLdExporterType,
+				PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
 				CustomLabels: []byte(`{"_agent_label": "baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			},
@@ -121,6 +127,7 @@ func TestPrometheus(t *testing.T) {
 			&models.Agent{
 				AgentID:      "/agent_id/29e14468-d479-4b4d-bfb7-4ac2fb865bac",
 				AgentType:    models.PostgresExporterType,
+				PMMAgentID:   pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
 				CustomLabels: []byte(`{"_agent_label": "postgres-baz"}`),
 				ListenPort:   pointer.ToUint16(12345),
 			},
@@ -133,6 +140,7 @@ func TestPrometheus(t *testing.T) {
 			&models.Agent{
 				AgentID:    "/agent_id/4226ddb5-8197-443c-9891-7772b38324a7",
 				AgentType:  models.NodeExporterType,
+				PMMAgentID: pointer.ToString("/agent_id/217907dc-d34d-4e2e-aa84-a1b765d49853"),
 				Disabled:   true,
 				ListenPort: pointer.ToUint16(12345),
 			},
@@ -141,7 +149,7 @@ func TestPrometheus(t *testing.T) {
 				NodeID:  "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
 			},
 		} {
-			require.NoError(t, db.Insert(str))
+			require.NoError(t, db.Insert(str), "%+v", str)
 		}
 
 		assert.NoError(t, svc.UpdateConfiguration(ctx))

@@ -168,21 +168,12 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.Add
 	return res.(*inventorypb.PostgreSQLService), nil
 }
 
-// Remove deletes Service by ID.
+// Remove removes Service without any Agents.
 //nolint:unparam
 func (ss *ServicesService) Remove(ctx context.Context, id string) error {
-	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
-	// ID is not 0.
-
-	e := ss.db.InTransaction(func(tx *reform.TX) error {
-		err := models.RemoveService(tx.Querier, id)
-		if err != nil {
-			return err
-		}
-		return nil
+	return ss.db.InTransaction(func(tx *reform.TX) error {
+		return models.RemoveService(tx.Querier, id)
 	})
-
-	return e
 }
 
 // ToInventoryService converts database row to Inventory API Service.

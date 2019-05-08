@@ -115,7 +115,9 @@ var databaseSchema = [][]string{
 
 			PRIMARY KEY (agent_id),
 			FOREIGN KEY (runs_on_node_id) REFERENCES nodes (node_id),
-			FOREIGN KEY (pmm_agent_id) REFERENCES agents (agent_id)
+			FOREIGN KEY (pmm_agent_id) REFERENCES agents (agent_id),
+			CONSTRAINT runs_on_node_id_xor_pmm_agent_id CHECK ((runs_on_node_id IS NULL) <> (pmm_agent_id IS NULL)),
+			CONSTRAINT runs_on_node_id_only_for_pmm_agent CHECK ((runs_on_node_id IS NULL) <> (agent_type='` + string(PMMAgentType) + `'))
 		)`,
 
 		`CREATE TABLE agent_nodes (

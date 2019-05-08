@@ -129,5 +129,9 @@ func (s *nodesServer) AddRemoteAmazonRDSNode(ctx context.Context, req *inventory
 
 // RemoveNode removes Node without any Agents and Services.
 func (s *nodesServer) RemoveNode(ctx context.Context, req *inventorypb.RemoveNodeRequest) (*inventorypb.RemoveNodeResponse, error) {
-	return s.svc.Remove(ctx, req)
+	if err := s.svc.Remove(ctx, req.NodeId); err != nil {
+		return nil, err
+	}
+
+	return new(inventorypb.RemoveNodeResponse), nil
 }
