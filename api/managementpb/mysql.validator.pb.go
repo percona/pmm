@@ -35,6 +35,12 @@ func (this *AddMySQLRequest) Validate() error {
 	if this.PmmAgentId == "" {
 		return github_com_mwitkow_go_proto_validators.FieldError("PmmAgentId", fmt.Errorf(`value '%v' must not be an empty string`, this.PmmAgentId))
 	}
+	if this.Username == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Username", fmt.Errorf(`value '%v' must not be an empty string`, this.Username))
+	}
+	if this.QanUsername == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("QanUsername", fmt.Errorf(`value '%v' must not be an empty string`, this.QanUsername))
+	}
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }

@@ -66,11 +66,19 @@ message AddMySQLRequest {
   // Replication set name.
   string replication_set = 8;
   // MySQL username for scraping metrics.
-  string username = 9;
+  string username = 9 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // MySQL password for scraping metrics.
   string password = 10;
   // FIXME remove
-  string qan_username = 11;
+  string qan_username = 11 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // FIXME remove
   string qan_password = 12;
   // If true, adds mysqld_exporter for provided service.
