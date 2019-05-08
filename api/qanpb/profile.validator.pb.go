@@ -73,7 +73,3 @@ func (this *Metric) Validate() error {
 func (this *Stat) Validate() error {
 	return nil
 }
-func (this *Point) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
-	return nil
-}

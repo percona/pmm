@@ -72,6 +72,7 @@ message MapFieldEntry {
 // MetricsReply defines metrics for specific value of dimension (ex.: host=hostname1 or queryid=1D410B4BE5060972.
 message MetricsReply {
   map<string, MetricValues> metrics = 3;
+  repeated Point sparkline = 4;
 }
 
 // MetricValues is statistics of specific metric.

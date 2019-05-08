@@ -19,3 +19,9 @@ enum ExampleType {
   FASTEST = 3;
   WITH_ERROR = 4;
 }
+
+// Point contains values that represents abscissa (time) and ordinate (volume etc.)
+// of every point in a coordinate system of Sparklines.
+message Point {
+  map<string, float> values = 1;
+}
