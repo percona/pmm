@@ -27,7 +27,7 @@ import (
 )
 
 func TestMongodbExporterConfig(t *testing.T) {
-	mongo := &models.Service{
+	mongodb := &models.Service{
 		Address: pointer.ToString("1.2.3.4"),
 		Port:    pointer.ToUint16(27017),
 	}
@@ -35,7 +35,7 @@ func TestMongodbExporterConfig(t *testing.T) {
 		Username: pointer.ToString("username"),
 		Password: pointer.ToString("s3cur3 p@$$w0r4."),
 	}
-	actual := mongodbExporterConfig(mongo, exporter)
+	actual := mongodbExporterConfig(mongodb, exporter)
 	expected := &agentpb.SetStateRequest_AgentProcess{
 		Type:               agentpb.Type_MONGODB_EXPORTER,
 		TemplateLeftDelim:  "{{",
@@ -54,13 +54,15 @@ func TestMongodbExporterConfig(t *testing.T) {
 	assert.Equal(t, expected.Env, actual.Env)
 	assert.Equal(t, expected, actual)
 
-	t.Run("CheckEmptyUsername", func(t *testing.T) {
-		mongo := &models.Service{
-			Address: pointer.ToString("1.2.3.4"),
-			Port:    pointer.ToUint16(27017),
-		}
-		exporter := &models.Agent{Password: pointer.ToString("test")}
-		actual := mongodbExporterConfig(mongo, exporter)
+	t.Run("EmptyPassword", func(t *testing.T) {
+		exporter.Password = nil
+		actual := mongodbExporterConfig(mongodb, exporter)
+		assert.Equal(t, "MONGODB_URI=mongodb://username@1.2.3.4:27017", actual.Env[0])
+	})
+
+	t.Run("EmptyUsername", func(t *testing.T) {
+		exporter.Username = nil
+		actual := mongodbExporterConfig(mongodb, exporter)
 		assert.Equal(t, "MONGODB_URI=mongodb://1.2.3.4:27017", actual.Env[0])
 	})
 }

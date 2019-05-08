@@ -50,4 +50,16 @@ func TestPostgresExporterConfig(t *testing.T) {
 	assert.Equal(t, expected.Args, actual.Args)
 	assert.Equal(t, expected.Env, actual.Env)
 	assert.Equal(t, expected, actual)
+
+	t.Run("EmptyPassword", func(t *testing.T) {
+		exporter.Password = nil
+		actual := postgresExporterConfig(postgresql, exporter)
+		assert.Equal(t, "DATA_SOURCE_NAME=postgres://username@1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable", actual.Env[0])
+	})
+
+	t.Run("EmptyUsername", func(t *testing.T) {
+		exporter.Username = nil
+		actual := postgresExporterConfig(postgresql, exporter)
+		assert.Equal(t, "DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable", actual.Env[0])
+	})
 }

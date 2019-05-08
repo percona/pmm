@@ -36,15 +36,23 @@ func postgresqlDSN(service *models.Service, exporter *models.Agent) string {
 
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
-	address := net.JoinHostPort(host, strconv.Itoa(int(port)))
-	uri := url.URL{
+	username := pointer.GetString(exporter.Username)
+	password := pointer.GetString(exporter.Password)
+
+	u := &url.URL{
 		Scheme:   "postgres",
-		User:     url.UserPassword(*exporter.Username, *exporter.Password),
-		Host:     address,
+		Host:     net.JoinHostPort(host, strconv.Itoa(int(port))),
 		Path:     "postgres",
 		RawQuery: q.Encode(),
 	}
-	return uri.String()
+	switch {
+	case password != "":
+		u.User = url.UserPassword(username, password)
+	case username != "":
+		u.User = url.User(username)
+	}
+
+	return u.String()
 }
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.

@@ -39,8 +39,11 @@ func mongoDSN(service *models.Service, exporter *models.Agent) string {
 		Scheme: "mongodb",
 		Host:   net.JoinHostPort(host, strconv.Itoa(int(port))),
 	}
-	if username != "" {
+	switch {
+	case password != "":
 		u.User = url.UserPassword(username, password)
+	case username != "":
+		u.User = url.User(username)
 	}
 
 	return u.String()

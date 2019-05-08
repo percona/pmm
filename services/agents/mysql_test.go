@@ -67,4 +67,16 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	assert.Equal(t, expected.Args, actual.Args)
 	assert.Equal(t, expected.Env, actual.Env)
 	assert.Equal(t, expected, actual)
+
+	t.Run("EmptyPassword", func(t *testing.T) {
+		exporter.Password = nil
+		actual := mysqldExporterConfig(mysql, exporter)
+		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?clientFoundRows=true&parseTime=true&timeout=5s", actual.Env[0])
+	})
+
+	t.Run("EmptyUsername", func(t *testing.T) {
+		exporter.Username = nil
+		actual := mysqldExporterConfig(mysql, exporter)
+		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?clientFoundRows=true&parseTime=true&timeout=5s", actual.Env[0])
+	})
 }
