@@ -108,6 +108,8 @@ func (m *StartActionRequest) sealed()   {}
 func (m *StopActionRequest) sealed()    {}
 func (m *StartActionResponse) sealed()  {}
 func (m *StopActionResponse) sealed()   {}
+func (m *ActionResultRequest) sealed()  {}
+func (m *ActionResultResponse) sealed() {}
 
 // check interfaces
 var (
