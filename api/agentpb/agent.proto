@@ -81,33 +81,39 @@ message SetStateResponse {
 
 }
 
-// ActionRunRequest represents request to run an action by name.
-message ActionRunRequest {
-  string name = 1;
-  map<string, string> parameters = 2;
+// ActionName defines allowed action names.
+enum ActionName {
+  ACTION_NAME_INVALID = 0;
+  PT_SUMMARY = 1;
+  PT_MYSQL_SUMMARY = 2;
+  EXPLAIN = 3;
 }
 
-// ActionRunResponse represents response to action_run_request.
-message ActionRunResponse {
+// StartActionRequest represents request to run an action by name.
+message StartActionRequest {
   string id = 1;
+  ActionName name = 2;
+  repeated string parameters = 3;
 }
 
-// ActionCancelRequest represents request to stop action with given id.
-message ActionCancelRequest {
+// StartActionResponse represents message with action results which agent send to server when action was finished.
+message StartActionResponse {
   string id = 1;
-}
-
-// ActionCancelResponse represents response to stop action request.
-message ActionCancelResponse {
-  bool success = 1;
-}
-
-// ActionResult represents message with action results which agent send to server when action is ready.
-message ActionResult {
-  string id = 1;
-  string name = 2;
+  ActionName name = 2;
   string error = 3;
-  bytes combined_output = 4;
+  bytes output = 4;
+}
+
+// StopActionRequest represents request to stop action with given id.
+message StopActionRequest {
+  string id = 1;
+  ActionName name = 2;
+}
+
+// StopActionResponse represents response to stop action request. It sends to server when an action was stopped.
+message StopActionResponse {
+  string id = 1;
+  ActionName name = 2;
 }
 
 message AgentMessage {
@@ -122,9 +128,8 @@ message AgentMessage {
     // responses from agent
     Pong pong = 8;
     SetStateResponse set_state = 9;
-    ActionRunResponse action_run_response = 10;
-    ActionCancelResponse action_cancel_response = 11;
-    ActionResult action_result = 12;
+    StartActionResponse start_action = 10;
+    StopActionResponse stop_action = 11;
   }
 }
 
@@ -140,8 +145,8 @@ message ServerMessage {
     // requests from server
     Ping ping = 8;
     SetStateRequest set_state = 9;
-    ActionRunRequest action_run_request = 10;
-    ActionCancelRequest action_cancel_request = 11;
+    StartActionRequest start_action = 10;
+    StopActionRequest stop_action = 11;
   }
 }
 
