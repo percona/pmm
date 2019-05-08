@@ -62,7 +62,11 @@ message AddPostgreSQLRequest {
   // Environment name.
   string environment = 6;
   // PostgreSQL username for scraping metrics.
-  string username = 7;
+  string username = 7 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
   // PostgreSQL password for scraping metrics.
   string password = 8;
   // If true, adds postgres_exporter for provided service.
