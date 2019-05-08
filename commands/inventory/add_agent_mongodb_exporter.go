@@ -89,8 +89,7 @@ var (
 func init() {
 	AddAgentMongodbExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance.").StringVar(&AddAgentMongodbExporter.PMMAgentID)
 	AddAgentMongodbExporterC.Arg("service-id", "Service identifier.").StringVar(&AddAgentMongodbExporter.ServiceID)
-	AddAgentMongodbExporterC.Arg("username", "MongoDB username for scraping metrics.").
-		StringVar(&AddAgentMongodbExporter.Username)
+	AddAgentMongodbExporterC.Arg("username", "MongoDB username for scraping metrics.").StringVar(&AddAgentMongodbExporter.Username)
 	AddAgentMongodbExporterC.Flag("password", "MongoDB password for scraping metrics.").StringVar(&AddAgentMongodbExporter.Password)
 	AddAgentMongodbExporterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentMongodbExporter.CustomLabels)
 }

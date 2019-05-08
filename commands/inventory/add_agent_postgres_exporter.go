@@ -89,8 +89,7 @@ var (
 func init() {
 	AddAgentPostgresExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance.").StringVar(&AddAgentPostgresExporter.PMMAgentID)
 	AddAgentPostgresExporterC.Arg("service-id", "Service identifier.").StringVar(&AddAgentPostgresExporter.ServiceID)
-	AddAgentPostgresExporterC.Arg("username", "PostgreSQL username for scraping metrics.").
-		StringVar(&AddAgentPostgresExporter.Username)
+	AddAgentPostgresExporterC.Arg("username", "PostgreSQL username for scraping metrics.").Default("postgres").StringVar(&AddAgentPostgresExporter.Username)
 	AddAgentPostgresExporterC.Flag("password", "PostgreSQL password for scraping metrics.").StringVar(&AddAgentPostgresExporter.Password)
 	AddAgentPostgresExporterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentPostgresExporter.CustomLabels)
 }

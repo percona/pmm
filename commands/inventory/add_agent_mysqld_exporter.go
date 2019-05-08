@@ -89,8 +89,7 @@ var (
 func init() {
 	AddAgentMysqldExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance.").StringVar(&AddAgentMysqldExporter.PMMAgentID)
 	AddAgentMysqldExporterC.Arg("service-id", "Service identifier.").StringVar(&AddAgentMysqldExporter.ServiceID)
-	AddAgentMysqldExporterC.Arg("username", "MySQL username for scraping metrics.").
-		StringVar(&AddAgentMysqldExporter.Username)
+	AddAgentMysqldExporterC.Arg("username", "MySQL username for scraping metrics.").Default("root").StringVar(&AddAgentMysqldExporter.Username)
 	AddAgentMysqldExporterC.Flag("password", "MySQL password for scraping metrics.").StringVar(&AddAgentMysqldExporter.Password)
 	AddAgentMysqldExporterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentMysqldExporter.CustomLabels)
 }

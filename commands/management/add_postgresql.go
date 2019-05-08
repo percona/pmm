@@ -115,7 +115,7 @@ func init() {
 	serviceNameHelp := fmt.Sprintf("Service name. Default: %s.", serviceName)
 	AddPostgreSQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddPostgreSQL.ServiceName)
 
-	AddPostgreSQLC.Flag("username", "PostgreSQL username.").StringVar(&AddPostgreSQL.Username)
+	AddPostgreSQLC.Flag("username", "PostgreSQL username.").Default("postgres").StringVar(&AddPostgreSQL.Username)
 	AddPostgreSQLC.Flag("password", "PostgreSQL password.").StringVar(&AddPostgreSQL.Password)
 
 	AddPostgreSQLC.Flag("environment", "Environment name.").StringVar(&AddPostgreSQL.Environment)

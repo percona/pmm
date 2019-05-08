@@ -126,7 +126,7 @@ func init() {
 	serviceNameHelp := fmt.Sprintf("Service name. Default: %s.", serviceName)
 	AddMySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMySQL.ServiceName)
 
-	AddMySQLC.Flag("username", "MySQL username.").StringVar(&AddMySQL.Username)
+	AddMySQLC.Flag("username", "MySQL username.").Default("root").StringVar(&AddMySQL.Username)
 	AddMySQLC.Flag("password", "MySQL password.").StringVar(&AddMySQL.Password)
 	AddMySQLC.Flag("use-perfschema", "Run QAN perf schema agent.").BoolVar(&AddMySQL.UsePerfschema)
 	AddMySQLC.Flag("use-slowlog", "Run QAN slow log agent.").BoolVar(&AddMySQL.UseSlowLog)
