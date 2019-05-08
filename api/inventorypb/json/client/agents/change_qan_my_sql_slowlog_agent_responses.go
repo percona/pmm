@@ -121,21 +121,39 @@ type ChangeQANMySQLSlowlogAgentBody struct {
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// disabled
-	Disabled bool `json:"disabled,omitempty"`
-
-	// enabled
-	Enabled bool `json:"enabled,omitempty"`
-
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+	// common
+	Common *ChangeQANMySQLSlowlogAgentParamsBodyCommon `json:"common,omitempty"`
 }
 
 // Validate validates this change QAN my SQL slowlog agent body
 func (o *ChangeQANMySQLSlowlogAgentBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCommon(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeQANMySQLSlowlogAgentBody) validateCommon(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Common) { // not required
+		return nil
+	}
+
+	if o.Common != nil {
+		if err := o.Common.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -365,6 +383,47 @@ func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) MarshalBinary() (
 // UnmarshalBinary interface implementation
 func (o *ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent) UnmarshalBinary(b []byte) error {
 	var res ChangeQANMySQLSlowlogAgentOKBodyQANMysqlSlowlogAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeQANMySQLSlowlogAgentParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+swagger:model ChangeQANMySQLSlowlogAgentParamsBodyCommon
+*/
+type ChangeQANMySQLSlowlogAgentParamsBodyCommon struct {
+
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
+
+	// enabled
+	Enabled bool `json:"enabled,omitempty"`
+
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+}
+
+// Validate validates this change QAN my SQL slowlog agent params body common
+func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommon) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeQANMySQLSlowlogAgentParamsBodyCommon) UnmarshalBinary(b []byte) error {
+	var res ChangeQANMySQLSlowlogAgentParamsBodyCommon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

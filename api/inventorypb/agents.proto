@@ -241,9 +241,7 @@ message RDSExporter {
   //
 
   // Desired Agent status: enabled (false) or disabled (true).
-  // TODO https://jira.percona.com/browse/PMM-3470
-  // bool enabled = 4;
-
+  bool disabled = 4;
   // Actual Agent status.
   AgentStatus status = 5;
   // Listen port for scraping metrics.
@@ -263,11 +261,22 @@ message ExternalExporter {
   //
 
   // Desired Agent status: enabled (false) or disabled (true).
-  // TODO https://jira.percona.com/browse/PMM-3470
-  // bool disabled = 3;
-
+  bool disabled = 3;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+}
+
+// ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+message ChangeCommonAgentParams {
+  // Enable, disable, or do not change desired status.
+  oneof change_disabled {
+    bool enabled = 1;
+    bool disabled = 2;
+  }
+  // Replace all custom user-assigned labels.
+  map<string, string> custom_labels = 3;
+  // Remove all custom user-assigned labels.
+  bool remove_custom_labels = 4;
 }
 
 // List
@@ -366,15 +375,7 @@ message ChangeNodeExporterRequest {
       string_not_empty: true
     }
   ];
-  // Enable or disable this Agent.
-  oneof change_disabled {
-    bool enabled = 2;
-    bool disabled = 3;
-  }
-  // Replace all custom user-assigned labels.
-  map<string, string> custom_labels = 4;
-  // Remove all custom user-assigned labels.
-  bool remove_custom_labels = 5;
+  ChangeCommonAgentParams common = 2;
 }
 
 message ChangeNodeExporterResponse {
@@ -420,15 +421,7 @@ message ChangeMySQLdExporterRequest {
       string_not_empty: true
     }
   ];
-  // Enable or disable this Agent.
-  oneof change_disabled {
-    bool enabled = 2;
-    bool disabled = 3;
-  }
-  // Replace all custom user-assigned labels.
-  map<string, string> custom_labels = 4;
-  // Remove all custom user-assigned labels.
-  bool remove_custom_labels = 5;
+  ChangeCommonAgentParams common = 2;
 }
 
 message ChangeMySQLdExporterResponse {
@@ -470,15 +463,7 @@ message ChangeMongoDBExporterRequest {
       string_not_empty: true
     }
   ];
-  // Enable or disable this Agent.
-  oneof change_disabled {
-    bool enabled = 2;
-    bool disabled = 3;
-  }
-  // Replace all custom user-assigned labels.
-  map<string, string> custom_labels = 4;
-  // Remove all custom user-assigned labels.
-  bool remove_custom_labels = 5;
+  ChangeCommonAgentParams common = 2;
 }
 
 message ChangeMongoDBExporterResponse {
@@ -524,15 +509,7 @@ message ChangePostgresExporterRequest {
       string_not_empty: true
     }
   ];
-  // Enable or disable this Agent.
-  oneof change_disabled {
-    bool enabled = 2;
-    bool disabled = 3;
-  }
-  // Replace all custom user-assigned labels.
-  map<string, string> custom_labels = 4;
-  // Remove all custom user-assigned labels.
-  bool remove_custom_labels = 5;
+  ChangeCommonAgentParams common = 2;
 }
 
 message ChangePostgresExporterResponse {
@@ -578,15 +555,7 @@ message ChangeQANMySQLPerfSchemaAgentRequest {
       string_not_empty: true
     }
   ];
-  // Enable or disable this Agent.
-  oneof change_disabled {
-    bool enabled = 2;
-    bool disabled = 3;
-  }
-  // Replace all custom user-assigned labels.
-  map<string, string> custom_labels = 4;
-  // Remove all custom user-assigned labels.
-  bool remove_custom_labels = 5;
+  ChangeCommonAgentParams common = 2;
 }
 
 message ChangeQANMySQLPerfSchemaAgentResponse {
@@ -632,15 +601,7 @@ message ChangeQANMySQLSlowlogAgentRequest {
       string_not_empty: true
     }
   ];
-  // Enable or disable this Agent.
-  oneof change_disabled {
-    bool enabled = 2;
-    bool disabled = 3;
-  }
-  // Replace all custom user-assigned labels.
-  map<string, string> custom_labels = 4;
-  // Remove all custom user-assigned labels.
-  bool remove_custom_labels = 5;
+  ChangeCommonAgentParams common = 2;
 }
 
 message ChangeQANMySQLSlowlogAgentResponse {
@@ -682,15 +643,7 @@ message ChangeQANMongoDBProfilerAgentRequest {
       string_not_empty: true
     }
   ];
-  // Enable or disable this Agent.
-  oneof change_disabled {
-    bool enabled = 2;
-    bool disabled = 3;
-  }
-  // Replace all custom user-assigned labels.
-  map<string, string> custom_labels = 4;
-  // Remove all custom user-assigned labels.
-  bool remove_custom_labels = 5;
+  ChangeCommonAgentParams common = 2;
 }
 
 message ChangeQANMongoDBProfilerAgentResponse {
@@ -722,7 +675,10 @@ message AddRDSExporterResponse {
   RDSExporter rds_exporter = 1;
 }
 
-message ChangeRDSExporterRequest {}
+message ChangeRDSExporterRequest {
+  // TODO
+
+}
 
 message ChangeRDSExporterResponse {
   RDSExporter rds_exporter = 1;
@@ -747,7 +703,10 @@ message AddExternalExporterResponse {
   ExternalExporter external_exporter = 1;
 }
 
-message ChangeExternalExporterRequest {}
+message ChangeExternalExporterRequest {
+  // TODO
+
+}
 
 message ChangeExternalExporterResponse {
   ExternalExporter external_exporter = 1;

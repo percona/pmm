@@ -66,6 +66,11 @@
                         "type": "string"
                       }
                     },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "metrics_url": {
                       "description": "URL for scraping metrics.",
                       "type": "string"
@@ -1106,6 +1111,11 @@
                         "type": "string"
                       }
                     },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -1200,6 +1210,11 @@
                         "type": "string"
                       }
                     },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "metrics_url": {
                       "description": "URL for scraping metrics.",
                       "type": "string"
@@ -1249,25 +1264,31 @@
                 "agent_id": {
                   "type": "string"
                 },
-                "custom_labels": {
-                  "description": "Replace all custom user-assigned labels.",
+                "common": {
+                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
                   "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Replace all custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "remove_custom_labels": {
+                      "description": "Remove all custom user-assigned labels.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    }
                   }
-                },
-                "disabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "enabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "remove_custom_labels": {
-                  "description": "Remove all custom user-assigned labels.",
-                  "type": "boolean",
-                  "format": "boolean"
                 }
               }
             }
@@ -1378,25 +1399,31 @@
                 "agent_id": {
                   "type": "string"
                 },
-                "custom_labels": {
-                  "description": "Replace all custom user-assigned labels.",
+                "common": {
+                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
                   "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Replace all custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "remove_custom_labels": {
+                      "description": "Remove all custom user-assigned labels.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    }
                   }
-                },
-                "disabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "enabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "remove_custom_labels": {
-                  "description": "Remove all custom user-assigned labels.",
-                  "type": "boolean",
-                  "format": "boolean"
                 }
               }
             }
@@ -1507,25 +1534,31 @@
                 "agent_id": {
                   "type": "string"
                 },
-                "custom_labels": {
-                  "description": "Replace all custom user-assigned labels.",
+                "common": {
+                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
                   "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Replace all custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "remove_custom_labels": {
+                      "description": "Remove all custom user-assigned labels.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    }
                   }
-                },
-                "disabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "enabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "remove_custom_labels": {
-                  "description": "Remove all custom user-assigned labels.",
-                  "type": "boolean",
-                  "format": "boolean"
                 }
               }
             }
@@ -1624,25 +1657,31 @@
                 "agent_id": {
                   "type": "string"
                 },
-                "custom_labels": {
-                  "description": "Replace all custom user-assigned labels.",
+                "common": {
+                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
                   "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Replace all custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "remove_custom_labels": {
+                      "description": "Remove all custom user-assigned labels.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    }
                   }
-                },
-                "disabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "enabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "remove_custom_labels": {
-                  "description": "Remove all custom user-assigned labels.",
-                  "type": "boolean",
-                  "format": "boolean"
                 }
               }
             }
@@ -1753,25 +1792,31 @@
                 "agent_id": {
                   "type": "string"
                 },
-                "custom_labels": {
-                  "description": "Replace all custom user-assigned labels.",
+                "common": {
+                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
                   "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Replace all custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "remove_custom_labels": {
+                      "description": "Remove all custom user-assigned labels.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    }
                   }
-                },
-                "disabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "enabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "remove_custom_labels": {
-                  "description": "Remove all custom user-assigned labels.",
-                  "type": "boolean",
-                  "format": "boolean"
                 }
               }
             }
@@ -1877,25 +1922,31 @@
                 "agent_id": {
                   "type": "string"
                 },
-                "custom_labels": {
-                  "description": "Replace all custom user-assigned labels.",
+                "common": {
+                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
                   "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Replace all custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "remove_custom_labels": {
+                      "description": "Remove all custom user-assigned labels.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    }
                   }
-                },
-                "disabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "enabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "remove_custom_labels": {
-                  "description": "Remove all custom user-assigned labels.",
-                  "type": "boolean",
-                  "format": "boolean"
                 }
               }
             }
@@ -2001,25 +2052,31 @@
                 "agent_id": {
                   "type": "string"
                 },
-                "custom_labels": {
-                  "description": "Replace all custom user-assigned labels.",
+                "common": {
+                  "description": "ChangeCommonAgentParams contains parameters that can be changed for all Agents.",
                   "type": "object",
-                  "additionalProperties": {
-                    "type": "string"
+                  "properties": {
+                    "custom_labels": {
+                      "description": "Replace all custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "enabled": {
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "remove_custom_labels": {
+                      "description": "Remove all custom user-assigned labels.",
+                      "type": "boolean",
+                      "format": "boolean"
+                    }
                   }
-                },
-                "disabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "enabled": {
-                  "type": "boolean",
-                  "format": "boolean"
-                },
-                "remove_custom_labels": {
-                  "description": "Remove all custom user-assigned labels.",
-                  "type": "boolean",
-                  "format": "boolean"
                 }
               }
             }
@@ -2145,6 +2202,11 @@
                         "type": "string"
                       }
                     },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -2244,6 +2306,11 @@
                       "additionalProperties": {
                         "type": "string"
                       }
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
                     },
                     "metrics_url": {
                       "description": "URL for scraping metrics.",
@@ -2657,6 +2724,11 @@
                         "type": "string"
                       }
                     },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
                     "listen_port": {
                       "description": "Listen port for scraping metrics.",
                       "type": "integer",
@@ -2766,6 +2838,11 @@
                         "additionalProperties": {
                           "type": "string"
                         }
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "format": "boolean"
                       },
                       "metrics_url": {
                         "description": "URL for scraping metrics.",
@@ -3205,6 +3282,11 @@
                         "additionalProperties": {
                           "type": "string"
                         }
+                      },
+                      "disabled": {
+                        "description": "Desired Agent status: enabled (false) or disabled (true).",
+                        "type": "boolean",
+                        "format": "boolean"
                       },
                       "listen_port": {
                         "description": "Listen port for scraping metrics.",
