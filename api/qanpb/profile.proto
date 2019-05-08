@@ -23,6 +23,7 @@ option go_package = "qanpb";
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
+import "qanpb/qan.proto";
 
 // Profile of metrics by QueryID, Host etc.
 service Profile {
@@ -86,10 +87,4 @@ message Stat {
   float min = 4;
   float max = 5;
   float p99 = 6;
-}
-
-// Point contains values that represents abscissa (time) and ordinate (volume etc.)
-// of every point in a coordinate system of Sparklines.
-message Point {
-  map<string, float> values = 1;
 }
