@@ -48,6 +48,9 @@ func (m *StateChangedRequest) AgentMessageRequestPayload() isAgentMessage_Payloa
 func (m *QANCollectRequest) AgentMessageRequestPayload() isAgentMessage_Payload {
 	return &AgentMessage_QanCollect{QanCollect: m}
 }
+func (m *ActionResultRequest) AgentMessageRequestPayload() isAgentMessage_Payload {
+	return &AgentMessage_ActionResult{ActionResult: m}
+}
 
 // AgentMessage response payloads
 func (m *Pong) AgentMessageResponsePayload() isAgentMessage_Payload {
@@ -73,6 +76,9 @@ func (m *StateChangedResponse) ServerMessageResponsePayload() isServerMessage_Pa
 }
 func (m *QANCollectResponse) ServerMessageResponsePayload() isServerMessage_Payload {
 	return &ServerMessage_QanCollect{QanCollect: m}
+}
+func (m *ActionResultResponse) ServerMessageRequestPayload() isServerMessage_Payload {
+	return &ServerMessage_ActionResult{ActionResult: m}
 }
 
 // ServerMessage request payloads

@@ -114,7 +114,7 @@ message StopActionResponse {
 // ActionResultRequest represents message with action results which agent send to server when action was finished.
 message ActionResultRequest {
   string id = 1;
-  bool success = 2;
+  bool last_part = 2;
   bytes output = 3;
 }
 
