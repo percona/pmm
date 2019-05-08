@@ -73,6 +73,12 @@ func (this *StopActionRequest) Validate() error {
 func (this *StopActionResponse) Validate() error {
 	return nil
 }
+func (this *ActionResultRequest) Validate() error {
+	return nil
+}
+func (this *ActionResultResponse) Validate() error {
+	return nil
+}
 func (this *AgentMessage) Validate() error {
 	if oneOfNester, ok := this.GetPayload().(*AgentMessage_Ping); ok {
 		if oneOfNester.Ping != nil {
@@ -92,6 +98,13 @@ func (this *AgentMessage) Validate() error {
 		if oneOfNester.QanCollect != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanCollect); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanCollect", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_ActionResult); ok {
+		if oneOfNester.ActionResult != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ActionResult); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ActionResult", err)
 			}
 		}
 	}
@@ -144,6 +157,13 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.QanCollect != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.QanCollect); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("QanCollect", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_ActionResult); ok {
+		if oneOfNester.ActionResult != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ActionResult); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("ActionResult", err)
 			}
 		}
 	}

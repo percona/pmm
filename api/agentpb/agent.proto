@@ -86,7 +86,7 @@ enum ActionName {
   ACTION_NAME_INVALID = 0;
   PT_SUMMARY = 1;
   PT_MYSQL_SUMMARY = 2;
-  EXPLAIN = 3;
+  MYSQL_EXPLAIN = 3;
 }
 
 // StartActionRequest represents request to run an action by name.
@@ -96,25 +96,30 @@ message StartActionRequest {
   repeated string parameters = 3;
 }
 
-// StartActionResponse represents message with action results which agent send to server when action was finished.
+// StartActionResponse represents message with an response to starting an action.
 message StartActionResponse {
   string id = 1;
-  ActionName name = 2;
-  string error = 3;
-  bytes output = 4;
 }
 
 // StopActionRequest represents request to stop action with given id.
 message StopActionRequest {
   string id = 1;
-  ActionName name = 2;
 }
 
 // StopActionResponse represents response to stop action request. It sends to server when an action was stopped.
 message StopActionResponse {
   string id = 1;
-  ActionName name = 2;
 }
+
+// ActionResultRequest represents message with action results which agent send to server when action was finished.
+message ActionResultRequest {
+  string id = 1;
+  bool success = 2;
+  bytes output = 3;
+}
+
+// ActionResultResponse represents response to action results which server sends to agent.
+message ActionResultResponse {}
 
 message AgentMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
@@ -125,6 +130,7 @@ message AgentMessage {
     Ping ping = 2;
     StateChangedRequest state_changed = 3;
     QANCollectRequest qan_collect = 4;
+    ActionResultRequest action_result = 5;
     // responses from agent
     Pong pong = 8;
     SetStateResponse set_state = 9;
@@ -142,6 +148,7 @@ message ServerMessage {
     Pong pong = 2;
     StateChangedResponse state_changed = 3;
     QANCollectResponse qan_collect = 4;
+    ActionResultResponse action_result = 5;
     // requests from server
     Ping ping = 8;
     SetStateRequest set_state = 9;
