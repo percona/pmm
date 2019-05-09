@@ -5452,8 +5452,16 @@
                   "description": "Action name to run.",
                   "type": "string"
                 },
+                "node_id": {
+                  "description": "Node ID for which action is running.",
+                  "type": "string"
+                },
                 "pmm_agent_id": {
                   "description": "PMM agent instance identifier.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service ID for which action is running.",
                   "type": "string"
                 }
               }

@@ -28,8 +28,12 @@ import "protoc-gen-swagger/options/annotations.proto";
 message RunActionRequest {
   // PMM agent instance identifier.
   string pmm_agent_id = 1;
+  // Service ID for which action is running.
+  string service_id = 2;
+  // Node ID for which action is running.
+  string node_id = 3;
   // Action name to run.
-  string action_name = 2;
+  string action_name = 4;
 }
 
 // RunActionResponse describes response while running an action.

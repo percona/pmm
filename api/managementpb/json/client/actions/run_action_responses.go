@@ -118,8 +118,14 @@ type RunActionBody struct {
 	// Action name to run.
 	ActionName string `json:"action_name,omitempty"`
 
+	// Node ID for which action is running.
+	NodeID string `json:"node_id,omitempty"`
+
 	// PMM agent instance identifier.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service ID for which action is running.
+	ServiceID string `json:"service_id,omitempty"`
 }
 
 // Validate validates this run action body
