@@ -53,6 +53,34 @@ func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, erro
 }
 
 /*
+GetActionResult gets action result gets an result of given action
+*/
+func (a *Client) GetActionResult(params *GetActionResultParams) (*GetActionResultOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewGetActionResultParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "GetActionResult",
+		Method:             "POST",
+		PathPattern:        "/v0/management/Actions/GetActionResult",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &GetActionResultReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*GetActionResultOK), nil
+
+}
+
+/*
 RunAction runs action runs an action
 */
 func (a *Client) RunAction(params *RunActionParams) (*RunActionOK, error) {

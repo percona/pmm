@@ -58,6 +58,19 @@ message CancelActionResponse {
   bool success = 3;
 }
 
+// GetActionResultRequest describes request to getting an action result.
+message GetActionResultRequest {
+  // Uniq action ID.
+  string action_id = 1;
+}
+
+// GetActionResultResponse describes response while getting an action result.
+message GetActionResultResponse {
+  string id = 1;
+  string pmm_agent_id = 2;
+  bytes output = 3;
+}
+
 // Actions service provides API for PMM Actions.
 service Actions {
   // RunAction runs an Action.
@@ -71,6 +84,13 @@ service Actions {
   rpc CancelAction(CancelActionRequest) returns (CancelActionResponse) {
     option (google.api.http) = {
       post: "/v0/management/Actions/CancelAction"
+      body: "*"
+    };
+  }
+  // GetActionResult gets an result of given Action.
+  rpc GetActionResult(GetActionResultRequest) returns (GetActionResultResponse) {
+    option (google.api.http) = {
+      post: "/v0/management/Actions/GetActionResult"
       body: "*"
     };
   }

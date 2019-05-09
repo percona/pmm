@@ -5367,6 +5367,72 @@
         }
       }
     },
+    "/v0/management/Actions/GetActionResult": {
+      "post": {
+        "tags": [
+          "Actions"
+        ],
+        "summary": "GetActionResult gets an result of given Action.",
+        "operationId": "GetActionResult",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "description": "GetActionResultRequest describes request to getting an action result.",
+              "type": "object",
+              "properties": {
+                "action_id": {
+                  "description": "Uniq action ID.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "description": "GetActionResultResponse describes response while getting an action result.",
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "output": {
+                  "type": "string",
+                  "format": "byte"
+                },
+                "pmm_agent_id": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v0/management/Actions/RunAction": {
       "post": {
         "tags": [

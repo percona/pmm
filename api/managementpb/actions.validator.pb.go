@@ -29,3 +29,9 @@ func (this *CancelActionRequest) Validate() error {
 func (this *CancelActionResponse) Validate() error {
 	return nil
 }
+func (this *GetActionResultRequest) Validate() error {
+	return nil
+}
+func (this *GetActionResultResponse) Validate() error {
+	return nil
+}
