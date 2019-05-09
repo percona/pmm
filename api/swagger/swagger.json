@@ -5459,6 +5459,13 @@
                     "MYSQL_EXPLAIN"
                   ]
                 },
+                "action_params": {
+                  "description": "action parameters.",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
                 "node_id": {
                   "description": "Node ID for which action is running.",
                   "type": "string"

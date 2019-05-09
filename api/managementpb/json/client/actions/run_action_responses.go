@@ -122,6 +122,9 @@ type RunActionBody struct {
 	// Enum: [ACTION_NAME_INVALID PT_SUMMARY PT_MYSQL_SUMMARY MYSQL_EXPLAIN]
 	ActionName *string `json:"action_name,omitempty"`
 
+	// action parameters.
+	ActionParams []string `json:"action_params"`
+
 	// Node ID for which action is running.
 	NodeID string `json:"node_id,omitempty"`
 

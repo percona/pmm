@@ -35,6 +35,8 @@ message RunActionRequest {
   string node_id = 3;
   // Action name to run.
   agent.ActionName action_name = 4;
+  // action parameters.
+  repeated string action_params = 5;
 }
 
 // RunActionResponse describes response while running an action.
