@@ -68,7 +68,7 @@ message GetActionResultRequest {
 message GetActionResultResponse {
   string id = 1;
   string pmm_agent_id = 2;
-  bytes output = 3;
+  string output = 3;
 }
 
 // Actions service provides API for PMM Actions.

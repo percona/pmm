@@ -123,8 +123,7 @@
                   "type": "string"
                 },
                 "output": {
-                  "type": "string",
-                  "format": "byte"
+                  "type": "string"
                 },
                 "pmm_agent_id": {
                   "type": "string"

@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
 
@@ -190,8 +189,7 @@ type GetActionResultOKBody struct {
 	ID string `json:"id,omitempty"`
 
 	// output
-	// Format: byte
-	Output strfmt.Base64 `json:"output,omitempty"`
+	Output string `json:"output,omitempty"`
 
 	// pmm agent id
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
@@ -199,26 +197,6 @@ type GetActionResultOKBody struct {
 
 // Validate validates this get action result OK body
 func (o *GetActionResultOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateOutput(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *GetActionResultOKBody) validateOutput(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Output) { // not required
-		return nil
-	}
-
-	// Format "byte" (base64 string) is already validated when unmarshalled
-
 	return nil
 }
 
