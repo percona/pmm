@@ -20,6 +20,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 };
 option go_package = "managementpb";
 
+import "agentpb/agent.proto";
 import "github.com/mwitkow/go-proto-validators/validator.proto";
 import "google/api/annotations.proto";
 import "protoc-gen-swagger/options/annotations.proto";
@@ -33,7 +34,7 @@ message RunActionRequest {
   // Node ID for which action is running.
   string node_id = 3;
   // Action name to run.
-  string action_name = 4;
+  agent.ActionName action_name = 4;
 }
 
 // RunActionResponse describes response while running an action.

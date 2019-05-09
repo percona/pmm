@@ -5449,8 +5449,15 @@
               "type": "object",
               "properties": {
                 "action_name": {
-                  "description": "Action name to run.",
-                  "type": "string"
+                  "description": "ActionName defines allowed action names.",
+                  "type": "string",
+                  "default": "ACTION_NAME_INVALID",
+                  "enum": [
+                    "ACTION_NAME_INVALID",
+                    "PT_SUMMARY",
+                    "PT_MYSQL_SUMMARY",
+                    "MYSQL_EXPLAIN"
+                  ]
                 },
                 "node_id": {
                   "description": "Node ID for which action is running.",

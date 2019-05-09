@@ -6,11 +6,14 @@ package actions
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -115,8 +118,9 @@ swagger:model RunActionBody
 */
 type RunActionBody struct {
 
-	// Action name to run.
-	ActionName string `json:"action_name,omitempty"`
+	// ActionName defines allowed action names.
+	// Enum: [ACTION_NAME_INVALID PT_SUMMARY PT_MYSQL_SUMMARY MYSQL_EXPLAIN]
+	ActionName *string `json:"action_name,omitempty"`
 
 	// Node ID for which action is running.
 	NodeID string `json:"node_id,omitempty"`
@@ -130,6 +134,64 @@ type RunActionBody struct {
 
 // Validate validates this run action body
 func (o *RunActionBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateActionName(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var runActionBodyTypeActionNamePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["ACTION_NAME_INVALID","PT_SUMMARY","PT_MYSQL_SUMMARY","MYSQL_EXPLAIN"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		runActionBodyTypeActionNamePropEnum = append(runActionBodyTypeActionNamePropEnum, v)
+	}
+}
+
+const (
+
+	// RunActionBodyActionNameACTIONNAMEINVALID captures enum value "ACTION_NAME_INVALID"
+	RunActionBodyActionNameACTIONNAMEINVALID string = "ACTION_NAME_INVALID"
+
+	// RunActionBodyActionNamePTSUMMARY captures enum value "PT_SUMMARY"
+	RunActionBodyActionNamePTSUMMARY string = "PT_SUMMARY"
+
+	// RunActionBodyActionNamePTMYSQLSUMMARY captures enum value "PT_MYSQL_SUMMARY"
+	RunActionBodyActionNamePTMYSQLSUMMARY string = "PT_MYSQL_SUMMARY"
+
+	// RunActionBodyActionNameMYSQLEXPLAIN captures enum value "MYSQL_EXPLAIN"
+	RunActionBodyActionNameMYSQLEXPLAIN string = "MYSQL_EXPLAIN"
+)
+
+// prop value enum
+func (o *RunActionBody) validateActionNameEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, runActionBodyTypeActionNamePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *RunActionBody) validateActionName(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ActionName) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateActionNameEnum("body"+"."+"action_name", "body", *o.ActionName); err != nil {
+		return err
+	}
+
 	return nil
 }
 
