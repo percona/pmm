@@ -130,9 +130,6 @@ type AddMongoDBBody struct {
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
 
-	// If true, adds mongodb_exporter for provided service.
-	MongodbExporter bool `json:"mongodb_exporter,omitempty"`
-
 	// Node identifier on which a service is been running. Required.
 	NodeID string `json:"node_id,omitempty"`
 
