@@ -21,6 +21,7 @@ import (
 	"os"
 
 	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
+	"github.com/percona/pmm/api/managementpb/json/client/node"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 
@@ -121,7 +122,11 @@ func register(cfg *config.Config, l *logrus.Entry) {
 	agentID, err := serverRegister(&cfg.Setup)
 	l.Debugf("Register error: %#v", err)
 	if err != nil {
-		fmt.Printf("Failed to register pmm-agent on PMM Server: %s.\n", err)
+		msg := err.Error()
+		if e, _ := err.(*node.RegisterDefault); e != nil {
+			msg = e.Payload.Error
+		}
+		fmt.Printf("Failed to register pmm-agent on PMM Server: %s.\n", msg)
 		if _, ok := err.(errFromNginx); ok {
 			fmt.Printf("Please check pmm-managed logs.\n")
 		}
