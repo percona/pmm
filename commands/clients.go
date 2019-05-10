@@ -146,13 +146,20 @@ func serverRegister(cfgSetup *config.Setup) (string, error) {
 
 	res, err := managementpb.Default.Node.Register(&node.RegisterParams{
 		Body: node.RegisterBody{
-			Address:       cfgSetup.Address,
 			NodeType:      pointer.ToString(nodeTypes[cfgSetup.NodeType]),
 			NodeName:      cfgSetup.NodeName,
-			Distro:        cfgSetup.Distro,
 			MachineID:     cfgSetup.MachineID,
+			Distro:        cfgSetup.Distro,
 			ContainerID:   cfgSetup.ContainerID,
 			ContainerName: cfgSetup.ContainerName,
+			NodeModel:     cfgSetup.NodeModel,
+			Region:        cfgSetup.Region,
+			Az:            cfgSetup.Az,
+			// TODO CustomLabels:  customLabels,
+			Address:       cfgSetup.Address,
+
+			Reregister: cfgSetup.Force,
+
 		},
 		Context: context.Background(),
 	})

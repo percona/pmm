@@ -87,13 +87,19 @@ type Ports struct {
 // Setup contains `pmm-agent setup` flag values.
 // It is never stored in configuration file.
 type Setup struct {
-	Address       string
 	NodeType      string
 	NodeName      string
-	Distro        string
 	MachineID     string
+	Distro        string
 	ContainerID   string
 	ContainerName string
+	NodeModel     string
+	Region        string
+	Az            string
+	// TODO CustomLabels  string
+	Address string
+
+	Force bool
 }
 
 // Config represents pmm-agent's configuration.
@@ -216,30 +222,33 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 
 	setupCmd := app.Command("setup", "Configure local pmm-agent.")
 	nodeinfo := nodeinfo.Get()
-	hostname, _ := os.Hostname()
 
-	// setup args
 	if nodeinfo.PublicAddress == "" {
-		setupCmd.Arg("node-address", "Node address.").
-			Required().StringVar(&cfg.Setup.Address)
+		setupCmd.Arg("node-address", "Node address.").Required().StringVar(&cfg.Setup.Address)
 	} else {
-		setupCmd.Arg("node-address", fmt.Sprintf("Node address. Default: %s (autodetected).", nodeinfo.PublicAddress)).
-			Default(nodeinfo.PublicAddress).StringVar(&cfg.Setup.Address)
+		help := fmt.Sprintf("Node address. Default: %s (autodetected).", nodeinfo.PublicAddress)
+		setupCmd.Arg("node-address", help).Default(nodeinfo.PublicAddress).StringVar(&cfg.Setup.Address)
 	}
+
 	nodeTypeKeys := []string{"generic", "container"}
 	nodeTypeDefault := nodeTypeKeys[0]
 	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s. Default: %s.", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
 	setupCmd.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&cfg.Setup.NodeType, nodeTypeKeys...)
-	setupCmd.Arg("node-name", fmt.Sprintf("Node name. Default: %s (autodetected).", hostname)).
-		Default(hostname).StringVar(&cfg.Setup.NodeName)
 
-	// setup flags
-	setupCmd.Flag("distro", fmt.Sprintf("Node OS distribution. Default: %s (autodetected).", nodeinfo.Distro)).
-		Default(nodeinfo.Distro).StringVar(&cfg.Setup.Distro)
-	setupCmd.Flag("machine-id", fmt.Sprintf("Node machine-id. Default: %s (autodetected).", nodeinfo.MachineID)).
-		Default(nodeinfo.MachineID).StringVar(&cfg.Setup.MachineID)
+	hostname, _ := os.Hostname()
+	nodeNameHelp := fmt.Sprintf("Node name. Default: %s (autodetected).", hostname)
+	setupCmd.Arg("node-name", nodeNameHelp).Default(hostname).StringVar(&cfg.Setup.NodeName)
+
+	setupCmd.Flag("machine-id", "Node machine-id. Default is autodetected.").Default(nodeinfo.MachineID).StringVar(&cfg.Setup.MachineID)
+	setupCmd.Flag("distro", "Node OS distribution. Default is autodetected.").Default(nodeinfo.Distro).StringVar(&cfg.Setup.Distro)
 	setupCmd.Flag("container-id", "Container ID.").StringVar(&cfg.Setup.ContainerID)
 	setupCmd.Flag("container-name", "Container name.").StringVar(&cfg.Setup.ContainerName)
+	setupCmd.Flag("node-model", "Node model.").StringVar(&cfg.Setup.NodeModel)
+	setupCmd.Flag("region", "Node region.").StringVar(&cfg.Setup.Region)
+	setupCmd.Flag("az", "Node availability zone.").StringVar(&cfg.Setup.Az)
+	// TODO setupCmd.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&cfg.Setup.CustomLabels)
+
+	setupCmd.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist.").BoolVar(&cfg.Setup.Force)
 
 	return app, configFileF
 }
