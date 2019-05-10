@@ -139,9 +139,6 @@ type AddPostgreSQLBody struct {
 	// Service Access port. Required.
 	Port int64 `json:"port,omitempty"`
 
-	// If true, adds postgres_exporter for provided service.
-	PostgresExporter bool `json:"postgres_exporter,omitempty"`
-
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
