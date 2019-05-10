@@ -152,6 +152,9 @@ type RegisterBody struct {
 
 	// Node region.
 	Region string `json:"region,omitempty"`
+
+	// If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
+	Reregister bool `json:"reregister,omitempty"`
 }
 
 // Validate validates this register body

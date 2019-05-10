@@ -5939,6 +5939,11 @@
                 "region": {
                   "description": "Node region.",
                   "type": "string"
+                },
+                "reregister": {
+                  "description": "If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.",
+                  "type": "boolean",
+                  "format": "boolean"
                 }
               }
             }
