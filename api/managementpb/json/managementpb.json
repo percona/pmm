@@ -823,7 +823,7 @@
         "tags": [
           "Node"
         ],
-        "summary": "Register registers a new Node and pmm-agent, or updates the existing one by name.",
+        "summary": "Register registers a new Node and pmm-agent.",
         "operationId": "Register",
         "parameters": [
           {
@@ -838,15 +838,15 @@
                   "title": "Address FIXME https://jira.percona.com/browse/PMM-3786"
                 },
                 "az": {
-                  "description": "Node availability zone. Auto-detected and auto-updated.",
+                  "description": "Node availability zone.",
                   "type": "string"
                 },
                 "container_id": {
-                  "description": "Container identifier. If specified, must be a unique Docker container identifier.\nAuto-detected and auto-updated.",
+                  "description": "Container identifier. If specified, must be a unique Docker container identifier.",
                   "type": "string"
                 },
                 "container_name": {
-                  "description": "Container name. Auto-detected and auto-updated.",
+                  "description": "Container name.",
                   "type": "string"
                 },
                 "custom_labels": {
@@ -857,15 +857,15 @@
                   }
                 },
                 "distro": {
-                  "description": "Linux distribution name and version. Auto-detected and auto-updated.",
+                  "description": "Linux distribution name and version.",
                   "type": "string"
                 },
                 "machine_id": {
-                  "description": "Linux machine-id. Auto-detected and auto-updated.\nMust be unique across all Generic Nodes if specified.",
+                  "description": "Linux machine-id.\nMust be unique across all Generic Nodes if specified.",
                   "type": "string"
                 },
                 "node_model": {
-                  "description": "Node model. Auto-detected and auto-updated.",
+                  "description": "Node model.",
                   "type": "string"
                 },
                 "node_name": {
@@ -885,8 +885,13 @@
                   ]
                 },
                 "region": {
-                  "description": "Node region. Auto-detected and auto-updated.",
+                  "description": "Node region.",
                   "type": "string"
+                },
+                "reregister": {
+                  "description": "If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.",
+                  "type": "boolean",
+                  "format": "boolean"
                 }
               }
             }

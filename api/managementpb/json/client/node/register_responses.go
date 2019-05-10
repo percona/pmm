@@ -121,27 +121,26 @@ type RegisterBody struct {
 	// Address FIXME https://jira.percona.com/browse/PMM-3786
 	Address string `json:"address,omitempty"`
 
-	// Node availability zone. Auto-detected and auto-updated.
+	// Node availability zone.
 	Az string `json:"az,omitempty"`
 
 	// Container identifier. If specified, must be a unique Docker container identifier.
-	// Auto-detected and auto-updated.
 	ContainerID string `json:"container_id,omitempty"`
 
-	// Container name. Auto-detected and auto-updated.
+	// Container name.
 	ContainerName string `json:"container_name,omitempty"`
 
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
-	// Linux distribution name and version. Auto-detected and auto-updated.
+	// Linux distribution name and version.
 	Distro string `json:"distro,omitempty"`
 
-	// Linux machine-id. Auto-detected and auto-updated.
+	// Linux machine-id.
 	// Must be unique across all Generic Nodes if specified.
 	MachineID string `json:"machine_id,omitempty"`
 
-	// Node model. Auto-detected and auto-updated.
+	// Node model.
 	NodeModel string `json:"node_model,omitempty"`
 
 	// Unique across all Nodes user-defined name. Can't be changed.
@@ -151,8 +150,11 @@ type RegisterBody struct {
 	// Enum: [NODE_TYPE_INVALID GENERIC_NODE CONTAINER_NODE REMOTE_NODE REMOTE_AMAZON_RDS_NODE]
 	NodeType *string `json:"node_type,omitempty"`
 
-	// Node region. Auto-detected and auto-updated.
+	// Node region.
 	Region string `json:"region,omitempty"`
+
+	// If true, and Node with that name already exist, it will be removed with all dependent Services and Agents.
+	Reregister bool `json:"reregister,omitempty"`
 }
 
 // Validate validates this register body

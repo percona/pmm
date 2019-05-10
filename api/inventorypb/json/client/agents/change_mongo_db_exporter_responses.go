@@ -121,21 +121,39 @@ type ChangeMongoDBExporterBody struct {
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// disabled
-	Disabled bool `json:"disabled,omitempty"`
-
-	// enabled
-	Enabled bool `json:"enabled,omitempty"`
-
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+	// common
+	Common *ChangeMongoDBExporterParamsBodyCommon `json:"common,omitempty"`
 }
 
 // Validate validates this change mongo DB exporter body
 func (o *ChangeMongoDBExporterBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCommon(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeMongoDBExporterBody) validateCommon(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Common) { // not required
+		return nil
+	}
+
+	if o.Common != nil {
+		if err := o.Common.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -368,6 +386,47 @@ func (o *ChangeMongoDBExporterOKBodyMongodbExporter) MarshalBinary() ([]byte, er
 // UnmarshalBinary interface implementation
 func (o *ChangeMongoDBExporterOKBodyMongodbExporter) UnmarshalBinary(b []byte) error {
 	var res ChangeMongoDBExporterOKBodyMongodbExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeMongoDBExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+swagger:model ChangeMongoDBExporterParamsBodyCommon
+*/
+type ChangeMongoDBExporterParamsBodyCommon struct {
+
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
+
+	// enabled
+	Enabled bool `json:"enabled,omitempty"`
+
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+}
+
+// Validate validates this change mongo DB exporter params body common
+func (o *ChangeMongoDBExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeMongoDBExporterParamsBodyCommon) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeMongoDBExporterParamsBodyCommon) UnmarshalBinary(b []byte) error {
+	var res ChangeMongoDBExporterParamsBodyCommon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
