@@ -57,18 +57,19 @@ func (res *registerResult) String() string {
 }
 
 type registerCommand struct {
-	Address       string
 	NodeType      string
 	NodeName      string
-	Distro        string
 	MachineID     string
+	Distro        string
 	ContainerID   string
 	ContainerName string
+	NodeModel     string
+	Region        string
+	Az            string
+	CustomLabels  string
+	Address       string
 
-	CustomLabels string
-	Region       string
-	Az           string
-	NodeModel    string
+	Force bool
 }
 
 func (cmd *registerCommand) Run() (commands.Result, error) {
@@ -78,18 +79,19 @@ func (cmd *registerCommand) Run() (commands.Result, error) {
 	}
 	params := &node.RegisterParams{
 		Body: node.RegisterBody{
-			Address:       cmd.Address,
-			NodeName:      cmd.NodeName,
 			NodeType:      pointer.ToString(nodeTypes[cmd.NodeType]),
-			Distro:        cmd.Distro,
+			NodeName:      cmd.NodeName,
 			MachineID:     cmd.MachineID,
+			Distro:        cmd.Distro,
 			ContainerID:   cmd.ContainerID,
 			ContainerName: cmd.ContainerName,
+			NodeModel:     cmd.NodeModel,
+			Region:        cmd.Region,
+			Az:            cmd.Az,
+			CustomLabels:  customLabels,
+			Address:       cmd.Address,
 
-			CustomLabels: customLabels,
-			Region:       cmd.Region,
-			Az:           cmd.Az,
-			NodeModel:    cmd.NodeModel,
+			Reregister: cmd.Force,
 		},
 		Context: commands.Ctx,
 	}
@@ -126,16 +128,17 @@ func init() {
 	RegisterC.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&Register.NodeType, nodeTypeKeys...)
 
 	hostname, _ := os.Hostname()
-	nodeNameHelp := fmt.Sprintf("Node name. Default: %s.", hostname)
+	nodeNameHelp := fmt.Sprintf("Node name. Default: %s (autodetected).", hostname)
 	RegisterC.Arg("node-name", nodeNameHelp).Default(hostname).StringVar(&Register.NodeName)
 
-	RegisterC.Flag("distro", "Node OS distribution. Default is autodetected.").Default(nodeinfo.Distro).StringVar(&Register.Distro)
 	RegisterC.Flag("machine-id", "Node machine-id. Default is autodetected.").Default(nodeinfo.MachineID).StringVar(&Register.MachineID)
+	RegisterC.Flag("distro", "Node OS distribution. Default is autodetected.").Default(nodeinfo.Distro).StringVar(&Register.Distro)
 	RegisterC.Flag("container-id", "Container ID.").StringVar(&Register.ContainerID)
 	RegisterC.Flag("container-name", "Container name.").StringVar(&Register.ContainerName)
-
-	RegisterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&Register.CustomLabels)
+	RegisterC.Flag("node-model", "Node model.").StringVar(&Register.NodeModel)
 	RegisterC.Flag("region", "Node region.").StringVar(&Register.Region)
 	RegisterC.Flag("az", "Node availability zone.").StringVar(&Register.Az)
-	RegisterC.Flag("node-model", "Node model.").StringVar(&Register.NodeModel)
+	RegisterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&Register.CustomLabels)
+
+	RegisterC.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist.").BoolVar(&Register.Force)
 }
