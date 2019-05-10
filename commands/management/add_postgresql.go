@@ -82,9 +82,8 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 			Address:     host,
 			Port:        int64(port),
 
-			PostgresExporter: true,
-			Username:         cmd.Username,
-			Password:         cmd.Password,
+			Username: cmd.Username,
+			Password: cmd.Password,
 
 			Environment:  cmd.Environment,
 			CustomLabels: customLabels,

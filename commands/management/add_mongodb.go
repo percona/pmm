@@ -50,7 +50,6 @@ type addMongoDBCommand struct {
 	ServiceName    string
 	Username       string
 	Password       string
-	UseExporter    bool
 	UseProfiler    bool
 	ReplicationSet string
 	Cluster        string
@@ -86,9 +85,8 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 			Address:     host,
 			Port:        int64(port),
 
-			MongodbExporter: cmd.UseExporter,
-			Username:        cmd.Username,
-			Password:        cmd.Password,
+			Username: cmd.Username,
+			Password: cmd.Password,
 
 			QANMongodbProfiler: cmd.UseProfiler,
 
@@ -126,7 +124,6 @@ func init() {
 	AddMongoDBC.Flag("username", "MongoDB username.").StringVar(&AddMongoDB.Username)
 	AddMongoDBC.Flag("password", "MongoDB password.").StringVar(&AddMongoDB.Password)
 	AddMongoDBC.Flag("use-profiler", "Run QAN profiler agent.").BoolVar(&AddMongoDB.UseProfiler)
-	AddMongoDBC.Flag("use-exporter", "Run mongodb_exporter.").BoolVar(&AddMongoDB.UseExporter)
 
 	AddMongoDBC.Flag("replication-set", "Replication set name.").StringVar(&AddMongoDB.ReplicationSet)
 	AddMongoDBC.Flag("cluster", "Cluster name.").StringVar(&AddMongoDB.Cluster)

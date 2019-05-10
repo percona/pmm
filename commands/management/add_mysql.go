@@ -86,12 +86,9 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			Address:     host,
 			Port:        int64(port),
 
-			MysqldExporter: true,
-			Username:       cmd.Username,
-			Password:       cmd.Password,
+			Username: cmd.Username,
+			Password: cmd.Password,
 
-			QANUsername:        cmd.Username,
-			QANPassword:        cmd.Password,
 			QANMysqlPerfschema: cmd.UsePerfschema,
 			QANMysqlSlowlog:    cmd.UseSlowLog,
 
