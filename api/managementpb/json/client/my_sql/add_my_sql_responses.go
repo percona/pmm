@@ -130,9 +130,6 @@ type AddMySQLBody struct {
 	// Environment name.
 	Environment string `json:"environment,omitempty"`
 
-	// If true, adds mysqld_exporter for provided service.
-	MysqldExporter bool `json:"mysqld_exporter,omitempty"`
-
 	// Node identifier on which a service is been running. Required.
 	NodeID string `json:"node_id,omitempty"`
 
@@ -150,12 +147,6 @@ type AddMySQLBody struct {
 
 	// If true, adds qan-mysql-slowlog-agent for provided service.
 	QANMysqlSlowlog bool `json:"qan_mysql_slowlog,omitempty"`
-
-	// FIXME remove
-	QANPassword string `json:"qan_password,omitempty"`
-
-	// FIXME remove
-	QANUsername string `json:"qan_username,omitempty"`
 
 	// Replication set name.
 	ReplicationSet string `json:"replication_set,omitempty"`
