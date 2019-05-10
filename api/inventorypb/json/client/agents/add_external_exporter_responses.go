@@ -254,6 +254,9 @@ type AddExternalExporterOKBodyExternalExporter struct {
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
 	// URL for scraping metrics.
 	MetricsURL string `json:"metrics_url,omitempty"`
 }

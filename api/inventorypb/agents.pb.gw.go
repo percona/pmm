@@ -79,23 +79,6 @@ func request_Agents_AddPMMAgent_0(ctx context.Context, marshaler runtime.Marshal
 
 }
 
-func request_Agents_ChangePMMAgent_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq ChangePMMAgentRequest
-	var metadata runtime.ServerMetadata
-
-	newReader, berr := utilities.IOReaderFactory(req.Body)
-	if berr != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", berr)
-	}
-	if err := marshaler.NewDecoder(newReader()).Decode(&protoReq); err != nil && err != io.EOF {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-
-	msg, err := client.ChangePMMAgent(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
-	return msg, metadata, err
-
-}
-
 func request_Agents_AddNodeExporter_0(ctx context.Context, marshaler runtime.Marshaler, client AgentsClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq AddNodeExporterRequest
 	var metadata runtime.ServerMetadata
@@ -517,26 +500,6 @@ func RegisterAgentsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cli
 
 	})
 
-	mux.Handle("POST", pattern_Agents_ChangePMMAgent_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
-		ctx, cancel := context.WithCancel(req.Context())
-		defer cancel()
-		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-		resp, md, err := request_Agents_ChangePMMAgent_0(rctx, inboundMarshaler, client, req, pathParams)
-		ctx = runtime.NewServerMetadataContext(ctx, md)
-		if err != nil {
-			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
-			return
-		}
-
-		forward_Agents_ChangePMMAgent_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
-
-	})
-
 	mux.Handle("POST", pattern_Agents_AddNodeExporter_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
@@ -927,8 +890,6 @@ var (
 
 	pattern_Agents_AddPMMAgent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Agents", "AddPMMAgent"}, ""))
 
-	pattern_Agents_ChangePMMAgent_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Agents", "ChangePMMAgent"}, ""))
-
 	pattern_Agents_AddNodeExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Agents", "AddNodeExporter"}, ""))
 
 	pattern_Agents_ChangeNodeExporter_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "inventory", "Agents", "ChangeNodeExporter"}, ""))
@@ -974,8 +935,6 @@ var (
 	forward_Agents_GetAgent_0 = runtime.ForwardResponseMessage
 
 	forward_Agents_AddPMMAgent_0 = runtime.ForwardResponseMessage
-
-	forward_Agents_ChangePMMAgent_0 = runtime.ForwardResponseMessage
 
 	forward_Agents_AddNodeExporter_0 = runtime.ForwardResponseMessage
 

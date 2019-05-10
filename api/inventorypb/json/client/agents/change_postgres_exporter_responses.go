@@ -121,21 +121,39 @@ type ChangePostgresExporterBody struct {
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// disabled
-	Disabled bool `json:"disabled,omitempty"`
-
-	// enabled
-	Enabled bool `json:"enabled,omitempty"`
-
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+	// common
+	Common *ChangePostgresExporterParamsBodyCommon `json:"common,omitempty"`
 }
 
 // Validate validates this change postgres exporter body
 func (o *ChangePostgresExporterBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCommon(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangePostgresExporterBody) validateCommon(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Common) { // not required
+		return nil
+	}
+
+	if o.Common != nil {
+		if err := o.Common.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -368,6 +386,47 @@ func (o *ChangePostgresExporterOKBodyPostgresExporter) MarshalBinary() ([]byte, 
 // UnmarshalBinary interface implementation
 func (o *ChangePostgresExporterOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	var res ChangePostgresExporterOKBodyPostgresExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangePostgresExporterParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+swagger:model ChangePostgresExporterParamsBodyCommon
+*/
+type ChangePostgresExporterParamsBodyCommon struct {
+
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
+
+	// enabled
+	Enabled bool `json:"enabled,omitempty"`
+
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+}
+
+// Validate validates this change postgres exporter params body common
+func (o *ChangePostgresExporterParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangePostgresExporterParamsBodyCommon) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangePostgresExporterParamsBodyCommon) UnmarshalBinary(b []byte) error {
+	var res ChangePostgresExporterParamsBodyCommon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

@@ -121,21 +121,39 @@ type ChangeQANMongoDBProfilerAgentBody struct {
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
 
-	// Replace all custom user-assigned labels.
-	CustomLabels map[string]string `json:"custom_labels,omitempty"`
-
-	// disabled
-	Disabled bool `json:"disabled,omitempty"`
-
-	// enabled
-	Enabled bool `json:"enabled,omitempty"`
-
-	// Remove all custom user-assigned labels.
-	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+	// common
+	Common *ChangeQANMongoDBProfilerAgentParamsBodyCommon `json:"common,omitempty"`
 }
 
 // Validate validates this change QAN mongo DB profiler agent body
 func (o *ChangeQANMongoDBProfilerAgentBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateCommon(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *ChangeQANMongoDBProfilerAgentBody) validateCommon(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Common) { // not required
+		return nil
+	}
+
+	if o.Common != nil {
+		if err := o.Common.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "common")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -365,6 +383,47 @@ func (o *ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) MarshalBina
 // UnmarshalBinary interface implementation
 func (o *ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent) UnmarshalBinary(b []byte) error {
 	var res ChangeQANMongoDBProfilerAgentOKBodyQANMongodbProfilerAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ChangeQANMongoDBProfilerAgentParamsBodyCommon ChangeCommonAgentParams contains parameters that can be changed for all Agents.
+swagger:model ChangeQANMongoDBProfilerAgentParamsBodyCommon
+*/
+type ChangeQANMongoDBProfilerAgentParamsBodyCommon struct {
+
+	// Replace all custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// disabled
+	Disabled bool `json:"disabled,omitempty"`
+
+	// enabled
+	Enabled bool `json:"enabled,omitempty"`
+
+	// Remove all custom user-assigned labels.
+	RemoveCustomLabels bool `json:"remove_custom_labels,omitempty"`
+}
+
+// Validate validates this change QAN mongo DB profiler agent params body common
+func (o *ChangeQANMongoDBProfilerAgentParamsBodyCommon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ChangeQANMongoDBProfilerAgentParamsBodyCommon) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ChangeQANMongoDBProfilerAgentParamsBodyCommon) UnmarshalBinary(b []byte) error {
+	var res ChangeQANMongoDBProfilerAgentParamsBodyCommon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
