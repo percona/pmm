@@ -21,7 +21,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"math"
 	"strings"
 	"text/template"
 	"time"
@@ -101,14 +100,14 @@ const queryReportTmpl = `
 `
 
 // Select select metrics for report.
-func (r *Reporter) Select(ctx context.Context, periodStartFrom, periodStartTo time.Time,
+func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartToSec int64,
 	dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string,
 	dbLabels map[string][]string, group, order string, offset, limit uint32,
 	commonColumns, boolColumns []string) ([]M, error) {
 
 	arg := map[string]interface{}{
-		"period_start_from": periodStartFrom,
-		"period_start_to":   periodStartTo,
+		"period_start_from": periodStartFromSec,
+		"period_start_to":   periodStartToSec,
 		"queryids":          dQueryids,
 		"servers":           dServers,
 		"databases":         dDatabases,
@@ -201,7 +200,7 @@ const queryReportSparklinesTmpl = `
 
 // SelectSparklines selects datapoint for sparklines.
 func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
-	periodStartFrom, periodStartTo time.Time,
+	periodStartFromSec, periodStartToSec int64,
 	dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string,
 	dbLabels map[string][]string, group string, columns []string) ([]*qanpb.Point, error) {
 
@@ -220,16 +219,16 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 
 	// If time range is bigger then an hour - amount of sparklines points = 60 to avoid huge data in response.
 	// Otherwise amount of sparklines points is equal to minutes in in time range to not mess up calculation.
-	amountOfPoints := 60
-	timePeriod := periodStartTo.Sub(periodStartFrom)
-	if timePeriod < 1*time.Hour {
-		amountOfPoints = int(math.Round(timePeriod.Minutes()))
+	amountOfPoints := int64(60)
+	timePeriod := periodStartToSec - periodStartFromSec
+	if timePeriod < int64((1 * time.Hour).Seconds()) {
+		amountOfPoints = timePeriod / 60 // minimum point is 1 minute
 	}
 
 	arg := map[string]interface{}{
 		"dimension_val":     dimensionVal,
-		"period_start_from": periodStartFrom,
-		"period_start_to":   periodStartTo,
+		"period_start_from": periodStartFromSec,
+		"period_start_to":   periodStartToSec,
 		"queryids":          dQueryids,
 		"servers":           dServers,
 		"databases":         dDatabases,
@@ -279,16 +278,16 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		resultsWithGaps[points.Values["point"]] = &points
 	}
 
-	timeFrame := periodStartTo.Sub(periodStartFrom).Seconds() / float64(amountOfPoints)
+	timeFrame := (periodStartToSec - periodStartFromSec) / amountOfPoints
 	// fill in gaps in time series.
-	for pointN := 0; pointN < amountOfPoints; pointN++ {
+	for pointN := int64(0); pointN < amountOfPoints; pointN++ {
 		point, ok := resultsWithGaps[float32(pointN)]
 		if !ok {
 			point = &qanpb.Point{
 				Values: make(map[string]float32),
 			}
-			timeShift := time.Duration(int(timeFrame) * pointN)
-			ts := periodStartTo.Add(-time.Second * timeShift).Unix()
+			timeShift := timeFrame * pointN
+			ts := periodStartToSec - timeShift
 			point.Values["point"] = float32(pointN)
 			point.Values["time_frame"] = float32(timeFrame)
 			point.Values["timestamp"] = float32(ts)

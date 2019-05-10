@@ -10,9 +10,8 @@ qan-api for PMM 2.x.
 
 Examples:
 ```bash
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
 
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "queryid"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
 
 curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "d_client_host"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
 

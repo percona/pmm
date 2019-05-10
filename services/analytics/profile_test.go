@@ -29,6 +29,7 @@ import (
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"
 	"github.com/percona/pmm/api/qanpb"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/qan-api2/models"
 )
@@ -322,6 +323,230 @@ func TestService_GetReport_Mix(t *testing.T) {
 			t.Errorf("Service.GetReport() unexpected error = %v, wantErr %v", err, expectedErr)
 			return
 		}
+	})
+}
+
+func TestService_GetReport_Groups(t *testing.T) {
+	db := setup()
+	rm := models.NewReporter(db)
+	mm := models.NewMetrics(db)
+	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
+	t2, _ := time.Parse(time.RFC3339, "2019-01-01T10:00:00Z")
+
+	t.Run("group_by_queryid", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+
+		in := qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "queryid",
+			Columns: []string{
+				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
+				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
+				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
+				"tmp_disk_tables", "tmp_table_sizes", "qc_hit", "full_scan", "full_join",
+				"tmp_table", "tmp_table_on_disk", "filesort", "filesort_on_disk",
+				"select_full_range_join", "select_range", "select_range_check",
+				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
+				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
+			OrderBy: "-load",
+			Offset:  0,
+			Limit:   10,
+		}
+
+		got, err := s.GetReport(context.TODO(), &in)
+		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_queryid.json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+	})
+
+	t.Run("group_by_d_server", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+
+		in := qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "d_server",
+			Columns: []string{
+				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
+				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
+				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
+				"tmp_disk_tables", "tmp_table_sizes", "qc_hit", "full_scan", "full_join",
+				"tmp_table", "tmp_table_on_disk", "filesort", "filesort_on_disk",
+				"select_full_range_join", "select_range", "select_range_check",
+				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
+				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
+			OrderBy: "-load",
+			Offset:  0,
+			Limit:   10,
+		}
+
+		got, err := s.GetReport(context.TODO(), &in)
+		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_d_server.json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+	})
+
+	t.Run("group_by_d_database", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+
+		in := qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "d_database",
+			Columns: []string{
+				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
+				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
+				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
+				"tmp_disk_tables", "tmp_table_sizes", "qc_hit", "full_scan", "full_join",
+				"tmp_table", "tmp_table_on_disk", "filesort", "filesort_on_disk",
+				"select_full_range_join", "select_range", "select_range_check",
+				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
+				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
+			OrderBy: "-load",
+			Offset:  0,
+			Limit:   10,
+		}
+
+		got, err := s.GetReport(context.TODO(), &in)
+		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_d_database.json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+	})
+
+	t.Run("group_by_d_schema", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+
+		in := qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "d_schema",
+			Columns: []string{
+				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
+				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
+				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
+				"tmp_disk_tables", "tmp_table_sizes", "qc_hit", "full_scan", "full_join",
+				"tmp_table", "tmp_table_on_disk", "filesort", "filesort_on_disk",
+				"select_full_range_join", "select_range", "select_range_check",
+				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
+				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
+			OrderBy: "-load",
+			Offset:  0,
+			Limit:   10,
+		}
+
+		got, err := s.GetReport(context.TODO(), &in)
+		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_d_schema.json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+	})
+
+	t.Run("group_by_d_username", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+
+		in := qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "d_username",
+			Columns: []string{
+				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
+				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
+				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
+				"tmp_disk_tables", "tmp_table_sizes", "qc_hit", "full_scan", "full_join",
+				"tmp_table", "tmp_table_on_disk", "filesort", "filesort_on_disk",
+				"select_full_range_join", "select_range", "select_range_check",
+				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
+				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
+			OrderBy: "-load",
+			Offset:  0,
+			Limit:   10,
+		}
+
+		got, err := s.GetReport(context.TODO(), &in)
+		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_d_username.json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+	})
+
+	t.Run("group_by_d_client_host", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+
+		in := qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "d_client_host",
+			Columns: []string{
+				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
+				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
+				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
+				"tmp_disk_tables", "tmp_table_sizes", "qc_hit", "full_scan", "full_join",
+				"tmp_table", "tmp_table_on_disk", "filesort", "filesort_on_disk",
+				"select_full_range_join", "select_range", "select_range_check",
+				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
+				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
+			OrderBy: "-load",
+			Offset:  0,
+			Limit:   10,
+		}
+
+		got, err := s.GetReport(context.TODO(), &in)
+		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_d_client_host.json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 }
 
