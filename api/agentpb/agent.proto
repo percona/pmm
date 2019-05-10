@@ -91,31 +91,33 @@ enum ActionName {
 
 // StartActionRequest represents request to run an action by name.
 message StartActionRequest {
-  string id = 1;
+  string action_id = 1;
   ActionName name = 2;
   repeated string parameters = 3;
 }
 
 // StartActionResponse represents message with an response to starting an action.
 message StartActionResponse {
-  string id = 1;
+  string action_id = 1;
 }
 
 // StopActionRequest represents request to stop action with given id.
 message StopActionRequest {
-  string id = 1;
+  string action_id = 1;
 }
 
 // StopActionResponse represents response to stop action request. It sends to server when an action was stopped.
 message StopActionResponse {
-  string id = 1;
+  string action_id = 1;
 }
 
 // ActionResultRequest represents message with action results which agent send to server when action was finished.
 message ActionResultRequest {
-  string id = 1;
+  string action_id = 1;
   bool last_part = 2;
-  bytes output = 3;
+  int32 err_code = 3;
+  string err_message = 4;
+  bytes output = 5;
 }
 
 // ActionResultResponse represents response to action results which server sends to agent.
