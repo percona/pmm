@@ -67,32 +67,30 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 
 		res.Service = invService.(*inventorypb.MySQLService)
 
-		if req.MysqldExporter {
-			params := &models.AddExporterAgentParams{
-				PMMAgentID: req.PmmAgentId,
-				ServiceID:  invService.ID(),
-				Username:   req.Username,
-				Password:   req.Password,
-			}
-			row, err := models.AgentAddExporter(tx.Querier, models.MySQLdExporterType, params)
-			if err != nil {
-				return err
-			}
-
-			agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
-			if err != nil {
-				return err
-			}
-
-			res.MysqldExporter = agent.(*inventorypb.MySQLdExporter)
+		params := &models.AddExporterAgentParams{
+			PMMAgentID: req.PmmAgentId,
+			ServiceID:  invService.ID(),
+			Username:   req.Username,
+			Password:   req.Password,
 		}
+		row, err := models.AgentAddExporter(tx.Querier, models.MySQLdExporterType, params)
+		if err != nil {
+			return err
+		}
+
+		agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
+		if err != nil {
+			return err
+		}
+
+		res.MysqldExporter = agent.(*inventorypb.MySQLdExporter)
 
 		if req.QanMysqlPerfschema {
 			params := &models.AddExporterAgentParams{
 				PMMAgentID: req.PmmAgentId,
 				ServiceID:  invService.ID(),
-				Username:   req.QanUsername,
-				Password:   req.QanPassword,
+				Username:   req.Username,
+				Password:   req.Password,
 			}
 
 			row, err := models.AgentAddExporter(tx.Querier, models.QANMySQLPerfSchemaAgentType, params)
@@ -112,8 +110,8 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 			params := &models.AddExporterAgentParams{
 				PMMAgentID: req.PmmAgentId,
 				ServiceID:  invService.ID(),
-				Username:   req.QanUsername,
-				Password:   req.QanPassword,
+				Username:   req.Username,
+				Password:   req.Password,
 			}
 
 			row, err := models.AgentAddExporter(tx.Querier, models.QANMySQLSlowlogAgentType, params)

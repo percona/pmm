@@ -67,25 +67,23 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 
 		res.Service = invService.(*inventorypb.PostgreSQLService)
 
-		if req.PostgresExporter {
-			params := &models.AddExporterAgentParams{
-				PMMAgentID: req.PmmAgentId,
-				ServiceID:  invService.ID(),
-				Username:   req.Username,
-				Password:   req.Password,
-			}
-			row, err := models.AgentAddExporter(tx.Querier, models.PostgresExporterType, params)
-			if err != nil {
-				return err
-			}
-
-			agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
-			if err != nil {
-				return err
-			}
-
-			res.PostgresExporter = agent.(*inventorypb.PostgresExporter)
+		params := &models.AddExporterAgentParams{
+			PMMAgentID: req.PmmAgentId,
+			ServiceID:  invService.ID(),
+			Username:   req.Username,
+			Password:   req.Password,
 		}
+		row, err := models.AgentAddExporter(tx.Querier, models.PostgresExporterType, params)
+		if err != nil {
+			return err
+		}
+
+		agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
+		if err != nil {
+			return err
+		}
+
+		res.PostgresExporter = agent.(*inventorypb.PostgresExporter)
 
 		return nil
 	}); e != nil {

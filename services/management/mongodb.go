@@ -68,25 +68,23 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 
 		res.Service = invService.(*inventorypb.MongoDBService)
 
-		if req.MongodbExporter {
-			params := &models.AddExporterAgentParams{
-				PMMAgentID: req.PmmAgentId,
-				ServiceID:  invService.ID(),
-				Username:   req.Username,
-				Password:   req.Password,
-			}
-			row, err := models.AgentAddExporter(tx.Querier, models.MongoDBExporterType, params)
-			if err != nil {
-				return err
-			}
-
-			agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
-			if err != nil {
-				return err
-			}
-
-			res.MongodbExporter = agent.(*inventorypb.MongoDBExporter)
+		params := &models.AddExporterAgentParams{
+			PMMAgentID: req.PmmAgentId,
+			ServiceID:  invService.ID(),
+			Username:   req.Username,
+			Password:   req.Password,
 		}
+		row, err := models.AgentAddExporter(tx.Querier, models.MongoDBExporterType, params)
+		if err != nil {
+			return err
+		}
+
+		agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
+		if err != nil {
+			return err
+		}
+
+		res.MongodbExporter = agent.(*inventorypb.MongoDBExporter)
 
 		if req.QanMongodbProfiler {
 			params := &models.AddExporterAgentParams{

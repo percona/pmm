@@ -213,7 +213,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:82ad93e065e7a72e75bff31156b2eae678789ee1b49268c85ae1f23c34413ae0"
+  digest = "1:f3fea0e26658c754c39be6503a985cbab4a986d23222a21fe61472625a6ee552"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentpb",
@@ -224,7 +224,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "31c596e6d59158ff0dad81ebb90a23faf47f39af"
+  revision = "cb2c9e9956f1da3ff99e7359dd76333dd076997d"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
