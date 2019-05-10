@@ -73,9 +73,11 @@ message GetActionResultRequest {
 
 // GetActionResultResponse describes response while getting an action result.
 message GetActionResultResponse {
-  string id = 1;
+  string action_id = 1;
   string pmm_agent_id = 2;
-  string output = 3;
+  int32 err_code = 3;
+  string err_message = 4;
+  string output = 5;
 }
 
 // Actions service provides API for PMM Actions.

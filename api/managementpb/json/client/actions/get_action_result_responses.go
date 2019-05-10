@@ -185,8 +185,14 @@ swagger:model GetActionResultOKBody
 */
 type GetActionResultOKBody struct {
 
-	// id
-	ID string `json:"id,omitempty"`
+	// action id
+	ActionID string `json:"action_id,omitempty"`
+
+	// err code
+	ErrCode int32 `json:"err_code,omitempty"`
+
+	// err message
+	ErrMessage string `json:"err_message,omitempty"`
 
 	// output
 	Output string `json:"output,omitempty"`

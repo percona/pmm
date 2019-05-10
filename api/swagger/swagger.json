@@ -5398,7 +5398,14 @@
               "description": "GetActionResultResponse describes response while getting an action result.",
               "type": "object",
               "properties": {
-                "id": {
+                "action_id": {
+                  "type": "string"
+                },
+                "err_code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "err_message": {
                   "type": "string"
                 },
                 "output": {
