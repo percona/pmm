@@ -69,8 +69,6 @@ message AddMongoDBRequest {
   string username = 9;
   // MongoDB password for exporter and QAN agent access.
   string password = 10;
-  // If true, adds mongodb_exporter for provided service.
-  bool mongodb_exporter = 11;
   // If true, adds qan-mongodb-profiler-agent for provided service.
   bool qan_mongodb_profiler = 12;
   // Custom user-assigned labels.

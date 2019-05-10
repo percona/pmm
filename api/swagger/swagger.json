@@ -5556,11 +5556,6 @@
                   "description": "Environment name.",
                   "type": "string"
                 },
-                "mongodb_exporter": {
-                  "description": "If true, adds mongodb_exporter for provided service.",
-                  "type": "boolean",
-                  "format": "boolean"
-                },
                 "node_id": {
                   "description": "Node identifier on which a service is been running. Required.",
                   "type": "string"
@@ -5817,11 +5812,6 @@
                   "description": "Environment name.",
                   "type": "string"
                 },
-                "mysqld_exporter": {
-                  "description": "If true, adds mysqld_exporter for provided service.",
-                  "type": "boolean",
-                  "format": "boolean"
-                },
                 "node_id": {
                   "description": "Node identifier on which a service is been running. Required.",
                   "type": "string"
@@ -5848,14 +5838,6 @@
                   "description": "If true, adds qan-mysql-slowlog-agent for provided service.",
                   "type": "boolean",
                   "format": "boolean"
-                },
-                "qan_password": {
-                  "type": "string",
-                  "title": "FIXME remove"
-                },
-                "qan_username": {
-                  "type": "string",
-                  "title": "FIXME remove"
                 },
                 "replication_set": {
                   "description": "Replication set name.",
@@ -6380,11 +6362,6 @@
                   "type": "integer",
                   "format": "int64"
                 },
-                "postgres_exporter": {
-                  "description": "If true, adds postgres_exporter for provided service.",
-                  "type": "boolean",
-                  "format": "boolean"
-                },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
@@ -6819,6 +6796,10 @@
                               "description": "Stat is statistics of specific metric.",
                               "type": "object",
                               "properties": {
+                                "avg": {
+                                  "type": "number",
+                                  "format": "float"
+                                },
                                 "cnt": {
                                   "type": "number",
                                   "format": "float"

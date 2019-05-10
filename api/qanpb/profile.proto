@@ -87,4 +87,5 @@ message Stat {
   float min = 4;
   float max = 5;
   float p99 = 6;
+  float avg = 7;
 }

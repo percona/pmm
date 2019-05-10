@@ -561,6 +561,9 @@ swagger:model RowsItems0MetricsAnonStats
 */
 type RowsItems0MetricsAnonStats struct {
 
+	// avg
+	Avg float32 `json:"avg,omitempty"`
+
 	// cnt
 	Cnt float32 `json:"cnt,omitempty"`
 

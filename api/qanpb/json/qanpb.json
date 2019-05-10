@@ -244,6 +244,10 @@
                               "description": "Stat is statistics of specific metric.",
                               "type": "object",
                               "properties": {
+                                "avg": {
+                                  "type": "number",
+                                  "format": "float"
+                                },
                                 "cnt": {
                                   "type": "number",
                                   "format": "float"
