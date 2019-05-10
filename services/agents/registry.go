@@ -238,7 +238,7 @@ func authenticate(md *agentpb.AgentConnectMetadata, q *reform.Querier) (string, 
 
 	agent, err := models.AgentFindByID(q, md.ID)
 	if err != nil {
-		if gRPCError := status.Convert(err); gRPCError != nil && gRPCError.Code() == codes.NotFound {
+		if status.Code(err) == codes.NotFound {
 			return "", status.Errorf(codes.Unauthenticated, "No Agent with ID %q.", md.ID)
 		}
 		return "", errors.Wrap(err, "failed to find agent")

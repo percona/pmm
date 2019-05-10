@@ -152,25 +152,25 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 
 	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentServer(deps.agentsRegistry))
 
+	nodesSvc := inventory.NewNodesService(deps.db)
 	servicesSvc := inventory.NewServicesService(deps.db, deps.agentsRegistry)
 	agentsSvc := inventory.NewAgentsService(deps.db, deps.agentsRegistry)
-	nodesSvc := inventory.NewNodesService(deps.db)
 
 	inventorypb.RegisterNodesServer(gRPCServer, inventorygrpc.NewNodesServer(nodesSvc))
 	inventorypb.RegisterServicesServer(gRPCServer, inventorygrpc.NewServicesServer(servicesSvc))
 	inventorypb.RegisterAgentsServer(gRPCServer, inventorygrpc.NewAgentsServer(agentsSvc))
 
-	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsRegistry)
-	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsRegistry)
 	nodeSvc := management.NewNodeService(deps.db, deps.agentsRegistry)
 	serviceSvc := management.NewServiceService(deps.db, deps.agentsRegistry)
+	mysqlSvc := management.NewMySQLService(deps.db, deps.agentsRegistry)
 	mongodbSvc := management.NewMongoDBService(deps.db, deps.agentsRegistry)
+	postgresqlSvc := management.NewPostgreSQLService(deps.db, deps.agentsRegistry)
 
-	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMysqlServer(mysqlSvc))
-	managementpb.RegisterPostgreSQLServer(gRPCServer, managementgrpc.NewManagementPostgresqlServer(postgresqlSvc))
 	managementpb.RegisterNodeServer(gRPCServer, managementgrpc.NewManagementNodeServer(nodeSvc))
 	managementpb.RegisterServiceServer(gRPCServer, managementgrpc.NewManagementServiceServer(serviceSvc))
+	managementpb.RegisterMySQLServer(gRPCServer, managementgrpc.NewManagementMySQLServer(mysqlSvc))
 	managementpb.RegisterMongoDBServer(gRPCServer, managementgrpc.NewManagementMongoDBServer(mongodbSvc))
+	managementpb.RegisterPostgreSQLServer(gRPCServer, managementgrpc.NewManagementPostgreSQLServer(postgresqlSvc))
 
 	if *debugF {
 		l.Debug("Reflection and channelz are enabled.")

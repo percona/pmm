@@ -22,7 +22,7 @@
 //  * FindXXXByID;
 //  * other finder (e.g. FindNodesForAgent);
 //  * CreateXXX;
-//  * UpdateXXX;
+//  * ChangeXXX;
 //  * RemoveXXX.
 package models
 
@@ -34,3 +34,13 @@ import (
 var Now = func() time.Time {
 	return time.Now().Truncate(time.Microsecond).UTC()
 }
+
+// RemoveMode defines how Remove functions deal with dependend objects.
+type RemoveMode int
+
+const (
+	// RemoveRestrict returns error if there dependend objects.
+	RemoveRestrict RemoveMode = iota
+	// RemoveCascade removes dependend objects recursively.
+	RemoveCascade
+)

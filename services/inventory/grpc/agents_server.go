@@ -125,10 +125,6 @@ func (s *agentsServer) AddPMMAgent(ctx context.Context, req *inventorypb.AddPMMA
 	return res, nil
 }
 
-func (s *agentsServer) ChangePMMAgent(context.Context, *inventorypb.ChangePMMAgentRequest) (*inventorypb.ChangePMMAgentResponse, error) {
-	panic("not implemented")
-}
-
 // AddNodeExporter adds node_exporter Agent.
 func (s *agentsServer) AddNodeExporter(ctx context.Context, req *inventorypb.AddNodeExporterRequest) (*inventorypb.AddNodeExporterResponse, error) {
 	agent, err := s.s.AddNodeExporter(ctx, req)

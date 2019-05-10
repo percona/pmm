@@ -45,8 +45,8 @@ func NewMongoDBService(db *reform.DB, registry registry) *MongoDBService {
 }
 
 // Add adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
-func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRequest) (res *managementpb.AddMongoDBResponse, err error) {
-	res = &managementpb.AddMongoDBResponse{}
+func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRequest) (*managementpb.AddMongoDBResponse, error) {
+	res := new(managementpb.AddMongoDBResponse)
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		service, err := models.AddNewService(tx.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
@@ -55,8 +55,8 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			Address:      pointer.ToStringOrNil(req.Address),
 			Port:         pointer.ToUint16OrNil(uint16(req.Port)),
 			CustomLabels: req.CustomLabels,
+			// TODO Environment, Cluster, ReplicationSet
 		})
-
 		if err != nil {
 			return err
 		}
@@ -65,16 +65,14 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		if err != nil {
 			return err
 		}
-
 		res.Service = invService.(*inventorypb.MongoDBService)
 
-		params := &models.AddExporterAgentParams{
+		row, err := models.AgentAddExporter(tx.Querier, models.MongoDBExporterType, &models.AddExporterAgentParams{
 			PMMAgentID: req.PmmAgentId,
-			ServiceID:  invService.ID(),
+			ServiceID:  service.ServiceID,
 			Username:   req.Username,
 			Password:   req.Password,
-		}
-		row, err := models.AgentAddExporter(tx.Querier, models.MongoDBExporterType, params)
+		})
 		if err != nil {
 			return err
 		}
@@ -83,28 +81,24 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		if err != nil {
 			return err
 		}
-
 		res.MongodbExporter = agent.(*inventorypb.MongoDBExporter)
 
 		if req.QanMongodbProfiler {
-			params := &models.AddExporterAgentParams{
+			row, err = models.AgentAddExporter(tx.Querier, models.QANMongoDBProfilerAgentType, &models.AddExporterAgentParams{
 				PMMAgentID: req.PmmAgentId,
-				ServiceID:  invService.ID(),
+				ServiceID:  service.ServiceID,
 				Username:   req.Username,
 				Password:   req.Password,
-			}
-
-			row, err := models.AgentAddExporter(tx.Querier, models.QANMongoDBProfilerAgentType, params)
+			})
 			if err != nil {
 				return err
 			}
 
-			qAgent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
+			agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
 			if err != nil {
 				return err
 			}
-
-			res.QanMongodbProfiler = qAgent.(*inventorypb.QANMongoDBProfilerAgent)
+			res.QanMongodbProfiler = agent.(*inventorypb.QANMongoDBProfilerAgent)
 		}
 
 		return nil
@@ -113,6 +107,5 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 	}
 
 	s.registry.SendSetStateRequest(ctx, req.PmmAgentId)
-
 	return res, nil
 }

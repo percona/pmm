@@ -123,26 +123,32 @@ func TestNodeHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		err := models.RemoveNode(q, "")
+		err := models.RemoveNode(q, "", models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Node ID.`), err)
 
-		err = models.RemoveNode(q, "N0")
+		err = models.RemoveNode(q, "N0", models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "N0" not found.`), err)
-
-		err = models.RemoveNode(q, "N1")
+		err = models.RemoveNode(q, "N1", models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Node with ID "N1" has services.`), err)
-
-		err = models.RemoveNode(q, "N2")
+		err = models.RemoveNode(q, "N2", models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Node with ID "N2" has pmm-agent.`), err)
-
-		err = models.RemoveNode(q, "N3")
+		err = models.RemoveNode(q, "N3", models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Node with ID "N3" has agents.`), err)
 
-		_, err = models.FindNodeByID(q, "N4")
-		require.NoError(t, err)
-		err = models.RemoveNode(q, "N4")
+		err = models.RemoveNode(q, "N4", models.RemoveRestrict)
 		assert.NoError(t, err)
-		_, err = models.FindNodeByID(q, "N4")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "N4" not found.`), err)
+
+		// in reverse order to cover all branches
+		err = models.RemoveNode(q, "N3", models.RemoveCascade)
+		assert.NoError(t, err)
+		err = models.RemoveNode(q, "N2", models.RemoveCascade)
+		assert.NoError(t, err)
+		err = models.RemoveNode(q, "N1", models.RemoveCascade)
+		assert.NoError(t, err)
+
+		nodes, err := models.FindAllNodes(q)
+		assert.NoError(t, err)
+		require.Len(t, nodes, 1)
+		require.Equal(t, models.PMMServerNodeID, nodes[0].NodeID)
 	})
 }

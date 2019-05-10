@@ -24,16 +24,16 @@ import (
 	"github.com/percona/pmm-managed/services/management"
 )
 
-type mysqlServer struct {
+type mySQLServer struct {
 	svc *management.MySQLService
 }
 
-// NewManagementMysqlServer creates Management MySQL Server.
-func NewManagementMysqlServer(s *management.MySQLService) managementpb.MySQLServer {
-	return &mysqlServer{svc: s}
+// NewManagementMySQLServer creates Management MySQL Server.
+func NewManagementMySQLServer(s *management.MySQLService) managementpb.MySQLServer {
+	return &mySQLServer{svc: s}
 }
 
 // AddMySQL adds "MySQL Service", "MySQL Exporter Agent" and "QAN MySQL PerfSchema Agent".
-func (s *mysqlServer) AddMySQL(ctx context.Context, req *managementpb.AddMySQLRequest) (*managementpb.AddMySQLResponse, error) {
+func (s *mySQLServer) AddMySQL(ctx context.Context, req *managementpb.AddMySQLRequest) (*managementpb.AddMySQLResponse, error) {
 	return s.svc.Add(ctx, req)
 }

@@ -156,6 +156,7 @@ type AddDBMSServiceParams struct {
 	CustomLabels map[string]string
 	Address      *string
 	Port         *uint16
+	// TODO Environment, Cluster, ReplicationSet
 }
 
 // AddNewService adds new service to storage.

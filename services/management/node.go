@@ -22,7 +22,6 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/managementpb"
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -33,11 +32,6 @@ import (
 	// https://jira.percona.com/browse/PMM-3541
 	// See also main_test.go
 	"github.com/percona/pmm-managed/services/inventory"
-)
-
-var (
-	errNodeNotFound  = errors.New("node not found")
-	errAgentNotFound = errors.New("agent not found")
 )
 
 // NodeService represents service for working with nodes.
@@ -55,179 +49,78 @@ func NewNodeService(db *reform.DB, registry registry) *NodeService {
 }
 
 // Register do registration of the new node.
-func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (res *managementpb.RegisterNodeResponse, err error) {
-	res = new(managementpb.RegisterNodeResponse)
+func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNodeRequest) (*managementpb.RegisterNodeResponse, error) {
+	res := new(managementpb.RegisterNodeResponse)
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
-		node, err := s.findNodeByName(tx.Querier, req.NodeName)
-		switch err {
-		case nil:
-			params := &models.UpdateNodeParams{
-				Address:      req.Address,
-				MachineID:    req.MachineId,
-				CustomLabels: req.CustomLabels,
+		node, err := models.FindNodeByName(tx.Querier, req.NodeName)
+		switch status.Code(err) {
+		case codes.OK:
+			if !req.Reregister {
+				return status.Errorf(codes.AlreadyExists, "Node with name %q already exists.", req.NodeName)
 			}
-			node, err = models.UpdateNode(tx.Querier, node.NodeID, params)
-			if err != nil {
-				return err
-			}
-		case errNodeNotFound:
-			node, err = s.createNewNode(tx.Querier, req)
-			if err != nil {
-				return err
-			}
+			err = models.RemoveNode(tx.Querier, node.NodeID, models.RemoveCascade)
+		case codes.NotFound:
+			err = nil
+		}
+		if err != nil {
+			return err
+		}
+
+		var nodeType models.NodeType
+		switch req.NodeType {
+		case inventorypb.NodeType_GENERIC_NODE:
+			nodeType = models.GenericNodeType
+		case inventorypb.NodeType_CONTAINER_NODE:
+			nodeType = models.ContainerNodeType
 		default:
+			return status.Errorf(codes.InvalidArgument, "Unsupported Node type %q.", req.NodeType)
+		}
+		node, err = models.CreateNode(tx.Querier, nodeType, &models.CreateNodeParams{
+			NodeName:      req.NodeName,
+			MachineID:     pointer.ToStringOrNil(req.MachineId),
+			Distro:        req.Distro,
+			NodeModel:     req.NodeModel,
+			AZ:            req.Az,
+			ContainerID:   pointer.ToStringOrNil(req.ContainerId),
+			ContainerName: pointer.ToStringOrNil(req.ContainerName),
+			CustomLabels:  req.CustomLabels,
+			Address:       req.Address,
+			Region:        pointer.ToStringOrNil(req.Region),
+		})
+		if err != nil {
 			return err
 		}
 
-		if err := s.addNodeToResponse(node, res); err != nil {
+		n, err := inventory.ToInventoryNode(node)
+		if err != nil {
 			return err
 		}
-
-		pmmAgent, err := s.findPmmAgentByNodeID(tx.Querier, node.NodeID)
-		switch err {
-		case errAgentNotFound:
-			pmmAgent, err = models.AgentAddPmmAgent(tx.Querier, node.NodeID, nil)
-			if err != nil {
-				return err
-			}
-		case nil:
-			// noop
+		switch n := n.(type) {
+		case *inventorypb.GenericNode:
+			res.GenericNode = n
+		case *inventorypb.ContainerNode:
+			res.ContainerNode = n
 		default:
+			return status.Errorf(codes.InvalidArgument, "Unsupported Node type %q.", req.NodeType)
+		}
+
+		pmmAgent, err := models.AgentAddPmmAgent(tx.Querier, node.NodeID, nil)
+		if err != nil {
 			return err
 		}
 
-		if err := s.addPmmAgentToResponse(tx.Querier, pmmAgent, res); err != nil {
+		a, err := inventory.ToInventoryAgent(tx.Querier, pmmAgent, s.registry)
+		if err != nil {
 			return err
 		}
+		res.PmmAgent = a.(*inventorypb.PMMAgent)
 
-		_, err = s.findNodeExporterByPmmAgentID(tx.Querier, pmmAgent.AgentID)
-		switch err {
-		case errAgentNotFound:
-			_, err := models.AgentAddNodeExporter(tx.Querier, pmmAgent.AgentID, nil)
-			if err != nil {
-				return err
-			}
-		case nil:
-			// noop
-		default:
-			return err
-		}
-
-		return nil
+		_, err = models.AgentAddNodeExporter(tx.Querier, pmmAgent.AgentID, nil)
+		return err
 	}); e != nil {
 		return nil, e
 	}
 
-	s.registry.SendSetStateRequest(ctx, res.PmmAgent.AgentId)
-
 	return res, nil
-}
-
-func (s *NodeService) createNewNode(q *reform.Querier, req *managementpb.RegisterNodeRequest) (*models.Node, error) {
-	var nodeType models.NodeType
-	switch req.NodeType {
-	case inventorypb.NodeType_GENERIC_NODE:
-		nodeType = models.GenericNodeType
-	case inventorypb.NodeType_CONTAINER_NODE:
-		nodeType = models.ContainerNodeType
-	default:
-		return nil, status.Error(codes.InvalidArgument, "unsupported node type")
-	}
-
-	params := &models.CreateNodeParams{
-		NodeName:      req.NodeName,
-		MachineID:     pointer.ToStringOrNil(req.MachineId),
-		Distro:        req.Distro,
-		NodeModel:     "", // TODO
-		AZ:            "", // TODO
-		ContainerID:   pointer.ToStringOrNil(req.ContainerId),
-		ContainerName: pointer.ToStringOrNil(req.ContainerName),
-		CustomLabels:  req.CustomLabels,
-		Address:       req.Address,
-		Region:        nil, // TODO
-	}
-	node, err := models.CreateNode(q, nodeType, params)
-	if err != nil {
-		return nil, err
-	}
-
-	return node, nil
-}
-
-func (s *NodeService) findNodeByName(q *reform.Querier, name string) (*models.Node, error) {
-	nodes, err := models.FindAllNodes(q)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, n := range nodes {
-		if n.NodeName == name {
-			return n, nil
-		}
-	}
-
-	return nil, errNodeNotFound
-}
-
-func (s *NodeService) findPmmAgentByNodeID(q *reform.Querier, nodeID string) (pmmAgent *models.Agent, err error) {
-	agents, err := models.AgentFindAll(q)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, a := range agents {
-		if pointer.GetString(a.RunsOnNodeID) == nodeID {
-			return a, nil
-		}
-	}
-
-	return pmmAgent, errAgentNotFound
-}
-
-func (s *NodeService) findNodeExporterByPmmAgentID(q *reform.Querier, pmmAgentID string) (nodeExporter *inventorypb.NodeExporter, err error) {
-	agents, err := models.AgentsRunningByPMMAgent(q, pmmAgentID)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, a := range agents {
-		if pointer.GetString(a.PMMAgentID) == pmmAgentID {
-			invAgent, err := inventory.ToInventoryAgent(q, a, s.registry)
-			if err != nil {
-				return nodeExporter, err
-			}
-			nodeExporter = invAgent.(*inventorypb.NodeExporter)
-			return nodeExporter, nil
-		}
-	}
-
-	return nodeExporter, errAgentNotFound
-}
-
-func (s *NodeService) addNodeToResponse(model *models.Node, res *managementpb.RegisterNodeResponse) error {
-	node, err := inventory.ToInventoryNode(model)
-	if err != nil {
-		return err
-	}
-
-	switch n := node.(type) {
-	case *inventorypb.GenericNode:
-		res.GenericNode = n
-	case *inventorypb.ContainerNode:
-		res.ContainerNode = n
-	default:
-		return status.Error(codes.InvalidArgument, "unsupported node type")
-	}
-
-	return nil
-}
-
-func (s *NodeService) addPmmAgentToResponse(q *reform.Querier, model *models.Agent, res *managementpb.RegisterNodeResponse) error {
-	invAgent, err := inventory.ToInventoryAgent(q, model, s.registry)
-	if err != nil {
-		return err
-	}
-	res.PmmAgent = invAgent.(*inventorypb.PMMAgent)
-	return nil
 }

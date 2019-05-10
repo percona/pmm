@@ -53,6 +53,7 @@ func ToInventoryNode(row *models.Node) (inventorypb.Node, error) {
 			MachineId:    pointer.GetString(row.MachineID),
 			Distro:       row.Distro,
 			NodeModel:    row.NodeModel,
+			Region:       pointer.GetString(row.Region),
 			Az:           row.AZ,
 			CustomLabels: labels,
 			Address:      row.Address,
@@ -66,6 +67,7 @@ func ToInventoryNode(row *models.Node) (inventorypb.Node, error) {
 			ContainerId:   pointer.GetString(row.ContainerID),
 			ContainerName: pointer.GetString(row.ContainerName),
 			NodeModel:     row.NodeModel,
+			Region:        pointer.GetString(row.Region),
 			Az:            row.AZ,
 			CustomLabels:  labels,
 			Address:       row.Address,
@@ -95,7 +97,7 @@ func ToInventoryNode(row *models.Node) (inventorypb.Node, error) {
 // List returns a list of all Nodes.
 //nolint:unparam
 func (s *NodesService) List(ctx context.Context, req *inventorypb.ListNodesRequest) ([]inventorypb.Node, error) {
-	nodes := make([]*models.Node, 0)
+	var nodes []*models.Node
 	e := s.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		nodes, err = models.FindAllNodes(tx.Querier)
@@ -106,11 +108,10 @@ func (s *NodesService) List(ctx context.Context, req *inventorypb.ListNodesReque
 	}
 
 	res := make([]inventorypb.Node, len(nodes))
-	var err error
 	for i, n := range nodes {
-		res[i], err = ToInventoryNode(n)
-		if err != nil {
-			return nil, err
+		res[i], e = ToInventoryNode(n)
+		if e != nil {
+			return nil, e
 		}
 	}
 	return res, nil
@@ -283,6 +284,6 @@ func (s *NodesService) AddRemoteAmazonRDSNode(ctx context.Context, req *inventor
 //nolint:unparam
 func (s *NodesService) Remove(ctx context.Context, id string) error {
 	return s.db.InTransaction(func(tx *reform.TX) error {
-		return models.RemoveNode(tx.Querier, id)
+		return models.RemoveNode(tx.Querier, id, models.RemoveRestrict)
 	})
 }

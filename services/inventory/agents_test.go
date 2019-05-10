@@ -89,8 +89,10 @@ func TestAgents(t *testing.T) {
 
 		actualNodeExporter, err = as.ChangeNodeExporter(ctx, &inventorypb.ChangeNodeExporterRequest{
 			AgentId: "/agent_id/00000000-0000-4000-8000-000000000002",
-			ChangeDisabled: &inventorypb.ChangeNodeExporterRequest_Disabled{
-				Disabled: true,
+			Common: &inventorypb.ChangeCommonAgentParams{
+				ChangeDisabled: &inventorypb.ChangeCommonAgentParams_Disabled{
+					Disabled: true,
+				},
 			},
 		})
 		require.NoError(t, err)
@@ -115,14 +117,14 @@ func TestAgents(t *testing.T) {
 
 		actualAgent, err = as.AddMySQLdExporter(ctx, &inventorypb.AddMySQLdExporterRequest{
 			PmmAgentId: pmmAgent.AgentId,
-			ServiceId:  s.ID(),
+			ServiceId:  s.ServiceId,
 			Username:   "username",
 		})
 		require.NoError(t, err)
 		expectedMySQLdExporter := &inventorypb.MySQLdExporter{
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000004",
 			PmmAgentId: "/agent_id/00000000-0000-4000-8000-000000000001",
-			ServiceId:  s.ID(),
+			ServiceId:  s.ServiceId,
 			Username:   "username",
 		}
 		assert.Equal(t, expectedMySQLdExporter, actualAgent)
@@ -141,14 +143,14 @@ func TestAgents(t *testing.T) {
 
 		actualAgent, err = as.AddMongoDBExporter(ctx, &inventorypb.AddMongoDBExporterRequest{
 			PmmAgentId: pmmAgent.AgentId,
-			ServiceId:  ms.ID(),
+			ServiceId:  ms.ServiceId,
 			Username:   "username",
 		})
 		require.NoError(t, err)
 		expectedMongoDBExporter := &inventorypb.MongoDBExporter{
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000006",
 			PmmAgentId: pmmAgent.AgentId,
-			ServiceId:  ms.ID(),
+			ServiceId:  ms.ServiceId,
 			Username:   "username",
 		}
 		assert.Equal(t, expectedMongoDBExporter, actualAgent)
@@ -159,14 +161,14 @@ func TestAgents(t *testing.T) {
 
 		actualAgent, err = as.AddQANMySQLSlowlogAgent(ctx, &inventorypb.AddQANMySQLSlowlogAgentRequest{
 			PmmAgentId: pmmAgent.AgentId,
-			ServiceId:  s.ID(),
+			ServiceId:  s.ServiceId,
 			Username:   "username",
 		})
 		require.NoError(t, err)
 		expectedQANMySQLSlowlogAgent := &inventorypb.QANMySQLSlowlogAgent{
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000007",
 			PmmAgentId: pmmAgent.AgentId,
-			ServiceId:  s.ID(),
+			ServiceId:  s.ServiceId,
 			Username:   "username",
 		}
 		assert.Equal(t, expectedQANMySQLSlowlogAgent, actualAgent)
@@ -185,14 +187,14 @@ func TestAgents(t *testing.T) {
 
 		actualAgent, err = as.AddPostgresExporter(ctx, &inventorypb.AddPostgresExporterRequest{
 			PmmAgentId: pmmAgent.AgentId,
-			ServiceId:  ps.ID(),
+			ServiceId:  ps.ServiceId,
 			Username:   "username",
 		})
 		require.NoError(t, err)
 		expectedPostgresExporter := &inventorypb.PostgresExporter{
 			AgentId:    "/agent_id/00000000-0000-4000-8000-000000000009",
 			PmmAgentId: pmmAgent.AgentId,
-			ServiceId:  ps.ID(),
+			ServiceId:  ps.ServiceId,
 			Username:   "username",
 		}
 		assert.Equal(t, expectedPostgresExporter, actualAgent)
@@ -200,13 +202,6 @@ func TestAgents(t *testing.T) {
 		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000009")
 		require.NoError(t, err)
 		assert.Equal(t, expectedPostgresExporter, actualAgent)
-
-		// err = as.SetDisabled(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000001", true)
-		// require.NoError(t, err)
-		// expectedMySQLdExporter.Disabled = true
-		// actualAgent, err = as.Get(ctx, db, "/agent_id/00000000-0000-4000-8000-000000000001")
-		// require.NoError(t, err)
-		// assert.Equal(t, expectedMySQLdExporter, actualAgent)
 
 		actualAgents, err = as.List(ctx, AgentFilters{})
 		require.NoError(t, err)
@@ -219,7 +214,7 @@ func TestAgents(t *testing.T) {
 		assert.Equal(t, expectedPostgresExporter, actualAgents[5])
 
 		// filter by service ID
-		actualAgents, err = as.List(ctx, AgentFilters{ServiceID: s.ID()})
+		actualAgents, err = as.List(ctx, AgentFilters{ServiceID: s.ServiceId})
 		require.NoError(t, err)
 		require.Len(t, actualAgents, 2)
 		assert.Equal(t, expectedMySQLdExporter, actualAgents[0])
@@ -354,14 +349,6 @@ func TestAgents(t *testing.T) {
 		})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "no-such-id" not found.`), err)
 	})
-
-	// t.Run("DisableNotFound", func(t *testing.T) {
-	// setup(t)
-	// defer teardown(t)
-
-	// 	err := as.SetDisabled(ctx, db, "no-such-id", true)
-	// 	tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "no-such-id" not found.`), err)
-	// })
 
 	t.Run("RemoveNotFound", func(t *testing.T) {
 		setup(t)

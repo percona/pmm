@@ -180,33 +180,29 @@ func TestAgentHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		agent, err := models.RemoveAgent(q, "")
+		agent, err := models.RemoveAgent(q, "", models.RemoveRestrict)
 		assert.Nil(t, agent)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Agent ID.`), err)
 
-		agent, err = models.RemoveAgent(q, "A0")
+		agent, err = models.RemoveAgent(q, "A0", models.RemoveRestrict)
 		assert.Nil(t, agent)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "A0" not found.`), err)
 
-		agent, err = models.RemoveAgent(q, "A1")
+		agent, err = models.RemoveAgent(q, "A1", models.RemoveRestrict)
 		assert.Nil(t, agent)
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `pmm-agent with ID "A1" has agents.`), err)
 
-		agent, err = models.AgentFindByID(q, "A2")
-		assert.NoError(t, err)
 		expected := &models.Agent{
-			AgentID:      "A2",
-			AgentType:    models.MySQLdExporterType,
-			PMMAgentID:   pointer.ToStringOrNil("A1"),
-			RunsOnNodeID: nil,
+			AgentID:      "A1",
+			AgentType:    models.PMMAgentType,
+			RunsOnNodeID: pointer.ToString("N1"),
 			CreatedAt:    now,
 			UpdatedAt:    now,
 		}
-		assert.Equal(t, expected, agent)
-		agent, err = models.RemoveAgent(q, "A2")
+		agent, err = models.RemoveAgent(q, "A1", models.RemoveCascade)
 		assert.Equal(t, expected, agent)
 		assert.NoError(t, err)
-		_, err = models.AgentFindByID(q, "A2")
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "A2" not found.`), err)
+		_, err = models.AgentFindByID(q, "A1")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "A1" not found.`), err)
 	})
 }

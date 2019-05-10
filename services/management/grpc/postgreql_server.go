@@ -24,16 +24,16 @@ import (
 	"github.com/percona/pmm-managed/services/management"
 )
 
-type postgresqlServer struct {
+type postgreSQLServer struct {
 	svc *management.PostgreSQLService
 }
 
-// NewManagementPostgresqlServer creates Management PostgreSQL Server.
-func NewManagementPostgresqlServer(s *management.PostgreSQLService) managementpb.PostgreSQLServer {
-	return &postgresqlServer{svc: s}
+// NewManagementPostgreSQLServer creates Management PostgreSQL Server.
+func NewManagementPostgreSQLServer(s *management.PostgreSQLService) managementpb.PostgreSQLServer {
+	return &postgreSQLServer{svc: s}
 }
 
 // AddPostgreSQL adds "PostgreSQL Service", "Postgres Exporter Agent".
-func (s *postgresqlServer) AddPostgreSQL(ctx context.Context, req *managementpb.AddPostgreSQLRequest) (*managementpb.AddPostgreSQLResponse, error) {
+func (s *postgreSQLServer) AddPostgreSQL(ctx context.Context, req *managementpb.AddPostgreSQLRequest) (*managementpb.AddPostgreSQLResponse, error) {
 	return s.svc.Add(ctx, req)
 }

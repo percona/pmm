@@ -24,16 +24,16 @@ import (
 	"github.com/percona/pmm-managed/services/management"
 )
 
-type mongodbServer struct {
+type mongoDBServer struct {
 	svc *management.MongoDBService
 }
 
 // NewManagementMongoDBServer creates Management MongoDB Server.
 func NewManagementMongoDBServer(s *management.MongoDBService) managementpb.MongoDBServer {
-	return &mongodbServer{svc: s}
+	return &mongoDBServer{svc: s}
 }
 
 // AddMongoDB adds "MongoDB Service", "MongoDB Exporter Agent" and "QAN MongoDB Profiler".
-func (s *mongodbServer) AddMongoDB(ctx context.Context, req *managementpb.AddMongoDBRequest) (*managementpb.AddMongoDBResponse, error) {
+func (s *mongoDBServer) AddMongoDB(ctx context.Context, req *managementpb.AddMongoDBRequest) (*managementpb.AddMongoDBResponse, error) {
 	return s.svc.Add(ctx, req)
 }

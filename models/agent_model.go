@@ -29,7 +29,7 @@ import (
 // AgentType represents Agent type as stored in database.
 type AgentType string
 
-// Agent types.
+// Agent types (in the same order as in agents.proto).
 const (
 	PMMAgentType                AgentType = "pmm-agent"
 	NodeExporterType            AgentType = "node_exporter"

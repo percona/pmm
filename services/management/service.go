@@ -30,9 +30,7 @@ import (
 )
 
 var (
-	errNoParamsNotFound    = status.Error(codes.InvalidArgument, "params not found")
-	errOneOfParamsExpected = status.Error(codes.InvalidArgument, "service_id or service_name expected; not both")
-	serviceTypes           = map[inventorypb.ServiceType]models.ServiceType{
+	serviceTypes = map[inventorypb.ServiceType]models.ServiceType{
 		inventorypb.ServiceType_MYSQL_SERVICE:      models.MySQLServiceType,
 		inventorypb.ServiceType_MONGODB_SERVICE:    models.MongoDBServiceType,
 		inventorypb.ServiceType_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
@@ -54,38 +52,38 @@ func NewServiceService(db *reform.DB, registry registry) *ServiceService {
 }
 
 // RemoveService removes Service with Agents.
-func (ss *ServiceService) RemoveService(ctx context.Context, req *managementpb.RemoveServiceRequest) (*managementpb.RemoveServiceResponse, error) {
-	err := ss.validateRequest(req)
+func (s *ServiceService) RemoveService(ctx context.Context, req *managementpb.RemoveServiceRequest) (*managementpb.RemoveServiceResponse, error) {
+	err := s.validateRequest(req)
 	if err != nil {
 		return nil, err
 	}
 	pmmAgentIDs := make(map[string]bool)
 
-	if e := ss.db.InTransaction(func(tx *reform.TX) error {
+	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		var service *models.Service
 		var err error
 		switch {
 		case req.ServiceName != "":
-			service, err = models.FindServiceByName(ss.db.Querier, req.ServiceName)
+			service, err = models.FindServiceByName(s.db.Querier, req.ServiceName)
 		case req.ServiceId != "":
-			service, err = models.FindServiceByID(ss.db.Querier, req.ServiceId)
+			service, err = models.FindServiceByID(s.db.Querier, req.ServiceId)
 		}
 		if err != nil {
 			return err
 		}
 		if req.ServiceType != inventorypb.ServiceType_SERVICE_TYPE_INVALID {
-			err := ss.checkServiceType(service, req.ServiceType)
+			err := s.checkServiceType(service, req.ServiceType)
 			if err != nil {
 				return err
 			}
 		}
 
-		agents, err := models.AgentsForService(ss.db.Querier, service.ServiceID)
+		agents, err := models.AgentsForService(s.db.Querier, service.ServiceID)
 		if err != nil {
 			return err
 		}
 		for _, agent := range agents {
-			_, err := models.RemoveAgent(ss.db.Querier, agent.AgentID)
+			_, err := models.RemoveAgent(s.db.Querier, agent.AgentID, models.RemoveRestrict)
 			if err != nil {
 				return err
 			}
@@ -93,7 +91,7 @@ func (ss *ServiceService) RemoveService(ctx context.Context, req *managementpb.R
 				pmmAgentIDs[pointer.GetString(agent.PMMAgentID)] = true
 			}
 		}
-		err = models.RemoveService(ss.db.Querier, service.ServiceID)
+		err = models.RemoveService(s.db.Querier, service.ServiceID)
 		if err != nil {
 			return err
 		}
@@ -102,24 +100,24 @@ func (ss *ServiceService) RemoveService(ctx context.Context, req *managementpb.R
 		return nil, e
 	}
 	for agentID := range pmmAgentIDs {
-		ss.registry.SendSetStateRequest(ctx, agentID)
+		s.registry.SendSetStateRequest(ctx, agentID)
 	}
 	return &managementpb.RemoveServiceResponse{}, nil
 }
 
-func (ss *ServiceService) checkServiceType(service *models.Service, serviceType inventorypb.ServiceType) error {
+func (s *ServiceService) checkServiceType(service *models.Service, serviceType inventorypb.ServiceType) error {
 	if expected, ok := serviceTypes[serviceType]; ok && expected == service.ServiceType {
 		return nil
 	}
 	return status.Error(codes.InvalidArgument, "wrong service type")
 }
 
-func (ss *ServiceService) validateRequest(request *managementpb.RemoveServiceRequest) error {
+func (s *ServiceService) validateRequest(request *managementpb.RemoveServiceRequest) error {
 	if request.ServiceName == "" && request.ServiceId == "" {
-		return errNoParamsNotFound
+		return status.Error(codes.InvalidArgument, "params not found")
 	}
 	if request.ServiceName != "" && request.ServiceId != "" {
-		return errOneOfParamsExpected
+		return status.Error(codes.InvalidArgument, "service_id or service_name expected; not both")
 	}
 	return nil
 }

@@ -32,8 +32,11 @@ func AssertGRPCError(tb testing.TB, expected *status.Status, actual error) {
 	if !assert.True(tb, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
 		return
 	}
-	assert.Equal(tb, expected.Code(), s.Code(), "gRPC status codes are not equal")
-	assert.Equal(tb, expected.Message(), s.Message(), "gRPC status messages are not equal")
+	err := s.Err()
+	if !assert.NotNil(tb, err) {
+		return
+	}
+	assert.Equal(tb, expected.Err().Error(), err.Error()) // gives the best error message
 }
 
 // AssertGRPCErrorRE checks that actual error has expected gRPC error code, and error messages
@@ -45,6 +48,6 @@ func AssertGRPCErrorRE(tb testing.TB, expectedCode codes.Code, expectedMessageRE
 	if !assert.True(tb, ok, "expected gRPC Status, got %T:\n%s", actual, actual) {
 		return
 	}
-	assert.Equal(tb, expectedCode, s.Code(), "gRPC status codes are not equal")
+	assert.Equal(tb, int(expectedCode), int(s.Code()), "gRPC status codes are not equal") // int() to log in decimal, not hex
 	assert.Regexp(tb, expectedMessageRE, s.Message(), "gRPC status message does not match")
 }

@@ -41,6 +41,56 @@ func NewServicesService(db *reform.DB, r registry) *ServicesService {
 	}
 }
 
+// ToInventoryService converts database row to Inventory API Service.
+func ToInventoryService(row *models.Service) (inventorypb.Service, error) {
+	labels, err := row.GetCustomLabels()
+	if err != nil {
+		return nil, err
+	}
+
+	switch row.ServiceType {
+	case models.MySQLServiceType:
+		return &inventorypb.MySQLService{
+			ServiceId:      row.ServiceID,
+			ServiceName:    row.ServiceName,
+			NodeId:         row.NodeID,
+			Address:        pointer.GetString(row.Address),
+			Port:           uint32(pointer.GetUint16(row.Port)),
+			Environment:    "", // TODO
+			Cluster:        "", // TODO
+			ReplicationSet: "", // TODO
+			CustomLabels:   labels,
+		}, nil
+
+	case models.MongoDBServiceType:
+		return &inventorypb.MongoDBService{
+			ServiceId:      row.ServiceID,
+			ServiceName:    row.ServiceName,
+			NodeId:         row.NodeID,
+			Address:        pointer.GetString(row.Address),
+			Port:           uint32(pointer.GetUint16(row.Port)),
+			Environment:    "", // TODO
+			Cluster:        "", // TODO
+			ReplicationSet: "", // TODO
+			CustomLabels:   labels,
+		}, nil
+
+	case models.PostgreSQLServiceType:
+		return &inventorypb.PostgreSQLService{
+			ServiceId:    row.ServiceID,
+			ServiceName:  row.ServiceName,
+			NodeId:       row.NodeID,
+			Address:      pointer.GetString(row.Address),
+			Port:         uint32(pointer.GetUint16(row.Port)),
+			Environment:  "", // TODO
+			CustomLabels: labels,
+		}, nil
+
+	default:
+		panic(fmt.Errorf("unhandled Service type %s", row.ServiceType))
+	}
+}
+
 // ServiceFilters represents filters for services list.
 type ServiceFilters struct {
 	// Return only Services runs on that Node.
@@ -50,7 +100,7 @@ type ServiceFilters struct {
 // List selects all Services in a stable order.
 //nolint:unparam
 func (ss *ServicesService) List(ctx context.Context, filters ServiceFilters) ([]inventorypb.Service, error) {
-	services := make([]*models.Service, 0)
+	var services []*models.Service
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		switch {
@@ -59,16 +109,20 @@ func (ss *ServicesService) List(ctx context.Context, filters ServiceFilters) ([]
 		default:
 			services, err = models.FindAllServices(tx.Querier)
 		}
-		if err != nil {
-			return err
-		}
-		return nil
+		return err
 	})
 	if e != nil {
 		return nil, e
 	}
 
-	return ToInventoryServices(services)
+	res := make([]inventorypb.Service, len(services))
+	for i, n := range services {
+		res[i], e = ToInventoryService(n)
+		if e != nil {
+			return nil, e
+		}
+	}
+	return res, nil
 }
 
 // Get selects a single Service by ID.
@@ -174,58 +228,4 @@ func (ss *ServicesService) Remove(ctx context.Context, id string) error {
 	return ss.db.InTransaction(func(tx *reform.TX) error {
 		return models.RemoveService(tx.Querier, id)
 	})
-}
-
-// ToInventoryService converts database row to Inventory API Service.
-func ToInventoryService(row *models.Service) (inventorypb.Service, error) {
-	labels, err := row.GetCustomLabels()
-	if err != nil {
-		return nil, err
-	}
-
-	switch row.ServiceType {
-	case models.MySQLServiceType:
-		return &inventorypb.MySQLService{
-			ServiceId:    row.ServiceID,
-			ServiceName:  row.ServiceName,
-			NodeId:       row.NodeID,
-			Address:      pointer.GetString(row.Address),
-			Port:         uint32(pointer.GetUint16(row.Port)),
-			CustomLabels: labels,
-		}, nil
-	case models.MongoDBServiceType:
-		return &inventorypb.MongoDBService{
-			ServiceId:    row.ServiceID,
-			ServiceName:  row.ServiceName,
-			NodeId:       row.NodeID,
-			Address:      pointer.GetString(row.Address),
-			Port:         uint32(pointer.GetUint16(row.Port)),
-			CustomLabels: labels,
-		}, nil
-	case models.PostgreSQLServiceType:
-		return &inventorypb.PostgreSQLService{
-			ServiceId:    row.ServiceID,
-			ServiceName:  row.ServiceName,
-			NodeId:       row.NodeID,
-			Address:      pointer.GetString(row.Address),
-			Port:         uint32(pointer.GetUint16(row.Port)),
-			CustomLabels: labels,
-		}, nil
-
-	default:
-		panic(fmt.Errorf("unhandled Service type %s", row.ServiceType))
-	}
-}
-
-// ToInventoryServices converts database rows to Inventory API Services.
-func ToInventoryServices(services []*models.Service) ([]inventorypb.Service, error) {
-	var err error
-	res := make([]inventorypb.Service, len(services))
-	for i, srv := range services {
-		res[i], err = ToInventoryService(srv)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
 }

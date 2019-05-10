@@ -96,6 +96,7 @@ func (s *servicesServer) AddMySQLService(ctx context.Context, req *inventorypb.A
 		Address:      pointer.ToStringOrNil(req.Address),
 		Port:         pointer.ToUint16OrNil(uint16(req.Port)),
 		CustomLabels: req.CustomLabels,
+		// TODO Environment, Cluster, ReplicationSet
 	})
 	if err != nil {
 		return nil, err
@@ -120,6 +121,7 @@ func (s *servicesServer) AddMongoDBService(ctx context.Context, req *inventorypb
 		Address:      pointer.ToStringOrNil(req.Address),
 		Port:         pointer.ToUint16OrNil(uint16(req.Port)),
 		CustomLabels: req.CustomLabels,
+		// TODO Environment, Cluster, ReplicationSet
 	})
 	if err != nil {
 		return nil, err
@@ -138,6 +140,7 @@ func (s *servicesServer) AddPostgreSQLService(ctx context.Context, req *inventor
 		Address:      pointer.ToStringOrNil(req.Address),
 		Port:         pointer.ToUint16OrNil(uint16(req.Port)),
 		CustomLabels: req.CustomLabels,
+		// TODO Environment, Cluster, ReplicationSet
 	})
 	if err != nil {
 		return nil, err

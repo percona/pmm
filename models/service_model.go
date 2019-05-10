@@ -29,7 +29,7 @@ import (
 // ServiceType represents Service type as stored in database.
 type ServiceType string
 
-// Service types.
+// Service types (in the same order as in services.proto).
 const (
 	MySQLServiceType      ServiceType = "mysql"
 	MongoDBServiceType    ServiceType = "mongodb"

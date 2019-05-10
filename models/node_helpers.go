@@ -111,6 +111,23 @@ func FindNodeByID(q *reform.Querier, id string) (*Node, error) {
 	}
 }
 
+// FindNodeByName finds a Node by name.
+func FindNodeByName(q *reform.Querier, name string) (*Node, error) {
+	if name == "" {
+		return nil, status.Error(codes.InvalidArgument, "Empty Node name.")
+	}
+
+	node := new(Node)
+	switch err := q.FindOneTo(node, "node_name", name); err {
+	case nil:
+		return node, nil
+	case reform.ErrNoRows:
+		return nil, status.Errorf(codes.NotFound, "Node with name %q not found.", name)
+	default:
+		return nil, errors.WithStack(err)
+	}
+}
+
 // FindNodesForAgentID returns all Nodes for which Agent with given ID provides insights.
 func FindNodesForAgentID(q *reform.Querier, agentID string) ([]*Node, error) {
 	structs, err := q.FindAllFrom(AgentNodeView, "agent_id", agentID)
@@ -196,79 +213,74 @@ func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) 
 	return node, nil
 }
 
-// UpdateNodeParams contains parameters for updating Nodes.
-type UpdateNodeParams struct {
-	Address            string
-	MachineID          string
-	RemoveMachineID    bool
-	CustomLabels       map[string]string
-	RemoveCustomLabels bool
-}
-
-// UpdateNode updates Node.
-func UpdateNode(q *reform.Querier, nodeID string, params *UpdateNodeParams) (*Node, error) {
-	node, err := FindNodeByID(q, nodeID)
-	if err != nil {
-		return nil, err
-	}
-
-	if params.Address != "" {
-		node.Address = params.Address
-	}
-
-	switch {
-	case params.MachineID != "":
-		node.MachineID = &params.MachineID
-	case params.RemoveMachineID:
-		node.MachineID = nil
-	}
-
-	switch {
-	case len(params.CustomLabels) != 0:
-		err = node.SetCustomLabels(params.CustomLabels)
-	case params.RemoveCustomLabels:
-		err = node.SetCustomLabels(nil)
-	}
-	if err != nil {
-		return nil, err
-	}
-
-	if err = q.Update(node); err != nil {
-		return nil, err
-	}
-
-	return node, nil
-}
-
 // RemoveNode removes single Node.
-func RemoveNode(q *reform.Querier, id string) error {
+func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 	n, err := FindNodeByID(q, id)
 	if err != nil {
 		return err
 	}
 
-	agents, err := q.FindAllFrom(AgentNodeView, "node_id", id)
+	// check/remove Agents
+	structs, err := q.FindAllFrom(AgentNodeView, "node_id", id)
 	if err != nil {
 		return errors.Wrap(err, "failed to select Agent IDs")
 	}
-	if len(agents) != 0 {
-		return status.Errorf(codes.FailedPrecondition, "Node with ID %q has agents.", id)
+	if len(structs) != 0 {
+		switch mode {
+		case RemoveRestrict:
+			return status.Errorf(codes.FailedPrecondition, "Node with ID %q has agents.", id)
+		case RemoveCascade:
+			for _, str := range structs {
+				agentID := str.(*AgentNode).AgentID
+				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
+					return err
+				}
+			}
+		default:
+			panic(fmt.Errorf("unhandled RemoveMode %v", mode))
+		}
 	}
 
-	agents, err = q.FindAllFrom(AgentTable, "runs_on_node_id", id)
+	// check/remove pmm-agents
+	structs, err = q.FindAllFrom(AgentTable, "runs_on_node_id", id)
 	if err != nil {
 		return errors.Wrap(err, "failed to select Agents")
 	}
-	if len(agents) != 0 {
-		return status.Errorf(codes.FailedPrecondition, "Node with ID %q has pmm-agent.", id)
+	if len(structs) != 0 {
+		switch mode {
+		case RemoveRestrict:
+			return status.Errorf(codes.FailedPrecondition, "Node with ID %q has pmm-agent.", id)
+		case RemoveCascade:
+			for _, str := range structs {
+				agentID := str.(*Agent).AgentID
+				if _, err = RemoveAgent(q, agentID, RemoveCascade); err != nil {
+					return err
+				}
+			}
+		default:
+			panic(fmt.Errorf("unhandled RemoveMode %v", mode))
+		}
 	}
 
-	services, err := q.FindAllFrom(ServiceTable, "node_id", id)
+	// check/remove Services
+	structs, err = q.FindAllFrom(ServiceTable, "node_id", id)
 	if err != nil {
 		return errors.Wrap(err, "failed to select Service IDs")
 	}
-	if len(services) != 0 {
-		return status.Errorf(codes.FailedPrecondition, "Node with ID %q has services.", id)
+	if len(structs) != 0 {
+		switch mode {
+		case RemoveRestrict:
+			return status.Errorf(codes.FailedPrecondition, "Node with ID %q has services.", id)
+		case RemoveCascade:
+			for _, str := range structs {
+				serviceID := str.(*Service).ServiceID
+				if err = RemoveService(q, serviceID); err != nil {
+					return err
+				}
+			}
+		default:
+			panic(fmt.Errorf("unhandled RemoveMode %v", mode))
+		}
 	}
 
 	return errors.Wrap(q.Delete(n), "failed to delete Node")

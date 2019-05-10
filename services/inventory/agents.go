@@ -42,6 +42,150 @@ func NewAgentsService(db *reform.DB, r registry) *AgentsService {
 	}
 }
 
+// ToInventoryAgent converts database row to Inventory API Agent.
+func ToInventoryAgent(q *reform.Querier, row *models.Agent, registry registry) (inventorypb.Agent, error) {
+	labels, err := row.GetCustomLabels()
+	if err != nil {
+		return nil, err
+	}
+
+	// agents without services
+
+	switch row.AgentType {
+	case models.PMMAgentType:
+		return &inventorypb.PMMAgent{
+			AgentId:      row.AgentID,
+			RunsOnNodeId: pointer.GetString(row.RunsOnNodeID),
+			Connected:    registry.IsConnected(row.AgentID),
+			CustomLabels: labels,
+		}, nil
+
+	case models.NodeExporterType:
+		return &inventorypb.NodeExporter{
+			AgentId:      row.AgentID,
+			PmmAgentId:   pointer.GetString(row.PMMAgentID),
+			Disabled:     row.Disabled,
+			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
+			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
+			CustomLabels: labels,
+		}, nil
+	}
+
+	// agents with exactly one service
+	services, err := models.ServicesForAgent(q, row.AgentID)
+	if err != nil {
+		return nil, err
+	}
+	if len(services) != 1 {
+		return nil, errors.Errorf("expected exactly one Service, got %d", len(services))
+	}
+	serviceID := services[0].ServiceID
+
+	switch row.AgentType {
+	case models.MySQLdExporterType:
+		return &inventorypb.MySQLdExporter{
+			AgentId:      row.AgentID,
+			PmmAgentId:   pointer.GetString(row.PMMAgentID),
+			ServiceId:    serviceID,
+			Username:     pointer.GetString(row.Username),
+			Password:     pointer.GetString(row.Password),
+			Disabled:     row.Disabled,
+			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
+			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
+			CustomLabels: labels,
+		}, nil
+
+	case models.MongoDBExporterType:
+		return &inventorypb.MongoDBExporter{
+			AgentId:      row.AgentID,
+			PmmAgentId:   pointer.GetString(row.PMMAgentID),
+			ServiceId:    serviceID,
+			Username:     pointer.GetString(row.Username),
+			Password:     pointer.GetString(row.Password),
+			Disabled:     row.Disabled,
+			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
+			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
+			CustomLabels: labels,
+		}, nil
+
+	case models.PostgresExporterType:
+		return &inventorypb.PostgresExporter{
+			AgentId:      row.AgentID,
+			PmmAgentId:   pointer.GetString(row.PMMAgentID),
+			ServiceId:    serviceID,
+			Username:     pointer.GetString(row.Username),
+			Password:     pointer.GetString(row.Password),
+			Disabled:     row.Disabled,
+			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
+			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
+			CustomLabels: labels,
+		}, nil
+
+	case models.QANMySQLPerfSchemaAgentType:
+		return &inventorypb.QANMySQLPerfSchemaAgent{
+			AgentId:      row.AgentID,
+			PmmAgentId:   pointer.GetString(row.PMMAgentID),
+			ServiceId:    serviceID,
+			Username:     pointer.GetString(row.Username),
+			Password:     pointer.GetString(row.Password),
+			Disabled:     row.Disabled,
+			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
+			CustomLabels: labels,
+		}, nil
+
+	case models.QANMySQLSlowlogAgentType:
+		return &inventorypb.QANMySQLSlowlogAgent{
+			AgentId:      row.AgentID,
+			PmmAgentId:   pointer.GetString(row.PMMAgentID),
+			ServiceId:    serviceID,
+			Username:     pointer.GetString(row.Username),
+			Password:     pointer.GetString(row.Password),
+			Disabled:     row.Disabled,
+			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
+			CustomLabels: labels,
+		}, nil
+
+	case models.QANMongoDBProfilerAgentType:
+		return &inventorypb.QANMongoDBProfilerAgent{
+			AgentId:      row.AgentID,
+			PmmAgentId:   pointer.GetString(row.PMMAgentID),
+			ServiceId:    serviceID,
+			Username:     pointer.GetString(row.Username),
+			Password:     pointer.GetString(row.Password),
+			Disabled:     row.Disabled,
+			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
+			CustomLabels: labels,
+		}, nil
+	}
+
+	panic(fmt.Errorf("unhandled Agent type %s", row.AgentType))
+}
+
+// changeAgent changes common parameters for given Agent.
+func (as *AgentsService) changeAgent(agentID string, common *inventorypb.ChangeCommonAgentParams) (inventorypb.Agent, error) {
+	var agent inventorypb.Agent
+	e := as.db.InTransaction(func(tx *reform.TX) error {
+		params := &models.ChangeCommonAgentParams{
+			CustomLabels:       common.CustomLabels,
+			RemoveCustomLabels: common.RemoveCustomLabels,
+		}
+		if common.GetEnabled() {
+			params.Disabled = pointer.ToBool(false)
+		}
+		if common.GetDisabled() {
+			params.Disabled = pointer.ToBool(true)
+		}
+		row, err := models.ChangeAgent(tx.Querier, agentID, params)
+		if err != nil {
+			return err
+		}
+
+		agent, err = ToInventoryAgent(tx.Querier, row, as.r)
+		return err
+	})
+	return agent, e
+}
+
 // AgentFilters represents filters for agents list.
 type AgentFilters struct {
 	// Return only Agents started by this pmm-agent.
@@ -154,35 +298,12 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, req *inventorypb.A
 
 // ChangeNodeExporter updates node_exporter Agent with given parameters.
 func (as *AgentsService) ChangeNodeExporter(ctx context.Context, req *inventorypb.ChangeNodeExporterRequest) (*inventorypb.NodeExporter, error) {
-	var res *inventorypb.NodeExporter
-	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.ChangeCommonExporterParams{
-			AgentID:            req.AgentId,
-			CustomLabels:       req.CustomLabels,
-			RemoveCustomLabels: req.RemoveCustomLabels,
-		}
-		if req.GetEnabled() {
-			params.Disabled = false
-		}
-		if req.GetDisabled() {
-			params.Disabled = true
-		}
-		row, err := models.AgentChangeExporter(tx.Querier, params)
-		if err != nil {
-			return err
-		}
-
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
-		if err != nil {
-			return err
-		}
-		res = agent.(*inventorypb.NodeExporter)
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
 	}
 
+	res := agent.(*inventorypb.NodeExporter)
 	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
 	return res, nil
 }
@@ -222,52 +343,15 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 
 // ChangeMySQLdExporter updates mysqld_exporter Agent with given parameters.
 func (as *AgentsService) ChangeMySQLdExporter(ctx context.Context, req *inventorypb.ChangeMySQLdExporterRequest) (*inventorypb.MySQLdExporter, error) {
-	var res *inventorypb.MySQLdExporter
-	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.ChangeCommonExporterParams{
-			AgentID:            req.AgentId,
-			CustomLabels:       req.CustomLabels,
-			RemoveCustomLabels: req.RemoveCustomLabels,
-		}
-		if req.GetEnabled() {
-			params.Disabled = false
-		}
-		if req.GetDisabled() {
-			params.Disabled = true
-		}
-		row, err := models.AgentChangeExporter(tx.Querier, params)
-		if err != nil {
-			return err
-		}
-
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
-		if err != nil {
-			return err
-		}
-		res = agent.(*inventorypb.MySQLdExporter)
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
 	}
 
+	res := agent.(*inventorypb.MySQLdExporter)
 	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
 	return res, nil
 }
-
-/*
-// SetDisabled enables or disables Agent by ID.
-func (as *AgentsService) SetDisabled(ctx context.Context, id string, disabled bool) error {
-	row, _, err := as.get(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	row.Disabled = disabled
-	err = as.q.Update(row)
-	return errors.WithStack(err)
-}
-*/
 
 // AddMongoDBExporter inserts mongodb_exporter Agent with given parameters.
 func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventorypb.AddMongoDBExporterRequest) (*inventorypb.MongoDBExporter, error) {
@@ -304,35 +388,12 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 
 // ChangeMongoDBExporter updates mongo_exporter Agent with given parameters.
 func (as *AgentsService) ChangeMongoDBExporter(ctx context.Context, req *inventorypb.ChangeMongoDBExporterRequest) (*inventorypb.MongoDBExporter, error) {
-	var res *inventorypb.MongoDBExporter
-	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.ChangeCommonExporterParams{
-			AgentID:            req.AgentId,
-			CustomLabels:       req.CustomLabels,
-			RemoveCustomLabels: req.RemoveCustomLabels,
-		}
-		if req.GetEnabled() {
-			params.Disabled = false
-		}
-		if req.GetDisabled() {
-			params.Disabled = true
-		}
-		row, err := models.AgentChangeExporter(tx.Querier, params)
-		if err != nil {
-			return err
-		}
-
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
-		if err != nil {
-			return err
-		}
-		res = agent.(*inventorypb.MongoDBExporter)
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
 	}
 
+	res := agent.(*inventorypb.MongoDBExporter)
 	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
 	return res, nil
 }
@@ -373,35 +434,12 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *in
 
 // ChangeQANMySQLPerfSchemaAgent updates MySQL PerfSchema QAN Agent with given parameters.
 func (as *AgentsService) ChangeQANMySQLPerfSchemaAgent(ctx context.Context, req *inventorypb.ChangeQANMySQLPerfSchemaAgentRequest) (*inventorypb.QANMySQLPerfSchemaAgent, error) {
-	var res *inventorypb.QANMySQLPerfSchemaAgent
-	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.ChangeCommonExporterParams{
-			AgentID:            req.AgentId,
-			CustomLabels:       req.CustomLabels,
-			RemoveCustomLabels: req.RemoveCustomLabels,
-		}
-		if req.GetEnabled() {
-			params.Disabled = false
-		}
-		if req.GetDisabled() {
-			params.Disabled = true
-		}
-		row, err := models.AgentChangeExporter(tx.Querier, params)
-		if err != nil {
-			return err
-		}
-
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
-		if err != nil {
-			return err
-		}
-		res = agent.(*inventorypb.QANMySQLPerfSchemaAgent)
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
 	}
 
+	res := agent.(*inventorypb.QANMySQLPerfSchemaAgent)
 	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
 	return res, nil
 }
@@ -442,35 +480,12 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inven
 
 // ChangeQANMySQLSlowlogAgent updates MySQL Slowlog QAN Agent with given parameters.
 func (as *AgentsService) ChangeQANMySQLSlowlogAgent(ctx context.Context, req *inventorypb.ChangeQANMySQLSlowlogAgentRequest) (*inventorypb.QANMySQLSlowlogAgent, error) {
-	var res *inventorypb.QANMySQLSlowlogAgent
-	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.ChangeCommonExporterParams{
-			AgentID:            req.AgentId,
-			CustomLabels:       req.CustomLabels,
-			RemoveCustomLabels: req.RemoveCustomLabels,
-		}
-		if req.GetEnabled() {
-			params.Disabled = false
-		}
-		if req.GetDisabled() {
-			params.Disabled = true
-		}
-		row, err := models.AgentChangeExporter(tx.Querier, params)
-		if err != nil {
-			return err
-		}
-
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
-		if err != nil {
-			return err
-		}
-		res = agent.(*inventorypb.QANMySQLSlowlogAgent)
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
 	}
 
+	res := agent.(*inventorypb.QANMySQLSlowlogAgent)
 	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
 	return res, nil
 }
@@ -510,35 +525,12 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 
 // ChangePostgresExporter updates postgres_exporter Agent with given parameters.
 func (as *AgentsService) ChangePostgresExporter(ctx context.Context, req *inventorypb.ChangePostgresExporterRequest) (*inventorypb.PostgresExporter, error) {
-	var res *inventorypb.PostgresExporter
-	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.ChangeCommonExporterParams{
-			AgentID:            req.AgentId,
-			CustomLabels:       req.CustomLabels,
-			RemoveCustomLabels: req.RemoveCustomLabels,
-		}
-		if req.GetEnabled() {
-			params.Disabled = false
-		}
-		if req.GetDisabled() {
-			params.Disabled = true
-		}
-		row, err := models.AgentChangeExporter(tx.Querier, params)
-		if err != nil {
-			return err
-		}
-
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
-		if err != nil {
-			return err
-		}
-		res = agent.(*inventorypb.PostgresExporter)
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
 	}
 
+	res := agent.(*inventorypb.PostgresExporter)
 	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
 	return res, nil
 }
@@ -580,35 +572,12 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *in
 // ChangeQANMongoDBProfilerAgent updates MongoDB Profiler QAN Agent with given parameters.
 //nolint:lll,dupl
 func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, req *inventorypb.ChangeQANMongoDBProfilerAgentRequest) (*inventorypb.QANMongoDBProfilerAgent, error) {
-	var res *inventorypb.QANMongoDBProfilerAgent
-	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.ChangeCommonExporterParams{
-			AgentID:            req.AgentId,
-			CustomLabels:       req.CustomLabels,
-			RemoveCustomLabels: req.RemoveCustomLabels,
-		}
-		if req.GetEnabled() {
-			params.Disabled = false
-		}
-		if req.GetDisabled() {
-			params.Disabled = true
-		}
-		row, err := models.AgentChangeExporter(tx.Querier, params)
-		if err != nil {
-			return err
-		}
-
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
-		if err != nil {
-			return err
-		}
-		res = agent.(*inventorypb.QANMongoDBProfilerAgent)
-		return nil
-	})
-	if e != nil {
-		return nil, e
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
 	}
 
+	res := agent.(*inventorypb.QANMongoDBProfilerAgent)
 	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
 	return res, nil
 }
@@ -618,7 +587,7 @@ func (as *AgentsService) Remove(ctx context.Context, id string) error {
 	var removedAgent *models.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		var err error
-		removedAgent, err = models.RemoveAgent(tx.Querier, id)
+		removedAgent, err = models.RemoveAgent(tx.Querier, id, models.RemoveRestrict)
 		return err
 	})
 	if e != nil {
@@ -634,158 +603,4 @@ func (as *AgentsService) Remove(ctx context.Context, id string) error {
 	}
 
 	return nil
-}
-
-// ToInventoryAgent converts database row to Inventory API Agent.
-func ToInventoryAgent(q *reform.Querier, row *models.Agent, registry registry) (inventorypb.Agent, error) {
-	labels, err := row.GetCustomLabels()
-	if err != nil {
-		return nil, err
-	}
-
-	switch row.AgentType {
-	case models.PMMAgentType:
-		return &inventorypb.PMMAgent{
-			AgentId:      row.AgentID,
-			RunsOnNodeId: pointer.GetString(row.RunsOnNodeID),
-			Connected:    registry.IsConnected(row.AgentID),
-			CustomLabels: labels,
-		}, nil
-
-	case models.NodeExporterType:
-		return &inventorypb.NodeExporter{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
-			CustomLabels: labels,
-		}, nil
-
-	case models.MySQLdExporterType:
-		services, err := models.ServicesForAgent(q, row.AgentID)
-		if err != nil {
-			return nil, err
-		}
-		if len(services) != 1 {
-			return nil, errors.Errorf("expected exactly one Service, got %d", len(services))
-		}
-
-		return &inventorypb.MySQLdExporter{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    services[0].ServiceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
-			CustomLabels: labels,
-		}, nil
-
-	case models.MongoDBExporterType:
-		services, err := models.ServicesForAgent(q, row.AgentID)
-		if err != nil {
-			return nil, err
-		}
-		if len(services) != 1 {
-			return nil, errors.Errorf("expected exactly one Service, got %d", len(services))
-		}
-
-		return &inventorypb.MongoDBExporter{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    services[0].ServiceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
-			CustomLabels: labels,
-		}, nil
-
-	case models.QANMySQLPerfSchemaAgentType:
-		services, err := models.ServicesForAgent(q, row.AgentID)
-		if err != nil {
-			return nil, err
-		}
-		if len(services) != 1 {
-			return nil, errors.Errorf("expected exactly one Service, got %d", len(services))
-		}
-
-		return &inventorypb.QANMySQLPerfSchemaAgent{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    services[0].ServiceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			CustomLabels: labels,
-		}, nil
-
-	case models.QANMySQLSlowlogAgentType:
-		services, err := models.ServicesForAgent(q, row.AgentID)
-		if err != nil {
-			return nil, err
-		}
-		if len(services) != 1 {
-			return nil, errors.Errorf("expected exactly one Service, got %d", len(services))
-		}
-
-		return &inventorypb.QANMySQLSlowlogAgent{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    services[0].ServiceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			CustomLabels: labels,
-		}, nil
-
-	case models.QANMongoDBProfilerAgentType:
-		services, err := models.ServicesForAgent(q, row.AgentID)
-		if err != nil {
-			return nil, err
-		}
-		if len(services) != 1 {
-			return nil, errors.Errorf("expected exactly one Service, got %d", len(services))
-		}
-
-		return &inventorypb.QANMongoDBProfilerAgent{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    services[0].ServiceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			CustomLabels: labels,
-		}, nil
-
-	case models.PostgresExporterType:
-		services, err := models.ServicesForAgent(q, row.AgentID)
-		if err != nil {
-			return nil, err
-		}
-		if len(services) != 1 {
-			return nil, errors.Errorf("expected exactly one Service, got %d", len(services))
-		}
-
-		return &inventorypb.PostgresExporter{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    services[0].ServiceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
-			CustomLabels: labels,
-		}, nil
-
-	default:
-		panic(fmt.Errorf("unhandled Agent type %s", row.AgentType))
-	}
 }

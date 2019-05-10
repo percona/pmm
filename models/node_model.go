@@ -30,7 +30,7 @@ import (
 // NodeType represents Node type as stored in database.
 type NodeType string
 
-// Node types.
+// Node types (in the same order as in nodes.proto).
 const (
 	GenericNodeType         NodeType = "generic"
 	ContainerNodeType       NodeType = "container"
