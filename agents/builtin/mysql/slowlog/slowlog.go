@@ -280,7 +280,6 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 			DSchema:             v.Db,
 			DUsername:           v.User,
 			DClientHost:         v.Host,
-			ServiceName:         v.Server,
 			AgentId:             agentID,
 			MetricsSource:       qanpb.MetricsSource_MYSQL_SLOWLOG,
 			PeriodStartUnixSecs: uint32(ts.Truncate(1 * time.Minute).Unix()),

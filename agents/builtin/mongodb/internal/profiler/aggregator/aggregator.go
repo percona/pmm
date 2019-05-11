@@ -272,7 +272,6 @@ func (a *Aggregator) createResult() *report.Result {
 			DSchema:             schema,
 			DUsername:           "",
 			DClientHost:         "",
-			ServiceName:         "",
 			AgentId:             a.agentID,
 			MetricsSource:       qanpb.MetricsSource_MONGODB_PROFILER,
 			PeriodStartUnixSecs: uint32(a.timeStart.Truncate(1 * time.Minute).Unix()),
