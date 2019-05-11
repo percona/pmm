@@ -32,6 +32,7 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/utils/testdb"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
@@ -41,7 +42,7 @@ func TestServices(t *testing.T) {
 	setup := func(t *testing.T) (ss *ServicesService, teardown func(t *testing.T)) {
 		uuid.SetRand(new(tests.IDReader))
 
-		sqlDB := tests.OpenTestDB(t)
+		sqlDB := testdb.Open(t)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 		r := new(mockRegistry)

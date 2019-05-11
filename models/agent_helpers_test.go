@@ -29,6 +29,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/utils/testdb"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
@@ -37,7 +38,7 @@ func TestAgentHelpers(t *testing.T) {
 	models.Now = func() time.Time {
 		return now
 	}
-	sqlDB := tests.OpenTestDB(t)
+	sqlDB := testdb.Open(t)
 	defer func() {
 		models.Now = origNowF
 		require.NoError(t, sqlDB.Close())

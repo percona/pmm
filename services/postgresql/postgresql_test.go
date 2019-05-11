@@ -56,7 +56,7 @@ func setup(t *testing.T) (context.Context, *Service, *sql.DB, []byte, string, *m
 
 	ctx, p, before := prometheus.SetupTest(t)
 
-	sqlDB := tests.OpenTestDB(t)
+	sqlDB := testdb.Open(t)
 	db := reform.NewDB(sqlDB, mysql.Dialect, reform.NewPrintfLogger(t.Logf))
 	portsRegistry := ports.NewRegistry(30000, 30999, nil)
 

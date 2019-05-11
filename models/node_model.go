@@ -17,11 +17,9 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -97,31 +95,15 @@ func (s *Node) AfterFind() error {
 
 // GetCustomLabels decodes custom labels.
 func (s *Node) GetCustomLabels() (map[string]string, error) {
-	if len(s.CustomLabels) == 0 {
-		return nil, nil
-	}
-	m := make(map[string]string)
-	if err := json.Unmarshal(s.CustomLabels, &m); err != nil {
-		return nil, errors.Wrap(err, "failed to decode custom labels")
-	}
-	return m, nil
+	return getCustomLabels(s.CustomLabels)
 }
 
 // SetCustomLabels encodes custom labels.
 func (s *Node) SetCustomLabels(m map[string]string) error {
-	if len(m) == 0 {
-		s.CustomLabels = nil
-		return nil
-	}
-	b, err := json.Marshal(m)
-	if err != nil {
-		return errors.Wrap(err, "failed to encode custom labels")
-	}
-	s.CustomLabels = b
-	return nil
+	return setCustomLabels(m, &s.CustomLabels)
 }
 
-// UnifiedLabels returns combined standard and custom labels.
+// UnifiedLabels returns combined standard and custom labels with empty labels removed.
 func (s *Node) UnifiedLabels() (map[string]string, error) {
 	custom, err := s.GetCustomLabels()
 	if err != nil {
@@ -139,13 +121,12 @@ func (s *Node) UnifiedLabels() (map[string]string, error) {
 		"region":         pointer.GetString(s.Region),
 		"az":             s.AZ,
 	}
-	for k, v := range custom {
-		res[k] = v
+	for name, value := range custom {
+		res[name] = value
 	}
-	for k, v := range res {
-		if v == "" {
-			delete(res, k)
-		}
+
+	if err = prepareLabels(res, true); err != nil {
+		return nil, err
 	}
 	return res, nil
 }

@@ -17,10 +17,8 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 )
 
@@ -89,28 +87,37 @@ func (s *Service) AfterFind() error {
 
 // GetCustomLabels decodes custom labels.
 func (s *Service) GetCustomLabels() (map[string]string, error) {
-	if len(s.CustomLabels) == 0 {
-		return nil, nil
-	}
-	m := make(map[string]string)
-	if err := json.Unmarshal(s.CustomLabels, &m); err != nil {
-		return nil, errors.Wrap(err, "failed to decode custom labels")
-	}
-	return m, nil
+	return getCustomLabels(s.CustomLabels)
 }
 
 // SetCustomLabels encodes custom labels.
 func (s *Service) SetCustomLabels(m map[string]string) error {
-	if len(m) == 0 {
-		s.CustomLabels = nil
-		return nil
-	}
-	b, err := json.Marshal(m)
+	return setCustomLabels(m, &s.CustomLabels)
+}
+
+// UnifiedLabels returns combined standard and custom labels with empty labels removed.
+func (s *Service) UnifiedLabels() (map[string]string, error) {
+	custom, err := s.GetCustomLabels()
 	if err != nil {
-		return errors.Wrap(err, "failed to encode custom labels")
+		return nil, err
 	}
-	s.CustomLabels = b
-	return nil
+
+	res := map[string]string{
+		"service_id":      s.ServiceID,
+		"service_name":    s.ServiceName,
+		"service_type":    string(s.ServiceType),
+		"environment":     s.Environment,
+		"cluster":         s.Cluster,
+		"replication_set": s.ReplicationSet,
+	}
+	for name, value := range custom {
+		res[name] = value
+	}
+
+	if err = prepareLabels(res, true); err != nil {
+		return nil, err
+	}
+	return res, nil
 }
 
 // check interfaces

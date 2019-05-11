@@ -46,10 +46,34 @@ func NewClient(cc *grpc.ClientConn, db *reform.DB) *Client {
 	}
 }
 
-func cut(m map[string]string, k string) string {
-	v := m[k]
-	delete(m, k)
-	return v
+func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent) (map[string]string, error) {
+	res := make(map[string]string, 16)
+
+	labels, err := node.UnifiedLabels()
+	if err != nil {
+		return nil, err
+	}
+	for name, value := range labels {
+		res[name] = value
+	}
+
+	labels, err = service.UnifiedLabels()
+	if err != nil {
+		return nil, err
+	}
+	for name, value := range labels {
+		res[name] = value
+	}
+
+	labels, err = agent.UnifiedLabels()
+	if err != nil {
+		return nil, err
+	}
+	for name, value := range labels {
+		res[name] = value
+	}
+
+	return res, nil
 }
 
 // Collect adds custom labels to the data from pmm-agent and sends it to qan-api.
@@ -67,6 +91,13 @@ func (c *Client) Collect(ctx context.Context, req *qanpb.CollectRequest) error {
 	for i, m := range req.MetricsBucket {
 		if m.AgentId == "" {
 			c.l.Errorf("Empty agent_id for bucket with query_id %q, can't add labels.", m.Queryid)
+			continue
+		}
+
+		// get agent
+		agent, err := models.AgentFindByID(c.db.Querier, m.AgentId)
+		if err != nil {
+			c.l.Error(err)
 			continue
 		}
 
@@ -89,26 +120,31 @@ func (c *Client) Collect(ctx context.Context, req *qanpb.CollectRequest) error {
 			continue
 		}
 
-		nodeLabels, err := node.UnifiedLabels()
+		labels, err := mergeLabels(node, service, agent)
 		if err != nil {
 			c.l.Error(err)
 			continue
 		}
 
-		labels := make(map[string]string)
-		for k, v := range nodeLabels {
-			labels[k] = v
+		// in order of fields in MetricsBucket
+		for labelName, field := range map[string]*string{
+			"service_name":    &m.ServiceName,
+			"replication_set": &m.ReplicationSet,
+			"cluster":         &m.Cluster,
+			"service_type":    &m.ServiceType,
+			"environment":     &m.Environment,
+			"az":              &m.Az,
+			"region":          &m.Region,
+			"node_model":      &m.NodeModel,
+			"container_name":  &m.ContainerName,
+		} {
+			value := labels[labelName]
+			delete(labels, labelName)
+			if *field != "" {
+				c.l.Errorf("%q wasn't empty: overwriting %q with %q.", labelName, *field, value)
+			}
+			*field = value
 		}
-
-		if m.ServiceName != "" {
-			c.l.Errorf("service_name wasn't empty: %q.", m.ServiceName)
-		}
-		m.ServiceName = service.ServiceName
-
-		m.NodeModel = cut(labels, "node_model")
-		m.Az = cut(labels, "az")
-		m.ContainerName = cut(labels, "container_name")
-		m.Region = cut(labels, "region")
 
 		if m.Labels != nil {
 			c.l.Errorf("Labels were not empty: %+v.", m.Labels)

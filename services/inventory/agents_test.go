@@ -33,6 +33,7 @@ import (
 
 	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/utils/testdb"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
@@ -48,7 +49,7 @@ func TestAgents(t *testing.T) {
 
 		uuid.SetRand(new(tests.IDReader))
 
-		db = reform.NewDB(tests.OpenTestDB(t), postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+		db = reform.NewDB(testdb.Open(t), postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 		r := new(mockRegistry)
 		r.Test(t)

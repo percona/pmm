@@ -30,6 +30,7 @@ import (
 	"gopkg.in/reform.v1/dialects/postgresql"
 
 	"github.com/percona/pmm-managed/utils/logger"
+	"github.com/percona/pmm-managed/utils/testdb"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
@@ -40,7 +41,7 @@ func TestNodes(t *testing.T) {
 	setup := func(t *testing.T) (ns *NodesService, teardown func(t *testing.T)) {
 		uuid.SetRand(new(tests.IDReader))
 
-		sqlDB := tests.OpenTestDB(t)
+		sqlDB := testdb.Open(t)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 		r := new(mockRegistry)

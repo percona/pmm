@@ -27,7 +27,7 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
-	"github.com/percona/pmm-managed/utils/tests"
+	"github.com/percona/pmm-managed/utils/testdb"
 )
 
 func TestIntegration(t *testing.T) {
@@ -47,7 +47,7 @@ func TestIntegration(t *testing.T) {
 }
 
 func TestGetTelemetryUUID(t *testing.T) {
-	sqlDB := tests.OpenTestDB(t)
+	sqlDB := testdb.Open(t)
 	defer func() {
 		require.NoError(t, sqlDB.Close())
 	}()

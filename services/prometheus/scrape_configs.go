@@ -79,65 +79,41 @@ func scrapeConfigForPMMManaged() *config.ScrapeConfig {
 	}
 }
 
-func commonExporterLabelSet(node *models.Node, service *models.Service, agent *models.Agent) (model.LabelSet, error) {
-	res := make(model.LabelSet)
+func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent) (model.LabelSet, error) {
+	res := make(model.LabelSet, 16)
 
-	nodeLabels, err := node.UnifiedLabels()
+	labels, err := node.UnifiedLabels()
 	if err != nil {
 		return nil, err
 	}
-	for k, v := range nodeLabels {
-		res[model.LabelName(k)] = model.LabelValue(v)
+	for name, value := range labels {
+		res[model.LabelName(name)] = model.LabelValue(value)
 	}
 
 	if service != nil {
-		res[model.LabelName("service_id")] = model.LabelValue(service.ServiceID)
-		res[model.LabelName("service_type")] = model.LabelValue(service.ServiceType)
-		res[model.LabelName("service_name")] = model.LabelValue(service.ServiceName)
+		labels, err = service.UnifiedLabels()
+		if err != nil {
+			return nil, err
+		}
+		for name, value := range labels {
+			res[model.LabelName(name)] = model.LabelValue(value)
+		}
+	}
+
+	labels, err = agent.UnifiedLabels()
+	if err != nil {
+		return nil, err
+	}
+	for name, value := range labels {
+		res[model.LabelName(name)] = model.LabelValue(value)
 	}
 
 	res[model.LabelName("instance")] = model.LabelValue(agent.AgentID)
-	res[model.LabelName("agent_type")] = model.LabelValue(agent.AgentType)
 
+	if err = res.Validate(); err != nil {
+		return nil, errors.Wrap(err, "failed to merge labels")
+	}
 	return res, nil
-}
-
-func mergeLabels(labels model.LabelSet, node *models.Node, service *models.Service, agent *models.Agent) error {
-	var nLabels, sLabels, aLabels map[string]string
-	var err error
-	if nLabels, err = node.GetCustomLabels(); err != nil {
-		return err
-	}
-	if service != nil {
-		if sLabels, err = service.GetCustomLabels(); err != nil {
-			return err
-		}
-	}
-	if aLabels, err = agent.GetCustomLabels(); err != nil {
-		return err
-	}
-
-	for k, v := range nLabels {
-		labels[model.LabelName(k)] = model.LabelValue(v)
-	}
-	for k, v := range sLabels {
-		labels[model.LabelName(k)] = model.LabelValue(v)
-	}
-	for k, v := range aLabels {
-		labels[model.LabelName(k)] = model.LabelValue(v)
-	}
-
-	var toDelete []model.LabelName
-	for k, v := range labels {
-		if v == "" {
-			toDelete = append(toDelete, k)
-		}
-	}
-	for _, k := range toDelete {
-		delete(labels, k)
-	}
-
-	return errors.Wrap(labels.Validate(), "failed to merge labels")
 }
 
 func jobName(agent *models.Agent) string {
@@ -145,11 +121,8 @@ func jobName(agent *models.Agent) string {
 }
 
 func scrapeConfigForNodeExporter(node *models.Node, agent *models.Agent) (*config.ScrapeConfig, error) {
-	labels, err := commonExporterLabelSet(node, nil, agent)
+	labels, err := mergeLabels(node, nil, agent)
 	if err != nil {
-		return nil, err
-	}
-	if err = mergeLabels(labels, node, nil, agent); err != nil {
 		return nil, err
 	}
 
@@ -180,11 +153,8 @@ func scrapeConfigForNodeExporter(node *models.Node, agent *models.Agent) (*confi
 }
 
 func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
-	labels, err := commonExporterLabelSet(node, service, agent)
+	labels, err := mergeLabels(node, service, agent)
 	if err != nil {
-		return nil, err
-	}
-	if err = mergeLabels(labels, node, service, agent); err != nil {
 		return nil, err
 	}
 
@@ -231,11 +201,8 @@ func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, 
 }
 
 func scrapeConfigForPostgresExporter(node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	labels, err := commonExporterLabelSet(node, service, agent)
+	labels, err := mergeLabels(node, service, agent)
 	if err != nil {
-		return nil, err
-	}
-	if err = mergeLabels(labels, node, service, agent); err != nil {
 		return nil, err
 	}
 
@@ -267,11 +234,8 @@ func scrapeConfigForPostgresExporter(node *models.Node, service *models.Service,
 }
 
 func scrapeConfigForMongoDBExporter(node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	labels, err := commonExporterLabelSet(node, service, agent)
+	labels, err := mergeLabels(node, service, agent)
 	if err != nil {
-		return nil, err
-	}
-	if err = mergeLabels(labels, node, service, agent); err != nil {
 		return nil, err
 	}
 

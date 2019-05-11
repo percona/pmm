@@ -14,30 +14,34 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package models
+package testdb
 
 import (
+	"database/sql"
 	"testing"
 
-	"github.com/AlekSi/pointer"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm-managed/models"
 )
 
-func TestNode(t *testing.T) {
-	t.Run("UnifiedLabels", func(t *testing.T) {
-		node := &Node{
-			NodeID:       "node_id",
-			Region:       pointer.ToString("hidden"),
-			AZ:           "removed",
-			CustomLabels: []byte(`{"region": "region1", "az": "  "}`),
-		}
-		actual, err := node.UnifiedLabels()
-		require.NoError(t, err)
-		expected := map[string]string{
-			"node_id": "node_id",
-			"region":  "region1",
-		}
-		assert.Equal(t, expected, actual)
-	})
+// Open recreates testing PostgreSQL database and returns an open connection to it.
+func Open(tb testing.TB) *sql.DB {
+	tb.Helper()
+
+	db, err := models.OpenDB("", "pmm-managed", "pmm-managed", tb.Logf)
+	require.NoError(tb, err)
+
+	const testDatabase = "pmm-managed-dev"
+	_, err = db.Exec(`DROP DATABASE IF EXISTS "` + testDatabase + `"`)
+	require.NoError(tb, err)
+	_, err = db.Exec(`CREATE DATABASE "` + testDatabase + `"`)
+	require.NoError(tb, err)
+
+	err = db.Close()
+	require.NoError(tb, err)
+
+	db, err = models.OpenDB(testDatabase, "pmm-managed", "pmm-managed", tb.Logf)
+	require.NoError(tb, err)
+	return db
 }

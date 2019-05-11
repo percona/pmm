@@ -19,24 +19,21 @@ package models
 import (
 	"testing"
 
-	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestNode(t *testing.T) {
+func TestAgent(t *testing.T) {
 	t.Run("UnifiedLabels", func(t *testing.T) {
-		node := &Node{
-			NodeID:       "node_id",
-			Region:       pointer.ToString("hidden"),
-			AZ:           "removed",
-			CustomLabels: []byte(`{"region": "region1", "az": "  "}`),
+		agent := &Agent{
+			AgentID:      "agent_id",
+			CustomLabels: []byte(`{"foo": "bar"}`),
 		}
-		actual, err := node.UnifiedLabels()
+		actual, err := agent.UnifiedLabels()
 		require.NoError(t, err)
 		expected := map[string]string{
-			"node_id": "node_id",
-			"region":  "region1",
+			"agent_id": "agent_id",
+			"foo":      "bar",
 		}
 		assert.Equal(t, expected, actual)
 	})

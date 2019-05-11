@@ -27,7 +27,14 @@
 package models
 
 import (
+	"encoding/json"
+	"regexp"
+	"strings"
 	"time"
+
+	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 // Now returns current time with database precision.
@@ -44,3 +51,59 @@ const (
 	// RemoveCascade removes dependend objects recursively.
 	RemoveCascade
 )
+
+var labelNameRE = regexp.MustCompile("^[a-zA-Z_][a-zA-Z0-9_]*$")
+
+// prepareLabels checks that label names are valid, and trims or removes empty values.
+func prepareLabels(m map[string]string, removeEmptyValues bool) error {
+	for name, value := range m {
+		if !labelNameRE.MatchString(name) {
+			return status.Errorf(codes.InvalidArgument, "Invalid label name %q.", name)
+		}
+		if strings.HasPrefix(name, "__") {
+			return status.Errorf(codes.InvalidArgument, "Invalid label name %q.", name)
+		}
+
+		value = strings.TrimSpace(value)
+		if value == "" {
+			if removeEmptyValues {
+				delete(m, name)
+			} else {
+				m[name] = value
+			}
+		}
+	}
+
+	return nil
+}
+
+// getCustomLabels decodes custom labels from Node/Service/Agent field.
+func getCustomLabels(field []byte) (map[string]string, error) {
+	if len(field) == 0 {
+		return nil, nil
+	}
+	m := make(map[string]string)
+	if err := json.Unmarshal(field, &m); err != nil {
+		return nil, errors.Wrap(err, "failed to decode custom labels")
+	}
+	return m, nil
+}
+
+// setCustomLabels encodes custom labels m to the Node/Service/Agent field.
+func setCustomLabels(m map[string]string, field *[]byte) error {
+	if err := prepareLabels(m, false); err != nil {
+		return err
+	}
+
+	if len(m) == 0 {
+		*field = nil
+		return nil
+	}
+
+	b, err := json.Marshal(m)
+	if err != nil {
+		return errors.Wrap(err, "failed to encode custom labels")
+	}
+	*field = b
+	return nil
+}

@@ -14,34 +14,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package tests
+package models
 
 import (
-	"database/sql"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/percona/pmm-managed/models"
 )
 
-// OpenTestDB recreates testing postgres database and returns an open connection to it.
-func OpenTestDB(tb testing.TB) *sql.DB {
-	tb.Helper()
-
-	db, err := models.OpenDB("", "pmm-managed", "pmm-managed", tb.Logf)
-	require.NoError(tb, err)
-
-	const testDatabase = "pmm-managed-dev"
-	_, err = db.Exec(`DROP DATABASE IF EXISTS "` + testDatabase + `"`)
-	require.NoError(tb, err)
-	_, err = db.Exec(`CREATE DATABASE "` + testDatabase + `"`)
-	require.NoError(tb, err)
-
-	err = db.Close()
-	require.NoError(tb, err)
-
-	db, err = models.OpenDB(testDatabase, "pmm-managed", "pmm-managed", tb.Logf)
-	require.NoError(tb, err)
-	return db
+func TestService(t *testing.T) {
+	t.Run("UnifiedLabels", func(t *testing.T) {
+		service := &Service{
+			ServiceID:      "service_id",
+			Cluster:        "hidden",
+			ReplicationSet: "removed",
+			CustomLabels:   []byte(`{"cluster": "cluster1", "replication_set": "  "}`),
+		}
+		actual, err := service.UnifiedLabels()
+		require.NoError(t, err)
+		expected := map[string]string{
+			"service_id": "service_id",
+			"cluster":    "cluster1",
+		}
+		assert.Equal(t, expected, actual)
+	})
 }

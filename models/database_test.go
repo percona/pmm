@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/tests"
+	"github.com/percona/pmm-managed/utils/testdb"
 )
 
 // see https://www.postgresql.org/docs/10/errcodes-appendix.html for error codes
@@ -50,7 +50,7 @@ func assertCheckViolation(t *testing.T, err error, table, constraint string) {
 
 func TestDatabaseUniqueIndexes(t *testing.T) {
 	t.Run("Nodes", func(t *testing.T) {
-		db := tests.OpenTestDB(t)
+		db := testdb.Open(t)
 		defer func() {
 			require.NoError(t, db.Close())
 		}()
@@ -141,7 +141,7 @@ func TestDatabaseUniqueIndexes(t *testing.T) {
 	})
 
 	t.Run("Agents", func(t *testing.T) {
-		db := tests.OpenTestDB(t)
+		db := testdb.Open(t)
 		defer func() {
 			require.NoError(t, db.Close())
 		}()
