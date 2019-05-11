@@ -290,6 +290,14 @@ func (svc *Service) saveConfigAndReload(ctx context.Context, cfg []byte) error {
 
 // UpdateConfiguration updates Prometheus configuration.
 func (svc *Service) UpdateConfiguration(ctx context.Context) error {
+	l := logger.Get(ctx).WithField("component", "prometheus")
+	start := time.Now()
+	defer func() {
+		if dur := time.Since(start); dur > time.Second {
+			l.Warnf("UpdateConfiguration took %s.", dur)
+		}
+	}()
+
 	svc.configM.Lock()
 	defer svc.configM.Unlock()
 

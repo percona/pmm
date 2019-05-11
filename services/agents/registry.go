@@ -323,6 +323,12 @@ func (r *Registry) stateChanged(ctx context.Context, req *agentpb.StateChangedRe
 // SendSetStateRequest sends SetStateRequest to pmm-agent with given ID.
 func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 	l := logger.Get(ctx)
+	start := time.Now()
+	defer func() {
+		if dur := time.Since(start); dur > time.Second {
+			l.Warnf("SendSetStateRequest took %s.", dur)
+		}
+	}()
 
 	r.rw.RLock()
 	agent := r.agents[pmmAgentID]

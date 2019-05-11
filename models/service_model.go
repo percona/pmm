@@ -39,13 +39,16 @@ const (
 // Service represents Service as stored in database.
 //reform:services
 type Service struct {
-	ServiceID    string      `reform:"service_id,pk"`
-	ServiceType  ServiceType `reform:"service_type"`
-	ServiceName  string      `reform:"service_name"`
-	NodeID       string      `reform:"node_id"`
-	CustomLabels []byte      `reform:"custom_labels"`
-	CreatedAt    time.Time   `reform:"created_at"`
-	UpdatedAt    time.Time   `reform:"updated_at"`
+	ServiceID      string      `reform:"service_id,pk"`
+	ServiceType    ServiceType `reform:"service_type"`
+	ServiceName    string      `reform:"service_name"`
+	NodeID         string      `reform:"node_id"`
+	Environment    string      `reform:"environment"`
+	Cluster        string      `reform:"cluster"`
+	ReplicationSet string      `reform:"replication_set"`
+	CustomLabels   []byte      `reform:"custom_labels"`
+	CreatedAt      time.Time   `reform:"created_at"`
+	UpdatedAt      time.Time   `reform:"updated_at"`
 
 	Address *string `reform:"address"`
 	Port    *uint16 `reform:"port"`

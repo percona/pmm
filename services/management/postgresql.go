@@ -51,10 +51,10 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		service, err := models.AddNewService(tx.Querier, models.PostgreSQLServiceType, &models.AddDBMSServiceParams{
 			ServiceName:  req.ServiceName,
 			NodeID:       req.NodeId,
+			Environment:  req.Environment,
 			Address:      pointer.ToStringOrNil(req.Address),
 			Port:         pointer.ToUint16OrNil(uint16(req.Port)),
 			CustomLabels: req.CustomLabels,
-			// TODO Environment, Cluster, ReplicationSet
 		})
 		if err != nil {
 			return err

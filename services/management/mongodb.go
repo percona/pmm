@@ -50,12 +50,14 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 
 	if e := s.db.InTransaction(func(tx *reform.TX) error {
 		service, err := models.AddNewService(tx.Querier, models.MongoDBServiceType, &models.AddDBMSServiceParams{
-			ServiceName:  req.ServiceName,
-			NodeID:       req.NodeId,
-			Address:      pointer.ToStringOrNil(req.Address),
-			Port:         pointer.ToUint16OrNil(uint16(req.Port)),
-			CustomLabels: req.CustomLabels,
-			// TODO Environment, Cluster, ReplicationSet
+			ServiceName:    req.ServiceName,
+			NodeID:         req.NodeId,
+			Environment:    req.Environment,
+			Cluster:        req.Cluster,
+			ReplicationSet: req.ReplicationSet,
+			Address:        pointer.ToStringOrNil(req.Address),
+			Port:           pointer.ToUint16OrNil(uint16(req.Port)),
+			CustomLabels:   req.CustomLabels,
 		})
 		if err != nil {
 			return err

@@ -56,9 +56,9 @@ func ToInventoryService(row *models.Service) (inventorypb.Service, error) {
 			NodeId:         row.NodeID,
 			Address:        pointer.GetString(row.Address),
 			Port:           uint32(pointer.GetUint16(row.Port)),
-			Environment:    "", // TODO
-			Cluster:        "", // TODO
-			ReplicationSet: "", // TODO
+			Environment:    row.Environment,
+			Cluster:        row.Cluster,
+			ReplicationSet: row.ReplicationSet,
 			CustomLabels:   labels,
 		}, nil
 
@@ -69,9 +69,9 @@ func ToInventoryService(row *models.Service) (inventorypb.Service, error) {
 			NodeId:         row.NodeID,
 			Address:        pointer.GetString(row.Address),
 			Port:           uint32(pointer.GetUint16(row.Port)),
-			Environment:    "", // TODO
-			Cluster:        "", // TODO
-			ReplicationSet: "", // TODO
+			Environment:    row.Environment,
+			Cluster:        row.Cluster,
+			ReplicationSet: row.ReplicationSet,
 			CustomLabels:   labels,
 		}, nil
 
@@ -82,7 +82,7 @@ func ToInventoryService(row *models.Service) (inventorypb.Service, error) {
 			NodeId:       row.NodeID,
 			Address:      pointer.GetString(row.Address),
 			Port:         uint32(pointer.GetUint16(row.Port)),
-			Environment:  "", // TODO
+			Environment:  row.Environment,
 			CustomLabels: labels,
 		}, nil
 

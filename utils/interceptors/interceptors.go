@@ -58,7 +58,11 @@ func logRequest(l *logrus.Entry, prefix string, f func() error) (err error) {
 		_, gRPCError := status.FromError(err)
 		switch {
 		case err == nil:
-			l.Infof("%s done in %s.", prefix, dur)
+			if dur < time.Second {
+				l.Infof("%s done in %s.", prefix, dur)
+			} else {
+				l.Warnf("%s done in %s (quite long).", prefix, dur)
+			}
 		case gRPCError:
 			l.Warnf("%s done in %s with %s", prefix, dur, err)
 		default:

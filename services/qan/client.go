@@ -19,6 +19,7 @@ package qan
 
 import (
 	"context"
+	"time"
 
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
@@ -54,6 +55,14 @@ func cut(m map[string]string, k string) string {
 // Collect adds custom labels to the data from pmm-agent and sends it to qan-api.
 func (c *Client) Collect(ctx context.Context, req *qanpb.CollectRequest) error {
 	// TODO That code is simple, but performance will be very bad for any non-trivial load.
+	// https://jira.percona.com/browse/PMM-3894
+
+	start := time.Now()
+	defer func() {
+		if dur := time.Since(start); dur > time.Second {
+			c.l.Warnf("Collect for %d buckets took %s.", len(req.MetricsBucket), dur)
+		}
+	}()
 
 	for i, m := range req.MetricsBucket {
 		if m.AgentId == "" {
