@@ -274,7 +274,7 @@ func RemoveNode(q *reform.Querier, id string, mode RemoveMode) error {
 		case RemoveCascade:
 			for _, str := range structs {
 				serviceID := str.(*Service).ServiceID
-				if err = RemoveService(q, serviceID); err != nil {
+				if err = RemoveService(q, serviceID, RemoveCascade); err != nil {
 					return err
 				}
 			}

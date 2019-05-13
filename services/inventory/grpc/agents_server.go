@@ -334,7 +334,7 @@ func (s *agentsServer) ChangeQANMongoDBProfilerAgent(ctx context.Context, req *i
 
 // RemoveAgent removes Agent.
 func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventorypb.RemoveAgentRequest) (*inventorypb.RemoveAgentResponse, error) {
-	if err := s.s.Remove(ctx, req.AgentId); err != nil {
+	if err := s.s.Remove(ctx, req.AgentId, req.Force); err != nil {
 		return nil, err
 	}
 

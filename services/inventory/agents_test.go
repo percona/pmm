@@ -244,38 +244,38 @@ func TestAgents(t *testing.T) {
 		require.Len(t, actualAgents, 1)
 		assert.Equal(t, expectedNodeExporter, actualAgents[0])
 
-		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000002")
+		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000002", false)
 		require.NoError(t, err)
 		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000002")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000002" not found.`), err)
 		assert.Nil(t, actualAgent)
 
-		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000004")
+		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000004", false)
 		require.NoError(t, err)
 		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000004")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000004" not found.`), err)
 		assert.Nil(t, actualAgent)
 
-		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000006")
+		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000006", false)
 		require.NoError(t, err)
 		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000006")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000006" not found.`), err)
 		assert.Nil(t, actualAgent)
 
-		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000007")
+		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000007", false)
 		require.NoError(t, err)
 		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000007")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000007" not found.`), err)
 		assert.Nil(t, actualAgent)
 
-		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000009")
+		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000009", false)
 		require.NoError(t, err)
 		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000009")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000009" not found.`), err)
 		assert.Nil(t, actualAgent)
 
 		as.r.(*mockRegistry).On("Kick", ctx, "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
-		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000001")
+		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000001", false)
 		require.NoError(t, err)
 		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000001")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000001" not found.`), err)
@@ -355,7 +355,7 @@ func TestAgents(t *testing.T) {
 		setup(t)
 		defer teardown(t)
 
-		err := as.Remove(ctx, "no-such-id")
+		err := as.Remove(ctx, "no-such-id", false)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "no-such-id" not found.`), err)
 	})
 }

@@ -583,11 +583,15 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, req 
 }
 
 // Remove removes Agent, and sends state update to pmm-agent, or kicks it.
-func (as *AgentsService) Remove(ctx context.Context, id string) error {
+func (as *AgentsService) Remove(ctx context.Context, id string, force bool) error {
 	var removedAgent *models.Agent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
 		var err error
-		removedAgent, err = models.RemoveAgent(tx.Querier, id, models.RemoveRestrict)
+		mode := models.RemoveRestrict
+		if force {
+			mode = models.RemoveCascade
+		}
+		removedAgent, err = models.RemoveAgent(tx.Querier, id, mode)
 		return err
 	})
 	if e != nil {

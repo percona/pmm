@@ -156,9 +156,9 @@ func (s *servicesServer) AddPostgreSQLService(ctx context.Context, req *inventor
 	return res, nil
 }
 
-// RemoveService removes Service without any Agents.
+// RemoveService removes Service.
 func (s *servicesServer) RemoveService(ctx context.Context, req *inventorypb.RemoveServiceRequest) (*inventorypb.RemoveServiceResponse, error) {
-	if err := s.s.Remove(ctx, req.ServiceId); err != nil {
+	if err := s.s.Remove(ctx, req.ServiceId, req.Force); err != nil {
 		return nil, err
 	}
 

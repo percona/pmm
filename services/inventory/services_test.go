@@ -89,7 +89,7 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 1)
 		assert.Equal(t, expectedService, actualServices[0])
 
-		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000001")
+		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000001", false)
 		require.NoError(t, err)
 		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000001")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000001" not found.`), err)
@@ -120,7 +120,7 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 1)
 		assert.Equal(t, expectedMdbService, actualServices[0])
 
-		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000002")
+		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000002", false)
 		require.NoError(t, err)
 		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000002")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000002" not found.`), err)
@@ -151,7 +151,7 @@ func TestServices(t *testing.T) {
 		require.Len(t, actualServices, 1)
 		assert.Equal(t, expectedPostgreSQLService, actualServices[0])
 
-		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000003")
+		err = ss.Remove(ctx, "/service_id/00000000-0000-4000-8000-000000000003", false)
 		require.NoError(t, err)
 		actualService, err = ss.Get(ctx, "/service_id/00000000-0000-4000-8000-000000000003")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000003" not found.`), err)
@@ -205,7 +205,7 @@ func TestServices(t *testing.T) {
 		ss, teardown := setup(t)
 		defer teardown(t)
 
-		err := ss.Remove(ctx, "no-such-id")
+		err := ss.Remove(ctx, "no-such-id", false)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "no-such-id" not found.`), err)
 	})
 }

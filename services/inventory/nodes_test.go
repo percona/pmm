@@ -80,7 +80,7 @@ func TestNodes(t *testing.T) {
 		require.Len(t, nodesResponse, 2)
 		assert.Equal(t, expectedNode, nodesResponse[0])
 
-		err = ns.Remove(ctx, "/node_id/00000000-0000-4000-8000-000000000001")
+		err = ns.Remove(ctx, "/node_id/00000000-0000-4000-8000-000000000001", false)
 		require.NoError(t, err)
 		getNodeResponse, err = ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: "/node_id/00000000-0000-4000-8000-000000000001"})
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "/node_id/00000000-0000-4000-8000-000000000001" not found.`), err)
@@ -142,7 +142,7 @@ func TestNodes(t *testing.T) {
 		ns, teardown := setup(t)
 		defer teardown(t)
 
-		err := ns.Remove(ctx, "no-such-id")
+		err := ns.Remove(ctx, "no-such-id", false)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "no-such-id" not found.`), err)
 	})
 }

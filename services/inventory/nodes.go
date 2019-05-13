@@ -282,8 +282,12 @@ func (s *NodesService) AddRemoteAmazonRDSNode(ctx context.Context, req *inventor
 
 // Remove removes Node without any Agents and Services.
 //nolint:unparam
-func (s *NodesService) Remove(ctx context.Context, id string) error {
+func (s *NodesService) Remove(ctx context.Context, id string, force bool) error {
 	return s.db.InTransaction(func(tx *reform.TX) error {
-		return models.RemoveNode(tx.Querier, id, models.RemoveRestrict)
+		mode := models.RemoveRestrict
+		if force {
+			mode = models.RemoveCascade
+		}
+		return models.RemoveNode(tx.Querier, id, mode)
 	})
 }

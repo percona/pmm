@@ -116,20 +116,27 @@ func TestServiceHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		err := models.RemoveService(q, "")
+		err := models.RemoveService(q, "", models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Service ID.`), err)
 
-		err = models.RemoveService(q, "S0")
+		err = models.RemoveService(q, "S0", models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "S0" not found.`), err)
 
 		_, err = models.FindServiceByID(q, "S1")
 		require.NoError(t, err)
-		err = models.RemoveService(q, "S1")
+		err = models.RemoveService(q, "S1", models.RemoveRestrict)
 		assert.NoError(t, err)
 		_, err = models.FindServiceByID(q, "S1")
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "S1" not found.`), err)
 
-		err = models.RemoveService(q, "S2")
+		err = models.RemoveService(q, "S2", models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Service with ID "S2" has agents.`), err)
+
+		_, err = models.FindServiceByID(q, "S2")
+		require.NoError(t, err)
+		err = models.RemoveService(q, "S2", models.RemoveCascade)
+		assert.NoError(t, err)
+		_, err = models.FindServiceByID(q, "S2")
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "S2" not found.`), err)
 	})
 }

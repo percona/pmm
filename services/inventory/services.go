@@ -224,8 +224,12 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.Add
 
 // Remove removes Service without any Agents.
 //nolint:unparam
-func (ss *ServicesService) Remove(ctx context.Context, id string) error {
+func (ss *ServicesService) Remove(ctx context.Context, id string, force bool) error {
 	return ss.db.InTransaction(func(tx *reform.TX) error {
-		return models.RemoveService(tx.Querier, id)
+		mode := models.RemoveRestrict
+		if force {
+			mode = models.RemoveCascade
+		}
+		return models.RemoveService(tx.Querier, id, mode)
 	})
 }
