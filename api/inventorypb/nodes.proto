@@ -270,6 +270,8 @@ message RemoveNodeRequest {
       string_not_empty: true
     }
   ];
+  // Remove node with all dependencies.
+  bool force = 2;
 }
 
 message RemoveNodeResponse {}
