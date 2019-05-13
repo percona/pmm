@@ -671,3 +671,84 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 	})
 
 }
+
+func TestService_GetReport_Sparklines(t *testing.T) {
+	db := setup()
+	rm := models.NewReporter(db)
+	mm := models.NewMetrics(db)
+	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
+	t2, _ := time.Parse(time.RFC3339, "2019-01-01T01:00:00Z")
+
+	t.Run("sparklines_60_points", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+
+		in := qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
+			GroupBy:         "queryid",
+			Columns: []string{
+				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
+				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
+				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
+				"tmp_disk_tables", "tmp_table_sizes", "qc_hit", "full_scan", "full_join",
+				"tmp_table", "tmp_table_on_disk", "filesort", "filesort_on_disk",
+				"select_full_range_join", "select_range", "select_range_check",
+				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
+				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
+			OrderBy: "-load",
+			Offset:  0,
+			Limit:   10,
+		}
+
+		got, err := s.GetReport(context.TODO(), &in)
+		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_sparklines_60_points.json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+	})
+
+	t3, _ := time.Parse(time.RFC3339, "2019-01-01T01:30:00Z")
+	t.Run("sparklines_90_points", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+
+		in := qanpb.ReportRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t3.Unix()},
+			GroupBy:         "queryid",
+			Columns: []string{
+				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
+				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
+				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
+				"tmp_disk_tables", "tmp_table_sizes", "qc_hit", "full_scan", "full_join",
+				"tmp_table", "tmp_table_on_disk", "filesort", "filesort_on_disk",
+				"select_full_range_join", "select_range", "select_range_check",
+				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
+				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
+			OrderBy: "-load",
+			Offset:  0,
+			Limit:   10,
+		}
+
+		got, err := s.GetReport(context.TODO(), &in)
+		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_sparklines_90_points.json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
+	})
+}

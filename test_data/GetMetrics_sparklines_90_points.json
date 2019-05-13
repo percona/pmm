@@ -1,0 +1,1191 @@
+{
+	"metrics": {
+		"bytes_sent": {
+			"rate": 2.7203703,
+			"cnt": 13,
+			"sum": 14690,
+			"min": 113,
+			"max": 113,
+			"avg": 1130,
+			"p99": 113
+		},
+		"docs_returned": {},
+		"docs_scanned": {},
+		"filesort": {},
+		"filesort_on_disk": {},
+		"full_join": {},
+		"full_scan": {},
+		"innodb_io_r_bytes": {},
+		"innodb_io_r_ops": {},
+		"innodb_io_r_wait": {},
+		"innodb_pages_distinct": {},
+		"innodb_queue_wait": {},
+		"innodb_rec_lock_wait": {},
+		"lock_time": {
+			"cnt": 13
+		},
+		"merge_passes": {
+			"cnt": 13
+		},
+		"no_good_index_used": {},
+		"no_index_used": {},
+		"qc_hit": {},
+		"query_length": {},
+		"query_time": {
+			"rate": 8.592593e-7,
+			"cnt": 13,
+			"sum": 0.00464,
+			"min": 0.00003,
+			"max": 0.000045,
+			"avg": 0.00035692306,
+			"p99": 0.00003569231
+		},
+		"response_length": {},
+		"rows_affected": {
+			"cnt": 13
+		},
+		"rows_examined": {
+			"cnt": 13
+		},
+		"rows_read": {},
+		"rows_sent": {
+			"rate": 0.024074074,
+			"cnt": 13,
+			"sum": 130,
+			"min": 1,
+			"max": 1,
+			"avg": 10,
+			"p99": 1
+		},
+		"select_full_range_join": {},
+		"select_range": {},
+		"select_range_check": {},
+		"sort_range": {},
+		"sort_rows": {},
+		"sort_scan": {},
+		"tmp_disk_tables": {
+			"cnt": 13
+		},
+		"tmp_table": {},
+		"tmp_table_on_disk": {},
+		"tmp_table_sizes": {
+			"cnt": 13
+		},
+		"tmp_tables": {
+			"cnt": 13
+		}
+	},
+	"sparkline": [
+		{
+			"values": {
+				"point": 0,
+				"time_frame": 60,
+				"timestamp": 1546306200
+			}
+		},
+		{
+			"values": {
+				"point": 1,
+				"time_frame": 60,
+				"timestamp": 1546306200
+			}
+		},
+		{
+			"values": {
+				"point": 2,
+				"time_frame": 60,
+				"timestamp": 1546306000
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.0000050000003,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 1.7666667,
+				"point": 3,
+				"time_frame": 60,
+				"timestamp": 1546306000
+			}
+		},
+		{
+			"values": {
+				"point": 4,
+				"time_frame": 60,
+				"timestamp": 1546305900
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.0000051666666,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 53.75,
+				"point": 5,
+				"time_frame": 60,
+				"timestamp": 1546305900
+			}
+		},
+		{
+			"values": {
+				"point": 6,
+				"time_frame": 60,
+				"timestamp": 1546305800
+			}
+		},
+		{
+			"values": {
+				"point": 7,
+				"time_frame": 60,
+				"timestamp": 1546305800
+			}
+		},
+		{
+			"values": {
+				"point": 8,
+				"time_frame": 60,
+				"timestamp": 1546305700
+			}
+		},
+		{
+			"values": {
+				"point": 9,
+				"time_frame": 60,
+				"timestamp": 1546305700
+			}
+		},
+		{
+			"values": {
+				"point": 10,
+				"time_frame": 60,
+				"timestamp": 1546305500
+			}
+		},
+		{
+			"values": {
+				"point": 11,
+				"time_frame": 60,
+				"timestamp": 1546305500
+			}
+		},
+		{
+			"values": {
+				"point": 12,
+				"time_frame": 60,
+				"timestamp": 1546305500
+			}
+		},
+		{
+			"values": {
+				"point": 13,
+				"time_frame": 60,
+				"timestamp": 1546305400
+			}
+		},
+		{
+			"values": {
+				"point": 14,
+				"time_frame": 60,
+				"timestamp": 1546305400
+			}
+		},
+		{
+			"values": {
+				"point": 15,
+				"time_frame": 60,
+				"timestamp": 1546305300
+			}
+		},
+		{
+			"values": {
+				"point": 16,
+				"time_frame": 60,
+				"timestamp": 1546305300
+			}
+		},
+		{
+			"values": {
+				"point": 17,
+				"time_frame": 60,
+				"timestamp": 1546305200
+			}
+		},
+		{
+			"values": {
+				"point": 18,
+				"time_frame": 60,
+				"timestamp": 1546305200
+			}
+		},
+		{
+			"values": {
+				"point": 19,
+				"time_frame": 60,
+				"timestamp": 1546305000
+			}
+		},
+		{
+			"values": {
+				"point": 20,
+				"time_frame": 60,
+				"timestamp": 1546305000
+			}
+		},
+		{
+			"values": {
+				"point": 21,
+				"time_frame": 60,
+				"timestamp": 1546304900
+			}
+		},
+		{
+			"values": {
+				"point": 22,
+				"time_frame": 60,
+				"timestamp": 1546304900
+			}
+		},
+		{
+			"values": {
+				"point": 23,
+				"time_frame": 60,
+				"timestamp": 1546304800
+			}
+		},
+		{
+			"values": {
+				"point": 24,
+				"time_frame": 60,
+				"timestamp": 1546304800
+			}
+		},
+		{
+			"values": {
+				"point": 25,
+				"time_frame": 60,
+				"timestamp": 1546304600
+			}
+		},
+		{
+			"values": {
+				"point": 26,
+				"time_frame": 60,
+				"timestamp": 1546304600
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.0000073333335,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 162.86667,
+				"point": 27,
+				"time_frame": 60,
+				"timestamp": 1546304600
+			}
+		},
+		{
+			"values": {
+				"point": 28,
+				"time_frame": 60,
+				"timestamp": 1546304500
+			}
+		},
+		{
+			"values": {
+				"point": 29,
+				"time_frame": 60,
+				"timestamp": 1546304500
+			}
+		},
+		{
+			"values": {
+				"point": 30,
+				"time_frame": 60,
+				"timestamp": 1546304400
+			}
+		},
+		{
+			"values": {
+				"point": 31,
+				"time_frame": 60,
+				"timestamp": 1546304400
+			}
+		},
+		{
+			"values": {
+				"point": 32,
+				"time_frame": 60,
+				"timestamp": 1546304300
+			}
+		},
+		{
+			"values": {
+				"point": 33,
+				"time_frame": 60,
+				"timestamp": 1546304300
+			}
+		},
+		{
+			"values": {
+				"point": 34,
+				"time_frame": 60,
+				"timestamp": 1546304100
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.000005833333,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 78.083336,
+				"point": 35,
+				"time_frame": 60,
+				"timestamp": 1546304100
+			}
+		},
+		{
+			"values": {
+				"point": 36,
+				"time_frame": 60,
+				"timestamp": 1546304000
+			}
+		},
+		{
+			"values": {
+				"point": 37,
+				"time_frame": 60,
+				"timestamp": 1546304000
+			}
+		},
+		{
+			"values": {
+				"point": 38,
+				"time_frame": 60,
+				"timestamp": 1546303900
+			}
+		},
+		{
+			"values": {
+				"point": 39,
+				"time_frame": 60,
+				"timestamp": 1546303900
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.0000050000003,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 79.48333,
+				"point": 40,
+				"time_frame": 60,
+				"timestamp": 1546303700
+			}
+		},
+		{
+			"values": {
+				"point": 41,
+				"time_frame": 60,
+				"timestamp": 1546303700
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.0000075,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 115.86667,
+				"point": 42,
+				"time_frame": 60,
+				"timestamp": 1546303700
+			}
+		},
+		{
+			"values": {
+				"point": 43,
+				"time_frame": 60,
+				"timestamp": 1546303600
+			}
+		},
+		{
+			"values": {
+				"point": 44,
+				"time_frame": 60,
+				"timestamp": 1546303600
+			}
+		},
+		{
+			"values": {
+				"point": 45,
+				"time_frame": 60,
+				"timestamp": 1546303500
+			}
+		},
+		{
+			"values": {
+				"point": 46,
+				"time_frame": 60,
+				"timestamp": 1546303500
+			}
+		},
+		{
+			"values": {
+				"point": 47,
+				"time_frame": 60,
+				"timestamp": 1546303400
+			}
+		},
+		{
+			"values": {
+				"point": 48,
+				"time_frame": 60,
+				"timestamp": 1546303400
+			}
+		},
+		{
+			"values": {
+				"point": 49,
+				"time_frame": 60,
+				"timestamp": 1546303200
+			}
+		},
+		{
+			"values": {
+				"point": 50,
+				"time_frame": 60,
+				"timestamp": 1546303200
+			}
+		},
+		{
+			"values": {
+				"point": 51,
+				"time_frame": 60,
+				"timestamp": 1546303100
+			}
+		},
+		{
+			"values": {
+				"point": 52,
+				"time_frame": 60,
+				"timestamp": 1546303100
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.0000055,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 150.58333,
+				"point": 53,
+				"time_frame": 60,
+				"timestamp": 1546303000
+			}
+		},
+		{
+			"values": {
+				"point": 54,
+				"time_frame": 60,
+				"timestamp": 1546303000
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.000006,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 33.666668,
+				"point": 55,
+				"time_frame": 60,
+				"timestamp": 1546302800
+			}
+		},
+		{
+			"values": {
+				"point": 56,
+				"time_frame": 60,
+				"timestamp": 1546302800
+			}
+		},
+		{
+			"values": {
+				"point": 57,
+				"time_frame": 60,
+				"timestamp": 1546302700
+			}
+		},
+		{
+			"values": {
+				"point": 58,
+				"time_frame": 60,
+				"timestamp": 1546302700
+			}
+		},
+		{
+			"values": {
+				"point": 59,
+				"time_frame": 60,
+				"timestamp": 1546302700
+			}
+		},
+		{
+			"values": {
+				"point": 60,
+				"time_frame": 60,
+				"timestamp": 1546302600
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.0000050000003,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 152.86667,
+				"point": 61,
+				"time_frame": 60,
+				"timestamp": 1546302600
+			}
+		},
+		{
+			"values": {
+				"point": 62,
+				"time_frame": 60,
+				"timestamp": 1546302500
+			}
+		},
+		{
+			"values": {
+				"point": 63,
+				"time_frame": 60,
+				"timestamp": 1546302500
+			}
+		},
+		{
+			"values": {
+				"point": 64,
+				"time_frame": 60,
+				"timestamp": 1546302300
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.0000063333337,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 63.716667,
+				"point": 65,
+				"time_frame": 60,
+				"timestamp": 1546302300
+			}
+		},
+		{
+			"values": {
+				"point": 66,
+				"time_frame": 60,
+				"timestamp": 1546302200
+			}
+		},
+		{
+			"values": {
+				"point": 67,
+				"time_frame": 60,
+				"timestamp": 1546302200
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.0000055,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 164.56667,
+				"point": 68,
+				"time_frame": 60,
+				"timestamp": 1546302100
+			}
+		},
+		{
+			"values": {
+				"point": 69,
+				"time_frame": 60,
+				"timestamp": 1546302100
+			}
+		},
+		{
+			"values": {
+				"point": 70,
+				"time_frame": 60,
+				"timestamp": 1546302000
+			}
+		},
+		{
+			"values": {
+				"point": 71,
+				"time_frame": 60,
+				"timestamp": 1546302000
+			}
+		},
+		{
+			"values": {
+				"point": 72,
+				"time_frame": 60,
+				"timestamp": 1546301800
+			}
+		},
+		{
+			"values": {
+				"point": 73,
+				"time_frame": 60,
+				"timestamp": 1546301800
+			}
+		},
+		{
+			"values": {
+				"point": 74,
+				"time_frame": 60,
+				"timestamp": 1546301700
+			}
+		},
+		{
+			"values": {
+				"point": 75,
+				"time_frame": 60,
+				"timestamp": 1546301700
+			}
+		},
+		{
+			"values": {
+				"point": 76,
+				"time_frame": 60,
+				"timestamp": 1546301700
+			}
+		},
+		{
+			"values": {
+				"point": 77,
+				"time_frame": 60,
+				"timestamp": 1546301600
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.0000068333334,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 122.816666,
+				"point": 78,
+				"time_frame": 60,
+				"timestamp": 1546301600
+			}
+		},
+		{
+			"values": {
+				"point": 79,
+				"time_frame": 60,
+				"timestamp": 1546301400
+			}
+		},
+		{
+			"values": {
+				"point": 80,
+				"time_frame": 60,
+				"timestamp": 1546301400
+			}
+		},
+		{
+			"values": {
+				"point": 81,
+				"time_frame": 60,
+				"timestamp": 1546301300
+			}
+		},
+		{
+			"values": {
+				"point": 82,
+				"time_frame": 60,
+				"timestamp": 1546301300
+			}
+		},
+		{
+			"values": {
+				"point": 83,
+				"time_frame": 60,
+				"timestamp": 1546301200
+			}
+		},
+		{
+			"values": {
+				"point": 84,
+				"time_frame": 60,
+				"timestamp": 1546301200
+			}
+		},
+		{
+			"values": {
+				"point": 85,
+				"time_frame": 60,
+				"timestamp": 1546301000
+			}
+		},
+		{
+			"values": {
+				"point": 86,
+				"time_frame": 60,
+				"timestamp": 1546301000
+			}
+		},
+		{
+			"values": {
+				"m_bytes_sent_sum_per_sec": 18.833334,
+				"m_docs_returned_sum_per_sec": 0,
+				"m_docs_scanned_sum_per_sec": 0,
+				"m_filesort_on_disk_sum_per_sec": 0,
+				"m_filesort_sum_per_sec": 0,
+				"m_full_join_sum_per_sec": 0,
+				"m_full_scan_sum_per_sec": 0,
+				"m_innodb_io_r_bytes_sum_per_sec": 0,
+				"m_innodb_io_r_ops_sum_per_sec": 0,
+				"m_innodb_io_r_wait_sum_per_sec": 0,
+				"m_innodb_pages_distinct_sum_per_sec": 0,
+				"m_innodb_queue_wait_sum_per_sec": 0,
+				"m_innodb_rec_lock_wait_sum_per_sec": 0,
+				"m_lock_time_sum": 0,
+				"m_merge_passes_sum_per_sec": 0,
+				"m_no_good_index_used_sum_per_sec": 0,
+				"m_no_index_used_sum_per_sec": 0,
+				"m_qc_hit_sum_per_sec": 0,
+				"m_query_length_sum_per_sec": 0,
+				"m_query_time_per_sec": 0.0000063333337,
+				"m_response_length_sum_per_sec": 0,
+				"m_rows_affected_sum_per_sec": 0,
+				"m_rows_examined_sum_per_sec": 0,
+				"m_rows_read_sum_per_sec": 0,
+				"m_rows_sent_sum_per_sec": 0.16666667,
+				"m_select_full_range_join_sum_per_sec": 0,
+				"m_select_range_check_sum_per_sec": 0,
+				"m_select_range_sum_per_sec": 0,
+				"m_sort_range_sum_per_sec": 0,
+				"m_sort_rows_sum_per_sec": 0,
+				"m_sort_scan_sum_per_sec": 0,
+				"m_tmp_disk_tables_sum_per_sec": 0,
+				"m_tmp_table_on_disk_sum_per_sec": 0,
+				"m_tmp_table_sizes_sum_per_sec": 0,
+				"m_tmp_table_sum_per_sec": 0,
+				"m_tmp_tables_sum_per_sec": 0,
+				"num_queries_per_sec": 149.75,
+				"point": 87,
+				"time_frame": 60,
+				"timestamp": 1546300900
+			}
+		},
+		{
+			"values": {
+				"point": 88,
+				"time_frame": 60,
+				"timestamp": 1546300900
+			}
+		},
+		{
+			"values": {
+				"point": 89,
+				"time_frame": 60,
+				"timestamp": 1546300800
+			}
+		}
+	]
+}

@@ -33,6 +33,9 @@ import (
 	"github.com/percona/pmm/api/qanpb"
 )
 
+const maxAmountOfPoints = 120
+const minFullTimeFrame = 2 * time.Hour
+
 // Metrics represents methods to work with metrics.
 type Metrics struct {
 	db *sqlx.DB
@@ -361,12 +364,13 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 		}
 	}
 
-	// If time range is bigger then an hour - amount of sparklines points = 60 to avoid huge data in response.
+	// If time range is bigger then two hour - amount of sparklines points = 120 to avoid huge data in response.
 	// Otherwise amount of sparklines points is equal to minutes in in time range to not mess up calculation.
-	amountOfPoints := int64(60)
+	amountOfPoints := int64(maxAmountOfPoints)
 	timePeriod := periodStartToSec - periodStartFromSec
-	if timePeriod < int64((1 * time.Hour).Seconds()) {
-		amountOfPoints = timePeriod / 60 // minimum point is 1 minute
+	if timePeriod < int64((minFullTimeFrame).Seconds()) {
+		// minimum point is 1 minute
+		amountOfPoints = timePeriod / 60
 	}
 
 	arg := map[string]interface{}{

@@ -332,6 +332,29 @@ func TestService_GetMetrics(t *testing.T) {
 		require.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
+	t3, _ := time.Parse(time.RFC3339, "2019-01-01T01:30:00Z")
+	t.Run("sparklines_90_points", func(t *testing.T) {
+		s := &Service{
+			rm: rm,
+			mm: mm,
+		}
+		in := &qanpb.MetricsRequest{
+			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
+			PeriodStartTo:   &timestamp.Timestamp{Seconds: t3.Unix()},
+			GroupBy:         "queryid",
+			FilterBy:        "B305F6354FA21F2A",
+		}
+		got, err := s.GetMetrics(context.TODO(), in)
+		assert.NoError(t, err, "Unexpected error in Service.GetMetrics()")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetMetrics_sparklines_90_points.json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		require.JSONEq(t, string(expectedJSON), string(gotJSON))
+	})
+
 	t.Run("total", func(t *testing.T) {
 		s := &Service{
 			rm: rm,
