@@ -1506,7 +1506,7 @@ type ServicesClient interface {
 	AddMongoDBService(ctx context.Context, in *AddMongoDBServiceRequest, opts ...grpc.CallOption) (*AddMongoDBServiceResponse, error)
 	// AddPostgreSQLService adds PostgreSQL Service.
 	AddPostgreSQLService(ctx context.Context, in *AddPostgreSQLServiceRequest, opts ...grpc.CallOption) (*AddPostgreSQLServiceResponse, error)
-	// RemoveService removes Service without any Agents.
+	// RemoveService removes Service.
 	RemoveService(ctx context.Context, in *RemoveServiceRequest, opts ...grpc.CallOption) (*RemoveServiceResponse, error)
 }
 
@@ -1595,7 +1595,7 @@ type ServicesServer interface {
 	AddMongoDBService(context.Context, *AddMongoDBServiceRequest) (*AddMongoDBServiceResponse, error)
 	// AddPostgreSQLService adds PostgreSQL Service.
 	AddPostgreSQLService(context.Context, *AddPostgreSQLServiceRequest) (*AddPostgreSQLServiceResponse, error)
-	// RemoveService removes Service without any Agents.
+	// RemoveService removes Service.
 	RemoveService(context.Context, *RemoveServiceRequest) (*RemoveServiceResponse, error)
 }
 

@@ -4256,7 +4256,7 @@
         "tags": [
           "Nodes"
         ],
-        "summary": "RemoveNode removes Node without any Agents and Services.",
+        "summary": "RemoveNode removes Node.",
         "operationId": "RemoveNode",
         "parameters": [
           {
@@ -5265,7 +5265,7 @@
         "tags": [
           "Services"
         ],
-        "summary": "RemoveService removes Service without any Agents.",
+        "summary": "RemoveService removes Service.",
         "operationId": "RemoveService",
         "parameters": [
           {
