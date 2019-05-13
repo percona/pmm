@@ -18,18 +18,111 @@ package commands
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"strings"
+
+	"github.com/percona/pmm/nodeinfo"
+	"github.com/sirupsen/logrus"
 
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
-type configCommand struct{}
+type configResult struct {
+	Output string `json:"output"`
+}
+
+func (res *configResult) Result() {}
+
+func (res *configResult) String() string {
+	return res.Output
+}
+
+type configCommand struct {
+	NodeAddress string
+	NodeType    string
+	NodeName    string
+
+	NodeModel string
+	Region    string
+	Az        string
+
+	Force bool
+}
 
 func (cmd *configCommand) Run() (Result, error) {
-	return nil, fmt.Errorf("Please use `pmm-agent setup`.") //nolint:stylecheck,golint
+	var args []string
+
+	port := GlobalFlags.ServerURL.Port()
+	if port == "" {
+		port = "443"
+	}
+	args = append(args, fmt.Sprintf("--server-address=%s:%s", GlobalFlags.ServerURL.Hostname(), port))
+
+	if GlobalFlags.ServerURL.User != nil {
+		args = append(args, fmt.Sprintf("--server-username=%q", GlobalFlags.ServerURL.User.Username()))
+		password, ok := GlobalFlags.ServerURL.User.Password()
+		if ok {
+			args = append(args, fmt.Sprintf("--server-password=%q", password))
+		}
+	}
+
+	if GlobalFlags.ServerInsecureTLS {
+		args = append(args, "--server-insecure-tls")
+	}
+
+	if GlobalFlags.Debug {
+		args = append(args, "--debug")
+	}
+	if GlobalFlags.Trace {
+		args = append(args, "--trace")
+	}
+
+	args = append(args, "setup")
+	args = append(args, fmt.Sprintf("--node-model=%q", cmd.NodeModel))
+	args = append(args, fmt.Sprintf("--region=%q", cmd.Region))
+	args = append(args, fmt.Sprintf("--az=%q", cmd.Az))
+	if cmd.Force {
+		args = append(args, "--force")
+	}
+	args = append(args, cmd.NodeAddress, cmd.NodeType, cmd.NodeName)
+
+	c := exec.Command("pmm-agent", args...) //nolint:gosec
+	logrus.Debugf("Running: %s", strings.Join(c.Args, " "))
+	b, err := c.CombinedOutput()
+	res := &configResult{
+		Output: string(b),
+	}
+	return res, err
 }
 
 // register command
 var (
 	Config  = new(configCommand)
-	ConfigC = kingpin.Command("config", "Deprecated, please use `pmm-agent setup` instead.").Hidden()
+	ConfigC = kingpin.Command("config", "Configure local pmm-agent.")
 )
+
+func init() {
+	nodeinfo := nodeinfo.Get()
+	if nodeinfo.PublicAddress == "" {
+		ConfigC.Arg("node-address", "Node address.").Required().StringVar(&Config.NodeAddress)
+	} else {
+		help := fmt.Sprintf("Node address. Default: %s (autodetected).", nodeinfo.PublicAddress)
+		ConfigC.Arg("node-address", help).Default(nodeinfo.PublicAddress).StringVar(&Config.NodeAddress)
+	}
+
+	nodeTypeKeys := []string{"generic", "container"}
+	nodeTypeDefault := nodeTypeKeys[0]
+	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s. Default: %s.", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
+	ConfigC.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&Config.NodeType, nodeTypeKeys...)
+
+	hostname, _ := os.Hostname()
+	nodeNameHelp := fmt.Sprintf("Node name. Default: %s (autodetected).", hostname)
+	ConfigC.Arg("node-name", nodeNameHelp).Default(hostname).StringVar(&Config.NodeName)
+
+	ConfigC.Flag("node-model", "Node model.").StringVar(&Config.NodeModel)
+	ConfigC.Flag("region", "Node region.").StringVar(&Config.Region)
+	ConfigC.Flag("az", "Node availability zone.").StringVar(&Config.Az)
+
+	ConfigC.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist.").BoolVar(&Config.Force)
+}

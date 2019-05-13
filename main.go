@@ -23,10 +23,10 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"os/signal"
 
 	"github.com/go-openapi/runtime"
@@ -63,9 +63,9 @@ func main() {
 	kingpin.CommandLine.Version(version.FullInfo())
 
 	serverURLF := kingpin.Flag("server-url", "PMM Server URL.").String()
-	serverInsecureTLSF := kingpin.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation.").Bool()
-	debugF := kingpin.Flag("debug", "Enable debug logging.").Bool()
-	traceF := kingpin.Flag("trace", "Enable trace logging (implies debug).").Bool()
+	kingpin.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation.").BoolVar(&commands.GlobalFlags.ServerInsecureTLS)
+	kingpin.Flag("debug", "Enable debug logging.").BoolVar(&commands.GlobalFlags.Debug)
+	kingpin.Flag("trace", "Enable trace logging (implies debug).").BoolVar(&commands.GlobalFlags.Trace)
 	jsonF := kingpin.Flag("json", "Enable JSON output.").Bool()
 
 	cmd := kingpin.Parse()
@@ -74,10 +74,10 @@ func main() {
 	if *jsonF {
 		logrus.SetFormatter(&logrus.JSONFormatter{}) // with level and timestamps
 	}
-	if *debugF {
+	if commands.GlobalFlags.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
-	if *traceF {
+	if commands.GlobalFlags.Trace {
 		logrus.SetLevel(logrus.TraceLevel)
 		logrus.SetReportCaller(true) // https://github.com/sirupsen/logrus/issues/954
 	}
@@ -94,48 +94,45 @@ func main() {
 		cancel()
 	}()
 
-	agentlocal.SetTransport(ctx, *debugF || *traceF)
+	agentlocal.SetTransport(ctx, commands.GlobalFlags.Debug || commands.GlobalFlags.Trace)
 
-	var serverURL *url.URL
-	var serverInsecureTLS bool
 	if *serverURLF == "" {
 		status, err := agentlocal.GetStatus()
 		if err != nil {
 			if err == agentlocal.ErrNotSetUp {
 				logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+
-					"Please run `pmm-agent setup`.", err)
+					"Please run `pmm-admin config` with --server-url flag.", err)
 			}
 			logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+
 				"Please use --server-url flag to specify PMM Server URL.", err)
 		}
-		serverURL = status.ServerURL
-		serverInsecureTLS = status.ServerInsecureTLS
+		commands.GlobalFlags.ServerURL = status.ServerURL
+		commands.GlobalFlags.ServerInsecureTLS = status.ServerInsecureTLS
 	} else {
 		var err error
-		serverURL, err = url.Parse(*serverURLF)
+		commands.GlobalFlags.ServerURL, err = url.Parse(*serverURLF)
 		if err != nil {
 			logrus.Fatalf("Failed to parse PMM Server URL %q: %s.", *serverURLF, err)
 		}
-		if serverURL.Path == "" {
-			serverURL.Path = "/"
+		if commands.GlobalFlags.ServerURL.Path == "" {
+			commands.GlobalFlags.ServerURL.Path = "/"
 		}
-		if serverURL.Host == "" {
+		if commands.GlobalFlags.ServerURL.Host == "" {
 			logrus.Fatalf("Invalid PMM Server URL %q: host is missing.", *serverURLF)
 		}
-		if serverURL.Scheme == "" {
+		if commands.GlobalFlags.ServerURL.Scheme == "" {
 			logrus.Fatalf("Invalid PMM Server URL %q: scheme is missing.", *serverURLF)
 		}
-		serverInsecureTLS = *serverInsecureTLSF
 	}
 
 	// use JSON APIs over HTTP/1.1
-	transport := httptransport.New(serverURL.Host, serverURL.Path, []string{serverURL.Scheme})
+	transport := httptransport.New(commands.GlobalFlags.ServerURL.Host, commands.GlobalFlags.ServerURL.Path, []string{commands.GlobalFlags.ServerURL.Scheme})
 	// FIXME https://jira.percona.com/browse/PMM-3886
-	if serverURL.User != nil {
+	if commands.GlobalFlags.ServerURL.User != nil {
 		logrus.Panic("PMM Server authentication is not implemented yet.")
 	}
 	transport.SetLogger(logrus.WithField("component", "server-transport"))
-	transport.SetDebug(*debugF || *traceF)
+	transport.SetDebug(commands.GlobalFlags.Debug || commands.GlobalFlags.Trace)
 	transport.Context = ctx
 
 	// set error handlers for nginx responses if pmm-managed is down
@@ -153,15 +150,14 @@ func main() {
 	// disable HTTP/2, set TLS config
 	httpTransport := transport.Transport.(*http.Transport)
 	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
-	if serverURL.Scheme == "https" {
+	if commands.GlobalFlags.ServerURL.Scheme == "https" {
 		if httpTransport.TLSClientConfig == nil {
 			httpTransport.TLSClientConfig = new(tls.Config)
 		}
-		if serverInsecureTLS {
+		if commands.GlobalFlags.ServerInsecureTLS {
 			httpTransport.TLSClientConfig.InsecureSkipVerify = true
 		} else {
-			host, _, _ := net.SplitHostPort(serverURL.Host)
-			httpTransport.TLSClientConfig.ServerName = host
+			httpTransport.TLSClientConfig.ServerName = commands.GlobalFlags.ServerURL.Hostname()
 		}
 	}
 
@@ -278,6 +274,20 @@ func main() {
 		}
 
 		os.Exit(1)
+
+	case *exec.ExitError: // from config command that execs `pmm-agent setup`
+		if *jsonF {
+			b, jErr := json.Marshal(res)
+			if jErr != nil {
+				logrus.Infof("Result: %#v.", res)
+				logrus.Panicf("Failed to marshal result to JSON.\n%s.\nPlease report this bug.", jErr)
+			}
+			fmt.Printf("%s\n", b)
+		} else {
+			fmt.Println(res.String())
+		}
+
+		os.Exit(err.ExitCode())
 
 	default:
 		if *jsonF {

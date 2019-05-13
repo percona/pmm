@@ -50,7 +50,7 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		caller = fileVal + " " + funcVal + " "
 	}
 
-	fmt.Fprintf(b, "%s%-44s ", caller, entry.Message)
+	fmt.Fprintf(b, "%s%-44s\n", caller, entry.Message)
 
 	return b.Bytes(), nil
 }

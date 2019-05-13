@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"net/url"
 	"reflect"
 	"regexp"
 	"strings"
@@ -88,6 +89,16 @@ func RenderTemplate(t *template.Template, data interface{}) string {
 	}
 	return buf.String()
 }
+
+type globalFlagsValues struct {
+	ServerURL         *url.URL
+	ServerInsecureTLS bool
+	Debug             bool
+	Trace             bool
+}
+
+// GlobalFlags contains pmm-admin core flags values.
+var GlobalFlags = new(globalFlagsValues)
 
 func ParseCustomLabels(labels string) (map[string]string, error) {
 	if labels == "" {
