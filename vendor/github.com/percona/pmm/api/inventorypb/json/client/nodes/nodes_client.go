@@ -193,7 +193,7 @@ func (a *Client) ListNodes(params *ListNodesParams) (*ListNodesOK, error) {
 }
 
 /*
-RemoveNode removes node removes node without any agents and services
+RemoveNode removes node removes node
 */
 func (a *Client) RemoveNode(params *RemoveNodeParams) (*RemoveNodeOK, error) {
 	// TODO: Validate the params before sending

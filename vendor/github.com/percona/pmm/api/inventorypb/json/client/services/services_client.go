@@ -193,7 +193,7 @@ func (a *Client) ListServices(params *ListServicesParams) (*ListServicesOK, erro
 }
 
 /*
-RemoveService removes service removes service without any agents
+RemoveService removes service removes service
 */
 func (a *Client) RemoveService(params *RemoveServiceParams) (*RemoveServiceOK, error) {
 	// TODO: Validate the params before sending

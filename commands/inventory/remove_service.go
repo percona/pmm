@@ -37,12 +37,14 @@ func (res *removeServiceResult) String() string {
 
 type removeServiceCommand struct {
 	ServiceID string
+	Force     bool
 }
 
 func (cmd *removeServiceCommand) Run() (commands.Result, error) {
 	params := &services.RemoveServiceParams{
 		Body: services.RemoveServiceBody{
 			ServiceID: cmd.ServiceID,
+			Force:     cmd.Force,
 		},
 		Context: commands.Ctx,
 	}
@@ -61,4 +63,5 @@ var (
 
 func init() {
 	RemoveServiceC.Arg("service-id", "Service ID").StringVar(&RemoveService.ServiceID)
+	RemoveServiceC.Flag("force", "Remove service with all dependencies").BoolVar(&RemoveService.Force)
 }

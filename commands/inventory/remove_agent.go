@@ -37,12 +37,14 @@ func (res *removeAgentResult) String() string {
 
 type removeAgentCommand struct {
 	AgentID string
+	Force   bool
 }
 
 func (cmd *removeAgentCommand) Run() (commands.Result, error) {
 	params := &agents.RemoveAgentParams{
 		Body: agents.RemoveAgentBody{
 			AgentID: cmd.AgentID,
+			Force:   cmd.Force,
 		},
 		Context: commands.Ctx,
 	}
@@ -61,4 +63,5 @@ var (
 
 func init() {
 	RemoveAgentC.Arg("agent-id", "Agent ID").StringVar(&RemoveAgent.AgentID)
+	RemoveAgentC.Flag("force", "Remove agent with all dependencies").BoolVar(&RemoveAgent.Force)
 }

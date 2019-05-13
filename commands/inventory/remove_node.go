@@ -37,12 +37,14 @@ func (res *removeNodeResult) String() string {
 
 type removeNodeCommand struct {
 	NodeID string
+	Force  bool
 }
 
 func (cmd *removeNodeCommand) Run() (commands.Result, error) {
 	params := &nodes.RemoveNodeParams{
 		Body: nodes.RemoveNodeBody{
 			NodeID: cmd.NodeID,
+			Force:  cmd.Force,
 		},
 		Context: commands.Ctx,
 	}
@@ -61,4 +63,5 @@ var (
 
 func init() {
 	RemoveNodeC.Arg("node-id", "Node ID").StringVar(&RemoveNode.NodeID)
+	RemoveNodeC.Flag("force", "Remove node with all dependencies").BoolVar(&RemoveNode.Force)
 }
