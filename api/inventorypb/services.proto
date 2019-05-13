@@ -322,6 +322,8 @@ message RemoveServiceRequest {
       string_not_empty: true
     }
   ];
+  // Remove service with all dependencies.
+  bool force = 2;
 }
 
 message RemoveServiceResponse {}

@@ -115,6 +115,9 @@ type RemoveAgentBody struct {
 
 	// agent id
 	AgentID string `json:"agent_id,omitempty"`
+
+	// Remove agent with all dependencies.
+	Force bool `json:"force,omitempty"`
 }
 
 // Validate validates this remove agent body
