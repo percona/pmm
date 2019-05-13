@@ -1389,7 +1389,7 @@ type NodesClient interface {
 	AddRemoteNode(ctx context.Context, in *AddRemoteNodeRequest, opts ...grpc.CallOption) (*AddRemoteNodeResponse, error)
 	// AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
 	AddRemoteAmazonRDSNode(ctx context.Context, in *AddRemoteAmazonRDSNodeRequest, opts ...grpc.CallOption) (*AddRemoteAmazonRDSNodeResponse, error)
-	// RemoveNode removes Node without any Agents and Services.
+	// RemoveNode removes Node.
 	RemoveNode(ctx context.Context, in *RemoveNodeRequest, opts ...grpc.CallOption) (*RemoveNodeResponse, error)
 }
 
@@ -1478,7 +1478,7 @@ type NodesServer interface {
 	AddRemoteNode(context.Context, *AddRemoteNodeRequest) (*AddRemoteNodeResponse, error)
 	// AddRemoteAmazonRDSNode adds Amazon (AWS) RDS remote Node.
 	AddRemoteAmazonRDSNode(context.Context, *AddRemoteAmazonRDSNodeRequest) (*AddRemoteAmazonRDSNodeResponse, error)
-	// RemoveNode removes Node without any Agents and Services.
+	// RemoveNode removes Node.
 	RemoveNode(context.Context, *RemoveNodeRequest) (*RemoveNodeResponse, error)
 }
 
