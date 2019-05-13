@@ -19,6 +19,7 @@ package config
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -185,6 +186,8 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("NoFile", func(t *testing.T) {
+		wd, err := os.Getwd()
+		require.NoError(t, err)
 		name := t.Name()
 		actual, configFilePath, err := get([]string{
 			"--config-file=" + name,
@@ -208,7 +211,7 @@ func TestGet(t *testing.T) {
 			Debug: true,
 		}
 		assert.Equal(t, expected, actual)
-		assert.Equal(t, name, configFilePath)
-		assert.Equal(t, ErrConfigFileDoesNotExist(name), err)
+		assert.Equal(t, filepath.Join(wd, name), configFilePath)
+		assert.Equal(t, ErrConfigFileDoesNotExist(filepath.Join(wd, name)), err)
 	})
 }

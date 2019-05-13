@@ -23,6 +23,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/percona/pmm/nodeinfo"
@@ -151,9 +152,14 @@ func get(args []string, l *logrus.Entry) (*Config, string, error) {
 		return nil, "", err
 	}
 	if *configFileF == "" {
-		return cfg, *configFileF, nil
+		return cfg, "", nil
 	}
 
+	absConfigFileF, err := filepath.Abs(*configFileF)
+	if err != nil {
+		return nil, "", err
+	}
+	*configFileF = absConfigFileF
 	l.Debugf("Loading configuration file %s.", *configFileF)
 	fileCfg, err := loadFromFile(*configFileF)
 	if _, ok := err.(ErrConfigFileDoesNotExist); ok {
