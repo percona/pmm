@@ -31,6 +31,8 @@ script:
   - git status
   - git diff --exit-code
 
+  - go test -v ./...
+
 notifications:
   slack:
     on_success: change
