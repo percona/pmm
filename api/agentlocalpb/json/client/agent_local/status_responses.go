@@ -300,6 +300,9 @@ type StatusBody struct {
 
 	// TODO https://jira.percona.com/browse/PMM-3758
 	GetLogs bool `json:"get_logs,omitempty"`
+
+	// Returns network info if set true.
+	GetNetworkInfo bool `json:"get_network_info,omitempty"`
 }
 
 // Validate validates this status body
