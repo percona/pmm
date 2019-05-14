@@ -186,6 +186,9 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 					Payload: new(agentpb.QANCollectResponse),
 				})
 
+			case *agentpb.ActionResultRequest:
+				panic("TODO")
+
 			case nil:
 				l.Warnf("Unexpected request: %v.", req)
 				disconnectReason = "unimplemented"
