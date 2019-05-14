@@ -6,6 +6,7 @@ option go_package = "agentpb";
 
 import "google/protobuf/timestamp.proto";
 import "inventorypb/agent_status.proto";
+import "managementpb/actions.proto";
 import "qanpb/collector.proto";
 
 // Type represents Agent type.
@@ -81,19 +82,21 @@ message SetStateResponse {
 
 }
 
-// ActionName defines allowed action names.
-enum ActionName {
-  ACTION_NAME_INVALID = 0;
-  PT_SUMMARY = 1;
-  PT_MYSQL_SUMMARY = 2;
-  MYSQL_EXPLAIN = 3;
-}
-
 // StartActionRequest represents request to run an action by name.
 message StartActionRequest {
+  // ProcessParams describes parameters for all process actions.
+  message ProcessParams {
+    repeated string args = 1;
+  }
+  // MySQLExplainParams describes MySQL Explain action parameters.
+  message MySQLExplainParams {}
+
   string action_id = 1;
-  ActionName name = 2;
-  repeated string parameters = 3;
+  management.ActionType type = 2;
+  oneof params {
+    ProcessParams process_params = 3;
+    MySQLExplainParams mysql_explain_params = 4;
+  }
 }
 
 // StartActionResponse represents message with an response to starting an action.

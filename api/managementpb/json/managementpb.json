@@ -15,7 +15,7 @@
     "version": "beta"
   },
   "paths": {
-    "/v0/management/Actions/CancelAction": {
+    "/v0/management/Actions/Cancel": {
       "post": {
         "tags": [
           "Actions"
@@ -28,15 +28,10 @@
             "in": "body",
             "required": true,
             "schema": {
-              "description": "CancelActionRequest describes request to cancel an action.",
               "type": "object",
               "properties": {
                 "action_id": {
-                  "description": "Action name.",
-                  "type": "string"
-                },
-                "pmm_agent_id": {
-                  "description": "PMM agent instance identifier.",
+                  "description": "Unique Action ID.",
                   "type": "string"
                 }
               }
@@ -47,23 +42,7 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "CancelActionResponse describes response when an action was canceled.",
-              "type": "object",
-              "properties": {
-                "action_id": {
-                  "description": "Action name.",
-                  "type": "string"
-                },
-                "pmm_agent_id": {
-                  "description": "PMM agent instance identifier.",
-                  "type": "string"
-                },
-                "success": {
-                  "type": "boolean",
-                  "format": "boolean",
-                  "title": "Is action successfully canceled"
-                }
-              }
+              "type": "object"
             }
           },
           "default": {
@@ -88,24 +67,23 @@
         }
       }
     },
-    "/v0/management/Actions/GetActionResult": {
+    "/v0/management/Actions/Get": {
       "post": {
         "tags": [
           "Actions"
         ],
-        "summary": "GetActionResult gets an result of given Action.",
-        "operationId": "GetActionResult",
+        "summary": "GetAction gets an result of given Action.",
+        "operationId": "GetAction",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "GetActionResultRequest describes request to getting an action result.",
               "type": "object",
               "properties": {
                 "action_id": {
-                  "description": "Uniq action ID.",
+                  "description": "Unique Action ID.",
                   "type": "string"
                 }
               }
@@ -116,23 +94,27 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "GetActionResultResponse describes response while getting an action result.",
               "type": "object",
               "properties": {
                 "action_id": {
+                  "description": "Unique Action ID.",
                   "type": "string"
                 },
-                "err_code": {
-                  "type": "integer",
-                  "format": "int32"
+                "done": {
+                  "description": "True if Action is finished.",
+                  "type": "boolean",
+                  "format": "boolean"
                 },
-                "err_message": {
+                "error": {
+                  "description": "Error message if Action failed.",
                   "type": "string"
                 },
                 "output": {
+                  "description": "Current Action output; may be partial if Action is still running.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
+                  "description": "pmm-agent ID where this Action is running / was run.",
                   "type": "string"
                 }
               }
@@ -160,50 +142,27 @@
         }
       }
     },
-    "/v0/management/Actions/RunAction": {
+    "/v0/management/Actions/StartMySQLExplain": {
       "post": {
         "tags": [
           "Actions"
         ],
-        "summary": "RunAction runs an Action.",
-        "operationId": "RunAction",
+        "summary": "StartMySQLExplainAction starts MySQL EXPLAIN Action.",
+        "operationId": "StartMySQLExplainAction",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "description": "RunActionRequest describes request to run an action.",
               "type": "object",
               "properties": {
-                "action_name": {
-                  "description": "ActionName defines allowed action names.",
-                  "type": "string",
-                  "default": "ACTION_NAME_INVALID",
-                  "enum": [
-                    "ACTION_NAME_INVALID",
-                    "PT_SUMMARY",
-                    "PT_MYSQL_SUMMARY",
-                    "MYSQL_EXPLAIN"
-                  ]
-                },
-                "action_params": {
-                  "description": "action parameters.",
-                  "type": "array",
-                  "items": {
-                    "type": "string"
-                  }
-                },
-                "node_id": {
-                  "description": "Node ID for which action is running.",
-                  "type": "string"
-                },
                 "pmm_agent_id": {
-                  "description": "PMM agent instance identifier.",
+                  "description": "pmm-agent ID where to run this Action.",
                   "type": "string"
                 },
                 "service_id": {
-                  "description": "Service ID for which action is running.",
+                  "description": "Service ID for this Action.",
                   "type": "string"
                 }
               }
@@ -214,15 +173,146 @@
           "200": {
             "description": "A successful response.",
             "schema": {
-              "description": "RunActionResponse describes response while running an action.",
               "type": "object",
               "properties": {
                 "action_id": {
-                  "description": "Action ID returned by pmm-agent.",
+                  "description": "Unique Action ID.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
-                  "description": "PMM agent instance identifier.",
+                  "description": "pmm-agent ID where to this Action was started.",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v0/management/Actions/StartPTMySQLSummary": {
+      "post": {
+        "tags": [
+          "Actions"
+        ],
+        "summary": "StartPTMySQLSummaryAction starts pt-mysql-summary Action.",
+        "operationId": "StartPTMySQLSummaryAction",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to run this Action.",
+                  "type": "string"
+                },
+                "service_id": {
+                  "description": "Service ID for this Action.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "action_id": {
+                  "description": "Unique Action ID.",
+                  "type": "string"
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to this Action was started.",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "An error response.",
+            "schema": {
+              "description": "ErrorResponse is a message returned on HTTP error.",
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "integer",
+                  "format": "int32"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v0/management/Actions/StartPTSummary": {
+      "post": {
+        "tags": [
+          "Actions"
+        ],
+        "summary": "StartPTSummaryAction starts pt-summary Action.",
+        "operationId": "StartPTSummaryAction",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "node_id": {
+                  "description": "Node ID for this Action.",
+                  "type": "string"
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to run this Action.",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "action_id": {
+                  "description": "Unique Action ID.",
+                  "type": "string"
+                },
+                "pmm_agent_id": {
+                  "description": "pmm-agent ID where to this Action was started.",
                   "type": "string"
                 }
               }
