@@ -720,6 +720,8 @@ message RemoveAgentRequest {
       string_not_empty: true
     }
   ];
+  // Remove agent with all dependencies.
+  bool force = 2;
 }
 
 message RemoveAgentResponse {}

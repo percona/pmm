@@ -322,6 +322,8 @@ message RemoveServiceRequest {
       string_not_empty: true
     }
   ];
+  // Remove service with all dependencies.
+  bool force = 2;
 }
 
 message RemoveServiceResponse {}
@@ -370,7 +372,7 @@ service Services {
       body: "*"
     };
   }
-  // RemoveService removes Service without any Agents.
+  // RemoveService removes Service.
   rpc RemoveService(RemoveServiceRequest) returns (RemoveServiceResponse) {
     option (google.api.http) = {
       post: "/v0/inventory/Services/Remove"

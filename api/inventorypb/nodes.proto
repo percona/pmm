@@ -270,6 +270,8 @@ message RemoveNodeRequest {
       string_not_empty: true
     }
   ];
+  // Remove node with all dependencies.
+  bool force = 2;
 }
 
 message RemoveNodeResponse {}
@@ -318,7 +320,7 @@ service Nodes {
       body: "*"
     };
   }
-  // RemoveNode removes Node without any Agents and Services.
+  // RemoveNode removes Node.
   rpc RemoveNode(RemoveNodeRequest) returns (RemoveNodeResponse) {
     option (google.api.http) = {
       post: "/v0/inventory/Nodes/Remove"
