@@ -220,6 +220,12 @@ func (c *Client) processChannelRequests() {
 			c.supervisor.SetState(p)
 			responsePayload = new(agentpb.SetStateResponse)
 
+		case *agentpb.StartActionRequest:
+			panic("TODO")
+
+		case *agentpb.StopActionRequest:
+			panic("TODO")
+
 		case nil:
 			// Requests() is not closed, so exit early to break channel
 			c.l.Errorf("Unhandled server request: %v.", req)

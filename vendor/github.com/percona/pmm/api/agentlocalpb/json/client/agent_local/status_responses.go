@@ -123,7 +123,7 @@ type AgentsInfoItems0 struct {
 	AgentID string `json:"agent_id,omitempty"`
 
 	// Type represents Agent type.
-	// TODO Replace with inventory.AgentType.
+	// TODO Replace with inventory.AgentType. https://jira.percona.com/browse/PMM-3786
 	// Enum: [TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT RDS_EXPORTER]
 	AgentType *string `json:"agent_type,omitempty"`
 

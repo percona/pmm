@@ -221,6 +221,16 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.SetState,
 			}
+		case *agentpb.ServerMessage_StartAction:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.StartAction,
+			}
+		case *agentpb.ServerMessage_StopAction:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.StopAction,
+			}
 
 		// responses
 		case *agentpb.ServerMessage_Pong:
@@ -229,6 +239,8 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, p.StateChanged)
 		case *agentpb.ServerMessage_QanCollect:
 			c.publish(msg.Id, p.QanCollect)
+		case *agentpb.ServerMessage_ActionResult:
+			c.publish(msg.Id, p.ActionResult)
 
 		case nil:
 			c.close(errors.Errorf("failed to handle received message %s", msg))
