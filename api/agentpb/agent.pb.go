@@ -26,7 +26,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 // Type represents Agent type.
-// TODO Replace with inventory.AgentType.
+// TODO Replace with inventory.AgentType. https://jira.percona.com/browse/PMM-3786
 type Type int32
 
 const (

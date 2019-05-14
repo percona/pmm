@@ -9,7 +9,7 @@ import "inventorypb/agent_status.proto";
 import "qanpb/collector.proto";
 
 // Type represents Agent type.
-// TODO Replace with inventory.AgentType.
+// TODO Replace with inventory.AgentType. https://jira.percona.com/browse/PMM-3786
 enum Type {
   TYPE_INVALID = 0;
   PMM_AGENT = 1;
@@ -71,7 +71,7 @@ message SetStateRequest {
 
 // SetStateResponse is an AgentMessage for SetStateRequest acceptance.
 message SetStateResponse {
-  // TODO
+  // TODO https://jira.percona.com/browse/PMM-3786
   // Fatal errors:
   //   - invalid template
   //   - pmm-agent is shuting down

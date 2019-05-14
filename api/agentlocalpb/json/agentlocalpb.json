@@ -105,8 +105,8 @@
                         "type": "string"
                       },
                       "agent_type": {
-                        "description": "Type represents Agent type.\nTODO Replace with inventory.AgentType.",
                         "type": "string",
+                        "title": "Type represents Agent type.\nTODO Replace with inventory.AgentType. https://jira.percona.com/browse/PMM-3786",
                         "default": "TYPE_INVALID",
                         "enum": [
                           "TYPE_INVALID",
