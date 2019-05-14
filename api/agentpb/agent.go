@@ -7,12 +7,12 @@ import (
 //go-sumtype:decl isAgentMessage_Payload
 //go-sumtype:decl isServerMessage_Payload
 
-// code below uses the same order as definitions in agent.proto
-
 //go-sumtype:decl AgentRequestPayload
 //go-sumtype:decl AgentResponsePayload
 //go-sumtype:decl ServerResponsePayload
 //go-sumtype:decl ServerRequestPayload
+
+// code below uses the same order as payload types at AgentMessage / ServerMessage
 
 // AgentRequestPayload represents agent's request payload.
 type AgentRequestPayload interface {
@@ -59,7 +59,6 @@ func (m *Pong) AgentMessageResponsePayload() isAgentMessage_Payload {
 func (m *SetStateResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_SetState{SetState: m}
 }
-
 func (m *StartActionResponse) AgentMessageResponsePayload() isAgentMessage_Payload {
 	return &AgentMessage_StartAction{StartAction: m}
 }
@@ -88,7 +87,6 @@ func (m *Ping) ServerMessageRequestPayload() isServerMessage_Payload {
 func (m *SetStateRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_SetState{SetState: m}
 }
-
 func (m *StartActionRequest) ServerMessageRequestPayload() isServerMessage_Payload {
 	return &ServerMessage_StartAction{StartAction: m}
 }
@@ -96,20 +94,21 @@ func (m *StopActionRequest) ServerMessageRequestPayload() isServerMessage_Payloa
 	return &ServerMessage_StopAction{StopAction: m}
 }
 
-func (*Ping) sealed()                   {}
-func (m *StateChangedRequest) sealed()  {}
-func (m *QANCollectRequest) sealed()    {}
-func (*Pong) sealed()                   {}
-func (m *SetStateResponse) sealed()     {}
-func (m *StateChangedResponse) sealed() {}
-func (m *QANCollectResponse) sealed()   {}
-func (m *SetStateRequest) sealed()      {}
-func (m *StartActionRequest) sealed()   {}
-func (m *StopActionRequest) sealed()    {}
-func (m *StartActionResponse) sealed()  {}
-func (m *StopActionResponse) sealed()   {}
-func (m *ActionResultRequest) sealed()  {}
-func (m *ActionResultResponse) sealed() {}
+// in alphabetical order
+func (*ActionResultRequest) sealed()  {}
+func (*ActionResultResponse) sealed() {}
+func (*Ping) sealed()                 {}
+func (*Pong) sealed()                 {}
+func (*QANCollectRequest) sealed()    {}
+func (*QANCollectResponse) sealed()   {}
+func (*SetStateRequest) sealed()      {}
+func (*SetStateResponse) sealed()     {}
+func (*StartActionRequest) sealed()   {}
+func (*StartActionResponse) sealed()  {}
+func (*StateChangedRequest) sealed()  {}
+func (*StateChangedResponse) sealed() {}
+func (*StopActionRequest) sealed()    {}
+func (*StopActionResponse) sealed()   {}
 
 // check interfaces
 var (

@@ -9,7 +9,6 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 	_ "github.com/mwitkow/go-proto-validators"
-	agentpb "github.com/percona/pmm/api/agentpb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	grpc "google.golang.org/grpc"
 	math "math"
@@ -26,139 +25,451 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-// RunActionRequest describes request to run an action.
-type RunActionRequest struct {
-	// PMM agent instance identifier.
-	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
-	// Service ID for which action is running.
-	ServiceId string `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
-	// Node ID for which action is running.
-	NodeId string `protobuf:"bytes,3,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
-	// Action name to run.
-	ActionName agentpb.ActionName `protobuf:"varint,4,opt,name=action_name,json=actionName,proto3,enum=agent.ActionName" json:"action_name,omitempty"`
-	// action parameters.
-	ActionParams         []string `protobuf:"bytes,5,rep,name=action_params,json=actionParams,proto3" json:"action_params,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+// ActionType represents Action type.
+type ActionType int32
+
+const (
+	ActionType_ACTION_TYPE_INVALID ActionType = 0
+	ActionType_PT_SUMMARY          ActionType = 1
+	ActionType_PT_MYSQL_SUMMARY    ActionType = 2
+	ActionType_MYSQL_EXPLAIN       ActionType = 8
+)
+
+var ActionType_name = map[int32]string{
+	0: "ACTION_TYPE_INVALID",
+	1: "PT_SUMMARY",
+	2: "PT_MYSQL_SUMMARY",
+	8: "MYSQL_EXPLAIN",
 }
 
-func (m *RunActionRequest) Reset()         { *m = RunActionRequest{} }
-func (m *RunActionRequest) String() string { return proto.CompactTextString(m) }
-func (*RunActionRequest) ProtoMessage()    {}
-func (*RunActionRequest) Descriptor() ([]byte, []int) {
+var ActionType_value = map[string]int32{
+	"ACTION_TYPE_INVALID": 0,
+	"PT_SUMMARY":          1,
+	"PT_MYSQL_SUMMARY":    2,
+	"MYSQL_EXPLAIN":       8,
+}
+
+func (x ActionType) String() string {
+	return proto.EnumName(ActionType_name, int32(x))
+}
+
+func (ActionType) EnumDescriptor() ([]byte, []int) {
 	return fileDescriptor_e77c004b83b015d3, []int{0}
 }
 
-func (m *RunActionRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RunActionRequest.Unmarshal(m, b)
-}
-func (m *RunActionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RunActionRequest.Marshal(b, m, deterministic)
-}
-func (m *RunActionRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RunActionRequest.Merge(m, src)
-}
-func (m *RunActionRequest) XXX_Size() int {
-	return xxx_messageInfo_RunActionRequest.Size(m)
-}
-func (m *RunActionRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_RunActionRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_RunActionRequest proto.InternalMessageInfo
-
-func (m *RunActionRequest) GetPmmAgentId() string {
-	if m != nil {
-		return m.PmmAgentId
-	}
-	return ""
-}
-
-func (m *RunActionRequest) GetServiceId() string {
-	if m != nil {
-		return m.ServiceId
-	}
-	return ""
-}
-
-func (m *RunActionRequest) GetNodeId() string {
-	if m != nil {
-		return m.NodeId
-	}
-	return ""
-}
-
-func (m *RunActionRequest) GetActionName() agentpb.ActionName {
-	if m != nil {
-		return m.ActionName
-	}
-	return agentpb.ActionName_ACTION_NAME_INVALID
-}
-
-func (m *RunActionRequest) GetActionParams() []string {
-	if m != nil {
-		return m.ActionParams
-	}
-	return nil
-}
-
-// RunActionResponse describes response while running an action.
-type RunActionResponse struct {
-	// PMM agent instance identifier.
-	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
-	// Action ID returned by pmm-agent.
-	ActionId             string   `protobuf:"bytes,2,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
+type GetActionRequest struct {
+	// Unique Action ID.
+	ActionId             string   `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *RunActionResponse) Reset()         { *m = RunActionResponse{} }
-func (m *RunActionResponse) String() string { return proto.CompactTextString(m) }
-func (*RunActionResponse) ProtoMessage()    {}
-func (*RunActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{1}
+func (m *GetActionRequest) Reset()         { *m = GetActionRequest{} }
+func (m *GetActionRequest) String() string { return proto.CompactTextString(m) }
+func (*GetActionRequest) ProtoMessage()    {}
+func (*GetActionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e77c004b83b015d3, []int{0}
 }
 
-func (m *RunActionResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_RunActionResponse.Unmarshal(m, b)
+func (m *GetActionRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetActionRequest.Unmarshal(m, b)
 }
-func (m *RunActionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_RunActionResponse.Marshal(b, m, deterministic)
+func (m *GetActionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetActionRequest.Marshal(b, m, deterministic)
 }
-func (m *RunActionResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_RunActionResponse.Merge(m, src)
+func (m *GetActionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetActionRequest.Merge(m, src)
 }
-func (m *RunActionResponse) XXX_Size() int {
-	return xxx_messageInfo_RunActionResponse.Size(m)
+func (m *GetActionRequest) XXX_Size() int {
+	return xxx_messageInfo_GetActionRequest.Size(m)
 }
-func (m *RunActionResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_RunActionResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_RunActionResponse proto.InternalMessageInfo
-
-func (m *RunActionResponse) GetPmmAgentId() string {
-	if m != nil {
-		return m.PmmAgentId
-	}
-	return ""
+func (m *GetActionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetActionRequest.DiscardUnknown(m)
 }
 
-func (m *RunActionResponse) GetActionId() string {
+var xxx_messageInfo_GetActionRequest proto.InternalMessageInfo
+
+func (m *GetActionRequest) GetActionId() string {
 	if m != nil {
 		return m.ActionId
 	}
 	return ""
 }
 
-// CancelActionRequest describes request to cancel an action.
-type CancelActionRequest struct {
-	// PMM agent instance identifier.
+type GetActionResponse struct {
+	// Unique Action ID.
+	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
+	// pmm-agent ID where this Action is running / was run.
+	PmmAgentId string `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	// Current Action output; may be partial if Action is still running.
+	Output string `protobuf:"bytes,3,opt,name=output,proto3" json:"output,omitempty"`
+	// True if Action is finished.
+	Done bool `protobuf:"varint,4,opt,name=done,proto3" json:"done,omitempty"`
+	// Error message if Action failed.
+	Error                string   `protobuf:"bytes,5,opt,name=error,proto3" json:"error,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetActionResponse) Reset()         { *m = GetActionResponse{} }
+func (m *GetActionResponse) String() string { return proto.CompactTextString(m) }
+func (*GetActionResponse) ProtoMessage()    {}
+func (*GetActionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e77c004b83b015d3, []int{1}
+}
+
+func (m *GetActionResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetActionResponse.Unmarshal(m, b)
+}
+func (m *GetActionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetActionResponse.Marshal(b, m, deterministic)
+}
+func (m *GetActionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetActionResponse.Merge(m, src)
+}
+func (m *GetActionResponse) XXX_Size() int {
+	return xxx_messageInfo_GetActionResponse.Size(m)
+}
+func (m *GetActionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetActionResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetActionResponse proto.InternalMessageInfo
+
+func (m *GetActionResponse) GetActionId() string {
+	if m != nil {
+		return m.ActionId
+	}
+	return ""
+}
+
+func (m *GetActionResponse) GetPmmAgentId() string {
+	if m != nil {
+		return m.PmmAgentId
+	}
+	return ""
+}
+
+func (m *GetActionResponse) GetOutput() string {
+	if m != nil {
+		return m.Output
+	}
+	return ""
+}
+
+func (m *GetActionResponse) GetDone() bool {
+	if m != nil {
+		return m.Done
+	}
+	return false
+}
+
+func (m *GetActionResponse) GetError() string {
+	if m != nil {
+		return m.Error
+	}
+	return ""
+}
+
+type StartPTSummaryActionRequest struct {
+	// pmm-agent ID where to run this Action.
 	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
-	// Action name.
-	ActionId             string   `protobuf:"bytes,2,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
+	// Node ID for this Action.
+	NodeId               string   `protobuf:"bytes,2,opt,name=node_id,json=nodeId,proto3" json:"node_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StartPTSummaryActionRequest) Reset()         { *m = StartPTSummaryActionRequest{} }
+func (m *StartPTSummaryActionRequest) String() string { return proto.CompactTextString(m) }
+func (*StartPTSummaryActionRequest) ProtoMessage()    {}
+func (*StartPTSummaryActionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e77c004b83b015d3, []int{2}
+}
+
+func (m *StartPTSummaryActionRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StartPTSummaryActionRequest.Unmarshal(m, b)
+}
+func (m *StartPTSummaryActionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StartPTSummaryActionRequest.Marshal(b, m, deterministic)
+}
+func (m *StartPTSummaryActionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StartPTSummaryActionRequest.Merge(m, src)
+}
+func (m *StartPTSummaryActionRequest) XXX_Size() int {
+	return xxx_messageInfo_StartPTSummaryActionRequest.Size(m)
+}
+func (m *StartPTSummaryActionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_StartPTSummaryActionRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StartPTSummaryActionRequest proto.InternalMessageInfo
+
+func (m *StartPTSummaryActionRequest) GetPmmAgentId() string {
+	if m != nil {
+		return m.PmmAgentId
+	}
+	return ""
+}
+
+func (m *StartPTSummaryActionRequest) GetNodeId() string {
+	if m != nil {
+		return m.NodeId
+	}
+	return ""
+}
+
+type StartPTSummaryActionResponse struct {
+	// Unique Action ID.
+	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
+	// pmm-agent ID where to this Action was started.
+	PmmAgentId           string   `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StartPTSummaryActionResponse) Reset()         { *m = StartPTSummaryActionResponse{} }
+func (m *StartPTSummaryActionResponse) String() string { return proto.CompactTextString(m) }
+func (*StartPTSummaryActionResponse) ProtoMessage()    {}
+func (*StartPTSummaryActionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e77c004b83b015d3, []int{3}
+}
+
+func (m *StartPTSummaryActionResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StartPTSummaryActionResponse.Unmarshal(m, b)
+}
+func (m *StartPTSummaryActionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StartPTSummaryActionResponse.Marshal(b, m, deterministic)
+}
+func (m *StartPTSummaryActionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StartPTSummaryActionResponse.Merge(m, src)
+}
+func (m *StartPTSummaryActionResponse) XXX_Size() int {
+	return xxx_messageInfo_StartPTSummaryActionResponse.Size(m)
+}
+func (m *StartPTSummaryActionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_StartPTSummaryActionResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StartPTSummaryActionResponse proto.InternalMessageInfo
+
+func (m *StartPTSummaryActionResponse) GetActionId() string {
+	if m != nil {
+		return m.ActionId
+	}
+	return ""
+}
+
+func (m *StartPTSummaryActionResponse) GetPmmAgentId() string {
+	if m != nil {
+		return m.PmmAgentId
+	}
+	return ""
+}
+
+type StartPTMySQLSummaryActionRequest struct {
+	// pmm-agent ID where to run this Action.
+	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	// Service ID for this Action.
+	ServiceId            string   `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StartPTMySQLSummaryActionRequest) Reset()         { *m = StartPTMySQLSummaryActionRequest{} }
+func (m *StartPTMySQLSummaryActionRequest) String() string { return proto.CompactTextString(m) }
+func (*StartPTMySQLSummaryActionRequest) ProtoMessage()    {}
+func (*StartPTMySQLSummaryActionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e77c004b83b015d3, []int{4}
+}
+
+func (m *StartPTMySQLSummaryActionRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StartPTMySQLSummaryActionRequest.Unmarshal(m, b)
+}
+func (m *StartPTMySQLSummaryActionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StartPTMySQLSummaryActionRequest.Marshal(b, m, deterministic)
+}
+func (m *StartPTMySQLSummaryActionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StartPTMySQLSummaryActionRequest.Merge(m, src)
+}
+func (m *StartPTMySQLSummaryActionRequest) XXX_Size() int {
+	return xxx_messageInfo_StartPTMySQLSummaryActionRequest.Size(m)
+}
+func (m *StartPTMySQLSummaryActionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_StartPTMySQLSummaryActionRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StartPTMySQLSummaryActionRequest proto.InternalMessageInfo
+
+func (m *StartPTMySQLSummaryActionRequest) GetPmmAgentId() string {
+	if m != nil {
+		return m.PmmAgentId
+	}
+	return ""
+}
+
+func (m *StartPTMySQLSummaryActionRequest) GetServiceId() string {
+	if m != nil {
+		return m.ServiceId
+	}
+	return ""
+}
+
+type StartPTMySQLSummaryActionResponse struct {
+	// Unique Action ID.
+	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
+	// pmm-agent ID where to this Action was started.
+	PmmAgentId           string   `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StartPTMySQLSummaryActionResponse) Reset()         { *m = StartPTMySQLSummaryActionResponse{} }
+func (m *StartPTMySQLSummaryActionResponse) String() string { return proto.CompactTextString(m) }
+func (*StartPTMySQLSummaryActionResponse) ProtoMessage()    {}
+func (*StartPTMySQLSummaryActionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e77c004b83b015d3, []int{5}
+}
+
+func (m *StartPTMySQLSummaryActionResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StartPTMySQLSummaryActionResponse.Unmarshal(m, b)
+}
+func (m *StartPTMySQLSummaryActionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StartPTMySQLSummaryActionResponse.Marshal(b, m, deterministic)
+}
+func (m *StartPTMySQLSummaryActionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StartPTMySQLSummaryActionResponse.Merge(m, src)
+}
+func (m *StartPTMySQLSummaryActionResponse) XXX_Size() int {
+	return xxx_messageInfo_StartPTMySQLSummaryActionResponse.Size(m)
+}
+func (m *StartPTMySQLSummaryActionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_StartPTMySQLSummaryActionResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StartPTMySQLSummaryActionResponse proto.InternalMessageInfo
+
+func (m *StartPTMySQLSummaryActionResponse) GetActionId() string {
+	if m != nil {
+		return m.ActionId
+	}
+	return ""
+}
+
+func (m *StartPTMySQLSummaryActionResponse) GetPmmAgentId() string {
+	if m != nil {
+		return m.PmmAgentId
+	}
+	return ""
+}
+
+type StartMySQLExplainActionRequest struct {
+	// pmm-agent ID where to run this Action.
+	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	// Service ID for this Action.
+	ServiceId            string   `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StartMySQLExplainActionRequest) Reset()         { *m = StartMySQLExplainActionRequest{} }
+func (m *StartMySQLExplainActionRequest) String() string { return proto.CompactTextString(m) }
+func (*StartMySQLExplainActionRequest) ProtoMessage()    {}
+func (*StartMySQLExplainActionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e77c004b83b015d3, []int{6}
+}
+
+func (m *StartMySQLExplainActionRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StartMySQLExplainActionRequest.Unmarshal(m, b)
+}
+func (m *StartMySQLExplainActionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StartMySQLExplainActionRequest.Marshal(b, m, deterministic)
+}
+func (m *StartMySQLExplainActionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StartMySQLExplainActionRequest.Merge(m, src)
+}
+func (m *StartMySQLExplainActionRequest) XXX_Size() int {
+	return xxx_messageInfo_StartMySQLExplainActionRequest.Size(m)
+}
+func (m *StartMySQLExplainActionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_StartMySQLExplainActionRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StartMySQLExplainActionRequest proto.InternalMessageInfo
+
+func (m *StartMySQLExplainActionRequest) GetPmmAgentId() string {
+	if m != nil {
+		return m.PmmAgentId
+	}
+	return ""
+}
+
+func (m *StartMySQLExplainActionRequest) GetServiceId() string {
+	if m != nil {
+		return m.ServiceId
+	}
+	return ""
+}
+
+type StartMySQLExplainActionResponse struct {
+	// Unique Action ID.
+	ActionId string `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
+	// pmm-agent ID where to this Action was started.
+	PmmAgentId           string   `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *StartMySQLExplainActionResponse) Reset()         { *m = StartMySQLExplainActionResponse{} }
+func (m *StartMySQLExplainActionResponse) String() string { return proto.CompactTextString(m) }
+func (*StartMySQLExplainActionResponse) ProtoMessage()    {}
+func (*StartMySQLExplainActionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_e77c004b83b015d3, []int{7}
+}
+
+func (m *StartMySQLExplainActionResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_StartMySQLExplainActionResponse.Unmarshal(m, b)
+}
+func (m *StartMySQLExplainActionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_StartMySQLExplainActionResponse.Marshal(b, m, deterministic)
+}
+func (m *StartMySQLExplainActionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StartMySQLExplainActionResponse.Merge(m, src)
+}
+func (m *StartMySQLExplainActionResponse) XXX_Size() int {
+	return xxx_messageInfo_StartMySQLExplainActionResponse.Size(m)
+}
+func (m *StartMySQLExplainActionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_StartMySQLExplainActionResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_StartMySQLExplainActionResponse proto.InternalMessageInfo
+
+func (m *StartMySQLExplainActionResponse) GetActionId() string {
+	if m != nil {
+		return m.ActionId
+	}
+	return ""
+}
+
+func (m *StartMySQLExplainActionResponse) GetPmmAgentId() string {
+	if m != nil {
+		return m.PmmAgentId
+	}
+	return ""
+}
+
+type CancelActionRequest struct {
+	// Unique Action ID.
+	ActionId             string   `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -168,7 +479,7 @@ func (m *CancelActionRequest) Reset()         { *m = CancelActionRequest{} }
 func (m *CancelActionRequest) String() string { return proto.CompactTextString(m) }
 func (*CancelActionRequest) ProtoMessage()    {}
 func (*CancelActionRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{2}
+	return fileDescriptor_e77c004b83b015d3, []int{8}
 }
 
 func (m *CancelActionRequest) XXX_Unmarshal(b []byte) error {
@@ -189,13 +500,6 @@ func (m *CancelActionRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CancelActionRequest proto.InternalMessageInfo
 
-func (m *CancelActionRequest) GetPmmAgentId() string {
-	if m != nil {
-		return m.PmmAgentId
-	}
-	return ""
-}
-
 func (m *CancelActionRequest) GetActionId() string {
 	if m != nil {
 		return m.ActionId
@@ -203,14 +507,7 @@ func (m *CancelActionRequest) GetActionId() string {
 	return ""
 }
 
-// CancelActionResponse describes response when an action was canceled.
 type CancelActionResponse struct {
-	// PMM agent instance identifier.
-	PmmAgentId string `protobuf:"bytes,1,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
-	// Action name.
-	ActionId string `protobuf:"bytes,2,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
-	// Is action successfully canceled
-	Success              bool     `protobuf:"varint,3,opt,name=success,proto3" json:"success,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -220,7 +517,7 @@ func (m *CancelActionResponse) Reset()         { *m = CancelActionResponse{} }
 func (m *CancelActionResponse) String() string { return proto.CompactTextString(m) }
 func (*CancelActionResponse) ProtoMessage()    {}
 func (*CancelActionResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{3}
+	return fileDescriptor_e77c004b83b015d3, []int{9}
 }
 
 func (m *CancelActionResponse) XXX_Unmarshal(b []byte) error {
@@ -241,191 +538,69 @@ func (m *CancelActionResponse) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_CancelActionResponse proto.InternalMessageInfo
 
-func (m *CancelActionResponse) GetPmmAgentId() string {
-	if m != nil {
-		return m.PmmAgentId
-	}
-	return ""
-}
-
-func (m *CancelActionResponse) GetActionId() string {
-	if m != nil {
-		return m.ActionId
-	}
-	return ""
-}
-
-func (m *CancelActionResponse) GetSuccess() bool {
-	if m != nil {
-		return m.Success
-	}
-	return false
-}
-
-// GetActionResultRequest describes request to getting an action result.
-type GetActionResultRequest struct {
-	// Uniq action ID.
-	ActionId             string   `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *GetActionResultRequest) Reset()         { *m = GetActionResultRequest{} }
-func (m *GetActionResultRequest) String() string { return proto.CompactTextString(m) }
-func (*GetActionResultRequest) ProtoMessage()    {}
-func (*GetActionResultRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{4}
-}
-
-func (m *GetActionResultRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetActionResultRequest.Unmarshal(m, b)
-}
-func (m *GetActionResultRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetActionResultRequest.Marshal(b, m, deterministic)
-}
-func (m *GetActionResultRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetActionResultRequest.Merge(m, src)
-}
-func (m *GetActionResultRequest) XXX_Size() int {
-	return xxx_messageInfo_GetActionResultRequest.Size(m)
-}
-func (m *GetActionResultRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetActionResultRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetActionResultRequest proto.InternalMessageInfo
-
-func (m *GetActionResultRequest) GetActionId() string {
-	if m != nil {
-		return m.ActionId
-	}
-	return ""
-}
-
-// GetActionResultResponse describes response while getting an action result.
-type GetActionResultResponse struct {
-	ActionId             string   `protobuf:"bytes,1,opt,name=action_id,json=actionId,proto3" json:"action_id,omitempty"`
-	PmmAgentId           string   `protobuf:"bytes,2,opt,name=pmm_agent_id,json=pmmAgentId,proto3" json:"pmm_agent_id,omitempty"`
-	ErrCode              int32    `protobuf:"varint,3,opt,name=err_code,json=errCode,proto3" json:"err_code,omitempty"`
-	ErrMessage           string   `protobuf:"bytes,4,opt,name=err_message,json=errMessage,proto3" json:"err_message,omitempty"`
-	Output               string   `protobuf:"bytes,5,opt,name=output,proto3" json:"output,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *GetActionResultResponse) Reset()         { *m = GetActionResultResponse{} }
-func (m *GetActionResultResponse) String() string { return proto.CompactTextString(m) }
-func (*GetActionResultResponse) ProtoMessage()    {}
-func (*GetActionResultResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_e77c004b83b015d3, []int{5}
-}
-
-func (m *GetActionResultResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetActionResultResponse.Unmarshal(m, b)
-}
-func (m *GetActionResultResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetActionResultResponse.Marshal(b, m, deterministic)
-}
-func (m *GetActionResultResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetActionResultResponse.Merge(m, src)
-}
-func (m *GetActionResultResponse) XXX_Size() int {
-	return xxx_messageInfo_GetActionResultResponse.Size(m)
-}
-func (m *GetActionResultResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetActionResultResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_GetActionResultResponse proto.InternalMessageInfo
-
-func (m *GetActionResultResponse) GetActionId() string {
-	if m != nil {
-		return m.ActionId
-	}
-	return ""
-}
-
-func (m *GetActionResultResponse) GetPmmAgentId() string {
-	if m != nil {
-		return m.PmmAgentId
-	}
-	return ""
-}
-
-func (m *GetActionResultResponse) GetErrCode() int32 {
-	if m != nil {
-		return m.ErrCode
-	}
-	return 0
-}
-
-func (m *GetActionResultResponse) GetErrMessage() string {
-	if m != nil {
-		return m.ErrMessage
-	}
-	return ""
-}
-
-func (m *GetActionResultResponse) GetOutput() string {
-	if m != nil {
-		return m.Output
-	}
-	return ""
-}
-
 func init() {
-	proto.RegisterType((*RunActionRequest)(nil), "management.RunActionRequest")
-	proto.RegisterType((*RunActionResponse)(nil), "management.RunActionResponse")
+	proto.RegisterEnum("management.ActionType", ActionType_name, ActionType_value)
+	proto.RegisterType((*GetActionRequest)(nil), "management.GetActionRequest")
+	proto.RegisterType((*GetActionResponse)(nil), "management.GetActionResponse")
+	proto.RegisterType((*StartPTSummaryActionRequest)(nil), "management.StartPTSummaryActionRequest")
+	proto.RegisterType((*StartPTSummaryActionResponse)(nil), "management.StartPTSummaryActionResponse")
+	proto.RegisterType((*StartPTMySQLSummaryActionRequest)(nil), "management.StartPTMySQLSummaryActionRequest")
+	proto.RegisterType((*StartPTMySQLSummaryActionResponse)(nil), "management.StartPTMySQLSummaryActionResponse")
+	proto.RegisterType((*StartMySQLExplainActionRequest)(nil), "management.StartMySQLExplainActionRequest")
+	proto.RegisterType((*StartMySQLExplainActionResponse)(nil), "management.StartMySQLExplainActionResponse")
 	proto.RegisterType((*CancelActionRequest)(nil), "management.CancelActionRequest")
 	proto.RegisterType((*CancelActionResponse)(nil), "management.CancelActionResponse")
-	proto.RegisterType((*GetActionResultRequest)(nil), "management.GetActionResultRequest")
-	proto.RegisterType((*GetActionResultResponse)(nil), "management.GetActionResultResponse")
 }
 
 func init() { proto.RegisterFile("managementpb/actions.proto", fileDescriptor_e77c004b83b015d3) }
 
 var fileDescriptor_e77c004b83b015d3 = []byte{
-	// 604 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x94, 0xc1, 0x6e, 0xd3, 0x4c,
-	0x10, 0xc7, 0xe5, 0xf6, 0x6b, 0xd3, 0x4c, 0xf3, 0x01, 0xdd, 0xa2, 0x36, 0x98, 0x56, 0xb5, 0x1c,
-	0x01, 0xa1, 0x25, 0x36, 0x14, 0xc1, 0xa1, 0xb7, 0x50, 0x21, 0x14, 0x09, 0x2a, 0x64, 0x71, 0xe2,
-	0x12, 0x6d, 0xed, 0xa9, 0xb1, 0xc8, 0xee, 0x9a, 0xdd, 0x75, 0x7b, 0x86, 0x3b, 0x17, 0xe0, 0x31,
-	0x78, 0x0d, 0x9e, 0x80, 0x57, 0xe0, 0x41, 0x90, 0x77, 0xdd, 0xd4, 0x4d, 0x9a, 0x08, 0x24, 0x4e,
-	0xf6, 0xce, 0xff, 0x3f, 0xb3, 0xbf, 0x59, 0x8f, 0x17, 0x5c, 0x46, 0x39, 0x4d, 0x91, 0x21, 0xd7,
-	0xf9, 0x71, 0x48, 0x63, 0x9d, 0x09, 0xae, 0x82, 0x5c, 0x0a, 0x2d, 0x08, 0x5c, 0x68, 0xee, 0x3a,
-	0x4d, 0x2b, 0x4b, 0xf9, 0xb4, 0x06, 0xf7, 0x69, 0x9a, 0xe9, 0x77, 0xc5, 0x71, 0x10, 0x0b, 0x16,
-	0xb2, 0xb3, 0x4c, 0xbf, 0x17, 0x67, 0x61, 0x2a, 0x7a, 0x46, 0xec, 0x9d, 0xd2, 0x51, 0x96, 0x50,
-	0x2d, 0xa4, 0x0a, 0xc7, 0xaf, 0x55, 0xde, 0x56, 0x2a, 0x44, 0x3a, 0xc2, 0x90, 0xe6, 0x59, 0x48,
-	0x39, 0x17, 0x9a, 0xd6, 0xb6, 0x75, 0x1f, 0x98, 0x47, 0xdc, 0x4b, 0x91, 0xf7, 0xd4, 0x19, 0x4d,
-	0x53, 0x94, 0xa1, 0xc8, 0x8d, 0x63, 0xda, 0xed, 0xff, 0x70, 0xe0, 0x46, 0x54, 0xf0, 0xbe, 0x21,
-	0x8f, 0xf0, 0x43, 0x81, 0x4a, 0x13, 0x0f, 0x5a, 0x39, 0x63, 0x43, 0xc3, 0x3a, 0xcc, 0x92, 0xb6,
-	0xe3, 0x39, 0xdd, 0x66, 0x04, 0x39, 0x63, 0xfd, 0x32, 0x34, 0x48, 0xc8, 0x36, 0x80, 0x42, 0x79,
-	0x9a, 0xc5, 0x58, 0xea, 0x0b, 0x46, 0x6f, 0x56, 0x91, 0x41, 0x42, 0x36, 0xa1, 0xc1, 0x45, 0x62,
-	0xb4, 0x45, 0xa3, 0x2d, 0x97, 0xcb, 0x41, 0x42, 0xf6, 0x61, 0xd5, 0x1e, 0xd2, 0x90, 0x53, 0x86,
-	0xed, 0xff, 0x3c, 0xa7, 0x7b, 0x6d, 0x7f, 0x2d, 0xb0, 0xa7, 0x62, 0x21, 0x8e, 0x28, 0xc3, 0x08,
-	0xe8, 0xf8, 0x9d, 0x74, 0xe0, 0xff, 0x2a, 0x27, 0xa7, 0x92, 0x32, 0xd5, 0x5e, 0xf2, 0x16, 0xbb,
-	0xcd, 0xa8, 0x65, 0x83, 0xaf, 0x4d, 0xcc, 0x8f, 0x60, 0xad, 0xd6, 0x86, 0xca, 0x05, 0x57, 0xf8,
-	0x07, 0x7d, 0xdc, 0x86, 0x66, 0x55, 0x7b, 0xdc, 0xc6, 0x8a, 0x0d, 0x0c, 0x12, 0xff, 0x0d, 0xac,
-	0x1f, 0x52, 0x1e, 0xe3, 0xe8, 0x6f, 0x4f, 0x67, 0x6e, 0x55, 0x01, 0x37, 0x2f, 0x57, 0xfd, 0x27,
-	0xb0, 0xa4, 0x0d, 0x0d, 0x55, 0xc4, 0x31, 0x2a, 0x65, 0x8e, 0x7c, 0x25, 0x3a, 0x5f, 0xfa, 0x4f,
-	0x60, 0xe3, 0x05, 0xea, 0xf1, 0x6e, 0xc5, 0x48, 0x9f, 0x77, 0x72, 0xa9, 0xa0, 0x33, 0xc1, 0xf9,
-	0xdd, 0x81, 0xcd, 0xa9, 0xbc, 0x8a, 0x75, 0x5e, 0xe2, 0x54, 0x23, 0x0b, 0x53, 0x8d, 0xdc, 0x82,
-	0x15, 0x94, 0x72, 0x18, 0x8b, 0x04, 0x0d, 0xec, 0x52, 0xd4, 0x40, 0x29, 0x0f, 0x45, 0x82, 0x64,
-	0x07, 0x56, 0x4b, 0x89, 0xa1, 0x52, 0x34, 0xb5, 0x03, 0xd2, 0x8c, 0x00, 0xa5, 0x7c, 0x65, 0x23,
-	0x64, 0x03, 0x96, 0x45, 0xa1, 0xf3, 0x42, 0xb7, 0x97, 0xec, 0x64, 0xd9, 0xd5, 0xfe, 0xb7, 0x45,
-	0x68, 0x58, 0x56, 0x45, 0x0a, 0x68, 0x8e, 0x87, 0x81, 0x6c, 0x05, 0x17, 0xff, 0x61, 0x30, 0x39,
-	0xea, 0xee, 0xf6, 0x0c, 0xd5, 0x36, 0xea, 0xef, 0x7d, 0xfa, 0xf9, 0xeb, 0xeb, 0xc2, 0x1d, 0xdf,
-	0x0b, 0x4f, 0x1f, 0x86, 0x17, 0xce, 0xb0, 0xda, 0x29, 0x1c, 0x67, 0x1c, 0x38, 0xbb, 0xe4, 0xa3,
-	0x03, 0xad, 0xfa, 0xa7, 0x25, 0x3b, 0xf5, 0xe2, 0x57, 0x8c, 0x92, 0xeb, 0xcd, 0x36, 0x54, 0x00,
-	0x81, 0x01, 0xe8, 0xfa, 0x9d, 0x19, 0x00, 0xf5, 0xa4, 0x92, 0xe1, 0xb3, 0x03, 0xd7, 0x27, 0xbe,
-	0x1a, 0xf1, 0xeb, 0xbb, 0x5c, 0x3d, 0x0a, 0x6e, 0x67, 0xae, 0xa7, 0x82, 0x79, 0x64, 0x60, 0xf6,
-	0xfc, 0xbb, 0x33, 0x60, 0x26, 0xf2, 0x0e, 0x9c, 0xdd, 0x67, 0xc3, 0x2f, 0xfd, 0xa3, 0xe8, 0x25,
-	0x34, 0x12, 0x3c, 0xa1, 0x25, 0x4b, 0x1f, 0x48, 0x9f, 0x7b, 0x28, 0xa5, 0x90, 0x9e, 0xac, 0xea,
-	0x06, 0x64, 0x0f, 0xee, 0xbb, 0xf7, 0x3a, 0x61, 0x82, 0x27, 0x19, 0xcf, 0x6c, 0xad, 0xfa, 0xc5,
-	0xfa, 0xbc, 0xb4, 0x9f, 0x53, 0xbc, 0x6d, 0xd5, 0xa5, 0xe3, 0x65, 0x73, 0x8f, 0x3d, 0xfe, 0x1d,
-	0x00, 0x00, 0xff, 0xff, 0x8b, 0xea, 0xd6, 0xe7, 0x8a, 0x05, 0x00, 0x00,
+	// 710 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x95, 0xe1, 0x4e, 0xd3, 0x50,
+	0x14, 0xc7, 0xed, 0x84, 0xc1, 0x4e, 0xd0, 0x8c, 0xcb, 0x02, 0xb3, 0x80, 0x9b, 0x25, 0x84, 0x39,
+	0xd8, 0x4a, 0x20, 0x6a, 0xc2, 0xb7, 0x82, 0x0b, 0x69, 0xb2, 0xcd, 0xb1, 0x4d, 0x03, 0x26, 0x3a,
+	0xef, 0xd6, 0x4b, 0x6d, 0x5c, 0x7b, 0x6b, 0x7b, 0x07, 0x12, 0xbf, 0xf9, 0x08, 0xea, 0x37, 0x1f,
+	0xc0, 0x8f, 0x3e, 0x8c, 0x0f, 0x60, 0x62, 0x7c, 0x01, 0xdf, 0xc0, 0xf4, 0xb6, 0xb2, 0x8e, 0xad,
+	0x93, 0x98, 0x7d, 0x5a, 0xef, 0x39, 0xff, 0x73, 0xfe, 0xbf, 0x93, 0xdc, 0xb3, 0x0b, 0xa2, 0x89,
+	0x2d, 0xac, 0x13, 0x93, 0x58, 0xcc, 0x6e, 0xcb, 0xb8, 0xc3, 0x0c, 0x6a, 0xb9, 0x45, 0xdb, 0xa1,
+	0x8c, 0x22, 0xe8, 0xe7, 0xc4, 0x87, 0xba, 0xc1, 0x5e, 0xf7, 0xda, 0xc5, 0x0e, 0x35, 0x65, 0xf3,
+	0xdc, 0x60, 0x6f, 0xe8, 0xb9, 0xac, 0xd3, 0x02, 0x17, 0x16, 0xce, 0x70, 0xd7, 0xd0, 0x30, 0xa3,
+	0x8e, 0x2b, 0x5f, 0x7e, 0xfa, 0x3d, 0xc4, 0x15, 0x9d, 0x52, 0xbd, 0x4b, 0x64, 0x6c, 0x1b, 0x32,
+	0xb6, 0x2c, 0xca, 0x70, 0xc8, 0x41, 0xdc, 0xe2, 0x3f, 0x9d, 0x82, 0x4e, 0xac, 0x82, 0x7b, 0x8e,
+	0x75, 0x9d, 0x38, 0x32, 0xb5, 0xb9, 0x62, 0x58, 0x2d, 0x3d, 0x82, 0xe4, 0x21, 0x61, 0x0a, 0x67,
+	0xac, 0x93, 0xb7, 0x3d, 0xe2, 0x32, 0xb4, 0x06, 0x09, 0x1f, 0xba, 0x65, 0x68, 0x69, 0x21, 0x2b,
+	0xe4, 0x12, 0xfb, 0xf1, 0x9f, 0x3f, 0x32, 0xb1, 0x63, 0xa1, 0x3e, 0xeb, 0x27, 0x54, 0x4d, 0xfa,
+	0x2c, 0xc0, 0x7c, 0xa8, 0xd2, 0xb5, 0xa9, 0xe5, 0x12, 0xb4, 0x3c, 0x54, 0xda, 0x2f, 0x41, 0x59,
+	0x98, 0xb3, 0x4d, 0xb3, 0x85, 0x75, 0x62, 0x31, 0x2f, 0x1f, 0xe3, 0x79, 0xb0, 0x4d, 0x53, 0xf1,
+	0x42, 0xaa, 0x86, 0x16, 0x21, 0x4e, 0x7b, 0xcc, 0xee, 0xb1, 0xf4, 0x4d, 0x9e, 0x0b, 0x4e, 0x08,
+	0xc1, 0x94, 0x46, 0x2d, 0x92, 0x9e, 0xca, 0x0a, 0xb9, 0xd9, 0x3a, 0xff, 0x46, 0x29, 0x98, 0x26,
+	0x8e, 0x43, 0x9d, 0xf4, 0x34, 0x97, 0xfa, 0x07, 0xe9, 0x18, 0x96, 0x1b, 0x0c, 0x3b, 0xac, 0xd6,
+	0x6c, 0xf4, 0x4c, 0x13, 0x3b, 0x17, 0x83, 0xa3, 0x5d, 0x45, 0x10, 0x86, 0x10, 0x96, 0x60, 0xc6,
+	0xa2, 0x1a, 0xe9, 0xf3, 0xc5, 0xbd, 0xa3, 0xaa, 0x49, 0x2f, 0x60, 0x65, 0x74, 0xe7, 0x89, 0x8c,
+	0x2e, 0x75, 0x20, 0x1b, 0xb4, 0xaf, 0x5c, 0x34, 0x8e, 0xca, 0xff, 0x49, 0xbf, 0x0a, 0xe0, 0x12,
+	0xe7, 0xcc, 0xe8, 0x84, 0x06, 0x48, 0x04, 0x11, 0x55, 0x93, 0xda, 0x70, 0x6f, 0x8c, 0xc9, 0x64,
+	0x06, 0xc1, 0x70, 0x97, 0x7b, 0x70, 0x87, 0xd2, 0x3b, 0xbb, 0x8b, 0x0d, 0x6b, 0xc2, 0x63, 0xbc,
+	0x82, 0x4c, 0xa4, 0xc5, 0x64, 0x86, 0xd8, 0x81, 0x85, 0x03, 0x6c, 0x75, 0x48, 0x77, 0x90, 0x7c,
+	0x5c, 0x57, 0x69, 0x11, 0x52, 0x83, 0x35, 0x3e, 0x4a, 0xfe, 0x25, 0x80, 0x1f, 0x69, 0x5e, 0xd8,
+	0x04, 0x2d, 0xc1, 0x82, 0x72, 0xd0, 0x54, 0x9f, 0x54, 0x5b, 0xcd, 0x93, 0x5a, 0xa9, 0xa5, 0x56,
+	0x9f, 0x29, 0x65, 0xf5, 0x71, 0xf2, 0x06, 0xba, 0x0d, 0x50, 0x6b, 0xb6, 0x1a, 0x4f, 0x2b, 0x15,
+	0xa5, 0x7e, 0x92, 0x14, 0x50, 0x0a, 0x92, 0xb5, 0x66, 0xab, 0x72, 0xd2, 0x38, 0x2a, 0x5f, 0x46,
+	0x63, 0x68, 0x1e, 0x6e, 0xf9, 0xa1, 0xd2, 0x71, 0xad, 0xac, 0xa8, 0xd5, 0xe4, 0xec, 0xce, 0xef,
+	0x69, 0x98, 0xf1, 0x0d, 0x5c, 0x44, 0x21, 0x71, 0xb9, 0x94, 0x68, 0xa5, 0xd8, 0xff, 0xb3, 0x29,
+	0x5e, 0xdd, 0x72, 0x71, 0x35, 0x22, 0xeb, 0x53, 0x4b, 0xeb, 0x1f, 0xbe, 0xff, 0xfa, 0x14, 0xcb,
+	0x48, 0xa2, 0x7c, 0xb6, 0x2d, 0xf7, 0x95, 0x72, 0xe0, 0x24, 0x1f, 0x12, 0xb6, 0x27, 0xe4, 0xd1,
+	0x17, 0x01, 0x52, 0xa3, 0xd6, 0x02, 0x6d, 0x84, 0xdb, 0x8f, 0x59, 0x49, 0x31, 0xf7, 0x6f, 0x61,
+	0x80, 0xb4, 0xcd, 0x91, 0xf2, 0xd2, 0x7a, 0x04, 0xd2, 0x60, 0xb1, 0x47, 0xf7, 0x4d, 0x80, 0x3b,
+	0x91, 0x17, 0x1e, 0x6d, 0x8d, 0x70, 0x8e, 0x5c, 0x3e, 0xb1, 0x70, 0x4d, 0x75, 0x00, 0xfb, 0x80,
+	0xc3, 0xca, 0x52, 0x7e, 0x3c, 0x6c, 0xb8, 0x83, 0x47, 0xfc, 0x55, 0x80, 0xa5, 0x88, 0xbb, 0x8d,
+	0xf2, 0x43, 0x04, 0x91, 0x3b, 0x26, 0x6e, 0x5e, 0x4b, 0x1b, 0xb0, 0xee, 0x72, 0xd6, 0x82, 0x94,
+	0x1b, 0xc7, 0x1a, 0xae, 0xf7, 0x48, 0xdf, 0xc3, 0x5c, 0xf8, 0xba, 0xa3, 0x4c, 0xd8, 0x71, 0xc4,
+	0xf2, 0x88, 0xd9, 0x68, 0x41, 0xc0, 0x91, 0xe3, 0x1c, 0x92, 0xb4, 0x1a, 0xc1, 0xe1, 0x17, 0xed,
+	0x09, 0xf9, 0xfd, 0xd6, 0x47, 0xa5, 0x5a, 0x2f, 0xc3, 0x8c, 0x46, 0x4e, 0x71, 0xaf, 0xcb, 0x90,
+	0x02, 0x48, 0xb1, 0xb2, 0xfc, 0x09, 0xc8, 0x3a, 0x41, 0xbb, 0x22, 0xda, 0x84, 0xfb, 0xe2, 0xc6,
+	0x9a, 0xac, 0x91, 0x53, 0xc3, 0x32, 0xfc, 0x16, 0xe1, 0xa7, 0xb9, 0xe4, 0xc9, 0xff, 0x9a, 0x3f,
+	0x9f, 0x0b, 0xa7, 0xda, 0x71, 0xfe, 0x3c, 0xee, 0xfe, 0x09, 0x00, 0x00, 0xff, 0xff, 0x32, 0x43,
+	0xea, 0xeb, 0xcc, 0x07, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -440,12 +615,16 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ActionsClient interface {
-	// RunAction runs an Action.
-	RunAction(ctx context.Context, in *RunActionRequest, opts ...grpc.CallOption) (*RunActionResponse, error)
+	// GetAction gets an result of given Action.
+	GetAction(ctx context.Context, in *GetActionRequest, opts ...grpc.CallOption) (*GetActionResponse, error)
+	// StartPTSummaryAction starts pt-summary Action.
+	StartPTSummaryAction(ctx context.Context, in *StartPTSummaryActionRequest, opts ...grpc.CallOption) (*StartPTSummaryActionResponse, error)
+	// StartPTMySQLSummaryAction starts pt-mysql-summary Action.
+	StartPTMySQLSummaryAction(ctx context.Context, in *StartPTMySQLSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMySQLSummaryActionResponse, error)
+	// StartMySQLExplainAction starts MySQL EXPLAIN Action.
+	StartMySQLExplainAction(ctx context.Context, in *StartMySQLExplainActionRequest, opts ...grpc.CallOption) (*StartMySQLExplainActionResponse, error)
 	// CancelAction stops an Action.
 	CancelAction(ctx context.Context, in *CancelActionRequest, opts ...grpc.CallOption) (*CancelActionResponse, error)
-	// GetActionResult gets an result of given Action.
-	GetActionResult(ctx context.Context, in *GetActionResultRequest, opts ...grpc.CallOption) (*GetActionResultResponse, error)
 }
 
 type actionsClient struct {
@@ -456,9 +635,36 @@ func NewActionsClient(cc *grpc.ClientConn) ActionsClient {
 	return &actionsClient{cc}
 }
 
-func (c *actionsClient) RunAction(ctx context.Context, in *RunActionRequest, opts ...grpc.CallOption) (*RunActionResponse, error) {
-	out := new(RunActionResponse)
-	err := c.cc.Invoke(ctx, "/management.Actions/RunAction", in, out, opts...)
+func (c *actionsClient) GetAction(ctx context.Context, in *GetActionRequest, opts ...grpc.CallOption) (*GetActionResponse, error) {
+	out := new(GetActionResponse)
+	err := c.cc.Invoke(ctx, "/management.Actions/GetAction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *actionsClient) StartPTSummaryAction(ctx context.Context, in *StartPTSummaryActionRequest, opts ...grpc.CallOption) (*StartPTSummaryActionResponse, error) {
+	out := new(StartPTSummaryActionResponse)
+	err := c.cc.Invoke(ctx, "/management.Actions/StartPTSummaryAction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *actionsClient) StartPTMySQLSummaryAction(ctx context.Context, in *StartPTMySQLSummaryActionRequest, opts ...grpc.CallOption) (*StartPTMySQLSummaryActionResponse, error) {
+	out := new(StartPTMySQLSummaryActionResponse)
+	err := c.cc.Invoke(ctx, "/management.Actions/StartPTMySQLSummaryAction", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *actionsClient) StartMySQLExplainAction(ctx context.Context, in *StartMySQLExplainActionRequest, opts ...grpc.CallOption) (*StartMySQLExplainActionResponse, error) {
+	out := new(StartMySQLExplainActionResponse)
+	err := c.cc.Invoke(ctx, "/management.Actions/StartMySQLExplainAction", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -474,43 +680,92 @@ func (c *actionsClient) CancelAction(ctx context.Context, in *CancelActionReques
 	return out, nil
 }
 
-func (c *actionsClient) GetActionResult(ctx context.Context, in *GetActionResultRequest, opts ...grpc.CallOption) (*GetActionResultResponse, error) {
-	out := new(GetActionResultResponse)
-	err := c.cc.Invoke(ctx, "/management.Actions/GetActionResult", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ActionsServer is the server API for Actions service.
 type ActionsServer interface {
-	// RunAction runs an Action.
-	RunAction(context.Context, *RunActionRequest) (*RunActionResponse, error)
+	// GetAction gets an result of given Action.
+	GetAction(context.Context, *GetActionRequest) (*GetActionResponse, error)
+	// StartPTSummaryAction starts pt-summary Action.
+	StartPTSummaryAction(context.Context, *StartPTSummaryActionRequest) (*StartPTSummaryActionResponse, error)
+	// StartPTMySQLSummaryAction starts pt-mysql-summary Action.
+	StartPTMySQLSummaryAction(context.Context, *StartPTMySQLSummaryActionRequest) (*StartPTMySQLSummaryActionResponse, error)
+	// StartMySQLExplainAction starts MySQL EXPLAIN Action.
+	StartMySQLExplainAction(context.Context, *StartMySQLExplainActionRequest) (*StartMySQLExplainActionResponse, error)
 	// CancelAction stops an Action.
 	CancelAction(context.Context, *CancelActionRequest) (*CancelActionResponse, error)
-	// GetActionResult gets an result of given Action.
-	GetActionResult(context.Context, *GetActionResultRequest) (*GetActionResultResponse, error)
 }
 
 func RegisterActionsServer(s *grpc.Server, srv ActionsServer) {
 	s.RegisterService(&_Actions_serviceDesc, srv)
 }
 
-func _Actions_RunAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(RunActionRequest)
+func _Actions_GetAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ActionsServer).RunAction(ctx, in)
+		return srv.(ActionsServer).GetAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/management.Actions/RunAction",
+		FullMethod: "/management.Actions/GetAction",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).RunAction(ctx, req.(*RunActionRequest))
+		return srv.(ActionsServer).GetAction(ctx, req.(*GetActionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Actions_StartPTSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartPTSummaryActionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActionsServer).StartPTSummaryAction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/management.Actions/StartPTSummaryAction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActionsServer).StartPTSummaryAction(ctx, req.(*StartPTSummaryActionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Actions_StartPTMySQLSummaryAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartPTMySQLSummaryActionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActionsServer).StartPTMySQLSummaryAction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/management.Actions/StartPTMySQLSummaryAction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActionsServer).StartPTMySQLSummaryAction(ctx, req.(*StartPTMySQLSummaryActionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Actions_StartMySQLExplainAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StartMySQLExplainActionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActionsServer).StartMySQLExplainAction(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/management.Actions/StartMySQLExplainAction",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActionsServer).StartMySQLExplainAction(ctx, req.(*StartMySQLExplainActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -533,39 +788,29 @@ func _Actions_CancelAction_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Actions_GetActionResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetActionResultRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ActionsServer).GetActionResult(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/management.Actions/GetActionResult",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ActionsServer).GetActionResult(ctx, req.(*GetActionResultRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 var _Actions_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "management.Actions",
 	HandlerType: (*ActionsServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "RunAction",
-			Handler:    _Actions_RunAction_Handler,
+			MethodName: "GetAction",
+			Handler:    _Actions_GetAction_Handler,
+		},
+		{
+			MethodName: "StartPTSummaryAction",
+			Handler:    _Actions_StartPTSummaryAction_Handler,
+		},
+		{
+			MethodName: "StartPTMySQLSummaryAction",
+			Handler:    _Actions_StartPTMySQLSummaryAction_Handler,
+		},
+		{
+			MethodName: "StartMySQLExplainAction",
+			Handler:    _Actions_StartMySQLExplainAction_Handler,
 		},
 		{
 			MethodName: "CancelAction",
 			Handler:    _Actions_CancelAction_Handler,
-		},
-		{
-			MethodName: "GetActionResult",
-			Handler:    _Actions_GetActionResult_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

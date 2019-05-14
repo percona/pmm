@@ -8,7 +8,7 @@ import (
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 	_ "github.com/mwitkow/go-proto-validators"
-	_ "github.com/percona/pmm/api/agentpb"
+	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	math "math"
 )
@@ -18,21 +18,36 @@ var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
-func (this *RunActionRequest) Validate() error {
+func (this *GetActionRequest) Validate() error {
+	if this.ActionId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ActionId", fmt.Errorf(`value '%v' must not be an empty string`, this.ActionId))
+	}
 	return nil
 }
-func (this *RunActionResponse) Validate() error {
+func (this *GetActionResponse) Validate() error {
+	return nil
+}
+func (this *StartPTSummaryActionRequest) Validate() error {
+	return nil
+}
+func (this *StartPTSummaryActionResponse) Validate() error {
+	return nil
+}
+func (this *StartPTMySQLSummaryActionRequest) Validate() error {
+	return nil
+}
+func (this *StartPTMySQLSummaryActionResponse) Validate() error {
+	return nil
+}
+func (this *StartMySQLExplainActionRequest) Validate() error {
+	return nil
+}
+func (this *StartMySQLExplainActionResponse) Validate() error {
 	return nil
 }
 func (this *CancelActionRequest) Validate() error {
 	return nil
 }
 func (this *CancelActionResponse) Validate() error {
-	return nil
-}
-func (this *GetActionResultRequest) Validate() error {
-	return nil
-}
-func (this *GetActionResultResponse) Validate() error {
 	return nil
 }

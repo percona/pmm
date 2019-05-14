@@ -53,19 +53,17 @@ func NewCancelActionOK() *CancelActionOK {
 A successful response.
 */
 type CancelActionOK struct {
-	Payload *CancelActionOKBody
+	Payload interface{}
 }
 
 func (o *CancelActionOK) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/CancelAction][%d] cancelActionOk  %+v", 200, o.Payload)
+	return fmt.Sprintf("[POST /v0/management/Actions/Cancel][%d] cancelActionOk  %+v", 200, o.Payload)
 }
 
 func (o *CancelActionOK) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
 
-	o.Payload = new(CancelActionOKBody)
-
 	// response payload
-	if err := consumer.Consume(response.Body(), o.Payload); err != nil && err != io.EOF {
+	if err := consumer.Consume(response.Body(), &o.Payload); err != nil && err != io.EOF {
 		return err
 	}
 
@@ -95,7 +93,7 @@ func (o *CancelActionDefault) Code() int {
 }
 
 func (o *CancelActionDefault) Error() string {
-	return fmt.Sprintf("[POST /v0/management/Actions/CancelAction][%d] CancelAction default  %+v", o._statusCode, o.Payload)
+	return fmt.Sprintf("[POST /v0/management/Actions/Cancel][%d] CancelAction default  %+v", o._statusCode, o.Payload)
 }
 
 func (o *CancelActionDefault) readResponse(response runtime.ClientResponse, consumer runtime.Consumer, formats strfmt.Registry) error {
@@ -110,16 +108,13 @@ func (o *CancelActionDefault) readResponse(response runtime.ClientResponse, cons
 	return nil
 }
 
-/*CancelActionBody CancelActionRequest describes request to cancel an action.
+/*CancelActionBody cancel action body
 swagger:model CancelActionBody
 */
 type CancelActionBody struct {
 
-	// Action name.
+	// Unique Action ID.
 	ActionID string `json:"action_id,omitempty"`
-
-	// PMM agent instance identifier.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 }
 
 // Validate validates this cancel action body
@@ -176,44 +171,6 @@ func (o *CancelActionDefaultBody) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *CancelActionDefaultBody) UnmarshalBinary(b []byte) error {
 	var res CancelActionDefaultBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*CancelActionOKBody CancelActionResponse describes response when an action was canceled.
-swagger:model CancelActionOKBody
-*/
-type CancelActionOKBody struct {
-
-	// Action name.
-	ActionID string `json:"action_id,omitempty"`
-
-	// PMM agent instance identifier.
-	PMMAgentID string `json:"pmm_agent_id,omitempty"`
-
-	// Is action successfully canceled
-	Success bool `json:"success,omitempty"`
-}
-
-// Validate validates this cancel action OK body
-func (o *CancelActionOKBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *CancelActionOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *CancelActionOKBody) UnmarshalBinary(b []byte) error {
-	var res CancelActionOKBody
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

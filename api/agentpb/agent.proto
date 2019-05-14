@@ -6,6 +6,7 @@ option go_package = "agentpb";
 
 import "google/protobuf/timestamp.proto";
 import "inventorypb/agent_status.proto";
+import "managementpb/actions.proto";
 import "qanpb/collector.proto";
 
 // Type represents Agent type.
@@ -81,46 +82,49 @@ message SetStateResponse {
 
 }
 
-// ActionName defines allowed action names.
-enum ActionName {
-  ACTION_NAME_INVALID = 0;
-  PT_SUMMARY = 1;
-  PT_MYSQL_SUMMARY = 2;
-  MYSQL_EXPLAIN = 3;
-}
-
-// StartActionRequest represents request to run an action by name.
+// StartActionRequest is a ServerMessage asking pmm-agent to start action.
 message StartActionRequest {
+  // ProcessParams describes parameters for all process actions.
+  message ProcessParams {
+    repeated string args = 1;
+  }
+  // MySQLExplainParams describes MySQL Explain action parameters.
+  message MySQLExplainParams {
+    // TODO
+
+  }
   string action_id = 1;
-  ActionName name = 2;
-  repeated string parameters = 3;
+  management.ActionType type = 2;
+  oneof params {
+    ProcessParams process_params = 3;
+    MySQLExplainParams mysql_explain_params = 4;
+  }
 }
 
-// StartActionResponse represents message with an response to starting an action.
-message StartActionResponse {
-  string action_id = 1;
-}
+// StartActionResponse is an AgentMessage for StartActionRequest acceptance.
+message StartActionResponse {}
 
-// StopActionRequest represents request to stop action with given id.
+// StopActionRequest is a ServerMessage asking pmm-agent to stop action.
 message StopActionRequest {
   string action_id = 1;
 }
 
-// StopActionResponse represents response to stop action request. It sends to server when an action was stopped.
-message StopActionResponse {
-  string action_id = 1;
-}
+// StopActionResponse is an AgentMessage for StopActionRequest acceptance.
+message StopActionResponse {}
 
-// ActionResultRequest represents message with action results which agent send to server when action was finished.
+// ActionResultRequest is an AgentMessage containing action run status and new chunk of output.
 message ActionResultRequest {
+  // Unique action ID.
   string action_id = 1;
-  bool last_part = 2;
-  int32 err_code = 3;
-  string err_message = 4;
-  bytes output = 5;
+  // New chunk of action output.
+  bytes output = 3;
+  // True if action is finished.
+  bool done = 4;
+  // Error message if action failed.
+  string error = 5;
 }
 
-// ActionResultResponse represents response to action results which server sends to agent.
+// ActionResultResponse is an ServerMessage for ActionResultRequest acceptance.
 message ActionResultResponse {}
 
 message AgentMessage {

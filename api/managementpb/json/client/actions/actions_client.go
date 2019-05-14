@@ -36,7 +36,7 @@ func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, erro
 	result, err := a.transport.Submit(&runtime.ClientOperation{
 		ID:                 "CancelAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/CancelAction",
+		PathPattern:        "/v0/management/Actions/Cancel",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
@@ -53,58 +53,114 @@ func (a *Client) CancelAction(params *CancelActionParams) (*CancelActionOK, erro
 }
 
 /*
-GetActionResult gets action result gets an result of given action
+GetAction gets action gets an result of given action
 */
-func (a *Client) GetActionResult(params *GetActionResultParams) (*GetActionResultOK, error) {
+func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewGetActionResultParams()
+		params = NewGetActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "GetActionResult",
+		ID:                 "GetAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/GetActionResult",
+		PathPattern:        "/v0/management/Actions/Get",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &GetActionResultReader{formats: a.formats},
+		Reader:             &GetActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*GetActionResultOK), nil
+	return result.(*GetActionOK), nil
 
 }
 
 /*
-RunAction runs action runs an action
+StartMySQLExplainAction starts my SQL explain action starts my SQL e x p l a i n action
 */
-func (a *Client) RunAction(params *RunActionParams) (*RunActionOK, error) {
+func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) (*StartMySQLExplainActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewRunActionParams()
+		params = NewStartMySQLExplainActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "RunAction",
+		ID:                 "StartMySQLExplainAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/RunAction",
+		PathPattern:        "/v0/management/Actions/StartMySQLExplain",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &RunActionReader{formats: a.formats},
+		Reader:             &StartMySQLExplainActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*RunActionOK), nil
+	return result.(*StartMySQLExplainActionOK), nil
+
+}
+
+/*
+StartPTMySQLSummaryAction starts p t my SQL summary action starts pt mysql summary action
+*/
+func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams) (*StartPTMySQLSummaryActionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartPTMySQLSummaryActionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartPTMySQLSummaryAction",
+		Method:             "POST",
+		PathPattern:        "/v0/management/Actions/StartPTMySQLSummary",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartPTMySQLSummaryActionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*StartPTMySQLSummaryActionOK), nil
+
+}
+
+/*
+StartPTSummaryAction starts p t summary action starts pt summary action
+*/
+func (a *Client) StartPTSummaryAction(params *StartPTSummaryActionParams) (*StartPTSummaryActionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartPTSummaryActionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartPTSummaryAction",
+		Method:             "POST",
+		PathPattern:        "/v0/management/Actions/StartPTSummary",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartPTSummaryActionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*StartPTSummaryActionOK), nil
 
 }
 
