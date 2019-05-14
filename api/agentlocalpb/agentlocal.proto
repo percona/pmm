@@ -55,6 +55,8 @@ message AgentInfo {
 message StatusRequest {
   // TODO https://jira.percona.com/browse/PMM-3758
   bool get_logs = 1;
+  // Returns network info if set true.
+  bool get_network_info = 2;
 }
 
 message StatusResponse {

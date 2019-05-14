@@ -81,6 +81,11 @@
                   "type": "boolean",
                   "format": "boolean",
                   "title": "TODO https://jira.percona.com/browse/PMM-3758"
+                },
+                "get_network_info": {
+                  "description": "Returns network info if set true.",
+                  "type": "boolean",
+                  "format": "boolean"
                 }
               }
             }
