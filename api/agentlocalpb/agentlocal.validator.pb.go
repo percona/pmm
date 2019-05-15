@@ -7,7 +7,6 @@ import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
 	_ "github.com/golang/protobuf/ptypes/duration"
-	_ "github.com/golang/protobuf/ptypes/timestamp"
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/percona/pmm/api/agentpb"
@@ -22,9 +21,9 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *ServerInfo) Validate() error {
-	if this.LastPingTime != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.LastPingTime); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("LastPingTime", err)
+	if this.ClockDrift != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ClockDrift); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ClockDrift", err)
 		}
 	}
 	if this.Latency != nil {

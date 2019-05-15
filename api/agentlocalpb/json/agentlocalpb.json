@@ -160,6 +160,10 @@
                   "description": "ServerInfo contains information about the PMM Server.",
                   "type": "object",
                   "properties": {
+                    "clock_drift": {
+                      "description": "Clock drift between pmm-managed and pmm-agent.",
+                      "type": "string"
+                    },
                     "connected": {
                       "description": "True if pmm-agent is currently connected to the server.",
                       "type": "boolean",
@@ -170,14 +174,9 @@
                       "type": "boolean",
                       "format": "boolean"
                     },
-                    "last_ping_time": {
-                      "type": "string",
-                      "format": "date-time",
-                      "title": "TODO https://jira.percona.com/browse/PMM-3758"
-                    },
                     "latency": {
-                      "type": "string",
-                      "title": "TODO https://jira.percona.com/browse/PMM-3758"
+                      "description": "Ping time from pmm-agent to pmm-managed.",
+                      "type": "string"
                     },
                     "url": {
                       "description": "PMM Server URL in a form https://HOST:PORT/.",
