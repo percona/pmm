@@ -60,10 +60,10 @@ func (cmd *configCommand) Run() (Result, error) {
 	args = append(args, fmt.Sprintf("--server-address=%s:%s", GlobalFlags.ServerURL.Hostname(), port))
 
 	if GlobalFlags.ServerURL.User != nil {
-		args = append(args, fmt.Sprintf("--server-username=%q", GlobalFlags.ServerURL.User.Username()))
+		args = append(args, fmt.Sprintf("--server-username=%s", GlobalFlags.ServerURL.User.Username()))
 		password, ok := GlobalFlags.ServerURL.User.Password()
 		if ok {
-			args = append(args, fmt.Sprintf("--server-password=%q", password))
+			args = append(args, fmt.Sprintf("--server-password=%s", password))
 		}
 	}
 
@@ -79,9 +79,15 @@ func (cmd *configCommand) Run() (Result, error) {
 	}
 
 	args = append(args, "setup")
-	args = append(args, fmt.Sprintf("--node-model=%q", cmd.NodeModel))
-	args = append(args, fmt.Sprintf("--region=%q", cmd.Region))
-	args = append(args, fmt.Sprintf("--az=%q", cmd.Az))
+	if cmd.NodeModel != "" {
+		args = append(args, fmt.Sprintf("--node-model=%s", cmd.NodeModel))
+	}
+	if cmd.Region != "" {
+		args = append(args, fmt.Sprintf("--region=%s", cmd.Region))
+	}
+	if cmd.Az != "" {
+		args = append(args, fmt.Sprintf("--az=%s", cmd.Az))
+	}
 	if cmd.Force {
 		args = append(args, "--force")
 	}
