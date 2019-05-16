@@ -24,6 +24,7 @@ linters:
   enable-all: true
   disable:
     - scopelint  # too many false positives
+    - gochecknoglobals  # mostly useless
 
 issues:
   exclude-use-default: false

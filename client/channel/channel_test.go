@@ -47,7 +47,8 @@ func (s *testServer) Connect(stream agentpb.Agent_ConnectServer) error {
 
 var _ agentpb.AgentServer = (*testServer)(nil)
 
-func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expected ...error) (*Channel, *grpc.ClientConn, func(*testing.T)) {
+//nolint:nakedret
+func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expected ...error) (channel *Channel, cc *grpc.ClientConn, teardown func()) {
 	// logrus.SetLevel(logrus.DebugLevel)
 
 	t.Parallel()
@@ -59,9 +60,11 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expect
 	agentpb.RegisterAgentServer(server, &testServer{
 		connectFunc: connect,
 	})
+
+	// all assertions must happen in the main goroutine to avoid "panic: Fail in goroutine after XXX has completed"
+	serveError := make(chan error)
 	go func() {
-		err = server.Serve(lis)
-		require.NoError(t, err)
+		serveError <- server.Serve(lis)
 	}()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
@@ -71,21 +74,22 @@ func setup(t *testing.T, connect func(agentpb.Agent_ConnectServer) error, expect
 		grpc.WithBlock(),
 		grpc.WithInsecure(),
 	}
-	cc, err := grpc.DialContext(ctx, lis.Addr().String(), opts...)
+	cc, err = grpc.DialContext(ctx, lis.Addr().String(), opts...)
 	require.NoError(t, err, "failed to dial server")
 	stream, err := agentpb.NewAgentClient(cc).Connect(ctx)
 	require.NoError(t, err, "failed to create stream")
-	channel := New(stream)
+	channel = New(stream)
 
-	teardown := func(t *testing.T) {
+	teardown = func() {
 		err := channel.Wait()
 		assert.Contains(t, expected, errors.Cause(err), "%+v", err)
 
 		server.GracefulStop()
 		cancel()
+		require.NoError(t, <-serveError)
 	}
 
-	return channel, cc, teardown
+	return
 }
 
 func TestAgentRequest(t *testing.T) {
@@ -110,7 +114,7 @@ func TestAgentRequest(t *testing.T) {
 	}
 
 	channel, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
-	defer teardown(t)
+	defer teardown()
 
 	for i := uint32(1); i <= count; i++ {
 		resp := channel.SendRequest(new(agentpb.QANCollectRequest))
@@ -179,7 +183,7 @@ func TestServerRequest(t *testing.T) {
 	}
 
 	channel, _, teardown := setup(t, connect, io.EOF) // EOF = server exits from handler
-	defer teardown(t)
+	defer teardown()
 
 	for req := range channel.Requests() {
 		assert.IsType(t, new(agentpb.Ping), req.Payload)
@@ -205,7 +209,7 @@ func TestServerExitsWithGRPCError(t *testing.T) {
 	}
 
 	channel, _, teardown := setup(t, connect, errUnimplemented)
-	defer teardown(t)
+	defer teardown()
 
 	resp := channel.SendRequest(new(agentpb.QANCollectRequest))
 	assert.Nil(t, resp)
@@ -222,7 +226,7 @@ func TestServerExitsWithUnknownError(t *testing.T) {
 	}
 
 	channel, _, teardown := setup(t, connect, status.Error(codes.Unknown, "EOF"))
-	defer teardown(t)
+	defer teardown()
 
 	resp := channel.SendRequest(new(agentpb.QANCollectRequest))
 	assert.Nil(t, resp)
@@ -244,7 +248,7 @@ func TestAgentClosesStream(t *testing.T) {
 	}
 
 	channel, _, teardown := setup(t, connect, io.EOF)
-	defer teardown(t)
+	defer teardown()
 
 	req := <-channel.Requests()
 	require.NotNil(t, req)
@@ -273,7 +277,7 @@ func TestAgentClosesConnection(t *testing.T) {
 	errClientConnClosing := status.Error(codes.Canceled, "grpc: the client connection is closing") // == grpc.ErrClientConnClosing
 	errConnClosing := status.Error(codes.Unavailable, "transport is closing")
 	channel, cc, teardown := setup(t, connect, errClientConnClosing, errConnClosing)
-	defer teardown(t)
+	defer teardown()
 
 	req := <-channel.Requests()
 	require.NotNil(t, req)
@@ -303,7 +307,7 @@ func TestUnexpectedResponseFromServer(t *testing.T) {
 	}
 
 	channel, _, teardown := setup(t, connect, fmt.Errorf("no subscriber for ID 111"))
-	defer teardown(t)
+	defer teardown()
 
 	// after receiving unexpected response, channel is closed
 	resp := channel.SendRequest(new(agentpb.QANCollectRequest))

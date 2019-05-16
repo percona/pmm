@@ -47,20 +47,6 @@ import (
 	"github.com/percona/pmm-agent/config"
 )
 
-// supervisor is a subset of methods of supervisor.Supervisor used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type supervisor interface {
-	AgentsList() []*agentlocalpb.AgentInfo
-}
-
-// client is a subset of methods of client.Client used by this package.
-// We use it instead of real type for testing and to avoid dependency cycle.
-type client interface {
-	GetAgentServerMetadata() *agentpb.AgentServerMetadata
-	Describe(chan<- *prometheus.Desc)
-	Collect(chan<- prometheus.Metric)
-}
-
 const (
 	shutdownTimeout = 1 * time.Second
 )

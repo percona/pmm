@@ -22,7 +22,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"net"
 	"net/http"
 	"net/url"
 
@@ -127,8 +126,7 @@ func setServerTransport(u *url.URL, insecureTLS bool, l *logrus.Entry) {
 		if insecureTLS {
 			httpTransport.TLSClientConfig.InsecureSkipVerify = true
 		} else {
-			host, _, _ := net.SplitHostPort(u.Host)
-			httpTransport.TLSClientConfig.ServerName = host
+			httpTransport.TLSClientConfig.ServerName = u.Hostname()
 		}
 	}
 
@@ -156,10 +154,9 @@ func serverRegister(cfgSetup *config.Setup) (string, error) {
 			Region:        cfgSetup.Region,
 			Az:            cfgSetup.Az,
 			// TODO CustomLabels:  customLabels,
-			Address:       cfgSetup.Address,
+			Address: cfgSetup.Address,
 
 			Reregister: cfgSetup.Force,
-
 		},
 		Context: context.Background(),
 	})
