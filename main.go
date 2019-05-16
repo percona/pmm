@@ -221,6 +221,9 @@ func main() {
 	case inventory.AddAgentQANMySQLPerfSchemaAgentC.FullCommand():
 		command = inventory.AddAgentQANMySQLPerfSchemaAgent
 
+	case inventory.AddAgentQANMySQLSlowlogAgentC.FullCommand():
+		command = inventory.AddAgentQANMySQLSlowlogAgent
+
 	case inventory.AddAgentQANMongoDBProfilerAgentC.FullCommand():
 		command = inventory.AddAgentQANMongoDBProfilerAgent
 
