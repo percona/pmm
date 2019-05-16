@@ -126,7 +126,7 @@
       command: /usr/bin/env UPDATE_MODE=1 ENABLE_DEBUG=1 /opt/entrypoint.sh
 
     - name: PMM                        | Restore configuration
-      command: bash -c "/usr/bin/pmm-configure -grafana-db-path $(ls /srv/grafana/grafana.db /var/lib/grafana/grafana.db 2>/dev/null)"
+      command: bash -c "/usr/bin/pmm-configure -listen-address=127.0.0.1:7778 -grafana-db-path $(ls /srv/grafana/grafana.db /var/lib/grafana/grafana.db 2>/dev/null)"
 
     - name: NGINX                      | Disable daemon
       when: supervisorctl.stat.exists
