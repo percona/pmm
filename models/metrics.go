@@ -22,12 +22,10 @@ import (
 	"fmt"
 	"log"
 	"sort"
-	"strings"
 	"text/template"
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/jmoiron/sqlx/reflectx"
 	"github.com/pkg/errors"
 
 	"github.com/percona/pmm/api/qanpb"
@@ -70,9 +68,6 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 		log.Fatalln(err)
 	}
 	var results []M
-	// set mapper to reuse json tags. Have to be unset
-	m.db.Mapper = reflectx.NewMapperFunc("json", strings.ToLower)
-	defer func() { m.db.Mapper = reflectx.NewMapperFunc("db", strings.ToLower) }()
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
 		return results, fmt.Errorf("prepare named:%v", err)
@@ -452,6 +447,14 @@ SELECT example, toUInt8(example_format) AS example_format,
  LIMIT :limit
 `
 
+type queryExample struct {
+	Example        string              `db:"example"`
+	ExampleFormat  qanpb.ExampleFormat `db:"example_format"`
+	ExampleType    qanpb.ExampleType   `db:"example_type"`
+	IsTruncated    uint32              `db:"is_truncated"`
+	ExampleMetrics string              `db:"example_metrics"`
+}
+
 // SelectQueryExamples selects query examples and related stuff for given time range.
 func (m *Metrics) SelectQueryExamples(ctx context.Context, from, to time.Time, filter,
 	group string, limit uint32) (*qanpb.QueryExampleReply, error) {
@@ -468,17 +471,26 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, from, to time.Time, f
 	} else if err = tmpl.Execute(&queryBuffer, arg); err != nil {
 		log.Fatalln(err)
 	}
-	res := qanpb.QueryExampleReply{}
-	// set mapper to reuse json tags. Have to be unset
-	m.db.Mapper = reflectx.NewMapperFunc("json", strings.ToLower)
-	defer func() { m.db.Mapper = reflectx.NewMapperFunc("db", strings.ToLower) }()
+
 	nstmt, err := m.db.PrepareNamed(queryBuffer.String())
 	if err != nil {
-		return &res, fmt.Errorf("cannot prepare named statement of select query examples:%v", err)
+		return nil, fmt.Errorf("cannot prepare named statement of select query examples:%v", err)
 	}
-	err = nstmt.SelectContext(ctx, &res.QueryExamples, arg)
+	rows := []queryExample{}
+	err = nstmt.SelectContext(ctx, &rows, arg)
 	if err != nil {
-		return &res, fmt.Errorf("cannot select query examples:%v", err)
+		return nil, fmt.Errorf("cannot select query examples:%v", err)
+	}
+	res := qanpb.QueryExampleReply{}
+	for _, row := range rows {
+		qe := qanpb.QueryExample{
+			Example:        row.Example,
+			ExampleFormat:  row.ExampleFormat,
+			ExampleType:    row.ExampleType,
+			IsTruncated:    row.IsTruncated,
+			ExampleMetrics: row.ExampleMetrics,
+		}
+		res.QueryExamples = append(res.QueryExamples, &qe)
 	}
 	return &res, nil
 }

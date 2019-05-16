@@ -4,7 +4,7 @@ services:
 
   pmm-server:
     container_name: pmm-server
-    image: perconalab/pmm-server-fb:latest
+    image: perconalab/pmm-server-fb:PR-169-aa82c83
     ports:
       - 80:80
       - 443-443

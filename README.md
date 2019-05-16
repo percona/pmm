@@ -125,3 +125,8 @@ curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_
 ```
 curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries", "columns": ["lock_time", "sort_scan"], "group_by": "d_server"}' http://127.0.0.1:9922/v0/qan/GetReport -s | jq '.rows[].load'
 ```
+
+
+```
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "filter_by": "1D410B4BE5060972", "group_by": "queryid"}' http://127.0.0.1:9922/v0/qan/ObjectDetails/GetLabels | jq
+```
