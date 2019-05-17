@@ -89,6 +89,7 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 	}
 
 	durationSec := periodStartToSec - periodStartFromSec
+	numQueries := interfaceToFloat32(metrics[0]["num_queries"])
 
 	for k := range commonColumnNames {
 		cnt := interfaceToFloat32(metrics[0]["m_"+k+"_cnt"])
@@ -101,8 +102,8 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 			Max: interfaceToFloat32(metrics[0]["m_"+k+"_max"]),
 			P99: interfaceToFloat32(metrics[0]["m_"+k+"_p99"]),
 		}
-		if cnt > 0 && sum > 0 {
-			mv.Avg = sum / cnt
+		if numQueries > 0 && sum > 0 {
+			mv.Avg = sum / numQueries
 		}
 		if sum > 0 && totalSum > 0 {
 			mv.PercentOfTotal = sum / totalSum

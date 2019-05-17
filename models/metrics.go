@@ -471,8 +471,8 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 	res := qanpb.QueryExampleReply{}
 	for rows.Next() {
 		var row qanpb.QueryExample
-		err = rows.Scan(&row.Example, &row.ExampleType, &row.IsTruncated,
-			&row.ExampleType, &row.ExampleMetrics)
+		err = rows.Scan(&row.Example, &row.ExampleFormat,
+			&row.IsTruncated, &row.ExampleType, &row.ExampleMetrics)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan query example for object details")
 		}
