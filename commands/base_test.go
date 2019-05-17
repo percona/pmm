@@ -33,12 +33,13 @@ func TestParseCustomLabel(t *testing.T) {
 	}{
 		{"simple label", "foo=bar", map[string]string{"foo": "bar"}, nil},
 		{"two labels", "foo=bar,bar=foo", map[string]string{"foo": "bar", "bar": "foo"}, nil},
-		{"no value", "foo=", map[string]string(nil), errWrongFormat},
-		{"no key", "=foo", map[string]string(nil), errWrongFormat},
-		{"wrong format", "foo=bar,bar+foo", map[string]string(nil), errWrongFormat},
+		{"no value", "foo=", nil, errWrongFormat},
+		{"no key", "=foo", nil, errWrongFormat},
+		{"wrong format", "foo=bar,bar+foo", nil, errWrongFormat},
 		{"empty value", "", map[string]string{}, nil},
+		{"PMM-4078 hyphen", "region=us-east1, mylabel=mylab-22", map[string]string{"region": "us-east1", "mylabel": "mylab-22"}, nil},
 	} {
-		t.Run(v.name, func(tt *testing.T) {
+		t.Run(v.name, func(t *testing.T) {
 			customLabels, err := ParseCustomLabels(v.input)
 			assert.Equal(t, v.expected, customLabels)
 			assert.Equal(t, v.expErr, err)
