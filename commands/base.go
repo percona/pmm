@@ -100,18 +100,25 @@ type globalFlagsValues struct {
 // GlobalFlags contains pmm-admin core flags values.
 var GlobalFlags = new(globalFlagsValues)
 
+var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
+
+// ParseCustomLabels parses --custom-labels flag value.
+//
+// Note that quotes around value are parsed and removed by shell before this function is called.
+// E.g. the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
+// as [[region=us-east1, mylabel=mylab-22]].
 func ParseCustomLabels(labels string) (map[string]string, error) {
-	if labels == "" {
-		return map[string]string{}, nil
-	}
-	regex := regexp.MustCompile(`(\w+)=(\w+)`)
 	result := make(map[string]string)
 	parts := strings.Split(labels, ",")
 	for _, part := range parts {
-		if !regex.MatchString(part) {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		submatches := customLabelRE.FindStringSubmatch(part)
+		if submatches == nil {
 			return nil, fmt.Errorf("wrong custom label format")
 		}
-		submatches := regex.FindStringSubmatch(part)
 		result[submatches[1]] = submatches[2]
 	}
 	return result, nil
