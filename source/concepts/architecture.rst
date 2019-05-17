@@ -1,7 +1,7 @@
 .. _pmm.architecture:
 
 --------------------------------------------------------------------------------
-Client/Server architecture - an overview
+Client/Server Architecture - an Overview
 --------------------------------------------------------------------------------
 
 The |pmm| platform is based on a client-server model that enables scalability.
@@ -14,6 +14,8 @@ It includes the following modules:
 * :ref:`pmm-server` is the central part of |pmm| that aggregates collected data
   and presents it in the form of tables, dashboards, and graphs in a web
   interface.
+
+.. image:: ../.res/graphics/png/diagram.pmm.client-server.png
 
 The modules are packaged for easy installation and usage. It is assumed that
 the user should not need to understand what are the exact tools that make up
@@ -30,14 +32,14 @@ developed by |percona| and some are third-party open-source tools.
 .. note:: The overall client-server model is not likely to change, but the set
    of tools that make up each component may evolve with the product.
 
-The following diagram illustrates how |pmm| is currently structured:
-
-.. image:: ../.res/graphics/png/diagram.pmm-architecture.png
+The following sections illustrates how |pmm| is currently structured.
 
 .. _pmm-client:
 
 `PMM Client <architecture.html#pmm-client>`_
 ================================================================================
+
+.. image:: ../.res/graphics/png/diagram.pmm.client-architecture.png
 
 Each |pmm-client| collects various data about general system and database
 performance, and sends this data to the corresponding |pmm-server|.
@@ -48,18 +50,18 @@ The |pmm-client| package consist of the following:
   for example, adding and removing database instances
   that you want to monitor.
   For more information, see :ref:`pmm-admin`.
-* ``pmm-mysql-queries-0`` is a service that manages the |qan| agent as it
-  collects query performance data from |mysql| and sends it to the |qan| API on
-  :ref:`pmm-server`.
-* ``pmm-mongodb-queries-0`` is a service that manages the |qan| agent as it
-  collects query performance data from |mongodb| and sends it to |qan| API on
-  :ref:`pmm-server`.
+* **pmm-agent** is a a client-side component a minimal command-line interface,
+  which is a central entry point in charge for bringing the client
+  functionality: it carries on client's authentication, gets the client
+  configuration stored on the PMM Server, manages exporters and other agents.
 * |node-exporter| is a |prometheus| exporter that collects general system
   metrics.
 * |mysqld-exporter| is a |prometheus| exporter that collects |mysql| server
   metrics.
 * |mongodb-exporter| is a |prometheus| exporter that collects |mongodb| server
   metrics.
+* **postgresql-exporter** is a |prometheus| exporter that collects |postgresql|
+  performance metrics.
 * |proxysql-exporter| is a |prometheus| exporter that collects |proxysql|
   performance metrics.
 
@@ -78,6 +80,8 @@ The |pmm-client| package consist of the following:
 
 `PMM Server <architecture.html#pmm-server>`_
 ================================================================================
+
+.. image:: ../.res/graphics/png/diagram.pmm.server-architecture.png
 
 |pmm-server| runs on the machine that will be your central monitoring host.
 It is distributed as an appliance via the following:
@@ -108,12 +112,9 @@ For more information, see :ref:`deploy-pmm.server.installing`.
     exporters running on a :ref:`pmm-client` and aggregates metrics collected by
     the exporters.  For more information, see `Prometheus Docs`_.
 
-    * |consul| provides an API that a :ref:`pmm-client` can use to remotely
-      list, add, and remove hosts for Prometheus.  It also stores monitoring
-      metadata.  For more information, see `Consul Docs`_.
-
-      .. warning:: Although the |consul| web UI is accessible, do not make any
-         changes to the configuration.
+  * ClickHouse is a third-party column-oriented database that facilitates
+    the |query-analytics| functionality. For more information, see
+    `ClickHouse Docs <https://clickhouse.yandex/>`_.
 
   * |grafana| is a third-party dashboard and graph builder for visualizing data
     aggregated by |prometheus| in an intuitive web interface.  For more
@@ -131,9 +132,10 @@ For more information, see :ref:`using`.
 
 .. seealso::
 
-   Default ports
-      :ref:`Ports <Ports>` in :ref:`pmm.glossary.terminology-reference`
-   Enabling orchestrator
-      :ref:`Orchestrator <Orchestrator>` in :ref:`pmm.glossary.terminology-reference`
+.. _`Prometheus Docs`: https://prometheus.io/docs/introduction/overview/
+.. _`Consul Docs`: https://www.consul.io/docs/
+.. _`Grafana Docs`: http://docs.grafana.org/
+.. _`Orchestrator Manual`: https://github.com/outbrain/orchestrator/wiki/Orchestrator-Manual
 
 .. include:: ../.res/replace.txt
+

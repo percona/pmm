@@ -28,10 +28,10 @@ For more information about using |docker|, see the `Docker Docs`_.
    :name: dockertoc
    :maxdepth: 1
 
-   docker.setting-up
-   docker.upgrading
-   docker.backing-up
-   docker.restoring
+   docker-setting-up
+   docker-upgrading
+   docker-backing-up
+   docker-restoring
 
 .. _`percona/pmm-server`: https://hub.docker.com/r/percona/pmm-server/tags/
 .. _`Docker Docs`: https://docs.docker.com

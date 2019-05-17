@@ -18,19 +18,19 @@ to ensure that your data works as efficiently as possible.
    :maxdepth: 4
 
    concepts/index
-   install/index.server
-   manage/index.server
-   manage/index.services
-   install/index.client
-   manage/index.using-pmm-client
+   install/index-server
+   manage/index-server
+   manage/index-services
+   install/index-client
+   manage/index-using-pmm-client
    Adding AWS RDS and Aurora MySQL and PostgreSQL services <manage/index.amazon>
-   index.using-pmm-metrics-monitor
-   index.qan
+   index-using-pmm-metrics-monitor
+   index-qan
    manage/index.extending
    metrics-monitor.snapshots
    Release Notes <release-notes/index>
-   Dashboards references <index.metrics-monitor.dashboard>
+   Dashboards references <index-metrics-monitor-dashboard>
    How to Contact Percona <contact>
    How to get help <gethelp>
-   Glossary <glossary.terminology>
+   Glossary <glossary-terminology>
    FAQ <faq>

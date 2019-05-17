@@ -290,3 +290,6 @@ man_pages = [
     ('index', 'perconamonitoringandmanagement', u'Percona Monitoring and Management Documentation',
      [u'Percona LLC and/or its affiliates 2009-2019'], 1)
 ]
+
+def setup(app):
+    app.add_javascript('js/toggle-menu.js')

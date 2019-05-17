@@ -1,4 +1,4 @@
-.. _pmm.qan.mongodb.conf:
+.. _pmm.qan-mongodb.conf:
 
 Configuring |mongodb| for Monitoring in |qan.name|
 ********************************************************************************
@@ -18,7 +18,7 @@ accordingly. Run the |pmm-admin.add| command to use these monitoring services
    :local:
    :depth: 1
 
-.. _pmm.qan.mongodb.conf.essential-permission.setting-up:
+.. _pmm.qan-mongodb.conf.essential-permission.setting-up:
 
 Setting Up the Essential Permissions
 ================================================================================
@@ -31,7 +31,7 @@ the *read* role for the |db.local| database.
 The following example that you can run in the |mongodb| shell, adds the
 |mongodb-exporter| user and assigns the appropriate roles.
 
-.. _code.pmm.qan.mongodb.conf.essential-permission.setting-up.db.get-sibling-db.create-user:
+.. _code.pmm.qan-mongodb.conf.essential-permission.setting-up.db.get-sibling-db.create-user:
 
 .. include:: .res/code/db.get-sibling-db.create-user.txt
 
@@ -41,7 +41,7 @@ service in the |pmm-admin.add| command:
 
 |tip.run-this.root|.
 
-.. _pmm.qan.mongodb.conf.essential-permission.setting-up.pmm-admin.add.mongodb-metrics.uri:
+.. _pmm.qan-mongodb.conf.essential-permission.setting-up.pmm-admin.add.mongodb-metrics.uri:
 
 .. include:: .res/code/pmm-admin.add.mongodb-metrics.uri.txt
 
@@ -50,7 +50,7 @@ service in the |pmm-admin.add| command:
    Adding a |opt.mongodb-metrics| monitoring service
       :ref:`pmm-admin.add.mongodb-metrics`
 
-.. _pmm.qan.mongodb.configuring.profiling.enabling:
+.. _pmm.qan-mongodb.configuring.profiling.enabling:
 
 `Enabling Profiling <conf-mongodb.html#pmm-qan-mongodb-configuring-profiling-enabling>`_
 ========================================================================================
@@ -66,7 +66,7 @@ displays the following warning:
    Note that profiling is not enabled by default because it may reduce the
    performance of your |mongodb| server.
 
-.. _pmm.qan.mongodb.conf.profiling.command_line.enable:
+.. _pmm.qan-mongodb.conf.profiling.command_line.enable:
 
 `Enabling Profiling on Command Line <conf-mongodb.html#pmm-qan-mongodb-conf-profiling-command-line-enable>`_
 -------------------------------------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ server. This command is useful if you start :program:`mongod` manually.
 
 |tip.run-this.root|
 
-.. _pmm.qan.mongodb.conf.profiling.command_line.enable.mongod.dbpath.profile.slowms.ratelimit:
+.. _pmm.qan-mongodb.conf.profiling.command_line.enable.mongod.dbpath.profile.slowms.ratelimit:
 
 .. include:: .res/code/mongod.dbpath.profile.slowms.ratelimit.txt
 
@@ -100,7 +100,7 @@ the accuracy of the collected information decreases as well.
    |opt.rate-limit| in |psmdb| documentation
        https://www.percona.com/doc/percona-server-for-mongodb/LATEST/rate-limit.html
 
-.. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling:
+.. _pmm.qan-mongodb.configuring.configuration-file.profiling.enabling:
 
 `Enabling Profiling in the Configuration File <conf-mongodb.html#pmm-qan-mongodb-configuring-configuration-file-profiling-enabling>`_
 -------------------------------------------------------------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ by default is |etc.mongod.conf|.
 In this file, you need to locate the *operationProfiling:* section and add the
 following settings:
 
-.. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling.operationprofiling:
+.. _pmm.qan-mongodb.configuring.configuration-file.profiling.enabling.operationprofiling:
 
 .. code-block:: yaml
 
@@ -122,13 +122,13 @@ following settings:
 
 These settings affect ``mongod`` in the same way as the command line
 options described in section
-:ref:`pmm.qan.mongodb.conf.profiling.command_line.enable`. Note that the
+:ref:`pmm.qan-mongodb.conf.profiling.command_line.enable`. Note that the
 configuration file is in the `YAML`_ format. In this format the indentation of
 your lines is important as it defines levels of nesting.
 
 Restart the *mongod* service to enable the settings.
 
-.. _pmm.qan.mongodb.configuring.configuration-file.profiling.enabling.service.mongod.restart:
+.. _pmm.qan-mongodb.configuring.configuration-file.profiling.enabling.service.mongod.restart:
 
 |tip.run-this.root|
 

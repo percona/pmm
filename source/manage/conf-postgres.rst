@@ -33,11 +33,6 @@ An example command line would look like this::
       ALTER SYSTEM SET track_io_timing=ON;
       SELECT pg_reload_conf();
 
-Supported versions of PostgreSQL
---------------------------------
-
-|pmm| follows `postgresql.org EOL policy <https://www.postgresql.org/support/versioning/>`_, and thus supports monitoring |postgresql| version 9.4 and up.  Older versions may work, but will not be supported.  For additional assistance, visit `Percona PMM Forums <https://www.percona.com/forums/questions-discussions/percona-monitoring-and-management/>`_.
-
 .. _pmm.qan.postgres.conf.essential-permission.setting-up:
 
 Setting Up the Required Permissions
@@ -55,4 +50,4 @@ standalone |postgresql| installation::
 
       CREATE USER pmm_user WITH rds_superuser ENCRYPTED PASSWORD 'secret';
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

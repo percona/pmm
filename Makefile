@@ -46,7 +46,7 @@ source/percona-theme/built:
 	@rm -rf source/percona-theme
 	@mv percona-theme-1-4 source/percona-theme
 	@rm percona-theme.tar.gz
-	@sed -i 's/{{ toc }}/{{ toctree\(false\) }}/' source/percona-theme/localtoc.html
+	@sed -i 's/{{ toc }}/{{ toctree\(false\) }}\n<div class=\"product-series\">\n<h3><PMM Series<\/h3><ul><li><a href=\"\/doc\/percona-monitoring-and-management\/\">PMM 1.x<\/a><\/li><li><a href=\"\/doc\/percona-monitoring-and-management\/2.x\/\">PMM 2.x<\/a><\/li><\/ul><\/div>/' source/percona-theme/localtoc.html
 	@touch source/percona-theme/built
 
 theme:  source/percona-theme/built

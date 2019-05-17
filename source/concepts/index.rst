@@ -7,7 +7,7 @@ PMM Concepts
 
    features
    architecture
-   exporters.index
+   exporters-index
    firewalls.index
-   services.index
+   services-index
    security.index
