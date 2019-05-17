@@ -4,10 +4,10 @@ services:
 
   pmm-server:
     container_name: pmm-server
-    image: perconalab/pmm-server-fb:PR-169-aa82c83
+    image: perconalab/pmm-server:dev-latest
     ports:
       - 80:80
-      - 443-443
+      - 443:443
       - 9911:9911
       - 9000:9000
     restart: always

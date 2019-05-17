@@ -94,7 +94,6 @@ pmm-env-up:                     ## Run PMM server, MySQL Server and sysbench con
 	cat fixture/metrics.csv | docker exec -i pmm-server clickhouse client -d pmm --query="INSERT INTO metrics FORMAT CSV"
 
 deploy:
-	docker exec pmm-server supervisorctl status
 	docker exec pmm-server supervisorctl stop qan-api2
 	docker cp bin/qan-api2 pmm-server:/usr/sbin/percona-qan-api2
 	docker exec pmm-server supervisorctl start qan-api2

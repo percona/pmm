@@ -447,7 +447,7 @@ func TestService_GetLabels(t *testing.T) {
 			},
 		},
 		nil,
-		fmt.Errorf("period_start_from is required:%v", nil),
+		fmt.Errorf("period_start_from is required: %v", nil),
 	}
 
 	t.Run(tt.name, func(t *testing.T) {
@@ -472,7 +472,7 @@ func TestService_GetLabels(t *testing.T) {
 			},
 		},
 		nil,
-		fmt.Errorf("period_start_to is required:%v", nil),
+		fmt.Errorf("period_start_to is required: %v", nil),
 	}
 
 	t.Run(tt.name, func(t *testing.T) {
@@ -498,7 +498,7 @@ func TestService_GetLabels(t *testing.T) {
 			request,
 		},
 		nil,
-		fmt.Errorf("group_by is required:%v", request.GroupBy),
+		fmt.Errorf("group_by is required if filter_by is not empty %v = %v", request.GroupBy, request.FilterBy),
 	}
 
 	t.Run(tt.name, func(t *testing.T) {
@@ -517,14 +517,14 @@ func TestService_GetLabels(t *testing.T) {
 		FilterBy:        "",
 	}
 	tt = testCase{
-		"required filter_by",
+		"required_filter_by",
 		fields{rm: rm, mm: mm},
 		args{
 			context.TODO(),
 			request,
 		},
 		nil,
-		fmt.Errorf("filter_by is required:%v", request.FilterBy),
+		nil,
 	}
 
 	t.Run(tt.name, func(t *testing.T) {
@@ -532,8 +532,15 @@ func TestService_GetLabels(t *testing.T) {
 			rm: tt.fields.rm,
 			mm: tt.fields.mm,
 		}
-		_, err := s.GetLabels(tt.args.ctx, tt.args.in)
-		require.EqualError(t, err, tt.wantErr.Error())
+		got, err := s.GetLabels(tt.args.ctx, tt.args.in)
+		require.Equal(t, err, tt.wantErr)
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetLabels_"+tt.name+".json")
+
+		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		if err != nil {
+			t.Errorf("cannot marshal:%v", err)
+		}
+		require.Equal(t, expectedJSON, gotJSON)
 	})
 
 	request = &qanpb.ObjectDetailsLabelsRequest{
