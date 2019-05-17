@@ -19,4 +19,4 @@ global variable |opt.innodb-monitor-enable| to ``all``:
    |mysql| Documentation: |opt.innodb-monitor-enable| variable
       https://dev.mysql.com/doc/refman/5.7/en/innodb-parameters.html#sysvar_innodb_monitor_enable
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

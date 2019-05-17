@@ -25,7 +25,7 @@ the site will not show any data.
    :term:`Metrics Monitor (MM)`         | ``http://192.168.100.1/graph/``
                                         | User name: ``admin``
                                         | Password: ``admin``
-   Orchestrator                         ``http://192.168.100.1/orchestrator``
+   PMM API browser                      ``http://192.168.100.1/swagger``
    ==================================== ======================================
 
 You can also check if |pmm-server| is available requesting the /ping

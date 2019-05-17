@@ -9,3 +9,4 @@ Installing PMM Server
    ami
    virtual-appliance
    server-verify
+   ../manage/index-server

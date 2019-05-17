@@ -19,10 +19,9 @@ to ensure that your data works as efficiently as possible.
 
    concepts/index
    install/index-server
-   manage/index-server
-   manage/index-services
    install/index-client
    manage/index-using-pmm-client
+   manage/index-services
    Adding AWS RDS and Aurora MySQL and PostgreSQL services <manage/index.amazon>
    index-using-pmm-metrics-monitor
    index-qan

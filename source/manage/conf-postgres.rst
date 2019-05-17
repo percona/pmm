@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------------
-Adding a PostgreSQL host
+Adding PostgreSQL  Service Monitoring
 --------------------------------------------------------------------------------
 
 .. _pmm.qan.postgres.conf:
@@ -7,8 +7,7 @@ Adding a PostgreSQL host
 Understanding PostgreSQL metrics service
 ===============================================================================
 
-Monitoring |postgresql| metrics with the `postgres_exporter <https://github.com/wrouesnel/postgres_exporter>`_ is enabled by ``pmm-admin add postgresql`` command. The ``postgresql`` alias will set up
-``postgresql:metrics`` and also ``linux:metrics`` on a host (for more information, see `Adding monitoring services <https://www.percona.com/doc/percona-monitoring-and-management/pmm-admin.html#pmm-admin-add>`_).
+Monitoring |postgresql| metrics with the `postgres_exporter <https://github.com/wrouesnel/postgres_exporter>`_ is enabled by ``pmm-admin add postgresql`` command. It will set up both PostgreSQL and Linux metrics on a host.
 
 ``pmm-admin`` supports passing |postgresql| connection information via following flags:
 

@@ -92,4 +92,4 @@ For more information, run
 |opt.mysql|
 |opt.help|.
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

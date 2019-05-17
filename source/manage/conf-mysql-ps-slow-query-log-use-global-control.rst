@@ -3,7 +3,7 @@
 
 By default, slow query log settings apply only to new sessions.  If you want to
 configure the slow query log during runtime and apply these settings to existing
-connections, set the |slow_query_log_use_global_control|_ variable to ``all``.
+connections, set the ``slow_query_log_use_global_control`` variable to ``all``.
 
 .. seealso::
 
@@ -28,4 +28,4 @@ connections, set the |slow_query_log_use_global_control|_ variable to ``all``.
 .. |slow_query_log_use_global_control| replace:: ``slow_query_log_use_global_control``
 .. _slow_query_log_use_global_control: https://www.percona.com/doc/percona-server/5.7/diagnostics/slow_extended.html#slow_query_log_use_global_control
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

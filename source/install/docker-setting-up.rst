@@ -144,8 +144,6 @@ interface would look as follows:
 
 .. seealso::
 
-   Default ports
-      :ref:`Ports <Ports>` in :ref:`pmm.glossary-terminology-reference`
    Updating PMM
       :ref:`Updating PMM <deploy-pmm.updating>`
    Backing Up the |pmm-server| |docker| container

@@ -1,6 +1,4 @@
 .. code-block:: bash
 
-   $ docker cp pmm-data:/srv/prometheus srv/
-   $ docker cp pmm-data:/srv/consul srv/
-   $ docker cp pmm-data:/srv/grafana srv/
+   $ docker cp pmm-data:/srv /
 

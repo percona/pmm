@@ -1,8 +1,8 @@
 `log_slow_verbosity <pmm.conf-mysql.log-slow-verbosity>`_
 --------------------------------------------------------------------------------
 
-|log_slow_verbosity|_ variable specifies how much information to include in
-the slow query log. It is a good idea to set |log_slow_verbosity|_ to ``full``
+``log_slow_verbosity`` variable specifies how much information to include in
+the slow query log. It is a good idea to set ``log_slow_verbosity`` to ``full``
 so that maximum amount of information about each captured query is stored.
 
 .. seealso::

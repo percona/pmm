@@ -4,12 +4,12 @@
 `Navigating to Query Analytics <pmm.qan.home-page.opening>`_
 --------------------------------------------------------------------------------
    
-To start working with |qan|, choose the *Query analytics", which is the very
+To start working with |qan|, choose the *Query analytics*, which is the very
 left item of the system menu on the top. The |qan| dashboard will show up
 several panels: a search panel, followed by a filter panel on the left, and a
 panel with the list of queries in a summary table. The columns on this panel are
 highly customizable, and by default, it displays *Query* column, followed by
-three essential metrics: *Load*, *Count*, and *Latency*.
+few essential metrics, such as *Load*, *Count*, and *Latency*.
 
 .. figure:: .res/graphics/png/qan01.png
 

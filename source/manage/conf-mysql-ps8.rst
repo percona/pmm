@@ -58,4 +58,4 @@ change.
    |mysql| Documentation: Native Pluggable Authentication
       https://dev.mysql.com/doc/refman/8.0/en/native-pluggable-authentication.html
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt

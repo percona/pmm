@@ -28,4 +28,4 @@ To enable collection of query response time:
       - |opt.query-response-time-stats|: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#query_response_time_stats
       - Response time distribution: https://www.percona.com/doc/percona-server/5.7/diagnostics/response_time_distribution.html#installing-the-plugins
 
-.. include:: .res/replace.txt
+.. include:: ../.res/replace.txt
