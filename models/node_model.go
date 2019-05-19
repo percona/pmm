@@ -61,7 +61,6 @@ type Node struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-//nolint:unparam
 func (s *Node) BeforeInsert() error {
 	now := Now()
 	s.CreatedAt = now
@@ -73,7 +72,6 @@ func (s *Node) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-//nolint:unparam
 func (s *Node) BeforeUpdate() error {
 	s.UpdatedAt = Now()
 	if len(s.CustomLabels) == 0 {
@@ -83,7 +81,6 @@ func (s *Node) BeforeUpdate() error {
 }
 
 // AfterFind implements reform.AfterFinder interface.
-//nolint:unparam
 func (s *Node) AfterFind() error {
 	s.CreatedAt = s.CreatedAt.UTC()
 	s.UpdatedAt = s.UpdatedAt.UTC()

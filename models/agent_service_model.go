@@ -33,7 +33,6 @@ type AgentService struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-//nolint:unparam
 func (s *AgentService) BeforeInsert() error {
 	now := Now()
 	s.CreatedAt = now
@@ -41,13 +40,11 @@ func (s *AgentService) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-//nolint:unparam
 func (s *AgentService) BeforeUpdate() error {
 	panic("AgentService should not be updated")
 }
 
 // AfterFind implements reform.AfterFinder interface.
-//nolint:unparam
 func (s *AgentService) AfterFind() error {
 	s.CreatedAt = s.CreatedAt.UTC()
 	return nil

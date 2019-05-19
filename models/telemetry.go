@@ -33,7 +33,6 @@ type TelemetryRow struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-//nolint:unparam
 func (t *TelemetryRow) BeforeInsert() error {
 	if t.UUID == "" {
 		return errors.New("UUID should not be empty")
@@ -45,13 +44,11 @@ func (t *TelemetryRow) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-//nolint:unparam
 func (t *TelemetryRow) BeforeUpdate() error {
 	panic("TelemetryRow should not be updated")
 }
 
 // AfterFind implements reform.AfterFinder interface.
-//nolint:unparam
 func (t *TelemetryRow) AfterFind() error {
 	t.CreatedAt = t.CreatedAt.UTC()
 	return nil

@@ -61,7 +61,6 @@ type Agent struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-//nolint:unparam
 func (s *Agent) BeforeInsert() error {
 	now := Now()
 	s.CreatedAt = now
@@ -73,7 +72,6 @@ func (s *Agent) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-//nolint:unparam
 func (s *Agent) BeforeUpdate() error {
 	s.UpdatedAt = Now()
 	if len(s.CustomLabels) == 0 {
@@ -83,7 +81,6 @@ func (s *Agent) BeforeUpdate() error {
 }
 
 // AfterFind implements reform.AfterFinder interface.
-//nolint:unparam
 func (s *Agent) AfterFind() error {
 	s.CreatedAt = s.CreatedAt.UTC()
 	s.UpdatedAt = s.UpdatedAt.UTC()

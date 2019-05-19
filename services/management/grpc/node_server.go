@@ -24,7 +24,6 @@ import (
 	"github.com/percona/pmm-managed/services/management"
 )
 
-//nolint:unused
 type nodeServer struct {
 	svc *management.NodeService
 }

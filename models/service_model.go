@@ -53,7 +53,6 @@ type Service struct {
 }
 
 // BeforeInsert implements reform.BeforeInserter interface.
-//nolint:unparam
 func (s *Service) BeforeInsert() error {
 	now := Now()
 	s.CreatedAt = now
@@ -65,7 +64,6 @@ func (s *Service) BeforeInsert() error {
 }
 
 // BeforeUpdate implements reform.BeforeUpdater interface.
-//nolint:unparam
 func (s *Service) BeforeUpdate() error {
 	s.UpdatedAt = Now()
 	if len(s.CustomLabels) == 0 {
@@ -75,7 +73,6 @@ func (s *Service) BeforeUpdate() error {
 }
 
 // AfterFind implements reform.AfterFinder interface.
-//nolint:unparam
 func (s *Service) AfterFind() error {
 	s.CreatedAt = s.CreatedAt.UTC()
 	s.UpdatedAt = s.UpdatedAt.UTC()

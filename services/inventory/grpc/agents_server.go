@@ -25,7 +25,6 @@ import (
 	"github.com/percona/pmm-managed/services/inventory"
 )
 
-//nolint:unused
 type agentsServer struct {
 	s *inventory.AgentsService
 }
