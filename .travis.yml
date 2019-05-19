@@ -1,5 +1,4 @@
-dist: trusty
-sudo: required
+dist: xenial
 language: go
 
 go:
@@ -10,13 +9,14 @@ matrix:
   allow_failures:
     - go: master
 
-before_cache:
-  - go clean -testcache
-
 cache:
   directories:
     - /home/travis/.cache/go-build
-    - /home/travis/gopath/pkg
+    # - /home/travis/gopath/pkg
+
+before_cache:
+  - go clean -testcache
+  # - go clean -cache
 
 install:
   # ensure that Gopkg.lock is up-to-date
@@ -24,14 +24,14 @@ install:
   - make -C api init
   - cd api && dep check && cd ..
 
-script:
+before_script:
+  # ensure that generated files are not changed
   - make -C api gen
-
-  # check that generated files are up-to-date
   - git status
   - git diff --exit-code
 
-  - go test -v ./...
+script:
+  - go test ./...
 
 notifications:
   slack:
