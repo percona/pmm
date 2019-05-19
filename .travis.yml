@@ -1,6 +1,8 @@
-dist: trusty
-sudo: required
+dist: xenial
 language: go
+
+services:
+  - docker
 
 go:
   - 1.12.x
@@ -10,15 +12,19 @@ matrix:
   allow_failures:
     - go: master
 
-before_cache:
-  - go clean -testcache
-
 cache:
   directories:
     - /home/travis/.cache/go-build
-    - /home/travis/gopath/pkg
+    # - /home/travis/gopath/pkg
+
+before_cache:
+  - go clean -testcache
+  # - go clean -cache
 
 env:
+  global:
+    - CODECOV_ENV=MYSQL_IMAGE,MONGO_IMAGE
+
   matrix:
     - MYSQL_IMAGE=percona:5.6 MONGO_IMAGE=mongo:3.4
     - MYSQL_IMAGE=percona:5.7 MONGO_IMAGE=mongo:3.6
@@ -34,30 +40,36 @@ env:
     # TODO
     # mysql or mysql/mysql-server ?
 
-script:
-  - sudo service mysql stop
-  - sudo service postgresql stop
+before_install:
   - docker-compose up -d
 
+install:
   # ensure that vendor/ is in sync with code and Gopkg.toml/lock
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - dep check
 
+before_script:
   # ensure that generated files are not changed
-  - make init gen
+  - make init
+  - make gen
   - git status
   - git diff --exit-code
 
+script:
   # for main_test.go
   - make install
 
-  - make check
-
   - make test-cover
+  - make test-crosscover
   - make test-race
 
+  - make check
+
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -X fix
+  - curl https://codecov.io/bash > codecov
+  - chmod +x codecov
+  - ./codecov -f cover.out -F cover -X fix
+  - ./codecov -f crosscover.out -F crosscover -X fix
 
 notifications:
   slack:

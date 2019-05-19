@@ -2,6 +2,7 @@
 /.vscode/
 /bin/
 cover.out
+crosscover.out
 
 backoff.png
 pmm-agent-dev.yaml

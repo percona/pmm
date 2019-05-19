@@ -24,26 +24,26 @@ release:                        ## Build pmm-agent release binary.
 init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
 	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
 
-	go install -v ./vendor/gopkg.in/reform.v1/reform \
-					./vendor/github.com/BurntSushi/go-sumtype \
-					./vendor/github.com/vektra/mockery/cmd/mockery
+	go install ./vendor/gopkg.in/reform.v1/reform \
+				./vendor/github.com/BurntSushi/go-sumtype \
+				./vendor/github.com/vektra/mockery/cmd/mockery
 
-	go test -v -i ./...
-	go test -v -race -i ./...
+	go test -i ./...
+	go test -race -i ./...
 
 gen:                            ## Generate files.
 	go generate ./...
 
 gen-init:
-	go install -v ./vendor/gopkg.in/reform.v1/reform-db
+	go install ./vendor/gopkg.in/reform.v1/reform-db
 	mkdir tmp-mysql
 	reform-db -db-driver=mysql -db-source='root:root-password@tcp(127.0.0.1:3306)/performance_schema' init tmp-mysql
 
 install:                        ## Install pmm-agent binary.
-	go install -v $(LD_FLAGS) ./...
+	go install $(LD_FLAGS) ./...
 
 install-race:                   ## Install pmm-agent binary with race detector.
-	go install -v $(LD_FLAGS) -race ./...
+	go install $(LD_FLAGS) -race ./...
 
 TEST_FLAGS ?= -timeout=20s
 
@@ -53,8 +53,11 @@ test:                           ## Run tests.
 test-race:                      ## Run tests with race detector.
 	go test $(TEST_FLAGS) -race ./...
 
-test-cover:                     ## Run tests and collect coverage information.
+test-cover:                     ## Run tests and collect per-package coverage information.
 	go test $(TEST_FLAGS) -coverprofile=cover.out -covermode=count ./...
+
+test-crosscover:                ## Run tests and collect cross-package coverage information.
+	go test $(TEST_FLAGS) -coverprofile=crosscover.out -covermode=count -coverpkg=./... ./...
 
 check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
@@ -75,7 +78,7 @@ run-race: install-race _run     ## Run pmm-agent with race detector.
 run-race-cover: install-race    ## Run pmm-agent with race detector and collect coverage information.
 	go test -coverpkg="github.com/percona/pmm-agent/..." \
 			-tags maincover \
-			-v $(LD_FLAGS) \
+			$(LD_FLAGS) \
 			-race -c -o bin/pmm-agent.test
 	bin/pmm-agent.test -test.coverprofile=cover.out -test.run=TestMainCover -- $(RUN_FLAGS)
 
