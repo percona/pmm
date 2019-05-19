@@ -1,6 +1,8 @@
-dist: trusty
-sudo: required
+dist: xenial
 language: go
+
+services:
+  - docker
 
 go:
   - 1.12.x
@@ -10,16 +12,19 @@ matrix:
   allow_failures:
     - go: master
 
-before_cache:
-  - go clean -testcache
-
 cache:
   directories:
     - /home/travis/.cache/go-build
-    - /home/travis/gopath/pkg
+    # - /home/travis/gopath/pkg
+
+before_cache:
+  - go clean -testcache
+  # - go clean -cache
 
 env:
   global:
+    - CODECOV_ENV=PROMETHEUS_IMAGE,GRAFANA_IMAGE,POSTGRES_IMAGE
+
     # Secure variables are not exposed for external pull requests: https://docs.travis-ci.com/user/pull-requests#Pull-Requests-and-Security-Restrictions
     # AWS_ACCESS_KEY_ID
     - secure: "jOUSuGO6F6wH8nn5Xq6tIR2ADQywVSqX5YJIAsxuJ1ICGv9zsL1KuGq3El5Li3EMk79IwlrocTCJVIHxcps8qOCK129pTmuWhwGGfipCd8MzkPIWhwLso7eH+RxKSrkoBfYl7U8xQokyv/0EmGSsrz2EpopQIbcK/lVyT5GYEnc/Vz2doGO8beNPtUAg3753wYt43KOguyuPHNyklGCihQWFlH8BxTuS53zZeGBSXijxif25bCBSQza0FAMrG6k4msxP5+rDYkxzKMDmXP2dovTpX5pfgG94uCXQnWOa+FSS4BA/CcHKbWezK0w5h4SXLsQ6aJxJFl8CIO9ARAluUSA/caR+Pc5ndO4GDbz/53vKIXe9Pg1qF1w+CuGGrwJJAihA1kUIA/s8E8VVu50xXZOx2OvJBaNGX1QahYHUOUjSiwPi/ddG+1jbrwgqBNyGMMlhwZteMDOwRsGfGlCDBQygu8IOROXeC3wFSGuA3UOkvtTX6Hjuug7D9/RHi/cYJHFawmvw+4883F0eAsogkl4B7xuNYXSEurfUsjz+3yQAt9KO/S3k2wMCNX8/aHSfahNQjLwX381gIw8Ky0W1qdEIh0069cDN1/hJtldwKegXw15YbBOM0wwzXxCk2tFXDhG9dE9QXzSvgcAD/oihJhQUD4/GNMoY8LuKfRTUJWE="
@@ -46,30 +51,36 @@ env:
       GRAFANA_IMAGE=grafana/grafana:master
       POSTGRES_IMAGE=postgres:latest
 
-script:
-  - sudo service mysql stop
-  - sudo service postgresql stop
+before_install:
   - docker-compose up -d
 
+install:
   # ensure that vendor/ is in sync with code and Gopkg.toml/lock
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - dep check
 
+before_script:
   # ensure that generated files are not changed
-  - make init gen
+  - make init
+  - make gen
   - git status
   - git diff --exit-code
 
+script:
   # for main_test.go
   - make install
 
-  - make check
-
   - make test-cover
+  - make test-crosscover
   - make test-race
 
+  - make check
+
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -X fix
+  - curl https://codecov.io/bash > codecov
+  - chmod +x codecov
+  - ./codecov -f cover.out -F cover -X fix
+  - ./codecov -f crosscover.out -F crosscover -X fix
 
 notifications:
   slack:
