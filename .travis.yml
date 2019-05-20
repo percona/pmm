@@ -52,6 +52,7 @@ before_script:
   # ensure that generated files are not changed
   - make init
   - make gen
+  - make format
   - git status
   - git diff --exit-code
 
