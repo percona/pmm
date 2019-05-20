@@ -130,6 +130,9 @@ type AddPostgresExporterBody struct {
 	// Service identifier.
 	ServiceID string `json:"service_id,omitempty"`
 
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
 	// PostgreSQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
 }
