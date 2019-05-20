@@ -348,7 +348,7 @@ func getQANClient(ctx context.Context, db *reform.DB) *qan.Client {
 
 func main() {
 	log.SetFlags(0)
-	log.Printf("%s.", version.ShortInfo())
+	log.Print(version.FullInfo())
 	log.SetPrefix("stdlog: ")
 	flag.Parse()
 
