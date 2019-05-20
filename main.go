@@ -182,6 +182,9 @@ func main() {
 	case management.RemoveC.FullCommand():
 		command = management.Remove
 
+	case inventory.ListNodesC.FullCommand():
+		command = inventory.ListNodes
+
 	case inventory.AddNodeGenericC.FullCommand():
 		command = inventory.AddNodeGeneric
 
@@ -190,6 +193,9 @@ func main() {
 
 	case inventory.RemoveNodeC.FullCommand():
 		command = inventory.RemoveNode
+
+	case inventory.ListServicesC.FullCommand():
+		command = inventory.ListServices
 
 	case inventory.AddServiceMySQLC.FullCommand():
 		command = inventory.AddServiceMySQL
@@ -202,6 +208,9 @@ func main() {
 
 	case inventory.RemoveServiceC.FullCommand():
 		command = inventory.RemoveService
+
+	case inventory.ListAgentsC.FullCommand():
+		command = inventory.ListAgents
 
 	case inventory.AddAgentPMMAgentC.FullCommand():
 		command = inventory.AddAgentPMMAgent

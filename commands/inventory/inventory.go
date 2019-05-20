@@ -24,6 +24,7 @@ import (
 // register commands
 var (
 	inventoryC       = kingpin.Command("inventory", "Inventory commands.")
+	inventoryListC   = inventoryC.Command("list", "List inventory commands.")
 	inventoryAddC    = inventoryC.Command("add", "Add to inventory commands.")
 	inventoryRemoveC = inventoryC.Command("remove", "Remove from inventory commands.")
 )
