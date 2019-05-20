@@ -383,9 +383,10 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b0a93dc5abc427a2f5a495f0142ee3d98cf87f8b31ccfec92c0db77684a499df"
+  digest = "1:3627a540c946a58f7607d08172f0b026fa13c944afe0358bac67dc6c748d4201"
   name = "golang.org/x/tools"
   packages = [
+    "cmd/goimports",
     "go/ast/astutil",
     "go/buildutil",
     "go/gcexportdata",
@@ -537,6 +538,7 @@
     "github.com/vektra/mockery/cmd/mockery",
     "golang.org/x/sync/errgroup",
     "golang.org/x/sys/unix",
+    "golang.org/x/tools/cmd/goimports",
     "google.golang.org/grpc",
     "google.golang.org/grpc/channelz/service",
     "google.golang.org/grpc/codes",
