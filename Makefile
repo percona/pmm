@@ -24,9 +24,10 @@ release:                        ## Build pmm-agent release binary.
 init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
 	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
 
-	go install ./vendor/gopkg.in/reform.v1/reform \
-				./vendor/github.com/BurntSushi/go-sumtype \
-				./vendor/github.com/vektra/mockery/cmd/mockery
+	go install ./vendor/github.com/BurntSushi/go-sumtype \
+				./vendor/github.com/vektra/mockery/cmd/mockery \
+				./vendor/golang.org/x/tools/cmd/goimports \
+				./vendor/gopkg.in/reform.v1/reform
 
 	go test -i ./...
 	go test -race -i ./...

@@ -4,9 +4,10 @@ ignored = [
 
 # tools
 required = [
-  "gopkg.in/reform.v1/reform",
   "github.com/BurntSushi/go-sumtype",
   "github.com/vektra/mockery/cmd/mockery",
+  "golang.org/x/tools/cmd/goimports",
+  "gopkg.in/reform.v1/reform",
 
   # for make gen-init when it is needed
   # "gopkg.in/reform.v1/reform-db",
