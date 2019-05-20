@@ -60,7 +60,7 @@ The |pmm-client| package consist of the following:
   metrics.
 * |mongodb-exporter| is a |prometheus| exporter that collects |mongodb| server
   metrics.
-* **postgresql-exporter** is a |prometheus| exporter that collects |postgresql|
+* |postgresql-exporter| is a |prometheus| exporter that collects |postgresql|
   performance metrics.
 * |proxysql-exporter| is a |prometheus| exporter that collects |proxysql|
   performance metrics.

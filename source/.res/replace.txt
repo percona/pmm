@@ -99,7 +99,7 @@
 .. |pmm-system-summary| replace:: *PMM System Summary*
 .. |pmm.name| replace:: *Percona Monitoring and Management*
 .. |pmm| replace:: PMM
-.. |postgresql-exporter| replace:: :program:`postgresql_exporter`
+.. |postgresql-exporter| replace:: :program:`postgres_exporter`
 .. |postgresql| replace:: PostgreSQL
 .. |prometheus| replace:: Prometheus
 .. |proxysql-exporter| replace:: :program:`proxysql_exporter`
