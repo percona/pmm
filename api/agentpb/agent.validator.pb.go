@@ -100,6 +100,12 @@ func (this *ActionResultRequest) Validate() error {
 func (this *ActionResultResponse) Validate() error {
 	return nil
 }
+func (this *CheckConnectionRequest) Validate() error {
+	return nil
+}
+func (this *CheckConnectionResponse) Validate() error {
+	return nil
+}
 func (this *AgentMessage) Validate() error {
 	if oneOfNester, ok := this.GetPayload().(*AgentMessage_Ping); ok {
 		if oneOfNester.Ping != nil {
@@ -154,6 +160,13 @@ func (this *AgentMessage) Validate() error {
 		if oneOfNester.StopAction != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StopAction); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("StopAction", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*AgentMessage_CheckConnection); ok {
+		if oneOfNester.CheckConnection != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.CheckConnection); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("CheckConnection", err)
 			}
 		}
 	}
@@ -213,6 +226,13 @@ func (this *ServerMessage) Validate() error {
 		if oneOfNester.StopAction != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.StopAction); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("StopAction", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetPayload().(*ServerMessage_CheckConnection); ok {
+		if oneOfNester.CheckConnection != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.CheckConnection); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("CheckConnection", err)
 			}
 		}
 	}

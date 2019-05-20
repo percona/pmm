@@ -136,6 +136,11 @@
                   "description": "Service identifier.",
                   "type": "string"
                 },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
                 "username": {
                   "description": "MongoDB username for scraping metrics.",
                   "type": "string"
@@ -264,6 +269,11 @@
                 "service_id": {
                   "description": "Service identifier.",
                   "type": "string"
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
                 },
                 "username": {
                   "description": "MySQL username for scraping metrics.",
@@ -586,6 +596,11 @@
                   "description": "Service identifier.",
                   "type": "string"
                 },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
                   "type": "string"
@@ -715,6 +730,11 @@
                   "description": "Service identifier.",
                   "type": "string"
                 },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
                 "username": {
                   "description": "MongoDB username for getting profile data.",
                   "type": "string"
@@ -839,6 +859,11 @@
                   "description": "Service identifier.",
                   "type": "string"
                 },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
                 "username": {
                   "description": "MySQL username for getting performance data.",
                   "type": "string"
@@ -962,6 +987,11 @@
                 "service_id": {
                   "description": "Service identifier.",
                   "type": "string"
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
                 },
                 "username": {
                   "description": "MySQL username for getting slowlog data.",

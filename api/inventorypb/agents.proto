@@ -409,6 +409,8 @@ message AddMySQLdExporterRequest {
   string password = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // Skip connection check.
+  bool skip_connection_check = 20;
 }
 
 message AddMySQLdExporterResponse {
@@ -451,6 +453,8 @@ message AddMongoDBExporterRequest {
   string password = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // Skip connection check.
+  bool skip_connection_check = 20;
 }
 
 message AddMongoDBExporterResponse {
@@ -497,6 +501,8 @@ message AddPostgresExporterRequest {
   string password = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // Skip connection check.
+  bool skip_connection_check = 20;
 }
 
 message AddPostgresExporterResponse {
@@ -543,6 +549,8 @@ message AddQANMySQLPerfSchemaAgentRequest {
   string password = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // Skip connection check.
+  bool skip_connection_check = 20;
 }
 
 message AddQANMySQLPerfSchemaAgentResponse {
@@ -589,6 +597,8 @@ message AddQANMySQLSlowlogAgentRequest {
   string password = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // Skip connection check.
+  bool skip_connection_check = 20;
 }
 
 message AddQANMySQLSlowlogAgentResponse {
@@ -631,6 +641,8 @@ message AddQANMongoDBProfilerAgentRequest {
   string password = 5;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
+  // Skip connection check.
+  bool skip_connection_check = 20;
 }
 
 message AddQANMongoDBProfilerAgentResponse {
