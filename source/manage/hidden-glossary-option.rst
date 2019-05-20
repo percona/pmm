@@ -33,7 +33,7 @@ with different properties,  you should run a new container instead.
 
 2. Ensure you are running the latest version of PMM Server:
 
-      docker pull percona/pmm-server:latest
+      docker pull percona/pmm-server:2
 
    .. warning:: When you destroy and recreate the container, all the
       updates you have done through PMM Web interface will be lost. What’s more,
@@ -50,7 +50,7 @@ with different properties,  you should run a new container instead.
         --name pmm-server \
         --restart always \
         -e METRICS_RESOLUTION=5s \
-        percona/pmm-server:latest
+        percona/pmm-server:2
 
 5. Once you're satisfied with the new container deployment options and you don't plan to revert, you can remove the old
    container::

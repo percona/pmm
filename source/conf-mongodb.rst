@@ -20,7 +20,7 @@ accordingly. Run the |pmm-admin.add| command to use these monitoring services
 
 .. _pmm.qan-mongodb.conf.essential-permission.setting-up:
 
-Setting Up the Essential Permissions
+Setting Up the Required Permissions
 ================================================================================
 
 For |opt.mongodb-metrics| and |opt.mongodb-queries| monitoring services to be
