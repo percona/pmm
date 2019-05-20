@@ -97,7 +97,7 @@ func main() {
 	agentlocal.SetTransport(ctx, commands.GlobalFlags.Debug || commands.GlobalFlags.Trace)
 
 	if *serverURLF == "" {
-		status, err := agentlocal.GetStatus()
+		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
 			if err == agentlocal.ErrNotSetUp {
 				logrus.Fatalf("Failed to get PMM Server parameters from local pmm-agent: %s.\n"+

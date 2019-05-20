@@ -75,7 +75,7 @@ func (cmd *listCommand) Run() (Result, error) {
 	// It does not use local pmm-agent status API beyond getting a Node ID.
 
 	if cmd.NodeID == "" {
-		status, err := agentlocal.GetStatus()
+		status, err := agentlocal.GetStatus(agentlocal.DoNotRequestNetworkInfo)
 		if err != nil {
 			return nil, err
 		}

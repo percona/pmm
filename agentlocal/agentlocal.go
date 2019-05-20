@@ -23,10 +23,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	httptransport "github.com/go-openapi/runtime/client"
-	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client"
+	"github.com/percona/pmm/api/agentlocalpb/json/client"
+	agentlocal "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 	"github.com/sirupsen/logrus"
 )
 
@@ -42,8 +44,15 @@ func SetTransport(ctx context.Context, debug bool) {
 	httpTransport := transport.Transport.(*http.Transport)
 	httpTransport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
 
-	agentlocal.Default.SetTransport(transport)
+	client.Default.SetTransport(transport)
 }
+
+type NetworkInfo bool
+
+const (
+	RequestNetworkInfo      NetworkInfo = true
+	DoNotRequestNetworkInfo NetworkInfo = false
+)
 
 // ErrNotSetUp is returned by GetStatus when pmm-agent is running, but not set up.
 var ErrNotSetUp = fmt.Errorf("pmm-agent is running, but not set up")
@@ -58,7 +67,10 @@ type Status struct {
 	ServerVersion     string   `json:"server_version"`
 
 	Agents []AgentStatus `json:"agents"`
-	// TODO latency / last ping time / connection status
+
+	Connected        bool
+	ServerClockDrift time.Duration
+	ServerLatency    time.Duration
 }
 
 type AgentStatus struct {
@@ -69,8 +81,14 @@ type AgentStatus struct {
 
 // GetStatus returns local pmm-agent status.
 // As a special case, if pmm-agent is running, but not set up, ErrNotSetUp is returned.
-func GetStatus() (*Status, error) {
-	res, err := agentlocal.Default.AgentLocal.Status(nil)
+func GetStatus(requestNetworkInfo NetworkInfo) (*Status, error) {
+	params := &agentlocal.StatusParams{
+		Body: agentlocal.StatusBody{
+			GetNetworkInfo: bool(requestNetworkInfo),
+		},
+		Context: context.TODO(),
+	}
+	res, err := client.Default.AgentLocal.Status(params)
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +111,18 @@ func GetStatus() (*Status, error) {
 			Status:    pointer.GetString(a.Status),
 		}
 	}
+	var clockDrift time.Duration
+	var latency time.Duration
+	if bool(requestNetworkInfo) && res.Payload.ServerInfo.Connected {
+		clockDrift, err = time.ParseDuration(p.ServerInfo.ClockDrift)
+		if err != nil {
+			return nil, err
+		}
+		latency, err = time.ParseDuration(p.ServerInfo.Latency)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	return &Status{
 		AgentID: p.AgentID,
@@ -103,5 +133,9 @@ func GetStatus() (*Status, error) {
 		ServerVersion:     p.ServerInfo.Version,
 
 		Agents: agents,
+
+		Connected:        p.ServerInfo.Connected,
+		ServerClockDrift: clockDrift,
+		ServerLatency:    latency,
 	}, nil
 }
