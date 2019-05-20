@@ -31,6 +31,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/golang/protobuf/ptypes"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
@@ -135,12 +136,20 @@ func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*
 	var serverInfo *agentlocalpb.ServerInfo
 	if u := s.cfg.Server.URL(); u != nil {
 		serverInfo = &agentlocalpb.ServerInfo{
-			Url:          u.String(),
-			InsecureTls:  s.cfg.Server.InsecureTLS,
-			Version:      md.ServerVersion,
-			LastPingTime: nil, // TODO https://jira.percona.com/browse/PMM-3758
-			Latency:      nil, // TODO https://jira.percona.com/browse/PMM-3758
-			Connected:    connected,
+			Url:         u.String(),
+			InsecureTls: s.cfg.Server.InsecureTLS,
+			Version:     md.ServerVersion,
+			Connected:   connected,
+		}
+
+		if req.GetNetworkInfo && connected {
+			latency, clockDrift, err := s.client.GetNetworkInformation()
+			if err != nil {
+				s.l.Errorf("Can't get network info: %s", err)
+			} else {
+				serverInfo.Latency = ptypes.DurationProto(latency)
+				serverInfo.ClockDrift = ptypes.DurationProto(clockDrift)
+			}
 		}
 	}
 

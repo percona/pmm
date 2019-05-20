@@ -300,6 +300,9 @@ type StatusBody struct {
 
 	// TODO https://jira.percona.com/browse/PMM-3758
 	GetLogs bool `json:"get_logs,omitempty"`
+
+	// Returns network info if set true.
+	GetNetworkInfo bool `json:"get_network_info,omitempty"`
 }
 
 // Validate validates this status body
@@ -468,17 +471,16 @@ swagger:model StatusOKBodyServerInfo
 */
 type StatusOKBodyServerInfo struct {
 
+	// Clock drift between pmm-managed and pmm-agent.
+	ClockDrift string `json:"clock_drift,omitempty"`
+
 	// True if pmm-agent is currently connected to the server.
 	Connected bool `json:"connected,omitempty"`
 
 	// PMM Server's TLS certificate validation should be skipped if true.
 	InsecureTLS bool `json:"insecure_tls,omitempty"`
 
-	// TODO https://jira.percona.com/browse/PMM-3758
-	// Format: date-time
-	LastPingTime strfmt.DateTime `json:"last_ping_time,omitempty"`
-
-	// TODO https://jira.percona.com/browse/PMM-3758
+	// Ping time from pmm-agent to pmm-managed.
 	Latency string `json:"latency,omitempty"`
 
 	// PMM Server URL in a form https://HOST:PORT/.
@@ -490,28 +492,6 @@ type StatusOKBodyServerInfo struct {
 
 // Validate validates this status OK body server info
 func (o *StatusOKBodyServerInfo) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateLastPingTime(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *StatusOKBodyServerInfo) validateLastPingTime(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.LastPingTime) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("statusOk"+"."+"server_info"+"."+"last_ping_time", "body", "date-time", o.LastPingTime.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 

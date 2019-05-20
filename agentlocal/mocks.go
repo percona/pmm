@@ -17,6 +17,8 @@
 package agentlocal
 
 import (
+	"time"
+
 	"github.com/percona/pmm/api/agentlocalpb"
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/prometheus/client_golang/prometheus"
@@ -37,4 +39,5 @@ type client interface {
 	GetAgentServerMetadata() *agentpb.AgentServerMetadata
 	Describe(chan<- *prometheus.Desc)
 	Collect(chan<- prometheus.Metric)
+	GetNetworkInformation() (latency, clockDrift time.Duration, err error)
 }

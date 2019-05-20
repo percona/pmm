@@ -21,7 +21,6 @@ import (
 	"context"
 	"crypto/tls"
 	"net"
-	"strings"
 	"sync"
 	"time"
 
@@ -312,6 +311,7 @@ func dial(dialCtx context.Context, cfg *config.Config, withoutTLS bool, l *logru
 	defer streamCancelT.Stop()
 
 	l.Info("Establishing two-way communication channel ...")
+	start := time.Now()
 	streamCtx = agentpb.AddAgentConnectMetadata(streamCtx, &agentpb.AgentConnectMetadata{
 		ID:      cfg.ID,
 		Version: version.Version,
@@ -341,40 +341,53 @@ func dial(dialCtx context.Context, cfg *config.Config, withoutTLS bool, l *logru
 		return nil, errors.Wrap(err, "failed to get server metadata")
 	}
 
-	start := time.Now()
 	channel := channel.New(stream)
-	resp := channel.SendRequest(new(agentpb.Ping))
-	if resp == nil {
-		err = channel.Wait()
-		msg := err.Error()
-
-		// improve error message in that particular case
-		status := status.Convert(errors.Cause(err))
-		if status.Code() == codes.Internal && strings.Contains(status.Message(), "received the unexpected content-type") {
-			msg += "\nPlease check that pmm-managed is running"
-		}
-
-		l.Errorf("Failed to send Ping message: %s.", msg)
-		teardown()
-		return nil, errors.Wrap(err, "failed to send Ping")
-	}
-
-	roundtrip := time.Since(start)
-	serverTime, err := ptypes.Timestamp(resp.(*agentpb.Pong).CurrentTime)
+	_, clockDrift, err := getNetworkInformation(channel)
 	if err != nil {
-		l.Errorf("Failed to decode Pong.current_time: %s.", err)
+		l.Errorf("Failed to get network information: %s.", err)
 		teardown()
-		return nil, errors.Wrap(err, "failed to decode Ping")
+		return nil, err
 	}
-	l.Infof("Two-way communication channel established in %s.", roundtrip)
+	l.Infof("Two-way communication channel established in %s.", time.Since(start))
 	streamCancelT.Stop()
 
-	clockDrift := serverTime.Sub(start) - roundtrip/2
 	if clockDrift > clockDriftWarning || -clockDrift > clockDriftWarning {
 		l.Warnf("Estimated clock drift: %s.", clockDrift)
 	}
 
 	return &dialResult{conn, streamCancel, channel, md}, nil
+}
+
+func getNetworkInformation(channel *channel.Channel) (latency, clockDrift time.Duration, err error) {
+	start := time.Now()
+	resp := channel.SendRequest(new(agentpb.Ping))
+	if resp == nil {
+		err = errors.Wrap(channel.Wait(), "Failed to send Ping")
+		return
+	}
+	roundtrip := time.Since(start)
+	serverTime, err := ptypes.Timestamp(resp.(*agentpb.Pong).CurrentTime)
+	if err != nil {
+		err = errors.Wrap(err, "Failed to decode Ping")
+		return
+	}
+	latency = roundtrip / 2
+	clockDrift = serverTime.Sub(start) - latency
+	return
+}
+
+// GetNetworkInformation sends ping request to the server and returns info about latency and clock drift.
+func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err error) {
+	c.rw.RLock()
+	channel := c.channel
+	c.rw.RUnlock()
+	if channel == nil {
+		err = errors.New("not connected")
+		return
+	}
+
+	latency, clockDrift, err = getNetworkInformation(c.channel)
+	return
 }
 
 // GetAgentServerMetadata returns current server's metadata, or nil.
