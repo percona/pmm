@@ -79,6 +79,8 @@ message AddMySQLRequest {
   bool qan_mysql_slowlog = 15;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 20;
+  // Skip connection check.
+  bool skip_connection_check = 30;
 }
 
 message AddMySQLResponse {

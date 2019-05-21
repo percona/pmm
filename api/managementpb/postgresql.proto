@@ -71,6 +71,8 @@ message AddPostgreSQLRequest {
   string password = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 20;
+  // Skip connection check.
+  bool skip_connection_check = 30;
 }
 
 message AddPostgreSQLResponse {
