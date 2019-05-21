@@ -5736,6 +5736,11 @@
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
                 },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
                 "username": {
                   "description": "MongoDB username for exporter and QAN agent access.",
                   "type": "string"
@@ -5996,6 +6001,11 @@
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
                 },
                 "username": {
                   "description": "MySQL username for scraping metrics.",
@@ -6520,6 +6530,11 @@
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
                   "type": "string"
+                },
+                "skip_connection_check": {
+                  "description": "Skip connection check.",
+                  "type": "boolean",
+                  "format": "boolean"
                 },
                 "username": {
                   "description": "PostgreSQL username for scraping metrics.",
