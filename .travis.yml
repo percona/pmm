@@ -1,5 +1,4 @@
-dist: trusty
-sudo: required
+dist: xenial
 language: go
 
 go:
@@ -10,29 +9,42 @@ matrix:
   allow_failures:
     - go: master
 
-before_cache:
-  - go clean -testcache
-
 cache:
   directories:
     - /home/travis/.cache/go-build
-    - /home/travis/gopath/pkg
+    # - /home/travis/gopath/pkg
 
-script:
+before_cache:
+  - go clean -testcache
+  # - go clean -cache
+
+install:
   # ensure that vendor/ is in sync with code and Gopkg.toml/lock
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
   - dep check
 
+before_script:
+  # ensure that files are not changed
+  - make init
+  - make format
+  - git status
+  - git diff --exit-code
+
+script:
   # for main_test.go
   - make install
 
-  - make check
-
   - make test-cover
+  - make test-crosscover
   - make test-race
 
+  - make check
+
 after_success:
-  - bash <(curl -s https://codecov.io/bash) -X fix
+  - curl https://codecov.io/bash > codecov
+  - chmod +x codecov
+  - ./codecov -f cover.out -F cover -X fix
+  - ./codecov -f crosscover.out -F crosscover -X fix
 
 notifications:
   slack:
