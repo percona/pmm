@@ -6,6 +6,7 @@ package profile
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -16,6 +17,8 @@ import (
 	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
+
+	models "github.com/percona/pmm/api/qanpb/json/models"
 )
 
 // GetReportReader is a Reader for the GetReport structure.
@@ -613,11 +616,42 @@ swagger:model RowsItems0SparklineItems0
 type RowsItems0SparklineItems0 struct {
 
 	// values
-	Values map[string]float32 `json:"values,omitempty"`
+	Values map[string]RowsItems0SparklineItems0ValuesAnon `json:"values,omitempty"`
 }
 
 // Validate validates this rows items0 sparkline items0
 func (o *RowsItems0SparklineItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateValues(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RowsItems0SparklineItems0) validateValues(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Values) { // not required
+		return nil
+	}
+
+	for k := range o.Values {
+
+		if swag.IsZero(o.Values[k]) { // not required
+			continue
+		}
+		if val, ok := o.Values[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
 	return nil
 }
 
@@ -632,6 +666,295 @@ func (o *RowsItems0SparklineItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RowsItems0SparklineItems0) UnmarshalBinary(b []byte) error {
 	var res RowsItems0SparklineItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RowsItems0SparklineItems0ValuesAnon `Value` represents a dynamically typed value which can be either
+// null, a number, a string, a boolean, a recursive struct value, or a
+// list of values. A producer of value is expected to set one of that
+// variants, absence of any variant indicates an error.
+//
+// The JSON representation for `Value` is JSON value.
+swagger:model RowsItems0SparklineItems0ValuesAnon
+*/
+type RowsItems0SparklineItems0ValuesAnon struct {
+
+	// Represents a boolean value.
+	BoolValue bool `json:"bool_value,omitempty"`
+
+	// list value
+	ListValue *RowsItems0SparklineItems0ValuesAnonListValue `json:"list_value,omitempty"`
+
+	// `NullValue` is a singleton enumeration to represent the null value for the
+	// `Value` type union.
+	//
+	//  The JSON representation for `NullValue` is JSON `null`.
+	//
+	//  - NULL_VALUE: Null value.
+	// Enum: [NULL_VALUE]
+	NullValue *string `json:"null_value,omitempty"`
+
+	// Represents a double value.
+	NumberValue float64 `json:"number_value,omitempty"`
+
+	// Represents a string value.
+	StringValue string `json:"string_value,omitempty"`
+
+	// struct value
+	StructValue *RowsItems0SparklineItems0ValuesAnonStructValue `json:"struct_value,omitempty"`
+}
+
+// Validate validates this rows items0 sparkline items0 values anon
+func (o *RowsItems0SparklineItems0ValuesAnon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateListValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateNullValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateStructValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RowsItems0SparklineItems0ValuesAnon) validateListValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ListValue) { // not required
+		return nil
+	}
+
+	if o.ListValue != nil {
+		if err := o.ListValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("list_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var rowsItems0SparklineItems0ValuesAnonTypeNullValuePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NULL_VALUE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		rowsItems0SparklineItems0ValuesAnonTypeNullValuePropEnum = append(rowsItems0SparklineItems0ValuesAnonTypeNullValuePropEnum, v)
+	}
+}
+
+const (
+
+	// RowsItems0SparklineItems0ValuesAnonNullValueNULLVALUE captures enum value "NULL_VALUE"
+	RowsItems0SparklineItems0ValuesAnonNullValueNULLVALUE string = "NULL_VALUE"
+)
+
+// prop value enum
+func (o *RowsItems0SparklineItems0ValuesAnon) validateNullValueEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, rowsItems0SparklineItems0ValuesAnonTypeNullValuePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *RowsItems0SparklineItems0ValuesAnon) validateNullValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.NullValue) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateNullValueEnum("null_value", "body", *o.NullValue); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *RowsItems0SparklineItems0ValuesAnon) validateStructValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.StructValue) { // not required
+		return nil
+	}
+
+	if o.StructValue != nil {
+		if err := o.StructValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("struct_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RowsItems0SparklineItems0ValuesAnon) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RowsItems0SparklineItems0ValuesAnon) UnmarshalBinary(b []byte) error {
+	var res RowsItems0SparklineItems0ValuesAnon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RowsItems0SparklineItems0ValuesAnonListValue `ListValue` is a wrapper around a repeated field of values.
+//
+// The JSON representation for `ListValue` is JSON array.
+swagger:model RowsItems0SparklineItems0ValuesAnonListValue
+*/
+type RowsItems0SparklineItems0ValuesAnonListValue struct {
+
+	// Repeated field of dynamically typed values.
+	Values []*models.ProtobufValue `json:"values"`
+}
+
+// Validate validates this rows items0 sparkline items0 values anon list value
+func (o *RowsItems0SparklineItems0ValuesAnonListValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateValues(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RowsItems0SparklineItems0ValuesAnonListValue) validateValues(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Values) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Values); i++ {
+		if swag.IsZero(o.Values[i]) { // not required
+			continue
+		}
+
+		if o.Values[i] != nil {
+			if err := o.Values[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("list_value" + "." + "values" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RowsItems0SparklineItems0ValuesAnonListValue) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RowsItems0SparklineItems0ValuesAnonListValue) UnmarshalBinary(b []byte) error {
+	var res RowsItems0SparklineItems0ValuesAnonListValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RowsItems0SparklineItems0ValuesAnonStructValue `Struct` represents a structured data value, consisting of fields
+// which map to dynamically typed values. In some languages, `Struct`
+// might be supported by a native representation. For example, in
+// scripting languages like JS a struct is represented as an
+// object. The details of that representation are described together
+// with the proto support for the language.
+//
+// The JSON representation for `Struct` is JSON object.
+swagger:model RowsItems0SparklineItems0ValuesAnonStructValue
+*/
+type RowsItems0SparklineItems0ValuesAnonStructValue struct {
+
+	// Unordered map of dynamically typed values.
+	Fields map[string]models.ProtobufValue `json:"fields,omitempty"`
+}
+
+// Validate validates this rows items0 sparkline items0 values anon struct value
+func (o *RowsItems0SparklineItems0ValuesAnonStructValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateFields(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *RowsItems0SparklineItems0ValuesAnonStructValue) validateFields(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Fields) { // not required
+		return nil
+	}
+
+	for k := range o.Fields {
+
+		if err := validate.Required("struct_value"+"."+"fields"+"."+k, "body", o.Fields[k]); err != nil {
+			return err
+		}
+		if val, ok := o.Fields[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RowsItems0SparklineItems0ValuesAnonStructValue) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RowsItems0SparklineItems0ValuesAnonStructValue) UnmarshalBinary(b []byte) error {
+	var res RowsItems0SparklineItems0ValuesAnonStructValue
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

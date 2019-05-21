@@ -4,6 +4,8 @@ package qan;
 
 option go_package = "qanpb";
 
+import "google/protobuf/struct.proto";
+
 // ExampleFormat is format of query example: real or query without values.
 enum ExampleFormat {
   EXAMPLE_FORMAT_INVALID = 0;
@@ -23,5 +25,5 @@ enum ExampleType {
 // Point contains values that represents abscissa (time) and ordinate (volume etc.)
 // of every point in a coordinate system of Sparklines.
 message Point {
-  map<string, float> values = 1;
+  map<string, google.protobuf.Value> values = 1;
 }
