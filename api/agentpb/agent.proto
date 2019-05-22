@@ -138,10 +138,8 @@ message CheckConnectionRequest {
 
 // CheckConnectionResponse is an AgentMessage containing a result of check request.
 message CheckConnectionResponse {
-  // Successfully connected to the service
-  bool success = 1;
   // Error message if connection is failed.
-  string error = 2;
+  string error = 1;
 }
 
 message AgentMessage {
