@@ -23,7 +23,6 @@ option go_package = "agentlocalpb";
 import "agentpb/agent.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/duration.proto";
-import "google/protobuf/timestamp.proto";
 import "inventorypb/agent_status.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
@@ -35,9 +34,9 @@ message ServerInfo {
   bool insecure_tls = 2;
   // PMM Server version; empty if pmm-agent is not connected to the server.
   string version = 3;
-  // TODO https://jira.percona.com/browse/PMM-3758
-  google.protobuf.Timestamp last_ping_time = 4;
-  // TODO https://jira.percona.com/browse/PMM-3758
+  // Clock drift between pmm-managed and pmm-agent.
+  google.protobuf.Duration clock_drift = 4;
+  // Ping time from pmm-agent to pmm-managed.
   google.protobuf.Duration latency = 5;
   // True if pmm-agent is currently connected to the server.
   bool connected = 6;
@@ -55,6 +54,8 @@ message AgentInfo {
 message StatusRequest {
   // TODO https://jira.percona.com/browse/PMM-3758
   bool get_logs = 1;
+  // Returns network info if set true.
+  bool get_network_info = 2;
 }
 
 message StatusResponse {

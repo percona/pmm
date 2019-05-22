@@ -154,6 +154,9 @@ type AddMySQLBody struct {
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
 
+	// Skip connection check.
+	SkipConnectionCheck bool `json:"skip_connection_check,omitempty"`
+
 	// MySQL username for scraping metrics.
 	Username string `json:"username,omitempty"`
 }

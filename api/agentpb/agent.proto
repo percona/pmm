@@ -6,6 +6,8 @@ option go_package = "agentpb";
 
 import "google/protobuf/timestamp.proto";
 import "inventorypb/agent_status.proto";
+import "inventorypb/services.proto";
+import "managementpb/actions.proto";
 import "qanpb/collector.proto";
 
 // Type represents Agent type.
@@ -81,6 +83,67 @@ message SetStateResponse {
 
 }
 
+// StartActionRequest is a ServerMessage asking pmm-agent to start action.
+message StartActionRequest {
+  // ProcessParams describes parameters for all process actions.
+  message ProcessParams {
+    repeated string args = 1;
+  }
+  // MySQLExplainParams describes MySQL Explain action parameters.
+  message MySQLExplainParams {
+    // TODO
+
+  }
+  string action_id = 1;
+  management.ActionType type = 2;
+  oneof params {
+    ProcessParams process_params = 3;
+    MySQLExplainParams mysql_explain_params = 4;
+  }
+}
+
+// StartActionResponse is an AgentMessage for StartActionRequest acceptance.
+message StartActionResponse {}
+
+// StopActionRequest is a ServerMessage asking pmm-agent to stop action.
+message StopActionRequest {
+  string action_id = 1;
+}
+
+// StopActionResponse is an AgentMessage for StopActionRequest acceptance.
+message StopActionResponse {}
+
+// ActionResultRequest is an AgentMessage containing action run status and new chunk of output.
+message ActionResultRequest {
+  // Unique action ID.
+  string action_id = 1;
+  // New chunk of action output.
+  bytes output = 3;
+  // True if action is finished.
+  bool done = 4;
+  // Error message if action failed.
+  string error = 5;
+}
+
+// ActionResultResponse is an ServerMessage for ActionResultRequest acceptance.
+message ActionResultResponse {}
+
+// CheckConnectionRequest is a ServerMessage asking pmm-agent to check connection with service.
+message CheckConnectionRequest {
+  // Service type.
+  inventory.ServiceType type = 1;
+  // DSN for the service.
+  string dsn = 2;
+}
+
+// CheckConnectionResponse is an AgentMessage containing a result of check request.
+message CheckConnectionResponse {
+  // Successfully connected to the service
+  bool success = 1;
+  // Error message if connection is failed.
+  string error = 2;
+}
+
 message AgentMessage {
   // TODO https://jira.percona.com/browse/PMM-3449
 
@@ -90,9 +153,13 @@ message AgentMessage {
     Ping ping = 2;
     StateChangedRequest state_changed = 3;
     QANCollectRequest qan_collect = 4;
+    ActionResultRequest action_result = 5;
     // responses from agent
     Pong pong = 8;
     SetStateResponse set_state = 9;
+    StartActionResponse start_action = 10;
+    StopActionResponse stop_action = 11;
+    CheckConnectionResponse check_connection = 12;
   }
 }
 
@@ -105,9 +172,13 @@ message ServerMessage {
     Pong pong = 2;
     StateChangedResponse state_changed = 3;
     QANCollectResponse qan_collect = 4;
+    ActionResultResponse action_result = 5;
     // requests from server
     Ping ping = 8;
     SetStateRequest set_state = 9;
+    StartActionRequest start_action = 10;
+    StopActionRequest stop_action = 11;
+    CheckConnectionRequest check_connection = 12;
   }
 }
 
