@@ -173,7 +173,7 @@ func (m *ProtobufValue) UnmarshalBinary(b []byte) error {
 type ProtobufValueListValue struct {
 
 	// Repeated field of dynamically typed values.
-	Values []*ProtobufValue `json:"values"`
+	Values []*ProtobufValueListValueValuesItems0 `json:"values"`
 }
 
 // Validate validates this protobuf value list value
@@ -233,6 +233,2008 @@ func (m *ProtobufValueListValue) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
+// ProtobufValueListValueValuesItems0 `Value` represents a dynamically typed value which can be either
+// null, a number, a string, a boolean, a recursive struct value, or a
+// list of values. A producer of value is expected to set one of that
+// variants, absence of any variant indicates an error.
+//
+// The JSON representation for `Value` is JSON value.
+// swagger:model ProtobufValueListValueValuesItems0
+type ProtobufValueListValueValuesItems0 struct {
+
+	// Represents a boolean value.
+	BoolValue bool `json:"bool_value,omitempty"`
+
+	// list value
+	ListValue *ProtobufValueListValueValuesItems0ListValue `json:"list_value,omitempty"`
+
+	// `NullValue` is a singleton enumeration to represent the null value for the
+	// `Value` type union.
+	//
+	//  The JSON representation for `NullValue` is JSON `null`.
+	//
+	//  - NULL_VALUE: Null value.
+	// Enum: [NULL_VALUE]
+	NullValue *string `json:"null_value,omitempty"`
+
+	// Represents a double value.
+	NumberValue float64 `json:"number_value,omitempty"`
+
+	// Represents a string value.
+	StringValue string `json:"string_value,omitempty"`
+
+	// struct value
+	StructValue *ProtobufValueListValueValuesItems0StructValue `json:"struct_value,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0
+func (m *ProtobufValueListValueValuesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateListValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNullValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStructValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0) validateListValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ListValue) { // not required
+		return nil
+	}
+
+	if m.ListValue != nil {
+		if err := m.ListValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("list_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var protobufValueListValueValuesItems0TypeNullValuePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NULL_VALUE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		protobufValueListValueValuesItems0TypeNullValuePropEnum = append(protobufValueListValueValuesItems0TypeNullValuePropEnum, v)
+	}
+}
+
+const (
+
+	// ProtobufValueListValueValuesItems0NullValueNULLVALUE captures enum value "NULL_VALUE"
+	ProtobufValueListValueValuesItems0NullValueNULLVALUE string = "NULL_VALUE"
+)
+
+// prop value enum
+func (m *ProtobufValueListValueValuesItems0) validateNullValueEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, protobufValueListValueValuesItems0TypeNullValuePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0) validateNullValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.NullValue) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateNullValueEnum("null_value", "body", *m.NullValue); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0) validateStructValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.StructValue) { // not required
+		return nil
+	}
+
+	if m.StructValue != nil {
+		if err := m.StructValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("struct_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0ListValue `ListValue` is a wrapper around a repeated field of values.
+//
+// The JSON representation for `ListValue` is JSON array.
+// swagger:model ProtobufValueListValueValuesItems0ListValue
+type ProtobufValueListValueValuesItems0ListValue struct {
+
+	// Repeated field of dynamically typed values.
+	Values []*ProtobufValue `json:"values"`
+}
+
+// Validate validates this protobuf value list value values items0 list value
+func (m *ProtobufValueListValueValuesItems0ListValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateValues(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0ListValue) validateValues(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Values) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Values); i++ {
+		if swag.IsZero(m.Values[i]) { // not required
+			continue
+		}
+
+		if m.Values[i] != nil {
+			if err := m.Values[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("list_value" + "." + "values" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0ListValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0ListValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0ListValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValue `Struct` represents a structured data value, consisting of fields
+// which map to dynamically typed values. In some languages, `Struct`
+// might be supported by a native representation. For example, in
+// scripting languages like JS a struct is represented as an
+// object. The details of that representation are described together
+// with the proto support for the language.
+//
+// The JSON representation for `Struct` is JSON object.
+// swagger:model ProtobufValueListValueValuesItems0StructValue
+type ProtobufValueListValueValuesItems0StructValue struct {
+
+	// Unordered map of dynamically typed values.
+	Fields map[string]ProtobufValueListValueValuesItems0StructValueFieldsAnon `json:"fields,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value
+func (m *ProtobufValueListValueValuesItems0StructValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateFields(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValue) validateFields(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Fields) { // not required
+		return nil
+	}
+
+	for k := range m.Fields {
+
+		if swag.IsZero(m.Fields[k]) { // not required
+			continue
+		}
+		if val, ok := m.Fields[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnon `Value` represents a dynamically typed value which can be either
+// null, a number, a string, a boolean, a recursive struct value, or a
+// list of values. A producer of value is expected to set one of that
+// variants, absence of any variant indicates an error.
+//
+// The JSON representation for `Value` is JSON value.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnon
+type ProtobufValueListValueValuesItems0StructValueFieldsAnon struct {
+
+	// Represents a boolean value.
+	BoolValue bool `json:"bool_value,omitempty"`
+
+	// list value
+	ListValue *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValue `json:"list_value,omitempty"`
+
+	// `NullValue` is a singleton enumeration to represent the null value for the
+	// `Value` type union.
+	//
+	//  The JSON representation for `NullValue` is JSON `null`.
+	//
+	//  - NULL_VALUE: Null value.
+	// Enum: [NULL_VALUE]
+	NullValue *string `json:"null_value,omitempty"`
+
+	// Represents a double value.
+	NumberValue float64 `json:"number_value,omitempty"`
+
+	// Represents a string value.
+	StringValue string `json:"string_value,omitempty"`
+
+	// struct value
+	StructValue *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValue `json:"struct_value,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateListValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNullValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStructValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnon) validateListValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ListValue) { // not required
+		return nil
+	}
+
+	if m.ListValue != nil {
+		if err := m.ListValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("list_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var protobufValueListValueValuesItems0StructValueFieldsAnonTypeNullValuePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NULL_VALUE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		protobufValueListValueValuesItems0StructValueFieldsAnonTypeNullValuePropEnum = append(protobufValueListValueValuesItems0StructValueFieldsAnonTypeNullValuePropEnum, v)
+	}
+}
+
+const (
+
+	// ProtobufValueListValueValuesItems0StructValueFieldsAnonNullValueNULLVALUE captures enum value "NULL_VALUE"
+	ProtobufValueListValueValuesItems0StructValueFieldsAnonNullValueNULLVALUE string = "NULL_VALUE"
+)
+
+// prop value enum
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnon) validateNullValueEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, protobufValueListValueValuesItems0StructValueFieldsAnonTypeNullValuePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnon) validateNullValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.NullValue) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateNullValueEnum("null_value", "body", *m.NullValue); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnon) validateStructValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.StructValue) { // not required
+		return nil
+	}
+
+	if m.StructValue != nil {
+		if err := m.StructValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("struct_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnon) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnon) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonListValue `ListValue` is a wrapper around a repeated field of values.
+//
+// The JSON representation for `ListValue` is JSON array.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonListValue
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonListValue struct {
+
+	// Repeated field of dynamically typed values.
+	Values []*ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0 `json:"values"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon list value
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateValues(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValue) validateValues(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Values) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Values); i++ {
+		if swag.IsZero(m.Values[i]) { // not required
+			continue
+		}
+
+		if m.Values[i] != nil {
+			if err := m.Values[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("list_value" + "." + "values" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonListValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0 `Value` represents a dynamically typed value which can be either
+// null, a number, a string, a boolean, a recursive struct value, or a
+// list of values. A producer of value is expected to set one of that
+// variants, absence of any variant indicates an error.
+//
+// The JSON representation for `Value` is JSON value.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0 struct {
+
+	// Represents a boolean value.
+	BoolValue bool `json:"bool_value,omitempty"`
+
+	// list value
+	ListValue *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue `json:"list_value,omitempty"`
+
+	// `NullValue` is a singleton enumeration to represent the null value for the
+	// `Value` type union.
+	//
+	//  The JSON representation for `NullValue` is JSON `null`.
+	//
+	//  - NULL_VALUE: Null value.
+	// Enum: [NULL_VALUE]
+	NullValue *string `json:"null_value,omitempty"`
+
+	// Represents a double value.
+	NumberValue float64 `json:"number_value,omitempty"`
+
+	// Represents a string value.
+	StringValue string `json:"string_value,omitempty"`
+
+	// struct value
+	StructValue *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue `json:"struct_value,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon list value values items0
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateListValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNullValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStructValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) validateListValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ListValue) { // not required
+		return nil
+	}
+
+	if m.ListValue != nil {
+		if err := m.ListValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("list_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var protobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0TypeNullValuePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NULL_VALUE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		protobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0TypeNullValuePropEnum = append(protobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0TypeNullValuePropEnum, v)
+	}
+}
+
+const (
+
+	// ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0NullValueNULLVALUE captures enum value "NULL_VALUE"
+	ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0NullValueNULLVALUE string = "NULL_VALUE"
+)
+
+// prop value enum
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) validateNullValueEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, protobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0TypeNullValuePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) validateNullValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.NullValue) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateNullValueEnum("null_value", "body", *m.NullValue); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) validateStructValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.StructValue) { // not required
+		return nil
+	}
+
+	if m.StructValue != nil {
+		if err := m.StructValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("struct_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue `ListValue` is a wrapper around a repeated field of values.
+//
+// The JSON representation for `ListValue` is JSON array.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue struct {
+
+	// Repeated field of dynamically typed values.
+	Values []*ProtobufValue `json:"values"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon list value values items0 list value
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateValues(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue) validateValues(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Values) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Values); i++ {
+		if swag.IsZero(m.Values[i]) { // not required
+			continue
+		}
+
+		if m.Values[i] != nil {
+			if err := m.Values[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("list_value" + "." + "values" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue `Struct` represents a structured data value, consisting of fields
+// which map to dynamically typed values. In some languages, `Struct`
+// might be supported by a native representation. For example, in
+// scripting languages like JS a struct is represented as an
+// object. The details of that representation are described together
+// with the proto support for the language.
+//
+// The JSON representation for `Struct` is JSON object.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue struct {
+
+	// Unordered map of dynamically typed values.
+	Fields map[string]ProtobufValue `json:"fields,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon list value values items0 struct value
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateFields(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue) validateFields(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Fields) { // not required
+		return nil
+	}
+
+	for k := range m.Fields {
+
+		if err := validate.Required("struct_value"+"."+"fields"+"."+k, "body", m.Fields[k]); err != nil {
+			return err
+		}
+		if val, ok := m.Fields[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValue `Struct` represents a structured data value, consisting of fields
+// which map to dynamically typed values. In some languages, `Struct`
+// might be supported by a native representation. For example, in
+// scripting languages like JS a struct is represented as an
+// object. The details of that representation are described together
+// with the proto support for the language.
+//
+// The JSON representation for `Struct` is JSON object.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValue
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValue struct {
+
+	// Unordered map of dynamically typed values.
+	Fields map[string]ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnon `json:"fields,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateFields(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValue) validateFields(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Fields) { // not required
+		return nil
+	}
+
+	for k := range m.Fields {
+
+		if swag.IsZero(m.Fields[k]) { // not required
+			continue
+		}
+		if val, ok := m.Fields[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnon `Value` represents a dynamically typed value which can be either
+// null, a number, a string, a boolean, a recursive struct value, or a
+// list of values. A producer of value is expected to set one of that
+// variants, absence of any variant indicates an error.
+//
+// The JSON representation for `Value` is JSON value.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnon
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnon struct {
+
+	// Represents a boolean value.
+	BoolValue bool `json:"bool_value,omitempty"`
+
+	// list value
+	ListValue *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValue `json:"list_value,omitempty"`
+
+	// `NullValue` is a singleton enumeration to represent the null value for the
+	// `Value` type union.
+	//
+	//  The JSON representation for `NullValue` is JSON `null`.
+	//
+	//  - NULL_VALUE: Null value.
+	// Enum: [NULL_VALUE]
+	NullValue *string `json:"null_value,omitempty"`
+
+	// Represents a double value.
+	NumberValue float64 `json:"number_value,omitempty"`
+
+	// Represents a string value.
+	StringValue string `json:"string_value,omitempty"`
+
+	// struct value
+	StructValue *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonStructValue `json:"struct_value,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value fields anon
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateListValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNullValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStructValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnon) validateListValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ListValue) { // not required
+		return nil
+	}
+
+	if m.ListValue != nil {
+		if err := m.ListValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("list_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonTypeNullValuePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NULL_VALUE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonTypeNullValuePropEnum = append(protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonTypeNullValuePropEnum, v)
+	}
+}
+
+const (
+
+	// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonNullValueNULLVALUE captures enum value "NULL_VALUE"
+	ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonNullValueNULLVALUE string = "NULL_VALUE"
+)
+
+// prop value enum
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnon) validateNullValueEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonTypeNullValuePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnon) validateNullValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.NullValue) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateNullValueEnum("null_value", "body", *m.NullValue); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnon) validateStructValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.StructValue) { // not required
+		return nil
+	}
+
+	if m.StructValue != nil {
+		if err := m.StructValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("struct_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnon) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnon) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValue `ListValue` is a wrapper around a repeated field of values.
+//
+// The JSON representation for `ListValue` is JSON array.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValue
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValue struct {
+
+	// Repeated field of dynamically typed values.
+	Values []*ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0 `json:"values"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value fields anon list value
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateValues(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValue) validateValues(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Values) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Values); i++ {
+		if swag.IsZero(m.Values[i]) { // not required
+			continue
+		}
+
+		if m.Values[i] != nil {
+			if err := m.Values[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("list_value" + "." + "values" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0 `Value` represents a dynamically typed value which can be either
+// null, a number, a string, a boolean, a recursive struct value, or a
+// list of values. A producer of value is expected to set one of that
+// variants, absence of any variant indicates an error.
+//
+// The JSON representation for `Value` is JSON value.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0 struct {
+
+	// Represents a boolean value.
+	BoolValue bool `json:"bool_value,omitempty"`
+
+	// list value
+	ListValue *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0ListValue `json:"list_value,omitempty"`
+
+	// `NullValue` is a singleton enumeration to represent the null value for the
+	// `Value` type union.
+	//
+	//  The JSON representation for `NullValue` is JSON `null`.
+	//
+	//  - NULL_VALUE: Null value.
+	// Enum: [NULL_VALUE]
+	NullValue *string `json:"null_value,omitempty"`
+
+	// Represents a double value.
+	NumberValue float64 `json:"number_value,omitempty"`
+
+	// Represents a string value.
+	StringValue string `json:"string_value,omitempty"`
+
+	// struct value
+	StructValue *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValue `json:"struct_value,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value fields anon list value values items0
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateListValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNullValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStructValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0) validateListValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ListValue) { // not required
+		return nil
+	}
+
+	if m.ListValue != nil {
+		if err := m.ListValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("list_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0TypeNullValuePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NULL_VALUE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0TypeNullValuePropEnum = append(protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0TypeNullValuePropEnum, v)
+	}
+}
+
+const (
+
+	// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0NullValueNULLVALUE captures enum value "NULL_VALUE"
+	ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0NullValueNULLVALUE string = "NULL_VALUE"
+)
+
+// prop value enum
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0) validateNullValueEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0TypeNullValuePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0) validateNullValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.NullValue) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateNullValueEnum("null_value", "body", *m.NullValue); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0) validateStructValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.StructValue) { // not required
+		return nil
+	}
+
+	if m.StructValue != nil {
+		if err := m.StructValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("struct_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0ListValue `ListValue` is a wrapper around a repeated field of values.
+//
+// The JSON representation for `ListValue` is JSON array.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0ListValue
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0ListValue struct {
+
+	// Repeated field of dynamically typed values.
+	Values []*ProtobufValue `json:"values"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value fields anon list value values items0 list value
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0ListValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateValues(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0ListValue) validateValues(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Values) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Values); i++ {
+		if swag.IsZero(m.Values[i]) { // not required
+			continue
+		}
+
+		if m.Values[i] != nil {
+			if err := m.Values[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("list_value" + "." + "values" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0ListValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0ListValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0ListValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValue `Struct` represents a structured data value, consisting of fields
+// which map to dynamically typed values. In some languages, `Struct`
+// might be supported by a native representation. For example, in
+// scripting languages like JS a struct is represented as an
+// object. The details of that representation are described together
+// with the proto support for the language.
+//
+// The JSON representation for `Struct` is JSON object.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValue
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValue struct {
+
+	// Unordered map of dynamically typed values.
+	Fields map[string]ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnon `json:"fields,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value fields anon list value values items0 struct value
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateFields(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValue) validateFields(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Fields) { // not required
+		return nil
+	}
+
+	for k := range m.Fields {
+
+		if swag.IsZero(m.Fields[k]) { // not required
+			continue
+		}
+		if val, ok := m.Fields[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnon `Value` represents a dynamically typed value which can be either
+// null, a number, a string, a boolean, a recursive struct value, or a
+// list of values. A producer of value is expected to set one of that
+// variants, absence of any variant indicates an error.
+//
+// The JSON representation for `Value` is JSON value.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnon
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnon struct {
+
+	// Represents a boolean value.
+	BoolValue bool `json:"bool_value,omitempty"`
+
+	// list value
+	ListValue *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValue `json:"list_value,omitempty"`
+
+	// `NullValue` is a singleton enumeration to represent the null value for the
+	// `Value` type union.
+	//
+	//  The JSON representation for `NullValue` is JSON `null`.
+	//
+	//  - NULL_VALUE: Null value.
+	// Enum: [NULL_VALUE]
+	NullValue *string `json:"null_value,omitempty"`
+
+	// Represents a double value.
+	NumberValue float64 `json:"number_value,omitempty"`
+
+	// Represents a string value.
+	StringValue string `json:"string_value,omitempty"`
+
+	// struct value
+	StructValue *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonStructValue `json:"struct_value,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value fields anon list value values items0 struct value fields anon
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnon) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateListValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNullValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStructValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnon) validateListValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ListValue) { // not required
+		return nil
+	}
+
+	if m.ListValue != nil {
+		if err := m.ListValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("list_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonTypeNullValuePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NULL_VALUE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonTypeNullValuePropEnum = append(protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonTypeNullValuePropEnum, v)
+	}
+}
+
+const (
+
+	// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonNullValueNULLVALUE captures enum value "NULL_VALUE"
+	ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonNullValueNULLVALUE string = "NULL_VALUE"
+)
+
+// prop value enum
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnon) validateNullValueEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonTypeNullValuePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnon) validateNullValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.NullValue) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateNullValueEnum("null_value", "body", *m.NullValue); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnon) validateStructValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.StructValue) { // not required
+		return nil
+	}
+
+	if m.StructValue != nil {
+		if err := m.StructValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("struct_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnon) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnon) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnon
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValue `ListValue` is a wrapper around a repeated field of values.
+//
+// The JSON representation for `ListValue` is JSON array.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValue
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValue struct {
+
+	// Repeated field of dynamically typed values.
+	Values []*ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0 `json:"values"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value fields anon list value values items0 struct value fields anon list value
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateValues(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValue) validateValues(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Values) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Values); i++ {
+		if swag.IsZero(m.Values[i]) { // not required
+			continue
+		}
+
+		if m.Values[i] != nil {
+			if err := m.Values[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("list_value" + "." + "values" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0 `Value` represents a dynamically typed value which can be either
+// null, a number, a string, a boolean, a recursive struct value, or a
+// list of values. A producer of value is expected to set one of that
+// variants, absence of any variant indicates an error.
+//
+// The JSON representation for `Value` is JSON value.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0 struct {
+
+	// Represents a boolean value.
+	BoolValue bool `json:"bool_value,omitempty"`
+
+	// list value
+	ListValue *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue `json:"list_value,omitempty"`
+
+	// `NullValue` is a singleton enumeration to represent the null value for the
+	// `Value` type union.
+	//
+	//  The JSON representation for `NullValue` is JSON `null`.
+	//
+	//  - NULL_VALUE: Null value.
+	// Enum: [NULL_VALUE]
+	NullValue *string `json:"null_value,omitempty"`
+
+	// Represents a double value.
+	NumberValue float64 `json:"number_value,omitempty"`
+
+	// Represents a string value.
+	StringValue string `json:"string_value,omitempty"`
+
+	// struct value
+	StructValue *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue `json:"struct_value,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value fields anon list value values items0 struct value fields anon list value values items0
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateListValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNullValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateStructValue(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) validateListValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.ListValue) { // not required
+		return nil
+	}
+
+	if m.ListValue != nil {
+		if err := m.ListValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("list_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+var protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0TypeNullValuePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["NULL_VALUE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0TypeNullValuePropEnum = append(protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0TypeNullValuePropEnum, v)
+	}
+}
+
+const (
+
+	// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0NullValueNULLVALUE captures enum value "NULL_VALUE"
+	ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0NullValueNULLVALUE string = "NULL_VALUE"
+)
+
+// prop value enum
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) validateNullValueEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, protobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0TypeNullValuePropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) validateNullValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.NullValue) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateNullValueEnum("null_value", "body", *m.NullValue); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) validateStructValue(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.StructValue) { // not required
+		return nil
+	}
+
+	if m.StructValue != nil {
+		if err := m.StructValue.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("struct_value")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue `ListValue` is a wrapper around a repeated field of values.
+//
+// The JSON representation for `ListValue` is JSON array.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue struct {
+
+	// Repeated field of dynamically typed values.
+	Values []*ProtobufValue `json:"values"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value fields anon list value values items0 struct value fields anon list value values items0 list value
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateValues(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue) validateValues(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Values) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.Values); i++ {
+		if swag.IsZero(m.Values[i]) { // not required
+			continue
+		}
+
+		if m.Values[i] != nil {
+			if err := m.Values[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("list_value" + "." + "values" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0ListValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue `Struct` represents a structured data value, consisting of fields
+// which map to dynamically typed values. In some languages, `Struct`
+// might be supported by a native representation. For example, in
+// scripting languages like JS a struct is represented as an
+// object. The details of that representation are described together
+// with the proto support for the language.
+//
+// The JSON representation for `Struct` is JSON object.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue struct {
+
+	// Unordered map of dynamically typed values.
+	Fields map[string]ProtobufValue `json:"fields,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value fields anon list value values items0 struct value fields anon list value values items0 struct value
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateFields(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue) validateFields(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Fields) { // not required
+		return nil
+	}
+
+	for k := range m.Fields {
+
+		if err := validate.Required("struct_value"+"."+"fields"+"."+k, "body", m.Fields[k]); err != nil {
+			return err
+		}
+		if val, ok := m.Fields[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonListValueValuesItems0StructValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonStructValue `Struct` represents a structured data value, consisting of fields
+// which map to dynamically typed values. In some languages, `Struct`
+// might be supported by a native representation. For example, in
+// scripting languages like JS a struct is represented as an
+// object. The details of that representation are described together
+// with the proto support for the language.
+//
+// The JSON representation for `Struct` is JSON object.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonStructValue
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonStructValue struct {
+
+	// Unordered map of dynamically typed values.
+	Fields map[string]ProtobufValue `json:"fields,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value fields anon list value values items0 struct value fields anon struct value
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonStructValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateFields(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonStructValue) validateFields(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Fields) { // not required
+		return nil
+	}
+
+	for k := range m.Fields {
+
+		if err := validate.Required("struct_value"+"."+"fields"+"."+k, "body", m.Fields[k]); err != nil {
+			return err
+		}
+		if val, ok := m.Fields[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonStructValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonStructValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonListValueValuesItems0StructValueFieldsAnonStructValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonStructValue `Struct` represents a structured data value, consisting of fields
+// which map to dynamically typed values. In some languages, `Struct`
+// might be supported by a native representation. For example, in
+// scripting languages like JS a struct is represented as an
+// object. The details of that representation are described together
+// with the proto support for the language.
+//
+// The JSON representation for `Struct` is JSON object.
+// swagger:model ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonStructValue
+type ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonStructValue struct {
+
+	// Unordered map of dynamically typed values.
+	Fields map[string]ProtobufValue `json:"fields,omitempty"`
+}
+
+// Validate validates this protobuf value list value values items0 struct value fields anon struct value fields anon struct value
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonStructValue) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.validateFields(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonStructValue) validateFields(formats strfmt.Registry) error {
+
+	if swag.IsZero(m.Fields) { // not required
+		return nil
+	}
+
+	for k := range m.Fields {
+
+		if err := validate.Required("struct_value"+"."+"fields"+"."+k, "body", m.Fields[k]); err != nil {
+			return err
+		}
+		if val, ok := m.Fields[k]; ok {
+			if err := val.Validate(formats); err != nil {
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonStructValue) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonStructValue) UnmarshalBinary(b []byte) error {
+	var res ProtobufValueListValueValuesItems0StructValueFieldsAnonStructValueFieldsAnonStructValue
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
 // ProtobufValueStructValue `Struct` represents a structured data value, consisting of fields
 // which map to dynamically typed values. In some languages, `Struct`
 // might be supported by a native representation. For example, in
@@ -245,7 +2247,7 @@ func (m *ProtobufValueListValue) UnmarshalBinary(b []byte) error {
 type ProtobufValueStructValue struct {
 
 	// Unordered map of dynamically typed values.
-	Fields map[string]ProtobufValueStructValueFieldsAnon `json:"fields,omitempty"`
+	Fields map[string]ProtobufValue `json:"fields,omitempty"`
 }
 
 // Validate validates this protobuf value struct value
@@ -270,8 +2272,8 @@ func (m *ProtobufValueStructValue) validateFields(formats strfmt.Registry) error
 
 	for k := range m.Fields {
 
-		if swag.IsZero(m.Fields[k]) { // not required
-			continue
+		if err := validate.Required("struct_value"+"."+"fields"+"."+k, "body", m.Fields[k]); err != nil {
+			return err
 		}
 		if val, ok := m.Fields[k]; ok {
 			if err := val.Validate(formats); err != nil {
@@ -295,864 +2297,6 @@ func (m *ProtobufValueStructValue) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (m *ProtobufValueStructValue) UnmarshalBinary(b []byte) error {
 	var res ProtobufValueStructValue
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// ProtobufValueStructValueFieldsAnon `Value` represents a dynamically typed value which can be either
-// null, a number, a string, a boolean, a recursive struct value, or a
-// list of values. A producer of value is expected to set one of that
-// variants, absence of any variant indicates an error.
-//
-// The JSON representation for `Value` is JSON value.
-// swagger:model ProtobufValueStructValueFieldsAnon
-type ProtobufValueStructValueFieldsAnon struct {
-
-	// Represents a boolean value.
-	BoolValue bool `json:"bool_value,omitempty"`
-
-	// list value
-	ListValue *ProtobufValueStructValueFieldsAnonListValue `json:"list_value,omitempty"`
-
-	// `NullValue` is a singleton enumeration to represent the null value for the
-	// `Value` type union.
-	//
-	//  The JSON representation for `NullValue` is JSON `null`.
-	//
-	//  - NULL_VALUE: Null value.
-	// Enum: [NULL_VALUE]
-	NullValue *string `json:"null_value,omitempty"`
-
-	// Represents a double value.
-	NumberValue float64 `json:"number_value,omitempty"`
-
-	// Represents a string value.
-	StringValue string `json:"string_value,omitempty"`
-
-	// struct value
-	StructValue *ProtobufValueStructValueFieldsAnonStructValue `json:"struct_value,omitempty"`
-}
-
-// Validate validates this protobuf value struct value fields anon
-func (m *ProtobufValueStructValueFieldsAnon) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateListValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateNullValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateStructValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnon) validateListValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ListValue) { // not required
-		return nil
-	}
-
-	if m.ListValue != nil {
-		if err := m.ListValue.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("list_value")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-var protobufValueStructValueFieldsAnonTypeNullValuePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["NULL_VALUE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		protobufValueStructValueFieldsAnonTypeNullValuePropEnum = append(protobufValueStructValueFieldsAnonTypeNullValuePropEnum, v)
-	}
-}
-
-const (
-
-	// ProtobufValueStructValueFieldsAnonNullValueNULLVALUE captures enum value "NULL_VALUE"
-	ProtobufValueStructValueFieldsAnonNullValueNULLVALUE string = "NULL_VALUE"
-)
-
-// prop value enum
-func (m *ProtobufValueStructValueFieldsAnon) validateNullValueEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, protobufValueStructValueFieldsAnonTypeNullValuePropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnon) validateNullValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.NullValue) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateNullValueEnum("null_value", "body", *m.NullValue); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnon) validateStructValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.StructValue) { // not required
-		return nil
-	}
-
-	if m.StructValue != nil {
-		if err := m.StructValue.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("struct_value")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnon) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnon) UnmarshalBinary(b []byte) error {
-	var res ProtobufValueStructValueFieldsAnon
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// ProtobufValueStructValueFieldsAnonListValue `ListValue` is a wrapper around a repeated field of values.
-//
-// The JSON representation for `ListValue` is JSON array.
-// swagger:model ProtobufValueStructValueFieldsAnonListValue
-type ProtobufValueStructValueFieldsAnonListValue struct {
-
-	// Repeated field of dynamically typed values.
-	Values []*ProtobufValue `json:"values"`
-}
-
-// Validate validates this protobuf value struct value fields anon list value
-func (m *ProtobufValueStructValueFieldsAnonListValue) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateValues(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnonListValue) validateValues(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Values) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.Values); i++ {
-		if swag.IsZero(m.Values[i]) { // not required
-			continue
-		}
-
-		if m.Values[i] != nil {
-			if err := m.Values[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("list_value" + "." + "values" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonListValue) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonListValue) UnmarshalBinary(b []byte) error {
-	var res ProtobufValueStructValueFieldsAnonListValue
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// ProtobufValueStructValueFieldsAnonStructValue `Struct` represents a structured data value, consisting of fields
-// which map to dynamically typed values. In some languages, `Struct`
-// might be supported by a native representation. For example, in
-// scripting languages like JS a struct is represented as an
-// object. The details of that representation are described together
-// with the proto support for the language.
-//
-// The JSON representation for `Struct` is JSON object.
-// swagger:model ProtobufValueStructValueFieldsAnonStructValue
-type ProtobufValueStructValueFieldsAnonStructValue struct {
-
-	// Unordered map of dynamically typed values.
-	Fields map[string]ProtobufValueStructValueFieldsAnonStructValueFieldsAnon `json:"fields,omitempty"`
-}
-
-// Validate validates this protobuf value struct value fields anon struct value
-func (m *ProtobufValueStructValueFieldsAnonStructValue) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateFields(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnonStructValue) validateFields(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Fields) { // not required
-		return nil
-	}
-
-	for k := range m.Fields {
-
-		if swag.IsZero(m.Fields[k]) { // not required
-			continue
-		}
-		if val, ok := m.Fields[k]; ok {
-			if err := val.Validate(formats); err != nil {
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValue) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValue) UnmarshalBinary(b []byte) error {
-	var res ProtobufValueStructValueFieldsAnonStructValue
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// ProtobufValueStructValueFieldsAnonStructValueFieldsAnon `Value` represents a dynamically typed value which can be either
-// null, a number, a string, a boolean, a recursive struct value, or a
-// list of values. A producer of value is expected to set one of that
-// variants, absence of any variant indicates an error.
-//
-// The JSON representation for `Value` is JSON value.
-// swagger:model ProtobufValueStructValueFieldsAnonStructValueFieldsAnon
-type ProtobufValueStructValueFieldsAnonStructValueFieldsAnon struct {
-
-	// Represents a boolean value.
-	BoolValue bool `json:"bool_value,omitempty"`
-
-	// list value
-	ListValue *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonListValue `json:"list_value,omitempty"`
-
-	// `NullValue` is a singleton enumeration to represent the null value for the
-	// `Value` type union.
-	//
-	//  The JSON representation for `NullValue` is JSON `null`.
-	//
-	//  - NULL_VALUE: Null value.
-	// Enum: [NULL_VALUE]
-	NullValue *string `json:"null_value,omitempty"`
-
-	// Represents a double value.
-	NumberValue float64 `json:"number_value,omitempty"`
-
-	// Represents a string value.
-	StringValue string `json:"string_value,omitempty"`
-
-	// struct value
-	StructValue *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValue `json:"struct_value,omitempty"`
-}
-
-// Validate validates this protobuf value struct value fields anon struct value fields anon
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnon) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateListValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateNullValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateStructValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnon) validateListValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ListValue) { // not required
-		return nil
-	}
-
-	if m.ListValue != nil {
-		if err := m.ListValue.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("list_value")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-var protobufValueStructValueFieldsAnonStructValueFieldsAnonTypeNullValuePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["NULL_VALUE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		protobufValueStructValueFieldsAnonStructValueFieldsAnonTypeNullValuePropEnum = append(protobufValueStructValueFieldsAnonStructValueFieldsAnonTypeNullValuePropEnum, v)
-	}
-}
-
-const (
-
-	// ProtobufValueStructValueFieldsAnonStructValueFieldsAnonNullValueNULLVALUE captures enum value "NULL_VALUE"
-	ProtobufValueStructValueFieldsAnonStructValueFieldsAnonNullValueNULLVALUE string = "NULL_VALUE"
-)
-
-// prop value enum
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnon) validateNullValueEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, protobufValueStructValueFieldsAnonStructValueFieldsAnonTypeNullValuePropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnon) validateNullValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.NullValue) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateNullValueEnum("null_value", "body", *m.NullValue); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnon) validateStructValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.StructValue) { // not required
-		return nil
-	}
-
-	if m.StructValue != nil {
-		if err := m.StructValue.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("struct_value")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnon) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnon) UnmarshalBinary(b []byte) error {
-	var res ProtobufValueStructValueFieldsAnonStructValueFieldsAnon
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// ProtobufValueStructValueFieldsAnonStructValueFieldsAnonListValue `ListValue` is a wrapper around a repeated field of values.
-//
-// The JSON representation for `ListValue` is JSON array.
-// swagger:model ProtobufValueStructValueFieldsAnonStructValueFieldsAnonListValue
-type ProtobufValueStructValueFieldsAnonStructValueFieldsAnonListValue struct {
-
-	// Repeated field of dynamically typed values.
-	Values []*ProtobufValue `json:"values"`
-}
-
-// Validate validates this protobuf value struct value fields anon struct value fields anon list value
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonListValue) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateValues(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonListValue) validateValues(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Values) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.Values); i++ {
-		if swag.IsZero(m.Values[i]) { // not required
-			continue
-		}
-
-		if m.Values[i] != nil {
-			if err := m.Values[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("list_value" + "." + "values" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonListValue) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonListValue) UnmarshalBinary(b []byte) error {
-	var res ProtobufValueStructValueFieldsAnonStructValueFieldsAnonListValue
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValue `Struct` represents a structured data value, consisting of fields
-// which map to dynamically typed values. In some languages, `Struct`
-// might be supported by a native representation. For example, in
-// scripting languages like JS a struct is represented as an
-// object. The details of that representation are described together
-// with the proto support for the language.
-//
-// The JSON representation for `Struct` is JSON object.
-// swagger:model ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValue
-type ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValue struct {
-
-	// Unordered map of dynamically typed values.
-	Fields map[string]ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnon `json:"fields,omitempty"`
-}
-
-// Validate validates this protobuf value struct value fields anon struct value fields anon struct value
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValue) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateFields(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValue) validateFields(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Fields) { // not required
-		return nil
-	}
-
-	for k := range m.Fields {
-
-		if swag.IsZero(m.Fields[k]) { // not required
-			continue
-		}
-		if val, ok := m.Fields[k]; ok {
-			if err := val.Validate(formats); err != nil {
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValue) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValue) UnmarshalBinary(b []byte) error {
-	var res ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValue
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnon `Value` represents a dynamically typed value which can be either
-// null, a number, a string, a boolean, a recursive struct value, or a
-// list of values. A producer of value is expected to set one of that
-// variants, absence of any variant indicates an error.
-//
-// The JSON representation for `Value` is JSON value.
-// swagger:model ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnon
-type ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnon struct {
-
-	// Represents a boolean value.
-	BoolValue bool `json:"bool_value,omitempty"`
-
-	// list value
-	ListValue *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonListValue `json:"list_value,omitempty"`
-
-	// `NullValue` is a singleton enumeration to represent the null value for the
-	// `Value` type union.
-	//
-	//  The JSON representation for `NullValue` is JSON `null`.
-	//
-	//  - NULL_VALUE: Null value.
-	// Enum: [NULL_VALUE]
-	NullValue *string `json:"null_value,omitempty"`
-
-	// Represents a double value.
-	NumberValue float64 `json:"number_value,omitempty"`
-
-	// Represents a string value.
-	StringValue string `json:"string_value,omitempty"`
-
-	// struct value
-	StructValue *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonStructValue `json:"struct_value,omitempty"`
-}
-
-// Validate validates this protobuf value struct value fields anon struct value fields anon struct value fields anon
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnon) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateListValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateNullValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateStructValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnon) validateListValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.ListValue) { // not required
-		return nil
-	}
-
-	if m.ListValue != nil {
-		if err := m.ListValue.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("list_value")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-var protobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonTypeNullValuePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["NULL_VALUE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		protobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonTypeNullValuePropEnum = append(protobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonTypeNullValuePropEnum, v)
-	}
-}
-
-const (
-
-	// ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonNullValueNULLVALUE captures enum value "NULL_VALUE"
-	ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonNullValueNULLVALUE string = "NULL_VALUE"
-)
-
-// prop value enum
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnon) validateNullValueEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, protobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonTypeNullValuePropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnon) validateNullValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.NullValue) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := m.validateNullValueEnum("null_value", "body", *m.NullValue); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnon) validateStructValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.StructValue) { // not required
-		return nil
-	}
-
-	if m.StructValue != nil {
-		if err := m.StructValue.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("struct_value")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnon) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnon) UnmarshalBinary(b []byte) error {
-	var res ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnon
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonListValue `ListValue` is a wrapper around a repeated field of values.
-//
-// The JSON representation for `ListValue` is JSON array.
-// swagger:model ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonListValue
-type ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonListValue struct {
-
-	// Repeated field of dynamically typed values.
-	Values []*ProtobufValue `json:"values"`
-}
-
-// Validate validates this protobuf value struct value fields anon struct value fields anon struct value fields anon list value
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonListValue) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateValues(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonListValue) validateValues(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Values) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.Values); i++ {
-		if swag.IsZero(m.Values[i]) { // not required
-			continue
-		}
-
-		if m.Values[i] != nil {
-			if err := m.Values[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("list_value" + "." + "values" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonListValue) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonListValue) UnmarshalBinary(b []byte) error {
-	var res ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonListValue
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonStructValue `Struct` represents a structured data value, consisting of fields
-// which map to dynamically typed values. In some languages, `Struct`
-// might be supported by a native representation. For example, in
-// scripting languages like JS a struct is represented as an
-// object. The details of that representation are described together
-// with the proto support for the language.
-//
-// The JSON representation for `Struct` is JSON object.
-// swagger:model ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonStructValue
-type ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonStructValue struct {
-
-	// Unordered map of dynamically typed values.
-	Fields map[string]ProtobufValue `json:"fields,omitempty"`
-}
-
-// Validate validates this protobuf value struct value fields anon struct value fields anon struct value fields anon struct value
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonStructValue) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateFields(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonStructValue) validateFields(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.Fields) { // not required
-		return nil
-	}
-
-	for k := range m.Fields {
-
-		if err := validate.Required("struct_value"+"."+"fields"+"."+k, "body", m.Fields[k]); err != nil {
-			return err
-		}
-		if val, ok := m.Fields[k]; ok {
-			if err := val.Validate(formats); err != nil {
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonStructValue) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonStructValue) UnmarshalBinary(b []byte) error {
-	var res ProtobufValueStructValueFieldsAnonStructValueFieldsAnonStructValueFieldsAnonStructValue
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
