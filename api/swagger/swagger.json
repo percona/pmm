@@ -5489,10 +5489,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "db": {
-                  "description": "database for query.",
-                  "type": "string"
-                },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string"
@@ -5563,10 +5559,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "db": {
-                  "description": "database for query.",
-                  "type": "string"
-                },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string"

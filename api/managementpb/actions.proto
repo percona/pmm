@@ -93,10 +93,8 @@ message StartMySQLExplainActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  // database for query.
-  string db = 3;
   // query example.
-  string query = 4;
+  string query = 3;
 }
 
 message StartMySQLExplainActionResponse {
@@ -111,10 +109,8 @@ message StartMySQLExplainJSONActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  // database for query.
-  string db = 3;
   // query example.
-  string query = 4;
+  string query = 3;
 }
 
 message StartMySQLExplainJSONActionResponse {

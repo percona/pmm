@@ -99,9 +99,8 @@ message StartActionRequest {
   // MySQLExplainParams describes MySQL Explain action parameters.
   message MySQLExplainParams {
     string dsn = 1;
-    string db = 2;
-    string query = 3;
-    MysqlExplainOutputFormat output_format = 4;
+    string query = 2;
+    MysqlExplainOutputFormat output_format = 3;
   }
   string action_id = 1;
   management.ActionType type = 2;
