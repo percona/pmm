@@ -166,18 +166,16 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 
 const queryReportSparklinesTmpl = `
 	SELECT
-		(toUnixTimestamp( :period_start_to ) - toUnixTimestamp( :period_start_from )) / {{ index . "amount_of_points" }} AS time_frame,
-		intDivOrZero(toUnixTimestamp( :period_start_to ) - toRelativeSecondNum(period_start), time_frame) AS point,
-		toUnixTimestamp( :period_start_to ) - (point * time_frame) AS timestamp,
-		SUM(num_queries) AS num_queries_sum,
-		SUM(m_query_time_sum) AS m_query_time_sum,
-		m_query_time_sum / time_frame AS m_query_load,
+		intDivOrZero(toUnixTimestamp( :period_start_to ) - toUnixTimestamp(period_start), {{ index . "time_frame" }}) AS point,
+		toDateTime(toUnixTimestamp( :period_start_to ) - (point * {{ index . "time_frame" }})) AS timestamp,
+		{{ index . "time_frame" }} AS time_frame,
+		SUM(num_queries) / time_frame AS num_queries_sum_per_sec,
 		{{range $j, $col := index . "columns"}}
-			SUM(m_{{ $col }}_sum) AS m_{{ $col }}_sum,
+			if(SUM(m_{{ $col }}_cnt) == 0, NaN, SUM(m_{{ $col }}_sum) / time_frame) AS m_{{ $col }}_sum_per_sec,
 		{{ end }}
-		m_query_time_sum / num_queries_sum AS m_query_time_avg
+		if(SUM(m_query_time_cnt) == 0, NULL, SUM(m_query_time_sum) / time_frame) AS m_query_time_sum_per_sec
 	FROM metrics
-	WHERE period_start > :period_start_from AND period_start < :period_start_to
+	WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 	{{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}
 	{{ if index . "queryids" }} AND queryid IN ( :queryids ) {{ end }}
 	{{ if index . "servers" }} AND d_server IN ( :servers ) {{ end }}
@@ -198,33 +196,35 @@ const queryReportSparklinesTmpl = `
 	ORDER BY point ASC;
 `
 
+//nolint
+var tmplQueryReportSparklines = template.Must(template.New("queryReportSparklines").Funcs(funcMap).Parse(queryReportSparklinesTmpl))
+
 // SelectSparklines selects datapoint for sparklines.
 func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	periodStartFromSec, periodStartToSec int64,
 	dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string,
 	dbLabels map[string][]string, group string, columns []string) ([]*qanpb.Point, error) {
 
-	interfaceToFloat32 := func(unk interface{}) float32 {
-		switch i := unk.(type) {
-		case float64:
-			return float32(i)
-		case float32:
-			return i
-		case int64:
-			return float32(i)
-		default:
-			return float32(0)
-		}
-	}
+	// Align to minutes
+	periodStartToSec = periodStartToSec / 60 * 60
+	periodStartFromSec = periodStartFromSec / 60 * 60
 
 	// If time range is bigger then two hour - amount of sparklines points = 120 to avoid huge data in response.
 	// Otherwise amount of sparklines points is equal to minutes in in time range to not mess up calculation.
-	amountOfPoints := int64(maxAmountOfPoints)
+	amountOfPoints := int64(optimalAmountOfPoint)
 	timePeriod := periodStartToSec - periodStartFromSec
+	// reduce amount of point if period less then 2h.
 	if timePeriod < int64((minFullTimeFrame).Seconds()) {
 		// minimum point is 1 minute
 		amountOfPoints = timePeriod / 60
 	}
+
+	// how many full minutes we can fit into given amount of points.
+	minutesInPoint := (periodStartToSec - periodStartFromSec) / 60 / amountOfPoints
+	// we need aditional point to show this minutes
+	remainder := ((periodStartToSec - periodStartFromSec) / 60) % amountOfPoints
+	amountOfPoints += remainder / minutesInPoint
+	timeFrame := minutesInPoint * 60
 
 	arg := map[string]interface{}{
 		"dimension_val":     dimensionVal,
@@ -239,61 +239,65 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		"labels":            dbLabels,
 		"group":             group,
 		"columns":           columns,
-		"amount_of_points":  amountOfPoints,
+		"time_frame":        timeFrame,
 	}
 
 	var results []*qanpb.Point
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("queryReportSparklines").Funcs(funcMap).Parse(queryReportSparklinesTmpl); err != nil {
-		log.Fatalln(err)
-	} else if err = tmpl.Execute(&queryBuffer, arg); err != nil {
-		log.Fatalln(err)
+
+	if err := tmplQueryReportSparklines.Execute(&queryBuffer, arg); err != nil {
+		return nil, errors.Wrap(err, "cannot execute tmplQueryReportSparklines")
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return results, fmt.Errorf("prepare named:%v", err)
+		return nil, errors.Wrap(err, "prepare named")
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return results, fmt.Errorf("populate agruments in IN clause:%v", err)
+		return nil, errors.Wrap(err, "populate agruments in IN clause")
 	}
 	query = r.db.Rebind(query)
 
 	rows, err := r.db.QueryxContext(ctx, query, args...)
 	if err != nil {
-		return results, fmt.Errorf("report query:%v", err)
+		return nil, errors.Wrap(err, "report query")
 	}
-	resultsWithGaps := map[float32]*qanpb.Point{}
+	resultsWithGaps := map[uint32]*qanpb.Point{}
+
+	sparklinePointFieldsToQuery := []string{
+		"point",
+		"timestamp",
+		"time_frame",
+		"num_queries_per_sec",
+	}
+	for _, v := range columns {
+		sparklinePointFieldsToQuery = append(sparklinePointFieldsToQuery, fmt.Sprintf("m_%s_sum_per_sec", v))
+	}
+	sparklinePointFieldsToQuery = append(sparklinePointFieldsToQuery, "m_query_time_sum_per_sec")
+
 	for rows.Next() {
-		res := make(map[string]interface{})
-		err = rows.MapScan(res)
+		p := qanpb.Point{}
+		res := getPointFieldsList(&p, sparklinePointFieldsToQuery)
+		err = rows.Scan(res...)
 		if err != nil {
-			fmt.Printf("DimensionReport Scan error: %v", err)
+			return nil, errors.Wrap(err, "DimensionReport scan error")
 		}
-		points := qanpb.Point{
-			Values: make(map[string]float32),
-		}
-		for k, v := range res {
-			points.Values[k] = interfaceToFloat32(v)
-		}
-		resultsWithGaps[points.Values["point"]] = &points
+		resultsWithGaps[p.Point] = &p
 	}
 
-	timeFrame := (periodStartToSec - periodStartFromSec) / amountOfPoints
 	// fill in gaps in time series.
-	for pointN := int64(0); pointN < amountOfPoints; pointN++ {
-		point, ok := resultsWithGaps[float32(pointN)]
+	for pointN := uint32(0); int64(pointN) < amountOfPoints; pointN++ {
+		p, ok := resultsWithGaps[pointN]
 		if !ok {
-			point = &qanpb.Point{
-				Values: make(map[string]float32),
-			}
-			timeShift := timeFrame * pointN
+			p = &qanpb.Point{}
+			p.Point = pointN
+			p.TimeFrame = uint32(timeFrame)
+			timeShift := timeFrame * int64(pointN)
 			ts := periodStartToSec - timeShift
-			point.Values["point"] = float32(pointN)
-			point.Values["time_frame"] = float32(timeFrame)
-			point.Values["timestamp"] = float32(ts)
+			// p.Timestamp = &timestamp.Timestamp{Seconds: ts}
+			p.Timestamp = time.Unix(ts, 0).UTC().Format(time.RFC3339)
 		}
-		results = append(results, point)
+		results = append(results, p)
 	}
 
 	return results, err

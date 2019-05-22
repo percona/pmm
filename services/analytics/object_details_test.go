@@ -18,12 +18,11 @@ package analitycs
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"testing"
 	"time"
 
-	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -156,9 +155,18 @@ func TestService_GetQueryExample(t *testing.T) {
 			if (err != nil) != tt.wantErr {
 				assert.Errorf(t, err, "Service.GetQueryExample() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			tt.want = nil
-			expectedData(t, got, &tt.want, "../../test_data/GetQueryExample_"+tt.name+".json")
-			assert.Equal(t, proto.MarshalTextString(got), proto.MarshalTextString(tt.want))
+			if tt.want == nil {
+				assert.Nil(t, got, "Service.GetQueryExample() return not nil")
+				return
+			}
+
+			expectedJSON := getExpectedJSON(t, got, "../../test_data/GetQueryExample_"+tt.name+".json")
+			marshaler := jsonpb.Marshaler{Indent: "\t"}
+			gotJSON, err := marshaler.MarshalToString(got)
+			if err != nil {
+				t.Errorf("cannot marshal:%v", err)
+			}
+			assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 		})
 	}
 }
@@ -325,7 +333,8 @@ func TestService_GetMetrics(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetMetrics()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetMetrics_group_by_queryid.json")
 
-		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		marshaler := jsonpb.Marshaler{Indent: "\t"}
+		gotJSON, err := marshaler.MarshalToString(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
@@ -348,7 +357,8 @@ func TestService_GetMetrics(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetMetrics()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetMetrics_sparklines_90_points.json")
 
-		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		marshaler := jsonpb.Marshaler{Indent: "\t"}
+		gotJSON, err := marshaler.MarshalToString(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
@@ -370,7 +380,8 @@ func TestService_GetMetrics(t *testing.T) {
 		assert.NoError(t, err, "Unexpected error in Service.GetMetrics()")
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetMetrics_total.json")
 
-		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		marshaler := jsonpb.Marshaler{Indent: "\t"}
+		gotJSON, err := marshaler.MarshalToString(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
@@ -427,11 +438,12 @@ func TestService_GetLabels(t *testing.T) {
 		require.Equal(t, err, tt.wantErr)
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetLabels"+tt.name+".json")
 
-		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		marshaler := jsonpb.Marshaler{Indent: "\t"}
+		gotJSON, err := marshaler.MarshalToString(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		require.Equal(t, expectedJSON, gotJSON)
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
 	tt = testCase{
@@ -536,11 +548,12 @@ func TestService_GetLabels(t *testing.T) {
 		require.Equal(t, err, tt.wantErr)
 		expectedJSON := getExpectedJSON(t, got, "../../test_data/GetLabels_"+tt.name+".json")
 
-		gotJSON, err := json.MarshalIndent(got, "", "\t")
+		marshaler := jsonpb.Marshaler{Indent: "\t"}
+		gotJSON, err := marshaler.MarshalToString(got)
 		if err != nil {
 			t.Errorf("cannot marshal:%v", err)
 		}
-		require.Equal(t, expectedJSON, gotJSON)
+		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
 	request = &qanpb.ObjectDetailsLabelsRequest{

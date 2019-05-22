@@ -31,7 +31,7 @@ import (
 	"github.com/percona/pmm/api/qanpb"
 )
 
-const maxAmountOfPoints = 120
+const optimalAmountOfPoint = 120
 const minFullTimeFrame = 2 * time.Hour
 
 // Metrics represents methods to work with metrics.
@@ -274,47 +274,47 @@ GROUP BY {{ index . "group" }}
 
 const queryMetricsSparklinesTmpl = `
 SELECT
-		(toUnixTimestamp( :period_start_to ) - toUnixTimestamp( :period_start_from )) / {{ index . "amount_of_points" }} AS time_frame,
-		intDivOrZero(toUnixTimestamp( :period_start_to ) - toRelativeSecondNum(period_start), time_frame) AS point,
-		toUnixTimestamp( :period_start_to ) - (point * time_frame) AS timestamp,
+		intDivOrZero(toUnixTimestamp( :period_start_to ) - toUnixTimestamp(period_start), {{ index . "time_frame" }}) AS point,
+		toDateTime(toUnixTimestamp( :period_start_to ) - (point * {{ index . "time_frame" }})) AS timestamp,
+		{{ index . "time_frame" }} AS time_frame,
 
 SUM(num_queries) / time_frame AS num_queries_per_sec,
-if(SUM(m_query_time_cnt) == 0, NULL, SUM(m_query_time_sum) / time_frame) AS m_query_time_per_sec,
-if(SUM(m_lock_time_cnt) == 0, NULL, SUM(m_lock_time_sum) / time_frame) AS m_lock_time_sum,
-if(SUM(m_rows_sent_cnt) == 0, NULL, SUM(m_rows_sent_sum) / time_frame) AS m_rows_sent_sum_per_sec,
-if(SUM(m_rows_examined_cnt) == 0, NULL, SUM(m_rows_examined_sum) / time_frame) AS m_rows_examined_sum_per_sec,
-if(SUM(m_rows_affected_cnt) == 0, NULL, SUM(m_rows_affected_sum) / time_frame) AS m_rows_affected_sum_per_sec,
-if(SUM(m_rows_read_cnt) == 0, NULL, SUM(m_rows_read_sum) / time_frame) AS m_rows_read_sum_per_sec,
-if(SUM(m_merge_passes_cnt) == 0, NULL, SUM(m_merge_passes_sum) / time_frame) AS m_merge_passes_sum_per_sec,
-if(SUM(m_innodb_io_r_ops_cnt) == 0, NULL, SUM(m_innodb_io_r_ops_sum) / time_frame) AS m_innodb_io_r_ops_sum_per_sec,
-if(SUM(m_innodb_io_r_bytes_cnt) == 0, NULL, SUM(m_innodb_io_r_bytes_sum) / time_frame) AS m_innodb_io_r_bytes_sum_per_sec,
-if(SUM(m_innodb_io_r_wait_cnt) == 0, NULL, SUM(m_innodb_io_r_wait_sum) / time_frame) AS m_innodb_io_r_wait_sum_per_sec,
-if(SUM(m_innodb_rec_lock_wait_cnt) == 0, NULL, SUM(m_innodb_rec_lock_wait_sum) / time_frame) AS m_innodb_rec_lock_wait_sum_per_sec,
-if(SUM(m_innodb_queue_wait_cnt) == 0, NULL, SUM(m_innodb_queue_wait_sum) / time_frame) AS m_innodb_queue_wait_sum_per_sec,
-if(SUM(m_innodb_pages_distinct_cnt) == 0, NULL, SUM(m_innodb_pages_distinct_sum) / time_frame) AS m_innodb_pages_distinct_sum_per_sec,
-if(SUM(m_query_length_cnt) == 0, NULL, SUM(m_query_length_sum) / time_frame) AS m_query_length_sum_per_sec,
-if(SUM(m_bytes_sent_cnt) == 0, NULL, SUM(m_bytes_sent_sum) / time_frame) AS m_bytes_sent_sum_per_sec,
-if(SUM(m_tmp_tables_cnt) == 0, NULL, SUM(m_tmp_tables_sum) / time_frame) AS m_tmp_tables_sum_per_sec,
-if(SUM(m_tmp_disk_tables_cnt) == 0, NULL, SUM(m_tmp_disk_tables_sum) / time_frame) AS m_tmp_disk_tables_sum_per_sec,
-if(SUM(m_tmp_table_sizes_cnt) == 0, NULL, SUM(m_tmp_table_sizes_sum) / time_frame) AS m_tmp_table_sizes_sum_per_sec,
-if(SUM(m_qc_hit_cnt) == 0, NULL, SUM(m_qc_hit_sum) / time_frame) AS m_qc_hit_sum_per_sec,
-if(SUM(m_full_scan_cnt) == 0, NULL, SUM(m_full_scan_sum) / time_frame) AS m_full_scan_sum_per_sec,
-if(SUM(m_full_join_cnt) == 0, NULL, SUM(m_full_join_sum) / time_frame) AS m_full_join_sum_per_sec,
-if(SUM(m_tmp_table_cnt) == 0, NULL, SUM(m_tmp_table_sum) / time_frame) AS m_tmp_table_sum_per_sec,
-if(SUM(m_tmp_table_on_disk_cnt) == 0 , NULL, SUM(m_tmp_table_on_disk_sum) / time_frame) AS m_tmp_table_on_disk_sum_per_sec,
-if(SUM(m_filesort_cnt) == 0 , NULL, SUM(m_filesort_sum) / time_frame) AS m_filesort_sum_per_sec,
-if(SUM(m_filesort_on_disk_cnt) == 0 , NULL, SUM(m_filesort_on_disk_sum) / time_frame) AS m_filesort_on_disk_sum_per_sec,
-if(SUM(m_select_full_range_join_cnt) == 0 , NULL, SUM(m_select_full_range_join_sum) / time_frame) AS m_select_full_range_join_sum_per_sec,
-if(SUM(m_select_range_cnt) == 0 , NULL, SUM(m_select_range_sum) / time_frame) AS m_select_range_sum_per_sec,
-if(SUM(m_select_range_check_cnt) == 0 , NULL, SUM(m_select_range_check_sum) / time_frame) AS m_select_range_check_sum_per_sec,
-if(SUM(m_sort_range_cnt) == 0 , NULL, SUM(m_sort_range_sum) / time_frame) AS m_sort_range_sum_per_sec,
-if(SUM(m_sort_rows_cnt) == 0 , NULL, SUM(m_sort_rows_sum) / time_frame) AS m_sort_rows_sum_per_sec,
-if(SUM(m_sort_scan_cnt) == 0 , NULL, SUM(m_sort_scan_sum) / time_frame) AS m_sort_scan_sum_per_sec,
-if(SUM(m_no_index_used_cnt) == 0 , NULL, SUM(m_no_index_used_sum) / time_frame) AS m_no_index_used_sum_per_sec,
-if(SUM(m_no_good_index_used_cnt) == 0 , NULL, SUM(m_no_good_index_used_sum) / time_frame) AS m_no_good_index_used_sum_per_sec,
-if(SUM(m_docs_returned_cnt) == 0 , NULL, SUM(m_docs_returned_sum) / time_frame) AS m_docs_returned_sum_per_sec,
-if(SUM(m_response_length_cnt) == 0 , NULL, SUM(m_response_length_sum) / time_frame) AS m_response_length_sum_per_sec,
-if(SUM(m_docs_scanned_cnt) == 0 , NULL, SUM(m_docs_scanned_sum) / time_frame) AS m_docs_scanned_sum_per_sec
+if(SUM(m_query_time_cnt) == 0, NaN, SUM(m_query_time_sum) / time_frame) AS m_query_time_sum_per_sec,
+if(SUM(m_lock_time_cnt) == 0, NaN, SUM(m_lock_time_sum) / time_frame) AS m_lock_time_sum_per_sec,
+if(SUM(m_rows_sent_cnt) == 0, NaN, SUM(m_rows_sent_sum) / time_frame) AS m_rows_sent_sum_per_sec,
+if(SUM(m_rows_examined_cnt) == 0, NaN, SUM(m_rows_examined_sum) / time_frame) AS m_rows_examined_sum_per_sec,
+if(SUM(m_rows_affected_cnt) == 0, NaN, SUM(m_rows_affected_sum) / time_frame) AS m_rows_affected_sum_per_sec,
+if(SUM(m_rows_read_cnt) == 0, NaN, SUM(m_rows_read_sum) / time_frame) AS m_rows_read_sum_per_sec,
+if(SUM(m_merge_passes_cnt) == 0, NaN, SUM(m_merge_passes_sum) / time_frame) AS m_merge_passes_sum_per_sec,
+if(SUM(m_innodb_io_r_ops_cnt) == 0, NaN, SUM(m_innodb_io_r_ops_sum) / time_frame) AS m_innodb_io_r_ops_sum_per_sec,
+if(SUM(m_innodb_io_r_bytes_cnt) == 0, NaN, SUM(m_innodb_io_r_bytes_sum) / time_frame) AS m_innodb_io_r_bytes_sum_per_sec,
+if(SUM(m_innodb_io_r_wait_cnt) == 0, NaN, SUM(m_innodb_io_r_wait_sum) / time_frame) AS m_innodb_io_r_wait_sum_per_sec,
+if(SUM(m_innodb_rec_lock_wait_cnt) == 0, NaN, SUM(m_innodb_rec_lock_wait_sum) / time_frame) AS m_innodb_rec_lock_wait_sum_per_sec,
+if(SUM(m_innodb_queue_wait_cnt) == 0, NaN, SUM(m_innodb_queue_wait_sum) / time_frame) AS m_innodb_queue_wait_sum_per_sec,
+if(SUM(m_innodb_pages_distinct_cnt) == 0, NaN, SUM(m_innodb_pages_distinct_sum) / time_frame) AS m_innodb_pages_distinct_sum_per_sec,
+if(SUM(m_query_length_cnt) == 0, NaN, SUM(m_query_length_sum) / time_frame) AS m_query_length_sum_per_sec,
+if(SUM(m_bytes_sent_cnt) == 0, NaN, SUM(m_bytes_sent_sum) / time_frame) AS m_bytes_sent_sum_per_sec,
+if(SUM(m_tmp_tables_cnt) == 0, NaN, SUM(m_tmp_tables_sum) / time_frame) AS m_tmp_tables_sum_per_sec,
+if(SUM(m_tmp_disk_tables_cnt) == 0, NaN, SUM(m_tmp_disk_tables_sum) / time_frame) AS m_tmp_disk_tables_sum_per_sec,
+if(SUM(m_tmp_table_sizes_cnt) == 0, NaN, SUM(m_tmp_table_sizes_sum) / time_frame) AS m_tmp_table_sizes_sum_per_sec,
+if(SUM(m_qc_hit_cnt) == 0, NaN, SUM(m_qc_hit_sum) / time_frame) AS m_qc_hit_sum_per_sec,
+if(SUM(m_full_scan_cnt) == 0, NaN, SUM(m_full_scan_sum) / time_frame) AS m_full_scan_sum_per_sec,
+if(SUM(m_full_join_cnt) == 0, NaN, SUM(m_full_join_sum) / time_frame) AS m_full_join_sum_per_sec,
+if(SUM(m_tmp_table_cnt) == 0, NaN, SUM(m_tmp_table_sum) / time_frame) AS m_tmp_table_sum_per_sec,
+if(SUM(m_tmp_table_on_disk_cnt) == 0, NaN, SUM(m_tmp_table_on_disk_sum) / time_frame) AS m_tmp_table_on_disk_sum_per_sec,
+if(SUM(m_filesort_cnt) == 0, NaN, SUM(m_filesort_sum) / time_frame) AS m_filesort_sum_per_sec,
+if(SUM(m_filesort_on_disk_cnt) == 0, NaN, SUM(m_filesort_on_disk_sum) / time_frame) AS m_filesort_on_disk_sum_per_sec,
+if(SUM(m_select_full_range_join_cnt) == 0, NaN, SUM(m_select_full_range_join_sum) / time_frame) AS m_select_full_range_join_sum_per_sec,
+if(SUM(m_select_range_cnt) == 0, NaN, SUM(m_select_range_sum) / time_frame) AS m_select_range_sum_per_sec,
+if(SUM(m_select_range_check_cnt) == 0, NaN, SUM(m_select_range_check_sum) / time_frame) AS m_select_range_check_sum_per_sec,
+if(SUM(m_sort_range_cnt) == 0, NaN, SUM(m_sort_range_sum) / time_frame) AS m_sort_range_sum_per_sec,
+if(SUM(m_sort_rows_cnt) == 0, NaN, SUM(m_sort_rows_sum) / time_frame) AS m_sort_rows_sum_per_sec,
+if(SUM(m_sort_scan_cnt) == 0, NaN, SUM(m_sort_scan_sum) / time_frame) AS m_sort_scan_sum_per_sec,
+if(SUM(m_no_index_used_cnt) == 0, NaN, SUM(m_no_index_used_sum) / time_frame) AS m_no_index_used_sum_per_sec,
+if(SUM(m_no_good_index_used_cnt) == 0, NaN, SUM(m_no_good_index_used_sum) / time_frame) AS m_no_good_index_used_sum_per_sec,
+if(SUM(m_docs_returned_cnt) == 0, NaN, SUM(m_docs_returned_sum) / time_frame) AS m_docs_returned_sum_per_sec,
+if(SUM(m_response_length_cnt) == 0, NaN, SUM(m_response_length_sum) / time_frame) AS m_response_length_sum_per_sec,
+if(SUM(m_docs_scanned_cnt) == 0, NaN, SUM(m_docs_scanned_sum) / time_frame) AS m_docs_scanned_sum_per_sec
 FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}
@@ -346,27 +346,26 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string,
 	dbLabels map[string][]string) ([]*qanpb.Point, error) {
 
-	interfaceToFloat32 := func(unk interface{}) float32 {
-		switch i := unk.(type) {
-		case float64:
-			return float32(i)
-		case float32:
-			return i
-		case int64:
-			return float32(i)
-		default:
-			return float32(0)
-		}
-	}
+	// Align to minutes
+	periodStartToSec = periodStartToSec / 60 * 60
+	periodStartFromSec = periodStartFromSec / 60 * 60
 
 	// If time range is bigger then two hour - amount of sparklines points = 120 to avoid huge data in response.
 	// Otherwise amount of sparklines points is equal to minutes in in time range to not mess up calculation.
-	amountOfPoints := int64(maxAmountOfPoints)
+	amountOfPoints := int64(optimalAmountOfPoint)
 	timePeriod := periodStartToSec - periodStartFromSec
+	// reduce amount of point if period less then 2h.
 	if timePeriod < int64((minFullTimeFrame).Seconds()) {
 		// minimum point is 1 minute
 		amountOfPoints = timePeriod / 60
 	}
+
+	// how many full minutes we can fit into given amount of points.
+	minutesInPoint := (periodStartToSec - periodStartFromSec) / 60 / amountOfPoints
+	// we need aditional point to show this minutes
+	remainder := ((periodStartToSec - periodStartFromSec) / 60) % amountOfPoints
+	amountOfPoints += remainder / minutesInPoint
+	timeFrame := minutesInPoint * 60
 
 	arg := map[string]interface{}{
 		"period_start_from": periodStartFromSec,
@@ -380,7 +379,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 		"labels":            dbLabels,
 		"group":             group,
 		"dimension_val":     filter,
-		"amount_of_points":  amountOfPoints,
+		"time_frame":        timeFrame,
 	}
 
 	var results []*qanpb.Point
@@ -390,7 +389,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	}
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return results, fmt.Errorf("prepare named:%v", err)
+		return nil, errors.Wrap(err, "prepare named")
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
@@ -402,37 +401,30 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	if err != nil {
 		return nil, errors.Wrap(err, "metrics sparklines query")
 	}
-	resultsWithGaps := map[float32]*qanpb.Point{}
+	resultsWithGaps := map[uint32]*qanpb.Point{}
 	for rows.Next() {
-		res := make(map[string]interface{})
-		err = rows.MapScan(res)
+		p := qanpb.Point{}
+		res := getPointFieldsList(&p, sparklinePointAllFields)
+		err = rows.Scan(res...)
 		if err != nil {
-			return nil, errors.Wrap(err, "metrics sparkilnes scan error")
+			return nil, errors.Wrap(err, "DimensionReport scan error")
 		}
-		points := qanpb.Point{
-			Values: make(map[string]float32),
-		}
-		for k, v := range res {
-			points.Values[k] = interfaceToFloat32(v)
-		}
-		resultsWithGaps[points.Values["point"]] = &points
+		resultsWithGaps[p.Point] = &p
 	}
 
-	timeFrame := (periodStartToSec - periodStartFromSec) / amountOfPoints
 	// fill in gaps in time series.
-	for pointN := int64(0); pointN < amountOfPoints; pointN++ {
-		point, ok := resultsWithGaps[float32(pointN)]
+	for pointN := uint32(0); int64(pointN) < amountOfPoints; pointN++ {
+		p, ok := resultsWithGaps[pointN]
 		if !ok {
-			point = &qanpb.Point{
-				Values: make(map[string]float32),
-			}
-			timeShift := timeFrame * pointN
+			p = &qanpb.Point{}
+			p.Point = pointN
+			p.TimeFrame = uint32(timeFrame)
+			timeShift := timeFrame * int64(pointN)
 			ts := periodStartToSec - timeShift
-			point.Values["point"] = float32(pointN)
-			point.Values["time_frame"] = float32(timeFrame)
-			point.Values["timestamp"] = float32(ts)
+			// p.Timestamp = &timestamp.Timestamp{Seconds: ts}
+			p.Timestamp = time.Unix(ts, 0).UTC().Format(time.RFC3339)
 		}
-		results = append(results, point)
+		results = append(results, p)
 	}
 
 	return results, err

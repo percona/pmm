@@ -18,17 +18,16 @@ package analitycs
 
 import (
 	"context"
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"os"
-	"reflect"
 	"testing"
 	"time"
 
+	"github.com/golang/protobuf/jsonpb"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/kshvakov/clickhouse"
+	"github.com/stretchr/testify/assert"
 
 	"github.com/percona/pmm/api/qanpb"
 
@@ -50,14 +49,6 @@ func TestService_GetFilters(t *testing.T) {
 	t1, _ := time.Parse(time.RFC3339, "2019-01-01T00:00:00Z")
 	t2, _ := time.Parse(time.RFC3339, "2019-01-01T00:01:00Z")
 	var want qanpb.FiltersReply
-	expectedData, err := ioutil.ReadFile("../../test_data/filters.json")
-	if err != nil {
-		log.Fatal("read file with expected filtering data: ", err)
-	}
-	err = json.Unmarshal(expectedData, &want)
-	if err != nil {
-		log.Fatal("cannot unmarshal expected result: ", err)
-	}
 
 	type fields struct {
 		rm models.Reporter
@@ -119,12 +110,15 @@ func TestService_GetFilters(t *testing.T) {
 			}
 			got, err := s.Get(tt.args.ctx, tt.args.in)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Service.GetFilters() error = %v, wantErr %v", err, tt.wantErr)
-				return
+				assert.Errorf(t, err, "Service.GetFilters() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Service.GetFilters() = %v, want %v", got, tt.want)
+			expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetFilters_"+tt.name+".json")
+			marshaler := jsonpb.Marshaler{Indent: "	"}
+			gotJSON, err := marshaler.MarshalToString(got)
+			if err != nil {
+				t.Errorf("cannot marshal:%v", err)
 			}
+			assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 		})
 	}
 }

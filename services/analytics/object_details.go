@@ -174,7 +174,7 @@ func (s *Service) GetQueryExample(ctx context.Context, in *qanpb.QueryExampleReq
 		limit,
 	)
 	if err != nil {
-		return resp, errors.Wrap(err, "error in selecting query examples")
+		return nil, errors.Wrap(err, "error in selecting query examples")
 	}
 	return resp, nil
 }

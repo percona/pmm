@@ -1,9 +1,9 @@
 {
-	"query_examples": [
+	"queryExamples": [
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
-			"example_format": 1,
-			"example_type": 1
+			"exampleFormat": "EXAMPLE",
+			"exampleType": "RANDOM"
 		}
 	]
 }

@@ -148,14 +148,14 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:e22beb4cb04f9634d51d811c69403ce3daeba91f72b8df4cef8cdb7352b3f709"
+  digest = "1:3f3627b95e9380a31495bb8a7bc65f7e38994d22abd18a1144e1785ccd78ff9f"
   name = "github.com/percona/pmm"
   packages = [
     "api/qanpb",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "d93c0163fb610c4ef3fd94be3a84cdedfd976039"
+  revision = "e9671176a62c1dd1a7287ec4c62b9c531dcc0533"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -304,6 +304,7 @@
     "github.com/golang-migrate/migrate",
     "github.com/golang-migrate/migrate/database/clickhouse",
     "github.com/golang-migrate/migrate/source/go_bindata",
+    "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/ptypes/timestamp",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",

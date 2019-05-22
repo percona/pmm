@@ -105,7 +105,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		_, isBoolCol := boolColumnNames[col]
 		_, isCommonCol := commonColumnNames[col]
 
-		switch true {
+		switch {
 		case isBoolCol || isCommonCol:
 			col = fmt.Sprintf("m_%s_sum", col)
 		case col == "load" || col == "latency":
