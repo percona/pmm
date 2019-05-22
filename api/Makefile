@@ -27,13 +27,6 @@ gen: clean            ## Generate files.
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json ; \
 		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$API.json --output=$$API/json/$$API.json ; \
 		swagger validate $$API/json/$$API.json ; \
-		swagger generate client --spec=$$API/json/$$API.json --target=$$API/json \
-			--additional-initialism=aws \
-			--additional-initialism=db \
-			--additional-initialism=ok \
-			--additional-initialism=pmm \
-			--additional-initialism=qan \
-			--additional-initialism=rds ; \
 	done
 
 	# generate PMM Server API spec, omit agentlocalpb
