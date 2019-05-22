@@ -17,5 +17,11 @@ var _ = math.Inf
 
 func (this *Point) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *Point_NullFloat) Validate() error {
 	return nil
 }

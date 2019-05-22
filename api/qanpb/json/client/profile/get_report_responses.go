@@ -16,8 +16,6 @@ import (
 	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/qanpb/json/models"
 )
 
 // GetReportReader is a Reader for the GetReport structure.
@@ -614,15 +612,33 @@ swagger:model RowsItems0SparklineItems0
 */
 type RowsItems0SparklineItems0 struct {
 
-	// values
-	Values map[string]models.ProtobufValue `json:"values,omitempty"`
+	// nulls3
+	Nulls3 map[string]bool `json:"nulls3,omitempty"`
+
+	// point
+	Point float32 `json:"point,omitempty"`
+
+	// time frame
+	TimeFrame float32 `json:"time_frame,omitempty"`
+
+	// timestamp
+	Timestamp float32 `json:"timestamp,omitempty"`
+
+	// values1
+	Values1 map[string]RowsItems0SparklineItems0Values1Anon `json:"values1,omitempty"`
+
+	// values2
+	Values2 map[string]float32 `json:"values2,omitempty"`
+
+	// values3
+	Values3 map[string]float32 `json:"values3,omitempty"`
 }
 
 // Validate validates this rows items0 sparkline items0
 func (o *RowsItems0SparklineItems0) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := o.validateValues(formats); err != nil {
+	if err := o.validateValues1(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -632,18 +648,18 @@ func (o *RowsItems0SparklineItems0) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *RowsItems0SparklineItems0) validateValues(formats strfmt.Registry) error {
+func (o *RowsItems0SparklineItems0) validateValues1(formats strfmt.Registry) error {
 
-	if swag.IsZero(o.Values) { // not required
+	if swag.IsZero(o.Values1) { // not required
 		return nil
 	}
 
-	for k := range o.Values {
+	for k := range o.Values1 {
 
-		if err := validate.Required("values"+"."+k, "body", o.Values[k]); err != nil {
-			return err
+		if swag.IsZero(o.Values1[k]) { // not required
+			continue
 		}
-		if val, ok := o.Values[k]; ok {
+		if val, ok := o.Values1[k]; ok {
 			if err := val.Validate(formats); err != nil {
 				return err
 			}
@@ -665,6 +681,41 @@ func (o *RowsItems0SparklineItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RowsItems0SparklineItems0) UnmarshalBinary(b []byte) error {
 	var res RowsItems0SparklineItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*RowsItems0SparklineItems0Values1Anon NullFloat represents a union of float value and null.
+swagger:model RowsItems0SparklineItems0Values1Anon
+*/
+type RowsItems0SparklineItems0Values1Anon struct {
+
+	// null
+	Null bool `json:"null,omitempty"`
+
+	// value
+	Value float32 `json:"value,omitempty"`
+}
+
+// Validate validates this rows items0 sparkline items0 values1 anon
+func (o *RowsItems0SparklineItems0Values1Anon) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *RowsItems0SparklineItems0Values1Anon) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *RowsItems0SparklineItems0Values1Anon) UnmarshalBinary(b []byte) error {
+	var res RowsItems0SparklineItems0Values1Anon
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

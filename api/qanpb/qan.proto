@@ -25,5 +25,16 @@ enum ExampleType {
 // Point contains values that represents abscissa (time) and ordinate (volume etc.)
 // of every point in a coordinate system of Sparklines.
 message Point {
-  map<string, google.protobuf.Value> values = 1;
+  // NullFloat represents a union of float value and null.
+  message NullFloat {
+    float value = 1;
+    bool null = 2;
+  }
+  map<string, NullFloat> values1 = 1; // nulls in message
+  map<string, float> values2 = 2; // nulls are NaNs
+  map<string, float> values3 = 3; // nulls in nulls3
+  map<string, bool> nulls3 = 4;
+  float point = 5;
+  float time_frame = 6;
+  float timestamp = 7;
 }

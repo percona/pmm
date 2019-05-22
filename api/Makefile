@@ -27,7 +27,6 @@ gen: clean            ## Generate files.
 		set -x ; \
 		swagger mixin $$API/json/header.json $$API/*.swagger.json --output=$$API/json/$$API.json ; \
 		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$API.json --output=$$API/json/$$API.json ; \
-		swagger flatten --with-flatten=expand --with-flatten=remove-unused $$API/json/$$API.json --output=$$API/json/$$API.json ; \
 		swagger validate $$API/json/$$API.json ; \
 		swagger generate client --with-flatten=expand --with-flatten=remove-unused --spec=$$API/json/$$API.json --target=$$API/json \
 			--additional-initialism=aws \
