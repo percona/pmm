@@ -109,6 +109,34 @@ func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) 
 }
 
 /*
+StartMySQLJSONExplainAction starts my SQL Json explain action starts my SQL JSON e x p l a i n action
+*/
+func (a *Client) StartMySQLJSONExplainAction(params *StartMySQLJSONExplainActionParams) (*StartMySQLJSONExplainActionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartMySQLJSONExplainActionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartMySQLJsonExplainAction",
+		Method:             "POST",
+		PathPattern:        "/v0/management/Actions/StartMySQLJsonExplain",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartMySQLJSONExplainActionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*StartMySQLJSONExplainActionOK), nil
+
+}
+
+/*
 StartPTMySQLSummaryAction starts p t my SQL summary action starts pt mysql summary action
 */
 func (a *Client) StartPTMySQLSummaryAction(params *StartPTMySQLSummaryActionParams) (*StartPTMySQLSummaryActionOK, error) {

@@ -45,6 +45,12 @@ func (this *StartMySQLExplainActionRequest) Validate() error {
 func (this *StartMySQLExplainActionResponse) Validate() error {
 	return nil
 }
+func (this *StartMySQLJsonExplainActionRequest) Validate() error {
+	return nil
+}
+func (this *StartMySQLJsonExplainActionResponse) Validate() error {
+	return nil
+}
 func (this *CancelActionRequest) Validate() error {
 	return nil
 }
