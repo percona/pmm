@@ -45,10 +45,10 @@ func (this *StartMySQLExplainActionRequest) Validate() error {
 func (this *StartMySQLExplainActionResponse) Validate() error {
 	return nil
 }
-func (this *StartMySQLJsonExplainActionRequest) Validate() error {
+func (this *StartMySQLExplainJSONActionRequest) Validate() error {
 	return nil
 }
-func (this *StartMySQLJsonExplainActionResponse) Validate() error {
+func (this *StartMySQLExplainJSONActionResponse) Validate() error {
 	return nil
 }
 func (this *CancelActionRequest) Validate() error {

@@ -109,30 +109,30 @@ func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) 
 }
 
 /*
-StartMySQLJSONExplainAction starts my SQL Json explain action starts my SQL JSON e x p l a i n action
+StartMySQLExplainJSONAction starts my SQL explain JSON action starts my SQL JSON e x p l a i n action
 */
-func (a *Client) StartMySQLJSONExplainAction(params *StartMySQLJSONExplainActionParams) (*StartMySQLJSONExplainActionOK, error) {
+func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONActionParams) (*StartMySQLExplainJSONActionOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewStartMySQLJSONExplainActionParams()
+		params = NewStartMySQLExplainJSONActionParams()
 	}
 
 	result, err := a.transport.Submit(&runtime.ClientOperation{
-		ID:                 "StartMySQLJsonExplainAction",
+		ID:                 "StartMySQLExplainJSONAction",
 		Method:             "POST",
-		PathPattern:        "/v0/management/Actions/StartMySQLJsonExplain",
+		PathPattern:        "/v0/management/Actions/StartMySQLExplainJSON",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http", "https"},
 		Params:             params,
-		Reader:             &StartMySQLJSONExplainActionReader{formats: a.formats},
+		Reader:             &StartMySQLExplainJSONActionReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return result.(*StartMySQLJSONExplainActionOK), nil
+	return result.(*StartMySQLExplainJSONActionOK), nil
 
 }
 

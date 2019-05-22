@@ -5548,13 +5548,13 @@
         }
       }
     },
-    "/v0/management/Actions/StartMySQLJsonExplain": {
+    "/v0/management/Actions/StartMySQLExplainJSON": {
       "post": {
         "tags": [
           "Actions"
         ],
-        "summary": "StartMySQLJsonExplainAction starts MySQL JSON EXPLAIN Action.",
-        "operationId": "StartMySQLJsonExplainAction",
+        "summary": "StartMySQLExplainJSONAction starts MySQL JSON EXPLAIN Action.",
+        "operationId": "StartMySQLExplainJSONAction",
         "parameters": [
           {
             "name": "body",
