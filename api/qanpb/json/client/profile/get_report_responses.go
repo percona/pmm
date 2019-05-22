@@ -6,7 +6,6 @@ package profile
 // Editing this file might prove futile when you re-run the swagger generate command
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"strconv"
@@ -17,8 +16,6 @@ import (
 	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
-
-	models "github.com/percona/pmm/api/qanpb/json/models"
 )
 
 // GetReportReader is a Reader for the GetReport structure.
@@ -615,43 +612,134 @@ swagger:model RowsItems0SparklineItems0
 */
 type RowsItems0SparklineItems0 struct {
 
-	// values
-	Values map[string]RowsItems0SparklineItems0ValuesAnon `json:"values,omitempty"`
+	// The number of bytes sent to all clients.
+	MBytesSentSumPerSec float32 `json:"m_bytes_sent_sum_per_sec,omitempty"`
+
+	// MongoDB metrics.
+	//
+	// The number of returned documents.
+	MDocsReturnedSumPerSec float32 `json:"m_docs_returned_sum_per_sec,omitempty"`
+
+	// The number of scanned documents.
+	MDocsScannedSumPerSec float32 `json:"m_docs_scanned_sum_per_sec,omitempty"`
+
+	// The filesort was performed on disk.
+	MFilesortOnDiskSumPerSec float32 `json:"m_filesort_on_disk_sum_per_sec,omitempty"`
+
+	// The query used a filesort.
+	MFilesortSumPerSec float32 `json:"m_filesort_sum_per_sec,omitempty"`
+
+	// The query performed a full join (a join without indexes).
+	MFullJoinSumPerSec float32 `json:"m_full_join_sum_per_sec,omitempty"`
+
+	// The query performed a full table scan.
+	MFullScanSumPerSec float32 `json:"m_full_scan_sum_per_sec,omitempty"`
+
+	// Similar to innodb_IO_r_ops, but the unit is bytes.
+	MInnodbIoRBytesSumPerSec float32 `json:"m_innodb_io_r_bytes_sum_per_sec,omitempty"`
+
+	// Counts the number of page read operations scheduled.
+	MInnodbIoROpsSumPerSec float32 `json:"m_innodb_io_r_ops_sum_per_sec,omitempty"`
+
+	// Shows how long (in seconds) it took InnoDB to actually read the data from storage.
+	MInnodbIoRWaitSumPerSec float32 `json:"m_innodb_io_r_wait_sum_per_sec,omitempty"`
+
+	// Counts approximately the number of unique pages the query accessed.
+	MInnodbPagesDistinctSumPerSec float32 `json:"m_innodb_pages_distinct_sum_per_sec,omitempty"`
+
+	// Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution.
+	MInnodbQueueWaitSumPerSec float32 `json:"m_innodb_queue_wait_sum_per_sec,omitempty"`
+
+	// Shows how long (in seconds) the query waited for row locks.
+	MInnodbRecLockWaitSumPerSec float32 `json:"m_innodb_rec_lock_wait_sum_per_sec,omitempty"`
+
+	// The time to acquire locks in seconds.
+	MLockTimeSumPerSec float32 `json:"m_lock_time_sum_per_sec,omitempty"`
+
+	// The number of merge passes that the sort algorithm has had to do.
+	MMergePassesSumPerSec float32 `json:"m_merge_passes_sum_per_sec,omitempty"`
+
+	// The number of queries without good index.
+	MNoGoodIndexUsedSumPerSec float32 `json:"m_no_good_index_used_sum_per_sec,omitempty"`
+
+	// The number of queries without index.
+	MNoIndexUsedSumPerSec float32 `json:"m_no_index_used_sum_per_sec,omitempty"`
+
+	// Boolean metrics:
+	// - *_sum_per_sec - how many times this matric was true.
+	//
+	// Query Cache hits.
+	MQcHitSumPerSec float32 `json:"m_qc_hit_sum_per_sec,omitempty"`
+
+	// Shows how long the query is.
+	MQueryLengthSumPerSec float32 `json:"m_query_length_sum_per_sec,omitempty"`
+
+	// The statement execution time in seconds.
+	MQueryTimeSumPerSec float32 `json:"m_query_time_sum_per_sec,omitempty"`
+
+	// The response length of the query result in bytes.
+	MResponseLengthSumPerSec float32 `json:"m_response_length_sum_per_sec,omitempty"`
+
+	// Number of rows changed - UPDATE, DELETE, INSERT.
+	MRowsAffectedSumPerSec float32 `json:"m_rows_affected_sum_per_sec,omitempty"`
+
+	// Number of rows scanned - SELECT.
+	MRowsExaminedSumPerSec float32 `json:"m_rows_examined_sum_per_sec,omitempty"`
+
+	// The number of rows read from tables.
+	MRowsReadSumPerSec float32 `json:"m_rows_read_sum_per_sec,omitempty"`
+
+	// The number of rows sent to the client.
+	MRowsSentSumPerSec float32 `json:"m_rows_sent_sum_per_sec,omitempty"`
+
+	// The number of joins that used a range search on a reference table.
+	MSelectFullRangeJoinSumPerSec float32 `json:"m_select_full_range_join_sum_per_sec,omitempty"`
+
+	// The number of joins without keys that check for key usage after each row.
+	MSelectRangeCheckSumPerSec float32 `json:"m_select_range_check_sum_per_sec,omitempty"`
+
+	// The number of joins that used ranges on the first table.
+	MSelectRangeSumPerSec float32 `json:"m_select_range_sum_per_sec,omitempty"`
+
+	// The number of sorts that were done using ranges.
+	MSortRangeSumPerSec float32 `json:"m_sort_range_sum_per_sec,omitempty"`
+
+	// The number of sorted rows.
+	MSortRowsSumPerSec float32 `json:"m_sort_rows_sum_per_sec,omitempty"`
+
+	// The number of sorts that were done by scanning the table.
+	MSortScanSumPerSec float32 `json:"m_sort_scan_sum_per_sec,omitempty"`
+
+	// Number of temporary tables created on disk for the query.
+	MTmpDiskTablesSumPerSec float32 `json:"m_tmp_disk_tables_sum_per_sec,omitempty"`
+
+	// The querys temporary table was stored on disk.
+	MTmpTableOnDiskSumPerSec float32 `json:"m_tmp_table_on_disk_sum_per_sec,omitempty"`
+
+	// Total Size in bytes for all temporary tables used in the query.
+	MTmpTableSizesSumPerSec float32 `json:"m_tmp_table_sizes_sum_per_sec,omitempty"`
+
+	// The query created an implicit internal temporary table.
+	MTmpTableSumPerSec float32 `json:"m_tmp_table_sum_per_sec,omitempty"`
+
+	// Number of temporary tables created on memory for the query.
+	MTmpTablesSumPerSec float32 `json:"m_tmp_tables_sum_per_sec,omitempty"`
+
+	// number of queries in bucket.
+	NumQueriesPerSec float32 `json:"num_queries_per_sec,omitempty"`
+
+	// The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.
+	Point int64 `json:"point,omitempty"`
+
+	// Duration beetween two points.
+	TimeFrame int64 `json:"time_frame,omitempty"`
+
+	// Time of point in format RFC3339.
+	Timestamp string `json:"timestamp,omitempty"`
 }
 
 // Validate validates this rows items0 sparkline items0
 func (o *RowsItems0SparklineItems0) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateValues(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *RowsItems0SparklineItems0) validateValues(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Values) { // not required
-		return nil
-	}
-
-	for k := range o.Values {
-
-		if swag.IsZero(o.Values[k]) { // not required
-			continue
-		}
-		if val, ok := o.Values[k]; ok {
-			if err := val.Validate(formats); err != nil {
-				return err
-			}
-		}
-
-	}
-
 	return nil
 }
 
@@ -666,295 +754,6 @@ func (o *RowsItems0SparklineItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *RowsItems0SparklineItems0) UnmarshalBinary(b []byte) error {
 	var res RowsItems0SparklineItems0
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*RowsItems0SparklineItems0ValuesAnon `Value` represents a dynamically typed value which can be either
-// null, a number, a string, a boolean, a recursive struct value, or a
-// list of values. A producer of value is expected to set one of that
-// variants, absence of any variant indicates an error.
-//
-// The JSON representation for `Value` is JSON value.
-swagger:model RowsItems0SparklineItems0ValuesAnon
-*/
-type RowsItems0SparklineItems0ValuesAnon struct {
-
-	// Represents a boolean value.
-	BoolValue bool `json:"bool_value,omitempty"`
-
-	// list value
-	ListValue *RowsItems0SparklineItems0ValuesAnonListValue `json:"list_value,omitempty"`
-
-	// `NullValue` is a singleton enumeration to represent the null value for the
-	// `Value` type union.
-	//
-	//  The JSON representation for `NullValue` is JSON `null`.
-	//
-	//  - NULL_VALUE: Null value.
-	// Enum: [NULL_VALUE]
-	NullValue *string `json:"null_value,omitempty"`
-
-	// Represents a double value.
-	NumberValue float64 `json:"number_value,omitempty"`
-
-	// Represents a string value.
-	StringValue string `json:"string_value,omitempty"`
-
-	// struct value
-	StructValue *RowsItems0SparklineItems0ValuesAnonStructValue `json:"struct_value,omitempty"`
-}
-
-// Validate validates this rows items0 sparkline items0 values anon
-func (o *RowsItems0SparklineItems0ValuesAnon) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateListValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateNullValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := o.validateStructValue(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *RowsItems0SparklineItems0ValuesAnon) validateListValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.ListValue) { // not required
-		return nil
-	}
-
-	if o.ListValue != nil {
-		if err := o.ListValue.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("list_value")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-var rowsItems0SparklineItems0ValuesAnonTypeNullValuePropEnum []interface{}
-
-func init() {
-	var res []string
-	if err := json.Unmarshal([]byte(`["NULL_VALUE"]`), &res); err != nil {
-		panic(err)
-	}
-	for _, v := range res {
-		rowsItems0SparklineItems0ValuesAnonTypeNullValuePropEnum = append(rowsItems0SparklineItems0ValuesAnonTypeNullValuePropEnum, v)
-	}
-}
-
-const (
-
-	// RowsItems0SparklineItems0ValuesAnonNullValueNULLVALUE captures enum value "NULL_VALUE"
-	RowsItems0SparklineItems0ValuesAnonNullValueNULLVALUE string = "NULL_VALUE"
-)
-
-// prop value enum
-func (o *RowsItems0SparklineItems0ValuesAnon) validateNullValueEnum(path, location string, value string) error {
-	if err := validate.Enum(path, location, value, rowsItems0SparklineItems0ValuesAnonTypeNullValuePropEnum); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (o *RowsItems0SparklineItems0ValuesAnon) validateNullValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.NullValue) { // not required
-		return nil
-	}
-
-	// value enum
-	if err := o.validateNullValueEnum("null_value", "body", *o.NullValue); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (o *RowsItems0SparklineItems0ValuesAnon) validateStructValue(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.StructValue) { // not required
-		return nil
-	}
-
-	if o.StructValue != nil {
-		if err := o.StructValue.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("struct_value")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RowsItems0SparklineItems0ValuesAnon) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RowsItems0SparklineItems0ValuesAnon) UnmarshalBinary(b []byte) error {
-	var res RowsItems0SparklineItems0ValuesAnon
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*RowsItems0SparklineItems0ValuesAnonListValue `ListValue` is a wrapper around a repeated field of values.
-//
-// The JSON representation for `ListValue` is JSON array.
-swagger:model RowsItems0SparklineItems0ValuesAnonListValue
-*/
-type RowsItems0SparklineItems0ValuesAnonListValue struct {
-
-	// Repeated field of dynamically typed values.
-	Values []*models.ProtobufValue `json:"values"`
-}
-
-// Validate validates this rows items0 sparkline items0 values anon list value
-func (o *RowsItems0SparklineItems0ValuesAnonListValue) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateValues(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *RowsItems0SparklineItems0ValuesAnonListValue) validateValues(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Values) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(o.Values); i++ {
-		if swag.IsZero(o.Values[i]) { // not required
-			continue
-		}
-
-		if o.Values[i] != nil {
-			if err := o.Values[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("list_value" + "." + "values" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RowsItems0SparklineItems0ValuesAnonListValue) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RowsItems0SparklineItems0ValuesAnonListValue) UnmarshalBinary(b []byte) error {
-	var res RowsItems0SparklineItems0ValuesAnonListValue
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-/*RowsItems0SparklineItems0ValuesAnonStructValue `Struct` represents a structured data value, consisting of fields
-// which map to dynamically typed values. In some languages, `Struct`
-// might be supported by a native representation. For example, in
-// scripting languages like JS a struct is represented as an
-// object. The details of that representation are described together
-// with the proto support for the language.
-//
-// The JSON representation for `Struct` is JSON object.
-swagger:model RowsItems0SparklineItems0ValuesAnonStructValue
-*/
-type RowsItems0SparklineItems0ValuesAnonStructValue struct {
-
-	// Unordered map of dynamically typed values.
-	Fields map[string]models.ProtobufValue `json:"fields,omitempty"`
-}
-
-// Validate validates this rows items0 sparkline items0 values anon struct value
-func (o *RowsItems0SparklineItems0ValuesAnonStructValue) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateFields(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *RowsItems0SparklineItems0ValuesAnonStructValue) validateFields(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Fields) { // not required
-		return nil
-	}
-
-	for k := range o.Fields {
-
-		if err := validate.Required("struct_value"+"."+"fields"+"."+k, "body", o.Fields[k]); err != nil {
-			return err
-		}
-		if val, ok := o.Fields[k]; ok {
-			if err := val.Validate(formats); err != nil {
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *RowsItems0SparklineItems0ValuesAnonStructValue) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *RowsItems0SparklineItems0ValuesAnonStructValue) UnmarshalBinary(b []byte) error {
-	var res RowsItems0SparklineItems0ValuesAnonStructValue
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

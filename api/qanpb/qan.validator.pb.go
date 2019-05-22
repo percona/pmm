@@ -6,7 +6,6 @@ package qanpb
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/golang/protobuf/ptypes/struct"
 	math "math"
 )
 
@@ -16,6 +15,5 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 func (this *Point) Validate() error {
-	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
