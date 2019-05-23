@@ -48,11 +48,12 @@ func (res *addAgentPostgresExporterResult) String() string {
 }
 
 type addAgentPostgresExporterCommand struct {
-	PMMAgentID   string
-	ServiceID    string
-	Username     string
-	Password     string
-	CustomLabels string
+	PMMAgentID          string
+	ServiceID           string
+	Username            string
+	Password            string
+	CustomLabels        string
+	SkipConnectionCheck bool
 }
 
 func (cmd *addAgentPostgresExporterCommand) Run() (commands.Result, error) {
@@ -62,11 +63,12 @@ func (cmd *addAgentPostgresExporterCommand) Run() (commands.Result, error) {
 	}
 	params := &agents.AddPostgresExporterParams{
 		Body: agents.AddPostgresExporterBody{
-			PMMAgentID:   cmd.PMMAgentID,
-			ServiceID:    cmd.ServiceID,
-			Username:     cmd.Username,
-			Password:     cmd.Password,
-			CustomLabels: customLabels,
+			PMMAgentID:          cmd.PMMAgentID,
+			ServiceID:           cmd.ServiceID,
+			Username:            cmd.Username,
+			Password:            cmd.Password,
+			CustomLabels:        customLabels,
+			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
@@ -92,4 +94,5 @@ func init() {
 	AddAgentPostgresExporterC.Arg("username", "PostgreSQL username for scraping metrics.").Default("postgres").StringVar(&AddAgentPostgresExporter.Username)
 	AddAgentPostgresExporterC.Flag("password", "PostgreSQL password for scraping metrics.").StringVar(&AddAgentPostgresExporter.Password)
 	AddAgentPostgresExporterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentPostgresExporter.CustomLabels)
+	AddAgentPostgresExporterC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddAgentPostgresExporter.SkipConnectionCheck)
 }

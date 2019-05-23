@@ -48,11 +48,12 @@ func (res *addAgentMongodbExporterResult) String() string {
 }
 
 type addAgentMongodbExporterCommand struct {
-	PMMAgentID   string
-	ServiceID    string
-	Username     string
-	Password     string
-	CustomLabels string
+	PMMAgentID          string
+	ServiceID           string
+	Username            string
+	Password            string
+	CustomLabels        string
+	SkipConnectionCheck bool
 }
 
 func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
@@ -62,11 +63,12 @@ func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
 	}
 	params := &agents.AddMongoDBExporterParams{
 		Body: agents.AddMongoDBExporterBody{
-			PMMAgentID:   cmd.PMMAgentID,
-			ServiceID:    cmd.ServiceID,
-			Username:     cmd.Username,
-			Password:     cmd.Password,
-			CustomLabels: customLabels,
+			PMMAgentID:          cmd.PMMAgentID,
+			ServiceID:           cmd.ServiceID,
+			Username:            cmd.Username,
+			Password:            cmd.Password,
+			CustomLabels:        customLabels,
+			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
@@ -92,4 +94,5 @@ func init() {
 	AddAgentMongodbExporterC.Arg("username", "MongoDB username for scraping metrics.").StringVar(&AddAgentMongodbExporter.Username)
 	AddAgentMongodbExporterC.Flag("password", "MongoDB password for scraping metrics.").StringVar(&AddAgentMongodbExporter.Password)
 	AddAgentMongodbExporterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentMongodbExporter.CustomLabels)
+	AddAgentMongodbExporterC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddAgentMongodbExporter.SkipConnectionCheck)
 }

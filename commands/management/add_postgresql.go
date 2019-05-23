@@ -46,12 +46,13 @@ func (res *addPostgreSQLResult) String() string {
 }
 
 type addPostgreSQLCommand struct {
-	AddressPort  string
-	ServiceName  string
-	Username     string
-	Password     string
-	Environment  string
-	CustomLabels string
+	AddressPort         string
+	ServiceName         string
+	Username            string
+	Password            string
+	Environment         string
+	CustomLabels        string
+	SkipConnectionCheck bool
 }
 
 func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
@@ -85,8 +86,9 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 			Username: cmd.Username,
 			Password: cmd.Password,
 
-			Environment:  cmd.Environment,
-			CustomLabels: customLabels,
+			Environment:         cmd.Environment,
+			CustomLabels:        customLabels,
+			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
@@ -119,4 +121,5 @@ func init() {
 
 	AddPostgreSQLC.Flag("environment", "Environment name.").StringVar(&AddPostgreSQL.Environment)
 	AddPostgreSQLC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddPostgreSQL.CustomLabels)
+	AddPostgreSQLC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddPostgreSQL.SkipConnectionCheck)
 }

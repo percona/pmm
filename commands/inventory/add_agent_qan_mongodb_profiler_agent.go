@@ -47,11 +47,12 @@ func (res *addAgentQANMongoDBProfilerAgentResult) String() string {
 }
 
 type addAgentQANMongoDBProfilerAgentCommand struct {
-	PMMAgentID   string
-	ServiceID    string
-	Username     string
-	Password     string
-	CustomLabels string
+	PMMAgentID          string
+	ServiceID           string
+	Username            string
+	Password            string
+	CustomLabels        string
+	SkipConnectionCheck bool
 }
 
 func (cmd *addAgentQANMongoDBProfilerAgentCommand) Run() (commands.Result, error) {
@@ -61,11 +62,12 @@ func (cmd *addAgentQANMongoDBProfilerAgentCommand) Run() (commands.Result, error
 	}
 	params := &agents.AddQANMongoDBProfilerAgentParams{
 		Body: agents.AddQANMongoDBProfilerAgentBody{
-			PMMAgentID:   cmd.PMMAgentID,
-			ServiceID:    cmd.ServiceID,
-			Username:     cmd.Username,
-			Password:     cmd.Password,
-			CustomLabels: customLabels,
+			PMMAgentID:          cmd.PMMAgentID,
+			ServiceID:           cmd.ServiceID,
+			Username:            cmd.Username,
+			Password:            cmd.Password,
+			CustomLabels:        customLabels,
+			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
@@ -91,4 +93,5 @@ func init() {
 	AddAgentQANMongoDBProfilerAgentC.Arg("username", "MongoDB username for scraping metrics.").StringVar(&AddAgentQANMongoDBProfilerAgent.Username)
 	AddAgentQANMongoDBProfilerAgentC.Flag("password", "MongoDB password for scraping metrics.").StringVar(&AddAgentQANMongoDBProfilerAgent.Password)
 	AddAgentQANMongoDBProfilerAgentC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentQANMongoDBProfilerAgent.CustomLabels)
+	AddAgentQANMongoDBProfilerAgentC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddAgentQANMongoDBProfilerAgent.SkipConnectionCheck)
 }

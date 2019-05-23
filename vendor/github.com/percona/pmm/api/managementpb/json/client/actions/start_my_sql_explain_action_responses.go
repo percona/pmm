@@ -118,6 +118,9 @@ type StartMySQLExplainActionBody struct {
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 
+	// query example.
+	Query string `json:"query,omitempty"`
+
 	// Service ID for this Action.
 	ServiceID string `json:"service_id,omitempty"`
 }

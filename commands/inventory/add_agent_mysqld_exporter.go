@@ -48,11 +48,12 @@ func (res *addAgentMysqldExporterResult) String() string {
 }
 
 type addAgentMysqldExporterCommand struct {
-	PMMAgentID   string
-	ServiceID    string
-	Username     string
-	Password     string
-	CustomLabels string
+	PMMAgentID          string
+	ServiceID           string
+	Username            string
+	Password            string
+	CustomLabels        string
+	SkipConnectionCheck bool
 }
 
 func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
@@ -62,11 +63,12 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 	}
 	params := &agents.AddMySqldExporterParams{
 		Body: agents.AddMySqldExporterBody{
-			PMMAgentID:   cmd.PMMAgentID,
-			ServiceID:    cmd.ServiceID,
-			Username:     cmd.Username,
-			Password:     cmd.Password,
-			CustomLabels: customLabels,
+			PMMAgentID:          cmd.PMMAgentID,
+			ServiceID:           cmd.ServiceID,
+			Username:            cmd.Username,
+			Password:            cmd.Password,
+			CustomLabels:        customLabels,
+			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
@@ -92,4 +94,5 @@ func init() {
 	AddAgentMysqldExporterC.Arg("username", "MySQL username for scraping metrics.").Default("root").StringVar(&AddAgentMysqldExporter.Username)
 	AddAgentMysqldExporterC.Flag("password", "MySQL password for scraping metrics.").StringVar(&AddAgentMysqldExporter.Password)
 	AddAgentMysqldExporterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentMysqldExporter.CustomLabels)
+	AddAgentMysqldExporterC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddAgentMysqldExporter.SkipConnectionCheck)
 }

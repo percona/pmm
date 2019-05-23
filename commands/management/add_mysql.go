@@ -46,16 +46,17 @@ func (res *addMySQLResult) String() string {
 }
 
 type addMySQLCommand struct {
-	AddressPort    string
-	ServiceName    string
-	Username       string
-	Password       string
-	UsePerfschema  bool
-	UseSlowLog     bool
-	ReplicationSet string
-	Cluster        string
-	Environment    string
-	CustomLabels   string
+	AddressPort         string
+	ServiceName         string
+	Username            string
+	Password            string
+	UsePerfschema       bool
+	UseSlowLog          bool
+	ReplicationSet      string
+	Cluster             string
+	Environment         string
+	CustomLabels        string
+	SkipConnectionCheck bool
 }
 
 func (cmd *addMySQLCommand) Run() (commands.Result, error) {
@@ -92,10 +93,11 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			QANMysqlPerfschema: cmd.UsePerfschema,
 			QANMysqlSlowlog:    cmd.UseSlowLog,
 
-			ReplicationSet: cmd.ReplicationSet,
-			Cluster:        cmd.Cluster,
-			Environment:    cmd.Environment,
-			CustomLabels:   customLabels,
+			ReplicationSet:      cmd.ReplicationSet,
+			Cluster:             cmd.Cluster,
+			Environment:         cmd.Environment,
+			CustomLabels:        customLabels,
+			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
@@ -132,4 +134,5 @@ func init() {
 	AddMySQLC.Flag("cluster", "Cluster name.").StringVar(&AddMySQL.Cluster)
 	AddMySQLC.Flag("environment", "Environment name.").StringVar(&AddMySQL.Environment)
 	AddMySQLC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddMySQL.CustomLabels)
+	AddMySQLC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddMySQL.SkipConnectionCheck)
 }

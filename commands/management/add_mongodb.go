@@ -46,15 +46,16 @@ func (res *addMongoDBResult) String() string {
 }
 
 type addMongoDBCommand struct {
-	AddressPort    string
-	ServiceName    string
-	Username       string
-	Password       string
-	UseProfiler    bool
-	ReplicationSet string
-	Cluster        string
-	Environment    string
-	CustomLabels   string
+	AddressPort         string
+	ServiceName         string
+	Username            string
+	Password            string
+	UseProfiler         bool
+	ReplicationSet      string
+	Cluster             string
+	Environment         string
+	CustomLabels        string
+	SkipConnectionCheck bool
 }
 
 func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
@@ -90,10 +91,11 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 
 			QANMongodbProfiler: cmd.UseProfiler,
 
-			ReplicationSet: cmd.ReplicationSet,
-			Cluster:        cmd.Cluster,
-			Environment:    cmd.Environment,
-			CustomLabels:   customLabels,
+			ReplicationSet:      cmd.ReplicationSet,
+			Cluster:             cmd.Cluster,
+			Environment:         cmd.Environment,
+			CustomLabels:        customLabels,
+			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
@@ -129,4 +131,5 @@ func init() {
 	AddMongoDBC.Flag("cluster", "Cluster name.").StringVar(&AddMongoDB.Cluster)
 	AddMongoDBC.Flag("environment", "Environment name.").StringVar(&AddMongoDB.Environment)
 	AddMongoDBC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddMongoDB.CustomLabels)
+	AddMongoDBC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddMongoDB.SkipConnectionCheck)
 }

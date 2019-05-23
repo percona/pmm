@@ -47,11 +47,12 @@ func (res *addAgentQANMySQLPerfSchemaAgentResult) String() string {
 }
 
 type addAgentQANMySQLPerfSchemaAgentCommand struct {
-	PMMAgentID   string
-	ServiceID    string
-	Username     string
-	Password     string
-	CustomLabels string
+	PMMAgentID          string
+	ServiceID           string
+	Username            string
+	Password            string
+	CustomLabels        string
+	SkipConnectionCheck bool
 }
 
 func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error) {
@@ -61,11 +62,12 @@ func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error
 	}
 	params := &agents.AddQANMySQLPerfSchemaAgentParams{
 		Body: agents.AddQANMySQLPerfSchemaAgentBody{
-			PMMAgentID:   cmd.PMMAgentID,
-			ServiceID:    cmd.ServiceID,
-			Username:     cmd.Username,
-			Password:     cmd.Password,
-			CustomLabels: customLabels,
+			PMMAgentID:          cmd.PMMAgentID,
+			ServiceID:           cmd.ServiceID,
+			Username:            cmd.Username,
+			Password:            cmd.Password,
+			CustomLabels:        customLabels,
+			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
 	}
@@ -91,4 +93,5 @@ func init() {
 	AddAgentQANMySQLPerfSchemaAgentC.Arg("username", "MySQL username for scraping metrics.").Default("root").StringVar(&AddAgentQANMySQLPerfSchemaAgent.Username)
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("password", "MySQL password for scraping metrics.").StringVar(&AddAgentQANMySQLPerfSchemaAgent.Password)
 	AddAgentQANMySQLPerfSchemaAgentC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentQANMySQLPerfSchemaAgent.CustomLabels)
+	AddAgentQANMySQLPerfSchemaAgentC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.SkipConnectionCheck)
 }
