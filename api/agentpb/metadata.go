@@ -74,18 +74,26 @@ func SendServerConnectMetadata(stream grpc.ServerStream, md *ServerConnectMetada
 		mdAgentNodeID, md.AgentRunsOnNodeID,
 		mdServerVersion, md.ServerVersion,
 	)
-	if err := stream.SendHeader(header); err != nil {
-		return status.Errorf(codes.DataLoss, "SendServerConnectMetadata: SendHeader: %s", err)
+
+	// always return gRPC error or nil
+	err := stream.SendHeader(header)
+	if _, ok := status.FromError(err); err != nil && !ok {
+		err = status.Errorf(codes.DataLoss, "SendServerConnectMetadata: SendHeader: %s", err)
 	}
-	return nil
+	return err
 }
 
 // ReceiveServerConnectMetadata receives pmm-managed's metadata. Used by pmm-agent.
 func ReceiveServerConnectMetadata(stream grpc.ClientStream) (*ServerConnectMetadata, error) {
+	// always return gRPC error or nil
 	md, err := stream.Header()
-	if err != nil {
-		return nil, status.Errorf(codes.DataLoss, "ReceiveServerConnectMetadata: Header: %s", err)
+	if _, ok := status.FromError(err); err != nil && !ok {
+		err = status.Errorf(codes.DataLoss, "ReceiveServerConnectMetadata: Header: %s", err)
 	}
+	if err != nil {
+		return nil, err
+	}
+
 	if md == nil || md.Len() == 0 {
 		return nil, status.Errorf(codes.DataLoss, "ReceiveServerConnectMetadata: empty metadata")
 	}
