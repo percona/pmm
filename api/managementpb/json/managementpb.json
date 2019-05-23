@@ -1241,6 +1241,10 @@
                   "description": "Node and Service access address (DNS name or IP). Required.",
                   "type": "string"
                 },
+                "cluster": {
+                  "description": "Cluster name.",
+                  "type": "string"
+                },
                 "custom_labels": {
                   "description": "Custom user-assigned labels.",
                   "type": "object",
@@ -1268,6 +1272,10 @@
                   "description": "Service Access port. Required.",
                   "type": "integer",
                   "format": "int64"
+                },
+                "replication_set": {
+                  "description": "Replication set name.",
+                  "type": "string"
                 },
                 "service_name": {
                   "description": "Unique across all Services user-defined name. Required.",
@@ -1356,6 +1364,10 @@
                       "description": "Access address (DNS name or IP).",
                       "type": "string"
                     },
+                    "cluster": {
+                      "description": "Cluster name.",
+                      "type": "string"
+                    },
                     "custom_labels": {
                       "description": "Custom user-assigned labels.",
                       "type": "object",
@@ -1375,6 +1387,10 @@
                       "description": "Access port.",
                       "type": "integer",
                       "format": "int64"
+                    },
+                    "replication_set": {
+                      "description": "Replication set name.",
+                      "type": "string"
                     },
                     "service_id": {
                       "description": "Unique randomly generated instance identifier.",
