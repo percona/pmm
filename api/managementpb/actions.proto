@@ -93,12 +93,27 @@ message StartMySQLExplainActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  //
-  // TODO specific parameters if we need them.
-
+  // query example.
+  string query = 3;
 }
 
 message StartMySQLExplainActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartMySQLExplainJSONActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action.
+  string service_id = 2;
+  // query example.
+  string query = 3;
+}
+
+message StartMySQLExplainJSONActionResponse {
   // Unique Action ID.
   string action_id = 1;
   // pmm-agent ID where to this Action was started.
@@ -139,6 +154,13 @@ service Actions {
   rpc StartMySQLExplainAction(StartMySQLExplainActionRequest) returns (StartMySQLExplainActionResponse) {
     option (google.api.http) = {
       post: "/v0/management/Actions/StartMySQLExplain"
+      body: "*"
+    };
+  }
+  // StartMySQLExplainJSONAction starts MySQL JSON EXPLAIN Action.
+  rpc StartMySQLExplainJSONAction(StartMySQLExplainJSONActionRequest) returns (StartMySQLExplainJSONActionResponse) {
+    option (google.api.http) = {
+      post: "/v0/management/Actions/StartMySQLExplainJSON"
       body: "*"
     };
   }
