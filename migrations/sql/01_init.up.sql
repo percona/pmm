@@ -30,10 +30,10 @@ CREATE TABLE IF NOT EXISTS metrics
     example_metrics String COMMENT 'Metrics of query example in JSON format.',
     num_queries_with_warnings Float32 COMMENT 'How many queries was with warnings in bucket',
     `warnings.code` Array(UInt32) COMMENT 'List of warnings',
-    `warnings.count` Array(Float32) COMMENT 'Amount of each warnings in bucket',
+    `warnings.count` Array(Float32) COMMENT 'Count of each warnings in bucket',
     num_queries_with_errors Float32 COMMENT 'How many queries was with error in bucket',
     `errors.code` Array(UInt32) COMMENT 'List of Last_errno',
-    `errors.count` Array(Float32) COMMENT 'Amount of each Last_errno in bucket',
+    `errors.count` Array(Float32) COMMENT 'Count of each Last_errno in bucket',
     num_queries Float32 COMMENT 'Amount queries in this bucket',
     -- metrics
     m_query_time_cnt Float32 COMMENT 'The statement execution time in seconds was met.',
