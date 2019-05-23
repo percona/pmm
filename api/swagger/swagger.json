@@ -7091,12 +7091,204 @@
                           "description": "Point contains values that represents abscissa (time) and ordinate (volume etc.)\nof every point in a coordinate system of Sparklines.",
                           "type": "object",
                           "properties": {
-                            "values": {
-                              "type": "object",
-                              "additionalProperties": {
-                                "type": "number",
-                                "format": "float"
-                              }
+                            "m_bytes_sent_sum_per_sec": {
+                              "description": "The number of bytes sent to all clients.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_docs_returned_sum_per_sec": {
+                              "description": "MongoDB metrics.\n\nThe number of returned documents.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_docs_scanned_sum_per_sec": {
+                              "description": "The number of scanned documents.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_filesort_on_disk_sum_per_sec": {
+                              "description": "The filesort was performed on disk.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_filesort_sum_per_sec": {
+                              "description": "The query used a filesort.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_full_join_sum_per_sec": {
+                              "description": "The query performed a full join (a join without indexes).",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_full_scan_sum_per_sec": {
+                              "description": "The query performed a full table scan.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_innodb_io_r_bytes_sum_per_sec": {
+                              "description": "Similar to innodb_IO_r_ops, but the unit is bytes.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_innodb_io_r_ops_sum_per_sec": {
+                              "description": "Counts the number of page read operations scheduled.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_innodb_io_r_wait_sum_per_sec": {
+                              "description": "Shows how long (in seconds) it took InnoDB to actually read the data from storage.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_innodb_pages_distinct_sum_per_sec": {
+                              "description": "Counts approximately the number of unique pages the query accessed.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_innodb_queue_wait_sum_per_sec": {
+                              "description": "Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_innodb_rec_lock_wait_sum_per_sec": {
+                              "description": "Shows how long (in seconds) the query waited for row locks.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_lock_time_sum_per_sec": {
+                              "description": "The time to acquire locks in seconds.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_merge_passes_sum_per_sec": {
+                              "description": "The number of merge passes that the sort algorithm has had to do.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_no_good_index_used_sum_per_sec": {
+                              "description": "The number of queries without good index.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_no_index_used_sum_per_sec": {
+                              "description": "The number of queries without index.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_qc_hit_sum_per_sec": {
+                              "description": "Boolean metrics:\n- *_sum_per_sec - how many times this matric was true.\n\nQuery Cache hits.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_query_length_sum_per_sec": {
+                              "description": "Shows how long the query is.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_query_time_sum_per_sec": {
+                              "description": "The statement execution time in seconds.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_response_length_sum_per_sec": {
+                              "description": "The response length of the query result in bytes.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_rows_affected_sum_per_sec": {
+                              "description": "Number of rows changed - UPDATE, DELETE, INSERT.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_rows_examined_sum_per_sec": {
+                              "description": "Number of rows scanned - SELECT.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_rows_read_sum_per_sec": {
+                              "description": "The number of rows read from tables.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_rows_sent_sum_per_sec": {
+                              "description": "The number of rows sent to the client.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_select_full_range_join_sum_per_sec": {
+                              "description": "The number of joins that used a range search on a reference table.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_select_range_check_sum_per_sec": {
+                              "description": "The number of joins without keys that check for key usage after each row.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_select_range_sum_per_sec": {
+                              "description": "The number of joins that used ranges on the first table.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_sort_range_sum_per_sec": {
+                              "description": "The number of sorts that were done using ranges.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_sort_rows_sum_per_sec": {
+                              "description": "The number of sorted rows.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_sort_scan_sum_per_sec": {
+                              "description": "The number of sorts that were done by scanning the table.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_tmp_disk_tables_sum_per_sec": {
+                              "description": "Number of temporary tables created on disk for the query.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_tmp_table_on_disk_sum_per_sec": {
+                              "description": "The querys temporary table was stored on disk.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_tmp_table_sizes_sum_per_sec": {
+                              "description": "Total Size in bytes for all temporary tables used in the query.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_tmp_table_sum_per_sec": {
+                              "description": "The query created an implicit internal temporary table.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "m_tmp_tables_sum_per_sec": {
+                              "description": "Number of temporary tables created on memory for the query.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "num_queries_per_sec": {
+                              "description": "number of queries in bucket.",
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "point": {
+                              "description": "The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.",
+                              "type": "integer",
+                              "format": "int64"
+                            },
+                            "time_frame": {
+                              "description": "Duration beetween two points.",
+                              "type": "integer",
+                              "format": "int64"
+                            },
+                            "timestamp": {
+                              "description": "Time of point in format RFC3339.",
+                              "type": "string"
                             }
                           }
                         }
@@ -7330,12 +7522,204 @@
                     "description": "Point contains values that represents abscissa (time) and ordinate (volume etc.)\nof every point in a coordinate system of Sparklines.",
                     "type": "object",
                     "properties": {
-                      "values": {
-                        "type": "object",
-                        "additionalProperties": {
-                          "type": "number",
-                          "format": "float"
-                        }
+                      "m_bytes_sent_sum_per_sec": {
+                        "description": "The number of bytes sent to all clients.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_docs_returned_sum_per_sec": {
+                        "description": "MongoDB metrics.\n\nThe number of returned documents.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_docs_scanned_sum_per_sec": {
+                        "description": "The number of scanned documents.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_filesort_on_disk_sum_per_sec": {
+                        "description": "The filesort was performed on disk.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_filesort_sum_per_sec": {
+                        "description": "The query used a filesort.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_full_join_sum_per_sec": {
+                        "description": "The query performed a full join (a join without indexes).",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_full_scan_sum_per_sec": {
+                        "description": "The query performed a full table scan.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_innodb_io_r_bytes_sum_per_sec": {
+                        "description": "Similar to innodb_IO_r_ops, but the unit is bytes.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_innodb_io_r_ops_sum_per_sec": {
+                        "description": "Counts the number of page read operations scheduled.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_innodb_io_r_wait_sum_per_sec": {
+                        "description": "Shows how long (in seconds) it took InnoDB to actually read the data from storage.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_innodb_pages_distinct_sum_per_sec": {
+                        "description": "Counts approximately the number of unique pages the query accessed.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_innodb_queue_wait_sum_per_sec": {
+                        "description": "Shows how long (in seconds) the query spent either waiting to enter the InnoDB queue or inside that queue waiting for execution.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_innodb_rec_lock_wait_sum_per_sec": {
+                        "description": "Shows how long (in seconds) the query waited for row locks.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_lock_time_sum_per_sec": {
+                        "description": "The time to acquire locks in seconds.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_merge_passes_sum_per_sec": {
+                        "description": "The number of merge passes that the sort algorithm has had to do.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_no_good_index_used_sum_per_sec": {
+                        "description": "The number of queries without good index.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_no_index_used_sum_per_sec": {
+                        "description": "The number of queries without index.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_qc_hit_sum_per_sec": {
+                        "description": "Boolean metrics:\n- *_sum_per_sec - how many times this matric was true.\n\nQuery Cache hits.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_query_length_sum_per_sec": {
+                        "description": "Shows how long the query is.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_query_time_sum_per_sec": {
+                        "description": "The statement execution time in seconds.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_response_length_sum_per_sec": {
+                        "description": "The response length of the query result in bytes.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_rows_affected_sum_per_sec": {
+                        "description": "Number of rows changed - UPDATE, DELETE, INSERT.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_rows_examined_sum_per_sec": {
+                        "description": "Number of rows scanned - SELECT.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_rows_read_sum_per_sec": {
+                        "description": "The number of rows read from tables.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_rows_sent_sum_per_sec": {
+                        "description": "The number of rows sent to the client.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_select_full_range_join_sum_per_sec": {
+                        "description": "The number of joins that used a range search on a reference table.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_select_range_check_sum_per_sec": {
+                        "description": "The number of joins without keys that check for key usage after each row.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_select_range_sum_per_sec": {
+                        "description": "The number of joins that used ranges on the first table.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_sort_range_sum_per_sec": {
+                        "description": "The number of sorts that were done using ranges.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_sort_rows_sum_per_sec": {
+                        "description": "The number of sorted rows.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_sort_scan_sum_per_sec": {
+                        "description": "The number of sorts that were done by scanning the table.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_tmp_disk_tables_sum_per_sec": {
+                        "description": "Number of temporary tables created on disk for the query.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_tmp_table_on_disk_sum_per_sec": {
+                        "description": "The querys temporary table was stored on disk.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_tmp_table_sizes_sum_per_sec": {
+                        "description": "Total Size in bytes for all temporary tables used in the query.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_tmp_table_sum_per_sec": {
+                        "description": "The query created an implicit internal temporary table.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "m_tmp_tables_sum_per_sec": {
+                        "description": "Number of temporary tables created on memory for the query.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "num_queries_per_sec": {
+                        "description": "number of queries in bucket.",
+                        "type": "number",
+                        "format": "float"
+                      },
+                      "point": {
+                        "description": "The serial number of the chart point from the largest time in the time interval to the lowest time in the time range.",
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "time_frame": {
+                        "description": "Duration beetween two points.",
+                        "type": "integer",
+                        "format": "int64"
+                      },
+                      "timestamp": {
+                        "description": "Time of point in format RFC3339.",
+                        "type": "string"
                       }
                     }
                   }
