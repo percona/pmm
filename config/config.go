@@ -68,6 +68,8 @@ type Paths struct {
 	MySQLdExporter   string `yaml:"mysqld_exporter"`
 	MongoDBExporter  string `yaml:"mongodb_exporter"`
 	PostgresExporter string `yaml:"postgres_exporter"`
+	PtSummary        string `yaml:"pt_summary"`
+	PtMySQLSummary   string `yaml:"pt_mysql_summary"`
 	TempDir          string `yaml:"tempdir"`
 }
 
@@ -77,6 +79,8 @@ func (p *Paths) lookup() {
 	p.MySQLdExporter, _ = exec.LookPath(p.MySQLdExporter)
 	p.MongoDBExporter, _ = exec.LookPath(p.MongoDBExporter)
 	p.PostgresExporter, _ = exec.LookPath(p.PostgresExporter)
+	p.PtSummary, _ = exec.LookPath(p.PtSummary)
+	p.PtMySQLSummary, _ = exec.LookPath(p.PtMySQLSummary)
 }
 
 // Ports represents ports configuration.
@@ -212,6 +216,10 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_MONGODB_EXPORTER").Default("mongodb_exporter").StringVar(&cfg.Paths.MongoDBExporter)
 	app.Flag("paths-postgres_exporter", "Path to postgres_exporter to use. [PMM_AGENT_PATHS_POSTGRES_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_POSTGRES_EXPORTER").Default("postgres_exporter").StringVar(&cfg.Paths.PostgresExporter)
+	app.Flag("paths-pt-summary", "Path to pt-summary to use. [PMM_AGENT_PATHS_PT_SUMMARY]").
+		Envar("PMM_AGENT_PATHS_PT_SUMMARY").Default("pt-summary").StringVar(&cfg.Paths.PtSummary)
+	app.Flag("paths-pt-mysql-summary", "Path to pt-mysql-summary to use. [PMM_AGENT_PATHS_PT_MYSQL_SUMMARY]").
+		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").Default("pt-mysql-summary").StringVar(&cfg.Paths.PtMySQLSummary)
 	app.Flag("paths-tempdir", "Temporary directory for exporters. [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
 

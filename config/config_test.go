@@ -99,6 +99,8 @@ func TestGet(t *testing.T) {
 				MySQLdExporter:   "mysqld_exporter",
 				MongoDBExporter:  "mongodb_exporter",
 				PostgresExporter: "postgres_exporter",
+				PtSummary:        "pt-summary",
+				PtMySQLSummary:   "pt-mysql-summary",
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
@@ -135,6 +137,8 @@ func TestGet(t *testing.T) {
 				MySQLdExporter:   "mysqld_exporter",
 				MongoDBExporter:  "mongodb_exporter",
 				PostgresExporter: "postgres_exporter",
+				PtSummary:        "pt-summary",
+				PtMySQLSummary:   "pt-mysql-summary",
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
@@ -173,6 +177,8 @@ func TestGet(t *testing.T) {
 				MySQLdExporter:   "mysqld_exporter",
 				MongoDBExporter:  "mongodb_exporter",
 				PostgresExporter: "postgres_exporter",
+				PtSummary:        "pt-summary",
+				PtMySQLSummary:   "pt-mysql-summary",
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{
@@ -202,6 +208,8 @@ func TestGet(t *testing.T) {
 				MySQLdExporter:   "mysqld_exporter",
 				MongoDBExporter:  "mongodb_exporter",
 				PostgresExporter: "postgres_exporter",
+				PtSummary:        "pt-summary",
+				PtMySQLSummary:   "pt-mysql-summary",
 				TempDir:          os.TempDir(),
 			},
 			Ports: Ports{

@@ -26,6 +26,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -35,16 +36,14 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/status"
 
+	"github.com/percona/pmm-agent/actions"
 	"github.com/percona/pmm-agent/client/channel"
 	"github.com/percona/pmm-agent/config"
 	"github.com/percona/pmm-agent/utils/backoff"
 )
 
-var (
-	dialTimeout = 5 * time.Second // changed by unit tests
-)
-
 const (
+	dialTimeout       = 5 * time.Second
 	backoffMinDelay   = 1 * time.Second
 	backoffMaxDelay   = 15 * time.Second
 	clockDriftWarning = 5 * time.Second
@@ -54,11 +53,16 @@ const (
 type Client struct {
 	cfg        *config.Config
 	supervisor supervisor
-	withoutTLS bool // only for unit tests
 
 	l       *logrus.Entry
 	backoff *backoff.Backoff
 	done    chan struct{}
+
+	// for unit tests only
+	dialTimeout time.Duration
+	withoutTLS  bool
+
+	runner *actions.ConcurrentRunner
 
 	rw      sync.RWMutex
 	md      *agentpb.AgentServerMetadata
@@ -70,11 +74,12 @@ type Client struct {
 // Caller should call Run.
 func New(cfg *config.Config, supervisor supervisor) *Client {
 	return &Client{
-		cfg:        cfg,
-		supervisor: supervisor,
-		l:          logrus.WithField("component", "client"),
-		backoff:    backoff.New(backoffMinDelay, backoffMaxDelay),
-		done:       make(chan struct{}),
+		cfg:         cfg,
+		supervisor:  supervisor,
+		l:           logrus.WithField("component", "client"),
+		backoff:     backoff.New(backoffMinDelay, backoffMaxDelay),
+		done:        make(chan struct{}),
+		dialTimeout: dialTimeout,
 	}
 }
 
@@ -87,6 +92,8 @@ func New(cfg *config.Config, supervisor supervisor) *Client {
 // Returned error is already logged and should be ignored. It is returned only for unit tests.
 func (c *Client) Run(ctx context.Context) error {
 	c.l.Info("Starting...")
+
+	c.runner = actions.NewConcurrentRunner(ctx, 0)
 
 	// do nothing until ctx is canceled if config misses critical info
 	var missing string
@@ -107,7 +114,7 @@ func (c *Client) Run(ctx context.Context) error {
 	var dialResult *dialResult
 	var dialErr error
 	for {
-		dialCtx, dialCancel := context.WithTimeout(ctx, dialTimeout)
+		dialCtx, dialCancel := context.WithTimeout(ctx, c.dialTimeout)
 		dialResult, dialErr = dial(dialCtx, c.cfg, c.withoutTLS, c.l)
 		dialCancel()
 		if dialResult != nil {
@@ -142,16 +149,30 @@ func (c *Client) Run(ctx context.Context) error {
 	c.channel = dialResult.channel
 	c.rw.Unlock()
 
-	// Once the client is connected, ctx cancellation is ignored.
-	// We start two goroutines, and terminate the gRPC connection and exit Run when any of them exits:
-	// 1. processSupervisorRequests reads requests (status changes and QAN data) from the supervisor and sends them to the channel.
-	//    It exits when the supervisor is stopped.
-	//    When the gRPC connection is terminated on exiting Run, processChannelRequests exits too.
-	// 2. processChannelRequests reads requests from the channel and processes them.
+	// Once the client is connected, ctx cancellation is ignored by it.
+	//
+	// We start three goroutines, and terminate the gRPC connection and exit Run when any of them exits:
+	//
+	// 1. processActionResults reads action results from action runner and sends them to the channel.
+	//    It exits when the action runner is stopped by cancelling ctx.
+	//
+	// 2. processSupervisorRequests reads requests (status changes and QAN data) from the supervisor and sends them to the channel.
+	//    It exits when the supervisor is stopped by the caller.
+	//    Caller stops supervisor when Run is left and gRPC connection is closed.
+	//
+	// 3. processChannelRequests reads requests from the channel and processes them.
 	//    It exits when an unexpected message is received from the channel, or when can't be received at all.
 	//    When Run is left, caller stops supervisor, and that allows processSupervisorRequests to exit.
-	// Done() channel is closed when both goroutines exited.
-	oneDone := make(chan struct{}, 2)
+	//
+	// Done() channel is closed when all three goroutines exited.
+
+	// TODO Make 2 and 3 behave more like 1 - that seems to be simpler.
+
+	oneDone := make(chan struct{}, 3)
+	go func() {
+		c.processActionResults()
+		oneDone <- struct{}{}
+	}()
 	go func() {
 		c.processSupervisorRequests()
 		oneDone <- struct{}{}
@@ -163,6 +184,7 @@ func (c *Client) Run(ctx context.Context) error {
 	<-oneDone
 	go func() {
 		<-oneDone
+		<-oneDone
 		c.l.Info("Done.")
 		close(c.done)
 	}()
@@ -172,6 +194,26 @@ func (c *Client) Run(ctx context.Context) error {
 // Done is closed when all supervisors's requests are sent (if possible) and connection is closed.
 func (c *Client) Done() <-chan struct{} {
 	return c.done
+}
+
+func (c *Client) processActionResults() {
+	for result := range c.runner.Results() {
+		var errMessage string
+		if result.Error != nil {
+			errMessage = result.Error.Error()
+		}
+
+		resp := c.channel.SendRequest(&agentpb.ActionResultRequest{
+			ActionId: result.ID,
+			Output:   result.Output,
+			Done:     true,
+			Error:    errMessage,
+		})
+		if resp == nil {
+			c.l.Warn("Failed to send ActionResult request.")
+		}
+	}
+	c.l.Debugf("Runner Results() channel drained.")
 }
 
 func (c *Client) processSupervisorRequests() {
@@ -220,10 +262,32 @@ func (c *Client) processChannelRequests() {
 			responsePayload = new(agentpb.SetStateResponse)
 
 		case *agentpb.StartActionRequest:
-			panic("TODO")
+			switch p.Type {
+			case managementpb.ActionType_PT_SUMMARY:
+				pp := p.GetProcessParams()
+				a := actions.NewProcessAction(p.ActionId, c.cfg.Paths.PtSummary, pp.Args)
+				c.runner.Start(a)
+				responsePayload = new(agentpb.StartActionResponse)
+
+			case managementpb.ActionType_PT_MYSQL_SUMMARY:
+				pp := p.GetProcessParams()
+				a := actions.NewProcessAction(p.ActionId, c.cfg.Paths.PtMySQLSummary, pp.Args)
+				c.runner.Start(a)
+				responsePayload = new(agentpb.StartActionResponse)
+
+			case managementpb.ActionType_MYSQL_EXPLAIN:
+				// TODO: Implement explain action.
+				c.l.Errorf("not implemented action EXPLAIN")
+				continue
+
+			case managementpb.ActionType_ACTION_TYPE_INVALID:
+				c.l.Errorf("Unsupported action: %s.", p.Type)
+				continue
+			}
 
 		case *agentpb.StopActionRequest:
-			panic("TODO")
+			c.runner.Stop(p.ActionId)
+			responsePayload = new(agentpb.StopActionResponse)
 
 		case nil:
 			// Requests() is not closed, so exit early to break channel
@@ -328,6 +392,11 @@ func dial(dialCtx context.Context, cfg *config.Config, withoutTLS bool, l *logru
 	// to ensure that pmm-managed is alive and that Agent ID is valid.
 
 	md, err := agentpb.GetAgentServerMetadata(stream)
+	l.Debugf("Received server metadata: %+v. Error: %v.", md, err)
+	if (err == nil) && (md == agentpb.AgentServerMetadata{}) {
+		// FIXME https://jira.percona.com/browse/PMM-4076
+		err = errors.New("empty")
+	}
 	if err != nil {
 		msg := err.Error()
 
@@ -339,6 +408,11 @@ func dial(dialCtx context.Context, cfg *config.Config, withoutTLS bool, l *logru
 		l.Errorf("Can't get server metadata: %s.", msg)
 		teardown()
 		return nil, errors.Wrap(err, "failed to get server metadata")
+	}
+	if md.ServerVersion == "" {
+		l.Errorf("Server metadata does not contain server version.")
+		teardown()
+		return nil, errors.New("empty server version in metadata")
 	}
 
 	channel := channel.New(stream)

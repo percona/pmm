@@ -683,6 +683,7 @@
     "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local",
     "github.com/percona/pmm/api/agentpb",
     "github.com/percona/pmm/api/inventorypb",
+    "github.com/percona/pmm/api/managementpb",
     "github.com/percona/pmm/api/managementpb/json/client",
     "github.com/percona/pmm/api/managementpb/json/client/node",
     "github.com/percona/pmm/api/qanpb",
