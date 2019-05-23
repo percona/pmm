@@ -39,17 +39,17 @@ func NewProcessAction(id string, cmd string, arg []string) Action {
 	}
 }
 
-// ID returns unique Action id.
+// ID returns an Action ID.
 func (p *processAction) ID() string {
 	return p.id
 }
 
-// Type returns Action name as as string.
+// Type returns an Action type.
 func (p *processAction) Type() string {
 	return p.command
 }
 
-// Run starts an Action. This method is blocking.
+// Run runs an Action and returns output and error.
 func (p *processAction) Run(ctx context.Context) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, p.command, p.arg...) //nolint:gosec
 	setSysProcAttr(cmd)

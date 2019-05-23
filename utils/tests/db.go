@@ -18,6 +18,7 @@ package tests
 
 import (
 	"database/sql"
+	"regexp"
 	"testing"
 	"time"
 
@@ -61,4 +62,16 @@ func OpenTestMySQL(tb testing.TB) *sql.DB {
 	}
 	require.NoError(tb, err)
 	return db
+}
+
+// MySQLVersion returns MAJOR.MINOR MySQL version (e.g. "5.6", "8.0", etc.).
+func MySQLVersion(tb testing.TB, db *sql.DB) string {
+	tb.Helper()
+
+	var version string
+	err := db.QueryRow("SELECT version()").Scan(&version)
+	require.NoError(tb, err)
+	mm := regexp.MustCompile(`^\d\.\d`).FindString(version)
+	tb.Logf("version = %q, mm = %q", version, mm)
+	return mm
 }

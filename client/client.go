@@ -278,9 +278,9 @@ func (c *Client) processChannelRequests() {
 				responsePayload = new(agentpb.StartActionResponse)
 
 			case managementpb.ActionType_MYSQL_EXPLAIN:
-				// TODO: Implement explain action.
-				c.l.Errorf("not implemented action EXPLAIN")
-				continue
+				a := actions.NewMySQLExplainAction(p.ActionId, p.GetMysqlExplainParams())
+				c.runner.Start(a)
+				responsePayload = new(agentpb.StartActionResponse)
 
 			case managementpb.ActionType_ACTION_TYPE_INVALID:
 				c.l.Errorf("Unsupported action: %s.", p.Type)

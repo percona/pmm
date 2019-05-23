@@ -19,7 +19,6 @@ package perfschema
 import (
 	"bytes"
 	"fmt"
-	"regexp"
 	"strings"
 	"testing"
 	"text/tabwriter"
@@ -240,14 +239,8 @@ func TestPerfSchema(t *testing.T) {
 	require.NoError(t, err)
 	logTable(t, structs)
 
-	var version string
-	err = db.QueryRow("SELECT version()").Scan(&version)
-	require.NoError(t, err)
-	t.Logf("version = %q", version)
-
-	version = regexp.MustCompile(`^\d\.\d`).FindString(version)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
-	switch version {
+	switch tests.MySQLVersion(t, sqlDB) {
 	case "5.6":
 		digests = map[string]string{
 			"SELECT ?":             "41782b6b3af16c6426fb64b88a51d8a5",

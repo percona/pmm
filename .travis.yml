@@ -22,6 +22,8 @@ before_cache:
   # - go clean -cache
 
 env:
+  fast_finish: true
+
   global:
     - CODECOV_ENV=MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE
 

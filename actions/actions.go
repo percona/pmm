@@ -25,7 +25,7 @@ import (
 type Action interface {
 	// ID returns an Action ID.
 	ID() string
-	// Type returns an Action type. Used for logging.
+	// Type returns an Action type.
 	Type() string
 	// Run runs an Action and returns output and error.
 	Run(ctx context.Context) ([]byte, error)
