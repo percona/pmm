@@ -3,13 +3,13 @@ version: '3'
 services:
   test_db:
     image: aleksi/test_db:1.0.0
-    container_name: test_db
+    container_name: pmm-agent_test_db
     volumes:
       - test_db:/test_db/mysql/world:ro
 
   mysql:
     image: ${MYSQL_IMAGE:-percona:5.7}
-    container_name: mysql
+    container_name: pmm-agent_mysql
     ports:
       - 127.0.0.1:3306:3306
     environment:
@@ -21,13 +21,22 @@ services:
 
   mongo:
     image: ${MONGO_IMAGE:-mongo:4.0}
+    container_name: pmm-agent_mongo
     command: --profile 2
-    restart: always
     ports:
       - 127.0.0.1:27017:27017
     environment:
-      MONGO_INITDB_ROOT_USERNAME: pmm-agent
-      MONGO_INITDB_ROOT_PASSWORD: root-password
+      - MONGO_INITDB_ROOT_USERNAME=pmm-agent
+      - MONGO_INITDB_ROOT_PASSWORD=root-password
+
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:11}
+    container_name: pmm-agent_postgres
+    ports:
+      - 127.0.0.1:5432:5432
+    environment:
+      - POSTGRES_USER=pmm-agent
+      - POSTGRES_PASSWORD=pmm-agent-password
 
 volumes:
   test_db:

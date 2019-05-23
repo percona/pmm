@@ -231,6 +231,11 @@ func (c *Channel) runReceiver() {
 				ID:      msg.Id,
 				Payload: p.StopAction,
 			}
+		case *agentpb.ServerMessage_CheckConnection:
+			c.requests <- &ServerRequest{
+				ID:      msg.Id,
+				Payload: p.CheckConnection,
+			}
 
 		// responses
 		case *agentpb.ServerMessage_Pong:
