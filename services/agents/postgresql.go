@@ -32,7 +32,7 @@ import (
 func postgresqlDSN(service *models.Service, exporter *models.Agent) string {
 	q := make(url.Values)
 	q.Set("sslmode", "disable") // TODO: make it configurable
-	q.Set("connect_timeout", "5")
+	q.Set("connect_timeout", "1")
 
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)

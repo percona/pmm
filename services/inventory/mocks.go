@@ -16,7 +16,11 @@
 
 package inventory
 
-import "context"
+import (
+	"context"
+
+	"github.com/percona/pmm-managed/models"
+)
 
 //go:generate mockery -name=registry -case=snake -inpkg -testonly
 
@@ -26,4 +30,5 @@ type registry interface {
 	IsConnected(pmmAgentID string) bool
 	Kick(ctx context.Context, pmmAgentID string)
 	SendSetStateRequest(ctx context.Context, pmmAgentID string)
+	CheckConnectionToService(ctx context.Context, service *models.Service, agent *models.Agent) (err error)
 }

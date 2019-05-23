@@ -61,7 +61,7 @@ func TestMySQLdExporterConfig(t *testing.T) {
 			"-web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?clientFoundRows=true&parseTime=true&timeout=5s",
+			"DATA_SOURCE_NAME=username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:3306)/?clientFoundRows=true&parseTime=true&timeout=1s",
 		},
 	}
 	assert.Equal(t, expected.Args, actual.Args)
@@ -71,12 +71,12 @@ func TestMySQLdExporterConfig(t *testing.T) {
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
 		actual := mysqldExporterConfig(mysql, exporter)
-		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?clientFoundRows=true&parseTime=true&timeout=5s", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=username@tcp(1.2.3.4:3306)/?clientFoundRows=true&parseTime=true&timeout=1s", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual := mysqldExporterConfig(mysql, exporter)
-		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?clientFoundRows=true&parseTime=true&timeout=5s", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=tcp(1.2.3.4:3306)/?clientFoundRows=true&parseTime=true&timeout=1s", actual.Env[0])
 	})
 }

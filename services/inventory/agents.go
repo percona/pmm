@@ -325,6 +325,16 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 		if err != nil {
 			return err
 		}
+		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+				return err
+			}
+		}
 
 		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
 		if err != nil {
@@ -369,6 +379,16 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 		row, err := models.AgentAddExporter(tx.Querier, models.MongoDBExporterType, params)
 		if err != nil {
 			return err
+		}
+		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+				return err
+			}
 		}
 
 		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
@@ -416,6 +436,16 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *in
 		if err != nil {
 			return err
 		}
+		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+				return err
+			}
+		}
 
 		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
 		if err != nil {
@@ -462,6 +492,16 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inven
 		if err != nil {
 			return err
 		}
+		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+				return err
+			}
+		}
 
 		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
 		if err != nil {
@@ -506,6 +546,16 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 		row, err := models.AgentAddExporter(tx.Querier, models.PostgresExporterType, params)
 		if err != nil {
 			return err
+		}
+		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+				return err
+			}
 		}
 
 		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
@@ -552,6 +602,16 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *in
 		row, err := models.AgentAddExporter(tx.Querier, models.QANMongoDBProfilerAgentType, params)
 		if err != nil {
 			return err
+		}
+		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+				return err
+			}
 		}
 
 		agent, err := ToInventoryAgent(tx.Querier, row, as.r)

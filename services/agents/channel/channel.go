@@ -207,6 +207,8 @@ func (c *Channel) runReceiver() {
 			c.publish(msg.Id, p.StartAction)
 		case *agentpb.AgentMessage_StopAction:
 			c.publish(msg.Id, p.StopAction)
+		case *agentpb.AgentMessage_CheckConnection:
+			c.publish(msg.Id, p.CheckConnection)
 
 		case nil:
 			c.close(errors.Errorf("failed to handle received message %s", msg))

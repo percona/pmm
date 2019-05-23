@@ -41,7 +41,7 @@ func mysqlDSN(service *models.Service, exporter *models.Agent) string {
 	host := pointer.GetString(service.Address)
 	port := pointer.GetUint16(service.Port)
 	cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
-	cfg.Timeout = 5 * time.Second
+	cfg.Timeout = 1 * time.Second
 
 	// QAN code in pmm-agent uses reform which requires those fields
 	cfg.ClientFoundRows = true

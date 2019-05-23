@@ -25,6 +25,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	prom "github.com/prometheus/client_golang/prometheus"
@@ -49,6 +50,8 @@ type agentInfo struct {
 }
 
 // Registry keeps track of all connected pmm-agents.
+//
+// TODO Split into several types?
 type Registry struct {
 	db         *reform.DB
 	prometheus prometheus
@@ -110,10 +113,8 @@ func NewRegistry(db *reform.DB, prometheus prometheus, qanClient qanClient) *Reg
 
 // IsConnected returns true if pmm-agent with given ID is currently connected, false otherwise.
 func (r *Registry) IsConnected(pmmAgentID string) bool {
-	r.rw.RLock()
-	agent := r.agents[pmmAgentID]
-	r.rw.RUnlock()
-	return agent != nil
+	_, err := r.get(pmmAgentID)
+	return err == nil
 }
 
 // Run takes over pmm-agent gRPC stream and runs it until completion.
@@ -221,6 +222,7 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*agentInfo, err
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
+	// do not use r.get() - r.rw is already locked
 	if agent := r.agents[agentMD.ID]; agent != nil {
 		close(agent.kick)
 	}
@@ -271,6 +273,7 @@ func (r *Registry) Kick(ctx context.Context, pmmAgentID string) {
 	r.rw.Lock()
 	defer r.rw.Unlock()
 
+	// do not use r.get() - r.rw is already locked
 	l := logger.Get(ctx)
 	agent := r.agents[pmmAgentID]
 	if agent == nil {
@@ -333,11 +336,9 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 		}
 	}()
 
-	r.rw.RLock()
-	agent := r.agents[pmmAgentID]
-	r.rw.RUnlock()
-	if agent == nil {
-		l.Infof("SendSetStateRequest: pmm-agent with ID %q is not currently connected.", pmmAgentID)
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		l.Infof("SendSetStateRequest: %s.", err)
 		return
 	}
 
@@ -454,6 +455,64 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 	l.Infof("SendSetStateRequest: %+v.", state)
 	resp := agent.channel.SendRequest(state)
 	l.Infof("SetState response: %+v.", resp)
+}
+
+// CheckConnectionToService sends request to pmm-agent to check connection to service.
+func (r *Registry) CheckConnectionToService(ctx context.Context, service *models.Service, agent *models.Agent) error {
+	// TODO: extract to a separate struct to keep Single Responsibility principles.
+	l := logger.Get(ctx)
+	start := time.Now()
+	defer func() {
+		if dur := time.Since(start); dur > 2*time.Second {
+			l.Warnf("CheckConnectionToService took %s.", dur)
+		}
+	}()
+
+	pmmAgentID := pointer.GetString(agent.PMMAgentID)
+	pmmAgent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	var request *agentpb.CheckConnectionRequest
+	switch service.ServiceType {
+	case models.MySQLServiceType:
+		request = &agentpb.CheckConnectionRequest{
+			Type: inventorypb.ServiceType_MYSQL_SERVICE,
+			Dsn:  mysqlDSN(service, agent),
+		}
+	case models.PostgreSQLServiceType:
+		request = &agentpb.CheckConnectionRequest{
+			Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
+			Dsn:  postgresqlDSN(service, agent),
+		}
+	case models.MongoDBServiceType:
+		request = &agentpb.CheckConnectionRequest{
+			Type: inventorypb.ServiceType_MONGODB_SERVICE,
+			Dsn:  mongoDSN(service, agent),
+		}
+	default:
+		l.Panicf("unhandled Service type %s", service.ServiceType)
+	}
+
+	l.Infof("CheckConnectionRequest: %+v.", request)
+	resp := pmmAgent.channel.SendRequest(request)
+	l.Infof("CheckConnection response: %+v.", resp)
+	checkConnectionResponse := resp.(*agentpb.CheckConnectionResponse)
+	if checkConnectionResponse.Error != "" {
+		return status.Error(codes.FailedPrecondition, checkConnectionResponse.Error)
+	}
+	return nil
+}
+
+func (r *Registry) get(pmmAgentID string) (*agentInfo, error) {
+	r.rw.RLock()
+	pmmAgent := r.agents[pmmAgentID]
+	r.rw.RUnlock()
+	if pmmAgent == nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "pmm-agent with ID %q is not currently connected", pmmAgentID)
+	}
+	return pmmAgent, nil
 }
 
 // Describe implements prometheus.Collector.

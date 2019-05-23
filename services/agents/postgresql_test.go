@@ -44,7 +44,7 @@ func TestPostgresExporterConfig(t *testing.T) {
 			"-web.listen-address=:{{ .listen_port }}",
 		},
 		Env: []string{
-			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable",
+			"DATA_SOURCE_NAME=postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable",
 		},
 	}
 	assert.Equal(t, expected.Args, actual.Args)
@@ -54,12 +54,12 @@ func TestPostgresExporterConfig(t *testing.T) {
 	t.Run("EmptyPassword", func(t *testing.T) {
 		exporter.Password = nil
 		actual := postgresExporterConfig(postgresql, exporter)
-		assert.Equal(t, "DATA_SOURCE_NAME=postgres://username@1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=postgres://username@1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 	})
 
 	t.Run("EmptyUsername", func(t *testing.T) {
 		exporter.Username = nil
 		actual := postgresExporterConfig(postgresql, exporter)
-		assert.Equal(t, "DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=5&sslmode=disable", actual.Env[0])
+		assert.Equal(t, "DATA_SOURCE_NAME=postgres://1.2.3.4:5432/postgres?connect_timeout=1&sslmode=disable", actual.Env[0])
 	})
 }

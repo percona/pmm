@@ -76,6 +76,12 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			return err
 		}
 
+		if !req.SkipConnectionCheck {
+			if err = s.registry.CheckConnectionToService(ctx, service, row); err != nil {
+				return err
+			}
+		}
+
 		agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
 		if err != nil {
 			return err
