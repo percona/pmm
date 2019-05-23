@@ -6753,6 +6753,9 @@
               "description": "FiltersRequest contains period for which we need filters.",
               "type": "object",
               "properties": {
+                "main_metric_name": {
+                  "type": "string"
+                },
                 "period_start_from": {
                   "type": "string",
                   "format": "date-time"
@@ -6781,12 +6784,16 @@
                       "name": {
                         "type": "array",
                         "items": {
-                          "description": "ValueAndCount is label values and how many times this value occur.",
+                          "description": "Values is label values and main metric percent and per second.",
                           "type": "object",
                           "properties": {
-                            "count": {
-                              "type": "string",
-                              "format": "int64"
+                            "main_metric_per_sec": {
+                              "type": "number",
+                              "format": "float"
+                            },
+                            "main_metric_percent": {
+                              "type": "number",
+                              "format": "float"
                             },
                             "value": {
                               "type": "string"

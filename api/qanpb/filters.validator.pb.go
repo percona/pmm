@@ -44,6 +44,6 @@ func (this *ListLabels) Validate() error {
 	}
 	return nil
 }
-func (this *ValueAndCount) Validate() error {
+func (this *Values) Validate() error {
 	return nil
 }
