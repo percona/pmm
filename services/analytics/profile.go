@@ -32,18 +32,18 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
 		err := fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
-		return &qanpb.ReportReply{}, err
+		return nil, err
 	}
 
 	periodStartFromSec := in.PeriodStartFrom.Seconds
 	periodStartToSec := in.PeriodStartTo.Seconds
 	if periodStartFromSec > periodStartToSec {
 		err := fmt.Errorf("from-date %s cannot be bigger then to-date %s", in.PeriodStartFrom, in.PeriodStartTo)
-		return &qanpb.ReportReply{}, err
+		return nil, err
 	}
 
 	if _, ok := standartDimensions[in.GroupBy]; !ok {
-		return &qanpb.ReportReply{}, fmt.Errorf("unknown group dimension: %s", in.GroupBy)
+		return nil, fmt.Errorf("unknown group dimension: %s", in.GroupBy)
 	}
 	group := in.GroupBy
 
@@ -80,9 +80,21 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		}
 	}
 
+	uniqColumnsMap := map[string]struct{}{}
+	for _, column := range columns {
+		if _, ok := uniqColumnsMap[column]; !ok {
+			uniqColumnsMap[column] = struct{}{}
+		}
+	}
+
+	uniqColumns := []string{}
+	for key := range uniqColumnsMap {
+		uniqColumns = append(uniqColumns, key)
+	}
+
 	boolColumns := []string{}
 	commonColumns := []string{}
-	for _, col := range columns {
+	for _, col := range uniqColumns {
 		if _, ok := boolColumnNames[col]; ok {
 			boolColumns = append(boolColumns, col)
 			continue
@@ -139,7 +151,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 	)
 
 	if err != nil {
-		return resp, err
+		return nil, err
 	}
 
 	total := results[0]
@@ -159,11 +171,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			Load:        interfaceToFloat32(res["m_query_time_sum"]) / float32(intervalTime),
 			Metrics:     make(map[string]*qanpb.Metric),
 		}
-		// Add latency as default column.
-		stats := makeStats("query_time", total, res, numQueries)
-		row.Metrics["latency"] = &qanpb.Metric{
-			Stats: stats,
-		}
+
 		// set TOTAL for Fingerprint instead of "any" if result is not empty.
 		if i == 0 && row.Fingerprint != "" {
 			row.Fingerprint = "TOTAL"
@@ -185,7 +193,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			columns,
 		)
 		if err != nil {
-			return resp, err
+			return nil, err
 		}
 		row.Sparkline = sparklines
 		for _, c := range columns {

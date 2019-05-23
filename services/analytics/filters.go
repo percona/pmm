@@ -19,7 +19,6 @@ package analitycs
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/percona/pmm/api/qanpb"
 )
@@ -29,14 +28,20 @@ func (s *Service) Get(ctx context.Context, in *qanpb.FiltersRequest) (*qanpb.Fil
 
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
 		err := fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
-		return &qanpb.FiltersReply{}, err
+		return nil, err
 	}
 
-	from := time.Unix(in.PeriodStartFrom.Seconds, 0)
-	to := time.Unix(in.PeriodStartTo.Seconds, 0)
-	if from.After(to) {
-		err := fmt.Errorf("from-date %s cannot be bigger then to-date %s", from.UTC(), to.UTC())
-		return &qanpb.FiltersReply{}, err
+	periodStartFromSec := in.PeriodStartFrom.Seconds
+	periodStartToSec := in.PeriodStartTo.Seconds
+	if periodStartFromSec > periodStartToSec {
+		err := fmt.Errorf("from-date %s cannot be bigger then to-date %s", in.PeriodStartFrom, in.PeriodStartTo)
+		return nil, err
 	}
-	return s.rm.SelectFilters(ctx, from, to)
+
+	mainMetricName := "m_query_time_sum"
+	if in.MainMetricName != "" {
+		mainMetricName = in.MainMetricName
+	}
+
+	return s.rm.SelectFilters(ctx, periodStartFromSec, periodStartToSec, mainMetricName)
 }

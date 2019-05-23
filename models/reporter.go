@@ -169,11 +169,10 @@ const queryReportSparklinesTmpl = `
 		intDivOrZero(toUnixTimestamp( :period_start_to ) - toUnixTimestamp(period_start), {{ index . "time_frame" }}) AS point,
 		toDateTime(toUnixTimestamp( :period_start_to ) - (point * {{ index . "time_frame" }})) AS timestamp,
 		{{ index . "time_frame" }} AS time_frame,
-		SUM(num_queries) / time_frame AS num_queries_sum_per_sec,
 		{{range $j, $col := index . "columns"}}
-			if(SUM(m_{{ $col }}_cnt) == 0, NaN, SUM(m_{{ $col }}_sum) / time_frame) AS m_{{ $col }}_sum_per_sec,
+		if(SUM(m_{{ $col }}_cnt) == 0, NaN, SUM(m_{{ $col }}_sum) / time_frame) AS m_{{ $col }}_sum_per_sec,
 		{{ end }}
-		if(SUM(m_query_time_cnt) == 0, NULL, SUM(m_query_time_sum) / time_frame) AS m_query_time_sum_per_sec
+		SUM(num_queries) / time_frame AS num_queries_per_sec
 	FROM metrics
 	WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 	{{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}
@@ -268,12 +267,11 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		"point",
 		"timestamp",
 		"time_frame",
-		"num_queries_per_sec",
 	}
 	for _, v := range columns {
 		sparklinePointFieldsToQuery = append(sparklinePointFieldsToQuery, fmt.Sprintf("m_%s_sum_per_sec", v))
 	}
-	sparklinePointFieldsToQuery = append(sparklinePointFieldsToQuery, "m_query_time_sum_per_sec")
+	sparklinePointFieldsToQuery = append(sparklinePointFieldsToQuery, "num_queries_per_sec")
 
 	for rows.Next() {
 		p := qanpb.Point{}
@@ -304,127 +302,156 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 }
 
 const queryServers = `
-	SELECT d_server AS value, count(d_server) AS count
+	SELECT 'd_server' AS key, d_server AS value, SUM(%s) AS main_metric_sum
 	  FROM metrics
 	 WHERE period_start >= ?
 	   AND period_start <= ?
-  GROUP BY d_server;
+  GROUP BY d_server
+  	  WITH TOTALS
+  ORDER BY main_metric_sum, value;
 `
 const queryDatabases = `
-	SELECT d_database AS value, count(d_database) AS count
+	SELECT 'd_database' AS key, d_database AS value, SUM(%s) AS main_metric_sum
 	  FROM metrics
 	 WHERE period_start >= ?
 	   AND period_start <= ?
-  GROUP BY d_database;
+  GROUP BY d_database
+      WITH TOTALS
+  ORDER BY main_metric_sum, value;
 `
 const querySchemas = `
-	SELECT d_schema AS value, count(d_schema) AS count
+	SELECT 'd_schema' AS key, d_schema AS value, SUM(%s) AS main_metric_sum
 	  FROM metrics
 	 WHERE period_start >= ?
 	   AND period_start <= ?
-  GROUP BY d_schema;
+  GROUP BY d_schema
+      WITH TOTALS
+  ORDER BY main_metric_sum, value;
 `
 const queryUsernames = `
-	SELECT d_username AS value, count(d_username) AS count
+	SELECT 'd_username' AS key, d_username AS value, SUM(%s) AS main_metric_sum
 	  FROM metrics
 	 WHERE period_start >= ?
 	   AND period_start <= ?
-  GROUP BY d_username;
+  GROUP BY d_username
+      WITH TOTALS
+  ORDER BY main_metric_sum, value;
 `
 const queryClientHosts = `
-	SELECT d_client_host AS value, count(d_client_host) AS count
+	SELECT 'd_client_host' AS key, d_client_host AS value, SUM(%s) AS main_metric_sum
 	  FROM metrics
 	 WHERE period_start >= ?
 	   AND period_start <= ?
-  GROUP BY d_client_host;
+  GROUP BY d_client_host
+      WITH TOTALS
+  ORDER BY main_metric_sum, value;
 `
-
 const queryLabels = `
-	SELECT labels.key AS key, labels.value AS value, COUNT(labels.value) AS count
+	SELECT labels.key AS key, labels.value AS value, SUM(%s) AS main_metric_sum
 	  FROM metrics
 ARRAY JOIN labels
 	 WHERE period_start >= ?
 	   AND period_start <= ?
   GROUP BY labels.key, labels.value
-  ORDER BY labels.key, labels.value;
+  ORDER BY main_metric_sum, labels.key, labels.value;
 `
 
+type customLabel struct {
+	key              string
+	value            string
+	mainMetricPerSec float32
+}
+
 // SelectFilters selects dimension and their values, and also keys and values of labels.
-func (r *Reporter) SelectFilters(ctx context.Context, periodStartFrom, periodStartTo time.Time) (*qanpb.FiltersReply, error) {
+func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName string) (*qanpb.FiltersReply, error) {
 	result := qanpb.FiltersReply{
 		Labels: make(map[string]*qanpb.ListLabels),
 	}
 
-	type customLabel struct {
-		key   string
-		value string
-		count int64
+	if !isValidMetricColumn(mainMetricName) {
+		return nil, fmt.Errorf("invalid main metric name %s", mainMetricName)
 	}
 
-	var servers []*qanpb.ValueAndCount
-	var databases []*qanpb.ValueAndCount
-	var schemas []*qanpb.ValueAndCount
-	var users []*qanpb.ValueAndCount
-	var hosts []*qanpb.ValueAndCount
+	dimentionQueries := map[string]string{
+		"d_server":      queryServers,
+		"d_database":    queryDatabases,
+		"d_schema":      querySchemas,
+		"d_username":    queryUsernames,
+		"d_client_host": queryClientHosts,
+		"labels":        queryLabels,
+	}
+	for dimentionName, dimentionQuery := range dimentionQueries {
+		values, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, mainMetricName, dimentionQuery)
+		if err != nil {
+			return nil, errors.Wrap(err, "cannot select "+dimentionName+" dimension")
+		}
+
+		totals := map[string]float32{}
+		if mainMetricPerSec == 0 {
+			for _, label := range values {
+				totals[label.key] += label.mainMetricPerSec
+			}
+		}
+
+		for _, label := range values {
+			if _, ok := result.Labels[label.key]; !ok {
+				result.Labels[label.key] = &qanpb.ListLabels{
+					Name: []*qanpb.Values{},
+				}
+			}
+			total := mainMetricPerSec
+			if mainMetricPerSec == 0 {
+				total = totals[label.key]
+			}
+			val := qanpb.Values{
+				Value:             label.value,
+				MainMetricPerSec:  label.mainMetricPerSec,
+				MainMetricPercent: label.mainMetricPerSec / total,
+			}
+			result.Labels[label.key].Name = append(result.Labels[label.key].Name, &val)
+		}
+	}
+
+	return &result, nil
+}
+
+func (r *Reporter) queryFilters(ctx context.Context, periodStartFromSec, periodStartToSec int64, mainMetricName, query string) ([]*customLabel, float32, error) {
+	durationSec := periodStartToSec - periodStartFromSec
 	var labels []*customLabel
-
-	err := r.db.SelectContext(ctx, &servers, queryServers, periodStartFrom, periodStartTo)
+	rows, err := r.db.QueryContext(ctx, fmt.Sprintf(query, mainMetricName), periodStartFromSec, periodStartToSec)
 	if err != nil {
-		return nil, fmt.Errorf("cannot select server dimension:%v", err)
-	}
-	err = r.db.SelectContext(ctx, &databases, queryDatabases, periodStartFrom, periodStartTo)
-	if err != nil {
-		return nil, fmt.Errorf("cannot select databases dimension:%v", err)
-	}
-	err = r.db.SelectContext(ctx, &schemas, querySchemas, periodStartFrom, periodStartTo)
-	if err != nil {
-		return nil, fmt.Errorf("cannot select schemas dimension:%v", err)
-	}
-	err = r.db.SelectContext(ctx, &users, queryUsernames, periodStartFrom, periodStartTo)
-	if err != nil {
-		return nil, fmt.Errorf("cannot select usernames dimension:%v", err)
-	}
-	err = r.db.SelectContext(ctx, &hosts, queryClientHosts, periodStartFrom, periodStartTo)
-	if err != nil {
-		return nil, fmt.Errorf("cannot select client hosts dimension:%v", err)
-	}
-
-	rows, err := r.db.QueryContext(ctx, queryLabels, periodStartFrom, periodStartTo)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to select labels dimensions")
+		return nil, 0, errors.Wrap(err, "failed to select for query: "+query)
 	}
 	defer rows.Close() //nolint:errcheck
 
 	for rows.Next() {
 		var label customLabel
-		err = rows.Scan(&label.key, &label.value, &label.count)
+		err = rows.Scan(&label.key, &label.value, &label.mainMetricPerSec)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to scan labels dimension")
+			return nil, 0, errors.Wrap(err, "failed to scan for query: "+query)
 		}
+		label.mainMetricPerSec /= float32(durationSec)
 		labels = append(labels, &label)
 	}
 	if err = rows.Err(); err != nil {
-		return nil, errors.Wrap(err, "failed to select labels dimensions")
+		return nil, 0, errors.Wrap(err, "failed to select for query: "+query)
 	}
 
-	result.Labels["d_server"] = &qanpb.ListLabels{Name: servers}
-	result.Labels["d_database"] = &qanpb.ListLabels{Name: databases}
-	result.Labels["d_schema"] = &qanpb.ListLabels{Name: schemas}
-	result.Labels["d_username"] = &qanpb.ListLabels{Name: users}
-	result.Labels["d_client_host"] = &qanpb.ListLabels{Name: hosts}
+	totalMainMetricPerSec := float32(0)
 
-	for _, label := range labels {
-		if _, ok := result.Labels[label.key]; !ok {
-			result.Labels[label.key] = &qanpb.ListLabels{
-				Name: []*qanpb.ValueAndCount{},
+	if rows.NextResultSet() {
+		var labelTotal customLabel
+		for rows.Next() {
+			err = rows.Scan(&labelTotal.key, &labelTotal.value, &labelTotal.mainMetricPerSec)
+			if err != nil {
+				return nil, 0, errors.Wrap(err, "failed to scan total for query: "+query)
 			}
+			totalMainMetricPerSec = labelTotal.mainMetricPerSec / float32(durationSec)
 		}
-		val := qanpb.ValueAndCount{
-			Value: label.value,
-			Count: label.count,
+		if err = rows.Err(); err != nil {
+			return nil, 0, errors.Wrap(err, "failed to select total for query: "+query)
 		}
-		result.Labels[label.key].Name = append(result.Labels[label.key].Name, &val)
 	}
 
-	return &result, nil
+	return labels, totalMainMetricPerSec, nil
 }

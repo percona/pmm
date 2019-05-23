@@ -118,7 +118,7 @@ func TestService_GetReport(t *testing.T) {
 					PeriodStartTo:   &timestamp.Timestamp{Seconds: t1.Unix()},
 				},
 			},
-			&qanpb.ReportReply{},
+			nil,
 			true,
 		},
 		{
@@ -128,7 +128,7 @@ func TestService_GetReport(t *testing.T) {
 				context.TODO(),
 				&qanpb.ReportRequest{},
 			},
-			&qanpb.ReportReply{},
+			nil,
 			true,
 		},
 	}
@@ -142,6 +142,10 @@ func TestService_GetReport(t *testing.T) {
 			got, err := s.GetReport(tt.args.ctx, tt.args.in)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Service.GetReport() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if tt.want == nil {
+				assert.Nil(t, got, "Service.GetReport() return not nil")
 				return
 			}
 			expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_"+tt.name+".json")

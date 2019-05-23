@@ -88,7 +88,7 @@ func TestService_GetFilters(t *testing.T) {
 					PeriodStartTo:   &timestamp.Timestamp{Seconds: t1.Unix()},
 				},
 			},
-			&qanpb.FiltersReply{},
+			nil,
 			true,
 		},
 		{
@@ -98,7 +98,7 @@ func TestService_GetFilters(t *testing.T) {
 				context.TODO(),
 				&qanpb.FiltersRequest{},
 			},
-			&qanpb.FiltersReply{},
+			nil,
 			true,
 		},
 	}
@@ -111,6 +111,10 @@ func TestService_GetFilters(t *testing.T) {
 			got, err := s.Get(tt.args.ctx, tt.args.in)
 			if (err != nil) != tt.wantErr {
 				assert.Errorf(t, err, "Service.GetFilters() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if tt.want == nil {
+				assert.Nil(t, got, "Service.GetFilters() return not nil")
+				return
 			}
 			expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetFilters_"+tt.name+".json")
 			marshaler := jsonpb.Marshaler{Indent: "	"}
