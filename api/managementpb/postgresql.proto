@@ -61,6 +61,10 @@ message AddPostgreSQLRequest {
   ];
   // Environment name.
   string environment = 6;
+  // Cluster name.
+  string cluster = 9;
+  // Replication set name.
+  string replication_set = 10;
   // PostgreSQL username for scraping metrics.
   string username = 7 [
     (validator.field) = {

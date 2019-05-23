@@ -109,6 +109,10 @@ message PostgreSQLService {
   uint32 port = 5;
   // Environment name.
   string environment = 6;
+  // Cluster name.
+  string cluster = 7;
+  // Replication set name.
+  string replication_set = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
@@ -305,6 +309,10 @@ message AddPostgreSQLServiceRequest {
   ];
   // Environment name.
   string environment = 6;
+  // Cluster name.
+  string cluster = 7;
+  // Replication set name.
+  string replication_set = 8;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 10;
 }
