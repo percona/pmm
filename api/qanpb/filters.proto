@@ -22,6 +22,7 @@ service Filters {
 message FiltersRequest {
   google.protobuf.Timestamp period_start_from = 1;
   google.protobuf.Timestamp period_start_to = 2;
+  string main_metric_name = 3;
 }
 
 // FiltersReply is map of labels for given period by key.
@@ -32,11 +33,12 @@ message FiltersReply {
 
 // ListLabels is list of label's values: duplicates are impossible.
 message ListLabels {
-  repeated ValueAndCount name = 1;
+  repeated Values name = 1;
 }
 
-// ValueAndCount is label values and how many times this value occur.
-message ValueAndCount {
+// Values is label values and main metric percent and per second.
+message Values {
   string value = 1;
-  int64 count = 2;
+  float main_metric_percent = 2;
+  float main_metric_per_sec = 3;
 }

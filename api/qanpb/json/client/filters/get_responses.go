@@ -73,6 +73,9 @@ swagger:model GetBody
 */
 type GetBody struct {
 
+	// main metric name
+	MainMetricName string `json:"main_metric_name,omitempty"`
+
 	// period start from
 	// Format: date-time
 	PeriodStartFrom strfmt.DateTime `json:"period_start_from,omitempty"`
@@ -274,13 +277,16 @@ func (o *LabelsAnon) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LabelsAnonNameItems0 ValueAndCount is label values and how many times this value occur.
+/*LabelsAnonNameItems0 Values is label values and main metric percent and per second.
 swagger:model LabelsAnonNameItems0
 */
 type LabelsAnonNameItems0 struct {
 
-	// count
-	Count string `json:"count,omitempty"`
+	// main metric per sec
+	MainMetricPerSec float32 `json:"main_metric_per_sec,omitempty"`
+
+	// main metric percent
+	MainMetricPercent float32 `json:"main_metric_percent,omitempty"`
 
 	// value
 	Value string `json:"value,omitempty"`
