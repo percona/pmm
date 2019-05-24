@@ -18,6 +18,7 @@ package actions
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 	"testing"
 	"time"
@@ -56,12 +57,12 @@ func TestMySQLExplain(t *testing.T) {
 		case "5.6":
 			expected = strings.TrimSpace(`
 id |select_type |table |type |possible_keys |key  |key_len |ref  |rows |Extra
-1  |SIMPLE      |city  |ALL  |NULL          |NULL |NULL    |NULL |2    |NULL
+1  |SIMPLE      |city  |ALL  |NULL          |NULL |NULL    |NULL |\d+  |NULL
 			`)
 		case "5.7", "8.0":
 			expected = strings.TrimSpace(`
 id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |rows |filtered |Extra
-1  |SIMPLE      |city  |NULL       |ALL  |NULL          |NULL |NULL    |NULL |2    |100.00   |NULL
+1  |SIMPLE      |city  |NULL       |ALL  |NULL          |NULL |NULL    |NULL |\d+  |100.00   |NULL
 			`)
 		default:
 			t.Log("Unhandled version, assuming dummy results.")
@@ -69,7 +70,7 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 		}
 
 		actual := strings.TrimSpace(string(b))
-		assert.Equal(t, expected, actual)
+		assert.Regexp(t, expected, actual)
 	})
 
 	t.Run("JSON", func(t *testing.T) {
@@ -86,92 +87,25 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 
 		b, err := a.Run(ctx)
 		require.NoError(t, err)
+		t.Logf("Full JSON:\n%s", b)
 
-		var expected string
+		var actual map[string]interface{}
+		err = json.Unmarshal(b, &actual)
+		require.NoError(t, err)
+		actual = actual["query_block"].(map[string]interface{})
+		actualTable := actual["table"].(map[string]interface{})
+
 		switch mySQLVersion {
 		case "5.6":
-			expected = strings.TrimSpace(`
-{
-  "query_block": {
-    "select_id": 1,
-    "table": {
-      "table_name": "city",
-      "access_type": "ALL",
-      "rows": 2,
-      "filtered": 100
-    }
-  }
-}
-			`)
-		case "5.7":
-			expected = strings.TrimSpace(`
-{
-  "query_block": {
-    "select_id": 1,
-    "cost_info": {
-      "query_cost": "1.40"
-    },
-    "table": {
-      "table_name": "city",
-      "access_type": "ALL",
-      "rows_examined_per_scan": 2,
-      "rows_produced_per_join": 2,
-      "filtered": "100.00",
-      "cost_info": {
-        "read_cost": "1.00",
-        "eval_cost": "0.40",
-        "prefix_cost": "1.40",
-        "data_read_per_join": "144"
-      },
-      "used_columns": [
-        "ID",
-        "Name",
-        "CountryCode",
-        "District",
-        "Population"
-      ]
-    }
-  }
-}
-			`)
-		case "8.0":
-			expected = strings.TrimSpace(`
-{
-  "query_block": {
-    "select_id": 1,
-    "cost_info": {
-      "query_cost": "0.45"
-    },
-    "table": {
-      "table_name": "city",
-      "access_type": "ALL",
-      "rows_examined_per_scan": 2,
-      "rows_produced_per_join": 2,
-      "filtered": "100.00",
-      "cost_info": {
-        "read_cost": "0.25",
-        "eval_cost": "0.20",
-        "prefix_cost": "0.45",
-        "data_read_per_join": "144"
-      },
-      "used_columns": [
-        "ID",
-        "Name",
-        "CountryCode",
-        "District",
-        "Population"
-      ]
-    }
-  }
-}
-			`)
+			assert.Equal(t, 1.0, actual["select_id"])
+			assert.Equal(t, "city", actualTable["table_name"])
+		case "5.7", "8.0":
+			assert.Equal(t, 1.0, actual["select_id"])
+			assert.Equal(t, "city", actualTable["table_name"])
+			assert.Equal(t, []interface{}{"ID", "Name", "CountryCode", "District", "Population"}, actualTable["used_columns"])
 		default:
-			t.Log("Unhandled version, assuming dummy results.")
-			expected = "TODO"
+			assert.Failf(t, "Unhandled version %q.", mySQLVersion)
 		}
-
-		actual := strings.TrimSpace(string(b))
-		assert.Equal(t, expected, actual)
 	})
 
 	t.Run("Error", func(t *testing.T) {
