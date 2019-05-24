@@ -9,10 +9,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 
 	strfmt "github.com/go-openapi/strfmt"
 )
@@ -155,41 +153,12 @@ swagger:model VersionOKBody
 */
 type VersionOKBody struct {
 
-	// pmm-managed commit.
-	PMMManagedCommit string `json:"pmm_managed_commit,omitempty"`
-
-	// Build timestamp.
-	// Format: date-time
-	Timestamp strfmt.DateTime `json:"timestamp,omitempty"`
-
-	// Full PMM version.
+	// version
 	Version string `json:"version,omitempty"`
 }
 
 // Validate validates this version OK body
 func (o *VersionOKBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validateTimestamp(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *VersionOKBody) validateTimestamp(formats strfmt.Registry) error {
-
-	if swag.IsZero(o.Timestamp) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("versionOk"+"."+"timestamp", "body", "date-time", o.Timestamp.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 

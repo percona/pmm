@@ -21,18 +21,12 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 option go_package = "serverpb";
 
 import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
 message VersionRequest {}
 
 message VersionResponse {
-  // Full PMM version.
   string version = 1;
-  // Build timestamp.
-  google.protobuf.Timestamp timestamp = 2;
-  // pmm-managed commit.
-  string pmm_managed_commit = 3;
 }
 
 // Server service provides generic PMM Server public APIs.

@@ -28,17 +28,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "pmm_managed_commit": {
-                  "description": "pmm-managed commit.",
-                  "type": "string"
-                },
-                "timestamp": {
-                  "description": "Build timestamp.",
-                  "type": "string",
-                  "format": "date-time"
-                },
                 "version": {
-                  "description": "Full PMM version.",
                   "type": "string"
                 }
               }
