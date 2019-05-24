@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
+// Package ports provides reserved ports registry.
 package ports
 
 import (
@@ -25,74 +26,86 @@ import (
 )
 
 var (
-	errNoFreePort      = errors.New("ports registry: no free port")
-	errPortBusy        = errors.New("ports registry: port busy")
-	errNotReservedPort = errors.New("ports registry: not reserved port")
+	errNoFreePort      = errors.New("no free port")
+	errPortBusy        = errors.New("port busy")
+	errPortNotReserved = errors.New("port not reserved")
 )
 
 // Registry keeps track of reserved ports.
 type Registry struct {
-	lock     sync.Mutex
-	min, max uint16
-	m        map[uint16]struct{}
+	m        sync.Mutex
+	min      uint16
+	max      uint16
+	last     uint16
+	reserved map[uint16]struct{}
 }
 
+// NewRegistry creates new registry with some pre-reserved ports.
 func NewRegistry(min, max uint16, reserved []uint16) *Registry {
 	if min > max {
-		panic("min > max")
+		panic(fmt.Sprintf("min port (%d) > max port (%d)", min, max))
 	}
 
-	m := make(map[uint16]struct{})
+	r := &Registry{
+		min:      min,
+		max:      max,
+		last:     min - 1,
+		reserved: make(map[uint16]struct{}, len(reserved)),
+	}
 	for _, p := range reserved {
-		m[p] = struct{}{}
+		r.reserved[p] = struct{}{}
 	}
 
-	return &Registry{
-		min: min, max: max,
-		m: m,
-	}
+	return r
 }
 
+// Reserve reserves next free port.
+// It tries to reuse ports as little as possible to avoid erroneous Prometheus scrapes
+// to the different exporter type when Prometheus configuration is being reloaded.
 func (r *Registry) Reserve() (uint16, error) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
+	r.m.Lock()
+	defer r.m.Unlock()
 
-	for port := r.min; port <= r.max; port++ {
-		if _, ok := r.m[port]; ok {
+	size := r.max - r.min + 1
+	for i := uint16(1); i <= size; i++ {
+		port := r.min + (r.last-r.min+i)%size
+		if _, ok := r.reserved[port]; ok {
 			continue
 		}
 
 		l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
 		if l != nil {
-			l.Close()
+			_ = l.Close()
 		}
 		if err != nil {
 			continue
 		}
 
-		r.m[port] = struct{}{}
+		r.reserved[port] = struct{}{}
+		r.last = port
 		return port, nil
 	}
 
 	return 0, errNoFreePort
 }
 
+// Release releases port.
 func (r *Registry) Release(port uint16) error {
-	r.lock.Lock()
-	defer r.lock.Unlock()
+	r.m.Lock()
+	defer r.m.Unlock()
 
-	if _, ok := r.m[port]; !ok {
-		return errNotReservedPort
+	if _, ok := r.reserved[port]; !ok {
+		return errPortNotReserved
 	}
 
 	l, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
 	if l != nil {
-		l.Close()
+		_ = l.Close()
 	}
 	if err != nil {
 		return errPortBusy
 	}
 
-	delete(r.m, port)
+	delete(r.reserved, port)
 	return nil
 }
