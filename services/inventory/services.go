@@ -77,13 +77,15 @@ func ToInventoryService(row *models.Service) (inventorypb.Service, error) {
 
 	case models.PostgreSQLServiceType:
 		return &inventorypb.PostgreSQLService{
-			ServiceId:    row.ServiceID,
-			ServiceName:  row.ServiceName,
-			NodeId:       row.NodeID,
-			Address:      pointer.GetString(row.Address),
-			Port:         uint32(pointer.GetUint16(row.Port)),
-			Environment:  row.Environment,
-			CustomLabels: labels,
+			ServiceId:      row.ServiceID,
+			ServiceName:    row.ServiceName,
+			NodeId:         row.NodeID,
+			Address:        pointer.GetString(row.Address),
+			Port:           uint32(pointer.GetUint16(row.Port)),
+			Environment:    row.Environment,
+			Cluster:        row.Cluster,
+			ReplicationSet: row.ReplicationSet,
+			CustomLabels:   labels,
 		}, nil
 
 	default:

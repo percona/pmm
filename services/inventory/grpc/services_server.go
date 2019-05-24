@@ -138,12 +138,14 @@ func (s *servicesServer) AddMongoDBService(ctx context.Context, req *inventorypb
 
 func (s *servicesServer) AddPostgreSQLService(ctx context.Context, req *inventorypb.AddPostgreSQLServiceRequest) (*inventorypb.AddPostgreSQLServiceResponse, error) {
 	service, err := s.s.AddPostgreSQL(ctx, &models.AddDBMSServiceParams{
-		ServiceName:  req.ServiceName,
-		NodeID:       req.NodeId,
-		Environment:  req.Environment,
-		Address:      pointer.ToStringOrNil(req.Address),
-		Port:         pointer.ToUint16OrNil(uint16(req.Port)),
-		CustomLabels: req.CustomLabels,
+		ServiceName:    req.ServiceName,
+		NodeID:         req.NodeId,
+		Environment:    req.Environment,
+		Cluster:        req.Cluster,
+		ReplicationSet: req.ReplicationSet,
+		Address:        pointer.ToStringOrNil(req.Address),
+		Port:           pointer.ToUint16OrNil(uint16(req.Port)),
+		CustomLabels:   req.CustomLabels,
 	})
 	if err != nil {
 		return nil, err
