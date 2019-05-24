@@ -25,14 +25,15 @@ import (
 
 var addServicePostgreSQLResultT = commands.ParseTemplate(`
 PostgreSQL Service added.
-Service ID   : {{ .Service.ServiceID }}
-Service name : {{ .Service.ServiceName }}
-Node ID      : {{ .Service.NodeID }}
-Address      : {{ .Service.Address }}
-Port         : {{ .Service.Port }}
-Custom labels: {{ .Service.CustomLabels }}
-
+Service ID     : {{ .Service.ServiceID }}
+Service name   : {{ .Service.ServiceName }}
+Node ID        : {{ .Service.NodeID }}
+Address        : {{ .Service.Address }}
+Port           : {{ .Service.Port }}
 Environment    : {{ .Service.Environment }}
+Cluster name   : {{ .Service.Cluster }}
+Replication set: {{ .Service.ReplicationSet }}
+Custom labels  : {{ .Service.CustomLabels }}
 `)
 
 type addServicePostgreSQLResult struct {
@@ -46,12 +47,14 @@ func (res *addServicePostgreSQLResult) String() string {
 }
 
 type addServicePostgreSQLCommand struct {
-	ServiceName  string
-	NodeID       string
-	Address      string
-	Port         int64
-	CustomLabels string
-	Environment  string
+	ServiceName    string
+	NodeID         string
+	Address        string
+	Port           int64
+	Environment    string
+	Cluster        string
+	ReplicationSet string
+	CustomLabels   string
 }
 
 func (cmd *addServicePostgreSQLCommand) Run() (commands.Result, error) {
@@ -61,12 +64,14 @@ func (cmd *addServicePostgreSQLCommand) Run() (commands.Result, error) {
 	}
 	params := &services.AddPostgreSQLServiceParams{
 		Body: services.AddPostgreSQLServiceBody{
-			ServiceName:  cmd.ServiceName,
-			NodeID:       cmd.NodeID,
-			Address:      cmd.Address,
-			Port:         cmd.Port,
-			CustomLabels: customLabels,
-			Environment:  cmd.Environment,
+			ServiceName:    cmd.ServiceName,
+			NodeID:         cmd.NodeID,
+			Address:        cmd.Address,
+			Port:           cmd.Port,
+			Environment:    cmd.Environment,
+			Cluster:        cmd.Cluster,
+			ReplicationSet: cmd.ReplicationSet,
+			CustomLabels:   customLabels,
 		},
 		Context: commands.Ctx,
 	}
@@ -87,11 +92,13 @@ var (
 )
 
 func init() {
-	AddServicePostgreSQLC.Arg("name", "Service name").StringVar(&AddServicePostgreSQL.ServiceName)
-	AddServicePostgreSQLC.Arg("node-id", "Node ID").StringVar(&AddServicePostgreSQL.NodeID)
+	AddServicePostgreSQLC.Arg("name", "Service name.").StringVar(&AddServicePostgreSQL.ServiceName)
+	AddServicePostgreSQLC.Arg("node-id", "Node ID.").StringVar(&AddServicePostgreSQL.NodeID)
 	AddServicePostgreSQLC.Arg("address", "Address.").StringVar(&AddServicePostgreSQL.Address)
 	AddServicePostgreSQLC.Arg("port", "Port.").Int64Var(&AddServicePostgreSQL.Port)
 
-	AddServicePostgreSQLC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddServicePostgreSQL.CustomLabels)
 	AddServicePostgreSQLC.Flag("environment", "Environment name.").StringVar(&AddServicePostgreSQL.Environment)
+	AddServicePostgreSQLC.Flag("cluster", "Cluster name.").StringVar(&AddServicePostgreSQL.Cluster)
+	AddServicePostgreSQLC.Flag("replication-set", "Replication set name.").StringVar(&AddServicePostgreSQL.ReplicationSet)
+	AddServicePostgreSQLC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddServicePostgreSQL.CustomLabels)
 }

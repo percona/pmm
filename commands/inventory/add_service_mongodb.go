@@ -25,16 +25,15 @@ import (
 
 var addServiceMongoDBResultT = commands.ParseTemplate(`
 MongoDB Service added.
-Service ID   : {{ .Service.ServiceID }}
-Service name : {{ .Service.ServiceName }}
-Node ID      : {{ .Service.NodeID }}
-Address      : {{ .Service.Address }}
-Port         : {{ .Service.Port }}
-Custom labels: {{ .Service.CustomLabels }}
-
-Replication set: {{ .Service.ReplicationSet }}
-Cluster name   : {{ .Service.Cluster }}
+Service ID     : {{ .Service.ServiceID }}
+Service name   : {{ .Service.ServiceName }}
+Node ID        : {{ .Service.NodeID }}
+Address        : {{ .Service.Address }}
+Port           : {{ .Service.Port }}
 Environment    : {{ .Service.Environment }}
+Cluster name   : {{ .Service.Cluster }}
+Replication set: {{ .Service.ReplicationSet }}
+Custom labels  : {{ .Service.CustomLabels }}
 `)
 
 type addServiceMongoDBResult struct {
@@ -48,15 +47,14 @@ func (res *addServiceMongoDBResult) String() string {
 }
 
 type addServiceMongoDBCommand struct {
-	ServiceName  string
-	NodeID       string
-	Address      string
-	Port         int64
-	CustomLabels string
-
-	ReplicationSet string
-	Cluster        string
+	ServiceName    string
+	NodeID         string
+	Address        string
+	Port           int64
 	Environment    string
+	Cluster        string
+	ReplicationSet string
+	CustomLabels   string
 }
 
 func (cmd *addServiceMongoDBCommand) Run() (commands.Result, error) {
@@ -66,15 +64,14 @@ func (cmd *addServiceMongoDBCommand) Run() (commands.Result, error) {
 	}
 	params := &services.AddMongoDBServiceParams{
 		Body: services.AddMongoDBServiceBody{
-			ServiceName:  cmd.ServiceName,
-			NodeID:       cmd.NodeID,
-			Address:      cmd.Address,
-			Port:         cmd.Port,
-			CustomLabels: customLabels,
-
-			ReplicationSet: cmd.ReplicationSet,
-			Cluster:        cmd.Cluster,
+			ServiceName:    cmd.ServiceName,
+			NodeID:         cmd.NodeID,
+			Address:        cmd.Address,
+			Port:           cmd.Port,
 			Environment:    cmd.Environment,
+			Cluster:        cmd.Cluster,
+			ReplicationSet: cmd.ReplicationSet,
+			CustomLabels:   customLabels,
 		},
 		Context: commands.Ctx,
 	}
@@ -95,14 +92,13 @@ var (
 )
 
 func init() {
-	AddServiceMongoDBC.Arg("name", "Service name").StringVar(&AddServiceMongoDB.ServiceName)
-	AddServiceMongoDBC.Arg("node-id", "Node ID").StringVar(&AddServiceMongoDB.NodeID)
+	AddServiceMongoDBC.Arg("name", "Service name.").StringVar(&AddServiceMongoDB.ServiceName)
+	AddServiceMongoDBC.Arg("node-id", "Node ID.").StringVar(&AddServiceMongoDB.NodeID)
 	AddServiceMongoDBC.Arg("address", "Address.").StringVar(&AddServiceMongoDB.Address)
 	AddServiceMongoDBC.Arg("port", "Port.").Int64Var(&AddServiceMongoDB.Port)
 
-	AddServiceMongoDBC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddServiceMongoDB.CustomLabels)
-
-	AddServiceMongoDBC.Flag("replication-set", "Replication set name.").StringVar(&AddServiceMongoDB.ReplicationSet)
-	AddServiceMongoDBC.Flag("cluster", "Cluster name.").StringVar(&AddServiceMongoDB.Cluster)
 	AddServiceMongoDBC.Flag("environment", "Environment name.").StringVar(&AddServiceMongoDB.Environment)
+	AddServiceMongoDBC.Flag("cluster", "Cluster name.").StringVar(&AddServiceMongoDB.Cluster)
+	AddServiceMongoDBC.Flag("replication-set", "Replication set name.").StringVar(&AddServiceMongoDB.ReplicationSet)
+	AddServiceMongoDBC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddServiceMongoDB.CustomLabels)
 }

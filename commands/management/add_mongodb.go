@@ -46,15 +46,16 @@ func (res *addMongoDBResult) String() string {
 }
 
 type addMongoDBCommand struct {
-	AddressPort         string
-	ServiceName         string
-	Username            string
-	Password            string
+	AddressPort    string
+	ServiceName    string
+	Username       string
+	Password       string
+	Environment    string
+	Cluster        string
+	ReplicationSet string
+	CustomLabels   string
+
 	UseProfiler         bool
-	ReplicationSet      string
-	Cluster             string
-	Environment         string
-	CustomLabels        string
 	SkipConnectionCheck bool
 }
 
@@ -80,20 +81,19 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 
 	params := &mongodb.AddMongoDBParams{
 		Body: mongodb.AddMongoDBBody{
-			PMMAgentID:  status.AgentID,
-			NodeID:      status.NodeID,
-			ServiceName: cmd.ServiceName,
-			Address:     host,
-			Port:        int64(port),
-
-			Username: cmd.Username,
-			Password: cmd.Password,
+			NodeID:         status.NodeID,
+			ServiceName:    cmd.ServiceName,
+			Address:        host,
+			Port:           int64(port),
+			PMMAgentID:     status.AgentID,
+			Environment:    cmd.Environment,
+			Cluster:        cmd.Cluster,
+			ReplicationSet: cmd.ReplicationSet,
+			Username:       cmd.Username,
+			Password:       cmd.Password,
 
 			QANMongodbProfiler: cmd.UseProfiler,
 
-			ReplicationSet:      cmd.ReplicationSet,
-			Cluster:             cmd.Cluster,
-			Environment:         cmd.Environment,
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
@@ -127,9 +127,10 @@ func init() {
 	AddMongoDBC.Flag("password", "MongoDB password.").StringVar(&AddMongoDB.Password)
 	AddMongoDBC.Flag("use-profiler", "Run QAN profiler agent.").BoolVar(&AddMongoDB.UseProfiler)
 
-	AddMongoDBC.Flag("replication-set", "Replication set name.").StringVar(&AddMongoDB.ReplicationSet)
-	AddMongoDBC.Flag("cluster", "Cluster name.").StringVar(&AddMongoDB.Cluster)
 	AddMongoDBC.Flag("environment", "Environment name.").StringVar(&AddMongoDB.Environment)
+	AddMongoDBC.Flag("cluster", "Cluster name.").StringVar(&AddMongoDB.Cluster)
+	AddMongoDBC.Flag("replication-set", "Replication set name.").StringVar(&AddMongoDB.ReplicationSet)
 	AddMongoDBC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddMongoDB.CustomLabels)
+
 	AddMongoDBC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddMongoDB.SkipConnectionCheck)
 }

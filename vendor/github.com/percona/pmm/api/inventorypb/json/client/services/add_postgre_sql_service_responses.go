@@ -119,6 +119,9 @@ type AddPostgreSQLServiceBody struct {
 	// Access address (DNS name or IP). Required.
 	Address string `json:"address,omitempty"`
 
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -130,6 +133,9 @@ type AddPostgreSQLServiceBody struct {
 
 	// Access port. Required.
 	Port int64 `json:"port,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Unique across all Services user-defined name. Required.
 	ServiceName string `json:"service_name,omitempty"`
@@ -263,6 +269,9 @@ type AddPostgreSQLServiceOKBodyPostgresql struct {
 	// Access address (DNS name or IP).
 	Address string `json:"address,omitempty"`
 
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
 	// Custom user-assigned labels.
 	CustomLabels map[string]string `json:"custom_labels,omitempty"`
 
@@ -274,6 +283,9 @@ type AddPostgreSQLServiceOKBodyPostgresql struct {
 
 	// Access port.
 	Port int64 `json:"port,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
 
 	// Unique randomly generated instance identifier.
 	ServiceID string `json:"service_id,omitempty"`

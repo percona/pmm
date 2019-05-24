@@ -46,12 +46,15 @@ func (res *addPostgreSQLResult) String() string {
 }
 
 type addPostgreSQLCommand struct {
-	AddressPort         string
-	ServiceName         string
-	Username            string
-	Password            string
-	Environment         string
-	CustomLabels        string
+	AddressPort    string
+	ServiceName    string
+	Username       string
+	Password       string
+	Environment    string
+	Cluster        string
+	ReplicationSet string
+	CustomLabels   string
+
 	SkipConnectionCheck bool
 }
 
@@ -77,16 +80,17 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 
 	params := &postgresql.AddPostgreSQLParams{
 		Body: postgresql.AddPostgreSQLBody{
-			PMMAgentID:  status.AgentID,
-			NodeID:      status.NodeID,
-			ServiceName: cmd.ServiceName,
-			Address:     host,
-			Port:        int64(port),
+			NodeID:         status.NodeID,
+			ServiceName:    cmd.ServiceName,
+			Address:        host,
+			Port:           int64(port),
+			PMMAgentID:     status.AgentID,
+			Environment:    cmd.Environment,
+			Cluster:        cmd.Cluster,
+			ReplicationSet: cmd.ReplicationSet,
+			Username:       cmd.Username,
+			Password:       cmd.Password,
 
-			Username: cmd.Username,
-			Password: cmd.Password,
-
-			Environment:         cmd.Environment,
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
@@ -120,6 +124,9 @@ func init() {
 	AddPostgreSQLC.Flag("password", "PostgreSQL password.").StringVar(&AddPostgreSQL.Password)
 
 	AddPostgreSQLC.Flag("environment", "Environment name.").StringVar(&AddPostgreSQL.Environment)
+	AddPostgreSQLC.Flag("cluster", "Cluster name.").StringVar(&AddPostgreSQL.Cluster)
+	AddPostgreSQLC.Flag("replication-set", "Replication set name.").StringVar(&AddPostgreSQL.ReplicationSet)
 	AddPostgreSQLC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddPostgreSQL.CustomLabels)
+
 	AddPostgreSQLC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddPostgreSQL.SkipConnectionCheck)
 }

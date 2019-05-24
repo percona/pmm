@@ -25,16 +25,15 @@ import (
 
 var addServiceMySQLResultT = commands.ParseTemplate(`
 MySQL Service added.
-Service ID   : {{ .Service.ServiceID }}
-Service name : {{ .Service.ServiceName }}
-Node ID      : {{ .Service.NodeID }}
-Address      : {{ .Service.Address }}
-Port         : {{ .Service.Port }}
-Custom labels: {{ .Service.CustomLabels }}
-
-Replication set: {{ .Service.ReplicationSet }}
-Cluster name   : {{ .Service.Cluster }}
+Service ID     : {{ .Service.ServiceID }}
+Service name   : {{ .Service.ServiceName }}
+Node ID        : {{ .Service.NodeID }}
+Address        : {{ .Service.Address }}
+Port           : {{ .Service.Port }}
 Environment    : {{ .Service.Environment }}
+Cluster name   : {{ .Service.Cluster }}
+Replication set: {{ .Service.ReplicationSet }}
+Custom labels  : {{ .Service.CustomLabels }}
 `)
 
 type addServiceMySQLResult struct {
@@ -48,15 +47,14 @@ func (res *addServiceMySQLResult) String() string {
 }
 
 type addServiceMySQLCommand struct {
-	ServiceName  string
-	NodeID       string
-	Address      string
-	Port         int64
-	CustomLabels string
-
-	ReplicationSet string
-	Cluster        string
+	ServiceName    string
+	NodeID         string
+	Address        string
+	Port           int64
 	Environment    string
+	Cluster        string
+	ReplicationSet string
+	CustomLabels   string
 }
 
 func (cmd *addServiceMySQLCommand) Run() (commands.Result, error) {
@@ -66,15 +64,14 @@ func (cmd *addServiceMySQLCommand) Run() (commands.Result, error) {
 	}
 	params := &services.AddMySQLServiceParams{
 		Body: services.AddMySQLServiceBody{
-			ServiceName:  cmd.ServiceName,
-			NodeID:       cmd.NodeID,
-			Address:      cmd.Address,
-			Port:         cmd.Port,
-			CustomLabels: customLabels,
-
-			ReplicationSet: cmd.ReplicationSet,
-			Cluster:        cmd.Cluster,
+			ServiceName:    cmd.ServiceName,
+			NodeID:         cmd.NodeID,
+			Address:        cmd.Address,
+			Port:           cmd.Port,
 			Environment:    cmd.Environment,
+			Cluster:        cmd.Cluster,
+			ReplicationSet: cmd.ReplicationSet,
+			CustomLabels:   customLabels,
 		},
 		Context: commands.Ctx,
 	}
@@ -95,14 +92,13 @@ var (
 )
 
 func init() {
-	AddServiceMySQLC.Arg("name", "Service name").StringVar(&AddServiceMySQL.ServiceName)
-	AddServiceMySQLC.Arg("node-id", "Node ID").StringVar(&AddServiceMySQL.NodeID)
+	AddServiceMySQLC.Arg("name", "Service name.").StringVar(&AddServiceMySQL.ServiceName)
+	AddServiceMySQLC.Arg("node-id", "Node ID.").StringVar(&AddServiceMySQL.NodeID)
 	AddServiceMySQLC.Arg("address", "Address.").StringVar(&AddServiceMySQL.Address)
 	AddServiceMySQLC.Arg("port", "Port.").Int64Var(&AddServiceMySQL.Port)
 
-	AddServiceMySQLC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddServiceMySQL.CustomLabels)
-
-	AddServiceMySQLC.Flag("replication-set", "Replication set name.").StringVar(&AddServiceMySQL.ReplicationSet)
-	AddServiceMySQLC.Flag("cluster", "Cluster name.").StringVar(&AddServiceMySQL.Cluster)
 	AddServiceMySQLC.Flag("environment", "Environment name.").StringVar(&AddServiceMySQL.Environment)
+	AddServiceMySQLC.Flag("cluster", "Cluster name.").StringVar(&AddServiceMySQL.Cluster)
+	AddServiceMySQLC.Flag("replication-set", "Replication set name.").StringVar(&AddServiceMySQL.ReplicationSet)
+	AddServiceMySQLC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddServiceMySQL.CustomLabels)
 }
