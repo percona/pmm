@@ -302,6 +302,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 
 		// query_time - Query_time
 		if m, ok := v.Metrics.TimeMetrics["Query_time"]; ok {
+			mb.MQueryTimeCnt = float32(m.Cnt)
 			mb.MQueryTimeSum = float32(m.Sum)
 			mb.MQueryTimeMax = float32(*m.Max)
 			mb.MQueryTimeMin = float32(*m.Min)
@@ -309,6 +310,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// lock_time - Lock_time
 		if m, ok := v.Metrics.TimeMetrics["Lock_time"]; ok {
+			mb.MLockTimeCnt = float32(m.Cnt)
 			mb.MLockTimeSum = float32(m.Sum)
 			mb.MLockTimeMax = float32(*m.Max)
 			mb.MLockTimeMin = float32(*m.Min)
@@ -316,6 +318,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// rows_sent - Rows_sent
 		if m, ok := v.Metrics.NumberMetrics["Rows_sent"]; ok {
+			mb.MRowsSentCnt = float32(m.Cnt)
 			mb.MRowsSentSum = float32(m.Sum)
 			mb.MRowsSentMax = float32(*m.Max)
 			mb.MRowsSentMin = float32(*m.Min)
@@ -323,6 +326,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// rows_examined - Rows_examined
 		if m, ok := v.Metrics.NumberMetrics["Rows_examined"]; ok {
+			mb.MRowsExaminedCnt = float32(m.Cnt)
 			mb.MRowsExaminedSum = float32(m.Sum)
 			mb.MRowsExaminedMax = float32(*m.Max)
 			mb.MRowsExaminedMin = float32(*m.Min)
@@ -330,6 +334,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// rows_affected - Rows_affected
 		if m, ok := v.Metrics.NumberMetrics["Rows_affected"]; ok {
+			mb.MRowsAffectedCnt = float32(m.Cnt)
 			mb.MRowsAffectedSum = float32(m.Sum)
 			mb.MRowsAffectedMax = float32(*m.Max)
 			mb.MRowsAffectedMin = float32(*m.Min)
@@ -337,6 +342,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// rows_read - Rows_read
 		if m, ok := v.Metrics.NumberMetrics["Rows_read"]; ok {
+			mb.MRowsReadCnt = float32(m.Cnt)
 			mb.MRowsReadSum = float32(m.Sum)
 			mb.MRowsReadMax = float32(*m.Max)
 			mb.MRowsReadMin = float32(*m.Min)
@@ -344,6 +350,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// merge_passes - Merge_passes
 		if m, ok := v.Metrics.NumberMetrics["Merge_passes"]; ok {
+			mb.MMergePassesCnt = float32(m.Cnt)
 			mb.MMergePassesSum = float32(m.Sum)
 			mb.MMergePassesMax = float32(*m.Max)
 			mb.MMergePassesMin = float32(*m.Min)
@@ -351,6 +358,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// innodb_io_r_ops - InnoDB_IO_r_ops
 		if m, ok := v.Metrics.NumberMetrics["InnoDB_IO_r_ops"]; ok {
+			mb.MInnodbIoROpsCnt = float32(m.Cnt)
 			mb.MInnodbIoROpsSum = float32(m.Sum)
 			mb.MInnodbIoROpsMax = float32(*m.Max)
 			mb.MInnodbIoROpsMin = float32(*m.Min)
@@ -358,6 +366,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// innodb_io_r_bytes - InnoDB_IO_r_bytes
 		if m, ok := v.Metrics.NumberMetrics["InnoDB_IO_r_bytes"]; ok {
+			mb.MInnodbIoRBytesCnt = float32(m.Cnt)
 			mb.MInnodbIoRBytesSum = float32(m.Sum)
 			mb.MInnodbIoRBytesMax = float32(*m.Max)
 			mb.MInnodbIoRBytesMin = float32(*m.Min)
@@ -365,6 +374,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// innodb_io_r_wait - InnoDB_IO_r_wait
 		if m, ok := v.Metrics.TimeMetrics["InnoDB_IO_r_wait"]; ok {
+			mb.MInnodbIoRWaitCnt = float32(m.Cnt)
 			mb.MInnodbIoRWaitSum = float32(m.Sum)
 			mb.MInnodbIoRWaitMax = float32(*m.Max)
 			mb.MInnodbIoRWaitMin = float32(*m.Min)
@@ -372,6 +382,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// innodb_rec_lock_wait - InnoDB_rec_lock_wait
 		if m, ok := v.Metrics.TimeMetrics["InnoDB_rec_lock_wait"]; ok {
+			mb.MInnodbRecLockWaitCnt = float32(m.Cnt)
 			mb.MInnodbRecLockWaitSum = float32(m.Sum)
 			mb.MInnodbRecLockWaitMax = float32(*m.Max)
 			mb.MInnodbRecLockWaitMin = float32(*m.Min)
@@ -379,6 +390,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// innodb_queue_wait - InnoDB_queue_wait
 		if m, ok := v.Metrics.TimeMetrics["InnoDB_queue_wait"]; ok {
+			mb.MInnodbQueueWaitCnt = float32(m.Cnt)
 			mb.MInnodbQueueWaitSum = float32(m.Sum)
 			mb.MInnodbQueueWaitMax = float32(*m.Max)
 			mb.MInnodbQueueWaitMin = float32(*m.Min)
@@ -386,6 +398,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// innodb_pages_distinct - InnoDB_pages_distinct
 		if m, ok := v.Metrics.NumberMetrics["InnoDB_pages_distinct"]; ok {
+			mb.MInnodbPagesDistinctCnt = float32(m.Cnt)
 			mb.MInnodbPagesDistinctSum = float32(m.Sum)
 			mb.MInnodbPagesDistinctMax = float32(*m.Max)
 			mb.MInnodbPagesDistinctMin = float32(*m.Min)
@@ -393,6 +406,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// query_length - Query_length
 		if m, ok := v.Metrics.NumberMetrics["Query_length"]; ok {
+			mb.MQueryLengthCnt = float32(m.Cnt)
 			mb.MQueryLengthSum = float32(m.Sum)
 			mb.MQueryLengthMax = float32(*m.Max)
 			mb.MQueryLengthMin = float32(*m.Min)
@@ -400,6 +414,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// bytes_sent - Bytes_sent
 		if m, ok := v.Metrics.NumberMetrics["Bytes_sent"]; ok {
+			mb.MBytesSentCnt = float32(m.Cnt)
 			mb.MBytesSentSum = float32(m.Sum)
 			mb.MBytesSentMax = float32(*m.Max)
 			mb.MBytesSentMin = float32(*m.Min)
@@ -407,6 +422,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// tmp_tables - Tmp_tables
 		if m, ok := v.Metrics.NumberMetrics["Tmp_tables"]; ok {
+			mb.MTmpTablesCnt = float32(m.Cnt)
 			mb.MTmpTablesSum = float32(m.Sum)
 			mb.MTmpTablesMax = float32(*m.Max)
 			mb.MTmpTablesMin = float32(*m.Min)
@@ -414,6 +430,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// tmp_disk_tables - Tmp_disk_tables
 		if m, ok := v.Metrics.NumberMetrics["Tmp_disk_tables"]; ok {
+			mb.MTmpDiskTablesCnt = float32(m.Cnt)
 			mb.MTmpDiskTablesSum = float32(m.Sum)
 			mb.MTmpDiskTablesMax = float32(*m.Max)
 			mb.MTmpDiskTablesMin = float32(*m.Min)
@@ -421,6 +438,7 @@ func makeBuckets(agentID string, res event.Result, ts time.Time) []*qanpb.Metric
 		}
 		// tmp_table_sizes - Tmp_table_sizes
 		if m, ok := v.Metrics.NumberMetrics["Tmp_table_sizes"]; ok {
+			mb.MTmpTableSizesCnt = float32(m.Cnt)
 			mb.MTmpTableSizesSum = float32(m.Sum)
 			mb.MTmpTableSizesMax = float32(*m.Max)
 			mb.MTmpTableSizesMin = float32(*m.Min)
