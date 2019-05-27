@@ -14,28 +14,43 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package handlers implements gRPC API of pmm-managed.
+// Package grpc implements gRPC APIs of pmm-managed Server API.
 package grpc
 
 import (
 	"context"
+	"strconv"
+	"time"
 
+	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/serverpb"
+	"github.com/percona/pmm/version"
+
+	"github.com/percona/pmm-managed/utils/logger"
 )
 
 type server struct {
-	version string
 }
 
-// NewServer returns Inventory API handler for managing Server.
-func NewServer(version string) serverpb.ServerServer {
-	return &server{
-		version: version,
-	}
+// NewServer returns new server for Server service.
+func NewServer() serverpb.ServerServer {
+	return new(server)
 }
 
+// Version returns PMM Server version.
 func (s *server) Version(ctx context.Context, req *serverpb.VersionRequest) (*serverpb.VersionResponse, error) {
-	return &serverpb.VersionResponse{
-		Version: s.version,
-	}, nil
+	res := &serverpb.VersionResponse{
+		Version:          version.Version,
+		PmmManagedCommit: version.FullCommit,
+	}
+
+	sec, err := strconv.ParseInt(version.Timestamp, 10, 64)
+	if err == nil {
+		res.Timestamp, err = ptypes.TimestampProto(time.Unix(sec, 0))
+	}
+	if err != nil {
+		logger.Get(ctx).Warn(err)
+	}
+
+	return res, nil
 }
