@@ -157,6 +157,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "db": {
+                  "description": "db which will be used for explain query.",
+                  "type": "string"
+                },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string"
@@ -227,6 +231,10 @@
             "schema": {
               "type": "object",
               "properties": {
+                "db": {
+                  "description": "db which will be used for explain query.",
+                  "type": "string"
+                },
                 "pmm_agent_id": {
                   "description": "pmm-agent ID where to run this Action.",
                   "type": "string"
