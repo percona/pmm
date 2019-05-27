@@ -115,6 +115,9 @@ swagger:model StartMySQLExplainJSONActionBody
 */
 type StartMySQLExplainJSONActionBody struct {
 
+	// The database name for EXPLAIN query.
+	Database string `json:"database,omitempty"`
+
 	// pmm-agent ID where to run this Action.
 	PMMAgentID string `json:"pmm_agent_id,omitempty"`
 

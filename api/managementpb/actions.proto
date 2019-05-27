@@ -95,6 +95,8 @@ message StartMySQLExplainActionRequest {
   string service_id = 2;
   // query example.
   string query = 3;
+  // The database name for EXPLAIN query.
+  string database = 4;
 }
 
 message StartMySQLExplainActionResponse {
@@ -111,6 +113,8 @@ message StartMySQLExplainJSONActionRequest {
   string service_id = 2;
   // query example.
   string query = 3;
+  // The database name for EXPLAIN query.
+  string database = 4;
 }
 
 message StartMySQLExplainJSONActionResponse {
