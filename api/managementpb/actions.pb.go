@@ -376,7 +376,7 @@ type StartMySQLExplainActionRequest struct {
 	ServiceId string `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// query example.
 	Query string `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
-	// db which will be used for explain query.
+	// The database name for EXPLAIN query.
 	Db                   string   `protobuf:"bytes,4,opt,name=db,proto3" json:"db,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
@@ -492,7 +492,7 @@ type StartMySQLExplainJSONActionRequest struct {
 	ServiceId string `protobuf:"bytes,2,opt,name=service_id,json=serviceId,proto3" json:"service_id,omitempty"`
 	// query example.
 	Query string `protobuf:"bytes,3,opt,name=query,proto3" json:"query,omitempty"`
-	// db which will be used for explain query.
+	// The database name for EXPLAIN query.
 	Db                   string   `protobuf:"bytes,4,opt,name=db,proto3" json:"db,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`

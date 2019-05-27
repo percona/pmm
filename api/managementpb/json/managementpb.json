@@ -158,7 +158,7 @@
               "type": "object",
               "properties": {
                 "db": {
-                  "description": "db which will be used for explain query.",
+                  "description": "The database name for EXPLAIN query.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -232,7 +232,7 @@
               "type": "object",
               "properties": {
                 "db": {
-                  "description": "db which will be used for explain query.",
+                  "description": "The database name for EXPLAIN query.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
