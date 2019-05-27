@@ -29,7 +29,7 @@ import (
 func TestMongoRun(t *testing.T) {
 	// setup
 	l := logrus.WithField("component", "mongo-builtin-agent")
-	p := &Params{DSN: "mongodb://pmm-agent:root-password@127.0.0.1:27017/admin", AgentID: "/agent_id/test"}
+	p := &Params{DSN: "mongodb://root:root-password@127.0.0.1:27017/admin", AgentID: "/agent_id/test"}
 	m, err := New(p, l)
 	if err != nil {
 		t.Fatal(err)

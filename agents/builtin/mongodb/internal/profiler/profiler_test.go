@@ -36,7 +36,7 @@ func TestProfiler(t *testing.T) {
 	aggregator.DefaultInterval = time.Duration(time.Second)
 	defer func() { aggregator.DefaultInterval = defaultInterval }()
 
-	url := "mongodb://pmm-agent:root-password@127.0.0.1:27017"
+	url := "mongodb://root:root-password@127.0.0.1:27017"
 
 	dialInfo, err := pmgo.ParseURL(url)
 	require.NoError(t, err)

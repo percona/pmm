@@ -49,14 +49,14 @@ func TestConnectionChecker_Check(t *testing.T) {
 		{
 			name: "PostgreSQL",
 			msg: &agentpb.CheckConnectionRequest{
-				Dsn:  "postgres://pmm-agent:pmm-agent-password@127.0.0.1:5432/postgres?connect_timeout=1&sslmode=disable",
+				Dsn:  "postgres://pmm-agent:pmm-agent-password@127.0.0.1:15432/postgres?connect_timeout=1&sslmode=disable",
 				Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
 			},
 		},
 		{
 			name: "PostgreSQL wrong params",
 			msg: &agentpb.CheckConnectionRequest{
-				Dsn:  "postgres://pmm-agent:pmm-agent-wrong-password@127.0.0.1:5432/postgres?connect_timeout=1&sslmode=disable",
+				Dsn:  "postgres://pmm-agent:pmm-agent-wrong-password@127.0.0.1:15432/postgres?connect_timeout=1&sslmode=disable",
 				Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
 			},
 			expected: `pq: password authentication failed for user "pmm-agent"`,
@@ -64,14 +64,14 @@ func TestConnectionChecker_Check(t *testing.T) {
 		{
 			name: "MongoDB",
 			msg: &agentpb.CheckConnectionRequest{
-				Dsn:  "mongodb://pmm-agent:root-password@127.0.0.1:27017/admin",
+				Dsn:  "mongodb://root:root-password@127.0.0.1:27017/admin",
 				Type: inventorypb.ServiceType_MONGODB_SERVICE,
 			},
 		},
 		{
 			name: "MongoDB wrong params",
 			msg: &agentpb.CheckConnectionRequest{
-				Dsn:  "mongodb://pmm-agent:root-password-wrong@127.0.0.1:27017/admin",
+				Dsn:  "mongodb://root:root-password-wrong@127.0.0.1:27017/admin",
 				Type: inventorypb.ServiceType_MONGODB_SERVICE,
 			},
 			expected: `server returned error on SASL authentication step: Authentication failed.`,
