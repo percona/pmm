@@ -308,7 +308,7 @@ const queryServers = `
 	   AND period_start <= ?
   GROUP BY d_server
   	  WITH TOTALS
-  ORDER BY main_metric_sum, value;
+  ORDER BY main_metric_sum DESC, value;
 `
 const queryDatabases = `
 	SELECT 'd_database' AS key, d_database AS value, SUM(%s) AS main_metric_sum
@@ -317,7 +317,7 @@ const queryDatabases = `
 	   AND period_start <= ?
   GROUP BY d_database
       WITH TOTALS
-  ORDER BY main_metric_sum, value;
+  ORDER BY main_metric_sum DESC, value;
 `
 const querySchemas = `
 	SELECT 'd_schema' AS key, d_schema AS value, SUM(%s) AS main_metric_sum
@@ -326,7 +326,7 @@ const querySchemas = `
 	   AND period_start <= ?
   GROUP BY d_schema
       WITH TOTALS
-  ORDER BY main_metric_sum, value;
+  ORDER BY main_metric_sum DESC, value;
 `
 const queryUsernames = `
 	SELECT 'd_username' AS key, d_username AS value, SUM(%s) AS main_metric_sum
@@ -335,7 +335,7 @@ const queryUsernames = `
 	   AND period_start <= ?
   GROUP BY d_username
       WITH TOTALS
-  ORDER BY main_metric_sum, value;
+  ORDER BY main_metric_sum DESC, value;
 `
 const queryClientHosts = `
 	SELECT 'd_client_host' AS key, d_client_host AS value, SUM(%s) AS main_metric_sum
@@ -344,7 +344,7 @@ const queryClientHosts = `
 	   AND period_start <= ?
   GROUP BY d_client_host
       WITH TOTALS
-  ORDER BY main_metric_sum, value;
+  ORDER BY main_metric_sum DESC, value;
 `
 const queryLabels = `
 	SELECT labels.key AS key, labels.value AS value, SUM(%s) AS main_metric_sum
@@ -353,7 +353,7 @@ ARRAY JOIN labels
 	 WHERE period_start >= ?
 	   AND period_start <= ?
   GROUP BY labels.key, labels.value
-  ORDER BY main_metric_sum, labels.key, labels.value;
+  ORDER BY main_metric_sum DESC, labels.key, labels.value;
 `
 
 type customLabel struct {

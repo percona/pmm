@@ -8,10 +8,7 @@ services:
     ports:
       - 80:80
       - 443:443
-      - 9911:9911
-      - 9000:9000
     restart: always
-
 
   ch:
     image: yandex/clickhouse-server
@@ -23,9 +20,32 @@ services:
     ports:
       - 9000:9000
 
+  pmm-client:
+    container_name: pmm-client
+    image: centos
+    depends_on:
+      - pmm-server
+      - sysbench-ps
+    command: >
+      bash -c "
+        yum install https://repo.percona.com/yum/percona-release-latest.noarch.rpm -y
+        percona-release disable all
+        percona-release enable original testing
+        yum update -y
+        yum install install pmm2-client -y
+        pmm-agent setup --config-file=/usr/local/percona/pmm-agent.yaml --server-address=pmm-server:443 --server-insecure-tls
+        nohup pmm-agent --config-file=/usr/local/percona/pmm-agent.yaml &
+        sleep 60
+        pmm-admin add mysql  --username=root --password=secret --use-slowlog ps:3306 MySQLSlowLog
+        pmm-admin add mysql  --username=root --password=secret --use-perfschema ps:3306 MySQLPerfSchema
+        tail -f /dev/null
+      "
+    volumes:
+      - logs-directory:/var/log/mysql
+
   ps:
     image: percona/percona-server:latest
-    container_name: ps-server
+    container_name: ps
     environment:
      - MYSQL_ROOT_PASSWORD=secret
     ports:
@@ -34,13 +54,14 @@ services:
       - logs-directory:/var/log/mysql
 
   sysbench-ps:
+    container_name: sysbench-ps
     image: perconalab/sysbench
     depends_on:
      - ps
     command: >
         bash -c "
             set -o xtrace
-            sleep 20
+            sleep 120
             mysql \
                 --host=ps \
                 --port=3306 \
