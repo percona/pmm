@@ -306,7 +306,8 @@ func TestUnexpectedResponseFromServer(t *testing.T) {
 		return nil
 	}
 
-	channel, _, teardown := setup(t, connect, fmt.Errorf("no subscriber for ID 111"))
+	// TODO https://jira.percona.com/browse/PMM-3825
+	channel, _, teardown := setup(t, connect, fmt.Errorf("no subscriber for ID 111"), io.EOF)
 	defer teardown()
 
 	// after receiving unexpected response, channel is closed
