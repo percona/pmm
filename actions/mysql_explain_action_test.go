@@ -33,7 +33,7 @@ import (
 func TestMySQLExplain(t *testing.T) {
 	db := tests.OpenTestMySQL(t)
 	defer db.Close() //nolint:errcheck
-	mySQLVersion := tests.MySQLVersion(t, db)
+	mySQLVersion, mySQLVendor := tests.MySQLVersion(t, db)
 
 	const query = "SELECT * FROM `city`"
 
@@ -59,14 +59,11 @@ func TestMySQLExplain(t *testing.T) {
 id |select_type |table |type |possible_keys |key  |key_len |ref  |rows |Extra
 1  |SIMPLE      |city  |ALL  |NULL          |NULL |NULL    |NULL |\d+  |NULL
 			`)
-		case "5.7", "8.0":
+		default:
 			expected = strings.TrimSpace(`
 id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |rows |filtered |Extra
 1  |SIMPLE      |city  |NULL       |ALL  |NULL          |NULL |NULL    |NULL |\d+  |100.00   |NULL
 			`)
-		default:
-			t.Log("Unhandled version, assuming dummy results.")
-			expected = "TODO"
 		}
 
 		actual := strings.TrimSpace(string(b))
@@ -95,16 +92,16 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 		actual = actual["query_block"].(map[string]interface{})
 		actualTable := actual["table"].(map[string]interface{})
 
-		switch mySQLVersion {
-		case "5.6":
+		switch {
+		case mySQLVersion == "5.6" || mySQLVendor == tests.MariaDBMySQL:
 			assert.Equal(t, 1.0, actual["select_id"])
 			assert.Equal(t, "city", actualTable["table_name"])
-		case "5.7", "8.0":
+		case mySQLVersion == "5.7" || mySQLVersion == "8.0":
 			assert.Equal(t, 1.0, actual["select_id"])
 			assert.Equal(t, "city", actualTable["table_name"])
 			assert.Equal(t, []interface{}{"ID", "Name", "CountryCode", "District", "Population"}, actualTable["used_columns"])
 		default:
-			assert.Failf(t, "Unhandled version %q.", mySQLVersion)
+			t.Error("Unhandled version.")
 		}
 	})
 

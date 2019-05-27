@@ -239,32 +239,60 @@ func TestPerfSchema(t *testing.T) {
 	require.NoError(t, err)
 	logTable(t, structs)
 
+	mySQLVersion, mySQLVendor := tests.MySQLVersion(t, sqlDB)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
-	switch tests.MySQLVersion(t, sqlDB) {
-	case "5.6":
+	switch fmt.Sprintf("%s-%s", mySQLVersion, mySQLVendor) {
+	case "5.6-oracle":
 		digests = map[string]string{
-			"SELECT ?":             "41782b6b3af16c6426fb64b88a51d8a5",
+			"SELECT `sleep` (?)":   "192ad18c482d389f36ebb0aa58311236",
+			"SELECT * FROM `city`": "cf5d7abca54943b1aa9e126c85a7d020",
+		}
+	case "5.7-oracle":
+		digests = map[string]string{
+			"SELECT `sleep` (?)":   "52f680b0d3b57c2fa381f52038754db4",
+			"SELECT * FROM `city`": "05292e6e5fb868ce2864918d5e934cb3",
+		}
+
+	case "5.6-percona":
+		digests = map[string]string{
 			"SELECT `sleep` (?)":   "d8dc769e3126abd5578679f520bad1a5",
 			"SELECT * FROM `city`": "6d3c8e264bfdd0ce5d3c81d481148a9c",
 		}
-	case "5.7":
+	case "5.7-percona":
 		digests = map[string]string{
-			"SELECT ?":             "3fff4c5a5ca5e1e484663cab257efd1e",
 			"SELECT `sleep` (?)":   "049a1b20acee144f86b9a1e4aca398d6",
 			"SELECT * FROM `city`": "9c799bdb2460f79b3423b77cd10403da",
 		}
-	case "8.0":
+
+	case "8.0-oracle", "8.0-percona": // Percona switched to upstream's implementation
 		digests = map[string]string{
-			"SELECT ?":             "d1b44b0c19af710b5a679907e284acd2ddc285201794bc69a2389d77baedddae",
 			"SELECT `sleep` (?)":   "0b1b1c39d4ee2dda7df2a532d0a23406d86bd34e2cd7f22e3f7e9dedadff9b69",
 			"SELECT * FROM `city`": "950bdc225cf73c9096ba499351ed4376f4526abad3d8ceabc168b6b28cfc9eab",
 		}
+
+	case "10.2-mariadb":
+		digests = map[string]string{
+			"SELECT `sleep` (?)":   "e58c348e4947db23b7f3ad30b7ed184a",
+			"SELECT * FROM `city`": "e0f47172152e8750d070a854e607123f",
+		}
+
+	case "10.3-mariadb":
+		digests = map[string]string{
+			"SELECT `sleep` (?)":   "af50128de9089f71d749eda5ba3d02cd",
+			"SELECT * FROM `city`": "2153d686f335a2ca39f3aca05bf9709a",
+		}
+
+	case "10.4-mariadb":
+		digests = map[string]string{
+			"SELECT `sleep` (?)":   "84a33aa2dff8b023bfd9c28247516e55",
+			"SELECT * FROM `city`": "639b3ffc239a110c57ade746773952ab",
+		}
+
 	default:
 		t.Log("Unhandled version, assuming dummy digests.")
 		digests = map[string]string{
-			"SELECT ?":             "TODO",
-			"SELECT `sleep` (?)":   "TODO",
-			"SELECT * FROM `city`": "TODO",
+			"SELECT `sleep` (?)":   "TODO-sleep",
+			"SELECT * FROM `city`": "TODO-star",
 		}
 	}
 

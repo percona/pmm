@@ -28,19 +28,23 @@ env:
     - CODECOV_ENV=MYSQL_IMAGE,MONGO_IMAGE,POSTGRES_IMAGE
 
   matrix:
-    - MYSQL_IMAGE=percona:5.6 MONGO_IMAGE=mongo:3.4 POSTGRES_IMAGE=postgres:9.6
-    - MYSQL_IMAGE=percona:5.7 MONGO_IMAGE=mongo:3.6 POSTGRES_IMAGE=postgres:10
-    - MYSQL_IMAGE=percona:8.0 MONGO_IMAGE=mongo:4.0 POSTGRES_IMAGE=postgres:11
+    # upstreams
+    - MYSQL_IMAGE=mysql:5.6 MONGO_IMAGE=mongo:3.4 POSTGRES_IMAGE=postgres:9.6
+    - MYSQL_IMAGE=mysql:5.7 MONGO_IMAGE=mongo:3.6 POSTGRES_IMAGE=postgres:10
+    - MYSQL_IMAGE=mysql:8.0 MONGO_IMAGE=mongo:4.0 POSTGRES_IMAGE=postgres:11
 
-    # TODO
+    # Percona
+    - MYSQL_IMAGE=percona:5.6 MONGO_IMAGE=percona/percona-server-mongodb:3.4
+    - MYSQL_IMAGE=percona:5.7 MONGO_IMAGE=percona/percona-server-mongodb:3.6
+    - MYSQL_IMAGE=percona:8.0 MONGO_IMAGE=percona/percona-server-mongodb:4.0
+
+    # MariaDB (test with only 3 latest GA versions)
     # - MYSQL_IMAGE=mariadb:5.5
+    # - MYSQL_IMAGE=mariadb:10.0
     # - MYSQL_IMAGE=mariadb:10.1
-    # - MYSQL_IMAGE=mariadb:10.2
-    # - MYSQL_IMAGE=mariadb:10.3
-    # - MYSQL_IMAGE=mariadb:10.4
-
-    # TODO
-    # mysql or mysql/mysql-server ?
+    - MYSQL_IMAGE=mariadb:10.2
+    - MYSQL_IMAGE=mariadb:10.3
+    - MYSQL_IMAGE=mariadb:10.4
 
 before_install:
   - docker-compose up -d
