@@ -157,7 +157,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "db": {
+                "database": {
                   "description": "The database name for EXPLAIN query.",
                   "type": "string"
                 },
@@ -231,7 +231,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "db": {
+                "database": {
                   "description": "The database name for EXPLAIN query.",
                   "type": "string"
                 },

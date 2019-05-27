@@ -96,7 +96,7 @@ message StartMySQLExplainActionRequest {
   // query example.
   string query = 3;
   // The database name for EXPLAIN query.
-  string db = 4;
+  string database = 4;
 }
 
 message StartMySQLExplainActionResponse {
@@ -114,7 +114,7 @@ message StartMySQLExplainJSONActionRequest {
   // query example.
   string query = 3;
   // The database name for EXPLAIN query.
-  string db = 4;
+  string database = 4;
 }
 
 message StartMySQLExplainJSONActionResponse {
