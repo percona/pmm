@@ -31,10 +31,11 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 	)
 
 	args := []string{
-		// "--collector.ntp", disabled for now
-		//"--collector.runit", disabled for now
-		//"--collector.supervisord", disabled for now
-		// "--collector.tcpstat", disabled for now
+		// TODO
+		// "--collector.ntp",
+		// "--collector.runit",
+		// "--collector.supervisord",
+		// "--collector.tcpstat",
 
 		// TODO
 		// "--collector.textfile",
@@ -51,13 +52,23 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 			"--collector.drbd",
 			"--collector.interrupts",
 			"--collector.ksmd",
-			//"--collector.logind", PMM-3843 disabled for now
 			"--collector.meminfo_numa",
 			"--collector.mountstats",
 			"--collector.processes",
 			"--collector.qdisc",
-			//"--collector.systemd", PMM-3843 disabled for now
 			"--collector.wifi",
+
+			// add more netstat fields
+			"--collector.netstat.fields=^(.*_(InErrors|InErrs|InCsumErrors)"+
+				"|Tcp_(ActiveOpens|PassiveOpens|RetransSegs|CurrEstab|AttemptFails|OutSegs|InSegs|EstabResets|OutRsts|OutSegs)|Tcp_Rto(Algorithm|Min|Max)"+
+				"|Udp_(RcvbufErrors|SndbufErrors)|Udp(6?|Lite6?)_(InDatagrams|OutDatagrams|RcvbufErrors|SndbufErrors|NoPorts)"+
+				"|Icmp6?_(OutEchoReps|OutEchos|InEchos|InEchoReps|InAddrMaskReps|InAddrMasks|OutAddrMaskReps|OutAddrMasks|InTimestampReps|InTimestamps"+
+				"|OutTimestampReps|OutTimestamps|OutErrors|InDestUnreachs|OutDestUnreachs|InTimeExcds|InRedirects|OutRedirects|InMsgs|OutMsgs)"+
+				"|IcmpMsg_(InType3|OutType3)|Ip(6|Ext)_(InOctets|OutOctets)|Ip_Forwarding|TcpExt_(Listen.*|Syncookies.*|TCPTimeouts))$",
+
+			// Disabled for now due to https://jira.percona.com/browse/PMM-3843
+			// "--collector.logind",
+			// "--collector.systemd",
 		)
 	}
 
