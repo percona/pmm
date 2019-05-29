@@ -124,6 +124,42 @@ message StartMySQLExplainJSONActionResponse {
   string pmm_agent_id = 2;
 }
 
+message StartMySQLShowCreateTableActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action.
+  string service_id = 2;
+  // Table name for SHOW CREATE TABLE query.
+  string table_name = 3;
+  // The database name for SHOW CREATE TABLE query.
+  string database = 4;
+}
+
+message StartMySQLShowCreateTableActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
+message StartMySQLShowTableStatusActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action.
+  string service_id = 2;
+  // Table name for SHOW TABLE STATUS query.
+  string table_name = 3;
+  // The database name for SHOW TABLE STATUS query.
+  string database = 4;
+}
+
+message StartMySQLShowTableStatusActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
 message CancelActionRequest {
   // Unique Action ID.
   string action_id = 1;
@@ -165,6 +201,20 @@ service Actions {
   rpc StartMySQLExplainJSONAction(StartMySQLExplainJSONActionRequest) returns (StartMySQLExplainJSONActionResponse) {
     option (google.api.http) = {
       post: "/v0/management/Actions/StartMySQLExplainJSON"
+      body: "*"
+    };
+  }
+  // StartMySQLShowCreateTableAction starts MySQL SHOW CREATE TABLE Action.
+  rpc StartMySQLShowCreateTableAction(StartMySQLShowCreateTableActionRequest) returns (StartMySQLShowCreateTableActionResponse) {
+    option (google.api.http) = {
+      post: "/v0/management/Actions/StartMySQLShowCreateTable"
+      body: "*"
+    };
+  }
+  // StartMySQLShowTableStatusAction starts MySQL SHOW TABLE STATUS Action.
+  rpc StartMySQLShowTableStatusAction(StartMySQLShowTableStatusActionRequest) returns (StartMySQLShowTableStatusActionResponse) {
+    option (google.api.http) = {
+      post: "/v0/management/Actions/StartMySQLShowTableStatus"
       body: "*"
     };
   }
