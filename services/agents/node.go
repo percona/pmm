@@ -66,6 +66,12 @@ func nodeExporterConfig(node *models.Node, exporter *models.Agent) *agentpb.SetS
 				"|OutTimestampReps|OutTimestamps|OutErrors|InDestUnreachs|OutDestUnreachs|InTimeExcds|InRedirects|OutRedirects|InMsgs|OutMsgs)"+
 				"|IcmpMsg_(InType3|OutType3)|Ip(6|Ext)_(InOctets|OutOctets)|Ip_Forwarding|TcpExt_(Listen.*|Syncookies.*|TCPTimeouts))$",
 
+			// add more vmstat fileds
+			"--collector.vmstat.fields=^(pg(steal_(kswapd|direct)|refill|alloc)_(movable|normal|dma3?2?)"+
+				"|nr_(dirty.*|slab.*|vmscan.*|isolated.*|free.*|shmem.*|i?n?active.*|anon_transparent_.*|writeback.*|unstable"+
+				"|unevictable|mlock|mapped|bounce|page_table_pages|kernel_stack)|drop_slab|slabs_scanned|pgd?e?activate)"+
+				"|pgpg(in|out)|pswp(in|out)|pgm?a?j?fault)$",
+
 			// Disabled for now due to https://jira.percona.com/browse/PMM-3843
 			// "--collector.logind",
 			// "--collector.systemd",

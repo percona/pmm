@@ -49,6 +49,10 @@ func TestNodeExporterConfig(t *testing.T) {
 					"|IcmpMsg_(InType3|OutType3)|Ip(6|Ext)_(InOctets|OutOctets)|Ip_Forwarding|TcpExt_(Listen.*|Syncookies.*|TCPTimeouts))$",
 				"--collector.processes",
 				"--collector.qdisc",
+				"--collector.vmstat.fields=^(pg(steal_(kswapd|direct)|refill|alloc)_(movable|normal|dma3?2?)" +
+					"|nr_(dirty.*|slab.*|vmscan.*|isolated.*|free.*|shmem.*|i?n?active.*|anon_transparent_.*|writeback.*|unstable" +
+					"|unevictable|mlock|mapped|bounce|page_table_pages|kernel_stack)|drop_slab|slabs_scanned|pgd?e?activate)" +
+					"|pgpg(in|out)|pswp(in|out)|pgm?a?j?fault)$",
 				"--collector.wifi",
 				"--web.listen-address=:{{ .listen_port }}",
 			},
