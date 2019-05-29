@@ -207,6 +207,14 @@
 		"d_database": {
 			"name": [
 				{
+					"mainMetricPercent": 1,
+					"mainMetricPerSec": 0.004001833
+				}
+			]
+		},
+		"d_schema": {
+			"name": [
+				{
 					"value": "schema20",
 					"mainMetricPercent": 0.09054184,
 					"mainMetricPerSec": 0.00036233332
@@ -413,63 +421,55 @@
 				}
 			]
 		},
-		"d_schema": {
-			"name": [
-				{
-					"mainMetricPercent": 1,
-					"mainMetricPerSec": 0.004001833
-				}
-			]
-		},
 		"d_server": {
 			"name": [
 				{
-					"value": "db0",
+					"value": "server0",
 					"mainMetricPercent": 0.2892841,
 					"mainMetricPerSec": 0.0011576667
 				},
 				{
-					"value": "db8",
+					"value": "server8",
 					"mainMetricPercent": 0.15809423,
 					"mainMetricPerSec": 0.0006326667
 				},
 				{
-					"value": "db5",
+					"value": "server5",
 					"mainMetricPercent": 0.14755738,
 					"mainMetricPerSec": 0.0005905
 				},
 				{
-					"value": "db9",
+					"value": "server9",
 					"mainMetricPercent": 0.14535005,
 					"mainMetricPerSec": 0.00058166665
 				},
 				{
-					"value": "db7",
+					"value": "server7",
 					"mainMetricPercent": 0.09058349,
 					"mainMetricPerSec": 0.0003625
 				},
 				{
-					"value": "db6",
+					"value": "server6",
 					"mainMetricPercent": 0.08217067,
 					"mainMetricPerSec": 0.00032883332
 				},
 				{
-					"value": "db3",
+					"value": "server3",
 					"mainMetricPercent": 0.07300821,
 					"mainMetricPerSec": 0.00029216666
 				},
 				{
-					"value": "db4",
+					"value": "server4",
 					"mainMetricPercent": 0.005830661,
 					"mainMetricPerSec": 0.000023333332
 				},
 				{
-					"value": "db1",
+					"value": "server1",
 					"mainMetricPercent": 0.004081463,
 					"mainMetricPerSec": 0.000016333333
 				},
 				{
-					"value": "db2",
+					"value": "server2",
 					"mainMetricPercent": 0.004039815,
 					"mainMetricPerSec": 0.000016166667
 				}

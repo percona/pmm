@@ -3,7 +3,9 @@
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
 			"exampleFormat": "EXAMPLE",
-			"exampleType": "RANDOM"
+			"exampleType": "RANDOM",
+			"serviceId": "/service_id/06f591c3-517a-4321-b2c1-289657847cf3",
+			"schema": "schema29"
 		}
 	]
 }

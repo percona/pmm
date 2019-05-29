@@ -4058,7 +4058,7 @@
 		},
 		{
 			"rank": 1,
-			"dimension": "db5",
+			"dimension": "server5",
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
@@ -8114,7 +8114,7 @@
 		},
 		{
 			"rank": 2,
-			"dimension": "db0",
+			"dimension": "server0",
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
@@ -12165,7 +12165,7 @@
 		},
 		{
 			"rank": 3,
-			"dimension": "db3",
+			"dimension": "server3",
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
@@ -16216,7 +16216,7 @@
 		},
 		{
 			"rank": 4,
-			"dimension": "db6",
+			"dimension": "server6",
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
@@ -20272,7 +20272,7 @@
 		},
 		{
 			"rank": 5,
-			"dimension": "db1",
+			"dimension": "server1",
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
@@ -24328,7 +24328,7 @@
 		},
 		{
 			"rank": 6,
-			"dimension": "db2",
+			"dimension": "server2",
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
@@ -28384,7 +28384,7 @@
 		},
 		{
 			"rank": 7,
-			"dimension": "db7",
+			"dimension": "server7",
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
@@ -32435,7 +32435,7 @@
 		},
 		{
 			"rank": 8,
-			"dimension": "db9",
+			"dimension": "server9",
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
@@ -36491,7 +36491,7 @@
 		},
 		{
 			"rank": 9,
-			"dimension": "db8",
+			"dimension": "server8",
 			"metrics": {
 				"bytes_sent": {
 					"stats": {
@@ -40547,7 +40547,7 @@
 		},
 		{
 			"rank": 10,
-			"dimension": "db4",
+			"dimension": "server4",
 			"metrics": {
 				"bytes_sent": {
 					"stats": {

@@ -88,6 +88,11 @@
 		},
 		"d_database": {
 			"values": [
+				""
+			]
+		},
+		"d_schema": {
+			"values": [
 				"schema0",
 				"schema1",
 				"schema10",
@@ -171,23 +176,18 @@
 				"schema99"
 			]
 		},
-		"d_schema": {
-			"values": [
-				""
-			]
-		},
 		"d_server": {
 			"values": [
-				"db0",
-				"db1",
-				"db2",
-				"db3",
-				"db4",
-				"db5",
-				"db6",
-				"db7",
-				"db8",
-				"db9"
+				"server0",
+				"server1",
+				"server2",
+				"server3",
+				"server4",
+				"server5",
+				"server6",
+				"server7",
+				"server8",
+				"server9"
 			]
 		},
 		"d_username": {

@@ -431,10 +431,12 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 }
 
 const queryExampleTmpl = `
-SELECT example, toUInt8(example_format) AS example_format,
+SELECT d_schema AS schema, labels.value AS service_id, example, toUInt8(example_format) AS example_format,
        is_truncated, toUInt8(example_type) AS example_type, example_metrics
   FROM metrics
+ ARRAY JOIN labels
  WHERE period_start >= ? AND period_start <= ?
+   AND labels.key = 'service_id'
        {{ if index . "filter" }} AND {{ index . "group" }} = '{{ index . "filter" }}' {{ end }}
  LIMIT ?
 `
@@ -463,8 +465,15 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 	res := qanpb.QueryExampleReply{}
 	for rows.Next() {
 		var row qanpb.QueryExample
-		err = rows.Scan(&row.Example, &row.ExampleFormat,
-			&row.IsTruncated, &row.ExampleType, &row.ExampleMetrics)
+		err = rows.Scan(
+			&row.Schema,
+			&row.ServiceId,
+			&row.Example,
+			&row.ExampleFormat,
+			&row.IsTruncated,
+			&row.ExampleType,
+			&row.ExampleMetrics,
+		)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan query example for object details")
 		}

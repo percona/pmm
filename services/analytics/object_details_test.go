@@ -268,7 +268,7 @@ func TestService_GetMetricsError(t *testing.T) {
 						},
 						{
 							Key:   "d_server",
-							Value: []string{"db1", "db2", "db3", "db4", "db5", "db6", "db7"},
+							Value: []string{"server1", "server2", "server3", "server4", "server5", "server6", "server7"},
 						},
 						{
 							Key:   "d_client_host",

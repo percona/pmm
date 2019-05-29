@@ -200,7 +200,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 					},
 					{
 						Key:   "d_server",
-						Value: []string{"db1", "db2", "db3", "db4", "db5", "db6", "db7"},
+						Value: []string{"server1", "server2", "server3", "server4", "server5", "server6", "server7"},
 					},
 				},
 			},
@@ -612,15 +612,15 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 					},
 					{
 						Key:   "d_server",
-						Value: genDimensionvalues("db", 10),
+						Value: genDimensionvalues("server", 10),
 					},
 					{
 						Key:   "d_database",
-						Value: genDimensionvalues("schema", 100),
+						Value: []string{},
 					},
 					{
 						Key:   "d_schema",
-						Value: []string{},
+						Value: genDimensionvalues("schema", 100),
 					},
 					{
 						Key:   "d_username",
