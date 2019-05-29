@@ -357,6 +357,12 @@ type QueryExamplesItems0 struct {
 
 	// is truncated
 	IsTruncated int64 `json:"is_truncated,omitempty"`
+
+	// schema
+	Schema string `json:"schema,omitempty"`
+
+	// service id
+	ServiceID string `json:"service_id,omitempty"`
 }
 
 // Validate validates this query examples items0

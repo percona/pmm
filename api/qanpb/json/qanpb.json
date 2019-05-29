@@ -1062,6 +1062,12 @@
                       "is_truncated": {
                         "type": "integer",
                         "format": "int64"
+                      },
+                      "schema": {
+                        "type": "string"
+                      },
+                      "service_id": {
+                        "type": "string"
                       }
                     }
                   }
