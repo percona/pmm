@@ -77,12 +77,32 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MysqlShowCreateTableParams); ok {
+		if oneOfNester.MysqlShowCreateTableParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlShowCreateTableParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlShowCreateTableParams", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MysqlShowTableStatusParams); ok {
+		if oneOfNester.MysqlShowTableStatusParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlShowTableStatusParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlShowTableStatusParams", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_ProcessParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MySQLExplainParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_MySQLShowCreateTableParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_MySQLShowTableStatusParams) Validate() error {
 	return nil
 }
 func (this *StartActionResponse) Validate() error {
