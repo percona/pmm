@@ -3094,7 +3094,7 @@
 			],
 			"fingerprint": "TOTAL",
 			"numQueries": 13423978,
-			"qps": 2485,
+			"qps": 2485.9219,
 			"load": 0.0030262868
 		},
 		{
@@ -6196,7 +6196,7 @@
 			],
 			"fingerprint": "show status like ?",
 			"numQueries": 2726087,
-			"qps": 504,
+			"qps": 504.83093,
 			"load": 0.0016633648
 		},
 		{
@@ -9244,7 +9244,7 @@
 			],
 			"fingerprint": "show variables like ?",
 			"numQueries": 1973786,
-			"qps": 365,
+			"qps": 365.51593,
 			"load": 0.0012012426
 		},
 		{
@@ -11872,7 +11872,7 @@
 			],
 			"fingerprint": "select @@version_comment limit ?",
 			"numQueries": 3646659,
-			"qps": 675,
+			"qps": 675.30725,
 			"load": 0.00013638148
 		},
 		{
@@ -14170,7 +14170,7 @@
 			],
 			"fingerprint": "select @@port",
 			"numQueries": 807592,
-			"qps": 149,
+			"qps": 149.55408,
 			"load": 0.000014416666
 		},
 		{
@@ -16606,7 +16606,7 @@
 			],
 			"fingerprint": "quit",
 			"numQueries": 3905615,
-			"qps": 723,
+			"qps": 723.262,
 			"load": 0.0000055444443
 		},
 		{
@@ -17668,7 +17668,7 @@
 			],
 			"fingerprint": "set time_zone=?",
 			"numQueries": 96667,
-			"qps": 17,
+			"qps": 17.901297,
 			"load": 0.0000027055555
 		},
 		{
@@ -18558,7 +18558,7 @@
 			],
 			"fingerprint": "select @@global.datadir",
 			"numQueries": 58713,
-			"qps": 10,
+			"qps": 10.872778,
 			"load": 0.0000013055555
 		},
 		{
@@ -19492,7 +19492,7 @@
 			],
 			"fingerprint": "select @@global.slow_query_log_file",
 			"numQueries": 79787,
-			"qps": 14,
+			"qps": 14.775371,
 			"load": 8.592593e-7
 		},
 		{
@@ -20617,7 +20617,7 @@
 			],
 			"fingerprint": "ping",
 			"numQueries": 129072,
-			"qps": 23,
+			"qps": 23.902222,
 			"load": 4.6666668e-7
 		}
 	]

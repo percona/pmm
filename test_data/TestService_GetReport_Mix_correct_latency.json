@@ -748,7 +748,7 @@
 			],
 			"fingerprint": "TOTAL",
 			"numQueries": 268264,
-			"qps": 7,
+			"qps": 7.451778,
 			"load": 0.000012552223
 		}
 	]

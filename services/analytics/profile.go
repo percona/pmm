@@ -31,15 +31,13 @@ const defaultOrder = "m_query_time_sum"
 func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanpb.ReportReply, error) {
 
 	if in.PeriodStartFrom == nil || in.PeriodStartTo == nil {
-		err := fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
-		return nil, err
+		return nil, fmt.Errorf("from-date: %s or to-date: %s cannot be empty", in.PeriodStartFrom, in.PeriodStartTo)
 	}
 
 	periodStartFromSec := in.PeriodStartFrom.Seconds
 	periodStartToSec := in.PeriodStartTo.Seconds
 	if periodStartFromSec > periodStartToSec {
-		err := fmt.Errorf("from-date %s cannot be bigger then to-date %s", in.PeriodStartFrom, in.PeriodStartTo)
-		return nil, err
+		return nil, fmt.Errorf("from-date %s cannot be bigger then to-date %s", in.PeriodStartFrom, in.PeriodStartTo)
 	}
 
 	if _, ok := standartDimensions[in.GroupBy]; !ok {
@@ -167,7 +165,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			Dimension:   res["dimension"].(string),
 			Fingerprint: res["fingerprint"].(string),
 			NumQueries:  uint32(numQueries),
-			Qps:         float32(int64(numQueries) / intervalTime),
+			Qps:         numQueries / float32(intervalTime),
 			Load:        interfaceToFloat32(res["m_query_time_sum"]) / float32(intervalTime),
 			Metrics:     make(map[string]*qanpb.Metric),
 		}
