@@ -136,7 +136,7 @@ func (cmd *listCommand) Run() (Result, error) {
 		return res
 	}
 
-	pmmAgentIDs := make(map[string]struct{})
+	pmmAgentIDs := map[string]struct{}{}
 	var agents []listResultAgent
 	for _, a := range agentsRes.Payload.PMMAgent {
 		if a.RunsOnNodeID == cmd.NodeID {

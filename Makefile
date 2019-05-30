@@ -24,7 +24,8 @@ release:                        ## Build pmm-admin release binary.
 init:                           ## Installs tools to $GOPATH/bin (which is expected to be in $PATH).
 	curl https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin
 
-	go install ./vendor/golang.org/x/tools/cmd/goimports
+	go install ./vendor/github.com/quasilyte/go-consistent \
+				./vendor/golang.org/x/tools/cmd/goimports
 
 	go test -i ./...
 	go test -race -i ./...
@@ -51,6 +52,10 @@ test-crosscover:                ## Run tests and collect cross-package coverage 
 
 check:                          ## Run required checkers and linters.
 	go run .github/check-license.go
+
+check-style:                    ## Run style checkers and linters.
+	golangci-lint run ./... --new-from-rev=master
+	go-consistent -pedantic ./...
 
 FILES = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 

@@ -52,7 +52,7 @@ func (cmd *removeAgentCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &removeAgentResult{}, nil
+	return new(removeAgentResult), nil
 }
 
 // register command

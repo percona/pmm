@@ -1,6 +1,7 @@
 # tools
 required = [
-  "golang.org/x/tools/cmd/goimports"
+  "github.com/quasilyte/go-consistent",
+  "golang.org/x/tools/cmd/goimports",
 ]
 
 [prune]

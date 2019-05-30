@@ -164,6 +164,57 @@
   version = "v0.19.0"
 
 [[projects]]
+  digest = "1:b93f3bf983a8e74e356c924ed0f6587f0e49b06186f924e92f1956588763a696"
+  name = "github.com/go-toolsmith/astcast"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "a6cb19f07b66b859a53f3f2be6e4c3bba892db7e"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:fe7b3bf35d2d193fb401716d77c1cdda88bbe404c16337d72e3d76e16a60548e"
+  name = "github.com/go-toolsmith/astequal"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "dcb477bfacd6e00a13c6d63bfc73db28dd343160"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:b47e6067a8f15e119c38dd8c118ac1d9df7517c496f666930f018df55d7e48d7"
+  name = "github.com/go-toolsmith/astinfo"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "9809ff7efb211e704a852623a50258071168e9bd"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:34e4572fdbab5c4c46b72da94b1cb9c384e1c6ccb1b535a45c3376d384cc4fbf"
+  name = "github.com/go-toolsmith/pkgload"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "1759eb21c731bfa0dc81091556b35584f07d49e8"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:46caf39e09e9db39dff0b0d10ce07bc1255ae460fba2db8c5d89bfcfa36efa7b"
+  name = "github.com/go-toolsmith/typep"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "cab1745ffd84a567b524317c7f90e96755b18fcf"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:04eb2b1e456031d95dbc76c9a42fa8a2da0d61ae5111d6aa277cbefba53c7e8f"
+  name = "github.com/kisielk/gotool"
+  packages = [
+    ".",
+    "internal/load",
+  ]
+  pruneopts = "NUT"
+  revision = "80517062f582ea3340cd4baf70e86d539ae7d84d"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:58999a98719fddbac6303cb17e8d85b945f60b72f48e3a2df6b950b97fa926f1"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
@@ -224,6 +275,14 @@
   pruneopts = "NUT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:9cc94831710a902e5d37f2771e8c3441423bb4956f10b0e6ded9d6ff04d0bea7"
+  name = "github.com/quasilyte/go-consistent"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "c6f3937de18cf505dce778903e72b1a57948edcc"
 
 [[projects]]
   digest = "1:998e4640c25e00ccb7b2569bf94562283937b8afb3485c0e1a0a05a15330240d"
@@ -345,6 +404,7 @@
     "github.com/percona/pmm/api/serverpb/json/client",
     "github.com/percona/pmm/nodeinfo",
     "github.com/percona/pmm/version",
+    "github.com/quasilyte/go-consistent",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/require",

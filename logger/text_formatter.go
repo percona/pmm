@@ -35,7 +35,7 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	if entry.Buffer != nil {
 		b = entry.Buffer
 	} else {
-		b = &bytes.Buffer{}
+		b = new(bytes.Buffer)
 	}
 
 	// Remove a single newline if it already exists in the message to keep

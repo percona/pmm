@@ -52,7 +52,7 @@ func (cmd *removeNodeCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &removeNodeResult{}, nil
+	return new(removeNodeResult), nil
 }
 
 // register command

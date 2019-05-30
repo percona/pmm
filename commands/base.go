@@ -108,7 +108,7 @@ var customLabelRE = regexp.MustCompile(`^([a-zA-Z_][a-zA-Z0-9_]*)=([^='", ]+)$`)
 // E.g. the value of [[--custom-labels='region=us-east1, mylabel=mylab-22']] will be received by this function
 // as [[region=us-east1, mylabel=mylab-22]].
 func ParseCustomLabels(labels string) (map[string]string, error) {
-	result := make(map[string]string)
+	result := map[string]string{}
 	parts := strings.Split(labels, ",")
 	for _, part := range parts {
 		part = strings.TrimSpace(part)

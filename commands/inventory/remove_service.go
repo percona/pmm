@@ -52,7 +52,7 @@ func (cmd *removeServiceCommand) Run() (commands.Result, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &removeServiceResult{}, nil
+	return new(removeServiceResult), nil
 }
 
 // register command

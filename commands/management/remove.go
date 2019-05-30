@@ -69,7 +69,7 @@ func (cmd *removeMySQLCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
-	return &removeServiceResult{}, nil
+	return new(removeServiceResult), nil
 }
 
 func (cmd *removeMySQLCommand) serviceType() *string {
