@@ -30,6 +30,8 @@ enum ActionType {
   PT_SUMMARY = 1;
   PT_MYSQL_SUMMARY = 2;
   MYSQL_EXPLAIN = 8;
+  MYSQL_SHOW_CREATE_TABLE = 9;
+  MYSQL_SHOW_TABLE_INFO = 10;
 }
 
 message GetActionRequest {
