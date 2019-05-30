@@ -63,6 +63,8 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 		"-collect.binlog_size",
 		"-collect.global_status",
 		"-collect.global_variables",
+		"-collect.info_schema.innodb_cmp",
+		"-collect.info_schema.innodb_cmpmem",
 		"-collect.info_schema.innodb_metrics",
 		"-collect.info_schema.processlist",
 		"-collect.info_schema.query_response_time",
