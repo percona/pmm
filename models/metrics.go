@@ -268,7 +268,7 @@ WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 		{{ end }}
 	)
 {{ end }}
-GROUP BY {{ index . "group" }}
+{{ if index . "dimension_val" }} GROUP BY {{ index . "group" }} {{ end }}
 	WITH TOTALS;
 `
 
