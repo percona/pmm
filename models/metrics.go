@@ -431,7 +431,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 }
 
 const queryExampleTmpl = `
-SELECT d_schema AS schema, labels.value AS service_id, example, toUInt8(example_format) AS example_format,
+SELECT d_schema AS schema, labels.value AS service_id, agent_uuid, example, toUInt8(example_format) AS example_format,
        is_truncated, toUInt8(example_type) AS example_type, example_metrics
   FROM metrics
  ARRAY JOIN labels
@@ -468,6 +468,7 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 		err = rows.Scan(
 			&row.Schema,
 			&row.ServiceId,
+			&row.AgentId,
 			&row.Example,
 			&row.ExampleFormat,
 			&row.IsTruncated,

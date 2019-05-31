@@ -5,35 +5,40 @@
 			"exampleFormat": "EXAMPLE",
 			"exampleType": "RANDOM",
 			"serviceId": "/service_id/06f591c3-517a-4321-b2c1-289657847cf3",
-			"schema": "schema29"
+			"schema": "schema29",
+			"agentId": "/agent_id/dc889ca7be92a66f0a00f616f69ffa7b"
 		},
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
 			"exampleFormat": "EXAMPLE",
 			"exampleType": "RANDOM",
 			"serviceId": "/service_id/06f591c3-517a-4321-b2c1-289657847cf3",
-			"schema": "schema37"
+			"schema": "schema37",
+			"agentId": "/agent_id/dc889ca7be92a66f0a00f616f69ffa7b"
 		},
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
 			"exampleFormat": "EXAMPLE",
 			"exampleType": "RANDOM",
 			"serviceId": "/service_id/06f591c3-517a-4321-b2c1-289657847cf3",
-			"schema": "schema58"
+			"schema": "schema58",
+			"agentId": "/agent_id/dc889ca7be92a66f0a00f616f69ffa7b"
 		},
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
 			"exampleFormat": "EXAMPLE",
 			"exampleType": "RANDOM",
 			"serviceId": "/service_id/06f591c3-517a-4321-b2c1-289657847cf3",
-			"schema": "schema60"
+			"schema": "schema60",
+			"agentId": "/agent_id/dc889ca7be92a66f0a00f616f69ffa7b"
 		},
 		{
 			"example": "SELECT @@GLOBAL.slow_query_log_file",
 			"exampleFormat": "EXAMPLE",
 			"exampleType": "RANDOM",
 			"serviceId": "/service_id/06f591c3-517a-4321-b2c1-289657847cf3",
-			"schema": "schema65"
+			"schema": "schema65",
+			"agentId": "/agent_id/dc889ca7be92a66f0a00f616f69ffa7b"
 		}
 	]
 }
