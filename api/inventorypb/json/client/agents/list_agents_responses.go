@@ -254,6 +254,9 @@ type ListAgentsOKBody struct {
 	// postgres exporter
 	PostgresExporter []*PostgresExporterItems0 `json:"postgres_exporter"`
 
+	// proxysql exporter
+	ProxysqlExporter []*ProxysqlExporterItems0 `json:"proxysql_exporter"`
+
 	// qan mongodb profiler agent
 	QANMongodbProfilerAgent []*QANMongodbProfilerAgentItems0 `json:"qan_mongodb_profiler_agent"`
 
@@ -292,6 +295,10 @@ func (o *ListAgentsOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validatePostgresExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateProxysqlExporter(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -457,6 +464,31 @@ func (o *ListAgentsOKBody) validatePostgresExporter(formats strfmt.Registry) err
 			if err := o.PostgresExporter[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listAgentsOk" + "." + "postgres_exporter" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListAgentsOKBody) validateProxysqlExporter(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.ProxysqlExporter) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.ProxysqlExporter); i++ {
+		if swag.IsZero(o.ProxysqlExporter[i]) { // not required
+			continue
+		}
+
+		if o.ProxysqlExporter[i] != nil {
+			if err := o.ProxysqlExporter[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listAgentsOk" + "." + "proxysql_exporter" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -1094,6 +1126,127 @@ func (o *PostgresExporterItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *PostgresExporterItems0) UnmarshalBinary(b []byte) error {
 	var res PostgresExporterItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ProxysqlExporterItems0 ProxySQLExporter runs on Generic or Container Node and exposes MySQL and AmazonRDSMySQL Service metrics.
+swagger:model ProxysqlExporterItems0
+*/
+type ProxysqlExporterItems0 struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// Listen port for scraping metrics.
+	ListenPort int64 `json:"listen_port,omitempty"`
+
+	// ProxySQL password for scraping metrics.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// ProxySQL username for scraping metrics.
+	Username string `json:"username,omitempty"`
+}
+
+// Validate validates this proxysql exporter items0
+func (o *ProxysqlExporterItems0) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var proxysqlExporterItems0TypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		proxysqlExporterItems0TypeStatusPropEnum = append(proxysqlExporterItems0TypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// ProxysqlExporterItems0StatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	ProxysqlExporterItems0StatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// ProxysqlExporterItems0StatusSTARTING captures enum value "STARTING"
+	ProxysqlExporterItems0StatusSTARTING string = "STARTING"
+
+	// ProxysqlExporterItems0StatusRUNNING captures enum value "RUNNING"
+	ProxysqlExporterItems0StatusRUNNING string = "RUNNING"
+
+	// ProxysqlExporterItems0StatusWAITING captures enum value "WAITING"
+	ProxysqlExporterItems0StatusWAITING string = "WAITING"
+
+	// ProxysqlExporterItems0StatusSTOPPING captures enum value "STOPPING"
+	ProxysqlExporterItems0StatusSTOPPING string = "STOPPING"
+
+	// ProxysqlExporterItems0StatusDONE captures enum value "DONE"
+	ProxysqlExporterItems0StatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *ProxysqlExporterItems0) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, proxysqlExporterItems0TypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *ProxysqlExporterItems0) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ProxysqlExporterItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ProxysqlExporterItems0) UnmarshalBinary(b []byte) error {
+	var res ProxysqlExporterItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
