@@ -119,6 +119,7 @@ message QueryExample {
   string example_metrics = 5;
   string service_id = 6;
   string schema = 7;
+  string agent_uuid = 8;
 }
 
 // ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of

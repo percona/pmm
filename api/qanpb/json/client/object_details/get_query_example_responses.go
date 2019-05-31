@@ -341,6 +341,9 @@ swagger:model QueryExamplesItems0
 */
 type QueryExamplesItems0 struct {
 
+	// agent uuid
+	AgentUUID string `json:"agent_uuid,omitempty"`
+
 	// example
 	Example string `json:"example,omitempty"`
 

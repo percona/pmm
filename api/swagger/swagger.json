@@ -8031,6 +8031,9 @@
                     "description": "QueryExample shows query examples and their metrics.",
                     "type": "object",
                     "properties": {
+                      "agent_uuid": {
+                        "type": "string"
+                      },
                       "example": {
                         "type": "string"
                       },
