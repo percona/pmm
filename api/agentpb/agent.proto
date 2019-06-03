@@ -23,6 +23,7 @@ enum Type {
   QAN_MYSQL_SLOWLOG_AGENT = 7;
   QAN_MONGODB_PROFILER_AGENT = 8;
   RDS_EXPORTER = 9;
+  PROXYSQL_EXPORTER = 10;
 }
 
 // Ping is a AgentMessage/ServerMessage for checking connectivity, latency and clock drift.

@@ -124,7 +124,7 @@ type AgentsInfoItems0 struct {
 
 	// Type represents Agent type.
 	// TODO Replace with inventory.AgentType. https://jira.percona.com/browse/PMM-3786
-	// Enum: [TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT RDS_EXPORTER]
+	// Enum: [TYPE_INVALID PMM_AGENT NODE_EXPORTER MYSQLD_EXPORTER MONGODB_EXPORTER POSTGRES_EXPORTER QAN_MYSQL_PERFSCHEMA_AGENT QAN_MYSQL_SLOWLOG_AGENT QAN_MONGODB_PROFILER_AGENT RDS_EXPORTER PROXYSQL_EXPORTER]
 	AgentType *string `json:"agent_type,omitempty"`
 
 	// TODO https://jira.percona.com/browse/PMM-3758
@@ -157,7 +157,7 @@ var agentsInfoItems0TypeAgentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["TYPE_INVALID","PMM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","RDS_EXPORTER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["TYPE_INVALID","PMM_AGENT","NODE_EXPORTER","MYSQLD_EXPORTER","MONGODB_EXPORTER","POSTGRES_EXPORTER","QAN_MYSQL_PERFSCHEMA_AGENT","QAN_MYSQL_SLOWLOG_AGENT","QAN_MONGODB_PROFILER_AGENT","RDS_EXPORTER","PROXYSQL_EXPORTER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -196,6 +196,9 @@ const (
 
 	// AgentsInfoItems0AgentTypeRDSEXPORTER captures enum value "RDS_EXPORTER"
 	AgentsInfoItems0AgentTypeRDSEXPORTER string = "RDS_EXPORTER"
+
+	// AgentsInfoItems0AgentTypePROXYSQLEXPORTER captures enum value "PROXYSQL_EXPORTER"
+	AgentsInfoItems0AgentTypePROXYSQLEXPORTER string = "PROXYSQL_EXPORTER"
 )
 
 // prop value enum
