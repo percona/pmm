@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"text/template"
 	"time"
@@ -99,6 +98,9 @@ const queryReportTmpl = `
 	LIMIT :offset, :limit
 `
 
+//nolint
+var tmplQueryReport = template.Must(template.New("queryReportTmpl").Funcs(funcMap).Parse(queryReportTmpl))
+
 // Select select metrics for report.
 func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartToSec int64,
 	dQueryids, dServers, dDatabases, dSchemas, dUsernames, dClientHosts []string,
@@ -124,31 +126,34 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 	}
 
 	var queryBuffer bytes.Buffer
-	if tmpl, err := template.New("queryReport").Funcs(funcMap).Parse(queryReportTmpl); err != nil {
-		log.Fatalln(err)
-	} else if err = tmpl.Execute(&queryBuffer, arg); err != nil {
-		log.Fatalln(err)
+
+	if err := tmplQueryReport.Execute(&queryBuffer, arg); err != nil {
+		return nil, errors.Wrap(err, "cannot execute tmplQueryReport")
 	}
+
 	var results []M
 	query, args, err := sqlx.Named(queryBuffer.String(), arg)
 	if err != nil {
-		return results, fmt.Errorf("prepare named:%v", err)
+		return nil, errors.Wrap(err, "prepare named tmplQueryReport")
 	}
 	query, args, err = sqlx.In(query, args...)
 	if err != nil {
-		return results, fmt.Errorf("populate agruments in IN clause:%v", err)
+		return nil, errors.Wrap(err, "populate agruments in IN clause")
 	}
 	query = r.db.Rebind(query)
 
-	rows, err := r.db.QueryxContext(ctx, query, args...)
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	rows, err := r.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
-		return results, fmt.Errorf("QueryxContext error:%v", err)
+		return nil, errors.Wrap(err, "QueryxContext error")
 	}
 	for rows.Next() {
 		result := make(M)
 		err = rows.MapScan(result)
 		if err != nil {
-			fmt.Printf("DimensionReport Scan error: %v", err)
+			return nil, errors.Wrap(err, "DimensionReport Scan error")
 		}
 		results = append(results, result)
 	}
@@ -157,7 +162,7 @@ func (r *Reporter) Select(ctx context.Context, periodStartFromSec, periodStartTo
 	for rows.Next() {
 		err = rows.MapScan(total)
 		if err != nil {
-			fmt.Printf("DimensionReport Scan TOTALS error: %v", err)
+			return nil, errors.Wrap(err, "DimensionReport Scan TOTALS error")
 		}
 		results = append([]M{total}, results...)
 	}
@@ -257,7 +262,10 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 	}
 	query = r.db.Rebind(query)
 
-	rows, err := r.db.QueryxContext(ctx, query, args...)
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	rows, err := r.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
 		return nil, errors.Wrap(err, "report query")
 	}

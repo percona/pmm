@@ -17,8 +17,12 @@
 package models
 
 import (
+	"time"
+
 	"github.com/percona/pmm/api/qanpb"
 )
+
+const queryTimeout = 30 * time.Second
 
 //nolint
 var sparklinePointAllFields = []string{

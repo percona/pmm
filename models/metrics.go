@@ -78,7 +78,10 @@ func (m *Metrics) Get(ctx context.Context, periodStartFromSec, periodStartToSec 
 	}
 	query = m.db.Rebind(query)
 
-	rows, err := m.db.QueryxContext(ctx, query, args...)
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	rows, err := m.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
 		return results, fmt.Errorf("QueryxContext error:%v", err)
 	}
@@ -397,7 +400,10 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 	}
 	query = m.db.Rebind(query)
 
-	rows, err := m.db.QueryxContext(ctx, query, args...)
+	queryCtx, cancel := context.WithTimeout(ctx, queryTimeout)
+	defer cancel()
+
+	rows, err := m.db.QueryxContext(queryCtx, query, args...)
 	if err != nil {
 		return nil, errors.Wrap(err, "metrics sparklines query")
 	}
@@ -441,6 +447,7 @@ SELECT d_schema AS schema, labels.value AS service_id, agent_uuid, example, toUI
  LIMIT ?
 `
 
+//nolint
 var tmplQueryExample = template.Must(template.New("queryExampleTmpl").Parse(queryExampleTmpl))
 
 // SelectQueryExamples selects query examples and related stuff for given time range.
@@ -493,6 +500,7 @@ const queryObjectDetailsLabelsTmpl = `
 	 ORDER BY d_server, d_database, d_schema, d_username, d_client_host, labels.key, labels.value
 `
 
+//nolint
 var tmplObjectDetailsLabels = template.Must(template.New("queryObjectDetailsLabelsTmpl").Funcs(funcMap).Parse(queryObjectDetailsLabelsTmpl))
 
 type queryRowsLabels struct {

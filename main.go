@@ -39,6 +39,7 @@ import (
 )
 
 const shutdownTimeout = 3 * time.Second
+const responseTimeout = 1 * time.Minute
 
 // runGRPCServer runs gRPC server until context is canceled, then gracefully stops it.
 func runGRPCServer(ctx context.Context, dsn, bind string) {
@@ -50,7 +51,15 @@ func runGRPCServer(ctx context.Context, dsn, bind string) {
 	mbm := models.NewMetricsBucket(db)
 	rm := models.NewReporter(db)
 	mm := models.NewMetrics(db)
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.UnaryInterceptor(
+			func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
+				newCtx, cancel := context.WithTimeout(ctx, responseTimeout)
+				defer cancel()
+				return handler(newCtx, req)
+			},
+		),
+	)
 	aserv := aservice.NewService(rm, mm)
 	qanpb.RegisterCollectorServer(grpcServer, rservice.NewService(mbm))
 	qanpb.RegisterProfileServer(grpcServer, aserv)
