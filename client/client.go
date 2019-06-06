@@ -282,6 +282,16 @@ func (c *Client) processChannelRequests() {
 				c.runner.Start(a)
 				responsePayload = new(agentpb.StartActionResponse)
 
+			case managementpb.ActionType_MYSQL_SHOW_CREATE_TABLE:
+				a := actions.NewMySQLShowCreateTableAction(p.ActionId, p.GetMysqlShowCreateTableParams())
+				c.runner.Start(a)
+				responsePayload = new(agentpb.StartActionResponse)
+
+			case managementpb.ActionType_MYSQL_SHOW_TABLE_INFO:
+				a := actions.NewMySQLShowTableStatusAction(p.ActionId, p.GetMysqlShowTableStatusParams())
+				c.runner.Start(a)
+				responsePayload = new(agentpb.StartActionResponse)
+
 			case managementpb.ActionType_ACTION_TYPE_INVALID:
 				c.l.Errorf("Unsupported action: %s.", p.Type)
 				continue

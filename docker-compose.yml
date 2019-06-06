@@ -10,7 +10,7 @@ services:
   mysql:
     image: ${MYSQL_IMAGE:-percona:5.7}
     container_name: pmm-agent_mysql
-    command: --performance-schema
+    command: --sql-mode="ANSI_QUOTES" --performance-schema
     ports:
       - 127.0.0.1:3306:3306
     environment:

@@ -89,19 +89,23 @@ id |select_type |table |partitions |type |possible_keys |key  |key_len |ref  |ro
 		var actual map[string]interface{}
 		err = json.Unmarshal(b, &actual)
 		require.NoError(t, err)
-		actual = actual["query_block"].(map[string]interface{})
-		actualTable := actual["table"].(map[string]interface{})
 
-		switch {
-		case mySQLVersion == "5.6" || mySQLVendor == tests.MariaDBMySQL:
-			assert.Equal(t, 1.0, actual["select_id"])
-			assert.Equal(t, "city", actualTable["table_name"])
-		case mySQLVersion == "5.7" || mySQLVersion == "8.0":
-			assert.Equal(t, 1.0, actual["select_id"])
-			assert.Equal(t, "city", actualTable["table_name"])
+		queryBlock := actual["query_block"].(map[string]interface{})
+		assert.Equal(t, 1.0, queryBlock["select_id"])
+
+		actualTable := queryBlock["table"].(map[string]interface{})
+		assert.Equal(t, "city", actualTable["table_name"])
+		if mySQLVersion != "5.6" && mySQLVendor != tests.MariaDBMySQL {
 			assert.Equal(t, []interface{}{"ID", "Name", "CountryCode", "District", "Population"}, actualTable["used_columns"])
-		default:
-			t.Error("Unhandled version.")
+		}
+
+		if mySQLVendor != tests.MariaDBMySQL {
+			require.Len(t, actual["warnings"], 1)
+			warnings := actual["warnings"].([]interface{})
+			warning0 := warnings[0].(map[string]interface{})
+			assert.Equal(t, 1003.0, warning0["Code"])
+			assert.Equal(t, "Note", warning0["Level"])
+			assert.Contains(t, warning0["Message"], "/* select#1 */")
 		}
 	})
 

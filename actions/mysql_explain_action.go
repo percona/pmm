@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"text/tabwriter"
@@ -64,11 +65,17 @@ func (e *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 	}
 	defer db.Close() //nolint:errcheck
 
+	conn, err := db.Conn(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close() //nolint:errcheck
+
 	switch e.params.OutputFormat {
 	case agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT:
-		return e.explainDefault(ctx, db)
+		return e.explainDefault(ctx, conn)
 	case agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON:
-		return e.explainJSON(ctx, db)
+		return e.explainJSON(ctx, conn)
 	default:
 		return nil, errors.Errorf("unsupported output format %s", e.params.OutputFormat)
 	}
@@ -76,8 +83,8 @@ func (e *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 
 func (e *mysqlExplainAction) sealed() {}
 
-func (e *mysqlExplainAction) explainDefault(ctx context.Context, db *sql.DB) ([]byte, error) {
-	rows, err := db.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", e.params.Query))
+func (e *mysqlExplainAction) explainDefault(ctx context.Context, conn *sql.Conn) ([]byte, error) {
+	rows, err := conn.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", e.params.Query))
 	if err != nil {
 		return nil, err
 	}
@@ -121,8 +128,40 @@ func (e *mysqlExplainAction) explainDefault(ctx context.Context, db *sql.DB) ([]
 	return buf.Bytes(), nil
 }
 
-func (e *mysqlExplainAction) explainJSON(ctx context.Context, db *sql.DB) ([]byte, error) {
-	var res string
-	err := db.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", e.params.Query)).Scan(&res)
-	return []byte(res), err
+func (e *mysqlExplainAction) explainJSON(ctx context.Context, conn *sql.Conn) ([]byte, error) {
+	var b []byte
+	err := conn.QueryRowContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ FORMAT=JSON %s", e.params.Query)).Scan(&b)
+	if err != nil {
+		return nil, err
+	}
+
+	var m map[string]interface{}
+	if err = json.Unmarshal(b, &m); err != nil {
+		return nil, err
+	}
+
+	// https://dev.mysql.com/doc/refman/8.0/en/explain-extended.html
+	rows, err := conn.QueryContext(ctx, "SHOW /* pmm-agent */ WARNINGS")
+	if err != nil {
+		return b, nil // ingore error, return original output
+	}
+	defer rows.Close() //nolint:errcheck
+
+	var warnings []map[string]interface{}
+	for rows.Next() {
+		var level, message string
+		var code int
+		if err = rows.Scan(&level, &code, &message); err != nil {
+			continue
+		}
+		warnings = append(warnings, map[string]interface{}{
+			"Level":   level,
+			"Code":    code,
+			"Message": message,
+		})
+	}
+	// ignore rows.Err()
+
+	m["warnings"] = warnings
+	return json.Marshal(m)
 }
