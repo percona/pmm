@@ -23,15 +23,15 @@ func (_m *mockClient) Describe(_a0 chan<- *prometheus.Desc) {
 }
 
 // GetAgentServerMetadata provides a mock function with given fields:
-func (_m *mockClient) GetAgentServerMetadata() *agentpb.AgentServerMetadata {
+func (_m *mockClient) GetAgentServerMetadata() *agentpb.ServerConnectMetadata {
 	ret := _m.Called()
 
-	var r0 *agentpb.AgentServerMetadata
-	if rf, ok := ret.Get(0).(func() *agentpb.AgentServerMetadata); ok {
+	var r0 *agentpb.ServerConnectMetadata
+	if rf, ok := ret.Get(0).(func() *agentpb.ServerConnectMetadata); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*agentpb.AgentServerMetadata)
+			r0 = ret.Get(0).(*agentpb.ServerConnectMetadata)
 		}
 	}
 

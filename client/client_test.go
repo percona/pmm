@@ -119,9 +119,10 @@ func TestClient(t *testing.T) {
 			}
 
 			connect := func(stream agentpb.Agent_ConnectServer) error {
-				md := agentpb.GetAgentConnectMetadata(stream.Context())
-				assert.Equal(t, agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
-				err := agentpb.SendAgentServerMetadata(stream, serverMD)
+				md, err := agentpb.ReceiveAgentConnectMetadata(stream)
+				require.NoError(t, err)
+				assert.Equal(t, &agentpb.AgentConnectMetadata{ID: "agent_id"}, md)
+				err = agentpb.SendAgentServerMetadata(stream, serverMD)
 				require.NoError(t, err)
 
 				msg, err := stream.Recv()

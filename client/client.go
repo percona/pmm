@@ -147,7 +147,7 @@ func (c *Client) Run(ctx context.Context) error {
 	}()
 
 	c.rw.Lock()
-	c.md = &dialResult.md
+	c.md = dialResult.md
 	c.channel = dialResult.channel
 	c.rw.Unlock()
 
@@ -332,7 +332,7 @@ type dialResult struct {
 	conn         *grpc.ClientConn
 	streamCancel context.CancelFunc
 	channel      *channel.Channel
-	md           agentpb.AgentServerMetadata
+	md           *agentpb.AgentServerMetadata
 }
 
 // dial tries to connect to the server once.
@@ -411,9 +411,9 @@ func dial(dialCtx context.Context, cfg *config.Config, withoutTLS bool, l *logru
 	// We need to exchange metadata and one pair of messages (ping/pong)
 	// to ensure that pmm-managed is alive and that Agent ID is valid.
 
-	md, err := agentpb.GetAgentServerMetadata(stream)
+	md, err := agentpb.ReceiveServerConnectMetadata(stream)
 	l.Debugf("Received server metadata: %+v. Error: %v.", md, err)
-	if (err == nil) && (md == agentpb.AgentServerMetadata{}) {
+	if (err == nil) && (*md == agentpb.ServerConnectMetadata{}) {
 		// FIXME https://jira.percona.com/browse/PMM-4076
 		err = errors.New("empty")
 	}
