@@ -32,6 +32,7 @@ const (
 	MySQLServiceType      ServiceType = "mysql"
 	MongoDBServiceType    ServiceType = "mongodb"
 	PostgreSQLServiceType ServiceType = "postgresql"
+	ProxySQLServiceType   ServiceType = "proxysql"
 )
 
 // Service represents Service as stored in database.

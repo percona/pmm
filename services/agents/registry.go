@@ -446,6 +446,18 @@ func (r *Registry) SendSetStateRequest(ctx context.Context, pmmAgentID string) {
 			}
 			builtinAgents[row.AgentID] = qanMongoDBProfilerAgentConfig(services[0], row)
 
+		case models.ProxySQLExporterType:
+			services, err := models.ServicesForAgent(r.db.Querier, row.AgentID)
+			if err != nil {
+				l.Error(err)
+				return
+			}
+			if len(services) != 1 {
+				l.Errorf("Expected exactly one Service, got %d.", len(services))
+				return
+			}
+			agentProcesses[row.AgentID] = proxysqlExporterConfig(services[0], row)
+
 		default:
 			l.Panicf("unhandled Agent type %s", row.AgentType)
 		}
@@ -493,6 +505,11 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, service *models
 		request = &agentpb.CheckConnectionRequest{
 			Type: inventorypb.ServiceType_MONGODB_SERVICE,
 			Dsn:  mongoDSN(service, agent),
+		}
+	case models.ProxySQLServiceType:
+		request = &agentpb.CheckConnectionRequest{
+			Type: inventorypb.ServiceType_PROXYSQL_SERVICE,
+			Dsn:  mysqlDSN(service, agent),
 		}
 	default:
 		l.Panicf("unhandled Service type %s", service.ServiceType)

@@ -156,6 +156,19 @@ func ToInventoryAgent(q *reform.Querier, row *models.Agent, registry registry) (
 			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
 			CustomLabels: labels,
 		}, nil
+
+	case models.ProxySQLExporterType:
+		return &inventorypb.ProxySQLExporter{
+			AgentId:      row.AgentID,
+			PmmAgentId:   pointer.GetString(row.PMMAgentID),
+			ServiceId:    serviceID,
+			Username:     pointer.GetString(row.Username),
+			Password:     pointer.GetString(row.Password),
+			Disabled:     row.Disabled,
+			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
+			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
+			CustomLabels: labels,
+		}, nil
 	}
 
 	panic(fmt.Errorf("unhandled Agent type %s", row.AgentType))
@@ -638,6 +651,61 @@ func (as *AgentsService) ChangeQANMongoDBProfilerAgent(ctx context.Context, req 
 	}
 
 	res := agent.(*inventorypb.QANMongoDBProfilerAgent)
+	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
+	return res, nil
+}
+
+// AddProxySQLExporter inserts proxysql_exporter Agent with given parameters.
+func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventorypb.AddProxySQLExporterRequest) (*inventorypb.ProxySQLExporter, error) {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+
+	var res *inventorypb.ProxySQLExporter
+	e := as.db.InTransaction(func(tx *reform.TX) error {
+		params := &models.AddExporterAgentParams{
+			PMMAgentID:   req.PmmAgentId,
+			ServiceID:    req.ServiceId,
+			Username:     req.Username,
+			Password:     req.Password,
+			CustomLabels: req.CustomLabels,
+		}
+		row, err := models.AgentAddExporter(tx.Querier, models.ProxySQLExporterType, params)
+		if err != nil {
+			return err
+		}
+		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+				return err
+			}
+		}
+
+		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		if err != nil {
+			return err
+		}
+		res = agent.(*inventorypb.ProxySQLExporter)
+		return nil
+	})
+	if e != nil {
+		return nil, e
+	}
+
+	as.r.SendSetStateRequest(ctx, req.PmmAgentId)
+	return res, nil
+}
+
+// ChangeProxySQLExporter updates proxysql_exporter Agent with given parameters.
+func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, req *inventorypb.ChangeProxySQLExporterRequest) (*inventorypb.ProxySQLExporter, error) {
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
+	}
+
+	res := agent.(*inventorypb.ProxySQLExporter)
 	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
 	return res, nil
 }

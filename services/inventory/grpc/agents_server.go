@@ -69,6 +69,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgen
 			res.PostgresExporter = append(res.PostgresExporter, agent)
 		case *inventorypb.QANMongoDBProfilerAgent:
 			res.QanMongodbProfilerAgent = append(res.QanMongodbProfilerAgent, agent)
+		case *inventorypb.ProxySQLExporter:
+			res.ProxysqlExporter = append(res.ProxysqlExporter, agent)
 		default:
 			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 		}
@@ -105,6 +107,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 		res.Agent = &inventorypb.GetAgentResponse_PostgresExporter{PostgresExporter: agent}
 	case *inventorypb.QANMongoDBProfilerAgent:
 		res.Agent = &inventorypb.GetAgentResponse_QanMongodbProfilerAgent{QanMongodbProfilerAgent: agent}
+	case *inventorypb.ProxySQLExporter:
+		res.Agent = &inventorypb.GetAgentResponse_ProxysqlExporter{ProxysqlExporter: agent}
 	default:
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}
@@ -333,12 +337,29 @@ func (s *agentsServer) ChangeQANMongoDBProfilerAgent(ctx context.Context, req *i
 
 // AddProxySQLExporter adds proxysql_exporter Agent.
 func (s *agentsServer) AddProxySQLExporter(ctx context.Context, req *inventorypb.AddProxySQLExporterRequest) (*inventorypb.AddProxySQLExporterResponse, error) {
-	panic("not implemented")
+	agent, err := s.s.AddProxySQLExporter(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.AddProxySQLExporterResponse{
+		ProxysqlExporter: agent,
+	}
+	return res, nil
 }
 
 // ChangeProxySQLExporter changes disabled flag and custom labels of proxysql_exporter Agent.
+//nolint:lll
 func (s *agentsServer) ChangeProxySQLExporter(ctx context.Context, req *inventorypb.ChangeProxySQLExporterRequest) (*inventorypb.ChangeProxySQLExporterResponse, error) {
-	panic("not implemented")
+	agent, err := s.s.ChangeProxySQLExporter(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.ChangeProxySQLExporterResponse{
+		ProxysqlExporter: agent,
+	}
+	return res, nil
 }
 
 // RemoveAgent removes Agent.
