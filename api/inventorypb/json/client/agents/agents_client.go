@@ -193,6 +193,34 @@ func (a *Client) AddPostgresExporter(params *AddPostgresExporterParams) (*AddPos
 }
 
 /*
+AddProxySQLExporter adds proxy SQL exporter adds proxysql exporter agent
+*/
+func (a *Client) AddProxySQLExporter(params *AddProxySQLExporterParams) (*AddProxySQLExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddProxySQLExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddProxySQLExporter",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Agents/AddProxySQLExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddProxySQLExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddProxySQLExporterOK), nil
+
+}
+
+/*
 AddQANMongoDBProfilerAgent adds QAN mongo DB profiler agent adds mongo DB profiler QAN agent
 */
 func (a *Client) AddQANMongoDBProfilerAgent(params *AddQANMongoDBProfilerAgentParams) (*AddQANMongoDBProfilerAgentOK, error) {
@@ -441,6 +469,34 @@ func (a *Client) ChangePostgresExporter(params *ChangePostgresExporterParams) (*
 		return nil, err
 	}
 	return result.(*ChangePostgresExporterOK), nil
+
+}
+
+/*
+ChangeProxySQLExporter changes proxy SQL exporter changes proxysql exporter agent
+*/
+func (a *Client) ChangeProxySQLExporter(params *ChangeProxySQLExporterParams) (*ChangeProxySQLExporterOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeProxySQLExporterParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeProxySQLExporter",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Agents/ChangeProxySQLExporter",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeProxySQLExporterReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeProxySQLExporterOK), nil
 
 }
 

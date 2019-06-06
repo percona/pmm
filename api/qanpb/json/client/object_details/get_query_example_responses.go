@@ -341,6 +341,9 @@ swagger:model QueryExamplesItems0
 */
 type QueryExamplesItems0 struct {
 
+	// agent id
+	AgentID string `json:"agent_id,omitempty"`
+
 	// example
 	Example string `json:"example,omitempty"`
 
@@ -357,6 +360,12 @@ type QueryExamplesItems0 struct {
 
 	// is truncated
 	IsTruncated int64 `json:"is_truncated,omitempty"`
+
+	// schema
+	Schema string `json:"schema,omitempty"`
+
+	// service id
+	ServiceID string `json:"service_id,omitempty"`
 }
 
 // Validate validates this query examples items0

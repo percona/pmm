@@ -51,6 +51,18 @@ func (this *StartMySQLExplainJSONActionRequest) Validate() error {
 func (this *StartMySQLExplainJSONActionResponse) Validate() error {
 	return nil
 }
+func (this *StartMySQLShowCreateTableActionRequest) Validate() error {
+	return nil
+}
+func (this *StartMySQLShowCreateTableActionResponse) Validate() error {
+	return nil
+}
+func (this *StartMySQLShowTableStatusActionRequest) Validate() error {
+	return nil
+}
+func (this *StartMySQLShowTableStatusActionResponse) Validate() error {
+	return nil
+}
 func (this *CancelActionRequest) Validate() error {
 	return nil
 }

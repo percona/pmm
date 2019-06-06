@@ -1031,6 +1031,9 @@
                     "description": "QueryExample shows query examples and their metrics.",
                     "type": "object",
                     "properties": {
+                      "agent_id": {
+                        "type": "string"
+                      },
                       "example": {
                         "type": "string"
                       },
@@ -1062,6 +1065,12 @@
                       "is_truncated": {
                         "type": "integer",
                         "format": "int64"
+                      },
+                      "schema": {
+                        "type": "string"
+                      },
+                      "service_id": {
+                        "type": "string"
                       }
                     }
                   }

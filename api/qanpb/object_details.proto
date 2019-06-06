@@ -117,6 +117,9 @@ message QueryExample {
   ExampleType example_type = 3;
   uint32 is_truncated = 4;
   string example_metrics = 5;
+  string service_id = 6;
+  string schema = 7;
+  string agent_id = 8;
 }
 
 // ObjectDetailsLabelsRequest defines filtering of object detail's labels for specific value of

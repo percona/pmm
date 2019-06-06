@@ -137,6 +137,34 @@ func (a *Client) AddPostgreSQLService(params *AddPostgreSQLServiceParams) (*AddP
 }
 
 /*
+AddProxySQLService adds proxy SQL service adds proxy SQL service
+*/
+func (a *Client) AddProxySQLService(params *AddProxySQLServiceParams) (*AddProxySQLServiceOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddProxySQLServiceParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddProxySQLService",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Services/AddProxySQL",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddProxySQLServiceReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddProxySQLServiceOK), nil
+
+}
+
+/*
 GetService gets service returns a single service by ID
 */
 func (a *Client) GetService(params *GetServiceParams) (*GetServiceOK, error) {
