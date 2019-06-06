@@ -157,6 +157,10 @@ func (s *servicesServer) AddPostgreSQLService(ctx context.Context, req *inventor
 	return res, nil
 }
 
+func (s *servicesServer) AddProxySQLService(ctx context.Context, req *inventorypb.AddProxySQLServiceRequest) (*inventorypb.AddProxySQLServiceResponse, error) {
+	panic("not implemented")
+}
+
 // RemoveService removes Service.
 func (s *servicesServer) RemoveService(ctx context.Context, req *inventorypb.RemoveServiceRequest) (*inventorypb.RemoveServiceResponse, error) {
 	if err := s.s.Remove(ctx, req.ServiceId, req.Force); err != nil {

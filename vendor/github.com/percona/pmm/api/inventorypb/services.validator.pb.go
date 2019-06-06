@@ -34,6 +34,10 @@ func (this *PostgreSQLService) Validate() error {
 	// Validation of proto3 map<> fields is unsupported.
 	return nil
 }
+func (this *ProxySQLService) Validate() error {
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
 func (this *ListServicesRequest) Validate() error {
 	return nil
 }
@@ -63,6 +67,13 @@ func (this *ListServicesResponse) Validate() error {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Postgresql", err)
+			}
+		}
+	}
+	for _, item := range this.Proxysql {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Proxysql", err)
 			}
 		}
 	}
@@ -100,6 +111,13 @@ func (this *GetServiceResponse) Validate() error {
 		if oneOfNester.Postgresql != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Postgresql); err != nil {
 				return github_com_mwitkow_go_proto_validators.FieldError("Postgresql", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetService().(*GetServiceResponse_Proxysql); ok {
+		if oneOfNester.Proxysql != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.Proxysql); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Proxysql", err)
 			}
 		}
 	}
@@ -197,6 +215,30 @@ func (this *AddPostgreSQLServiceResponse) Validate() error {
 	if this.Postgresql != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Postgresql); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Postgresql", err)
+		}
+	}
+	return nil
+}
+func (this *AddProxySQLServiceRequest) Validate() error {
+	if this.ServiceName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ServiceName", fmt.Errorf(`value '%v' must not be an empty string`, this.ServiceName))
+	}
+	if this.NodeId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("NodeId", fmt.Errorf(`value '%v' must not be an empty string`, this.NodeId))
+	}
+	if this.Address == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Address", fmt.Errorf(`value '%v' must not be an empty string`, this.Address))
+	}
+	if !(this.Port > 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Port", fmt.Errorf(`value '%v' must be greater than '0'`, this.Port))
+	}
+	// Validation of proto3 map<> fields is unsupported.
+	return nil
+}
+func (this *AddProxySQLServiceResponse) Validate() error {
+	if this.Proxysql != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Proxysql); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Proxysql", err)
 		}
 	}
 	return nil

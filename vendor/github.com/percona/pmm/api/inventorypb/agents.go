@@ -18,4 +18,5 @@ func (*QANMySQLPerfSchemaAgent) sealedAgent() {}
 func (*QANMySQLSlowlogAgent) sealedAgent()    {}
 func (*QANMongoDBProfilerAgent) sealedAgent() {}
 func (*RDSExporter) sealedAgent()             {}
+func (*ProxySQLExporter) sealedAgent()        {}
 func (*ExternalExporter) sealedAgent()        {}

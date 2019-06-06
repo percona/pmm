@@ -331,6 +331,16 @@ func (s *agentsServer) ChangeQANMongoDBProfilerAgent(ctx context.Context, req *i
 	return res, nil
 }
 
+// AddProxySQLExporter adds proxysql_exporter Agent.
+func (s *agentsServer) AddProxySQLExporter(ctx context.Context, req *inventorypb.AddProxySQLExporterRequest) (*inventorypb.AddProxySQLExporterResponse, error) {
+	panic("not implemented")
+}
+
+// ChangeProxySQLExporter changes disabled flag and custom labels of proxysql_exporter Agent.
+func (s *agentsServer) ChangeProxySQLExporter(ctx context.Context, req *inventorypb.ChangeProxySQLExporterRequest) (*inventorypb.ChangeProxySQLExporterResponse, error) {
+	panic("not implemented")
+}
+
 // RemoveAgent removes Agent.
 func (s *agentsServer) RemoveAgent(ctx context.Context, req *inventorypb.RemoveAgentRequest) (*inventorypb.RemoveAgentResponse, error) {
 	if err := s.s.Remove(ctx, req.AgentId, req.Force); err != nil {

@@ -108,9 +108,9 @@ func Stream(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, 
 	// set logger
 	l := logrus.WithField("request", logger.MakeRequestID())
 	if info.FullMethod == "/agent.Agent/Connect" {
-		agentID := agentpb.GetAgentConnectMetadata(ctx).ID
-		if agentID != "" {
-			l = l.WithField("agent_id", agentID)
+		md, _ := agentpb.ReceiveAgentConnectMetadata(ss)
+		if md != nil && md.ID != "" {
+			l = l.WithField("agent_id", md.ID)
 		}
 	}
 	ctx = logger.SetEntry(ctx, l)

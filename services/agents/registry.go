@@ -202,8 +202,11 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*agentInfo, error) {
 	ctx := stream.Context()
 	l := logger.Get(ctx)
-	agentMD := agentpb.GetAgentConnectMetadata(ctx)
-	runsOnNodeID, err := authenticate(&agentMD, r.db.Querier)
+	agentMD, err := agentpb.ReceiveAgentConnectMetadata(stream)
+	if err != nil {
+		return nil, err
+	}
+	runsOnNodeID, err := authenticate(agentMD, r.db.Querier)
 	if err != nil {
 		l.Warnf("Failed to authenticate connected pmm-agent %+v.", agentMD)
 		return nil, err
