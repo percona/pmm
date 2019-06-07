@@ -63,10 +63,17 @@ func (this *SetStateResponse) Validate() error {
 	return nil
 }
 func (this *StartActionRequest) Validate() error {
-	if oneOfNester, ok := this.GetParams().(*StartActionRequest_ProcessParams_); ok {
-		if oneOfNester.ProcessParams != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.ProcessParams); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("ProcessParams", err)
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PtSummaryParams); ok {
+		if oneOfNester.PtSummaryParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PtSummaryParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PtSummaryParams", err)
+			}
+		}
+	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_PtMysqlSummaryParams); ok {
+		if oneOfNester.PtMysqlSummaryParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.PtMysqlSummaryParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("PtMysqlSummaryParams", err)
 			}
 		}
 	}
@@ -91,6 +98,13 @@ func (this *StartActionRequest) Validate() error {
 			}
 		}
 	}
+	if oneOfNester, ok := this.GetParams().(*StartActionRequest_MysqlShowIndexParams); ok {
+		if oneOfNester.MysqlShowIndexParams != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(oneOfNester.MysqlShowIndexParams); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MysqlShowIndexParams", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *StartActionRequest_ProcessParams) Validate() error {
@@ -103,6 +117,9 @@ func (this *StartActionRequest_MySQLShowCreateTableParams) Validate() error {
 	return nil
 }
 func (this *StartActionRequest_MySQLShowTableStatusParams) Validate() error {
+	return nil
+}
+func (this *StartActionRequest_MySQLShowIndexParams) Validate() error {
 	return nil
 }
 func (this *StartActionResponse) Validate() error {

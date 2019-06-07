@@ -63,6 +63,12 @@ func (this *StartMySQLShowTableStatusActionRequest) Validate() error {
 func (this *StartMySQLShowTableStatusActionResponse) Validate() error {
 	return nil
 }
+func (this *StartMySQLShowIndexActionRequest) Validate() error {
+	return nil
+}
+func (this *StartMySQLShowIndexActionResponse) Validate() error {
+	return nil
+}
 func (this *CancelActionRequest) Validate() error {
 	return nil
 }
