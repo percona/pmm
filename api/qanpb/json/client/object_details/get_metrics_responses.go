@@ -363,7 +363,7 @@ func (o *GetMetricsOKBody) UnmarshalBinary(b []byte) error {
 	return nil
 }
 
-/*LabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"d_server": ["db1", "db2"...]}.
+/*LabelsItems0 MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
 swagger:model LabelsItems0
 */
 type LabelsItems0 struct {

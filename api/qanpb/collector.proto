@@ -23,9 +23,9 @@ option go_package = "qanpb";
 import "protoc-gen-swagger/options/annotations.proto";
 import "qanpb/qan.proto";
 
-// MetricsSource defines collected metrics source.
-enum MetricsSource {
-  METRICS_SOURCE_INVALID = 0;
+// AgentType defines collected metrics source.
+enum AgentType {
+  AGENT_TYPE_INVALID = 0;
   MYSQL_SLOWLOG = 1;
   MYSQL_PERFSCHEMA = 2;
   MONGODB_PROFILER = 3;
@@ -55,13 +55,13 @@ message MetricsBucket {
   // Service Name (can be several Services on one Node).
   string service_name = 3;
   // PostgreSQL database.
-  string d_database = 4;
+  string database = 4;
   // MySQL database or PostgreSQL schema.
-  string d_schema = 5;
+  string schema = 5;
   // client user name.
-  string d_username = 6;
+  string username = 6;
   // client IP or hostname.
-  string d_client_host = 7;
+  string client_host = 7;
   //
   // Unified Labels Group.
   //
@@ -85,7 +85,7 @@ message MetricsBucket {
   // Identifier of agent that collect and send metrics.
   string agent_id = 9;
   // Metrics source.
-  MetricsSource metrics_source = 12;
+  AgentType agent_type = 12;
   // Custom labels names:values.
   map<string, string> labels = 8;
   //
