@@ -22,7 +22,7 @@ lint:
       - COMMENTS_NO_INLINE                                    # Verifies that there are no inline comments.
       - ENUMS_HAVE_COMMENTS                                   # Verifies that all enums have a comment of the form "// EnumName ...".
       - ENUMS_HAVE_SENTENCE_COMMENTS                          # Verifies that all enums have a comment that contains at least one complete sentence.
-      # FIXME - ENUMS_NO_ALLOW_ALIAS                                  # Verifies that no enums use the option "allow_alias".
+      - ENUMS_NO_ALLOW_ALIAS                                  # Verifies that no enums use the option "allow_alias".
       - ENUM_FIELD_NAMES_UPPERCASE                            # Verifies that all enum field names are UPPERCASE.
       - ENUM_FIELD_NAMES_UPPER_SNAKE_CASE                     # Verifies that all enum field names are UPPER_SNAKE_CASE.
       # - ENUM_FIELD_PREFIXES                                   # Verifies that all enum fields are prefixed with [NESTED_MESSAGE_NAME_]ENUM_NAME_.

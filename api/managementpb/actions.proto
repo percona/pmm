@@ -26,17 +26,12 @@ import "protoc-gen-swagger/options/annotations.proto";
 
 // ActionType represents Action type.
 enum ActionType {
-  // TODO remove allow_alias and enable ENUMS_NO_ALLOW_ALIAS in prototool.yaml
-
-  option allow_alias = true;
   ACTION_TYPE_INVALID = 0;
   PT_SUMMARY = 3;
   PT_MYSQL_SUMMARY = 4;
   MYSQL_EXPLAIN = 8;
   MYSQL_SHOW_CREATE_TABLE = 9;
   MYSQL_SHOW_TABLE_STATUS = 10;
-  // Deprecated: use MYSQL_SHOW_TABLE_STATUS instead.
-  MYSQL_SHOW_TABLE_INFO = 10;
   MYSQL_SHOW_INDEX = 11;
 }
 

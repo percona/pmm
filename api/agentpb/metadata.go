@@ -31,11 +31,6 @@ type ServerConnectMetadata struct {
 	ServerVersion     string
 }
 
-// AgentServerMetadata is deprecated name for ServerConnectMetadata.
-//
-// Deprecated: use ServerConnectMetadata.
-type AgentServerMetadata = ServerConnectMetadata
-
 func getValue(md metadata.MD, key string) string {
 	vs := md.Get(key)
 	if len(vs) == 1 {
@@ -86,13 +81,6 @@ func SendServerConnectMetadata(stream grpc.ServerStream, md *ServerConnectMetada
 		err = status.Errorf(codes.DataLoss, "SendServerConnectMetadata: SendHeader: %s", err)
 	}
 	return err
-}
-
-// SendAgentServerMetadata is deprecated name for SendServerConnectMetadata.
-//
-// Deprecated: use SendServerConnectMetadata.
-func SendAgentServerMetadata(stream grpc.ServerStream, md *AgentServerMetadata) error {
-	return SendServerConnectMetadata(stream, md)
 }
 
 // ReceiveServerConnectMetadata receives pmm-managed's metadata. Used by pmm-agent.
