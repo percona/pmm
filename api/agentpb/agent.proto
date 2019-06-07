@@ -7,7 +7,6 @@ option go_package = "agentpb";
 import "google/protobuf/timestamp.proto";
 import "inventorypb/agent_status.proto";
 import "inventorypb/services.proto";
-import "managementpb/actions.proto";
 import "qanpb/collector.proto";
 
 // Type represents Agent type.
@@ -119,8 +118,6 @@ message StartActionRequest {
     string table = 2;
   }
   string action_id = 1;
-  // TODO remove
-  management.ActionType type = 2;
   oneof params {
     ProcessParams pt_summary_params = 3;
     ProcessParams pt_mysql_summary_params = 4;
