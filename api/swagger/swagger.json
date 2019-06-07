@@ -7988,7 +7988,7 @@
                 "labels": {
                   "type": "array",
                   "items": {
-                    "description": "ReportMapFieldEntry allows to pass labels/dimentions in form like {\"d_server\": [\"db1\", \"db2\"...]}.",
+                    "description": "ReportMapFieldEntry allows to pass labels/dimentions in form like {\"server\": [\"db1\", \"db2\"...]}.",
                     "type": "object",
                     "properties": {
                       "key": {
@@ -8468,7 +8468,7 @@
                 "labels": {
                   "type": "array",
                   "items": {
-                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"d_server\": [\"db1\", \"db2\"...]}.",
+                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"server\": [\"db1\", \"db2\"...]}.",
                     "type": "object",
                     "properties": {
                       "key": {
@@ -8803,7 +8803,7 @@
                 "labels": {
                   "type": "array",
                   "items": {
-                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"d_server\": [\"db1\", \"db2\"...]}.",
+                    "description": "MapFieldEntry allows to pass labels/dimensions in form like {\"server\": [\"db1\", \"db2\"...]}.",
                     "type": "object",
                     "properties": {
                       "key": {

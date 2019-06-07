@@ -63,7 +63,7 @@ message MetricsRequest {
   repeated string include_only_fields = 6;
 }
 
-// MapFieldEntry allows to pass labels/dimensions in form like {"d_server": ["db1", "db2"...]}.
+// MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
 message MapFieldEntry {
   string key = 1;
   repeated string value = 2;

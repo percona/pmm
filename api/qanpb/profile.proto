@@ -48,7 +48,7 @@ message ReportRequest {
   uint32 limit = 8;
 }
 
-// ReportMapFieldEntry allows to pass labels/dimentions in form like {"d_server": ["db1", "db2"...]}.
+// ReportMapFieldEntry allows to pass labels/dimentions in form like {"server": ["db1", "db2"...]}.
 message ReportMapFieldEntry {
   string key = 1;
   repeated string value = 2;
