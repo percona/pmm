@@ -1,0 +1,143 @@
+[
+  {
+    "Offset": 0,
+    "OffsetEnd": 732,
+    "Ts": "2013-11-28T01:05:31Z",
+    "Admin": false,
+    "Query": "SELECT foo FROM bar WHERE id=1",
+    "User": "user1",
+    "Host": "localhost",
+    "Db": "maindb",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "InnoDB_IO_r_wait": 0,
+      "InnoDB_queue_wait": 0,
+      "InnoDB_rec_lock_wait": 0,
+      "Lock_time": 0.000114,
+      "Query_time": 0.000228
+    },
+    "NumberMetrics": {
+      "Bytes_sent": 545,
+      "InnoDB_IO_r_bytes": 0,
+      "InnoDB_IO_r_ops": 0,
+      "InnoDB_pages_distinct": 2,
+      "InnoDB_trx_id": 0,
+      "Killed": 0,
+      "Last_errno": 0,
+      "Merge_passes": 0,
+      "Rows_affected": 0,
+      "Rows_examined": 1,
+      "Rows_sent": 1,
+      "Tmp_disk_tables": 0,
+      "Tmp_table_sizes": 0,
+      "Tmp_tables": 0
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "query",
+    "RateLimit": 2
+  },
+  {
+    "Offset": 732,
+    "OffsetEnd": 1440,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SELECT foo FROM bar WHERE id=2",
+    "User": "user1",
+    "Host": "localhost",
+    "Db": "maindb",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "InnoDB_IO_r_wait": 0,
+      "InnoDB_queue_wait": 0,
+      "InnoDB_rec_lock_wait": 0,
+      "Lock_time": 0.000122,
+      "Query_time": 0.000237
+    },
+    "NumberMetrics": {
+      "Bytes_sent": 545,
+      "InnoDB_IO_r_bytes": 0,
+      "InnoDB_IO_r_ops": 0,
+      "InnoDB_pages_distinct": 2,
+      "InnoDB_trx_id": 0,
+      "Killed": 0,
+      "Last_errno": 0,
+      "Merge_passes": 0,
+      "Rows_affected": 0,
+      "Rows_examined": 1,
+      "Rows_sent": 1,
+      "Tmp_disk_tables": 0,
+      "Tmp_table_sizes": 0,
+      "Tmp_tables": 0
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "query",
+    "RateLimit": 2
+  },
+  {
+    "Offset": 1440,
+    "OffsetEnd": 2152,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "INSERT INTO foo VALUES (NULL, 3)",
+    "User": "user1",
+    "Host": "localhost",
+    "Db": "maindb",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "InnoDB_IO_r_wait": 0,
+      "InnoDB_queue_wait": 0,
+      "InnoDB_rec_lock_wait": 0,
+      "Lock_time": 0.000048,
+      "Query_time": 0.000165
+    },
+    "NumberMetrics": {
+      "Bytes_sent": 481,
+      "InnoDB_IO_r_bytes": 0,
+      "InnoDB_IO_r_ops": 0,
+      "InnoDB_pages_distinct": 3,
+      "InnoDB_trx_id": 0,
+      "Killed": 0,
+      "Last_errno": 0,
+      "Merge_passes": 0,
+      "Rows_affected": 0,
+      "Rows_examined": 10,
+      "Rows_sent": 5,
+      "Tmp_disk_tables": 0,
+      "Tmp_table_sizes": 0,
+      "Tmp_tables": 0
+    },
+    "BoolMetrics": {
+      "Filesort": true,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "query",
+    "RateLimit": 2
+  }
+]

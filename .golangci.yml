@@ -7,6 +7,9 @@ linters-settings:
     packages:
       - errors
 
+      # use only forked parser
+      - github.com/percona/go-mysql/log/slow
+
   goimports:
     local-prefixes: github.com/percona/pmm-agent
 

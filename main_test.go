@@ -99,6 +99,13 @@ func TestImports(t *testing.T) {
 				"github.com/percona/pmm-agent/agents/supervisor",
 			},
 		},
+
+		// slowlog parser should be fully independent
+		"github.com/percona/pmm-agent/agents/builtin/mysql/slowlog/parser": {
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm-agent",
+			},
+		},
 	} {
 		p, err := build.Import(path, ".", build.IgnoreVendor)
 		require.NoError(t, err)

@@ -1,0 +1,36 @@
+[
+  {
+    "Offset": 0,
+    "OffsetEnd": 359,
+    "Ts": "2007-12-18T11:48:27Z",
+    "Admin": false,
+    "Query": "foo\nbar\n\t\t\t0 AS counter\nbaz",
+    "User": "[SQL_SLAVE]",
+    "Host": "",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000012
+    },
+    "NumberMetrics": {
+      "Merge_passes": 0,
+      "Rows_examined": 0,
+      "Rows_sent": 0,
+      "Thread_id": 10
+    },
+    "BoolMetrics": {
+      "Filesort": false,
+      "Filesort_on_disk": false,
+      "Full_join": false,
+      "Full_scan": false,
+      "QC_Hit": false,
+      "Tmp_table": false,
+      "Tmp_table_on_disk": false
+    },
+    "RateType": "",
+    "RateLimit": 0
+  }
+]

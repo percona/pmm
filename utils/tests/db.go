@@ -27,8 +27,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// OpenTestMySQL opens connection to MySQL test database.
-func OpenTestMySQL(tb testing.TB) *sql.DB {
+// GetTestMySQLDSN returns DNS for MySQL test database.
+func GetTestMySQLDSN(tb testing.TB) string {
 	tb.Helper()
 
 	if testing.Short() {
@@ -46,8 +46,14 @@ func OpenTestMySQL(tb testing.TB) *sql.DB {
 	cfg.ClientFoundRows = true
 	cfg.ParseTime = true
 
-	dsn := cfg.FormatDSN()
-	db, err := sql.Open("mysql", dsn)
+	return cfg.FormatDSN()
+}
+
+// OpenTestMySQL opens connection to MySQL test database.
+func OpenTestMySQL(tb testing.TB) *sql.DB {
+	tb.Helper()
+
+	db, err := sql.Open("mysql", GetTestMySQLDSN(tb))
 	if err == nil {
 		db.SetMaxIdleConns(10)
 		db.SetMaxOpenConns(10)

@@ -1,0 +1,36 @@
+/usr/sbin/mysqld, Version: 5.6.19-1~dotdeb.1-log ((Debian)). started with:
+Tcp port: 3306  Unix socket: /var/run/mysqld/mysqld.sock
+Time                 Id Command    Argument
+# User@Host: bookblogs[bookblogs] @ localhost []  Id: 56601
+# Query_time: 0.321092  Lock_time: 0.000038 Rows_sent: 0  Rows_examined: 0
+use dbnamea;
+SET timestamp=1415210700;
+SELECT field FROM table_a WHERE some_other_field = 'yahoo' LIMIT 1;
+# User@Host: bookblogs[bookblogs] @ localhost []  Id: 56604
+# Query_time: 0.253052  Lock_time: 0.000000 Rows_sent: 0  Rows_examined: 0
+SET timestamp=1415210700;
+SET NAMES utf8;
+# User@Host: percona-agent[percona-agent] @ localhost []  Id: 56603
+# Query_time: 0.316450  Lock_time: 0.000000 Rows_sent: 0  Rows_examined: 0
+SET timestamp=1415210700;
+SET GLOBAL slow_query_log=ON;
+# User@Host: bookblogs[bookblogs] @ localhost []  Id: 56604
+# Query_time: 0.000037  Lock_time: 0.000000 Rows_sent: 1  Rows_examined: 0
+SET timestamp=1415210700;
+SELECT @@SESSION.sql_mode;
+# User@Host: bookblogs[bookblogs] @ localhost []  Id: 56601
+# Query_time: 0.000297  Lock_time: 0.000141 Rows_sent: 1  Rows_examined: 1
+SET timestamp=1415210700;
+SELECT field FROM table_b WHERE another_field = 'bazinga' AND site_id = 1;
+# User@Host: backup[backup] @ localhost []  Id: 56458
+# Query_time: 0.000558  Lock_time: 0.000000 Rows_sent: 0  Rows_examined: 0
+SET timestamp=1415210700;
+use `dbnameb`;
+# User@Host: backup[backup] @ localhost []  Id: 56458
+# Query_time: 0.000204  Lock_time: 0.000000 Rows_sent: 1  Rows_examined: 0
+SET timestamp=1415210700;
+select @@collation_database;
+# User@Host: bookblogs[bookblogs] @ localhost []  Id: 56601
+# Query_time: 0.000164  Lock_time: 0.000059 Rows_sent: 1  Rows_examined: 1
+SET timestamp=1415210700;
+SELECT another_field FROM table_c WHERE a_third_field = 'tiruriru' AND site_id = 1;

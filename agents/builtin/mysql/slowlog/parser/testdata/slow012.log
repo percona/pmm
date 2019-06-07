@@ -1,0 +1,14 @@
+# User@Host: msandbox[msandbox] @ localhost []  Id:   168
+# Query_time: 0.000214  Lock_time: 0.000086 Rows_sent: 2  Rows_examined: 2
+SET timestamp=1397442852;
+select * from mysql.user;
+# User@Host: msandbox[msandbox] @ localhost []  Id:   168
+# Query_time: 0.000016  Lock_time: 0.000000 Rows_sent: 2  Rows_examined: 2
+SET timestamp=1397442852;
+# administrator command: Quit;
+# Time: 140413 19:34:13
+# User@Host: msandbox[msandbox] @ localhost [127.0.0.1]  Id:   169
+# Query_time: 0.000127  Lock_time: 0.000000 Rows_sent: 1  Rows_examined: 0
+use dev_pct;
+SET timestamp=1397442853;
+SELECT @@max_allowed_packet;

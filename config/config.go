@@ -72,6 +72,8 @@ type Paths struct {
 	PtSummary        string `yaml:"pt_summary"`
 	PtMySQLSummary   string `yaml:"pt_mysql_summary"`
 	TempDir          string `yaml:"tempdir"`
+
+	SlowLogFilePrefix string `yaml:"slowlog_file_prefix,omitempty"` // for development and testing
 }
 
 // lookup replaces paths with absolute paths.
@@ -226,6 +228,7 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").Default("pt-mysql-summary").StringVar(&cfg.Paths.PtMySQLSummary)
 	app.Flag("paths-tempdir", "Temporary directory for exporters. [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
+	// no flag for SlowLogFilePrefix - it is only for development and testing
 
 	// TODO read defaults from /proc/sys/net/ipv4/ip_local_port_range ?
 	app.Flag("ports-min", "Minimal allowed port number for listening sockets. [PMM_AGENT_PORTS_MIN]").

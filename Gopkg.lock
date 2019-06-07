@@ -314,16 +314,15 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:f8a2c897ac095fcf4767f11b98b42e3639fbcfd5d644742d120ce377e926a151"
+  digest = "1:7ec3bfaaeba60412e084a13c33e581339646ed9dfa749d08454585c9bb3744dd"
   name = "github.com/percona/go-mysql"
   packages = [
     "event",
     "log",
-    "log/slow",
     "query",
   ]
   pruneopts = "NUT"
-  revision = "a7705a60b657bfd4b07854cf57ad4dbcb2920524"
+  revision = "eae71f25e1122be614529e03129b9c1e772dea1c"
 
 [[projects]]
   branch = "3.0"
@@ -485,6 +484,19 @@
   ]
   pruneopts = "NUT"
   revision = "f4e77d36d62c17c2336347bb2670ddbd02d092b7"
+
+[[projects]]
+  branch = "master"
+  digest = "1:66bced6bace487f27ecd451ba37a2cb4d143fe6816124fa2d3c9d2f6de332ecc"
+  name = "golang.org/x/perf"
+  packages = [
+    "benchstat",
+    "cmd/benchstat",
+    "internal/stats",
+    "storage/benchfmt",
+  ]
+  pruneopts = "NUT"
+  revision = "6835260b7148966b8510e0165e066287164de4cb"
 
 [[projects]]
   branch = "master"
@@ -686,7 +698,6 @@
     "github.com/percona/exporter_shared/helpers",
     "github.com/percona/go-mysql/event",
     "github.com/percona/go-mysql/log",
-    "github.com/percona/go-mysql/log/slow",
     "github.com/percona/go-mysql/query",
     "github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter",
     "github.com/percona/percona-toolkit/src/go/mongolib/proto",
@@ -711,6 +722,7 @@
     "github.com/stretchr/testify/mock",
     "github.com/stretchr/testify/require",
     "github.com/vektra/mockery/cmd/mockery",
+    "golang.org/x/perf/cmd/benchstat",
     "golang.org/x/sys/unix",
     "golang.org/x/tools/cmd/goimports",
     "google.golang.org/grpc",

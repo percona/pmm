@@ -4,5 +4,14 @@
 cover.out
 crosscover.out
 
+/testdata/slowlogs/*.log
+
+*.bench
+
+/agents/builtin/mysql/slowlog/parser/corpus/
+/agents/builtin/mysql/slowlog/parser/crashers/
+/agents/builtin/mysql/slowlog/parser/suppressions/
+/agents/builtin/mysql/slowlog/parser/parser-fuzz.zip
+
 backoff.png
 pmm-agent-dev.yaml

@@ -17,16 +17,20 @@
 package slowlog
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"testing"
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/stretchr/testify/assert"
-
 	"github.com/percona/go-mysql/event"
 	"github.com/percona/pmm/api/qanpb"
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	"github.com/percona/pmm-agent/utils/tests"
 )
 
 func assertBucketsEqual(t *testing.T, expected, actual *qanpb.MetricsBucket) bool {
@@ -47,12 +51,12 @@ func getDataFromFile(t *testing.T, filePath string, data interface{}) {
 
 func TestSlowLog(t *testing.T) {
 	const agentID = "/agent_id/73ee2f92-d5aa-45f0-8b09-6d3df605fd44"
-	ts := time.Unix(1557137220, 0)
+	periodStart := time.Unix(1557137220, 0)
 
 	parsingResult := event.Result{}
 	getDataFromFile(t, "slowlog_fixture.json", &parsingResult)
 
-	actualBuckets := makeBuckets(agentID, parsingResult, ts)
+	actualBuckets := makeBuckets(agentID, parsingResult, periodStart, 60)
 
 	expectedBuckets := []*qanpb.MetricsBucket{}
 	getDataFromFile(t, "slowlog_expected.json", &expectedBuckets)
@@ -68,4 +72,26 @@ func TestSlowLog(t *testing.T) {
 		}
 	}
 	assert.Equal(t, countExpectedBuckets, countActualBuckets)
+}
+
+func TestSlowLogInfo(t *testing.T) {
+	db := tests.OpenTestMySQL(t)
+	defer db.Close()
+	_, vendor := tests.MySQLVersion(t, db)
+
+	expected := &slowLogInfo{
+		path: "/slowlogs/slow.log",
+	}
+	if vendor == tests.PerconaMySQL {
+		expected.outlierTime = 10
+	}
+
+	params := &Params{
+		DSN: tests.GetTestMySQLDSN(t),
+	}
+	s, err := New(params, logrus.WithField("test", t.Name))
+	require.NoError(t, err)
+	actual, err := s.getSlowLogInfo(context.Background())
+	require.NoError(t, err)
+	assert.Equal(t, expected, actual)
 }

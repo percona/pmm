@@ -1,0 +1,77 @@
+[
+  {
+    "Offset": 0,
+    "OffsetEnd": 220,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": true,
+    "Query": "Quit",
+    "User": "meow",
+    "Host": "",
+    "Db": "db1",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000002
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 0,
+      "Thread_id": 5
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 220,
+    "OffsetEnd": 434,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SET NAMES utf8",
+    "User": "meow",
+    "Host": "",
+    "Db": "db",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0,
+      "Query_time": 0.000899
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 0,
+      "Thread_id": 6
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  },
+  {
+    "Offset": 434,
+    "OffsetEnd": 656,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SELECT MIN(id),MAX(id) FROM tbl",
+    "User": "meow",
+    "Host": "",
+    "Db": "db2",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.009453,
+      "Query_time": 0.018799
+    },
+    "NumberMetrics": {
+      "Rows_examined": 0,
+      "Rows_sent": 0,
+      "Thread_id": 6
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  }
+]

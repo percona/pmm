@@ -443,8 +443,9 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 
 	case agentpb.Type_QAN_MYSQL_SLOWLOG_AGENT:
 		params := &slowlog.Params{
-			DSN:     builtinAgent.Dsn,
-			AgentID: agentID,
+			DSN:               builtinAgent.Dsn,
+			AgentID:           agentID,
+			SlowLogFilePrefix: s.paths.SlowLogFilePrefix,
 		}
 		agent, err := slowlog.New(params, l)
 		if err != nil {

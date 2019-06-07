@@ -1,0 +1,114 @@
+# Time: 140224 22:39:34
+# User@Host: root[root] @ localhost []  Id: 208333
+# Schema: db950  Last_errno: 0  Killed: 0
+# Query_time: 21.876617  Lock_time: 0.002991  Rows_sent: 1605306  Rows_examined: 1605306  Rows_affected: 1605306
+# Bytes_sent: 14
+use db950;
+SET timestamp=1393281574;
+select 950,q.* from qcm q INTO OUTFILE '/mnt/pct/exp/qcm_db950.txt';
+# Time: 140224 22:39:59
+# User@Host: root[root] @ localhost []  Id: 208345
+# Schema: db961  Last_errno: 0  Killed: 0
+# Query_time: 20.304536  Lock_time: 0.103324  Rows_sent: 1197472  Rows_examined: 1197472  Rows_affected: 1197472
+# Bytes_sent: 14
+use db961;
+SET timestamp=1393281599;
+select 961,q.* from qcm q INTO OUTFILE '/mnt/pct/exp/qcm_db961.txt';
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 0  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 0  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 0  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/local/Percona-Server-5.6-r518-46-tokudb.generic.x86_64/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
+Tcp port: 0  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/sbin/mysqld, Version: 5.6.16-64.0-1.precise-log ((Ubuntu)). started with:
+Tcp port: 0  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/sbin/mysqld, Version: 5.6.16-64.0-1.precise-log ((Ubuntu)). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/sbin/mysqld, Version: 5.6.16-64.0-1.precise-log ((Ubuntu)). started with:
+Tcp port: 0  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/sbin/mysqld, Version: 5.6.16-64.0-1.precise-log ((Ubuntu)). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+/usr/sbin/mysqld, Version: 5.6.16-64.0-1.precise-log ((Ubuntu)). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+# Time: 140311 16:07:40
+# User@Host: debian-sys-maint[debian-sys-maint] @ localhost []  Id:    50
+# Schema:   Last_errno: 1146  Killed: 0
+# Query_time: 94.381440  Lock_time: 0.000174  Rows_sent: 0  Rows_examined: 17799  Rows_affected: 1
+# Bytes_sent: 11
+SET timestamp=1394554060;
+select count(*) into @discard from `information_schema`.`PARTITIONS`;
+/usr/sbin/mysqld, Version: 5.6.16-64.0-1.precise-log ((Ubuntu)). started with:
+Tcp port: 3306  Unix socket: /var/lib/mysql/mysql.sock
+Time                 Id Command    Argument
+# Time: 140312 20:28:40
+# User@Host: root[root] @ localhost []  Id: 45006
+# Schema: db1  Last_errno: 0  Killed: 0
+# Query_time: 407.540262  Lock_time: 0.122377  Rows_sent: 34621308  Rows_examined: 34621308  Rows_affected: 34621308
+# Bytes_sent: 19
+use db1;
+SET timestamp=1394656120;
+select 1,q.* from qcm q INTO OUTFILE '/mnt/pct/exp/qcm_db1.txt';
+# Time: 140312 20:29:40
+# User@Host: root[root] @ localhost []  Id: 45321
+# Schema: db1006  Last_errno: 0  Killed: 0
+# Query_time: 60.507698  Lock_time: 0.002719  Rows_sent: 4937738  Rows_examined: 4937738  Rows_affected: 4937738
+# Bytes_sent: 14
+use db1006;
+SET timestamp=1394656180;
+select 1006,q.* from qcm q INTO OUTFILE '/mnt/pct/exp/qcm_db1006.txt';

@@ -10,7 +10,10 @@ services:
   mysql:
     image: ${MYSQL_IMAGE:-percona:5.7}
     container_name: pmm-agent_mysql
-    command: --sql-mode="ANSI_QUOTES" --performance-schema
+    command: >
+      --sql-mode="ANSI_QUOTES"
+      --performance-schema --innodb_monitor_enable=all
+      --slow_query_log --slow_query_log_file=/slowlogs/slow.log --long_query_time=0
     ports:
       - 127.0.0.1:3306:3306
     environment:
@@ -19,6 +22,7 @@ services:
       - MYSQL_PASSWORD=pmm-agent-password
     volumes:
       - test_db:/docker-entrypoint-initdb.d/:ro
+      - ./testdata/slowlogs:/slowlogs
 
   mongo:
     image: ${MONGO_IMAGE:-mongo:4.0}

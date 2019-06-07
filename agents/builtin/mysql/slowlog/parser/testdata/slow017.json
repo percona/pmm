@@ -1,0 +1,29 @@
+[
+  {
+    "Offset": 26,
+    "OffsetEnd": 280,
+    "Ts": "0001-01-01T00:00:00Z",
+    "Admin": false,
+    "Query": "SHOW /*!50002 GLOBAL */ STATUS",
+    "User": "pt_agent",
+    "Host": "localhost",
+    "Db": "",
+    "Server": "",
+    "LabelsKey": null,
+    "LabelsValue": null,
+    "TimeMetrics": {
+      "Lock_time": 0.000059,
+      "Query_time": 0.003953
+    },
+    "NumberMetrics": {
+      "Killed": 0,
+      "Last_errno": 0,
+      "Rows_affected": 0,
+      "Rows_examined": 571,
+      "Rows_sent": 571
+    },
+    "BoolMetrics": {},
+    "RateType": "",
+    "RateLimit": 0
+  }
+]

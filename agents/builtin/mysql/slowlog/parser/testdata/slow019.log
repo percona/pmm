@@ -1,0 +1,41 @@
+# User@Host: percona-agent[percona-agent] @ localhost []
+# Thread_id: 37911936  Schema:   Last_errno: 0  Killed: 0
+# Query_time: 0.004599  Lock_time: 0.000100  Rows_sent: 1473  Rows_examined: 1473  Rows_affected: 0  Rows_read: 1473
+# Bytes_sent: 70092  Tmp_tables: 1  Tmp_disk_tables: 0  Tmp_table_sizes: 0
+# QC_Hit: No  Full_scan: Yes  Full_join: No  Tmp_table: Yes  Tmp_table_on_disk: No
+# Filesort: No  Filesort_on_disk: No  Merge_passes: 0
+# No InnoDB statistics available for this query
+SET timestamp=1413583349;
+SELECT TABLE_SCHEMA, TABLE_NAME, ROWS_READ, ROWS_CHANGED, ROWS_CHANGED_X_INDEXES FROM INFORMATION_SCHEMA.TABLE_STATISTICS;
+# User@Host: root[root] @ localhost []
+# Thread_id: 57434695  Schema: cod7_plos15  Last_errno: 0  Killed: 0
+# Query_time: 0.000022  Lock_time: 0.000000  Rows_sent: 0  Rows_examined: 0  Rows_affected: 0  Rows_read: 0
+# Bytes_sent: 1333  Tmp_tables: 0  Tmp_disk_tables: 0  Tmp_table_sizes: 0
+# QC_Hit: Yes  Full_scan: No  Full_join: No  Tmp_table: No  Tmp_table_on_disk: No
+# Filesort: No  Filesort_on_disk: No  Merge_passes: 0
+# No InnoDB statistics available for this query
+use cod7_plos15;
+SET timestamp=1413583349;
+SELECT cid, data, created, expire, serialized FROM cache_field WHERE cid IN ('field_info:bundle_extra:user:user');
+# User@Host: root[root] @ localhost []
+# Thread_id: 57434695  Schema: cod7_plos15  Last_errno: 0  Killed: 0
+# Query_time: 0.005241  Lock_time: 0.000078  Rows_sent: 0  Rows_examined: 1  Rows_affected: 1  Rows_read: 1
+# Bytes_sent: 52  Tmp_tables: 0  Tmp_disk_tables: 0  Tmp_table_sizes: 0
+# InnoDB_trx_id: 3AC1F89B8
+# QC_Hit: No  Full_scan: No  Full_join: No  Tmp_table: No  Tmp_table_on_disk: No
+# Filesort: No  Filesort_on_disk: No  Merge_passes: 0
+#   InnoDB_IO_r_ops: 0  InnoDB_IO_r_bytes: 0  InnoDB_IO_r_wait: 0.000000
+#   InnoDB_rec_lock_wait: 0.000000  InnoDB_queue_wait: 0.000000
+#   InnoDB_pages_distinct: 8
+SET timestamp=1413583349;
+UPDATE captcha_sessions SET timestamp='1413583348', solution='1'
+WHERE  (csid = '28439');
+# User@Host: percona-agent[percona-agent] @ localhost []
+# Thread_id: 37911936  Schema:   Last_errno: 0  Killed: 0
+# Query_time: 0.011565  Lock_time: 0.000115  Rows_sent: 2146  Rows_examined: 2146  Rows_affected: 0  Rows_read: 2146
+# Bytes_sent: 102084  Tmp_tables: 1  Tmp_disk_tables: 0  Tmp_table_sizes: 0
+# QC_Hit: No  Full_scan: Yes  Full_join: No  Tmp_table: Yes  Tmp_table_on_disk: No
+# Filesort: No  Filesort_on_disk: No  Merge_passes: 0
+# No InnoDB statistics available for this query
+SET timestamp=1413583349;
+SELECT TABLE_SCHEMA, TABLE_NAME, INDEX_NAME, ROWS_READ FROM INFORMATION_SCHEMA.INDEX_STATISTICS;

@@ -6,6 +6,7 @@ ignored = [
 required = [
   "github.com/BurntSushi/go-sumtype",
   "github.com/vektra/mockery/cmd/mockery",
+  "golang.org/x/perf/cmd/benchstat",
   "golang.org/x/tools/cmd/goimports",
   "gopkg.in/reform.v1/reform",
 

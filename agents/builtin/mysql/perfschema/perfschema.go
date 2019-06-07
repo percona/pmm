@@ -20,6 +20,7 @@ package perfschema
 import (
 	"context"
 	"database/sql"
+	"math"
 	"time"
 
 	"github.com/AlekSi/pointer"
@@ -110,9 +111,9 @@ func (m *PerfSchema) Run(ctx context.Context) {
 	go m.runHistoryCacheRefresher(ctx)
 
 	// query events_statements_summary_by_digest every minute at 00 seconds
-	start := time.Now().Truncate(0) // strip monotoning clock reading
+	start := time.Now()
 	wait := start.Truncate(querySummaries).Add(querySummaries).Sub(start)
-	m.l.Debugf("Scheduling next collection in %s at %s.", wait, start.Add(wait))
+	m.l.Debugf("Scheduling next collection in %s at %s.", wait, start.Add(wait).Format("15:04:05"))
 	t := time.NewTimer(wait)
 	defer t.Stop()
 
@@ -128,11 +129,12 @@ func (m *PerfSchema) Run(ctx context.Context) {
 				m.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
 			}
 
-			buckets, err := m.getNewBuckets(start, wait)
+			lengthS := uint32(math.Round(wait.Seconds())) // round 59.9s/60.1s to 60s
+			buckets, err := m.getNewBuckets(start, lengthS)
 
-			start = time.Now().Truncate(0) // strip monotoning clock reading
+			start = time.Now()
 			wait = start.Truncate(querySummaries).Add(querySummaries).Sub(start)
-			m.l.Debugf("Scheduling next collection in %s at %s.", wait, start.Add(wait))
+			m.l.Debugf("Scheduling next collection in %s at %s.", wait, start.Add(wait).Format("15:04:05"))
 			t.Reset(wait)
 
 			if err != nil {
@@ -179,7 +181,7 @@ func (m *PerfSchema) refreshHistoryCache() error {
 	return nil
 }
 
-func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLength time.Duration) ([]*qanpb.MetricsBucket, error) {
+func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint32) ([]*qanpb.MetricsBucket, error) {
 	current, err := getSummaries(m.db.Querier)
 	if err != nil {
 		return nil, err
@@ -187,19 +189,19 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLength time.Dura
 	prev := m.summaryCache.get()
 
 	buckets := makeBuckets(current, prev, m.l)
-	m.l.Debugf("Made %d buckets out of %d summaries.", len(buckets), len(current))
+	startS := uint32(periodStart.Unix())
+	m.l.Debugf("Made %d buckets out of %d summaries in %s+%d interval.",
+		len(buckets), len(current), periodStart.Format("15:04:05"), periodLengthSecs)
 
 	// merge prev and current in cache
 	m.summaryCache.refresh(current)
 
 	// add agent_id, timestamps, and examples from history cache
-	startS := uint32(periodStart.Unix())
-	lengthS := uint32(periodLength.Seconds())
 	history := m.historyCache.get()
 	for i, b := range buckets {
 		b.AgentId = m.agentID
 		b.PeriodStartUnixSecs = startS
-		b.PeriodLengthSecs = lengthS
+		b.PeriodLengthSecs = periodLengthSecs
 
 		if esh := history[b.Queryid]; esh != nil {
 			// TODO test if we really need that

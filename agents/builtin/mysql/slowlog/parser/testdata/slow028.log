@@ -1,0 +1,14 @@
+mysqld, Version: 10.2.13-MariaDB-10.2.13+maria~jessie-log (mariadb.org binary distribution). started with:
+Tcp port: 0  Unix socket: /var/run/mysqld/mysqld.sock
+Time                 Id Command    Argument
+# Time: 180214 16:18:07
+# User@Host: root[root] @ localhost []
+# Thread_id: 8  Schema:   QC_hit: No
+# Query_time: 0.000277  Lock_time: 0.000000  Rows_sent: 1  Rows_examined: 0
+# Rows_affected: 0
+#
+# explain: id	select_type	table	type	possible_keys	key	key_len	ref	rows	r_rows	filtered	r_filtered	Extra
+# explain: 1	SIMPLE	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	NULL	No tables used
+#
+SET timestamp=1518625087;
+SELECT 1;
