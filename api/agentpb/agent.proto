@@ -86,8 +86,12 @@ message SetStateResponse {
 // MysqlExplainOutputFormat output formats supported by MySQL Explain action.
 enum MysqlExplainOutputFormat {
   MYSQL_EXPLAIN_OUTPUT_FORMAT_INVALID = 0;
+  // EXPLAIN FORMAT=TRADITIONAL, returns result as text
   MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT = 1;
+  // EXPLAIN FORMAT=JSON
   MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON = 2;
+  // EXPLAIN FORMAT=TRADITIONAL, returns result as JSON
+  MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON = 3;
 }
 
 // StartActionRequest is a ServerMessage asking pmm-agent to start action.
