@@ -227,13 +227,12 @@ The updating procedure of your |pmm-server| depends on the option that you
 selected for installing it.
 
 If you are running |pmm-server| as a :ref:`virtual appliance <pmm.deploying.server.virtual-appliance>` or using an :ref:`Amazon Machine Image
-<run-server-ami>`, use the |gui.check-for-updates-manually| button on the Home
-dashboard (see :ref:`PMM Home Page <PMM-Home-Page>`).
+<run-server-ami>`, use the Update button on the Home
+dashboard (see :ref:`PMM Home Page <PMM-Home-Page>`) in case of available updates.
 
 .. figure:: ../.res/graphics/png/pmm.home-page.1.png
 
-   Click |gui.check-for-updates-manually| to updating the |pmm-server| from the
-   |pmm| home page.
+   Updating the |pmm-server| from the |pmm| home page.
 
 .. seealso::
 
