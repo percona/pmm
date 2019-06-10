@@ -19,7 +19,7 @@ lint:
     add:
       # ./prototool lint --list-all-linters | grep -v java | sort
       - COMMENTS_NO_C_STYLE                                   # Verifies that there are no /* c-style */ comments.
-      # - COMMENTS_NO_INLINE                                    # Verifies that there are no inline comments.
+      - COMMENTS_NO_INLINE                                    # Verifies that there are no inline comments.
       - ENUMS_HAVE_COMMENTS                                   # Verifies that all enums have a comment of the form "// EnumName ...".
       - ENUMS_HAVE_SENTENCE_COMMENTS                          # Verifies that all enums have a comment that contains at least one complete sentence.
       - ENUMS_NO_ALLOW_ALIAS                                  # Verifies that no enums use the option "allow_alias".

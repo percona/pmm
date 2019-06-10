@@ -165,6 +165,34 @@ func (a *Client) StartMySQLShowCreateTableAction(params *StartMySQLShowCreateTab
 }
 
 /*
+StartMySQLShowIndexAction starts my SQL show index action starts my SQL s h o w i n d e x action
+*/
+func (a *Client) StartMySQLShowIndexAction(params *StartMySQLShowIndexActionParams) (*StartMySQLShowIndexActionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartMySQLShowIndexActionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartMySQLShowIndexAction",
+		Method:             "POST",
+		PathPattern:        "/v0/management/Actions/StartMySQLShowIndex",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartMySQLShowIndexActionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*StartMySQLShowIndexActionOK), nil
+
+}
+
+/*
 StartMySQLShowTableStatusAction starts my SQL show table status action starts my SQL s h o w t a b l e s t a t u s action
 */
 func (a *Client) StartMySQLShowTableStatusAction(params *StartMySQLShowTableStatusActionParams) (*StartMySQLShowTableStatusActionOK, error) {

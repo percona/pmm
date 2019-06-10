@@ -12,6 +12,8 @@ import (
 //go-sumtype:decl ServerResponsePayload
 //go-sumtype:decl ServerRequestPayload
 
+//go-sumtype:decl isStartActionRequest_Params
+
 // code below uses the same order as payload types at AgentMessage / ServerMessage
 
 // AgentRequestPayload represents agent's request payload.
