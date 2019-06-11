@@ -19,6 +19,7 @@ package models
 import (
 	"time"
 
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
 )
 
@@ -261,4 +262,20 @@ func isValidMetricColumn(name string) bool {
 	}
 	_, isValid := fields[name]
 	return isValid
+}
+
+func agentTypeToClickHouseEnum(agentType inventorypb.AgentType) string {
+	// agentTypes represents Agent type as stored in database.
+	// Should be same as in pmm/inventorypb/agents.proto
+	agentTypes := map[inventorypb.AgentType]string{
+		inventorypb.AgentType_AGENT_TYPE_INVALID:         "agent_type_invalid",
+		inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT: "mysql-perfschema",
+		inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT:    "mysql-slowlog",
+		inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT: "mongodb-profiler",
+	}
+
+	if val, ok := agentTypes[agentType]; ok {
+		return val
+	}
+	return agentTypes[inventorypb.AgentType_AGENT_TYPE_INVALID]
 }

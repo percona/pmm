@@ -32,12 +32,12 @@ func NewService(rm models.Reporter, mm models.Metrics) *Service {
 }
 
 var standartDimensions = map[string]struct{}{
-	"queryid":       {},
-	"d_server":      {},
-	"d_database":    {},
-	"d_schema":      {},
-	"d_username":    {},
-	"d_client_host": {},
+	"queryid":     {},
+	"server":      {},
+	"database":    {},
+	"schema":      {},
+	"username":    {},
+	"client_host": {},
 }
 
 var boolColumnNames = map[string]struct{}{

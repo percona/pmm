@@ -31,11 +31,11 @@ const insertSQL = `
   INSERT INTO metrics
   (
     queryid,
-    d_server,
-    d_database,
-    d_schema,
-    d_username,
-    d_client_host,
+    server,
+    database,
+    schema,
+    username,
+    client_host,
     replication_set,
     cluster,
     service_type,
@@ -46,8 +46,8 @@ const insertSQL = `
     container_name,
     labels.key,
     labels.value,
-    agent_uuid,
-    metrics_source,
+    agent_id,
+    agent_type,
     period_start,
     period_length,
     fingerprint,
@@ -202,10 +202,10 @@ const insertSQL = `
   VALUES (
     :queryid,
     :service_name,
-    :d_database,
-    :d_schema,
-    :d_username,
-    :d_client_host,
+    :database,
+    :schema,
+    :username,
+    :client_host,
     :replication_set,
     :cluster,
     :service_type,
@@ -217,7 +217,7 @@ const insertSQL = `
     :labels_key,
     :labels_value,
     :agent_id,
-    CAST( :metrics_source_s AS Enum8('METRICS_SOURCE_INVALID' = 0, 'MYSQL_SLOWLOG' = 1, 'MYSQL_PERFSCHEMA' = 2, 'MONGODB_PROFILER' = 3)) AS metrics_source,
+    :agent_type_s,
     :period_start_ts,
     :period_length_secs,
     :fingerprint,
@@ -384,7 +384,7 @@ func NewMetricsBucket(db *sqlx.DB) MetricsBucket {
 // MetricsBucketExtended  extends proto MetricsBucket to store converted data into db.
 type MetricsBucketExtended struct {
 	PeriodStart      time.Time `json:"period_start_ts"`
-	MetricsSource    string    `json:"metrics_source_s"`
+	AgentType        string    `json:"agent_type_s"`
 	ExampleType      string    `json:"example_type_s"`
 	ExampleFormat    string    `json:"example_format_s"`
 	LabelsKey        []string  `json:"labels_key"`
@@ -430,7 +430,7 @@ func (mb *MetricsBucket) Save(agentMsg *qanpb.CollectRequest) error {
 		}
 		q := MetricsBucketExtended{
 			time.Unix(int64(mb.GetPeriodStartUnixSecs()), 0).UTC(),
-			mb.GetMetricsSource().String(),
+			agentTypeToClickHouseEnum(mb.GetAgentType()),
 			mb.GetExampleType().String(),
 			mb.GetExampleFormat().String(),
 			lk,

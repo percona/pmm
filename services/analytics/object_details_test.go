@@ -267,23 +267,23 @@ func TestService_GetMetricsError(t *testing.T) {
 							Value: []string{"value1", "value2"},
 						},
 						{
-							Key:   "d_server",
+							Key:   "server",
 							Value: []string{"server1", "server2", "server3", "server4", "server5", "server6", "server7"},
 						},
 						{
-							Key:   "d_client_host",
+							Key:   "client_host",
 							Value: []string{"localhost"},
 						},
 						{
-							Key:   "d_username",
+							Key:   "username",
 							Value: []string{"john"},
 						},
 						{
-							Key:   "d_schema",
+							Key:   "schema",
 							Value: []string{"my_schema"},
 						},
 						{
-							Key:   "d_database",
+							Key:   "database",
 							Value: []string{"test_database"},
 						},
 						{

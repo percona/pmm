@@ -1,11 +1,12 @@
 CREATE TABLE IF NOT EXISTS metrics
 (
+    -- Main dimentions
     queryid String COMMENT 'hash of query fingerprint',
-    d_server String COMMENT 'domention: IP or hostname of DB server',
-    d_database String COMMENT 'PostgreSQL: database',
-    d_schema String COMMENT 'MySQL: database; PostgreSQL: schema',
-    d_username String COMMENT 'client user name',
-    d_client_host String COMMENT 'client IP or hostname',
+    server String COMMENT 'IP or hostname of DB server',
+    database String COMMENT 'PostgreSQL: database',
+    schema String COMMENT 'MySQL: database; PostgreSQL: schema',
+    username String COMMENT 'client user name',
+    client_host String COMMENT 'client IP or hostname',
     --  Standard labels
     replication_set String COMMENT 'Name of replication set',
     cluster String COMMENT 'Cluster name',
@@ -18,8 +19,13 @@ CREATE TABLE IF NOT EXISTS metrics
     -- Custom labels
     `labels.key` Array(String) COMMENT 'Custom labels names',
     `labels.value` Array(String) COMMENT 'Custom labels values',
-    agent_uuid String COMMENT 'Identifier of agent that collect and send metrics',
-    metrics_source Enum8('METRICS_SOURCE_INVALID' = 0, 'MYSQL_SLOWLOG' = 1, 'MYSQL_PERFSCHEMA' = 2, 'MONGODB_PROFILER' = 3) COMMENT 'Source of metrics: slowlog, perf schema, etc.',
+    agent_id String COMMENT 'Identifier of agent that collect and send metrics',
+    agent_type Enum8(
+        'agent_type_invalid' = 0,
+        'mysql-perfschema' = 1,
+        'mysql-slowlog' = 2,
+        'mongodb-profiler' = 3
+    ) COMMENT 'Agent Type that collect of metrics: slowlog, perf schema, etc.',
     period_start DateTime COMMENT 'Time when collection of bucket started',
     period_length UInt32 COMMENT 'Duration of collection bucket',
     fingerprint String COMMENT 'mysql digest_text; query without data',
@@ -176,4 +182,4 @@ CREATE TABLE IF NOT EXISTS metrics
 )
 ENGINE = MergeTree
 PARTITION BY toYYYYMMDD(period_start)
-ORDER BY (queryid, d_server, d_database, d_schema, d_username, d_client_host, period_start);
+ORDER BY (queryid, server, database, schema, username, client_host, period_start);

@@ -13,18 +13,18 @@ Examples:
 
 curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "queryid"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
 
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "d_client_host"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "client_host"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
 
-curl -X POST -s -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z",  "labels": [{"key": "d_client_host", "value": ["10.11.12.4", "10.11.12.59"]}]}' http://127.0.0.1:9922/v0/qan/GetReport | jq
+curl -X POST -s -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z",  "labels": [{"key": "client_host", "value": ["10.11.12.4", "10.11.12.59"]}]}' http://127.0.0.1:9922/v0/qan/GetReport | jq
 
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "d_client_host", "offset": 10}' http://127.0.0.1:9922/v0/qan/GetReport | jq
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "group_by": "client_host", "offset": 10}' http://127.0.0.1:9922/v0/qan/GetReport | jq
 
 curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
 
 ```
 
 ```bash
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries", "columns": ["lock_time", "sort_scan"], "group_by": "d_server"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries", "columns": ["lock_time", "sort_scan"], "group_by": "server"}' http://127.0.0.1:9922/v0/qan/GetReport | jq
  ```
 
 ```bash
@@ -123,7 +123,7 @@ curl -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to"
 
 
 ```
-curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries", "columns": ["lock_time", "sort_scan"], "group_by": "d_server"}' http://127.0.0.1:9922/v0/qan/GetReport -s | jq '.rows[].load'
+curl -s -X POST -d '{"period_start_from": "2019-01-01T00:00:00Z", "period_start_to": "2019-01-01T10:00:00Z", "order_by": "num_queries", "columns": ["lock_time", "sort_scan"], "group_by": "server"}' http://127.0.0.1:9922/v0/qan/GetReport -s | jq '.rows[].load'
 ```
 
 

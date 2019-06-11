@@ -148,14 +148,15 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:727394c900111cf88986f3875f0a8cde00e6c954989397fd57696d1f26d34e73"
+  digest = "1:c551d6b89f9f11593107d1e40690248c5db8b5745d17a24eb31cc984f7ee0b74"
   name = "github.com/percona/pmm"
   packages = [
+    "api/inventorypb",
     "api/qanpb",
     "version",
   ]
   pruneopts = "NUT"
-  revision = "97a4f037faf874eac1d359f780f59cbafc2b08ab"
+  revision = "e6803cfc7c08a552185b92815f83082cd269fd54"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -316,6 +317,7 @@
     "github.com/percona/go-mysql/log",
     "github.com/percona/go-mysql/log/slow",
     "github.com/percona/go-mysql/query",
+    "github.com/percona/pmm/api/inventorypb",
     "github.com/percona/pmm/api/qanpb",
     "github.com/percona/pmm/version",
     "github.com/pkg/errors",

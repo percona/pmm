@@ -257,11 +257,11 @@ FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}
 {{ if index . "queryids" }} AND queryid IN ( :queryids ) {{ end }}
-{{ if index . "servers" }} AND d_server IN ( :servers ) {{ end }}
-{{ if index . "databases" }} AND d_database IN ( :databases ) {{ end }}
-{{ if index . "schemas" }} AND d_schema IN ( :schemas ) {{ end }}
-{{ if index . "users" }} AND d_username IN ( :users ) {{ end }}
-{{ if index . "hosts" }} AND d_client_host IN ( :hosts ) {{ end }}
+{{ if index . "servers" }} AND server IN ( :servers ) {{ end }}
+{{ if index . "databases" }} AND database IN ( :databases ) {{ end }}
+{{ if index . "schemas" }} AND schema IN ( :schemas ) {{ end }}
+{{ if index . "users" }} AND username IN ( :users ) {{ end }}
+{{ if index . "hosts" }} AND client_host IN ( :hosts ) {{ end }}
 {{ if index . "labels" }}
 	AND (
 		{{$i := 0}}
@@ -322,11 +322,11 @@ FROM metrics
 WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 {{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}
 {{ if index . "queryids" }} AND queryid IN ( :queryids ) {{ end }}
-{{ if index . "servers" }} AND d_server IN ( :servers ) {{ end }}
-{{ if index . "databases" }} AND d_database IN ( :databases ) {{ end }}
-{{ if index . "schemas" }} AND d_schema IN ( :schemas ) {{ end }}
-{{ if index . "users" }} AND d_username IN ( :users ) {{ end }}
-{{ if index . "hosts" }} AND d_client_host IN ( :hosts ) {{ end }}
+{{ if index . "servers" }} AND server IN ( :servers ) {{ end }}
+{{ if index . "databases" }} AND database IN ( :databases ) {{ end }}
+{{ if index . "schemas" }} AND schema IN ( :schemas ) {{ end }}
+{{ if index . "users" }} AND username IN ( :users ) {{ end }}
+{{ if index . "hosts" }} AND client_host IN ( :hosts ) {{ end }}
 {{ if index . "labels" }}
 	AND (
 		{{$i := 0}}
@@ -437,7 +437,7 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 }
 
 const queryExampleTmpl = `
-SELECT d_schema AS schema, labels.value AS service_id, agent_uuid, example, toUInt8(example_format) AS example_format,
+SELECT schema AS schema, labels.value AS service_id, agent_id, example, toUInt8(example_format) AS example_format,
        is_truncated, toUInt8(example_type) AS example_type, example_metrics
   FROM metrics
  ARRAY JOIN labels
@@ -492,25 +492,25 @@ func (m *Metrics) SelectQueryExamples(ctx context.Context, periodStartFrom, peri
 }
 
 const queryObjectDetailsLabelsTmpl = `
-	SELECT d_server, d_database, d_schema, d_username, d_client_host, labels.key AS lkey, labels.value AS lvalue
+	SELECT server, database, schema, username, client_host, labels.key AS lkey, labels.value AS lvalue
 	  FROM metrics
 	 ARRAY JOIN labels
 	 WHERE period_start >= ? AND period_start <= ?
 	 {{ if index . "filter" }} AND {{ index . "group" }} = '{{ index . "filter" }}' {{ end }}
-	 ORDER BY d_server, d_database, d_schema, d_username, d_client_host, labels.key, labels.value
+	 ORDER BY server, database, schema, username, client_host, labels.key, labels.value
 `
 
 //nolint
 var tmplObjectDetailsLabels = template.Must(template.New("queryObjectDetailsLabelsTmpl").Funcs(funcMap).Parse(queryObjectDetailsLabelsTmpl))
 
 type queryRowsLabels struct {
-	DServer     string
-	DDatabase   string
-	DSchema     string
-	DClientHost string
-	DUsername   string
-	LabelKey    string
-	LabelValue  string
+	Server     string
+	Database   string
+	Schema     string
+	ClientHost string
+	Username   string
+	LabelKey   string
+	LabelValue string
 }
 
 // SelectObjectDetailsLabels selects object details labels for given time range and object.
@@ -533,25 +533,25 @@ func (m *Metrics) SelectObjectDetailsLabels(ctx context.Context, periodStartFrom
 	defer rows.Close() //nolint:errcheck
 
 	labels := map[string]map[string]struct{}{}
-	labels["d_server"] = map[string]struct{}{}
-	labels["d_database"] = map[string]struct{}{}
-	labels["d_schema"] = map[string]struct{}{}
-	labels["d_client_host"] = map[string]struct{}{}
-	labels["d_username"] = map[string]struct{}{}
+	labels["server"] = map[string]struct{}{}
+	labels["database"] = map[string]struct{}{}
+	labels["schema"] = map[string]struct{}{}
+	labels["client_host"] = map[string]struct{}{}
+	labels["username"] = map[string]struct{}{}
 
 	for rows.Next() {
 		var row queryRowsLabels
-		err = rows.Scan(&row.DServer, &row.DDatabase, &row.DSchema,
-			&row.DUsername, &row.DClientHost, &row.LabelKey, &row.LabelValue)
+		err = rows.Scan(&row.Server, &row.Database, &row.Schema,
+			&row.Username, &row.ClientHost, &row.LabelKey, &row.LabelValue)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to scan labels for object details")
 		}
 		// convert rows to array of unique label keys - values.
-		labels["d_server"][row.DServer] = struct{}{}
-		labels["d_database"][row.DDatabase] = struct{}{}
-		labels["d_schema"][row.DSchema] = struct{}{}
-		labels["d_client_host"][row.DClientHost] = struct{}{}
-		labels["d_username"][row.DUsername] = struct{}{}
+		labels["server"][row.Server] = struct{}{}
+		labels["database"][row.Database] = struct{}{}
+		labels["schema"][row.Schema] = struct{}{}
+		labels["client_host"][row.ClientHost] = struct{}{}
+		labels["username"][row.Username] = struct{}{}
 		if labels[row.LabelKey] == nil {
 			labels[row.LabelKey] = map[string]struct{}{}
 		}

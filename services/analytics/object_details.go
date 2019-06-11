@@ -40,15 +40,15 @@ func (s *Service) GetMetrics(ctx context.Context, in *qanpb.MetricsRequest) (*qa
 		switch label.Key {
 		case "queryid":
 			dQueryids = label.Value
-		case "d_server":
+		case "server":
 			dServers = label.Value
-		case "d_database":
+		case "database":
 			dDatabases = label.Value
-		case "d_schema":
+		case "schema":
 			dSchemas = label.Value
-		case "d_username":
+		case "username":
 			dUsernames = label.Value
-		case "d_client_host":
+		case "client_host":
 			dClientHosts = label.Value
 		default:
 			dbLabels[label.Key] = label.Value

@@ -31,6 +31,7 @@ import (
 	slowlog "github.com/percona/go-mysql/log"
 	parser "github.com/percona/go-mysql/log/slow"
 	"github.com/percona/go-mysql/query"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
@@ -133,10 +134,10 @@ func main() {
 				mb := &qanpb.MetricsBucket{
 					Queryid:             v.Id,
 					Fingerprint:         v.Fingerprint,
-					DDatabase:           "",
-					DSchema:             v.Db,
-					DUsername:           v.User,
-					DClientHost:         v.Host,
+					Database:            "",
+					Schema:              v.Db,
+					Username:            v.User,
+					ClientHost:          v.Host,
 					ServiceName:         v.Server,
 					ReplicationSet:      "replication_set1",
 					Cluster:             "cluster1",
@@ -148,7 +149,7 @@ func main() {
 					ContainerName:       "container_name1",
 					Labels:              listsToMap(v.LabelsKey, v.LabelsValue),
 					AgentId:             agentID,
-					MetricsSource:       qanpb.MetricsSource_MYSQL_SLOWLOG,
+					AgentType:           inventorypb.AgentType_QAN_MYSQL_SLOWLOG_AGENT,
 					PeriodStartUnixSecs: uint32(periodStart.Truncate(1 * time.Minute).Unix()),
 					PeriodLengthSecs:    uint32(60),
 					Example:             v.Example.Query,

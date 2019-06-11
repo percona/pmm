@@ -78,11 +78,11 @@ const queryReportTmpl = `
 	FROM metrics
 	WHERE period_start > :period_start_from AND period_start < :period_start_to
 	{{ if index . "queryids" }} AND queryid IN ( :queryids ) {{ end }}
-	{{ if index . "servers" }} AND d_server IN ( :servers ) {{ end }}
-	{{ if index . "databases" }} AND d_database IN ( :databases ) {{ end }}
-	{{ if index . "schemas" }} AND d_schema IN ( :schemas ) {{ end }}
-	{{ if index . "users" }} AND d_username IN ( :users ) {{ end }}
-	{{ if index . "hosts" }} AND d_client_host IN ( :hosts ) {{ end }}
+	{{ if index . "servers" }} AND server IN ( :servers ) {{ end }}
+	{{ if index . "databases" }} AND database IN ( :databases ) {{ end }}
+	{{ if index . "schemas" }} AND schema IN ( :schemas ) {{ end }}
+	{{ if index . "users" }} AND username IN ( :users ) {{ end }}
+	{{ if index . "hosts" }} AND client_host IN ( :hosts ) {{ end }}
 	{{ if index . "labels" }}
 		AND (
 			{{$i := 0}}
@@ -182,11 +182,11 @@ const queryReportSparklinesTmpl = `
 	WHERE period_start >= :period_start_from AND period_start <= :period_start_to
 	{{ if index . "dimension_val" }} AND {{ index . "group" }} = '{{ index . "dimension_val" }}' {{ end }}
 	{{ if index . "queryids" }} AND queryid IN ( :queryids ) {{ end }}
-	{{ if index . "servers" }} AND d_server IN ( :servers ) {{ end }}
-	{{ if index . "databases" }} AND d_database IN ( :databases ) {{ end }}
-	{{ if index . "schemas" }} AND d_schema IN ( :schemas ) {{ end }}
-	{{ if index . "users" }} AND d_username IN ( :users ) {{ end }}
-	{{ if index . "hosts" }} AND d_client_host IN ( :hosts ) {{ end }}
+	{{ if index . "servers" }} AND server IN ( :servers ) {{ end }}
+	{{ if index . "databases" }} AND database IN ( :databases ) {{ end }}
+	{{ if index . "schemas" }} AND schema IN ( :schemas ) {{ end }}
+	{{ if index . "users" }} AND username IN ( :users ) {{ end }}
+	{{ if index . "hosts" }} AND client_host IN ( :hosts ) {{ end }}
 	{{ if index . "labels" }}
 		AND (
 			{{$i := 0}}
@@ -310,47 +310,119 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 }
 
 const queryServers = `
-	SELECT 'd_server' AS key, d_server AS value, SUM(%s) AS main_metric_sum
+	SELECT 'server' AS key, server AS value, SUM(%s) AS main_metric_sum
 	  FROM metrics
 	 WHERE period_start >= ?
 	   AND period_start <= ?
-  GROUP BY d_server
+  GROUP BY server
   	  WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryDatabases = `
-	SELECT 'd_database' AS key, d_database AS value, SUM(%s) AS main_metric_sum
+	SELECT 'database' AS key, database AS value, SUM(%s) AS main_metric_sum
 	  FROM metrics
 	 WHERE period_start >= ?
 	   AND period_start <= ?
-  GROUP BY d_database
+  GROUP BY database
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const querySchemas = `
-	SELECT 'd_schema' AS key, d_schema AS value, SUM(%s) AS main_metric_sum
+	SELECT 'schema' AS key, schema AS value, SUM(%s) AS main_metric_sum
 	  FROM metrics
 	 WHERE period_start >= ?
 	   AND period_start <= ?
-  GROUP BY d_schema
+  GROUP BY schema
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryUsernames = `
-	SELECT 'd_username' AS key, d_username AS value, SUM(%s) AS main_metric_sum
+	SELECT 'username' AS key, username AS value, SUM(%s) AS main_metric_sum
 	  FROM metrics
 	 WHERE period_start >= ?
 	   AND period_start <= ?
-  GROUP BY d_username
+  GROUP BY username
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
 const queryClientHosts = `
-	SELECT 'd_client_host' AS key, d_client_host AS value, SUM(%s) AS main_metric_sum
+	SELECT 'client_host' AS key, client_host AS value, SUM(%s) AS main_metric_sum
 	  FROM metrics
 	 WHERE period_start >= ?
 	   AND period_start <= ?
-  GROUP BY d_client_host
+  GROUP BY client_host
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
+const queryReplicationSet = `
+	SELECT 'replication_set' AS key, replication_set AS value, SUM(%s) AS main_metric_sum
+	  FROM metrics
+	 WHERE period_start >= ?
+	   AND period_start <= ?
+  GROUP BY replication_set
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
+const queryCluster = `
+	SELECT 'cluster' AS key, cluster AS value, SUM(%s) AS main_metric_sum
+	  FROM metrics
+	 WHERE period_start >= ?
+	   AND period_start <= ?
+  GROUP BY cluster
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
+const queryServiceType = `
+	SELECT 'service_type' AS key, service_type AS value, SUM(%s) AS main_metric_sum
+	  FROM metrics
+	 WHERE period_start >= ?
+	   AND period_start <= ?
+  GROUP BY service_type
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
+const queryEnvironment = `
+	SELECT 'environment' AS key, environment AS value, SUM(%s) AS main_metric_sum
+	  FROM metrics
+	 WHERE period_start >= ?
+	   AND period_start <= ?
+  GROUP BY environment
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
+const queryAZ = `
+	SELECT 'az' AS key, az AS value, SUM(%s) AS main_metric_sum
+	  FROM metrics
+	 WHERE period_start >= ?
+	   AND period_start <= ?
+  GROUP BY az
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
+const queryRegion = `
+	SELECT 'region' AS key, region AS value, SUM(%s) AS main_metric_sum
+	  FROM metrics
+	 WHERE period_start >= ?
+	   AND period_start <= ?
+  GROUP BY region
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
+const queryNodeModel = `
+	SELECT 'node_model' AS key, node_model AS value, SUM(%s) AS main_metric_sum
+	  FROM metrics
+	 WHERE period_start >= ?
+	   AND period_start <= ?
+  GROUP BY node_model
+      WITH TOTALS
+  ORDER BY main_metric_sum DESC, value;
+`
+const queryContainerName = `
+	SELECT 'container_name' AS key, container_name AS value, SUM(%s) AS main_metric_sum
+	  FROM metrics
+	 WHERE period_start >= ?
+	   AND period_start <= ?
+  GROUP BY container_name
       WITH TOTALS
   ORDER BY main_metric_sum DESC, value;
 `
@@ -381,12 +453,20 @@ func (r *Reporter) SelectFilters(ctx context.Context, periodStartFromSec, period
 	}
 
 	dimentionQueries := map[string]string{
-		"d_server":      queryServers,
-		"d_database":    queryDatabases,
-		"d_schema":      querySchemas,
-		"d_username":    queryUsernames,
-		"d_client_host": queryClientHosts,
-		"labels":        queryLabels,
+		"server":          queryServers,
+		"database":        queryDatabases,
+		"schema":          querySchemas,
+		"username":        queryUsernames,
+		"client_host":     queryClientHosts,
+		"replication_set": queryReplicationSet,
+		"cluster":         queryCluster,
+		"service_type":    queryServiceType,
+		"environment":     queryEnvironment,
+		"az":              queryAZ,
+		"region":          queryRegion,
+		"node_model":      queryNodeModel,
+		"container_name":  queryContainerName,
+		"labels":          queryLabels,
 	}
 	for dimentionName, dimentionQuery := range dimentionQueries {
 		values, mainMetricPerSec, err := r.queryFilters(ctx, periodStartFromSec, periodStartToSec, mainMetricName, dimentionQuery)

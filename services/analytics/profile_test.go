@@ -199,7 +199,7 @@ func TestService_GetReport_Mix(t *testing.T) {
 						Value: []string{"value1", "value2"},
 					},
 					{
-						Key:   "d_server",
+						Key:   "server",
 						Value: []string{"server1", "server2", "server3", "server4", "server5", "server6", "server7"},
 					},
 				},
@@ -347,7 +347,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
-	t.Run("group_by_d_server", func(t *testing.T) {
+	t.Run("group_by_server", func(t *testing.T) {
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -356,7 +356,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		in := qanpb.ReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-			GroupBy:         "d_server",
+			GroupBy:         "server",
 			Columns: []string{
 				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
@@ -374,7 +374,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 
 		got, err := s.GetReport(context.TODO(), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
-		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_d_server.json")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_server.json")
 
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
 		gotJSON, err := marshaler.MarshalToString(got)
@@ -384,7 +384,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
-	t.Run("group_by_d_database", func(t *testing.T) {
+	t.Run("group_by_database", func(t *testing.T) {
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -393,7 +393,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		in := qanpb.ReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-			GroupBy:         "d_database",
+			GroupBy:         "database",
 			Columns: []string{
 				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
@@ -411,7 +411,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 
 		got, err := s.GetReport(context.TODO(), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
-		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_d_database.json")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_database.json")
 
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
 		gotJSON, err := marshaler.MarshalToString(got)
@@ -421,7 +421,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
-	t.Run("group_by_d_schema", func(t *testing.T) {
+	t.Run("group_by_schema", func(t *testing.T) {
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -430,7 +430,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		in := qanpb.ReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-			GroupBy:         "d_schema",
+			GroupBy:         "schema",
 			Columns: []string{
 				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
@@ -448,7 +448,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 
 		got, err := s.GetReport(context.TODO(), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
-		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_d_schema.json")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_schema.json")
 
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
 		gotJSON, err := marshaler.MarshalToString(got)
@@ -458,7 +458,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
-	t.Run("group_by_d_username", func(t *testing.T) {
+	t.Run("group_by_username", func(t *testing.T) {
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -467,7 +467,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		in := qanpb.ReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-			GroupBy:         "d_username",
+			GroupBy:         "username",
 			Columns: []string{
 				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
@@ -485,7 +485,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 
 		got, err := s.GetReport(context.TODO(), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
-		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_d_username.json")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_username.json")
 
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
 		gotJSON, err := marshaler.MarshalToString(got)
@@ -495,7 +495,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		assert.JSONEq(t, string(expectedJSON), string(gotJSON))
 	})
 
-	t.Run("group_by_d_client_host", func(t *testing.T) {
+	t.Run("group_by_client_host", func(t *testing.T) {
 		s := &Service{
 			rm: rm,
 			mm: mm,
@@ -504,7 +504,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 		in := qanpb.ReportRequest{
 			PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
-			GroupBy:         "d_client_host",
+			GroupBy:         "client_host",
 			Columns: []string{
 				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
@@ -522,7 +522,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 
 		got, err := s.GetReport(context.TODO(), &in)
 		assert.NoError(t, err, "Unexpected error in Service.GetReport()")
-		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_d_client_host.json")
+		expectedJSON := getExpectedJSON(t, got, "../../test_data/TestService_GetReport_Groups_group_by_client_host.json")
 
 		marshaler := jsonpb.Marshaler{Indent: "\t"}
 		gotJSON, err := marshaler.MarshalToString(got)
@@ -611,23 +611,23 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 						Value: genDimensionvalues("value", 100),
 					},
 					{
-						Key:   "d_server",
+						Key:   "server",
 						Value: genDimensionvalues("server", 10),
 					},
 					{
-						Key:   "d_database",
+						Key:   "database",
 						Value: []string{},
 					},
 					{
-						Key:   "d_schema",
+						Key:   "schema",
 						Value: genDimensionvalues("schema", 100),
 					},
 					{
-						Key:   "d_username",
+						Key:   "username",
 						Value: genDimensionvalues("user", 100),
 					},
 					{
-						Key:   "d_client_host",
+						Key:   "client_host",
 						Value: genDimensionvalues("10.11.12.", 100),
 					},
 				},
