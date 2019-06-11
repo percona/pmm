@@ -18,7 +18,9 @@ package models
 
 import (
 	"testing"
+	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -36,5 +38,30 @@ func TestAgent(t *testing.T) {
 			"foo":      "bar",
 		}
 		assert.Equal(t, expected, actual)
+	})
+
+	t.Run("DSN", func(t *testing.T) {
+		agent := &Agent{
+			Username: pointer.ToString("username"),
+			Password: pointer.ToString("s3cur3 p@$$w0r4."),
+		}
+		service := &Service{
+			Address: pointer.ToString("1.2.3.4"),
+			Port:    pointer.ToUint16(12345),
+		}
+		for typ, expected := range map[AgentType]string{
+			MySQLdExporterType:          "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s",
+			ProxySQLExporterType:        "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?timeout=1s",
+			QANMySQLPerfSchemaAgentType: "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s",
+			QANMySQLSlowlogAgentType:    "username:s3cur3 p@$$w0r4.@tcp(1.2.3.4:12345)/database?clientFoundRows=true&parseTime=true&timeout=1s",
+			MongoDBExporterType:         "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345",
+			QANMongoDBProfilerAgentType: "mongodb://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345",
+			PostgresExporterType:        "postgres://username:s3cur3%20p%40$$w0r4.@1.2.3.4:12345/database?connect_timeout=1&sslmode=disable",
+		} {
+			t.Run(string(typ), func(t *testing.T) {
+				agent.AgentType = typ
+				assert.Equal(t, expected, agent.DSN(service, time.Second, "database"))
+			})
+		}
 	})
 }

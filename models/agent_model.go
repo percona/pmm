@@ -148,7 +148,7 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		cfg.DBName = database
 		return cfg.FormatDSN()
 
-	case QANMySQLPerfSchemaAgentType:
+	case QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
 		// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
 
 		cfg := mysql.NewConfig()
