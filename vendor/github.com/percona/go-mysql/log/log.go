@@ -60,10 +60,11 @@ func NewEvent() *Event {
 
 // Options encapsulate common options for making a new LogParser.
 type Options struct {
-	StartOffset        uint64          // byte offset in file at which to start parsing
-	FilterAdminCommand map[string]bool // admin commands to ignore
-	Debug              bool            // print trace info to STDOUT
-	DefaultLocation    *time.Location  // DefaultLocation to assume for logs in MySQL < 5.7 format.
+	StartOffset        uint64                                // byte offset in file at which to start parsing
+	FilterAdminCommand map[string]bool                       // admin commands to ignore
+	Debug              bool                                  // print trace info to STDERR with standard library logger
+	Debugf             func(format string, v ...interface{}) // use this function for logging instead of log.Printf (Debug still should be true)
+	DefaultLocation    *time.Location                        // DefaultLocation to assume for logs in MySQL < 5.7 format.
 }
 
 // A LogParser sends events to a channel.

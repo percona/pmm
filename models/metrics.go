@@ -110,6 +110,7 @@ const queryMetricsTmpl = `
 SELECT
 
 SUM(num_queries) AS num_queries,
+SUM(num_queries_with_errors) AS num_queries_with_errors,
 
 SUM(m_query_time_cnt) AS m_query_time_cnt,
 SUM(m_query_time_sum) AS m_query_time_sum,

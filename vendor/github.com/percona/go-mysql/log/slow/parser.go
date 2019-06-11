@@ -22,7 +22,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	l "log"
+	stdlog "log"
 	"os"
 	"regexp"
 	"strconv"
@@ -86,6 +86,18 @@ func NewSlowLogParser(file *os.File, opt log.Options) *SlowLogParser {
 	return p
 }
 
+// logf logs with configured logger.
+func (p *SlowLogParser) logf(format string, v ...interface{}) {
+	if !p.opt.Debug {
+		return
+	}
+	if p.opt.Debugf != nil {
+		p.opt.Debugf(format, v...)
+		return
+	}
+	stdlog.Printf(format, v...)
+}
+
 // EventChan returns the unbuffered event channel on which the caller can
 // receive events.
 func (p *SlowLogParser) EventChan() <-chan *log.Event {
@@ -95,9 +107,7 @@ func (p *SlowLogParser) EventChan() <-chan *log.Event {
 // Stop stops the parser before parsing the next event or while blocked on
 // sending the current event to the event channel.
 func (p *SlowLogParser) Stop() {
-	if p.opt.Debug {
-		l.Println("stopping")
-	}
+	p.logf("stopping")
 	p.stopChan <- true
 	return
 }
@@ -106,11 +116,7 @@ func (p *SlowLogParser) Stop() {
 // Parsing stops on EOF, error, or call to Stop. The event channel is closed
 // when parsing stops. The file is not closed.
 func (p *SlowLogParser) Start() error {
-	if p.opt.Debug {
-		l.SetFlags(l.Ltime | l.Lmicroseconds)
-		fmt.Println()
-		l.Println("parsing " + p.file.Name())
-	}
+	p.logf("parsing %q", p.file.Name())
 
 	// Seek to the offset, if any.
 	// @todo error if start off > file size
@@ -144,10 +150,7 @@ SCANNER_LOOP:
 		lineLen := uint64(len(line))
 		p.bytesRead += lineLen
 		p.lineOffset = p.bytesRead - lineLen
-		if p.opt.Debug {
-			fmt.Println()
-			l.Printf("+%d line: %s", p.lineOffset, line)
-		}
+		p.logf("+%d line: %s", p.lineOffset, line)
 
 		// Filter out meta lines:
 		//   /usr/local/bin/mysqld, Version: 5.6.15-62.0-tokudb-7.1.0-tokudb-log (binary). started with:
@@ -157,9 +160,7 @@ SCANNER_LOOP:
 			(line[0:5] == "Time ") ||
 			(line[0:4] == "Tcp ") ||
 			(line[0:4] == "TCP ")) {
-			if p.opt.Debug {
-				l.Println("meta")
-			}
+			p.logf("meta")
 			continue
 		}
 
@@ -187,18 +188,14 @@ SCANNER_LOOP:
 		p.sendEvent(false, false)
 	}
 
-	if p.opt.Debug {
-		l.Printf("\ndone")
-	}
+	p.logf("done")
 	return nil
 }
 
 // --------------------------------------------------------------------------
 
 func (p *SlowLogParser) parseHeader(line string) {
-	if p.opt.Debug {
-		l.Println("header")
-	}
+	p.logf("header")
 
 	if !headerRe.MatchString(line) {
 		p.inHeader = false
@@ -213,9 +210,7 @@ func (p *SlowLogParser) parseHeader(line string) {
 	p.headerLines++
 
 	if strings.HasPrefix(line, "# Time") {
-		if p.opt.Debug {
-			l.Println("time")
-		}
+		p.logf("time")
 		m := timeRe.FindStringSubmatch(line)
 		if len(m) == 2 {
 			p.event.Ts, _ = time.ParseInLocation("060102 15:04:05", m[1], p.opt.DefaultLocation)
@@ -228,17 +223,13 @@ func (p *SlowLogParser) parseHeader(line string) {
 			}
 		}
 		if userRe.MatchString(line) {
-			if p.opt.Debug {
-				l.Println("user (bad format)")
-			}
+			p.logf("user (bad format)")
 			m := userRe.FindStringSubmatch(line)
 			p.event.User = m[1]
 			p.event.Host = m[2]
 		}
 	} else if strings.HasPrefix(line, "# User") {
-		if p.opt.Debug {
-			l.Println("user")
-		}
+		p.logf("user")
 		m := userRe.FindStringSubmatch(line)
 		if len(m) < 3 {
 			return
@@ -248,9 +239,7 @@ func (p *SlowLogParser) parseHeader(line string) {
 	} else if strings.HasPrefix(line, "# admin") {
 		p.parseAdmin(line)
 	} else {
-		if p.opt.Debug {
-			l.Println("metrics")
-		}
+		p.logf("metrics")
 		submatch := schema.FindStringSubmatch(line)
 		if len(submatch) == 2 {
 			p.event.Db = submatch[1]
@@ -287,17 +276,13 @@ func (p *SlowLogParser) parseHeader(line string) {
 }
 
 func (p *SlowLogParser) parseQuery(line string) {
-	if p.opt.Debug {
-		l.Println("query")
-	}
+	p.logf("query")
 
 	if strings.HasPrefix(line, "# admin") {
 		p.parseAdmin(line)
 		return
 	} else if headerRe.MatchString(line) {
-		if p.opt.Debug {
-			l.Println("next event")
-		}
+		p.logf("next event")
 		p.inHeader = true
 		p.inQuery = false
 		p.endOffset = p.lineOffset
@@ -308,9 +293,7 @@ func (p *SlowLogParser) parseQuery(line string) {
 
 	isUse := useRe.FindString(line)
 	if p.queryLines == 0 && isUse != "" {
-		if p.opt.Debug {
-			l.Println("use db")
-		}
+		p.logf("use db")
 		db := strings.TrimPrefix(line, isUse)
 		db = strings.TrimRight(db, ";")
 		db = strings.Trim(db, "`")
@@ -322,14 +305,10 @@ func (p *SlowLogParser) parseQuery(line string) {
 		// query will be "use dbnameb" since the user executed a use command
 		p.event.Query = line
 	} else if setRe.MatchString(line) {
-		if p.opt.Debug {
-			l.Println("set var")
-		}
+		p.logf("set var")
 		// @todo ignore or use these lines?
 	} else {
-		if p.opt.Debug {
-			l.Println("query")
-		}
+		p.logf("query")
 		if p.queryLines > 0 {
 			p.event.Query += "\n" + line
 		} else {
@@ -340,9 +319,7 @@ func (p *SlowLogParser) parseQuery(line string) {
 }
 
 func (p *SlowLogParser) parseAdmin(line string) {
-	if p.opt.Debug {
-		l.Println("admin")
-	}
+	p.logf("admin")
 	p.event.Admin = true
 	m := adminRe.FindStringSubmatch(line)
 	p.event.Query = m[1]
@@ -350,9 +327,7 @@ func (p *SlowLogParser) parseAdmin(line string) {
 
 	// admin commands should be the last line of the event.
 	if filtered := p.opt.FilterAdminCommand[p.event.Query]; !filtered {
-		if p.opt.Debug {
-			l.Println("not filtered")
-		}
+		p.logf("not filtered")
 		p.endOffset = p.bytesRead
 		p.sendEvent(false, false)
 	} else {
@@ -362,9 +337,7 @@ func (p *SlowLogParser) parseAdmin(line string) {
 }
 
 func (p *SlowLogParser) sendEvent(inHeader bool, inQuery bool) {
-	if p.opt.Debug {
-		l.Println("send event")
-	}
+	p.logf("send event")
 
 	p.event.OffsetEnd = p.endOffset
 
@@ -379,7 +352,7 @@ func (p *SlowLogParser) sendEvent(inHeader bool, inQuery bool) {
 
 	if _, ok := p.event.TimeMetrics["Query_time"]; !ok {
 		if p.headerLines == 0 {
-			l.Panicf("No Query_time in event at %d: %#v", p.lineOffset, p.event)
+			panic(fmt.Sprintf("No Query_time in event at %d: %#v", p.lineOffset, p.event))
 		}
 		// Started parsing in header after Query_time.  Throw away event.
 		return

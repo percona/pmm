@@ -52,6 +52,7 @@ services:
      - 3306:3306
     volumes:
       - logs-directory:/var/log/mysql
+      - ${PWD}/my.cnf:/etc/my.cnf
 
   sysbench-ps:
     container_name: sysbench-ps

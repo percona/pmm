@@ -33,22 +33,26 @@ const (
 // This is only enforced by convention, so be careful not to mix events from
 // different classes.
 type Class struct {
-	Id            string // 32-character hex checksum of fingerprint
-	User          string
-	Host          string
-	Db            string
-	Server        string
-	LabelsKey     []string
-	LabelsValue   []string
-	Fingerprint   string   // canonical form of query: values replaced with "?"
-	Metrics       *Metrics // statistics for each metric, e.g. max Query_time
-	TotalQueries  uint     // total number of queries in class
-	UniqueQueries uint     // unique number of queries in class
-	Example       *Example `json:",omitempty"` // sample query with max Query_time
+	Id                   string // 32-character hex checksum of fingerprint
+	User                 string
+	Host                 string
+	Db                   string
+	Server               string
+	LabelsKey            []string
+	LabelsValue          []string
+	Fingerprint          string   // canonical form of query: values replaced with "?"
+	Metrics              *Metrics // statistics for each metric, e.g. max Query_time
+	TotalQueries         uint     // total number of queries in class
+	UniqueQueries        uint     // unique number of queries in class
+	Example              *Example `json:",omitempty"` // sample query with max Query_time
+	NumQueriesWithErrors float32
+	ErrorsCode           []uint64
+	ErrorsCount          []uint64
 	// --
-	outliers uint
-	lastDb   string
-	sample   bool
+	outliers  uint
+	lastDb    string
+	errorsMap map[uint64]uint64 // ErrorsCode: ErrorsCount
+	sample    bool
 }
 
 // A Example is a real query and its database, timestamp, and Query_time.
@@ -78,6 +82,7 @@ func NewClass(id, user, host, db, server, fingerprint string, sample bool) *Clas
 		TotalQueries: 0,
 		Example:      &Example{},
 		sample:       sample,
+		errorsMap:    map[uint64]uint64{},
 	}
 	return class
 }
@@ -95,6 +100,12 @@ func (c *Class) AddEvent(e *log.Event, outlier bool) {
 	// Add labels
 	c.LabelsKey = append(c.LabelsKey, e.LabelsKey...)
 	c.LabelsValue = append(c.LabelsValue, e.LabelsValue...)
+
+	// Add Errors
+	if lastErrno, ok := e.NumberMetrics["Last_errno"]; ok && lastErrno > 0 {
+		c.errorsMap[uint64(lastErrno)]++
+		c.NumQueriesWithErrors++
+	}
 
 	// Save last db seen for this query. This helps ensure the sample query
 	// has a db.
@@ -184,6 +195,12 @@ func (c *Class) Finalize(rateLimit uint) {
 	if rateLimit == 0 {
 		rateLimit = 1
 	}
+
+	for code, count := range c.errorsMap {
+		c.ErrorsCode = append(c.ErrorsCode, code)
+		c.ErrorsCount = append(c.ErrorsCount, count)
+	}
+
 	c.TotalQueries = (c.TotalQueries * rateLimit) + c.outliers
 	c.Metrics.Finalize(rateLimit, c.TotalQueries)
 	if c.Example.QueryTime == 0 {

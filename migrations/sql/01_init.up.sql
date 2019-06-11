@@ -38,8 +38,8 @@ CREATE TABLE IF NOT EXISTS metrics
     `warnings.code` Array(UInt32) COMMENT 'List of warnings',
     `warnings.count` Array(Float32) COMMENT 'Count of each warnings in bucket',
     num_queries_with_errors Float32 COMMENT 'How many queries was with error in bucket',
-    `errors.code` Array(UInt32) COMMENT 'List of Last_errno',
-    `errors.count` Array(Float32) COMMENT 'Count of each Last_errno in bucket',
+    `errors.code` Array(UInt64) COMMENT 'List of Last_errno',
+    `errors.count` Array(UInt64) COMMENT 'Count of each Last_errno in bucket',
     num_queries Float32 COMMENT 'Amount queries in this bucket',
     -- metrics
     m_query_time_cnt Float32 COMMENT 'The statement execution time in seconds was met.',
