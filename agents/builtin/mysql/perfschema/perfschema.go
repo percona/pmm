@@ -205,8 +205,8 @@ func (m *PerfSchema) getNewBuckets(periodStart time.Time, periodLengthSecs uint3
 
 		if esh := history[b.Queryid]; esh != nil {
 			// TODO test if we really need that
-			if b.DSchema == "" {
-				b.DSchema = pointer.GetString(esh.CurrentSchema)
+			if b.Schema == "" {
+				b.Schema = pointer.GetString(esh.CurrentSchema)
 			}
 
 			if esh.SQLText != nil {
@@ -255,13 +255,13 @@ func makeBuckets(current, prev map[string]*eventsStatementsSummaryByDigest, l *l
 		}
 
 		mb := &qanpb.MetricsBucket{
-			DSchema:                pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?
+			Schema:                 pointer.GetString(currentESS.SchemaName), // TODO can it be NULL?
 			Queryid:                *currentESS.Digest,
 			Fingerprint:            *currentESS.DigestText,
 			NumQueries:             count,
 			NumQueriesWithErrors:   float32(currentESS.SumErrors - prevESS.SumErrors),
 			NumQueriesWithWarnings: float32(currentESS.SumWarnings - prevESS.SumWarnings),
-			MetricsSource:          qanpb.MetricsSource_MYSQL_PERFSCHEMA, // TODO replace with agent_type
+			AgentType:              inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
 		}
 
 		for _, p := range []struct {

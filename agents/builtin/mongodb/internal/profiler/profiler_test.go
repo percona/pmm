@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/percona/pmgo"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -73,10 +74,10 @@ func (tw *testWriter) Write(actual *report.Report) error {
 
 	expected := &qanpb.MetricsBucket{
 		Fingerprint:        "INSERT peoples",
-		DDatabase:          "test",
-		DSchema:            "peoples",
+		Database:           "test",
+		Schema:             "peoples",
 		AgentId:            "test-id",
-		MetricsSource:      qanpb.MetricsSource_MONGODB_PROFILER,
+		AgentType:          inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
 		NumQueries:         1,
 		MResponseLengthSum: 60,
 		MResponseLengthMin: 60,

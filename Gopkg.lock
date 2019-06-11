@@ -347,7 +347,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:f6363888f953aeec6fe2540aa13e87783304984c1e2addc0844b9a535836005d"
+  digest = "1:9aa111d77ac1fe9799a22b06948e4cd6ff5162b04ebbbe5df8cbf37f26c87553"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -355,7 +355,6 @@
     "api/agentlocalpb/json/client/agent_local",
     "api/agentpb",
     "api/inventorypb",
-    "api/managementpb",
     "api/managementpb/json/client",
     "api/managementpb/json/client/actions",
     "api/managementpb/json/client/mongo_db",
@@ -369,7 +368,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "96b72c5638d01d985b9c0aeac75a537bbf7c5393"
+  revision = "29c366b6a9836683591125e2b1dbf1cab7559331"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -708,7 +707,6 @@
     "github.com/percona/pmm/api/agentlocalpb/json/client/agent_local",
     "github.com/percona/pmm/api/agentpb",
     "github.com/percona/pmm/api/inventorypb",
-    "github.com/percona/pmm/api/managementpb",
     "github.com/percona/pmm/api/managementpb/json/client",
     "github.com/percona/pmm/api/managementpb/json/client/node",
     "github.com/percona/pmm/api/qanpb",
@@ -718,6 +716,7 @@
     "github.com/prometheus/client_golang/prometheus",
     "github.com/prometheus/client_golang/prometheus/promhttp",
     "github.com/sirupsen/logrus",
+    "github.com/stretchr/objx",
     "github.com/stretchr/testify/assert",
     "github.com/stretchr/testify/mock",
     "github.com/stretchr/testify/require",

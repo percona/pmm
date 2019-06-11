@@ -27,6 +27,7 @@ import (
 	"github.com/AlekSi/pointer"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -65,7 +66,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		expected := &qanpb.MetricsBucket{
 			Queryid:          "Normal",
 			Fingerprint:      "SELECT 'Normal'",
-			MetricsSource:    qanpb.MetricsSource_MYSQL_PERFSCHEMA,
+			AgentType:        inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
 			NumQueries:       5,
 			MRowsAffectedCnt: 5,
 			MRowsAffectedSum: 10, // 60-50
@@ -88,7 +89,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		expected := &qanpb.MetricsBucket{
 			Queryid:          "New",
 			Fingerprint:      "SELECT 'New'",
-			MetricsSource:    qanpb.MetricsSource_MYSQL_PERFSCHEMA,
+			AgentType:        inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
 			NumQueries:       10,
 			MRowsAffectedCnt: 10,
 			MRowsAffectedSum: 50,
@@ -153,7 +154,7 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 		expected := &qanpb.MetricsBucket{
 			Queryid:          "TruncateAndNew",
 			Fingerprint:      "SELECT 'TruncateAndNew'",
-			MetricsSource:    qanpb.MetricsSource_MYSQL_PERFSCHEMA,
+			AgentType:        inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
 			NumQueries:       5,
 			MRowsAffectedCnt: 5,
 			MRowsAffectedSum: 25,
@@ -209,6 +210,18 @@ func filter(mb []*qanpb.MetricsBucket) []*qanpb.MetricsBucket {
 	res := make([]*qanpb.MetricsBucket, 0, len(mb))
 	for _, b := range mb {
 		switch {
+		// actions tests, MySQLVersion helper
+		case strings.HasPrefix(b.Fingerprint, "SHOW "):
+			continue
+		case strings.HasPrefix(b.Fingerprint, "ANALYZE "):
+			continue
+		case strings.HasPrefix(b.Fingerprint, "EXPLAIN "):
+			continue
+
+		// slowlog tests
+		case strings.HasPrefix(b.Fingerprint, "SELECT @@`slow_query_"):
+			continue
+
 		case strings.HasPrefix(b.Fingerprint, "SELECT @@`skip_networking`"):
 			continue
 
@@ -313,11 +326,11 @@ func TestPerfSchema(t *testing.T) {
 		assert.InDelta(t, 0.1, actual.MQueryTimeSum, 0.09)
 		expected := &qanpb.MetricsBucket{
 			Fingerprint:         "SELECT `sleep` (?)",
-			DSchema:             "world",
+			Schema:              "world",
 			AgentId:             "agent_id",
 			PeriodStartUnixSecs: 1554116340,
 			PeriodLengthSecs:    60,
-			MetricsSource:       qanpb.MetricsSource_MYSQL_PERFSCHEMA,
+			AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
 			Example:             "SELECT /* Sleep */ sleep(0.1)",
 			ExampleFormat:       qanpb.ExampleFormat_EXAMPLE,
 			ExampleType:         qanpb.ExampleType_RANDOM,
@@ -349,11 +362,11 @@ func TestPerfSchema(t *testing.T) {
 		assert.InDelta(t, 0, actual.MLockTimeSum, 0.09)
 		expected := &qanpb.MetricsBucket{
 			Fingerprint:         "SELECT * FROM `city`",
-			DSchema:             "world",
+			Schema:              "world",
 			AgentId:             "agent_id",
 			PeriodStartUnixSecs: 1554116340,
 			PeriodLengthSecs:    60,
-			MetricsSource:       qanpb.MetricsSource_MYSQL_PERFSCHEMA,
+			AgentType:           inventorypb.AgentType_QAN_MYSQL_PERFSCHEMA_AGENT,
 			Example:             "SELECT /* AllCities */ * FROM city",
 			ExampleFormat:       qanpb.ExampleFormat_EXAMPLE,
 			ExampleType:         qanpb.ExampleType_RANDOM,

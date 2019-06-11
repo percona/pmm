@@ -44,7 +44,7 @@ func TestServerStatus(t *testing.T) {
 		supervisor.On("AgentsList").Return(agentInfo)
 		client := new(mockClient)
 		client.Test(t)
-		client.On("GetAgentServerMetadata").Return(&agentpb.AgentServerMetadata{
+		client.On("GetServerConnectMetadata").Return(&agentpb.ServerConnectMetadata{
 			AgentRunsOnNodeID: "/node_id/00000000-0000-4000-8000-000000000003",
 			ServerVersion:     "2.0.0-dev",
 		})

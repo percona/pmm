@@ -127,10 +127,10 @@ func (s *Server) Run(ctx context.Context) error {
 // Status returns current pmm-agent status.
 func (s *Server) Status(ctx context.Context, req *agentlocalpb.StatusRequest) (*agentlocalpb.StatusResponse, error) {
 	connected := true
-	md := s.client.GetAgentServerMetadata()
+	md := s.client.GetServerConnectMetadata()
 	if md == nil {
 		connected = false
-		md = new(agentpb.AgentServerMetadata)
+		md = new(agentpb.ServerConnectMetadata)
 	}
 
 	var serverInfo *agentlocalpb.ServerInfo

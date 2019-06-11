@@ -76,6 +76,8 @@ func (e *mysqlExplainAction) Run(ctx context.Context) ([]byte, error) {
 		return e.explainDefault(ctx, conn)
 	case agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON:
 		return e.explainJSON(ctx, conn)
+	case agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON:
+		return e.explainTraditionalJSON(ctx, conn)
 	default:
 		return nil, errors.Errorf("unsupported output format %s", e.params.OutputFormat)
 	}
@@ -88,9 +90,8 @@ func (e *mysqlExplainAction) explainDefault(ctx context.Context, conn *sql.Conn)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close() //nolint:errcheck
 
-	columns, err := rows.Columns()
+	columns, dataRows, err := readRows(rows)
 	if err != nil {
 		return nil, err
 	}
@@ -98,30 +99,17 @@ func (e *mysqlExplainAction) explainDefault(ctx context.Context, conn *sql.Conn)
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.Debug)
 	w.Write([]byte(strings.Join(columns, "\t"))) //nolint:errcheck
-	for rows.Next() {
-		dest := make([]interface{}, len(columns))
-		for i := range dest {
-			var sp *string
-			dest[i] = &sp
-		}
-		if err = rows.Scan(dest...); err != nil {
-			return nil, err
-		}
-
+	for _, dataRow := range dataRows {
 		row := "\n"
-		for _, d := range dest {
+		for _, d := range dataRow {
 			v := "NULL"
-			if sp := *d.(**string); sp != nil {
-				v = *sp
+			if d != nil {
+				v = fmt.Sprint(d)
 			}
 			row += v + "\t"
 		}
 		w.Write([]byte(row)) //nolint:errcheck
 	}
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
 	if err = w.Flush(); err != nil {
 		return nil, err
 	}
@@ -164,4 +152,17 @@ func (e *mysqlExplainAction) explainJSON(ctx context.Context, conn *sql.Conn) ([
 
 	m["warnings"] = warnings
 	return json.Marshal(m)
+}
+
+func (e *mysqlExplainAction) explainTraditionalJSON(ctx context.Context, conn *sql.Conn) ([]byte, error) {
+	rows, err := conn.QueryContext(ctx, fmt.Sprintf("EXPLAIN /* pmm-agent */ %s", e.params.Query))
+	if err != nil {
+		return nil, err
+	}
+
+	columns, dataRows, err := readRows(rows)
+	if err != nil {
+		return nil, err
+	}
+	return jsonRows(columns, dataRows)
 }

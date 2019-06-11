@@ -19,38 +19,38 @@ package actions
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	_ "github.com/go-sql-driver/mysql" // register SQL driver
 	"github.com/percona/pmm/api/agentpb"
-	"github.com/pkg/errors"
 )
 
-type mysqlShowTableStatusAction struct {
+type mysqlShowIndexAction struct {
 	id     string
-	params *agentpb.StartActionRequest_MySQLShowTableStatusParams
+	params *agentpb.StartActionRequest_MySQLShowIndexParams
 }
 
-// NewMySQLShowTableStatusAction creates MySQL SHOW TABLE STATUS Action.
-// This is an Action that can run `SHOW TABLE STATUS` command on MySQL service with given DSN.
-func NewMySQLShowTableStatusAction(id string, params *agentpb.StartActionRequest_MySQLShowTableStatusParams) Action {
-	return &mysqlShowTableStatusAction{
+// NewMySQLShowIndexAction creates MySQL SHOW INDEX Action.
+// This is an Action that can run `SHOW INDEX` command on MySQL service with given DSN.
+func NewMySQLShowIndexAction(id string, params *agentpb.StartActionRequest_MySQLShowIndexParams) Action {
+	return &mysqlShowIndexAction{
 		id:     id,
 		params: params,
 	}
 }
 
 // ID returns an Action ID.
-func (e *mysqlShowTableStatusAction) ID() string {
+func (e *mysqlShowIndexAction) ID() string {
 	return e.id
 }
 
 // Type returns an Action type.
-func (e *mysqlShowTableStatusAction) Type() string {
-	return "mysql-show-table-status"
+func (e *mysqlShowIndexAction) Type() string {
+	return "mysql-show-index"
 }
 
 // Run runs an Action and returns output and error.
-func (e *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
+func (e *mysqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 	// TODO Use sql.OpenDB with ctx when https://github.com/go-sql-driver/mysql/issues/671 is released
 	// (likely in version 1.5.0).
 
@@ -60,7 +60,7 @@ func (e *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
 	}
 	defer db.Close() //nolint:errcheck
 
-	rows, err := db.QueryContext(ctx, "SHOW /* pmm-agent */ TABLE STATUS WHERE Name = ?", e.params.Table)
+	rows, err := db.QueryContext(ctx, fmt.Sprintf("SHOW /* pmm-agent */ INDEX IN %#q", e.params.Table))
 	if err != nil {
 		return nil, err
 	}
@@ -69,10 +69,7 @@ func (e *mysqlShowTableStatusAction) Run(ctx context.Context) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len(dataRows) == 0 {
-		return nil, errors.Errorf("table %q not found", e.params.Table)
-	}
 	return jsonRows(columns, dataRows)
 }
 
-func (e *mysqlShowTableStatusAction) sealed() {}
+func (e *mysqlShowIndexAction) sealed() {}

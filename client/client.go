@@ -26,7 +26,6 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/percona/pmm/api/agentpb"
-	"github.com/percona/pmm/api/managementpb"
 	"github.com/percona/pmm/version"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus"
@@ -66,7 +65,7 @@ type Client struct {
 	runner *actions.ConcurrentRunner
 
 	rw      sync.RWMutex
-	md      *agentpb.AgentServerMetadata
+	md      *agentpb.ServerConnectMetadata
 	channel *channel.Channel
 }
 
@@ -264,38 +263,34 @@ func (c *Client) processChannelRequests() {
 			responsePayload = new(agentpb.SetStateResponse)
 
 		case *agentpb.StartActionRequest:
-			switch p.Type {
-			case managementpb.ActionType_PT_SUMMARY:
-				pp := p.GetProcessParams()
-				a := actions.NewProcessAction(p.ActionId, c.cfg.Paths.PtSummary, pp.Args)
-				c.runner.Start(a)
-				responsePayload = new(agentpb.StartActionResponse)
+			var action actions.Action
+			switch params := p.Params.(type) {
+			case *agentpb.StartActionRequest_PtSummaryParams:
+				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PtSummary, params.PtSummaryParams.Args)
 
-			case managementpb.ActionType_PT_MYSQL_SUMMARY:
-				pp := p.GetProcessParams()
-				a := actions.NewProcessAction(p.ActionId, c.cfg.Paths.PtMySQLSummary, pp.Args)
-				c.runner.Start(a)
-				responsePayload = new(agentpb.StartActionResponse)
+			case *agentpb.StartActionRequest_PtMysqlSummaryParams:
+				action = actions.NewProcessAction(p.ActionId, c.cfg.Paths.PtMySQLSummary, params.PtMysqlSummaryParams.Args)
 
-			case managementpb.ActionType_MYSQL_EXPLAIN:
-				a := actions.NewMySQLExplainAction(p.ActionId, p.GetMysqlExplainParams())
-				c.runner.Start(a)
-				responsePayload = new(agentpb.StartActionResponse)
+			case *agentpb.StartActionRequest_MysqlExplainParams:
+				action = actions.NewMySQLExplainAction(p.ActionId, params.MysqlExplainParams)
 
-			case managementpb.ActionType_MYSQL_SHOW_CREATE_TABLE:
-				a := actions.NewMySQLShowCreateTableAction(p.ActionId, p.GetMysqlShowCreateTableParams())
-				c.runner.Start(a)
-				responsePayload = new(agentpb.StartActionResponse)
+			case *agentpb.StartActionRequest_MysqlShowCreateTableParams:
+				action = actions.NewMySQLShowCreateTableAction(p.ActionId, params.MysqlShowCreateTableParams)
 
-			case managementpb.ActionType_MYSQL_SHOW_TABLE_INFO:
-				a := actions.NewMySQLShowTableStatusAction(p.ActionId, p.GetMysqlShowTableStatusParams())
-				c.runner.Start(a)
-				responsePayload = new(agentpb.StartActionResponse)
+			case *agentpb.StartActionRequest_MysqlShowTableStatusParams:
+				action = actions.NewMySQLShowTableStatusAction(p.ActionId, params.MysqlShowTableStatusParams)
 
-			case managementpb.ActionType_ACTION_TYPE_INVALID:
-				c.l.Errorf("Unsupported action: %s.", p.Type)
-				continue
+			case *agentpb.StartActionRequest_MysqlShowIndexParams:
+				action = actions.NewMySQLShowIndexAction(p.ActionId, params.MysqlShowIndexParams)
+
+			case nil:
+				// Requests() is not closed, so exit early to break channel
+				c.l.Errorf("Unhandled StartAction request: %v.", req)
+				return
 			}
+
+			c.runner.Start(action)
+			responsePayload = new(agentpb.StartActionResponse)
 
 		case *agentpb.StopActionRequest:
 			c.runner.Stop(p.ActionId)
@@ -332,7 +327,7 @@ type dialResult struct {
 	conn         *grpc.ClientConn
 	streamCancel context.CancelFunc
 	channel      *channel.Channel
-	md           *agentpb.AgentServerMetadata
+	md           *agentpb.ServerConnectMetadata
 }
 
 // dial tries to connect to the server once.
@@ -413,10 +408,6 @@ func dial(dialCtx context.Context, cfg *config.Config, withoutTLS bool, l *logru
 
 	md, err := agentpb.ReceiveServerConnectMetadata(stream)
 	l.Debugf("Received server metadata: %+v. Error: %v.", md, err)
-	if (err == nil) && (*md == agentpb.ServerConnectMetadata{}) {
-		// FIXME https://jira.percona.com/browse/PMM-4076
-		err = errors.New("empty")
-	}
 	if err != nil {
 		msg := err.Error()
 
@@ -484,8 +475,8 @@ func (c *Client) GetNetworkInformation() (latency, clockDrift time.Duration, err
 	return
 }
 
-// GetAgentServerMetadata returns current server's metadata, or nil.
-func (c *Client) GetAgentServerMetadata() *agentpb.AgentServerMetadata {
+// GetServerConnectMetadata returns current server's metadata, or nil.
+func (c *Client) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
 	c.rw.RLock()
 	md := c.md
 	c.rw.RUnlock()

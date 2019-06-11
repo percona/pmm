@@ -25,6 +25,7 @@ import (
 	"github.com/percona/percona-toolkit/src/go/mongolib/fingerprinter"
 	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
 	mongostats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
+	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
 
 	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/report"
@@ -268,12 +269,12 @@ func (a *Aggregator) createResult() *report.Result {
 		bucket := &qanpb.MetricsBucket{
 			Queryid:             v.ID,
 			Fingerprint:         v.Fingerprint,
-			DDatabase:           db,
-			DSchema:             schema,
-			DUsername:           "",
-			DClientHost:         "",
+			Database:            db,
+			Schema:              schema,
+			Username:            "",
+			ClientHost:          "",
 			AgentId:             a.agentID,
-			MetricsSource:       qanpb.MetricsSource_MONGODB_PROFILER,
+			AgentType:           inventorypb.AgentType_QAN_MONGODB_PROFILER_AGENT,
 			PeriodStartUnixSecs: uint32(a.timeStart.Truncate(1 * time.Minute).Unix()),
 			PeriodLengthSecs:    uint32(a.d.Seconds()),
 			Example:             v.Query,

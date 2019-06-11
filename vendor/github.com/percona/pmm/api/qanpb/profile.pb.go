@@ -121,7 +121,7 @@ func (m *ReportRequest) GetLimit() uint32 {
 	return 0
 }
 
-// ReportMapFieldEntry allows to pass labels/dimentions in form like {"d_server": ["db1", "db2"...]}.
+// ReportMapFieldEntry allows to pass labels/dimentions in form like {"server": ["db1", "db2"...]}.
 type ReportMapFieldEntry struct {
 	Key                  string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	Value                []string `protobuf:"bytes,2,rep,name=value,proto3" json:"value,omitempty"`

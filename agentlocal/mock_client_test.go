@@ -22,22 +22,6 @@ func (_m *mockClient) Describe(_a0 chan<- *prometheus.Desc) {
 	_m.Called(_a0)
 }
 
-// GetAgentServerMetadata provides a mock function with given fields:
-func (_m *mockClient) GetAgentServerMetadata() *agentpb.ServerConnectMetadata {
-	ret := _m.Called()
-
-	var r0 *agentpb.ServerConnectMetadata
-	if rf, ok := ret.Get(0).(func() *agentpb.ServerConnectMetadata); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*agentpb.ServerConnectMetadata)
-		}
-	}
-
-	return r0
-}
-
 // GetNetworkInformation provides a mock function with given fields:
 func (_m *mockClient) GetNetworkInformation() (time.Duration, time.Duration, error) {
 	ret := _m.Called()
@@ -64,4 +48,20 @@ func (_m *mockClient) GetNetworkInformation() (time.Duration, time.Duration, err
 	}
 
 	return r0, r1, r2
+}
+
+// GetServerConnectMetadata provides a mock function with given fields:
+func (_m *mockClient) GetServerConnectMetadata() *agentpb.ServerConnectMetadata {
+	ret := _m.Called()
+
+	var r0 *agentpb.ServerConnectMetadata
+	if rf, ok := ret.Get(0).(func() *agentpb.ServerConnectMetadata); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*agentpb.ServerConnectMetadata)
+		}
+	}
+
+	return r0
 }
