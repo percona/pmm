@@ -314,7 +314,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:7ec3bfaaeba60412e084a13c33e581339646ed9dfa749d08454585c9bb3744dd"
+  digest = "1:46331a66e20bcbb7fffef86a430c6cbd4f9b8c5a78de2eaca6e3165a2738b4f5"
   name = "github.com/percona/go-mysql"
   packages = [
     "event",
@@ -322,7 +322,7 @@
     "query",
   ]
   pruneopts = "NUT"
-  revision = "eae71f25e1122be614529e03129b9c1e772dea1c"
+  revision = "26901809c968142fc55bffa04dd6f74e850406f6"
 
 [[projects]]
   branch = "3.0"
