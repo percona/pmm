@@ -17,8 +17,14 @@
 package models
 
 import (
+	"fmt"
+	"net"
+	"net/url"
+	"strconv"
 	"time"
 
+	"github.com/AlekSi/pointer"
+	"github.com/go-sql-driver/mysql"
 	"gopkg.in/reform.v1"
 )
 
@@ -120,6 +126,86 @@ func (s *Agent) UnifiedLabels() (map[string]string, error) {
 		return nil, err
 	}
 	return res, nil
+}
+
+// DSN returns DSN string for accessing given Service with this Agent (and implicit driver).
+func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string) string {
+	host := pointer.GetString(service.Address)
+	port := pointer.GetUint16(service.Port)
+	username := pointer.GetString(s.Username)
+	password := pointer.GetString(s.Password)
+
+	switch s.AgentType {
+	case MySQLdExporterType, ProxySQLExporterType:
+		// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
+
+		cfg := mysql.NewConfig()
+		cfg.User = username
+		cfg.Passwd = password
+		cfg.Net = "tcp"
+		cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
+		cfg.Timeout = dialTimeout
+		cfg.DBName = database
+		return cfg.FormatDSN()
+
+	case QANMySQLPerfSchemaAgentType:
+		// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
+
+		cfg := mysql.NewConfig()
+		cfg.User = username
+		cfg.Passwd = password
+		cfg.Net = "tcp"
+		cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
+		cfg.Timeout = dialTimeout
+		cfg.DBName = database
+
+		// QAN code in pmm-agent uses reform which requires those fields
+		cfg.ClientFoundRows = true
+		cfg.ParseTime = true
+
+		return cfg.FormatDSN()
+
+	case MongoDBExporterType:
+		// TODO return MongoURI for the new driver
+		fallthrough
+
+	case QANMongoDBProfilerAgentType:
+		u := &url.URL{
+			Scheme: "mongodb",
+			Host:   net.JoinHostPort(host, strconv.Itoa(int(port))),
+		}
+		switch {
+		case password != "":
+			u.User = url.UserPassword(username, password)
+		case username != "":
+			u.User = url.User(username)
+		}
+		return u.String()
+
+	case PostgresExporterType:
+		q := make(url.Values)
+		q.Set("sslmode", "disable") // TODO: make it configurable
+		if dialTimeout != 0 {
+			q.Set("connect_timeout", strconv.Itoa(int(dialTimeout.Seconds())))
+		}
+
+		u := &url.URL{
+			Scheme:   "postgres",
+			Host:     net.JoinHostPort(host, strconv.Itoa(int(port))),
+			Path:     database,
+			RawQuery: q.Encode(),
+		}
+		switch {
+		case password != "":
+			u.User = url.UserPassword(username, password)
+		case username != "":
+			u.User = url.User(username)
+		}
+		return u.String()
+
+	default:
+		panic(fmt.Errorf("unhandled AgentType %q", s.AgentType))
+	}
 }
 
 // check interfaces

@@ -32,8 +32,9 @@ func TestMongodbExporterConfig(t *testing.T) {
 		Port:    pointer.ToUint16(27017),
 	}
 	exporter := &models.Agent{
-		Username: pointer.ToString("username"),
-		Password: pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentType: models.MongoDBExporterType,
+		Username:  pointer.ToString("username"),
+		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
 	}
 	actual := mongodbExporterConfig(mongodb, exporter)
 	expected := &agentpb.SetStateRequest_AgentProcess{

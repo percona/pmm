@@ -25,21 +25,17 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
-
-	// FIXME Refactor, as service shouldn't depend on other service in one abstraction level.
-	// https://jira.percona.com/browse/PMM-3541
-	// See also main_test.go
-	"github.com/percona/pmm-managed/services/inventory"
+	"github.com/percona/pmm-managed/services"
 )
 
 // PostgreSQLService PostgreSQL Management Service.
 type PostgreSQLService struct {
 	db       *reform.DB
-	registry registry
+	registry agentsRegistry
 }
 
 // NewPostgreSQLService creates new PostgreSQL Management Service.
-func NewPostgreSQLService(db *reform.DB, registry registry) *PostgreSQLService {
+func NewPostgreSQLService(db *reform.DB, registry agentsRegistry) *PostgreSQLService {
 	return &PostgreSQLService{db, registry}
 }
 
@@ -62,7 +58,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			return err
 		}
 
-		invService, err := inventory.ToInventoryService(service)
+		invService, err := services.ToAPIService(service)
 		if err != nil {
 			return err
 		}
@@ -84,7 +80,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 			}
 		}
 
-		agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
+		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}

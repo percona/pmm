@@ -18,37 +18,14 @@ package agents
 
 import (
 	"fmt"
-	"net"
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/go-sql-driver/mysql"
 	"github.com/percona/pmm/api/agentpb"
 
 	"github.com/percona/pmm-managed/models"
 )
-
-func mysqlDSN(service *models.Service, exporter *models.Agent) string {
-	// TODO TLSConfig: "true", https://jira.percona.com/browse/PMM-1727
-	// TODO Other parameters?
-
-	cfg := mysql.NewConfig()
-	cfg.User = pointer.GetString(exporter.Username)
-	cfg.Passwd = pointer.GetString(exporter.Password)
-	cfg.Net = "tcp"
-	host := pointer.GetString(service.Address)
-	port := pointer.GetUint16(service.Port)
-	cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
-	cfg.Timeout = 1 * time.Second
-
-	// QAN code in pmm-agent uses reform which requires those fields
-	cfg.ClientFoundRows = true
-	cfg.ParseTime = true
-
-	return cfg.FormatDSN()
-}
 
 // mysqldExporterConfig returns desired configuration of mysqld_exporter process.
 func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agentpb.SetStateRequest_AgentProcess {
@@ -96,7 +73,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 		TemplateRightDelim: tdp.right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", mysqlDSN(service, exporter)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "")),
 		},
 	}
 }
@@ -105,7 +82,7 @@ func mysqldExporterConfig(service *models.Service, exporter *models.Agent) *agen
 func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type: agentpb.Type_QAN_MYSQL_PERFSCHEMA_AGENT,
-		Dsn:  mysqlDSN(service, agent),
+		Dsn:  agent.DSN(service, time.Second, ""),
 	}
 }
 
@@ -113,6 +90,6 @@ func qanMySQLPerfSchemaAgentConfig(service *models.Service, agent *models.Agent)
 func qanMySQLSlowlogAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type: agentpb.Type_QAN_MYSQL_SLOWLOG_AGENT,
-		Dsn:  mysqlDSN(service, agent),
+		Dsn:  agent.DSN(service, time.Second, ""),
 	}
 }

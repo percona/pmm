@@ -22,12 +22,12 @@ import (
 	"github.com/percona/pmm/api/qanpb"
 )
 
-//go:generate mockery -name=prometheus -case=snake -inpkg -testonly
+//go:generate mockery -name=prometheusService -case=snake -inpkg -testonly
 //go:generate mockery -name=qanClient  -case=snake -inpkg -testonly
 
-// prometheus is a subset of methods of prometheus.Service used by this package.
+// prometheusService is a subset of methods of prometheus.Service used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type prometheus interface {
+type prometheusService interface {
 	UpdateConfiguration(ctx context.Context) error
 }
 

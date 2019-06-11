@@ -19,6 +19,7 @@ package agents
 import (
 	"fmt"
 	"sort"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
@@ -54,7 +55,7 @@ func proxysqlExporterConfig(service *models.Service, exporter *models.Agent) *ag
 		TemplateRightDelim: tdp.right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", mysqlDSN(service, exporter)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "")),
 		},
 	}
 }

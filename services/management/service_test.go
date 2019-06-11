@@ -47,7 +47,7 @@ func TestServiceService(t *testing.T) {
 
 		sqlDB := testdb.Open(t)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		r := new(mockRegistry)
+		r := new(mockAgentsRegistry)
 		r.Test(t)
 		s = NewServiceService(db, r)
 
@@ -127,7 +127,7 @@ func TestServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			s.registry.(*mockRegistry).On("SendSetStateRequest", ctx, pmmAgent.AgentID)
+			s.registry.(*mockAgentsRegistry).On("SendSetStateRequest", ctx, pmmAgent.AgentID)
 			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: service.ServiceName, ServiceType: inventorypb.ServiceType_MYSQL_SERVICE})
 			assert.NotNil(t, response)
 			assert.NoError(t, err)

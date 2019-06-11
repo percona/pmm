@@ -342,6 +342,115 @@ func ChangeAgent(q *reform.Querier, agentID string, params *ChangeCommonAgentPar
 	return row, nil
 }
 
+// FindPMMAgentsForNode gets pmm-agents for node where it runs.
+func FindPMMAgentsForNode(q *reform.Querier, nodeID string) ([]*Agent, error) {
+	structs, err := q.SelectAllFrom(AgentTable, "WHERE runs_on_node_id = $1 AND agent_type = $2", nodeID, PMMAgentType)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get agents by runs_on_node_id, %s", nodeID)
+	}
+
+	var res []*Agent
+	for _, str := range structs {
+		row := str.(*Agent)
+		res = append(res, row)
+	}
+
+	if len(res) == 0 {
+		return nil, status.Errorf(codes.NotFound, "Couldn't found any pmm-agents by NodeID")
+	}
+
+	return res, nil
+}
+
+// FindPMMAgentsForService gets pmm-agents for service.
+func FindPMMAgentsForService(q *reform.Querier, serviceID string) ([]*Agent, error) {
+	_, err := q.SelectOneFrom(ServiceTable, "WHERE service_id = $1", serviceID)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get services by service_id, %s", serviceID)
+	}
+
+	// First, select all agents that scrapping insights for service.
+	agentServices, err := q.SelectAllFrom(AgentServiceView, "WHERE service_id = $1", serviceID)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get agent-service relation by service_id, %s", serviceID)
+	}
+	aids := make([]interface{}, len(agentServices))
+	for _, ag := range agentServices {
+		a := ag.(*AgentService)
+		aids = append(aids, a.AgentID)
+	}
+
+	// Then find all agents with PMMAgentID.
+	p := strings.Join(q.Placeholders(1, len(aids)), ", ")
+	tail := fmt.Sprintf("WHERE agent_id IN (%s)", p) //nolint:gosec
+	allAgents, err := q.SelectAllFrom(AgentTable, tail, aids...)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get all agents for service %s", serviceID)
+	}
+	pmmAgentIDs := make([]interface{}, len(allAgents))
+	for _, str := range allAgents {
+		row := str.(*Agent)
+		if row.PMMAgentID != nil {
+			for _, a := range pmmAgentIDs {
+				if a == *row.PMMAgentID {
+					break
+				}
+				pmmAgentIDs = append(pmmAgentIDs, *row.PMMAgentID)
+			}
+		}
+	}
+
+	// Last, find all pmm-agents.
+	ph := strings.Join(q.Placeholders(1, len(pmmAgentIDs)), ", ")
+	atail := fmt.Sprintf("WHERE agent_id IN (%s) AND agent_type = '%s'", ph, PMMAgentType) //nolint:gosec
+	pmmAgentRecords, err := q.SelectAllFrom(AgentTable, atail, pmmAgentIDs...)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "Couldn't get pmm-agents for service %s", serviceID)
+	}
+	var res []*Agent
+	for _, str := range pmmAgentRecords {
+		row := str.(*Agent)
+		res = append(res, row)
+	}
+
+	return res, nil
+}
+
+// FindAgentsByServiceIDAndAgentType find agents by service_id and agent_type.
+//nolint:unused
+func FindAgentsByServiceIDAndAgentType(q *reform.Querier, serviceID string, agentType AgentType) ([]*Agent, error) {
+	asMap, err := q.SelectAllFrom(AgentServiceView, "WHERE service_id = $1", serviceID)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "Failed to select AgentService map, reason: %v", err)
+	}
+
+	aIds := make([]interface{}, len(asMap))
+	for _, str := range asMap {
+		row := str.(*AgentService)
+		aIds = append(aIds, row.AgentID)
+	}
+
+	// Last, find all pmm-agents.
+	ph := strings.Join(q.Placeholders(1, len(aIds)), ", ")
+	atail := fmt.Sprintf("WHERE agent_id IN (%s) AND agent_type = '%s'", ph, agentType) //nolint:gosec
+	structs, err := q.SelectAllFrom(AgentTable, atail, aIds...)
+	if err != nil {
+		return nil, status.Errorf(codes.FailedPrecondition, "Failed to select Agents, reason: %v", err)
+	}
+
+	var res []*Agent
+	for _, str := range structs {
+		row := str.(*Agent)
+		res = append(res, row)
+	}
+
+	if len(res) == 0 {
+		return nil, status.Errorf(codes.NotFound, "Couldn't found any agent")
+	}
+
+	return res, nil
+}
+
 // RemoveAgent removes Agent by ID.
 func RemoveAgent(q *reform.Querier, id string, mode RemoveMode) (*Agent, error) {
 	a, err := AgentFindByID(q, id)

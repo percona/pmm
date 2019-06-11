@@ -207,7 +207,7 @@ func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) 
 		return nil, err
 	}
 	if err := q.Insert(node); err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 
 	return node, nil

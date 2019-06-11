@@ -18,42 +18,14 @@ package agents
 
 import (
 	"fmt"
-	"net"
-	"net/url"
 	"sort"
-	"strconv"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 
 	"github.com/percona/pmm-managed/models"
 )
-
-func postgresqlDSN(service *models.Service, exporter *models.Agent) string {
-	q := make(url.Values)
-	q.Set("sslmode", "disable") // TODO: make it configurable
-	q.Set("connect_timeout", "1")
-
-	host := pointer.GetString(service.Address)
-	port := pointer.GetUint16(service.Port)
-	username := pointer.GetString(exporter.Username)
-	password := pointer.GetString(exporter.Password)
-
-	u := &url.URL{
-		Scheme:   "postgres",
-		Host:     net.JoinHostPort(host, strconv.Itoa(int(port))),
-		Path:     "postgres",
-		RawQuery: q.Encode(),
-	}
-	switch {
-	case password != "":
-		u.User = url.UserPassword(username, password)
-	case username != "":
-		u.User = url.User(username)
-	}
-
-	return u.String()
-}
 
 // postgresExporterConfig returns desired configuration of postgres_exporter process.
 func postgresExporterConfig(service *models.Service, exporter *models.Agent) *agentpb.SetStateRequest_AgentProcess {
@@ -80,7 +52,7 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent) *ag
 		TemplateRightDelim: tdp.right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("DATA_SOURCE_NAME=%s", postgresqlDSN(service, exporter)),
+			fmt.Sprintf("DATA_SOURCE_NAME=%s", exporter.DSN(service, time.Second, "postgres")),
 		},
 	}
 }

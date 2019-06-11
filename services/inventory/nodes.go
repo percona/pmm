@@ -18,13 +18,13 @@ package inventory
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventorypb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services"
 )
 
 type NodesService struct {
@@ -35,62 +35,6 @@ type NodesService struct {
 func NewNodesService(db *reform.DB) *NodesService {
 	return &NodesService{
 		db: db,
-	}
-}
-
-// ToInventoryNode converts database row to Inventory API Node.
-func ToInventoryNode(row *models.Node) (inventorypb.Node, error) {
-	labels, err := row.GetCustomLabels()
-	if err != nil {
-		return nil, err
-	}
-
-	switch row.NodeType {
-	case models.GenericNodeType:
-		return &inventorypb.GenericNode{
-			NodeId:       row.NodeID,
-			NodeName:     row.NodeName,
-			MachineId:    pointer.GetString(row.MachineID),
-			Distro:       row.Distro,
-			NodeModel:    row.NodeModel,
-			Region:       pointer.GetString(row.Region),
-			Az:           row.AZ,
-			CustomLabels: labels,
-			Address:      row.Address,
-		}, nil
-
-	case models.ContainerNodeType:
-		return &inventorypb.ContainerNode{
-			NodeId:        row.NodeID,
-			NodeName:      row.NodeName,
-			MachineId:     pointer.GetString(row.MachineID),
-			ContainerId:   pointer.GetString(row.ContainerID),
-			ContainerName: pointer.GetString(row.ContainerName),
-			NodeModel:     row.NodeModel,
-			Region:        pointer.GetString(row.Region),
-			Az:            row.AZ,
-			CustomLabels:  labels,
-			Address:       row.Address,
-		}, nil
-
-	case models.RemoteNodeType:
-		return &inventorypb.RemoteNode{
-			NodeId:       row.NodeID,
-			NodeName:     row.NodeName,
-			CustomLabels: labels,
-		}, nil
-
-	case models.RemoteAmazonRDSNodeType:
-		return &inventorypb.RemoteAmazonRDSNode{
-			NodeId:       row.NodeID,
-			NodeName:     row.NodeName,
-			Instance:     row.Address,
-			Region:       pointer.GetString(row.Region),
-			CustomLabels: labels,
-		}, nil
-
-	default:
-		panic(fmt.Errorf("unhandled Node type %s", row.NodeType))
 	}
 }
 
@@ -109,7 +53,7 @@ func (s *NodesService) List(ctx context.Context, req *inventorypb.ListNodesReque
 
 	res := make([]inventorypb.Node, len(nodes))
 	for i, n := range nodes {
-		res[i], e = ToInventoryNode(n)
+		res[i], e = services.ToAPINode(n)
 		if e != nil {
 			return nil, e
 		}
@@ -133,7 +77,7 @@ func (s *NodesService) Get(ctx context.Context, req *inventorypb.GetNodeRequest)
 		return nil, e
 	}
 
-	node, err := ToInventoryNode(modelNode)
+	node, err := services.ToAPINode(modelNode)
 	if err != nil {
 		return nil, err
 	}
@@ -170,7 +114,7 @@ func (s *NodesService) AddGenericNode(ctx context.Context, req *inventorypb.AddG
 		return nil, e
 	}
 
-	invNode, err := ToInventoryNode(node)
+	invNode, err := services.ToAPINode(node)
 	if err != nil {
 		return nil, err
 	}
@@ -208,7 +152,7 @@ func (s *NodesService) AddContainerNode(ctx context.Context, req *inventorypb.Ad
 		return nil, e
 	}
 
-	invNode, err := ToInventoryNode(node)
+	invNode, err := services.ToAPINode(node)
 	if err != nil {
 		return nil, err
 	}
@@ -239,7 +183,7 @@ func (s *NodesService) AddRemoteNode(ctx context.Context, req *inventorypb.AddRe
 		return nil, e
 	}
 
-	invNode, err := ToInventoryNode(node)
+	invNode, err := services.ToAPINode(node)
 	if err != nil {
 		return nil, err
 	}
@@ -272,7 +216,7 @@ func (s *NodesService) AddRemoteAmazonRDSNode(ctx context.Context, req *inventor
 		return nil, e
 	}
 
-	invNode, err := ToInventoryNode(node)
+	invNode, err := services.ToAPINode(node)
 	if err != nil {
 		return nil, err
 	}

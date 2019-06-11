@@ -45,7 +45,7 @@ func TestServices(t *testing.T) {
 		sqlDB := testdb.Open(t)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-		r := new(mockRegistry)
+		r := new(mockAgentsRegistry)
 		r.Test(t)
 		teardown = func(t *testing.T) {
 			require.NoError(t, sqlDB.Close())

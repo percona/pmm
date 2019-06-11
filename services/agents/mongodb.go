@@ -18,36 +18,14 @@ package agents
 
 import (
 	"fmt"
-	"net"
-	"net/url"
 	"sort"
-	"strconv"
+	"time"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/agentpb"
 
 	"github.com/percona/pmm-managed/models"
 )
-
-func mongoDSN(service *models.Service, exporter *models.Agent) string {
-	host := pointer.GetString(service.Address)
-	port := pointer.GetUint16(service.Port)
-	username := pointer.GetString(exporter.Username)
-	password := pointer.GetString(exporter.Password)
-
-	u := &url.URL{
-		Scheme: "mongodb",
-		Host:   net.JoinHostPort(host, strconv.Itoa(int(port))),
-	}
-	switch {
-	case password != "":
-		u.User = url.UserPassword(username, password)
-	case username != "":
-		u.User = url.User(username)
-	}
-
-	return u.String()
-}
 
 // mongodbExporterConfig returns desired configuration of mongodb_exporter process.
 func mongodbExporterConfig(service *models.Service, exporter *models.Agent) *agentpb.SetStateRequest_AgentProcess {
@@ -77,7 +55,7 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent) *age
 		TemplateRightDelim: tdp.right,
 		Args:               args,
 		Env: []string{
-			fmt.Sprintf("MONGODB_URI=%s", mongoDSN(service, exporter)),
+			fmt.Sprintf("MONGODB_URI=%s", exporter.DSN(service, time.Second, "")),
 		},
 	}
 }
@@ -86,6 +64,6 @@ func mongodbExporterConfig(service *models.Service, exporter *models.Agent) *age
 func qanMongoDBProfilerAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
 	return &agentpb.SetStateRequest_BuiltinAgent{
 		Type: agentpb.Type_QAN_MONGODB_PROFILER_AGENT,
-		Dsn:  mongoDSN(service, agent),
+		Dsn:  agent.DSN(service, time.Second, ""),
 	}
 }

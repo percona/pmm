@@ -27,21 +27,17 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
-
-	// FIXME Refactor, as service shouldn't depend on other service in one abstraction level.
-	// https://jira.percona.com/browse/PMM-3541
-	// See also main_test.go
-	"github.com/percona/pmm-managed/services/inventory"
+	"github.com/percona/pmm-managed/services"
 )
 
 // NodeService represents service for working with nodes.
 type NodeService struct {
 	db       *reform.DB
-	registry registry
+	registry agentsRegistry
 }
 
 // NewNodeService creates NodeService instance.
-func NewNodeService(db *reform.DB, registry registry) *NodeService {
+func NewNodeService(db *reform.DB, registry agentsRegistry) *NodeService {
 	return &NodeService{
 		db:       db,
 		registry: registry,
@@ -92,7 +88,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			return err
 		}
 
-		n, err := inventory.ToInventoryNode(node)
+		n, err := services.ToAPINode(node)
 		if err != nil {
 			return err
 		}
@@ -110,7 +106,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			return err
 		}
 
-		a, err := inventory.ToInventoryAgent(tx.Querier, pmmAgent, s.registry)
+		a, err := services.ToAPIAgent(tx.Querier, pmmAgent)
 		if err != nil {
 			return err
 		}

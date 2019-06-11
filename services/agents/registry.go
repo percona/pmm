@@ -54,7 +54,7 @@ type agentInfo struct {
 // TODO Split into several types?
 type Registry struct {
 	db         *reform.DB
-	prometheus prometheus
+	prometheus prometheusService
 	qanClient  qanClient
 
 	rw     sync.RWMutex
@@ -68,7 +68,7 @@ type Registry struct {
 }
 
 // NewRegistry creates a new registry with given database connection.
-func NewRegistry(db *reform.DB, prometheus prometheus, qanClient qanClient) *Registry {
+func NewRegistry(db *reform.DB, prometheus prometheusService, qanClient qanClient) *Registry {
 	r := &Registry{
 		db:         db,
 		prometheus: prometheus,
@@ -188,7 +188,20 @@ func (r *Registry) Run(stream agentpb.Agent_ConnectServer) error {
 				})
 
 			case *agentpb.ActionResultRequest:
-				panic("TODO")
+				// TODO: PMM-3978: In the future we need to merge action parts before send it to storage.
+				err := models.ChangeActionResult(r.db.Querier, p.ActionId, agent.id, p.Error, string(p.Output), p.Done)
+				if err != nil {
+					l.Warnf("Failed to change action: %+v", err)
+				}
+
+				if !p.Done && p.Error != "" {
+					l.Warnf("Action was done with an error: %v.", p.Error)
+				}
+
+				agent.channel.SendResponse(&channel.ServerResponse{
+					ID:      req.ID,
+					Payload: new(agentpb.ActionResultResponse),
+				})
 
 			case nil:
 				l.Warnf("Unexpected request: %v.", req)
@@ -213,13 +226,13 @@ func (r *Registry) register(stream agentpb.Agent_ConnectServer) (*agentInfo, err
 	}
 	l.Infof("Connected pmm-agent: %+v.", agentMD)
 
-	serverMD := agentpb.AgentServerMetadata{
+	serverMD := agentpb.ServerConnectMetadata{
 		AgentRunsOnNodeID: runsOnNodeID,
 		ServerVersion:     version.Version,
 	}
 	l.Debugf("Sending metadata: %+v.", serverMD)
-	if err = agentpb.SendAgentServerMetadata(stream, &serverMD); err != nil {
-		return nil, errors.Wrap(err, "failed to send server metadata")
+	if err = agentpb.SendServerConnectMetadata(stream, &serverMD); err != nil {
+		return nil, err
 	}
 
 	r.rw.Lock()
@@ -494,22 +507,22 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, service *models
 	case models.MySQLServiceType:
 		request = &agentpb.CheckConnectionRequest{
 			Type: inventorypb.ServiceType_MYSQL_SERVICE,
-			Dsn:  mysqlDSN(service, agent),
+			Dsn:  agent.DSN(service, time.Second, ""),
 		}
 	case models.PostgreSQLServiceType:
 		request = &agentpb.CheckConnectionRequest{
 			Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
-			Dsn:  postgresqlDSN(service, agent),
+			Dsn:  agent.DSN(service, time.Second, "postgres"),
 		}
 	case models.MongoDBServiceType:
 		request = &agentpb.CheckConnectionRequest{
 			Type: inventorypb.ServiceType_MONGODB_SERVICE,
-			Dsn:  mongoDSN(service, agent),
+			Dsn:  agent.DSN(service, time.Second, ""),
 		}
 	case models.ProxySQLServiceType:
 		request = &agentpb.CheckConnectionRequest{
 			Type: inventorypb.ServiceType_PROXYSQL_SERVICE,
-			Dsn:  mysqlDSN(service, agent),
+			Dsn:  agent.DSN(service, time.Second, ""),
 		}
 	default:
 		l.Panicf("unhandled Service type %s", service.ServiceType)
@@ -551,6 +564,150 @@ func (r *Registry) Collect(ch chan<- prom.Metric) {
 	r.mDisconnects.Collect(ch)
 	r.mRoundTrip.Collect(ch)
 	r.mClockDrift.Collect(ch)
+}
+
+// StartPTSummaryAction starts pt-summary action on pmm-agent.
+// TODO: Extract it from here. Where...?
+func (r *Registry) StartPTSummaryAction(ctx context.Context, id, pmmAgentID string, args []string) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_PtSummaryParams{
+			PtSummaryParams: &agentpb.StartActionRequest_ProcessParams{
+				Args: args,
+			},
+		},
+	}
+
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	agent.channel.SendRequest(aRequest)
+	return nil
+}
+
+// StartPTMySQLSummaryAction starts pt-mysql-summary action on pmm-agent.
+// TODO: Extract it from here. Where...?
+func (r *Registry) StartPTMySQLSummaryAction(ctx context.Context, id, pmmAgentID string, args []string) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_PtMysqlSummaryParams{
+			PtMysqlSummaryParams: &agentpb.StartActionRequest_ProcessParams{
+				Args: args,
+			},
+		},
+	}
+
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	agent.channel.SendRequest(aRequest)
+	return nil
+}
+
+// StartMySQLExplainAction starts mysql-explain action on pmm-agent.
+// TODO: Extract it from here. Where...?
+func (r *Registry) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, dsn, query string) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_MysqlExplainParams{
+			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
+				Dsn:          dsn,
+				Query:        query,
+				OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
+			},
+		},
+	}
+
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	agent.channel.SendRequest(aRequest)
+	return nil
+}
+
+// StartMySQLExplainJSONAction starts mysql-explain-json action on pmm-agent.
+// TODO: Extract it from here. Where...?
+func (r *Registry) StartMySQLExplainJSONAction(ctx context.Context, id, pmmAgentID, dsn, query string) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_MysqlExplainParams{
+			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
+				Dsn:          dsn,
+				Query:        query,
+				OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON,
+			},
+		},
+	}
+
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	agent.channel.SendRequest(aRequest)
+	return nil
+}
+
+// StartMySQLShowCreateTableAction starts mysql-show-create-table action on pmm-agent.
+// TODO: Extract it from here. Where...?
+func (r *Registry) StartMySQLShowCreateTableAction(ctx context.Context, id, pmmAgentID, dsn, table string) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_MysqlShowCreateTableParams{
+			MysqlShowCreateTableParams: &agentpb.StartActionRequest_MySQLShowCreateTableParams{
+				Dsn:   dsn,
+				Table: table,
+			},
+		},
+	}
+
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	agent.channel.SendRequest(aRequest)
+	return nil
+}
+
+// StartMySQLShowTableStatusAction starts mysql-show-table-status action on pmm-agent.
+// TODO: Extract it from here. Where...?
+func (r *Registry) StartMySQLShowTableStatusAction(ctx context.Context, id, pmmAgentID, dsn, table string) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_MysqlShowTableStatusParams{
+			MysqlShowTableStatusParams: &agentpb.StartActionRequest_MySQLShowTableStatusParams{
+				Dsn:   dsn,
+				Table: table,
+			},
+		},
+	}
+
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	agent.channel.SendRequest(aRequest)
+	return nil
+}
+
+// StopAction stops action with given given id.
+// TODO: Extract it from here. Where...?
+func (r *Registry) StopAction(ctx context.Context, actionID string) error {
+	agent, err := r.get(actionID)
+	if err != nil {
+		return err
+	}
+
+	agent.channel.SendRequest(&agentpb.StopActionRequest{ActionId: actionID})
+	return nil
 }
 
 // check interfaces

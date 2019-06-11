@@ -45,7 +45,7 @@ func TestNodeService(t *testing.T) {
 
 		sqlDB := testdb.Open(t)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-		r := new(mockRegistry)
+		r := new(mockAgentsRegistry)
 		r.Test(t)
 		s = NewNodeService(db, r)
 
@@ -62,7 +62,6 @@ func TestNodeService(t *testing.T) {
 			ctx, s, teardown := setup(t)
 			defer teardown()
 
-			s.registry.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000002").Return(false)
 			res, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
 				NodeType: inventorypb.NodeType_GENERIC_NODE,
 				NodeName: "node",
@@ -90,7 +89,6 @@ func TestNodeService(t *testing.T) {
 			})
 
 			t.Run("Reregister", func(t *testing.T) {
-				s.registry.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000005").Return(false)
 				res, err = s.Register(ctx, &managementpb.RegisterNodeRequest{
 					NodeType:   inventorypb.NodeType_GENERIC_NODE,
 					NodeName:   "node",

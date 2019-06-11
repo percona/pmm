@@ -32,8 +32,9 @@ func TestPostgresExporterConfig(t *testing.T) {
 		Port:    pointer.ToUint16(5432),
 	}
 	exporter := &models.Agent{
-		Username: pointer.ToString("username"),
-		Password: pointer.ToString("s3cur3 p@$$w0r4."),
+		AgentType: models.PostgresExporterType,
+		Username:  pointer.ToString("username"),
+		Password:  pointer.ToString("s3cur3 p@$$w0r4."),
 	}
 	actual := postgresExporterConfig(postgresql, exporter)
 	expected := &agentpb.SetStateRequest_AgentProcess{

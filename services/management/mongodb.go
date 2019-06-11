@@ -25,22 +25,18 @@ import (
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
-
-	// FIXME Refactor, as service shouldn't depend on other service in one abstraction level.
-	// https://jira.percona.com/browse/PMM-3541
-	// See also main_test.go
-	"github.com/percona/pmm-managed/services/inventory"
+	"github.com/percona/pmm-managed/services"
 )
 
 // MongoDBService MongoDB Management Service.
 //nolint:unused
 type MongoDBService struct {
 	db       *reform.DB
-	registry registry
+	registry agentsRegistry
 }
 
 // NewMongoDBService creates new MySQL Management Service.
-func NewMongoDBService(db *reform.DB, registry registry) *MongoDBService {
+func NewMongoDBService(db *reform.DB, registry agentsRegistry) *MongoDBService {
 	return &MongoDBService{db, registry}
 }
 
@@ -63,7 +59,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			return err
 		}
 
-		invService, err := inventory.ToInventoryService(service)
+		invService, err := services.ToAPIService(service)
 		if err != nil {
 			return err
 		}
@@ -85,7 +81,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 			}
 		}
 
-		agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
+		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
@@ -102,7 +98,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 				return err
 			}
 
-			agent, err := inventory.ToInventoryAgent(tx.Querier, row, s.registry)
+			agent, err := services.ToAPIAgent(tx.Querier, row)
 			if err != nil {
 				return err
 			}

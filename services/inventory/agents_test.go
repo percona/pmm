@@ -53,7 +53,7 @@ func TestAgents(t *testing.T) {
 
 		db = reform.NewDB(testdb.Open(t), postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
-		r := new(mockRegistry)
+		r := new(mockAgentsRegistry)
 		r.Test(t)
 
 		ss = NewServicesService(db, r)
@@ -62,7 +62,7 @@ func TestAgents(t *testing.T) {
 
 	teardown := func(t *testing.T) {
 		assert.NoError(t, db.DBInterface().(*sql.DB).Close())
-		as.r.(*mockRegistry).AssertExpectations(t)
+		as.r.(*mockAgentsRegistry).AssertExpectations(t)
 	}
 
 	t.Run("Basic", func(t *testing.T) {
@@ -73,9 +73,9 @@ func TestAgents(t *testing.T) {
 		require.NoError(t, err)
 		require.Len(t, actualAgents, 0)
 
-		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
-		as.r.(*mockRegistry).On("SendSetStateRequest", ctx, "/agent_id/00000000-0000-4000-8000-000000000001")
-		as.r.(*mockRegistry).On("CheckConnectionToService", ctx,
+		as.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
+		as.r.(*mockAgentsRegistry).On("SendSetStateRequest", ctx, "/agent_id/00000000-0000-4000-8000-000000000001")
+		as.r.(*mockAgentsRegistry).On("CheckConnectionToService", ctx,
 			mock.AnythingOfType(reflect.TypeOf(&models.Service{}).Name()),
 			mock.AnythingOfType(reflect.TypeOf(&models.Agent{}).Name())).Return(nil)
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
@@ -279,7 +279,7 @@ func TestAgents(t *testing.T) {
 		tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000009" not found.`), err)
 		assert.Nil(t, actualAgent)
 
-		as.r.(*mockRegistry).On("Kick", ctx, "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
+		as.r.(*mockAgentsRegistry).On("Kick", ctx, "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
 		err = as.Remove(ctx, "/agent_id/00000000-0000-4000-8000-000000000001", false)
 		require.NoError(t, err)
 		actualAgent, err = as.Get(ctx, "/agent_id/00000000-0000-4000-8000-000000000001")
@@ -304,7 +304,7 @@ func TestAgents(t *testing.T) {
 		setup(t)
 		defer teardown(t)
 
-		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(false)
+		as.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(false)
 		actualAgent, err := as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
 			RunsOnNodeId: models.PMMServerNodeID,
 		})
@@ -316,7 +316,7 @@ func TestAgents(t *testing.T) {
 		}
 		assert.Equal(t, expectedPMMAgent, actualAgent)
 
-		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000002").Return(true)
+		as.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000002").Return(true)
 		actualAgent, err = as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
 			RunsOnNodeId: models.PMMServerNodeID,
 		})
@@ -343,7 +343,7 @@ func TestAgents(t *testing.T) {
 		setup(t)
 		defer teardown(t)
 
-		as.r.(*mockRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
+		as.r.(*mockAgentsRegistry).On("IsConnected", "/agent_id/00000000-0000-4000-8000-000000000001").Return(true)
 		pmmAgent, err := as.AddPMMAgent(ctx, &inventorypb.AddPMMAgentRequest{
 			RunsOnNodeId: models.PMMServerNodeID,
 		})

@@ -108,7 +108,7 @@ func (m *MetricsRequest) GetIncludeOnlyFields() []string {
 	return nil
 }
 
-// MapFieldEntry allows to pass labels/dimensions in form like {"d_server": ["db1", "db2"...]}.
+// MapFieldEntry allows to pass labels/dimensions in form like {"server": ["db1", "db2"...]}.
 type MapFieldEntry struct {
 	Key                  string   `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`
 	Value                []string `protobuf:"bytes,2,rep,name=value,proto3" json:"value,omitempty"`

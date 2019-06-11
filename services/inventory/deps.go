@@ -14,5 +14,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-// Package services implements business logic of pmm-managed.
-package services
+package inventory
+
+import (
+	"context"
+
+	"github.com/percona/pmm-managed/models"
+)
+
+//go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly
+
+// agentsRegistry is a subset of methods of agents.Registry used by this package.
+// We use it instead of real type for testing and to avoid dependency cycle.
+type agentsRegistry interface {
+	IsConnected(pmmAgentID string) bool
+	Kick(ctx context.Context, pmmAgentID string)
+	SendSetStateRequest(ctx context.Context, pmmAgentID string)
+	CheckConnectionToService(ctx context.Context, service *models.Service, agent *models.Agent) (err error)
+}

@@ -18,160 +18,39 @@ package inventory
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services"
 )
 
 // AgentsService works with inventory API Agents.
 type AgentsService struct {
-	r  registry
+	r  agentsRegistry
 	db *reform.DB
 }
 
 // NewAgentsService creates new AgentsService
-func NewAgentsService(db *reform.DB, r registry) *AgentsService {
+func NewAgentsService(db *reform.DB, r agentsRegistry) *AgentsService {
 	return &AgentsService{
 		r:  r,
 		db: db,
 	}
 }
 
-// ToInventoryAgent converts database row to Inventory API Agent.
-func ToInventoryAgent(q *reform.Querier, row *models.Agent, registry registry) (inventorypb.Agent, error) {
-	labels, err := row.GetCustomLabels()
+func toInventoryAgent(q *reform.Querier, row *models.Agent, registry agentsRegistry) (inventorypb.Agent, error) {
+	agent, err := services.ToAPIAgent(q, row)
 	if err != nil {
 		return nil, err
 	}
 
-	// agents without services
-
-	switch row.AgentType {
-	case models.PMMAgentType:
-		return &inventorypb.PMMAgent{
-			AgentId:      row.AgentID,
-			RunsOnNodeId: pointer.GetString(row.RunsOnNodeID),
-			Connected:    registry.IsConnected(row.AgentID),
-			CustomLabels: labels,
-		}, nil
-
-	case models.NodeExporterType:
-		return &inventorypb.NodeExporter{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
-			CustomLabels: labels,
-		}, nil
+	if row.AgentType == models.PMMAgentType {
+		agent.(*inventorypb.PMMAgent).Connected = registry.IsConnected(row.AgentID)
 	}
-
-	// agents with exactly one service
-	services, err := models.ServicesForAgent(q, row.AgentID)
-	if err != nil {
-		return nil, err
-	}
-	if len(services) != 1 {
-		return nil, errors.Errorf("expected exactly one Service, got %d", len(services))
-	}
-	serviceID := services[0].ServiceID
-
-	switch row.AgentType {
-	case models.MySQLdExporterType:
-		return &inventorypb.MySQLdExporter{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
-			CustomLabels: labels,
-		}, nil
-
-	case models.MongoDBExporterType:
-		return &inventorypb.MongoDBExporter{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
-			CustomLabels: labels,
-		}, nil
-
-	case models.PostgresExporterType:
-		return &inventorypb.PostgresExporter{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
-			CustomLabels: labels,
-		}, nil
-
-	case models.QANMySQLPerfSchemaAgentType:
-		return &inventorypb.QANMySQLPerfSchemaAgent{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			CustomLabels: labels,
-		}, nil
-
-	case models.QANMySQLSlowlogAgentType:
-		return &inventorypb.QANMySQLSlowlogAgent{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			CustomLabels: labels,
-		}, nil
-
-	case models.QANMongoDBProfilerAgentType:
-		return &inventorypb.QANMongoDBProfilerAgent{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			CustomLabels: labels,
-		}, nil
-
-	case models.ProxySQLExporterType:
-		return &inventorypb.ProxySQLExporter{
-			AgentId:      row.AgentID,
-			PmmAgentId:   pointer.GetString(row.PMMAgentID),
-			ServiceId:    serviceID,
-			Username:     pointer.GetString(row.Username),
-			Password:     pointer.GetString(row.Password),
-			Disabled:     row.Disabled,
-			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[row.Status]),
-			ListenPort:   uint32(pointer.GetUint16(row.ListenPort)),
-			CustomLabels: labels,
-		}, nil
-	}
-
-	panic(fmt.Errorf("unhandled Agent type %s", row.AgentType))
+	return agent, nil
 }
 
 // changeAgent changes common parameters for given Agent.
@@ -193,7 +72,7 @@ func (as *AgentsService) changeAgent(agentID string, common *inventorypb.ChangeC
 			return err
 		}
 
-		agent, err = ToInventoryAgent(tx.Querier, row, as.r)
+		agent, err = toInventoryAgent(tx.Querier, row, as.r)
 		return err
 	})
 	return agent, e
@@ -232,12 +111,11 @@ func (as *AgentsService) List(ctx context.Context, filters AgentFilters) ([]inve
 
 		// TODO That loop makes len(agents) SELECTs, that can be slow. Optimize when needed.
 		res = make([]inventorypb.Agent, len(agents))
-		for i, row := range agents {
-			agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		for i, a := range agents {
+			res[i], err = toInventoryAgent(tx.Querier, a, as.r)
 			if err != nil {
 				return err
 			}
-			res[i] = agent
 		}
 		return nil
 	})
@@ -254,7 +132,7 @@ func (as *AgentsService) Get(ctx context.Context, id string) (inventorypb.Agent,
 			return err
 		}
 
-		res, err = ToInventoryAgent(tx.Querier, row, as.r)
+		res, err = toInventoryAgent(tx.Querier, row, as.r)
 		return err
 	})
 	return res, e
@@ -273,7 +151,7 @@ func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventorypb.AddPM
 			return err
 		}
 
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		agent, err := toInventoryAgent(tx.Querier, row, as.r)
 		if err != nil {
 			return err
 		}
@@ -294,7 +172,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, req *inventorypb.A
 			return err
 		}
 
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
@@ -349,7 +227,7 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 			}
 		}
 
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
@@ -404,7 +282,7 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 			}
 		}
 
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
@@ -460,7 +338,7 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *in
 			}
 		}
 
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
@@ -516,7 +394,7 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inven
 			}
 		}
 
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
@@ -571,7 +449,7 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 			}
 		}
 
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
@@ -627,7 +505,7 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *in
 			}
 		}
 
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}
@@ -683,7 +561,7 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventory
 			}
 		}
 
-		agent, err := ToInventoryAgent(tx.Querier, row, as.r)
+		agent, err := services.ToAPIAgent(tx.Querier, row)
 		if err != nil {
 			return err
 		}

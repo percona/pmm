@@ -18,91 +18,25 @@ package inventory
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/AlekSi/pointer"
 	"github.com/percona/pmm/api/inventorypb"
 	"gopkg.in/reform.v1"
 
 	"github.com/percona/pmm-managed/models"
+	"github.com/percona/pmm-managed/services"
 )
 
 // ServicesService works with inventory API Services.
 type ServicesService struct {
 	db *reform.DB
-	r  registry
+	r  agentsRegistry
 }
 
 // NewServicesService creates new ServicesService
-func NewServicesService(db *reform.DB, r registry) *ServicesService {
+func NewServicesService(db *reform.DB, r agentsRegistry) *ServicesService {
 	return &ServicesService{
 		db: db,
 		r:  r,
-	}
-}
-
-// ToInventoryService converts database row to Inventory API Service.
-func ToInventoryService(row *models.Service) (inventorypb.Service, error) {
-	labels, err := row.GetCustomLabels()
-	if err != nil {
-		return nil, err
-	}
-
-	switch row.ServiceType {
-	case models.MySQLServiceType:
-		return &inventorypb.MySQLService{
-			ServiceId:      row.ServiceID,
-			ServiceName:    row.ServiceName,
-			NodeId:         row.NodeID,
-			Address:        pointer.GetString(row.Address),
-			Port:           uint32(pointer.GetUint16(row.Port)),
-			Environment:    row.Environment,
-			Cluster:        row.Cluster,
-			ReplicationSet: row.ReplicationSet,
-			CustomLabels:   labels,
-		}, nil
-
-	case models.MongoDBServiceType:
-		return &inventorypb.MongoDBService{
-			ServiceId:      row.ServiceID,
-			ServiceName:    row.ServiceName,
-			NodeId:         row.NodeID,
-			Address:        pointer.GetString(row.Address),
-			Port:           uint32(pointer.GetUint16(row.Port)),
-			Environment:    row.Environment,
-			Cluster:        row.Cluster,
-			ReplicationSet: row.ReplicationSet,
-			CustomLabels:   labels,
-		}, nil
-
-	case models.PostgreSQLServiceType:
-		return &inventorypb.PostgreSQLService{
-			ServiceId:      row.ServiceID,
-			ServiceName:    row.ServiceName,
-			NodeId:         row.NodeID,
-			Address:        pointer.GetString(row.Address),
-			Port:           uint32(pointer.GetUint16(row.Port)),
-			Environment:    row.Environment,
-			Cluster:        row.Cluster,
-			ReplicationSet: row.ReplicationSet,
-			CustomLabels:   labels,
-		}, nil
-
-	case models.ProxySQLServiceType:
-		return &inventorypb.ProxySQLService{
-			ServiceId:      row.ServiceID,
-			ServiceName:    row.ServiceName,
-			NodeId:         row.NodeID,
-			Address:        pointer.GetString(row.Address),
-			Port:           uint32(pointer.GetUint16(row.Port)),
-			Environment:    row.Environment,
-			Cluster:        row.Cluster,
-			ReplicationSet: row.ReplicationSet,
-			CustomLabels:   labels,
-		}, nil
-
-	default:
-		panic(fmt.Errorf("unhandled Service type %s", row.ServiceType))
 	}
 }
 
@@ -115,14 +49,14 @@ type ServiceFilters struct {
 // List selects all Services in a stable order.
 //nolint:unparam
 func (ss *ServicesService) List(ctx context.Context, filters ServiceFilters) ([]inventorypb.Service, error) {
-	var services []*models.Service
+	var servicesM []*models.Service
 	e := ss.db.InTransaction(func(tx *reform.TX) error {
 		var err error
 		switch {
 		case filters.NodeID != "":
-			services, err = models.ServicesForNode(tx.Querier, filters.NodeID)
+			servicesM, err = models.ServicesForNode(tx.Querier, filters.NodeID)
 		default:
-			services, err = models.FindAllServices(tx.Querier)
+			servicesM, err = models.FindAllServices(tx.Querier)
 		}
 		return err
 	})
@@ -130,9 +64,9 @@ func (ss *ServicesService) List(ctx context.Context, filters ServiceFilters) ([]
 		return nil, e
 	}
 
-	res := make([]inventorypb.Service, len(services))
-	for i, n := range services {
-		res[i], e = ToInventoryService(n)
+	res := make([]inventorypb.Service, len(servicesM))
+	for i, s := range servicesM {
+		res[i], e = services.ToAPIService(s)
 		if e != nil {
 			return nil, e
 		}
@@ -157,7 +91,7 @@ func (ss *ServicesService) Get(ctx context.Context, id string) (inventorypb.Serv
 		return nil, e
 	}
 
-	return ToInventoryService(service)
+	return services.ToAPIService(service)
 }
 
 // AddMySQL inserts MySQL Service with given parameters.
@@ -179,7 +113,7 @@ func (ss *ServicesService) AddMySQL(ctx context.Context, params *models.AddDBMSS
 		return nil, e
 	}
 
-	res, err := ToInventoryService(service)
+	res, err := services.ToAPIService(service)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +138,7 @@ func (ss *ServicesService) AddMongoDB(ctx context.Context, params *models.AddDBM
 		return nil, e
 	}
 
-	res, err := ToInventoryService(service)
+	res, err := services.ToAPIService(service)
 	if err != nil {
 		return nil, err
 	}
@@ -230,7 +164,7 @@ func (ss *ServicesService) AddPostgreSQL(ctx context.Context, params *models.Add
 		return nil, e
 	}
 
-	res, err := ToInventoryService(service)
+	res, err := services.ToAPIService(service)
 	if err != nil {
 		return nil, err
 	}
@@ -250,7 +184,7 @@ func (ss *ServicesService) AddProxySQL(ctx context.Context, params *models.AddDB
 		return nil, e
 	}
 
-	res, err := ToInventoryService(service)
+	res, err := services.ToAPIService(service)
 	if err != nil {
 		return nil, err
 	}

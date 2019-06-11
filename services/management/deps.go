@@ -22,11 +22,11 @@ import (
 	"github.com/percona/pmm-managed/models"
 )
 
-//go:generate mockery -name=registry -case=snake -inpkg -testonly
+//go:generate mockery -name=agentsRegistry -case=snake -inpkg -testonly
 
-// registry is a subset of methods of agents.Registry used by this package.
+// agentsRegistry is a subset of methods of agents.Registry used by this package.
 // We use it instead of real type for testing and to avoid dependency cycle.
-type registry interface {
+type agentsRegistry interface {
 	IsConnected(pmmAgentID string) bool
 	Kick(ctx context.Context, pmmAgentID string)
 	SendSetStateRequest(ctx context.Context, pmmAgentID string)

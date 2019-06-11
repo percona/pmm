@@ -1,0 +1,12 @@
+digraph packages {
+	"/models" -> "/models";
+	"/services/agents" -> "/models";
+	"/services/agents" -> "/services/agents/channel";
+	"/services/inventory" -> "/models";
+	"/services/inventory" -> "/services";
+	"/services/management" -> "/models";
+	"/services/management" -> "/services";
+	"/services/prometheus" -> "/models";
+	"/services/qan" -> "/models";
+	"/services/telemetry" -> "/models";
+}

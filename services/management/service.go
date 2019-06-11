@@ -40,11 +40,11 @@ var (
 // ServiceService represents service for working with services.
 type ServiceService struct {
 	db       *reform.DB
-	registry registry
+	registry agentsRegistry
 }
 
 // NewServiceService creates ServiceService instance.
-func NewServiceService(db *reform.DB, registry registry) *ServiceService {
+func NewServiceService(db *reform.DB, registry agentsRegistry) *ServiceService {
 	return &ServiceService{
 		db:       db,
 		registry: registry,
