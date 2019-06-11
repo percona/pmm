@@ -127,6 +127,24 @@ message StartMySQLExplainJSONActionResponse {
   string pmm_agent_id = 2;
 }
 
+message StartMySQLExplainTraditionalJSONActionRequest {
+  // pmm-agent ID where to run this Action.
+  string pmm_agent_id = 1;
+  // Service ID for this Action.
+  string service_id = 2;
+  // query example.
+  string query = 3;
+  // The database name for EXPLAIN query.
+  string database = 4;
+}
+
+message StartMySQLExplainTraditionalJSONActionResponse {
+  // Unique Action ID.
+  string action_id = 1;
+  // pmm-agent ID where to this Action was started.
+  string pmm_agent_id = 2;
+}
+
 message StartMySQLShowCreateTableActionRequest {
   // pmm-agent ID where to run this Action.
   string pmm_agent_id = 1;
@@ -211,17 +229,24 @@ service Actions {
       body: "*"
     };
   }
-  // StartMySQLExplainAction starts MySQL EXPLAIN Action.
+  // StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.
   rpc StartMySQLExplainAction(StartMySQLExplainActionRequest) returns (StartMySQLExplainActionResponse) {
     option (google.api.http) = {
       post: "/v0/management/Actions/StartMySQLExplain"
       body: "*"
     };
   }
-  // StartMySQLExplainJSONAction starts MySQL JSON EXPLAIN Action.
+  // StartMySQLExplainJSONAction starts MySQL EXPLAIN Action with JSON output.
   rpc StartMySQLExplainJSONAction(StartMySQLExplainJSONActionRequest) returns (StartMySQLExplainJSONActionResponse) {
     option (google.api.http) = {
       post: "/v0/management/Actions/StartMySQLExplainJSON"
+      body: "*"
+    };
+  }
+  // StartMySQLExplainTraditionalJSONAction starts MySQL EXPLAIN Action with traditional JSON output.
+  rpc StartMySQLExplainTraditionalJSONAction(StartMySQLExplainTraditionalJSONActionRequest) returns (StartMySQLExplainTraditionalJSONActionResponse) {
+    option (google.api.http) = {
+      post: "/v0/management/Actions/StartMySQLExplainTraditionalJSON"
       body: "*"
     };
   }
