@@ -248,6 +248,9 @@ type ListServicesOKBody struct {
 
 	// postgresql
 	Postgresql []*PostgresqlItems0 `json:"postgresql"`
+
+	// proxysql
+	Proxysql []*ProxysqlItems0 `json:"proxysql"`
 }
 
 // Validate validates this list services OK body
@@ -267,6 +270,10 @@ func (o *ListServicesOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validatePostgresql(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateProxysql(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -366,6 +373,31 @@ func (o *ListServicesOKBody) validatePostgresql(formats strfmt.Registry) error {
 			if err := o.Postgresql[i].Validate(formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
 					return ve.ValidateName("listServicesOk" + "." + "postgresql" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *ListServicesOKBody) validateProxysql(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Proxysql) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Proxysql); i++ {
+		if swag.IsZero(o.Proxysql[i]) { // not required
+			continue
+		}
+
+		if o.Proxysql[i] != nil {
+			if err := o.Proxysql[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("listServicesOk" + "." + "proxysql" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
@@ -555,6 +587,62 @@ func (o *PostgresqlItems0) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *PostgresqlItems0) UnmarshalBinary(b []byte) error {
 	var res PostgresqlItems0
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*ProxysqlItems0 ProxySQLService represents a generic ProxySQL instance.
+swagger:model ProxysqlItems0
+*/
+type ProxysqlItems0 struct {
+
+	// Access address (DNS name or IP).
+	Address string `json:"address,omitempty"`
+
+	// Cluster name.
+	Cluster string `json:"cluster,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Environment name.
+	Environment string `json:"environment,omitempty"`
+
+	// Node identifier where this instance runs.
+	NodeID string `json:"node_id,omitempty"`
+
+	// Access port.
+	Port int64 `json:"port,omitempty"`
+
+	// Replication set name.
+	ReplicationSet string `json:"replication_set,omitempty"`
+
+	// Unique randomly generated instance identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// Unique across all Services user-defined name.
+	ServiceName string `json:"service_name,omitempty"`
+}
+
+// Validate validates this proxysql items0
+func (o *ProxysqlItems0) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *ProxysqlItems0) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *ProxysqlItems0) UnmarshalBinary(b []byte) error {
+	var res ProxysqlItems0
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

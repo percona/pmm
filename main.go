@@ -179,6 +179,9 @@ func main() {
 	case management.AddPostgreSQLC.FullCommand():
 		command = management.AddPostgreSQL
 
+	case management.AddProxySQLC.FullCommand():
+		command = management.AddProxySQL
+
 	case management.RemoveC.FullCommand():
 		command = management.Remove
 
@@ -206,6 +209,9 @@ func main() {
 	case inventory.AddServicePostgreSQLC.FullCommand():
 		command = inventory.AddServicePostgreSQL
 
+	case inventory.AddServiceProxySQLC.FullCommand():
+		command = inventory.AddServiceProxySQL
+
 	case inventory.RemoveServiceC.FullCommand():
 		command = inventory.RemoveService
 
@@ -226,6 +232,9 @@ func main() {
 
 	case inventory.AddAgentPostgresExporterC.FullCommand():
 		command = inventory.AddAgentPostgresExporter
+
+	case inventory.AddAgentProxysqlExporterC.FullCommand():
+		command = inventory.AddAgentProxysqlExporter
 
 	case inventory.AddAgentQANMySQLPerfSchemaAgentC.FullCommand():
 		command = inventory.AddAgentQANMySQLPerfSchemaAgent
