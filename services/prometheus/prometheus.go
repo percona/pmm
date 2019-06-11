@@ -31,7 +31,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/prometheus/common/model"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
@@ -100,9 +99,9 @@ func (svc *Service) marshalConfig(ctx context.Context) ([]byte, error) {
 
 	cfg := &config.Config{
 		GlobalConfig: config.GlobalConfig{
-			ScrapeInterval:     model.Duration(time.Minute),
-			ScrapeTimeout:      model.Duration(10 * time.Second),
-			EvaluationInterval: model.Duration(time.Minute),
+			ScrapeInterval:     lrInterval,
+			ScrapeTimeout:      lrTimeout,
+			EvaluationInterval: lrInterval,
 		},
 		RuleFiles: []string{
 			"/etc/prometheus.d/*.rules.yml",
@@ -175,9 +174,6 @@ func (svc *Service) marshalConfig(ctx context.Context) ([]byte, error) {
 					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
 				}
 
-			case models.QANMySQLPerfSchemaAgentType:
-				continue
-
 			case models.PostgresExporterType:
 				for _, service := range services {
 					node := &models.Node{NodeID: service.NodeID}
@@ -191,6 +187,23 @@ func (svc *Service) marshalConfig(ctx context.Context) ([]byte, error) {
 					}
 					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
 				}
+
+			case models.ProxySQLExporterType:
+				for _, service := range services {
+					node := &models.Node{NodeID: service.NodeID}
+					if err = tx.Reload(node); err != nil {
+						return errors.WithStack(err)
+					}
+
+					scfg, err := scrapeConfigForProxySQLExporter(node, service, agent)
+					if err != nil {
+						return err
+					}
+					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
+				}
+
+			case models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType, models.QANMongoDBProfilerAgentType:
+				continue
 
 			default:
 				l.Warnf("Skipping scrape config for %s.", agent)

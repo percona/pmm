@@ -26,8 +26,8 @@ scrape_configs:
     labels:
       instance: pmm-server
 - job_name: pmm-managed
-  scrape_interval: 10s
-  scrape_timeout: 5s
+  scrape_interval: 5s
+  scrape_timeout: 4s
   metrics_path: /debug/metrics
   static_configs:
   - targets:

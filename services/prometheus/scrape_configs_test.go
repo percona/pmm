@@ -122,8 +122,8 @@ func TestScrapeConfig(t *testing.T) {
 				},
 			}, {
 				JobName:        "mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr",
-				ScrapeInterval: model.Duration(10 * time.Second),
-				ScrapeTimeout:  model.Duration(5 * time.Second),
+				ScrapeInterval: model.Duration(5 * time.Second),
+				ScrapeTimeout:  model.Duration(4 * time.Second),
 				MetricsPath:    "/metrics-mr",
 				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
 					StaticConfigs: []*targetgroup.Group{{
@@ -310,6 +310,70 @@ func TestScrapeConfig(t *testing.T) {
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
+
+	t.Run("scrapeConfigForProxySQLExporter", func(t *testing.T) {
+		t.Run("Normal", func(t *testing.T) {
+			node := &models.Node{
+				NodeID:       "/node_id/7cc6ec12-4951-48c6-a4d5-7c3141fa4107",
+				NodeName:     "node_name",
+				Address:      "1.2.3.4",
+				CustomLabels: []byte(`{"_some_node_label": "foo"}`),
+			}
+			service := &models.Service{
+				ServiceID:    "/service_id/56fa3285-4476-49cc-95ff-96b36c24b0b6",
+				NodeID:       "/node_id/7cc6ec12-4951-48c6-a4d5-7c3141fa4107",
+				Address:      pointer.ToString("5.6.7.8"),
+				CustomLabels: []byte(`{"_some_service_label": "bar"}`),
+			}
+			agent := &models.Agent{
+				AgentID:      "/agent_id/782589c6-d3af-45e5-aa20-7f664a690940",
+				AgentType:    models.ProxySQLExporterType,
+				RunsOnNodeID: nil,
+				CustomLabels: []byte(`{"_some_agent_label": "baz"}`),
+				ListenPort:   pointer.ToUint16(12345),
+			}
+
+			expected := &config.ScrapeConfig{
+				JobName:        "proxysql_exporter_agent_id_782589c6-d3af-45e5-aa20-7f664a690940",
+				ScrapeInterval: model.Duration(time.Second),
+				ScrapeTimeout:  model.Duration(time.Second),
+				MetricsPath:    "/metrics",
+				ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
+					StaticConfigs: []*targetgroup.Group{{
+						Targets: []model.LabelSet{{"__address__": "1.2.3.4:12345"}},
+						Labels: model.LabelSet{
+							"_some_agent_label":   "baz",
+							"_some_node_label":    "foo",
+							"_some_service_label": "bar",
+							"agent_id":            "/agent_id/782589c6-d3af-45e5-aa20-7f664a690940",
+							"agent_type":          "proxysql_exporter",
+							"instance":            "/agent_id/782589c6-d3af-45e5-aa20-7f664a690940",
+							"node_id":             "/node_id/7cc6ec12-4951-48c6-a4d5-7c3141fa4107",
+							"node_name":           "node_name",
+							"service_id":          "/service_id/56fa3285-4476-49cc-95ff-96b36c24b0b6",
+						},
+					}},
+				},
+			}
+
+			actual, err := scrapeConfigForProxySQLExporter(node, service, agent)
+			require.NoError(t, err)
+			assertScrappedConfigsEqual(t, expected, actual)
+		})
+
+		t.Run("BadCustomLabels", func(t *testing.T) {
+			node := &models.Node{}
+			service := &models.Service{}
+			agent := &models.Agent{
+				CustomLabels: []byte("{"),
+				ListenPort:   pointer.ToUint16(12345),
+			}
+
+			_, err := scrapeConfigForProxySQLExporter(node, service, agent)
+			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
+		})
+	})
+
 }
 
 func assertScrappedConfigsEqual(t *testing.T, expected, actual *config.ScrapeConfig) bool {

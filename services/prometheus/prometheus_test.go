@@ -182,8 +182,8 @@ scrape_configs:
     labels:
       instance: pmm-server
 - job_name: pmm-managed
-  scrape_interval: 10s
-  scrape_timeout: 5s
+  scrape_interval: 5s
+  scrape_timeout: 4s
   metrics_path: /debug/metrics
   static_configs:
   - targets:
@@ -211,8 +211,8 @@ scrape_configs:
       service_name: test-mysql
       service_type: mysql
 - job_name: mysqld_exporter_agent_id_75bb30d3-ef4a-4147-97a8-621a996611dd_mr
-  scrape_interval: 10s
-  scrape_timeout: 5s
+  scrape_interval: 5s
+  scrape_timeout: 4s
   metrics_path: /metrics-mr
   static_configs:
   - targets:
