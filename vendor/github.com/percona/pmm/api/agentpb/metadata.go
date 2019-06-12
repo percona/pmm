@@ -57,10 +57,16 @@ func ReceiveAgentConnectMetadata(stream grpc.ServerStream) (*AgentConnectMetadat
 	if md == nil || md.Len() == 0 {
 		return nil, status.Errorf(codes.DataLoss, "ReceiveAgentConnectMetadata: empty metadata")
 	}
-	mp, err := strconv.ParseUint(getValue(md, mdAgentMetricsPort), 10, 16)
-	if err != nil {
-		return nil, status.Errorf(codes.DataLoss, "ReceiveAgentConnectMetadata: %s", err)
+
+	// metrics port is optional
+	var mp uint64
+	if mpS := getValue(md, mdAgentMetricsPort); mpS != "" {
+		var err error
+		if mp, err = strconv.ParseUint(mpS, 10, 16); err != nil {
+			return nil, status.Errorf(codes.DataLoss, "ReceiveAgentConnectMetadata: %s: %s", mdAgentMetricsPort, err)
+		}
 	}
+
 	return &AgentConnectMetadata{
 		ID:          getValue(md, mdAgentID),
 		Version:     getValue(md, mdAgentVersion),

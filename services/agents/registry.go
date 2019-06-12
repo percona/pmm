@@ -608,39 +608,15 @@ func (r *Registry) StartPTMySQLSummaryAction(ctx context.Context, id, pmmAgentID
 	return nil
 }
 
-// StartMySQLExplainAction starts mysql-explain action on pmm-agent.
-// TODO: Extract it from here. Where...?
-func (r *Registry) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, dsn, query string) error {
+// StartMySQLExplainAction starts MySQL EXPLAIN Action on pmm-agent.
+func (r *Registry) StartMySQLExplainAction(ctx context.Context, id, pmmAgentID, dsn, query string, format agentpb.MysqlExplainOutputFormat) error {
 	aRequest := &agentpb.StartActionRequest{
 		ActionId: id,
 		Params: &agentpb.StartActionRequest_MysqlExplainParams{
 			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
 				Dsn:          dsn,
 				Query:        query,
-				OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT,
-			},
-		},
-	}
-
-	agent, err := r.get(pmmAgentID)
-	if err != nil {
-		return err
-	}
-
-	agent.channel.SendRequest(aRequest)
-	return nil
-}
-
-// StartMySQLExplainJSONAction starts mysql-explain-json action on pmm-agent.
-// TODO: Extract it from here. Where...?
-func (r *Registry) StartMySQLExplainJSONAction(ctx context.Context, id, pmmAgentID, dsn, query string) error {
-	aRequest := &agentpb.StartActionRequest{
-		ActionId: id,
-		Params: &agentpb.StartActionRequest_MysqlExplainParams{
-			MysqlExplainParams: &agentpb.StartActionRequest_MySQLExplainParams{
-				Dsn:          dsn,
-				Query:        query,
-				OutputFormat: agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON,
+				OutputFormat: format,
 			},
 		},
 	}
@@ -683,6 +659,27 @@ func (r *Registry) StartMySQLShowTableStatusAction(ctx context.Context, id, pmmA
 		ActionId: id,
 		Params: &agentpb.StartActionRequest_MysqlShowTableStatusParams{
 			MysqlShowTableStatusParams: &agentpb.StartActionRequest_MySQLShowTableStatusParams{
+				Dsn:   dsn,
+				Table: table,
+			},
+		},
+	}
+
+	agent, err := r.get(pmmAgentID)
+	if err != nil {
+		return err
+	}
+
+	agent.channel.SendRequest(aRequest)
+	return nil
+}
+
+// StartMySQLShowIndexAction starts mysql-show-index action on pmm-agent.
+func (r *Registry) StartMySQLShowIndexAction(ctx context.Context, id, pmmAgentID, dsn, table string) error {
+	aRequest := &agentpb.StartActionRequest{
+		ActionId: id,
+		Params: &agentpb.StartActionRequest_MysqlShowIndexParams{
+			MysqlShowIndexParams: &agentpb.StartActionRequest_MySQLShowIndexParams{
 				Dsn:   dsn,
 				Table: table,
 			},

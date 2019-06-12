@@ -19,6 +19,7 @@ package grpc
 import (
 	"context"
 
+	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/managementpb"
 	"gopkg.in/reform.v1"
 
@@ -37,7 +38,6 @@ func NewActionsServer(r *agents.Registry, db *reform.DB) managementpb.ActionsSer
 }
 
 // GetAction gets an action result.
-//nolint:lll
 func (s *actionsServer) GetAction(ctx context.Context, req *managementpb.GetActionRequest) (*managementpb.GetActionResponse, error) {
 	res, err := models.FindActionResultByID(s.db.Querier, req.ActionId)
 	if err != nil {
@@ -54,24 +54,23 @@ func (s *actionsServer) GetAction(ctx context.Context, req *managementpb.GetActi
 }
 
 // StartPTSummaryAction starts pt-summary action.
-//nolint:lll,dupl
 func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managementpb.StartPTSummaryActionRequest) (*managementpb.StartPTSummaryActionResponse, error) {
-	ag, err := models.FindPMMAgentsForNode(s.db.Querier, req.NodeId)
+	agents, err := models.FindPMMAgentsForNode(s.db.Querier, req.NodeId)
 	if err != nil {
 		return nil, err
 	}
 
-	req.PmmAgentId, err = models.FindPmmAgentIDToRunAction(req.PmmAgentId, ag)
+	pmmAgentID, err := models.FindPmmAgentIDToRunAction(req.PmmAgentId, agents)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := models.CreateActionResult(s.db.Querier, req.PmmAgentId)
+	res, err := models.CreateActionResult(s.db.Querier, pmmAgentID)
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.r.StartPTSummaryAction(ctx, res.ID, req.PmmAgentId, []string{})
+	err = s.r.StartPTSummaryAction(ctx, res.ID, res.PMMAgentID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -83,24 +82,27 @@ func (s *actionsServer) StartPTSummaryAction(ctx context.Context, req *managemen
 }
 
 // StartPTMySQLSummaryAction starts pt-mysql-summary action.
-//nolint:lll,dupl
+//nolint:lll
 func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *managementpb.StartPTMySQLSummaryActionRequest) (*managementpb.StartPTMySQLSummaryActionResponse, error) {
-	ag, err := models.FindPMMAgentsForService(s.db.Querier, req.ServiceId)
+	// TODO https://jira.percona.com/browse/PMM-4172
+	// Accept node_id, not service_id.
+
+	agents, err := models.FindPMMAgentsForService(s.db.Querier, req.ServiceId)
 	if err != nil {
 		return nil, err
 	}
 
-	req.PmmAgentId, err = models.FindPmmAgentIDToRunAction(req.PmmAgentId, ag)
+	pmmAgentID, err := models.FindPmmAgentIDToRunAction(req.PmmAgentId, agents)
 	if err != nil {
 		return nil, err
 	}
 
-	res, err := models.CreateActionResult(s.db.Querier, req.PmmAgentId)
+	res, err := models.CreateActionResult(s.db.Querier, pmmAgentID)
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.r.StartPTMySQLSummaryAction(ctx, res.ID, req.PmmAgentId, []string{})
+	err = s.r.StartPTMySQLSummaryAction(ctx, res.ID, res.PMMAgentID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -111,30 +113,41 @@ func (s *actionsServer) StartPTMySQLSummaryAction(ctx context.Context, req *mana
 	}, nil
 }
 
-// StartMySQLExplainAction starts mysql-explain action.
-//nolint:lll,dupl
+func (s *actionsServer) prepareServiceAction(serviceID, pmmAgentID, database string) (*models.ActionResult, string, error) {
+	var res *models.ActionResult
+	var dsn string
+	e := s.db.InTransaction(func(tx *reform.TX) error {
+		agents, err := models.FindPMMAgentsForService(tx.Querier, serviceID)
+		if err != nil {
+			return err
+		}
+
+		if pmmAgentID, err = models.FindPmmAgentIDToRunAction(pmmAgentID, agents); err != nil {
+			return err
+		}
+
+		if dsn, err = models.FindDSNByServiceIDandPMMAgentID(tx.Querier, serviceID, pmmAgentID, database); err != nil {
+			return err
+		}
+
+		res, err = models.CreateActionResult(tx.Querier, pmmAgentID)
+		return err
+	})
+	if e != nil {
+		return nil, "", e
+	}
+	return res, dsn, nil
+}
+
+// StartMySQLExplainAction starts MySQL EXPLAIN Action with traditional output.
+//nolint:lll
 func (s *actionsServer) StartMySQLExplainAction(ctx context.Context, req *managementpb.StartMySQLExplainActionRequest) (*managementpb.StartMySQLExplainActionResponse, error) {
-	ag, err := models.FindPMMAgentsForService(s.db.Querier, req.ServiceId)
+	res, dsn, err := s.prepareServiceAction(req.ServiceId, req.PmmAgentId, req.Database)
 	if err != nil {
 		return nil, err
 	}
 
-	req.PmmAgentId, err = models.FindPmmAgentIDToRunAction(req.PmmAgentId, ag)
-	if err != nil {
-		return nil, err
-	}
-
-	dsn, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, req.ServiceId, req.PmmAgentId, req.Database)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := models.CreateActionResult(s.db.Querier, req.PmmAgentId)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.r.StartMySQLExplainAction(ctx, res.ID, req.PmmAgentId, dsn, req.Query)
+	err = s.r.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_DEFAULT)
 	if err != nil {
 		return nil, err
 	}
@@ -145,30 +158,15 @@ func (s *actionsServer) StartMySQLExplainAction(ctx context.Context, req *manage
 	}, nil
 }
 
-// StartMySQLExplainJSONAction starts mysql-explain json action.
-//nolint:lll,dupl
+// StartMySQLExplainJSONAction starts MySQL EXPLAIN Action with JSON output.
+//nolint:lll
 func (s *actionsServer) StartMySQLExplainJSONAction(ctx context.Context, req *managementpb.StartMySQLExplainJSONActionRequest) (*managementpb.StartMySQLExplainJSONActionResponse, error) {
-	ag, err := models.FindPMMAgentsForService(s.db.Querier, req.ServiceId)
+	res, dsn, err := s.prepareServiceAction(req.ServiceId, req.PmmAgentId, req.Database)
 	if err != nil {
 		return nil, err
 	}
 
-	req.PmmAgentId, err = models.FindPmmAgentIDToRunAction(req.PmmAgentId, ag)
-	if err != nil {
-		return nil, err
-	}
-
-	dsn, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, req.ServiceId, req.PmmAgentId, req.Database)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := models.CreateActionResult(s.db.Querier, req.PmmAgentId)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.r.StartMySQLExplainJSONAction(ctx, res.ID, req.PmmAgentId, dsn, req.Query)
+	err = s.r.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_JSON)
 	if err != nil {
 		return nil, err
 	}
@@ -179,30 +177,34 @@ func (s *actionsServer) StartMySQLExplainJSONAction(ctx context.Context, req *ma
 	}, nil
 }
 
-// StartMySQLShowCreateTableAction starts mysql-show-create-table action.
-//nolint:lll,dupl
+// StartMySQLExplainTraditionalJSONAction starts MySQL EXPLAIN Action with traditional JSON output.
+//nolint:lll
+func (s *actionsServer) StartMySQLExplainTraditionalJSONAction(ctx context.Context, req *managementpb.StartMySQLExplainTraditionalJSONActionRequest) (*managementpb.StartMySQLExplainTraditionalJSONActionResponse, error) {
+	res, dsn, err := s.prepareServiceAction(req.ServiceId, req.PmmAgentId, req.Database)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.r.StartMySQLExplainAction(ctx, res.ID, res.PMMAgentID, dsn, req.Query, agentpb.MysqlExplainOutputFormat_MYSQL_EXPLAIN_OUTPUT_FORMAT_TRADITIONAL_JSON)
+	if err != nil {
+		return nil, err
+	}
+
+	return &managementpb.StartMySQLExplainTraditionalJSONActionResponse{
+		PmmAgentId: req.PmmAgentId,
+		ActionId:   res.ID,
+	}, nil
+}
+
+// StartMySQLShowCreateTableAction starts MySQL SHOW CREATE TABLE Action.
+//nolint:lll
 func (s *actionsServer) StartMySQLShowCreateTableAction(ctx context.Context, req *managementpb.StartMySQLShowCreateTableActionRequest) (*managementpb.StartMySQLShowCreateTableActionResponse, error) {
-	ag, err := models.FindPMMAgentsForService(s.db.Querier, req.ServiceId)
+	res, dsn, err := s.prepareServiceAction(req.ServiceId, req.PmmAgentId, req.Database)
 	if err != nil {
 		return nil, err
 	}
 
-	req.PmmAgentId, err = models.FindPmmAgentIDToRunAction(req.PmmAgentId, ag)
-	if err != nil {
-		return nil, err
-	}
-
-	dsn, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, req.ServiceId, req.PmmAgentId, req.Database)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := models.CreateActionResult(s.db.Querier, req.PmmAgentId)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.r.StartMySQLShowCreateTableAction(ctx, res.ID, req.PmmAgentId, dsn, req.TableName)
+	err = s.r.StartMySQLShowCreateTableAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName)
 	if err != nil {
 		return nil, err
 	}
@@ -213,30 +215,15 @@ func (s *actionsServer) StartMySQLShowCreateTableAction(ctx context.Context, req
 	}, nil
 }
 
-// StartMySQLShowTableStatusAction starts mysql-show-table-status action.
-//nolint:lll,dupl
+// StartMySQLShowTableStatusAction starts MySQL SHOW TABLE STATUS Action.
+//nolint:lll
 func (s *actionsServer) StartMySQLShowTableStatusAction(ctx context.Context, req *managementpb.StartMySQLShowTableStatusActionRequest) (*managementpb.StartMySQLShowTableStatusActionResponse, error) {
-	ag, err := models.FindPMMAgentsForService(s.db.Querier, req.ServiceId)
+	res, dsn, err := s.prepareServiceAction(req.ServiceId, req.PmmAgentId, req.Database)
 	if err != nil {
 		return nil, err
 	}
 
-	req.PmmAgentId, err = models.FindPmmAgentIDToRunAction(req.PmmAgentId, ag)
-	if err != nil {
-		return nil, err
-	}
-
-	dsn, err := models.FindDSNByServiceIDandPMMAgentID(s.db.Querier, req.ServiceId, req.PmmAgentId, req.Database)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := models.CreateActionResult(s.db.Querier, req.PmmAgentId)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.r.StartMySQLShowTableStatusAction(ctx, res.ID, req.PmmAgentId, dsn, req.TableName)
+	err = s.r.StartMySQLShowTableStatusAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName)
 	if err != nil {
 		return nil, err
 	}
@@ -247,13 +234,26 @@ func (s *actionsServer) StartMySQLShowTableStatusAction(ctx context.Context, req
 	}, nil
 }
 
-// StartMySQLShowIndexAction starts mysql-show-index action.
+// StartMySQLShowIndexAction starts MySQL SHOW INDEX Action.
+//nolint:lll
 func (s *actionsServer) StartMySQLShowIndexAction(ctx context.Context, req *managementpb.StartMySQLShowIndexActionRequest) (*managementpb.StartMySQLShowIndexActionResponse, error) {
-	panic("TODO")
+	res, dsn, err := s.prepareServiceAction(req.ServiceId, req.PmmAgentId, req.Database)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.r.StartMySQLShowIndexAction(ctx, res.ID, res.PMMAgentID, dsn, req.TableName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &managementpb.StartMySQLShowIndexActionResponse{
+		PmmAgentId: req.PmmAgentId,
+		ActionId:   res.ID,
+	}, nil
 }
 
 // CancelAction stops an Action.
-//nolint:lll
 func (s *actionsServer) CancelAction(ctx context.Context, req *managementpb.CancelActionRequest) (*managementpb.CancelActionResponse, error) {
 	ar, err := models.FindActionResultByID(s.db.Querier, req.ActionId)
 	if err != nil {
