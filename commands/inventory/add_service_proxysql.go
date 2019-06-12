@@ -95,7 +95,7 @@ func init() {
 	AddServiceProxySQLC.Arg("name", "Service name").StringVar(&AddServiceProxySQL.ServiceName)
 	AddServiceProxySQLC.Arg("node-id", "Node ID").StringVar(&AddServiceProxySQL.NodeID)
 	AddServiceProxySQLC.Arg("address", "Address").StringVar(&AddServiceProxySQL.Address)
-	AddServiceProxySQLC.Arg("port", "Port").Int64Var(&AddServiceProxySQL.Port)
+	AddServiceProxySQLC.Arg("port", "Port").Default("6032").Int64Var(&AddServiceProxySQL.Port)
 
 	AddServiceProxySQLC.Flag("environment", "Environment name").StringVar(&AddServiceProxySQL.Environment)
 	AddServiceProxySQLC.Flag("cluster", "Cluster name").StringVar(&AddServiceProxySQL.Cluster)

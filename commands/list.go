@@ -117,6 +117,14 @@ func (cmd *listCommand) Run() (Result, error) {
 			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
 		})
 	}
+	for _, s := range servicesRes.Payload.Proxysql {
+		services = append(services, listResultService{
+			ServiceType: "ProxySQL",
+			ServiceID:   s.ServiceID,
+			ServiceName: s.ServiceName,
+			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
+		})
+	}
 
 	agentsRes, err := client.Default.Agents.ListAgents(&agents.ListAgentsParams{
 		Context: Ctx,
@@ -217,6 +225,16 @@ func (cmd *listCommand) Run() (Result, error) {
 		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
 			agents = append(agents, listResultAgent{
 				AgentType: "qan-mongodb-profiler-agent",
+				AgentID:   a.AgentID,
+				ServiceID: a.ServiceID,
+				Status:    getStatus(a.Status, a.Disabled),
+			})
+		}
+	}
+	for _, a := range agentsRes.Payload.ProxysqlExporter {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agents = append(agents, listResultAgent{
+				AgentType: "proxysql_exporter",
 				AgentID:   a.AgentID,
 				ServiceID: a.ServiceID,
 				Status:    getStatus(a.Status, a.Disabled),

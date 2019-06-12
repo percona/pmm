@@ -28,6 +28,7 @@ var serviceTypes = map[string]string{
 	MySQLServiceType:      service.RemoveServiceBodyServiceTypeMYSQLSERVICE,
 	MongoDBServiceType:    service.RemoveServiceBodyServiceTypeMONGODBSERVICE,
 	PostgreSQLServiceType: service.RemoveServiceBodyServiceTypePOSTGRESQLSERVICE,
+	ProxySQLServiceType:   service.RemoveServiceBodyServiceTypePROXYSQLSERVICE,
 }
 
 // Service types.
@@ -35,6 +36,7 @@ const (
 	MySQLServiceType      string = "mysql"
 	MongoDBServiceType    string = "mongodb"
 	PostgreSQLServiceType string = "postgresql"
+	ProxySQLServiceType   string = "proxysql"
 )
 
 var removeServiceGenericResultT = commands.ParseTemplate(`
@@ -87,7 +89,7 @@ var (
 
 func init() {
 	RemoveC.Arg("service-type", "Service type(mysql, mongodb, etc.).").Default("").
-		EnumVar(&Remove.ServiceType, MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType)
+		EnumVar(&Remove.ServiceType, MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType, ProxySQLServiceType)
 	RemoveC.Arg("service-name", "Service name.").Default("").StringVar(&Remove.ServiceName)
 	RemoveC.Flag("service-id", "Service ID.").StringVar(&Remove.ServiceID)
 }

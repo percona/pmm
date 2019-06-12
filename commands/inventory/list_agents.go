@@ -150,6 +150,15 @@ func (cmd *listAgentsCommand) Run() (commands.Result, error) {
 			Status:     getAgentStatus(a.Status, a.Disabled),
 		})
 	}
+	for _, a := range agentsRes.Payload.ProxysqlExporter {
+		agents = append(agents, listResultAgent{
+			AgentType:  "proxysql_exporter",
+			AgentID:    a.AgentID,
+			PMMAgentID: a.PMMAgentID,
+			ServiceID:  a.ServiceID,
+			Status:     getAgentStatus(a.Status, a.Disabled),
+		})
+	}
 
 	return &listAgentsResult{
 		Agents: agents,

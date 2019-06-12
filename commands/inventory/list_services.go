@@ -89,6 +89,14 @@ func (cmd *listServicesCommand) Run() (commands.Result, error) {
 			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
 		})
 	}
+	for _, s := range result.Payload.Proxysql {
+		services = append(services, listResultService{
+			ServiceType: "ProxySQL",
+			ServiceID:   s.ServiceID,
+			ServiceName: s.ServiceName,
+			AddressPort: net.JoinHostPort(s.Address, strconv.FormatInt(s.Port, 10)),
+		})
+	}
 
 	return &listServicesResult{
 		Services: services,
