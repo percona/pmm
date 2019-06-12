@@ -81,7 +81,7 @@ func (a *Client) GetAction(params *GetActionParams) (*GetActionOK, error) {
 }
 
 /*
-StartMySQLExplainAction starts my SQL explain action starts my SQL e x p l a i n action
+StartMySQLExplainAction starts my SQL explain action starts my SQL e x p l a i n action with traditional output
 */
 func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) (*StartMySQLExplainActionOK, error) {
 	// TODO: Validate the params before sending
@@ -109,7 +109,7 @@ func (a *Client) StartMySQLExplainAction(params *StartMySQLExplainActionParams) 
 }
 
 /*
-StartMySQLExplainJSONAction starts my SQL explain JSON action starts my SQL JSON e x p l a i n action
+StartMySQLExplainJSONAction starts my SQL explain JSON action starts my SQL e x p l a i n action with JSON output
 */
 func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONActionParams) (*StartMySQLExplainJSONActionOK, error) {
 	// TODO: Validate the params before sending
@@ -133,6 +133,34 @@ func (a *Client) StartMySQLExplainJSONAction(params *StartMySQLExplainJSONAction
 		return nil, err
 	}
 	return result.(*StartMySQLExplainJSONActionOK), nil
+
+}
+
+/*
+StartMySQLExplainTraditionalJSONAction starts my SQL explain traditional JSON action starts my SQL e x p l a i n action with traditional JSON output
+*/
+func (a *Client) StartMySQLExplainTraditionalJSONAction(params *StartMySQLExplainTraditionalJSONActionParams) (*StartMySQLExplainTraditionalJSONActionOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewStartMySQLExplainTraditionalJSONActionParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "StartMySQLExplainTraditionalJSONAction",
+		Method:             "POST",
+		PathPattern:        "/v0/management/Actions/StartMySQLExplainTraditionalJSON",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &StartMySQLExplainTraditionalJSONActionReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*StartMySQLExplainTraditionalJSONActionOK), nil
 
 }
 
