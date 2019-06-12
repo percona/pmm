@@ -96,10 +96,18 @@ message StartMySQLExplainActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  // query example.
-  string query = 3;
-  // The database name for EXPLAIN query.
-  string database = 4;
+  // SQL query. Required.
+  string query = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Database name. Required.
+  string database = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message StartMySQLExplainActionResponse {
@@ -114,10 +122,18 @@ message StartMySQLExplainJSONActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  // query example.
-  string query = 3;
-  // The database name for EXPLAIN query.
-  string database = 4;
+  // SQL query. Required.
+  string query = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Database name. Required.
+  string database = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message StartMySQLExplainJSONActionResponse {
@@ -132,10 +148,18 @@ message StartMySQLExplainTraditionalJSONActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  // query example.
-  string query = 3;
-  // The database name for EXPLAIN query.
-  string database = 4;
+  // SQL query. Required.
+  string query = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Database name. Required.
+  string database = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message StartMySQLExplainTraditionalJSONActionResponse {
@@ -150,10 +174,18 @@ message StartMySQLShowCreateTableActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  // Table name for SHOW CREATE TABLE query.
-  string table_name = 3;
-  // The database name for SHOW CREATE TABLE query.
-  string database = 4;
+  // Table name. Required.
+  string table_name = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Database name. Required.
+  string database = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message StartMySQLShowCreateTableActionResponse {
@@ -168,10 +200,18 @@ message StartMySQLShowTableStatusActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  // Table name for SHOW TABLE STATUS query.
-  string table_name = 3;
-  // The database name for SHOW TABLE STATUS query.
-  string database = 4;
+  // Table name. Required.
+  string table_name = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Database name. Required.
+  string database = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message StartMySQLShowTableStatusActionResponse {
@@ -186,10 +226,18 @@ message StartMySQLShowIndexActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  // Table name for SHOW INDEX query.
-  string table_name = 3;
-  // The database name for SHOW INDEX query.
-  string database = 4;
+  // Table name. Required.
+  string table_name = 3 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
+  // Database name. Required.
+  string database = 4 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message StartMySQLShowIndexActionResponse {
@@ -200,8 +248,12 @@ message StartMySQLShowIndexActionResponse {
 }
 
 message CancelActionRequest {
-  // Unique Action ID.
-  string action_id = 1;
+  // Unique Action ID. Required.
+  string action_id = 1 [
+    (validator.field) = {
+      string_not_empty: true
+    }
+  ];
 }
 
 message CancelActionResponse {}

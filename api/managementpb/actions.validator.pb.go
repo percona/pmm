@@ -40,42 +40,81 @@ func (this *StartPTMySQLSummaryActionResponse) Validate() error {
 	return nil
 }
 func (this *StartMySQLExplainActionRequest) Validate() error {
+	if this.Query == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Query", fmt.Errorf(`value '%v' must not be an empty string`, this.Query))
+	}
+	if this.Database == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Database", fmt.Errorf(`value '%v' must not be an empty string`, this.Database))
+	}
 	return nil
 }
 func (this *StartMySQLExplainActionResponse) Validate() error {
 	return nil
 }
 func (this *StartMySQLExplainJSONActionRequest) Validate() error {
+	if this.Query == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Query", fmt.Errorf(`value '%v' must not be an empty string`, this.Query))
+	}
+	if this.Database == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Database", fmt.Errorf(`value '%v' must not be an empty string`, this.Database))
+	}
 	return nil
 }
 func (this *StartMySQLExplainJSONActionResponse) Validate() error {
 	return nil
 }
 func (this *StartMySQLExplainTraditionalJSONActionRequest) Validate() error {
+	if this.Query == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Query", fmt.Errorf(`value '%v' must not be an empty string`, this.Query))
+	}
+	if this.Database == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Database", fmt.Errorf(`value '%v' must not be an empty string`, this.Database))
+	}
 	return nil
 }
 func (this *StartMySQLExplainTraditionalJSONActionResponse) Validate() error {
 	return nil
 }
 func (this *StartMySQLShowCreateTableActionRequest) Validate() error {
+	if this.TableName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("TableName", fmt.Errorf(`value '%v' must not be an empty string`, this.TableName))
+	}
+	if this.Database == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Database", fmt.Errorf(`value '%v' must not be an empty string`, this.Database))
+	}
 	return nil
 }
 func (this *StartMySQLShowCreateTableActionResponse) Validate() error {
 	return nil
 }
 func (this *StartMySQLShowTableStatusActionRequest) Validate() error {
+	if this.TableName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("TableName", fmt.Errorf(`value '%v' must not be an empty string`, this.TableName))
+	}
+	if this.Database == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Database", fmt.Errorf(`value '%v' must not be an empty string`, this.Database))
+	}
 	return nil
 }
 func (this *StartMySQLShowTableStatusActionResponse) Validate() error {
 	return nil
 }
 func (this *StartMySQLShowIndexActionRequest) Validate() error {
+	if this.TableName == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("TableName", fmt.Errorf(`value '%v' must not be an empty string`, this.TableName))
+	}
+	if this.Database == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("Database", fmt.Errorf(`value '%v' must not be an empty string`, this.Database))
+	}
 	return nil
 }
 func (this *StartMySQLShowIndexActionResponse) Validate() error {
 	return nil
 }
 func (this *CancelActionRequest) Validate() error {
+	if this.ActionId == "" {
+		return github_com_mwitkow_go_proto_validators.FieldError("ActionId", fmt.Errorf(`value '%v' must not be an empty string`, this.ActionId))
+	}
 	return nil
 }
 func (this *CancelActionResponse) Validate() error {
