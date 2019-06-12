@@ -115,7 +115,7 @@ swagger:model StartMySQLShowTableStatusActionBody
 */
 type StartMySQLShowTableStatusActionBody struct {
 
-	// The database name for SHOW TABLE STATUS query.
+	// Database name. Required.
 	Database string `json:"database,omitempty"`
 
 	// pmm-agent ID where to run this Action.
@@ -124,7 +124,7 @@ type StartMySQLShowTableStatusActionBody struct {
 	// Service ID for this Action.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Table name for SHOW TABLE STATUS query.
+	// Table name. Required.
 	TableName string `json:"table_name,omitempty"`
 }
 
