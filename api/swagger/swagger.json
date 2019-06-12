@@ -6006,7 +6006,7 @@
               "type": "object",
               "properties": {
                 "action_id": {
-                  "description": "Unique Action ID.",
+                  "description": "Unique Action ID. Required.",
                   "type": "string"
                 }
               }
@@ -6133,7 +6133,7 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "The database name for EXPLAIN query.",
+                  "description": "Database name. Required.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -6141,7 +6141,7 @@
                   "type": "string"
                 },
                 "query": {
-                  "description": "query example.",
+                  "description": "SQL query. Required.",
                   "type": "string"
                 },
                 "service_id": {
@@ -6207,7 +6207,7 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "The database name for EXPLAIN query.",
+                  "description": "Database name. Required.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -6215,7 +6215,7 @@
                   "type": "string"
                 },
                 "query": {
-                  "description": "query example.",
+                  "description": "SQL query. Required.",
                   "type": "string"
                 },
                 "service_id": {
@@ -6281,7 +6281,7 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "The database name for EXPLAIN query.",
+                  "description": "Database name. Required.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -6289,7 +6289,7 @@
                   "type": "string"
                 },
                 "query": {
-                  "description": "query example.",
+                  "description": "SQL query. Required.",
                   "type": "string"
                 },
                 "service_id": {
@@ -6355,7 +6355,7 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "The database name for SHOW CREATE TABLE query.",
+                  "description": "Database name. Required.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -6367,7 +6367,7 @@
                   "type": "string"
                 },
                 "table_name": {
-                  "description": "Table name for SHOW CREATE TABLE query.",
+                  "description": "Table name. Required.",
                   "type": "string"
                 }
               }
@@ -6429,7 +6429,7 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "The database name for SHOW INDEX query.",
+                  "description": "Database name. Required.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -6441,7 +6441,7 @@
                   "type": "string"
                 },
                 "table_name": {
-                  "description": "Table name for SHOW INDEX query.",
+                  "description": "Table name. Required.",
                   "type": "string"
                 }
               }
@@ -6503,7 +6503,7 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "The database name for SHOW TABLE STATUS query.",
+                  "description": "Database name. Required.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -6515,7 +6515,7 @@
                   "type": "string"
                 },
                 "table_name": {
-                  "description": "Table name for SHOW TABLE STATUS query.",
+                  "description": "Table name. Required.",
                   "type": "string"
                 }
               }

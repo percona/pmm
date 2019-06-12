@@ -115,7 +115,7 @@ swagger:model StartMySQLShowIndexActionBody
 */
 type StartMySQLShowIndexActionBody struct {
 
-	// The database name for SHOW INDEX query.
+	// Database name. Required.
 	Database string `json:"database,omitempty"`
 
 	// pmm-agent ID where to run this Action.
@@ -124,7 +124,7 @@ type StartMySQLShowIndexActionBody struct {
 	// Service ID for this Action.
 	ServiceID string `json:"service_id,omitempty"`
 
-	// Table name for SHOW INDEX query.
+	// Table name. Required.
 	TableName string `json:"table_name,omitempty"`
 }
 
