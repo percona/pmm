@@ -115,7 +115,7 @@ swagger:model StartMySQLExplainTraditionalJSONActionBody
 */
 type StartMySQLExplainTraditionalJSONActionBody struct {
 
-	// Database name. Required.
+	// Database name. Required if it can't be deduced from the query.
 	Database string `json:"database,omitempty"`
 
 	// pmm-agent ID where to run this Action.

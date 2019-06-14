@@ -6133,7 +6133,7 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "Database name. Required.",
+                  "description": "Database name. Required if it can't be deduced from the query.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -6207,7 +6207,7 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "Database name. Required.",
+                  "description": "Database name. Required if it can't be deduced from the query.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -6281,7 +6281,7 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "Database name. Required.",
+                  "description": "Database name. Required if it can't be deduced from the query.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -6355,7 +6355,7 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "Database name. Required.",
+                  "description": "Database name. Required if not given in the table_name field.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -6367,7 +6367,7 @@
                   "type": "string"
                 },
                 "table_name": {
-                  "description": "Table name. Required.",
+                  "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string"
                 }
               }
@@ -6429,7 +6429,7 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "Database name. Required.",
+                  "description": "Database name. Required if not given in the table_name field.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -6441,7 +6441,7 @@
                   "type": "string"
                 },
                 "table_name": {
-                  "description": "Table name. Required.",
+                  "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string"
                 }
               }
@@ -6503,7 +6503,7 @@
               "type": "object",
               "properties": {
                 "database": {
-                  "description": "Database name. Required.",
+                  "description": "Database name. Required if not given in the table_name field.",
                   "type": "string"
                 },
                 "pmm_agent_id": {
@@ -6515,7 +6515,7 @@
                   "type": "string"
                 },
                 "table_name": {
-                  "description": "Table name. Required.",
+                  "description": "Table name. Required. May additionally contain a database name.",
                   "type": "string"
                 }
               }

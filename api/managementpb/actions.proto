@@ -102,12 +102,8 @@ message StartMySQLExplainActionRequest {
       string_not_empty: true
     }
   ];
-  // Database name. Required.
-  string database = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  // Database name. Required if it can't be deduced from the query.
+  string database = 4;
 }
 
 message StartMySQLExplainActionResponse {
@@ -128,12 +124,8 @@ message StartMySQLExplainJSONActionRequest {
       string_not_empty: true
     }
   ];
-  // Database name. Required.
-  string database = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  // Database name. Required if it can't be deduced from the query.
+  string database = 4;
 }
 
 message StartMySQLExplainJSONActionResponse {
@@ -154,12 +146,8 @@ message StartMySQLExplainTraditionalJSONActionRequest {
       string_not_empty: true
     }
   ];
-  // Database name. Required.
-  string database = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  // Database name. Required if it can't be deduced from the query.
+  string database = 4;
 }
 
 message StartMySQLExplainTraditionalJSONActionResponse {
@@ -174,18 +162,14 @@ message StartMySQLShowCreateTableActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  // Table name. Required.
+  // Table name. Required. May additionally contain a database name.
   string table_name = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Database name. Required.
-  string database = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  // Database name. Required if not given in the table_name field.
+  string database = 4;
 }
 
 message StartMySQLShowCreateTableActionResponse {
@@ -200,18 +184,14 @@ message StartMySQLShowTableStatusActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  // Table name. Required.
+  // Table name. Required. May additionally contain a database name.
   string table_name = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Database name. Required.
-  string database = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  // Database name. Required if not given in the table_name field.
+  string database = 4;
 }
 
 message StartMySQLShowTableStatusActionResponse {
@@ -226,18 +206,14 @@ message StartMySQLShowIndexActionRequest {
   string pmm_agent_id = 1;
   // Service ID for this Action.
   string service_id = 2;
-  // Table name. Required.
+  // Table name. Required. May additionally contain a database name.
   string table_name = 3 [
     (validator.field) = {
       string_not_empty: true
     }
   ];
-  // Database name. Required.
-  string database = 4 [
-    (validator.field) = {
-      string_not_empty: true
-    }
-  ];
+  // Database name. Required if not given in the table_name field.
+  string database = 4;
 }
 
 message StartMySQLShowIndexActionResponse {
