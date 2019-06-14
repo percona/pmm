@@ -146,6 +146,10 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		cfg.Timeout = dialTimeout
 		cfg.DBName = database
+
+		// MultiStatements must not be used as it enables SQL injections (in particular, in pmm-agent's Actions)
+		cfg.MultiStatements = false
+
 		return cfg.FormatDSN()
 
 	case QANMySQLPerfSchemaAgentType, QANMySQLSlowlogAgentType:
@@ -158,6 +162,9 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 		cfg.Addr = net.JoinHostPort(host, strconv.Itoa(int(port)))
 		cfg.Timeout = dialTimeout
 		cfg.DBName = database
+
+		// MultiStatements must not be used as it enables SQL injections (in particular, in pmm-agent's Actions)
+		cfg.MultiStatements = false
 
 		// QAN code in pmm-agent uses reform which requires those fields
 		cfg.ClientFoundRows = true
