@@ -88,17 +88,17 @@ func (cmd *addServicePostgreSQLCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddServicePostgreSQL  = new(addServicePostgreSQLCommand)
-	AddServicePostgreSQLC = addServiceC.Command("postgresql", "Add PostgreSQL service to inventory.")
+	AddServicePostgreSQLC = addServiceC.Command("postgresql", "Add PostgreSQL service to inventory")
 )
 
 func init() {
-	AddServicePostgreSQLC.Arg("name", "Service name.").StringVar(&AddServicePostgreSQL.ServiceName)
-	AddServicePostgreSQLC.Arg("node-id", "Node ID.").StringVar(&AddServicePostgreSQL.NodeID)
-	AddServicePostgreSQLC.Arg("address", "Address.").StringVar(&AddServicePostgreSQL.Address)
-	AddServicePostgreSQLC.Arg("port", "Port.").Int64Var(&AddServicePostgreSQL.Port)
+	AddServicePostgreSQLC.Arg("name", "Service name").StringVar(&AddServicePostgreSQL.ServiceName)
+	AddServicePostgreSQLC.Arg("node-id", "Node ID").StringVar(&AddServicePostgreSQL.NodeID)
+	AddServicePostgreSQLC.Arg("address", "Address").StringVar(&AddServicePostgreSQL.Address)
+	AddServicePostgreSQLC.Arg("port", "Port").Int64Var(&AddServicePostgreSQL.Port)
 
-	AddServicePostgreSQLC.Flag("environment", "Environment name.").StringVar(&AddServicePostgreSQL.Environment)
-	AddServicePostgreSQLC.Flag("cluster", "Cluster name.").StringVar(&AddServicePostgreSQL.Cluster)
-	AddServicePostgreSQLC.Flag("replication-set", "Replication set name.").StringVar(&AddServicePostgreSQL.ReplicationSet)
-	AddServicePostgreSQLC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddServicePostgreSQL.CustomLabels)
+	AddServicePostgreSQLC.Flag("environment", "Environment name").StringVar(&AddServicePostgreSQL.Environment)
+	AddServicePostgreSQLC.Flag("cluster", "Cluster name").StringVar(&AddServicePostgreSQL.Cluster)
+	AddServicePostgreSQLC.Flag("replication-set", "Replication set name").StringVar(&AddServicePostgreSQL.ReplicationSet)
+	AddServicePostgreSQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddServicePostgreSQL.CustomLabels)
 }

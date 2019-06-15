@@ -105,30 +105,30 @@ func (cmd *configCommand) Run() (Result, error) {
 // register command
 var (
 	Config  = new(configCommand)
-	ConfigC = kingpin.Command("config", "Configure local pmm-agent.")
+	ConfigC = kingpin.Command("config", "Configure local pmm-agent")
 )
 
 func init() {
 	nodeinfo := nodeinfo.Get()
 	if nodeinfo.PublicAddress == "" {
-		ConfigC.Arg("node-address", "Node address.").Required().StringVar(&Config.NodeAddress)
+		ConfigC.Arg("node-address", "Node address").Required().StringVar(&Config.NodeAddress)
 	} else {
-		help := fmt.Sprintf("Node address. Default: %s (autodetected).", nodeinfo.PublicAddress)
+		help := fmt.Sprintf("Node address (autodetected default: %s)", nodeinfo.PublicAddress)
 		ConfigC.Arg("node-address", help).Default(nodeinfo.PublicAddress).StringVar(&Config.NodeAddress)
 	}
 
 	nodeTypeKeys := []string{"generic", "container"}
 	nodeTypeDefault := nodeTypeKeys[0]
-	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s. Default: %s.", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
+	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s (default: %s)", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
 	ConfigC.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&Config.NodeType, nodeTypeKeys...)
 
 	hostname, _ := os.Hostname()
-	nodeNameHelp := fmt.Sprintf("Node name. Default: %s (autodetected).", hostname)
+	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s)", hostname)
 	ConfigC.Arg("node-name", nodeNameHelp).Default(hostname).StringVar(&Config.NodeName)
 
-	ConfigC.Flag("node-model", "Node model.").StringVar(&Config.NodeModel)
-	ConfigC.Flag("region", "Node region.").StringVar(&Config.Region)
-	ConfigC.Flag("az", "Node availability zone.").StringVar(&Config.Az)
+	ConfigC.Flag("node-model", "Node model").StringVar(&Config.NodeModel)
+	ConfigC.Flag("region", "Node region").StringVar(&Config.Region)
+	ConfigC.Flag("az", "Node availability zone").StringVar(&Config.Az)
 
-	ConfigC.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist.").BoolVar(&Config.Force)
+	ConfigC.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist").BoolVar(&Config.Force)
 }

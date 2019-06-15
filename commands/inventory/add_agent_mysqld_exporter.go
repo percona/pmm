@@ -85,14 +85,14 @@ func (cmd *addAgentMysqldExporterCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddAgentMysqldExporter  = new(addAgentMysqldExporterCommand)
-	AddAgentMysqldExporterC = addAgentC.Command("mysqld-exporter", "Add mysqld_exporter to inventory.")
+	AddAgentMysqldExporterC = addAgentC.Command("mysqld-exporter", "Add mysqld_exporter to inventory")
 )
 
 func init() {
-	AddAgentMysqldExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance.").StringVar(&AddAgentMysqldExporter.PMMAgentID)
-	AddAgentMysqldExporterC.Arg("service-id", "Service identifier.").StringVar(&AddAgentMysqldExporter.ServiceID)
-	AddAgentMysqldExporterC.Arg("username", "MySQL username for scraping metrics.").Default("root").StringVar(&AddAgentMysqldExporter.Username)
-	AddAgentMysqldExporterC.Flag("password", "MySQL password for scraping metrics.").StringVar(&AddAgentMysqldExporter.Password)
-	AddAgentMysqldExporterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentMysqldExporter.CustomLabels)
-	AddAgentMysqldExporterC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddAgentMysqldExporter.SkipConnectionCheck)
+	AddAgentMysqldExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").StringVar(&AddAgentMysqldExporter.PMMAgentID)
+	AddAgentMysqldExporterC.Arg("service-id", "Service identifier").StringVar(&AddAgentMysqldExporter.ServiceID)
+	AddAgentMysqldExporterC.Arg("username", "MySQL username for scraping metrics").Default("root").StringVar(&AddAgentMysqldExporter.Username)
+	AddAgentMysqldExporterC.Flag("password", "MySQL password for scraping metrics").StringVar(&AddAgentMysqldExporter.Password)
+	AddAgentMysqldExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentMysqldExporter.CustomLabels)
+	AddAgentMysqldExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentMysqldExporter.SkipConnectionCheck)
 }

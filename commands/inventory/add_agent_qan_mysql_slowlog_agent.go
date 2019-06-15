@@ -84,14 +84,14 @@ func (cmd *addAgentQANMySQLSlowlogAgentCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddAgentQANMySQLSlowlogAgent  = new(addAgentQANMySQLSlowlogAgentCommand)
-	AddAgentQANMySQLSlowlogAgentC = addAgentC.Command("qan-mysql-slowlog-agent", "add QAN MySQL slowlog agent to inventory.")
+	AddAgentQANMySQLSlowlogAgentC = addAgentC.Command("qan-mysql-slowlog-agent", "add QAN MySQL slowlog agent to inventory")
 )
 
 func init() {
-	AddAgentQANMySQLSlowlogAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance.").StringVar(&AddAgentQANMySQLSlowlogAgent.PMMAgentID)
-	AddAgentQANMySQLSlowlogAgentC.Arg("service-id", "Service identifier.").StringVar(&AddAgentQANMySQLSlowlogAgent.ServiceID)
-	AddAgentQANMySQLSlowlogAgentC.Arg("username", "MySQL username for scraping metrics.").Default("root").StringVar(&AddAgentQANMySQLSlowlogAgent.Username)
-	AddAgentQANMySQLSlowlogAgentC.Flag("password", "MySQL password for scraping metrics.").StringVar(&AddAgentQANMySQLSlowlogAgent.Password)
-	AddAgentQANMySQLSlowlogAgentC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentQANMySQLSlowlogAgent.CustomLabels)
-	AddAgentQANMySQLSlowlogAgentC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddAgentQANMySQLSlowlogAgent.SkipConnectionCheck)
+	AddAgentQANMySQLSlowlogAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").StringVar(&AddAgentQANMySQLSlowlogAgent.PMMAgentID)
+	AddAgentQANMySQLSlowlogAgentC.Arg("service-id", "Service identifier").StringVar(&AddAgentQANMySQLSlowlogAgent.ServiceID)
+	AddAgentQANMySQLSlowlogAgentC.Arg("username", "MySQL username for scraping metrics").Default("root").StringVar(&AddAgentQANMySQLSlowlogAgent.Username)
+	AddAgentQANMySQLSlowlogAgentC.Flag("password", "MySQL password for scraping metrics").StringVar(&AddAgentQANMySQLSlowlogAgent.Password)
+	AddAgentQANMySQLSlowlogAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANMySQLSlowlogAgent.CustomLabels)
+	AddAgentQANMySQLSlowlogAgentC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentQANMySQLSlowlogAgent.SkipConnectionCheck)
 }

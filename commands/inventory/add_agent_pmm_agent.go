@@ -71,10 +71,10 @@ func (cmd *addPMMAgentCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddAgentPMMAgent  = new(addPMMAgentCommand)
-	AddAgentPMMAgentC = addAgentC.Command("pmm-agent", "add PMM agent to inventory.")
+	AddAgentPMMAgentC = addAgentC.Command("pmm-agent", "add PMM agent to inventory")
 )
 
 func init() {
-	AddAgentPMMAgentC.Arg("runs-on-node-id", "Node identifier where this instance runs.").StringVar(&AddAgentPMMAgent.RunsOnNodeID)
-	AddAgentPMMAgentC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentPMMAgent.CustomLabels)
+	AddAgentPMMAgentC.Arg("runs-on-node-id", "Node identifier where this instance runs").StringVar(&AddAgentPMMAgent.RunsOnNodeID)
+	AddAgentPMMAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentPMMAgent.CustomLabels)
 }

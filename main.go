@@ -58,15 +58,15 @@ func (e errFromNginx) GoString() string {
 
 func main() {
 	kingpin.CommandLine.Name = "pmm-admin"
-	kingpin.CommandLine.Help = fmt.Sprintf("Version %s.", version.Version)
+	kingpin.CommandLine.Help = fmt.Sprintf("Version %s", version.Version)
 	kingpin.CommandLine.HelpFlag.Short('h')
 	kingpin.CommandLine.Version(version.FullInfo())
 
-	serverURLF := kingpin.Flag("server-url", "PMM Server URL.").String()
-	kingpin.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation.").BoolVar(&commands.GlobalFlags.ServerInsecureTLS)
-	kingpin.Flag("debug", "Enable debug logging.").BoolVar(&commands.GlobalFlags.Debug)
-	kingpin.Flag("trace", "Enable trace logging (implies debug).").BoolVar(&commands.GlobalFlags.Trace)
-	jsonF := kingpin.Flag("json", "Enable JSON output.").Bool()
+	serverURLF := kingpin.Flag("server-url", "PMM Server URL").String()
+	kingpin.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation").BoolVar(&commands.GlobalFlags.ServerInsecureTLS)
+	kingpin.Flag("debug", "Enable debug logging").BoolVar(&commands.GlobalFlags.Debug)
+	kingpin.Flag("trace", "Enable trace logging (implies debug)").BoolVar(&commands.GlobalFlags.Trace)
+	jsonF := kingpin.Flag("json", "Enable JSON output").Bool()
 
 	cmd := kingpin.Parse()
 

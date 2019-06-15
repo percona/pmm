@@ -18,5 +18,5 @@ package inventory
 
 // register command
 var (
-	addServiceC = inventoryAddC.Command("service", "Add service to inventory.")
+	addServiceC = inventoryAddC.Command("service", "Add service to inventory")
 )

@@ -88,17 +88,17 @@ func (cmd *addServiceMongoDBCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddServiceMongoDB  = new(addServiceMongoDBCommand)
-	AddServiceMongoDBC = addServiceC.Command("mongodb", "Add MongoDB service to inventory.")
+	AddServiceMongoDBC = addServiceC.Command("mongodb", "Add MongoDB service to inventory")
 )
 
 func init() {
-	AddServiceMongoDBC.Arg("name", "Service name.").StringVar(&AddServiceMongoDB.ServiceName)
-	AddServiceMongoDBC.Arg("node-id", "Node ID.").StringVar(&AddServiceMongoDB.NodeID)
-	AddServiceMongoDBC.Arg("address", "Address.").StringVar(&AddServiceMongoDB.Address)
-	AddServiceMongoDBC.Arg("port", "Port.").Int64Var(&AddServiceMongoDB.Port)
+	AddServiceMongoDBC.Arg("name", "Service name").StringVar(&AddServiceMongoDB.ServiceName)
+	AddServiceMongoDBC.Arg("node-id", "Node ID").StringVar(&AddServiceMongoDB.NodeID)
+	AddServiceMongoDBC.Arg("address", "Address").StringVar(&AddServiceMongoDB.Address)
+	AddServiceMongoDBC.Arg("port", "Port").Int64Var(&AddServiceMongoDB.Port)
 
-	AddServiceMongoDBC.Flag("environment", "Environment name.").StringVar(&AddServiceMongoDB.Environment)
-	AddServiceMongoDBC.Flag("cluster", "Cluster name.").StringVar(&AddServiceMongoDB.Cluster)
-	AddServiceMongoDBC.Flag("replication-set", "Replication set name.").StringVar(&AddServiceMongoDB.ReplicationSet)
-	AddServiceMongoDBC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddServiceMongoDB.CustomLabels)
+	AddServiceMongoDBC.Flag("environment", "Environment name").StringVar(&AddServiceMongoDB.Environment)
+	AddServiceMongoDBC.Flag("cluster", "Cluster name").StringVar(&AddServiceMongoDB.Cluster)
+	AddServiceMongoDBC.Flag("replication-set", "Replication set name").StringVar(&AddServiceMongoDB.ReplicationSet)
+	AddServiceMongoDBC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddServiceMongoDB.CustomLabels)
 }

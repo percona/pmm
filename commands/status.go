@@ -70,5 +70,5 @@ func (cmd *statusCommand) Run() (Result, error) {
 // register command
 var (
 	Status  = new(statusCommand)
-	StatusC = kingpin.Command("status", "Show information about local pmm-agent.")
+	StatusC = kingpin.Command("status", "Show information about local pmm-agent")
 )

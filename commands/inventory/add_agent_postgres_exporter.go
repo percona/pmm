@@ -85,14 +85,14 @@ func (cmd *addAgentPostgresExporterCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddAgentPostgresExporter  = new(addAgentPostgresExporterCommand)
-	AddAgentPostgresExporterC = addAgentC.Command("postgres-exporter", "Add postgres_exporter to inventory.")
+	AddAgentPostgresExporterC = addAgentC.Command("postgres-exporter", "Add postgres_exporter to inventory")
 )
 
 func init() {
-	AddAgentPostgresExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance.").StringVar(&AddAgentPostgresExporter.PMMAgentID)
-	AddAgentPostgresExporterC.Arg("service-id", "Service identifier.").StringVar(&AddAgentPostgresExporter.ServiceID)
-	AddAgentPostgresExporterC.Arg("username", "PostgreSQL username for scraping metrics.").Default("postgres").StringVar(&AddAgentPostgresExporter.Username)
-	AddAgentPostgresExporterC.Flag("password", "PostgreSQL password for scraping metrics.").StringVar(&AddAgentPostgresExporter.Password)
-	AddAgentPostgresExporterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentPostgresExporter.CustomLabels)
-	AddAgentPostgresExporterC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddAgentPostgresExporter.SkipConnectionCheck)
+	AddAgentPostgresExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").StringVar(&AddAgentPostgresExporter.PMMAgentID)
+	AddAgentPostgresExporterC.Arg("service-id", "Service identifier").StringVar(&AddAgentPostgresExporter.ServiceID)
+	AddAgentPostgresExporterC.Arg("username", "PostgreSQL username for scraping metrics").Default("postgres").StringVar(&AddAgentPostgresExporter.Username)
+	AddAgentPostgresExporterC.Flag("password", "PostgreSQL password for scraping metrics").StringVar(&AddAgentPostgresExporter.Password)
+	AddAgentPostgresExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentPostgresExporter.CustomLabels)
+	AddAgentPostgresExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentPostgresExporter.SkipConnectionCheck)
 }

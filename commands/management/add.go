@@ -23,5 +23,5 @@ import (
 
 // register command
 var (
-	AddC = kingpin.Command("add", "Add Service to monitoring.")
+	AddC = kingpin.Command("add", "Add Service to monitoring")
 )

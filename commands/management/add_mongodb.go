@@ -112,25 +112,25 @@ func (cmd *addMongoDBCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddMongoDB  = new(addMongoDBCommand)
-	AddMongoDBC = AddC.Command("mongodb", "Add MongoDB to monitoring.")
+	AddMongoDBC = AddC.Command("mongodb", "Add MongoDB to monitoring")
 )
 
 func init() {
-	AddMongoDBC.Arg("address", "MongoDB address and port. Default: 127.0.0.1:27017.").Default("127.0.0.1:27017").StringVar(&AddMongoDB.AddressPort)
+	AddMongoDBC.Arg("address", "MongoDB address and port (default: 127.0.0.1:27017)").Default("127.0.0.1:27017").StringVar(&AddMongoDB.AddressPort)
 
 	hostname, _ := os.Hostname()
 	serviceName := hostname + "-mongodb"
-	serviceNameHelp := fmt.Sprintf("Service name. Default: %s.", serviceName)
+	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddMongoDBC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMongoDB.ServiceName)
 
-	AddMongoDBC.Flag("username", "MongoDB username.").StringVar(&AddMongoDB.Username)
-	AddMongoDBC.Flag("password", "MongoDB password.").StringVar(&AddMongoDB.Password)
-	AddMongoDBC.Flag("use-profiler", "Run QAN profiler agent.").BoolVar(&AddMongoDB.UseProfiler)
+	AddMongoDBC.Flag("username", "MongoDB username").StringVar(&AddMongoDB.Username)
+	AddMongoDBC.Flag("password", "MongoDB password").StringVar(&AddMongoDB.Password)
+	AddMongoDBC.Flag("use-profiler", "Run QAN profiler agent").BoolVar(&AddMongoDB.UseProfiler)
 
-	AddMongoDBC.Flag("environment", "Environment name.").StringVar(&AddMongoDB.Environment)
-	AddMongoDBC.Flag("cluster", "Cluster name.").StringVar(&AddMongoDB.Cluster)
-	AddMongoDBC.Flag("replication-set", "Replication set name.").StringVar(&AddMongoDB.ReplicationSet)
-	AddMongoDBC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddMongoDB.CustomLabels)
+	AddMongoDBC.Flag("environment", "Environment name").StringVar(&AddMongoDB.Environment)
+	AddMongoDBC.Flag("cluster", "Cluster name").StringVar(&AddMongoDB.Cluster)
+	AddMongoDBC.Flag("replication-set", "Replication set name").StringVar(&AddMongoDB.ReplicationSet)
+	AddMongoDBC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddMongoDB.CustomLabels)
 
-	AddMongoDBC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddMongoDB.SkipConnectionCheck)
+	AddMongoDBC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddMongoDB.SkipConnectionCheck)
 }

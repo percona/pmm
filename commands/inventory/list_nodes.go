@@ -87,5 +87,5 @@ func (cmd *listNodeCommand) Run() (commands.Result, error) {
 // register command
 var (
 	ListNodes  = new(listNodeCommand)
-	ListNodesC = inventoryListC.Command("nodes", "Show nodes in inventory.")
+	ListNodesC = inventoryListC.Command("nodes", "Show nodes in inventory")
 )

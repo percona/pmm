@@ -74,10 +74,10 @@ func (cmd *addAgentNodeExporterCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddAgentNodeExporter  = new(addAgentNodeExporterCommand)
-	AddAgentNodeExporterC = addAgentC.Command("node-exporter", "add Node exporter to inventory.")
+	AddAgentNodeExporterC = addAgentC.Command("node-exporter", "add Node exporter to inventory")
 )
 
 func init() {
-	AddAgentNodeExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance.").StringVar(&AddAgentNodeExporter.PMMAgentID)
-	AddAgentNodeExporterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentNodeExporter.CustomLabels)
+	AddAgentNodeExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").StringVar(&AddAgentNodeExporter.PMMAgentID)
+	AddAgentNodeExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentNodeExporter.CustomLabels)
 }

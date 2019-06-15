@@ -84,14 +84,14 @@ func (cmd *addAgentQANMySQLPerfSchemaAgentCommand) Run() (commands.Result, error
 // register command
 var (
 	AddAgentQANMySQLPerfSchemaAgent  = new(addAgentQANMySQLPerfSchemaAgentCommand)
-	AddAgentQANMySQLPerfSchemaAgentC = addAgentC.Command("qan-mysql-perfschema-agent", "add QAN MySQL perf schema agent to inventory.")
+	AddAgentQANMySQLPerfSchemaAgentC = addAgentC.Command("qan-mysql-perfschema-agent", "add QAN MySQL perf schema agent to inventory")
 )
 
 func init() {
-	AddAgentQANMySQLPerfSchemaAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance.").StringVar(&AddAgentQANMySQLPerfSchemaAgent.PMMAgentID)
-	AddAgentQANMySQLPerfSchemaAgentC.Arg("service-id", "Service identifier.").StringVar(&AddAgentQANMySQLPerfSchemaAgent.ServiceID)
-	AddAgentQANMySQLPerfSchemaAgentC.Arg("username", "MySQL username for scraping metrics.").Default("root").StringVar(&AddAgentQANMySQLPerfSchemaAgent.Username)
-	AddAgentQANMySQLPerfSchemaAgentC.Flag("password", "MySQL password for scraping metrics.").StringVar(&AddAgentQANMySQLPerfSchemaAgent.Password)
-	AddAgentQANMySQLPerfSchemaAgentC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentQANMySQLPerfSchemaAgent.CustomLabels)
-	AddAgentQANMySQLPerfSchemaAgentC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.SkipConnectionCheck)
+	AddAgentQANMySQLPerfSchemaAgentC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").StringVar(&AddAgentQANMySQLPerfSchemaAgent.PMMAgentID)
+	AddAgentQANMySQLPerfSchemaAgentC.Arg("service-id", "Service identifier").StringVar(&AddAgentQANMySQLPerfSchemaAgent.ServiceID)
+	AddAgentQANMySQLPerfSchemaAgentC.Arg("username", "MySQL username for scraping metrics").Default("root").StringVar(&AddAgentQANMySQLPerfSchemaAgent.Username)
+	AddAgentQANMySQLPerfSchemaAgentC.Flag("password", "MySQL password for scraping metrics").StringVar(&AddAgentQANMySQLPerfSchemaAgent.Password)
+	AddAgentQANMySQLPerfSchemaAgentC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentQANMySQLPerfSchemaAgent.CustomLabels)
+	AddAgentQANMySQLPerfSchemaAgentC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentQANMySQLPerfSchemaAgent.SkipConnectionCheck)
 }

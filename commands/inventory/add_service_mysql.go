@@ -88,17 +88,17 @@ func (cmd *addServiceMySQLCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddServiceMySQL  = new(addServiceMySQLCommand)
-	AddServiceMySQLC = addServiceC.Command("mysql", "Add MySQL service to inventory.")
+	AddServiceMySQLC = addServiceC.Command("mysql", "Add MySQL service to inventory")
 )
 
 func init() {
-	AddServiceMySQLC.Arg("name", "Service name.").StringVar(&AddServiceMySQL.ServiceName)
-	AddServiceMySQLC.Arg("node-id", "Node ID.").StringVar(&AddServiceMySQL.NodeID)
-	AddServiceMySQLC.Arg("address", "Address.").StringVar(&AddServiceMySQL.Address)
-	AddServiceMySQLC.Arg("port", "Port.").Int64Var(&AddServiceMySQL.Port)
+	AddServiceMySQLC.Arg("name", "Service name").StringVar(&AddServiceMySQL.ServiceName)
+	AddServiceMySQLC.Arg("node-id", "Node ID").StringVar(&AddServiceMySQL.NodeID)
+	AddServiceMySQLC.Arg("address", "Address").StringVar(&AddServiceMySQL.Address)
+	AddServiceMySQLC.Arg("port", "Port").Int64Var(&AddServiceMySQL.Port)
 
-	AddServiceMySQLC.Flag("environment", "Environment name.").StringVar(&AddServiceMySQL.Environment)
-	AddServiceMySQLC.Flag("cluster", "Cluster name.").StringVar(&AddServiceMySQL.Cluster)
-	AddServiceMySQLC.Flag("replication-set", "Replication set name.").StringVar(&AddServiceMySQL.ReplicationSet)
-	AddServiceMySQLC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddServiceMySQL.CustomLabels)
+	AddServiceMySQLC.Flag("environment", "Environment name").StringVar(&AddServiceMySQL.Environment)
+	AddServiceMySQLC.Flag("cluster", "Cluster name").StringVar(&AddServiceMySQL.Cluster)
+	AddServiceMySQLC.Flag("replication-set", "Replication set name").StringVar(&AddServiceMySQL.ReplicationSet)
+	AddServiceMySQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddServiceMySQL.CustomLabels)
 }

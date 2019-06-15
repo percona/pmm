@@ -114,26 +114,26 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddMySQL  = new(addMySQLCommand)
-	AddMySQLC = AddC.Command("mysql", "Add MySQL to monitoring.")
+	AddMySQLC = AddC.Command("mysql", "Add MySQL to monitoring")
 )
 
 func init() {
-	AddMySQLC.Arg("address", "MySQL address and port. Default: 127.0.0.1:3306.").Default("127.0.0.1:3306").StringVar(&AddMySQL.AddressPort)
+	AddMySQLC.Arg("address", "MySQL address and port (default: 127.0.0.1:3306").Default("127.0.0.1:3306").StringVar(&AddMySQL.AddressPort)
 
 	hostname, _ := os.Hostname()
 	serviceName := hostname + "-mysql"
-	serviceNameHelp := fmt.Sprintf("Service name. Default: %s.", serviceName)
+	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddMySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddMySQL.ServiceName)
 
-	AddMySQLC.Flag("username", "MySQL username.").Default("root").StringVar(&AddMySQL.Username)
-	AddMySQLC.Flag("password", "MySQL password.").StringVar(&AddMySQL.Password)
-	AddMySQLC.Flag("use-perfschema", "Run QAN perf schema agent.").BoolVar(&AddMySQL.UsePerfschema)
-	AddMySQLC.Flag("use-slowlog", "Run QAN slow log agent.").BoolVar(&AddMySQL.UseSlowLog)
+	AddMySQLC.Flag("username", "MySQL username").Default("root").StringVar(&AddMySQL.Username)
+	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
+	AddMySQLC.Flag("use-perfschema", "Run QAN perf schema agent").BoolVar(&AddMySQL.UsePerfschema)
+	AddMySQLC.Flag("use-slowlog", "Run QAN slow log agent").BoolVar(&AddMySQL.UseSlowLog)
 
-	AddMySQLC.Flag("environment", "Environment name.").StringVar(&AddMySQL.Environment)
-	AddMySQLC.Flag("cluster", "Cluster name.").StringVar(&AddMySQL.Cluster)
-	AddMySQLC.Flag("replication-set", "Replication set name.").StringVar(&AddMySQL.ReplicationSet)
-	AddMySQLC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddMySQL.CustomLabels)
+	AddMySQLC.Flag("environment", "Environment name").StringVar(&AddMySQL.Environment)
+	AddMySQLC.Flag("cluster", "Cluster name").StringVar(&AddMySQL.Cluster)
+	AddMySQLC.Flag("replication-set", "Replication set name").StringVar(&AddMySQL.ReplicationSet)
+	AddMySQLC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddMySQL.CustomLabels)
 
-	AddMySQLC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddMySQL.SkipConnectionCheck)
+	AddMySQLC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddMySQL.SkipConnectionCheck)
 }

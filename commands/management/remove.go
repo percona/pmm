@@ -17,6 +17,9 @@
 package management
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/percona/pmm/api/managementpb/json/client"
 	"github.com/percona/pmm/api/managementpb/json/client/service"
 	"gopkg.in/alecthomas/kingpin.v2"
@@ -24,19 +27,14 @@ import (
 	"github.com/percona/pmm-admin/commands"
 )
 
-var serviceTypes = map[string]string{
-	MySQLServiceType:      service.RemoveServiceBodyServiceTypeMYSQLSERVICE,
-	MongoDBServiceType:    service.RemoveServiceBodyServiceTypeMONGODBSERVICE,
-	PostgreSQLServiceType: service.RemoveServiceBodyServiceTypePOSTGRESQLSERVICE,
-	ProxySQLServiceType:   service.RemoveServiceBodyServiceTypePROXYSQLSERVICE,
-}
-
-// Service types.
-const (
-	MySQLServiceType      string = "mysql"
-	MongoDBServiceType    string = "mongodb"
-	PostgreSQLServiceType string = "postgresql"
-	ProxySQLServiceType   string = "proxysql"
+var (
+	serviceTypes = map[string]string{
+		"mysql":      service.RemoveServiceBodyServiceTypeMYSQLSERVICE,
+		"mongodb":    service.RemoveServiceBodyServiceTypeMONGODBSERVICE,
+		"postgresql": service.RemoveServiceBodyServiceTypePOSTGRESQLSERVICE,
+		"proxysql":   service.RemoveServiceBodyServiceTypePROXYSQLSERVICE,
+	}
+	serviceTypeKeys = []string{"mysql", "mongodb", "postgresql", "proxysql"}
 )
 
 var removeServiceGenericResultT = commands.ParseTemplate(`
@@ -84,12 +82,13 @@ func (cmd *removeMySQLCommand) serviceType() *string {
 // register command
 var (
 	Remove  = new(removeMySQLCommand)
-	RemoveC = kingpin.Command("remove", "Remove Service from monitoring.")
+	RemoveC = kingpin.Command("remove", "Remove Service from monitoring")
 )
 
 func init() {
-	RemoveC.Arg("service-type", "Service type(mysql, mongodb, etc.).").Default("").
-		EnumVar(&Remove.ServiceType, MySQLServiceType, MongoDBServiceType, PostgreSQLServiceType, ProxySQLServiceType)
-	RemoveC.Arg("service-name", "Service name.").Default("").StringVar(&Remove.ServiceName)
-	RemoveC.Flag("service-id", "Service ID.").StringVar(&Remove.ServiceID)
+	serviceTypeHelp := fmt.Sprintf("Service type, one of: %s", strings.Join(serviceTypeKeys, ", "))
+	RemoveC.Arg("service-type", serviceTypeHelp).Required().EnumVar(&Remove.ServiceType, serviceTypeKeys...)
+	RemoveC.Arg("service-name", "Service name").Required().StringVar(&Remove.ServiceName)
+
+	RemoveC.Flag("service-id", "Service ID").StringVar(&Remove.ServiceID)
 }

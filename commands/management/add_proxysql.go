@@ -113,11 +113,11 @@ var (
 )
 
 func init() {
-	AddProxySQLC.Arg("address", "ProxySQL address and port. Default: 127.0.0.1:3306").Default("127.0.0.1:6032").StringVar(&AddProxySQL.AddressPort)
+	AddProxySQLC.Arg("address", "ProxySQL address and port (default: 127.0.0.1:3306)").Default("127.0.0.1:6032").StringVar(&AddProxySQL.AddressPort)
 
 	hostname, _ := os.Hostname()
 	serviceName := hostname + "-proxysql"
-	serviceNameHelp := fmt.Sprintf("Service name. Default: %s", serviceName)
+	serviceNameHelp := fmt.Sprintf("Service name (autodetected default: %s)", serviceName)
 	AddProxySQLC.Arg("name", serviceNameHelp).Default(serviceName).StringVar(&AddProxySQL.ServiceName)
 
 	AddProxySQLC.Flag("username", "ProxySQL username").Default("admin").StringVar(&AddProxySQL.Username)

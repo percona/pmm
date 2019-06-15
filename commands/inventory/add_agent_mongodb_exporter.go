@@ -85,14 +85,14 @@ func (cmd *addAgentMongodbExporterCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddAgentMongodbExporter  = new(addAgentMongodbExporterCommand)
-	AddAgentMongodbExporterC = addAgentC.Command("mongodb-exporter", "Add mongodb_exporter to inventory.")
+	AddAgentMongodbExporterC = addAgentC.Command("mongodb-exporter", "Add mongodb_exporter to inventory")
 )
 
 func init() {
-	AddAgentMongodbExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance.").StringVar(&AddAgentMongodbExporter.PMMAgentID)
-	AddAgentMongodbExporterC.Arg("service-id", "Service identifier.").StringVar(&AddAgentMongodbExporter.ServiceID)
-	AddAgentMongodbExporterC.Arg("username", "MongoDB username for scraping metrics.").StringVar(&AddAgentMongodbExporter.Username)
-	AddAgentMongodbExporterC.Flag("password", "MongoDB password for scraping metrics.").StringVar(&AddAgentMongodbExporter.Password)
-	AddAgentMongodbExporterC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddAgentMongodbExporter.CustomLabels)
-	AddAgentMongodbExporterC.Flag("skip-connection-check", "Skip connection check.").BoolVar(&AddAgentMongodbExporter.SkipConnectionCheck)
+	AddAgentMongodbExporterC.Arg("pmm-agent-id", "The pmm-agent identifier which runs this instance").StringVar(&AddAgentMongodbExporter.PMMAgentID)
+	AddAgentMongodbExporterC.Arg("service-id", "Service identifier").StringVar(&AddAgentMongodbExporter.ServiceID)
+	AddAgentMongodbExporterC.Arg("username", "MongoDB username for scraping metrics").StringVar(&AddAgentMongodbExporter.Username)
+	AddAgentMongodbExporterC.Flag("password", "MongoDB password for scraping metrics").StringVar(&AddAgentMongodbExporter.Password)
+	AddAgentMongodbExporterC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddAgentMongodbExporter.CustomLabels)
+	AddAgentMongodbExporterC.Flag("skip-connection-check", "Skip connection check").BoolVar(&AddAgentMongodbExporter.SkipConnectionCheck)
 }

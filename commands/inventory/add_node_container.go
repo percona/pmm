@@ -93,20 +93,20 @@ func (cmd *addNodeContainerCommand) Run() (commands.Result, error) {
 // register command
 var (
 	AddNodeContainer  = new(addNodeContainerCommand)
-	AddNodeContainerC = addNodeC.Command("container", "Add container node to inventory.")
+	AddNodeContainerC = addNodeC.Command("container", "Add container node to inventory")
 )
 
 func init() {
 	AddNodeContainerC.Arg("name", "Node name").StringVar(&AddNodeContainer.NodeName)
 
-	AddNodeContainerC.Flag("machine-id", "Linux machine-id.").StringVar(&AddNodeContainer.MachineID)
-	AddNodeContainerC.Flag("container-id", "Container identifier. If specified, must be a unique Docker container identifier.").
+	AddNodeContainerC.Flag("machine-id", "Linux machine-id").StringVar(&AddNodeContainer.MachineID)
+	AddNodeContainerC.Flag("container-id", "Container identifier; if specified, must be a unique Docker container identifier").
 		StringVar(&AddNodeContainer.ContainerID)
-	AddNodeContainerC.Flag("container-name", "Container name.").StringVar(&AddNodeContainer.ContainerName)
-	AddNodeContainerC.Flag("address", "Address.").StringVar(&AddNodeContainer.Address)
-	AddNodeContainerC.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&AddNodeContainer.CustomLabels)
+	AddNodeContainerC.Flag("container-name", "Container name").StringVar(&AddNodeContainer.ContainerName)
+	AddNodeContainerC.Flag("address", "Address").StringVar(&AddNodeContainer.Address)
+	AddNodeContainerC.Flag("custom-labels", "Custom user-assigned labels").StringVar(&AddNodeContainer.CustomLabels)
 
-	AddNodeContainerC.Flag("region", "Node region.").StringVar(&AddNodeContainer.Region)
-	AddNodeContainerC.Flag("az", "Node availability zone.").StringVar(&AddNodeContainer.Az)
-	AddNodeContainerC.Flag("node-model", "Node model.").StringVar(&AddNodeContainer.NodeModel)
+	AddNodeContainerC.Flag("region", "Node region").StringVar(&AddNodeContainer.Region)
+	AddNodeContainerC.Flag("az", "Node availability zone").StringVar(&AddNodeContainer.Az)
+	AddNodeContainerC.Flag("node-model", "Node model").StringVar(&AddNodeContainer.NodeModel)
 }

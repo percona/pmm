@@ -251,9 +251,9 @@ func (cmd *listCommand) Run() (Result, error) {
 // register command
 var (
 	List  = new(listCommand)
-	ListC = kingpin.Command("list", "Show Services and Agents running on this Node.")
+	ListC = kingpin.Command("list", "Show Services and Agents running on this Node")
 )
 
 func init() {
-	ListC.Flag("node-id", "Node ID. Default is autodetected.").StringVar(&List.NodeID)
+	ListC.Flag("node-id", "Node ID (default is autodetected)").StringVar(&List.NodeID)
 }

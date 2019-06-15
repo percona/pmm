@@ -58,7 +58,7 @@ func (cmd *removeNodeCommand) Run() (commands.Result, error) {
 // register command
 var (
 	RemoveNode  = new(removeNodeCommand)
-	RemoveNodeC = inventoryRemoveC.Command("node", "Remove node from inventory.")
+	RemoveNodeC = inventoryRemoveC.Command("node", "Remove node from inventory")
 )
 
 func init() {
