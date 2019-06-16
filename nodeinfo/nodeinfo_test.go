@@ -9,6 +9,10 @@ import (
 func TestGet(t *testing.T) {
 	info := Get()
 
+	if info.Container {
+		t.Errorf("not expected to be run inside a container")
+	}
+
 	if runtime.GOOS != info.Distro {
 		t.Errorf("expected %q distro, got %q", runtime.GOOS, info.Distro)
 	}
