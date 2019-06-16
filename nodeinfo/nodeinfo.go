@@ -2,13 +2,17 @@
 package nodeinfo
 
 import (
+	"bufio"
 	"io/ioutil"
 	"net"
+	"os"
 	"runtime"
+	"strings"
 )
 
 // NodeInfo contains node information.
 type NodeInfo struct {
+	Container bool
 	Distro    string
 	MachineID string
 
@@ -19,10 +23,28 @@ type NodeInfo struct {
 // Get returns node information for current node.
 func Get() *NodeInfo {
 	return &NodeInfo{
+		Container:     checkContainer(),
 		Distro:        readDistro(),
 		MachineID:     readMachineID(),
 		PublicAddress: readPublicAddress(),
 	}
+}
+
+func checkContainer() bool {
+	// https://stackoverflow.com/a/20012536
+	f, err := os.Open("/proc/1/cgroup")
+	if err != nil {
+		return false
+	}
+	defer f.Close()
+
+	s := bufio.NewScanner(f)
+	for s.Scan() {
+		if strings.Contains(s.Text(), "/docker/") {
+			return true
+		}
+	}
+	return false
 }
 
 func readDistro() string {
@@ -34,8 +56,9 @@ func readDistro() string {
 func readMachineID() string {
 	for _, name := range []string{
 		"/etc/machine-id",
+		"/var/lib/dbus/machine-id",
 	} {
-		b, _ := ioutil.ReadFile(name)
+		b, _ := ioutil.ReadFile(name) //nolint:gosec
 		if len(b) != 0 {
 			return string(b)
 		}
