@@ -2,10 +2,8 @@
 package nodeinfo
 
 import (
-	"bufio"
 	"io/ioutil"
 	"net"
-	"os"
 	"runtime"
 	"strings"
 )
@@ -32,19 +30,8 @@ func Get() *NodeInfo {
 
 func checkContainer() bool {
 	// https://stackoverflow.com/a/20012536
-	f, err := os.Open("/proc/1/cgroup")
-	if err != nil {
-		return false
-	}
-	defer f.Close() //nolint:errcheck
-
-	s := bufio.NewScanner(f)
-	for s.Scan() {
-		if strings.Contains(s.Text(), "/docker/") {
-			return true
-		}
-	}
-	return false
+	b, _ := ioutil.ReadFile("/proc/1/cgroup") //nolint:gosec
+	return strings.Contains(string(b), "/docker/") || strings.Contains(string(b), "/lxc/")
 }
 
 func readDistro() string {
