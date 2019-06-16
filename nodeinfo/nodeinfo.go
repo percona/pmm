@@ -36,7 +36,7 @@ func checkContainer() bool {
 	if err != nil {
 		return false
 	}
-	defer f.Close()
+	defer f.Close() //nolint:errcheck
 
 	s := bufio.NewScanner(f)
 	for s.Scan() {
