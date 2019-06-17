@@ -118,7 +118,10 @@ func init() {
 	}
 
 	nodeTypeKeys := []string{"generic", "container"}
-	nodeTypeDefault := nodeTypeKeys[0]
+	nodeTypeDefault := "generic"
+	if nodeinfo.Container {
+		nodeTypeDefault = "container"
+	}
 	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s (default: %s)", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
 	ConfigC.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&Config.NodeType, nodeTypeKeys...)
 

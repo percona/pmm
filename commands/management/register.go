@@ -131,7 +131,11 @@ func init() {
 	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s)", hostname)
 	RegisterC.Arg("node-name", nodeNameHelp).Default(hostname).StringVar(&Register.NodeName)
 
-	RegisterC.Flag("machine-id", "Node machine-id (default is autodetected)").Default(nodeinfo.MachineID).StringVar(&Register.MachineID)
+	var defaultMachineID string
+	if nodeinfo.MachineID != "" {
+		defaultMachineID = "/machine_id/" + nodeinfo.MachineID
+	}
+	RegisterC.Flag("machine-id", "Node machine-id (default is autodetected)").Default(defaultMachineID).StringVar(&Register.MachineID)
 	RegisterC.Flag("distro", "Node OS distribution (default is autodetected)").Default(nodeinfo.Distro).StringVar(&Register.Distro)
 	RegisterC.Flag("container-id", "Container ID").StringVar(&Register.ContainerID)
 	RegisterC.Flag("container-name", "Container name").StringVar(&Register.ContainerName)
