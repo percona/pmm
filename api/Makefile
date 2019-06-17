@@ -34,7 +34,8 @@ gen: clean            ## Generate files.
 			--additional-initialism=ok \
 			--additional-initialism=pmm \
 			--additional-initialism=qan \
-			--additional-initialism=rds ; \
+			--additional-initialism=rds \
+			--additional-initialism=sql ; \
 	done
 
 	# generate PMM Server API spec, omit agentlocalpb

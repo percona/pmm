@@ -440,25 +440,25 @@ func RegisterActionsHandlerClient(ctx context.Context, mux *runtime.ServeMux, cl
 }
 
 var (
-	pattern_Actions_GetAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "Get"}, ""))
+	pattern_Actions_GetAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "Get"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartPTSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartPTSummary"}, ""))
+	pattern_Actions_StartPTSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartPTSummary"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartPTMySQLSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartPTMySQLSummary"}, ""))
+	pattern_Actions_StartPTMySQLSummaryAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartPTMySQLSummary"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMySQLExplainAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLExplain"}, ""))
+	pattern_Actions_StartMySQLExplainAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLExplain"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMySQLExplainJSONAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLExplainJSON"}, ""))
+	pattern_Actions_StartMySQLExplainJSONAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLExplainJSON"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMySQLExplainTraditionalJSONAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLExplainTraditionalJSON"}, ""))
+	pattern_Actions_StartMySQLExplainTraditionalJSONAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLExplainTraditionalJSON"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMySQLShowCreateTableAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLShowCreateTable"}, ""))
+	pattern_Actions_StartMySQLShowCreateTableAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLShowCreateTable"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMySQLShowTableStatusAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLShowTableStatus"}, ""))
+	pattern_Actions_StartMySQLShowTableStatusAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLShowTableStatus"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_StartMySQLShowIndexAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLShowIndex"}, ""))
+	pattern_Actions_StartMySQLShowIndexAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "StartMySQLShowIndex"}, "", runtime.AssumeColonVerbOpt(true)))
 
-	pattern_Actions_CancelAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "Cancel"}, ""))
+	pattern_Actions_CancelAction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"v0", "management", "Actions", "Cancel"}, "", runtime.AssumeColonVerbOpt(true)))
 )
 
 var (
