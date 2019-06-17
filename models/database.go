@@ -65,10 +65,6 @@ var databaseSchema = [][]string{
 			UNIQUE (container_id),
 			UNIQUE (address, region)
 		)`,
-		`CREATE UNIQUE INDEX nodes_machine_id_generic_key
-			ON nodes (machine_id)
-			WHERE node_type = 'generic'
-		`,
 
 		fmt.Sprintf(`INSERT INTO nodes (node_id, node_type,	node_name, distro, node_model, az, address, created_at, updated_at) `+ //nolint:gosec
 			`VALUES ('%s', '%s', 'PMM Server', 'Linux', '', '', '', '%s', '%s')`, //nolint:gosec

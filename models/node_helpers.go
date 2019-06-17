@@ -182,7 +182,7 @@ func CreateNode(q *reform.Querier, nodeType NodeType, params *CreateNodeParams) 
 		return nil, err
 	}
 
-	// TODO check unique machine_id for generic nodes
+	// do not check that machine-id is unique: https://jira.percona.com/browse/PMM-4196
 
 	if params.Region != nil {
 		if err := checkUniqueNodeInstanceRegion(q, params.Address, *params.Region); err != nil {

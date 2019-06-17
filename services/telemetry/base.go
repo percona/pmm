@@ -175,7 +175,7 @@ func generateUUID() (string, error) {
 // For both AMI and OVF images this value is fixed by the environment variable and not autodetected –
 // we know OS for them because we make those images ourselves.
 // If/when we decide to support installation with "normal" Linux package managers (apt, yum, etc.),
-// we could use the code that was there. See PM-1333 and PMM-1507 in both git logs and Jira for details.
+// we could use the code that was there. See PMM-1333 and PMM-1507 in both git logs and Jira for details.
 
 type pair struct {
 	re *regexp.Regexp

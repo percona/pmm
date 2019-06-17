@@ -76,7 +76,7 @@ func TestDatabaseUniqueIndexes(t *testing.T) {
 		)
 		assertUniqueViolation(t, err, "nodes_node_name_key")
 
-		// machine_id
+		// machine_id for generic Node: https://jira.percona.com/browse/PMM-4196
 		_, err = db.Exec(
 			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('31', 'generic', 'name31', 'machine-id', '', '', '', '', $1, $2)", now, now,
@@ -86,9 +86,9 @@ func TestDatabaseUniqueIndexes(t *testing.T) {
 			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('32', 'generic', 'name32', 'machine-id', '', '', '', '', $1, $2)", now, now,
 		)
-		assertUniqueViolation(t, err, "nodes_machine_id_generic_key")
+		require.NoError(t, err)
 
-		// machine_id for container
+		// machine_id for container Node
 		_, err = db.Exec(
 			"INSERT INTO nodes (node_id, node_type, node_name, machine_id, distro, node_model, az, address, created_at, updated_at) "+
 				"VALUES ('31-container', 'container', 'name31-container', 'machine-id', '', '', '', '', $1, $2)", now, now,

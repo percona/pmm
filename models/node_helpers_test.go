@@ -52,50 +52,68 @@ func TestNodeHelpers(t *testing.T) {
 
 		for _, str := range []reform.Struct{
 			&models.Node{
-				NodeID:   "N1",
-				NodeType: models.GenericNodeType,
-				NodeName: "Node with Service",
+				NodeID:    "MySQLNode",
+				NodeType:  models.GenericNodeType,
+				NodeName:  "Node for MySQL Service",
+				MachineID: pointer.ToString("/machine_id/MySQLNode"),
 			},
-			&models.Node{
-				NodeID:   "N2",
-				NodeType: models.GenericNodeType,
-				NodeName: "Node with pmm-agent",
+			&models.Service{
+				ServiceID:   "MySQL",
+				ServiceType: models.MySQLServiceType,
+				ServiceName: "MySQL on MySQLNode",
+				NodeID:      "MySQLNode",
 			},
+
 			&models.Node{
-				NodeID:   "N3",
-				NodeType: models.GenericNodeType,
-				NodeName: "Node with node_exporter",
+				NodeID:    "GenericNode",
+				NodeType:  models.GenericNodeType,
+				NodeName:  "Node for Agents",
+				MachineID: pointer.ToString("/machine_id/GenericNode"),
 			},
+			&models.Agent{
+				AgentID:      "pmm-agent",
+				AgentType:    models.PMMAgentType,
+				RunsOnNodeID: pointer.ToString("GenericNode"),
+			},
+
+			&models.Agent{
+				AgentID:    "node_exporter",
+				AgentType:  models.NodeExporterType,
+				PMMAgentID: pointer.ToString("pmm-agent"),
+			},
+			&models.AgentNode{
+				AgentID: "node_exporter",
+				NodeID:  "GenericNode",
+			},
+
+			&models.Agent{
+				AgentID:    "mysqld_exporter",
+				AgentType:  models.MySQLdExporterType,
+				PMMAgentID: pointer.ToString("pmm-agent"),
+			},
+			&models.AgentService{
+				AgentID:   "mysqld_exporter",
+				ServiceID: "MySQL",
+			},
+
 			&models.Node{
-				NodeID:   "N4",
+				NodeID:   "NodeWithPMMAgent",
+				NodeType: models.GenericNodeType,
+				NodeName: "Node With pmm-agent",
+			},
+			&models.Agent{
+				AgentID:      "pmm-agent1",
+				AgentType:    models.PMMAgentType,
+				RunsOnNodeID: pointer.ToString("NodeWithPMMAgent"),
+			},
+
+			&models.Node{
+				NodeID:   "EmptyNode",
 				NodeType: models.GenericNodeType,
 				NodeName: "Empty Node",
 			},
-
-			&models.Service{
-				ServiceID:   "S1",
-				ServiceType: models.MySQLServiceType,
-				ServiceName: "Service on N1",
-				NodeID:      "N1",
-			},
-
-			&models.Agent{
-				AgentID:      "A1",
-				AgentType:    models.PMMAgentType,
-				RunsOnNodeID: pointer.ToString("N2"),
-			},
-			&models.Agent{
-				AgentID:    "A2",
-				AgentType:  models.NodeExporterType,
-				PMMAgentID: pointer.ToString("A1"),
-			},
-
-			&models.AgentNode{
-				AgentID: "A2",
-				NodeID:  "N3",
-			},
 		} {
-			require.NoError(t, q.Insert(str))
+			require.NoError(t, q.Insert(str), "failed to INSERT %+v", str)
 		}
 
 		teardown = func(t *testing.T) {
@@ -108,16 +126,55 @@ func TestNodeHelpers(t *testing.T) {
 		q, teardown := setup(t)
 		defer teardown(t)
 
-		nodes, err := models.FindNodesForAgentID(q, "A2")
+		nodes, err := models.FindNodesForAgentID(q, "node_exporter")
 		require.NoError(t, err)
 		expected := []*models.Node{{
-			NodeID:    "N3",
+			NodeID:    "GenericNode",
 			NodeType:  models.GenericNodeType,
-			NodeName:  "Node with node_exporter",
+			NodeName:  "Node for Agents",
+			MachineID: pointer.ToString("/machine_id/GenericNode"),
 			CreatedAt: now,
 			UpdatedAt: now,
 		}}
 		assert.Equal(t, expected, nodes)
+	})
+
+	t.Run("CreateNode", func(t *testing.T) {
+		t.Run("DuplicateMachineID", func(t *testing.T) {
+			// https://jira.percona.com/browse/PMM-4196
+
+			q, teardown := setup(t)
+			defer teardown(t)
+
+			machineID := "/machine_id/GenericNode"
+			_, err := models.CreateNode(q, models.GenericNodeType, &models.CreateNodeParams{
+				NodeName:  t.Name(),
+				MachineID: &machineID,
+			})
+			assert.NoError(t, err)
+
+			structs, err := q.SelectAllFrom(models.NodeTable, "WHERE machine_id = $1 ORDER BY node_id", machineID)
+			require.NoError(t, err)
+			require.Len(t, structs, 2)
+			expected := &models.Node{
+				NodeID:    "GenericNode",
+				NodeType:  models.GenericNodeType,
+				NodeName:  "Node for Agents",
+				MachineID: pointer.ToString("/machine_id/GenericNode"),
+				CreatedAt: now,
+				UpdatedAt: now,
+			}
+			assert.Equal(t, expected, structs[0])
+			expected = &models.Node{
+				NodeID:    structs[1].(*models.Node).NodeID,
+				NodeType:  models.GenericNodeType,
+				NodeName:  t.Name(),
+				MachineID: &machineID,
+				CreatedAt: now,
+				UpdatedAt: now,
+			}
+			assert.Equal(t, expected, structs[1])
+		})
 	})
 
 	t.Run("RemoveNode", func(t *testing.T) {
@@ -127,24 +184,24 @@ func TestNodeHelpers(t *testing.T) {
 		err := models.RemoveNode(q, "", models.RemoveRestrict)
 		tests.AssertGRPCError(t, status.New(codes.InvalidArgument, `Empty Node ID.`), err)
 
-		err = models.RemoveNode(q, "N0", models.RemoveRestrict)
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "N0" not found.`), err)
-		err = models.RemoveNode(q, "N1", models.RemoveRestrict)
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Node with ID "N1" has services.`), err)
-		err = models.RemoveNode(q, "N2", models.RemoveRestrict)
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Node with ID "N2" has pmm-agent.`), err)
-		err = models.RemoveNode(q, "N3", models.RemoveRestrict)
-		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Node with ID "N3" has agents.`), err)
+		err = models.RemoveNode(q, "NoSuchNode", models.RemoveRestrict)
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "NoSuchNode" not found.`), err)
 
-		err = models.RemoveNode(q, "N4", models.RemoveRestrict)
+		err = models.RemoveNode(q, "GenericNode", models.RemoveRestrict)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Node with ID "GenericNode" has agents.`), err)
+		err = models.RemoveNode(q, "NodeWithPMMAgent", models.RemoveRestrict)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Node with ID "NodeWithPMMAgent" has pmm-agent.`), err)
+		err = models.RemoveNode(q, "MySQLNode", models.RemoveRestrict)
+		tests.AssertGRPCError(t, status.New(codes.FailedPrecondition, `Node with ID "MySQLNode" has services.`), err)
+
+		err = models.RemoveNode(q, "EmptyNode", models.RemoveRestrict)
 		assert.NoError(t, err)
 
-		// in reverse order to cover all branches
-		err = models.RemoveNode(q, "N3", models.RemoveCascade)
+		err = models.RemoveNode(q, "GenericNode", models.RemoveCascade)
 		assert.NoError(t, err)
-		err = models.RemoveNode(q, "N2", models.RemoveCascade)
+		err = models.RemoveNode(q, "NodeWithPMMAgent", models.RemoveCascade)
 		assert.NoError(t, err)
-		err = models.RemoveNode(q, "N1", models.RemoveCascade)
+		err = models.RemoveNode(q, "MySQLNode", models.RemoveCascade)
 		assert.NoError(t, err)
 
 		nodes, err := models.FindAllNodes(q)
