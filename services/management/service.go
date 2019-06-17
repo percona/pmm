@@ -34,6 +34,7 @@ var (
 		inventorypb.ServiceType_MYSQL_SERVICE:      models.MySQLServiceType,
 		inventorypb.ServiceType_MONGODB_SERVICE:    models.MongoDBServiceType,
 		inventorypb.ServiceType_POSTGRESQL_SERVICE: models.PostgreSQLServiceType,
+		inventorypb.ServiceType_PROXYSQL_SERVICE:   models.ProxySQLServiceType,
 	}
 )
 
