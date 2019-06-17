@@ -42,6 +42,9 @@ func GetTestMySQLDSN(tb testing.TB) string {
 	cfg.Addr = "127.0.0.1:3306"
 	cfg.DBName = "world"
 
+	// MultiStatements must not be used as it enables SQL injections in Actions
+	cfg.MultiStatements = false
+
 	// required for reform
 	cfg.ClientFoundRows = true
 	cfg.ParseTime = true

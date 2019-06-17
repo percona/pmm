@@ -60,6 +60,7 @@ func (e *mysqlShowIndexAction) Run(ctx context.Context) ([]byte, error) {
 	}
 	defer db.Close() //nolint:errcheck
 
+	// use %#q to convert "table" to `"table"` and `table` to "`table`" to avoid SQL injections
 	rows, err := db.QueryContext(ctx, fmt.Sprintf("SHOW /* pmm-agent */ INDEX IN %#q", e.params.Table))
 	if err != nil {
 		return nil, err

@@ -30,6 +30,9 @@ import (
 )
 
 func TestShowTableStatus(t *testing.T) {
+	t.Parallel()
+
+	dsn := tests.GetTestMySQLDSN(t)
 	db := tests.OpenTestMySQL(t)
 	defer db.Close() //nolint:errcheck
 	mySQLVersion, _ := tests.MySQLVersion(t, db)
@@ -38,10 +41,8 @@ func TestShowTableStatus(t *testing.T) {
 	require.NoError(t, err)
 
 	t.Run("Default", func(t *testing.T) {
-		t.Parallel()
-
 		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
-			Dsn:   "root:root-password@tcp(127.0.0.1:3306)/world",
+			Dsn:   dsn,
 			Table: "city",
 		}
 		a := NewMySQLShowTableStatusAction("", params)
@@ -104,10 +105,8 @@ func TestShowTableStatus(t *testing.T) {
 	})
 
 	t.Run("Error", func(t *testing.T) {
-		t.Parallel()
-
 		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
-			Dsn:   "root:root-password@tcp(127.0.0.1:3306)/world",
+			Dsn:   dsn,
 			Table: "no_such_table",
 		}
 		a := NewMySQLShowTableStatusAction("", params)
@@ -116,5 +115,23 @@ func TestShowTableStatus(t *testing.T) {
 
 		_, err := a.Run(ctx)
 		assert.EqualError(t, err, `table "no_such_table" not found`)
+	})
+
+	t.Run("LittleBobbyTables", func(t *testing.T) {
+		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
+			Dsn:   dsn,
+			Table: `city"; DROP TABLE city; --`,
+		}
+		a := NewMySQLShowTableStatusAction("", params)
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+		defer cancel()
+
+		_, err := a.Run(ctx)
+		assert.EqualError(t, err, `table "city\"; DROP TABLE city; --" not found`)
+
+		var count int
+		err = db.QueryRow("SELECT COUNT(*) FROM city").Scan(&count)
+		require.NoError(t, err)
+		assert.Equal(t, 4079, count)
 	})
 }
