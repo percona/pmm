@@ -188,88 +188,88 @@ func get(args []string, l *logrus.Entry) (*Config, string, error) {
 // Application returns kingpin application that will parse command-line flags and environment variables
 // into cfg except --config-file/PMM_AGENT_CONFIG_FILE that is returned separately.
 func Application(cfg *Config) (*kingpin.Application, *string) {
-	app := kingpin.New("pmm-agent", fmt.Sprintf("Version %s.", version.Version))
+	app := kingpin.New("pmm-agent", fmt.Sprintf("Version %s", version.Version))
 	app.HelpFlag.Short('h')
 	app.Version(version.FullInfo())
 
-	app.Command("run", "Run pmm-agent. Default command.").Default()
+	app.Command("run", "Run pmm-agent (default command)").Default()
 
 	// this flags has to be optional and has empty default value for `pmm-agent setup`
-	configFileF := app.Flag("config-file", "Configuration file path. [PMM_AGENT_CONFIG_FILE]").
+	configFileF := app.Flag("config-file", "Configuration file path [PMM_AGENT_CONFIG_FILE]").
 		Envar("PMM_AGENT_CONFIG_FILE").PlaceHolder("</path/to/pmm-agent.yaml>").String()
 
-	app.Flag("id", "ID of this pmm-agent. [PMM_AGENT_ID]").
+	app.Flag("id", "ID of this pmm-agent [PMM_AGENT_ID]").
 		Envar("PMM_AGENT_ID").PlaceHolder("</agent_id/...>").StringVar(&cfg.ID)
-	app.Flag("listen-port", "Agent local API port. [PMM_AGENT_LISTEN_PORT]").
+	app.Flag("listen-port", "Agent local API port [PMM_AGENT_LISTEN_PORT]").
 		Envar("PMM_AGENT_LISTEN_PORT").Default("7777").Uint16Var(&cfg.ListenPort)
 
-	app.Flag("server-address", "PMM Server address. [PMM_AGENT_SERVER_ADDRESS]").
+	app.Flag("server-address", "PMM Server address [PMM_AGENT_SERVER_ADDRESS]").
 		Envar("PMM_AGENT_SERVER_ADDRESS").PlaceHolder("<host:port>").StringVar(&cfg.Server.Address)
-	app.Flag("server-username", "HTTP BasicAuth username to connect to PMM Server. [PMM_AGENT_SERVER_USERNAME]").
+	app.Flag("server-username", "HTTP BasicAuth username to connect to PMM Server [PMM_AGENT_SERVER_USERNAME]").
 		Envar("PMM_AGENT_SERVER_USERNAME").StringVar(&cfg.Server.Username)
-	app.Flag("server-password", "HTTP BasicAuth password to connect to PMM Server. [PMM_AGENT_SERVER_PASSWORD]").
+	app.Flag("server-password", "HTTP BasicAuth password to connect to PMM Server [PMM_AGENT_SERVER_PASSWORD]").
 		Envar("PMM_AGENT_SERVER_PASSWORD").StringVar(&cfg.Server.Password)
-	app.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation. [PMM_AGENT_SERVER_INSECURE_TLS]").
+	app.Flag("server-insecure-tls", "Skip PMM Server TLS certificate validation [PMM_AGENT_SERVER_INSECURE_TLS]").
 		Envar("PMM_AGENT_SERVER_INSECURE_TLS").BoolVar(&cfg.Server.InsecureTLS)
 
-	app.Flag("paths-node_exporter", "Path to node_exporter to use. [PMM_AGENT_PATHS_NODE_EXPORTER]").
+	app.Flag("paths-node_exporter", "Path to node_exporter to use [PMM_AGENT_PATHS_NODE_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_NODE_EXPORTER").Default("node_exporter").StringVar(&cfg.Paths.NodeExporter)
-	app.Flag("paths-mysqld_exporter", "Path to mysqld_exporter to use. [PMM_AGENT_PATHS_MYSQLD_EXPORTER]").
+	app.Flag("paths-mysqld_exporter", "Path to mysqld_exporter to use [PMM_AGENT_PATHS_MYSQLD_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_MYSQLD_EXPORTER").Default("mysqld_exporter").StringVar(&cfg.Paths.MySQLdExporter)
-	app.Flag("paths-mongodb_exporter", "Path to mongodb_exporter to use. [PMM_AGENT_PATHS_MONGODB_EXPORTER]").
+	app.Flag("paths-mongodb_exporter", "Path to mongodb_exporter to use [PMM_AGENT_PATHS_MONGODB_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_MONGODB_EXPORTER").Default("mongodb_exporter").StringVar(&cfg.Paths.MongoDBExporter)
-	app.Flag("paths-postgres_exporter", "Path to postgres_exporter to use. [PMM_AGENT_PATHS_POSTGRES_EXPORTER]").
+	app.Flag("paths-postgres_exporter", "Path to postgres_exporter to use [PMM_AGENT_PATHS_POSTGRES_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_POSTGRES_EXPORTER").Default("postgres_exporter").StringVar(&cfg.Paths.PostgresExporter)
-	app.Flag("paths-proxysql_exporter", "Path to proxysql_exporter to use. [PMM_AGENT_PATHS_PROXYSQL_EXPORTER]").
+	app.Flag("paths-proxysql_exporter", "Path to proxysql_exporter to use [PMM_AGENT_PATHS_PROXYSQL_EXPORTER]").
 		Envar("PMM_AGENT_PATHS_PROXYSQL_EXPORTER").Default("proxysql_exporter").StringVar(&cfg.Paths.ProxySQLExporter)
-	app.Flag("paths-pt-summary", "Path to pt-summary to use. [PMM_AGENT_PATHS_PT_SUMMARY]").
+	app.Flag("paths-pt-summary", "Path to pt-summary to use [PMM_AGENT_PATHS_PT_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_SUMMARY").Default("pt-summary").StringVar(&cfg.Paths.PtSummary)
-	app.Flag("paths-pt-mysql-summary", "Path to pt-mysql-summary to use. [PMM_AGENT_PATHS_PT_MYSQL_SUMMARY]").
+	app.Flag("paths-pt-mysql-summary", "Path to pt-mysql-summary to use [PMM_AGENT_PATHS_PT_MYSQL_SUMMARY]").
 		Envar("PMM_AGENT_PATHS_PT_MYSQL_SUMMARY").Default("pt-mysql-summary").StringVar(&cfg.Paths.PtMySQLSummary)
-	app.Flag("paths-tempdir", "Temporary directory for exporters. [PMM_AGENT_PATHS_TEMPDIR]").
+	app.Flag("paths-tempdir", "Temporary directory for exporters [PMM_AGENT_PATHS_TEMPDIR]").
 		Envar("PMM_AGENT_PATHS_TEMPDIR").Default(os.TempDir()).StringVar(&cfg.Paths.TempDir)
 	// no flag for SlowLogFilePrefix - it is only for development and testing
 
 	// TODO read defaults from /proc/sys/net/ipv4/ip_local_port_range ?
-	app.Flag("ports-min", "Minimal allowed port number for listening sockets. [PMM_AGENT_PORTS_MIN]").
+	app.Flag("ports-min", "Minimal allowed port number for listening sockets [PMM_AGENT_PORTS_MIN]").
 		Envar("PMM_AGENT_PORTS_MIN").Default("32768").Uint16Var(&cfg.Ports.Min)
-	app.Flag("ports-max", "Maximal allowed port number for listening sockets. [PMM_AGENT_PORTS_MAX]").
+	app.Flag("ports-max", "Maximal allowed port number for listening sockets [PMM_AGENT_PORTS_MAX]").
 		Envar("PMM_AGENT_PORTS_MAX").Default("60999").Uint16Var(&cfg.Ports.Max)
 
-	app.Flag("debug", "Enable debug output. [PMM_AGENT_DEBUG]").
+	app.Flag("debug", "Enable debug output [PMM_AGENT_DEBUG]").
 		Envar("PMM_AGENT_DEBUG").BoolVar(&cfg.Debug)
-	app.Flag("trace", "Enable trace output (implies debug). [PMM_AGENT_TRACE]").
+	app.Flag("trace", "Enable trace output (implies debug) [PMM_AGENT_TRACE]").
 		Envar("PMM_AGENT_TRACE").BoolVar(&cfg.Trace)
 
-	setupCmd := app.Command("setup", "Configure local pmm-agent.")
+	setupCmd := app.Command("setup", "Configure local pmm-agent")
 	nodeinfo := nodeinfo.Get()
 
 	if nodeinfo.PublicAddress == "" {
-		setupCmd.Arg("node-address", "Node address.").Required().StringVar(&cfg.Setup.Address)
+		setupCmd.Arg("node-address", "Node address").Required().StringVar(&cfg.Setup.Address)
 	} else {
-		help := fmt.Sprintf("Node address. Default: %s (autodetected).", nodeinfo.PublicAddress)
+		help := fmt.Sprintf("Node address (autodetected default: %s)", nodeinfo.PublicAddress)
 		setupCmd.Arg("node-address", help).Default(nodeinfo.PublicAddress).StringVar(&cfg.Setup.Address)
 	}
 
 	nodeTypeKeys := []string{"generic", "container"}
 	nodeTypeDefault := nodeTypeKeys[0]
-	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s. Default: %s.", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
+	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s (default: %s)", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
 	setupCmd.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&cfg.Setup.NodeType, nodeTypeKeys...)
 
 	hostname, _ := os.Hostname()
-	nodeNameHelp := fmt.Sprintf("Node name. Default: %s (autodetected).", hostname)
+	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s)", hostname)
 	setupCmd.Arg("node-name", nodeNameHelp).Default(hostname).StringVar(&cfg.Setup.NodeName)
 
-	setupCmd.Flag("machine-id", "Node machine-id. Default is autodetected.").Default(nodeinfo.MachineID).StringVar(&cfg.Setup.MachineID)
-	setupCmd.Flag("distro", "Node OS distribution. Default is autodetected.").Default(nodeinfo.Distro).StringVar(&cfg.Setup.Distro)
-	setupCmd.Flag("container-id", "Container ID.").StringVar(&cfg.Setup.ContainerID)
-	setupCmd.Flag("container-name", "Container name.").StringVar(&cfg.Setup.ContainerName)
-	setupCmd.Flag("node-model", "Node model.").StringVar(&cfg.Setup.NodeModel)
-	setupCmd.Flag("region", "Node region.").StringVar(&cfg.Setup.Region)
-	setupCmd.Flag("az", "Node availability zone.").StringVar(&cfg.Setup.Az)
-	// TODO setupCmd.Flag("custom-labels", "Custom user-assigned labels.").StringVar(&cfg.Setup.CustomLabels)
+	setupCmd.Flag("machine-id", "Node machine-id (default is autodetected)").Default(nodeinfo.MachineID).StringVar(&cfg.Setup.MachineID)
+	setupCmd.Flag("distro", "Node OS distribution (default is autodetected)").Default(nodeinfo.Distro).StringVar(&cfg.Setup.Distro)
+	setupCmd.Flag("container-id", "Container ID").StringVar(&cfg.Setup.ContainerID)
+	setupCmd.Flag("container-name", "Container name").StringVar(&cfg.Setup.ContainerName)
+	setupCmd.Flag("node-model", "Node model").StringVar(&cfg.Setup.NodeModel)
+	setupCmd.Flag("region", "Node region").StringVar(&cfg.Setup.Region)
+	setupCmd.Flag("az", "Node availability zone").StringVar(&cfg.Setup.Az)
+	// TODO setupCmd.Flag("custom-labels", "Custom user-assigned labels").StringVar(&cfg.Setup.CustomLabels)
 
-	setupCmd.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist.").BoolVar(&cfg.Setup.Force)
+	setupCmd.Flag("force", "Remove Node with that name with all dependent Services and Agents if one exist").BoolVar(&cfg.Setup.Force)
 
 	return app, configFileF
 }

@@ -59,13 +59,13 @@ func New(name, help string) *Application {
 	a.flagGroup = newFlagGroup()
 	a.argGroup = newArgGroup()
 	a.cmdGroup = newCmdGroup(a)
-	a.HelpFlag = a.Flag("help", "Show context-sensitive help (also try --help-long and --help-man).")
+	a.HelpFlag = a.Flag("help", "Show context-sensitive help (also try --help-long and --help-man)")
 	a.HelpFlag.Bool()
-	a.Flag("help-long", "Generate long help.").Hidden().PreAction(a.generateLongHelp).Bool()
-	a.Flag("help-man", "Generate a man page.").Hidden().PreAction(a.generateManPage).Bool()
-	a.Flag("completion-bash", "Output possible completions for the given args.").Hidden().BoolVar(&a.completion)
-	a.Flag("completion-script-bash", "Generate completion script for bash.").Hidden().PreAction(a.generateBashCompletionScript).Bool()
-	a.Flag("completion-script-zsh", "Generate completion script for ZSH.").Hidden().PreAction(a.generateZSHCompletionScript).Bool()
+	a.Flag("help-long", "Generate long help").Hidden().PreAction(a.generateLongHelp).Bool()
+	a.Flag("help-man", "Generate a man page").Hidden().PreAction(a.generateManPage).Bool()
+	a.Flag("completion-bash", "Output possible completions for the given args").Hidden().BoolVar(&a.completion)
+	a.Flag("completion-script-bash", "Generate completion script for bash").Hidden().PreAction(a.generateBashCompletionScript).Bool()
+	a.Flag("completion-script-zsh", "Generate completion script for ZSH").Hidden().PreAction(a.generateZSHCompletionScript).Bool()
 
 	return a
 }
@@ -254,7 +254,7 @@ func (a *Application) maybeHelp(context *ParseContext) {
 // Version adds a --version flag for displaying the application version.
 func (a *Application) Version(version string) *Application {
 	a.version = version
-	a.VersionFlag = a.Flag("version", "Show application version.").PreAction(func(*ParseContext) error {
+	a.VersionFlag = a.Flag("version", "Show application version").PreAction(func(*ParseContext) error {
 		fmt.Fprintln(a.usageWriter, version)
 		a.terminate(0)
 		return nil
@@ -316,12 +316,12 @@ func (a *Application) init() error {
 	// If we have subcommands, add a help command at the top-level.
 	if a.cmdGroup.have() {
 		var command []string
-		a.HelpCommand = a.Command("help", "Show help.").PreAction(func(context *ParseContext) error {
+		a.HelpCommand = a.Command("help", "Show help").PreAction(func(context *ParseContext) error {
 			a.Usage(command)
 			a.terminate(0)
 			return nil
 		})
-		a.HelpCommand.Arg("command", "Show help on command.").StringsVar(&command)
+		a.HelpCommand.Arg("command", "Show help on command").StringsVar(&command)
 		// Make help first command.
 		l := len(a.commandOrder)
 		a.commandOrder = append(a.commandOrder[l-1:l], a.commandOrder[:l-1]...)

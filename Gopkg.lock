@@ -622,12 +622,13 @@
   version = "v1.20.1"
 
 [[projects]]
-  digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"
+  branch = "v2.2.6-no-dots"
+  digest = "1:b1d8828d22d5fd5326651f3babc8f27786d7f6de5632db5d0ba85a5ec8376cd9"
   name = "gopkg.in/alecthomas/kingpin.v2"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
-  version = "v2.2.6"
+  revision = "4af15a15e8da9f856bb620212713c58e1e27e388"
+  source = "https://github.com/Percona-Lab/kingpin.git"
 
 [[projects]]
   branch = "v2"
