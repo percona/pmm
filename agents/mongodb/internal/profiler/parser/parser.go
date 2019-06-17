@@ -14,32 +14,31 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-package sender
+package parser
 
 import (
 	"sync"
 
-	"github.com/sirupsen/logrus"
+	"github.com/percona/percona-toolkit/src/go/mongolib/proto"
+	mstats "github.com/percona/percona-toolkit/src/go/mongolib/stats"
 
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/report"
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/status"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/status"
 )
 
-func New(reportChan <-chan *report.Report, w Writer, logger *logrus.Entry) *Sender {
-	return &Sender{
-		reportChan: reportChan,
-		w:          w,
-		logger:     logger,
+func New(docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator) *Parser {
+	return &Parser{
+		docsChan:   docsChan,
+		aggregator: aggregator,
 	}
 }
 
-type Sender struct {
+type Parser struct {
 	// dependencies
-	reportChan <-chan *report.Report
-	w          Writer
-	logger     *logrus.Entry
+	docsChan   <-chan proto.SystemProfile
+	aggregator *aggregator.Aggregator
 
-	// stats
+	// status
 	status *status.Status
 
 	// state
@@ -50,7 +49,7 @@ type Sender struct {
 }
 
 // Start starts but doesn't wait until it exits
-func (self *Sender) Start() error {
+func (self *Parser) Start() error {
 	self.Lock()
 	defer self.Unlock()
 	if self.running {
@@ -61,7 +60,7 @@ func (self *Sender) Start() error {
 	// ... inside goroutine to close it
 	self.doneChan = make(chan struct{})
 
-	// set stats
+	// set status
 	stats := &stats{}
 	self.status = status.New(stats)
 
@@ -69,14 +68,20 @@ func (self *Sender) Start() error {
 	// so we could later Wait() for it to finish
 	self.wg = &sync.WaitGroup{}
 	self.wg.Add(1)
-	go start(self.wg, self.reportChan, self.w, self.logger, self.doneChan, stats)
+	go start(
+		self.wg,
+		self.docsChan,
+		self.aggregator,
+		self.doneChan,
+		stats,
+	)
 
 	self.running = true
 	return nil
 }
 
 // Stop stops running
-func (self *Sender) Stop() {
+func (self *Parser) Stop() {
 	self.Lock()
 	defer self.Unlock()
 	if !self.running {
@@ -92,7 +97,7 @@ func (self *Sender) Stop() {
 	return
 }
 
-func (self *Sender) Status() map[string]string {
+func (self *Parser) Status() map[string]string {
 	self.RLock()
 	defer self.RUnlock()
 	if !self.running {
@@ -102,46 +107,51 @@ func (self *Sender) Status() map[string]string {
 	return self.status.Map()
 }
 
-func (self *Sender) Name() string {
-	return "sender"
+func (self *Parser) Name() string {
+	return "parser"
 }
 
-func start(wg *sync.WaitGroup, reportChan <-chan *report.Report, w Writer, logger *logrus.Entry, doneChan <-chan struct{}, stats *stats) {
+func start(wg *sync.WaitGroup, docsChan <-chan proto.SystemProfile, aggregator *aggregator.Aggregator, doneChan <-chan struct{}, stats *stats) {
 	// signal WaitGroup when goroutine finished
 	defer wg.Done()
 
+	// update stats
 	for {
-
+		// check if we should shutdown
 		select {
-		case report, ok := <-reportChan:
-			stats.In += 1
+		case <-doneChan:
+			return
+		default:
+			// just continue if not
+		}
+
+		// aggregate documents and create report
+		select {
+		case doc, ok := <-docsChan:
 			// if channel got closed we should exit as there is nothing we can listen to
 			if !ok {
 				return
 			}
 
-			// check if we should shutdown
-			select {
-			case <-doneChan:
-				return
-			default:
-				// just continue if not
-			}
+			// we got new doc, increase stats
+			stats.InDocs += 1
 
-			// sent report
-			if err := w.Write(report); err != nil {
-				stats.ErrIter += 1
-				logger.Warn("Lost report:", err)
-				continue
+			// aggregate the doc
+			var err error
+			err = aggregator.Add(doc)
+			switch err.(type) {
+			case nil:
+				stats.OkDocs += 1
+			case *mstats.StatsFingerprintError:
+				stats.ErrFingerprint += 1
+			default:
+				stats.ErrParse += 1
 			}
-			stats.Out += 1
 		case <-doneChan:
+			// doneChan needs to be repeated in this select as docsChan can block
+			// doneChan needs to be also in separate select statement
+			// as docsChan could be always picked since select picks channels pseudo randomly
 			return
 		}
 	}
-}
-
-// Writer write QAN Report
-type Writer interface {
-	Write(r *report.Report) error
 }

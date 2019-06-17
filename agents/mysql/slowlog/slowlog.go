@@ -34,7 +34,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm-agent/agents/builtin/mysql/slowlog/parser"
+	"github.com/percona/pmm-agent/agents/mysql/slowlog/parser"
 	"github.com/percona/pmm-agent/utils/backoff"
 )
 

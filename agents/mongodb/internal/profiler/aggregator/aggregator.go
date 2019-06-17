@@ -28,8 +28,8 @@ import (
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
 
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/report"
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/status"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/status"
 )
 
 var DefaultInterval = time.Duration(time.Minute)

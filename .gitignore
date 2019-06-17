@@ -8,10 +8,10 @@ crosscover.out
 
 *.bench
 
-/agents/builtin/mysql/slowlog/parser/corpus/
-/agents/builtin/mysql/slowlog/parser/crashers/
-/agents/builtin/mysql/slowlog/parser/suppressions/
-/agents/builtin/mysql/slowlog/parser/parser-fuzz.zip
+/agents/mysql/slowlog/parser/corpus/
+/agents/mysql/slowlog/parser/crashers/
+/agents/mysql/slowlog/parser/suppressions/
+/agents/mysql/slowlog/parser/parser-fuzz.zip
 
 backoff.png
 pmm-agent-dev.yaml

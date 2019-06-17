@@ -43,38 +43,47 @@ func TestImports(t *testing.T) {
 
 	for path, c := range map[string]constraint{
 		// agents code should be independent
+		"github.com/percona/pmm-agent/agents/mongodb": {
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm/api/agentpb",
+				"github.com/percona/pmm-agent/agentlocal",
+				"github.com/percona/pmm-agent/agents",
+				"github.com/percona/pmm-agent/client",
+				"github.com/percona/pmm-agent/config",
+			},
+		},
+		"github.com/percona/pmm-agent/agents/mysql/perfschema": {
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm/api/agentpb",
+				"github.com/percona/pmm-agent/agentlocal",
+				"github.com/percona/pmm-agent/agents",
+				"github.com/percona/pmm-agent/client",
+				"github.com/percona/pmm-agent/config",
+			},
+		},
+		"github.com/percona/pmm-agent/agents/mysql/slowlog": {
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm/api/agentpb",
+				"github.com/percona/pmm-agent/agentlocal",
+				"github.com/percona/pmm-agent/agents",
+				"github.com/percona/pmm-agent/client",
+				"github.com/percona/pmm-agent/config",
+			},
+		},
+		"github.com/percona/pmm-agent/agents/noop": {
+			blacklistPrefixes: []string{
+				"github.com/percona/pmm/api/agentpb",
+				"github.com/percona/pmm-agent/agentlocal",
+				"github.com/percona/pmm-agent/agents",
+				"github.com/percona/pmm-agent/client",
+				"github.com/percona/pmm-agent/config",
+			},
+		},
 		"github.com/percona/pmm-agent/agents/process": {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm/api/agentpb",
 				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/builtin",
-				"github.com/percona/pmm-agent/client",
-				"github.com/percona/pmm-agent/config",
-			},
-		},
-		"github.com/percona/pmm-agent/agents/builtin/mysql/perfschema": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentpb",
-				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/builtin",
-				"github.com/percona/pmm-agent/client",
-				"github.com/percona/pmm-agent/config",
-			},
-		},
-		"github.com/percona/pmm-agent/agents/builtin/mysql/slowlog": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentpb",
-				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/builtin",
-				"github.com/percona/pmm-agent/client",
-				"github.com/percona/pmm-agent/config",
-			},
-		},
-		"github.com/percona/pmm-agent/agents/builtin/noop": {
-			blacklistPrefixes: []string{
-				"github.com/percona/pmm/api/agentpb",
-				"github.com/percona/pmm-agent/agentlocal",
-				"github.com/percona/pmm-agent/agents/builtin",
+				"github.com/percona/pmm-agent/agents",
 				"github.com/percona/pmm-agent/client",
 				"github.com/percona/pmm-agent/config",
 			},
@@ -101,7 +110,7 @@ func TestImports(t *testing.T) {
 		},
 
 		// slowlog parser should be fully independent
-		"github.com/percona/pmm-agent/agents/builtin/mysql/slowlog/parser": {
+		"github.com/percona/pmm-agent/agents/mysql/slowlog/parser": {
 			blacklistPrefixes: []string{
 				"github.com/percona/pmm-agent",
 			},

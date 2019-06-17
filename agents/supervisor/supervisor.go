@@ -38,10 +38,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm-agent/agents/builtin/mongodb"
-	"github.com/percona/pmm-agent/agents/builtin/mysql/perfschema"
-	"github.com/percona/pmm-agent/agents/builtin/mysql/slowlog"
-	"github.com/percona/pmm-agent/agents/builtin/noop"
+	"github.com/percona/pmm-agent/agents/mongodb"
+	"github.com/percona/pmm-agent/agents/mysql/perfschema"
+	"github.com/percona/pmm-agent/agents/mysql/slowlog"
+	"github.com/percona/pmm-agent/agents/noop"
 	"github.com/percona/pmm-agent/agents/process"
 	"github.com/percona/pmm-agent/config"
 )

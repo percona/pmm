@@ -25,7 +25,7 @@ import (
 	"github.com/percona/pmgo"
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/status"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/status"
 )
 
 const (

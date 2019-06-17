@@ -25,8 +25,8 @@ import (
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
 
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/profiler"
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/report"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
 )
 
 // MongoDB extracts performance data from Mongo op log.

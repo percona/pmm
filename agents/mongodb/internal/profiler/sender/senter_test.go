@@ -25,7 +25,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/report"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
 )
 
 type testWriter struct {

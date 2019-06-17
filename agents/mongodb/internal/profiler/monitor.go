@@ -22,9 +22,9 @@ import (
 
 	"github.com/percona/pmgo"
 
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/profiler/aggregator"
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/profiler/collector"
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/profiler/parser"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/collector"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/parser"
 )
 
 func NewMonitor(session pmgo.SessionManager, dbName string, aggregator *aggregator.Aggregator) *monitor {

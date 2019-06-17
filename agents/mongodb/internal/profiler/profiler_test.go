@@ -28,8 +28,8 @@ import (
 	"github.com/stretchr/testify/require"
 	"gopkg.in/mgo.v2/bson"
 
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/profiler/aggregator"
-	"github.com/percona/pmm-agent/agents/builtin/mongodb/internal/report"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
+	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
 )
 
 func TestProfiler(t *testing.T) {
