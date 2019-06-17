@@ -5,10 +5,12 @@ import (
 	"io/ioutil"
 	"net"
 	"runtime"
+	"strings"
 )
 
 // NodeInfo contains node information.
 type NodeInfo struct {
+	Container bool
 	Distro    string
 	MachineID string
 
@@ -19,10 +21,17 @@ type NodeInfo struct {
 // Get returns node information for current node.
 func Get() *NodeInfo {
 	return &NodeInfo{
+		Container:     checkContainer(),
 		Distro:        readDistro(),
 		MachineID:     readMachineID(),
 		PublicAddress: readPublicAddress(),
 	}
+}
+
+func checkContainer() bool {
+	// https://stackoverflow.com/a/20012536
+	b, _ := ioutil.ReadFile("/proc/1/cgroup") //nolint:gosec
+	return strings.Contains(string(b), "/docker/") || strings.Contains(string(b), "/lxc/")
 }
 
 func readDistro() string {
@@ -34,8 +43,9 @@ func readDistro() string {
 func readMachineID() string {
 	for _, name := range []string{
 		"/etc/machine-id",
+		"/var/lib/dbus/machine-id",
 	} {
-		b, _ := ioutil.ReadFile(name)
+		b, _ := ioutil.ReadFile(name) //nolint:gosec
 		if len(b) != 0 {
 			return string(b)
 		}

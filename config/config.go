@@ -252,7 +252,10 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	}
 
 	nodeTypeKeys := []string{"generic", "container"}
-	nodeTypeDefault := nodeTypeKeys[0]
+	nodeTypeDefault := "generic"
+	if nodeinfo.Container {
+		nodeTypeDefault = "container"
+	}
 	nodeTypeHelp := fmt.Sprintf("Node type, one of: %s (default: %s)", strings.Join(nodeTypeKeys, ", "), nodeTypeDefault)
 	setupCmd.Arg("node-type", nodeTypeHelp).Default(nodeTypeDefault).EnumVar(&cfg.Setup.NodeType, nodeTypeKeys...)
 
@@ -260,7 +263,11 @@ func Application(cfg *Config) (*kingpin.Application, *string) {
 	nodeNameHelp := fmt.Sprintf("Node name (autodetected default: %s)", hostname)
 	setupCmd.Arg("node-name", nodeNameHelp).Default(hostname).StringVar(&cfg.Setup.NodeName)
 
-	setupCmd.Flag("machine-id", "Node machine-id (default is autodetected)").Default(nodeinfo.MachineID).StringVar(&cfg.Setup.MachineID)
+	var defaultMachineID string
+	if nodeinfo.MachineID != "" {
+		defaultMachineID = "/machine_id/" + nodeinfo.MachineID
+	}
+	setupCmd.Flag("machine-id", "Node machine-id (default is autodetected)").Default(defaultMachineID).StringVar(&cfg.Setup.MachineID)
 	setupCmd.Flag("distro", "Node OS distribution (default is autodetected)").Default(nodeinfo.Distro).StringVar(&cfg.Setup.Distro)
 	setupCmd.Flag("container-id", "Container ID").StringVar(&cfg.Setup.ContainerID)
 	setupCmd.Flag("container-name", "Container name").StringVar(&cfg.Setup.ContainerName)
