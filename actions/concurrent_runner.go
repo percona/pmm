@@ -31,7 +31,7 @@ const defaultTimeout = time.Second * 10
 type ActionResult struct {
 	ID     string
 	Output []byte
-	Error  error
+	Error  string
 }
 
 // ConcurrentRunner represents concurrent Action runner.
@@ -120,10 +120,14 @@ func (r *ConcurrentRunner) Start(a Action) {
 			l.Warnf("Done with error: %s.", err)
 		}
 
+		var errorS string
+		if err != nil {
+			errorS = err.Error()
+		}
 		r.results <- ActionResult{
 			ID:     actionID,
 			Output: b,
-			Error:  err,
+			Error:  errorS,
 		}
 	}
 	go pprof.Do(ctx, pprof.Labels("actionID", actionID, "type", actionType), run)

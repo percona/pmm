@@ -71,6 +71,11 @@ func OpenTestMySQL(tb testing.TB) *sql.DB {
 		}
 	}
 	require.NoError(tb, err)
+
+	// to make Actions tests more stable
+	_, err = db.Exec(`ANALYZE TABLE city`)
+	require.NoError(tb, err)
+
 	return db
 }
 

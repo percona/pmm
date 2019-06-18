@@ -37,9 +37,6 @@ func TestShowTableStatus(t *testing.T) {
 	defer db.Close() //nolint:errcheck
 	mySQLVersion, _ := tests.MySQLVersion(t, db)
 
-	_, err := db.Exec("ANALYZE TABLE city")
-	require.NoError(t, err)
-
 	t.Run("Default", func(t *testing.T) {
 		params := &agentpb.StartActionRequest_MySQLShowTableStatusParams{
 			Dsn:   dsn,

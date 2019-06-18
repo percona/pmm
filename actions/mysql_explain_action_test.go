@@ -39,9 +39,6 @@ func TestMySQLExplain(t *testing.T) {
 	defer db.Close() //nolint:errcheck
 	mySQLVersion, mySQLVendor := tests.MySQLVersion(t, db)
 
-	_, err := db.Exec("ANALYZE TABLE city")
-	require.NoError(t, err)
-
 	const query = "SELECT * FROM city ORDER BY Population"
 
 	t.Run("Default", func(t *testing.T) {

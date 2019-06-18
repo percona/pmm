@@ -347,12 +347,12 @@ func (s *Supervisor) startProcess(agentID string, agentProcess *agentpb.SetState
 	done := make(chan struct{})
 	go func() {
 		for status := range process.Changes() {
+			s.storeLastStatus(agentID, status)
 			s.changes <- agentpb.StateChangedRequest{
 				AgentId:    agentID,
 				Status:     status,
 				ListenPort: uint32(port),
 			}
-			s.storeLastStatus(agentID, status)
 		}
 		close(done)
 	}()
@@ -397,11 +397,11 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		go func() {
 			for change := range agent.Changes() {
 				if change.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+					s.storeLastStatus(agentID, change.Status)
 					s.changes <- agentpb.StateChangedRequest{
 						AgentId: agentID,
 						Status:  change.Status,
 					}
-					s.storeLastStatus(agentID, change.Status)
 				} else {
 					s.qanRequests <- agentpb.QANCollectRequest{
 						Message: change.Request,
@@ -427,11 +427,11 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		go func() {
 			for change := range m.Changes() {
 				if change.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+					s.storeLastStatus(agentID, change.Status)
 					s.changes <- agentpb.StateChangedRequest{
 						AgentId: agentID,
 						Status:  change.Status,
 					}
-					s.storeLastStatus(agentID, change.Status)
 				} else {
 					s.qanRequests <- agentpb.QANCollectRequest{
 						Message: change.Request,
@@ -458,11 +458,11 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		go func() {
 			for change := range agent.Changes() {
 				if change.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+					s.storeLastStatus(agentID, change.Status)
 					s.changes <- agentpb.StateChangedRequest{
 						AgentId: agentID,
 						Status:  change.Status,
 					}
-					s.storeLastStatus(agentID, change.Status)
 				} else {
 					s.qanRequests <- agentpb.QANCollectRequest{
 						Message: change.Request,
@@ -480,11 +480,11 @@ func (s *Supervisor) startBuiltin(agentID string, builtinAgent *agentpb.SetState
 		go func() {
 			for change := range agent.Changes() {
 				if change.Status != inventorypb.AgentStatus_AGENT_STATUS_INVALID {
+					s.storeLastStatus(agentID, change.Status)
 					s.changes <- agentpb.StateChangedRequest{
 						AgentId: agentID,
 						Status:  change.Status,
 					}
-					s.storeLastStatus(agentID, change.Status)
 				} else {
 					s.qanRequests <- agentpb.QANCollectRequest{
 						Message: change.Request,

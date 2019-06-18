@@ -18,11 +18,30 @@ package actions
 
 import (
 	"context"
+	"sort"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+// assertResults checks expected results in any order.
+func assertResults(t *testing.T, cr *ConcurrentRunner, expected ...ActionResult) {
+	t.Helper()
+
+	actual := make([]ActionResult, len(expected))
+	for i := range expected {
+		r := <-cr.Results()
+		if len(r.Output) == 0 {
+			r.Output = nil
+		}
+		actual[i] = r
+	}
+
+	sort.Slice(expected, func(i, j int) bool { return expected[i].ID < expected[j].ID })
+	sort.Slice(actual, func(i, j int) bool { return actual[i].ID < actual[j].ID })
+	assert.Equal(t, expected, actual)
+}
 
 func TestConcurrentRunnerRun(t *testing.T) {
 	t.Parallel()
@@ -34,11 +53,12 @@ func TestConcurrentRunnerRun(t *testing.T) {
 	cr.Start(a1)
 	cr.Start(a2)
 
-	expected := []string{"test\n", "test2\n"}
-	for i := 0; i < 2; i++ {
-		a := <-cr.Results()
-		assert.Contains(t, expected, string(a.Output))
+	expected := []ActionResult{
+		{ID: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Output: []byte("test\n")},
+		{ID: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Output: []byte("test2\n")},
 	}
+	assertResults(t, cr, expected...)
+	assert.Empty(t, cr.actionsCancel)
 }
 
 func TestConcurrentRunnerTimeout(t *testing.T) {
@@ -51,17 +71,13 @@ func TestConcurrentRunnerTimeout(t *testing.T) {
 	cr.Start(a1)
 	cr.Start(a2)
 
-	// check Action returns proper errors and output.
-	expected := []string{"signal: killed", "signal: killed"}
-	expectedOut := []string{"", ""}
-	for i := 0; i < 2; i++ {
-		r := <-cr.Results()
-		assert.Contains(t, expected, r.Error.Error())
-		assert.Contains(t, expectedOut, string(r.Output))
+	// https://github.com/golang/go/issues/21880
+	expected := []ActionResult{
+		{ID: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Error: "signal: killed"},
+		{ID: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Error: "signal: killed"},
 	}
-
-	assert.NotContains(t, cr.actionsCancel, a1.ID())
-	assert.NotContains(t, cr.actionsCancel, a2.ID())
+	assertResults(t, cr, expected...)
+	assert.Empty(t, cr.actionsCancel)
 }
 
 func TestConcurrentRunnerStop(t *testing.T) {
@@ -79,17 +95,13 @@ func TestConcurrentRunnerStop(t *testing.T) {
 	cr.Stop(a1.ID())
 	cr.Stop(a2.ID())
 
-	// check Action returns proper errors and output.
-	expected := []string{"signal: killed", "signal: killed"}
-	expectedOut := []string{"", ""}
-	for i := 0; i < 2; i++ {
-		r := <-cr.Results()
-		assert.Contains(t, expected, r.Error.Error())
-		assert.Contains(t, expectedOut, string(r.Output))
+	// https://github.com/golang/go/issues/21880
+	expected := []ActionResult{
+		{ID: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Error: "signal: killed"},
+		{ID: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Error: "signal: killed"},
 	}
-
-	assert.NotContains(t, cr.actionsCancel, a1.ID())
-	assert.NotContains(t, cr.actionsCancel, a2.ID())
+	assertResults(t, cr, expected...)
+	assert.Empty(t, cr.actionsCancel)
 }
 
 func TestConcurrentRunnerCancel(t *testing.T) {
@@ -105,16 +117,16 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 
 	cancel()
 
-	expected := []string{"context canceled", "context canceled"}
-	expectedOut := []string{"", ""}
-	for i := 0; i < 2; i++ {
-		r := <-cr.Results()
-		assert.Contains(t, expected, r.Error.Error())
-		assert.Contains(t, expectedOut, string(r.Output))
-	}
+	// TODO https://jira.percona.com/browse/PMM-4201
+	// Let's wait and see if "signal: killed" shows up there too.
+	// See also https://github.com/golang/go/issues/21880.
 
-	assert.NotContains(t, cr.actionsCancel, a1.ID())
-	assert.NotContains(t, cr.actionsCancel, a2.ID())
+	expected := []ActionResult{
+		{ID: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Error: context.Canceled.Error()},
+		{ID: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Error: context.Canceled.Error()},
+	}
+	assertResults(t, cr, expected...)
+	assert.Empty(t, cr.actionsCancel)
 }
 
 func TestConcurrentRunnerCancelEmpty(t *testing.T) {
@@ -128,11 +140,9 @@ func TestConcurrentRunnerCancelEmpty(t *testing.T) {
 	go cancel()
 	cr.Start(a)
 
-	expected := []string{"context canceled", "context canceled"}
-	expectedOut := []string{"", ""}
-	r := <-cr.Results()
-	assert.Contains(t, expected, r.Error.Error())
-	assert.Contains(t, expectedOut, string(r.Output))
-
-	assert.NotContains(t, cr.actionsCancel, a.ID())
+	expected := []ActionResult{
+		{ID: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Error: context.Canceled.Error()},
+	}
+	assertResults(t, cr, expected...)
+	assert.Empty(t, cr.actionsCancel)
 }

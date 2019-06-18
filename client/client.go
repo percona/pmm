@@ -199,16 +199,11 @@ func (c *Client) Done() <-chan struct{} {
 
 func (c *Client) processActionResults() {
 	for result := range c.runner.Results() {
-		var errMessage string
-		if result.Error != nil {
-			errMessage = result.Error.Error()
-		}
-
 		resp := c.channel.SendRequest(&agentpb.ActionResultRequest{
 			ActionId: result.ID,
 			Output:   result.Output,
 			Done:     true,
-			Error:    errMessage,
+			Error:    result.Error,
 		})
 		if resp == nil {
 			c.l.Warn("Failed to send ActionResult request.")
