@@ -117,15 +117,16 @@ func TestConcurrentRunnerCancel(t *testing.T) {
 
 	cancel()
 
-	// TODO https://jira.percona.com/browse/PMM-4201
-	// Let's wait and see if "signal: killed" shows up there too.
-	// See also https://github.com/golang/go/issues/21880.
-
-	expected := []ActionResult{
-		{ID: "/action_id/6a479303-5081-46d0-baa0-87d6248c987b", Error: context.Canceled.Error()},
-		{ID: "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14", Error: context.Canceled.Error()},
-	}
-	assertResults(t, cr, expected...)
+	// Unlike other tests, there we mostly see "context canceled", but "signal: killed" still happens.
+	// Check both.
+	expected := make([]ActionResult, 2)
+	expected[0] = <-cr.Results()
+	expected[1] = <-cr.Results()
+	sort.Slice(expected, func(i, j int) bool { return expected[i].ID < expected[j].ID })
+	assert.Equal(t, expected[0].ID, "/action_id/6a479303-5081-46d0-baa0-87d6248c987b")
+	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].Error)
+	assert.Equal(t, expected[1].ID, "/action_id/84140ab2-612d-4d93-9360-162a4bd5de14")
+	assert.Contains(t, []string{"signal: killed", context.Canceled.Error()}, expected[0].Error)
 	assert.Empty(t, cr.actionsCancel)
 }
 
