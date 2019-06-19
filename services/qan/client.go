@@ -76,7 +76,7 @@ func mergeLabels(node *models.Node, service *models.Service, agent *models.Agent
 	return res, nil
 }
 
-// Collect adds custom labels to the data from pmm-agent and sends it to qan-api.
+// Collect adds labels to the data from pmm-agent and sends it to qan-api.
 func (c *Client) Collect(ctx context.Context, req *qanpb.CollectRequest) error {
 	// TODO That code is simple, but performance will be very bad for any non-trivial load.
 	// https://jira.percona.com/browse/PMM-3894
@@ -137,11 +137,16 @@ func (c *Client) Collect(ctx context.Context, req *qanpb.CollectRequest) error {
 			"region":          &m.Region,
 			"node_model":      &m.NodeModel,
 			"container_name":  &m.ContainerName,
+			"agent_id":        &m.AgentId,
 		} {
 			value := labels[labelName]
 			delete(labels, labelName)
 			if *field != "" {
-				c.l.Errorf("%q wasn't empty: overwriting %q with %q.", labelName, *field, value)
+				if *field == value {
+					c.l.Debugf("%q is not empty, but has the same value %q.", labelName, *field)
+				} else {
+					c.l.Warnf("%q is not empty: overwriting %q with %q.", labelName, *field, value)
+				}
 			}
 			*field = value
 		}

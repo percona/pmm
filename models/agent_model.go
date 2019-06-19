@@ -30,7 +30,8 @@ import (
 
 //go:generate reform
 
-// AgentType represents Agent type as stored in database.
+// AgentType represents Agent type as stored in databases:
+// pmm-managed's PostgreSQL, qan-api's ClickHouse, and Prometheus.
 type AgentType string
 
 // Agent types (in the same order as in agents.proto).
