@@ -26,6 +26,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
 	"gopkg.in/reform.v1"
+	"gopkg.in/reform.v1/dialects/postgresql"
 )
 
 var initialCurrentTime = Now().Format(time.RFC3339)
@@ -159,8 +160,8 @@ var databaseSchema = [][]string{
 	},
 }
 
-// OpenDB opens connection to PostgreSQL database and runs migrations.
-func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error) {
+// OpenDB returns configured connection pool for PostgreSQL.
+func OpenDB(name, username, password string) (*sql.DB, error) {
 	q := make(url.Values)
 	q.Set("sslmode", "disable")
 
@@ -178,43 +179,44 @@ func OpenDB(name, username, password string, logf reform.Printf) (*sql.DB, error
 	dsn := uri.String()
 
 	db, err := sql.Open("postgres", dsn)
-	if err == nil {
-		db.SetMaxIdleConns(10)
-		db.SetMaxOpenConns(10)
-		db.SetConnMaxLifetime(0)
-		err = db.Ping()
-	}
 	if err != nil {
 		return nil, errors.Wrap(err, "Failed to connect to PostgreSQL.")
 	}
 
-	if name == "" {
-		return db, nil
-	}
+	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(10)
+	db.SetConnMaxLifetime(0)
+	return db, nil
+}
+
+// MigrateDB runs PostgreSQL database migrations.
+func MigrateDB(sqlDB *sql.DB, logf reform.Printf) error {
+	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(logf))
 
 	latestVersion := len(databaseSchema) - 1 // skip item 0
 	var currentVersion int
-	err = db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
+	err := db.QueryRow("SELECT id FROM schema_migrations ORDER BY id DESC LIMIT 1").Scan(&currentVersion)
 	if pErr, ok := err.(*pq.Error); ok && pErr.Code == "42P01" { // undefined_table (see https://www.postgresql.org/docs/current/errcodes-appendix.html)
 		err = nil
 	}
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to get current version.")
+		return errors.WithStack(err)
 	}
 	logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
 
-	for version := currentVersion + 1; version <= latestVersion; version++ {
-		logf("Migrating database to schema version %d ...", version)
-		queries := databaseSchema[version]
-		queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
-		for _, q := range queries {
-			q = strings.TrimSpace(q)
-			logf("\n%s\n", q)
-			if _, err = db.Exec(q); err != nil {
-				return nil, errors.Wrapf(err, "Failed to execute statement:\n%s.", q)
+	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
+	return db.InTransaction(func(tx *reform.TX) error {
+		for version := currentVersion + 1; version <= latestVersion; version++ {
+			logf("Migrating database to schema version %d ...", version)
+			queries := databaseSchema[version]
+			queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
+			for _, q := range queries {
+				q = strings.TrimSpace(q)
+				if _, err = tx.Exec(q); err != nil {
+					return errors.Wrapf(err, "failed to execute statement:\n%s", q)
+				}
 			}
 		}
-	}
-
-	return db, nil
+		return nil
+	})
 }

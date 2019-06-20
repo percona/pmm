@@ -2,7 +2,7 @@
 version: '3'
 services:
   prometheus:
-    image: ${PROMETHEUS_IMAGE:-prom/prometheus:v2.7.1}
+    image: ${PROMETHEUS_IMAGE:-prom/prometheus:v2.10.0}
     command: [ "--config.file=/etc/prometheus/prometheus.yml",
                "--log.level=debug",
                "--storage.tsdb.path=/prometheus",
@@ -14,7 +14,7 @@ services:
       - ./testdata/prometheus:/etc/prometheus
 
   grafana:
-    image: ${GRAFANA_IMAGE:-grafana/grafana:6.1.2}
+    image: ${GRAFANA_IMAGE:-grafana/grafana:6.2.2}
     ports:
       - 127.0.0.1:3000:3000
     volumes:

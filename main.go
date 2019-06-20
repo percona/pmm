@@ -327,13 +327,25 @@ func runDebugServer(ctx context.Context, collectors ...prom.Collector) {
 func runTelemetryService(ctx context.Context, db *reform.DB) {
 	l := logrus.WithField("component", "telemetry")
 
-	uuid, err := telemetry.GetTelemetryUUID(db)
-	if err != nil {
-		l.Panicf("cannot get/set telemetry UUID in DB: %+v", err)
-	}
+	// Do not report this instance as running for the first 5 minutes.
+	// Among other things, that solves reporting during PMM Server building when we start pmm-managed.
+	sleepCtx, sleepCancel := context.WithTimeout(ctx, 5*time.Minute)
+	<-sleepCtx.Done()
+	sleepCancel()
 
-	svc := telemetry.NewService(uuid, version.Version)
-	svc.Run(ctx)
+	const delay = 10 * time.Second
+	for ctx.Err() == nil {
+		uuid, err := telemetry.GetTelemetryUUID(db)
+		if err == nil {
+			svc := telemetry.NewService(uuid, version.Version)
+			svc.Run(ctx)
+			return
+		}
+		l.Debugf("Cannot get/set telemetry UUID, retrying in %s: %s.", delay, err)
+		sleepCtx, sleepCancel = context.WithTimeout(ctx, delay)
+		<-sleepCtx.Done()
+		sleepCancel()
+	}
 }
 
 func getQANClient(ctx context.Context, db *reform.DB) *qan.Client {
@@ -387,20 +399,54 @@ func main() {
 		cancel()
 	}()
 
-	sqlDB, err := models.OpenDB(*postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF, l.Debugf)
+	sqlDB, err := models.OpenDB(*postgresDBNameF, *postgresDBUsernameF, *postgresDBPasswordF)
 	if err != nil {
 		l.Panicf("Failed to connect to database: %+v", err)
 	}
 	defer sqlDB.Close()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-	prometheus, err := prometheus.NewService(*prometheusConfigF, *promtoolF, db, *prometheusURLF)
-	if err == nil {
-		err = prometheus.Check(ctx)
+	// try synchronously once, then retry in the background
+	if migrateErr := models.MigrateDB(sqlDB, l.Debugf); migrateErr != nil {
+		go func() {
+			l := l.WithField("component", "migrations")
+			for {
+				const delay = time.Second
+				l.Warnf("Failed to migrate database, retrying in %s: %s.", delay, migrateErr)
+				sleepCtx, sleepCancel := context.WithTimeout(ctx, delay)
+				<-sleepCtx.Done()
+				sleepCancel()
+
+				if ctx.Err() != nil {
+					return
+				}
+
+				l.Infof("Migrating database...")
+				if migrateErr = models.MigrateDB(sqlDB, l.Debugf); migrateErr == nil {
+					l.Infof("Done.")
+					return
+				}
+			}
+		}()
 	}
+
+	prometheus, err := prometheus.NewService(*prometheusConfigF, *promtoolF, db, *prometheusURLF)
 	if err != nil {
 		l.Panicf("Prometheus service problem: %+v", err)
 	}
+	go func() {
+		const delay = 10 * time.Second
+		for ctx.Err() == nil {
+			err := prometheus.Check(ctx)
+			if err == nil {
+				return
+			}
+			l.Warnf("Prometheus problem, retrying in %s: %s.", delay, err)
+			sleepCtx, sleepCancel := context.WithTimeout(ctx, delay)
+			<-sleepCtx.Done()
+			sleepCancel()
+		}
+	}()
 
 	qanClient := getQANClient(ctx, db)
 	agentsRegistry := agents.NewRegistry(db, prometheus, qanClient)
