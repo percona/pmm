@@ -56,7 +56,13 @@ func Setup() {
 
 	configFilePath, running := checkStatus(configFilePath, l)
 
-	register(cfg, l)
+	if cfg.ID == "" && cfg.Setup.SkipRegistration {
+		fmt.Printf("Can't skip registration: pmm-agent ID is empty.\n")
+		os.Exit(1)
+	}
+	if !cfg.Setup.SkipRegistration {
+		register(cfg, l)
+	}
 
 	if err = config.SaveToFile(configFilePath, cfg, "Updated by `pmm-agent setup`."); err != nil {
 		fmt.Printf("Failed to write configuration file %s: %s.\n", configFilePath, err)
