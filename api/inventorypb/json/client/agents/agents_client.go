@@ -305,6 +305,34 @@ func (a *Client) AddQANMySQLSlowlogAgent(params *AddQANMySQLSlowlogAgentParams) 
 }
 
 /*
+AddQANPostgreSQLPgStatementsAgent adds QAN postgre SQL pg statements agent adds postgre SQL pg stat statements QAN agent
+*/
+func (a *Client) AddQANPostgreSQLPgStatementsAgent(params *AddQANPostgreSQLPgStatementsAgentParams) (*AddQANPostgreSQLPgStatementsAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewAddQANPostgreSQLPgStatementsAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "AddQANPostgreSQLPgStatementsAgent",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Agents/AddQANPostgreSQLPgStatementsAgent",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &AddQANPostgreSQLPgStatementsAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*AddQANPostgreSQLPgStatementsAgentOK), nil
+
+}
+
+/*
 AddRDSExporter adds RDS exporter adds rds exporter agent
 */
 func (a *Client) AddRDSExporter(params *AddRDSExporterParams) (*AddRDSExporterOK, error) {
@@ -581,6 +609,34 @@ func (a *Client) ChangeQANMySQLSlowlogAgent(params *ChangeQANMySQLSlowlogAgentPa
 		return nil, err
 	}
 	return result.(*ChangeQANMySQLSlowlogAgentOK), nil
+
+}
+
+/*
+ChangeQANPostgreSQLPgStatementsAgent changes QAN postgre SQL pg statements agent changes postgre SQL pg stat statements QAN agent
+*/
+func (a *Client) ChangeQANPostgreSQLPgStatementsAgent(params *ChangeQANPostgreSQLPgStatementsAgentParams) (*ChangeQANPostgreSQLPgStatementsAgentOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewChangeQANPostgreSQLPgStatementsAgentParams()
+	}
+
+	result, err := a.transport.Submit(&runtime.ClientOperation{
+		ID:                 "ChangeQANPostgreSQLPgStatementsAgent",
+		Method:             "POST",
+		PathPattern:        "/v0/inventory/Agents/ChangeQANPostgreSQLPgStatementsAgent",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &ChangeQANPostgreSQLPgStatementsAgentReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return result.(*ChangeQANPostgreSQLPgStatementsAgentOK), nil
 
 }
 

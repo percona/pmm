@@ -218,6 +218,9 @@ type GetAgentOKBody struct {
 	// qan mysql slowlog agent
 	QANMysqlSlowlogAgent *GetAgentOKBodyQANMysqlSlowlogAgent `json:"qan_mysql_slowlog_agent,omitempty"`
 
+	// qan postgresql pgstatements agent
+	QANPostgresqlPgstatementsAgent *GetAgentOKBodyQANPostgresqlPgstatementsAgent `json:"qan_postgresql_pgstatements_agent,omitempty"`
+
 	// rds exporter
 	RDSExporter *GetAgentOKBodyRDSExporter `json:"rds_exporter,omitempty"`
 }
@@ -263,6 +266,10 @@ func (o *GetAgentOKBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateQANMysqlSlowlogAgent(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANPostgresqlPgstatementsAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -448,6 +455,24 @@ func (o *GetAgentOKBody) validateQANMysqlSlowlogAgent(formats strfmt.Registry) e
 		if err := o.QANMysqlSlowlogAgent.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("getAgentOk" + "." + "qan_mysql_slowlog_agent")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *GetAgentOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QANPostgresqlPgstatementsAgent) { // not required
+		return nil
+	}
+
+	if o.QANPostgresqlPgstatementsAgent != nil {
+		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("getAgentOk" + "." + "qan_postgresql_pgstatements_agent")
 			}
 			return err
 		}
@@ -1517,6 +1542,124 @@ func (o *GetAgentOKBodyQANMysqlSlowlogAgent) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *GetAgentOKBodyQANMysqlSlowlogAgent) UnmarshalBinary(b []byte) error {
 	var res GetAgentOKBodyQANMysqlSlowlogAgent
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*GetAgentOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+swagger:model GetAgentOKBodyQANPostgresqlPgstatementsAgent
+*/
+type GetAgentOKBodyQANPostgresqlPgstatementsAgent struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// PostgreSQL password for getting pg stat statements data.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// PostgreSQL username for getting pg stat statements data.
+	Username string `json:"username,omitempty"`
+}
+
+// Validate validates this get agent OK body QAN postgresql pgstatements agent
+func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var getAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		getAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum = append(getAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusSTARTING captures enum value "STARTING"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusSTARTING string = "STARTING"
+
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusRUNNING captures enum value "RUNNING"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusRUNNING string = "RUNNING"
+
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusWAITING captures enum value "WAITING"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusWAITING string = "WAITING"
+
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusSTOPPING captures enum value "STOPPING"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusSTOPPING string = "STOPPING"
+
+	// GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusDONE captures enum value "DONE"
+	GetAgentOKBodyQANPostgresqlPgstatementsAgentStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, getAgentOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("getAgentOk"+"."+"qan_postgresql_pgstatements_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *GetAgentOKBodyQANPostgresqlPgstatementsAgent) UnmarshalBinary(b []byte) error {
+	var res GetAgentOKBodyQANPostgresqlPgstatementsAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}
