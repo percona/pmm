@@ -9,14 +9,15 @@ type Agent interface {
 
 // in order of AgentType enum
 
-func (*PMMAgent) sealedAgent()                {}
-func (*NodeExporter) sealedAgent()            {}
-func (*MySQLdExporter) sealedAgent()          {}
-func (*MongoDBExporter) sealedAgent()         {}
-func (*PostgresExporter) sealedAgent()        {}
-func (*QANMySQLPerfSchemaAgent) sealedAgent() {}
-func (*QANMySQLSlowlogAgent) sealedAgent()    {}
-func (*QANMongoDBProfilerAgent) sealedAgent() {}
-func (*RDSExporter) sealedAgent()             {}
-func (*ProxySQLExporter) sealedAgent()        {}
-func (*ExternalExporter) sealedAgent()        {}
+func (*PMMAgent) sealedAgent()                       {}
+func (*NodeExporter) sealedAgent()                   {}
+func (*MySQLdExporter) sealedAgent()                 {}
+func (*MongoDBExporter) sealedAgent()                {}
+func (*PostgresExporter) sealedAgent()               {}
+func (*QANMySQLPerfSchemaAgent) sealedAgent()        {}
+func (*QANMySQLSlowlogAgent) sealedAgent()           {}
+func (*QANMongoDBProfilerAgent) sealedAgent()        {}
+func (*RDSExporter) sealedAgent()                    {}
+func (*ProxySQLExporter) sealedAgent()               {}
+func (*QANPostgreSQLPgStatementsAgent) sealedAgent() {}
+func (*ExternalExporter) sealedAgent()               {}

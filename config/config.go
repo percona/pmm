@@ -93,7 +93,7 @@ type Ports struct {
 	Max uint16 `yaml:"max"`
 }
 
-// Setup contains `pmm-agent setup` flag values.
+// Setup contains `pmm-agent setup` flag and argument values.
 // It is never stored in configuration file.
 type Setup struct {
 	NodeType      string

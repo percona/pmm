@@ -249,6 +249,18 @@
   version = "v1.0.2"
 
 [[projects]]
+  digest = "1:fc75904c22aeaf308b2e8e70a0f7f42d8297d6f1e5fdea610f8fc6e244e084af"
+  name = "github.com/lfittl/pg_query_go"
+  packages = [
+    ".",
+    "nodes",
+    "parser",
+  ]
+  pruneopts = "T"
+  revision = "dfcaf527490fbd116d6fed73380bc2c338db2362"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:3493089e5754b1471b97e783de2fb38f5bd4b68728d09046ec4a1e7e6ec48574"
   name = "github.com/lib/pq"
   packages = [
@@ -347,7 +359,7 @@
 
 [[projects]]
   branch = "PMM-2.0"
-  digest = "1:dd54337cc2cc11f4c6c21f27b61a5c5d81efb0f275200c992168a015744cb715"
+  digest = "1:03a5a4d2d631d04a6a8bc4e0f19efd86b880f09667e68a75ce9573d31356d6f5"
   name = "github.com/percona/pmm"
   packages = [
     "api/agentlocalpb",
@@ -368,7 +380,7 @@
     "version",
   ]
   pruneopts = "NUT"
-  revision = "3b769b4ca86e69a42e60fd8434526388c387f6d3"
+  revision = "9d75391cec2d200bdefd8ba27a70b4ce814e1906"
 
 [[projects]]
   digest = "1:14715f705ff5dfe0ffd6571d7d201dd8e921030f8070321a79380d8ca4ec1a24"
@@ -694,6 +706,7 @@
     "github.com/golang/protobuf/proto",
     "github.com/golang/protobuf/ptypes",
     "github.com/grpc-ecosystem/grpc-gateway/runtime",
+    "github.com/lfittl/pg_query_go",
     "github.com/lib/pq",
     "github.com/percona/exporter_shared/helpers",
     "github.com/percona/go-mysql/event",
@@ -737,6 +750,7 @@
     "gopkg.in/mgo.v2/bson",
     "gopkg.in/reform.v1",
     "gopkg.in/reform.v1/dialects/mysql",
+    "gopkg.in/reform.v1/dialects/postgresql",
     "gopkg.in/reform.v1/parse",
     "gopkg.in/reform.v1/reform",
     "gopkg.in/yaml.v2",

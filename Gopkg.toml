@@ -19,6 +19,11 @@ required = [
   go-tests = true
   unused-packages = true
 
+[[prune.project]]
+    name = "github.com/lfittl/pg_query_go"
+    non-go = false
+    unused-packages = false
+
 # TODO switch to tags before PMM 2.0 release
 [[constraint]]
   name = "github.com/percona/pmm"

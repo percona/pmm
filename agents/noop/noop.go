@@ -22,7 +22,8 @@ import (
 	"time"
 
 	"github.com/percona/pmm/api/inventorypb"
-	"github.com/percona/pmm/api/qanpb"
+
+	"github.com/percona/pmm-agent/agents"
 )
 
 // NoOp is built-in Agent for testing.
@@ -30,11 +31,8 @@ type NoOp struct {
 	changes chan Change
 }
 
-// Change represents Agent status change _or_ QAN collect request.
-type Change struct {
-	Status  inventorypb.AgentStatus
-	Request *qanpb.CollectRequest
-}
+// FIXME Replace this alias, replace with agents.Change.
+type Change = agents.Change
 
 // New creates new NoOp.
 func New() *NoOp {

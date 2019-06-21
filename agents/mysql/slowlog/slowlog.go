@@ -34,6 +34,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
+	"github.com/percona/pmm-agent/agents"
 	"github.com/percona/pmm-agent/agents/mysql/slowlog/parser"
 	"github.com/percona/pmm-agent/utils/backoff"
 )
@@ -61,11 +62,8 @@ type Params struct {
 	SlowLogFilePrefix string // for development and testing
 }
 
-// Change represents Agent status change _or_ QAN collect request.
-type Change struct {
-	Status  inventorypb.AgentStatus
-	Request *qanpb.CollectRequest
-}
+// FIXME Replace this alias, replace with agents.Change.
+type Change = agents.Change
 
 type slowLogInfo struct {
 	path        string

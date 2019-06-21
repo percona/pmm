@@ -30,6 +30,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/mysql"
+
+	"github.com/percona/pmm-agent/agents"
 )
 
 const (
@@ -56,11 +58,8 @@ type Params struct {
 	AgentID string
 }
 
-// Change represents Agent status change _or_ QAN collect request.
-type Change struct {
-	Status  inventorypb.AgentStatus
-	Request *qanpb.CollectRequest
-}
+// FIXME Replace this alias, replace with agents.Change.
+type Change = agents.Change
 
 // New creates new PerfSchema QAN service.
 func New(params *Params, l *logrus.Entry) (*PerfSchema, error) {

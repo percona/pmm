@@ -2,10 +2,11 @@
 version: '3'
 services:
   test_db:
-    image: aleksi/test_db:1.0.0
+    image: aleksi/test_db:1.1.0
     container_name: pmm-agent_test_db
     volumes:
       - test_db:/test_db/mysql/world:ro
+      - test_db_postgres:/test_db/postgresql/world:ro
 
   mysql:
     image: ${MYSQL_IMAGE:-percona:5.7}
@@ -42,6 +43,11 @@ services:
     environment:
       - POSTGRES_USER=pmm-agent
       - POSTGRES_PASSWORD=pmm-agent-password
+    volumes:
+      - test_db_postgres:/docker-entrypoint-initdb.d/
+      - ./testdata/postgres-docker-entrypoint.d/enable_pg_stat_statements.sh:/docker-entrypoint-initdb.d/enable_pg_stat_statements.sh
+      - ./testdata/postgres-docker-entrypoint.d/enable_pg_stat_statements.sql:/docker-entrypoint-initdb.d/enable_pg_stat_statements.sql
 
 volumes:
   test_db:
+  test_db_postgres:

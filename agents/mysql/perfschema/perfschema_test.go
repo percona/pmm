@@ -17,15 +17,12 @@
 package perfschema
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
 	"testing"
-	"text/tabwriter"
 	"time"
 
 	"github.com/AlekSi/pointer"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
@@ -163,37 +160,6 @@ func TestPerfSchemaMakeBuckets(t *testing.T) {
 	})
 }
 
-func logTable(t *testing.T, structs []reform.Struct) {
-	t.Helper()
-
-	if len(structs) == 0 {
-		t.Log("logTable: empty")
-		return
-	}
-
-	columns := structs[0].View().Columns()
-	var buf bytes.Buffer
-	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.Debug)
-	_, err := fmt.Fprintln(w, strings.Join(columns, "\t"))
-	require.NoError(t, err)
-	for i, c := range columns {
-		columns[i] = strings.Repeat("-", len(c))
-	}
-	_, err = fmt.Fprintln(w, strings.Join(columns, "\t"))
-	require.NoError(t, err)
-
-	for _, str := range structs {
-		res := make([]string, len(str.Values()))
-		for i, v := range str.Values() {
-			res[i] = spew.Sprint(v)
-		}
-		fmt.Fprintf(w, "%s\n", strings.Join(res, "\t"))
-	}
-
-	require.NoError(t, w.Flush())
-	t.Logf("%s:\n%s", structs[0].View().Name(), buf.Bytes())
-}
-
 func setup(t *testing.T, db *reform.DB) *PerfSchema {
 	t.Helper()
 
@@ -247,10 +213,10 @@ func TestPerfSchema(t *testing.T) {
 
 	structs, err := db.SelectAllFrom(setupConsumersView, "ORDER BY NAME")
 	require.NoError(t, err)
-	logTable(t, structs)
+	tests.LogTable(t, structs)
 	structs, err = db.SelectAllFrom(setupInstrumentsView, "ORDER BY NAME")
 	require.NoError(t, err)
-	logTable(t, structs)
+	tests.LogTable(t, structs)
 
 	mySQLVersion, mySQLVendor := tests.MySQLVersion(t, sqlDB)
 	var digests map[string]string // digest_text/fingerprint to digest/query_id
