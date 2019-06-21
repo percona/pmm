@@ -241,6 +241,16 @@ func (cmd *listCommand) Run() (Result, error) {
 			})
 		}
 	}
+	for _, a := range agentsRes.Payload.QANPostgresqlPgstatementsAgent {
+		if _, ok := pmmAgentIDs[a.PMMAgentID]; ok {
+			agents = append(agents, listResultAgent{
+				AgentType: "qan-postgresql-pgstatements-agent",
+				AgentID:   a.AgentID,
+				ServiceID: a.ServiceID,
+				Status:    getStatus(a.Status, a.Disabled),
+			})
+		}
+	}
 
 	return &listResult{
 		Services: services,

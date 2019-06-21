@@ -245,6 +245,9 @@ func main() {
 	case inventory.AddAgentQANMongoDBProfilerAgentC.FullCommand():
 		command = inventory.AddAgentQANMongoDBProfilerAgent
 
+	case inventory.AddAgentQANPostgreSQLPgStatementsAgentC.FullCommand():
+		command = inventory.AddAgentQANPostgreSQLPgStatementsAgent
+
 	case inventory.RemoveAgentC.FullCommand():
 		command = inventory.RemoveAgent
 

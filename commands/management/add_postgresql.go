@@ -56,6 +56,7 @@ type addPostgreSQLCommand struct {
 	CustomLabels   string
 
 	SkipConnectionCheck bool
+	UsePgStatements     bool
 }
 
 func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
@@ -91,6 +92,8 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 			Username:       cmd.Username,
 			Password:       cmd.Password,
 
+			QANPostgresqlPgstatementsAgent: cmd.UsePgStatements,
+
 			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
@@ -122,6 +125,7 @@ func init() {
 
 	AddPostgreSQLC.Flag("username", "PostgreSQL username").Default("postgres").StringVar(&AddPostgreSQL.Username)
 	AddPostgreSQLC.Flag("password", "PostgreSQL password").StringVar(&AddPostgreSQL.Password)
+	AddPostgreSQLC.Flag("use-pgstatements", "Run QAN pg stat statements agent").BoolVar(&AddPostgreSQL.UsePgStatements)
 
 	AddPostgreSQLC.Flag("environment", "Environment name").StringVar(&AddPostgreSQL.Environment)
 	AddPostgreSQLC.Flag("cluster", "Cluster name").StringVar(&AddPostgreSQL.Cluster)
