@@ -86,6 +86,24 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		}
 		res.PostgresExporter = agent.(*inventorypb.PostgresExporter)
 
+		if req.QanPostgresqlPgstatementsAgent {
+			row, err = models.AgentAddExporter(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.AddExporterAgentParams{
+				PMMAgentID: req.PmmAgentId,
+				ServiceID:  service.ServiceID,
+				Username:   req.Username,
+				Password:   req.Password,
+			})
+			if err != nil {
+				return err
+			}
+
+			agent, err = services.ToAPIAgent(tx.Querier, row)
+			if err != nil {
+				return err
+			}
+			res.QanPostgresqlPgstatementsAgent = agent.(*inventorypb.QANPostgreSQLPgStatementsAgent)
+		}
+
 		return nil
 	}); e != nil {
 		return nil, e

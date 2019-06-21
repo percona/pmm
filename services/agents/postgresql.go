@@ -56,3 +56,11 @@ func postgresExporterConfig(service *models.Service, exporter *models.Agent) *ag
 		},
 	}
 }
+
+// qanPostgreSQLPgStatementsAgentConfig returns desired configuration of qan-mongodb-profiler-agent built-in agent.
+func qanPostgreSQLPgStatementsAgentConfig(service *models.Service, agent *models.Agent) *agentpb.SetStateRequest_BuiltinAgent {
+	return &agentpb.SetStateRequest_BuiltinAgent{
+		Type: agentpb.Type_QAN_POSTGRESQL_PGSTATEMENTS_AGENT,
+		Dsn:  agent.DSN(service, time.Second, ""),
+	}
+}

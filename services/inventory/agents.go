@@ -588,6 +588,62 @@ func (as *AgentsService) ChangeProxySQLExporter(ctx context.Context, req *invent
 	return res, nil
 }
 
+// AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg stat statements QAN Agent.
+//nolint:lll,unused
+func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventorypb.AddQANPostgreSQLPgStatementsAgentRequest) (*inventorypb.QANPostgreSQLPgStatementsAgent, error) {
+	// TODO Decide about validation. https://jira.percona.com/browse/PMM-1416
+
+	var res *inventorypb.QANPostgreSQLPgStatementsAgent
+	e := as.db.InTransaction(func(tx *reform.TX) error {
+		params := &models.AddExporterAgentParams{
+			PMMAgentID:   req.PmmAgentId,
+			ServiceID:    req.ServiceId,
+			Username:     req.Username,
+			Password:     req.Password,
+			CustomLabels: req.CustomLabels,
+		}
+		row, err := models.AgentAddExporter(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, params)
+		if err != nil {
+			return err
+		}
+		if !req.SkipConnectionCheck {
+			service, err := models.FindServiceByID(tx.Querier, req.ServiceId)
+			if err != nil {
+				return err
+			}
+
+			if err = as.r.CheckConnectionToService(ctx, service, row); err != nil {
+				return err
+			}
+		}
+
+		agent, err := services.ToAPIAgent(tx.Querier, row)
+		if err != nil {
+			return err
+		}
+		res = agent.(*inventorypb.QANPostgreSQLPgStatementsAgent)
+		return nil
+	})
+	if e != nil {
+		return res, e
+	}
+
+	as.r.SendSetStateRequest(ctx, req.PmmAgentId)
+	return res, e
+}
+
+// ChangeQANPostgreSQLPgStatementsAgent updates PostgreSQL Pg stat statements QAN Agent with given parameters.
+func (as *AgentsService) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventorypb.ChangeQANPostgreSQLPgStatementsAgentRequest) (*inventorypb.QANPostgreSQLPgStatementsAgent, error) {
+	agent, err := as.changeAgent(req.AgentId, req.Common)
+	if err != nil {
+		return nil, err
+	}
+
+	res := agent.(*inventorypb.QANPostgreSQLPgStatementsAgent)
+	as.r.SendSetStateRequest(ctx, res.PmmAgentId)
+	return res, nil
+}
+
 // Remove removes Agent, and sends state update to pmm-agent, or kicks it.
 func (as *AgentsService) Remove(ctx context.Context, id string, force bool) error {
 	var removedAgent *models.Agent

@@ -276,6 +276,18 @@ func ToAPIAgent(q *reform.Querier, agent *models.Agent) (inventorypb.Agent, erro
 			CustomLabels: labels,
 		}, nil
 
+	case models.QANPostgreSQLPgStatementsAgentType:
+		return &inventorypb.QANPostgreSQLPgStatementsAgent{
+			AgentId:      agent.AgentID,
+			PmmAgentId:   pointer.GetString(agent.PMMAgentID),
+			ServiceId:    serviceID,
+			Username:     pointer.GetString(agent.Username),
+			Password:     pointer.GetString(agent.Password),
+			Disabled:     agent.Disabled,
+			Status:       inventorypb.AgentStatus(inventorypb.AgentStatus_value[agent.Status]),
+			CustomLabels: labels,
+		}, nil
+
 	default:
 		panic(fmt.Errorf("unhandled Agent type %s", agent.AgentType))
 	}

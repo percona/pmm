@@ -71,6 +71,8 @@ func (s *agentsServer) ListAgents(ctx context.Context, req *inventorypb.ListAgen
 			res.QanMongodbProfilerAgent = append(res.QanMongodbProfilerAgent, agent)
 		case *inventorypb.ProxySQLExporter:
 			res.ProxysqlExporter = append(res.ProxysqlExporter, agent)
+		case *inventorypb.QANPostgreSQLPgStatementsAgent:
+			res.QanPostgresqlPgstatementsAgent = append(res.QanPostgresqlPgstatementsAgent, agent)
 		default:
 			panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 		}
@@ -109,6 +111,8 @@ func (s *agentsServer) GetAgent(ctx context.Context, req *inventorypb.GetAgentRe
 		res.Agent = &inventorypb.GetAgentResponse_QanMongodbProfilerAgent{QanMongodbProfilerAgent: agent}
 	case *inventorypb.ProxySQLExporter:
 		res.Agent = &inventorypb.GetAgentResponse_ProxysqlExporter{ProxysqlExporter: agent}
+	case *inventorypb.QANPostgreSQLPgStatementsAgent:
+		res.Agent = &inventorypb.GetAgentResponse_QanPostgresqlPgstatementsAgent{QanPostgresqlPgstatementsAgent: agent}
 	default:
 		panic(fmt.Errorf("unhandled inventory Agent type %T", agent))
 	}
@@ -358,6 +362,32 @@ func (s *agentsServer) ChangeProxySQLExporter(ctx context.Context, req *inventor
 
 	res := &inventorypb.ChangeProxySQLExporterResponse{
 		ProxysqlExporter: agent,
+	}
+	return res, nil
+}
+
+// AddQANPostgreSQLPgStatementsAgent adds PostgreSQL Pg stat statements QAN Agent.
+func (s *agentsServer) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventorypb.AddQANPostgreSQLPgStatementsAgentRequest) (*inventorypb.AddQANPostgreSQLPgStatementsAgentResponse, error) {
+	agent, err := s.s.AddQANPostgreSQLPgStatementsAgent(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.AddQANPostgreSQLPgStatementsAgentResponse{
+		QanPostgresqlPgstatementsAgent: agent,
+	}
+	return res, nil
+}
+
+// ChangeQANPostgreSQLPgStatementsAgent changes disabled flag and custom labels of PostgreSQL Pg stat statements QAN Agent.
+func (s *agentsServer) ChangeQANPostgreSQLPgStatementsAgent(ctx context.Context, req *inventorypb.ChangeQANPostgreSQLPgStatementsAgentRequest) (*inventorypb.ChangeQANPostgreSQLPgStatementsAgentResponse, error) {
+	agent, err := s.s.ChangeQANPostgreSQLPgStatementsAgent(ctx, req)
+	if err != nil {
+		return nil, err
+	}
+
+	res := &inventorypb.ChangeQANPostgreSQLPgStatementsAgentResponse{
+		QanPostgresqlPgstatementsAgent: agent,
 	}
 	return res, nil
 }
