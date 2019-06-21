@@ -175,7 +175,9 @@ const queryReportSparklinesTmpl = `
 		toDateTime(toUnixTimestamp( :period_start_to ) - (point * {{ index . "time_frame" }})) AS timestamp,
 		{{ index . "time_frame" }} AS time_frame,
 		{{range $j, $col := index . "columns"}}
-		if(SUM(m_{{ $col }}_cnt) == 0, NaN, SUM(m_{{ $col }}_sum) / time_frame) AS m_{{ $col }}_sum_per_sec,
+		{{ if ne $col "num_queries" }}
+		   if(SUM(m_{{ $col }}_cnt) == 0, NaN, SUM(m_{{ $col }}_sum) / time_frame) AS m_{{ $col }}_sum_per_sec,
+		{{ end }}
 		{{ end }}
 		SUM(num_queries) / time_frame AS num_queries_per_sec
 	FROM metrics
@@ -286,7 +288,7 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 		res := getPointFieldsList(&p, sparklinePointFieldsToQuery)
 		err = rows.Scan(res...)
 		if err != nil {
-			return nil, errors.Wrap(err, "DimensionReport scan error")
+			return nil, errors.Wrap(err, "SelectSparklines scan errors")
 		}
 		resultsWithGaps[p.Point] = &p
 	}
@@ -300,7 +302,6 @@ func (r *Reporter) SelectSparklines(ctx context.Context, dimensionVal string,
 			p.TimeFrame = uint32(timeFrame)
 			timeShift := timeFrame * int64(pointN)
 			ts := periodStartToSec - timeShift
-			// p.Timestamp = &timestamp.Timestamp{Seconds: ts}
 			p.Timestamp = time.Unix(ts, 0).UTC().Format(time.RFC3339)
 		}
 		results = append(results, p)

@@ -100,7 +100,8 @@ func TestService_GetReport(t *testing.T) {
 					PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 					PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 					GroupBy:         "queryid",
-					Columns:         []string{"lock_time", "sort_scan"},
+					Columns:         []string{"query_time", "lock_time", "sort_scan"},
+					OrderBy:         "query_time",
 					Offset:          0,
 					Limit:           10,
 				},
@@ -189,8 +190,8 @@ func TestService_GetReport_Mix(t *testing.T) {
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				GroupBy:         "queryid",
-				Columns:         []string{"lock_time", "sort_scan"},
-				OrderBy:         "-load",
+				Columns:         []string{"query_time", "lock_time", "sort_scan"},
+				OrderBy:         "-query_time",
 				Offset:          10,
 				Limit:           10,
 				Labels: []*qanpb.ReportMapFieldEntry{
@@ -321,7 +322,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
 			Columns: []string{
-				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
 				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
 				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
@@ -330,7 +331,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 				"select_full_range_join", "select_range", "select_range_check",
 				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
 				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
-			OrderBy: "-load",
+			OrderBy: "-query_time",
 			Offset:  0,
 			Limit:   10,
 		}
@@ -358,7 +359,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "server",
 			Columns: []string{
-				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
 				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
 				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
@@ -367,7 +368,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 				"select_full_range_join", "select_range", "select_range_check",
 				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
 				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
-			OrderBy: "-load",
+			OrderBy: "-query_time",
 			Offset:  0,
 			Limit:   10,
 		}
@@ -395,7 +396,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "database",
 			Columns: []string{
-				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
 				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
 				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
@@ -404,7 +405,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 				"select_full_range_join", "select_range", "select_range_check",
 				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
 				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
-			OrderBy: "-load",
+			OrderBy: "-query_time",
 			Offset:  0,
 			Limit:   10,
 		}
@@ -432,7 +433,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "schema",
 			Columns: []string{
-				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
 				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
 				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
@@ -441,7 +442,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 				"select_full_range_join", "select_range", "select_range_check",
 				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
 				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
-			OrderBy: "-load",
+			OrderBy: "-query_time",
 			Offset:  0,
 			Limit:   10,
 		}
@@ -469,7 +470,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "username",
 			Columns: []string{
-				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
 				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
 				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
@@ -478,7 +479,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 				"select_full_range_join", "select_range", "select_range_check",
 				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
 				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
-			OrderBy: "-load",
+			OrderBy: "-query_time",
 			Offset:  0,
 			Limit:   10,
 		}
@@ -506,7 +507,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "client_host",
 			Columns: []string{
-				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
 				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
 				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
@@ -515,7 +516,7 @@ func TestService_GetReport_Groups(t *testing.T) {
 				"select_full_range_join", "select_range", "select_range_check",
 				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
 				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
-			OrderBy: "-load",
+			OrderBy: "-query_time",
 			Offset:  0,
 			Limit:   10,
 		}
@@ -569,8 +570,8 @@ func TestService_GetReport_AllLabels(t *testing.T) {
 				PeriodStartFrom: &timestamp.Timestamp{Seconds: t1.Unix()},
 				PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 				GroupBy:         "queryid",
-				Columns:         []string{"lock_time", "sort_scan"},
-				OrderBy:         "-load",
+				Columns:         []string{"query_time", "lock_time", "sort_scan"},
+				OrderBy:         "-query_time",
 				Offset:          10,
 				Limit:           10,
 				Labels: []*qanpb.ReportMapFieldEntry{
@@ -673,7 +674,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t2.Unix()},
 			GroupBy:         "queryid",
 			Columns: []string{
-				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
 				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
 				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
@@ -682,7 +683,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 				"select_full_range_join", "select_range", "select_range_check",
 				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
 				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
-			OrderBy: "-load",
+			OrderBy: "-query_time",
 			Offset:  0,
 			Limit:   10,
 		}
@@ -711,7 +712,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 			PeriodStartTo:   &timestamp.Timestamp{Seconds: t3.Unix()},
 			GroupBy:         "queryid",
 			Columns: []string{
-				"lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
+				"query_time", "lock_time", "sort_scan", "rows_sent", "rows_examined", "rows_affected",
 				"rows_read", "merge_passes", "innodb_io_r_ops", "innodb_io_r_bytes",
 				"innodb_io_r_wait", "innodb_rec_lock_wait", "innodb_queue_wait",
 				"innodb_pages_distinct", "query_length", "bytes_sent", "tmp_tables",
@@ -720,7 +721,7 @@ func TestService_GetReport_Sparklines(t *testing.T) {
 				"select_full_range_join", "select_range", "select_range_check",
 				"sort_range", "sort_rows", "sort_scan", "no_index_used", "no_good_index_used",
 				"no_good_index_used", "docs_returned", "response_length", "docs_scanned"},
-			OrderBy: "-load",
+			OrderBy: "-query_time",
 			Offset:  0,
 			Limit:   10,
 		}

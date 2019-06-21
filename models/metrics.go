@@ -428,7 +428,6 @@ func (m *Metrics) SelectSparklines(ctx context.Context, periodStartFromSec, peri
 			p.TimeFrame = uint32(timeFrame)
 			timeShift := timeFrame * int64(pointN)
 			ts := periodStartToSec - timeShift
-			// p.Timestamp = &timestamp.Timestamp{Seconds: ts}
 			p.Timestamp = time.Unix(ts, 0).UTC().Format(time.RFC3339)
 		}
 		results = append(results, p)

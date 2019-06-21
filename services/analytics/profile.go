@@ -19,13 +19,12 @@ package analitycs
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/percona/pmm/api/qanpb"
 
 	"github.com/percona/qan-api2/models"
 )
-
-const defaultOrder = "m_query_time_sum"
 
 // GetReport implements rpc to get report for given filtering.
 func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanpb.ReportReply, error) {
@@ -103,30 +102,28 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 		}
 	}
 
-	order := defaultOrder
-	if in.OrderBy != "" {
-		col := in.OrderBy
-		direction := "ASC"
-		if col[0] == '-' {
-			col = col[1:]
-			direction = "DESC"
-		}
-
-		_, isBoolCol := boolColumnNames[col]
-		_, isCommonCol := commonColumnNames[col]
-
-		switch {
-		case isBoolCol || isCommonCol:
-			col = fmt.Sprintf("m_%s_sum", col)
-		case col == "load" || col == "latency":
-			col = defaultOrder
-		case col == "count":
-			col = "num_queries"
-		default:
-			col = defaultOrder
-		}
-		order = fmt.Sprintf("%s %s", col, direction)
+	orderCol := in.OrderBy
+	if orderCol == "" {
+		orderCol = uniqColumns[0]
 	}
+
+	direction := "ASC"
+	if orderCol[0] == '-' {
+		orderCol = orderCol[1:]
+		direction = "DESC"
+	}
+
+	if _, ok := uniqColumnsMap[orderCol]; !ok {
+		return nil, fmt.Errorf("order column '%s' not in selected columns: [%s]", orderCol, strings.Join(uniqColumns, ", "))
+	}
+
+	_, isBoolCol := boolColumnNames[orderCol]
+	_, isCommonCol := commonColumnNames[orderCol]
+
+	if isBoolCol || isCommonCol {
+		orderCol = fmt.Sprintf("m_%s_sum", orderCol)
+	}
+	order := fmt.Sprintf("%s %s", orderCol, direction)
 
 	resp := &qanpb.ReportReply{}
 	results, err := s.rm.Select(
@@ -188,7 +185,7 @@ func (s *Service) GetReport(ctx context.Context, in *qanpb.ReportRequest) (*qanp
 			dClientHosts,
 			dbLabels,
 			group,
-			columns,
+			append(commonColumns, boolColumns...),
 		)
 		if err != nil {
 			return nil, err
