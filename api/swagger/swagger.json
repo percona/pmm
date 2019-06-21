@@ -8155,6 +8155,9 @@
                   "type": "integer",
                   "format": "int64"
                 },
+                "main_metric": {
+                  "type": "string"
+                },
                 "offset": {
                   "type": "integer",
                   "format": "int64"
