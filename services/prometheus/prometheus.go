@@ -135,13 +135,15 @@ func (svc *Service) marshalConfig(ctx context.Context) ([]byte, error) {
 
 			switch agent.AgentType {
 			case models.PMMAgentType:
+				// TODO https://jira.percona.com/browse/PMM-4087
 				continue
 
 			case models.NodeExporterType:
 				for _, node := range nodes {
 					scfg, err := scrapeConfigForNodeExporter(node, agent)
 					if err != nil {
-						return err
+						l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+						continue
 					}
 					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
 				}
@@ -155,7 +157,8 @@ func (svc *Service) marshalConfig(ctx context.Context) ([]byte, error) {
 
 					scfgs, err := scrapeConfigsForMySQLdExporter(node, service, agent)
 					if err != nil {
-						return err
+						l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+						continue
 					}
 					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfgs...)
 				}
@@ -169,7 +172,8 @@ func (svc *Service) marshalConfig(ctx context.Context) ([]byte, error) {
 
 					scfg, err := scrapeConfigForMongoDBExporter(node, service, agent)
 					if err != nil {
-						return err
+						l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+						continue
 					}
 					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
 				}
@@ -183,7 +187,8 @@ func (svc *Service) marshalConfig(ctx context.Context) ([]byte, error) {
 
 					scfg, err := scrapeConfigForPostgresExporter(node, service, agent)
 					if err != nil {
-						return err
+						l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+						continue
 					}
 					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
 				}
@@ -197,12 +202,17 @@ func (svc *Service) marshalConfig(ctx context.Context) ([]byte, error) {
 
 					scfg, err := scrapeConfigForProxySQLExporter(node, service, agent)
 					if err != nil {
-						return err
+						l.Warnf("Failed to add %s %q, skipping: %s.", agent.AgentType, agent.AgentID, err)
+						continue
 					}
 					cfg.ScrapeConfigs = append(cfg.ScrapeConfigs, scfg)
 				}
 
-			case models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType, models.QANMongoDBProfilerAgentType:
+			case models.QANMySQLPerfSchemaAgentType, models.QANMySQLSlowlogAgentType:
+				continue
+			case models.QANMongoDBProfilerAgentType:
+				continue
+			case models.QANPostgreSQLPgStatementsAgentType:
 				continue
 
 			default:

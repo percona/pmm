@@ -65,7 +65,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		}
 		res.Service = invService.(*inventorypb.MongoDBService)
 
-		row, err := models.AgentAddExporter(tx.Querier, models.MongoDBExporterType, &models.AddExporterAgentParams{
+		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, &models.CreateAgentParams{
 			PMMAgentID: req.PmmAgentId,
 			ServiceID:  service.ServiceID,
 			Username:   req.Username,
@@ -88,7 +88,7 @@ func (s *MongoDBService) Add(ctx context.Context, req *managementpb.AddMongoDBRe
 		res.MongodbExporter = agent.(*inventorypb.MongoDBExporter)
 
 		if req.QanMongodbProfiler {
-			row, err = models.AgentAddExporter(tx.Querier, models.QANMongoDBProfilerAgentType, &models.AddExporterAgentParams{
+			row, err = models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, &models.CreateAgentParams{
 				PMMAgentID: req.PmmAgentId,
 				ServiceID:  service.ServiceID,
 				Username:   req.Username,

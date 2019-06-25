@@ -50,7 +50,7 @@ func assertCheckViolation(t *testing.T, err error, table, constraint string) {
 
 func TestDatabaseUniqueIndexes(t *testing.T) {
 	t.Run("Nodes", func(t *testing.T) {
-		db := testdb.Open(t)
+		db := testdb.Open(t, models.SkipFixtures)
 		defer func() {
 			require.NoError(t, db.Close())
 		}()
@@ -141,7 +141,7 @@ func TestDatabaseUniqueIndexes(t *testing.T) {
 	})
 
 	t.Run("Agents", func(t *testing.T) {
-		db := testdb.Open(t)
+		db := testdb.Open(t, models.SkipFixtures)
 		defer func() {
 			require.NoError(t, db.Close())
 		}()

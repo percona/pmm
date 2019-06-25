@@ -64,7 +64,7 @@ func (s *ProxySQLService) Add(ctx context.Context, req *managementpb.AddProxySQL
 		}
 		res.Service = invService.(*inventorypb.ProxySQLService)
 
-		row, err := models.AgentAddExporter(tx.Querier, models.ProxySQLExporterType, &models.AddExporterAgentParams{
+		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, &models.CreateAgentParams{
 			PMMAgentID: req.PmmAgentId,
 			ServiceID:  service.ServiceID,
 			Username:   req.Username,

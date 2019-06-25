@@ -41,7 +41,7 @@ func setup(t *testing.T) (context.Context, *reform.DB, *Service, []byte) {
 
 	ctx := logger.Set(context.Background(), t.Name())
 
-	sqlDB := testdb.Open(t)
+	sqlDB := testdb.Open(t, models.SkipFixtures)
 	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 	svc, err := NewService(configPath, "promtool", db, "http://127.0.0.1:9090/prometheus/")

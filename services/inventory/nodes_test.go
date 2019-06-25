@@ -29,19 +29,22 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/logger"
 	"github.com/percona/pmm-managed/utils/testdb"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
 func TestNodes(t *testing.T) {
-	ctx := logger.Set(context.Background(), t.Name())
+	var ctx context.Context
 
-	//nolint:unparam
 	setup := func(t *testing.T) (ns *NodesService, teardown func(t *testing.T)) {
+		t.Helper()
+
+		ctx = logger.Set(context.Background(), t.Name())
 		uuid.SetRand(new(tests.IDReader))
 
-		sqlDB := testdb.Open(t)
+		sqlDB := testdb.Open(t, models.SetupFixtures)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
 
 		r := new(mockAgentsRegistry)
@@ -52,6 +55,7 @@ func TestNodes(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 		}
 		ns = NewNodesService(db)
+
 		return
 	}
 
@@ -61,17 +65,17 @@ func TestNodes(t *testing.T) {
 
 		actualNodes, err := ns.List(ctx, nil)
 		require.NoError(t, err)
-		require.Len(t, actualNodes, 1) // PMMServerNodeType
+		require.Len(t, actualNodes, 1) // PMM Server Node
 
 		addNodeResponse, err := ns.AddGenericNode(ctx, &inventorypb.AddGenericNodeRequest{NodeName: "test-bm"})
 		require.NoError(t, err)
 		expectedNode := &inventorypb.GenericNode{
-			NodeId:   "/node_id/00000000-0000-4000-8000-000000000001",
+			NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
 			NodeName: "test-bm",
 		}
 		assert.Equal(t, expectedNode, addNodeResponse)
 
-		getNodeResponse, err := ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: "/node_id/00000000-0000-4000-8000-000000000001"})
+		getNodeResponse, err := ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: "/node_id/00000000-0000-4000-8000-000000000005"})
 		require.NoError(t, err)
 		assert.Equal(t, expectedNode, getNodeResponse)
 
@@ -80,10 +84,10 @@ func TestNodes(t *testing.T) {
 		require.Len(t, nodesResponse, 2)
 		assert.Equal(t, expectedNode, nodesResponse[0])
 
-		err = ns.Remove(ctx, "/node_id/00000000-0000-4000-8000-000000000001", false)
+		err = ns.Remove(ctx, "/node_id/00000000-0000-4000-8000-000000000005", false)
 		require.NoError(t, err)
-		getNodeResponse, err = ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: "/node_id/00000000-0000-4000-8000-000000000001"})
-		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "/node_id/00000000-0000-4000-8000-000000000001" not found.`), err)
+		getNodeResponse, err = ns.Get(ctx, &inventorypb.GetNodeRequest{NodeId: "/node_id/00000000-0000-4000-8000-000000000005"})
+		tests.AssertGRPCError(t, status.New(codes.NotFound, `Node with ID "/node_id/00000000-0000-4000-8000-000000000005" not found.`), err)
 		assert.Nil(t, getNodeResponse)
 	})
 

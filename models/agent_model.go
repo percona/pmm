@@ -48,6 +48,9 @@ const (
 	ProxySQLExporterType               AgentType = "proxysql_exporter"
 )
 
+// PMMServerAgentID is a special Agent ID representing pmm-agent on PMM Server.
+const PMMServerAgentID string = "pmm-server" // no /agent_id/ prefix
+
 // Agent represents Agent as stored in database.
 //reform:agents
 type Agent struct {

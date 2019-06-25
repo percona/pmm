@@ -146,7 +146,7 @@ func (as *AgentsService) AddPMMAgent(ctx context.Context, req *inventorypb.AddPM
 
 	var res *inventorypb.PMMAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		row, err := models.AgentAddPmmAgent(tx.Querier, req.RunsOnNodeId, req.CustomLabels)
+		row, err := models.CreatePMMAgent(tx.Querier, req.RunsOnNodeId, req.CustomLabels)
 		if err != nil {
 			return err
 		}
@@ -167,7 +167,7 @@ func (as *AgentsService) AddNodeExporter(ctx context.Context, req *inventorypb.A
 
 	var res *inventorypb.NodeExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		row, err := models.AgentAddNodeExporter(tx.Querier, req.PmmAgentId, req.CustomLabels)
+		row, err := models.CreateNodeExporter(tx.Querier, req.PmmAgentId, req.CustomLabels)
 		if err != nil {
 			return err
 		}
@@ -205,14 +205,14 @@ func (as *AgentsService) AddMySQLdExporter(ctx context.Context, req *inventorypb
 
 	var res *inventorypb.MySQLdExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.AddExporterAgentParams{
+		params := &models.CreateAgentParams{
 			PMMAgentID:   req.PmmAgentId,
 			ServiceID:    req.ServiceId,
 			Username:     req.Username,
 			Password:     req.Password,
 			CustomLabels: req.CustomLabels,
 		}
-		row, err := models.AgentAddExporter(tx.Querier, models.MySQLdExporterType, params)
+		row, err := models.CreateAgent(tx.Querier, models.MySQLdExporterType, params)
 		if err != nil {
 			return err
 		}
@@ -260,14 +260,14 @@ func (as *AgentsService) AddMongoDBExporter(ctx context.Context, req *inventoryp
 
 	var res *inventorypb.MongoDBExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.AddExporterAgentParams{
+		params := &models.CreateAgentParams{
 			PMMAgentID:   req.PmmAgentId,
 			ServiceID:    req.ServiceId,
 			Username:     req.Username,
 			Password:     req.Password,
 			CustomLabels: req.CustomLabels,
 		}
-		row, err := models.AgentAddExporter(tx.Querier, models.MongoDBExporterType, params)
+		row, err := models.CreateAgent(tx.Querier, models.MongoDBExporterType, params)
 		if err != nil {
 			return err
 		}
@@ -316,14 +316,14 @@ func (as *AgentsService) AddQANMySQLPerfSchemaAgent(ctx context.Context, req *in
 
 	var res *inventorypb.QANMySQLPerfSchemaAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.AddExporterAgentParams{
+		params := &models.CreateAgentParams{
 			PMMAgentID:   req.PmmAgentId,
 			ServiceID:    req.ServiceId,
 			Username:     req.Username,
 			Password:     req.Password,
 			CustomLabels: req.CustomLabels,
 		}
-		row, err := models.AgentAddExporter(tx.Querier, models.QANMySQLPerfSchemaAgentType, params)
+		row, err := models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, params)
 		if err != nil {
 			return err
 		}
@@ -372,14 +372,14 @@ func (as *AgentsService) AddQANMySQLSlowlogAgent(ctx context.Context, req *inven
 
 	var res *inventorypb.QANMySQLSlowlogAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.AddExporterAgentParams{
+		params := &models.CreateAgentParams{
 			PMMAgentID:   req.PmmAgentId,
 			ServiceID:    req.ServiceId,
 			Username:     req.Username,
 			Password:     req.Password,
 			CustomLabels: req.CustomLabels,
 		}
-		row, err := models.AgentAddExporter(tx.Querier, models.QANMySQLSlowlogAgentType, params)
+		row, err := models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, params)
 		if err != nil {
 			return err
 		}
@@ -427,14 +427,14 @@ func (as *AgentsService) AddPostgresExporter(ctx context.Context, req *inventory
 
 	var res *inventorypb.PostgresExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.AddExporterAgentParams{
+		params := &models.CreateAgentParams{
 			PMMAgentID:   req.PmmAgentId,
 			ServiceID:    req.ServiceId,
 			Username:     req.Username,
 			Password:     req.Password,
 			CustomLabels: req.CustomLabels,
 		}
-		row, err := models.AgentAddExporter(tx.Querier, models.PostgresExporterType, params)
+		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, params)
 		if err != nil {
 			return err
 		}
@@ -483,14 +483,14 @@ func (as *AgentsService) AddQANMongoDBProfilerAgent(ctx context.Context, req *in
 
 	var res *inventorypb.QANMongoDBProfilerAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.AddExporterAgentParams{
+		params := &models.CreateAgentParams{
 			PMMAgentID:   req.PmmAgentId,
 			ServiceID:    req.ServiceId,
 			Username:     req.Username,
 			Password:     req.Password,
 			CustomLabels: req.CustomLabels,
 		}
-		row, err := models.AgentAddExporter(tx.Querier, models.QANMongoDBProfilerAgentType, params)
+		row, err := models.CreateAgent(tx.Querier, models.QANMongoDBProfilerAgentType, params)
 		if err != nil {
 			return err
 		}
@@ -539,14 +539,14 @@ func (as *AgentsService) AddProxySQLExporter(ctx context.Context, req *inventory
 
 	var res *inventorypb.ProxySQLExporter
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.AddExporterAgentParams{
+		params := &models.CreateAgentParams{
 			PMMAgentID:   req.PmmAgentId,
 			ServiceID:    req.ServiceId,
 			Username:     req.Username,
 			Password:     req.Password,
 			CustomLabels: req.CustomLabels,
 		}
-		row, err := models.AgentAddExporter(tx.Querier, models.ProxySQLExporterType, params)
+		row, err := models.CreateAgent(tx.Querier, models.ProxySQLExporterType, params)
 		if err != nil {
 			return err
 		}
@@ -595,14 +595,14 @@ func (as *AgentsService) AddQANPostgreSQLPgStatementsAgent(ctx context.Context, 
 
 	var res *inventorypb.QANPostgreSQLPgStatementsAgent
 	e := as.db.InTransaction(func(tx *reform.TX) error {
-		params := &models.AddExporterAgentParams{
+		params := &models.CreateAgentParams{
 			PMMAgentID:   req.PmmAgentId,
 			ServiceID:    req.ServiceId,
 			Username:     req.Username,
 			Password:     req.Password,
 			CustomLabels: req.CustomLabels,
 		}
-		row, err := models.AgentAddExporter(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, params)
+		row, err := models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, params)
 		if err != nil {
 			return err
 		}

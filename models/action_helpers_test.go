@@ -38,7 +38,7 @@ func TestActionHelpers(t *testing.T) {
 	models.Now = func() time.Time {
 		return now
 	}
-	sqlDB := testdb.Open(t)
+	sqlDB := testdb.Open(t, models.SkipFixtures)
 	defer func() {
 		models.Now = origNowF
 		require.NoError(t, sqlDB.Close())
@@ -83,7 +83,7 @@ func TestFindPmmAgentIDToRunAction(t *testing.T) {
 	models.Now = func() time.Time {
 		return now
 	}
-	sqlDB := testdb.Open(t)
+	sqlDB := testdb.Open(t, models.SkipFixtures)
 	defer func() {
 		models.Now = origNowF
 		require.NoError(t, sqlDB.Close())

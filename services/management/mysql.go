@@ -64,7 +64,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		}
 		res.Service = invService.(*inventorypb.MySQLService)
 
-		row, err := models.AgentAddExporter(tx.Querier, models.MySQLdExporterType, &models.AddExporterAgentParams{
+		row, err := models.CreateAgent(tx.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
 			PMMAgentID: req.PmmAgentId,
 			ServiceID:  service.ServiceID,
 			Username:   req.Username,
@@ -86,7 +86,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		res.MysqldExporter = agent.(*inventorypb.MySQLdExporter)
 
 		if req.QanMysqlPerfschema {
-			row, err = models.AgentAddExporter(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.AddExporterAgentParams{
+			row, err = models.CreateAgent(tx.Querier, models.QANMySQLPerfSchemaAgentType, &models.CreateAgentParams{
 				PMMAgentID: req.PmmAgentId,
 				ServiceID:  service.ServiceID,
 				Username:   req.Username,
@@ -104,7 +104,7 @@ func (s *MySQLService) Add(ctx context.Context, req *managementpb.AddMySQLReques
 		}
 
 		if req.QanMysqlSlowlog {
-			row, err = models.AgentAddExporter(tx.Querier, models.QANMySQLSlowlogAgentType, &models.AddExporterAgentParams{
+			row, err = models.CreateAgent(tx.Querier, models.QANMySQLSlowlogAgentType, &models.CreateAgentParams{
 				PMMAgentID: req.PmmAgentId,
 				ServiceID:  service.ServiceID,
 				Username:   req.Username,

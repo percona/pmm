@@ -26,7 +26,7 @@ import (
 )
 
 // Open recreates testing PostgreSQL database and returns an open connection to it.
-func Open(tb testing.TB) *sql.DB {
+func Open(tb testing.TB, setupFixtures models.SetupFixturesMode) *sql.DB {
 	tb.Helper()
 
 	db, err := models.OpenDB("", "pmm-managed", "pmm-managed")
@@ -43,7 +43,14 @@ func Open(tb testing.TB) *sql.DB {
 
 	db, err = models.OpenDB(testDatabase, "pmm-managed", "pmm-managed")
 	require.NoError(tb, err)
-	err = models.MigrateDB(db, tb.Logf)
+	err = models.SetupDB(db, &models.SetupDBParams{
+		// Uncomment to see all setup queries:
+		// Logf: tb.Logf,
+
+		Username:      "pmm-managed",
+		Password:      "pmm-managed",
+		SetupFixtures: setupFixtures,
+	})
 	require.NoError(tb, err)
 	return db
 }

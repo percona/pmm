@@ -407,7 +407,13 @@ func main() {
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
 	// try synchronously once, then retry in the background
-	if migrateErr := models.MigrateDB(sqlDB, l.Debugf); migrateErr != nil {
+	setupParams := &models.SetupDBParams{
+		Logf:          l.Debugf,
+		Username:      *postgresDBUsernameF,
+		Password:      *postgresDBPasswordF,
+		SetupFixtures: models.SetupFixtures,
+	}
+	if migrateErr := models.SetupDB(sqlDB, setupParams); migrateErr != nil {
 		go func() {
 			l := l.WithField("component", "migrations")
 			for {
@@ -422,7 +428,7 @@ func main() {
 				}
 
 				l.Infof("Migrating database...")
-				if migrateErr = models.MigrateDB(sqlDB, l.Debugf); migrateErr == nil {
+				if migrateErr = models.SetupDB(sqlDB, setupParams); migrateErr == nil {
 					l.Infof("Done.")
 					return
 				}

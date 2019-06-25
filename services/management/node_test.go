@@ -30,29 +30,30 @@ import (
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 
+	"github.com/percona/pmm-managed/models"
 	"github.com/percona/pmm-managed/utils/logger"
 	"github.com/percona/pmm-managed/utils/testdb"
 	"github.com/percona/pmm-managed/utils/tests"
 )
 
 func TestNodeService(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func()) {
+	setup := func(t *testing.T) (ctx context.Context, s *NodeService, teardown func(t *testing.T)) {
 		t.Helper()
 
+		ctx = logger.Set(context.Background(), t.Name())
 		uuid.SetRand(new(tests.IDReader))
 
-		ctx = logger.Set(context.Background(), t.Name())
-
-		sqlDB := testdb.Open(t)
+		sqlDB := testdb.Open(t, models.SetupFixtures)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
 		r := new(mockAgentsRegistry)
 		r.Test(t)
-		s = NewNodeService(db, r)
 
-		teardown = func() {
+		teardown = func(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 			r.AssertExpectations(t)
 		}
+		s = NewNodeService(db, r)
 
 		return
 	}
@@ -60,7 +61,7 @@ func TestNodeService(t *testing.T) {
 	t.Run("Register", func(t *testing.T) {
 		t.Run("New", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown()
+			defer teardown(t)
 
 			res, err := s.Register(ctx, &managementpb.RegisterNodeRequest{
 				NodeType: inventorypb.NodeType_GENERIC_NODE,
@@ -68,12 +69,12 @@ func TestNodeService(t *testing.T) {
 			})
 			expected := &managementpb.RegisterNodeResponse{
 				GenericNode: &inventorypb.GenericNode{
-					NodeId:   "/node_id/00000000-0000-4000-8000-000000000001",
+					NodeId:   "/node_id/00000000-0000-4000-8000-000000000005",
 					NodeName: "node",
 				},
 				PmmAgent: &inventorypb.PMMAgent{
-					AgentId:      "/agent_id/00000000-0000-4000-8000-000000000002",
-					RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000001",
+					AgentId:      "/agent_id/00000000-0000-4000-8000-000000000006",
+					RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000005",
 				},
 			}
 			assert.Equal(t, expected, res)
@@ -96,12 +97,12 @@ func TestNodeService(t *testing.T) {
 				})
 				expected := &managementpb.RegisterNodeResponse{
 					GenericNode: &inventorypb.GenericNode{
-						NodeId:   "/node_id/00000000-0000-4000-8000-000000000004",
+						NodeId:   "/node_id/00000000-0000-4000-8000-000000000008",
 						NodeName: "node",
 					},
 					PmmAgent: &inventorypb.PMMAgent{
-						AgentId:      "/agent_id/00000000-0000-4000-8000-000000000005",
-						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000004",
+						AgentId:      "/agent_id/00000000-0000-4000-8000-000000000009",
+						RunsOnNodeId: "/node_id/00000000-0000-4000-8000-000000000008",
 					},
 				}
 				assert.Equal(t, expected, res)

@@ -28,6 +28,22 @@ import (
 	"gopkg.in/reform.v1"
 )
 
+func checkUniqueAgentID(q *reform.Querier, id string) error {
+	if id == "" {
+		panic("empty Agent ID")
+	}
+
+	agent := &Agent{AgentID: id}
+	switch err := q.Reload(agent); err {
+	case nil:
+		return status.Errorf(codes.AlreadyExists, "Agent with ID %q already exists.", id)
+	case reform.ErrNoRows:
+		return nil
+	default:
+		return errors.WithStack(err)
+	}
+}
+
 // AgentFindByID finds agent by ID.
 func AgentFindByID(q *reform.Querier, id string) (*Agent, error) {
 	if id == "" {
@@ -57,23 +73,9 @@ func AgentFindAll(q *reform.Querier) ([]*Agent, error) {
 	return agents, err
 }
 
-func agentNewID(q *reform.Querier) (string, error) {
-	id := "/agent_id/" + uuid.New().String()
-	row := &Agent{AgentID: id}
-	switch err := q.Reload(row); err {
-	case nil:
-		return "", status.Errorf(codes.AlreadyExists, "Agent with ID %q already exists.", id)
-	case reform.ErrNoRows:
-		return id, nil
-	default:
-		return "", errors.WithStack(err)
-	}
-}
-
-// AgentAddPmmAgent creates PMMAgent.
-func AgentAddPmmAgent(q *reform.Querier, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
-	id, err := agentNewID(q)
-	if err != nil {
+// createPMMAgentWithID creates PMMAgent with given ID.
+func createPMMAgentWithID(q *reform.Querier, id, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
+	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
 
@@ -81,25 +83,33 @@ func AgentAddPmmAgent(q *reform.Querier, runsOnNodeID string, customLabels map[s
 		return nil, err
 	}
 
-	row := &Agent{
+	agent := &Agent{
 		AgentID:      id,
 		AgentType:    PMMAgentType,
 		RunsOnNodeID: &runsOnNodeID,
 	}
-	if err := row.SetCustomLabels(customLabels); err != nil {
+	if err := agent.SetCustomLabels(customLabels); err != nil {
 		return nil, err
 	}
-	if err := q.Insert(row); err != nil {
+	if err := q.Insert(agent); err != nil {
 		return nil, errors.WithStack(err)
 	}
 
-	return row, nil
+	return agent, nil
 }
 
-// AgentAddNodeExporter creates NodeExporter agent.
-func AgentAddNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map[string]string) (*Agent, error) {
-	id, err := agentNewID(q)
-	if err != nil {
+// CreatePMMAgent creates PMMAgent.
+func CreatePMMAgent(q *reform.Querier, runsOnNodeID string, customLabels map[string]string) (*Agent, error) {
+	id := "/agent_id/" + uuid.New().String()
+	return createPMMAgentWithID(q, id, runsOnNodeID, customLabels)
+}
+
+// CreateNodeExporter creates NodeExporter.
+func CreateNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map[string]string) (*Agent, error) {
+	// TODO merge into CreateAgent
+
+	id := "/agent_id/" + uuid.New().String()
+	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
 
@@ -130,8 +140,8 @@ func AgentAddNodeExporter(q *reform.Querier, pmmAgentID string, customLabels map
 	return row, nil
 }
 
-// AddExporterAgentParams params for add common exporter.
-type AddExporterAgentParams struct {
+// CreateAgentParams params for add common exporter.
+type CreateAgentParams struct {
 	PMMAgentID   string
 	ServiceID    string
 	Username     string
@@ -139,10 +149,10 @@ type AddExporterAgentParams struct {
 	CustomLabels map[string]string
 }
 
-// AgentAddExporter adds exporter with given type.
-func AgentAddExporter(q *reform.Querier, agentType AgentType, params *AddExporterAgentParams) (*Agent, error) {
-	id, err := agentNewID(q)
-	if err != nil {
+// CreateAgent creates Agent with given type.
+func CreateAgent(q *reform.Querier, agentType AgentType, params *CreateAgentParams) (*Agent, error) {
+	id := "/agent_id/" + uuid.New().String()
+	if err := checkUniqueAgentID(q, id); err != nil {
 		return nil, err
 	}
 
@@ -168,7 +178,7 @@ func AgentAddExporter(q *reform.Querier, agentType AgentType, params *AddExporte
 		return nil, errors.WithStack(err)
 	}
 
-	err = q.Insert(&AgentService{
+	err := q.Insert(&AgentService{
 		AgentID:   row.AgentID,
 		ServiceID: params.ServiceID,
 	})

@@ -64,7 +64,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		}
 		res.Service = invService.(*inventorypb.PostgreSQLService)
 
-		row, err := models.AgentAddExporter(tx.Querier, models.PostgresExporterType, &models.AddExporterAgentParams{
+		row, err := models.CreateAgent(tx.Querier, models.PostgresExporterType, &models.CreateAgentParams{
 			PMMAgentID: req.PmmAgentId,
 			ServiceID:  service.ServiceID,
 			Username:   req.Username,
@@ -87,7 +87,7 @@ func (s *PostgreSQLService) Add(ctx context.Context, req *managementpb.AddPostgr
 		res.PostgresExporter = agent.(*inventorypb.PostgresExporter)
 
 		if req.QanPostgresqlPgstatementsAgent {
-			row, err = models.AgentAddExporter(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.AddExporterAgentParams{
+			row, err = models.CreateAgent(tx.Querier, models.QANPostgreSQLPgStatementsAgentType, &models.CreateAgentParams{
 				PMMAgentID: req.PmmAgentId,
 				ServiceID:  service.ServiceID,
 				Username:   req.Username,

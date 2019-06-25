@@ -38,7 +38,7 @@ func TestNodeHelpers(t *testing.T) {
 	models.Now = func() time.Time {
 		return now
 	}
-	sqlDB := testdb.Open(t)
+	sqlDB := testdb.Open(t, models.SkipFixtures)
 	defer func() {
 		models.Now = origNowF
 		require.NoError(t, sqlDB.Close())
@@ -206,7 +206,6 @@ func TestNodeHelpers(t *testing.T) {
 
 		nodes, err := models.FindAllNodes(q)
 		assert.NoError(t, err)
-		require.Len(t, nodes, 1)
-		require.Equal(t, models.PMMServerNodeID, nodes[0].NodeID)
+		require.Len(t, nodes, 0)
 	})
 }

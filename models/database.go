@@ -23,8 +23,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
 	"github.com/lib/pq"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"gopkg.in/reform.v1"
 	"gopkg.in/reform.v1/dialects/postgresql"
 )
@@ -66,10 +69,6 @@ var databaseSchema = [][]string{
 			UNIQUE (container_id),
 			UNIQUE (address, region)
 		)`,
-
-		fmt.Sprintf(`INSERT INTO nodes (node_id, node_type,	node_name, distro, node_model, az, address, created_at, updated_at) `+ //nolint:gosec
-			`VALUES ('%s', '%s', 'PMM Server', 'Linux', '', '', '', '%s', '%s')`, //nolint:gosec
-			PMMServerNodeID, GenericNodeType, initialCurrentTime, initialCurrentTime), //nolint:gosec
 
 		`CREATE TABLE services (
 			-- common
@@ -141,8 +140,8 @@ var databaseSchema = [][]string{
 		)`,
 
 		`CREATE TABLE telemetry (
-  			uuid VARCHAR PRIMARY KEY,
-  			created_at TIMESTAMP NOT NULL
+			uuid VARCHAR PRIMARY KEY,
+			created_at TIMESTAMP NOT NULL
 		)`,
 
 		`CREATE TABLE action_results (
@@ -189,9 +188,31 @@ func OpenDB(name, username, password string) (*sql.DB, error) {
 	return db, nil
 }
 
-// MigrateDB runs PostgreSQL database migrations.
-func MigrateDB(sqlDB *sql.DB, logf reform.Printf) error {
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(logf))
+// SetupFixturesMode defines if SetupDB adds initial data to the database or not.
+type SetupFixturesMode int
+
+const (
+	// SetupFixtures adds initial data to the database.
+	SetupFixtures SetupFixturesMode = iota
+	// SkipFixtures skips adding initial data to the database. Useful for tests.
+	SkipFixtures
+)
+
+// SetupDBParams represents SetupDB parameters.
+type SetupDBParams struct {
+	Logf          reform.Printf
+	Username      string
+	Password      string
+	SetupFixtures SetupFixturesMode
+}
+
+// SetupDB runs PostgreSQL database migrations and optionally adds initial data.
+func SetupDB(sqlDB *sql.DB, params *SetupDBParams) error {
+	var logger reform.Logger
+	if params.Logf != nil {
+		logger = reform.NewPrintfLogger(params.Logf)
+	}
+	db := reform.NewDB(sqlDB, postgresql.Dialect, logger)
 
 	latestVersion := len(databaseSchema) - 1 // skip item 0
 	var currentVersion int
@@ -202,12 +223,17 @@ func MigrateDB(sqlDB *sql.DB, logf reform.Printf) error {
 	if err != nil {
 		return errors.WithStack(err)
 	}
-	logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
+	if params.Logf != nil {
+		params.Logf("Current database schema version: %d. Latest version: %d.", currentVersion, latestVersion)
+	}
 
 	// rollback all migrations if one of them fails; PostgreSQL supports DDL transactions
 	return db.InTransaction(func(tx *reform.TX) error {
 		for version := currentVersion + 1; version <= latestVersion; version++ {
-			logf("Migrating database to schema version %d ...", version)
+			if params.Logf != nil {
+				params.Logf("Migrating database to schema version %d ...", version)
+			}
+
 			queries := databaseSchema[version]
 			queries = append(queries, fmt.Sprintf(`INSERT INTO schema_migrations (id) VALUES (%d)`, version))
 			for _, q := range queries {
@@ -217,6 +243,75 @@ func MigrateDB(sqlDB *sql.DB, logf reform.Printf) error {
 				}
 			}
 		}
+
+		if params.SetupFixtures == SkipFixtures {
+			return nil
+		}
+
+		if err = setupFixture1(tx.Querier, params.Username, params.Password); err != nil {
+			return err
+		}
+		if err = setupFixture2(tx.Querier, params.Username, params.Password); err != nil {
+			return err
+		}
 		return nil
 	})
+}
+
+func setupFixture1(q *reform.Querier, username, password string) error {
+	// create PMM Server Node and associated Agents
+	node, err := createNodeWithID(q, PMMServerNodeID, GenericNodeType, &CreateNodeParams{
+		NodeName: "PMM Server",
+		Address:  "127.0.0.1",
+	})
+	if err != nil {
+		if status.Code(err) != codes.AlreadyExists {
+			// this fixture was already added previously
+			return nil
+		}
+		return err
+	}
+	if _, err = createPMMAgentWithID(q, PMMServerAgentID, node.NodeID, nil); err != nil {
+		return err
+	}
+	if _, err = CreateNodeExporter(q, PMMServerAgentID, nil); err != nil {
+		return err
+	}
+
+	// create PostgreSQL Service and associated Agents
+	service, err := AddNewService(q, PostgreSQLServiceType, &AddDBMSServiceParams{
+		ServiceName: "PMM Server PostgreSQL",
+		NodeID:      node.NodeID,
+		Address:     pointer.ToString("127.0.0.1"),
+		Port:        pointer.ToUint16(5432),
+	})
+	if err != nil {
+		return err
+	}
+	_, err = CreateAgent(q, PostgresExporterType, &CreateAgentParams{
+		PMMAgentID: PMMServerAgentID,
+		ServiceID:  service.ServiceID,
+		Username:   username,
+		Password:   password,
+	})
+	if err != nil {
+		return err
+	}
+	_, err = CreateAgent(q, QANPostgreSQLPgStatementsAgentType, &CreateAgentParams{
+		PMMAgentID: PMMServerAgentID,
+		ServiceID:  service.ServiceID,
+		Username:   username,
+		Password:   password,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func setupFixture2(q *reform.Querier, username, password string) error {
+	// TODO add clickhouse_exporter
+
+	return nil
 }

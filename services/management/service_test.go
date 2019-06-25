@@ -38,23 +38,23 @@ import (
 )
 
 func TestServiceService(t *testing.T) {
-	setup := func(t *testing.T) (ctx context.Context, s *ServiceService, teardown func()) {
+	setup := func(t *testing.T) (ctx context.Context, s *ServiceService, teardown func(t *testing.T)) {
 		t.Helper()
 
+		ctx = logger.Set(context.Background(), t.Name())
 		uuid.SetRand(new(tests.IDReader))
 
-		ctx = logger.Set(context.Background(), t.Name())
-
-		sqlDB := testdb.Open(t)
+		sqlDB := testdb.Open(t, models.SetupFixtures)
 		db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
+
 		r := new(mockAgentsRegistry)
 		r.Test(t)
-		s = NewServiceService(db, r)
 
-		teardown = func() {
+		teardown = func(t *testing.T) {
 			require.NoError(t, sqlDB.Close())
 			r.AssertExpectations(t)
 		}
+		s = NewServiceService(db, r)
 
 		return
 	}
@@ -62,7 +62,7 @@ func TestServiceService(t *testing.T) {
 	t.Run("Remove", func(t *testing.T) {
 		t.Run("No params", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown()
+			defer teardown(t)
 
 			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{})
 			assert.Nil(t, response)
@@ -71,7 +71,7 @@ func TestServiceService(t *testing.T) {
 
 		t.Run("Both params", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown()
+			defer teardown(t)
 
 			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceId: "some-id", ServiceName: "some-service-name"})
 			assert.Nil(t, response)
@@ -80,7 +80,7 @@ func TestServiceService(t *testing.T) {
 
 		t.Run("Not found", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown()
+			defer teardown(t)
 
 			response, err := s.RemoveService(ctx, &managementpb.RemoveServiceRequest{ServiceName: "some-service-name"})
 			assert.Nil(t, response)
@@ -89,7 +89,7 @@ func TestServiceService(t *testing.T) {
 
 		t.Run("Wrong service type", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown()
+			defer teardown(t)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
@@ -106,7 +106,7 @@ func TestServiceService(t *testing.T) {
 
 		t.Run("Basic", func(t *testing.T) {
 			ctx, s, teardown := setup(t)
-			defer teardown()
+			defer teardown(t)
 
 			service, err := models.AddNewService(s.db.Querier, models.MySQLServiceType, &models.AddDBMSServiceParams{
 				ServiceName: "test-mysql",
@@ -116,10 +116,10 @@ func TestServiceService(t *testing.T) {
 			})
 			require.NoError(t, err)
 
-			pmmAgent, err := models.AgentAddPmmAgent(s.db.Querier, models.PMMServerNodeID, nil)
+			pmmAgent, err := models.CreatePMMAgent(s.db.Querier, models.PMMServerNodeID, nil)
 			require.NoError(t, err)
 
-			mysqldExporter, err := models.AgentAddExporter(s.db.Querier, models.MySQLdExporterType, &models.AddExporterAgentParams{
+			mysqldExporter, err := models.CreateAgent(s.db.Querier, models.MySQLdExporterType, &models.CreateAgentParams{
 				PMMAgentID: pmmAgent.AgentID,
 				ServiceID:  service.ServiceID,
 				Password:   "password",
@@ -134,11 +134,11 @@ func TestServiceService(t *testing.T) {
 
 			agent, err := models.AgentFindByID(s.db.Querier, mysqldExporter.AgentID)
 			assert.Nil(t, agent)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000003" not found.`), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, `Agent with ID "/agent_id/00000000-0000-4000-8000-000000000007" not found.`), err)
 
 			service, err = models.FindServiceByID(s.db.Querier, service.ServiceID)
 			assert.Nil(t, service)
-			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000001" not found.`), err)
+			tests.AssertGRPCError(t, status.New(codes.NotFound, `Service with ID "/service_id/00000000-0000-4000-8000-000000000005" not found.`), err)
 		})
 	})
 }

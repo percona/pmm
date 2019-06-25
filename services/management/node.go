@@ -101,7 +101,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 			return status.Errorf(codes.InvalidArgument, "Unsupported Node type %q.", req.NodeType)
 		}
 
-		pmmAgent, err := models.AgentAddPmmAgent(tx.Querier, node.NodeID, nil)
+		pmmAgent, err := models.CreatePMMAgent(tx.Querier, node.NodeID, nil)
 		if err != nil {
 			return err
 		}
@@ -112,7 +112,7 @@ func (s *NodeService) Register(ctx context.Context, req *managementpb.RegisterNo
 		}
 		res.PmmAgent = a.(*inventorypb.PMMAgent)
 
-		_, err = models.AgentAddNodeExporter(tx.Querier, pmmAgent.AgentID, nil)
+		_, err = models.CreateNodeExporter(tx.Querier, pmmAgent.AgentID, nil)
 		return err
 	}); e != nil {
 		return nil, e
