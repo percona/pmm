@@ -130,6 +130,9 @@ type GetReportBody struct {
 	// limit
 	Limit int64 `json:"limit,omitempty"`
 
+	// main metric
+	MainMetric string `json:"main_metric,omitempty"`
+
 	// offset
 	Offset int64 `json:"offset,omitempty"`
 
