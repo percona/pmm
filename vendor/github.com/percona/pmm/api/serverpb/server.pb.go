@@ -7,6 +7,7 @@ import (
 	context "context"
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	duration "github.com/golang/protobuf/ptypes/duration"
 	timestamp "github.com/golang/protobuf/ptypes/timestamp"
 	_ "github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger/options"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
@@ -114,36 +115,329 @@ func (m *VersionResponse) GetPmmManagedCommit() string {
 	return ""
 }
 
+// MetricsResolutions represents Prometheus exporters metrics resolutions.
+type MetricsResolutions struct {
+	// High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	Hr *duration.Duration `protobuf:"bytes,1,opt,name=hr,proto3" json:"hr,omitempty"`
+	// Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	Mr *duration.Duration `protobuf:"bytes,2,opt,name=mr,proto3" json:"mr,omitempty"`
+	// Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+	Lr                   *duration.Duration `protobuf:"bytes,3,opt,name=lr,proto3" json:"lr,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}           `json:"-"`
+	XXX_unrecognized     []byte             `json:"-"`
+	XXX_sizecache        int32              `json:"-"`
+}
+
+func (m *MetricsResolutions) Reset()         { *m = MetricsResolutions{} }
+func (m *MetricsResolutions) String() string { return proto.CompactTextString(m) }
+func (*MetricsResolutions) ProtoMessage()    {}
+func (*MetricsResolutions) Descriptor() ([]byte, []int) {
+	return fileDescriptor_9202d8f598083902, []int{2}
+}
+
+func (m *MetricsResolutions) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_MetricsResolutions.Unmarshal(m, b)
+}
+func (m *MetricsResolutions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_MetricsResolutions.Marshal(b, m, deterministic)
+}
+func (m *MetricsResolutions) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_MetricsResolutions.Merge(m, src)
+}
+func (m *MetricsResolutions) XXX_Size() int {
+	return xxx_messageInfo_MetricsResolutions.Size(m)
+}
+func (m *MetricsResolutions) XXX_DiscardUnknown() {
+	xxx_messageInfo_MetricsResolutions.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_MetricsResolutions proto.InternalMessageInfo
+
+func (m *MetricsResolutions) GetHr() *duration.Duration {
+	if m != nil {
+		return m.Hr
+	}
+	return nil
+}
+
+func (m *MetricsResolutions) GetMr() *duration.Duration {
+	if m != nil {
+		return m.Mr
+	}
+	return nil
+}
+
+func (m *MetricsResolutions) GetLr() *duration.Duration {
+	if m != nil {
+		return m.Lr
+	}
+	return nil
+}
+
+// Settings represents PMM Server settings.
+type Settings struct {
+	MetricsResolutions   *MetricsResolutions `protobuf:"bytes,1,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
+	Telemetry            bool                `protobuf:"varint,2,opt,name=telemetry,proto3" json:"telemetry,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
+	XXX_unrecognized     []byte              `json:"-"`
+	XXX_sizecache        int32               `json:"-"`
+}
+
+func (m *Settings) Reset()         { *m = Settings{} }
+func (m *Settings) String() string { return proto.CompactTextString(m) }
+func (*Settings) ProtoMessage()    {}
+func (*Settings) Descriptor() ([]byte, []int) {
+	return fileDescriptor_9202d8f598083902, []int{3}
+}
+
+func (m *Settings) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Settings.Unmarshal(m, b)
+}
+func (m *Settings) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Settings.Marshal(b, m, deterministic)
+}
+func (m *Settings) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Settings.Merge(m, src)
+}
+func (m *Settings) XXX_Size() int {
+	return xxx_messageInfo_Settings.Size(m)
+}
+func (m *Settings) XXX_DiscardUnknown() {
+	xxx_messageInfo_Settings.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Settings proto.InternalMessageInfo
+
+func (m *Settings) GetMetricsResolutions() *MetricsResolutions {
+	if m != nil {
+		return m.MetricsResolutions
+	}
+	return nil
+}
+
+func (m *Settings) GetTelemetry() bool {
+	if m != nil {
+		return m.Telemetry
+	}
+	return false
+}
+
+type GetSettingsRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *GetSettingsRequest) Reset()         { *m = GetSettingsRequest{} }
+func (m *GetSettingsRequest) String() string { return proto.CompactTextString(m) }
+func (*GetSettingsRequest) ProtoMessage()    {}
+func (*GetSettingsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_9202d8f598083902, []int{4}
+}
+
+func (m *GetSettingsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetSettingsRequest.Unmarshal(m, b)
+}
+func (m *GetSettingsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetSettingsRequest.Marshal(b, m, deterministic)
+}
+func (m *GetSettingsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetSettingsRequest.Merge(m, src)
+}
+func (m *GetSettingsRequest) XXX_Size() int {
+	return xxx_messageInfo_GetSettingsRequest.Size(m)
+}
+func (m *GetSettingsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetSettingsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetSettingsRequest proto.InternalMessageInfo
+
+type GetSettingsResponse struct {
+	Settings             *Settings `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_unrecognized     []byte    `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
+}
+
+func (m *GetSettingsResponse) Reset()         { *m = GetSettingsResponse{} }
+func (m *GetSettingsResponse) String() string { return proto.CompactTextString(m) }
+func (*GetSettingsResponse) ProtoMessage()    {}
+func (*GetSettingsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_9202d8f598083902, []int{5}
+}
+
+func (m *GetSettingsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetSettingsResponse.Unmarshal(m, b)
+}
+func (m *GetSettingsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetSettingsResponse.Marshal(b, m, deterministic)
+}
+func (m *GetSettingsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetSettingsResponse.Merge(m, src)
+}
+func (m *GetSettingsResponse) XXX_Size() int {
+	return xxx_messageInfo_GetSettingsResponse.Size(m)
+}
+func (m *GetSettingsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetSettingsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetSettingsResponse proto.InternalMessageInfo
+
+func (m *GetSettingsResponse) GetSettings() *Settings {
+	if m != nil {
+		return m.Settings
+	}
+	return nil
+}
+
+type ChangeSettingsRequest struct {
+	MetricsResolutions   *MetricsResolutions `protobuf:"bytes,1,opt,name=metrics_resolutions,json=metricsResolutions,proto3" json:"metrics_resolutions,omitempty"`
+	EnableTelemetry      bool                `protobuf:"varint,2,opt,name=enable_telemetry,json=enableTelemetry,proto3" json:"enable_telemetry,omitempty"`
+	DisableTelemetry     bool                `protobuf:"varint,3,opt,name=disable_telemetry,json=disableTelemetry,proto3" json:"disable_telemetry,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}            `json:"-"`
+	XXX_unrecognized     []byte              `json:"-"`
+	XXX_sizecache        int32               `json:"-"`
+}
+
+func (m *ChangeSettingsRequest) Reset()         { *m = ChangeSettingsRequest{} }
+func (m *ChangeSettingsRequest) String() string { return proto.CompactTextString(m) }
+func (*ChangeSettingsRequest) ProtoMessage()    {}
+func (*ChangeSettingsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_9202d8f598083902, []int{6}
+}
+
+func (m *ChangeSettingsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeSettingsRequest.Unmarshal(m, b)
+}
+func (m *ChangeSettingsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeSettingsRequest.Marshal(b, m, deterministic)
+}
+func (m *ChangeSettingsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeSettingsRequest.Merge(m, src)
+}
+func (m *ChangeSettingsRequest) XXX_Size() int {
+	return xxx_messageInfo_ChangeSettingsRequest.Size(m)
+}
+func (m *ChangeSettingsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeSettingsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeSettingsRequest proto.InternalMessageInfo
+
+func (m *ChangeSettingsRequest) GetMetricsResolutions() *MetricsResolutions {
+	if m != nil {
+		return m.MetricsResolutions
+	}
+	return nil
+}
+
+func (m *ChangeSettingsRequest) GetEnableTelemetry() bool {
+	if m != nil {
+		return m.EnableTelemetry
+	}
+	return false
+}
+
+func (m *ChangeSettingsRequest) GetDisableTelemetry() bool {
+	if m != nil {
+		return m.DisableTelemetry
+	}
+	return false
+}
+
+type ChangeSettingsResponse struct {
+	Settings             *Settings `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}  `json:"-"`
+	XXX_unrecognized     []byte    `json:"-"`
+	XXX_sizecache        int32     `json:"-"`
+}
+
+func (m *ChangeSettingsResponse) Reset()         { *m = ChangeSettingsResponse{} }
+func (m *ChangeSettingsResponse) String() string { return proto.CompactTextString(m) }
+func (*ChangeSettingsResponse) ProtoMessage()    {}
+func (*ChangeSettingsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_9202d8f598083902, []int{7}
+}
+
+func (m *ChangeSettingsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ChangeSettingsResponse.Unmarshal(m, b)
+}
+func (m *ChangeSettingsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ChangeSettingsResponse.Marshal(b, m, deterministic)
+}
+func (m *ChangeSettingsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ChangeSettingsResponse.Merge(m, src)
+}
+func (m *ChangeSettingsResponse) XXX_Size() int {
+	return xxx_messageInfo_ChangeSettingsResponse.Size(m)
+}
+func (m *ChangeSettingsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ChangeSettingsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ChangeSettingsResponse proto.InternalMessageInfo
+
+func (m *ChangeSettingsResponse) GetSettings() *Settings {
+	if m != nil {
+		return m.Settings
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*VersionRequest)(nil), "server.VersionRequest")
 	proto.RegisterType((*VersionResponse)(nil), "server.VersionResponse")
+	proto.RegisterType((*MetricsResolutions)(nil), "server.MetricsResolutions")
+	proto.RegisterType((*Settings)(nil), "server.Settings")
+	proto.RegisterType((*GetSettingsRequest)(nil), "server.GetSettingsRequest")
+	proto.RegisterType((*GetSettingsResponse)(nil), "server.GetSettingsResponse")
+	proto.RegisterType((*ChangeSettingsRequest)(nil), "server.ChangeSettingsRequest")
+	proto.RegisterType((*ChangeSettingsResponse)(nil), "server.ChangeSettingsResponse")
 }
 
 func init() { proto.RegisterFile("serverpb/server.proto", fileDescriptor_9202d8f598083902) }
 
 var fileDescriptor_9202d8f598083902 = []byte{
-	// 326 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x51, 0xcd, 0x4a, 0x03, 0x31,
-	0x18, 0x64, 0x2b, 0xb4, 0x36, 0x45, 0x2d, 0x11, 0x75, 0x59, 0x04, 0x97, 0x16, 0xb1, 0x87, 0x76,
-	0x83, 0xf5, 0xe2, 0xc5, 0x43, 0x15, 0x41, 0x04, 0x11, 0x56, 0x51, 0xf4, 0x52, 0xd2, 0xf6, 0xeb,
-	0x12, 0x68, 0x7e, 0x4c, 0xd2, 0x7a, 0xf7, 0x11, 0xec, 0xa3, 0xf9, 0x0a, 0x3e, 0x88, 0x98, 0x6c,
-	0x2a, 0xd2, 0xd3, 0xee, 0x37, 0xdf, 0x64, 0x32, 0x33, 0x41, 0x7b, 0x06, 0xf4, 0x02, 0xb4, 0x1a,
-	0x11, 0xff, 0x93, 0x29, 0x2d, 0xad, 0xc4, 0x55, 0x3f, 0x25, 0x87, 0x85, 0x94, 0xc5, 0x0c, 0x08,
-	0x55, 0x8c, 0x50, 0x21, 0xa4, 0xa5, 0x96, 0x49, 0x61, 0x3c, 0x2b, 0x39, 0x2a, 0xb7, 0x6e, 0x1a,
-	0xcd, 0xa7, 0xc4, 0x32, 0x0e, 0xc6, 0x52, 0xae, 0x4a, 0x42, 0xd7, 0x7d, 0xc6, 0xbd, 0x02, 0x44,
-	0xcf, 0xbc, 0xd3, 0xa2, 0x00, 0x4d, 0xa4, 0x72, 0x12, 0xeb, 0x72, 0xad, 0x26, 0xda, 0x7e, 0x02,
-	0x6d, 0x98, 0x14, 0x39, 0xbc, 0xcd, 0xc1, 0xd8, 0xd6, 0x32, 0x42, 0x3b, 0x2b, 0xc8, 0x28, 0x29,
-	0x0c, 0xe0, 0x18, 0xd5, 0x16, 0x1e, 0x8a, 0xa3, 0x34, 0xea, 0xd4, 0xf3, 0x30, 0xe2, 0x73, 0x54,
-	0x5f, 0x19, 0x88, 0x2b, 0x69, 0xd4, 0x69, 0xf4, 0x93, 0xcc, 0x5b, 0xcc, 0x82, 0xc5, 0xec, 0x31,
-	0x30, 0xf2, 0x3f, 0x32, 0xee, 0x22, 0xac, 0x38, 0x1f, 0x72, 0x2a, 0x68, 0x01, 0x93, 0xe1, 0x58,
-	0x72, 0xce, 0x6c, 0xbc, 0xe1, 0xe4, 0x9b, 0x8a, 0xf3, 0x3b, 0xbf, 0xb8, 0x72, 0x78, 0xff, 0x05,
-	0x55, 0x1f, 0x5c, 0x3d, 0xf8, 0x1e, 0xd5, 0x4a, 0x7b, 0x78, 0x3f, 0x2b, 0x0b, 0xfc, 0x1f, 0x21,
-	0x39, 0x58, 0xc3, 0x7d, 0x8e, 0xd6, 0xee, 0xc7, 0xd7, 0xf7, 0xb2, 0xb2, 0x85, 0x1b, 0x64, 0x71,
-	0x4a, 0xca, 0x08, 0x97, 0xcf, 0x9f, 0x83, 0xdb, 0xfc, 0x06, 0xd5, 0x26, 0x30, 0xa5, 0xf3, 0x99,
-	0xc5, 0x17, 0x08, 0x0f, 0x44, 0x0a, 0x5a, 0x4b, 0x9d, 0xea, 0xf2, 0x64, 0x86, 0x4f, 0xd0, 0x71,
-	0xd2, 0x6e, 0x93, 0x09, 0x4c, 0x99, 0x60, 0xbe, 0xcd, 0xf0, 0x8c, 0xd7, 0xbf, 0xd4, 0x70, 0xc7,
-	0xeb, 0x66, 0x80, 0x47, 0x55, 0x57, 0xc0, 0xd9, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x11, 0xda,
-	0xce, 0x8a, 0xf0, 0x01, 0x00, 0x00,
+	// 581 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x54, 0xdd, 0x6e, 0xd3, 0x30,
+	0x14, 0x56, 0x3a, 0xa9, 0x3f, 0xa7, 0x62, 0x2d, 0xee, 0x7e, 0x4a, 0xd8, 0x46, 0x95, 0x09, 0xb1,
+	0x8d, 0x2e, 0x11, 0xe5, 0x06, 0x4d, 0xe2, 0x62, 0x94, 0x3f, 0x81, 0x26, 0xa4, 0x6c, 0x02, 0x89,
+	0x9b, 0x2a, 0x6d, 0xdd, 0x34, 0x52, 0x6c, 0x07, 0xdb, 0x29, 0xe2, 0x96, 0x47, 0x60, 0xe2, 0x31,
+	0x78, 0x03, 0xde, 0x82, 0x57, 0xe0, 0x41, 0x50, 0x1d, 0x3b, 0x5d, 0x9b, 0xb1, 0x0b, 0xc4, 0x55,
+	0xeb, 0xef, 0xfb, 0x7a, 0xbe, 0xef, 0xf8, 0xf4, 0x18, 0x36, 0x05, 0xe6, 0x33, 0xcc, 0x93, 0xa1,
+	0x97, 0x7d, 0x71, 0x13, 0xce, 0x24, 0x43, 0xe5, 0xec, 0x64, 0xef, 0x84, 0x8c, 0x85, 0x31, 0xf6,
+	0x82, 0x24, 0xf2, 0x02, 0x4a, 0x99, 0x0c, 0x64, 0xc4, 0xa8, 0xc8, 0x54, 0xf6, 0x9e, 0x66, 0xd5,
+	0x69, 0x98, 0x4e, 0xbc, 0x71, 0xca, 0x95, 0x40, 0xf3, 0xf7, 0x56, 0x79, 0x19, 0x11, 0x2c, 0x64,
+	0x40, 0x12, 0x2d, 0xe8, 0xaa, 0x8f, 0xd1, 0x71, 0x88, 0xe9, 0xb1, 0xf8, 0x1c, 0x84, 0x21, 0xe6,
+	0x1e, 0x4b, 0x94, 0x45, 0xd1, 0xce, 0x69, 0xc2, 0xfa, 0x7b, 0xcc, 0x45, 0xc4, 0xa8, 0x8f, 0x3f,
+	0xa5, 0x58, 0x48, 0xe7, 0xd2, 0x82, 0x46, 0x0e, 0x89, 0x84, 0x51, 0x81, 0x51, 0x1b, 0x2a, 0xb3,
+	0x0c, 0x6a, 0x5b, 0x1d, 0xeb, 0xa0, 0xe6, 0x9b, 0x23, 0x7a, 0x02, 0xb5, 0x3c, 0x40, 0xbb, 0xd4,
+	0xb1, 0x0e, 0xea, 0x3d, 0xdb, 0xcd, 0x22, 0xba, 0x26, 0xa2, 0x7b, 0x61, 0x14, 0xfe, 0x42, 0x8c,
+	0xba, 0x80, 0x12, 0x42, 0x06, 0x24, 0xa0, 0x41, 0x88, 0xc7, 0x83, 0x11, 0x23, 0x24, 0x92, 0xed,
+	0x35, 0x55, 0xbe, 0x99, 0x10, 0x72, 0x96, 0x11, 0x7d, 0x85, 0x3b, 0xdf, 0x2d, 0x40, 0x67, 0x58,
+	0xf2, 0x68, 0x24, 0x7c, 0x2c, 0x58, 0x9c, 0xaa, 0x26, 0xd0, 0x21, 0x94, 0xa6, 0x5c, 0x65, 0xaa,
+	0xf7, 0xee, 0x14, 0x7c, 0x9f, 0xeb, 0xab, 0xf3, 0x4b, 0x53, 0x3e, 0x97, 0x12, 0xae, 0x23, 0xde,
+	0x24, 0x25, 0x4a, 0x1a, 0x73, 0x15, 0xe5, 0x66, 0x69, 0xcc, 0x9d, 0x14, 0xaa, 0xe7, 0x58, 0xca,
+	0x88, 0x86, 0x02, 0xbd, 0x85, 0x16, 0xc9, 0x22, 0x0e, 0xf8, 0x22, 0xa3, 0x4e, 0x67, 0xbb, 0xfa,
+	0xcf, 0x50, 0xec, 0xc2, 0x47, 0xa4, 0xd8, 0xd9, 0x0e, 0xd4, 0x24, 0x8e, 0xf1, 0x9c, 0xf9, 0xa2,
+	0x52, 0x57, 0xfd, 0x05, 0xe0, 0x6c, 0x00, 0x7a, 0x85, 0xa5, 0x71, 0x36, 0xa3, 0xeb, 0x43, 0x6b,
+	0x09, 0xd5, 0xd3, 0xeb, 0x42, 0x55, 0x68, 0x4c, 0x87, 0x69, 0x9a, 0x30, 0xb9, 0x36, 0x57, 0x38,
+	0x3f, 0x2d, 0xd8, 0xec, 0x4f, 0x03, 0x1a, 0xe2, 0x95, 0xf2, 0xff, 0xb7, 0xbf, 0x43, 0x68, 0x62,
+	0x1a, 0x0c, 0x63, 0x3c, 0x58, 0x6d, 0xb3, 0x91, 0xe1, 0x17, 0x06, 0x46, 0x0f, 0xe1, 0xf6, 0x38,
+	0x12, 0x2b, 0xda, 0x35, 0xa5, 0x6d, 0x6a, 0x22, 0x17, 0x3b, 0x2f, 0x61, 0x6b, 0x35, 0xfd, 0xbf,
+	0x5c, 0x43, 0xef, 0x47, 0x09, 0xca, 0xe7, 0x8a, 0x45, 0xef, 0xa0, 0xa2, 0x17, 0x02, 0x6d, 0x99,
+	0x5f, 0x2c, 0x2f, 0x8d, 0xbd, 0x5d, 0xc0, 0x33, 0x53, 0xa7, 0xf5, 0xf5, 0xd7, 0xef, 0xcb, 0xd2,
+	0x2d, 0x54, 0xf7, 0x66, 0x8f, 0x3c, 0xb3, 0x34, 0x43, 0xa8, 0x5f, 0x99, 0x13, 0xca, 0xaf, 0xae,
+	0x38, 0x52, 0xfb, 0xee, 0xb5, 0x9c, 0x2e, 0x6e, 0xab, 0xe2, 0x1b, 0x4e, 0x63, 0x5e, 0xfc, 0x8a,
+	0xe0, 0xc4, 0x3a, 0x42, 0x14, 0xd6, 0x97, 0xef, 0x01, 0xed, 0x9a, 0x52, 0xd7, 0x4e, 0xd7, 0xde,
+	0xfb, 0x1b, 0xad, 0xcd, 0x76, 0x95, 0xd9, 0xb6, 0x83, 0xe6, 0x66, 0xcb, 0x9a, 0x13, 0xeb, 0xe8,
+	0xd9, 0x87, 0x6f, 0xa7, 0x6f, 0xfc, 0xd7, 0x50, 0x19, 0xe3, 0x49, 0x90, 0xc6, 0x12, 0x3d, 0x05,
+	0x74, 0x4a, 0x3b, 0x98, 0x73, 0xc6, 0x3b, 0x5c, 0xd7, 0x70, 0xd1, 0x03, 0xb8, 0x6f, 0xef, 0xef,
+	0x7b, 0x63, 0x3c, 0x89, 0x68, 0x94, 0xbd, 0x49, 0xe6, 0xb1, 0x7c, 0x31, 0x97, 0x1a, 0xb7, 0x8f,
+	0x55, 0x03, 0x0f, 0xcb, 0x6a, 0xf1, 0x1e, 0xff, 0x09, 0x00, 0x00, 0xff, 0xff, 0x05, 0x5c, 0x9f,
+	0x96, 0x56, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -160,6 +454,10 @@ const _ = grpc.SupportPackageIsVersion4
 type ServerClient interface {
 	// Version returns PMM Server version.
 	Version(ctx context.Context, in *VersionRequest, opts ...grpc.CallOption) (*VersionResponse, error)
+	// GetSettings returns current PMM Server settings.
+	GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error)
+	// ChangeSettings changes PMM Server settings.
+	ChangeSettings(ctx context.Context, in *ChangeSettingsRequest, opts ...grpc.CallOption) (*ChangeSettingsResponse, error)
 }
 
 type serverClient struct {
@@ -179,10 +477,32 @@ func (c *serverClient) Version(ctx context.Context, in *VersionRequest, opts ...
 	return out, nil
 }
 
+func (c *serverClient) GetSettings(ctx context.Context, in *GetSettingsRequest, opts ...grpc.CallOption) (*GetSettingsResponse, error) {
+	out := new(GetSettingsResponse)
+	err := c.cc.Invoke(ctx, "/server.Server/GetSettings", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *serverClient) ChangeSettings(ctx context.Context, in *ChangeSettingsRequest, opts ...grpc.CallOption) (*ChangeSettingsResponse, error) {
+	out := new(ChangeSettingsResponse)
+	err := c.cc.Invoke(ctx, "/server.Server/ChangeSettings", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ServerServer is the server API for Server service.
 type ServerServer interface {
 	// Version returns PMM Server version.
 	Version(context.Context, *VersionRequest) (*VersionResponse, error)
+	// GetSettings returns current PMM Server settings.
+	GetSettings(context.Context, *GetSettingsRequest) (*GetSettingsResponse, error)
+	// ChangeSettings changes PMM Server settings.
+	ChangeSettings(context.Context, *ChangeSettingsRequest) (*ChangeSettingsResponse, error)
 }
 
 func RegisterServerServer(s *grpc.Server, srv ServerServer) {
@@ -207,6 +527,42 @@ func _Server_Version_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Server_GetSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSettingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServer).GetSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Server/GetSettings",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServer).GetSettings(ctx, req.(*GetSettingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Server_ChangeSettings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChangeSettingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ServerServer).ChangeSettings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/server.Server/ChangeSettings",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ServerServer).ChangeSettings(ctx, req.(*ChangeSettingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Server_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "server.Server",
 	HandlerType: (*ServerServer)(nil),
@@ -214,6 +570,14 @@ var _Server_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Version",
 			Handler:    _Server_Version_Handler,
+		},
+		{
+			MethodName: "GetSettings",
+			Handler:    _Server_GetSettings_Handler,
+		},
+		{
+			MethodName: "ChangeSettings",
+			Handler:    _Server_ChangeSettings_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

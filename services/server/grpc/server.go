@@ -54,3 +54,13 @@ func (s *server) Version(ctx context.Context, req *serverpb.VersionRequest) (*se
 
 	return res, nil
 }
+
+// GetSettings returns current PMM Server settings.
+func (s *server) GetSettings(context.Context, *serverpb.GetSettingsRequest) (*serverpb.GetSettingsResponse, error) {
+	panic("not implemented yet")
+}
+
+// ChangeSettings changes PMM Server settings.
+func (s *server) ChangeSettings(context.Context, *serverpb.ChangeSettingsRequest) (*serverpb.ChangeSettingsResponse, error) {
+	panic("not implemented yet")
+}
