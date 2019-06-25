@@ -265,7 +265,7 @@ func setupFixture1(q *reform.Querier, username, password string) error {
 		Address:  "127.0.0.1",
 	})
 	if err != nil {
-		if status.Code(err) != codes.AlreadyExists {
+		if status.Code(err) == codes.AlreadyExists {
 			// this fixture was already added previously
 			return nil
 		}
