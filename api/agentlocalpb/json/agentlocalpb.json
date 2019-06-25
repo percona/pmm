@@ -124,7 +124,8 @@
                           "QAN_MYSQL_SLOWLOG_AGENT",
                           "QAN_MONGODB_PROFILER_AGENT",
                           "RDS_EXPORTER",
-                          "PROXYSQL_EXPORTER"
+                          "PROXYSQL_EXPORTER",
+                          "QAN_POSTGRESQL_PGSTATEMENTS_AGENT"
                         ]
                       },
                       "logs": {

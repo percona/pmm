@@ -1577,6 +1577,11 @@
                   "type": "integer",
                   "format": "int64"
                 },
+                "qan_postgresql_pgstatements_agent": {
+                  "description": "If true, adds qan-postgresql-pgstatements-agent for provided service.",
+                  "type": "boolean",
+                  "format": "boolean"
+                },
                 "replication_set": {
                   "description": "Replication set name.",
                   "type": "string"
@@ -1656,6 +1661,57 @@
                     },
                     "username": {
                       "description": "PostgreSQL username for scraping metrics.",
+                      "type": "string"
+                    }
+                  }
+                },
+                "qan_postgresql_pgstatements_agent": {
+                  "description": "QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.",
+                  "type": "object",
+                  "properties": {
+                    "agent_id": {
+                      "description": "Unique randomly generated instance identifier.",
+                      "type": "string"
+                    },
+                    "custom_labels": {
+                      "description": "Custom user-assigned labels.",
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      }
+                    },
+                    "disabled": {
+                      "description": "Desired Agent status: enabled (false) or disabled (true).",
+                      "type": "boolean",
+                      "format": "boolean"
+                    },
+                    "password": {
+                      "description": "PostgreSQL password for getting pg stat statements data.",
+                      "type": "string"
+                    },
+                    "pmm_agent_id": {
+                      "description": "The pmm-agent identifier which runs this instance.",
+                      "type": "string"
+                    },
+                    "service_id": {
+                      "description": "Service identifier.",
+                      "type": "string"
+                    },
+                    "status": {
+                      "description": "AgentStatus represents actual Agent status.",
+                      "type": "string",
+                      "default": "AGENT_STATUS_INVALID",
+                      "enum": [
+                        "AGENT_STATUS_INVALID",
+                        "STARTING",
+                        "RUNNING",
+                        "WAITING",
+                        "STOPPING",
+                        "DONE"
+                      ]
+                    },
+                    "username": {
+                      "description": "PostgreSQL username for getting pg stat statements data.",
                       "type": "string"
                     }
                   }

@@ -142,6 +142,9 @@ type AddPostgreSQLBody struct {
 	// Service Access port. Required.
 	Port int64 `json:"port,omitempty"`
 
+	// If true, adds qan-postgresql-pgstatements-agent for provided service.
+	QANPostgresqlPgstatementsAgent bool `json:"qan_postgresql_pgstatements_agent,omitempty"`
+
 	// Replication set name.
 	ReplicationSet string `json:"replication_set,omitempty"`
 
@@ -224,6 +227,9 @@ type AddPostgreSQLOKBody struct {
 	// postgres exporter
 	PostgresExporter *AddPostgreSQLOKBodyPostgresExporter `json:"postgres_exporter,omitempty"`
 
+	// qan postgresql pgstatements agent
+	QANPostgresqlPgstatementsAgent *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent `json:"qan_postgresql_pgstatements_agent,omitempty"`
+
 	// service
 	Service *AddPostgreSQLOKBodyService `json:"service,omitempty"`
 }
@@ -233,6 +239,10 @@ func (o *AddPostgreSQLOKBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validatePostgresExporter(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateQANPostgresqlPgstatementsAgent(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -256,6 +266,24 @@ func (o *AddPostgreSQLOKBody) validatePostgresExporter(formats strfmt.Registry) 
 		if err := o.PostgresExporter.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
 				return ve.ValidateName("addPostgreSqlOk" + "." + "postgres_exporter")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (o *AddPostgreSQLOKBody) validateQANPostgresqlPgstatementsAgent(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.QANPostgresqlPgstatementsAgent) { // not required
+		return nil
+	}
+
+	if o.QANPostgresqlPgstatementsAgent != nil {
+		if err := o.QANPostgresqlPgstatementsAgent.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("addPostgreSqlOk" + "." + "qan_postgresql_pgstatements_agent")
 			}
 			return err
 		}
@@ -414,6 +442,124 @@ func (o *AddPostgreSQLOKBodyPostgresExporter) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (o *AddPostgreSQLOKBodyPostgresExporter) UnmarshalBinary(b []byte) error {
 	var res AddPostgreSQLOKBodyPostgresExporter
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
+}
+
+/*AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent QANPostgreSQLPgStatementsAgent runs within pmm-agent and sends PostgreSQL Query Analytics data to the PMM Server.
+swagger:model AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent
+*/
+type AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent struct {
+
+	// Unique randomly generated instance identifier.
+	AgentID string `json:"agent_id,omitempty"`
+
+	// Custom user-assigned labels.
+	CustomLabels map[string]string `json:"custom_labels,omitempty"`
+
+	// Desired Agent status: enabled (false) or disabled (true).
+	Disabled bool `json:"disabled,omitempty"`
+
+	// PostgreSQL password for getting pg stat statements data.
+	Password string `json:"password,omitempty"`
+
+	// The pmm-agent identifier which runs this instance.
+	PMMAgentID string `json:"pmm_agent_id,omitempty"`
+
+	// Service identifier.
+	ServiceID string `json:"service_id,omitempty"`
+
+	// AgentStatus represents actual Agent status.
+	// Enum: [AGENT_STATUS_INVALID STARTING RUNNING WAITING STOPPING DONE]
+	Status *string `json:"status,omitempty"`
+
+	// PostgreSQL username for getting pg stat statements data.
+	Username string `json:"username,omitempty"`
+}
+
+// Validate validates this add postgre SQL OK body QAN postgresql pgstatements agent
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+var addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["AGENT_STATUS_INVALID","STARTING","RUNNING","WAITING","STOPPING","DONE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum = append(addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum, v)
+	}
+}
+
+const (
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSINVALID captures enum value "AGENT_STATUS_INVALID"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusAGENTSTATUSINVALID string = "AGENT_STATUS_INVALID"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusSTARTING captures enum value "STARTING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusSTARTING string = "STARTING"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusRUNNING captures enum value "RUNNING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusRUNNING string = "RUNNING"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusWAITING captures enum value "WAITING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusWAITING string = "WAITING"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusSTOPPING captures enum value "STOPPING"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusSTOPPING string = "STOPPING"
+
+	// AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusDONE captures enum value "DONE"
+	AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgentStatusDONE string = "DONE"
+)
+
+// prop value enum
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) validateStatusEnum(path, location string, value string) error {
+	if err := validate.Enum(path, location, value, addPostgreSqlOkBodyQanPostgresqlPgstatementsAgentTypeStatusPropEnum); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) validateStatus(formats strfmt.Registry) error {
+
+	if swag.IsZero(o.Status) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := o.validateStatusEnum("addPostgreSqlOk"+"."+"qan_postgresql_pgstatements_agent"+"."+"status", "body", *o.Status); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent) UnmarshalBinary(b []byte) error {
+	var res AddPostgreSQLOKBodyQANPostgresqlPgstatementsAgent
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

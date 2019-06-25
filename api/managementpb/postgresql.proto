@@ -73,6 +73,8 @@ message AddPostgreSQLRequest {
   ];
   // PostgreSQL password for scraping metrics.
   string password = 8;
+  // If true, adds qan-postgresql-pgstatements-agent for provided service.
+  bool qan_postgresql_pgstatements_agent = 14;
   // Custom user-assigned labels.
   map<string, string> custom_labels = 20;
   // Skip connection check.
@@ -82,6 +84,7 @@ message AddPostgreSQLRequest {
 message AddPostgreSQLResponse {
   inventory.PostgreSQLService service = 1;
   inventory.PostgresExporter postgres_exporter = 2;
+  inventory.QANPostgreSQLPgStatementsAgent qan_postgresql_pgstatements_agent = 3;
 }
 
 // PostgreSQL service provides public Management API methods for PostgreSQL Service.
