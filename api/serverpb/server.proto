@@ -21,6 +21,7 @@ option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
 option go_package = "serverpb";
 
 import "google/api/annotations.proto";
+import "google/protobuf/duration.proto";
 import "google/protobuf/timestamp.proto";
 import "protoc-gen-swagger/options/annotations.proto";
 
@@ -35,12 +36,58 @@ message VersionResponse {
   string pmm_managed_commit = 3;
 }
 
+// MetricsResolutions represents Prometheus exporters metrics resolutions.
+message MetricsResolutions {
+  // High resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+  google.protobuf.Duration hr = 1;
+  // Medium resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+  google.protobuf.Duration mr = 2;
+  // Low resolution. Suffix 's' is required in JSON: 1s, 60s, 300s.
+  google.protobuf.Duration lr = 3;
+}
+
+// Settings represents PMM Server settings.
+message Settings {
+  MetricsResolutions metrics_resolutions = 1;
+  bool telemetry = 2;
+}
+
+message GetSettingsRequest {}
+
+message GetSettingsResponse {
+  Settings settings = 1;
+}
+
+message ChangeSettingsRequest {
+  MetricsResolutions metrics_resolutions = 1;
+  bool enable_telemetry = 2;
+  bool disable_telemetry = 3;
+}
+
+message ChangeSettingsResponse {
+  Settings settings = 1;
+}
+
 // Server service provides generic PMM Server public APIs.
 service Server {
   // Version returns PMM Server version.
   rpc Version(VersionRequest) returns (VersionResponse) {
     option (google.api.http) = {
       get: "/v1/version"
+    };
+  }
+  // GetSettings returns current PMM Server settings.
+  rpc GetSettings(GetSettingsRequest) returns (GetSettingsResponse) {
+    option (google.api.http) = {
+      post: "/v1/GetSettings"
+      body: "*"
+    };
+  }
+  // ChangeSettings changes PMM Server settings.
+  rpc ChangeSettings(ChangeSettingsRequest) returns (ChangeSettingsResponse) {
+    option (google.api.http) = {
+      post: "/v1/ChangeSettings"
+      body: "*"
     };
   }
 }
