@@ -21,6 +21,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/percona/pmm/api/managementpb/json/client"
 	mysql "github.com/percona/pmm/api/managementpb/json/client/my_sql"
@@ -55,8 +56,12 @@ type addMySQLCommand struct {
 	ReplicationSet string
 	CustomLabels   string
 
-	UsePerfschema       bool
-	UseSlowLog          bool
+	QuerySource string
+
+	// TODO remove once https://jira.percona.com/browse/PMM-4255 is done
+	UsePerfschema bool
+	UseSlowLog    bool
+
 	SkipConnectionCheck bool
 }
 
@@ -80,6 +85,17 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
+	// ignore query source if old flags are present for compatibility
+	useSlowLog, usePerfschema := cmd.UseSlowLog, cmd.UsePerfschema
+	if !(useSlowLog || usePerfschema) {
+		switch cmd.QuerySource {
+		case "slowlog":
+			useSlowLog = true
+		case "perfschema":
+			usePerfschema = true
+		}
+	}
+
 	params := &mysql.AddMySQLParams{
 		Body: mysql.AddMySQLBody{
 			NodeID:         status.NodeID,
@@ -92,11 +108,11 @@ func (cmd *addMySQLCommand) Run() (commands.Result, error) {
 			ReplicationSet: cmd.ReplicationSet,
 			Username:       cmd.Username,
 			Password:       cmd.Password,
+			CustomLabels:   customLabels,
 
-			QANMysqlPerfschema: cmd.UsePerfschema,
-			QANMysqlSlowlog:    cmd.UseSlowLog,
+			QANMysqlSlowlog:    useSlowLog,
+			QANMysqlPerfschema: usePerfschema,
 
-			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
@@ -127,8 +143,12 @@ func init() {
 
 	AddMySQLC.Flag("username", "MySQL username").Default("root").StringVar(&AddMySQL.Username)
 	AddMySQLC.Flag("password", "MySQL password").StringVar(&AddMySQL.Password)
-	AddMySQLC.Flag("use-perfschema", "Run QAN perf schema agent").BoolVar(&AddMySQL.UsePerfschema)
-	AddMySQLC.Flag("use-slowlog", "Run QAN slow log agent").BoolVar(&AddMySQL.UseSlowLog)
+
+	querySources := []string{"slowlog", "perfschema"} // TODO add "auto"
+	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
+	AddMySQLC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddMySQL.QuerySource, querySources...)
+	AddMySQLC.Flag("use-perfschema", "Run QAN perf schema agent").Hidden().BoolVar(&AddMySQL.UsePerfschema)
+	AddMySQLC.Flag("use-slowlog", "Run QAN slow log agent").Hidden().BoolVar(&AddMySQL.UseSlowLog)
 
 	AddMySQLC.Flag("environment", "Environment name").StringVar(&AddMySQL.Environment)
 	AddMySQLC.Flag("cluster", "Cluster name").StringVar(&AddMySQL.Cluster)
