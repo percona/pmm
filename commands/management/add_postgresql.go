@@ -21,6 +21,7 @@ import (
 	"net"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/percona/pmm/api/managementpb/json/client"
 	postgresql "github.com/percona/pmm/api/managementpb/json/client/postgre_sql"
@@ -55,8 +56,9 @@ type addPostgreSQLCommand struct {
 	ReplicationSet string
 	CustomLabels   string
 
+	QuerySource string
+
 	SkipConnectionCheck bool
-	UsePgStatements     bool
 }
 
 func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
@@ -79,6 +81,12 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 		return nil, err
 	}
 
+	var usePgStatements bool
+	switch cmd.QuerySource {
+	case "pgstatements":
+		usePgStatements = true
+	}
+
 	params := &postgresql.AddPostgreSQLParams{
 		Body: postgresql.AddPostgreSQLBody{
 			NodeID:         status.NodeID,
@@ -91,10 +99,10 @@ func (cmd *addPostgreSQLCommand) Run() (commands.Result, error) {
 			ReplicationSet: cmd.ReplicationSet,
 			Username:       cmd.Username,
 			Password:       cmd.Password,
+			CustomLabels:   customLabels,
 
-			QANPostgresqlPgstatementsAgent: cmd.UsePgStatements,
+			QANPostgresqlPgstatementsAgent: usePgStatements,
 
-			CustomLabels:        customLabels,
 			SkipConnectionCheck: cmd.SkipConnectionCheck,
 		},
 		Context: commands.Ctx,
@@ -125,7 +133,10 @@ func init() {
 
 	AddPostgreSQLC.Flag("username", "PostgreSQL username").Default("postgres").StringVar(&AddPostgreSQL.Username)
 	AddPostgreSQLC.Flag("password", "PostgreSQL password").StringVar(&AddPostgreSQL.Password)
-	AddPostgreSQLC.Flag("use-pgstatements", "Run QAN pg stat statements agent").BoolVar(&AddPostgreSQL.UsePgStatements)
+
+	querySources := []string{"pgstatements"} // TODO add "auto"
+	querySourceHelp := fmt.Sprintf("Source of SQL queries, one of: %s (default: %s)", strings.Join(querySources, ", "), querySources[0])
+	AddPostgreSQLC.Flag("query-source", querySourceHelp).Default(querySources[0]).EnumVar(&AddPostgreSQL.QuerySource, querySources...)
 
 	AddPostgreSQLC.Flag("environment", "Environment name").StringVar(&AddPostgreSQL.Environment)
 	AddPostgreSQLC.Flag("cluster", "Cluster name").StringVar(&AddPostgreSQL.Cluster)
