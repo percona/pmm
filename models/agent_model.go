@@ -177,14 +177,25 @@ func (s *Agent) DSN(service *Service, dialTimeout time.Duration, database string
 
 		return cfg.FormatDSN()
 
-	case MongoDBExporterType:
-		// TODO return MongoURI for the new driver
-		fallthrough
+	case QANMongoDBProfilerAgentType, MongoDBExporterType:
+		q := make(url.Values)
+		if dialTimeout != 0 {
+			q.Set("connectTimeoutMS", strconv.Itoa(int(dialTimeout/time.Millisecond)))
+		}
 
-	case QANMongoDBProfilerAgentType:
+		// https://docs.mongodb.com/manual/reference/connection-string/
+		// > If the connection string does not specify a database/ you must specify a slash (/)
+		// between the last host and the question mark (?) that begins the string of options.
+		path := database
+		if database == "" {
+			path = "/"
+		}
+
 		u := &url.URL{
-			Scheme: "mongodb",
-			Host:   net.JoinHostPort(host, strconv.Itoa(int(port))),
+			Scheme:   "mongodb",
+			Host:     net.JoinHostPort(host, strconv.Itoa(int(port))),
+			Path:     path,
+			RawQuery: q.Encode(),
 		}
 		switch {
 		case password != "":
