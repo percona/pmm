@@ -29,6 +29,10 @@ linters:
     - scopelint  # too many false positives
     - gochecknoglobals  # mostly useless
 
+run:
+  skip-dirs:
+    - agents/mongodb/internal/
+
 issues:
   exclude-use-default: false
   exclude:

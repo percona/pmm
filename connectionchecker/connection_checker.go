@@ -18,6 +18,7 @@
 package connectionchecker
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -26,7 +27,8 @@ import (
 	_ "github.com/lib/pq"              // register SQL driver
 	"github.com/percona/pmm/api/agentpb"
 	"github.com/percona/pmm/api/inventorypb"
-	"gopkg.in/mgo.v2"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // ConnectionChecker is a struct to check connection to services.
@@ -53,13 +55,17 @@ func (c *ConnectionChecker) Check(msg *agentpb.CheckConnectionRequest) error {
 }
 
 func (c *ConnectionChecker) checkMongoDBConnection(dsn string) error {
-	session, err := mgo.DialWithTimeout(dsn, time.Second) // TODO make timeout configurable
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second) // TODO make timeout configurable
+	defer cancel()
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(dsn))
 	if err != nil {
 		return err
 	}
-	defer session.Close()
 
-	return session.Ping()
+	defer client.Disconnect(ctx) //nolint:errcheck
+
+	return client.Ping(ctx, nil)
 }
 
 func (c *ConnectionChecker) checkSQLConnection(driver string, dsn string) error {

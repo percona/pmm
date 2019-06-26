@@ -17,16 +17,16 @@
 package profiler
 
 import (
+	"context"
 	"testing"
 	"time"
 
-	"github.com/percona/pmgo"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/mgo.v2/bson"
+	"go.mongodb.org/mongo-driver/bson"
 
 	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
 	"github.com/percona/pmm-agent/agents/mongodb/internal/report"
@@ -39,23 +39,18 @@ func TestProfiler(t *testing.T) {
 
 	url := "mongodb://root:root-password@127.0.0.1:27017"
 
-	dialInfo, err := pmgo.ParseURL(url)
+	sess, err := createSession(url)
 	require.NoError(t, err)
 
-	dialer := pmgo.NewDialer()
-
-	sess, err := createSession(dialInfo, dialer)
-	require.NoError(t, err)
-
-	err = sess.DB("test").DropDatabase()
+	err = sess.Database("test").Drop(context.TODO())
 	require.NoError(t, err)
 
 	ms := &testWriter{t: t}
-	prof := New(dialInfo, dialer, logrus.WithField("component", "profiler-test"), ms, "test-id")
+	prof := New(url, logrus.WithField("component", "profiler-test"), ms, "test-id")
 	err = prof.Start()
 	require.NoError(t, err)
-
-	err = sess.DB("test").C("peoples").Insert(bson.M{"name": "Anton"}, bson.M{"name": "Alexey"})
+	data := []interface{}{bson.M{"name": "Anton"}, bson.M{"name": "Alexey"}}
+	_, err = sess.Database("test").Collection("peoples").InsertMany(context.TODO(), data)
 	assert.NoError(t, err)
 
 	<-time.After(aggregator.DefaultInterval)

@@ -74,7 +74,7 @@ func TestConnectionChecker_Check(t *testing.T) {
 				Dsn:  "mongodb://root:root-password-wrong@127.0.0.1:27017/admin",
 				Type: inventorypb.ServiceType_MONGODB_SERVICE,
 			},
-			expected: `server returned error on SASL authentication step: Authentication failed.`,
+			expected: `Authentication failed.`,
 		},
 	}
 	for _, tt := range tests {
@@ -89,4 +89,15 @@ func TestConnectionChecker_Check(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestConnectionChecker_MongoDSNWithoutSlashShouldProduceError(t *testing.T) {
+	c := New()
+	err := c.Check(&agentpb.CheckConnectionRequest{
+		Dsn:  "mongodb://root:root-password@127.0.0.1:27017?connectTimeoutMS=1000",
+		Type: inventorypb.ServiceType_MONGODB_SERVICE,
+	})
+
+	assert.Error(t, err)
+	assert.EqualError(t, err, "error parsing uri: must have a / before the query ?")
 }

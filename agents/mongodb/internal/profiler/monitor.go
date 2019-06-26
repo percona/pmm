@@ -20,26 +20,30 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/percona/pmgo"
+	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/mongo"
 
 	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
 	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/collector"
 	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/parser"
 )
 
-func NewMonitor(session pmgo.SessionManager, dbName string, aggregator *aggregator.Aggregator) *monitor {
+// NewMonitor creates new monitor.
+func NewMonitor(client *mongo.Client, dbName string, aggregator *aggregator.Aggregator, logger *logrus.Entry) *monitor {
 	return &monitor{
-		session:    session,
+		client:     client,
 		dbName:     dbName,
 		aggregator: aggregator,
+		logger:     logger,
 	}
 }
 
 type monitor struct {
 	// dependencies
-	session    pmgo.SessionManager
+	client     *mongo.Client
 	dbName     string
 	aggregator *aggregator.Aggregator
+	logger     *logrus.Entry
 
 	// internal services
 	services []services
@@ -69,7 +73,7 @@ func (m *monitor) Start() error {
 	}()
 
 	// create collector and start it
-	c := collector.New(m.session, m.dbName)
+	c := collector.New(m.client, m.dbName, m.logger)
 	docsChan, err := c.Start()
 	if err != nil {
 		return err

@@ -20,10 +20,10 @@ package mongodb
 import (
 	"context"
 
-	"github.com/percona/pmgo"
 	"github.com/percona/pmm/api/inventorypb"
 	"github.com/percona/pmm/api/qanpb"
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/x/network/connstring"
 
 	"github.com/percona/pmm-agent/agents"
 	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler"
@@ -36,8 +36,7 @@ type MongoDB struct {
 	l       *logrus.Entry
 	changes chan Change
 
-	dialInfo *pmgo.DialInfo
-	dialer   pmgo.Dialer
+	mongoDSN string
 }
 
 // Params represent Agent parameters.
@@ -52,19 +51,18 @@ type Change = agents.Change
 // New creates new MongoDB QAN service.
 func New(params *Params, l *logrus.Entry) (*MongoDB, error) {
 	// if dsn is incorrect we should exit immediately as this is not gonna correct itself
-	dialInfo, err := pmgo.ParseURL(params.DSN)
+	_, err := connstring.Parse(params.DSN)
 	if err != nil {
 		return nil, err
 	}
 
-	return newMongo(dialInfo, l, params), nil
+	return newMongo(params.DSN, l, params), nil
 }
 
-func newMongo(dialInfo *pmgo.DialInfo, l *logrus.Entry, params *Params) *MongoDB {
+func newMongo(mongoDSN string, l *logrus.Entry, params *Params) *MongoDB {
 	return &MongoDB{
 		agentID:  params.AgentID,
-		dialInfo: dialInfo,
-		dialer:   pmgo.NewDialer(),
+		mongoDSN: mongoDSN,
 
 		l:       l,
 		changes: make(chan Change, 10),
@@ -84,7 +82,7 @@ func (m *MongoDB) Run(ctx context.Context) {
 
 	m.changes <- Change{Status: inventorypb.AgentStatus_STARTING}
 
-	prof = profiler.New(m.dialInfo, m.dialer, m.l, m, m.agentID)
+	prof = profiler.New(m.mongoDSN, m.l, m, m.agentID)
 	if err := prof.Start(); err != nil {
 		m.changes <- Change{Status: inventorypb.AgentStatus_STOPPING}
 		return

@@ -17,11 +17,13 @@
 package profiler
 
 import (
+	"context"
 	"log"
 	"sync"
 	"time"
 
-	"github.com/percona/pmgo"
+	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 const (
@@ -30,20 +32,22 @@ const (
 	MgoTimeoutSessionSocket = 5 * time.Second
 )
 
-type newMonitor func(session pmgo.SessionManager, dbName string) *monitor
+type newMonitor func(client *mongo.Client, logger *logrus.Entry, dbName string) *monitor
 
-func NewMonitors(session pmgo.SessionManager, newMonitor newMonitor) *monitors {
+func NewMonitors(client *mongo.Client, newMonitor newMonitor, logger *logrus.Entry) *monitors {
 	return &monitors{
-		session:    session,
+		client:     client,
 		newMonitor: newMonitor,
 		monitors:   map[string]*monitor{},
+		logger:     logger,
 	}
 }
 
 type monitors struct {
 	// dependencies
-	session    pmgo.SessionManager
+	client     *mongo.Client
 	newMonitor newMonitor
+	logger     *logrus.Entry
 
 	// monitors
 	monitors map[string]*monitor
@@ -76,7 +80,8 @@ func (ms *monitors) MonitorAll() error {
 
 		// if database is not monitored yet then we need to create new monitor
 		m := ms.newMonitor(
-			ms.session,
+			ms.client,
+			ms.logger,
 			dbName,
 		)
 		// ... and start it
@@ -138,7 +143,5 @@ func (ms *monitors) GetAll() map[string]*monitor {
 }
 
 func (ms *monitors) listDatabases() ([]string, error) {
-	session := ms.session.Copy()
-	defer session.Close()
-	return session.DatabaseNames()
+	return ms.client.ListDatabaseNames(context.TODO(), nil)
 }

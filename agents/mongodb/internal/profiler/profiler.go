@@ -17,23 +17,24 @@
 package profiler
 
 import (
+	"context"
 	"fmt"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/percona/pmgo"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/mgo.v2"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 
 	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/aggregator"
 	"github.com/percona/pmm-agent/agents/mongodb/internal/profiler/sender"
 )
 
-func New(dialInfo *pmgo.DialInfo, dialer pmgo.Dialer, logger *logrus.Entry, w sender.Writer, agentID string) *profiler {
+// New creates new Profiler
+func New(mongoDSN string, logger *logrus.Entry, w sender.Writer, agentID string) *profiler {
 	return &profiler{
-		dialInfo: dialInfo,
-		dialer:   dialer,
+		mongoDSN: mongoDSN,
 		logger:   logger,
 		w:        w,
 		agentID:  agentID,
@@ -42,15 +43,14 @@ func New(dialInfo *pmgo.DialInfo, dialer pmgo.Dialer, logger *logrus.Entry, w se
 
 type profiler struct {
 	// dependencies
-	dialInfo *pmgo.DialInfo
-	dialer   pmgo.Dialer
+	mongoDSN string
 	w        sender.Writer
 	logger   *logrus.Entry
 	agentID  string
 
 	// internal deps
 	monitors   *monitors
-	session    pmgo.SessionManager
+	client     *mongo.Client
 	aggregator *aggregator.Aggregator
 	sender     *sender.Sender
 
@@ -70,11 +70,11 @@ func (p *profiler) Start() error {
 	}
 
 	// create new session
-	session, err := createSession(p.dialInfo, p.dialer)
+	client, err := createSession(p.mongoDSN)
 	if err != nil {
 		return err
 	}
-	p.session = session
+	p.client = client
 
 	// create aggregator which collects documents and aggregates them into qan report
 	p.aggregator = aggregator.New(time.Now(), p.agentID)
@@ -87,12 +87,12 @@ func (p *profiler) Start() error {
 		return err
 	}
 
-	f := func(session pmgo.SessionManager, dbName string) *monitor {
-		return NewMonitor(session, dbName, p.aggregator)
+	f := func(client *mongo.Client, logger *logrus.Entry, dbName string) *monitor {
+		return NewMonitor(client, dbName, p.aggregator, logger)
 	}
 
 	// create monitors service which we use to periodically scan server for new/removed databases
-	p.monitors = NewMonitors(session, f)
+	p.monitors = NewMonitors(client, f, p.logger)
 
 	// create new channel over which
 	// we will tell goroutine it should close
@@ -165,7 +165,6 @@ func (p *profiler) Status() map[string]string {
 		statusesMap[key.(string)] = value.(string)
 		return true
 	})
-	statusesMap["servers"] = strings.Join(p.session.LiveServers(), ", ")
 	return statusesMap
 }
 
@@ -190,7 +189,7 @@ func (p *profiler) Stop() error {
 	p.sender.Stop()
 
 	// close the session; do it after goroutine is closed
-	p.session.Close()
+	p.client.Disconnect(context.TODO()) //nolint:errcheck
 
 	// set state to "not running"
 	p.running = false
@@ -231,17 +230,19 @@ func signalReady(ready *sync.Cond) {
 	ready.Broadcast()
 }
 
-func createSession(dialInfo *pmgo.DialInfo, dialer pmgo.Dialer) (pmgo.SessionManager, error) {
-	dialInfo.Timeout = MgoTimeoutDialInfo
-	// Disable automatic replicaSet detection, connect directly to specified server
-	dialInfo.Direct = true
-	session, err := dialer.DialWithInfo(dialInfo)
+func createSession(dsn string) (*mongo.Client, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), MgoTimeoutDialInfo)
+	defer cancel()
+	opts := options.Client().
+		ApplyURI(dsn).
+		SetDirect(true).
+		SetReadPreference(readpref.Nearest()).
+		SetSocketTimeout(MgoTimeoutSessionSocket)
+
+	client, err := mongo.Connect(ctx, opts)
 	if err != nil {
 		return nil, err
 	}
-	session.SetMode(mgo.Eventual, true)
-	session.SetSyncTimeout(MgoTimeoutSessionSync)
-	session.SetSocketTimeout(MgoTimeoutSessionSocket)
 
-	return session, nil
+	return client, nil
 }

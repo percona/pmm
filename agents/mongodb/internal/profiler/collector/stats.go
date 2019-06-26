@@ -24,5 +24,4 @@ type stats struct {
 	IteratorRestartCounter int64  `name:"iterator-restart-counter"`
 	IteratorErrLast        string `name:"iterator-err-last"`
 	IteratorErrCounter     int64  `name:"iterator-err-counter"`
-	IteratorTimeout        int64  `name:"iterator-timeout"`
 }
