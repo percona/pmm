@@ -96,6 +96,10 @@ func (e *mysqlExplainAction) explainDefault(ctx context.Context, conn *sql.Conn)
 		return nil, err
 	}
 
+	// TODO Convert results to the output similar to mysql's CLI \G format
+	// for compatibility with pt-visual-explain.
+	// https://jira.percona.com/browse/PMM-4107
+
 	var buf bytes.Buffer
 	w := tabwriter.NewWriter(&buf, 0, 0, 1, ' ', tabwriter.Debug)
 	w.Write([]byte(strings.Join(columns, "\t"))) //nolint:errcheck
