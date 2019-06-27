@@ -78,7 +78,7 @@ func Run() {
 		for appCtx.Err() == nil {
 			ctx, cancel := context.WithCancel(appCtx)
 			supervisor := supervisor.NewSupervisor(ctx, &cfg.Paths, &cfg.Ports)
-			connectionChecker := connectionchecker.New()
+			connectionChecker := connectionchecker.New(ctx)
 			client := client.New(cfg, supervisor, connectionChecker)
 			localServer := agentlocal.NewServer(cfg, supervisor, client, configFilePath)
 
