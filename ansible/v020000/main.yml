@@ -104,7 +104,7 @@
         - pmm-manage-2.0.0
         - pmm-managed-2.0.0
         - rds_exporter-2.0.0
-        - percona-clickhouse-server-19.5.3.8
+        - percona-clickhouse-server-19.7.5.27
 
     - name: PMM                        | Restore unmanaged configs
       copy: src={{ item.src }} dest={{ item.dest }}
