@@ -19,6 +19,7 @@ package commands
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/percona/pmm/api/agentlocalpb/json/client/agent_local"
 	"github.com/percona/pmm/api/managementpb/json/client/node"
@@ -70,11 +71,14 @@ func Setup() {
 	}
 	fmt.Printf("Configuration file %s updated.\n", configFilePath)
 
-	if running {
-		reload(l)
-	} else {
+	if !running {
 		fmt.Printf("Please start pmm-agent: `pmm-agent --config-file=%s`.\n", configFilePath)
+		return
 	}
+
+	reload(l)
+
+	checkStatus(configFilePath, l)
 }
 
 func checkStatus(configFilePath string, l *logrus.Entry) (string, bool) {
@@ -154,5 +158,14 @@ func reload(l *logrus.Entry) {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Configuration reloaded.\n")
+	// wait up to 5 seconds for pmm-agent to reload itself
+	for i := 0; i < 5; i++ {
+		time.Sleep(time.Second)
+		_, err = localStatus()
+		l.Debugf("Status error: %#v", err)
+		if err == nil {
+			fmt.Printf("Configuration reloaded.\n")
+			return
+		}
+	}
 }
