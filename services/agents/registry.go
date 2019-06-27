@@ -19,6 +19,7 @@ package agents
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"time"
 
@@ -503,7 +504,7 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, service *models
 	l := logger.Get(ctx)
 	start := time.Now()
 	defer func() {
-		if dur := time.Since(start); dur > 2*time.Second {
+		if dur := time.Since(start); dur > 4*time.Second {
 			l.Warnf("CheckConnectionToService took %s.", dur)
 		}
 	}()
@@ -519,35 +520,41 @@ func (r *Registry) CheckConnectionToService(ctx context.Context, service *models
 	case models.MySQLServiceType:
 		request = &agentpb.CheckConnectionRequest{
 			Type: inventorypb.ServiceType_MYSQL_SERVICE,
-			Dsn:  agent.DSN(service, time.Second, ""),
+			Dsn:  agent.DSN(service, 2*time.Second, ""),
 		}
 	case models.PostgreSQLServiceType:
 		request = &agentpb.CheckConnectionRequest{
 			Type: inventorypb.ServiceType_POSTGRESQL_SERVICE,
-			Dsn:  agent.DSN(service, time.Second, "postgres"),
+			Dsn:  agent.DSN(service, 2*time.Second, "postgres"),
 		}
 	case models.MongoDBServiceType:
 		request = &agentpb.CheckConnectionRequest{
 			Type: inventorypb.ServiceType_MONGODB_SERVICE,
-			Dsn:  agent.DSN(service, time.Second, ""),
+			Dsn:  agent.DSN(service, 2*time.Second, ""),
 		}
 	case models.ProxySQLServiceType:
 		request = &agentpb.CheckConnectionRequest{
 			Type: inventorypb.ServiceType_PROXYSQL_SERVICE,
-			Dsn:  agent.DSN(service, time.Second, ""),
+			Dsn:  agent.DSN(service, 2*time.Second, ""),
 		}
 	default:
 		l.Panicf("unhandled Service type %s", service.ServiceType)
 	}
 
+	request.Timeout = ptypes.DurationProto(3 * time.Second)
+
 	l.Infof("CheckConnectionRequest: %+v.", request)
 	resp := pmmAgent.channel.SendRequest(request)
 	l.Infof("CheckConnection response: %+v.", resp)
-	checkConnectionResponse := resp.(*agentpb.CheckConnectionResponse)
-	if checkConnectionResponse.Error != "" {
-		return status.Error(codes.FailedPrecondition, checkConnectionResponse.Error)
+
+	msg := resp.(*agentpb.CheckConnectionResponse).Error
+	switch msg {
+	case "":
+		return nil
+	case context.Canceled.Error(), context.DeadlineExceeded.Error():
+		msg = fmt.Sprintf("timeout (%s)", msg)
 	}
-	return nil
+	return status.Error(codes.FailedPrecondition, fmt.Sprintf("Connection check failed: %s.", msg))
 }
 
 func (r *Registry) get(pmmAgentID string) (*agentInfo, error) {
