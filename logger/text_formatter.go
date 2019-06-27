@@ -21,6 +21,7 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -50,6 +51,10 @@ func (f *TextFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		caller = fileVal + " " + funcVal + " "
 	}
 
+	if entry.Level >= logrus.DebugLevel {
+		now := time.Now().UTC().Format("2006-01-02 15:04:05.999999999Z")
+		fmt.Fprintf(b, "%s %s: ", strings.ToUpper(entry.Level.String()), now)
+	}
 	fmt.Fprintf(b, "%s%-44s\n", caller, entry.Message)
 
 	return b.Bytes(), nil

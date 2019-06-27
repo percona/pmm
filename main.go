@@ -70,9 +70,9 @@ func main() {
 
 	cmd := kingpin.Parse()
 
-	logrus.SetFormatter(new(logger.TextFormatter))
+	logrus.SetFormatter(new(logger.TextFormatter)) // with levels and timestamps for debug and trace
 	if *jsonF {
-		logrus.SetFormatter(new(logrus.JSONFormatter)) // with level and timestamps
+		logrus.SetFormatter(new(logrus.JSONFormatter)) // with levels and timestamps always present
 	}
 	if commands.GlobalFlags.Debug {
 		logrus.SetLevel(logrus.DebugLevel)
