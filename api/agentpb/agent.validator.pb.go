@@ -6,6 +6,7 @@ package agentpb
 import (
 	fmt "fmt"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/golang/protobuf/ptypes/duration"
 	_ "github.com/golang/protobuf/ptypes/timestamp"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 	_ "github.com/percona/pmm/api/inventorypb"
@@ -137,6 +138,11 @@ func (this *ActionResultResponse) Validate() error {
 	return nil
 }
 func (this *CheckConnectionRequest) Validate() error {
+	if this.Timeout != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Timeout); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Timeout", err)
+		}
+	}
 	return nil
 }
 func (this *CheckConnectionResponse) Validate() error {
