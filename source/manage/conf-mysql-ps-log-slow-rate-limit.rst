@@ -1,6 +1,3 @@
-`Percona Server specific settings <pmm.conf-mysql.settings.ps>`_
-==================================================================
-
 `log_slow_rate_limit <pmm.conf-mysql.log-slow-rate-limit>`_
 --------------------------------------------------------------------------------
 
