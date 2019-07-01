@@ -32,23 +32,25 @@ import (
 	"github.com/percona/pmm-managed/services/prometheus/internal/prometheus/discovery/targetgroup"
 )
 
-// standard high, medium, and low resolution values
-const (
-	hrInterval = model.Duration(1 * time.Second)
-	hrTimeout  = model.Duration(1 * time.Second)
-	mrInterval = model.Duration(5 * time.Second)
-	mrTimeout  = model.Duration(4 * time.Second)
-	lrInterval = model.Duration(60 * time.Second)
-	lrTimeout  = model.Duration(10 * time.Second)
-)
-
 const addressLabel = model.LabelName(model.AddressLabel)
 
-func scrapeConfigForPrometheus() *config.ScrapeConfig {
+// scrapeTimeout returns default scrape timeout for given scrape interval.
+func scrapeTimeout(interval time.Duration) model.Duration {
+	switch {
+	case interval <= 2*time.Second:
+		return model.Duration(time.Second)
+	case interval <= 10*time.Second:
+		return model.Duration(interval - time.Second)
+	default:
+		return model.Duration(10 * time.Second)
+	}
+}
+
+func scrapeConfigForPrometheus(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "prometheus",
-		ScrapeInterval: hrInterval,
-		ScrapeTimeout:  hrTimeout,
+		ScrapeInterval: model.Duration(interval),
+		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/prometheus/metrics",
 		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
 			StaticConfigs: []*targetgroup.Group{{
@@ -59,11 +61,11 @@ func scrapeConfigForPrometheus() *config.ScrapeConfig {
 	}
 }
 
-func scrapeConfigForGrafana() *config.ScrapeConfig {
+func scrapeConfigForGrafana(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "grafana",
-		ScrapeInterval: mrInterval,
-		ScrapeTimeout:  mrTimeout,
+		ScrapeInterval: model.Duration(interval),
+		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/metrics",
 		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
 			StaticConfigs: []*targetgroup.Group{{
@@ -74,11 +76,11 @@ func scrapeConfigForGrafana() *config.ScrapeConfig {
 	}
 }
 
-func scrapeConfigForPMMManaged() *config.ScrapeConfig {
+func scrapeConfigForPMMManaged(interval time.Duration) *config.ScrapeConfig {
 	return &config.ScrapeConfig{
 		JobName:        "pmm-managed",
-		ScrapeInterval: mrInterval,
-		ScrapeTimeout:  mrTimeout,
+		ScrapeInterval: model.Duration(interval),
+		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/debug/metrics",
 		ServiceDiscoveryConfig: sd_config.ServiceDiscoveryConfig{
 			StaticConfigs: []*targetgroup.Group{{
@@ -131,7 +133,7 @@ func jobName(agent *models.Agent) string {
 }
 
 // scrapeConfigForStandardExporter returns scrape config for standard exporter: /metrics endpoint, high resolution.
-func scrapeConfigForStandardExporter(node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
+func scrapeConfigForStandardExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
 	labels, err := mergeLabels(node, service, agent)
 	if err != nil {
 		return nil, err
@@ -139,8 +141,8 @@ func scrapeConfigForStandardExporter(node *models.Node, service *models.Service,
 
 	cfg := &config.ScrapeConfig{
 		JobName:        jobName(agent),
-		ScrapeInterval: hrInterval,
-		ScrapeTimeout:  hrTimeout,
+		ScrapeInterval: model.Duration(interval),
+		ScrapeTimeout:  scrapeTimeout(interval),
 		MetricsPath:    "/metrics",
 	}
 
@@ -164,11 +166,11 @@ func scrapeConfigForStandardExporter(node *models.Node, service *models.Service,
 	return cfg, nil
 }
 
-func scrapeConfigForNodeExporter(node *models.Node, agent *models.Agent) (*config.ScrapeConfig, error) {
-	return scrapeConfigForStandardExporter(node, nil, agent)
+func scrapeConfigForNodeExporter(interval time.Duration, node *models.Node, agent *models.Agent) (*config.ScrapeConfig, error) {
+	return scrapeConfigForStandardExporter(interval, node, nil, agent)
 }
 
-func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
+func scrapeConfigsForMySQLdExporter(s *models.MetricsResolutions, node *models.Node, service *models.Service, agent *models.Agent) ([]*config.ScrapeConfig, error) {
 	labels, err := mergeLabels(node, service, agent)
 	if err != nil {
 		return nil, err
@@ -176,20 +178,20 @@ func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, 
 
 	hr := &config.ScrapeConfig{
 		JobName:        jobName(agent) + "_hr",
-		ScrapeInterval: hrInterval,
-		ScrapeTimeout:  hrTimeout,
+		ScrapeInterval: model.Duration(s.HR),
+		ScrapeTimeout:  scrapeTimeout(s.HR),
 		MetricsPath:    "/metrics-hr",
 	}
 	mr := &config.ScrapeConfig{
 		JobName:        jobName(agent) + "_mr",
-		ScrapeInterval: mrInterval,
-		ScrapeTimeout:  mrTimeout,
+		ScrapeInterval: model.Duration(s.MR),
+		ScrapeTimeout:  scrapeTimeout(s.MR),
 		MetricsPath:    "/metrics-mr",
 	}
 	lr := &config.ScrapeConfig{
 		JobName:        jobName(agent) + "_lr",
-		ScrapeInterval: lrInterval,
-		ScrapeTimeout:  lrTimeout,
+		ScrapeInterval: model.Duration(s.LR),
+		ScrapeTimeout:  scrapeTimeout(s.LR),
 		MetricsPath:    "/metrics-lr",
 	}
 	res := []*config.ScrapeConfig{hr, mr, lr}
@@ -216,14 +218,14 @@ func scrapeConfigsForMySQLdExporter(node *models.Node, service *models.Service, 
 	return res, nil
 }
 
-func scrapeConfigForPostgresExporter(node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	return scrapeConfigForStandardExporter(node, service, agent)
+func scrapeConfigForPostgresExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
+	return scrapeConfigForStandardExporter(interval, node, service, agent)
 }
 
-func scrapeConfigForMongoDBExporter(node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	return scrapeConfigForStandardExporter(node, service, agent)
+func scrapeConfigForMongoDBExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
+	return scrapeConfigForStandardExporter(interval, node, service, agent)
 }
 
-func scrapeConfigForProxySQLExporter(node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
-	return scrapeConfigForStandardExporter(node, service, agent)
+func scrapeConfigForProxySQLExporter(interval time.Duration, node *models.Node, service *models.Service, agent *models.Agent) (*config.ScrapeConfig, error) {
+	return scrapeConfigForStandardExporter(interval, node, service, agent)
 }

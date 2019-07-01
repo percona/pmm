@@ -71,13 +71,19 @@ func TestScrapeConfig(t *testing.T) {
 				},
 			}
 
-			actual, err := scrapeConfigForNodeExporter(node, agent)
+			actual, err := scrapeConfigForNodeExporter(time.Second, node, agent)
 			require.NoError(t, err)
 			assertScrappedConfigsEqual(t, expected, actual)
 		})
 	})
 
 	t.Run("scrapeConfigsForMySQLdExporter", func(t *testing.T) {
+		s := &models.MetricsResolutions{
+			HR: time.Second,
+			MR: 5 * time.Second,
+			LR: 60 * time.Second,
+		}
+
 		t.Run("Normal", func(t *testing.T) {
 			node := &models.Node{
 				NodeID:       "/node_id/cc663f36-18ca-40a1-aea9-c6310bb4738d",
@@ -164,7 +170,7 @@ func TestScrapeConfig(t *testing.T) {
 				},
 			}}
 
-			actual, err := scrapeConfigsForMySQLdExporter(node, service, agent)
+			actual, err := scrapeConfigsForMySQLdExporter(s, node, service, agent)
 			require.NoError(t, err)
 			require.Len(t, actual, len(expected))
 			for i := 0; i < len(expected); i++ {
@@ -180,7 +186,7 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigsForMySQLdExporter(node, service, agent)
+			_, err := scrapeConfigsForMySQLdExporter(s, node, service, agent)
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
@@ -230,7 +236,7 @@ func TestScrapeConfig(t *testing.T) {
 				},
 			}
 
-			actual, err := scrapeConfigForMongoDBExporter(node, service, agent)
+			actual, err := scrapeConfigForMongoDBExporter(time.Second, node, service, agent)
 			require.NoError(t, err)
 			assertScrappedConfigsEqual(t, expected, actual)
 		})
@@ -243,7 +249,7 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigForMongoDBExporter(node, service, agent)
+			_, err := scrapeConfigForMongoDBExporter(time.Second, node, service, agent)
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
@@ -293,7 +299,7 @@ func TestScrapeConfig(t *testing.T) {
 				},
 			}
 
-			actual, err := scrapeConfigForPostgresExporter(node, service, agent)
+			actual, err := scrapeConfigForPostgresExporter(time.Second, node, service, agent)
 			require.NoError(t, err)
 			assertScrappedConfigsEqual(t, expected, actual)
 		})
@@ -306,7 +312,7 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigForPostgresExporter(node, service, agent)
+			_, err := scrapeConfigForPostgresExporter(time.Second, node, service, agent)
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
@@ -356,7 +362,7 @@ func TestScrapeConfig(t *testing.T) {
 				},
 			}
 
-			actual, err := scrapeConfigForProxySQLExporter(node, service, agent)
+			actual, err := scrapeConfigForProxySQLExporter(time.Second, node, service, agent)
 			require.NoError(t, err)
 			assertScrappedConfigsEqual(t, expected, actual)
 		})
@@ -369,11 +375,10 @@ func TestScrapeConfig(t *testing.T) {
 				ListenPort:   pointer.ToUint16(12345),
 			}
 
-			_, err := scrapeConfigForProxySQLExporter(node, service, agent)
+			_, err := scrapeConfigForProxySQLExporter(time.Second, node, service, agent)
 			require.EqualError(t, err, "failed to decode custom labels: unexpected end of JSON input")
 		})
 	})
-
 }
 
 func assertScrappedConfigsEqual(t *testing.T, expected, actual *config.ScrapeConfig) bool {

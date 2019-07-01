@@ -19,6 +19,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	_ "expvar" // register /debug/vars
 	"flag"
 	"fmt"
@@ -63,7 +64,7 @@ import (
 	managementgrpc "github.com/percona/pmm-managed/services/management/grpc"
 	"github.com/percona/pmm-managed/services/prometheus"
 	"github.com/percona/pmm-managed/services/qan"
-	servergrpc "github.com/percona/pmm-managed/services/server/grpc"
+	"github.com/percona/pmm-managed/services/server"
 	"github.com/percona/pmm-managed/services/telemetry"
 	"github.com/percona/pmm-managed/utils/interceptors"
 	"github.com/percona/pmm-managed/utils/logger"
@@ -125,8 +126,9 @@ func addLogsHandler(mux *http.ServeMux, logs *logs.Logs) {
 }
 
 type serviceDependencies struct {
-	prometheus     *prometheus.Service
 	db             *reform.DB
+	prometheus     *prometheus.Service
+	server         *server.Server
 	portsRegistry  *ports.Registry
 	agentsRegistry *agents.Registry
 	logs           *logs.Logs
@@ -148,7 +150,7 @@ func runGRPCServer(ctx context.Context, deps *serviceDependencies) {
 		)),
 	)
 
-	serverpb.RegisterServerServer(gRPCServer, servergrpc.NewServer())
+	serverpb.RegisterServerServer(gRPCServer, deps.server)
 
 	agentpb.RegisterAgentServer(gRPCServer, agentgrpc.NewAgentServer(deps.agentsRegistry))
 
@@ -223,14 +225,16 @@ func runJSONServer(ctx context.Context, logs *logs.Logs) {
 	type registrar func(context.Context, *runtime.ServeMux, string, []grpc.DialOption) error
 	for _, r := range []registrar{
 		serverpb.RegisterServerHandlerFromEndpoint,
+
 		inventorypb.RegisterNodesHandlerFromEndpoint,
 		inventorypb.RegisterServicesHandlerFromEndpoint,
 		inventorypb.RegisterAgentsHandlerFromEndpoint,
-		managementpb.RegisterMySQLHandlerFromEndpoint,
-		managementpb.RegisterPostgreSQLHandlerFromEndpoint,
+
 		managementpb.RegisterNodeHandlerFromEndpoint,
 		managementpb.RegisterServiceHandlerFromEndpoint,
+		managementpb.RegisterMySQLHandlerFromEndpoint,
 		managementpb.RegisterMongoDBHandlerFromEndpoint,
+		managementpb.RegisterPostgreSQLHandlerFromEndpoint,
 		managementpb.RegisterProxySQLHandlerFromEndpoint,
 		managementpb.RegisterActionsHandlerFromEndpoint,
 	} {
@@ -325,37 +329,58 @@ func runDebugServer(ctx context.Context, collectors ...prom.Collector) {
 }
 
 func runTelemetryService(ctx context.Context, db *reform.DB) {
-	l := logrus.WithField("component", "telemetry")
-
 	// Do not report this instance as running for the first 5 minutes.
 	// Among other things, that solves reporting during PMM Server building when we start pmm-managed.
 	sleepCtx, sleepCancel := context.WithTimeout(ctx, 5*time.Minute)
 	<-sleepCtx.Done()
 	sleepCancel()
 
-	const delay = 10 * time.Second
-	for ctx.Err() == nil {
-		uuid, err := telemetry.GetTelemetryUUID(db)
-		if err == nil {
-			svc := telemetry.NewService(uuid, version.Version)
-			svc.Run(ctx)
-			return
-		}
-		l.Debugf("Cannot get/set telemetry UUID, retrying in %s: %s.", delay, err)
-		sleepCtx, sleepCancel = context.WithTimeout(ctx, delay)
-		<-sleepCtx.Done()
-		sleepCancel()
+	if ctx.Err() != nil {
+		return
 	}
+
+	svc := telemetry.NewService(db, version.Version)
+	svc.Run(ctx)
+}
+
+func setupDatabase(ctx context.Context, sqlDB *sql.DB, prometheus *prometheus.Service, server *server.Server, l *logrus.Entry) bool {
+	l.Infof("Migrating database...")
+	err := models.SetupDB(sqlDB, &models.SetupDBParams{
+		Logf:          l.Debugf,
+		Username:      *postgresDBUsernameF,
+		Password:      *postgresDBPasswordF,
+		SetupFixtures: models.SetupFixtures,
+	})
+	if err != nil {
+		l.Warnf("Failed to migrate database: %s.", err)
+		return false
+	}
+
+	l.Infof("Updating settings...")
+	if err = server.UpdateSettings(); err != nil {
+		l.Warnf("Settings problem: %s.", err)
+		return false
+	}
+
+	l.Infof("Checking Prometheus...")
+	if err = prometheus.Check(ctx); err != nil {
+		l.Warnf("Prometheus problem: %s.", err)
+		return false
+	}
+
+	l.Info("Setup completed.")
+	return true
 }
 
 func getQANClient(ctx context.Context, db *reform.DB) *qan.Client {
-	// no grpc.WithBlock()
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 		grpc.WithBackoffMaxDelay(time.Second),
 		grpc.WithUserAgent("pmm-managed/" + version.Version),
 	}
 
+	// Without grpc.WithBlock() DialContext returns an error only if something very wrong with address or options;
+	// it does not return an error of connection failure but tries to reconnect in the background.
 	conn, err := grpc.DialContext(ctx, *qanAPIAddrF, opts...)
 	if err != nil {
 		logrus.Fatalf("Failed to connect QAN API %s: %s.", *qanAPIAddrF, err)
@@ -406,19 +431,20 @@ func main() {
 	defer sqlDB.Close()
 	db := reform.NewDB(sqlDB, postgresql.Dialect, nil)
 
-	// try synchronously once, then retry in the background
-	setupParams := &models.SetupDBParams{
-		Logf:          l.Debugf,
-		Username:      *postgresDBUsernameF,
-		Password:      *postgresDBPasswordF,
-		SetupFixtures: models.SetupFixtures,
+	prometheus, err := prometheus.NewService(*prometheusConfigF, *promtoolF, db, *prometheusURLF)
+	if err != nil {
+		l.Panicf("Prometheus service problem: %+v", err)
 	}
-	if migrateErr := models.SetupDB(sqlDB, setupParams); migrateErr != nil {
+
+	server := server.NewServer(db, prometheus, os.Environ())
+
+	// try synchronously once, then retry in the background
+	setupL := logrus.WithField("component", "setup")
+	if !setupDatabase(ctx, sqlDB, prometheus, server, setupL) {
 		go func() {
-			l := l.WithField("component", "migrations")
+			const delay = 2 * time.Second
 			for {
-				const delay = time.Second
-				l.Warnf("Failed to migrate database, retrying in %s: %s.", delay, migrateErr)
+				setupL.Warnf("Retrying in %s.", delay)
 				sleepCtx, sleepCancel := context.WithTimeout(ctx, delay)
 				<-sleepCtx.Done()
 				sleepCancel()
@@ -427,40 +453,21 @@ func main() {
 					return
 				}
 
-				l.Infof("Migrating database...")
-				if migrateErr = models.SetupDB(sqlDB, setupParams); migrateErr == nil {
-					l.Infof("Done.")
+				if setupDatabase(ctx, sqlDB, prometheus, server, setupL) {
 					return
 				}
 			}
 		}()
 	}
 
-	prometheus, err := prometheus.NewService(*prometheusConfigF, *promtoolF, db, *prometheusURLF)
-	if err != nil {
-		l.Panicf("Prometheus service problem: %+v", err)
-	}
-	go func() {
-		const delay = 10 * time.Second
-		for ctx.Err() == nil {
-			err := prometheus.Check(ctx)
-			if err == nil {
-				return
-			}
-			l.Warnf("Prometheus problem, retrying in %s: %s.", delay, err)
-			sleepCtx, sleepCancel := context.WithTimeout(ctx, delay)
-			<-sleepCtx.Done()
-			sleepCancel()
-		}
-	}()
-
 	qanClient := getQANClient(ctx, db)
 	agentsRegistry := agents.NewRegistry(db, prometheus, qanClient)
 	logs := logs.New(version.Version)
 
 	deps := &serviceDependencies{
-		prometheus:     prometheus,
 		db:             db,
+		prometheus:     prometheus,
+		server:         server,
 		portsRegistry:  ports.NewRegistry(10000, 10999, nil),
 		agentsRegistry: agentsRegistry,
 		logs:           logs,

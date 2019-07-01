@@ -139,11 +139,6 @@ var databaseSchema = [][]string{
 			UNIQUE (agent_id, service_id)
 		)`,
 
-		`CREATE TABLE telemetry (
-			uuid VARCHAR PRIMARY KEY,
-			created_at TIMESTAMP NOT NULL
-		)`,
-
 		`CREATE TABLE action_results (
 			id VARCHAR NOT NULL,
 			pmm_agent_id VARCHAR CHECK (pmm_agent_id <> ''),
@@ -156,6 +151,13 @@ var databaseSchema = [][]string{
 
 			PRIMARY KEY (id)
 		)`,
+	},
+
+	2: {
+		`CREATE TABLE settings (
+			settings jsonb
+		)`,
+		`INSERT INTO settings (settings) VALUES ('{}')`,
 	},
 }
 
@@ -179,7 +181,7 @@ func OpenDB(name, username, password string) (*sql.DB, error) {
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return nil, errors.Wrap(err, "Failed to connect to PostgreSQL.")
+		return nil, errors.Wrap(err, "failed to create a connection pool to PostgreSQL")
 	}
 
 	db.SetMaxIdleConns(10)
@@ -246,6 +248,15 @@ func SetupDB(sqlDB *sql.DB, params *SetupDBParams) error {
 
 		if params.SetupFixtures == SkipFixtures {
 			return nil
+		}
+
+		// fill settings with defaults
+		s, err := GetSettings(tx)
+		if err != nil {
+			return err
+		}
+		if err = SaveSettings(tx, s); err != nil {
+			return err
 		}
 
 		if err = setupFixture1(tx.Querier, params.Username, params.Password); err != nil {

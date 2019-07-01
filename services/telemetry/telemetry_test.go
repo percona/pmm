@@ -17,58 +17,15 @@
 package telemetry
 
 import (
-	"context"
-	"os"
-	"strconv"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"gopkg.in/reform.v1"
-	"gopkg.in/reform.v1/dialects/postgresql"
-
-	"github.com/percona/pmm-managed/models"
-	"github.com/percona/pmm-managed/utils/testdb"
 )
 
-func TestIntegration(t *testing.T) {
-	if ok, _ := strconv.ParseBool(os.Getenv("INTEGRATION_TESTS")); !ok {
-		t.Skipf("Environment variable INTEGRATION_TESTS is not set. Skipping integration test.")
-	}
-
-	if os.Getenv(envURL) == "" {
-		t.Skipf("Environment variable %s is not set. Skipping integration test.", envURL)
-	}
-
-	uuid, err := generateUUID()
-	require.NoError(t, err)
-	s := NewService(uuid, "1.3.1")
-	assert.True(t, s.init())
-	assert.NoError(t, s.sendOnce(context.Background()))
-}
-
-func TestGetTelemetryUUID(t *testing.T) {
-	sqlDB := testdb.Open(t, models.SkipFixtures)
-	defer func() {
-		require.NoError(t, sqlDB.Close())
-	}()
-	db := reform.NewDB(sqlDB, postgresql.Dialect, reform.NewPrintfLogger(t.Logf))
-
-	// generate and set new UUID
-	generatedUUID, err := GetTelemetryUUID(db)
-	require.NoError(t, err)
-	assert.NotEmpty(t, generatedUUID)
-
-	// get UUID
-	newUUID, err := GetTelemetryUUID(db)
-	require.NoError(t, err)
-	assert.Equal(t, generatedUUID, newUUID)
-}
-
 func TestMakePayload(t *testing.T) {
-	s := NewService("ECAB81E4C47D456CA9EC20AEBF91AB44", "1.3.1")
+	s := NewService(nil, "1.3.1")
 	expected := "ECAB81E4C47D456CA9EC20AEBF91AB44;OS;\nECAB81E4C47D456CA9EC20AEBF91AB44;PMM;1.3.1\n"
-	assert.Equal(t, expected, string(s.makePayload())) // \n are important
+	assert.Equal(t, expected, string(s.makePayload("ECAB81E4C47D456CA9EC20AEBF91AB44"))) // \n are important
 }
 
 func TestGetLinuxDistribution(t *testing.T) {
