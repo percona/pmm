@@ -1,28 +1,53 @@
---------------------------------------------------------------------------------
-Adding PostgreSQL  Service Monitoring
---------------------------------------------------------------------------------
 
 .. _pmm.qan.postgres.conf:
 
-Understanding PostgreSQL metrics service
-===============================================================================
+--------------------------------------------------------------------------------
+PostgreSQL
+--------------------------------------------------------------------------------
 
-Monitoring |postgresql| metrics with the `postgres_exporter <https://github.com/wrouesnel/postgres_exporter>`_ is enabled by ``pmm-admin add postgresql`` command. It will set up both PostgreSQL and Linux metrics on a host.
+|pmm| provides both metrics and queries monitoring for PostgreSQL. Queries
+monitoring needs additional ``pg_stat_statements`` extension to be installed
+and enabled.
 
-``pmm-admin`` supports passing |postgresql| connection information via following flags:
+.. _pmm.qan.postgres.conf-extension:
 
-==========================    =================================================
-Flag                          Description 
-==========================    =================================================
-``--host``                    |postgresql| host
-``--password``                |postgresql| password
-``--port``                    |postgresql| port
-``--user``                    |postgresql| user
-==========================    =================================================
+`Adding PostgreSQL extension for queries monitoring <services-mysql.html#pmm-qan-postgres-conf-extension>`_
+------------------------------------------------------------------------------------------------------------
 
-An example command line would look like this::
+The needed extension is ``pg_stat_statements``. It is included in the official
+PostgreSQL contrib package, so you have to install this package first with your
+Linux distribution package manager. Particularly, on Debian-based systems it is
+done as follows::
 
-  pmm-admin add postgresql --host=localhost --password='secret' --port=5432 --user=pmm_user
+   sudo apt-get install postgresql-contrib
+
+Now add/edit the following three lines in your ``postgres.conf`` file::
+
+      shared_preload_libraries = 'pg_stat_statements'
+      track_activity_query_size = 2048
+      pg_stat_statements.track = all
+
+When the editing is over, restart PostgreSQL.
+
+Finally, the following statement should be executed in the PostgreSQL shell::
+
+   CREATE EXTENSION pg_stat_statements SCHEMA public;
+
+.. _pmm.qan.postgres.conf-add:
+
+`Adding PostgreSQL queries and metrics monitoring <services-mysql.html#pmm-qan-postgres-conf-add>`_
+----------------------------------------------------------------------------------------------------
+
+You can add PostgreSQL metrics and queries monitoring with the following command::
+
+   # pmm-admin add postgresql --username=pmm_user --password=secret 127.0.0.1:5432
+
+where username and password parameters should contain actual PostgreSQL user
+credentials (for more information about ``pmm-admin add``, see :ref:`pmm-admin.add`).
+
+As a result, you should be able to see data in PostgreSQL Overview dashboard,
+and also Query Analytics should contain PostgreSQL queries, if needed extension
+was installed and configured correctly.
 
 .. note:: Capturing read and write time statistics is possible only if
    ``track_io_timing`` setting is enabled. This can be done either in
@@ -34,8 +59,8 @@ An example command line would look like this::
 
 .. _pmm.qan.postgres.conf.essential-permission.setting-up:
 
-Setting Up the Required Permissions
---------------------------------------------------------------------------------
+`Setting up the required user permissions and authentication <services-mysql.html#pmm-qan-postgres-conf-essential-permission.setting-up>`_
+------------------------------------------------------------------------------------------------------------------------------------------
 
 Percona recommends that a |postgresql| user be configured for ``SUPERUSER``
 level access, in order to gather the maximum amount of data with a minimum
@@ -48,5 +73,10 @@ standalone |postgresql| installation::
    an Amazon RDS instance, the command should look as follows::
 
       CREATE USER pmm_user WITH rds_superuser ENCRYPTED PASSWORD 'secret';
+
+.. note:: Specified PostgreSQL user should have enabled local password
+   authentication to enable access for |pmm|. This can be set in the
+   ``pg_hba.conf`` configuration file changing ``ident`` to ``md5`` for the 
+   correspondent user.
 
 .. include:: ../.res/replace.txt
