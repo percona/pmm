@@ -514,7 +514,7 @@ type SparklineItems0 struct {
 	MLocalBlksReadPerSec float32 `json:"m_local_blks_read_per_sec,omitempty"`
 
 	// Total number of local blocks written by the statement.
-	MLocalBlksWrittenPerSecPerSec float32 `json:"m_local_blks_written_per_sec_per_sec,omitempty"`
+	MLocalBlksWrittenPerSec float32 `json:"m_local_blks_written_per_sec,omitempty"`
 
 	// The time to acquire locks in seconds.
 	MLockTimeSumPerSec float32 `json:"m_lock_time_sum_per_sec,omitempty"`

@@ -128,7 +128,7 @@ message Point {
   // Total number of local blocks dirtied by the statement.
   float m_local_blks_dirtied_per_sec = 47;
   // Total number of local blocks written by the statement.
-  float m_local_blks_written_per_sec_per_sec = 48;
+  float m_local_blks_written_per_sec = 48;
   // Total number of temp blocks read by the statement.
   float m_temp_blks_read_per_sec = 49;
   // Total number of temp blocks written by the statement.

@@ -395,7 +395,7 @@
                               "type": "number",
                               "format": "float"
                             },
-                            "m_local_blks_written_per_sec_per_sec": {
+                            "m_local_blks_written_per_sec": {
                               "description": "Total number of local blocks written by the statement.",
                               "type": "number",
                               "format": "float"
@@ -886,7 +886,7 @@
                         "type": "number",
                         "format": "float"
                       },
-                      "m_local_blks_written_per_sec_per_sec": {
+                      "m_local_blks_written_per_sec": {
                         "description": "Total number of local blocks written by the statement.",
                         "type": "number",
                         "format": "float"
