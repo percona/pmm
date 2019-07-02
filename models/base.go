@@ -130,7 +130,7 @@ func getPointFieldsList(point *qanpb.Point, fields []string) []interface{} {
 		"m_local_blks_hit_per_sec":             &point.MLocalBlksHitPerSec,
 		"m_local_blks_read_per_sec":            &point.MLocalBlksReadPerSec,
 		"m_local_blks_dirtied_per_sec":         &point.MLocalBlksDirtiedPerSec,
-		"m_local_blks_written_per_sec":         &point.MLocalBlksWrittenPerSecPerSec,
+		"m_local_blks_written_per_sec":         &point.MLocalBlksWrittenPerSec,
 		"m_temp_blks_read_per_sec":             &point.MTempBlksReadPerSec,
 		"m_temp_blks_written_per_sec":          &point.MTempBlksWrittenPerSec,
 		"m_blk_read_time_per_sec":              &point.MBlkReadTimePerSec,
